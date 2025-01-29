@@ -23,7 +23,6 @@ from RecoLocalCalo.EcalRecProducers.ecalLaserAPDPNRatiosGPUESProducer_cfi import
 from RecoLocalCalo.EcalRecProducers.ecalLaserAPDPNRatiosRefGPUESProducer_cfi import ecalLaserAPDPNRatiosRefGPUESProducer
 from RecoLocalCalo.EcalRecProducers.ecalLaserAlphasGPUESProducer_cfi import ecalLaserAlphasGPUESProducer
 from RecoLocalCalo.EcalRecProducers.ecalLinearCorrectionsGPUESProducer_cfi import ecalLinearCorrectionsGPUESProducer
-from RecoLocalCalo.EcalRecProducers.ecalRecHitParametersGPUESProducer_cfi import ecalRecHitParametersGPUESProducer
 
 # ECAL rechits running on GPU
 from RecoLocalCalo.EcalRecProducers.ecalRecHitGPU_cfi import ecalRecHitGPU as _ecalRecHitGPU
@@ -60,7 +59,6 @@ gpu.toReplaceWith(ecalCalibratedRecHitTask, cms.Task(
   ecalLaserAPDPNRatiosRefGPUESProducer,
   ecalLaserAlphasGPUESProducer,
   ecalLinearCorrectionsGPUESProducer,
-  ecalRecHitParametersGPUESProducer,
   # ECAL rechits running on GPU
   ecalRecHitGPU,
   # copy the rechits from GPU to CPU
@@ -74,13 +72,6 @@ from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
 # ECAL conditions used by the rechit producer running on the accelerator
 from RecoLocalCalo.EcalRecProducers.ecalRecHitConditionsESProducer_cfi import ecalRecHitConditionsESProducer
-from RecoLocalCalo.EcalRecProducers.ecalRecHitParametersESProducer_cfi import ecalRecHitParametersESProducer
-
-ecalRecHitParametersSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('JobConfigurationGPURecord'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
 
 # ECAL rechit producer running on the accelerator
 from RecoLocalCalo.EcalRecProducers.ecalRecHitProducerPortable_cfi import ecalRecHitProducerPortable as _ecalRecHitProducerPortable
@@ -100,7 +91,6 @@ from RecoLocalCalo.EcalRecProducers.ecalRecHitSoAToLegacy_cfi import ecalRecHitS
 alpaka.toReplaceWith(ecalCalibratedRecHitTask, cms.Task(
   # ECAL conditions and parameters used by the rechit producer running on the accelerator
   ecalRecHitConditionsESProducer,
-  ecalRecHitParametersESProducer,
   # ECAL rechit producer running on device
   ecalRecHitPortable,
   # ECAL rechit producer running on CPU, or convert the rechits from SoA to legacy format

@@ -46,7 +46,7 @@ namespace mkfit {
       MPlexQF msRad;
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
-        msRad.At(n, 0, 0) = std::hypot(par.constAt(n, 0, 0), par.constAt(n, 1, 0));
+        msRad.At(n, 0, 0) = hipo(par.constAt(n, 0, 0), par.constAt(n, 1, 0));
       }
 
       propagateHelixToRMPlex(
@@ -84,9 +84,9 @@ namespace mkfit {
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         const float slope = std::tan(m_Par[iC].constAt(n, 5, 0));
-        //      msZ.At(n, 0, 0) = ( Config::beamspotz0 + slope * ( Config::beamspotr0 - std::hypot(m_Par[iC].constAt(n, 0, 0), m_Par[iC].constAt(n, 1, 0))) + slope * slope * m_Par[iC].constAt(n, 2, 0) ) / ( 1+slope*slope); // PCA w.r.t. z0, r0
+        //      msZ.At(n, 0, 0) = ( Config::beamspotz0 + slope * ( Config::beamspotr0 - hipo(m_Par[iC].constAt(n, 0, 0), m_Par[iC].constAt(n, 1, 0))) + slope * slope * m_Par[iC].constAt(n, 2, 0) ) / ( 1+slope*slope); // PCA w.r.t. z0, r0
         msZ.At(n, 0, 0) = (slope * (slope * m_Par[iC].constAt(n, 2, 0) -
-                                    std::hypot(m_Par[iC].constAt(n, 0, 0), m_Par[iC].constAt(n, 1, 0)))) /
+                                    hipo(m_Par[iC].constAt(n, 0, 0), m_Par[iC].constAt(n, 1, 0)))) /
                           (1 + slope * slope);  // PCA to origin
       }
 

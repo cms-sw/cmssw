@@ -3,13 +3,14 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "CondFormats/EcalObjects/interface/EcalRecHitParameters.h"
 #include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitConditionsDevice.h"
-#include "CondFormats/EcalObjects/interface/alpaka/EcalRecHitParametersDevice.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalRecHitDeviceCollection.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalUncalibratedRecHitDeviceCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Utilities/interface/HostDeviceConstant.h"
 
 #include "DeclsForKernels.h"
 #include "KernelHelpers.h"
@@ -19,8 +20,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
 
-  ALPAKA_STATIC_ACC_MEM_CONSTANT constexpr float ip10[] = {
-      1.e5f, 1.e4f, 1.e3f, 1.e2f, 1.e1f, 1.e0f, 1.e-1f, 1.e-2f, 1.e-3f, 1.e-4};
+  HOST_DEVICE_CONSTANT float ip10[] = {1.e5f, 1.e4f, 1.e3f, 1.e2f, 1.e1f, 1.e0f, 1.e-1f, 1.e-2f, 1.e-3f, 1.e-4};
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool checkUncalibRecHitFlag(uint32_t const flags, EcalUncalibratedRecHit::Flags flag) {
     return flags & (0x1 << flag);
@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                                 uint32_t* flagBits,
                                 uint32_t* extra,
                                 EcalRecHitConditionsDevice::ConstView conditionsDev,
-                                EcalRecHitParametersDevice::Product const* parametersDev,
+                                EcalRecHitParameters const* parametersDev,
                                 // time, used for time dependent corrections
                                 edm::TimeValue_t const& eventTime,
                                 // configuration
@@ -61,7 +61,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                                   EcalUncalibratedRecHitDeviceCollection::ConstView uncalibRecHits,
                                   EcalRecHitDeviceCollection::View recHits,
                                   EcalRecHitConditionsDevice::ConstView conditionsDev,
-                                  EcalRecHitParametersDevice::Product const* parametersDev,
+                                  EcalRecHitParameters const* parametersDev,
                                   // time, used for time dependent corrections
                                   edm::TimeValue_t const& eventTime,
                                   ConfigurationParameters const& configParams) const {
@@ -110,7 +110,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
                                   EcalRecHitDeviceCollection::View ebRecHits,
                                   EcalRecHitDeviceCollection::View eeRecHits,
                                   EcalRecHitConditionsDevice::ConstView conditionsDev,
-                                  EcalRecHitParametersDevice::Product const* parametersDev,
+                                  EcalRecHitParameters const* parametersDev,
                                   // time, used for time dependent corrections
                                   edm::TimeValue_t const& eventTime,
                                   ConfigurationParameters const& configParams) const {

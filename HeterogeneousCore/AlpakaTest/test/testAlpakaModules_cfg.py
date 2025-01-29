@@ -92,6 +92,7 @@ process.alpakaGlobalProducerMoveToDeviceCache = cms.EDProducer("TestAlpakaGlobal
     y = cms.int32(42),
     z = cms.int32(52),
 )
+process.alpakaGlobalProducerImplicitCopyToDevice = cms.EDProducer("TestAlpakaGlobalProducerImplicitCopyToDevice@alpaka")
 process.alpakaStreamProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
     source = cms.InputTag("intProduct"),
     eventSetupSource = cms.ESInputTag("alpakaESProducerB", "explicitLabel"),
@@ -144,6 +145,13 @@ process.alpakaGlobalConsumerMoveToDeviceCache = process.alpakaGlobalConsumer.clo
     source = "alpakaGlobalProducerMoveToDeviceCache",
     expectXvalues = cms.vdouble([32]*10)
 )
+from HeterogeneousCore.AlpakaTest.modules import TestAlpakaVerifyObjectOnDevice_alpaka
+process.alpakaGlobalConsumerImplicitCopyToDevice = TestAlpakaVerifyObjectOnDevice_alpaka(
+    source = "alpakaGlobalProducerImplicitCopyToDevice"
+)
+process.alpakaGlobalConsumerImplicitCopyToDeviceInstance = TestAlpakaVerifyObjectOnDevice_alpaka(
+    source = ("alpakaGlobalProducerImplicitCopyToDevice", "instance")
+)
 process.alpakaStreamConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     source = cms.InputTag("alpakaStreamProducer"),
     expectSize = cms.int32(5),
@@ -174,8 +182,10 @@ _postfixes = ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESPro
               "ESProducerNull",
               "GlobalProducer", "GlobalProducerE",
               "GlobalProducerCopyToDeviceCache", "GlobalProducerMoveToDeviceCache",
+              "GlobalProducerImplicitCopyToDevice",
               "StreamProducer", "StreamInstanceProducer",
               "StreamSynchronizingProducer", "StreamSynchronizingProducerToDevice",
+              "GlobalConsumerImplicitCopyToDevice", "GlobalConsumerImplicitCopyToDeviceInstance",
               "GlobalDeviceConsumer", "StreamDeviceConsumer",
               "StreamSynchronizingProducerToDeviceDeviceConsumer1", "StreamSynchronizingProducerToDeviceDeviceConsumer2",
               "NullESConsumer"]
@@ -240,6 +250,7 @@ process.t = cms.Task(
     process.alpakaGlobalProducerE,
     process.alpakaGlobalProducerCopyToDeviceCache,
     process.alpakaGlobalProducerMoveToDeviceCache,
+    process.alpakaGlobalProducerImplicitCopyToDevice,
     process.alpakaStreamProducer,
     process.alpakaStreamInstanceProducer,
     process.alpakaStreamSynchronizingProducer,
@@ -251,6 +262,8 @@ process.p = cms.Path(
     process.alpakaGlobalConsumerE+
     process.alpakaGlobalConsumerCopyToDeviceCache+
     process.alpakaGlobalConsumerMoveToDeviceCache+
+    process.alpakaGlobalConsumerImplicitCopyToDevice+
+    process.alpakaGlobalConsumerImplicitCopyToDeviceInstance+
     process.alpakaStreamConsumer+
     process.alpakaStreamDeviceConsumer+
     process.alpakaStreamInstanceConsumer+

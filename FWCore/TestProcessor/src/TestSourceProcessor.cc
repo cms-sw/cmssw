@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/maker/InputSourceFactory.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
 
@@ -57,7 +58,7 @@ namespace {
   // ---------------------------------------------------------------
   std::unique_ptr<InputSource> makeInput(unsigned int moduleIndex,
                                          ParameterSet& params,
-                                         std::shared_ptr<ProductRegistry> preg,
+                                         std::shared_ptr<SignallingProductRegistry> preg,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                                          std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
@@ -97,7 +98,8 @@ namespace {
     InputSourceDescription isdesc(
         md, preg, branchIDListHelper, processBlockHelper, thinnedAssociationsHelper, areg, -1, -1, 0, allocations);
 
-    return std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+    return std::unique_ptr<InputSource>(
+        InputSourceFactory::get()->makeInputSource(*main_input, *preg, isdesc).release());
   }
 }  // namespace
 
@@ -123,7 +125,7 @@ namespace edm::test {
     //initialize the services
     auto& serviceSets = procDesc->getServicesPSets();
     ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError, true);
-    serviceToken_ = items.addCPRandTNS(*psetPtr, token);
+    serviceToken_ = items.addTNS(*psetPtr, token);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -141,7 +143,7 @@ namespace edm::test {
 
     {
       // initialize the input source
-      auto tempReg = std::make_shared<ProductRegistry>();
+      auto tempReg = std::make_shared<SignallingProductRegistry>();
       auto sourceID = ModuleDescription::getUniqueID();
 
       ServiceRegistry::Operate operate(serviceToken_);
@@ -172,22 +174,32 @@ namespace edm::test {
 
     for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
       // Reusable event principal
-      auto ep = std::make_shared<EventPrincipal>(
-          preg_, branchIDListHelper_, thinnedAssociationsHelper_, *processConfiguration_, historyAppender_.get(), index);
+      auto ep = std::make_shared<EventPrincipal>(preg_,
+                                                 edm::productResolversFactory::makePrimary,
+                                                 branchIDListHelper_,
+                                                 thinnedAssociationsHelper_,
+                                                 *processConfiguration_,
+                                                 historyAppender_.get(),
+                                                 index);
       principalCache_.insert(std::move(ep));
     }
     for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
-      auto rp = std::make_unique<RunPrincipal>(
-          preg_, *processConfiguration_, historyAppender_.get(), index, true, &mergeableRunProductProcesses_);
+      auto rp = std::make_unique<RunPrincipal>(preg_,
+                                               edm::productResolversFactory::makePrimary,
+                                               *processConfiguration_,
+                                               historyAppender_.get(),
+                                               index,
+                                               &mergeableRunProductProcesses_);
       principalCache_.insert(std::move(rp));
     }
     for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
-      auto lp =
-          std::make_unique<LuminosityBlockPrincipal>(preg_, *processConfiguration_, historyAppender_.get(), index);
+      auto lp = std::make_unique<LuminosityBlockPrincipal>(
+          preg_, edm::productResolversFactory::makePrimary, *processConfiguration_, historyAppender_.get(), index);
       principalCache_.insert(std::move(lp));
     }
     {
-      auto pb = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_);
+      auto pb = std::make_unique<ProcessBlockPrincipal>(
+          preg_, edm::productResolversFactory::makePrimary, *processConfiguration_);
       principalCache_.insert(std::move(pb));
     }
 

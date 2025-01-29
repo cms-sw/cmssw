@@ -26,6 +26,7 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/ServiceRegistry/interface/connect_but_block_self.h"
 
 // forward declarations
 namespace edm {
@@ -38,6 +39,16 @@ namespace edm {
 
     SignallingProductRegistry(SignallingProductRegistry const&) = delete;             // Disallow copying and moving
     SignallingProductRegistry& operator=(SignallingProductRegistry const&) = delete;  // Disallow copying and moving
+
+    template <class T>
+    void watchProductAdditions(const T& iFunc) {
+      serviceregistry::connect_but_block_self(productAddedSignal_, iFunc);
+    }
+    template <class T, class TMethod>
+    void watchProductAdditions(T const& iObj, TMethod iMethod) {
+      using std::placeholders::_1;
+      serviceregistry::connect_but_block_self(productAddedSignal_, std::bind(iMethod, iObj, _1));
+    }
 
   private:
     void addCalled(BranchDescription const&, bool) override;

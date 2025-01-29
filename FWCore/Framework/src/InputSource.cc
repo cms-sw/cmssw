@@ -217,7 +217,7 @@ namespace edm {
     return std::pair<SharedResourcesAcquirer*, std::recursive_mutex*>(nullptr, nullptr);
   }
 
-  void InputSource::registerProducts() {}
+  void InputSource::registerProducts(SignallingProductRegistry&) {}
 
   // Return a dummy file block.
   std::shared_ptr<FileBlock> InputSource::readFile() {

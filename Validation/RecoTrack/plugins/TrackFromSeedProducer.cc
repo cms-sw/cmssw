@@ -50,7 +50,7 @@
 class TrackFromSeedProducer : public edm::global::EDProducer<> {
 public:
   explicit TrackFromSeedProducer(const edm::ParameterSet&);
-  ~TrackFromSeedProducer() override;
+  ~TrackFromSeedProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -67,14 +67,6 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig)
@@ -88,15 +80,13 @@ TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig)
   produces<reco::TrackExtraCollection>();
 
   // read parametes
-  edm::InputTag seedsTag(iConfig.getParameter<edm::InputTag>("src"));
-  edm::InputTag beamSpotTag(iConfig.getParameter<edm::InputTag>("beamSpot"));
+  const edm::InputTag seedsTag(iConfig.getParameter<edm::InputTag>("src"));
+  const edm::InputTag beamSpotTag(iConfig.getParameter<edm::InputTag>("beamSpot"));
 
   //consumes
   seedsToken = consumes<edm::View<TrajectorySeed> >(seedsTag);
   beamSpotToken = consumes<reco::BeamSpot>(beamSpotTag);
 }
-
-TrackFromSeedProducer::~TrackFromSeedProducer() {}
 
 // ------------ method called to produce the data  ------------
 void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -189,13 +179,12 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
   iEvent.put(std::move(trackextras));
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void TrackFromSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<std::string>("TTRHBuilder", {});
+  desc.add<edm::InputTag>("src", edm::InputTag(""));
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag(""));
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

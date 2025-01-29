@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/maker/WorkerMaker.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 
@@ -65,7 +65,7 @@ void testmaker2::maker2Test()
 
   edm::ExceptionToActionTable table;
 
-  edm::ProductRegistry preg;
+  edm::SignallingProductRegistry preg;
   edm::PreallocationConfiguration prealloc;
   auto pc =
       std::make_shared<ProcessConfiguration>("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());

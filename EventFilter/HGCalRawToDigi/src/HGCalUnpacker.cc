@@ -1,708 +1,355 @@
-/****************************************************************************
- *
- * This is a part of HGCAL offline software.
- * Authors:
- *   Yulun Miao, Northwestern University
- *   Huilin Qu, CERN
- *   Laurent Forthomme, CERN
- *
- ****************************************************************************/
-
 #include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
-
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-template <class D>
-HGCalUnpacker<D>::HGCalUnpacker(HGCalUnpackerConfig config)
-    : config_(config),
-      channelData_(config_.channelMax),
-      commonModeIndex_(config_.channelMax),
-      commonModeData_(config_.commonModeMax) {}
+#include <array>
 
-template <class D>
-void HGCalUnpacker<D>::parseSLink(
-    const std::vector<uint32_t>& inputArray,
-    const std::function<uint16_t(uint16_t sLink, uint8_t captureBlock, uint8_t econd)>& enabledERXMapping,
-    const std::function<D(HGCalElectronicsId elecID)>& logicalMapping) {
-  uint16_t sLink = 0;
+using namespace hgcal;
 
-  channelDataSize_ = 0;
-  commonModeDataSize_ = 0;
-  badECOND_.clear();
+uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
+                                    const FEDRawData& fed_data,
+                                    const HGCalMappingModuleIndexer& moduleIndexer,
+                                    const HGCalConfiguration& config,
+                                    hgcaldigi::HGCalDigiHost& digis,
+                                    hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
+                                    bool headerOnlyMode) {
+  // ReadoutSequence object for this FED
+  const auto& fedReadoutSequence = moduleIndexer.getFEDReadoutSequences()[fedId];
+  // Configuration object for this FED
+  const auto& fedConfig = config.feds[fedId];
 
-  for (uint32_t iword = 0; iword < inputArray.size();) {  // loop through the S-Link
-    //----- parse the S-Link header
-    if (((inputArray[iword] >> kSLinkBOEShift) & kSLinkBOEMask) != config_.sLinkBOE)  // sanity check
-      throw cms::Exception("CorruptData")
-          << "Expected a S-Link header at word " << std::dec << iword << "/0x" << std::hex << iword << " (BOE: 0x"
-          << config_.sLinkBOE << "), got 0x" << inputArray[iword] << ".";
+  // helper functions
+  auto to_32b_words = [](const uint64_t* ptr_64b) {
+    auto* ptr_32b = reinterpret_cast<const uint32_t*>(ptr_64b);
+    return std::array<uint32_t, 2>{{ptr_32b[1], ptr_32b[0]}};
+  };
 
-    iword += 4;  // length of the S-Link header (128 bits)
-
-    LogDebug("HGCalUnpack") << "SLink=" << sLink;
-
-    //----- parse the S-Link body
-    for (uint8_t captureBlock = 0; captureBlock < config_.sLinkCaptureBlockMax;
-         captureBlock++) {  // loop through all capture blocks
-      //----- parse the capture block header
-      if (((inputArray[iword] >> kCaptureBlockReservedShift) & kCaptureBlockReservedMask) !=
-          config_.captureBlockReserved)  // sanity check
-        throw cms::Exception("CorruptData")
-            << "Expected a capture block header at word " << std::dec << iword << "/0x" << std::hex << iword
-            << " (reserved word: 0x" << config_.captureBlockReserved << "), got 0x" << inputArray[iword] << ".";
-
-      const uint64_t captureBlockHeader = ((uint64_t)inputArray[iword] << 32) | ((uint64_t)inputArray[iword + 1]);
-      iword += 2;  // length of capture block header (64 bits)
-
-      LogDebug("HGCalUnpack") << "Capture block=" << (int)captureBlock << ", capture block header=0x" << std::hex
-                              << captureBlockHeader;
-
-      //----- parse the capture block body
-      for (uint8_t econd = 0; econd < config_.captureBlockECONDMax; econd++) {  // loop through all ECON-Ds
-        if (((captureBlockHeader >> (3 * econd)) & kCaptureBlockECONDStatusMask) >= 0b100)
-          continue;  // only pick active ECON-Ds
-
-        //----- parse the ECON-D header
-        // (the second word of ECON-D header contains no information for unpacking, use only the first one)
-        if (((inputArray[iword] >> kHeaderShift) & kHeaderMask) != config_.econdHeaderMarker)  // sanity check
-          throw cms::Exception("CorruptData")
-              << "Expected a ECON-D header at word " << std::dec << iword << "/0x" << std::hex << iword
-              << " (marker: 0x" << config_.econdHeaderMarker << "), got 0x" << inputArray[iword] << ".";
-
-        const auto& econdHeader = inputArray[iword];
-        iword += 2;  // length of ECON-D header (2 * 32 bits)
-
-        LogDebug("HGCalUnpack") << "ECON-D #" << (int)econd << ", first word of ECON-D header=0x" << std::hex
-                                << econdHeader;
-
-        //----- extract the payload length
-        const uint32_t payloadLength = (econdHeader >> kPayloadLengthShift) & kPayloadLengthMask;
-        if (payloadLength > config_.payloadLengthMax)  // if payload length too big
-          throw cms::Exception("CorruptData") << "Unpacked payload length=" << payloadLength
-                                              << " exceeds the maximal length=" << config_.payloadLengthMax;
-
-        LogDebug("HGCalUnpack") << "ECON-D #" << (int)econd << ", payload length=" << payloadLength;
-        //Quality check
-        if ((((captureBlockHeader >> (3 * econd)) & kCaptureBlockECONDStatusMask) != 0b000) ||
-            (((econdHeader >> kHTShift) & kHTMask) >= 0b10) || (((econdHeader >> kEBOShift) & kEBOMask) >= 0b10) ||
-            (((econdHeader >> kMatchShift) & kMatchMask) == 0) ||
-            (((econdHeader >> kTruncatedShift) & kTruncatedMask) == 1)) {  // bad ECOND
-          LogDebug("HGCalUnpack") << "ECON-D failed quality check, HT=" << (econdHeader >> kHTShift & kHTMask)
-                                  << ", EBO=" << (econdHeader >> kEBOShift & kEBOMask)
-                                  << ", M=" << (econdHeader >> kMatchShift & kMatchMask)
-                                  << ", T=" << (econdHeader >> kTruncatedShift & kTruncatedMask);
-          badECOND_.emplace_back(iword - 2);
-          iword += payloadLength;  // skip the current ECON-D (using the payload length parsed above)
-
-          if (iword % 2 != 0) {  //TODO: check this
-            LogDebug("HGCalUnpacker") << "Padding ECON-D payload to 2 32-bit words (remainder: " << (iword % 2) << ").";
-            iword += 1;
-          }
-          continue;  // go to the next ECON-D
-        }
-        const uint32_t econdBodyStart = iword;  // for the ECON-D length check
-        //----- parse the ECON-D body
-        if (((econdHeader >> kPassThroughShift) & kPassThroughMask) == 0) {
-          // standard ECON-D
-          LogDebug("HGCalUnpack") << "Standard ECON-D";
-          const auto enabledERX = enabledERXMapping(sLink, captureBlock, econd);
-          for (uint8_t erx = 0; erx < config_.econdERXMax; erx++) {
-            //loop through eRx
-            //pick active eRx
-            if ((enabledERX >> erx & 1) == 0)
-              continue;
-
-            //----- parse the eRX subpacket header
-            //common mode
-            LogDebug("HGCalUnpack") << "ECON-D:eRx=" << (int)econd << ":" << (int)erx
-                                    << ", first word of the eRx header=0x" << std::hex << inputArray[iword] << "\n"
-                                    << "  extracted common mode 0=0x" << std::hex
-                                    << ((inputArray[iword] >> kCommonmode0Shift) & kCommonmode0Mask) << std::dec
-                                    << ", saved at " << commonModeDataSize_ << "\n"
-                                    << "  extracted common mode 1=0x" << std::hex
-                                    << ((inputArray[iword] >> kCommonmode1Shift) & kCommonmode1Mask) << std::dec
-                                    << ", saved at " << (commonModeDataSize_ + 1);
-            commonModeData_[commonModeDataSize_] = (inputArray[iword] >> kCommonmode0Shift) & kCommonmode0Mask;
-            commonModeData_[commonModeDataSize_ + 1] = (inputArray[iword] >> kCommonmode1Shift) & kCommonmode1Mask;
-            if ((erx % 2 == 0 && (enabledERX >> (erx + 1) & 1) == 0) ||
-                (erx % 2 == 1 && (enabledERX >> (erx - 1) & 1) == 0)) {
-              commonModeDataSize_ += 2;
-              commonModeData_[commonModeDataSize_] = commonModeData_[commonModeDataSize_ - 2];
-              commonModeData_[commonModeDataSize_ + 1] = commonModeData_[commonModeDataSize_ - 1];
-              LogDebug("HGCalUnpack") << "half ROC turned on, padding to 4 common modes\n"
-                                      << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 2] << std::dec
-                                      << " saved at " << commonModeDataSize_ << "\n"
-                                      << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 1] << std::dec
-                                      << " saved at " << commonModeDataSize_ + 1;
-            }
-            // empty check
-            if (((inputArray[iword] >> kFormatShift) & kFormatMask) == 1) {  // empty
-              LogDebug("HGCalUnpack") << "eRx empty";
-              iword += 1;  // length of an empty eRx header (32 bits)
-              continue;    // go to the next eRx
-            }
-            // regular mode
-            const uint64_t erxHeader = ((uint64_t)inputArray[iword] << 32) | ((uint64_t)inputArray[iword + 1]);
-            iword += 2;  // length of a standard eRx header (2 * 32 bits)
-            LogDebug("HGCalUnpack") << "whole eRx header=0x" << std::hex << erxHeader;
-
-            //----- parse the eRx subpacket body
-            uint32_t bitCounter = 0;
-            for (uint8_t channel = 0; channel < config_.erxChannelMax; channel++) {  // loop through all channels in eRx
-              if (((erxHeader >> channel) & 1) == 0)
-                continue;  // only pick active channels
-              const HGCalElectronicsId id(true, sLink, captureBlock, econd, erx, channel);
-              commonModeIndex_[channelDataSize_] = commonModeDataSize_ / 4 * 4;
-              const uint32_t tempIndex = bitCounter / 32 + iword;
-              const uint8_t tempBit = bitCounter % 32;
-              const uint32_t temp =
-                  (tempBit == 0) ? inputArray[tempIndex]
-                                 : (inputArray[tempIndex] << tempBit) | (inputArray[tempIndex + 1] >> (32 - tempBit));
-              const uint8_t code = temp >> 28;
-              // use if and else here
-              channelData_[channelDataSize_] = HGCROCChannelDataFrame<D>(
-                  logicalMapping(id),
-                  ((temp << erxBodyLeftShift_[code]) >> erxBodyRightShift_[code]) & erxBodyMask_[code]);
-              bitCounter += erxBodyBits_[code];
-              if (code == 0b0010)
-                channelData_[channelDataSize_].fillFlag1(1);
-              LogDebug("HGCalUnpack") << "Word " << channelDataSize_ << ", ECON-D:eRx:channel=" << (int)econd << ":"
-                                      << (int)erx << ":" << (int)channel << "\n"
-                                      << "  assigned common mode index=" << commonModeIndex_.at(channelDataSize_)
-                                      << "\n"
-                                      << "  full word readout=0x" << std::hex << temp << std::dec << ", code=0x"
-                                      << std::hex << (int)code << std::dec << "\n"
-                                      << "  extracted channel data=0x" << std::hex
-                                      << channelData_[channelDataSize_].raw();
-              channelDataSize_++;
-            }
-            // pad to the whole word
-            iword += bitCounter / 32;
-            if (bitCounter % 32 != 0)
-              iword += 1;
-
-            if (commonModeDataSize_ + 1 > config_.commonModeMax)
-              throw cms::Exception("HGCalUnpack") << "Too many common mode data unpacked: " << (commonModeDataSize_ + 1)
-                                                  << " >= " << config_.commonModeMax << ".";
-            commonModeDataSize_ += 2;
-            // eRx subpacket has no trailer
-          }
-        } else {
-          // passthrough ECON-D
-          LogDebug("HGCalUnpack") << "Passthrough ECON-D";
-          const auto enabledERX = enabledERXMapping(sLink, captureBlock, econd);
-          for (uint8_t erx = 0; erx < config_.econdERXMax; erx++) {  // loop through all eRxs
-            if ((enabledERX >> erx & 1) == 0)
-              continue;  // only pick active eRxs
-
-            //----- eRX subpacket header
-            // common mode
-            uint32_t temp = inputArray[iword];
-            LogDebug("HGCalUnpack") << "ECON-D:eRx=" << (int)econd << ":" << (int)erx
-                                    << ", first word of the eRx header=0x" << std::hex << temp << std::dec << "\n"
-                                    << "  extracted common mode 0=0x" << std::hex
-                                    << ((temp >> kCommonmode0Shift) & kCommonmode0Mask) << std::dec << ", saved at "
-                                    << commonModeDataSize_ << "\n"
-                                    << "  extracted common mode 1=0x" << std::hex
-                                    << ((temp >> kCommonmode1Shift) & kCommonmode1Mask) << std::dec << ", saved at "
-                                    << (commonModeDataSize_ + 1);
-            commonModeData_[commonModeDataSize_] = (temp >> kCommonmode0Shift) & kCommonmode0Mask;
-            commonModeData_[commonModeDataSize_ + 1] = (temp >> kCommonmode1Shift) & kCommonmode1Mask;
-            if ((erx % 2 == 0 && (enabledERX >> (erx + 1) & 1) == 0) ||
-                (erx % 2 == 1 && (enabledERX >> (erx - 1) & 1) == 0)) {
-              commonModeDataSize_ += 2;
-              commonModeData_[commonModeDataSize_] = commonModeData_[commonModeDataSize_ - 2];
-              commonModeData_[commonModeDataSize_ + 1] = commonModeData_[commonModeDataSize_ - 1];
-              LogDebug("HGCalUnpack") << "half ROC turned on, padding to 4 common modes\n"
-                                      << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 2] << std::dec
-                                      << " saved at " << commonModeDataSize_ << "\n"
-                                      << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 1] << std::dec
-                                      << " saved at " << commonModeDataSize_ + 1;
-            }
-            iword += 2;  // length of the standard eRx header (2 * 32 bits)
-            for (uint8_t channel = 0; channel < config_.erxChannelMax; channel++) {  // loop through all channels in eRx
-              const HGCalElectronicsId id(true, sLink, captureBlock, econd, erx, channel);
-              commonModeIndex_[channelDataSize_] = commonModeDataSize_ / 4 * 4;
-              channelData_[channelDataSize_] =
-                  HGCROCChannelDataFrame<HGCalElectronicsId>(logicalMapping(id), inputArray[iword]);
-              LogDebug("HGCalUnpack") << "Word " << channelDataSize_ << ", ECON-D:eRx:channel=" << (int)econd << ":"
-                                      << (int)erx << ":" << (int)channel << ", HGCalElectronicsId=" << id.raw()
-                                      << ", assigned common mode index=" << commonModeIndex_.at(channelDataSize_)
-                                      << "\n"
-                                      << "extracted channel data=0x" << std::hex
-                                      << channelData_.at(channelDataSize_).raw();
-              channelDataSize_++;
-              iword++;
-            }
-            if (commonModeDataSize_ + 1 > config_.commonModeMax)
-              throw cms::Exception("HGCalUnpack") << "Too many common mode data unpacked: " << (commonModeDataSize_ + 1)
-                                                  << " >= " << config_.commonModeMax << ".";
-            commonModeDataSize_ += 2;
-          }
-        }
-        //----- parse the ECON-D trailer
-        // (no information needed from ECON-D trailer in unpacker, skip it)
-        iword += 1;  // length of the ECON-D trailer (32 bits CRC)
-
-        if (iword - econdBodyStart != payloadLength)
-          throw cms::Exception("CorruptData")
-              << "Mismatch between unpacked and expected ECON-D #" << (int)econd << " payload length\n"
-              << "  unpacked payload length=" << iword - econdBodyStart << "\n"
-              << "  expected payload length=" << payloadLength;
-        // pad to 2 words
-        if (iword % 2 != 0) {  //TODO: check this
-          LogDebug("HGCalUnpacker") << "Padding ECON-D payload to 2 32-bit words (remainder: " << (iword % 2) << ").";
-          iword += 1;
-        }
-      }
-      //----- capture block has no trailer
-      // pad to 4 words
-      if (iword % 4 != 0) {  //TODO: check this
-        LogDebug("HGCalUnpacker") << "Padding capture block to 4 32-bit words (remainder: " << (iword % 4) << ").";
-        iword += 4 - (iword % 4);
-      }
+  auto to_econd_payload = [](const uint64_t* ptr_64b, uint64_t payload_length) -> std::vector<uint32_t> {
+    std::vector<uint32_t> payload(payload_length, 0);
+    auto* ptr_32b = reinterpret_cast<const uint32_t*>(ptr_64b);
+    for (unsigned i = 0; i < payload_length; ++i) {
+      payload[i] = ptr_32b[(i % 2 == 0) ? i + 1 : i - 1];
     }
-    //----- parse the S-Link trailer
-    // (no information is needed in unpacker)
+    return payload;
+  };
 
-    iword += 4;  // length of the S-Link trailer (128 bits)
-    sLink++;
+  // Endianness assumption
+  // From 32-bit word(ECOND) to 64-bit word(capture block): little endianness
+  // Others: big endianness
+  const auto* const header = reinterpret_cast<const uint64_t*>(fed_data.data());
+  const auto* const trailer = reinterpret_cast<const uint64_t*>(fed_data.data() + fed_data.size());
+  LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << " nwords (64b) = " << std::distance(header, trailer);
+
+  const auto* ptr = header;
+  for (unsigned iword = 0; ptr < trailer; ++iword) {
+    LogDebug("[HGCalUnpacker]") << std::setw(8) << iword << ": 0x" << std::hex << std::setfill('0') << std::setw(16)
+                                << *ptr << " (" << std::setfill('0') << std::setw(8)
+                                << *(reinterpret_cast<const uint32_t*>(ptr) + 1) << " " << std::setfill('0')
+                                << std::setw(8) << *reinterpret_cast<const uint32_t*>(ptr) << ")" << std::dec;
+    ++ptr;
   }
-  channelData_.resize(channelDataSize_);
-  commonModeIndex_.resize(channelDataSize_);
-  commonModeData_.resize(commonModeDataSize_);
-  return;
-}
 
-template <class D>
-void HGCalUnpacker<D>::parseCaptureBlock(
-    const std::vector<uint32_t>& inputArray,
-    const std::function<uint16_t(uint16_t sLink, uint8_t captureBlock, uint8_t econd)>& enabledERXMapping,
-    const std::function<D(HGCalElectronicsId elecID)>& logicalMapping) {
-  uint16_t sLink = 0;
-  uint8_t captureBlock = 0;
+  LogDebug("[HGCalUnpacker]") << "@@@\n";
+  ptr = header;
+  // check SLink header (128b)
+  // sanity check
+  auto slink_header = *(ptr + 1);
+  if (((slink_header >> (BACKEND_FRAME::SLINK_BOE_POS + 32)) & BACKEND_FRAME::SLINK_BOE_MASK) !=
+      fedConfig.slinkHeaderMarker) {
+    uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
+    econdPacketInfo.view()[ECONDdenseIdx].exception() = 1;
+    econdPacketInfo.view()[ECONDdenseIdx].location() = 0;
+    edm::LogWarning("[HGCalUnpacker]") << "Expected a S-Link header (BOE: 0x" << std::hex << fedConfig.slinkHeaderMarker
+                                       << "), got 0x" << std::hex
+                                       << ((slink_header >> (BACKEND_FRAME::SLINK_BOE_POS + 32)) &
+                                           BACKEND_FRAME::SLINK_BOE_MASK)
+                                       << " from " << slink_header << ".";
+    return UNPACKER_STAT::WrongSLinkHeader;
+  }
 
-  channelDataSize_ = 0;
-  commonModeDataSize_ = 0;
-  badECOND_.clear();
+  ptr += 2;
+  // counter for the global index of ECON-D in the FED
+  // initialize with -1 (overflow) to start with 0 in the loop
+  uint32_t globalECONDIdx = static_cast<uint32_t>(-1);
 
-  for (uint32_t iword = 0; iword < inputArray.size();) {  // loop through all capture blocks
-
-    //----- parse the capture block header
-    if (((inputArray[iword] >> kCaptureBlockReservedShift) & kCaptureBlockReservedMask) != config_.captureBlockReserved)
-      throw cms::Exception("CorruptData")
-          << "Expected a capture block header at word " << std::dec << iword << "/0x" << std::hex << iword
-          << " (reserved word: 0x" << config_.captureBlockReserved << "), got 0x" << inputArray[iword] << ".";
-
-    const uint64_t captureBlockHeader = ((uint64_t)inputArray[iword] << 32) | ((uint64_t)inputArray[iword + 1]);
-    LogDebug("HGCalUnpack") << "Capture block=" << (int)captureBlock << ", capture block header=0x" << std::hex
-                            << captureBlockHeader;
-    iword += 2;  // length of capture block header (64 bits)
-
-    //----- parse the capture block body
-    for (uint8_t econd = 0; econd < config_.captureBlockECONDMax; econd++) {  // loop through all ECON-Ds
-      if ((captureBlockHeader >> (3 * econd) & kCaptureBlockECONDStatusMask) >= 0b100)
-        continue;  // only pick the active ECON-Ds
-
-      //----- parse the ECON-D header
-      // (the second word of ECON-D header contains no information useful for unpacking, use only the first one)
-      if (((inputArray[iword] >> kHeaderShift) & kHeaderMask) != config_.econdHeaderMarker)  // sanity check
-        throw cms::Exception("CorruptData")
-            << "Expected a ECON-D header at word " << std::dec << iword << "/0x" << std::hex << iword << " (marker: 0x"
-            << config_.econdHeaderMarker << "), got 0x" << inputArray[iword] << ".";
-
-      const uint32_t econdHeader = inputArray[iword];
-      iword += 2;  // length of ECON-D header (2 * 32 bits)
-
-      LogDebug("HGCalUnpack") << "ECON-D #" << (int)econd << ", first word of ECON-D header=0x" << std::hex
-                              << econdHeader;
-
-      //----- extract the payload length
-      const uint32_t payloadLength = ((econdHeader >> kPayloadLengthShift)) & kPayloadLengthMask;
-      if (payloadLength > config_.payloadLengthMax)  // payload length is too large
-        throw cms::Exception("CorruptData") << "Unpacked payload length=" << payloadLength
-                                            << " exceeds the maximal length=" << config_.payloadLengthMax;
-      LogDebug("HGCalUnpack") << "ECON-D #" << (int)econd << ", payload length = " << payloadLength;
-
-      if ((((captureBlockHeader >> (3 * econd)) & kCaptureBlockECONDStatusMask) != 0b000) ||
-          (((econdHeader >> kHTShift) & kHTMask) >= 0b10) || (((econdHeader >> kEBOShift) & kEBOMask) >= 0b10) ||
-          (((econdHeader >> kMatchShift) & kMatchMask) == 0) ||
-          (((econdHeader >> kTruncatedShift) & kTruncatedMask) == 1)) {  // quality check failed: bad ECON-D
-        LogDebug("HGCalUnpack") << "ECON-D failed quality check, HT=" << (econdHeader >> kHTShift & kHTMask)
-                                << ", EBO=" << (econdHeader >> kEBOShift & kEBOMask)
-                                << ", M=" << (econdHeader >> kMatchShift & kMatchMask)
-                                << ", T=" << (econdHeader >> kTruncatedShift & kTruncatedMask);
-        badECOND_.emplace_back(iword - 2);
-        iword += payloadLength;  // skip the current ECON-D (using the payload length parsed above)
-
-        if (iword % 2 != 0) {  //TODO: check this
-          LogDebug("HGCalUnpacker") << "Padding ECON-D payload to 2 32-bit words (remainder: " << (iword % 2) << ").";
-          iword += 1;
+  // parse SLink body (capture blocks)
+  for (uint32_t captureblockIdx = 0; captureblockIdx < HGCalMappingModuleIndexer::maxCBperFED_ && ptr < trailer - 2;
+       captureblockIdx++) {
+    // check capture block header (64b)
+    LogDebug("[HGCalUnpacker]") << "@" << std::setw(8) << std::distance(header, ptr) << ": 0x" << std::hex
+                                << std::setfill('0') << std::setw(16) << *ptr << std::dec;
+    auto cb_header = *ptr;
+    LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
+                                << ", cb_header = " << std::hex << std::setfill('0') << std::setw(16) << cb_header
+                                << std::dec;
+    // sanity check
+    if (((cb_header >> (BACKEND_FRAME::CAPTUREBLOCK_RESERVED_POS + 32)) & BACKEND_FRAME::CAPTUREBLOCK_RESERVED_MASK) !=
+        fedConfig.cbHeaderMarker) {
+      //if word is a 0x0 it probably means that it's a 64b padding word: check that we are ending
+      //the s-link may have less capture blocks than the maxCBperFED_ so for now this is considered normal
+      uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
+      econdPacketInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
+      if (cb_header == 0x0) {
+        auto nToEnd = (fed_data.size() / 8 - 2) - std::distance(header, ptr);
+        if (nToEnd == 1) {
+          ptr++;
+          LogDebug("[HGCalUnpacker]")
+              << "fedId = " << fedId
+              << ", 64b padding word caught before parsing all max capture blocks, captureblockIdx = "
+              << captureblockIdx;
+          econdPacketInfo.view()[ECONDdenseIdx].exception() = 7;
+          return UNPACKER_STAT::Normal;
         }
-        continue;  // go to the next ECON-D
+      }
+      econdPacketInfo.view()[ECONDdenseIdx].exception() = 2;
+      edm::LogWarning("[HGCalUnpacker]") << "Expected a capture block header at word " << std::dec
+                                         << (uint32_t)(ptr - header) << "/0x" << std::hex << (uint32_t)(ptr - header)
+                                         << " (reserved word: 0x" << fedConfig.cbHeaderMarker << "), got 0x"
+                                         << ((cb_header >> (BACKEND_FRAME::CAPTUREBLOCK_RESERVED_POS + 32)) &
+                                             BACKEND_FRAME::CAPTUREBLOCK_RESERVED_MASK)
+                                         << " from 0x" << cb_header << ".";
+      return UNPACKER_STAT::WrongCaptureBlockHeader;
+    }
+    ++ptr;
+    // parse Capture Block body (ECON-Ds)
+    for (uint32_t econdIdx = 0; econdIdx < HGCalMappingModuleIndexer::maxECONDperCB_; econdIdx++) {
+      auto econd_pkt_status = (cb_header >> (3 * econdIdx)) & 0b111;
+      LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
+                                  << ", econdIdx = " << econdIdx << ", econd_pkt_status = " << econd_pkt_status;
+      if (econd_pkt_status != backend::ECONDPacketStatus::InactiveECOND) {
+        // always increment the global ECON-D index (unless inactive/unconnected)
+        globalECONDIdx++;
       }
 
-      //----- parse the ECON-D body
-      const uint32_t econdBodyStart = iword;  // for the ECON-D length check
-      if (((econdHeader >> kPassThroughShift) & kPassThroughMask) == 0) {
-        // standard ECON-D
-        LogDebug("HGCalUnpack") << "Standard ECON-D";
-        const auto enabledERX = enabledERXMapping(sLink, captureBlock, econd);
-        for (uint8_t erx = 0; erx < config_.econdERXMax; erx++) {  // loop through all eRxs
-          if ((enabledERX >> erx & 1) == 0)
-            continue;  // only pick active eRx
+      bool pkt_exists =
+          (econd_pkt_status == backend::ECONDPacketStatus::Normal) ||
+          (econd_pkt_status == backend::ECONDPacketStatus::PayloadCRCError) ||
+          (econd_pkt_status == backend::ECONDPacketStatus::EventIDMismatch) ||
+          (fedConfig.mismatchPassthroughMode && econd_pkt_status == backend::ECONDPacketStatus::BCIDOrbitIDMismatch);
+      if (!pkt_exists) {
+        continue;
+      }
 
-          //----- parse the eRX subpacket header
-          // common mode
-          LogDebug("HGCalUnpack") << "ECON-D:eRx=" << (int)econd << ":" << (int)erx
-                                  << ", first word of the eRx header=0x" << std::hex << inputArray[iword] << std::dec
-                                  << "\n"
-                                  << "  extracted common mode 0=0x" << std::hex
-                                  << ((inputArray[iword] >> kCommonmode0Shift) & kCommonmode0Mask) << std::dec
-                                  << ", saved at " << commonModeDataSize_ << "\n"
-                                  << "  extracted common mode 1=0x" << std::hex
-                                  << ((inputArray[iword] >> kCommonmode1Shift) & kCommonmode1Mask) << std::dec
-                                  << ", saved at " << (commonModeDataSize_ + 1);
+      // ECON-D header (two 32b words)
+      LogDebug("[HGCalUnpacker]") << "@" << std::setw(8) << std::distance(header, ptr) << ": 0x" << std::hex
+                                  << std::setfill('0') << std::setw(16) << *ptr << std::dec;
+      auto econd_headers = to_32b_words(ptr);
+      uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, globalECONDIdx);
+      econdPacketInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
+      // sanity check
+      if (((econd_headers[0] >> ECOND_FRAME::HEADER_POS) & ECOND_FRAME::HEADER_MASK) !=
+          fedConfig.econds[globalECONDIdx].headerMarker) {
+        econdPacketInfo.view()[ECONDdenseIdx].exception() = 3;
+        edm::LogWarning("[HGCalUnpacker]")
+            << "Expected a ECON-D header at word " << std::dec << (uint32_t)(ptr - header) << "/0x" << std::hex
+            << (uint32_t)(ptr - header) << " (marker: 0x" << fedConfig.econds[globalECONDIdx].headerMarker
+            << "), got 0x" << econd_headers[0] << ".";
+        return UNPACKER_STAT::WrongECONDHeader;
+      }
+      ++ptr;
 
-          commonModeData_[commonModeDataSize_] = (inputArray[iword] >> kCommonmode0Shift) & kCommonmode0Mask;
-          commonModeData_[commonModeDataSize_ + 1] = (inputArray[iword] >> kCommonmode1Shift) & kCommonmode1Mask;
-          if ((erx % 2 == 0 && (enabledERX >> (erx + 1) & 1) == 0) ||
-              (erx % 2 == 1 && (enabledERX >> (erx - 1) & 1) == 0)) {
-            commonModeDataSize_ += 2;
-            commonModeData_[commonModeDataSize_] = commonModeData_[commonModeDataSize_ - 2];
-            commonModeData_[commonModeDataSize_ + 1] = commonModeData_[commonModeDataSize_ - 1];
-            LogDebug("HGCalUnpack") << "half ROC turned on, padding to 4 common modes\n"
-                                    << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 2] << std::dec
-                                    << " saved at " << commonModeDataSize_ << "\n"
-                                    << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 1] << std::dec
-                                    << " saved at " << commonModeDataSize_ + 1;
+      econdPacketInfo.view()[ECONDdenseIdx].cbFlag() = (uint8_t)(econd_pkt_status);
+      // ECON-D payload length (num of 32b words)
+      // NOTE: in the capture blocks, ECON-D packets do not have the trailing IDLE word
+      const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
+      if (econd_payload_length > 469) {
+        econdPacketInfo.view()[ECONDdenseIdx].exception() = 4;
+        edm::LogWarning("[HGCalUnpacker]")
+            << "Unpacked payload length=" << econd_payload_length << " exceeds the maximal length=469";
+        return UNPACKER_STAT::ECONDPayloadLengthOverflow;
+      }
+      const auto econdFlag = ((econd_headers[0] >> ECOND_FRAME::BITT_POS) & 0b1111111) +
+                             (((econd_headers[1] >> ECOND_FRAME::BITS_POS) & 0b1) << hgcaldigi::ECONDFlag::BITS_POS);
+      econdPacketInfo.view()[ECONDdenseIdx].payloadLength() = (uint16_t)econd_payload_length;
+      econdPacketInfo.view()[ECONDdenseIdx].econdFlag() = (uint8_t)econdFlag;
+      econdPacketInfo.view()[ECONDdenseIdx].exception() = 0;
+
+      // convert ECON-D packets into 32b words -- need to swap the order of the two 32b words in the 64b word
+      auto econd_payload = to_econd_payload(ptr, econd_payload_length);
+
+      // forward ptr to the next ECON-D; use integer division with (... + 1) / 2 to round up
+      ptr += (econd_payload_length + 1) / 2;
+
+      LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
+                                  << ", econdIdx = " << econdIdx << ", econd_headers = " << std::hex
+                                  << std::setfill('0') << std::setw(8) << econd_headers[0] << " " << econd_headers[1]
+                                  << std::dec << ", econd_payload_length = " << econd_payload_length;
+
+      //quality check for ECON-D (no need to check again econd_pkt_status here again)
+      if ((((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK) >= 0b10) ||
+          (((econd_headers[0] >> ECOND_FRAME::EBO_POS) & ECOND_FRAME::EBO_MASK) >= 0b10) ||
+          (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) ||
+          (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) || econd_payload_length == 0 || headerOnlyMode) {
+        continue;
+      }
+
+      // parse ECON-D body(eRx subpackets)
+      const auto enabledErx = fedReadoutSequence.enabledErx_[globalECONDIdx];
+      const auto erxMax = moduleIndexer.getGlobalTypesNErx()[fedReadoutSequence.readoutTypes_[globalECONDIdx]];
+      const bool pass_through_mode = (econd_headers[0] >> ECOND_FRAME::BITP_POS) & 0b1;
+
+      unsigned iword = 0;
+      if (!pass_through_mode) {
+        // Standard ECON-D
+        LogDebug("[HGCalUnpacker]") << "Standard ECON-D, erxMax=" << erxMax << "enabledErx= " << enabledErx;
+        for (uint32_t erxIdx = 0; erxIdx < erxMax; erxIdx++) {
+          // check if the eRx is enabled
+          if ((enabledErx >> erxIdx & 1) == 0) {
+            continue;
           }
+          LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
+                                      << ", econdIdx = " << econdIdx << ", erxIdx=" << erxIdx;
 
-          // empty check
-          if (((inputArray[iword] >> kFormatShift) & kFormatMask) == 1) {
+          econdPacketInfo.view()[ECONDdenseIdx].cm()(erxIdx, 0) =
+              (econd_payload[iword] >> ECOND_FRAME::COMMONMODE0_POS) & ECOND_FRAME::COMMONMODE0_MASK;
+          econdPacketInfo.view()[ECONDdenseIdx].cm()(erxIdx, 1) =
+              (econd_payload[iword] >> ECOND_FRAME::COMMONMODE1_POS) & ECOND_FRAME::COMMONMODE1_MASK;
+          // check if the eRx sub-packet is empty (the "F" flag in the eRx sub-packet header)
+          if (((econd_payload[iword] >> ECOND_FRAME::ERXFORMAT_POS) & ECOND_FRAME::ERXFORMAT_MASK) == 1) {
+            LogDebug("[HGCalUnpacker]") << "eRx " << erxIdx << " is empty";
             iword += 1;  // length of an empty eRx header (32 bits)
-            LogDebug("HGCalUnpack") << "eRx #" << (int)erx << " is empty.";
-            continue;  // go to next eRx
+            continue;    // go to the next eRx
           }
 
-          // regular mode
-          const uint64_t erxHeader = ((uint64_t)inputArray[iword] << 32) | (uint64_t)inputArray[iword + 1];
-          LogDebug("HGCalUnpack") << "whole eRx header=0x" << std::hex << erxHeader;
-          iword += 2;  // length of a standard eRx header (2 * 32 bits)
+          // erx header
+          uint16_t cmSum = ((econd_payload[iword] >> ECOND_FRAME::COMMONMODE0_POS) & ECOND_FRAME::COMMONMODE0_MASK) +
+                           ((econd_payload[iword] >> ECOND_FRAME::COMMONMODE1_POS) & ECOND_FRAME::COMMONMODE1_MASK);
+          uint64_t erxHeader = ((uint64_t)econd_payload[iword] << 32) | ((uint64_t)econd_payload[iword + 1]);
+          LogDebug("[HGCalUnpacker]") << "erx_headers = 0x" << std::hex << std::setfill('0') << std::setw(16)
+                                      << erxHeader << ", cmSum = " << std::dec << cmSum;
+          iword += 2;
 
-          uint32_t bitCounter = 0;
-          //----- parse the eRx subpacket body
-          for (uint8_t channel = 0; channel < config_.erxChannelMax; channel++) {  // loop through channels in eRx
-            if (((erxHeader >> channel) & 1) == 0)
-              continue;  // only pick active channels
-            const HGCalElectronicsId id(true, sLink, captureBlock, econd, erx, channel);
-            commonModeIndex_[channelDataSize_] = commonModeDataSize_ / 4 * 4;
-            const uint32_t tempIndex = bitCounter / 32 + iword;
-            const uint8_t tempBit = bitCounter % 32;
-            const uint32_t temp =
-                (tempBit == 0) ? inputArray[tempIndex]
-                               : (inputArray[tempIndex] << tempBit) | (inputArray[tempIndex + 1] >> (32 - tempBit));
-            const uint8_t code = temp >> 28;
-            // use if and else here
-            channelData_[channelDataSize_] = HGCROCChannelDataFrame<D>(
-                logicalMapping(id),
-                ((temp << erxBodyLeftShift_[code]) >> erxBodyRightShift_[code]) & erxBodyMask_[code]);
-            bitCounter += erxBodyBits_[code];
-            if (code == 0b0010)
-              channelData_[channelDataSize_].fillFlag1(1);
-            LogDebug("HGCalUnpack") << "Word " << channelDataSize_ << ", ECON-D:eRx:channel=" << (int)econd << ":"
-                                    << (int)erx << ":" << (int)channel
-                                    << ", assigned common mode index=" << commonModeIndex_[channelDataSize_] << "\n"
-                                    << "  full word readout=0x" << std::hex << temp << std::dec << ", code=0x"
-                                    << std::hex << (int)code << std::dec << "\n"
-                                    << "  extracted channel data=0x" << std::hex
-                                    << channelData_[channelDataSize_].raw();
-            channelDataSize_++;
+          // parse erx body (channel data)
+          uint32_t iBit = 0;
+          for (uint32_t channelIdx = 0; channelIdx < HGCalMappingCellIndexer::maxChPerErx_; channelIdx++) {
+            uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
+
+            // check if the channel has data
+            if (((erxHeader >> channelIdx) & 1) == 0) {
+              continue;
+            }
+
+            const uint32_t tempIndex = iBit / 32 + iword;
+            const uint32_t tempBit = iBit % 32;
+            const uint32_t temp = (tempBit == 0) ? econd_payload[tempIndex]
+                                                 : (econd_payload[tempIndex] << tempBit) |
+                                                       (econd_payload[tempIndex + 1] >> (32 - tempBit));
+            const uint32_t code = temp >> 28;
+            digis.view()[denseIdx].tctp() = tctp_[code];
+            digis.view()[denseIdx].adcm1() = (temp >> adcm1Shift_[code]) & adcm1Mask_[code];
+            digis.view()[denseIdx].adc() = (temp >> adcShift_[code]) & adcMask_[code];
+            digis.view()[denseIdx].tot() = (temp >> totShift_[code]) & totMask_[code];
+            digis.view()[denseIdx].toa() = (temp >> toaShift_[code] & toaMask_[code]);
+            digis.view()[denseIdx].cm() = cmSum;
+            digis.view()[denseIdx].flags() = 0;
+            iBit += erxBodyBits_[code];
           }
-          // pad to the whole word
-          iword += bitCounter / 32;
-          if (bitCounter % 32 != 0)
+          iword += iBit / 32;
+          if (iBit % 32 != 0) {
             iword += 1;
-
-          if (commonModeDataSize_ + 1 > config_.commonModeMax)
-            throw cms::Exception("HGCalUnpack") << "Too many common mode data unpacked: " << (commonModeDataSize_ + 1)
-                                                << " >= " << config_.commonModeMax << ".";
-          commonModeDataSize_ += 2;
-          // eRx subpacket has no trailer
-        }
-      } else {  // passthrough ECON-D
-        LogDebug("HGCalUnpack") << "Passthrough ECON-D";
-        const auto enabledERX = enabledERXMapping(sLink, captureBlock, econd);
-        for (uint8_t erx = 0; erx < config_.econdERXMax; erx++) {  // loop through all eRx
-          if ((enabledERX >> erx & 1) == 0)
-            continue;  // only pick active eRx
-
-          //----- parse the eRX subpacket header
-          // common mode
-          uint32_t temp = inputArray[iword];
-          LogDebug("HGCalUnpack") << "ECON-D:eRx=" << (int)econd << ":" << (int)erx
-                                  << ", first word of the eRx header=0x" << std::hex << temp << std::dec << "\n"
-                                  << "  extracted common mode 0=0x" << std::hex
-                                  << ((temp >> kCommonmode0Shift) & kCommonmode0Mask) << std::dec << ", saved at "
-                                  << commonModeDataSize_ << "\n"
-                                  << "  extracted common mode 1=0x" << std::hex
-                                  << ((temp >> kCommonmode1Shift) & kCommonmode1Mask) << std::dec << ", saved at "
-                                  << (commonModeDataSize_ + 1);
-          commonModeData_[commonModeDataSize_] = (temp >> kCommonmode0Shift) & kCommonmode0Mask;
-          commonModeData_[commonModeDataSize_ + 1] = (temp >> kCommonmode1Shift) & kCommonmode1Mask;
-          if ((erx % 2 == 0 && (enabledERX >> (erx + 1) & 1) == 0) ||
-              (erx % 2 == 1 && (enabledERX >> (erx - 1) & 1) == 0)) {
-            commonModeDataSize_ += 2;
-            commonModeData_[commonModeDataSize_] = commonModeData_[commonModeDataSize_ - 2];
-            commonModeData_[commonModeDataSize_ + 1] = commonModeData_[commonModeDataSize_ - 1];
-            LogDebug("HGCalUnpack") << "half ROC turned on, padding to 4 common modes\n"
-                                    << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 2] << std::dec
-                                    << " saved at " << commonModeDataSize_ << "\n"
-                                    << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 1] << std::dec
-                                    << " saved at " << commonModeDataSize_ + 1;
           }
-          iword += 2;  // length of a standard eRx header (2 * 32 bits)
-
-          for (uint8_t channel = 0; channel < config_.erxChannelMax; channel++) {  // loop through all channels in eRx
-            const HGCalElectronicsId id(true, sLink, captureBlock, econd, erx, channel);
-            commonModeIndex_[channelDataSize_] = commonModeDataSize_ / 4 * 4;
-            channelData_[channelDataSize_] =
-                HGCROCChannelDataFrame<HGCalElectronicsId>(logicalMapping(id), inputArray[iword]);
-            LogDebug("HGCalUnpack") << "Word" << channelDataSize_ << ", ECON-D:eRx:channel=" << (int)econd << ":"
-                                    << (int)erx << ":" << (int)channel << ", HGCalElectronicsId=" << id.raw()
-                                    << ", assigned common mode index=" << commonModeIndex_[channelDataSize_] << "\n"
-                                    << "extracted channel data=0x" << std::hex << channelData_[channelDataSize_].raw();
-            channelDataSize_++;
-            iword++;
+        }
+      } else {
+        // Passthrough ECON-D
+        LogDebug("[HGCalUnpacker]") << "Passthrough ECON-D, erxMax=" << erxMax << "enabledErx= " << enabledErx;
+        for (uint32_t erxIdx = 0; erxIdx < erxMax; erxIdx++) {
+          // check if the eRx is enabled
+          if ((enabledErx >> erxIdx & 1) == 0) {
+            continue;
           }
-          if (commonModeDataSize_ + 1 > config_.commonModeMax)
-            throw cms::Exception("HGCalUnpack") << "Too many common mode data unpacked: " << (commonModeDataSize_ + 1)
-                                                << " >= " << config_.commonModeMax << ".";
-          commonModeDataSize_ += 2;
+          LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
+                                      << ", econdIdx = " << econdIdx << ", erxIdx=" << erxIdx;
+
+          econdPacketInfo.view()[ECONDdenseIdx].cm()(erxIdx, 0) =
+              (econd_payload[iword] >> ECOND_FRAME::COMMONMODE0_POS) & ECOND_FRAME::COMMONMODE0_MASK;
+          econdPacketInfo.view()[ECONDdenseIdx].cm()(erxIdx, 1) =
+              (econd_payload[iword] >> ECOND_FRAME::COMMONMODE1_POS) & ECOND_FRAME::COMMONMODE1_MASK;
+          // check if the eRx sub-packet is empty (the "F" flag in the eRx sub-packet header)
+          if (((econd_payload[iword] >> ECOND_FRAME::ERXFORMAT_POS) & ECOND_FRAME::ERXFORMAT_MASK) == 1) {
+            LogDebug("[HGCalUnpacker]") << "eRx " << erxIdx << " is empty";
+            iword += 1;  // length of an empty eRx header (32 bits)
+            continue;    // go to the next eRx
+          }
+
+          // erx header
+          uint16_t cmSum = ((econd_payload[iword] >> ECOND_FRAME::COMMONMODE0_POS) & ECOND_FRAME::COMMONMODE0_MASK) +
+                           ((econd_payload[iword] >> ECOND_FRAME::COMMONMODE1_POS) & ECOND_FRAME::COMMONMODE1_MASK);
+          uint64_t erxHeader = ((uint64_t)econd_payload[iword] << 32) | ((uint64_t)econd_payload[iword + 1]);
+          LogDebug("[HGCalUnpacker]") << "erx_headers = 0x" << std::hex << std::setfill('0') << std::setw(16)
+                                      << erxHeader << ", cmSum = " << std::dec << cmSum;
+          iword += 2;
+
+          // parse erx body (channel data)
+          for (uint32_t channelIdx = 0; channelIdx < HGCalMappingCellIndexer::maxChPerErx_; channelIdx++) {
+            uint32_t denseIdx = moduleIndexer.getIndexForModuleData(fedId, globalECONDIdx, erxIdx, channelIdx);
+
+            // check if the channel has data
+            if (((erxHeader >> channelIdx) & 1) == 0) {
+              continue;
+            }
+
+            // check if in characterization mode
+            if (fedConfig.econds[globalECONDIdx].rocs[erxIdx / 2].charMode) {
+              //characterization mode
+              digis.view()[denseIdx].tctp() = (econd_payload[iword] >> 30) & 0b11;
+              digis.view()[denseIdx].adcm1() = 0;
+              digis.view()[denseIdx].adc() = (econd_payload[iword] >> 20) & 0b1111111111;
+              digis.view()[denseIdx].tot() = (econd_payload[iword] >> 10) & 0b1111111111;
+              digis.view()[denseIdx].toa() = econd_payload[iword] & 0b1111111111;
+              digis.view()[denseIdx].cm() = cmSum;
+              digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::Characterization;
+            } else {
+              //not characteristic mode
+              digis.view()[denseIdx].tctp() = (econd_payload[iword] >> 30) & 0b11;
+
+              digis.view()[denseIdx].adcm1() = (econd_payload[iword] >> 20) & 0b1111111111;
+              if (econd_payload[iword] >> 31 & 0b1) {
+                digis.view()[denseIdx].adc() = 0;
+                digis.view()[denseIdx].tot() = (econd_payload[iword] >> 10) & 0b1111111111;
+              } else {
+                digis.view()[denseIdx].adc() = (econd_payload[iword] >> 10) & 0b1111111111;
+                digis.view()[denseIdx].tot() = 0;
+              }
+              digis.view()[denseIdx].toa() = econd_payload[iword] & 0b1111111111;
+              digis.view()[denseIdx].cm() = cmSum;
+              digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::Normal;
+            }
+            iword += 1;
+          }
         }
       }
-
-      //----- parse the ECON-D trailer
-      // (no information unpacked from ECON-D trailer, just skip it)
-      iword += 1;  // length of an ECON-D trailer (32 bits CRC)
-
-      if (iword - econdBodyStart != payloadLength)
-        throw cms::Exception("CorruptData")
-            << "Mismatch between unpacked and expected ECON-D #" << (int)econd << " payload length\n"
-            << "  unpacked payload length=" << iword - econdBodyStart << "\n"
-            << "  expected payload length=" << payloadLength;
-      // pad to 2 words
-      if (iword % 2 != 0) {
-        LogDebug("HGCalUnpacker") << "Padding ECON-D payload to 2 32-bit words (remainder: " << (iword % 2) << ").";
-        iword += 1;
+      // end of ECON-D parsing
+      if (iword != econd_payload_length - 1) {
+        econdPacketInfo.view()[ECONDdenseIdx].exception() = 5;
+        edm::LogWarning("[HGCalUnpacker]")
+            << "Mismatch between unpacked and expected ECON-D #" << (int)globalECONDIdx << " payload length\n"
+            << "  unpacked payload length=" << iword + 1 << "\n"
+            << "  expected payload length=" << econd_payload_length;
+        return UNPACKER_STAT::ECONDPayloadLengthMismatch;
       }
     }
-    captureBlock++;  // the capture block has no trailer to parse
   }
-  channelData_.resize(channelDataSize_);
-  commonModeIndex_.resize(channelDataSize_);
-  commonModeData_.resize(commonModeDataSize_);
-  return;
-}
-
-template <class D>
-void HGCalUnpacker<D>::parseECOND(
-    const std::vector<uint32_t>& inputArray,
-    const std::function<uint16_t(uint16_t sLink, uint8_t captureBlock, uint8_t econd)>& enabledERXMapping,
-    const std::function<D(HGCalElectronicsId elecID)>& logicalMapping) {
-  uint16_t sLink = 0;
-  uint8_t captureBlock = 0;
-  uint8_t econd = 0;
-
-  channelDataSize_ = 0;
-  commonModeDataSize_ = 0;
-  badECOND_.clear();
-
-  for (uint32_t iword = 0; iword < inputArray.size();) {  // loop through all ECON-Ds
-    //----- parse the ECON-D header
-    // (the second word of ECON-D header contains no information for unpacking, use only the first one)
-    if (((inputArray[iword] >> kHeaderShift) & kHeaderMask) != config_.econdHeaderMarker)  // sanity check
-      throw cms::Exception("CorruptData")
-          << "Expected a ECON-D header at word " << std::dec << iword << "/0x" << std::hex << iword << " (marker: 0x"
-          << config_.econdHeaderMarker << "), got 0x" << inputArray[iword] << ".";
-
-    const uint32_t econdHeader = inputArray[iword];
-    iword += 2;  // length of ECON-D header (2 * 32 bits)
-
-    LogDebug("HGCalUnpack") << "ECON-D #" << (int)econd << ", first word of ECON-D header=0x" << std::hex
-                            << econdHeader;
-
-    //----- extract the payload length
-    const uint32_t payloadLength = (econdHeader >> kPayloadLengthShift) & kPayloadLengthMask;
-    if (payloadLength > config_.payloadLengthMax)  // payload length too big
-      throw cms::Exception("CorruptData")
-          << "Unpacked payload length=" << payloadLength << " exceeds the maximal length=" << config_.payloadLengthMax;
-
-    LogDebug("HGCalUnpack") << "ECON-D #" << (int)econd << ", payload length = " << payloadLength;
-    //Quality check
-    if (((econdHeader >> kHTShift & kHTMask) >= 0b10) || ((econdHeader >> kEBOShift & kEBOMask) >= 0b10) ||
-        ((econdHeader >> kMatchShift & kMatchMask) == 0) ||
-        ((econdHeader >> kTruncatedShift & kTruncatedMask) == 1)) {  // bad ECOND
-      LogDebug("HGCalUnpack") << "ECON-D failed quality check, HT=" << (econdHeader >> kHTShift & kHTMask)
-                              << ", EBO=" << (econdHeader >> kEBOShift & kEBOMask)
-                              << ", M=" << (econdHeader >> kMatchShift & kMatchMask)
-                              << ", T=" << (econdHeader >> kTruncatedShift & kTruncatedMask);
-      badECOND_.emplace_back(iword - 2);
-      iword += payloadLength;  // skip the current ECON-D (using the payload length parsed above)
-
-      continue;  // go to the next ECON-D
-    }
-
-    //----- perse the ECON-D body
-    const uint32_t econdBodyStart = iword;  // for the ECON-D length check
-    if (((econdHeader >> kPassThroughShift) & kPassThroughMask) == 0) {
-      // standard ECON-D
-      LogDebug("HGCalUnpack") << "Standard ECON-D";
-      const auto enabledERX = enabledERXMapping(sLink, captureBlock, econd);
-      for (uint8_t erx = 0; erx < config_.econdERXMax; erx++) {  // loop through all eRxs
-        if ((enabledERX >> erx & 1) == 0)
-          continue;  // only pick active eRxs
-
-        //----- parse the eRX subpacket header
-        // common mode
-        LogDebug("HGCalUnpack") << "ECON-D:eRx=" << (int)econd << ":" << (int)erx << ", first word of the eRx header=0x"
-                                << std::hex << inputArray[iword] << std::dec << "\n"
-                                << "  extracted common mode 0=0x" << std::hex
-                                << ((inputArray[iword] >> kCommonmode0Shift) & kCommonmode0Mask) << std::dec
-                                << ", saved at " << commonModeDataSize_ << "\n"
-                                << "  extracted common mode 1=0x" << std::hex
-                                << ((inputArray[iword] >> kCommonmode1Shift) & kCommonmode1Mask) << std::dec
-                                << ", saved at " << (commonModeDataSize_ + 1);
-        commonModeData_[commonModeDataSize_] = (inputArray[iword] >> kCommonmode0Shift) & kCommonmode0Mask;
-        commonModeData_[commonModeDataSize_ + 1] = (inputArray[iword] >> kCommonmode1Shift) & kCommonmode1Mask;
-        if ((erx % 2 == 0 && (enabledERX >> (erx + 1) & 1) == 0) ||
-            (erx % 2 == 1 && (enabledERX >> (erx - 1) & 1) == 0)) {
-          commonModeDataSize_ += 2;
-          commonModeData_[commonModeDataSize_] = commonModeData_[commonModeDataSize_ - 2];
-          commonModeData_[commonModeDataSize_ + 1] = commonModeData_[commonModeDataSize_ - 1];
-          LogDebug("HGCalUnpack") << "half ROC turned on, padding to 4 common modes\n"
-                                  << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 2] << std::dec
-                                  << " saved at " << commonModeDataSize_ << "\n"
-                                  << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 1] << std::dec
-                                  << " saved at " << commonModeDataSize_ + 1;
-        }
-        if (((inputArray[iword] >> kFormatShift) & kFormatMask) == 1) {  // empty eRx
-          LogDebug("HGCalUnpack") << "eRx empty";
-          iword += 1;  // length of an empty eRx header (32 bits)
-
-          continue;  // skip to the next eRx
-        }
-
-        // regular mode
-        const uint64_t erxHeader = ((uint64_t)inputArray[iword] << 32) | ((uint64_t)inputArray[iword + 1]);
-        iword += 2;  // length of a standard eRx header (2 * 32 bits)
-        LogDebug("HGCalUnpack") << "whole eRx header=0x" << std::hex << erxHeader;
-
-        //----- parse eRx subpacket body
-        uint32_t bitCounter = 0;
-        for (uint8_t channel = 0; channel < config_.erxChannelMax; channel++) {  // loop through all channels in eRx
-          if (((erxHeader >> channel) & 1) == 0)
-            continue;  // only pick active channels
-          const HGCalElectronicsId id(true, sLink, captureBlock, econd, erx, channel);
-          commonModeIndex_[channelDataSize_] = commonModeDataSize_ / 4 * 4;
-          const uint32_t tempIndex = bitCounter / 32 + iword;
-          const uint8_t tempBit = bitCounter % 32;
-          const uint32_t temp =
-              (tempBit == 0) ? inputArray[tempIndex]
-                             : (inputArray[tempIndex] << tempBit) | (inputArray[tempIndex + 1] >> (32 - tempBit));
-          const uint8_t code = temp >> 28;
-          // use if and else here
-          channelData_[channelDataSize_] = HGCROCChannelDataFrame<D>(
-              logicalMapping(id), ((temp << erxBodyLeftShift_[code]) >> erxBodyRightShift_[code]) & erxBodyMask_[code]);
-          bitCounter += erxBodyBits_[code];
-          if (code == 0b0010)
-            channelData_[channelDataSize_].fillFlag1(1);
-          LogDebug("HGCalUnpack") << "Word " << channelDataSize_ << ", ECON-D:eRx:channel=" << (int)econd << ":"
-                                  << (int)erx << ":" << (int)channel << "\n"
-                                  << "  assigned common mode index=" << commonModeIndex_.at(channelDataSize_) << "\n"
-                                  << "  full word readout=0x" << std::hex << temp << std::dec << ", code=0x" << std::hex
-                                  << (int)code << std::dec << "\n"
-                                  << "  extracted channel data=0x" << std::hex << channelData_[channelDataSize_].raw();
-          channelDataSize_++;
-        }
-        // pad to the whole word
-        iword += bitCounter / 32;
-        if (bitCounter % 32 != 0)
-          iword += 1;
-
-        if (commonModeDataSize_ + 1 > config_.commonModeMax)
-          throw cms::Exception("HGCalUnpack") << "Too many common mode data unpacked: " << (commonModeDataSize_ + 1)
-                                              << " >= " << config_.commonModeMax << ".";
-        commonModeDataSize_ += 2;
-        // eRx subpacket has no trailer
-      }
-    } else {
-      // passthrough ECON-D
-      LogDebug("HGCalUnpack") << "Passthrough ECON-D";
-      const auto enabledERX = enabledERXMapping(sLink, captureBlock, econd);
-      for (uint8_t erx = 0; erx < config_.econdERXMax; erx++) {  // loop through all eRxs
-        if ((enabledERX >> erx & 1) == 0)
-          continue;  // only pick active eRx
-        //----- parse the eRX subpacket header
-        // common mode
-        uint32_t temp = inputArray[iword];
-        LogDebug("HGCalUnpack") << "ECON-D:eRx=" << (int)econd << ":" << (int)erx << ", first word of the eRx header=0x"
-                                << std::hex << temp << std::dec << "\n"
-                                << "  extracted common mode 0=0x" << std::hex
-                                << ((temp >> kCommonmode0Shift) & kCommonmode0Mask) << std::dec << ", saved at "
-                                << commonModeDataSize_ << "\n"
-                                << "  extracted common mode 1=0x" << std::hex
-                                << ((temp >> kCommonmode1Shift) & kCommonmode1Mask) << std::dec << ", saved at "
-                                << (commonModeDataSize_ + 1);
-        commonModeData_[commonModeDataSize_] = (temp >> kCommonmode0Shift) & kCommonmode0Mask;
-        commonModeData_[commonModeDataSize_ + 1] = (temp >> kCommonmode1Shift) & kCommonmode1Mask;
-        if ((erx % 2 == 0 && (enabledERX >> (erx + 1) & 1) == 0) ||
-            (erx % 2 == 1 && (enabledERX >> (erx - 1) & 1) == 0)) {
-          commonModeDataSize_ += 2;
-          commonModeData_[commonModeDataSize_] = commonModeData_[commonModeDataSize_ - 2];
-          commonModeData_[commonModeDataSize_ + 1] = commonModeData_[commonModeDataSize_ - 1];
-          LogDebug("HGCalUnpack") << "half ROC turned on, padding to 4 common modes\n"
-                                  << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 2] << std::dec
-                                  << " saved at " << commonModeDataSize_ << "\n"
-                                  << "0x" << std::hex << commonModeData_[commonModeDataSize_ - 1] << std::dec
-                                  << " saved at " << commonModeDataSize_ + 1;
-        }
-        iword += 2;  // length of the standard eRx header (2 * 32 bits)
-
-        for (uint8_t channel = 0; channel < config_.erxChannelMax; channel++) {  // loop through all channels in eRx
-          const HGCalElectronicsId id(true, sLink, captureBlock, econd, erx, channel);
-          commonModeIndex_[channelDataSize_] = commonModeDataSize_ / 4 * 4;
-          channelData_[channelDataSize_] =
-              HGCROCChannelDataFrame<HGCalElectronicsId>(logicalMapping(id), inputArray[iword]);
-          LogDebug("HGCalUnpack") << "Word " << channelDataSize_ << ", ECON-D:eRx:channel=" << (int)econd << ":"
-                                  << (int)erx << ":" << (int)channel << ", HGCalElectronicsId=" << id.raw() << "\n"
-                                  << "  assigned common mode index=" << commonModeIndex_.at(channelDataSize_) << "\n"
-                                  << "extracted channel data=0x" << std::hex << channelData_.at(channelDataSize_).raw();
-          channelDataSize_++;
-          iword++;
-        }
-        if (commonModeDataSize_ + 1 > config_.commonModeMax)
-          throw cms::Exception("HGCalUnpack") << "Too many common mode data unpacked: " << (commonModeDataSize_ + 1)
-                                              << " >= " << config_.commonModeMax << ".";
-        commonModeDataSize_ += 2;
-      }
-    }
-    //----- fill the ECON-D trailer
-    // (no information is needed from ECON-D trailer in unpacker, skip it)
-    iword += 1;  // length of the ECON-D trailer (32 bits CRC)
-
-    if (iword - econdBodyStart != payloadLength)
-      throw cms::Exception("CorruptData")
-          << "Mismatch between unpacked and expected ECON-D #" << (int)econd << " payload length\n"
-          << "  unpacked payload length=" << iword - econdBodyStart << "\n"
-          << "  expected payload length=" << payloadLength;
+  // skip the padding word as the last capture block will be aligned to 128b if needed
+  if (std::distance(ptr, header) % 2) {
+    ++ptr;
   }
-  channelData_.resize(channelDataSize_);
-  commonModeIndex_.resize(channelDataSize_);
-  commonModeData_.resize(commonModeDataSize_);
-  return;
+  // check SLink trailer (128b)
+  // TODO
+  if (ptr + 2 != trailer) {
+    uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
+    econdPacketInfo.view()[ECONDdenseIdx].exception() = 6;
+    edm::LogWarning("[HGCalUnpacker]") << "Error finding the S-link trailer, expected at" << std::dec
+                                       << (uint32_t)(trailer - header) << "/0x" << std::hex
+                                       << (uint32_t)(trailer - header) << "Unpacked trailer at" << std::dec
+                                       << (uint32_t)(trailer - header + 2) << "/0x" << std::hex
+                                       << (uint32_t)(ptr - header + 2);
+    return UNPACKER_STAT::WrongSLinkTrailer;
+  }
+  return UNPACKER_STAT::Normal;
 }
-
-// class specialisation for the electronics ID indexing
-template class HGCalUnpacker<HGCalElectronicsId>;

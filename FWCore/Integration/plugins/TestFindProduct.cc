@@ -57,6 +57,8 @@ namespace edmtest {
     void endProcessBlock(edm::ProcessBlock const&) override;
     void endJob() override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& iDesc);
+
   private:
     std::vector<edm::InputTag> inputTags_;
     int expectedSum_;
@@ -189,6 +191,38 @@ namespace edmtest {
             return returnValue;
           });
     }
+  }
+
+  void TestFindProduct::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
+    iDesc.setComment("Tests state of IntProduct, UInt64Product, and/or View<int> data products in the job.");
+    edm::ParameterSetDescription ps;
+
+    const std::vector<edm::InputTag> emptyTagVector;
+
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTags", emptyTagVector)
+        ->setComment("Get these IntProduct data products");
+    ps.addUntracked<int>("expectedSum", 0)
+        ->setComment("The sum of all values from data products obtained from entire job.");
+    ps.addUntracked<int>("expectedCache", 0)->setComment("Check value of ProcessBlock caches.");
+    ps.addUntracked<bool>("getByTokenFirst", false)->setComment("Call getByToken before calling getByLabel");
+    ps.addUntracked<bool>("runProducerParameterCheck", false);
+    ps.addUntracked<bool>("testGetterOfProducts", false);
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsNotFound", emptyTagVector)
+        ->setComment("Data products which should be missing from the job.");
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsView", emptyTagVector)
+        ->setComment("Data products to get via View<int>.");
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsUInt64", emptyTagVector)
+        ->setComment("Get these UInt64Product data products.");
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsEndLumi", emptyTagVector);
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsEndRun", emptyTagVector);
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsBeginProcessBlock", emptyTagVector);
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsInputProcessBlock", emptyTagVector);
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsEndProcessBlock", emptyTagVector);
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsEndProcessBlock2", emptyTagVector);
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsEndProcessBlock3", emptyTagVector);
+    ps.addUntracked<std::vector<edm::InputTag>>("inputTagsEndProcessBlock4", emptyTagVector);
+
+    iDesc.addDefault(ps);
   }
 
   TestFindProduct::~TestFindProduct() {}

@@ -42,13 +42,13 @@ double Track::phi0(Settings const& settings) const {
   double phimax = phimin + dphi + 2 * dphiHG;
   phimin -= M_PI / N_SECTOR;
   phimax -= M_PI / N_SECTOR;
-  phimin = reco::reduceRange(phimin);
-  phimax = reco::reduceRange(phimax);
+  phimin = reco::reducePhiRange(phimin);
+  phimax = reco::reducePhiRange(phimax);
   if (phimin > phimax)
     phimin -= 2 * M_PI;
   double phioffset = phimin;
 
   double phi0 = ipars_.phi0() * settings.kphi0pars() + phioffset;
-  phi0 = reco::reduceRange(phi0);
+  phi0 = reco::reducePhiRange(phi0);
   return phi0;
 }

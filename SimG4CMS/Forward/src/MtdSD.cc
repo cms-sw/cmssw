@@ -131,6 +131,9 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
       edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
                                  << " ETL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
 #endif
+      // In the case of ECAL GFlash fast spot may be inside MTD and should be ignored
+    } else if (rname == "EcalRegion") {
+      theID = -2;
     } else {
       throw cms::Exception("MtdSDError") << "MtdSD called in incorrect region " << rname;
     }

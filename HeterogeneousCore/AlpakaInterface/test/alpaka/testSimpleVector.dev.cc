@@ -16,23 +16,18 @@ using namespace cms::alpakatools;
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
 struct vector_pushback {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, SimpleVector<int>* foo) const {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, SimpleVector<int>* foo) const {
     for (auto index : uniform_elements(acc))
       foo->push_back(acc, index);
   }
 };
 
 struct vector_reset {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, SimpleVector<int>* foo) const {
-    foo->reset();
-  }
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, SimpleVector<int>* foo) const { foo->reset(); }
 };
 
 struct vector_emplace_back {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, SimpleVector<int>* foo) const {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, SimpleVector<int>* foo) const {
     for (auto index : uniform_elements(acc))
       foo->emplace_back(acc, index);
   }

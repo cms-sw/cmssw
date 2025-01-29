@@ -1808,41 +1808,42 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
   // First add noise to hit pixels
   float theSmearedChargeRMS = 0.0;
 
-  for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); i++) {
-    if (addChargeVCALSmearing) {
-      if ((*i).second < 3000) {
-        theSmearedChargeRMS = 543.6 - (*i).second * 0.093;
-      } else if ((*i).second < 6000) {
-        theSmearedChargeRMS = 307.6 - (*i).second * 0.01;
-      } else {
-        theSmearedChargeRMS = -432.4 + (*i).second * 0.123;
-      }
+  if (!theSignal.empty()) {
+    for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); i++) {
+      if (addChargeVCALSmearing) {
+        if ((*i).second < 3000) {
+          theSmearedChargeRMS = 543.6 - (*i).second * 0.093;
+        } else if ((*i).second < 6000) {
+          theSmearedChargeRMS = 307.6 - (*i).second * 0.01;
+        } else {
+          theSmearedChargeRMS = -432.4 + (*i).second * 0.123;
+        }
 
-      // Noise from Vcal smearing:
-      float noise_ChargeVCALSmearing = theSmearedChargeRMS * CLHEP::RandGaussQ::shoot(engine, 0., 1.);
-      // Noise from full readout:
-      float noise = CLHEP::RandGaussQ::shoot(engine, 0., theReadoutNoise);
+        // Noise from Vcal smearing:
+        float noise_ChargeVCALSmearing = theSmearedChargeRMS * CLHEP::RandGaussQ::shoot(engine, 0., 1.);
+        // Noise from full readout:
+        float noise = CLHEP::RandGaussQ::shoot(engine, 0., theReadoutNoise);
 
-      if (((*i).second + digitizerUtility::Amplitude(noise + noise_ChargeVCALSmearing, -1.)) < 0.) {
-        (*i).second.set(0);
-      } else {
-        (*i).second += digitizerUtility::Amplitude(noise + noise_ChargeVCALSmearing, -1.);
-      }
+        if (((*i).second + digitizerUtility::Amplitude(noise + noise_ChargeVCALSmearing, -1.)) < 0.) {
+          (*i).second.set(0);
+        } else {
+          (*i).second += digitizerUtility::Amplitude(noise + noise_ChargeVCALSmearing, -1.);
+        }
 
-    }  // End if addChargeVCalSmearing
-    else {
-      // Noise: ONLY full READOUT Noise.
-      // Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
-      float noise = CLHEP::RandGaussQ::shoot(engine, 0., theReadoutNoise);
+      }  // End if addChargeVCalSmearing
+      else {
+        // Noise: ONLY full READOUT Noise.
+        // Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
+        float noise = CLHEP::RandGaussQ::shoot(engine, 0., theReadoutNoise);
 
-      if (((*i).second + digitizerUtility::Amplitude(noise, -1.)) < 0.) {
-        (*i).second.set(0);
-      } else {
-        (*i).second += digitizerUtility::Amplitude(noise, -1.);
-      }
-    }  // end if only Noise from full readout
+        if (((*i).second + digitizerUtility::Amplitude(noise, -1.)) < 0.) {
+          (*i).second.set(0);
+        } else {
+          (*i).second += digitizerUtility::Amplitude(noise, -1.);
+        }
+      }  // end if only Noise from full readout
+    }
   }
-
   if (!addNoisyPixels)  // Option to skip noise in non-hit pixels
     return;
 
@@ -1869,6 +1870,9 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
 #endif
 
   // Add noisy pixels
+  if (otherPixels.empty()) {
+    return;
+  }
   for (mapI = otherPixels.begin(); mapI != otherPixels.end(); mapI++) {
     int iy = ((*mapI).first) / numRows;
     int ix = ((*mapI).first) - (iy * numRows);
@@ -1887,8 +1891,8 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
 #endif
 
     if (theSignal[chan] == 0) {
-      //      float noise = float( (*mapI).second );
-      int noise = int((*mapI).second);
+      int inoise = float((*mapI).second);
+      float noise = (float)inoise;
       theSignal[chan] = digitizerUtility::Amplitude(noise, -1.);
     }
   }

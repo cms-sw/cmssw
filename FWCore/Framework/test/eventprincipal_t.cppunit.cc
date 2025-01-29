@@ -24,6 +24,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -121,8 +122,6 @@ std::shared_ptr<edm::BranchDescription> test_ep::fake_single_process_branch(std:
                                                          productClassName,
                                                          friendlyProductClassName,
                                                          productInstanceName,
-                                                         moduleClass,
-                                                         modParams.id(),
                                                          dummyType);
   branchDescriptions_[tag] = result;
   return result;
@@ -171,14 +170,17 @@ void test_ep::setUp() {
     assert(process);
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
-    auto rp = std::make_shared<edm::RunPrincipal>(pProductRegistry_, *process, &historyAppender_, 0);
+    auto rp = std::make_shared<edm::RunPrincipal>(
+        pProductRegistry_, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
     rp->setAux(edm::RunAuxiliary(eventID_.run(), now, now));
     edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
-    lbp_ = std::make_shared<edm::LuminosityBlockPrincipal>(pProductRegistry_, *process, &historyAppender_, 0);
+    lbp_ = std::make_shared<edm::LuminosityBlockPrincipal>(
+        pProductRegistry_, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
     lbp_->setAux(lumiAux);
     lbp_->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
     pEvent_.reset(new edm::EventPrincipal(pProductRegistry_,
+                                          edm::productResolversFactory::makePrimary,
                                           branchIDListHelper,
                                           thinnedAssociationsHelper,
                                           *process,

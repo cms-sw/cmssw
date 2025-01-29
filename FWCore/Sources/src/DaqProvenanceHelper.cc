@@ -28,8 +28,6 @@ namespace {
                                 collectionName,
                                 friendlyName,
                                 "",
-                                sourceLabel,
-                                edm::ParameterSetID(),
                                 edm::TypeWithDict(rawDataType.typeInfo()),
                                 false);
     desc.setIsProvenanceSetOnRead();
@@ -55,7 +53,6 @@ namespace edm {
     // We don't currently use the untracked parameters, However, we make them available, just in case.
     std::string const& moduleLabel = constBranchDescription_.moduleLabel();
     std::string const& processName = constBranchDescription_.processName();
-    std::string const& moduleName = constBranchDescription_.moduleName();
     typedef std::vector<std::string> vstring;
     vstring empty;
 
@@ -71,7 +68,7 @@ namespace edm {
     ParameterSet pseudoInput;
     pseudoInput.addParameter<std::string>("@module_edm_type", "Source");
     pseudoInput.addParameter<std::string>("@module_label", moduleLabel);
-    pseudoInput.addParameter<std::string>("@module_type", moduleName);
+    pseudoInput.addParameter<std::string>("@module_type", sourceLabel);
     processParameterSet_.addParameter<ParameterSet>(moduleLabel, pseudoInput);
 
     processParameterSet_.addParameter<vstring>("@all_esmodules", empty);

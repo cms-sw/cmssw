@@ -9,7 +9,6 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -67,9 +66,8 @@ namespace {
   struct Responder {
     std::string name_;
     edm::ProductRegistry* reg_;
-    Responder(std::string const& iName, edm::ConstProductRegistry& iConstReg, edm::ProductRegistry& iReg)
-        : name_(iName), reg_(&iReg) {
-      iConstReg.watchProductAdditions(this, &Responder::respond);
+    Responder(std::string const& iName, edm::SignallingProductRegistry& iReg) : name_(iName), reg_(&iReg) {
+      iReg.watchProductAdditions(this, &Responder::respond);
     }
     void respond(edm::BranchDescription const& iDesc) {
       edm::ParameterSet dummyProcessPset;
@@ -83,8 +81,6 @@ namespace {
                                   iDesc.fullClassName(),
                                   iDesc.friendlyClassName(),
                                   iDesc.productInstanceName() + "-" + name_,
-                                  "",
-                                  iDesc.parameterSetID(),
                                   iDesc.unwrappedType());
       reg_->addProduct(prod);
     }
@@ -102,20 +98,13 @@ void testProductRegistry::setUp() {
   edm::ParameterSet pset;
   pset.registerIt();
   intBranch_ = std::make_shared<edm::BranchDescription>(
-      edm::InEvent, "labeli", "PROD", "int", "int", "int", "", pset.id(), edm::TypeWithDict(typeid(int)));
+      edm::InEvent, "labeli", "PROD", "int", "int", "int", edm::TypeWithDict(typeid(int)));
 
   floatBranch_ = std::make_shared<edm::BranchDescription>(
-      edm::InEvent, "labelf", "PROD", "float", "float", "float", "", pset.id(), edm::TypeWithDict(typeid(float)));
+      edm::InEvent, "labelf", "PROD", "float", "float", "float", edm::TypeWithDict(typeid(float)));
 
-  intVecBranch_ = std::make_shared<edm::BranchDescription>(edm::InEvent,
-                                                           "labelvi",
-                                                           "PROD",
-                                                           "std::vector<int>",
-                                                           "ints",
-                                                           "vint",
-                                                           "",
-                                                           pset.id(),
-                                                           edm::TypeWithDict(typeid(std::vector<int>)));
+  intVecBranch_ = std::make_shared<edm::BranchDescription>(
+      edm::InEvent, "labelvi", "PROD", "std::vector<int>", "ints", "vint", edm::TypeWithDict(typeid(std::vector<int>)));
 
   simpleVecBranch_ =
       std::make_shared<edm::BranchDescription>(edm::InEvent,
@@ -124,8 +113,6 @@ void testProductRegistry::setUp() {
                                                "edm::OwnVector<edmtest::Simple>",
                                                "edmtestSimplesOwned",
                                                "ovsimple",
-                                               "",
-                                               pset.id(),
                                                edm::TypeWithDict(typeid(edm::OwnVector<edmtest::Simple>)));
   simpleDerivedVecBranch_ =
       std::make_shared<edm::BranchDescription>(edm::InEvent,
@@ -134,8 +121,6 @@ void testProductRegistry::setUp() {
                                                "edm::OwnVector<edmtest::SimpleDerived>",
                                                "edmtestSimpleDerivedsOwned",
                                                "ovsimplederived",
-                                               "",
-                                               pset.id(),
                                                edm::TypeWithDict(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
 }
 
@@ -169,14 +154,13 @@ void testProductRegistry::testSignal() {
 void testProductRegistry::testWatch() {
   using namespace edm;
   SignallingProductRegistry reg;
-  ConstProductRegistry constReg(reg);
 
   int hear = 0;
   Listener listening(hear);
-  constReg.watchProductAdditions(listening);
-  constReg.watchProductAdditions(listening, &Listener::operator());
+  reg.watchProductAdditions(listening);
+  reg.watchProductAdditions(listening, &Listener::operator());
 
-  Responder one("one", constReg, reg);
+  Responder one("one", reg);
 
   //BranchDescription prod(InEvent, "label", "PROD", "int", "int", "int");
   //reg.addProduct(prod);
@@ -197,15 +181,14 @@ void testProductRegistry::testWatch() {
 void testProductRegistry::testCircular() {
   using namespace edm;
   SignallingProductRegistry reg;
-  ConstProductRegistry constReg(reg);
 
   int hear = 0;
   Listener listening(hear);
-  constReg.watchProductAdditions(listening);
-  constReg.watchProductAdditions(listening, &Listener::operator());
+  reg.watchProductAdditions(listening);
+  reg.watchProductAdditions(listening, &Listener::operator());
 
-  Responder one("one", constReg, reg);
-  Responder two("two", constReg, reg);
+  Responder one("one", reg);
+  Responder two("two", reg);
 
   //BranchDescription prod(InEvent, "label","PROD","int","int","int");
   //reg.addProduct(prod);

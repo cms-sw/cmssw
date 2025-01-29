@@ -29,6 +29,7 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -221,8 +222,6 @@ void testEvent::registerProduct(std::string const& tag,
                            product_type.userClassName(),
                            product_type.friendlyClassName(),
                            productInstanceName,
-                           moduleClassName,
-                           moduleParams.id(),
                            product_type);
 
   moduleDescriptions_[tag] = ModuleDescription(
@@ -370,8 +369,6 @@ testEvent::testEvent()
                            product_type.userClassName(),
                            product_type.friendlyClassName(),
                            productInstanceName,
-                           moduleClassName,
-                           moduleParams.id(),
                            product_type);
 
   availableProducts_->addProduct(branch);
@@ -447,15 +444,21 @@ void testEvent::setUp() {
   Timestamp time = make_timestamp();
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
-  auto rp = std::make_shared<RunPrincipal>(preg, pc, &historyAppender_, 0);
+  auto rp = std::make_shared<RunPrincipal>(preg, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   rp->setAux(RunAuxiliary(id.run(), time, time));
-  lbp_ = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_, 0);
+  lbp_ = std::make_shared<LuminosityBlockPrincipal>(
+      preg, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   lbp_->setAux(LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   lbp_->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID&>(eventAux.processHistoryID()) = processHistoryID;
-  principal_.reset(new edm::EventPrincipal(
-      preg, branchIDListHelper_, thinnedAssociationsHelper_, pc, &historyAppender_, edm::StreamID::invalidStreamID()));
+  principal_.reset(new edm::EventPrincipal(preg,
+                                           edm::productResolversFactory::makePrimary,
+                                           branchIDListHelper_,
+                                           thinnedAssociationsHelper_,
+                                           pc,
+                                           &historyAppender_,
+                                           edm::StreamID::invalidStreamID()));
   principal_->fillEventPrincipal(eventAux, processHistoryRegistry_.getMapped(eventAux.processHistoryID()));
   principal_->setLuminosityBlockPrincipal(lbp_.get());
   ModuleCallingContext mcc(currentModuleDescription_.get());

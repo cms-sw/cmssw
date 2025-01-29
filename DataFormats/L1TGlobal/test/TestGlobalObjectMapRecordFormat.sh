@@ -4,11 +4,9 @@ function die { echo $1: status $2 ;  exit $2; }
 
 LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
-cmsRun ${LOCAL_TEST_DIR}/create_GlobalObjectMapRecord_test_file_cfg.py || die 'Failure using create_GlobalObjectMapRecord_test_file_cfg.py' $?
-
-file=testGlobalObjectMapRecord.root
-
-cmsRun ${LOCAL_TEST_DIR}/test_readGlobalObjectMapRecord_cfg.py "$file" || die "Failure using test_readGlobalObjectMapRecord_cfg.py $file" $?
+tmpfile=testGlobalObjectMapRecord.root
+cmsRun ${LOCAL_TEST_DIR}/create_GlobalObjectMapRecord_test_file_cfg.py --outputFileName "${tmpfile}" || die 'Failure using create_GlobalObjectMapRecord_test_file_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/test_readGlobalObjectMapRecord_cfg.py --inputFileName "${tmpfile}" --globalObjectMapClassVersion 11 || die "Failure using test_readGlobalObjectMapRecord_cfg.py ${tmpfile}" $?
 
 # The old files read below were generated as follows.
 #
@@ -28,7 +26,13 @@ oldFiles="testGlobalObjectMapRecord_CMSSW_13_0_0_split_99.root testGlobalObjectM
 oldFiles+=" testGlobalObjectMapRecord_CMSSW_13_1_0_pre3_split_99.root testGlobalObjectMapRecord_CMSSW_13_1_0_pre3_split_0.root"
 for file in $oldFiles; do
   inputfile=$(edmFileInPath DataFormats/L1TGlobal/data/$file) || die "Failure edmFileInPath DataFormats/L1TGlobal/data/$file" $?
-  cmsRun ${LOCAL_TEST_DIR}/test_readGlobalObjectMapRecord_cfg.py "$inputfile" || die "Failed to read old file $file" $?
+  cmsRun ${LOCAL_TEST_DIR}/test_readGlobalObjectMapRecord_cfg.py --inputFileName "$inputfile" --globalObjectMapClassVersion 10 || die "Failed to read old file $file" $?
+done
+
+oldFiles="testGlobalObjectMapRecord_CMSSW_15_0_0_pre2_split_99.root testGlobalObjectMapRecord_CMSSW_15_0_0_pre2_split_0.root"
+for file in $oldFiles; do
+  inputfile=$(edmFileInPath DataFormats/L1TGlobal/data/$file) || die "Failure edmFileInPath DataFormats/L1TGlobal/data/$file" $?
+  cmsRun ${LOCAL_TEST_DIR}/test_readGlobalObjectMapRecord_cfg.py --inputFileName "$inputfile" --globalObjectMapClassVersion 11 || die "Failed to read old file $file" $?
 done
 
 exit 0

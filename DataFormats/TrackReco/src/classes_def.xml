@@ -31,7 +31,7 @@
     sourceClass="reco::HitPattern"
       source="uint16_t hitPattern[50]; uint8_t hitCount; uint8_t beginTrackHits; uint8_t endTrackHits;uint8_t beginInner; uint8_t endInner; uint8_t beginOuter; uint8_t endOuter;"
       targetClass="reco::HitPattern"
-      target=""
+      target="hitPattern,hitCount,beginTrackHits,endTrackHits,beginInner,endInner,beginOuter,endOuter"
       version="[12]"
       >
    <![CDATA[

@@ -19,8 +19,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename TrackerTraits>
     struct TestFillKernel {
-      template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(TAcc const& acc, TrackingRecHitSoAView<TrackerTraits> soa) const {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc, TrackingRecHitSoAView<TrackerTraits> soa) const {
         const uint32_t i(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
         const uint32_t j(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
 
@@ -36,8 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename TrackerTraits>
     struct ShowKernel {
-      template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(TAcc const& acc, TrackingRecHitSoAConstView<TrackerTraits> soa) const {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc, TrackingRecHitSoAConstView<TrackerTraits> soa) const {
         if (cms::alpakatools::once_per_grid(acc)) {
           printf("nbins = %d\n", soa.phiBinner().nbins());
           printf("offsetBPIX = %d\n", soa.offsetBPIX2());

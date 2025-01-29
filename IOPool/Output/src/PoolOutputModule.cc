@@ -2,7 +2,6 @@
 
 #include "IOPool/Output/src/RootOutputFile.h"
 
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
@@ -26,6 +25,7 @@
 #include "TBranchElement.h"
 #include "TObjArray.h"
 #include "RVersion.h"
+#include "TDictAttributeMap.h"
 
 #include <fstream>
 #include <iomanip>
@@ -107,14 +107,10 @@ namespace edm {
     pset.getUntrackedParameterSet("dataset");
   }
 
-  void PoolOutputModule::beginJob() {
-    Service<ConstProductRegistry> reg;
-    for (auto const& prod : reg->productList()) {
-      BranchDescription const& desc = prod.second;
-      if (desc.produced() && desc.branchType() == InEvent && !desc.isAlias()) {
-        producedBranches_.emplace_back(desc.branchID());
-      }
-    }
+  void PoolOutputModule::beginJob() {}
+
+  void PoolOutputModule::initialRegistry(edm::ProductRegistry const& iReg) {
+    reg_ = std::make_unique<ProductRegistry>(iReg.productList());
   }
 
   std::string const& PoolOutputModule::currentFileName() const { return rootOutputFile_->fileName(); }
@@ -211,13 +207,31 @@ namespace edm {
         splitLevel = theBranch->GetSplitLevel();
         basketSize = theBranch->GetBasketSize();
       } else {
-        splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
+        auto wp = prod.wrappedType().getClass()->GetAttributeMap();
+        auto wpSplitLevel = BranchDescription::invalidSplitLevel;
+        if (wp && wp->HasKey("splitLevel")) {
+          wpSplitLevel = strtol(wp->GetPropertyAsString("splitLevel"), nullptr, 0);
+          if (wpSplitLevel < 0) {
+            throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " << wpSplitLevel
+                                                      << " is specified for class " << prod.wrappedName() << ".'\n";
+          }
+          wpSplitLevel += 1;  //Compensate for wrapper
+        }
+        splitLevel = (wpSplitLevel == BranchDescription::invalidSplitLevel ? splitLevel_ : wpSplitLevel);
         for (auto const& b : specialSplitLevelForBranches_) {
           if (b.match(prod.branchName())) {
             splitLevel = b.splitLevel_;
           }
         }
-        basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
+        auto wpBasketSize = BranchDescription::invalidBasketSize;
+        if (wp && wp->HasKey("basketSize")) {
+          wpBasketSize = strtol(wp->GetPropertyAsString("basketSize"), nullptr, 0);
+          if (wpBasketSize <= 0) {
+            throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " << wpBasketSize
+                                                      << " is specified for class " << prod.wrappedName() << "'.\n";
+          }
+        }
+        basketSize = (wpBasketSize == BranchDescription::invalidBasketSize ? basketSize_ : wpBasketSize);
       }
       outputItemList.emplace_back(&prod, kept.second, splitLevel, basketSize);
     }
@@ -305,7 +319,12 @@ namespace edm {
     rootOutputFile_->writeLuminosityBlock(lb);
   }
 
-  void PoolOutputModule::writeRun(RunForOutput const& r) { rootOutputFile_->writeRun(r); }
+  void PoolOutputModule::writeRun(RunForOutput const& r) {
+    if (!reg_ or (reg_->size() < r.productRegistry().size())) {
+      reg_ = std::make_unique<ProductRegistry>(r.productRegistry().productList());
+    }
+    rootOutputFile_->writeRun(r);
+  }
 
   void PoolOutputModule::writeProcessBlock(ProcessBlockForOutput const& pb) { rootOutputFile_->writeProcessBlock(pb); }
 
@@ -343,7 +362,10 @@ namespace edm {
   }
   void PoolOutputModule::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
   void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
-  void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
+  void PoolOutputModule::writeProductDescriptionRegistry() {
+    assert(reg_);
+    rootOutputFile_->writeProductDescriptionRegistry(*reg_);
+  }
   void PoolOutputModule::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
   void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
@@ -411,6 +433,14 @@ namespace edm {
 
   void PoolOutputModule::updateBranchParents(EventForOutput const& e) {
     ProductProvenanceRetriever const* provRetriever = e.productProvenanceRetrieverPtr();
+    if (producedBranches_.empty()) {
+      for (auto const& prod : e.productRegistry().productList()) {
+        BranchDescription const& desc = prod.second;
+        if (desc.produced() && desc.branchType() == InEvent && !desc.isAlias()) {
+          producedBranches_.emplace_back(desc.branchID());
+        }
+      }
+    }
     for (auto const& bid : producedBranches_) {
       updateBranchParentsForOneBranch(provRetriever, bid);
     }

@@ -15,6 +15,10 @@ namespace HepMC {
   class GenVertex;
 }  // namespace HepMC
 
+namespace HepMC3 {
+  class GenEvent;
+}  // namespace HepMC3
+
 namespace gen {
   class PhotosppInterface : public PhotosInterfaceBase {
   public:
@@ -25,6 +29,7 @@ namespace gen {
     void init() override;
     const std::vector<std::string>& specialSettings() override { return fSpecialSettings; }
     HepMC::GenEvent* apply(HepMC::GenEvent*) override;
+    HepMC3::GenEvent* apply(HepMC3::GenEvent*) override;
     void configureOnlyFor(int) override;
     void avoidTauLeptonicDecays() override {
       fAvoidTauLeptonicDecays = true;

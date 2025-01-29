@@ -54,7 +54,7 @@ namespace edm {
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
     private:
-      void registerProductsAndCallbacks(EDAnalyzerBase const*, ProductRegistry* reg);
+      void registerProductsAndCallbacks(EDAnalyzerBase const*, SignallingProductRegistry* reg);
 
       virtual void beginStream(StreamID) {}
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) {}

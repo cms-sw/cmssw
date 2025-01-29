@@ -11,12 +11,12 @@
 namespace {
   template <typename T>
   inline T toPhi(T phi) {
-    return reco::reduceRange(phi);
+    return reco::reducePhiRange(phi);
   }
 
   template <typename T>
   inline T deltaPhi(T phi1, T phi2) {
-    return reco::reduceRange(phi1 - phi2);
+    return reco::reducePhiRange(phi1 - phi2);
   }
 
   inline bool phiLess(float x, float y) {

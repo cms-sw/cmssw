@@ -287,7 +287,7 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
   for (auto [key, num_total_rechit] : total_rechit_iEta) {
     mapTotalRecHitPerEvtIEta_.Fill(key, num_total_rechit);
   }
-  for (auto [key, mapSub] : mapCLSOver5) {
+  for (const auto& [key, mapSub] : mapCLSOver5) {
     for (auto [chamber, b] : mapSub) {
       mapCLSOver5_.Fill(key4Tokey3(key), chamber, keyToIEta(key));
     }

@@ -6,7 +6,6 @@
 #include "DataFormats/Provenance/interface/ProductProvenanceLookup.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -59,6 +58,8 @@ namespace edmtest {
 
     void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& es) const override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& iDesc);
+
   private:
     edm::EDGetTokenT<IntProduct> token_;
     std::vector<std::string> expectedAncestors_;
@@ -70,38 +71,65 @@ namespace edmtest {
         expectedAncestors_(pset.getParameter<std::vector<std::string> >("expectedAncestors")),
         callGetProvenance_(pset.getUntrackedParameter<bool>("callGetProvenance", true)) {}
 
+  void TestParentage::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
+    edm::ParameterSetDescription ps;
+    ps.add<edm::InputTag>("inputTag");
+    ps.add<std::vector<std::string> >("expectedAncestors")
+        ->setComment(
+            "Module labels for data products directly/indirectly obtained to make data product retrieved using "
+            "'inputTag'.");
+    ps.addUntracked<bool>("callGetProvenance", true)
+        ->setComment("Use Event::getProvenance to get ancestor provenance.");
+
+    iDesc.addDefault(ps);
+  }
+
   void TestParentage::analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const {
     edm::Handle<IntProduct> h = e.getHandle(token_);
-
+    *h;
     edm::Provenance const* prov = h.provenance();
 
+    if (not prov) {
+      throw cms::Exception("MissingProvenance") << "Failed to get provenance for 'inputTag'";
+    }
     if (prov->originalBranchID() != prov->branchDescription().originalBranchID()) {
-      std::cerr << "TestParentage::analyze: test of Provenance::originalBranchID function failed" << std::endl;
-      abort();
+      throw cms::Exception("InconsistentBranchID")
+          << " test of Provenance::originalBranchID function failed. Expected "
+          << prov->branchDescription().originalBranchID() << " but see " << prov->originalBranchID();
     }
 
     std::set<std::string> expectedAncestors(expectedAncestors_.begin(), expectedAncestors_.end());
 
-    std::map<edm::BranchID, std::string> branchIDToLabel;
-    edm::Service<edm::ConstProductRegistry> reg;
-    for (auto const& prod : reg->productList()) {
-      branchIDToLabel[prod.second.branchID()] = prod.second.moduleLabel();
-    }
-
     // Currently we need to turn off this part of the test of when calling
     // from a SubProcess and the parentage includes a product not kept
     // in the SubProcess. This might get fixed someday ...
+    auto toException = [](auto& ex, auto const& ancestors) {
+      for (auto const& a : ancestors) {
+        ex << a << ", ";
+      }
+    };
+
     if (callGetProvenance_) {
       std::set<edm::BranchID> ancestors;
       getAncestors(e, prov->branchID(), ancestors);
 
       std::set<std::string> ancestorLabels;
       for (edm::BranchID const& ancestor : ancestors) {
-        ancestorLabels.insert(branchIDToLabel[ancestor]);
+        try {
+          ancestorLabels.insert(e.getStableProvenance(ancestor).moduleLabel());
+        } catch (cms::Exception& iEx) {
+          edm::LogSystem("MissingProvenance") << "the provenance for BranchID " << ancestor << " is missing\n"
+                                              << iEx.what();
+          ancestorLabels.insert("");
+        }
       }
       if (ancestorLabels != expectedAncestors) {
-        std::cerr << "TestParentage::analyze: ancestors do not match expected ancestors" << std::endl;
-        abort();
+        cms::Exception ex("WrongAncestors");
+        ex << "ancestors from Event::getProvenance\n";
+        toException(ex, ancestorLabels);
+        ex << "\n do not match expected ancestors\n";
+        toException(ex, expectedAncestors);
+        throw ex;
       }
     }
 
@@ -111,12 +139,22 @@ namespace edmtest {
 
     std::set<std::string> ancestorLabels2;
     for (edm::BranchID const& ancestor : ancestorsFromRetriever) {
-      ancestorLabels2.insert(branchIDToLabel[ancestor]);
+      try {
+        ancestorLabels2.insert(e.getStableProvenance(ancestor).moduleLabel());
+      } catch (cms::Exception& iEx) {
+        edm::LogSystem("MissingProvenance")
+            << "the provenance from Retriever for BranchID " << ancestor << " is missing\n"
+            << iEx.what();
+        ancestorLabels2.insert("");
+      }
     }
     if (ancestorLabels2 != expectedAncestors) {
-      std::cerr << "TestParentage::analyze: ancestors do not match expected ancestors (parentage from retriever)"
-                << std::endl;
-      abort();
+      cms::Exception ex("WrongAncestors");
+      ex << "ancestors from ParentageRetriever\n";
+      toException(ex, ancestorLabels2);
+      ex << "\n do not match expected ancestors\n";
+      toException(ex, expectedAncestors);
+      throw ex;
     }
   }
 }  // namespace edmtest

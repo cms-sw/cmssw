@@ -24,12 +24,12 @@
 // user include files
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
-
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 // forward declarations
 namespace edm {
   class Maker;
   class ModuleDescription;
-  class ProductRegistry;
+  class SignallingProductRegistry;
   class ExceptionToActionTable;
   class PreallocationConfiguration;
 
@@ -43,7 +43,7 @@ namespace edm {
       virtual ModuleDescription const& moduleDescription() const = 0;
       virtual void setModuleDescription(ModuleDescription const& iDesc) = 0;
       virtual void preallocate(PreallocationConfiguration const&) = 0;
-      virtual void registerProductsAndCallbacks(ProductRegistry*) = 0;
+      virtual void registerProductsAndCallbacks(SignallingProductRegistry*) = 0;
       virtual void replaceModuleFor(Worker*) const = 0;
 
       virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() = 0;
@@ -67,7 +67,7 @@ namespace edm {
       void setModuleDescription(ModuleDescription const& iDesc) override { m_mod->setModuleDescription(iDesc); }
       void preallocate(PreallocationConfiguration const& iPrealloc) override { m_mod->doPreallocate(iPrealloc); }
 
-      void registerProductsAndCallbacks(ProductRegistry* iReg) override {
+      void registerProductsAndCallbacks(SignallingProductRegistry* iReg) override {
         m_mod->registerProductsAndCallbacks(module().get(), iReg);
       }
 

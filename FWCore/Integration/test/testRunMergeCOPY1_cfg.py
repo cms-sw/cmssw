@@ -8,8 +8,6 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("COPY")
-
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.threshold = 'ERROR'
 
@@ -19,20 +17,21 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(
+    fileNames = [
         'file:testRunMergeRecombined.root',
         'file:testRunMergeRecombined.root'
-    )
-    , duplicateCheckMode = cms.untracked.string('checkEachFile')
-    , skipEvents = cms.untracked.uint32(3)
-    , noEventSort = cms.untracked.bool(False)
+    ]
+    , duplicateCheckMode = 'checkEachFile'
+    , skipEvents = 3
+    , noEventSort = False
 )
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+from FWCore.Framework.modules import RunLumiEventAnalyzer
+process.test = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 1, 0, 0,
 1, 1, 0,
 1, 1, 4,
@@ -113,7 +112,7 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 1, 1, 10,
 1, 1, 0,
 1, 0, 0
-)
+]
 )
 # At this point the first input file is done and
 # we start with the second input file here.
@@ -205,8 +204,7 @@ process.test.expectedRunLumiEvents.extend([
 
 process.path1 = cms.Path(process.test)
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:testRunMergeRecombinedCopied1.root')
-)
+from IOPool.Output.modules import PoolOutputModule
+process.out = PoolOutputModule(fileName = 'testRunMergeRecombinedCopied1.root')
 
 process.endpath1 = cms.EndPath(process.out)

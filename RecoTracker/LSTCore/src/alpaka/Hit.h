@@ -1,6 +1,9 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_Hit_h
 #define RecoTracker_LSTCore_src_alpaka_Hit_h
 
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/alpakastdAlgorithm.h"
+
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/alpaka/HitsDeviceCollection.h"
@@ -57,15 +60,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   struct ModuleRangesKernel {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   HitsRanges hitsRanges,
                                   int nLowerModules) const {
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (int lowerIndex = globalThreadIdx[2]; lowerIndex < nLowerModules; lowerIndex += gridThreadExtent[2]) {
+      for (int lowerIndex : cms::alpakatools::uniform_elements(acc, nLowerModules)) {
         uint16_t upperIndex = modules.partnerModuleIndices()[lowerIndex];
         if (hitsRanges.hitRanges()[lowerIndex][0] != -1 && hitsRanges.hitRanges()[upperIndex][0] != -1) {
           hitsRanges.hitRangesLower()[lowerIndex] = hitsRanges.hitRanges()[lowerIndex][0];
@@ -80,8 +79,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   };
 
   struct HitLoopKernel {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   uint16_t Endcap,          // Integer corresponding to endcap in module subdets
                                   uint16_t TwoS,            // Integer corresponding to TwoS in moduleType
                                   unsigned int nModules,    // Number of modules
@@ -94,9 +92,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     {
       auto geoMapDetId = endcapGeometry.geoMapDetId();  // DetId's from endcap map
       auto geoMapPhi = endcapGeometry.geoMapPhi();      // Phi values from endcap map
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-      for (unsigned int ihit = globalThreadIdx[2]; ihit < nHits; ihit += gridThreadExtent[2]) {
+      for (unsigned int ihit : cms::alpakatools::uniform_elements(acc, nHits)) {
         float ihit_x = hits.xs()[ihit];
         float ihit_y = hits.ys()[ihit];
         float ihit_z = hits.zs()[ihit];
@@ -108,7 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             ((ihit_z > 0) - (ihit_z < 0)) *
             alpaka::math::acosh(
                 acc, alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y + ihit_z * ihit_z) / hits.rts()[ihit]);
-        auto found_pointer = std::lower_bound(modules.mapdetId(), modules.mapdetId() + nModules, iDetId);
+        auto found_pointer = alpaka_std::lower_bound(modules.mapdetId(), modules.mapdetId() + nModules, iDetId);
         int found_index = std::distance(modules.mapdetId(), found_pointer);
         if (found_pointer == modules.mapdetId() + nModules)
           found_index = -1;
@@ -117,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         hits.moduleIndices()[ihit] = lastModuleIndex;
 
         if (modules.subdets()[lastModuleIndex] == Endcap && modules.moduleType()[lastModuleIndex] == TwoS) {
-          found_pointer = std::lower_bound(geoMapDetId, geoMapDetId + nEndCapMap, iDetId);
+          found_pointer = alpaka_std::lower_bound(geoMapDetId, geoMapDetId + nEndCapMap, iDetId);
           found_index = std::distance(geoMapDetId, found_pointer);
           if (found_pointer == geoMapDetId + nEndCapMap)
             found_index = -1;

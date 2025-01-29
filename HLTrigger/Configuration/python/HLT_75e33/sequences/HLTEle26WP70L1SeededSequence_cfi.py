@@ -9,12 +9,12 @@ from ..sequences.HLTHgcalTiclPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
+from ..sequences.HLTTrackingSequence_cfi import *
 
 from ..modules.hltEgammaCandidatesL1Seeded_cfi import *
 from ..modules.hltEgammaClusterShapeL1Seeded_cfi import *
 from ..modules.hltEgammaEcalPFClusterIsoL1Seeded_cfi import *
-from ..modules.hltEgammaEleGsfTrackIsoV6L1Seeded_cfi import *
+from ..modules.hltEgammaEleGsfTrackIsoL1Seeded_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsL1Seeded_cfi import *
@@ -77,7 +77,7 @@ HLTEle26WP70L1SeededSequence = cms.Sequence(HLTL1Sequence
     +hltEle26WP70BestGsfChi2L1SeededFilter
     +hltEgammaEleL1TrkIsoL1Seeded
     +hltEle26WP70GsfTrackIsoFromL1TracksL1SeededFilter
-    +HLTTrackingV61Sequence
-    +hltEgammaEleGsfTrackIsoV6L1Seeded
+    +HLTTrackingSequence
+    +hltEgammaEleGsfTrackIsoL1Seeded
     +hltEle26WP70GsfTrackIsoL1SeededFilter
 )

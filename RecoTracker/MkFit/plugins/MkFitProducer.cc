@@ -177,7 +177,7 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
       stripContainerMask.copyMaskTo(stripMask);
     }
   } else {
-    if (mkFitGeom.isPhase1())
+    if (mkFitGeom.isPhase1() && minGoodStripCharge_ > 0)
       stripClusterChargeCut(iEvent.get(stripClusterChargeToken_), stripMask);
   }
 

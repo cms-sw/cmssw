@@ -1,14 +1,11 @@
-#ifndef GtBoard_h
-#define GtBoard_h
+#ifndef L1Trigger_L1TGlobal_GlobalBoard_h
+#define L1Trigger_L1TGlobal_GlobalBoard_h
 
 /**
  * \class GlobalBoard
  *
  *
  * Description: Global Trigger Logic board.
- *
- * Implementation:
- *    <TODO: enter implementation details>
  *
  */
 
@@ -18,6 +15,7 @@
 #include <vector>
 #include <cmath>
 #include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
@@ -46,11 +44,6 @@
 
 // forward declarations
 class TriggerMenu;
-class L1CaloGeometry;
-class L1MuTriggerScales;
-//class L1GtEtaPhiConversions;
-
-// class declaration
 
 namespace l1t {
 
@@ -84,9 +77,7 @@ namespace l1t {
     void receiveMuonObjectData(const edm::Event&,
                                const edm::EDGetTokenT<BXVector<l1t::Muon>>&,
                                const bool receiveMu,
-                               const int nrL1Mu,
-                               const std::vector<l1t::Muon>* muonVec_bxm2,
-                               const std::vector<l1t::Muon>* muonVec_bxm1);
+                               const int nrL1Mu);
 
     void receiveMuonShowerObjectData(const edm::Event&,
                                      const edm::EDGetTokenT<BXVector<l1t::MuonShower>>&,
@@ -107,19 +98,23 @@ namespace l1t {
               int bxFirst,
               int bxLast);
 
-    /// run the uGT GTL (Conditions and Algorithms)
+    /// initialise Trigger Conditions
+    void initTriggerConditions(const edm::EventSetup& evSetup,
+                               const TriggerMenu* m_l1GtMenu,
+                               const int nrL1Mu,
+                               const int nrL1MuShower,
+                               const int nrL1EG,
+                               const int nrL1Tau,
+                               const int nrL1Jet);
+
+    /// run the uGT GTL (Algorithms, per-event decisions)
     void runGTL(const edm::Event& iEvent,
                 const edm::EventSetup& evSetup,
                 const TriggerMenu* m_l1GtMenu,
                 const bool produceL1GtObjectMapRecord,
                 const int iBxInEvent,
                 std::unique_ptr<GlobalObjectMapRecord>& gtObjectMapRecord,  //GTO
-                const unsigned int numberPhysTriggers,
-                const int nrL1Mu,
-                const int nrL1MuShower,
-                const int nrL1EG,
-                const int nrL1Tau,
-                const int nrL1Jet);
+                const unsigned int numberPhysTriggers);
 
     /// run the uGT FDL (Apply Prescales and Veto)
     void runFDL(const edm::Event& iEvent,
@@ -221,23 +216,6 @@ namespace l1t {
     inline void enableAXOScoreSaving(bool savescore) { m_saveAXOScore = savescore; }
 
   private:
-    // cached stuff
-
-    // trigger menu
-    const TriggerMenu* m_l1GtMenu;
-    unsigned long long m_l1GtMenuCacheID;
-
-    // L1 scales (phi, eta) for Mu, Calo and EnergySum objects
-    const L1CaloGeometry* m_l1CaloGeometry;
-    unsigned long long m_l1CaloGeometryCacheID;
-
-    const L1MuTriggerScales* m_l1MuTriggerScales;
-    unsigned long long m_l1MuTriggerScalesCacheID;
-
-    // conversions for eta and phi
-    //    L1GtEtaPhiConversions* m_gtEtaPhiConversions;
-
-  private:
     BXVector<const l1t::Muon*>* m_candL1Mu;
     BXVector<std::shared_ptr<l1t::MuonShower>>* m_candL1MuShower;
     BXVector<const l1t::L1Candidate*>* m_candL1EG;
@@ -264,8 +242,9 @@ namespace l1t {
 
     //for optional software-only saving of axol1tl score
     AXOL1TLScore m_uGtAXOScore;       //score dataformat
-    float m_storedAXOScore = -999.0;  //score from cond class
+    float m_storedAXOScore = -999.f;  //score from cond class
     bool m_saveAXOScore = false;
+    std::string m_axoScoreConditionName;
 
     // cache of maps
     std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
@@ -283,13 +262,6 @@ namespace l1t {
     bool m_algPrescaledOr;
     bool m_algFinalOr;
     bool m_algFinalOrVeto;
-
-    // Counter for number of events seen by this board
-    unsigned int m_boardEventCount;
-
-    // Information about board
-    int m_uGtBoardNumber;
-    bool m_uGtFinalBoard;
 
     // whether we reset the prescales each lumi or not
     bool m_resetPSCountersEachLumiSec = false;

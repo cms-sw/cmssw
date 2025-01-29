@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from ..modules.hltPFMET_cfi import *
-from ..modules.hltPFMETJetCorrector_cfi import *
-from ..modules.hltPFMETJetCorrectorL1_cfi import *
-from ..modules.hltPFMETJetCorrectorL2_cfi import *
-from ..modules.hltPFMETJetCorrectorL3_cfi import *
+from ..modules.hltAK4PFCHSJetCorrector_cfi import *
+from ..modules.hltAK4PFCHSJetCorrectorL1_cfi import *
+from ..modules.hltAK4PFCHSJetCorrectorL2_cfi import *
+from ..modules.hltAK4PFCHSJetCorrectorL3_cfi import *
 from ..modules.hltPFMETTypeOne_cfi import *
 from ..modules.hltPFMETTypeOneCorrector_cfi import *
 
-HLTPFMETsReconstruction = cms.Sequence(hltPFMET+hltPFMETJetCorrectorL1+hltPFMETJetCorrectorL2+hltPFMETJetCorrectorL3+hltPFMETJetCorrector+hltPFMETTypeOneCorrector+hltPFMETTypeOne)
+HLTPFMETsReconstruction = cms.Sequence(hltPFMET+hltAK4PFCHSJetCorrectorL1+hltAK4PFCHSJetCorrectorL2+hltAK4PFCHSJetCorrectorL3+hltAK4PFCHSJetCorrector+hltPFMETTypeOneCorrector+hltPFMETTypeOne)

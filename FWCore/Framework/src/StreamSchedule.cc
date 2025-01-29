@@ -3,9 +3,9 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
@@ -108,7 +108,7 @@ namespace edm {
     }
 
     void initializeBranchToReadingWorker(std::vector<std::string> const& branchesToDeleteEarly,
-                                         ProductRegistry const& preg,
+                                         SignallingProductRegistry const& preg,
                                          std::multimap<std::string, Worker*>& branchToReadingWorker) {
       auto vBranchesToDeleteEarly = branchesToDeleteEarly;
       // Remove any duplicates
@@ -155,7 +155,7 @@ namespace edm {
     Worker* getWorker(std::string const& moduleLabel,
                       ParameterSet& proc_pset,
                       WorkerManager& workerManager,
-                      ProductRegistry& preg,
+                      SignallingProductRegistry& preg,
                       PreallocationConfiguration const* prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration) {
       bool isTracked;
@@ -263,7 +263,7 @@ namespace edm {
     using AliasInfo = StreamSchedule::AliasInfo;
 
     ConditionalTaskHelper(ParameterSet& proc_pset,
-                          ProductRegistry& preg,
+                          SignallingProductRegistry& preg,
                           PreallocationConfiguration const* prealloc,
                           std::shared_ptr<ProcessConfiguration const> processConfiguration,
                           WorkerManager& workerManagerLumisAndEvents,
@@ -341,7 +341,7 @@ namespace edm {
     }
 
     void processSwitchEDAliases(ParameterSet const& proc_pset,
-                                ProductRegistry& preg,
+                                SignallingProductRegistry& preg,
                                 ProcessConfiguration const& processConfiguration,
                                 std::unordered_set<std::string> const& allConditionalMods) {
       auto const& all_modules = proc_pset.getParameter<std::vector<std::string>>("@all_modules");
@@ -376,7 +376,7 @@ namespace edm {
       ParameterSet& proc_pset,
       service::TriggerNamesService const& tns,
       PreallocationConfiguration const& prealloc,
-      ProductRegistry& preg,
+      SignallingProductRegistry& preg,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
       std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -539,7 +539,7 @@ namespace edm {
                                              std::vector<std::string> const& branchesToDeleteEarly,
                                              std::multimap<std::string, std::string> const& referencesToBranches,
                                              std::vector<std::string> const& modulesToSkip,
-                                             edm::ProductRegistry const& preg) {
+                                             edm::SignallingProductRegistry const& preg) {
     // setup the list with those products actually registered for this job
     std::multimap<std::string, Worker*> branchToReadingWorker;
     initializeBranchToReadingWorker(branchesToDeleteEarly, preg, branchToReadingWorker);
@@ -754,7 +754,7 @@ namespace edm {
       std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
       std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
       ParameterSet& proc_pset,
-      ProductRegistry& preg,
+      SignallingProductRegistry& preg,
       PreallocationConfiguration const* prealloc,
       std::shared_ptr<ProcessConfiguration const> processConfiguration) {
     std::vector<Worker*> returnValue;
@@ -825,7 +825,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
-                                   ProductRegistry& preg,
+                                   SignallingProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    std::string const& pathName,
@@ -933,7 +933,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillTrigPath(ParameterSet& proc_pset,
-                                    ProductRegistry& preg,
+                                    SignallingProductRegistry& preg,
                                     PreallocationConfiguration const* prealloc,
                                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                     int bitpos,
@@ -967,7 +967,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillEndPath(ParameterSet& proc_pset,
-                                   ProductRegistry& preg,
+                                   SignallingProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    int bitpos,

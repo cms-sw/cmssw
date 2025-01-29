@@ -9,14 +9,14 @@
 #else
 namespace reco {
   template <typename T>
-  inline T reduceRange(T x) {
+  inline T reducePhiRange(T x) {
     T o2pi = 1. / (2. * M_PI);
     if (std::abs(x) <= T(M_PI))
       return x;
     T n = std::round(x * o2pi);
     return x - n * T(2. * M_PI);
   }
-  inline double deltaPhi(double phi1, double phi2) { return reduceRange(phi1 - phi2); }
+  inline double deltaPhi(double phi1, double phi2) { return reducePhiRange(phi1 - phi2); }
 }  // namespace reco
 #endif
 

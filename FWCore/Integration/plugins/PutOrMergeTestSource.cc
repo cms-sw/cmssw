@@ -27,7 +27,7 @@ namespace edmtest {
     PutOrMergeTestSource(ParameterSet const&, InputSourceDescription const&);
 
     /// Register any produced products
-    void registerProducts() final;
+    void registerProducts(SignallingProductRegistry&) final;
 
   private:
     ItemTypeInfo getNextItemType() final;
@@ -38,7 +38,6 @@ namespace edmtest {
     void readEvent_(EventPrincipal& eventPrincipal) final;
 
     int stage_;
-    ParameterSet const dummyPSet_;
     BranchDescription thingDesc_;
     BranchDescription thingWithMergeDesc_;
     BranchDescription thingWithEqualDesc_;
@@ -51,19 +50,12 @@ using namespace edmtest;
 PutOrMergeTestSource::PutOrMergeTestSource(ParameterSet const& iPS, InputSourceDescription const& iISD)
     : InputSource(iPS, iISD),
       stage_(0),
-      dummyPSet_([]() {
-        ParameterSet dummy;
-        dummy.registerIt();
-        return dummy;
-      }()),
       thingDesc_(InRun,
                  "thingWithMergeProducer",
                  "PROD",
                  "edmtest::Thing",
                  "edmtestThing",
                  "endRun",
-                 "PutOrMergeTestSource",
-                 dummyPSet_.id(),
                  edm::TypeWithDict(typeid(edmtest::Thing)),
                  false,
                  true),
@@ -73,8 +65,6 @@ PutOrMergeTestSource::PutOrMergeTestSource(ParameterSet const& iPS, InputSourceD
                           "edmtest::ThingWithMerge",
                           "edmtestThingWithMerge",
                           "endRun",
-                          "PutOrMergeTestSource",
-                          dummyPSet_.id(),
                           edm::TypeWithDict(typeid(edmtest::ThingWithMerge)),
                           false,
                           true),
@@ -84,8 +74,6 @@ PutOrMergeTestSource::PutOrMergeTestSource(ParameterSet const& iPS, InputSourceD
                           "edmtest::ThingWithIsEqual",
                           "edmtestThingWithIsEqual",
                           "endRun",
-                          "PutOrMergeTestSource",
-                          dummyPSet_.id(),
                           edm::TypeWithDict(typeid(edmtest::ThingWithIsEqual)),
                           false,
                           true) {
@@ -98,7 +86,7 @@ PutOrMergeTestSource::PutOrMergeTestSource(ParameterSet const& iPS, InputSourceD
   historyID_ = history.id();
 }
 
-void PutOrMergeTestSource::registerProducts() {
+void PutOrMergeTestSource::registerProducts(SignallingProductRegistry&) {
   edm::ParameterSet dummyPset;
   dummyPset.registerIt();
 

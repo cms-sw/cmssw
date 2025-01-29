@@ -48,8 +48,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -154,10 +152,7 @@ namespace edm {
     ~HiMixingModule() override;
 
   private:
-    //virtual void beginJob() override {}
     void produce(edm::Event&, const edm::EventSetup&) override;
-    //virtual void endJob() override {}
-    bool verifyRegistry(std::string object, std::string subdet, InputTag& tag, std::string& label);
     // ----------member data ---------------------------
 
     std::vector<HiMixingWorkerBase*> workers_;
@@ -255,47 +250,6 @@ namespace edm {
 
     std::unique_ptr<PileupMixingContent> PileupMixing_ = std::make_unique<PileupMixingContent>();
     iEvent.put(std::move(PileupMixing_));
-  }
-
-  bool HiMixingModule::verifyRegistry(std::string object, std::string subdet, InputTag& tag, std::string& label) {
-    // verify that the given product exists in the product registry
-    // and create the label to be given to the CrossingFrame
-
-    edm::Service<edm::ConstProductRegistry> reg;
-    // Loop over provenance of products in registry.
-    std::string lookfor;
-    if (object == "HepMCProduct")
-      lookfor = "edm::" + object;  //exception for HepMCProduct
-    else if (object == "edm::HepMCProduct")
-      lookfor = object;
-    else
-      lookfor = "std::vector<" + object + ">";
-    bool found = false;
-    for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
-         it != reg->productList().end();
-         ++it) {
-      // See FWCore/Framework/interface/BranchDescription.h
-      // BranchDescription contains all the information for the product.
-      edm::BranchDescription desc = it->second;
-      if (desc.className() == lookfor && desc.moduleLabel() == tag.label() &&
-          desc.productInstanceName() == tag.instance()) {
-        label = desc.moduleLabel() + desc.productInstanceName();
-        found = true;
-        /*
-	 wantedBranches_.push_back(desc.friendlyClassName() + '_' +
-				   desc.moduleLabel() + '_' +
-				   desc.productInstanceName());
-	 */
-        break;
-      }
-    }
-    if (!found) {
-      LogWarning("MixingModule") << "!!!!!!!!!Could not find in registry requested object: " << object << " with "
-                                 << tag << ".\nWill NOT be considered for mixing!!!!!!!!!";
-      return false;
-    }
-
-    return true;
   }
 
   //define this as a plug-in

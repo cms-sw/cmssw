@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("FIRST")
 
-process.Tracer = cms.Service('Tracer',
-  dumpEventSetupInfo = cms.untracked.bool(True)
-)
-
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+from FWCore.Services.modules import Tracer, ZombieKillerService, JobReportService
+process.add_(Tracer(dumpEventSetupInfo = True))
+process.add_(ZombieKillerService())
+process.add_(JobReportService())
 
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.cerr.INFO.limit = 100
@@ -17,25 +16,20 @@ process.options = cms.untracked.PSet(
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(30)
+process.maxEvents.input = 30
+
+from FWCore.Modules.modules import EmptySource
+process.source = EmptySource(
+    firstRun = 1,
+    firstLuminosityBlock = 1,
+    firstEvent = 1,
+    numberEventsInLuminosityBlock = 4,
+    numberEventsInRun = 10
 )
 
-process.source = cms.Source("EmptySource",
-    firstRun = cms.untracked.uint32(1),
-    firstLuminosityBlock = cms.untracked.uint32(1),
-    firstEvent = cms.untracked.uint32(1),
-    numberEventsInLuminosityBlock = cms.untracked.uint32(4),
-    numberEventsInRun = cms.untracked.uint32(10)
-)
+from FWCore.Integration.modules import DoodadESSource, WhatsItESProducer, ThingWithMergeProducer
+process.DoodadESSource = DoodadESSource(appendToDataLabel = 'abc', test2 = 'z')
 
-process.DoodadESSource = cms.ESSource("DoodadESSource"
-                                      , appendToDataLabel = cms.string('abc')
-                                      , test2 = cms.untracked.string('z')
-)
-
-process.ZombieKillerService = cms.Service("ZombieKillerService")
-process.JobReportService = cms.Service("JobReportService")
 
 # ---------------------------------------------------------------
 
@@ -48,6 +42,8 @@ process.addSubProcess(cms.SubProcess(copyProcess))
 # The service from the top level process should be used.
 # They intentionally have an illegal parameter to fail
 # if they are ever constructed.
+# Intentionally not using the more modern python syntax to avoid
+# python catching the illegal parameter
 copyProcess.MessageLogger = cms.Service("MessageLogger",
     intentionallyIllegalParameter = cms.bool(True)
 )
@@ -76,48 +72,34 @@ copyProcess.CondorStatusService = cms.Service("CondorStatusService",
     intentionallyIllegalParameter = cms.bool(True)
 )
 
-copyProcess.DoodadESSource = cms.ESSource("DoodadESSource"
-                                          , appendToDataLabel = cms.string('abc')
-                                          , test2 = cms.untracked.string('zz')
-)
+copyProcess.DoodadESSource = DoodadESSource(appendToDataLabel = 'abc', test2 = 'zz')
 
 # ---------------------------------------------------------------
 
 prodProcess = cms.Process("PROD")
 copyProcess.addSubProcess(cms.SubProcess(prodProcess))
 
-prodProcess.DoodadESSource = cms.ESSource("DoodadESSource"
-                                          , appendToDataLabel = cms.string('abcd')
-                                          , test2 = cms.untracked.string('z')
-)
+prodProcess.DoodadESSource = DoodadESSource(appendToDataLabel = 'abcd', test2 = 'z')
 
-prodProcess.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
+prodProcess.thingWithMergeProducer = ThingWithMergeProducer()
 
 prodProcess.p1 = cms.Path(prodProcess.thingWithMergeProducer)
 
-prodProcess.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
-    toGet = cms.VPSet(cms.PSet(
+from FWCore.Modules.modules import EventSetupRecordDataGetter
+prodProcess.get = EventSetupRecordDataGetter(
+    toGet = [cms.PSet(
         record = cms.string('GadgetRcd'),
         data = cms.vstring('edmtest::Doodad/abcd')
-    ) ),
-    verbose = cms.untracked.bool(True)
+    ) ],
+    verbose = True
 )
 
-prodProcess.noPut = cms.EDProducer("ThingWithMergeProducer",
-    noPut = cms.untracked.bool(True)
-)
+prodProcess.noPut = ThingWithMergeProducer(noPut = True)
 
-prodProcess.putInt = cms.EDProducer("IntProducer",
-    ivalue = cms.int32(6)
-)
-
-prodProcess.putInt2 = cms.EDProducer("IntProducer",
-    ivalue = cms.int32(6)
-)
-
-prodProcess.putInt3 = cms.EDProducer("IntProducer",
-    ivalue = cms.int32(6)
-)
+from FWCore.Framework.modules import IntProducer, TestMergeResults, RunLumiEventAnalyzer
+prodProcess.putInt = IntProducer(ivalue = 6)
+prodProcess.putInt2 = IntProducer(ivalue = 6)
+prodProcess.putInt3 = IntProducer(ivalue = 6)
 
 prodProcess.getInt = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag(
@@ -139,10 +121,7 @@ prodProcess.path2 = cms.Path(prodProcess.noPut)
 copy2Process = cms.Process("COPY2")
 prodProcess.addSubProcess(cms.SubProcess(copy2Process))
 
-copy2Process.DoodadESSource = cms.ESSource("DoodadESSource"
-                                           , appendToDataLabel = cms.string('abc')
-                                           , test2 = cms.untracked.string('z')
-)
+copy2Process.DoodadESSource = DoodadESSource(appendToDataLabel = 'abc', test2 = 'z')
 
 # ---------------------------------------------------------------
 
@@ -152,36 +131,30 @@ copy2Process.addSubProcess(cms.SubProcess(prod2Process,
         "keep *",
         "drop *_putInt_*_*"),
 ))
-prod2Process.DoodadESSource = cms.ESSource("DoodadESSource"
-                                           , appendToDataLabel = cms.string('abc')
-                                           , test2 = cms.untracked.string('zz')
-)
+prod2Process.DoodadESSource = DoodadESSource(appendToDataLabel = 'abc', test2 = 'zz')
 
-prod2Process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
+prod2Process.WhatsItESProducer = WhatsItESProducer()
 
-prod2Process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
+prod2Process.thingWithMergeProducer = ThingWithMergeProducer()
 
 # Reusing some code I used for testing merging, although in this
 # context it has nothing to do with merging.
-prod2Process.testmerge = cms.EDAnalyzer("TestMergeResults",
-
-    expectedProcessHistoryInRuns = cms.untracked.vstring(
+prod2Process.testmerge = TestMergeResults(
+    expectedProcessHistoryInRuns = [
         'PROD',            # Run 1
         'PROD2',
         'PROD',            # Run 2
         'PROD2',
         'PROD',            # Run 3
         'PROD2'
-    )
+    ]
 )
 
-prod2Process.dependsOnNoPut = cms.EDProducer("ThingWithMergeProducer",
-    labelsToGet = cms.untracked.vstring('noPut')
-)
+prod2Process.dependsOnNoPut = ThingWithMergeProducer(labelsToGet = ['noPut'])
 
-prod2Process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+prod2Process.test = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 1,   0,   0,
 1,   1,   0,
 1,   1,   1,
@@ -236,15 +209,15 @@ prod2Process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 3,   3,   10,
 3,   3,   0,
 3,   0,   0
-)
+]
 )
 
-prod2Process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
-    toGet = cms.VPSet(cms.PSet(
+prod2Process.get = EventSetupRecordDataGetter(
+    toGet = [cms.PSet(
         record = cms.string('GadgetRcd'),
         data = cms.vstring('edmtest::Doodad/abc')
-    ) ),
-    verbose = cms.untracked.bool(True)
+    ) ],
+    verbose = True
 )
 
 prod2Process.getInt = cms.EDAnalyzer("TestFindProduct",
@@ -256,9 +229,8 @@ prod2Process.getInt = cms.EDAnalyzer("TestFindProduct",
   )
 )
 
-prod2Process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testSubProcess.root')
-)
+from IOPool.Output.modules import PoolOutputModule
+prod2Process.out = PoolOutputModule(fileName = 'testSubProcess.root')
 
 prod2Process.path1 = cms.Path(prod2Process.thingWithMergeProducer)
 
@@ -277,36 +249,30 @@ copy2Process.addSubProcess(cms.SubProcess(prod2ProcessAlt,
         "keep *",
         "drop *_putInt_*_*"),
 ))
-prod2ProcessAlt.DoodadESSource = cms.ESSource("DoodadESSource"
-                                           , appendToDataLabel = cms.string('abc')
-                                           , test2 = cms.untracked.string('zz')
-)
+prod2ProcessAlt.DoodadESSource = DoodadESSource(appendToDataLabel = 'abc', test2 = 'zz')
 
-prod2ProcessAlt.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
+prod2ProcessAlt.WhatsItESProducer = WhatsItESProducer()
 
-prod2ProcessAlt.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
+prod2ProcessAlt.thingWithMergeProducer = ThingWithMergeProducer()
 
 # Reusing some code I used for testing merging, although in this
 # context it has nothing to do with merging.
-prod2ProcessAlt.testmerge = cms.EDAnalyzer("TestMergeResults",
-
-    expectedProcessHistoryInRuns = cms.untracked.vstring(
+prod2ProcessAlt.testmerge = TestMergeResults(
+    expectedProcessHistoryInRuns = [
         'PROD',            # Run 1
         'PROD2ALT',
         'PROD',            # Run 2
         'PROD2ALT',
         'PROD',            # Run 3
         'PROD2ALT'
-    )
+    ]
 )
 
-prod2ProcessAlt.dependsOnNoPut = cms.EDProducer("ThingWithMergeProducer",
-    labelsToGet = cms.untracked.vstring('noPut')
-)
+prod2ProcessAlt.dependsOnNoPut = ThingWithMergeProducer(labelsToGet = ['noPut'])
 
-prod2ProcessAlt.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+prod2ProcessAlt.test = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 1,   0,   0,
 1,   1,   0,
 1,   1,   1,
@@ -361,15 +327,15 @@ prod2ProcessAlt.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 3,   3,   10,
 3,   3,   0,
 3,   0,   0
-)
+]
 )
 
-prod2ProcessAlt.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
-    toGet = cms.VPSet(cms.PSet(
+prod2ProcessAlt.get = EventSetupRecordDataGetter(
+    toGet = [cms.PSet(
         record = cms.string('GadgetRcd'),
         data = cms.vstring('edmtest::Doodad/abc')
-    ) ),
-    verbose = cms.untracked.bool(True)
+    ) ],
+    verbose = True
 )
 
 prod2ProcessAlt.getInt = cms.EDAnalyzer("TestFindProduct",
@@ -381,9 +347,7 @@ prod2ProcessAlt.getInt = cms.EDAnalyzer("TestFindProduct",
   )
 )
 
-prod2ProcessAlt.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testSubProcessAlt.root')
-)
+prod2ProcessAlt.out = PoolOutputModule(fileName = 'testSubProcessAlt.root')
 
 prod2ProcessAlt.path1 = cms.Path(prod2ProcessAlt.thingWithMergeProducer)
 

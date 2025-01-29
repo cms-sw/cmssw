@@ -9,7 +9,6 @@
 #include "FWCore/Common/interface/SubProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/CommonParams.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -107,13 +106,8 @@ namespace edm {
     return token;
   }
 
-  ServiceToken ScheduleItems::addCPRandTNS(ParameterSet const& parameterSet, ServiceToken const& token) {
-    //add the ProductRegistry as a service ONLY for the construction phase
-    typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
-    auto reg = std::make_shared<w_CPR>(std::make_unique<ConstProductRegistry>(*preg_));
-    ServiceToken tempToken(ServiceRegistry::createContaining(reg, token, serviceregistry::kOverlapIsError));
-
-    // the next thing is ugly: pull out the trigger path pset and
+  ServiceToken ScheduleItems::addTNS(ParameterSet const& parameterSet, ServiceToken const& token) {
+    // This is ugly: pull out the trigger path pset and
     // create a service and extra token for it
 
     typedef service::TriggerNamesService TNS;
@@ -121,7 +115,7 @@ namespace edm {
 
     auto tnsptr = std::make_shared<w_TNS>(std::make_unique<TNS>(parameterSet));
 
-    return ServiceRegistry::createContaining(tnsptr, tempToken, serviceregistry::kOverlapIsError);
+    return ServiceRegistry::createContaining(tnsptr, token, serviceregistry::kOverlapIsError);
   }
 
   std::shared_ptr<CommonParams> ScheduleItems::initMisc(ParameterSet& parameterSet) {

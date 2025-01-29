@@ -5,8 +5,6 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MERGE")
-
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.threshold = 'ERROR'
 
@@ -15,32 +13,35 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(
+    fileNames = [
         'file:testRunMerge1.root', 
         'file:testRunMerge2.root', 
         'file:testRunMerge3.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
-    )
-    , lumisToProcess = cms.untracked.VLuminosityBlockRange(
-                                           '11:2',
-                                           '15:2-15:8',
-                                           '19:2-20:2',
-                                           '21:4'
-                                          )
-    , eventsToSkip = cms.untracked.VEventRange(
-                                           '19:4:6-19:4:8',
-                                           '21:3:8'
-                                           )
-    , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
+    ]
+    , lumisToProcess = [
+        '11:2',
+        '15:2-15:8',
+        '19:2-20:2',
+        '21:4'
+    ]
+    , eventsToSkip = [
+        '19:4:6-19:4:8',
+        '21:3:8'
+    ]
+    , duplicateCheckMode = 'checkEachRealDataFile'
 )
 
-process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
+from FWCore.Integration.modules import ThingWithMergeProducer
+process.thingWithMergeProducer = ThingWithMergeProducer()
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+from FWCore.Framework.modules import RunLumiEventAnalyzer
+process.test = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 11, 0, 0,
 11, 2, 0,
 11, 2, 1,
@@ -94,7 +95,7 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 21, 4, 9,
 21, 4, 0,
 21, 0, 0
-)
+]
 )
 
 process.path1 = cms.Path(process.thingWithMergeProducer + process.test)

@@ -31,12 +31,34 @@
   </class>
   <class name="edm::Wrapper<GlobalObjectMapRecord>"/>
 
-  <class name="GlobalObjectMap" ClassVersion="10">
+  <class name="GlobalObjectMap" ClassVersion="11">
+   <version ClassVersion="11" checksum="760424007"/>
    <version ClassVersion="10" checksum="1899280385"/>
   </class>
   <class name="edm::Wrapper<GlobalObjectMap>"/>
   <class name="std::vector<GlobalObjectMap>"/>
   <class name="edm::Wrapper<std::vector<GlobalObjectMap> >"/>
+  <!-- Adding ioread rules for backwards compatibility -->
+  <ioread sourceClass="GlobalObjectMap" version="[3-10]"
+          source="std::vector<std::vector<std::vector<L1TObjIndexType>>> m_combinationVector;"
+          targetClass="GlobalObjectMap" target="m_combinationWithBxVector">
+    <![CDATA[
+             m_combinationWithBxVector.clear();
+             m_combinationWithBxVector.reserve(onfile.m_combinationVector.size());
+             for(auto const& a0 : onfile.m_combinationVector) {
+               CombinationsWithBxInCond b0;
+               b0.reserve(a0.size());
+               for(auto const& a1 : a0) {
+                 SingleCombWithBxInCond b1;
+                 b1.reserve(a1.size());
+                 for(auto const a2 : a1) {
+                   b1.emplace_back(0, a2);
+                 }
+                 b0.emplace_back(b1);
+               }
+               m_combinationWithBxVector.emplace_back(b0);
+             }]]>
+  </ioread>
 
   <class name="std::vector<l1t::GlobalObject>"/>
   <class name="std::vector<std::vector<l1t::GlobalObject> >"/>

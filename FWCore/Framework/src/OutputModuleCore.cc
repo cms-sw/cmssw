@@ -23,7 +23,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/src/insertSelectedProcesses.h"
@@ -159,6 +159,8 @@ namespace edm {
       thinnedAssociationsHelper_->updateFromParentProcess(
           thinnedAssociationsHelper, keepAssociation_, droppedBranchIDToKeptBranchID_);
       outputProcessBlockHelper_.updateAfterProductSelection(processesWithKeptProcessBlockProducts, processBlockHelper);
+
+      initialRegistry(preg);
     }
 
     void OutputModuleCore::updateBranchIDListsWithKeptAliases() {
@@ -257,12 +259,11 @@ namespace edm {
 
     void OutputModuleCore::doEndJob() { endJob(); }
 
-    void OutputModuleCore::registerProductsAndCallbacks(OutputModuleCore const*, ProductRegistry* reg) {
+    void OutputModuleCore::registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistry* reg) {
       if (callWhenNewProductsRegistered_) {
         reg->callForEachBranch(callWhenNewProductsRegistered_);
 
-        Service<ConstProductRegistry> regService;
-        regService->watchProductAdditions(callWhenNewProductsRegistered_);
+        reg->watchProductAdditions(callWhenNewProductsRegistered_);
       }
     }
 

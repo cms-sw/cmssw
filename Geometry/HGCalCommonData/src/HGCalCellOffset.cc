@@ -30,24 +30,19 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
       } else if (j == HGCalCell::cornerCell) {  // Offset for corner cells
         if (k == 0) {
           double h = (mouseBiteCut_ - sqrt3By2_ * cellX_[k]);
-          double H = mouseBiteCut_ + guardRingOffset_ - (1 / sqrt3By2_ * guardRingOffset_);
+          double H = mouseBiteCut_ - (1 / sqrt3By2_ * guardRingSizeOffset_);
           double h1 = H - (sqrt3_ / 4 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
           double h2 = H - (sqrt3_ / 2 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
           double totalArea = 11.0 * sqrt3_ * std::pow(cellX_[k], 2) / 8.0;
           double cutArea1 =
-              (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - (0.5 / sqrt3_ * std::pow(guardRingSizeOffset_, 2));
-          double cutArea2 =
               (sqrt3_ * cellX_[k] * guardRingSizeOffset_) - (0.5 / sqrt3_ * std::pow(guardRingSizeOffset_, 2));
+          double cutArea2 =
+              (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - (0.5 / sqrt3_ * std::pow(guardRingSizeOffset_, 2));
           double A1 = 2.0 * cellX_[k] * h - std::pow(h, 2) / (sqrt3_);
           double A2 = sqrt3By2_ * cellX_[k] * cellX_[k];
           double A3 = sqrt3By2_ * cellX_[k] * cellX_[k] / 4.0;
           double cutArea3 =
               sqrt3_ * std::pow(H, 2) - (1 / sqrt3By2_ * std::pow(h1, 2)) - (1 / sqrt3By2_ * std::pow(h2, 2));
-#ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeomX") << "h1 " << h1 << " h2 " << h2 << " H " << H << " cutarea1 " << cutArea1
-                                         << " cutarea2 " << cutArea2 << " cutarea3 " << cutArea3 << "  " << cellX_[k]
-                                         << " " << guardRingSizeOffset_;
-#endif
           double x3_1 = -(((2.0 * std::pow(h, 3)) / (3.0 * sqrt3_) - cellX_[k] * std::pow(h, 2)) / A1);
           double y3_1 = 0;
           double x3_2 = -(sqrt3By2_ * cellX_[k] / 3);
@@ -91,16 +86,14 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           }
         } else if (k == 1) {
           double h = (mouseBiteCut_ - guardRingOffset_) / sqrt3By2_ - cellX_[k] / 2;
-          double H = mouseBiteCut_ + guardRingOffset_ - (1 / sqrt3By2_ * guardRingOffset_);
-          double h1 = H - (sqrt3_ / 4 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
-          double h2 = H - (sqrt3_ / 2 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
+          double H = mouseBiteCut_ - (1 / sqrt3By2_ * guardRingSizeOffset_);
+          double h1 = H - ((sqrt3_ / 4) * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
           double totalArea = 11.0 * sqrt3_ * std::pow(cellX_[k], 2) / 8.0;
           double cutArea1 =
-              (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - (0.5 / sqrt3_ * std::pow(guardRingSizeOffset_, 2));
-          double cutArea2 =
               (sqrt3_ * cellX_[k] * guardRingSizeOffset_) - (0.5 / sqrt3_ * std::pow(guardRingSizeOffset_, 2));
-          double cutArea3 =
-              sqrt3_ * std::pow(H, 2) - (1 / sqrt3By2_ * std::pow(h1, 2)) - (1 / sqrt3By2_ * std::pow(h2, 2));
+          double cutArea2 =
+              (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - (0.5 / sqrt3_ * std::pow(guardRingSizeOffset_, 2));
+          double cutArea3 = sqrt3_ * std::pow(H, 2) - (1 / sqrt3By2_ * std::pow(h1, 2));
           //double cutArea3 = sqrt3_ * std::pow((mouseBiteCut_ - guardRingOffset_), 2) - sqrt3By2_ * std::pow(h, 2);
 
           double x2_0 = (0.375 * cellX_[k] * cellX_[k] - (0.25 * cellX_[k] * guardRingOffset_) +
@@ -184,7 +177,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           offsetY[k][j][i] = tempOffsetY[i];
         }
       } else if (j == HGCalCell::truncatedMBCell) {
-        double H = mouseBiteCut_ + guardRingOffset_ - (1 / sqrt3By2_ * guardRingOffset_);
+        double H = mouseBiteCut_ - (1 / sqrt3By2_ * guardRingSizeOffset_);
         double h = H - (sqrt3_ / 2 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
         if (h > 0) {
           double totalArea = 5.0 * sqrt3_ * std::pow(cellX_[k], 2) / 4.0;
@@ -197,10 +190,6 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           double x2 = -((sqrt3By2_ * cellX_[k]) - (2.0 * h) / 3.0);
           double y2 = 0.5 * cellX_[k] - (2.0 * h) / (3.0 * sqrt3_);
           cellArea[k][j] = totalArea - cutArea1 - cutArea2;
-#ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeomX") << "trunMB h " << h << " tot " << totalArea << " cutArea1 " << cutArea1
-                                         << " cutArea2 " << cutArea2;
-#endif
           double xMag1 =
               ((sqrt3_ * cellX_[k] / 15.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) / (cellArea[k][j]);
           double yMag1 = ((cellX_[k] / 15.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) / (cellArea[k][j]);
@@ -243,7 +232,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           }
         }
       } else if (j == HGCalCell::extendedMBCell) {
-        double H = mouseBiteCut_ + guardRingOffset_ - (1 / sqrt3By2_ * guardRingOffset_);
+        double H = mouseBiteCut_ - (1 / sqrt3By2_ * guardRingSizeOffset_);
         double h = H - (sqrt3_ / 4 * cellX_[k]) + (guardRingSizeOffset_ / (2 * sqrt3_));
 
         double totalArea = 7.0 * sqrt3_ * std::pow(cellX_[k], 2) / 4.0;
@@ -255,10 +244,6 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         double x2 = -(sqrt3By2_ * 1.5 * cellX_[k] - h / sqrt3_);
         double y2 = -0.25 * cellX_[k] + h / 3.0;
         cellArea[k][j] = totalArea - cutArea1 - cutArea2;
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeomX") << H << "trunMB h " << h << " tot " << totalArea << " cutArea1 " << cutArea1
-                                       << " cutArea2 " << cutArea2;
-#endif
         double xMag1 =
             ((-10.0 * sqrt3_ * cellX_[k] / 168.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) / (cellArea[k][j]);
         double yMag1 = ((10.0 * cellX_[k] / 168.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) / (cellArea[k][j]);
@@ -284,7 +269,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         }
       }
     }
-    for (int j = HGCalCell::partiaclWaferCellsOffset; j < (11 + HGCalCell::partiaclWaferCellsOffset);
+    for (int j = HGCalCell::partiaclWaferCellsOffset; j < (25 + HGCalCell::partiaclWaferCellsOffset);
          ++j) {  //For cells in partial wafers
       if (j == (HGCalCell::halfCell)) {
         double totalArea = (3.0 * sqrt3_ / 4.0) * std::pow(cellX_[k], 2);
@@ -314,10 +299,10 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
           offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
         }
-      } else if (j == (HGCalCell::halfTrunCell)) {
+      } else if (j == (HGCalCell::extHalfTrunCell)) {
         double totalArea = 5 * sqrt3_ * std::pow(cellX_[k], 2) / 8;
         double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - guardRingOffset_ * guardRingSizeOffset_;
-        double cutArea2 = (3 * cellX_[k] * guardRingOffset_) / 2 - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+        double cutArea2 = (2 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
 
         double x1 = -sqrt3_ * cellX_[k] / 4;
         double y1 = (0.5 * cellX_[k] - 0.5 * guardRingOffset_);
@@ -349,10 +334,10 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
           offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
         }
-      } else if (j == (HGCalCell::halfExtCell)) {
+      } else if (j == (HGCalCell::extHalfExtCell)) {
         double totalArea = (7.0 * sqrt3_ / 8.0) * std::pow(cellX_[k], 2);
-        double cutArea1 = cellX_[k] * sqrt3By2_ * guardRingOffset_ - std::pow(guardRingOffset_, 2);
-        double cutArea2 = cellX_[k] * 2.0 * guardRingOffset_ - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+        double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - guardRingOffset_ * guardRingSizeOffset_;
+        double cutArea2 = (2 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
         cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea1 - cutArea2;
 
         double x1 = -sqrt3By2_ * cellX_[k] / 2;
@@ -383,13 +368,454 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
           offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
           offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
         }
+      } else if (j == (HGCalCell::extTrunCellCenCut)) {
+        double totalArea = 5 * sqrt3_ * std::pow(cellX_[k], 2) / 8;
+        double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - guardRingOffset_ * guardRingSizeOffset_;
+        double cutArea2 = (cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+
+        double x1 = -sqrt3_ * cellX_[k] / 4;
+        double y1 = (0.5 * cellX_[k] - 0.5 * guardRingOffset_);
+        double x2 = (-3 * cellX_[k] * guardRingOffset_ / 4 + std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (3 * cellX_[k] / 2 - guardRingOffset_ / (2 * sqrt3_));
+        double y2 = (-cellX_[k] * guardRingOffset_ / (2 * sqrt3_) + std::pow(guardRingOffset_, 2) / 18 -
+                     3 * std::pow(cellX_[k], 2) / 8) /
+                    (3 * cellX_[k] / 2 - guardRingOffset_ / (2 * sqrt3_));
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] =
+            2 * cellAreaPartial[k][HGCalCell::extHalfTrunCell - HGCalCell::partiaclWaferCellsOffset];
+        double xMag1 = ((-7 * sqrt3_ * cellX_[k] / 30) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) /
+                       (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = ((-2 * cellX_[k] / 15) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double xMag = -xMag1;
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::extExtCellCenCut)) {
+        double totalArea = (7.0 * sqrt3_ / 8.0) * std::pow(cellX_[k], 2);
+        double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingSizeOffset_) - guardRingOffset_ * guardRingSizeOffset_;
+        double cutArea2 = (2 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] =
+            2 * cellAreaPartial[k][HGCalCell::extHalfExtCell - HGCalCell::partiaclWaferCellsOffset];
+
+        double x1 = -sqrt3By2_ * cellX_[k] / 2;
+        double y1 = -(cellX_[k] - guardRingOffset_ / 2);
+        double x2 = (-cellX_[k] * guardRingOffset_ + std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (2 * cellX_[k] - guardRingOffset_ / (2 * sqrt3_));
+        double y2 = (-cellX_[k] * guardRingOffset_ / (2 * sqrt3_) + std::pow(guardRingOffset_, 2) / 18) /
+                    (2 * cellX_[k] - guardRingOffset_ / (2 * sqrt3_));
+        double xMag = ((-5 * sqrt3_ * cellX_[k] / 21.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = ((-5 * cellX_[k] / 42.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::extTrunCellEdgeCut)) {
+        double totalArea = 5 * sqrt3_ * std::pow(cellX_[k], 2) / 4;
+        double cutArea1 = (sqrt3_ * cellX_[k] * guardRingSizeOffset_) - guardRingOffset_ * guardRingSizeOffset_;
+        double cutArea2 = (cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+
+        double x1 = -sqrt3_ * cellX_[k] / 4;
+        double y1 = (0.5 * cellX_[k] - 0.5 * guardRingOffset_);
+        double x2 = (-3 * cellX_[k] * guardRingOffset_ / 4 + std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (3 * cellX_[k] / 2 - guardRingOffset_ / (2 * sqrt3_));
+        double y2 = (-cellX_[k] * guardRingOffset_ / (2 * sqrt3_) + std::pow(guardRingOffset_, 2) / 18 -
+                     3 * std::pow(cellX_[k], 2) / 8) /
+                    (3 * cellX_[k] / 2 - guardRingOffset_ / (2 * sqrt3_));
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea1 - cutArea2;
+        double xMag1 = ((-7 * sqrt3_ * cellX_[k] / 30) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) /
+                       (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = ((-2 * cellX_[k] / 15) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double xMag = -xMag1;
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::extExtCellEdgeCut)) {
+        double totalArea = (7.0 * sqrt3_ / 4.0) * std::pow(cellX_[k], 2);
+        double cutArea1 = (sqrt3_ * cellX_[k] * guardRingSizeOffset_) - guardRingOffset_ * guardRingSizeOffset_;
+        double cutArea2 = (1.5 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea1 - cutArea2;
+
+        double x1 = -sqrt3By2_ * cellX_[k] / 2;
+        double y1 = -(cellX_[k] - guardRingOffset_ / 2);
+        double x2 = (-cellX_[k] * guardRingOffset_ + std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (2 * cellX_[k] - guardRingOffset_ / (2 * sqrt3_));
+        double y2 = (-cellX_[k] * guardRingOffset_ / (2 * sqrt3_) + std::pow(guardRingOffset_, 2) / 18) /
+                    (2 * cellX_[k] - guardRingOffset_ / (2 * sqrt3_));
+        double xMag = ((-5 * sqrt3_ * cellX_[k] / 21.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = ((-5 * cellX_[k] / 42.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::fullCellCenCut)) {
+        double totalArea = (3.0 * sqrt3_ / 2.0) * std::pow(cellX_[k], 2);
+        double cutArea = cellX_[k] * 4.0 * guardRingOffset_ - std::pow(guardRingOffset_, 2) / sqrt3By2_;
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea;
+        double x1 = (-cellX_[k] * guardRingOffset_ + 2 * std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (2 * cellX_[k] - guardRingOffset_ / sqrt3_);
+        double y1 = 0;
+        double xMag = ((-2.0 * sqrt3_ * cellX_[k] / 9.0) * totalArea - (cutArea * x1)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = (0 * totalArea - (cutArea * y1)) / (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::fullCellEdgeCut)) {
+        double totalArea = (3.0 * sqrt3_ / 2.0) * std::pow(cellX_[k], 2);
+        double cutArea = cellX_[k] * guardRingOffset_ - std::pow(guardRingOffset_, 2) / sqrt3_;
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea;
+        double x1 = (-cellX_[k] * guardRingOffset_ + 2 * std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (2 * cellX_[k] - guardRingOffset_ / sqrt3_);
+        double y1 = 0;
+        double xMag = ((-2.0 * sqrt3_ * cellX_[k] / 9.0) * totalArea - (cutArea * x1)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = (0 * totalArea - (cutArea * y1)) / (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == HGCalCell::intTrunCell) {                            // Offset for truncated cells
+        double totalArea = (5.0 * sqrt3_ / 4.0) * std::pow(cellX_[k], 2);  // Area of cell without any dead zone
+        double cutArea =
+            cellX_[k] * sqrt3_ * guardRingOffset_;  // Area of inactive region form guardring and other effects
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea;
+        double offMag = (((-2.0 / 15.0) * totalArea * cellX_[k]) - ((cellX_[k] - (0.5 * guardRingOffset_)) * cutArea)) /
+                        (cellArea[k][j]);  // Magnitude of offset
+        // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
+        // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
+        // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)
+        std::array<double, 6> tempOffsetX = {
+            {-0.5 * offMag, -offMag, -0.5 * offMag, 0.5 * offMag, offMag, 0.5 * offMag}};
+        std::array<double, 6> tempOffsetY = {
+            {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}};
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == HGCalCell::intExtCell) {                             //Offset for extended cells
+        double totalArea = (7.0 * sqrt3_ / 4.0) * std::pow(cellX_[k], 2);  // Area of cell without any dead zone
+        double cutArea =
+            cellX_[k] * sqrt3_ * guardRingOffset_;  // Area of inactive region form guardring and other effects
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea;
+        double offMag =  // Magnitude of offset
+            (((5.0 / 42.0) * totalArea * cellX_[k]) - ((cellX_[k] - (0.5 * guardRingOffset_))) * (cutArea)) /
+            (cellArea[k][j]);
+        // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
+        // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
+        // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)
+        std::array<double, 6> tempOffsetX = {
+            {-0.5 * offMag, -offMag, -0.5 * offMag, 0.5 * offMag, offMag, 0.5 * offMag}};
+        std::array<double, 6> tempOffsetY = {
+            {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}};
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::intHalfExtCell)) {
+        double totalArea = (7.0 * sqrt3_ / 8.0) * std::pow(cellX_[k], 2);
+        double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingOffset_) - guardRingOffset_ * guardRingOffset_;
+        double cutArea2 = (2 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea1 - cutArea2;
+        double x1 = -sqrt3By2_ * cellX_[k] / 2;
+        double y1 = -(cellX_[k] - guardRingOffset_ / 2);
+        double x2 = (-cellX_[k] * guardRingOffset_ + std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (2 * cellX_[k] - guardRingOffset_ / (2 * sqrt3_));
+        double y2 = (-cellX_[k] * guardRingOffset_ / (2 * sqrt3_) + std::pow(guardRingOffset_, 2) / 18) /
+                    (2 * cellX_[k] - guardRingOffset_ / (2 * sqrt3_));
+        double xMag = ((-5 * sqrt3_ * cellX_[k] / 21.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = ((-5 * cellX_[k] / 42.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::intHalfTrunCell)) {
+        double totalArea = 5 * sqrt3_ * std::pow(cellX_[k], 2) / 8;
+        double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingOffset_) - guardRingOffset_ * guardRingOffset_;
+        double cutArea2 = (2 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+        double x1 = -sqrt3_ * cellX_[k] / 4;
+        double y1 = (0.5 * cellX_[k] - 0.5 * guardRingOffset_);
+        double x2 = (-3 * cellX_[k] * guardRingOffset_ / 4 + std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (3 * cellX_[k] / 2 - guardRingOffset_ / (2 * sqrt3_));
+        double y2 = (-cellX_[k] * guardRingOffset_ / (2 * sqrt3_) + std::pow(guardRingOffset_, 2) / 18 -
+                     3 * std::pow(cellX_[k], 2) / 8) /
+                    (3 * cellX_[k] / 2 - guardRingOffset_ / (2 * sqrt3_));
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea1 - cutArea2;
+        double xMag1 = ((-7 * sqrt3_ * cellX_[k] / 30) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) /
+                       (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = ((-2 * cellX_[k] / 15) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double xMag = -xMag1;
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::intTrunCellCenCut)) {
+        double totalArea = (7.0 * sqrt3_ / 4.0) * std::pow(cellX_[k], 2);
+        double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingOffset_) - guardRingOffset_ * guardRingOffset_;
+        double cutArea2 = (2 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] =
+            2 * cellAreaPartial[k][HGCalCell::intHalfTrunCell - HGCalCell::partiaclWaferCellsOffset];
+
+        double x1 = -sqrt3By2_ * cellX_[k] / 2;
+        double y1 = -(cellX_[k] - guardRingOffset_ / 2);
+        double x2 = (-cellX_[k] * guardRingOffset_ + std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (2 * cellX_[k] - guardRingOffset_ / (2 * sqrt3_));
+        double y2 = (-cellX_[k] * guardRingOffset_ / (2 * sqrt3_) + std::pow(guardRingOffset_, 2) / 18) /
+                    (2 * cellX_[k] - guardRingOffset_ / (2 * sqrt3_));
+        double xMag = ((-5 * sqrt3_ * cellX_[k] / 21.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = ((-5 * cellX_[k] / 42.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::intExtCellCenCut)) {
+        double totalArea = 5 * sqrt3_ * std::pow(cellX_[k], 2) / 8;
+        double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingOffset_) - guardRingOffset_ * guardRingOffset_;
+        double cutArea2 = (2 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+        double x1 = -sqrt3_ * cellX_[k] / 4;
+        double y1 = (0.5 * cellX_[k] - 0.5 * guardRingOffset_);
+        double x2 = (-3 * cellX_[k] * guardRingOffset_ / 4 + std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (3 * cellX_[k] / 2 - guardRingOffset_ / (2 * sqrt3_));
+        double y2 = (-cellX_[k] * guardRingOffset_ / (2 * sqrt3_) + std::pow(guardRingOffset_, 2) / 18 -
+                     3 * std::pow(cellX_[k], 2) / 8) /
+                    (3 * cellX_[k] / 2 - guardRingOffset_ / (2 * sqrt3_));
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] =
+            2 * cellAreaPartial[k][HGCalCell::intHalfExtCell - HGCalCell::partiaclWaferCellsOffset];
+        double xMag1 = ((-7 * sqrt3_ * cellX_[k] / 30) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) /
+                       (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = ((-2 * cellX_[k] / 15) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double xMag = -xMag1;
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::intTrunCellEdgeCut)) {
+        double totalArea = (7.0 * sqrt3_ / 4.0) * std::pow(cellX_[k], 2);
+        double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingOffset_) - guardRingOffset_ * guardRingOffset_;
+        double cutArea2 = (2 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] =
+            2 * cellAreaPartial[k][HGCalCell::intHalfTrunCell - HGCalCell::partiaclWaferCellsOffset];
+
+        double x1 = -sqrt3By2_ * cellX_[k] / 2;
+        double y1 = -(cellX_[k] - guardRingOffset_ / 2);
+        double x2 = (-cellX_[k] * guardRingOffset_ + std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (2 * cellX_[k] - guardRingOffset_ / (2 * sqrt3_));
+        double y2 = (-cellX_[k] * guardRingOffset_ / (2 * sqrt3_) + std::pow(guardRingOffset_, 2) / 18) /
+                    (2 * cellX_[k] - guardRingOffset_ / (2 * sqrt3_));
+        double xMag = ((-5 * sqrt3_ * cellX_[k] / 21.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = ((-5 * cellX_[k] / 42.0) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
+      } else if (j == (HGCalCell::intExtCellEdgeCut)) {
+        double totalArea = 5 * sqrt3_ * std::pow(cellX_[k], 2) / 8;
+        double cutArea1 = (sqrt3By2_ * cellX_[k] * guardRingOffset_) - guardRingOffset_ * guardRingOffset_;
+        double cutArea2 = (2 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+        double x1 = -sqrt3_ * cellX_[k] / 4;
+        double y1 = (0.5 * cellX_[k] - 0.5 * guardRingOffset_);
+        double x2 = (-3 * cellX_[k] * guardRingOffset_ / 4 + std::pow(guardRingOffset_, 2) / (3 * sqrt3_)) /
+                    (3 * cellX_[k] / 2 - guardRingOffset_ / (2 * sqrt3_));
+        double y2 = (-cellX_[k] * guardRingOffset_ / (2 * sqrt3_) + std::pow(guardRingOffset_, 2) / 18 -
+                     3 * std::pow(cellX_[k], 2) / 8) /
+                    (3 * cellX_[k] / 2 - guardRingOffset_ / (2 * sqrt3_));
+        cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] =
+            2 * cellAreaPartial[k][HGCalCell::intHalfExtCell - HGCalCell::partiaclWaferCellsOffset];
+        double xMag1 = ((-7 * sqrt3_ * cellX_[k] / 30) * totalArea - (cutArea1 * x1) - (cutArea2 * x2)) /
+                       (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double yMag = ((-2 * cellX_[k] / 15) * totalArea - (cutArea1 * y1) - (cutArea2 * y2)) /
+                      (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
+        double xMag = -xMag1;
+
+        std::array<double, 6> tempOffsetX = {{(-sqrt3By2_ * xMag - 0.5 * yMag),
+                                              (-sqrt3By2_ * xMag + 0.5 * yMag),
+                                              yMag,
+                                              (sqrt3By2_ * xMag + 0.5 * yMag),
+                                              (sqrt3By2_ * xMag - 0.5 * yMag),
+                                              -yMag}};
+        std::array<double, 6> tempOffsetY = {{(0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-sqrt3By2_ * yMag - 0.5 * xMag),
+                                              -xMag,
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              (0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag}};
+        for (int i = 0; i < 6; ++i) {
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
+        }
       } else if (j == (HGCalCell::LDPartial0714Cell)) {
         if (k == 1) {
           double totalArea = (9.0 * sqrt3_ / 4.0) * std::pow(cellX_[k], 2);
           double cutArea1 =
-              (3 * cellX_[k] * sqrt3By2_ * guardRingOffset_) - (std::pow(guardRingOffset_, 2) / (2 * sqrt3_));
+              (3 * cellX_[k] * sqrt3By2_ * guardRingSizeOffset_) - (std::pow(guardRingSizeOffset_, 2) / (2 * sqrt3_));
           double cutArea2 = (3 * cellX_[k] * sqrt3By2_ * guardRingOffset_);
-          double cutArea3 = sqrt3_ * std::pow((mouseBiteCut_ - (guardRingOffset_ / sqrt3By2_)), 2) / 2;
+          double cutArea3 = (sqrt3_ * std::pow((mouseBiteCut_ - (guardRingSizeOffset_ / sqrt3By2_)), 2) / 2) -
+                            (mouseBiteCut_ * guardRingOffset_);
           double x1_0 = ((3.375 * cellX_[k] * cellX_[k]) - (cellX_[k] * 0.75 * guardRingOffset_) +
                          (std::pow(guardRingOffset_, 2) / 18)) /
                         ((3 * cellX_[k] * sqrt3By2_) - (guardRingOffset_ / (2 * sqrt3_)));
@@ -443,9 +869,13 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         if (k == 1) {
           double totalArea = (23.0 * sqrt3_ / 8.0) * std::pow(cellX_[k], 2);
           double cutArea1 =
-              (5 * cellX_[k] * sqrt3By2_ * guardRingOffset_) - (std::pow(guardRingOffset_, 2) / (2 * sqrt3_));
-          double cutArea2 = (4 * cellX_[k] * guardRingOffset_);
-          double cutArea3 = std::pow(mouseBiteCut_, 2) / sqrt3_;
+              (5 * cellX_[k] * sqrt3By2_ * guardRingSizeOffset_) - (std::pow(guardRingSizeOffset_, 2) / (2 * sqrt3_));
+          double cutArea2 = (4 * cellX_[k] * guardRingOffset_) - (2 * guardRingSizeOffset_ * guardRingOffset_) +
+                            (1 / sqrt3By2_ * (std::pow(guardRingOffset_, 2)));
+          double cutArea3 =
+              std::pow(mouseBiteCut_, 2) / sqrt3_ -
+              (2 * mouseBiteCut_ - sqrt3_ * guardRingSizeOffset_) * guardRingSizeOffset_ -
+              (1 / sqrt3By2_ * mouseBiteCut_ - 2 * guardRingSizeOffset_ - guardRingOffset_ / sqrt3_) * guardRingOffset_;
 
           double x1_0 = (9.375 * cellX_[k] * cellX_[k] - (cellX_[k] * 1.25 * guardRingOffset_) +
                          (std::pow(guardRingOffset_, 2) / 18)) /
@@ -496,9 +926,9 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         if (k == 1) {
           double totalArea = (5.0 * sqrt3_ / 4.0) * std::pow(cellX_[k], 2);
           double cutArea1 = (cellX_[k] * guardRingOffset_);
-          double cutArea2 = (sqrt3_ * cellX_[k] * guardRingOffset_);
-          double h = cellX_[k] - (sqrt3By2_ * cellX_[k] - mouseBiteCut_) / sqrt3By2_;
-          double cutArea3 = sqrt3_ * std::pow(h, 2) / 2;
+          double cutArea2 = (sqrt3_ * cellX_[k] - guardRingOffset_) * guardRingSizeOffset_;
+          double h = 2 * mouseBiteCut_ - sqrt3_ * guardRingSizeOffset_ - guardRingOffset_;
+          double cutArea3 = 1 / (2 * sqrt3_) * std::pow(h, 2) / 2;
 
           double x1 = cellX_[k] * sqrt3By2_ - guardRingOffset_ / 2;
           double y1 = 0;
@@ -539,9 +969,12 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
       } else if (j == (HGCalCell::LDPartial0815Cell)) {
         if (k == 1) {
           double totalArea = sqrt3_ * std::pow(cellX_[k], 2);
-          double cutArea1 = (sqrt3_ * cellX_[k] * guardRingOffset_);
-          double cutArea2 = (sqrt3_ * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
-          double cutArea3 = sqrt3_ * std::pow((mouseBiteCut_ - guardRingOffset_ / sqrt3By2_), 2) / 2;
+          double cutArea1 = (sqrt3_ * cellX_[k] * guardRingSizeOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+          ;
+          double cutArea2 = (sqrt3_ * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_) -
+                            guardRingOffset_ * guardRingSizeOffset_ / sqrt3By2_;
+          double cutArea3 =
+              sqrt3_ * std::pow((mouseBiteCut_ - guardRingSizeOffset_ / sqrt3By2_ - guardRingOffset_ / sqrt3_), 2) / 2;
 
           double x2_0 = (1.5 * cellX_[k] * cellX_[k] - (0.5 * cellX_[k] * guardRingOffset_) +
                          std::pow(guardRingOffset_, 2) / 18) /
@@ -587,9 +1020,13 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
       } else if (j == (HGCalCell::LDPartial1415Cell)) {
         if (k == 1) {
           double totalArea = 7 * sqrt3_ * std::pow(cellX_[k], 2) / 4;
-          double cutArea1 = (3 * cellX_[k] * guardRingOffset_);
-          double cutArea2 = (2 * sqrt3_ * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) * sqrt3By2_;
-          double cutArea3 = std::pow((mouseBiteCut_ - guardRingOffset_), 2) / sqrt3_;
+          double cutArea1 = (3 * cellX_[k] - 2 * guardRingSizeOffset_ - guardRingOffset_ / sqrt3_) * guardRingOffset_;
+          double cutArea2 =
+              (2 * sqrt3_ * cellX_[k] * guardRingSizeOffset_) - std::pow(guardRingSizeOffset_, 2) * sqrt3By2_;
+          double cutArea3 =
+              std::pow(mouseBiteCut_, 2) / sqrt3_ -
+              (2 * mouseBiteCut_ - sqrt3_ * guardRingSizeOffset_) * guardRingSizeOffset_ -
+              (1 / sqrt3By2_ * mouseBiteCut_ - 2 * guardRingSizeOffset_ - guardRingOffset_ / sqrt3_) * guardRingOffset_;
 
           double x2_0 = (6 * cellX_[k] * cellX_[k] - std::pow(guardRingOffset_, 2)) /
                         (2 * sqrt3_ * cellX_[k] - guardRingOffset_ * sqrt3By2_);
@@ -636,9 +1073,11 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
       } else if (j == (HGCalCell::LDPartial1515Cell)) {
         if (k == 1) {
           double totalArea = 7 * sqrt3_ * std::pow(cellX_[k], 2) / 8;
-          double cutArea1 = (2 * cellX_[k] * guardRingOffset_);
-          double cutArea2 = (sqrt3By2_ * cellX_[k] * guardRingOffset_);
-          double cutArea3 = cellX_[k] * (mouseBiteCut_ - guardRingOffset_) - (sqrt3_ * cellX_[k] * cellX_[k] / 8);
+          double cutArea1 = (2 * cellX_[k] * guardRingOffset_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+          double cutArea2 = (sqrt3By2_ * cellX_[k] - guardRingOffset_) * guardRingSizeOffset_;
+          double cutArea3 = mouseBiteCut_ * cellX_[k] - sqrt3_ * std::pow(cellX_[k], 2) / 8 -
+                            (sqrt3By2_ * cellX_[k] - guardRingOffset_) * guardRingSizeOffset_ -
+                            (1 / sqrt3By2_ * mouseBiteCut_ - guardRingOffset_ / (2 * sqrt3_)) * guardRingOffset_;
 
           double x1 = -guardRingOffset_ / 2;
           double y1 = 0;
@@ -683,9 +1122,10 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
       } else if (j == (HGCalCell::HDPartial0920Cell)) {
         if (k == 0) {
           double totalArea = 37 * sqrt3_ * std::pow(cellX_[k], 2) / 24;
-          double cutArea1 = (4 * cellX_[k] * guardRingOffset_) / sqrt3_;
+          double cutArea1 =
+              (4 * cellX_[k] - 2 * guardRingSizeOffset_ - 0.5 * guardRingOffset_) * guardRingOffset_ / sqrt3_;
           double cutArea2 =
-              (7 * cellX_[k] * guardRingOffset_) / (2 * sqrt3_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+              (7 * cellX_[k] * guardRingSizeOffset_) / (2 * sqrt3_) - std::pow(guardRingSizeOffset_, 2) / (2 * sqrt3_);
 
           double x1 = cellX_[k] / (2 * sqrt3_);
           double y1 = -(0.5 * cellX_[k] - 0.5 * guardRingOffset_);
@@ -730,9 +1170,10 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
       } else if (j == (HGCalCell::HDPartial1021Cell)) {
         if (k == 0) {
           double totalArea = 11 * sqrt3_ * std::pow(cellX_[k], 2) / 6;
-          double cutArea1 = (5 * cellX_[k] * guardRingOffset_) / (2 * sqrt3_);
-          double cutArea2 =
-              (5 * cellX_[k] * guardRingOffset_) / (2 * sqrt3_) - std::pow(guardRingOffset_, 2) / (2 * sqrt3_);
+          double cutArea1 = (5 * cellX_[k] * guardRingSizeOffset_ - std::pow(guardRingSizeOffset_, 2)) / (2 * sqrt3_);
+          double cutArea2 = (5 * cellX_[k] * guardRingOffset_) / (2 * sqrt3_) -
+                            std::pow(guardRingOffset_, 2) / (2 * sqrt3_) -
+                            guardRingOffset_ * guardRingSizeOffset_ / sqrt3By2_;
 
           double x1 = -cellX_[k] / (4 * sqrt3_);
           double y1 = cellX_[k] - 0.5 * guardRingOffset_;
@@ -777,7 +1218,6 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
       }
     }
   }
-
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalCellOffset initialized with waferSize " << waferSize << " number of cells "
                                 << nFine << ":" << nCoarse << " Guardring offset " << guardRingOffset_ << " Mousebite "
@@ -838,16 +1278,10 @@ std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(
                                                                   : offsetX[type][cellType][Pos];
         y_off = offsetY[type][cellType][Pos];
       }
-    } else if ((cellType == HGCalCell::halfCell) || (cellType == HGCalCell::halfTrunCell) ||
-               (cellType == HGCalCell::halfExtCell) || (cellType == HGCalCell::LDPartial0714Cell) ||
+    } else if ((cellType == HGCalCell::halfCell) || (cellType == HGCalCell::LDPartial0714Cell) ||
                (cellType == HGCalCell::LDPartial0815Cell) || (cellType == HGCalCell::HDPartial0920Cell) ||
                (cellType == HGCalCell::HDPartial1021Cell)) {
       int cellType1 = cellType - HGCalCell::partiaclWaferCellsOffset;
-      if (cellType == HGCalCell::halfCell) {
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << u << ":" << v << " 2";
-#endif
-      }
       if (cellPos == HGCalCell::leftCell) {
         int placeIndex = placementIndex % HGCalCell::cellPlacementExtra;
         x_off = offsetPartialX[type][cellType1][placeIndex];

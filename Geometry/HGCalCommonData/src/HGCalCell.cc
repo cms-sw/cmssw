@@ -639,46 +639,95 @@ std::pair<int32_t, int32_t> HGCalCell::cellType(
       cellt = HGCalCell::LDPartial1415Cell;
     } else if (u == 15 && v == 15) {
       cellt = HGCalCell::LDPartial1515Cell;
+    } else if (u == 1 && v == 8) {
+      cellt = HGCalCell::halfCell;
+      cellx = HGCalCell::leftCell;
+    } else if (u == 15 && v == 11) {
+      if (partialType == HGCalTypes::WaferLDLeft) {
+        cellt = HGCalCell::extHalfExtCell;
+        cellx = HGCalCell::leftCell;
+      } else if (partialType == HGCalTypes::WaferLDRight) {
+        cellt = HGCalCell::extHalfExtCell;
+        cellx = HGCalCell::rightCell;
+      } else {
+        cellt = HGCalCell::extExtCellCenCut;
+      }
+    } else if ((u == 0) && (v == 3 || v == 4)) {
+      if (v == 3) {
+        cellt = HGCalCell::extTrunCellEdgeCut;
+        cellx = HGCalCell::leftCell;
+      } else if (v == 4) {
+        cellt = HGCalCell::extTrunCellEdgeCut;
+        cellx = HGCalCell::rightCell;
+      }
     } else if (u == 7) {
-      cellt = HGCalCell::extendedCell;
-      cellx = HGCalCell::topCell;
-    } else if (u == 8) {
-      cellt = HGCalCell::truncatedCell;
-      cellx = HGCalCell::bottomCell;
-    } else if ((partialType == HGCalTypes::WaferLDLeft) || (partialType == HGCalTypes::WaferLDRight) ||
-               (partialType == HGCalTypes::WaferLDFive) || (partialType == HGCalTypes::WaferLDThree)) {
-      if (((u == 15 && v == 11) || (u == 7 && v == 7)) &&
-          ((partialType == HGCalTypes::WaferLDLeft) || (partialType == HGCalTypes::WaferLDRight))) {
-        cellt = HGCalCell::halfExtCell;
+      if (v == 7) {
         if (partialType == HGCalTypes::WaferLDLeft) {
-          cellx = HGCalCell::leftCell;
-        } else {
-          cellx = HGCalCell::rightCell;
-        }
-      } else if ((u == 7 && v == 11) &&
-                 ((partialType == HGCalTypes::WaferLDFive) || (partialType == HGCalTypes::WaferLDThree))) {
-        cellt = HGCalCell::halfExtCell;
-        if (partialType == HGCalTypes::WaferLDFive) {
-          cellx = HGCalCell::leftCell;
-        } else {
-          cellx = HGCalCell::rightCell;
-        }
-      } else if (2 * v - u == 7) {
-        cellt = HGCalCell::halfCell;
-        if (partialType == HGCalTypes::WaferLDLeft) {
+          cellt = HGCalCell::intHalfExtCell;
           cellx = HGCalCell::leftCell;
         } else if (partialType == HGCalTypes::WaferLDRight) {
+          cellt = HGCalCell::intHalfExtCell;
           cellx = HGCalCell::rightCell;
+        } else {
+          cellt = HGCalCell::intExtCellCenCut;
         }
-      } else if (2 * v - u == 15) {
+      } else if (v == 11) {
         if (partialType == HGCalTypes::WaferLDFive) {
+          cellt = HGCalCell::intHalfExtCell;
           cellx = HGCalCell::leftCell;
         } else if (partialType == HGCalTypes::WaferLDThree) {
+          cellt = HGCalCell::intHalfExtCell;
           cellx = HGCalCell::rightCell;
+        } else {
+          cellt = HGCalCell::intExtCellCenCut;
         }
-        cellt = HGCalCell::halfCell;
-        std::cout << u << ":" << v << " 1" << std::endl;
+      } else {
+        cellt = HGCalCell::intExtCell;
       }
+    } else if (u == 8) {
+      if (v == 7 || v == 11) {
+        cellt = HGCalCell::intTrunCellEdgeCut;
+        cellx = HGCalCell::leftCell;
+      } else if (v == 8 || v == 12) {
+        cellt = HGCalCell::intTrunCellEdgeCut;
+        cellx = HGCalCell::rightCell;
+      } else {
+        cellt = HGCalCell::intTrunCell;
+      }
+    } else if (2 * v - u == 7) {
+      if (partialType == HGCalTypes::WaferLDLeft) {
+        cellt = HGCalCell::halfCell;
+        cellx = HGCalCell::leftCell;
+      } else if (partialType == HGCalTypes::WaferLDRight) {
+        cellt = HGCalCell::halfCell;
+        cellx = HGCalCell::rightCell;
+      } else {
+        cellt = HGCalCell::fullCellCenCut;
+        cellx = HGCalCell::centralCell;
+      }
+    } else if (2 * v - u == 15) {
+      if (partialType == HGCalTypes::WaferLDFive) {
+        cellt = HGCalCell::halfCell;
+        cellx = HGCalCell::leftCell;
+      } else if (partialType == HGCalTypes::WaferLDThree) {
+        cellt = HGCalCell::halfCell;
+        cellx = HGCalCell::rightCell;
+      } else {
+        cellt = HGCalCell::fullCellCenCut;
+        cellx = HGCalCell::centralCell;
+      }
+    } else if (2 * v - u == 6) {
+      cellt = HGCalCell::fullCellEdgeCut;
+      cellx = HGCalCell::leftCell;
+    } else if (2 * v - u == 8) {
+      cellt = HGCalCell::fullCellEdgeCut;
+      cellx = HGCalCell::rightCell;
+    } else if (2 * v - u == 14) {
+      cellt = HGCalCell::fullCellEdgeCut;
+      cellx = HGCalCell::leftCell;
+    } else if (2 * v - u == 16) {
+      cellt = HGCalCell::fullCellEdgeCut;
+      cellx = HGCalCell::rightCell;
     }
   } else if ((partialType >= HGCalTypes::WaferPartHDOffset) &&
              (partialType < (HGCalTypes::WaferPartHDOffset + HGCalTypes::WaferPartHDCount))) {
@@ -696,41 +745,101 @@ std::pair<int32_t, int32_t> HGCalCell::cellType(
       } else {
         cellx = HGCalCell::rightCell;
       }
+    } else if (u == 0 && v == 2) {
+      if (partialType == HGCalTypes::WaferHDLeft) {
+        cellt = HGCalCell::extHalfTrunCell;
+        cellx = HGCalCell::leftCell;
+      } else {
+        cellt = HGCalCell::extTrunCellCenCut;
+      }
+    } else if (u == 0 && v == 9) {
+      if (partialType == HGCalTypes::WaferHDFive) {
+        cellt = HGCalCell::extHalfTrunCell;
+        cellx = HGCalCell::leftCell;
+      } else if (partialType == HGCalTypes::WaferHDRight) {
+        cellt = HGCalCell::extHalfExtCell;
+        cellx = HGCalCell::rightCell;
+      } else {
+        cellt = HGCalCell::extExtCellCenCut;
+      }
+    } else if ((u == 23) && (v == 13 || v == 14)) {
+      if (v == 13) {
+        cellt = HGCalCell::extExtCellEdgeCut;
+        cellx = HGCalCell::leftCell;
+      } else if (v == 14) {
+        cellt = HGCalCell::extExtCellEdgeCut;
+        cellx = HGCalCell::rightCell;
+      }
+    } else if ((u == 23) && (v == 20 || v == 21)) {
+      if (v == 20) {
+        cellt = HGCalCell::extExtCellEdgeCut;
+        cellx = HGCalCell::leftCell;
+      } else if (v == 21) {
+        cellt = HGCalCell::extExtCellEdgeCut;
+        cellx = HGCalCell::rightCell;
+      }
     } else if (u == 9) {
-      cellt = HGCalCell::truncatedCell;
-      cellx = HGCalCell::topCell;
+      if (v == 6 || v == 13) {
+        cellt = HGCalCell::intTrunCellEdgeCut;
+        cellx = HGCalCell::leftCell;
+      } else if (v == 7 || v == 14) {
+        cellt = HGCalCell::intTrunCellEdgeCut;
+        cellx = HGCalCell::rightCell;
+      } else {
+        cellt = HGCalCell::intTrunCell;
+      }
     } else if (u == 10) {
-      cellt = HGCalCell::extendedCell;
-      cellx = HGCalCell::bottomCell;
-    } else if ((partialType == HGCalTypes::WaferHDLeft) || (partialType == HGCalTypes::WaferHDRight) ||
-               (partialType == HGCalTypes::WaferHDFive)) {
-      if ((u == 10 && v == 7) || (u == 10 && v == 14)) {
-        cellt = HGCalCell::halfExtCell;
-        if ((partialType == HGCalTypes::WaferHDLeft) || (partialType == HGCalTypes::WaferHDFive)) {
-          cellx = HGCalCell::leftCell;
-        } else {
-          cellx = HGCalCell::rightCell;
-        }
-      } else if ((u == 0 && v == 2) || (u == 0 && v == 9)) {
-        cellt = HGCalCell::halfTrunCell;
-        if ((partialType == HGCalTypes::WaferHDLeft) || (partialType == HGCalTypes::WaferHDFive)) {
-          cellx = HGCalCell::leftCell;
-        } else {
-          cellx = HGCalCell::rightCell;
-        }
-      } else if (2 * v - u == 4) {
-        cellt = HGCalCell::halfCell;
+      if (v == 7) {
         if (partialType == HGCalTypes::WaferHDLeft) {
+          cellt = HGCalCell::intHalfExtCell;
           cellx = HGCalCell::leftCell;
+        } else {
+          cellt = HGCalCell::intExtCellCenCut;
         }
-      } else if (2 * v - u == 18) {
-        cellt = HGCalCell::halfCell;
+      } else if (v == 14) {
         if (partialType == HGCalTypes::WaferHDFive) {
+          cellt = HGCalCell::intHalfExtCell;
           cellx = HGCalCell::leftCell;
         } else if (partialType == HGCalTypes::WaferHDRight) {
+          cellt = HGCalCell::intHalfExtCell;
           cellx = HGCalCell::rightCell;
+        } else {
+          cellt = HGCalCell::intExtCellCenCut;
         }
+      } else {
+        cellt = HGCalCell::intExtCell;
       }
+    } else if (2 * v - u == 4) {
+      if (partialType == HGCalTypes::WaferHDLeft) {
+        cellt = HGCalCell::halfCell;
+        cellx = HGCalCell::leftCell;
+      } else {
+        cellt = HGCalCell::fullCellCenCut;
+        cellx = HGCalCell::centralCell;
+      }
+    } else if (2 * v - u == 18) {
+      if (partialType == HGCalTypes::WaferHDFive) {
+        cellt = HGCalCell::halfCell;
+        cellx = HGCalCell::leftCell;
+      } else if (partialType == HGCalTypes::WaferHDRight) {
+        cellt = HGCalCell::halfCell;
+        cellx = HGCalCell::rightCell;
+      } else {
+        cellt = HGCalCell::fullCellCenCut;
+        cellx = HGCalCell::centralCell;
+      }
+    } else if (2 * v - u == 3) {
+      cellt = HGCalCell::fullCellEdgeCut;
+      cellx = HGCalCell::leftCell;
+    } else if (2 * v - u == 5) {
+      cellt = HGCalCell::fullCellEdgeCut;
+      cellx = HGCalCell::rightCell;
+    } else if (2 * v - u == 17) {
+      cellt = HGCalCell::fullCellEdgeCut;
+      cellx = HGCalCell::leftCell;
+    } else if (2 * v - u == 19) {
+      cellt = HGCalCell::fullCellEdgeCut;
+      cellx = HGCalCell::rightCell;
     }
   }
   return std::make_pair(cellx, cellt);

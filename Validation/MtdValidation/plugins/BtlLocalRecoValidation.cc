@@ -884,9 +884,6 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         continue;
       }
 
-      hit_amplitude /= nHits;
-      hit_time /= nHits;
-
       if (hit_amplitude < hitMinAmplitude_)
         continue;
 

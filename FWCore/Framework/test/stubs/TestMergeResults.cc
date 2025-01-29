@@ -17,7 +17,6 @@
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -389,19 +388,8 @@ namespace edmtest {
       assert(h_thing->a == 11);
 
       edm::BranchID const& originalBranchID = h_thing.provenance()->branchDescription().originalBranchID();
-      bool foundOriginalInRegistry = false;
-      edm::Service<edm::ConstProductRegistry> reg;
-      // Loop over provenance of products in registry.
-      for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
-           it != reg->productList().end();
-           ++it) {
-        edm::BranchDescription const& desc = it->second;
-        if (desc.branchID() == originalBranchID) {
-          foundOriginalInRegistry = true;
-          break;
-        }
-      }
-      assert(foundOriginalInRegistry);
+      //this will throw if the original provenance is not available
+      e.getProvenance(originalBranchID);
     }
   }
 
@@ -461,19 +449,7 @@ namespace edmtest {
       assert(h_thing->a == 100001);
 
       edm::BranchID const& originalBranchID = h_thing.provenance()->branchDescription().originalBranchID();
-      bool foundOriginalInRegistry = false;
-      edm::Service<edm::ConstProductRegistry> reg;
-      // Loop over provenance of products in registry.
-      for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
-           it != reg->productList().end();
-           ++it) {
-        edm::BranchDescription const& desc = it->second;
-        if (desc.branchID() == originalBranchID) {
-          foundOriginalInRegistry = true;
-          break;
-        }
-      }
-      assert(foundOriginalInRegistry);
+      run.getProvenance(originalBranchID);
     }
 
     indexRun_ += 3;
@@ -528,19 +504,7 @@ namespace edmtest {
       assert(h_thing->a == 1001);
 
       edm::BranchID const& originalBranchID = h_thing.provenance()->branchDescription().originalBranchID();
-      bool foundOriginalInRegistry = false;
-      edm::Service<edm::ConstProductRegistry> reg;
-      // Loop over provenance of products in registry.
-      for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
-           it != reg->productList().end();
-           ++it) {
-        edm::BranchDescription const& desc = it->second;
-        if (desc.branchID() == originalBranchID) {
-          foundOriginalInRegistry = true;
-          break;
-        }
-      }
-      assert(foundOriginalInRegistry);
+      lumi.getProvenance(originalBranchID);
     }
     indexLumi_ += 3;
   }

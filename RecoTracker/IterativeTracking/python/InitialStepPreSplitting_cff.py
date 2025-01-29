@@ -156,7 +156,8 @@ import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as _mkFitIterationCo
 import RecoTracker.MkFit.mkFitProducer_cfi as _mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as _mkFitOutputConverter_cfi
 mkFitSiPixelHitsPreSplitting = _mkFitSiPixelHitConverter_cfi.mkFitSiPixelHitConverter.clone(
-    hits = 'siPixelRecHitsPreSplitting'
+    hits = 'siPixelRecHitsPreSplitting',
+    clusters = 'siPixelClustersPreSplitting'
 )
 mkFitSiStripHits = _mkFitSiStripHitConverter_cfi.mkFitSiStripHitConverter.clone() # TODO: figure out better place for this module?
 mkFitEventOfHitsPreSplitting = _mkFitEventOfHitsProducer_cfi.mkFitEventOfHitsProducer.clone(

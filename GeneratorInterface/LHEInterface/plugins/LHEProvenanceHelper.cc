@@ -29,8 +29,6 @@ namespace edm {
                                                          "LHEEventProduct",
                                                          "LHEEventProduct",
                                                          "",
-                                                         "LHESource",
-                                                         ParameterSetID(),
                                                          TypeWithDict(eventProductType.typeInfo()),
                                                          false)),
         runProductBranchDescription_(BranchDescription(InRun,
@@ -41,8 +39,6 @@ namespace edm {
                                                        "LHERunInfoProduct",
                                                        "LHERunInfoProduct",
                                                        "",
-                                                       "LHESource",
-                                                       ParameterSetID(),
                                                        TypeWithDict(runProductType.typeInfo()),
                                                        false)),
         eventProductProvenance_(eventProductBranchDescription_.branchID()),
@@ -67,7 +63,7 @@ namespace edm {
     ParameterSet pset;
     std::string const& moduleLabel = eventProductBranchDescription_.moduleLabel();
     std::string const& processName = eventProductBranchDescription_.processName();
-    std::string const& moduleName = eventProductBranchDescription_.moduleName();
+    std::string const moduleName = "LHESource";
     typedef std::vector<std::string> vstring;
     vstring empty;
 

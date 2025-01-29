@@ -2,8 +2,9 @@
 #define RecoLocalTracker_SiStripRecHitConverter_StripCPEfromTrackAngle_H
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 class StripCPEfromTrackAngle : public StripCPE {
 private:
   using StripCPE::localParameters;
@@ -28,6 +29,8 @@ private:
   Algo m_algo;
 
 public:
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
   using AlgoParam = StripCPE::AlgoParam;
   using AClusters = StripClusterParameterEstimator::AClusters;
   using ALocalValues = StripClusterParameterEstimator::ALocalValues;

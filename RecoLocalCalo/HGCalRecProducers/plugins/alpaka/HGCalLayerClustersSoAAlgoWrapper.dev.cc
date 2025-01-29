@@ -13,8 +13,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Set energy and number of hits in each clusters
   class HGCalLayerClustersSoAAlgoKernelEnergy {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const unsigned int numer_of_clusters,
                                   const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
                                   const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
@@ -38,8 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Kernel to find the max for every cluster
   class HGCalLayerClustersSoAAlgoKernelPositionByHits {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const unsigned int numer_of_clusters,
                                   float thresholdW0,
                                   float positionDeltaRho2,
@@ -83,8 +81,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Real Kernel position
   class HGCalLayerClustersSoAAlgoKernelPositionByHits2 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const unsigned int numer_of_clusters,
                                   float thresholdW0,
                                   float positionDeltaRho2,
@@ -121,8 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Besides the final position, add also the DetId of the seed of each cluster
   class HGCalLayerClustersSoAAlgoKernelPositionByHits3 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const unsigned int numer_of_clusters,
                                   float thresholdW0,
                                   float positionDeltaRho2,

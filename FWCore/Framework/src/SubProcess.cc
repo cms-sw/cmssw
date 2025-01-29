@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
@@ -145,7 +146,7 @@ namespace edm {
 
     ServiceToken newToken = items.initServices(serviceSets, *processParameterSet_, token, iLegacy, false);
     parentActReg.connectToSubProcess(*items.actReg_);
-    serviceToken_ = items.addCPRandTNS(*processParameterSet_, newToken);
+    serviceToken_ = items.addTNS(*processParameterSet_, newToken);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -185,33 +186,41 @@ namespace edm {
     principalCache_.setNumberOfConcurrentPrincipals(preallocConfig);
     for (unsigned int index = 0; index < preallocConfig.numberOfStreams(); ++index) {
       auto ep = std::make_shared<EventPrincipal>(preg_,
+                                                 productResolversFactory::makeSubProcess,
                                                  branchIDListHelper(),
                                                  thinnedAssociationsHelper(),
                                                  *processConfiguration_,
                                                  &(historyAppenders_[index]),
                                                  index,
-                                                 false /*not primary process*/,
                                                  &*processBlockHelper_);
       principalCache_.insert(ep);
     }
 
     for (unsigned int index = 0; index < preallocConfig.numberOfRuns(); ++index) {
-      auto rpp = std::make_unique<RunPrincipal>(
-          preg_, *processConfiguration_, &(historyAppenders_[historyRunOffset_ + index]), index, false);
+      auto rpp = std::make_unique<RunPrincipal>(preg_,
+                                                productResolversFactory::makeSubProcess,
+                                                *processConfiguration_,
+                                                &(historyAppenders_[historyRunOffset_ + index]),
+                                                index);
       principalCache_.insert(std::move(rpp));
     }
 
     for (unsigned int index = 0; index < preallocConfig.numberOfLuminosityBlocks(); ++index) {
-      auto lbpp = std::make_unique<LuminosityBlockPrincipal>(
-          preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_ + index]), index, false);
+      auto lbpp = std::make_unique<LuminosityBlockPrincipal>(preg_,
+                                                             productResolversFactory::makeSubProcess,
+                                                             *processConfiguration_,
+                                                             &(historyAppenders_[historyLumiOffset_ + index]),
+                                                             index);
       principalCache_.insert(std::move(lbpp));
     }
 
     {
-      auto pb = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_, false);
+      auto pb = std::make_unique<ProcessBlockPrincipal>(
+          preg_, productResolversFactory::makeSubProcess, *processConfiguration_);
       principalCache_.insert(std::move(pb));
 
-      auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_, false);
+      auto pbForInput = std::make_unique<ProcessBlockPrincipal>(
+          preg_, productResolversFactory::makeSubProcess, *processConfiguration_);
       principalCache_.insertForInput(std::move(pbForInput));
     }
 

@@ -23,8 +23,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TrackerTraits>
     class TestFillKernel {
     public:
-      template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(TAcc const& acc, TrackSoAView<TrackerTraits> tracks_view, int32_t nTracks) const {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc, TrackSoAView<TrackerTraits> tracks_view, int32_t nTracks) const {
         if (cms::alpakatools::once_per_grid(acc)) {
           tracks_view.nTracks() = nTracks;
         }
@@ -45,8 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TrackerTraits>
     class TestVerifyKernel {
     public:
-      template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(TAcc const& acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                     TrackSoAConstView<TrackerTraits> tracks_view,
                                     int32_t nTracks) const {
         if (cms::alpakatools::once_per_grid(acc)) {

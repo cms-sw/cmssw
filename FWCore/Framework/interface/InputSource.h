@@ -44,6 +44,7 @@ namespace edm {
   class ProcessContext;
   class ProcessHistoryRegistry;
   class ProductRegistry;
+  class SignallingProductRegistry;
   class StreamContext;
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
@@ -159,7 +160,7 @@ namespace edm {
     void issueReports(EventID const& eventID, StreamID streamID);
 
     /// Register any produced products
-    virtual void registerProducts();
+    virtual void registerProducts(SignallingProductRegistry&);
 
     /// Accessors for product registry
     std::shared_ptr<ProductRegistry const> productRegistry() const { return get_underlying_safe(productRegistry_); }

@@ -42,6 +42,7 @@
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/SendSourceTerminationSignalIfException.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -120,7 +121,7 @@ namespace edm {
   std::unique_ptr<InputSource> makeInput(unsigned int moduleIndex,
                                          ParameterSet& params,
                                          CommonParams const& common,
-                                         std::shared_ptr<ProductRegistry> preg,
+                                         std::shared_ptr<SignallingProductRegistry> preg,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                                          std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
@@ -181,7 +182,8 @@ namespace edm {
       //even if we have an exception, send the signal
       std::shared_ptr<int> sentry(nullptr, [areg, &md](void*) { areg->postSourceConstructionSignal_(md); });
       convertException::wrap([&]() {
-        input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+        input = std::unique_ptr<InputSource>(
+            InputSourceFactory::get()->makeInputSource(*main_input, *preg, isdesc).release());
         input->preEventReadFromSourceSignal_.connect(std::cref(areg->preEventReadFromSourceSignal_));
         input->postEventReadFromSourceSignal_.connect(std::cref(areg->postEventReadFromSourceSignal_));
       });
@@ -441,7 +443,7 @@ namespace edm {
     //initialize the services
     auto& serviceSets = processDesc->getServicesPSets();
     ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy, true);
-    serviceToken_ = items.addCPRandTNS(*parameterSet, token);
+    serviceToken_ = items.addTNS(*parameterSet, token);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -487,7 +489,7 @@ namespace edm {
         tbb::task_group group;
 
         // initialize the input source
-        auto tempReg = std::make_shared<ProductRegistry>();
+        auto tempReg = std::make_shared<SignallingProductRegistry>();
         auto sourceID = ModuleDescription::getUniqueID();
 
         group.run([&, this]() {
@@ -544,33 +546,39 @@ namespace edm {
       for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
         // Reusable event principal
         auto ep = std::make_shared<EventPrincipal>(preg(),
+                                                   productResolversFactory::makePrimary,
                                                    branchIDListHelper(),
                                                    thinnedAssociationsHelper(),
                                                    *processConfiguration_,
                                                    historyAppender_.get(),
                                                    index,
-                                                   true /*primary process*/,
                                                    &*processBlockHelper_);
         principalCache_.insert(std::move(ep));
       }
 
       for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
-        auto rp = std::make_unique<RunPrincipal>(
-            preg(), *processConfiguration_, historyAppender_.get(), index, true, &mergeableRunProductProcesses_);
+        auto rp = std::make_unique<RunPrincipal>(preg(),
+                                                 productResolversFactory::makePrimary,
+                                                 *processConfiguration_,
+                                                 historyAppender_.get(),
+                                                 index,
+                                                 &mergeableRunProductProcesses_);
         principalCache_.insert(std::move(rp));
       }
 
       for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
-        auto lp =
-            std::make_unique<LuminosityBlockPrincipal>(preg(), *processConfiguration_, historyAppender_.get(), index);
+        auto lp = std::make_unique<LuminosityBlockPrincipal>(
+            preg(), productResolversFactory::makePrimary, *processConfiguration_, historyAppender_.get(), index);
         principalCache_.insert(std::move(lp));
       }
 
       {
-        auto pb = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+        auto pb = std::make_unique<ProcessBlockPrincipal>(
+            preg(), productResolversFactory::makePrimary, *processConfiguration_);
         principalCache_.insert(std::move(pb));
 
-        auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+        auto pbForInput = std::make_unique<ProcessBlockPrincipal>(
+            preg(), productResolversFactory::makePrimary, *processConfiguration_);
         principalCache_.insertForInput(std::move(pbForInput));
       }
 

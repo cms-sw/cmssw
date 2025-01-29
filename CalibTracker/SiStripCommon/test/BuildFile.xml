@@ -1,4 +1,5 @@
-<test name="testCalibTrackerSiStripCommon" command="test_all.sh"/>
+<test name="testCalibTrackerSiStripCommonOneByOne" command="run_tests.sh"/>
+<test name="testCalibTrackerSiStripCommonAll" command="test_all.sh"/>
 
 <use name="CalibTracker/SiStripCommon"/>
 <library file="*.cc" name="CalibTrackerSiStripCommonTest">

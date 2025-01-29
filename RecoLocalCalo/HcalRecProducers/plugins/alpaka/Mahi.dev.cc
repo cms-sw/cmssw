@@ -9,6 +9,7 @@
 // needed to compile with USER_CXXFLAGS="-DCOMPUTE_TDC_TIME"
 #include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+#include "FWCore/Utilities/interface/HostDeviceConstant.h"
 // TODO reuse some of the HCAL constats from
 //#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConstants.h"
 
@@ -50,7 +51,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // HcalQIEShapes are hardcoded in HcalQIEData.cc basically
       // + some logic to generate 128 and 256 value arrays...
-      ALPAKA_STATIC_ACC_MEM_CONSTANT float const qie8shape[129] = {
+      HOST_DEVICE_CONSTANT float qie8shape[129] = {
           -1,   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,    10,   11,   12,   13,   14,   16,
           18,   20,   22,   24,   26,   28,   31,   34,   37,   40,   44,   48,   52,   57,   62,   57,   62,
           67,   72,   77,   82,   87,   92,   97,   102,  107,  112,  117,  122,  127,  132,  142,  152,  162,
@@ -60,7 +61,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           2547, 2672, 2797, 2922, 3047, 3172, 3297, 3422, 3547, 3672, 3922, 4172, 4422, 4672, 4922, 5172, 5422,
           5797, 6172, 6547, 6922, 7422, 7922, 8422, 9047, 9672, 10297};
 
-      ALPAKA_STATIC_ACC_MEM_CONSTANT float const qie11shape[257] = {
+      HOST_DEVICE_CONSTANT float qie11shape[257] = {
           -0.5,    0.5,     1.5,     2.5,     3.5,     4.5,     5.5,     6.5,     7.5,     8.5,     9.5,     10.5,
           11.5,    12.5,    13.5,    14.5,    15.5,    17.5,    19.5,    21.5,    23.5,    25.5,    27.5,    29.5,
           31.5,    33.5,    35.5,    37.5,    39.5,    41.5,    43.5,    45.5,    47.5,    49.5,    51.5,    53.5,
@@ -268,8 +269,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       class Kernel_prep1d_sameNumberOfSamples {
       public:
-        template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-        ALPAKA_FN_ACC void operator()(TAcc const& acc,
+        ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                       OProductType::View outputGPU,
                                       IProductTypef01::ConstView f01HEDigis,
                                       IProductTypef5::ConstView f5HBDigis,
@@ -748,12 +748,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       class Kernel_prep_pulseMatrices_sameNumberOfSamples {
       public:
-        template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-        ALPAKA_FN_ACC void operator()(TAcc const& acc,
+        ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                       float* pulseMatrices,
                                       float* pulseMatricesM,
                                       float* pulseMatricesP,
-                                      HcalMahiPulseOffsetsPortableDevice::ConstView pulseOffsets,
+                                      HcalMahiPulseOffsetsSoA::ConstView pulseOffsets,
                                       float const* amplitudes,
                                       IProductTypef01::ConstView f01HEDigis,
                                       IProductTypef5::ConstView f5HBDigis,
@@ -968,14 +967,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <int NSAMPLES, int NPULSES>
       class Kernel_minimize {
       public:
-        template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-        ALPAKA_FN_ACC void operator()(TAcc const& acc,
+        ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                       OProductType::View outputGPU,
                                       float const* amplitudes,
                                       float* pulseMatrices,
                                       float* pulseMatricesM,
                                       float* pulseMatricesP,
-                                      HcalMahiPulseOffsetsPortableDevice::ConstView pulseOffsetsView,
+                                      HcalMahiPulseOffsetsSoA::ConstView pulseOffsetsView,
                                       float* noiseTerms,
                                       float* electronicNoiseTerms,
                                       int8_t* soiSamples,
@@ -1290,7 +1288,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                       HcalMahiConditionsPortableDevice::ConstView const& mahi,
                       HcalSiPMCharacteristicsPortableDevice::ConstView const& sipmCharacteristics,
                       HcalRecoParamWithPulseShapeDevice::ConstView const& recoParamsWithPS,
-                      HcalMahiPulseOffsetsPortableDevice::ConstView const& mahiPulseOffsets,
+                      HcalMahiPulseOffsetsSoA::ConstView const& mahiPulseOffsets,
                       ConfigParameters const& configParameters) {
       auto const totalChannels =
           f01HEDigis.metadata().size() + f5HBDigis.metadata().size() + f3HBDigis.metadata().size();
@@ -1408,11 +1406,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 namespace alpaka::trait {
+  using namespace ALPAKA_ACCELERATOR_NAMESPACE;
   using namespace ALPAKA_ACCELERATOR_NAMESPACE::hcal::reconstruction::mahi;
 
   //! The trait for getting the size of the block shared dynamic memory for Kernel_prep_1d_and_initialize.
-  template <typename TAcc>
-  struct BlockSharedMemDynSizeBytes<Kernel_prep1d_sameNumberOfSamples, TAcc> {
+  template <>
+  struct BlockSharedMemDynSizeBytes<Kernel_prep1d_sameNumberOfSamples, Acc2D> {
     //! \return The size of the shared memory allocated for a block.
     template <typename TVec, typename... TArgs>
     ALPAKA_FN_HOST_ACC static auto getBlockSharedMemDynSizeBytes(Kernel_prep1d_sameNumberOfSamples const&,
@@ -1431,8 +1430,8 @@ namespace alpaka::trait {
   };
 
   //! The trait for getting the size of the block shared dynamic memory for kernel_minimize.
-  template <int NSAMPLES, int NPULSES, typename TAcc>
-  struct BlockSharedMemDynSizeBytes<Kernel_minimize<NSAMPLES, NPULSES>, TAcc> {
+  template <int NSAMPLES, int NPULSES>
+  struct BlockSharedMemDynSizeBytes<Kernel_minimize<NSAMPLES, NPULSES>, Acc1D> {
     //! \return The size of the shared memory allocated for a block.
     template <typename TVec, typename... TArgs>
     ALPAKA_FN_HOST_ACC static auto getBlockSharedMemDynSizeBytes(Kernel_minimize<NSAMPLES, NPULSES> const&,

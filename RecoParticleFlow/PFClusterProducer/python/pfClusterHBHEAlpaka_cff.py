@@ -7,7 +7,6 @@ from RecoParticleFlow.PFRecHitProducer.pfRecHitHCALParamsESProducer_cfi import p
 from RecoParticleFlow.PFRecHitProducer.pfRecHitHCALTopologyESProducer_cfi import pfRecHitHCALTopologyESProducer as _pfRecHitHCALTopologyESProducer
 from RecoParticleFlow.PFRecHitProducer.pfRecHitSoAProducerHCAL_cfi import pfRecHitSoAProducerHCAL as _pfRecHitSoAProducerHCAL
 from RecoParticleFlow.PFRecHitProducer.legacyPFRecHitProducer_cfi import legacyPFRecHitProducer as _legacyPFRecHitProducer
-from RecoParticleFlow.PFClusterProducer.pfClusterParamsESProducer_cfi import pfClusterParamsESProducer as _pfClusterParamsESProducer
 from RecoParticleFlow.PFClusterProducer.pfClusterSoAProducer_cfi import pfClusterSoAProducer as _pfClusterSoAProducer
 from RecoParticleFlow.PFClusterProducer.legacyPFClusterProducer_cfi import legacyPFClusterProducer as _legacyPFClusterProducer
 
@@ -26,12 +25,6 @@ pfRecHitHCALParamsRecordSource = cms.ESSource('EmptyESSource',
 
 pfRecHitHCALTopologyRecordSource = cms.ESSource('EmptyESSource',
             recordName = cms.string('PFRecHitHCALTopologyRecord'),
-            iovIsRunNotTime = cms.bool(True),
-            firstValid = cms.vuint32(1)
-    )
-
-pfClusterParamsRecordSource = cms.ESSource('EmptyESSource',
-            recordName = cms.string('JobConfigurationGPURecord'),
             iovIsRunNotTime = cms.bool(True),
             firstValid = cms.vuint32(1)
     )
@@ -61,11 +54,9 @@ legacyPFRecHitProducer = _legacyPFRecHitProducer.clone(
         src = "pfRecHitSoAProducerHCAL"
     )
 
-pfClusterParamsESProducer = _pfClusterParamsESProducer.clone()
 pfClusterSoAProducer = _pfClusterSoAProducer.clone(
         pfRecHits = 'pfRecHitSoAProducerHCAL',
         topology = "pfRecHitHCALTopologyESProducer:",
-        pfClusterParams = 'pfClusterParamsESProducer:',
         synchronise = cms.bool(False)
     )
 
@@ -80,13 +71,11 @@ legacyPFClusterProducer = _legacyPFClusterProducer.clone(
 #Full Reco
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALParamsRecordSource)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALTopologyRecordSource)
-_alpaka_pfClusteringHBHEHFTask.add(pfClusterParamsRecordSource)
 _alpaka_pfClusteringHBHEHFTask.add(hbheRecHitToSoA)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALParamsESProducer)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALTopologyESProducer)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitSoAProducerHCAL)
 _alpaka_pfClusteringHBHEHFTask.add(legacyPFRecHitProducer)
-_alpaka_pfClusteringHBHEHFTask.add(pfClusterParamsESProducer)
 _alpaka_pfClusteringHBHEHFTask.add(pfClusterSoAProducer)
 _alpaka_pfClusteringHBHEHFTask.add(legacyPFClusterProducer)
 
@@ -128,7 +117,6 @@ legacyPFRecHitProducerHBHEOnly = _legacyPFRecHitProducer.clone(
 pfClusterSoAProducerHBHEOnly = _pfClusterSoAProducer.clone(
         pfRecHits = 'pfRecHitSoAProducerHBHEOnly',
         topology = "pfRecHitHCALTopologyESProducer:",
-        pfClusterParams = 'pfClusterParamsESProducer:',
         synchronise = cms.bool(False)
     )
 
@@ -141,13 +129,11 @@ legacyPFClusterProducerHBHEOnly = _legacyPFClusterProducer.clone(
 
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALParamsRecordSource)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALTopologyRecordSource)
-_alpaka_pfClusteringHBHEHFOnlyTask.add(pfClusterParamsRecordSource)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(hbheOnlyRecHitToSoA)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALParamsESProducer)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALTopologyESProducer)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitSoAProducerHBHEOnly)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(legacyPFRecHitProducerHBHEOnly)
-_alpaka_pfClusteringHBHEHFOnlyTask.add(pfClusterParamsESProducer)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfClusterSoAProducerHBHEOnly)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(legacyPFClusterProducerHBHEOnly)
 
