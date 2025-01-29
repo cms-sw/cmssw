@@ -37,11 +37,32 @@ namespace trackerTFP {
   // increment of Variable
   inline constexpr VariableTQ operator++(VariableTQ v) { return VariableTQ(+v + 1); }
 
+  // configuration
+  struct ConfigTQ {
+    edm::FileInPath model_;
+    std::vector<std::string> featureNames_;
+    double baseShiftCot_;
+    double baseShiftZ0_;
+    double baseShiftAPfixed_;
+    int chi2rphiConv_;
+    int chi2rzConv_;
+    int weightBinFraction_;
+    int dzTruncation_;
+    int dphiTruncation_;
+    int widthM20_;
+    int widthM21_;
+    int widthInvV0_;
+    int widthInvV1_;
+    int widthchi2rphi_;
+    int widthchi2rz_;
+    int baseShiftchi2rphi_;
+    int baseShiftchi2rz_;
+  };
   // class representing format of a specific variable
   template <VariableTQ v>
   class FormatTQ : public DataFormat {
   public:
-    FormatTQ(const DataFormats* dataFormats, const edm::ParameterSet& iConfig);
+    FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
     ~FormatTQ() {}
 
   private:
@@ -50,17 +71,17 @@ namespace trackerTFP {
     void calcBase() { base_ = range_ * pow(2, -width_); }
   };
   template <>
-  FormatTQ<VariableTQ::m20>::FormatTQ(const DataFormats* dataFormats, const edm::ParameterSet& iConfig);
+  FormatTQ<VariableTQ::m20>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  FormatTQ<VariableTQ::m21>::FormatTQ(const DataFormats* dataFormats, const edm::ParameterSet& iConfig);
+  FormatTQ<VariableTQ::m21>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  FormatTQ<VariableTQ::invV0>::FormatTQ(const DataFormats* dataFormats, const edm::ParameterSet& iConfig);
+  FormatTQ<VariableTQ::invV0>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  FormatTQ<VariableTQ::invV1>::FormatTQ(const DataFormats* dataFormats, const edm::ParameterSet& iConfig);
+  FormatTQ<VariableTQ::invV1>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  FormatTQ<VariableTQ::chi2rphi>::FormatTQ(const DataFormats* dataFormats, const edm::ParameterSet& iConfig);
+  FormatTQ<VariableTQ::chi2rphi>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  FormatTQ<VariableTQ::chi2rz>::FormatTQ(const DataFormats* dataFormats, const edm::ParameterSet& iConfig);
+  FormatTQ<VariableTQ::chi2rz>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
 
   /*! \class  trackerTFP::TrackQuality
    *  \brief  Bit accurate emulation of the track quality BDT
@@ -72,7 +93,7 @@ namespace trackerTFP {
   class TrackQuality {
   public:
     TrackQuality() {}
-    TrackQuality(const edm::ParameterSet& iConfig, const DataFormats* dataFormats);
+    TrackQuality(const ConfigTQ& iConfig, const DataFormats* dataFormats);
     ~TrackQuality() {}
     // object to represent tracks
     struct Track {
@@ -115,7 +136,7 @@ namespace trackerTFP {
   private:
     // constructs TQ data formats
     template <VariableTQ v = VariableTQ::begin>
-    void fillDataFormats(const edm::ParameterSet& iConfig);
+    void fillDataFormats(const ConfigTQ& iConfig);
     // TQ MVA bin conversion LUT
     constexpr std::array<double, numBinsMVA_> mvaPreSigBins() const;
     //
@@ -129,6 +150,8 @@ namespace trackerTFP {
     double scaleAP(int i) const { return i * pow(2., baseShiftAPfixed_); }
     // provides dataformats
     const DataFormats* dataFormats_;
+    //
+    ConfigTQ iConfig_;
     //
     edm::FileInPath model_;
     //

@@ -19,8 +19,7 @@ namespace trklet {
    */
   class TrackMultiplexer {
   public:
-    TrackMultiplexer(const edm::ParameterSet& iConfig,
-                     const tt::Setup* setup_,
+    TrackMultiplexer(const tt::Setup* setup_,
                      const DataFormats* dataFormats,
                      const ChannelAssignment* channelAssignment,
                      const Settings* settings,

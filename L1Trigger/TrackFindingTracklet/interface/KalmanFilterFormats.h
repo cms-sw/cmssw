@@ -74,7 +74,7 @@ namespace trklet {
     end
   };
   inline constexpr int operator+(VariableKF v) { return static_cast<int>(v); }
-  inline constexpr VariableKF operator++(VariableKF v) { return VariableKF(+v + 1); }
+  inline constexpr VariableKF operator+(VariableKF v, int i) { return VariableKF(+v + i); }
 
   class DataFormatKF {
   public:

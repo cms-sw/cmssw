@@ -1,6 +1,6 @@
 #include "FWCore/Utilities/interface/typelookup.h"
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
-#include "L1Trigger/TrackFindingTracklet/interface/DataFormatsRcd.h"
 
 TYPELOOKUP_DATA_REG(trklet::DataFormats);
-TYPELOOKUP_DATA_REG(trklet::DataFormatsRcd);
+EVENTSETUP_RECORD_REG(trklet::DataFormatsRcd);

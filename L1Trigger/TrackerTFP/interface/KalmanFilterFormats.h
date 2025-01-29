@@ -117,7 +117,7 @@ namespace trackerTFP {
   class KalmanFilterFormats {
   public:
     KalmanFilterFormats(const edm::ParameterSet& iConfig);
-    ~KalmanFilterFormats() {}
+    ~KalmanFilterFormats() = default;
     void beginRun(const DataFormats* dataFormats);
     const tt::Setup* setup() const { return dataFormats_->setup(); }
     const DataFormats* dataFormats() const { return dataFormats_; }

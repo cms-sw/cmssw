@@ -18,9 +18,16 @@ namespace trackerTFP {
    */
   class Demonstrator {
   public:
+    // configuration
+    struct Config {
+      std::string dirIPBB_;
+      double runTime_;
+      std::vector<int> linkMappingIn_;
+      std::vector<int> linkMappingOut_;
+    };
     Demonstrator() {}
-    Demonstrator(const edm::ParameterSet& iConfig, const tt::Setup* setup);
-    ~Demonstrator() {}
+    Demonstrator(const Config& iConfig, const tt::Setup* setup);
+    //~Demonstrator() {}
     // plays input through modelsim and compares result with output
     bool analyze(const std::vector<std::vector<tt::Frame>>& input,
                  const std::vector<std::vector<tt::Frame>>& output) const;
@@ -48,9 +55,9 @@ namespace trackerTFP {
     // runtime in ms
     double runTime_;
     //
-    const std::vector<int> linkMappingIn_;
+    std::vector<int> linkMappingIn_;
     //
-    const std::vector<int> linkMappingOut_;
+    std::vector<int> linkMappingOut_;
     // path to input text file
     std::string dirIn_;
     // path to output text file

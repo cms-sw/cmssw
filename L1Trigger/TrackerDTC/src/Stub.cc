@@ -18,7 +18,6 @@ namespace trackerDTC {
         layerEncoding_(nullptr),
         sm_(sm),
         ttStubRef_(ttStubRef),
-        hybrid_(false),
         valid_(true),
         regions_(0, setup_->numOverlappingRegions()) {
     const DataFormat& dfR = dataFormats_->format(Variable::r, Process::dtc);
@@ -90,18 +89,12 @@ namespace trackerDTC {
       regions_.set(1);
   }
 
-  Stub::Stub(const ParameterSet& iConfig,
-             const Setup* setup,
+  Stub::Stub(const Setup* setup,
              const DataFormats* dataFormats,
              const LayerEncoding* layerEncoding,
              const SensorModule* sm,
              const TTStubRef& ttStubRef)
-      : setup_(setup),
-        dataFormats_(dataFormats),
-        layerEncoding_(layerEncoding),
-        sm_(sm),
-        ttStubRef_(ttStubRef),
-        hybrid_(iConfig.getParameter<bool>("UseHybrid")) {
+      : setup_(setup), dataFormats_(dataFormats), layerEncoding_(layerEncoding), sm_(sm), ttStubRef_(ttStubRef) {
     const Stub stub(dataFormats, sm, ttStubRef);
     bend_ = stub.bend_;
     valid_ = stub.valid_;
@@ -126,7 +119,7 @@ namespace trackerDTC {
     if (abs(zT) > dfZT.range() / 2. + dZT)
       valid_ = false;
     // apply data format specific manipulations
-    if (!hybrid_)
+    if (!setup_->useHybrid())
       return;
     // stub r w.r.t. an offset in cm
     r_ -= sm->offsetR() - setup->chosenRofPhi();
@@ -146,7 +139,7 @@ namespace trackerDTC {
 
   // returns bit accurate representation of Stub
   FrameStub Stub::frame(int region) const {
-    return make_pair(ttStubRef_, hybrid_ ? formatHybrid(region) : formatTMTT(region));
+    return make_pair(ttStubRef_, setup_->useHybrid() ? formatHybrid(region) : formatTMTT(region));
   }
 
   // truncates double precision to f/w integer equivalent

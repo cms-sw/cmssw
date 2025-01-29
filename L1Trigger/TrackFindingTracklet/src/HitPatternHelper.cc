@@ -13,19 +13,17 @@
 
 namespace hph {
 
-  Setup::Setup(const edm::ParameterSet& iConfig,
+  Setup::Setup(const Config& iConfig,
                const tt::Setup& setupTT,
                const trackerTFP::DataFormats& dataFormats,
                const trackerTFP::LayerEncoding& layerEncoding)
-      : iConfig_(iConfig),
-        oldKFPSet_(iConfig.getParameter<edm::ParameterSet>("oldKFPSet")),
-        setupTT_(setupTT),
+      : setupTT_(setupTT),
         dataFormats_(dataFormats),
         dfcot_(dataFormats_.format(trackerTFP::Variable::cot, trackerTFP::Process::gp)),
         dfzT_(dataFormats_.format(trackerTFP::Variable::zT, trackerTFP::Process::gp)),
         layerEncoding_(layerEncoding),
-        hphDebug_(iConfig.getParameter<bool>("hphDebug")),
-        useNewKF_(iConfig.getParameter<bool>("useNewKF")),
+        hphDebug_(iConfig.hphDebug_),
+        useNewKF_(iConfig.useNewKF_),
         chosenRofZNewKF_(setupTT_.chosenRofZ()),
         layermap_(),
         nEtaRegions_(tmtt::KFbase::nEta_ / 2),
@@ -34,8 +32,8 @@ namespace hph {
       chosenRofZ_ = chosenRofZNewKF_;
       etaRegions_ = etaRegionsNewKF_;
     } else {
-      chosenRofZ_ = oldKFPSet_.getParameter<double>("ChosenRofZ");
-      etaRegions_ = oldKFPSet_.getParameter<std::vector<double>>("EtaRegions");
+      chosenRofZ_ = iConfig.chosenRofZ_;
+      etaRegions_ = iConfig.etaRegions_;
     }
     static constexpr auto layerIds = {1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15};  //layer ID 11~15 correspond to D1~D5
     // Converting tmtt::KFbase::layerMap_ to a format that is acceptatble by HitPatternHelper

@@ -14,8 +14,7 @@ namespace trackerTFP {
   // Class to find initial rough candidates in r-phi in a region
   class HoughTransform {
   public:
-    HoughTransform(const edm::ParameterSet& iConfig,
-                   const tt::Setup* setup,
+    HoughTransform(const tt::Setup* setup,
                    const DataFormats* dataFormats,
                    const LayerEncoding* layerEncoding,
                    std::vector<StubHT>& stubs);
@@ -33,8 +32,6 @@ namespace trackerTFP {
     void readOut(const std::vector<StubHT*>& input, std::deque<StubHT*>& output) const;
     //
     bool noTrack(const TTBV& pattern, int zT) const;
-    // true if truncation is enbaled
-    bool enableTruncation_;
     // provides run-time constants
     const tt::Setup* setup_;
     // provides dataformats
@@ -53,6 +50,14 @@ namespace trackerTFP {
     const DataFormat* z_;
     // container of stubs
     std::vector<StubHT>& stubs_;
+    // number of input channel
+    int numChannelIn_;
+    // number of output channel
+    int numChannelOut_;
+    //
+    int chan_;
+    //
+    int mux_;
   };
 
 }  // namespace trackerTFP

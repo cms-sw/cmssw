@@ -38,8 +38,156 @@ namespace tt {
    */
   class Setup {
   public:
+    // Configuration
+    struct Config {
+      double beamWindowZ_;
+      double minPt_;
+      double minPtCand_;
+      double maxEta_;
+      double maxD0_;
+      double chosenRofPhi_;
+      int numLayers_;
+      int minLayers_;
+      int tmttWidthR_;
+      int tmttWidthPhi_;
+      int tmttWidthZ_;
+      int hybridNumLayers_;
+      std::vector<int> hybridNumRingsPS_;
+      std::vector<int> hybridWidthsR_;
+      std::vector<int> hybridWidthsZ_;
+      std::vector<int> hybridWidthsPhi_;
+      std::vector<int> hybridWidthsAlpha_;
+      std::vector<int> hybridWidthsBend_;
+      std::vector<double> hybridRangesR_;
+      std::vector<double> hybridRangesZ_;
+      std::vector<double> hybridRangesAlpha_;
+      std::vector<double> hybridLayerRs_;
+      std::vector<double> hybridDiskZs_;
+      std::vector<edm::ParameterSet> hybridDisk2SRsSet_;
+      double hybridRangePhi_;
+      double tbBarrelHalfLength_;
+      double tbInnerRadius_;
+      std::vector<int> tbWidthsR_;
+      int enableTruncation_;
+      bool useHybrid_;
+      int widthDSPa_;
+      int widthDSPab_;
+      int widthDSPau_;
+      int widthDSPb_;
+      int widthDSPbb_;
+      int widthDSPbu_;
+      int widthDSPc_;
+      int widthDSPcb_;
+      int widthDSPcu_;
+      int widthAddrBRAM36_;
+      int widthAddrBRAM18_;
+      int numFramesInfra_;
+      double freqLHC_;
+      double freqBEHigh_;
+      double freqBELow_;
+      int tmpFE_;
+      int tmpTFP_;
+      double speedOfLight_;
+      double bField_;
+      double bFieldError_;
+      double outerRadius_;
+      double innerRadius_;
+      double halfLength_;
+      double maxPitchRow_;
+      double maxPitchCol_;
+      double tiltApproxSlope_;
+      double tiltApproxIntercept_;
+      double tiltUncertaintyR_;
+      double scattering_;
+      double pitchRow2S_;
+      double pitchRowPS_;
+      double pitchCol2S_;
+      double pitchColPS_;
+      double limitPSBarrel_;
+      std::vector<double> limitsTiltedR_;
+      std::vector<double> limitsTiltedZ_;
+      std::vector<double> limitsPSDiksZ_;
+      std::vector<double> limitsPSDiksR_;
+      std::vector<double> tiltedLayerLimitsZ_;
+      std::vector<double> psDiskLimitsR_;
+      int widthBend_;
+      int widthCol_;
+      int widthRow_;
+      double baseBend_;
+      double baseCol_;
+      double baseRow_;
+      double baseWindowSize_;
+      double bendCut_;
+      int numRegions_;
+      int numOverlappingRegions_;
+      int numATCASlots_;
+      int numDTCsPerRegion_;
+      int numModulesPerDTC_;
+      int dtcNumRoutingBlocks_;
+      int dtcDepthMemory_;
+      int dtcWidthRowLUT_;
+      int dtcWidthInv2R_;
+      int offsetDetIdDSV_;
+      int offsetDetIdTP_;
+      int offsetLayerDisks_;
+      int offsetLayerId_;
+      int numBarrelLayer_;
+      int dtcNumStreams_;
+      int slotLimitPS_;
+      int slotLimit10gbps_;
+      int tfpWidthPhi0_;
+      int tfpWidthInvR_;
+      int tfpWidthCot_;
+      int tfpWidthZ0_;
+      int tfpNumChannel_;
+      int gpNumBinsPhiT_;
+      int gpNumBinsZT_;
+      double chosenRofZ_;
+      int gpDepthMemory_;
+      int gpWidthModule_;
+      int gpPosPS_;
+      int gpPosBarrel_;
+      int gpPosTilted_;
+      int htNumBinsInv2R_;
+      int htNumBinsPhiT_;
+      int htMinLayers_;
+      int htDepthMemory_;
+      int ctbNumBinsInv2R_;
+      int ctbNumBinsPhiT_;
+      int ctbNumBinsCot_;
+      int ctbNumBinsZT_;
+      int ctbMinLayers_;
+      int ctbMaxTracks_;
+      int ctbMaxStubs_;
+      int ctbDepthMemory_;
+      bool kfUse5ParameterFit_;
+      bool kfUseSimmulation_;
+      bool kfUseTTStubResiduals_;
+      bool kfUseTTStubParameters_;
+      bool kfApplyNonLinearCorrection_;
+      int kfNumWorker_;
+      int kfMaxTracks_;
+      int kfMinLayers_;
+      int kfMinLayersPS_;
+      int kfMaxLayers_;
+      int kfMaxGaps_;
+      int kfMaxSeedingLayer_;
+      int kfNumSeedStubs_;
+      double kfMinSeedDeltaR_;
+      double kfRangeFactor_;
+      int kfShiftInitialC00_;
+      int kfShiftInitialC11_;
+      int kfShiftInitialC22_;
+      int kfShiftInitialC33_;
+      int kfShiftChi20_;
+      int kfShiftChi21_;
+      double kfCutChi2_;
+      int kfWidthChi2_;
+      int drDepthMemory_;
+      int tqNumChannel_;
+    };
     Setup() {}
-    Setup(const edm::ParameterSet& iConfig,
+    Setup(const Config& iConfig,
           const TrackerGeometry& trackerGeometry,
           const TrackerTopology& trackerTopology,
           const TrackerDetToDTCELinkCablingMap& cablingMap,
@@ -122,6 +270,10 @@ namespace tt {
 
     // Firmware specific Parameter
 
+    // enable emulation of truncation for TM, DR, KF, TQ and TFP
+    int enableTruncation() const { return enableTruncation_; }
+    // use Hybrid or TMTT as TT algorithm
+    bool useHybrid() const { return useHybrid_; }
     // width of the 'A' port of an DSP slice
     int widthDSPa() const { return widthDSPa_; }
     // width of the 'A' port of an DSP slice using biased twos complement
@@ -445,6 +597,16 @@ namespace tt {
 
     // Parameter specifying KalmanFilter
 
+    // double precision simulation of 5 parameter fit instead of bit accurate emulation of 4 parameter fit
+    bool kfUse5ParameterFit() const { return kfUse5ParameterFit_; }
+    // simulate KF instead of emulate
+    bool kfUseSimmulation() const { return kfUseSimmulation_; }
+    // stub residuals and radius are recalculated from seed parameter and TTStub position
+    bool kfUseTTStubResiduals() const { return kfUseTTStubResiduals_; }
+    // track parameter are recalculated from seed TTStub positions
+    bool kfUseTTStubParameters() const { return kfUseTTStubParameters_; }
+    //
+    bool kfApplyNonLinearCorrection() const { return kfApplyNonLinearCorrection_; }
     // number of kf worker
     int kfNumWorker() const { return kfNumWorker_; }
     // max number of tracks a kf worker can process
@@ -528,8 +690,6 @@ namespace tt {
     // pSet of ttStub algorithm, used to identify bend window sizes of sensor modules
     const edm::ParameterSet* pSetSA_;
 
-    // Common track finding parameter
-    edm::ParameterSet pSetTF_;
     // half lumi region size in cm
     double beamWindowZ_;
     // cut on stub and TP pt, also defines region overlap shape in GeV
@@ -547,8 +707,6 @@ namespace tt {
     // required number of stub layers to form a track
     int minLayers_;
 
-    // TMTT specific parameter
-    edm::ParameterSet pSetTMTT_;
     // number of bits used for stub r - ChosenRofPhi
     int tmttWidthR_;
     // number of bits used for stub phi w.r.t. phi sector centre
@@ -556,8 +714,6 @@ namespace tt {
     // number of bits used for stub z
     int tmttWidthZ_;
 
-    // Hybrid specific parameter
-    edm::ParameterSet pSetHybrid_;
     // max number of layers connected to one DTC
     int hybridNumLayers_;
     // number of outer PS rings for disk 1, 2, 3, 4, 5
@@ -593,8 +749,10 @@ namespace tt {
     // number of bits used for stub r w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S) after TrackBuilder
     std::vector<int> tbWidthsR_;
 
-    // Firmware specific Parameter
-    edm::ParameterSet pSetFW_;
+    // enable emulation of truncation for TM, DR, KF, TQ and TFP
+    int enableTruncation_;
+    // use Hybrid or TMTT as TT algorithm
+    bool useHybrid_;
     // width of the 'A' port of an DSP slice
     int widthDSPa_;
     // width of the 'A' port of an DSP slice using biased twos complement
@@ -632,8 +790,6 @@ namespace tt {
     // speed of light used in FW in e8 m/s
     double speedOfLight_;
 
-    // Tracker specific Parameter
-    edm::ParameterSet pSetOT_;
     // BField used in fw in T
     double bField_;
     // accepted BField difference between FW to EventSetup in T
@@ -679,8 +835,6 @@ namespace tt {
     // endcap disk limit r value to partition into PS and 2S region
     std::vector<double> psDiskLimitsR_;
 
-    // Parameter specifying front-end
-    edm::ParameterSet pSetFE_;
     // number of bits used for internal stub bend
     int widthBend_;
     // number of bits used for internal stub column
@@ -698,8 +852,6 @@ namespace tt {
     // used stub bend uncertainty in pitch units
     double bendCut_;
 
-    // Parameter specifying DTC
-    edm::ParameterSet pSetDTC_;
     // number of phi slices the outer tracker readout is organized in
     int numRegions_;
     // number of regions a reconstructable particles may cross
@@ -735,8 +887,6 @@ namespace tt {
     // slot number changing from 10 gbps to 5gbps (default: 3)
     int slotLimit10gbps_;
 
-    // Parameter specifying TFP
-    edm::ParameterSet pSetTFP_;
     // number of bits used for phi0
     int tfpWidthPhi0_;
     // umber of bits used for qOverPt
@@ -748,8 +898,6 @@ namespace tt {
     // number of output links
     int tfpNumChannel_;
 
-    // Parameter specifying GeometricProcessor
-    edm::ParameterSet pSetGP_;
     // number of phi sectors used in hough transform
     int gpNumBinsPhiT_;
     // number of eta sectors used in hough transform
@@ -767,8 +915,6 @@ namespace tt {
     //
     int gpPosTilted_;
 
-    // Parameter specifying HoughTransform
-    edm::ParameterSet pSetHT_;
     // number of inv2R bins used in hough transform
     int htNumBinsInv2R_;
     // number of phiT bins used in hough transform
@@ -778,8 +924,6 @@ namespace tt {
     // internal fifo depth
     int htDepthMemory_;
 
-    // Parameter specifying Clean Track Builder
-    edm::ParameterSet pSetCTB_;
     // number of finer inv2R bins inside HT bin
     int ctbNumBinsInv2R_;
     // number of finer phiT bins inside HT bin
@@ -797,8 +941,16 @@ namespace tt {
     // internal memory depth
     int ctbDepthMemory_;
 
-    // Parameter specifying KalmanFilter
-    edm::ParameterSet pSetKF_;
+    // double precision simulation of 5 parameter fit instead of bit accurate emulation of 4 parameter fit
+    bool kfUse5ParameterFit_;
+    // simulate KF instead of emulate
+    bool kfUseSimmulation_;
+    // stub residuals and radius are recalculated from seed parameter and TTStub position
+    bool kfUseTTStubResiduals_;
+    // track parameter are recalculated from seed TTStub positions
+    bool kfUseTTStubParameters_;
+    //
+    bool kfApplyNonLinearCorrection_;
     // number of kf worker
     int kfNumWorker_;
     // max number of tracks a kf worker can process
@@ -836,13 +988,9 @@ namespace tt {
     //
     int kfWidthChi2_;
 
-    // Parameter specifying DuplicateRemoval
-    edm::ParameterSet pSetDR_;
     // internal memory depth
     int drDepthMemory_;
 
-    // Parameter specifying Track Quality
-    edm::ParameterSet pSetTQ_;
     // number of output channel
     int tqNumChannel_;
 

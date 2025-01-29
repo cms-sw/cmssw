@@ -44,7 +44,6 @@ namespace trklet {
   private:
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
-    virtual void endJob() {}
 
     // ED input token of Tracks
     EDGetTokenT<StreamsTrack> edGetTokenTracks_;
@@ -60,8 +59,6 @@ namespace trklet {
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // ChannelAssignment token
     ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
-    // configuration
-    ParameterSet iConfig_;
     // helper class to store configurations
     const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
@@ -72,7 +69,7 @@ namespace trklet {
     Settings settings_;
   };
 
-  ProducerTM::ProducerTM(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerTM::ProducerTM(const ParameterSet& iConfig) {
     const string& label = iConfig.getParameter<string>("InputLabelTM");
     const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
     const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
@@ -98,20 +95,14 @@ namespace trklet {
 
   void ProducerTM::produce(Event& iEvent, const EventSetup& iSetup) {
     // empty TM products
-    const int numStreamsTracks = setup_->numRegions();
-    const int numStreamsStubs = numStreamsTracks * channelAssignment_->tmNumLayers();
-    StreamsStub streamsStub(numStreamsStubs);
-    StreamsTrack streamsTrack(numStreamsTracks);
+    StreamsStub streamsStub(setup_->numRegions() * channelAssignment_->tmNumLayers());
+    StreamsTrack streamsTrack(setup_->numRegions());
     // read in TBout Product and produce TM product
-    Handle<StreamsStub> handleStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
-    const StreamsStub& stubs = *handleStubs;
-    Handle<StreamsTrack> handleTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
-    const StreamsTrack& tracks = *handleTracks;
+    const StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
+    const StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
     for (int region = 0; region < setup_->numRegions(); region++) {
       // object to reformat tracks from tracklet fromat to TMTT format in a processing region
-      TrackMultiplexer tm(iConfig_, setup_, dataFormats_, channelAssignment_, &settings_, region);
+      TrackMultiplexer tm(setup_, dataFormats_, channelAssignment_, &settings_, region);
       // read in and organize input tracks and stubs
       tm.consume(tracks, stubs);
       // fill output products

@@ -16,8 +16,7 @@ namespace trklet {
   // Class to format final tfp output and to prodcue final TTTrackCollection
   class TrackFindingProcessor {
   public:
-    TrackFindingProcessor(const edm::ParameterSet& iConfig,
-                          const tt::Setup* setup_,
+    TrackFindingProcessor(const tt::Setup* setup_,
                           const DataFormats* dataFormats,
                           const trackerTFP::TrackQuality* trackQuality);
     ~TrackFindingProcessor() {}
@@ -75,8 +74,6 @@ namespace trklet {
     void produce(std::vector<std::deque<Track*>>& inputs, tt::StreamsTrack& outputs) const;
     // produce TTTracks
     void produce(const tt::StreamsTrack& inputs, tt::TTTracks& ouputs) const;
-    // true if truncation is enbaled
-    bool enableTruncation_;
     // provides run-time constants
     const tt::Setup* setup_;
     // provides data formats

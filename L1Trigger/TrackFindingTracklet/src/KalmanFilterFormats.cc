@@ -48,8 +48,9 @@ namespace trklet {
   template <VariableKF it>
   void KalmanFilterFormats::fillFormats() {
     formats_.emplace_back(FormatKF<it>(dataFormats_, iConfig_));
-    if constexpr (++it != VariableKF::end)
-      fillFormats<++it>();
+    constexpr VariableKF nextIt = it + 1;
+    if constexpr (nextIt != VariableKF::end)
+      fillFormats<nextIt>();
   }
 
   DataFormatKF::DataFormatKF(const VariableKF& v, bool twos, const ParameterSet& iConfig)

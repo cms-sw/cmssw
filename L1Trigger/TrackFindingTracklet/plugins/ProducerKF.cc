@@ -58,8 +58,6 @@ namespace trklet {
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
-    // configuration
-    ParameterSet iConfig_;
     // helper class to store configurations
     const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
@@ -81,8 +79,7 @@ namespace trklet {
   };
 
   ProducerKF::ProducerKF(const ParameterSet& iConfig)
-      : iConfig_(iConfig),
-        kalmanFilterFormats_(iConfig),
+      : kalmanFilterFormats_(iConfig),
         settings_(iConfig),
         tmtt4_(&settings_, 4, "KF5ParamsComb"),
         tmtt5_(&settings_, 5, "KF4ParamsComb"),
@@ -120,20 +117,14 @@ namespace trklet {
 
   void ProducerKF::produce(Event& iEvent, const EventSetup& iSetup) {
     auto valid = [](int sum, const FrameTrack& f) { return sum += (f.first.isNull() ? 0 : 1); };
-    static const int numRegions = setup_->numRegions();
-    static const int numLayers = setup_->numLayers();
     // empty KF products
-    StreamsStub streamsStub(numRegions * numLayers);
-    StreamsTrack streamsTrack(numRegions);
+    StreamsStub streamsStub(setup_->numRegions() * setup_->numLayers());
+    StreamsTrack streamsTrack(setup_->numRegions());
     int numStatesAccepted(0);
     int numStatesTruncated(0);
     // read in DR Product and produce KF product
-    Handle<StreamsStub> handleStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
-    const StreamsStub& stubs = *handleStubs;
-    Handle<StreamsTrack> handleTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
-    const StreamsTrack& tracks = *handleTracks;
+    const StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
+    const StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
     // prep TTTracks
     TTTracks ttTracks;
     vector<TTTrackRef> ttTrackRefs;
@@ -150,7 +141,7 @@ namespace trklet {
     }
     for (int region = 0; region < setup_->numRegions(); region++) {
       // object to fit tracks in a processing region
-      KalmanFilter kf(iConfig_, setup_, dataFormats_, &kalmanFilterFormats_, &settings_, tmtt_, region, ttTracks);
+      KalmanFilter kf(setup_, dataFormats_, &kalmanFilterFormats_, &settings_, tmtt_, region, ttTracks);
       // read in and organize input tracks and stubs
       kf.consume(tracks, stubs);
       // fill output products

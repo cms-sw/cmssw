@@ -36,10 +36,14 @@ namespace trackerTFP {
   void DataFormats::countFormats() {
     if constexpr (config_[+v][+p] == p)
       numDataFormats_++;
-    if constexpr (++p != Process::end)
-      countFormats<v, ++p>();
-    else if constexpr (++v != Variable::end)
-      countFormats<++v>();
+    constexpr Process nextP = p + 1;
+    if constexpr (nextP != Process::end)
+      countFormats<v, nextP>();
+    else {
+      constexpr Variable nextV = v + 1;
+      if constexpr (nextV != Variable::end)
+        countFormats<nextV>();
+    }
   }
 
   // proper constructor
@@ -76,10 +80,14 @@ namespace trackerTFP {
       dataFormats_.emplace_back(Format<v, p>(setup_));
       fillFormats<v, p>();
     }
-    if constexpr (++p != Process::end)
-      fillDataFormats<v, ++p>();
-    else if constexpr (++v != Variable::end)
-      fillDataFormats<++v>();
+    constexpr Process nextP = p + 1;
+    if constexpr (nextP != Process::end)
+      fillDataFormats<v, nextP>();
+    else {
+      constexpr Variable nextV = v + 1;
+      if constexpr (nextV != Variable::end)
+        fillDataFormats<nextV>();
+    }
   }
 
   // helper (loop) data formats of all unique used variables and flavours
@@ -88,8 +96,9 @@ namespace trackerTFP {
     if (config_[+v][+it] == p) {
       formats_[+v][+it] = &dataFormats_.back();
     }
-    if constexpr (++it != Process::end)
-      fillFormats<v, p, ++it>();
+    constexpr Process nextIt = it + 1;
+    if constexpr (nextIt != Process::end)
+      fillFormats<v, p, nextIt>();
   }
 
   template <>

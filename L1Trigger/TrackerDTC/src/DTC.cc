@@ -12,15 +12,13 @@ using namespace trackerTFP;
 
 namespace trackerDTC {
 
-  DTC::DTC(const ParameterSet& iConfig,
-           const Setup* setup,
+  DTC::DTC(const Setup* setup,
            const DataFormats* dataFormats,
            const LayerEncoding* layerEncoding,
            int dtcId,
            const vector<vector<TTStubRef>>& stubsDTC)
       : setup_(setup),
         dataFormats_(dataFormats),
-        enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
         region_(dtcId / setup->numDTCsPerRegion()),
         board_(dtcId % setup->numDTCsPerRegion()),
         modules_(setup->dtcModules(dtcId)),
@@ -44,7 +42,7 @@ namespace trackerDTC {
       // convert TTStubs and fill input channel
       Stubs& stubs = input_[blockId][channelId];
       for (const TTStubRef& ttStubRef : ttStubRefs) {
-        stubs_.emplace_back(iConfig, setup, dataFormats, layerEncoding, module, ttStubRef);
+        stubs_.emplace_back(setup, dataFormats, layerEncoding, module, ttStubRef);
         Stub& stub = stubs_.back();
         if (stub.valid())
           // passed pt and eta cut
@@ -53,7 +51,7 @@ namespace trackerDTC {
       // sort stubs by bend
       sort(stubs.begin(), stubs.end(), [](Stub* lhs, Stub* rhs) { return abs(lhs->bend()) < abs(rhs->bend()); });
       // truncate stubs if desired
-      if (!enableTruncation_ || (int)stubs.size() <= setup->numFramesFE())
+      if (!setup_->enableTruncation() || (int)stubs.size() <= setup->numFramesFE())
         continue;
       // begin of truncated stubs
       const auto limit = next(stubs.begin(), setup->numFramesFE());
@@ -101,7 +99,7 @@ namespace trackerDTC {
           continue;
         Stub* stub = pop_front(input);
         if (stub) {
-          if (enableTruncation_ && (int)stack.size() == setup_->dtcDepthMemory() - 1)
+          if (setup_->enableTruncation() && (int)stack.size() == setup_->dtcDepthMemory() - 1)
             // kill current first stub when fifo overflows
             lost.push_back(pop_front(stack));
           stack.push_back(stub);
@@ -123,7 +121,7 @@ namespace trackerDTC {
         output.push_back(nullptr);
     }
     // truncate if desired
-    if (enableTruncation_ && (int)output.size() > setup_->numFramesIOHigh()) {
+    if (setup_->enableTruncation() && (int)output.size() > setup_->numFramesIOHigh()) {
       const auto limit = next(output.begin(), setup_->numFramesIOHigh());
       copy_if(limit, output.end(), back_inserter(lost), [](Stub* stub) { return stub; });
       output.erase(limit, output.end());

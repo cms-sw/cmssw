@@ -46,7 +46,7 @@ namespace trklet {
     DataFormat(bool twos, int width, double base, double range)
         : twos_(twos), width_(width), base_(base), range_(range) {}
     DataFormat() {}
-    ~DataFormat() {}
+    virtual ~DataFormat() {}
     // converts int to bitvector
     TTBV ttBV(int i) const { return TTBV(i, width_, twos_); }
     // converts double to bitvector
@@ -193,7 +193,7 @@ namespace trklet {
   public:
     DataFormats();
     DataFormats(const ChannelAssignment* ca);
-    ~DataFormats() {}
+    ~DataFormats() = default;
     // converts bits to ntuple of variables
     template <typename... Ts>
     void convertStub(Process p, const tt::Frame& bv, std::tuple<Ts...>& data) const {
@@ -275,8 +275,6 @@ namespace trklet {
       if constexpr (it + 1 != sizeof...(Ts))
         attachTrack<it + 1>(p, data, ttBV);
     }
-    // configuration during construction
-    edm::ParameterSet iConfig_;
     // stored run-time constants
     const ChannelAssignment* channelAssignment_;
     // collection of unique formats

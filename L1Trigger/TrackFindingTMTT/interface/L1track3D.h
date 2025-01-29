@@ -83,9 +83,7 @@ namespace tmtt {
               int iPhiSec,
               int iEtaReg)
         : settings_(settings),
-          stubs_(stubs),
-          stubsConst_(std::vector<const Stub*>()),
-          bestStubs_(std::unordered_set<const Stub*>()),
+          stubs_(std::move(stubs)),
           nLayers_(0),
           cellLocationHT_(0, 0),
           helixRphi_(qOverPt, phi0),
@@ -98,7 +96,6 @@ namespace tmtt {
           seedLayerType_(TrackletSeedType()),
           seedPS_(0),
           matchedTP_(nullptr),
-          matchedStubs_(std::vector<const Stub*>()),
           nMatchedLayers_(0) {}
 
     ~L1track3D() override = default;

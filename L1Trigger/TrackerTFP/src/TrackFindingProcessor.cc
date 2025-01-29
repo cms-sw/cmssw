@@ -13,14 +13,12 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  TrackFindingProcessor::TrackFindingProcessor(const ParameterSet& iConfig,
-                                               const Setup* setup,
+  TrackFindingProcessor::TrackFindingProcessor(const Setup* setup,
                                                const DataFormats* dataFormats,
                                                const TrackQuality* trackQuality)
-      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-        setup_(setup),
-        dataFormats_(dataFormats),
-        trackQuality_(trackQuality) {}
+      : setup_(setup), dataFormats_(dataFormats), trackQuality_(trackQuality) {
+    bfield_ = setup_->bField();
+  }
 
   //
   TrackFindingProcessor::Track::Track(const FrameTrack& frameTrack,
@@ -29,6 +27,20 @@ namespace trackerTFP {
                                       const TrackQuality* tq)
       : ttTrackRef_(frameTrack.first), ttStubRefs_(ttStubRefs), valid_(true) {
     partials_.reserve(partial_in);
+    const double rangeInvR = -2. * TTTrack_TrackWord::minRinv;
+    const double rangePhi0 = -2. * TTTrack_TrackWord::minPhi0;
+    const double rangeCot = -2. * TTTrack_TrackWord::minTanl;
+    const double rangeZ0 = -2. * TTTrack_TrackWord::minZ0;
+    const double rangeD0 = -2. * TTTrack_TrackWord::minD0;
+    const double baseInvR = rangeInvR / pow(2., TTTrack_TrackWord::TrackBitWidths::kRinvSize);
+    const double basePhi0 = rangePhi0 / pow(2., TTTrack_TrackWord::TrackBitWidths::kPhiSize);
+    const double baseCot = rangeCot / pow(2., TTTrack_TrackWord::TrackBitWidths::kTanlSize);
+    const double baseZ0 = rangeZ0 / pow(2., TTTrack_TrackWord::TrackBitWidths::kZ0Size);
+    const double baseD0 = rangeD0 / pow(2., TTTrack_TrackWord::TrackBitWidths::kD0Size);
+    const int nLayers = TTTrack_TrackWord::TrackBitWidths::kHitPatternSize;
+    const TTBV other_MVAs = TTBV(0, 2 * TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize);
+    const TTBV chi2bend = TTBV(0, TTTrack_TrackWord::TrackBitWidths::kBendChi2Size);
+    const TTBV valid = TTBV(1, TTTrack_TrackWord::TrackBitWidths::kValidSize);
     // convert bits into nice formats
     const DataFormats* df = tq->dataFormats();
     const Setup* setup = df->setup();
@@ -67,11 +79,6 @@ namespace trackerTFP {
         chi2rzBin++;
       else
         break;
-    static const double rangeInvR = -2. * TTTrack_TrackWord::minRinv;
-    static const double rangePhi0 = -2. * TTTrack_TrackWord::minPhi0;
-    static const double rangeCot = -2. * TTTrack_TrackWord::minTanl;
-    static const double rangeZ0 = -2. * TTTrack_TrackWord::minZ0;
-    static const double rangeD0 = -2. * TTTrack_TrackWord::minD0;
     if (abs(invR) > rangeInvR / 2.)
       valid_ = false;
     if (abs(phi0) > rangePhi0 / 2.)
@@ -84,27 +91,18 @@ namespace trackerTFP {
       valid_ = false;
     if (!valid_)
       return;
-    static const double baseInvR = rangeInvR / pow(2., TTTrack_TrackWord::TrackBitWidths::kRinvSize);
-    static const double basePhi0 = rangePhi0 / pow(2., TTTrack_TrackWord::TrackBitWidths::kPhiSize);
-    static const double baseCot = rangeCot / pow(2., TTTrack_TrackWord::TrackBitWidths::kTanlSize);
-    static const double baseZ0 = rangeZ0 / pow(2., TTTrack_TrackWord::TrackBitWidths::kZ0Size);
-    static const double baseD0 = rangeD0 / pow(2., TTTrack_TrackWord::TrackBitWidths::kD0Size);
-    static constexpr int nLayers = TTTrack_TrackWord::TrackBitWidths::kHitPatternSize;
-    static const TTBV Other_MVAs(0, 2 * TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize);
     const TTBV MVA_quality(mva_, TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize);
     const TTBV hit_pattern(hitPattern_.resize(nLayers).val(), nLayers);
-    static const TTBV chi2bend(0, TTTrack_TrackWord::TrackBitWidths::kBendChi2Size);
-    static const TTBV D0(d0, baseD0, TTTrack_TrackWord::TrackBitWidths::kD0Size, true);
+    const TTBV D0(d0, baseD0, TTTrack_TrackWord::TrackBitWidths::kD0Size, true);
     const TTBV Chi2rz(chi2rzBin, TTTrack_TrackWord::TrackBitWidths::kChi2RZSize);
     const TTBV Z0(z0, baseZ0, TTTrack_TrackWord::TrackBitWidths::kZ0Size, true);
     const TTBV tanL(cot_, baseCot, TTTrack_TrackWord::TrackBitWidths::kTanlSize, true);
     const TTBV Chi2rphi(chi2rphiBin, TTTrack_TrackWord::TrackBitWidths::kChi2RPhiSize);
     const TTBV Phi0(phi0, basePhi0, TTTrack_TrackWord::TrackBitWidths::kPhiSize, true);
     const TTBV InvR(invR, baseInvR, TTTrack_TrackWord::TrackBitWidths::kRinvSize, true);
-    static const TTBV valid(1, TTTrack_TrackWord::TrackBitWidths::kValidSize);
     partials_.emplace_back((valid + InvR + Phi0 + Chi2rphi).str());
     partials_.emplace_back((tanL + Z0 + Chi2rz).str());
-    partials_.emplace_back((D0 + chi2bend + hit_pattern + MVA_quality + Other_MVAs).str());
+    partials_.emplace_back((D0 + chi2bend + hit_pattern + MVA_quality + other_MVAs).str());
   }
 
   // fill output products
@@ -193,7 +191,7 @@ namespace trackerTFP {
         frame.second = ttBV.bs();
       }
       // perorm truncation
-      if (enableTruncation_ && (int)output.size() > setup_->numFramesIOHigh())
+      if (setup_->enableTruncation() && (int)output.size() > setup_->numFramesIOHigh())
         output.resize(setup_->numFramesIOHigh());
       outputs[channel] = StreamTrack(output.begin(), output.end());
     }
@@ -234,16 +232,26 @@ namespace trackerTFP {
       static constexpr double trkMVA3 = 0.;
       const unsigned int aHitpattern = it->hitPattern_.val();
       const unsigned int nPar = ttTrackRef->nFitPars();
-      static const double Bfield = setup_->bField();
-      outputs.emplace_back(
-          aRinv, aphi, aTanLambda, az0, ad0, aChi2xyfit, aChi2zfit, trkMVA1, trkMVA2, trkMVA3, aHitpattern, nPar, Bfield);
+      outputs.emplace_back(aRinv,
+                           aphi,
+                           aTanLambda,
+                           az0,
+                           ad0,
+                           aChi2xyfit,
+                           aChi2zfit,
+                           trkMVA1,
+                           trkMVA2,
+                           trkMVA3,
+                           aHitpattern,
+                           nPar,
+                           bfield_);
       TTTrack<Ref_Phase2TrackerDigi_>& ttTrack = outputs.back();
       ttTrack.setPhiSector(region);
       ttTrack.setEtaSector(dfZT.toUnsigned(dfZT.integer(it->zT_)));
       ttTrack.setTrackSeedType(ttTrackRef->trackSeedType());
       ttTrack.setStubRefs(it->ttStubRefs_);
       ttTrack.setStubPtConsistency(StubPtConsistency::getConsistency(
-          ttTrack, setup_->trackerGeometry(), setup_->trackerTopology(), Bfield, nPar));
+          ttTrack, setup_->trackerGeometry(), setup_->trackerTopology(), bfield_, nPar));
     }
   }
 

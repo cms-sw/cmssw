@@ -44,7 +44,14 @@ namespace hph {
   //Class that stores configuration for HitPatternHelper
   class Setup {
   public:
-    Setup(const edm::ParameterSet& iConfig,
+    // Configuration
+    struct Config {
+      bool hphDebug_;
+      bool useNewKF_;
+      double chosenRofZ_;
+      std::vector<double> etaRegions_;
+    };
+    Setup(const Config& iConfig,
           const tt::Setup& setupTT,
           const trackerTFP::DataFormats& dataFormats,
           const trackerTFP::LayerEncoding& layerEncoding);
@@ -69,8 +76,6 @@ namespace hph {
     }
 
   private:
-    edm::ParameterSet iConfig_;
-    edm::ParameterSet oldKFPSet_;
     const tt::Setup setupTT_;  // Helper class to store TrackTrigger configuration
     const trackerTFP::DataFormats dataFormats_;
     const trackerTFP::DataFormat dfcot_;
