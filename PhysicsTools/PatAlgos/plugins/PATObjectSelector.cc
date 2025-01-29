@@ -256,16 +256,14 @@ namespace pat {
       >
       PATPackedCandidateSelector;
 
-  typedef SingleObjectSelector<
-      std::vector<edm::Ptr<PackedCandidate>>,
-      StringCutObjectSelector<edm::Ptr<PackedCandidate>, true>,
-      std::vector<edm::Ptr<PackedCandidate>>>
+  typedef SingleObjectSelector<std::vector<edm::Ptr<PackedCandidate>>,
+                               StringCutObjectSelector<edm::Ptr<PackedCandidate>, true>,
+                               std::vector<edm::Ptr<PackedCandidate>>>
       PATPackedCandidatePtrSelector;
 
-  typedef SingleObjectSelector<
-      std::vector<edm::Ptr<PackedGenParticle>>,
-      StringCutObjectSelector<edm::Ptr<PackedGenParticle>, true>,
-      std::vector<edm::Ptr<PackedGenParticle>>>
+  typedef SingleObjectSelector<std::vector<edm::Ptr<PackedGenParticle>>,
+                               StringCutObjectSelector<edm::Ptr<PackedGenParticle>, true>,
+                               std::vector<edm::Ptr<PackedGenParticle>>>
       PATPackedGenParticlePtrSelector;
 
   typedef SingleObjectSelector<std::vector<Electron>,

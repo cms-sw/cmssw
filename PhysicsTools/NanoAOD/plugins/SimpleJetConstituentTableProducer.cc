@@ -19,14 +19,13 @@
 template <typename T, typename C = std::vector<typename T::ConstituentTypeFwdPtr>>
 class SimpleJetConstituentTableProducer : public edm::stream::EDProducer<> {
 public:
-
   using ConstituentsOutput = C;
   using ConstituentValueType = typename C::value_type;
 
   explicit SimpleJetConstituentTableProducer(const edm::ParameterSet &);
   ~SimpleJetConstituentTableProducer() override;
 
-  ConstituentValueType const initptr(edm::Ptr<reco::Candidate> const&) const;
+  ConstituentValueType const initptr(edm::Ptr<reco::Candidate> const &) const;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
@@ -47,7 +46,7 @@ private:
 // constructors and destructor
 //
 template <typename T, typename C>
-SimpleJetConstituentTableProducer<T,C>::SimpleJetConstituentTableProducer(const edm::ParameterSet &iConfig)
+SimpleJetConstituentTableProducer<T, C>::SimpleJetConstituentTableProducer(const edm::ParameterSet &iConfig)
     : name_(iConfig.getParameter<std::string>("name")),
       candIdxName_(iConfig.getParameter<std::string>("candIdxName")),
       candIdxDoc_(iConfig.getParameter<std::string>("candIdxDoc")),
@@ -60,10 +59,10 @@ SimpleJetConstituentTableProducer<T,C>::SimpleJetConstituentTableProducer(const 
 }
 
 template <typename T, typename C>
-SimpleJetConstituentTableProducer<T,C>::~SimpleJetConstituentTableProducer() {}
+SimpleJetConstituentTableProducer<T, C>::~SimpleJetConstituentTableProducer() {}
 
 template <typename T, typename C>
-void SimpleJetConstituentTableProducer<T,C>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void SimpleJetConstituentTableProducer<T, C>::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // elements in all these collections must have the same order!
   auto outCands = std::make_unique<ConstituentsOutput>();
 
@@ -91,7 +90,6 @@ void SimpleJetConstituentTableProducer<T,C>::produce(edm::Event &iEvent, const e
     // Loop over jet constituents
     std::vector<reco::CandidatePtr> const &daughters = jet.daughterPtrVector();
     for (const auto &dauPtr : daughters) {
-
       // Apply cut on jet constituent
       typename C::value_type cand = initptr(dauPtr);
       if (!jetConstCut_(cand))
@@ -127,20 +125,22 @@ void SimpleJetConstituentTableProducer<T,C>::produce(edm::Event &iEvent, const e
 
 template <>
 edm::Ptr<pat::PackedCandidate> const
-SimpleJetConstituentTableProducer<pat::Jet, std::vector<edm::Ptr<pat::PackedCandidate>>>::initptr(edm::Ptr<reco::Candidate> const& dau) const {
+SimpleJetConstituentTableProducer<pat::Jet, std::vector<edm::Ptr<pat::PackedCandidate>>>::initptr(
+    edm::Ptr<reco::Candidate> const &dau) const {
   edm::Ptr<pat::PackedCandidate> retval(dau);
   return retval;
 }
 
 template <>
 edm::Ptr<pat::PackedGenParticle> const
-SimpleJetConstituentTableProducer<reco::GenJet, std::vector<edm::Ptr<pat::PackedGenParticle>>>::initptr(edm::Ptr<reco::Candidate> const& dau) const {
+SimpleJetConstituentTableProducer<reco::GenJet, std::vector<edm::Ptr<pat::PackedGenParticle>>>::initptr(
+    edm::Ptr<reco::Candidate> const &dau) const {
   edm::Ptr<pat::PackedGenParticle> retval(dau);
   return retval;
 }
 
 template <typename T, typename C>
-void SimpleJetConstituentTableProducer<T,C>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void SimpleJetConstituentTableProducer<T, C>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("name", "FatJetPFCand");
   desc.add<std::string>("candIdxName", "PFCandIdx");
@@ -152,8 +152,10 @@ void SimpleJetConstituentTableProducer<T,C>::fillDescriptions(edm::Configuration
   descriptions.addWithDefaultLabel(desc);
 }
 
-typedef SimpleJetConstituentTableProducer<pat::Jet, std::vector<edm::Ptr<pat::PackedCandidate>>> SimplePatJetConstituentTableProducer;
-typedef SimpleJetConstituentTableProducer<reco::GenJet, std::vector<edm::Ptr<pat::PackedGenParticle>>> SimpleGenJetConstituentTableProducer;
+typedef SimpleJetConstituentTableProducer<pat::Jet, std::vector<edm::Ptr<pat::PackedCandidate>>>
+    SimplePatJetConstituentTableProducer;
+typedef SimpleJetConstituentTableProducer<reco::GenJet, std::vector<edm::Ptr<pat::PackedGenParticle>>>
+    SimpleGenJetConstituentTableProducer;
 
 DEFINE_FWK_MODULE(SimplePatJetConstituentTableProducer);
 DEFINE_FWK_MODULE(SimpleGenJetConstituentTableProducer);
