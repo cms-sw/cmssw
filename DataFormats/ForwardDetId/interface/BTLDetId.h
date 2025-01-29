@@ -189,11 +189,19 @@ public:
 
   /** return the row in GeomDet language **/
   inline int row(unsigned nrows = kCrystalsPerModuleV2) const {
-    return crystal() % nrows;  // anything else for now
+    if (id_ & kBTLNewFormat)
+      return crystal() % nrows;
+    else
+      return (crystal() - 1) % nrows;
   }
 
   /** return the column in GeomDetLanguage **/
-  inline int column(unsigned nrows = kCrystalsPerModuleV2) const { return crystal() / nrows; }
+  inline int column(unsigned nrows = kCrystalsPerModuleV2) const { 
+    if (id_ & kBTLNewFormat)
+      return crystal() / nrows;
+    else
+      return (crystal() - 1) / nrows; 
+  }
 
   /** create a Geographical DetId for Tracking **/
   BTLDetId geographicalId(CrysLayout lay) const;

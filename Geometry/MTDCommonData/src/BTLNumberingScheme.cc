@@ -279,7 +279,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
       // all inputs are fine. Go ahead and decode
       BTLDetId thisBTLdetid(zside, rodCopy, runitCopy, dmodCopy, smodCopy, 0);
-      intindex = thisBTLdetid.geographicalId(BTLDetId::CrysLayout::v2).rawId();
+      intindex = thisBTLdetid.geographicalId(BTLDetId::CrysLayout::v4).rawId();
     }
     
     else if (baseNumber.getLevelName(3).find("Layer1Timing") != std::string_view::npos) {
@@ -353,7 +353,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
       // all inputs are fine. Go ahead and decode
       BTLDetId thisBTLdetid(zside, rodCopy, runitCopy, modCopy, modType, 0, isV2);
-      intindex = thisBTLdetid.rawId();
+      intindex = thisBTLdetid.geographicalId(BTLDetId::CrysLayout::v2).rawId();
     }
    } else {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
