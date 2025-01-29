@@ -91,13 +91,17 @@ namespace l1t {
           minPtMultiplicityN_(config.getParameter<unsigned int>("minPtMultiplicityN")),
           minPtMultiplicityCut_(getOptionalParam<int, double>(
               "minPtMultiplicityCut", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })) {
-                if (!regionsMinPt_.empty() && regionsAbsEtaLowerBounds_.size() != regionsMinPt_.size()) {
-                  throw cms::Exception("Configuration") << "\'regionsMinPt\' has " << regionsMinPt_.size() << " entries, but requires " << regionsAbsEtaLowerBounds_.size() << " in " << tag_ << " .";
-                  }
-                if (!regionsMaxRelIsolationPt_.empty() && regionsAbsEtaLowerBounds_.size() != regionsMaxRelIsolationPt_.size()) {
-                  throw cms::Exception("Configuration") << "\'regionsMinPt\' has " << regionsMaxRelIsolationPt_.size() << " entries, but requires " << regionsAbsEtaLowerBounds_.size() << " in " << tag_ << " .";
-                  }
-              }
+      if (!regionsMinPt_.empty() && regionsAbsEtaLowerBounds_.size() != regionsMinPt_.size()) {
+        throw cms::Exception("Configuration")
+            << "\'regionsMinPt\' has " << regionsMinPt_.size() << " entries, but requires "
+            << regionsAbsEtaLowerBounds_.size() << " in " << tag_ << " .";
+      }
+      if (!regionsMaxRelIsolationPt_.empty() && regionsAbsEtaLowerBounds_.size() != regionsMaxRelIsolationPt_.size()) {
+        throw cms::Exception("Configuration")
+            << "\'regionsMinPt\' has " << regionsMaxRelIsolationPt_.size() << " entries, but requires "
+            << regionsAbsEtaLowerBounds_.size() << " in " << tag_ << " .";
+      }
+    }
 
     bool checkObject(const P2GTCandidate& obj) const {
       bool result = true;
