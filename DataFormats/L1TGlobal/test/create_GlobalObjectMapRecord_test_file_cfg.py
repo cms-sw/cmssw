@@ -5,6 +5,7 @@ import sys
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test GlobalObjectMapRecord')
 
 parser.add_argument('--outputFileName', type=str, help='Output file name (default: testGlobalObjectMapRecord.root)', default='testGlobalObjectMapRecord.root')
+parser.add_argument('--splitLevel', type=int, help='Split level of ROOT branches in EDM output file (default: 99)', default=99)
 args = parser.parse_args()
 
 process = cms.Process("PROD")
@@ -36,7 +37,8 @@ process.globalObjectMapRecordProducer = cms.EDProducer("TestWriteGlobalObjectMap
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string(f'{args.outputFileName}')
+    fileName = cms.untracked.string(f'{args.outputFileName}'),
+    splitLevel = cms.untracked.int32(args.splitLevel)
 )
 
 process.path = cms.Path(process.globalObjectMapRecordProducer)
