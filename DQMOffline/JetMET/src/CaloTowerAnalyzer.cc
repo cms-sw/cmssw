@@ -327,7 +327,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
         if (Tower_iphi > CTmax_iphi)
           CTmax_iphi = Tower_iphi;
       }  //end if (calotower) ..
-    }  // end if(candidate) ...
+    }    // end if(candidate) ...
 
   }  // end loop over towers
 
@@ -348,7 +348,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
         hCT_Occvsieta->Fill(iEtaRing - 41, NActiveTowers[iEtaRing]);
       }
     }  // ietaring
-  }  // allhist_
+  }    // allhist_
 
   edm::LogInfo("OutputInfo") << "CT ieta range: " << CTmin_ieta << " " << CTmax_ieta;
   edm::LogInfo("OutputInfo") << "CT iphi range: " << CTmin_iphi << " " << CTmax_iphi;
