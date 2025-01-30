@@ -3,5 +3,5 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from HLTriggerOffline.Scouting.HLTScoutingEGammaPostProcessing_cff import *
 
-hltScoutingPostProcessing = cms.Sequence(hltScoutingElectronPostProcessing)
+hltScoutingPostProcessing = cms.Sequence(hltScoutingEGammaPostProcessing)
 
