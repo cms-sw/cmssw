@@ -219,7 +219,7 @@ private:
 
   //variables specific for Scouting jets
   double jetEnergy;
-  
+
   //
   int fillJIDPassFrac_;
   std::string m_l1algoname_;
@@ -613,7 +613,7 @@ private:
   MonitorElement* mNEMFrac_profile;
   MonitorElement* mHFEMFrac_profile;
   MonitorElement* mHFHFrac_profile;
-  
+
   MonitorElement* mCHFrac_Lo;
   MonitorElement* mNHFrac_Lo;
   MonitorElement* mPhFrac_Lo;
@@ -623,7 +623,7 @@ private:
   MonitorElement* mHFEMFrac_Lo;
   MonitorElement* mHFHFrac_Lo;
   MonitorElement* mHOFrac_Lo;
-  
+
   MonitorElement* mCHFrac_Hi;
   MonitorElement* mNHFrac_Hi;
   MonitorElement* mPhFrac_Hi;
@@ -633,7 +633,7 @@ private:
   MonitorElement* mHFEMFrac_Hi;
   MonitorElement* mHFHFrac_Hi;
   MonitorElement* mHOFrac_Hi;
-  
+
   MonitorElement* mCHFrac_Hi_altBinning;
   MonitorElement* mNHFrac_Hi_altBinning;
   MonitorElement* mPhFrac_Hi_altBinning;
@@ -643,7 +643,7 @@ private:
   MonitorElement* mHFEMFrac_Hi_altBinning;
   MonitorElement* mHFHFrac_Hi_altBinning;
   MonitorElement* mHOFrac_Hi_altBinning;
-  
+
   MonitorElement* mCHFrac_Barrel;
   MonitorElement* mNHFrac_Barrel;
   MonitorElement* mPhFrac_Barrel;
@@ -653,7 +653,7 @@ private:
   MonitorElement* mHFEMFrac_Barrel;
   MonitorElement* mHFHFrac_Barrel;
   MonitorElement* mHOFrac_Barrel;
-  
+
   MonitorElement* mCHFrac_EndCap;
   MonitorElement* mNHFrac_EndCap;
   MonitorElement* mPhFrac_EndCap;
@@ -663,7 +663,7 @@ private:
   MonitorElement* mHFEMFrac_EndCap;
   MonitorElement* mHFHFrac_EndCap;
   MonitorElement* mHOFrac_EndCap;
-  
+
   MonitorElement* mCHFrac_Forward;
   MonitorElement* mNHFrac_Forward;
   MonitorElement* mPhFrac_Forward;
@@ -673,7 +673,7 @@ private:
   MonitorElement* mHFEMFrac_Forward;
   MonitorElement* mHFHFrac_Forward;
   MonitorElement* mHOFrac_Forward;
-  
+
   MonitorElement* mCHFrac_Barrel_Hi;
   MonitorElement* mNHFrac_Barrel_Hi;
   MonitorElement* mPhFrac_Barrel_Hi;
@@ -683,7 +683,7 @@ private:
   MonitorElement* mHFEMFrac_Barrel_Hi;
   MonitorElement* mHFHFrac_Barrel_Hi;
   MonitorElement* mHOFrac_Barrel_Hi;
-  
+
   MonitorElement* mCHFrac_EndCap_Hi;
   MonitorElement* mNHFrac_EndCap_Hi;
   MonitorElement* mPhFrac_EndCap_Hi;
@@ -693,7 +693,7 @@ private:
   MonitorElement* mHFEMFrac_EndCap_Hi;
   MonitorElement* mHFHFrac_EndCap_Hi;
   MonitorElement* mHOFrac_EndCap_Hi;
-  
+
   MonitorElement* mCHFrac_Forward_Hi;
   MonitorElement* mNHFrac_Forward_Hi;
   MonitorElement* mPhFrac_Forward_Hi;
