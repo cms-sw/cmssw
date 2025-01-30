@@ -5,5 +5,11 @@ from ..modules.hltHighPtTripletStepHitDoublets_cfi import *
 from ..modules.hltHighPtTripletStepHitTriplets_cfi import *
 from ..modules.hltHighPtTripletStepSeedLayers_cfi import *
 from ..modules.hltHighPtTripletStepSeeds_cfi import *
+from ..modules.hltHighPtTripletStepTrackingRegionFromTrimmedVertices_cfi import *
 
 HLTHighPtTripletStepSeedingSequence = cms.Sequence(hltHighPtTripletStepClusters+hltHighPtTripletStepSeedLayers+hltHighPtTripletStepHitDoublets+hltHighPtTripletStepHitTriplets+hltHighPtTripletStepSeeds)
+
+from Configuration.ProcessModifiers.phase2_hlt_vertexTrimming_cff import phase2_hlt_vertexTrimming
+_HLTHighPtTripletStepSeedingSequenceTrimming = HLTHighPtTripletStepSeedingSequence.copy()
+_HLTHighPtTripletStepSeedingSequenceTrimming.insert(0, hltTrackingRegionFromTrimmedVertices)
+phase2_hlt_vertexTrimming.toReplaceWith(HLTHighPtTripletStepSeedingSequence, _HLTHighPtTripletStepSeedingSequenceTrimming)

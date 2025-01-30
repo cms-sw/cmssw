@@ -1848,6 +1848,36 @@ upgradeWFs['HLTTiming75e33AlpakaLST'].step3 = {
     '-s':'HARVESTING:@hltValidation'
 }
 
+upgradeWFs['HLTTiming75e33TrimmedTracking'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33TrimmedTracking'].suffix = '_HLT75e33TimingTrimmedTracking'
+upgradeWFs['HLTTiming75e33TrimmedTracking'].offset = 0.756
+upgradeWFs['HLTTiming75e33TrimmedTracking'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'phase2_hlt_vertexTrimming',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTracking'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTracking'].suffix = '_HLT75e33TimingAlpakaTrimmedTracking'
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTracking'].offset = 0.7561
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTracking'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'alpaka,phase2_hlt_vertexTrimming',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'].suffix = '_HLT75e33TimingAlpakaTrimmedTrackingSingleIter'
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'].offset = 0.7562
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'alpaka,phase2_hlt_vertexTrimming,singleIterPatatrack',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+
 class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'DigiTrigger' in step:
