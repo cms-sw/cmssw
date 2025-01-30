@@ -53,13 +53,7 @@ namespace trackerTFP {
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // TrackQuality token
-    ESGetToken<TrackQuality, TrackQualityRcd> esGetTokenTrackQuality_;
-    // helper class to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
-    // helper class to determine Track Quality
-    const TrackQuality* trackQuality_ = nullptr;
+    ESGetToken<TrackQuality, DataFormatsRcd> esGetTokenTrackQuality_;
     // number of processing regions
     int numRegions_;
     // number of kf layers
@@ -78,19 +72,19 @@ namespace trackerTFP {
     edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenTrackQuality_ = esConsumes<TrackQuality, TrackQualityRcd, Transition::BeginRun>();
+    esGetTokenTrackQuality_ = esConsumes<TrackQuality, DataFormatsRcd, Transition::BeginRun>();
   }
 
   void ProducerTQ::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    trackQuality_ = &iSetup.getData(esGetTokenTrackQuality_);
-    numRegions_ = setup_->numRegions();
-    numLayers_ = setup_->numLayers();
+    // helper class to store configurations
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    numRegions_ = setup->numRegions();
+    numLayers_ = setup->numLayers();
   }
 
   void ProducerTQ::produce(Event& iEvent, const EventSetup& iSetup) {
+    // helper class to determine Track Quality
+    const TrackQuality* trackQuality = &iSetup.getData(esGetTokenTrackQuality_);
     auto valid = [](int sum, const FrameTrack& frame) { return sum += (frame.first.isNull() ? 0 : 1); };
     // empty TQ product
     StreamsTrack outputTracks(numRegions_);
@@ -122,7 +116,7 @@ namespace trackerTFP {
         streamStub.reserve(numLayers_);
         for (int layer = 0; layer < numLayers_; layer++)
           streamStub.push_back(streamsStubs[offsetLayer + layer][frame]);
-        tracks.emplace_back(frameTrack, streamStub, trackQuality_);
+        tracks.emplace_back(frameTrack, streamStub, trackQuality);
         stream.push_back(&tracks.back());
       }
       // fill TQ product

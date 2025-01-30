@@ -57,11 +57,7 @@ namespace trklet {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
-    // helper class to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
+    ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
     // provides dataformats of Kalman filter internals
     KalmanFilterFormats kalmanFilterFormats_;
     //
@@ -102,24 +98,28 @@ namespace trklet {
     edPutTokenNumStatesTruncated_ = produces<int>(branchTruncated);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<DataFormats, ChannelAssignmentRcd, Transition::BeginRun>();
   }
 
   void ProducerKF::beginRun(const Run& iRun, const EventSetup& iSetup) {
     // helper class to store configurations
-    setup_ = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    settings_.setMagneticField(setup->bField());
     // helper class to extract structured data from tt::Frames
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // provides dataformats of Kalman filter internals
-    kalmanFilterFormats_.consume(dataFormats_);
-    settings_.setMagneticField(setup_->bField());
+    kalmanFilterFormats_.consume(dataFormats);
   }
 
   void ProducerKF::produce(Event& iEvent, const EventSetup& iSetup) {
+    // helper class to store configurations
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     auto valid = [](int sum, const FrameTrack& f) { return sum += (f.first.isNull() ? 0 : 1); };
     // empty KF products
-    StreamsStub streamsStub(setup_->numRegions() * setup_->numLayers());
-    StreamsTrack streamsTrack(setup_->numRegions());
+    StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
+    StreamsTrack streamsTrack(setup->numRegions());
     int numStatesAccepted(0);
     int numStatesTruncated(0);
     // read in DR Product and produce KF product
@@ -139,9 +139,9 @@ namespace trklet {
           if (frame.first.isNonnull())
             ttTrackRefs.push_back(frame.first);
     }
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup->numRegions(); region++) {
       // object to fit tracks in a processing region
-      KalmanFilter kf(setup_, dataFormats_, &kalmanFilterFormats_, &settings_, tmtt_, region, ttTracks);
+      KalmanFilter kf(setup, dataFormats, &kalmanFilterFormats_, &settings_, tmtt_, region, ttTracks);
       // read in and organize input tracks and stubs
       kf.consume(tracks, stubs);
       // fill output products

@@ -43,7 +43,6 @@ namespace trklet {
     ~ProducerDR() override {}
 
   private:
-    void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
     // ED input token of Tracks
     EDGetTokenT<StreamsTrack> edGetTokenTracks_;
@@ -56,19 +55,11 @@ namespace trklet {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // LayerEncoding token
-    ESGetToken<LayerEncoding, LayerEncodingRcd> esGetTokenLayerEncoding_;
+    ESGetToken<LayerEncoding, ChannelAssignmentRcd> esGetTokenLayerEncoding_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
     // ChannelAssignment token
     ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
-    // helper class to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to encode layer
-    const LayerEncoding* layerEncoding_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
-    // helper class to assign tracks to channel
-    const ChannelAssignment* channelAssignment_ = nullptr;
   };
 
   ProducerDR::ProducerDR(const ParameterSet& iConfig) {
@@ -82,32 +73,29 @@ namespace trklet {
     edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, LayerEncodingRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, ChannelAssignmentRcd, Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<DataFormats, ChannelAssignmentRcd, Transition::BeginRun>();
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
   }
 
-  void ProducerDR::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    // helper class to store configurations
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-    // helper class to encode layer
-    layerEncoding_ = &iSetup.getData(esGetTokenLayerEncoding_);
-    // helper class to extract structured data from tt::Frames
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    // helper class to assign tracks to channel
-    channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
-  }
-
   void ProducerDR::produce(Event& iEvent, const EventSetup& iSetup) {
+    // helper class to store configurations
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    // helper class to encode layer
+    const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    // helper class to assign tracks to channel
+    const ChannelAssignment* channelAssignment = &iSetup.getData(esGetTokenChannelAssignment_);
     // empty DR products
-    StreamsStub streamsStub(setup_->numRegions() * setup_->numLayers());
-    StreamsTrack streamsTrack(setup_->numRegions());
+    StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
+    StreamsTrack streamsTrack(setup->numRegions());
     // read in TBout Product and produce KFin product
     const StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
     const StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup->numRegions(); region++) {
       // object to remove duplicated tracks in a processing region
-      DuplicateRemoval dr(setup_, layerEncoding_, dataFormats_, channelAssignment_, region);
+      DuplicateRemoval dr(setup, layerEncoding, dataFormats, channelAssignment, region);
       // read in and organize input tracks and stubs
       dr.consume(tracks, stubs);
       // fill output products

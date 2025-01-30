@@ -56,13 +56,7 @@ namespace trackerTFP {
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
-    ESGetToken<LayerEncoding, LayerEncodingRcd> esGetTokenLayerEncoding_;
-    // helper class to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
-    //
-    const LayerEncoding* layerEncoding_ = nullptr;
+    ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
     //
     DataFormat cot_;
     // number of inpit channel
@@ -87,28 +81,30 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, LayerEncodingRcd, Transition::BeginRun>();
+    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, DataFormatsRcd, Transition::BeginRun>();
   }
 
   void ProducerCTB::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    layerEncoding_ = &iSetup.getData(esGetTokenLayerEncoding_);
-    numChannelIn_ = dataFormats_->numChannel(Process::ht);
-    numChannelOut_ = dataFormats_->numChannel(Process::ctb);
-    numRegions_ = setup_->numRegions();
-    numLayers_ = setup_->numLayers();
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    numChannelIn_ = dataFormats->numChannel(Process::ht);
+    numChannelOut_ = dataFormats->numChannel(Process::ctb);
+    numRegions_ = setup->numRegions();
+    numLayers_ = setup->numLayers();
     // create data format for cot(theta)
-    const double baseZ = dataFormats_->base(Variable::z, Process::ctb);
-    const double baseR = dataFormats_->base(Variable::r, Process::ctb);
-    const double range = dataFormats_->range(Variable::cot, Process::kf);
-    const int baseShift = ceil(log2(range / baseZ * baseR / setup_->ctbNumBinsCot()));
-    const int width = ceil(log2(setup_->ctbNumBinsCot()));
+    const double baseZ = dataFormats->base(Variable::z, Process::ctb);
+    const double baseR = dataFormats->base(Variable::r, Process::ctb);
+    const double range = dataFormats->range(Variable::cot, Process::kf);
+    const int baseShift = ceil(log2(range / baseZ * baseR / setup->ctbNumBinsCot()));
+    const int width = ceil(log2(setup->ctbNumBinsCot()));
     const double base = baseZ / baseR * pow(2, baseShift);
     cot_ = DataFormat(true, width, base, range);
   }
 
   void ProducerCTB::produce(Event& iEvent, const EventSetup& iSetup) {
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty output products
     StreamsTrack acceptedTracks(numRegions_ * numChannelOut_);
     StreamsStub acceptedStubs(numRegions_ * numChannelOut_ * numLayers_);
@@ -128,11 +124,11 @@ namespace trackerTFP {
     // count stubs
     int nTracksHT(0);
     for (const StreamStub& stream : streamsStub) {
-      pair<int, int> trackId({setup_->htNumBinsPhiT(), setup_->gpNumBinsZT()});
+      pair<int, int> trackId({setup->htNumBinsPhiT(), setup->gpNumBinsZT()});
       for (const FrameStub& frame : stream) {
         if (frame.first.isNull())
           continue;
-        stubsHT.emplace_back(frame, dataFormats_);
+        stubsHT.emplace_back(frame, dataFormats);
         StubHT* stub = &stubsHT.back();
         if (trackId.first != stub->phiT() || trackId.second != stub->zT()) {
           nTracksHT++;
@@ -145,7 +141,7 @@ namespace trackerTFP {
     vector<TrackCTB> tracksCTB;
     tracksCTB.reserve(nTracksHT);
     stubsCTB.reserve(nStubsHT);
-    CleanTrackBuilder ctb(setup_, dataFormats_, layerEncoding_, cot_, stubsCTB, tracksCTB);
+    CleanTrackBuilder ctb(setup, dataFormats, layerEncoding, cot_, stubsCTB, tracksCTB);
     int iStub(0);
     for (int region = 0; region < numRegions_; region++) {
       const int offsetIn = region * numChannelIn_;

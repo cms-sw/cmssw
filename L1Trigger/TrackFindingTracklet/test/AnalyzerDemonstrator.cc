@@ -60,7 +60,7 @@ namespace trklet {
     // ChannelAssignment token
     ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
     // Demonstrator token
-    ESGetToken<Demonstrator, DemonstratorRcd> esGetTokenDemonstrator_;
+    ESGetToken<Demonstrator, SetupRcd> esGetTokenDemonstrator_;
     //
     const Setup* setup_ = nullptr;
     //
@@ -91,7 +91,7 @@ namespace trklet {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
-    esGetTokenDemonstrator_ = esConsumes<Demonstrator, DemonstratorRcd, Transition::BeginRun>();
+    esGetTokenDemonstrator_ = esConsumes<Demonstrator, SetupRcd, Transition::BeginRun>();
     //
     TBin_ = labelIn == "l1tTTTracksFromTrackletEmulation";
     TBout_ = labelOut == "l1tTTTracksFromTrackletEmulation";

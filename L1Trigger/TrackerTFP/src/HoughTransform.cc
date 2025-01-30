@@ -69,7 +69,7 @@ namespace trackerTFP {
 
   // associate stubs with phiT bins in this inv2R column
   void HoughTransform::fillIn(int inv2R, int sector, const vector<StubGP*>& input, vector<StubHT*>& output) {
-    static const DataFormat& gp = dataFormats_->format(Variable::phiT, Process::gp);
+    const DataFormat& gp = dataFormats_->format(Variable::phiT, Process::gp);
     auto inv2RrangeCheck = [inv2R](StubGP* stub) {
       return (stub && stub->inv2RMin() <= inv2R && stub->inv2RMax() >= inv2R) ? stub : nullptr;
     };
@@ -78,7 +78,7 @@ namespace trackerTFP {
     const double inv2Rf = inv2R_->floating(inv2R);
     const double zTf = zT_->floating(zT);
     const double cotf = zTf / setup_->chosenRofZ();
-    auto convert = [this, inv2Rf, gpPhiT, zT](StubGP* stub, int phiTht, double phi, double z) {
+    auto convert = [this, inv2Rf, gpPhiT, zT, gp](StubGP* stub, int phiTht, double phi, double z) {
       const double phiTf = phiT_->floating(phiTht);
       const int phiT = phiT_->integer(gp.floating(gpPhiT) + phiTf);
       const double htPhi = phi - (inv2Rf * stub->r() + phiTf);
@@ -146,13 +146,13 @@ namespace trackerTFP {
   // identify tracks
   void HoughTransform::readOut(const vector<StubHT*>& input, deque<StubHT*>& output) const {
     auto toBinPhiT = [this](StubHT* stub) {
-      static const DataFormat& gp = dataFormats_->format(Variable::phiT, Process::gp);
+      const DataFormat& gp = dataFormats_->format(Variable::phiT, Process::gp);
       const double phiT = phiT_->floating(stub->phiT());
       const double local = phiT - gp.digi(phiT);
       return phiT_->integer(local) + setup_->htNumBinsPhiT() / 2;
     };
     auto toLayerId = [this](StubHT* stub) {
-      static const DataFormat& layer = dataFormats_->format(Variable::layer, Process::ctb);
+      const DataFormat& layer = dataFormats_->format(Variable::layer, Process::ctb);
       return stub->layer().val(layer.width());
     };
     // used to recognise in which order tracks are found

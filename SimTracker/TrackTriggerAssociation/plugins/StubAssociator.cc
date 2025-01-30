@@ -41,7 +41,6 @@ namespace tt {
   private:
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
-    void endJob() {}
     // helper classe to store configurations
     const Setup* setup_;
     // ED input token of TTStubs
@@ -55,7 +54,7 @@ namespace tt {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     //
-    ParameterSet pSet_;
+    StubAssociation::Config iConfig_;
     // required number of associated stub layers to a TP to consider it reconstruct-able
     int minLayers_;
     // required number of associated ps stub layers to a TP to consider it reconstruct-able
@@ -79,8 +78,7 @@ namespace tt {
   };
 
   StubAssociator::StubAssociator(const ParameterSet& iConfig)
-      : pSet_(iConfig),
-        minLayers_(iConfig.getParameter<int>("MinLayers")),
+      : minLayers_(iConfig.getParameter<int>("MinLayers")),
         minLayersPS_(iConfig.getParameter<int>("MinLayersPS")),
         minPt_(iConfig.getParameter<double>("MinPt")),
         maxEta0_(iConfig.getParameter<double>("MaxEta0")),
@@ -88,6 +86,10 @@ namespace tt {
         maxD0_(iConfig.getParameter<double>("MaxD0")),
         maxVertR_(iConfig.getParameter<double>("MaxVertR")),
         maxVertZ_(iConfig.getParameter<double>("MaxVertZ")) {
+    iConfig_.minLayersGood_ = iConfig.getParameter<int>("minLayersGood");
+    iConfig_.minLayersGoodPS_ = iConfig.getParameter<int>("minLayersGoodPS");
+    iConfig_.maxLayersBad_ = iConfig.getParameter<int>("maxLayersBad");
+    iConfig_.maxLayersBadPS_ = iConfig.getParameter<int>("maxLayersBadPS");
     // book in- and output ed products
     getTokenTTStubDetSetVec_ = consumes<TTStubDetSetVec>(iConfig.getParameter<InputTag>("InputTagTTStubDetSetVec"));
     getTokenTTClusterAssMap_ = consumes<TTClusterAssMap>(iConfig.getParameter<InputTag>("InputTagTTClusterAssMap"));
@@ -101,13 +103,13 @@ namespace tt {
     setup_ = &iSetup.getData(esGetTokenSetup_);
     maxZT_ = sinh(maxEta0_) * setup_->chosenRofZ();
     // configure TrackingParticleSelector
-    static constexpr double ptMax = 9.e9;
-    static constexpr int minHit = 0;
-    static constexpr bool signalOnly = true;
-    static constexpr bool intimeOnly = true;
-    static constexpr bool chargedOnly = true;
-    static constexpr bool stableOnly = false;
-    static const double maxEta = asinh((maxZT_ + maxZ0_) / setup_->chosenRofZ());
+    constexpr double ptMax = 9.e9;
+    constexpr int minHit = 0;
+    constexpr bool signalOnly = true;
+    constexpr bool intimeOnly = true;
+    constexpr bool chargedOnly = true;
+    constexpr bool stableOnly = false;
+    const double maxEta = asinh((maxZT_ + maxZ0_) / setup_->chosenRofZ());
     tpSelector_ = TrackingParticleSelector(
         minPt_, ptMax, -maxEta, maxEta, maxVertR_, maxVertZ_, minHit, signalOnly, intimeOnly, chargedOnly, stableOnly);
   }
@@ -136,8 +138,8 @@ namespace tt {
       }
     }
     // associate reconstructable TrackingParticles with TTStubs
-    StubAssociation reconstructable(pSet_, setup_);
-    StubAssociation selection(pSet_, setup_);
+    StubAssociation reconstructable(iConfig_, setup_);
+    StubAssociation selection(iConfig_, setup_);
     for (const auto& p : mapTPPtrsTTStubRefs) {
       // require min layers
       set<int> hitPattern, hitPatternPS;

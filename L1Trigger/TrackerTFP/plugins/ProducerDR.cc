@@ -37,7 +37,6 @@ namespace trackerTFP {
   private:
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
-    void endStream() override {}
     // ED input token of sf stubs and tracks
     EDGetTokenT<StreamsStub> edGetTokenStubs_;
     EDGetTokenT<StreamsTrack> edGetTokenTracks_;
@@ -48,10 +47,6 @@ namespace trackerTFP {
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
-    // helper class to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
     // number of input channel
     int numChannelIn_;
     // number of output channel
@@ -77,15 +72,19 @@ namespace trackerTFP {
   }
 
   void ProducerDR::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    numChannelIn_ = dataFormats_->numChannel(Process::kf);
-    numChannelOut_ = dataFormats_->numChannel(Process::dr);
-    numRegions_ = setup_->numRegions();
-    numLayers_ = setup_->numLayers();
+    // helper class to store configurations
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    numRegions_ = setup->numRegions();
+    numLayers_ = setup->numLayers();
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    numChannelIn_ = dataFormats->numChannel(Process::kf);
+    numChannelOut_ = dataFormats->numChannel(Process::dr);
   }
 
   void ProducerDR::produce(Event& iEvent, const EventSetup& iSetup) {
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // empty DR products
     StreamsStub acceptedStubs(numRegions_ * numChannelOut_ * numLayers_);
     StreamsTrack acceptedTracks(numRegions_ * numChannelOut_);
@@ -140,7 +139,7 @@ namespace trackerTFP {
         for (const FrameTrack& frame : streamTrack) {
           TrackKF* track = nullptr;
           if (frame.first.isNonnull()) {
-            tracksKF.emplace_back(frame, dataFormats_);
+            tracksKF.emplace_back(frame, dataFormats);
             track = &tracksKF.back();
           }
           tracks.push_back(track);
@@ -149,7 +148,7 @@ namespace trackerTFP {
           for (const FrameStub& frame : allStubs[offsetAll + layer]) {
             StubKF* stub = nullptr;
             if (frame.first.isNonnull()) {
-              stubsKF.emplace_back(frame, dataFormats_);
+              stubsKF.emplace_back(frame, dataFormats);
               stub = &stubsKF.back();
             }
             regionStubs[offsetRegion + layer].push_back(stub);
@@ -162,7 +161,7 @@ namespace trackerTFP {
       vector<StubDR> stubsDR;
       stubsDR.reserve(nStubs);
       // object to remove duplicates in a processing region
-      DuplicateRemoval dr(setup_, dataFormats_, tracksDR, stubsDR);
+      DuplicateRemoval dr(setup, dataFormats, tracksDR, stubsDR);
       // empty h/w liked organized pointer to output data
       vector<vector<TrackDR*>> streamsTrack(numChannelOut_);
       vector<vector<StubDR*>> streamsStub(numChannelOut_ * numLayers_);

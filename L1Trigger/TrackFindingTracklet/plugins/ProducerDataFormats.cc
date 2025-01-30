@@ -24,7 +24,7 @@ namespace trklet {
   public:
     ProducerDataFormats(const ParameterSet& iConfig);
     ~ProducerDataFormats() override {}
-    unique_ptr<DataFormats> produce(const DataFormatsRcd& rcd);
+    unique_ptr<DataFormats> produce(const ChannelAssignmentRcd& rcd);
 
   private:
     ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetToken_;
@@ -35,7 +35,7 @@ namespace trklet {
     esGetToken_ = cc.consumes();
   }
 
-  unique_ptr<DataFormats> ProducerDataFormats::produce(const DataFormatsRcd& rcd) {
+  unique_ptr<DataFormats> ProducerDataFormats::produce(const ChannelAssignmentRcd& rcd) {
     const ChannelAssignment* ca = &rcd.get(esGetToken_);
     return make_unique<DataFormats>(ca);
   }

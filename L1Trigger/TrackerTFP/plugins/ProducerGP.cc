@@ -51,13 +51,7 @@ namespace trackerTFP {
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
-    ESGetToken<LayerEncoding, LayerEncodingRcd> esGetTokenLayerEncoding_;
-    // helper classe to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
-    // helper class to encode layer
-    const LayerEncoding* layerEncoding_ = nullptr;
+    ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
     // number of input channel
     int numChannelIn_;
     // number of output channel
@@ -75,19 +69,26 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, LayerEncodingRcd, Transition::BeginRun>();
+    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, DataFormatsRcd, Transition::BeginRun>();
   }
 
   void ProducerGP::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    layerEncoding_ = &iSetup.getData(esGetTokenLayerEncoding_);
-    numChannelIn_ = dataFormats_->numChannel(Process::pp);
-    numChannelOut_ = dataFormats_->numChannel(Process::gp);
-    numRegions_ = setup_->numRegions();
+    // helper classe to store configurations
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    numRegions_ = setup->numRegions();
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    numChannelIn_ = dataFormats->numChannel(Process::pp);
+    numChannelOut_ = dataFormats->numChannel(Process::gp);
   }
 
   void ProducerGP::produce(Event& iEvent, const EventSetup& iSetup) {
+    // helper classe to store configurations
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    // helper class to encode layer
+    const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty GP products
     StreamsStub accepted(numRegions_ * numChannelOut_);
     // read in DTC Product and produce TFP product
@@ -123,7 +124,7 @@ namespace trackerTFP {
         for (const FrameStub& frame : streamStub) {
           StubPP* stubPP = nullptr;
           if (frame.first.isNonnull()) {
-            stubsPP.emplace_back(frame, dataFormats_);
+            stubsPP.emplace_back(frame, dataFormats);
             stubPP = &stubsPP.back();
           }
           stream.push_back(stubPP);
@@ -135,7 +136,7 @@ namespace trackerTFP {
       vector<StubGP> stubsGP;
       stubsGP.reserve(nStubsGP);
       // object to route Stubs of one region to one stream per sector
-      GeometricProcessor gp(setup_, dataFormats_, layerEncoding_, stubsGP);
+      GeometricProcessor gp(setup, dataFormats, layerEncoding, stubsGP);
       // empty h/w liked organized pointer to output data
       vector<deque<StubGP*>> streamsOut(numChannelOut_);
       // fill output data

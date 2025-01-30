@@ -84,7 +84,7 @@ namespace trackerTFP {
                                        const std::vector<std::vector<Stub*>>& stubsIn,
                                        int channel,
                                        deque<State*>& stream) {
-    static const int numLayers = setup_->numLayers();
+    const int numLayers = setup_->numLayers();
     const int offsetL = channel * numLayers;
     const vector<TrackCTB*>& tracksChannel = tracksIn[channel];
     int trackId(0);
@@ -165,8 +165,8 @@ namespace trackerTFP {
       const double C11 = digi(VariableKF::C11, (H12v0 + H02v1) * invdH2);
       const double C33 = digi(VariableKF::C33, (H32v2 + H22v3) * invdH2);
       // create updated state
-      static const double chi20 = digi(VariableKF::chi20, 0.);
-      static const double chi21 = digi(VariableKF::chi21, 0.);
+      const double chi20 = digi(VariableKF::chi20, 0.);
+      const double chi21 = digi(VariableKF::chi21, 0.);
       states_.emplace_back(State(s1, {x0, x1, x2, x3, chi20, chi21, C00, C11, C22, C33, C01, C23}));
       state = &states_.back();
       updateRangeActual(VariableKF::x0, x0);
@@ -262,8 +262,8 @@ namespace trackerTFP {
 
   // Transform States into Tracks
   void KalmanFilter::conv(const vector<Track*>& best, vector<TrackKF*>& tracks, vector<vector<StubKF*>>& stubs) {
-    static const DataFormat& dfInv2R = dataFormats_->format(Variable::inv2R, Process::ht);
-    static const DataFormat& dfPhiT = dataFormats_->format(Variable::phiT, Process::ht);
+    const DataFormat& dfInv2R = dataFormats_->format(Variable::inv2R, Process::ht);
+    const DataFormat& dfPhiT = dataFormats_->format(Variable::phiT, Process::ht);
     tracks.reserve(best.size());
     for (vector<StubKF*>& layer : stubs)
       layer.reserve(best.size());

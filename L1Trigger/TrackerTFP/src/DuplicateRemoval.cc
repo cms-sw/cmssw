@@ -108,7 +108,7 @@ namespace trackerTFP {
           layer.push_back(nullptr);
         continue;
       }
-      static const DataFormat& gp = dataFormats_->format(Variable::zT, Process::gp);
+      const DataFormat& gp = dataFormats_->format(Variable::zT, Process::gp);
       TrackKF* trackKF = track->track_;
       const double inv2R = trackKF->inv2R();
       const double phiT = trackKF->phiT();

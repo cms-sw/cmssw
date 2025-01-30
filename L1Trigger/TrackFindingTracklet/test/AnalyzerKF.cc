@@ -76,7 +76,7 @@ namespace trklet {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
     const Setup* setup_ = nullptr;
     //
@@ -136,7 +136,7 @@ namespace trklet {
     }
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<DataFormats, ChannelAssignmentRcd, Transition::BeginRun>();
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);

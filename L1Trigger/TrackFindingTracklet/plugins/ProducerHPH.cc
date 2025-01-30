@@ -32,7 +32,7 @@ namespace hph {
     Setup::Config iConfig_;
     ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     ESGetToken<trackerTFP::DataFormats, trackerTFP::DataFormatsRcd> esGetTokenDataFormats_;
-    ESGetToken<trackerTFP::LayerEncoding, trackerTFP::LayerEncodingRcd> esGetTokenLayerEncoding_;
+    ESGetToken<trackerTFP::LayerEncoding, trackerTFP::DataFormatsRcd> esGetTokenLayerEncoding_;
   };
 
   ProducerHPH::ProducerHPH(const ParameterSet& iConfig) {

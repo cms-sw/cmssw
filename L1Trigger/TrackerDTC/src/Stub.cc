@@ -69,8 +69,7 @@ namespace trackerDTC {
     const double dInv2R = setup_->bendCut() * inv2ROverBend;
     inv2R_.first = dfInv2R.digi(inv2R - dInv2R);
     inv2R_.second = dfInv2R.digi(inv2R + dInv2R);
-    //static const double maxInv2R = dfInv2R.limit();
-    static const double maxInv2R = dfInv2R.range() / 2.;
+    const double maxInv2R = dfInv2R.range() / 2.;
     // cut on pt
     if (inv2R_.first > maxInv2R || inv2R_.second < -maxInv2R)
       valid_ = false;
@@ -170,9 +169,9 @@ namespace trackerDTC {
   }
 
   Frame Stub::formatTMTT(int region) const {
-    static const DataFormat& dfInv2R = dataFormats_->format(Variable::inv2R, Process::ht);
-    static const DataFormat& dfPhiT = dataFormats_->format(Variable::phiT, Process::gp);
-    static const DataFormat& dfZT = dataFormats_->format(Variable::zT, Process::gp);
+    const DataFormat& dfInv2R = dataFormats_->format(Variable::inv2R, Process::ht);
+    const DataFormat& dfPhiT = dataFormats_->format(Variable::phiT, Process::gp);
+    const DataFormat& dfZT = dataFormats_->format(Variable::zT, Process::gp);
     const double offset = (region - .5) * dfPhiT.range();
     const double r = r_;
     const double phi = phi_ - offset;

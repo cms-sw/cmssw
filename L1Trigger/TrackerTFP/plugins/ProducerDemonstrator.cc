@@ -22,7 +22,7 @@ namespace trackerTFP {
   public:
     ProducerDemonstrator(const ParameterSet& iConfig);
     ~ProducerDemonstrator() override {}
-    unique_ptr<Demonstrator> produce(const DemonstratorRcd& rcd);
+    unique_ptr<Demonstrator> produce(const SetupRcd& rcd);
 
   private:
     Demonstrator::Config iConfig_;
@@ -38,7 +38,7 @@ namespace trackerTFP {
     iConfig_.linkMappingOut_ = iConfig.getParameter<vector<int>>("LinkMappingOut");
   }
 
-  unique_ptr<Demonstrator> ProducerDemonstrator::produce(const DemonstratorRcd& rcd) {
+  unique_ptr<Demonstrator> ProducerDemonstrator::produce(const SetupRcd& rcd) {
     const Setup* setup = &rcd.get(esGetToken_);
     return make_unique<Demonstrator>(iConfig_, setup);
   }

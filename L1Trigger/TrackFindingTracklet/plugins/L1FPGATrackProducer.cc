@@ -215,7 +215,7 @@ private:
   const ESGetToken<TrackerTopology, TrackerTopologyRcd> esGetTokenTTopo_;
   const ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
   const ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
-  const ESGetToken<TrackQuality, TrackQualityRcd> esGetTokenTrackQuality_;
+  const ESGetToken<TrackQuality, DataFormatsRcd> esGetTokenTrackQuality_;
   const ESGetToken<hph::Setup, hph::SetupRcd> esGetTokenHPH_;
 
   /// ///////////////// ///
@@ -247,7 +247,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
       esGetTokenTTopo_(esConsumes()),
       esGetTokenSetup_(esConsumes<Setup, SetupRcd, Transition::BeginRun>()),
       esGetTokenChannelAssignment_(esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>()),
-      esGetTokenTrackQuality_(esConsumes<TrackQuality, TrackQualityRcd, Transition::BeginRun>()),
+      esGetTokenTrackQuality_(esConsumes<TrackQuality, DataFormatsRcd, Transition::BeginRun>()),
       esGetTokenHPH_(esConsumes<hph::Setup, hph::SetupRcd, edm::Transition::BeginRun>()) {
   if (readMoreMcTruth_) {
     getTokenTTClusterMCTruth_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthClusterInputTag);

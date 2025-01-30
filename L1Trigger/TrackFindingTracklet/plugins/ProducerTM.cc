@@ -42,7 +42,6 @@ namespace trklet {
     ~ProducerTM() override {}
 
   private:
-    void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
 
     // ED input token of Tracks
@@ -56,15 +55,9 @@ namespace trklet {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
     // ChannelAssignment token
     ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
-    // helper class to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
-    // helper class to assign tracks to channel
-    const ChannelAssignment* channelAssignment_ = nullptr;
     // helper class to store tracklet configurations
     Settings settings_;
   };
@@ -80,29 +73,26 @@ namespace trklet {
     edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<DataFormats, ChannelAssignmentRcd, Transition::BeginRun>();
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
   }
 
-  void ProducerTM::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    // helper class to store configurations
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-    // helper class to extract structured data from tt::Frames
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    // helper class to assign tracks to channel
-    channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
-  }
-
   void ProducerTM::produce(Event& iEvent, const EventSetup& iSetup) {
+    // helper class to store configurations
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    // helper class to assign tracks to channel
+    const ChannelAssignment* channelAssignment = &iSetup.getData(esGetTokenChannelAssignment_);
     // empty TM products
-    StreamsStub streamsStub(setup_->numRegions() * channelAssignment_->tmNumLayers());
-    StreamsTrack streamsTrack(setup_->numRegions());
+    StreamsStub streamsStub(setup->numRegions() * channelAssignment->tmNumLayers());
+    StreamsTrack streamsTrack(setup->numRegions());
     // read in TBout Product and produce TM product
     const StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
     const StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup->numRegions(); region++) {
       // object to reformat tracks from tracklet fromat to TMTT format in a processing region
-      TrackMultiplexer tm(setup_, dataFormats_, channelAssignment_, &settings_, region);
+      TrackMultiplexer tm(setup, dataFormats, channelAssignment, &settings_, region);
       // read in and organize input tracks and stubs
       tm.consume(tracks, stubs);
       // fill output products

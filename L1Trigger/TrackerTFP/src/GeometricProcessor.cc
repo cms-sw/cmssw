@@ -82,11 +82,11 @@ namespace trackerTFP {
 
   // convert stub
   StubGP* GeometricProcessor::produce(const StubPP& stub, int phiT, int zT) {
-    static const DataFormat& dfPhiT = dataFormats_->format(Variable::phiT, Process::gp);
-    static const DataFormat& dfZT = dataFormats_->format(Variable::zT, Process::gp);
-    static const DataFormat& dfCot = dataFormats_->format(Variable::cot, Process::gp);
-    static const DataFormat& dfR = dataFormats_->format(Variable::r, Process::gp);
-    static const DataFormat& dfL = dataFormats_->format(Variable::layer, Process::gp);
+    const DataFormat& dfPhiT = dataFormats_->format(Variable::phiT, Process::gp);
+    const DataFormat& dfZT = dataFormats_->format(Variable::zT, Process::gp);
+    const DataFormat& dfCot = dataFormats_->format(Variable::cot, Process::gp);
+    const DataFormat& dfR = dataFormats_->format(Variable::r, Process::gp);
+    const DataFormat& dfL = dataFormats_->format(Variable::layer, Process::gp);
     const double cot = dfCot.digi(dfZT.floating(zT) / setup_->chosenRofZ());
     // determine kf layer id
     const vector<int>& le = layerEncoding_->layerEncoding(zT);
