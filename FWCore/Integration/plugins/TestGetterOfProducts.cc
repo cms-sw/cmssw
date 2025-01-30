@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleLabelMatch.h"
@@ -16,7 +17,6 @@
 #include <vector>
 
 namespace edm {
-  class BranchDescription;
   class Event;
   class EventSetup;
 }  // namespace edm
@@ -150,7 +150,7 @@ namespace edmtest {
     getterOfProducts_ = edm::GetterOfProducts<Thing>(edm::ProcessMatch(processName_), this, branchType_);
     getterUsingLabel_ = edm::GetterOfProducts<Thing>(edm::ModuleLabelMatch("A"), this, branchType_);
 
-    callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
       getterOfIntProducts_(bd);
       getterOfProducts_(bd);
       getterUsingLabel_(bd);

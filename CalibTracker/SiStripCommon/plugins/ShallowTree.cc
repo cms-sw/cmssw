@@ -44,7 +44,7 @@ ShallowTree::ShallowTree(const edm::ParameterSet& iConfig) {
 
   std::set<std::string> branchnames;
   callWhenNewProductsRegistered(
-      [productSelectorRules, branchnames, leafmap, this](edm::BranchDescription const& selection) mutable {
+      [productSelectorRules, branchnames, leafmap, this](edm::ProductDescription const& selection) mutable {
         if (productSelectorRules.select(selection)) {
           //Check for duplicate branch names
           if (branchnames.find(selection.productInstanceName()) != branchnames.end()) {
@@ -183,7 +183,7 @@ void ShallowTree::TypedBranchConnector<T>::connect(const edm::Event& iEvent) {
 }
 
 template <class T>
-ShallowTree::TypedBranchConnector<T>::TypedBranchConnector(edm::BranchDescription const* desc,
+ShallowTree::TypedBranchConnector<T>::TypedBranchConnector(edm::ProductDescription const* desc,
                                                            std::string t,
                                                            TTree* tree)
     : ml_(desc->moduleLabel()), pin_(desc->productInstanceName()) {

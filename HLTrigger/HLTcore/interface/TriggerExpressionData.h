@@ -119,7 +119,7 @@ namespace triggerExpression {
     }
 
     // set path status token
-    void setPathStatusToken(edm::BranchDescription const& branch, edm::ConsumesCollector&& iC);
+    void setPathStatusToken(edm::ProductDescription const& branch, edm::ConsumesCollector&& iC);
 
     // set the new event
     bool setEvent(const edm::Event& event, const edm::EventSetup& setup);

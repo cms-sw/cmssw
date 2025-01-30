@@ -10,10 +10,9 @@ BranchChildren: Dependency information between branches.
 #include <map>
 #include <set>
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 namespace edm {
-
-  class BranchDescription;
 
   class BranchChildren {
   private:
@@ -33,7 +32,7 @@ namespace edm {
     // Look up all the descendants of the given parent, and insert them
     // into descendants. N.B.: this does not clear out descendants first;
     // it only appends *new* elements to the collection.
-    void appendToDescendants(BranchDescription const& parent,
+    void appendToDescendants(ProductDescription const& parent,
                              BranchIDSet& descendants,
                              std::map<BranchID, BranchID> const& droppedToKeptAlias) const;
 

@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Version/interface/GetFileFormatVersion.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -56,7 +56,7 @@
 namespace edm {
 
   namespace {
-    bool sorterForJobReportHash(BranchDescription const* lh, BranchDescription const* rh) {
+    bool sorterForJobReportHash(ProductDescription const* lh, ProductDescription const* rh) {
       return lh->fullClassName() < rh->fullClassName()               ? true
              : lh->fullClassName() > rh->fullClassName()             ? false
              : lh->moduleLabel() < rh->moduleLabel()                 ? true
@@ -181,13 +181,13 @@ namespace edm {
       RootOutputTree* theTree = treePointers_[i];
       for (auto& item : om_->selectedOutputItemList()[i]) {
         item.setProduct(nullptr);
-        BranchDescription const& desc = *item.branchDescription();
+        ProductDescription const& desc = *item.productDescription();
         theTree->addBranch(desc.branchName(),
                            desc.wrappedName(),
                            item.product(),
                            item.splitLevel(),
                            item.basketSize(),
-                           item.branchDescription()->produced());
+                           item.productDescription()->produced());
         //make sure we always store product registry info for all branches we create
         branchesWithStoredHistory_.insert(item.branchID());
       }
@@ -213,12 +213,12 @@ namespace edm {
     // To avoid extra string copies, we create a vector of pointers into the product registry,
     // and use a custom comparison operator for sorting.
     std::vector<std::string> branchNames;
-    std::vector<BranchDescription const*> branches;
+    std::vector<ProductDescription const*> branches;
     branchNames.reserve(om_->selectedOutputItemList()[InEvent].size());
     branches.reserve(om->selectedOutputItemList()[InEvent].size());
     for (auto const& item : om_->selectedOutputItemList()[InEvent]) {
-      branchNames.push_back(item.branchDescription()->branchName());
-      branches.push_back(item.branchDescription());
+      branchNames.push_back(item.productDescription()->branchName());
+      branches.push_back(item.productDescription());
     }
     // Now sort the branches for the hash.
     sort_all(branches, sorterForJobReportHash);
@@ -226,7 +226,7 @@ namespace edm {
     std::ostringstream oss;
     char const underscore = '_';
     for (auto const& branch : branches) {
-      BranchDescription const& bd = *branch;
+      ProductDescription const& bd = *branch;
       oss << bd.fullClassName() << underscore << bd.moduleLabel() << underscore << bd.productInstanceName()
           << underscore << bd.processName() << underscore;
     }
@@ -816,7 +816,7 @@ namespace edm {
                                         std::string const& processName) const {
     if (tree && tree->GetNbranches() != 0) {
       for (auto const& selection : branches) {
-        BranchDescription const& pd = *selection.first;
+        ProductDescription const& pd = *selection.first;
         if (pd.branchType() == InProcess && processName != pd.processName()) {
           continue;
         }
@@ -880,7 +880,7 @@ namespace edm {
     // We do this only for event products.
     std::set<BranchID> producedBranches;
     if (doProvenance && branchType == InEvent && om_->dropMetaData() != PoolOutputModule::DropNone) {
-      for (auto bd : occurrence.productRegistry().allBranchDescriptions()) {
+      for (auto bd : occurrence.productRegistry().allProductDescriptions()) {
         if (bd->produced() && bd->branchType() == InEvent) {
           producedBranches.insert(bd->branchID());
         }
@@ -889,18 +889,18 @@ namespace edm {
 
     // Loop over EDProduct branches, possibly fill the provenance, and write the branch.
     for (auto& item : items) {
-      BranchID const& id = item.branchDescription()->branchID();
+      BranchID const& id = item.productDescription()->branchID();
       branchesWithStoredHistory_.insert(id);
 
-      bool produced = item.branchDescription()->produced();
+      bool produced = item.productDescription()->produced();
       bool getProd =
-          (produced || !fastCloning || treePointers_[ttreeIndex]->uncloned(item.branchDescription()->branchName()));
+          (produced || !fastCloning || treePointers_[ttreeIndex]->uncloned(item.productDescription()->branchName()));
       bool keepProvenance = doProvenance && (produced || keepProvenanceForPrior);
 
       WrapperBase const* product = nullptr;
       ProductProvenance const* productProvenance = nullptr;
       if (getProd) {
-        BasicHandle result = occurrence.getByToken(item.token(), item.branchDescription()->unwrappedTypeID());
+        BasicHandle result = occurrence.getByToken(item.token(), item.productDescription()->unwrappedTypeID());
         product = result.wrapper();
         if (result.isValid() && keepProvenance) {
           productProvenance = result.provenance()->productProvenance();
@@ -908,7 +908,7 @@ namespace edm {
         if (product == nullptr) {
           // No product with this ID is in the event.
           // Add a null product.
-          TClass* cp = item.branchDescription()->wrappedType().getClass();
+          TClass* cp = item.productDescription()->wrappedType().getClass();
           assert(cp != nullptr);
           int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
           void* p = cp->New();
@@ -919,7 +919,7 @@ namespace edm {
         item.setProduct(product);
       }
       if (keepProvenance && productProvenance == nullptr) {
-        productProvenance = provRetriever->branchIDToProvenance(item.branchDescription()->originalBranchID());
+        productProvenance = provRetriever->branchIDToProvenance(item.productDescription()->originalBranchID());
       }
       if (productProvenance) {
         insertProductProvenance(*productProvenance, provenanceToKeep);

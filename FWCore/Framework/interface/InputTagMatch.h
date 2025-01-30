@@ -11,7 +11,7 @@ See comments in the file GetterOfProducts.h for a description.
 */
 
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 
 #include <string>
 
@@ -21,20 +21,20 @@ namespace edm {
   public:
     InputTagMatch(edm::InputTag const& inputTag) : inputTag_(inputTag) {}
 
-    bool operator()(edm::BranchDescription const& branchDescription) {
+    bool operator()(edm::ProductDescription const& productDescription) {
       bool result(true);
       bool match(false);
       if (!inputTag_.label().empty()) {
         match = true;
-        result = (result && branchDescription.moduleLabel() == inputTag_.label());
+        result = (result && productDescription.moduleLabel() == inputTag_.label());
       }
       if (!inputTag_.instance().empty()) {
         match = true;
-        result = (result && branchDescription.productInstanceName() == inputTag_.instance());
+        result = (result && productDescription.productInstanceName() == inputTag_.instance());
       }
       if (!inputTag_.process().empty()) {
         match = true;
-        result = (result && branchDescription.processName() == inputTag_.process());
+        result = (result && productDescription.processName() == inputTag_.process());
       }
       if (match)
         return result;

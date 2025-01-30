@@ -6,14 +6,13 @@
 */
 
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include <map>
 #include <set>
 #include <vector>
 
 namespace edm {
-
-  class BranchDescription;
 
   class ThinnedAssociationBranches {
   public:
@@ -51,7 +50,7 @@ namespace edm {
 
     void clear() { vThinnedAssociationBranches_.clear(); }
 
-    void selectAssociationProducts(std::vector<BranchDescription const*> const& associationDescriptions,
+    void selectAssociationProducts(std::vector<ProductDescription const*> const& associationDescriptions,
                                    std::set<BranchID> const& keptProductsInEvent,
                                    std::map<BranchID, bool>& keepAssociation) const;
 

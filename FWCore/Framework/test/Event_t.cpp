@@ -7,7 +7,7 @@ Test program for edm::Event.
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -216,13 +216,13 @@ void testEvent::registerProduct(std::string const& tag,
 
   TypeWithDict product_type(typeid(T));
 
-  BranchDescription branch(InEvent,
-                           moduleLabel,
-                           processName,
-                           product_type.userClassName(),
-                           product_type.friendlyClassName(),
-                           productInstanceName,
-                           product_type);
+  ProductDescription branch(InEvent,
+                            moduleLabel,
+                            processName,
+                            product_type.userClassName(),
+                            product_type.friendlyClassName(),
+                            productInstanceName,
+                            product_type);
 
   moduleDescriptions_[tag] = ModuleDescription(
       moduleParams.id(), moduleClassName, moduleLabel, processX.get(), ModuleDescription::getUniqueID());
@@ -363,13 +363,13 @@ testEvent::testEvent()
 
   std::string productInstanceName("int1");
 
-  BranchDescription branch(InEvent,
-                           moduleLabel,
-                           processName,
-                           product_type.userClassName(),
-                           product_type.friendlyClassName(),
-                           productInstanceName,
-                           product_type);
+  ProductDescription branch(InEvent,
+                            moduleLabel,
+                            processName,
+                            product_type.userClassName(),
+                            product_type.friendlyClassName(),
+                            productInstanceName,
+                            product_type);
 
   availableProducts_->addProduct(branch);
 
@@ -990,7 +990,7 @@ void testEvent::deleteProduct() {
 
   BranchID id;
 
-  availableProducts_->callForEachBranch([&id](const BranchDescription& iDesc) {
+  availableProducts_->callForEachBranch([&id](const ProductDescription& iDesc) {
     if (iDesc.moduleLabel() == "modMulti" && iDesc.productInstanceName() == "int1") {
       id = iDesc.branchID();
     }

@@ -20,6 +20,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,7 +31,6 @@
 #include <utility>
 
 namespace edm {
-  class BranchDescription;
   class ParameterSetDescription;
 }  // namespace edm
 
@@ -79,7 +79,7 @@ private:
   // Callback which will be registered with the Framework if the InputTags
   // are not specified in the configuration or constructor arguments. It
   // will get called for each product in the ProductRegistry.
-  void checkToUpdateTags(edm::BranchDescription const& branchDescription,
+  void checkToUpdateTags(edm::ProductDescription const& productDescription,
                          edm::ConsumesCollector,
                          bool findRecord,
                          bool findReadoutRecord,

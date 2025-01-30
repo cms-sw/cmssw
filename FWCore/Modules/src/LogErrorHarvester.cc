@@ -64,7 +64,7 @@ namespace edm {
     //Need to be sure to run only after all other EDProducers have run
     callWhenNewProductsRegistered(
         [this, endPathStatusType, pathStatusType, triggerResultsType, excludedModules, includeModules](
-            edm::BranchDescription const& iBD) {
+            edm::ProductDescription const& iBD) {
           if ((iBD.branchType() == edm::InEvent and moduleDescription().processName() == iBD.processName()) and
               ((includeModules.empty() or includeModules.end() != includeModules.find(iBD.moduleLabel())) and
                (iBD.unwrappedTypeID() != endPathStatusType and iBD.unwrappedTypeID() != pathStatusType and

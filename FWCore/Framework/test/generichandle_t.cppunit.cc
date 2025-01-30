@@ -145,7 +145,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::ParameterSet pset;
   pset.registerIt();
 
-  edm::BranchDescription product(
+  edm::ProductDescription product(
       edm::InEvent, label, processName, dummytype.userClassName(), className, productInstanceName, dummytype);
 
   product.init();
@@ -183,10 +183,10 @@ void testGenericHandle::getbyLabelTest() {
                          edm::StreamID::invalidStreamID());
   ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
-  edm::BranchDescription const& branchFromRegistry = it->second;
+  edm::ProductDescription const& branchFromRegistry = it->second;
   std::vector<edm::BranchID> const ids;
   edm::ProductProvenance prov(branchFromRegistry.branchID(), ids);
-  edm::BranchDescription const desc(branchFromRegistry);
+  edm::ProductDescription const desc(branchFromRegistry);
   ep.put(desc, std::move(pprod), prov);
 
   edm::GenericHandle h("edmtest::DummyProduct");

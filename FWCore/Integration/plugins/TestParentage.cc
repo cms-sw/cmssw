@@ -92,10 +92,10 @@ namespace edmtest {
     if (not prov) {
       throw cms::Exception("MissingProvenance") << "Failed to get provenance for 'inputTag'";
     }
-    if (prov->originalBranchID() != prov->branchDescription().originalBranchID()) {
+    if (prov->originalBranchID() != prov->productDescription().originalBranchID()) {
       throw cms::Exception("InconsistentBranchID")
           << " test of Provenance::originalBranchID function failed. Expected "
-          << prov->branchDescription().originalBranchID() << " but see " << prov->originalBranchID();
+          << prov->productDescription().originalBranchID() << " but see " << prov->originalBranchID();
     }
 
     std::set<std::string> expectedAncestors(expectedAncestors_.begin(), expectedAncestors_.end());

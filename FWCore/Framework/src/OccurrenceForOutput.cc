@@ -37,7 +37,7 @@ namespace edm {
     provRecorder_.principal().getAllStableProvenance(provenances);
   }
 
-  std::vector<BranchDescription const*> OccurrenceForOutput::productDescriptions() const {
+  std::vector<ProductDescription const*> OccurrenceForOutput::productDescriptions() const {
     return principal().productDescriptions();
   }
 

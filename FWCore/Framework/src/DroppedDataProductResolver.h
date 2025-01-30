@@ -12,7 +12,7 @@ DroppedDataProductResolver: Handles case of a DataProduct which was dropped on o
 namespace edm {
   class DroppedDataProductResolver : public ProductResolverBase {
   public:
-    DroppedDataProductResolver(std::shared_ptr<BranchDescription const> bd)
+    DroppedDataProductResolver(std::shared_ptr<ProductDescription const> bd)
         : ProductResolverBase(), m_provenance(std::move(bd), {}) {}
 
     void connectTo(ProductResolverBase const&, Principal const*) final {}
@@ -37,9 +37,9 @@ namespace edm {
     bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final { return false; }
     bool unscheduledWasNotRun_() const final { return false; }
     void resetProductData_(bool deleteEarly) final {}
-    BranchDescription const& branchDescription_() const final { return m_provenance.branchDescription(); }
-    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) final {
-      m_provenance.setBranchDescription(bd);
+    ProductDescription const& productDescription_() const final { return m_provenance.productDescription(); }
+    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) final {
+      m_provenance.setProductDescription(bd);
     }
     Provenance const* provenance_() const final { return &m_provenance; }
 

@@ -1,6 +1,6 @@
 #include "FWCore/Common/interface/ProcessBlockHelperBase.h"
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductLabels.h"
@@ -35,7 +35,7 @@ namespace edm {
 
     unsigned int bestPosition = 0;
     for (auto const& prod : productRegistry.productList()) {
-      BranchDescription const& desc = prod.second;
+      ProductDescription const& desc = prod.second;
       if (desc.branchType() == InProcess && !desc.produced() && desc.present() &&
           desc.moduleLabel() == productLabels.module && desc.productInstanceName() == productLabels.productInstance &&
           desc.unwrappedTypeID() == typeID && (processName.empty() || processName == desc.processName())) {
