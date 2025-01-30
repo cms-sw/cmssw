@@ -26,7 +26,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class HGCalSoALayerClustersProducer : public stream::SynchronizingEDProducer<> {
   public:
     HGCalSoALayerClustersProducer(edm::ParameterSet const& config)
-        : getTokenDeviceRecHits_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
+        : SynchronizingEDProducer(config),
+          getTokenDeviceRecHits_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
           getTokenDeviceClusters_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsLayerClustersSoA"))},
           deviceTokenSoAClusters_{produces()},
           thresholdW0_(config.getParameter<double>("thresholdW0")),
