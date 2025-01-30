@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <atomic>
+#include <thread>
 
 int main() {
   // build fake test package...
@@ -75,15 +76,25 @@ int main() {
 
   // stress test
   std::atomic<int> j(0);
-#pragma omp parallel num_threads(2)
-  {
+  //wait for both threads to start before running the test
+  std::atomic<int> waitForAll(2);
+
+  auto work = [&]() {
+    --waitForAll;
+    while (waitForAll > 0)
+      ;
     reco::genericExpression<bool, int, int> const* acut = nullptr;
     for (int i = 0; i < 20; ++i) {
       acut = reco_expressionEvaluator("CommonTools/Utils", SINGLE_ARG(reco::genericExpression<bool, int, int>), cut);
       (*acut)(2, 7);
       std::cerr << j++ << ',';
     }
-  }
+  };
+
+  std::thread t1(work);
+  std::thread t2(work);
+  t1.join();
+  t2.join();
   std::cerr << std::endl;
 
   std::cout << "If HERE OK" << std::endl;
