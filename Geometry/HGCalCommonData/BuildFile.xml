@@ -4,6 +4,7 @@
 <use name="DetectorDescription/DDCMS"/>
 <use name="FWCore/ParameterSet"/>
 <use name="dd4hep"/>
+<flags REM_CXXFLAGS="-Werror=array-bounds"/>
 <export>
   <lib name="1"/>
 </export>
