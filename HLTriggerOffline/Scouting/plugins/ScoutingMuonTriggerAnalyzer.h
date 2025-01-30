@@ -33,49 +33,49 @@ Author: Javier Garcia de Castro, email:javigdc@bu.edu
 #include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
 
 //Classes to be declared
-class ScoutingMuonTriggerAnalyzer: public DQMEDAnalyzer {
-      public: 
-        explicit ScoutingMuonTriggerAnalyzer(const edm::ParameterSet& conf);
-        ~ScoutingMuonTriggerAnalyzer() override;
-        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+class ScoutingMuonTriggerAnalyzer : public DQMEDAnalyzer {
+public:
+  explicit ScoutingMuonTriggerAnalyzer(const edm::ParameterSet& conf);
+  ~ScoutingMuonTriggerAnalyzer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-      private:
-        void analyze(const edm::Event & e, const edm::EventSetup & c) override;
-        void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-        std::string outputInternalPath_;
-        edm::EDGetTokenT<std::vector<pat::Muon>> muonCollection_;
-        edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
-        triggerExpression::Data triggerCache_;
-        std::vector<triggerExpression::Evaluator*> vtriggerSelector_;
-        std::vector<std::string> vtriggerSelection_;
-        edm::EDGetToken algToken_;
-        std::shared_ptr<l1t::L1TGlobalUtil> l1GtUtils_;
-        std::vector<std::string> l1Seeds_;
-        TString l1Names[100] = {""};
-        Bool_t l1Result[100] = {false};
-        
-        //Histogram declaration
-        //DENOMINATORS:
-        dqm::reco::MonitorElement* h_invMass_denominator;
-        dqm::reco::MonitorElement* h_pt1_l1_denominator;
-        dqm::reco::MonitorElement* h_eta1_l1_denominator;
-        dqm::reco::MonitorElement* h_phi1_l1_denominator;
-        dqm::reco::MonitorElement* h_dxy1_l1_denominator;
-        dqm::reco::MonitorElement* h_pt2_l1_denominator;
-        dqm::reco::MonitorElement* h_eta2_l1_denominator;
-        dqm::reco::MonitorElement* h_phi2_l1_denominator;
-        dqm::reco::MonitorElement* h_dxy2_l1_denominator;
+private:
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  std::string outputInternalPath_;
+  edm::EDGetTokenT<std::vector<pat::Muon>> muonCollection_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
+  triggerExpression::Data triggerCache_;
+  std::vector<triggerExpression::Evaluator*> vtriggerSelector_;
+  std::vector<std::string> vtriggerSelection_;
+  edm::EDGetToken algToken_;
+  std::shared_ptr<l1t::L1TGlobalUtil> l1GtUtils_;
+  std::vector<std::string> l1Seeds_;
+  TString l1Names[100] = {""};
+  Bool_t l1Result[100] = {false};
 
-        //NUMERATORS:
-        std::vector<dqm::reco::MonitorElement*> h_invMass_numerators;  
-        std::vector<dqm::reco::MonitorElement*> h_pt1_l1_numerators;
-        std::vector<dqm::reco::MonitorElement*> h_eta1_l1_numerators;
-        std::vector<dqm::reco::MonitorElement*> h_phi1_l1_numerators;
-        std::vector<dqm::reco::MonitorElement*> h_dxy1_l1_numerators;
-        std::vector<dqm::reco::MonitorElement*> h_pt2_l1_numerators;
-        std::vector<dqm::reco::MonitorElement*> h_eta2_l1_numerators;
-        std::vector<dqm::reco::MonitorElement*> h_phi2_l1_numerators;
-        std::vector<dqm::reco::MonitorElement*> h_dxy2_l1_numerators;
-    };
+  //Histogram declaration
+  //DENOMINATORS:
+  dqm::reco::MonitorElement* h_invMass_denominator;
+  dqm::reco::MonitorElement* h_pt1_l1_denominator;
+  dqm::reco::MonitorElement* h_eta1_l1_denominator;
+  dqm::reco::MonitorElement* h_phi1_l1_denominator;
+  dqm::reco::MonitorElement* h_dxy1_l1_denominator;
+  dqm::reco::MonitorElement* h_pt2_l1_denominator;
+  dqm::reco::MonitorElement* h_eta2_l1_denominator;
+  dqm::reco::MonitorElement* h_phi2_l1_denominator;
+  dqm::reco::MonitorElement* h_dxy2_l1_denominator;
+
+  //NUMERATORS:
+  std::vector<dqm::reco::MonitorElement*> h_invMass_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_pt1_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_eta1_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_phi1_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_dxy1_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_pt2_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_eta2_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_phi2_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_dxy2_l1_numerators;
+};
 
 #endif
