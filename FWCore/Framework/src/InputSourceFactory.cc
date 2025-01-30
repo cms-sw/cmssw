@@ -24,7 +24,6 @@ namespace edm {
   }
 
   std::unique_ptr<InputSource> InputSourceFactory::makeInputSource(ParameterSet const& conf,
-                                                                   SignallingProductRegistry& reg,
                                                                    InputSourceDescription const& desc) const
 
   {
@@ -40,7 +39,7 @@ namespace edm {
           << "Try running EdmPluginDump to obtain a list of available Plugins.";
     }
 
-    wm->registerProducts(reg);
+    wm->registerProducts();
 
     FDEBUG(1) << "InputSourceFactory: created input source " << modtype << std::endl;
 

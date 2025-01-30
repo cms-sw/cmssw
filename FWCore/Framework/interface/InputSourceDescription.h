@@ -19,16 +19,9 @@ namespace edm {
   class ThinnedAssociationsHelper;
 
   struct InputSourceDescription {
-    InputSourceDescription()
-        : moduleDescription_(),
-          productRegistry_(nullptr),
-          actReg_(),
-          maxEvents_(-1),
-          maxLumis_(-1),
-          allocations_(nullptr) {}
+    InputSourceDescription() : moduleDescription_(), actReg_(), maxEvents_(-1), maxLumis_(-1), allocations_(nullptr) {}
 
     InputSourceDescription(ModuleDescription const& md,
-                           std::shared_ptr<ProductRegistry> preg,
                            std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                            std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                            std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
@@ -38,7 +31,6 @@ namespace edm {
                            int maxSecondsUntilRampdown,
                            PreallocationConfiguration const& allocations)
         : moduleDescription_(md),
-          productRegistry_(preg),
           branchIDListHelper_(branchIDListHelper),
           processBlockHelper_(processBlockHelper),
           thinnedAssociationsHelper_(thinnedAssociationsHelper),
@@ -49,7 +41,6 @@ namespace edm {
           allocations_(&allocations) {}
 
     ModuleDescription moduleDescription_;
-    std::shared_ptr<ProductRegistry> productRegistry_;
     std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
     std::shared_ptr<ProcessBlockHelper> processBlockHelper_;
     std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;

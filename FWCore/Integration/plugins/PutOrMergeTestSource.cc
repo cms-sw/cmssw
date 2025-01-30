@@ -27,7 +27,7 @@ namespace edmtest {
     PutOrMergeTestSource(ParameterSet const&, InputSourceDescription const&);
 
     /// Register any produced products
-    void registerProducts(SignallingProductRegistry&) final;
+    void registerProducts() final;
 
   private:
     ItemTypeInfo getNextItemType() final;
@@ -86,7 +86,7 @@ PutOrMergeTestSource::PutOrMergeTestSource(ParameterSet const& iPS, InputSourceD
   historyID_ = history.id();
 }
 
-void PutOrMergeTestSource::registerProducts(SignallingProductRegistry&) {
+void PutOrMergeTestSource::registerProducts() {
   edm::ParameterSet dummyPset;
   dummyPset.registerIt();
 

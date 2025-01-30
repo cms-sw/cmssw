@@ -40,7 +40,7 @@ namespace edm {
     // ---------- member functions ---------------------------
     using ProducerBase::registerProducts;
     using ProducerBase::resolvePutIndicies;
-    void registerProducts(SignallingProductRegistry&) final;
+    void registerProducts() final;
 
     bool hasAbilityToProduceInBeginRuns() const final { return true; }
 
@@ -48,7 +48,7 @@ namespace edm {
 
   protected:
     //If inheriting class overrides, they need to call this function as well
-    void beginJob() override;
+    void beginJob(edm::ProductRegistry const&) override;
 
   private:
     void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*) override;
