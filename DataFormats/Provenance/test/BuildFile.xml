@@ -3,7 +3,7 @@
 <use name="DataFormats/Provenance"/>
 </bin>
 
-<bin name="testDataFormatsProvenanceCatch2" file="ElementID_t.cpp,Parentage_t.cpp,StoredProcessBlockHelper_t.cpp,CompactHash_t.cpp">
+<bin name="testDataFormatsProvenanceCatch2" file="ElementID_t.cpp,Parentage_t.cpp,StoredProcessBlockHelper_t.cpp,CompactHash_t.cpp,HardwareResourcesDescription_t.cpp">
   <use name="DataFormats/Provenance"/>
   <use name="catch2"/>
 </bin>
