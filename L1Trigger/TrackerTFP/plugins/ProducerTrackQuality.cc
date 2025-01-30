@@ -42,8 +42,8 @@ namespace trackerTFP {
       iConfig_.baseShiftchi2rz_ = iConfig.getParameter<int>("BaseShiftchi2rz");
     }
     ~ProducerTrackQuality() override {}
-    unique_ptr<TrackQuality> produce(const TrackQualityRcd& trackQualityRcd) {
-      const DataFormats* dataFormats = &trackQualityRcd.get(esGetToken_);
+    unique_ptr<TrackQuality> produce(const DataFormatsRcd& rcd) {
+      const DataFormats* dataFormats = &rcd.get(esGetToken_);
       return make_unique<TrackQuality>(iConfig_, dataFormats);
     }
 

@@ -10,7 +10,6 @@ C.Brown 28/07/20
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
-#include "L1Trigger/TrackerTFP/interface/TrackQualityRcd.h"
 
 #include <vector>
 #include <string>
@@ -178,6 +177,6 @@ namespace trackerTFP {
 
 }  // namespace trackerTFP
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::TrackQuality, trackerTFP::TrackQualityRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::TrackQuality, trackerTFP::DataFormatsRcd);
 
 #endif

@@ -10,12 +10,12 @@ using namespace edm;
 
 namespace tt {
 
-  StubAssociation::StubAssociation(const edm::ParameterSet& pSet, const Setup* setup)
+  StubAssociation::StubAssociation(const Config& iConfig, const Setup* setup)
       : setup_(setup),
-        minLayersGood_(pSet.getParameter<int>("MinLayersGood")),
-        minLayersGoodPS_(pSet.getParameter<int>("MinLayersGoodPS")),
-        maxLayersBad_(pSet.getParameter<int>("MaxLayersBad")),
-        maxLayersBadPS_(pSet.getParameter<int>("MaxLayersBadPS")) {}
+        minLayersGood_(iConfig.minLayersGood_),
+        minLayersGoodPS_(iConfig.minLayersGoodPS_),
+        maxLayersBad_(iConfig.maxLayersBad_),
+        maxLayersBadPS_(iConfig.maxLayersBadPS_) {}
 
   // insert a TPPtr and its associated collection of TTstubRefs into the underlayering maps
   void StubAssociation::insert(const TPPtr& tpPtr, const vector<TTStubRef>& ttSTubRefs) {

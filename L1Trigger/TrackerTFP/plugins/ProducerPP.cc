@@ -33,7 +33,6 @@ namespace trackerTFP {
     ~ProducerPP() override {}
 
   private:
-    void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
     // ED input token of DTC stubs
     EDGetTokenT<TTDTC> edGetToken_;
@@ -41,8 +40,6 @@ namespace trackerTFP {
     EDPutTokenT<StreamsStub> edPutToken_;
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
-    // helper classe to store configurations
-    const Setup* setup_ = nullptr;
   };
 
   ProducerPP::ProducerPP(const ParameterSet& iConfig) {
@@ -55,16 +52,16 @@ namespace trackerTFP {
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
   }
 
-  void ProducerPP::beginRun(const Run& iRun, const EventSetup& iSetup) { setup_ = &iSetup.getData(esGetTokenSetup_); }
-
   void ProducerPP::produce(Event& iEvent, const EventSetup& iSetup) {
+    // helper classe to store configurations
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // empty GP products
-    StreamsStub stubs(setup_->numRegions() * setup_->numDTCsPerTFP());
+    StreamsStub stubs(setup->numRegions() * setup->numDTCsPerTFP());
     // read in DTC Product and produce TFP product
     const TTDTC& ttDTC = iEvent.get(edGetToken_);
-    for (int region = 0; region < setup_->numRegions(); region++) {
-      const int offset = region * setup_->numDTCsPerTFP();
-      for (int channel = 0; channel < setup_->numDTCsPerTFP(); channel++)
+    for (int region = 0; region < setup->numRegions(); region++) {
+      const int offset = region * setup->numDTCsPerTFP();
+      for (int channel = 0; channel < setup->numDTCsPerTFP(); channel++)
         stubs[offset + channel] = ttDTC.stream(region, channel);
     }
     // store products

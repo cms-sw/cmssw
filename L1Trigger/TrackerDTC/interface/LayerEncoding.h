@@ -2,7 +2,6 @@
 #define L1Trigger_TrackerDTC_LayerEncoding_h
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-#include "L1Trigger/TrackerDTC/interface/LayerEncodingRcd.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackTrigger/interface/SensorModule.h"
 
@@ -36,6 +35,6 @@ namespace trackerDTC {
 
 }  // namespace trackerDTC
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trackerDTC::LayerEncoding, trackerDTC::LayerEncodingRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trackerDTC::LayerEncoding, tt::SetupRcd);
 
 #endif

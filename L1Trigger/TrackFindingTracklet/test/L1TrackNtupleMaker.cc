@@ -149,7 +149,7 @@ private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> getTokenBField_;
   edm::ESGetToken<hph::Setup, hph::SetupRcd> getTokenHPHSetup_;
   edm::ESGetToken<tt::Setup, tt::SetupRcd> getTokenSetup_;
-  edm::ESGetToken<trackerTFP::LayerEncoding, trackerTFP::LayerEncodingRcd> getTokenLayerEncoding_;
+  edm::ESGetToken<trackerTFP::LayerEncoding, trackerTFP::DataFormatsRcd> getTokenLayerEncoding_;
   //-----------------------------------------------------------------------------------------------
   // tree & branches for mini-ntuple
 
@@ -326,7 +326,7 @@ L1TrackNtupleMaker::L1TrackNtupleMaker(edm::ParameterSet const& iConfig) : confi
   getTokenBField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   getTokenHPHSetup_ = esConsumes<hph::Setup, hph::SetupRcd>();
   getTokenSetup_ = esConsumes<tt::Setup, tt::SetupRcd>();
-  getTokenLayerEncoding_ = esConsumes<trackerTFP::LayerEncoding, trackerTFP::LayerEncodingRcd>();
+  getTokenLayerEncoding_ = esConsumes<trackerTFP::LayerEncoding, trackerTFP::DataFormatsRcd>();
 }
 
 /////////////

@@ -2,7 +2,6 @@
 #define L1Trigger_TrackerTFP_Demonstrator_h
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-#include "L1Trigger/TrackerTFP/interface/DemonstratorRcd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 
@@ -76,6 +75,6 @@ namespace trackerTFP {
 
 }  // namespace trackerTFP
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::Demonstrator, trackerTFP::DemonstratorRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::Demonstrator, tt::SetupRcd);
 
 #endif

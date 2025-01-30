@@ -63,8 +63,6 @@ namespace trklet {
     EDGetTokenT<StubAssociation> edGetTokenReconstructable_;
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
-    // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
     const Setup* setup_ = nullptr;
     // enables analyze of TPs

@@ -10,7 +10,6 @@ and in undigitized format in an std::tuple. (This saves CPU)
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-#include "L1Trigger/TrackFindingTracklet/interface/DataFormatsRcd.h"
 #include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "DataFormats/L1TrackTrigger/interface/TTBV.h"
@@ -485,6 +484,6 @@ namespace trklet {
 
 }  // namespace trklet
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trklet::DataFormats, trklet::DataFormatsRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trklet::DataFormats, trklet::ChannelAssignmentRcd);
 
 #endif
