@@ -107,7 +107,7 @@ void JetMETDQMDCSFilter::checkDCSInfoPerPartition(const T& DCS) {
         detectorOn_ = false;
       }
     }  // if it matches the requested detname
-  }  // loop on partitions
+  }    // loop on partitions
 }
 
 bool JetMETDQMDCSFilter::filter(const edm::Event& evt, const edm::EventSetup& es) {
