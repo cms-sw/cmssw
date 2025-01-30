@@ -21,7 +21,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       using Base = ProducerBase<edm::stream::EDProducer, edm::ExternalWork, Args...>;
 
     protected:
-      SynchronizingEDProducer() = default;  // to be removed in the near future
       SynchronizingEDProducer(edm::ParameterSet const iConfig) : Base(iConfig) {}
 
     public:
