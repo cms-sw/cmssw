@@ -98,7 +98,12 @@ namespace l1t {
       }
       if (!regionsMaxRelIsolationPt_.empty() && regionsAbsEtaLowerBounds_.size() != regionsMaxRelIsolationPt_.size()) {
         throw cms::Exception("Configuration")
-            << "\'regionsMinPt\' has " << regionsMaxRelIsolationPt_.size() << " entries, but requires "
+            << "\'regionsMaxRelIsolationPt\' has " << regionsMaxRelIsolationPt_.size() << " entries, but requires "
+            << regionsAbsEtaLowerBounds_.size() << " in " << tag_ << " .";
+      }
+      if (!regionsQualityFlags_.empty() && regionsAbsEtaLowerBounds_.size() != regionsQualityFlags_.size()) {
+        throw cms::Exception("Configuration")
+            << "\'regionsMaxRelIsolationPt\' has " << regionsQualityFlags_.size() << " entries, but requires "
             << regionsAbsEtaLowerBounds_.size() << " in " << tag_ << " .";
       }
     }
