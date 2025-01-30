@@ -53,7 +53,7 @@ namespace trackerTFP {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // Demonstrator token
-    ESGetToken<Demonstrator, DemonstratorRcd> esGetTokenDemonstrator_;
+    ESGetToken<Demonstrator, SetupRcd> esGetTokenDemonstrator_;
     //
     const Setup* setup_ = nullptr;
     //
@@ -75,7 +75,7 @@ namespace trackerTFP {
       edGetTokenTracksOut_ = consumes<StreamsTrack>(InputTag(labelOut, branchTracks));
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDemonstrator_ = esConsumes<Demonstrator, DemonstratorRcd, Transition::BeginRun>();
+    esGetTokenDemonstrator_ = esConsumes<Demonstrator, SetupRcd, Transition::BeginRun>();
   }
 
   void AnalyzerDemonstrator::beginRun(const Run& iEvent, const EventSetup& iSetup) {

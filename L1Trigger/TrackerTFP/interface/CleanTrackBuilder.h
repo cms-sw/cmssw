@@ -136,6 +136,20 @@ namespace trackerTFP {
     int numRegions_;
     // number of kf layers
     int numLayers_;
+    int wlayer_;
+    const DataFormat& r_;
+    const DataFormat& phi_;
+    const DataFormat& z_;
+    const DataFormat& phiT_;
+    const DataFormat& zT_;
+    int numBinsInv2R_;
+    int numBinsPhiT_;
+    int numBinsCot_;
+    int numBinsZT_;
+    double baseInv2R_;
+    double basePhiT_;
+    double baseCot_;
+    double baseZT_;
   };
 
 }  // namespace trackerTFP

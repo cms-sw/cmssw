@@ -24,12 +24,26 @@ namespace trackerTFP {
         layerEncoding_(layerEncoding),
         cot_(cot),
         stubsCTB_(stubs),
-        tracksCTB_(tracks) {
+        tracksCTB_(tracks),
+        r_(dataFormats_->format(Variable::r, Process::ctb)),
+        phi_(dataFormats_->format(Variable::phi, Process::ctb)),
+        z_(dataFormats_->format(Variable::z, Process::ctb)),
+        phiT_(dataFormats_->format(Variable::phiT, Process::ctb)),
+        zT_(dataFormats_->format(Variable::zT, Process::ctb)) {
     stubs_.reserve(stubs.capacity());
     tracks_.reserve(tracks.capacity());
     numChannelOut_ = dataFormats_->numChannel(Process::ctb);
     numChannel_ = dataFormats_->numChannel(Process::ht) / numChannelOut_;
     numLayers_ = setup_->numLayers();
+    wlayer_ = dataFormats_->width(Variable::layer, Process::ctb);
+    numBinsInv2R_ = setup_->ctbNumBinsInv2R();
+    numBinsPhiT_ = setup_->ctbNumBinsPhiT();
+    numBinsCot_ = setup_->ctbNumBinsCot();
+    numBinsZT_ = setup_->ctbNumBinsZT();
+    baseInv2R_ = dataFormats_->base(Variable::inv2R, Process::ctb) / numBinsInv2R_;
+    basePhiT_ = phiT_.base() / numBinsPhiT_;
+    baseCot_ = cot_.base();
+    baseZT_ = zT_.base() / numBinsZT_;
   }
 
   // fill output products
@@ -66,15 +80,15 @@ namespace trackerTFP {
                                       deque<Track*>& tracks,
                                       deque<Stub*>& stubs,
                                       int channelId) {
-    static const DataFormat dfInv2R = dataFormats_->format(Variable::inv2R, Process::ht);
+    const DataFormat& dfInv2R = dataFormats_->format(Variable::inv2R, Process::ht);
     const double inv2R = dfInv2R.floating(dfInv2R.toSigned(channelId));
     const int offset = channelId * setup_->ctbMaxTracks();
     int trackId = offset;
     // identify tracks in input container
     int id;
     auto toTrkId = [this](StubHT* stub) {
-      static const DataFormat& phiT = dataFormats_->format(Variable::phiT, Process::ht);
-      static const DataFormat& zT = dataFormats_->format(Variable::zT, Process::ht);
+      const DataFormat& phiT = dataFormats_->format(Variable::phiT, Process::ht);
+      const DataFormat& zT = dataFormats_->format(Variable::zT, Process::ht);
       return (phiT.ttBV(stub->phiT()) + zT.ttBV(stub->zT())).val();
     };
     auto different = [&id, toTrkId](StubHT* stub) { return id != toTrkId(stub); };
@@ -105,20 +119,6 @@ namespace trackerTFP {
   // run single track through r-phi and r-z hough transform
   void CleanTrackBuilder::cleanTrack(
       const vector<StubHT*>& track, deque<Track*>& tracks, deque<Stub*>& stubs, double inv2R, int zT, int trackId) {
-    static const int wlayer = dataFormats_->width(Variable::layer, Process::ctb);
-    static const DataFormat& dfR = dataFormats_->format(Variable::r, Process::ctb);
-    static const DataFormat& dfPhi = dataFormats_->format(Variable::phi, Process::ctb);
-    static const DataFormat& dfZ = dataFormats_->format(Variable::z, Process::ctb);
-    static const DataFormat& dfPhiT = dataFormats_->format(Variable::phiT, Process::ctb);
-    static const DataFormat& dfZT = dataFormats_->format(Variable::zT, Process::ctb);
-    static const int numBinsInv2R = setup_->ctbNumBinsInv2R();
-    static const int numBinsPhiT = setup_->ctbNumBinsPhiT();
-    static const int numBinsCot = setup_->ctbNumBinsCot();
-    static const int numBinsZT = setup_->ctbNumBinsZT();
-    static const double baseInv2R = dataFormats_->base(Variable::inv2R, Process::ctb) / numBinsInv2R;
-    static const double basePhiT = dfPhiT.base() / numBinsPhiT;
-    static const double baseCot = cot_.base();
-    static const double baseZT = dfZT.base() / numBinsZT;
     const TTBV& maybePattern = layerEncoding_->maybePattern(zT);
     auto noTrack = [this, &maybePattern](const TTBV& pattern) {
       // not enough seeding layer
@@ -140,7 +140,7 @@ namespace trackerTFP {
       }
       return true;
     };
-    auto toLayerId = [](StubHT* stub) { return stub->layer().val(wlayer); };
+    auto toLayerId = [this](StubHT* stub) { return stub->layer().val(wlayer_); };
     auto toDPhi = [this, inv2R](StubHT* stub) {
       const bool barrel = stub->layer()[5];
       const bool ps = stub->layer()[4];
@@ -150,26 +150,26 @@ namespace trackerTFP {
       const double pitchColR = barrel ? (tilt ? setup_->tiltUncertaintyR() : 0.0) : pitchCol;
       const double r = stub->r() + setup_->chosenRofPhi();
       const double dPhi = pitchRow / r + (setup_->scattering() + pitchColR) * abs(inv2R);
-      return dfPhi.digi(dPhi / 2.);
+      return phi_.digi(dPhi / 2.);
     };
     auto toDZ = [this](StubHT* stub) {
-      static const double m = setup_->tiltApproxSlope();
-      static const double c = setup_->tiltApproxIntercept();
+      const double m = setup_->tiltApproxSlope();
+      const double c = setup_->tiltApproxIntercept();
       const bool barrel = stub->layer()[5];
       const bool ps = stub->layer()[4];
       const bool tilt = stub->layer()[3];
       const double pitchCol = ps ? setup_->pitchColPS() : setup_->pitchCol2S();
-      const double zT = dfZT.floating(stub->zT());
+      const double zT = zT_.floating(stub->zT());
       const double cot = abs(zT) / setup_->chosenRofZ();
       const double dZ = (barrel ? (tilt ? m * cot + c : 1.) : cot) * pitchCol;
-      return dfZ.digi(dZ / 2.);
+      return z_.digi(dZ / 2.);
     };
     vector<Stub*> tStubs;
     tStubs.reserve(track.size());
-    vector<TTBV> hitPatternPhi(numBinsInv2R * numBinsPhiT, TTBV(0, numLayers_));
-    vector<TTBV> hitPatternZ(numBinsCot * numBinsZT, TTBV(0, numLayers_));
-    TTBV tracksPhi(0, numBinsInv2R * numBinsPhiT);
-    TTBV tracksZ(0, numBinsCot * numBinsZT);
+    vector<TTBV> hitPatternPhi(numBinsInv2R_ * numBinsPhiT_, TTBV(0, numLayers_));
+    vector<TTBV> hitPatternZ(numBinsCot_ * numBinsZT_, TTBV(0, numLayers_));
+    TTBV tracksPhi(0, numBinsInv2R_ * numBinsPhiT_);
+    TTBV tracksZ(0, numBinsCot_ * numBinsZT_);
     // identify finer tracks each stub is consistent with
     for (StubHT* stub : track) {
       const int layerId = toLayerId(stub);
@@ -177,15 +177,15 @@ namespace trackerTFP {
       const double dZ = toDZ(stub);
       // r - phi HT
       auto phiT = [stub](double inv2R, double dPhi) { return inv2R * stub->r() + stub->phi() + dPhi; };
-      TTBV hitsPhi(0, numBinsInv2R * numBinsPhiT);
-      for (int binInv2R = 0; binInv2R < numBinsInv2R; binInv2R++) {
-        const int offset = binInv2R * numBinsPhiT;
-        const double inv2RMin = (binInv2R - numBinsInv2R / 2.) * baseInv2R;
-        const double inv2RMax = inv2RMin + baseInv2R;
+      TTBV hitsPhi(0, numBinsInv2R_ * numBinsPhiT_);
+      for (int binInv2R = 0; binInv2R < numBinsInv2R_; binInv2R++) {
+        const int offset = binInv2R * numBinsPhiT_;
+        const double inv2RMin = (binInv2R - numBinsInv2R_ / 2.) * baseInv2R_;
+        const double inv2RMax = inv2RMin + baseInv2R_;
         const auto phiTs = {phiT(inv2RMin, -dPhi), phiT(inv2RMax, -dPhi), phiT(inv2RMin, dPhi), phiT(inv2RMax, dPhi)};
-        const int binPhiTMin = floor(*min_element(phiTs.begin(), phiTs.end()) / basePhiT + 1.e-11) + numBinsPhiT / 2;
-        const int binPhiTMax = floor(*max_element(phiTs.begin(), phiTs.end()) / basePhiT + 1.e-11) + numBinsPhiT / 2;
-        for (int binPhiT = 0; binPhiT < numBinsPhiT; binPhiT++)
+        const int binPhiTMin = floor(*min_element(phiTs.begin(), phiTs.end()) / basePhiT_ + 1.e-11) + numBinsPhiT_ / 2;
+        const int binPhiTMax = floor(*max_element(phiTs.begin(), phiTs.end()) / basePhiT_ + 1.e-11) + numBinsPhiT_ / 2;
+        for (int binPhiT = 0; binPhiT < numBinsPhiT_; binPhiT++)
           if (binPhiT >= binPhiTMin && binPhiT <= binPhiTMax)
             hitsPhi.set(offset + binPhiT);
       }
@@ -197,18 +197,18 @@ namespace trackerTFP {
       }
       // r - z HT
       auto zT = [this, stub](double cot, double dZ) {
-        const double r = dfR.digi(stub->r() + dfR.digi(setup_->chosenRofPhi() - setup_->chosenRofZ()));
+        const double r = r_.digi(stub->r() + r_.digi(setup_->chosenRofPhi() - setup_->chosenRofZ()));
         return cot * r + stub->z() + dZ;
       };
-      TTBV hitsZ(0, numBinsCot * numBinsZT);
-      for (int binCot = 0; binCot < numBinsCot; binCot++) {
-        const int offset = binCot * numBinsZT;
-        const double cotMin = (binCot - numBinsCot / 2.) * baseCot;
-        const double cotMax = cotMin + baseCot;
+      TTBV hitsZ(0, numBinsCot_ * numBinsZT_);
+      for (int binCot = 0; binCot < numBinsCot_; binCot++) {
+        const int offset = binCot * numBinsZT_;
+        const double cotMin = (binCot - numBinsCot_ / 2.) * baseCot_;
+        const double cotMax = cotMin + baseCot_;
         const auto zTs = {zT(cotMin, -dZ), zT(cotMax, -dZ), zT(cotMin, dZ), zT(cotMax, dZ)};
-        const int binZTMin = floor(*min_element(zTs.begin(), zTs.end()) / baseZT + 1.e-11) + numBinsZT / 2;
-        const int binZTMax = floor(*max_element(zTs.begin(), zTs.end()) / baseZT + 1.e-11) + numBinsZT / 2;
-        for (int binZT = 0; binZT < numBinsZT; binZT++)
+        const int binZTMin = floor(*min_element(zTs.begin(), zTs.end()) / baseZT_ + 1.e-11) + numBinsZT_ / 2;
+        const int binZTMax = floor(*max_element(zTs.begin(), zTs.end()) / baseZT_ + 1.e-11) + numBinsZT_ / 2;
+        for (int binZT = 0; binZT < numBinsZT_; binZT++)
           if (binZT >= binZTMin && binZT <= binZTMax)
             hitsZ.set(offset + binZT);
       }
@@ -446,7 +446,7 @@ namespace trackerTFP {
                               const vector<vector<StubCTB*>>& stubs,
                               int region,
                               TTTracks& ttTracks) const {
-    static const double dPhi = dataFormats_->format(Variable::phiT, Process::ctb).range();
+    const double dPhi = dataFormats_->format(Variable::phiT, Process::ctb).range();
     const double invR = -track->inv2R() * 2.;
     const double phi0 = deltaPhi(track->phiT() - track->inv2R() * setup_->chosenRofPhi() + region * dPhi);
     const double zT = track->zT();

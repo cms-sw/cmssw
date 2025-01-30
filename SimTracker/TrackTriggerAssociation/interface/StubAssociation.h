@@ -1,7 +1,6 @@
 #ifndef SimTracker_TrackTriggerAssociation_StubAssociation_h
 #define SimTracker_TrackTriggerAssociation_StubAssociation_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
@@ -22,8 +21,15 @@ namespace tt {
    */
   class StubAssociation {
   public:
+    // configuration
+    struct Config {
+      int minLayersGood_;
+      int minLayersGoodPS_;
+      int maxLayersBad_;
+      int maxLayersBadPS_;
+    };
     StubAssociation() { setup_ = nullptr; }
-    StubAssociation(const edm::ParameterSet& pSet, const Setup* setup);
+    StubAssociation(const Config& iConfig, const Setup* setup);
     ~StubAssociation() {}
     // insert a TPPtr and its associated collection of TTstubRefs into the underlayering maps
     void insert(const TPPtr& tpPtr, const std::vector<TTStubRef>& ttSTubRefs);

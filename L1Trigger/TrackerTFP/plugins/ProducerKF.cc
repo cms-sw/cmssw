@@ -61,13 +61,7 @@ namespace trackerTFP {
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
-    ESGetToken<LayerEncoding, LayerEncodingRcd> esGetTokenLayerEncoding_;
-    // helper class to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
-    // helper class to encode layer
-    const LayerEncoding* layerEncoding_ = nullptr;
+    ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
     // helper class to tune internal kf variables
     KalmanFilterFormats kalmanFilterFormats_;
     // print end job internal unused MSB
@@ -97,20 +91,25 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, LayerEncodingRcd, Transition::BeginRun>();
+    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, DataFormatsRcd, Transition::BeginRun>();
   }
 
   void ProducerKF::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    layerEncoding_ = &iSetup.getData(esGetTokenLayerEncoding_);
-    kalmanFilterFormats_.beginRun(dataFormats_);
-    numChannel_ = dataFormats_->numChannel(Process::kf);
-    numRegions_ = setup_->numRegions();
-    numLayers_ = setup_->numLayers();
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    numRegions_ = setup->numRegions();
+    numLayers_ = setup->numLayers();
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    numChannel_ = dataFormats->numChannel(Process::kf);
+    kalmanFilterFormats_.beginRun(dataFormats);
   }
 
   void ProducerKF::produce(Event& iEvent, const EventSetup& iSetup) {
+    // helper class to store configurations
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    // helper class to encode layer
+    const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty KF products
     StreamsStub acceptedStubs(numRegions_ * numChannel_ * numLayers_);
     StreamsTrack acceptedTracks(numRegions_ * numChannel_);
@@ -167,7 +166,7 @@ namespace trackerTFP {
         for (const FrameTrack& frame : streamTrack) {
           TrackCTB* track = nullptr;
           if (frame.first.isNonnull()) {
-            tracksCTB.emplace_back(frame, dataFormats_);
+            tracksCTB.emplace_back(frame, dataFormats);
             track = &tracksCTB.back();
           }
           tracks.push_back(track);
@@ -189,7 +188,7 @@ namespace trackerTFP {
       vector<StubKF> stubsKF;
       stubsKF.reserve(nStubs);
       // object to fit tracks in a processing region
-      KalmanFilter kf(setup_, dataFormats_, layerEncoding_, &kalmanFilterFormats_, tracksKF, stubsKF);
+      KalmanFilter kf(setup, dataFormats, layerEncoding, &kalmanFilterFormats_, tracksKF, stubsKF);
       // empty h/w liked organized pointer to output data
       vector<vector<TrackKF*>> streamsTrack(numChannel_);
       vector<vector<vector<StubKF*>>> streamsStub(numChannel_, vector<vector<StubKF*>>(numLayers_));

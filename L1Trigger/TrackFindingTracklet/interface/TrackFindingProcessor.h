@@ -82,6 +82,8 @@ namespace trklet {
     const trackerTFP::TrackQuality* trackQuality_;
     // storage of tracks
     std::vector<Track> tracks_;
+    // b field
+    double bfield_;
   };
 
 }  // namespace trklet

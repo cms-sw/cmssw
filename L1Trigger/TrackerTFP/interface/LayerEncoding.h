@@ -2,7 +2,6 @@
 #define L1Trigger_TrackerTFP_LayerEncoding_h
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-#include "L1Trigger/TrackerTFP/interface/LayerEncodingRcd.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackTrigger/interface/SensorModule.h"
 
@@ -47,6 +46,6 @@ namespace trackerTFP {
 
 }  // namespace trackerTFP
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::LayerEncoding, trackerTFP::LayerEncodingRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::LayerEncoding, trackerTFP::DataFormatsRcd);
 
 #endif

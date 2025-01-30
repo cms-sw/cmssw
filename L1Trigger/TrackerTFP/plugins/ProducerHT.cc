@@ -51,13 +51,7 @@ namespace trackerTFP {
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
-    ESGetToken<LayerEncoding, LayerEncodingRcd> esGetTokenLayerEncoding_;
-    // helper class to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
-    //
-    const LayerEncoding* layerEncoding_ = nullptr;
+    ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
     // number of input channel
     int numChannelIn_;
     // number of output channel
@@ -75,19 +69,23 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, LayerEncodingRcd, Transition::BeginRun>();
+    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, DataFormatsRcd, Transition::BeginRun>();
   }
 
   void ProducerHT::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    layerEncoding_ = &iSetup.getData(esGetTokenLayerEncoding_);
-    numChannelIn_ = dataFormats_->numChannel(Process::gp);
-    numChannelOut_ = dataFormats_->numChannel(Process::ht);
-    numRegions_ = setup_->numRegions();
+    // helper class to store configurations
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    numRegions_ = setup->numRegions();
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    numChannelIn_ = dataFormats->numChannel(Process::gp);
+    numChannelOut_ = dataFormats->numChannel(Process::ht);
   }
 
   void ProducerHT::produce(Event& iEvent, const EventSetup& iSetup) {
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty HT products
     StreamsStub accepted(numRegions_ * numChannelOut_);
     // read in DTC Product and produce TFP product
@@ -120,7 +118,7 @@ namespace trackerTFP {
         for (const FrameStub& frame : streamStub) {
           StubGP* stub = nullptr;
           if (frame.first.isNonnull()) {
-            stubsGP.emplace_back(frame, dataFormats_);
+            stubsGP.emplace_back(frame, dataFormats);
             stub = &stubsGP.back();
           }
           stream.push_back(stub);
@@ -129,7 +127,7 @@ namespace trackerTFP {
       // container for output stubs
       vector<StubHT> stubsHT;
       // object to find initial rough candidates in r-phi in a region
-      HoughTransform ht(setup_, dataFormats_, layerEncoding_, stubsHT);
+      HoughTransform ht(setup, dataFormats, layerEncoding, stubsHT);
       // empty h/w liked organized pointer to output data
       vector<deque<StubHT*>> streamsOut(numChannelOut_);
       // fill output data

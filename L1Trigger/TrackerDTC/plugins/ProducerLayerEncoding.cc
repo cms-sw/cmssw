@@ -23,7 +23,7 @@ namespace trackerDTC {
   public:
     ProducerLayerEncoding(const ParameterSet& iConfig);
     ~ProducerLayerEncoding() override {}
-    unique_ptr<LayerEncoding> produce(const LayerEncodingRcd& rcd);
+    unique_ptr<LayerEncoding> produce(const SetupRcd& rcd);
 
   private:
     ESGetToken<Setup, SetupRcd> esGetToken_;
@@ -34,7 +34,7 @@ namespace trackerDTC {
     esGetToken_ = cc.consumes();
   }
 
-  unique_ptr<LayerEncoding> ProducerLayerEncoding::produce(const LayerEncodingRcd& rcd) {
+  unique_ptr<LayerEncoding> ProducerLayerEncoding::produce(const SetupRcd& rcd) {
     const Setup* setup = &rcd.get(esGetToken_);
     return make_unique<LayerEncoding>(setup);
   }
