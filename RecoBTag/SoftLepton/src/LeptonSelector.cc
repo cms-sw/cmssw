@@ -13,11 +13,12 @@ LeptonSelector::LeptonSelector(const edm::ParameterSet &params)
     : m_sign(option(params.getParameter<std::string>("ipSign"))),
       m_leptonId(reco::SoftLeptonProperties::Quality::btagLeptonCands),
       m_qualityCut(0.5) {
-  if (params.exists("leptonId") || params.exists("qualityCut")) {
-    std::string leptonId = params.getParameter<std::string>("leptonId");
+  std::string leptonId = params.getParameter<std::string>("leptonId");
+  double qualityCut = params.getParameter<double>("qualityCut");
+  if (!leptonId.empty() || qualityCut != m_qualityCut) {
     m_leptonId =
         reco::SoftLeptonProperties::Quality::byName<reco::SoftLeptonProperties::Quality::Generic>(leptonId.c_str());
-    m_qualityCut = params.getParameter<double>("qualityCut");
+    m_qualityCut = qualityCut;
   }
 }
 
@@ -45,4 +46,10 @@ LeptonSelector::sign LeptonSelector::option(const std::string &selection) {
     return positive;
   else
     throw edm::Exception(edm::errors::Configuration) << "invalid parameter specified for soft lepton selection";
+}
+
+void LeptonSelector::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<std::string>("ipSign", "any");
+  desc.add<std::string>("leptonId", "");
+  desc.add<double>("qualityCut", 0.5);
 }

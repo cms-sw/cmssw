@@ -154,6 +154,17 @@ def customizeHLTfor47107(process):
 
     return process
 
+def customizeHLTfor47191(process):
+    for esprod in esproducers_by_type(process, "PromptTrackCountingESProducer"):
+        if hasattr(esprod, 'minimumImpactParameter'):
+            delattr(esprod, 'minimumImpactParameter')
+
+        if hasattr(esprod, 'useSignedImpactParameterSig'):
+            delattr(esprod, 'useSignedImpactParameterSig')
+            
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -167,5 +178,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customizeHLTfor47079(process)
     process = customizeHLTfor47047(process)
     process = customizeHLTfor47107(process)
-
+    process = customizeHLTfor47191(process)
+    
     return process

@@ -486,3 +486,19 @@ TaggingVariableList GhostTrackComputer::operator()(const CandIPTagInfo &ipInfo,
 
   return vars;
 }
+
+void GhostTrackComputer::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<double>("charmCut", 1.5);
+  desc.add<std::string>("trackSort", "sip2dSig")
+      ->setComment("Sorting algorithms: sip3dSig, prob3d, sip2dSig, prob2d, sip2dVal");
+
+  edm::ParameterSetDescription psTrackSel;
+  TrackSelector::fillPSetDescription(psTrackSel);
+  desc.add<edm::ParameterSetDescription>("trackSelection", psTrackSel);
+
+  desc.add<double>("minimumTrackWeight", 0.);
+
+  edm::ParameterSetDescription v0TrackPairSel;
+  V0Filter::fillPSetDescription(v0TrackPairSel);
+  desc.add<edm::ParameterSetDescription>("trackPairV0Filter", v0TrackPairSel);
+}

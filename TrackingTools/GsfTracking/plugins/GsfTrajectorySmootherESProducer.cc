@@ -1,25 +1,23 @@
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
-#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
-
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
-#include "TrackingTools/GsfTracking/interface/GsfPropagatorWithMaterial.h"
-#include "TrackingTools/GsfTracking/interface/GsfMultiStateUpdator.h"
-#include "TrackingTools/GsfTools/interface/MultiGaussianStateMerger.h"
-#include "TrackingTools/GsfTools/interface/CloseComponentsMerger.h"
-#include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
-#include "TrackingTools/GsfTracking/interface/GsfChi2MeasurementEstimator.h"
-#include "TrackingTools/GsfTracking/interface/GsfTrajectorySmoother.h"
-
 #include <string>
 #include <memory>
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/GsfTools/interface/CloseComponentsMerger.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianStateMerger.h"
+#include "TrackingTools/GsfTracking/interface/GsfChi2MeasurementEstimator.h"
+#include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
+#include "TrackingTools/GsfTracking/interface/GsfMultiStateUpdator.h"
+#include "TrackingTools/GsfTracking/interface/GsfPropagatorWithMaterial.h"
+#include "TrackingTools/GsfTracking/interface/GsfTrajectorySmoother.h"
+#include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
 
 /** Provides a GSF smoother algorithm */
 
@@ -82,13 +80,13 @@ std::unique_ptr<TrajectorySmoother> GsfTrajectorySmootherESProducer::produce(con
 
 void GsfTrajectorySmootherESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName");
-  desc.add<std::string>("MaterialEffectsUpdator");
-  desc.add<std::string>("GeometricalPropagator");
-  desc.add<std::string>("Merger");
-  desc.add<std::string>("RecoGeometry");
-  desc.add<double>("ErrorRescaling");
+  desc.add<std::string>("ComponentName", "GsfTrajectorySmoother");
+  desc.add<std::string>("MaterialEffectsUpdator", "ElectronMaterialEffects");
+  desc.add<std::string>("GeometricalPropagator", "bwdAnalyticalPropagator");
+  desc.add<std::string>("Merger", "CloseComponentsMerger5D");
+  desc.add<std::string>("RecoGeometry", "GlobalDetLayerGeometry");
+  desc.add<double>("ErrorRescaling", 100.0);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 DEFINE_FWK_EVENTSETUP_MODULE(GsfTrajectorySmootherESProducer);
