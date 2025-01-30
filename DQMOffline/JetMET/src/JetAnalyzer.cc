@@ -112,26 +112,24 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   if (isScoutingJet_) {
     scoutingPfJetsToken_ = consumes<std::vector<Run3ScoutingPFJet>>(mInputCollection_);
     scoutingMuonsToken_ = consumes<std::vector<Run3ScoutingMuon>>(pSet.getParameter<edm::InputTag>("muonsrc"));
-    scoutingMetToken_ =
-        consumes<double>(edm::InputTag(pSet.getParameter<edm::InputTag>("METCollectionLabel")));
-    scoutingRhoToken_ =
-        consumes<double>(pSet.getParameter<edm::InputTag>("srcRho"));
+    scoutingMetToken_ = consumes<double>(edm::InputTag(pSet.getParameter<edm::InputTag>("METCollectionLabel")));
+    scoutingRhoToken_ = consumes<double>(pSet.getParameter<edm::InputTag>("srcRho"));
   }
   if (isMiniAODJet_) {
     patJetsToken_ = consumes<pat::JetCollection>(mInputCollection_);
     patMetToken_ = consumes<pat::METCollection>(edm::InputTag(pSet.getParameter<edm::InputTag>("METCollectionLabel")));
   }
   cutBasedPUDiscriminantToken_ =
-      consumes<edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputCutPUIDDiscriminant"));
-  cutBasedPUIDToken_ = consumes<edm::ValueMap<int> >(pSet.getParameter<edm::InputTag>("InputCutPUIDValue"));
-  mvaPUIDToken_ = consumes<edm::ValueMap<int> >(pSet.getParameter<edm::InputTag>("InputMVAPUIDValue"));
+      consumes<edm::ValueMap<float>>(pSet.getParameter<edm::InputTag>("InputCutPUIDDiscriminant"));
+  cutBasedPUIDToken_ = consumes<edm::ValueMap<int>>(pSet.getParameter<edm::InputTag>("InputCutPUIDValue"));
+  mvaPUIDToken_ = consumes<edm::ValueMap<int>>(pSet.getParameter<edm::InputTag>("InputMVAPUIDValue"));
   mvaFullPUDiscriminantToken_ =
-      consumes<edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputMVAPUIDDiscriminant"));
+      consumes<edm::ValueMap<float>>(pSet.getParameter<edm::InputTag>("InputMVAPUIDDiscriminant"));
 
-  qgMultiplicityToken_ = consumes<edm::ValueMap<int> >(pSet.getParameter<edm::InputTag>("InputQGMultiplicity"));
-  qgLikelihoodToken_ = consumes<edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputQGLikelihood"));
-  qgptDToken_ = consumes<edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputQGPtDToken"));
-  qgaxis2Token_ = consumes<edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputQGAxis2"));
+  qgMultiplicityToken_ = consumes<edm::ValueMap<int>>(pSet.getParameter<edm::InputTag>("InputQGMultiplicity"));
+  qgLikelihoodToken_ = consumes<edm::ValueMap<float>>(pSet.getParameter<edm::InputTag>("InputQGLikelihood"));
+  qgptDToken_ = consumes<edm::ValueMap<float>>(pSet.getParameter<edm::InputTag>("InputQGPtDToken"));
+  qgaxis2Token_ = consumes<edm::ValueMap<float>>(pSet.getParameter<edm::InputTag>("InputQGAxis2"));
 
   fill_CHS_histos = pSet.getParameter<bool>("fillCHShistos");
 
@@ -141,7 +139,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   // JetID definitions for Calo and JPT Jets
   if (isCaloJet_) {
     inputJetIDValueMap = pSet.getParameter<edm::InputTag>("InputJetIDValueMap");
-    jetID_ValueMapToken_ = consumes<edm::ValueMap<reco::JetID> >(inputJetIDValueMap);
+    jetID_ValueMapToken_ = consumes<edm::ValueMap<reco::JetID>>(inputJetIDValueMap);
     if (JetIDVersion_ == "PURE09") {
       jetidversion = JetIDSelectionFunctor::PURE09;
     } else if (JetIDVersion_ == "DQM09") {
@@ -232,8 +230,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   lowPtJetEventFlag_ =
       new GenericTriggerEventFlag(lowptjetparms, consumesCollector(), *this, l1t::UseEventSetupIn::Run);
 
-  highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
-  lowPtJetExpr_ = lowptjetparms.getParameter<std::vector<std::string> >("hltPaths");
+  highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string>>("hltPaths");
+  lowPtJetExpr_ = lowptjetparms.getParameter<std::vector<std::string>>("hltPaths");
 
   processname_ = pSet.getParameter<std::string>("processname");
 
@@ -242,7 +240,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
 
   bypassAllPVChecks_ = cleaningParameters_.getParameter<bool>("bypassAllPVChecks");
   vertexLabel_ = cleaningParameters_.getParameter<edm::InputTag>("vertexCollection");
-  vertexToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexLabel_));
+  vertexToken_ = consumes<std::vector<reco::Vertex>>(edm::InputTag(vertexLabel_));
 
   gtLabel_ = cleaningParameters_.getParameter<edm::InputTag>("gtLabel");
   gtToken_ = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(gtLabel_));
@@ -302,7 +300,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
   }
 
-  jetME = ibooker.book1D("jetReco", "jetReco", 5, 1, 5);      // --> for .../JetMET/Run summary/Jet/.../jetReco plots
+  jetME = ibooker.book1D("jetReco", "jetReco", 5, 1, 5);  // --> for .../JetMET/Run summary/Jet/.../jetReco plots
   //jetME = ibooker.book1D("jetReco", "jetReco", 6, 1, 6);    // use it to include scouting jets
   jetME->setBinLabel(1, "CaloJets", 1);
   jetME->setBinLabel(2, "PFJets", 1);
@@ -413,8 +411,9 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   //mEta_Lo                 = ibooker.book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
   mPhi_Lo = ibooker.book1D("Phi_Lo", "Phi (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
 
-  mPt_Hi = ibooker.book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 100, 0, 1600);   // original binning: 60,0,300
-  mEta_Hi = ibooker.book1D("Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", 100, -6.0, 6.0); //  original binning: etaBin_, etaMin_, etaMax_
+  mPt_Hi = ibooker.book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 100, 0, 1600);  // original binning: 60,0,300
+  mEta_Hi = ibooker.book1D(
+      "Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", 100, -6.0, 6.0);  //  original binning: etaBin_, etaMin_, etaMax_
   mPhi_Hi = ibooker.book1D("Phi_Hi", "Phi (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   mNJets = ibooker.book1D("NJets", "number of jets", 100, 0, 100);
   mNJets_Hi = ibooker.book1D("NJets_Hi", "number of jets (Pass Hi Pt Jet Trigger)", 100, 0, 100);
@@ -1452,38 +1451,39 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     mNeutralEmEnergy = ibooker.book1D("NeutralEmEnergy", "neutral EM energy", 50, 0, 100);
     mHFEMEnergy = ibooker.book1D("HFEMEnergy", "HF EM energy", 50, 0, 100);
     mHOEnergy = ibooker.book1D("HOEnergy", "HO energy", 50, 0, 100);
-    mChargedHadronMultiplicity = ibooker.book1D("ChargedHadronMultiplicity", "charged hadron multiplicity ", 25, 0, 50);  /////// 50,0,100
+    mChargedHadronMultiplicity =
+        ibooker.book1D("ChargedHadronMultiplicity", "charged hadron multiplicity ", 25, 0, 50);  /////// 50,0,100
     mNeutralHadronMultiplicity = ibooker.book1D("NeutralHadronMultiplicity", "neutral hadron multiplicity", 25, 0, 50);
     mMuonMultiplicity = ibooker.book1D("MuonMultiplicity", "muon multiplicity", 25, 0, 50);
     mElectronMultiplicity = ibooker.book1D("ElectronMultiplicity", "electron multiplicity", 25, 0, 50);
     mPhotonMultiplicity = ibooker.book1D("PhotonMultiplicity", "photon multiplicity", 25, 0, 50);
     mHFHadronMultiplicity = ibooker.book1D("HFHadronMultiplicity", "HF hadron multiplicity", 25, 0, 50);
     mHFEMMultiplicity = ibooker.book1D("HFEMMultiplicity", "HF EM multiplicity", 25, 0, 50);
-    
+
     map_of_MEs.insert(
         std::pair<std::string, MonitorElement*>(DirName + "/" + "ChargedHadronEnergy", mChargedHadronEnergy));
     map_of_MEs.insert(
         std::pair<std::string, MonitorElement*>(DirName + "/" + "NeutralHadronEnergy", mNeutralHadronEnergy));
-        map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHadronEnergy", mHFHadronEnergy));
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHadronEnergy", mHFHadronEnergy));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "ChargedEmEnergy", mChargedEmEnergy));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "ChargedMuEnergy", mChargedMuEnergy));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "PhotonEnergy", mPhotonEnergy));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NeutralEmEnergy", mNeutralEmEnergy));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMEnergy", mHFEMEnergy));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HOEnergy", mHOEnergy));
-    map_of_MEs.insert(
-        std::pair<std::string, MonitorElement*>(DirName + "/" + "ChargedHadronMultiplicity", mChargedHadronMultiplicity));
-    map_of_MEs.insert(
-        std::pair<std::string, MonitorElement*>(DirName + "/" + "NeutralHadronMultiplicity", mNeutralHadronMultiplicity));
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "ChargedHadronMultiplicity",
+                                                              mChargedHadronMultiplicity));
+    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NeutralHadronMultiplicity",
+                                                              mNeutralHadronMultiplicity));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MuonMultiplicity", mMuonMultiplicity));
     map_of_MEs.insert(
         std::pair<std::string, MonitorElement*>(DirName + "/" + "ElectronMultiplicity", mElectronMultiplicity));
     map_of_MEs.insert(
         std::pair<std::string, MonitorElement*>(DirName + "/" + "PhotonMultiplicity", mPhotonMultiplicity));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHadronMultiplicity", mHFHadronMultiplicity));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHadronMultiplicity", mHFHadronMultiplicity));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMMultiplicity", mHFEMMultiplicity));
-    
-    
+
     mCHFrac = ibooker.book1D("CHFrac", "CHFrac", 120, -0.1, 1.1);
     mNHFrac = ibooker.book1D("NHFrac", "NHFrac", 120, -0.1, 1.1);
     mCEMFrac = ibooker.book1D("CEMFrac", "CEMFrac", 120, -0.1, 1.1);
@@ -1503,8 +1503,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac", mHFEMFrac));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHFrac", mHFHFrac));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HOFrac", mHOFrac));
-    
-    
+
     // passing low pT trigger
     mCHFrac_Lo = ibooker.book1D("CHFrac_Lo", "CHFrac_Lo", 120, -0.1, 1.1);
     mNHFrac_Lo = ibooker.book1D("NHFrac_Lo", "NHFrac_Lo", 120, -0.1, 1.1);
@@ -1535,7 +1534,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     mHFEMFrac_Hi_altBinning = ibooker.book1D("HFEMFrac_Hi_altBinning", "HFEMFrac_Hi", 60, 0, 1.2);
     mHFHFrac_Hi_altBinning = ibooker.book1D("HFHFrac_Hi_altBinning", "HFHFrac_Hi", 60, 0, 1.2);
     mHOFrac_Hi_altBinning = ibooker.book1D("HOFrac_Hi_altBinning", "HOFrac_Hi", 60, 0, 1.2);
-    
+
     // in Barrel eta region
     mCHFrac_Barrel = ibooker.book1D("CHFrac_Barrel", "CHFrac_Barrel", 120, -0.1, 1.1);
     mNHFrac_Barrel = ibooker.book1D("NHFrac_Barrel", "NHFrac_Barrel", 120, -0.1, 1.1);
@@ -1566,7 +1565,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     mHFEMFrac_Forward = ibooker.book1D("HFEMFrac_Forward", "HFEMFrac_Forward", 120, -0.1, 1.1);
     mHFHFrac_Forward = ibooker.book1D("HFHFrac_Forward", "HFHFrac_Forward", 120, -0.1, 1.1);
     mHOFrac_Forward = ibooker.book1D("HOFrac_Forward", "HOFrac_Forward", 120, -0.1, 1.1);
-    
+
     // in Barrel eta region passing high pT trigger
     mCHFrac_Barrel_Hi = ibooker.book1D("CHFrac_Barrel_Hi", "CHFrac_Barrel_Hi", 120, -0.1, 1.1);
     mNHFrac_Barrel_Hi = ibooker.book1D("NHFrac_Barrel_Hi", "NHFrac_Barrel_Hi", 120, -0.1, 1.1);
@@ -1597,7 +1596,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     mHFEMFrac_Forward_Hi = ibooker.book1D("HFEMFrac_Forward_Hi", "HFEMFrac_Forward_Hi", 120, -0.1, 1.1);
     mHFHFrac_Forward_Hi = ibooker.book1D("HFHFrac_Forward_Hi", "HFHFrac_Forward_Hi", 120, -0.1, 1.1);
     mHOFrac_Forward_Hi = ibooker.book1D("HOFrac_Forward_Hi", "HOFrac_Forward_Hi", 120, -0.1, 1.1);
-    
+
     // passing low pT trigger
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "CHFrac_Lo", mCHFrac_Lo));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NHFrac_Lo", mNHFrac_Lo));
@@ -1619,15 +1618,24 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHFrac_Hi", mHFHFrac_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HOFrac_Hi", mHOFrac_Hi));
     // passing high pT trigger  alternative binning
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "CHFrac_Hi_altBinning", mCHFrac_Hi_altBinning));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NHFrac_Hi_altBinning", mNHFrac_Hi_altBinning));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "CEMFrac_Hi_altBinning", mCEMFrac_Hi_altBinning));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NEMFrac_Hi_altBinning", mNEMFrac_Hi_altBinning));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MuFrac_Hi_altBinning", mMuFrac_Hi_altBinning));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "PhFrac_Hi_altBinning", mPhFrac_Hi_altBinning));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac_Hi_altBinning", mHFEMFrac_Hi_altBinning));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHFrac_Hi_altBinning", mHFHFrac_Hi_altBinning));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HOFrac_Hi_altBinning", mHOFrac_Hi_altBinning));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "CHFrac_Hi_altBinning", mCHFrac_Hi_altBinning));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "NHFrac_Hi_altBinning", mNHFrac_Hi_altBinning));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "CEMFrac_Hi_altBinning", mCEMFrac_Hi_altBinning));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "NEMFrac_Hi_altBinning", mNEMFrac_Hi_altBinning));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "MuFrac_Hi_altBinning", mMuFrac_Hi_altBinning));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "PhFrac_Hi_altBinning", mPhFrac_Hi_altBinning));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac_Hi_altBinning", mHFEMFrac_Hi_altBinning));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHFrac_Hi_altBinning", mHFHFrac_Hi_altBinning));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "HOFrac_Hi_altBinning", mHOFrac_Hi_altBinning));
     // passing high pT trigger
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "CHFrac_Hi", mCHFrac_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NHFrac_Hi", mNHFrac_Hi));
@@ -1668,7 +1676,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac_Forward", mHFEMFrac_Forward));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHFrac_Forward", mHFHFrac_Forward));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HOFrac_Forward", mHOFrac_Forward));
-    
+
     // in Barrel eta region passing high pT trigger
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "CHFrac_Barrel_Hi", mCHFrac_Barrel_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NHFrac_Barrel_Hi", mNHFrac_Barrel_Hi));
@@ -1676,7 +1684,8 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NEMFrac_Barrel_Hi", mNEMFrac_Barrel_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MuFrac_Barrel_Hi", mMuFrac_Barrel_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "PhFrac_Barrel_Hi", mPhFrac_Barrel_Hi));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac_Barrel_Hi", mHFEMFrac_Barrel_Hi));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac_Barrel_Hi", mHFEMFrac_Barrel_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHFrac_Barrel_Hi", mHFHFrac_Barrel_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HOFrac_Barrel_Hi", mHOFrac_Barrel_Hi));
     // in EndCap eta region passing high pT trigger
@@ -1686,20 +1695,25 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NEMFrac_EndCap_Hi", mNEMFrac_EndCap_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MuFrac_EndCap_Hi", mMuFrac_EndCap_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "PhFrac_EndCap_Hi", mPhFrac_EndCap_Hi));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac_EndCap_Hi", mHFEMFrac_EndCap_Hi));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac_EndCap_Hi", mHFEMFrac_EndCap_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHFrac_EndCap_Hi", mHFHFrac_EndCap_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HOFrac_EndCap_Hi", mHOFrac_EndCap_Hi));
     // in Forward eta region passing high pT trigger
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "CHFrac_Forward_Hi", mCHFrac_Forward_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NHFrac_Forward_Hi", mNHFrac_Forward_Hi));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "CEMFrac_Forward_Hi", mCEMFrac_Forward_Hi));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NEMFrac_Forward_Hi", mNEMFrac_Forward_Hi));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "CEMFrac_Forward_Hi", mCEMFrac_Forward_Hi));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "NEMFrac_Forward_Hi", mNEMFrac_Forward_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MuFrac_Forward_Hi", mMuFrac_Forward_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "PhFrac_Forward_Hi", mPhFrac_Forward_Hi));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac_Forward_Hi", mHFEMFrac_Forward_Hi));
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHFrac_Forward_Hi", mHFHFrac_Forward_Hi));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac_Forward_Hi", mHFEMFrac_Forward_Hi));
+    map_of_MEs.insert(
+        std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHFrac_Forward_Hi", mHFHFrac_Forward_Hi));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HOFrac_Forward_Hi", mHOFrac_Forward_Hi));
-    }
+  }
   //
   if (isMiniAODJet_) {
     mMass_Barrel = ibooker.book1D("JetMass_Barrel", "JetMass_Barrel", 50, 0, 250);
@@ -1990,10 +2004,12 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   cleanupME->setBinLabel(7, "DCS::HF");
   cleanupME->setBinLabel(8, "DCS::HO");
   cleanupME->setBinLabel(9, "DCS::Muon");
-  map_of_MEs.insert(std::pair<std::string, MonitorElement*>("JetMET/cleanup", cleanupME)); // ### plot in JetMET (not in JetMET/Jet/)
+  map_of_MEs.insert(
+      std::pair<std::string, MonitorElement*>("JetMET/cleanup", cleanupME));  // ### plot in JetMET (not in JetMET/Jet/)
 
   verticesME = ibooker.book1D("vertices", "vertices", 100, 0, 100);
-  map_of_MEs.insert(std::pair<std::string, MonitorElement*>("JetMET/vertices", verticesME)); // ### plot in JetMET (not in JetMET/Jet/)
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>("JetMET/vertices",
+                                                            verticesME));  // ### plot in JetMET (not in JetMET/Jet/)
 }
 
 void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker& ibooker) {
@@ -2498,7 +2514,7 @@ void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker& ibo
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFEMFrac_profile", mHFEMFrac_profile));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "HFHFrac_profile", mHFHFrac_profile));
   }
-  
+
   if (isScoutingJet_) {
     mCHFrac = ibooker.book1D("CHFrac", "CHFrac", 120, -0.1, 1.1);
     mNHFrac = ibooker.book1D("NHFrac", "NHFrac", 120, -0.1, 1.1);
@@ -2576,15 +2592,15 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
   }
 
-  Handle<ValueMap<float> > puJetIdMva;
-  Handle<ValueMap<int> > puJetIdFlagMva;
-  Handle<ValueMap<float> > puJetId;
-  Handle<ValueMap<int> > puJetIdFlag;
+  Handle<ValueMap<float>> puJetIdMva;
+  Handle<ValueMap<int>> puJetIdFlagMva;
+  Handle<ValueMap<float>> puJetId;
+  Handle<ValueMap<int>> puJetIdFlag;
 
-  Handle<ValueMap<int> > qgMultiplicity;
-  Handle<ValueMap<float> > qgLikelihood;
-  Handle<ValueMap<float> > qgptD;
-  Handle<ValueMap<float> > qgaxis2;
+  Handle<ValueMap<int>> qgMultiplicity;
+  Handle<ValueMap<float>> qgLikelihood;
+  Handle<ValueMap<float>> qgptD;
+  Handle<ValueMap<float>> qgaxis2;
 
   //should insure we have a PFJet in with CHS
   if (fill_CHS_histos) {
@@ -2620,7 +2636,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       else if (triggerNames.triggerName(i).find(lowPtJetExpr_[0].substr(0, lowPtJetExpr_[0].rfind("_v") + 2)) !=
                    std::string::npos &&
                triggerResults->accept(i))
-        JetLoPass = 1; 
+        JetLoPass = 1;
     }
   }
 
@@ -2845,13 +2861,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
   }
-  
+
   if (isScoutingJet_)
     iEvent.getByToken(scoutingPfJetsToken_, scoutingJets);
   if (isMiniAODJet_)
     iEvent.getByToken(patJetsToken_, patJets);
 
-  edm::Handle<edm::ValueMap<reco::JetID> > jetID_ValueMap_Handle;
+  edm::Handle<edm::ValueMap<reco::JetID>> jetID_ValueMap_Handle;
   if (/*isJPTJet_ || */ isCaloJet_) {
     if (!runcosmics_) {
       iEvent.getByToken(jetID_ValueMapToken_, jetID_ValueMap_Handle);
@@ -2871,16 +2887,14 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (isMiniAODJet_)
     jetCollectionIsValid = patJets.isValid();
 
-  if (jetCleaningFlag_ && (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision)) // why "jetCleaningFlag_ &&" ???
+  if (jetCleaningFlag_ && (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision))  // why "jetCleaningFlag_ &&" ???
     return;
-  
-  if (isScoutingJet_) 
-  {
+
+  if (isScoutingJet_) {
     if (!scoutingJets.isValid())
       return;
   }
 
-    
   unsigned int collSize = -1;
   if (isCaloJet_)
     collSize = caloJets->size();
@@ -2954,11 +2968,14 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     reco::PFJet dummy_scoutingpfjet;
     if (isScoutingJet_) {
-    reco::Particle::PolarLorentzVector dummy_scoutingpfjetP4((*scoutingJets)[ijet].pt(), (*scoutingJets)[ijet].eta(), (*scoutingJets)[ijet].phi(), (*scoutingJets)[ijet].m());
-    dummy_scoutingpfjet.setP4(dummy_scoutingpfjetP4);
-    dummy_scoutingpfjet.setJetArea((*scoutingJets)[ijet].jetArea());
+      reco::Particle::PolarLorentzVector dummy_scoutingpfjetP4((*scoutingJets)[ijet].pt(),
+                                                               (*scoutingJets)[ijet].eta(),
+                                                               (*scoutingJets)[ijet].phi(),
+                                                               (*scoutingJets)[ijet].m());
+      dummy_scoutingpfjet.setP4(dummy_scoutingpfjetP4);
+      dummy_scoutingpfjet.setJetArea((*scoutingJets)[ijet].jetArea());
     }
-    
+
     if (isCaloJet_) {
       correctedJet = (*caloJets)[ijet];
     }
@@ -2966,7 +2983,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //correctedJet=(*jptJets)[ijet];
     //}
     if (isPFJet_) {
-      correctedJet = (*pfJets)[ijet];      
+      correctedJet = (*pfJets)[ijet];
     }
     if (isPUPPIJet_) {
       correctedJet = (*puppiJets)[ijet];
@@ -2976,8 +2993,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     if (isScoutingJet_) {
       ////pass_uncorrected = true;
-      correctedJet = dummy_scoutingpfjet;      
-    }    
+      correctedJet = dummy_scoutingpfjet;
+    }
     if ((!isMiniAODJet_) && correctedJet.pt() > ptThresholdUnc_) {  //ptThresholdUnc_=30
       pass_uncorrected = true;
     }
@@ -2995,60 +3012,61 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         scale = jetCorr->correction((*puppiJets)[ijet]);
       }
       if (isScoutingJet_) {
-        scale = jetCorr->correction(dummy_scoutingpfjet);        
+        scale = jetCorr->correction(dummy_scoutingpfjet);
       }
       correctedJet.scaleEnergy(scale);
     }
-    if (correctedJet.pt() > ptThreshold_) { //ptThresholdUnc_=20
+    if (correctedJet.pt() > ptThreshold_) {  //ptThresholdUnc_=20
       pass_corrected = true;
     }
     //if (!pass_corrected && !pass_uncorrected) continue;
     //remove the continue line, for physics selections we might losen the pt-thresholds as we care only about leading jets
 
-
     numofscoutingjets++;
     if (isScoutingJet_) {
-      jetEnergy = (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() + (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].muonEnergy() + (*scoutingJets)[ijet].HFEMEnergy();
-      
+      jetEnergy = (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() +
+                  (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() +
+                  (*scoutingJets)[ijet].muonEnergy() + (*scoutingJets)[ijet].HFEMEnergy();
+
       if (pass_uncorrected) {
-      mPt_uncor = map_of_MEs[DirName + "/" + "Pt_uncor"];
-      if (mPt_uncor && mPt_uncor->getRootObject())
-        mPt_uncor->Fill((*scoutingJets)[ijet].pt());
-      mEta_uncor = map_of_MEs[DirName + "/" + "Eta_uncor"];
-      if (mEta_uncor && mEta_uncor->getRootObject())
-        mEta_uncor->Fill((*scoutingJets)[ijet].eta());
-      mPhi_uncor = map_of_MEs[DirName + "/" + "Phi_uncor"];
-      if (mPhi_uncor && mPhi_uncor->getRootObject())
-        mPhi_uncor->Fill((*scoutingJets)[ijet].phi());
-      mJetArea_uncor = map_of_MEs[DirName + "/" + "JetArea_uncor"];
-      if (mJetArea_uncor && mJetArea_uncor->getRootObject())
-        mJetArea_uncor->Fill((*scoutingJets)[ijet].jetArea());
+        mPt_uncor = map_of_MEs[DirName + "/" + "Pt_uncor"];
+        if (mPt_uncor && mPt_uncor->getRootObject())
+          mPt_uncor->Fill((*scoutingJets)[ijet].pt());
+        mEta_uncor = map_of_MEs[DirName + "/" + "Eta_uncor"];
+        if (mEta_uncor && mEta_uncor->getRootObject())
+          mEta_uncor->Fill((*scoutingJets)[ijet].eta());
+        mPhi_uncor = map_of_MEs[DirName + "/" + "Phi_uncor"];
+        if (mPhi_uncor && mPhi_uncor->getRootObject())
+          mPhi_uncor->Fill((*scoutingJets)[ijet].phi());
+        mJetArea_uncor = map_of_MEs[DirName + "/" + "JetArea_uncor"];
+        if (mJetArea_uncor && mJetArea_uncor->getRootObject())
+          mJetArea_uncor->Fill((*scoutingJets)[ijet].jetArea());
       }
-      
+
       if (pass_corrected) {
-      mPt = map_of_MEs[DirName + "/" + "Pt"];
-      if (mPt && mPt->getRootObject())
-        mPt->Fill(correctedJet.pt());
-      mEta = map_of_MEs[DirName + "/" + "Eta"];
-      if (mEta && mEta->getRootObject())
-        mEta->Fill(correctedJet.eta());
-      mPhi = map_of_MEs[DirName + "/" + "Phi"];
-      if (mPhi && mPhi->getRootObject())
-        mPhi->Fill(correctedJet.phi());
-      mJetArea = map_of_MEs[DirName + "/" + "JetArea"];
-      if (mJetArea && mJetArea->getRootObject())
-        mJetArea->Fill(correctedJet.jetArea());
-      //if (fabs((*scoutingJets)[ijet].eta()) <= 0.5 && 30 <= (*scoutingJets)[ijet].pt() <= 50) {
-      mJetEnergyCorr = map_of_MEs[DirName + "/" + "JetEnergyCorr"];
-      if (mJetEnergyCorr && mJetEnergyCorr->getRootObject())
-        mJetEnergyCorr->Fill(correctedJet.pt() / (*scoutingJets)[ijet].pt());
-      mJetEnergyCorrVSEta = map_of_MEs[DirName + "/" + "JetEnergyCorrVSEta"];
-      if (mJetEnergyCorrVSEta && mJetEnergyCorrVSEta->getRootObject())
-        mJetEnergyCorrVSEta->Fill(correctedJet.eta(), correctedJet.pt() / (*scoutingJets)[ijet].pt());
-      mJetEnergyCorrVSPt = map_of_MEs[DirName + "/" + "JetEnergyCorrVSPt"];
-      if (mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject())
-        mJetEnergyCorrVSPt->Fill(correctedJet.pt(), correctedJet.pt() / (*scoutingJets)[ijet].pt());
-      //}
+        mPt = map_of_MEs[DirName + "/" + "Pt"];
+        if (mPt && mPt->getRootObject())
+          mPt->Fill(correctedJet.pt());
+        mEta = map_of_MEs[DirName + "/" + "Eta"];
+        if (mEta && mEta->getRootObject())
+          mEta->Fill(correctedJet.eta());
+        mPhi = map_of_MEs[DirName + "/" + "Phi"];
+        if (mPhi && mPhi->getRootObject())
+          mPhi->Fill(correctedJet.phi());
+        mJetArea = map_of_MEs[DirName + "/" + "JetArea"];
+        if (mJetArea && mJetArea->getRootObject())
+          mJetArea->Fill(correctedJet.jetArea());
+        //if (fabs((*scoutingJets)[ijet].eta()) <= 0.5 && 30 <= (*scoutingJets)[ijet].pt() <= 50) {
+        mJetEnergyCorr = map_of_MEs[DirName + "/" + "JetEnergyCorr"];
+        if (mJetEnergyCorr && mJetEnergyCorr->getRootObject())
+          mJetEnergyCorr->Fill(correctedJet.pt() / (*scoutingJets)[ijet].pt());
+        mJetEnergyCorrVSEta = map_of_MEs[DirName + "/" + "JetEnergyCorrVSEta"];
+        if (mJetEnergyCorrVSEta && mJetEnergyCorrVSEta->getRootObject())
+          mJetEnergyCorrVSEta->Fill(correctedJet.eta(), correctedJet.pt() / (*scoutingJets)[ijet].pt());
+        mJetEnergyCorrVSPt = map_of_MEs[DirName + "/" + "JetEnergyCorrVSPt"];
+        if (mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject())
+          mJetEnergyCorrVSPt->Fill(correctedJet.pt(), correctedJet.pt() / (*scoutingJets)[ijet].pt());
+        //}
       }
       //mConstituents = map_of_MEs[DirName + "/" + "Constituents"];
       //if (mConstituents && mConstituents->getRootObject())
@@ -3062,8 +3080,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       mPhi_profile = map_of_MEs[DirName + "/" + "Phi_profile"];
       if (mPhi_profile && mPhi_profile->getRootObject())
         mPhi_profile->Fill(numPV, (*scoutingJets)[ijet].phi());
-      
-      
+
       //mConstituents_uncor = map_of_MEs[DirName + "/" + "Constituents_uncor"];
       //if (mConstituents_uncor && mConstituents_uncor->getRootObject())
       //  mConstituents_uncor->Fill((*scoutingJets)[ijet].constituents());
@@ -3076,7 +3093,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       mChargedEmEnergy = map_of_MEs[DirName + "/" + "ChargedEmEnergy"];
       if (mChargedEmEnergy && mChargedEmEnergy->getRootObject())
         mChargedEmEnergy->Fill((*scoutingJets)[ijet].electronEnergy());
-      mChargedMuEnergy = map_of_MEs[DirName + "/" + "ChargedMuEnergy"];  
+      mChargedMuEnergy = map_of_MEs[DirName + "/" + "ChargedMuEnergy"];
       if (mChargedMuEnergy && mChargedMuEnergy->getRootObject())
         mChargedMuEnergy->Fill((*scoutingJets)[ijet].muonEnergy());
       mHFHadronEnergy = map_of_MEs[DirName + "/" + "HFHadronEnergy"];
@@ -3084,7 +3101,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mHFHadronEnergy->Fill((*scoutingJets)[ijet].HFHadronEnergy());
       mPhotonEnergy = map_of_MEs[DirName + "/" + "PhotonEnergy"];
       if (mPhotonEnergy && mPhotonEnergy->getRootObject())
-        mPhotonEnergy->Fill((*scoutingJets)[ijet].photonEnergy());   
+        mPhotonEnergy->Fill((*scoutingJets)[ijet].photonEnergy());
       mNeutralEmEnergy = map_of_MEs[DirName + "/" + "NeutralEmEnergy"];
       if (mNeutralEmEnergy && mNeutralEmEnergy->getRootObject())
         mNeutralEmEnergy->Fill((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy());
@@ -3121,9 +3138,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       mHOFrac = map_of_MEs[DirName + "/" + "HOFrac"];
       if (mHOFrac && mHOFrac->getRootObject())
         mHOFrac->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
-      
+
       TLorentzVector vec;
-      vec.SetPtEtaPhiM((*scoutingJets)[ijet].pt(),(*scoutingJets)[ijet].eta(),(*scoutingJets)[ijet].phi(),(*scoutingJets)[ijet].m());
+      vec.SetPtEtaPhiM((*scoutingJets)[ijet].pt(),
+                       (*scoutingJets)[ijet].eta(),
+                       (*scoutingJets)[ijet].phi(),
+                       (*scoutingJets)[ijet].m());
       vec.Energy();
 
       if (fabs((*scoutingJets)[ijet].eta()) <= 1.3) {
@@ -3147,7 +3167,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           mCEMFrac_Barrel->Fill((*scoutingJets)[ijet].electronEnergy() / jetEnergy);
         mNEMFrac_Barrel = map_of_MEs[DirName + "/" + "NEMFrac_Barrel"];
         if (mNEMFrac_Barrel && mNEMFrac_Barrel->getRootObject())
-          mNEMFrac_Barrel->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) / jetEnergy);
+          mNEMFrac_Barrel->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) /
+                                jetEnergy);
         mMuFrac_Barrel = map_of_MEs[DirName + "/" + "MuFrac_Barrel"];
         if (mMuFrac_Barrel && mMuFrac_Barrel->getRootObject())
           mMuFrac_Barrel->Fill((*scoutingJets)[ijet].muonEnergy() / jetEnergy);
@@ -3162,8 +3183,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           mHFHFrac_Barrel->Fill((*scoutingJets)[ijet].HFHadronEnergy() / jetEnergy);
         mHOFrac_Barrel = map_of_MEs[DirName + "/" + "HOFrac_Barrel"];
         if (mHOFrac_Barrel && mHOFrac_Barrel->getRootObject())
-          mHOFrac_Barrel->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));  
-      } else if (fabs((*scoutingJets)[ijet].eta()) <= 3.0) {      
+          mHOFrac_Barrel->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
+      } else if (fabs((*scoutingJets)[ijet].eta()) <= 3.0) {
         mPt_EndCap = map_of_MEs[DirName + "/" + "Pt_EndCap"];
         if (mPt_EndCap && mPt_EndCap->getRootObject())
           mPt_EndCap->Fill((*scoutingJets)[ijet].pt());
@@ -3184,7 +3205,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           mCEMFrac_EndCap->Fill((*scoutingJets)[ijet].electronEnergy() / jetEnergy);
         mNEMFrac_EndCap = map_of_MEs[DirName + "/" + "NEMFrac_EndCap"];
         if (mNEMFrac_EndCap && mNEMFrac_EndCap->getRootObject())
-          mNEMFrac_EndCap->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) / jetEnergy);
+          mNEMFrac_EndCap->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) /
+                                jetEnergy);
         mMuFrac_EndCap = map_of_MEs[DirName + "/" + "MuFrac_EndCap"];
         if (mMuFrac_EndCap && mMuFrac_EndCap->getRootObject())
           mMuFrac_EndCap->Fill((*scoutingJets)[ijet].muonEnergy() / jetEnergy);
@@ -3199,7 +3221,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           mHFHFrac_EndCap->Fill((*scoutingJets)[ijet].HFHadronEnergy() / jetEnergy);
         mHOFrac_EndCap = map_of_MEs[DirName + "/" + "HOFrac_EndCap"];
         if (mHOFrac_EndCap && mHOFrac_EndCap->getRootObject())
-          mHOFrac_EndCap->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));  
+          mHOFrac_EndCap->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
       } else if (fabs((*scoutingJets)[ijet].eta()) <= 5.0) {
         mPt_Forward = map_of_MEs[DirName + "/" + "Pt_Forward"];
         if (mPt_Forward && mPt_Forward->getRootObject())
@@ -3221,7 +3243,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           mCEMFrac_Forward->Fill((*scoutingJets)[ijet].electronEnergy() / jetEnergy);
         mNEMFrac_Forward = map_of_MEs[DirName + "/" + "NEMFrac_Forward"];
         if (mNEMFrac_Forward && mNEMFrac_Forward->getRootObject())
-          mNEMFrac_Forward->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) / jetEnergy);
+          mNEMFrac_Forward->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) /
+                                 jetEnergy);
         mMuFrac_Forward = map_of_MEs[DirName + "/" + "MuFrac_Forward"];
         if (mMuFrac_Forward && mMuFrac_Forward->getRootObject())
           mMuFrac_Forward->Fill((*scoutingJets)[ijet].muonEnergy() / jetEnergy);
@@ -3238,7 +3261,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         if (mHOFrac_Forward && mHOFrac_Forward->getRootObject())
           mHOFrac->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
       }
-      
+
       //std::cout << "For Scouting jets: Trigger  Lo = " << JetLoPass << " and Trigger  Hi = " << JetHiPass << std::endl;
       if (JetLoPass == 1) {
         //std::cout << "For Scouting jets: Trigger  Lo = " << JetLoPass << std::endl;
@@ -3268,11 +3291,11 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           mHFHFrac_Lo->Fill((*scoutingJets)[ijet].HFHadronEnergy() / jetEnergy);
         mHOFrac_Lo = map_of_MEs[DirName + "/" + "HOFrac_Lo"];
         if (mHOFrac_Lo && mHOFrac_Lo->getRootObject())
-          mHOFrac_Lo->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));  
+          mHOFrac_Lo->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
       }
       if (JetHiPass == 1) {
         //std::cout << "For Scouting jets: Trigger  Hi = " << JetHiPass << std::endl;
-       //if ((*scoutingJets)[ijet].pt() >= 60) { 
+        //if ((*scoutingJets)[ijet].pt() >= 60) {
         mPt_Hi = map_of_MEs[DirName + "/" + "Pt_Hi"];
         if (mPt_Hi && mPt_Hi->getRootObject())
           mPt_Hi->Fill((*scoutingJets)[ijet].pt());
@@ -3320,7 +3343,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           mCEMFrac_Hi_altBinning->Fill((*scoutingJets)[ijet].electronEnergy() / jetEnergy);
         mNEMFrac_Hi_altBinning = map_of_MEs[DirName + "/" + "NEMFrac_Hi_altBinning"];
         if (mNEMFrac_Hi_altBinning && mNEMFrac_Hi_altBinning->getRootObject())
-          mNEMFrac_Hi_altBinning->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) / jetEnergy);
+          mNEMFrac_Hi_altBinning->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) /
+                                       jetEnergy);
         mMuFrac_Hi_altBinning = map_of_MEs[DirName + "/" + "MuFrac_Hi_altBinning"];
         if (mMuFrac_Hi_altBinning && mMuFrac_Hi_altBinning->getRootObject())
           mMuFrac_Hi_altBinning->Fill((*scoutingJets)[ijet].muonEnergy() / jetEnergy);
@@ -3335,7 +3359,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           mHFHFrac_Hi_altBinning->Fill((*scoutingJets)[ijet].HFHadronEnergy() / jetEnergy);
         mHOFrac_Hi_altBinning = map_of_MEs[DirName + "/" + "HOFrac_Hi_altBinning"];
         if (mHOFrac_Hi_altBinning && mHOFrac_Hi_altBinning->getRootObject())
-          mHOFrac_Hi_altBinning->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
+          mHOFrac_Hi_altBinning->Fill((*scoutingJets)[ijet].HOEnergy() /
+                                      (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
         mChargedHadronMultiplicity = map_of_MEs[DirName + "/" + "ChargedHadronMultiplicity"];
         if (mChargedHadronMultiplicity && mChargedHadronMultiplicity->getRootObject())
           mChargedHadronMultiplicity->Fill((*scoutingJets)[ijet].chargedHadronMultiplicity());
@@ -3357,7 +3382,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mHFEMMultiplicity = map_of_MEs[DirName + "/" + "HFEMMultiplicity"];
         if (mHFEMMultiplicity && mHFEMMultiplicity->getRootObject())
           mHFEMMultiplicity->Fill((*scoutingJets)[ijet].HFEMMultiplicity());
-      //}  //closing if scoutingjet.pT>=60 GeV
+        //}  //closing if scoutingjet.pT>=60 GeV
         if (fabs((*scoutingJets)[ijet].eta()) <= 1.3) {
           mPt_Barrel_Hi = map_of_MEs[DirName + "/" + "Pt_Barrel_Hi"];
           if (mPt_Barrel_Hi && mPt_Barrel_Hi->getRootObject())
@@ -3379,7 +3404,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
             mCEMFrac_Barrel_Hi->Fill((*scoutingJets)[ijet].electronEnergy() / jetEnergy);
           mNEMFrac_Barrel_Hi = map_of_MEs[DirName + "/" + "NEMFrac_Barrel_Hi"];
           if (mNEMFrac_Barrel_Hi && mNEMFrac_Barrel_Hi->getRootObject())
-            mNEMFrac_Barrel_Hi->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) / jetEnergy);
+            mNEMFrac_Barrel_Hi->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) /
+                                     jetEnergy);
           mMuFrac_Barrel_Hi = map_of_MEs[DirName + "/" + "MuFrac_Barrel_Hi"];
           if (mMuFrac_Barrel_Hi && mMuFrac_Barrel_Hi->getRootObject())
             mMuFrac_Barrel_Hi->Fill((*scoutingJets)[ijet].muonEnergy() / jetEnergy);
@@ -3394,8 +3420,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
             mHFHFrac_Barrel_Hi->Fill((*scoutingJets)[ijet].HFHadronEnergy() / jetEnergy);
           mHOFrac_Barrel_Hi = map_of_MEs[DirName + "/" + "HOFrac_Barrel_Hi"];
           if (mHOFrac_Barrel_Hi && mHOFrac_Barrel_Hi->getRootObject())
-            mHOFrac_Barrel_Hi->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));  
-        } else if (fabs((*scoutingJets)[ijet].eta()) <= 3.0) {      
+            mHOFrac_Barrel_Hi->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
+        } else if (fabs((*scoutingJets)[ijet].eta()) <= 3.0) {
           mPt_EndCap_Hi = map_of_MEs[DirName + "/" + "Pt_EndCap_Hi"];
           if (mPt_EndCap_Hi && mPt_EndCap_Hi->getRootObject())
             mPt_EndCap_Hi->Fill((*scoutingJets)[ijet].pt());
@@ -3416,7 +3442,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
             mCEMFrac_EndCap_Hi->Fill((*scoutingJets)[ijet].electronEnergy() / jetEnergy);
           mNEMFrac_EndCap_Hi = map_of_MEs[DirName + "/" + "NEMFrac_EndCap_Hi"];
           if (mNEMFrac_EndCap_Hi && mNEMFrac_EndCap_Hi->getRootObject())
-            mNEMFrac_EndCap_Hi->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) / jetEnergy);
+            mNEMFrac_EndCap_Hi->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) /
+                                     jetEnergy);
           mMuFrac_EndCap_Hi = map_of_MEs[DirName + "/" + "MuFrac_EndCap_Hi"];
           if (mMuFrac_EndCap_Hi && mMuFrac_EndCap_Hi->getRootObject())
             mMuFrac_EndCap_Hi->Fill((*scoutingJets)[ijet].muonEnergy() / jetEnergy);
@@ -3431,7 +3458,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
             mHFHFrac_EndCap_Hi->Fill((*scoutingJets)[ijet].HFHadronEnergy() / jetEnergy);
           mHOFrac_EndCap_Hi = map_of_MEs[DirName + "/" + "HOFrac_EndCap_Hi"];
           if (mHOFrac_EndCap_Hi && mHOFrac_EndCap_Hi->getRootObject())
-            mHOFrac_EndCap_Hi->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));  
+            mHOFrac_EndCap_Hi->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
         } else if (fabs((*scoutingJets)[ijet].eta()) <= 5.0) {
           mPt_Forward_Hi = map_of_MEs[DirName + "/" + "Pt_Forward_Hi"];
           if (mPt_Forward_Hi && mPt_Forward_Hi->getRootObject())
@@ -3453,7 +3480,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
             mCEMFrac_Forward_Hi->Fill((*scoutingJets)[ijet].electronEnergy() / jetEnergy);
           mNEMFrac_Forward_Hi = map_of_MEs[DirName + "/" + "NEMFrac_Forward_Hi"];
           if (mNEMFrac_Forward_Hi && mNEMFrac_Forward_Hi->getRootObject())
-            mNEMFrac_Forward_Hi->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) / jetEnergy);
+            mNEMFrac_Forward_Hi->Fill(((*scoutingJets)[ijet].photonEnergy() + (*scoutingJets)[ijet].HFEMEnergy()) /
+                                      jetEnergy);
           mMuFrac_Forward_Hi = map_of_MEs[DirName + "/" + "MuFrac_Forward_Hi"];
           if (mMuFrac_Forward_Hi && mMuFrac_Forward_Hi->getRootObject())
             mMuFrac_Forward_Hi->Fill((*scoutingJets)[ijet].muonEnergy() / jetEnergy);
@@ -3471,7 +3499,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
             mHOFrac->Fill((*scoutingJets)[ijet].HOEnergy() / (jetEnergy + (*scoutingJets)[ijet].HOEnergy()));
         }
       }
-       
+
       /*mChargedHadronMultiplicity = map_of_MEs[DirName + "/" + "ChargedHadronMultiplicity"];   // HFHadronMultiplicity HFEMMultiplicity
       if (mChargedHadronMultiplicity && mChargedHadronMultiplicity->getRootObject())
         mChargedHadronMultiplicity->Fill((*scoutingJets)[ijet].chargedHadronMultiplicity()); //chargedMultiplicity
@@ -3493,12 +3521,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       mHFEMMultiplicity = map_of_MEs[DirName + "/" + "HFEMMultiplicity"];
       if (mHFEMMultiplicity && mHFEMMultiplicity->getRootObject())
         mHFEMMultiplicity->Fill((*scoutingJets)[ijet].HFEMMultiplicity());*/
-  
+
       /*jetME = map_of_MEs[DirName + "/" + "jetReco"];  // does it have any meaning for scouting jets, since no reco takes place?
       if (jetME && jetME->getRootObject())
         jetME->Fill(6);*/
     }
-    
+
     //fill only corrected jets -> check ID for uncorrected jets
     if (pass_corrected) {
       recoJets.push_back(correctedJet);
@@ -4409,7 +4437,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
             if (meHFEMFracPlus_BXm1Filled && meHFEMFracPlus_BXm1Filled->getRootObject())
               meHFEMFracPlus_BXm1Filled->Fill((*pfJets)[ijet].HFEMEnergyFraction());
           }
-        } 
+        }
         /*
 	if(techTriggerResultBx0 && !techTriggerResultBxE && !techTriggerResultBxF){
 	  meEta_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"Eta_BXm2BXm1Empty"];     if (  meEta_BXm2BXm1Empty  && meEta_BXm2BXm1Empty ->getRootObject())  meEta_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].eta());
@@ -4598,7 +4626,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
 
-    if (isScoutingJet_) { //// part for scouting jets for plots with leading and subleading jets
+    if (isScoutingJet_) {  //// part for scouting jets for plots with leading and subleading jets
       //std::cout << "ind " << ijet << " | jet pT " << (*scoutingJets)[ijet].pt() << std::endl;
       if ((*scoutingJets)[ijet].pt() > pt1) {
         pt3 = pt2;
@@ -4617,31 +4645,31 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         ind3 = ijet;
       }
     } else {
-    if (correctedJet.pt() > pt1) {
-      pt3 = pt2;
-      ind3 = ind2;
-      //cleaned_third_jet=cleaned_second_jet;
-      pt2 = pt1;
-      ind2 = ind1;
-      cleaned_second_jet = cleaned_first_jet;
-      pt1 = correctedJet.pt();
-      ind1 = ijet;
-      cleaned_first_jet = JetIDWPU;
-    } else if (correctedJet.pt() > pt2) {
-      pt3 = pt2;
-      ind3 = ind2;
-      //cleaned_third_jet=cleaned_second_jet;
-      pt2 = correctedJet.pt();
-      ind2 = ijet;
-      cleaned_second_jet = JetIDWPU;
-    } else if (correctedJet.pt() > pt3) {
-      pt3 = correctedJet.pt();
-      ind3 = ijet;
-      //cleaned_third_jet=JetIDWPU;
-    }
-    if (!pass_corrected) {
-      continue;
-    }
+      if (correctedJet.pt() > pt1) {
+        pt3 = pt2;
+        ind3 = ind2;
+        //cleaned_third_jet=cleaned_second_jet;
+        pt2 = pt1;
+        ind2 = ind1;
+        cleaned_second_jet = cleaned_first_jet;
+        pt1 = correctedJet.pt();
+        ind1 = ijet;
+        cleaned_first_jet = JetIDWPU;
+      } else if (correctedJet.pt() > pt2) {
+        pt3 = pt2;
+        ind3 = ind2;
+        //cleaned_third_jet=cleaned_second_jet;
+        pt2 = correctedJet.pt();
+        ind2 = ijet;
+        cleaned_second_jet = JetIDWPU;
+      } else if (correctedJet.pt() > pt3) {
+        pt3 = correctedJet.pt();
+        ind3 = ijet;
+        //cleaned_third_jet=JetIDWPU;
+      }
+      if (!pass_corrected) {
+        continue;
+      }
     }
     //after jettype specific variables are filled -> perform histograms for all jets
     //fill JetID efficiencies if uncleaned selection is chosen
@@ -4838,7 +4866,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
               }
             }
           }  //substructure filling for boosted
-        }  //substructure filling
+        }    //substructure filling
       }
       // --- Event passed the low pt jet trigger // the following plots are not filled for calo, pf, pf chs, and puppi jets
       if (jetLoPass_ == 1) {
@@ -4862,34 +4890,34 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           mPt_Hi->Fill(correctedJet.pt());
       }
       if (!isScoutingJet_) {
-      mPt = map_of_MEs[DirName + "/" + "Pt"];
-      if (mPt && mPt->getRootObject())
-        mPt->Fill(correctedJet.pt());
-      mPt_1 = map_of_MEs[DirName + "/" + "Pt_1"];
-      if (mPt_1 && mPt_1->getRootObject())
-        mPt_1->Fill(correctedJet.pt());
-      mPt_2 = map_of_MEs[DirName + "/" + "Pt_2"];
-      if (mPt_2 && mPt_2->getRootObject())
-        mPt_2->Fill(correctedJet.pt());
-      mPt_3 = map_of_MEs[DirName + "/" + "Pt_3"];
-      if (mPt_3 && mPt_3->getRootObject())
-        mPt_3->Fill(correctedJet.pt());
-      mPt_log = map_of_MEs[DirName + "/" + "Pt_log"];
-      if (mPt_log && mPt_log->getRootObject())
-        mPt_log->Fill(log10(correctedJet.pt()));
-      mEta = map_of_MEs[DirName + "/" + "Eta"];
-      if (mEta && mEta->getRootObject())
-        mEta->Fill(correctedJet.eta());
-      mPhi = map_of_MEs[DirName + "/" + "Phi"];
-      if (mPhi && mPhi->getRootObject())
-        mPhi->Fill(correctedJet.phi());
-      mJetArea = map_of_MEs[DirName + "/" + "JetArea"];
-      if (mJetArea && mJetArea->getRootObject())
-        mJetArea->Fill(correctedJet.jetArea());
+        mPt = map_of_MEs[DirName + "/" + "Pt"];
+        if (mPt && mPt->getRootObject())
+          mPt->Fill(correctedJet.pt());
+        mPt_1 = map_of_MEs[DirName + "/" + "Pt_1"];
+        if (mPt_1 && mPt_1->getRootObject())
+          mPt_1->Fill(correctedJet.pt());
+        mPt_2 = map_of_MEs[DirName + "/" + "Pt_2"];
+        if (mPt_2 && mPt_2->getRootObject())
+          mPt_2->Fill(correctedJet.pt());
+        mPt_3 = map_of_MEs[DirName + "/" + "Pt_3"];
+        if (mPt_3 && mPt_3->getRootObject())
+          mPt_3->Fill(correctedJet.pt());
+        mPt_log = map_of_MEs[DirName + "/" + "Pt_log"];
+        if (mPt_log && mPt_log->getRootObject())
+          mPt_log->Fill(log10(correctedJet.pt()));
+        mEta = map_of_MEs[DirName + "/" + "Eta"];
+        if (mEta && mEta->getRootObject())
+          mEta->Fill(correctedJet.eta());
+        mPhi = map_of_MEs[DirName + "/" + "Phi"];
+        if (mPhi && mPhi->getRootObject())
+          mPhi->Fill(correctedJet.phi());
+        mJetArea = map_of_MEs[DirName + "/" + "JetArea"];
+        if (mJetArea && mJetArea->getRootObject())
+          mJetArea->Fill(correctedJet.jetArea());
 
-      mPhiVSEta = map_of_MEs[DirName + "/" + "PhiVSEta"];
-      if (mPhiVSEta && mPhiVSEta->getRootObject())
-        mPhiVSEta->Fill(correctedJet.eta(), correctedJet.phi());
+        mPhiVSEta = map_of_MEs[DirName + "/" + "PhiVSEta"];
+        if (mPhiVSEta && mPhiVSEta->getRootObject())
+          mPhiVSEta->Fill(correctedJet.eta(), correctedJet.phi());
       }
       //if(!isJPTJet_){
       float nConstituents = correctedJet.nConstituents();
@@ -4954,7 +4982,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         //}
       }
     }  // pass ID for corrected jets --> inclusive selection
-  }  //loop over uncorrected jets
+  }    //loop over uncorrected jets
 
   if (isScoutingJet_) {
     mNJets = map_of_MEs[DirName + "/" + "NJets"];
@@ -5533,8 +5561,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
                 mqgLikelihood_highPt_Forward->Fill(QGLikelihood);
             }
           }  //deal with second jet
-        }  //fill quark gluon tagged variables
-      }  //pfjet
+        }    //fill quark gluon tagged variables
+      }      //pfjet
       if (isMiniAODJet_) {
         mJetEnergyCorr = map_of_MEs[DirName + "/" + "JetEnergyCorr"];
         if (mJetEnergyCorr && mJetEnergyCorr->getRootObject())
@@ -5811,9 +5839,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           }  // end restriction on third jet pt ratio in balance calculation
 
         }  // dPhi > 2.7 for dijetbalance and asymmetrie
-      }  //leading jet in barrel
-    }  //DPhi cut of 2.1
-  }  //dijet selection, check if both leading jets are IDed
+      }    //leading jet in barrel
+    }      //DPhi cut of 2.1
+  }        //dijet selection, check if both leading jets are IDed
   //now do the ZJets selection -> pass_Z_selection cuts already on the Z-pt>30 GeV
   if (pass_Z_selection && ind1_mu_vetoed >= 0 && pt1_mu_vetoed > 12 && cleaned_first_jet_mu_vetoed && isPFJet_) {
     bool pass_second_jet_mu_vetoed = false;
@@ -6283,7 +6311,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
             }
           }
         }  //fill quark gluon tagged variables
-      }  //jet back to back to Z
-    }  //2nd jet veto
-  }  //Z selection + hard leading jet
+      }    //jet back to back to Z
+    }      //2nd jet veto
+  }        //Z selection + hard leading jet
 }
