@@ -155,7 +155,7 @@ namespace edm {
     void processSwitchProducers(ParameterSet const& proc_pset,
                                 std::string const& processName,
                                 SignallingProductRegistry& preg) {
-      // Update Switch BranchDescriptions for the chosen case
+      // Update Switch ProductDescriptions for the chosen case
       struct BranchesCases {
         BranchesCases(std::vector<std::string> cases) : caseLabels{std::move(cases)} {}
         std::vector<BranchKey> chosenBranches;
@@ -184,7 +184,7 @@ namespace edm {
               continue;
             }
 
-            BranchDescription const& desc = productIter.second;
+            ProductDescription const& desc = productIter.second;
             if (desc.branchType() == prod.second.branchType() and
                 desc.unwrappedTypeID().typeInfo() == prod.second.unwrappedTypeID().typeInfo() and
                 branchKey.moduleLabel() == prod.second.switchAliasModuleLabel() and
@@ -198,7 +198,7 @@ namespace edm {
           }
           if (not found) {
             Exception ex(errors::LogicError);
-            ex << "Trying to find a BranchDescription to be aliased-for by SwitchProducer with\n"
+            ex << "Trying to find a ProductDescription to be aliased-for by SwitchProducer with\n"
                << "  friendly class name = " << prod.second.friendlyClassName() << "\n"
                << "  module label = " << prod.second.moduleLabel() << "\n"
                << "  product instance name = " << prod.second.productInstanceName() << "\n"
@@ -608,7 +608,7 @@ namespace edm {
       detail::processEDAliases(aliases, {}, proc_pset, processConfiguration->processName(), preg);
     }
 
-    // At this point all BranchDescriptions are created. Mark now the
+    // At this point all ProductDescriptions are created. Mark now the
     // ones of unscheduled workers to be on-demand.
     {
       auto const& unsched = streamSchedules_[0]->unscheduledWorkersLumisAndEvents();

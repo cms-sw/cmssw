@@ -1,7 +1,7 @@
 #include "FWCore/Framework/src/insertSelectedProcesses.h"
 
 #include "DataFormats/Common/interface/WrapperBase.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/getAnyPtr.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
@@ -12,7 +12,7 @@
 
 namespace edm {
 
-  void insertSelectedProcesses(BranchDescription const& desc,
+  void insertSelectedProcesses(ProductDescription const& desc,
                                std::set<std::string>& processes,
                                std::set<std::string>& processesWithKeptProcessBlockProducts) {
     // Select input processes in which mergeable run products were produced

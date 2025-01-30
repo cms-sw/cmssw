@@ -2,6 +2,7 @@
 #define FWCore_Framework_SubProcess_h
 
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
@@ -30,7 +31,6 @@
 
 namespace edm {
   class ActivityRegistry;
-  class BranchDescription;
   class BranchIDListHelper;
   class EventPrincipal;
   class EventSetupImpl;
@@ -250,8 +250,8 @@ namespace edm {
     bool parentProducedProductIsKept(Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(
         std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
-    void keepThisBranch(BranchDescription const& desc,
-                        std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+    void keepThisBranch(ProductDescription const& desc,
+                        std::map<BranchID, ProductDescription const*>& trueBranchIDToKeptBranchDesc,
                         std::set<BranchID>& keptProductsInEvent);
 
     std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID() {
@@ -296,10 +296,10 @@ namespace edm {
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<ParameterSet>> processParameterSet_;
 
-    // keptProducts_ are pointers to the BranchDescription objects describing
+    // keptProducts_ are pointers to the ProductDescription objects describing
     // the branches we are to write.
     //
-    // We do not own the BranchDescriptions to which we point.
+    // We do not own the ProductDescriptions to which we point.
     SelectedProductsForBranchType keptProducts_;
     ProductSelectorRules productSelectorRules_;
     ProductSelector productSelector_;

@@ -4,7 +4,7 @@
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -73,7 +73,7 @@ namespace edm {
   }
 
   std::size_t TransformerBase::findMatchingIndex(ProducerBase const& iBase,
-                                                 edm::BranchDescription const& iBranch) const noexcept {
+                                                 edm::ProductDescription const& iBranch) const noexcept {
     auto const& list = iBase.typeLabelList();
 
     std::size_t index = 0;

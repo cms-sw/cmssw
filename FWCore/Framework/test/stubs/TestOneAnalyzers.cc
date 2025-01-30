@@ -12,7 +12,7 @@ for testing purposes only.
 #include <tuple>
 #include <vector>
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/CacheHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,7 +37,7 @@ namespace edmtest {
     public:
       explicit SharedResourcesAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {
         usesResource("foo");
-        callWhenNewProductsRegistered([](edm::BranchDescription const& desc) {
+        callWhenNewProductsRegistered([](edm::ProductDescription const& desc) {
           std::cout << "one::SharedResourcesAnalyzer " << desc.moduleLabel() << std::endl;
         });
       }

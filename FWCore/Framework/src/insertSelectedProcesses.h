@@ -3,12 +3,11 @@
 
 #include <set>
 #include <string>
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 namespace edm {
 
-  class BranchDescription;
-
-  void insertSelectedProcesses(BranchDescription const& desc,
+  void insertSelectedProcesses(ProductDescription const& desc,
                                std::set<std::string>& processes,
                                std::set<std::string>& processesWithKeptProcessBlockProducts);
 }  // namespace edm

@@ -309,7 +309,7 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
   // DQM module labels.
   // This is needed to support unscheduled DQM modules now that
   // non-consumed EDProducers are deleted from the job at beginJob.
-  callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+  callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
     m_getterOfProductsLumi(bd);
     m_getterOfProductsRun(bd);
   });

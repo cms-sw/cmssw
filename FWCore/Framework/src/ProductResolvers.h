@@ -12,7 +12,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include "FWCore/Framework/src/ProductPutOrMergerBase.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/ProductData.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/Principal.h"
@@ -51,7 +51,7 @@ namespace edm {
   public:
     enum class ProductStatus { ProductSet, NotPut, ResolveFailed, ResolveNotRun, ProductDeleted };
 
-    DataManagingProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus)
+    DataManagingProductResolver(std::shared_ptr<ProductDescription const> bd, ProductStatus iDefaultStatus)
         : DataManagingOrAliasProductResolver(),
           productData_(bd),
           theStatus_(iDefaultStatus),
@@ -86,9 +86,9 @@ namespace edm {
     bool productWasDeleted_() const final;
     bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final;
 
-    BranchDescription const& branchDescription_() const final { return *getProductData().branchDescription(); }
-    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) final {
-      productData_.resetBranchDescription(bd);
+    ProductDescription const& productDescription_() const final { return *getProductData().productDescription(); }
+    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) final {
+      productData_.resetProductDescription(bd);
     }
     Provenance const* provenance_() const final { return &productData_.provenance(); }
 
@@ -105,7 +105,7 @@ namespace edm {
 
   class MergeableInputProductResolver : public DataManagingProductResolver {
   public:
-    MergeableInputProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus)
+    MergeableInputProductResolver(std::shared_ptr<ProductDescription const> bd, ProductStatus iDefaultStatus)
         : DataManagingProductResolver(bd, iDefaultStatus) {}
 
   protected:
@@ -118,7 +118,7 @@ namespace edm {
 
   class DelayedReaderInputProductResolver : public MergeableInputProductResolver {
   public:
-    explicit DelayedReaderInputProductResolver(std::shared_ptr<BranchDescription const> bd)
+    explicit DelayedReaderInputProductResolver(std::shared_ptr<ProductDescription const> bd)
         : MergeableInputProductResolver(bd, ProductStatus::ResolveNotRun), m_prefetchRequested{false}, aux_{nullptr} {
       assert(bd->onDemand());
       assert(not bd->produced());
@@ -158,7 +158,7 @@ namespace edm {
                                         public ProductPutterBase,
                                         public ProductPutOrMergerBase {
   public:
-    PutOnReadInputProductResolver(std::shared_ptr<BranchDescription const> bd)
+    PutOnReadInputProductResolver(std::shared_ptr<ProductDescription const> bd)
         : MergeableInputProductResolver(bd, ProductStatus::ResolveNotRun) {
       assert(not bd->produced());
       assert(not bd->onDemand());
@@ -186,7 +186,7 @@ namespace edm {
 
   class ProducedProductResolver : public DataManagingProductResolver, public ProductPutterBase {
   public:
-    ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus)
+    ProducedProductResolver(std::shared_ptr<ProductDescription const> bd, ProductStatus iDefaultStatus)
         : DataManagingProductResolver(bd, iDefaultStatus) {
       assert(bd->produced());
     }
@@ -200,7 +200,7 @@ namespace edm {
 
   class PuttableProductResolver : public ProducedProductResolver {
   public:
-    explicit PuttableProductResolver(std::shared_ptr<BranchDescription const> bd)
+    explicit PuttableProductResolver(std::shared_ptr<ProductDescription const> bd)
         : ProducedProductResolver(bd, ProductStatus::NotPut) {}
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
@@ -228,7 +228,7 @@ namespace edm {
 
   class UnscheduledProductResolver : public ProducedProductResolver {
   public:
-    explicit UnscheduledProductResolver(std::shared_ptr<BranchDescription const> bd)
+    explicit UnscheduledProductResolver(std::shared_ptr<ProductDescription const> bd)
         : ProducedProductResolver(bd, ProductStatus::ResolveNotRun) {}
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
@@ -256,7 +256,7 @@ namespace edm {
 
   class TransformingProductResolver : public ProducedProductResolver {
   public:
-    explicit TransformingProductResolver(std::shared_ptr<BranchDescription const> bd)
+    explicit TransformingProductResolver(std::shared_ptr<ProductDescription const> bd)
         : ProducedProductResolver(bd, ProductStatus::ResolveNotRun), mcc_(nullptr) {}
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
@@ -288,7 +288,7 @@ namespace edm {
   class AliasProductResolver : public DataManagingOrAliasProductResolver {
   public:
     typedef ProducedProductResolver::ProductStatus ProductStatus;
-    explicit AliasProductResolver(std::shared_ptr<BranchDescription const> bd,
+    explicit AliasProductResolver(std::shared_ptr<ProductDescription const> bd,
                                   DataManagingOrAliasProductResolver& realProduct)
         : DataManagingOrAliasProductResolver(), realProduct_(realProduct), bd_(bd) {}
 
@@ -319,8 +319,8 @@ namespace edm {
       return realProduct_.productWasFetchedAndIsValid(iSkipCurrentProcess);
     }
 
-    BranchDescription const& branchDescription_() const override { return *bd_; }
-    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override { bd_ = bd; }
+    ProductDescription const& productDescription_() const override { return *bd_; }
+    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) override { bd_ = bd; }
     Provenance const* provenance_() const final { return realProduct_.provenance(); }
 
     std::string const& resolvedModuleLabel_() const override { return realProduct_.moduleLabel(); }
@@ -332,14 +332,14 @@ namespace edm {
     bool singleProduct_() const override;
 
     DataManagingOrAliasProductResolver& realProduct_;
-    std::shared_ptr<BranchDescription const> bd_;
+    std::shared_ptr<ProductDescription const> bd_;
   };
 
   // Switch is a mixture of DataManaging (for worker and provenance) and Alias (for product)
   class SwitchBaseProductResolver : public DataManagingOrAliasProductResolver {
   public:
     using ProductStatus = DataManagingProductResolver::ProductStatus;
-    SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd,
+    SwitchBaseProductResolver(std::shared_ptr<ProductDescription const> bd,
                               DataManagingOrAliasProductResolver& realProduct);
 
     void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) final;
@@ -360,12 +360,12 @@ namespace edm {
     bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final {
       return realProduct_.productWasFetchedAndIsValid(iSkipCurrentProcess);
     }
-    BranchDescription const& branchDescription_() const final {
-      return *productData_.branchDescription();
+    ProductDescription const& productDescription_() const final {
+      return *productData_.productDescription();
       ;
     }
-    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) final {
-      productData_.resetBranchDescription(bd);
+    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) final {
+      productData_.resetProductDescription(bd);
     }
     Provenance const* provenance_() const final { return &productData_.provenance(); }
     std::string const& resolvedModuleLabel_() const final { return moduleLabel(); }
@@ -389,7 +389,7 @@ namespace edm {
   // For the case when SwitchProducer is on a Path
   class SwitchProducerProductResolver : public SwitchBaseProductResolver, public ProductPutterBase {
   public:
-    SwitchProducerProductResolver(std::shared_ptr<BranchDescription const> bd,
+    SwitchProducerProductResolver(std::shared_ptr<ProductDescription const> bd,
                                   DataManagingOrAliasProductResolver& realProduct);
 
   private:
@@ -419,7 +419,7 @@ namespace edm {
   // For the case when SwitchProducer is not on any Path
   class SwitchAliasProductResolver : public SwitchBaseProductResolver {
   public:
-    SwitchAliasProductResolver(std::shared_ptr<BranchDescription const> bd,
+    SwitchAliasProductResolver(std::shared_ptr<ProductDescription const> bd,
                                DataManagingOrAliasProductResolver& realProduct)
         : SwitchBaseProductResolver(std::move(bd), realProduct) {}
 
@@ -441,7 +441,7 @@ namespace edm {
   class ParentProcessProductResolver : public ProductResolverBase {
   public:
     typedef ProducedProductResolver::ProductStatus ProductStatus;
-    explicit ParentProcessProductResolver(std::shared_ptr<BranchDescription const> bd)
+    explicit ParentProcessProductResolver(std::shared_ptr<ProductDescription const> bd)
         : ProductResolverBase(), realProduct_(nullptr), bd_(bd), provRetriever_(nullptr), parentPrincipal_(nullptr) {}
 
     void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) final {
@@ -492,8 +492,8 @@ namespace edm {
       return realProduct_->productWasFetchedAndIsValid(iSkipCurrentProcess);
     }
 
-    BranchDescription const& branchDescription_() const override { return *bd_; }
-    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override { bd_ = bd; }
+    ProductDescription const& productDescription_() const override { return *bd_; }
+    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) override { bd_ = bd; }
     Provenance const* provenance_() const final { return realProduct_->provenance(); }
     std::string const& resolvedModuleLabel_() const override { return realProduct_->moduleLabel(); }
     void setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) override;
@@ -504,7 +504,7 @@ namespace edm {
     void throwNullRealProduct() const;
 
     ProductResolverBase const* realProduct_;
-    std::shared_ptr<BranchDescription const> bd_;
+    std::shared_ptr<ProductDescription const> bd_;
     ProductProvenanceRetriever const* provRetriever_;
     Principal const* parentPrincipal_;
   };
@@ -553,8 +553,8 @@ namespace edm {
     bool productResolved_() const final;
     bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
 
-    BranchDescription const& branchDescription_() const override;
-    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
+    ProductDescription const& productDescription_() const override;
+    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) override;
     Provenance const* provenance_() const override;
 
     std::string const& resolvedModuleLabel_() const override { return moduleLabel(); }
@@ -608,8 +608,8 @@ namespace edm {
     bool productResolved_() const final;
     bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
 
-    BranchDescription const& branchDescription_() const override;
-    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
+    ProductDescription const& productDescription_() const override;
+    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) override;
     Provenance const* provenance_() const override;
 
     std::string const& resolvedModuleLabel_() const override { return moduleLabel(); }

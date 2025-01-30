@@ -56,7 +56,7 @@ namespace {
 
     void produce(StreamID, Event& e, EventSetup const&) const override;
 
-    void listen(BranchDescription const&);
+    void listen(ProductDescription const&);
   };
 
   TestMod::TestMod(ParameterSet const&) { produces<int>(); }
@@ -67,16 +67,16 @@ namespace {
   public:
     explicit ListenMod(ParameterSet const&);
     void produce(StreamID, Event& e, EventSetup const&) const override;
-    void listen(BranchDescription const&);
+    void listen(ProductDescription const&);
   };
 
   ListenMod::ListenMod(ParameterSet const&) {
     callWhenNewProductsRegistered(
-        [this](BranchDescription const& branchDescription) { this->listen(branchDescription); });
+        [this](ProductDescription const& productDescription) { this->listen(productDescription); });
   }
   void ListenMod::produce(StreamID, Event&, EventSetup const&) const {}
 
-  void ListenMod::listen(BranchDescription const& iDesc) {
+  void ListenMod::listen(ProductDescription const& iDesc) {
     edm::TypeID intType(typeid(int));
     //std::cout << "see class " << iDesc.typeName() << std::endl;
     if (iDesc.friendlyClassName() == intType.friendlyClassName()) {
@@ -89,16 +89,16 @@ namespace {
   public:
     explicit ListenFloatMod(ParameterSet const&);
     void produce(StreamID, Event& e, EventSetup const&) const;
-    void listen(BranchDescription const&);
+    void listen(ProductDescription const&);
   };
 
   ListenFloatMod::ListenFloatMod(ParameterSet const&) {
     callWhenNewProductsRegistered(
-        [this](BranchDescription const& branchDescription) { this->listen(branchDescription); });
+        [this](ProductDescription const& productDescription) { this->listen(productDescription); });
   }
   void ListenFloatMod::produce(StreamID, Event&, EventSetup const&) const {}
 
-  void ListenFloatMod::listen(BranchDescription const& iDesc) {
+  void ListenFloatMod::listen(ProductDescription const& iDesc) {
     edm::TypeID intType(typeid(int));
     //std::cout <<"see class "<<iDesc.typeName()<<std::endl;
     if (iDesc.friendlyClassName() == intType.friendlyClassName()) {

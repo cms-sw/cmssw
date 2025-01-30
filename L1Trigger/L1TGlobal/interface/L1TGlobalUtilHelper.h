@@ -19,6 +19,7 @@
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,7 +30,6 @@
 #include <utility>
 
 namespace edm {
-  class BranchDescription;
   class ParameterSetDescription;
 }  // namespace edm
 
@@ -79,7 +79,7 @@ namespace l1t {
     // Callback which will be registered with the Framework if the InputTags
     // are not specified in the configuration or constructor arguments. It
     // will get called for each product in the ProductRegistry.
-    void checkToUpdateTags(edm::BranchDescription const& branchDescription,
+    void checkToUpdateTags(edm::ProductDescription const& productDescription,
                            edm::ConsumesCollector,
                            bool findL1TAlgBlk,
                            bool findL1TExtBlk);

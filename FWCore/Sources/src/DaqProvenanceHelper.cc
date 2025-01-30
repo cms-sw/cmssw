@@ -16,20 +16,20 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 namespace {
-  edm::BranchDescription makeDescriptionForDaqProvHelper(edm::TypeID const& rawDataType,
-                                                         std::string const& collectionName,
-                                                         std::string const& friendlyName,
-                                                         std::string const& sourceLabel) {
-    edm::BranchDescription desc(edm::InEvent,
-                                "rawDataCollector",
-                                // "source",
-                                "LHC",
-                                // "HLT",
-                                collectionName,
-                                friendlyName,
-                                "",
-                                edm::TypeWithDict(rawDataType.typeInfo()),
-                                false);
+  edm::ProductDescription makeDescriptionForDaqProvHelper(edm::TypeID const& rawDataType,
+                                                          std::string const& collectionName,
+                                                          std::string const& friendlyName,
+                                                          std::string const& sourceLabel) {
+    edm::ProductDescription desc(edm::InEvent,
+                                 "rawDataCollector",
+                                 // "source",
+                                 "LHC",
+                                 // "HLT",
+                                 collectionName,
+                                 friendlyName,
+                                 "",
+                                 edm::TypeWithDict(rawDataType.typeInfo()),
+                                 false);
     desc.setIsProvenanceSetOnRead();
     return desc;
   }
@@ -40,9 +40,9 @@ namespace edm {
                                            std::string const& collectionName,
                                            std::string const& friendlyName,
                                            std::string const& sourceLabel)
-      : constBranchDescription_(
+      : constProductDescription_(
             makeDescriptionForDaqProvHelper(rawDataType, collectionName, friendlyName, sourceLabel)),
-        dummyProvenance_(constBranchDescription_.branchID()),
+        dummyProvenance_(constProductDescription_.branchID()),
         processParameterSet_(),
         oldProcessName_(),
         oldBranchID_(),
@@ -51,8 +51,8 @@ namespace edm {
         phidMap_() {
     // Now we create a process parameter set for the "LHC" process.
     // We don't currently use the untracked parameters, However, we make them available, just in case.
-    std::string const& moduleLabel = constBranchDescription_.moduleLabel();
-    std::string const& processName = constBranchDescription_.processName();
+    std::string const& moduleLabel = constProductDescription_.moduleLabel();
+    std::string const& processName = constProductDescription_.processName();
     typedef std::vector<std::string> vstring;
     vstring empty;
 
@@ -93,11 +93,12 @@ namespace edm {
                                                 ProcessHistoryRegistry& processHistoryRegistry) const {
     // Now we need to set all the metadata
     // Add the product to the product registry
-    productRegistry.copyProduct(constBranchDescription_);
+    productRegistry.copyProduct(constProductDescription_);
 
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;
-    ph.emplace_back(constBranchDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
+    ph.emplace_back(
+        constProductDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
     processHistoryRegistry.registerProcessHistory(ph);
 
     // Save the process history ID for use every event.
@@ -119,7 +120,7 @@ namespace edm {
     for (auto const& pc : pcv) {
       if (pc.processName() == oldProcessName_) {
         newPCs.emplace_back(
-            constBranchDescription_.processName(), processParameterSet_.id(), pc.releaseVersion(), pc.passID());
+            constProductDescription_.processName(), processParameterSet_.id(), pc.releaseVersion(), pc.passID());
       }
     }
     if (newPCs.empty()) {

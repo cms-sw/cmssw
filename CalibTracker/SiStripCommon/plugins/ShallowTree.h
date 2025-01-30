@@ -36,7 +36,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   template <class T>
-  void eat(edm::BranchDescription const& desc) {
+  void eat(edm::ProductDescription const& desc) {
     consumes<T>(edm::InputTag(desc.moduleLabel(), desc.productInstanceName()));
   }
 
@@ -55,7 +55,7 @@ private:
     T* object_ptr_;
 
   public:
-    TypedBranchConnector(edm::BranchDescription const*, std::string, TTree*);
+    TypedBranchConnector(edm::ProductDescription const*, std::string, TTree*);
     void connect(const edm::Event&) override;
   };
 

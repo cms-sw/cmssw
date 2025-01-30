@@ -290,8 +290,8 @@ namespace fwlite {
     return event1_->getBranchNameFor(iType, iModule, iInstance, iProcess);
   }
 
-  std::vector<edm::BranchDescription> const& MultiChainEvent::getBranchDescriptions() const {
-    return event1_->getBranchDescriptions();
+  std::vector<edm::ProductDescription> const& MultiChainEvent::getProductDescriptions() const {
+    return event1_->getProductDescriptions();
   }
 
   std::vector<std::string> const& MultiChainEvent::getProcessHistory() const { return event1_->getProcessHistory(); }

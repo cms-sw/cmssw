@@ -8,7 +8,7 @@
      \date 19 Jul 2005
 */
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -35,7 +35,7 @@ namespace edm {
 
   class ProductRegistry {
   public:
-    typedef std::map<BranchKey, BranchDescription> ProductList;
+    typedef std::map<BranchKey, ProductDescription> ProductList;
 
     ProductRegistry();
 
@@ -46,15 +46,15 @@ namespace edm {
 
     virtual ~ProductRegistry() {}
 
-    typedef std::map<BranchKey, BranchDescription const> ConstProductList;
+    typedef std::map<BranchKey, ProductDescription const> ConstProductList;
 
-    void addProduct(BranchDescription const& productdesc, bool iFromListener = false);
+    void addProduct(ProductDescription const& productdesc, bool iFromListener = false);
 
-    void addLabelAlias(BranchDescription const& productdesc,
+    void addLabelAlias(ProductDescription const& productdesc,
                        std::string const& labelAlias,
                        std::string const& instanceAlias);
 
-    void copyProduct(BranchDescription const& productdesc);
+    void copyProduct(ProductDescription const& productdesc);
 
     void setFrozen(bool initializeLookupInfo = true);
 
@@ -66,13 +66,13 @@ namespace edm {
 
     std::string merge(ProductRegistry const& other,
                       std::string const& fileName,
-                      BranchDescription::MatchMode branchesMustMatch = BranchDescription::Permissive);
+                      ProductDescription::MatchMode branchesMustMatch = ProductDescription::Permissive);
 
     void updateFromInput(ProductList const& other);
     // triggers callbacks for modules watching registration
     void addFromInput(edm::ProductRegistry const&);
 
-    void updateFromInput(std::vector<BranchDescription> const& other);
+    void updateFromInput(std::vector<ProductDescription> const& other);
 
     ProductList const& productList() const {
       //throwIfNotFrozen();
@@ -89,11 +89,11 @@ namespace edm {
     // a colon-initialization list.
     std::vector<std::string> allBranchNames() const;
 
-    // Return pointers to (const) BranchDescriptions for all the
-    // BranchDescriptions known to *this.  This does a
+    // Return pointers to (const) ProductDescriptions for all the
+    // ProductDescriptions known to *this.  This does a
     // return-by-value of the vector so that it may be used in a
     // colon-initialization list.
-    std::vector<BranchDescription const*> allBranchDescriptions() const;
+    std::vector<ProductDescription const*> allProductDescriptions() const;
 
     //NOTE: this is not const since we only want items that have non-const access to this class to be
     // able to call this internal iteration
@@ -183,9 +183,9 @@ namespace edm {
                                           std::map<TypeID, TypeID> const& containedTypeMap,
                                           std::map<TypeID, std::vector<TypeID>>& containedTypeToBaseTypesMap);
 
-    void checkForDuplicateProcessName(BranchDescription const& desc, std::string const* processName) const;
+    void checkForDuplicateProcessName(ProductDescription const& desc, std::string const* processName) const;
 
-    virtual void addCalled(BranchDescription const&, bool iFromListener);
+    virtual void addCalled(ProductDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
 

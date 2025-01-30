@@ -76,7 +76,7 @@ namespace edm {
       if (firstMod->registrationCallback() and m_streamModules.size() > 1) {
         //we have a callback so we will collect all callbacks and create a new callback which calls them all.
 
-        std::vector<std::function<void(BranchDescription const&)>> callbacks;
+        std::vector<std::function<void(ProductDescription const&)>> callbacks;
         callbacks.reserve(m_streamModules.size());
 
         for (auto mod : m_streamModules) {
@@ -84,7 +84,7 @@ namespace edm {
         }
         //Since only the first module will actually do the registration
         // we will change its callback to call all the callbacks
-        firstMod->callWhenNewProductsRegistered([callbacks](BranchDescription const& iBD) {
+        firstMod->callWhenNewProductsRegistered([callbacks](ProductDescription const& iBD) {
           for (const auto& c : callbacks) {
             c(iBD);
           }
@@ -188,7 +188,7 @@ namespace edm {
       return 0;
     }
     template <typename T>
-    size_t ProducingModuleAdaptorBase<T>::transformIndex_(edm::BranchDescription const& iBranch) const noexcept {
+    size_t ProducingModuleAdaptorBase<T>::transformIndex_(edm::ProductDescription const& iBranch) const noexcept {
       return 0;
     }
     template <typename T>

@@ -366,7 +366,7 @@ This simulates a problem happening early in the job which causes processing not 
       std::shared_ptr<RunPrincipal> runPrincipal_;
       std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
 
-      std::vector<std::pair<edm::BranchDescription, std::unique_ptr<WrapperBase>>> dataProducts_;
+      std::vector<std::pair<edm::ProductDescription, std::unique_ptr<WrapperBase>>> dataProducts_;
 
       RunNumber_t runNumber_ = 1;
       LuminosityBlockNumber_t lumiNumber_ = 1;

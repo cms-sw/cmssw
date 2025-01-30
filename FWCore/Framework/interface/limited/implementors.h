@@ -500,7 +500,7 @@ namespace edm {
         }
 
       private:
-        size_t transformIndex_(edm::BranchDescription const& iBranch) const noexcept final {
+        size_t transformIndex_(edm::ProductDescription const& iBranch) const noexcept final {
           return TransformerBase::findMatchingIndex(*this, iBranch);
         }
         ProductResolverIndex transformPrefetch_(std::size_t iIndex) const noexcept final {

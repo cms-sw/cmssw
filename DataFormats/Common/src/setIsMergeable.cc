@@ -2,7 +2,7 @@
 #include "DataFormats/Common/interface/setIsMergeable.h"
 
 #include "DataFormats/Common/interface/WrapperBase.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/getAnyPtr.h"
 
@@ -12,7 +12,7 @@
 
 namespace edm {
 
-  void setIsMergeable(BranchDescription& desc) {
+  void setIsMergeable(ProductDescription& desc) {
     // Save some time here with the knowledge that the isMergeable
     // data member can only be true for run or lumi products.
     // It defaults to false. Also if it is true that means it

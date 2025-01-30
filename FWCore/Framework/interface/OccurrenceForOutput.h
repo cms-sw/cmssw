@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
@@ -37,7 +38,6 @@ namespace edmtest {
 
 namespace edm {
 
-  class BranchDescription;
   class ModuleCallingContext;
   class Principal;
   class EDConsumerBase;
@@ -69,7 +69,7 @@ namespace edm {
 
     void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
-    std::vector<BranchDescription const*> productDescriptions() const;
+    std::vector<ProductDescription const*> productDescriptions() const;
     ProductRegistry const& productRegistry() const;
 
     virtual ProcessHistory const& processHistory() const;

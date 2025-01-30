@@ -257,7 +257,7 @@ namespace edm {
     std::vector<Worker*> tryToPlaceConditionalModules(
         Worker*,
         std::unordered_set<std::string>& conditionalModules,
-        std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+        std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
         std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
         ParameterSet& proc_pset,
         SignallingProductRegistry& preg,

@@ -2,13 +2,10 @@
 #define DataFormats_Provenance_ProvenanceFwd_h
 
 namespace edm {
-  class BranchDescription;
   class BranchIDListHelper;
   class Parentage;
   class BranchID;
   class BranchKey;
-  class BranchDescription;
-  class ProductProvenance;
   class ProductProvenance;
   class EventAuxiliary;
   class EventID;
@@ -41,4 +38,5 @@ namespace cms {
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #endif
