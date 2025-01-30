@@ -2,6 +2,8 @@
 #define RecoBTag_SoftLepton_LeptonTaggerDistance_h
 
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 /**  \class LeptonTaggerDistance
  *
@@ -29,6 +31,8 @@ public:
 
   /// b-tag a jet based on track-to-jet pseudo-angular distance
   float discriminator(const TagInfoHelper& tagInfo) const override;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<double>("distance", 0.5); }
 
 private:
   float m_maxDistance;

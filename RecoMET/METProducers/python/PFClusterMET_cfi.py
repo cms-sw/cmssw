@@ -4,11 +4,11 @@ import FWCore.ParameterSet.Config as cms
 from RecoMET.METProducers.METSigParams_cfi import *
 
 ##____________________________________________________________________________||
-pfClusterMet = cms.EDProducer(
-    "PFClusterMETProducer",
-    src = cms.InputTag("pfClusterRefsForJets"),
-    alias = cms.string('pfClusterMet'),
-    globalThreshold = cms.double(0.0),
-    )
+from RecoMET.METProducers.pfClusterMETProducer_cfi import pfClusterMETProducer as _pfClusterMETProducer
+pfClusterMet = _pfClusterMETProducer.clone(
+    src = "pfClusterRefsForJets",
+    alias = 'pfClusterMet',
+    globalThreshold = 0.0,
+)
 
 ##____________________________________________________________________________||
