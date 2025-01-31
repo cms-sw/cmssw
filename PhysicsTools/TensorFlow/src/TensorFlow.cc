@@ -6,9 +6,9 @@
  */
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/ResourceInformation.h"
 
 namespace tensorflow {
 

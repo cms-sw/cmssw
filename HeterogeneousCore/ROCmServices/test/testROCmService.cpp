@@ -10,6 +10,7 @@
 
 #include <catch.hpp>
 
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
@@ -17,7 +18,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
 
 namespace {
