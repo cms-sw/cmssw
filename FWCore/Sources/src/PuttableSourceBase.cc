@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 
 using namespace edm;
 //
@@ -38,15 +39,16 @@ using namespace edm;
 PuttableSourceBase::PuttableSourceBase(ParameterSet const& iPSet, InputSourceDescription const& iISD)
     : InputSource(iPSet, iISD) {}
 
-void PuttableSourceBase::registerProducts(SignallingProductRegistry& iReg) {
-  registerProducts(this, &iReg, moduleDescription());
+void PuttableSourceBase::registerProducts() {
+  SignallingProductRegistry reg;
+  registerProducts(this, &reg, moduleDescription());
+  productRegistryUpdate().addFromInput(reg);
 }
 
-void PuttableSourceBase::beginJob() {
-  auto r = productRegistry();
-  auto const runLookup = r->productLookup(InRun);
-  auto const lumiLookup = r->productLookup(InLumi);
-  auto const eventLookup = r->productLookup(InEvent);
+void PuttableSourceBase::beginJob(edm::ProductRegistry const& r) {
+  auto const runLookup = r.productLookup(InRun);
+  auto const lumiLookup = r.productLookup(InLumi);
+  auto const eventLookup = r.productLookup(InEvent);
   auto const& processName = moduleDescription().processName();
   auto const& moduleLabel = moduleDescription().moduleLabel();
 
