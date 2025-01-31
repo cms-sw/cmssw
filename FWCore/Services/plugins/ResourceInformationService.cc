@@ -31,7 +31,7 @@ namespace edm {
 
       static void fillDescriptions(ConfigurationDescriptions&);
 
-      std::vector<AcceleratorType> const& acceleratorTypes() const final;
+      std::vector<std::string> const& selectedAccelerators() const final;
       std::vector<std::string> const& cpuModels() const final;
       std::vector<std::string> const& gpuModels() const final;
 
@@ -43,7 +43,7 @@ namespace edm {
       std::string const& cpuModelsFormatted() const final;
       double cpuAverageSpeed() const final;
 
-      void initializeAcceleratorTypes(std::vector<std::string> const& selectedAccelerators) final;
+      void setSelectedAccelerators(std::vector<std::string> const& selectedAccelerators) final;
       void setCPUModels(std::vector<std::string> const&) final;
       void setGPUModels(std::vector<std::string> const&) final;
 
@@ -59,7 +59,7 @@ namespace edm {
     private:
       void throwIfLocked() const;
 
-      std::vector<AcceleratorType> acceleratorTypes_;
+      std::vector<std::string> selectedAccelerators_;
       std::vector<std::string> cpuModels_;
       std::vector<std::string> gpuModels_;
 
@@ -87,8 +87,8 @@ namespace edm {
       descriptions.add("ResourceInformationService", desc);
     }
 
-    std::vector<ResourceInformation::AcceleratorType> const& ResourceInformationService::acceleratorTypes() const {
-      return acceleratorTypes_;
+    std::vector<std::string> const& ResourceInformationService::selectedAccelerators() const {
+      return selectedAccelerators_;
     }
 
     std::vector<std::string> const& ResourceInformationService::cpuModels() const { return cpuModels_; }
@@ -105,15 +105,9 @@ namespace edm {
 
     double ResourceInformationService::cpuAverageSpeed() const { return cpuAverageSpeed_; }
 
-    void ResourceInformationService::initializeAcceleratorTypes(std::vector<std::string> const& selectedAccelerators) {
+    void ResourceInformationService::setSelectedAccelerators(std::vector<std::string> const& selectedAccelerators) {
       if (!locked_) {
-        for (auto const& selected : selectedAccelerators) {
-          // Test if the string begins with "gpu-"
-          if (selected.rfind("gpu-", 0) == 0) {
-            acceleratorTypes_.push_back(AcceleratorType::GPU);
-            break;
-          }
-        }
+        selectedAccelerators_ = selectedAccelerators;
         locked_ = true;
       }
     }
@@ -182,16 +176,12 @@ namespace edm {
           }
         }
 
-        LogAbsolute("ResourceInformation") << "    acceleratorTypes:";
-        if (acceleratorTypes().empty()) {
+        LogAbsolute("ResourceInformation") << "    selectedAccelerators:";
+        if (selectedAccelerators().empty()) {
           LogAbsolute("ResourceInformation") << "        None";
         } else {
-          for (auto const& iter : acceleratorTypes()) {
-            std::string acceleratorTypeString("unknown type");
-            if (iter == AcceleratorType::GPU) {
-              acceleratorTypeString = std::string("GPU");
-            }
-            LogAbsolute("ResourceInformation") << "        " << acceleratorTypeString;
+          for (auto const& iter : selectedAccelerators()) {
+            LogAbsolute("ResourceInformation") << "        " << iter;
           }
         }
         LogAbsolute("ResourceInformation") << "    nvidiaDriverVersion: " << nvidiaDriverVersion();
