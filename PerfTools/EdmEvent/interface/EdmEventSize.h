@@ -9,7 +9,7 @@ namespace perftools {
 
   /** \class EdmEventSize
    *  Measure the size of each product in an edm::event
-   *  Provides the output as an ascii table or root histograms
+   *  Provides the output as an ascii table, json file or root histograms
 
    *  Based on the original implementation by Luca Lista
    *
@@ -18,12 +18,18 @@ namespace perftools {
    *  all its baskets
    *  Estimate the "size in memory" multipling the actual branch size 
    *  by its compression factor
+   *  Optionally, measure the size of each leaf in a branch and calculate
+   *  the overhead of the branch size with respect to the sum of the leaf sizes
    *
    *  \author Vincenzo Innocente
+   *  \author Simone Rossi Tisbeni
    */
+
+  enum class EdmEventMode { Branches, Leaves };
+
+  template <EdmEventMode M>
   class EdmEventSize {
   public:
-    enum class Mode { branches, leaves };
     enum class Format { text, json };
 
     /// generic exception
@@ -34,49 +40,36 @@ namespace perftools {
     };
 
     /// the information for each branch
-    struct BranchRecord {
-      BranchRecord() : compr_size(0.), uncompr_size(0.) {}
-      BranchRecord(std::string const& iname, size_t inEvents, size_t compr, size_t uncompr)
-          : fullName(iname), name(iname), nEvents(inEvents), compr_size(compr), uncompr_size(uncompr) {}
-      std::string fullName;
-      std::string name;
-      size_t nEvents;
-      size_t compr_size;
-      size_t uncompr_size;
-    };
-
-    typedef std::vector<BranchRecord> Branches;
-
-    /// the information for each leaf
-    struct LeafRecord {
-      LeafRecord() : compr_size(0.), uncompr_size(0.) {}
-      LeafRecord(std::string const& iname, size_t inEvents, double compr, double uncompr)
-          : fullName(iname), name(iname), nEvents(inEvents), compr_size(compr), uncompr_size(uncompr) {
-        if (fullName.find(".") == std::string::npos) {
-          branch = fullName;
-          object = "";
-        } else {
-          branch = fullName.substr(0, fullName.find("."));
-          object = fullName.substr(fullName.find(".") + 1);
+    struct Record {
+      Record() : compr_size(0.), uncompr_size(0.) {}
+      Record(std::string const& iname, size_t inEvents, double compr, double uncompr)
+          : name(iname), nEvents(inEvents), compr_size(compr), uncompr_size(uncompr) {
+        if constexpr (M == EdmEventMode::Branches) {
+          type = name;
+        } else if constexpr (M == EdmEventMode::Leaves) {
+          if (name.find('.') == std::string::npos) {
+            type = name;
+            label = "";
+          } else {
+            type = name.substr(0, name.find('.'));
+            label = name.substr(name.find('.') + 1);
+          }
         }
       }
-      std::string fullName;
       std::string name;
-      std::string branch;
-      std::string object;
+      std::string type;
+      std::string label;
       size_t nEvents;
       size_t compr_size;
       size_t uncompr_size;
     };
 
-    typedef std::vector<LeafRecord> Leaves;
+    typedef std::vector<Record> Records;
 
     /// Constructor
     EdmEventSize();
     /// Constructor and parse
-    explicit EdmEventSize(std::string const& fileName,
-                          std::string const& treeName = "Events",
-                          Mode mode = Mode::branches);
+    explicit EdmEventSize(std::string const& fileName, std::string const& treeName = "Events");
 
     /// read file, compute branch size, sort by size
     void parseFile(std::string const& fileName, std::string const& treeName = "Events");
@@ -88,7 +81,10 @@ namespace perftools {
     void formatNames();
 
     /// dump the ascii table on "co"
-    void dump(std::ostream& co, bool header = true, Format format = Format::text) const;
+    void dump(std::ostream& co, bool header = true) const;
+
+    /// dump the json table on "co"
+    void dumpJson(std::ostream& co) const;
 
     /// produce histograms and optionally write them in "file" or as "plot"
     void produceHistos(std::string const& plot, std::string const& file, int top = 0) const;
@@ -96,10 +92,12 @@ namespace perftools {
   private:
     std::string m_fileName;
     int m_nEvents;
-    Branches m_branches;
-    Leaves m_leaves;
-    Mode m_mode;
+    Records m_records;
   };
+
+  template class perftools::EdmEventSize<perftools::EdmEventMode::Leaves>;
+
+  template class perftools::EdmEventSize<perftools::EdmEventMode::Branches>;
 
 }  // namespace perftools
 
