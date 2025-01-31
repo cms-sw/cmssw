@@ -1,8 +1,10 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_Hit_h
 #define RecoTracker_LSTCore_src_alpaka_Hit_h
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/alpakastdAlgorithm.h"
+#include "HeterogeneousCore/AlpakaMath/interface/deltaPhi.h"
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
@@ -11,52 +13,8 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   template <typename TAcc>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float eta(TAcc const& acc, float x, float y, float z) {
-    float r3 = alpaka::math::sqrt(acc, x * x + y * y + z * z);
-    float rt = alpaka::math::sqrt(acc, x * x + y * y);
-    float eta = ((z > 0) - (z < 0)) * alpaka::math::acosh(acc, r3 / rt);
-    return eta;
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float phi_mpi_pi(TAcc const& acc, float x) {
-    if (alpaka::math::abs(acc, x) <= kPi)
-      return x;
-
-    constexpr float o2pi = 1.f / (2.f * kPi);
-    float n = alpaka::math::round(acc, x * o2pi);
-    return x - n * float(2.f * kPi);
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float phi(TAcc const& acc, float x, float y) {
-    return phi_mpi_pi(acc, kPi + alpaka::math::atan2(acc, -y, -x));
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float deltaPhi(TAcc const& acc, float x1, float y1, float x2, float y2) {
-    float phi1 = phi(acc, x1, y1);
-    float phi2 = phi(acc, x2, y2);
-    return phi_mpi_pi(acc, (phi2 - phi1));
-  }
-
-  template <typename TAcc>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float deltaPhiChange(TAcc const& acc, float x1, float y1, float x2, float y2) {
-    return deltaPhi(acc, x1, y1, x2 - x1, y2 - y1);
-  }
-
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE float calculate_dPhi(float phi1, float phi2) {
-    // Calculate dPhi
-    float dPhi = phi1 - phi2;
-
-    // Normalize dPhi to be between -pi and pi
-    if (dPhi > kPi) {
-      dPhi -= 2 * kPi;
-    } else if (dPhi < -kPi) {
-      dPhi += 2 * kPi;
-    }
-
-    return dPhi;
+    return cms::alpakatools::deltaPhi(acc, x1, y1, x2 - x1, y2 - y1);
   }
 
   struct ModuleRangesKernel {
@@ -99,7 +57,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         int iDetId = hits.detid()[ihit];
 
         hits.rts()[ihit] = alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y);
-        hits.phis()[ihit] = phi(acc, ihit_x, ihit_y);
+        hits.phis()[ihit] = cms::alpakatools::phi(acc, ihit_x, ihit_y);
         hits.etas()[ihit] =
             ((ihit_z > 0) - (ihit_z < 0)) *
             alpaka::math::acosh(

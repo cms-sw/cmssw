@@ -902,7 +902,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float diffX = mds.anchorX()[thirdMDIndex] - mds.anchorX()[firstMDIndex];
     float diffY = mds.anchorY()[thirdMDIndex] - mds.anchorY()[firstMDIndex];
 
-    float dPhi = deltaPhi(acc, midPointX, midPointY, diffX, diffY);
+    float dPhi = cms::alpakatools::deltaPhi(acc, midPointX, midPointY, diffX, diffY);
 
     // First obtaining the raw betaIn and betaOut values without any correction and just purely based on the mini-doublet hit positions
     float alpha_InLo = __H2F(segments.dPhiChanges()[innerSegmentIndex]);
@@ -913,11 +913,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float alpha_OutUp, alpha_OutUp_highEdge, alpha_OutUp_lowEdge;
 
-    alpha_OutUp = phi_mpi_pi(acc,
-                             phi(acc,
-                                 mds.anchorX()[fourthMDIndex] - mds.anchorX()[thirdMDIndex],
-                                 mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]) -
-                                 mds.anchorPhi()[fourthMDIndex]);
+    alpha_OutUp = cms::alpakatools::reducePhiRange(
+        acc,
+        cms::alpakatools::phi(acc,
+                              mds.anchorX()[fourthMDIndex] - mds.anchorX()[thirdMDIndex],
+                              mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]) -
+            mds.anchorPhi()[fourthMDIndex]);
 
     alpha_OutUp_highEdge = alpha_OutUp;
     alpha_OutUp_lowEdge = alpha_OutUp;
@@ -929,38 +930,46 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float tl_axis_lowEdge_x = tl_axis_x;
     float tl_axis_lowEdge_y = tl_axis_y;
 
-    float betaIn = alpha_InLo - phi_mpi_pi(acc, phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
+    float betaIn =
+        alpha_InLo - cms::alpakatools::reducePhiRange(
+                         acc, cms::alpakatools::phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
 
     float betaInRHmin = betaIn;
     float betaInRHmax = betaIn;
-    float betaOut = -alpha_OutUp + phi_mpi_pi(acc, phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[fourthMDIndex]);
+    float betaOut =
+        -alpha_OutUp + cms::alpakatools::reducePhiRange(
+                           acc, cms::alpakatools::phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[fourthMDIndex]);
 
     float betaOutRHmin = betaOut;
     float betaOutRHmax = betaOut;
 
     if (isEC_lastLayer) {
-      alpha_OutUp_highEdge = phi_mpi_pi(acc,
-                                        phi(acc,
-                                            mds.anchorHighEdgeX()[fourthMDIndex] - mds.anchorX()[thirdMDIndex],
-                                            mds.anchorHighEdgeY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]) -
-                                            mds.anchorHighEdgePhi()[fourthMDIndex]);
-      alpha_OutUp_lowEdge = phi_mpi_pi(acc,
-                                       phi(acc,
-                                           mds.anchorLowEdgeX()[fourthMDIndex] - mds.anchorX()[thirdMDIndex],
-                                           mds.anchorLowEdgeY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]) -
-                                           mds.anchorLowEdgePhi()[fourthMDIndex]);
+      alpha_OutUp_highEdge = cms::alpakatools::reducePhiRange(
+          acc,
+          cms::alpakatools::phi(acc,
+                                mds.anchorHighEdgeX()[fourthMDIndex] - mds.anchorX()[thirdMDIndex],
+                                mds.anchorHighEdgeY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]) -
+              mds.anchorHighEdgePhi()[fourthMDIndex]);
+      alpha_OutUp_lowEdge = cms::alpakatools::reducePhiRange(
+          acc,
+          cms::alpakatools::phi(acc,
+                                mds.anchorLowEdgeX()[fourthMDIndex] - mds.anchorX()[thirdMDIndex],
+                                mds.anchorLowEdgeY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]) -
+              mds.anchorLowEdgePhi()[fourthMDIndex]);
 
       tl_axis_highEdge_x = mds.anchorHighEdgeX()[fourthMDIndex] - mds.anchorX()[firstMDIndex];
       tl_axis_highEdge_y = mds.anchorHighEdgeY()[fourthMDIndex] - mds.anchorY()[firstMDIndex];
       tl_axis_lowEdge_x = mds.anchorLowEdgeX()[fourthMDIndex] - mds.anchorX()[firstMDIndex];
       tl_axis_lowEdge_y = mds.anchorLowEdgeY()[fourthMDIndex] - mds.anchorY()[firstMDIndex];
 
-      betaOutRHmin =
-          -alpha_OutUp_highEdge +
-          phi_mpi_pi(acc, phi(acc, tl_axis_highEdge_x, tl_axis_highEdge_y) - mds.anchorHighEdgePhi()[fourthMDIndex]);
-      betaOutRHmax =
-          -alpha_OutUp_lowEdge +
-          phi_mpi_pi(acc, phi(acc, tl_axis_lowEdge_x, tl_axis_lowEdge_y) - mds.anchorLowEdgePhi()[fourthMDIndex]);
+      betaOutRHmin = -alpha_OutUp_highEdge + cms::alpakatools::reducePhiRange(
+                                                 acc,
+                                                 cms::alpakatools::phi(acc, tl_axis_highEdge_x, tl_axis_highEdge_y) -
+                                                     mds.anchorHighEdgePhi()[fourthMDIndex]);
+      betaOutRHmax = -alpha_OutUp_lowEdge +
+                     cms::alpakatools::reducePhiRange(acc,
+                                                      cms::alpakatools::phi(acc, tl_axis_lowEdge_x, tl_axis_lowEdge_y) -
+                                                          mds.anchorLowEdgePhi()[fourthMDIndex]);
     }
 
     //beta computation
@@ -1070,31 +1079,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float diffX = mds.anchorX()[thirdMDIndex] - mds.anchorX()[firstMDIndex];
     float diffY = mds.anchorY()[thirdMDIndex] - mds.anchorY()[firstMDIndex];
 
-    float dPhi = deltaPhi(acc, midPointX, midPointY, diffX, diffY);
+    float dPhi = cms::alpakatools::deltaPhi(acc, midPointX, midPointY, diffX, diffY);
 
     float sdIn_alpha = __H2F(segments.dPhiChanges()[innerSegmentIndex]);
     float sdIn_alpha_min = __H2F(segments.dPhiChangeMins()[innerSegmentIndex]);
     float sdIn_alpha_max = __H2F(segments.dPhiChangeMaxs()[innerSegmentIndex]);
     float sdOut_alpha = sdIn_alpha;
 
-    float sdOut_dPhiPos = phi_mpi_pi(acc, mds.anchorPhi()[fourthMDIndex] - mds.anchorPhi()[thirdMDIndex]);
+    float sdOut_dPhiPos =
+        cms::alpakatools::reducePhiRange(acc, mds.anchorPhi()[fourthMDIndex] - mds.anchorPhi()[thirdMDIndex]);
 
     float sdOut_dPhiChange = __H2F(segments.dPhiChanges()[outerSegmentIndex]);
     float sdOut_dPhiChange_min = __H2F(segments.dPhiChangeMins()[outerSegmentIndex]);
     float sdOut_dPhiChange_max = __H2F(segments.dPhiChangeMaxs()[outerSegmentIndex]);
 
-    float sdOut_alphaOutRHmin = phi_mpi_pi(acc, sdOut_dPhiChange_min - sdOut_dPhiPos);
-    float sdOut_alphaOutRHmax = phi_mpi_pi(acc, sdOut_dPhiChange_max - sdOut_dPhiPos);
-    float sdOut_alphaOut = phi_mpi_pi(acc, sdOut_dPhiChange - sdOut_dPhiPos);
+    float sdOut_alphaOutRHmin = cms::alpakatools::reducePhiRange(acc, sdOut_dPhiChange_min - sdOut_dPhiPos);
+    float sdOut_alphaOutRHmax = cms::alpakatools::reducePhiRange(acc, sdOut_dPhiChange_max - sdOut_dPhiPos);
+    float sdOut_alphaOut = cms::alpakatools::reducePhiRange(acc, sdOut_dPhiChange - sdOut_dPhiPos);
 
     float tl_axis_x = mds.anchorX()[fourthMDIndex] - mds.anchorX()[firstMDIndex];
     float tl_axis_y = mds.anchorY()[fourthMDIndex] - mds.anchorY()[firstMDIndex];
 
-    float betaIn = sdIn_alpha - phi_mpi_pi(acc, phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
+    float betaIn =
+        sdIn_alpha - cms::alpakatools::reducePhiRange(
+                         acc, cms::alpakatools::phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
 
     float betaInRHmin = betaIn;
     float betaInRHmax = betaIn;
-    float betaOut = -sdOut_alphaOut + phi_mpi_pi(acc, phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[fourthMDIndex]);
+    float betaOut =
+        -sdOut_alphaOut + cms::alpakatools::reducePhiRange(
+                              acc, cms::alpakatools::phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[fourthMDIndex]);
 
     float betaOutRHmin = betaOut;
     float betaOutRHmax = betaOut;
@@ -1226,27 +1240,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float thetaMuls2 = (kMulsInGeV * kMulsInGeV) * (0.1f + 0.2f * (rt_OutLo - rt_InLo) / 50.f);
     float sdIn_alpha = __H2F(segments.dPhiChanges()[innerSegmentIndex]);
     float sdOut_alpha = sdIn_alpha;  //weird
-    float sdOut_dPhiPos = phi_mpi_pi(acc, mds.anchorPhi()[fourthMDIndex] - mds.anchorPhi()[thirdMDIndex]);
+    float sdOut_dPhiPos =
+        cms::alpakatools::reducePhiRange(acc, mds.anchorPhi()[fourthMDIndex] - mds.anchorPhi()[thirdMDIndex]);
 
     float sdOut_dPhiChange = __H2F(segments.dPhiChanges()[outerSegmentIndex]);
     float sdOut_dPhiChange_min = __H2F(segments.dPhiChangeMins()[outerSegmentIndex]);
     float sdOut_dPhiChange_max = __H2F(segments.dPhiChangeMaxs()[outerSegmentIndex]);
 
-    float sdOut_alphaOutRHmin = phi_mpi_pi(acc, sdOut_dPhiChange_min - sdOut_dPhiPos);
-    float sdOut_alphaOutRHmax = phi_mpi_pi(acc, sdOut_dPhiChange_max - sdOut_dPhiPos);
-    float sdOut_alphaOut = phi_mpi_pi(acc, sdOut_dPhiChange - sdOut_dPhiPos);
+    float sdOut_alphaOutRHmin = cms::alpakatools::reducePhiRange(acc, sdOut_dPhiChange_min - sdOut_dPhiPos);
+    float sdOut_alphaOutRHmax = cms::alpakatools::reducePhiRange(acc, sdOut_dPhiChange_max - sdOut_dPhiPos);
+    float sdOut_alphaOut = cms::alpakatools::reducePhiRange(acc, sdOut_dPhiChange - sdOut_dPhiPos);
 
     float tl_axis_x = mds.anchorX()[fourthMDIndex] - mds.anchorX()[firstMDIndex];
     float tl_axis_y = mds.anchorY()[fourthMDIndex] - mds.anchorY()[firstMDIndex];
 
-    float betaIn = sdIn_alpha - phi_mpi_pi(acc, phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
+    float betaIn =
+        sdIn_alpha - cms::alpakatools::reducePhiRange(
+                         acc, cms::alpakatools::phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
 
     float sdIn_alphaRHmin = __H2F(segments.dPhiChangeMins()[innerSegmentIndex]);
     float sdIn_alphaRHmax = __H2F(segments.dPhiChangeMaxs()[innerSegmentIndex]);
     float betaInRHmin = betaIn + sdIn_alphaRHmin - sdIn_alpha;
     float betaInRHmax = betaIn + sdIn_alphaRHmax - sdIn_alpha;
 
-    float betaOut = -sdOut_alphaOut + phi_mpi_pi(acc, phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[fourthMDIndex]);
+    float betaOut =
+        -sdOut_alphaOut + cms::alpakatools::reducePhiRange(
+                              acc, cms::alpakatools::phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[fourthMDIndex]);
 
     float betaOutRHmin = betaOut - sdOut_alphaOutRHmin + sdOut_alphaOut;
     float betaOutRHmax = betaOut - sdOut_alphaOutRHmax + sdOut_alphaOut;
