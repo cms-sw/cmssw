@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 PatElectronTagProbeAnalysis = DQMEDAnalyzer('PatElectronTagProbeAnalyzer',
 
-    OutputInternalPath = cms.string('ScoutingMonitoring'),
+    OutputInternalPath = cms.string('/HLT/ScoutingOffline/EGamma/TnP/Tag_PatElectron'),
     TriggerResultTag   = cms.InputTag("TriggerResults", "", "HLT"),
     TriggerObjects     = cms.InputTag("slimmedPatTrigger"),
     ElectronCollection = cms.InputTag('slimmedElectrons'),

@@ -59,8 +59,6 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     std::string filterTag = filterToMatch.at(iteFilter);
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
       obj.unpackNamesAndLabels(iEvent, *triggerResults);
-      //for (size_t ij =0; ij < obj.filterLabels().size(); ij ++) std::cout << obj.filterLabels().at(ij) << " ";
-      //std::cout << std::endl;
       if (obj.hasFilterLabel(filterTag)) {
         legObjects[iteFilter].push_back(obj);
       }
@@ -97,11 +95,6 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       if ((80 < invMass) && (invMass < 100)) {
         fillHistograms_resonance(histos.resonanceZ_patElectron, *pat_el_second, invMass);
         fillHistograms_resonance(histos.resonanceAll_patElectron, *pat_el_second, invMass);
-        std::cout << "Trigger pat inv mass Z." << std::endl;
-        if (fire_singlePhoton_DST)
-          std::cout << "singlePhoton" << std::endl;
-        if (fire_doubleEG_DST)
-          std::cout << "doubleEG" << std::endl;
       }
       if ((2.8 < invMass) && (invMass < 3.8)) {
         fillHistograms_resonance(

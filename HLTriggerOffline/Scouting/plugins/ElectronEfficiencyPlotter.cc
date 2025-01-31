@@ -39,38 +39,34 @@ ElectronEfficiencyPlotter::~ElectronEfficiencyPlotter() {}
 void ElectronEfficiencyPlotter::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   ibooker.setCurrentFolder(theFolder_);
 
-  h_eff_pt_EB_ID = ibooker.book1D("Eff_pt_barrel_" + ID_, ID_ + "Eff. vs Pt (barrel)", ptBin, ptMin, ptMax);
-  h_eff_pt_EE_ID = ibooker.book1D("Eff_pt_endcap_" + ID_, ID_ + "Eff. vs Pt (endcap)", ptBin, ptMin, ptMax);
-  h_eff_pt_EB_HLT = ibooker.book1D("Eff_pt_barrel_DSTdoubleEG", "DSTdoubleEG Eff. vs Pt (barrel)", ptBin, ptMin, ptMax);
-  h_eff_pt_EE_HLT = ibooker.book1D("Eff_pt_endcap_DSTdoubleEG", "DSTdoubleEG Eff. vs Pt (endcap)", ptBin, ptMin, ptMax);
-
-  // Prevent the ME to be normalized when drawn into the GUI
-  // h_eff_pt_EB_ID->setEfficiencyFlag();
-  // h_eff_pt_EE_ID->setEfficiencyFlag();
+  h_eff_pt_EB_doubleEG_HLT = ibooker.book1D("Eff_pt_barrel_DSTdoubleEG", "DSTdoubleEG Eff. vs Pt (barrel)", ptBin, ptMin, ptMax);
+  h_eff_pt_EE_doubleEG_HLT = ibooker.book1D("Eff_pt_endcap_DSTdoubleEG", "DSTdoubleEG Eff. vs Pt (endcap)", ptBin, ptMin, ptMax);
+  h_eff_pt_EB_singlePhoton_HLT = ibooker.book1D("Eff_pt_barrel_DSTsinglePhoton", "DSTsinglePhoton Eff. vs Pt (barrel)", ptBin, ptMin, ptMax);
+  h_eff_pt_EE_singlePhoton_HLT = ibooker.book1D("Eff_pt_endcap_DSTsinglePhoton", "DSTsinglePhoton Eff. vs Pt (endcap)", ptBin, ptMin, ptMax);
 
   // Axis title
-  h_eff_pt_EB_ID->setAxisTitle("p_{T} (GeV)", 1);
-  h_eff_pt_EE_ID->setAxisTitle("p_{T} (GeV)", 1);
-  h_eff_pt_EB_HLT->setAxisTitle("p_{T} (GeV)", 1);
-  h_eff_pt_EE_HLT->setAxisTitle("p_{T} (GeV)", 1);
+  h_eff_pt_EB_singlePhoton_HLT->setAxisTitle("p_{T} (GeV)", 1);
+  h_eff_pt_EE_singlePhoton_HLT->setAxisTitle("p_{T} (GeV)", 1);
+  h_eff_pt_EB_doubleEG_HLT->setAxisTitle("p_{T} (GeV)", 1);
+  h_eff_pt_EE_doubleEG_HLT->setAxisTitle("p_{T} (GeV)", 1);
 
-  MonitorElement *Numerator_pt_barrel = igetter.get(sourceFolder_ + "/resonanceAll_Probe_sctElectron_Pt_Barrel_passID");
-  MonitorElement *Numerator_pt_endcap = igetter.get(sourceFolder_ + "/resonanceAll_Probe_sctElectron_Pt_Endcap_passID");
-  MonitorElement *Numerator_pt_barrel_hlt =
-      igetter.get(sourceFolder_ + "/resonanceAll_Probe_sctElectron_Pt_Barrel_passDSTdoubleEG");
-  MonitorElement *Numerator_pt_endcap_hlt =
-      igetter.get(sourceFolder_ + "/resonanceAll_Probe_sctElectron_Pt_Endcap_passDSTdoubleEG");
-  MonitorElement *Denominator_pt_barrel = igetter.get(sourceFolder_ + "/resonanceAll_Probe_sctElectron_Pt_Barrel");
-  MonitorElement *Denominator_pt_endcap = igetter.get(sourceFolder_ + "/resonanceAll_Probe_sctElectron_Pt_Endcap");
+  MonitorElement *Numerator_pt_barrel_doubleEG_hlt = igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_passDoubleEG_DST_fireTrigObj_Pt_Barrel");
+  MonitorElement *Numerator_pt_endcap_doubleEG_hlt = igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_passDoubleEG_DST_fireTrigObj_Pt_Endcap");
+  MonitorElement *Numerator_pt_barrel_singlePhoton_hlt =
+      igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_passSinglePhoton_DST_fireTrigObj_Pt_Barrel");
+  MonitorElement *Numerator_pt_endcap_singlePhoton_hlt =
+      igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_passSinglePhoton_DST_fireTrigObj_Pt_Endcap");
+  MonitorElement *Denominator_pt_barrel = igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_Pt_Barrel");
+  MonitorElement *Denominator_pt_endcap = igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_Pt_Endcap");
 
-  if (Numerator_pt_barrel && Denominator_pt_barrel)
-    GetEfficiency(Numerator_pt_barrel, Denominator_pt_barrel, h_eff_pt_EB_ID);
-  if (Numerator_pt_endcap && Denominator_pt_endcap)
-    GetEfficiency(Numerator_pt_endcap, Denominator_pt_endcap, h_eff_pt_EE_ID);
-  if (Numerator_pt_barrel_hlt && Denominator_pt_barrel)
-    GetEfficiency(Numerator_pt_barrel_hlt, Denominator_pt_barrel, h_eff_pt_EB_HLT);
-  if (Numerator_pt_endcap_hlt && Denominator_pt_endcap)
-    GetEfficiency(Numerator_pt_endcap_hlt, Denominator_pt_endcap, h_eff_pt_EE_HLT);
+  if (Numerator_pt_barrel_doubleEG_hlt && Denominator_pt_barrel)
+    GetEfficiency(Numerator_pt_barrel_doubleEG_hlt, Denominator_pt_barrel, h_eff_pt_EB_doubleEG_HLT);
+  if (Numerator_pt_endcap_doubleEG_hlt && Denominator_pt_endcap)
+    GetEfficiency(Numerator_pt_endcap_doubleEG_hlt, Denominator_pt_endcap, h_eff_pt_EE_doubleEG_HLT);
+  if (Numerator_pt_barrel_singlePhoton_hlt && Denominator_pt_barrel)
+    GetEfficiency(Numerator_pt_barrel_singlePhoton_hlt, Denominator_pt_barrel, h_eff_pt_EB_singlePhoton_HLT);
+  if (Numerator_pt_endcap_singlePhoton_hlt && Denominator_pt_endcap)
+    GetEfficiency(Numerator_pt_endcap_singlePhoton_hlt, Denominator_pt_endcap, h_eff_pt_EE_singlePhoton_HLT);
 }
 
 void ElectronEfficiencyPlotter::GetEfficiency(MonitorElement *Numerator,

@@ -47,10 +47,10 @@ private:
 
   std::string ID_;
 
-  MonitorElement* h_eff_pt_EB_ID;
-  MonitorElement* h_eff_pt_EE_ID;
-  MonitorElement* h_eff_pt_EB_HLT;
-  MonitorElement* h_eff_pt_EE_HLT;
+  MonitorElement* h_eff_pt_EB_doubleEG_HLT;
+  MonitorElement* h_eff_pt_EE_doubleEG_HLT;
+  MonitorElement* h_eff_pt_EB_singlePhoton_HLT;
+  MonitorElement* h_eff_pt_EE_singlePhoton_HLT;
 
   std::string theFolder_;
   std::string sourceFolder_;

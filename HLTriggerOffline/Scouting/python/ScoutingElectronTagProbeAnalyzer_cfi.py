@@ -15,7 +15,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 ScoutingElectronTagProbeAnalysis = DQMEDAnalyzer('ScoutingElectronTagProbeAnalyzer',
 
-    OutputInternalPath = cms.string('ScoutingMonitoring'),
+    OutputInternalPath = cms.string('/HLT/ScoutingOffline/EGamma/TnP/Tag_ScoutingElectron'),
     TriggerResultTag   = cms.InputTag("TriggerResults", "", "HLT"),
     FilterToMatch      = cms.vstring("hltPreDSTHLTMuonRun3PFScoutingPixelTracking",
                                      "hltDoubleEG16EG12CaloIdLHEFilter",
