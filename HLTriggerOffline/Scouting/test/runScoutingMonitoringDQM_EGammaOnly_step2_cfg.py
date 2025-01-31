@@ -20,18 +20,12 @@ process.source = cms.Source("DQMRootSource",
 process.load("HLTriggerOffline.Scouting.HLTScoutingEGammaPostProcessing_cff")
 process.DQMStore = cms.Service("DQMStore")
 
-#process.load("DQMServices.FileIO.DQMFileSaverOnline_cfi")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.dqmSaver.workflow = '/ScoutingElectron/myTest/DQM'
-#process.dqmSaver.tag = 'SCOUTMONIT'
-#process.dqmSaver.runNumber = 333334
-#process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
-#process.p = cms.Path(process.egmGsfElectronIDSequence + process.scoutingMonitoring + process.scoutingMonitoringTagProbe + process.scoutingMonitoringPatElectronTagProbe)
 process.p = cms.Path(process.hltScoutingEGammaPostProcessing)
 process.p1 = cms.Path(process.dqmSaver)
 process.schedule = cms.Schedule(process.p, process.p1)
-#process.p1 = cms.Path(process.scoutingEfficiencyHarvest)
