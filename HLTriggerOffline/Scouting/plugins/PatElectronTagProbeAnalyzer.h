@@ -27,7 +27,7 @@
 //  Class declaration  //
 /////////////////////////
 
-struct kProbeKinematicHistos{
+struct kProbeKinematicHistos {
   dqm::reco::MonitorElement* hPt_Barrel;
   dqm::reco::MonitorElement* hPt_Endcap;
   dqm::reco::MonitorElement* hEta;
@@ -97,7 +97,6 @@ struct kTagProbeHistos {
   kProbeKinematicHistos resonanceY_sctElectron_passDoubleEG_DST_fireTrigObj;
   kProbeKinematicHistos resonanceAll_sctElectron_passDoubleEG_DST_fireTrigObj;
 
-
   kProbeKinematicHistos resonanceZ_patElectron_passSinglePhoton_DST;
   kProbeKinematicHistos resonanceJ_patElectron_passSinglePhoton_DST;
   kProbeKinematicHistos resonanceY_patElectron_passSinglePhoton_DST;
@@ -115,37 +114,40 @@ struct kTagProbeHistos {
   kProbeKinematicHistos resonanceJ_sctElectron_passSinglePhoton_DST_fireTrigObj;
   kProbeKinematicHistos resonanceY_sctElectron_passSinglePhoton_DST_fireTrigObj;
   kProbeKinematicHistos resonanceAll_sctElectron_passSinglePhoton_DST_fireTrigObj;
-
-
 };
 
-class PatElectronTagProbeAnalyzer: public DQMGlobalEDAnalyzer<kTagProbeHistos> {
-      public: 
-        explicit PatElectronTagProbeAnalyzer(const edm::ParameterSet& conf);
-        ~PatElectronTagProbeAnalyzer() override;
-        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+class PatElectronTagProbeAnalyzer : public DQMGlobalEDAnalyzer<kTagProbeHistos> {
+public:
+  explicit PatElectronTagProbeAnalyzer(const edm::ParameterSet& conf);
+  ~PatElectronTagProbeAnalyzer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-      private:
-        void dqmAnalyze(const edm::Event & e, const edm::EventSetup & c, kTagProbeHistos const&) const override;
-        void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &, kTagProbeHistos &) const override;
-        void bookHistograms_resonance(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &, kProbeKinematicHistos &, const std::string &) const;
-        void fillHistograms_resonance(const kProbeKinematicHistos histos, const pat::Electron el, const float inv_mass) const;
-        void fillHistograms_resonance_sct(const kProbeKinematicHistos histos, const Run3ScoutingElectron el, const float inv_mass) const;
-        double getPtFromEnergyMassEta(double energy, double mass, double eta) const;
-        bool scoutingElectronID(const Run3ScoutingElectron el) const;
-        bool scoutingElectronGsfTrackID(const Run3ScoutingElectron el, size_t trackIdx) const;
-        bool scoutingElectronGsfTrackIdx(const Run3ScoutingElectron el, size_t &trackIdx) const;
-        bool hasPatternInHLTPath(const edm::TriggerNames& triggerNames, const std::string& pattern) const;
-        bool scoutingElectron_passHLT(float el_eta, float el_phi, TString filter, trigger::TriggerObjectCollection legObjects) const;
-        bool patElectron_passHLT(const pat::Electron el, TString filter, trigger::TriggerObjectCollection legObjects) const;
-        // --------------------- member data  ----------------------
-        std::string outputInternalPath_;
-        edm::EDGetToken triggerResultsToken_;
-        edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
-        edm::EDGetTokenT<edm::View<pat::Electron>> electronCollection_;
-        edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> scoutingElectronCollection_;
-        edm::EDGetTokenT<edm::ValueMap<bool> > eleIdMapTightToken_;
-
-    };
+private:
+  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, kTagProbeHistos const&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kTagProbeHistos&) const override;
+  void bookHistograms_resonance(
+      DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kProbeKinematicHistos&, const std::string&) const;
+  void fillHistograms_resonance(const kProbeKinematicHistos histos, const pat::Electron el, const float inv_mass) const;
+  void fillHistograms_resonance_sct(const kProbeKinematicHistos histos,
+                                    const Run3ScoutingElectron el,
+                                    const float inv_mass) const;
+  double getPtFromEnergyMassEta(double energy, double mass, double eta) const;
+  bool scoutingElectronID(const Run3ScoutingElectron el) const;
+  bool scoutingElectronGsfTrackID(const Run3ScoutingElectron el, size_t trackIdx) const;
+  bool scoutingElectronGsfTrackIdx(const Run3ScoutingElectron el, size_t& trackIdx) const;
+  bool hasPatternInHLTPath(const edm::TriggerNames& triggerNames, const std::string& pattern) const;
+  bool scoutingElectron_passHLT(float el_eta,
+                                float el_phi,
+                                TString filter,
+                                trigger::TriggerObjectCollection legObjects) const;
+  bool patElectron_passHLT(const pat::Electron el, TString filter, trigger::TriggerObjectCollection legObjects) const;
+  // --------------------- member data  ----------------------
+  std::string outputInternalPath_;
+  edm::EDGetToken triggerResultsToken_;
+  edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+  edm::EDGetTokenT<edm::View<pat::Electron>> electronCollection_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> scoutingElectronCollection_;
+  edm::EDGetTokenT<edm::ValueMap<bool>> eleIdMapTightToken_;
+};
 
 #endif

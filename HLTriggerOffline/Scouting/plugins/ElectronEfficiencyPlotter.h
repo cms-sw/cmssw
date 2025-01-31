@@ -21,7 +21,7 @@
 #include <map>
 #include "TH1F.h"
 
-class ElectronEfficiencyPlotter : public DQMEDHarvester{
+class ElectronEfficiencyPlotter : public DQMEDHarvester {
 public:
   // Constructor
   ElectronEfficiencyPlotter(const edm::ParameterSet& ps);
@@ -55,7 +55,6 @@ private:
   std::string theFolder_;
   std::string sourceFolder_;
   void GetEfficiency(MonitorElement* Numerator, MonitorElement* Denominator, MonitorElement* Efficiency);
-
 };
 
 #endif

@@ -10,7 +10,6 @@
 <use name="HLTrigger/HLTcore"/>
 <use name="HLTriggerOffline/Scouting"/>
 <use name="DataFormats/JetReco"/>
-<use name="DataFormats/JetReco"/>
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/CaloTowers"/>
 <use name="DataFormats/HcalRecHit"/>
@@ -42,8 +41,6 @@
 <use name="CalibFormats/SiStripObjects"/>
 <use name="CondFormats/SiStripObjects"/>
 <use name="CondFormats/DTObjects"/>
-<use name="CondFormats/CSCObjects"/>
-<use name="CondFormats/DataRecord"/>
 <use name="CalibTracker/Records"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CommonTools/TriggerUtils"/>

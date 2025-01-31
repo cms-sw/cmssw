@@ -79,31 +79,32 @@ struct kHistogramsScoutingEGammaCollectionMonitoring {
   kInvmHistos sctElectron;
 };
 
-class ScoutingEGammaCollectionMonitoring
-    : public DQMGlobalEDAnalyzer<kHistogramsScoutingEGammaCollectionMonitoring> {
- public:
+class ScoutingEGammaCollectionMonitoring : public DQMGlobalEDAnalyzer<kHistogramsScoutingEGammaCollectionMonitoring> {
+public:
   explicit ScoutingEGammaCollectionMonitoring(const edm::ParameterSet&);
   ~ScoutingEGammaCollectionMonitoring() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
- private:
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+
+private:
+  void bookHistograms(DQMStore::IBooker&,
+                      edm::Run const&,
                       edm::EventSetup const&,
                       kHistogramsScoutingEGammaCollectionMonitoring&) const override;
 
-  void dqmAnalyze(edm::Event const&, edm::EventSetup const&,
+  void dqmAnalyze(edm::Event const&,
+                  edm::EventSetup const&,
                   kHistogramsScoutingEGammaCollectionMonitoring const&) const override;
   bool scoutingElectronID(const Run3ScoutingElectron el) const;
   bool scoutingElectronGsfTrackID(const Run3ScoutingElectron el, size_t) const;
-  bool scoutingElectronGsfTrackIdx(const Run3ScoutingElectron el, size_t &) const;
+  bool scoutingElectronGsfTrackIdx(const Run3ScoutingElectron el, size_t&) const;
   bool hasPatternInHLTPath(const edm::TriggerNames& triggerNames, const std::string& pattern) const;
 
   // ------------ member data ------------
   std::string outputInternalPath_;
   edm::EDGetToken triggerResultsToken_;
   edm::EDGetTokenT<edm::View<pat::Electron> > electronCollection_;
-  edm::EDGetTokenT<std::vector<Run3ScoutingElectron> >
-      scoutingElectronCollection_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingElectron> > scoutingElectronCollection_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleIdMapTightToken_;
 };
 
