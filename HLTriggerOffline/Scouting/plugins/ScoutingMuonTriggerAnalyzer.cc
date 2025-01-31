@@ -20,6 +20,7 @@ ScoutingMuonTriggerAnalyzer::ScoutingMuonTriggerAnalyzer(const edm::ParameterSet
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
       triggerCache_(triggerExpression::Data(iConfig.getParameterSet("triggerConfiguration"), consumesCollector())),
       vtriggerSelection_(iConfig.getParameter<vector<string>>("triggerSelection")) {
+
   scoutingMuonCollection_ =
       consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("ScoutingMuonCollection"));
   vtriggerSelector_.reserve(vtriggerSelection_.size());
@@ -95,6 +96,7 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
         h_phi2_l1_denominator->Fill(subleading_mu.phi());
         h_dxy2_l1_denominator->Fill(subleading_mu.trk_dxy());
       }
+
       //For each L1 seed, if the event passes the trigger plot distributions in the numerator
       for (unsigned int i = 0; i < l1Seeds_.size(); i++) {
         const auto& l1seed(l1Seeds_.at(i));

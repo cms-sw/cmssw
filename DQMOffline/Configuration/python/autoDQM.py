@@ -2,13 +2,22 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                               'PostDQMOffline',
                               'DQMMessageLoggerClientSeq'],
 
-           'commonReduced': ['@dcs+@DQMMessageLogger+@hlt+@beam+@castor+@physics',
+            'commonReduced': ['@dcs+@DQMMessageLogger+@hlt+@beam+@castor+@physics',
                         'PostDQMOffline',
                         '@dcs+@DQMMessageLogger+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
-	   'common': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@castor+@physics',
-                        'PostDQMOffline',
-                        '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
+	    'common': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@castor+@physics',
+                      'PostDQMOffline',
+                      '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
+            
+            'commonWithScouting': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@castor+@physics+@hltScouting',
+                                   'PostDQMOffline',
+                                   '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
+
+            'commonWithScouting': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@castor+@physics+@hltScouting',
+                                   'PostDQMOffline',
+                                   '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
+
 
             'commonFakeHLT': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@beam+@castor+@physics',
                         'PostDQMOffline',
@@ -141,7 +150,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 	    'physics': ['DQMOfflinePhysics',
 			'PostDQMOffline',
 			'DQMNone'],
-
+            
             'heavyFlavor': ['DQMOfflineHeavyFlavor',
                             'PostDQMOffline',
                             'DQMNone'],
@@ -218,6 +227,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
             'standardDQM': ['DQMOffline',
                             'PostDQMOffline',
                             'dqmHarvesting'],
+
+	    'hltScouting': ['DQMOfflineScouting',
+			    'PostDQMOffline',
+			    'DQMHarvestHLTScouting'],
 
             'standardDQMExpress': ['DQMOfflineExpress',
                                    'PostDQMOffline',

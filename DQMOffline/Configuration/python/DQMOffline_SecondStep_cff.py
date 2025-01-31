@@ -84,6 +84,7 @@ DQMOffline_SecondStepDPG_Express = cms.Sequence(
 from DQM.TrackingMonitorClient.TrackingClientConfig_Tier0_cff import *
 from DQMOffline.Muon.muonQualityTests_cff import *
 from DQMOffline.EGamma.egammaPostProcessing_cff import *
+from DQMOffline.HLTScouting.hltScoutingPostProcessing_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
@@ -266,6 +267,8 @@ DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )
 
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
+
+DQMHarvestHLTScouting = cms.Sequence( hltScoutingPostProcessing )
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import *
 from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *

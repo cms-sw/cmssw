@@ -68,6 +68,7 @@ process.source = cms.Source("PoolSource",
 )
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+
 #Load files
 process.load("EventFilter.L1TRawToDigi.gtStage2Digis_cfi")
 process.gtStage2Digis.InputLabel = cms.InputTag( "hltFEDSelectorL1" )
@@ -88,5 +89,6 @@ process.allPath = cms.Path(process.scoutingMonitoringTagProbeMuonNoVtx
                            * process.muonEfficiencyVtx 
                            * process.scoutingMonitoringTriggerMuon
                            * process.muonTriggerEfficiency)
+
 #Save the files and close root file
 process.p = cms.EndPath(process.dqmSaver)
