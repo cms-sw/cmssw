@@ -6,6 +6,7 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/Common/interface/SubProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/CommonParams.h"
@@ -19,7 +20,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <memory>

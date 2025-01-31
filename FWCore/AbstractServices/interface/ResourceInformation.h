@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_ResourceInformation_h
-#define FWCore_Utilities_ResourceInformation_h
+#ifndef FWCore_AbstractServices_ResourceInformation_h
+#define FWCore_AbstractServices_ResourceInformation_h
 
 /** \class edm::ResourceInformation
 
