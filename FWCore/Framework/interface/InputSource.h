@@ -20,6 +20,7 @@ Some examples of InputSource subclasses are:
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
@@ -43,7 +44,6 @@ namespace edm {
   class ParameterSetDescription;
   class ProcessContext;
   class ProcessHistoryRegistry;
-  class ProductRegistry;
   class SignallingProductRegistry;
   class StreamContext;
   class ModuleCallingContext;
@@ -159,11 +159,11 @@ namespace edm {
     /// issue an event report
     void issueReports(EventID const& eventID, StreamID streamID);
 
-    /// Register any produced products
-    virtual void registerProducts(SignallingProductRegistry&);
+    /// Register any produced products into source's registry
+    virtual void registerProducts();
 
     /// Accessors for product registry
-    std::shared_ptr<ProductRegistry const> productRegistry() const { return get_underlying_safe(productRegistry_); }
+    ProductRegistry const& productRegistry() const { return productRegistry_; }
 
     /// Accessors for process history registry.
     ProcessHistoryRegistry const& processHistoryRegistry() const { return *processHistoryRegistry_; }
@@ -198,9 +198,6 @@ namespace edm {
     /// Returns nullptr if no resource shared between the Source and a DelayedReader
     std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> resourceSharedWithDelayedReader();
 
-    /// switch to a different ProductRegistry.
-    void switchTo(std::shared_ptr<ProductRegistry> iOther) { productRegistry_ = iOther; }
-
     /// Accessor for maximum number of events to be read.
     /// -1 is used for unlimited.
     int maxEvents() const { return maxEvents_; }
@@ -226,8 +223,8 @@ namespace edm {
     /// Accessor for global process identifier
     std::string const& processGUID() const { return processGUID_; }
 
-    /// Called by framework at beginning of job
-    void doBeginJob();
+    /// Called by framework at beginning of job. The argument is the full product registry
+    void doBeginJob(edm::ProductRegistry const&);
 
     /// Called by framework at end of job
     void doEndJob();
@@ -357,7 +354,7 @@ namespace edm {
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) { time_ = theTime; }
 
-    ProductRegistry& productRegistryUpdate() { return *productRegistry_; }
+    ProductRegistry& productRegistryUpdate() { return productRegistry_; }
     ProcessHistoryRegistry& processHistoryRegistryForUpdate() { return *processHistoryRegistry_; }
     ItemTypeInfo state() const { return state_; }
     void setRunAuxiliary(RunAuxiliary* rp) {
@@ -397,7 +394,7 @@ namespace edm {
     void decreaseRemainingEventsBy(int iSkipped);
 
     ///Begin protected makes it easier to do template programming
-    virtual void beginJob();
+    virtual void beginJob(edm::ProductRegistry const&);
 
   private:
     bool eventLimitReached() const { return remainingEvents_ == 0; }
@@ -451,7 +448,7 @@ namespace edm {
     std::chrono::time_point<std::chrono::steady_clock> processingStart_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
-    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
+    ProductRegistry productRegistry_;
     edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;

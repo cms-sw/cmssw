@@ -299,7 +299,7 @@ namespace edm::streamer {
   void StreamerInputSource::read(EventPrincipal& eventPrincipal) {
     if (adjustEventToNewProductRegistry_) {
       eventPrincipal.adjustIndexesAfterProductRegistryAddition();
-      bool eventOK = eventPrincipal.adjustToNewProductRegistry(*productRegistry());
+      bool eventOK = eventPrincipal.adjustToNewProductRegistry(productRegistry());
       assert(eventOK);
       adjustEventToNewProductRegistry_ = false;
     }
