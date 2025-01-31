@@ -962,7 +962,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float rt_InOut = rt_InUp;
 
-    if (alpaka::math::abs(acc, deltaPhi(acc, x_InUp, y_InUp, x_OutLo, y_OutLo)) > kPi / 2.f)
+    if (alpaka::math::abs(acc, cms::alpakatools::deltaPhi(acc, x_InUp, y_InUp, x_OutLo, y_OutLo)) > kPi / 2.f)
       return false;
 
     unsigned int pixelSegmentArrayIndex = innerSegmentIndex - ranges.segmentModuleIndices()[pixelModuleIndex];
@@ -1036,7 +1036,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float diffX = x_OutLo - x_InLo;
     float diffY = y_OutLo - y_InLo;
 
-    dPhi = deltaPhi(acc, midPointX, midPointY, diffX, diffY);
+    dPhi = cms::alpakatools::deltaPhi(acc, midPointX, midPointY, diffX, diffY);
 
     if (alpaka::math::abs(acc, dPhi) > dPhiCut)
       return false;
@@ -1050,7 +1050,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                           modules.moduleType()[outerOuterLowerModuleIndex] == TwoS;
 
     float alpha_OutUp, alpha_OutUp_highEdge, alpha_OutUp_lowEdge;
-    alpha_OutUp = deltaPhi(acc, x_OutUp, y_OutUp, x_OutUp - x_OutLo, y_OutUp - y_OutLo);
+    alpha_OutUp = cms::alpakatools::deltaPhi(acc, x_OutUp, y_OutUp, x_OutUp - x_OutLo, y_OutUp - y_OutLo);
 
     alpha_OutUp_highEdge = alpha_OutUp;
     alpha_OutUp_lowEdge = alpha_OutUp;
@@ -1064,42 +1064,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float tl_axis_lowEdge_x = tl_axis_x;
     float tl_axis_lowEdge_y = tl_axis_y;
 
-    betaIn = -deltaPhi(acc, px, py, tl_axis_x, tl_axis_y);
+    betaIn = -cms::alpakatools::deltaPhi(acc, px, py, tl_axis_x, tl_axis_y);
     float betaInRHmin = betaIn;
     float betaInRHmax = betaIn;
 
-    betaOut = -alpha_OutUp + deltaPhi(acc, x_OutUp, y_OutUp, tl_axis_x, tl_axis_y);
+    betaOut = -alpha_OutUp + cms::alpakatools::deltaPhi(acc, x_OutUp, y_OutUp, tl_axis_x, tl_axis_y);
 
     float betaOutRHmin = betaOut;
     float betaOutRHmax = betaOut;
 
     if (isEC_lastLayer) {
-      alpha_OutUp_highEdge = deltaPhi(acc,
-                                      mds.anchorHighEdgeX()[fourthMDIndex],
-                                      mds.anchorHighEdgeY()[fourthMDIndex],
-                                      mds.anchorHighEdgeX()[fourthMDIndex] - x_OutLo,
-                                      mds.anchorHighEdgeY()[fourthMDIndex] - y_OutLo);
-      alpha_OutUp_lowEdge = deltaPhi(acc,
-                                     mds.anchorLowEdgeX()[fourthMDIndex],
-                                     mds.anchorLowEdgeY()[fourthMDIndex],
-                                     mds.anchorLowEdgeX()[fourthMDIndex] - x_OutLo,
-                                     mds.anchorLowEdgeY()[fourthMDIndex] - y_OutLo);
+      alpha_OutUp_highEdge = cms::alpakatools::deltaPhi(acc,
+                                                        mds.anchorHighEdgeX()[fourthMDIndex],
+                                                        mds.anchorHighEdgeY()[fourthMDIndex],
+                                                        mds.anchorHighEdgeX()[fourthMDIndex] - x_OutLo,
+                                                        mds.anchorHighEdgeY()[fourthMDIndex] - y_OutLo);
+      alpha_OutUp_lowEdge = cms::alpakatools::deltaPhi(acc,
+                                                       mds.anchorLowEdgeX()[fourthMDIndex],
+                                                       mds.anchorLowEdgeY()[fourthMDIndex],
+                                                       mds.anchorLowEdgeX()[fourthMDIndex] - x_OutLo,
+                                                       mds.anchorLowEdgeY()[fourthMDIndex] - y_OutLo);
 
       tl_axis_highEdge_x = mds.anchorHighEdgeX()[fourthMDIndex] - x_InUp;
       tl_axis_highEdge_y = mds.anchorHighEdgeY()[fourthMDIndex] - y_InUp;
       tl_axis_lowEdge_x = mds.anchorLowEdgeX()[fourthMDIndex] - x_InUp;
       tl_axis_lowEdge_y = mds.anchorLowEdgeY()[fourthMDIndex] - y_InUp;
 
-      betaOutRHmin = -alpha_OutUp_highEdge + deltaPhi(acc,
-                                                      mds.anchorHighEdgeX()[fourthMDIndex],
-                                                      mds.anchorHighEdgeY()[fourthMDIndex],
-                                                      tl_axis_highEdge_x,
-                                                      tl_axis_highEdge_y);
-      betaOutRHmax = -alpha_OutUp_lowEdge + deltaPhi(acc,
-                                                     mds.anchorLowEdgeX()[fourthMDIndex],
-                                                     mds.anchorLowEdgeY()[fourthMDIndex],
-                                                     tl_axis_lowEdge_x,
-                                                     tl_axis_lowEdge_y);
+      betaOutRHmin = -alpha_OutUp_highEdge + cms::alpakatools::deltaPhi(acc,
+                                                                        mds.anchorHighEdgeX()[fourthMDIndex],
+                                                                        mds.anchorHighEdgeY()[fourthMDIndex],
+                                                                        tl_axis_highEdge_x,
+                                                                        tl_axis_highEdge_y);
+      betaOutRHmax = -alpha_OutUp_lowEdge + cms::alpakatools::deltaPhi(acc,
+                                                                       mds.anchorLowEdgeX()[fourthMDIndex],
+                                                                       mds.anchorLowEdgeY()[fourthMDIndex],
+                                                                       tl_axis_lowEdge_x,
+                                                                       tl_axis_lowEdge_y);
     }
 
     //beta computation
@@ -1300,7 +1300,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float diffX = x_OutLo - x_InLo;
     float diffY = y_OutLo - y_InLo;
 
-    dPhi = deltaPhi(acc, midPointX, midPointY, diffX, diffY);
+    dPhi = cms::alpakatools::deltaPhi(acc, midPointX, midPointY, diffX, diffY);
 
     // Cut #5: deltaPhiChange
     if (alpaka::math::abs(acc, dPhi) > dPhiCut)
@@ -1314,7 +1314,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float alpha_OutUp, alpha_OutUp_highEdge, alpha_OutUp_lowEdge;
 
-    alpha_OutUp = deltaPhi(acc, x_OutUp, y_OutUp, x_OutUp - x_OutLo, y_OutUp - y_OutLo);
+    alpha_OutUp = cms::alpakatools::deltaPhi(acc, x_OutUp, y_OutUp, x_OutUp - x_OutLo, y_OutUp - y_OutLo);
     alpha_OutUp_highEdge = alpha_OutUp;
     alpha_OutUp_lowEdge = alpha_OutUp;
 
@@ -1327,41 +1327,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float tl_axis_lowEdge_x = tl_axis_x;
     float tl_axis_lowEdge_y = tl_axis_y;
 
-    betaIn = -deltaPhi(acc, px, py, tl_axis_x, tl_axis_y);
+    betaIn = -cms::alpakatools::deltaPhi(acc, px, py, tl_axis_x, tl_axis_y);
     float betaInRHmin = betaIn;
     float betaInRHmax = betaIn;
 
-    betaOut = -alpha_OutUp + deltaPhi(acc, x_OutUp, y_OutUp, tl_axis_x, tl_axis_y);
+    betaOut = -alpha_OutUp + cms::alpakatools::deltaPhi(acc, x_OutUp, y_OutUp, tl_axis_x, tl_axis_y);
     float betaOutRHmin = betaOut;
     float betaOutRHmax = betaOut;
 
     if (isEC_lastLayer) {
-      alpha_OutUp_highEdge = deltaPhi(acc,
-                                      mds.anchorHighEdgeX()[fourthMDIndex],
-                                      mds.anchorHighEdgeY()[fourthMDIndex],
-                                      mds.anchorHighEdgeX()[fourthMDIndex] - x_OutLo,
-                                      mds.anchorHighEdgeY()[fourthMDIndex] - y_OutLo);
-      alpha_OutUp_lowEdge = deltaPhi(acc,
-                                     mds.anchorLowEdgeX()[fourthMDIndex],
-                                     mds.anchorLowEdgeY()[fourthMDIndex],
-                                     mds.anchorLowEdgeX()[fourthMDIndex] - x_OutLo,
-                                     mds.anchorLowEdgeY()[fourthMDIndex] - y_OutLo);
+      alpha_OutUp_highEdge = cms::alpakatools::deltaPhi(acc,
+                                                        mds.anchorHighEdgeX()[fourthMDIndex],
+                                                        mds.anchorHighEdgeY()[fourthMDIndex],
+                                                        mds.anchorHighEdgeX()[fourthMDIndex] - x_OutLo,
+                                                        mds.anchorHighEdgeY()[fourthMDIndex] - y_OutLo);
+      alpha_OutUp_lowEdge = cms::alpakatools::deltaPhi(acc,
+                                                       mds.anchorLowEdgeX()[fourthMDIndex],
+                                                       mds.anchorLowEdgeY()[fourthMDIndex],
+                                                       mds.anchorLowEdgeX()[fourthMDIndex] - x_OutLo,
+                                                       mds.anchorLowEdgeY()[fourthMDIndex] - y_OutLo);
 
       tl_axis_highEdge_x = mds.anchorHighEdgeX()[fourthMDIndex] - x_InUp;
       tl_axis_highEdge_y = mds.anchorHighEdgeY()[fourthMDIndex] - y_InUp;
       tl_axis_lowEdge_x = mds.anchorLowEdgeX()[fourthMDIndex] - x_InUp;
       tl_axis_lowEdge_y = mds.anchorLowEdgeY()[fourthMDIndex] - y_InUp;
 
-      betaOutRHmin = -alpha_OutUp_highEdge + deltaPhi(acc,
-                                                      mds.anchorHighEdgeX()[fourthMDIndex],
-                                                      mds.anchorHighEdgeY()[fourthMDIndex],
-                                                      tl_axis_highEdge_x,
-                                                      tl_axis_highEdge_y);
-      betaOutRHmax = -alpha_OutUp_lowEdge + deltaPhi(acc,
-                                                     mds.anchorLowEdgeX()[fourthMDIndex],
-                                                     mds.anchorLowEdgeY()[fourthMDIndex],
-                                                     tl_axis_lowEdge_x,
-                                                     tl_axis_lowEdge_y);
+      betaOutRHmin = -alpha_OutUp_highEdge + cms::alpakatools::deltaPhi(acc,
+                                                                        mds.anchorHighEdgeX()[fourthMDIndex],
+                                                                        mds.anchorHighEdgeY()[fourthMDIndex],
+                                                                        tl_axis_highEdge_x,
+                                                                        tl_axis_highEdge_y);
+      betaOutRHmax = -alpha_OutUp_lowEdge + cms::alpakatools::deltaPhi(acc,
+                                                                       mds.anchorLowEdgeX()[fourthMDIndex],
+                                                                       mds.anchorLowEdgeY()[fourthMDIndex],
+                                                                       tl_axis_lowEdge_x,
+                                                                       tl_axis_lowEdge_y);
     }
 
     //beta computation
