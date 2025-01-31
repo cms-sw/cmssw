@@ -1,11 +1,20 @@
+'''
+Client config file for Scouting Muon DQM. Harvester to compute the efficiencies
+for the Tag and Probe (hltScoutingMuonPackerVtx and hltScoutingMuonPackerNoVtx 
+collections, read in ScoutingMuonTagProbeAnalyzer_cfi.py) and compute the efficiencies
+of the L1 seeds.
+
+Author: Javier Garcia de Castro, email:javigdc@bu.edu
+'''
+
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from HLTriggerOffline.Scouting.ScoutingMuonTriggerAnalyzer_cfi import *
 
-
+#Harvester to measure efficiency for hltScoutingMuonPackerNoVtx collection (Tag and Probe method)
+#Inputs for the efficiency vstring are (name, title, xlabel, ylabel, numerator histogram, denominator histogram)
 muonEfficiencyNoVtx = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("/HLT/ScoutingOffline/Muons/NoVtx"),
-    #outputFileName = cms.untracked.string("output.root"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                                                                                                                          
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -62,12 +71,13 @@ muonEfficiencyNoVtx = DQMEDHarvester("DQMGenericClient",
         "effic_vertex_Zerror       'efficiency vs Zerror; vertex Zerror; efficiency' resonanceJ_numerator_Probe_sctMuon_Zerror       resonanceJ_denominator_Probe_sctMuon_Zerror",
         "effic_tracksSize       'efficiency vs tracksSize; tracksSize; efficiency' resonanceJ_numerator_Probe_sctMuon_tracksSize       resonanceJ_denominator_Probe_sctMuon_tracksSize",
     ),
-    #
 )
-#
+
+#To declare muonEfficiencyVtx, clone muonEfficiencyNoVtx and change only the output subDir
 muonEfficiencyVtx = muonEfficiencyNoVtx.clone()
 muonEfficiencyVtx.subDirs = cms.untracked.vstring("/HLT/ScoutingOffline/Muons/Vtx")
-#
+
+#L1 seeds efficiency measurement
 allSeeds = SingleMuL1 + DoubleMuL1
 efficiencyList = ["effic_pt1_%s       '%s; Leading muon pt [GeV]; L1 efficiency' h_pt1_numerator_%s h_pt1_denominator"%(seed,seed, seed) for seed in allSeeds]+\
 ["effic_eta1_%s       '%s; Leading muon eta; L1 efficiency' h_eta1_numerator_%s h_eta1_denominator"%(seed,seed, seed) for seed in allSeeds]+\
@@ -81,7 +91,6 @@ efficiencyList = ["effic_pt1_%s       '%s; Leading muon pt [GeV]; L1 efficiency'
 
 muonTriggerEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("/HLT/ScoutingOffline/Muons/L1Efficiency"),
-    #outputFileName = cms.untracked.string("output.root"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                                                                                                                          
     resolution     = cms.vstring(),
     efficiency     = cms.vstring( efficiencyList ),

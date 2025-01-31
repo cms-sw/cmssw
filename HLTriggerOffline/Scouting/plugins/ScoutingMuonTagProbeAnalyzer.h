@@ -1,3 +1,14 @@
+/*
+Class definition for ScoutingMuonTagProbeAnalyzer.cc. Declares each
+histogram (MonitorElement), numerator and denominator histogram structure
+(kProbeKinematicMuonHistos), and any functions used in 
+ScoutingMuonTagProbeAnalyzer.cc. Also declares the token to read the 
+scouting muon and scouting vertex collections.
+
+Author: Javier Garcia de Castro, email:javigdc@bu.edu
+*/
+
+//Files to include
 #ifndef DQMOffline_Scouting_ScoutingMuonTagProbeAnalyzer_h
 #define DQMOffline_Scouting_ScoutingMuonTagProbeAnalyzer_h
 #include <string>
@@ -11,10 +22,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-/////////////////////////
-//  Class declaration  //
-/////////////////////////
 
 struct kProbeKinematicMuonHistos {
   dqm::reco::MonitorElement* hPt;
@@ -68,24 +75,7 @@ struct kProbeKinematicMuonHistos {
   dqm::reco::MonitorElement* hy;
   dqm::reco::MonitorElement* hZerror;
   dqm::reco::MonitorElement* htracksSize;
-  //dqm::reco::MonitorElement* hrecoMuonStationMask;
-  //dqm::reco::MonitorElement* hnRecoMuonMatchedRPCLayers;
-  //dqm::reco::MonitorElement* hrecoMuonRPClayerMask;
-  //dqm::reco::MonitorElement* htrk_phi;
-  //dqm::reco::MonitorElement* hndof;
-  //dqm::reco::MonitorElement* htrk_qoverp_lambda_cov;
-  //dqm::reco::MonitorElement* htrk_qoverp_phi_cov;
-  //dqm::reco::MonitorElement* htrk_qoverp_dxy_cov;
-  //dqm::reco::MonitorElement* htrk_qoverp_dsz_cov;
-  //dqm::reco::MonitorElement* htrk_lambda_phi_cov;
-  //dqm::reco::MonitorElement* htrk_lambda_dxy_cov;
-  //dqm::reco::MonitorElement* htrk_lambda_dsz_cov;
-  //dqm::reco::MonitorElement* htrk_phi_dxy_cov;
-  //dqm::reco::MonitorElement* htrk_phi_dsz_cov;
-  //dqm::reco::MonitorElement* htrk_dxy_dsz_cov;
-  //dqm::reco::MonitorElement* hxyCov;
-  //dqm::reco::MonitorElement* hxzCov;
-  //dqm::reco::MonitorElement* hyzCov;
+
 };
 
 struct kTagProbeMuonHistos {
@@ -114,9 +104,7 @@ private:
                                 const float lxy) const;
   bool scoutingMuonID(const Run3ScoutingMuon mu) const;
 
-  // --------------------- member data  ----------------------
   std::string outputInternalPath_;
-  edm::EDGetTokenT<std::vector<pat::Muon>> muonCollection_;
   edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
   edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> scoutingVtxCollection_;
   Bool_t runWithoutVtx_;

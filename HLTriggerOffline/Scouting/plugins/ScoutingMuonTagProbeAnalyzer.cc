@@ -1,3 +1,18 @@
+/*
+Scouting Muon DQM core implementation. This code does the following:
+  1) Reads muon collection, scouting muon collection and scouting vertex collection
+  2) Tag and Probe method: For each event, check whether one of the muons passes a tight ID
+     (tag), and pair it with another muon in the event (probe). If this dimuon system is 
+     within the mass range of the J/Psi, monitor distributions of the probe and the efficiency
+     of the probe to pass certain IDs. For now we are measuring the efficiency of the probe
+     passing the tag ID (If the dimuon system is within J/Psi, add it to the denominator
+     distributions, and if the probe passes the tag ID, add it to the numerator distributions
+     as well.)
+  3) Fills histograms
+Author: Javier Garcia de Castro, email:javigdc@bu.edu
+*/
+
+//Files to include
 #include "ScoutingMuonTagProbeAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -5,7 +20,6 @@
 
 ScoutingMuonTagProbeAnalyzer::ScoutingMuonTagProbeAnalyzer(const edm::ParameterSet& iConfig)
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
-      muonCollection_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("MuonCollection"))),
       scoutingMuonCollection_(
           consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("ScoutingMuonCollection"))),
       scoutingVtxCollection_(
@@ -17,13 +31,7 @@ ScoutingMuonTagProbeAnalyzer::~ScoutingMuonTagProbeAnalyzer() {}
 void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
                                               edm::EventSetup const& iSetup,
                                               kTagProbeMuonHistos const& histos) const {
-  edm::Handle<std::vector<pat::Muon>> patMuons;
-  iEvent.getByToken(muonCollection_, patMuons);
-  if (patMuons.failedToGet()) {
-    edm::LogWarning("ScoutingMonitoring") << "pat::Muon collection not found.";
-    return;
-  }
-
+  //Read scouting muon collection
   edm::Handle<std::vector<Run3ScoutingMuon>> sctMuons;
   iEvent.getByToken(scoutingMuonCollection_, sctMuons);
   if (sctMuons.failedToGet()) {
@@ -31,6 +39,7 @@ void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     return;
   }
 
+  //Read scouting vertex collection
   edm::Handle<std::vector<Run3ScoutingVertex>> sctVertex;
   iEvent.getByToken(scoutingVtxCollection_, sctVertex);
   if (sctVertex.failedToGet()) {
@@ -38,12 +47,13 @@ void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     return;
   }
 
-  edm::LogInfo("ScoutingMonitoring") << "Process pat::Muons: " << patMuons->size();
   edm::LogInfo("ScoutingMonitoring") << "Process Run3ScoutingMuons: " << sctMuons->size();
 
   edm::LogInfo("ScoutingMonitoring") << "Process Run3ScoutingVertex: " << sctVertex->size();
 
+  //Core of Tag and Probe implementation
   bool foundTag = false;
+  //First find the tag
   for (const auto& sct_mu : *sctMuons) {
     if (!scoutingMuonID(sct_mu))
       continue;
@@ -52,6 +62,7 @@ void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     math::PtEtaPhiMLorentzVector tag_sct_mu(sct_mu.pt(), sct_mu.eta(), sct_mu.phi(), sct_mu.m());
     const std::vector<int> vtxIndx_tag = sct_mu.vtxIndx();
 
+    //Then pair the tag with the probe
     for (const auto& sct_mu_second : *sctMuons) {
       if (&sct_mu_second == &sct_mu)
         continue;
@@ -63,12 +74,16 @@ void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
 
       float invMass = (tag_sct_mu + probe_sct_mu).mass();
       edm::LogInfo("ScoutingMonitoring") << "Inv Mass: " << invMass;
+      //If dimuon system comes from J/Psi, process event
       if ((2.4 < invMass && invMass < 3.8)) {
+        //Boolean added because hltScoutingMuonPackerVtx collection doesn't have vertices for the moment
         if (runWithoutVtx_) {
           Run3ScoutingVertex vertex;
+          //If probe passes tag ID, add it to the numerator
           if (scoutingMuonID(sct_mu_second)) {
             fillHistograms_resonance(histos.resonanceJ_numerator, sct_mu_second, vertex, invMass, -99.);
           }
+          //Add all events to the denominator
           fillHistograms_resonance(histos.resonanceJ_denominator, sct_mu_second, vertex, invMass, -99.);
         } else {
           if (vtxIndx_tag.empty() || vtxIndx_probe.empty())
@@ -84,14 +99,13 @@ void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
             }
           }
         }
-      } else {
-        //fillHistograms_resonance(histos.resonanceAll, sct_mu_second, invMass);
       }
     }
     foundTag = true;
   }
 }
 
+//Tag ID
 bool ScoutingMuonTagProbeAnalyzer::scoutingMuonID(const Run3ScoutingMuon mu) const {
   math::PtEtaPhiMLorentzVector particle(mu.pt(), mu.eta(), mu.phi(), 0.10566);
   double normchisq_threshold = 3.0;
@@ -105,6 +119,8 @@ bool ScoutingMuonTagProbeAnalyzer::scoutingMuonID(const Run3ScoutingMuon mu) con
   }
   return false;
 }
+
+//Fill histograms
 void ScoutingMuonTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematicMuonHistos histos,
                                                             const Run3ScoutingMuon mu,
                                                             const Run3ScoutingVertex vertex,
@@ -151,20 +167,7 @@ void ScoutingMuonTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinemati
   histos.hnPixel->Fill(mu.nPixelLayersWithMeasurement());
   histos.hnTracker->Fill(mu.nTrackerLayersWithMeasurement());
   histos.htrk_qoverp->Fill(mu.trk_qoverp());
-  //histos.htrk_phi->Fill(mu.trk_phi());
-  //histos.hrecoMuonStationMask->Fill(mu.recoMuonStationMask());
-  //histos.hnRecoMuonMatchedRPCLayers->Fill(mu.nRecoMuonMatchedRPCLayers());
-  //histos.hrecoMuonRPClayerMask->Fill(mu.recoMuonRPClayerMask());
-  //histos.htrk_qoverp_lambda_cov->Fill(mu.trk_qoverp_lambda_cov());
-  //histos.htrk_qoverp_phi_cov->Fill(mu.trk_qoverp_phi_cov());
-  //histos.htrk_qoverp_dxy_cov->Fill(mu.trk_qoverp_dxy_cov());
-  //histos.htrk_qoverp_dsz_cov->Fill(mu.trk_qoverp_dsz_cov());
-  //histos.htrk_lambda_phi_cov->Fill(mu.trk_lambda_phi_cov());
-  //histos.htrk_lambda_dxy_cov->Fill(mu.trk_lambda_dxy_cov());
-  //histos.htrk_lambda_dsz_cov->Fill(mu.trk_lambda_dsz_cov());
-  //histos.htrk_phi_dxy_cov->Fill(mu.trk_phi_dxy_cov());
-  //histos.htrk_phi_dsz_cov->Fill(mu.trk_phi_dsz_cov());
-  //histos.htrk_dxy_dsz_cov->Fill(mu.trk_dxy_dsz_cov());
+
   if (!runWithoutVtx_) {
     histos.hLxy->Fill(lxy);
     histos.hXError->Fill(vertex.xError());
@@ -175,13 +178,10 @@ void ScoutingMuonTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinemati
     histos.hy->Fill(vertex.y());
     histos.hZerror->Fill(vertex.zError());
     histos.htracksSize->Fill(vertex.tracksSize());
-    //histos.hndof->Fill(vertex.ndof());
-    //histos.hxyCov->Fill(vertex.xyCov());
-    //histos.hxzCov->Fill(vertex.xzCov());
-    //histos.hyzCov->Fill(vertex.yzCov());
   }
 }
 
+//Save histograms
 void ScoutingMuonTagProbeAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
                                                   edm::Run const& run,
                                                   edm::EventSetup const& iSetup,
@@ -189,9 +189,9 @@ void ScoutingMuonTagProbeAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
   ibook.setCurrentFolder(outputInternalPath_);
   bookHistograms_resonance(ibook, run, iSetup, histos.resonanceJ_numerator, "resonanceJ_numerator");
   bookHistograms_resonance(ibook, run, iSetup, histos.resonanceJ_denominator, "resonanceJ_denominator");
-  //bookHistograms_resonance(ibook, run, iSetup, histos.resonanceAll, "resonanceAll");
 }
 
+//Set axes labels and range
 void ScoutingMuonTagProbeAnalyzer::bookHistograms_resonance(DQMStore::IBooker& ibook,
                                                             edm::Run const& run,
                                                             edm::EventSetup const& iSetup,
@@ -322,37 +322,12 @@ void ScoutingMuonTagProbeAnalyzer::bookHistograms_resonance(DQMStore::IBooker& i
   histos.hZerror = ibook.book1D(name + "_Vertex_z error", name + "_Vertex_z_error; vertex z error; Muons", 60, 0, 3);
   histos.htracksSize =
       ibook.book1D(name + "_Vertex_tracksSize", name + "_Vertex_tracksSize; vertex tracksSize; Muons", 60, 0, 10);
-  //histos.htrk_phi = ibook.book1D(name + "_Probe_sctMuon_trk_phi",name + "_Probe_sctMuon_trk_phi; trk_phi; Muons", 60, -3,3, 3.3);
-  //histos.hrecoMuonStationMask = ibook.book1D(name + "_Probe_sctMuon_recoMuonStationMask",name + "_Probe_sctMuon_recoMuonStationMask; recoMuonStationMask; Muons", 60, 0, 60.0);
-  //histos.hnRecoMuonMatchedRPCLayers = ibook.book1D(name + "_Probe_sctMuon_nRecoMuonMatchedRPCLayers",name + "_Probe_sctMuon_nRecoMuonMatchedRPCLayers; nRecoMuonMatchedRPCLayers; Muons", 5, 0, 5.0);
-  //histos.hrecoMuonRPClayerMask = ibook.book1D(name + "_Probe_sctMuon_recoMuonRPClayerMask",name + "_Probe_sctMuon_recoMuonRPClayerMask; recoMuonRPClayerMask; Muons", 60, -5, 5);
-  //histos.htrk_qoverp_lambda_cov = ibook.book1D(name + "_Probe_sctMuon_trk_qoverp_lambda_cov",name + "_Probe_sctMuon_trk_qoverp_lambda_cov; trk_qoverp_lambda_cov; Muons", 60, -1, 1);
-  //histos.htrk_qoverp_phi_cov = ibook.book1D(name + "_Probe_sctMuon_trk_qoverp_phi_cov",name + "_Probe_sctMuon_trk_qoverp_phi_cov; trk_qoverp_phi_cov; Muons", 60, -1.0, 1.0);
-  //histos.htrk_qoverp_dxy_cov = ibook.book1D(name + "_Probe_sctMuon_trk_qoverp_dxy_cov",name + "_Probe_sctMuon_trk_qoverp_dxy_cov; trk_qoverp_dxy_cov; Muons", 60, -1, 1);
-  //histos.htrk_qoverp_dsz_cov = ibook.book1D(name + "_Probe_sctMuon_trk_qoverp_dsz_cov",name + "_Probe_sctMuon_trk_qoverp_dsz_cov; trk_qoverp_dsz_cov; Muons", 60, -1, 1);
-  //histos.htrk_lambda_phi_cov = ibook.book1D(name + "_Probe_sctMuon_trk_lambda_phi_cov",name + "_Probe_sctMuon_trk_lambda_phi_cov; trk_lambda_phi_cov; Muons", 60, -0.1, 0.1);
-  //histos.htrk_lambda_dxy_cov = ibook.book1D(name + "_Probe_sctMuon_trk_lambda_dxy_cov",name + "_Probe_sctMuon_trk_lambda_dxy_cov; trk_lambda_dxy_cov; Muons", 60, -1, 1);
-  //histos.htrk_lambda_dsz_cov = ibook.book1D(name + "_Probe_sctMuon_trk_lambda_dsz_cov",name + "_Probe_sctMuon_trk_lambda_dsz_cov; trk_lambda_dsz_cov; Muons", 60, -0.1, 0.1);
-  //histos.htrk_lambda_dxy_cov = ibook.book1D(name + "_Probe_sctMuon_trk_lambda_dxy_cov",name + "_Probe_sctMuon_trk_lambda_dxy_cov; trk_lambda_dxy_cov; Muons", 60, -0.1, 0.1);
-  //histos.htrk_lambda_dsz_cov = ibook.book1D(name + "_Probe_sctMuon_trk_lambda_dsz_cov",name + "_Probe_sctMuon_trk_lambda_dsz_cov; trk_lambda_dsz_cov; Muons", 60, -0.1, 0.1);
-  //histos.htrk_phi_dxy_cov = ibook.book1D(name + "_Probe_sctMuon_trk_phi_dxy_cov",name + "_Probe_sctMuon_trk_phi_dxy_cov; ; Muons", 60, -0.1, 0.1);
-  //histos.htrk_phi_dsz_cov = ibook.book1D(name + "_Probe_sctMuon_trk_phi_dsz_cov",name + "_Probe_sctMuon_trk_phi_dsz_cov; trk_phi_dsz_cov; Muons", 60, -0.1, 0.1);
-  //histos.htrk_dxy_dsz_cov = ibook.book1D(name + "_Probe_sctMuon_trk_dxy_dsz_cov",name + "_Probe_sctMuon_trk_dxy_dsz_cov; trk_dxy_dsz_cov; Muons", 60, -0.1, 0.1);
-  //histos.hndof = ibook.book1D(name + "_Vertex_ndof",name + "_Vertex_ndof; vertex ndof; Muons", 60, 0, 5);
-  //histos.hxyCov = ibook.book1D(name + "_Vertex_xyCov",name + "_Vertex_xyCov; vertex xyCov; Muons", 60, -0.5, 0.5);
-  //histos.hxzCov = ibook.book1D(name + "_Vertex_xzCov",name + "_Vertex_xzCov; vertex xzCov; Muons", 60, -0.5, 0.5);
-  //histos.hyzCov = ibook.book1D(name + "_Vertex_yzCov",name + "_Vertex_yzCov; vertex yzCov; Muons", 60, -0.5, 0.5);
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the
-// module  ------------
+//Descriptions to read the collections
 void ScoutingMuonTagProbeAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no
-  // validation Please change this to state exactly what you do use, even if it
-  // is no parameters
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
-  desc.add<edm::InputTag>("MuonCollection", edm::InputTag("slimmedMuons"));
   desc.add<edm::InputTag>("ScoutingMuonCollection", edm::InputTag("Run3ScoutingMuons"));
   desc.add<edm::InputTag>("ScoutingVtxCollection", edm::InputTag("hltScoutingMuonPackerNoVtx"));
   desc.add<bool>("runWithoutVertex", true);

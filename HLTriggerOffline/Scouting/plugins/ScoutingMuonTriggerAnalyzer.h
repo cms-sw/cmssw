@@ -1,10 +1,18 @@
+/*
+Class declaration for ScoutingMuonTriggerAnalyzer.cc. Declares each
+histogram (MonitorElement), and any functions used in 
+ScoutingMuonTriggerAnalyzer.cc. Also declares the token to read the 
+scouting muon collection and to access trigers selected in 
+(selected in python/ScoutingMuonTriggerAnalyzer_cfi.py) 
+
+Author: Javier Garcia de Castro, email:javigdc@bu.edu
+*/
+
+//Files to include
 #ifndef DQMOffline_Scouting_ScoutingMuonTriggerAnalyzer_h
 #define DQMOffline_Scouting_ScoutingMuonTriggerAnalyzer_h
-
 #include <string>
 #include <vector>
-
-// user include files
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -23,9 +31,8 @@
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
-/////////////////////////
-//  Class declaration  //
-/////////////////////////
+
+//Classes to be declared
 class ScoutingMuonTriggerAnalyzer : public DQMEDAnalyzer {
 public:
   explicit ScoutingMuonTriggerAnalyzer(const edm::ParameterSet& conf);
@@ -47,14 +54,9 @@ private:
   TString l1Names[100] = {""};
   Bool_t l1Result[100] = {false};
 
+  //Histogram declaration
   //DENOMINATORS:
   dqm::reco::MonitorElement* h_invMass_denominator;
-  /*
-        dqm::reco::MonitorElement* h_invMass_denominator_JPsi;
-        dqm::reco::MonitorElement* h_invMass_denominator_Psi2;
-        dqm::reco::MonitorElement* h_invMass_denominator_Upsilon;
-        dqm::reco::MonitorElement* h_invMass_denominator_Z;
-        */
   dqm::reco::MonitorElement* h_pt1_l1_denominator;
   dqm::reco::MonitorElement* h_eta1_l1_denominator;
   dqm::reco::MonitorElement* h_phi1_l1_denominator;
@@ -66,12 +68,6 @@ private:
 
   //NUMERATORS:
   std::vector<dqm::reco::MonitorElement*> h_invMass_numerators;
-  /*
-        std::vector<dqm::reco::MonitorElement*> h_invMass_numerators_JPsi;
-        std::vector<dqm::reco::MonitorElement*> h_invMass_numerators_Psi2;
-        std::vector<dqm::reco::MonitorElement*> h_invMass_numerators_Upsilon;
-        std::vector<dqm::reco::MonitorElement*> h_invMass_numerators_Z;
-        */
   std::vector<dqm::reco::MonitorElement*> h_pt1_l1_numerators;
   std::vector<dqm::reco::MonitorElement*> h_eta1_l1_numerators;
   std::vector<dqm::reco::MonitorElement*> h_phi1_l1_numerators;

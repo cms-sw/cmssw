@@ -1,14 +1,26 @@
+/*
+Scouting Muon DQM for L1 seeds. This code does the following:
+  1) Reads pat muon and scouting muon collections, and writes an array of scouting muon
+     triggers (selected in python/ScoutingMuonTriggerAnalyzer_cfi.py) 
+  2) For each event, if the event passes a logical OR of HLTriggers it is added to 
+     the denominator, and if it passes any of the scouting muon triggers it is 
+     added to the numerator of that specific trigger.
+  3) Fills histograms for both leading and subleading muon in the event.
+Author: Javier Garcia de Castro, email:javigdc@bu.edu
+*/
+
+//Files to include
 #include "ScoutingMuonTriggerAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <cmath>
 
+//Read the collections and triggers
 ScoutingMuonTriggerAnalyzer::ScoutingMuonTriggerAnalyzer(const edm::ParameterSet& iConfig)
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
       triggerCache_(triggerExpression::Data(iConfig.getParameterSet("triggerConfiguration"), consumesCollector())),
       vtriggerSelection_(iConfig.getParameter<vector<string>>("triggerSelection")) {
-  //outputInternalPath_ = iConfig.getParameter<std::string>("OutputInternalPath");
-  muonCollection_ = consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("MuonCollection"));
+
   scoutingMuonCollection_ =
       consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("ScoutingMuonCollection"));
   vtriggerSelector_.reserve(vtriggerSelection_.size());
@@ -25,6 +37,7 @@ ScoutingMuonTriggerAnalyzer::ScoutingMuonTriggerAnalyzer(const edm::ParameterSet
 
 ScoutingMuonTriggerAnalyzer::~ScoutingMuonTriggerAnalyzer() {}
 
+//Core of the implementation
 void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   edm::Handle<std::vector<Run3ScoutingMuon>> sctMuons;
   iEvent.getByToken(scoutingMuonCollection_, sctMuons);
@@ -33,6 +46,7 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
     return;
   }
 
+  //Check whether events pass any of the HLTriggers to add to the denominator
   bool passHLTDenominator = false;
   if (triggerCache_.setEvent(iEvent, iSetup)) {
     for (unsigned int i = 0; i < vtriggerSelector_.size(); i++) {
@@ -48,6 +62,7 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
     }
   }
 
+  //Find leading and subleading muon from the event
   if (!sctMuons->empty()) {
     Run3ScoutingMuon leading_mu;
     Run3ScoutingMuon subleading_mu;
@@ -68,22 +83,8 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
     math::PtEtaPhiMLorentzVector mu1(leading_mu.pt(), leading_mu.eta(), leading_mu.phi(), leading_mu.m());
     math::PtEtaPhiMLorentzVector mu2(subleading_mu.pt(), subleading_mu.eta(), subleading_mu.phi(), subleading_mu.m());
     float invMass = (mu1 + mu2).mass();
-    //if((2.4 < invMass && invMass < 3.8) || (3.5 < invMass && invMass < 3.9) || (85.2 < invMass && invMass < 97.2) || (8.5 < invMass && invMass < 10.5)){
+    //If event passed and of the HLTs, add to denominator
     if (passHLTDenominator) {
-      /*
-        if(2.4 < invMass && invMass < 3.8){
-          h_invMass_denominator_JPsi->Fill(invMass);
-        }
-        if(3.5 < invMass && invMass <3.9 ){
-          h_invMass_denominator_Psi2->Fill(invMass);
-        }
-        if(8.5 < invMass && invMass < 10.5){
-          h_invMass_denominator_Upsilon->Fill(invMass);
-        }
-        if(85.2 < invMass && invMass < 97.2){
-          h_invMass_denominator_Z->Fill(invMass);
-        }
-        */
       h_invMass_denominator->Fill(invMass);
       h_pt1_l1_denominator->Fill(leading_mu.pt());
       h_eta1_l1_denominator->Fill(leading_mu.eta());
@@ -96,6 +97,7 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
         h_dxy2_l1_denominator->Fill(subleading_mu.trk_dxy());
       }
 
+      //For each L1 seed, if the event passes the trigger plot distributions in the numerator
       for (unsigned int i = 0; i < l1Seeds_.size(); i++) {
         const auto& l1seed(l1Seeds_.at(i));
         bool l1htbit = false;
@@ -104,20 +106,6 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
         l1GtUtils_->getPrescaleByName(l1seed, prescale);
         l1Result[i] = l1htbit;
         if (l1Result[i] == 1) {
-          /*
-            if(2.4 < invMass && invMass < 3.8){
-              h_invMass_numerators_JPsi[i]->Fill(invMass);
-            }
-            if(3.5 < invMass && invMass <3.9 ){
-              h_invMass_numerators_Psi2[i]->Fill(invMass);
-            }
-            if(8.5 < invMass && invMass < 10.5){
-              h_invMass_numerators_Upsilon[i]->Fill(invMass);
-            }
-            if(85.2 < invMass && invMass < 97.2){
-              h_invMass_numerators_Z[i]->Fill(invMass);
-            }
-            */
           h_invMass_numerators[i]->Fill(invMass);
           h_pt1_l1_numerators[i]->Fill(leading_mu.pt());
           h_eta1_l1_numerators[i]->Fill(leading_mu.eta());
@@ -132,18 +120,15 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
         }
       }
     }
-    //}
   }
 }
+
+//Histogram axes labels, bin number and range
 void ScoutingMuonTriggerAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
                                                  edm::Run const& run,
                                                  edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(outputInternalPath_);
   h_invMass_denominator = ibook.book1D("h_invMass_denominator", ";Invariant Mass (GeV); Muons", 100, 0.0, 20.0);
-  //h_invMass_denominator_JPsi = ibook.book1D("h_invMass_denominator", ";Invariant Mass (GeV); Muons", 100, 2.3, 3.9);
-  //h_invMass_denominator_Psi2 = ibook.book1D("h_invMass_denominator", ";Invariant Mass (GeV); Muons", 100, 3.4, 4.0);
-  //h_invMass_denominator_Upsilon = ibook.book1D("h_invMass_denominator", ";Invariant Mass (GeV); Muons", 100, 8.4, 10.4);
-  //h_invMass_denominator_Z = ibook.book1D("h_invMass_denominator", ";Invariant Mass (GeV); Muons", 100, 84, 98);
   h_pt1_l1_denominator = ibook.book1D("h_pt1_denominator", ";Leading muon pt (GeV); Muons", 100, 0, 50.0);
   h_eta1_l1_denominator = ibook.book1D("h_eta1_denominator", ";Leading muon eta; Muons", 100, -5.0, 5.0);
   h_phi1_l1_denominator = ibook.book1D("h_phi1_denominator", ";Leading muon phi; Muons", 100, -3.3, 3.3);
@@ -157,10 +142,6 @@ void ScoutingMuonTriggerAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
     const auto& l1seed = l1Seeds_.at(i);
     h_invMass_numerators.push_back(
         ibook.book1D(Form("h_invMass_numerator_%s", l1seed.c_str()), ";Invariant mass (GeV); Muons", 100, 0.0, 20.0));
-    //h_invMass_numerators_JPsi.push_back(ibook.book1D(Form("h_invMass_numerator_JPsi_%s", l1seed.c_str()), ";Invariant mass (GeV); Muons", 100, 2.3, 3.9));
-    //h_invMass_numerators_Psi2.push_back(ibook.book1D(Form("h_invMass_numerator_Psi2_%s", l1seed.c_str()), ";Invariant mass (GeV); Muons", 100, 3.4, 4.0));
-    //h_invMass_numerators_Upsilon.push_back(ibook.book1D(Form("h_invMass_numerator_Upsilon_%s", l1seed.c_str()), ";Invariant mass (GeV); Muons", 100, 8.4, 10.4));
-    //h_invMass_numerators_Z.push_back(ibook.book1D(Form("h_invMass_numerator_Z_%s", l1seed.c_str()), ";Invariant mass (GeV); Muons", 100, 84, 98));
     h_pt1_l1_numerators.push_back(
         ibook.book1D(Form("h_pt1_numerator_%s", l1seed.c_str()), ";Leading muon pt (GeV); Muons", 100, 0, 50.0));
     h_eta1_l1_numerators.push_back(
@@ -180,10 +161,10 @@ void ScoutingMuonTriggerAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
   }
 }
 
+//Input tags to read collections and L1 seeds
 void ScoutingMuonTriggerAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
-  desc.add<edm::InputTag>("MuonCollection", edm::InputTag("slimmedMuons"));
   desc.add<edm::InputTag>("AlgInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
