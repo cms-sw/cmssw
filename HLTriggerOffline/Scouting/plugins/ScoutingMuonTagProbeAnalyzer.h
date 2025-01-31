@@ -16,7 +16,7 @@
 //  Class declaration  //
 /////////////////////////
 
-struct kProbeKinematicMuonHistos{
+struct kProbeKinematicMuonHistos {
   dqm::reco::MonitorElement* hPt;
   dqm::reco::MonitorElement* hEta;
   dqm::reco::MonitorElement* hPhi;
@@ -93,24 +93,32 @@ struct kTagProbeMuonHistos {
   kProbeKinematicMuonHistos resonanceJ_denominator;
 };
 
-class ScoutingMuonTagProbeAnalyzer: public DQMGlobalEDAnalyzer<kTagProbeMuonHistos> {
-      public: 
-        explicit ScoutingMuonTagProbeAnalyzer(const edm::ParameterSet& conf);
-        ~ScoutingMuonTagProbeAnalyzer() override;
-        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+class ScoutingMuonTagProbeAnalyzer : public DQMGlobalEDAnalyzer<kTagProbeMuonHistos> {
+public:
+  explicit ScoutingMuonTagProbeAnalyzer(const edm::ParameterSet& conf);
+  ~ScoutingMuonTagProbeAnalyzer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-      private:
-        void dqmAnalyze(const edm::Event & e, const edm::EventSetup & c, kTagProbeMuonHistos const&) const override;
-        void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &, kTagProbeMuonHistos &) const override;
-        void bookHistograms_resonance(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &, kProbeKinematicMuonHistos &, const std::string &) const;
-        void fillHistograms_resonance(const kProbeKinematicMuonHistos histos, const Run3ScoutingMuon mu, const Run3ScoutingVertex vertex, const float inv_mass, const float lxy) const;
-        bool scoutingMuonID(const Run3ScoutingMuon mu) const;
+private:
+  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, kTagProbeMuonHistos const&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kTagProbeMuonHistos&) const override;
+  void bookHistograms_resonance(DQMStore::IBooker&,
+                                edm::Run const&,
+                                edm::EventSetup const&,
+                                kProbeKinematicMuonHistos&,
+                                const std::string&) const;
+  void fillHistograms_resonance(const kProbeKinematicMuonHistos histos,
+                                const Run3ScoutingMuon mu,
+                                const Run3ScoutingVertex vertex,
+                                const float inv_mass,
+                                const float lxy) const;
+  bool scoutingMuonID(const Run3ScoutingMuon mu) const;
 
-        // --------------------- member data  ----------------------
-        std::string outputInternalPath_;
-        edm::EDGetTokenT<std::vector<pat::Muon>> muonCollection_;
-        edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
-        edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> scoutingVtxCollection_;
-        Bool_t runWithoutVtx_;
-    };
+  // --------------------- member data  ----------------------
+  std::string outputInternalPath_;
+  edm::EDGetTokenT<std::vector<pat::Muon>> muonCollection_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> scoutingVtxCollection_;
+  Bool_t runWithoutVtx_;
+};
 #endif

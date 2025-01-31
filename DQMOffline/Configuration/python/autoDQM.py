@@ -14,6 +14,11 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                                    'PostDQMOffline',
                                    '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
+            'commonWithScouting': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@castor+@physics+@hltScouting',
+                                   'PostDQMOffline',
+                                   '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
+
+
             'commonFakeHLT': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@beam+@castor+@physics',
                         'PostDQMOffline',
                         '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@beam+@fed+dqmFastTimerServiceClient'],
