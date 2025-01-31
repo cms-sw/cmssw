@@ -120,11 +120,11 @@ def SaveGenJetConstituents(process, addGenJetConst, addGenJetAK8Const, genJetCon
 
         process.selectedGenJetAK8Constituents = cms.EDFilter("PATPackedGenParticlePtrSelector",
             src = cms.InputTag("genJetAK8Constituents", "constituents"),
-            cut = cms.string(genJetConstCut)
+            cut = cms.string(genJetAK8ConstCut)
         )
         process.genjetConstituentsTask.add(process.selectedGenJetAK8Constituents)
 
-    if addGenJetConst or addGenJetConst:
+    if addGenJetConst or addGenJetAK8Const:
         process.finalGenPartCandidates = cms.EDProducer("PackedGenParticlePtrMerger",
             src = cms.VInputTag(),
             skipNulls = cms.bool(True),
@@ -155,7 +155,7 @@ def SaveGenJetConstituents(process, addGenJetConst, addGenJetAK8Const, genJetCon
               name = cms.string(process.genJetTable.name.value()+"GenPartCand"),
               candIdxName = cms.string("genPartCandIdx"),
               candIdxDoc = cms.string("Index in the GenPartCand table"),
-              candidates = pfCandidatesTable.src,
+              candidates = process.genPartCandidatesTable.src,
               jets = process.genJetTable.src,
               jetCut = process.genJetTable.cut,
               jetConstCut = process.selectedGenJetConstituents.cut
@@ -170,10 +170,10 @@ def SaveGenJetConstituents(process, addGenJetConst, addGenJetAK8Const, genJetCon
               name = cms.string(process.genJetAK8Table.name.value()+"GenPartCand"),
               candIdxName = cms.string("genPartCandIdx"),
               candIdxDoc = cms.string("Index in the GenPartCand table"),
-              candidates = pfCandidatesTable.src,
+              candidates = process.genPartCandidatesTable.src,
               jets = process.genJetAK8Table.src,
               jetCut = process.genJetAK8Table.cut,
-              jetConstCut = process.selectedGenJetConstituents.cut
+              jetConstCut = process.selectedGenJetAK8Constituents.cut
             )
             process.genjetConstituentsTableTask.add(process.genJetAK8ConstituentsTable)
 
@@ -183,12 +183,12 @@ def SaveGenJetConstituents(process, addGenJetConst, addGenJetAK8Const, genJetCon
     return process
 
 def SaveGenJetAK4Constituents(process):
-    process = SaveGenJetConstituents(process,True,False)
+    process = SaveGenJetConstituents(process,addGenJetConst=True,addGenJetAK8Const=False)
     return process
 def SaveGenJetAK8Constituents(process):
-    process = SaveGenJetConstituents(process,True,False)
+    process = SaveGenJetConstituents(process,addGenJetConst=False,addGenJetAK8Const=True)
     return process
 def SaveGenJetAK4AK8Constituents(process):
-    process = SaveGenJetConstituents(process,True,True)
+    process = SaveGenJetConstituents(process,addGenJetConst=True,addGenJetAK8Const=True)
     return process
 
