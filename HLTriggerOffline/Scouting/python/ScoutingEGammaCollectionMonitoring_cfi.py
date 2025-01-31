@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 ScoutingEGammaCollectionMonitoring = DQMEDAnalyzer('ScoutingEGammaCollectionMonitoring',
 
-    OutputInternalPath = cms.string('ScoutingEGammaCollectionMonitoring'),
+    OutputInternalPath = cms.string('/HLT/ScoutingOffline/EGamma/Collection'),
     TriggerResultTag   = cms.InputTag("TriggerResults", "", "HLT"),
     ElectronCollection = cms.InputTag('slimmedElectrons'),
     ScoutingElectronCollection = cms.InputTag("hltScoutingEgammaPacker"),
