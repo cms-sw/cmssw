@@ -805,6 +805,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   ObjectRanges ranges,
+                                  SegmentsConst segments,
                                   SegmentsOccupancyConst segmentsOccupancy,
                                   const float ptCut) const {
       // implementation is 1D with a single block
@@ -851,15 +852,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
         int eta_number = getEtaBin(module_eta);
 
-        int occupancy = 0;
-        if (category_number != -1 && eta_number != -1) {
-          occupancy = occupancy_matrix[category_number][eta_number];
+        int dynamic_count = 0;
+        // How many segments are in module i?
+        int nSegments_i = segmentsOccupancy.nSegments()[i];
+        int firstSegmentIdx = ranges.segmentRanges()[i][0];
+        // Loop over all segments that live in module i
+        for (int s = 0; s < nSegments_i; ++s) {
+          int segIndex = firstSegmentIdx + s;
+          uint16_t midModule = segments.outerLowerModuleIndices()[segIndex];
+          dynamic_count += segmentsOccupancy.nSegments()[midModule];
         }
+
 #ifdef WARNINGS
-        else {
+        if (category_number == -1 || eta_number == -1) {
           printf("Unhandled case in createTripletArrayRanges! Module index = %i\n", i);
         }
 #endif
+        // Get matrix-based cap
+        int matrix_cap =
+            (category_number != -1 && eta_number != -1) ? occupancy_matrix[category_number][eta_number] : 0;
+
+        // Cap occupancy at minimum of dynamic count and matrix value
+        int occupancy = alpaka::math::min(acc, dynamic_count, matrix_cap);
 
         ranges.tripletModuleOccupancy()[i] = occupancy;
         unsigned int nTotT = alpaka::atomicAdd(acc, &nTotalTriplets, occupancy, alpaka::hierarchy::Threads{});
