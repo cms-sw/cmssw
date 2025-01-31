@@ -1,24 +1,16 @@
-// -*- C++ -*-
-//
-// Package:    DQMOffline/Scouting
-// Class:      ScoutingEGammaCollectionMonitoring
-//
-/**\class ScoutingEGammaCollectionMonitoring ScoutingEGammaCollectionMonitoring.cc
- DQMOffline/Scouting/plugins/ScoutingEGammaCollectionMonitoring.cc
+/*
+Scouting EGamma DQM core implementation.
 
  Description: ScoutingEGammaCollectionMonitoring is developed to enable us to monitor the
               comparison between pat::Object and Run3Scouting<Object>.
 
  Implementation:
-     * Current runs on top of MINIAOD dataformat of the ScoutingEGammaCollectionMonitoring
- dataset.
+     * Current runs on top of MINIAOD dataformat of the ScoutingEGammaCollectionMonitoring dataset.
      * Implemented only for electrons as of now.
+
+Authors: Ting-Hsiang Hsu, Abanti Ranadhir Sahasransu
 */
-//
-// Original Author:  Abanti Ranadhir Sahasransu
-//         Created:  Sun, 18 Aug 2024 13:02:11 GMT
-//
-//
+
 #include "ScoutingEGammaCollectionMonitoring.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,18 +20,6 @@
 #include <numeric>
 #include <algorithm>
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-
 ScoutingEGammaCollectionMonitoring::ScoutingEGammaCollectionMonitoring(const edm::ParameterSet& iConfig)
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
       triggerResultsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("TriggerResultTag"))),
@@ -47,18 +27,9 @@ ScoutingEGammaCollectionMonitoring::ScoutingEGammaCollectionMonitoring(const edm
           consumes<edm::View<pat::Electron>>(iConfig.getParameter<edm::InputTag>("ElectronCollection"))),
       scoutingElectronCollection_(consumes<std::vector<Run3ScoutingElectron>>(
           iConfig.getParameter<edm::InputTag>("ScoutingElectronCollection"))),
-      eleIdMapTightToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("eleIdMapTight"))) {
-  // now do whatever initialization is needed
-}
+      eleIdMapTightToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("eleIdMapTight"))) {}
 
-ScoutingEGammaCollectionMonitoring::~ScoutingEGammaCollectionMonitoring() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
+ScoutingEGammaCollectionMonitoring::~ScoutingEGammaCollectionMonitoring() {}
 
 // Function to convert pseudo-rapidity to theta
 double getPtFromEnergyMassEta(double energy, double mass, double eta) {

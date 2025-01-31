@@ -20,7 +20,6 @@ ScoutingMuonTriggerAnalyzer::ScoutingMuonTriggerAnalyzer(const edm::ParameterSet
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
       triggerCache_(triggerExpression::Data(iConfig.getParameterSet("triggerConfiguration"), consumesCollector())),
       vtriggerSelection_(iConfig.getParameter<vector<string>>("triggerSelection")) {
-
   scoutingMuonCollection_ =
       consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("ScoutingMuonCollection"));
   vtriggerSelector_.reserve(vtriggerSelection_.size());

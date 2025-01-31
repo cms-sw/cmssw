@@ -75,7 +75,6 @@ struct kProbeKinematicMuonHistos {
   dqm::reco::MonitorElement* hy;
   dqm::reco::MonitorElement* hZerror;
   dqm::reco::MonitorElement* htracksSize;
-
 };
 
 struct kTagProbeMuonHistos {

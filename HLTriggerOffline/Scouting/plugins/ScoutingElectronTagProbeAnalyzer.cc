@@ -1,3 +1,16 @@
+/*
+Scouting EGamma DQM core implementation.
+
+ Description: ScoutingEGammaCollectionMonitoring is developed to enable us to monitor the
+              comparison between pat::Object and Run3Scouting<Object>.
+
+ Implementation:
+     * Current runs on top of MINIAOD dataformat of the ScoutingEGammaCollectionMonitoring dataset.
+     * Implemented only for electrons as of now.
+
+Authors: Ting-Hsiang Hsu, Abanti Ranadhir Sahasransu
+*/
+
 #include "ScoutingElectronTagProbeAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -45,8 +58,6 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     std::string filterTag = filterToMatch.at(iteFilter);
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
       obj.unpackNamesAndLabels(iEvent, *triggerResults);
-      //for (size_t ij =0; ij < obj.filterLabels().size(); ij ++) std::cout << obj.filterLabels().at(ij) << " ";
-      //std::cout << std::endl;
       if (obj.hasFilterLabel(filterTag)) {
         legObjects[iteFilter].push_back(obj);
       }
@@ -362,12 +373,8 @@ void ScoutingElectronTagProbeAnalyzer::bookHistograms_resonance(DQMStore::IBooke
                                                    500);
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the
-// module  ------------
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void ScoutingElectronTagProbeAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no
-  // validation Please change this to state exactly what you do use, even if it
-  // is no parameters
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
   desc.add<edm::InputTag>("TriggerResultTag", edm::InputTag("TriggerResults", "", "HLT"));

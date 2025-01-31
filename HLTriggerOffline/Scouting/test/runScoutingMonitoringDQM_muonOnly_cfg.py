@@ -7,6 +7,7 @@ Author: Javier Garcia de Castro, email:javigdc@bu.edu
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
+
 ## In line command options
 options = VarParsing.VarParsing('analysis')
 options.register('inputDataset',
