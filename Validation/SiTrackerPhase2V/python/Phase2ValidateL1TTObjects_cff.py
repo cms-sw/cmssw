@@ -5,6 +5,6 @@ from Validation.SiTrackerPhase2V.Phase2OTValidateTTStub_cfi import *
 
 trackingParticleValidOT = Phase2OTValidateReconstruction.clone()
 
-trackingParticleExtendedValidOT = Phase2OTValidateTrackingParticles.clone()
+trackingParticleExtendedValidOT = Phase2OTValidateReconstruction.clone()
 
 stubValidOT = Phase2OTValidateTTStub.clone()
