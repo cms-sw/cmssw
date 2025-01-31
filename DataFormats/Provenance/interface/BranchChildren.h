@@ -6,6 +6,9 @@
 BranchChildren: Dependency information between branches.
 
 ----------------------------------------------------------------------*/
+#if !defined(DataFormats_Provenance_ProductDependencies_h)
+#error The name BranchChildren is deprecated, please use ProductDependencies instead.
+#endif
 
 #include <map>
 #include <set>

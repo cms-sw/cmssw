@@ -244,7 +244,7 @@ namespace edm {
                 ? eventTree_.tree()->GetBranch(poolNames::eventToProcessBlockIndexesBranchName().c_str())
                 : nullptr),
         history_(),
-        branchChildren_(new BranchChildren),
+        productDependencies_(new ProductDependencies),
         duplicateChecker_(duplicateChecker),
         provenanceAdaptor_(),
         provenanceReaderMaker_(),
@@ -381,9 +381,9 @@ namespace edm {
       }
     }
 
-    BranchChildren* branchChildrenBuffer = branchChildren_.get();
+    ProductDependencies* productDependenciesBuffer = productDependencies_.get();
     if (metaDataTree->FindBranch(poolNames::productDependenciesBranchName().c_str()) != nullptr) {
-      metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &branchChildrenBuffer);
+      metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &productDependenciesBuffer);
     }
 
     // backward compatibility
@@ -495,7 +495,7 @@ namespace edm {
         // Fix up other per file metadata.
         daqProvenanceHelper_->fixMetaData(processConfigurations, pHistVector);
         daqProvenanceHelper_->fixMetaData(*branchIDLists_);
-        daqProvenanceHelper_->fixMetaData(*branchChildren_);
+        daqProvenanceHelper_->fixMetaData(*productDependencies_);
       }
     }
 
@@ -797,7 +797,7 @@ namespace edm {
                                        file_,
                                        branchListIndexesUnchanged(),
                                        modifiedIDs(),
-                                       branchChildren());
+                                       productDependencies());
   }
 
   void RootFile::updateFileBlock(FileBlock& fileBlock) {
@@ -1939,7 +1939,7 @@ namespace edm {
                                        std::set<BranchID>& branchesToDrop,
                                        std::map<BranchID, BranchID> const& droppedToKeptAlias) const {
     if (dropDescendants) {
-      branchChildren_->appendToDescendants(branch, branchesToDrop, droppedToKeptAlias);
+      productDependencies_->appendToDescendants(branch, branchesToDrop, droppedToKeptAlias);
     } else {
       branchesToDrop.insert(branch.branchID());
     }
