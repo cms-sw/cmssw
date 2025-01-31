@@ -38,11 +38,8 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   iEvent.getByToken(triggerResultsToken_, triggerResults);
   iEvent.getByToken(triggerObjects_, triggerObjects);
 
-  // Get the TriggerNames from the event
-  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
-
   std::vector<std::string> filterToMatch = {"hltDoubleEG11CaloIdLHEFilter", "hltEG30EBTightIDTightIsoTrackIsoFilter"};
-  int numberOfFilters = filterToMatch.size();
+  size_t numberOfFilters = filterToMatch.size();
   trigger::TriggerObjectCollection* legObjects = new trigger::TriggerObjectCollection[numberOfFilters];
   for (size_t iteFilter = 0; iteFilter < filterToMatch.size(); iteFilter++) {
     std::string filterTag = filterToMatch.at(iteFilter);
