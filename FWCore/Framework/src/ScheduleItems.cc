@@ -123,7 +123,7 @@ namespace edm {
     if (resourceInformationService.isAvailable()) {
       auto const& selectedAccelerators =
           parameterSet.getUntrackedParameter<std::vector<std::string>>("@selected_accelerators");
-      resourceInformationService->initializeAcceleratorTypes(selectedAccelerators);
+      resourceInformationService->setSelectedAccelerators(selectedAccelerators);
     }
 
     act_table_ = std::make_unique<ExceptionToActionTable>(parameterSet);
