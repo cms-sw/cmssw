@@ -21,8 +21,8 @@ std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::
   std::array<std::vector<ConvertedTTTrack>, 9> convertedTracks;
   for (unsigned i = 0; i < 9; ++i)
     convertedTracks[i] = tt_track_converter_->convertTracks(loctracks.at(i));
-
-  //Transition stubs to different nonants with overlap
+  
+   //Transition stubs to different nonants with overlap
   std::array<l1t::MuonStubRefVector, 9> stubs;
   for (int i = 0; i < 9; ++i)
     stubs[i] = associateStubsWithNonant(muonStubs, i);
@@ -115,7 +115,7 @@ l1t::MuonStubRefVector TPS::associateStubsWithNonant(const l1t::MuonStubRefVecto
     ap_int<BITSSTUBCOORD> deltaPhi = phi - center;
     ap_uint<BITSSTUBCOORD - 1> absDeltaPhi =
         (deltaPhi < 0) ? ap_uint<BITSSTUBCOORD - 1>(-deltaPhi) : ap_uint<BITSSTUBCOORD - 1>(deltaPhi);
-    if (absDeltaPhi < 168)  //was 42
+    if (absDeltaPhi < 284) //important to see pt = 3 to 4 //was 168 //was 42
       out.push_back(s);
   }
   return out;

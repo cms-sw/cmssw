@@ -12,16 +12,31 @@
 #include "L1Trigger/Phase2L1GMT/interface/ConvertedTTTrack.h"
 #include "L1Trigger/Phase2L1GMT/interface/PreTrackMatchedMuon.h"
 #include "L1Trigger/Phase2L1GMT/interface/TPSLUTs.h"
-#include <fstream>
 #include <iostream>
 
 namespace Phase2L1GMT {
 
-  const unsigned int PHIDIVIDER = 1 << (BITSPHI - BITSSTUBCOORD);
+  const unsigned int PHISHIFT = BITSPHI - BITSSTUBCOORD;
   const unsigned int ETADIVIDER = 1 << (BITSETA - BITSSTUBETA);
+  const unsigned int BITSHIFTPROP1C1 = 9;
+  const unsigned int BITSHIFTPROP2C1 = 23;
+  const unsigned int BITSHIFTPROP3C1 = 22;
+  const unsigned int BITSHIFTPROP1C2 = 9;
+  const unsigned int BITSHIFTPROP2C2 = 24;
+  const unsigned int BITSHIFTPROP3C2 = 19;
+  const unsigned int BITSHIFTRES1 = 11;
+  //for comparison with absK to see which functional form to propagate phi according to
+  //coord1 k cutoff: 4096
+  //coord2 k cutoffs: 1024, 7168, 4096, 2048, 4096
+  const unsigned int BITSHIFTCURVSCALEC1 = 12;
+  const unsigned int BITSHIFTCURVSCALEC2LEADS[5] = {10, 13, 12, 11, 12};
+  const unsigned int BITSHIFTCURVSCALEC2CORRS[5] = {0,  10,  0,  0,  0};
+  
   const unsigned int BITSPROP = BITSPHI - 2;
-  const unsigned int PROPMAX = ~ap_uint<BITSPROP>(0);
-
+  const ap_uint<BITSPROP> PROPMAX = ~ap_uint<BITSPROP>(0);
+  const ap_uint<BITSSIGMACOORD> SIGMAMAX = ~ap_uint<BITSSIGMACOORD>(0);
+  const ap_uint<BITSSIGMACOORD> SIGMAMIN = 2;
+  
   struct propagation_t {
     ap_int<BITSSTUBCOORD> coord1;
     ap_uint<BITSSIGMACOORD> sigma_coord1;
