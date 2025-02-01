@@ -105,7 +105,7 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3Res
 ak4PFScoutingL1FastjetCorrector = ak4PFL1FastjetCorrector.clone(
     algorithm   = cms.string('AK4PFHLT'),
     #srcRho = cms.InputTag("hltScoutingPFPacker","rho")      ### to be updated to this once 2025 ScoutingPFMonitor datasets are available, where the "hltScoutingPacker,rho" won't be missing!
-    srcRho = cms.InputTag("fixedGridRhoFastjetAll","rho")    ### used only temporarily, because in some 2024 ScoutingPFMonitor datasets the "hltScoutingPacker,rho" is missing! 
+    srcRho = cms.InputTag('fixedGridRhoFastjetAll')          ### used only temporarily, because in some 2024 ScoutingPFMonitor datasets the "hltScoutingPacker,rho" is missing! 
     )
     
 ak4PFScoutingL2RelativeCorrector = ak4PFL2RelativeCorrector.clone( 
