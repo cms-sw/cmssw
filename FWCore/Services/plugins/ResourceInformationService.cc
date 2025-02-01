@@ -35,6 +35,8 @@ namespace edm {
       std::vector<std::string> const& cpuModels() const final;
       std::vector<std::string> const& gpuModels() const final;
 
+      bool hasGpuNvidia() const final;
+
       std::string const& nvidiaDriverVersion() const final;
       int cudaDriverVersion() const final;
       int cudaRuntimeVersion() const final;
@@ -70,6 +72,7 @@ namespace edm {
       std::string cpuModelsFormatted_;
       double cpuAverageSpeed_ = 0;
 
+      bool hasGpuNvidia_ = false;
       bool locked_ = false;
       bool verbose_;
     };
@@ -94,6 +97,8 @@ namespace edm {
     std::vector<std::string> const& ResourceInformationService::cpuModels() const { return cpuModels_; }
 
     std::vector<std::string> const& ResourceInformationService::gpuModels() const { return gpuModels_; }
+
+    bool ResourceInformationService::hasGpuNvidia() const { return hasGpuNvidia_; }
 
     std::string const& ResourceInformationService::nvidiaDriverVersion() const { return nvidiaDriverVersion_; }
 
@@ -125,16 +130,19 @@ namespace edm {
     void ResourceInformationService::setNvidiaDriverVersion(std::string const& val) {
       throwIfLocked();
       nvidiaDriverVersion_ = val;
+      hasGpuNvidia_ = true;
     }
 
     void ResourceInformationService::setCudaDriverVersion(int val) {
       throwIfLocked();
       cudaDriverVersion_ = val;
+      hasGpuNvidia_ = true;
     }
 
     void ResourceInformationService::setCudaRuntimeVersion(int val) {
       throwIfLocked();
       cudaRuntimeVersion_ = val;
+      hasGpuNvidia_ = true;
     }
 
     void ResourceInformationService::setCpuModelsFormatted(std::string const& val) {

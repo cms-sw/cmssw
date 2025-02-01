@@ -26,6 +26,8 @@ namespace edm {
     virtual std::vector<std::string> const& cpuModels() const = 0;
     virtual std::vector<std::string> const& gpuModels() const = 0;
 
+    virtual bool hasGpuNvidia() const = 0;
+
     virtual std::string const& nvidiaDriverVersion() const = 0;
     virtual int cudaDriverVersion() const = 0;
     virtual int cudaRuntimeVersion() const = 0;

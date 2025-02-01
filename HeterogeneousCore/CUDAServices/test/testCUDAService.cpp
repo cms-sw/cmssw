@@ -133,6 +133,7 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
       REQUIRE(cuda->enabled());
       edm::Service<edm::ResourceInformation> ri;
       REQUIRE(ri);
+      REQUIRE(ri->hasGpuNvidia());
       REQUIRE(ri->gpuModels().size() > 0);
       REQUIRE(ri->nvidiaDriverVersion().size() > 0);
       REQUIRE(ri->cudaDriverVersion() == driverVersion);
