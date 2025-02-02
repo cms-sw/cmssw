@@ -81,7 +81,8 @@ static const char* const kPHIndexBranch = "Index";
 static const char* const kProcessConfigurationProcessNameBranch = "ProcessName";
 static const char* const kProcessConfigurationParameterSetIDBranch = "ParameterSetID";
 static const char* const kProcessConfigurationReleaseVersion = "ReleaseVersion";
-static const char* const kProcessConfigurationPassID = "PassID";
+// misnomer, but kept for backwards (and forwards) compatibility
+static const char* const kProcessConfigurationHardwareResources = "PassID";
 
 static const char* const kParameterSetTree = "ParameterSets";
 static const char* const kParameterSetBranch = "ParameterSetBlob";

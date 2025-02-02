@@ -34,13 +34,11 @@ Test program for edm::Event.
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
 #include "cppunit/extensions/HelperMacros.h"
@@ -54,6 +52,8 @@ Test program for edm::Event.
 #include <string>
 #include <typeinfo>
 #include <vector>
+
+#include "makeDummyProcessConfiguration.h"
 
 using namespace edm;
 
@@ -209,7 +209,7 @@ void testEvent::registerProduct(std::string const& tag,
   processParams.template addParameter<ParameterSet>(moduleLabel, moduleParams);
   processParams.registerIt();
 
-  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
+  auto process = edmtest::makeDummyProcessConfiguration(processName, processParams.id());
 
   auto processX = std::make_shared<ProcessConfiguration>(process);
   processConfigurations_.push_back(processX);
@@ -352,7 +352,7 @@ testEvent::testEvent()
   processParams.addParameter(moduleLabel, moduleParams);
   processParams.registerIt();
 
-  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
+  auto process = edmtest::makeDummyProcessConfiguration(processName, processParams.id());
 
   TypeWithDict product_type(typeid(prod_t));
 
@@ -398,7 +398,7 @@ void testEvent::setUp() {
   processParamsEarly.addParameter(moduleLabelEarly, moduleParamsEarly);
   processParamsEarly.registerIt();
 
-  ProcessConfiguration processEarly("EARLY", processParamsEarly.id(), getReleaseVersion(), getPassID());
+  auto processEarly = edmtest::makeDummyProcessConfiguration("EARLY", processParamsEarly.id());
 
   ParameterSet moduleParamsLate;
   std::string moduleLabelLate("currentModule");
@@ -413,7 +413,7 @@ void testEvent::setUp() {
   processParamsLate.addParameter(moduleLabelLate, moduleParamsLate);
   processParamsLate.registerIt();
 
-  ProcessConfiguration processLate("LATE", processParamsLate.id(), getReleaseVersion(), getPassID());
+  auto processLate = edmtest::makeDummyProcessConfiguration("LATE", processParamsLate.id());
 
   auto processHistory = std::make_unique<ProcessHistory>();
   ProcessHistory& ph = *processHistory;
