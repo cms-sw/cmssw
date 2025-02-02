@@ -19,7 +19,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/BranchType.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <memory>
@@ -120,11 +119,9 @@ namespace edm {
 
   std::shared_ptr<CommonParams> ScheduleItems::initMisc(ParameterSet& parameterSet) {
     edm::Service<edm::ResourceInformation> resourceInformationService;
-    if (resourceInformationService.isAvailable()) {
-      auto const& selectedAccelerators =
-          parameterSet.getUntrackedParameter<std::vector<std::string>>("@selected_accelerators");
-      resourceInformationService->setSelectedAccelerators(selectedAccelerators);
-    }
+    auto const& selectedAccelerators =
+        parameterSet.getUntrackedParameter<std::vector<std::string>>("@selected_accelerators");
+    resourceInformationService->setSelectedAccelerators(selectedAccelerators);
 
     act_table_ = std::make_unique<ExceptionToActionTable>(parameterSet);
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
@@ -136,7 +133,8 @@ namespace edm {
       releaseVersion = getReleaseVersion();
     }
     // propagate_const<T> has no reset() function
-    processConfiguration_ = std::make_shared<ProcessConfiguration>(processName, releaseVersion, getPassID());
+    processConfiguration_ = std::make_shared<ProcessConfiguration>(
+        processName, releaseVersion, resourceInformationService->hardwareResourcesDescription());
     auto common = std::make_shared<CommonParams>(
         parameterSet.getUntrackedParameterSet("maxEvents").getUntrackedParameter<int>("input"),
         parameterSet.getUntrackedParameterSet("maxLuminosityBlocks").getUntrackedParameter<int>("input"),

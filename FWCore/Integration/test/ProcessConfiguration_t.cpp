@@ -9,6 +9,8 @@
 #include <iostream>
 #include <string>
 
+// TODO: add tests for HardwareResourcesDescription
+
 TEST_CASE("test ProcessConfiguration", "[ProcessConfiguration]") {
   edm::ParameterSet dummyPset;
   dummyPset.registerIt();
@@ -29,8 +31,8 @@ TEST_CASE("test ProcessConfiguration", "[ProcessConfiguration]") {
   }
   SECTION("non-default initialized") {
     edm::ProcessConfiguration pc1;
-    edm::ProcessConfiguration pc2("reco2", edm::ParameterSetID(), std::string(), std::string());
-    edm::ProcessConfiguration pc3("reco3", edm::ParameterSetID(), std::string(), std::string());
+    edm::ProcessConfiguration pc2("reco2", edm::ParameterSetID(), "", edm::HardwareResourcesDescription());
+    edm::ProcessConfiguration pc3("reco3", edm::ParameterSetID(), "", edm::HardwareResourcesDescription());
     pc1.setParameterSetID(id);
     pc2.setParameterSetID(id);
     pc3.setParameterSetID(id);
@@ -45,7 +47,7 @@ TEST_CASE("test ProcessConfiguration", "[ProcessConfiguration]") {
     }
 
     SECTION("equivalence") {
-      edm::ProcessConfiguration pc4("reco2", edm::ParameterSetID(), std::string(), std::string());
+      edm::ProcessConfiguration pc4("reco2", edm::ParameterSetID(), "", edm::HardwareResourcesDescription());
       pc4.setParameterSetID(id);
       edm::ProcessConfigurationID id4 = pc4.id();
       REQUIRE(pc4 == pc2);

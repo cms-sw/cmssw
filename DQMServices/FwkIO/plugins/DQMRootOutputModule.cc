@@ -528,8 +528,8 @@ void DQMRootOutputModule::startEndFile() {
   processHistoryTree->Branch(kProcessConfigurationParameterSetIDBranch, &parameterSetID);
   std::string releaseVersion;
   processHistoryTree->Branch(kProcessConfigurationReleaseVersion, &releaseVersion);
-  std::string passID;
-  processHistoryTree->Branch(kProcessConfigurationPassID, &passID);
+  std::string hardwareResourcesSerialized;
+  processHistoryTree->Branch(kProcessConfigurationHardwareResources, &hardwareResourcesSerialized);
 
   for (std::vector<edm::ProcessHistoryID>::iterator it = m_seenHistories.begin(), itEnd = m_seenHistories.end();
        it != itEnd;
@@ -542,7 +542,7 @@ void DQMRootOutputModule::startEndFile() {
          ++itPC, ++index) {
       processName = itPC->processName();
       releaseVersion = itPC->releaseVersion();
-      passID = itPC->passID();
+      hardwareResourcesSerialized = itPC->hardwareResourcesDescriptionSerialized();
       parameterSetID = itPC->parameterSetID().compactForm();
       tbb::this_task_arena::isolate([&] { processHistoryTree->Fill(); });
     }

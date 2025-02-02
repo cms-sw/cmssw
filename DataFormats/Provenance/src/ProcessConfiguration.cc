@@ -13,18 +13,21 @@
 
 namespace edm {
 
-  ProcessConfiguration::ProcessConfiguration() : processName_(), parameterSetID_(), releaseVersion_(), passID_() {}
+  ProcessConfiguration::ProcessConfiguration() = default;
 
   ProcessConfiguration::ProcessConfiguration(std::string const& procName,
                                              ParameterSetID const& pSetID,
                                              ReleaseVersion const& relVersion,
-                                             PassID const& pass)
-      : processName_(procName), parameterSetID_(pSetID), releaseVersion_(relVersion), passID_(pass) {}
+                                             HardwareResourcesDescription const& hwDescription)
+      : processName_(procName),
+        parameterSetID_(pSetID),
+        releaseVersion_(relVersion),
+        passID_(hwDescription.serialize()) {}
 
   ProcessConfiguration::ProcessConfiguration(std::string const& procName,
                                              ReleaseVersion const& relVersion,
-                                             PassID const& pass)
-      : processName_(procName), parameterSetID_(), releaseVersion_(relVersion), passID_(pass) {
+                                             HardwareResourcesDescription const& hwDescription)
+      : processName_(procName), parameterSetID_(), releaseVersion_(relVersion), passID_(hwDescription.serialize()) {
     setCurrentProcess();
   }
 
@@ -83,6 +86,7 @@ namespace edm {
       return;
     transient_.pcid_ = ProcessConfigurationID();
     releaseVersion_.erase(iter, iEnd);
+    passID_ = edm::HardwareResourcesDescription().serialize();
   }
 
   bool operator<(ProcessConfiguration const& a, ProcessConfiguration const& b) {
@@ -98,13 +102,14 @@ namespace edm {
       return true;
     if (b.releaseVersion() < a.releaseVersion())
       return false;
-    if (a.passID() < b.passID())
+    if (a.hardwareResourcesDescriptionSerialized() < b.hardwareResourcesDescriptionSerialized())
       return true;
     return false;
   }
 
   std::ostream& operator<<(std::ostream& os, ProcessConfiguration const& pc) {
-    os << pc.processName() << ' ' << pc.parameterSetID() << ' ' << pc.releaseVersion() << ' ' << pc.passID();
+    os << pc.processName() << ' ' << pc.parameterSetID() << ' ' << pc.releaseVersion() << ' '
+       << pc.hardwareResourcesDescription();
     return os;
   }
 }  // namespace edm

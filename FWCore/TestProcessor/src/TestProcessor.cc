@@ -120,7 +120,7 @@ namespace edm {
       auto psetid = emptyPSet.id();
 
       for (auto const& p : iConfig.extraProcesses()) {
-        processHistory_.emplace_back(p, psetid, xstr(PROJECT_VERSION), "0");
+        processHistory_.emplace_back(p, psetid, xstr(PROJECT_VERSION), HardwareResourcesDescription());
         processHistoryRegistry_.registerProcessHistory(processHistory_);
       }
 
