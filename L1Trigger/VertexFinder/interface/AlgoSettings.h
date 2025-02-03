@@ -66,7 +66,7 @@ namespace l1tVertexFinder {
     bool vx_pfa_usemultiplicitymaxima() const { return vx_pfa_usemultiplicitymaxima_; }
     // Weight function to use in PFA. 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function, 3: Step function
     unsigned int vx_pfa_weightfunction() const { return vx_pfa_weightfunction_; }
-    // Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT and association probability (2)
+    // Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT and association probability (2). Step function and pT-weighted average (3) is only designed for use with vx_pfa_weightfunction=3 (to replicate fastHisto).
     unsigned int vx_pfa_weightedz0() const { return vx_pfa_weightedz0_; }
     // Use above vx_pfa_resolutionSF also in weighted-average z0 computation
     bool vx_pfa_useSFforweightedz0() const { return vx_pfa_useSFforweightedz0_; }
