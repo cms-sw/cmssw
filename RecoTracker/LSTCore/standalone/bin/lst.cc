@@ -430,11 +430,6 @@ void run_lst() {
                                                      out_trkZ.at(evt),
                                                      out_hitId.at(evt),
                                                      out_hitIdxs.at(evt),
-                                                     out_hitIndices_vec0.at(evt),
-                                                     out_hitIndices_vec1.at(evt),
-                                                     out_hitIndices_vec2.at(evt),
-                                                     out_hitIndices_vec3.at(evt),
-                                                     out_deltaPhi_vec.at(evt),
                                                      out_ptIn_vec.at(evt),
                                                      out_ptErr_vec.at(evt),
                                                      out_px_vec.at(evt),
@@ -453,7 +448,15 @@ void run_lst() {
       timing_LS = runSegment(events.at(omp_get_thread_num()));
       timing_T3 = runT3(events.at(omp_get_thread_num()));
       timing_T5 = runQuintuplet(events.at(omp_get_thread_num()));
-      timing_pLS = runPixelLineSegment(events.at(omp_get_thread_num()), ana.no_pls_dupclean);
+
+      timing_pLS = runPixelLineSegment(events.at(omp_get_thread_num()),
+                                       out_hitIndices_vec0.at(evt),
+                                       out_hitIndices_vec1.at(evt),
+                                       out_hitIndices_vec2.at(evt),
+                                       out_hitIndices_vec3.at(evt),
+                                       out_deltaPhi_vec.at(evt),
+                                       ana.no_pls_dupclean);
+
       timing_pT5 = runPixelQuintuplet(events.at(omp_get_thread_num()));
       timing_pT3 = runpT3(events.at(omp_get_thread_num()));
       timing_TC = runTrackCandidate(events.at(omp_get_thread_num()), ana.no_pls_dupclean, ana.tc_pls_triplets);

@@ -27,7 +27,13 @@ float runT3(LSTEvent *event);
 float runTrackCandidate(LSTEvent *event, bool no_pls_dupclean, bool tc_pls_triplets);
 float runQuintuplet(LSTEvent *event);
 float runPixelQuintuplet(LSTEvent *event);
-float runPixelLineSegment(LSTEvent *event, bool no_pls_dupclean);
+float runPixelLineSegment(LSTEvent *event,
+                          std::vector<unsigned int> hitIndices_vec0,
+                          std::vector<unsigned int> hitIndices_vec1,
+                          std::vector<unsigned int> hitIndices_vec2,
+                          std::vector<unsigned int> hitIndices_vec3,
+                          std::vector<float> deltaPhi_vec,
+                          bool no_pls_dupclean);
 float runpT3(LSTEvent *event);
 
 // --------------------- ======================== ---------------------
@@ -81,11 +87,6 @@ float addInputsToEventPreLoad(LSTEvent *event,
                               std::vector<float> trkZ,
                               std::vector<unsigned int> hitId,
                               std::vector<unsigned int> hitIdxs,
-                              std::vector<unsigned int> hitIndices_vec0,
-                              std::vector<unsigned int> hitIndices_vec1,
-                              std::vector<unsigned int> hitIndices_vec2,
-                              std::vector<unsigned int> hitIndices_vec3,
-                              std::vector<float> deltaPhi_vec,
                               std::vector<float> ptIn_vec,
                               std::vector<float> ptErr_vec,
                               std::vector<float> px_vec,
