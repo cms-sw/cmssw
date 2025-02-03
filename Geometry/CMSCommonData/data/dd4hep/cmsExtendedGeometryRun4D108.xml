@@ -73,7 +73,7 @@
     <Include ref='Geometry/MuonCommonData/data/muonYoke/2030/v3/muonYoke.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mf/2030/v8/mf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/csc/2021/v2/csc.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/rpcf/2030/v3/rpcf.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/rpcf/2030/v4/rpcf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem21/2030/v1/gem21.xml'/>
