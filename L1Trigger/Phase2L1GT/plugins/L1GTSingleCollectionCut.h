@@ -103,7 +103,7 @@ namespace l1t {
       }
       if (!regionsQualityFlags_.empty() && regionsAbsEtaLowerBounds_.size() != regionsQualityFlags_.size()) {
         throw cms::Exception("Configuration")
-            << "\'regionsMaxRelIsolationPt\' has " << regionsQualityFlags_.size() << " entries, but requires "
+            << "\'regionsQualityFlags\' has " << regionsQualityFlags_.size() << " entries, but requires "
             << regionsAbsEtaLowerBounds_.size() << " in " << tag_ << " .";
       }
     }
