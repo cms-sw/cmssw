@@ -1794,6 +1794,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   ModulesConst modules,
                                   TripletsOccupancyConst tripletsOccupancy,
                                   ObjectRanges ranges,
+                                  Triplets triplets,
                                   const float ptCut) const {
       // implementation is 1D with a single block
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
@@ -1836,27 +1837,43 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         if (tripletsOccupancy.nTriplets()[i] == 0)
           continue;
-        if (module_subdets == Barrel and module_layers >= 3)
+        if (module_subdets == Barrel && module_layers >= 3)
           continue;
-        if (module_subdets == Endcap and module_layers > 1)
+        if (module_subdets == Endcap && module_layers > 1)
           continue;
 
-        int nEligibleT5Modules = alpaka::atomicAdd(acc, &nEligibleT5Modulesx, 1, alpaka::hierarchy::Threads{});
+        int dynamic_count = 0;
+
+        // How many triplets are in module i?
+        int nTriplets_i = tripletsOccupancy.nTriplets()[i];
+        int firstTripletIdx = ranges.tripletModuleIndices()[i];
+
+        // Loop over all triplets that live in module i
+        for (int t = 0; t < nTriplets_i; t++) {
+          int tripletIndex = firstTripletIdx + t;
+          uint16_t outerModule = triplets.lowerModuleIndices()[tripletIndex][2];
+          dynamic_count += tripletsOccupancy.nTriplets()[outerModule];
+        }
 
         int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
         int eta_number = getEtaBin(module_eta);
 
-        int occupancy = 0;
-        if (category_number != -1 && eta_number != -1) {
-          occupancy = occupancy_matrix[category_number][eta_number];
-        }
 #ifdef WARNINGS
-        else {
+        if (category_number == -1 || eta_number == -1) {
           printf("Unhandled case in createEligibleModulesListForQuintupletsGPU! Module index = %i\n", i);
         }
 #endif
 
+        // Get matrix-based cap (use dynamic_count as fallback)
+        int matrix_cap =
+            (category_number != -1 && eta_number != -1) ? occupancy_matrix[category_number][eta_number] : 0;
+
+        // Cap occupancy at minimum of dynamic count and matrix value
+        int occupancy = alpaka::math::min(acc, dynamic_count, matrix_cap);
+
+        int nEligibleT5Modules = alpaka::atomicAdd(acc, &nEligibleT5Modulesx, 1, alpaka::hierarchy::Threads{});
         int nTotQ = alpaka::atomicAdd(acc, &nTotalQuintupletsx, occupancy, alpaka::hierarchy::Threads{});
+
         ranges.quintupletModuleIndices()[i] = nTotQ;
         ranges.indicesOfEligibleT5Modules()[nEligibleT5Modules] = i;
         ranges.quintupletModuleOccupancy()[i] = occupancy;

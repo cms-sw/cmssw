@@ -216,11 +216,19 @@ float runQuintuplet(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runPixelLineSegment(LSTEvent *event, bool no_pls_dupclean) {
+float runPixelLineSegment(LSTEvent *event,
+                          std::vector<unsigned int> hitIndices_vec0,
+                          std::vector<unsigned int> hitIndices_vec1,
+                          std::vector<unsigned int> hitIndices_vec2,
+                          std::vector<unsigned int> hitIndices_vec3,
+                          std::vector<float> deltaPhi_vec,
+                          bool no_pls_dupclean) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Pixel Line Segment start" << std::endl;
   my_timer.Start();
+  event->addPixelSegmentToEventFinalize(
+      hitIndices_vec0, hitIndices_vec1, hitIndices_vec2, hitIndices_vec3, deltaPhi_vec);
   event->pixelLineSegmentCleaning(no_pls_dupclean);
   event->wait();  // device side event calls are asynchronous: wait to measure time or print
   float pls_elapsed = my_timer.RealTime();
@@ -860,11 +868,6 @@ float addInputsToEventPreLoad(LSTEvent *event,
                               std::vector<float> trkZ,
                               std::vector<unsigned int> hitId,
                               std::vector<unsigned int> hitIdxs,
-                              std::vector<unsigned int> hitIndices_vec0,
-                              std::vector<unsigned int> hitIndices_vec1,
-                              std::vector<unsigned int> hitIndices_vec2,
-                              std::vector<unsigned int> hitIndices_vec3,
-                              std::vector<float> deltaPhi_vec,
                               std::vector<float> ptIn_vec,
                               std::vector<float> ptErr_vec,
                               std::vector<float> px_vec,
@@ -888,24 +891,19 @@ float addInputsToEventPreLoad(LSTEvent *event,
 
   event->addHitToEvent(trkX, trkY, trkZ, hitId, hitIdxs);
 
-  event->addPixelSegmentToEvent(hitIndices_vec0,
-                                hitIndices_vec1,
-                                hitIndices_vec2,
-                                hitIndices_vec3,
-                                deltaPhi_vec,
-                                ptIn_vec,
-                                ptErr_vec,
-                                px_vec,
-                                py_vec,
-                                pz_vec,
-                                eta_vec,
-                                etaErr_vec,
-                                phi_vec,
-                                charge_vec,
-                                seedIdx_vec,
-                                superbin_vec,
-                                pixelType_vec,
-                                isQuad_vec);
+  event->addPixelSegmentToEventStart(ptIn_vec,
+                                     ptErr_vec,
+                                     px_vec,
+                                     py_vec,
+                                     pz_vec,
+                                     eta_vec,
+                                     etaErr_vec,
+                                     phi_vec,
+                                     charge_vec,
+                                     seedIdx_vec,
+                                     superbin_vec,
+                                     pixelType_vec,
+                                     isQuad_vec);
   event->wait();  // device side event calls are asynchronous: wait to measure time or print
   float hit_loading_elapsed = my_timer.RealTime();
 

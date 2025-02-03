@@ -302,24 +302,19 @@ void LST::run(Queue& queue,
                ptCut);
 
   event.addHitToEvent(in_trkX_, in_trkY_, in_trkZ_, in_hitId_, in_hitIdxs_);
-  event.addPixelSegmentToEvent(in_hitIndices_vec0_,
-                               in_hitIndices_vec1_,
-                               in_hitIndices_vec2_,
-                               in_hitIndices_vec3_,
-                               in_deltaPhi_vec_,
-                               in_ptIn_vec_,
-                               in_ptErr_vec_,
-                               in_px_vec_,
-                               in_py_vec_,
-                               in_pz_vec_,
-                               in_eta_vec_,
-                               in_etaErr_vec_,
-                               in_phi_vec_,
-                               in_charge_vec_,
-                               in_seedIdx_vec_,
-                               in_superbin_vec_,
-                               in_pixelType_vec_,
-                               in_isQuad_vec_);
+  event.addPixelSegmentToEventStart(in_ptIn_vec_,
+                                    in_ptErr_vec_,
+                                    in_px_vec_,
+                                    in_py_vec_,
+                                    in_pz_vec_,
+                                    in_eta_vec_,
+                                    in_etaErr_vec_,
+                                    in_phi_vec_,
+                                    in_charge_vec_,
+                                    in_seedIdx_vec_,
+                                    in_superbin_vec_,
+                                    in_pixelType_vec_,
+                                    in_isQuad_vec_);
   event.createMiniDoublets();
   if (verbose) {
     alpaka::wait(queue);  // event calls are asynchronous: wait before printing
@@ -387,6 +382,9 @@ void LST::run(Queue& queue,
     printf("# of Quintuplets produced endcap layer 4: %d\n", event.getNumberOfQuintupletsByLayerEndcap(3));
     printf("# of Quintuplets produced endcap layer 5: %d\n", event.getNumberOfQuintupletsByLayerEndcap(4));
   }
+
+  event.addPixelSegmentToEventFinalize(
+      in_hitIndices_vec0_, in_hitIndices_vec1_, in_hitIndices_vec2_, in_hitIndices_vec3_, in_deltaPhi_vec_);
 
   event.pixelLineSegmentCleaning(no_pls_dupclean);
 
