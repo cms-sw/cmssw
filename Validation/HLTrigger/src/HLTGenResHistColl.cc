@@ -88,6 +88,7 @@ edm::ParameterSetDescription HLTGenResHistColl::makePSetDescription() {
                                        45, 50, 60, 80,   100, 150,  200, 250,  300, 350, 400};
   histConfigDefault0.addParameter<std::vector<double>>("vsBinLowEdges", defaultPtBinning);
   std::vector<double> defaultResBinning;
+  defaultResBinning.reserve(151);
   for (int i = 0; i < 151; i++) {
     defaultResBinning.push_back(i * 0.01);
   }

@@ -108,7 +108,7 @@ HLTGenResSource::HLTGenResSource(const edm::ParameterSet& iConfig)
   hltProcessName_ = iConfig.getParameter<std::string>("hltProcessName");
 
   auto resCollections = iConfig.getParameter<std::vector<edm::ParameterSet>>("resCollConfigs");
-  for (auto resCollConfig : resCollections) {
+  for (const auto& resCollConfig : resCollections) {
     collections_.emplace_back(HLTGenResHistColl(resCollConfig, hltProcessName_));
   }
 }
