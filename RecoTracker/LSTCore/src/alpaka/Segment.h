@@ -8,6 +8,7 @@
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/alpaka/SegmentsDeviceCollection.h"
+#include "RecoTracker/LSTCore/interface/PixelSegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/HitsSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
@@ -207,7 +208,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addPixelSegmentToMemory(TAcc const& acc,
                                                               Segments segments,
-                                                              SegmentsPixel segmentsPixel,
+                                                              PixelSegments pixelSegments,
                                                               MiniDoubletsConst mds,
                                                               unsigned int innerMDIndex,
                                                               unsigned int outerMDIndex,
@@ -227,13 +228,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     segments.outerMiniDoubletAnchorHitIndices()[idx] = outerAnchorHitIndex;
     segments.dPhiChanges()[idx] = __F2H(dPhiChange);
 
-    segmentsPixel.isDup()[pixelSegmentArrayIndex] = false;
-    segmentsPixel.partOfPT5()[pixelSegmentArrayIndex] = false;
-    segmentsPixel.score()[pixelSegmentArrayIndex] = score;
-    segmentsPixel.pLSHitsIdxs()[pixelSegmentArrayIndex].x = hitIdxs[0];
-    segmentsPixel.pLSHitsIdxs()[pixelSegmentArrayIndex].y = hitIdxs[1];
-    segmentsPixel.pLSHitsIdxs()[pixelSegmentArrayIndex].z = hitIdxs[2];
-    segmentsPixel.pLSHitsIdxs()[pixelSegmentArrayIndex].w = hitIdxs[3];
+    pixelSegments.isDup()[pixelSegmentArrayIndex] = false;
+    pixelSegments.partOfPT5()[pixelSegmentArrayIndex] = false;
+    pixelSegments.score()[pixelSegmentArrayIndex] = score;
+    pixelSegments.pLSHitsIdxs()[pixelSegmentArrayIndex].x = hitIdxs[0];
+    pixelSegments.pLSHitsIdxs()[pixelSegmentArrayIndex].y = hitIdxs[1];
+    pixelSegments.pLSHitsIdxs()[pixelSegmentArrayIndex].z = hitIdxs[2];
+    pixelSegments.pLSHitsIdxs()[pixelSegmentArrayIndex].w = hitIdxs[3];
 
     //computing circle parameters
     /*
@@ -263,9 +264,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         bestIndex = i;
       }
     }
-    segmentsPixel.circleCenterX()[pixelSegmentArrayIndex] = candidateCenterXs[bestIndex];
-    segmentsPixel.circleCenterY()[pixelSegmentArrayIndex] = candidateCenterYs[bestIndex];
-    segmentsPixel.circleRadius()[pixelSegmentArrayIndex] = circleRadius;
+    pixelSegments.circleCenterX()[pixelSegmentArrayIndex] = candidateCenterXs[bestIndex];
+    pixelSegments.circleCenterY()[pixelSegmentArrayIndex] = candidateCenterYs[bestIndex];
+    pixelSegments.circleRadius()[pixelSegmentArrayIndex] = circleRadius;
   }
 
   template <typename TAcc>
@@ -621,8 +622,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   };
 
   struct CreateSegmentArrayRanges {
-    ALPAKA_FN_ACC void operator()(
-        Acc1D const& acc, ModulesConst modules, ObjectRanges ranges, MiniDoubletsConst mds, const float ptCut) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  ModulesConst modules,
+                                  ObjectRanges ranges,
+                                  MiniDoubletsConst mds,
+                                  MiniDoubletsOccupancyConst mdsOccupancy,
+                                  const float ptCut) const {
       // implementation is 1D with a single block
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
@@ -667,15 +672,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
         int eta_number = getEtaBin(module_eta);
 
-        int occupancy = 0;
-        if (category_number != -1 && eta_number != -1) {
-          occupancy = occupancy_matrix[category_number][eta_number];
+        int dynamic_count = 0;
+        // Calculate dynamic limit based on connected modules
+        unsigned int nInnerMDs = mdsOccupancy.nMDs()[i];
+        for (unsigned int c = 0; c < modules.nConnectedModules()[i]; ++c) {
+          uint16_t connectedModule = modules.moduleMap()[i][c];
+          dynamic_count += nInnerMDs * mdsOccupancy.nMDs()[connectedModule];
         }
+
 #ifdef WARNINGS
-        else {
+        if (category_number == -1 || eta_number == -1) {
           printf("Unhandled case in createSegmentArrayRanges! Module index = %i\n", i);
         }
 #endif
+        // Get matrix-based cap
+        int matrix_cap =
+            (category_number != -1 && eta_number != -1) ? occupancy_matrix[category_number][eta_number] : 0;
+
+        // Cap occupancy at minimum of dynamic count and matrix value
+        int occupancy = alpaka::math::min(acc, dynamic_count, matrix_cap);
 
         int nTotSegs = alpaka::atomicAdd(acc, &nTotalSegments, occupancy, alpaka::hierarchy::Threads{});
         ranges.segmentModuleIndices()[i] = nTotSegs;
@@ -718,7 +733,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   HitsConst hits,
                                   MiniDoublets mds,
                                   Segments segments,
-                                  SegmentsPixel segmentsPixel,
+                                  PixelSegments pixelSegments,
                                   unsigned int* hitIndices0,
                                   unsigned int* hitIndices1,
                                   unsigned int* hitIndices2,
@@ -779,7 +794,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         hits1[3] = hits.idxs()[mds.outerHitIndices()[outerMDIndex]];
         addPixelSegmentToMemory(acc,
                                 segments,
-                                segmentsPixel,
+                                pixelSegments,
                                 mds,
                                 innerMDIndex,
                                 outerMDIndex,

@@ -411,7 +411,7 @@ void setPixelQuintupletOutputBranches(LSTEvent* event) {
   // ============ pT5 =============
   auto const pixelQuintuplets = event->getPixelQuintuplets();
   auto const quintuplets = event->getQuintuplets<QuintupletsSoA>();
-  auto const segmentsPixel = event->getSegments<SegmentsPixelSoA>();
+  auto const pixelSegments = event->getPixelSegments();
   auto modules = event->getModules<ModulesSoA>();
   int n_accepted_simtrk = ana.tx->getBranch<std::vector<int>>("sim_TC_matched").size();
 
@@ -422,9 +422,9 @@ void setPixelQuintupletOutputBranches(LSTEvent* event) {
   for (unsigned int pT5 = 0; pT5 < nPixelQuintuplets; pT5++) {
     unsigned int T5Index = getT5FrompT5(event, pT5);
     unsigned int pLSIndex = getPixelLSFrompT5(event, pT5);
-    float pt = (__H2F(quintuplets.innerRadius()[T5Index]) * k2Rinv1GeVf * 2 + segmentsPixel.ptIn()[pLSIndex]) / 2;
-    float eta = segmentsPixel.eta()[pLSIndex];
-    float phi = segmentsPixel.phi()[pLSIndex];
+    float pt = (__H2F(quintuplets.innerRadius()[T5Index]) * k2Rinv1GeVf * 2 + pixelSegments.ptIn()[pLSIndex]) / 2;
+    float eta = pixelSegments.eta()[pLSIndex];
+    float phi = pixelSegments.phi()[pLSIndex];
 
     std::vector<unsigned int> hit_idx = getHitIdxsFrompT5(event, pT5);
     std::vector<unsigned int> module_idx = getModuleIdxsFrompT5(event, pT5);
@@ -578,7 +578,7 @@ void setQuintupletOutputBranches(LSTEvent* event) {
 void setPixelTripletOutputBranches(LSTEvent* event) {
   auto const pixelTriplets = event->getPixelTriplets();
   auto modules = event->getModules<ModulesSoA>();
-  SegmentsPixelConst segmentsPixel = event->getSegments<SegmentsPixelSoA>();
+  PixelSegmentsConst pixelSegments = event->getPixelSegments();
   int n_accepted_simtrk = ana.tx->getBranch<std::vector<int>>("sim_TC_matched").size();
 
   unsigned int nPixelTriplets = pixelTriplets.nPixelTriplets();
@@ -588,10 +588,10 @@ void setPixelTripletOutputBranches(LSTEvent* event) {
   for (unsigned int pT3 = 0; pT3 < nPixelTriplets; pT3++) {
     unsigned int T3Index = getT3FrompT3(event, pT3);
     unsigned int pLSIndex = getPixelLSFrompT3(event, pT3);
-    const float pt = segmentsPixel.ptIn()[pLSIndex];
+    const float pt = pixelSegments.ptIn()[pLSIndex];
 
-    float eta = segmentsPixel.eta()[pLSIndex];
-    float phi = segmentsPixel.phi()[pLSIndex];
+    float eta = pixelSegments.eta()[pLSIndex];
+    float phi = pixelSegments.phi()[pLSIndex];
     std::vector<unsigned int> hit_idx = getHitIdxsFrompT3(event, pT3);
     std::vector<unsigned int> hit_type = getHitTypesFrompT3(event, pT3);
 
@@ -984,7 +984,7 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   // Get relevant information
   auto const trackCandidates = event->getTrackCandidates();
   auto const quintuplets = event->getQuintuplets<QuintupletsSoA>();
-  auto const segmentsPixel = event->getSegments<SegmentsPixelSoA>();
+  auto const pixelSegments = event->getPixelSegments();
 
   //
   // pictorial representation of a pT5
@@ -1077,9 +1077,9 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   // And from there we estimate the pt's and we compute pt_T5.
 
   // pixel pt
-  const float pt_pLS = segmentsPixel.ptIn()[pLS];
-  const float eta_pLS = segmentsPixel.eta()[pLS];
-  const float phi_pLS = segmentsPixel.phi()[pLS];
+  const float pt_pLS = pixelSegments.ptIn()[pLS];
+  const float eta_pLS = pixelSegments.eta()[pLS];
+  const float phi_pLS = pixelSegments.phi()[pLS];
   float pt_T5 = __H2F(quintuplets.innerRadius()[T5Index]) * 2 * k2Rinv1GeVf;
   const float pt = (pt_T5 + pt_pLS) / 2;
 
@@ -1096,7 +1096,7 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   // Get relevant information
   auto const trackCandidates = event->getTrackCandidates();
   auto const triplets = event->getTriplets<TripletsSoA>();
-  auto const segmentsPixel = event->getSegments<SegmentsPixelSoA>();
+  auto const pixelSegments = event->getPixelSegments();
 
   //
   // pictorial representation of a pT3
@@ -1110,9 +1110,9 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   unsigned int T3 = getT3FrompT3(event, pT3);
 
   // pixel pt
-  const float pt_pLS = segmentsPixel.ptIn()[pLS];
-  const float eta_pLS = segmentsPixel.eta()[pLS];
-  const float phi_pLS = segmentsPixel.phi()[pLS];
+  const float pt_pLS = pixelSegments.ptIn()[pLS];
+  const float eta_pLS = pixelSegments.eta()[pLS];
+  const float phi_pLS = pixelSegments.phi()[pLS];
   float pt_T3 = triplets.radius()[T3] * 2 * k2Rinv1GeVf;
 
   // average pt
@@ -1163,15 +1163,15 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
 std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parsepLS(LSTEvent* event,
                                                                                                unsigned int idx) {
   auto const& trackCandidates = event->getTrackCandidates();
-  SegmentsPixelConst segmentsPixel = event->getSegments<SegmentsPixelSoA>();
+  PixelSegmentsConst pixelSegments = event->getPixelSegments();
 
   // Getting pLS index
   unsigned int pLS = trackCandidates.directObjectIndices()[idx];
 
   // Getting pt eta and phi
-  float pt = segmentsPixel.ptIn()[pLS];
-  float eta = segmentsPixel.eta()[pLS];
-  float phi = segmentsPixel.phi()[pLS];
+  float pt = pixelSegments.ptIn()[pLS];
+  float eta = pixelSegments.eta()[pLS];
+  float phi = pixelSegments.phi()[pLS];
 
   // Getting hit indices and types
   std::vector<unsigned int> hit_idx = getPixelHitIdxsFrompLS(event, pLS);
