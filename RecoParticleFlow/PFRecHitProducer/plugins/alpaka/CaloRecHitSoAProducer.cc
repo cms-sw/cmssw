@@ -74,6 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                   const HCAL::CaloRecHitType& from) {
     // Fill SoA from HCAL rec hit
     to.detId() = from.id().rawId();
+    to.chi2() = from.chi2();
     to.energy() = from.energy();
     to.timeM0() = from.time();
   }
