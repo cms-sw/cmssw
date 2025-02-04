@@ -18,7 +18,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       using Base = ProducerBase<edm::global::EDProducer, Args...>;
 
     protected:
-      EDProducer() = default;  // to be removed in the near future
       EDProducer(edm::ParameterSet const iConfig) : Base(iConfig) {}
 
     public:
