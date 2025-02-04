@@ -9,7 +9,7 @@
 <use name="L1Trigger/TrackFindingTMTT"/>
 <use name="L1Trigger/TrackerTFP"/>
 <flags CXXFLAGS="-DUSEHYBRID"/>
-
+<flags REM_CXXFLAGS="-Werror=array-bounds"/>
 <export>
   <lib   name="1"/>
 </export>

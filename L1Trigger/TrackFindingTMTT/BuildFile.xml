@@ -16,6 +16,7 @@
 <use name="DataFormats/JetReco"/>
 <use name="L1Trigger/TrackTrigger"/>
 <use name="roothistmatrix"/>
+<flags REM_CXXFLAGS="-Werror=array-bounds"/>
 <export>
     <lib name="1"/>
 </export>

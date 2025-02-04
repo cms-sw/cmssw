@@ -1,3 +1,4 @@
+<flags REM_CXXFLAGS="-Werror=array-bounds"/>
 <bin file="testSerializationJetMETObjects.cpp">
   <use name="CondFormats/JetMETObjects"/>
 </bin>
