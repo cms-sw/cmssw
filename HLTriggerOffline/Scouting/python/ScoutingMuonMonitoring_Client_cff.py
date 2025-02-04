@@ -95,7 +95,3 @@ muonTriggerEfficiency = DQMEDHarvester("DQMGenericClient",
     resolution     = cms.vstring(),
     efficiency     = cms.vstring( efficiencyList ),
 )
-    
-
-
- 

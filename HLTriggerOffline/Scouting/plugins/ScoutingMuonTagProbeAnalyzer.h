@@ -1,19 +1,20 @@
 /*
 Class definition for ScoutingMuonTagProbeAnalyzer.cc. Declares each
 histogram (MonitorElement), numerator and denominator histogram structure
-(kProbeKinematicMuonHistos), and any functions used in 
-ScoutingMuonTagProbeAnalyzer.cc. Also declares the token to read the 
+(kProbeKinematicMuonHistos), and any functions used in
+ScoutingMuonTagProbeAnalyzer.cc. Also declares the token to read the
 scouting muon and scouting vertex collections.
 
 Author: Javier Garcia de Castro, email:javigdc@bu.edu
 */
 
-//Files to include
+// Files to include
 #ifndef DQMOffline_Scouting_ScoutingMuonTagProbeAnalyzer_h
 #define DQMOffline_Scouting_ScoutingMuonTagProbeAnalyzer_h
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
+
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
@@ -82,30 +83,33 @@ struct kTagProbeMuonHistos {
   kProbeKinematicMuonHistos resonanceJ_denominator;
 };
 
-class ScoutingMuonTagProbeAnalyzer : public DQMGlobalEDAnalyzer<kTagProbeMuonHistos> {
-public:
+class ScoutingMuonTagProbeAnalyzer
+    : public DQMGlobalEDAnalyzer<kTagProbeMuonHistos> {
+ public:
   explicit ScoutingMuonTagProbeAnalyzer(const edm::ParameterSet& conf);
   ~ScoutingMuonTagProbeAnalyzer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-private:
-  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, kTagProbeMuonHistos const&) const override;
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kTagProbeMuonHistos&) const override;
-  void bookHistograms_resonance(DQMStore::IBooker&,
-                                edm::Run const&,
+ private:
+  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c,
+                  kTagProbeMuonHistos const&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&,
+                      kTagProbeMuonHistos&) const override;
+  void bookHistograms_resonance(DQMStore::IBooker&, edm::Run const&,
                                 edm::EventSetup const&,
                                 kProbeKinematicMuonHistos&,
                                 const std::string&) const;
   void fillHistograms_resonance(const kProbeKinematicMuonHistos histos,
                                 const Run3ScoutingMuon mu,
                                 const Run3ScoutingVertex vertex,
-                                const float inv_mass,
-                                const float lxy) const;
+                                const float inv_mass, const float lxy) const;
   bool scoutingMuonID(const Run3ScoutingMuon mu) const;
 
-  std::string outputInternalPath_;
-  edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
-  edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> scoutingVtxCollection_;
+  const std::string outputInternalPath_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>>
+      scoutingVtxCollection_;
   Bool_t runWithoutVtx_;
 };
 #endif

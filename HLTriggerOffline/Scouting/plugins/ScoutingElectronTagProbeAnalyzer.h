@@ -14,15 +14,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // HLT related header files
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // L1 related header files
 #include "DataFormats/L1Trigger/interface/BXVector.h"
@@ -85,35 +85,42 @@ struct kSctTagProbeHistos {
   kSctProbeKinematicHistos resonanceAll;
 };
 
-class ScoutingElectronTagProbeAnalyzer : public DQMGlobalEDAnalyzer<kSctTagProbeHistos> {
-public:
+class ScoutingElectronTagProbeAnalyzer
+    : public DQMGlobalEDAnalyzer<kSctTagProbeHistos> {
+ public:
   explicit ScoutingElectronTagProbeAnalyzer(const edm::ParameterSet& conf);
   ~ScoutingElectronTagProbeAnalyzer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-private:
-  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, kSctTagProbeHistos const&) const override;
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kSctTagProbeHistos&) const override;
-  void bookHistograms_resonance(
-      DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kSctProbeKinematicHistos&, const std::string&) const;
-  void fillHistograms_resonance(const kSctProbeKinematicHistos histos,
-                                const Run3ScoutingElectron el,
-                                const float inv_mass,
-                                const trigger::TriggerObjectCollection* legObjectsCollection) const;
+ private:
+  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c,
+                  kSctTagProbeHistos const&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&,
+                      kSctTagProbeHistos&) const override;
+  void bookHistograms_resonance(DQMStore::IBooker&, edm::Run const&,
+                                edm::EventSetup const&,
+                                kSctProbeKinematicHistos&,
+                                const std::string&) const;
+  void fillHistograms_resonance(
+      const kSctProbeKinematicHistos histos, const Run3ScoutingElectron el,
+      const float inv_mass,
+      const trigger::TriggerObjectCollection* legObjectsCollection) const;
   bool scoutingElectronID(const Run3ScoutingElectron el) const;
-  bool scoutingElectron_passHLT(const Run3ScoutingElectron el,
-                                TString filter,
-                                trigger::TriggerObjectCollection legObjects) const;
+  bool scoutingElectron_passHLT(
+      const Run3ScoutingElectron el, TString filter,
+      trigger::TriggerObjectCollection legObjects) const;
   // --------------------- member data  ----------------------
   std::string outputInternalPath_;
 
   edm::EDGetToken triggerResultsToken_;
   edm::EDGetToken triggerSummaryToken_;
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
-  std::vector<std::string> filterToMatch_;
+  const std::vector<std::string> filterToMatch_;
 
-  edm::EDGetTokenT<std::vector<pat::Electron>> electronCollection_;
-  edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> scoutingElectronCollection_;
+  const edm::EDGetTokenT<std::vector<pat::Electron>> electronCollection_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>>
+      scoutingElectronCollection_;
 };
 
 #endif

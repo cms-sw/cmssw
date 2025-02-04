@@ -10,7 +10,20 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 #List of Double and Single Muon triggers (numerator)
-DoubleMuL1 = ["L1_DoubleMu0_Upt8_SQ_er2p0","L1_DoubleMu0_Upt7_SQ_er2p0","L1_DoubleMu_15_7","L1_DoubleMu4p5er2p0_SQ_OS_Mass_Min7","L1_DoubleMu4p5er2p0_SQ_OS_Mass_7to18","L1_DoubleMu8_SQ","L1_DoubleMu4er2p0_SQ_OS_dR_Max1p6","L1_DoubleMu0er1p4_SQ_OS_dR_Max1p4","L1_DoubleMu4p5_SQ_OS_dR_Max1p2","L1_DoubleMu0_Upt15_Upt7","L1_DoubleMu0_Upt6_IP_Min1_Upt4","L1_DoubleMu0_Upt6_SQ_er2p0"]
+DoubleMuL1 = [
+    "L1_DoubleMu0_Upt8_SQ_er2p0",
+    "L1_DoubleMu0_Upt7_SQ_er2p0",
+    "L1_DoubleMu_15_7",
+    "L1_DoubleMu4p5er2p0_SQ_OS_Mass_Min7",
+    "L1_DoubleMu4p5er2p0_SQ_OS_Mass_7to18",
+    "L1_DoubleMu8_SQ",
+    "L1_DoubleMu4er2p0_SQ_OS_dR_Max1p6",
+    "L1_DoubleMu0er1p4_SQ_OS_dR_Max1p4",
+    "L1_DoubleMu4p5_SQ_OS_dR_Max1p2",
+    "L1_DoubleMu0_Upt15_Upt7",
+    "L1_DoubleMu0_Upt6_IP_Min1_Upt4",
+    "L1_DoubleMu0_Upt6_SQ_er2p0"
+]
 SingleMuL1 = ["L1_SingleMu11_SQ14_BMTF","L1_SingleMu10_SQ14_BMTF"]
 
 ScoutingMuonTriggerAnalysis = DQMEDAnalyzer('ScoutingMuonTriggerAnalyzer',

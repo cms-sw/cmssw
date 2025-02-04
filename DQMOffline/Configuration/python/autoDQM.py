@@ -2,7 +2,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                               'PostDQMOffline',
                               'DQMMessageLoggerClientSeq'],
 
-            'commonReduced': ['@dcs+@DQMMessageLogger+@hlt+@beam+@castor+@physics',
+           'commonReduced': ['@dcs+@DQMMessageLogger+@hlt+@beam+@castor+@physics',
                         'PostDQMOffline',
                         '@dcs+@DQMMessageLogger+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
