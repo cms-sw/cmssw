@@ -11,6 +11,9 @@
 <iftool name="cuda-gcc-support">
   <use name="cuda"/>
   <set name="cuda_src" value="*.cu"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="CUDADataFormats/Track"/>
+  <use name="CUDADataFormats/TrackingRecHit"/>
 <else/>
   <set name="cuda_src" value=""/>
 </iftool>

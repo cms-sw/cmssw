@@ -27,16 +27,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class Kernel_FastFit {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
-                                  TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
-                                  uint32_t nHits,
-                                  TrackingRecHitSoAConstView<TrackerTraits> hh,
-                                  pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *__restrict__ cpeParams,
-                                  double *__restrict__ phits,
-                                  float *__restrict__ phits_ge,
-                                  double *__restrict__ pfast_fit,
-                                  uint32_t offset) const {
+    ALPAKA_FN_ACC void operator()(
+        TAcc const &acc,
+        Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
+        TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
+        uint32_t nHits,
+        TrackingRecHitSoAConstView<TrackerTraits> hh,
+        FrameSoAConstView fr,
+        // pixelCPEforDevice::ParamsOnDeviceT<pixelTopology::base_traits_t<TrackerTraits>> const *__restrict__ cpeParams,
+        double *__restrict__ phits,
+        float *__restrict__ phits_ge,
+        double *__restrict__ pfast_fit,
+        uint32_t offset) const {
       constexpr uint32_t hitsInFit = N;
 
       ALPAKA_ASSERT_ACC(hitsInFit <= nHits);
@@ -74,7 +76,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (unsigned int i = 0; i < hitsInFit; ++i) {
           auto hit = hitId[i];
           float ge[6];
-          cpeParams->detParams(hh[hit].detectorIndex()).frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
+          fr.detFrame(hh.detectorIndex(hit)).toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
+          // cpeParams->detParams(hh[hit].detectorIndex()).frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
 
           hits.col(i) << hh[hit].xGlobal(), hh[hit].yGlobal(), hh[hit].zGlobal();
           hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
@@ -209,11 +212,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::launchRiemannKernels(const TrackingRecHitSoAConstView<TrackerTraits> &hv,
-                                                     pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *cpeParams,
-                                                     uint32_t nhits,
-                                                     uint32_t maxNumberOfTuples,
-                                                     Queue &queue) {
+  // void HelixFit<TrackerTraits>::launchRiemannKernels(const TrackingRecHitSoAConstView<TrackerTraits> &hv,
+  //                                                    pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *cpeParams,
+  void HelixFit<TrackerTraits>::launchRiemannKernels(
+      const TrackingRecHitSoAConstView<TrackerTraits> &hv,
+      const FrameSoAConstView &fr,
+      //  pixelCPEforDevice::ParamsOnDeviceT<pixelTopology::base_traits_t<TrackerTraits>> const *cpeParams,
+      uint32_t nhits,
+      uint32_t maxNumberOfTuples,
+      Queue &queue) {
     assert(tuples_);
 
     auto blockSize = 64;
@@ -242,7 +249,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           tupleMultiplicity_,
                           3,
                           hv,
-                          cpeParams,
+                          fr,
                           hitsDevice.data(),
                           hits_geDevice.data(),
                           fast_fit_resultsDevice.data(),
@@ -281,7 +288,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           tupleMultiplicity_,
                           4,
                           hv,
-                          cpeParams,
+                          fr,
                           hitsDevice.data(),
                           hits_geDevice.data(),
                           fast_fit_resultsDevice.data(),
@@ -321,7 +328,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             tupleMultiplicity_,
                             5,
                             hv,
-                            cpeParams,
+                            fr,
                             hitsDevice.data(),
                             hits_geDevice.data(),
                             fast_fit_resultsDevice.data(),
@@ -360,7 +367,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             tupleMultiplicity_,
                             5,
                             hv,
-                            cpeParams,
+                            fr,
                             hitsDevice.data(),
                             hits_geDevice.data(),
                             fast_fit_resultsDevice.data(),
@@ -397,5 +404,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template class HelixFit<pixelTopology::Phase1>;
   template class HelixFit<pixelTopology::Phase2>;
   template class HelixFit<pixelTopology::HIonPhase1>;
+  template class HelixFit<pixelTopology::Phase1Strip>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

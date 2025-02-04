@@ -3,6 +3,7 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/TrackingRecHitSoA"/>
 <use name="DataFormats/SiStripCluster"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="RecoLocalTracker/Records"/>
@@ -14,6 +15,7 @@
 <use name="CalibTracker/Records"/>
 <use name="TrackingTools/TransientTrackingRecHit"/>
 <use name="vdt_headers"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>

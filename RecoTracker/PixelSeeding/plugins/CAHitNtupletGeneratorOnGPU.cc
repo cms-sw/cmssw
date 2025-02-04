@@ -61,16 +61,24 @@ namespace {
   template <typename TrackerTraits>
   struct topologyCuts<TrackerTraits, isPhase1Topology<TrackerTraits>> {
     static constexpr CAParamsT<TrackerTraits> makeCACuts(edm::ParameterSet const& cfg) {
-      return CAParamsT<TrackerTraits>{{
-          cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
-          cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
-          static_cast<float>(cfg.getParameter<double>("ptmin")),
-          static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrel")),
-          static_cast<float>(cfg.getParameter<double>("CAThetaCutForward")),
-          static_cast<float>(cfg.getParameter<double>("hardCurvCut")),
-          static_cast<float>(cfg.getParameter<double>("dcaCutInnerTriplet")),
-          static_cast<float>(cfg.getParameter<double>("dcaCutOuterTriplet")),
-      }};
+      return CAParamsT<TrackerTraits>{
+          {cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
+           cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
+           static_cast<float>(cfg.getParameter<double>("ptmin")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrel")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutForward")),
+           static_cast<float>(cfg.getParameter<double>("hardCurvCut")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutInnerTriplet")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutOuterTriplet")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrelPixelBarrelStrip")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrelPixelForwardStrip")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrelStripForwardStrip")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrelStrip")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutDefault")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutInnerTripletPixelStrip")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutOuterTripletPixelStrip")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutTripletStrip")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutTripletDefault"))}};
     };
 
     static constexpr pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
@@ -98,15 +106,25 @@ namespace {
   template <typename TrackerTraits>
   struct topologyCuts<TrackerTraits, isPhase2Topology<TrackerTraits>> {
     static constexpr CAParamsT<TrackerTraits> makeCACuts(edm::ParameterSet const& cfg) {
-      return CAParamsT<TrackerTraits>{{cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
-                                       cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
-                                       static_cast<float>(cfg.getParameter<double>("ptmin")),
-                                       static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrel")),
-                                       static_cast<float>(cfg.getParameter<double>("CAThetaCutForward")),
-                                       static_cast<float>(cfg.getParameter<double>("hardCurvCut")),
-                                       static_cast<float>(cfg.getParameter<double>("dcaCutInnerTriplet")),
-                                       static_cast<float>(cfg.getParameter<double>("dcaCutOuterTriplet"))},
-                                      {(bool)cfg.getParameter<bool>("includeFarForwards")}};
+      return CAParamsT<TrackerTraits>{
+          {cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
+           cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
+           static_cast<float>(cfg.getParameter<double>("ptmin")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrel")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutForward")),
+           static_cast<float>(cfg.getParameter<double>("hardCurvCut")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutInnerTriplet")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutOuterTriplet")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrelPixelBarrelStrip")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrelPixelForwardStrip")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrelStripForwardStrip")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrelStrip")),
+           static_cast<float>(cfg.getParameter<double>("CAThetaCutDefault")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutInnerTripletPixelStrip")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutOuterTripletPixelStrip")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutTripletStrip")),
+           static_cast<float>(cfg.getParameter<double>("dcaCutTripletDefault"))},
+          {(bool)cfg.getParameter<bool>("includeFarForwards")}};
     }
 
     static constexpr pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {

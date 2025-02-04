@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void splitVertices(
       Acc1D const& acc, VtxSoAView& data, TrkSoAView& trkdata, WsSoAView& ws, float maxChi2) {
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
-    constexpr uint32_t MAXTK = 512;
+    constexpr uint32_t MAXTK = 512 * 4;
 
     auto& it = alpaka::declareSharedVar<uint32_t[MAXTK], __COUNTER__>(acc);   // track index
     auto& zz = alpaka::declareSharedVar<float[MAXTK], __COUNTER__>(acc);      // z pos

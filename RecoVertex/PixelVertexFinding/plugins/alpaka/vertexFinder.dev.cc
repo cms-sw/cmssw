@@ -46,7 +46,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           trkdata[idx].idv() = -1;
 
           // do not use triplets
-          if (reco::isTriplet(tracks_view, idx))
+          //if (reco::isTriplet(tracks_view, idx))
+          if (nHits < 4)
             continue;
 
           // use only "high purity" track
@@ -210,5 +211,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template class Producer<pixelTopology::Phase1>;
     template class Producer<pixelTopology::Phase2>;
     template class Producer<pixelTopology::HIonPhase1>;
+    template class Producer<pixelTopology::Phase1Strip>;
   }  // namespace vertexFinder
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
