@@ -107,6 +107,6 @@ private:
   const std::string outputInternalPath_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> scoutingVtxCollection_;
-  Bool_t runWithoutVtx_;
+  const Bool_t runWithoutVtx_;
 };
 #endif

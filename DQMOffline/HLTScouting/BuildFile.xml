@@ -6,7 +6,6 @@
 <use name="CondFormats/SiStripObjects"/>
 <use name="DQMServices/Core"/>
 <use name="DataFormats/CaloTowers"/>
-<use name="DataFormats/CSCRecHit"/>
 <use name="DataFormats/CSCDigi"/>
 <use name="DataFormats/CSCRecHit"/>
 <use name="DataFormats/DTRecHit"/>

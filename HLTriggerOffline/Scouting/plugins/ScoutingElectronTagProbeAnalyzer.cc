@@ -28,7 +28,7 @@ ScoutingElectronTagProbeAnalyzer::ScoutingElectronTagProbeAnalyzer(const edm::Pa
       scoutingElectronCollection_(consumes<std::vector<Run3ScoutingElectron>>(
           iConfig.getParameter<edm::InputTag>("ScoutingElectronCollection"))) {}
 
-ScoutingElectronTagProbeAnalyzer::~ScoutingElectronTagProbeAnalyzer() {}
+ScoutingElectronTagProbeAnalyzer::~ScoutingElectronTagProbeAnalyzer() = default;
 
 void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
                                                   edm::EventSetup const& iSetup,
