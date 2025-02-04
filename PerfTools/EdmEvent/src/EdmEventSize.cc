@@ -27,7 +27,7 @@
 
 #include "TBufferFile.h"
 
-namespace {
+namespace perftools {
 
   enum Indices { kUncompressed, kCompressed };
 
@@ -69,10 +69,6 @@ namespace {
       size[kUncompressed] += buf.Length();
     return size;
   }
-
-}  // namespace
-
-namespace perftools {
 
   template <EdmEventMode M>
   using Record = EdmEventSize<M>::Record;
