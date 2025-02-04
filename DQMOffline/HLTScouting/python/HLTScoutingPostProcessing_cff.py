@@ -16,4 +16,4 @@ hltScoutingMuonPostProcessing = cms.Sequence(muonEfficiencyNoVtx
                                              * muonTriggerEfficiency
                                              )
 
-hLTScoutingPostProcessing = cms.Sequence(hltScoutingMuonPostProcessing + hltScoutingEGammaPostProcessing)
+hltScoutingPostProcessing = cms.Sequence(hltScoutingMuonPostProcessing + hltScoutingEGammaPostProcessing)

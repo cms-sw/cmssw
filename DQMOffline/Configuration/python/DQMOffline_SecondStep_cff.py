@@ -269,7 +269,7 @@ DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 # HLT Scouting trigger sequence
-DQMHarvestHLTScouting = cms.Sequence( hltScoutingMuonPostProcessing )
+DQMHarvestHLTScouting = cms.Sequence( hltScoutingPostProcessing )
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import *
 from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *
