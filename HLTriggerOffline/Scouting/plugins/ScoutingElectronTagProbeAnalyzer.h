@@ -85,31 +85,25 @@ struct kSctTagProbeHistos {
   kSctProbeKinematicHistos resonanceAll;
 };
 
-class ScoutingElectronTagProbeAnalyzer
-    : public DQMGlobalEDAnalyzer<kSctTagProbeHistos> {
- public:
+class ScoutingElectronTagProbeAnalyzer : public DQMGlobalEDAnalyzer<kSctTagProbeHistos> {
+public:
   explicit ScoutingElectronTagProbeAnalyzer(const edm::ParameterSet& conf);
   ~ScoutingElectronTagProbeAnalyzer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c,
-                  kSctTagProbeHistos const&) const override;
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                      edm::EventSetup const&,
-                      kSctTagProbeHistos&) const override;
-  void bookHistograms_resonance(DQMStore::IBooker&, edm::Run const&,
-                                edm::EventSetup const&,
-                                kSctProbeKinematicHistos&,
-                                const std::string&) const;
-  void fillHistograms_resonance(
-      const kSctProbeKinematicHistos histos, const Run3ScoutingElectron el,
-      const float inv_mass,
-      const trigger::TriggerObjectCollection* legObjectsCollection) const;
+private:
+  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, kSctTagProbeHistos const&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kSctTagProbeHistos&) const override;
+  void bookHistograms_resonance(
+      DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kSctProbeKinematicHistos&, const std::string&) const;
+  void fillHistograms_resonance(const kSctProbeKinematicHistos histos,
+                                const Run3ScoutingElectron el,
+                                const float inv_mass,
+                                const trigger::TriggerObjectCollection* legObjectsCollection) const;
   bool scoutingElectronID(const Run3ScoutingElectron el) const;
-  bool scoutingElectron_passHLT(
-      const Run3ScoutingElectron el, TString filter,
-      trigger::TriggerObjectCollection legObjects) const;
+  bool scoutingElectron_passHLT(const Run3ScoutingElectron el,
+                                TString filter,
+                                trigger::TriggerObjectCollection legObjects) const;
   // --------------------- member data  ----------------------
   std::string outputInternalPath_;
 
@@ -119,8 +113,7 @@ class ScoutingElectronTagProbeAnalyzer
   const std::vector<std::string> filterToMatch_;
 
   const edm::EDGetTokenT<std::vector<pat::Electron>> electronCollection_;
-  const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>>
-      scoutingElectronCollection_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> scoutingElectronCollection_;
 };
 
 #endif

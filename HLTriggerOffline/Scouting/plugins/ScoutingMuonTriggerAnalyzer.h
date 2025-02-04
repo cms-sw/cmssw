@@ -35,15 +35,14 @@ Author: Javier Garcia de Castro, email:javigdc@bu.edu
 
 // Classes to be declared
 class ScoutingMuonTriggerAnalyzer : public DQMEDAnalyzer {
- public:
+public:
   explicit ScoutingMuonTriggerAnalyzer(const edm::ParameterSet& conf);
   ~ScoutingMuonTriggerAnalyzer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                      edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   std::string outputInternalPath_;
   edm::EDGetTokenT<std::vector<pat::Muon>> muonCollection_;
   edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;

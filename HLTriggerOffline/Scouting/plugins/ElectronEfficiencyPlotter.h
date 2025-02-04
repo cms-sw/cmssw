@@ -13,17 +13,17 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 class ElectronEfficiencyPlotter : public DQMEDHarvester {
- public:
+public:
   // Constructor
   ElectronEfficiencyPlotter(const edm::ParameterSet& ps);
   // Destructor
   ~ElectronEfficiencyPlotter() override = default;
 
- protected:
+protected:
   // DQM Client Diagnostic
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
- private:
+private:
   // counters
 
   int ptBin_;
@@ -39,9 +39,7 @@ class ElectronEfficiencyPlotter : public DQMEDHarvester {
 
   std::string theFolder_;
   std::string sourceFolder_;
-  void calculateEfficiency(MonitorElement* Numerator,
-                           MonitorElement* Denominator,
-                           MonitorElement* Efficiency);
+  void calculateEfficiency(MonitorElement* Numerator, MonitorElement* Denominator, MonitorElement* Efficiency);
 };
 
 #endif
