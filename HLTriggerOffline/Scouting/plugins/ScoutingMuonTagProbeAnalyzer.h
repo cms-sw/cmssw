@@ -83,33 +83,30 @@ struct kTagProbeMuonHistos {
   kProbeKinematicMuonHistos resonanceJ_denominator;
 };
 
-class ScoutingMuonTagProbeAnalyzer
-    : public DQMGlobalEDAnalyzer<kTagProbeMuonHistos> {
- public:
+class ScoutingMuonTagProbeAnalyzer : public DQMGlobalEDAnalyzer<kTagProbeMuonHistos> {
+public:
   explicit ScoutingMuonTagProbeAnalyzer(const edm::ParameterSet& conf);
   ~ScoutingMuonTagProbeAnalyzer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c,
-                  kTagProbeMuonHistos const&) const override;
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                      edm::EventSetup const&,
-                      kTagProbeMuonHistos&) const override;
-  void bookHistograms_resonance(DQMStore::IBooker&, edm::Run const&,
+private:
+  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, kTagProbeMuonHistos const&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kTagProbeMuonHistos&) const override;
+  void bookHistograms_resonance(DQMStore::IBooker&,
+                                edm::Run const&,
                                 edm::EventSetup const&,
                                 kProbeKinematicMuonHistos&,
                                 const std::string&) const;
   void fillHistograms_resonance(const kProbeKinematicMuonHistos histos,
                                 const Run3ScoutingMuon mu,
                                 const Run3ScoutingVertex vertex,
-                                const float inv_mass, const float lxy) const;
+                                const float inv_mass,
+                                const float lxy) const;
   bool scoutingMuonID(const Run3ScoutingMuon mu) const;
 
   const std::string outputInternalPath_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
-  const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>>
-      scoutingVtxCollection_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> scoutingVtxCollection_;
   Bool_t runWithoutVtx_;
 };
 #endif
