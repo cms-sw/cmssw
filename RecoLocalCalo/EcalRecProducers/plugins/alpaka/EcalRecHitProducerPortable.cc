@@ -137,7 +137,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   EcalRecHitProducerPortable::EcalRecHitProducerPortable(const edm::ParameterSet& ps, EcalRecHitParametersCache const*)
-      : isPhase2_{ps.getParameter<bool>("isPhase2")},
+      : EDProducer(ps),
+        isPhase2_{ps.getParameter<bool>("isPhase2")},
         uncalibRecHitsTokenEB_{consumes(ps.getParameter<edm::InputTag>("uncalibrecHitsInLabelEB"))},
         uncalibRecHitsTokenEE_{isPhase2_ ? device::EDGetToken<InputProduct>{}
                                          : consumes(ps.getParameter<edm::InputTag>("uncalibrecHitsInLabelEE"))},

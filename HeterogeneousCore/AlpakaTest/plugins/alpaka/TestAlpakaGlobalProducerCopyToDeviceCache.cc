@@ -19,7 +19,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaGlobalProducerCopyToDeviceCache : public global::EDProducer<> {
   public:
     TestAlpakaGlobalProducerCopyToDeviceCache(edm::ParameterSet const& config)
-        : getToken_(consumes(config.getParameter<edm::InputTag>("source"))),
+        : EDProducer(config),
+          getToken_(consumes(config.getParameter<edm::InputTag>("source"))),
           getTokenMulti2_(consumes(config.getParameter<edm::InputTag>("source"))),
           getTokenMulti3_(consumes(config.getParameter<edm::InputTag>("source"))),
           putToken_{produces()},
