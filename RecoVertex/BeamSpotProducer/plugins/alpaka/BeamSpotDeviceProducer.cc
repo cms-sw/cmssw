@@ -15,7 +15,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class BeamSpotDeviceProducer : public global::EDProducer<> {
   public:
     BeamSpotDeviceProducer(edm::ParameterSet const& config)
-        : legacyToken_{consumes(config.getParameter<edm::InputTag>("src"))}, deviceToken_{produces()} {}
+        : EDProducer(config),
+          legacyToken_{consumes(config.getParameter<edm::InputTag>("src"))},
+          deviceToken_{produces()} {}
 
     void produce(edm::StreamID, device::Event& event, device::EventSetup const& setup) const override {
       reco::BeamSpot const& beamspot = event.get(legacyToken_);

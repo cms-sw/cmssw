@@ -138,7 +138,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   EcalUncalibRecHitProducerPortable::EcalUncalibRecHitProducerPortable(const edm::ParameterSet& ps,
                                                                        EcalMultifitParametersCache const*)
-      : digisTokenEB_{consumes(ps.getParameter<edm::InputTag>("digisLabelEB"))},
+      : SynchronizingEDProducer(ps),
+        digisTokenEB_{consumes(ps.getParameter<edm::InputTag>("digisLabelEB"))},
         digisTokenEE_{consumes(ps.getParameter<edm::InputTag>("digisLabelEE"))},
         uncalibRecHitsTokenEB_{produces(ps.getParameter<std::string>("recHitsLabelEB"))},
         uncalibRecHitsTokenEE_{produces(ps.getParameter<std::string>("recHitsLabelEE"))},

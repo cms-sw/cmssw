@@ -22,7 +22,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class HGCalSoARecHitsProducer : public stream::EDProducer<> {
   public:
     HGCalSoARecHitsProducer(edm::ParameterSet const& config)
-        : detector_(config.getParameter<std::string>("detector")),
+        : EDProducer(config),
+          detector_(config.getParameter<std::string>("detector")),
           initialized_(false),
           isNose_(detector_ == "HFNose"),
           maxNumberOfThickIndices_(config.getParameter<unsigned>("maxNumberOfThickIndices")),

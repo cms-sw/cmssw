@@ -55,7 +55,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   HGCalRecHitsProducer::HGCalRecHitsProducer(const edm::ParameterSet& iConfig)
-      : digisToken_{consumes<hgcaldigi::HGCalDigiHost>(iConfig.getParameter<edm::InputTag>("digis"))},
+      : EDProducer(iConfig),
+        digisToken_{consumes<hgcaldigi::HGCalDigiHost>(iConfig.getParameter<edm::InputTag>("digis"))},
         calibToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("calibSource"))},
         configToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"))},
         recHitsToken_{produces()},
