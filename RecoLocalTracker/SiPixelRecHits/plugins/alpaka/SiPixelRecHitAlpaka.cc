@@ -56,7 +56,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   SiPixelRecHitAlpaka<TrackerTraits>::SiPixelRecHitAlpaka(const edm::ParameterSet& iConfig)
-      : cpeToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CPE")))),
+      : EDProducer(iConfig),
+        cpeToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CPE")))),
         tBeamSpot(consumes(iConfig.getParameter<edm::InputTag>("beamSpot"))),
         tokenClusters_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
         tokenDigi_(consumes(iConfig.getParameter<edm::InputTag>("src"))),

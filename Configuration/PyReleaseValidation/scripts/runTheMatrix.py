@@ -57,93 +57,107 @@ if __name__ == '__main__':
 
     #this can get out of here
     predefinedSet={
-        'limited' : [
-                    # See README for further details
-                    ###### MC (generated from scratch or from RelVals)
-                    ### FullSim
-                    # Run1 
-                    5.1,        # TTbar_8TeV_TuneCUETP8M1       FastSim                                 
-                    8,          # RelValBeamHalo                Cosmics
-                    9.0,        # RelValHiggs200ChargedTaus             
-                    25,         # RelValTTbar                           
-                    101.0,      # SingleElectronE120EHCAL       + ECALHCAL.customise + fullMixCustomize_cff.setCrossingFrameOn
-                    
-                    # Run2
-                    7.3,        # UndergroundCosmicSPLooseMu            
-                    1306.0,     # RelValSingleMuPt1_UP15                
-                    1330,       # RelValZMM_13                          
-                    135.4,      # ZEE_13TeV_TuneCUETP8M1                
-                    25202.0,    # RelValTTbar_13                PU = AVE_35_BX_25ns
-                    250202.181, # RelValTTbar_13                PREMIX   
+        # See README for further details
+        'run1_run2' : [
+            ###### MC (generated from scratch or from RelVal)
+            # Run1
+            5.1,        # TTbar_8TeV_TuneCUETP8M1       FastSim
+            8,          # RelValBeamHalo                Cosmics
+            9.0,        # RelValHiggs200ChargedTaus
+            25,         # RelValTTbar
+            101.0,      # SingleElectronE120EHCAL       + ECALHCAL.customise + fullMixCustomize_cff.setCrossingFrameOn
 
-                    # Run3
-                    11634.0,    # TTbar_14TeV                   2021
-                    13234.0,    # RelValTTbar_14TeV             2021 FastsSim
-                    12434.0,    # RelValTTbar_14TeV             2023
-                    12834.0,    # RelValTTbar_14TeV             2024
-                    12846.0,    # RelValZEE_13                  2024
-                    13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
-                    12834.7,    # RelValTTbar_14TeV             2024 mkFit
-                    16834.0,    # RelValTTbar_14TeV             2025
-                    17034.0,    # RelValTTbar_14TeV		2025 PU = Run3_Flat55To75_PoissonOOTPU
-                    14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim 
-                    14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
-                    2500.201,   # RelValTTbar_14TeV             NanoAOD from existing MINI
+            # Run2
+            7.3,        # UndergroundCosmicSPLooseMu
+            1306.0,     # RelValSingleMuPt1_UP15
+            1330,       # RelValZMM_13
+            135.4,      # ZEE_13TeV_TuneCUETP8M1
+            25202.0,    # RelValTTbar_13                PU = AVE_35_BX_25ns
+            250202.181, # RelValTTbar_13                PREMIX
 
-                    # Phase2
-                    29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline)
-                    24834.911,  # Previous DD4hep baseline for monitoring the stability of DD4hep workflow
-                    29634.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D110   DD4Hep (HLLHC14TeV BeamSpot) 
-                    29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D110         AVE_50_BX_25ns_m3p3     
-                    29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D110
-                    29700.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        ExtendedRun4D110  
-                    #23234.0,   # Need new workflow with HFNose
-                    29634.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline -  but using timing menu, and only up to step 2)
+            ###### pp Data
+            ## Run1
+            4.22,       # Run2011A  Cosmics
+            4.53,       # Run2012B  Photon                      miniAODs
+            1000,       # Run2011A  MinimumBias Prompt          RecoTLR.customisePrompt
+            1001,       # Run2011A  MinimumBias                 Data+Express
+            ## Run2
+            136.731,    # Run2016B SinglePhoton
+            136.793,    # Run2017C DoubleEG
+            136.874,    # Run2018C EGamma
+        ],
 
-                    ###### pp Data
-                    ## Run1
-                    4.22,       # Run2011A  Cosmics 
-                    4.53,       # Run2012B  Photon                      miniAODs
-                    1000,       # Run2011A  MinimumBias Prompt          RecoTLR.customisePrompt
-                    1001,       # Run2011A  MinimumBias                 Data+Express
-                    ## Run2
-                    136.731,    # Run2016B SinglePhoton  
-                    136.793,    # Run2017C DoubleEG                      
-                    136.874,    # Run2018C EGamma
-                     
-                    ## Run3
-                    # 2021
-                    139.001,    # Run2021  MinimumBias                  Commissioning2021   
-                    
-                    # 2022
-                    140.045,    # Run2022C JetHT
+        'run3' : [
+            ###### MC (generated from scratch or from RelVals)
+            # Run3
+            11634.0,    # TTbar_14TeV                   2021
+            13234.0,    # RelValTTbar_14TeV             2021 FastsSim
+            12434.0,    # RelValTTbar_14TeV             2023
+            12834.0,    # RelValTTbar_14TeV             2024
+            12846.0,    # RelValZEE_13                  2024
+            13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
+            12834.7,    # RelValTTbar_14TeV             2024 mkFit
+            16834.0,    # RelValTTbar_14TeV             2025
+            17034.0,    # RelValTTbar_14TeV		2025 PU = Run3_Flat55To75_PoissonOOTPU
+            14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim
+            14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
+            2500.201,   # RelValTTbar_14TeV             NanoAOD from existing MINI
 
-                    # 2023
-                    141.042,    # Run2023D ZeroBias
+            ###### pp Data
+            ## Run3
+            # 2021
+            139.001,    # Run2021  MinimumBias                  Commissioning2021
 
-                    # 2024
-                    145.014,      # Run2024B ZeroBias
-                    145.104,      # Run2024C JetMet0 
-                    145.202,      # Run2024D EGamma0
-                    145.301,      # Run2024E DisplacedJet
-                    145.408,      # Run2024F ParkingDoubleMuonLowMass0
-                    145.500,      # Run2024G BTagMu
-                    145.604,      # Run2024H JetMET0
-                    145.713,      # Run2024I Tau
-                    
-                    ###### Heavy Ions
-                    ## Data
-                    # Run2   
-                    140.56,    # HIRun2018A HIHardProbes                    Run2_2018_pp_on_AA 
-                    ## MC
-                    312.0,     # Pyquen_ZeemumuJets_pt10_2760GeV            PU : HiMixGEN 
+            # 2022
+            140.045,    # Run2022C JetHT
 
-                     ],
+            # 2023
+            141.042,    # Run2023D ZeroBias
+
+            # 2024
+            145.014,      # Run2024B ZeroBias
+            145.104,      # Run2024C JetMet0
+            145.202,      # Run2024D EGamma0
+            145.301,      # Run2024E DisplacedJet
+            145.408,      # Run2024F ParkingDoubleMuonLowMass0
+            145.500,      # Run2024G BTagMu
+            145.604,      # Run2024H JetMET0
+            145.713,      # Run2024I Tau
+        ],
+
+        'phase2' : [
+            ###### MC (generated from scratch or from RelVals)
+            # Phase2
+            29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline)
+            24834.911,  # Previous DD4hep baseline for monitoring the stability of DD4hep workflow
+            29634.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D110   DD4Hep (HLLHC14TeV BeamSpot)
+            29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D110         AVE_50_BX_25ns_m3p3
+            29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D110
+            29700.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        ExtendedRun4D110
+            #23234.0,   # Need new workflow with HFNose
+            29634.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline -  but using timing menu, and only up to step 2)
+        ],
+
+        'heavyIons' : [
+            ###### Heavy Ions
+            ## Data
+            # Run2
+            140.56,    # HIRun2018A HIHardProbes                    Run2_2018_pp_on_AA
+            ## MC
+            312.0,     # Pyquen_ZeemumuJets_pt10_2760GeV            PU : HiMixGEN
+        ],
+
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
-        }
+    }
 
+    predefinedSet['limited'] = (
+        predefinedSet['run1_run2'] +
+        predefinedSet['run3'] +
+        predefinedSet['phase2'] +
+        predefinedSet['heavyIons']
+    )
 
     import argparse
     usage = 'usage: runTheMatrix.py --show -s '

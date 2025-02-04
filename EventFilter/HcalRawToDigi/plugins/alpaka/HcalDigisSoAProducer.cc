@@ -65,7 +65,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   HcalDigisSoAProducer::HcalDigisSoAProducer(const edm::ParameterSet& ps)
-      : hbheDigiToken_{consumes(ps.getParameter<edm::InputTag>("hbheDigisLabel"))},
+      : EDProducer(ps),
+        hbheDigiToken_{consumes(ps.getParameter<edm::InputTag>("hbheDigisLabel"))},
         qie11DigiToken_{consumes(ps.getParameter<edm::InputTag>("qie11DigiLabel"))},
         digisF01HEToken_{produces(ps.getParameter<std::string>("digisLabelF01HE"))},
         digisF5HBToken_{produces(ps.getParameter<std::string>("digisLabelF5HB"))},

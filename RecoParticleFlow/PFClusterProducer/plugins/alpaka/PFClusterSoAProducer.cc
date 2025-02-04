@@ -152,7 +152,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     PFClusterSoAProducer(edm::ParameterSet const& config, PFClusterParamsCache const*)
-        : topologyToken_(esConsumes(config.getParameter<edm::ESInputTag>("topology"))),
+        : SynchronizingEDProducer(config),
+          topologyToken_(esConsumes(config.getParameter<edm::ESInputTag>("topology"))),
           inputPFRecHitSoA_Token_{consumes(config.getParameter<edm::InputTag>("pfRecHits"))},
           inputPFRecHitNum_Token_{consumes(config.getParameter<edm::InputTag>("pfRecHits"))},
           outputPFClusterSoA_Token_{produces()},

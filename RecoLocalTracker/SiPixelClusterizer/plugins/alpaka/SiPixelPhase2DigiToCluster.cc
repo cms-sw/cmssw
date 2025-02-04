@@ -54,7 +54,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   SiPixelPhase2DigiToCluster::SiPixelPhase2DigiToCluster(const edm::ParameterSet& iConfig)
-      : geomToken_(esConsumes()),
+      : SynchronizingEDProducer(iConfig),
+        geomToken_(esConsumes()),
         pixelDigiToken_(consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("InputDigis"))),
         digiPutToken_(produces()),
         clusterPutToken_(produces()),
