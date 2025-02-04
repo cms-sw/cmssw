@@ -165,6 +165,7 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
   if (corrector_.valid()) {
     float newpt = corrector_.correctedPt(out.floatPt(), out.floatEmPt(), sector.floatGlbEta(out.hwEta));
     out.hwPt = l1ct::Scales::makePtFromFloat(newpt);
+    // NOTE: hoe/emfrac are not updated
   }
 
   return out;

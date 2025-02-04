@@ -124,7 +124,8 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
         cms.PSet(
               regions = cms.vuint32(*[6+9*ie+i for ie in range(6) for i in range(3)])), # phi splitting
     ),
-    gctEmCorrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root"),
+    # NOTE: the correction was not applied to the EM energy -> we switch it off for EM clusters
+    gctEmCorrector = cms.string(""), # L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root
     gctEmResol = cms.PSet(
             etaBins = cms.vdouble( 0.700,  1.200,  1.600),
             offset  = cms.vdouble( 0.873,  1.081,  1.563),
@@ -268,7 +269,7 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         writeBeforeBremRecovery = False,
         writeEGSta = True,
         algorithm = 1,
-        trkQualityPtMin = 0.,
+        trkQualityPtMin = 0., # This should be 10 GeV when doCompositeTkEle = False
         # compositeParametersTkEle=cms.PSet(
         #     # NOTE: conifer BDT score is log(p/1-p)
         #     # the working points are cuts on BDT output logits [log(p/1-p)]/4 (range -1 to 1 to match the FW dataformat)
@@ -276,7 +277,7 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         #     tight_wp=cms.double(0.0527344),
         #     model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EE_v1.json")
         # ),
-        ), # This should be 10 GeV when doCompositeTkEle = False
+        ), 
     tkEgSorterAlgo = cms.string("Endcap"),
     tkEgSorterParameters = tkEgSorterParameters.clone(
         nObjToSort = 5
