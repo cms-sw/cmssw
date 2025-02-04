@@ -23,7 +23,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
-
+#include <TProfile.h>
 // base histogram class, with specific implementations following below
 class HLTGenValHist {
 public:
