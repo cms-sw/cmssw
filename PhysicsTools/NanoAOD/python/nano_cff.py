@@ -5,6 +5,7 @@ from PhysicsTools.NanoAOD.jetsAK4_CHS_cff import *
 from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import *
 from PhysicsTools.NanoAOD.jetsAK8_cff import *
 from PhysicsTools.NanoAOD.jetMC_cff import *
+from PhysicsTools.NanoAOD.jetConstituents_cff import *
 from PhysicsTools.NanoAOD.muons_cff import *
 from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.NanoAOD.boostedTaus_cff import *
@@ -57,14 +58,14 @@ lhcInfoTable = lhcInfoProducer.clone()
 )
 
 nanoTableTaskCommon = cms.Task(
-    cms.Task(nanoMetadata), 
-    jetPuppiTask, jetPuppiForMETTask, jetAK8Task,
+    cms.Task(nanoMetadata),
+    jetPuppiTask, jetPuppiForMETTask, jetAK8Task, jetConstituentsTask,
     extraFlagsProducersTask, muonTask, tauTask, boostedTauTask,
     electronTask , lowPtElectronTask, photonTask,
     vertexTask, isoTrackTask, jetAK8LepTask,  # must be after all the leptons
     softActivityTask,
     cms.Task(linkedObjects),
-    jetPuppiTablesTask, jetAK8TablesTask,
+    jetPuppiTablesTask, jetAK8TablesTask, jetConstituentsTablesTask,
     muonTablesTask, fsrTablesTask, tauTablesTask, boostedTauTablesTask,
     electronTablesTask, lowPtElectronTablesTask, photonTablesTask,
     globalTablesTask, vertexTablesTask, metTablesTask, extraFlagsTableTask,
