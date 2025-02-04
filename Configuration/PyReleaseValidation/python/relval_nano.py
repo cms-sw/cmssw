@@ -207,8 +207,8 @@ steps['SinglePionRAW14.0'] = {'INPUT': InputInfo(
     location='STD', dataSet='/SinglePion_E-50_Eta-0to3-pythia8-gun/Run3Winter25Digi-NoPU_142X_mcRun3_2025BOY_realistic_Candidate_2024_11_13_17_21_33-v2/GEN-SIM-RAW')}
 
 steps['hcalDPGNANO_mc14.0'] = merge([{'-s': 'RAW2DIGI,RECO,NANO:@HCALMC', '-n': '100',
-                                             '--processName': 'NANO'},
-                                            steps['NANO_mc14.0']])
+                                      '--processName': 'NANO'},
+                                     steps['NANO_mc14.0']])
 
 # 14.0 workflows -- data
 lumis_Run2024D = {380306: [[28, 273]]}
@@ -281,6 +281,20 @@ steps['hcalDPGCalibNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,RECO,NANO:@HCALCali
 steps['l1DPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@L1DPG', '-n': '100'},
                                      steps['NANO_data14.0']])
 
+
+################################################################
+# Run3 re-MINI/NANOv15 in 15.0
+steps['TTbar_13p6_Summer24_AOD'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24DRPremix-140X_mcRun3_2024_realistic_v26-v2/AODSIM')}
+
+steps['JetMET1_Run2024H_AOD'] = {'INPUT': InputInfo(
+    location='STD', ls={385836: [[72, 166]]}, dataSet='/JetMET1/Run2024H-PromptReco-v1/AOD')}
+
+steps['NANO_mc_Summer24_reMINI'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2024_realistic'}, _NANO_mc])
+
+steps['NANO_data_2024_reMINI'] = merge([{'--era': 'Run3_2024', '--conditions': 'auto:run3_data'}, _NANO_data])
+
+
 ################################################################
 # NANOGEN
 steps['NANOGENFromGen'] = merge([{'-s': 'NANO:@GEN,DQM:@nanogenDQM',
@@ -307,10 +321,10 @@ workflows[_wfn()] = ['NANOdata106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_dat
 
 # Run2, 10_6_X AOD, reMINI+reNANO
 _wfn.subnext()
-workflows[_wfn()] = ['NANOmcUL16APVreMINI', ['TTbar_13_reminiaod2016UL_preVFP_INPUT', 'REMINIAOD_mc2016UL_preVFP', 'NANO_mc_UL16APVreMINI', 'HRV_NANO_data']]  # noqa
-workflows[_wfn()] = ['NANOmcUL16reMINI', ['TTbar_13_reminiaod2016UL_postVFP_INPUT', 'REMINIAOD_mc2016UL_postVFP', 'NANO_mc_UL16reMINI', 'HRV_NANO_data']]  # noqa
-workflows[_wfn()] = ['NANOmcUL17reMINI', ['TTbar_13_reminiaod2017UL_INPUT', 'REMINIAOD_mc2017UL', 'NANO_mc_UL17reMINI', 'HRV_NANO_data']]  # noqa
-workflows[_wfn()] = ['NANOmcUL18reMINI', ['TTbar_13_reminiaod2018UL_INPUT', 'REMINIAOD_mc2018UL', 'NANO_mc_UL18reMINI', 'HRV_NANO_data']]  # noqa
+workflows[_wfn()] = ['NANOmcUL16APVreMINI', ['TTbar_13_reminiaod2016UL_preVFP_INPUT', 'REMINIAOD_mc2016UL_preVFP', 'NANO_mc_UL16APVreMINI', 'HRV_NANO_mc']]  # noqa
+workflows[_wfn()] = ['NANOmcUL16reMINI', ['TTbar_13_reminiaod2016UL_postVFP_INPUT', 'REMINIAOD_mc2016UL_postVFP', 'NANO_mc_UL16reMINI', 'HRV_NANO_mc']]  # noqa
+workflows[_wfn()] = ['NANOmcUL17reMINI', ['TTbar_13_reminiaod2017UL_INPUT', 'REMINIAOD_mc2017UL', 'NANO_mc_UL17reMINI', 'HRV_NANO_mc']]  # noqa
+workflows[_wfn()] = ['NANOmcUL18reMINI', ['TTbar_13_reminiaod2018UL_INPUT', 'REMINIAOD_mc2018UL', 'NANO_mc_UL18reMINI', 'HRV_NANO_mc']]  # noqa
 
 _wfn.subnext()
 workflows[_wfn()] = ['NANOdataUL16APVreMINI', ['RunJetHT2016E_reminiaodUL', 'REMINIAOD_data2016UL_HIPM', 'NANO_data_UL16APVreMINI', 'HRV_NANO_data']]  # noqa
@@ -339,7 +353,7 @@ _wfn.subnext()
 
 _wfn.next(2)
 ######## 2500.2xx ########
-# Run3, 14_0_X input (current production release for MC / prompt RECO)
+# Run3, 14_0_X input
 workflows[_wfn()] = ['NANOmc140X', ['TTbarMINIAOD14.0', 'NANO_mc14.0', 'HRV_NANO_mc']]
 
 _wfn.subnext()
@@ -382,6 +396,14 @@ workflows[_wfn()] = ['hcalDPGMCNANO140Xrun3', ['SinglePionRAW14.0', 'hcalDPGNANO
 # The above HCAL workflow is actually using data produced for 14.2
 # but I keep the 14.0 label for now since it's consistent with those ones
 # let me know if I should change this
+
+_wfn.next(3)
+######## 2500.3xx ########
+# Run3 re-MINI/NANOv15 in 15_0_X
+workflows[_wfn()] = ['NANOmc2024reMINI', ['TTbar_13p6_Summer24_AOD', 'REMINIAOD_mc2024', 'NANO_mc_Summer24_reMINI', 'HRV_NANO_mc']]  # noqa
+
+_wfn.subnext()
+workflows[_wfn()] = ['NANOdata2024reMINI', ['JetMET1_Run2024H_AOD', 'REMINIAOD_data2024', 'NANO_data_2024_reMINI', 'HRV_NANO_data']]  # noqa
 
 _wfn.next(9)
 ######## 2500.9xx ########
