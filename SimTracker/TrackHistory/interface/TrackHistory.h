@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
@@ -64,6 +65,8 @@ public:
   }
 
   double quality() const { return quality_; }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   bool newEvent_;

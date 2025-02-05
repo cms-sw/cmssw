@@ -10,6 +10,7 @@
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <set>
 
 namespace edm {
@@ -28,6 +29,8 @@ public:
   bool operator()(const reco::Candidate&);
   void init(const edm::EventSetup&);
 
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
 private:
   typedef std::vector<PdtEntry> vpdt;
   bool stableOnly_;
@@ -45,6 +48,10 @@ namespace reco {
     struct GenJetParticleSelectorEventSetupInit {
       static void init(GenJetParticleSelector& selector, const edm::Event& evt, const edm::EventSetup& es) {
         selector.init(es);
+      }
+
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+        GenJetParticleSelector::fillPSetDescription(desc);
       }
     };
 

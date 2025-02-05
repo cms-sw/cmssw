@@ -7,7 +7,7 @@
 #include <algorithm>
 
 CutBasedElectronID::CutBasedElectronID(const edm::ParameterSet& conf, edm::ConsumesCollector& iC) {
-  verticesCollection_ = iC.consumes<std::vector<reco::Vertex> >(conf.getParameter<edm::InputTag>("verticesCollection"));
+  verticesCollection_ = iC.consumes<std::vector<reco::Vertex>>(conf.getParameter<edm::InputTag>("verticesCollection"));
 }
 
 void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
@@ -17,7 +17,6 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
   type_ = conf.getParameter<std::string>("electronIDType");
   quality_ = conf.getParameter<std::string>("electronQuality");
   version_ = conf.getParameter<std::string>("electronVersion");
-  //verticesCollection_ = conf.getParameter<edm::InputTag>("verticesCollection");
 
   if (type_ == "classbased" and (version_ == "V06")) {
     newCategories_ = conf.getParameter<bool>("additionalCategories");
@@ -35,6 +34,49 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
     throw cms::Exception("Configuration")
         << "Invalid electronType parameter in CutBasedElectronID: must be robust or classbased\n";
   }
+}
+
+void CutBasedElectronID::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  // General parameters
+  desc.add<std::string>("electronIDType", "classbased")->setComment("Type of electron ID: classbased or robust");
+  desc.add<std::string>("electronQuality", "loose")->setComment("Quality of electron ID: loose or tight");
+  desc.add<std::string>("electronVersion", "V06")->setComment("Version of electron ID");
+
+  // Optional parameters
+  desc.addOptional<bool>("additionalCategories", false)->setComment("Flag to enable additional categories");
+  desc.addOptional<bool>("etBinning", false)->setComment("Flag to enable ET binning");
+
+  // Parameters for classbased ID
+  edm::ParameterSetDescription classbasedCuts;
+  classbasedCuts.add<std::vector<double>>("hOverE", std::vector<double>())->setComment("H/E cut values");
+  classbasedCuts.add<std::vector<double>>("sigmaEtaEta", std::vector<double>())->setComment("SigmaEtaEta cut values");
+  classbasedCuts.add<std::vector<double>>("deltaPhiIn", std::vector<double>())->setComment("DeltaPhiIn cut values");
+  classbasedCuts.add<std::vector<double>>("deltaEtaIn", std::vector<double>())->setComment("DeltaEtaIn cut values");
+  classbasedCuts.add<std::vector<double>>("eSeedOverPin", std::vector<double>())->setComment("ESeedOverPin cut values");
+  classbasedCuts.add<std::vector<double>>("cutiso_sum", std::vector<double>())->setComment("Isolation sum cut values");
+  classbasedCuts.add<std::vector<double>>("cutiso_sumoet", std::vector<double>())
+      ->setComment("Isolation sum over ET cut values");
+  classbasedCuts.add<std::vector<double>>("cutfmishits", std::vector<double>())->setComment("Missing hits cut values");
+  classbasedCuts.add<std::vector<double>>("cutdcotdist", std::vector<double>())->setComment("DCOT distance cut values");
+  classbasedCuts.add<std::vector<double>>("cutip_gsf", std::vector<double>())
+      ->setComment("Impact parameter cut values");
+  desc.add<edm::ParameterSetDescription>("classbasedLooseEleIDCutsV06", classbasedCuts)
+      ->setComment("Classbased loose electron ID cuts for version V06");
+  desc.add<edm::ParameterSetDescription>("classbasedTightEleIDCutsV06", classbasedCuts)
+      ->setComment("Classbased tight electron ID cuts for version V06");
+
+  // Parameters for robust ID
+  edm::ParameterSetDescription robustCuts;
+  robustCuts.add<std::vector<double>>("barrel", std::vector<double>())->setComment("Cut values for barrel region");
+  robustCuts.add<std::vector<double>>("endcap", std::vector<double>())->setComment("Cut values for endcap region");
+  desc.add<edm::ParameterSetDescription>("robustLooseEleIDCuts", robustCuts)
+      ->setComment("Robust loose electron ID cuts");
+  desc.add<edm::ParameterSetDescription>("robustTightEleIDCuts", robustCuts)
+      ->setComment("Robust tight electron ID cuts");
+
+  // Add the vertices collection parameter
+  desc.add<edm::InputTag>("verticesCollection", edm::InputTag("offlinePrimaryVertices"))
+      ->setComment("Input tag for the vertices collection");
 }
 
 double CutBasedElectronID::result(const reco::GsfElectron* electron, const edm::Event& e, const edm::EventSetup& es) {
@@ -171,15 +213,15 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     if ((eOverP < 0.8) && (fBrem < 0.2))
       return 0.;
 
-    cut = cuts_.getParameter<std::vector<double> >("hOverE");
+    cut = cuts_.getParameter<std::vector<double>>("hOverE");
     if (hOverE > cut[cat + 4 * eb])
       return 0.;
 
-    cut = cuts_.getParameter<std::vector<double> >("sigmaEtaEta");
+    cut = cuts_.getParameter<std::vector<double>>("sigmaEtaEta");
     if (sigmaee > cut[cat + 4 * eb])
       return 0.;
 
-    cut = cuts_.getParameter<std::vector<double> >("deltaPhiIn");
+    cut = cuts_.getParameter<std::vector<double>>("deltaPhiIn");
     if (eOverP < 1.5) {
       if (fabs(deltaPhiIn) > cut[cat + 4 * eb])
         return 0.;
@@ -188,11 +230,11 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
         return 0.;
     }
 
-    cut = cuts_.getParameter<std::vector<double> >("deltaEtaIn");
+    cut = cuts_.getParameter<std::vector<double>>("deltaEtaIn");
     if (fabs(deltaEtaIn) > cut[cat + 4 * eb])
       return 0.;
 
-    cut = cuts_.getParameter<std::vector<double> >("eSeedOverPin");
+    cut = cuts_.getParameter<std::vector<double>>("eSeedOverPin");
     if (eSeedOverPin < cut[cat + 4 * eb])
       return 0.;
 
@@ -224,9 +266,9 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
       hcalIso = hcalIso * pow(40. / scEt, 2);
     }
 
-    std::vector<double> cutTk = cuts_.getParameter<std::vector<double> >("cutisotk");
-    std::vector<double> cutEcal = cuts_.getParameter<std::vector<double> >("cutisoecal");
-    std::vector<double> cutHcal = cuts_.getParameter<std::vector<double> >("cutisohcal");
+    std::vector<double> cutTk = cuts_.getParameter<std::vector<double>>("cutisotk");
+    std::vector<double> cutEcal = cuts_.getParameter<std::vector<double>>("cutisoecal");
+    std::vector<double> cutHcal = cuts_.getParameter<std::vector<double>>("cutisohcal");
     if ((tkIso > cutTk[cat + 3 * eb + bin * 6]) || (ecalIso > cutEcal[cat + 3 * eb + bin * 6]) ||
         (hcalIso > cutHcal[cat + 3 * eb + bin * 6]))
       result = 0.;
@@ -234,14 +276,14 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
       result = 2.;
 
     if (fBrem > -2) {
-      std::vector<double> cuthoe = cuts_.getParameter<std::vector<double> >("cuthoe");
-      std::vector<double> cutsee = cuts_.getParameter<std::vector<double> >("cutsee");
-      std::vector<double> cutdphi = cuts_.getParameter<std::vector<double> >("cutdphiin");
-      std::vector<double> cutdeta = cuts_.getParameter<std::vector<double> >("cutdetain");
-      std::vector<double> cuteopin = cuts_.getParameter<std::vector<double> >("cuteseedopcor");
-      std::vector<double> cutet = cuts_.getParameter<std::vector<double> >("cutet");
-      std::vector<double> cutip = cuts_.getParameter<std::vector<double> >("cutip");
-      std::vector<double> cutmishits = cuts_.getParameter<std::vector<double> >("cutmishits");
+      std::vector<double> cuthoe = cuts_.getParameter<std::vector<double>>("cuthoe");
+      std::vector<double> cutsee = cuts_.getParameter<std::vector<double>>("cutsee");
+      std::vector<double> cutdphi = cuts_.getParameter<std::vector<double>>("cutdphiin");
+      std::vector<double> cutdeta = cuts_.getParameter<std::vector<double>>("cutdetain");
+      std::vector<double> cuteopin = cuts_.getParameter<std::vector<double>>("cuteseedopcor");
+      std::vector<double> cutet = cuts_.getParameter<std::vector<double>>("cutet");
+      std::vector<double> cutip = cuts_.getParameter<std::vector<double>>("cutip");
+      std::vector<double> cutmishits = cuts_.getParameter<std::vector<double>>("cutmishits");
       if ((hOverE < cuthoe[cat + 3 * eb + bin * 6]) and (sigmaee < cutsee[cat + 3 * eb + bin * 6]) and
           (fabs(deltaPhiIn) < cutdphi[cat + 3 * eb + bin * 6]) and
           (fabs(deltaEtaIn) < cutdeta[cat + 3 * eb + bin * 6]) and (eSeedOverPin > cuteopin[cat + 3 * eb + bin * 6]) and
@@ -271,18 +313,18 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     float iso_sum = tkIso + ecalIso + hcalIso;
     float iso_sum_corrected = iso_sum * pow(40. / scEt, 2);
 
-    std::vector<double> cutIsoSum = cuts_.getParameter<std::vector<double> >("cutiso_sum");
-    std::vector<double> cutIsoSumCorr = cuts_.getParameter<std::vector<double> >("cutiso_sumoet");
+    std::vector<double> cutIsoSum = cuts_.getParameter<std::vector<double>>("cutiso_sum");
+    std::vector<double> cutIsoSumCorr = cuts_.getParameter<std::vector<double>>("cutiso_sumoet");
     if ((iso_sum < cutIsoSum[cat + bin * 9]) and (iso_sum_corrected < cutIsoSumCorr[cat + bin * 9]))
       result += 2.;
 
     if (fBrem > -2) {
-      std::vector<double> cuthoe = cuts_.getParameter<std::vector<double> >("cuthoe");
-      std::vector<double> cutsee = cuts_.getParameter<std::vector<double> >("cutsee");
-      std::vector<double> cutdphi = cuts_.getParameter<std::vector<double> >("cutdphiin");
-      std::vector<double> cutdeta = cuts_.getParameter<std::vector<double> >("cutdetain");
-      std::vector<double> cuteopin = cuts_.getParameter<std::vector<double> >("cuteseedopcor");
-      std::vector<double> cutet = cuts_.getParameter<std::vector<double> >("cutet");
+      std::vector<double> cuthoe = cuts_.getParameter<std::vector<double>>("cuthoe");
+      std::vector<double> cutsee = cuts_.getParameter<std::vector<double>>("cutsee");
+      std::vector<double> cutdphi = cuts_.getParameter<std::vector<double>>("cutdphiin");
+      std::vector<double> cutdeta = cuts_.getParameter<std::vector<double>>("cutdetain");
+      std::vector<double> cuteopin = cuts_.getParameter<std::vector<double>>("cuteseedopcor");
+      std::vector<double> cutet = cuts_.getParameter<std::vector<double>>("cutet");
 
       if ((hOverE < cuthoe[cat + bin * 9]) and (sigmaee < cutsee[cat + bin * 9]) and
           (fabs(deltaPhiIn) < cutdphi[cat + bin * 9]) and (fabs(deltaEtaIn) < cutdeta[cat + bin * 9]) and
@@ -290,12 +332,12 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
         result += 1.;
     }
 
-    std::vector<double> cutip = cuts_.getParameter<std::vector<double> >("cutip_gsf");
+    std::vector<double> cutip = cuts_.getParameter<std::vector<double>>("cutip_gsf");
     if (ip < cutip[cat + bin * 9])
       result += 8;
 
-    std::vector<double> cutmishits = cuts_.getParameter<std::vector<double> >("cutfmishits");
-    std::vector<double> cutdcotdist = cuts_.getParameter<std::vector<double> >("cutdcotdist");
+    std::vector<double> cutmishits = cuts_.getParameter<std::vector<double>>("cutfmishits");
+    std::vector<double> cutdcotdist = cuts_.getParameter<std::vector<double>>("cutdcotdist");
 
     float dist = (electron->convDist() == -9999. ? 9999 : electron->convDist());
     float dcot = (electron->convDcot() == -9999. ? 9999 : electron->convDcot());
@@ -310,22 +352,22 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   }
 
   if (type_ == "classbased" && (version_ == "V06" || version_.empty())) {
-    std::vector<double> cutIsoSum = cuts_.getParameter<std::vector<double> >("cutiso_sum");
-    std::vector<double> cutIsoSumCorr = cuts_.getParameter<std::vector<double> >("cutiso_sumoet");
-    std::vector<double> cuthoe = cuts_.getParameter<std::vector<double> >("cuthoe");
-    std::vector<double> cutsee = cuts_.getParameter<std::vector<double> >("cutsee");
-    std::vector<double> cutdphi = cuts_.getParameter<std::vector<double> >("cutdphiin");
-    std::vector<double> cutdeta = cuts_.getParameter<std::vector<double> >("cutdetain");
-    std::vector<double> cuteopin = cuts_.getParameter<std::vector<double> >("cuteseedopcor");
-    std::vector<double> cutmishits = cuts_.getParameter<std::vector<double> >("cutfmishits");
-    std::vector<double> cutdcotdist = cuts_.getParameter<std::vector<double> >("cutdcotdist");
-    std::vector<double> cutip = cuts_.getParameter<std::vector<double> >("cutip_gsf");
-    std::vector<double> cutIsoSumCorrl = cuts_.getParameter<std::vector<double> >("cutiso_sumoetl");
-    std::vector<double> cuthoel = cuts_.getParameter<std::vector<double> >("cuthoel");
-    std::vector<double> cutseel = cuts_.getParameter<std::vector<double> >("cutseel");
-    std::vector<double> cutdphil = cuts_.getParameter<std::vector<double> >("cutdphiinl");
-    std::vector<double> cutdetal = cuts_.getParameter<std::vector<double> >("cutdetainl");
-    std::vector<double> cutipl = cuts_.getParameter<std::vector<double> >("cutip_gsfl");
+    std::vector<double> cutIsoSum = cuts_.getParameter<std::vector<double>>("cutiso_sum");
+    std::vector<double> cutIsoSumCorr = cuts_.getParameter<std::vector<double>>("cutiso_sumoet");
+    std::vector<double> cuthoe = cuts_.getParameter<std::vector<double>>("cuthoe");
+    std::vector<double> cutsee = cuts_.getParameter<std::vector<double>>("cutsee");
+    std::vector<double> cutdphi = cuts_.getParameter<std::vector<double>>("cutdphiin");
+    std::vector<double> cutdeta = cuts_.getParameter<std::vector<double>>("cutdetain");
+    std::vector<double> cuteopin = cuts_.getParameter<std::vector<double>>("cuteseedopcor");
+    std::vector<double> cutmishits = cuts_.getParameter<std::vector<double>>("cutfmishits");
+    std::vector<double> cutdcotdist = cuts_.getParameter<std::vector<double>>("cutdcotdist");
+    std::vector<double> cutip = cuts_.getParameter<std::vector<double>>("cutip_gsf");
+    std::vector<double> cutIsoSumCorrl = cuts_.getParameter<std::vector<double>>("cutiso_sumoetl");
+    std::vector<double> cuthoel = cuts_.getParameter<std::vector<double>>("cuthoel");
+    std::vector<double> cutseel = cuts_.getParameter<std::vector<double>>("cutseel");
+    std::vector<double> cutdphil = cuts_.getParameter<std::vector<double>>("cutdphiinl");
+    std::vector<double> cutdetal = cuts_.getParameter<std::vector<double>>("cutdetainl");
+    std::vector<double> cutipl = cuts_.getParameter<std::vector<double>>("cutip_gsfl");
 
     int result = 0;
 
@@ -501,9 +543,9 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron,
 
     // hoe, sigmaEtaEta, dPhiIn, dEtaIn
     if (electron->isEB())
-      cut = cuts_.getParameter<std::vector<double> >("barrel");
+      cut = cuts_.getParameter<std::vector<double>>("barrel");
     else
-      cut = cuts_.getParameter<std::vector<double> >("endcap");
+      cut = cuts_.getParameter<std::vector<double>>("endcap");
     // check isolations: if only isolation passes result = 2
     if (quality_ == "highenergy") {
       if ((tkIso > cut[6] || hcalIso2 > cut[11]) ||

@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -26,6 +27,8 @@ public:
   explicit TauGenJetDecayModeSelectorImp(const edm::ParameterSet&, edm::ConsumesCollector& iC);
 
   bool operator()(const reco::GenJet&) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   typedef std::vector<std::string> vstring;

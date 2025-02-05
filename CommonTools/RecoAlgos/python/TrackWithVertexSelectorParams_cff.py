@@ -29,7 +29,4 @@ trackWithVertexSelectorParams = cms.PSet(
     zetaVtx = cms.double(1.0),
     rhoVtx = cms.double(0.2), ## tags used by b-tagging folks
     nSigmaDtVertex = cms.double(0),
-    # should _not_ be used for the TrackWithVertexRefSelector
-    copyExtras = cms.untracked.bool(False), ## copies also extras and rechits on RECO
-    copyTrajectories = cms.untracked.bool(False), # don't set this to true on AOD!
 )

@@ -14,6 +14,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentMuonSelector.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -41,6 +42,10 @@ struct MuonConfigSelector {
       all_.push_back(&*i);
     }
     selected_ = theSelector.select(all_, evt);  // might add dummy
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    AlignmentMuonSelector::fillPSetDescription(desc);
   }
 
 private:

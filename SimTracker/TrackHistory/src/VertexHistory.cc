@@ -1,4 +1,3 @@
-
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 #include "SimTracker/TrackHistory/interface/VertexHistory.h"
@@ -29,6 +28,14 @@ VertexHistory::VertexHistory(const edm::ParameterSet &config, edm::ConsumesColle
   }
 
   quality_ = 0.;
+}
+
+void VertexHistory::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.addUntracked<edm::InputTag>("trackingTruth", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.addUntracked<edm::InputTag>("vertexAssociator", edm::InputTag("vertexAssociatorByTracksByHits"));
+  desc.addUntracked<bool>("bestMatchByMaxValue", true);
+  desc.addUntracked<bool>("enableRecoToSim", true);
+  desc.addUntracked<bool>("enableSimToReco", false);
 }
 
 void VertexHistory::newEvent(const edm::Event &event, const edm::EventSetup &setup) {

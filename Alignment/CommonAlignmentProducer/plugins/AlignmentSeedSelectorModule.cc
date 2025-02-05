@@ -1,7 +1,7 @@
-
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentSeedSelector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -23,6 +23,10 @@ struct SeedConfigSelector {
       all_.push_back(&*i);
     }
     selected_ = theSelector.select(all_, evt);  // might add dummy...
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    AlignmentSeedSelector::fillPSetDescription(desc);
   }
 
 private:
