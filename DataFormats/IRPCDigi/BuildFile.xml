@@ -1,0 +1,9 @@
+<use name="DataFormats/Common"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="CondFormats/RPCObjects"/>
+<use name="DataFormats/MuonData" source_only="1"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<export>
+  <lib name="1"/>
+</export>
