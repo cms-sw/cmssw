@@ -2,7 +2,7 @@
 #define DataFormats_Provenance_SubProcessParentageHelper_h
 
 // This class is used to properly fill Parentage in SubProcesses.
-// In particular it helps filling the BranchChildren container
+// In particular it helps filling the ProductDependencies container
 // that is used when dropping descendants of products that
 // have been dropped on input.
 //

@@ -29,8 +29,7 @@ public:
 
   // Constructor which specifies the SoA size
   template <typename TQueue>
-  explicit TracksHost<TrackerTraits>(TQueue& queue)
-      : PortableHostCollection<reco::TrackLayout<TrackerTraits>>(S, queue) {}
+  explicit TracksHost(TQueue& queue) : PortableHostCollection<reco::TrackLayout<TrackerTraits>>(S, queue) {}
 
   // Constructor which specifies the DevHost
   explicit TracksHost(alpaka_common::DevHost const& host)
