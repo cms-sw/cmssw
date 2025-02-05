@@ -8,7 +8,7 @@ RootFile.h // used by ROOT input sources
 ----------------------------------------------------------------------*/
 
 #include "RootTree.h"
-#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/ProductDependencies.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"  // backward compatibility
@@ -345,8 +345,10 @@ namespace edm {
     std::shared_ptr<RunAuxiliary const> savedRunAuxiliary() const { return get_underlying_safe(savedRunAuxiliary_); }
     std::shared_ptr<RunAuxiliary>& savedRunAuxiliary() { return get_underlying_safe(savedRunAuxiliary_); }
 
-    std::shared_ptr<BranchChildren const> branchChildren() const { return get_underlying_safe(branchChildren_); }
-    std::shared_ptr<BranchChildren>& branchChildren() { return get_underlying_safe(branchChildren_); }
+    std::shared_ptr<ProductDependencies const> productDependencies() const {
+      return get_underlying_safe(productDependencies_);
+    }
+    std::shared_ptr<ProductDependencies>& productDependencies() { return get_underlying_safe(productDependencies_); }
 
     std::shared_ptr<ProductProvenanceRetriever const> eventProductProvenanceRetriever(size_t index) const {
       return get_underlying_safe(eventProductProvenanceRetrievers_[index]);
@@ -403,7 +405,7 @@ namespace edm {
     EventToProcessBlockIndexes eventToProcessBlockIndexes_;
     edm::propagate_const<TBranch*> eventToProcessBlockIndexesBranch_;
     edm::propagate_const<std::unique_ptr<History>> history_;  // backward compatibility
-    edm::propagate_const<std::shared_ptr<BranchChildren>> branchChildren_;
+    edm::propagate_const<std::shared_ptr<ProductDependencies>> productDependencies_;
     edm::propagate_const<std::shared_ptr<DuplicateChecker>> duplicateChecker_;
     edm::propagate_const<std::unique_ptr<ProvenanceAdaptor>> provenanceAdaptor_;  // backward comatibility
     edm::propagate_const<std::unique_ptr<MakeProvenanceReader>> provenanceReaderMaker_;

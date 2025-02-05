@@ -4,7 +4,7 @@
 
 #include "FWCore/Sources/interface/DaqProvenanceHelper.h"
 
-#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/ProductDependencies.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -165,10 +165,10 @@ namespace edm {
     }
   }
 
-  void DaqProvenanceHelper::fixMetaData(BranchChildren& branchChildren) const {
+  void DaqProvenanceHelper::fixMetaData(ProductDependencies& productDependencies) const {
     typedef std::map<BranchID, std::set<BranchID> > BCMap;
     // The const_cast is ugly, but it beats the alternatives.
-    BCMap& childLookup = const_cast<BCMap&>(branchChildren.childLookup());
+    BCMap& childLookup = const_cast<BCMap&>(productDependencies.childLookup());
     // First fix any old branchID's in the key.
     {
       BCMap::iterator i = childLookup.find(oldBranchID_);
