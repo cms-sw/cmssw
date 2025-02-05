@@ -464,8 +464,8 @@ namespace pixelTopology {
 
     static constexpr float dzdrFact = 8 * 0.0285 / 0.015;  // from dz/dr to "DY"
 
-    static constexpr int minYsizeB1 = 36;
-    static constexpr int minYsizeB2 = 28;
+    static constexpr int minYsizeB1 = 1;
+    static constexpr int minYsizeB2 = 1;
 
     static constexpr int nPairsForQuadruplets = 13;                     // quadruplets require hits in all layers
     static constexpr int nPairsForTriplets = nPairsForQuadruplets + 2;  // include barrel "jumping" layer pairs
