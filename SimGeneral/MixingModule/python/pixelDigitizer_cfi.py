@@ -40,7 +40,19 @@ from Configuration.ProcessModifiers.runDependentForPixel_cff import runDependent
 (runDependentForPixel & premix_stage1).toModify(pixelDigitizer, 
          UseReweighting = False,
          applyLateReweighting = False,
+         usePixelExtraLiteFormat = False,
          store_SimHitEntryExitPoints = True,
+         store_SimHitEntryExitPointsLite = False,
+         AdcFullScale = 1023,
+         MissCalibrate = False
+)
+from Configuration.ProcessModifiers.runDependentForPixelVal_cff import runDependentForPixelVal
+(runDependentForPixelVal & premix_stage1).toModify(pixelDigitizer, 
+         UseReweighting = False,
+         applyLateReweighting = False,
+         usePixelExtraLiteFormat = False,
+         store_SimHitEntryExitPoints = True,
+         store_SimHitEntryExitPointsLite = True,
          AdcFullScale = 1023,
          MissCalibrate = False
 )
