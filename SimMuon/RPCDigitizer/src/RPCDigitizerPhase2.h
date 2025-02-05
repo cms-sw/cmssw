@@ -1,18 +1,18 @@
-#ifndef SimMuon_IRPCDigitizer_h
-#define SimMuon_IRPCDigitizer_h
+#ifndef SimMuon_RPCDigitizerPhase2_h
+#define SimMuon_RPCDigitizerPhase2_h
 //
 
-/** \class IRPCDigitizer
- *  Digitizer class for RPC
+/** \class RPCDigitizerPhase2
+ *  Digitizer class for RPC Phase2 upgrade
  *
- *  \author Borislav Pavlov -- University of Sofia
+ *  \author Borislav Pavlov -- Sofia University
  *
  */
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "DataFormats/IRPCDigi/interface/IRPCDigiCollection.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiPhase2Collection.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include <string>
@@ -30,15 +30,15 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class IRPCDigitizer {
+class RPCDigitizerPhase2 {
 public:
   typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
-  IRPCDigitizer(const edm::ParameterSet& config);
-  ~IRPCDigitizer();
+  RPCDigitizerPhase2(const edm::ParameterSet& config);
+  ~RPCDigitizerPhase2();
 
   // *** digitize ***
   void doAction(MixCollection<PSimHit>& simHits,
-                IRPCDigiCollection& rpcDigis,
+                RPCDigiPhase2Collection& rpcDigis,
                 RPCDigiSimLinks& rpcDigiSimLink,
                 CLHEP::HepRandomEngine*);
 
@@ -56,7 +56,6 @@ private:
   const RPCGeometry* theGeometry;
   std::unique_ptr<RPCSim> theRPCSim;
   RPCSimSetUp* theSimSetUp;
-  std::string theName;
   bool theNoise;
 };
 
