@@ -26,13 +26,20 @@ chmod a-x config/SCRAM/hooks/runtime/50-remove-release-external-lib
 
 #Test clang-tidy
 cp $ORIG_TEST_PATH/test-clang-tidy.cc src/FWCore/Version/src
-USER_CODE_CHECKS_FILES=src/FWCore/Version/src/test-clang-tidy.cc scram b code-checks
+cp $ORIG_TEST_PATH/test-clang-tidy.h src/FWCore/Version/src
+FILES="src/FWCore/Version/src/test-clang-tidy.cc src/FWCore/Version/src/test-clang-tidy.h"
+USER_CODE_CHECKS_FILES="${FILES}" scram b code-checks
+
 diff -u src/FWCore/Version/src/test-clang-tidy.cc $ORIG_TEST_PATH/ref/test-clang-tidy.cc
+diff -u src/FWCore/Version/src/test-clang-tidy.h $ORIG_TEST_PATH/ref/test-clang-tidy.h
 cp $ORIG_TEST_PATH/test-clang-tidy.cc src/FWCore/Version/src
 scram b code-checks-all
 diff -u src/FWCore/Version/src/test-clang-tidy.cc $ORIG_TEST_PATH/ref/test-clang-tidy.cc
+diff -u src/FWCore/Version/src/test-clang-tidy.h $ORIG_TEST_PATH/ref/test-clang-tidy.h
 
 #Test clang-format
-sed -i -e 's|int m_x|    int     m_x   |' src/FWCore/Version/src/test-clang-tidy.cc
-USER_CODE_FORMAT_FILES=src/FWCore/Version/src/test-clang-tidy.cc scram b code-format
+sed -i -e 's|int m_x|    int     m_x   |'      src/FWCore/Version/src/test-clang-tidy.cc
+sed -i -e 's|override_func|  override_func  |' src/FWCore/Version/src/test-clang-tidy.h
+USER_CODE_FORMAT_FILES="${FILES}" scram b code-format
 diff -u src/FWCore/Version/src/test-clang-tidy.cc $ORIG_TEST_PATH/ref/test-clang-tidy.cc
+diff -u src/FWCore/Version/src/test-clang-tidy.h $ORIG_TEST_PATH/ref/test-clang-tidy.h

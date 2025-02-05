@@ -1,9 +1,11 @@
-class BaseClass {
+#include "test-clang-tidy.h"
+class BaseClass : public BaseClass2 {
 public:
   BaseClass(int x) {
     m_x = x;
     ch = 0;
   };
+  void override_func() {}
   virtual ~BaseClass();
   virtual int someMethod();
 
