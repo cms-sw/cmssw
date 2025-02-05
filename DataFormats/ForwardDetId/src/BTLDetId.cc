@@ -6,7 +6,7 @@ BTLDetId BTLDetId::geographicalId(CrysLayout lay) const {
   if (lay == CrysLayout::v2 || lay == CrysLayout::v3) {
     // v2: set number of crystals to 17 to distinguish from crystal BTLDetId
     // v3: set number of crystals to 17 to distinguish from crystal BTLDetId, build V2-like type and RU number as in BTLNumberingScheme
-    return BTLDetId(mtdSide(), mtdRR(), runit(), module(), modType(), kCrystalsPerModuleV2 + 1, true);
+    return BTLDetId(mtdSide(), mtdRR(), runitByType(), module(), modType(), kCrystalsPerModuleV2 + 1, true);
   }
   if (lay == CrysLayout::v4) {
     // v4: identical to v3, needed to update BTLDetId format and corresponding numbering scheme

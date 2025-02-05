@@ -128,7 +128,7 @@ public:
 
   /** Returns BTL crystal number in construction database. */
   inline int crystalConsDB() const {
-    if (crystal() == kCrystalsPerModuleV2)
+    if (((id_ >> kBTLCrystalOffset) & kBTLCrystalMask) == kCrystalsPerModuleV2)
       return -1;
     if (smodule() == 0)
       return kCrystalsPerModuleV2 - 1 - ((id_ >> kBTLCrystalOffset) & kBTLCrystalMask);
@@ -185,7 +185,7 @@ public:
   }
 
   /** Returns BTL readout unit number per type [1-2], from Global RU number [1-6]. */
-  inline int runitByType() const { return (runit() % kRUPerTypeV2); }
+  inline int runitByType() const { return (((runit() - 1) % kRUPerTypeV2) + 1); }
 
   /** return the row in GeomDet language **/
   inline int row(unsigned nrows = kCrystalsPerModuleV2) const {
