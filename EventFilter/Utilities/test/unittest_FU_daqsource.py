@@ -91,7 +91,7 @@ ram_dir_path=options.buBaseDir+"/run"+str(options.runNumber).zfill(6)+"/"
 process.source = cms.Source("DAQSource",
     testing = cms.untracked.bool(True),
     dataMode = cms.untracked.string(options.daqSourceMode),
-    verifyChecksum = cms.untracked.bool(True),
+    verifyChecksum = cms.untracked.bool(True if options.daqSourceMode != "DTH" else False),
     useL1EventID = cms.untracked.bool(False),
     eventChunkBlock = cms.untracked.uint32(2),
     eventChunkSize = cms.untracked.uint32(3),
