@@ -31,7 +31,6 @@ bool hgcal::econdCRCAnalysis(const uint64_t *header, uint32_t pos, uint32_t payl
   auto array = &(crcvec[0]);
   auto bytes = reinterpret_cast<const unsigned char *>(array);
   auto crc32 = boost::crc<32, 0x4c11db7, 0x0, 0x0, false, false>(bytes, (payloadLength - 1) * 4);
-  //std::cout << " crc32 =  " << crc32 << " target=" << target << std::endl;
   //LogDebug("[HGCalUnpacker]") << "crc32 = " << crc32 << " target = " << target;
   return crc32 == target;
 }
