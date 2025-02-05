@@ -1,12 +1,14 @@
 #ifndef Calibration_TkAlCaRecoProducers_CalibrationTrackSelector_h
 #define Calibration_TkAlCaRecoProducers_CalibrationTrackSelector_h
 
+#include <vector>
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include <vector>
 
 namespace edm {
   class Event;
@@ -27,6 +29,8 @@ public:
 
   /// select tracks
   Tracks select(const Tracks &tracks, const edm::Event &evt) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   /// apply basic cuts on pt,eta,phi,nhit

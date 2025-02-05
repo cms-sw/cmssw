@@ -7,6 +7,8 @@
  * $Id: AndSelector.h,v 1.7 2008/05/20 15:13:27 piccolo Exp $
  */
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 namespace helpers {
   struct NullAndOperand;
 }
@@ -31,6 +33,8 @@ struct AndSelector {
     return s1_(t) && s2_(t) && s3_(t) && s4_(t) && s5_(t);
   }
 
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
+
 private:
   friend struct reco::modules::CombinedEventSetupInit<S1, S2, S3, S4, S5>;
   S1 s1_;
@@ -52,6 +56,8 @@ struct AndSelector<S1, S2, helpers::NullAndOperand, helpers::NullAndOperand, hel
     return s1_(t1) && s2_(t2);
   }
 
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
+
 private:
   friend struct reco::modules::
       CombinedEventSetupInit<S1, S2, helpers::NullAndOperand, helpers::NullAndOperand, helpers::NullAndOperand>;
@@ -71,6 +77,8 @@ struct AndSelector<S1, S2, S3, helpers::NullAndOperand, helpers::NullAndOperand>
     return s1_(t1) && s2_(t2) && s3_(t3);
   }
 
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
+
 private:
   friend struct reco::modules::CombinedEventSetupInit<S1, S2, S3, helpers::NullAndOperand, helpers::NullAndOperand>;
   S1 s1_;
@@ -89,6 +97,8 @@ struct AndSelector<S1, S2, S3, S4, helpers::NullAndOperand> {
   bool operator()(const T1& t1, const T2& t2, const T3& t3, const T4& t4) const {
     return s1_(t1) && s2_(t2) && s3_(t3) && s4_(t4);
   }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
 
 private:
   friend struct reco::modules::CombinedEventSetupInit<S1, S2, S3, S4, helpers::NullAndOperand>;

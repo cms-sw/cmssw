@@ -14,7 +14,9 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include <utility>
@@ -52,6 +54,15 @@ public:
   }
   /// destructor
   ~ObjectSelectorBase() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src", edm::InputTag(""));
+    Selector::fillPSetDescription(desc);
+    desc.add<bool>("filter", false);
+    desc.addUntracked<bool>("throwOnMissing", true);
+    descriptions.addWithDefaultLabel(desc);
+  }
 
 private:
   /// process one event

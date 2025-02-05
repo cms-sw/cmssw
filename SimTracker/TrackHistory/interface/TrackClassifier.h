@@ -1,23 +1,18 @@
-
-#ifndef TrackClassifier_h
-#define TrackClassifier_h
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#ifndef SimTracker_TrackHistory_TrackClassifier_h
+#define SimTracker_TrackHistory_TrackClassifier_h
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
 #include "SimTracker/TrackHistory/interface/CMSProcessTypes.h"
 #include "SimTracker/TrackHistory/interface/TrackCategories.h"
 #include "SimTracker/TrackHistory/interface/TrackHistory.h"
 #include "SimTracker/TrackHistory/interface/TrackQuality.h"
-
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -51,6 +46,8 @@ public:
 
   //! Returns a reference to the track quality used in the classification.
   TrackQuality const &quality() const { return quality_; }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   const edm::InputTag hepMCLabel_;

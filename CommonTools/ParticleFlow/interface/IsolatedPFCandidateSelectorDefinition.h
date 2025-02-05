@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "CommonTools/ParticleFlow/interface/PFCandidateSelectorDefinition.h"
@@ -95,6 +96,16 @@ namespace pf2pat {
           selected_.back().setSourceCandidatePtr(ptrToMother);
         }
       }
+    }
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+      desc.add<std::vector<edm::InputTag> >("isolationValueMapsCharged", {});
+      desc.add<std::vector<edm::InputTag> >("isolationValueMapsNeutral", {});
+      desc.add<bool>("doDeltaBetaCorrection", false);
+      desc.add<edm::InputTag>("deltaBetaIsolationValueMap", edm::InputTag(""));
+      desc.add<double>("deltaBetaFactor", -0.5);
+      desc.add<bool>("isRelative", true)->setComment("if True isolation is relative to pT");
+      desc.add<double>("isolationCut", 999);
     }
 
   private:

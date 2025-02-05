@@ -8,6 +8,7 @@
  *  $Revision: 1.5.4.2 $
  *
  */
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -199,6 +200,24 @@ namespace reco {
                                         cfg.getParameter<bool>("invertRapidityCut"),
                                         cfg.getParameter<double>("minPhi"),
                                         cfg.getParameter<double>("maxPhi"));
+      }
+
+      static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+        desc.add<double>("ptMin", 0.9);
+        desc.add<double>("ptMax", 1e100);
+        desc.add<double>("minRapidity", -2.4);
+        desc.add<double>("maxRapidity", 2.4);
+        desc.add<double>("tip", 3.5);
+        desc.add<double>("lip", 30.0);
+        desc.add<int>("minHit", 0);
+        desc.add<bool>("signalOnly", true);
+        desc.add<bool>("intimeOnly", false);
+        desc.add<bool>("chargedOnly", true);
+        desc.add<bool>("stableOnly", false);
+        desc.add<std::vector<int>>("pdgId", {});
+        desc.add<bool>("invertRapidityCut", false);
+        desc.add<double>("minPhi", -3.2);
+        desc.add<double>("maxPhi", 3.2);
       }
     };
 

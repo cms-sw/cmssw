@@ -29,6 +29,15 @@ TrackHistory::TrackHistory(const edm::ParameterSet &config, edm::ConsumesCollect
   quality_ = 0.;
 }
 
+void TrackHistory::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.addUntracked<edm::InputTag>("trackProducer", edm::InputTag("generalTracks"));
+  desc.addUntracked<edm::InputTag>("trackingTruth", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.addUntracked<edm::InputTag>("trackAssociator", edm::InputTag("quickTrackAssociatorByHits"));
+  desc.addUntracked<bool>("bestMatchByMaxValue", true);
+  desc.addUntracked<bool>("enableRecoToSim", true);
+  desc.addUntracked<bool>("enableSimToReco", false);
+}
+
 void TrackHistory::newEvent(const edm::Event &event, const edm::EventSetup &setup) {
   if (enableRecoToSim_ || enableSimToReco_) {
     // Track collection

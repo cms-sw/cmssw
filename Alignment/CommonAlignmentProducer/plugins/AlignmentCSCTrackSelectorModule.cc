@@ -1,6 +1,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
 //the selectores used to select the tracks
@@ -31,6 +32,10 @@ struct CSCTrackConfigSelector {
       all.push_back(&*i);
     }
     theSelectedTracks = theBaseSelector.select(all, evt);  // might add dummy
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    AlignmentCSCTrackSelector::fillPSetDescription(desc);
   }
 
 private:
