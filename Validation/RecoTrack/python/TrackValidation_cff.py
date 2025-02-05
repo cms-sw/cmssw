@@ -1080,7 +1080,7 @@ cutstring = "pt > 0.9"
 pixelTracksPt09 = trackRefSelector.clone( cut = cutstring )
 #pixelTracksPt09 = generalTracksPt09.clone(quality = ["undefQuality"], **_pixelTracksCustom)
 
-pixelTracksFromPV = generalTracksFromPV.clone(quality = "highPurity", ptMin = 0.0, ptMax = 99999., ptErrorCut = 99999., copyExtras = True, **_pixelTracksCustom)
+pixelTracksFromPV = generalTracksFromPV.clone(quality = "highPurity", ptMin = 0.0, ptMax = 99999., ptErrorCut = 99999., **_pixelTracksCustom)
 #pixelTracksFromPVPt09 = generalTracksPt09.clone(quality = ["loose","tight","highPurity"], vertexTag = "pixelVertices", src = "pixelTracksFromPV")
 pixelTracksFromPVPt09 = pixelTracksFromPV.clone(ptMin = 0.9)
 

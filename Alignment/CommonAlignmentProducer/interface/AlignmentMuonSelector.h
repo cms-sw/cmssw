@@ -17,6 +17,7 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "CommonTools/RecoAlgos/interface/MuonSelector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <vector>
 
 namespace edm {
@@ -35,6 +36,8 @@ public:
 
   /// select muons
   Muons select(const Muons& muons, const edm::Event& evt) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   /// apply basic cuts on pt,eta,phi,nhit

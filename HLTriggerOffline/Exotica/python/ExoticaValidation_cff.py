@@ -49,7 +49,6 @@ recoExoticaValidationCaloHT = cms.EDProducer(
     alias = cms.string('CaloMHT'),
     globalThreshold = cms.double(30.0),
     calculateSignificance = cms.bool( False ),
-    jets = cms.InputTag("ak4CaloJets") # for significance calculation
     )
 
 ExoticaValidationProdSeq = cms.Sequence(

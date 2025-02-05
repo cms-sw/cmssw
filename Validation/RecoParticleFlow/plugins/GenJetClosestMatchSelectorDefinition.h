@@ -1,14 +1,13 @@
-#ifndef PhysicsTools_PFCandProducer_GenJetClosestMatchSelectorDefinition
-#define PhysicsTools_PFCandProducer_GenJetClosestMatchSelectorDefinition
+#ifndef Validation_RecoParticleFlow_GenJetClosestMatchSelectorDefinition
+#define Validation_RecoParticleFlow_GenJetClosestMatchSelectorDefinition
 
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/JetReco/interface/GenJet.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
 
 #include <iostream>
 
@@ -20,6 +19,10 @@ struct GenJetClosestMatchSelectorDefinition {
 
   GenJetClosestMatchSelectorDefinition(const edm::ParameterSet &cfg, edm::ConsumesCollector &&iC) {
     matchTo_ = iC.consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("MatchTo"));
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    desc.add<edm::InputTag>("MatchTo", edm::InputTag(""));
   }
 
   const_iterator begin() const { return selected_.begin(); }

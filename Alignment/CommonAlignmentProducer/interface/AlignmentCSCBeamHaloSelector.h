@@ -4,6 +4,7 @@
 #include <vector>
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edm {
   class Event;
@@ -24,6 +25,8 @@ public:
 
   /// select tracks
   Tracks select(const Tracks &tracks, const edm::Event &iEvent) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   unsigned int m_minStations;
