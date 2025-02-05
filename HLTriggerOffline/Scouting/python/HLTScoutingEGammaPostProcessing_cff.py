@@ -1,0 +1,3 @@
+from HLTriggerOffline.Scouting.ElectronEfficiencyPlotter_cfi import *
+
+hltScoutingEGammaPostProcessing = cms.Sequence(scoutingElectronEfficiencyHarvest)
