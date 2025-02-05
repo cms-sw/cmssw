@@ -28,8 +28,7 @@ public:
 
   // Constructor which specifies the SoA size
   template <typename TQueue>
-  explicit TracksDevice<TrackerTraits, TDev>(TQueue& queue)
-      : PortableDeviceCollection<reco::TrackLayout<TrackerTraits>, TDev>(S, queue) {}
+  explicit TracksDevice(TQueue& queue) : PortableDeviceCollection<reco::TrackLayout<TrackerTraits>, TDev>(S, queue) {}
 };
 
 namespace pixelTrack {
