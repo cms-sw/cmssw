@@ -39,13 +39,13 @@ TkMuTriPuppiJetdRMaxDoubleJetdEtaMax = l1tGTQuadObjectCond.clone( #needs z0 betw
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
     ),
     collection2 = l1tGTsc4Jet.clone(
-        regionsMinPt=cms.vdouble(25,25), #safety cut
+        minPt = cms.double(25) #safety cut
     ),
     collection3 = l1tGTsc4Jet.clone(
-        regionsMinPt=cms.vdouble(25,25), #safety cut
+        minPt = cms.double(25) #safety cut
     ),
     collection4 = l1tGTsc4Jet.clone(
-        regionsMinPt=cms.vdouble(25,25), #safety cut
+        minPt = cms.double(25) #safety cut
     ),
     correl12 = cms.PSet(
         maxDR = cms.double(0.4),
@@ -169,7 +169,7 @@ TkElePuppiJetMinDR = l1tGTDoubleObjectCond.clone( #missing z0 between electron a
         primVertex = cms.uint32(0), # primary vertex index (choose 0)
     ),
     collection2 = l1tGTsc4Jet.clone(
-        regionsMinPt=cms.vdouble(25,25), #safety cut
+        minPt = cms.double(25) #safety cut
     ),
     minDR = cms.double(0.3)
 )

@@ -241,7 +241,7 @@ DoublePuppiTau5252 = l1tGTDoubleObjectCond.clone(
         tag = cms.InputTag("l1tGTProducer", "CL2Taus"),
         minEta = cms.double(-2.172),
         maxEta = cms.double(2.172),
-        regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC4"),
+        regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2Taus"),
         regionsMinPt = get_object_thrs(52, "CL2Taus","default"),
         minQualityScore = get_object_ids("CL2Taus","default")
     ),
@@ -249,7 +249,7 @@ DoublePuppiTau5252 = l1tGTDoubleObjectCond.clone(
         tag = cms.InputTag("l1tGTProducer", "CL2Taus"),
         minEta = cms.double(-2.172),
         maxEta = cms.double(2.172),
-        regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2JetsSC4"),
+        regionsAbsEtaLowerBounds = get_object_etalowbounds("CL2Taus"),
         regionsMinPt = get_object_thrs(52, "CL2Taus","default"),
         minQualityScore = get_object_ids("CL2Taus","default")
     ),
