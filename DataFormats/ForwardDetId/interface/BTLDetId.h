@@ -185,7 +185,12 @@ public:
   }
 
   /** Returns BTL readout unit number per type [1-2], from Global RU number [1-6]. */
-  inline int runitByType() const { return (((runit() - 1) % kRUPerTypeV2) + 1); }
+  inline int runitByType() const { 
+  if (id_ & kBTLNewFormat)
+    return ((runit() % kRUPerTypeV2) + 1); 
+  else
+    return (((runit() - 1) % kRUPerTypeV2) + 1); 
+  }
 
   /** return the row in GeomDet language **/
   inline int row(unsigned nrows = kCrystalsPerModuleV2) const {
