@@ -20,14 +20,15 @@ from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
 
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
-hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone()
-hgcalHitCalibrationHLT.folder = "HGCalHitCalibrationHLT"
-hgcalHitCalibrationHLT.recHitsEE = cms.InputTag("hltHGCalRecHit", "HGCEERecHits", "HLT")
-hgcalHitCalibrationHLT.recHitsFH = cms.InputTag("hltHGCalRecHit", "HGCHEFRecHits", "HLT")
-hgcalHitCalibrationHLT.recHitsBH = cms.InputTag("hltHGCalRecHit", "HGCHEBRecHits", "HLT")
-hgcalHitCalibrationHLT.hgcalMultiClusters = cms.InputTag("None")
-hgcalHitCalibrationHLT.electrons = cms.InputTag("None")
-hgcalHitCalibrationHLT.photons = cms.InputTag("None")
+hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone(
+    folder = "HLT/HGCalHitCalibration",
+    recHitsEE = ("hltHGCalRecHit", "HGCEERecHits", "HLT"),
+    recHitsFH = ("hltHGCalRecHit", "HGCHEFRecHits", "HLT"),
+    recHitsBH = ("hltHGCalRecHit", "HGCHEBRecHits", "HLT"),
+    hgcalMultiClusters = "None",
+    electrons = "None",
+    photons = "None"
+)
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
