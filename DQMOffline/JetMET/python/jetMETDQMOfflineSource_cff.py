@@ -166,13 +166,17 @@ _jetPreDQMTaskWithPUPPI = cms.Task(ak4CaloL2RelativeCorrector,
                          ak4PFPuppiL2RelativeCorrector,
                          ak4PFPuppiL3AbsoluteCorrector,
                          ak4PFPuppiResidualCorrector,
-                         ak4PFScoutingL1FastjetCorrector,
+)
+
+jetPreDQMTaskScouting = cms.Task(ak4PFScoutingL1FastjetCorrector,
                          ak4PFScoutingL2RelativeCorrector,
                          ak4PFScoutingL3AbsoluteCorrector,
-                         ak4PFScoutingResidualCorrector
-)
+                         ak4PFScoutingResidualCorrector,
+                         )
+
 jetPreDQMSeq=cms.Sequence(jetPreDQMTask)
 _jetPreDQMSeqWithPUPPI=cms.Sequence(_jetPreDQMTaskWithPUPPI)
+jetPreDQMSeqScouting=cms.Sequence(jetPreDQMTaskScouting)
 
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
@@ -201,12 +205,16 @@ _jetMETDQMOfflineSourceWithPUPPI = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorDQM*pileupJetIdEvaluatorDQM*
                                       pileupJetIdCalculatorPUPPIDQM*pileupJetIdEvaluatorPUPPIDQM*
                                       _jetPreDQMSeqWithPUPPI*
-                                      dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3CorrectorChain*dqmAk4PFPuppiL1FastL2L3ResidualCorrectorChain*dqmAk4PFScoutingL1FastL2L3ResidualCorrectorChain*
+                                      dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3CorrectorChain*dqmAk4PFPuppiL1FastL2L3ResidualCorrectorChain*
                                       cms.ignore(goodOfflinePrimaryVerticesDQM)*                                                                            
                                       dqmCorrPfMetType1*pfMETT1*jetDQMAnalyzerSequence*HBHENoiseFilterResultProducer*
                                       cms.ignore(CSCTightHaloFilterDQM)*cms.ignore(CSCTightHalo2015FilterDQM)*cms.ignore(eeBadScFilterDQM)*cms.ignore(EcalDeadCellTriggerPrimitiveFilterDQM)*cms.ignore(EcalDeadCellBoundaryEnergyFilterDQM)*cms.ignore(HcalStripHaloFilterDQM)                                      
                                       *METDQMAnalyzerSequence
                                       *pfCandidateDQMAnalyzer)
+
+jetMETDQMOfflineSourceScouting = cms.Sequence(jetPreDQMSeqScouting*
+                                      dqmAk4PFScoutingL1FastL2L3ResidualCorrectorChain*
+                                      jetDQMAnalyzerSequenceScouting)
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 (~pp_on_AA).toReplaceWith(jetMETDQMOfflineSource, _jetMETDQMOfflineSourceWithPUPPI)
