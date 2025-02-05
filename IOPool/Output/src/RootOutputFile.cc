@@ -21,7 +21,7 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/ProductDependencies.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
@@ -698,8 +698,8 @@ namespace edm {
     b->Fill();
   }
   void RootOutputFile::writeProductDependencies() {
-    BranchChildren& pDeps = const_cast<BranchChildren&>(om_->branchChildren());
-    BranchChildren* ppDeps = &pDeps;
+    ProductDependencies& pDeps = const_cast<ProductDependencies&>(om_->productDependencies());
+    ProductDependencies* ppDeps = &pDeps;
     TBranch* b =
         metaDataTree_->Branch(poolNames::productDependenciesBranchName().c_str(), &ppDeps, om_->basketSize(), 0);
     assert(b);

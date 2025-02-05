@@ -1,4 +1,4 @@
-#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/ProductDependencies.h"
 
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 

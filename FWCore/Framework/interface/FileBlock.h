@@ -8,7 +8,7 @@ FileBlock: Properties of an input file.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
-#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/ProductDependencies.h"
 #include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 class TTree;
@@ -69,7 +69,7 @@ namespace edm {
           fileName_(),
           branchListIndexesUnchanged_(false),
           modifiedIDs_(false),
-          branchChildren_(new BranchChildren) {}
+          productDependencies_(new ProductDependencies) {}
 
     FileBlock(FileFormatVersion const& version,
               TTree* ev,
@@ -85,7 +85,7 @@ namespace edm {
               std::string const& fileName,
               bool branchListIndexesUnchanged,
               bool modifiedIDs,
-              std::shared_ptr<BranchChildren const> branchChildren)
+              std::shared_ptr<ProductDependencies const> productDependencies)
         : fileFormatVersion_(version),
           tree_(ev),
           metaTree_(meta),
@@ -100,7 +100,7 @@ namespace edm {
           fileName_(fileName),
           branchListIndexesUnchanged_(branchListIndexesUnchanged),
           modifiedIDs_(modifiedIDs),
-          branchChildren_(branchChildren) {}
+          productDependencies_(productDependencies) {}
 
     ~FileBlock() {}
 
@@ -132,7 +132,7 @@ namespace edm {
     bool modifiedIDs() const { return modifiedIDs_; }
 
     void setNotFastClonable(WhyNotFastClonable const& why) { whyNotFastClonable_ |= why; }
-    BranchChildren const& branchChildren() const { return *branchChildren_; }
+    ProductDependencies const& productDependencies() const { return *productDependencies_; }
     void close();
 
   private:
@@ -151,7 +151,7 @@ namespace edm {
     std::string fileName_;
     bool branchListIndexesUnchanged_;
     bool modifiedIDs_;
-    std::shared_ptr<BranchChildren const> branchChildren_;
+    std::shared_ptr<ProductDependencies const> productDependencies_;
   };
 }  // namespace edm
 #endif

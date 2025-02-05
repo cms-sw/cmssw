@@ -59,7 +59,7 @@ namespace edm {
         outputFileCount_(0),
         inputFileCount_(0),
         branchParents_(),
-        branchChildren_(),
+        productDependencies_(),
         overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
         compactEventAuxiliary_(pset.getUntrackedParameter<bool>("compactEventAuxiliary")),
         mergeJob_(pset.getUntrackedParameter<bool>("mergeJob")),
@@ -245,10 +245,10 @@ namespace edm {
     if (isFileOpen()) {
       //Faster to read ChildrenBranches directly from input
       // file than to build it every event
-      auto const& branchToChildMap = fb.branchChildren().childLookup();
+      auto const& branchToChildMap = fb.productDependencies().childLookup();
       for (auto const& parentToChildren : branchToChildMap) {
         for (auto const& child : parentToChildren.second) {
-          branchChildren_.insertChild(parentToChildren.first, child);
+          productDependencies_.insertChild(parentToChildren.first, child);
         }
       }
       rootOutputFile_->beginInputFile(fb, remainingEvents());
@@ -343,9 +343,9 @@ namespace edm {
     writeParentageRegistry();
     writeBranchIDListRegistry();
     writeThinnedAssociationsHelper();
-    writeProductDependencies();  //branchChildren used here
+    writeProductDependencies();  //productDependencies used here
     writeProcessBlockHelper();
-    branchChildren_.clear();
+    productDependencies_.clear();
     finishEndFile();
 
     doExtrasAfterCloseFile();
@@ -475,7 +475,7 @@ namespace edm {
         ParentageRegistry::instance()->getMapped(eId, entryDesc);
         std::vector<BranchID> const& parents = entryDesc.parents();
         for (auto const& parent : parents) {
-          branchChildren_.insertChild(parent, child);
+          productDependencies_.insertChild(parent, child);
         }
       }
     }

@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
-#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/ProductDependencies.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
@@ -132,7 +132,7 @@ namespace edm {
 
     std::vector<OutputItemList>& selectedOutputItemList() { return selectedOutputItemList_; }
 
-    BranchChildren const& branchChildren() const { return branchChildren_; }
+    ProductDependencies const& productDependencies() const { return productDependencies_; }
 
   protected:
     ///allow inheriting classes to override but still be able to call this method in the overridden version
@@ -212,7 +212,7 @@ namespace edm {
     int outputFileCount_;
     int inputFileCount_;
     BranchParents branchParents_;
-    BranchChildren branchChildren_;
+    ProductDependencies productDependencies_;
     std::vector<BranchID> producedBranches_;
     bool overrideInputFileSplitLevels_;
     bool compactEventAuxiliary_;
