@@ -101,6 +101,7 @@ void JetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm::Even
   // PF Cands
   std::vector<float> btagEtaRel, btagPtRatio, btagPParRatio, btagSip3dVal, btagSip3dSig, btagJetDistVal,
       btagDecayLenVal, cand_pt, cand_dzFromPV, cand_dxyFromPV, cand_dzErrFromPV, cand_dxyErrFromPV;
+  std::vector<int> cand_jetSVIdx;
   // Secondary vertices
   std::vector<float> sv_mass, sv_pt, sv_ntracks, sv_chi2, sv_normchi2, sv_dxy, sv_dxysig, sv_d3d, sv_d3dsig,
       sv_costhetasvpv;
@@ -129,6 +130,7 @@ void JetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm::Even
     std::vector<const reco::VertexCompositePtrCandidate *> allSVs;
     for (const auto &sv : *svs_) {
       // Factor in cuts in NanoAOD for indexing
+      // TODO: seems fragile, better use NanoAOD vertexTable instead of slimmedSecondaryVertices as input?
       Measurement1D dl = vdist.distance(
           vtxs_->front(), VertexState(RecoVertex::convertPos(sv.position()), RecoVertex::convertError(sv.error())));
       if (dl.significance() > 3) {
@@ -233,6 +235,23 @@ void JetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm::Even
           else
             decayLength = -1;
           btagDecayLenVal.push_back(decayLength);
+          // Associate PF candidates to secondary vertices (SVs) by matching their tracks
+          int jsvMatchIndex = -1;
+          int jsvIndex = 0;
+          for (const auto &sv : *outSVs) {
+            for (const auto &track : sv->daughterPtrVector()) {
+              double eps = 1e-3;
+              double dR = deltaR(track->eta(), track->phi(), cand->eta(), cand->phi());
+              if (dR < eps && abs(track->pt() - cand->pt()) < eps) {
+                jsvMatchIndex = jsvIndex;
+                break;
+              }
+            }
+            if (jsvMatchIndex >= 0)
+              break;
+            jsvIndex++;
+          }
+          cand_jetSVIdx.push_back(jsvMatchIndex);
         } else {
           btagEtaRel.push_back(0);
           btagPtRatio.push_back(0);
@@ -241,6 +260,7 @@ void JetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm::Even
           btagSip3dSig.push_back(0);
           btagJetDistVal.push_back(0);
           btagDecayLenVal.push_back(0);
+          cand_jetSVIdx.push_back(-1);
         }
       }
     }  // end jet loop
@@ -250,8 +270,8 @@ void JetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm::Even
   // We fill from here only stuff that cannot be created with the SimpleFlatTableProducer
   candTable->addColumn<int>(idx_name_, pfcandIdx, "Index in the candidate list");
   candTable->addColumn<int>("jetIdx", jetIdx_pf, "Index of the parent jet");
+  candTable->addColumn<float>("pt", cand_pt, "pt", 10);  // to check matching down the line
   if (readBtag_) {
-    candTable->addColumn<float>("pt", cand_pt, "pt", 10);  // to check matchind down the line
     candTable->addColumn<float>("dzFromPV", cand_dzFromPV, "dzFromPV", 10);
     candTable->addColumn<float>("dxyFromPV", cand_dxyFromPV, "dxyFromPV", 10);
     candTable->addColumn<float>("dzErrFromPV", cand_dzErrFromPV, "dzErrFromPV", 10);
@@ -263,6 +283,7 @@ void JetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm::Even
     candTable->addColumn<float>("btagSip3dSig", btagSip3dSig, "btagSip3dSig", 10);
     candTable->addColumn<float>("btagJetDistVal", btagJetDistVal, "btagJetDistVal", 10);
     candTable->addColumn<float>("btagDecayLenVal", btagDecayLenVal, "btagDecayLenVal", 10);
+    candTable->addColumn<int>("jetSVIdx", cand_jetSVIdx, "Index of the parent in the " + nameSV_ + " list");
   }
   iEvent.put(std::move(candTable), name_);
 
