@@ -122,9 +122,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                 HGCalCalibParamDevice const& device_calib,
                                                                 HGCalConfigParamDevice const& device_config) const {
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Start of calibrate\n\n" << std::endl;
-    LogDebug("HGCalRecHitCalibrationAlgorithms")
-        << "N blocks: " << n_blocks_ << "\tN threads: " << n_threads_ << std::endl;
-    auto grid = make_workdiv<Acc1D>(n_blocks_, n_threads_);
 
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Copying the digis to the device\n\n" << std::endl;
     HGCalDigiDevice device_digis(host_digis.view().metadata().size(), queue);
@@ -133,6 +130,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     LogDebug("HGCalRecHitCalibrationAlgorithms")
         << "\n\nINFO -- Allocating rechits buffer and initiating values" << std::endl;
     HGCalRecHitDevice device_recHits(device_digis.view().metadata().size(), queue);
+
+    // number of items per group
+    uint32_t items = n_threads_;
+    // use as many groups as needed to cover the whole problem
+    uint32_t groups = divide_up_by(device_digis.view().metadata().size(), items);
+    // map items to
+    //   - threads with a single element per thread on a GPU backend
+    //   - elements within a single thread on a CPU backend
+    auto grid = make_workdiv<Acc1D>(groups, items);
+    LogDebug("HGCalRecHitCalibrationAlgorithms") << "N groups: " << groups << "\tN items: " << items << std::endl;
 
     alpaka::exec<Acc1D>(queue,
                         grid,
