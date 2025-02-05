@@ -367,9 +367,6 @@ namespace pixelTopology {
 
     static constexpr float dzdrFact = 8 * 0.0285 / 0.015;  // from dz/dr to "DY"
 
-    static constexpr int minYsizeB1 = 25;
-    static constexpr int minYsizeB2 = 15;
-
     static constexpr int nPairsMinimal = 33;
     static constexpr int nPairsFarForwards = nPairsMinimal + 8;  // include barrel "jumping" layer pairs
     static constexpr int nPairs = phase2PixelTopology::nPairs;   // include far forward layer pairs
@@ -463,9 +460,6 @@ namespace pixelTopology {
     static constexpr float bigPixYCorrection = 8.0f;
 
     static constexpr float dzdrFact = 8 * 0.0285 / 0.015;  // from dz/dr to "DY"
-
-    static constexpr int minYsizeB1 = 1;
-    static constexpr int minYsizeB2 = 1;
 
     static constexpr int nPairsForQuadruplets = 13;                     // quadruplets require hits in all layers
     static constexpr int nPairsForTriplets = nPairsForQuadruplets + 2;  // include barrel "jumping" layer pairs
