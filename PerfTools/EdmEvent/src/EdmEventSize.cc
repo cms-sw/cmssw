@@ -93,8 +93,8 @@ namespace perftools {
 
       std::string const leaf_name = l->GetName();
       std::string const leaf_type = l->GetTypeName();
-      double compressed_size = l->GetBranch()->GetZipBytes();
-      double uncompressed_size = l->GetBranch()->GetTotBytes();
+      size_t compressed_size = l->GetBranch()->GetZipBytes();
+      size_t uncompressed_size = l->GetBranch()->GetTotBytes();
       std::string full_name = leaf_name + '|' + leaf_type;
       full_name.erase(std::remove(full_name.begin(), full_name.end(), ' '), full_name.end());
       size_t nEvents = l->GetBranch()->GetEntries();
@@ -150,11 +150,6 @@ namespace perftools {
       size_t uncompressed_size = s[kUncompressed];
       if constexpr (M == EdmEventMode::Branches) {
         m_records.push_back(Record(name, m_nEvents, compressed_size, uncompressed_size));
-        std::sort(m_records.begin(),
-                  m_records.end(),
-                  std::bind(std::greater<double>(),
-                            std::bind(&Record::compr_size, std::placeholders::_1),
-                            std::bind(&Record::compr_size, std::placeholders::_2)));
       } else if constexpr (M == EdmEventMode::Leaves) {
         Records new_leaves = getLeaves<M>(b);
         m_records.insert(m_records.end(), new_leaves.begin(), new_leaves.end());
@@ -170,15 +165,15 @@ namespace perftools {
         size_t overehead_compressed = compressed_size - new_leaves_compressed;
         size_t overehead_uncompressed = uncompressed_size - new_leaves_uncompressed;
         m_records.push_back(Record(name + "overhead", m_nEvents, overehead_compressed, overehead_uncompressed));
-        std::sort(m_records.begin(),
-                  m_records.end(),
-                  std::bind(std::greater<double>(),
-                            std::bind(&Record::compr_size, std::placeholders::_1),
-                            std::bind(&Record::compr_size, std::placeholders::_2)));
       } else {
         throw Error("Unsupported mode", 7007);
       }
     }
+    std::sort(m_records.begin(),
+              m_records.end(),
+              std::bind(std::greater<size_t>(),
+                        std::bind(&Record::compr_size, std::placeholders::_1),
+                        std::bind(&Record::compr_size, std::placeholders::_2)));
   }
 
   template <EdmEventMode M>
@@ -252,8 +247,8 @@ namespace perftools {
 
     template <EdmEventMode M>
     void dump(std::ostream& co, Record<M> const& record) {
-      co << record.name << " " << (double)record.uncompr_size / (double)record.nEvents << " "
-         << (double)record.compr_size / (double)record.nEvents << "\n";
+      co << record.name << " " << static_cast<double>(record.uncompr_size) / static_cast<double>(record.nEvents) << " "
+         << static_cast<double>(record.compr_size) / static_cast<double>(record.nEvents) << "\n";
     }
 
     const std::string RESOURCES_JSON = R"("resources": [
@@ -280,14 +275,11 @@ namespace perftools {
       co << "\"label\": \"" << record.label << "\",\n";
       co << "\"size_compressed\": " << record.compr_size << ",\n";
       co << "\"size_uncompressed\": " << record.uncompr_size << ",\n";
-      if (record.uncompr_size == 0)
-        co << "\"ratio\": 0\n";
-      else
-        co << "\"ratio\": " << (double)record.compr_size / (double)record.uncompr_size << "\n";
-      if (isLast)
-        co << "}\n";
-      else
-        co << "},\n";
+      co << "\"ratio\": "
+         << (record.uncompr_size == 0
+                 ? 0.0
+                 : static_cast<double>(record.compr_size) / static_cast<double>(record.uncompr_size));
+      co << (isLast ? "}\n" : "},\n");
     }
 
   }  // namespace detail

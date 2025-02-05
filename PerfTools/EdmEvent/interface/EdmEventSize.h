@@ -42,7 +42,7 @@ namespace perftools {
     /// the information for each branch
     struct Record {
       Record() : compr_size(0.), uncompr_size(0.) {}
-      Record(std::string const& iname, size_t inEvents, double compr, double uncompr)
+      Record(std::string const& iname, size_t inEvents, size_t compr, size_t uncompr)
           : name(iname), nEvents(inEvents), compr_size(compr), uncompr_size(uncompr) {
         if constexpr (M == EdmEventMode::Branches) {
           type = name;
