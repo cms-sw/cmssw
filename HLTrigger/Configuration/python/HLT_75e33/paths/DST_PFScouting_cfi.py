@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from ..modules.hltAK4PFJetsForTaus_cfi import *
+from ..modules.hltL1GTAlgoBlockBigORFilter_cfi import *
 from ..modules.hltFixedGridRhoFastjetAllCaloForEGamma_cfi import *
 from ..modules.hltL1SeedsForPuppiMETFilter_cfi import *
 from ..modules.hltPFPuppiHT_cfi import *
@@ -34,7 +35,8 @@ from ..sequences.HLTTrackingSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 
 DST_PFScouting = cms.Path(
-    HLTBeginSequence
+    HLTBeginSequence 
+    + hltL1GTAlgoBlockBigORFilter
     + HLTRawToDigiSequence
     + HLTHgcalLocalRecoSequence
     + HLTLocalrecoSequence
