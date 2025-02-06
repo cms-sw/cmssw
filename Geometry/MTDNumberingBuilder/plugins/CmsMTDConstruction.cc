@@ -9,8 +9,6 @@
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "Geometry/MTDCommonData/interface/MTDBaseNumber.h"
 
-#include "DataFormats/Math/interface/deltaPhi.h"
-
 using angle_units::operators::convertRadToDeg;
 
 template <class FilteredView>
@@ -39,14 +37,14 @@ bool CmsMTDConstruction<FilteredView>::mtdOrderPhi(const GeometricTimingDet* a, 
 
 template <class FilteredView>
 bool CmsMTDConstruction<FilteredView>::btlOrderPhi(const GeometricTimingDet* a, const GeometricTimingDet* b) {
-  return static_cast<int>(convertRadToDeg(angle0to2pi::make0To2pi(a->phi()))) <
-         static_cast<int>(convertRadToDeg(angle0to2pi::make0To2pi(b->phi())));
+  return static_cast<int>(convertRadToDeg(makempiToppi(a->phi()))) <
+         static_cast<int>(convertRadToDeg(makempiToppi(b->phi())));
 }
 
 template <class FilteredView>
 bool CmsMTDConstruction<FilteredView>::btlOrderZ(const GeometricTimingDet* a, const GeometricTimingDet* b) {
-  bool order = (static_cast<int>(convertRadToDeg(angle0to2pi::make0To2pi(a->phi()))) ==
-                static_cast<int>(convertRadToDeg(angle0to2pi::make0To2pi(b->phi())))) &&
+  bool order = (static_cast<int>(convertRadToDeg(makempiToppi(a->phi()))) ==
+                static_cast<int>(convertRadToDeg(makempiToppi(b->phi())))) &&
                (a->translation().z() < b->translation().z());
   return order;
 }
