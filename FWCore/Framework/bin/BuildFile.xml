@@ -74,7 +74,7 @@
   <use name="boost"/>
   <use name="boost_program_options"/>
   <use name="tcmalloc"/>
-  <use name="gperf"/>
+  <use name="gperf_profiler"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
