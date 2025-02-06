@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
@@ -43,12 +41,12 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
                         << bareBaseName(baseNumber.getLevelName(6)) << "[" << baseNumber.getCopyNumber(6) << "], "
                         << bareBaseName(baseNumber.getLevelName(7)) << "[" << baseNumber.getCopyNumber(7) << "], "
                         << bareBaseName(baseNumber.getLevelName(8)) << "[" << baseNumber.getCopyNumber(8) << "]";
-   // barphiflat (v1) scenario - not supported
+    // barphiflat (v1) scenario - not supported
     if (baseNumber.getLevelName(4).find("Timingactive") != std::string_view::npos) {
       edm::LogError("MTDGeom") << "Geometry v1 of BTL not supported, run on a Geometry configuration D95 or latest ";
       throw cms::Exception("Configuration") << "Invalid BTL Geometry configuration (v1)";
-    }
-    else if (baseNumber.getLevelName(0).find("BTLCrystal") != std::string_view::npos && baseNumber.getLevelName(4).find("LayerTiming") != std::string_view::npos) {
+    } else if (baseNumber.getLevelName(0).find("BTLCrystal") != std::string_view::npos &&
+               baseNumber.getLevelName(4).find("LayerTiming") != std::string_view::npos) {
       // v4 scenario
       // zside copy number
       const std::string_view& rodName(baseNumber.getLevelName(3));  // name of module volume
@@ -124,8 +122,8 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
       // all inputs are fine. Go ahead and decode
       BTLDetId thisBTLdetid(zside, rodCopy, runitCopy, dmodCopy, smodCopy, crystal);
       intindex = thisBTLdetid.rawId();
-    } 
-    else if (baseNumber.getLevelName(0).find("BTLCrystal") != std::string_view::npos && baseNumber.getLevelName(4).find("Layer1Timing") != std::string_view::npos) {
+    } else if (baseNumber.getLevelName(0).find("BTLCrystal") != std::string_view::npos &&
+               baseNumber.getLevelName(4).find("Layer1Timing") != std::string_view::npos) {
       // v2 or v3 scenario
 
       crystal = baseNumber.getCopyNumber(0);
@@ -145,9 +143,9 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
       bool isV2(bareBaseName(baseNumber.getLevelName(0)).back() != 'l');
 
-      #ifdef EDM_ML_DEBUG
-        LogDebug("MTDGeom") << "BTLNumberingScheme::getUnitID(): isV2 " << isV2;
-      #endif
+#ifdef EDM_ML_DEBUG
+      LogDebug("MTDGeom") << "BTLNumberingScheme::getUnitID(): isV2 " << isV2;
+#endif
 
       if (isV2) {
         // V2: the type is embedded in crystal name
@@ -205,9 +203,8 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
       // all inputs are fine. Go ahead and decode
       BTLDetId thisBTLdetid(zside, rodCopy, runitCopy, modCopy, modType, crystal, isV2);
       intindex = thisBTLdetid.rawId();
-
     }
-  } else if (nLevels == kBTLmoduleLevel && baseNumber.getLevelName(0).find("BTLModule") != std::string_view::npos){
+  } else if (nLevels == kBTLmoduleLevel && baseNumber.getLevelName(0).find("BTLModule") != std::string_view::npos) {
     // v4 scenario, geographicalId per module
     // for tracking navigation geometry
     LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << "[" << baseNumber.getCopyNumber(0) << "], "
@@ -219,7 +216,6 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
                         << bareBaseName(baseNumber.getLevelName(6)) << "[" << baseNumber.getCopyNumber(6) << "], "
                         << bareBaseName(baseNumber.getLevelName(7)) << "[" << baseNumber.getCopyNumber(7) << "]";
     if (baseNumber.getLevelName(3).find("LayerTiming") != std::string_view::npos) {
-      
       const std::string_view& rodName(baseNumber.getLevelName(2));  // name of module volume
       uint32_t pos = rodName.find("Zpos");
       zside = (pos <= rodName.size() ? 1 : 0);
@@ -232,48 +228,48 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
       // eval detector and sensor module numbers from global module number 1-24
       dmodCopy = int((modCopy / BTLDetId::kDModulesInRUCol) / BTLDetId::kSModulesInDM) +
-                (modCopy % BTLDetId::kDModulesInRUCol) * BTLDetId::kDModulesInRURow;
+                 (modCopy % BTLDetId::kDModulesInRUCol) * BTLDetId::kDModulesInRURow;
       smodCopy = int(modCopy / BTLDetId::kDModulesInRUCol) % BTLDetId::kSModulesInDM;
 
       if (0 > int(modCopy) || BTLDetId::kModulesPerRUV2 - 1 < modCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad module copy = " << int(modCopy)
-                                  << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(0) - 1;
+                                   << "****************** Bad module copy = " << int(modCopy)
+                                   << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(0) - 1;
         return 0;
       }
 
       if (0 > int(smodCopy) || BTLDetId::kSModulesPerDM - 1 < smodCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad detector module copy = " << int(smodCopy)
-                                  << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(0) - 1;
+                                   << "****************** Bad detector module copy = " << int(smodCopy)
+                                   << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(0) - 1;
         return 0;
       }
 
       if (0 > int(dmodCopy) || BTLDetId::kDModulesPerRU - 1 < dmodCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad detector module copy = " << int(dmodCopy)
-                                  << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(0) - 1;
+                                   << "****************** Bad detector module copy = " << int(dmodCopy)
+                                   << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(0) - 1;
         return 0;
       }
 
       if (0 > int(runitCopy) || BTLDetId::kRUPerRod - 1 < runitCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad readout unit copy = " << int(runitCopy)
-                                  << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(1) - 1;
+                                   << "****************** Bad readout unit copy = " << int(runitCopy)
+                                   << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(1) - 1;
         return 0;
       }
 
       if (0 > int(rodCopy) || BTLDetId::HALF_ROD - 1 < rodCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad rod copy = " << int(rodCopy)
-                                  << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(2);
+                                   << "****************** Bad rod copy = " << int(rodCopy)
+                                   << ", Volume Number (counting from 0)= " << baseNumber.getCopyNumber(2);
         return 0;
       }
 
       if (1 < zside) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad side = " << zside
-                                  << ", Volume Name = " << baseNumber.getLevelName(2);
+                                   << "****************** Bad side = " << zside
+                                   << ", Volume Name = " << baseNumber.getLevelName(2);
         return 0;
       }
 
@@ -281,7 +277,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
       BTLDetId thisBTLdetid(zside, rodCopy, runitCopy, dmodCopy, smodCopy, 0);
       intindex = thisBTLdetid.geographicalId(BTLDetId::CrysLayout::v4).rawId();
     }
-    
+
     else if (baseNumber.getLevelName(3).find("Layer1Timing") != std::string_view::npos) {
       // v2 or v3 scenario
       // zside copy number
@@ -301,9 +297,9 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
       bool isV2(bareBaseName(baseNumber.getLevelName(0)).back() != 'e');
 
-  #ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
       LogDebug("MTDGeom") << "BTLNumberingScheme::getUnitID(): isV2 " << isV2;
-  #endif
+#endif
 
       if (isV2) {
         // V2: the type is embedded in crystal name
@@ -318,36 +314,36 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
       if (1 > modType || 3 < modType) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad RU name, Volume Name = "
-                                  << bareBaseName(baseNumber.getLevelName(1));
+                                   << "****************** Bad RU name, Volume Name = "
+                                   << bareBaseName(baseNumber.getLevelName(1));
         return 0;
       }
 
       if (1 > modCopy || BTLDetId::kModulesPerRUV2 < modCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad module copy = " << modCopy
-                                  << ", Volume Number = " << baseNumber.getCopyNumber(0);
+                                   << "****************** Bad module copy = " << modCopy
+                                   << ", Volume Number = " << baseNumber.getCopyNumber(0);
         return 0;
       }
 
       if (1 > runitCopy || BTLDetId::kRUPerTypeV2 < runitCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad readout unit copy = " << runitCopy
-                                  << ", Volume Number = " << baseNumber.getCopyNumber(1);
+                                   << "****************** Bad readout unit copy = " << runitCopy
+                                   << ", Volume Number = " << baseNumber.getCopyNumber(1);
         return 0;
       }
 
       if (1 > rodCopy || BTLDetId::HALF_ROD < rodCopy) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad rod copy = " << rodCopy
-                                  << ", Volume Number = " << baseNumber.getCopyNumber(2);
+                                   << "****************** Bad rod copy = " << rodCopy
+                                   << ", Volume Number = " << baseNumber.getCopyNumber(2);
         return 0;
       }
 
       if (1 < zside) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                  << "****************** Bad side = " << zside
-                                  << ", Volume Name = " << baseNumber.getLevelName(2);
+                                   << "****************** Bad side = " << zside
+                                   << ", Volume Name = " << baseNumber.getLevelName(2);
         return 0;
       }
 
@@ -355,7 +351,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
       BTLDetId thisBTLdetid(zside, rodCopy, runitCopy, modCopy, modType, 0, isV2);
       intindex = thisBTLdetid.geographicalId(BTLDetId::CrysLayout::v2).rawId();
     }
-   } else {
+  } else {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                << "Not enough levels found in MTDBaseNumber ( " << nLevels
                                << ") or not correct path. Returning 0";
@@ -369,5 +365,4 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
                       << BTLDetId(intindex);
 
   return intindex;
-
 }

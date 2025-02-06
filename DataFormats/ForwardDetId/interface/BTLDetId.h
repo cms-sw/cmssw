@@ -28,7 +28,7 @@
 
 class BTLDetId : public MTDDetId {
 public:
-  // old BTLDetID 
+  // old BTLDetID
   static constexpr uint32_t kBTLoldModuleOffset = 10;
   static constexpr uint32_t kBTLoldModuleMask = 0x3F;
   static constexpr uint32_t kBTLoldModTypeOffset = 8;
@@ -86,23 +86,19 @@ public:
   }
 
   /** Construct from a raw value */
-  BTLDetId(const uint32_t& raw_id) : MTDDetId(raw_id) {
-    id_ = MTDDetId(raw_id).rawId();
-  }
+  BTLDetId(const uint32_t& raw_id) : MTDDetId(raw_id) { id_ = MTDDetId(raw_id).rawId(); }
 
   /** Construct from generic DetId */
-  BTLDetId(const DetId& det_id) : MTDDetId(det_id.rawId()) {
-    id_ = MTDDetId(det_id.rawId()).rawId();
-  }
+  BTLDetId(const DetId& det_id) : MTDDetId(det_id.rawId()) { id_ = MTDDetId(det_id.rawId()).rawId(); }
 
   /** Construct from complete geometry information v2, v3 **/
   /** Geometry v1 is obsolete and not supported            **/
   BTLDetId(uint32_t zside, uint32_t rod, uint32_t runit, uint32_t module, uint32_t modtyp, uint32_t crystal, bool v2v3)
-    : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
-      id_ |= (MTDType::BTL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
-            (rod & kRodRingMask) << kRodRingOffset | (module & kBTLoldModuleMask) << kBTLoldModuleOffset |
-            (modtyp & kBTLoldModTypeMask) << kBTLoldModTypeOffset | (runit & kBTLoldRUMask) << kBTLoldRUOffset |
-            ((crystal - 1) & kBTLoldCrystalMask) << kBTLoldCrystalOffset;
+      : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
+    id_ |= (MTDType::BTL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
+           (rod & kRodRingMask) << kRodRingOffset | (module & kBTLoldModuleMask) << kBTLoldModuleOffset |
+           (modtyp & kBTLoldModTypeMask) << kBTLoldModTypeOffset | (runit & kBTLoldRUMask) << kBTLoldRUOffset |
+           ((crystal - 1) & kBTLoldCrystalMask) << kBTLoldCrystalOffset;
   }
 
   /** Construct from complete geometry information v4 **/
@@ -119,7 +115,7 @@ public:
   // ---------- Common methods ----------
 
   /** Returns BTL crystal number. */
-  inline int crystal() const { 
+  inline int crystal() const {
     if (id_ & kBTLNewFormat)
       return ((id_ >> kBTLCrystalOffset) & kBTLCrystalMask);
     else
@@ -137,24 +133,26 @@ public:
   }
 
   /** Returns BTL detector module number. */
-  inline int dmodule() const { 
+  inline int dmodule() const {
     if (id_ & kBTLNewFormat)
       return ((id_ >> kBTLdetectorModOffset) & kBTLdetectorModMask);
-    else{
-      uint32_t oldModule = (id_ >> kBTLoldModuleOffset) & kBTLoldModuleMask; 
-      uint32_t detModule = int((oldModule - 1) % (kDModulesInRUCol)) * kDModulesInRURow +
-                         int((oldModule - 1) / (kDModulesInRUCol * kSModulesInDM)); // in old scenario module number starts from 1
+    else {
+      uint32_t oldModule = (id_ >> kBTLoldModuleOffset) & kBTLoldModuleMask;
+      uint32_t detModule =
+          int((oldModule - 1) % (kDModulesInRUCol)) * kDModulesInRURow +
+          int((oldModule - 1) / (kDModulesInRUCol * kSModulesInDM));  // in old scenario module number starts from 1
       return detModule;
     }
   }
 
   /** Returns BTL sensor module number. */
-  inline int smodule() const { 
+  inline int smodule() const {
     if (id_ & kBTLNewFormat)
       return ((id_ >> kBTLsensorModOffset) & kBTLsensorModMask);
-    else{
+    else {
       uint32_t oldModule = (id_ >> kBTLoldModuleOffset) & kBTLoldModuleMask;
-      uint32_t senModule = int((oldModule - 1) / kDModulesInRUCol) % kSModulesInDM; // in old scenario module number starts from 1
+      uint32_t senModule =
+          int((oldModule - 1) / kDModulesInRUCol) % kSModulesInDM;  // in old scenario module number starts from 1
       return senModule;
     }
   }
@@ -163,7 +161,8 @@ public:
   inline int module() const {
     if (id_ & kBTLNewFormat)
       return ((dmodule() % kDModulesInRURow) * (kSModulesInDM * kDModulesInRUCol) + int(dmodule() / kDModulesInRURow) +
-              kDModulesInRUCol * smodule()) + 1;
+              kDModulesInRUCol * smodule()) +
+             1;
     else
       return (id_ >> kBTLoldModuleOffset) & kBTLoldModuleMask;
   }
@@ -173,11 +172,11 @@ public:
     if (id_ & kBTLNewFormat)
       return int(runit() / kRUPerTypeV2 + 1);
     else
-      return (id_ >> kBTLoldModTypeOffset) & kBTLoldModTypeMask;   
+      return (id_ >> kBTLoldModTypeOffset) & kBTLoldModTypeMask;
   }
 
   /** Returns BTL global readout unit number. */
-  inline int runit() const { 
+  inline int runit() const {
     if (id_ & kBTLNewFormat)
       return ((id_ >> kBTLRUOffset) & kBTLRUMask);
     else
@@ -185,11 +184,11 @@ public:
   }
 
   /** Returns BTL readout unit number per type [1-2], from Global RU number [1-6]. */
-  inline int runitByType() const { 
-  if (id_ & kBTLNewFormat)
-    return ((runit() % kRUPerTypeV2) + 1); 
-  else
-    return (((runit() - 1) % kRUPerTypeV2) + 1); 
+  inline int runitByType() const {
+    if (id_ & kBTLNewFormat)
+      return ((runit() % kRUPerTypeV2) + 1);
+    else
+      return (((runit() - 1) % kRUPerTypeV2) + 1);
   }
 
   /** return the row in GeomDet language **/
@@ -201,16 +200,15 @@ public:
   }
 
   /** return the column in GeomDetLanguage **/
-  inline int column(unsigned nrows = kCrystalsPerModuleV2) const { 
+  inline int column(unsigned nrows = kCrystalsPerModuleV2) const {
     if (id_ & kBTLNewFormat)
       return crystal() / nrows;
     else
-      return (crystal() - 1) / nrows; 
+      return (crystal() - 1) / nrows;
   }
 
   /** create a Geographical DetId for Tracking **/
   BTLDetId geographicalId(CrysLayout lay) const;
-
 };
 
 std::ostream& operator<<(std::ostream&, const BTLDetId&);
