@@ -68,8 +68,6 @@ namespace l1tVertexFinder {
     unsigned int vx_pfa_weightfunction() const { return vx_pfa_weightfunction_; }
     // Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT and association probability (2). Step function and pT-weighted average (3) is only designed for use with vx_pfa_weightfunction=3 (to replicate fastHisto).
     unsigned int vx_pfa_weightedz0() const { return vx_pfa_weightedz0_; }
-    // Use above vx_pfa_resolutionSF also in weighted-average z0 computation
-    bool vx_pfa_useSFforweightedz0() const { return vx_pfa_useSFforweightedz0_; }
     // Use vx_TrackMinPt cut specified below (otherwise no additional track selection is applied)
     bool vx_pfa_doqualitycuts() const { return vx_pfa_doqualitycuts_; }
     // Window size of the sliding window
@@ -142,7 +140,6 @@ namespace l1tVertexFinder {
     bool vx_pfa_usemultiplicitymaxima_;
     unsigned int vx_pfa_weightfunction_;
     unsigned int vx_pfa_weightedz0_;
-    bool vx_pfa_useSFforweightedz0_;
     bool vx_pfa_doqualitycuts_;
     bool vx_DoPtComp_;
     bool vx_DoTightChi2_;
