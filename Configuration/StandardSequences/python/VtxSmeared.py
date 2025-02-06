@@ -75,5 +75,4 @@ VtxSmeared = {
     'Realistic2022PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic2022PbPbCollision_cfi',
     'Realistic2023PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic2023PbPbCollision_cfi',
 }
-VtxSmearedDefaultKey='Realistic50ns13TeVCollision'
-VtxSmearedHIDefaultKey='RealisticPbPbCollision2018'
+VtxSmearedDefaultKey='DBrealistic'
