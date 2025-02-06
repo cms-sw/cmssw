@@ -717,7 +717,7 @@ namespace l1tVertexFinder {
   }
 
   /**
-  * @note This method is the same as PFA when settings_->vx_nvtx()=1
+  * @note This method is the same as PFA() when settings_->vx_nvtx()=1
   * @note This method does not support settings_->vx_pfa_usemultiplicitymaxima()=True (which requires a 2-step process).
   */
   void VertexFinder::PFASingleVertex() {
@@ -748,7 +748,7 @@ namespace l1tVertexFinder {
     }
 
     vertices_.emplace_back(leading_vertex);
-    pv_index_ = 0;  // finds only hard PV
+    pv_index_ = 0;
   }  // end of PFASingleVertex
 
   void VertexFinder::PFA() {
@@ -815,16 +815,17 @@ namespace l1tVertexFinder {
         vertexScore4 = vertex4.pt();
       }
 
-      // find out if vertex3 is a local maximum
-      vertex3LocalMaximum = (counter > 1) && (vertexScore3 > vertexScore2) && (vertexScore3 > vertexScore4);
+      // Find out if vertex3 is a local maximum. The >= are necessary because there can be 3 vertices in a row with the same score when using narrow binning and step function weights.
+      vertex3LocalMaximum =
+          (counter > 1) && (vertexScore3 >= vertexScore2) && (vertexScore3 >= vertexScore4) && (vertexScore3 > 0);
 
       bool adjacentR = false;
       bool adjacentL = false;
 
       if (settings_->vx_pfa_weightedz0() > 0) {
         zCorrection4 = vertex4.z0() - z;
-        adjacentR = (counter > 2) && (vertex1LocalMaximum) && (vertexScore2 > vertexScore3) && (zCorrection2 > 0);
-        adjacentL = (counter > 2) && (vertex3LocalMaximum) && (vertexScore2 > vertexScore1) && (zCorrection2 < 0);
+        adjacentR = (counter > 2) && (vertex1LocalMaximum) && (vertexScore2 >= vertexScore3) && (zCorrection2 > 0);
+        adjacentL = (counter > 2) && (vertex3LocalMaximum) && (vertexScore2 >= vertexScore1) && (zCorrection2 < 0);
       }
 
       if (vertex2LocalMaximum || adjacentL ||
