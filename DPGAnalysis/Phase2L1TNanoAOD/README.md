@@ -14,16 +14,19 @@ Corresponding menu twiki section: https://twiki.cern.ch/twiki/bin/viewauth/CMS/P
 
 ### Via cmsDriver
 
-One can append the L1Nano output to the `cmsDriver` command via the `NANO:@Phase2L1DPG` autoNANO handle, e.g.: 
+One can append the L1Nano output to the `cmsDriver` command via the `NANO:@Phase2L1DPGwithGen` autoNANO handle, e.g.:
 ```bash
-cmsDriver.py -s L1,L1TrackTrigger,L1P2GT,NANO:@Phase2L1DPG
+cmsDriver.py -s L1,L1TrackTrigger,L1P2GT,NANO:@Phase2L1DPGwithGen
 ```
 
 Check `PhysicsTools/NanoAOD/python/autoNANO.py` for the way this command is defined.
 
-`cmsDriver` command for 14x files:
+Note that the step key `Phase2L1DPG` does not include the generator and reco-level objects used for MenuTools studies in the nano!
+It is mostly created for workflow tests.
+
+An example `cmsDriver` command for 14x files:
 ```bash
-cmsDriver.py -s L1,L1TrackTrigger,L1P2GT,NANO:@Phase2L1DPG \
+cmsDriver.py -s L1,L1TrackTrigger,L1P2GT,NANO:@Phase2L1DPGwithGen \
 --conditions auto:phase2_realistic_T33 \
 --geometry ExtendedRun4D110 \
 --era Phase2C17I13M9 \
@@ -38,6 +41,15 @@ cmsDriver.py -s L1,L1TrackTrigger,L1P2GT,NANO:@Phase2L1DPG \
 -n 10 --nThreads 4 --no_exec
 ```
 
+### Workflows
+
+Two upgrade workflows are implemented to test/run this nano (`Phase2L1DPG`) after the full DigiTrigger chain after the complete L1:
+* `.781` - produces NANO in addition to FEVTDEBUG
+* `.782` - produces only NANO
+
+And can be executed as e.g. `runTheMatrix.py --what upgrade -i all --ibeos -l 29634.782`. See [here the readme of `runTheMatrix`](https://github.com/cms-sw/cmssw/tree/master/Configuration/PyReleaseValidation/scripts#interactive-runthematrix-shell) and [here a list of workflows](https://github.com/cms-sw/cmssw/tree/master/Configuration/PyReleaseValidation).
+
+Note that if tou want to include the Gen/Offline references, you need to change the import function in the config after the
 
 ## Output
 

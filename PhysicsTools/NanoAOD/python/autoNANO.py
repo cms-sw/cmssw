@@ -49,11 +49,13 @@ autoNANO = {
     # Phase-2 L1 DPG (from RAW/DIGI)
     'Phase2L1DPG' : {'sequence': 'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.l1tPh2NanoSequence',
                      'customize': ','.join([
-                         'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addFullPh2L1Nano',
-                        #  'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addPh2L1Objects',
-                        #  'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addPh2GTObjects',
-                        #  'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addGenObjects',
+                        #  'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addFullPh2L1Nano', # <- this add all customisations listed below
+                         'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addPh2L1Objects',
+                         'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addPh2GTObjects',
+                        #  'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addGenObjects', # <- not included here as requires reco vertices and cannot be run in workflows w/o MINIAOD
                          ])},
+    'Phase2L1DPGwithGen' : {'sequence': '@Phase2L1DPG',
+                            'customize': 'Phase2L1DPG+DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addGenObjects',},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG': {'sequence': '@PHYS',
               'customize': '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
