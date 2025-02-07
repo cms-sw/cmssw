@@ -1,12 +1,12 @@
-#include "EventFilter/HGCalRawToDigi/interface/Unpackertools.h"
+#include "EventFilter/HGCalRawToDigi/interface/UnpackerTools.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 #include <boost/crc.hpp>
 #include <vector>
 #include <iostream>
-
 //
 //
 
-bool hgcal::econdCRCAnalysis(const uint64_t *header, uint32_t pos, uint32_t payloadLength, uint64_t crcpol) {
+bool hgcal::econdCRCAnalysis(const uint64_t *header, const uint32_t pos, const uint32_t payloadLength) {
   int index = 0;
   std::vector<uint32_t> data32b;  //  reading 32-bit words, input is 64b
 
@@ -25,12 +25,12 @@ bool hgcal::econdCRCAnalysis(const uint64_t *header, uint32_t pos, uint32_t payl
   //Compute CRC using all eRx subpackets but not the event paket header (two first words)
   std::vector<uint32_t> crcvec(data32b.begin() + 2, data32b.end() - 1);
   std::transform(crcvec.begin(), crcvec.end(), crcvec.begin(), [](uint32_t w) {
-    return ((w << 24) & 0xFF000000) | ((w << 8) & 0x00FF0000) | ((w >> 8) & 0x0000FF00) | ((w >> 24) & 0x000000FF);
+    return ((w << 24) & 0xFF000000) | ((w << 8) & 0x00FF0000) | ((w >> 8) & 0x0000FF00) | ((w >> 24) & 0x000000FF); //swapping endianness 
   });
 
   auto array = &(crcvec[0]);
   auto bytes = reinterpret_cast<const unsigned char *>(array);
-  auto crc32 = boost::crc<32, 0x4c11db7, 0x0, 0x0, false, false>(bytes, (payloadLength - 1) * 4);
-  //LogDebug("[HGCalUnpacker]") << "crc32 = " << crc32 << " target = " << target;
+  auto crc32 = boost::crc<32, hgcal::ECOND_FRAME::CRC_POL, hgcal::ECOND_FRAME::CRC_INITREM, hgcal::ECOND_FRAME::CRC_FINALXOR, false, false>(bytes, (payloadLength - 1) * 4); //32-bit words, hence need to parse 4 bytes
+
   return crc32 == target;
 }

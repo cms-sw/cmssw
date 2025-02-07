@@ -7,7 +7,7 @@
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "EventFilter/HGCalRawToDigi/interface/Unpackertools.h"
+#include "EventFilter/HGCalRawToDigi/interface/UnpackerTools.h"
 #include <array>
 
 using namespace hgcal;
@@ -152,15 +152,15 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
             << "), got 0x" << econd_headers[0] << ".";
         return UNPACKER_STAT::WrongECONDHeader;
       }
-      // Compute ECON-D trailer CRC
-      bool crcvalid(true);
       const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
-      crcvalid = hgcal::econdCRCAnalysis(ptr, 0, econd_payload_length);
+      // Compute ECON-D trailer CRC
+      bool crcvalid = hgcal::econdCRCAnalysis(ptr, 0, econd_payload_length);
       LogDebug("[HGCalUnpacker]") << "crc value " << crcvalid;
       ++ptr;
 
       if (!crcvalid) {
-        econd_pkt_status |= 0b1000;  //If CRC errors in the trailer, update the pkt status
+        econd_pkt_status |=
+            backend::ECONDPacketStatus::OfflinePayloadCRCError;  //If CRC errors in the trailer, update the pkt status
       }
 
       econdPacketInfo.view()[ECONDdenseIdx].cbFlag() = (uint16_t)(econd_pkt_status);
@@ -194,7 +194,8 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
           (((econd_headers[0] >> ECOND_FRAME::EBO_POS) & ECOND_FRAME::EBO_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) ||
           (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) || econd_payload_length == 0 ||
-          econd_pkt_status == 0b111 || headerOnlyMode) {
+          econd_pkt_status == backend::ECONDPacketStatus::OfflinePayloadCRCError ||
+          econd_pkt_status == backend::ECONDPacketStatus::InactiveECOND || headerOnlyMode) {
         continue;
       }
 
