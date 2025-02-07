@@ -160,12 +160,12 @@ void Phase2OTValidateTTStub::dqmBeginRun(const edm::Run& iRun, const edm::EventS
   bend_res_bw_endcap_discs.clear();
 
   // Resize vectors and set elements to nullptr
-  phi_res_barrel_layers.resize(6, nullptr);
-  bend_res_barrel_layers.resize(6, nullptr);
-  phi_res_fw_endcap_discs.resize(5, nullptr);
-  bend_res_fw_endcap_discs.resize(5, nullptr);
-  phi_res_bw_endcap_discs.resize(5, nullptr);
-  bend_res_bw_endcap_discs.resize(5, nullptr);
+  phi_res_barrel_layers.resize(trklet::N_LAYER, nullptr);
+  bend_res_barrel_layers.resize(trklet::N_LAYER, nullptr);
+  phi_res_fw_endcap_discs.resize(trklet::N_DISK, nullptr);
+  bend_res_fw_endcap_discs.resize(trklet::N_DISK, nullptr);
+  phi_res_bw_endcap_discs.resize(trklet::N_DISK, nullptr);
+  bend_res_bw_endcap_discs.resize(trklet::N_DISK, nullptr);
 }
 // member functions
 
@@ -482,7 +482,7 @@ void Phase2OTValidateTTStub::analyze(const edm::Event& iEvent, const edm::EventS
         }
       }
       // Fill the appropriate histogram based on layer/disc
-      if (layer >= 1 && layer <= 6) {
+      if (layer >= 1 && layer <= trklet::N_LAYER) {
         (*bend_res_vec)[layer - 1]->Fill(bendRes);
         (*phi_res_vec)[layer - 1]->Fill(phiRes);
       }
@@ -619,7 +619,7 @@ void Phase2OTValidateTTStub::bookHistograms(DQMStore::IBooker& iBooker,
                                       psBend_Res.getParameter<double>("xmax"));
 
   // barrel layers
-  for (int i = 0; i < 6; ++i) {
+  for (int i = 0; i < trklet::N_LAYER; ++i) {
     std::string HistoName = "#Delta #phi Barrel L" + std::to_string(i + 1);
     phi_res_barrel_layers[i] = iBooker.book1D(HistoName,
                                               HistoName,
@@ -640,7 +640,7 @@ void Phase2OTValidateTTStub::bookHistograms(DQMStore::IBooker& iBooker,
   }
 
   // endcap discs
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < trklet::N_DISK; ++i) {
     std::string HistoName = "#Delta #phi FW Endcap D" + std::to_string(i + 1);
     phi_res_fw_endcap_discs[i] = iBooker.book1D(HistoName,
                                                 HistoName,
