@@ -17,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <functional>
 
 //system headers
 #include <sys/stat.h>
@@ -28,6 +29,8 @@
 
 #include <boost/asio.hpp>
 #include <oneapi/tbb/concurrent_hash_map.h>
+
+typedef std::function<int(std::string const&, int&, int64_t&, uint32_t, bool&)> RawFileEvtCounter;
 
 class SystemBounds;
 class GlobalContext;
@@ -128,10 +131,6 @@ namespace evf {
     void lockFULocal2();
     void unlockFULocal2();
     void createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const;
-    void createLumiSectionFiles(const uint32_t lumiSection,
-                                const uint32_t currentLumiSection,
-                                bool doCreateBoLS,
-                                bool doCreateEoLS);
     static int parseFRDFileHeader(std::string const& rawSourcePath,
                                   int& rawFd,
                                   uint16_t& rawHeaderSize,
@@ -142,7 +141,6 @@ namespace evf {
                                   bool requireHeader,
                                   bool retry,
                                   bool closeFile);
-    bool rawFileHasHeader(std::string const& rawSourcePath, uint16_t& rawHeaderSize);
     int grabNextJsonFromRaw(std::string const& rawSourcePath,
                             int& rawFd,
                             uint16_t& rawHeaderSize,
@@ -157,15 +155,6 @@ namespace evf {
                          bool& fileFound);
     int grabNextJsonFileAndUnlock(std::filesystem::path const& jsonSourcePath);
 
-    EvFDaqDirector::FileStatus contactFileBroker(unsigned int& serverHttpStatus,
-                                                 bool& serverState,
-                                                 uint32_t& serverLS,
-                                                 uint32_t& closedServerLS,
-                                                 std::string& nextFileJson,
-                                                 std::string& nextFileRaw,
-                                                 bool& rawHeader,
-                                                 int maxLS);
-
     FileStatus getNextFromFileBroker(const unsigned int currentLumiSection,
                                      unsigned int& ls,
                                      std::string& nextFile,
@@ -174,7 +163,10 @@ namespace evf {
                                      int32_t& serverEventsInNewFile_,
                                      int64_t& fileSize,
                                      uint64_t& thisLockWaitTimeUs,
-                                     bool requireHeader = true);
+                                     bool requireHeader = true,
+                                     bool fsDiscovery = false,
+                                     RawFileEvtCounter eventCounter = nullptr);
+
     void createRunOpendirMaybe();
     void createProcessingNotificationMaybe() const;
     int readLastLSEntry(std::string const& file);
@@ -189,12 +181,40 @@ namespace evf {
     bool inputThrottled();
     bool lumisectionDiscarded(unsigned int ls);
     std::vector<std::string> const& getBUBaseDirs() const { return bu_base_dirs_all_; }
-    std::vector<int> const& getBUBaseDirsNSources() const { return bu_base_dirs_nSources_; }
+    std::vector<int> const& getBUBaseDirsNSources() const { return bu_base_dirs_n_sources_; }
+    std::vector<int> const& getBUBaseDirsSourceIDs() const { return bu_base_dirs_source_ids_; }
+    std::string const& getSourceIdentifier() const { return source_identifier_; }
     void setFileListMode() { fileListMode_ = true; }
     bool fileListMode() const { return fileListMode_; }
     unsigned int lsWithFilesOpen(unsigned int ls) const;
 
   private:
+
+    void createLumiSectionFiles(const uint32_t lumiSection,
+                                const uint32_t currentLumiSection,
+                                bool doCreateBoLS,
+                                bool doCreateEoLS);
+
+    bool rawFileHasHeader(std::string const& rawSourcePath, uint16_t& rawHeaderSize);
+
+    EvFDaqDirector::FileStatus contactFileBroker(unsigned int& serverHttpStatus,
+                                                 bool& serverState,
+                                                 uint32_t& serverLS,
+                                                 uint32_t& closedServerLS,
+                                                 std::string& nextFileJson,
+                                                 std::string& nextFileRaw,
+                                                 bool& rawHeader,
+                                                 int maxLS);
+
+    EvFDaqDirector::FileStatus discoverFile(unsigned int& serverHttpStatus,
+                                            bool& serverState,
+                                            uint32_t& serverLS,
+                                            uint32_t& closedServerLS,
+                                            std::string& nextFileJson,
+                                            std::string& nextFileRaw,
+                                            bool& rawHeader,
+                                            int maxLS);
+
     bool bumpFile(unsigned int& ls,
                   unsigned int& index,
                   std::string& nextFile,
@@ -203,7 +223,8 @@ namespace evf {
                   int maxLS,
                   bool& setExceptionState);
     void openFULockfileStream(bool create);
-    static bool checkFileRead(char* buf, int infile, std::size_t buf_sz, std::string const& path);
+    static bool checkFileRead(char* buf, int& infile, std::size_t buf_sz, std::string const& path);
+    bool hasFRDFileHeader(std::string const& rawPath, int& rawFd, bool &hasErr, bool closeFile) const;
     std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
     std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
     std::string mergedFileNameStem(const unsigned int ls, std::string const& stream) const;
@@ -215,7 +236,10 @@ namespace evf {
     std::string base_dir_;
     std::string bu_base_dir_;
     std::vector<std::string> bu_base_dirs_all_;
-    std::vector<int> bu_base_dirs_nSources_;
+    std::vector<int> bu_base_dirs_n_sources_;
+    std::vector<int> bu_base_dirs_source_ids_;
+    std::string source_identifier_;
+    std::string sourceid_first_;
     unsigned int run_;
     bool useFileBroker_;
     bool fileBrokerHostFromCfg_;
@@ -292,6 +316,7 @@ namespace evf {
     std::string input_throttled_file_;
     std::string discard_ls_filestem_;
     bool fileListMode_ = false;
+    std::pair<unsigned, int> lastFileIdx_ = std::make_pair<unsigned, int>(0, -1);
   };
 }  // namespace evf
 

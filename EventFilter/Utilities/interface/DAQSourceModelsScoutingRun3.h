@@ -97,10 +97,13 @@ public:
 
   void makeDirectoryEntries(std::vector<std::string> const& baseDirs,
                             std::vector<int> const& numSources,
+                            std::vector<int> const& sourceIDs,
+                            std::string const& sourceIdentifier,
                             std::string const& runDir) override;
 
   std::pair<bool, std::vector<std::string>> defineAdditionalFiles(std::string const& primaryName,
                                                                   bool fileListMode) const override;
+
 
 private:
   bool makeEvents();
