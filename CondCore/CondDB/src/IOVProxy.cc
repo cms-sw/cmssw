@@ -4,6 +4,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SessionImpl.h"
 
+#define BEAM_SPOT_DIAGNOSTICS_DEBUG
+
 namespace cond {
 
   namespace persistency {
@@ -293,8 +295,104 @@ namespace cond {
         throwException("The transaction is not active.", ctx);
     }
 
-    void IOVProxy::fetchSequence(cond::Time_t lowerGroup, cond::Time_t higherGroup) {
-      bool firstTime = m_data->iovSequence.empty();
+//  bool printBeamSpotDiagnostics(std::shared_ptr<IOVProxyData> iovProxyData,
+//                                   std::shared_ptr<SessionImpl> sessionImpl,
+//                                   cond::Time_t lowerGroup,
+//                                   cond::Time_t higherGroup) {
+//       bool printedDiagnostics = false;
+//       if (iovProxyData->tagInfo.payloadType == "BeamSpotOnlineObjects") {  //TODO refactor avoid unecessary nesting
+//         cond::persistency::Session session(sessionImpl);
+//         session.transaction().start(true);
+// #ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+//         int iSeq = 0;
+// #endif
+//         for (const auto& [iov, hash] : iovProxyData->iovSequence) {
+//           std::unique_ptr<BeamSpotOnlineObjects> beamspotObj = session.fetchPayload<BeamSpotOnlineObjects>(hash);
+//           reco::BeamSpot beamSpot = beamSpotFromBSOnlineObjects(beamspotObj);
+
+//           //Check validity of BeamSpot by validating error of VertexState created from it
+//           VertexState beamVertexState(beamSpot);
+//           bool vertexFromBSInvalid = (beamVertexState.error().cxx() <= 0.) || (beamVertexState.error().cyy() <= 0.) ||
+//                                      (beamVertexState.error().czz() <= 0.);
+
+//           //Check validity of BeamSpot by confirming it can be inverted
+//           int inversionFail = 2;  //the .Inverse(...) will set it to 0 or 1
+//           reco::BeamSpot::CovarianceMatrix errorInverse = beamSpot.covariance().Inverse(inversionFail);
+
+//           double det;  //TODO do we check BS validity by det?
+//           beamSpot.covariance().Det2(det);
+//           //TODO probably can be refactored to avoid unecessary nesting
+//           if (vertexFromBSInvalid || inversionFail) {
+//             std::ostringstream s;  //tmp, just for better code formatting
+//             s << "\n--------------------- BeamSpot Diagnostics (hash: " << hash << ") ----------------\n"
+//               << "Fetched invalid beamspot obj of hash " << hash << "\n"
+//               << "Tag: " << iovProxyData->tagInfo.name << "\n"
+//               << "IOV: " << iov << "(" << cond::time::timeTypeName(iovProxyData->tagInfo.timeType) << ")\n"
+//               << "Request info: "
+//               << "' request interval [ " << lowerGroup << " , " << higherGroup << " ] "
+//               << "new range [ " << iovProxyData->groupLowerIov << " , " << iovProxyData->groupHigherIov << " ] "
+//               << "#entries " << iovProxyData->iovSequence.size() << "\n"
+//               << "\n"
+//               << "BeamSpotOnlineObjects:\n"
+//               << *beamspotObj
+//               << "\n"
+//               //TODO probably no new info here, enough to preant only BeamSpotOnlineObjects
+//               << "BeamSpot:\n"
+//               << beamSpot << "\n"
+//               << "BeamSpot (BS) rotatedCovariance3D:\n"
+//               << beamSpot.rotatedCovariance3D() << "\n"
+//               << "BS position: " << beamSpot.position() << "\n"
+//               << "BS covariance Determinant: " << det << "\n"
+//               << "Of matrix:  " << beamSpot.covariance() << "\n"
+//               << "is VertexState(BS).error() invalid? (0=valid): " << vertexFromBSInvalid << "\n"
+//               << "VertexState(BS).error().matrix(): \n"
+//               << beamVertexState.error().matrix() << "\n"
+//               << "err cxx() = " << beamVertexState.error().cxx() << "\n"
+//               << "err cyy() = " << beamVertexState.error().cyy() << "\n"
+//               << "err czz() = " << beamVertexState.error().czz() << "\n"
+//               << "did BS.covariance() inversion failed? (0=ok, 1=failed): " << inversionFail << "\n"
+//               << "BS.covariance().Inverse():\n"
+//               << errorInverse << "\n"
+//               << "\n-------------- end of BeamSpot Diagnostics (hash: " << hash << ") ----------------\n"
+//               << std::endl;
+//             edm::LogSystem("NewIOV") << s.str();
+//             printedDiagnostics = true;
+//           }
+// #ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+//           if (iSeq >= 3)
+//             break;
+//           iSeq++;
+// #endif
+//         }
+//         session.transaction().commit();
+//       }
+//       return printedDiagnostics;
+//     }
+
+
+    bool printIOVSequenceDiagnostics(const IOVProxyData &iovProxyData,
+                                  cond::Time_t lowerGroup,
+                                  cond::Time_t higherGroup) {
+      // if (iovProxyData.tagInfo.payloadType != "BeamSpotOnlineObjects") { //TODO remove
+      //   return false;
+      // }
+
+      std::ostringstream s;
+      s << "Fetched new IOV for '" << iovProxyData.tagInfo.name << "'\n" 
+        << "payload type: " << iovProxyData.tagInfo.payloadType << "\n"
+        << "request interval [ " << lowerGroup << " , " << higherGroup << " ]\n" 
+        << "new range [ " << iovProxyData.groupLowerIov << " , " << iovProxyData.groupHigherIov << " ]\n"
+        << "#entries " << iovProxyData.iovSequence.size() << "\n"
+        << "sequence (iov, hash): ";
+      for (const auto& [iov, hash] : iovProxyData.iovSequence) {
+        s << "(" << iov << ", " << hash << ") ";
+      }
+      edm::LogSystem("NewIOV") << s.str() << std::endl;
+
+      return true;
+    }
+
+    void IOVProxy::fetchSequence(cond::Time_t lowerGroup, cond::Time_t higherGroup /*TODO set of diags*/) {
       m_data->iovSequence.clear();
       m_session->iovSchema().iovTable().select(
           m_data->tagInfo.name, lowerGroup, higherGroup, m_data->snapshotTime, m_data->iovSequence);
@@ -315,13 +413,42 @@ namespace cond {
           m_data->groupHigherIov = cond::time::MAX_VAL;
         }
       }
-      if (not firstTime) {
-        edm::LogSystem("NewIOV") << "Fetched new IOV for '" << m_data->tagInfo.name << "' request interval [ "
-                                 << lowerGroup << " , " << higherGroup << " ] new range [ " << m_data->groupLowerIov
-                                 << " , " << m_data->groupHigherIov << " ] #entries " << m_data->iovSequence.size();
+      m_data->numberOfQueries++;
+      
+      // if (m_data->tagInfo.payloadType != "BeamSpotOnlineObjects") {
+      //   return;
+      // }
+
+      // std::ostringstream s;
+      // s << "Fetched new IOV for '" << m_data->tagInfo.name << "'\n" 
+      //   << "request interval [ " << lowerGroup << " , " << higherGroup << " ]\n" 
+      //   << "new range [ " << m_data->groupLowerIov << " , " << m_data->groupHigherIov << " ]\n"
+      //   << "#entries " << m_data->iovSequence.size() << "\n"
+      //   << "sequence (iov, hash): ";
+      // for (const auto& [iov, hash] : m_data->iovSequence) {
+      //   s << "(" << iov << ", " << hash << ") ";
+      // }
+      // edm::LogSystem("NewIOV") << s.str() << std::endl;
+      // std::exit(0);  //TODO DEBUG To avoid long exection of unrelated code after diagnostics got printed
+
+      //TODO
+      if(m_printDebug) {
+        // edm::LogSystem("NewIOV") << "In IOVProxy before diagnostics: \n" //TODO remove
+        //                           << "payloadType: " << m_data->tagInfo.payloadType << "\n" 
+        //                           << "tag: " << m_data->tagInfo.name << "\n" 
+        //                           << "IOVProxy m_printDebug: " << m_printDebug << std::endl;
+        if (printIOVSequenceDiagnostics(*m_data, lowerGroup, higherGroup)) {
+          //TODO make sure this is only in debug mode
+          std::exit(0);  //To avoid long exection of unrelated code after diagnostics got printed
+        }
       }
 
-      m_data->numberOfQueries++;
+// TODO
+// #ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+// #else
+//       printIOVSequenceDiagnostics(m_data, lowerGroup, higherGroup);
+// #endif
+
     }
 
     cond::Iov_t IOVProxy::getInterval(cond::Time_t time) {
@@ -351,7 +478,7 @@ namespace cond {
           highG = *iGHigh;
 
         // finally, get the iovs for the selected group interval!!
-        fetchSequence(lowG, highG);
+        fetchSequence(lowG, highG /*TODO set of diags*/);
       }
 
       // the current iov set is a good one...

@@ -105,6 +105,7 @@ namespace cond {
     ValidityInterval setIntervalFor(Time_t target);
     TimeType timeType() const { return m_iovProxy.tagInfo().timeType; }
 
+    bool m_printDebug = false; //TODO comment TODO put as private
   private:
     std::string m_label;
     std::string m_connString;
