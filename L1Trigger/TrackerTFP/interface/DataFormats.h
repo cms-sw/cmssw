@@ -104,74 +104,72 @@ namespace trackerTFP {
     double range_;
   };
 
-  // class representing format of a specific variable
+  // function template for DataFormat generation
   template <Variable v, Process p>
-  class Format : public DataFormat {
-  public:
-    Format(const tt::Setup* setup);
-    ~Format() {}
-  };
+  DataFormat makeDataFormat(const tt::Setup* setup);
+
+  // specializations
 
   template <>
-  Format<Variable::inv2R, Process::tfp>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::inv2R, Process::tfp>(const tt::Setup* setup);
   template <>
-  Format<Variable::phiT, Process::tfp>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phiT, Process::tfp>(const tt::Setup* setup);
   template <>
-  Format<Variable::cot, Process::tfp>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::cot, Process::tfp>(const tt::Setup* setup);
   template <>
-  Format<Variable::zT, Process::tfp>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::zT, Process::tfp>(const tt::Setup* setup);
 
   template <>
-  Format<Variable::r, Process::dtc>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::r, Process::dtc>(const tt::Setup* setup);
   template <>
-  Format<Variable::phi, Process::dtc>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phi, Process::dtc>(const tt::Setup* setup);
   template <>
-  Format<Variable::z, Process::dtc>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::z, Process::dtc>(const tt::Setup* setup);
   template <>
-  Format<Variable::layer, Process::dtc>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::layer, Process::dtc>(const tt::Setup* setup);
 
   template <>
-  Format<Variable::phi, Process::gp>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phi, Process::gp>(const tt::Setup* setup);
   template <>
-  Format<Variable::z, Process::gp>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::z, Process::gp>(const tt::Setup* setup);
   template <>
-  Format<Variable::phiT, Process::gp>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phiT, Process::gp>(const tt::Setup* setup);
   template <>
-  Format<Variable::zT, Process::gp>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::zT, Process::gp>(const tt::Setup* setup);
   template <>
-  Format<Variable::cot, Process::gp>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::cot, Process::gp>(const tt::Setup* setup);
   template <>
-  Format<Variable::layer, Process::gp>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::layer, Process::gp>(const tt::Setup* setup);
 
   template <>
-  Format<Variable::phi, Process::ht>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phi, Process::ht>(const tt::Setup* setup);
   template <>
-  Format<Variable::inv2R, Process::ht>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::inv2R, Process::ht>(const tt::Setup* setup);
   template <>
-  Format<Variable::phiT, Process::ht>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phiT, Process::ht>(const tt::Setup* setup);
 
   template <>
-  Format<Variable::dPhi, Process::ctb>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::dPhi, Process::ctb>(const tt::Setup* setup);
   template <>
-  Format<Variable::dZ, Process::ctb>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::dZ, Process::ctb>(const tt::Setup* setup);
   template <>
-  Format<Variable::layer, Process::ctb>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::layer, Process::ctb>(const tt::Setup* setup);
 
   template <>
-  Format<Variable::inv2R, Process::kf>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const tt::Setup* setup);
   template <>
-  Format<Variable::phiT, Process::kf>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phiT, Process::kf>(const tt::Setup* setup);
   template <>
-  Format<Variable::cot, Process::kf>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::cot, Process::kf>(const tt::Setup* setup);
   template <>
-  Format<Variable::zT, Process::kf>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::zT, Process::kf>(const tt::Setup* setup);
   template <>
-  Format<Variable::phi, Process::kf>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phi, Process::kf>(const tt::Setup* setup);
   template <>
-  Format<Variable::match, Process::kf>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::match, Process::kf>(const tt::Setup* setup);
 
   template <>
-  Format<Variable::cot, Process::dr>::Format(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::cot, Process::dr>(const tt::Setup* setup);
 
   /*! \class  trackerTFP::DataFormats
    *  \brief  Class to calculate and provide dataformats used by Track Trigger emulator

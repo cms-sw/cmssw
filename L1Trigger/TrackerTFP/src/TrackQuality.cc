@@ -37,9 +37,9 @@ namespace trackerTFP {
   // constructs TQ data formats
   template <VariableTQ v>
   void TrackQuality::fillDataFormats(const ConfigTQ& iConfig) {
-    dataFormatsTQ_.emplace_back(FormatTQ<v>(dataFormats_, iConfig));
-    if constexpr (++v != VariableTQ::end)
-      fillDataFormats<++v>(iConfig);
+    dataFormatsTQ_.emplace_back(makeDataFormat<v>(dataFormats_, iConfig));
+    if constexpr (v + 1 != VariableTQ::end)
+      fillDataFormats<v + 1>(iConfig);
   }
 
   // TQ MVA bin conversion LUT
@@ -161,51 +161,56 @@ namespace trackerTFP {
   }
 
   template <>
-  FormatTQ<VariableTQ::m20>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig) : DataFormat(false) {
-    const Format<Variable::phi, Process::kf> phi(dataFormats->setup());
-    width_ = iConfig.widthM20_;
-    base_ = pow(phi.base(), 2) * pow(2., width_ - phi.width());
-    calcRange();
+  DataFormat makeDataFormat<VariableTQ::m20>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
+    const DataFormat phi = makeDataFormat<Variable::phi, Process::kf>(dataFormats->setup());
+    const int width = iConfig.widthM20_;
+    const double base = pow(phi.base(), 2) * pow(2., width - phi.width());
+    const double range = base * pow(2, width);
+    return DataFormat(false, width, base, range);
   }
   template <>
-  FormatTQ<VariableTQ::m21>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig) : DataFormat(false) {
-    const Format<Variable::z, Process::gp> z(dataFormats->setup());
-    width_ = iConfig.widthM21_;
-    base_ = pow(z.base(), 2) * pow(2., width_ - z.width());
-    calcRange();
+  DataFormat makeDataFormat<VariableTQ::m21>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
+    const DataFormat z = makeDataFormat<Variable::z, Process::gp>(dataFormats->setup());
+    const int width = iConfig.widthM21_;
+    const double base = pow(z.base(), 2) * pow(2., width - z.width());
+    const double range = base * pow(2, width);
+    return DataFormat(false, width, base, range);
   }
   template <>
-  FormatTQ<VariableTQ::invV0>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig) : DataFormat(false) {
-    const Format<Variable::dPhi, Process::ctb> dPhi(dataFormats->setup());
-    width_ = iConfig.widthInvV0_;
-    range_ = 4.0 / pow(dPhi.base(), 2);
-    calcBase();
+  DataFormat makeDataFormat<VariableTQ::invV0>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
+    const DataFormat dPhi = makeDataFormat<Variable::dPhi, Process::ctb>(dataFormats->setup());
+    const int width = iConfig.widthInvV0_;
+    const double range = 4.0 / pow(dPhi.base(), 2);
+    const double base = range * pow(2, -width);
+    return DataFormat(false, width, base, range);
   }
   template <>
-  FormatTQ<VariableTQ::invV1>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig) : DataFormat(false) {
-    const Format<Variable::dZ, Process::ctb> dZ(dataFormats->setup());
-    width_ = iConfig.widthInvV1_;
-    range_ = 4.0 / pow(dZ.base(), 2);
-    calcBase();
+  DataFormat makeDataFormat<VariableTQ::invV1>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
+    const DataFormat dZ = makeDataFormat<Variable::dZ, Process::ctb>(dataFormats->setup());
+    const int width = iConfig.widthInvV1_;
+    const double range = 4.0 / pow(dZ.base(), 2);
+    const double base = range * pow(2, -width);
+    return DataFormat(false, width, base, range);
   }
   template <>
-  FormatTQ<VariableTQ::chi2rphi>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig)
-      : DataFormat(false) {
-    const FormatTQ<VariableTQ::m20> m20(dataFormats, iConfig);
-    const FormatTQ<VariableTQ::invV0> invV0(dataFormats, iConfig);
+  DataFormat makeDataFormat<VariableTQ::chi2rphi>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
+    const DataFormat m20 = makeDataFormat<VariableTQ::m20>(dataFormats, iConfig);
+    const DataFormat invV0 = makeDataFormat<VariableTQ::invV0>(dataFormats, iConfig);
     const int shift = iConfig.baseShiftchi2rphi_;
-    width_ = iConfig.widthchi2rphi_;
-    base_ = pow(2., shift);
-    calcRange();
+    const int width = iConfig.widthchi2rphi_;
+    const double base = pow(2., shift);
+    const double range = base * pow(2, width);
+    return DataFormat(false, width, base, range);
   }
   template <>
-  FormatTQ<VariableTQ::chi2rz>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig) : DataFormat(false) {
-    const FormatTQ<VariableTQ::m21> m21(dataFormats, iConfig);
-    const FormatTQ<VariableTQ::invV1> invV1(dataFormats, iConfig);
+  DataFormat makeDataFormat<VariableTQ::chi2rz>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
+    const DataFormat m21 = makeDataFormat<VariableTQ::m21>(dataFormats, iConfig);
+    const DataFormat invV1 = makeDataFormat<VariableTQ::invV1>(dataFormats, iConfig);
     const int shift = iConfig.baseShiftchi2rz_;
-    width_ = iConfig.widthchi2rz_;
-    base_ = pow(2., shift);
-    calcRange();
+    const int width = iConfig.widthchi2rz_;
+    const double base = pow(2., shift);
+    const double range = base * pow(2, width);
+    return DataFormat(false, width, base, range);
   }
 
   // Controls the conversion between TTTrack features and ML model training features
