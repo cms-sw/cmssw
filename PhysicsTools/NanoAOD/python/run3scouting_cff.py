@@ -76,7 +76,8 @@ scoutingMuonTable = cms.EDProducer("SimpleRun3ScoutingMuonFlatTableProducer",
 )
 
 # Scouting Displaced Vertex (Muon)
-# https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingVertex.h
+# format during 2022-23 data-taking
+# https://github.com/cms-sw/cmssw/blob/CMSSW_13_0_X/DataFormats/Scouting/interface/Run3ScoutingVertex.h
 
 scoutingMuonDisplacedVertexTable = cms.EDProducer("SimpleRun3ScoutingVertexFlatTableProducer",
     src = cms.InputTag("hltScoutingMuonPacker","displacedVtx"),
@@ -127,8 +128,9 @@ scoutingMuonNoVtxDisplacedVertexTable = scoutingMuonDisplacedVertexTable.clone(
 )
 
 # Scouting Electron
-# https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingElectron.h
-
+# format during 2022 data-taking 
+# for accessing d0, dz, and charge, use changes from  https://github.com/cms-sw/cmssw/pull/41025
+# https://github.com/cms-sw/cmssw/blob/CMSSW_12_4_X/DataFormats/Scouting/interface/Run3ScoutingElectron.h
 scoutingElectronTable = cms.EDProducer("SimpleRun3ScoutingElectronFlatTableProducer",
     src = cms.InputTag("hltScoutingEgammaPacker"),
     cut = cms.string(""),
@@ -138,15 +140,18 @@ scoutingElectronTable = cms.EDProducer("SimpleRun3ScoutingElectronFlatTableProdu
     extension = cms.bool(False),
     variables = cms.PSet(
         pt = Var('pt', 'float', precision=10, doc='super-cluster (SC) pt'),
-        eta = Var('eta', 'float', precision=10, doc='SC eta'),
-        phi = Var('phi', 'float', precision=10, doc='SC phi'),
-        m = Var('m', 'float', precision=10, doc='SC mass'),
+        eta = Var('eta', 'float', precision=10, doc='super-cluster (SC) eta'),
+        phi = Var('phi', 'float', precision=10, doc='super-cluster (SC) phi'),
+        m = Var('m', 'float', precision=10, doc='super-cluster (SC) mass'),
+        d0 = Var('trkd0[0]', 'float', precision=10, doc='electron track d0'),
+        dz = Var('trkdz[0]', 'float', precision=10, doc='electron track dz'),
         dEtaIn = Var('dEtaIn', 'float', precision=10, doc='#Delta#eta(SC seed, track pixel seed)'),
         dPhiIn = Var('dPhiIn', 'float', precision=10, doc='#Delta#phi(SC seed, track pixel seed)'),
         sigmaIetaIeta = Var('sigmaIetaIeta', 'float', precision=10, doc='sigmaIetaIeta of the SC, calculated with full 5x5 region, noise cleaned'),
         hOverE = Var('hOverE', 'float', precision=10, doc='Energy in HCAL / Energy in ECAL'),
         ooEMOop = Var('ooEMOop', 'float', precision=10, doc='1/E(SC) - 1/p(track momentum)'),
         missingHits = Var('missingHits', 'int', doc='missing hits in the tracker'),
+        charge = Var('trkcharge[0]', 'int', doc='electron track charge'),
         ecalIso = Var('ecalIso', 'float', precision=10, doc='Isolation of SC in the ECAL'),
         hcalIso = Var('hcalIso', 'float', precision=10, doc='Isolation of SC in the HCAL'),
         trackIso = Var('trackIso', 'float', precision=10, doc='Isolation of electron track in the tracker'),
@@ -154,11 +159,37 @@ scoutingElectronTable = cms.EDProducer("SimpleRun3ScoutingElectronFlatTableProdu
         sMin = Var('sMin', 'float', precision=10, doc='minor moment of the SC shower shape'),
         sMaj = Var('sMaj', 'float', precision=10, doc='major moment of the SC shower shape'),
         seedId = Var('seedId', 'int', doc='ECAL ID of the SC seed'),
+        rechitZeroSuppression = Var('rechitZeroSuppression', 'bool', doc='rechit zero suppression'),
     ),
 )
 
+# scouting electron format changed for 2023 data-taking in https://github.com/cms-sw/cmssw/pull/41025
+# https://github.com/cms-sw/cmssw/blob/CMSSW_13_0_X/DataFormats/Scouting/interface/Run3ScoutingElectron.h
+def modifyScoutingElectronTable2023(scoutingElectronTable):
+    del scoutingElectronTable.variables.d0       # replaced with trkd0 (std::vector)
+    del scoutingElectronTable.variables.dz       # replaced with trkdz (std::vector)
+    del scoutingElectronTable.variables.charge   # replacec with trkcharge (std::vector)
+
+    return scoutingElectronTable
+
+# scouting electron format changed for 2024 data-taking in https://github.com/cms-sw/cmssw/pull/43744
+# https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingElectron.h
+def modifyScoutingElectronTable2024(scoutingElectronTable):
+    del scoutingElectronTable.variables.d0       # replaced with trkd0 (std::vector)
+    del scoutingElectronTable.variables.dz       # replaced with trkdz (std::vector)
+    del scoutingElectronTable.variables.charge   # replacec with trkcharge (std::vector)
+
+    scoutingElectronTable.variables.rawEnergy = Var('rawEnergy', 'float', precision=10, doc='raw energy')
+    scoutingElectronTable.variables.preshowerEnergy = Var('preshowerEnergy', 'float', precision=10, doc='preshower energy')
+    scoutingElectronTable.variables.corrEcalEnergyError = Var('corrEcalEnergyError', 'float', precision=10, doc='corrEcalEnergyError')
+    scoutingElectronTable.variables.nClusters = Var('nClusters', 'uint', precision=10, doc='number of clusters')
+    scoutingElectronTable.variables.nCrystals = Var('nCrystals', 'uint', precision=10, doc='number of crystals')
+
+    return scoutingElectronTable
+
 # Scouting Photon
-# https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingPhoton.h
+# format during 2022-23 data-taking
+# https://github.com/cms-sw/cmssw/blob/CMSSW_13_0_X/DataFormats/Scouting/interface/Run3ScoutingPhoton.h
 
 scoutingPhotonTable = cms.EDProducer("SimpleRun3ScoutingPhotonFlatTableProducer",
     src = cms.InputTag("hltScoutingEgammaPacker"),
@@ -180,9 +211,21 @@ scoutingPhotonTable = cms.EDProducer("SimpleRun3ScoutingPhotonFlatTableProducer"
         r9 = Var('r9', 'float', precision=10, doc='Photon SC r9 as defined in https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideEgammaShowerShape'),
         sMin = Var('sMin', 'float', precision=10, doc='minor moment of the SC shower shape'),
         sMaj = Var('sMaj', 'float', precision=10, doc='major moment of the SC shower shape'),
-        seedId = Var('seedId', 'int', doc='ECAL ID of the SC seed'),
+        seedId = Var('seedId', 'uint', doc='ECAL ID of the SC seed'),
+        rechitZeroSuppression = Var('rechitZeroSuppression', 'bool', doc='rechit zero suppression'),
     ),
 )
+
+# scouting photon format changed for 2024 data-taking in https://github.com/cms-sw/cmssw/pull/43744
+# https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingPhoton.h
+def modifyScoutingPhotonTable2024(scoutingPhotonTable):
+    scoutingPhotonTable.variables.rawEnergy = Var('rawEnergy', 'float', precision=10, doc='raw energy')
+    scoutingPhotonTable.variables.preshowerEnergy = Var('preshowerEnergy', 'float', precision=10, doc='preshower energy')
+    scoutingPhotonTable.variables.corrEcalEnergyError = Var('corrEcalEnergyError', 'float', precision=10, doc='corrEcalEnergyError')
+    scoutingPhotonTable.variables.nClusters = Var('nClusters', 'uint', precision=10, doc='number of clusters')
+    scoutingPhotonTable.variables.nCrystals = Var('nCrystals', 'uint', precision=10, doc='number of crystals')
+
+    return scoutingPhotonTable
 
 # Scouting Track
 # https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingTrack.h
@@ -233,7 +276,8 @@ scoutingTrackTable = cms.EDProducer("SimpleRun3ScoutingTrackFlatTableProducer",
 )
 
 # Scouting Primary Vertex
-# https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingVertex.h
+# format during 2022-23 data-taking
+# https://github.com/cms-sw/cmssw/blob/CMSSW_13_0_X/DataFormats/Scouting/interface/Run3ScoutingVertex.h
 
 scoutingPrimaryVertexTable = cms.EDProducer("SimpleRun3ScoutingVertexFlatTableProducer",
     src = cms.InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx"),
@@ -255,6 +299,16 @@ scoutingPrimaryVertexTable = cms.EDProducer("SimpleRun3ScoutingVertexFlatTablePr
         isValidVtx = Var('isValidVtx', 'bool', doc='is valid'),
     ),
 )
+
+# scouting vertex format changed for 2024 data-taking in https://github.com/cms-sw/cmssw/pull/43758
+# used for both primary vertex and muon displaced vertex
+# https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingPhoton.h
+def modifyScoutingVertexTable2024(scoutingVertexTable):
+    scoutingVertexTable.variables.xyCov = Var('xyCov', 'float', precision=10, doc='xy covariance')
+    scoutingVertexTable.variables.xzCov = Var('xzCov', 'float', precision=10, doc='xz covariance')
+    scoutingVertexTable.variables.yzCov = Var('yzCov', 'float', precision=10, doc='yz covariance')
+
+    return scoutingVertexTable
 
 # Scouting Particle (PF candidate)
 # https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingParticle.h
