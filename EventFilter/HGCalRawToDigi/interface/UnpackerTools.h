@@ -10,7 +10,7 @@ namespace hgcal {
      @short this function re-computes the CRC of the ECON-D packet and compares it with the trailer of the packet
      false is returned if there is a mismatch
    */
-  bool econdCRCAnalysis(const uint64_t *header, const uint32_t pos, const uint32_t payloadLength) ;
+  bool econdCRCAnalysis(const uint64_t *header, const uint32_t pos, const uint32_t payloadLength);
 
 }  // namespace hgcal
 
