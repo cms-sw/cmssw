@@ -340,4 +340,10 @@
   <class name="edm::Wrapper<l1t::TkJetWordCollection>"/>
   <class name="std::bitset<70>"/>
 
+  <class name="l1t::TkLightMesonWord" ClassVersion="3">
+    <version ClassVersion="3" checksum="3079959913"/>
+  </class>
+  <class name="std::vector<l1t::TkLightMesonWord>"/>                                                                                                                                                      
+  <class name="edm::Wrapper<std::vector<l1t::TkLightMesonWord> >"/>
+  
 </lcgdict>

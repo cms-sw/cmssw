@@ -60,7 +60,7 @@ private:
   static constexpr unsigned int Npars5 = 5;
   enum ConversionBitWidths {
     kEtaMagSize = 3,     // eta output magnitude size; MAG + FRAC should be <= kEtaInputSize
-    kEtaFracSize = 5,    // eta output fraction size; MAG + FRAC should be <= kEtaInputSize
+    kEtaFracSize = 8,    // eta output fraction size; MAG + FRAC should be <= kEtaInputSize
     kEtaInputSize = 16,  // size of tan(lambda)
 
     kPTMagSize = 7,     // magnitude output size; MAG + FRAC should be <= kPTInputSize
@@ -464,7 +464,7 @@ void L1GTTInputProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
 
     // Shift the bits so that the decimal is in the right spot for the GTT software
     ptBitsShifted = ptBitsShifted << 2;
-    etaBitsShifted = etaBitsShifted << 8;
+    etaBitsShifted = etaBitsShifted << 5;
 
     // Set the MSB for the pt to the sign of the incoming word
     ptBitsShifted.set(kPTInputSize - 1, chargeBit);

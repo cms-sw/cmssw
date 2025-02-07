@@ -45,7 +45,7 @@ process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(0) # default: 0
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
 readFiles = cms.untracked.vstring(
-                              'file:/eos/cms/store/cmst3/group/l1tr/gpetrucc/prod125X/WTo3Pion_pythia8_PU200/WTo3Pion_pythia8_PU200.batch3.job99.root'
+                                  '/store/mc/Phase2Spring24DIGIRECOMiniAOD/BsToPhiPhi_4K_TuneCP5_14TeV-pythia8-evtgen/GEN-SIM-DIGI-RAW-MINIAOD/PU200_AllTP_140X_mcRun4_realistic_v4-v1/130000/0bb3cdbc-b905-4439-8842-dc06ec49de37.root'
 #                                  '/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun4_realistic_v2_2026D95noPU-v1/00000/16f6615d-f98c-475f-ad33-0e89934b6c7f.root'
 )
 secFiles = cms.untracked.vstring()
@@ -62,7 +62,7 @@ process.Timing = cms.Service("Timing",
   useJobReport = cms.untracked.bool(False)
 )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('GTTObjects_ttbar200PU_v2p2.root'), closeFileFast = cms.untracked.bool(True))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('BsPhiPhi4K_Rate_PU200.root'), closeFileFast = cms.untracked.bool(True))
 
 
 ############################################################
@@ -97,6 +97,11 @@ process.load("L1Trigger.L1TTrackMatch.l1tTrackerHTMiss_cfi")
 process.load("L1Trigger.L1TTrackMatch.l1tTrackerEmuHTMiss_cfi")
 process.load("L1Trigger.L1TTrackMatch.l1tTrackTripletEmulation_cfi")
 process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
+process.load("L1Trigger.L1TTrackMatch.l1KaonTrackSelectionProducer_cfi")
+process.load("L1Trigger.L1TTrackMatch.l1PhiMesonSelectionProducer_cfi")
+process.load("L1Trigger.L1TTrackMatch.l1BsMesonSelectionProducer_cfi")
+process.load("L1Trigger.L1TTrackMatch.l1PhiMesonSelectionEmulationProducer_cfi")
+process.load("L1Trigger.L1TTrackMatch.l1BsMesonSelectionEmulationProducer_cfi")
  
 
 
@@ -184,6 +189,11 @@ elif (L1TRKALGO == 'HYBRID_PROMPTANDDISP'):
     process.pL1TrackVertexAssociation = cms.Path(VertexAssociator * process.l1tTrackVertexAssociationProducerExtended *
                                                  process.l1tTrackVertexAssociationProducerForJets * process.l1tTrackVertexAssociationProducerExtendedForJets *
                                                  process.l1tTrackVertexAssociationProducerForEtMiss * process.l1tTrackVertexAssociationProducerExtendedForEtMiss)
+    process.bsAna = cms.Path(process.l1KaonTrackSelectionProducer
+                             * process.l1PhiMesonSelectionProducer
+                             * process.l1BsMesonSelectionProducer
+                             * process.l1PhiMesonSelectionEmulationProducer
+                             * process.l1BsMesonSelectionEmulationProducer)
     process.pL1TrackJets = cms.Path(process.l1tTrackJets*process.l1tTrackJetsExtended)
     process.pL1TrackFastJets = cms.Path(process.l1tTrackFastJets*process.l1tTrackFastJetsExtended)
     process.pL1GTTInput = cms.Path(process.l1tGTTInputProducer*process.l1tGTTInputProducerExtended)
@@ -282,6 +292,17 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackObjectNtupleMaker',
         GenParticleInputTag = cms.InputTag("genParticles",""),
         RecoVertexInputTag=cms.InputTag("l1tVertexFinder", "L1Vertices"),
         RecoVertexEmuInputTag=cms.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"),
+        L1PosKaonTrackSelectedInputTag = cms.InputTag("l1KaonTrackSelectionProducer", "Level1TTKaonTracksSelectedPositivecharge"),
+        L1PosKaonTrackSelectedEmulationInputTag = cms.InputTag("l1KaonTrackSelectionProducer", "Level1TTKaonTracksSelectedEmulationPositivecharge"),
+        L1NegKaonTrackSelectedInputTag = cms.InputTag("l1KaonTrackSelectionProducer", "Level1TTKaonTracksSelectedNegativecharge"),
+        L1NegKaonTrackSelectedEmulationInputTag = cms.InputTag("l1KaonTrackSelectionProducer", "Level1TTKaonTracksSelectedEmulationNegativecharge"),
+
+        SaveTrackPhiCands = cms.bool(True),
+        SaveTrackBsCands = cms.bool(True),
+        TrackPhiCandsInputTag = cms.InputTag("l1PhiMesonSelectionProducer","Level1PhiMesonColl"),
+        TrackPhiCandsEmulationInputTag = cms.InputTag("l1PhiMesonSelectionEmulationProducer", "Level1PhiMesonEmulationColl"),
+        TrackBsCandsInputTag = cms.InputTag("l1BsMesonSelectionProducer", "Level1BsHadronicColl"),
+        TrackBsCandsEmulationInputTag = cms.InputTag("l1BsMesonSelectionEmulationProducer", "Level1BsHadronicEmulationColl"),
 )
 
 process.ntuple = cms.Path(process.L1TrackNtuple)
@@ -302,4 +323,4 @@ process.pOut = cms.EndPath(process.out)
 # use this if cluster/stub associators not available
 # process.schedule = cms.Schedule(process.TTClusterStubTruth,process.TTTracksEmuWithTruth,process.ntuple)
 
-process.schedule = cms.Schedule(process.TTClusterStub, process.TTClusterStubTruth, process.dtc, process.TTTracksEmuWithTruth, process.pL1GTTInput, process.pL1TrackSelection, process.pPV, process.pPVemu,process.pL1TrackVertexAssociation, process.pL1TrackJets, process.pL1TrackJetsEmu,process.pL1TrackFastJets, process.pTkMET, process.pTkMETEmu, process.pTkMHT, process.pTkMHTEmulator,process.pL1TrackTripletEmulator, process.ntuple)
+process.schedule = cms.Schedule(process.TTClusterStub, process.TTClusterStubTruth, process.dtc, process.TTTracksEmuWithTruth, process.pL1GTTInput, process.pL1TrackSelection, process.pPV, process.pPVemu,process.pL1TrackVertexAssociation, process.pL1TrackJets, process.pL1TrackJetsEmu,process.pL1TrackFastJets, process.pTkMET, process.pTkMETEmu, process.pTkMHT, process.pTkMHTEmulator,process.pL1TrackTripletEmulator, process.bsAna, process.ntuple)
