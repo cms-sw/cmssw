@@ -157,6 +157,22 @@ ak4ak8genAK8ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
                                                      idx_name = cms.string("genCandsIdx"),
                                                      idx_nameSV = cms.string("sVIdx"),
                                                      readBtag = cms.bool(False))
+allgenAK4ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
+                                                     candidates = cms.InputTag("packedGenParticles"),
+                                                     jets = cms.InputTag("genJetsAK4Constituents"), # Note: The name has "Constituents" in it, but these are the jets
+                                                     name = cms.string("GenJetCands"),
+                                                     nameSV = cms.string("GenJetSVs"),
+                                                     idx_name = cms.string("genCandsIdx"),
+                                                     idx_nameSV = cms.string("sVIdx"),
+                                                     readBtag = cms.bool(False))
+allgenAK8ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
+                                                     candidates = cms.InputTag("packedGenParticles"),
+                                                     jets = cms.InputTag("genJetsAK8Constituents"), # Note: The name has "Constituents" in it, but these are the jets
+                                                     name = cms.string("GenFatJetCands"),
+                                                     nameSV = cms.string("GenFatJetSVs"),
+                                                     idx_name = cms.string("genCandsIdx"),
+                                                     idx_nameSV = cms.string("sVIdx"),
+                                                     readBtag = cms.bool(False))
 
 allGenCandMotherTable = cms.EDProducer("GenCandMotherTableProducer",
     src     = cms.InputTag("packedGenParticles"), # FIXME: needs a ptr collection as input
@@ -205,7 +221,7 @@ ak8CandMCMatchTable = cms.EDProducer("PackedCandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 genCands"),
 )
 ak4ak8CandMCMatchTable = cms.EDProducer("PackedCandMCMatchTableProducer",
-    src = cms.InputTag("finalJetsConstituentsTable")
+    src = cms.InputTag("finalJetsConstituentsTable"),
     genparticles = cms.InputTag("ak4ak8genJetsConstituents"), # final mc-truth particle collection
     objName = cms.string("PFCands"),
     branchName = cms.string("genCand"),
@@ -221,10 +237,8 @@ ak4onlyPFCandsMCSequence=cms.Sequence(genJetsAK4Constituents+ak4onlygenJetsConst
 #PF Cands of AK8 only , with cross linking to AK8 jets
 ak8onlyPFCandsMCSequence=cms.Sequence(genJetsAK8Constituents+ak8onlygenJetsConstituents+ak8onlygenJetsParticleTable+ak8GenCandMotherTable+ak8CandMCMatchTable+ak8onlygenAK8ConstituentsTable)+btvAK8MCSequence
 #PF Cands of AK4+AK8, with cross linking to AK4,AK8 jets
-ak4ak8PFCandsMCSequence=cms.Sequence(genJetsAK4Constituents+genJetsAK8Constituents+ak4ak8genJetsConstituents+ak4ak8genJetsParticleTable+ak4ak8GenCandMotherTable+ak4ak8genAK4ConstituentsTable+ak4ak8genAK8ConstituentsTable)+btvAK4MCSequence+btvAK8MCSequence
+ak4ak8PFCandsMCSequence=cms.Sequence(genJetsAK4Constituents+genJetsAK8Constituents+ak4ak8genJetsConstituents+ak4ak8genJetsParticleTable+ak4ak8GenCandMotherTable+ak4ak8CandMCMatchTable+ak4ak8genAK4ConstituentsTable+ak4ak8genAK8ConstituentsTable)+btvAK4MCSequence+btvAK8MCSequence
 #All PFCands, with cross linking to AK4,AK8 jets
-allPFCandsMCSequence=cms.Sequence(genJetsAK4Constituents+genJetsAK8Constituents+ak4ak8genJetsConstituents+allGENParticleTable+ak4ak8CandMCMatchTable+ak4ak8genAK4ConstituentsTable+ak4ak8genAK8ConstituentsTable)+btvAK4MCSequence+btvAK8MCSequence
-
-
+allPFCandsMCSequence=cms.Sequence(genJetsAK4Constituents+genJetsAK8Constituents+ak4ak8genJetsConstituents+allGENParticleTable+allGenCandMotherTable+allCandMCMatchTable+allgenAK4ConstituentsTable+allgenAK8ConstituentsTable)+btvAK4MCSequence+btvAK8MCSequence
 
 

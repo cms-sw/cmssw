@@ -20,7 +20,7 @@ public:
   GenCandMotherTableProducer(edm::ParameterSet const& params)
       : objName_(params.getParameter<std::string>("objName")),
         branchName_(params.getParameter<std::string>("branchName")),
-        src_(consumes<std::vector<edm::Ptr<pat::PackedGenParticle>>>(params.getParameter<edm::InputTag>("src"))),
+        src_(consumes<edm::View<pat::PackedGenParticle>>(params.getParameter<edm::InputTag>("src"))),
         candMap_(consumes<edm::Association<reco::GenParticleCollection>>(params.getParameter<edm::InputTag>("mcMap"))) {
     produces<nanoaod::FlatTable>();
   }
@@ -28,7 +28,7 @@ public:
   ~GenCandMotherTableProducer() override {}
 
   void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
-    edm::Handle<std::vector<edm::Ptr<pat::PackedGenParticle>>> cands;
+    edm::Handle<edm::View<pat::PackedGenParticle>> cands;
     iEvent.getByToken(src_, cands);
     unsigned int ncand = cands->size();
 
@@ -39,15 +39,15 @@ public:
 
     std::vector<int> key(ncand, -1), fromB(ncand, 0), fromC(ncand, 0);
     for (unsigned int i = 0; i < ncand; ++i) {
-      reco::GenParticleRef motherRef = cands->at(i)->motherRef();
+      reco::GenParticleRef motherRef = cands->at(i).motherRef();
       reco::GenParticleRef match = (*map)[motherRef];
 
       if (match.isNull())
         continue;
 
       key[i] = match.key();
-      fromB[i] = isFromB(*cands->at(i));
-      fromC[i] = isFromC(*cands->at(i));
+      fromB[i] = isFromB(cands->at(i));
+      fromC[i] = isFromC(cands->at(i));
     }
 
     tab->addColumn<int>(branchName_ + "MotherIdx", key, "Mother index into GenPart list");
@@ -136,7 +136,7 @@ public:
 
 protected:
   const std::string objName_, branchName_, doc_;
-  const edm::EDGetTokenT<std::vector<edm::Ptr<pat::PackedGenParticle>>> src_;
+  const edm::EDGetTokenT<edm::View<pat::PackedGenParticle>> src_;
   const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>> candMap_;
   edm::EDGetTokenT<reco::GenParticleCollection> genPartsToken_;
 };
