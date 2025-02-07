@@ -11,20 +11,26 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ESDataFormatter {
 public:
   struct Meta_Data {
-    int run_number = 0;
-    int orbit_number = 0;
-    int bx = 0;
-    int lv1 = 0;
-    int kchip_bc = 0;
-    int kchip_ec = 0;
+    edm::RunNumber_t run_number = 0;
+    edm::EventNumber_t orbit_number = 0;
+    unsigned int bx = 0;
+    edm::EventNumber_t lv1 = 0;
+    unsigned int kchip_bc = 0;
+    unsigned int kchip_ec = 0;
     Meta_Data() = default;
-    Meta_Data(int r, int o, int b, int l, int k_bc, int k_ec)
-        : run_number(r), orbit_number(o), bx(b), lv1(l), kchip_bc(k_bc), kchip_ec(k_ec){};
+    Meta_Data(edm::RunNumber_t r,
+              edm::EventNumber_t o,
+              unsigned int b,
+              edm::EventNumber_t l,
+              unsigned int k_bc,
+              unsigned int k_ec)
+        : run_number(r), orbit_number(o), bx(b), lv1(l), kchip_bc(k_bc), kchip_ec(k_ec) {}
   };
 
   typedef std::vector<ESDataFrame> DetDigis;
