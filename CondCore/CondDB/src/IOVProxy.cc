@@ -293,8 +293,24 @@ namespace cond {
         throwException("The transaction is not active.", ctx);
     }
 
+    bool printIOVSequenceDiagnostics(const IOVProxyData& iovProxyData,
+                                     cond::Time_t lowerGroup,
+                                     cond::Time_t higherGroup) {
+      std::ostringstream s;
+      s << "Fetched new IOV for '" << iovProxyData.tagInfo.name << "'\n"
+        << "payload type: " << iovProxyData.tagInfo.payloadType << "\n"
+        << "request interval [ " << lowerGroup << " , " << higherGroup << " ]\n"
+        << "new range [ " << iovProxyData.groupLowerIov << " , " << iovProxyData.groupHigherIov << " ]\n"
+        << "#entries " << iovProxyData.iovSequence.size() << "\n"
+        << "sequence (iov, hash): ";
+      for (const auto& [iov, hash] : iovProxyData.iovSequence) {
+        s << "(" << iov << ", " << hash << ") ";
+      }
+      edm::LogSystem("NewIOV") << s.str() << std::endl;
+      return true;
+    }
+
     void IOVProxy::fetchSequence(cond::Time_t lowerGroup, cond::Time_t higherGroup) {
-      bool firstTime = m_data->iovSequence.empty();
       m_data->iovSequence.clear();
       m_session->iovSchema().iovTable().select(
           m_data->tagInfo.name, lowerGroup, higherGroup, m_data->snapshotTime, m_data->iovSequence);
@@ -315,13 +331,11 @@ namespace cond {
           m_data->groupHigherIov = cond::time::MAX_VAL;
         }
       }
-      if (not firstTime) {
-        edm::LogSystem("NewIOV") << "Fetched new IOV for '" << m_data->tagInfo.name << "' request interval [ "
-                                 << lowerGroup << " , " << higherGroup << " ] new range [ " << m_data->groupLowerIov
-                                 << " , " << m_data->groupHigherIov << " ] #entries " << m_data->iovSequence.size();
-      }
-
       m_data->numberOfQueries++;
+
+      if (m_printDebug) {
+        printIOVSequenceDiagnostics(*m_data, lowerGroup, higherGroup);
+      }
     }
 
     cond::Iov_t IOVProxy::getInterval(cond::Time_t time) {
