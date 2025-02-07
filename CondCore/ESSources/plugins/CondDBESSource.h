@@ -124,6 +124,8 @@ private:
   typedef std::map<std::string, cond::GTEntry_t> TagCollection;
   // the collections of tag, record/label used in this ESSource
   TagCollection m_tagCollection;
+  std::vector<std::string> m_recordsToDebug;
+
   std::map<std::string, std::pair<cond::Time_t, bool> > m_refreshTimeForRecord;
   std::map<std::string, std::pair<cond::persistency::Session, std::string> > m_sessionPool;
   std::map<std::string, std::pair<cond::persistency::Session, std::string> > m_sessionPoolForLumiConditions;
