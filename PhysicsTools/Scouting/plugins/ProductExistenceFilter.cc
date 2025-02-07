@@ -11,7 +11,6 @@
 #include <iostream>
 
 template <typename T>
-//class ProductExistenceFilter : public edm::stream::EDFilter<> {
 class ProductExistenceFilter : public edm::global::EDFilter<> {
 public:
   ProductExistenceFilter(const edm::ParameterSet &);
@@ -20,10 +19,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  //void beginStream(edm::StreamID) override {};
-  //bool filter(edm::Event &, const edm::EventSetup &) override;
   bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
-  //void endStream() override {};
 
   edm::EDGetTokenT<T> productToken_;
 };
@@ -42,7 +38,6 @@ void ProductExistenceFilter<T>::fillDescriptions(edm::ConfigurationDescriptions 
 
 template <typename T>
 bool ProductExistenceFilter<T>::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
-//bool ProductExistenceFilter<T>::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   return iEvent.getHandle(productToken_).isValid();
 }
 
@@ -77,13 +72,3 @@ DEFINE_FWK_MODULE(Run3ScoutingPFJetExistenceFilter);
 // MET and Rho
 using DoubleExistenceFilter = ProductExistenceFilter<double>;
 DEFINE_FWK_MODULE(DoubleExistenceFilter);
-
-# include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-using FEDRawDataCollectionExistenceFilter = ProductExistenceFilter<FEDRawDataCollection>;
-DEFINE_FWK_MODULE(FEDRawDataCollectionExistenceFilter);
-
-# include "DataFormats/L1Trigger/interface/BXVector.h"
-
-# include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
-using GlobalAlgBlkBXVectorExistenceFilter = ProductExistenceFilter<BXVector<GlobalAlgBlk>>;
-DEFINE_FWK_MODULE(GlobalAlgBlkBXVectorExistenceFilter);
