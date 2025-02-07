@@ -12,6 +12,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/radixSort.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoVertex/PixelVertexFinding/interface/PixelVertexWorkSpaceLayout.h"
 
@@ -61,7 +62,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     }
 
     if constexpr (not cms::alpakatools::requires_single_thread_per_block_v<Acc1D>) {
-      auto& sws = alpaka::declareSharedVar<uint16_t[1024], __COUNTER__>(acc);
+      constexpr int warpSize = cms::alpakatools::warpSize;
+      auto& sws = alpaka::declareSharedVar<uint16_t[warpSize * warpSize], __COUNTER__>(acc);
       // sort using only 16 bits
       cms::alpakatools::radixSort<Acc1D, float, 2>(acc, ptv2, sortInd, sws, nvFinal);
     } else {
