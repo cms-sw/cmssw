@@ -47,6 +47,7 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
       testTCDSFEDRange_(pset.getUntrackedParameter<std::vector<unsigned int>>("testTCDSFEDRange")),
       listFileNames_(pset.getUntrackedParameter<std::vector<std::string>>("fileNames")),
       fileListMode_(pset.getUntrackedParameter<bool>("fileListMode")),
+      fileDiscoveryMode_(pset.getUntrackedParameter<bool>("fileDiscoveryMode", false)),
       fileListLoopMode_(pset.getUntrackedParameter<bool>("fileListLoopMode", false)),
       runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
       processHistoryID_(),
@@ -113,7 +114,11 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
   }
 
   dataMode_->makeDirectoryEntries(
-      daqDirector_->getBUBaseDirs(), daqDirector_->getBUBaseDirsNSources(), daqDirector_->runString());
+      daqDirector_->getBUBaseDirs(),
+      daqDirector_->getBUBaseDirsNSources(),
+      daqDirector_->getBUBaseDirsSourceIDs(),
+      daqDirector_->getSourceIdentifier(),
+      daqDirector_->runString());
 
   auto& daqProvenanceHelpers = dataMode_->makeDaqProvenanceHelpers();
   for (const auto& daqProvenanceHelper : daqProvenanceHelpers)
@@ -261,6 +266,8 @@ void DAQSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       ->setComment("[min, max] range to search for TCDS FED ID in test setup");
   desc.addUntracked<bool>("fileListMode", false)
       ->setComment("Use fileNames parameter to directly specify raw files to open");
+  desc.addUntracked<bool>("fileDiscoveryMode", false)
+      ->setComment("Use filesystem discovery and assignment of files by renaming");
   desc.addUntracked<std::vector<std::string>>("fileNames", std::vector<std::string>())
       ->setComment("file list used when fileListMode is enabled");
   desc.setAllowAnything();
@@ -444,7 +451,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   }
 
   //file is finished
-  if (currentFile_->bufferPosition_ == currentFile_->fileSize_) {
+  if (currentFile_->complete() || (dataMode_->isMultiDir() && currentFile_->buffersComplete())) {
     readingFilesCount_--;
     if (fileListMode_)
       heldFilesCount_--;
@@ -488,9 +495,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     return evf::EvFDaqDirector::noFile;
   }
 
-  //assert(currentFile_->status_ == evf::EvFDaqDirector::newFile);
-
-  //handle RAW file header
+  //handle RAW file header in new file
   if (currentFile_->bufferPosition_ == 0 && currentFile_->rawHeaderSize_ > 0) {
     if (currentFile_->fileSize_ <= currentFile_->rawHeaderSize_) {
       if (currentFile_->fileSize_ < currentFile_->rawHeaderSize_)
@@ -505,8 +510,11 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     }
 
     //advance buffer position to skip file header (chunk will be acquired later)
+    //also move pointer in multi-dir setting with each file expected to have a file header
     currentFile_->advance(currentFile_->rawHeaderSize_);
+    currentFile_->advanceBuffers(currentFile_->rawHeaderSize_);
   }
+  LogDebug("DAQSource") << "after header bufferPosition: " << currentFile_->bufferPosition_ << " fileSizeLeft:" << currentFile_->fileSizeLeft();
 
   //file is too short to fit event (or event block, orbit...) header
   if (currentFile_->fileSizeLeft() < dataMode_->headerSize())
@@ -535,7 +543,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   //read event header, copy it to a single chunk if necessary
   chunkEnd = currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, dataMode_->headerSize());
 
-  //get buffer size of current chunk (can be resized)
+  //get buffer size of current chunk (can be resized) for multibuffer models
   uint64_t currentChunkSize = currentFile_->currentChunkSize();
 
   //prepare view based on header that was read. It could parse through the whole buffer for fitToBuffer models
@@ -550,6 +558,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   //check that the (remaining) payload size is within the file
   const size_t msgSize = dataMode_->dataBlockSize() - dataMode_->headerSize();
 
+  //not useful in multidir
   if (currentFile_->fileSizeLeft() < (int64_t)msgSize)
     throw cms::Exception("DAQSource::getNextDataBlock")
         << "Premature end of input file (missing:" << (msgSize - currentFile_->fileSizeLeft())
@@ -821,6 +830,11 @@ void DAQSource::readSupervisor() {
           }
         }
       } else {
+
+        RawFileEvtCounter countFunc = [&](std::string const& name, int& fd, int64_t& fsize, uint32_t sLS, bool& found) -> unsigned int {
+          return dataMode_->eventCounterCallback(name, fd, fsize, sLS, found);
+        };
+
         status = daqDirector_->getNextFromFileBroker(currentLumiSection,
                                                      ls,
                                                      nextFile,
@@ -829,7 +843,9 @@ void DAQSource::readSupervisor() {
                                                      serverEventsInNewFile,
                                                      fileSizeFromMetadata,
                                                      thisLockWaitTimeUs,
-                                                     requireHeader);
+                                                     requireHeader,
+                                                     fileDiscoveryMode_,
+                                                     dataMode_->hasEventCounterCallback() ? countFunc : nullptr);
       }
 
       setMonStateSup(inSupBusy);
@@ -969,12 +985,13 @@ void DAQSource::readSupervisor() {
 
       std::pair<bool, std::vector<std::string>> additionalFiles =
           dataMode_->defineAdditionalFiles(rawFile, fileListMode_);
+      /*
       if (!additionalFiles.first) {
         //skip secondary files from file broker
         if (rawFd > -1)
           close(rawFd);
         continue;
-      }
+      }*/
 
       std::unique_ptr<RawInputFile> newInputFile(new RawInputFile(evf::EvFDaqDirector::FileStatus::newFile,
                                                                   ls,

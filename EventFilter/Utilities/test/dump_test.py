@@ -11,7 +11,7 @@ options.register ('runNumber',
                   "Run Number")
 
 options.register ('daqSourceMode',
-                  '', # default value
+                  'DTH', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "DAQ source data mode")
@@ -62,8 +62,9 @@ process.options = cms.untracked.PSet(
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1) # ShmStreamConsumer requires synchronization at LuminosityBlock boundaries
 )
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(threshold = cms.untracked.string( "INFO" )),
-    destinations = cms.untracked.vstring( 'cout' )
+    cout = cms.untracked.PSet(threshold = cms.untracked.string( "DEBUG" )),
+    destinations = cms.untracked.vstring( 'cout' ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.FastMonitoringService = cms.Service("FastMonitoringService",
@@ -72,7 +73,7 @@ process.FastMonitoringService = cms.Service("FastMonitoringService",
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     useFileBroker = cms.untracked.bool(False),
-    fileBrokerHostFromCfg = cms.untracked.bool(False),
+    fileBrokerHostFromCfg = cms.untracked.bool(True),
     fileBrokerHost = cms.untracked.string("htcp40.cern.ch"),
     runNumber = cms.untracked.uint32(options.runNumber),
     baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.fuBaseDir),
@@ -91,7 +92,8 @@ ram_dir_path=options.buBaseDir+"/run"+str(options.runNumber).zfill(6)+"/"
 process.source = cms.Source("DAQSource",
     testing = cms.untracked.bool(True),
     dataMode = cms.untracked.string(options.daqSourceMode),
-    verifyChecksum = cms.untracked.bool(True if options.daqSourceMode != "DTH" else False),
+    #verifyChecksum = cms.untracked.bool(True),
+    verifyChecksum = cms.untracked.bool(False),
     useL1EventID = cms.untracked.bool(False),
     eventChunkBlock = cms.untracked.uint32(2),
     eventChunkSize = cms.untracked.uint32(3),
@@ -100,10 +102,7 @@ process.source = cms.Source("DAQSource",
     maxBufferedFiles = cms.untracked.uint32(2),
     fileListMode = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring(
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0001_index000000.raw",
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0001_index000001.raw",
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0002_index000000.raw",
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0002_index000001.raw"
+        "run000018_ls0001_index000000.raw",
     )
 
 )
@@ -129,7 +128,10 @@ process.filter2 = cms.EDFilter("HLTPrescaler",
                                L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
                                )
 
-sleepTime = 5
+if options.daqSourceMode == "DTH":
+    sleepTime = 0
+else:
+    sleepTime = 58
 process.a = cms.EDAnalyzer("ExceptionGenerator",
     defaultAction = cms.untracked.int32(0),
     defaultQualifier = cms.untracked.int32(sleepTime))
@@ -143,9 +145,12 @@ process.tcdsRawToDigi = cms.EDProducer("TcdsRawToDigi",
 )
 
 if options.daqSourceMode == "DTH":
+
     process.p1 = cms.Path(process.a*process.filter1)
+    sleepTime = 5
 else:
     process.p1 = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
+    sleepTime = 50
 
 process.p2 = cms.Path(process.b*process.filter2)
 
@@ -190,3 +195,7 @@ process.ep = cms.EndPath(
   + process.daqHistoTest
   + process.hltDQMFileSaver
 )
+
+#process.MessageLogger.cout.DEBUG = cms.untracked.PSet(
+#    limit = cms.untracked.int32(-1)  # No message limit
+#)
