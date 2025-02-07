@@ -34,7 +34,7 @@ namespace trackerTFP {
   // conversion: Variable to int
   inline constexpr int operator+(VariableTQ v) { return static_cast<int>(v); }
   // increment of Variable
-  inline constexpr VariableTQ operator++(VariableTQ v) { return VariableTQ(+v + 1); }
+  inline constexpr VariableTQ operator+(VariableTQ v, int i) { return VariableTQ(+v + i); }
 
   // configuration
   struct ConfigTQ {
@@ -57,30 +57,25 @@ namespace trackerTFP {
     int baseShiftchi2rphi_;
     int baseShiftchi2rz_;
   };
-  // class representing format of a specific variable
-  template <VariableTQ v>
-  class FormatTQ : public DataFormat {
-  public:
-    FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
-    ~FormatTQ() {}
 
-  private:
-    void calcRange() { range_ = base_ * pow(2, width_); }
-    void calcWidth() { width_ = ceil(log2(range_ / base_) - 1.e-11); }
-    void calcBase() { base_ = range_ * pow(2, -width_); }
-  };
+  // function template for DataFormat generation
+  template <VariableTQ v>
+  DataFormat makeDataFormat(const DataFormats* dataFormats, const ConfigTQ& iConfig);
+
+  // specializations
+
   template <>
-  FormatTQ<VariableTQ::m20>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
+  DataFormat makeDataFormat<VariableTQ::m20>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  FormatTQ<VariableTQ::m21>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
+  DataFormat makeDataFormat<VariableTQ::m21>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  FormatTQ<VariableTQ::invV0>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
+  DataFormat makeDataFormat<VariableTQ::invV0>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  FormatTQ<VariableTQ::invV1>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
+  DataFormat makeDataFormat<VariableTQ::invV1>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  FormatTQ<VariableTQ::chi2rphi>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
+  DataFormat makeDataFormat<VariableTQ::chi2rphi>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
   template <>
-  FormatTQ<VariableTQ::chi2rz>::FormatTQ(const DataFormats* dataFormats, const ConfigTQ& iConfig);
+  DataFormat makeDataFormat<VariableTQ::chi2rz>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
 
   /*! \class  trackerTFP::TrackQuality
    *  \brief  Bit accurate emulation of the track quality BDT

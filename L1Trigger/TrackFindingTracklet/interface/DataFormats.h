@@ -105,53 +105,49 @@ namespace trklet {
     double range_;
   };
 
-  // class representing format of a specific variable
+  // function template for DataFormat generation
   template <Variable v, Process p>
-  class Format : public DataFormat {
-  public:
-    Format(const ChannelAssignment* ca);
-    ~Format() {}
-  };
+  DataFormat makeDataFormat(const ChannelAssignment* ca);
 
   template <>
-  Format<Variable::inv2R, Process::tfp>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::inv2R, Process::tfp>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::phiT, Process::tfp>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::phiT, Process::tfp>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::cot, Process::tfp>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::cot, Process::tfp>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::zT, Process::tfp>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::zT, Process::tfp>(const ChannelAssignment* ca);
 
   template <>
-  Format<Variable::inv2R, Process::tm>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::inv2R, Process::tm>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::phiT, Process::tm>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::phiT, Process::tm>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::zT, Process::tm>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::zT, Process::tm>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::cot, Process::tm>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::cot, Process::tm>(const ChannelAssignment* ca);
 
   template <>
-  Format<Variable::stubId, Process::tm>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::stubId, Process::tm>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::r, Process::tm>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::r, Process::tm>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::phi, Process::tm>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::phi, Process::tm>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::z, Process::tm>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::z, Process::tm>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::dPhi, Process::tm>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::dPhi, Process::tm>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::dZ, Process::tm>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::dZ, Process::tm>(const ChannelAssignment* ca);
 
   template <>
-  Format<Variable::inv2R, Process::kf>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::phiT, Process::kf>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::phiT, Process::kf>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::cot, Process::kf>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::cot, Process::kf>(const ChannelAssignment* ca);
   template <>
-  Format<Variable::zT, Process::kf>::Format(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::zT, Process::kf>(const ChannelAssignment* ca);
 
   /*! \class  trklet::DataFormats
    *  \brief  Class to calculate and provide dataformats used by Hybrid emulator
