@@ -20,7 +20,7 @@ public:
         branchName_(params.getParameter<std::string>("branchName")),
         doc_(params.getParameter<std::string>("docString")),
         src_(consumes<reco::CandidateView>(params.getParameter<edm::InputTag>("src"))),
-        genPartsToken_(consumes<std::vector<edm::Ptr<pat::PackedGenParticle>>>(params.getParameter<edm::InputTag>("genparticles"))) {
+        genPartsToken_(consumes<edm::View<pat::PackedGenParticle>>(params.getParameter<edm::InputTag>("genparticles"))) {
     produces<nanoaod::FlatTable>();
   }
 
@@ -33,16 +33,16 @@ public:
 
     auto tab = std::make_unique<nanoaod::FlatTable>(ncand, objName_, false, true);
 
-    edm::Handle<std::vector<edm::Ptr<pat::PackedGenParticle>>> genParts;
+    edm::Handle<edm::View<pat::PackedGenParticle>> genParts;
     iEvent.getByToken(genPartsToken_, genParts);
 
     std::vector<int> key(ncand, -1), flav(ncand, 0);
     for (unsigned int i = 0; i < ncand; ++i) {
       auto cand = cands->ptrAt(i);
 
-      auto iter = std::find_if(genParts->begin(), genParts->end(), [cand](edm::Ptr<pat::PackedGenParticle> genp) {
-        return (genp->charge() == cand->charge()) && (deltaR(genp->eta(), genp->phi(), cand->eta(), cand->phi()) < 0.02) &&
-               (abs(genp->pt() - cand->pt()) / cand->pt() < 0.2);
+      auto iter = std::find_if(genParts->begin(), genParts->end(), [cand](pat::PackedGenParticle genp) {
+        return (genp.charge() == cand->charge()) && (deltaR(genp.eta(), genp.phi(), cand->eta(), cand->phi()) < 0.02) &&
+               (abs(genp.pt() - cand->pt()) / cand->pt() < 0.2);
       });
       if (iter != genParts->end()) {
         key[i] = iter - genParts->begin();
@@ -70,7 +70,7 @@ public:
 protected:
   const std::string objName_, branchName_, doc_;
   const edm::EDGetTokenT<reco::CandidateView> src_;
-  edm::EDGetTokenT<std::vector<edm::Ptr<pat::PackedGenParticle>>> genPartsToken_;
+  edm::EDGetTokenT<edm::View<pat::PackedGenParticle>> genPartsToken_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
