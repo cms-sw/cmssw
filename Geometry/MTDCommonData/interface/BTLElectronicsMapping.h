@@ -5,7 +5,8 @@
 #include <cstdint>
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
-
+#include <Geometry/MTDCommonData/interface/MTDTopologyMode.h>
+          
 /** \brief BTL TOFHIR channel mapping with crystal BTLDetId
     Convention:
       SiPMside 0 == Minus Side
@@ -39,7 +40,7 @@ public:
        17, 16, 18, 19, 20, 23, 21, 26, 22, 27, 28, 31, 30, 24, 25, 29}};
 
   /** Default constructor -- invalid value */
-  BTLElectronicsMapping();
+  BTLElectronicsMapping(const BTLDetId::CrysLayout lay);
 
   // Get SiPM Channel number from crystal
   int SiPMCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide);
@@ -74,6 +75,11 @@ public:
   int FEBoard(BTLDetId det);
   int FEBoard(uint32_t rawID);
 
+  /** Returns CC board number */
+  int CCBoardFromRU(uint32_t dmodule);
+  int CCBoard(BTLDetId det);
+  int CCBoard(uint32_t rawID);
+  
 private:
 };
 

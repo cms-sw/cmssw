@@ -1,11 +1,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/MTDCommonData/interface/BTLElectronicsMapping.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <Geometry/MTDCommonData/interface/MTDTopologyMode.h>
 
 #include <ostream>
 #include <algorithm>
 #include <vector>
-BTLElectronicsMapping::BTLElectronicsMapping() {}
+BTLElectronicsMapping::BTLElectronicsMapping(const BTLDetId::CrysLayout lay) {
+  if (static_cast<int>(lay) < 7){
+    throw cms::Exception("BTLElectronicsMapping") << "MTD Topology mode with layout " << static_cast<int>(lay) << " is not supported\n"
+                                                  << "use layout : 7 (v4) or later!" << std::endl;
+  }
+}
 
 // Get SiPM Channel from crystal ID
 
@@ -195,4 +201,17 @@ int BTLElectronicsMapping::FEBoard(BTLDetId det) {
 int BTLElectronicsMapping::FEBoard(uint32_t rawID) {
   BTLDetId theId(rawID);
   return BTLElectronicsMapping::FEBoard(theId);
+}
+
+/** Returns CC board number */
+int BTLElectronicsMapping::CCBoardFromRU(uint32_t runit) { return runit; }
+
+int BTLElectronicsMapping::CCBoard(BTLDetId det) {
+  uint32_t runit = det.runit();
+  return BTLElectronicsMapping::CCBoardFromRU(runit);
+}
+
+int BTLElectronicsMapping::CCBoard(uint32_t rawID) {
+  BTLDetId theId(rawID);
+  return BTLElectronicsMapping::CCBoard(theId);
 }
