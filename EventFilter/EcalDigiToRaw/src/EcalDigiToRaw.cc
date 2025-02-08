@@ -61,8 +61,6 @@ public:
   typedef long long Word64;
   typedef unsigned int Word32;
 
-  static const int BXMAX = 2808;
-
 private:
   // ----------member data ---------------------------
 
@@ -125,11 +123,9 @@ void EcalDigiToRaw::produce(edm::StreamID, edm::Event& iEvent, const edm::EventS
   FEDRawDataCollection productRawData;
 
   BlockFormatter::Params params;
-  int counter = iEvent.id().event();
-  params.counter_ = counter;
   params.orbit_number_ = iEvent.orbitNumber();
   params.bx_ = iEvent.bunchCrossing();
-  params.lv1_ = counter % (0x1 << 24);
+  params.lv1_ = iEvent.id().event() % (0x1 << 24);
   params.runnumber_ = iEvent.id().run();
 
   BlockFormatter Headerblockformatter(config_, params);
