@@ -10,7 +10,6 @@ using namespace std;
 
 BlockFormatter::BlockFormatter(Config const& iC, Params const& iP)
     : plistDCCId_{iC.plistDCCId_},
-      counter_{iP.counter_},
       orbit_number_{iP.orbit_number_},
       bx_{iP.bx_},
       lv1_{iP.lv1_},
@@ -23,9 +22,9 @@ BlockFormatter::BlockFormatter(Config const& iC, Params const& iP)
       doTower_{iC.doTower_} {}
 
 void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
-  int run_number = runnumber_;
-  int bx = bx_;
-  int lv1 = lv1_;
+  auto const run_number = runnumber_;
+  auto const bx = bx_;
+  auto const lv1 = lv1_;
 
   if (debug_)
     cout << "in BlockFormatter::DigiToRaw  run_number orbit_number bx lv1 " << dec << run_number << " " << orbit_number_
