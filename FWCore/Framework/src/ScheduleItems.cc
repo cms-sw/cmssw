@@ -119,9 +119,15 @@ namespace edm {
 
   std::shared_ptr<CommonParams> ScheduleItems::initMisc(ParameterSet& parameterSet) {
     edm::Service<edm::ResourceInformation> resourceInformationService;
-    auto const& selectedAccelerators =
-        parameterSet.getUntrackedParameter<std::vector<std::string>>("@selected_accelerators");
-    resourceInformationService->setSelectedAccelerators(selectedAccelerators);
+    edm::HardwareResourcesDescription hwResources;
+    if (resourceInformationService.isAvailable()) {
+      auto const& selectedAccelerators =
+          parameterSet.getUntrackedParameter<std::vector<std::string>>("@selected_accelerators");
+      resourceInformationService->setSelectedAccelerators(selectedAccelerators);
+      // HardwareResourcesDescription is optional here in order to not
+      // require ResourceInformationService in TestProcessor
+      hwResources = resourceInformationService->hardwareResourcesDescription();
+    }
 
     act_table_ = std::make_unique<ExceptionToActionTable>(parameterSet);
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
@@ -133,8 +139,7 @@ namespace edm {
       releaseVersion = getReleaseVersion();
     }
     // propagate_const<T> has no reset() function
-    processConfiguration_ = std::make_shared<ProcessConfiguration>(
-        processName, releaseVersion, resourceInformationService->hardwareResourcesDescription());
+    processConfiguration_ = std::make_shared<ProcessConfiguration>(processName, releaseVersion, hwResources);
     auto common = std::make_shared<CommonParams>(
         parameterSet.getUntrackedParameterSet("maxEvents").getUntrackedParameter<int>("input"),
         parameterSet.getUntrackedParameterSet("maxLuminosityBlocks").getUntrackedParameter<int>("input"),
