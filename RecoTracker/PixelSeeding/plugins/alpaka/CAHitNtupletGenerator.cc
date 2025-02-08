@@ -150,6 +150,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                       cfg.getParameter<bool>("idealConditions"),
                                       (float)cfg.getParameter<double>("cellZ0Cut"),
                                       (float)cfg.getParameter<double>("cellPtCut"),
+                                      cfg.getParameter<int>("minYsizeB1"),
+                                      cfg.getParameter<int>("minYsizeB2"),
                                       cfg.getParameter<std::vector<int>>("phiCuts")};
     }
 
@@ -221,6 +223,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "\"region "
             "cuts\" based on the fit results (pT, Tip, Zip).");
 
+    desc.add<int>("minYsizeB1", 1)->setComment("Min Y cluster size in pixel B1");
+    desc.add<int>("minYsizeB2", 1)->setComment("Min Y cluster size in pixel B2");
+
     desc.add<std::vector<int>>(
             "phiCuts",
             std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
@@ -257,6 +262,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "\"region "
             "cuts\" based on the fit results (pT, Tip, Zip).");
 
+    desc.add<int>("minYsizeB1", 36)->setComment("Min Y cluster size in pixel B1");
+    desc.add<int>("minYsizeB2", 28)->setComment("Min Y cluster size in pixel B2");
+
     desc.add<std::vector<int>>(
             "phiCuts",
             std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
@@ -283,6 +291,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ->setComment(
             "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
             "Zip).");
+
+    desc.add<int>("minYsizeB1", 25)->setComment("Min Y cluster size in pixel B1");
+    desc.add<int>("minYsizeB2", 15)->setComment("Min Y cluster size in pixel B2");
 
     desc.add<std::vector<int>>(
             "phiCuts",
