@@ -1684,6 +1684,54 @@ upgradeWFs['HLTTiming75e33AlpakaLST'].step2 = {
     '--procModifiers': 'alpaka,trackingLST'
 }
 
+upgradeWFs['HLTTiming75e33TrimmedTracking'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33TrimmedTracking'].suffix = '_HLT75e33TimingTrimmedTracking'
+upgradeWFs['HLTTiming75e33TrimmedTracking'].offset = 0.756
+upgradeWFs['HLTTiming75e33TrimmedTracking'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
+    '--procModifiers': 'phase2_hlt_vertexTrimming'
+}
+
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTracking'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTracking'].suffix = '_HLT75e33TimingAlpakaTrimmedTracking'
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTracking'].offset = 0.7561
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTracking'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
+    '--procModifiers': 'alpaka,phase2_hlt_vertexTrimming'
+}
+
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'].suffix = '_HLT75e33TimingAlpakaTrimmedTrackingSingleIter'
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'].offset = 0.7562
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
+    '--procModifiers': 'alpaka,phase2_hlt_vertexTrimming,singleIterPatatrack'
+}
+
+upgradeWFs['HLTTiming75e33TrimmedTrackingLST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33TrimmedTrackingLST'].suffix = '_HLT75e33TimingTrimmedTrackingLST'
+upgradeWFs['HLTTiming75e33TrimmedTrackingLST'].offset = 0.7563
+upgradeWFs['HLTTiming75e33TrimmedTrackingLST'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
+    '--procModifiers': 'phase2_hlt_vertexTrimming,trackingLST'
+}
+
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingLST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingLST'].suffix = '_HLT75e33TimingAlpakaTrimmedTrackingLST'
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingLST'].offset = 0.7564
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingLST'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
+    '--procModifiers': 'alpaka,phase2_hlt_vertexTrimming,trackingLST'
+}
+
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIterLST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIterLST'].suffix = '_HLT75e33TimingAlpakaTrimmedTrackingSingleIterLST'
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIterLST'].offset = 0.7565
+upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIterLST'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
+    '--procModifiers': 'alpaka,phase2_hlt_vertexTrimming,singleIterPatatrack,trackingLST'
+}
+
 
 class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):

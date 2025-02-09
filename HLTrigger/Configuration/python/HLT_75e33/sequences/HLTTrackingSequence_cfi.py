@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from ..modules.hltGeneralTracks_cfi import *
 from ..modules.hltPhase2PixelVertices_cfi import *
+from ..modules.hltPhase2TrimmedPixelVertices_cfi import *
 from ..modules.hltTrackerClusterCheck_cfi import *
 from ..sequences.HLTHighPtTripletStepSequence_cfi import *
 from ..sequences.HLTPhase2PixelTracksSequence_cfi import *
@@ -13,3 +14,8 @@ HLTTrackingSequence = cms.Sequence((HLTItLocalRecoSequence+HLTOtLocalRecoSequenc
 
 from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
 singleIterPatatrack.toReplaceWith(HLTTrackingSequence, HLTTrackingSequence.copyAndExclude([HLTHighPtTripletStepSequence]))
+
+from Configuration.ProcessModifiers.phase2_hlt_vertexTrimming_cff import phase2_hlt_vertexTrimming
+_HLTTrackingSequenceTrimming = HLTTrackingSequence.copy()
+_HLTTrackingSequenceTrimming.insert(_HLTTrackingSequenceTrimming.index(hltPhase2PixelVertices)+1, hltPhase2TrimmedPixelVertices)
+phase2_hlt_vertexTrimming.toReplaceWith(HLTTrackingSequence, _HLTTrackingSequenceTrimming)
