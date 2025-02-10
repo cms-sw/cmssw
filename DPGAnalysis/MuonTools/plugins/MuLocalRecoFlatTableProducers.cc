@@ -15,6 +15,12 @@
 
 using DTSegmentFlatTableProducer = MuRecObjBaseProducer<DTChamberId, DTRecSegment4D, DTGeometry>;
 
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+
+using CSCSegmentFlatTableProducer = MuRecObjBaseProducer<CSCDetId, CSCSegment, CSCGeometry>;
+
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
@@ -37,6 +43,7 @@ using GEMSegmentFlatTableProducer = MuRecObjBaseProducer<GEMDetId, GEMSegment, G
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(DTSegmentFlatTableProducer);
+DEFINE_FWK_MODULE(CSCSegmentFlatTableProducer);
 DEFINE_FWK_MODULE(RPCRecHitFlatTableProducer);
 DEFINE_FWK_MODULE(GEMRecHitFlatTableProducer);
 DEFINE_FWK_MODULE(GEMSegmentFlatTableProducer);
