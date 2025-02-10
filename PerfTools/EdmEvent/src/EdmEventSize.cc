@@ -423,4 +423,6 @@ namespace perftools {
     }
   }
 
+  template class perftools::EdmEventSize<perftools::EdmEventMode::Leaves>;
+  template class perftools::EdmEventSize<perftools::EdmEventMode::Branches>;
 }  // namespace perftools
