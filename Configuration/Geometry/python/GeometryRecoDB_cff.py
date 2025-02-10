@@ -21,6 +21,7 @@ from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 from Geometry.HcalCommonData.hcalDBConstants_cff import *
 from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *
+from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *
 
 #  Alignment
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometryDB_cff import *

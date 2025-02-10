@@ -7,7 +7,7 @@ from PhysicsTools.PythonAnalysis import *
 
 #print_options.set_float_precision(4)
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+ROOT.FWLiteEnabler.enable()
 
 #import EcalDetId
 #from DataFormats.EcalDetId import *
@@ -52,22 +52,22 @@ event_counter=0
 
 for arg in sys.argv:
     if(arg=='AOD'):
-        print "AOD"
+        print("AOD")
         file="/tmp/"+os.environ["USER"]+"/rereco30Nov-AOD.root"
         file_format="AOD"
         break
     elif(arg=='AlcaFromAOD'):
-        print "AlcaFromAOD"
+        print("AlcaFromAOD")
         file="/tmp/"+os.environ["USER"]+"/AlcarecoFromAOD.root"
         file_format="AlcaFromAOD"
         break
     elif(arg=='AlcaFromAOD-recalib'):
-        print "AlcaFromAOD-recalib"
+        print("AlcaFromAOD-recalib")
         file="/tmp/"+os.environ["USER"]+"/AlcarecoFromAOD-recalib.root"
         file_format="AlcaFromAOD_Recalib"
         break
     elif(arg=='sandbox'):
-        print 'sandbox'
+        print('sandbox')
         #        file="/tmp/"+os.environ["USER"]+"/sandbox.root"
         #        file="/tmp/"+os.environ["USER"]+"/alcaRecoSkim-2.root"
         file="./scratch/sandbox.root"
@@ -76,7 +76,7 @@ for arg in sys.argv:
 #sandbox"
         break
     elif(arg=='sandboxRereco'):
-        print 'sandbox recalib'
+        print('sandbox recalib')
 
         
         #file="/tmp/"+os.environ["USER"]+"/SANDBOX/sandboxRereco.root"
@@ -85,18 +85,18 @@ for arg in sys.argv:
         file_format="sandboxRecalib"
         break
     elif(arg=='RECO'):
-        print 'RECO'
+        print('RECO')
         file="root://eoscms//eos/cms/store/data/Run2012A/DoubleElectron/RECO/PromptReco-v1/000/193/336/BC442450-7997-E111-8177-003048D3C90E.root"
         #        file="/tmp/"+os.environ["USER"]+"/SANDBOX/RAW-RECO.root"
         file_format="RECO"
         break
     elif(arg=='MC'):
-        print 'MC'
+        print('MC')
         file="/tmp/"+os.environ["USER"]+"/MC-AODSIM.root"
         file_format="AOD"
         break
     elif(arg=='ALCARECO'):
-        print 'ALCARECO'
+        print('ALCARECO')
         file="alcaSkimSandbox_numEvent10000.root"
 #        file="alcaSkimSandbox.root"
         file_format="ALCARECO"
@@ -132,7 +132,7 @@ for arg in sys.argv:
 #file='/tmp/shervin/alcaRecoSkim-1.root'
 #file='/tmp/shervin/myAlcaRecoSkim.root'
 
-print file
+print(file)
 events = Events (file)
 
 handleElectrons = Handle('std::vector<reco::GsfElectron>')
@@ -184,18 +184,18 @@ EBrecHitmap_ele2 = TH2F("EBrecHitmap_ele2", "EBrecHitmap_ele2",
                    171,-85,85,
                    360,0,360)
 
-print file_format, file, electronTAG, processName, maxEvents
+print(file_format, file, electronTAG, processName, maxEvents)
 
-print "run    lumi  event     isEB    energy     eSC  rawESC    e5x5    E_ES, etaEle, phiEle, etaSC, phiSC, clustersSize, nRecHits"
+print("run    lumi  event     isEB    energy     eSC  rawESC    e5x5    E_ES, etaEle, phiEle, etaSC, phiSC, clustersSize, nRecHits")
 for event in events:
 
 #    if(event_counter % 100):
-#        print "[STATUS] event ", event_counter
+#        print("[STATUS] event ", event_counter)
         
     if(maxEvents > 0 and event_counter > maxEvents):
         break
     if(eventListPrint==True):
-        print event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(), event.eventAuxiliary().event()
+        print(event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(), event.eventAuxiliary().event())
         continue
     #if(event.eventAuxiliary.run()== 145351895):
     if lumi > 0 and int(event.eventAuxiliary().luminosityBlock()) != lumi :
@@ -207,7 +207,7 @@ for event in events:
 
         #    event.getByLabel(electronTAG, "", processName, handleElectrons)
     event.getByLabel(electronTAG, handleElectrons)
-    #    print file_format, file, electronTAG        
+    #    print(file_format, file, electronTAG        )
     electrons = handleElectrons.product()
 
 
@@ -215,7 +215,7 @@ for event in events:
         event.getByLabel("reducedEcalRecHitsEB", "", processName, handleRecHitsEB)
         event.getByLabel("reducedEcalRecHitsEE", "", processName, handleRecHitsEE)
         event.getByLabel("reducedEcalRecHitsES", "", processName, handleRecHitsES)
-#        print "##############", 
+#        print("##############", )
         #        rhoTAG=edm.InputTag()
         #        rhoTAG=("kt6PFJets","rho","RECO")
 #        event.getByLabel("kt6PFJets","rho","RECO",handleRhoFastJet)
@@ -237,12 +237,12 @@ for event in events:
 #    else:
         
     
-#    print "Num of electrons: ",len(electrons)
+#    print("Num of electrons: ",len(electrons))
     if(len(electrons)>=2):
      ele_counter=0
      for electron in electrons:
         if(not electron.ecalDrivenSeed()): 
-            print "trackerDriven",
+            print("trackerDriven",)
 #            sys.exit(0)
         electron.superCluster().energy()
 
@@ -252,8 +252,8 @@ for event in events:
         #            for ESrecHit in ESrecHits:
         #                if(eventNumber >0):
         #                    esrecHit = ESDetId(ESrecHit.id().rawId())
-        #                    print ESrecHit.id()(), esrecHit.strip(), esrecHit.six(), esrecHit.siy(), esrecHit.plane()
-        print "------------------------------"
+        #                    print(ESrecHit.id()(), esrecHit.strip(), esrecHit.six(), esrecHit.siy(), esrecHit.plane())
+        print("------------------------------")
         if(not file_format=="sandbox"):
          if(electron.isEB()):
              recHits = handleRecHitsEB.product()
@@ -271,7 +271,7 @@ for event in events:
                          elif(ele_counter==1):
                              EBrecHitmap_ele2.Fill(EBrecHit.ieta(), EBrecHit.iphi(), recHit.energy());
                          
-                     print recHit.id()(), EBrecHit.ieta(), EBrecHit.iphi(), recHit.energy(), recHit.checkFlag(0)
+                     print(recHit.id()(), EBrecHit.ieta(), EBrecHit.iphi(), recHit.energy(), recHit.checkFlag(0))
                  else:
                      EErecHit = EEDetId(recHit.id().rawId())
                      if(allRecHits):
@@ -279,7 +279,7 @@ for event in events:
                              EErecHitmap_ele1.Fill(EErecHit.ix(), EErecHit.iy(), recHit.energy());
                          elif(ele_counter==1):
                              EErecHitmap_ele2.Fill(EErecHit.ix(), EErecHit.iy(), recHit.energy());
-                     print recHit.id()(), EErecHit.ix(), EErecHit.iy(), recHit.energy()
+                     print(recHit.id()(), EErecHit.ix(), EErecHit.iy(), recHit.energy())
  
          hits = electron.superCluster().hitsAndFractions() 
          nRecHitsSC=0
@@ -293,7 +293,7 @@ for event in events:
                              EBrecHitmap_ele1.Fill(EBrecHit.ieta(), EBrecHit.iphi(), hit.second*electron.superCluster().energy());
                          elif(ele_counter==1):
                              EBrecHitmap_ele2.Fill(EBrecHit.ieta(), EBrecHit.iphi(), hit.second*electron.superCluster().energy());
-                     print "SC", (hit.first).rawId(), (hit.first)(), EBrecHit.ieta(), EBrecHit.iphi(),  EBrecHit.tower().iTT(), EBrecHit.ism(), EBrecHit.im()
+                     print("SC", (hit.first).rawId(), (hit.first)(), EBrecHit.ieta(), EBrecHit.iphi(),  EBrecHit.tower().iTT(), EBrecHit.ism(), EBrecHit.im())
                  else:
                      EErecHit = EEDetId(hit.first.rawId())
                      if(not allRecHits):
@@ -302,19 +302,19 @@ for event in events:
                          elif(ele_counter==1):
                              EErecHitmap_ele2.Fill(EErecHit.ix(), EErecHit.iy(), recHit.energy());
  
- #                print "SC ", (hit.first)()
+ #                print("SC ", (hit.first)())
             
-        print event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(), event.eventAuxiliary().event(),
-        print "isEB=",electron.isEB(),
-        print '{0:7.3f} {1:7.3f} {2:7.3f} {3:7.3f} {4:7.3f}'.format(electron.energy(), electron.superCluster().energy(), electron.superCluster().rawEnergy(), electron.e5x5(), electron.superCluster().preshowerEnergy()),
-        print '{0:6.3f} {1:6.3f} {2:6.3f} {3:6.3f}'.format(electron.eta(), electron.phi(), electron.superCluster().eta(), electron.superCluster().phi()),
-        print electron.superCluster().clustersSize(), nRecHits, nRecHitsSC
+        print(event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(), event.eventAuxiliary().event(),)
+        print("isEB=",electron.isEB(),)
+        print('{0:7.3f} {1:7.3f} {2:7.3f} {3:7.3f} {4:7.3f}'.format(electron.energy(), electron.superCluster().energy(), electron.superCluster().rawEnergy(), electron.e5x5(), electron.superCluster().preshowerEnergy()),)
+        print('{0:6.3f} {1:6.3f} {2:6.3f} {3:6.3f}'.format(electron.eta(), electron.phi(), electron.superCluster().eta(), electron.superCluster().phi()),)
+        print(electron.superCluster().clustersSize(), nRecHits, nRecHitsSC)
         ele_counter+=1
         
         
     event_counter+=1
 
-print event_counter
+print(event_counter)
 
 # setting maps to -999
 gStyle.SetPaintTextFormat("1.1f")

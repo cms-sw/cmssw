@@ -88,6 +88,7 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
     : AlignmentAlgorithmBase(cfg, iC),
       topoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       aliThrToken_(iC.esConsumes<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd, edm::Transition::BeginRun>()),
+      siPixelQualityToken_(iC.esConsumes<SiPixelQuality, SiPixelQualityFromDbRcd, edm::Transition::BeginRun>()),
       geomToken_(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       theConfig(cfg),
       theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
@@ -113,6 +114,7 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
                                                   cond::timeTypeSpecs[cond::runnumber].beginValue)),
       enforceSingleIOVInput_(!(enableAlignableUpdates_ && areIOVsSpecified())),
       lastProcessedRun_(cond::timeTypeSpecs[cond::runnumber].beginValue) {
+  pixelQuality = nullptr;
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size() - 1)
     theDir += '/';  // may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm"
@@ -186,6 +188,11 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     const auto &th = &setup.getData(aliThrToken_);
     theThresholds = std::make_shared<AlignPCLThresholdsHG>();
     storeThresholds(th->getNrecords(), th->getThreshold_Map(), th->getFloatMap());
+
+    // Retrieve the SiPixelQuality object from setup
+    const SiPixelQuality &qual = setup.getData(siPixelQualityToken_);
+    // Create a new SiPixelQuality object on the heap using the copy constructor
+    pixelQuality = std::make_shared<SiPixelQuality>(qual);
 
     //Retrieve tracker geometry
     const TrackerGeometry *tGeom = &setup.getData(geomToken_);
@@ -330,7 +337,8 @@ bool MillePedeAlignmentAlgorithm::storeAlignments() {
       MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"),
                                    thePedeLabels,
                                    theThresholds,
-                                   pixelTopologyMap);
+                                   pixelTopologyMap,
+                                   pixelQuality);
       mpReader.read();
       return mpReader.storeAlignments();
     } else {
@@ -388,7 +396,7 @@ void MillePedeAlignmentAlgorithm::terminate() {
     std::string filesForLogOutput;
     for (const auto &file : files)
       filesForLogOutput += " " + file + ",";
-    if (filesForLogOutput.length() != 0)
+    if (!filesForLogOutput.empty())
       filesForLogOutput.pop_back();
     edm::LogInfo("Alignment") << "Based on the config parameter mergeBinaryFiles, using the following "
                               << "files as input (assigned weights are indicated by ' -- <weight>'):"

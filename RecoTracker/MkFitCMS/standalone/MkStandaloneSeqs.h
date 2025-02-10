@@ -33,6 +33,9 @@ namespace mkfit {
       void quality_reset();
       void quality_process(Event *event, Track &tkcand, const int itrack, std::map<int, int> &cmsswLabelToPos);
       void quality_print();
+
+      static Quality s_quality_sum;
+      static void add_to_quality_sum(const Quality &q);
     };
 
     void root_val_dumb_cmssw(Event *event);

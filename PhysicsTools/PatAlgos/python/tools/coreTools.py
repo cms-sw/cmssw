@@ -1,4 +1,3 @@
-from __future__ import print_function
 from builtins import range
 from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 
@@ -124,10 +123,13 @@ class RemoveMCMatching(ConfigToolBase):
                 _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus', postfix)
                 ## remove mc extra configs for taus
                 tauProducer = getattr(process,'patTaus'+postfix)
-                tauProducer.addGenJetMatch   = False
-                tauProducer.embedGenJetMatch = False
+                if hasattr(tauProducer,"addGenJetMatch"):
+                    tauProducer.addGenJetMatch   = False
+                if hasattr(tauProducer,"embedGenJetMatch"):
+                    tauProducer.embedGenJetMatch = False
                 attrsToDelete += [tauProducer.genJetMatch.getModuleLabel()]
-                tauProducer.genJetMatch      = ''
+                if hasattr(tauProducer,"genJetMatch"):
+                    tauProducer.genJetMatch      = ''
                 attrsToDelete += ['tauGenJets'+postfix]
                 attrsToDelete += ['tauGenJetsSelectorAllHadrons'+postfix]
             #Boosted Taus
@@ -137,10 +139,13 @@ class RemoveMCMatching(ConfigToolBase):
                     _removeMCMatchingForPATObject(process, 'tauMatchBoosted', 'patTausBoosted', postfix)
                     ## remove mc extra configs for taus
                     tauProducer = getattr(process,'patTausBoosted'+postfix)
-                    tauProducer.addGenJetMatch   = False
-                    tauProducer.embedGenJetMatch = False
+                    if hasattr(tauProducer,"addGenJetMatch"):
+                        tauProducer.addGenJetMatch   = False
+                    if hasattr(tauProducer,"embedGenJetMatch"):
+                        tauProducer.embedGenJetMatch = False
                     attrsToDelete += [tauProducer.genJetMatch.getModuleLabel()]
-                    tauProducer.genJetMatch      = ''
+                    if hasattr(tauProducer,"genJetMatch"):
+                        tauProducer.genJetMatch      = ''
                     attrsToDelete += ['tauGenJetsBoosted'+postfix]
                     attrsToDelete += ['tauGenJetsSelectorAllHadronsBoosted'+postfix]
                 else :
@@ -154,20 +159,30 @@ class RemoveMCMatching(ConfigToolBase):
                 for pfix in jetPostfixes:
                     ## remove mc extra configs for jets
                     jetProducer = getattr(process, jetCollectionString()+pfix)
-                    jetProducer.addGenPartonMatch   = False
-                    jetProducer.embedGenPartonMatch = False
+                    if hasattr(jetProducer,"addGenPartonMatch"):
+                        jetProducer.addGenPartonMatch   = False
+                    if hasattr(jetProducer,"embedGenPartonMatch"):
+                        jetProducer.embedGenPartonMatch = False
                     #attrsToDelete += [jetProducer.genPartonMatch.getModuleLabel()] #MM needed for potential jet backuping
-                    jetProducer.genPartonMatch      = ''
-                    jetProducer.addGenJetMatch      = False
+                    if hasattr(jetProducer,"genPartonMatch"):
+                        jetProducer.genPartonMatch      = ''
+                    if hasattr(jetProducer,"addGenJetMatch"):
+                        jetProducer.addGenJetMatch      = False
                     #attrsToDelete += [jetProducer.genJetMatch.getModuleLabel()]  #MM needed for potential jet backuping
-                    jetProducer.genJetMatch         = ''
-                    jetProducer.getJetMCFlavour     = False
-                    jetProducer.useLegacyJetMCFlavour = False
-                    jetProducer.addJetFlavourInfo   = False
+                    if hasattr(jetProducer,"genJetMatch"):
+                        jetProducer.genJetMatch         = ''
+                    if hasattr(jetProducer,"getJetMCFlavour"):
+                        jetProducer.getJetMCFlavour     = False
+                    if hasattr(jetProducer,"useLegacyJetMCFlavour"):
+                        jetProducer.useLegacyJetMCFlavour = False
+                    if hasattr(jetProducer,"addJetFlavourInfo"):
+                        jetProducer.addJetFlavourInfo   = False
                     #attrsToDelete += [jetProducer.JetPartonMapSource.getModuleLabel()]  #MM needed for potential jet backuping
-                    jetProducer.JetPartonMapSource  = ''
+                    if hasattr(jetProducer,"JetPartonMapSource"):
+                        jetProducer.JetPartonMapSource  = ''
                     #attrsToDelete += [jetProducer.JetFlavourInfoSource.getModuleLabel()]  #MM needed for potential jet backuping
-                    jetProducer.JetFlavourInfoSource = ''
+                    if hasattr(jetProducer,"JetFlavourInfoSource"):
+                        jetProducer.JetFlavourInfoSource = ''
                     attrsToDelete += ['slimmedGenJets'+pfix]
                 ## adjust output
                 for outMod in outputModules:
@@ -176,7 +191,6 @@ class RemoveMCMatching(ConfigToolBase):
                         getattr(process,outMod).outputCommands.append("drop recoGenJets_*_*_*")
                     else:
                         raise KeyError("process has no OutModule named " + outMod)
-            
             if ( names[obj] == 'JetsAK8' or names[obj] == 'All' ):
                 print("removing MC dependencies for AK8 jets")
                 attrsToDelete += ['slimmedGenJetsAK8' + postfix]
@@ -206,9 +220,12 @@ def _removeMCMatchingForPATObject(process, matcherName, producerName, postfix=""
         objectMatcher = getattr(process, matcherName+postfix)
     if hasattr(process, producerName+postfix):
         objectProducer = getattr(process, producerName+postfix)
-        objectProducer.addGenMatch      = False
-        objectProducer.embedGenMatch    = False
+        if hasattr(objectProducer,"addGenMatch"):
+            objectProducer.addGenMatch      = False
+        if hasattr(objectProducer,"addGenMatch"):
+            objectProducer.addGenMatch    = False
         attr = objectProducer.genParticleMatch.getModuleLabel()
-        objectProducer.genParticleMatch = ''
+        if hasattr(objectProducer,"genParticleMatch"):
+            objectProducer.genParticleMatch = ''
     if hasattr(process,attr): delattr(process,attr)
 

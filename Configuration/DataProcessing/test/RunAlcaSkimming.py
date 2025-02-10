@@ -6,7 +6,6 @@ Test wrapper to generate an alca skimming config and push it into cmsRun for
 testing with a few input files etc from the command line
 
 """
-from __future__ import print_function
 
 import sys
 import getopt
@@ -124,7 +123,7 @@ python2.4 RunAlcaSkimming.py --scenario=Cosmics --lfn=/store/whatever --skims=Mu
         if opt == "--lfn" :
             skimmer.inputLFN = arg
         if opt == "--skims":
-            skimmer.skims = [ x for x in arg.split(',') if len(x) > 0 ]
+            skimmer.skims = [ x for x in arg.split('+') if len(x) > 0 ]
         if opt == "--global-tag":
             skimmer.globalTag = arg
 

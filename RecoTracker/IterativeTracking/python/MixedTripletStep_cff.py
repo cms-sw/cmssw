@@ -75,8 +75,8 @@ trackingLowPU.toModify(mixedTripletStepSeedLayersA,
     ],
     TEC = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
 )
-from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
-highBetaStar_2018.toModify(mixedTripletStepSeedLayersA,
+from Configuration.Eras.Modifier_highBetaStar_cff import highBetaStar
+highBetaStar.toModify(mixedTripletStepSeedLayersA,
     layerList = [
         'BPix1+BPix2+BPix3',
         'BPix1+FPix1_pos+FPix2_pos','BPix1+FPix1_neg+FPix2_neg',
@@ -95,7 +95,7 @@ _mixedTripletStepTrackingRegionsCommon = _globalTrackingRegionFromBeamSpotFixedZ
     originRadius     = 1.5
 ))
 trackingLowPU.toModify(_mixedTripletStepTrackingRegionsCommon, RegionPSet = dict(originHalfLength = 10.0))
-highBetaStar_2018.toModify(_mixedTripletStepTrackingRegionsCommon,RegionPSet = dict(
+highBetaStar.toModify(_mixedTripletStepTrackingRegionsCommon,RegionPSet = dict(
      ptMin        = 0.05,
      originRadius = 0.2
 ))
@@ -195,7 +195,7 @@ mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsCommon.clone(
                     ptMin      = 0.6,)
                 )
 )
-highBetaStar_2018.toReplaceWith(mixedTripletStepTrackingRegionsB, _mixedTripletStepTrackingRegionsCommon.clone())
+highBetaStar.toReplaceWith(mixedTripletStepTrackingRegionsB, _mixedTripletStepTrackingRegionsCommon.clone())
 
 # seeding
 mixedTripletStepHitDoubletsB = mixedTripletStepHitDoubletsA.clone(
@@ -226,7 +226,7 @@ _mixedTripletStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.Trajec
     minimumNumberOfHits = 3,
     minPt               = 0.1
 )
-highBetaStar_2018.toModify(_mixedTripletStepTrajectoryFilterBase,minPt = 0.05)
+highBetaStar.toModify(_mixedTripletStepTrajectoryFilterBase,minPt = 0.05)
 
 mixedTripletStepTrajectoryFilter = _mixedTripletStepTrajectoryFilterBase.clone(
     constantValueForLostHitsFractionFilter = 1.4,
@@ -248,7 +248,7 @@ mixedTripletStepPropagator = TrackingTools.MaterialEffects.MaterialPropagator_cf
 trackingParabolicMf.toModify(mixedTripletStepPropagator, SimpleMagneticField = 'ParabolicMf')
 for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(mixedTripletStepPropagator, ptMin=0.4)
-highBetaStar_2018.toModify(mixedTripletStepPropagator,ptMin = 0.05)
+highBetaStar.toModify(mixedTripletStepPropagator,ptMin = 0.05)
 
 import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
 mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone(
@@ -259,7 +259,7 @@ mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.OppositeMater
 trackingParabolicMf.toModify(mixedTripletStepPropagatorOpposite, SimpleMagneticField = 'ParabolicMf')
 for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(mixedTripletStepPropagatorOpposite, ptMin=0.4)
-highBetaStar_2018.toModify(mixedTripletStepPropagatorOpposite,ptMin = 0.05)
+highBetaStar.toModify(mixedTripletStepPropagatorOpposite,ptMin = 0.05)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 mixedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -388,7 +388,8 @@ trackdnn.toReplaceWith(mixedTripletStep, trackTfClassifier.clone(
 ))
 (trackdnn & fastSim).toModify(mixedTripletStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
-highBetaStar_2018.toModify(mixedTripletStep,qualityCuts = [-0.7,0.0,0.5])
+(highBetaStar & trackingPhase1).toModify(mixedTripletStep,qualityCuts = [-0.7,0.0,0.5])
+(highBetaStar & ~trackingPhase1).toModify(mixedTripletStepClassifier1,qualityCuts = [-0.7,0.0,0.5])
 pp_on_AA.toModify(mixedTripletStep, qualityCuts = [-0.5,0.0,0.9])
 
 # For LowPU

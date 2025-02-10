@@ -3,7 +3,7 @@
 // Package:    SiPixelFakeLorentzAngleESSource
 // Class:      SiPixelFakeLorentzAngleESSource
 //
-/**\class SiPixelFakeLorentzAngleESSource SiPixelFakeLorentzAngleESSource.h CalibTracker/SiPixelESProducer/src/SiPixelFakeLorentzAngleESSource.cc
+/**\class SiPixelFakeLorentzAngleESSource SiPixelFakeLorentzAngleESSource.cc CalibTracker/SiPixelGainESProducers/plugins/SiPixelFakeLorentzAngleESSource.cc
 
  Description: <one line class summary>
 
@@ -12,22 +12,64 @@
 */
 //
 // Original Author:  Lotte Wilke
-//         Created:  Jan 31 2008
+//         Created:  Jan. 31st, 2008
 //
 //
+
+// system include files
+#include <memory>
 
 // user include files
-
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeLorentzAngleESSource.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+//
+// class decleration
+//
+
+class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
+  SiPixelFakeLorentzAngleESSource(const edm::ParameterSet&);
+  ~SiPixelFakeLorentzAngleESSource() override = default;
+  virtual std::unique_ptr<SiPixelLorentzAngle> produce(const SiPixelLorentzAngleRcd&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
+
+private:
+  int HVgroup(int panel, int module);
+
+  // data members
+  const edm::FileInPath fp_;
+  const edm::FileInPath t_topo_fp_;
+  const std::string myLabel_;
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters BPixParameters_;
+  Parameters FPixParameters_;
+  Parameters ModuleParameters_;
+
+  float bPixLorentzAnglePerTesla_;
+  float fPixLorentzAnglePerTesla_;
+};
 
 //
 // constructors and destructor
@@ -282,3 +324,5 @@ void SiPixelFakeLorentzAngleESSource::fillDescriptions(edm::ConfigurationDescrip
 
   descriptions.addWithDefaultLabel(desc);
 }
+
+DEFINE_FWK_EVENTSETUP_SOURCE(SiPixelFakeLorentzAngleESSource);

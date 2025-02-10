@@ -69,7 +69,7 @@ options.parseArguments()
 from Configuration.PyReleaseValidation.upgradeWorkflowComponents import upgradeProperties
 ConditionsInfo = {}
 if 'D' in options.Detector:
-    ConditionsInfo = upgradeProperties[2026][options.Detector] # so if the default changes, change wf only here
+    ConditionsInfo = upgradeProperties['Run4'][options.Detector] # so if the default changes, change wf only here
 else:
     ConditionsInfo = upgradeProperties[2017][options.Detector]
     

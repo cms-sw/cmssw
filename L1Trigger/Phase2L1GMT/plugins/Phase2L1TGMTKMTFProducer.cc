@@ -112,7 +112,7 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
     bstart = wordconcat<wordtype>(word, bstart, p.hwPhi(), BITSPHI);
     bstart = wordconcat<wordtype>(word, bstart, p.hwEta(), BITSETA);
     bstart = wordconcat<wordtype>(word, bstart, p.hwD0(), BITSSAD0);
-    bstart = wordconcat<wordtype>(word, bstart, track.rankPrompt(), 8);
+    wordconcat<wordtype>(word, bstart, track.rankPrompt(), 8);
 
     for (const auto& stub : track.stubs())
       p.addStub(stub);
@@ -140,7 +140,7 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
     bstart = wordconcat<wordtype>(word, bstart, p.hwPhi(), BITSPHI);
     bstart = wordconcat<wordtype>(word, bstart, p.hwEta(), BITSETA);
     bstart = wordconcat<wordtype>(word, bstart, p.hwD0(), BITSSAD0);
-    bstart = wordconcat<wordtype>(word, bstart, track.rankDisp(), 8);
+    wordconcat<wordtype>(word, bstart, track.rankDisp(), 8);
 
     for (const auto& stub : track.stubs()) {
       p.addStub(stub);

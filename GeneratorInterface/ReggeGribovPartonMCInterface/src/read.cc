@@ -5,7 +5,7 @@
 #include <cstring>
 
 int main(int numArgs, const char *args[]) {
-  int res;
+  // int res;
 
   if (numArgs != 2) {
     //PrintHelp(rs);
@@ -21,10 +21,10 @@ int main(int numArgs, const char *args[]) {
   }
 
   LzmaFile lzma;
-  res = lzma.Open(args[1]);
-  res = lzma.DecodeAll();
-  res = lzma.Close();
-
+  /*res =*/lzma.Open(args[1]);
+  /*res =*/lzma.DecodeAll();
+  /*res =*/lzma.Close();
+  /*
   if (res != SZ_OK) {
     if (res == SZ_ERROR_MEM) {
       return 0;  //PrintError(rs, kCantAllocateMessage);
@@ -37,5 +37,6 @@ int main(int numArgs, const char *args[]) {
     }
     return 0;  //PrintErrorNumber(rs, res);
   }
+  */
   return 0;
 }

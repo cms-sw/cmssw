@@ -24,6 +24,12 @@
   <test name="MTSall" command="testingScripts/test_unitMTS.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>  
+  <test name="PixBaryall" command="testingScripts/test_unitPixBary.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>
+  <test name="Genericall" command="testingScripts/test_unitGeneric.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>
   <bin file="testTrackAnalyzers.cc" name="testTrackAnalysis">
     <use name="FWCore/TestProcessor"/>
     <use name="catch2"/>

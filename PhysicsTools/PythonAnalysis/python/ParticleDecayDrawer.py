@@ -1,4 +1,3 @@
-from __future__ import print_function
 # Benedikt Hegner, DESY
 # benedikt.hegner@cern.ch
 #

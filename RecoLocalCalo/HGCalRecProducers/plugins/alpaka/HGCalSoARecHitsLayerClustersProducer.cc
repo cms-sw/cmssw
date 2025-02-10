@@ -33,7 +33,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class HGCalSoARecHitsLayerClustersProducer : public stream::EDProducer<> {
   public:
     HGCalSoARecHitsLayerClustersProducer(edm::ParameterSet const& config)
-        : getTokenDevice_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
+        : EDProducer(config),
+          getTokenDevice_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
           deviceToken_{produces()},
           deltac_((float)config.getParameter<double>("deltac")),
           kappa_((float)config.getParameter<double>("kappa")),

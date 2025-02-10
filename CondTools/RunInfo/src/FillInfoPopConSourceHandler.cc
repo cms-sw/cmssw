@@ -11,7 +11,6 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/TimeStamp.h"
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <utility>
@@ -146,7 +145,6 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   coral::ICursor &fillDataCursor = fillDataQuery->execute();
   //initialize loop variables
   unsigned short previousFillNumber = 1;
-  unsigned short currentFill = m_firstFill;
   cond::Time_t previousFillEndTime = 0ULL, afterPreviousFillEndTime = 0ULL, beforeStableBeamStartTime = 0ULL;
   if (tagInfo().size > 0) {
     previousFillNumber = previousFill->fillNumber();
@@ -167,7 +165,7 @@ void FillInfoPopConSourceHandler::getNewObjects() {
       fillDataCursor.currentRow().toOutputStream(qs);
       edm::LogInfo(m_name) << qs.str() << "\nfrom " << m_name << "::getNewObjects";
     }
-    currentFill = fillDataCursor.currentRow()[std::string("LHCFILL")].data<unsigned short>();
+    unsigned short currentFill = fillDataCursor.currentRow()[std::string("LHCFILL")].data<unsigned short>();
     coral::Attribute const &bunches1Attribute = fillDataCursor.currentRow()[std::string("NBUNCHESBEAM1")];
     if (bunches1Attribute.isNull()) {
       bunches1 = 0;

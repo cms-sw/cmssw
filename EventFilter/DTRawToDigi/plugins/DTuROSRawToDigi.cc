@@ -41,7 +41,12 @@ DTuROSRawToDigi::DTuROSRawToDigi(const edm::ParameterSet& pset) {
   mapping_token_ = esConsumes<DTReadOutMapping, DTReadOutMappingRcd>();
 }
 
-DTuROSRawToDigi::~DTuROSRawToDigi() {}
+void DTuROSRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputLabel", edm::InputTag("rawDataCollector"));
+  desc.addUntracked<bool>("debug", false);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 void DTuROSRawToDigi::produce(edm::Event& e, const edm::EventSetup& c) {
   DTDigiCollection digis;

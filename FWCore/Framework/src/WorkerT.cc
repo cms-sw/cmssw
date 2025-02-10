@@ -203,43 +203,41 @@ namespace edm {
   }
 
   template <typename T>
-  inline void WorkerT<T>::implDoAcquire(EventTransitionInfo const&,
-                                        ModuleCallingContext const*,
-                                        WaitingTaskWithArenaHolder&) {}
+  inline void WorkerT<T>::implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&) {}
 
   template <>
   inline void WorkerT<global::EDProducerBase>::implDoAcquire(EventTransitionInfo const& info,
                                                              ModuleCallingContext const* mcc,
-                                                             WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, holder);
+                                                             WaitingTaskHolder&& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<global::EDFilterBase>::implDoAcquire(EventTransitionInfo const& info,
                                                            ModuleCallingContext const* mcc,
-                                                           WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, holder);
+                                                           WaitingTaskHolder&& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<global::OutputModuleBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                ModuleCallingContext const* mcc,
-                                                               WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, holder);
+                                                               WaitingTaskHolder&& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<stream::EDProducerAdaptorBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                     ModuleCallingContext const* mcc,
-                                                                    WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, holder);
+                                                                    WaitingTaskHolder&& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<stream::EDFilterAdaptorBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                   ModuleCallingContext const* mcc,
-                                                                  WaitingTaskWithArenaHolder& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, holder);
+                                                                  WaitingTaskHolder&& holder) {
+    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
   }
 
   template <typename T>
@@ -306,36 +304,36 @@ namespace edm {
   }
 
   template <typename T>
-  inline size_t WorkerT<T>::transformIndex(edm::BranchDescription const&) const noexcept {
+  inline size_t WorkerT<T>::transformIndex(edm::ProductDescription const&) const noexcept {
     return -1;
   }
   template <>
-  inline size_t WorkerT<global::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<global::EDFilterBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<global::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<global::EDProducerBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
   inline size_t WorkerT<stream::EDProducerAdaptorBase>::transformIndex(
-      edm::BranchDescription const& iBranch) const noexcept {
+      edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<limited::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<limited::EDFilterBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<limited::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<limited::EDProducerBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<one::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<one::EDFilterBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<one::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<one::EDProducerBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
 

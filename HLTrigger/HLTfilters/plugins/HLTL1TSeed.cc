@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include <utility>
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -72,7 +73,7 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet)
     // dummy values for tokenNumber and tokenResult
     m_l1AlgoSeeds.reserve((m_l1AlgoLogicParser.operandTokenVector()).size());
     m_l1AlgoSeeds = m_l1AlgoLogicParser.expressionSeedsOperandList();
-    size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
+    size_t const l1AlgoSeedsSize = m_l1AlgoSeeds.size();
 
     m_l1AlgoSeedsRpn.reserve(l1AlgoSeedsSize);
     m_l1AlgoSeedsObjType.reserve(l1AlgoSeedsSize);
@@ -81,13 +82,6 @@ HLTL1TSeed::HLTL1TSeed(const edm::ParameterSet& parSet)
     m_l1GlobalDecision = true;
   }
 }
-
-// destructor
-HLTL1TSeed::~HLTL1TSeed() {
-  // empty now
-}
-
-// member functions
 
 void HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -486,38 +480,37 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
   // and only available from ObjectMaps created in (2).
 
   // define index lists for all particle types
+  using idxListType = std::list<std::pair<L1TObjBxIndexType, L1TObjIndexType>>;
 
-  std::list<int> listMuon;
-  std::list<int> listMuonShower;
+  idxListType listMuon;
+  idxListType listMuonShower;
 
-  std::list<int> listEG;
+  idxListType listEG;
 
-  std::list<int> listJet;
-  std::list<int> listTau;
+  idxListType listJet;
+  idxListType listTau;
 
-  std::list<int> listETM;
-  std::list<int> listETT;
-  std::list<int> listHTT;
-  std::list<int> listHTM;
-  std::list<int> listETMHF;
-  std::list<int> listHTMHF;
+  idxListType listETM;
+  idxListType listETT;
+  idxListType listHTT;
+  idxListType listHTM;
+  idxListType listETMHF;
+  idxListType listHTMHF;
 
-  std::list<int> listJetCounts;
-
-  std::list<int> listCentrality;
-  std::list<int> listMinBiasHFP0;
-  std::list<int> listMinBiasHFM0;
-  std::list<int> listMinBiasHFP1;
-  std::list<int> listMinBiasHFM1;
-  std::list<int> listTotalEtEm;
-  std::list<int> listMissingEtHF;
-  std::list<int> listTowerCount;
-  std::list<int> listAsymEt;
-  std::list<int> listAsymHt;
-  std::list<int> listAsymEtHF;
-  std::list<int> listAsymHtHF;
-  std::list<int> listZDCP;
-  std::list<int> listZDCM;
+  idxListType listCentrality;
+  idxListType listMinBiasHFP0;
+  idxListType listMinBiasHFM0;
+  idxListType listMinBiasHFP1;
+  idxListType listMinBiasHFM1;
+  idxListType listTotalEtEm;
+  idxListType listMissingEtHF;
+  idxListType listTowerCount;
+  idxListType listAsymEt;
+  idxListType listAsymHt;
+  idxListType listAsymEtHF;
+  idxListType listAsymHtHF;
+  idxListType listZDCP;
+  idxListType listZDCM;
 
   // get handle to unpacked GT
   edm::Handle<GlobalAlgBlkBxCollection> uGtAlgoBlocks;
@@ -694,7 +687,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
 
     const std::vector<GlobalLogicParser::OperandToken>& opTokenVecObjMap = objMap->operandTokenVector();
     const std::vector<L1TObjectTypeInCond>& condObjTypeVec = objMap->objectTypeVector();
-    const std::vector<CombinationsInCond>& condCombinations = objMap->combinationVector();
+    const std::vector<CombinationsWithBxInCond>& condCombinations = objMap->combinationVector();
 
     LogTrace("HLTL1TSeed") << "\n\talgoName =" << objMap->algoName() << "\talgoBitNumber = " << algoSeedBitNumber
                            << "\talgoGtlResult = " << algoSeedResult << endl
@@ -722,16 +715,15 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
     // operands are conditions of L1 algo
     //
     for (size_t condNumber = 0; condNumber < opTokenVecObjMap.size(); condNumber++) {
-      std::vector<l1t::GlobalObject> condObjType = condObjTypeVec[condNumber];
+      std::vector<l1t::GlobalObject> const& condObjType = condObjTypeVec[condNumber];
 
-      for (auto& jOb : condObjType) {
+      for (auto const& jOb : condObjType) {
         LogTrace("HLTL1TSeed") << setw(15) << "\tcondObjType = " << jOb << endl;
       }
 
-      const std::string condName = opTokenVecObjMap[condNumber].tokenName;
-      bool condResult = opTokenVecObjMap[condNumber].tokenResult;
+      bool const condResult = opTokenVecObjMap[condNumber].tokenResult;
 
-      // only procede for conditions that passed
+      // only proceed for conditions that passed
       //
       if (!condResult) {
         continue;
@@ -739,16 +731,16 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
 
       // loop over combinations for a given condition
       //
-      const CombinationsInCond* condComb = objMap->getCombinationsInCond(condNumber);
+      auto const& condComb = *(objMap->getCombinationsInCond(condNumber));
 
-      LogTrace("HLTL1TSeed") << setw(15) << "\tcondCombinations = " << condComb->size() << endl;
+      LogTrace("HLTL1TSeed") << setw(15) << "\tcondCombinations = " << condComb.size();
 
-      for (auto const& itComb : (*condComb)) {
+      for (size_t i1 = 0; i1 < condComb.size(); ++i1) {
         LogTrace("HLTL1TSeed") << setw(15) << "\tnew combination" << endl;
 
         // loop over objects in a combination for a given condition
         //
-        for (auto itObject = itComb.begin(); itObject != itComb.end(); itObject++) {
+        for (size_t i2 = 0; i2 < condComb[i1].size(); ++i2) {
           // in case of object-less triggers (e.g. L1_ZeroBias) condObjType vector is empty, so don't seed!
           //
           if (condObjType.empty()) {
@@ -759,90 +751,94 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
             continue;
           }
 
-          // the index of the object type is the same as the index of the object
-          size_t iType = std::distance(itComb.begin(), itObject);
+          // BX of the L1T object
+          auto const objBx = condComb[i1][i2].first;
 
-          // get object type and push indices on the list
-          //
-          const l1t::GlobalObject objTypeVal = condObjType.at(iType);
+          // index of the L1T object in the relevant BXVector
+          auto const objIdx = condComb[i1][i2].second;
 
-          LogTrace("HLTL1TSeed") << "\tAdd object of type " << objTypeVal << " and index " << (*itObject)
-                                 << " to the seed list." << std::endl;
+          // type of the L1T object
+          // (the index of the object type is the same as the index of the object)
+          l1t::GlobalObject const objTypeVal = condObjType[i2];
+
+          LogTrace("HLTL1TSeed") << "\tAdd object of type " << objTypeVal << " and index " << objIdx
+                                 << " (BX = " << objBx << ") to the seed list.";
 
           // THESE OBJECT CASES ARE CURRENTLY MISSING:
           //gtMinBias,
           //gtExternal,
           //ObjNull
 
+          // fill list(s) of BX:index values
           switch (objTypeVal) {
             case l1t::gtMu: {
-              listMuon.push_back(*itObject);
+              listMuon.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtMuShower: {
-              listMuonShower.push_back(*itObject);
+              listMuonShower.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtEG: {
-              listEG.push_back(*itObject);
+              listEG.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtJet: {
-              listJet.push_back(*itObject);
+              listJet.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtTau: {
-              listTau.push_back(*itObject);
+              listTau.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtETM: {
-              listETM.push_back(*itObject);
+              listETM.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtETT: {
-              listETT.push_back(*itObject);
+              listETT.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtHTT: {
-              listHTT.push_back(*itObject);
+              listHTT.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtHTM: {
-              listHTM.push_back(*itObject);
+              listHTM.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtETMHF: {
-              listETMHF.push_back(*itObject);
+              listETMHF.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtHTMHF: {
-              listHTMHF.push_back(*itObject);
+              listHTMHF.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtTowerCount: {
-              listTowerCount.push_back(*itObject);
+              listTowerCount.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtMinBiasHFP0: {
-              listMinBiasHFP0.push_back(*itObject);
+              listMinBiasHFP0.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtMinBiasHFM0: {
-              listMinBiasHFM0.push_back(*itObject);
+              listMinBiasHFM0.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtMinBiasHFP1: {
-              listMinBiasHFP1.push_back(*itObject);
+              listMinBiasHFP1.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtMinBiasHFM1: {
-              listMinBiasHFM1.push_back(*itObject);
+              listMinBiasHFM1.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtETTem: {
-              listTotalEtEm.push_back(*itObject);
+              listTotalEtEm.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtAsymmetryEt: {
-              listAsymEt.push_back(*itObject);
+              listAsymEt.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtAsymmetryHt: {
-              listAsymHt.push_back(*itObject);
+              listAsymHt.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtAsymmetryEtHF: {
-              listAsymEtHF.push_back(*itObject);
+              listAsymEtHF.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtAsymmetryHtHF: {
-              listAsymHtHF.push_back(*itObject);
+              listAsymHtHF.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtZDCP: {
-              listZDCP.push_back(*itObject);
+              listZDCP.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtZDCM: {
-              listZDCM.push_back(*itObject);
+              listZDCM.emplace_back(objBx, objIdx);
             } break;
             case l1t::gtCentrality0:
             case l1t::gtCentrality1:
@@ -852,20 +848,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
             case l1t::gtCentrality5:
             case l1t::gtCentrality6:
             case l1t::gtCentrality7: {
-              listCentrality.push_back(*itObject);
+              listCentrality.emplace_back(objBx, objIdx);
             } break;
 
-              //case JetCounts: {
-              //    listJetCounts.push_back(*itObject);
-              //}
-
-              break;
             default: {
               // should not arrive here
-
               LogTrace("HLTL1TSeed") << "\n    HLTL1TSeed::hltFilter "
-                                     << "\n      Unknown object of type " << objTypeVal << " and index " << (*itObject)
-                                     << " in the seed list." << std::endl;
+                                     << "\n      Unknown object of type " << objTypeVal << " and index " << objIdx
+                                     << " (BX = " << objBx << ") in the seed list.";
             } break;
 
           }  // end switch objTypeVal
@@ -912,9 +902,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
 
   listHTMHF.sort();
   listHTMHF.unique();
-
-  listJetCounts.sort();
-  listJetCounts.unique();
 
   listCentrality.sort();
   listCentrality.unique();
@@ -971,17 +958,17 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nrequested in configuration, but not found in the event."
                                     << "\nNo muons added to filterproduct." << endl;
     } else {
-      for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
+      for (auto const& [bxIdx, objIdx] : listMuon) {
         // skip invalid indices
-        if (*itObj < 0 or unsigned(*itObj) >= muons->size(0)) {
+        if (objIdx < 0 or unsigned(objIdx) >= muons->size(bxIdx)) {
           edm::LogWarning("HLTL1TSeed")
               << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::MuonBxCollection):"
-              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << muons->size(0) << ")";
+              << " index=" << objIdx << " (" << muons->size(bxIdx) << " unpacked L1T objects in BX " << bxIdx << ")";
           continue;
         }
 
         // Transform to index for Bx = 0 to begin of BxVector
-        unsigned int index = muons->begin(0) - muons->begin() + *itObj;
+        unsigned int index = muons->begin(bxIdx) - muons->begin() + objIdx;
 
         l1t::MuonRef myref(muons, index);
         filterproduct.addObject(trigger::TriggerL1Mu, myref);
@@ -999,17 +986,18 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nrequested in configuration, but not found in the event."
                                     << "\nNo muon showers added to filterproduct." << endl;
     } else {
-      for (std::list<int>::const_iterator itObj = listMuonShower.begin(); itObj != listMuonShower.end(); ++itObj) {
+      for (auto const& [bxIdx, objIdx] : listMuonShower) {
         // skip invalid indices
-        if (*itObj < 0 or unsigned(*itObj) >= muonShowers->size(0)) {
+        if (objIdx < 0 or unsigned(objIdx) >= muonShowers->size(bxIdx)) {
           edm::LogWarning("HLTL1TSeed")
               << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::MuonShowerBxCollection):"
-              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << muonShowers->size(0) << ")";
+              << " index=" << objIdx << " (" << muonShowers->size(bxIdx) << " unpacked L1T objects in BX " << bxIdx
+              << ")";
           continue;
         }
 
         // Transform to index for Bx = 0 to begin of BxVector
-        unsigned int index = muonShowers->begin(0) - muonShowers->begin() + *itObj;
+        unsigned int index = muonShowers->begin(bxIdx) - muonShowers->begin() + objIdx;
 
         l1t::MuonShowerRef myref(muonShowers, index);
         filterproduct.addObject(trigger::TriggerL1MuShower, myref);
@@ -1026,17 +1014,17 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nrequested in configuration, but not found in the event."
                                     << "\nNo egammas added to filterproduct." << endl;
     } else {
-      for (std::list<int>::const_iterator itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
+      for (auto const& [bxIdx, objIdx] : listEG) {
         // skip invalid indices
-        if (*itObj < 0 or unsigned(*itObj) >= egammas->size(0)) {
+        if (objIdx < 0 or unsigned(objIdx) >= egammas->size(bxIdx)) {
           edm::LogWarning("HLTL1TSeed")
               << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::EGammaBxCollection):"
-              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << egammas->size(0) << ")";
+              << " index=" << objIdx << " (" << egammas->size(bxIdx) << " unpacked L1T objects in BX " << bxIdx << ")";
           continue;
         }
 
         // Transform to begin of BxVector
-        unsigned int index = egammas->begin(0) - egammas->begin() + *itObj;
+        unsigned int index = egammas->begin(bxIdx) - egammas->begin() + objIdx;
 
         l1t::EGammaRef myref(egammas, index);
         filterproduct.addObject(trigger::TriggerL1EG, myref);
@@ -1054,17 +1042,17 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nrequested in configuration, but not found in the event."
                                     << "\nNo jets added to filterproduct." << endl;
     } else {
-      for (std::list<int>::const_iterator itObj = listJet.begin(); itObj != listJet.end(); ++itObj) {
+      for (auto const& [bxIdx, objIdx] : listJet) {
         // skip invalid indices
-        if (*itObj < 0 or unsigned(*itObj) >= jets->size(0)) {
+        if (objIdx < 0 or unsigned(objIdx) >= jets->size(bxIdx)) {
           edm::LogWarning("HLTL1TSeed")
               << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::JetBxCollection):"
-              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << jets->size(0) << ")";
+              << " index=" << objIdx << " (" << jets->size(bxIdx) << " unpacked L1T objects in BX " << bxIdx << ")";
           continue;
         }
 
         // Transform to begin of BxVector
-        unsigned int index = jets->begin(0) - jets->begin() + *itObj;
+        unsigned int index = jets->begin(bxIdx) - jets->begin() + objIdx;
 
         l1t::JetRef myref(jets, index);
         filterproduct.addObject(trigger::TriggerL1Jet, myref);
@@ -1082,17 +1070,17 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nrequested in configuration, but not found in the event."
                                     << "\nNo taus added to filterproduct." << endl;
     } else {
-      for (std::list<int>::const_iterator itObj = listTau.begin(); itObj != listTau.end(); ++itObj) {
+      for (auto const& [bxIdx, objIdx] : listTau) {
         // skip invalid indices
-        if (*itObj < 0 or unsigned(*itObj) >= taus->size(0)) {
+        if (objIdx < 0 or unsigned(objIdx) >= taus->size(bxIdx)) {
           edm::LogWarning("HLTL1TSeed")
               << "Invalid index from the L1ObjectMap (L1uGT emulator), will be ignored (l1t::TauBxCollection):"
-              << " index=" << *itObj << " (size of unpacked L1T objects in BX0 = " << taus->size(0) << ")";
+              << " index=" << objIdx << " (" << taus->size(bxIdx) << " unpacked L1T objects in BX " << bxIdx << ")";
           continue;
         }
 
         // Transform to begin of BxVector
-        unsigned int index = taus->begin(0) - taus->begin() + *itObj;
+        unsigned int index = taus->begin(bxIdx) - taus->begin() + objIdx;
 
         l1t::TauRef myref(taus, index);
         filterproduct.addObject(trigger::TriggerL1Tau, myref);
@@ -1101,150 +1089,57 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
   }
 
   // ETT, HTT, ETM, HTM
-  edm::Handle<l1t::EtSumBxCollection> etsums;
-  iEvent.getByToken(m_l1EtSumToken, etsums);
-  if (!etsums.isValid()) {
+  auto fillEtSums = [&](edm::Handle<l1t::EtSumBxCollection> const& etSums,
+                        idxListType const& theList,
+                        l1t::EtSum::EtSumType const l1tId,
+                        trigger::TriggerObjectType const trigObjId) {
+    for (auto const& [bxIdx, objIdx] : theList) {
+      for (auto iter = etSums->begin(bxIdx); iter != etSums->end(bxIdx); ++iter) {
+        l1t::EtSumRef myref(etSums, etSums->key(iter));
+        if (myref->getType() == l1tId) {
+          filterproduct.addObject(trigObjId, myref);
+        }
+      }
+    }
+  };
+
+  auto const etsums = iEvent.getHandle(m_l1EtSumToken);
+  if (not etsums.isValid()) {
     edm::LogWarning("HLTL1TSeed") << "\nWarning: L1EtSumBxCollection with input tag " << m_l1EtSumTag
                                   << "\nrequested in configuration, but not found in the event."
                                   << "\nNo etsums added to filterproduct." << endl;
   } else {
-    l1t::EtSumBxCollection::const_iterator iter;
-
-    for (iter = etsums->begin(0); iter != etsums->end(0); ++iter) {
-      l1t::EtSumRef myref(etsums, etsums->key(iter));
-
-      switch (iter->getType()) {
-        case l1t::EtSum::kTotalEt:
-          if (!listETT.empty())
-            filterproduct.addObject(trigger::TriggerL1ETT, myref);
-          break;
-        case l1t::EtSum::kTotalHt:
-          if (!listHTT.empty())
-            filterproduct.addObject(trigger::TriggerL1HTT, myref);
-          break;
-        case l1t::EtSum::kMissingEt:
-          if (!listETM.empty())
-            filterproduct.addObject(trigger::TriggerL1ETM, myref);
-          break;
-        case l1t::EtSum::kMissingHt:
-          if (!listHTM.empty())
-            filterproduct.addObject(trigger::TriggerL1HTM, myref);
-          break;
-        case l1t::EtSum::kMissingEtHF:
-          if (!listETMHF.empty())
-            filterproduct.addObject(trigger::TriggerL1ETMHF, myref);
-          break;
-        case l1t::EtSum::kMissingHtHF:
-          if (!listHTMHF.empty())
-            filterproduct.addObject(trigger::TriggerL1HTMHF, myref);
-          break;
-        case l1t::EtSum::kCentrality:
-          if (!listCentrality.empty())
-            filterproduct.addObject(trigger::TriggerL1Centrality, myref);
-          break;
-        case l1t::EtSum::kMinBiasHFP0:
-          if (!listMinBiasHFP0.empty())
-            filterproduct.addObject(trigger::TriggerL1MinBiasHFP0, myref);
-          break;
-        case l1t::EtSum::kMinBiasHFM0:
-          if (!listMinBiasHFM0.empty())
-            filterproduct.addObject(trigger::TriggerL1MinBiasHFM0, myref);
-          break;
-        case l1t::EtSum::kMinBiasHFP1:
-          if (!listMinBiasHFP1.empty())
-            filterproduct.addObject(trigger::TriggerL1MinBiasHFP1, myref);
-          break;
-        case l1t::EtSum::kMinBiasHFM1:
-          if (!listMinBiasHFM1.empty())
-            filterproduct.addObject(trigger::TriggerL1MinBiasHFM1, myref);
-          break;
-        case l1t::EtSum::kTotalEtEm:
-          if (!listTotalEtEm.empty())
-            filterproduct.addObject(trigger::TriggerL1TotalEtEm, myref);
-          break;
-        case l1t::EtSum::kTowerCount:
-          if (!listTowerCount.empty())
-            filterproduct.addObject(trigger::TriggerL1TowerCount, myref);
-          break;
-        case l1t::EtSum::kAsymEt:
-          if (!listAsymEt.empty())
-            filterproduct.addObject(trigger::TriggerL1AsymEt, myref);
-          break;
-        case l1t::EtSum::kAsymHt:
-          if (!listAsymHt.empty())
-            filterproduct.addObject(trigger::TriggerL1AsymHt, myref);
-          break;
-        case l1t::EtSum::kAsymEtHF:
-          if (!listAsymEtHF.empty())
-            filterproduct.addObject(trigger::TriggerL1AsymEtHF, myref);
-          break;
-        case l1t::EtSum::kAsymHtHF:
-          if (!listAsymHtHF.empty())
-            filterproduct.addObject(trigger::TriggerL1AsymHtHF, myref);
-          break;
-        default:
-          LogTrace("HLTL1TSeed") << "  L1EtSum seed of currently unsuported HLT TriggerType. l1t::EtSum type:      "
-                                 << iter->getType() << "\n";
-
-      }  // end switch
-
-    }  // end for
-
-  }  // end else
+    fillEtSums(etsums, listETT, l1t::EtSum::kTotalEt, trigger::TriggerL1ETT);
+    fillEtSums(etsums, listHTT, l1t::EtSum::kTotalHt, trigger::TriggerL1HTT);
+    fillEtSums(etsums, listETM, l1t::EtSum::kMissingEt, trigger::TriggerL1ETM);
+    fillEtSums(etsums, listHTM, l1t::EtSum::kMissingHt, trigger::TriggerL1HTM);
+    fillEtSums(etsums, listETMHF, l1t::EtSum::kMissingEtHF, trigger::TriggerL1ETMHF);
+    fillEtSums(etsums, listHTMHF, l1t::EtSum::kMissingHtHF, trigger::TriggerL1HTMHF);
+    fillEtSums(etsums, listCentrality, l1t::EtSum::kCentrality, trigger::TriggerL1Centrality);
+    fillEtSums(etsums, listMinBiasHFP0, l1t::EtSum::kMinBiasHFP0, trigger::TriggerL1MinBiasHFP0);
+    fillEtSums(etsums, listMinBiasHFM0, l1t::EtSum::kMinBiasHFM0, trigger::TriggerL1MinBiasHFM0);
+    fillEtSums(etsums, listMinBiasHFP1, l1t::EtSum::kMinBiasHFP1, trigger::TriggerL1MinBiasHFP1);
+    fillEtSums(etsums, listMinBiasHFM1, l1t::EtSum::kMinBiasHFM1, trigger::TriggerL1MinBiasHFM1);
+    fillEtSums(etsums, listTotalEtEm, l1t::EtSum::kTotalEtEm, trigger::TriggerL1TotalEtEm);
+    fillEtSums(etsums, listTowerCount, l1t::EtSum::kTowerCount, trigger::TriggerL1TowerCount);
+    fillEtSums(etsums, listAsymEt, l1t::EtSum::kAsymEt, trigger::TriggerL1AsymEt);
+    fillEtSums(etsums, listAsymHt, l1t::EtSum::kAsymHt, trigger::TriggerL1AsymHt);
+    fillEtSums(etsums, listAsymEtHF, l1t::EtSum::kAsymEtHF, trigger::TriggerL1AsymEtHF);
+    fillEtSums(etsums, listAsymHtHF, l1t::EtSum::kAsymHtHF, trigger::TriggerL1AsymHtHF);
+  }
 
   // ZDCP, ZDCM
-  edm::Handle<l1t::EtSumBxCollection> etsumzdcs;
-  iEvent.getByToken(m_l1EtSumZdcToken, etsumzdcs);
-  if (!etsumzdcs.isValid()) {
-    //!! FIXME: replace LogDebug with edm::LogWarning once unpacker of ZDC inputs to L1-uGT becomes available
-    //!!        https://github.com/cms-sw/cmssw/pull/42634#issuecomment-1698132805
-    //!!        https://github.com/cms-sw/cmssw/blob/bece38936ef0ba111f4b5f4502e819595560afa6/EventFilter/L1TRawToDigi/plugins/implementations_stage2/GTSetup.cc#L76
-    LogDebug("HLTL1TSeed") << "\nWarning: L1EtSumBxCollection with input tag " << m_l1EtSumZdcTag
-                           << "\nrequested in configuration, but not found in the event."
-                           << "\nNo etsums (ZDC) added to filterproduct.";
+  auto const etsumzdcs = iEvent.getHandle(m_l1EtSumZdcToken);
+  if (not etsumzdcs.isValid()) {
+    edm::LogWarning("HLTL1TSeed") << "\nWarning: L1EtSumBxCollection with input tag " << m_l1EtSumZdcTag
+                                  << "\nrequested in configuration, but not found in the event."
+                                  << "\nNo etsums (ZDC) added to filterproduct.";
   } else {
-    l1t::EtSumBxCollection::const_iterator iter;
+    fillEtSums(etsumzdcs, listZDCP, l1t::EtSum::kZDCP, trigger::TriggerL1ZDCP);
+    fillEtSums(etsumzdcs, listZDCM, l1t::EtSum::kZDCM, trigger::TriggerL1ZDCM);
+  }
 
-    for (iter = etsumzdcs->begin(0); iter != etsumzdcs->end(0); ++iter) {
-      l1t::EtSumRef myref(etsumzdcs, etsumzdcs->key(iter));
-
-      switch (iter->getType()) {
-        case l1t::EtSum::kZDCP:
-          if (!listZDCP.empty())
-            filterproduct.addObject(trigger::TriggerL1ZDCP, myref);
-          break;
-        case l1t::EtSum::kZDCM:
-          if (!listZDCM.empty())
-            filterproduct.addObject(trigger::TriggerL1ZDCM, myref);
-          break;
-        default:
-          LogTrace("HLTL1TSeed")
-              << "  L1EtSum (ZDC) seed of currently unsuported HLT TriggerType. l1t::EtSum type:      "
-              << iter->getType() << "\n";
-
-      }  // end switch
-
-    }  // end for
-
-  }  // end else
-
-  // TODO FIXME uncomment if block when JetCounts implemented
-
-  //    // jet counts
-  //    if (!listJetCounts.empty()) {
-  //        edm::Handle<l1extra::L1JetCounts> l1JetCounts;
-  //        iEvent.getByToken(m_l1CollectionsToken.label(), l1JetCounts);
-  //
-  //        for (std::list<int>::const_iterator itObj = listJetCounts.begin();
-  //                itObj != listJetCounts.end(); ++itObj) {
-  //
-  //            filterproduct.addObject(trigger::TriggerL1JetCounts,l1extra::L1JetCountsRefProd(l1JetCounts));
-  //                  // FIXME: RefProd!
-  //
-  //        }
-  //
-  //    }
-
+  // return filter decision
   LogTrace("HLTL1TSeed") << "\nHLTL1Seed:seedsL1TriggerObjectMaps returning " << seedsResult << endl << endl;
 
   return seedsResult;

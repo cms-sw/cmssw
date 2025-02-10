@@ -5,11 +5,15 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace detail {
-    EDMetadataAcquireSentry::EDMetadataAcquireSentry(edm::StreamID streamID, edm::WaitingTaskWithArenaHolder holder)
-        : EDMetadataAcquireSentry(detail::chooseDevice(streamID), std::move(holder)) {}
+    EDMetadataAcquireSentry::EDMetadataAcquireSentry(edm::StreamID streamID,
+                                                     edm::WaitingTaskWithArenaHolder holder,
+                                                     bool synchronize)
+        : EDMetadataAcquireSentry(detail::chooseDevice(streamID), std::move(holder), synchronize) {}
 
-    EDMetadataAcquireSentry::EDMetadataAcquireSentry(Device const& device, edm::WaitingTaskWithArenaHolder holder)
-        : waitingTaskHolder_(std::move(holder)) {
+    EDMetadataAcquireSentry::EDMetadataAcquireSentry(Device const& device,
+                                                     edm::WaitingTaskWithArenaHolder holder,
+                                                     bool synchronize)
+        : waitingTaskHolder_(std::move(holder)), synchronize_(synchronize) {
 #ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
       // all synchronous backends
       metadata_ = std::make_shared<EDMetadata>(cms::alpakatools::getQueueCache<Queue>().get(device));
@@ -23,7 +27,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
     // all asynchronous backends
     std::shared_ptr<EDMetadata> EDMetadataAcquireSentry::finish() {
-      metadata_->enqueueCallback(std::move(waitingTaskHolder_));
+      if (synchronize_) {
+        alpaka::wait(metadata_->queue());
+      } else {
+        metadata_->enqueueCallback(std::move(waitingTaskHolder_));
+      }
       return std::move(metadata_);
     }
 #endif

@@ -13,6 +13,7 @@ struct FreeFunctionSelector {
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace reco {
   namespace modules {
@@ -20,6 +21,8 @@ namespace reco {
     struct ParameterAdapter<FreeFunctionSelector<T, f> > {
       typedef FreeFunctionSelector<T, f> value_type;
       static value_type make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) { return value_type(); }
+
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
     };
   }  // namespace modules
 }  // namespace reco

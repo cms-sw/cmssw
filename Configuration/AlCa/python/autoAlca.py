@@ -16,6 +16,7 @@ AlCaRecoMatrix = {
                   "ExpressCosmics"              : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias+SiPixelCalCosmics+SiStripCalCosmics",
                   "HcalNZS"                     : "HcalCalMinBias",
                   "HLTPhysics"                  : "TkAlMinBias+TkAlV0s",
+                  "HLTMonitor"                  : "TkAlHLTTracks+TkAlHLTTracksZMuMu",
                   "JetHT"                       : "HcalCalIsoTrkProducerFilter+TkAlJetHT",
                   "JetMET"                      : "HcalCalIsoTrkProducerFilter+TkAlJetHT+HcalCalNoise",
                   "MinimumBias"                 : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
@@ -63,6 +64,7 @@ AlCaNoConcurrentLumis = [
     'PromptCalibProdSiPixelAli',       # AlignmentProducerAsAnalyzer, MillePedeFileConverter
     'PromptCalibProdSiPixelAliHG',     # AlignmentProducerAsAnalyzer, MillePedeFileConverter
     'PromptCalibProdSiPixelAliHGComb', # AlignmentProducerAsAnalyzer, MillePedeFileConverter
+    'PromptCalibProdSiPixelAliHLTHGC', # AlignmentProducerAsAnalyzer, MillePedeFileConverter
     'PromptCalibProdBeamSpotHP',       # AlcaBeamSpotProducer
     'PromptCalibProdBeamSpotHPLowPU',  # AlcaBeamSpotProducer
 ]

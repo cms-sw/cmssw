@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
 import os,sys
 import getopt
 import subprocess
@@ -208,10 +207,10 @@ if(lastRun<=0):lastRun = lastGoodRun
 
 print("RunRange=[" + str(firstRun) + "," + str(lastRun) + "] --> NEvents=" + str(NTotalEvents/1000)+"K")
 
-if(automatic==True and NTotalEvents<2e6):	#ask at least 2M events to perform the calibration
-	print('Not Enough events to run the calibration')
+if(automatic==True and NTotalEvents<2e6): #ask at least 2M events to perform the calibration
+        print('Not Enough events to run the calibration')
         os.system('echo "Gain calibration postponed" | mail -s "Gain calibration postponed ('+str(firstRun)+' to '+str(lastRun)+') NEvents=' + str(NTotalEvents/1000)+'K" ' + mail)
-	exit(0);
+        exit(0)
 
 name = "Run_"+str(firstRun)+"_to_"+str(lastRun)
 if len(calMode)>0:  name = name+"_"+calMode

@@ -1,4 +1,3 @@
-from __future__ import print_function
 from fnmatch import fnmatch
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
@@ -135,7 +134,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 # default to remain in sycn with the default input sample
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "auto:phase1_2022_realistic"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "125X_mcRun3_2022_realistic_v3"))
 
 ####################################################################
 # Load conditions if wished
@@ -185,9 +184,21 @@ process.offlinePrimaryVerticesFromRefittedTrks = offlinePrimaryVertices.clone()
 process.offlinePrimaryVerticesFromRefittedTrks.TrackLabel = cms.InputTag("refittedVtxTracks")
 
 ####################################################################
+# BeamSpot check
+####################################################################
+from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
+process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+    bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+    bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    warningThr = config["validation"].get("bsIncompatibleWarnThresh", 3), # significance threshold to emit a warning message
+    errorThr = config["validation"].get("bsIncompatibleErrThresh", 5),    # significance threshold to abort the job
+)
+
+####################################################################
 # Sequence
 ####################################################################
 process.seqRefitting = cms.Sequence(process.offlineBeamSpot   +
+                                    process.BeamSpotChecker   +
                                     process.refittedMuons     +
                                     process.refittedVtxTracks +
                                     process.offlinePrimaryVerticesFromRefittedTrks)

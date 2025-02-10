@@ -56,6 +56,10 @@ int merge(int argc, char* argv[]) {
   //Read all configure variables and set default for missing keys
   std::string methods = validation.count("methods") ? getVecTokenized(validation, "methods", ",") : "median,rmsNorm";
   std::string curves = validation.count("curves") ? getVecTokenized(validation, "curves", ",") : "plain";
+  std::string moduleFilterFile =
+      validation.count("moduleFilterFile") ? validation.get<std::string>("moduleFilterFile") : "";
+  float maxBadLumiPixel = validation.count("maxBadLumiPixel") ? validation.get<float>("maxBadLumiPixel") : 0.5;
+  float maxBadLumiStrip = validation.count("maxBadLumiStrip") ? validation.get<float>("maxBadLumiStrip") : 7.0;
   std::string rlabel = validation.count("customrighttitle") ? validation.get<std::string>("customrighttitle") : "";
   rlabel = merge_style.count("Rlabel") ? merge_style.get<std::string>("Rlabel") : rlabel;
   std::string cmslabel = merge_style.count("CMSlabel") ? merge_style.get<std::string>("CMSlabel") : "INTERNAL";
@@ -122,7 +126,7 @@ int merge(int argc, char* argv[]) {
   plotter.setOutputDir(main_tree.get<std::string>("output"));
   plotter.useFitForDMRplots(useFit);
   plotter.setTreeBaseDir("TrackHitFilter");
-  plotter.plotDMR(methods, minimum, curves);
+  plotter.plotDMR(methods, minimum, curves, moduleFilterFile, maxBadLumiPixel, maxBadLumiStrip);
   plotter.plotSurfaceShapes("coarse");
   plotter.plotChi2((main_tree.get<std::string>("output") + "/" + "result.root").c_str());
 

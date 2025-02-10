@@ -32,14 +32,14 @@
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimTracksterFwd.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/UniqueSimTrackId.h"
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "DataFormats/HGCalReco/interface/Common.h"
+
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "TrackstersPCA.h"
 #include <vector>
@@ -96,7 +96,6 @@ private:
   const float fractionCut_;
   const float qualityCutTrack_;
   const edm::EDGetTokenT<std::vector<TrackingParticle>> trackingParticleToken_;
-  const edm::EDGetTokenT<std::vector<SimVertex>> simVerticesToken_;
 
   const edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken_;
   const StringCutObjectSelector<reco::Track> cutTk_;
@@ -127,7 +126,6 @@ SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
       qualityCutTrack_(ps.getParameter<double>("qualityCutTrack")),
       trackingParticleToken_(
           consumes<std::vector<TrackingParticle>>(ps.getParameter<edm::InputTag>("trackingParticles"))),
-      simVerticesToken_(consumes<std::vector<SimVertex>>(ps.getParameter<edm::InputTag>("simVertices"))),
       recoTracksToken_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("recoTracks"))),
       cutTk_(ps.getParameter<std::string>("cutTk")),
       associatormapStRsToken_(consumes(ps.getParameter<edm::InputTag>("tpToTrack"))),
@@ -162,7 +160,6 @@ void SimTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("tpToTrack", edm::InputTag("trackingParticleRecoTrackAsssociation"));
 
   desc.add<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
-  desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
 
   desc.add<edm::InputTag>("simTrackToTPMap", edm::InputTag("simHitTPAssocProducer", "simTrackToTP"));
   desc.add<double>("fractionCut", 0.);
@@ -212,7 +209,7 @@ void SimTrackstersProducer::addTrackster(
   tmpTrackster.vertex_multiplicity().reserve(lcVec.size());
   for (auto const& [lc, energyScorePair] : lcVec) {
     if (inputClusterMask[lc.index()] > 0) {
-      double fraction = energyScorePair.first / lc->energy();
+      float fraction = energyScorePair.first / lc->energy();
       if (fraction < fractionCut_)
         continue;
       tmpTrackster.vertices().push_back(lc.index());
@@ -225,7 +222,7 @@ void SimTrackstersProducer::addTrackster(
   tmpTrackster.setRegressedEnergy(energy);
   tmpTrackster.setIteration(iter);
   tmpTrackster.setSeed(seed, index);
-  tmpTrackster.setBoundaryTime(time * 1e9);
+  tmpTrackster.setBoundaryTime(time);
   if (add) {
     result[index] = tmpTrackster;
     loop_index += 1;
@@ -259,7 +256,6 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
   const auto& simClustersToRecoColl = evt.get(associatorMapSimClusterToReco_token_);
   const auto& caloParticlesToRecoColl = evt.get(associatorMapCaloParticleToReco_token_);
-  const auto& simVertices = evt.get(simVerticesToken_);
 
   edm::Handle<std::vector<TrackingParticle>> trackingParticles_h;
   evt.getByToken(trackingParticleToken_, trackingParticles_h);
@@ -293,7 +289,8 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     // Create a Trackster from the object entering HGCal
     if (cp.g4Tracks()[0].crossedBoundary()) {
       regr_energy = cp.g4Tracks()[0].getMomentumAtBoundary().energy();
-      float time = cp.g4Tracks()[0].getPositionAtBoundary().t();
+      float time = cp.g4Tracks()[0].getPositionAtBoundary().t() *
+                   CLHEP::s;  // Geant4 time is in seconds, convert to ns (CLHEP::s = 1e9)
       addTrackster(cpIndex,
                    lcVec,
                    inputClusterMask,
@@ -323,7 +320,8 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                      sc.g4Tracks()[0].getMomentumAtBoundary().energy(),
                      sc.pdgId(),
                      sc.charge(),
-                     sc.g4Tracks()[0].getPositionAtBoundary().t(),
+                     sc.g4Tracks()[0].getPositionAtBoundary().t() *
+                         CLHEP::s,  // Geant4 time is in seconds, convert to ns (CLHEP::s = 1e9)
                      scRef.id(),
                      ticl::Trackster::SIM,
                      *output_mask,
@@ -339,7 +337,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
       }
       scSimTracksterIdx.shrink_to_fit();
     }
-    float time = simVertices[cp.g4Tracks()[0].vertIndex()].position().t();
+    float time = cp.simTime();
     // Create a Trackster from any CP
     addTrackster(cpIndex,
                  lcVec,
@@ -482,7 +480,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
       cand.setMTDTime(MTDst->time(), 0);
     }
 
-    cand.setTime(simVertices[cp.g4Tracks()[0].vertIndex()].position().t() * pow(10, 9), 0);
+    cand.setTime(cp.simTime(), 0);
 
     for (const auto& trackster : cand.tracksters()) {
       rawEnergy += trackster->raw_energy();

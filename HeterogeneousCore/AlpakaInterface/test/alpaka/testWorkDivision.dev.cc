@@ -21,19 +21,6 @@ enum class RangeType { Default, ExtentLimited, ExtentLimitedWithShift };
 // The concurrency scope between threads
 enum class LoopScope { Block, Grid };
 
-template <RangeType rangeType, LoopScope loopScope, typename TAcc>
-size_t constexpr expectedCount(TAcc const& acc, size_t skip, size_t size) {
-  if constexpr (rangeType == RangeType::ExtentLimitedWithShift)
-    return skip < size ? size - skip : 0;
-  else if constexpr (rangeType == RangeType::ExtentLimited)
-    return size;
-  else /* rangeType == RangeType::Default */
-    if constexpr (loopScope == LoopScope::Block)
-      return alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
-    else
-      return alpaka::getWorkDiv<alpaka::Grid, alpaka::Elems>(acc)[0u];
-}
-
 template <RangeType rangeType, LoopScope loopScope>
 size_t constexpr expectedCount(WorkDiv1D const& workDiv, size_t skip, size_t size) {
   if constexpr (rangeType == RangeType::ExtentLimitedWithShift)
@@ -49,8 +36,7 @@ size_t constexpr expectedCount(WorkDiv1D const& workDiv, size_t skip, size_t siz
 
 template <RangeType rangeType, LoopScope loopScope>
 struct testWordDivisionDefaultRange {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(TAcc const& acc, size_t size, size_t skip, size_t* globalCounter) const {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, size_t size, size_t skip, size_t* globalCounter) const {
     size_t& counter =
         (loopScope == LoopScope::Grid ? *globalCounter : alpaka::declareSharedVar<size_t, __COUNTER__>(acc));
     // Init the counter for block range. Grid range does so my mean of memset.

@@ -36,6 +36,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 class L1MuBMSectorProcessor;
+class L1MuBMTFConfig;
 class L1TMuonBarrelParams;
 class L1MuBMTrackSegPhi;
 class L1MuBMEUX;
@@ -91,6 +92,8 @@ public:
 
   /// return pointer to Extrapolation Result Selector
   inline const L1MuBMERS* ers() const { return m_ERS; }
+
+  const L1MuBMTFConfig& config() const;
 
 private:
   const L1MuBMSectorProcessor& m_sp;

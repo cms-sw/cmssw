@@ -52,7 +52,7 @@ bool CrystalWindowMap::getCrystalWindow(unsigned iq, std::vector<unsigned>& cw) 
 bool CrystalWindowMap::getCrystalWindow(unsigned iq, const std::vector<unsigned>* cw) const {
   if (iq < size_)  // iq >= 0, since iq is unsigned
   {
-    cw = &myNeighbours_[iq];
+    [[clang::suppress]] cw = &(myNeighbours_[iq]);
     return true;
   } else
     return false;

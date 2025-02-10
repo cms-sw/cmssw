@@ -32,18 +32,20 @@ layerInfo = RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmi
 )
 layerList = makeSimpleCosmicSeedLayers('ALL'),
 
-simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
-    TTRHBuilder = cms.string('WithTrackAngle'),
+
+from RecoTracker.SpecialSeedGenerators.simpleCosmicBONSeeder_cfi import simpleCosmicBONSeeder 
+simpleCosmicBONSeeds = simpleCosmicBONSeeder.clone(
+    TTRHBuilder = 'WithTrackAngle',
     ClusterCheckPSet = cms.PSet(
-            doClusterCheck = cms.bool(True),
-            MaxNumberOfStripClusters = cms.uint32(300),
-            ClusterCollectionLabel = cms.InputTag("siStripClusters"),
-            DontCountDetsAboveNClusters = cms.uint32(20),  # if N > 0, ignore in total the dets with more than N clusters
-            MaxNumberOfPixelClusters = cms.uint32(300),
-            PixelClusterCollectionLabel = cms.InputTag("siPixelClusters")
+        doClusterCheck = cms.bool(True),
+        MaxNumberOfStripClusters = cms.uint32(300),
+        ClusterCollectionLabel = cms.InputTag("siStripClusters"),
+        DontCountDetsAboveNClusters = cms.uint32(20),  # if N > 0, ignore in total the dets with more than N clusters
+        MaxNumberOfPixelClusters = cms.uint32(1000),
+        PixelClusterCollectionLabel = cms.InputTag("siPixelClusters")
     ),
-    maxTriplets = cms.int32(50000),
-    maxSeeds    = cms.int32(20000),
+    maxTriplets = 50000,
+    maxSeeds    = 20000,
     RegionPSet = cms.PSet(
         originZPosition  = cms.double(0.0),    # \    These three parameters
         originRadius     = cms.double(150.0),  #  |-> probably don't change
@@ -51,10 +53,10 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
         ptMin = cms.double(0.5),               # pt cut, applied both at the triplet finding and at the seeding level
         pMin  = cms.double(1.0),               # p  cut, applied only at the seeding level
     ),
-    TripletsSrc = cms.InputTag("simpleCosmicBONSeedingLayers"),
-    TripletsDebugLevel = cms.untracked.uint32(0),  # debug triplet finding (0 to 3)
-    seedOnMiddle    = cms.bool(False), # after finding the triplet, add only two hits to the seed
-    rescaleError    = cms.double(1.0), # we don't need it anymore. At least for runs with BON
+    TripletsSrc = "simpleCosmicBONSeedingLayers",
+    TripletsDebugLevel = 0,  # debug triplet finding (0 to 3)
+    seedOnMiddle    = False, # after finding the triplet, add only two hits to the seed
+    rescaleError    = 1.0, # we don't need it anymore. At least for runs with BON
 
     ClusterChargeCheck = cms.PSet(
         checkCharge                 = cms.bool(False), # Apply cuts on cluster charge
@@ -75,14 +77,15 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
             TEC = cms.int32(20), #
         ),
     ),
-    minimumGoodHitsInSeed = cms.int32(3),   # NO bad hits in the seed (set to '2' to allow one bad hit in the seed)
+    
+    minimumGoodHitsInSeed = 3,   # NO bad hits in the seed (set to '2' to allow one bad hit in the seed)
                                       
-    writeTriplets   = cms.bool(False), # write the triplets to the Event as OwnVector<TrackingRecHit>
-    helixDebugLevel = cms.untracked.uint32(0), # debug FastHelix (0 to 2)
-    seedDebugLevel  = cms.untracked.uint32(0), # debug seed building (0 to 3)
+    writeTriplets   = False, # write the triplets to the Event as OwnVector<TrackingRecHit>
+    helixDebugLevel = 0, # debug FastHelix (0 to 2)
+    seedDebugLevel  = 0, # debug seed building (0 to 3)
     #***top-bottom
-    PositiveYOnly = cms.bool(False),
-    NegativeYOnly = cms.bool(False)
+    PositiveYOnly = False,
+    NegativeYOnly = False
     #***
 )
 

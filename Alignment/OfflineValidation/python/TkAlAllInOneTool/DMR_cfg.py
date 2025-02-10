@@ -156,6 +156,7 @@ process.TrackerOfflineValidation = _trackerOfflineValidation.clone(
     useFit                    = False,
     useOverflowForRMS         = False,
     maxTracks                 = config["validation"].get("maxtracks", 1),
+    maxEntriesPerModuleForDmr = config["validation"].get("maxEntriesPerModuleForDmr", 0),
     chargeCut                 = config["validation"].get("chargecut", 0),
 
     # Normalized X Residuals, normal local coordinates (Strip)

@@ -221,7 +221,7 @@ void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.
 
   for (Int_t iside = 0; iside < 2; ++iside) {
     for (Int_t iq = 0; iq < nBinsQ_ETL; ++iq) {
-      TString hname = Form("DQMData/Run 1/MTD/Run summary/ETL/LocalReco/TimeResQ_%d_%d", iside, iq);
+      TString hname = Form("DQMData/Run 1/MTD/Run summary/ETL/LocalReco/TimeResTot_%d_%d", iside, iq);
       h_TimeResQ_ETL[iside][iq] = (TH1F*)input_file->Get(hname);
 
       if (h_TimeResQ_ETL[iside][iq]->GetEntries() < minBinContent)

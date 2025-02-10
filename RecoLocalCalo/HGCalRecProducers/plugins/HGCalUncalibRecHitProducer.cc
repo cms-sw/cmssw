@@ -43,30 +43,28 @@ void HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 
   // loop over HGCEE digis
   const auto& pHGCEEDigis = evt.getHandle(eeDigiCollection_);
-  if (pHGCEEDigis.isValid())
+  if (pHGCEEDigis.isValid()) {
     worker_->runHGCEE(es.getHandle(ee_geometry_token_), *pHGCEEDigis, *eeUncalibRechits);
-
+    evt.put(std::move(eeUncalibRechits), eeHitCollection_);
+  }
   // loop over HGCHEsil digis
   const auto& pHGCHEFDigis = evt.getHandle(hefDigiCollection_);
-  if (pHGCHEFDigis.isValid())
+  if (pHGCHEFDigis.isValid()) {
     worker_->runHGCHEsil(es.getHandle(hef_geometry_token_), *pHGCHEFDigis, *hefUncalibRechits);
-
+    evt.put(std::move(hefUncalibRechits), hefHitCollection_);
+  }
   // loop over HGCHEscint digis
   const auto& pHGCHEBDigis = evt.getHandle(hebDigiCollection_);
-  if (pHGCHEBDigis.isValid())
+  if (pHGCHEBDigis.isValid()) {
     worker_->runHGCHEscint(es.getHandle(heb_geometry_token_), *pHGCHEBDigis, *hebUncalibRechits);
-
+    evt.put(std::move(hebUncalibRechits), hebHitCollection_);
+  }
   // loop over HFNose digis
   const auto& pHGCHFNoseDigis = evt.getHandle(hfnoseDigiCollection_);
-  if (pHGCHFNoseDigis.isValid())
+  if (pHGCHFNoseDigis.isValid()) {
     worker_->runHGCHFNose(es.getHandle(hfnose_geometry_token_), *pHGCHFNoseDigis, *hfnoseUncalibRechits);
-
-  // put the collection of recunstructed hits in the event
-  evt.put(std::move(eeUncalibRechits), eeHitCollection_);
-  evt.put(std::move(hefUncalibRechits), hefHitCollection_);
-  evt.put(std::move(hebUncalibRechits), hebHitCollection_);
-  if (pHGCHFNoseDigis.isValid())
     evt.put(std::move(hfnoseUncalibRechits), hfnoseHitCollection_);
+  }
 }
 
 void HGCalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

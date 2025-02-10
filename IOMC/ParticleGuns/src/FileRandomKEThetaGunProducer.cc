@@ -23,7 +23,7 @@ FileRandomKEThetaGunProducer::FileRandomKEThetaGunProducer(const edm::ParameterS
   edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
 
   edm::FileInPath fp = pgun_params.getParameter<edm::FileInPath>("File");
-  std::string file = fp.fullPath();
+  const std::string& file = fp.fullPath();
   particleN = pgun_params.getParameter<int>("Particles");
   if (particleN <= 0)
     particleN = 1;

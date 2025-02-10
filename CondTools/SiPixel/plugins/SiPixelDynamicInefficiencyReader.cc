@@ -197,8 +197,8 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
     }
 
     //DB PU factor calculation
-    unsigned int pu_iterator = 0;
-    for (it_pu = map_pufactor.begin(); it_pu != map_pufactor.end(); it_pu++, pu_iterator++) {
+    it_pu = map_pufactor.begin();
+    for (unsigned int pu_iterator = 0; pu_iterator < pu_det; it_pu++, pu_iterator++) {
       const DetId mapid = DetId(it_pu->first);
       if (mapid.subdetId() != detid.subdetId())
         continue;

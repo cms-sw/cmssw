@@ -123,14 +123,6 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 ChainedJetCorrectorProducer::ChainedJetCorrectorProducer(const edm::ParameterSet& iConfig) {
@@ -169,11 +161,9 @@ void ChainedJetCorrectorProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void ChainedJetCorrectorProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.add<std::vector<edm::InputTag>>("correctors");
-  descriptions.addDefault(desc);
+  desc.add<std::vector<edm::InputTag>>("correctors", {});
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

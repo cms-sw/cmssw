@@ -31,8 +31,8 @@ from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 process = cms.Process('PROD',Phase2C17I13M9,phase2_hfnose)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026D94Reco_cff"
-baseName = "cms2026D94DDD"
+geomFile = "Configuration.Geometry.GeometryExtendedRun4D115Reco_cff"
+baseName = "cmsRun4D115DDD"
 
 print("Geometry file Name: ", geomFile)
 print("Base file Name:     ", baseName)

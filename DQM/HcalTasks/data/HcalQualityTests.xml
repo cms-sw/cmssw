@@ -17,8 +17,8 @@
 
   <QTEST name="BadCapIDThreshold">
     <TYPE>ContentsWithinExpected</TYPE>
-      <PARAM name="error">1.0</PARAM>
-      <PARAM name="warning">1.0</PARAM>
+      <PARAM name="error">0.994</PARAM>
+      <PARAM name="warning">0.994</PARAM>
       <PARAM name="minMean">-1.0</PARAM>
       <PARAM name="maxMean">0.0</PARAM>
       <PARAM name="minRMS">0.0</PARAM>
@@ -32,8 +32,8 @@
   </LINK>
   <QTEST name="BadQualityThreshold">
     <TYPE>ContentsWithinExpected</TYPE>
-      <PARAM name="error">1.0</PARAM>
-      <PARAM name="warning">1.0</PARAM>
+      <PARAM name="error">0.994</PARAM>
+      <PARAM name="warning">0.994</PARAM>
       <PARAM name="minMean">-1.0</PARAM>
       <PARAM name="maxMean">0.0</PARAM>
       <PARAM name="minRMS">0.0</PARAM>

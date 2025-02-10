@@ -1236,16 +1236,16 @@ inline p2eg::clusterInfo p2eg::getBremsValuesPos(p2eg::crystal tempX[p2eg::CRYST
 inline p2eg::clusterInfo p2eg::getBremsValuesNeg(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
                                                  ap_uint<5> seed_eta,
                                                  ap_uint<5> seed_phi) {
-  ap_uint<12> temp[p2eg::CRYSTAL_IN_ETA + 2][p2eg::CRYSTAL_IN_PHI + 4];
+  ap_uint<12> temp[p2eg::CRYSTAL_IN_ETA + 2][p2eg::CRYSTAL_IN_PHI + 7];
   ap_uint<12> phi0eta[3], phi1eta[3], phi2eta[3], phi3eta[3], phi4eta[3];
 
   ap_uint<12> eta_slice[3];
 
   p2eg::clusterInfo cluster_tmp;
 
-  // Initialize all entries in a new ((15+2)x(20+4)) array to be zero.
+  // Initialize all entries in a new ((15+2)x(20+7)) array to be zero.
   for (int i = 0; i < (p2eg::CRYSTAL_IN_ETA + 2); i++) {
-    for (int j = 0; j < (p2eg::CRYSTAL_IN_PHI + 4); j++) {
+    for (int j = 0; j < (p2eg::CRYSTAL_IN_PHI + 7); j++) {
       temp[i][j] = 0;
     }
   }

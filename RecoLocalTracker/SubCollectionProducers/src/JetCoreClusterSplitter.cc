@@ -1,19 +1,24 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
+
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -26,8 +31,10 @@
 class JetCoreClusterSplitter : public edm::stream::EDProducer<> {
 public:
   JetCoreClusterSplitter(const edm::ParameterSet& iConfig);
-  ~JetCoreClusterSplitter() override;
+  ~JetCoreClusterSplitter() override = default;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   bool split(const SiPixelCluster& aCluster,
@@ -49,11 +56,17 @@ private:
 
   edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> const tTrackingGeom_;
   edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> const tCPE_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> const tTrackerTopo_;
 
   bool verbose;
   double ptMin_;
   double deltaR_;
   double chargeFracMin_;
+  float expSizeXAtLorentzAngleIncidence_;
+  float expSizeXDeltaPerTanAlpha_;
+  float expSizeYAtNormalIncidence_;
+  float tanLorentzAngle_;
+  float tanLorentzAngleBarrelLayer1_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClusters_;
   edm::EDGetTokenT<reco::VertexCollection> vertices_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> cores_;
@@ -64,13 +77,45 @@ private:
   double centralMIPCharge_;
 };
 
+void JetCoreClusterSplitter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<std::string>("pixelCPE", "PixelCPEGeneric");
+  desc.add<bool>("verbose", false);
+  desc.add<double>("ptMin", 200.0);
+  desc.add<double>("deltaRmax", 0.05);
+  desc.add<double>("chargeFractionMin", 2.0);
+  desc.add<edm::InputTag>("pixelClusters", edm::InputTag("siPixelCluster"));
+  desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("cores", edm::InputTag("ak5CaloJets"));
+  desc.add<double>("forceXError", 100.0);
+  desc.add<double>("forceYError", 150.0);
+  desc.add<double>("fractionalWidth", 0.4);
+  desc.add<double>("chargePerUnit", 2000.0);
+  desc.add<double>("centralMIPCharge", 26e3);
+
+  desc.add<double>("expSizeXAtLorentzAngleIncidence", 1.5);
+  desc.add<double>("expSizeXDeltaPerTanAlpha", 0.0);
+  desc.add<double>("expSizeYAtNormalIncidence", 1.3);
+  desc.add<double>("tanLorentzAngle", 0.0);
+  desc.add<double>("tanLorentzAngleBarrelLayer1", 0.0);
+
+  descriptions.addWithDefaultLabel(desc);
+}
+
 JetCoreClusterSplitter::JetCoreClusterSplitter(const edm::ParameterSet& iConfig)
     : tTrackingGeom_(esConsumes()),
       tCPE_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelCPE")))),
+      tTrackerTopo_(esConsumes()),
       verbose(iConfig.getParameter<bool>("verbose")),
       ptMin_(iConfig.getParameter<double>("ptMin")),
       deltaR_(iConfig.getParameter<double>("deltaRmax")),
       chargeFracMin_(iConfig.getParameter<double>("chargeFractionMin")),
+      expSizeXAtLorentzAngleIncidence_(iConfig.getParameter<double>("expSizeXAtLorentzAngleIncidence")),
+      expSizeXDeltaPerTanAlpha_(iConfig.getParameter<double>("expSizeXDeltaPerTanAlpha")),
+      expSizeYAtNormalIncidence_(iConfig.getParameter<double>("expSizeYAtNormalIncidence")),
+      tanLorentzAngle_(iConfig.getParameter<double>("tanLorentzAngle")),
+      tanLorentzAngleBarrelLayer1_(iConfig.getParameter<double>("tanLorentzAngleBarrelLayer1")),
       pixelClusters_(
           consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("pixelClusters"))),
       vertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
@@ -85,13 +130,12 @@ JetCoreClusterSplitter::JetCoreClusterSplitter(const edm::ParameterSet& iConfig)
   produces<edmNew::DetSetVector<SiPixelCluster>>();
 }
 
-JetCoreClusterSplitter::~JetCoreClusterSplitter() {}
-
 bool SortPixels(const SiPixelCluster::Pixel& i, const SiPixelCluster::Pixel& j) { return (i.adc > j.adc); }
 
 void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   const auto& geometry = &iSetup.getData(tTrackingGeom_);
+  const auto& topology = &iSetup.getData(tTrackerTopo_);
 
   Handle<edmNew::DetSetVector<SiPixelCluster>> inputPixelClusters;
   iEvent.getByToken(pixelClusters_, inputPixelClusters);
@@ -111,6 +155,13 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& 
     edmNew::DetSetVector<SiPixelCluster>::FastFiller filler(*output, detIt->id());
     const edmNew::DetSet<SiPixelCluster>& detset = *detIt;
     const GeomDet* det = geometry->idToDet(detset.id());
+    float pitchX, pitchY;
+    std::tie(pitchX, pitchY) = static_cast<const PixelTopology&>(det->topology()).pitch();
+    float thickness = det->surface().bounds().thickness();
+    float tanLorentzAngle = tanLorentzAngle_;
+    if (DetId(detset.id()).subdetId() == 1 /* px barrel */ && topology->pxbLayer(detset.id()) == 1) {
+      tanLorentzAngle = tanLorentzAngleBarrelLayer1_;
+    }
     for (auto cluster = detset.begin(); cluster != detset.end(); cluster++) {
       const SiPixelCluster& aCluster = *cluster;
       bool hasBeenSplit = false;
@@ -126,18 +177,18 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& 
           if (Geom::deltaR(jetDir, clusterDir) < deltaR_) {
             // check if the cluster has to be splitted
 
-            bool isEndCap = (std::abs(cPos.z()) > 30.f);  // FIXME: check detID instead!
-            float jetZOverRho = jet.momentum().Z() / jet.momentum().Rho();
-            if (isEndCap)
-              jetZOverRho = jet.momentum().Rho() / jet.momentum().Z();
-            float expSizeY = std::sqrt((1.3f * 1.3f) + (1.9f * 1.9f) * jetZOverRho * jetZOverRho);
+            LocalVector jetDirLocal = det->surface().toLocal(jetDir);
+            float jetTanAlpha = jetDirLocal.x() / jetDirLocal.z();
+            float jetTanBeta = jetDirLocal.y() / jetDirLocal.z();
+            float jetZOverRho = std::sqrt(jetTanAlpha * jetTanAlpha + jetTanBeta * jetTanBeta);
+            float expSizeX = expSizeXAtLorentzAngleIncidence_ +
+                             std::abs(expSizeXDeltaPerTanAlpha_ * (jetTanAlpha - tanLorentzAngle));
+            float expSizeY = std::sqrt((expSizeYAtNormalIncidence_ * expSizeYAtNormalIncidence_) +
+                                       thickness * thickness / (pitchY * pitchY) * jetTanBeta * jetTanBeta);
+            if (expSizeX < 1.f)
+              expSizeX = 1.f;
             if (expSizeY < 1.f)
               expSizeY = 1.f;
-            float expSizeX = 1.5f;
-            if (isEndCap) {
-              expSizeX = expSizeY;
-              expSizeY = 1.5f;
-            }  // in endcap col/rows are switched
             float expCharge = std::sqrt(1.08f + jetZOverRho * jetZOverRho) * centralMIPCharge_;
 
             if (aCluster.charge() > expCharge * chargeFracMin_ &&
@@ -163,8 +214,10 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& 
         if (shouldBeSplit) {
           // blowup the error if we failed to split a splittable cluster (does
           // it ever happen)
-          c.setSplitClusterErrorX(c.sizeX() * (100.f / 3.f));  // this is not really blowing up .. TODO: tune
-          c.setSplitClusterErrorY(c.sizeY() * (150.f / 3.f));
+          const float fromCentiToMicro = 1e4;
+          c.setSplitClusterErrorX(c.sizeX() *
+                                  (pitchX * fromCentiToMicro / 3.f));  // this is not really blowing up .. TODO: tune
+          c.setSplitClusterErrorY(c.sizeY() * (pitchY * fromCentiToMicro / 3.f));
         }
         filler.push_back(c);
         std::push_heap(filler.begin(), filler.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {

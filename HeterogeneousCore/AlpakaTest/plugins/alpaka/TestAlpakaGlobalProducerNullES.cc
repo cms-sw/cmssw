@@ -15,7 +15,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaGlobalProducerNullES : public global::EDProducer<> {
   public:
     TestAlpakaGlobalProducerNullES(edm::ParameterSet const& config)
-        : esTokenA_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"))),
+        : EDProducer<>(config),
+          esTokenA_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"))),
           esTokenC_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"))),
           esTokenCNotExist_(esConsumes(edm::ESInputTag("", "doesNotExist"))) {}
 

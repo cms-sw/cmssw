@@ -32,7 +32,6 @@ the worker is reset().
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -167,7 +166,7 @@ namespace edm {
                                          ParentContext const&,
                                          typename T::Context const*) noexcept;
 
-    virtual size_t transformIndex(edm::BranchDescription const&) const noexcept = 0;
+    virtual size_t transformIndex(edm::ProductDescription const&) const noexcept = 0;
     void doTransformAsync(WaitingTaskHolder,
                           size_t iTransformIndex,
                           EventPrincipal const&,
@@ -267,9 +266,7 @@ namespace edm {
     virtual void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
     virtual bool implNeedToRunSelection() const noexcept = 0;
 
-    virtual void implDoAcquire(EventTransitionInfo const&,
-                               ModuleCallingContext const*,
-                               WaitingTaskWithArenaHolder&) = 0;
+    virtual void implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&) = 0;
 
     virtual void implDoTransformAsync(WaitingTaskHolder,
                                       size_t iTransformIndex,
@@ -394,12 +391,14 @@ namespace edm {
                                                    ParentContext const&,
                                                    typename T::Context const*) noexcept;
 
-    void runAcquire(EventTransitionInfo const&, ParentContext const&, WaitingTaskWithArenaHolder&);
+    // runAcquire() must take a copy of WaitingTaskHolder
+    // see comment in runAcquireAfterAsyncPrefetch() definition
+    void runAcquire(EventTransitionInfo const&, ParentContext const&, WaitingTaskHolder);
 
     void runAcquireAfterAsyncPrefetch(std::exception_ptr,
                                       EventTransitionInfo const&,
                                       ParentContext const&,
-                                      WaitingTaskWithArenaHolder) noexcept;
+                                      WaitingTaskHolder) noexcept;
 
     std::exception_ptr handleExternalWorkException(std::exception_ptr iEPtr,
                                                    ParentContext const& parentContext) noexcept;
@@ -519,7 +518,7 @@ namespace edm {
                   typename T::TransitionInfoType const&,
                   ServiceToken const&,
                   ParentContext const&,
-                  WaitingTaskWithArenaHolder) noexcept {}
+                  WaitingTaskHolder) noexcept {}
       void execute() final {}
     };
 
@@ -530,7 +529,7 @@ namespace edm {
                   EventTransitionInfo const& eventTransitionInfo,
                   ServiceToken const& token,
                   ParentContext const& parentContext,
-                  WaitingTaskWithArenaHolder holder) noexcept
+                  WaitingTaskHolder holder) noexcept
           : m_worker(worker),
             m_eventTransitionInfo(eventTransitionInfo),
             m_parentContext(parentContext),
@@ -545,7 +544,7 @@ namespace edm {
         // to hold the exception_ptr
         std::exception_ptr temp_excptr;
         auto excptr = exceptionPtr();
-        // Caught exception is passed to Worker::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskWithArenaHolder
+        // Caught exception is passed to Worker::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskHolder
         CMS_SA_ALLOW try {
           //pre was called in prefetchAsync
           m_worker->emitPostModuleEventPrefetchingSignal();
@@ -563,12 +562,12 @@ namespace edm {
                         info = m_eventTransitionInfo,
                         parentContext = m_parentContext,
                         serviceToken = m_serviceToken,
-                        holder = m_holder]() {
+                        holder = std::move(m_holder)]() {
                          //Need to make the services available
                          ServiceRegistry::Operate operateRunAcquire(serviceToken.lock());
 
                          std::exception_ptr ptr;
-                         worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, holder);
+                         worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, std::move(holder));
                        });
             return;
           }
@@ -581,7 +580,7 @@ namespace edm {
       Worker* m_worker;
       EventTransitionInfo m_eventTransitionInfo;
       ParentContext const m_parentContext;
-      WaitingTaskWithArenaHolder m_holder;
+      WaitingTaskHolder m_holder;
       ServiceWeakToken m_serviceToken;
     };
 
@@ -1127,7 +1126,7 @@ namespace edm {
             auto* group = task.group();
             moduleTask = make_waiting_task(
                 [this, weakToken, transitionInfo, parentContext, ownRunTask, group](std::exception_ptr const* iExcept) {
-                  WaitingTaskWithArenaHolder runTaskHolder(
+                  WaitingTaskHolder runTaskHolder(
                       *group, new HandleExternalWorkExceptionTask(this, group, ownRunTask->release(), parentContext));
                   AcquireTask<T> t(this, transitionInfo, weakToken.lock(), parentContext, runTaskHolder);
                   t.execute();
@@ -1154,7 +1153,7 @@ namespace edm {
         auto group = task.group();
         if constexpr (T::isEvent_) {
           if (hasAcquire()) {
-            WaitingTaskWithArenaHolder runTaskHolder(
+            WaitingTaskHolder runTaskHolder(
                 *group, new HandleExternalWorkExceptionTask(this, group, moduleTask, parentContext));
             moduleTask = new AcquireTask<T>(this, transitionInfo, token, parentContext, std::move(runTaskHolder));
           }

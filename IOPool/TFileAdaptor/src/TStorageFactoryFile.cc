@@ -491,8 +491,7 @@ Bool_t TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len) {
   StorageAccount::Stamp cstats(storageCounter(s_statsCWrite, StorageAccount::Operation::writeViaCache));
 
   // Try first writing via a cache, and if that's not possible, directly.
-  Int_t st;
-  switch ((st = WriteBufferViaCache(buf, len))) {
+  switch (WriteBufferViaCache(buf, len)) {
     case 0:
       // Actual write.
       {

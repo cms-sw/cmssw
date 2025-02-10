@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# check for incorrect usage
+if [ "$CMSSW_USE_IBEOS" != "true" ]; then
+  # swallow piped input
+  while read LFN ; do
+    :
+  done
+
+  echo "You have executed this command without the correct environment setting. Please run the following and then rerun your command:"
+  echo "export CMSSW_USE_IBEOS=true"
+  exit 1
+fi
+
+IBEOS_FILES=""
+NON_IBEOS_FILES=""
+# try to download cache
+IBEOS_CACHE=${LOCALRT}/ibeos_cache.txt
+if [ ! -f ${IBEOS_CACHE} ]; then
+  IBEOS_CACHE_TMP=${IBEOS_CACHE}.$$
+  curl -L -s -o ${IBEOS_CACHE_TMP} https://raw.githubusercontent.com/cms-sw/cms-sw.github.io/master/das_queries/ibeos.txt
+  CURL_EXIT=$?
+  if [ ${CURL_EXIT} -ne 0 ]; then
+    rm -f ${IBEOS_CACHE}
+    echo "Error: Unable to download ibeos cache information"
+  else
+    mv ${IBEOS_CACHE_TMP} ${IBEOS_CACHE}
+  fi
+fi
+if [ -f ${IBEOS_CACHE} ] ; then
+  while read LFN ; do
+    case $LFN in
+      /store/* )
+        if [ $(grep "^${LFN}$" ${IBEOS_CACHE} | wc -l) -gt 0 ] ; then
+          IBEOS_FILES="$IBEOS_FILES root://eoscms.cern.ch//store/user/cmsbuild${LFN}"
+        else
+          NON_IBEOS_FILES="$NON_IBEOS_FILES $LFN"
+        fi
+        ;;
+    esac
+  done
+# in case the cache did not download
+else
+  while read LFN ; do
+    case $LFN in
+      /store/* ) NON_IBEOS_FILES="$NON_IBEOS_FILES $LFN" ;;
+    esac
+  done
+fi
+echo $(echo $IBEOS_FILES | tr ' ' '\n' | sort -u) $(echo $NON_IBEOS_FILES | tr ' ' '\n' | sort -u) | tr ' ' '\n' | grep '/store' | head -n 20
+

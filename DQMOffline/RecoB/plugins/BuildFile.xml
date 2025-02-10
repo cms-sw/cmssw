@@ -14,7 +14,7 @@
 <use name="FWCore/Utilities"/>
 <use name="JetMETCorrections/JetCorrector"/>
 <use name="SimDataFormats/GeneratorProducts"/>
-<library file="BTagPerformanceAnalyzerOnData.cc PrimaryVertexMonitor.cc BTagPerformanceHarvester.cc MiniAODTaggerAnalyzer.cc MiniAODTaggerHarvester.cc MiniAODSVAnalyzer.cc" name="DQMOfflineRecoBPlugins">
+<library file="*.cc" name="DQMOfflineRecoBPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
 

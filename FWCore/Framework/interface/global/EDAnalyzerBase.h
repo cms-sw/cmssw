@@ -35,6 +35,7 @@ namespace edm {
   class StreamID;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
+  class SignallingProductRegistry;
 
   namespace maker {
     template <typename T>
@@ -68,7 +69,7 @@ namespace edm {
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
-      void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+      void callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func) {
         callWhenNewProductsRegistered_ = func;
       }
 
@@ -103,7 +104,7 @@ namespace edm {
       void doRespondToCloseOutputFile() { clearInputProcessBlockCaches(); }
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
-      void registerProductsAndCallbacks(EDAnalyzerBase* module, ProductRegistry* reg);
+      void registerProductsAndCallbacks(EDAnalyzerBase* module, SignallingProductRegistry* reg);
       std::string workerType() const { return "WorkerT<EDAnalyzer>"; }
 
       virtual void analyze(StreamID, Event const&, EventSetup const&) const = 0;
@@ -145,7 +146,7 @@ namespace edm {
       void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
       ModuleDescription moduleDescription_;
 
-      std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+      std::function<void(ProductDescription const&)> callWhenNewProductsRegistered_;
     };
 
   }  // namespace global

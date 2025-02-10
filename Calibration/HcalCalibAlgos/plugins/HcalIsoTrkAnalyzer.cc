@@ -218,6 +218,7 @@ private:
   std::vector<int>*t_ietaAll, *t_ietaGood, *t_trackType;
 
   bool debug_;
+  unsigned int count_;
 };
 
 HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
@@ -312,7 +313,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
       nHigh_(0),
       theHBHETopology_(nullptr),
       respCorrs_(nullptr),
-      hdc_(nullptr) {
+      hdc_(nullptr),
+      count_(0) {
   usesResource(TFileService::kSharedResource);
 
   //now do whatever initialization is needed
@@ -540,7 +542,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   if (!ignoreTrigger_) {
     //L1
     l1GtUtils_->retrieveL1(iEvent, iSetup, tok_alg_);
-    const std::vector<std::pair<std::string, bool>>& finalDecisions = l1GtUtils_->decisionsFinal();
+    const auto& finalDecisions = l1GtUtils_->decisionsFinal();
     for (const auto& decision : finalDecisions) {
       if (decision.first.find(l1TrigName_) != std::string::npos) {
         t_L1Bit = decision.second;
@@ -1311,6 +1313,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
             accept = false;
         }
         if (accept) {
+          ++count_;
           tree->Fill();
           edm::LogVerbatim("HcalIsoTrackX")
               << "Run " << t_RunNo << " Event " << t_EventNo << " Track " << nTracks << " p " << t_p;
@@ -1439,6 +1442,8 @@ void HcalIsoTrkAnalyzer::storeEnergy(int indx,
   if (unCorrect_) {
     for (unsigned int k = 0; k < ids.size(); ++k) {
       double corr = (respCorrs_->getValues(ids[k]))->getValue();
+      if (count_ <= 1)
+        edm::LogVerbatim("HcalIsoTrack") << "Correction Factor for " << HcalDetId(ids[k]) << " " << corr;
       if (corr != 0)
         edet[k] /= corr;
       ehcal += edet[k];

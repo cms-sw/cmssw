@@ -396,8 +396,7 @@ namespace notcub {
       if (!found) {
         // Attempt to allocate
         // TODO: eventually support allocation flags
-        if ((error = cudaHostAlloc(&search_key.d_ptr, search_key.bytes, cudaHostAllocDefault)) ==
-            cudaErrorMemoryAllocation) {
+        if (cudaHostAlloc(&search_key.d_ptr, search_key.bytes, cudaHostAllocDefault) == cudaErrorMemoryAllocation) {
           // The allocation attempt failed: free all cached blocks on device and retry
           if (debug)
             printf(

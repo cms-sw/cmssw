@@ -75,6 +75,12 @@
     <use name="FWCore/ServiceRegistry"/>
   </library>
 
+  <library file="MaybeUninitializedIntProducer.cc, MaybeUninitializedIntAnalyzer.cc" name="FWCoreIntegrationMaybeUninitialized">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/TestObjects"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/Utilities"/>
+  </library>
 
   <library file="PathsAndConsumesOfModulesTestService.cc" name="FWCoreIntegrationPathsAndConsumesOfModulesTestService">
     <flags EDM_PLUGIN="1"/>

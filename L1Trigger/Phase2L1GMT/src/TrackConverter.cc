@@ -39,12 +39,13 @@ ConvertedTTTrack TrackConverter::convert(const edm::Ptr<TTTrack<Ref_Phase2Tracke
   bstart = wordconcat<wordtype>(word, bstart, tanLambda, BITSTTTANL);
   bstart = wordconcat<wordtype>(word, bstart, z0, BITSZ0);
   bstart = wordconcat<wordtype>(word, bstart, d0, BITSD0);
-  bstart = wordconcat<wordtype>(word, bstart, uint(track->chi2()), 4);
+  wordconcat<wordtype>(word, bstart, uint(track->chi2()), 4);
 
   ConvertedTTTrack convertedTrack(charge, curvature, absEta, pt, eta, phi, z0, d0, quality, word);
   convertedTrack.setOfflineQuantities(LSBpt * pt, LSBeta * eta, LSBphi * phi);
   if (verbose_)
     convertedTrack.print();
   convertedTrack.setTrkPtr(track);
+
   return convertedTrack;
 }

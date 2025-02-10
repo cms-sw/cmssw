@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
 import sys,os,tempfile,shutil,subprocess,glob
 import argparse
 
 if __name__ == "__main__":
 
+    print("Warning: this script is deprecated and will be removed in the future. Please use the step4_HARVESTING.py step provided by cmsDriver in your workflow instead.")
     # define options
     parser = argparse.ArgumentParser(description="Harvest track validation plots")
     parser.add_argument("files", metavar="file", type=str, nargs="+",

@@ -5,7 +5,6 @@ _RunRepack_
 Test/Debugging harness for the repack configuration builder
 
 """
-from __future__ import print_function
 
 import sys
 import getopt

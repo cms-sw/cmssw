@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    SiPixelFakeGainForHLTESSource
+// Package:    CalibTracker/SiPixelGainForHLTESProducers
 // Class:      SiPixelFakeGainForHLTESSource
 //
-/**\class SiPixelFakeGainForHLTESSource SiPixelFakeGainForHLTESSource.h CalibTracker/SiPixelESProducer/src/SiPixelFakeGainForHLTESSource.cc
+/**\class SiPixelFakeGainForHLTESSource SiPixelFakeGainForHLTESSource.cc CalibTracker/SiPixelGainForHLTESProducers/plugins/SiPixelFakeGainForHLTESSource.cc
 
  Description: <one line class summary>
 
@@ -12,17 +12,51 @@
 */
 //
 // Original Author:  Vincenzo Chiochia
-//         Created:  Fri Apr 27 12:31:25 CEST 2007
+//         Created:  Tue 8 12:31:25 CEST 2007
 //
 //
+
+// system include files
+#include <memory>
 
 // user include files
-
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeGainForHLTESSource.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+//
+// class decleration
+//
+
+class SiPixelFakeGainForHLTESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
+  SiPixelFakeGainForHLTESSource(const edm::ParameterSet&);
+  ~SiPixelFakeGainForHLTESSource() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  virtual std::unique_ptr<SiPixelGainCalibrationForHLT> produce(const SiPixelGainCalibrationForHLTRcd&);
+
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
+
+private:
+  edm::FileInPath fp_;
+};
+
 //
 // constructors and destructor
 //
@@ -33,11 +67,6 @@ SiPixelFakeGainForHLTESSource::SiPixelFakeGainForHLTESSource(const edm::Paramete
   // data is being produced
   setWhatProduced(this);
   findingRecord<SiPixelGainCalibrationForHLTRcd>();
-}
-
-SiPixelFakeGainForHLTESSource::~SiPixelFakeGainForHLTESSource() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produce(
@@ -93,3 +122,11 @@ void SiPixelFakeGainForHLTESSource::setIntervalFor(const edm::eventsetup::EventS
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
 }
+
+void SiPixelFakeGainForHLTESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::FileInPath>("file", edm::FileInPath("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt"));
+  descriptions.addWithDefaultLabel(desc);
+}
+
+DEFINE_FWK_EVENTSETUP_SOURCE(SiPixelFakeGainForHLTESSource);

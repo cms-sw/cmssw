@@ -16,13 +16,15 @@
 #include <memory>
 
 /*** core framework functionality ***/
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 /*** Geometry ***/
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
@@ -33,6 +35,10 @@
 
 /*** Thresholds from DB ***/
 #include "CondFormats/DataRecord/interface/AlignPCLThresholdsHGRcd.h"
+
+/*** Quality from DB ***/
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 
 /*** DQM ***/
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
@@ -52,9 +58,11 @@ class MillePedeDQMModule : public DQMEDHarvester {
   //========================== PUBLIC METHODS ==================================
 public:  //====================================================================
   MillePedeDQMModule(const edm::ParameterSet&);
-  ~MillePedeDQMModule() override;
+  ~MillePedeDQMModule() override = default;
 
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   enum { SIZE_LG_STRUCTS = 6, SIZE_HG_STRUCTS = 820, SIZE_INDEX = 8 };
 
@@ -100,6 +108,7 @@ private:  //===================================================================
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
   const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
   const edm::ESGetToken<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd> aliThrToken_;
+  const edm::ESGetToken<SiPixelQuality, SiPixelQualityFromDbRcd> siPixelQualityToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 
   const std::string outputFolder_;
@@ -107,6 +116,7 @@ private:  //===================================================================
   std::unique_ptr<AlignableTracker> tracker_;
   std::unique_ptr<MillePedeFileReader> mpReader_;
   std::shared_ptr<PixelTopologyMap> pixelTopologyMap_;
+  std::shared_ptr<SiPixelQuality> pixelQuality_;
 
   std::vector<std::pair<std::string, int>> layerVec;
 

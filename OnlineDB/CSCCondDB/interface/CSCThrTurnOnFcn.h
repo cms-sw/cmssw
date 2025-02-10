@@ -11,10 +11,6 @@
 
 #include "Minuit2/FCNBase.h"
 #include <vector>
-#include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 33, 1)
-#include <span>
-#endif
 
 class CSCThrTurnOnFcn : public ROOT::Minuit2::FCNBase {
 private:
@@ -43,11 +39,7 @@ public:
   void setNorm(float n) { norm = n; };
 
   /// Provide the chi-squared function for the given data
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 33, 1)
-  double operator()(std::span<const double>) const override;
-#else
   double operator()(const std::vector<double>&) const override;
-#endif
 
   ///@@ What?
   double Up() const override { return 1.; }

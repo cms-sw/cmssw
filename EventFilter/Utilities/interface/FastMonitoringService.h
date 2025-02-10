@@ -153,6 +153,10 @@ namespace evf {
       inWaitChunk_newFileWaitChunk,
       inSupThrottled,
       inThrottled,
+      //additions (appended to keep the color scheme)
+      inSupFileHeldLimit,
+      inWaitInput_fileHeldLimit,
+      inWaitChunk_fileHeldLimit,
       inCOUNT
     };
   }  // namespace FastMonState

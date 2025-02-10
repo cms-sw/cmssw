@@ -1,5 +1,4 @@
 
-from __future__ import print_function
 import time
 
 import FWCore.ParameterSet.Config as cms

@@ -606,7 +606,11 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
   // make single-RP-reco plots
   for (const auto &proton : *hRecoProtonsSingleRP) {
     // workaround for https://github.com/cms-sw/cmssw/issues/44931#issuecomment-2142898754
-    const auto &pcLTiter = *proton.contributingLocalTracks().begin();
+    const auto iter = proton.contributingLocalTracks().begin();
+    if (iter == proton.contributingLocalTracks().end()) {
+      continue;
+    }
+    const auto pcLTiter = *iter;
     assert(pcLTiter.isNonnull());
     CTPPSDetId rpId(pcLTiter->rpId());
     unsigned int decRPId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
@@ -725,6 +729,9 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
 
   // make correlation plots
   for (const auto &proton_m : *hRecoProtonsMultiRP) {
+    if (proton_m.contributingLocalTracks().begin() == proton_m.contributingLocalTracks().end()) {
+      continue;
+    }
     CTPPSDetId rpId_m((*proton_m.contributingLocalTracks().begin())->rpId());
     unsigned int arm = rpId_m.arm();
 
@@ -732,6 +739,9 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
 
     for (const auto &proton_s : *hRecoProtonsSingleRP) {
       // skip if source of single-RP reco not included in multi-RP reco
+      if (proton_s.contributingLocalTracks().empty()) {
+        continue;
+      }
       const auto key_s = proton_s.contributingLocalTracks()[0].key();
       bool compatible = false;
       for (const auto &tr_m : proton_m.contributingLocalTracks()) {

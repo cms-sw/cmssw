@@ -389,7 +389,6 @@ void HFShower::makeSteps(int nsteps) {
     if (est < 0.) {
       LogDebug("FastCalorimetry") << "*** FamosHFShower::makeSteps "
                                   << " - negative step energy !!!" << std::endl;
-      est = 0.;
       break;
     }
 

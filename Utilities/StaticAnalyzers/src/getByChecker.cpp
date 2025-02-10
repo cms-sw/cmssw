@@ -42,6 +42,7 @@ namespace clangcms {
     llvm::raw_svector_ostream os(buf);
     if (mname == "edm::Event::getByLabel" || mname == "edm::Event::getManyByType") {
       os << "function '";
+      assert(llvm::dyn_cast<CXXMethodDecl>(D));
       llvm::dyn_cast<CXXMethodDecl>(D)->getNameForDiagnostic(os, Policy, true);
       os << "' ";
       if (mname == "edm::Event::getByLabel") {
@@ -58,6 +59,7 @@ namespace clangcms {
             std::string rname = RD->getQualifiedNameAsString();
             os << rname << " ";
             const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+            assert(SD);
             for (unsigned J = 0, F = SD->getTemplateArgs().size(); J != F; ++J) {
 #if LLVM_VERSION_MAJOR >= 13
               SD->getTemplateArgs().data()[J].print(Policy, os, false);
@@ -79,6 +81,7 @@ namespace clangcms {
         const CXXRecordDecl *RD = QT->getAsCXXRecordDecl();
         os << "getManyByType , ";
         const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+        assert(SD);
         const TemplateArgument TA = SD->getTemplateArgs().data()[0];
         const QualType AQT = TA.getAsType();
         const CXXRecordDecl *SRD = AQT->getAsCXXRecordDecl();

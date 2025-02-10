@@ -22,13 +22,16 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
+
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociatorBaseImpl.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociatorBaseImpl.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 struct HGVHistoProducerAlgoHistograms {
   //Info
@@ -142,57 +145,58 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<std::unordered_map<int, dqm::reco::MonitorElement*>> h_sharedenergy_simcluster2layercl_vs_phi_perlayer;
 
   // For Tracksters
-  // Linking and Pattern Recognition
-  std::vector<dqm::reco::MonitorElement*> h_score_trackster2caloparticle[2];
-  std::vector<dqm::reco::MonitorElement*> h_score_trackster2bestCaloparticle[2];
-  std::vector<dqm::reco::MonitorElement*> h_score_trackster2bestCaloparticle2[2];
-  std::vector<dqm::reco::MonitorElement*> h_score_caloparticle2trackster[2];
-  std::vector<dqm::reco::MonitorElement*> h_scorePur_caloparticle2trackster[2];
-  std::vector<dqm::reco::MonitorElement*> h_scoreDupl_caloparticle2trackster[2];
-  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_trackster2caloparticle[2];
-  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_trackster2bestCaloparticle[2];
-  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_trackster2bestCaloparticle2[2];
-  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2trackster[2];
-  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2bestTrackster[2];
-  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2bestTrackster2[2];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_eta[2];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_phi[2];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_en[2];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_pt[2];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_eta[2];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_phi[2];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_en[2];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_pt[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle2[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc2[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle_vs_eta[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle_vs_phi[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc_vs_eta[2];
-  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc_vs_phi[2];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_eta[2];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_phi[2];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_en[2];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_pt[2];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_eta[2];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_phi[2];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_en[2];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_pt[2];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_eta[2];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_phi[2];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_en[2];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_pt[2];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_eta[2];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_phi[2];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_en[2];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_pt[2];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_eta[2];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_phi[2];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_en[2];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_pt[2];
+  constexpr static int numberOfValidationTypes_ = 4;
+
+  std::vector<dqm::reco::MonitorElement*> h_score_trackster2caloparticle[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_score_trackster2bestCaloparticle[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_score_trackster2bestCaloparticle2[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_score_caloparticle2trackster[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_scorePur_caloparticle2trackster[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_scoreDupl_caloparticle2trackster[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_trackster2caloparticle[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_trackster2bestCaloparticle[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_trackster2bestCaloparticle2[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2trackster[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2bestTrackster[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2bestTrackster2[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_eta[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_phi[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_en[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_eta[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_phi[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_en[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle2[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc2[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle_vs_eta[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle_vs_phi[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc_vs_eta[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc_vs_phi[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_eta[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_phi[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_en[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_eta[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_phi[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_en[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_eta[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_phi[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_en[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_eta[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_phi[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_en[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_eta[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_phi[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_en[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_pt[numberOfValidationTypes_];
   // Generic histograms
   std::vector<dqm::reco::MonitorElement*> h_tracksternum;
   std::vector<dqm::reco::MonitorElement*> h_conttracksternum;
@@ -226,6 +230,11 @@ class HGVHistoProducerAlgo {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
+  using TracksterToTracksterMap =
+      ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
+  using SimClusterToCaloParticleMap =
+      ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
+  enum validationType { byHits_CP = 0, byLCs, byLCs_CP, byHits };
 
   HGVHistoProducerAlgo(const edm::ParameterSet& pset);
   ~HGVHistoProducerAlgo();
@@ -259,7 +268,7 @@ public:
                                    std::vector<int> thicknesses);
 
   void bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
-  enum validationType { Linking = 0, PatternRecognition, PatternRecognition_CP };
+
   void bookTracksterSTSHistos(DQMStore::IBooker& ibook, Histograms& histograms, const validationType valType);
 
   void layerClusters_to_CaloParticles(const Histograms& histograms,
@@ -273,7 +282,7 @@ public:
                                       unsigned int layers,
                                       const ticl::RecoToSimCollection& recSimColl,
                                       const ticl::SimToRecoCollection& simRecColl,
-                                      std::vector<HGCRecHit> const& hits) const;
+                                      MultiVectorManager<HGCRecHit> const& hits) const;
   void layerClusters_to_SimClusters(const Histograms& histograms,
                                     const int count,
                                     edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -286,23 +295,18 @@ public:
                                     unsigned int layers,
                                     const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
                                     const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
-                                    std::vector<HGCRecHit> const& hits) const;
-  void tracksters_to_SimTracksters(const Histograms& histograms,
-                                   const int count,
-                                   const ticl::TracksterCollection& Tracksters,
-                                   const reco::CaloClusterCollection& layerClusters,
-                                   const ticl::TracksterCollection& simTS,
-                                   const validationType valType,
-                                   const ticl::TracksterCollection& simTS_fromCP,
-                                   std::map<uint, std::vector<uint>> const& simTrackstersMap,
-                                   std::vector<SimCluster> const& sC,
-                                   const edm::ProductID& cPHandle_id,
-                                   std::vector<CaloParticle> const& cP,
-                                   std::vector<size_t> const& cPIndices,
-                                   std::vector<size_t> const& cPSelectedIndices,
-                                   std::unordered_map<DetId, const unsigned int> const&,
-                                   unsigned int layers,
-                                   std::vector<HGCRecHit> const& hits) const;
+                                    MultiVectorManager<HGCRecHit> const& hits) const;
+
+  void tracksters_to_SimTracksters_fp(const Histograms& histograms,
+                                      const int count,
+                                      const TracksterToTracksterMap& trackstersToSimTrackstersMap,
+                                      const TracksterToTracksterMap& simTrackstersToTrackstersMap,
+                                      const validationType valType,
+                                      const SimClusterToCaloParticleMap& scToCpMap,
+                                      const std::vector<size_t>& cPIndices,
+                                      const std::vector<size_t>& cPSelectedIndices,
+                                      const edm::ProductID& cPHandle_id) const;
+
   void fill_info_histos(const Histograms& histograms, unsigned int layers) const;
   void fill_caloparticle_histos(const Histograms& histograms,
                                 int pdgid,
@@ -310,7 +314,7 @@ public:
                                 std::vector<SimVertex> const& simVertices,
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
-                                std::vector<HGCRecHit> const& hits) const;
+                                MultiVectorManager<HGCRecHit> const& hits) const;
   void fill_generic_cluster_histos(const Histograms& histograms,
                                    const int count,
                                    edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -325,7 +329,7 @@ public:
                                    std::vector<int> thicknesses,
                                    const ticl::RecoToSimCollection& recSimColl,
                                    const ticl::SimToRecoCollection& simRecColl,
-                                   std::vector<HGCRecHit> const& hits) const;
+                                   MultiVectorManager<HGCRecHit> const& hits) const;
   void fill_simCluster_histos(const Histograms& histograms,
                               std::vector<SimCluster> const& simClusters,
                               unsigned int layers,
@@ -342,23 +346,33 @@ public:
                                          unsigned int layers,
                                          const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
                                          const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
-                                         std::vector<HGCRecHit> const& hits) const;
+                                         MultiVectorManager<HGCRecHit> const& hits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
   void fill_trackster_histos(const Histograms& histograms,
                              const int count,
-                             const ticl::TracksterCollection& Tracksters,
+                             const ticl::TracksterCollection& tracksters,
                              const reco::CaloClusterCollection& layerClusters,
-                             const ticl::TracksterCollection& simTS,
-                             const ticl::TracksterCollection& simTS_fromCP,
-                             std::map<uint, std::vector<uint>> const& simTrackstersMap,
+                             const ticl::TracksterCollection& simTSs,
+                             const ticl::TracksterCollection& simTSs_fromCP,
+                             const std::map<unsigned int, std::vector<unsigned int>>& cpToSc_SimTrackstersMap,
                              std::vector<SimCluster> const& sC,
                              const edm::ProductID& cPHandle_id,
                              std::vector<CaloParticle> const& cP,
                              std::vector<size_t> const& cPIndices,
                              std::vector<size_t> const& cPSelectedIndices,
-                             std::unordered_map<DetId, const unsigned int> const&,
+                             std::unordered_map<DetId, const unsigned int> const& hitMap,
                              unsigned int layers,
-                             std::vector<HGCRecHit> const& hits) const;
+                             MultiVectorManager<HGCRecHit> const& hits,
+                             bool mapsFound,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByHitsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByHitsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByHitsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByHitsMapH,
+                             const SimClusterToCaloParticleMap& scToCpMap) const;
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
@@ -366,7 +380,7 @@ public:
 
   DetId findmaxhit(const reco::CaloCluster& cluster,
                    std::unordered_map<DetId, const unsigned int> const&,
-                   std::vector<HGCRecHit> const& hits) const;
+                   MultiVectorManager<HGCRecHit> const& hits) const;
 
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster& o) const { return clusterId == o.clusterId; };
@@ -392,6 +406,15 @@ private:
   double getEta(double eta) const;
 
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
+  constexpr static int numberOfValidationTypes_ = 4;
+  std::array<std::string, numberOfValidationTypes_> ref_ = {
+      {"SimTrackster_fromCP_byHits", "SimTrackster_byLCs", "SimTrackster_fromCP_byLCs", "SimTrackster_byHits"}};
+  std::array<std::string, numberOfValidationTypes_> refText_ = {{"SimTrackster from CP Associated by Hits",
+                                                                 "SimTrackster Associated by LCs",
+                                                                 "SimTrackster from CP Associated by LCs",
+                                                                 "SimTrackster Associated by Hits"}};
+  // Must be in sync with labels in PostProcessorHGCAL_cfi.py
+  std::array<std::string, numberOfValidationTypes_> valSuffix_ = {{"_byHits_CP", "_byLCs", "_byLCs_CP", "_byHits"}};
 
   //private data members
   double minEta_, maxEta_;

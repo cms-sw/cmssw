@@ -343,7 +343,7 @@ PATTriggerProducer::PATTriggerProducer(const ParameterSet& iConfig)
   if (iConfig.exists("exludeCollections"))
     exludeCollections_ = iConfig.getParameter<std::vector<std::string> >("exludeCollections");
 
-  callWhenNewProductsRegistered([this, &iConfig](BranchDescription const& bd) {
+  callWhenNewProductsRegistered([this, &iConfig](ProductDescription const& bd) {
     if (iConfig.exists("l1ExtraMu"))
       l1ExtraMuGetter_(bd);
     if (iConfig.exists("l1ExtraNoIsoEG"))
@@ -748,7 +748,7 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         const trigger::Vids& types = handleTriggerEvent->filterIds(iF);  // not cached
         TriggerFilter triggerFilter(nameFilter);
         // set filter type
-        const std::string typeFilter(hltConfig.moduleType(nameFilter));
+        const std::string& typeFilter(hltConfig.moduleType(nameFilter));
         triggerFilter.setType(typeFilter);
         triggerFilter.setSaveTags(hltConfig.saveTags(nameFilter));
         // set keys and trigger object types of used objects

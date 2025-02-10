@@ -75,28 +75,33 @@ namespace l1t {
     }
 
     void GMTSetup::registerProducts(edm::ProducesCollector prod) {
-      prod.produces<RegionalMuonCandBxCollection>("BMTF");
-      prod.produces<RegionalMuonCandBxCollection>("OMTF");
-      prod.produces<RegionalMuonCandBxCollection>("EMTF");
-      prod.produces<MuonBxCollection>("Muon");
+      putTokens_.bmtf_ = prod.produces<RegionalMuonCandBxCollection>("BMTF");
+      putTokens_.omtf_ = prod.produces<RegionalMuonCandBxCollection>("OMTF");
+      putTokens_.emtf_ = prod.produces<RegionalMuonCandBxCollection>("EMTF");
+      putTokens_.muon_ = prod.produces<MuonBxCollection>("Muon");
+      putTokens_.muonCopies_.reserve(GMTCollections::NUM_OUTPUT_COPIES);
+      putTokens_.muonCopies_.emplace_back();  //first one is never used
       for (size_t i = 1; i < GMTCollections::NUM_OUTPUT_COPIES; ++i) {
-        prod.produces<MuonBxCollection>("MuonCopy" + std::to_string(i));
+        putTokens_.muonCopies_.emplace_back(prod.produces<MuonBxCollection>("MuonCopy" + std::to_string(i)));
       }
-      prod.produces<MuonBxCollection>("imdMuonsBMTF");
-      prod.produces<MuonBxCollection>("imdMuonsEMTFNeg");
-      prod.produces<MuonBxCollection>("imdMuonsEMTFPos");
-      prod.produces<MuonBxCollection>("imdMuonsOMTFNeg");
-      prod.produces<MuonBxCollection>("imdMuonsOMTFPos");
+      putTokens_.imdMuonsBMTF_ = prod.produces<MuonBxCollection>("imdMuonsBMTF");
+      putTokens_.imdMuonsEMTFNeg_ = prod.produces<MuonBxCollection>("imdMuonsEMTFNeg");
+      putTokens_.imdMuonsEMTFPos_ = prod.produces<MuonBxCollection>("imdMuonsEMTFPos");
+      putTokens_.imdMuonsOMTFNeg_ = prod.produces<MuonBxCollection>("imdMuonsOMTFNeg");
+      putTokens_.imdMuonsOMTFPos_ = prod.produces<MuonBxCollection>("imdMuonsOMTFPos");
 
-      prod.produces<RegionalMuonShowerBxCollection>("EMTF");
-      prod.produces<MuonShowerBxCollection>("MuonShower");
+      putTokens_.showerEMTF_ = prod.produces<RegionalMuonShowerBxCollection>("EMTF");
+      putTokens_.muonShower_ = prod.produces<MuonShowerBxCollection>("MuonShower");
+      putTokens_.muonShowerCopy_.reserve(GMTCollections::NUM_OUTPUT_COPIES);
+      putTokens_.muonShowerCopy_.emplace_back();  //first one is never used
       for (size_t i = 1; i < GMTCollections::NUM_OUTPUT_COPIES; ++i) {
-        prod.produces<MuonShowerBxCollection>("MuonShowerCopy" + std::to_string(i));
+        putTokens_.muonShowerCopy_.emplace_back(
+            prod.produces<MuonShowerBxCollection>("MuonShowerCopy" + std::to_string(i)));
       }
     }
 
     std::unique_ptr<UnpackerCollections> GMTSetup::getCollections(edm::Event& e) {
-      return std::unique_ptr<UnpackerCollections>(new GMTCollections(e));
+      return std::unique_ptr<UnpackerCollections>(new GMTCollections(e, putTokens_));
     }
 
     UnpackerMap GMTSetup::getUnpackers(int fed, int board, int amc, unsigned int fw) {

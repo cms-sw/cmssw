@@ -26,7 +26,7 @@ using namespace l1ScoutingRun3;
 class MuBxSelector : public edm::stream::EDProducer<> {
 public:
   explicit MuBxSelector(const edm::ParameterSet&);
-  ~MuBxSelector() {}
+  ~MuBxSelector() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:

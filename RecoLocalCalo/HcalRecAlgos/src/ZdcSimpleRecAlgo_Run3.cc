@@ -97,7 +97,7 @@ ZDCRecHit ZdcSimpleRecAlgo_Run3::reco0(const QIE10DataFrame& digi,
   double ta = 0;
   double energySOIp1 = 0;
   double ratioSOIp1 = -1.0;
-  double chargeWeightedTime = 0;
+  double chargeWeightedTime = -99.0;
 
   double Allnoise = 0;
   int noiseslices = 0;
@@ -223,9 +223,7 @@ ZDCRecHit ZdcSimpleRecAlgo_Run3::reco0(const QIE10DataFrame& digi,
 
   double tmp_energy = 0;
   double tmp_TSWeightedEnergy = 0;
-  for (int ts = 0; ts < nTs_; ++ts) {
-    if (CurrentTS >= digi_size)
-      continue;
+  for (int ts = 0; ts < digi_size; ++ts) {
     int capid = digi[ts].capid();
 
     // max sure there are no negative values in time calculation
@@ -233,21 +231,23 @@ ZDCRecHit ZdcSimpleRecAlgo_Run3::reco0(const QIE10DataFrame& digi,
     ta *= calibs.respcorrgain(capid);  // fC --> GeV
     if (ta > 0) {
       tmp_energy += ta;
-      tmp_TSWeightedEnergy += (ts + 1) * ta;
+      tmp_TSWeightedEnergy += (ts)*ta;
     }
   }
 
-  chargeWeightedTime = (tmp_TSWeightedEnergy / tmp_energy - 1) * 25.0;
+  if (tmp_energy > 0)
+    chargeWeightedTime = (tmp_TSWeightedEnergy / tmp_energy) * 25.0;
   auto rh = ZDCRecHit(digi.id(), ampl, time, -99);
   rh.setEnergySOIp1(energySOIp1);
 
   if (maxI >= 0 && maxI < tool.size()) {
     float tmp_tdctime = 0;
+    int le_tdc = digi[maxI].le_tdc();
     // TDC error codes will be 60=-1, 61 = -2, 62 = -3, 63 = -4
-    if (digi[maxI].le_tdc() >= 60)
-      tmp_tdctime = -1 * (digi[maxI].le_tdc() - 59);
+    if (le_tdc >= 60)
+      tmp_tdctime = -1 * (le_tdc - 59);
     else
-      tmp_tdctime = maxI * 25. + (digi[maxI].le_tdc() / 2);
+      tmp_tdctime = maxI * 25. + (le_tdc / 2.0);
     rh.setTDCtime(tmp_tdctime);
   }
 

@@ -54,7 +54,6 @@ process.add_(cms.Service('CUDAService'))
 
   // load the graph
   std::string exportDir = dataPath_ + "/simplegraph";
-  tensorflow::setLogging();
   tensorflow::Options options{backend};
   tensorflow::MetaGraphDef* metaGraphDef = tensorflow::loadMetaGraphDef(exportDir);
   CPPUNIT_ASSERT(metaGraphDef != nullptr);

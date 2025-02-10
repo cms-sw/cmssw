@@ -9,7 +9,7 @@ runTheMatrix.py --what upgrade -n
 
 To make an upgrade workflow visible to the regular matrix, add it to:
 * [relval_2017.py](./python/relval_2017.py) (for Run 2 and Run 3)
-* [relval_2026.py](./python/relval_2026.py) (for Phase 2)
+* [relval_Run4.py](./python/relval_Run4.py) (for Phase 2)
 
 All workflows in the regular matrix can be run in IB tests,
 so this should only be done for fully functional workflows.
@@ -37,34 +37,28 @@ The offsets currently in use are:
 * 0.407: Alpaka, pixel only triplets, portable vs. CPU validation
 * 0.407: Alpaka, pixel only triplets, portable profiling
 * 0.412: Alpaka, ECAL only, portable
+* 0.413: Alpaka, ECAL only, portable vs. CPU validation
 * 0.422: Alpaka, HCAL only, portable
 * 0.423: Alpaka, HCAL only, portable vs CPU validation
 * 0.424: Alpaka, HCAL only, portable profiling
 * 0.492: Alpaka, full reco with pixel quadruplets
 * 0.496: Alpaka, full reco with pixel triplets
-* 0.5: Pixel tracking only + 0.1
-* 0.501: Patatrack, pixel only quadruplets, on CPU
-* 0.502: Patatrack, pixel only quadruplets, with automatic offload to GPU if available
-* 0.504: Patatrack, pixel only quadruplets, GPU profiling
-* 0.505: Patatrack, pixel only triplets, on CPU
-* 0.506: Patatrack, pixel only triplets, with automatic offload to GPU if available
-* 0.508: Patatrack, pixel only triplets, GPU profiling
-* 0.511: Patatrack, ECAL only, on CPU
-* 0.512: Patatrack, ECAL only, with automatic offload to GPU if available
-* 0.513: Patatrack, ECAL only, GPU vs. CPU validation
-* 0.514: Patatrack, ECAL only, GPU profiling
-* 0.521: Patatrack, HCAL only, on CPU
-* 0.522: Patatrack, HCAL only, with automatic offload to GPU if available
-* 0.524: Patatrack, HCAL only, GPU profiling
-* 0.591: Patatrack, full reco with pixel quadruplets, on CPU
-* 0.592: Patatrack, full reco with pixel quadruplets, with automatic offload to GPU if available
-* 0.595: Patatrack, full reco with pixel triplets, on CPU
-* 0.596: Patatrack, full reco with pixel triplets, with automatic offload to GPU if available
+* 0.5: Legacy pixel tracking only (CPU)
+* 0.511: Legacy ECAL reco only (CPU)
+* 0.521: Legacy HCAL reco only (CPU)
 * 0.6: HE Collapse (old depth segmentation for 2018)
 * 0.601: HLT as separate step
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.702: trackingMkFit modifier for Phase-2 (initialStep only)
+* 0.703: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
+* 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
+* 0.75: HLT phase-2 timing menu
+* 0.751: HLT phase-2 timing menu Alpaka variant
+* 0.752: HLT phase-2 timing menu ticl_v5 variant
+* 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
+* 0.754: HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
+* 0.755: HLT phase-2 timing menu Alpaka, LST building variant
 * 0.78: Complete L1 workflow
 * 0.8: BPH Parking (Run-2)
 * 0.81: Running also HeavyFlavor DQM
@@ -86,7 +80,6 @@ The offsets currently in use are:
 * 0.633: ECAL phase2 Trigger Primitive
 * 0.634: ECAL phase2 Trigger Primitive + component-method based digis
 * 0.635: ECAL phase2 Trigger Primitive + component-method based finely-sampled waveforms
-* 0.75: Phase-2 HLT Timing menu
 * 0.91: Track DNN modifier
 * 0.97: Premixing stage1
 * 0.98: Premixing stage2

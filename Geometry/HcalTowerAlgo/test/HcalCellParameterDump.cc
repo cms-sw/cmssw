@@ -52,7 +52,7 @@ void HcalCellParameterDump::analyze(const edm::Event& /*iEvent*/, const edm::Eve
   int nall(0);
   for (auto id : ids) {
     ++nall;
-    std::shared_ptr<const CaloCellGeometry> geom = hcalGeom->getGeometry(id);
+    auto geom = hcalGeom->getGeometry(id);
     edm::LogVerbatim("HCalGeom") << "[" << nall << "] " << HcalDetId(id) << " Reference " << std::setprecision(4)
                                  << geom->getPosition() << " Back " << geom->getBackPoint() << " [r,eta,phi] ("
                                  << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", "

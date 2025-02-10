@@ -23,10 +23,19 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
+#if defined(ALLOC_USE_PTHREADS)
+#include <pthread.h>
+#else
+#include <unistd.h>
+#include <sys/syscall.h>
+#endif
+
 #include "moduleAlloc_setupFile.h"
 #include "ThreadAllocInfo.h"
+#include "ThreadTracker.h"
 
 namespace {
+  using namespace cms::perftools::allocMon;
   using namespace edm::service::moduleAlloc;
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:
@@ -43,10 +52,10 @@ namespace {
 
   private:
     static ThreadAllocInfo& threadAllocInfo() {
-      thread_local ThreadAllocInfo s_info;
-      return s_info;
+      static ThreadAllocInfo s_info[ThreadTracker::kTotalEntries];
+      return s_info[ThreadTracker::instance().thread_index()];
     }
-    void allocCalled(size_t iRequested, size_t iActual) final {
+    void allocCalled(size_t iRequested, size_t iActual, void const*) final {
       auto& allocInfo = threadAllocInfo();
       if (not allocInfo.active_) {
         return;
@@ -63,7 +72,7 @@ namespace {
         allocInfo.maxActual_ = allocInfo.presentActual_;
       }
     }
-    void deallocCalled(size_t iActual) final {
+    void deallocCalled(size_t iActual, void const*) final {
       auto& allocInfo = threadAllocInfo();
       if (not allocInfo.active_) {
         return;

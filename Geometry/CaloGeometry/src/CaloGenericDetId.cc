@@ -67,11 +67,7 @@ bool CaloGenericDetId::validDetId() const {
   } else if (isHcal()) {
     edm::LogError("CaloGenericDetIdError") << "No support for HB/HE/HO/HF in CaloGenericDetId";
     throw cms::Exception("No support");
-
     returnValue = false;
-  } else if (isZDC()) {
-    const HcalZDCDetId zdid(rawId());
-    returnValue = HcalZDCDetId::validDetId(zdid.section(), zdid.channel());
   } else if (isCastor()) {
     const HcalCastorDetId zdid(rawId());
     returnValue = HcalCastorDetId::validDetId(zdid.section(), zdid.zside() > 0, zdid.sector(), zdid.module());

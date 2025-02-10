@@ -31,11 +31,11 @@
 namespace edm {
   class ParameterSet;
   class Schedule;
-  class ProductRegistry;
+  class SignallingProductRegistry;
 
   class ModuleChanger {
   public:
-    ModuleChanger(Schedule*, ProductRegistry const* iReg, eventsetup::ESRecordsToProductResolverIndices);
+    ModuleChanger(Schedule*, SignallingProductRegistry const* iReg, eventsetup::ESRecordsToProductResolverIndices);
     ModuleChanger(const ModuleChanger&) = delete;                   // stop default
     const ModuleChanger& operator=(const ModuleChanger&) = delete;  // stop default
     virtual ~ModuleChanger();
@@ -50,7 +50,7 @@ namespace edm {
   private:
     // ---------- member data --------------------------------
     edm::propagate_const<Schedule*> schedule_;
-    ProductRegistry const* registry_;
+    SignallingProductRegistry const* registry_;
     eventsetup::ESRecordsToProductResolverIndices indices_;
   };
 }  // namespace edm

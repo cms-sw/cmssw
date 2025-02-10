@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to run some technical trigger emulators/simulation, L1 Global Trigger emulator 
 # on a file containing the output of the  GCT system and GMT system ("digi"), followed by 

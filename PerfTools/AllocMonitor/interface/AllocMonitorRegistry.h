@@ -112,15 +112,15 @@ namespace cms::perftools {
 
     Guard makeGuard() { return Guard(*this); }
 
-    void allocCalled_(size_t, size_t);
-    void deallocCalled_(size_t);
+    void allocCalled_(size_t, size_t, void const*);
+    void deallocCalled_(size_t, void const*);
 
     template <typename ALLOC, typename ACT>
     auto allocCalled(size_t iRequested, ALLOC iAlloc, ACT iGetActual) {
       [[maybe_unused]] Guard g = makeGuard();
       auto a = iAlloc();
       if (g.shouldReport()) {
-        allocCalled_(iRequested, iGetActual(a));
+        allocCalled_(iRequested, iGetActual(a), a);
       }
       return a;
     }
@@ -128,7 +128,7 @@ namespace cms::perftools {
     void deallocCalled(void* iPtr, DEALLOC iDealloc, ACT iGetActual) {
       [[maybe_unused]] Guard g = makeGuard();
       if (g.shouldReport() and iPtr != nullptr) {
-        deallocCalled_(iGetActual(iPtr));
+        deallocCalled_(iGetActual(iPtr), iPtr);
       }
       iDealloc(iPtr);
     }

@@ -6,12 +6,13 @@ import FWCore.ParameterSet.Config as cms
 
 from Calibration.HcalAlCaRecoProducers.alcaiterphisym_cfi import *
 
-
-import HLTrigger.HLTfilters.hltHighLevel_cfi
-hcalphisymHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-#    HLTPaths = ['HLT_HcalPhiSym'],
+import HLTrigger.HLTfilters.triggerResultsFilterFromDB_cfi
+hcalphisymHLT = HLTrigger.HLTfilters.triggerResultsFilterFromDB_cfi.triggerResultsFilterFromDB.clone(
     eventSetupPathsKey='HcalCalIterativePhiSym',
-    throw = False #dont throw except on unknown path name 
+    usePathStatus = False,
+    hltResults = 'TriggerResults::HLT',
+    l1tResults = '', # leaving empty (not interested in L1T results)
+    throw = False #dont throw except on unknown path name
 )
 
 seqALCARECOHcalCalIterativePhiSym = cms.Sequence(hcalphisymHLT*IterativePhiSymProd)

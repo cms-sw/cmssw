@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
@@ -55,8 +54,8 @@ process.dqmEnv.subSystemFolder    = "SiStripApproximateClusters"
 process.dqmSaver.tag = "SiStripApproximateClusters"
 process.dqmSaver.backupLumiCount = 30
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "SiStripApproximateClusters"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "SiStripApproximateClusters"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.dqmEnvTr = DQMEDAnalyzer('DQMEventInfo',
@@ -176,7 +175,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 else :
     process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
 
-process.DQMCommon = cms.Sequence(process.dqmEnv*process.dqmEnvTr*process.dqmSaver*process.dqmSaverPB)
+process.DQMCommon = cms.Sequence(process.dqmEnv*process.dqmEnvTr*process.dqmSaver)#*process.dqmSaverPB)
 
 print("Running with run type = ", process.runType.getRunTypeName())
 
@@ -194,7 +193,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.muonDTDigis.inputLabel = rawDataRepackerLabel
     process.muonRPCDigis.InputLabel = rawDataRepackerLabel
     process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
-    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siPixelDigis.InputLabel = rawDataRepackerLabel
     process.siStripDigis.ProductLabel = rawDataRepackerLabel
     process.tcdsDigis.InputLabel = rawDataRepackerLabel
 
@@ -216,7 +215,8 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.InitialStepPreSplittingTask.remove(process.MeasurementTrackerEvent)
 
     # Redefinition of siPixelClusters: has to be after RecoTracker.IterativeTracking.InitialStepPreSplitting_cff
-    process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+    from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
+    process.siPixelClusters = _siPixelClusters.clone()
 
     # Select events based on the pixel cluster multiplicity
     import  HLTrigger.special.hltPixelActivityFilter_cfi

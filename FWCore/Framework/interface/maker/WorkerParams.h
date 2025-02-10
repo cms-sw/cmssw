@@ -15,7 +15,7 @@ This struct is used to communication parameters into the worker factory.
 
 namespace edm {
   class ProcessConfiguration;
-  class ProductRegistry;
+  class SignallingProductRegistry;
   class ExceptionToActionTable;
   class PreallocationConfiguration;
 
@@ -23,7 +23,7 @@ namespace edm {
     WorkerParams() : pset_(nullptr), reg_(nullptr), preallocate_(nullptr), processConfiguration_(), actions_(nullptr) {}
 
     WorkerParams(ParameterSet* pset,
-                 ProductRegistry& reg,
+                 SignallingProductRegistry& reg,
                  PreallocationConfiguration const* prealloc,
                  std::shared_ptr<ProcessConfiguration const> processConfiguration,
                  ExceptionToActionTable const& actions)
@@ -34,7 +34,7 @@ namespace edm {
           actions_(&actions) {}
 
     ParameterSet* pset_;
-    ProductRegistry* reg_;
+    SignallingProductRegistry* reg_;
     PreallocationConfiguration const* preallocate_;
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ExceptionToActionTable const* actions_;

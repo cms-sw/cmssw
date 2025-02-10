@@ -323,7 +323,6 @@ $outErr->{name} = 'c';
 $m->dump_multiply_std_and_intrinsic("MultHelixPropTranspEndcap.ah",
                                     $temp, $errPropT, $outErr);
 
-
 ##############################
 ### updateParameters       ###
 ##############################
@@ -405,3 +404,254 @@ $m->dump_multiply_std_and_intrinsic("upParam_propErrT_x_simil_propErr.ah",
   $m_kg->dump_multiply_std_and_intrinsic("upParam_kalmanGain_x_propErr.ah",
                                          $kalmanGain, $propErr, $temp);
 }
+
+
+
+########################
+## KalmanOps on Plane ##
+########################
+
+##################### JacCCS2Loc #####################
+
+# jacCCS2Loc[56] = jacCurv2Loc[55] * jacCCS2Curv[56]
+
+$jac_cu2l = new GenMul::Matrix('name'=>'a', 'M'=>5, 'N'=>5);
+$jac_cu2l->set_pattern(<<"FNORD");
+1 0 0 0 0
+0 x x x x
+0 x x x x
+0 0 0 x x
+0 0 0 x x
+FNORD
+
+$jac_c2cu = new GenMul::Matrix('name'=>'b', 'M'=>5, 'N'=>6);
+$jac_c2cu->set_pattern(<<"FNORD");
+0 0 0 x 0 x
+0 0 0 0 0 x
+0 0 0 0 1 0
+x x 0 0 0 0
+x x x 0 0 0
+FNORD
+
+$jac_c2l = new GenMul::Matrix('name'=>'c', 'M'=>5, 'N'=>6);
+
+$m = new GenMul::Multiply;
+
+$m->dump_multiply_std_and_intrinsic("JacCCS2Loc.ah",
+                                    $jac_cu2l, $jac_c2cu, $jac_c2l);
+
+##################### PsErrLoc #####################
+
+# temp56 = jacCCS2Loc[56] * psErr[66]
+
+$jac_c2l = new GenMul::Matrix('name'=>'a', 'M'=>5, 'N'=>6);
+$jac_c2l->set_pattern(<<"FNORD");
+0 0 0 x 0 x
+x x x 0 x x
+x x x 0 x x
+x x x 0 0 0
+x x x 0 0 0
+FNORD
+
+$psErr = new GenMul::MatrixSym('name'=>'b', 'M'=>6, 'N'=>6);
+
+$temp56   = new GenMul::Matrix('name'=>'c', 'M'=>5, 'N'=>6);
+
+$jac_c2lT = new GenMul::MatrixTranspose($jac_c2l);
+$jac_c2lT->print_info();
+$jac_c2lT->print_pattern();
+
+# ----------------------------------------------------------------------
+
+$m = new GenMul::Multiply;
+
+$m->dump_multiply_std_and_intrinsic("PsErrLoc.ah",
+                                    $jac_c2l, $psErr, $temp56);
+
+$locErr = new GenMul::MatrixSym('name'=>'c', 'M'=>5, 'N'=>5);
+
+$temp56->{name} = 'b';
+
+$m->dump_multiply_std_and_intrinsic("PsErrLocTransp.ah",
+                                    $temp56, $jac_c2lT, $locErr);
+
+##################### psErrLoc_upd #####################
+
+# psErrLoc_upd[5S] = ImKH[55] * psErrLoc[5S]
+
+$imkh = new GenMul::Matrix('name'=>'a', 'M'=>5, 'N'=>5);
+$imkh->set_pattern(<<"FNORD");
+1 0 0 x x
+0 1 0 x x
+0 0 1 x x
+0 0 0 x x
+0 0 0 x x
+FNORD
+
+$pserrloc = new GenMul::MatrixSym('name'=>'b', 'M'=>5, 'N'=>5);
+
+$pserrlocupd = new GenMul::MatrixSym('name'=>'c', 'M'=>5, 'N'=>5);
+
+$m = new GenMul::Multiply;
+
+$m->dump_multiply_std_and_intrinsic("PsErrLocUpd.ah",
+                                    $imkh, $pserrloc, $pserrlocupd);
+
+##################### jacLoc2CCS #####################
+
+# jacLoc2CCS[65] = jacCurv2CCS[65] * jacLoc2Curv[55]
+
+$jc2ccs = new GenMul::Matrix('name'=>'a', 'M'=>6, 'N'=>5);
+$jc2ccs->set_pattern(<<"FNORD");
+0 0 0 x x
+0 0 0 x x
+0 0 0 0 x
+x x 0 0 0
+0 0 1 0 0
+0 x 0 0 0
+FNORD
+
+$jl2c = new GenMul::Matrix('name'=>'b', 'M'=>5, 'N'=>5);
+$jl2c->set_pattern(<<"FNORD");
+1 0 0 0 0
+0 x x 0 0
+0 x x x x
+0 0 0 x x
+0 0 0 x x
+FNORD
+
+$jl2ccs = new GenMul::Matrix('name'=>'c', 'M'=>6, 'N'=>5);
+
+$m = new GenMul::Multiply;
+
+$m->dump_multiply_std_and_intrinsic("JacLoc2CCS.ah",
+                                    $jc2ccs, $jl2c, $jl2ccs);
+
+##################### OutErrCCS #####################
+
+# temp65 = jacLoc2CCS[65] * psErrLoc_upd[55]
+
+$jacl2ccs = new GenMul::Matrix('name'=>'a', 'M'=>6, 'N'=>5);
+$jacl2ccs->set_pattern(<<"FNORD");
+0 0 0 x x
+0 0 0 x x
+0 0 0 x x
+x x x 0 0
+0 x x x x
+0 x x 0 0
+FNORD
+
+$psErrLU = new GenMul::MatrixSym('name'=>'b', 'M'=>5, 'N'=>5);
+
+$temp65   = new GenMul::Matrix('name'=>'c', 'M'=>6, 'N'=>5);
+
+$jacl2ccsT = new GenMul::MatrixTranspose($jacl2ccs);
+$jacl2ccsT->print_info();
+$jacl2ccsT->print_pattern();
+
+# ----------------------------------------------------------------------
+
+$m = new GenMul::Multiply;
+
+$m->dump_multiply_std_and_intrinsic("OutErrCCS.ah",
+                                    $jacl2ccs, $psErrLU, $temp65);
+
+$outErr = new GenMul::MatrixSym('name'=>'c', 'M'=>6, 'N'=>6);
+
+$temp65->{name} = 'b';
+
+$m->dump_multiply_std_and_intrinsic("OutErrCCSTransp.ah",
+                                    $temp65, $jacl2ccsT, $outErr);
+
+#------------------------------------------------------------------------------
+
+### Propagate To Plane -- final similarity, two ops.
+
+# outErr = errProp * outErr * errPropT
+#   outErr is symmetric
+
+my $DIM = 6;
+
+$errProp = new GenMul::Matrix('name'=>'a', 'M'=>$DIM, 'N'=>$DIM);
+$errProp->set_pattern(<<"FNORD");
+x x x x x x
+x x x x x x
+x x x x x x
+0 0 0 1 x x
+x x x x x x
+0 0 0 0 x x
+FNORD
+
+$outErr = new GenMul::MatrixSym('name'=>'b', 'M'=>$DIM, 'N'=>$DIM);
+
+$temp   = new GenMul::Matrix('name'=>'c', 'M'=>$DIM, 'N'=>$DIM);
+
+
+$errPropT = new GenMul::MatrixTranspose($errProp);
+$errPropT->print_info();
+$errPropT->print_pattern();
+
+# ----------------------------------------------------------------------
+
+$m = new GenMul::Multiply;
+
+# outErr and c are just templates ...
+
+$m->dump_multiply_std_and_intrinsic("MultHelixPlaneProp.ah",
+                                    $errProp, $outErr, $temp);
+
+$temp  ->{name} = 'b';
+$outErr->{name} = 'c';
+
+$m->dump_multiply_std_and_intrinsic("MultHelixPlanePropTransp.ah",
+                                    $temp, $errPropT, $outErr);
+
+##############
+# need to compute errorProp = jacCurv2CCS*errorPropCurv*jacCCS2Curv
+# jacCurv2CCS is 65, errorPropCurv is 55, tmp is 65, jacCCS2Curv is 56
+
+$jacCurv2CCS = new GenMul::Matrix('name'=>'a', 'M'=>6, 'N'=>5);
+$jacCurv2CCS->set_pattern(<<"FNORD");
+0 0 0 x x
+0 0 0 x x
+0 0 0 0 x
+x x 0 0 0
+0 0 1 0 0
+0 x 0 0 0
+FNORD
+
+$errorPropCurv = new GenMul::Matrix('name'=>'b', 'M'=>5, 'N'=>5);
+$errorPropCurv->set_pattern(<<"FNORD");
+1 0 0 0 0
+0 x x 0 0
+x x x x x
+x x x x x
+x x x x x
+FNORD
+
+$temp   = new GenMul::Matrix('name'=>'c', 'M'=>6, 'N'=>5);
+
+# ----------------------------------------------------------------------
+
+$m = new GenMul::Multiply;
+
+# outErr and c are just templates ...
+
+$m->dump_multiply_std_and_intrinsic("JacErrPropCurv1.ah",
+                                    $jacCurv2CCS, $errorPropCurv, $temp);
+
+$temp  ->{name} = 'a';
+
+$jacCCS2Curv = new GenMul::Matrix('name'=>'b', 'M'=>5, 'N'=>6);
+$jacCCS2Curv->set_pattern(<<"FNORD");
+0 0 0 x 0 x
+0 0 0 0 0 x
+0 0 0 0 1 0
+x x 0 0 0 0
+x x x 0 0 0
+FNORD
+
+$outErrProp = new GenMul::Matrix('name'=>'c', 'M'=>6, 'N'=>6);
+
+$m->dump_multiply_std_and_intrinsic("JacErrPropCurv2.ah",
+                                    $temp, $jacCCS2Curv, $outErrProp);

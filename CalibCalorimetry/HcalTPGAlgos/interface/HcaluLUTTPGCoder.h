@@ -6,6 +6,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 #include <bitset>
 #include <vector>
@@ -32,13 +33,12 @@ class HcalDbService;
 class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
   static const float lsb_;
-  static const float zdc_lsb_;
 
   HcaluLUTTPGCoder();
-  HcaluLUTTPGCoder(const HcalTopology* topo, const HcalTimeSlew* delay);
+  HcaluLUTTPGCoder(const HcalTopology* topo, const HcalElectronicsMap* emap, const HcalTimeSlew* delay);
   ~HcaluLUTTPGCoder() override;
 
-  void init(const HcalTopology* top, const HcalTimeSlew* delay);
+  void init(const HcalTopology* top, const HcalElectronicsMap* emap, const HcalTimeSlew* delay);
 
   void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const override;
   void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const override;
@@ -111,6 +111,7 @@ private:
 
   // member variables
   const HcalTopology* topo_;
+  const HcalElectronicsMap* emap_;
   const HcalTimeSlew* delay_;
   bool LUTGenerationMode_;
   std::vector<uint32_t> FG_HF_thresholds_;

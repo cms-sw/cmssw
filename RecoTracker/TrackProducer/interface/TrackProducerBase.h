@@ -9,22 +9,21 @@
 
 #include "AlgoProductTraits.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
-#include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
 
 #include <tuple>
 
@@ -90,6 +89,8 @@ public:
                            const TrackerTopology* ttopo);
 
   const edm::ParameterSet& getConf() const { return conf_; }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 protected:
   edm::ParameterSet conf_;

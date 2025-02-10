@@ -77,6 +77,13 @@ public:
                           const TrackerTopology* tTopo,
                           CLHEP::HepRandomEngine* engine);
 
+  template <class AmplitudeType, typename SignalType>
+  bool lateSignalReweight(const PixelGeomDetUnit* pixdet,
+                          std::vector<PixelDigi>& digis,
+                          PixelSimHitExtraInfoLite& loopTempSH,
+                          SignalType& theNewDigiSignal,
+                          const TrackerTopology* tTopo,
+                          CLHEP::HepRandomEngine* engine);  //  could be templated in future ?
 private:
   // Internal typedef
   typedef GloballyPositioned<double> Frame;
@@ -778,7 +785,7 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   }
   ierr = PixelTempRewgt2D(ID0, ID1, pixrewgt);
   if (ierr != 0) {
-    edm::LogError("SiPixelChargeReweightingAlgorithm") << "Cluster Charge Reweighting did not work properly.";
+    LogDebug("SiPixelChargeReweightingAlgorithm ") << "Cluster Charge Reweighting did not work properly.";
     return false;
   }
   if (PrintClusters) {
@@ -816,7 +823,7 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   }
 
   // need to store the digi out of the 21x13 box.
-  for (auto& i : theDigiSignal) {
+  for (const auto& i : theDigiSignal) {
     // check if in the 21x13 box
     int chanDigi = i.first;
     std::pair<int, int> ip = PixelDigi::channelToPixel(chanDigi);
@@ -841,4 +848,219 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   return true;
 }
 
+template <class AmplitudeType, typename SignalType>
+bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUnit* pixdet,
+                                                           std::vector<PixelDigi>& digis,
+                                                           PixelSimHitExtraInfoLite& loopTempSH,
+                                                           SignalType& theNewDigiSignal,
+                                                           const TrackerTopology* tTopo,
+                                                           CLHEP::HepRandomEngine* engine) {
+  uint32_t detID = pixdet->geographicalId().rawId();
+  const PixelTopology* topol = &pixdet->specificTopology();
+
+  if (UseReweighting) {
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ******************************** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ******************************** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ******************************** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " *****  INCONSISTENCY !!!   ***** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm")
+        << " applyLateReweighting_ and UseReweighting can not be true at the same time for PU ! \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ---> DO NOT APPLY CHARGE REWEIGHTING TWICE !!! \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ******************************** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ******************************** \n";
+    return false;
+  }
+
+  SignalType theDigiSignal;
+
+  int irow_min = topol->nrows();
+  int irow_max = 0;
+  int icol_min = topol->ncolumns();
+  int icol_max = 0;
+
+  float chargeBefore = 0;
+  float chargeAfter = 0;
+
+  //loop on digis
+  std::vector<PixelDigi>::const_iterator loopDigi;
+  for (loopDigi = digis.begin(); loopDigi != digis.end(); ++loopDigi) {
+    unsigned int chan = loopDigi->channel();
+    if (loopTempSH.isInTheList(chan)) {
+      float corresponding_charge = loopDigi->adc();
+      if constexpr (std::is_same_v<AmplitudeType, digitizerUtility::Ph2Amplitude>) {
+        edm::LogError("SiPixelChargeReweightingAlgorithm")
+            << "Phase-2 late charge reweighting not supported (not sure we need it at all)";
+        return false;
+      } else {
+        theDigiSignal[chan] += AmplitudeType(corresponding_charge, corresponding_charge);
+      }
+      chargeBefore += corresponding_charge;
+      if (loopDigi->row() < irow_min)
+        irow_min = loopDigi->row();
+      if (loopDigi->row() > irow_max)
+        irow_max = loopDigi->row();
+      if (loopDigi->column() < icol_min)
+        icol_min = loopDigi->column();
+      if (loopDigi->column() > icol_max)
+        icol_max = loopDigi->column();
+    }
+  }
+  // end loop on digis
+
+  LocalVector direction = loopTempSH.exitPoint() - loopTempSH.entryPoint();
+  LocalPoint hitEntryPoint = loopTempSH.entryPoint();
+  float trajectoryScaleToPosition = std::abs(hitEntryPoint.z() / direction.z());
+  LocalPoint hitPosition = hitEntryPoint + trajectoryScaleToPosition * direction;
+
+  // addition as now the hit himself is not available
+  // https://github.com/cms-sw/cmssw/blob/master/SimDataFormats/TrackingHit/interface/PSimHit.h#L52
+  LocalPoint hitLocalPosition = hitEntryPoint + 0.5 * direction;
+  MeasurementPoint hitPositionPixel = topol->measurementPosition(hitLocalPosition);
+  std::pair<int, int> hitPixel =
+      std::pair<int, int>(int(floor(hitPositionPixel.x())), int(floor(hitPositionPixel.y())));
+
+  MeasurementPoint originPixel = MeasurementPoint(hitPixel.first - THX + 0.5, hitPixel.second - THY + 0.5);
+  LocalPoint origin = topol->localPosition(originPixel);
+
+  MeasurementPoint hitEntryPointPixel = topol->measurementPosition(loopTempSH.entryPoint());
+  MeasurementPoint hitExitPointPixel = topol->measurementPosition(loopTempSH.exitPoint());
+  std::pair<int, int> entryPixel =
+      std::pair<int, int>(int(floor(hitEntryPointPixel.x())), int(floor(hitEntryPointPixel.y())));
+  std::pair<int, int> exitPixel =
+      std::pair<int, int>(int(floor(hitExitPointPixel.x())), int(floor(hitExitPointPixel.y())));
+
+  int hitcol_min, hitcol_max, hitrow_min, hitrow_max;
+  if (entryPixel.first > exitPixel.first) {
+    hitrow_min = exitPixel.first;
+    hitrow_max = entryPixel.first;
+  } else {
+    hitrow_min = entryPixel.first;
+    hitrow_max = exitPixel.first;
+  }
+
+  if (entryPixel.second > exitPixel.second) {
+    hitcol_min = exitPixel.second;
+    hitcol_max = entryPixel.second;
+  } else {
+    hitcol_min = entryPixel.second;
+    hitcol_max = exitPixel.second;
+  }
+
+  if (!(irow_min <= hitrow_max && irow_max >= hitrow_min && icol_min <= hitcol_max && icol_max >= hitcol_min)) {
+    // The clusters do not have an overlap, hence the hit is NOT reweighted
+    return false;
+  }
+
+  track[0] = (hitPosition.x() - origin.x()) * cmToMicrons;
+  track[1] = (hitPosition.y() - origin.y()) * cmToMicrons;
+  track[2] = 0.0f;  //Middle of sensor is origin for Z-axis
+  track[3] = direction.x();
+  track[4] = direction.y();
+  track[5] = direction.z();
+
+  array_2d pixrewgt(boost::extents[TXSIZE][TYSIZE]);
+
+  /*
+  for (int row = 0; row < TXSIZE; ++row) {
+    for (int col = 0; col < TYSIZE; ++col) {
+      pixrewgt[row][col] = 0;
+    }
+  }
+*/
+
+  for (int row = 0; row < TXSIZE; ++row) {
+    xdouble[row] = topol->isItBigPixelInX(hitPixel.first + row - THX);
+  }
+
+  for (int col = 0; col < TYSIZE; ++col) {
+    ydouble[col] = topol->isItBigPixelInY(hitPixel.second + col - THY);
+  }
+
+  for (int row = 0; row < TXSIZE; ++row) {
+    for (int col = 0; col < TYSIZE; ++col) {
+      //Fill charges into 21x13 Pixel Array with hitPixel in centre
+      pixrewgt[row][col] =
+          theDigiSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)];
+    }
+  }
+
+  if (PrintClusters) {
+    LogDebug("SiPixelChargeReweightingAlgorithm") << " Cluster before reweighting: ";
+    printCluster(pixrewgt);
+  }
+
+  int ierr;
+  // for unirradiated: 2nd argument is IDden
+  // for irradiated: 2nd argument is IDnum
+  int ID1 = dbobject_num->getTemplateID(detID);
+  int ID0 = dbobject_den->getTemplateID(detID);
+
+  if (ID0 == ID1) {
+    LogDebug("SiPixelChargeReweightingAlgorithm") << " same template for num and den ";
+    return false;
+  }
+  ierr = PixelTempRewgt2D(ID0, ID1, pixrewgt);
+  if (ierr != 0) {
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "Cluster Charge Reweighting did not work properly.";
+    return false;
+  }
+  if (PrintClusters) {
+    LogDebug("SiPixelChargeReweightingAlgorithm") << " Cluster after reweighting: ";
+    printCluster(pixrewgt);
+  }
+
+  for (int row = 0; row < TXSIZE; ++row) {
+    for (int col = 0; col < TYSIZE; ++col) {
+      float charge = 0;
+      charge = pixrewgt[row][col];
+      if ((hitPixel.first + row - THX) >= 0 && (hitPixel.first + row - THX) < topol->nrows() &&
+          (hitPixel.second + col - THY) >= 0 && (hitPixel.second + col - THY) < topol->ncolumns() && charge > 0) {
+        chargeAfter += charge;
+        if constexpr (std::is_same_v<AmplitudeType, digitizerUtility::Ph2Amplitude>) {
+          edm::LogError("SiPixelChargeReweightingAlgorithm")
+              << "Phase-2 late charge reweighting not supported (not sure we need it at all)";
+          return false;
+        } else {
+          theNewDigiSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
+              AmplitudeType(charge, charge);
+        }
+      }
+    }
+  }
+
+  if (chargeBefore != 0. && chargeAfter == 0.) {
+    return false;
+  }
+
+  if (PrintClusters) {
+    LogDebug("SiPixelChargeReweightingAlgorithm")
+        << "Charges (before->after): " << chargeBefore << " -> " << chargeAfter;
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "Charge loss: " << (1 - chargeAfter / chargeBefore) * 100 << " %";
+  }
+
+  // need to store the digi out of the 21x13 box.
+  for (const auto& i : theDigiSignal) {
+    // check if in the 21x13 box
+    int chanDigi = i.first;
+    std::pair<int, int> ip = PixelDigi::channelToPixel(chanDigi);
+    int row_digi = ip.first;
+    int col_digi = ip.second;
+    int i_transformed_row = row_digi - hitPixel.first + THX;
+    int i_transformed_col = col_digi - hitPixel.second + THY;
+    if (i_transformed_row < 0 || i_transformed_row > TXSIZE || i_transformed_col < 0 || i_transformed_col > TYSIZE) {
+      // not in the box
+      if (chanDigi >= 0 && i.second > 0) {
+        if constexpr (std::is_same_v<AmplitudeType, digitizerUtility::Ph2Amplitude>) {
+          edm::LogError("SiPixelChargeReweightingAlgorithm")
+              << "Phase-2 late charge reweighting not supported (not sure we need it at all)";
+          return false;
+        } else {
+          theNewDigiSignal[chanDigi] += AmplitudeType(i.second, i.second);
+        }
+      }
+    }
+  }
+
+  return true;
+}
 #endif

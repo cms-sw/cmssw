@@ -28,7 +28,7 @@ namespace spf {
   int SherpackFetcher::Fetch() {
     std::string option = "-c";
     std::string constr = "`cmsGetFnConnect frontier://smallfiles`";
-    std::string sherpack = "sherpa_" + SherpaProcess + "_MASTER.tgz";
+    std::string sherpack = SherpackLocation + "/sherpa_" + SherpaProcess + "_MASTER.tgz";
     std::string sherpackunzip = "sherpa_" + SherpaProcess + "_MASTER.tar";
     std::string path = SherpackLocation + "/" + sherpack;
 
@@ -48,7 +48,7 @@ namespace spf {
 
     std::ifstream my_file(sherpack.c_str());
     if (!my_file.good()) {
-      throw cms::Exception("SherpaInterface") << "SherpackFetcher: No Sherpack found" << std::endl;
+      throw cms::Exception("SherpaInterface") << "SherpackFetcher: No Sherpack found: " << sherpack << std::endl;
       return -2;
     }
     my_file.close();

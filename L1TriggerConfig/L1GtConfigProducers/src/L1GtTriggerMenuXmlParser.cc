@@ -3121,11 +3121,10 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
   //<< std::endl;
 
   // determine output pin
-  DOMNode* pinNode = findXMLChild(node->getFirstChild(), m_xmlTagOutput);
   std::string pinString;
   int outputPin = 0;
 
-  pinNode = node->getFirstChild();
+  DOMNode* pinNode = node->getFirstChild();
   if ((pinNode = findXMLChild(pinNode, m_xmlTagOutputPin)) != nullptr) {
     pinString = getXMLAttribute(pinNode, m_xmlAttrNr);
 
@@ -3283,11 +3282,10 @@ bool L1GtTriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* no
   //<< std::endl;
 
   // determine bit number (use output pin tag)
-  DOMNode* pinNode = findXMLChild(node->getFirstChild(), m_xmlTagOutput);
   std::string pinString;
   int outputPin = 0;
 
-  pinNode = node->getFirstChild();
+  DOMNode* pinNode = node->getFirstChild();
   if ((pinNode = findXMLChild(pinNode, m_xmlTagOutputPin)) != nullptr) {
     pinString = getXMLAttribute(pinNode, m_xmlAttrNr);
 

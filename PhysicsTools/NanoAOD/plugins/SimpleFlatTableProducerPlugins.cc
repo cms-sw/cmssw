@@ -3,11 +3,19 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProducer;
 
+typedef SimpleCollectionFlatTableProducer<reco::Candidate> SimpleCandidateCollectionFlatTableProducer;
+
 #include "DataFormats/TrackReco/interface/Track.h"
 typedef SimpleFlatTableProducer<reco::Track> SimpleTrackFlatTableProducer;
 
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+typedef SimpleFlatTableProducer<reco::SuperCluster> SimpleSuperclusterFlatTableProducer;
+
 #include "DataFormats/JetReco/interface/PFJet.h"
 typedef SimpleFlatTableProducer<reco::PFJet> SimplePFJetFlatTableProducer;
+
+#include "DataFormats/JetReco/interface/GenJet.h"
+typedef SimpleFlatTableProducer<reco::GenJet> SimpleGenJetFlatTableProducer;
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 typedef SimpleFlatTableProducer<reco::Vertex> SimpleVertexFlatTableProducer;
@@ -47,8 +55,11 @@ typedef EventSingletonSimpleFlatTableProducer<reco::BeamSpot> SimpleBeamspotFlat
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleCandidateCollectionFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTrackFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleSuperclusterFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePFJetFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleGenJetFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleVertexFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleSecondaryVertexFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleGenParticleFlatTableProducer);

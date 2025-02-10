@@ -36,9 +36,6 @@
 // constants, enums and typedefs
 //
 namespace edm {
-
-  class WaitingTaskWithArenaHolder;
-
   namespace global {
     //
     // static data member definitions
@@ -55,12 +52,12 @@ namespace edm {
     bool EDFilterBase::doEvent(EventTransitionInfo const& info,
                                ActivityRegistry* act,
                                ModuleCallingContext const* mcc) {
+      EventSignalsSentry sentry(act, mcc);
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();
       e.setProducer(
           this, &previousParentages_[streamIndex], hasAcquire() ? &gotBranchIDsFromAcquire_[streamIndex] : nullptr);
-      EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
@@ -72,16 +69,16 @@ namespace edm {
     void EDFilterBase::doAcquire(EventTransitionInfo const& info,
                                  ActivityRegistry* act,
                                  ModuleCallingContext const* mcc,
-                                 WaitingTaskWithArenaHolder& holder) {
+                                 WaitingTaskHolder&& holder) {
+      EventAcquireSignalsSentry sentry(act, mcc);
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();
       e.setProducerForAcquire(this, nullptr, gotBranchIDsFromAcquire_[streamIndex]);
-      EventAcquireSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
-      this->doAcquire_(e.streamID(), e, c, holder);
+      this->doAcquire_(e.streamID(), e, c, std::move(holder));
     }
 
     void EDFilterBase::doTransformAsync(WaitingTaskHolder iTask,
@@ -94,7 +91,7 @@ namespace edm {
       transformAsync_(iTask, iTransformIndex, ev, iAct, iToken);
     }
 
-    size_t EDFilterBase::transformIndex_(edm::BranchDescription const& iBranch) const noexcept { return -1; }
+    size_t EDFilterBase::transformIndex_(edm::ProductDescription const& iBranch) const noexcept { return -1; }
     ProductResolverIndex EDFilterBase::transformPrefetch_(std::size_t iIndex) const noexcept { return 0; }
     void EDFilterBase::transformAsync_(WaitingTaskHolder iTask,
                                        std::size_t iIndex,
@@ -293,7 +290,7 @@ namespace edm {
 
     void EDFilterBase::clearInputProcessBlockCaches() {}
 
-    void EDFilterBase::doAcquire_(StreamID, Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) {}
+    void EDFilterBase::doAcquire_(StreamID, Event const&, EventSetup const&, WaitingTaskHolder&&) {}
 
     void EDFilterBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;

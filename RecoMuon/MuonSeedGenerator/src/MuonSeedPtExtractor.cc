@@ -1,4 +1,4 @@
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedPtExtractor.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"

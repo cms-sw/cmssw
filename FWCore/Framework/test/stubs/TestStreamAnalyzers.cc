@@ -13,6 +13,7 @@ for testing purposes only.
 #include <tuple>
 #include <unistd.h>
 #include <vector>
+#include <chrono>
 
 #include "FWCore/Framework/interface/CacheHandle.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
@@ -29,7 +30,7 @@ for testing purposes only.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 namespace edmtest {
@@ -74,7 +75,7 @@ namespace edmtest {
       GlobalIntAnalyzer(edm::ParameterSet const& p, Cache const* iGlobal) {
         trans_ = p.getParameter<int>("transitions");
         cvalue_ = p.getParameter<int>("cachevalue");
-        callWhenNewProductsRegistered([](edm::BranchDescription const& desc) {
+        callWhenNewProductsRegistered([](edm::ProductDescription const& desc) {
           std::cout << "stream::GlobalIntAnalyzer " << desc.moduleLabel() << std::endl;
         });
       }
@@ -570,7 +571,7 @@ namespace edmtest {
         }
         // Force events to be processed concurrently
         if (sleepTime_ > 0) {
-          usleep(sleepTime_);
+          std::this_thread::sleep_for(std::chrono::microseconds(sleepTime_));
         }
       }
 
@@ -721,7 +722,7 @@ namespace edmtest {
 
         // Force events to be processed concurrently
         if (testGlobalCache->sleepTime_ > 0) {
-          usleep(testGlobalCache->sleepTime_);
+          std::this_thread::sleep_for(std::chrono::microseconds(testGlobalCache->sleepTime_));
         }
       }
 

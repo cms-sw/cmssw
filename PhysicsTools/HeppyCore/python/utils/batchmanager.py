@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-from __future__ import absolute_import
 from datetime import datetime
 from optparse import OptionParser
 
@@ -219,7 +217,7 @@ class BatchManager:
             sys.exit(3)
         else:
             for line in ifile:
-                p = re.compile("\s*cp.*\$jobdir\s+(\S+)$");
+                p = re.compile("\\s*cp.*\\$jobdir\\s+(\\S+)$");
                 m=p.match(line)
                 if m:
                     if os.path.isdir( os.path.expandvars(m.group(1)) ):

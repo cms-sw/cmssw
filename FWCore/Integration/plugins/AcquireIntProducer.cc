@@ -20,7 +20,7 @@ namespace edm {
 }
 
 namespace edmtest {
-
+  using namespace std::chrono_literals;
   class AcquireIntProducer : public edm::global::EDProducer<edm::ExternalWork, edm::StreamCache<test_acquire::Cache>> {
   public:
     explicit AcquireIntProducer(edm::ParameterSet const& pset);
@@ -77,7 +77,7 @@ namespace edmtest {
                                    edm::Event const& event,
                                    edm::EventSetup const&,
                                    edm::WaitingTaskWithArenaHolder holder) const {
-    usleep(1000000);
+    std::this_thread::sleep_for(1s);
 
     test_acquire::Cache* streamCacheData = streamCache(streamID);
     streamCacheData->retrieved().clear();
@@ -91,7 +91,7 @@ namespace edmtest {
   }
 
   void AcquireIntProducer::produce(edm::StreamID streamID, edm::Event& event, edm::EventSetup const&) const {
-    usleep(1000000);
+    std::this_thread::sleep_for(1s);
 
     int sum = 0;
     for (auto v : streamCache(streamID)->processed()) {

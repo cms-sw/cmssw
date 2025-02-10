@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
 import sys
 import re
 import os
@@ -473,24 +472,24 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
       )
 
       self.data = re.sub("""\
-\\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *['"](EvFOutputModule|GlobalEvFOutputModule)['"] *,
-    use_compression = cms.untracked.bool\( (True|False) \),
-    compression_algorithm = cms.untracked.string\( ['"](.+?)['"] \),
-    compression_level = cms.untracked.int32\( (-?\d+) \),
-    lumiSection_interval = cms.untracked.int32\( (-?\d+) \),
+\\b(process\\.)?hltOutput(\\w+) *= *cms\\.OutputModule\\( *['"](EvFOutputModule|GlobalEvFOutputModule)['"] *,
+    use_compression = cms.untracked.bool\\( (True|False) \\),
+    compression_algorithm = cms.untracked.string\\( ['"](.+?)['"] \\),
+    compression_level = cms.untracked.int32\\( (-?\\d+) \\),
+    lumiSection_interval = cms.untracked.int32\\( (-?\\d+) \\),
 (.+?),
-    psetMap = cms.untracked.InputTag\( ['"]hltPSetMap['"] \)
+    psetMap = cms.untracked.InputTag\\( ['"]hltPSetMap['"] \\)
 ""","""\
-%(process)s.hltOutput\g<2> = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "output\g<2>.root" ),
-    compressionAlgorithm = cms.untracked.string( "\g<5>" ),
-    compressionLevel = cms.untracked.int32( \g<6> ),
+%(process)s.hltOutput\\g<2> = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "output\\g<2>.root" ),
+    compressionAlgorithm = cms.untracked.string( "\\g<5>" ),
+    compressionLevel = cms.untracked.int32( \\g<6> ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-\g<8>
+\\g<8>
 """, self.data, 0, re.DOTALL)
 
     if not self.config.fragment and self.config.output == 'minimal':
@@ -542,7 +541,7 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
       return
     from Configuration.StandardSequences.Eras import eras
     erasSplit = self.config.eras.split(',')
-    self.data = re.sub(r'process = cms.Process\( *"\w+"', '\n'.join(eras.pythonCfgLines[era] for era in erasSplit)+'\n\g<0>, '+', '.join(era for era in erasSplit), self.data)
+    self.data = re.sub(r'process = cms.Process\( *"\w+"', '\n'.join(eras.pythonCfgLines[era] for era in erasSplit)+'\n\\g<0>, '+', '.join(era for era in erasSplit), self.data)
 
   # select specific Eras
   def loadSetupCff(self):

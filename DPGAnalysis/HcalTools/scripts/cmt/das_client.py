@@ -5,7 +5,6 @@
 """
 DAS command line tool
 """
-from __future__ import print_function
 __author__ = "Valentin Kuznetsov"
 
 # system modules
@@ -61,7 +60,7 @@ class HTTPSClientAuthHandler(urllib2.HTTPSHandler):
             urllib2.HTTPSHandler.__init__(self)
         self.key = key
         self.cert = cert
-	self.capath = capath
+        self.capath = capath
 
     def https_open(self, req):
         """Open request method"""
@@ -307,8 +306,8 @@ def get_data(host, query, idx, limit, debug, threshold=300, ckey=None,
         data = fdesc.read()
         fdesc.close()
     except urllib2.HTTPError as error:
-	print(error.read())
-	sys.exit(1)
+        print(error.read())
+        sys.exit(1)
 
     pat = re.compile(r'^[a-z0-9]{32}')
     if  data and isinstance(data, str) and pat.match(data) and len(data) == 32:

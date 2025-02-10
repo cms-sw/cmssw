@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # Define here the BeamSpotOnline record name,
@@ -53,8 +52,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'FakeBeamMonitorHLT'
 process.dqmSaver.tag           = 'FakeBeamMonitorHLT'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'FakeBeamMonitorHLT'
-process.dqmSaverPB.runNumber   = options.runNumber
+# process.dqmSaverPB.tag         = 'FakeBeamMonitorHLT'
+# process.dqmSaverPB.runNumber   = options.runNumber
 
 # Configure tag and jobName if running Playback system
 if process.isDqmPlayback.value :
@@ -94,7 +93,7 @@ process.dqmBeamMonitor = process.dqmFakeBeamMonitor.clone(
 # Condition for P5 cluster
 #process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver * process.dqmSaverPB)
+                               * process.dqmSaver )#* process.dqmSaverPB)
 
 process.monitor = cms.Sequence(process.dqmBeamMonitor)
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 '''CMS Conditions DB command-line tool.
 '''
-from __future__ import print_function
 
 import argparse
 import datetime
@@ -411,7 +410,7 @@ def _strip_colors(args, string):
     if args.nocolors:
         return string
 
-    return re.sub('\x1b\[[;\d]*[A-Za-z]', '', string)
+    return re.sub('\x1b\\[[;\\d]*[A-Za-z]', '', string)
 
 
 def _ljust_colors(args, string, width, fillchar=' '):

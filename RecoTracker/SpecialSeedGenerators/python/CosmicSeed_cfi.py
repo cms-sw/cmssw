@@ -17,7 +17,7 @@ cosmicseedfinder = cms.EDProducer("CosmicSeedGenerator",
     DontCountDetsAboveNClusters = cms.uint32(20),
     originRadius = cms.double(150.0),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
-    MaxNumberOfPixelClusters = cms.uint32(300),
+    MaxNumberOfPixelClusters = cms.uint32(1000),
     PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
     originHalfLength = cms.double(90.0),
     #***top-bottom

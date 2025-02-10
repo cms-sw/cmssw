@@ -38,18 +38,18 @@ public:
                         const EcalSeverityLevelAlgo*,
                         DetId::Detector detector);
 
-  double getEtSum(const reco::Candidate* emObject, EcalPFRecHitThresholds const& thresholds) const {
-    return getSum_(emObject, true, &thresholds);
+  double getEtSum(const reco::Candidate* emObject, EcalPFRecHitThresholds const* thresholds) const {
+    return getSum_(emObject, true, thresholds);
   }
-  double getEnergySum(const reco::Candidate* emObject, EcalPFRecHitThresholds const& thresholds) const {
-    return getSum_(emObject, false, &thresholds);
+  double getEnergySum(const reco::Candidate* emObject, EcalPFRecHitThresholds const* thresholds) const {
+    return getSum_(emObject, false, thresholds);
   }
 
-  double getEtSum(const reco::SuperCluster* emObject, EcalPFRecHitThresholds const& thresholds) const {
-    return getSum_(emObject, true, &thresholds);
+  double getEtSum(const reco::SuperCluster* emObject, EcalPFRecHitThresholds const* thresholds) const {
+    return getSum_(emObject, true, thresholds);
   }
-  double getEnergySum(const reco::SuperCluster* emObject, EcalPFRecHitThresholds const& thresholds) const {
-    return getSum_(emObject, false, &thresholds);
+  double getEnergySum(const reco::SuperCluster* emObject, EcalPFRecHitThresholds const* thresholds) const {
+    return getSum_(emObject, false, thresholds);
   }
 
   void setUseNumCrystals(bool b = true) { useNumCrystals_ = b; }

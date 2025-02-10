@@ -174,7 +174,7 @@ bool AlignableModifier::modify(Alignable* alignable, const edm::ParameterSet& pS
                                           << "with 's' or a digit at the end.\n";
       }  // other PSets should now be hierarchy levels and thus be OK to ignore here
     } else {
-      if (!error.str().length())
+      if (error.str().empty())
         error << "Unknown parameter name(s): ";
       error << " " << *iParam;
     }
@@ -189,7 +189,7 @@ bool AlignableModifier::modify(Alignable* alignable, const edm::ParameterSet& pS
     throw cms::Exception("BadConfig") << "Found both localZ and phiZlocal";
 
   // Check error
-  if (error.str().length())
+  if (!error.str().empty())
     throw cms::Exception("BadConfig") << error.str();
 
   // Decode distribution

@@ -8,6 +8,7 @@
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+#include "DataFormats/L1CaloTrigger/interface/CICADA.h"
 
 #include "CommonTokens.h"
 
@@ -19,10 +20,12 @@ namespace l1t {
 
       inline const edm::EDGetTokenT<GlobalAlgBlkBxCollection>& getAlgToken() const { return algToken_; };
       inline const edm::EDGetTokenT<GlobalExtBlkBxCollection>& getExtToken() const { return extToken_; };
+      inline const edm::EDGetTokenT<CICADABxCollection>& getCICADAToken() const { return cicadaToken_; };
 
     private:
       edm::EDGetTokenT<GlobalAlgBlkBxCollection> algToken_;
       edm::EDGetTokenT<GlobalExtBlkBxCollection> extToken_;
+      edm::EDGetTokenT<CICADABxCollection> cicadaToken_;
     };
   }  // namespace stage2
 }  // namespace l1t

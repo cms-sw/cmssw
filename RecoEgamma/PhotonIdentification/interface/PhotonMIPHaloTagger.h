@@ -1,5 +1,5 @@
-#ifndef PhotonMIPHaloTagger_H
-#define PhotonMIPHaloTagger_H
+#ifndef RecoEgamma_PhotonIdentification_PhotonMIPHaloTagger_H
+#define RecoEgamma_PhotonIdentification_PhotonMIPHaloTagger_H
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,58 +12,37 @@
 
 class PhotonMIPHaloTagger {
 public:
-  PhotonMIPHaloTagger() {}
+  PhotonMIPHaloTagger(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
 
-  virtual ~PhotonMIPHaloTagger() {}
+  reco::Photon::MIPVariables mipCalculate(const reco::Photon&, const edm::Event&, const edm::EventSetup& es) const;
 
-  void setup(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
-
-  void MIPcalculate(const reco::Photon*,
-                    const edm::Event&,
-                    const edm::EventSetup& es,
-                    reco::Photon::MIPVariables& mipId);
-
+private:
   //get the seed crystal index
-  void GetSeedHighestE(const reco::Photon* photon,
+  void getSeedHighestE(const reco::Photon& photon,
                        const edm::Event& iEvent,
                        const edm::EventSetup& iSetup,
                        edm::Handle<EcalRecHitCollection> Brechit,
                        int& seedIEta,
                        int& seedIPhi,
-                       double& seedE);
+                       double& seedE) const;
 
   //get the MIP  Fit Trail results
-  std::vector<double> GetMipTrailFit(const reco::Photon* photon,
-                                     const edm::Event& iEvent,
-                                     const edm::EventSetup& iSetup,
-                                     edm::Handle<EcalRecHitCollection> ecalhitsCollEB,
-                                     double inputRangeY,
-                                     double inputRangeX,
-                                     double inputResWidth,
-                                     double inputHaloDiscCut,
-                                     int& NhitCone_,
-                                     bool& ismipHalo_);
+  reco::Photon::MIPVariables getMipTrailFit(const reco::Photon& photon,
+                                            const edm::Event& iEvent,
+                                            const edm::EventSetup& iSetup,
+                                            edm::Handle<EcalRecHitCollection> ecalhitsCollEB,
+                                            double inputRangeY,
+                                            double inputRangeX,
+                                            double inputResWidth,
+                                            double inputHaloDiscCut) const;
 
-protected:
-  edm::EDGetToken EBecalCollection_;
-  edm::EDGetToken EEecalCollection_;
-
-  //used inside main methhod
-  double inputRangeY;
-  double inputRangeX;
-  double inputResWidth;
-  double inputHaloDiscCut;
+  const edm::EDGetToken EBecalCollection_;
 
   //Isolation parameters variables as input
-  double yRangeFit_;
-  double xRangeFit_;
-  double residualWidthEnergy_;
-  double haloDiscThreshold_;
-
-  //Local Vector for results
-  std::vector<double> mipFitResults_;
-  int nhitCone_;
-  bool ismipHalo_;
+  const double yRangeFit_;
+  const double xRangeFit_;
+  const double residualWidthEnergy_;
+  const double haloDiscThreshold_;
 };
 
 #endif  // PhotonMIPHaloTagger_H

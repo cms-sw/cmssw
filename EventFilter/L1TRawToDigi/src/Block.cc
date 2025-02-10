@@ -61,10 +61,10 @@ namespace l1t {
     return bxBlocks;
   }
 
-  std::unique_ptr<Block> Payload::getBlock() {
+  std::optional<Block> Payload::getBlock() {
     if (end_ - data_ < getHeaderSize()) {
       LogDebug("L1T") << "Reached end of payload";
-      return std::unique_ptr<Block>();
+      return {};
     }
 
     if (data_[0] == 0xffffffff) {
@@ -78,12 +78,12 @@ namespace l1t {
     if (end_ - data_ < header.getSize()) {
       edm::LogError("L1T") << "Expecting a block size of " << header.getSize() << " but only " << (end_ - data_)
                            << " words remaining";
-      return std::unique_ptr<Block>();
+      return {};
     }
 
     LogTrace("L1T") << "Creating block with size " << header.getSize();
 
-    auto res = std::make_unique<Block>(header, data_, data_ + header.getSize());
+    Block res(header, data_, data_ + header.getSize());
     data_ += header.getSize();
     return res;
   }
@@ -170,9 +170,9 @@ namespace l1t {
     return false;
   }
 
-  std::unique_ptr<Block> MTF7Payload::getBlock() {
+  std::optional<Block> MTF7Payload::getBlock() {
     if (end_ - data_ < 2)
-      return std::unique_ptr<Block>();
+      return {};
 
     const uint16_t* data16 = reinterpret_cast<const uint16_t*>(data_);
     const uint16_t* end16 = reinterpret_cast<const uint16_t*>(end_);
@@ -195,11 +195,11 @@ namespace l1t {
 
     if (not valid(pattern)) {
       edm::LogWarning("L1T") << "MTF7 block with unrecognized id 0x" << std::hex << pattern;
-      return std::unique_ptr<Block>();
+      return {};
     }
 
     data_ += (i + 1) * 2;
-    return std::make_unique<Block>(pattern, payload, 0, MTF7);
+    return Block(pattern, payload, 0, MTF7);
   }
 
   CTP7Payload::CTP7Payload(const uint32_t* data, const uint32_t* end, amc::Header amcHeader)
@@ -233,10 +233,10 @@ namespace l1t {
     return BlockHeader(blockId, blockSize, capId_, blockFlags, CTP7);
   }
 
-  std::unique_ptr<Block> CTP7Payload::getBlock() {
+  std::optional<Block> CTP7Payload::getBlock() {
     if (end_ - data_ < getHeaderSize()) {
       LogDebug("L1T") << "Reached end of payload";
-      return std::unique_ptr<Block>();
+      return {};
     }
     if (capId_ > bx_per_l1a_) {
       edm::LogWarning("L1T") << "CTP7 with more bunch crossings than expected";
@@ -247,12 +247,12 @@ namespace l1t {
     if (end_ - data_ < header.getSize()) {
       edm::LogError("L1T") << "Expecting a block size of " << header.getSize() << " but only " << (end_ - data_)
                            << " words remaining";
-      return std::unique_ptr<Block>();
+      return {};
     }
 
     LogTrace("L1T") << "Creating block with size " << header.getSize();
 
-    auto res = std::make_unique<Block>(header, data_, data_ + header.getSize());
+    Block res(header, data_, data_ + header.getSize());
     data_ += header.getSize();
     capId_++;
     return res;

@@ -1,9 +1,10 @@
 #ifndef RecoTracker_MkFitCore_standalone_Event_h
 #define RecoTracker_MkFitCore_standalone_Event_h
 
-#include "RecoTracker/MkFitCore/interface/Track.h"
-#include "Validation.h"
 #include "RecoTracker/MkFitCore/interface/Config.h"
+#include "RecoTracker/MkFitCore/interface/Track.h"
+#include "RecoTracker/MkFitCore/interface/BeamSpot.h"
+#include "Validation.h"
 
 #include <mutex>
 

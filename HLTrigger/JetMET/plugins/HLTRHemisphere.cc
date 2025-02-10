@@ -177,13 +177,17 @@ void HLTRHemisphere::ComputeHemispheres(std::unique_ptr<std::vector<math::XYZTLo
       if (itemp / j_count == 1) {
         if (count < JETS.size())
           j_temp1 += JETS.at(count);
-        else
+        else {
+          assert(extraJets);  // to silence LLVM analyzer warning
           j_temp1 += extraJets->at(count - JETS.size());
+        }
       } else {
         if (count < JETS.size())
           j_temp2 += JETS.at(count);
-        else
+        else {
+          assert(extraJets);  // to silence LLVM analyzer warning
           j_temp2 += extraJets->at(count - JETS.size());
+        }
       }
       itemp -= j_count * (itemp / j_count);
       j_count /= 2;

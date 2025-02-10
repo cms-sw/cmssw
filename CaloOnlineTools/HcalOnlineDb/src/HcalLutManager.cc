@@ -1754,6 +1754,8 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getZdcLutXml(const HcalTP
         _cfg.topbottom = 1;
       else if (row->topbottom.find('b') != std::string::npos)
         _cfg.topbottom = 0;
+      else if (row->topbottom.find('u') != std::string::npos)
+        _cfg.topbottom = 2;
       else
         edm::LogWarning("HcalLutManager") << "fpga out of range...";
 

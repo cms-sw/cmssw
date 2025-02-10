@@ -30,6 +30,67 @@
 
   <class name="ticl::LayerClusterToSimTracksterAssociator" persistent="false"/>
   <class name="edm::Wrapper<ticl::LayerClusterToSimTracksterAssociator>" persistent="false"/>
+  
+  <class name="ticl::SharedEnergyType"/>
+  <class name="std::pair<ticl::SharedEnergyType, float>"/>
+  <class name="ticl::FractionType"/>
+  <class name="std::pair<ticl::FractionType, float>"/>
+  
+  <class name="ticl::AssociationElement<ticl::FractionType>"/>
+  <class name="std::vector<ticl::AssociationElement<ticl::FractionType> >"/>
+  <class name="std::vector<std::vector<ticl::AssociationElement<ticl::FractionType> > >"/>
+  
+  <class name="ticl::AssociationElement<std::pair<ticl::FractionType, float> >"/>
+  <class name="std::vector<ticl::AssociationElement<std::pair<ticl::FractionType, float> > >"/>
+  <class name="std::vector<std::vector<ticl::AssociationElement<std::pair<ticl::FractionType, float> > > >"/>
+  
+  <class name="ticl::AssociationElement<ticl::SharedEnergyType>"/>
+  <class name="std::vector<ticl::AssociationElement<ticl::SharedEnergyType> >"/>
+  <class name="std::vector<std::vector<ticl::AssociationElement<ticl::SharedEnergyType> > >"/>
+  
+  <class name="ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float> >"/>
+  <class name="std::vector<ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float> > >"/>
+  <class name="std::vector<std::vector<ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float> > > >"/>
+  
+  <class name="std::monostate"/>
+  <class name="edm::RefProd<std::vector<ticl::Trackster> >"/>
+  <class name="std::pair<edm::RefProd<std::vector<ticl::Trackster> >, edm::RefProd<std::vector<ticl::Trackster> > >"/>
+  <class name="std::pair<edm::RefProd<std::vector<SimCluster> >, edm::RefProd<std::vector<CaloParticle> > >"/>
+
+  <!-- For one-to-many map with FractionType -->
+  <class name="ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster> > >"/>
+  <class name="ticl::AssociationMap<ticl::mapWithFraction, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithFraction, void, void > >"/>
+  <!-- For one-to-many map with FractionType and Score -->
+  <class name="ticl::AssociationMap<ticl::mapWithFractionAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithFractionAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster> > >"/>
+  <class name="ticl::AssociationMap<ticl::mapWithFractionAndScore, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithFractionAndScore, void, void > >"/>
+  <!-- For one-to-one map with FractionType -->
+  <class name="ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle> > >"/>
+  <class name="ticl::AssociationMap<ticl::oneToOneMapWithFraction, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::oneToOneMapWithFraction, void, void > >"/>
+
+  <!-- For one-to-many map with SharedEnergyType -->
+  <class name="ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster> > >"/>
+  <class name="ticl::AssociationMap<ticl::mapWithSharedEnergy, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithSharedEnergy, void, void > >"/>
+
+  <!-- For one-to-many map with SharedEnergyType and Score -->
+  <class name="ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster> > >"/>
+  <class name="ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, void, void > >"/>
+
+  <!-- For one-to-one map with SharedEnergyType -->
+  <class name="ticl::AssociationMap<ticl::oneToOneMapWithSharedEnergy, std::vector<SimCluster>, std::vector<CaloParticle> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::oneToOneMapWithSharedEnergy, std::vector<SimCluster>, std::vector<CaloParticle> > >"/>
+  <class name="ticl::AssociationMap<ticl::oneToOneMapWithSharedEnergy, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::oneToOneMapWithSharedEnergy, void, void > >"/>
+
 
   <class name="reco::VertexSimToRecoCollection" >
     <field name="transientMap_" transient="true"/>

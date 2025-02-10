@@ -11,12 +11,12 @@
 //
 
 // system include files
-#include <unistd.h>
 #include <vector>
 #include <thread>
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <chrono>
 
 // user include files
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -60,7 +60,7 @@ namespace timestudy {
           (void)e.getHandle(t);
         }
         //Event number minimum value is 1
-        usleep(eventTimes_[(e.id().event() - 1) % eventTimes_.size()]);
+        std::this_thread::sleep_for(std::chrono::microseconds(eventTimes_[(e.id().event() - 1) % eventTimes_.size()]));
       }
 
       static void fillDescription(edm::ParameterSetDescription& desc) {
@@ -248,15 +248,15 @@ namespace timestudy {
           if (v[1] > longestTime) {
             longestTime = v[1];
           }
-          usleep(v[0]);
+          std::this_thread::sleep_for(std::chrono::microseconds(v[0]));
         }
         //simulate running external device
-        usleep(longestTime);
+        std::this_thread::sleep_for(std::chrono::microseconds(longestTime));
 
         //simulate copying data back
         for (auto i : streamsToProcess) {
           auto const& v = waitTimesPerStream_[i];
-          usleep(v[2]);
+          std::this_thread::sleep_for(std::chrono::microseconds(v[2]));
           waitingTaskPerStream_[i].doneWaiting(std::exception_ptr());
         }
       }

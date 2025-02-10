@@ -28,8 +28,6 @@
 
 //using boost::asio::ip::tcp;
 
-//#define DEBUG
-
 using namespace jsoncollector;
 using namespace edm::streamer;
 
@@ -162,6 +160,13 @@ namespace evf {
       }
     }
 
+    updateRunParams();
+    std::stringstream ss;
+    ss << getpid();
+    pid_ = ss.str();
+  }
+
+  void EvFDaqDirector::updateRunParams() {
     std::stringstream ss;
     ss << "run" << std::setfill('0') << std::setw(6) << run_;
     run_string_ = ss.str();
@@ -171,12 +176,10 @@ namespace evf {
     run_dir_ = base_dir_ + "/" + run_string_;
     input_throttled_file_ = run_dir_ + "/input_throttle";
     discard_ls_filestem_ = run_dir_ + "/discard_ls";
-    ss = std::stringstream();
-    ss << getpid();
-    pid_ = ss.str();
   }
 
   void EvFDaqDirector::initRun() {
+    std::cout << " init Run " << std::endl;
     // check if base dir exists or create it accordingly
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
@@ -318,7 +321,7 @@ namespace evf {
       }
 
       fulockfile_ = bu_run_dir_ + "/fu.lock";
-      if (!useFileBroker_)
+      if (!useFileBroker_ && !fileListMode_)
         openFULockfileStream(false);
     }
 
@@ -430,21 +433,7 @@ namespace evf {
   }
 
   void EvFDaqDirector::preGlobalEndLumi(edm::GlobalContext const& globalContext) {
-    //delete all files belonging to just closed lumi
-    unsigned int ls = globalContext.luminosityBlockID().luminosityBlock();
-    if (!fileDeleteLockPtr_ || !filesToDeletePtr_) {
-      edm::LogWarning("EvFDaqDirector") << " Handles to check for files to delete were not set by the input source...";
-      return;
-    }
-
-    std::unique_lock<std::mutex> lkw(*fileDeleteLockPtr_);
-    auto it = filesToDeletePtr_->begin();
-    while (it != filesToDeletePtr_->end()) {
-      if (it->second->lumi_ == ls && (!fms_ || !fms_->isExceptionOnData(it->second->lumi_))) {
-        it = filesToDeletePtr_->erase(it);
-      } else
-        it++;
-    }
+    lsWithFilesMap_.erase(globalContext.luminosityBlockID().luminosityBlock());
   }
 
   std::string EvFDaqDirector::getInputJsonFilePath(const unsigned int ls, const unsigned int index) const {
@@ -636,11 +625,6 @@ namespace evf {
     if (retval != 0)
       return fileStatus;
 
-#ifdef DEBUG
-    timeval ts_lockend;
-    gettimeofday(&ts_lockend, 0);
-#endif
-
     //open another lock file FD after the lock using main fd has been acquired
     int fu_readwritelock_fd2 = open(fulockfile_.c_str(), O_RDWR, S_IRWXU);
     if (fu_readwritelock_fd2 == -1)
@@ -701,6 +685,14 @@ namespace evf {
             fflush(fu_rw_lock_stream2);
             fsync(fu_readwritelock_fd2);
             fileStatus = newFile;
+            {
+              oneapi::tbb::concurrent_hash_map<unsigned int, unsigned int>::accessor acc;
+              bool result = lsWithFilesMap_.insert(acc, readLs);
+              if (!result)
+                acc->second++;
+              else
+                acc->second = 1;
+            }  //release accessor lock
             LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex + 1;
           } else {
             edm::LogError("EvFDaqDirector")
@@ -734,13 +726,6 @@ namespace evf {
     }
     fclose(fu_rw_lock_stream2);  // = fdopen(fu_readwritelock_fd2, "r+");
 
-#ifdef DEBUG
-    timeval ts_preunlock;
-    gettimeofday(&ts_preunlock, 0);
-    int locked_period_int = ts_preunlock.tv_sec - ts_lockend.tv_sec;
-    double locked_period = locked_period_int + double(ts_preunlock.tv_usec - ts_lockend.tv_usec) / 1000000;
-#endif
-
     //if new json is present, lock file which FedRawDataInputSource will later unlock
     if (fileStatus == newFile)
       lockFULocal();
@@ -750,10 +735,6 @@ namespace evf {
     retvalu = fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_fulk);
     if (retvalu == -1)
       edm::LogError("EvFDaqDirector") << "Error unlocking the fu.lock " << strerror(errno);
-
-#ifdef DEBUG
-    edm::LogDebug("EvFDaqDirector") << "Waited during lock -: " << locked_period << " seconds";
-#endif
 
     if (fileStatus == noFile) {
       struct stat buf;
@@ -1945,6 +1926,14 @@ namespace evf {
     else if (fileStatus == newFile) {
       assert(serverLS >= ls);
       ls = serverLS;
+      {
+        oneapi::tbb::concurrent_hash_map<unsigned int, unsigned int>::accessor acc;
+        bool result = lsWithFilesMap_.insert(acc, ls);
+        if (!result)
+          acc->second++;
+        else
+          acc->second = 1;
+      }  //release accessor lock
     } else if (fileStatus == noFile) {
       if (serverLS >= ls)
         ls = serverLS;
@@ -2019,6 +2008,15 @@ namespace evf {
   bool EvFDaqDirector::lumisectionDiscarded(unsigned int ls) {
     struct stat buf;
     return (stat((discard_ls_filestem_ + std::to_string(ls)).c_str(), &buf) == 0);
+  }
+
+  unsigned int EvFDaqDirector::lsWithFilesOpen(unsigned int ls) const {
+    // oneapi::tbb::hash_t::accessor accessor;
+    oneapi::tbb::concurrent_hash_map<unsigned int, unsigned int>::accessor acc;
+    if (lsWithFilesMap_.find(acc, ls))
+      return (unsigned int)(acc->second);
+    else
+      return 0;
   }
 
 }  // namespace evf

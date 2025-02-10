@@ -37,7 +37,6 @@ void testHelloWorld::test() {
   // object to load and run the graph / session
   tensorflow::Status status;
   tensorflow::Options options{backend};
-  tensorflow::setLogging();
   tensorflow::RunOptions runOptions;
   tensorflow::SavedModelBundle bundle;
 

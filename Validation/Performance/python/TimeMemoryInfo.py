@@ -18,3 +18,6 @@ def customise(process):
         )
 
     return(process)
+
+def customiseWithTimeMemoryInfo(process):
+    return customise(process)

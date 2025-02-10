@@ -328,10 +328,14 @@ void MuonPFAnalyzer::setCodeLabels(MonitorElement *plot, int nAxis) {
 void MuonPFAnalyzer::fillInRange(MonitorElement *plot, int nAxis, double x, double y) {
   TH1 *histo = plot->getTH1();
 
+  // Avoid LLVM analyzer warning
+  assert(nAxis == 1 || nAxis == 2);
+
   TAxis *axis[2] = {nullptr, nullptr};
   axis[0] = histo->GetXaxis();
-  if (nAxis == 2)
+  if (nAxis == 2) {
     axis[1] = histo->GetYaxis();
+  }
 
   double value[2] = {0, 0};
   value[0] = x;

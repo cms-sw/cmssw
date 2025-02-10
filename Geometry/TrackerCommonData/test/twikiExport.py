@@ -206,13 +206,13 @@ def main():
         expandvars(
             "$CMSSW_BASE/src/Geometry/TrackerCommonData/data/Materials/pure_materials.input"
         )
-    )
+    ))
 
     predefinedMaterials.update( readMaterialFile(
         expandvars(
             "$CMSSW_BASE/src/Geometry/TrackerCommonData/data/Materials/mixed_materials.input"
         )
-    )
+    ))
 
     inFile = open(options.inFile,"r")
     inFileContent = inFile.read()

@@ -10,7 +10,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '102X_dataRun2_Sep2018Rereco_v1')
-print "Using GlobalTag: %s" % process.GlobalTag.globaltag.value()
+print("Using GlobalTag: %s" % process.GlobalTag.globaltag.value())
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),

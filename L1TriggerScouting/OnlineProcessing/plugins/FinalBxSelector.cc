@@ -22,7 +22,7 @@
 class FinalBxSelector : public edm::stream::EDFilter<> {
 public:
   explicit FinalBxSelector(const edm::ParameterSet&);
-  ~FinalBxSelector() {}
+  ~FinalBxSelector() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:

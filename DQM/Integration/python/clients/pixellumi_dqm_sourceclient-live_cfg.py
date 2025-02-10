@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -48,8 +47,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "PixelLumi"
 process.dqmSaver.tag = "PixelLumi"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "PixelLumi"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "PixelLumi"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 if not unitTest:
     process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*","HLT_L1AlwaysTrue*", "HLT_PAZeroBias*", "HLT_PAL1AlwaysTrue*")
@@ -83,7 +82,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #-----------------------
 # Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.cpu.IncludeErrors = True
+process.siPixelDigis.IncludeErrors = True
 
 # Local Reconstruction
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
@@ -96,13 +95,13 @@ process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 #        SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_*Cosmic*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*','HLT_HcalNZS*'))
 
 
-process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
+process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 #--------------------------------
 # Heavy Ion Configuration Changes
 #--------------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siPixelDigis.InputLabel = "rawDataRepacker"
 
     if not unitTest:
         process.source.SelectEvents = ['HLT_HIL1MinimumBiasHF2AND*']

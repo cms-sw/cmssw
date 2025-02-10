@@ -148,7 +148,7 @@ steps['NANO_data_UL18reMINI'] = merge([{'--era': 'Run2_2018',
 steps['TTbarMINIAOD13.0'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer23MiniAODv4-130X_mcRun3_2023_realistic_v14-v2/MINIAODSIM')}
 
-steps['NANO_mc13.0'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2023_realistic'},
+steps['NANO_mc13.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:phase1_2023_realistic'},
                               _NANO_mc])
 
 
@@ -160,7 +160,7 @@ steps['ScoutingPFRun32022RAW13.0'] = {'INPUT': InputInfo(
     dataSet='/ScoutingPFRun3/Run2022D-v1/RAW', label='2022D', events=100000, location='STD', ls=Run2022D)}
 
 
-steps['NANO_data13.0'] = merge([{'--era': 'Run3', '--conditions': 'auto:run3_data'},
+steps['NANO_data13.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:run3_data'},
                                 _NANO_data])
 
 steps['NANO_data13.0_prompt'] = merge([{'-s': 'NANO:@Prompt,DQM:@nanoAODDQM', '-n': '1000'},
@@ -176,7 +176,7 @@ steps['scoutingNANO_data13.0'] = merge([{'-s': 'NANO:@Scout'},
 steps['TTbarMINIAOD14.0'] = {'INPUT': InputInfo(
     location='STD', dataSet='/RelValTTbar_14TeV/CMSSW_14_0_0-PU_140X_mcRun3_2024_realistic_v3_STD_2024_PU-v2/MINIAODSIM')}
 
-steps['NANO_mc14.0'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2024_realistic'},
+steps['NANO_mc14.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:phase1_2024_realistic'},
                               _NANO_mc])
 
 steps['muPOGNANO_mc14.0'] = merge([{'-s': 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n': '1000'},
@@ -200,6 +200,16 @@ steps['jmeNANO_rePuppi_mc14.0'] = merge([{'-s': 'NANO:@JMErePuppi ', '-n': '1000
 steps['scoutingNANO_mc14.0'] = merge([{'-s': 'NANO:@Scout'},
                                       steps['NANO_mc14.0']])
 
+steps['scoutingNANO_withPrompt_mc14.0'] = merge([{'-s': 'NANO:@Prompt+@Scout'},
+                                                 steps['NANO_mc14.0']])
+
+steps['SinglePionRAW14.0'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/SinglePion_E-50_Eta-0to3-pythia8-gun/Run3Winter25Digi-NoPU_142X_mcRun3_2025BOY_realistic_Candidate_2024_11_13_17_21_33-v2/GEN-SIM-RAW')}
+
+steps['hcalDPGNANO_mc14.0'] = merge([{'-s': 'RAW2DIGI,RECO,NANO:@HCALMC', '-n': '100',
+                                      '--processName': 'NANO'},
+                                     steps['NANO_mc14.0']])
+
 # 14.0 workflows -- data
 lumis_Run2024D = {380306: [[28, 273]]}
 steps['MuonEG2024MINIAOD14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2024D,
@@ -207,6 +217,9 @@ steps['MuonEG2024MINIAOD14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Ru
 
 steps['ScoutingPFRun32024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2024D,
                                                          dataSet='/ScoutingPFRun3/Run2024D-v1/HLTSCOUT')}
+
+steps['ScoutingPFMonitor2024MINIAOD14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2024D,
+                                                                dataSet='/ScoutingPFMonitor/Run2024D-PromptReco-v1/MINIAOD')}
 
 steps['ZMuSkim2024RAWRECO14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2024D,
                                                       dataSet='/Muon0/Run2024D-ZMu-PromptReco-v1/RAW-RECO')}
@@ -217,7 +230,7 @@ steps['ZeroBias2024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2
 steps['TestEnablesEcalHcal2024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls={383173: [[151, 162]]},
                                                               dataSet='/TestEnablesEcalHcal/Run2024F-Express-v1/RAW')}
 
-steps['NANO_data14.0'] = merge([{'--era': 'Run3_2024', '--conditions': 'auto:run3_data_prompt'},
+steps['NANO_data14.0'] = merge([{'--era': 'Run3_2024,run3_nanoAOD_pre142X', '--conditions': 'auto:run3_data_prompt'},
                                 _NANO_data])
 
 steps['NANO_data14.0_prompt'] = merge([{'-s': 'NANO:@Prompt,DQM:@nanoAODDQM', '-n': '1000'},
@@ -244,6 +257,12 @@ steps['jmeNANO_rePuppi_data14.0'] = merge([{'-s': 'NANO:@JMErePuppi', '-n': '100
 steps['scoutingNANO_data14.0'] = merge([{'-s': 'NANO:@Scout'},
                                         steps['NANO_data14.0']])
 
+# Process.options.TryToContinue = cms.untracked.vstring(\'ProductNotFound\') is needed here because some events in ScoutingPFMonitor in 2024 do not contain scouting objects.
+# This should be fixed in 2025 (https://its.cern.ch/jira/browse/CMSHLT-3331) so customise_commands won't be needed for 2025 workflow.
+steps['scoutingNANO_withPrompt_data14.0'] = merge([{'-s': 'NANO:@Prompt+@Scout', 
+                                                   '--customise_commands': '"process.options.TryToContinue = cms.untracked.vstring(\'ProductNotFound\')"'},
+                                                   steps['NANO_data14.0']])
+
 # DPG custom NANO
 steps['muDPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@MUDPG', '-n': '100'},
                                      steps['NANO_data14.0']])
@@ -261,6 +280,20 @@ steps['hcalDPGCalibNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,RECO,NANO:@HCALCali
 
 steps['l1DPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@L1DPG', '-n': '100'},
                                      steps['NANO_data14.0']])
+
+
+################################################################
+# Run3 re-MINI/NANOv15 in 15.0
+steps['TTbar_13p6_Summer24_AOD'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24DRPremix-140X_mcRun3_2024_realistic_v26-v2/AODSIM')}
+
+steps['JetMET1_Run2024H_AOD'] = {'INPUT': InputInfo(
+    location='STD', ls={385836: [[72, 166]]}, dataSet='/JetMET1/Run2024H-PromptReco-v1/AOD')}
+
+steps['NANO_mc_Summer24_reMINI'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2024_realistic'}, _NANO_mc])
+
+steps['NANO_data_2024_reMINI'] = merge([{'--era': 'Run3_2024', '--conditions': 'auto:run3_data'}, _NANO_data])
+
 
 ################################################################
 # NANOGEN
@@ -288,10 +321,10 @@ workflows[_wfn()] = ['NANOdata106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_dat
 
 # Run2, 10_6_X AOD, reMINI+reNANO
 _wfn.subnext()
-workflows[_wfn()] = ['NANOmcUL16APVreMINI', ['TTbar_13_reminiaod2016UL_preVFP_INPUT', 'REMINIAOD_mc2016UL_preVFP', 'NANO_mc_UL16APVreMINI', 'HRV_NANO_data']]  # noqa
-workflows[_wfn()] = ['NANOmcUL16reMINI', ['TTbar_13_reminiaod2016UL_postVFP_INPUT', 'REMINIAOD_mc2016UL_postVFP', 'NANO_mc_UL16reMINI', 'HRV_NANO_data']]  # noqa
-workflows[_wfn()] = ['NANOmcUL17reMINI', ['TTbar_13_reminiaod2017UL_INPUT', 'REMINIAOD_mc2017UL', 'NANO_mc_UL17reMINI', 'HRV_NANO_data']]  # noqa
-workflows[_wfn()] = ['NANOmcUL18reMINI', ['TTbar_13_reminiaod2018UL_INPUT', 'REMINIAOD_mc2018UL', 'NANO_mc_UL18reMINI', 'HRV_NANO_data']]  # noqa
+workflows[_wfn()] = ['NANOmcUL16APVreMINI', ['TTbar_13_reminiaod2016UL_preVFP_INPUT', 'REMINIAOD_mc2016UL_preVFP', 'NANO_mc_UL16APVreMINI', 'HRV_NANO_mc']]  # noqa
+workflows[_wfn()] = ['NANOmcUL16reMINI', ['TTbar_13_reminiaod2016UL_postVFP_INPUT', 'REMINIAOD_mc2016UL_postVFP', 'NANO_mc_UL16reMINI', 'HRV_NANO_mc']]  # noqa
+workflows[_wfn()] = ['NANOmcUL17reMINI', ['TTbar_13_reminiaod2017UL_INPUT', 'REMINIAOD_mc2017UL', 'NANO_mc_UL17reMINI', 'HRV_NANO_mc']]  # noqa
+workflows[_wfn()] = ['NANOmcUL18reMINI', ['TTbar_13_reminiaod2018UL_INPUT', 'REMINIAOD_mc2018UL', 'NANO_mc_UL18reMINI', 'HRV_NANO_mc']]  # noqa
 
 _wfn.subnext()
 workflows[_wfn()] = ['NANOdataUL16APVreMINI', ['RunJetHT2016E_reminiaodUL', 'REMINIAOD_data2016UL_HIPM', 'NANO_data_UL16APVreMINI', 'HRV_NANO_data']]  # noqa
@@ -320,7 +353,7 @@ _wfn.subnext()
 
 _wfn.next(2)
 ######## 2500.2xx ########
-# Run3, 14_0_X input (current production release for MC / prompt RECO)
+# Run3, 14_0_X input
 workflows[_wfn()] = ['NANOmc140X', ['TTbarMINIAOD14.0', 'NANO_mc14.0', 'HRV_NANO_mc']]
 
 _wfn.subnext()
@@ -336,6 +369,7 @@ workflows[_wfn()] = ['jmeNANOmc140X', ['TTbarMINIAOD14.0', 'jmeNANO_mc14.0']]
 workflows[_wfn()] = ['jmeNANOrePuppimc140X', ['TTbarMINIAOD14.0', 'jmeNANO_rePuppi_mc14.0']]
 workflows[_wfn()] = ['lepTrackInfoNANOmc140X', ['TTbarMINIAOD14.0', 'lepTrackInfoNANO_mc14.0']]
 workflows[_wfn()] = ['ScoutingNANOmc140X', ['TTbarMINIAOD14.0', 'scoutingNANO_mc14.0']]
+workflows[_wfn()] = ['ScoutingNANOwithPromptmc140X', ['TTbarMINIAOD14.0', 'scoutingNANO_withPrompt_mc14.0']]
 
 # POG/PAG custom NANOs, data
 _wfn.subnext()
@@ -346,6 +380,7 @@ workflows[_wfn()] = ['jmeNANOdata140Xrun3', ['MuonEG2024MINIAOD14.0', 'jmeNANO_d
 workflows[_wfn()] = ['jmeNANOrePuppidata140Xrun3', ['MuonEG2024MINIAOD14.0', 'jmeNANO_rePuppi_data14.0']]
 workflows[_wfn()] = ['lepTrackInfoNANOdata140Xrun3', ['MuonEG2024MINIAOD14.0', 'lepTrackInfoNANO_data14.0']]
 workflows[_wfn()] = ['ScoutingNANOdata140Xrun3', ['ScoutingPFRun32024RAW14.0', 'scoutingNANO_data14.0']]
+workflows[_wfn()] = ['ScoutingNANOwithPromptdata140Xrun3', ['ScoutingPFMonitor2024MINIAOD14.0', 'scoutingNANO_withPrompt_data14.0']]
 
 # DPG custom NANOs, data
 _wfn.subnext()
@@ -354,6 +389,21 @@ workflows[_wfn()] = ['muDPGNANO140Xrun3', ['ZMuSkim2024RAWRECO14.0', 'muDPGNANO_
 workflows[_wfn()] = ['muDPGNANOBkg140Xrun3', ['ZeroBias2024RAW14.0', 'muDPGNANOBkg_data14.0']]
 workflows[_wfn()] = ['hcalDPGNANO140Xrun3', ['ZeroBias2024RAW14.0', 'hcalDPGNANO_data14.0']]
 workflows[_wfn()] = ['hcalDPGCalibNANO140Xrun3', ['TestEnablesEcalHcal2024RAW14.0', 'hcalDPGCalibNANO_data14.0']]
+
+# DPG custom NANOs, MC
+_wfn.subnext()
+workflows[_wfn()] = ['hcalDPGMCNANO140Xrun3', ['SinglePionRAW14.0', 'hcalDPGNANO_mc14.0']]
+# The above HCAL workflow is actually using data produced for 14.2
+# but I keep the 14.0 label for now since it's consistent with those ones
+# let me know if I should change this
+
+_wfn.next(3)
+######## 2500.3xx ########
+# Run3 re-MINI/NANOv15 in 15_0_X
+workflows[_wfn()] = ['NANOmc2024reMINI', ['TTbar_13p6_Summer24_AOD', 'REMINIAOD_mc2024', 'NANO_mc_Summer24_reMINI', 'HRV_NANO_mc']]  # noqa
+
+_wfn.subnext()
+workflows[_wfn()] = ['NANOdata2024reMINI', ['JetMET1_Run2024H_AOD', 'REMINIAOD_data2024', 'NANO_data_2024_reMINI', 'HRV_NANO_data']]  # noqa
 
 _wfn.next(9)
 ######## 2500.9xx ########

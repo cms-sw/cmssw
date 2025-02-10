@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -24,6 +25,8 @@ namespace pf2pat {
   struct MuonIDPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
     MuonIDPFCandidateSelectorDefinition(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
         : muonCut_(cfg.getParameter<std::string>("cut")) {}
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<std::string>("cut", ""); }
 
     void select(const HandleToCollection& hc, const edm::Event& e, const edm::EventSetup& s) {
       selected_.clear();

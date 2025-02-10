@@ -62,18 +62,14 @@ CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::Paramete
 
     std::vector<FileInfo> fileInfo;
     for (const auto &pset : entry_pset.getParameter<std::vector<edm::ParameterSet>>("opticalFunctions")) {
-      const double &xangle = pset.getParameter<double>("xangle");
-      const std::string &fileName = pset.getParameter<edm::FileInPath>("fileName").fullPath();
-      fileInfo.push_back({xangle, fileName});
+      fileInfo.emplace_back(pset.getParameter<double>("xangle"),
+                            pset.getParameter<edm::FileInPath>("fileName").fullPath());
     }
 
     std::unordered_map<unsigned int, RPInfo> rpInfo;
     for (const auto &pset : entry_pset.getParameter<std::vector<edm::ParameterSet>>("scoringPlanes")) {
-      const unsigned int rpId = pset.getParameter<unsigned int>("rpId");
-      const std::string dirName = pset.getParameter<std::string>("dirName");
-      const double z = pset.getParameter<double>("z");
-      const RPInfo entry = {dirName, z};
-      rpInfo.emplace(rpId, entry);
+      rpInfo.emplace(pset.getParameter<unsigned int>("rpId"),
+                     RPInfo{pset.getParameter<std::string>("dirName"), pset.getParameter<double>("z")});
     }
 
     m_entries.push_back({validityRange, fileInfo, rpInfo});

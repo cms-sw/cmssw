@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <unistd.h>
+#include <chrono>
 #include <memory>
 #include <atomic>
 #include "oneapi/tbb/task_arena.h"
@@ -32,6 +32,7 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SerialTaskQueue_test);
+using namespace std::chrono_literals;
 
 void SerialTaskQueue_test::testPush() {
   std::atomic<unsigned int> count{0};
@@ -43,19 +44,19 @@ void SerialTaskQueue_test::testPush() {
 
     queue.push(group, [&count, &waitingTasks] {
       CPPUNIT_ASSERT(count++ == 0);
-      usleep(10);
+      std::this_thread::sleep_for(10us);
       --waitingTasks;
     });
 
     queue.push(group, [&count, &waitingTasks] {
       CPPUNIT_ASSERT(count++ == 1);
-      usleep(10);
+      std::this_thread::sleep_for(10us);
       --waitingTasks;
     });
 
     queue.push(group, [&count, &waitingTasks] {
       CPPUNIT_ASSERT(count++ == 2);
-      usleep(10);
+      std::this_thread::sleep_for(10us);
       --waitingTasks;
     });
 
@@ -80,7 +81,7 @@ void SerialTaskQueue_test::testPause() {
         CPPUNIT_ASSERT(count++ == 0);
         --waitingTasks;
       });
-      usleep(1000);
+      std::this_thread::sleep_for(1000us);
       CPPUNIT_ASSERT(0 == count);
       queue.resume();
       do {
@@ -106,7 +107,7 @@ void SerialTaskQueue_test::testPause() {
         CPPUNIT_ASSERT(count++ == 3);
         --waitingTasks;
       });
-      usleep(100);
+      std::this_thread::sleep_for(100us);
       //can't do == since the queue may not have processed the first task yet
       CPPUNIT_ASSERT(2 >= count);
       queue.resume();

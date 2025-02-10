@@ -2,46 +2,42 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("READ")
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:testSubProcess.root")
-)
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(fileNames = "file:testSubProcess.root")
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string(
-      'readSubprocessOutput.root'
-    )
-)
+from IOPool.Output.modules import PoolOutputModule
+process.out = PoolOutputModule(fileName = 'readSubprocessOutput.root')
 
 
+from FWCore.Framework.modules import TestMergeResults, RunLumiEventAnalyzer
 # Reusing some code I used for testing merging, although in this
 # context it has nothing to do with merging.
 # Here we are checking the event, run, and lumi products
 # from the last subprocess in the chain of subprocesses
 # are there.
-process.testproducts = cms.EDAnalyzer("TestMergeResults",
-
-    expectedBeginRunProd = cms.untracked.vint32(
+process.testproducts = TestMergeResults(
+    expectedBeginRunProd = [
         10001,   10002,  10003,   # end run 1
         10001,   10002,  10003,   # end run 2
         10001,   10002,  10003    # end run 3
-    ),
+    ],
 
-    expectedEndRunProd = cms.untracked.vint32(
+    expectedEndRunProd = [
         100001,   100002,  100003,   # end run 1
         100001,   100002,  100003,   # end run 2
         100001,   100002,  100003    # end run 3
-    ),
+    ],
 
-    expectedBeginLumiProd = cms.untracked.vint32(
+    expectedBeginLumiProd = [
         101,       102,    103    # end run 1 lumi 1
 # There are more, but all with the same pattern as the first        
-    ),
+    ],
 
-    expectedEndLumiProd = cms.untracked.vint32(
+    expectedEndLumiProd = [
         1001,     1002,   1003    # end run 1 lumi 1
-    ),
+    ],
 
-    expectedProcessHistoryInRuns = cms.untracked.vstring(
+    expectedProcessHistoryInRuns = [
         'PROD',            # Run 1
         'PROD2',
         'READ',
@@ -51,13 +47,13 @@ process.testproducts = cms.EDAnalyzer("TestMergeResults",
         'PROD',            # Run 3
         'PROD2',
         'READ'
-    ),
-    verbose = cms.untracked.bool(True)
+    ],
+    verbose = True
 )
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+process.test = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 1,   0,   0,
 1,   1,   0,
 1,   1,   1,
@@ -112,7 +108,7 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 3,   3,   10,
 3,   3,   0,
 3,   0,   0
-)
+]
 )
 
 process.path1 = cms.Path(process.test*process.testproducts)

@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simpleGenJetFlatTableProducer_cfi import simpleGenJetFlatTableProducer
 from PhysicsTools.NanoAOD.simplePATJetFlatTableProducer_cfi import simplePATJetFlatTableProducer
 from PhysicsTools.NanoAOD.jetsAK8_cff import fatJetTable as _fatJetTable
 from PhysicsTools.NanoAOD.jetsAK8_cff import subJetTable as _subJetTable
+from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
 
 jetMCTable = simplePATJetFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","jets"),
@@ -17,13 +18,13 @@ jetMCTable = simplePATJetFlatTableProducer.clone(
         genJetIdx = Var("?genJetFwdRef().backRef().isNonnull() && genJetFwdRef().backRef().pt() > 10.?genJetFwdRef().backRef().key():-1", "int16", doc="index of matched gen jet"),
     )
 )
-genJetTable = simpleCandidateFlatTableProducer.clone(
+genJetTable = simpleGenJetFlatTableProducer.clone(
     src = cms.InputTag("slimmedGenJets"),
     cut = cms.string("pt > 10"),
     name = cms.string("GenJet"),
     doc  = cms.string("slimmedGenJets, i.e. ak4 Jets made with visible genparticles"),
     variables = cms.PSet(P4Vars,
-	#anything else?
+    #anything else?
     )
 )
 
@@ -54,13 +55,13 @@ genJetFlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
     jetFlavourInfos = cms.InputTag("slimmedGenJetsFlavourInfos"),
 )
 
-genJetAK8Table = simpleCandidateFlatTableProducer.clone(
+genJetAK8Table = simpleGenJetFlatTableProducer.clone(
     src = cms.InputTag("slimmedGenJetsAK8"),
     cut = cms.string("pt > 100."),
     name = cms.string("GenJetAK8"),
     doc  = cms.string("slimmedGenJetsAK8, i.e. ak8 Jets made with visible genparticles"),
     variables = cms.PSet(P4Vars,
-	#anything else?
+    #anything else?
     )
 )
 
@@ -95,12 +96,12 @@ fatJetMCTable = simplePATJetFlatTableProducer.clone(
     )
 )
 
-genSubJetAK8Table = simpleCandidateFlatTableProducer.clone(
+genSubJetAK8Table = simpleGenJetFlatTableProducer.clone(
     src = cms.InputTag("slimmedGenJetsAK8SoftDropSubJets"),
     name = cms.string("SubGenJetAK8"),
     doc  = cms.string("slimmedGenJetsAK8SoftDropSubJets, i.e. subjets of ak8 Jets made with visible genparticles"),
     variables = cms.PSet(P4Vars,
-	#anything else?
+    #anything else?
     )
 )
 subjetMCTable = simplePATJetFlatTableProducer.clone(
@@ -112,10 +113,30 @@ subjetMCTable = simplePATJetFlatTableProducer.clone(
         nBHadrons = Var("jetFlavourInfo().getbHadrons().size()", "uint8", doc="number of b-hadrons"),
         nCHadrons = Var("jetFlavourInfo().getcHadrons().size()", "uint8", doc="number of c-hadrons"),
         hadronFlavour = Var("hadronFlavour()", "uint8", doc="flavour from hadron ghost clustering"),
+        subGenJetAK8Idx = Var("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().key():-1", "int16", doc="index of matched gen subjet in SubGenJetAK8")
     )
 )
 
+genParticlesForJetsCharged = cms.EDFilter("CandPtrSelector",
+    src = cms.InputTag("prunedGenParticles"),  # or "packedGenParticles" if available
+    cut = cms.string("charge != 0 && pt > 0.3 && status == 1 && abs(pdgId) != 12 && abs(pdgId) != 14 && abs(pdgId) != 16")
+)
 
-jetMCTaskak4 = cms.Task(jetMCTable,genJetTable,patJetPartonsNano,genJetFlavourTable)
+ak4GenJetsChargedOnly = ak4GenJets.clone(src = cms.InputTag("genParticlesForJetsCharged"), rParam = cms.double(0.4), jetAlgorithm=cms.string("AntiKt"), doAreaFastjet = False, jetPtMin=1)
+
+
+trackGenJetAK4Table = genJetTable.clone(
+    src = cms.InputTag("ak4GenJetsChargedOnly"),
+    cut = cms.string("pt > 1"),
+    name = cms.string("TrackGenJetAK4"),
+    doc = cms.string("AK4 GenJets made with charged particles only"),
+    variables = cms.PSet(P3Vars)
+)
+
+trackGenJetAK4Table.variables.pt.precision = 10
+trackGenJetAK4Table.variables.eta.precision = 8
+trackGenJetAK4Table.variables.phi.precision = 8
+
+jetMCTaskak4 = cms.Task(jetMCTable,genJetTable,patJetPartonsNano,genJetFlavourTable,genParticlesForJetsCharged,ak4GenJetsChargedOnly,trackGenJetAK4Table)
 jetMCTaskak8 = cms.Task(genJetAK8Table,genJetAK8FlavourAssociation,genJetAK8FlavourTable,fatJetMCTable,genSubJetAK8Table,subjetMCTable)
 jetMCTask = jetMCTaskak4.copyAndAdd(jetMCTaskak8)

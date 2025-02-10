@@ -148,7 +148,7 @@ namespace {
     }
   };
 
-  static ThreadTracker& getTracker() {
+  ThreadTracker& getTracker() {
     static ThreadTracker s_tracker;
     return s_tracker;
   }
@@ -231,7 +231,7 @@ void* realloc(void* ptr, size_t size) noexcept {
   size_t used = malloc_usable_size(ret);
   if (used != oldsize) {
     reg.deallocCalled(ptr, [](auto) {}, [oldsize](auto) { return oldsize; });
-    reg.allocCalled(size, []() { return nullptr; }, [used](auto) { return used; });
+    reg.allocCalled(size, [ret]() { return ret; }, [used](auto) { return used; });
   }
   return ret;
 }

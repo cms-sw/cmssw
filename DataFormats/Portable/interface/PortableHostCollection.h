@@ -6,10 +6,11 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
+#include "DataFormats/Portable/interface/PortableCollectionCommon.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "DataFormats/Portable/interface/PortableCollectionCommon.h"
 
 // generic SoA-based product in host memory
 template <typename T>
@@ -21,7 +22,9 @@ public:
   using Buffer = cms::alpakatools::host_buffer<std::byte[]>;
   using ConstBuffer = cms::alpakatools::const_host_buffer<std::byte[]>;
 
-  PortableHostCollection() = default;
+  PortableHostCollection() = delete;
+
+  explicit PortableHostCollection(edm::Uninitialized) noexcept {};
 
   PortableHostCollection(int32_t elements, alpaka_common::DevHost const& host)
       // allocate pageable host memory
@@ -154,7 +157,9 @@ private:
   }
 
 public:
-  PortableHostMultiCollection() = default;
+  PortableHostMultiCollection() = delete;
+
+  explicit PortableHostMultiCollection(edm::Uninitialized) noexcept {};
 
   PortableHostMultiCollection(int32_t elements, alpaka_common::DevHost const& host)
       // allocate pageable host memory

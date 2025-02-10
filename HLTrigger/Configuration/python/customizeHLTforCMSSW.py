@@ -48,60 +48,122 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTfor44576(process):
-    """Ensure TrackerAdditionalParametersPerDetRcd ESProducer is run when needed"""
-    for esprod in esproducers_by_type(process, 'TrackerGeometricDetESModule'):
-        process.load("Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi")
-        break
+def customizeHLTfor46935(process):
+    """Changes parameter names of EcalUncalibRecHitSoAToLegacy producer"""
+    for prod in producers_by_type(process, 'EcalUncalibRecHitSoAToLegacy'):
+        if hasattr(prod, 'uncalibRecHitsPortableEB'):
+            prod.inputCollectionEB = prod.uncalibRecHitsPortableEB
+            delattr(prod, 'uncalibRecHitsPortableEB')
+        if hasattr(prod, 'uncalibRecHitsPortableEE'):
+            prod.inputCollectionEE = prod.uncalibRecHitsPortableEE
+            delattr(prod, 'uncalibRecHitsPortableEE')
+        if hasattr(prod, 'recHitsLabelCPUEB'):
+            prod.outputLabelEB = prod.recHitsLabelCPUEB
+            delattr(prod, 'recHitsLabelCPUEB')
+        if hasattr(prod, 'recHitsLabelCPUEE'):
+            prod.outputLabelEE = prod.recHitsLabelCPUEE
+            delattr(prod, 'recHitsLabelCPUEE')
     return process
 
-def customizeHLTfor45063(process):
-    """Assigns value of MuonHLTSeedMVAClassifier mva input file, scales and mean values according to the value of isFromL1"""
-    for prod in producers_by_type(process, 'MuonHLTSeedMVAClassifier'):
-        if hasattr(prod, "isFromL1"):
-            if (prod.isFromL1 == True):
-                if hasattr(prod, "mvaFileBL1"):
-                    prod.mvaFileB = prod.mvaFileBL1
-                if hasattr(prod, "mvaFileEL1"):
-                    prod.mvaFileE = prod.mvaFileEL1
-                if hasattr(prod, "mvaScaleMeanBL1"):
-                    prod.mvaScaleMeanB = prod.mvaScaleMeanBL1
-                if hasattr(prod, "mvaScaleStdBL1"):
-                    prod.mvaScaleStdB = prod.mvaScaleStdBL1
-                if hasattr(prod, "mvaScaleMeanEL1"):
-                    prod.mvaScaleMeanE = prod.mvaScaleMeanEL1
-                if hasattr(prod, "mvaScaleStdEL1"):                    
-                    prod.mvaScaleStdE = prod.mvaScaleStdEL1                
-            else:
-                if hasattr(prod, "mvaFileBL2"):
-                    prod.mvaFileB = prod.mvaFileBL2
-                if hasattr(prod, "mvaFileEL2"):
-                    prod.mvaFileE = prod.mvaFileEL2
-                if hasattr(prod, "mvaScaleMeanBL2"):
-                    prod.mvaScaleMeanB = prod.mvaScaleMeanBL2
-                if hasattr(prod, "mvaScaleStdBL2"):
-                    prod.mvaScaleStdB = prod.mvaScaleStdBL2
-                if hasattr(prod, "mvaScaleMeanEL2"):
-                    prod.mvaScaleMeanE = prod.mvaScaleMeanEL2
-                if hasattr(prod, "mvaScaleStdEL2"):
-                    prod.mvaScaleStdE = prod.mvaScaleStdEL2
-                    
-    for prod in producers_by_type(process, 'MuonHLTSeedMVAClassifier'):
-        delattr(prod,"mvaFileBL1")
-        delattr(prod,"mvaFileEL1")
-        delattr(prod,"mvaScaleMeanBL1")
-        delattr(prod,"mvaScaleStdBL1")
-        delattr(prod,"mvaScaleMeanEL1")
-        delattr(prod,"mvaScaleStdEL1")
-        delattr(prod,"mvaFileBL2")
-        delattr(prod,"mvaFileEL2")
-        delattr(prod,"mvaScaleMeanBL2")
-        delattr(prod,"mvaScaleStdBL2")
-        delattr(prod,"mvaScaleMeanEL2")
-        delattr(prod,"mvaScaleStdEL2")       
+
+def customizeHLTfor47017(process):
+    """Remove unneeded parameters from the HLT menu"""
+    for prod in producers_by_type(process, 'MaskedMeasurementTrackerEventProducer'):
+        if hasattr(prod, 'OnDemand'):
+            delattr(prod, 'OnDemand')
+
+    for prod in producers_by_type(process, 'HcalHaloDataProducer'):
+        if hasattr(prod, 'HcalMaxMatchingRadiusParam'):
+            delattr(prod, 'HcalMaxMatchingRadiusParam')
+        if hasattr(prod, 'HcalMinMatchingRadiusParam'):
+            delattr(prod, 'HcalMinMatchingRadiusParam')
+
+    for prod in producers_by_type(process, 'SiPixelRecHitConverter'):
+        if hasattr(prod, 'VerboseLevel'):
+            delattr(prod, 'VerboseLevel')
+
+    return process
+
+
+def customizeHLTfor47079(process):
+    """Remove unneeded parameters from the HLT menu"""
+    for filt in filters_by_type(process, 'PrimaryVertexObjectFilter'):
+        if hasattr(filt, 'filterParams') and hasattr(filt.filterParams, 'pvSrc'):
+            del filt.filterParams.pvSrc  # Remove the pvSrc parameter
+
+    for prod in producers_by_type(process, 'HcalHitReconstructor'):
+        # Remove useless parameters
+        if hasattr(prod,'setHSCPFlags'):
+            delattr(prod,'setHSCPFlags')
+
+        if hasattr(prod,'setPulseShapeFlags'):
+            delattr(prod,'setPulseShapeFlags')
                     
     return process
+
+def customizeHLTfor47047(process):
+    """Migrates many ESProducers to MoveToDeviceCache"""
+    import copy
+    if hasattr(process, "ecalMultifitParametersSource"):
+        del process.ecalMultifitParametersSource
+    esProducer = None
+    for prod in esproducers_by_type(process, "EcalMultifitParametersHostESProducer@alpaka"):
+        if esProducer is not None:
+            raise Exception("Assumption of only one EcalMultifitParametersHostESProducer@alpaka in a process broken")
+        esProducer = prod
+    if esProducer is not None:
+        for prod in producers_by_type(process, "EcalUncalibRecHitProducerPortable@alpaka", "alpaka_serial_sync::EcalUncalibRecHitProducerPortable"):
+            for attr in ["EBtimeFitParameters", "EEtimeFitParameters", "EBamplitudeFitParameters", "EEamplitudeFitParameters"]:
+                setattr(prod, attr, copy.deepcopy(getattr(esProducer, attr)))
+        delattr(process, esProducer.label())
+
+    for prod in producers_by_type(process, "HBHERecHitProducerPortable@alpaka", "alpaka_serial_sync::HBHERecHitProducerPortable"):
+        pulseOffsetLabel = prod.mahiPulseOffSets.getModuleLabel()
+        if hasattr(process, pulseOffsetLabel):
+            esProducer = getattr(process, pulseOffsetLabel)
+            prod.pulseOffsets = copy.deepcopy(esProducer.pulseOffsets)
+        del prod.mahiPulseOffSets
+    for prod in list(esproducers_by_type(process, "HcalMahiPulseOffsetsESProducer@alpaka")):
+        delattr(process, prod.label())
+
+    for prod in producers_by_type(process, "PFClusterSoAProducer@alpaka", "alpaka_serial_sync::PFClusterSoAProducer"):
+        clusterParamsLabel = prod.pfClusterParams.getModuleLabel()
+        if hasattr(process, clusterParamsLabel):
+            esProducer = getattr(process, clusterParamsLabel)
+            for attr in ["seedFinder", "initialClusteringStep", "pfClusterBuilder"]:
+                setattr(prod, attr, copy.deepcopy(getattr(esProducer, attr).copy()))
+        del prod.pfClusterParams
+    for prod in list(esproducers_by_type(process, "PFClusterParamsESProducer@alpaka")):
+        delattr(process, prod.label())
+
+    if hasattr(process, "hltESSJobConfigurationGPURecord"):
+        del process.hltESSJobConfigurationGPURecord
+
+    return process
+        
+def customizeHLTfor47107(process):
+    """Remove unneeded parameters from the HLT menu"""
+
+    for prod in producers_by_type(process, 'TrackProducer'):
+        if hasattr(prod, 'alias'):
+            delattr(prod, 'alias')
+
+    for prod in producers_by_type(process, 'GsfTrackProducer'):
+        if hasattr(prod, 'producer'):
+            delattr(prod, 'producer')
+
+    return process
+
+def customizeHLTfor47191(process):
+    for esprod in esproducers_by_type(process, "PromptTrackCountingESProducer"):
+        if hasattr(esprod, 'minimumImpactParameter'):
+            delattr(esprod, 'minimumImpactParameter')
+
+        if hasattr(esprod, 'useSignedImpactParameterSig'):
+            delattr(esprod, 'useSignedImpactParameterSig')
             
+    return process
+
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -111,7 +173,11 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customizeHLTfor44576(process)
-    process = customizeHLTfor45063(process)
-
+    process = customizeHLTfor46935(process)
+    process = customizeHLTfor47017(process)
+    process = customizeHLTfor47079(process)
+    process = customizeHLTfor47047(process)
+    process = customizeHLTfor47107(process)
+    process = customizeHLTfor47191(process)
+    
     return process

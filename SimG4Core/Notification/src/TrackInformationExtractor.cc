@@ -10,7 +10,8 @@ const TrackInformation &TrackInformationExtractor::operator()(const G4Track &gtk
   } else if (tkInfo == nullptr) {
     wrongType();
   }
-  return *tkInfo;
+  // Silence Clang analyzer warning: G4Exception will be thrown if tkInfo is null
+  [[clang::suppress]] return *tkInfo;
 }
 
 TrackInformation &TrackInformationExtractor::operator()(G4Track &gtk) const {
@@ -21,7 +22,8 @@ TrackInformation &TrackInformationExtractor::operator()(G4Track &gtk) const {
   } else if (tkInfo == nullptr) {
     wrongType();
   }
-  return *tkInfo;
+  // Silence Clang analyzer warning: G4Exception will be thrown if tkInfo is null
+  [[clang::suppress]] return *tkInfo;
 }
 
 void TrackInformationExtractor::missing(const G4Track &) const {

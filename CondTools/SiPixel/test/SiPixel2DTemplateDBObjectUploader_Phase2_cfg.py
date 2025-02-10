@@ -186,8 +186,8 @@ process.load("CondCore.CondDB.CondDB_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring('SiPixel2DTemplateDBObjectUploader_Phase2.log'))
-process.load('Configuration.Geometry.GeometryExtended2026D110_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')

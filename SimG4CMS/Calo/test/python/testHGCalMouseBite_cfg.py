@@ -22,13 +22,13 @@ process = cms.Process("HGCalMouseBiteTest",Phase2C17I13M9)
 ####################################################################
 # Use the options
 if (options.type == "V18"):
-    geomFile = "Configuration.Geometry.GeometryExtended2026D104_cff"
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D104_cff"
 elif (options.type == "V17Shift"):
     geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
 elif (options.type == "V16"):
-    geomFile = "Configuration.Geometry.GeometryExtended2026D100_cff"
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D100_cff"
 else:
-    geomFile = "Configuration.Geometry.GeometryExtended2026D110_cff"
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D110_cff"
 
 print("Geometry file: ", geomFile)
 

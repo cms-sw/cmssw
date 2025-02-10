@@ -164,6 +164,7 @@ double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, con
   if (ignoreTileArea_)
     return scaleFactor;
 
+  [[clang::suppress]]
   double edge(refEdge_);  //start with reference 3cm of edge
   if (cellId.type() == 0) {
     constexpr double factor = 2 * M_PI * 1. / 360.;

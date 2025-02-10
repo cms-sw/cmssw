@@ -137,7 +137,7 @@ namespace {
       unsigned int PUbin(0);
       auto paramValues = PlotBase::inputParamValues();
       auto ip = paramValues.find("PU bin");
-      if (ip != paramValues.end()) {
+      if (ip != paramValues.end() && !ip->second.empty()) {
         PUbin = std::stoul(ip->second);
       } else {
         edm::LogWarning("SiPixelQualityProbabilityDensityPerPUbin")

@@ -6,6 +6,9 @@
   <version ClassVersion="10" checksum="4286676158"/>
  </class>
  <class name="std::pair<edmtest::IntProduct, edm::RandomNumberGeneratorState>"/>
+ <class name="edmtest::MaybeUninitializedIntProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="3324182225"/>
+ </class>
  <class name="edmtest::UInt64Product" ClassVersion="11">
   <version ClassVersion="11" checksum="3240540910"/>
   <version ClassVersion="10" checksum="380152127"/>
@@ -85,6 +88,7 @@
  <class name="edm::Wrapper<edmtest::IntProduct>"/>
  <class name="std::vector<std::unique_ptr<edmtest::IntProduct>>"/>
  <class name="edm::Wrapper<std::vector<std::unique_ptr<edmtest::IntProduct>>>"/>
+ <class name="edm::Wrapper<edmtest::MaybeUninitializedIntProduct>"/>
  <class name="edm::Wrapper<edmtest::UInt64Product>"/>
  <class name="edm::Wrapper<edmtest::TransientIntProduct>" persistent="false"/>
  <class name="edm::Wrapper<edmtest::ATransientIntProduct>" persistent="false"/>
@@ -120,11 +124,11 @@
  <class name="std::vector<edmtest::Thing>"/>
  <class name="std::vector<edmtest::OtherThing>"/>
  <class name="edm::RefProd<std::vector<edmtest::Thing> >"/>
- <class name="edm::RefToBaseProd<edmtest::Thing>" rntupleSplit="false"/>
+ <class name="edm::RefToBaseProd<edmtest::Thing>" rntupleStreamerMode="true"/>
  <class name="edm::reftobase::BaseHolder<edmtest::Thing>"/>
  <class name="edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
- <class name="edm::RefToBase<edmtest::Thing>" rntupleSplit="false"/>
- <class name="edm::RefToBaseVector<edmtest::Thing>" rntupleSplit="false"/>
+ <class name="edm::RefToBase<edmtest::Thing>" rntupleStreamerMode="true"/>
+ <class name="edm::RefToBaseVector<edmtest::Thing>" rntupleStreamerMode="true"/>
  <class name="edm::reftobase::BaseVectorHolder<edmtest::Thing>"/>
  <class name="edm::reftobase::VectorHolder<edmtest::Thing, edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
  <class name="edm::Ptr<edmtest::Thing>"/>

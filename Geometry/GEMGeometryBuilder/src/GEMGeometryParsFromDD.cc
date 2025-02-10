@@ -77,13 +77,14 @@ void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
       fvGE2.parent();
       fvGE2.parent();
       // in 2021 we have 1 demonstrator chamber in 2024 we have 3 chambers.
+      // in 2025 we have 7 chambers.
       // Need to account for both
-      doSuper = (nGE21 < 4 && fvGE2.nextSibling());
+      doSuper = (nGE21 < 8 && fvGE2.nextSibling());
     } else {
       edm::LogError("GEMGeometryParsFromDD") << "Failed to find next child volume. Cannot determine presence of GE 2/1";
     }
   }
-  bool demonstratorGeometry = nGE21 % 2 == 1;
+  bool demonstratorGeometry = (nGE21 < 8);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "

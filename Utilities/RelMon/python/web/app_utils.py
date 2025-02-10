@@ -6,7 +6,6 @@ Helper functions for CherryPy application ``browse_db.py``.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
-from __future__ import print_function
 
 import sqlite3
 import re
@@ -49,7 +48,7 @@ renaming = {
 def get_img_path(filename, path):
     '''Returns image path for https://cmsweb.cern.ch/dqm histogram
     visualisation service'''
-    run = int(re.findall('_R(\d*)__', filename)[0])
+    run = int(re.findall('_R(\\d*)__', filename)[0])
     parts = [e.rstrip('.root') for e in filename.split('__')]
     path = path.replace('Run summary/', '')
     return 'archive/%s/%s/%s/%s/%s' % (run, parts[1], parts[2], parts[3], path)
@@ -68,16 +67,16 @@ def get_img_url(path, f1, f2=None, w=250, h=250):
 def get_dataset_name(name):
     '''Returns extracted dataset name from the given ROOT filename.'''
     if re.search('RelVal', name):
-        run = str(int(re.findall('_R(\d{9})_', name)[0]))
-        ds = re.findall('GR_R_\d*_V\d*C?_(?:RelVal)?_([\w\d]*-v\d+)_', name)[0]
+        run = str(int(re.findall('_R(\\d{9})_', name)[0]))
+        ds = re.findall('GR_R_\\d*_V\\d*C?_(?:RelVal)?_([\\w\\d]*-v\\d+)_', name)[0]
     else:
-        run, ds = re.findall('R(\d{9})__([\w\d]*)__CMSSW_', name)[0:1]
+        run, ds = re.findall('R(\\d{9})__([\\w\\d]*)__CMSSW_', name)[0:1]
     return '_'.join([ds, str(int(run))])
 
 
 def get_release(name):
     '''Returns extracted release from the given ROOT filename.'''
-    return re.findall('R\d{9}__([\w\d_-]*)__DQM.root', name)[0]
+    return re.findall('R\\d{9}__([\\w\\d_-]*)__DQM.root', name)[0]
 
 
 def get_stats(c, threshold, dir_ranges):

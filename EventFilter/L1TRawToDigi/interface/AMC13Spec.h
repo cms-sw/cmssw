@@ -89,7 +89,7 @@ namespace amc13 {
                bool mtf7_mode = false);
     bool write(const edm::Event &ev, unsigned char *ptr, unsigned int skip, unsigned int size) const;
 
-    inline std::vector<amc::Packet> payload() const { return payload_; };
+    inline const std::vector<amc::Packet> &payload() const { return payload_; };
 
   private:
     Header header_;

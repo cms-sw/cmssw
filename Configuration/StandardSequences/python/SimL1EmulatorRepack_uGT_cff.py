@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ## L1REPACK uGT : Re-Emulate L1 uGT and repack into RAW
@@ -30,6 +29,7 @@ simGtStage2Digis.TauInputTag        = "unpackGtStage2:Tau"
 simGtStage2Digis.JetInputTag        = "unpackGtStage2:Jet"
 simGtStage2Digis.EtSumInputTag      = "unpackGtStage2:EtSum"
 simGtStage2Digis.EtSumZdcInputTag   = "unpackGtStage2:EtSumZDC"
+simGtStage2Digis.CICADAInputTag     = "unpackGtStage2:CICADAScore"
 simGtStage2Digis.ExtInputTag        = "unpackGtStage2" # as in default
 
 
@@ -44,6 +44,7 @@ packGtStage2.TauInputTag      = "unpackGtStage2:Tau"
 packGtStage2.JetInputTag      = "unpackGtStage2:Jet"
 packGtStage2.EtSumInputTag    = "unpackGtStage2:EtSum"
 packGtStage2.EtSumZDCInputTag = "unpackGtStage2:EtSumZDC"
+packGtStage2.CICADAScoreInputTag = "unpackGtStage2:CICADAScore"
 packGtStage2.GtInputTag       = "simGtStage2Digis" # as in default
 packGtStage2.ExtInputTag      = "unpackGtStage2" # as in default
 

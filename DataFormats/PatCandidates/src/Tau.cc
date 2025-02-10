@@ -461,7 +461,7 @@ const reco::PFCandidatePtr convertToPFCandidatePtr(const reco::CandidatePtr& ptr
 
 const reco::PFCandidatePtr Tau::leadPFChargedHadrCand() const {
   if (!embeddedLeadPFChargedHadrCand_) {
-    if (pfSpecific_.empty())
+    if (pfSpecific_.empty() || (!pfSpecific().leadPFChargedHadrCand_))
       return reco::PFCandidatePtr();
     else
       return convertToPFCandidatePtr(pfSpecific().leadPFChargedHadrCand_);

@@ -405,7 +405,7 @@ void AlCaHcalIsotrkProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<double>("coneRadiusMIP3", 20.0);
   desc.add<double>("coneRadiusMIP4", 22.0);
   desc.add<double>("coneRadiusMIP5", 24.0);
-  desc.add<double>("maximumEcalEnergy", 2.0);
+  desc.add<double>("maximumEcalEnergy", 10.0);
   // following 4 parameters are for isolation cuts and described in the code
   desc.add<double>("maxTrackP", 8.0);
   desc.add<double>("slopeTrackP", 0.05090504066);
@@ -557,7 +557,7 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
   if (!ignoreTrigger_) {
     //L1
     l1GtUtils_->retrieveL1(iEvent, iSetup, tok_alg_);
-    const std::vector<std::pair<std::string, bool>>& finalDecisions = l1GtUtils_->decisionsFinal();
+    const auto& finalDecisions = l1GtUtils_->decisionsFinal();
     for (const auto& decision : finalDecisions) {
       if (decision.first.find(l1TrigName_) != std::string::npos) {
         isoTrkEvent.l1Bit_ = decision.second;

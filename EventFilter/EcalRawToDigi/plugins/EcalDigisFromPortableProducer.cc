@@ -151,21 +151,12 @@ void EcalDigisFromPortableProducer::produce(edm::Event& event, edm::EventSetup c
   auto const digisEEDataSize = digisEESize * ecalPh1::sampleSize;
 
   // Intermediate containers because the DigiCollection containers are accessible only as const
-  EBDigiCollection::IdContainer digisIdsEB;
-  EEDigiCollection::IdContainer digisIdsEE;
-  EBDigiCollection::DataContainer digisDataEB;
-  EEDigiCollection::DataContainer digisDataEE;
-
-  digisIdsEB.resize(digisEBSize);
-  digisIdsEE.resize(digisEESize);
-  digisDataEB.resize(digisEBDataSize);
-  digisDataEE.resize(digisEEDataSize);
-
-  // copy data
-  std::memcpy(digisIdsEB.data(), digisEBSoAView.id(), digisEBSize * sizeof(uint32_t));
-  std::memcpy(digisIdsEE.data(), digisEESoAView.id(), digisEESize * sizeof(uint32_t));
-  std::memcpy(digisDataEB.data(), digisEBSoAView.data()->data(), digisEBDataSize * sizeof(uint16_t));
-  std::memcpy(digisDataEE.data(), digisEESoAView.data()->data(), digisEEDataSize * sizeof(uint16_t));
+  EBDigiCollection::IdContainer digisIdsEB(digisEBSoAView.id(), digisEBSoAView.id() + digisEBSize);
+  EEDigiCollection::IdContainer digisIdsEE(digisEESoAView.id(), digisEESoAView.id() + digisEESize);
+  EBDigiCollection::DataContainer digisDataEB(digisEBSoAView.data()->data(),
+                                              digisEBSoAView.data()->data() + digisEBDataSize);
+  EEDigiCollection::DataContainer digisDataEE(digisEESoAView.data()->data(),
+                                              digisEESoAView.data()->data() + digisEEDataSize);
 
   digisEB->swap(digisIdsEB, digisDataEB);
   digisEE->swap(digisIdsEE, digisDataEE);

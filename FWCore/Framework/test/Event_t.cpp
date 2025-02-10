@@ -7,7 +7,7 @@ Test program for edm::Event.
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -29,6 +29,7 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -215,15 +216,13 @@ void testEvent::registerProduct(std::string const& tag,
 
   TypeWithDict product_type(typeid(T));
 
-  BranchDescription branch(InEvent,
-                           moduleLabel,
-                           processName,
-                           product_type.userClassName(),
-                           product_type.friendlyClassName(),
-                           productInstanceName,
-                           moduleClassName,
-                           moduleParams.id(),
-                           product_type);
+  ProductDescription branch(InEvent,
+                            moduleLabel,
+                            processName,
+                            product_type.userClassName(),
+                            product_type.friendlyClassName(),
+                            productInstanceName,
+                            product_type);
 
   moduleDescriptions_[tag] = ModuleDescription(
       moduleParams.id(), moduleClassName, moduleLabel, processX.get(), ModuleDescription::getUniqueID());
@@ -364,15 +363,13 @@ testEvent::testEvent()
 
   std::string productInstanceName("int1");
 
-  BranchDescription branch(InEvent,
-                           moduleLabel,
-                           processName,
-                           product_type.userClassName(),
-                           product_type.friendlyClassName(),
-                           productInstanceName,
-                           moduleClassName,
-                           moduleParams.id(),
-                           product_type);
+  ProductDescription branch(InEvent,
+                            moduleLabel,
+                            processName,
+                            product_type.userClassName(),
+                            product_type.friendlyClassName(),
+                            productInstanceName,
+                            product_type);
 
   availableProducts_->addProduct(branch);
 
@@ -447,15 +444,21 @@ void testEvent::setUp() {
   Timestamp time = make_timestamp();
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
-  auto rp = std::make_shared<RunPrincipal>(preg, pc, &historyAppender_, 0);
+  auto rp = std::make_shared<RunPrincipal>(preg, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   rp->setAux(RunAuxiliary(id.run(), time, time));
-  lbp_ = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_, 0);
+  lbp_ = std::make_shared<LuminosityBlockPrincipal>(
+      preg, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   lbp_->setAux(LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   lbp_->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID&>(eventAux.processHistoryID()) = processHistoryID;
-  principal_.reset(new edm::EventPrincipal(
-      preg, branchIDListHelper_, thinnedAssociationsHelper_, pc, &historyAppender_, edm::StreamID::invalidStreamID()));
+  principal_.reset(new edm::EventPrincipal(preg,
+                                           edm::productResolversFactory::makePrimary,
+                                           branchIDListHelper_,
+                                           thinnedAssociationsHelper_,
+                                           pc,
+                                           &historyAppender_,
+                                           edm::StreamID::invalidStreamID()));
   principal_->fillEventPrincipal(eventAux, processHistoryRegistry_.getMapped(eventAux.processHistoryID()));
   principal_->setLuminosityBlockPrincipal(lbp_.get());
   ModuleCallingContext mcc(currentModuleDescription_.get());
@@ -987,7 +990,7 @@ void testEvent::deleteProduct() {
 
   BranchID id;
 
-  availableProducts_->callForEachBranch([&id](const BranchDescription& iDesc) {
+  availableProducts_->callForEachBranch([&id](const ProductDescription& iDesc) {
     if (iDesc.moduleLabel() == "modMulti" && iDesc.productInstanceName() == "int1") {
       id = iDesc.branchID();
     }

@@ -32,10 +32,11 @@ if 'unitTest=True' in sys.argv:
 #-------------------------------------
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
-	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-	process.GlobalTag.globaltag = autoCond['run3_data_prompt'] 
+        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+        process.GlobalTag.globaltag = autoCond['run3_data_prompt']
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
+
 if unitTest:
 	process.load("DQM.Integration.config.unittestinputsource_cfi")
 	from DQM.Integration.config.unittestinputsource_cfi import options
@@ -53,10 +54,12 @@ process.load('DQM.Integration.config.environment_cfi')
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = subsystem
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = subsystem
+# process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
+
+
 if not unitTest and not useFileInput :
   if not options.BeamSplashRun :
     process.source.minEventsPerLumi = 100
@@ -94,17 +97,24 @@ if isHeavyIon:
 	process.castorDigis.InputLabel = rawTag
 
 process.emulTPDigis = process.simHcalTriggerPrimitiveDigis.clone(
-   inputLabel = ["hcalDigis", 'hcalDigis'],
+   inputLabel = cms.VInputTag("hcalDigis", "hcalDigis:ZDC"),
    FrontEndFormatError = True,
    FG_threshold = 2,
    InputTagFEDRaw = rawTag,
    upgradeHF = True,
    upgradeHE = True,
    upgradeHB = True,
-   inputUpgradeLabel = ["hcalDigis", "hcalDigis"],
+   inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis:ZDC"),
    # Enable ZS on emulated TPs, to match what is done in data
    RunZS = True,
    ZS_threshold = 0
+)
+
+#inserting zdc emulator after tp digis
+process.etSumZdcProducer = cms.EDProducer('L1TZDCProducer',
+                                          hcalTPDigis = cms.InputTag("emulTPDigis"),
+                                          bxFirst = cms.int32(-2),
+                                          bxLast = cms.int32(3)
 )
 
 process.hcalDigis.InputLabel = rawTag
@@ -134,7 +144,7 @@ if isHeavyIon:
 	process.rpcTwinMuxRawToDigi.inputTag = "rawDataRepacker"
 	process.rpcCPPFRawToDigi.inputTag = "rawDataRepacker"
 
-# Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
+# Exclude the laser FEDs. They contaminate the QIE10/11 digi collections.
 #from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 #run2_HCAL_2017.toModify(process.hcalDigis, FEDs=[724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123])
 
@@ -192,6 +202,7 @@ process.tasksPath = cms.Path(
 		+process.fcdTask
 		#+process.qie11Task
 		#ZDC to be removed after 2018 PbPb run
+		+process.etSumZdcProducer
 		+process.zdcQIE10Task
 		+process.hcalMLTask
 )
@@ -218,7 +229,7 @@ process.dqmPath = cms.EndPath(
 		process.dqmEnv)
 process.dqmPath1 = cms.EndPath(
 		process.dqmSaver
-		*process.dqmSaverPB
+		#*process.dqmSaverPB
 )
 process.qtPath = cms.Path(process.hcalQualityTests)
 

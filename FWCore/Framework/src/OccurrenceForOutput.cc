@@ -37,6 +37,12 @@ namespace edm {
     provRecorder_.principal().getAllStableProvenance(provenances);
   }
 
+  std::vector<ProductDescription const*> OccurrenceForOutput::productDescriptions() const {
+    return principal().productDescriptions();
+  }
+
+  ProductRegistry const& OccurrenceForOutput::productRegistry() const { return principal().productRegistry(); }
+
   ProcessHistory const& OccurrenceForOutput::processHistory() const { return provRecorder_.processHistory(); }
 
   size_t OccurrenceForOutput::size() const { return provRecorder_.principal().size(); }

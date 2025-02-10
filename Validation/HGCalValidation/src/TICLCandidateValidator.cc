@@ -5,22 +5,19 @@
 #include "Validation/HGCalValidation/interface/TICLCandidateValidator.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
 
-TICLCandidateValidator::TICLCandidateValidator(
-    edm::EDGetTokenT<std::vector<TICLCandidate>> ticlCandidates,
-    edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidatesToken,
-    edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken,
-    edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken,
-    edm::EDGetTokenT<ticl::RecoToSimCollectionSimTracksters> associatorMapRtSToken,
-    edm::EDGetTokenT<ticl::SimToRecoCollectionSimTracksters> associatorMapStRToken,
-    edm::EDGetTokenT<ticl::RecoToSimCollectionSimTracksters> associatorMapRtSPUToken,
-    bool isTICLv5)
+TICLCandidateValidator::TICLCandidateValidator(edm::EDGetTokenT<std::vector<TICLCandidate>> ticlCandidates,
+                                               edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidatesToken,
+                                               edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken,
+                                               edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken,
+                                               edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapRtSToken,
+                                               edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapStRToken,
+                                               bool isTICLv5)
     : TICLCandidatesToken_(ticlCandidates),
       simTICLCandidatesToken_(simTICLCandidatesToken),
       recoTracksToken_(recoTracksToken),
       trackstersToken_(trackstersToken),
       associatorMapRtSToken_(associatorMapRtSToken),
       associatorMapStRToken_(associatorMapStRToken),
-      associatorMapRtSPUToken_(associatorMapRtSPUToken),
       isTICLv5_(isTICLv5) {}
 
 TICLCandidateValidator::~TICLCandidateValidator() {}
@@ -296,17 +293,13 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
   event.getByToken(trackstersToken_, Tracksters_h);
   auto trackstersMerged = *Tracksters_h;
 
-  edm::Handle<ticl::RecoToSimCollectionSimTracksters> mergeTsRecoToSim_h;
+  edm::Handle<ticl::TracksterToTracksterMap> mergeTsRecoToSim_h;
   event.getByToken(associatorMapRtSToken_, mergeTsRecoToSim_h);
   auto const& mergeTsRecoToSimMap = *mergeTsRecoToSim_h;
 
-  edm::Handle<ticl::SimToRecoCollectionSimTracksters> mergeTsSimToReco_h;
+  edm::Handle<ticl::TracksterToTracksterMap> mergeTsSimToReco_h;
   event.getByToken(associatorMapStRToken_, mergeTsSimToReco_h);
   auto const& mergeTsSimToRecoMap = *mergeTsSimToReco_h;
-
-  edm::Handle<ticl::RecoToSimCollectionSimTracksters> mergeTsRecoToSimPU_h;
-  event.getByToken(associatorMapRtSPUToken_, mergeTsRecoToSimPU_h);
-  auto const& mergeTsRecoToSimPUMap = *mergeTsRecoToSimPU_h;
 
   // candidates plots
   for (const auto& cand : TICLCandidates) {
@@ -367,31 +360,16 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_den_chg_phi_candidate[index]->Fill(simCand.phi());
 
     int32_t cand_idx = -1;
-    const edm::Ref<ticl::TracksterCollection> stsRef(simTrackstersCP_h, i);
-    const auto ts_iter = mergeTsSimToRecoMap.find(stsRef);
     float shared_energy = 0.;
-    // search for reco cand associated
-    if (ts_iter != mergeTsSimToRecoMap.end()) {
-      const auto& tsAssoc = (ts_iter->val);
-      std::vector<uint32_t> MergeTracksters_simToReco;
-      std::vector<float> MergeTracksters_simToReco_score;
-      std::vector<float> MergeTracksters_simToReco_sharedE;
-      MergeTracksters_simToReco.reserve(tsAssoc.size());
-      MergeTracksters_simToReco_score.reserve(tsAssoc.size());
-      MergeTracksters_simToReco_sharedE.reserve(tsAssoc.size());
-      for (auto& ts : tsAssoc) {
-        auto ts_id = (ts.first).get() - (edm::Ref<ticl::TracksterCollection>(Tracksters_h, 0)).get();
-        MergeTracksters_simToReco.push_back(ts_id);
-        MergeTracksters_simToReco_score.push_back(ts.second.second);
-        MergeTracksters_simToReco_sharedE.push_back(ts.second.first);
-      }
-      auto min_idx = std::min_element(MergeTracksters_simToReco_score.begin(), MergeTracksters_simToReco_score.end());
-      if (*min_idx != 1) {
-        cand_idx = MergeTracksters_simToReco[min_idx - MergeTracksters_simToReco_score.begin()];
-        shared_energy = MergeTracksters_simToReco_sharedE[min_idx - MergeTracksters_simToReco_score.begin()];
-      }
+    const auto& ts_vec = mergeTsSimToRecoMap[i];
+    if (!ts_vec.empty()) {
+      auto min_elem =
+          std::min_element(ts_vec.begin(), ts_vec.end(), [](auto const& ts1_id_pair, auto const& ts2_id_pair) {
+            return ts1_id_pair.score() < ts2_id_pair.score();
+          });
+      shared_energy = min_elem->sharedEnergy();
+      cand_idx = min_elem->index();
     }
-
     // no reco associated to sim
     if (cand_idx == -1)
       continue;
@@ -459,29 +437,15 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_den_neut_phi_candidate[index]->Fill(simCand.phi());
 
     int32_t cand_idx = -1;
-    const edm::Ref<ticl::TracksterCollection> stsRef(simTrackstersCP_h, i);
-    const auto ts_iter = mergeTsSimToRecoMap.find(stsRef);
     float shared_energy = 0.;
-    // search for reco cand associated
-    if (ts_iter != mergeTsSimToRecoMap.end()) {
-      const auto& tsAssoc = (ts_iter->val);
-      std::vector<uint32_t> MergeTracksters_simToReco;
-      std::vector<float> MergeTracksters_simToReco_score;
-      std::vector<float> MergeTracksters_simToReco_sharedE;
-      MergeTracksters_simToReco.reserve(tsAssoc.size());
-      MergeTracksters_simToReco_score.reserve(tsAssoc.size());
-      MergeTracksters_simToReco_sharedE.reserve(tsAssoc.size());
-      for (auto& ts : tsAssoc) {
-        auto ts_id = (ts.first).get() - (edm::Ref<ticl::TracksterCollection>(Tracksters_h, 0)).get();
-        MergeTracksters_simToReco.push_back(ts_id);
-        MergeTracksters_simToReco_score.push_back(ts.second.second);
-        MergeTracksters_simToReco_sharedE.push_back(ts.second.first);
-      }
-      auto min_idx = std::min_element(MergeTracksters_simToReco_score.begin(), MergeTracksters_simToReco_score.end());
-      if (*min_idx != 1) {
-        cand_idx = MergeTracksters_simToReco[min_idx - MergeTracksters_simToReco_score.begin()];
-        shared_energy = MergeTracksters_simToReco_sharedE[min_idx - MergeTracksters_simToReco_score.begin()];
-      }
+    const auto& ts_vec = mergeTsSimToRecoMap[i];
+    if (!ts_vec.empty()) {
+      auto min_elem =
+          std::min_element(ts_vec.begin(), ts_vec.end(), [](auto const& ts1_id_pair, auto const& ts2_id_pair) {
+            return ts1_id_pair.score() < ts2_id_pair.score();
+          });
+      shared_energy = min_elem->sharedEnergy();
+      cand_idx = min_elem->index();
     }
 
     // no reco associated to sim
@@ -570,14 +534,6 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     if (isTICLv5_) {
       mergeTs_id = cand.tracksters()[0].get() - edm::Ptr<ticl::Trackster>(Tracksters_h, 0).get();
     }
-    // remove PU tracksters
-    const edm::Ref<ticl::TracksterCollection> tsRef(Tracksters_h, mergeTs_id);
-    auto const sts_iterPU = mergeTsRecoToSimPUMap.find(tsRef);
-    if (sts_iterPU != mergeTsRecoToSimPUMap.end()) {
-      const auto& stsPUAssociated = sts_iterPU->val;
-      if (stsPUAssociated[0].second.first / (*Tracksters_h)[mergeTs_id].raw_energy() > 0.95)
-        continue;
-    }
 
     // +1 to all denominators
     histograms.h_den_fake_chg_energy_candidate[index]->Fill(cand.rawEnergy());
@@ -593,28 +549,16 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_chg_candidate_partType[index]->Fill(std::max_element(arr.begin(), arr.end()) - arr.begin());
 
     int32_t simCand_idx = -1;
-    const auto sts_iter = mergeTsRecoToSimMap.find(tsRef);
+    const auto& sts_vec = mergeTsRecoToSimMap[mergeTs_id];
     float shared_energy = 0.;
     // search for reco cand associated
-    if (sts_iter != mergeTsRecoToSimMap.end()) {
-      const auto& stsAssoc = (sts_iter->val);
-      std::vector<uint32_t> MergeTracksters_recoToSim;
-      std::vector<float> MergeTracksters_recoToSim_score;
-      std::vector<float> MergeTracksters_recoToSim_sharedE;
-      MergeTracksters_recoToSim.reserve(stsAssoc.size());
-      MergeTracksters_recoToSim_score.reserve(stsAssoc.size());
-      MergeTracksters_recoToSim_sharedE.reserve(stsAssoc.size());
-      for (auto& sts : stsAssoc) {
-        auto sts_id = (sts.first).get() - (edm::Ref<ticl::TracksterCollection>(simTrackstersCP_h, 0)).get();
-        MergeTracksters_recoToSim.push_back(sts_id);
-        MergeTracksters_recoToSim_score.push_back(sts.second.second);
-        MergeTracksters_recoToSim_sharedE.push_back(sts.second.first);
-      }
-      auto min_idx = std::min_element(MergeTracksters_recoToSim_score.begin(), MergeTracksters_recoToSim_score.end());
-      if (*min_idx != 1) {
-        simCand_idx = MergeTracksters_recoToSim[min_idx - MergeTracksters_recoToSim_score.begin()];
-        shared_energy = MergeTracksters_recoToSim_sharedE[min_idx - MergeTracksters_recoToSim_score.begin()];
-      }
+    if (!sts_vec.empty()) {
+      auto min_elem =
+          std::min_element(sts_vec.begin(), sts_vec.end(), [](auto const& sts1_id_pair, auto const& sts2_id_pair) {
+            return sts1_id_pair.score() < sts2_id_pair.score();
+          });
+      shared_energy = min_elem->sharedEnergy();
+      simCand_idx = min_elem->index();
     }
 
     if (simCand_idx == -1)
@@ -676,14 +620,6 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     if (isTICLv5_) {
       mergeTs_id = cand.tracksters()[0].get() - edm::Ptr<ticl::Trackster>(Tracksters_h, 0).get();
     }
-    // remove PU tracksters
-    const edm::Ref<ticl::TracksterCollection> tsRef(Tracksters_h, mergeTs_id);
-    auto const sts_iterPU = mergeTsRecoToSimPUMap.find(tsRef);
-    if (sts_iterPU != mergeTsRecoToSimPUMap.end()) {
-      const auto& stsPUAssociated = sts_iterPU->val;
-      if (stsPUAssociated[0].second.first / (*Tracksters_h)[mergeTs_id].raw_energy() > 0.95)
-        continue;
-    }
 
     // +1 to all denominators
     histograms.h_den_fake_neut_energy_candidate[index]->Fill(cand.rawEnergy());
@@ -699,28 +635,16 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_neut_candidate_partType[index]->Fill(std::max_element(arr.begin(), arr.end()) - arr.begin());
 
     int32_t simCand_idx = -1;
-    const auto sts_iter = mergeTsRecoToSimMap.find(tsRef);
+    const auto& sts_vec = mergeTsRecoToSimMap[mergeTs_id];
     float shared_energy = 0.;
     // search for reco cand associated
-    if (sts_iter != mergeTsRecoToSimMap.end()) {
-      const auto& stsAssoc = (sts_iter->val);
-      std::vector<uint32_t> MergeTracksters_recoToSim;
-      std::vector<float> MergeTracksters_recoToSim_score;
-      std::vector<float> MergeTracksters_recoToSim_sharedE;
-      MergeTracksters_recoToSim.reserve(stsAssoc.size());
-      MergeTracksters_recoToSim_score.reserve(stsAssoc.size());
-      MergeTracksters_recoToSim_sharedE.reserve(stsAssoc.size());
-      for (auto& sts : stsAssoc) {
-        auto sts_id = (sts.first).get() - (edm::Ref<ticl::TracksterCollection>(simTrackstersCP_h, 0)).get();
-        MergeTracksters_recoToSim.push_back(sts_id);
-        MergeTracksters_recoToSim_score.push_back(sts.second.second);
-        MergeTracksters_recoToSim_sharedE.push_back(sts.second.first);
-      }
-      auto min_idx = std::min_element(MergeTracksters_recoToSim_score.begin(), MergeTracksters_recoToSim_score.end());
-      if (*min_idx != 1) {
-        simCand_idx = MergeTracksters_recoToSim[min_idx - MergeTracksters_recoToSim_score.begin()];
-        shared_energy = MergeTracksters_recoToSim_sharedE[min_idx - MergeTracksters_recoToSim_score.begin()];
-      }
+    if (!sts_vec.empty()) {
+      auto min_elem =
+          std::min_element(sts_vec.begin(), sts_vec.end(), [](auto const& sts1_id_pair, auto const& sts2_id_pair) {
+            return sts1_id_pair.score() < sts2_id_pair.score();
+          });
+      shared_energy = min_elem->sharedEnergy();
+      simCand_idx = min_elem->index();
     }
 
     if (simCand_idx == -1)

@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # Define once the BeamSpotOnline record name,
@@ -112,8 +111,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'OnlineBeamMonitor'
 process.dqmSaver.tag           = 'OnlineBeamMonitor'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'OnlineBeamMonitor'
-process.dqmSaverPB.runNumber   = options.runNumber
+# process.dqmSaverPB.tag         = 'OnlineBeamMonitor'
+# process.dqmSaverPB.runNumber   = options.runNumber
 
 # for running offline enhance the time validity of the online beamspot in DB
 if (unitTest or process.isDqmPlayback.value):
@@ -152,7 +151,7 @@ process.GlobalTag.toGet = cms.VPSet(
 )
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver * process.dqmSaverPB)
+                               * process.dqmSaver )#* process.dqmSaverPB)
 
 process.monitor = cms.Sequence(process.dqmOnlineBeamMonitor)
 

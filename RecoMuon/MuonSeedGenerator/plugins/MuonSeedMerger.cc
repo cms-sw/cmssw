@@ -55,3 +55,6 @@ void MuonSeedMerger::produce(Event& event, const EventSetup& eventSetup) {
 
   event.put(std::move(output));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MuonSeedMerger);

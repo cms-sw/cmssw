@@ -48,7 +48,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.load('Configuration.Geometry.GeometryDD4hep_cff')
-process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D110.xml")
+process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometryRun4D110.xml")
 
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
                                                      appendToDataLabel = cms.string('')

@@ -231,7 +231,6 @@ void L1GlobalTriggerFDL::run(edm::Event &iEvent,
         //<< std::endl;
 
         if (triggerMaskVetoTechTrigBit && techDecisionWord[iBit]) {
-          daqPartitionFinalOR = false;
           vetoTechTrig = true;
 
           // LogTrace("L1GlobalTrigger")

@@ -30,10 +30,13 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
@@ -123,7 +126,7 @@ namespace edm {
     bool readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext) override;
     void skip(int offset) override;
     bool goToEvent_(EventID const& eventID) override;
-    void beginJob() override;
+    void beginJob(ProductRegistry const&) override;
 
     void fillProcessBlockHelper_() override;
     bool nextProcessBlock_(ProcessBlockPrincipal&) override;
@@ -226,13 +229,17 @@ RepeatingCachedRootSource::RepeatingCachedRootSource(ParameterSet const& pset, I
   }
 }
 
-void RepeatingCachedRootSource::beginJob() {
+void RepeatingCachedRootSource::beginJob(ProductRegistry const&) {
   ProcessConfiguration processConfiguration;
   processConfiguration.setParameterSetID(ParameterSet::emptyParameterSetID());
   processConfiguration.setProcessConfigurationID();
 
+  //in order to use the source's internal ProductRegistry for looking up date
+  // it needs to be frozen (which setups the other structures)
+  productRegistryUpdate().setFrozen();
   //Thinned collection associations are not supported at this time
-  EventPrincipal eventPrincipal(productRegistry(),
+  EventPrincipal eventPrincipal(std::shared_ptr<ProductRegistry const>(&productRegistry(), do_nothing_deleter()),
+                                edm::productResolversFactory::makePrimary,
                                 branchIDListHelper(),
                                 std::make_shared<ThinnedAssociationsHelper>(),
                                 processConfiguration,

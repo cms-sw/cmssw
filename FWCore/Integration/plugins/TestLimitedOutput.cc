@@ -5,8 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 
 #include <memory>
 #include <string>
@@ -94,7 +93,7 @@ namespace edm {
     }
   }
 
-  std::shared_ptr<int> TestLimitedOutput::globalBeginRun(RunForOutput const&) const {
+  std::shared_ptr<int> TestLimitedOutput::globalBeginRun(RunForOutput const& iRun) const {
     LogAbsolute("TestLimitedOutput") << "limited globalBeginRun";
     if (verbose_) {
       BranchIDLists const* theBranchIDLists = branchIDLists();
@@ -104,8 +103,7 @@ namespace edm {
           LogAbsolute("TestLimitedOutput") << "  limited branchID " << branchID;
         }
       }
-      edm::Service<edm::ConstProductRegistry> reg;
-      for (auto const& it : reg->productList()) {
+      for (auto const& it : iRun.productRegistry().productList()) {
         LogAbsolute("TestLimitedOutput") << it.second;
       }
     }

@@ -22,14 +22,16 @@ namespace {
   class ConvertHitTraits {
   public:
     ConvertHitTraits(float minCharge) : minGoodStripCharge_(minCharge) {}
+    using Clusters = edmNew::DetSetVector<SiStripCluster>;
+    using Cluster = Clusters::data_type;
 
     static constexpr bool applyCCC() { return true; }
-    static float clusterCharge(const SiStripRecHit2D& hit, DetId hitId) {
-      return siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster());
-    }
+    static float chargeScale(DetId id) { return siStripClusterTools::sensorThicknessInverse(id); }
+    static const Cluster& cluster(const Clusters& prod, unsigned int index) { return prod.data()[index]; }
+    static float clusterCharge(const Cluster& clu, float scale) { return clu.charge() * scale; }
     bool passCCC(float charge) const { return charge > minGoodStripCharge_; }
-    static void setDetails(mkfit::Hit& mhit, const SiStripCluster& cluster, int shortId, float charge) {
-      mhit.setupAsStrip(shortId, charge, cluster.amplitudes().size());
+    static void setDetails(mkfit::Hit& mhit, const Cluster& clu, int shortId, float charge) {
+      mhit.setupAsStrip(shortId, charge, clu.size());
     }
 
   private:
@@ -49,25 +51,28 @@ private:
 
   const edm::EDGetTokenT<SiStripRecHit2DCollection> stripRphiRecHitToken_;
   const edm::EDGetTokenT<SiStripRecHit2DCollection> stripStereoRecHitToken_;
+  const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> stripClusterToken_;
   const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhBuilderToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   const edm::EDPutTokenT<MkFitHitWrapper> wrapperPutToken_;
   const edm::EDPutTokenT<MkFitClusterIndexToHit> clusterIndexPutToken_;
+  const edm::EDPutTokenT<std::vector<int>> layerIndexPutToken_;
   const edm::EDPutTokenT<std::vector<float>> clusterChargePutToken_;
   const ConvertHitTraits convertTraits_;
 };
 
 MkFitSiStripHitConverter::MkFitSiStripHitConverter(edm::ParameterSet const& iConfig)
-    : stripRphiRecHitToken_{consumes<SiStripRecHit2DCollection>(iConfig.getParameter<edm::InputTag>("rphiHits"))},
-      stripStereoRecHitToken_{consumes<SiStripRecHit2DCollection>(iConfig.getParameter<edm::InputTag>("stereoHits"))},
-      ttrhBuilderToken_{esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(
-          iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
-      ttopoToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()},
-      mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
-      wrapperPutToken_{produces<MkFitHitWrapper>()},
-      clusterIndexPutToken_{produces<MkFitClusterIndexToHit>()},
-      clusterChargePutToken_{produces<std::vector<float>>()},
+    : stripRphiRecHitToken_{consumes(iConfig.getParameter<edm::InputTag>("rphiHits"))},
+      stripStereoRecHitToken_{consumes(iConfig.getParameter<edm::InputTag>("stereoHits"))},
+      stripClusterToken_{consumes(iConfig.getParameter<edm::InputTag>("clusters"))},
+      ttrhBuilderToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
+      ttopoToken_{esConsumes()},
+      mkFitGeomToken_{esConsumes()},
+      wrapperPutToken_{produces()},
+      clusterIndexPutToken_{produces()},
+      layerIndexPutToken_{produces()},
+      clusterChargePutToken_{produces()},
       convertTraits_{static_cast<float>(
           iConfig.getParameter<edm::ParameterSet>("minGoodStripCharge").getParameter<double>("value"))} {}
 
@@ -76,6 +81,7 @@ void MkFitSiStripHitConverter::fillDescriptions(edm::ConfigurationDescriptions& 
 
   desc.add("rphiHits", edm::InputTag{"siStripMatchedRecHits", "rphiRecHit"});
   desc.add("stereoHits", edm::InputTag{"siStripMatchedRecHits", "stereoRecHit"});
+  desc.add("clusters", edm::InputTag{"siStripClusters"});
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
 
   edm::ParameterSetDescription descCCC;
@@ -92,16 +98,29 @@ void MkFitSiStripHitConverter::produce(edm::StreamID iID, edm::Event& iEvent, co
 
   MkFitHitWrapper hitWrapper;
   MkFitClusterIndexToHit clusterIndexToHit;
+  std::vector<int> layerIndexToHit;
   std::vector<float> clusterCharge;
-
-  auto convert = [&](auto& hits) {
-    return mkfit::convertHits(
-        convertTraits_, hits, hitWrapper.hits(), clusterIndexToHit.hits(), clusterCharge, ttopo, ttrhBuilder, mkFitGeom);
-  };
 
   edm::ProductID stripClusterID;
   const auto& stripRphiHits = iEvent.get(stripRphiRecHitToken_);
   const auto& stripStereoHits = iEvent.get(stripStereoRecHitToken_);
+  const auto maxSizeGuess(stripRphiHits.dataSize() + stripStereoHits.dataSize());
+  auto const& clusters = iEvent.get(stripClusterToken_);
+
+  auto convert = [&](auto& hits) {
+    return mkfit::convertHits(convertTraits_,
+                              hits,
+                              clusters,
+                              hitWrapper.hits(),
+                              clusterIndexToHit.hits(),
+                              layerIndexToHit,
+                              clusterCharge,
+                              ttopo,
+                              ttrhBuilder,
+                              mkFitGeom,
+                              maxSizeGuess);
+  };
+
   if (not stripRphiHits.empty()) {
     stripClusterID = convert(stripRphiHits);
   }
@@ -119,6 +138,7 @@ void MkFitSiStripHitConverter::produce(edm::StreamID iID, edm::Event& iEvent, co
 
   iEvent.emplace(wrapperPutToken_, std::move(hitWrapper));
   iEvent.emplace(clusterIndexPutToken_, std::move(clusterIndexToHit));
+  iEvent.emplace(layerIndexPutToken_, std::move(layerIndexToHit));
   iEvent.emplace(clusterChargePutToken_, std::move(clusterCharge));
 }
 

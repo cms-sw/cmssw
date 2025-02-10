@@ -9,15 +9,22 @@ MatchEngineUnit::MatchEngineUnit(const Settings& settings,
                                  bool barrel,
                                  unsigned int layerdisk,
                                  const TrackletLUT& luttable)
-    : settings_(settings), luttable_(luttable), candmatches_(3) {
-  idle_ = true;
-  print_ = false;
+    : settings_(settings),
+      isPSseed_(false),
+      idle_(true),
+      almostfullsave_(false),
+      luttable_(luttable),
+      isPSseed__(false),
+      isPSseed___(false),
+      isPSseed____(false),
+      good__(false),
+      good___(false),
+      good____(false),
+      candmatches_(3),
+      print_(false) {
   imeu_ = -1;
   barrel_ = barrel;
   layerdisk_ = layerdisk;
-  good__ = false;
-  good___ = false;
-  good____ = false;
   ir2smin_ = 0;
   if (layerdisk_ >= N_LAYER) {
     double rmin2s = (layerdisk_ < N_LAYER + 2) ? settings_.rDSSinner(0) : settings_.rDSSouter(0);

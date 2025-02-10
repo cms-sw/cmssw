@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
@@ -58,8 +57,8 @@ process.dqmEnv.subSystemFolder    = "SiStrip"
 process.dqmSaver.tag = "SiStrip"
 process.dqmSaver.backupLumiCount = 30
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "SiStrip"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "SiStrip"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.dqmEnvTr = DQMEDAnalyzer('DQMEventInfo',
@@ -226,9 +225,9 @@ process.hltHighLevel.throw =  False
 #--------------------------
 process.SiStripSources_LocalReco = cms.Sequence(process.siStripFEDMonitor*process.SiStripMonitorDigi*process.SiStripMonitorClusterReal)
 if (process.runType.getRunType() == process.runType.commissioning_run):
-    process.DQMCommon                = cms.Sequence(process.dqmEnv*process.dqmEnvTr*process.dqmSaver*process.dqmSaverPB)
+    process.DQMCommon                = cms.Sequence(process.dqmEnv*process.dqmEnvTr*process.dqmSaver)#*process.dqmSaverPB)
 else:
-    process.DQMCommon                = cms.Sequence(process.stripQTester*process.trackingQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver*process.dqmSaverPB)
+    process.DQMCommon                = cms.Sequence(process.stripQTester*process.trackingQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver)#*process.dqmSaverPB)
 if (process.runType.getRunType() == process.runType.hi_run):
     process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
 else :
@@ -389,7 +388,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.InitialStepPreSplittingTask.remove(process.MeasurementTrackerEvent)
 
     # Redefinition of siPixelClusters: has to be after RecoTracker.IterativeTracking.InitialStepPreSplitting_cff
-    process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+    from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
+    process.siPixelClusters = _siPixelClusters.clone()
 
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
@@ -521,7 +521,7 @@ process.muonCSCDigis.InputObjects = rawDataCollectorLabel
 process.muonDTDigis.inputLabel = rawDataCollectorLabel
 process.muonRPCDigis.InputLabel = rawDataCollectorLabel
 process.scalersRawToDigi.scalersInputTag = rawDataCollectorLabel
-process.siPixelDigis.cpu.InputLabel = rawDataCollectorLabel
+process.siPixelDigis.InputLabel = rawDataCollectorLabel
 process.siStripDigis.ProductLabel = rawDataCollectorLabel
 process.siStripFEDMonitor.RawDataTag = rawDataCollectorLabel
 #--------------------------------------------------
@@ -544,7 +544,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.muonDTDigis.inputLabel = rawDataRepackerLabel
     process.muonRPCDigis.InputLabel = rawDataRepackerLabel
     process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
-    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siPixelDigis.InputLabel = rawDataRepackerLabel
     process.siStripDigis.ProductLabel = rawDataRepackerLabel
     process.siStripFEDMonitor.RawDataTag = rawDataRepackerLabel
     process.tcdsDigis.InputLabel = rawDataRepackerLabel
@@ -624,7 +624,8 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.InitialStepPreSplittingTask.remove(process.MeasurementTrackerEvent)
 
     # Redefinition of siPixelClusters: has to be after RecoTracker.IterativeTracking.InitialStepPreSplitting_cff
-    process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+    from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
+    process.siPixelClusters = _siPixelClusters.clone()
 
     # Select events based on the pixel cluster multiplicity
     import  HLTrigger.special.hltPixelActivityFilter_cfi

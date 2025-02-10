@@ -32,13 +32,18 @@ print(options)
 ####################################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
-baseName = "HGCal2026" + options.geometry
+geomName = "Run4" + options.geometry
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+baseName = "HGCalRun4" + options.geometry
+print("Geometry Name:   ", geomName)
+print("Geom file Name:  ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+print("Base file Name:  ", baseName)
 
-print("Geometry file Name: ", geomFile)
-print("Base file Name:     ", baseName)
+process = cms.Process('G4PrintGeometry',ERA)
 
 process.load(geomFile)
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
@@ -69,5 +74,3 @@ process.g4SimHits.FileNameField   = ''
 process.g4SimHits.FileNameGDML    = ''
 process.g4SimHits.FileNameRegions = ''
 #
-
-#process.load('Geometry.HGCalCommonData.testHGCalV10XML_cfi')

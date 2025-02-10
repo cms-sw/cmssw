@@ -66,20 +66,151 @@ l3MuonMuTrackV = MTVhlt.clone(
     label = ('hltIterL3MuonsTracks:',),
     muonHistoParameters = glbMuonHistoParameters
 )
+
+#
+# The Phase-2 validators
+#
+
+# L2 standalone muons seeds
+Phase2l2MuSeedV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL2SeedAssociation',
+    label = ('hltPhase2L2MuonSeedTracks',),
+    muonHistoParameters = staSeedMuonHistoParameters
+)
+# L2 standalone muons
+Phase2l2MuV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL2MuonAssociation',
+    label = ('hltL2MuonsFromL1TkMuon',),
+    muonHistoParameters = staMuonHistoParameters
+)
+# L2 standalone muons updated at vertex
+Phase2l2MuUpdV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL2MuonUpdAssociation',
+    label = ('hltL2MuonsFromL1TkMuon:UpdatedAtVtx',),
+    muonHistoParameters = staMuonHistoParameters
+)
+# L3 IO inner tracks
+Phase2l3IOTkV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL3IOTkAssociation',
+    label = ('hltIter2Phase2L3FromL1TkMuonMerged',),
+    muonHistoParameters = trkMuonHistoParameters
+)
+# L3 OI inner tracks
+Phase2l3OITkV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL3OITkAssociation',
+    label = ('hltPhase2L3OIMuonTrackSelectionHighPurity',),
+    muonHistoParameters = trkMuonHistoParameters
+)
+# L2 muons to reuse (IO first only)
+Phase2L2MuToReuseV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL2MuonToReuseAssociation',
+    label = ('hltPhase2L3MuonFilter:L2MuToReuse',),
+    muonHistoParameters = staMuonHistoParameters
+)
+# L3 IO inner tracks filtered (IO first only)
+Phase2l3IOTkFilteredV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL3IOTkFilteredAssociation',
+    label = ('hltPhase2L3MuonFilter:L3IOTracksFiltered',),
+    muonHistoParameters = trkMuonHistoParameters
+)
+# L3 OI inner tracks filtered (OI first only)
+Phase2l3OITkFilteredV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL3OITkFilteredAssociation',
+    label = ('hltPhase2L3MuonFilter:L3OITracksFiltered',),
+    muonHistoParameters = trkMuonHistoParameters
+)
+# L3 inner tracks merged
+Phase2l3TkMergedV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL3TkMergedAssociation',
+    label = ('hltPhase2L3MuonMerged',),
+    muonHistoParameters = trkMuonHistoParameters
+)
+# L3 global muons
+Phase2l3GlbMuonV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL3GlbMuonMergedAssociation',
+    label = ('hltPhase2L3GlbMuon',),
+    muonHistoParameters = glbMuonHistoParameters
+)
+# L3 Muons no ID
+Phase2l3MuNoIdTrackV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL3MuonNoIdAssociation',
+    label = ('hltPhase2L3MuonNoIdTracks',),
+    muonHistoParameters = glbMuonHistoParameters
+)
+# L3 Muons ID
+Phase2l3MuIdTrackV = MTVhlt.clone(
+    associatormap = 'Phase2tpToL3MuonIdAssociation',
+    label = ('hltPhase2L3MuonIdTracks',),
+    muonHistoParameters = glbMuonHistoParameters
+)
+
 #
 # The full Muon HLT validation sequence
 #
-muonValidationHLT_seq = cms.Sequence(
-    tpToL2MuonAssociation + l2MuonMuTrackV
-    +tpToL2UpdMuonAssociation + l2UpdMuonMuTrackV
-    +tpToL3OITkMuonAssociation + l3OITkMuonMuTrackV
-    +tpToL3TkMuonAssociation + l3TkMuonMuTrackV
-    +tpToL3FromL1TkMuonAssociation + l3IOFromL1TkMuonMuTrackV 
-    +tpToL0L3FromL1TkMuonAssociation + l0l3FromL1TkMuonMuTrackV
-    +tpToL3GlbMuonAssociation + l3GlbMuonMuTrackV
-    +hltIterL3MuonsNoIDTracks_seq + tpToL3NoIDMuonAssociation + l3NoIDMuonMuTrackV
-    +hltIterL3MuonsTracks_seq + tpToL3MuonAssociation + l3MuonMuTrackV
-    )
+
+muonValidationHLT_seq = cms.Sequence(muonAssociationHLT_seq
+                                    +l2MuonMuTrackV
+                                    +l2UpdMuonMuTrackV
+                                    +l3OITkMuonMuTrackV
+                                    +l3TkMuonMuTrackV
+                                    +l3IOFromL1TkMuonMuTrackV 
+                                    +l0l3FromL1TkMuonMuTrackV
+                                    +l3GlbMuonMuTrackV
+                                    +l3NoIDMuonMuTrackV
+                                    +l3MuonMuTrackV
+                                    )
+
+#
+# The Phase-2 sequences
+#
+
+Phase2MuonValidationHLT_seq = cms.Sequence(muonAssociationHLT_seq
+                                    +Phase2l2MuSeedV
+                                    +Phase2l2MuV
+                                    +Phase2l2MuUpdV
+                                    +Phase2l3IOTkV
+                                    +Phase2l3OITkV
+                                    +Phase2l3TkMergedV
+                                    +Phase2l3GlbMuonV
+                                    +Phase2l3MuNoIdTrackV
+                                    +Phase2l3MuIdTrackV
+                                    )
+# Inside-Out first sequence
+Phase2IOFirstMuonValidationHLT_seq = cms.Sequence(muonAssociationHLT_seq
+                                    +Phase2l2MuSeedV
+                                    +Phase2l2MuV
+                                    +Phase2l2MuUpdV
+                                    +Phase2l3IOTkV
+                                    +Phase2L2MuToReuseV
+                                    +Phase2l3IOTkFilteredV
+                                    +Phase2l3OITkV
+                                    +Phase2l3TkMergedV
+                                    +Phase2l3GlbMuonV
+                                    +Phase2l3MuNoIdTrackV
+                                    +Phase2l3MuIdTrackV
+                                    )
+# Outside-In first sequence
+Phase2OIFirstMuonValidationHLT_seq = cms.Sequence(muonAssociationHLT_seq
+                                    +Phase2l2MuSeedV
+                                    +Phase2l2MuV
+                                    +Phase2l2MuUpdV
+                                    +Phase2l3OITkV
+                                    +Phase2l3OITkFilteredV
+                                    +Phase2l3IOTkV
+                                    +Phase2l3TkMergedV
+                                    +Phase2l3GlbMuonV
+                                    +Phase2l3MuNoIdTrackV
+                                    +Phase2l3MuIdTrackV
+                                    )
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith(muonValidationHLT_seq, Phase2MuonValidationHLT_seq)
+
+from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
+phase2L2AndL3Muons.toReplaceWith(muonValidationHLT_seq, Phase2IOFirstMuonValidationHLT_seq)
+
+from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
+(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toReplaceWith(muonValidationHLT_seq, Phase2OIFirstMuonValidationHLT_seq)
 
 recoMuonValidationHLT_seq = cms.Sequence(
     cms.SequencePlaceholder("TPmu") +

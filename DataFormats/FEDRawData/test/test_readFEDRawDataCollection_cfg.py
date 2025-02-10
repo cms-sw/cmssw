@@ -13,7 +13,8 @@ process.testReadFEDRawDataCollection = cms.EDAnalyzer("TestReadFEDRawDataCollect
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testFEDRawDataCollection2.root')
+    fileName = cms.untracked.string('testFEDRawDataCollection2.root'),
+    fastCloning = cms.untracked.bool(False)
 )
 
 process.path = cms.Path(process.testReadFEDRawDataCollection)

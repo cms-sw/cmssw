@@ -147,7 +147,7 @@ std::string LumiCorrectionSource::translateFrontierConnect(const std::string& co
   if ((!servlet.empty()) && (servlet.find_first_of(":/)[]") == std::string::npos)) {
     if (servlet == "cms_conditions_data")
       servlet = "";
-    if (m_siteconfpath.length() == 0) {
+    if (m_siteconfpath.empty()) {
       std::string url = (std::filesystem::path("SITECONF") / std::filesystem::path("local") /
                          std::filesystem::path("JobConfig") / std::filesystem::path("site-local-config.xml"))
                             .string();

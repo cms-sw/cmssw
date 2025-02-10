@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 slimmedGenJets = cms.EDProducer("PATGenJetSlimmer",
     src = cms.InputTag("ak4GenJetsNoNu"),
     packedGenParticles = cms.InputTag("packedGenParticles"),
-    cut = cms.string("pt > 8"),
+    cut = cms.string(""),
     cutLoose = cms.string(""),
     nLoose = cms.uint32(0),
     clearDaughters = cms.bool(False), #False means rekeying

@@ -1,38 +1,14 @@
 <?xml version="1.0"?>
 <DDDefinition>
 
-<ConstantsSection label="hgcalPassive.xml" eval="true">
-  <Constant name="zMinBlockEE1"          value="[hgcal:zHGCalEE1]"/>
-  <Constant name="zMinBlockEE2"          value="([zMinBlockEE1]+[hgcal:thickEEModule1]*[hgcal:nEEModule1])"/>
-  <Constant name="zMinBlockEE3"          value="([zMinBlockEE2]+[hgcal:thickEEModule1]*[hgcal:nEEModule2])"/>
-  <Constant name="shiftTop"              value="10*mm"/>
-  <Constant name="shiftBottom"           value="10*mm"/>
-  <Constant name="zMinBlockEEC1"         value="([zMinBlockEE1]+[hgcal:thickEEModule1]-[hgcal:thickEECooling])"/>
-  <Constant name="zMinBlockEEC2"         value="([zMinBlockEE2]+[hgcal:thickEEModule2]-[hgcal:thickEECooling])"/>
-  <Constant name="zMinBlockEEC3"         value="([zMinBlockEE3]+[hgcal:thickEEModule3]-[hgcal:thickEECooling])"/>
-  <Constant name="zMinBlockHE1"          value="([hgcal:zHGCalHEsil1]+[hgcal:thickHEShift1])"/>
-  <Constant name="zMinBlockHEC1"         value="([zMinBlockHE1]+[hgcal:ModuleThicknessHE]+[hgcal:thickHESteelCover])"/>
-  <Constant name="zMinBlockHE2"          value="([zMinBlockHEC1]+[hgcal:thickHECooling]+[hgcal:thickHEShift2])"/>
-  <Constant name="zMinBlockHEC2"         value="([zMinBlockHE2]+[hgcal:ModuleThicknessHE]+[hgcal:thickHESteelCover])"/>
-  <Constant name="zMinBlockHE3"          value="([hgcal:zHGCalHEmix1]+[hgcal:thickHEShift2])"/>
-  <Constant name="zMinBlockHEC3"         value="([zMinBlockHE3]+[hgcal:ModuleThicknessHE]+[hgcal:thickHESteelCover])"/>
-  <Constant name="zMinBlockHE4"          value="([zMinBlockHE3]+[hgcal:thickHEModule1]*[hgcal:nHEModule2]+[hgcal:thickHEShift3]-[hgcal:thickHEShift2])"/>
-  <Constant name="zMinBlockHEC4"         value="([zMinBlockHE4]+[hgcal:ModuleThicknessHE]+[hgcal:thickHESteelCover])"/>
-</ConstantsSection>
-
 <PosPartSection label="hgcalPassive.xml" eval="true">
   <Algorithm name="hgcal:DDHGCalPassive">
     <rParent name="hgcalPassive:HGCalEEPassive"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
-    <Numeric name="Thickness"        value="[hgcal:thickEEAbsorber1]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockEE1]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickEEModule1]"/>
-    <Numeric name="Parts"            value="6"/>
+    <Numeric name="ModuleThick"      value="[hgcal:thickEEAbsorber1]"/>
+    <Numeric name="Sectors"          value="6"/>
+    <Numeric name="Position"         value="0"/>
     <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="1">
-      L01</Vector>
-    <Vector name="TagSector" type="string" nEntries="6">
-      F00, F01, F02, F03, F04, F05</Vector>
     <Vector name="LayerNames" type="string" nEntries="3">
       StainlessSteel, Epoxy, Lead</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="3">
@@ -41,37 +17,30 @@
       0.3*mm,  0.1*mm, 2.30*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="5"> 
       0, 1, 2, 1, 0</Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
+    <Vector name="AbsorberName" type="string" nEntries="2">
+      L01A, L01B</Vector>
+    <Vector name="AbsorberN" type="numeric" nEntries="2">
+       14,    8</Vector>
+    <Vector name="AbsorberX" type="numeric" nEntries="22">
+       1469.38*mm,  1483.56*mm,  1433.60*mm,  1433.60*mm,  1517.42*mm, 
+       1517.42*mm,  1459.58*mm,  1459.58*mm,  1433.95*mm,  1433.95*mm, 
+       1483.56*mm,  1468.46*mm,   315.84*mm,   315.84*mm, 
+       1075.92*mm,  1230.69*mm,  1220.64*mm,  1302.64*mm,  1312.69*mm, 
+       1468.38*mm,   315.71*mm,   232.08*mm</Vector>
+    <Vector name="AbsorberY" type="numeric" nEntries="22">
+        392.30*mm,   367.74*mm,   338.89*mm,   247.47*mm,   199.08*mm, 
+         95.76*mm,    62.37*mm,  -159.78*mm,  -159.78*mm,  -338.08*mm, 
+       -366.72*mm,  -392.89*mm,   -83.86*mm,    83.39*mm, 
+       1073.29*mm,   805.22*mm,   799.42*mm,   657.39*mm,   663.19*mm, 
+        393.53*mm,    84.85*mm,   229.70*mm</Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassive">
     <rParent name="hgcalPassive:HGCalEEPassive"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
-    <Numeric name="Thickness"        value="[hgcal:thickEEAbsorber2]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockEE2]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickEEModule2]"/>
-    <Numeric name="Parts"            value="6"/>
+    <Numeric name="ModuleThick"      value="[hgcal:thickEEAbsorber2]"/>
+    <Numeric name="Sectors"          value="6"/>
+    <Numeric name="Position"         value="0"/>
     <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="8">
-      L02, L03, L04, L05, L06, L07, L08, L09</Vector>
-    <Vector name="TagSector" type="string" nEntries="6">
-      F00, F01, F02, F03, F04, F05</Vector>
     <Vector name="LayerNames" type="string" nEntries="3">
       StainlessSteel, Epoxy, Lead</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="3">
@@ -80,37 +49,110 @@
       0.3*mm,  0.1*mm, 4.00*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="5"> 
       0, 1, 2, 1, 0</Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
+    <Vector name="AbsorberName" type="string" nEntries="16">
+      L02A, L02B, L03A, L03B, L04A, L04B, L05A, L05B, L06A, L06B,
+      L07A, L07B, L08A, L08B, L09A, L09B</Vector>
+    <Vector name="AbsorberN" type="numeric" nEntries="16">
+       14,    8,   10,   14,   10,   14,   12,   15,   12,   16,
+       12,   13,    8,   12,    8,   12 </Vector>
+    <Vector name="AbsorberX" type="numeric" nEntries="190">
+       1469.38*mm,  1483.56*mm,  1433.60*mm,  1433.60*mm,  1517.42*mm, 
+       1517.42*mm,  1459.58*mm,  1459.58*mm,  1433.95*mm,  1433.95*mm, 
+       1483.56*mm,  1468.46*mm,   315.84*mm,   315.84*mm, 
+       1075.92*mm,  1230.69*mm,  1220.64*mm,  1302.64*mm,  1312.69*mm, 
+       1468.38*mm,   315.71*mm,   232.08*mm, 
+       1433.95*mm,  1433.95*mm,  1517.42*mm,  1517.42*mm,  1476.17*mm, 
+       1476.17*mm,  1433.95*mm,  1433.95*mm,   315.84*mm,   315.84*mm, 
+       1051.83*mm,  1059.25*mm,  1092.48*mm,  1181.06*mm,  1229.50*mm, 
+       1268.29*mm,  1237.00*mm,  1315.00*mm,  1346.29*mm,  1397.14*mm, 
+       1433.88*mm,  1433.95*mm,   315.96*mm,   232.33*mm, 
+       1433.95*mm,  1433.95*mm,  1517.42*mm,  1517.42*mm,  1476.17*mm, 
+       1476.17*mm,  1433.95*mm,  1433.95*mm,   315.84*mm,   315.84*mm, 
+       1051.83*mm,  1059.25*mm,  1092.48*mm,  1181.06*mm,  1229.50*mm, 
+       1268.29*mm,  1237.00*mm,  1315.00*mm,  1346.29*mm,  1397.14*mm, 
+       1433.88*mm,  1433.95*mm,   315.96*mm,   232.33*mm, 
+       1510.84*mm,  1524.77*mm,  1524.77*mm,  1517.77*mm,  1517.77*mm, 
+       1492.76*mm,  1492.76*mm,  1523.77*mm,  1523.77*mm,  1509.41*mm, 
+        315.84*mm,   315.84*mm, 
+       1106.34*mm,  1109.78*mm,  1145.64*mm,  1181.34*mm,  1265.96*mm, 
+       1265.96*mm,  1251.37*mm,  1329.37*mm,  1343.96*mm,  1433.60*mm, 
+       1433.60*mm,  1480.52*mm,  1509.75*mm,   315.96*mm,   232.33*mm, 
+       1510.84*mm,  1524.77*mm,  1524.77*mm,  1517.77*mm,  1517.77*mm, 
+       1501.05*mm,  1501.05*mm,  1523.77*mm,  1523.77*mm,  1509.41*mm, 
+        315.84*mm,   315.84*mm, 
+       1106.34*mm,  1109.78*mm,  1145.64*mm,  1181.34*mm,  1265.96*mm, 
+       1265.96*mm,  1258.55*mm,  1336.55*mm,  1343.96*mm,  1433.60*mm, 
+       1433.60*mm,  1480.52*mm,  1504.47*mm,  1509.84*mm,   315.96*mm, 
+        232.33*mm, 
+       1510.84*mm,  1524.77*mm,  1524.77*mm,  1517.77*mm,  1517.77*mm, 
+       1509.35*mm,  1509.35*mm,  1523.77*mm,  1523.77*mm,  1509.41*mm, 
+        315.84*mm,   315.84*mm, 
+       1106.34*mm,  1109.29*mm,  1145.15*mm,  1181.33*mm,  1265.96*mm, 
+       1265.96*mm,  1343.52*mm,  1433.60*mm,  1433.60*mm,  1480.52*mm, 
+       1509.84*mm,   315.96*mm,   232.33*mm, 
+       1523.97*mm,  1523.97*mm,  1517.64*mm,  1517.64*mm,  1525.15*mm, 
+       1517.77*mm,   315.84*mm,   315.84*mm, 
+       1113.19*mm,  1182.14*mm,  1182.14*mm,  1265.96*mm,  1265.96*mm, 
+       1357.89*mm,  1433.60*mm,  1433.60*mm,  1523.97*mm,  1523.97*mm, 
+        315.96*mm,   232.33*mm, 
+       1523.97*mm,  1523.97*mm,  1525.94*mm,  1525.94*mm,  1517.77*mm, 
+       1517.77*mm,   315.84*mm,   315.84*mm, 
+       1113.19*mm,  1182.14*mm,  1182.14*mm,  1265.96*mm,  1265.96*mm, 
+       1372.26*mm,  1433.60*mm,  1433.60*mm,  1523.97*mm,  1523.97*mm, 
+        315.96*mm,   232.33*mm</Vector>
+    <Vector name="AbsorberY" type="numeric" nEntries="190">
+        392.30*mm,   367.74*mm,   338.89*mm,   247.47*mm,   199.08*mm, 
+         95.76*mm,    62.37*mm,  -159.78*mm,  -159.78*mm,  -338.08*mm, 
+       -366.72*mm,  -392.89*mm,   -83.86*mm,    83.39*mm, 
+       1073.29*mm,   805.22*mm,   799.42*mm,   657.39*mm,   663.19*mm, 
+        393.53*mm,    84.85*mm,   229.70*mm, 
+        382.30*mm,   247.27*mm,   199.08*mm,    96.92*mm,    73.10*mm, 
+       -159.77*mm,  -159.77*mm,  -384.15*mm,   -84.37*mm,    82.88*mm, 
+       1048.51*mm,  1044.22*mm,  1032.75*mm,   973.81*mm,   903.43*mm, 
+        822.32*mm,   804.25*mm,   669.15*mm,   687.22*mm,   613.06*mm, 
+        535.92*mm,   383.80*mm,    84.41*mm,   229.26*mm, 
+        382.30*mm,   247.27*mm,   199.08*mm,    96.92*mm,    73.10*mm, 
+       -159.77*mm,  -159.77*mm,  -384.15*mm,   -84.37*mm,    82.88*mm, 
+       1048.51*mm,  1044.22*mm,  1032.75*mm,   973.81*mm,   903.43*mm, 
+        822.32*mm,   804.25*mm,   669.15*mm,   687.22*mm,   613.06*mm, 
+        535.92*mm,   383.80*mm,    84.41*mm,   229.26*mm, 
+        402.90*mm,   378.78*mm,   296.13*mm,   284.00*mm,    97.12*mm, 
+         82.68*mm,  -150.12*mm,  -203.83*mm,  -379.50*mm,  -404.37*mm, 
+        -84.37*mm,    82.88*mm, 
+       1103.02*mm,  1097.04*mm,  1048.68*mm,   973.33*mm,   924.48*mm, 
+        820.97*mm,   812.55*mm,   677.45*mm,   685.87*mm,   634.11*mm, 
+        536.41*mm,   468.67*mm,   404.29*mm,    84.41*mm,   229.26*mm, 
+        402.90*mm,   378.78*mm,   290.84*mm,   278.71*mm,    14.40*mm, 
+         14.40*mm,  -153.94*mm,  -153.94*mm,  -379.50*mm,  -404.37*mm, 
+        -84.37*mm,    82.88*mm, 
+       1103.02*mm,  1097.04*mm,  1048.68*mm,   973.33*mm,   924.48*mm, 
+        820.97*mm,   816.69*mm,   681.59*mm,   685.87*mm,   634.11*mm, 
+        536.41*mm,   468.67*mm,   413.43*mm,   404.13*mm,    84.41*mm, 
+        229.26*mm, 
+        402.90*mm,   378.78*mm,   290.84*mm,   278.71*mm,    14.40*mm, 
+         14.40*mm,  -153.94*mm,  -153.94*mm,  -379.50*mm,  -404.37*mm, 
+        -84.37*mm,    82.88*mm, 
+       1103.02*mm,  1097.89*mm,  1049.54*mm,   973.33*mm,   924.48*mm, 
+        820.46*mm,   686.12*mm,   634.11*mm,   536.41*mm,   468.67*mm, 
+        404.13*mm,    84.41*mm,   229.26*mm, 
+        406.42*mm,    55.38*mm,    55.38*mm,  -286.18*mm,  -286.18*mm, 
+       -406.61*mm,   -84.37*mm,    82.88*mm, 
+       1109.87*mm,  1070.06*mm,   972.87*mm,   924.48*mm,   837.05*mm, 
+        677.82*mm,   634.11*mm,   537.33*mm,   485.15*mm,   407.92*mm, 
+         84.41*mm,   229.26*mm, 
+        406.42*mm,    49.40*mm,    49.40*mm,  -297.18*mm,  -297.18*mm, 
+       -406.61*mm,   -84.37*mm,    82.88*mm, 
+       1109.87*mm,  1070.06*mm,   972.87*mm,   924.48*mm,   853.64*mm, 
+        669.53*mm,   634.11*mm,   537.33*mm,   485.15*mm,   407.92*mm, 
+         84.41*mm,   229.26*mm</Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassive">
     <rParent name="hgcalPassive:HGCalEEPassive"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
-    <Numeric name="Thickness"        value="[hgcal:thickEEAbsorber3]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockEE3]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickEEModule3]"/>
-    <Numeric name="Parts"            value="6"/>
+    <Numeric name="ModuleThick"      value="[hgcal:thickEEAbsorber3]"/>
+    <Numeric name="Sectors"          value="6"/>
+    <Numeric name="Position"         value="0"/>
     <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="4">
-      L10, L11, L12, L13</Vector>
-    <Vector name="TagSector" type="string" nEntries="6">
-      F00, F01, F02, F03, F04, F05</Vector>
     <Vector name="LayerNames" type="string" nEntries="3">
       StainlessSteel, Epoxy, Lead</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="3">
@@ -119,375 +161,311 @@
       0.3*mm,  0.1*mm, 7.30*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="5"> 
       0, 1, 2, 1, 0</Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
+    <Vector name="AbsorberName" type="string" nEntries="8">
+      L10A, L10B, L11A, L11B, L12A, L12B, L13A, L13B</Vector>
+    <Vector name="AbsorberN" type="numeric" nEntries="8">
+        8,   12,   11,   12,   11,   12,   14,   12 </Vector>
+    <Vector name="AbsorberX" type="numeric" nEntries="92">
+       1523.97*mm,  1523.97*mm,  1535.11*mm,  1535.11*mm,  1523.97*mm, 
+       1523.97*mm,   315.84*mm,   315.84*mm, 
+       1118.58*mm,  1182.14*mm,  1182.14*mm,  1265.96*mm,  1265.96*mm, 
+       1386.63*mm,  1433.60*mm,  1433.60*mm,  1523.97*mm,  1523.97*mm, 
+        316.45*mm,   232.83*mm, 
+       1523.62*mm,  1523.62*mm,  1607.79*mm,  1607.79*mm,  1544.29*mm, 
+       1544.29*mm,  1608.94*mm,  1523.62*mm,  1523.62*mm,   315.84*mm, 
+        315.84*mm, 
+       1118.32*mm,  1182.14*mm,  1182.14*mm,  1265.96*mm,  1265.96*mm, 
+       1402.53*mm,  1433.60*mm,  1433.60*mm,  1523.62*mm,  1523.62*mm, 
+        316.45*mm,   232.83*mm, 
+       1523.62*mm,  1523.62*mm,  1607.79*mm,  1607.79*mm,  1553.47*mm, 
+       1553.47*mm,  1608.94*mm,  1523.62*mm,  1523.62*mm,   315.84*mm, 
+        315.84*mm, 
+       1118.32*mm,  1182.14*mm,  1182.14*mm,  1265.96*mm,  1265.96*mm, 
+       1422.29*mm,  1433.60*mm,  1433.60*mm,  1523.62*mm,  1523.62*mm, 
+        316.45*mm,   232.83*mm, 
+       1523.62*mm, 
+       1523.62*mm,  1601.59*mm,  1601.59*mm,  1608.09*mm,  1608.09*mm, 
+       1559.51*mm,  1559.51*mm,  1601.24*mm,  1601.24*mm,  1523.62*mm, 
+       1523.62*mm,   315.84*mm,   315.84*mm, 
+       1118.32*mm,  1183.69*mm,  1227.49*mm,  1315.96*mm,  1265.92*mm, 
+       1428.92*mm,  1479.45*mm,  1567.92*mm,  1523.62*mm,  1523.62*mm, 
+        316.45*mm,   232.83*mm</Vector>
+    <Vector name="AbsorberY" type="numeric" nEntries="92">
+        405.44*mm,    49.40*mm,    49.40*mm,  -297.18*mm,  -297.18*mm, 
+       -409.25*mm,   -85.35*mm,    81.90*mm, 
+       1113.92*mm,  1077.22*mm,   972.87*mm,   924.48*mm,   870.24*mm, 
+        661.23*mm,   634.11*mm,   537.33*mm,   485.15*mm,   406.94*mm, 
+         83.56*mm,   228.41*mm, 
+        405.35*mm,   393.17*mm,   247.38*mm,    38.22*mm,    74.88*mm, 
+       -207.05*mm,  -244.38*mm,  -392.16*mm,  -409.16*mm,   -85.35*mm, 
+         81.90*mm, 
+       1113.66*mm,  1076.82*mm,   972.87*mm,   924.48*mm,   888.60*mm, 
+        652.05*mm,   634.11*mm,   537.33*mm,   485.35*mm,   406.84*mm, 
+         83.56*mm,   228.41*mm, 
+        405.35*mm,   393.17*mm,   247.38*mm,    38.22*mm,    69.58*mm, 
+       -212.35*mm,  -244.38*mm,  -392.16*mm,  -409.16*mm,   -85.35*mm, 
+         81.90*mm, 
+       1113.66*mm,  1076.82*mm,   972.87*mm,   924.48*mm,   911.42*mm, 
+        640.64*mm,   634.11*mm,   537.33*mm,   485.35*mm,   406.84*mm, 
+         83.56*mm,   228.41*mm,
+        405.35*mm,   389.07*mm,   344.05*mm,   162.10*mm,   150.84*mm, 
+         38.05*mm,    66.09*mm,  -215.84*mm,  -239.93*mm,  -343.24*mm, 
+       -388.06*mm,  -409.16*mm,   -85.35*mm,    81.90*mm, 
+       1113.66*mm,  1075.92*mm,  1101.21*mm,   947.97*mm,   919.09*mm, 
+        636.78*mm,   665.96*mm,   512.72*mm,   487.14*mm,   406.84*mm, 
+         83.56*mm,   228.41*mm</Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassive">
-    <rParent name="hgcalPassive:HGCalEECoolingPlate"/>
-    <String name="ModuleMaterial"    value="materials:Copper"/>
-    <Numeric name="Thickness"        value="[hgcal:thickEECooling]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockEEC1]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickEEModule1]"/>
-    <Numeric name="Parts"            value="6"/>
+    <rParent name="hgcalPassive:HGCalEECooling"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThick"      value="[hgcal:thickEECooling]"/>
+    <Numeric name="Sectors"          value="6"/>
+    <Numeric name="Position"         value="0"/>
     <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="1">
-      L01</Vector>
-    <Vector name="TagSector" type="string" nEntries="6">
-      F00, F01, F02, F03, F04, F05</Vector>
     <Vector name="LayerNames" type="string" nEntries="1">
       Copper</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="1">
       materials:Copper</Vector>
     <Vector name="LayerThickness" type="numeric" nEntries="1">
       [hgcal:thickEECooling]</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="0"> 
-    </Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
-  </Algorithm>
-  <Algorithm name="hgcal:DDHGCalPassive">
-    <rParent name="hgcalPassive:HGCalEECoolingPlate"/>
-    <String name="ModuleMaterial"    value="materials:Copper"/>
-    <Numeric name="Thickness"        value="[hgcal:thickEECooling]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockEEC2]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickEEModule2]"/>
-    <Numeric name="Parts"            value="6"/>
-    <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="8">
-      L02, L03, L04, L05, L06, L07, L08, L09</Vector>
-    <Vector name="TagSector" type="string" nEntries="6">
-      F00, F01, F02, F03, F04, F05</Vector>
-    <Vector name="LayerNames" type="string" nEntries="1">
-      Copper</Vector>
-    <Vector name="LayerMaterials" type="string" nEntries="1">
-      materials:Copper</Vector>
-    <Vector name="LayerThickness" type="numeric" nEntries="1">
-      [hgcal:thickEECooling]</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="0"> 
-    </Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
-  </Algorithm>
-  <Algorithm name="hgcal:DDHGCalPassive">
-    <rParent name="hgcalPassive:HGCalEECoolingPlate"/>
-    <String name="ModuleMaterial"    value="materials:Copper"/>
-    <Numeric name="Thickness"        value="[hgcal:thickEECooling]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockEEC3]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickEEModule3]"/>
-    <Numeric name="Parts"            value="6"/>
-    <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="4">
-      L10, L11, L12, L13</Vector>
-    <Vector name="TagSector" type="string" nEntries="6">
-      F00, F01, F02, F03, F04, F05</Vector>
-    <Vector name="LayerNames" type="string" nEntries="1">
-      Copper</Vector>
-    <Vector name="LayerMaterials" type="string" nEntries="1">
-      materials:Copper</Vector>
-    <Vector name="LayerThickness" type="numeric" nEntries="1">
-      [hgcal:thickEECooling]</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="0"> 
-    </Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
-  </Algorithm>
-  <Algorithm name="hgcal:DDHGCalPassive">
-    <rParent name="hgcalPassive:HGCalHEPassive"/>
-    <String name="ModuleMaterial"    value="materials:Air"/>
-    <Numeric name="Thickness"        value="[hgcal:thickHESteelCover]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockHE1]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickHEModule1]"/>
-    <Numeric name="Parts"            value="3"/>
-    <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="1">
-      L01</Vector>
-    <Vector name="TagSector" type="string" nEntries="12">
-      F00, F01, F02, F03, F04, F05, F06, F07, F08, F09, F10, F11</Vector>
-    <Vector name="LayerNames" type="string" nEntries="1">
-      StainlessSteel</Vector>
-    <Vector name="LayerMaterials" type="string" nEntries="1">
-      materials:StainlessSteel</Vector>
-    <Vector name="LayerThickness" type="numeric" nEntries="1">
-      [hgcal:thickHESteelCover]</Vector>
     <Vector name="LayerType" type="numeric" nEntries="1"> 
       0</Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
-  </Algorithm>
-  <Algorithm name="hgcal:DDHGCalPassive">
-    <rParent name="hgcalPassive:HGCalHEPassive"/>
-    <String name="ModuleMaterial"    value="materials:Air"/>
-    <Numeric name="Thickness"        value="[hgcal:thickHESteelCover]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockHE2]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickHEModule2]"/>
-    <Numeric name="Parts"            value="3"/>
-    <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="10">
-      L02, L03, L04, L05, L06, L07, L08, L09, L10, L11</Vector>
-    <Vector name="TagSector" type="string" nEntries="12">
-      F00, F01, F02, F03, F04, F05, F06, F07, F08, F09, F10, F11</Vector>
-    <Vector name="LayerNames" type="string" nEntries="1">
-      StainlessSteel</Vector>
-    <Vector name="LayerMaterials" type="string" nEntries="1">
-      materials:StainlessSteel</Vector>
-    <Vector name="LayerThickness" type="numeric" nEntries="1">
-      [hgcal:thickHESteelCover]</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="1"> 
-      0</Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
-  </Algorithm>
-  <Algorithm name="hgcal:DDHGCalPassive">
-    <rParent name="hgcalPassive:HGCalHEPassive"/>
-    <String name="ModuleMaterial"    value="materials:Air"/>
-    <Numeric name="Thickness"        value="[hgcal:thickHESteelCover]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockHE4]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickHEModule3]"/>
-    <Numeric name="Parts"            value="3"/>
-    <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="10">
-      L12, L13, L14, L15, L16, L17, L18, L19, L20, L21</Vector>
-    <Vector name="TagSector" type="string" nEntries="12">
-      F00, F01, F02, F03, F04, F05, F06, F07, F08, F09, F10, F11</Vector>
-    <Vector name="LayerNames" type="string" nEntries="1">
-      StainlessSteel</Vector>
-    <Vector name="LayerMaterials" type="string" nEntries="1">
-      materials:StainlessSteel</Vector>
-    <Vector name="LayerThickness" type="numeric" nEntries="1">
-      [hgcal:thickHESteelCover]</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="1"> 
-      0</Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
-  </Algorithm>
-  <Algorithm name="hgcal:DDHGCalPassive">
-    <rParent name="hgcalPassive:HGCalHECoolingPlate"/>
-    <String name="ModuleMaterial"    value="materials:Copper"/>
-    <Numeric name="Thickness"        value="[hgcal:thickHECooling]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockHEC1]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickHEModule1]"/>
-    <Numeric name="Parts"            value="3"/>
-    <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="1">
-      L01</Vector>
-    <Vector name="TagSector" type="string" nEntries="12">
-      F00, F01, F02, F03, F04, F05, F06, F07, F08, F09, F10, F11</Vector>
-    <Vector name="LayerNames" type="string" nEntries="1">
-      Copper</Vector>
-    <Vector name="LayerMaterials" type="string" nEntries="1">
-      materials:Copper</Vector>
-    <Vector name="LayerThickness" type="numeric" nEntries="1">
-      [hgcal:thickHECooling]</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="0"> 
-    </Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
-  </Algorithm>
-  <Algorithm name="hgcal:DDHGCalPassive">
-    <rParent name="hgcalPassive:HGCalHECoolingPlate"/>
-    <String name="ModuleMaterial"    value="materials:Copper"/>
-    <Numeric name="Thickness"        value="[hgcal:thickHECooling]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockHEC2]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickHEModule2]"/>
-    <Numeric name="Parts"            value="1"/>
-    <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="10">
-      L02, L03, L04, L05, L06, L07, L08, L09, L10, L11</Vector>
-    <Vector name="TagSector" type="string" nEntries="12">
-      F00, F01, F02, F03, F04, F05, F06, F07, F08, F09, F10, F11</Vector>
-    <Vector name="LayerNames" type="string" nEntries="1">
-      Copper</Vector>
-    <Vector name="LayerMaterials" type="string" nEntries="1">
-      materials:Copper</Vector>
-    <Vector name="LayerThickness" type="numeric" nEntries="1">
-      [hgcal:thickHECooling]</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="0"> 
-    </Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
-  </Algorithm>
-  <Algorithm name="hgcal:DDHGCalPassive">
-    <rParent name="hgcalPassive:HGCalHECoolingPlate"/>
-    <String name="ModuleMaterial"    value="materials:Copper"/>
-    <Numeric name="Thickness"        value="[hgcal:thickHECooling]"/>
-    <Numeric name="zMinBlock"        value="[zMinBlockHEC4]"/>
-    <Numeric name="ModuleThick"      value="[hgcal:thickHEModule3]"/>
-    <Numeric name="Parts"            value="1"/>
-    <Numeric name="PhiStart"         value="0"/>
-    <Vector name="TagLayer" type="string" nEntries="10">
-      L12, L13, L14, L15, L16, L17, L18, L19, L20, L21</Vector>
-    <Vector name="TagSector" type="string" nEntries="12">
-      F00, F01, F02, F03, F04, F05, F06, F07, F08, F09, F10, F11</Vector>
-    <Vector name="LayerNames" type="string" nEntries="1">
-      Copper</Vector>
-    <Vector name="LayerMaterials" type="string" nEntries="1">
-      materials:Copper</Vector>
-    <Vector name="LayerThickness" type="numeric" nEntries="1">
-      [hgcal:thickHECooling]</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="0"> 
-    </Vector>
-    <Numeric name="ShiftTop"         value="[shiftTop]"/>
-    <Numeric name="ShiftBottom"      value="[shiftBottom]"/>
-    <Vector name="SlopeBottom" type="numeric" nEntries="4">
-      0, 0, 0, 0</Vector>
-    <Vector name="ZFrontBottom" type="numeric" nEntries="4">
-      [hgcal:zHGCal0], [hgcal:zHGCal2], [hgcal:zHGCal7], 
-      [hgcal:zHGCal8]</Vector>
-    <Vector name="RMinFront" type="numeric" nEntries="4">
-      [hgcal:rMinHGCal2], [hgcal:rMinHGCal4], 
-      [hgcal:rMinHGCal6], [hgcal:rMinHGCal8]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
-      [hgcal:slope1], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFrontTop" type="numeric" nEntries="4">
-      [hgcal:zHGCal1], [hgcal:zHGCal5], [hgcal:zHGCal10], 
-      [hgcal:zHGCal11]</Vector>
-    <Vector name="RMaxFront" type="numeric" nEntries="4">
-      [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
-      [hgcal:rMaxHGCal11]</Vector>
+    <Vector name="AbsorberName" type="string" nEntries="13">
+      L01, L02, L03, L04, L05, L06, L07, L08, L09, L10, L11, L12, L13</Vector>
+     <Vector name="AbsorberN" type="numeric" nEntries="13">
+      43, 43, 43, 43, 43, 42, 45, 45, 45, 45, 45, 45, 45</Vector>
+    <Vector name="AbsorberX" type="numeric" nEntries="572">
+        230.89*mm,   255.46*mm,   255.46*mm,   339.28*mm,   339.28*mm, 
+        423.10*mm,   423.10*mm,   506.92*mm,   506.92*mm,   590.74*mm, 
+        590.74*mm,   674.56*mm,   674.56*mm,   758.38*mm,   758.38*mm, 
+        806.75*mm,   825.50*mm,   848.50*mm,   877.08*mm,  1081.26*mm, 
+       1230.76*mm,  1397.49*mm,  1477.03*mm,  1523.32*mm,  1523.32*mm, 
+       1477.32*mm,  1477.32*mm,  1428.95*mm,  1345.13*mm,  1261.31*mm, 
+       1177.49*mm,  1093.67*mm,  1009.84*mm,   926.02*mm,   842.20*mm, 
+        758.38*mm,   674.56*mm,   590.74*mm,   506.92*mm,   423.10*mm, 
+        339.28*mm,   315.00*mm,   315.00*mm,   230.89*mm,   255.46*mm, 
+        255.46*mm,   339.28*mm,   339.28*mm,   423.10*mm,   423.10*mm, 
+        506.92*mm,   506.92*mm,   590.74*mm,   590.74*mm,   674.56*mm, 
+        674.56*mm,   758.38*mm,   758.38*mm,   814.67*mm,   829.46*mm, 
+        852.61*mm,   881.81*mm,  1087.09*mm,  1246.20*mm,  1400.34*mm, 
+       1485.00*mm,  1531.53*mm,  1531.53*mm,  1485.23*mm,  1485.23*mm, 
+       1428.95*mm,  1345.13*mm,  1261.31*mm,  1177.49*mm,  1093.67*mm, 
+       1009.84*mm,   926.02*mm,   842.20*mm,   758.38*mm,   674.56*mm, 
+        590.74*mm,   506.92*mm,   423.10*mm,   339.28*mm,   315.00*mm, 
+        315.00*mm,   230.89*mm,   255.46*mm,   255.46*mm,   339.28*mm, 
+        339.28*mm,   423.10*mm,   423.10*mm,   506.92*mm,   506.92*mm, 
+        590.74*mm,   590.74*mm,   674.56*mm,   674.56*mm,   758.38*mm,
+        758.38*mm,   822.92*mm,   833.59*mm,   857.04*mm,   886.90*mm, 
+       1093.38*mm,  1259.88*mm,  1404.99*mm,  1493.58*mm,  1540.38*mm, 
+       1540.38*mm,  1493.48*mm,  1493.48*mm,  1428.95*mm,  1345.13*mm, 
+       1261.31*mm,  1177.49*mm,  1093.67*mm,  1009.84*mm,   926.02*mm, 
+        842.20*mm,   758.38*mm,   674.56*mm,   590.74*mm,   506.92*mm, 
+        423.10*mm,   339.28*mm,   315.00*mm,   315.00*mm,   230.89*mm, 
+        255.46*mm,   255.46*mm,   339.28*mm,   339.28*mm,   423.10*mm, 
+        423.10*mm,   506.92*mm,   506.92*mm,   590.74*mm,   590.74*mm, 
+        674.56*mm,   674.56*mm,   758.38*mm,   758.38*mm,   831.17*mm, 
+        837.71*mm,   861.46*mm,   892.00*mm,  1099.66*mm,  1273.91*mm, 
+       1409.45*mm,  1502.16*mm,  1549.24*mm,  1549.24*mm,  1501.74*mm, 
+       1501.74*mm,  1428.95*mm,  1345.13*mm,  1261.31*mm,  1177.49*mm, 
+       1093.67*mm,  1009.84*mm,   926.02*mm,   842.20*mm,   758.38*mm, 
+        674.56*mm,   590.74*mm,   506.92*mm,   423.10*mm,   339.28*mm, 
+        315.00*mm,   315.00*mm,   230.89*mm,   255.46*mm,   255.46*mm, 
+        339.28*mm,   339.28*mm,   423.10*mm,   423.10*mm,   506.92*mm, 
+        506.92*mm,   590.74*mm,   590.74*mm,   674.56*mm,   674.56*mm, 
+        758.38*mm,   758.38*mm,   839.52*mm,   841.89*mm,   865.89*mm, 
+        941.24*mm,  1112.23*mm,  1255.70*mm,  1442.99*mm,  1519.33*mm, 
+       1558.09*mm,  1558.09*mm,  1510.09*mm,  1510.09*mm,  1428.95*mm, 
+       1345.13*mm,  1261.31*mm,  1177.49*mm,  1093.67*mm,  1009.84*mm, 
+        926.02*mm,   842.20*mm,   758.38*mm,   674.56*mm,   590.74*mm, 
+        506.92*mm,   423.10*mm,   339.28*mm,   315.00*mm,   315.00*mm, 
+        230.89*mm,   255.46*mm,   255.46*mm,   339.28*mm,   339.28*mm, 
+        423.10*mm,   423.10*mm,   506.92*mm,   506.92*mm,   590.74*mm, 
+        590.74*mm,   674.56*mm,   674.56*mm,   758.38*mm,   758.38*mm, 
+        844.26*mm,   870.32*mm,   902.19*mm,  1112.23*mm,  1288.46*mm, 
+       1425.55*mm,  1519.33*mm,  1566.94*mm,  1566.94*mm,  1518.44*mm, 
+       1518.44*mm,  1428.95*mm,  1345.13*mm,  1261.31*mm,  1177.49*mm, 
+       1093.67*mm,  1009.84*mm,   926.02*mm,   842.20*mm,   758.38*mm, 
+        674.56*mm,   590.74*mm,   506.92*mm,   423.10*mm,   339.28*mm, 
+        315.00*mm,   315.00*mm,   230.89*mm,   255.46*mm,   255.46*mm, 
+        339.28*mm,   339.28*mm,   423.10*mm,   423.10*mm,   506.92*mm, 
+        506.92*mm,   590.74*mm,   590.74*mm,   674.56*mm,   674.56*mm, 
+        758.38*mm,   758.38*mm,   842.20*mm,   842.20*mm,   850.19*mm, 
+        874.74*mm,   907.29*mm,  1118.51*mm,  1295.74*mm,  1433.61*mm, 
+       1527.91*mm,  1575.79*mm,  1575.79*mm,  1526.69*mm,  1526.69*mm, 
+       1512.77*mm,  1428.95*mm,  1345.13*mm,  1261.31*mm,  1177.49*mm, 
+       1093.67*mm,  1009.84*mm,   926.02*mm,   842.20*mm,   758.38*mm, 
+        674.56*mm,   590.74*mm,   506.92*mm,   423.10*mm,   339.28*mm, 
+        315.00*mm,   315.00*mm,   230.89*mm,   255.46*mm,   255.46*mm, 
+        339.28*mm,   339.28*mm,   423.10*mm,   423.10*mm,   506.92*mm, 
+        506.92*mm,   590.74*mm,   590.74*mm,   674.56*mm,   674.56*mm, 
+        758.38*mm,   758.38*mm,   842.20*mm,   842.20*mm,   854.32*mm, 
+        879.17*mm,   912.39*mm,  1124.79*mm,  1303.02*mm,  1441.66*mm, 
+       1536.49*mm,  1584.64*mm,  1584.64*mm,  1534.94*mm,  1534.94*mm, 
+       1512.77*mm,  1428.95*mm,  1345.13*mm,  1261.31*mm,  1177.49*mm, 
+       1093.67*mm,  1009.84*mm,   926.02*mm,   842.20*mm,   758.38*mm, 
+        674.56*mm,   590.74*mm,   506.92*mm,   423.10*mm,   339.28*mm, 
+        315.00*mm,   315.00*mm,   230.89*mm,   255.46*mm,   255.46*mm, 
+        339.28*mm,   339.28*mm,   423.10*mm,   423.10*mm,   506.92*mm, 
+        506.92*mm,   590.74*mm,   590.74*mm,   674.56*mm,   674.56*mm, 
+        758.38*mm,   758.38*mm,   842.20*mm,   842.20*mm,   858.49*mm, 
+        883.59*mm,   917.48*mm,  1131.08*mm,  1310.30*mm,  1449.71*mm, 
+       1545.08*mm,  1593.50*mm,  1593.50*mm,  1543.30*mm,  1543.30*mm, 
+       1512.77*mm,  1428.95*mm,  1345.13*mm,  1261.31*mm,  1177.49*mm, 
+       1093.67*mm,  1009.84*mm,   926.02*mm,   842.20*mm,   758.38*mm, 
+        674.56*mm,   590.74*mm,   506.92*mm,   423.10*mm,   339.28*mm, 
+        315.00*mm,   315.00*mm,   230.89*mm,   255.46*mm,   255.46*mm, 
+        339.28*mm,   339.28*mm,   423.10*mm,   423.10*mm,   506.92*mm, 
+        506.92*mm,   590.74*mm,   590.74*mm,   674.56*mm,   674.56*mm, 
+        758.38*mm,   758.38*mm,   842.20*mm,   842.20*mm,   863.02*mm, 
+        888.02*mm,   922.58*mm,  1137.36*mm,  1317.58*mm,  1457.77*mm, 
+       1553.66*mm,  1602.35*mm,  1602.35*mm,  1552.35*mm,  1552.35*mm, 
+       1512.77*mm,  1428.95*mm,  1345.13*mm,  1261.31*mm,  1177.49*mm, 
+       1093.67*mm,  1009.84*mm,   926.02*mm,   842.20*mm,   758.38*mm, 
+        674.56*mm,   590.74*mm,   506.92*mm,   423.10*mm,   339.28*mm, 
+        315.00*mm,   315.00*mm,   230.89*mm,   255.46*mm,   255.46*mm, 
+        339.28*mm,   339.28*mm,   423.10*mm,   423.10*mm,   506.92*mm, 
+        506.92*mm,   590.74*mm,   590.74*mm,   674.56*mm,   674.56*mm, 
+        758.38*mm,   758.38*mm,   842.20*mm,   842.20*mm,   867.72*mm, 
+        892.92*mm,   928.22*mm,  1144.31*mm,  1325.63*mm,  1466.68*mm, 
+       1563.16*mm,  1612.14*mm,  1612.14*mm,  1561.74*mm,  1561.74*mm, 
+       1512.77*mm,  1428.95*mm,  1345.13*mm,  1261.31*mm,  1177.49*mm, 
+       1093.67*mm,  1009.84*mm,   926.02*mm,   842.20*mm,   758.38*mm, 
+        674.56*mm,   590.74*mm,   506.92*mm,   423.10*mm,   339.28*mm, 
+        315.00*mm,   315.00*mm,   230.89*mm,   255.46*mm,   255.46*mm, 
+        339.28*mm,   339.28*mm,   423.10*mm,   423.10*mm,   506.92*mm, 
+        506.92*mm,   590.74*mm,   590.74*mm,   674.56*mm,   674.56*mm, 
+        758.38*mm,   758.38*mm,   842.20*mm,   842.20*mm,   872.26*mm, 
+        897.81*mm,   933.86*mm,  1151.26*mm,  1333.68*mm,  1475.59*mm, 
+       1572.65*mm,  1621.93*mm,  1621.93*mm,  1570.83*mm,  1570.83*mm, 
+       1512.77*mm,  1428.95*mm,  1345.13*mm,  1261.31*mm,  1177.49*mm, 
+       1093.67*mm,  1009.84*mm,   926.02*mm,   842.20*mm,   758.38*mm, 
+        674.56*mm,   590.74*mm,   506.92*mm,   423.10*mm,   339.28*mm, 
+        315.00*mm,   315.00*mm,   230.89*mm,   255.46*mm,   255.46*mm, 
+        339.28*mm,   339.28*mm,   423.10*mm,   423.10*mm,   506.92*mm, 
+        506.92*mm,   590.74*mm,   590.74*mm,   674.56*mm,   674.56*mm, 
+        758.38*mm,   758.38*mm,   842.20*mm,   842.20*mm,   883.22*mm, 
+        912.47*mm,   940.76*mm,  1159.78*mm,  1341.33*mm,  1487.68*mm, 
+       1584.28*mm,  1633.93*mm,  1633.93*mm,  1575.43*mm,  1575.43*mm, 
+       1512.77*mm,  1428.95*mm,  1345.13*mm,  1261.31*mm,  1177.49*mm, 
+       1093.67*mm,  1009.84*mm,   926.02*mm,   842.20*mm,   758.38*mm, 
+        674.56*mm,   590.74*mm,   506.92*mm,   423.10*mm,   339.28*mm, 
+        315.00*mm,   315.00*mm </Vector>
+    <Vector name="AbsorberY" type="numeric" nEntries="572">
+        230.09*mm,   244.28*mm,   341.07*mm,   389.46*mm,   486.25*mm, 
+        534.64*mm,   631.43*mm,   679.82*mm,   776.61*mm,   825.00*mm, 
+        921.79*mm,   970.18*mm,  1066.97*mm,  1115.37*mm,  1212.15*mm, 
+       1240.08*mm,  1229.25*mm,  1269.09*mm,  1252.59*mm,  1081.26*mm, 
+        903.10*mm,   614.31*mm,   395.77*mm,   133.27*mm,   -40.28*mm, 
+        -40.28*mm,   -74.01*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -80.46*mm,    84.40*mm,   230.09*mm,   244.28*mm, 
+        341.07*mm,   389.46*mm,   486.25*mm,   534.64*mm,   631.43*mm, 
+        679.82*mm,   776.61*mm,   825.00*mm,   921.79*mm,   970.18*mm, 
+       1066.97*mm,  1115.37*mm,  1212.15*mm,  1244.65*mm,  1236.11*mm, 
+       1276.20*mm,  1259.35*mm,  1087.09*mm,   897.48*mm,   630.50*mm, 
+        397.90*mm,   133.99*mm,   -40.28*mm,   -40.28*mm,   -78.58*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -80.46*mm, 
+         84.40*mm,   230.09*mm,   244.28*mm,   341.07*mm,   389.46*mm, 
+        486.25*mm,   534.64*mm,   631.43*mm,   679.82*mm,   776.61*mm, 
+        825.00*mm,   921.79*mm,   970.18*mm,  1066.97*mm,  1115.37*mm, 
+       1212.15*mm,  1249.41*mm,  1243.25*mm,  1283.87*mm,  1266.63*mm, 
+       1093.38*mm,   894.95*mm,   643.61*mm,   400.20*mm,   134.77*mm, 
+        -40.28*mm,   -40.28*mm,   -83.34*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -80.46*mm,    84.40*mm,   230.09*mm, 
+        244.28*mm,   341.07*mm,   389.46*mm,   486.25*mm,   534.64*mm, 
+        631.43*mm,   679.82*mm,   776.61*mm,   825.00*mm,   921.79*mm, 
+        970.18*mm,  1066.97*mm,  1115.37*mm,  1212.15*mm,  1254.18*mm, 
+       1250.40*mm,  1291.54*mm,  1273.91*mm,  1099.66*mm,   892.00*mm, 
+        657.24*mm,   402.50*mm,   135.54*mm,   -40.28*mm,   -40.28*mm, 
+        -88.11*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -80.46*mm,    84.40*mm,   230.09*mm,   244.28*mm,   341.07*mm, 
+        389.46*mm,   486.25*mm,   534.64*mm,   631.43*mm,   679.82*mm, 
+        776.61*mm,   825.00*mm,   921.79*mm,   970.18*mm,  1066.97*mm, 
+       1115.37*mm,  1212.15*mm,  1259.00*mm,  1257.63*mm,  1299.20*mm, 
+       1255.70*mm,  1112.23*mm,   941.24*mm,   616.84*mm,   407.10*mm, 
+        187.29*mm,   -40.28*mm,   -40.28*mm,   -92.93*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -80.46*mm,    84.40*mm, 
+        230.09*mm,   244.28*mm,   341.07*mm,   389.46*mm,   486.25*mm, 
+        534.64*mm,   631.43*mm,   679.82*mm,   776.61*mm,   825.00*mm, 
+        921.79*mm,   970.18*mm,  1066.97*mm,  1115.37*mm,  1212.15*mm, 
+       1261.73*mm,  1306.87*mm,  1288.46*mm,  1112.23*mm,   902.19*mm, 
+        664.75*mm,   407.10*mm,   137.09*mm,   -40.28*mm,   -40.28*mm, 
+        -97.75*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -80.46*mm,    84.40*mm,   230.09*mm,   244.28*mm,   341.07*mm, 
+        389.46*mm,   486.25*mm,   534.64*mm,   631.43*mm,   679.82*mm, 
+        776.61*mm,   825.00*mm,   921.79*mm,   970.18*mm,  1066.97*mm, 
+       1115.37*mm,  1212.15*mm,  1260.55*mm,  1276.62*mm,  1272.01*mm, 
+       1314.53*mm,  1295.74*mm,  1118.51*mm,   907.29*mm,   668.50*mm, 
+        409.40*mm,   137.86*mm,   -40.28*mm,   -40.28*mm,   -86.44*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -80.46*mm,    84.40*mm,   230.09*mm,   244.28*mm,   341.07*mm, 
+        389.46*mm,   486.25*mm,   534.64*mm,   631.43*mm,   679.82*mm, 
+        776.61*mm,   825.00*mm,   921.79*mm,   970.18*mm,  1066.97*mm, 
+       1115.37*mm,  1212.15*mm,  1260.55*mm,  1286.15*mm,  1279.16*mm, 
+       1322.20*mm,  1303.02*mm,  1124.79*mm,   912.39*mm,   672.26*mm, 
+        411.70*mm,   138.64*mm,   -40.28*mm,   -40.28*mm,   -81.67*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -80.46*mm,    84.40*mm,   230.09*mm,   244.28*mm,   341.07*mm, 
+        389.46*mm,   486.25*mm,   534.64*mm,   631.43*mm,   679.82*mm, 
+        776.61*mm,   825.00*mm,   921.79*mm,   970.18*mm,  1066.97*mm, 
+       1115.37*mm,  1212.15*mm,  1260.55*mm,  1295.80*mm,  1286.39*mm, 
+       1329.87*mm,  1310.30*mm,  1131.08*mm,   917.48*mm,   676.01*mm, 
+        414.00*mm,   139.41*mm,   -40.28*mm,   -40.28*mm,   -76.85*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -80.46*mm,    84.40*mm,   230.09*mm,   244.28*mm,   341.07*mm, 
+        389.46*mm,   486.25*mm,   534.64*mm,   631.43*mm,   679.82*mm, 
+        776.61*mm,   825.00*mm,   921.79*mm,   970.18*mm,  1066.97*mm, 
+       1115.37*mm,  1212.15*mm,  1260.55*mm,  1306.25*mm,  1294.23*mm, 
+       1337.53*mm,  1317.58*mm,  1137.36*mm,   922.58*mm,   679.77*mm, 
+        416.30*mm,   140.19*mm,   -40.28*mm,   -40.28*mm,   -71.63*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -80.46*mm,    84.40*mm,   230.09*mm,   244.28*mm,   341.07*mm, 
+        389.46*mm,   486.25*mm,   534.64*mm,   631.43*mm,   679.82*mm, 
+        776.61*mm,   825.00*mm,   921.79*mm,   970.18*mm,  1066.97*mm, 
+       1115.37*mm,  1212.15*mm,  1260.55*mm,  1317.10*mm,  1302.37*mm, 
+       1346.01*mm,  1325.63*mm,  1144.31*mm,   928.22*mm,   683.92*mm, 
+        418.85*mm,   141.04*mm,   -40.28*mm,   -40.28*mm,   -66.20*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -80.46*mm,    84.40*mm,   230.09*mm,   244.28*mm,   341.07*mm, 
+        389.46*mm,   486.25*mm,   534.64*mm,   631.43*mm,   679.82*mm, 
+        776.61*mm,   825.00*mm,   921.79*mm,   970.18*mm,  1066.97*mm, 
+       1115.37*mm,  1212.15*mm,  1260.55*mm,  1327.59*mm,  1310.24*mm, 
+       1354.49*mm,  1333.68*mm,  1151.26*mm,   933.86*mm,   688.08*mm, 
+        421.39*mm,   141.90*mm,   -40.28*mm,   -40.28*mm,   -60.95*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -80.46*mm,    84.40*mm,   230.09*mm,   244.28*mm,   341.07*mm, 
+        389.46*mm,   486.25*mm,   534.64*mm,   631.43*mm,   679.82*mm, 
+        776.61*mm,   825.00*mm,   921.79*mm,   970.18*mm,  1066.97*mm, 
+       1115.37*mm,  1212.15*mm,  1260.55*mm,  1332.90*mm,  1309.22*mm, 
+       1359.88*mm,  1343.55*mm,  1159.78*mm,   943.41*mm,   689.92*mm, 
+        424.51*mm,   142.95*mm,   -30.28*mm,   -30.28*mm,   -58.30*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm, 
+        -94.48*mm,   -46.08*mm,   -94.48*mm,   -46.08*mm,   -94.48*mm, 
+        -80.46*mm,    84.40*mm </Vector>
   </Algorithm>
 </PosPartSection> 
 

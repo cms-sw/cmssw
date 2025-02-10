@@ -29,6 +29,9 @@ The monitor is owned by the registry and should not be deleted by any other code
 of the monitor, one can call `cms::perftools::AllocMonitorRegistry::deregisterMonitor` to have the monitor removed from
 the callback list and be deleted (again, without the deallocation causing any callbacks).
 
+NOTE: Experience has shown that using thread_local within a call to `allocCalled` or `deallocCalled` can lead to unexpected behavior. Therefore if per thread information must be gathered it is recommended to make a system that uses thread ids.
+An example of such code can be found in the implementation of ModuleAllocMonitor.
+
 ## General usage
 
 To use the facility, one needs to use LD_PRELOAD to load in the memory proxies before the application runs, e.g.
@@ -82,8 +85,8 @@ This service is multi-thread safe. Note that when run multi-threaded the maximum
 This service registers a monitor when the service is created (after python parsing is finished but before any modules
 have been loaded into cmsRun) and prints its accumulated information to the specified file at specified intervals. Both
 the file name and  interval are specified by setting parameters of the service in the configuration. The parameters are
-- filename: name of file to which to write reports
-- millisecondsPerMeasurement: number of milliseconds to wait between making each report
+- `filename`: name of file to which to write reports
+- `millisecondsPerMeasurement`: number of milliseconds to wait between making each report
 
 The output file contains the following information on each line
 - The time, in milliseconds, since the service was created
@@ -99,3 +102,33 @@ The output file contains the following information on each line
 - Number of calls made to deallocation functions
 
 This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
+
+### ModuleAllocMonitor
+This service registers a monitor when the service is created (after python parsing is finished but before any modules
+have been loaded into cmsRun) and writes module related information to the specified file. The file name, an optional
+list of module names, and  an optional number of initial events to skip are specified by setting parameters of the
+service in the configuration. The parameters are
+- `filename`: name of file to which to write reports
+- `moduleNames`: list of modules which should have their information added to the file. An empty list specifies all modules should be included.
+- `nEventsToSkip`: the number of initial events that must be processed before reporting happens.
+
+The beginning of the file contains a description of the structure and contents of the file.
+
+This service is multi-thread safe.
+
+
+### ModuleEventAllocMonitor
+This service registers a monitor when the service is created (after python parsing is finished but before any modules
+have been loaded into cmsRun) and writes event based module related information to the specified file. The service
+keeps track of the address of each allocation requested during an event from each module and pairs them with any
+deallocation using the same address. The list of addresses are kept until the event data products are deleted at which
+time the dallocations are paired with allocations done in a module. The list of addresses are then cleared (to keep memory usage down) but the amount of unassociated deallocations for each module is recorded per event.
+The file name, an optional list of module names, and  an optional number of initial events to skip are specified by setting parameters of the
+service in the configuration. The parameters are
+- `filename`: name of file to which to write reports
+- `moduleNames`: list of modules which should have their information added to the file. An empty list specifies all modules should be included.
+- `nEventsToSkip`: the number of initial events that must be processed before reporting happens.
+
+The beginning of the file contains a description of the structure and contents of the file. The file can be analyzed with the helper script `edmModuleEventAllocMonitorAnalyze.py`. The script can be used to find modules where the memory is being retained between Events as well as modules where the memory appears to be growing Event to Event. Use `--help` with the script for a full description.
+
+This service is multi-thread safe.

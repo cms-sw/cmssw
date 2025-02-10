@@ -184,20 +184,20 @@ if tGeometry == 'T5':
     LA_value = 0.106
     tag = 'SiPixelLorentzAngle_Phase2_T5'
 elif tGeometry == 'T6':
-    geometry_cff = 'GeometryExtended2026D35_cff'
-    recoGeometry_cff = 'GeometryExtended2026D35Reco_cff'
+    geometry_cff = 'GeometryExtendedRun4D35_cff'
+    recoGeometry_cff = 'GeometryExtendedRun4D35Reco_cff'
 elif tGeometry == 'T14':
-    geometry_cff = 'GeometryExtended2026D43_cff'
-    recoGeometry_cff = 'GeometryExtended2026D43Reco_cff'
+    geometry_cff = 'GeometryExtendedRun4D43_cff'
+    recoGeometry_cff = 'GeometryExtendedRun4D43Reco_cff'
 elif tGeometry == 'T15':
-    geometry_cff = 'GeometryExtended2026D49_cff'
-    recoGeometry_cff = 'GeometryExtended2026D49Reco_cff'
+    geometry_cff = 'GeometryExtendedRun4D49_cff'
+    recoGeometry_cff = 'GeometryExtendedRun4D49Reco_cff'
 elif tGeometry == 'T21':
-    geometry_cff = 'GeometryExtended2026D92_cff'
-    recoGeometry_cff = 'GeometryExtended2026D92Reco_cff'
+    geometry_cff = 'GeometryExtendedRun4D92_cff'
+    recoGeometry_cff = 'GeometryExtendedRun4D92Reco_cff'
 elif tGeometry == 'T33':
-    geometry_cff = 'GeometryExtended2026D110_cff'
-    recoGeometry_cff = 'GeometryExtended2026D110Reco_cff'
+    geometry_cff = 'GeometryExtendedRun4D110_cff'
+    recoGeometry_cff = 'GeometryExtendedRun4D110Reco_cff'
 else:
     print("Unknown tracker geometry")
     print("What are you doing ?!?!?!?!")

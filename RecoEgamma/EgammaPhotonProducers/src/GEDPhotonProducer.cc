@@ -201,9 +201,9 @@ private:
   CaloGeometry const* caloGeom_ = nullptr;
 
   //MIP
-  std::unique_ptr<PhotonMIPHaloTagger> photonMIPHaloTagger_ = nullptr;
+  std::unique_ptr<const PhotonMIPHaloTagger> photonMIPHaloTagger_ = nullptr;
   //MVA based Halo tagger for the EE photons
-  std::unique_ptr<PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
+  std::unique_ptr<const PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
 
   std::vector<double> preselCutValuesBarrel_;
   std::vector<double> preselCutValuesEndcap_;
@@ -222,7 +222,6 @@ private:
 
   // DNN for PFID photon enabled
   bool dnnPFidEnabled_;
-  std::vector<tensorflow::Session*> tfSessions_;
 
   double ecaldrMax_;
   double ecaldrVetoBarrel_;
@@ -426,17 +425,15 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
 
   //moved from beginRun to here, I dont see how this could cause harm as its just reading in the exactly same parameters each run
   if (!recoStep_.isFinal()) {
-    photonIsoCalculator_ = std::make_unique<PhotonIsolationCalculator>();
     edm::ParameterSet isolationSumsCalculatorSet = config.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet");
-    photonIsoCalculator_->setup(isolationSumsCalculatorSet,
-                                flagsexclEB_,
-                                flagsexclEE_,
-                                severitiesexclEB_,
-                                severitiesexclEE_,
-                                consumesCollector());
-    photonMIPHaloTagger_ = std::make_unique<PhotonMIPHaloTagger>();
+    photonIsoCalculator_ = std::make_unique<PhotonIsolationCalculator>(isolationSumsCalculatorSet,
+                                                                       flagsexclEB_,
+                                                                       flagsexclEE_,
+                                                                       severitiesexclEB_,
+                                                                       severitiesexclEE_,
+                                                                       consumesCollector());
     edm::ParameterSet mipVariableSet = config.getParameter<edm::ParameterSet>("mipVariableSet");
-    photonMIPHaloTagger_->setup(mipVariableSet, consumesCollector());
+    photonMIPHaloTagger_ = std::make_unique<PhotonMIPHaloTagger>(mipVariableSet, consumesCollector());
   }
 
   if (recoStep_.isFinal() && runMVABasedHaloTagger_) {
@@ -479,9 +476,6 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
 
   const auto& pset_dnn = config.getParameter<edm::ParameterSet>("PhotonDNNPFid");
   dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
-  if (dnnPFidEnabled_) {
-    tfSessions_ = gcache->photonDNNEstimator->getSessions();
-  }
 }
 
 std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::ParameterSet& config) {
@@ -489,11 +483,7 @@ std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::P
   return std::make_unique<CacheData>(config);
 }
 
-void GEDPhotonProducer::endStream() {
-  for (auto session : tfSessions_) {
-    tensorflow::closeSession(session);
-  }
-}
+void GEDPhotonProducer::endStream() {}
 
 void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eventSetup) {
   using namespace edm;
@@ -1010,9 +1000,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
 
     // fill MIP Vairables for Halo: Block for MIP are filled from PhotonMIPHaloTagger
-    reco::Photon::MIPVariables mipVar;
     if (subdet == EcalBarrel && runMIPTagger_) {
-      photonMIPHaloTagger_->MIPcalculate(&newCandidate, evt, es, mipVar);
+      auto mipVar = photonMIPHaloTagger_->mipCalculate(newCandidate, evt, es);
       newCandidate.setMIPVariables(mipVar);
     }
 
@@ -1044,7 +1033,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   if (dnnPFidEnabled_) {
     // Here send the list of photons to the PhotonDNNEstimator and get back the values for all the photons in one go
     LogDebug("GEDPhotonProducer") << "Getting DNN PFId for photons";
-    const auto& dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, tfSessions_);
+    const auto& dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection);
     size_t ipho = 0;
     for (auto& photon : outputPhotonCollection) {
       const auto& [iModel, values] = dnn_photon_pfid[ipho];

@@ -5,58 +5,106 @@ Diagnostics:
     DiagnosticMessage:
       Message:         use nullptr
       FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      69
+      FileOffset:      118
       Replacements:
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          69
-          Length:          1
-          ReplacementText: nullptr
-  - DiagnosticName:  modernize-use-nullptr
-    DiagnosticMessage:
-      Message:         use nullptr
-      FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      206
-      Replacements:
-        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          206
-          Length:          1
-          ReplacementText: nullptr
-  - DiagnosticName:  modernize-use-nullptr
-    DiagnosticMessage:
-      Message:         use nullptr
-      FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      235
-      Replacements:
-        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          235
+          Offset:          118
           Length:          1
           ReplacementText: nullptr
   - DiagnosticName:  modernize-use-override
     DiagnosticMessage:
-      Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
+      Message:         'annotate this function with ''override'' or (rarely) ''final'''
       FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      385
+      FileOffset:      133
       Replacements:
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          377
-          Length:          8
-          ReplacementText: ''
-        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          399
+          Offset:          148
           Length:          0
           ReplacementText: ' override'
   - DiagnosticName:  modernize-use-override
     DiagnosticMessage:
       Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
       FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      415
+      FileOffset:      162
       Replacements:
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          403
+          Offset:          154
           Length:          8
           ReplacementText: ''
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          427
+          Offset:          174
+          Length:          0
+          ReplacementText: ' override'
+  - DiagnosticName:  modernize-use-nullptr
+    DiagnosticMessage:
+      Message:         use nullptr
+      FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
+      FileOffset:      281
+      Replacements:
+        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
+          Offset:          281
+          Length:          1
+          ReplacementText: nullptr
+  - DiagnosticName:  modernize-use-nullptr
+    DiagnosticMessage:
+      Message:         use nullptr
+      FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
+      FileOffset:      310
+      Replacements:
+        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
+          Offset:          310
+          Length:          1
+          ReplacementText: nullptr
+  - DiagnosticName:  modernize-use-override
+    DiagnosticMessage:
+      Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
+      FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
+      FileOffset:      461
+      Replacements:
+        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
+          Offset:          453
+          Length:          8
+          ReplacementText: ''
+        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
+          Offset:          475
+          Length:          0
+          ReplacementText: ' override'
+  - DiagnosticName:  modernize-use-override
+    DiagnosticMessage:
+      Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
+      FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
+      FileOffset:      491
+      Replacements:
+        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
+          Offset:          479
+          Length:          8
+          ReplacementText: ''
+        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
+          Offset:          503
+          Length:          0
+          ReplacementText: ' override'
+  - DiagnosticName:  modernize-use-override
+    DiagnosticMessage:
+      Message:         'annotate this function with ''override'' or (rarely) ''final'''
+      FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.h'
+      FileOffset:      184
+      Replacements:
+        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.h'
+          Offset:          199
+          Length:          0
+          ReplacementText: ' override'
+  - DiagnosticName:  modernize-use-override
+    DiagnosticMessage:
+      Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
+      FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.h'
+      FileOffset:      213
+      Replacements:
+        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.h'
+          Offset:          205
+          Length:          8
+          ReplacementText: ''
+        - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.h'
+          Offset:          226
           Length:          0
           ReplacementText: ' override'
 ...

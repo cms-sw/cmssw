@@ -1,13 +1,16 @@
+#include <algorithm>
+#include <chrono>
+#include <memory>
 #include <sstream>
 #include <unistd.h>
 #include <vector>
-#include <chrono>
-#include <algorithm>
 
+#include "EventFilter/Utilities/interface/SourceRawFile.h"
 #include "EventFilter/Utilities/interface/DAQSource.h"
 #include "EventFilter/Utilities/interface/DAQSourceModels.h"
 #include "EventFilter/Utilities/interface/DAQSourceModelsFRD.h"
 #include "EventFilter/Utilities/interface/DAQSourceModelsScoutingRun3.h"
+#include "EventFilter/Utilities/interface/DAQSourceModelsDTH.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -35,6 +38,7 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
       eventChunkSize_(uint64_t(pset.getUntrackedParameter<unsigned int>("eventChunkSize")) << 20),
       maxChunkSize_(uint64_t(pset.getUntrackedParameter<unsigned int>("maxChunkSize")) << 20),
       eventChunkBlock_(uint64_t(pset.getUntrackedParameter<unsigned int>("eventChunkBlock")) << 20),
+      numConcurrentReads_(pset.getUntrackedParameter<int>("numConcurrentReads", -1)),
       numBuffers_(pset.getUntrackedParameter<unsigned int>("numBuffers")),
       maxBufferedFiles_(pset.getUntrackedParameter<unsigned int>("maxBufferedFiles")),
       alwaysStartFromFirstLS_(pset.getUntrackedParameter<bool>("alwaysStartFromFirstLS", false)),
@@ -78,11 +82,15 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
 
   //load mode class based on parameter
   if (dataModeConfig_ == "FRD") {
-    dataMode_.reset(new DataModeFRD(this));
+    dataMode_ = std::make_shared<DataModeFRD>(this);
+  } else if (dataModeConfig_ == "FRDPreUnpack") {
+    dataMode_ = std::make_shared<DataModeFRDPreUnpack>(this);
   } else if (dataModeConfig_ == "FRDStriped") {
-    dataMode_.reset(new DataModeFRDStriped(this));
+    dataMode_ = std::make_shared<DataModeFRDStriped>(this);
   } else if (dataModeConfig_ == "ScoutingRun3") {
-    dataMode_.reset(new DataModeScoutingRun3(this));
+    dataMode_ = std::make_shared<DataModeScoutingRun3>(this);
+  } else if (dataModeConfig_ == "DTH") {
+    dataMode_ = std::make_shared<DataModeDTH>(this, verifyChecksum_);
   } else
     throw cms::Exception("DAQSource::DAQSource") << "Unknown data mode " << dataModeConfig_;
 
@@ -94,6 +102,7 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
   long autoRunNumber = -1;
   if (fileListMode_) {
     autoRunNumber = initFileList();
+    daqDirector_->setFileListMode();
     if (!fileListLoopMode_) {
       if (autoRunNumber < 0)
         throw cms::Exception("DAQSource::DAQSource") << "Run number not found from filename";
@@ -122,9 +131,11 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
   if (!numBuffers_)
     throw cms::Exception("DAQSource::DAQSource") << "no reading enabled with numBuffers parameter 0";
 
-  numConcurrentReads_ = numBuffers_ - 1;
+  if (numConcurrentReads_ <= 0)
+    numConcurrentReads_ = numBuffers_ - 1;
   assert(numBuffers_ > 1);
   readingFilesCount_ = 0;
+  heldFilesCount_ = 0;
 
   if (!crc32c_hw_test())
     edm::LogError("DAQSource::DAQSource") << "Intel crc32c checksum computation unavailable";
@@ -148,8 +159,6 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
     cms::Exception("DAQSource") << "EvFDaqDirector not found";
 
   edm::LogInfo("DAQSource") << "EvFDaqDirector/Source configured to use file service";
-  //set DaqDirector to delete files in preGlobalEndLumi callback
-  daqDirector_->setDeleteTracking(&fileDeleteLock_, &filesToDelete_);
   if (fms_) {
     daqDirector_->setFMS(fms_);
     fms_->setInputSource(this);
@@ -164,7 +173,7 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
   quit_threads_ = false;
 
   //prepare data shared by threads
-  for (unsigned int i = 0; i < numConcurrentReads_; i++) {
+  for (unsigned int i = 0; i < (unsigned)numConcurrentReads_; i++) {
     thread_quit_signal.push_back(false);
     workerJob_.push_back(ReaderInfo(nullptr, nullptr));
     cvReader_.push_back(std::make_unique<std::condition_variable>());
@@ -172,7 +181,7 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
   }
 
   //start threads
-  for (unsigned int i = 0; i < numConcurrentReads_; i++) {
+  for (unsigned int i = 0; i < (unsigned)numConcurrentReads_; i++) {
     //wait for each thread to complete initialization
     std::unique_lock<std::mutex> lk(startupLock_);
     workerThreads_.push_back(new std::thread(&DAQSource::readWorker, this, i));
@@ -184,6 +193,9 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
 
 DAQSource::~DAQSource() {
   quit_threads_ = true;
+
+  if (startedSupervisorThread_)
+    fileDeleterThread_->join();
 
   //delete any remaining open files
   if (!fms_ || !fms_->exceptionDetected()) {
@@ -232,6 +244,10 @@ void DAQSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
           "Block size used in a single file read call (must be smaller or equal to the initial chunk buffer size). If "
           "0 is specified, use chunk size.");
 
+  desc.addUntracked<int>("numConcurrentReads", -1)
+      ->setComment(
+          "Max number of concurrent reads. If not positive, it will "
+          "be set to numBuffers - 1");
   desc.addUntracked<unsigned int>("numBuffers", 2)->setComment("Number of buffers used for reading input");
   desc.addUntracked<unsigned int>("maxBufferedFiles", 2)
       ->setComment("Maximum number of simultaneously buffered raw files");
@@ -257,6 +273,8 @@ edm::RawInputSource::Next DAQSource::checkNext() {
 
     //this thread opens new files and dispatches reading to worker readers
     readSupervisorThread_ = std::make_unique<std::thread>(&DAQSource::readSupervisor, this);
+    //this thread deletes files out of the main loop
+    fileDeleterThread_ = std::make_unique<std::thread>(&DAQSource::fileDeleter, this);
     startedSupervisorThread_ = true;
 
     startupCv_.wait(lk);
@@ -347,7 +365,7 @@ void DAQSource::maybeOpenNewLumiSection(const uint32_t lumiSection) {
 evf::EvFDaqDirector::FileStatus DAQSource::getNextEventFromDataBlock() {
   setMonState(inChecksumEvent);
 
-  bool found = dataMode_->nextEventView();
+  bool found = dataMode_->nextEventView(currentFile_.get());
   //file(s) completely parsed
   if (!found) {
     if (dataMode_->dataBlockInitialized()) {
@@ -361,7 +379,8 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextEventFromDataBlock() {
   if (verifyChecksum_ && !dataMode_->checksumValid()) {
     if (fms_)
       fms_->setExceptionDetected(currentLumiSection_);
-    throw cms::Exception("DAQSource::getNextEventFromDataBlock") << dataMode_->getChecksumError();
+    throw cms::Exception("DAQSource::getNextEventFromDataBlock")
+        << "InvalidChecksum - " << dataMode_->getChecksumError();
   }
   setMonState(inCachedEvent);
 
@@ -411,6 +430,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   //file is empty
   if (!currentFile_->fileSize_) {
     readingFilesCount_--;
+    heldFilesCount_--;
     //try to open new lumi
     assert(currentFile_->nChunks_ == 0);
     if (currentFile_->lumi_ > currentLumiSection_) {
@@ -426,13 +446,35 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   //file is finished
   if (currentFile_->bufferPosition_ == currentFile_->fileSize_) {
     readingFilesCount_--;
+    if (fileListMode_)
+      heldFilesCount_--;
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
     if (currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_)) {
+      std::stringstream str;
+      for (auto& s : currentFile_->fileNames_) {
+        struct stat bufs;
+        if (stat(s.c_str(), &bufs) != 0)
+          throw cms::Exception("DAQSource::getNextDataBlock") << "Could not stat file " << s;
+        str << s << " (size:" << (bufs.st_size / 1000) << " kB)" << std::endl;
+      }
       throw cms::Exception("DAQSource::getNextDataBlock")
-          << "Fully processed " << currentFile_->nProcessed_ << " from the file " << currentFile_->fileName_
-          << " but according to BU JSON there should be " << currentFile_->nEvents_ << " events";
+          << "Fully processed " << currentFile_->nProcessed_ << " from:" << std::endl
+          << str.str() << "but according to RAW header there should be " << currentFile_->nEvents_
+          << " events. Check previous error log for details.";
+    } else if (dataMode_->errorDetected()) {
+      std::stringstream str;
+      for (auto& s : currentFile_->fileNames_) {
+        struct stat bufs;
+        if (stat(s.c_str(), &bufs) != 0)
+          throw cms::Exception("DAQSource::getNextDataBlock") << "Could not stat file " << s;
+        str << s << " (size:" << (bufs.st_size / 1000) << " kB)" << std::endl;
+      }
+      throw cms::Exception("DAQSource::getNextDataBlock")
+          << "Processed " << currentFile_->nProcessed_ << " from:" << std::endl
+          << str.str() << "but there was a mismatch detected by the data model. Check previous error log for details.";
     }
+    setMonState(inReadCleanup);
     if (!daqDirector_->isSingleStreamThread() && !fileListMode_) {
       //put the file in pending delete list;
       std::unique_lock<std::mutex> lkw(fileDeleteLock_);
@@ -442,6 +484,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
       //in single-thread and stream jobs, events are already processed
       currentFile_.reset();
     }
+    setMonState(inProcessingFile);
     return evf::EvFDaqDirector::noFile;
   }
 
@@ -465,7 +508,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     currentFile_->advance(currentFile_->rawHeaderSize_);
   }
 
-  //file is too short to fit event header
+  //file is too short to fit event (or event block, orbit...) header
   if (currentFile_->fileSizeLeft() < dataMode_->headerSize())
     throw cms::Exception("DAQSource::getNextDataBlock")
         << "Premature end of input file while reading event header. Missing: "
@@ -477,7 +520,8 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   {
     IdleSourceSentry ids(fms_);
     while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
-      usleep(10000);
+      std::unique_lock<std::mutex> lkw(mWakeup_);
+      cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
       if (setExceptionState_)
         threadError();
     }
@@ -489,19 +533,25 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   unsigned char* dataPosition;
 
   //read event header, copy it to a single chunk if necessary
-  chunkEnd = currentFile_->advance(dataPosition, dataMode_->headerSize());
+  chunkEnd = currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, dataMode_->headerSize());
 
   //get buffer size of current chunk (can be resized)
   uint64_t currentChunkSize = currentFile_->currentChunkSize();
 
-  //prepare view based on header that was read
-  dataMode_->makeDataBlockView(dataPosition, currentChunkSize, currentFile_->fileSizes_, currentFile_->rawHeaderSize_);
+  //prepare view based on header that was read. It could parse through the whole buffer for fitToBuffer models
+  dataMode_->makeDataBlockView(dataPosition, currentFile_.get());
 
-  //check that payload size is within the file
+  if (verifyChecksum_ && !dataMode_->blockChecksumValid()) {
+    if (fms_)
+      fms_->setExceptionDetected(currentLumiSection_);
+    throw cms::Exception("DAQSource::getNextDataBlock") << dataMode_->getChecksumError();
+  }
+
+  //check that the (remaining) payload size is within the file
   const size_t msgSize = dataMode_->dataBlockSize() - dataMode_->headerSize();
 
   if (currentFile_->fileSizeLeft() < (int64_t)msgSize)
-    throw cms::Exception("DAQSource::getNextEventDataBlock")
+    throw cms::Exception("DAQSource::getNextDataBlock")
         << "Premature end of input file (missing:" << (msgSize - currentFile_->fileSizeLeft())
         << ") while parsing block";
 
@@ -520,18 +570,17 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     {
       IdleSourceSentry ids(fms_);
       //do the copy to the beginning of the starting chunk. move pointers for next event in the next chunk
-      chunkEnd = currentFile_->advance(dataPosition, dataMode_->headerSize() + msgSize);
+      chunkEnd = currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, dataMode_->headerSize() + msgSize);
       assert(chunkEnd);
       //mark to release old chunk
       chunkIsFree_ = true;
     }
     setMonState(inChunkReceived);
     //header and payload is moved, update view
-    dataMode_->makeDataBlockView(
-        dataPosition, currentFile_->currentChunkSize(), currentFile_->fileSizes_, currentFile_->rawHeaderSize_);
+    dataMode_->makeDataBlockView(dataPosition, currentFile_.get());
   } else {
-    //everything is in a single chunk, only move pointers forward
-    chunkEnd = currentFile_->advance(dataPosition, msgSize);
+    //everything is in a single chunk, only move pointers forward. Also used for fitToBuffer models
+    chunkEnd = currentFile_->advance(mWakeup_, cvWakeupAll_, dataPosition, msgSize);
     assert(!chunkEnd);
     chunkIsFree_ = false;
   }
@@ -553,40 +602,75 @@ void DAQSource::read(edm::EventPrincipal& eventPrincipal) {
   eventsThisLumi_++;
   setMonState(inReadCleanup);
 
-  //resize vector if needed
-  while (streamFileTracker_.size() <= eventPrincipal.streamID())
+  //resize vector if needed (lock if resizing needed)
+  while (streamFileTracker_.size() <= eventPrincipal.streamID()) {
+    std::unique_lock<std::mutex> lkw(fileDeleteLock_);
     streamFileTracker_.push_back(-1);
+  }
 
   streamFileTracker_[eventPrincipal.streamID()] = currentFileIndex_;
 
-  //this old file check runs no more often than every 10 events
-  if (!((currentFile_->nProcessed_ - 1) % (checkEvery_))) {
-    //delete files that are not in processing
-    std::unique_lock<std::mutex> lkw(fileDeleteLock_);
-    auto it = filesToDelete_.begin();
-    while (it != filesToDelete_.end()) {
-      bool fileIsBeingProcessed = false;
-      for (unsigned int i = 0; i < streamFileTracker_.size(); i++) {
-        if (it->first == streamFileTracker_.at(i)) {
-          fileIsBeingProcessed = true;
-          break;
-        }
-      }
-      if (!fileIsBeingProcessed && !(fms_ && fms_->isExceptionOnData(it->second->lumi_))) {
-        it = filesToDelete_.erase(it);
-      } else
-        it++;
-    }
-  }
+  setMonState(inNoRequest);
   if (dataMode_->dataBlockCompleted() && chunkIsFree_) {
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_ - 1]);
     chunkIsFree_ = false;
   }
-  setMonState(inNoRequest);
   return;
 }
 
 void DAQSource::rewind_() {}
+
+void DAQSource::fileDeleter() {
+  bool stop = false;
+
+  while (!stop) {
+    std::vector<InputFile*> deleteVec;
+    {
+      unsigned int lastFileLS = 0;
+      bool fileLSOpen = false;
+      std::unique_lock<std::mutex> lkw(fileDeleteLock_);
+      auto it = filesToDelete_.begin();
+      while (it != filesToDelete_.end()) {
+        bool fileIsBeingProcessed = false;
+        //check if file LS has already reached global EoL, reuse cached check
+        if (!(lastFileLS && lastFileLS == it->second->lumi_)) {
+          lastFileLS = it->second->lumi_;
+          fileLSOpen = daqDirector_->lsWithFilesOpen(lastFileLS);
+        }
+        for (unsigned int i = 0; i < streamFileTracker_.size(); i++) {
+          if (it->first == streamFileTracker_.at(i)) {
+            //only skip if LS is open
+            if (fileLSOpen) {
+              fileIsBeingProcessed = true;
+              break;
+            }
+          }
+        }
+        if (!fileIsBeingProcessed && (!fms_ || !fms_->isExceptionOnData(it->second->lumi_))) {
+          std::string fileToDelete = it->second->fileName_;
+          //do not actuallt delete, but do it later
+          deleteVec.push_back(it->second.get());
+          //deletion will happen later
+          it->second.release();
+          it = filesToDelete_.erase(it);
+        } else
+          it++;
+      }
+    }
+    //do this after lock is released to avoid contention
+    for (auto v : deleteVec) {
+      //deletion happens here
+      delete v;
+      heldFilesCount_--;
+    }
+    deleteVec.clear();
+
+    if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed))
+      stop = true;
+
+    usleep(500000);
+  }
+}
 
 void DAQSource::dataArranger() {}
 
@@ -610,7 +694,11 @@ void DAQSource::readSupervisor() {
     //wait for at least one free thread and chunk
     int counter = 0;
 
-    while (workerPool_.empty() || freeChunks_.empty() || readingFilesCount_ >= maxBufferedFiles_) {
+    //held files include files queued in the deleting thread.
+    //We require no more than maxBufferedFiles + 2 of total held files until deletion
+
+    while (workerPool_.empty() || freeChunks_.empty() || readingFilesCount_ >= maxBufferedFiles_ ||
+           heldFilesCount_ >= maxBufferedFiles_ + 2) {
       //report state to monitoring
       if (fms_) {
         bool copy_active = false;
@@ -619,6 +707,8 @@ void DAQSource::readSupervisor() {
             copy_active = true;
         if (readingFilesCount_ >= maxBufferedFiles_)
           setMonStateSup(inSupFileLimit);
+        if (heldFilesCount_ >= maxBufferedFiles_ + 2)
+          setMonStateSup(inSupFileHeldLimit);
         else if (freeChunks_.empty()) {
           if (copy_active)
             setMonStateSup(inSupWaitFreeChunkCopying);
@@ -636,14 +726,13 @@ void DAQSource::readSupervisor() {
       if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout) {
         counter++;
         if (!(counter % 6000)) {
-          edm::LogWarning("FedRawDataInputSource")
-              << "No free chunks or threads. Worker pool empty:" << workerPool_.empty()
-              << ", free chunks empty:" << freeChunks_.empty() << ", number of files buffered:" << readingFilesCount_
-              << " / " << maxBufferedFiles_;
+          edm::LogWarning("DAQSource") << "No free chunks or threads. Worker pool empty:" << workerPool_.empty()
+                                       << ", free chunks empty:" << freeChunks_.empty()
+                                       << ", number of files buffered (held):" << readingFilesCount_ << "("
+                                       << heldFilesCount_ << ")"
+                                       << " / " << maxBufferedFiles_;
         }
         LogDebug("DAQSource") << "No free chunks or threads...";
-      } else {
-        assert(!workerPool_.empty() || freeChunks_.empty());
       }
       if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed)) {
         stop = true;
@@ -809,6 +898,10 @@ void DAQSource::readSupervisor() {
           }
         }
         currentLumiSection = ls;
+
+        //wakeup main thread for the new non-data file obj
+        std::unique_lock<std::mutex> lkw(mWakeup_);
+        cvWakeupAll_.notify_all();
       }
       //else
       if (currentLumiSection > 0 && ls < currentLumiSection) {
@@ -850,7 +943,7 @@ void DAQSource::readSupervisor() {
       struct stat st;
       int stat_res = stat(rawFile.c_str(), &st);
       if (stat_res == -1) {
-        edm::LogError("DAQSource") << "Can not stat file (" << errno << "):-" << rawFile << std::endl;
+        edm::LogError("DAQSource") << "Can not stat file (" << errno << ") :- " << rawFile << std::endl;
         setExceptionState_ = true;
         break;
       }
@@ -973,6 +1066,7 @@ void DAQSource::readSupervisor() {
       newInputFile->randomizeOrder(rng_);
 
       readingFilesCount_++;
+      heldFilesCount_++;
       auto newInputFilePtr = newInputFile.get();
       fileQueue_.push(std::move(newInputFile));
 
@@ -1069,7 +1163,7 @@ void DAQSource::readWorker(unsigned int tid) {
     tid_active_[tid] = false;
     std::unique_lock<std::mutex> lk(mReader_);
     workerJob_[tid].first = nullptr;
-    workerJob_[tid].first = nullptr;
+    workerJob_[tid].second = nullptr;
 
     assert(!thread_quit_signal[tid]);  //should never get it here
     workerPool_.push(tid);
@@ -1080,6 +1174,7 @@ void DAQSource::readWorker(unsigned int tid) {
       startupCv_.notify_one();
     }
     cvWakeup_.notify_all();
+
     cvReader_[tid]->wait(lk);
     lk.unlock();
 
@@ -1191,8 +1286,8 @@ void DAQSource::readWorker(unsigned int tid) {
           bufferLeft += last;
         }
         if ((uint64_t)last < eventChunkBlock_) {  //last read
-          edm::LogInfo("DAQSource") << "chunkUsedSize" << chunk->usedSize_ << " u-s:" << (chunk->usedSize_ - skipped)
-                                    << " ix:" << i * eventChunkBlock_ << " " << (size_t)last;
+          LogDebug("DAQSource") << "chunkUsedSize:" << chunk->usedSize_ << " u-s:" << (chunk->usedSize_ - skipped)
+                                << " ix:" << i * eventChunkBlock_ << " " << (size_t)last;
           //check if this is last block if single file, then total read size must match file size
           if (file->numFiles_ == 1 && !(chunk->usedSize_ - skipped == i * eventChunkBlock_ + (size_t)last)) {
             edm::LogError("DAQSource") << "readWorker failed to read file -: " << file->fileName_
@@ -1316,9 +1411,23 @@ void DAQSource::readWorker(unsigned int tid) {
     }
     assert(dataMode_->versionCheck());
 
-    chunk->readComplete_ =
-        true;  //this is atomic to secure the sequential buffer fill before becoming available for processing)
-    file->chunks_[chunk->fileIndex_] = chunk;  //put the completed chunk in the file chunk vector at predetermined index
+    //for models that unpack RAW data in reader thread (must fit to buffer!)
+
+    //put the completed chunk in the file chunk vector at predetermined index
+    file->chunks_[chunk->fileIndex_] = chunk;
+
+    if (dataMode_->fitToBuffer())
+      dataMode_->unpackFile(file);
+
+    //possibly not needed (except for better timing on cvWakeupAll_)
+    std::unique_lock<std::mutex> lkw(mWakeup_);
+
+    //this is atomic to ensure all previous writes are consistent
+    chunk->readComplete_ = true;
+
+    //wakeup for chunk
+    cvWakeupAll_.notify_all();
+    //lkw.unlock();
   }
 }
 
@@ -1337,16 +1446,16 @@ void DAQSource::setMonStateSup(evf::FastMonState::InputState state) {
     fms_->setInStateSup(state);
 }
 
-bool RawInputFile::advance(unsigned char*& dataPosition, const size_t size) {
+bool RawInputFile::advance(std::mutex& m, std::condition_variable& cv, unsigned char*& dataPosition, const size_t size) {
+  sourceParent_->setMonState(inWaitChunk);
   //wait for chunk
-
   while (!waitForChunk(currentChunk_)) {
-    sourceParent_->setMonState(inWaitChunk);
-    usleep(100000);
-    sourceParent_->setMonState(inChunkReceived);
+    std::unique_lock<std::mutex> lk(m);
+    cv.wait_for(lk, std::chrono::milliseconds(100));
     if (sourceParent_->exceptionState())
       sourceParent_->threadError();
   }
+  sourceParent_->setMonState(inChunkReceived);
 
   dataPosition = chunks_[currentChunk_]->buf_ + chunkPosition_;
   size_t currentLeft = chunks_[currentChunk_]->size_ - chunkPosition_;
@@ -1354,13 +1463,15 @@ bool RawInputFile::advance(unsigned char*& dataPosition, const size_t size) {
   if (currentLeft < size) {
     //we need next chunk
     assert(chunks_.size() > currentChunk_ + 1);
+
+    sourceParent_->setMonState(inWaitChunk);
     while (!waitForChunk(currentChunk_ + 1)) {
-      sourceParent_->setMonState(inWaitChunk);
-      usleep(100000);
-      sourceParent_->setMonState(inChunkReceived);
+      std::unique_lock<std::mutex> lk(m);
+      cv.wait_for(lk, std::chrono::milliseconds(100));
       if (sourceParent_->exceptionState())
         sourceParent_->threadError();
     }
+    sourceParent_->setMonState(inChunkReceived);
     //copy everything to beginning of the first chunk
     dataPosition -= chunkPosition_;
     assert(dataPosition == chunks_[currentChunk_]->buf_);

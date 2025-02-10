@@ -23,14 +23,11 @@
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-
 //
 // constants, enums and typedefs
 //
@@ -47,17 +44,17 @@ namespace edm {
 
     EDAnalyzerBase::~EDAnalyzerBase() {}
 
-    void EDAnalyzerBase::callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+    void EDAnalyzerBase::callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func) {
       callWhenNewProductsRegistered_ = func;
     }
 
     bool EDAnalyzerBase::doEvent(EventTransitionInfo const& info,
                                  ActivityRegistry* act,
                                  ModuleCallingContext const* mcc) {
+      EventSignalsSentry sentry(act, mcc);
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       e.setSharedResourcesAcquirer(&resourcesAcquirer_);
-      EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
@@ -177,12 +174,10 @@ namespace edm {
 
     const std::string& EDAnalyzerBase::baseType() { return kBaseType; }
 
-    void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase const*, ProductRegistry* reg) {
+    void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase const*, SignallingProductRegistry* reg) {
       if (callWhenNewProductsRegistered_) {
         reg->callForEachBranch(callWhenNewProductsRegistered_);
-
-        Service<ConstProductRegistry> regService;
-        regService->watchProductAdditions(callWhenNewProductsRegistered_);
+        reg->watchProductAdditions(callWhenNewProductsRegistered_);
       }
     }
 

@@ -9,7 +9,7 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -21,6 +21,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -76,15 +77,22 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
-  auto rp = std::make_shared<edm::RunPrincipal>(pregc, pc, &historyAppender_, 0);
+  auto rp =
+      std::make_shared<edm::RunPrincipal>(pregc, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   rp->setAux(edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_, 0);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(
+      pregc, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   lbp->setAux(lumiAux);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(
-      pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_, edm::StreamID::invalidStreamID());
+  edm::EventPrincipal ep(pregc,
+                         edm::productResolversFactory::makePrimary,
+                         branchIDListHelper,
+                         thinnedAssociationsHelper,
+                         pc,
+                         &historyAppender_,
+                         edm::StreamID::invalidStreamID());
   ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
   try {
@@ -142,18 +150,8 @@ void testEventGetRefBeforePut::getRefTest() {
   auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
   processConfiguration->setParameterSetID(dummyProcessPset.id());
 
-  edm::ParameterSet pset;
-  pset.registerIt();
-
-  edm::BranchDescription product(edm::InEvent,
-                                 label,
-                                 processName,
-                                 dummytype.userClassName(),
-                                 className,
-                                 productInstanceName,
-                                 "",
-                                 pset.id(),
-                                 dummytype);
+  edm::ProductDescription product(
+      edm::InEvent, label, processName, dummytype.userClassName(), className, productInstanceName, dummytype);
 
   product.init();
 
@@ -170,15 +168,22 @@ void testEventGetRefBeforePut::getRefTest() {
       processName, dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
   edm::ProcessConfiguration& pc = *pcPtr;
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
-  auto rp = std::make_shared<edm::RunPrincipal>(pregc, pc, &historyAppender_, 0);
+  auto rp =
+      std::make_shared<edm::RunPrincipal>(pregc, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   rp->setAux(edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_, 0);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(
+      pregc, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   lbp->setAux(lumiAux);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(
-      pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_, edm::StreamID::invalidStreamID());
+  edm::EventPrincipal ep(pregc,
+                         edm::productResolversFactory::makePrimary,
+                         branchIDListHelper,
+                         thinnedAssociationsHelper,
+                         pc,
+                         &historyAppender_,
+                         edm::StreamID::invalidStreamID());
   ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
 

@@ -39,7 +39,9 @@ ticl_superclustering_dnn.toReplaceWith(particleFlowSuperClusterHGCal, ticlEGamma
 # Mustache-TICL
 _mustache_ticl_task = cms.Task(ticlTracksterLinksSuperclusteringMustache)
 ticl_superclustering_mustache_ticl.toReplaceWith(ticlSuperclusteringTask, _mustache_ticl_task)
-ticl_superclustering_mustache_ticl.toModify(ticlEGammaSuperClusterProducer, ticlSuperClusters=cms.InputTag("ticlTracksterLinksSuperclusteringMustache"))
+ticl_superclustering_mustache_ticl.toModify(ticlEGammaSuperClusterProducer,
+                                            ticlSuperClusters=cms.InputTag("ticlTracksterLinksSuperclusteringMustache"),
+                                            enableRegression=cms.bool(False))
 ticl_superclustering_mustache_ticl.toReplaceWith(particleFlowSuperClusterHGCal, ticlEGammaSuperClusterProducer)
 
 # Mustache-PF

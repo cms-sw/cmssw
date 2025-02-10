@@ -48,8 +48,8 @@ mugenfilter = cms.EDFilter("MCSmartSingleParticleFilter",
 
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('\$Revision$'),
-    name = cms.untracked.string('\$Source$'),
+    version = cms.untracked.string('\\$Revision$'),
+    name = cms.untracked.string('\\$Source$'),
     annotation = cms.untracked.string('QCD dijet production, pThat > 20 GeV, with INCLUSIVE muon preselection (pt(mu) > 15 GeV), 13 TeV, TuneCUETP8M1')
 )
 

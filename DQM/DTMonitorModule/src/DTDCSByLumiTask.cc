@@ -120,7 +120,7 @@ void DTDCSByLumiTask::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     // process all other cases and removed wires with "BAD HV" from active
     // wires list
 
-    if (DTHVRecordFound) {
+    if (dtHVStatus) {
       if (!dtHVStatus->get((*layersIt)->id(), 0, first, last, flagA, flagC, flagS) && (flagA || flagC || flagS)) {
         nActiveWires -= (last - first + 1);
       }

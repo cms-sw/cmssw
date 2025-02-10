@@ -109,11 +109,10 @@ process.pathALCARECOLumiPixels = cms.Path(process.seqALCARECOLumiPixels)
 process.ALCARECOStreamPromptCalibProdOutPath = cms.EndPath(process.ALCARECOStreamPromptCalibProdPCC)
 
 process.MessageLogger = cms.Service("MessageLogger",
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        optionalPSet = cms.untracked.bool(True)
+    default = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
     ),
+    optionalPSet = cms.untracked.bool(True),
     categories = cms.untracked.vstring('FwkJob', 
         'FwkReport', 
         'FwkSummary', 
@@ -159,9 +158,9 @@ process.MessageLogger = cms.Service("MessageLogger",
     debugs = cms.untracked.PSet(
         placeholder = cms.untracked.bool(True)
     ),
-    default = cms.untracked.PSet(
-
-    ),
+#    default = cms.untracked.PSet(
+#
+#    ),
     destinations = cms.untracked.vstring('warnings', 
         'errors', 
         'infos', 

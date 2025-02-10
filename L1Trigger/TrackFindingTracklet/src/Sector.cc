@@ -62,8 +62,8 @@ void Sector::setSector(unsigned int isector) {
   phimax_ = phimin_ + dphi + 2 * dphiHG;
   phimin_ -= M_PI / N_SECTOR;
   phimax_ -= M_PI / N_SECTOR;
-  phimin_ = reco::reduceRange(phimin_);
-  phimax_ = reco::reduceRange(phimax_);
+  phimin_ = reco::reducePhiRange(phimin_);
+  phimax_ = reco::reducePhiRange(phimax_);
   if (phimin_ > phimax_) {
     phimin_ -= 2 * M_PI;
   }

@@ -6,7 +6,7 @@
 #include "RootSecondaryFileSequence.h"
 #include "RunHelper.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -100,6 +101,7 @@ namespace edm {
       secondaryEventPrincipals_.reserve(nStreams_);
       for (unsigned int index = 0; index < nStreams_; ++index) {
         secondaryEventPrincipals_.emplace_back(new EventPrincipal(secondaryFileSequence_->fileProductRegistry(),
+                                                                  edm::productResolversFactory::makePrimary,
                                                                   secondaryFileSequence_->fileBranchIDListHelper(),
                                                                   std::make_shared<ThinnedAssociationsHelper const>(),
                                                                   processConfiguration(),
@@ -191,8 +193,11 @@ namespace edm {
       if (found) {
         std::shared_ptr<RunAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readRunAuxiliary_();
         checkConsistency(runPrincipal.aux(), *secondaryAuxiliary);
-        secondaryRunPrincipal_ = std::make_shared<RunPrincipal>(
-            secondaryFileSequence_->fileProductRegistry(), processConfiguration(), nullptr, runPrincipal.index());
+        secondaryRunPrincipal_ = std::make_shared<RunPrincipal>(secondaryFileSequence_->fileProductRegistry(),
+                                                                edm::productResolversFactory::makePrimary,
+                                                                processConfiguration(),
+                                                                nullptr,
+                                                                runPrincipal.index());
         secondaryRunPrincipal_->setAux(*secondaryAuxiliary);
         secondaryFileSequence_->readRun_(*secondaryRunPrincipal_);
         checkHistoryConsistency(runPrincipal, *secondaryRunPrincipal_);
@@ -212,8 +217,12 @@ namespace edm {
         std::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary =
             secondaryFileSequence_->readLuminosityBlockAuxiliary_();
         checkConsistency(lumiPrincipal.aux(), *secondaryAuxiliary);
-        secondaryLumiPrincipal_ = std::make_shared<LuminosityBlockPrincipal>(
-            secondaryFileSequence_->fileProductRegistry(), processConfiguration(), nullptr, lumiPrincipal.index());
+        secondaryLumiPrincipal_ =
+            std::make_shared<LuminosityBlockPrincipal>(secondaryFileSequence_->fileProductRegistry(),
+                                                       edm::productResolversFactory::makePrimary,
+                                                       processConfiguration(),
+                                                       nullptr,
+                                                       lumiPrincipal.index());
         secondaryLumiPrincipal_->setAux(*secondaryAuxiliary);
         secondaryFileSequence_->readLuminosityBlock_(*secondaryLumiPrincipal_);
         checkHistoryConsistency(lumiPrincipal, *secondaryLumiPrincipal_);

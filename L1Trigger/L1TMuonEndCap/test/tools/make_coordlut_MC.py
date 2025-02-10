@@ -8,7 +8,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-print "Using GlobalTag: %s" % process.GlobalTag.globaltag.value()
+print("Using GlobalTag: %s" % process.GlobalTag.globaltag.value())
 
 # Fake alignment is/should be ideal geometry
 # ==========================================

@@ -114,10 +114,9 @@ namespace edm {
               WaitingTaskHolder produceTask =
                   Base::makeProduceTask(group, token, record, es, emitPostPrefetchingSignal, std::move(produceFunctor));
 
-              WaitingTaskWithArenaHolder waitingTaskWithArenaHolder =
-                  makeExceptionHandlerTask(std::move(produceTask), group);
+              WaitingTaskHolder waitingTaskHolder = makeExceptionHandlerTask(std::move(produceTask), group);
 
-              return makeAcquireTask(std::move(waitingTaskWithArenaHolder), group, token, record, es);
+              return makeAcquireTask(std::move(waitingTaskHolder), group, token, record, es);
             },
             std::move(iTask),
             iRecord,
@@ -134,7 +133,7 @@ namespace edm {
                            const TDecorator& iDec = TDecorator())
           : Base(iProd, std::move(iProduceFunc), iID, iDec), acquireFunction_(std::move(iAcquireFunc)) {}
 
-      WaitingTaskHolder makeAcquireTask(WaitingTaskWithArenaHolder waitingTaskWithArenaHolder,
+      WaitingTaskHolder makeAcquireTask(WaitingTaskHolder waitingTaskHolder,
                                         oneapi::tbb::task_group* group,
                                         ServiceWeakToken const& serviceToken,
                                         EventSetupRecordImpl const* record,
@@ -142,7 +141,7 @@ namespace edm {
         return WaitingTaskHolder(
             *group,
             make_waiting_task(
-                [this, holder = std::move(waitingTaskWithArenaHolder), group, serviceToken, record, eventSetupImpl](
+                [this, holder = std::move(waitingTaskHolder), group, serviceToken, record, eventSetupImpl](
                     std::exception_ptr const* iException) mutable {
                   std::exception_ptr excptr;
                   if (iException) {
@@ -172,13 +171,13 @@ namespace edm {
                         try {
                           convertException::wrap([this, &holder, &serviceToken, &record, &eventSetupImpl] {
                             ESModuleCallingContext const& context = Base::callingContext();
-                            auto proxies = Base::getTokenIndices();
+                            auto resolvers = Base::getTokenIndices();
                             if (Base::postMayGetResolvers()) {
-                              proxies = &((*Base::postMayGetResolvers()).front());
+                              resolvers = &((*Base::postMayGetResolvers()).front());
                             }
                             TRecord rec;
                             edm::ESParentContext pc{&context};
-                            rec.setImpl(record, Base::transitionID(), proxies, eventSetupImpl, &pc);
+                            rec.setImpl(record, Base::transitionID(), resolvers, eventSetupImpl, &pc);
                             ServiceRegistry::Operate operate(serviceToken.lock());
                             record->activityRegistry()->preESModuleAcquireSignal_.emit(record->key(), context);
                             struct EndGuard {
@@ -191,7 +190,7 @@ namespace edm {
                               ESModuleCallingContext const& context_;
                             };
                             EndGuard guard(record, context);
-                            acquireCache_ = (*acquireFunction_)(rec, holder);
+                            acquireCache_ = (*acquireFunction_)(rec, WaitingTaskWithArenaHolder(holder));
                           });
                         } catch (cms::Exception& iException) {
                           iException.addContext("Running acquire");
@@ -202,25 +201,24 @@ namespace edm {
                 }));
       }
 
-      WaitingTaskWithArenaHolder makeExceptionHandlerTask(WaitingTaskHolder produceTask,
-                                                          oneapi::tbb::task_group* group) {
-        return WaitingTaskWithArenaHolder(*group,
-                                          make_waiting_task([this, produceTask = std::move(produceTask)](
-                                                                std::exception_ptr const* iException) mutable {
-                                            std::exception_ptr excptr;
-                                            if (iException) {
-                                              excptr = *iException;
-                                            }
-                                            if (excptr) {
-                                              try {
-                                                convertException::wrap([excptr]() { std::rethrow_exception(excptr); });
-                                              } catch (cms::Exception& exception) {
-                                                exception.addContext("Running acquire and external work");
-                                                edm::exceptionContext(exception, Base::callingContext());
-                                                produceTask.doneWaiting(std::current_exception());
-                                              }
-                                            }
-                                          }));
+      WaitingTaskHolder makeExceptionHandlerTask(WaitingTaskHolder produceTask, oneapi::tbb::task_group* group) {
+        return WaitingTaskHolder(*group,
+                                 make_waiting_task([this, produceTask = std::move(produceTask)](
+                                                       std::exception_ptr const* iException) mutable {
+                                   std::exception_ptr excptr;
+                                   if (iException) {
+                                     excptr = *iException;
+                                   }
+                                   if (excptr) {
+                                     try {
+                                       convertException::wrap([excptr]() { std::rethrow_exception(excptr); });
+                                     } catch (cms::Exception& exception) {
+                                       exception.addContext("Running acquire and external work");
+                                       edm::exceptionContext(exception, Base::callingContext());
+                                       produceTask.doneWaiting(std::current_exception());
+                                     }
+                                   }
+                                 }));
       }
 
       std::shared_ptr<TAcquireFunc> acquireFunction_;

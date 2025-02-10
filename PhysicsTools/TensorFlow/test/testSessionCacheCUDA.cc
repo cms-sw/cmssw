@@ -53,7 +53,6 @@ process.add_(cms.Service('CUDAService'))
 
   // load the graph and the session
   std::string pbFile = dataPath_ + "/constantgraph.pb";
-  tensorflow::setLogging();
   tensorflow::Options options{backend};
 
   // load the graph and the session

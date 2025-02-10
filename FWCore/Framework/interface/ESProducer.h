@@ -16,11 +16,11 @@
   set at run-time instead of compile time can be obtained by inheriting from ESProductResolverFactoryProducer instead.)
 
     If only one algorithm is being encapsulated then the user needs to
-      1) add a method name 'produce' to the class.  The 'produce' takes as its argument a const reference
+      1) add a method named 'produce' to the class.  The 'produce' takes as its argument a const reference
          to the record that is to hold the data item being produced.  If only one data item is being produced,
          the 'produce' method must return either an 'std::unique_ptr' or 'std::shared_ptr' to the object being
          produced.  (The choice depends on if the EventSetup or the ESProducer is managing the lifetime of
-         the object).  If multiple items are being Produced they the 'produce' method must return an
+         the object).  If multiple items are being Produced then the 'produce' method must return an
          ESProducts<> object which holds all of the items.
       2) add 'setWhatProduced(this);' to their classes constructor
 

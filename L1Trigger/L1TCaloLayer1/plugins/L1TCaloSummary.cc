@@ -143,7 +143,8 @@ L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
       verbose(iConfig.getParameter<bool>("verbose")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")),
       regionToken(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("caloLayer1Regions"))),
-      backupRegionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
+      //backupRegionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
+      backupRegionToken(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("backupRegionToken"))),
       loader(hls4mlEmulator::ModelLoader(iConfig.getParameter<string>("CICADAModelVersion"))),
       overwriteWithTestPatterns(iConfig.getParameter<bool>("useTestPatterns")),
       testPatterns(iConfig.getParameter<std::vector<edm::ParameterSet>>("testPatterns")) {
@@ -194,14 +195,14 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   // of size 7*2. Indices are mapped in UCTSummaryCard accordingly.
   UCTSummaryCard summaryCard =
       UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
-  std::vector<UCTRegion*> inputRegions;
-  inputRegions.clear();
+  std::vector<UCTRegion> inputRegions;
+  inputRegions.reserve(252);  // 252 calorimeter regions. 18 phi * 14 eta
   edm::Handle<std::vector<L1CaloRegion>> regionCollection;
   if (!iEvent.getByToken(regionToken, regionCollection))
     edm::LogError("L1TCaloSummary") << "UCT: Failed to get regions from region collection!";
   iEvent.getByToken(regionToken, regionCollection);
 
-  if (regionCollection->size() == 0) {
+  if (regionCollection->empty()) {
     iEvent.getByToken(backupRegionToken, regionCollection);
     edm::LogWarning("L1TCaloSummary") << "Switched to emulated regions since data regions was empty.\n";
   }
@@ -221,8 +222,8 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
     uint32_t crate = g.getCrate(t.first, t.second);
     uint32_t card = g.getCard(t.first, t.second);
     uint32_t region = g.getRegion(absCaloEta, absCaloPhi);
-    UCTRegion* test = new UCTRegion(crate, card, negativeEta, region, fwVersion);
-    test->setRegionSummary(i.raw());
+    UCTRegion test = UCTRegion(crate, card, negativeEta, region, fwVersion);
+    test.setRegionSummary(i.raw());
     inputRegions.push_back(test);
     //This *should* fill the tensor in the proper order to be fed to the anomaly model
     //We take 4 off of the GCT eta/iEta.
@@ -281,9 +282,10 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   double phi = -999.;
   double mass = 0;
 
-  std::list<UCTObject*> boostedJetObjs = summaryCard.getBoostedJetObjs();
-  for (std::list<UCTObject*>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end(); i++) {
-    const UCTObject* object = *i;
+  std::list<std::shared_ptr<UCTObject>> boostedJetObjs = summaryCard.getBoostedJetObjs();
+  for (std::list<std::shared_ptr<UCTObject>>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end();
+       i++) {
+    const std::shared_ptr<UCTObject>& object = *i;
     pt = ((double)object->et()) * caloScaleFactor * boostedJetPtFactor;
     eta = g.getUCTTowerEta(object->iEta());
     phi = g.getUCTTowerPhi(object->iPhi());

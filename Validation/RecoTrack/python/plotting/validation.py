@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 import os
 import re
 import sys
@@ -452,7 +450,7 @@ _doBHadronSamples = [
 
 def _getRelValUrl(release):
     """Get RelVal download URL for a given release."""
-    version_re = re.compile("CMSSW_(?P<X>\d+)_(?P<Y>\d+)")
+    version_re = re.compile("CMSSW_(?P<X>\\d+)_(?P<Y>\\d+)")
     m = version_re.search(release)
     if not m:
         raise Exception("Regex %s does not match to release version %s" % (version_re.pattern, release))

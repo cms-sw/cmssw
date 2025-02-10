@@ -1,0 +1,9 @@
+{
+    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiPixelAliHLTHGCombined_PCL_v0_hlt": {}
+    }, 
+    "inputTag": "SiPixelAliHLTHGCombined_pcl", 
+    "since": null, 
+    "userText": "T0 PCL Upload for SiPixel HG Combined (MiBias + Z->mm) Ali. for High Level Trigger (prep)"
+}

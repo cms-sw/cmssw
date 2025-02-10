@@ -484,7 +484,7 @@ unsigned int l1t::CaloTools::gloriousDivision(uint32_t aNumerator, uint32_t aDen
   // Restore the scale by taking into account the bitshift applied above.
   // We are now 18 bit left-shifted, so the 18 LSBs are effectively the fractional part...
 
-  uint32_t aFractional = (lResult >>= (9 - lBitShift)) & 0x3FFFF;
+  uint32_t aFractional = (lResult >> (9 - lBitShift)) & 0x3FFFF;
   // ...and the top 18 bits are the integer part
 
   // uint32_t aInteger    = ( lResult >>= 18 ) & 0x3FFFF;

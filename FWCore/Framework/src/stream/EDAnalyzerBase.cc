@@ -15,12 +15,10 @@
 // user include files
 #include "FWCore/Framework/interface/stream/EDAnalyzerBase.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 
 using namespace edm::stream;
 //
@@ -58,16 +56,14 @@ EDAnalyzerBase::~EDAnalyzerBase() {}
 //
 // member functions
 //
-void EDAnalyzerBase::callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+void EDAnalyzerBase::callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func) {
   callWhenNewProductsRegistered_ = func;
 }
 
-void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase const*, ProductRegistry* reg) {
+void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase const*, SignallingProductRegistry* reg) {
   if (callWhenNewProductsRegistered_) {
     reg->callForEachBranch(callWhenNewProductsRegistered_);
-
-    Service<ConstProductRegistry> regService;
-    regService->watchProductAdditions(callWhenNewProductsRegistered_);
+    reg->watchProductAdditions(callWhenNewProductsRegistered_);
   }
 }
 

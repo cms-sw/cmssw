@@ -77,8 +77,8 @@
 //
 //             For plotting (fractional) asymmetry in the correction factors
 //
-//  PlotHistCorrAsymmetry(infile, text, prefixF, iformat, save);
-//      Defaults: prefixF="", iformat=0, save=0
+//  PlotHistCorrAsymmetry(infile, text, prefixF, depth, iformat, save);
+//      Defaults: prefixF="", depth = -1, iformat=0, save=0
 //
 //             For plotting correction factors from upto 5 different runs
 //             on the same canvas
@@ -87,18 +87,18 @@
 //                      infile4, text4, infile5, text5, prefixF, ratio,
 //                      drawStatBox, nmin, isRealData, year, iformat, save)
 //      Defaults: ratio=false, drawStatBox=true, nmin=100, isRealData=false,
-//                year=2018, iformat=0, save=0
+//                year="2024", iformat=0, save=0
 //
 //  PlotHistCorr2Factors(infile1, text1, infile2, text2, depth, prefixF, ratio,
 //                      drawStatBox, nmin, isRealData, year, iformat, save)
 //      Defaults: ratio=true, drawStatBox=false, nmin=100, isRealData=true,
-//                year=2023, iformat=0, save=0
+//                year="2024", iformat=0, save=0
 //
 //  PlotHistCorrDFactors(infile1, text1, infile2, text2, infile3, text3,
 //                      infile4, text4, infile5, text5, depth, prefixF, ratio,
 //                      drawStatBox, nmin, isRealData, year, iformat, save)
 //      Defaults: ratio=true, drawStatBox=false, nmin=100, isRealData=true,
-//                year=2024, iformat=0, save=0
+//                year="2024", iformat=0, save=0
 //
 //             For plotting correction factors including systematics
 //  PlotHistCorrSys(infilec, conds, text, save)
@@ -166,7 +166,7 @@
 //                    text0, etaMin, etaMax, doFit, isRealData, year, iformat,
 //                    save)
 //      Defaults etaMin = -1, etaMax = -1, doFit = true, isRealData = true,
-//               year = 2022, iformat = 0, save = 0
+//               year = "2024", iformat = 0, save = 0
 //      text0 is a general description common to both sets of corr factors
 //      etaMin < 0 and etaMax > 0 will take ieta range from -etaMax to +etaMax;
 //      etaMin > 0 will select ieta's where |ieta| is greater than etaMin
@@ -219,7 +219,7 @@
 //  scale    (double)       = constant scale factor applied to the factors
 //  ratio    (bool)         = set to show the ratio plot (false)
 //  drawStatBox (bool)      = set to show the statistical box (true)
-//  year     (int)          = Year of data taking (applicable to Data)
+//  year     (char *)       = Year of data taking (applicable to Data)
 //  infilc   (string)       = prefix of the file names of correction factors
 //                            (assumes file name would be the prefix followed
 //                            by _condX.txt where X=0 for the default version
@@ -269,13 +269,13 @@ const double fitrangeFactor = 1.5;
 struct cfactors {
   int ieta, depth;
   double corrf, dcorr;
-  cfactors(int ie = 0, int dp = 0, double cor = 1, double dc = 0) : ieta(ie), depth(dp), corrf(cor), dcorr(dc){};
+  cfactors(int ie = 0, int dp = 0, double cor = 1, double dc = 0) : ieta(ie), depth(dp), corrf(cor), dcorr(dc) {};
 };
 
 struct results {
   double mean, errmean, width, errwidth;
   results(double v1 = 0, double er1 = 0, double v2 = 0, double er2 = 0)
-      : mean(v1), errmean(er1), width(v2), errwidth(er2){};
+      : mean(v1), errmean(er1), width(v2), errwidth(er2) {};
 };
 
 std::pair<double, double> GetMean(TH1D* hist, double xmin, double xmax, double& rms) {
@@ -2216,7 +2216,7 @@ void PlotHistCorrFactor(char* infile,
     gStyle->SetOptFit(0);
   }
   int colors[7] = {1, 6, 4, 7, 2, 9, 3};
-  int mtype[7] = {20, 21, 22, 23, 24, 33, 25};
+  int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
   int nbin = etamax - etamin + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
@@ -2357,7 +2357,7 @@ void PlotHistCorrFactor(char* infile,
     gStyle->SetOptFit(0);
   }
   int colors[7] = {1, 6, 4, 7, 2, 9, 3};
-  int mtype[7] = {20, 21, 22, 23, 24, 33, 25};
+  int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
   int nbin = etamax - etamin + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
@@ -2472,7 +2472,8 @@ void PlotHistCorrFactor(char* infile,
   }
 }
 
-void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF = "", int iformat = 0, int save = 0) {
+void PlotHistCorrAsymmetry(
+    char* infile, std::string text, std::string prefixF = "", int depth = -1, int iformat = 0, int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
   double scale(1.0);
@@ -2485,28 +2486,30 @@ void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF =
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(10);
-  int colors[6] = {1, 6, 4, 7, 2, 9};
-  int mtype[6] = {20, 21, 22, 23, 24, 33};
+  int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+  int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
   int nbin = etamax + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
   char name[100];
   double dy(0);
-  for (int j = 0; j < maxdepth; ++j) {
-    sprintf(name, "hd%d", j + 1);
+  int maxd = (depth < 0) ? maxdepth : 1;
+  for (int j = 0; j < maxd; ++j) {
+    int dep = (depth <= 0) ? (j + 1) : depth;
+    sprintf(name, "hd%d", dep);
     TObject* ob = gROOT->FindObject(name);
     if (ob)
       ob->Delete();
     TH1D* h = new TH1D(name, name, nbin, 0, etamax);
     int nent(0);
     for (std::map<int, cfactors>::const_iterator itr = cfacs.begin(); itr != cfacs.end(); ++itr) {
-      if ((itr->second).depth == j + 1) {
+      if ((itr->second).depth == dep) {
         int ieta = (itr->second).ieta;
         float vl1 = (itr->second).corrf;
         float dv1 = (itr->second).dcorr;
         if (ieta > 0) {
           for (std::map<int, cfactors>::const_iterator ktr = cfacs.begin(); ktr != cfacs.end(); ++ktr) {
-            if (((ktr->second).depth == j + 1) && ((ktr->second).ieta == -ieta)) {
+            if (((ktr->second).depth == dep) && ((ktr->second).ieta == -ieta)) {
               float vl2 = (ktr->second).corrf;
               float dv2 = (ktr->second).dcorr;
               float val = 2.0 * (vl1 - vl2) / (vl1 + vl2);
@@ -2520,9 +2523,9 @@ void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF =
         }
       }
     }
-    h->SetLineColor(colors[j]);
-    h->SetMarkerColor(colors[j]);
-    h->SetMarkerStyle(mtype[j]);
+    h->SetLineColor(colors[dep - 1]);
+    h->SetMarkerColor(colors[dep - 1]);
+    h->SetMarkerStyle(mtype[dep - 1]);
     h->GetXaxis()->SetTitle("i#eta");
     h->GetYaxis()->SetTitle("Asymmetry in Correction Factor");
     h->GetYaxis()->SetLabelOffset(0.005);
@@ -2532,7 +2535,10 @@ void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF =
     entries.push_back(nent);
     dy += 0.025;
   }
-  sprintf(name, "c_%sCorrAsymmetry", prefixF.c_str());
+  if (depth < 0)
+    sprintf(name, "c_%sCorrAsymmetry", prefixF.c_str());
+  else
+    sprintf(name, "c_%sCorrAsymmetryD%d", prefixF.c_str(), depth);
   TCanvas* pad = new TCanvas(name, name, 700, 500);
   pad->SetRightMargin(0.10);
   pad->SetTopMargin(0.10);
@@ -2541,12 +2547,13 @@ void PlotHistCorrAsymmetry(char* infile, std::string text, std::string prefixF =
   TLegend* legend = new TLegend(0.60, yl, 0.90, yl + 0.035 * hists.size());
   legend->SetFillColor(kWhite);
   for (unsigned int k = 0; k < hists.size(); ++k) {
+    int dep = (depth < 0) ? (k + 1) : depth;
     if (k == 0)
       hists[k]->Draw("");
     else
       hists[k]->Draw("sames");
     pad->Update();
-    sprintf(name, "Depth %d (%s)", k + 1, text.c_str());
+    sprintf(name, "Depth %d (%s)", dep, text.c_str());
     legend->AddEntry(hists[k], name, "lp");
   }
   legend->Draw("same");
@@ -2583,7 +2590,7 @@ void PlotHistCorrFactors(char* infile1,
                          bool drawStatBox = true,
                          int nmin = 100,
                          bool isRealData = false,
-                         int year = 2018,
+                         const char* year = "2024",
                          int iformat = 0,
                          int save = 0) {
   std::map<int, cfactors> cfacs[5];
@@ -2639,8 +2646,8 @@ void PlotHistCorrFactors(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[7] = {1, 6, 4, 2, 7, 9, 46};
-    int mtype[7] = {20, 24, 22, 23, 21, 25, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
     std::vector<int> entries, htype, depths;
@@ -2801,9 +2808,9 @@ void PlotHistCorrFactors(char* infile1,
     txt0->SetFillColor(0);
     char txt[40];
     if (isRealData)
-      sprintf(txt, "CMS Preliminary (%d)", year);
+      sprintf(txt, "CMS Preliminary (%s)", year);
     else
-      sprintf(txt, "CMS Simulation Preliminary (%d)", year);
+      sprintf(txt, "CMS Simulation Preliminary (%s)", year);
     txt0->AddText(txt);
     txt0->Draw("same");
     pad->Update();
@@ -2838,7 +2845,7 @@ void PlotHistCorr2Factors(char* infile1,
                           bool drawStatBox = false,
                           int nmin = 100,
                           bool isRealData = true,
-                          int year = 2023,
+                          const char* year = "2024",
                           int iformat = 0,
                           int save = 0) {
   std::map<int, cfactors> cfacs[5];
@@ -2873,8 +2880,8 @@ void PlotHistCorr2Factors(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[7] = {1, 6, 4, 2, 7, 9, 46};
-    int mtype[7] = {20, 24, 22, 23, 21, 25, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
     std::vector<int> entries, htype;
@@ -2922,7 +2929,7 @@ void PlotHistCorr2Factors(char* infile1,
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleSize(0.036);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.50, 1.50);
+        h->GetYaxis()->SetRangeUser(0.80, 1.20);
         hists.push_back(h);
         fitr.push_back(fit);
         htype.push_back(ih);
@@ -2967,7 +2974,7 @@ void PlotHistCorr2Factors(char* infile1,
         h->GetYaxis()->SetTitle("Correction Factor");
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.5, 1.5);
+        h->GetYaxis()->SetRangeUser(0.8, 1.2);
         hists.push_back(h);
         entries.push_back(nent);
         if (drawStatBox)
@@ -3017,9 +3024,9 @@ void PlotHistCorr2Factors(char* infile1,
     txt0->SetFillColor(0);
     char txt[40];
     if (isRealData)
-      sprintf(txt, "CMS Preliminary (%d)", year);
+      sprintf(txt, "CMS Preliminary (%s)", year);
     else
-      sprintf(txt, "CMS Simulation Preliminary (%d)", year);
+      sprintf(txt, "CMS Simulation Preliminary (%s)", year);
     txt0->AddText(txt);
     txt0->Draw("same");
     pad->Update();
@@ -3060,7 +3067,7 @@ void PlotHistCorrDFactors(char* infile1,
                           bool drawStatBox = false,
                           int nmin = 100,
                           bool isRealData = true,
-                          int year = 2024,
+                          const char* year = "2024",
                           int iformat = 0,
                           int save = 0) {
   std::map<int, cfactors> cfacs[5];
@@ -3116,8 +3123,8 @@ void PlotHistCorrDFactors(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[7] = {1, 6, 4, 2, 7, 9, 46};
-    int mtype[7] = {20, 24, 22, 23, 21, 25, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
     std::vector<int> entries, htype;
@@ -3169,7 +3176,7 @@ void PlotHistCorrDFactors(char* infile1,
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleSize(0.036);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.50, 1.50);
+        h->GetYaxis()->SetRangeUser(0.80, 1.20);
         hists.push_back(h);
         fitr.push_back(fit);
         htype.push_back(ih);
@@ -3214,7 +3221,7 @@ void PlotHistCorrDFactors(char* infile1,
         h->GetYaxis()->SetTitle("Correction Factor");
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.5, 1.5);
+        h->GetYaxis()->SetRangeUser(0.8, 1.2);
         hists.push_back(h);
         entries.push_back(nent);
         if (drawStatBox)
@@ -3264,9 +3271,9 @@ void PlotHistCorrDFactors(char* infile1,
     txt0->SetFillColor(0);
     char txt[40];
     if (isRealData)
-      sprintf(txt, "CMS Preliminary (%d)", year);
+      sprintf(txt, "CMS Preliminary (%s)", year);
     else
-      sprintf(txt, "CMS Simulation Preliminary (%d)", year);
+      sprintf(txt, "CMS Simulation Preliminary (%s)", year);
     txt0->AddText(txt);
     txt0->Draw("same");
     pad->Update();
@@ -3337,8 +3344,8 @@ void PlotHistCorrSys(std::string infilec, int conds, std::string text, int save 
     gStyle->SetOptTitle(0);
     gStyle->SetOptStat(10);
     gStyle->SetOptFit(10);
-    int colors[6] = {1, 6, 4, 7, 2, 9};
-    int mtype[6] = {20, 21, 22, 23, 24, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     std::vector<TH1D*> hists;
     char name[100];
     int nbin = etamax - etamin + 1;
@@ -3537,8 +3544,8 @@ void PlotHistCorrRel(char* infile1,
     gStyle->SetOptTitle(0);
     gStyle->SetOptStat(10);
     gStyle->SetOptFit(10);
-    int colors[6] = {1, 6, 4, 7, 2, 9};
-    int mtype[6] = {20, 21, 22, 23, 24, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     std::vector<TH1D*> hists;
     char name[100];
     int nbin = etamax - etamin + 1;
@@ -4512,7 +4519,7 @@ void PlotDepthCorrFactor(char* infile,
     gStyle->SetOptFit(0);
   }
   int colors[7] = {1, 6, 4, 7, 2, 9, 3};
-  int mtype[7] = {20, 21, 22, 23, 24, 33, 25};
+  int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
   int nbin = etamax - etamin + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
@@ -4779,7 +4786,7 @@ void PlotHistCorrRatio(char* infile1,
                        int etaMax = -1,
                        bool doFit = true,
                        bool isRealData = true,
-                       int year = 2022,
+                       const char* year = "2024",
                        int iformat = 0,
                        int save = 0) {
   std::map<int, cfactors> cfacs[2];
@@ -4818,8 +4825,8 @@ void PlotHistCorrRatio(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[7] = {1, 6, 4, 2, 7, 9, 46};
-    int mtype[7] = {20, 24, 22, 23, 21, 25, 33};
+    int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+    int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int styles[7] = {2, 3, 1, 4, 1, 3, 2};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
@@ -4920,9 +4927,9 @@ void PlotHistCorrRatio(char* infile1,
     txt0->SetFillColor(0);
     char txt[40];
     if (isRealData)
-      sprintf(txt, "CMS Preliminary (%d)", year);
+      sprintf(txt, "CMS Preliminary (%s)", year);
     else
-      sprintf(txt, "CMS Simulation Preliminary (%d)", year);
+      sprintf(txt, "CMS Simulation Preliminary (%s)", year);
     txt0->AddText(txt);
     txt0->Draw("same");
     TPaveText* txt2 = new TPaveText(0.65, 0.91, 0.90, 0.96, "blNDC");

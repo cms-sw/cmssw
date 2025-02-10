@@ -9,6 +9,8 @@
 
 namespace edm {
 
+  class SignallingProductRegistry;
+
   typedef InputSource*(ISFunc)(ParameterSet const&, InputSourceDescription const&);
 
   typedef edmplugin::PluginFactory<ISFunc> InputSourcePluginFactory;

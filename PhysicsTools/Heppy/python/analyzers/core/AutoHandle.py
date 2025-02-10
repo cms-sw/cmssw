@@ -1,4 +1,3 @@
-from __future__ import print_function
 #ROOTTOOLS
 from DataFormats.FWLite import Events, Handle
         

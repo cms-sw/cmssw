@@ -217,6 +217,18 @@
       "Tracker"
     ]
   },
+  "DQM_Random_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
+    ]
+  },
+  "DQM_ZeroBias_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
+    ]
+  },
   "DST_PFScouting_AXOLoose_v": {
     "online?": true,
     "owners": [
@@ -2586,6 +2598,18 @@
       "HIN"
     ]
   },
+  "HLT_HIL1SingleMu0_Centrality30to100_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL1SingleMu0_Centrality40to100_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIL1SingleMu0_Cosmic_v": {
     "online?": true,
     "owners": [
@@ -2623,6 +2647,18 @@
     ]
   },
   "HLT_HIL1SingleMu7_SingleGEDPhoton10_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL1SingleMu7_SingleGEDPhoton20_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL1SingleMuOpen_Centrality30to100_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -2682,6 +2718,12 @@
       "HIN"
     ]
   },
+  "HLT_HIL2DoubleMu0_SQ_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIL2DoubleMu2p8_M1p5to6_Open_v": {
     "online?": true,
     "owners": [
@@ -2689,6 +2731,42 @@
     ]
   },
   "HLT_HIL2DoubleMu3_M7to15_Open_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL2DoubleMuOpen_Centrality40to100_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL2DoubleMuOpen_OS_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL2DoubleMuOpen_SS_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL2SingleMu0_Centrality30to100_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL2SingleMu0_Centrality40to100_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL2SingleMu12_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -2707,6 +2785,12 @@
     ]
   },
   "HLT_HIL2SingleMu7_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL2SingleMuOpen_Centrality30to100_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3021,6 +3105,60 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_DoubleMuCosmic_BptxAND_MaxPixelCluster1000_v": {
     "online?": true,
     "owners": [
@@ -3057,6 +3195,66 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_HFafterglowCombined_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v": {
     "online?": true,
     "owners": [
@@ -3088,6 +3286,12 @@
     ]
   },
   "HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity40400_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_MinPixelThrust0p8_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3141,6 +3345,12 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleEG4_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v": {
     "online?": true,
     "owners": [
@@ -3159,7 +3369,25 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleJet12_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleJet12_NotMBHF2AND_MaxPixelCluster50000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet12_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet12_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3171,7 +3399,25 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleJet12_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleJet12_ZDC1nXOR_MaxPixelCluster50000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet12_ZDC1nXOR_RapGap_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet16_NotMBHF2AND_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3183,7 +3429,25 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleJet16_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet16_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleJet16_ZDC1nAsymXOR_MaxPixelCluster50000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet16_ZDC1nXOR_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3195,7 +3459,31 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleJet16_ZDC1nXOR_RapGap_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet20_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleJet20_NotMBHF2AND_MaxPixelCluster50000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet20_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet20_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3207,7 +3495,25 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleJet20_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleJet20_ZDC1nXOR_MaxPixelCluster50000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet20_ZDC1nXOR_RapGap_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet24_NotMBHF2AND_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3219,7 +3525,25 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleJet24_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet24_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleJet24_ZDC1nAsymXOR_MaxPixelCluster50000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet24_ZDC1nXOR_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3231,7 +3555,31 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleJet24_ZDC1nXOR_RapGap_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet28_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleJet28_NotMBHF2AND_MaxPixelCluster50000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet28_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet28_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3243,7 +3591,25 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleJet28_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleJet28_ZDC1nXOR_MaxPixelCluster50000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet28_ZDC1nXOR_RapGap_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet8_NotMBHF2AND_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3255,13 +3621,37 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleJet8_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet8_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleJet8_ZDC1nAsymXOR_MaxPixelCluster50000_v": {
     "online?": true,
     "owners": [
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleJet8_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleJet8_ZDC1nXOR_MaxPixelCluster50000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleJet8_ZDC1nXOR_RapGap_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3357,7 +3747,157 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleUncorrJet12_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet12_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet12_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet12_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet16_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet16_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet16_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet16_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet20_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet20_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet20_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet20_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet24_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet24_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet24_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet24_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet28_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet28_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet28_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet28_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet8_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet8_NotZDC_OR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet8_ZDC1nAsymXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleUncorrJet8_ZDC1nXOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_TestSeedsCombined_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nAND_NotMBHF2_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3399,7 +3939,37 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity20400_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity30400_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity40400_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nOR_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_ZDC1nOR_MinPixelCluster400_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nOR_RapGap_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3448,6 +4018,12 @@
     ]
   },
   "HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity40_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZeroBias_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -4495,10 +5071,22 @@
       "TSG"
     ]
   },
+  "HLT_L1SingleMuCosmics_CosmicTracking_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
+    ]
+  },
   "HLT_L1SingleMuCosmics_EMTF_v": {
     "online?": true,
     "owners": [
       "LUM"
+    ]
+  },
+  "HLT_L1SingleMuCosmics_PointingCosmicTracking_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
     ]
   },
   "HLT_L1SingleMuCosmics_v": {
@@ -4814,7 +5402,8 @@
   "HLT_Mu10_Barrel_L1HP11_IP6_v": {
     "online?": true,
     "owners": [
-      "BPH"
+      "BPH",
+      "EXO"
     ]
   },
   "HLT_Mu12_DoublePFJets100_PNetBTag_0p11_v": {
@@ -6122,6 +6711,12 @@
       "HIN"
     ]
   },
+  "HLT_PPRefDoubleGEDPhoton20_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_PPRefEle10Gsf_v": {
     "online?": true,
     "owners": [
@@ -6248,7 +6843,25 @@
       "HIN"
     ]
   },
+  "HLT_PPRefL1DoubleMu0_SQ_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_PPRefL1DoubleMu0_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL1DoubleMu2_SQ_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL1DoubleMu2_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -6261,6 +6874,30 @@
     ]
   },
   "HLT_PPRefL1SingleMu12_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL1SingleMu5_Ele20Gsf_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL1SingleMu5_GEDPhoton20_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL1SingleMu7_Ele20Gsf_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL1SingleMu7_GEDPhoton10_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -6338,7 +6975,43 @@
       "HIN"
     ]
   },
+  "HLT_PPRefL3SingleMu3_SingleAK4CaloJet40_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL3SingleMu3_SingleAK4CaloJet60_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL3SingleMu3_SingleAK4CaloJet80_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_PPRefL3SingleMu3_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL3SingleMu5_SingleAK4CaloJet40_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL3SingleMu5_SingleAK4CaloJet60_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefL3SingleMu5_SingleAK4CaloJet80_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -6351,6 +7024,90 @@
     ]
   },
   "HLT_PPRefL3SingleMu7_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet12_ZDC1nAsymXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet12_ZDC1nOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet16_ZDC1nAsymXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet16_ZDC1nOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet20_ZDC1nAsymXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet20_ZDC1nOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet24_ZDC1nAsymXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet24_ZDC1nOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet28_ZDC1nAsymXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet28_ZDC1nOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet8_ZDC1nAsymXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_SingleJet8_ZDC1nOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_ZDC1nAsymXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_PPRefUPC_ZDC1nOR_v": {
     "online?": true,
     "owners": [
       "HIN"

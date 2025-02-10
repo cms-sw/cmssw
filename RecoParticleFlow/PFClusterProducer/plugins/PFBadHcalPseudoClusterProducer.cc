@@ -131,9 +131,9 @@ void PFBadHcalPseudoClusterProducer::init(const EventSetup& iSetup) {
       continue;
     PFLayer::Layer layer = (barrel ? PFLayer::HCAL_BARREL1 : PFLayer::HCAL_ENDCAP);
     // make a PF RecHit
-    std::shared_ptr<const CaloCellGeometry> thisCell = (barrel ? hbGeom : heGeom)->getGeometry(id);
+    auto thisCell = (barrel ? hbGeom : heGeom)->getGeometry(id);
     const GlobalPoint& pos = thisCell->getPosition();
-    badAreasRH_.emplace_back(thisCell, id(), layer, dummyEnergy);
+    badAreasRH_.emplace_back(std::move(thisCell), id(), layer, dummyEnergy);
     // make a PF cluster (but can't add the rechit, as for that I need an edm::Ref)
     badAreasC_.emplace_back(layer, dummyEnergy, pos.x(), pos.y(), pos.z());
     badAreasC_.back().setFlags(reco::CaloCluster::badHcalMarker);

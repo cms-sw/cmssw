@@ -387,11 +387,11 @@ void StandaloneTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.addUntracked<bool>("haveAllHistograms", false);
   desc.addUntracked<std::string>("puScaleFactorFile", "PileupScaleFactor.root");
   desc.addUntracked<std::string>("trackScaleFactorFile", "PileupScaleFactor.root");
-  desc.addUntracked<std::vector<std::string> >("MVAProducers");
-  desc.addUntracked<edm::InputTag>("TrackProducerForMVA");
+  desc.addUntracked<std::vector<std::string> >("MVAProducers", {"initialStepClassifier1", "initialStepClassifier2"});
+  desc.addUntracked<edm::InputTag>("TrackProducerForMVA", edm::InputTag("initialStepTracks"));
 
-  desc.addUntracked<edm::InputTag>("TCProducer");
-  desc.addUntracked<std::string>("AlgoName");
+  desc.addUntracked<edm::InputTag>("TCProducer", edm::InputTag("initialStepTrackCandidates"));
+  desc.addUntracked<std::string>("AlgoName", "GenTk");
   desc.addUntracked<bool>("verbose", false);
 
   {
@@ -1315,7 +1315,8 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   edm::Handle<reco::VertexCollection> vertexColl;
   iEvent.getByToken(vertexToken_, vertexColl);
   if (!vertexColl.isValid()) {
-    edm::LogError("DqmTrackStudy") << "Error! Failed to get reco::Vertex Collection, " << vertexTag_;
+    edm::LogError("StandaloneTrackMonitor") << "Error! Failed to get reco::Vertex Collection, " << vertexTag_;
+    return;
   }
   if (vertexColl->empty()) {
     edm::LogError("StandalonaTrackMonitor") << "No good vertex in the event!!" << std::endl;
@@ -1326,14 +1327,18 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   // Beam spot
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(bsToken_, beamSpot);
-  if (!beamSpot.isValid())
+  if (!beamSpot.isValid()) {
     edm::LogError("StandalonaTrackMonitor") << "Beamspot for input tag: " << bsTag_ << " not found!!";
+    return;
+  }
 
   // Track collection
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(trackToken_, tracks);
-  if (!tracks.isValid())
+  if (!tracks.isValid()) {
     edm::LogError("StandalonaTrackMonitor") << "TrackCollection for input tag: " << trackTag_ << " not found!!";
+    return;
+  }
 
   // Access PU information
   double wfac = 1.0;  // for data

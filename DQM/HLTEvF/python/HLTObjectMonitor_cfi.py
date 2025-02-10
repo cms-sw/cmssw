@@ -5,10 +5,10 @@ photon_pathName = "HLT_DoublePhoton33_CaloIdL" # "HLT_Photon30_R9Id90_HE10_IsoM"
 photon_moduleName = "hltEG33CaloIdLClusterShapeFilter" # "hltEG30R9Id90HE10IsoMTrackIsoFilter"
 
 muon_pathName = "HLT_IsoMu27"
-muon_moduleName = "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07" # "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
+muon_moduleName = "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered" # "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
 
-l2muon_pathName = "HLT_L2Mu10"
-l2muon_moduleName = "hltL2fL1sMu22L1f0L2Filtered10Q"
+l2muon_pathName = "HLT_L2Mu23NoVtx_2Cha"
+l2muon_moduleName = "hltL2fL1sMuORL1f0L2NoVtx23Q2Cha"
 
 l2NoBPTXmuon_pathName = "HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX" # "HLT_L2Mu10_NoVertex_NoBPTX3BX"
 l2NoBPTXmuon_moduleName = "hltL2fL1sMuOpenNotBptxORNoHaloMu3BXL1f0NoVtxCosmicSeedMeanTimerL2Filtered40Sta3" # "hltL2fL1sMuOpenNotBptxORNoHaloMu3BXL1f0NoVtxCosmicSeedMeanTimerL2Filtered10"
@@ -16,14 +16,14 @@ l2NoBPTXmuon_moduleName = "hltL2fL1sMuOpenNotBptxORNoHaloMu3BXL1f0NoVtxCosmicSee
 electron_pathName = "HLT_Ele38_WPTight_Gsf" # "HLT_Ele23_WPLoose_Gsf"
 electron_moduleName = "hltEle38noerWPTightGsfTrackIsoFilter" # "hltEle23WPLooseGsfTrackIsoFilter"
 
-caloMet_pathName = "HLT_MET60_IsoTrk35_Loose"
-caloMet_moduleName = "hltMET60"
+caloMet_pathName = "HLT_MET105_IsoTrk50"
+caloMet_moduleName = "hltMET105"
 
 pfMet_pathName = "HLT_PFMET120_PFMHT120_IDTight"
 pfMet_moduleName = "hltPFMET120"
 
-jetAk8_pathName = "HLT_AK8PFJet400_TrimMass30" # "HLT_AK8PFJet360_TrimMass30"
-jetAk8_moduleName = "hltAK8SinglePFJet400TrimModMass30" # "hltAK8SinglePFJet360TrimModMass30"
+jetAk8_pathName = "HLT_AK8PFJet400" # "HLT_AK8PFJet360_TrimMass30"
+jetAk8_moduleName = "hltSinglePFJet400AK8" # "hltAK8SinglePFJet360TrimModMass30"
 
 rsq_mr_pathName = "HLT_RsqMR240_Rsq0p09_MR200"
 rsq_mr_moduleName = "hltRsqMR240Rsq0p09MR200"
@@ -230,8 +230,8 @@ hltObjectMonitor = DQMEDAnalyzer('HLTObjectMonitor',
         Xmax = cms.double(200)
         ),   
     tauPt = cms.PSet(
-        pathName = cms.string("HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1"), # HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg"),
-        moduleName = cms.string("hltOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg"), #hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"),
+        pathName = cms.string("HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1"), # HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg"),
+        moduleName = cms.string("hltHpsOverlapFilterIsoMu24MediumDitauWPDeepTauPFTau35Monitoring"), #hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"),
         axisLabel = cms.string("tau p_{T} [GeV]"),
         plotLabel = cms.string("Tau_pT"),
         mainWorkspace = cms.bool(True),
@@ -240,7 +240,7 @@ hltObjectMonitor = DQMEDAnalyzer('HLTObjectMonitor',
         Xmax = cms.double(350)
         ),
     diMuonLowMass = cms.PSet(
-        pathName = cms.string("HLT_DoubleMu4_3_Jpsi_Displaced"),
+        pathName = cms.string("HLT_DoubleMu4_3_Jpsi"),
         moduleName = cms.string("hltDisplacedmumuFilterDoubleMu43Jpsi"),
         plotLabel = cms.string("Dimuon_LowMass"),
         axisLabel = cms.string("di-muon low mass [GeV]"),
@@ -290,7 +290,7 @@ hltObjectMonitor = DQMEDAnalyzer('HLTObjectMonitor',
         Xmax = cms.double(3.4)
         ),
     caloHtPt = cms.PSet(
-        pathName = cms.string("HLT_HT650_DisplacedDijet80_Inclusive"),
+        pathName = cms.string("HLT_HT650_DisplacedDijet60_Inclusive"),
         moduleName = cms.string("hltHT650"),
         plotLabel = cms.string("CaloHT_pT"),
         axisLabel = cms.string("calo HT p_{T} [GeV]"),
@@ -300,8 +300,8 @@ hltObjectMonitor = DQMEDAnalyzer('HLTObjectMonitor',
         Xmax = cms.double(2000)
         ),
     pfHtPt = cms.PSet(
-        pathName = cms.string("HLT_PFHT750_4JetPt50"),
-        moduleName = cms.string("hltPF4JetPt50HT750"),
+        pathName = cms.string("HLT_PFHT780"),
+        moduleName = cms.string("hltPFHT780Jet30"),
         plotLabel = cms.string("PFHT_pT"),
         axisLabel = cms.string("PF HT p_{T} [GeV]"),
         mainWorkspace = cms.bool(True),
@@ -375,9 +375,9 @@ hltObjectMonitor = DQMEDAnalyzer('HLTObjectMonitor',
         ),
     diMuonMass = cms.PSet(
         pathName = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"),
-        moduleName = cms.string("hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4"), #hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2"),
+        moduleName = cms.string("hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2"), #hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2"),
         pathName_OR = cms.string("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"),
-        moduleName_OR = cms.string("hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4"), # hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2"),
+        moduleName_OR = cms.string("hltDiMuon178RelTrkIsoVVLFilteredDzFiltered0p2"), # hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2"),
         plotLabel = cms.string("diMuon_Mass"),
         axisLabel = cms.string("dimuon mass [GeV]"),
         mainWorkspace = cms.bool(True),
@@ -426,8 +426,8 @@ hltObjectMonitor = DQMEDAnalyzer('HLTObjectMonitor',
         Xmax = cms.double(160)
         ),
     muonDxy = cms.PSet(
-        pathName = cms.string("HLT_DoubleMu18NoFiltersNoVtx"),
-        moduleName = cms.string("hltL3fDimuonL1f0L2NVf10L3NoFiltersNoVtxFiltered18"),
+        pathName = cms.string("HLT_DoubleMu43NoFiltersNoVtx"),
+        moduleName = cms.string("hltL3fDimuonL1f0L2NVf16L3NoFiltersNoVtxFiltered43"),
         plotLabel = cms.string("Muon_dxy"),
         axisLabel = cms.string("muon d_{xy} [mm]"),
         mainWorkspace = cms.bool(True),

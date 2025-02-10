@@ -1,0 +1,33 @@
+LFS: $CMSSW_BASE/tmp/UnitTest
+name: test_PixBary
+alignments:
+    promptGT:
+        color: 2
+        globaltag: 140X_dataRun3_Prompt_v2
+        style: 2101
+        title: GTprompt140Xv2
+    expressPCL:
+        color: 2
+        globaltag: 140X_dataRun3_Prompt_v2
+        style: 2101
+        title: expressPCLv2
+        conditions:
+            TrackerAlignmentRcd:
+                tag: TrackerAlignment_PCL_byRun_v2_express
+
+
+validations:
+    PixBary:
+        single:
+            singleJob:
+                firstRun: 376370
+                lastRun: 379254
+                alignments:
+                    - promptGT
+                    - expressPCL
+
+style:
+    PixBary:
+        singlemerge:
+            CMSlabel: "Internal"
+            Rlabel: "Unit Test"

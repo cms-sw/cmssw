@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
@@ -145,7 +146,7 @@ namespace edm {
 
     ServiceToken newToken = items.initServices(serviceSets, *processParameterSet_, token, iLegacy, false);
     parentActReg.connectToSubProcess(*items.actReg_);
-    serviceToken_ = items.addCPRandTNS(*processParameterSet_, newToken);
+    serviceToken_ = items.addTNS(*processParameterSet_, newToken);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -185,33 +186,41 @@ namespace edm {
     principalCache_.setNumberOfConcurrentPrincipals(preallocConfig);
     for (unsigned int index = 0; index < preallocConfig.numberOfStreams(); ++index) {
       auto ep = std::make_shared<EventPrincipal>(preg_,
+                                                 productResolversFactory::makeSubProcess,
                                                  branchIDListHelper(),
                                                  thinnedAssociationsHelper(),
                                                  *processConfiguration_,
                                                  &(historyAppenders_[index]),
                                                  index,
-                                                 false /*not primary process*/,
                                                  &*processBlockHelper_);
       principalCache_.insert(ep);
     }
 
     for (unsigned int index = 0; index < preallocConfig.numberOfRuns(); ++index) {
-      auto rpp = std::make_unique<RunPrincipal>(
-          preg_, *processConfiguration_, &(historyAppenders_[historyRunOffset_ + index]), index, false);
+      auto rpp = std::make_unique<RunPrincipal>(preg_,
+                                                productResolversFactory::makeSubProcess,
+                                                *processConfiguration_,
+                                                &(historyAppenders_[historyRunOffset_ + index]),
+                                                index);
       principalCache_.insert(std::move(rpp));
     }
 
     for (unsigned int index = 0; index < preallocConfig.numberOfLuminosityBlocks(); ++index) {
-      auto lbpp = std::make_unique<LuminosityBlockPrincipal>(
-          preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_ + index]), index, false);
+      auto lbpp = std::make_unique<LuminosityBlockPrincipal>(preg_,
+                                                             productResolversFactory::makeSubProcess,
+                                                             *processConfiguration_,
+                                                             &(historyAppenders_[historyLumiOffset_ + index]),
+                                                             index);
       principalCache_.insert(std::move(lbpp));
     }
 
     {
-      auto pb = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_, false);
+      auto pb = std::make_unique<ProcessBlockPrincipal>(
+          preg_, productResolversFactory::makeSubProcess, *processConfiguration_);
       principalCache_.insert(std::move(pb));
 
-      auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_, false);
+      auto pbForInput = std::make_unique<ProcessBlockPrincipal>(
+          preg_, productResolversFactory::makeSubProcess, *processConfiguration_);
       principalCache_.insertForInput(std::move(pbForInput));
     }
 
@@ -346,18 +355,18 @@ namespace edm {
                                   std::map<BranchID, bool>& keepAssociation) {
     if (productSelector_.initialized())
       return;
-    productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
+    productSelector_.initialize(productSelectorRules_, preg.allProductDescriptions());
 
     // TODO: See if we can collapse keptProducts_ and productSelector_ into a
     // single object. See the notes in the header for ProductSelector
     // for more information.
 
-    std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
-    std::vector<BranchDescription const*> associationDescriptions;
+    std::map<BranchID, ProductDescription const*> trueBranchIDToKeptBranchDesc;
+    std::vector<ProductDescription const*> associationDescriptions;
     std::set<BranchID> keptProductsInEvent;
 
     for (auto const& it : preg.productList()) {
-      BranchDescription const& desc = it.second;
+      ProductDescription const& desc = it.second;
       if (desc.transient()) {
         // if the class of the branch is marked transient, output nothing
       } else if (!desc.present() && !desc.produced()) {
@@ -383,8 +392,8 @@ namespace edm {
     ProductSelector::fillDroppedToKept(preg, trueBranchIDToKeptBranchDesc, droppedBranchIDToKeptBranchID_);
   }
 
-  void SubProcess::keepThisBranch(BranchDescription const& desc,
-                                  std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+  void SubProcess::keepThisBranch(ProductDescription const& desc,
+                                  std::map<BranchID, ProductDescription const*>& trueBranchIDToKeptBranchDesc,
                                   std::set<BranchID>& keptProductsInEvent) {
     ProductSelector::checkForDuplicateKeptBranch(desc, trueBranchIDToKeptBranchDesc);
 
@@ -790,7 +799,7 @@ namespace edm {
   void SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
     SelectedProducts const& keptVector = keptProducts()[type];
     for (auto const& item : keptVector) {
-      BranchDescription const& desc = *item.first;
+      ProductDescription const& desc = *item.first;
       ProductResolverBase const* parentProductResolver = parentPrincipal.getProductResolver(desc.branchID());
       if (parentProductResolver != nullptr) {
         ProductResolverBase* productResolver = principal.getModifiableProductResolver(desc.branchID());
@@ -805,13 +814,13 @@ namespace edm {
   bool SubProcess::parentProducedProductIsKept(Principal const& parentPrincipal, Principal& principal) const {
     SelectedProducts const& keptVector = keptProducts()[InProcess];
     for (auto const& item : keptVector) {
-      BranchDescription const& desc = *item.first;
+      ProductDescription const& desc = *item.first;
       assert(desc.branchType() == InProcess);
       ProductResolverBase const* parentProductResolver = parentPrincipal.getProductResolver(desc.branchID());
       if (parentProductResolver != nullptr) {
         ProductResolverBase* productResolver = principal.getModifiableProductResolver(desc.branchID());
         if (productResolver != nullptr) {
-          if (parentProductResolver->branchDescription().produced()) {
+          if (parentProductResolver->productDescription().produced()) {
             return true;
           }
         }

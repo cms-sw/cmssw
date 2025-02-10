@@ -250,16 +250,19 @@ void TtbarTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent, edm
 
   edm::Handle<reco::JetTagCollection> bTagHandle;
   iEvent.getByToken(bjetsToken_, bTagHandle);
-  const reco::JetTagCollection& bTags = *(bTagHandle.product());
-  std::vector<TLorentzVector> list_bjets;
 
-  if (!bTags.empty()) {
-    for (unsigned bj = 0; bj != bTags.size(); ++bj) {
-      TLorentzVector lv_bjets;
-      lv_bjets.SetPtEtaPhiE(
-          bTags[bj].first->pt(), bTags[bj].first->eta(), bTags[bj].first->phi(), bTags[bj].first->energy());
-      if (bTags[bj].second > btagFactor_)
-        list_bjets.push_back(lv_bjets);
+  if (bTagHandle.isValid()) {
+    const reco::JetTagCollection& bTags = *(bTagHandle.product());
+    std::vector<TLorentzVector> list_bjets;
+
+    if (!bTags.empty()) {
+      for (unsigned bj = 0; bj != bTags.size(); ++bj) {
+        TLorentzVector lv_bjets;
+        lv_bjets.SetPtEtaPhiE(
+            bTags[bj].first->pt(), bTags[bj].first->eta(), bTags[bj].first->phi(), bTags[bj].first->energy());
+        if (bTags[bj].second > btagFactor_)
+          list_bjets.push_back(lv_bjets);
+      }
     }
   }
 

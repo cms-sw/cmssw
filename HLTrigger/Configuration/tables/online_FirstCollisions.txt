@@ -55,7 +55,6 @@ DQMCalibrationOutput
 DQMEventDisplayOutput
 DQMOnlineBeamspotOutput
 DQMPPSRandomOutput
-HLTMonitorOutput
 PhysicsCommissioningOutput
 PhysicsSpecialZeroBias0Output
 PhysicsSpecialZeroBias1Output

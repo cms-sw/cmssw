@@ -20,6 +20,7 @@ AlCa_EcalPi0EEonlyForHI_v*
 AlCa_EcalEtaEBonlyForHI_v*
 AlCa_EcalEtaEEonlyForHI_v*
 HLT_HICentrality30100_FirstCollisionAfterAbortGap_v*
+HLT_HICentrality50100MinimumBiasHF1AND_Beamspot_v*      # CMSHLT-3388
 HLT_HIZeroBias_v*
 HLT_HIZeroBias_HighRate_v*                              # CMSHLT-2944
 HLT_HIZeroBias_FirstCollisionAfterAbortGap_v*
@@ -64,6 +65,8 @@ HLT_HIL1UnpairedBunchBptxPlus_v*
 HLT_HIUPC_DoubleEG2_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
 HLT_HIUPC_DoubleEG2_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
 HLT_HIUPC_DoubleEG2_NotMBHF2AND_v*                                         # CMSHLT-2471
+HLT_HIUPC_DoubleEG3_NotMBHF2AND_v*                                         # CMSHLT-3393
+HLT_HIUPC_DoubleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-3393
 HLT_HIUPC_DoubleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
 HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
 HLT_HIUPC_DoubleEG5_NotMBHF2AND_v*                                         # CMSHLT-2471
@@ -73,12 +76,6 @@ HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_v*                                    # CMS
 HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v*                      # CMSHLT-2926
 HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v*                  # CMSHLT-2926
 HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v*                                      # CMSHLT-2471
-HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v*                          # CMSHLT-2471
-HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v*                          # CMSHLT-2471
-HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity40400_v*                          # CMSHLT-2471
-HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity20400_v*                          # CMSHLT-2471
-HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity30400_v*                          # CMSHLT-2471
-HLT_HIUPC_MBHF2AND_PixelTrackMultiplicity40400_v*                          # CMSHLT-2471
 HLT_HIUPC_SingleEG2_NotMBHF2AND_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v*  # CMSHLT-2471
 HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
 HLT_HIUPC_SingleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
@@ -87,6 +84,7 @@ HLT_HIUPC_SingleEG3_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v*           # CMS
 HLT_HIUPC_SingleEG3_NotMBHF2OR_v*                                          # CMSHLT-2471
 HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
 HLT_HIUPC_SingleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
+HLT_HIUPC_SingleEG4_NotMBHF2AND_v*                                         # CMSHLT-3379
 HLT_HIUPC_SingleEG5_NotMBHF2AND_v*                                         # CMSHLT-2471
 HLT_HIUPC_SingleMuCosmic_BptxAND_MaxPixelCluster1000_v*                    # CMSHLT-2926
 HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v*                # CMSHLT-2926
@@ -122,6 +120,87 @@ HLT_HIUPC_ZeroBias_MinPixelCluster400_MaxPixelCluster10000_v*              # CMS
 HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v*             # CMSHLT-2471
 HLT_HIUPC_ZeroBias_SinglePixelTrack_MaxPixelTrack_v*                       # CMSHLT-2471
 
+HLT_HIUPC_SingleJet8_ZDC1nXOR_MaxPixelCluster10000_v*                      # CMSHLT-3350
+HLT_HIUPC_SingleJet12_ZDC1nXOR_MaxPixelCluster10000_v*                     # CMSHLT-3350
+HLT_HIUPC_SingleJet16_ZDC1nXOR_MaxPixelCluster10000_v*                     # CMSHLT-3350
+HLT_HIUPC_SingleJet20_ZDC1nXOR_MaxPixelCluster10000_v*                     # CMSHLT-3350
+HLT_HIUPC_SingleJet24_ZDC1nXOR_MaxPixelCluster10000_v*                     # CMSHLT-3350
+HLT_HIUPC_SingleJet28_ZDC1nXOR_MaxPixelCluster10000_v*                     # CMSHLT-3350
+HLT_HIUPC_SingleJet8_ZDC1nAsymXOR_MaxPixelCluster10000_v*                  # CMSHLT-3350
+HLT_HIUPC_SingleJet12_ZDC1nAsymXOR_MaxPixelCluster10000_v*                 # CMSHLT-3350
+HLT_HIUPC_SingleJet16_ZDC1nAsymXOR_MaxPixelCluster10000_v*                 # CMSHLT-3350
+HLT_HIUPC_SingleJet20_ZDC1nAsymXOR_MaxPixelCluster10000_v*                 # CMSHLT-3350
+HLT_HIUPC_SingleJet24_ZDC1nAsymXOR_MaxPixelCluster10000_v*                 # CMSHLT-3350
+HLT_HIUPC_SingleJet28_ZDC1nAsymXOR_MaxPixelCluster10000_v*                 # CMSHLT-3350
+HLT_HIUPC_SingleJet8_NotMBHF2AND_MaxPixelCluster10000_v*                   # CMSHLT-3350
+HLT_HIUPC_SingleJet12_NotMBHF2AND_MaxPixelCluster10000_v*                  # CMSHLT-3350
+HLT_HIUPC_SingleJet16_NotMBHF2AND_MaxPixelCluster10000_v*                  # CMSHLT-3350
+HLT_HIUPC_SingleJet20_NotMBHF2AND_MaxPixelCluster10000_v*                  # CMSHLT-3350
+HLT_HIUPC_SingleJet24_NotMBHF2AND_MaxPixelCluster10000_v*                  # CMSHLT-3350
+HLT_HIUPC_SingleJet28_NotMBHF2AND_MaxPixelCluster10000_v*                  # CMSHLT-3350
+HLT_HIUPC_ZeroBias_MaxPixelCluster10000_v*                                 # CMSHLT-3350
+HLT_HIUPC_ZDC1nOR_MaxPixelCluster10000_v*                                  # CMSHLT-3350
+HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity20400_v*                  # CMSHLT-3350
+HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity30400_v*                  # CMSHLT-3350
+HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity40400_v*                  # CMSHLT-3350
+HLT_HIUPC_ZDC1nAND_NotMBHF2_MaxPixelCluster10000_v*                        # CMSHLT-3350
+HLT_HIUPC_MinPixelThrust0p8_MaxPixelCluster10000_v*                        # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet8_NotMBHF2AND_MaxPixelCluster10000_v*             # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet12_NotMBHF2AND_MaxPixelCluster10000_v*            # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet16_NotMBHF2AND_MaxPixelCluster10000_v*            # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet20_NotMBHF2AND_MaxPixelCluster10000_v*            # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet24_NotMBHF2AND_MaxPixelCluster10000_v*            # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet28_NotMBHF2AND_MaxPixelCluster10000_v*            # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet8_ZDC1nXOR_MaxPixelCluster10000_v*                # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet12_ZDC1nXOR_MaxPixelCluster10000_v*               # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet16_ZDC1nXOR_MaxPixelCluster10000_v*               # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet20_ZDC1nXOR_MaxPixelCluster10000_v*               # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet24_ZDC1nXOR_MaxPixelCluster10000_v*               # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet28_ZDC1nXOR_MaxPixelCluster10000_v*               # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet8_ZDC1nAsymXOR_MaxPixelCluster10000_v*            # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet12_ZDC1nAsymXOR_MaxPixelCluster10000_v*           # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet16_ZDC1nAsymXOR_MaxPixelCluster10000_v*           # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet20_ZDC1nAsymXOR_MaxPixelCluster10000_v*           # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet24_ZDC1nAsymXOR_MaxPixelCluster10000_v*           # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet28_ZDC1nAsymXOR_MaxPixelCluster10000_v*           # CMSHLT-3350
+HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v* # CMSHLT-3350
+HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v*# CMSHLT-3350
+HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v*# CMSHLT-3350
+HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v*  # CMSHLT-3350
+HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v* # CMSHLT-3350
+HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v* # CMSHLT-3350
+HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v*   # CMSHLT-3350
+HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v*  # CMSHLT-3350
+HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v*  # CMSHLT-3350
+HLT_HIUPC_ZDC1nOR_RapGap_MaxPixelCluster10000_v*                           # CMSHLT-3350
+HLT_HIUPC_SingleJet8_ZDC1nXOR_RapGap_MaxPixelCluster10000_v*               # CMSHLT-3350
+HLT_HIUPC_SingleJet12_ZDC1nXOR_RapGap_MaxPixelCluster10000_v*              # CMSHLT-3350
+HLT_HIUPC_SingleJet16_ZDC1nXOR_RapGap_MaxPixelCluster10000_v*              # CMSHLT-3350
+HLT_HIUPC_SingleJet20_ZDC1nXOR_RapGap_MaxPixelCluster10000_v*              # CMSHLT-3350
+HLT_HIUPC_SingleJet24_ZDC1nXOR_RapGap_MaxPixelCluster10000_v*              # CMSHLT-3350
+HLT_HIUPC_SingleJet28_ZDC1nXOR_RapGap_MaxPixelCluster10000_v*              # CMSHLT-3350
+HLT_HIUPC_SingleJet8_NotZDC_OR_MaxPixelCluster10000_v*                     # CMSHLT-3350
+HLT_HIUPC_SingleJet12_NotZDC_OR_MaxPixelCluster10000_v*                    # CMSHLT-3350
+HLT_HIUPC_SingleJet16_NotZDC_OR_MaxPixelCluster10000_v*                    # CMSHLT-3350
+HLT_HIUPC_SingleJet20_NotZDC_OR_MaxPixelCluster10000_v*                    # CMSHLT-3350
+HLT_HIUPC_SingleJet24_NotZDC_OR_MaxPixelCluster10000_v*                    # CMSHLT-3350
+HLT_HIUPC_SingleJet28_NotZDC_OR_MaxPixelCluster10000_v*                    # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet8_NotZDC_OR_MaxPixelCluster10000_v*               # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet12_NotZDC_OR_MaxPixelCluster10000_v*              # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet16_NotZDC_OR_MaxPixelCluster10000_v*              # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet20_NotZDC_OR_MaxPixelCluster10000_v*              # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet24_NotZDC_OR_MaxPixelCluster10000_v*              # CMSHLT-3350
+HLT_HIUPC_SingleUncorrJet28_NotZDC_OR_MaxPixelCluster10000_v*              # CMSHLT-3350
+HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v*       # CMSHLT-3350
+HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v*      # CMSHLT-3350
+HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v*      # CMSHLT-3350
+HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v*         # CMSHLT-3350
+HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v*        # CMSHLT-3350
+HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v*        # CMSHLT-3350
+HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v*        # CMSHLT-3350
+HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v*       # CMSHLT-3350
+HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v*       # CMSHLT-3350
+
 DQM_HIEcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
 DQM_HIHcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
 DQM_HIPixelReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403, CMSHLT-2565, CMSHLT-2882
@@ -137,24 +216,6 @@ HLT_HIPuAK4CaloJet100Fwd_v*           # CMSHLT-2882
 HLT_HIPuAK4CaloJet120Fwd_v*           # CMSHLT-2882
 HLT_HIDoubleGEDPhoton20_v*            # CMSHLT-2882
 HLT_HIUPC_NotMBHF2_v*                 # CMSHLT-2882
-HLT_HIUPC_SingleJet8_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
-HLT_HIUPC_SingleJet12_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
-HLT_HIUPC_SingleJet16_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
-HLT_HIUPC_SingleJet20_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
-HLT_HIUPC_SingleJet24_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
-HLT_HIUPC_SingleJet28_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
-HLT_HIUPC_SingleJet8_ZDC1nAsymXOR_MaxPixelCluster50000_v*	# CMSHLT-2957
-HLT_HIUPC_SingleJet12_ZDC1nAsymXOR_MaxPixelCluster50000_v*	# CMSHLT-2957
-HLT_HIUPC_SingleJet16_ZDC1nAsymXOR_MaxPixelCluster50000_v*	# CMSHLT-2957
-HLT_HIUPC_SingleJet20_ZDC1nAsymXOR_MaxPixelCluster50000_v*	# CMSHLT-2957
-HLT_HIUPC_SingleJet24_ZDC1nAsymXOR_MaxPixelCluster50000_v*	# CMSHLT-2957
-HLT_HIUPC_SingleJet28_ZDC1nAsymXOR_MaxPixelCluster50000_v*	# CMSHLT-2957
-HLT_HIUPC_SingleJet8_NotMBHF2AND_MaxPixelCluster50000_v*  # CMSHLT-2912
-HLT_HIUPC_SingleJet12_NotMBHF2AND_MaxPixelCluster50000_v* # CMSHLT-2912
-HLT_HIUPC_SingleJet16_NotMBHF2AND_MaxPixelCluster50000_v* # CMSHLT-2912
-HLT_HIUPC_SingleJet20_NotMBHF2AND_MaxPixelCluster50000_v* # CMSHLT-2912
-HLT_HIUPC_SingleJet28_NotMBHF2AND_MaxPixelCluster50000_v* # CMSHLT-2912
-HLT_HIUPC_SingleJet24_NotMBHF2AND_MaxPixelCluster50000_v* # CMSHLT-2912
 HLT_HIL1DoubleMu0_MaxDr3p5_Open_v*    # CMSHLT-2882
 HLT_HIL1DoubleMu0_v*                  # CMSHLT-2882
 HLT_HIL1DoubleMu0_SQ_v*               # CMSHLT-2882
@@ -180,6 +241,17 @@ HLT_HIL3DoubleMu0_M2to4p5_Open_v*     # CMSHLT-2882
 HLT_HIL3DoubleMu2_M2to4p5_Open_v*     # CMSHLT-2882
 HLT_HIL3DoubleMu0_M7to15_Open_v*      # CMSHLT-2882
 HLT_HIL3DoubleMu2_M7to15_Open_v*      # CMSHLT-2882
+HLT_HIL1SingleMuOpen_Centrality30to100_v*  # CMSHLT-3338
+HLT_HIL1SingleMu0_Centrality30to100_v*     # CMSHLT-3338
+HLT_HIL1SingleMu0_Centrality40to100_v*     # CMSHLT-3338
+HLT_HIL2SingleMuOpen_Centrality30to100_v*  # CMSHLT-3338
+HLT_HIL2SingleMu0_Centrality30to100_v*     # CMSHLT-3338
+HLT_HIL2SingleMu0_Centrality40to100_v*     # CMSHLT-3338
+HLT_HIL2SingleMu12_v*                      # CMSHLT-3338
+HLT_HIL2DoubleMuOpen_Centrality40to100_v*  # CMSHLT-3338
+HLT_HIL2DoubleMu0_SQ_v*                    # CMSHLT-3338
+HLT_HIL2DoubleMuOpen_OS_v*                 # CMSHLT-3338
+HLT_HIL2DoubleMuOpen_SS_v*                 # CMSHLT-3338
 HLT_HICscCluster_Loose_v*             # CMSHLT-2882
 HLT_HICscCluster_Medium_v*            # CMSHLT-2882
 HLT_HICscCluster_Tight_v*             # CMSHLT-2882
@@ -187,7 +259,7 @@ HLT_HICscCluster_Tight_v*             # CMSHLT-2882
 HLT_HIL1SingleMu5_SingleEG20Gsf_v*        # CMSHLT-2906
 HLT_HIL1SingleMu5_SingleGEDPhoton20_v*    # CMSHLT-2906
 HLT_HIL1SingleMu7_SingleEG20Gsf_v*        # CMSHLT-2906
-HLT_HIL1SingleMu7_SingleGEDPhoton10_v*    # CMSHLT-2906
+HLT_HIL1SingleMu7_SingleGEDPhoton20_v*    # CMSHLT-3356
 HLT_HIL3SingleMu3_SinglePuAK4CaloJet40_v* # CMSHLT-2906
 HLT_HIL3SingleMu3_SinglePuAK4CaloJet60_v* # CMSHLT-2906
 HLT_HIL3SingleMu3_SinglePuAK4CaloJet80_v* # CMSHLT-2906
@@ -204,17 +276,14 @@ HLT_HIEphemeralZeroBias_v* # CMSHLT-2915
 
 HLT_HIMinimumBiasHF1AND_v*                 # CMSHLT-2521, CMSHLT-2914
 HLT_HIMinimumBiasHF1AND_copy_v*            # CMSHLT-2939
-HLT_HIMinimumBiasHF1AND_Beamspot_v*        # CMSHLT-2914
 HLT_HIMinimumBiasHF1ANDZDC1nOR_v*          # CMSHLT-2956
 HLT_HIMinimumBiasHF1ANDZDC2nOR_v*          # CMSHLT-2914
 HLT_HIMinimumBiasHF1ANDZDC1nOR_copy_v*     # CMSHLT-2956
 HLT_HIMinimumBiasHF1ANDZDC2nOR_copy_v*     # CMSHLT-2939
-HLT_HIMinimumBiasHF1ANDZDC1nOR_Beamspot_v* # CMSHLT-2956
-HLT_HIMinimumBiasHF1ANDZDC2nOR_Beamspot_v* # CMSHLT-2914
 
 HLT_HIZeroBias_HighRateRAW_v*		   # CMSHLT-2963
 HLT_HIUPC_Random_HighRate_v*		   # CMSHLT-2963
-HLT_HIUPC_TestSeedsCombined_v*		   # CMSHLT-2963
+HLT_HIUPC_HFafterglowCombined_v*           # CMSHLT-3335
 
 HLTriggerFinalPath
 
@@ -294,6 +363,34 @@ PhysicsHIPhysicsRawPrime28Output # CMSHLT-2882, CMSHLT-2913
 PhysicsHIPhysicsRawPrime29Output # CMSHLT-2882, CMSHLT-2913
 PhysicsHIPhysicsRawPrime30Output # CMSHLT-2882, CMSHLT-2913
 PhysicsHIPhysicsRawPrime31Output # CMSHLT-2882, CMSHLT-2913
+PhysicsHIPhysicsRawPrime32Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime33Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime34Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime35Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime36Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime37Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime38Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime39Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime40Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime41Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime42Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime43Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime44Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime45Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime46Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime47Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime48Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime49Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime50Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime51Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime52Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime53Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime54Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime55Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime56Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime57Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime58Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
+PhysicsHIPhysicsRawPrime59Output # CMSHLT-2882, CMSHLT-2913, CMSHLT-3369
 PhysicsHITrackerNZSOutput
 NanoDSTOutput
 RPCMONOutput

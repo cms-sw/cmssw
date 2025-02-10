@@ -57,7 +57,6 @@ process.add_(cms.Service('CUDAService'))
   // object to load and run the graph / session
   tensorflow::Status status;
   tensorflow::Options options{backend};
-  tensorflow::setLogging("0");
   tensorflow::RunOptions runOptions;
   tensorflow::SavedModelBundle bundle;
 

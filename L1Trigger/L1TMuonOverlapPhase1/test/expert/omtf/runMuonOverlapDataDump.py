@@ -68,7 +68,7 @@ path = '/eos/user/a/akalinow/Data/SingleMu/9_3_14_FullEta_v2/' #new sample, but 
 #path = '/afs/cern.ch/work/k/kbunkow/public/data/SingleMuFullEta/721_FullEta_v4/'
 
 onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
-#print onlyfiles
+#print(onlyfiles)
 
 filesNameLike = sys.argv[1]
 #chosenFiles = ['file://' + path + f for f in onlyfiles if (('_p_10_' in f) or ('_m_10_' in f))]
@@ -76,7 +76,7 @@ filesNameLike = sys.argv[1]
 #chosenFiles = ['file://' + path + f for f in onlyfiles if (re.match('.*_._p_10.*', f))]
 #chosenFiles = ['file://' + path + f for f in onlyfiles if ((filesNameLike in f))]
 
-#print onlyfiles
+#print(onlyfiles)
 
 chosenFiles = []
 
@@ -90,7 +90,7 @@ if filesNameLike == 'allPt' :
                 for f in onlyfiles:
                    #if (( '_' + str(ptCode) + sign + '_' + str(i) + '_') in f): #TODO for 721_FullEta_v4/
                    if (( '_' + str(ptCode) + sign + '_' + str(i) + ".") in f):  #TODO for 9_3_14_FullEta_v2
-                        #print f
+                        #print(f)
                         chosenFiles.append('file://' + path + f) 
                         selFilesPerPtBin += 1
                 if(selFilesPerPtBin >= filesPerPtBin):
@@ -101,16 +101,16 @@ else :
         for f in onlyfiles:
             if (( filesNameLike + '_' + str(i) + '_') in f):  #TODO for 721_FullEta_v4/
             #if (( filesNameLike + '_' + str(i) + '.') in f): #TODO for 9_3_14_FullEta_v2
-                print f
+                print(f)
                 chosenFiles.append('file://' + path + f) 
          
 
-print "chosenFiles"
+print("chosenFiles")
 for chFile in chosenFiles:
-    print chFile
+    print(chFile)
 
 if len(chosenFiles) == 0 :
-    print "no files selected!!!!!!!!!!!!!!!"
+    print("no files selected!!!!!!!!!!!!!!!")
     exit
 
 firstEv = 0#40000

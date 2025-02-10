@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplets
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 from RecoTracker.PixelSeeding.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
@@ -123,6 +124,7 @@ phase1Pixel.toModify(hiConformalPixelTracks,
 
 hiConformalPixelTracksTask = cms.Task(
     hiTrackingRegionWithVertex ,
+    PixelLayerTriplets ,
     hiConformalPixelTracksHitDoublets ,
     hiConformalPixelTracksHitTriplets ,
     pixelFitterByConformalMappingAndLine ,
@@ -130,66 +132,27 @@ hiConformalPixelTracksTask = cms.Task(
     hiConformalPixelTracks
 )
 
-from Configuration.ProcessModifiers.gpu_cff import gpu
-from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
-from RecoTracker.PixelTrackFitting.pixelTrackSoAFromCUDAHIonPhase1_cfi import pixelTrackSoAFromCUDAHIonPhase1 as _pixelTracksSoA
-from RecoTracker.PixelSeeding.caHitNtupletCUDAHIonPhase1_cfi import caHitNtupletCUDAHIonPhase1 as _pixelTracksCUDA
-from RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAHIonPhase1_cfi import pixelTrackProducerFromSoAHIonPhase1 as _pixelTrackProducerFromSoA
+## These are the parameters used for the offline CUDA HI Pixel Tracks
+## leaving them here for the records until we have the Alpaka equivalent
 
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
+# hiPixelTracksCUDA = _pixelTracksCUDA.clone(pixelRecHitSrc="siPixelRecHitsPreSplittingCUDA", idealConditions = False,
+#         ptmin = 0.25, z0Cut = 8.0, hardCurvCut = 0.0756, doPtCut = False,
+#         onGPU = True,
+#         dcaCutInnerTriplet = 0.05, dcaCutOuterTriplet = 0.10,
+#         CAThetaCutForward = 0.002, CAThetaCutBarrel = 0.001,
+#         phiCuts = cms.vint32(19*[900]), #19 pairs
+#         trackQualityCuts = dict(
+#           chi2MaxPt = 10,
+#           chi2Coeff = [0.9,1.8],
+#           chi2Scale = 1.8,
+#           tripletMinPt = 0.1,
+#           tripletMaxTip = 0.3,
+#           tripletMaxZip = 12,
+#           quadrupletMinPt = 0.1,
+#           quadrupletMaxTip = 0.5,
+#           quadrupletMaxZip = 12
+#         ))
 
-hiPixelTracksCUDA = _pixelTracksCUDA.clone(pixelRecHitSrc="siPixelRecHitsPreSplittingCUDA", idealConditions = False,
-        ptmin = 0.25, z0Cut = 8.0, hardCurvCut = 0.0756, doPtCut = False,
-        onGPU = True,
-        dcaCutInnerTriplet = 0.05, dcaCutOuterTriplet = 0.10,
-        CAThetaCutForward = 0.002, CAThetaCutBarrel = 0.001,
-        phiCuts = cms.vint32(19*[900]), #19 pairs
-        trackQualityCuts = dict(
-          chi2MaxPt = 10,
-          chi2Coeff = [0.9,1.8],
-          chi2Scale = 1.8,
-          tripletMinPt = 0.1,
-          tripletMaxTip = 0.3,
-          tripletMaxZip = 12,
-          quadrupletMinPt = 0.1,
-          quadrupletMaxTip = 0.5,
-          quadrupletMaxZip = 12
-        ))
-
-# SwitchProducer providing the pixel tracks in SoA format on the CPU
-hiPixelTracksSoA = SwitchProducerCUDA(
-    # build pixel ntuplets and pixel tracks in SoA format on the CPU
-    cpu = _pixelTracksCUDA.clone(
-        pixelRecHitSrc = "siPixelRecHitsPreSplittingCPU",
-        idealConditions = False,
-    	doPtCut = False,
-    	ptmin = 0.25,
-    	hardCurvCut = 0.0756,
-        onGPU = False,
-        phiCuts = cms.vint32(19*[900]), #19 pairs
-        trackQualityCuts = dict(
-          chi2MaxPt = 10,
-          chi2Coeff = [0.9,1.8],
-          chi2Scale = 8,
-          tripletMinPt = 0.5,
-          tripletMaxTip = 0.3,
-          tripletMaxZip = 12,
-          quadrupletMinPt = 0.3,
-          quadrupletMaxTip = 0.5,
-          quadrupletMaxZip = 12
-        ))
-)
-
-gpu.toModify(hiPixelTracksSoA,
-    # transfer the pixel tracks in SoA format to the host
-    cuda = _pixelTracksSoA.clone(src="hiPixelTracksCUDA")
-)
-
-pixelNtupletFit.toReplaceWith(hiConformalPixelTracks,_pixelTrackProducerFromSoA.clone(
-    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
-    trackSrc = "hiPixelTracksSoA",
-    minQuality = "highPurity"
-))
 
 
 hiConformalPixelTracksTaskPhase1 = cms.Task(
@@ -202,22 +165,10 @@ hiConformalPixelTracksTaskPhase1 = cms.Task(
     hiConformalPixelTracks
 )
 
-pixelNtupletFit.toReplaceWith(hiConformalPixelTracksTaskPhase1, cms.Task(
-    # build the pixel ntuplets and the pixel tracks in SoA format on the CPU
-    hiPixelTracksSoA,
-    # convert the pixel tracks from SoA to legacy format
-    hiConformalPixelTracks
-))
-
-(gpu & pixelNtupletFit).toReplaceWith(hiConformalPixelTracksTaskPhase1, cms.Task(
-    # build the pixel ntuplets and the pixel tracks in SoA format on the GPU
-    hiPixelTracksCUDA,
-    # just copying the task above
-    hiConformalPixelTracksTaskPhase1.copy()
-))
-
-hiConformalPixelTracksSequencePhase1 = cms.Sequence(hiConformalPixelTracksTaskPhase1)
+phase1Pixel.toReplaceWith(hiConformalPixelTracksTask, hiConformalPixelTracksTaskPhase1)
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 run3_upc.toModify(hiConformalPixelTracksPhase1TrackingRegions.RegionPSet, ptMin = 0.05)
 run3_upc.toModify(hiConformalPixelTracksPhase1Filter, ptMin = 0.05)
+run3_upc.toModify(hiTrackingRegionWithVertex.RegionPSet, VertexCollection = "offlinePrimaryVertices", ptMin = 0.05)
+run3_upc.toModify(hiConformalPixelFilter, VertexCollection = "offlinePrimaryVertices", ptMin = 0.05)

@@ -13,6 +13,7 @@ gtStage2Raw = cms.EDProducer(
     JetInputTag    = cms.InputTag("simCaloStage2Digis"),
     EtSumInputTag  = cms.InputTag("simCaloStage2Digis"),
     EtSumZDCInputTag  = cms.InputTag("l1tZDCEtSums"),
+    CICADAScoreInputTag = cms.InputTag("simCaloStage2Layer1Summary", "CICADAScore"),
     FedId = cms.int32(1404),
     FWId = cms.uint32(0x1150), # FW w/ 2loose hadronic showers.
     lenSlinkHeader = cms.untracked.int32(8),

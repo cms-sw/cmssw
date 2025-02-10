@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 class Matrix(dict):
     def __setitem__(self,key,value):
@@ -134,17 +133,18 @@ class InputInfo(object):
         elif self.skimEvents:
             from os import getenv
             if getenv("JENKINS_PREFIX") is not None:
-                # to be assured that whatever happens the files are only those at CERN
-                command = "das-up-to-nevents.py -d %s -e %d -pc"%(dataset,self.events)
+                # to be sure that whatever happens the files are only those at CERN
+                command = "das-up-to-nevents.py -d %s -e %d -pc -l lumi_ranges.txt"%(dataset,self.events)
             else:
-                command = "das-up-to-nevents.py -d %s -e %d"%(dataset,self.events)
+                command = "das-up-to-nevents.py -d %s -e %d -l lumi_ranges.txt"%(dataset,self.events)
         # Run filter on DAS output 
         if self.ib_blacklist:
             command += " | grep -E -v "
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
         if not self.skimEvents: ## keep run-lumi sorting
             from os import getenv
-            if getenv("CMSSW_USE_IBEOS","false")=="true": return command + " | ibeos-lfn-sort"
+            if getenv("CMSSW_USE_IBEOS","false")=="true":
+                return "export CMSSW_USE_IBEOS=true; " + command + " | ibeos-lfn-sort"
             return command + " | sort -u"
         else:
             return command

@@ -15,8 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 
 namespace edm {
 
@@ -73,9 +71,8 @@ namespace edm {
     LogAbsolute("AsciiOut") << '\n' << e.id() << '\n';
 
     // Loop over products, and write some output for each...
-    Service<ConstProductRegistry> reg;
-    for (auto const& prod : reg->productList()) {
-      BranchDescription const& desc = prod.second;
+    for (auto const& prod : e.productRegistry().productList()) {
+      ProductDescription const& desc = prod.second;
       if (selected(desc)) {
         if (desc.isAlias()) {
           LogAbsolute("AsciiOut") << "ModuleLabel " << desc.moduleLabel() << " is an alias for";
@@ -85,7 +82,7 @@ namespace edm {
         LogAbsolute("AsciiOut") << prov;
 
         if (verbosity_ > 2) {
-          BranchDescription const& desc2 = prov.branchDescription();
+          ProductDescription const& desc2 = prov.productDescription();
           std::string const& process = desc2.processName();
           std::string const& label = desc2.moduleLabel();
           ProcessHistory const& processHistory = e.processHistory();

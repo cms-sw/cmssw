@@ -187,7 +187,7 @@ from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import hiCentrality
 from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import hiClusterCompatibility
 _highlevelreco_HITask = highlevelrecoTask.copy()
-_highlevelreco_HITask.add(hiConformalPixelTracksTaskPhase1)
+_highlevelreco_HITask.add(hiConformalPixelTracksTask)
 _highlevelreco_HITask.add(hiCentrality)
 _highlevelreco_HITask.add(hiClusterCompatibility)
 (pp_on_XeXe_2017 | pp_on_AA | run3_upc).toReplaceWith(highlevelrecoTask, _highlevelreco_HITask)

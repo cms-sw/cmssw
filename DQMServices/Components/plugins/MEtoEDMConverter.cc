@@ -164,7 +164,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
 
   lumigetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InLumi);
   rungetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InRun);
-  callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+  callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
     this->lumigetter_(bd);
     this->rungetter_(bd);
   });

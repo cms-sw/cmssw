@@ -78,6 +78,7 @@ protected:
   hcaldqm::Container2D _cSummaryvsLS_FED;          // online only
   hcaldqm::ContainerSingle2D _cSummaryvsLS;        // online only
   hcaldqm::ContainerSingle2D _cBadQ_FEDvsLSmod10;  // online only
+  hcaldqm::ContainerSingle2D _cBadQ_FEDvsLS;       // online only
 };
 
 #endif

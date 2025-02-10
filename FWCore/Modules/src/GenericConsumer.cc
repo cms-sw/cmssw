@@ -33,7 +33,7 @@
 
 #include <boost/algorithm/string/replace.hpp>
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -86,7 +86,7 @@ namespace {
       }
     }
 
-    bool match(edm::BranchDescription const& branch) const {
+    bool match(edm::ProductDescription const& branch) const {
       return (std::regex_match(branch.friendlyClassName(), type_) and
               std::regex_match(branch.moduleLabel(), moduleLabel_) and
               std::regex_match(branch.productInstanceName(), productInstanceName_) and
@@ -141,7 +141,7 @@ namespace edm {
         processProducts_(make_patterns(config.getUntrackedParameter<std::vector<std::string>>("processProducts"))),
         label_(config.getParameter<std::string>("@module_label")),
         verbose_(config.getUntrackedParameter<bool>("verbose")) {
-    callWhenNewProductsRegistered([this](edm::BranchDescription const& branch) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const& branch) {
       static const std::string kPathStatus("edm::PathStatus");
       static const std::string kEndPathStatus("edm::EndPathStatus");
 

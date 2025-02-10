@@ -57,9 +57,6 @@ namespace tensorflow {
     Backend getBackend() const { return _backend; };
   };
 
-  // set the tensorflow log level
-  void setLogging(const std::string& level = "3");
-
   // loads a meta graph definition saved at exportDir using the SavedModel interface for a tag and
   // predefined options
   // transfers ownership

@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -68,7 +69,7 @@ namespace edm {
     std::shared_ptr<TriggerResultInserter> makeInserter(
         ParameterSet& proc_pset,
         PreallocationConfiguration const& iPrealloc,
-        ProductRegistry& preg,
+        SignallingProductRegistry& preg,
         ExceptionToActionTable const& actions,
         std::shared_ptr<ActivityRegistry> areg,
         std::shared_ptr<ProcessConfiguration const> processConfiguration) {
@@ -111,7 +112,7 @@ namespace edm {
     void makePathStatusInserters(std::vector<edm::propagate_const<std::shared_ptr<T>>>& pathStatusInserters,
                                  std::vector<std::string> const& pathNames,
                                  PreallocationConfiguration const& iPrealloc,
-                                 ProductRegistry& preg,
+                                 SignallingProductRegistry& preg,
                                  std::shared_ptr<ActivityRegistry> areg,
                                  std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                  std::string const& moduleTypeName) {
@@ -151,8 +152,10 @@ namespace edm {
 
     typedef std::vector<std::string> vstring;
 
-    void processSwitchProducers(ParameterSet const& proc_pset, std::string const& processName, ProductRegistry& preg) {
-      // Update Switch BranchDescriptions for the chosen case
+    void processSwitchProducers(ParameterSet const& proc_pset,
+                                std::string const& processName,
+                                SignallingProductRegistry& preg) {
+      // Update Switch ProductDescriptions for the chosen case
       struct BranchesCases {
         BranchesCases(std::vector<std::string> cases) : caseLabels{std::move(cases)} {}
         std::vector<BranchKey> chosenBranches;
@@ -181,7 +184,7 @@ namespace edm {
               continue;
             }
 
-            BranchDescription const& desc = productIter.second;
+            ProductDescription const& desc = productIter.second;
             if (desc.branchType() == prod.second.branchType() and
                 desc.unwrappedTypeID().typeInfo() == prod.second.unwrappedTypeID().typeInfo() and
                 branchKey.moduleLabel() == prod.second.switchAliasModuleLabel() and
@@ -195,7 +198,7 @@ namespace edm {
           }
           if (not found) {
             Exception ex(errors::LogicError);
-            ex << "Trying to find a BranchDescription to be aliased-for by SwitchProducer with\n"
+            ex << "Trying to find a ProductDescription to be aliased-for by SwitchProducer with\n"
                << "  friendly class name = " << prod.second.friendlyClassName() << "\n"
                << "  module label = " << prod.second.moduleLabel() << "\n"
                << "  product instance name = " << prod.second.productInstanceName() << "\n"
@@ -485,7 +488,7 @@ namespace edm {
 
   Schedule::Schedule(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
-                     ProductRegistry& preg,
+                     SignallingProductRegistry& preg,
                      ExceptionToActionTable const& actions,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -577,7 +580,7 @@ namespace edm {
 
   void Schedule::finishSetup(ParameterSet& proc_pset,
                              service::TriggerNamesService const& tns,
-                             ProductRegistry& preg,
+                             SignallingProductRegistry& preg,
                              BranchIDListHelper& branchIDListHelper,
                              ProcessBlockHelperBase& processBlockHelper,
                              ThinnedAssociationsHelper& thinnedAssociationsHelper,
@@ -605,7 +608,7 @@ namespace edm {
       detail::processEDAliases(aliases, {}, proc_pset, processConfiguration->processName(), preg);
     }
 
-    // At this point all BranchDescriptions are created. Mark now the
+    // At this point all ProductDescriptions are created. Mark now the
     // ones of unscheduled workers to be on-demand.
     {
       auto const& unsched = streamSchedules_[0]->unscheduledWorkersLumisAndEvents();
@@ -1213,7 +1216,7 @@ namespace edm {
 
   bool Schedule::changeModule(std::string const& iLabel,
                               ParameterSet const& iPSet,
-                              const ProductRegistry& iRegistry,
+                              const SignallingProductRegistry& iRegistry,
                               eventsetup::ESRecordsToProductResolverIndices const& iIndices) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {
@@ -1271,7 +1274,7 @@ namespace edm {
   void Schedule::initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly,
                                        std::multimap<std::string, std::string> const& referencesToBranches,
                                        std::vector<std::string> const& modulesToSkip,
-                                       edm::ProductRegistry const& preg) {
+                                       edm::SignallingProductRegistry const& preg) {
     for (auto& stream : streamSchedules_) {
       stream->initializeEarlyDelete(
           *moduleRegistry(), branchesToDeleteEarly, referencesToBranches, modulesToSkip, preg);

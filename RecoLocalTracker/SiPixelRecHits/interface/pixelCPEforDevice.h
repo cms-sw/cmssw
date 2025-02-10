@@ -379,7 +379,11 @@ namespace pixelCPEforDevice {
     int high_value = kNumErrorBins - 1;
     int bin_value = float(kNumErrorBins) * (cp.xpos[ic] + xoff) / (2 * xoff);
     // return estimated bin value truncated to [0, 15]
-    int jx = std::clamp(bin_value, low_value, high_value);
+    // Equivalent of jx = std::clamp(bin_value, low_value, high_value)
+    // which doesn't compile with gcc14 due to reference to __glibcxx_assert
+    // See https://github.com/llvm/llvm-project/issues/95183
+    int tmp_max = std::max<int>(bin_value, low_value);
+    int jx = std::min<int>(tmp_max, high_value);
 
     auto toCM = [](uint8_t x) { return float(x) * 1.e-4f; };
 

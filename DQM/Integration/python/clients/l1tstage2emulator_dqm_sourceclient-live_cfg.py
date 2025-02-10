@@ -39,13 +39,13 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "L1TEMU"
 process.dqmSaver.tag = "L1TEMU"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "L1TEMU"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "L1TEMU"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 process.dqmEndPath = cms.EndPath(
     process.dqmEnv *
-    process.dqmSaver *
-    process.dqmSaverPB
+    process.dqmSaver # *
+    # process.dqmSaverPB
 )
 
 #--------------------------------------------------
@@ -139,7 +139,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.muonRPCDigis.InputLabel = rawDataRepackerLabel
     process.muonGEMDigis.InputLabel = rawDataRepackerLabel
     process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
-    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siPixelDigis.InputLabel = rawDataRepackerLabel
     process.siStripDigis.ProductLabel = rawDataRepackerLabel
     process.tcdsDigis.InputLabel = rawDataRepackerLabel
     process.tcdsRawToDigi.InputLabel = rawDataRepackerLabel

@@ -53,13 +53,12 @@ VariableComputer::VariableComputer(const CachingVariable::CachingVariableFactory
 }
 
 void VariableComputer::declare(std::string var, edm::ConsumesCollector& iC) {
-  std::string aName = name_ + separator_ + var;
-  ComputedVariable* newVar = new ComputedVariable(method_, aName, arg_.iConfig, this, iC);
   if (iCompute_.find(var) != iCompute_.end()) {
     edm::LogError("VariableComputer") << "redeclaring: " << var << " skipping.";
-    delete newVar;
     return;
   }
+  std::string aName = name_ + separator_ + var;
+  ComputedVariable* newVar = new ComputedVariable(method_, aName, arg_.iConfig, this, iC);
   iCompute_[var] = newVar;
   arg_.m.insert(std::make_pair(aName, newVar));
 }

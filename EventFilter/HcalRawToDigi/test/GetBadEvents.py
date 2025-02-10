@@ -5,7 +5,6 @@ v1.0
 Jeff Temple
 Oct. 19, 2012
 '''
-from __future__ import print_function
 
 import sys,os,string
 from optparse import OptionParser

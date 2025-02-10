@@ -38,6 +38,7 @@ class HcalBaseSignalGenerator;
 class HcalShapes;
 class PileUpEventPrincipal;
 class HcalTopology;
+class ZdcTopology;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -67,7 +68,8 @@ private:
                           edm::Handle<std::vector<PCaloHit>> const &zdcHits,
                           int bunchCrossing,
                           CLHEP::HepRandomEngine *,
-                          const HcalTopology *h);
+                          const HcalTopology *h,
+                          const ZdcTopology *z);
 
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();
@@ -86,6 +88,7 @@ private:
 
   const edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
   const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_;
+  const edm::ESGetToken<ZdcTopology, HcalRecNumberingRecord> topoZToken_;
   edm::ESGetToken<HBHEDarkening, HBHEDarkeningRecord> m_HBDarkeningToken;
   edm::ESGetToken<HBHEDarkening, HBHEDarkeningRecord> m_HEDarkeningToken;
   const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> hcalTimeSlew_delay_token_;

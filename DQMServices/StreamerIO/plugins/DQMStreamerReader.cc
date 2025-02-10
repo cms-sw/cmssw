@@ -10,12 +10,13 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "IOPool/Streamer/interface/DumpTools.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <queue>
-#include <algorithm>
-#include <cctype>
 
 namespace dqmservices {
   using namespace edm::streamer;
@@ -114,7 +115,7 @@ namespace dqmservices {
       std::vector<std::string> tnames;
       header->hltTriggerNames(tnames);
 
-      triggerSelector_.reset(new TriggerSelector(hltSel_, tnames));
+      triggerSelector_ = std::make_shared<TriggerSelector>(hltSel_, tnames);
 
       // check if any trigger path name requested matches with trigger name in the header file
       setMatchTriggerSel(tnames);

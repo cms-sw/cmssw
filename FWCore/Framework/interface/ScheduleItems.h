@@ -48,7 +48,7 @@ namespace edm {
                               serviceregistry::ServiceLegacy iLegacy,
                               bool associate);
 
-    ServiceToken addCPRandTNS(ParameterSet const& parameterSet, ServiceToken const& token);
+    ServiceToken addTNS(ParameterSet const& parameterSet, ServiceToken const& token);
 
     std::shared_ptr<CommonParams> initMisc(ParameterSet& parameterSet);
 

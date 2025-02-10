@@ -1,0 +1,9 @@
+<use name="alpaka"/>
+<use name="boost_header"/>
+<use name="root"/>
+<use name="FWCore/MessageLogger"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
+<export>
+  <lib name="1"/>
+</export>

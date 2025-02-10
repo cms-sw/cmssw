@@ -1,13 +1,13 @@
+// -*- C++ -*-
 #ifndef Framework_ESProductResolverFactoryProducer_h
 #define Framework_ESProductResolverFactoryProducer_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESProductResolverFactoryProducer
 //
-/**\class ESProductResolverFactoryProducer ESProductResolverFactoryProducer.h FWCore/Framework/interface/ESProductResolverFactoryProducer.h
+/**\class edm::ESProductResolverFactoryProducer
 
- Description: An EventSetup algorithmic Provider that manages Factories of Proxies
+ Description: An EventSetup algorithmic Provider that manages Factories of Resolvers
 
  Usage:
     This class is used when the algorithms in the EventSetup that are to be run on demand are encapsulated
@@ -15,7 +15,7 @@
   directly in the Provider (see ESProducer for such an implemenation).
 
     Users inherit from this class and then call the 'registerFactory' method in their class' constructor
-  in order to get their Proxies registered.  For most users, the already available templated Factory classes
+  in order to get their Resolvers registered.  For most users, the already available templated Factory classes
   should suffice and therefore they should not need to create their own Factories.
 
 Example: register one Factory that creates a resolver that takes no arguments

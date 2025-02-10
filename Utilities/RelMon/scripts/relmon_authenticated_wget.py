@@ -9,7 +9,6 @@
 #                                                                              
 ################################################################################
 
-from __future__ import print_function
 from sys import argv,exit
 from utils import wget
 

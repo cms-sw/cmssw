@@ -11,6 +11,7 @@ setupCollection = "ALCARECOTkAlCosmicsCosmicTF0T"
 setupCosmicsDecoMode = True
 setupCosmicsZeroTesla = False
 setupPrimaryWidth     = -1.0
+setupRecoGeometry     = "" # empty string defaults to DB
 setupJson             = "placeholder_json"
 setupRunStartGeometry = 348908
 
@@ -35,7 +36,7 @@ readFiles.extend([
 # General setup
 # ------------------------------------------------------------------------------
 import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.GeneralSetup as generalSetup
-generalSetup.setup(process, setupGlobaltag, setupCosmicsZeroTesla)
+generalSetup.setup(process, setupGlobaltag, setupCosmicsZeroTesla, setupRecoGeometry)
 
 ################################################################################
 # setup alignment producer

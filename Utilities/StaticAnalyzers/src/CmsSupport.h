@@ -32,6 +32,7 @@ namespace clangcms {
       }
       if (qt->isPointerType()) {
         clang::PointerType const *pt = qt->getAs<clang::PointerType>();
+        assert(pt);
         return pt->getPointeeType().isConstQualified();
       }
 
@@ -47,7 +48,7 @@ namespace clangcms {
     bool isKnownThrUnsafeFunc(const std::string &name);
     void writeLog(const std::string &ostring, const std::string &tfstring);
     void fixAnonNS(std::string &name, const char *fname);
+    bool isStdAtomic(const clang::FieldDecl *fieldDecl);
   }  // namespace support
 }  // namespace clangcms
-
 #endif

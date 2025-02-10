@@ -64,7 +64,7 @@ void TTUEmulator::setSpecifications(const TTUBoardSpecs* ttuspecs, const RBCBoar
 bool TTUEmulator::initialise() {
   bool status(false);
   for (int k = 0; k < m_maxWheels; ++k)
-    status = m_Wheels[k].initialise();
+    m_Wheels[k].initialise();
 
   status = m_ttuconf->initialise(m_line, m_id);
 

@@ -144,7 +144,7 @@ from Alignment.OfflineValidation.diMuonValidation_cfi import diMuonValidation as
 process.DiMuonMassValidation = _diMuonValidation.clone(
     TkTag = 'TrackRefitter',
     # mu mu mass
-    Pair_mass_min   = 80.,
+    Pair_mass_min   = 60.,
     Pair_mass_max   = 120.,
     Pair_mass_nbins = 80,
     Pair_etaminpos  = -2.4,
@@ -194,4 +194,18 @@ if valiMode == "StandAlone":
             closeFileFast = cms.untracked.bool(True),
     )
 
-process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter*process.DiMuonMassValidation)
+###################################################################
+# Beamspot compatibility check
+###################################################################
+from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
+process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+    bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+    bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    warningThr = config["validation"].get("bsIncompatibleWarnThresh", 3), # significance threshold to emit a warning message
+    errorThr = config["validation"].get("bsIncompatibleErrThresh", 5),    # significance threshold to abort the job
+)
+
+process.p = cms.Path(process.offlineBeamSpot*
+                     #process.BeamSpotChecker* # commented for now
+                     process.TrackRefitter*
+                     process.DiMuonMassValidation)

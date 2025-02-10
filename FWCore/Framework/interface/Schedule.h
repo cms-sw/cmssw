@@ -106,7 +106,7 @@ namespace edm {
   class ExceptionCollector;
   class MergeableRunProductMetadata;
   class OutputModuleCommunicator;
-  class ProductRegistry;
+  class SignallingProductRegistry;
   class PreallocationConfiguration;
   class StreamSchedule;
   class GlobalSchedule;
@@ -130,7 +130,7 @@ namespace edm {
 
     Schedule(ParameterSet& proc_pset,
              service::TriggerNamesService const& tns,
-             ProductRegistry& pregistry,
+             SignallingProductRegistry& pregistry,
              ExceptionToActionTable const& actions,
              std::shared_ptr<ActivityRegistry> areg,
              std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -139,7 +139,7 @@ namespace edm {
              ModuleTypeResolverMaker const* resolverMaker);
     void finishSetup(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
-                     ProductRegistry& preg,
+                     SignallingProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
                      ProcessBlockHelperBase& processBlockHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
@@ -285,7 +285,7 @@ namespace edm {
     /// Returns true if successful.
     bool changeModule(std::string const& iLabel,
                       ParameterSet const& iPSet,
-                      const ProductRegistry& iRegistry,
+                      const SignallingProductRegistry& iRegistry,
                       eventsetup::ESRecordsToProductResolverIndices const&);
 
     /// Deletes module with label iLabel
@@ -294,7 +294,7 @@ namespace edm {
     void initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly,
                                std::multimap<std::string, std::string> const& referencesToBranches,
                                std::vector<std::string> const& modulesToSkip,
-                               edm::ProductRegistry const& preg);
+                               edm::SignallingProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;

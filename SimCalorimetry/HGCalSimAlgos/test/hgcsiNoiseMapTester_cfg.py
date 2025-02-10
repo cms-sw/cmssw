@@ -1,4 +1,4 @@
-#run with: cmsRun hgcsiNoiseMapTester_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt geometry=GeometryExtended2026D49Reco
+#run with: cmsRun hgcsiNoiseMapTester_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt geometry=GeometryExtendedRun4D49Reco
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -6,7 +6,7 @@ from Configuration.StandardSequences.Eras import eras
 
 options = VarParsing()
 options.register ("doseMap",    "SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register ("geometry",   "GeometryExtended2026D49Reco",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register ("geometry",   "GeometryExtendedRun4D49Reco",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register ("conditions", "TDR_600V",                     VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
 

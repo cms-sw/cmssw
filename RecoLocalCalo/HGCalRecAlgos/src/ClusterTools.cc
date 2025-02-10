@@ -22,12 +22,19 @@ ClusterTools::ClusterTools(const edm::ParameterSet& conf, edm::ConsumesCollector
     : eetok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCEEInput"))),
       fhtok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCFHInput"))),
       bhtok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCBHInput"))),
+      hitMapToken_(sumes.consumes<std::unordered_map<DetId, const unsigned int>>(
+          conf.getParameter<edm::InputTag>("hgcalHitMap"))),
       caloGeometryToken_{sumes.esConsumes()} {}
 
 void ClusterTools::getEvent(const edm::Event& ev) {
   eerh_ = &ev.get(eetok);
   fhrh_ = &ev.get(fhtok);
   bhrh_ = &ev.get(bhtok);
+  hitMap_ = &ev.get(hitMapToken_);
+  rechitManager_ = std::make_unique<MultiVectorManager<HGCRecHit>>();
+  rechitManager_->addVector(*eerh_);
+  rechitManager_->addVector(*fhrh_);
+  rechitManager_->addVector(*bhrh_);
 }
 
 void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.setGeometry(es.getData(caloGeometryToken_)); }
@@ -35,45 +42,28 @@ void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.setGeomet
 float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) const {
   float energy = 0.f, energyHad = 0.f;
   const auto& hits = clus.hitsAndFractions();
+  const auto& rhmanager = *rechitManager_;
   for (const auto& hit : hits) {
     const auto& id = hit.first;
     const float fraction = hit.second;
-    if (id.det() == DetId::HGCalEE) {
-      energy += eerh_->find(id)->energy() * fraction;
-    } else if (id.det() == DetId::HGCalHSi) {
-      const float temp = fhrh_->find(id)->energy();
-      energy += temp * fraction;
-      energyHad += temp * fraction;
-    } else if (id.det() == DetId::HGCalHSc) {
-      const float temp = bhrh_->find(id)->energy();
-      energy += temp * fraction;
-      energyHad += temp * fraction;
-    } else if (id.det() == DetId::Forward) {
-      switch (id.subdetId()) {
-        case HGCEE:
-          energy += eerh_->find(id)->energy() * fraction;
-          break;
-        case HGCHEF: {
-          const float temp = fhrh_->find(id)->energy();
-          energy += temp * fraction;
-          energyHad += temp * fraction;
-        } break;
-        default:
-          throw cms::Exception("HGCalClusterTools") << " Cluster contains hits that are not from HGCal! " << std::endl;
-      }
-    } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
-      const float temp = bhrh_->find(id)->energy();
-      energy += temp * fraction;
-      energyHad += temp * fraction;
-    } else {
-      throw cms::Exception("HGCalClusterTools") << " Cluster contains hits that are not from HGCal! " << std::endl;
+    auto hitIter = hitMap_->find(id.rawId());
+    if (hitIter == hitMap_->end()) {
+      continue;
+    }
+    unsigned int rechitIndex = hitIter->second;
+    float hitEnergy = rhmanager[rechitIndex].energy() * fraction;
+    energy += hitEnergy;
+    if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc ||
+        (id.det() == DetId::Forward && id.subdetId() == HGCHEF) ||
+        (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap)) {
+      energyHad += hitEnergy;
     }
   }
-  float fraction = -1.f;
+  float hadronicFraction = -1.f;
   if (energy > 0.f) {
-    fraction = energyHad / energy;
+    hadronicFraction = energyHad / energy;
   }
-  return fraction;
+  return hadronicFraction;
 }
 
 math::XYZPoint ClusterTools::getMultiClusterPosition(const reco::HGCalMultiCluster& clu) const {
@@ -132,6 +122,7 @@ bool ClusterTools::getWidths(const reco::CaloCluster& clus,
 
   double sumw = 0.;
   double sumlogw = 0.;
+  const auto& rhmanager = *rechitManager_;
 
   for (unsigned int ih = 0; ih < nhit; ++ih) {
     const DetId& id = (clus.hitsAndFractions())[ih].first;
@@ -139,14 +130,19 @@ bool ClusterTools::getWidths(const reco::CaloCluster& clus,
       continue;
 
     if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::Forward && id.subdetId() == HGCEE)) {
-      const HGCRecHit* theHit = &(*eerh_->find(id));
+      auto hitIter = hitMap_->find(id.rawId());
+      if (hitIter == hitMap_->end()) {
+        continue;
+      }
+      unsigned int rechitIndex = hitIter->second;
+      float hitEnergy = rhmanager[rechitIndex].energy();
 
       GlobalPoint cellPos = rhtools_.getPosition(id);
-      double weight = theHit->energy();
+      double weight = hitEnergy;
       // take w0=2 To be optimized
       double logweight = 0;
       if (clus.energy() != 0) {
-        logweight = std::max(0., 2 + log(theHit->energy() / clus.energy()));
+        logweight = std::max(0., 2 + std::log(hitEnergy / clus.energy()));
       }
       double deltaetaeta2 = (cellPos.eta() - position.eta()) * (cellPos.eta() - position.eta());
       double deltaphiphi2 = (cellPos.phi() - position.phi()) * (cellPos.phi() - position.phi());

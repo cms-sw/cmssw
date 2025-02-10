@@ -1501,7 +1501,7 @@ void SiStripHitResolFromCalibTree::makeSummaryVsBx(const edm::Service<TFileServi
 
     //Average over trains
     TGraphAsymmErrors* geff_avg = fs->make<TGraphAsymmErrors>();
-    geff_avg->SetName(Form("effVsBxAvg_layer%i", ilayer));
+    geff_avg->SetName(Form("effVsBxAvg_test_layer%i", ilayer));
     geff_avg->SetTitle("Hit Efficiency vs bx - " + GetLayerName(ilayer));
     geff_avg->SetMarkerStyle(20);
     int ibx = 0;
@@ -1594,7 +1594,7 @@ void SiStripHitResolFromCalibTree::ComputeEff(const edm::Service<TFileService>& 
     }
 
     TGraphAsymmErrors* geff = fs->make<TGraphAsymmErrors>(hfound->GetNbinsX());
-    geff->SetName(Form("%s_layer%i", name.c_str(), ilayer));
+    geff->SetName(Form("%s_test_layer%i", name.c_str(), ilayer));
     geff->BayesDivide(hfound, htotal);
     if (name == "effVsLumi")
       geff->SetTitle("Hit Efficiency vs inst. lumi. - " + GetLayerName(ilayer));

@@ -29,8 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class setHitsLayerStart {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   uint32_t const* __restrict__ hitsModuleStart,
                                   pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams,
                                   uint32_t* __restrict__ hitsLayerStart) const {

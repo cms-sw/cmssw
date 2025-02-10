@@ -66,3 +66,5 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( allConversions, bypassPreselGsf = False )
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(allConversions, src = 'gsfGeneralConversionTrackMerger')
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(allConversions, minSCEt = 1.0)

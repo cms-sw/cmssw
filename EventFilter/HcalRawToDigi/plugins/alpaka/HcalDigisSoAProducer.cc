@@ -65,7 +65,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   HcalDigisSoAProducer::HcalDigisSoAProducer(const edm::ParameterSet& ps)
-      : hbheDigiToken_{consumes(ps.getParameter<edm::InputTag>("hbheDigisLabel"))},
+      : EDProducer(ps),
+        hbheDigiToken_{consumes(ps.getParameter<edm::InputTag>("hbheDigisLabel"))},
         qie11DigiToken_{consumes(ps.getParameter<edm::InputTag>("qie11DigiLabel"))},
         digisF01HEToken_{produces(ps.getParameter<std::string>("digisLabelF01HE"))},
         digisF5HBToken_{produces(ps.getParameter<std::string>("digisLabelF5HB"))},
@@ -116,8 +117,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     event.emplace(digisF5HBToken_, std::move(df5_));
 
     if (qie11Digis.empty()) {
-      event.emplace(digisF01HEToken_);
-      event.emplace(digisF3HBToken_);
+      event.emplace(digisF01HEToken_, 0, event.queue());
+      event.emplace(digisF3HBToken_, 0, event.queue());
 
     } else {
       auto size_f1 = 0;

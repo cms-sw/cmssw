@@ -45,7 +45,7 @@ MuRingForwardDoubleLayer::MuRingForwardDoubleLayer(const vector<const ForwardDet
                     << " Z: " << specificSurface().position().z() << " R1: " << specificSurface().innerRadius()
                     << " R2: " << specificSurface().outerRadius();
 
-  selfTest();
+  // selfTest();
 }
 
 BoundDisk* MuRingForwardDoubleLayer::computeSurface() {

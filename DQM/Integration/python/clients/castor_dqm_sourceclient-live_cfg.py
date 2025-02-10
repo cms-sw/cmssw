@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -35,8 +34,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "Castor"
 process.dqmSaver.tag = "Castor"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "Castor"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "Castor"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -116,9 +115,9 @@ process.options = cms.untracked.PSet(
 # castorreco    -> CastorSimpleReconstructor_cfi
 # castorMonitor -> CastorMonitorModule_cfi
 
-process.p = cms.Path(process.castorDigis*process.castorreco*process.castorMonitor*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
-#process.p = cms.Path(process.castorDigis*process.castorMonitor*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
-#process.p = cms.Path(process.castorMonitor*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
+process.p = cms.Path(process.castorDigis*process.castorreco*process.castorMonitor*process.dqmEnv*process.dqmSaver)#*process.dqmSaverPB)
+#process.p = cms.Path(process.castorDigis*process.castorMonitor*process.dqmEnv*process.dqmSaver)#*process.dqmSaverPB)
+#process.p = cms.Path(process.castorMonitor*process.dqmEnv*process.dqmSaver)#*process.dqmSaverPB)
 
 
 process.castorDigis.InputLabel = "rawDataCollector"

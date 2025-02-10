@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 import optparse
 import os
 import re
@@ -72,12 +71,12 @@ equivDict = \
          {'PhysicsToolsObjects'   : ['PhysicsTools::Calibration']},
          {'TrackReco'             : ['reco::Track','reco::TrackRef']},
          {'VertexReco'            : ['reco::Vertex']},
-         {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
          {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
          {'HGCRecHit'             : ['constHGCRecHit','HGCRecHit']},
          {'SiPixelObjects'        : ['SiPixelQuality.*']},
+         {'EcalRecHit'            : ['EcalRecHitSoA.*']},
      ]
 
 ignoreEdmDP = {

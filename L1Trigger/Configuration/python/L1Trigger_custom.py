@@ -1,4 +1,3 @@
-from __future__ import print_function
 # customization fragments to be used with cmsDriver and hltGetConfiguration
 #
 # V.M. Ghete 2010-06-09 initial version

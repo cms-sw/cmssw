@@ -74,7 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             slopeCol = 1;
             rowOffset = 2 * ::pixelDetails::numRowsInRoc - 1;
             colOffset = (rocIdInDetUnit - 8) * ::pixelDetails::numColsInRoc;
-          }       // if roc
+          }  // if roc
         } else {  // +Z side: 4 non-flipped modules oriented like 'pppp', but all 8 in layer1
           if (rocIdInDetUnit < 8) {
             slopeRow = -1;
@@ -289,8 +289,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Kernel to perform Raw to Digi conversion
     template <bool debug = false>
     struct RawToDigi_kernel {
-      template <typename TAcc>
-      ALPAKA_FN_ACC void operator()(const TAcc &acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                     const SiPixelMappingSoAConstView &cablingMap,
                                     const unsigned char *modToUnp,
                                     const uint32_t wordCounter,
@@ -426,12 +425,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }  // end of stride on grid
 
       }  // end of Raw to Digi kernel operator()
-    };   // end of Raw to Digi struct
+    };  // end of Raw to Digi struct
 
     template <typename TrackerTraits>
     struct FillHitsModuleStart {
-      template <typename TAcc>
-      ALPAKA_FN_ACC void operator()(const TAcc &acc, SiPixelClustersSoAView clus_view) const {
+      ALPAKA_FN_ACC void operator()(Acc1D const &acc, SiPixelClustersSoAView clus_view) const {
         constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
 
         // For Phase1 there are 1856 pixel modules
@@ -515,7 +513,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
       }  // end of FillHitsModuleStart kernel operator()
-    };   // end of FillHitsModuleStart struct
+    };  // end of FillHitsModuleStart struct
 
     // Interface to outside
     template <typename TrackerTraits>
@@ -639,8 +637,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::exec<Acc1D>(
             queue, workDiv, CountModules<TrackerTraits>{}, digis_d->view(), clusters_d->view(), wordCounter);
 
-        auto moduleStartFirstElement =
-            cms::alpakatools::make_device_view(alpaka::getDev(queue), clusters_d->view().moduleStart(), 1u);
+        auto moduleStartFirstElement = cms::alpakatools::make_device_view(queue, clusters_d->view().moduleStart(), 1u);
         alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
         const auto elementsPerBlockFindClus = FindClus<TrackerTraits>::maxElementsPerBlock;
@@ -676,13 +673,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::exec<Acc1D>(queue, workDivOneBlock, FillHitsModuleStart<TrackerTraits>{}, clusters_d->view());
 
         // last element holds the number of all clusters
-        const auto clusModuleStartLastElement = cms::alpakatools::make_device_view(
-            alpaka::getDev(queue), clusters_d->const_view().clusModuleStart() + numberOfModules, 1u);
+        const auto clusModuleStartLastElement =
+            cms::alpakatools::make_device_view(queue, clusters_d->const_view().clusModuleStart() + numberOfModules, 1u);
         constexpr int startBPIX2 = TrackerTraits::layerStart[1];
 
         // element startBPIX2 hold the number of clusters until BPIX2
-        const auto bpix2ClusterStart = cms::alpakatools::make_device_view(
-            alpaka::getDev(queue), clusters_d->const_view().clusModuleStart() + startBPIX2, 1u);
+        const auto bpix2ClusterStart =
+            cms::alpakatools::make_device_view(queue, clusters_d->const_view().clusModuleStart() + startBPIX2, 1u);
         auto nModules_Clusters_h_1 = cms::alpakatools::make_host_view(nModules_Clusters_h.data() + 1, 1u);
         alpaka::memcpy(queue, nModules_Clusters_h_1, clusModuleStartLastElement);
 
@@ -728,8 +725,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::exec<Acc1D>(
           queue, workDiv, CountModules<pixelTopology::Phase2>{}, digis_view, clusters_d->view(), numDigis);
 
-      auto moduleStartFirstElement =
-          cms::alpakatools::make_device_view(alpaka::getDev(queue), clusters_d->view().moduleStart(), 1u);
+      auto moduleStartFirstElement = cms::alpakatools::make_device_view(queue, clusters_d->view().moduleStart(), 1u);
       alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
       const auto elementsPerBlockFindClus = FindClus<TrackerTraits>::maxElementsPerBlock;
@@ -765,12 +761,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::exec<Acc1D>(queue, workDivOneBlock, FillHitsModuleStart<TrackerTraits>{}, clusters_d->view());
 
       // last element holds the number of all clusters
-      const auto clusModuleStartLastElement = cms::alpakatools::make_device_view(
-          alpaka::getDev(queue), clusters_d->const_view().clusModuleStart() + numberOfModules, 1u);
+      const auto clusModuleStartLastElement =
+          cms::alpakatools::make_device_view(queue, clusters_d->const_view().clusModuleStart() + numberOfModules, 1u);
       constexpr int startBPIX2 = pixelTopology::Phase2::layerStart[1];
       // element startBPIX2 hold the number of clusters until BPIX2
-      const auto bpix2ClusterStart = cms::alpakatools::make_device_view(
-          alpaka::getDev(queue), clusters_d->const_view().clusModuleStart() + startBPIX2, 1u);
+      const auto bpix2ClusterStart =
+          cms::alpakatools::make_device_view(queue, clusters_d->const_view().clusModuleStart() + startBPIX2, 1u);
       auto nModules_Clusters_h_1 = cms::alpakatools::make_host_view(nModules_Clusters_h.data() + 1, 1u);
       alpaka::memcpy(queue, nModules_Clusters_h_1, clusModuleStartLastElement);
 

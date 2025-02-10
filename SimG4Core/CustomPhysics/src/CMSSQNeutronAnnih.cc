@@ -1,12 +1,12 @@
 
+#include "G4NucleiProperties.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTable.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
-#include "G4ParticleTable.hh"
-#include "G4ParticleDefinition.hh"
 #include "Randomize.hh"
-#include "G4NucleiProperties.hh"
-#include <math.h>
 #include "TMath.h"
+#include <cmath>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -86,19 +86,16 @@ G4double CMSSQNeutronAnnih::momDistr(G4double x_in) {
                            1};
 
   //now interpolate the above points for x_in
-  G4double result = 9999;
-  for (int i = 0; i < n_entries; i++) {
-    if (x[i] > x_in) {
-      result = (CDF_k[i] - CDF_k[i - 1]) / (x[i] - x[i - 1]) * (x_in - x[i - 1]) + CDF_k[i - 1];
-      break;
+  if (x_in <= 0.0)
+    return 0.;
+  if (x_in >= 1.0)
+    return CDF_k[n_entries - 1];
+  for (int i = 1; i < n_entries; i++) {
+    if (x[i] >= x_in) {
+      return (CDF_k[i] - CDF_k[i - 1]) / (x[i] - x[i - 1]) * (x_in - x[i - 1]) + CDF_k[i - 1];
     }
   }
-  //ROOT::Math::Interpolator inter(n_entries, ROOT::Math::Interpolation::kAKIMA);
-  //inter.SetData(n_entries,x,CDF_k);
-  //result = inter.Eval(x_in);
-
-  return result;
-  //return 1;
+  return 0.0;
 }
 
 G4HadFinalState* CMSSQNeutronAnnih::ApplyYourself(const G4HadProjectile& aTrack, G4Nucleus& targetNucleus) {
@@ -128,7 +125,7 @@ G4HadFinalState* CMSSQNeutronAnnih::ApplyYourself(const G4HadProjectile& aTrack,
   //           << " PDGcode= " << projPDG << " on nucleus Z= " << Z
   //           << " A= " << A << " N= " << N;
 
-  G4LorentzVector lv1 = aParticle->Get4Momentum();
+  const G4LorentzVector& lv1 = aParticle->Get4Momentum();
   edm::LogVerbatim("CMSSWNeutronAnnih") << "The neutron Fermi momentum (mag, x, y, z) "
                                         << targetNucleus.GetFermiMomentum().mag() / MeV << " "
                                         << targetNucleus.GetFermiMomentum().x() / MeV << " "

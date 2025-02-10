@@ -797,3 +797,6 @@ TrajectoryStateOnSurface CosmicMuonValidator::updatedState(const TrajectoryState
 edm::ESHandle<Propagator> CosmicMuonValidator::propagator() const {
   return theService->propagator("SteppingHelixPropagatorAny");
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CosmicMuonValidator);

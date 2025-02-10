@@ -11,6 +11,7 @@ import subprocess
 import tempfile
 import functools
 import unittest
+import platform
 
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +43,8 @@ class TFAOTTests(unittest.TestCase):
         config_file = os.path.join(m.group(1), "share", "test_models", "simple", "aot_config.yaml")
         self.assertTrue(os.path.exists(config_file))
 
+        arch = "{0}-pc-linux".format(platform.processor())
+
         # run the dev workflow
         # create the test model
         cmd = [
@@ -50,6 +53,7 @@ class TFAOTTests(unittest.TestCase):
             "-o", tmp_dir,
             "--tool-name", "tfaot-model-test",
             "--dev",
+            "--additional-flags=--target_triple=" + arch
         ]
         run_cmd(cmd)
 

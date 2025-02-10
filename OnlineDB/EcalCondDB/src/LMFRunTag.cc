@@ -79,7 +79,7 @@ bool LMFRunTag::isValid() {
   if (getVersion() <= 0) {
     ret = false;
   }
-  if (getGeneralTag().length() <= 0) {
+  if (getGeneralTag().empty()) {
     ret = false;
   }
   return ret;

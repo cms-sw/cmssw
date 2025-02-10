@@ -205,9 +205,10 @@ void GenericTriggerEventFlag::initRun(const edm::Run& run, const edm::EventSetup
     if (stage2_) {
       l1uGt_->retrieveL1Setup(setup);
 
-      const std::vector<std::pair<std::string, double>> prescales = l1uGt_->prescales();
+      const auto& prescales = l1uGt_->prescales();
+      algoNames.reserve(prescales.size());
       for (const auto& ip : prescales)
-        algoNames.push_back(ip.first);
+        algoNames.emplace_back(ip.first);
     } else {
       l1Gt_->getL1GtRunCache(run, setup, useL1EventSetup, useL1GtTriggerMenuLite);
       const auto& l1GtTriggerMenuRcd = setup.get<L1GtTriggerMenuRcd>();

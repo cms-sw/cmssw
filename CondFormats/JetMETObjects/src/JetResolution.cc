@@ -179,9 +179,12 @@ double JetResolution::parameterEtaEval(const std::string& parameterName, float e
     break;
   }
 
-  if (!func)
+  if (!func) {
     edm::LogError("ParameterNotFound") << "JetResolution::parameterEtaEval(): no parameter \"" << parameterName
                                        << "\" found" << std::endl;
+    throw cms::Exception("JetResolution")
+        << "JetResolution::parameterEtaEval(): no parameter \"" << parameterName << "\" found\n";
+  }
 
   std::vector<float> etas;
   etas.push_back(eta);

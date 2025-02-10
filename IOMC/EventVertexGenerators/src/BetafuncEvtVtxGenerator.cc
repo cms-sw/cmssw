@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include "HepMC/SimpleVector.h"
 
 using CLHEP::cm;
 using CLHEP::ns;
@@ -61,18 +60,25 @@ void BetafuncEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock const&, 
 void BetafuncEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   if (readDB_ && parameterWatcher_.check(iEventSetup)) {
     edm::ESHandle<SimBeamSpotObjects> beamhandle = iEventSetup.getHandle(beamToken_);
-    fX0 = beamhandle->x() * cm;
-    fY0 = beamhandle->y() * cm;
-    fZ0 = beamhandle->z() * cm;
-    fSigmaZ = beamhandle->sigmaZ() * cm;
-    fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC distance units are in mm
-    fbetastar = beamhandle->betaStar() * cm;
-    femittance = beamhandle->emittance() * cm;
-    setBoost(beamhandle->alpha() * radian, beamhandle->phi() * radian);
+    if (!beamhandle->isGaussian()) {
+      fX0 = beamhandle->x() * cm;
+      fY0 = beamhandle->y() * cm;
+      fZ0 = beamhandle->z() * cm;
+      fSigmaZ = beamhandle->sigmaZ() * cm;
+      fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC distance units are in mm
+      fbetastar = beamhandle->betaStar() * cm;
+      femittance = beamhandle->emittance() * cm;
+      setBoost(beamhandle->alpha() * radian, beamhandle->phi() * radian);
+    } else {
+      throw cms::Exception("Configuration")
+          << "Error in BetafuncEvtVtxGenerator::update: The provided SimBeamSpotObjects is Gaussian.\n"
+          << "Please check the configuration and ensure that the beam spot parameters are appropriate for a Betafunc "
+             "distribution.";
+    }
   }
 }
 
-HepMC::FourVector BetafuncEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) const {
+ROOT::Math::XYZTVector BetafuncEvtVtxGenerator::vertexShift(CLHEP::HepRandomEngine* engine) const {
   double X, Y, Z;
 
   double tmp_sigz = CLHEP::RandGaussQ::shoot(engine, 0., fSigmaZ);
@@ -91,7 +97,7 @@ HepMC::FourVector BetafuncEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* eng
   double tmp_sigt = CLHEP::RandGaussQ::shoot(engine, 0., fSigmaZ);
   double T = tmp_sigt + fTimeOffset;
 
-  return HepMC::FourVector(X, Y, Z, T);
+  return ROOT::Math::XYZTVector(X, Y, Z, T);
 }
 
 double BetafuncEvtVtxGenerator::BetaFunction(double z, double z0) const {

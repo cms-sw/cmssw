@@ -5,13 +5,16 @@
 #ifndef RecoBTag_SoftLepton_MuonTagger_h
 #define RecoBTag_SoftLepton_MuonTagger_h
 
-#include "FWCore/Framework/interface/ESConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <memory>
+
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
-#include <memory>
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 
 class MuonTagger : public JetTagComputer {
 public:
@@ -23,6 +26,8 @@ public:
   MuonTagger(const edm::ParameterSet&, Tokens);
   void initialize(const JetTagComputerRecord&) override;
   float discriminator(const TagInfoHelper& tagInfo) const override;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   btag::LeptonSelector m_selector;

@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import copy, sys, os
@@ -48,7 +47,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ###################################################################
 # Ideal geometry producer and standard includes
 ###################################################################
-process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 process.trackerGeometry.applyAlignment = True
 
 ###################################################################

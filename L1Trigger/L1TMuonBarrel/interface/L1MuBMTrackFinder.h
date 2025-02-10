@@ -51,14 +51,14 @@
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMSecProcMap.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMMuonSorter.h"
 
-class L1MuBMTFConfig;
-class L1MuBMSecProcMap;
 class L1MuBMSecProcId;
 class L1MuBMSectorProcessor;
 class L1MuBMEtaProcessor;
 class L1MuBMWedgeSorter;
-class L1MuBMMuonSorter;
 class L1MuRegionalCand;
 class L1MuDTTrack;
 class L1MuDTTrackSegPhi;
@@ -93,15 +93,16 @@ public:
 
   /// get a pointer to a Sector Processor
   const L1MuBMSectorProcessor* sp(const L1MuBMSecProcId&) const;
+  L1MuBMSectorProcessor* sp(const L1MuBMSecProcId&);
 
   /// get a pointer to an Eta Processor, index [0-11]
-  inline const L1MuBMEtaProcessor* ep(int id) const { return m_epvec[id]; }
+  inline const L1MuBMEtaProcessor* ep(int id) const { return m_epvec[id].get(); }
 
   /// get a pointer to a Wedge Sorter, index [0-11]
-  inline const L1MuBMWedgeSorter* ws(int id) const { return m_wsvec[id]; }
+  inline const L1MuBMWedgeSorter* ws(int id) const { return m_wsvec[id].get(); }
 
   /// get a pointer to the BM Muon Sorter
-  inline const L1MuBMMuonSorter* ms() const { return m_ms; }
+  inline const L1MuBMMuonSorter& ms() const { return m_ms; }
 
   /// get number of muon candidates found by the barrel MTTF
   int numberOfTracks();
@@ -116,7 +117,7 @@ public:
   int numberOfTracks(int bx);
 
   /// return configuration
-  static const L1MuBMTFConfig* config() { return m_config.get(); }
+  const L1MuBMTFConfig& config() const { return m_config; }
 
   l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
   l1t::RegionalMuonCandBxCollection& getcache0() { return _cache0; }
@@ -138,13 +139,14 @@ private:
   L1MuBMTrackSegPhiCollection _cache2;
   L1MuBMTrackSegEtaCollection _cache3;
 
-  L1MuBMSecProcMap* m_spmap;                 ///< Sector Processors
-  std::vector<L1MuBMEtaProcessor*> m_epvec;  ///< Eta Processors
-  std::vector<L1MuBMWedgeSorter*> m_wsvec;   ///< Wedge Sorters
-  L1MuBMMuonSorter* m_ms;                    ///< BM Muon Sorter
+  L1MuBMSecProcMap m_spmap;                                  ///< Sector Processors
+  std::vector<std::unique_ptr<L1MuBMEtaProcessor>> m_epvec;  ///< Eta Processors
+  std::vector<std::unique_ptr<L1MuBMWedgeSorter>> m_wsvec;   ///< Wedge Sorters
+  L1MuBMMuonSorter m_ms;                                     ///< BM Muon Sorter
 
-  static std::shared_ptr<L1MuBMTFConfig> m_config;  ///< Track Finder configuration
+  L1MuBMTFConfig m_config;  ///< Track Finder configuration
 
+  unsigned long long m_recordCache = 0;
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
   edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_mbParamsToken;
 };

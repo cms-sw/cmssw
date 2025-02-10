@@ -1,0 +1,14 @@
+<library file="*.cc" name="EventFilterPhase2PixelRawToDigiPlugins">
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/SiStripObjects"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/FEDRawData"/>
+  <use name="DataFormats/Phase2TrackerDigi"/>
+  <use name="EventFilter/Phase2PixelRawToDigi"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

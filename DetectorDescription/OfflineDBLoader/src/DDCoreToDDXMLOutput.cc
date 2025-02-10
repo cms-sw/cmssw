@@ -784,25 +784,27 @@ void DDCoreToDDXMLOutput::position(const TGeoVolume& parent,
   xos << "<rChild name=\"" << childVolName << "\"/>" << std::endl;
 
   const auto matrix = child.GetMatrix();
-  if (matrix != nullptr && !matrix->IsIdentity()) {
-    auto rot = matrix->GetRotationMatrix();
-    if (cms::rotation_utils::rotHash(rot) != cms::rotation_utils::identityHash) {
-      std::string rotNameStr = cms::rotation_utils::rotName(rot, context);
-      if (rotNameStr == "NULL") {
-        rotNameStr = child.GetName();  // Phys vol name
-        rotNameStr += parent.GetName();
-        cms::DDNamespace nameSpace(context);
-        cms::rotation_utils::addRotWithNewName(nameSpace, rotNameStr, rot);
+  if (matrix != nullptr) {
+    if (!matrix->IsIdentity()) {
+      auto rot = matrix->GetRotationMatrix();
+      if (cms::rotation_utils::rotHash(rot) != cms::rotation_utils::identityHash) {
+        std::string rotNameStr = cms::rotation_utils::rotName(rot, context);
+        if (rotNameStr == "NULL") {
+          rotNameStr = child.GetName();  // Phys vol name
+          rotNameStr += parent.GetName();
+          cms::DDNamespace nameSpace(context);
+          cms::rotation_utils::addRotWithNewName(nameSpace, rotNameStr, rot);
+        }
+        xos << "<rRotation name=\"" << rotNameStr << "\"/>" << std::endl;
       }
-      xos << "<rRotation name=\"" << rotNameStr << "\"/>" << std::endl;
     }
+    auto trans = matrix->GetTranslation();
+    using namespace cms_rounding;
+    xos << "<Translation x=\"" << roundIfNear0(trans[0]) << "*mm\"";
+    xos << " y=\"" << roundIfNear0(trans[1]) << "*mm\"";
+    xos << " z=\"" << roundIfNear0(trans[2]) << "*mm\"";
+    xos << "/>" << std::endl;
   }
-  auto trans = matrix->GetTranslation();
-  using namespace cms_rounding;
-  xos << "<Translation x=\"" << roundIfNear0(trans[0]) << "*mm\"";
-  xos << " y=\"" << roundIfNear0(trans[1]) << "*mm\"";
-  xos << " z=\"" << roundIfNear0(trans[2]) << "*mm\"";
-  xos << "/>" << std::endl;
   xos << "</PosPart>" << std::endl;
 }
 

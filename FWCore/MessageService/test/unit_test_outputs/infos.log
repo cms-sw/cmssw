@@ -37,12 +37,12 @@ Test of std::setprecision(p): Pi with precision 12 is 3.14159265359
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 cat_B                -i UnitTestClient_G                      10*      10
-    2 FwkReport            -f AfterSource                            1        1
-    3 cat_A                -w UnitTestClient_G                       1        1
-    4 cat_C                -w UnitTestClient_G                      15*      15
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 cat_B                -i UnitTestClient_G:sendSome                           10*      10
+    2 FwkReport            -f AfterSource                                          1        1
+    3 cat_A                -w UnitTestClient_G:sendSome                            1        1
+    4 cat_C                -w UnitTestClient_G:sendSome                           15*      15
 
 * Some occurrences of this message were suppressed in all logs, due to limits.
 

@@ -26,6 +26,7 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitAbsAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include <cmath>
 #include <iostream>
@@ -35,6 +36,8 @@ class EcalRecalibRecHitProducer : public edm::global::EDProducer<> {
 public:
   explicit EcalRecalibRecHitProducer(const edm::ParameterSet& ps);
   void produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   const edm::InputTag EBRecHitCollection_;
@@ -208,6 +211,21 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
 
   evt.put(std::move(EBRecalibRecHits), EBRecalibRecHitCollection_);
   evt.put(std::move(EERecalibRecHits), EERecalibRecHitCollection_);
+}
+
+void EcalRecalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("EBRecHitCollection", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EERecHitCollection", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
+  desc.add<std::string>("EBRecalibRecHitCollection", "EcalRecHitsEB");
+  desc.add<std::string>("EERecalibRecHitCollection", "EcalRecHitsEE");
+  desc.add<bool>("doEnergyScale", false);
+  desc.add<bool>("doIntercalib", false);
+  desc.add<bool>("doLaserCorrections", false);
+  desc.add<bool>("doEnergyScaleInverse", false);
+  desc.add<bool>("doIntercalibInverse", false);
+  desc.add<bool>("doLaserCorrectionsInverse", false);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

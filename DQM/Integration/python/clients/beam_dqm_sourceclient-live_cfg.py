@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # Define here the BeamSpotOnline record name,
@@ -56,8 +55,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'BeamMonitorLegacy'
 process.dqmSaver.tag           = 'BeamMonitorLegacy'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'BeamMonitorLegacy'
-process.dqmSaverPB.runNumber   = options.runNumber
+# process.dqmSaverPB.tag         = 'BeamMonitorLegacy'
+# process.dqmSaverPB.runNumber   = options.runNumber
 
 process.dqmEnvPixelLess = process.dqmEnv.clone(
   subSystemFolder = 'BeamMonitor_PixelLess'
@@ -252,7 +251,7 @@ process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
 
 #
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver*process.dqmSaverPB)
+                               * process.dqmSaver)#*process.dqmSaverPB)
 
 #
 process.monitor = cms.Sequence(process.dqmBeamMonitor
@@ -316,7 +315,7 @@ process.muonCSCDigis.InputObjects        = rawDataInputTag
 process.muonDTDigis.inputLabel           = rawDataInputTag
 process.muonRPCDigis.InputLabel          = rawDataInputTag
 process.scalersRawToDigi.scalersInputTag = rawDataInputTag
-process.siPixelDigis.cpu.InputLabel      = rawDataInputTag
+process.siPixelDigis.InputLabel      = rawDataInputTag
 process.siStripDigis.ProductLabel        = rawDataInputTag
 process.tcdsDigis.InputLabel             = rawDataInputTag
 

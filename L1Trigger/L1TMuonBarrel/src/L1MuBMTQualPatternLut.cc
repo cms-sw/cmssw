@@ -86,7 +86,7 @@ int L1MuBMTQualPatternLut::load() {
 
     // assemble file name
     edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + eau_dir + emu_str + ".lut"));
-    string emu_file = lut_f.fullPath();
+    const string& emu_file = lut_f.fullPath();
 
     // open file
     L1TriggerLutFile file(emu_file);

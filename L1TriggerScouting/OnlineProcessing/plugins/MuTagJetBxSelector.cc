@@ -31,7 +31,7 @@ using namespace l1ScoutingRun3;
 class MuTagJetBxSelector : public edm::stream::EDProducer<> {
 public:
   explicit MuTagJetBxSelector(const edm::ParameterSet&);
-  ~MuTagJetBxSelector() {}
+  ~MuTagJetBxSelector() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:

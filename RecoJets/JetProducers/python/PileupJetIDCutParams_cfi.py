@@ -106,6 +106,36 @@ full_106x_UL16_chs_wp = cms.PSet(
 ###########################################################
 full_106x_UL16APV_chs_wp = full_106x_UL16_chs_wp.clone()
 
+###########################################################
+## Working points for the 133X trainig for AK4 Puppi jets
+###########################################################
+full_133x_Winter24_puppiv18_wp = cms.PSet(
+    # 4 Eta Categories  0-2.5 2.5-2.75 2.75-3.0 3.0-5.0
+    # 5 Pt Categories   0-10, 10-20, 20-30, 30-40, 40-50
+
+    #Tight Id
+    Pt010_Tight  = cms.vdouble(-1.00, -1.00,  -1.00,  -1.00),
+    Pt1020_Tight = cms.vdouble(0.038, 0.219, -0.220, -0.254),
+    Pt2030_Tight = cms.vdouble(0.033, 0.060, -0.154, -0.154),
+    Pt3040_Tight = cms.vdouble(0.056, 0.103, -0.159, -0.109),
+    Pt4050_Tight = cms.vdouble(0.043, 0.127, -0.067, -0.059),
+
+    #Medium Id
+    Pt010_Medium  = cms.vdouble(-1.00,  - 1.00,  -1.00,  -1.00),
+    Pt1020_Medium = cms.vdouble(-0.200, -0.068, -0.158, -0.384),
+    Pt2030_Medium = cms.vdouble(-0.109, -0.179, -0.293, -0.322),
+    Pt3040_Medium = cms.vdouble(-0.043, -0.124, -0.259, -0.286),
+    Pt4050_Medium = cms.vdouble(-0.034, -0.071, -0.198, -0.235),
+
+    #Loose Id
+    Pt010_Loose  = cms.vdouble( -1.00,  -1.00,  -1.00,  -1.00),
+    Pt1020_Loose = cms.vdouble(-0.723, -0.392, -0.277, -0.516),
+    Pt2030_Loose = cms.vdouble(-0.548, -0.347, -0.313, -0.489),
+    Pt3040_Loose = cms.vdouble(-0.413, -0.289, -0.322, -0.438),
+    Pt4050_Loose = cms.vdouble(-0.279, -0.219, -0.279, -0.384),
+)
+
+
 #########################################################
 ## Empty cutbased WP for compatibility
 ###########################################################

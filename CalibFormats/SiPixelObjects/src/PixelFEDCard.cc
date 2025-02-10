@@ -357,6 +357,7 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat) : PixelConfigBase(
     SPARE10 = atoi(tableMat[1][colM["SPARE10"]].c_str());
 
   }  // end of 'first' condition
+  [[clang::suppress]]
   for (int r = 1; r < size[0]; r++)  //Goes to every row of the FIRST Matrix (MUST BE 36, one for each FED channel)
   {
     //Number of ROCS per FED channel
@@ -371,8 +372,8 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat) : PixelConfigBase(
     Ublack[atoi(tableMat[r][colM["CHANNEL_ID"]].c_str()) - 1] = atoi(tableMat[r][colM["CHAN_UB"]].c_str());
   }
 
-  readDBTBMLevels(tableMat, size[0] + 1, size[1]);
-  readDBROCLevels(tableMat, size[1] + 1, size[2]);
+  [[clang::suppress]] readDBTBMLevels(tableMat, size[0] + 1, size[1]);
+  [[clang::suppress]] readDBROCLevels(tableMat, size[1] + 1, size[2]);
   Ccntrl_original = Ccntrl;
   modeRegister_original = modeRegister;
 

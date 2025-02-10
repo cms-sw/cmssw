@@ -1,5 +1,6 @@
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
+#include "CondTools/RunInfo/interface/LHCInfoHelper.h"
 #include "CondTools/RunInfo/interface/LHCInfoPopConSourceHandler.h"
 #include "CondTools/RunInfo/interface/LumiSectionFilter.h"
 #include "CondTools/RunInfo/interface/OMSAccess.h"
@@ -9,11 +10,11 @@
 #include "CoralBase/TimeStamp.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ISessionProxy.h"
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <utility>
@@ -159,7 +160,7 @@ size_t LHCInfoPopConSourceHandler::getLumiData(const cond::OMSService& oms,
   query->addOutputVars({"start_time", "delivered_lumi", "recorded_lumi"});
   query->filterEQ("fill_number", fillId);
   query->filterGT("start_time", beginFillTime).filterLT("start_time", endFillTime);
-  query->limit(kLumisectionsQueryLimit);
+  query->limit(cond::lhcInfoHelper::kLumisectionsQueryLimit);
   size_t nlumi = 0;
   if (query->execute()) {
     auto res = query->result();
@@ -454,7 +455,7 @@ bool LHCInfoPopConSourceHandler::getEcalData(cond::persistency::Session& session
         dipVal = dipValAttribute.data<std::string>();
         elementNr = elementNrAttribute.data<unsigned int>();
         value = valueNumberAttribute.data<float>();
-        if (std::isnan(value))
+        if (edm::isNotFinite(value))
           value = 0.;
         if (filter.process(iovTime)) {
           iovMap.insert(std::make_pair(changeTime, filter.current()->first));

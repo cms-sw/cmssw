@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 from builtins import range
 from itertools import groupby
 from operator import attrgetter,itemgetter
@@ -603,7 +602,7 @@ def plotPerStreamAboveFirstAndPrepareStack(points, allStackTimes, ax, stream, he
             allStackTimes[color].extend(theTS*(nthreads-threadOffset))
 
 #----------------------------------------------
-# The same ES module can have multiple Proxies running concurrently
+# The same ES module can have multiple Resolvers running concurrently
 #   so we need to reference count the names of the active modules
 class RefCountSet(set):
   def __init__(self):

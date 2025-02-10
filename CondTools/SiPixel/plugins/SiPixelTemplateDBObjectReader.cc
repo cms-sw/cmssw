@@ -1,66 +1,59 @@
-#include <iomanip>
-#include <fstream>
-#include <iostream>
+// system includes
 #include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <memory>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
+// user includes
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 class SiPixelTemplateDBObjectReader : public edm::one::EDAnalyzer<> {
 public:
   explicit SiPixelTemplateDBObjectReader(const edm::ParameterSet&);
-  ~SiPixelTemplateDBObjectReader() override;
+  ~SiPixelTemplateDBObjectReader() override = default;
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   edm::ESWatcher<SiPixelTemplateDBObjectESProducerRcd> SiPixTemplDBObjectWatcher_;
   edm::ESWatcher<SiPixelTemplateDBObjectRcd> SiPixTemplDBObjWatcher_;
 
-  std::string theTemplateCalibrationLocation;
-  bool theDetailedTemplateDBErrorOutput;
-  bool theFullTemplateDBOutput;
-  bool testGlobalTag;
   bool hasTriggeredWatcher;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
-  edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> the1DTemplateESProdToken_;
-  edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectRcd> the1DTemplateToken_;
+
+  const std::string theTemplateCalibrationLocation;
+  const bool theDetailedTemplateDBErrorOutput;
+  const bool theFullTemplateDBOutput;
+  const bool testGlobalTag;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> the1DTemplateESProdToken_;
+  const edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectRcd> the1DTemplateToken_;
 };
 
 SiPixelTemplateDBObjectReader::SiPixelTemplateDBObjectReader(const edm::ParameterSet& iConfig)
-    : theTemplateCalibrationLocation(iConfig.getParameter<std::string>("siPixelTemplateCalibrationLocation")),
+    : hasTriggeredWatcher(false),
+      theTemplateCalibrationLocation(iConfig.getParameter<std::string>("siPixelTemplateCalibrationLocation")),
       theDetailedTemplateDBErrorOutput(iConfig.getParameter<bool>("wantDetailedTemplateDBErrorOutput")),
       theFullTemplateDBOutput(iConfig.getParameter<bool>("wantFullTemplateDBOutput")),
       testGlobalTag(iConfig.getParameter<bool>("TestGlobalTag")),
-      hasTriggeredWatcher(false),
       magneticFieldToken_(esConsumes()),
       the1DTemplateESProdToken_(esConsumes()),
       the1DTemplateToken_(esConsumes()) {}
-
-SiPixelTemplateDBObjectReader::~SiPixelTemplateDBObjectReader() = default;
-
-void SiPixelTemplateDBObjectReader::beginJob() {}
 
 void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //To test with the ESProducer
@@ -114,7 +107,6 @@ void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm:
     edm::LogPrint("SiPixelTemplateDBObjectReader") << std::endl;
 
     //local variables
-    const char* tempfile;
     int numOfTempl = dbobject.numOfTempl();
     int index = 0;
     float tempnum = 0, diff = 0;
@@ -124,6 +116,13 @@ void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm:
     edm::LogPrint("SiPixelTemplateDBObjectReader")
         << "\nChecking Template DB object version " << dbobject.version() << " containing " << numOfTempl
         << " calibration(s) at " << dbobject.sVector()[index + 22] << "T\n";
+
+    /*
+    for(unsigned int kk=0;kk < dbobject.sVector().size(); kk++){
+      edm::LogPrint("SiPixelTemplateDBObjectReader") << "dbobject.sVector()[" << kk <<"] = " << dbobject.sVector()[kk] << "\n";
+    }
+    */
+
     for (int i = 0; i < numOfTempl; ++i) {
       //Removes header in db object from diff
       index += 20;
@@ -138,9 +137,11 @@ void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm:
       tout << theTemplateCalibrationLocation.c_str() << "/data/template_summary_zp" << std::setw(4) << std::setfill('0')
            << std::right << dbobject.sVector()[index] << ".out" << std::ends;
 
+      if (testGlobalTag)
+        continue;
+
       edm::FileInPath file(tout.str());
-      tempfile = (file.fullPath()).c_str();
-      std::ifstream in_file(tempfile, std::ios::in);
+      std::ifstream in_file(file.fullPath(), std::ios::in);
 
       if (in_file.is_open()) {
         //Removes header in textfile from diff
@@ -192,8 +193,6 @@ void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm:
       edm::LogPrint("SiPixelTemplateDBObjectReader") << dbobject << std::endl;
   }
 }
-
-void SiPixelTemplateDBObjectReader::endJob() {}
 
 std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobject) {
   //!-index to keep track of where we are in the object

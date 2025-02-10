@@ -221,7 +221,6 @@ void RPCTBMuon::PACOut::fromBits(RPCTBMuon& muon, unsigned int value) {
   muon.m_PtCode = (value & (m_ptBitsMask << shift)) >> shift;
   shift += m_ptBitsCnt;
   muon.m_Quality = (value & (m_qualBitsMask << shift)) >> shift;
-  shift += m_qualBitsCnt;
 }
 
 unsigned int RPCTBMuon::PACOut::toBits(const RPCTBMuon& muon) {
@@ -232,7 +231,6 @@ unsigned int RPCTBMuon::PACOut::toBits(const RPCTBMuon& muon) {
   value = value | (muon.m_PtCode << shift);
   shift += m_ptBitsCnt;
   value = value | (muon.m_Quality << shift);
-  shift += m_qualBitsCnt;
 
   return value;
 }
@@ -251,7 +249,6 @@ void RPCTBMuon::TBOut::fromBits(RPCTBMuon& muon, unsigned int value) {
   muon.m_EtaAddress = (value & (m_etaBitsMask << shift)) >> shift;
   shift += m_etaBitsCnt;
   muon.m_GBData = (value & (m_gbDataBitsMask << shift)) >> shift;
-  shift += m_gbDataBitsCnt;
 }
 
 unsigned int RPCTBMuon::TBOut::toBits(const RPCTBMuon& muon) {
@@ -268,7 +265,6 @@ unsigned int RPCTBMuon::TBOut::toBits(const RPCTBMuon& muon) {
   value = value | (muon.m_EtaAddress << shift);
   shift += m_etaBitsCnt;
   value = value | (muon.m_GBData << shift);
-  shift += m_gbDataBitsCnt;
   return value;
 }
 
@@ -286,7 +282,6 @@ void RPCTBMuon::TCOut::fromBits(RPCTBMuon& muon, unsigned int value) {
   muon.m_EtaAddress = (value & (m_etaBitsMask << shift)) >> shift;
   shift += m_etaBitsCnt;
   muon.m_GBData = (value & (m_gbDataBitsMask << shift)) >> shift;
-  shift += m_gbDataBitsCnt;
 }
 
 unsigned int RPCTBMuon::TCOut::toBits(const RPCTBMuon& muon) {
@@ -303,7 +298,6 @@ unsigned int RPCTBMuon::TCOut::toBits(const RPCTBMuon& muon) {
   value = value | (muon.m_EtaAddress << shift);
   shift += m_etaBitsCnt;
   value = value | (muon.m_GBData << shift);
-  shift += m_gbDataBitsCnt;
   return value;
 }
 //-------------------------------
@@ -322,7 +316,6 @@ unsigned int RPCTBMuon::HSBOut::toBits(const RPCTBMuon& muon) {
   value = value | (muon.m_PhiAddress << shift);
   shift += m_phiBitsCnt;
   value = value | (muon.m_EtaAddress << shift);
-  shift += m_etaBitsCnt;
 
   return value;
 }
@@ -338,7 +331,6 @@ void RPCTBMuon::HSBOut::fromBits(RPCTBMuon& muon, unsigned int value) {
   muon.m_PhiAddress = (value & (m_phiBitsMask << shift)) >> shift;
   shift += m_phiBitsCnt;
   muon.m_EtaAddress = (value & (m_etaBitsMask << shift)) >> shift;
-  shift += m_etaBitsCnt;
 }
 
 unsigned int RPCTBMuon::FSBOut::toBits(const RPCTBMuon& muon) {
@@ -360,7 +352,6 @@ unsigned int RPCTBMuon::FSBOut::toBits(const RPCTBMuon& muon) {
   value = value | (muon.m_EtaAddress << shift);
   shift += m_etaBitsCnt + 1;
   value = value | (muon.m_Sign << shift);
-  shift += m_signBitsCnt;
 
   return value;
 }
@@ -378,7 +369,6 @@ void RPCTBMuon::FSBOut::fromBits(RPCTBMuon& muon, unsigned int value) {
   muon.m_EtaAddress = (value & (m_etaBitsMask << shift)) >> shift;
   shift += m_etaBitsCnt + 1;
   muon.m_Sign = (value & (m_signBitsMask << shift)) >> shift;
-  shift += m_signBitsCnt;
 
   muon.m_PtCode = (~(muon.m_PtCode)) & m_ptBitsMask;
   muon.m_Quality = (~(muon.m_Quality)) & m_qualBitsMask;

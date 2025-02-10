@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 import sys
 import FWCore.ParameterSet.Config as cms
@@ -57,8 +56,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'RPC'
 process.dqmSaver.tag = 'RPC'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'RPC'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'RPC'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 
 ############### Scaler Producer #################
@@ -157,7 +156,7 @@ process.rpcSource = cms.Sequence( process.rpcunpacker
                       * (process.rpcdigidqm + process.rpcMergerdigidqm)
                       * process.rpcMonitorRaw*process.qTesterRPC
                     )
-process.rpcClient = cms.Sequence(process.rpcdqmclient*process.rpcMergerdqmclient*process.rpcEventSummary*process.rpcEventSummaryMerger*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
+process.rpcClient = cms.Sequence(process.rpcdqmclient*process.rpcMergerdqmclient*process.rpcEventSummary*process.rpcEventSummaryMerger*process.dqmEnv*process.dqmSaver)#*process.dqmSaverPB)
 process.p = cms.Path(process.hltTriggerTypeFilter*process.rpcSource*process.rpcClient)
 
 process.rpcunpacker.InputLabel = "rawDataCollector"

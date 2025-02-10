@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
@@ -62,8 +61,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = TAG
 process.dqmSaver.tag = TAG
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = TAG
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = TAG
+# process.dqmSaverPB.runNumber = options.runNumber
 
 
 #-----------------------------
@@ -106,20 +105,20 @@ process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
 
 # PixelPhase1 Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.cpu.IncludeErrors = True
+process.siPixelDigis.IncludeErrors = True
 
 if (process.runType.getRunType() == process.runType.hi_run):
   rawDataRepackerLabel = 'rawDataRepacker'
   #--------------------------------
   # Heavy Ion Configuration Changes
   #--------------------------------
-  process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+  process.siPixelDigis.InputLabel = rawDataRepackerLabel
   process.siStripDigis.ProductLabel   = rawDataRepackerLabel
   process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
   process.tcdsDigis.InputLabel = rawDataRepackerLabel
 else :
   rawDataCollectorLabel = 'rawDataCollector'
-  process.siPixelDigis.cpu.InputLabel = rawDataCollectorLabel
+  process.siPixelDigis.InputLabel = rawDataCollectorLabel
   process.siStripDigis.ProductLabel = rawDataCollectorLabel
 
 ## Collision Reconstruction
@@ -177,7 +176,7 @@ process.hltHighLevel.throw =  False
 # Scheduling
 #--------------------------
 
-process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver*process.dqmSaverPB)
+process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver)#*process.dqmSaverPB)
 
 process.RecoForDQM_LocalReco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
 
@@ -223,7 +222,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.InitialStepPreSplittingTask.remove(process.siPixelClusterShapeCache)
 
     # Redefinition of siPixelClusters: has to be after RecoTracker.IterativeTracking.InitialStepPreSplitting_cff 
-    process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+    from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
+    process.siPixelClusters = _siPixelClusters.clone()
 
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')

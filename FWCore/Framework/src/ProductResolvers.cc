@@ -33,7 +33,7 @@ namespace edm {
   void DataManagingProductResolver::throwProductDeletedException() const {
     ProductDeletedException exception;
     exception << "DataManagingProductResolver::resolveProduct_: The product matching all criteria was already deleted\n"
-              << "Looking for type: " << branchDescription().unwrappedTypeID() << "\n"
+              << "Looking for type: " << productDescription().unwrappedTypeID() << "\n"
               << "Looking for module label: " << moduleLabel() << "\n"
               << "Looking for productInstanceName: " << productInstanceName() << "\n"
               << (processName().empty() ? "" : "Looking for process: ") << processName() << "\n"
@@ -95,7 +95,7 @@ namespace edm {
     if (original->isMergeable()) {
       if (original->isPresent() != iFrom->isPresent()) {
         throw Exception(errors::MismatchedInputFiles)
-            << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
+            << "Merge of Run or Lumi product failed for branch " << productDescription().branchName() << "\n"
             << "Was trying to merge objects where one product had been put in the input file and the other had not "
                "been."
             << "\n"
@@ -103,7 +103,7 @@ namespace edm {
             << "that need to be merged in the first place.\n";
       }
       if (original->isPresent()) {
-        BranchDescription const& desc = branchDescription();
+        ProductDescription const& desc = productDescription();
         if (mergeableRunProductMetadata == nullptr || desc.branchType() != InRun) {
           original->mergeProduct(iFrom.get());
         } else {
@@ -128,7 +128,7 @@ namespace edm {
     } else if (original->hasIsProductEqual()) {
       if (original->isPresent() && iFrom->isPresent()) {
         if (!original->isProductEqual(iFrom.get())) {
-          auto const& bd = branchDescription();
+          auto const& bd = productDescription();
           edm::LogError("RunLumiMerging")
               << "ProductResolver::mergeTheProduct\n"
               << "Two run/lumi products for the same run/lumi which should be equal are not\n"
@@ -143,7 +143,7 @@ namespace edm {
       }
       // if not iFrom->isPresent(), do nothing
     } else {
-      auto const& bd = branchDescription();
+      auto const& bd = productDescription();
       edm::LogWarning("RunLumiMerging") << "ProductResolver::mergeTheProduct\n"
                                         << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
                                         << "Using the first, ignoring the second in merge\n"
@@ -159,7 +159,7 @@ namespace edm {
   }
 
   namespace {
-    void extendException(cms::Exception& e, BranchDescription const& bd, ModuleCallingContext const* mcc) {
+    void extendException(cms::Exception& e, ProductDescription const& bd, ModuleCallingContext const* mcc) {
       e.addContext(std::string("While reading from source ") + bd.className() + " " + bd.moduleLabel() + " '" +
                    bd.productInstanceName() + "' " + bd.processName());
       if (mcc) {
@@ -194,13 +194,13 @@ namespace edm {
         if (not productResolved()) {
           try {
             //another thread could have beaten us here
-            setProduct(reader->getProduct(branchDescription().branchID(), &principal, mcc));
+            setProduct(reader->getProduct(productDescription().branchID(), &principal, mcc));
           } catch (cms::Exception& e) {
-            extendException(e, branchDescription(), mcc);
+            extendException(e, productDescription(), mcc);
             throw;
           } catch (std::exception const& e) {
             auto newExcept = edm::Exception(errors::StdException) << e.what();
-            extendException(newExcept, branchDescription(), mcc);
+            extendException(newExcept, productDescription(), mcc);
             throw newExcept;
           }
         }
@@ -218,22 +218,22 @@ namespace edm {
 
       //Can't use resolveProductImpl since it first checks to see
       // if the product was already retrieved and then returns if it is
-      auto edp(reader->getProduct(branchDescription().branchID(), &principal));
+      auto edp(reader->getProduct(productDescription().branchID(), &principal));
 
       if (edp.get() != nullptr) {
-        if (edp->isMergeable() && branchDescription().branchType() == InRun && !edp->hasSwap()) {
+        if (edp->isMergeable() && productDescription().branchType() == InRun && !edp->hasSwap()) {
           throw Exception(errors::LogicError)
-              << "Missing definition of member function swap for branch name " << branchDescription().branchName()
+              << "Missing definition of member function swap for branch name " << productDescription().branchName()
               << "\n"
               << "Mergeable data types written to a Run must have the swap member function defined"
               << "\n";
         }
         if (status() == defaultStatus() || status() == ProductStatus::ProductSet ||
-            (status() == ProductStatus::ResolveFailed && !branchDescription().isMergeable())) {
+            (status() == ProductStatus::ResolveFailed && !productDescription().isMergeable())) {
           setOrMergeProduct(std::move(edp), mergeableRunProductMetadata);
-        } else {  // status() == ResolveFailed && branchDescription().isMergeable()
+        } else {  // status() == ResolveFailed && productDescription().isMergeable()
           throw Exception(errors::MismatchedInputFiles)
-              << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
+              << "Merge of Run or Lumi product failed for branch " << productDescription().branchName() << "\n"
               << "The product branch was dropped in the first run or lumi fragment and present in a later one"
               << "\n"
               << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
@@ -241,9 +241,9 @@ namespace edm {
         }
       } else if (status() == defaultStatus()) {
         setFailedStatus();
-      } else if (status() != ProductStatus::ResolveFailed && branchDescription().isMergeable()) {
+      } else if (status() != ProductStatus::ResolveFailed && productDescription().isMergeable()) {
         throw Exception(errors::MismatchedInputFiles)
-            << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
+            << "Merge of Run or Lumi product failed for branch " << productDescription().branchName() << "\n"
             << "The product branch was present in first run or lumi fragment and dropped in a later one"
             << "\n"
             << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
@@ -298,13 +298,13 @@ namespace edm {
               if (not productResolved()) {
                 try {
                   //another thread could have finished this while we were waiting
-                  setProduct(reader->getProduct(branchDescription().branchID(), &principal, mcc));
+                  setProduct(reader->getProduct(productDescription().branchID(), &principal, mcc));
                 } catch (cms::Exception& e) {
-                  extendException(e, branchDescription(), mcc);
+                  extendException(e, productDescription(), mcc);
                   throw;
                 } catch (std::exception const& e) {
                   auto newExcept = edm::Exception(errors::StdException) << e.what();
-                  extendException(newExcept, branchDescription(), mcc);
+                  extendException(newExcept, productDescription(), mcc);
                   throw newExcept;
                 }
               }
@@ -353,7 +353,7 @@ namespace edm {
   void PutOnReadInputProductResolver::putProduct(std::unique_ptr<WrapperBase> edp) const {
     if (status() != defaultStatus()) {
       throw Exception(errors::InsertFailure)
-          << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
+          << "Attempt to insert more than one product on branch " << productDescription().branchName() << "\n";
     }
 
     setProduct(std::move(edp));  // ProductResolver takes ownership
@@ -397,14 +397,14 @@ namespace edm {
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const noexcept {
     if (not skipCurrentProcess) {
-      if (branchDescription().branchType() == InProcess &&
+      if (productDescription().branchType() == InProcess &&
           mcc->parent().globalContext()->transition() == GlobalContext::Transition::kAccessInputProcessBlock) {
         // This is an accessInputProcessBlock transition
         // We cannot access produced products in those transitions
         // except for in SubProcesses where they should have already run.
         return;
       }
-      if (branchDescription().availableOnlyAtEndTransition() and mcc) {
+      if (productDescription().availableOnlyAtEndTransition() and mcc) {
         if (not mcc->parent().isAtEndTransition()) {
           return;
         }
@@ -421,7 +421,7 @@ namespace edm {
   }
 
   void PuttableProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
-    auto worker = iConfigure.findWorker(branchDescription().moduleLabel());
+    auto worker = iConfigure.findWorker(productDescription().moduleLabel());
     if (worker) {
       waitingTasks_ = &worker->waitingTaskList();
     }
@@ -429,7 +429,7 @@ namespace edm {
 
   void UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
-    worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
+    worker_ = iConfigure.findWorker(productDescription().moduleLabel());
   }
 
   ProductResolverBase::Resolution UnscheduledProductResolver::resolveProduct_(Principal const&,
@@ -498,11 +498,11 @@ namespace edm {
 
   void TransformingProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
-    worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
+    worker_ = iConfigure.findWorker(productDescription().moduleLabel());
     // worker can be missing if the corresponding module is
     // unscheduled and none of its products are consumed
     if (worker_) {
-      index_ = worker_->transformIndex(branchDescription());
+      index_ = worker_->transformIndex(productDescription());
     }
   }
 
@@ -588,7 +588,7 @@ namespace edm {
   void ProducedProductResolver::putProduct(std::unique_ptr<WrapperBase> edp) const {
     if (status() != defaultStatus()) {
       throw Exception(errors::InsertFailure)
-          << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
+          << "Attempt to insert more than one product on branch " << productDescription().branchName() << "\n";
     }
 
     setProduct(std::move(edp));  // ProductResolver takes ownership
@@ -601,11 +601,11 @@ namespace edm {
   void DataManagingProductResolver::checkType(WrapperBase const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
-    if (typeID != TypeID{branchDescription().unwrappedType().unvalidatedTypeInfo()}) {
+    if (typeID != TypeID{productDescription().unwrappedType().unvalidatedTypeInfo()}) {
       // Types do not match.
       throw Exception(errors::EventCorruption)
-          << "Product on branch " << branchDescription().branchName() << " is of wrong type.\n"
-          << "It is supposed to be of type " << branchDescription().className() << ".\n"
+          << "Product on branch " << productDescription().branchName() << " is of wrong type.\n"
+          << "It is supposed to be of type " << productDescription().className() << ".\n"
           << "It is actually of type " << typeID.className() << ".\n";
     }
   }
@@ -702,12 +702,12 @@ namespace edm {
 
   bool AliasProductResolver::singleProduct_() const { return true; }
 
-  SwitchBaseProductResolver::SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd,
+  SwitchBaseProductResolver::SwitchBaseProductResolver(std::shared_ptr<ProductDescription const> bd,
                                                        DataManagingOrAliasProductResolver& realProduct)
       : realProduct_(realProduct), productData_(std::move(bd)), prefetchRequested_(false) {
     // Parentage of this branch is always the same by construction, so we can compute the ID just "once" here.
     Parentage p;
-    p.setParents(std::vector<BranchID>{realProduct.branchDescription().originalBranchID()});
+    p.setParents(std::vector<BranchID>{realProduct.productDescription().originalBranchID()});
     parentageID_ = p.id();
     ParentageRegistry::instance()->insertMapped(p);
   }
@@ -719,7 +719,7 @@ namespace edm {
   }
 
   void SwitchBaseProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
-    worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
+    worker_ = iConfigure.findWorker(productDescription().moduleLabel());
   }
 
   ProductResolverBase::Resolution SwitchBaseProductResolver::resolveProductImpl(Resolution res) const {
@@ -756,12 +756,12 @@ namespace edm {
 
   void SwitchBaseProductResolver::unsafe_setWrapperAndProvenance() const {
     // update provenance
-    productData_.provenance().store()->insertIntoSet(ProductProvenance(branchDescription().branchID(), parentageID_));
+    productData_.provenance().store()->insertIntoSet(ProductProvenance(productDescription().branchID(), parentageID_));
     // Use the Wrapper of the pointed-to resolver, but the provenance of this resolver
     productData_.unsafe_setWrapper(realProduct().getProductData().sharedConstWrapper());
   }
 
-  SwitchProducerProductResolver::SwitchProducerProductResolver(std::shared_ptr<BranchDescription const> bd,
+  SwitchProducerProductResolver::SwitchProducerProductResolver(std::shared_ptr<ProductDescription const> bd,
                                                                DataManagingOrAliasProductResolver& realProduct)
       : SwitchBaseProductResolver(std::move(bd), realProduct), status_(defaultStatus_) {}
 
@@ -784,7 +784,7 @@ namespace edm {
     if (skipCurrentProcess) {
       return;
     }
-    if (branchDescription().availableOnlyAtEndTransition() and mcc and not mcc->parent().isAtEndTransition()) {
+    if (productDescription().availableOnlyAtEndTransition() and mcc and not mcc->parent().isAtEndTransition()) {
       return;
     }
 
@@ -813,7 +813,7 @@ namespace edm {
   void SwitchProducerProductResolver::putProduct(std::unique_ptr<WrapperBase> edp) const {
     if (status_ != defaultStatus_) {
       throw Exception(errors::InsertFailure)
-          << "Attempt to insert more than one product for a branch " << branchDescription().branchName()
+          << "Attempt to insert more than one product for a branch " << productDescription().branchName()
           << "This makes no sense for SwitchProducerProductResolver.\nContact a Framework developer";
     }
     // Let's use ResolveFailed to signal that produce() was called, as
@@ -1191,15 +1191,15 @@ namespace edm {
         << "Contact a Framework developer\n";
   }
 
-  BranchDescription const& NoProcessProductResolver::branchDescription_() const {
+  ProductDescription const& NoProcessProductResolver::productDescription_() const {
     throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::branchDescription_() not implemented and should never be called.\n"
+        << "NoProcessProductResolver::productDescription_() not implemented and should never be called.\n"
         << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductResolver::resetBranchDescription_(std::shared_ptr<BranchDescription const>) {
+  void NoProcessProductResolver::resetProductDescription_(std::shared_ptr<ProductDescription const>) {
     throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::resetBranchDescription_() not implemented and should never be called.\n"
+        << "NoProcessProductResolver::resetProductDescription_() not implemented and should never be called.\n"
         << "Contact a Framework developer\n";
   }
 
@@ -1277,14 +1277,14 @@ namespace edm {
                                         << "Contact a Framework developer\n";
   }
 
-  BranchDescription const& SingleChoiceNoProcessProductResolver::branchDescription_() const {
+  ProductDescription const& SingleChoiceNoProcessProductResolver::productDescription_() const {
     throw Exception(errors::LogicError)
-        << "SingleChoiceNoProcessProductResolver::branchDescription_() not implemented and should never be called.\n"
+        << "SingleChoiceNoProcessProductResolver::productDescription_() not implemented and should never be called.\n"
         << "Contact a Framework developer\n";
   }
 
-  void SingleChoiceNoProcessProductResolver::resetBranchDescription_(std::shared_ptr<BranchDescription const>) {
-    throw Exception(errors::LogicError) << "SingleChoiceNoProcessProductResolver::resetBranchDescription_() not "
+  void SingleChoiceNoProcessProductResolver::resetProductDescription_(std::shared_ptr<ProductDescription const>) {
+    throw Exception(errors::LogicError) << "SingleChoiceNoProcessProductResolver::resetProductDescription_() not "
                                            "implemented and should never be called.\n"
                                         << "Contact a Framework developer\n";
   }

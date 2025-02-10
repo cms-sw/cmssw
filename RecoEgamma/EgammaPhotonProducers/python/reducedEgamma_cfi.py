@@ -4,6 +4,9 @@ from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff impo
 from RecoJets.Configuration.CaloTowersES_cfi import *
 
 reducedEgamma = cms.EDProducer("ReducedEGProducer",
+  keepPfSuperclusterPtMin = cms.double(5.),
+  keepPfSuperclusterAbsetaMax = cms.double(2.5),
+  relinkSuperclusterPtMin = cms.double(99999.), # no SC linking
   keepPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep in output
   slimRelinkPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep only slimmed SuperCluster plus seed cluster
   relinkPhotons = cms.string("(r9()>0.8 || chargedHadronIso()<20 || chargedHadronIso()<0.3*pt())"), #keep all associated clusters/rechits/conversions
@@ -13,6 +16,7 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   keepGsfElectrons = cms.string(""), #keep in output
   slimRelinkGsfElectrons = cms.string(""), #keep only slimmed SuperCluster plus seed cluster
   relinkGsfElectrons = cms.string("pt>5"), #keep all associated clusters/rechits/conversions
+  pflowSuperclusters = cms.InputTag("superClusterMerger"),
   photons = cms.InputTag("gedPhotons"),
   ootPhotons = cms.InputTag("ootPhotons"),
   gsfElectrons = cms.InputTag("gedGsfElectrons"),
@@ -50,6 +54,13 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   hcalHitSel = interestingEgammaIsoHCALSel
 )
 
+superClusterMerger = cms.EDProducer("EgammaSuperClusterMerger",
+  src = cms.VInputTag(
+    cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
+    cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
+  )
+)
+
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(reducedEgamma, 
         preshowerEcalHits = "",
@@ -77,3 +88,6 @@ run2_miniAOD_pp_on_AA_103X.toModify(
     photonsPFValMap = "pfEGammaToCandidateRemapperCleaned:photons",
     gsfElectronsPFValMap = "pfEGammaToCandidateRemapperCleaned:electrons"
 )
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(reducedEgamma, keepPfSuperclusterPtMin = 1.0, keepPhotons = "", slimRelinkPhotons = "", relinkPhotons = "", relinkGsfElectrons = "")

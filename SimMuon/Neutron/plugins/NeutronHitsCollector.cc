@@ -110,7 +110,7 @@ void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iS
   // ----- MuonCSCHits -----
   //
   std::unique_ptr<edm::PSimHitContainer> simCSC(new edm::PSimHitContainer);
-  if (neutron_label_csc.length() > 0) {
+  if (!neutron_label_csc.empty()) {
     const edm::Handle<edm::PSimHitContainer>& MuonCSCHits = iEvent.getHandle(tokenCSC_);
     for (hit = MuonCSCHits->begin(); hit != MuonCSCHits->end(); ++hit)
       simCSC->push_back(*hit);
@@ -120,7 +120,7 @@ void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iS
   // ----- MuonDTHits -----
   //
   std::unique_ptr<edm::PSimHitContainer> simDT(new edm::PSimHitContainer);
-  if (neutron_label_dt.length() > 0) {
+  if (!neutron_label_dt.empty()) {
     const edm::Handle<edm::PSimHitContainer>& MuonDTHits = iEvent.getHandle(tokenDT_);
     for (hit = MuonDTHits->begin(); hit != MuonDTHits->end(); ++hit)
       simDT->push_back(*hit);
@@ -130,7 +130,7 @@ void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iS
   // ----- MuonRPCHits -----
   //
   std::unique_ptr<edm::PSimHitContainer> simRPC(new edm::PSimHitContainer);
-  if (neutron_label_rpc.length() > 0) {
+  if (!neutron_label_rpc.empty()) {
     const edm::Handle<edm::PSimHitContainer>& MuonRPCHits = iEvent.getHandle(tokenRPC_);
     for (hit = MuonRPCHits->begin(); hit != MuonRPCHits->end(); ++hit)
       simRPC->push_back(*hit);

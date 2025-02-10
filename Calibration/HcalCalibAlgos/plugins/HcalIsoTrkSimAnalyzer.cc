@@ -483,7 +483,7 @@ void HcalIsoTrkSimAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup co
   if (!ignoreTrigger_) {
     //L1
     l1GtUtils_->retrieveL1(iEvent, iSetup, tok_alg_);
-    const std::vector<std::pair<std::string, bool> >& finalDecisions = l1GtUtils_->decisionsFinal();
+    const auto& finalDecisions = l1GtUtils_->decisionsFinal();
     for (const auto& decision : finalDecisions) {
       if (decision.first.find(l1TrigName_) != std::string::npos) {
         t_L1Bit = decision.second;

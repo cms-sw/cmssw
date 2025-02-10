@@ -16,14 +16,14 @@
 using namespace edm;
 using namespace std;
 
-HepMC3Product::HepMC3Product(HepMC3::GenEvent* evt)
+HepMC3Product::HepMC3Product(const HepMC3::GenEvent* evt)
     : isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {
   addHepMCData(evt);
 }
 
 HepMC3Product::~HepMC3Product() = default;
 
-void HepMC3Product::addHepMCData(HepMC3::GenEvent* evt) { evt->write_data(evt_); }
+void HepMC3Product::addHepMCData(const HepMC3::GenEvent* evt) { evt->write_data(evt_); }
 
 void HepMC3Product::applyVtxGen(HepMC3::FourVector const& vtxShift) {
   //std::cout<< " applyVtxGen called " << isVtxGenApplied_ << endl;

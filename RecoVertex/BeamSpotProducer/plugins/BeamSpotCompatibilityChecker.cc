@@ -5,7 +5,7 @@
 //
 /**\class BeamSpotCompatibilityChecker BeamSpotCompatibilityChecker.cc RecoVertex/BeamSpotProducer/plugins/BeamSpotCompatibilityChecker.cc
 
- Description: Class to check the compatibilty between the BeamSpot payload in the database and the one in the event
+ Description: Class to check the compatibility between the BeamSpot payload in the database and the one in the event
 
  Implementation:
      Makes use of the Significance struct to establish how compatible are the data members of the two BeamSpots in input
@@ -38,7 +38,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 //
 // class declaration
 //
@@ -47,20 +47,22 @@
 namespace {
 
   struct Significance {
-    Significance(const double& a, const double& b, const double& errA, const double& errB)
-        : m_A(a), m_B(b), m_ErrA(errA), m_ErrB(errB) {
+    Significance(const double& a, const double& b, const double& errA, const double& errB, const std::string& var)
+        : m_A(a), m_B(b), m_ErrA(errA), m_ErrB(errB), m_var(var) {
       if (m_ErrA == 0 && m_ErrB == 0) {
         edm::LogError("LogicalError") << "Can't calculate significance when both errors are zero!" << std::endl;
       }
       m_combinedError = std::sqrt((m_ErrA * m_ErrA) + (m_ErrB * m_ErrB));
     }
 
-    float getSig(bool verbose) {
+    float getSig(const bool verbose) {
       if (verbose) {
-        edm::LogInfo("BeamSpotCompatibilityChecker")
-            << "A= " << m_A << "+/-" << m_ErrA << "    "
-            << "B= " << m_B << "+/-" << m_ErrB << " | delta=" << std::abs(m_A - m_B) << "+/-" << m_combinedError
-            << std::endl;
+        edm::LogPrint("BeamSpotCompatibilityChecker")
+            << std::fixed << std::setprecision(6)  // Set fixed-point format with 3 decimal places
+            << m_var << ": A= " << std::setw(10) << m_A << " +/- " << std::setw(10) << m_ErrA
+            << "    B= " << std::setw(5) << m_B << " +/- " << std::setw(10) << m_ErrB
+            << "    | delta= " << std::setw(10) << std::abs(m_A - m_B) << " +/- " << std::setw(10) << m_combinedError
+            << "    Sig= " << std::setw(10) << std::abs(m_A - m_B) / m_combinedError << std::endl;
       }
       return std::abs(m_A - m_B) / m_combinedError;
     }
@@ -71,6 +73,7 @@ namespace {
     double m_ErrA;
     double m_ErrB;
     double m_ErrAB;
+    std::string m_var;
     double m_combinedError;
   };
 }  // namespace
@@ -82,7 +85,8 @@ public:
 
   void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const final;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static std::array<float, 6> compareBS(const reco::BeamSpot& BSA, const reco::BeamSpot& BSB);
+  static std::array<float, 6> compareBS(const reco::BeamSpot& BSA, const reco::BeamSpot& BSB, const bool verbose);
+  static double computeBeamSpotCompatibility(const reco::BeamSpot& beamSpot1, const reco::BeamSpot& beamSpot2);
 
 private:
   // ----------member data ---------------------------
@@ -184,7 +188,7 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
     edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from DB: \n" << spotDB << std::endl;
   }
 
-  auto significances = compareBS(spotDB, spotEvent);
+  auto significances = compareBS(spotDB, spotEvent, verbose_);
   std::vector<std::string> labels = {"x0", "y0", "z0", "sigmaX", "sigmaY", "sigmaZ"};
 
   std::string msg = " |delta X0|=" + std::to_string(std::abs(deltaX0) * cmToum) +
@@ -192,7 +196,7 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
                     " um |delta Z0|=" + std::to_string(std::abs(deltaZ0) * cmToum) +
                     " um |delta sigmaX|=" + std::to_string(std::abs(deltaSigmaX) * cmToum) +
                     " um |delta sigmaY|=" + std::to_string(std::abs(deltaSigmaY) * cmToum) +
-                    " um |delta sigmaZ|=" + std::to_string(std::abs(deltaSigmaZ)) + "cm";
+                    " um |delta sigmaZ|=" + std::to_string(std::abs(deltaSigmaZ)) + " cm";
   if (verbose_) {
     edm::LogPrint("BeamSpotCompatibilityChecker") << msg.c_str() << std::endl;
   }
@@ -213,20 +217,42 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
   }
 }
 
-std::array<float, 6> BeamSpotCompatibilityChecker::compareBS(const reco::BeamSpot& beamSpotA,
-                                                             const reco::BeamSpot& beamSpotB) {
-  auto xS = Significance(beamSpotA.x0(), beamSpotB.x0(), beamSpotA.x0Error(), beamSpotB.x0Error());
-  auto yS = Significance(beamSpotA.y0(), beamSpotB.y0(), beamSpotA.y0Error(), beamSpotB.y0Error());
-  auto zS = Significance(beamSpotA.z0(), beamSpotB.z0(), beamSpotA.z0Error(), beamSpotB.z0Error());
-  auto xWS = Significance(
-      beamSpotA.BeamWidthX(), beamSpotB.BeamWidthX(), beamSpotA.BeamWidthXError(), beamSpotB.BeamWidthXError());
-  auto yWS = Significance(
-      beamSpotA.BeamWidthY(), beamSpotB.BeamWidthY(), beamSpotA.BeamWidthYError(), beamSpotB.BeamWidthYError());
-  auto zWS = Significance(beamSpotA.sigmaZ(), beamSpotB.sigmaZ(), beamSpotA.sigmaZ0Error(), beamSpotB.sigmaZ0Error());
+std::array<float, 6> BeamSpotCompatibilityChecker::compareBS(const reco::BeamSpot& spotA,
+                                                             const reco::BeamSpot& spotB,
+                                                             const bool verbose) {
+  // Lambda to calculate the significance
+  auto calcSignificance = [&](auto a, auto b, auto aErr, auto bErr, auto var) {
+    return Significance(a, b, aErr, bErr, var).getSig(verbose);
+  };
 
+  // Populate the array using the lambda
   std::array<float, 6> ret = {
-      {xS.getSig(false), yS.getSig(false), zS.getSig(false), xWS.getSig(false), yWS.getSig(false), zWS.getSig(false)}};
+      {calcSignificance(spotA.x0(), spotB.x0(), spotA.x0Error(), spotB.x0Error(), "x"),
+       calcSignificance(spotA.y0(), spotB.y0(), spotA.y0Error(), spotB.y0Error(), "y"),
+       calcSignificance(spotA.z0(), spotB.z0(), spotA.z0Error(), spotB.z0Error(), "z"),
+       calcSignificance(
+           spotA.BeamWidthX(), spotB.BeamWidthX(), spotA.BeamWidthXError(), spotB.BeamWidthXError(), "widthX"),
+       calcSignificance(
+           spotA.BeamWidthY(), spotB.BeamWidthY(), spotA.BeamWidthYError(), spotB.BeamWidthYError(), "witdhY"),
+       calcSignificance(spotA.sigmaZ(), spotB.sigmaZ(), spotA.sigmaZ0Error(), spotB.sigmaZ0Error(), "witdthZ")}};
+
   return ret;
+}
+
+double BeamSpotCompatibilityChecker::computeBeamSpotCompatibility(const reco::BeamSpot& beamSpot1,
+                                                                  const reco::BeamSpot& beamSpot2) {
+  reco::Vertex vertex1(
+      reco::Vertex::Point(beamSpot1.x0(), beamSpot1.y0(), beamSpot1.z0()), beamSpot1.rotatedCovariance3D(), 0, 0, 0);
+  reco::Vertex vertex2(
+      reco::Vertex::Point(beamSpot2.x0(), beamSpot2.y0(), beamSpot2.z0()), beamSpot2.rotatedCovariance3D(), 0, 0, 0);
+
+  // Calculate distance and significance using VertexDistance3D
+  VertexDistance3D distanceCalculator;
+  // double distance = distanceCalculator.distance(vertex1, vertex2).value();  // Euclidean distance
+  double significance = distanceCalculator.distance(vertex1, vertex2).significance();  // Distance significance
+
+  // Return the significance as a measure of compatibility
+  return significance;  // Smaller values indicate higher compatibility
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

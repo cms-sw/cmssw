@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("DQM", Run3)
+if 'runkey=hi_run' in sys.argv:
+  from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
+  process = cms.Process("DQM", Run3_pp_on_PbPb_approxSiStripClusters)
+else:
+  from Configuration.Eras.Era_Run3_cff import Run3
+  process = cms.Process("DQM", Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -31,8 +35,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'HLT'
 process.dqmSaver.tag = 'HLT'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'HLT'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'HLT'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -131,7 +135,7 @@ process.load("DQM.HLTEvF.HLTObjectMonitor_Client_cff")
 
 #process.p = cms.EndPath(process.hlts+process.hltsClient)
 
-process.pp = cms.Path(process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
+process.pp = cms.Path(process.dqmEnv+process.dqmSaver)#+process.dqmSaverPB)
 #process.hltResults.plotAll = True
 
 

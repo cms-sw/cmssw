@@ -19,6 +19,7 @@ DST_Physics_v*                              # trigger studies
 HLT_EcalCalibration_v*                      # CMSHLT-1231
 HLT_HcalCalibration_v*                      # CMSHLT-1231
 HLT_Random_v*                               # CMSHLT-1231
+HLT_Random_HighRate_v*                      # CMSHLT-3363
 HLT_Physics_v*                              # CMSHLT-892
 HLT_ZeroBias_v*                             # trigger studies
 HLT_ZeroBias_FirstCollisionAfterAbortGap_v* # CMSHLT-1264
@@ -36,8 +37,7 @@ HLT_HIL1NotBptxORForPPRef_v*                # CMSHLT-1673
 HLT_HIHT80_Beamspot_ppRef5TeV_v*            # CMSHLT-1676
 
 HLT_PPRefZeroBias_v*             # CMSHLT-2883
-HLT_PPRefZeroBiasRawPrime_v*     # CMSHLT-2907
-HLT_ZDCCommissioning_v*          # CMSHLT-2883
+HLT_PPRefZeroBias_FirstCollisionInTrain_v* # CMSHLT-3382
 
 HLT_AK4CaloJet40_v*              # CMSHLT-2883
 HLT_AK4CaloJet60_v*              # CMSHLT-2883
@@ -86,10 +86,14 @@ HLT_PPRefGEDPhoton50_v*          # CMSHLT-2883
 HLT_PPRefGEDPhoton50_EB_v*       # CMSHLT-2883
 HLT_PPRefGEDPhoton60_v*          # CMSHLT-2883
 HLT_PPRefGEDPhoton60_EB_v*       # CMSHLT-2883
+HLT_PPRefDoubleGEDPhoton20_v*    # CMSHLT-3343
 
 HLT_PPRefL1DoubleMu0_v*          # CMSHLT-2883
+HLT_PPRefL1DoubleMu0_SQ_v*       # CMSHLT-3323
 HLT_PPRefL1DoubleMu0_Open_v*     # CMSHLT-2883
 HLT_PPRefL1SingleMu0_Cosmics_v*  # CMSHLT-2883
+HLT_PPRefL1DoubleMu2_v*          # CMSHLT-3323
+HLT_PPRefL1DoubleMu2_SQ_v*       # CMSHLT-3323
 HLT_PPRefL1SingleMu7_v*          # CMSHLT-2883
 HLT_PPRefL1SingleMu12_v*         # CMSHLT-2883
 HLT_PPRefL2DoubleMu0_v*          # CMSHLT-2883
@@ -106,10 +110,34 @@ HLT_PPRefL3SingleMu7_v*          # CMSHLT-2883
 HLT_PPRefL3SingleMu12_v*         # CMSHLT-2883
 HLT_PPRefL3SingleMu15_v*         # CMSHLT-2883
 HLT_PPRefL3SingleMu20_v*         # CMSHLT-2883
-
+HLT_PPRefL1SingleMu5_Ele20Gsf_v*    # CMSHLT-3343
+HLT_PPRefL1SingleMu5_GEDPhoton20_v* # CMSHLT-3343
+HLT_PPRefL1SingleMu7_Ele20Gsf_v*    # CMSHLT-3343
+HLT_PPRefL1SingleMu7_GEDPhoton10_v* # CMSHLT-3343
+HLT_PPRefL3SingleMu3_SingleAK4CaloJet40_v* # CMSHLT-3340
+HLT_PPRefL3SingleMu3_SingleAK4CaloJet60_v* # CMSHLT-3340
+HLT_PPRefL3SingleMu3_SingleAK4CaloJet80_v* # CMSHLT-3340
+HLT_PPRefL3SingleMu5_SingleAK4CaloJet40_v* # CMSHLT-3340
+HLT_PPRefL3SingleMu5_SingleAK4CaloJet60_v* # CMSHLT-3340
+HLT_PPRefL3SingleMu5_SingleAK4CaloJet80_v* # CMSHLT-3340
 HLT_PPRefCscCluster_Loose_v*     # CMSHLT-2883
 HLT_PPRefCscCluster_Medium_v*    # CMSHLT-2883
 HLT_PPRefCscCluster_Tight_v*     # CMSHLT-2883
+
+HLT_PPRefUPC_SingleJet8_ZDC1nAsymXOR_v*   # CMSHLT-3325
+HLT_PPRefUPC_SingleJet12_ZDC1nAsymXOR_v*  # CMSHLT-3325
+HLT_PPRefUPC_SingleJet16_ZDC1nAsymXOR_v*  # CMSHLT-3325
+HLT_PPRefUPC_SingleJet20_ZDC1nAsymXOR_v*  # CMSHLT-3325
+HLT_PPRefUPC_SingleJet24_ZDC1nAsymXOR_v*  # CMSHLT-3325
+HLT_PPRefUPC_SingleJet28_ZDC1nAsymXOR_v*  # CMSHLT-3325
+HLT_PPRefUPC_SingleJet8_ZDC1nOR_v*        # CMSHLT-3325
+HLT_PPRefUPC_SingleJet12_ZDC1nOR_v*       # CMSHLT-3325
+HLT_PPRefUPC_SingleJet16_ZDC1nOR_v*       # CMSHLT-3325
+HLT_PPRefUPC_SingleJet20_ZDC1nOR_v*       # CMSHLT-3325
+HLT_PPRefUPC_SingleJet24_ZDC1nOR_v*       # CMSHLT-3325
+HLT_PPRefUPC_SingleJet28_ZDC1nOR_v*       # CMSHLT-3325
+HLT_PPRefUPC_ZDC1nAsymXOR_v*              # CMSHLT-3325
+HLT_PPRefUPC_ZDC1nOR_v*                   # CMSHLT-3325
 
 ## EndPaths / FinalPaths ##
 
@@ -128,28 +156,54 @@ ExpressOutput
 ExpressAlignmentOutput
 HLTMonitorOutput
 PhysicsCommissioningOutput
-PhysicsCommissioningRawPrimeOutput # CMSHLT-2907
 PhysicsPPRefDoubleMuon0Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefDoubleMuon1Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefDoubleMuon2Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefDoubleMuon3Output  # CMSHLT-2883, CMSHLT-2904
-PhysicsPPRefExoticaOutput      # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefHardProbes0Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefHardProbes1Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefHardProbes2Output  # CMSHLT-2883, CMSHLT-2904
+PhysicsPPRefHardProbes3Output  # CMSHLT-2883, CMSHLT-2904, CMSGLT-3373
+PhysicsPPRefHardProbes4Output  # CMSHLT-2883, CMSHLT-2904, CMSHLT-3373
 PhysicsPPRefSingleMuon0Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefSingleMuon1Output  # CMSHLT-2883, CMSHLT-2904
 PhysicsPPRefSingleMuon2Output  # CMSHLT-2883, CMSHLT-2904
-PhysicsPPRefZeroBias0Output    # CMSHLT-2883
-PhysicsPPRefZeroBias1Output    # CMSHLT-2883
-PhysicsPPRefZeroBias2Output    # CMSHLT-2883
-PhysicsPPRefZeroBias3Output    # CMSHLT-2883
-PhysicsPPRefZeroBias4Output    # CMSHLT-2883
-PhysicsPPRefZeroBias5Output    # CMSHLT-2883
-PhysicsPPRefZeroBias6Output    # CMSHLT-2883
-PhysicsPPRefZeroBias7Output    # CMSHLT-2883
-PhysicsPPRefZeroBias8Output    # CMSHLT-2883
-PhysicsPPRefZeroBias9Output    # CMSHLT-2883
+PhysicsPPRefSingleMuon3Output  # CMSHLT-2883, CMSHLT-2904, CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward0Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward1Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward2Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward3Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward4Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward5Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward6Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward7Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward8Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward9Output    # CMSHLT-3325
+PhysicsPPRefZeroBiasPlusForward10Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward11Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward12Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward13Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward14Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward15Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward16Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward17Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward18Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward19Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward20Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward21Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward22Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward23Output   # CMSHLT-3373
+PhysicsPPRefZeroBiasPlusForward24Output   # CMSHLT-3373
+PhysicsSpecialRandom0Output # CMSHLT-3363
+PhysicsSpecialRandom1Output # CMSHLT-3363
+PhysicsSpecialRandom2Output # CMSHLT-3363
+PhysicsSpecialRandom3Output # CMSHLT-3363
+PhysicsSpecialRandom4Output # CMSHLT-3363
+PhysicsSpecialRandom5Output # CMSHLT-3363
+PhysicsSpecialRandom6Output # CMSHLT-3363
+PhysicsSpecialRandom7Output # CMSHLT-3363
+PhysicsSpecialRandom8Output # CMSHLT-3363
+PhysicsSpecialRandom9Output # CMSHLT-3363
 NanoDSTOutput
 RPCMONOutput
 

@@ -24,7 +24,6 @@
 # }
 
 # External libraries (standard in Python >= 2.4, at least)
-from __future__ import print_function
 from xml.sax import handler, make_parser
 from sys import stdin
 

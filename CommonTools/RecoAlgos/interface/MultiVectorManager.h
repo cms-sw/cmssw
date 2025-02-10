@@ -5,13 +5,13 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
-#include <iterator>
+#include <span>
 
 template <typename T>
 class MultiVectorManager {
 public:
-  void addVector(const std::vector<T>& vec) {
-    vectors.emplace_back(vec.begin(), vec.end());
+  void addVector(std::span<const T> vec) {
+    vectors.emplace_back(vec);
     offsets.push_back(totalSize);
     totalSize += vec.size();
   }
@@ -39,8 +39,6 @@ public:
     return offsets[vectorIndex] + localIndex;
   }
 
-  size_t size() const { return totalSize; }
-
   std::pair<size_t, size_t> getVectorAndLocalIndex(size_t globalIndex) const {
     assert(globalIndex < totalSize && "Global index out of range");
 
@@ -50,6 +48,8 @@ public:
 
     return {vectorIndex, localIndex};
   }
+
+  size_t size() const { return totalSize; }
 
   class Iterator {
   public:
@@ -77,7 +77,7 @@ public:
   Iterator end() const { return Iterator(*this, totalSize); }
 
 private:
-  std::vector<std::vector<T>> vectors;
+  std::vector<std::span<const T>> vectors;
   std::vector<size_t> offsets;
   size_t totalSize = 0;
 };

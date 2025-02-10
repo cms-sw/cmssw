@@ -412,12 +412,12 @@ namespace cscdqm {
     /** ALCT Found */
     if (data.nalct()) {
       const CSCALCTHeader* alctHeader = data.alctHeader();
-      int fwVersion = alctHeader->alctFirmwareVersion();
-      int fwRevision = alctHeader->alctFirmwareRevision();
       const CSCALCTTrailer* alctTrailer = data.alctTrailer();
       const CSCAnodeData* alctData = data.alctData();
 
       if (alctHeader && alctTrailer) {
+        int fwVersion = alctHeader->alctFirmwareVersion();
+        int fwRevision = alctHeader->alctFirmwareRevision();
         /** Summary plot for chambers with detected Run3 ALCT firmware */
         if (getEMUHisto(h::EMU_CSC_RUN3_ALCT_FORMAT, mo)) {
           /// ALCT Run3 firmware revision should be > 5

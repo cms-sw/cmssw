@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys, os, re
 
@@ -164,7 +163,7 @@ class EgammaDQMModuleMaker:
         #--------------------
         # find Et threshold of primary object
         #--------------------
-        mo = re.match("HLT_.*?(\d+).*",pathName)
+        mo = re.match("HLT_.*?(\\d+).*",pathName)
 
         if mo != None:
             etThreshold = float(mo.group(1))

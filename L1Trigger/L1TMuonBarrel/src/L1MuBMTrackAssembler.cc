@@ -28,7 +28,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMExtrapolationUnit.h"
 
@@ -60,24 +60,24 @@ L1MuBMTrackAssembler::~L1MuBMTrackAssembler() {}
 void L1MuBMTrackAssembler::run() {
   // get the 18 bitmap tables from the Quality Sorter Unit
 
-  bitset<12> b_adr12_8 = m_sp.EU()->getQSTable(EX12, 0);
-  bitset<12> b_adr12_9 = m_sp.EU()->getQSTable(EX12, 1);
-  bitset<12> b_adr13_8 = m_sp.EU()->getQSTable(EX13, 0);
-  bitset<12> b_adr13_9 = m_sp.EU()->getQSTable(EX13, 1);
-  bitset<12> b_adr14_8 = m_sp.EU()->getQSTable(EX14, 0);
-  bitset<12> b_adr14_9 = m_sp.EU()->getQSTable(EX14, 1);
-  bitset<12> b_adr23_8 = m_sp.EU()->getQSTable(EX23, 0);
-  bitset<12> b_adr23_9 = m_sp.EU()->getQSTable(EX23, 1);
-  bitset<12> b_adr23_0 = m_sp.EU()->getQSTable(EX23, 2);
-  bitset<12> b_adr23_1 = m_sp.EU()->getQSTable(EX23, 3);
-  bitset<12> b_adr24_8 = m_sp.EU()->getQSTable(EX24, 0);
-  bitset<12> b_adr24_9 = m_sp.EU()->getQSTable(EX24, 1);
-  bitset<12> b_adr24_0 = m_sp.EU()->getQSTable(EX24, 2);
-  bitset<12> b_adr24_1 = m_sp.EU()->getQSTable(EX24, 3);
-  bitset<12> b_adr34_8 = m_sp.EU()->getQSTable(EX34, 0);
-  bitset<12> b_adr34_9 = m_sp.EU()->getQSTable(EX34, 1);
-  bitset<12> b_adr34_0 = m_sp.EU()->getQSTable(EX34, 2);
-  bitset<12> b_adr34_1 = m_sp.EU()->getQSTable(EX34, 3);
+  bitset<12> b_adr12_8 = m_sp.EU().getQSTable(EX12, 0);
+  bitset<12> b_adr12_9 = m_sp.EU().getQSTable(EX12, 1);
+  bitset<12> b_adr13_8 = m_sp.EU().getQSTable(EX13, 0);
+  bitset<12> b_adr13_9 = m_sp.EU().getQSTable(EX13, 1);
+  bitset<12> b_adr14_8 = m_sp.EU().getQSTable(EX14, 0);
+  bitset<12> b_adr14_9 = m_sp.EU().getQSTable(EX14, 1);
+  bitset<12> b_adr23_8 = m_sp.EU().getQSTable(EX23, 0);
+  bitset<12> b_adr23_9 = m_sp.EU().getQSTable(EX23, 1);
+  bitset<12> b_adr23_0 = m_sp.EU().getQSTable(EX23, 2);
+  bitset<12> b_adr23_1 = m_sp.EU().getQSTable(EX23, 3);
+  bitset<12> b_adr24_8 = m_sp.EU().getQSTable(EX24, 0);
+  bitset<12> b_adr24_9 = m_sp.EU().getQSTable(EX24, 1);
+  bitset<12> b_adr24_0 = m_sp.EU().getQSTable(EX24, 2);
+  bitset<12> b_adr24_1 = m_sp.EU().getQSTable(EX24, 3);
+  bitset<12> b_adr34_8 = m_sp.EU().getQSTable(EX34, 0);
+  bitset<12> b_adr34_9 = m_sp.EU().getQSTable(EX34, 1);
+  bitset<12> b_adr34_0 = m_sp.EU().getQSTable(EX34, 2);
+  bitset<12> b_adr34_1 = m_sp.EU().getQSTable(EX34, 3);
 
   // Last segment node building
 
@@ -433,9 +433,9 @@ void L1MuBMTrackAssembler::run() {
 
   if ((s2_2 == 15 && s3_2 == 15 && s4_2 == 15) || (s1_2 == 15 && s3_2 == 15 && s4_2 == 15) ||
       (s1_2 == 15 && s2_2 == 15 && s4_2 == 15) || (s1_2 == 15 && s2_2 == 15 && s3_2 == 15)) {
-    if (L1MuBMTFConfig::Debug(5))
+    if (m_sp.config().Debug(5))
       cout << "L1MuBMTrackAssembler: second track has been cancelled" << endl;
-    if (L1MuBMTFConfig::Debug(5))
+    if (m_sp.config().Debug(5))
       print();
 
     m_theTCs[1] = UNDEF;
@@ -445,8 +445,8 @@ void L1MuBMTrackAssembler::run() {
 
   /*
   if ( m_theBitMaps[1].to_ulong() != tc2bitmap(m_theTCs[1]) ) {
-    if ( L1MuBMTFConfig::Debug(5) ) cout << "L1MuBMTrackAssembler: second track has been cancelled" << endl;
-    if ( L1MuBMTFConfig::Debug(5) ) print();
+    if ( m_sp.config().Debug(5) ) cout << "L1MuBMTrackAssembler: second track has been cancelled" << endl;
+    if ( m_sp.config().Debug(5) ) print();
 
     m_theTCs[1] = UNDEF;
     m_theAddresses[1].reset();

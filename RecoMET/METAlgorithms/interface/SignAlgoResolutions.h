@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/METReco/interface/SigInputObj.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -78,6 +79,8 @@ namespace metsig {
     metsig::SigInputObj evalPF(const reco::PFCandidate *candidate) const;
     metsig::SigInputObj evalPFJet(const reco::Jet *jet) const;
     bool isFilled() const { return !functionmap_.empty(); }
+
+    static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
   private:
     double getfunc(const resolutionType &type, const resolutionFunc &func, std::vector<double> &x) const;

@@ -182,8 +182,8 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     
   */
 
-  bool print = getName() == "MP_L3PHIC" && iSector == 3;
-  print = false;
+  // bool print = getName() == "MP_L3PHIC" && iSector == 3;
+  bool print = false;
 
   phimin_ = phimin;
 
@@ -515,7 +515,7 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
     double z = stub->z();
 
     if (settings_.useapprox()) {
-      double dphi = reco::reduceRange(phi - fpgastub->phiapprox(phimin_, 0.0));
+      double dphi = reco::reducePhiRange(phi - fpgastub->phiapprox(phimin_, 0.0));
       assert(std::abs(dphi) < 0.001);
       phi = fpgastub->phiapprox(phimin_, 0.0);
       z = fpgastub->zapprox();
@@ -529,11 +529,11 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
     double dr = r - settings_.rmean(layerdisk_);
     assert(std::abs(dr) < settings_.drmax());
 
-    double dphi = reco::reduceRange(phi - (proj.phiproj() + dr * proj.phiprojder()));
+    double dphi = reco::reducePhiRange(phi - (proj.phiproj() + dr * proj.phiprojder()));
 
     double dz = z - (proj.rzproj() + dr * proj.rzprojder());
 
-    double dphiapprox = reco::reduceRange(phi - (proj.phiprojapprox() + dr * proj.phiprojderapprox()));
+    double dphiapprox = reco::reducePhiRange(phi - (proj.phiprojapprox() + dr * proj.phiprojderapprox()));
 
     double dzapprox = z - (proj.rzprojapprox() + dr * proj.rzprojderapprox());
 
@@ -689,7 +689,7 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
     double r = stub->r();
 
     if (settings_.useapprox()) {
-      double dphi = reco::reduceRange(phi - fpgastub->phiapprox(phimin_, 0.0));
+      double dphi = reco::reducePhiRange(phi - fpgastub->phiapprox(phimin_, 0.0));
       assert(std::abs(dphi) < 0.001);
       phi = fpgastub->phiapprox(phimin_, 0.0);
       z = fpgastub->zapprox();
@@ -715,9 +715,9 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
     double dr = stub->r() - rproj;
     double drapprox = stub->r() - (proj.rzprojapprox() + dz * proj.rzprojderapprox());
 
-    double dphi = reco::reduceRange(phi - phiproj);
+    double dphi = reco::reducePhiRange(phi - phiproj);
 
-    double dphiapprox = reco::reduceRange(phi - (proj.phiprojapprox() + dz * proj.phiprojderapprox()));
+    double dphiapprox = reco::reducePhiRange(phi - (proj.phiprojapprox() + dz * proj.phiprojderapprox()));
 
     double drphi = dphi * stub->r();
     double drphiapprox = dphiapprox * stub->r();

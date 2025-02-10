@@ -20,6 +20,7 @@
 #include <iostream>
 #include <iomanip>
 #include <memory>
+#include <optional>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -128,8 +129,7 @@ namespace l1t {
 
     std::unique_ptr<UnpackerCollections> coll = prov_->getCollections(event);
 
-    edm::Handle<FEDRawDataCollection> feds;
-    event.getByToken(fedData_, feds);
+    edm::Handle<FEDRawDataCollection> feds = event.getHandle(fedData_);
 
     if (!feds.isValid()) {
       LogError("L1T") << "Cannot unpack: no FEDRawDataCollection found";
@@ -201,10 +201,10 @@ namespace l1t {
           continue;
 
         auto payload64 = amc.data();
-        const uint32_t* start = (const uint32_t*)payload64.get();
+        const uint32_t* start = reinterpret_cast<const uint32_t*>(&payload64.front());
         // Want to have payload size in 32 bit words, but AMC measures
         // it in 64 bit words → factor 2.
-        const uint32_t* end = start + (amc.size() * 2);
+        const uint32_t* end = start + (payload64.size() * 2);
 
         std::unique_ptr<Payload> payload;
         if (ctp7_mode_) {
@@ -232,9 +232,9 @@ namespace l1t {
 
         auto unpackers = prov_->getUnpackers(fedId, board, amc_no, fw);
 
-        // getBlock() returns a non-null unique_ptr on success
-        std::unique_ptr<Block> block;
-        while ((block = payload->getBlock()).get()) {
+        // getBlock() returns a non-null optional on success
+        std::optional<Block> block;
+        while ((block = payload->getBlock())) {
           // only unpack the Calo Layer 2 MP TMT node if it has processed this BX
           unsigned tmtId = board - l1t::stage2::layer2::mp::offsetBoardId + 1;
           unsigned bxId = header.bxID();

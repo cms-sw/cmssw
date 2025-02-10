@@ -37,9 +37,9 @@ namespace edm {
   class StreamID;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTaskWithArenaHolder;
   class EventForTransformer;
   class ServiceWeakToken;
+  class SignallingProductRegistry;
 
   namespace maker {
     template <typename T>
@@ -75,10 +75,7 @@ namespace edm {
 
     private:
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
-      void doAcquire(EventTransitionInfo const&,
-                     ActivityRegistry*,
-                     ModuleCallingContext const*,
-                     WaitingTaskWithArenaHolder&);
+      void doAcquire(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*, WaitingTaskHolder&&);
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,
@@ -114,7 +111,7 @@ namespace edm {
       void doRespondToCloseOutputFile() { clearInputProcessBlockCaches(); }
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
-      void registerProductsAndCallbacks(EDFilterBase* module, ProductRegistry* reg) {
+      void registerProductsAndCallbacks(EDFilterBase* module, SignallingProductRegistry* reg) {
         registerProducts(module, reg, moduleDescription_);
       }
       std::string workerType() const { return "WorkerT<EDProducer>"; }
@@ -157,7 +154,7 @@ namespace edm {
       virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
 
-      virtual size_t transformIndex_(edm::BranchDescription const& iBranch) const noexcept;
+      virtual size_t transformIndex_(edm::ProductDescription const& iBranch) const noexcept;
       virtual ProductResolverIndex transformPrefetch_(std::size_t iIndex) const noexcept;
       virtual void transformAsync_(WaitingTaskHolder iTask,
                                    std::size_t iIndex,
@@ -169,7 +166,7 @@ namespace edm {
       virtual bool hasAcquire() const noexcept { return false; }
       bool hasAccumulator() const noexcept { return false; }
 
-      virtual void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder&);
+      virtual void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskHolder&&);
 
       void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
       ModuleDescription moduleDescription_;

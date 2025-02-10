@@ -43,7 +43,7 @@ namespace {
     void start() { started_.store(true, std::memory_order_release); }
 
   private:
-    void allocCalled(size_t iRequested, size_t iActual) final {
+    void allocCalled(size_t iRequested, size_t iActual, void const*) final {
       if (not started_.load(std::memory_order_acquire)) {
         return;
       }
@@ -61,7 +61,7 @@ namespace {
         }
       }
     }
-    void deallocCalled(size_t iActual) final {
+    void deallocCalled(size_t iActual, void const*) final {
       if (not started_.load(std::memory_order_acquire)) {
         return;
       }

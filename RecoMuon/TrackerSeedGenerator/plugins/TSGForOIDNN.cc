@@ -208,7 +208,6 @@ TSGForOIDNN::TSGForOIDNN(const edm::ParameterSet& iConfig)
   if (getStrategyFromDNN_) {
     edm::FileInPath dnnMetadataPath(dnnMetadataPath_);
     pt::read_json(dnnMetadataPath.fullPath(), metadata_);
-    tensorflow::setLogging("3");
 
     if (useRegressor_) {
       // use regressor

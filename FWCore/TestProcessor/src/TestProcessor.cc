@@ -36,6 +36,7 @@
 #include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -88,7 +89,7 @@ namespace edm {
       //initialize the services
       auto& serviceSets = procDesc->getServicesPSets();
       ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError, true);
-      serviceToken_ = items.addCPRandTNS(*psetPtr, token);
+      serviceToken_ = items.addTNS(*psetPtr, token);
 
       //make the services available
       ServiceRegistry::Operate operate(serviceToken_);
@@ -130,16 +131,14 @@ namespace edm {
           processName = processConfiguration_->processName();
         }
         edm::TypeWithDict twd(produce.type_.typeInfo());
-        edm::BranchDescription product(edm::InEvent,
-                                       produce.moduleLabel_,
-                                       processName,
-                                       twd.userClassName(),
-                                       twd.friendlyClassName(),
-                                       produce.instanceLabel_,
-                                       "",
-                                       psetid,
-                                       twd,
-                                       true  //force this to come from 'source'
+        edm::ProductDescription product(edm::InEvent,
+                                        produce.moduleLabel_,
+                                        processName,
+                                        twd.userClassName(),
+                                        twd.friendlyClassName(),
+                                        produce.instanceLabel_,
+                                        twd,
+                                        true  //force this to come from 'source'
         );
         product.init();
         dataProducts_.emplace_back(product, std::unique_ptr<WrapperBase>());
@@ -165,6 +164,7 @@ namespace edm {
       for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
         // Reusable event principal
         auto ep = std::make_shared<EventPrincipal>(preg_,
+                                                   edm::productResolversFactory::makePrimary,
                                                    branchIDListHelper_,
                                                    thinnedAssociationsHelper_,
                                                    *processConfiguration_,
@@ -173,17 +173,22 @@ namespace edm {
         principalCache_.insert(std::move(ep));
       }
       for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
-        auto rp = std::make_unique<RunPrincipal>(
-            preg_, *processConfiguration_, historyAppender_.get(), index, true, &mergeableRunProductProcesses_);
+        auto rp = std::make_unique<RunPrincipal>(preg_,
+                                                 edm::productResolversFactory::makePrimary,
+                                                 *processConfiguration_,
+                                                 historyAppender_.get(),
+                                                 index,
+                                                 &mergeableRunProductProcesses_);
         principalCache_.insert(std::move(rp));
       }
       for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
-        auto lp =
-            std::make_unique<LuminosityBlockPrincipal>(preg_, *processConfiguration_, historyAppender_.get(), index);
+        auto lp = std::make_unique<LuminosityBlockPrincipal>(
+            preg_, edm::productResolversFactory::makePrimary, *processConfiguration_, historyAppender_.get(), index);
         principalCache_.insert(std::move(lp));
       }
       {
-        auto pb = std::make_unique<ProcessBlockPrincipal>(preg_, *processConfiguration_);
+        auto pb = std::make_unique<ProcessBlockPrincipal>(
+            preg_, edm::productResolversFactory::makePrimary, *processConfiguration_);
         principalCache_.insert(std::move(pb));
       }
     }
@@ -212,7 +217,7 @@ namespace edm {
       schedule_->clearCounters();
       if (esHelper_) {
         //We want each test to have its own ES data products
-        esHelper_->resetAllProxies();
+        esHelper_->resetAllResolvers();
       }
       return edm::test::Event(
           principalCache_.eventPrincipal(0), labelOfTestModule_, processConfiguration_->processName(), result);
@@ -246,7 +251,7 @@ namespace edm {
 
       if (esHelper_) {
         //We want each test to have its own ES data products
-        esHelper_->resetAllProxies();
+        esHelper_->resetAllResolvers();
       }
       return edm::test::LuminosityBlock(lumiPrincipal_, labelOfTestModule_, processConfiguration_->processName());
     }
@@ -278,7 +283,7 @@ namespace edm {
       });
       if (esHelper_) {
         //We want each test to have its own ES data products
-        esHelper_->resetAllProxies();
+        esHelper_->resetAllResolvers();
       }
 
       return edm::test::LuminosityBlock(std::move(lumi), labelOfTestModule_, processConfiguration_->processName());
@@ -307,7 +312,7 @@ namespace edm {
       });
       if (esHelper_) {
         //We want each test to have its own ES data products
-        esHelper_->resetAllProxies();
+        esHelper_->resetAllResolvers();
       }
       return edm::test::Run(runPrincipal_, labelOfTestModule_, processConfiguration_->processName());
     }
@@ -335,7 +340,7 @@ namespace edm {
       });
       if (esHelper_) {
         //We want each test to have its own ES data products
-        esHelper_->resetAllProxies();
+        esHelper_->resetAllResolvers();
       }
 
       return edm::test::Run(rp, labelOfTestModule_, processConfiguration_->processName());

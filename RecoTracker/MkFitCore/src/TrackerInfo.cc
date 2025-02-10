@@ -54,10 +54,10 @@ namespace mkfit {
 
   void LayerInfo::print_layer() const {
     // clang-format off
-    printf("Layer %2d  r(%7.4f, %7.4f) z(% 9.4f, % 9.4f) is_brl=%d, is_pix=%d, is_stereo=%d, q_bin=%.2f\n",
-           m_layer_id,
-           m_rin, m_rout, m_zmin, m_zmax,
-           is_barrel(), m_is_pixel, m_is_stereo, m_q_bin);
+    printf("Layer %2d  r(%7.4f, %7.4f) z(% 9.4f, % 9.4f)"
+           " is_brl=%d, is_pix=%d, is_stereo=%d, has_charge=%d, q_bin=%.2f\n",
+           m_layer_id, m_rin, m_rout, m_zmin, m_zmax,
+           is_barrel(), m_is_pixel, m_is_stereo, m_has_charge, m_q_bin);
     if (m_has_r_range_hole)
       printf("          has_r_range_hole: %.2f -> %.2f, dr: %f\n", m_hole_r_min, m_hole_r_max, m_hole_r_max - m_hole_r_min);
     // clang-format on
@@ -133,12 +133,13 @@ namespace mkfit {
       int f_sizeof_trackerinfo = sizeof(TrackerInfo);
       int f_sizeof_layerinfo = sizeof(LayerInfo);
       int f_sizeof_moduleinfo = sizeof(ModuleInfo);
+      int f_sizeof_moduleshape = sizeof(ModuleShape);
       int f_n_layers = -1;
 
       GeomFileHeader() = default;
 
       constexpr static int s_magic = 0xB00F;
-      constexpr static int s_version = 2;
+      constexpr static int s_version = 3;
     };
 
     template <typename T>
@@ -167,6 +168,17 @@ namespace mkfit {
       }
       return n;
     }
+
+    void assert_sizeof_match(int size_on_file, int size_of_class, const char* class_name) {
+      if (size_on_file != size_of_class) {
+        fprintf(stderr,
+                "sizeof(%s) on file (%d) different from current value (%d).\n",
+                class_name,
+                size_on_file,
+                size_of_class);
+        throw std::runtime_error("class sizeof mismatch for " + std::string(class_name));
+      }
+    }
   }  // namespace
 
   void TrackerInfo::write_bin_file(const std::string& fname) const {
@@ -183,13 +195,14 @@ namespace mkfit {
     fh.f_n_layers = n_layers();
     fwrite(&fh, sizeof(GeomFileHeader), 1, fp);
 
-    write_std_vec(fp, m_layers, (int)(offsetof(LayerInfo, m_is_pixel)) + 1);
+    write_std_vec(fp, m_layers, (int)offsetof(LayerInfo, m_final_member_for_streaming));
     write_std_vec(fp, m_barrel);
     write_std_vec(fp, m_ecap_pos);
     write_std_vec(fp, m_ecap_neg);
 
     for (int l = 0; l < fh.f_n_layers; ++l) {
       write_std_vec(fp, m_layers[l].m_modules);
+      write_std_vec(fp, m_layers[l].m_shapes);
     }
 
     fwrite(&m_mat_range_z, 4 * sizeof(float), 1, fp);
@@ -223,34 +236,17 @@ namespace mkfit {
               GeomFileHeader::s_version);
       throw std::runtime_error("Unsupported file version in TrackerInfo::read_bin_file");
     }
-    if (fh.f_sizeof_trackerinfo != sizeof(TrackerInfo)) {
-      fprintf(stderr,
-              "sizeof(TrackerInfo) on file (%d) different from current value (%d).\n",
-              fh.f_sizeof_trackerinfo,
-              (int)sizeof(TrackerInfo));
-      throw std::runtime_error("sizeof(TrackerInfo) mismatch in TrackerInfo::read_bin_file");
-    }
-    if (fh.f_sizeof_layerinfo != sizeof(LayerInfo)) {
-      fprintf(stderr,
-              "sizeof(LayerInfo) on file (%d) different from current value (%d).\n",
-              fh.f_sizeof_layerinfo,
-              (int)sizeof(LayerInfo));
-      throw std::runtime_error("sizeof(LayerInfo) mismatch in TrackerInfo::read_bin_file");
-    }
-    if (fh.f_sizeof_moduleinfo != sizeof(ModuleInfo)) {
-      fprintf(stderr,
-              "sizeof(ModuleInfo) on file (%d) different from current value (%d).\n",
-              fh.f_sizeof_moduleinfo,
-              (int)sizeof(ModuleInfo));
-      throw std::runtime_error("sizeof(ModuleInfo) mismatch in TrackerInfo::read_bin_file");
-    }
+    assert_sizeof_match(fh.f_sizeof_trackerinfo, sizeof(TrackerInfo), "TrackerInfo");
+    assert_sizeof_match(fh.f_sizeof_layerinfo, sizeof(LayerInfo), "LayerInfo");
+    assert_sizeof_match(fh.f_sizeof_moduleinfo, sizeof(ModuleInfo), "ModuleInfo");
+    assert_sizeof_match(fh.f_sizeof_moduleshape, sizeof(ModuleShape), "ModuleShape");
 
     printf("Opened TrackerInfoGeom file '%s', format version %d, n_layers %d\n",
            fname.c_str(),
            fh.f_format_version,
            fh.f_n_layers);
 
-    read_std_vec(fp, m_layers, (int)(offsetof(LayerInfo, m_is_pixel)) + 1);
+    read_std_vec(fp, m_layers, (int)offsetof(LayerInfo, m_final_member_for_streaming));
     read_std_vec(fp, m_barrel);
     read_std_vec(fp, m_ecap_pos);
     read_std_vec(fp, m_ecap_neg);
@@ -263,6 +259,8 @@ namespace mkfit {
       for (int m = 0; m < nm; ++m) {
         li.m_detid2sid.insert({li.m_modules[m].detid, m});
       }
+
+      read_std_vec(fp, li.m_shapes);
     }
 
     fread(&m_mat_range_z, 4 * sizeof(float), 1, fp);
@@ -272,28 +270,35 @@ namespace mkfit {
     fclose(fp);
   }
 
-  void TrackerInfo::print_tracker(int level) const {
+  void TrackerInfo::print_tracker(int level, int precision) const {
+    // clang-format off
     if (level > 0) {
       for (int i = 0; i < n_layers(); ++i) {
         const LayerInfo& li = layer(i);
         li.print_layer();
         if (level > 1) {
-          printf("  Detailed module list N=%d\n", li.n_modules());
+          printf("  Detailed module list N=%d, N_shapes=%d\n", li.n_modules(), li.n_shapes());
+          for (int j = 0; j < li.n_shapes(); ++j) {
+            const ModuleShape &ms = li.module_shape(j);
+            const int w = precision + 1;
+            printf("    Shape id=%u: dx1=%.*f, dx2=%.*f, dy=%.*f, dz=%.*f\n",
+                   j, w, ms.dx1, w, ms.dx2, w, ms.dy, w, ms.dz);
+          }
           for (int j = 0; j < li.n_modules(); ++j) {
             const ModuleInfo& mi = li.module_info(j);
             auto* p = mi.pos.Array();
             auto* z = mi.zdir.Array();
             auto* x = mi.xdir.Array();
-            // clang-format off
-            printf("Layer %d, mid=%u; detid=0x%x pos=%.3f,%.3f,%.3f, "
-                  "norm=%.3f,%.3f,%.3f, phi=%.3f,%.3f,%.3f\n",
-                  i, j, mi.detid, p[0], p[1], p[2],
-                  z[0], z[1], z[2], x[0], x[1], x[2]);
-            // clang-format on
+            const int w = precision;
+            printf("    Module id=%u: detid=0x%x shapeid=%u pos=%.*f,%.*f,%.*f, "
+                   "norm=%.*f,%.*f,%.*f, phi=%.*f,%.*f,%.*f\n",
+                   j, mi.detid, mi.shapeid, w, p[0], w, p[1], w, p[2],
+                   w, z[0], w, z[1], w, z[2], w, x[0], w, x[1], w, x[2]);
           }
           printf("\n");
         }
       }
     }
+    // clang-format on
   }
 }  // end namespace mkfit

@@ -4,7 +4,7 @@
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

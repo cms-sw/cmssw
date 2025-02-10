@@ -142,22 +142,11 @@ MuonHLTSeedMVAClassifierPhase2::MuonHLTSeedMVAClassifierPhase2(const edm::Parame
 void MuonHLTSeedMVAClassifierPhase2::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto result = std::make_unique<TrajectorySeedCollection>();
 
-  edm::ESHandle<TrackerGeometry> trkGeom = iSetup.getHandle(trackerGeometryESToken_);
-  edm::ESHandle<GeometricDet> geomDet = iSetup.getHandle(geomDetESToken_);
-  edm::ESHandle<TrackerTopology> trkTopo = iSetup.getHandle(trackerTopologyESToken_);
-
-  GeometricSearchTrackerBuilder builder;
-  GeometricSearchTracker geomTracker = *(builder.build(&(*geomDet), &(*trkGeom), &(*trkTopo)));
-
   edm::Handle<l1t::TrackerMuonCollection> h_L1TkMu;
   bool hasL1TkMu = iEvent.getByToken(t_L1TkMu_, h_L1TkMu);
 
   edm::Handle<TrajectorySeedCollection> h_Seed;
   bool hasSeed = iEvent.getByToken(t_Seed_, h_Seed);
-
-  edm::ESHandle<MagneticField> magfieldH = iSetup.getHandle(magFieldESToken_);
-  edm::ESHandle<Propagator> propagatorAlongH = iSetup.getHandle(propagatorESToken_);
-  std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlongH, alongMomentum);
 
   if (!(hasL1TkMu && hasSeed)) {
     edm::LogError("SeedClassifierError") << "Error! Cannot find L1TkMuon or TrajectorySeed\n"
@@ -165,6 +154,30 @@ void MuonHLTSeedMVAClassifierPhase2::produce(edm::Event& iEvent, const edm::Even
                                          << "hasSeed : " << hasSeed << "\n";
     return;
   }
+
+  if (h_L1TkMu->empty() or h_Seed->empty()) {
+    if (!h_Seed->empty()) {
+      edm::LogInfo("SeedClassifierError") << "Empty L1TkMu collection" << '\n';
+    }
+    if (!h_L1TkMu->empty()) {
+      edm::LogInfo("SeedClassifierError") << "Empty Muon Pixel seeds collection" << '\n';
+    } else {
+      edm::LogInfo("SeedClassifierError") << "Empty L1TkMu and Muon Pixel seeds collections" << '\n';
+    }
+    iEvent.put(std::move(result));
+    return;
+  }
+
+  edm::ESHandle<TrackerGeometry> trkGeom = iSetup.getHandle(trackerGeometryESToken_);
+  edm::ESHandle<GeometricDet> geomDet = iSetup.getHandle(geomDetESToken_);
+  edm::ESHandle<TrackerTopology> trkTopo = iSetup.getHandle(trackerTopologyESToken_);
+
+  GeometricSearchTrackerBuilder builder;
+  GeometricSearchTracker geomTracker = *(builder.build(&(*geomDet), &(*trkGeom), &(*trkTopo)));
+
+  edm::ESHandle<MagneticField> magfieldH = iSetup.getHandle(magFieldESToken_);
+  edm::ESHandle<Propagator> propagatorAlongH = iSetup.getHandle(propagatorESToken_);
+  std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlongH, alongMomentum);
 
   // -- sort seeds by MVA score and chooes top nSeedsMax_B_ / nSeedsMax_E_
   if (doSort_) {
@@ -204,19 +217,21 @@ void MuonHLTSeedMVAClassifierPhase2::produce(edm::Event& iEvent, const edm::Even
         pairSeedIdxMvaScore_E.push_back(make_pair(i, logistic));
     }
 
-    std::sort(pairSeedIdxMvaScore_B.begin(), pairSeedIdxMvaScore_B.end(), sortByMvaScorePhase2);
-    std::sort(pairSeedIdxMvaScore_E.begin(), pairSeedIdxMvaScore_E.end(), sortByMvaScorePhase2);
+    std::partial_sort(pairSeedIdxMvaScore_B.begin(),
+                      std::min(pairSeedIdxMvaScore_B.begin() + nSeedsMax_B_, pairSeedIdxMvaScore_B.end()),
+                      pairSeedIdxMvaScore_B.end(),
+                      sortByMvaScorePhase2);
+    std::partial_sort(pairSeedIdxMvaScore_E.begin(),
+                      std::min(pairSeedIdxMvaScore_E.begin() + nSeedsMax_E_, pairSeedIdxMvaScore_E.end()),
+                      pairSeedIdxMvaScore_E.end(),
+                      sortByMvaScorePhase2);
 
-    for (auto i = 0U; i < pairSeedIdxMvaScore_B.size(); ++i) {
-      if ((int)i == nSeedsMax_B_)
-        break;
+    for (size_t i = 0; i < std::min(pairSeedIdxMvaScore_B.size(), static_cast<size_t>(nSeedsMax_B_)); ++i) {
       const auto& seed(h_Seed->at(pairSeedIdxMvaScore_B.at(i).first));
       result->emplace_back(seed);
     }
 
-    for (auto i = 0U; i < pairSeedIdxMvaScore_E.size(); ++i) {
-      if ((int)i == nSeedsMax_E_)
-        break;
+    for (size_t i = 0; i < std::min(pairSeedIdxMvaScore_E.size(), static_cast<size_t>(nSeedsMax_E_)); ++i) {
       const auto& seed(h_Seed->at(pairSeedIdxMvaScore_E.at(i).first));
       result->emplace_back(seed);
     }

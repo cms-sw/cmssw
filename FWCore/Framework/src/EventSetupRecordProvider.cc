@@ -98,7 +98,7 @@ namespace edm {
     }
     void EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap) {
       using std::placeholders::_1;
-      for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper, this, _1, iMap));
+      for_all(providers_, std::bind(&EventSetupRecordProvider::addResolversToRecordHelper, this, _1, iMap));
       if (1 < multipleFinders_->size()) {
         std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder =
             make_shared_noexcept_false<IntersectingIOVRecordIntervalFinder>(key_);
@@ -113,8 +113,9 @@ namespace edm {
       multipleFinders_.reset(nullptr);
     }
 
-    void EventSetupRecordProvider::addProxiesToRecord(std::shared_ptr<ESProductResolverProvider> iProvider,
-                                                      const EventSetupRecordProvider::DataToPreferredProviderMap& iMap) {
+    void EventSetupRecordProvider::addResolversToRecord(
+        std::shared_ptr<ESProductResolverProvider> iProvider,
+        const EventSetupRecordProvider::DataToPreferredProviderMap& iMap) {
       typedef ESProductResolverProvider::KeyedResolvers ResolverList;
       typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
 
@@ -152,7 +153,7 @@ namespace edm {
       }
     }
 
-    void EventSetupRecordProvider::endIOV(unsigned int iovIndex) { recordImpls_[iovIndex].invalidateProxies(); }
+    void EventSetupRecordProvider::endIOV(unsigned int iovIndex) { recordImpls_[iovIndex].invalidateResolvers(); }
 
     void EventSetupRecordProvider::initializeForNewSyncValue() {
       intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
@@ -212,11 +213,11 @@ namespace edm {
       return intervalStatus_ != IntervalStatus::Invalid;
     }
 
-    void EventSetupRecordProvider::resetProxies() {
+    void EventSetupRecordProvider::resetResolvers() {
       // Clear out all the ESProductResolver's
       for (auto& recordImplIter : recordImpls_) {
-        recordImplIter.invalidateProxies();
-        recordImplIter.resetIfTransientInProxies();
+        recordImplIter.invalidateResolvers();
+        recordImplIter.resetIfTransientInResolvers();
       }
       // Force a new IOV to start with a new cacheIdentifier
       // on the next eventSetupForInstance call.
@@ -245,10 +246,16 @@ namespace edm {
 
     void EventSetupRecordProvider::resetRecordToResolverPointers(DataToPreferredProviderMap const& iMap) {
       for (auto& recordImplIter : recordImpls_) {
-        recordImplIter.clearProxies();
+        recordImplIter.clearResolvers();
       }
       using std::placeholders::_1;
-      for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper, this, _1, iMap));
+      for_all(providers_, std::bind(&EventSetupRecordProvider::addResolversToRecordHelper, this, _1, iMap));
+    }
+
+    void EventSetupRecordProvider::updateLookup(ESRecordsToProductResolverIndices const& iResolverToIndices) {
+      for (auto& productResolverProvider : providers_) {
+        productResolverProvider->updateLookup(iResolverToIndices);
+      }
     }
 
     std::set<EventSetupRecordKey> EventSetupRecordProvider::dependentRecords() const { return dependencies(key()); }

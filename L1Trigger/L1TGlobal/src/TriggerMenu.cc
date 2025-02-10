@@ -386,7 +386,6 @@ void TriggerMenu::buildGtConditionMap() {
   size_t vecCorrelationWORSize = m_vecCorrelationWithOverlapRemovalTemplate.size();
   if (condMapSize < vecCorrelationWORSize) {
     m_conditionMap.resize(vecCorrelationWORSize);
-    condMapSize = m_conditionMap.size();
   }
 
   chipNr = -1;

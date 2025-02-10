@@ -33,7 +33,8 @@ process.l1ScoutingTestAnalyzer = cms.EDAnalyzer("TestReadL1Scouting",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testL1Scouting2.root')
+    fileName = cms.untracked.string('testL1Scouting2.root'),
+    fastCloning = cms.untracked.bool(False)
 )
 
 process.path = cms.Path(process.l1ScoutingTestAnalyzer)

@@ -27,8 +27,8 @@ runVtxNN = True
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D110_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 

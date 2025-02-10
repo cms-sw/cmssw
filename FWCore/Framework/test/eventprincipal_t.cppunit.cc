@@ -5,7 +5,7 @@ Test of the EventPrincipal class.
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -24,6 +24,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -64,10 +65,10 @@ private:
       edm::ParameterSet const& moduleParams,
       std::string const& release = edm::getReleaseVersion(),
       std::string const& pass = edm::getPassID());
-  std::shared_ptr<edm::BranchDescription> fake_single_process_branch(
+  std::shared_ptr<edm::ProductDescription> fake_single_process_branch(
       std::string const& tag, std::string const& processName, std::string const& productInstanceName = std::string());
 
-  std::map<std::string, std::shared_ptr<edm::BranchDescription> > branchDescriptions_;
+  std::map<std::string, std::shared_ptr<edm::ProductDescription> > productDescriptions_;
   std::map<std::string, std::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
 
   std::shared_ptr<edm::ProductRegistry> pProductRegistry_;
@@ -101,9 +102,9 @@ std::shared_ptr<edm::ProcessConfiguration> test_ep::fake_single_module_process(s
   return result;
 }
 
-std::shared_ptr<edm::BranchDescription> test_ep::fake_single_process_branch(std::string const& tag,
-                                                                            std::string const& processName,
-                                                                            std::string const& productInstanceName) {
+std::shared_ptr<edm::ProductDescription> test_ep::fake_single_process_branch(std::string const& tag,
+                                                                             std::string const& processName,
+                                                                             std::string const& productInstanceName) {
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
   edm::TypeWithDict dummyType(typeid(edmtest::DummyProduct));
@@ -115,16 +116,14 @@ std::shared_ptr<edm::BranchDescription> test_ep::fake_single_process_branch(std:
   modParams.registerIt();
   std::shared_ptr<edm::ProcessConfiguration> process(fake_single_module_process(tag, processName, modParams));
 
-  auto result = std::make_shared<edm::BranchDescription>(edm::InEvent,
-                                                         moduleLabel,
-                                                         processName,
-                                                         productClassName,
-                                                         friendlyProductClassName,
-                                                         productInstanceName,
-                                                         moduleClass,
-                                                         modParams.id(),
-                                                         dummyType);
-  branchDescriptions_[tag] = result;
+  auto result = std::make_shared<edm::ProductDescription>(edm::InEvent,
+                                                          moduleLabel,
+                                                          processName,
+                                                          productClassName,
+                                                          friendlyProductClassName,
+                                                          productInstanceName,
+                                                          dummyType);
+  productDescriptions_[tag] = result;
   return result;
 }
 
@@ -153,8 +152,8 @@ void test_ep::setUp() {
     std::unique_ptr<edm::WrapperBase> product = std::make_unique<WDP>(std::make_unique<PRODUCT_TYPE>());
 
     std::string tag("rick");
-    assert(branchDescriptions_[tag]);
-    edm::BranchDescription branch = *branchDescriptions_[tag];
+    assert(productDescriptions_[tag]);
+    edm::ProductDescription branch = *productDescriptions_[tag];
 
     branch.init();
 
@@ -162,7 +161,7 @@ void test_ep::setUp() {
     edm::BranchKey const bk(branch);
     edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
-    edm::BranchDescription const branchFromRegistry(it->second);
+    edm::ProductDescription const branchFromRegistry(it->second);
 
     std::vector<edm::BranchID> const ids;
     edm::ProductProvenance prov(branchFromRegistry.branchID(), ids);
@@ -171,14 +170,17 @@ void test_ep::setUp() {
     assert(process);
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
-    auto rp = std::make_shared<edm::RunPrincipal>(pProductRegistry_, *process, &historyAppender_, 0);
+    auto rp = std::make_shared<edm::RunPrincipal>(
+        pProductRegistry_, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
     rp->setAux(edm::RunAuxiliary(eventID_.run(), now, now));
     edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
-    lbp_ = std::make_shared<edm::LuminosityBlockPrincipal>(pProductRegistry_, *process, &historyAppender_, 0);
+    lbp_ = std::make_shared<edm::LuminosityBlockPrincipal>(
+        pProductRegistry_, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
     lbp_->setAux(lumiAux);
     lbp_->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
     pEvent_.reset(new edm::EventPrincipal(pProductRegistry_,
+                                          edm::productResolversFactory::makePrimary,
                                           branchIDListHelper,
                                           thinnedAssociationsHelper,
                                           *process,
@@ -198,7 +200,7 @@ void clear_map(MAP& m) {
 }
 
 void test_ep::tearDown() {
-  clear_map(branchDescriptions_);
+  clear_map(productDescriptions_);
   clear_map(processConfigurations_);
 
   pEvent_.reset();

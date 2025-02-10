@@ -1,2 +1,6 @@
 <bin name="TestRounding" file="testRounding.cpp">
 </bin>
+<bin name="TestGeometryCaloGeometryCatch" file="*catch2.cc">
+  <use name="Geometry/CaloGeometry"/>
+  <use name="catch2"/>
+</bin>

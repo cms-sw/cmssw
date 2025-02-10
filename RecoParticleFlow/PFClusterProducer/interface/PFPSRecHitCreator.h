@@ -70,7 +70,7 @@ public:
         continue;
       }
 
-      out->emplace_back(thisCell, detid.rawId(), layer, energy);
+      out->emplace_back(std::move(thisCell), detid.rawId(), layer, energy);
       auto& rh = out->back();
       rh.setDepth(detid.plane());
       rh.setTime(erh.time());

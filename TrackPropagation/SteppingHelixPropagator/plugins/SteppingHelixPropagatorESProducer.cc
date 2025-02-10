@@ -1,26 +1,27 @@
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include <string>
 #include <memory>
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 class SteppingHelixPropagatorESProducer : public edm::ESProducer {
 public:
   SteppingHelixPropagatorESProducer(const edm::ParameterSet& p);
-  ~SteppingHelixPropagatorESProducer() override;
+  ~SteppingHelixPropagatorESProducer() override = default;
   std::unique_ptr<Propagator> produce(const TrackingComponentsRecord&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   const edm::ParameterSet pset_;
@@ -40,8 +41,6 @@ SteppingHelixPropagatorESProducer::SteppingHelixPropagatorESProducer(const edm::
     vbMagToken_ = c.consumes(edm::ESInputTag("", pset_.getParameter<std::string>("VBFName")));
   }
 }
-
-SteppingHelixPropagatorESProducer::~SteppingHelixPropagatorESProducer() {}
 
 std::unique_ptr<Propagator> SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
   //   if (_propagator){
@@ -130,6 +129,30 @@ std::unique_ptr<Propagator> SteppingHelixPropagatorESProducer::produce(const Tra
   }
 
   return shProp;
+}
+
+void SteppingHelixPropagatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentName", "SteppingHelixPropagator");
+  desc.add<bool>("NoErrorPropagation", false);
+  desc.add<std::string>("PropagationDirection", "alongMomentum");
+  desc.add<bool>("useTuningForL2Speed", false);
+  desc.add<bool>("useIsYokeFlag", true);
+  desc.add<double>("endcapShiftInZNeg", 0.0);
+  desc.add<bool>("SetVBFPointer", false);
+  desc.add<bool>("AssumeNoMaterial", false);
+  desc.add<double>("endcapShiftInZPos", 0.0);
+  desc.add<bool>("useInTeslaFromMagField", false);
+  desc.add<std::string>("VBFName", "VolumeBasedMagneticField");
+  desc.add<bool>("useEndcapShiftsInZ", false);
+  desc.add<bool>("sendLogWarning", false);
+  desc.add<bool>("useMatVolumes", true);
+  desc.add<bool>("debug", false);
+  desc.add<bool>("ApplyRadX0Correction", true)
+      ->setComment("this sort of works but assumes a measurement at propagation origin ");
+  desc.add<bool>("useMagVolumes", true);
+  desc.add<bool>("returnTangentPlane", true);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

@@ -35,7 +35,9 @@
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "HepMC3/Print.h"
 
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 
@@ -152,7 +154,10 @@ struct RunManagerMTWorker::TLSData {
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::ConsumesCollector&& iC)
     : m_generator(p.getParameter<edm::ParameterSet>("Generator")),
+      m_generator3(p.getParameter<edm::ParameterSet>("Generator")),
       m_InToken(iC.consumes<edm::HepMCProduct>(
+          p.getParameter<edm::ParameterSet>("Generator").getParameter<edm::InputTag>("HepMCProductLabel"))),
+      m_InToken3(iC.consumes<edm::HepMC3Product>(
           p.getParameter<edm::ParameterSet>("Generator").getParameter<edm::InputTag>("HepMCProductLabel"))),
       m_theLHCTlinkToken(iC.consumes<edm::LHCTransportLinkContainer>(p.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(p.getParameter<bool>("NonBeamEvent")),
@@ -572,6 +577,7 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
   }
 
   // event and primary
+
   m_tls->currentEvent.reset(generateEvent(inpevt));
   m_simEvent.clear();
   m_simEvent.setHepEvent(m_generator.genEvent());
@@ -645,26 +651,48 @@ G4Event* RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
   G4int evtid = (G4int)inpevt.id().event();
   G4Event* evt = new G4Event(evtid);
 
-  edm::Handle<edm::HepMCProduct> HepMCEvt;
-  inpevt.getByToken(m_InToken, HepMCEvt);
-
-  m_generator.setGenEvent(HepMCEvt->GetEvent());
-
   // required to reset the GenParticle Id for particles transported
   // along the beam pipe to their original value for SimTrack creation
   resetGenParticleId(inpevt);
 
-  if (!m_nonBeam) {
-    m_generator.HepMC2G4(HepMCEvt->GetEvent(), evt);
-    if (m_LHCTransport) {
-      edm::Handle<edm::HepMCProduct> LHCMCEvt;
-      inpevt.getByToken(m_LHCToken, LHCMCEvt);
-      m_generator.nonCentralEvent2G4(LHCMCEvt->GetEvent(), evt);
-    }
-  } else {
-    m_generator.nonCentralEvent2G4(HepMCEvt->GetEvent(), evt);
-  }
+  edm::Handle<edm::HepMCProduct> HepMCEvt;
+  bool found = inpevt.getByToken(m_InToken, HepMCEvt);
 
+  if (found) {  // HepMC event exists
+
+    m_generator.setGenEvent(HepMCEvt->GetEvent());
+
+    if (!m_nonBeam) {
+      m_generator.HepMC2G4(HepMCEvt->GetEvent(), evt);
+      if (m_LHCTransport) {
+        edm::Handle<edm::HepMCProduct> LHCMCEvt;
+        inpevt.getByToken(m_LHCToken, LHCMCEvt);
+        m_generator.nonCentralEvent2G4(LHCMCEvt->GetEvent(), evt);
+      }
+    } else {
+      m_generator.nonCentralEvent2G4(HepMCEvt->GetEvent(), evt);
+    }
+
+  } else {  // no HepMC event, try to get HepMC3 event
+
+    edm::Handle<edm::HepMC3Product> HepMCEvt3;
+    inpevt.getByToken(m_InToken3, HepMCEvt3);
+
+    HepMC3::GenEvent* genevt3 = new HepMC3::GenEvent();
+    genevt3->read_data(*HepMCEvt3->GetEvent());
+    m_generator3.setGenEvent(genevt3);
+
+    if (!m_nonBeam) {
+      m_generator3.HepMC2G4(genevt3, evt);
+      if (m_LHCTransport) {
+        edm::Handle<edm::HepMC3Product> LHCMCEvt;
+        inpevt.getByToken(m_LHCToken, LHCMCEvt);
+        //m_generator3.nonCentralEvent2G4(LHCMCEvt->GetEvent(), evt);
+      }
+    } else {
+      //m_generator3.nonCentralEvent2G4(HepMCEvt->GetEvent(), evt);
+    }
+  }
   return evt;
 }
 

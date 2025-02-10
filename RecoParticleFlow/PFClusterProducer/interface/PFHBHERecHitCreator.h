@@ -46,7 +46,7 @@ public:
       auto time = erh.time();
       auto depth = detid.depth();
 
-      std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
+      CaloCellGeometryMayOwnPtr thisCell;
       PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
       switch (esd) {
         case HcalBarrel:
@@ -69,7 +69,7 @@ public:
         continue;
       }
 
-      reco::PFRecHit rh(thisCell, detid.rawId(), layer, energy);
+      reco::PFRecHit rh(std::move(thisCell), detid.rawId(), layer, energy);
       rh.setTime(time);  //Mike: This we will use later
       rh.setDepth(depth);
 

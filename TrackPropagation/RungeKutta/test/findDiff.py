@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 if len(sys.argv) !=3 :
   print("usage:" + sys.argv[0] + "   bla bla")

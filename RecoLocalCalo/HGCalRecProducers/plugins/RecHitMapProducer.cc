@@ -13,6 +13,7 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
 
 class RecHitMapProducer : public edm::global::EDProducer<> {
 public:
@@ -66,41 +67,27 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
   const auto& fh_hits = evt.get(hits_fh_token_);
   const auto& bh_hits = evt.get(hits_bh_token_);
 
-  for (unsigned int i = 0; i < ee_hits.size(); ++i) {
-    hitMapHGCal->emplace(ee_hits[i].detid(), i);
-  }
-  auto size = ee_hits.size();
+  MultiVectorManager<HGCRecHit> rechitManager;
+  rechitManager.addVector(ee_hits);
+  rechitManager.addVector(fh_hits);
+  rechitManager.addVector(bh_hits);
 
-  for (unsigned int i = 0; i < fh_hits.size(); ++i) {
-    hitMapHGCal->emplace(fh_hits[i].detid(), i + size);
-  }
-  size += fh_hits.size();
-
-  for (unsigned int i = 0; i < bh_hits.size(); ++i) {
-    hitMapHGCal->emplace(bh_hits[i].detid(), i + size);
+  for (unsigned int i = 0; i < rechitManager.size(); ++i) {
+    const auto recHitDetId = rechitManager[i].detid();
+    hitMapHGCal->emplace(recHitDetId, i);
   }
 
   evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
 
   if (!hgcalOnly_) {
     auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
-    const auto& eb_hits = evt.get(hits_eb_token_);
-    const auto& hb_hits = evt.get(hits_hb_token_);
-    const auto& ho_hits = evt.get(hits_ho_token_);
-    size = 0;
-
-    for (unsigned int i = 0; i < eb_hits.size(); ++i) {
-      hitMapBarrel->emplace(eb_hits[i].detId(), i);
-    }
-    size += eb_hits.size();
-
-    for (unsigned int i = 0; i < hb_hits.size(); ++i) {
-      hitMapBarrel->emplace(hb_hits[i].detId(), i + size);
-    }
-    size += hb_hits.size();
-
-    for (unsigned int i = 0; i < ho_hits.size(); ++i) {
-      hitMapBarrel->emplace(ho_hits[i].detId(), i + size);
+    MultiVectorManager<reco::PFRecHit> barrelRechitManager;
+    barrelRechitManager.addVector(evt.get(hits_eb_token_));
+    barrelRechitManager.addVector(evt.get(hits_hb_token_));
+    barrelRechitManager.addVector(evt.get(hits_ho_token_));
+    for (unsigned int i = 0; i < barrelRechitManager.size(); ++i) {
+      const auto recHitDetId = barrelRechitManager[i].detId();
+      hitMapBarrel->emplace(recHitDetId, i);
     }
     evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
   }

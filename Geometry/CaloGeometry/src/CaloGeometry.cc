@@ -57,13 +57,13 @@ GlobalPoint CaloGeometry::getPosition(const DetId& id) const {
   }
 }
 
-std::shared_ptr<const CaloCellGeometry> CaloGeometry::getGeometry(const DetId& id) const {
+CaloCellGeometryMayOwnPtr CaloGeometry::getGeometry(const DetId& id) const {
   const CaloSubdetectorGeometry* geom = getSubdetectorGeometry(id);
   if (geom) {
     auto cell = geom->getGeometry(id);
     return cell;
   } else {
-    return std::shared_ptr<const CaloCellGeometry>();
+    return CaloCellGeometryMayOwnPtr();
   }
 }
 

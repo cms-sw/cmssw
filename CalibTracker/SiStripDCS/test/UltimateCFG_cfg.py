@@ -133,7 +133,7 @@ process.SiStripDetVOffBuilder = cms.Service(
     ExcludedDetIdListFile = cms.string('CalibTracker/SiStripCommon/data/ExcludedSiStripDetInfo.dat'),
 
     # Threshold to consider an HV channel on
-    HighVoltageOnThreshold = cms.double(0.97)
+    HighVoltageOnThreshold = cms.double(0.97),
 
     # Leave empty if you want to use the db
     PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/PsuDetIdMap.dat")

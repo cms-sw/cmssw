@@ -407,8 +407,8 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
         }
 
       }  //if condition is a new one
-    }    //loop over conditions
-  }      //loop over algorithms
+    }  //loop over conditions
+  }  //loop over algorithms
 
   return;
 }
@@ -705,8 +705,8 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 
           break;
       }  //end switch
-    }    //end valid scale
-  }      //end loop over scaleMap
+    }  //end valid scale
+  }  //end loop over scaleMap
 
   // put the ScaleParameters into the class
   m_gtScales.setMuonScales(muScales);
@@ -1234,7 +1234,13 @@ bool l1t::TriggerMenuParser::parseMuon(L1TUtmCondition condMu, unsigned int chip
 
         case esCutType::Eta: {
           if (etaWindows.size() < 5) {
-            etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+            if ((cut.getMinimum().index <= cut.getMaximum().index) ^
+                ((cut.getMinimum().index <= 255) ^ (cut.getMaximum().index <= 255))) {
+              etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+            } else {
+              edm::LogError("TriggerMenuParser")
+                  << "Invalid Eta Window for muon-condition (" << name << ")" << std::endl;
+            }
           } else {
             edm::LogError("TriggerMenuParser")
                 << "Too Many Eta Cuts for muon-condition (" << particle << ")" << std::endl;
@@ -1465,7 +1471,12 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const L1TUtmObject* corrMu, unsigned 
 
       case esCutType::Eta: {
         if (etaWindows.size() < 5) {
-          etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+          if ((cut.getMinimum().index <= cut.getMaximum().index) ^
+              ((cut.getMinimum().index <= 255) ^ (cut.getMaximum().index <= 255))) {
+            etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+          } else {
+            edm::LogError("TriggerMenuParser") << "Invalid Eta Window for muon-condition (" << name << ")" << std::endl;
+          }
         } else {
           edm::LogError("TriggerMenuParser")
               << "Too Many Eta Cuts for muon-condition (" << particle << ")" << std::endl;
@@ -1838,7 +1849,13 @@ bool l1t::TriggerMenuParser::parseCalo(L1TUtmCondition condCalo, unsigned int ch
           break;
         case esCutType::Eta: {
           if (etaWindows.size() < 5) {
-            etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+            if ((cut.getMinimum().index <= cut.getMaximum().index) ^
+                ((cut.getMinimum().index <= 127) ^ (cut.getMaximum().index <= 127))) {
+              etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+            } else {
+              edm::LogError("TriggerMenuParser")
+                  << "Invalid Eta Window for calo-conditioni (" << name << ")" << std::endl;
+            }
           } else {
             edm::LogError("TriggerMenuParser")
                 << "Too Many Eta Cuts for calo-condition (" << particle << ")" << std::endl;
@@ -2065,7 +2082,12 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const L1TUtmObject* corrCalo, unsigne
         break;
       case esCutType::Eta: {
         if (etaWindows.size() < 5) {
-          etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+          if ((cut.getMinimum().index <= cut.getMaximum().index) ^
+              ((cut.getMinimum().index <= 127) ^ (cut.getMaximum().index <= 127))) {
+            etaWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
+          } else {
+            edm::LogError("TriggerMenuParser") << "Invalid Eta Window for calo-condition (" << name << ")" << std::endl;
+          }
         } else {
           edm::LogError("TriggerMenuParser")
               << "Too Many Eta Cuts for calo-condition (" << particle << ")" << std::endl;
@@ -2804,8 +2826,8 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
         lowerThresholdInd = cut.getMinimum().value;
         upperThresholdInd = cut.getMaximum().value;
       }  //end else if
-    }    //end cut loop
-  }      //end if getType
+    }  //end cut loop
+  }  //end if getType
   // LEGACY
   // for UTM pre v12
   else if (condAXOL1TL.getType() == esConditionType::AnomalyDetectionTrigger) {
@@ -2827,7 +2849,7 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
   }
 
   // check model version is not empty
-  if (model == "") {
+  if (model.empty()) {
     edm::LogError("TriggerMenuParser") << "    Error: AXOL1TL movel version is empty" << std::endl;
     return false;
   }
@@ -3142,9 +3164,9 @@ bool l1t::TriggerMenuParser::parseCorrelation(L1TUtmCondition corrCond, unsigned
         corrParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
         corrParameter.precMassCut = cut.getMinimum().index;
         cutType = cutType | 0x40;  // Note:    0x40 (MassUpt) is next available bit after 0x20 (TwoBodyPt)
-      }                            // Careful: cutType carries same info as esCutType, but is hard coded!!
-    }                              //          This seems like a historical hack, which may be error prone.
-  }                                //          cutType is defined here, for use later in CorrCondition.cc
+      }  // Careful: cutType carries same info as esCutType, but is hard coded!!
+    }  //          This seems like a historical hack, which may be error prone.
+  }  //          cutType is defined here, for use later in CorrCondition.cc
   corrParameter.corrCutType = cutType;
 
   // Get the two objects that form the legs

@@ -45,6 +45,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "SimDataFormats/DigiSimLinks/interface/DTDigiSimLinkCollection.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -73,8 +74,10 @@ private:
 
   // ----------member data ---------------------------
 
-  const edm::EDGetTokenT<DTDigiCollection> m_digiToken;
-  const edm::EDPutTokenT<DTDigiCollection> m_putToken;
+  const edm::EDGetTokenT<DTDigiCollection> m_digiTokenR;
+  const edm::EDGetTokenT<DTDigiSimLinkCollection> m_linkTokenR;
+  const edm::EDPutTokenT<DTDigiCollection> m_digiTokenP;
+  const edm::EDPutTokenT<DTDigiSimLinkCollection> m_linkTokenP;
   const edm::ESGetToken<MuonSystemAging, MuonSystemAgingRcd> m_agingObjToken;
 };
 
@@ -86,8 +89,10 @@ private:
 // constructors and destructor
 //
 DTChamberMasker::DTChamberMasker(const edm::ParameterSet &iConfig)
-    : m_digiToken(consumes(iConfig.getParameter<edm::InputTag>("digiTag"))),
-      m_putToken(produces()),
+    : m_digiTokenR(consumes(iConfig.getParameter<edm::InputTag>("digiTag"))),
+      m_linkTokenR(consumes(iConfig.getParameter<edm::InputTag>("digiTag"))),
+      m_digiTokenP(produces()),
+      m_linkTokenP(produces()),
       m_agingObjToken(esConsumes()) {}
 
 //
@@ -105,9 +110,9 @@ void DTChamberMasker::produce(edm::StreamID, edm::Event &event, const edm::Event
 
   DTDigiCollection filteredDigis;
 
-  if (!m_digiToken.isUninitialized()) {
+  if (!m_digiTokenR.isUninitialized()) {
     edm::Handle<DTDigiCollection> dtDigis;
-    event.getByToken(m_digiToken, dtDigis);
+    event.getByToken(m_digiTokenR, dtDigis);
 
     for (const auto &dtLayerId : (*dtDigis)) {
       uint32_t rawId = (dtLayerId.first).chamberId().rawId();
@@ -118,7 +123,16 @@ void DTChamberMasker::produce(edm::StreamID, edm::Event &event, const edm::Event
     }
   }
 
-  event.emplace(m_putToken, std::move(filteredDigis));
+  DTDigiSimLinkCollection linksCopy;
+
+  if (!m_linkTokenR.isUninitialized()) {
+    edm::Handle<DTDigiSimLinkCollection> links;
+    event.getByToken(m_linkTokenR, links);
+    linksCopy = (*links);
+  }
+
+  event.emplace(m_digiTokenP, std::move(filteredDigis));
+  event.emplace(m_linkTokenP, std::move(linksCopy));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the

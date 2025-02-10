@@ -127,12 +127,12 @@ calibratedPatElectronsNano = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibr
 
 (run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(
     calibratedPatElectronsNano,
-    correctionFile = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain"
+    correctionFile = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain_v3"
 )
 
 (run2_egamma_2016 & ~tracker_apv_vfp30_2016).toModify(
     calibratedPatElectronsNano,
-    correctionFile = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain"
+    correctionFile = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain_v1"
 )
 
 run2_egamma_2017.toModify(
@@ -266,11 +266,28 @@ finalElectrons = cms.EDFilter("PATElectronRefSelector",
 ################################################electronPROMPTMVA#####################
 electronPROMPTMVA= cms.EDProducer("EleBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","electrons"),
-    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml"),
+    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/el_BDTG_2022.weights.xml"),
     name = cms.string("electronPROMPTMVA"),
     backend = cms.string("TMVA"),
     isClassifier = cms.bool(True),
     variables = cms.VPSet(
+        cms.PSet( name = cms.string("LepGood_pt"), expr = cms.string("pt")),
+        cms.PSet( name = cms.string("LepGood_eta"), expr = cms.string("eta")),
+        cms.PSet( name = cms.string("LepGood_pfRelIso03_all"), expr = cms.string("userFloat('PFIsoAll')/pt")),
+        cms.PSet( name = cms.string("LepGood_miniRelIsoCharged"), expr = cms.string("userFloat('miniIsoChg_Fall17V2')/pt")),
+        cms.PSet( name = cms.string("LepGood_miniRelIsoNeutral"), expr = cms.string("(userFloat('miniIsoAll_Fall17V2')-userFloat('miniIsoChg_Fall17V2'))/pt")),
+        cms.PSet( name = cms.string("LepGood_jetNDauChargedMVASel"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0")),
+        cms.PSet( name = cms.string("LepGood_jetPtRelv2"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0")),
+        cms.PSet( name = cms.string("LepGood_jetDF"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0")),
+        cms.PSet( name = cms.string("LepGood_jetPtRatio"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+userFloat('PFIsoAll04_Fall17V2')/pt)")),
+        cms.PSet( name = cms.string("LepGood_sip3d"), expr = cms.string("abs(dB('PV3D')/edB('PV3D'))")),
+        cms.PSet( name = cms.string("LepGood_dxy"), expr = cms.string("log(abs(dB('PV2D')))")),
+        cms.PSet( name = cms.string("LepGood_dz"), expr = cms.string("log(abs(dB('PVDZ')))")),
+        cms.PSet( name = cms.string("LepGood_mvaIso"), expr = cms.string("userFloat('mvaIso')")),
+    )
+)
+
+_legacy_electron_BDT_variable = cms.VPSet(
         cms.PSet( name = cms.string("LepGood_pt"), expr = cms.string("pt")),
         cms.PSet( name = cms.string("LepGood_eta"), expr = cms.string("eta")),
         cms.PSet( name = cms.string("LepGood_jetNDauChargedMVASel"), expr = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0")),
@@ -283,11 +300,18 @@ electronPROMPTMVA= cms.EDProducer("EleBaseMVAValueMapProducer",
         cms.PSet( name = cms.string("LepGood_sip3d"), expr = cms.string("abs(dB('PV3D')/edB('PV3D'))")),
         cms.PSet( name = cms.string("LepGood_dz"), expr = cms.string("log(abs(dB('PVDZ')))")),
         cms.PSet( name = cms.string("LepGood_mvaFall17V2noIso"), expr = cms.string("userFloat('mvaNoIso_Fall17V2')")),
-    )
 )
+
 run2_egamma_2016.toModify(
     electronPROMPTMVA,
     weightFile = "PhysicsTools/NanoAOD/data/el_BDTG_2016.weights.xml",
+    variables = _legacy_electron_BDT_variable
+)
+
+(run2_egamma_2017 | run2_egamma_2018).toModify(
+    electronPROMPTMVA,
+    weightFile = "PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml",
+    variables = _legacy_electron_BDT_variable
 )
 ################################################electronPROMPTMVA end#####################
 
@@ -334,7 +358,7 @@ electronTable = simplePATElectronFlatTableProducer.clone(
         mvaHZZIso = Var("userFloat('mvaHZZIso')", float,doc="HZZ MVA Iso ID score"),
         mvaIso_WPHZZ = Var("userInt('mvaIso_WPHZZ')",bool,doc="MVA Iso ID WPHZZ, Winter22V1"),
 
-        cutBased = Var("userInt('cutBasedID_veto')+userInt('cutBasedID_loose')+userInt('cutBasedID_medium')+userInt('cutBasedID_tight')", "uint8", doc="cut-based ID RunIII Winter22 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
+        cutBased = Var("userInt('cutBasedID_veto')+userInt('cutBasedID_loose')+userInt('cutBasedID_medium')+userInt('cutBasedID_tight')", "uint8", doc="cut-based ID RunIII Winter22: fail ==0, veto >=1 (to veto, ask for <1), loose >=2, medium >=3, tight >=4"),
         vidNestedWPBitmap = Var("userInt('VIDNestedWPBitmap')", int, doc=_bitmapVIDForEle_docstring),
         vidNestedWPBitmapHEEP = Var("userInt('VIDNestedWPBitmapHEEP')", int, doc=_bitmapVIDForEleHEEP_docstring),
         cutBased_HEEP = Var("userInt('cutBasedID_HEEP')",bool,doc="cut-based HEEP ID"),
@@ -433,7 +457,7 @@ _eleVarsExtra = cms.PSet(
         electronTable.variables,
         pt = Var("pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalTrkEnergyErrPostCorrNew')", float, precision=6, doc="energy error of the cluster-track combination"),
-        eCorr = Var("userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, doc="ratio of the calibrated energy/miniaod energy"),
+        ptPreCorr = Var("pt", float, doc="pt of the electron before energy corrections"),
         scEtOverPt = Var("(superCluster().energy()/(pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')*cosh(superCluster().eta())))-1",float,doc="(supercluster transverse energy)/pt-1",precision=8),
         dEscaleUp=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energyScaleUpNew')", float,  doc="ecal energy scale shifted 1 sigma up(adding gain/stat/syst in quadrature)", precision=8),
         dEscaleDown=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energyScaleDownNew')", float,  doc="ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature)", precision=8),
@@ -449,7 +473,7 @@ _eleVarsExtra = cms.PSet(
         mvaIso_WPHZZ = None,
         mvaNoIso_WP90 = Var("userInt('mvaNoIso_Fall17V2_WP90')",bool,doc="MVA noIso ID WP90, Fall17V2"),
         mvaNoIso_WPL = Var("userInt('mvaNoIso_Fall17V2_WPL')",bool,doc="MVA noIso ID loose WP, Fall17V2"),
-        cutBased = Var("userInt('cutBasedID_Fall17V2_veto')+userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')", "uint8", doc="cut-based ID Fall17V2 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
+        cutBased = Var("userInt('cutBasedID_Fall17V2_veto')+userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')", "uint8", doc="cut-based ID Fall17V2: fail ==0, veto >=1 (to veto, ask for <1), loose >=2, medium >=3, tight >=4"),
         vidNestedWPBitmap = Var("userInt('VIDNestedWPBitmap_Fall17V2')", int, doc=_bitmapVIDForEleFall17V2_docstring),
         miniPFRelIso_chg = Var("userFloat('miniIsoChg_Fall17V2')/pt",float,doc="mini PF relative isolation, charged component in Run2"),
         miniPFRelIso_all = Var("userFloat('miniIsoAll_Fall17V2')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA Fall17V2 PU corrections) in Run2"),

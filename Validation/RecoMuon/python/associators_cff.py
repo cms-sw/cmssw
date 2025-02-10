@@ -231,9 +231,89 @@ tpToL3MuonAssociation = MABHhlt.clone(
     rejectBadGlobal = False
 )
 
+#
+# The Phase-2 associators
+#
+
+# L2 standalone muon seeds
+Phase2tpToL2SeedAssociation = MABHhlt.clone(
+    tracksTag = "hltPhase2L2MuonSeedTracks",
+    UseTracker = False,
+    UseMuon = True
+)
+# L2 standalone muons 
+Phase2tpToL2MuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltL2MuonsFromL1TkMuon',
+    UseTracker = False,
+    UseMuon = True
+)
+# L2 standalone muons updated at vertex
+Phase2tpToL2MuonUpdAssociation = MABHhlt.clone(
+    tracksTag = 'hltL2MuonsFromL1TkMuon:UpdatedAtVtx',
+    UseTracker = False,
+    UseMuon = True
+)
+# L3 IO inner tracks
+Phase2tpToL3IOTkAssociation = MABHhlt.clone(
+    tracksTag = 'hltIter2Phase2L3FromL1TkMuonMerged',
+    UseTracker = True,
+    UseMuon = False
+)
+# L3 OI inner tracks
+Phase2tpToL3OITkAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3OIMuonTrackSelectionHighPurity',
+    UseTracker = True,
+    UseMuon = False
+)
+# L2 muons to reuse (IO first only)
+Phase2tpToL2MuonToReuseAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3MuonFilter:L2MuToReuse',
+    UseTracker = False,
+    UseMuon = True
+)
+# L3 IO inner tracks filtered (IO first only)
+Phase2tpToL3IOTkFilteredAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3MuonFilter:L3IOTracksFiltered',
+    UseTracker = True,
+    UseMuon = False
+)
+# L3 OI inner tracks filtered (OI first only)
+Phase2tpToL3OITkFilteredAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3MuonFilter:L3OITracksFiltered',
+    UseTracker = True,
+    UseMuon = False
+)
+# L3 inner tracks merged
+Phase2tpToL3TkMergedAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3MuonMerged',
+    UseTracker = True,
+    UseMuon = False
+)
+# L3 global muons
+Phase2tpToL3GlbMuonMergedAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3GlbMuon',
+    UseTracker = True,
+    UseMuon = True
+)
+# L3 Muons no ID (tracks)
+Phase2tpToL3MuonNoIdAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3MuonNoIdTracks',
+    UseTracker = True,
+    UseMuon = True,
+    rejectBadGlobal = False
+)
+# L3 Muons ID (tracks)
+Phase2tpToL3MuonIdAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3MuonIdTracks',
+    UseTracker = True,
+    UseMuon = True,
+    rejectBadGlobal = False
+)
 
 #
 # COSMICS reco
+#
+
 MABHcosmic = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone(
 # DEFAULTS ###################################
 #    acceptOneStubMatchings = False,
@@ -288,6 +368,7 @@ tpToGlbCosmic1LegSelMuonAssociation = MABHcosmic.clone(
     UseTracker = True,
     UseMuon = True
 )
+
 #
 # The full-sim association sequences
 #
@@ -329,6 +410,48 @@ muonAssociationHLT_seq = cms.Sequence(
     +hltIterL3MuonsTracks_seq+tpToL3MuonAssociation
     )
 
+#
+# The Phase-2 sim association sequences
+#
+
+Phase2MuonAssociationHLT_seq = cms.Sequence(
+    hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
+    +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
+    +Phase2tpToL3IOTkAssociation+Phase2tpToL3OITkAssociation
+    +Phase2tpToL3TkMergedAssociation+Phase2tpToL3GlbMuonMergedAssociation
+    +hltPhase2L3MuonNoIdTracks+Phase2tpToL3MuonNoIdAssociation
+    +hltPhase2L3MuonIdTracks+Phase2tpToL3MuonIdAssociation
+    )
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith(muonAssociationHLT_seq, Phase2MuonAssociationHLT_seq)
+
+# Inside-Out first
+Phase2IOFirstMuonAssociationHLT_seq = cms.Sequence(
+    hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
+    +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
+    +Phase2tpToL3IOTkAssociation+Phase2tpToL3OITkAssociation
+    +Phase2tpToL2MuonToReuseAssociation+Phase2tpToL3IOTkFilteredAssociation
+    +Phase2tpToL3TkMergedAssociation+Phase2tpToL3GlbMuonMergedAssociation
+    +hltPhase2L3MuonNoIdTracks+Phase2tpToL3MuonNoIdAssociation
+    +hltPhase2L3MuonIdTracks+Phase2tpToL3MuonIdAssociation
+    )
+# Outside-In first
+Phase2OIFirstMuonAssociationHLT_seq = cms.Sequence(
+    hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
+    +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
+    +Phase2tpToL3OITkAssociation+Phase2tpToL3OITkFilteredAssociation
+    +Phase2tpToL3IOTkAssociation+Phase2tpToL3TkMergedAssociation
+    +Phase2tpToL3GlbMuonMergedAssociation
+    +hltPhase2L3MuonNoIdTracks+Phase2tpToL3MuonNoIdAssociation
+    +hltPhase2L3MuonIdTracks+Phase2tpToL3MuonIdAssociation
+    )
+
+from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
+phase2L2AndL3Muons.toReplaceWith(muonAssociationHLT_seq, Phase2IOFirstMuonAssociationHLT_seq)
+
+from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
+(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toReplaceWith(muonAssociationHLT_seq, Phase2OIFirstMuonAssociationHLT_seq)
 
 # fastsim has no hlt specific dt hit collection
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
@@ -342,3 +465,17 @@ fastSim.toModify(tpToL0L3FromL1TkMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3GlbMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3NoIDMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3MuonAssociation, DTrechitTag = _DTrechitTag)
+
+# Phase-2 fastsim
+fastSim.toModify(Phase2tpToL2SeedAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL2MuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL2MuonUpdAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL3IOTkAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL3OITkAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL2MuonToReuseAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL3IOTkFilteredAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL3OITkFilteredAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL3TkMergedAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL3GlbMuonMergedAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL3MuonNoIdAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(Phase2tpToL3MuonIdAssociation, DTrechitTag = _DTrechitTag)

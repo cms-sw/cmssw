@@ -13,7 +13,8 @@ def applyDeepBtagging(process, postfix=""):
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll as pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll as pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
     from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfUnifiedParticleTransformerAK4JetTagsAll as pfUnifiedParticleTransformerAK4JetTagsAll
-
+    from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4V1_cff import _pfUnifiedParticleTransformerAK4V1JetTagsAll as pfUnifiedParticleTransformerAK4V1JetTagsAll
+    
     # update slimmed jets to include DeepFlavour (keep same name)
     # make clone for DeepFlavour-less slimmed jets, so output name is preserved
     addToProcessAndTask('slimmedJetsNoDeepFlavour', slimmedJets.clone(), process, task)
@@ -56,6 +57,7 @@ def applyDeepBtagging(process, postfix=""):
             + pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
             + pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
             + pfUnifiedParticleTransformerAK4JetTagsAll
+            + pfUnifiedParticleTransformerAK4V1JetTagsAll
     )
   
     updateJetCollection(
@@ -80,11 +82,12 @@ def applyDeepBtagging(process, postfix=""):
     from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs as pfParticleNetMassRegressionOutputs
     from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassCorrelatedJetTagsAll as pfParticleNetMassCorrelatedJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
+    from RecoBTag.ONNXRuntime.pfGlobalParticleTransformerAK8_cff import _pfGlobalParticleTransformerAK8JetTagsAll as pfGlobalParticleTransformerAK8JetTagsAll
 
     # update slimmed jets to include particle-based deep taggers (keep same name)
     # make clone for DeepTags-less slimmed AK8 jets, so output name is preserved
     addToProcessAndTask('slimmedJetsAK8NoDeepTags', slimmedJetsAK8.clone(), process, task)
-    _btagDiscriminatorsAK8 = cms.PSet(names = cms.vstring(pfParticleNetMassCorrelatedJetTagsAll+pfParticleNetFromMiniAODAK8JetTagsAll+pfParticleNetJetTagsAll+pfParticleNetMassRegressionOutputs))
+    _btagDiscriminatorsAK8 = cms.PSet(names = cms.vstring(pfParticleNetMassCorrelatedJetTagsAll+pfGlobalParticleTransformerAK8JetTagsAll+pfParticleNetFromMiniAODAK8JetTagsAll+pfParticleNetJetTagsAll+pfParticleNetMassRegressionOutputs))
     updateJetCollection(
         process,
         jetSource = cms.InputTag('slimmedJetsAK8NoDeepTags'),

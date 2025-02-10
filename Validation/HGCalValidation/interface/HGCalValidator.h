@@ -8,6 +8,7 @@
  */
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -29,6 +30,9 @@
 
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
+#include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
+
+#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
 
 class PileupSummaryInfo;
 
@@ -41,6 +45,10 @@ struct HGCalValidatorHistograms {
 class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
 public:
   using Histograms = HGCalValidatorHistograms;
+  using TracksterToTracksterMap =
+      ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
+  using SimClusterToCaloParticleMap =
+      ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
 
   /// Constructor
   HGCalValidator(const edm::ParameterSet& pset);
@@ -59,12 +67,16 @@ public:
                                 std::vector<size_t>& selected_cPeff,
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
-                                std::vector<HGCRecHit> const& hits) const;
+                                MultiVectorManager<HGCRecHit> const& hits) const;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   edm::InputTag label_lcl;
   std::vector<edm::InputTag> label_tst;
+  std::vector<edm::InputTag> allTracksterTracksterAssociatorsLabels_;
+  std::vector<edm::InputTag> allTracksterTracksterByHitsAssociatorsLabels_;
   edm::InputTag label_simTS, label_simTSFromCP;
   edm::InputTag associator_;
   edm::InputTag associatorSim_;
@@ -76,7 +88,7 @@ protected:
   const bool doLayerClustersPlots_;
   edm::InputTag label_layerClustersPlots_, label_LCToCPLinking_;
   const bool doTrackstersPlots_;
-  std::string label_TS_, label_TSToCPLinking_, label_TSToSTSPR_;
+  std::string label_TS_, label_TSbyHitsCP_, label_TSbyHits_, label_TSbyLCsCP_, label_TSbyLCs_;
   std::vector<edm::InputTag> label_clustersmask;
   const bool doCandidatesPlots_;
   std::string label_candidates_;
@@ -101,8 +113,11 @@ protected:
   edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClusters> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
   std::vector<edm::InputTag> hits_label_;
-  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_token_;
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_tokens_;
   std::unique_ptr<TICLCandidateValidator> candidateVal_;
+  std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
+  std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterByHitsAssociatorsTokens_;
+  edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
 
 private:
   CaloParticleSelector cpSelector;

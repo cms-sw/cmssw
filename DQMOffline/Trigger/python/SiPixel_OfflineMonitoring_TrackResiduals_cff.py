@@ -134,13 +134,17 @@ hltSiPixelPhase1TrackResidualsConf = cms.VPSet(
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltSiPixelPhase1TrackResidualsAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackResiduals',
-        trajectoryInput = cms.string("hltrefittedForPixelDQM"),
-        Tracks        = cms.InputTag("hltrefittedForPixelDQM"),
+        trajectoryInput = cms.string("hltTrackRefitterForPixelDQM"),
+        Tracks        = cms.InputTag("hltTrackRefitterForPixelDQM"),
         vertices = cms.InputTag("hltPixelVertices"),
         histograms = hltSiPixelPhase1TrackResidualsConf,
         geometry = hltSiPixelPhase1Geometry,
         VertexCut = cms.untracked.bool(True)
 )
+
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(hltSiPixelPhase1TrackResidualsAnalyzer,
+                         vertices = 'hltPixelVerticesPPOnAA')
 
 hltSiPixelPhase1TrackResidualsHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = hltSiPixelPhase1TrackResidualsConf,

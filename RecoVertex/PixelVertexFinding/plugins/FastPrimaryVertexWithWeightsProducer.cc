@@ -354,10 +354,10 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
                 zWeights.push_back(weight);  //add the weight to zWeights
               }
             }  //if it pass DeltaPhi(Jet,Cluster) requirements
-          }    ///if it is a cluster to project
-        }      //loop on pixel clusters on this module
-      }        //if it is a compatible module
-    }          //loop on pixel modules
+          }  ///if it is a cluster to project
+        }  //loop on pixel clusters on this module
+      }  //if it is a compatible module
+    }  //loop on pixel modules
     jet_count++;
   }  //loop on selected jets
 

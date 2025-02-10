@@ -40,12 +40,6 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       max_longitudinal_sigmaPCA_(conf.getParameter<double>("max_longitudinal_sigmaPCA")),
       min_clusters_per_ntuplet_(min_layers_per_trackster_),
       max_delta_time_(conf.getParameter<double>("max_delta_time")),
-      eidInputName_(conf.getParameter<std::string>("eid_input_name")),
-      eidOutputNameEnergy_(conf.getParameter<std::string>("eid_output_name_energy")),
-      eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
-      eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
-      eidNLayers_(conf.getParameter<int>("eid_n_layers")),
-      eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")),
       siblings_maxRSquared_(conf.getParameter<std::vector<double>>("siblings_maxRSquared")){};
 
@@ -75,7 +69,6 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
 
-  bool isRegionalIter = (input.regions[0].index != -1);
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   std::vector<int> seedIndices;
   std::vector<uint8_t> layer_cluster_usage(input.layerClusters.size(), 0);
@@ -105,8 +98,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   int tracksterId = -1;
 
   // container for holding tracksters before selection
-  std::vector<Trackster> tmpTracksters;
-  tmpTracksters.reserve(foundNtuplets.size());
+  result.reserve(foundNtuplets.size());
 
   for (auto const &ntuplet : foundNtuplets) {
     tracksterId++;
@@ -177,25 +169,25 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       tmp.setSeed(input.regions[0].collectionID, seedIndices[tracksterId]);
 
       std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices()));
-      tmpTracksters.push_back(tmp);
+      result.push_back(tmp);
     }
   }
-  ticl::assignPCAtoTracksters(tmpTracksters,
+  ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
                               rhtools_,
                               computeLocalTime_);
 
-  // run energy regression and ID
-  energyRegressionAndID(input.layerClusters, input.tfSession, tmpTracksters);
-  // Filter results based on PID criteria or EM/Total energy ratio.
-  // We want to **keep** tracksters whose cumulative
-  // probability summed up over the selected categories
-  // is greater than the chosen threshold. Therefore
-  // the filtering function should **discard** all
-  // tracksters **below** the threshold.
-  auto filter_on_pids = [&](Trackster &t) -> bool {
+  theGraph_->clear();
+}
+
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::filter(std::vector<Trackster> &output,
+                                           const std::vector<Trackster> &inTracksters,
+                                           const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
+                                           std::unordered_map<int, std::vector<int>> &seedToTracksterAssociation) {
+  auto filter_on_pids = [&](const ticl::Trackster &t) -> bool {
     auto cumulative_prob = 0.;
     for (auto index : filter_on_categories_) {
       cumulative_prob += t.id_probabilities(index);
@@ -205,62 +197,37 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   };
 
   std::vector<unsigned int> selectedTrackstersIds;
-  for (unsigned i = 0; i < tmpTracksters.size(); ++i) {
-    if (!filter_on_pids(tmpTracksters[i]) and tmpTracksters[i].sigmasPCA()[0] < max_longitudinal_sigmaPCA_) {
+  for (unsigned i = 0; i < inTracksters.size(); ++i) {
+    auto &t = inTracksters[i];
+    if (!filter_on_pids(t) and t.sigmasPCA()[0] < max_longitudinal_sigmaPCA_) {
       selectedTrackstersIds.push_back(i);
     }
   }
-
-  result.reserve(selectedTrackstersIds.size());
-
+  output.reserve(selectedTrackstersIds.size());
+  bool isRegionalIter = !input.regions.empty() && (input.regions[0].index != -1);
   for (unsigned i = 0; i < selectedTrackstersIds.size(); ++i) {
-    const auto &t = tmpTracksters[selectedTrackstersIds[i]];
-    for (auto const lcId : t.vertices()) {
-      layer_cluster_usage[lcId]++;
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic)
-        LogDebug("HGCPatternRecoByCA") << "LayerID: " << lcId << " count: " << (int)layer_cluster_usage[lcId]
-                                       << std::endl;
-    }
+    const auto &t = inTracksters[selectedTrackstersIds[i]];
     if (isRegionalIter) {
       seedToTracksterAssociation[t.seedIndex()].push_back(i);
     }
-    result.push_back(t);
+    output.push_back(t);
   }
 
-  for (auto &trackster : result) {
-    assert(trackster.vertices().size() <= trackster.vertex_multiplicity().size());
-    for (size_t i = 0; i < trackster.vertices().size(); ++i) {
-      trackster.vertex_multiplicity()[i] = layer_cluster_usage[trackster.vertices(i)];
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic)
-        LogDebug("HGCPatternRecoByCA") << "LayerID: " << trackster.vertices(i)
-                                       << " count: " << (int)trackster.vertex_multiplicity(i) << std::endl;
-    }
-  }
   // Now decide if the tracksters from the track-based iterations have to be merged
   if (oneTracksterPerTrackSeed_) {
     std::vector<Trackster> tmp;
-    mergeTrackstersTRK(result, input.layerClusters, tmp, seedToTracksterAssociation);
-    tmp.swap(result);
+    mergeTrackstersTRK(output, input.layerClusters, tmp, seedToTracksterAssociation);
+    tmp.swap(output);
   }
-
-  ticl::assignPCAtoTracksters(result,
-                              input.layerClusters,
-                              input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
-                              rhtools_,
-                              computeLocalTime_);
-
-  // run energy regression and ID
-  energyRegressionAndID(input.layerClusters, input.tfSession, result);
 
   // now adding dummy tracksters from seeds not connected to any shower in the result collection
   // these are marked as charged hadrons with probability 1.
   if (promoteEmptyRegionToTrackster_) {
-    emptyTrackstersFromSeedsTRK(result, seedToTracksterAssociation, input.regions[0].collectionID);
+    emptyTrackstersFromSeedsTRK(output, seedToTracksterAssociation, input.regions[0].collectionID);
   }
 
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
-    for (auto &trackster : result) {
+    for (auto &trackster : output) {
       LogDebug("HGCPatternRecoByCA") << "Trackster characteristics: " << std::endl;
       LogDebug("HGCPatternRecoByCA") << "Size: " << trackster.vertices().size() << std::endl;
       auto counter = 0;
@@ -269,9 +236,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
       }
     }
   }
-  theGraph_->clear();
 }
-
 template <typename TILES>
 void PatternRecognitionbyCA<TILES>::mergeTrackstersTRK(
     const std::vector<Trackster> &input,
@@ -348,146 +313,6 @@ void PatternRecognitionbyCA<TILES>::emptyTrackstersFromSeedsTRK(
 }
 
 template <typename TILES>
-void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-                                                          const tensorflow::Session *eidSession,
-                                                          std::vector<Trackster> &tracksters) {
-  // Energy regression and particle identification strategy:
-  //
-  // 1. Set default values for regressed energy and particle id for each trackster.
-  // 2. Store indices of tracksters whose total sum of cluster energies is above the
-  //    eidMinClusterEnergy_ (GeV) threshold. Inference is not applied for soft tracksters.
-  // 3. When no trackster passes the selection, return.
-  // 4. Create input and output tensors. The batch dimension is determined by the number of
-  //    selected tracksters.
-  // 5. Fill input tensors with layer cluster features. Per layer, clusters are ordered descending
-  //    by energy. Given that tensor data is contiguous in memory, we can use pointer arithmetic to
-  //    fill values, even with batching.
-  // 6. Zero-fill features for empty clusters in each layer.
-  // 7. Batched inference.
-  // 8. Assign the regressed energy and id probabilities to each trackster.
-  //
-  // Indices used throughout this method:
-  // i -> batch element / trackster
-  // j -> layer
-  // k -> cluster
-  // l -> feature
-
-  // set default values per trackster, determine if the cluster energy threshold is passed,
-  // and store indices of hard tracksters
-  std::vector<int> tracksterIndices;
-  for (int i = 0; i < (int)tracksters.size(); i++) {
-    // calculate the cluster energy sum (2)
-    // note: after the loop, sumClusterEnergy might be just above the threshold which is enough to
-    // decide whether to run inference for the trackster or not
-    float sumClusterEnergy = 0.;
-    for (const unsigned int &vertex : tracksters[i].vertices()) {
-      sumClusterEnergy += (float)layerClusters[vertex].energy();
-      // there might be many clusters, so try to stop early
-      if (sumClusterEnergy >= eidMinClusterEnergy_) {
-        // set default values (1)
-        tracksters[i].setRegressedEnergy(0.f);
-        tracksters[i].zeroProbabilities();
-        tracksterIndices.push_back(i);
-        break;
-      }
-    }
-  }
-
-  // do nothing when no trackster passes the selection (3)
-  int batchSize = (int)tracksterIndices.size();
-  if (batchSize == 0) {
-    return;
-  }
-
-  // create input and output tensors (4)
-  tensorflow::TensorShape shape({batchSize, eidNLayers_, eidNClusters_, eidNFeatures_});
-  tensorflow::Tensor input(tensorflow::DT_FLOAT, shape);
-  tensorflow::NamedTensorList inputList = {{eidInputName_, input}};
-
-  std::vector<tensorflow::Tensor> outputs;
-  std::vector<std::string> outputNames;
-  if (!eidOutputNameEnergy_.empty()) {
-    outputNames.push_back(eidOutputNameEnergy_);
-  }
-  if (!eidOutputNameId_.empty()) {
-    outputNames.push_back(eidOutputNameId_);
-  }
-
-  // fill input tensor (5)
-  for (int i = 0; i < batchSize; i++) {
-    const Trackster &trackster = tracksters[tracksterIndices[i]];
-
-    // per layer, we only consider the first eidNClusters_ clusters in terms of energy, so in order
-    // to avoid creating large / nested structures to do the sorting for an unknown number of total
-    // clusters, create a sorted list of layer cluster indices to keep track of the filled clusters
-    std::vector<int> clusterIndices(trackster.vertices().size());
-    for (int k = 0; k < (int)trackster.vertices().size(); k++) {
-      clusterIndices[k] = k;
-    }
-    sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &trackster](const int &a, const int &b) {
-      return layerClusters[trackster.vertices(a)].energy() > layerClusters[trackster.vertices(b)].energy();
-    });
-
-    // keep track of the number of seen clusters per layer
-    std::vector<int> seenClusters(eidNLayers_);
-
-    // loop through clusters by descending energy
-    for (const int &k : clusterIndices) {
-      // get features per layer and cluster and store the values directly in the input tensor
-      const reco::CaloCluster &cluster = layerClusters[trackster.vertices(k)];
-      int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
-      if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
-        // get the pointer to the first feature value for the current batch, layer and cluster
-        float *features = &input.tensor<float, 4>()(i, j, seenClusters[j], 0);
-
-        // fill features
-        *(features++) = float(cluster.energy() / float(trackster.vertex_multiplicity(k)));
-        *(features++) = float(std::abs(cluster.eta()));
-        *(features) = float(cluster.phi());
-
-        // increment seen clusters
-        seenClusters[j]++;
-      }
-    }
-
-    // zero-fill features of empty clusters in each layer (6)
-    for (int j = 0; j < eidNLayers_; j++) {
-      for (int k = seenClusters[j]; k < eidNClusters_; k++) {
-        float *features = &input.tensor<float, 4>()(i, j, k, 0);
-        for (int l = 0; l < eidNFeatures_; l++) {
-          *(features++) = 0.f;
-        }
-      }
-    }
-  }
-
-  // run the inference (7)
-  tensorflow::run(eidSession, inputList, outputNames, &outputs);
-
-  // store regressed energy per trackster (8)
-  if (!eidOutputNameEnergy_.empty()) {
-    // get the pointer to the energy tensor, dimension is batch x 1
-    float *energy = outputs[0].flat<float>().data();
-
-    for (const int &i : tracksterIndices) {
-      tracksters[i].setRegressedEnergy(*(energy++));
-    }
-  }
-
-  // store id probabilities per trackster (8)
-  if (!eidOutputNameId_.empty()) {
-    // get the pointer to the id probability tensor, dimension is batch x id_probabilities.size()
-    int probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
-    float *probs = outputs[probsIdx].flat<float>().data();
-
-    for (const int &i : tracksterIndices) {
-      tracksters[i].setProbabilities(probs);
-      probs += tracksters[i].id_probabilities().size();
-    }
-  }
-}
-
-template <typename TILES>
 void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
   iDesc.add<bool>("oneTracksterPerTrackSeed", false);
@@ -508,12 +333,6 @@ void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescrip
       ->setComment("make default such that no filtering is applied");
   iDesc.add<double>("max_longitudinal_sigmaPCA", 9999);
   iDesc.add<double>("max_delta_time", 3.)->setComment("nsigma");
-  iDesc.add<std::string>("eid_input_name", "input");
-  iDesc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
-  iDesc.add<std::string>("eid_output_name_id", "output/id_probabilities");
-  iDesc.add<double>("eid_min_cluster_energy", 1.);
-  iDesc.add<int>("eid_n_layers", 50);
-  iDesc.add<int>("eid_n_clusters", 10);
   iDesc.add<bool>("computeLocalTime", false);
   iDesc.add<std::vector<double>>("siblings_maxRSquared", {6e-4, 6e-4, 6e-4});
 }

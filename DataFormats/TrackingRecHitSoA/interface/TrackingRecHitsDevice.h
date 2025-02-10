@@ -5,6 +5,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsHost.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
@@ -19,21 +20,20 @@ public:
   using PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>, TDev>::const_view;
   using PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>, TDev>::buffer;
 
-  TrackingRecHitDevice() = default;
+  TrackingRecHitDevice(edm::Uninitialized)
+      : PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>, TDev>{edm::kUninitialized} {}
 
   // Constructor which specifies the SoA size, number of BPIX1 hits, and the modules entry points
   template <typename TQueue>
   explicit TrackingRecHitDevice(TQueue queue, uint32_t nHits, int32_t offsetBPIX2, uint32_t const* hitsModuleStart)
       : PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>, TDev>(nHits, queue), offsetBPIX2_{offsetBPIX2} {
-    const auto device = alpaka::getDev(queue);
-
-    auto start_h = cms::alpakatools::make_device_view(device, hitsModuleStart, TrackerTraits::numberOfModules + 1);
+    auto start_h = cms::alpakatools::make_device_view(queue, hitsModuleStart, TrackerTraits::numberOfModules + 1);
     auto start_d =
-        cms::alpakatools::make_device_view(device, view().hitsModuleStart().data(), TrackerTraits::numberOfModules + 1);
+        cms::alpakatools::make_device_view(queue, view().hitsModuleStart().data(), TrackerTraits::numberOfModules + 1);
     alpaka::memcpy(queue, start_d, start_h);
 
     auto off_h = cms::alpakatools::make_host_view(offsetBPIX2_);
-    auto off_d = cms::alpakatools::make_device_view(device, view().offsetBPIX2());
+    auto off_d = cms::alpakatools::make_device_view(queue, view().offsetBPIX2());
     alpaka::memcpy(queue, off_d, off_h);
   }
 
@@ -47,7 +47,7 @@ public:
   template <typename TQueue>
   void updateFromDevice(TQueue queue) {
     auto off_h = cms::alpakatools::make_host_view(offsetBPIX2_);
-    auto off_d = cms::alpakatools::make_device_view(alpaka::getDev(queue), view().offsetBPIX2());
+    auto off_d = cms::alpakatools::make_device_view(queue, view().offsetBPIX2());
     alpaka::memcpy(queue, off_h, off_d);
   }
 

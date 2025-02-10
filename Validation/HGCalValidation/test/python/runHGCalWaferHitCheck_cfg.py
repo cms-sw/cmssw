@@ -26,36 +26,19 @@ print(options)
 
 ####################################################################
 # Use the options
-if (options.geometry == "D115"):
-    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-    process = cms.Process('WaferHitCheck',Phase2C20I13M9)
-elif (options.geometry == "D104"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('WaferHitCheck',PhaseC22I13M9)
-elif (options.geometry == "D106"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('WaferHitCheck',PhaseC22I13M9)
-elif (options.geometry == "D109"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('WaferHitCheck',PhaseC22I13M9)
-elif (options.geometry == "D111"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('WaferHitCheck',PhaseC22I13M9)
-elif (options.geometry == "D112"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('WaferHitCheck',PhaseC22I13M9)
-elif (options.geometry == "D113"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('WaferHitCheck',PhaseC22I13M9)
-else:
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process('WaferHitCheck',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+geomName = "Run4" + options.geometry
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 fileInput = "file:step1" + options.geometry + "tt.root"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry Name:  ", geomName)
+print("Geom file Name: ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+print("Input file:      ", fileInput)
 
-print("Geometry file: ", geomFile)
-print("Input file:    ", fileInput)
+process = cms.Process('WaferHitCheck',ERA)
 
 process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -65,7 +48,7 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Validation.HGCalValidation.hgcWaferHitCheck_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalValidation=dict()

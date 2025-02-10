@@ -612,6 +612,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const& e, edm::EventSetup co
 
 void EcalMixingModuleValidation::checkCalibrations(edm::EventSetup const& eventSetup) {
   // ADC -> GeV Scale
+  [[clang::suppress]]
   const EcalADCToGeVConstant* agc = &eventSetup.getData(pAgc);
 
   EcalMGPAGainRatio defaultRatios;
@@ -627,10 +628,8 @@ void EcalMixingModuleValidation::checkCalibrations(edm::EventSetup const& eventS
                        << " g2 = " << gainConv_[2] << "\n"
                        << " g3 = " << gainConv_[3];
 
-  const double barrelADCtoGeV_ = agc->getEBValue();
-  LogDebug("EcalDigi") << " Barrel GeV/ADC = " << barrelADCtoGeV_;
-  const double endcapADCtoGeV_ = agc->getEEValue();
-  LogDebug("EcalDigi") << " Endcap GeV/ADC = " << endcapADCtoGeV_;
+  LogDebug("EcalDigi") << " Barrel GeV/ADC = " << agc->getEBValue();
+  LogDebug("EcalDigi") << " Endcap GeV/ADC = " << agc->getEEValue();
 
   // ES condition objects
   const ESGain* esgain = &eventSetup.getData(esgain_);

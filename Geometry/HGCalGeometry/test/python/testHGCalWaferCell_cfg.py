@@ -1,8 +1,39 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalGeometry_cfg.py geometry=V17
+#
+#   Options for geometry V16, V17, V18
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD")
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: V16, V17, V18")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('HGCalWaferCell',Phase2C17I13M9)
+
+geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "XML_cfi"
+print("Geometry file: ", geomFile)
+
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
+process.load(geomFile)
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")

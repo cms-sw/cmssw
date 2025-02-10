@@ -62,6 +62,13 @@ bool TrackMultiplicityFilter::filter(edm::StreamID iStream, edm::Event& iEvent, 
   bool pass = false;
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(tracksToken_, tracks);
+
+  if (!tracks.isValid()) {
+    edm::LogError("TrackMultiplicityFilter")
+        << "Error >> Failed to get TrackMultiplicityFilter for label: " << tracksTag_;
+    return false;
+  }
+
   double count = std::count_if(tracks->begin(), tracks->end(), selector_);
   pass = (count >= nmin_);
 

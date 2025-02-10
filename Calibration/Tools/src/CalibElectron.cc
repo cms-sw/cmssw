@@ -127,6 +127,7 @@ std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(TStrin
     }
 
     for (int i = 0; i < EcalIndexingTools::getInstance()->getNumberOfChannels(); ++i) {
+      [[clang::suppress]]
       if (w_ring[i] != 0.) {
         theWeights.push_back(std::pair<int, float>(i, w_ring[i]));
         std::cout << " ring " << i << " - energy sum " << w_ring[i] << std::endl;

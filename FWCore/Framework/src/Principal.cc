@@ -15,7 +15,7 @@
 #include "FWCore/Framework/src/ProductDeletedException.h"
 #include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-#include "ProductResolvers.h"
+#include "DroppedDataProductResolver.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -116,185 +116,23 @@ namespace edm {
   }
 
   Principal::Principal(std::shared_ptr<ProductRegistry const> reg,
-                       std::shared_ptr<ProductResolverIndexHelper const> productLookup,
+                       std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
                        ProcessConfiguration const& pc,
                        BranchType bt,
-                       HistoryAppender* historyAppender,
-                       bool isForPrimaryProcess)
+                       HistoryAppender* historyAppender)
       : EDProductGetter(),
         processHistoryPtr_(),
         processHistoryID_(),
         processHistoryIDBeforeConfig_(),
         processConfiguration_(&pc),
-        productResolvers_(),
+        productResolvers_(resolvers.begin(), resolvers.end()),
         preg_(reg),
-        productLookup_(productLookup),
-        lookupProcessOrder_(productLookup->lookupProcessNames().size(), 0),
+        productLookup_(reg->productLookup(bt)),
+        lookupProcessOrder_(productLookup_->lookupProcessNames().size(), 0),
         reader_(),
         branchType_(bt),
         historyAppender_(historyAppender),
-        cacheIdentifier_(nextIdentifier()) {
-    productResolvers_.resize(reg->getNextIndexValue(bt));
-    //Now that these have been set, we can create the list of Branches we need.
-    std::string const source("source");
-    ProductRegistry::ProductList const& prodsList = reg->productList();
-    // The constructor of an alias product holder takes as an argument the product holder for which it is an alias.
-    // So, the non-alias product holders must be created first.
-    // Therefore, on this first pass, skip current EDAliases.
-    bool hasAliases = false;
-    bool hasSwitchAliases = false;
-    for (auto const& prod : prodsList) {
-      BranchDescription const& bd = prod.second;
-      if (bd.branchType() == branchType_) {
-        if (isForPrimaryProcess or bd.processName() == pc.processName()) {
-          if (bd.isAlias()) {
-            hasAliases = true;
-          } else if (bd.isSwitchAlias()) {
-            hasSwitchAliases = true;
-          } else {
-            auto cbd = std::make_shared<BranchDescription const>(bd);
-            if (bd.produced()) {
-              if (bd.moduleLabel() == source) {
-                addSourceProduct(cbd);
-              } else if (bd.onDemand()) {
-                assert(branchType_ == InEvent);
-                if (bd.isTransform()) {
-                  addTransformProduct(cbd);
-                } else {
-                  addUnscheduledProduct(cbd);
-                }
-              } else {
-                addScheduledProduct(cbd);
-              }
-            } else {
-              if (bd.onDemand()) {
-                addDelayedReaderInputProduct(cbd);
-              } else {
-                addPutOnReadInputProduct(cbd);
-              }
-            }
-          }
-        } else {
-          //We are in a SubProcess and this branch is from the parent
-          auto cbd = std::make_shared<BranchDescription const>(bd);
-          addParentProcessProduct(cbd);
-        }
-      }
-    }
-    // Now process any EDAliases
-    if (hasAliases) {
-      for (auto const& prod : prodsList) {
-        BranchDescription const& bd = prod.second;
-        if (bd.isAlias() && bd.branchType() == branchType_) {
-          addAliasedProduct(std::make_shared<BranchDescription const>(bd));
-        }
-      }
-    }
-    // Finally process any SwitchProducer aliases
-    if (hasSwitchAliases) {
-      for (auto const& prod : prodsList) {
-        BranchDescription const& bd = prod.second;
-        if (bd.isSwitchAlias() && bd.branchType() == branchType_) {
-          assert(branchType_ == InEvent);
-          auto cbd = std::make_shared<BranchDescription const>(bd);
-          // Need different implementation for SwitchProducers not
-          // in any Path (onDemand) and for those in a Path in order
-          // to prevent the switch-aliased-for EDProducers from
-          // being run when the SwitchProducer is in a Path after a
-          // failing EDFilter.
-          if (bd.onDemand()) {
-            addSwitchAliasProduct(cbd);
-          } else {
-            addSwitchProducerProduct(cbd);
-          }
-        }
-      }
-    }
-
-    // Now create the ProductResolvers that search in reverse process
-    // order and are used for queries where the process name is the
-    // empty string
-    std::vector<std::string> const& lookupProcessNames = productLookup_->lookupProcessNames();
-    std::vector<ProductResolverIndex> matchingHolders(lookupProcessNames.size(), ProductResolverIndexInvalid);
-    std::vector<bool> ambiguous(lookupProcessNames.size(), false);
-    unsigned int beginElements = productLookup_->beginElements();
-    std::vector<TypeID> const& sortedTypeIDs = productLookup_->sortedTypeIDs();
-    std::vector<ProductResolverIndexHelper::Range> const& ranges = productLookup_->ranges();
-    std::vector<ProductResolverIndexHelper::IndexAndNames> const& indexAndNames = productLookup_->indexAndNames();
-    std::vector<char> const& processNamesCharArray = productLookup_->processNames();
-
-    unsigned int numberOfMatches = 0;
-    ProductResolverIndex lastMatchIndex = ProductResolverIndexInvalid;
-    if (!sortedTypeIDs.empty()) {
-      ProductResolverIndex productResolverIndex = ProductResolverIndexInvalid;
-      for (unsigned int k = 0, kEnd = sortedTypeIDs.size(); k < kEnd; ++k) {
-        ProductResolverIndexHelper::Range const& range = ranges.at(k);
-        for (unsigned int i = range.begin(); i < range.end(); ++i) {
-          ProductResolverIndexHelper::IndexAndNames const& product = indexAndNames.at(i);
-          if (product.startInProcessNames() == 0) {
-            if (productResolverIndex != ProductResolverIndexInvalid) {
-              if ((numberOfMatches == 1) and (lastMatchIndex != ProductResolverIndexAmbiguous)) {
-                //only one choice so use a special resolver
-                productResolvers_.at(productResolverIndex) =
-                    std::make_shared<SingleChoiceNoProcessProductResolver>(lastMatchIndex);
-              } else {
-                bool productMadeAtEnd = false;
-                //Need to know if the product from this processes is added at end of transition
-                for (unsigned int j = 0; j < matchingHolders.size(); ++j) {
-                  if ((not ambiguous[j]) and ProductResolverIndexInvalid != matchingHolders[j] and
-                      productResolvers_[matchingHolders[j]]->branchDescription().availableOnlyAtEndTransition()) {
-                    productMadeAtEnd = true;
-                    break;
-                  }
-                }
-                std::shared_ptr<ProductResolverBase> newHolder =
-                    std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
-                productResolvers_.at(productResolverIndex) = newHolder;
-              }
-              matchingHolders.assign(lookupProcessNames.size(), ProductResolverIndexInvalid);
-              ambiguous.assign(lookupProcessNames.size(), false);
-              numberOfMatches = 0;
-              lastMatchIndex = ProductResolverIndexInvalid;
-            }
-            productResolverIndex = product.index();
-          } else {
-            std::string process(&processNamesCharArray.at(product.startInProcessNames()));
-            auto iter = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), process);
-            assert(iter != lookupProcessNames.end());
-            ProductResolverIndex iMatchingIndex = product.index();
-            lastMatchIndex = iMatchingIndex;
-            assert(iMatchingIndex != ProductResolverIndexInvalid);
-            ++numberOfMatches;
-            if (iMatchingIndex == ProductResolverIndexAmbiguous) {
-              assert(k >= beginElements);
-              ambiguous.at(iter - lookupProcessNames.begin()) = true;
-            } else {
-              matchingHolders.at(iter - lookupProcessNames.begin()) = iMatchingIndex;
-            }
-          }
-        }
-      }
-      //Need to know if the product from this processes is added at end of transition
-      if ((numberOfMatches == 1) and (lastMatchIndex != ProductResolverIndexAmbiguous)) {
-        //only one choice so use a special resolver
-        productResolvers_.at(productResolverIndex) =
-            std::make_shared<SingleChoiceNoProcessProductResolver>(lastMatchIndex);
-      } else {
-        bool productMadeAtEnd = false;
-        for (unsigned int i = 0; i < matchingHolders.size(); ++i) {
-          if ((not ambiguous[i]) and ProductResolverIndexInvalid != matchingHolders[i] and
-              productResolvers_[matchingHolders[i]]->branchDescription().availableOnlyAtEndTransition()) {
-            productMadeAtEnd = true;
-            break;
-          }
-        }
-        std::shared_ptr<ProductResolverBase> newHolder =
-            std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
-        productResolvers_.at(productResolverIndex) = newHolder;
-      }
-    }
-  }
-
+        cacheIdentifier_(nextIdentifier()) {}
   Principal::~Principal() {}
 
   // Number of products in the Principal.
@@ -304,7 +142,7 @@ namespace edm {
     size_t size = 0U;
     for (auto const& prod : *this) {
       if (prod->singleProduct() &&  // Not a NoProcessProductResolver
-          !prod->productUnavailable() && !prod->unscheduledWasNotRun() && !prod->branchDescription().dropped()) {
+          !prod->productUnavailable() && !prod->unscheduledWasNotRun() && !prod->productDescription().dropped()) {
         ++size;
       }
     }
@@ -315,71 +153,21 @@ namespace edm {
   bool Principal::adjustToNewProductRegistry(ProductRegistry const& reg) {
     ProductRegistry::ProductList const& prodsList = reg.productList();
     for (auto const& prod : prodsList) {
-      BranchDescription const& bd = prod.second;
+      ProductDescription const& bd = prod.second;
       if (!bd.produced() && (bd.branchType() == branchType_)) {
-        auto cbd = std::make_shared<BranchDescription const>(bd);
+        auto cbd = std::make_shared<ProductDescription const>(bd);
         auto phb = getExistingProduct(cbd->branchID());
-        if (phb == nullptr || phb->branchDescription().branchName() != cbd->branchName()) {
+        if (phb == nullptr || phb->productDescription().branchName() != cbd->branchName()) {
           return false;
         }
-        phb->resetBranchDescription(cbd);
+        phb->resetProductDescription(cbd);
       }
     }
     return true;
   }
 
-  void Principal::addScheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    auto phb = std::make_unique<PuttableProductResolver>(std::move(bd));
-    addProductOrThrow(std::move(phb));
-  }
-
-  void Principal::addSourceProduct(std::shared_ptr<BranchDescription const> bd) {
-    auto phb = std::make_unique<PuttableProductResolver>(std::move(bd));
-    addProductOrThrow(std::move(phb));
-  }
-
-  void Principal::addDelayedReaderInputProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<DelayedReaderInputProductResolver>(std::move(bd)));
-  }
-
-  void Principal::addPutOnReadInputProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<PutOnReadInputProductResolver>(std::move(bd)));
-  }
-
-  void Principal::addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<UnscheduledProductResolver>(std::move(bd)));
-  }
-
-  void Principal::addTransformProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<TransformingProductResolver>(std::move(bd)));
-  }
-
-  void Principal::addAliasedProduct(std::shared_ptr<BranchDescription const> bd) {
-    ProductResolverIndex index = preg_->indexFrom(bd->originalBranchID());
-    assert(index != ProductResolverIndexInvalid);
-
-    addProductOrThrow(std::make_unique<AliasProductResolver>(
-        std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*productResolvers_[index])));
-  }
-
-  void Principal::addSwitchProducerProduct(std::shared_ptr<BranchDescription const> bd) {
-    ProductResolverIndex index = preg_->indexFrom(bd->switchAliasForBranchID());
-    assert(index != ProductResolverIndexInvalid);
-
-    addProductOrThrow(std::make_unique<SwitchProducerProductResolver>(
-        std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*productResolvers_[index])));
-  }
-
-  void Principal::addSwitchAliasProduct(std::shared_ptr<BranchDescription const> bd) {
-    ProductResolverIndex index = preg_->indexFrom(bd->switchAliasForBranchID());
-    assert(index != ProductResolverIndexInvalid);
-
-    addProductOrThrow(std::make_unique<SwitchAliasProductResolver>(
-        std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*productResolvers_[index])));
-  }
-
-  void Principal::addParentProcessProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<ParentProcessProductResolver>(std::move(bd)));
+  void Principal::addDroppedProduct(ProductDescription const& bd) {
+    addProductOrThrow(std::make_unique<DroppedDataProductResolver>(std::make_shared<ProductDescription const>(bd)));
   }
 
   // "Zero" the principal so it can be reused for another Event.
@@ -513,10 +301,10 @@ namespace edm {
   }
 
   ProductResolverBase const* Principal::getExistingProduct(ProductResolverBase const& productResolver) const {
-    auto phb = getExistingProduct(productResolver.branchDescription().branchID());
-    if (nullptr != phb && BranchKey(productResolver.branchDescription()) != BranchKey(phb->branchDescription())) {
-      BranchDescription const& newProduct = phb->branchDescription();
-      BranchDescription const& existing = productResolver.branchDescription();
+    auto phb = getExistingProduct(productResolver.productDescription().branchID());
+    if (nullptr != phb && BranchKey(productResolver.productDescription()) != BranchKey(phb->productDescription())) {
+      ProductDescription const& newProduct = phb->productDescription();
+      ProductDescription const& existing = productResolver.productDescription();
       if (newProduct.branchName() != existing.branchName() && newProduct.branchID() == existing.branchID()) {
         throw cms::Exception("HashCollision")
             << "Principal::getExistingProduct\n"
@@ -524,14 +312,25 @@ namespace edm {
             << "\n"
             << "Workaround: change process name or product instance name of " << newProduct.branchName() << "\n";
       } else {
-        assert(nullptr == phb || BranchKey(productResolver.branchDescription()) == BranchKey(phb->branchDescription()));
+        assert(nullptr == phb ||
+               BranchKey(productResolver.productDescription()) == BranchKey(phb->productDescription()));
       }
     }
     return phb;
   }
 
+  std::vector<ProductDescription const*> Principal::productDescriptions() const {
+    std::vector<ProductDescription const*> retValue;
+    for (auto const& p : productRegistry().productList()) {
+      if (p.second.branchType() == branchType()) {
+        retValue.push_back(&p.second);
+      }
+    }
+    return retValue;
+  }
+
   void Principal::addProduct_(std::unique_ptr<ProductResolverBase> productResolver) {
-    BranchDescription const& bd = productResolver->branchDescription();
+    ProductDescription const& bd = productResolver->productDescription();
     assert(!bd.className().empty());
     assert(!bd.friendlyClassName().empty());
     assert(!bd.moduleLabel().empty());
@@ -546,7 +345,7 @@ namespace edm {
   void Principal::addProductOrThrow(std::unique_ptr<ProductResolverBase> productResolver) {
     ProductResolverBase const* phb = getExistingProduct(*productResolver);
     if (phb != nullptr) {
-      BranchDescription const& bd = productResolver->branchDescription();
+      ProductDescription const& bd = productResolver->productDescription();
       throw Exception(errors::InsertFailure, "AlreadyPresent")
           << "addProductOrThrow: Problem found while adding product, "
           << "product already exists for (" << bd.friendlyClassName() << "," << bd.moduleLabel() << ","
@@ -565,6 +364,7 @@ namespace edm {
 
   Principal::ConstProductResolverPtr Principal::getProductResolverByIndex(
       ProductResolverIndex const& index) const noexcept {
+    assert(index < productResolvers_.size());
     ConstProductResolverPtr const phb = productResolvers_[index].get();
     return phb;
   }
@@ -801,10 +601,10 @@ namespace edm {
     provenances.clear();
     for (auto const& productResolver : *this) {
       if (productResolver->singleProduct() && productResolver->provenanceAvailable() &&
-          !productResolver->branchDescription().isAnyAlias()) {
+          !productResolver->productDescription().isAnyAlias()) {
         // We do not attempt to get the event/lumi/run status from the provenance,
         // because the per event provenance may have been dropped.
-        if (productResolver->provenance()->branchDescription().present()) {
+        if (productResolver->provenance()->productDescription().present()) {
           provenances.push_back(productResolver->provenance());
         }
       }
@@ -817,8 +617,8 @@ namespace edm {
   void Principal::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
     provenances.clear();
     for (auto const& productResolver : *this) {
-      if (productResolver->singleProduct() && !productResolver->branchDescription().isAnyAlias()) {
-        if (productResolver->stableProvenance()->branchDescription().present()) {
+      if (productResolver->singleProduct() && !productResolver->productDescription().isAnyAlias()) {
+        if (productResolver->stableProvenance()->productDescription().present()) {
           provenances.push_back(productResolver->stableProvenance());
         }
       }
@@ -862,7 +662,7 @@ namespace edm {
     dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(prod));
   }
 
-  void Principal::put_(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
+  void Principal::put_(ProductDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
     if (edp.get() == nullptr) {
       throw edm::Exception(edm::errors::InsertFailure, "Null Pointer")
           << "put: Cannot put because unique_ptr to product is null."
@@ -879,19 +679,16 @@ namespace edm {
       bool changed = false;
       productResolvers_.resize(preg_->getNextIndexValue(branchType_));
       for (auto const& prod : preg_->productList()) {
-        BranchDescription const& bd = prod.second;
+        ProductDescription const& bd = prod.second;
         if (bd.branchType() == branchType_) {
           ProductResolverIndex index = preg_->indexFrom(bd.branchID());
           assert(index != ProductResolverIndexInvalid);
           if (!productResolvers_[index]) {
             // no product holder.  Must add one. The new entry must be an input product holder.
             assert(!bd.produced());
-            auto cbd = std::make_shared<BranchDescription const>(bd);
-            if (bd.onDemand()) {
-              addDelayedReaderInputProduct(cbd);
-            } else {
-              addPutOnReadInputProduct(cbd);
-            }
+            assert(bd.dropped());
+            //adding the resolver allows access to the provenance for the data product
+            addDroppedProduct(bd);
             changed = true;
           }
         }

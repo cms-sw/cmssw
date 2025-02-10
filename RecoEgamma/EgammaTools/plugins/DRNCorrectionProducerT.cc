@@ -255,7 +255,7 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
    * Fill input tensors by iterating over particles...
    */
   int64_t partNum = 0;
-  std::shared_ptr<const CaloCellGeometry> geom;
+  CaloCellGeometryMayOwnPtr geom;
   for (auto& part : *particles_) {
     const reco::SuperClusterRef& sc = part.superCluster();
 

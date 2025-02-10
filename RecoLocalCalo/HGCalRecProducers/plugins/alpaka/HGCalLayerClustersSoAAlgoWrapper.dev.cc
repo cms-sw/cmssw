@@ -13,8 +13,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Set energy and number of hits in each clusters
   class HGCalLayerClustersSoAAlgoKernelEnergy {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const unsigned int numer_of_clusters,
                                   const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
                                   const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
@@ -38,8 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Kernel to find the max for every cluster
   class HGCalLayerClustersSoAAlgoKernelPositionByHits {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const unsigned int numer_of_clusters,
                                   float thresholdW0,
                                   float positionDeltaRho2,
@@ -76,15 +74,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             clusterEnergy = (clusterSeed == kInvalidIndex) ? 0.f : input_rechits_soa[clusterSeed].weight();
           }
         }  // CAS
-      }    // uniform_elements
-    }      // operator()
+      }  // uniform_elements
+    }  // operator()
   };
 
   // Real Kernel position
   class HGCalLayerClustersSoAAlgoKernelPositionByHits2 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const unsigned int numer_of_clusters,
                                   float thresholdW0,
                                   float positionDeltaRho2,
@@ -115,14 +112,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::atomicAdd(acc, &outputs[cluster_index].y(), input_rechits_soa[hit_index].dim2() * Wi);
         alpaka::atomicAdd(acc, &outputs_service[cluster_index].total_weight_log(), Wi);
       }  // uniform_elements
-    }    // operator()
+    }  // operator()
   };
 
   // Besides the final position, add also the DetId of the seed of each cluster
   class HGCalLayerClustersSoAAlgoKernelPositionByHits3 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const unsigned int numer_of_clusters,
                                   float thresholdW0,
                                   float positionDeltaRho2,
@@ -144,7 +140,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
         outputs[cluster_index].z() = input_rechits_soa[max_energy_index].dim3();
       }  // uniform_elements
-    }    // operator()
+    }  // operator()
   };
 
   void HGCalLayerClustersSoAAlgoWrapper::run(Queue& queue,
@@ -155,29 +151,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                              const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
                                              HGCalSoAClustersDeviceCollection::View outputs,
                                              HGCalSoAClustersExtraDeviceCollection::View outputs_service) const {
-    auto x = cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs.x(), size);
+    auto x = cms::alpakatools::make_device_view<float>(queue, outputs.x(), size);
     alpaka::memset(queue, x, 0x0);
-    auto y = cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs.y(), size);
+    auto y = cms::alpakatools::make_device_view<float>(queue, outputs.y(), size);
     alpaka::memset(queue, y, 0x0);
-    auto z = cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs.z(), size);
+    auto z = cms::alpakatools::make_device_view<float>(queue, outputs.z(), size);
     alpaka::memset(queue, z, 0x0);
-    auto seed = cms::alpakatools::make_device_view<int>(alpaka::getDev(queue), outputs.seed(), size);
+    auto seed = cms::alpakatools::make_device_view<int>(queue, outputs.seed(), size);
     alpaka::memset(queue, seed, 0x0);
-    auto energy = cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs.energy(), size);
+    auto energy = cms::alpakatools::make_device_view<float>(queue, outputs.energy(), size);
     alpaka::memset(queue, energy, 0x0);
-    auto cells = cms::alpakatools::make_device_view<int>(alpaka::getDev(queue), outputs.cells(), size);
+    auto cells = cms::alpakatools::make_device_view<int>(queue, outputs.cells(), size);
     alpaka::memset(queue, cells, 0x0);
-    auto total_weight =
-        cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs_service.total_weight(), size);
+    auto total_weight = cms::alpakatools::make_device_view<float>(queue, outputs_service.total_weight(), size);
     alpaka::memset(queue, total_weight, 0x0);
-    auto total_weight_log =
-        cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs_service.total_weight_log(), size);
+    auto total_weight_log = cms::alpakatools::make_device_view<float>(queue, outputs_service.total_weight_log(), size);
     alpaka::memset(queue, total_weight_log, 0x0);
-    auto maxEnergyValue =
-        cms::alpakatools::make_device_view<float>(alpaka::getDev(queue), outputs_service.maxEnergyValue(), size);
+    auto maxEnergyValue = cms::alpakatools::make_device_view<float>(queue, outputs_service.maxEnergyValue(), size);
     alpaka::memset(queue, maxEnergyValue, 0x0);
-    auto maxEnergyIndex =
-        cms::alpakatools::make_device_view<int>(alpaka::getDev(queue), outputs_service.maxEnergyIndex(), size);
+    auto maxEnergyIndex = cms::alpakatools::make_device_view<int>(queue, outputs_service.maxEnergyIndex(), size);
     alpaka::memset(queue, maxEnergyIndex, kInvalidIndexByte);
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)

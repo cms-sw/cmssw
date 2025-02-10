@@ -687,7 +687,9 @@ void PlotAlignmentValidation::plotSS(const std::string& options, const std::stri
 void PlotAlignmentValidation::plotDMR(const std::string& variable,
                                       Int_t minHits,
                                       const std::string& options,
-                                      const std::string& filterName) {
+                                      const std::string& filterName,
+                                      Float_t maxBadLumiPixel,
+                                      Float_t maxBadLumiStrip) {
   // If several, comma-separated values are given in 'variable',
   // call plotDMR with each value separately.
   // If a comma is found, the string is divided to two.
@@ -696,8 +698,8 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable,
   if (findres != std::string::npos) {
     std::string substring1 = variable.substr(0, findres);
     std::string substring2 = variable.substr(findres + 1, std::string::npos);
-    plotDMR(substring1, minHits, options, filterName);
-    plotDMR(substring2, minHits, options, filterName);
+    plotDMR(substring1, minHits, options, filterName, maxBadLumiPixel, maxBadLumiStrip);
+    plotDMR(substring2, minHits, options, filterName, maxBadLumiPixel, maxBadLumiStrip);
     return;
   }
 
@@ -705,8 +707,8 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable,
   // X and Y added, respectively
   if (variable == "mean" || variable == "median" || variable == "meanNorm" || variable == "rms" ||
       variable == "rmsNorm") {
-    plotDMR(variable + "X", minHits, options, filterName);
-    plotDMR(variable + "Y", minHits, options, filterName);
+    plotDMR(variable + "X", minHits, options, filterName, maxBadLumiPixel, maxBadLumiStrip);
+    plotDMR(variable + "Y", minHits, options, filterName, maxBadLumiPixel, maxBadLumiStrip);
     return;
   }
 
@@ -761,6 +763,8 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable,
   plotinfo.plotPlain = plotPlain;
   plotinfo.plotLayers = plotLayers;
   plotinfo.filterName = filterName;
+  plotinfo.maxBadLumiPixel = maxBadLumiPixel;
+  plotinfo.maxBadLumiStrip = maxBadLumiStrip;
 
   // width in cm
   // for DMRS, use 100 bins in range +-10 um, bin width 0.2um
@@ -825,8 +829,35 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable,
   }
   //Begin loop on structures
   for (int i = 1; i <= 6; ++i) {
+    // Preferred binning in case of averaged DMR disributions
+    if (!plotinfo.filterName.empty()) {
+      if (i == 1 || i == 2) {
+        if (variable == "medianX") {
+          if (plotSplits) {
+            plotinfo.nbins = 50;
+          } else {
+            plotinfo.nbins = 50;
+          }
+        } else if (variable == "medianY") {
+          if (plotSplits) {
+            plotinfo.nbins = 50;
+          } else {
+            plotinfo.nbins = 25;
+          }
+        }
+      } else if (i == 3 || i == 4 || i == 5 || i == 6) {
+        if (variable == "medianX" || variable == "medianY") {
+          if (plotSplits) {
+            plotinfo.nbins = 50;
+          } else {
+            plotinfo.nbins = 25;
+          }
+        }
+      }
+    }
+
     // Skip strip detectors if plotting any "Y" variable
-    if (i != 1 && i != 2 && variable.length() > 0 && variable[variable.length() - 1] == 'Y') {
+    if (i != 1 && i != 2 && !variable.empty() && variable[variable.length() - 1] == 'Y') {
       continue;
     }
 
@@ -2068,6 +2099,12 @@ void PlotAlignmentValidation::plotDMRHistogram(PlotAlignmentValidation::DMRPlotI
       }
     }
   } else {
+    plotinfo.vars->getTree()->Draw(
+        plotVariable.c_str(), selection.c_str(), "goff");  //dummy to get the histogram structure
+    if (gDirectory)
+      gDirectory->GetObject(histoname.Data(), h);
+    h->Reset();
+    std::cout << "Module filter enabled." << std::endl;
     TTreeReader reader(plotinfo.vars->getTree());
     TTreeReaderValue<Float_t> varToPlot(reader, plotinfo.variable.c_str());
     TTreeReaderValue<unsigned int> _entries(reader, "entries");
@@ -2084,9 +2121,11 @@ void PlotAlignmentValidation::plotDMRHistogram(PlotAlignmentValidation::DMRPlotI
     TTreeReaderValue<int> _bad_id(readerBad, "id");
     TTreeReaderValue<double> _bad_lumi(readerBad, "lumi");
 
-    //Record which modules were used
+    //Record which modules were or were not used
     std::ofstream fUsedModules;
+    std::ofstream fNotUsedModules;
     fUsedModules.open("usedModules.txt", std::ios::out | std::ios::app);
+    fNotUsedModules.open("notUsedModules.txt", std::ios::out | std::ios::app);
 
     //Filter on modules by hand together with base selection
     for (uint i = 0; i < plotinfo.vars->getTree()->GetEntries(); i++) {
@@ -2113,19 +2152,21 @@ void PlotAlignmentValidation::plotDMRHistogram(PlotAlignmentValidation::DMRPlotI
         readerBad.SetEntry(ibad);
         //if (*_valid == 0) {continue;} //only modules that failed 0 times are OK = very strict
         if (subdet == "BPIX" || subdet == "FPIX") {
-          if (*_bad_lumi <= 2.0)
+          if (*_bad_lumi <= plotinfo.maxBadLumiPixel)
             continue;
         } else {
-          if (*_bad_lumi <= 7.0)
+          if (*_bad_lumi <= plotinfo.maxBadLumiStrip)
             continue;
         }
-        //modules that misbehave for less than 2/fb are OK = mild strict
+        //modules that misbehave for less than XYZ are OK = mild strict
         if (*_moduleId == uint(*_bad_id))
           isBadModule = true;
       }
 
-      if (isBadModule)
+      if (isBadModule) {
+        fNotUsedModules << *_moduleId << "\n";
         continue;
+      }
       fUsedModules << *_moduleId << "\n";
       if (h) {
         h->Fill(*varToPlot);
@@ -2134,6 +2175,7 @@ void PlotAlignmentValidation::plotDMRHistogram(PlotAlignmentValidation::DMRPlotI
 
     //Finalize
     fUsedModules.close();
+    fNotUsedModules.close();
     fBadModules->Close();
     if (h) {
       h->SetName(histoname.Data());
@@ -2219,7 +2261,7 @@ double PlotAlignmentValidation::resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int n
   std::vector<double> diff;
   diff.clear();
   //"true" (in bootstrap terms) difference of the samples' RMS
-  double rmsdiff = abs(h1->GetRMS() - h2->GetRMS());
+  double rmsdiff = std::abs(h1->GetRMS() - h2->GetRMS());
   //means of the samples to calculate RMS
   double m1 = h1->GetMean();
   double m2 = h2->GetMean();
@@ -2239,8 +2281,8 @@ double PlotAlignmentValidation::resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int n
     }
     d1 /= h1->GetEntries();
     d2 /= h2->GetEntries();
-    diff.push_back(abs(d1 - d2 - rmsdiff));
-    test_mean += abs(d1 - d2 - rmsdiff);
+    diff.push_back(std::abs(d1 - d2 - rmsdiff));
+    test_mean += std::abs(d1 - d2 - rmsdiff);
   }
   test_mean /= numSamples;
   edm::LogPrint("") << "test mean:" << test_mean;
@@ -2267,7 +2309,7 @@ double PlotAlignmentValidation::resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int
   std::vector<double> diff;
   diff.clear();
   //"true" (in bootstrap terms) difference of the samples' means
-  double meandiff = abs(h1->GetMean() - h2->GetMean());
+  double meandiff = std::abs(h1->GetMean() - h2->GetMean());
   //realization of random variable
   double d1 = 0;
   double d2 = 0;
@@ -2284,8 +2326,8 @@ double PlotAlignmentValidation::resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int
     }
     d1 /= h1->GetEntries();
     d2 /= h2->GetEntries();
-    diff.push_back(abs(d1 - d2 - meandiff));
-    test_mean += abs(d1 - d2 - meandiff);
+    diff.push_back(std::abs(d1 - d2 - meandiff));
+    test_mean += std::abs(d1 - d2 - meandiff);
   }
   test_mean /= numSamples;
   edm::LogPrint("") << "test mean:" << test_mean;
@@ -2302,7 +2344,7 @@ double PlotAlignmentValidation::resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int
 }
 
 float PlotAlignmentValidation::twotailedStudentTTestEqualMean(float t, float v) {
-  return 2 * (1 - ROOT::Math::tdistribution_cdf(abs(t), v));
+  return 2 * (1 - ROOT::Math::tdistribution_cdf(std::abs(t), v));
 }
 
 const TString PlotAlignmentValidation::summaryfilename = "OfflineValidationSummary";

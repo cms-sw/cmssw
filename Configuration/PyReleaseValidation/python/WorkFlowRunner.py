@@ -1,4 +1,3 @@
-from __future__ import print_function
 from threading import Thread
 from Configuration.PyReleaseValidation import WorkFlow
 import os,time
@@ -129,15 +128,22 @@ class WorkFlowRunner(Thread):
                         retStep = 1
                         dasOutput = None
                     else:
-                        # We consider only the files which have at least one logical filename
+                        # We consider only the files which have at least one logical or physical filename
                         # in it. This is because sometimes das fails and still prints out junk.
-                        dasOutput = [l for l in open(dasOutputPath).read().split("\n") if l.startswith("/")]
+                        dasOutput = [l for l in open(dasOutputPath).read().split("\n") if l.startswith("/") or l.startswith("root://eoscms.cern.ch")]
                     if not dasOutput:
                         retStep = 1
                         isInputOk = False
                  
                 inFile = 'filelist:' + basename(dasOutputPath)
+
+                if com.skimEvents:
+                    lumiRangeFile='step%d_lumiRanges.log'%(istep,)
+                    cmd2 = preamble + "mv lumi_ranges.txt " + lumiRangeFile
+                    retStep = self.doCmd(cmd2)
+
                 print("---")
+
             else:
                 #chaining IO , which should be done in WF object already and not using stepX.root but <stepName>.root
                 cmd += com

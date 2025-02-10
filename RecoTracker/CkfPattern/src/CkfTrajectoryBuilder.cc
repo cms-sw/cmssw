@@ -118,7 +118,7 @@ unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const
 
   while (!candidates.empty()) {
     newCand.clear();
-    bool full = 0;
+    bool full = false;
     for (auto traj = candidates.begin(); traj != candidates.end(); traj++) {
       std::vector<TM> meas;
       findCompatibleMeasurements(*sharedSeed, *traj, meas);

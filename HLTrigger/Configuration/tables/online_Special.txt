@@ -17,6 +17,8 @@ DST_Physics_v*                          #       CMSHLT-2860
 DST_ZeroBias_v*                         #       CMSHLT-2860
 HLT_L1SingleMuOpen_v*                   #       CMSHLT-2860
 HLT_L1SingleMuCosmics_v*  #       CMSHLT-2860
+HLT_L1SingleMuCosmics_CosmicTracking_v*         # CMSHLT-3364
+HLT_L1SingleMuCosmics_PointingCosmicTracking_v* # CMSHLT-3364
 HLT_L1SingleMuOpen_DT_v*  #       CMSHLT-2860
 HLT_L1SingleMu3_v*        #       CMSHLT-2860
 HLT_L1SingleMu5_v*        #       CMSHLT-2860
@@ -68,10 +70,8 @@ HLT_HT300_Beamspot_v*         #       CMSHLT-2860
 HLT_HT300_Beamspot_PixelClusters_WP2_v*    #       CMSHLT-2860
 HLT_PixelClusters_WP2_v*      #       CMSHLT-2860
 HLT_PixelClusters_WP1_v*      #       CMSHLT-2860
-HLT_MinimumBias_HF_v*         #       CMSHLT-2860
 HLT_IsoTrackHB_v*             #       CMSHLT-2860
 HLT_IsoTrackHE_v*             #       CMSHLT-2860
-HLT_L1BptxXOR_v*              #       CMSHLT-2860
 HLT_BptxOR_v*                 #       CMSHLT-2860
 HLT_L1SingleMuCosmics_EMTF_v* #       CMSHLT-2860
 HLT_PPSMaxTracksPerArm1_v*    #       CMSHLT-2860
@@ -114,6 +114,12 @@ HLT_CDC_L2cosmic_10_er1p0_v*	      # CMSHLT-3092
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsGatedOutput
 ALCALumiPixelsCountsPromptOutput
+ALCALumiPixelsCountsPromptHighRate0Output  # CMSHLT-3307
+ALCALumiPixelsCountsPromptHighRate1Output  # CMSHLT-3307
+ALCALumiPixelsCountsPromptHighRate2Output  # CMSHLT-3307
+ALCALumiPixelsCountsPromptHighRate3Output  # CMSHLT-3307
+ALCALumiPixelsCountsPromptHighRate4Output  # CMSHLT-3307
+ALCALumiPixelsCountsPromptHighRate5Output  # CMSHLT-3307
 ALCAP0Output
 ALCAPHISYMOutput
 ALCAPPSExpressOutput
@@ -129,7 +135,7 @@ EcalCalibrationOutput
 ExpressOutput
 ExpressAlignmentOutput
 ExpressCosmicsOutput
-HLTMonitorOutput		      # CMSHLT-3092
+HLTMonitorOutput		      # CMSHLT-3364
 NanoDSTOutput
 PhysicsCommissioningOutput
 
@@ -164,12 +170,6 @@ PhysicsSpecialRandom6Output
 PhysicsSpecialRandom7Output
 PhysicsSpecialRandom8Output
 PhysicsSpecialRandom9Output
-PhysicsSpecialRandom10Output
-PhysicsSpecialRandom11Output
-PhysicsSpecialRandom12Output
-PhysicsSpecialRandom13Output
-PhysicsSpecialRandom14Output
-PhysicsSpecialRandom15Output
 
 PhysicsSpecialZeroBias0Output
 PhysicsSpecialZeroBias1Output
@@ -188,6 +188,16 @@ PhysicsSpecialZeroBias12Output
 PhysicsSpecialZeroBias13Output
 PhysicsSpecialZeroBias14Output
 PhysicsSpecialZeroBias15Output
+
+PhysicsVRRandom0Output   # CMSHLT-3405
+PhysicsVRRandom1Output
+PhysicsVRRandom2Output
+PhysicsVRRandom3Output
+PhysicsVRRandom4Output
+PhysicsVRRandom5Output
+PhysicsVRRandom6Output
+PhysicsVRRandom7Output
+
 RPCMONOutput
 
 ######## paths that are different between Special and online_special ################################

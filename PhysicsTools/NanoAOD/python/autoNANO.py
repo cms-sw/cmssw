@@ -31,13 +31,16 @@ autoNANO = {
     # L1 flavours: add tables through customize, supposed to be combined with PHYS
     'L1': {'customize': 'PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomize'},
     'L1FULL': {'customize': 'PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomizeFull'},
-    # scouting nano
-    'Scout': {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff'},
+    # Scouting nano
+    'Scout' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.scoutingNanoSequence',
+               'customize': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNano'},
+    'ScoutFromMini' : {'sequence': '@Scout',
+                       'customize': '@Scout+PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNanoFromMini'},
     # JME nano
     'JME': {'sequence': '@PHYS',
             'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
     'JMErePuppi': {'sequence': '@PHYS',
-                   'customize': '@PHYS+@JME+PhysicsTools/NanoAOD/custom_jme_cff.RecomputePuppiWeightsAndMET'},
+                   'customize': '@PHYS+@JME+PhysicsTools/NanoAOD/custom_jme_cff.RecomputePuppiWeightsMETAK8'},
     # L1 DPG (standalone with full calo TP info, L1T reemulation customization)
     'L1DPG' : {'sequence': 'DPGAnalysis/L1TNanoAOD/l1tNano_cff.l1tNanoSequence',
                'customize': ','.join(['PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomizeFull',
@@ -55,6 +58,8 @@ autoNANO = {
     'HCAL': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask'},
     'HCALCalib': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
                   'customize': 'DPGAnalysis/HcalNanoAOD/customiseHcalCalib_cff.customiseHcalCalib'},
+    'HCALMC': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
+                  'customize': 'DPGAnalysis/HcalNanoAOD/customiseHcalMC_cff.customiseHcalMC'},
     # EGM flavours: add variables through customize
     'EGM': {'sequence': '@PHYS',
             'customize': '@PHYS+PhysicsTools/NanoAOD/egamma_custom_cff.addExtraEGammaVarsCustomize'},

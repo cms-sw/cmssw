@@ -32,7 +32,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssembler.h"
@@ -75,29 +75,29 @@ L1MuBMAssignmentUnit::~L1MuBMAssignmentUnit() {}
 //
 void L1MuBMAssignmentUnit::run(const L1TMuonBarrelParams& bmtfParams) {
   // enable track candidate
-  m_sp.track(m_id)->enable();
-  m_sp.tracK(m_id)->enable();
+  m_sp.track(m_id).enable();
+  m_sp.tracK(m_id).enable();
 
   // set track class
-  TrackClass tc = m_sp.TA()->trackClass(m_id);
-  m_sp.track(m_id)->setTC(tc);
-  m_sp.tracK(m_id)->setTC(tc);
+  TrackClass tc = m_sp.TA().trackClass(m_id);
+  m_sp.track(m_id).setTC(tc);
+  m_sp.tracK(m_id).setTC(tc);
 
   // get relative addresses of matching track segments
-  m_addArray = m_sp.TA()->address(m_id);
-  m_sp.track(m_id)->setAddresses(m_addArray);
-  m_sp.tracK(m_id)->setAddresses(m_addArray);
+  m_addArray = m_sp.TA().address(m_id);
+  m_sp.track(m_id).setAddresses(m_addArray);
+  m_sp.tracK(m_id).setAddresses(m_addArray);
 
   // get track segments (track segment router)
   TSR();
-  m_sp.track(m_id)->setTSphi(m_TSphi);
-  m_sp.tracK(m_id)->setTSphi(m_TSphi);
+  m_sp.track(m_id).setTSphi(m_TSphi);
+  m_sp.tracK(m_id).setTSphi(m_TSphi);
 
   // set bunch-crossing (use first track segment)
   vector<const L1MuBMTrackSegPhi*>::const_iterator iter = m_TSphi.begin();
   int bx = (*iter)->bx();
-  m_sp.track(m_id)->setBx(bx);
-  m_sp.tracK(m_id)->setBx(bx);
+  m_sp.track(m_id).setBx(bx);
+  m_sp.tracK(m_id).setBx(bx);
 
   // assign phi
   PhiAU(bmtfParams);
@@ -125,8 +125,8 @@ void L1MuBMAssignmentUnit::PhiAU(const L1TMuonBarrelParams& bmtfParams) {
   thePhiLUTs = new L1MuBMLUTHandler(bmtfParams);  ///< phi-assignment look-up tables
   //thePhiLUTs->print();
   // calculate phi at station 2 using 8 bits (precision = 0.625 degrees)
-  int sh_phi = 12 - L1MuBMTFConfig::getNbitsPhiPhi();
-  int sh_phib = 10 - L1MuBMTFConfig::getNbitsPhiPhib();
+  int sh_phi = 12 - m_sp.config().getNbitsPhiPhi();
+  int sh_phib = 10 - m_sp.config().getNbitsPhiPhib();
 
   const L1MuBMTrackSegPhi* second = getTSphi(2);  // track segment at station 2
   const L1MuBMTrackSegPhi* first = getTSphi(1);   // track segment at station 1
@@ -187,8 +187,8 @@ void L1MuBMAssignmentUnit::PhiAU(const L1TMuonBarrelParams& bmtfParams) {
   if (phi < -8)
     phi = -8;
 
-  m_sp.track(m_id)->setPhi(phi);  // Regional
-  m_sp.tracK(m_id)->setPhi(phi);
+  m_sp.track(m_id).setPhi(phi);  // Regional
+  m_sp.tracK(m_id).setPhi(phi);
 
   delete thePhiLUTs;
 }
@@ -196,8 +196,7 @@ void L1MuBMAssignmentUnit::PhiAU(const L1TMuonBarrelParams& bmtfParams) {
 //
 // assign pt with 5 bit precision
 //
-void L1MuBMAssignmentUnit::PtAU(const L1TMuonBarrelParams& bmtfParams1) {
-  const L1TMuonBarrelParamsAllPublic bmtfParams(bmtfParams1);
+void L1MuBMAssignmentUnit::PtAU(const L1TMuonBarrelParams& bmtfParams) {
   thePtaLUTs = new L1MuBMLUTHandler(bmtfParams);  ///< pt-assignment look-up tables
   //thePtaLUTs->print();
   // get pt-assignment method as function of track class and TS phib values
@@ -233,14 +232,14 @@ void L1MuBMAssignmentUnit::PtAU(const L1TMuonBarrelParams& bmtfParams1) {
     }
   }
 
-  m_sp.track(m_id)->setPt(pt);
-  m_sp.tracK(m_id)->setPt(pt);
+  m_sp.track(m_id).setPt(pt);
+  m_sp.tracK(m_id).setPt(pt);
 
   // assign charge
   int chsign = getCharge(m_ptAssMethod);
   int charge = (bend_carga >= 0) ? chsign : -1 * chsign;
-  m_sp.track(m_id)->setCharge(charge);
-  m_sp.tracK(m_id)->setCharge(charge);
+  m_sp.track(m_id).setCharge(charge);
+  m_sp.tracK(m_id).setCharge(charge);
   delete thePtaLUTs;
 }
 
@@ -250,7 +249,7 @@ void L1MuBMAssignmentUnit::PtAU(const L1TMuonBarrelParams& bmtfParams1) {
 void L1MuBMAssignmentUnit::QuaAU() {
   unsigned int quality = 0;
 
-  const TrackClass tc = m_sp.TA()->trackClass(m_id);
+  const TrackClass tc = m_sp.TA().trackClass(m_id);
 
   ///Two LSBs of BMTF Q = Nstations-1
   switch (tc) {
@@ -307,8 +306,8 @@ void L1MuBMAssignmentUnit::QuaAU() {
   ///Two MSB of BMTF Q = 11
   quality += 12;
 
-  m_sp.track(m_id)->setQuality(quality);
-  m_sp.tracK(m_id)->setQuality(quality);
+  m_sp.track(m_id).setQuality(quality);
+  m_sp.tracK(m_id).setQuality(quality);
 }
 
 //
@@ -317,7 +316,7 @@ void L1MuBMAssignmentUnit::QuaAU() {
 unsigned int L1MuBMAssignmentUnit::Quality() {
   unsigned int quality = 0;
 
-  const TrackClass tc = m_sp.TA()->trackClass(m_id);
+  const TrackClass tc = m_sp.TA().trackClass(m_id);
 
   switch (tc) {
     case T1234: {
@@ -381,7 +380,7 @@ void L1MuBMAssignmentUnit::TSR() {
   for (int stat = 1; stat <= 4; stat++) {
     int adr = m_addArray.station(stat);
     if (adr != 15) {
-      ts = m_sp.data()->getTSphi(stat, adr);
+      ts = m_sp.data().getTSphi(stat, adr);
       if (ts != nullptr)
         m_TSphi.push_back(ts);
     }
@@ -493,7 +492,7 @@ L1MuBMLUTHandler::PtAssMethod L1MuBMAssignmentUnit::getPtMethod() const {
   // of the phib values of the track segments making up this track candidate.
 
   // get bitmap of track candidate
-  const bitset<4> s = m_sp.TA()->trackBitMap(m_id);
+  const bitset<4> s = m_sp.TA().trackBitMap(m_id);
 
   int method = -1;
 
@@ -839,11 +838,6 @@ int L1MuBMAssignmentUnit::getPt2Address(L1MuBMLUTHandler::PtAssMethod method) co
 // default is 12 bits for phi and 10 bits for phib
 //
 void L1MuBMAssignmentUnit::setPrecision() {
-  nbit_phi = L1MuBMTFConfig::getNbitsPtaPhi();
-  nbit_phib = L1MuBMTFConfig::getNbitsPtaPhib();
+  nbit_phi = m_sp.config().getNbitsPtaPhi();
+  nbit_phib = m_sp.config().getNbitsPtaPhib();
 }
-
-// static data members
-
-unsigned short int L1MuBMAssignmentUnit::nbit_phi = 12;
-unsigned short int L1MuBMAssignmentUnit::nbit_phib = 10;

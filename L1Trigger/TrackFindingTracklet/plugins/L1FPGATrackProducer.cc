@@ -153,7 +153,9 @@ private:
   bool readMoreMcTruth_;
 
   /// File path for configuration files
+#ifndef USEHYBRID
   edm::FileInPath fitPatternFile;
+#endif
   edm::FileInPath memoryModulesFile;
   edm::FileInPath processingModulesFile;
   edm::FileInPath wiresFile;
@@ -254,7 +256,6 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
 
   asciiEventOutName_ = iConfig.getUntrackedParameter<string>("asciiFileName", "");
 
-  fitPatternFile = iConfig.getParameter<edm::FileInPath>("fitPatternFile");
   processingModulesFile = iConfig.getParameter<edm::FileInPath>("processingModulesFile");
   memoryModulesFile = iConfig.getParameter<edm::FileInPath>("memoryModulesFile");
   wiresFile = iConfig.getParameter<edm::FileInPath>("wiresFile");
@@ -282,7 +283,10 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   settings_.setReduced(reduced_);
   settings_.setNHelixPar(nHelixPar_);
 
+#ifndef USEHYBRID
+  fitPatternFile = iConfig.getParameter<edm::FileInPath>("fitPatternFile");
   settings_.setFitPatternFile(fitPatternFile.fullPath());
+#endif
   settings_.setProcessingModulesFile(processingModulesFile.fullPath());
   settings_.setMemoryModulesFile(memoryModulesFile.fullPath());
   settings_.setWiresFile(wiresFile.fullPath());
@@ -308,10 +312,12 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   }
 
   if (settings_.debugTracklet()) {
-    edm::LogVerbatim("Tracklet") << "fit pattern :     " << fitPatternFile.fullPath()
-                                 << "\n process modules : " << processingModulesFile.fullPath()
-                                 << "\n memory modules :  " << memoryModulesFile.fullPath()
-                                 << "\n wires          :  " << wiresFile.fullPath();
+    edm::LogVerbatim("Tracklet")
+#ifndef USEHYBRID
+        << "fit pattern :     " << fitPatternFile.fullPath()
+#endif
+        << "\n process modules : " << processingModulesFile.fullPath()
+        << "\n memory modules :  " << memoryModulesFile.fullPath() << "\n wires          :  " << wiresFile.fullPath();
     if (extended_) {
       edm::LogVerbatim("Tracklet") << "table_TED    :  " << tableTEDFile.fullPath()
                                    << "\n table_TRE    :  " << tableTREFile.fullPath();
@@ -749,9 +755,6 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     //    if (trackQuality_) {
     //      trackQualityModel_->setBonusFeatures(hph.bonusFeatures());
     //    }
-
-    // test track word
-    //aTrack.testTrackWordBits();
 
     // set track word again to set MVA variable from TTTrack into track word
     aTrack.setTrackWordBits();

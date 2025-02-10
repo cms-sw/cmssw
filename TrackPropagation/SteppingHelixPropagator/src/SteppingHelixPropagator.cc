@@ -336,6 +336,7 @@ SteppingHelixPropagator::Result SteppingHelixPropagator::propagate(StateArray& s
 
   result = SteppingHelixStateInfo::UNDEFINED;
   bool makeNextStep = true;
+  [[clang::suppress]]
   double dStep = defaultStep_;
   PropagationDirection dir, oldDir;
   dir = propagationDirection();
@@ -562,7 +563,6 @@ SteppingHelixPropagator::Result SteppingHelixPropagator::propagate(StateArray& s
         }
       } else {
         //keep this trial point and continue
-        dStep = defaultStep_;
         if (debug_) {
           LogTrace(metname) << std::setprecision(17) << std::setw(20) << std::scientific << "Found branch point in PCA"
                             << std::endl;
@@ -727,10 +727,11 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
     if (debug_) {
       LogTrace(metname) << std::setprecision(17) << std::setw(20) << std::scientific << "Loaded bfield float: " << bf
                         << " at global float " << gPointNorZ << " double " << svCurrent.r3 << std::endl;
+      [[clang::suppress]]
       LocalPoint lPoint(svCurrent.magVol->toLocal(gPointNorZ));
-      LocalVector lbf = svCurrent.magVol->fieldInTesla(lPoint);
-      LogTrace(metname) << std::setprecision(17) << std::setw(20) << std::scientific << "\t cf in local locF: " << lbf
-                        << " at " << lPoint << std::endl;
+      LogTrace(metname) << std::setprecision(17) << std::setw(20) << std::scientific
+                        << "\t cf in local locF: " << svCurrent.magVol->fieldInTesla(lPoint) << " at " << lPoint
+                        << std::endl;
     }
     svCurrent.bf.set(bf.x(), bf.y(), bf.z());
   } else {
@@ -922,7 +923,6 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
         double phi2 = phi * phi;
         double phi3 = phi2 * phi;
         double phi4 = phi3 * phi;
-        oneLessCosPhi = phi2 / 2. - phi4 / 24. + phi2 * phi4 / 720.;             // 0.5*phi*phi;//*(1.- phi*phi/12.);
         oneLessCosPhiOPhi = 0.5 * phi - phi3 / 24. + phi2 * phi3 / 720.;         //*(1.- phi*phi/12.);
         phiLessSinPhiOPhi = phi * phi / 6. - phi4 / 120. + phi4 * phi2 / 5040.;  //*(1. - phi*phi/20.);
       } else {

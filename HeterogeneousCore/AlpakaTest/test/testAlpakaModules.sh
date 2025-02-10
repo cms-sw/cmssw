@@ -59,6 +59,8 @@ function runForGPU {
 
     runSuccess "--processAcceleratorBackend=$BACKEND --moduleBackend=serial_sync --expectBackend=serial_sync"
     runSuccess "--processAcceleratorBackend=serial_sync --moduleBackend=$BACKEND --expectBackend=$BACKEND"
+    runSuccess "--moduleSynchronize --expectBackend=$BACKEND"
+    runSuccess "--processAcceleratorSynchronize --expectBackend=$BACKEND"
 
     runFailure "--accelerators=$ACCELERATOR --processAcceleratorBackend=serial_sync --expectBackend=serial_sync"
     runFailure "--accelerators=$ACCELERATOR --moduleBackend=serial_sync --expectBackend=serial_sync"
@@ -78,6 +80,8 @@ runSuccess "--moduleBackend=serial_sync --expectBackend=serial_sync"
 
 if [ "${TARGET}" == "cpu" ]; then
     runSuccess "--expectBackend=serial_sync"
+    runSuccess "--moduleSynchronize --expectBackend=serial_sync"
+    runSuccess "--processAcceleratorSynchronize --expectBackend=serial_sync"
 
     runFailure "--accelerators=gpu-nvidia --expectBackend=cuda_async"
     runFailure "--processAcceleratorBackend=cuda_async --expectBackend=cuda_async"

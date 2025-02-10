@@ -18,10 +18,6 @@ ________________________________________________________________**/
 
 #include <iostream>
 #include <string>
-#include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 32, 4)
-#include <span>
-#endif
 
 class BSpdfsFcn : public ROOT::Minuit2::FCNBase {
 public:
@@ -30,25 +26,14 @@ public:
   // define pdfs to use
   void SetPDFs(std::string usepdfs) { fusepdfs = usepdfs; }
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 33, 1)
-  double operator()(std::span<const double>) const override;
-#else
   double operator()(const std::vector<double>&) const override;
-#endif
   double Up() const override { return 1.; }
 
 private:
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 33, 1)
-  double PDFGauss_d(double z, double d, double sigmad, double phi, std::span<const double> parms) const;
-  double PDFGauss_d_resolution(double z, double d, double phi, double pt, std::span<const double> parms) const;
-
-  double PDFGauss_z(double z, double sigmaz, std::span<const double> parms) const;
-#else
   double PDFGauss_d(double z, double d, double sigmad, double phi, const std::vector<double>& parms) const;
   double PDFGauss_d_resolution(double z, double d, double phi, double pt, const std::vector<double>& parms) const;
 
   double PDFGauss_z(double z, double sigmaz, const std::vector<double>& parms) const;
-#endif
 
   std::string fusepdfs;
   std::vector<BSTrkParameters> fBSvector;

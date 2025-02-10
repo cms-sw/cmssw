@@ -81,19 +81,22 @@ l1t::CorrWithOverlapRemovalCondition::CorrWithOverlapRemovalCondition(const Glob
                                                                       const GlobalCondition* cond0Condition,
                                                                       const GlobalCondition* cond1Condition,
                                                                       const GlobalCondition* cond2Condition,
-                                                                      const GlobalBoard* ptrGTB)
+                                                                      const GlobalBoard* ptrGTB,
+                                                                      const GlobalScales* ptrGS)
     : ConditionEvaluation(),
       m_gtCorrelationWithOverlapRemovalTemplate(
           static_cast<const CorrelationWithOverlapRemovalTemplate*>(corrTemplate)),
       m_gtCond0(cond0Condition),
       m_gtCond1(cond1Condition),
       m_gtCond2(cond2Condition),
-      m_uGtB(ptrGTB) {}
+      m_uGtB(ptrGTB),
+      m_gtScales(ptrGS) {}
 
 // copy constructor
 void l1t::CorrWithOverlapRemovalCondition::copy(const l1t::CorrWithOverlapRemovalCondition& cp) {
   m_gtCorrelationWithOverlapRemovalTemplate = cp.gtCorrelationWithOverlapRemovalTemplate();
   m_uGtB = cp.getuGtB();
+  m_gtScales = cp.getScales();
 
   m_condMaxNumberObjects = cp.condMaxNumberObjects();
   m_condLastResult = cp.condLastResult();
@@ -175,13 +178,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
   const EnergySumTemplate* corrEnergySum = nullptr;
 
   // FIXME copying is slow...
-  CombinationsInCond cond0Comb;
-  CombinationsInCond cond1Comb;
-  CombinationsInCond cond2Comb;
-
-  int cond0bx(0);
-  int cond1bx(0);
-  int cond2bx(0);
+  CombinationsWithBxInCond cond0Comb{};
+  CombinationsWithBxInCond cond1Comb{};
+  CombinationsWithBxInCond cond2Comb{};
 
   switch (cond0Categ) {
     case CondMuon: {
@@ -193,7 +192,6 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       reqObjResult = muCondition.condLastResult();
 
       cond0Comb = (muCondition.getCombinationsInCond());
-      cond0bx = bxEval + (corrMuon->condRelativeBx());
 
       cndObjTypeVec[0] = (corrMuon->objectType())[0];
 
@@ -213,8 +211,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       caloCondition.evaluateConditionStoreResult(bxEval);
       reqObjResult = caloCondition.condLastResult();
 
-      cond0Comb = (caloCondition.getCombinationsInCond());
-      cond0bx = bxEval + (corrCalo->condRelativeBx());
+      cond0Comb = caloCondition.getCombinationsInCond();
 
       cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
@@ -232,8 +229,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       eSumCondition.evaluateConditionStoreResult(bxEval);
       reqObjResult = eSumCondition.condLastResult();
 
-      cond0Comb = (eSumCondition.getCombinationsInCond());
-      cond0bx = bxEval + (corrEnergySum->condRelativeBx());
+      cond0Comb = eSumCondition.getCombinationsInCond();
 
       cndObjTypeVec[0] = (corrEnergySum->objectType())[0];
 
@@ -258,8 +254,6 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
   }
 
   // second object
-  reqObjResult = false;
-
   switch (cond1Categ) {
     case CondMuon: {
       corrMuon = static_cast<const MuonTemplate*>(m_gtCond1);
@@ -269,8 +263,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       muCondition.evaluateConditionStoreResult(bxEval);
       reqObjResult = muCondition.condLastResult();
 
-      cond1Comb = (muCondition.getCombinationsInCond());
-      cond1bx = bxEval + (corrMuon->condRelativeBx());
+      cond1Comb = muCondition.getCombinationsInCond();
+
       cndObjTypeVec[1] = (corrMuon->objectType())[0];
 
       if (m_verbosity) {
@@ -288,8 +282,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       caloCondition.evaluateConditionStoreResult(bxEval);
       reqObjResult = caloCondition.condLastResult();
 
-      cond1Comb = (caloCondition.getCombinationsInCond());
-      cond1bx = bxEval + (corrCalo->condRelativeBx());
+      cond1Comb = caloCondition.getCombinationsInCond();
 
       cndObjTypeVec[1] = (corrCalo->objectType())[0];
 
@@ -309,8 +302,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       eSumCondition.evaluateConditionStoreResult(bxEval);
       reqObjResult = eSumCondition.condLastResult();
 
-      cond1Comb = (eSumCondition.getCombinationsInCond());
-      cond1bx = bxEval + (corrEnergySum->condRelativeBx());
+      cond1Comb = eSumCondition.getCombinationsInCond();
+
       cndObjTypeVec[1] = (corrEnergySum->objectType())[0];
 
       if (m_verbosity) {
@@ -337,8 +330,6 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
   }
 
   // third object (used for overlap removal)
-  reqObjResult = false;
-
   switch (cond2Categ) {
     case CondMuon: {
       corrMuon = static_cast<const MuonTemplate*>(m_gtCond2);
@@ -348,8 +339,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       muCondition.evaluateConditionStoreResult(bxEval);
       reqObjResult = muCondition.condLastResult();
 
-      cond2Comb = (muCondition.getCombinationsInCond());
-      cond2bx = bxEval + (corrMuon->condRelativeBx());
+      cond2Comb = muCondition.getCombinationsInCond();
+
       cndObjTypeVec[2] = (corrMuon->objectType())[0];
 
       if (m_verbosity) {
@@ -367,8 +358,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       caloCondition.evaluateConditionStoreResult(bxEval);
       reqObjResult = caloCondition.condLastResult();
 
-      cond2Comb = (caloCondition.getCombinationsInCond());
-      cond2bx = bxEval + (corrCalo->condRelativeBx());
+      cond2Comb = caloCondition.getCombinationsInCond();
+
       cndObjTypeVec[2] = (corrCalo->objectType())[0];
 
       if (m_verbosity) {
@@ -387,8 +378,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       eSumCondition.evaluateConditionStoreResult(bxEval);
       reqObjResult = eSumCondition.condLastResult();
 
-      cond2Comb = (eSumCondition.getCombinationsInCond());
-      cond2bx = bxEval + (corrEnergySum->condRelativeBx());
+      cond2Comb = eSumCondition.getCombinationsInCond();
+
       cndObjTypeVec[2] = (corrEnergySum->objectType())[0];
 
       if (m_verbosity) {
@@ -424,7 +415,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
   // vector to store the indices of the calorimeter objects
   // from the combination evaluated in the condition
-  SingleCombInCond objectsInComb;
+  SingleCombWithBxInCond objectsInComb;
   objectsInComb.reserve(nObjInCond);
 
   // clear the m_combinationsInCond vector
@@ -504,28 +495,27 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
   // BLW: Optimization issue: potentially making the same comparison twice
   //                          if both legs are the same object type.
   // ///////////////////////////////////////////////////////////////////////////////////////////
-  for (std::vector<SingleCombInCond>::const_iterator it0Comb = cond0Comb.begin(); it0Comb != cond0Comb.end();
-       it0Comb++) {
-    // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it0Comb)[0]
+  for (auto const& it0Comb : cond0Comb) {
+    // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in it0Comb[0]
     // ... but add protection to not crash
-    int obj0Index = -1;
-
-    if (!(*it0Comb).empty()) {
-      obj0Index = (*it0Comb)[0];
-    } else {
-      LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it0Comb).size() " << ((*it0Comb).size()) << std::endl;
+    if (it0Comb.empty()) {
+      LogTrace("L1TGlobal") << "\n  SingleCombWithBxCond it0Comb.size() " << it0Comb.size();
       return false;
     }
+
+    auto const cond0bx = it0Comb[0].first;
+    auto const obj0Index = it0Comb[0].second;
 
     // Collect the information on the first leg of the correlation
     switch (cond0Categ) {
       case CondMuon: {
         lutObj0 = "MU";
         candMuVec = m_uGtB->getCandL1Mu();
-        phiIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPhi();  //(*candMuVec)[obj0Index]->phiIndex();
-        etaIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwEta();
-        etIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPt();
-        chrg0 = (candMuVec->at(cond0bx, obj0Index))->hwCharge();
+        auto const* mu0 = candMuVec->at(cond0bx, obj0Index);
+        phiIndex0 = mu0->hwPhi();  //mu0->phiIndex();
+        etaIndex0 = mu0->hwEta();
+        etIndex0 = mu0->hwPt();
+        chrg0 = mu0->hwCharge();
         int etaBin0 = etaIndex0;
         if (etaBin0 < 0)
           etaBin0 = m_gtScales->getMUScales().etaBins.size() + etaBin0;  //twos complement
@@ -796,19 +786,17 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
     // ///////////////////////////////////////////////////////////////////////////////////////////
     // Now loop over the second leg to get its information
     // ///////////////////////////////////////////////////////////////////////////////////////////
-    for (std::vector<SingleCombInCond>::const_iterator it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end();
-         it1Comb++) {
+    for (auto const& it1Comb : cond1Comb) {
       LogDebug("L1TGlobal") << "Looking at second Condition" << std::endl;
-      // Type1s: there is 1 object only, no need for a loop (*it1Comb)[0]
+      // Type1s: there is 1 object only, no need for a loop it1Comb[0]
       // ... but add protection to not crash
-      int obj1Index = -1;
-
-      if (!(*it1Comb).empty()) {
-        obj1Index = (*it1Comb)[0];
-      } else {
-        LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it1Comb).size() " << ((*it1Comb).size()) << std::endl;
+      if (it1Comb.empty()) {
+        LogTrace("L1TGlobal") << "\n  SingleCombWithBxCond it1Comb.size() " << it1Comb.size();
         return false;
       }
+
+      auto const cond1bx = it1Comb[0].first;
+      auto const obj1Index = it1Comb[0].second;
 
       //If we are dealing with the same object type avoid the two legs
       // either being the same object
@@ -1426,18 +1414,16 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       // ///////////////////////////////////////////////////////////////////////////////////////////
       // loop over overlap-removal leg combination which produced individually "true" as Type1s
       // ///////////////////////////////////////////////////////////////////////////////////////////
-      for (std::vector<SingleCombInCond>::const_iterator it2Comb = cond2Comb.begin(); it2Comb != cond2Comb.end();
-           it2Comb++) {
-        // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it2Comb)[0]
+      for (auto const& it2Comb : cond2Comb) {
+        // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in it2Comb[0]
         // ... but add protection to not crash
-        int obj2Index = -1;
-
-        if (!(*it2Comb).empty()) {
-          obj2Index = (*it2Comb)[0];
-        } else {
-          LogTrace("L1TGlobal") << "\n  SingleCombInCond (*it2Comb).size() " << ((*it2Comb).size()) << std::endl;
+        if (it2Comb.empty()) {
+          LogTrace("L1TGlobal") << "\n  SingleCombWithBxCond it2Comb.size() " << it2Comb.size();
           return false;
         }
+
+        auto const cond2bx = it2Comb[0].first;
+        auto const obj2Index = it2Comb[0].second;
 
         // Collect the information on the overlap-removal leg
         switch (cond2Categ) {
@@ -1902,10 +1888,9 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
         // clear the indices in the combination
         objectsInComb.clear();
-
-        objectsInComb.push_back(obj0Index);
-        objectsInComb.push_back(obj1Index);
-        objectsInComb.push_back(obj2Index);
+        objectsInComb.emplace_back(cond0bx, obj0Index);
+        objectsInComb.emplace_back(cond1bx, obj1Index);
+        objectsInComb.emplace_back(cond2bx, obj2Index);
 
         (combinationsInCond()).push_back(objectsInComb);
 

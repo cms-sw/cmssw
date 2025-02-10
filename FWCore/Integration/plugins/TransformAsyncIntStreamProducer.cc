@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <thread>
+#include <chrono>
 namespace edmtest {
   class TransformAsyncIntStreamProducer : public edm::stream::EDProducer<edm::Transformer> {
   public:
@@ -21,16 +22,17 @@ namespace edmtest {
       bool check = iPSet.getUntrackedParameter<bool>("checkTransformNotCalled");
       registerTransformAsync(
           putToken_,
-          [offset = transformOffset_, check](auto const& iFrom, auto iTask) {
+          [offset = transformOffset_, check](edm::StreamID, auto const& iFrom, auto iTask) {
             if (check) {
               throw cms::Exception("TransformShouldNotBeCalled");
             }
             WorkCache ret;
-            ret.thread_ = std::make_shared<std::thread>([iTask] { usleep(100000); });
+            using namespace std::chrono_literals;
+            ret.thread_ = std::make_shared<std::thread>([iTask] { std::this_thread::sleep_for(100ms); });
             ret.value_ = IntProduct(iFrom.value + offset);
             return ret;
           },
-          [](auto const& iFrom) {
+          [](edm::StreamID, auto const& iFrom) {
             iFrom.thread_->join();
             return iFrom.value_;
           },

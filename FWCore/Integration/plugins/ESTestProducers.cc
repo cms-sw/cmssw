@@ -316,7 +316,7 @@ namespace edmtest {
   private:
     KeyedResolversVector registerResolvers(const edm::eventsetup::EventSetupRecordKey&, unsigned int iovIndex) override;
 
-    std::vector<std::shared_ptr<TestESProductResolverTemplateJ>> proxies_;
+    std::vector<std::shared_ptr<TestESProductResolverTemplateJ>> resolvers_;
     std::vector<unsigned> expectedCacheIds_;
   };
 
@@ -335,11 +335,11 @@ namespace edmtest {
   edm::eventsetup::ESProductResolverProvider::KeyedResolversVector ESTestESProductResolverProviderJ::registerResolvers(
       const edm::eventsetup::EventSetupRecordKey& iRecord, unsigned int iovIndex) {
     KeyedResolversVector keyedResolversVector;
-    while (iovIndex >= proxies_.size()) {
-      proxies_.push_back(std::make_shared<TestESProductResolverTemplateJ>(&expectedCacheIds_));
+    while (iovIndex >= resolvers_.size()) {
+      resolvers_.push_back(std::make_shared<TestESProductResolverTemplateJ>(&expectedCacheIds_));
     }
     edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<ESTestDataJ>(), "");
-    keyedResolversVector.emplace_back(dataKey, proxies_[iovIndex]);
+    keyedResolversVector.emplace_back(dataKey, resolvers_[iovIndex]);
     return keyedResolversVector;
   }
 }  // namespace edmtest

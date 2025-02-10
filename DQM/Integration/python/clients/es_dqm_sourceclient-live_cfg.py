@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -53,11 +52,11 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'EcalPreshower'
 process.dqmSaver.tag = 'EcalPreshower'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'EcalPreshower'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'EcalPreshower'
+# process.dqmSaverPB.runNumber = options.runNumber
 # for local test
 #process.dqmSaver.path = '.'
-#process.dqmSaverPB.path = './pb'
+## process.dqmSaverPB.path = './pb'
 
 process.load("DQM/EcalPreshowerMonitorModule/EcalPreshowerMonitorTasks_cfi")
 process.ecalPreshowerIntegrityTask.ESDCCCollections = "esRawToDigi"
@@ -78,8 +77,8 @@ process.p = cms.Path(process.preScaler*
                process.ecalPreshowerDefaultTasksSequence*
                process.dqmEnv*
                process.ecalPreshowerMonitorClient*
-               process.dqmSaver*
-               process.dqmSaverPB)
+               process.dqmSaver)#*
+               #process.dqmSaverPB)
 
 
 process.esRawToDigi.sourceTag = "rawDataCollector"

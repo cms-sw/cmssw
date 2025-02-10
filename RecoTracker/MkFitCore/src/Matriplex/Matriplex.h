@@ -3,6 +3,30 @@
 
 #include "MatriplexCommon.h"
 
+#ifdef MPLEX_VDT
+// define fast_xyzz() version of transcendental methods and operators
+#ifdef MPLEX_VDT_USE_STD
+// this falls back to using std:: versions -- for testing and cross checking.
+namespace std {
+  template <typename T>
+  T isqrt(T x) {
+    return T(1.0) / std::sqrt(x);
+  }
+  template <typename T>
+  void sincos(T a, T& s, T& c) {
+    s = std::sin(a);
+    c = std::cos(a);
+  }
+}  // namespace std
+#else
+#include "vdt/sqrt.h"
+#include "vdt/sin.h"
+#include "vdt/cos.h"
+#include "vdt/tan.h"
+#include "vdt/atan2.h"
+#endif
+#endif
+
 namespace Matriplex {
 
   //------------------------------------------------------------------------------
@@ -46,6 +70,22 @@ namespace Matriplex {
       }
     }
 
+    Matriplex& negate() {
+      for (idx_t i = 0; i < kTotSize; ++i) {
+        fArray[i] = -fArray[i];
+      }
+      return *this;
+    }
+
+    template <typename TT>
+    Matriplex& negate_if_ltz(const Matriplex<TT, D1, D2, N>& sign) {
+      for (idx_t i = 0; i < kTotSize; ++i) {
+        if (sign.fArray[i] < 0)
+          fArray[i] = -fArray[i];
+      }
+      return *this;
+    }
+
     T operator[](idx_t xx) const { return fArray[xx]; }
     T& operator[](idx_t xx) { return fArray[xx]; }
 
@@ -55,6 +95,44 @@ namespace Matriplex {
 
     T& operator()(idx_t n, idx_t i, idx_t j) { return fArray[(i * D2 + j) * N + n]; }
     const T& operator()(idx_t n, idx_t i, idx_t j) const { return fArray[(i * D2 + j) * N + n]; }
+
+    // reduction operators
+
+    using QReduced = Matriplex<T, 1, 1, N>;
+
+    QReduced ReduceFixedIJ(idx_t i, idx_t j) const {
+      QReduced t;
+      for (idx_t n = 0; n < N; ++n) {
+        t[n] = constAt(n, i, j);
+      }
+      return t;
+    }
+    QReduced rij(idx_t i, idx_t j) const { return ReduceFixedIJ(i, j); }
+    QReduced operator()(idx_t i, idx_t j) const { return ReduceFixedIJ(i, j); }
+
+    struct QAssigner {
+      Matriplex& m_matriplex;
+      const int m_i, m_j;
+
+      QAssigner(Matriplex& m, int i, int j) : m_matriplex(m), m_i(i), m_j(j) {}
+      Matriplex& operator=(const QReduced& qvec) {
+        for (idx_t n = 0; n < N; ++n) {
+          m_matriplex(n, m_i, m_j) = qvec[n];
+        }
+        return m_matriplex;
+      }
+      Matriplex& operator=(T qscalar) {
+        for (idx_t n = 0; n < N; ++n) {
+          m_matriplex(n, m_i, m_j) = qscalar;
+        }
+        return m_matriplex;
+      }
+    };
+
+    QAssigner AssignFixedIJ(idx_t i, idx_t j) { return QAssigner(*this, i, j); }
+    QAssigner aij(idx_t i, idx_t j) { return AssignFixedIJ(i, j); }
+
+    // assignment operators
 
     Matriplex& operator=(T t) {
       for (idx_t i = 0; i < kTotSize; ++i)
@@ -128,17 +206,6 @@ namespace Matriplex {
       return *this;
     }
 
-    Matriplex& sqrt(const Matriplex& a) {
-      for (idx_t i = 0; i < kTotSize; ++i)
-        fArray[i] = std::sqrt(a.fArray[i]);
-      return *this;
-    }
-    Matriplex& sqrt() {
-      for (idx_t i = 0; i < kTotSize; ++i)
-        fArray[i] = std::sqrt(fArray[i]);
-      return *this;
-    }
-
     Matriplex& sqr(const Matriplex& a) {
       for (idx_t i = 0; i < kTotSize; ++i)
         fArray[i] = a.fArray[i] * a.fArray[i];
@@ -147,6 +214,20 @@ namespace Matriplex {
     Matriplex& sqr() {
       for (idx_t i = 0; i < kTotSize; ++i)
         fArray[i] = fArray[i] * fArray[i];
+      return *this;
+    }
+
+    //---------------------------------------------------------
+    // transcendentals, std version
+
+    Matriplex& sqrt(const Matriplex& a) {
+      for (idx_t i = 0; i < kTotSize; ++i)
+        fArray[i] = std::sqrt(a.fArray[i]);
+      return *this;
+    }
+    Matriplex& sqrt() {
+      for (idx_t i = 0; i < kTotSize; ++i)
+        fArray[i] = std::sqrt(fArray[i]);
       return *this;
     }
 
@@ -188,6 +269,89 @@ namespace Matriplex {
       for (idx_t i = 0; i < kTotSize; ++i)
         fArray[i] = std::tan(fArray[i]);
       return *this;
+    }
+
+    Matriplex& atan2(const Matriplex& y, const Matriplex& x) {
+      for (idx_t i = 0; i < kTotSize; ++i)
+        fArray[i] = std::atan2(y.fArray[i], x.fArray[i]);
+      return *this;
+    }
+
+    //---------------------------------------------------------
+    // transcendentals, vdt version
+
+#ifdef MPLEX_VDT
+
+#define ASS fArray[i] =
+#define ARR fArray[i]
+#define A_ARR a.fArray[i]
+
+#ifdef MPLEX_VDT_USE_STD
+#define VDT_INVOKE(_ass_, _func_, ...) \
+  for (idx_t i = 0; i < kTotSize; ++i) \
+    _ass_ std::_func_(__VA_ARGS__);
+#else
+#define VDT_INVOKE(_ass_, _func_, ...)          \
+  for (idx_t i = 0; i < kTotSize; ++i)          \
+    if constexpr (std::is_same<T, float>())     \
+      _ass_ vdt::fast_##_func_##f(__VA_ARGS__); \
+    else                                        \
+      _ass_ vdt::fast_##_func_(__VA_ARGS__);
+#endif
+
+    Matriplex& fast_isqrt(const Matriplex& a) {
+      VDT_INVOKE(ASS, isqrt, A_ARR);
+      return *this;
+    }
+    Matriplex& fast_isqrt() {
+      VDT_INVOKE(ASS, isqrt, ARR);
+      return *this;
+    }
+
+    Matriplex& fast_sin(const Matriplex& a) {
+      VDT_INVOKE(ASS, sin, A_ARR);
+      return *this;
+    }
+    Matriplex& fast_sin() {
+      VDT_INVOKE(ASS, sin, ARR);
+      return *this;
+    }
+
+    Matriplex& fast_cos(const Matriplex& a) {
+      VDT_INVOKE(ASS, cos, A_ARR);
+      return *this;
+    }
+    Matriplex& fast_cos() {
+      VDT_INVOKE(ASS, cos, ARR);
+      return *this;
+    }
+
+    void fast_sincos(Matriplex& s, Matriplex& c) const { VDT_INVOKE(, sincos, ARR, s.fArray[i], c.fArray[i]); }
+
+    Matriplex& fast_tan(const Matriplex& a) {
+      VDT_INVOKE(ASS, tan, A_ARR);
+      return *this;
+    }
+    Matriplex& fast_tan() {
+      VDT_INVOKE(ASS, tan, ARR);
+      return *this;
+    }
+
+    Matriplex& fast_atan2(const Matriplex& y, const Matriplex& x) {
+      VDT_INVOKE(ASS, atan2, y.fArray[i], x.fArray[i]);
+      return *this;
+    }
+
+#undef VDT_INVOKE
+
+#undef ASS
+#undef ARR
+#undef A_ARR
+#endif
+
+    void sincos4(Matriplex& s, Matriplex& c) const {
+      for (idx_t i = 0; i < kTotSize; ++i)
+        internal::sincos4(fArray[i], s.fArray[i], c.fArray[i]);
     }
 
     //---------------------------------------------------------
@@ -313,14 +477,6 @@ namespace Matriplex {
         *(arr++) = fArray[i];
       }
     }
-
-    Matriplex<T, 1, 1, N> ReduceFixedIJ(idx_t i, idx_t j) const {
-      Matriplex<T, 1, 1, N> t;
-      for (idx_t n = 0; n < N; ++n) {
-        t[n] = constAt(n, i, j);
-      }
-      return t;
-    }
   };
 
   template <typename T, idx_t D1, idx_t D2, idx_t N>
@@ -329,6 +485,27 @@ namespace Matriplex {
   //==============================================================================
   // Operators
   //==============================================================================
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> operator-(const MPlex<T, D1, D2, N>& a) {
+    MPlex<T, D1, D2, N> t = a;
+    t.negate();
+    return t;
+  }
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> negate(const MPlex<T, D1, D2, N>& a) {
+    MPlex<T, D1, D2, N> t = a;
+    t.negate();
+    return t;
+  }
+
+  template <typename T, typename TT, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> negate_if_ltz(const MPlex<T, D1, D2, N>& a, const MPlex<TT, D1, D2, N>& sign) {
+    MPlex<T, D1, D2, N> t = a;
+    t.negate_if_ltz(sign);
+    return t;
+  }
 
   template <typename T, idx_t D1, idx_t D2, idx_t N>
   MPlex<T, D1, D2, N> operator+(const MPlex<T, D1, D2, N>& a, const MPlex<T, D1, D2, N>& b) {
@@ -421,15 +598,18 @@ namespace Matriplex {
   }
 
   template <typename T, idx_t D1, idx_t D2, idx_t N>
-  MPlex<T, D1, D2, N> sqrt(const MPlex<T, D1, D2, N>& a) {
-    MPlex<T, D1, D2, N> t;
-    return t.sqrt(a);
-  }
-
-  template <typename T, idx_t D1, idx_t D2, idx_t N>
   MPlex<T, D1, D2, N> sqr(const MPlex<T, D1, D2, N>& a) {
     MPlex<T, D1, D2, N> t;
     return t.sqr(a);
+  }
+
+  //---------------------------------------------------------
+  // transcendentals, std version
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> sqrt(const MPlex<T, D1, D2, N>& a) {
+    MPlex<T, D1, D2, N> t;
+    return t.sqrt(a);
   }
 
   template <typename T, idx_t D1, idx_t D2, idx_t N>
@@ -463,6 +643,61 @@ namespace Matriplex {
     MPlex<T, D1, D2, N> t;
     return t.tan(a);
   }
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> atan2(const MPlex<T, D1, D2, N>& y, const MPlex<T, D1, D2, N>& x) {
+    MPlex<T, D1, D2, N> t;
+    return t.atan2(y, x);
+  }
+
+  //---------------------------------------------------------
+  // transcendentals, vdt version
+
+#ifdef MPLEX_VDT
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> fast_isqrt(const MPlex<T, D1, D2, N>& a) {
+    MPlex<T, D1, D2, N> t;
+    return t.fast_isqrt(a);
+  }
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> fast_sin(const MPlex<T, D1, D2, N>& a) {
+    MPlex<T, D1, D2, N> t;
+    return t.fast_sin(a);
+  }
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> fast_cos(const MPlex<T, D1, D2, N>& a) {
+    MPlex<T, D1, D2, N> t;
+    return t.fast_cos(a);
+  }
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  void fast_sincos(const MPlex<T, D1, D2, N>& a, MPlex<T, D1, D2, N>& s, MPlex<T, D1, D2, N>& c) {
+    a.fast_sincos(s, c);
+  }
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> fast_tan(const MPlex<T, D1, D2, N>& a) {
+    MPlex<T, D1, D2, N> t;
+    return t.fast_tan(a);
+  }
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  MPlex<T, D1, D2, N> fast_atan2(const MPlex<T, D1, D2, N>& y, const MPlex<T, D1, D2, N>& x) {
+    MPlex<T, D1, D2, N> t;
+    return t.fast_atan2(y, x);
+  }
+
+#endif
+
+  template <typename T, idx_t D1, idx_t D2, idx_t N>
+  void sincos4(const MPlex<T, D1, D2, N>& a, MPlex<T, D1, D2, N>& s, MPlex<T, D1, D2, N>& c) {
+    a.sincos4(s, c);
+  }
+
+  //---------------------------------------------------------
 
   template <typename T, idx_t D1, idx_t D2, idx_t N>
   void min_max(const MPlex<T, D1, D2, N>& a,

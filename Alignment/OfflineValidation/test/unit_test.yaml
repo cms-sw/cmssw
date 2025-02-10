@@ -8,7 +8,7 @@ alignments:
         title: unit test
     unitTestPV:
         color: 1
-        globaltag: 110X_dataRun2_v10
+        globaltag: 140X_dataRun3_Prompt_v4
         style: 2001
         title: unit test
     ideal:
@@ -96,6 +96,7 @@ validations:
                 magneticfield: true
                 maxevents: 1
                 maxtracks: 1
+                maxEntriesPerModuleForDmr: 100
 
         merge:
             TestMergeMC:
@@ -106,6 +107,9 @@ validations:
                 - plain
                 - split
                 customrighttitle: IOV
+                moduleFilterFile: ""
+                maxBadLumiPixel: 0.5
+                maxBadLumiStrip: 7.0
                 legendoptions:
                 - mean
                 - rms
@@ -140,6 +144,8 @@ validations:
                 alignments:
                     - unitTestPV
                 maxevents: 10
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 trackcollection: ALCARECOTkAlMinBias
                 vertexcollection: offlinePrimaryVertices
                 isda: true
@@ -176,9 +182,29 @@ validations:
                 alignments:
                 - unitTest
                 trackcollection: generalTracks
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 HLTSelection: False
                 triggerBits: HLT_*
                 maxevents: 10
+
+    Generic:
+        merge:
+            testUnits:
+                singles:
+                - testUnits
+
+        single:
+            testUnits:
+                IOV:
+                - 1
+                alignments:
+                - unitTest
+                trackcollection: generalTracks
+                HLTSelection: False
+                triggerBits: HLT_*
+                maxevents: 10
+
     DiMuonV:
         merge:
             testUnits:
@@ -190,6 +216,8 @@ validations:
                 - 1
                 alignments:
                 - unitTestDiMuonVMC
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 trackcollection: generalTracks
                 maxevents: 10
 
@@ -205,6 +233,8 @@ validations:
                 alignments:
                 - unitTestZmumuMCreal
                 - unitTestZmumuMCdesign
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 trackcollection: ALCARECOTkAlZMuMu
                 maxevents: 100
     MTS:
@@ -243,12 +273,16 @@ validations:
                 alignments:
                 - unitTestJetHT
                 trackCollection: ALCARECOTkAlMinBias
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 maxevents: 100
                 iovListFile: Alignment/OfflineValidation/data/lumiPerRun_Run2.txt
 
             testMC:
                 alignments:
                 - unitTestJetHTMC
+                bsIncompatibleWarnThresh: 100
+                bsIncompatibleErrThresh: 1000
                 trackCollection: ALCARECOTkAlMinBias
                 mc: True
                 maxevents: 100
@@ -288,6 +322,14 @@ validations:
                     drawHistograms:
                         drawDz: true
                         drawDxy: true    
+    PixBary:
+        single:
+            testSinglePixBary:
+                firstRun: 376370
+                lastRun: 379254
+                alignments:
+                - unitTest
+                - mp3619
 style:
     DMR:
         averaged:

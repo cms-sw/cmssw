@@ -27,9 +27,9 @@ eval `scram runtime -csh`
 set InputGenSimGRun0 = /store/relval/CMSSW_8_0_11/RelValProdTTbar/GEN-SIM/80X_mcRun1_realistic_v4-v1/10000/06A6C86B-C634-E611-93A5-0CC47A74525A.root
 set InputGenSimGRun1 = /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
 set InputGenSimGRun2 = /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
-set InputGenSimGRun3 = /store/relval/CMSSW_12_3_0_pre6/RelValTTbar_14TeV/GEN-SIM/123X_mcRun3_2021_realistic_v11-v1/10000/29297788-21c3-4bf2-afe0-5382f08fbcd5.root
+set InputGenSimGRun3 = /store/relval/CMSSW_14_1_0_pre7/RelValTTbar_14TeV/GEN-SIM/140X_mcRun3_2024_realistic_v21_STD_RegeneratedGS_2024_noPU-v1/2580000/959d2e44-5c2a-4a80-a499-d65354889e05.root
 set InputGenSimHIon1 = /store/relval/CMSSW_8_0_16/RelValZEEMM_13_HI/GEN-SIM/80X_mcRun2_HeavyIon_v9-v1/10000/F8FC5F64-1657-E611-A57E-002590A887F0.root
-set InputGenSimHIon3 = /store/relval/CMSSW_12_3_0_pre6/RelValZEE_14_HI_2021/GEN-SIM/123X_mcRun3_2021_realistic_HI_v11-v2/10000/3c102f6f-4b70-4b09-b646-504bc104414d.root
+set InputGenSimHIon3 = /store/relval/CMSSW_14_1_0_pre7/RelValZEE_5362_HI_2023/GEN-SIM/140X_mcRun3_2023_realistic_HI_v4_STD_RegeneratedGS_2023HIN_noPU-v1/2580000/ca67f8db-780c-4078-84e8-61e514e56f1b.root
 set InputGenSimPIon2 = $InputGenSimGRun2
 set InputGenSimPRef2 = $InputGenSimGRun2
 set InputGenSimPIon3 = $InputGenSimGRun3
@@ -42,7 +42,7 @@ set InputGenSimSpec3 = $InputGenSimGRun3
 set InputLHCRawGRun0 = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
 set InputLHCRawGRun1 = /store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
 set InputLHCRawGRun2 = /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
-set InputLHCRawGRun3 = /store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/370/293/00000/2ef73d2a-1fb7-4dac-9961-149525f9e887.root
+set InputLHCRawGRun3 = /store/data/Run2024I/EphemeralHLTPhysics0/RAW/v1/000/386/593/00000/91a08676-199e-404c-9957-f72772ef1354.root
 set InputLHCRawHIon1 = /store/hidata/HIRun2015/HIHardProbes/RAW/v1/000/263/718/00000/08057733-02A5-E511-9C7D-02163E014606.root
 set InputLHCRawHIon2 = /store/hidata/HIRun2018A/HIHardProbes/RAW/v1/000/326/479/00000/0E2CC5D5-9D87-7348-9219-B00CD718C847.root
 set InputLHCRawHIon3 = /store/hidata/HIRun2022A/HITestRaw0/RAW/v1/000/362/321/00000/f467ee64-fc64-47a6-9d8a-7ca73ebca2bd.root
@@ -76,8 +76,8 @@ set EraRun2pp2016  = " --era=Run2_2016 "
 set EraRun2pp2017  = " --era=Run2_2017 "
 set EraRun2pp2018  = " --era=Run2_2018 "
 set EraRun2HI      = " --era=Run2_2018_pp_on_AA "
-set EraRun3pp      = " --era=Run3_2023 "
-set EraRun3HI      = " --era=Run3_pp_on_PbPb_2023 "
+set EraRun3pp      = " --era=Run3_2024 "
+set EraRun3HI      = " --era=Run3_pp_on_PbPb_2024 "
 
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"

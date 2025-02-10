@@ -87,7 +87,7 @@ for d in range(0, len(fnames)):
   subrate = []
   
   for subdir in subdirs:
-    print "In subdir %s:"%subdir
+    print("In subdir %s:"%subdir)
     fs[d].cd(subdir)
 
     thiseff_obj  = []
@@ -104,7 +104,7 @@ for d in range(0, len(fnames)):
       obj = key.ReadObj()
       if obj.IsA().InheritsFrom("TH1"):
         h = obj
-        #print "Found TH1 %s"%h.GetName()
+        #print("Found TH1 %s"%h.GetName())
           
         thishist.append(h)
         thishist[nh].Sumw2()
@@ -118,7 +118,7 @@ for d in range(0, len(fnames)):
 
       if obj.IsA().InheritsFrom("TEfficiency"):
         e = obj
-        #print "Found TEfficiency %s"%e.GetName()
+        #print("Found TEfficiency %s"%e.GetName())
         
         thiseff_obj .append(e)
         thiseff_obj[ne].SetLineColor(colors[d])

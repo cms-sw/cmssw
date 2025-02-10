@@ -169,7 +169,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   declareDynArray(KDTreeLinkerAlgo<unsigned int>, nThirdLayers, hitTree);
   declareDynArray(LayerRZPredictions, nThirdLayers, mapPred);
 
-  float rzError[nThirdLayers];  //save maximum errors
+  std::vector<float> rzError(nThirdLayers);  //save maximum errors
 
   const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI) / 4.f : float(M_PI) / 8.f;  // FIXME move to config??
   const float maxphi = M_PI + maxDelphi, minphi = -maxphi;  // increase to cater for any range

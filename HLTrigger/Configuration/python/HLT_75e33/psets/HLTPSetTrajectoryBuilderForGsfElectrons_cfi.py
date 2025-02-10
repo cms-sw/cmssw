@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 HLTPSetTrajectoryBuilderForGsfElectrons = cms.PSet(
     ComponentType = cms.string('CkfTrajectoryBuilder'),
-    TTRHBuilder = cms.string('hltESPTTRHBWithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     alwaysUseInvalidHits = cms.bool(True),
     estimator = cms.string('hltESPChi2ChargeMeasurementEstimator2000'),
     intermediateCleaning = cms.bool(False),

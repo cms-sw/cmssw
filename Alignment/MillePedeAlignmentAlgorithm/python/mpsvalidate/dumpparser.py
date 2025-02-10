@@ -79,17 +79,17 @@ def parse(path, config):
 
         # nrec number of records
         if (" = number of records" in line):
-            number = list(map(int, re.findall("\d+", dumpFile[i])))
+            number = list(map(int, re.findall("\\d+", dumpFile[i])))
             pedeDump.nrec = number[0]
 
         # ntgb total number of parameters
         if (" = total number of parameters" in line):
-            number = list(map(int, re.findall("\d+", dumpFile[i])))
+            number = list(map(int, re.findall("\\d+", dumpFile[i])))
             pedeDump.ntgb = number[0]
 
         # nvgb number of variable parameters
         if (" = number of variable parameters" in line):
-            number = list(map(int, re.findall("\d+", dumpFile[i])))
+            number = list(map(int, re.findall("\\d+", dumpFile[i])))
             pedeDump.nvgb = number[0]
 
     return pedeDump

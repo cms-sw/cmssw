@@ -1,17 +1,16 @@
-from __future__ import print_function
 from builtins import range
 __author__="Aurelija"
 __date__ ="$2010-09-23 15.00.20$"
 
 import re
 
-declarator = '(\*|&)?(\w|<|,|>|$|::)+'
-cv_decl = '\s*(const|volatile|noexcept)\s*'
-exception = 'throw\(((::)|\w|\s|,|<|>)*\)'
-decl_param = '\s((\(%s\))|(%s))\s*\((\w|\s|\*|&|\.|=|\'|\"|-|<|>|,|(::))*\)'%(declarator, declarator)
-operator = '(%s|)operator\s*(\(\)|\[\]|\s+(new|delete)(\s*\[\]|)|\-\>[*]{0,1}|[+\-*/%%^&|~!=<>,]{1,2}(=|))'%(declarator)
+declarator = '(\\*|&)?(\\w|<|,|>|$|::)+'
+cv_decl = '\\s*(const|volatile|noexcept)\\s*'
+exception = 'throw\\(((::)|\\w|\\s|,|<|>)*\\)'
+decl_param = '\\s((\\(%s\\))|(%s))\\s*\\((\\w|\\s|\\*|&|\\.|=|\'|\"|-|<|>|,|(::))*\\)'%(declarator, declarator)
+operator = '(%s|)operator\\s*(\\(\\)|\\[\\]|\\s+(new|delete)(\\s*\\[\\]|)|\\-\\>[*]{0,1}|[+\\-*/%%^&|~!=<>,]{1,2}(=|))'%(declarator)
 dm_init = '(:[^{]*)'
-functStart_re = re.compile('(\s|~|^)((\(%s\))|(%s)|(%s))\s*\((%s|\w|\s|\*|&|\.|=|\'|\"|-|<|>|,|::)*\)(%s)?(%s)?\s*(%s)?\s*{'%(declarator, declarator, operator, decl_param, cv_decl, exception,dm_init), re.MULTILINE)
+functStart_re = re.compile('(\\s|~|^)((\\(%s\\))|(%s)|(%s))\\s*\\((%s|\\w|\\s|\\*|&|\\.|=|\'|\"|-|<|>|,|::)*\\)(%s)?(%s)?\\s*(%s)?\\s*{'%(declarator, declarator, operator, decl_param, cv_decl, exception,dm_init), re.MULTILINE)
 
 def filterFiles(fileList):
     files = []

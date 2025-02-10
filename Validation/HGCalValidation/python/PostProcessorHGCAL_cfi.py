@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsMerge
-from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels
+from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
 
-tracksterLabels = ['ticlTracksters'+iteration for iteration in ticlIterLabelsMerge]
+tracksterLabels = ticlIterLabels.copy()
 tracksterLabels.extend(['ticlSimTracksters', 'ticlSimTracksters_fromCPs'])
 
 prefix = 'HGCAL/HGCalValidator/'
@@ -53,7 +53,7 @@ postProcessorHGCALsimclusters = DQMEDHarvester('DQMGenericClient',
 
 eff_tracksters = []
 # Must be in sync with labels in HGVHistoProducerAlgo.cc
-simDict = {"CaloParticle":"_Link", "SimTrackster":"_PR"}
+simDict = {"SimTrackster_fromCP_byHits":"_byHits_CP", "SimTrackster_byLCs":"_byLCs", "SimTrackster_fromCP_byLCs":"_byLCs_CP", "SimTrackster_byHits":"_byHits"}
 metrics = {"purity":["Purity","_"], "effic":["Efficiency","Eff_"], "fake":["Fake Rate","_"], "duplicate":["Duplicate(Split)","Dup_"], "merge":["Merge Rate","Merge_"]}
 variables = {"eta":["#eta",""], "phi":["#phi",""], "energy":["energy"," [GeV]"], "pt":["p_{T}"," [GeV]"]}
 for elem in simDict:
@@ -67,11 +67,20 @@ for elem in simDict:
             V = v.capitalize()
             eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v][0]+"' Num"+metrics[m][1]+"Trackster_"+V+simDict[elem]+" Denom_Trackster_"+V+simDict[elem]+fakerate])
 
-tsToCP_linking = hgcalValidator.label_TSToCPLinking.value()
-subdirsTracksters = [prefix+iteration+'/'+tsToCP_linking for iteration in tracksterLabels]
 
-tsToSTS_patternRec = hgcalValidator.label_TSToSTSPR.value()
-subdirsTracksters.extend(prefix+iteration+'/'+tsToSTS_patternRec for iteration in tracksterLabels)
+TSbyHits_CP = hgcalValidator.label_TSbyHitsCP.value()
+subdirsTracksters = [prefix+iteration+'/'+TSbyHits_CP for iteration in tracksterLabels]
+
+TSbyLCs = hgcalValidator.label_TSbyLCs.value()
+subdirsTracksters.extend(prefix+iteration+'/'+TSbyLCs for iteration in tracksterLabels)
+
+TSbyLCs_CP = hgcalValidator.label_TSbyLCsCP.value()
+subdirsTracksters.extend(prefix+iteration+'/'+TSbyLCs_CP for iteration in tracksterLabels)
+
+TSbyHits = hgcalValidator.label_TSbyHits.value()
+subdirsTracksters.extend(prefix+iteration+'/'+TSbyHits for iteration in tracksterLabels)
+
+
 
 postProcessorHGCALTracksters = DQMEDHarvester('DQMGenericClient',
   subDirs = cms.untracked.vstring(subdirsTracksters),

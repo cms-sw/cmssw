@@ -89,26 +89,26 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   auto const& pTableData = eventSetup.getData(pTable_);
 
-  HepMC3::GenEvent* hepmc_event = new HepMC3::GenEvent();
-  hepmc_event->set_event_number(event.id().event());
-  hepmc_event->add_attribute("signal_process_id",
-                             std::make_shared<HepMC3::IntAttribute>(genEventInfoHandle->signalProcessID()));
-  hepmc_event->add_attribute("event_scale", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->qScale()));
-  hepmc_event->add_attribute("alphaQCD", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->alphaQCD()));
-  hepmc_event->add_attribute("alphaQED", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->alphaQED()));
+  HepMC3::GenEvent hepmc_event;
+  hepmc_event.set_event_number(event.id().event());
+  hepmc_event.add_attribute("signal_process_id",
+                            std::make_shared<HepMC3::IntAttribute>(genEventInfoHandle->signalProcessID()));
+  hepmc_event.add_attribute("event_scale", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->qScale()));
+  hepmc_event.add_attribute("alphaQCD", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->alphaQCD()));
+  hepmc_event.add_attribute("alphaQED", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->alphaQED()));
 
-  hepmc_event->weights() = genEventInfoHandle->weights();
+  hepmc_event.weights() = genEventInfoHandle->weights();
   // add dummy weight if necessary
-  if (hepmc_event->weights().size() == 0) {
-    hepmc_event->weights().push_back(1.);
+  if (hepmc_event.weights().empty()) {
+    hepmc_event.weights().push_back(1.);
   }
 
   // resize cross section to number of weights
-  if (xsec_->xsecs().size() < hepmc_event->weights().size()) {
-    xsec_->set_cross_section(std::vector<double>(hepmc_event->weights().size(), xsec_->xsec(0)),
-                             std::vector<double>(hepmc_event->weights().size(), xsec_->xsec_err(0)));
+  if (xsec_->xsecs().size() < hepmc_event.weights().size()) {
+    xsec_->set_cross_section(std::vector<double>(hepmc_event.weights().size(), xsec_->xsec(0)),
+                             std::vector<double>(hepmc_event.weights().size(), xsec_->xsec_err(0)));
   }
-  hepmc_event->set_cross_section(xsec_);
+  hepmc_event.set_cross_section(xsec_);
 
   // Set PDF
   const gen::PdfInfo* pdf = genEventInfoHandle->pdf();
@@ -119,7 +119,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     const double pdf_xPDF1 = pdf->xPDF.first, pdf_xPDF2 = pdf->xPDF.second;
     HepMC3::GenPdfInfoPtr hepmc_pdfInfo = make_shared<HepMC3::GenPdfInfo>();
     hepmc_pdfInfo->set(pdf_id1, pdf_id2, pdf_x1, pdf_x2, pdf_scalePDF, pdf_xPDF1, pdf_xPDF2);
-    hepmc_event->set_pdf_info(hepmc_pdfInfo);
+    hepmc_event.set_pdf_info(hepmc_pdfInfo);
   }
 
   // Prepare list of HepMC3::GenParticles
@@ -172,11 +172,11 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     vertex1 = make_shared<HepMC3::GenVertex>(FourVector(parton1->vertex()));
     vertex2 = make_shared<HepMC3::GenVertex>(FourVector(parton2->vertex()));
   }
-  hepmc_event->add_vertex(vertex1);
-  hepmc_event->add_vertex(vertex2);
+  hepmc_event.add_vertex(vertex1);
+  hepmc_event.add_vertex(vertex2);
   vertex1->add_particle_in(hepmc_parton1);
   vertex2->add_particle_in(hepmc_parton2);
-  //hepmc_event->set_beam_particles(hepmc_parton1, hepmc_parton2);
+  //hepmc_event.set_beam_particles(hepmc_parton1, hepmc_parton2);
 
   // Prepare vertex list
   typedef std::map<const reco::Candidate*, HepMC3::GenVertexPtr> ParticleToVertexMap;
@@ -195,7 +195,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
       HepMC3::GenVertexPtr vertex;
       if (particleToVertexMap.find(elder) == particleToVertexMap.end()) {
         vertex = make_shared<HepMC3::GenVertex>(FourVector(elder->vertex()));
-        hepmc_event->add_vertex(vertex);
+        hepmc_event.add_vertex(vertex);
         particleToVertexMap[elder] = vertex;
       } else {
         vertex = particleToVertexMap[elder];
@@ -209,8 +209,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   }
 
   // Finalize HepMC event record
-  std::unique_ptr<edm::HepMC3Product> hepmc_product(new edm::HepMC3Product());
-  hepmc_product->addHepMCData(hepmc_event);
+  auto hepmc_product = std::make_unique<edm::HepMC3Product>(&hepmc_event);
   event.put(std::move(hepmc_product), "unsmeared");
 }
 

@@ -1,16 +1,43 @@
 // -*- C++ -*-
-// Package:    SiPixelESProducers
+// Package:    CalibTracker/SiPixelESProducers
 // Class:      SiPixelDetInfoFileWriter
 // Original Author:  V.Chiochia (adapted from the Strip version by G.Bruno)
 //         Created:  Mon May 20 10:04:31 CET 2007
 
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileWriter.h"
+// system includes
+#include <string>
+#include <iostream>
+#include <fstream>
+
+// user includes
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+class SiPixelDetInfoFileWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
+  explicit SiPixelDetInfoFileWriter(const edm::ParameterSet &);
+  ~SiPixelDetInfoFileWriter() override;
+
+private:
+  void beginJob() override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override {}
+
+private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
+  std::ofstream outputFile_;
+  std::string filePath_;
+};
 
 using namespace cms;
 using namespace std;
@@ -65,3 +92,5 @@ void SiPixelDetInfoFileWriter::beginRun(const edm::Run &run, const edm::EventSet
 void SiPixelDetInfoFileWriter::beginJob() {}
 
 void SiPixelDetInfoFileWriter::analyze(const edm::Event &, const edm::EventSetup &) {}
+
+DEFINE_FWK_MODULE(SiPixelDetInfoFileWriter);

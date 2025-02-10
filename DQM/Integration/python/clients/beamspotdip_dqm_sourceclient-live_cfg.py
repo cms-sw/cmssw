@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # copy log4cplus.properties from >script directory< to >local<
@@ -48,6 +47,10 @@ process.GlobalTag.toGet = cms.VPSet(
 process.load("DQM.BeamMonitor.BeamSpotDipServer_cff")
 
 process.beamSpotDipServer.verbose = cms.untracked.bool(True)
+# Temporary roll-back to using default input txt file
+#process.beamSpotDipServer.sourceFile  = cms.untracked.string(
+#    "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsForDIP.txt"
+#)
 
 # process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

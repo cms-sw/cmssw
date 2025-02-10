@@ -45,6 +45,10 @@ supportedBtagInfos = [
   , 'pfParticleTransformerAK4TagInfos'
     # UnifiedParticleTransformerAK4 tag infos
   , 'pfUnifiedParticleTransformerAK4TagInfos'
+    # UnifiedParticleTransformerAK4V1 tag infos
+  , 'pfUnifiedParticleTransformerAK4V1TagInfos'
+    # GlobalParticleTransformerAK8 tag infos
+  , 'pfGlobalParticleTransformerAK8TagInfos'
     # DeepDoubleB/C tag infos
   , 'pfDeepDoubleXTagInfos'
     # DeepBoostedJet tag infos
@@ -366,10 +370,39 @@ for disc in _pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs:
 # -----------------------------------
 
 # -----------------------------------
+# setup UnifiedParticleTransformer AK4 V1
+from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4V1_cff import _pfUnifiedParticleTransformerAK4V1JetTagsProbs, _pfUnifiedParticleTransformerAK4V1JetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfUnifiedParticleTransformerAK4V1JetTagsProbs + _pfUnifiedParticleTransformerAK4V1JetTagsMetaDiscrs:
+    supportedBtagDiscr[disc] = [["pfUnifiedParticleTransformerAK4V1TagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfUnifiedParticleTransformerAK4V1JetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfUnifiedParticleTransformerAK4V1JetTagsProbs
+# -----------------------------------
+
+# -----------------------------------
 # setup Negative ParticleTransformer AK4
 from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfNegativeParticleTransformerAK4JetTagsProbs
 # update supportedBtagDiscr
 for disc in _pfNegativeParticleTransformerAK4JetTagsProbs:
     supportedBtagDiscr[disc] = [["pfNegativeParticleTransformerAK4TagInfos"]]
+# -----------------------------------
 
+# -----------------------------------
+# setup Negative ParticleTransformer AK4
+from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfNegativeUnifiedParticleTransformerAK4JetTagsProbs
+# update supportedBtagDiscr
+for disc in _pfNegativeUnifiedParticleTransformerAK4JetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfNegativeUnifiedParticleTransformerAK4TagInfos"]]
+# -----------------------------------
 
+# -----------------------------------
+# setup GlobalParticleTransformer AK8
+from RecoBTag.ONNXRuntime.pfGlobalParticleTransformerAK8_cff import _pfGlobalParticleTransformerAK8JetTagsProbs, _pfGlobalParticleTransformerAK8JetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfGlobalParticleTransformerAK8JetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfGlobalParticleTransformerAK8TagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfGlobalParticleTransformerAK8JetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfGlobalParticleTransformerAK8JetTagsProbs
+# -----------------------------------

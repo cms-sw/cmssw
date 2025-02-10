@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -63,8 +62,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "CSC"
 process.dqmSaver.tag = "CSC"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "CSC"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "CSC"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 
 #process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
@@ -173,8 +172,8 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-#process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
-process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
+#process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)#+process.dqmSaverPB)
+process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver )#+ process.dqmSaverPB)
 
 
 process.castorDigis.InputLabel = "rawDataCollector"
@@ -190,7 +189,7 @@ process.muonCSCDigis.InputObjects = "rawDataCollector"
 process.muonDTDigis.inputLabel = "rawDataCollector"
 process.muonRPCDigis.InputLabel = "rawDataCollector"
 process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
-process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
+process.siPixelDigis.InputLabel = "rawDataCollector"
 process.siStripDigis.ProductLabel = "rawDataCollector"
 process.cscMonitor.FEDRawDataCollectionTag = "rawDataCollector"
 process.dqmCSCClient.InputObjects = "rawDataCollector"
@@ -215,7 +214,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel = "rawDataRepacker"
     process.muonRPCDigis.InputLabel = "rawDataRepacker"
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siPixelDigis.InputLabel = "rawDataRepacker"
     process.siStripDigis.ProductLabel = "rawDataRepacker"
     process.cscMonitor.FEDRawDataCollectionTag = "rawDataRepacker"
     process.dqmCSCClient.InputObjects = "rawDataRepacker"

@@ -22,7 +22,7 @@ Instructions for creating a spreadsheet for the release of a HLT menu.
 
  1. Check if there are Paths without owners in the target configuration.
     ```
-    ./hltListPathsWithoutOwners /dev/CMSSW_14_0_0/GRun --meta hltPathOwners.json
+    ./hltListPathsWithoutOwners /dev/CMSSW_14_2_0/GRun --meta hltPathOwners.json
     ```
 
  2. If there are Paths without owners, update the JSON file accordingly.
@@ -39,7 +39,7 @@ Instructions for creating a spreadsheet for the release of a HLT menu.
 
  3. Create the `.csv` files summarising the content of the HLT menu.
     ```bash
-    ./hltMenuContentToCSVs /dev/CMSSW_14_0_0/GRun --meta hltPathOwners.json --prescale 2p0E34
+    ./hltMenuContentToCSVs /dev/CMSSW_14_2_0/GRun --meta hltPathOwners.json --prescale 2p0E34
     ```
     In the command above, provide as argument to `--prescale` the name of the PS column
     to be considered as the main/default PS column for that HLT menu.

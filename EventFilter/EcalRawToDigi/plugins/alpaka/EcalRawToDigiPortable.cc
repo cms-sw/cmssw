@@ -57,7 +57,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   EcalRawToDigiPortable::EcalRawToDigiPortable(const edm::ParameterSet& ps)
-      : rawDataToken_{consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("InputLabel"))},
+      : EDProducer(ps),
+        rawDataToken_{consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("InputLabel"))},
         digisDevEBToken_{produces(ps.getParameter<std::string>("digisLabelEB"))},
         digisDevEEToken_{produces(ps.getParameter<std::string>("digisLabelEE"))},
         eMappingToken_{esConsumes()},
@@ -98,8 +99,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     OutputProduct digisDevEE{static_cast<int32_t>(config_.maxChannelsEE), queue};
     // reset the size scalar of the SoA
     // memset takes an alpaka view that is created from the scalar in a view to the device collection
-    auto digiViewEB = cms::alpakatools::make_device_view<uint32_t>(alpaka::getDev(queue), digisDevEB.view().size());
-    auto digiViewEE = cms::alpakatools::make_device_view<uint32_t>(alpaka::getDev(queue), digisDevEE.view().size());
+    auto digiViewEB = cms::alpakatools::make_device_view<uint32_t>(queue, digisDevEB.view().size());
+    auto digiViewEE = cms::alpakatools::make_device_view<uint32_t>(queue, digisDevEE.view().size());
     alpaka::memset(queue, digiViewEB, 0);
     alpaka::memset(queue, digiViewEE, 0);
 

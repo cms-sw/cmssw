@@ -7,6 +7,6 @@ ecalPreshowerIntegrityTask = DQMEDAnalyzer('ESIntegrityTask',
                                             ESDCCCollections = cms.InputTag("ecalPreshowerDigis"),
                                             ESKChipCollections = cms.InputTag("ecalPreshowerDigis"),
                                             OutputFile = cms.untracked.string(""),
-                                            DoLumiAnalysis = cms.bool(False)
+                                            DoLumiAnalysis = cms.bool(True)
                                             )
 

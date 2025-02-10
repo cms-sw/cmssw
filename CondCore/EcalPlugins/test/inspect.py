@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # I should write a decent test of the python binding...
 #

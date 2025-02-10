@@ -8,8 +8,20 @@ from ..sequences.HLTHgcalTiclPFClusteringForEgamma_cfi import *
 from ..sequences.HLTJMESequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
+from ..sequences.HLTTrackingSequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
 
-MC_JME = cms.Path(HLTBeginSequence+HLTRawToDigiSequence+HLTHgcalLocalRecoSequence+HLTLocalrecoSequence+HLTTrackingV61Sequence+HLTMuonsSequence+HLTParticleFlowSequence+HLTHgcalTiclPFClusteringForEgamma+HLTJMESequence+hltPFPuppiHT+hltPFPuppiMHT)
+MC_JME = cms.Path(
+    HLTBeginSequence
+    + HLTRawToDigiSequence
+    + HLTHgcalLocalRecoSequence
+    + HLTLocalrecoSequence
+    + HLTTrackingSequence
+    + HLTMuonsSequence
+    + HLTParticleFlowSequence
+    + HLTHgcalTiclPFClusteringForEgamma
+    + HLTJMESequence
+    + hltPFPuppiHT
+    + hltPFPuppiMHT
+)

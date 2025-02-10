@@ -5,4 +5,6 @@
   <use name="DataFormats/BeamSpot"/>
   <use name="DataFormats/VertexReco"/>
   <use name="RecoMTD/TimingIDTools"/>
+  <use name="RecoVertex/PrimaryVertexProducer"/>
+  <use name="PhysicsTools/UtilAlgos"/>
 </library>

@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometryMayOwnPtr.h"
 
 namespace reco {
 
@@ -50,11 +51,8 @@ namespace reco {
     /// default constructor. Sets energy and position to zero
     PFRecHit() {}
 
-    PFRecHit(std::shared_ptr<const CaloCellGeometry> caloCell,
-             unsigned int detId,
-             PFLayer::Layer layer,
-             float energy,
-             uint32_t flags = 0)
+    PFRecHit(
+        CaloCellGeometryMayOwnPtr caloCell, unsigned int detId, PFLayer::Layer layer, float energy, uint32_t flags = 0)
         : caloCell_(std::move(caloCell)), detId_(detId), layer_(layer), energy_(energy), flags_(flags) {}
 
     /// copy
@@ -139,7 +137,7 @@ namespace reco {
     Neighbours buildNeighbours(unsigned int n) const { return Neighbours(neighbours_.data(), n); }
 
     /// cell geometry
-    std::shared_ptr<const CaloCellGeometry> caloCell_ = nullptr;
+    CaloCellGeometryMayOwnPtr caloCell_;
 
     ///cell detid
     unsigned int detId_ = 0;

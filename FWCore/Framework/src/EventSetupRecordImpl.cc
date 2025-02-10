@@ -43,8 +43,8 @@ namespace edm {
     EventSetupRecordImpl::EventSetupRecordImpl(EventSetupRecordImpl&& source)
         : validity_{source.validity_},
           key_{source.key_},
-          keysForProxies_{std::move(source.keysForProxies_)},
-          proxies_(std::move(source.proxies_)),
+          keysForResolvers_{std::move(source.keysForResolvers_)},
+          resolvers_(std::move(source.resolvers_)),
           activityRegistry_{source.activityRegistry_},
           cacheIdentifier_{source.cacheIdentifier_},
           iovIndex_{source.iovIndex_},
@@ -54,8 +54,8 @@ namespace edm {
     EventSetupRecordImpl& EventSetupRecordImpl::operator=(EventSetupRecordImpl&& rhs) {
       validity_ = rhs.validity_;
       key_ = rhs.key_;
-      keysForProxies_ = std::move(rhs.keysForProxies_);
-      proxies_ = std::move(rhs.proxies_);
+      keysForResolvers_ = std::move(rhs.keysForResolvers_);
+      resolvers_ = std::move(rhs.resolvers_);
       activityRegistry_ = rhs.activityRegistry_;
       cacheIdentifier_ = rhs.cacheIdentifier_;
       iovIndex_ = rhs.iovIndex_;
@@ -80,7 +80,7 @@ namespace edm {
       cacheIdentifier_ = iCacheIdentifier;
       validity_ = iValidityInterval;
       if (hasFinder) {
-        for (auto& productResolver : proxies_) {
+        for (auto& productResolver : resolvers_) {
           productResolver->initializeForNewIOV();
         }
       }
@@ -97,8 +97,8 @@ namespace edm {
 
     void EventSetupRecordImpl::getESProducers(std::vector<ComponentDescription const*>& esproducers) const {
       esproducers.clear();
-      esproducers.reserve(proxies_.size());
-      for (auto const& iData : proxies_) {
+      esproducers.reserve(resolvers_.size());
+      for (auto const& iData : resolvers_) {
         ComponentDescription const* componentDescription = iData->providerDescription();
         if (!componentDescription->isLooper_ && !componentDescription->isSource_) {
           esproducers.push_back(componentDescription);
@@ -108,8 +108,8 @@ namespace edm {
 
     std::vector<ComponentDescription const*> EventSetupRecordImpl::componentsForRegisteredDataKeys() const {
       std::vector<ComponentDescription const*> ret;
-      ret.reserve(proxies_.size());
-      for (auto const& resolver : proxies_) {
+      ret.reserve(resolvers_.size());
+      for (auto const& resolver : resolvers_) {
         ret.push_back(resolver->providerDescription());
       }
       return ret;
@@ -130,8 +130,9 @@ namespace edm {
         assert(resolver->providerDescription());
         assert(iResolver->providerDescription());
         if (iResolver->providerDescription()->isLooper_) {
-          proxies_[std::distance(keysForProxies_.begin(),
-                                 std::lower_bound(keysForProxies_.begin(), keysForProxies_.end(), iKey))] = iResolver;
+          resolvers_[std::distance(keysForResolvers_.begin(),
+                                   std::lower_bound(keysForResolvers_.begin(), keysForResolvers_.end(), iKey))] =
+              iResolver;
           return true;
         }
 
@@ -150,33 +151,34 @@ namespace edm {
               << "\n   or find a way of configuring one of them so it does not deliver this data"
               << "\n   or use an es_prefer statement in the configuration to choose one.";
         } else if (resolver->providerDescription()->isSource_) {
-          proxies_[std::distance(keysForProxies_.begin(),
-                                 std::lower_bound(keysForProxies_.begin(), keysForProxies_.end(), iKey))] = iResolver;
+          resolvers_[std::distance(keysForResolvers_.begin(),
+                                   std::lower_bound(keysForResolvers_.begin(), keysForResolvers_.end(), iKey))] =
+              iResolver;
         } else {
           return false;
         }
       } else {
-        auto lb = std::lower_bound(keysForProxies_.begin(), keysForProxies_.end(), iKey);
-        auto index = std::distance(keysForProxies_.begin(), lb);
-        keysForProxies_.insert(lb, iKey);
-        proxies_.insert(proxies_.begin() + index, iResolver);
+        auto lb = std::lower_bound(keysForResolvers_.begin(), keysForResolvers_.end(), iKey);
+        auto index = std::distance(keysForResolvers_.begin(), lb);
+        keysForResolvers_.insert(lb, iKey);
+        resolvers_.insert(resolvers_.begin() + index, iResolver);
       }
       return true;
     }
 
-    void EventSetupRecordImpl::clearProxies() {
-      keysForProxies_.clear();
-      proxies_.clear();
+    void EventSetupRecordImpl::clearResolvers() {
+      keysForResolvers_.clear();
+      resolvers_.clear();
     }
 
-    void EventSetupRecordImpl::invalidateProxies() {
-      for (auto& productResolver : proxies_) {
+    void EventSetupRecordImpl::invalidateResolvers() {
+      for (auto& productResolver : resolvers_) {
         productResolver->invalidate();
       }
     }
 
-    void EventSetupRecordImpl::resetIfTransientInProxies() {
-      for (auto& productResolver : proxies_) {
+    void EventSetupRecordImpl::resetIfTransientInResolvers() {
+      for (auto& productResolver : resolvers_) {
         productResolver->resetIfTransient();
       }
     }
@@ -185,11 +187,11 @@ namespace edm {
                                                                    bool iTransientAccessOnly,
                                                                    ComponentDescription const*& iDesc,
                                                                    DataKey const*& oGottenKey) const {
-      const ESProductResolver* resolver = proxies_[iResolverIndex.value()];
+      const ESProductResolver* resolver = resolvers_[iResolverIndex.value()];
       assert(nullptr != resolver);
       iDesc = resolver->providerDescription();
 
-      auto const& key = keysForProxies_[iResolverIndex.value()];
+      auto const& key = keysForResolvers_[iResolverIndex.value()];
       oGottenKey = &key;
 
       void const* hold = nullptr;
@@ -203,11 +205,11 @@ namespace edm {
     }
 
     const ESProductResolver* EventSetupRecordImpl::find(const DataKey& iKey) const {
-      auto lb = std::lower_bound(keysForProxies_.begin(), keysForProxies_.end(), iKey);
-      if ((lb == keysForProxies_.end()) or (*lb != iKey)) {
+      auto lb = std::lower_bound(keysForResolvers_.begin(), keysForResolvers_.end(), iKey);
+      if ((lb == keysForResolvers_.end()) or (*lb != iKey)) {
         return nullptr;
       }
-      return proxies_[std::distance(keysForProxies_.begin(), lb)].get();
+      return resolvers_[std::distance(keysForResolvers_.begin(), lb)].get();
     }
 
     void EventSetupRecordImpl::prefetchAsync(WaitingTaskHolder iTask,
@@ -220,9 +222,9 @@ namespace edm {
         return;
       }
 
-      const ESProductResolver* resolver = proxies_[iResolverIndex.value()];
+      const ESProductResolver* resolver = resolvers_[iResolverIndex.value()];
       if (nullptr != resolver) {
-        auto const& key = keysForProxies_[iResolverIndex.value()];
+        auto const& key = keysForResolvers_[iResolverIndex.value()];
         resolver->prefetchAsync(iTask, *this, key, iEventSetupImpl, iToken, iParent);
       }
     }
@@ -244,7 +246,7 @@ namespace edm {
     }
 
     void EventSetupRecordImpl::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const {
-      oToFill = keysForProxies_;
+      oToFill = keysForResolvers_;
     }
 
     void EventSetupRecordImpl::addTraceInfoToCmsException(cms::Exception& iException,

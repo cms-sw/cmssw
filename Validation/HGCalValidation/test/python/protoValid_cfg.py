@@ -40,32 +40,16 @@ print(options)
 ############################################################
 # Use the options
 
-if (options.geometry == "D115"):
-    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-    process = cms.Process('Client',Phase2C20I13M9)
-elif (options.geometry == "D104"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('Client',PhaseC22I13M9)
-elif (options.geometry == "D106"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('Client',PhaseC22I13M9)
-elif (options.geometry == "D109"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('Client',PhaseC22I13M9)
-elif (options.geometry == "D111"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('Client',PhaseC22I13M9)
-elif (options.geometry == "D112"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('Client',PhaseC22I13M9)
-elif (options.geometry == "D113"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process('Client',PhaseC22I13M9)
-else:
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process('PROD',Phase2C17I13M9)
+geomName = "Run4" + options.geometry
+print("Geometry Name:   ", geomName)
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+process = cms.Process('Valid',ERA)
+
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 fileCheck = "testHGCalSimWatcher" + options.geometry + ".root"
 if (options.type == "hgcalSimHitStudy"):
     fileName = "hgcSimHit" + options.geometry + ".root"
@@ -92,7 +76,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):

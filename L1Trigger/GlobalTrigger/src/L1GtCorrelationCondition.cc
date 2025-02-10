@@ -249,8 +249,6 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
   }
 
   // second object
-  reqObjResult = false;
-
   switch (cond1Categ) {
     case CondMuon: {
       corrMuon = static_cast<const L1GtMuonTemplate *>(m_gtCond1);
@@ -688,7 +686,6 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                                       << std::endl;
         }
 
-        reqEtaPhiResult = false;
         continue;
 
       } else {

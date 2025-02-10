@@ -4,9 +4,9 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "TestTypeResolvers.h"
 
@@ -58,7 +58,7 @@ using namespace edm;
 TEST_CASE("test edm::Factory", "[Factory]") {
   signalslot::Signal<void(const ModuleDescription&)> pre;
   signalslot::Signal<void(const ModuleDescription&)> post;
-  ProductRegistry prodReg;
+  SignallingProductRegistry prodReg;
   PreallocationConfiguration preallocConfig;
   std::shared_ptr<ProcessConfiguration const> procConfig = std::make_shared<ProcessConfiguration>();
   if (not called) {

@@ -32,6 +32,7 @@ namespace l1t {
       desc.addOptional<edm::InputTag>("TauInputTag")->setComment("for stage2");
       desc.addOptional<edm::InputTag>("EtSumInputTag")->setComment("for stage2");
       desc.addOptional<edm::InputTag>("EtSumZDCInputTag")->setComment("for stage2");
+      desc.addOptional<edm::InputTag>("CICADAScoreInputTag")->setComment("for 2024 and beyond");
     }
 
     PackerMap GTSetup::getPackers(int fed, unsigned int fw) {
@@ -44,14 +45,17 @@ namespace l1t {
             static_pointer_cast<l1t::stage2::GTMuonPacker>(PackerFactory::get()->make("stage2::GTMuonPacker"));
         gt_muon_packer->setFed(fed);
         gt_muon_packer->setFwVersion(fw);
-        res[{1, 1}] = {gt_muon_packer,
-                       PackerFactory::get()->make("stage2::GTEGammaPacker"),
-                       PackerFactory::get()->make("stage2::GTEtSumPacker"),
-                       PackerFactory::get()->make("stage2::GTEtSumZDCPacker"),
-                       PackerFactory::get()->make("stage2::GTJetPacker"),
-                       PackerFactory::get()->make("stage2::GTTauPacker"),
-                       PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
-                       PackerFactory::get()->make("stage2::GlobalExtBlkPacker")};
+        res[{1, 1}] = {
+            gt_muon_packer,
+            PackerFactory::get()->make("stage2::GTEGammaPacker"),
+            PackerFactory::get()->make("stage2::GTEtSumPacker"),
+            PackerFactory::get()->make("stage2::GTEtSumZDCPacker"),
+            PackerFactory::get()->make("stage2::GTJetPacker"),
+            PackerFactory::get()->make("stage2::GTTauPacker"),
+            PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
+            PackerFactory::get()->make("stage2::GlobalExtBlkPacker"),
+            PackerFactory::get()->make("stage2::CaloSummaryPacker"),
+        };
       }
 
       return res;

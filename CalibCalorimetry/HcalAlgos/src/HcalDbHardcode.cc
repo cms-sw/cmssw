@@ -756,7 +756,10 @@ HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter(HcalGeneri
   // mask for channel validity and self trigger information, fine grain
   // bit information and auxiliary words
   uint32_t bitInfo = ((44 << 16) | 30);
-  return HcalTPChannelParameter(fId.rawId(), 0, bitInfo, 0, 0);
+  int auxi2 = 0;
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenZDC)
+    auxi2 = 50;  // ZDC bunch spacing parameter
+  return HcalTPChannelParameter(fId.rawId(), 0, bitInfo, 0, auxi2);
 }
 
 void HcalDbHardcode::makeHardcodeTPParameters(HcalTPParameters& tppar) const {

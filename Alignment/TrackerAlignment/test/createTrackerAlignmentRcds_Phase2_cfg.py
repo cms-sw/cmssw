@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
@@ -23,7 +22,7 @@ process = cms.Process("Alignment", ERA)
 process.load("Configuration.StandardSequences.MagneticField_cff") # B-field map
 if(options.Scenario == _settings.DEFAULT_VERSION):
     print("Loading default scenario: ", _settings.DEFAULT_VERSION)
-    process.load('Configuration.Geometry.GeometryExtended2026DefaultReco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 else:
     process.load('Configuration.Geometry.GeometryExtended'+options.Scenario+'Reco_cff')    
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff") # Global tag

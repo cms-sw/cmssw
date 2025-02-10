@@ -18,7 +18,7 @@ def getEtaRange( station ) :
   if ( station ==1 or station==2 ) :
     return etaRange[ (station-1)*2], etaRange[ (station-1)*2+1 ]
   else :
-    print "Something is wrong"
+    print("Something is wrong")
     return 1.5,2.6
     
 def draw_occ(target_dir, h, ext =".png", opt = ""):
@@ -171,7 +171,7 @@ def draw_eff(target_dir, h, ext = ".png", opt = ""):
     elif ( h.GetName().find("st2") != -1 ) :
       xmin,xmax = getEtaRange(2)
     else :
-      print "Use default setting."
+      print("Use default setting.")
 
   f1 = TF1("fit1","pol0", xmin, xmax )
   r = h.Fit("fit1","RQS")
@@ -216,7 +216,7 @@ def draw_plot( file, tDir,oDir ) :
   try :
     tlist = d1.GetListOfKeys()
   except :
-    print oDir
+    print(oDir)
     if ( oDir.find("Digi") != -1 ):
       tDir = "DQMData/Run 1/MuonGEMDigisV/Run summary/GEMDigiTask"
       d1 = dqm_file.Get(tDir)
@@ -226,7 +226,7 @@ def draw_plot( file, tDir,oDir ) :
       d1 = dqm_file.Get(tDir)
       tlist = d1.GetListOfKeys()
     else :
-      print "error"
+      print("error")
       exit(-1)
   for x in tlist :
     key_list.append(x.GetName())
@@ -249,7 +249,7 @@ def draw_plot( file, tDir,oDir ) :
       draw_col_overflow( oDir, d1.Get(hist) )
     elif ( hist.find("eff") != -1 ) :
       draw_eff( oDir, d1.Get(hist) )
-      #print "found "
+      #print("found ")
     elif ( hist.find("geo_phi") != -1) :
       draw_col_userRange( oDir, d1.Get(hist))
     else :
@@ -273,12 +273,12 @@ if __name__ == '__main__' :
     exit()
   # If no argument, default name will be used.
   if len(args)==0 :
-    print "Input file name is None."
-    print "Use default name."
+    print("Input file name is None.")
+    print("Use default name.")
     args.append("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root")
 
   if len(args) != 1 : 
-    print "Can not understand input argument"
+    print("Can not understand input argument")
     parser.print_help()
   
   steps= []
@@ -299,5 +299,5 @@ if __name__ == '__main__' :
     oDir = options.directory+"_%s"%(step)+'/'
     os.system("mkdir -p "+oDir )
     draw_plot(args[0],tDir,oDir)  
-    #print args[0],tDir, oDir
+    #print (args[0],tDir, oDir)
    

@@ -6,7 +6,7 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -64,9 +64,9 @@ namespace edm::streamer {
     if (subsequent) {
       ProductRegistry pReg;
       pReg.updateFromInput(descs);
-      std::string mergeInfo = reg.merge(pReg, std::string(), BranchDescription::Permissive);
+      std::string mergeInfo = reg.merge(pReg, std::string(), ProductDescription::Permissive);
       if (!mergeInfo.empty()) {
-        throw cms::Exception("MismatchedInput", "RootInputFileSequence::previousEvent()") << mergeInfo;
+        throw cms::Exception("MismatchedInput", "StreamerInputSource::mergeIntoRegistry") << mergeInfo;
       }
     } else {
       declareStreamers(descs);
@@ -299,7 +299,7 @@ namespace edm::streamer {
   void StreamerInputSource::read(EventPrincipal& eventPrincipal) {
     if (adjustEventToNewProductRegistry_) {
       eventPrincipal.adjustIndexesAfterProductRegistryAddition();
-      bool eventOK = eventPrincipal.adjustToNewProductRegistry(*productRegistry());
+      bool eventOK = eventPrincipal.adjustToNewProductRegistry(productRegistry());
       assert(eventOK);
       adjustEventToNewProductRegistry_ = false;
     }
@@ -328,19 +328,18 @@ namespace edm::streamer {
                 << " " << spitem.desc()->className() << " " << spitem.desc()->productInstanceName() << " "
                 << spitem.desc()->branchID() << std::endl;
 
-      BranchDescription const branchDesc(*spitem.desc());
+      ProductDescription const branchDesc(*spitem.desc());
       // This ProductProvenance constructor inserts into the entry description registry
       if (spitem.parents()) {
         std::optional<ProductProvenance> productProvenance{std::in_place, spitem.branchID(), *spitem.parents()};
         if (spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc,
-                                   std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())),
-                                   std::move(productProvenance));
+          eventPrincipal.putOnRead(
+              branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), productProvenance);
           FDEBUG(10) << "addproduct done" << std::endl;
         } else {
           FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), std::move(productProvenance));
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), productProvenance);
           FDEBUG(10) << "addproduct empty done" << std::endl;
         }
       } else {

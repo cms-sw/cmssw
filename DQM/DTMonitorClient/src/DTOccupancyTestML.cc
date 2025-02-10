@@ -125,7 +125,6 @@ void DTOccupancyTestML::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   vector<const DTChamber*> chambers = muonGeom->chambers();
 
   // Load graph
-  tensorflow::setLogging("3");
   edm::FileInPath modelFilePath("DQM/DTMonitorClient/data/occupancy_cnn_v1.pb");
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(modelFilePath.fullPath());
 

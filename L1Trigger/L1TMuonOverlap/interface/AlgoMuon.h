@@ -7,7 +7,16 @@ class AlgoMuon {
 public:
   // AlgoMuon() : pt(-1.), eta(99.), phi(9999.), disc(-999), bx(0), q(-1), charge(99), refLayer(-1), hits(0) {} // the old one version
   AlgoMuon()
-      : m_disc(-999), m_phi(9999), m_eta(99), m_refLayer(-1), m_hits(0), m_q(-1), m_bx(0), m_pt(-1), m_charge(99) {}
+      : m_disc(-999),
+        m_phi(9999),
+        m_eta(99),
+        m_refLayer(-1),
+        m_hits(0),
+        m_q(-1),
+        m_bx(0),
+        m_pt(-1),
+        m_charge(99),
+        m_phiRHit(9999) {}
   AlgoMuon(int disc = -999,
            int phi = 9999,
            int eta = 99,
@@ -26,6 +35,7 @@ public:
         m_bx(bx),
         m_pt(pt),
         m_charge(charge),
+        m_phiRHit(9999),
         m_patNumb(999),
         m_rhitNumb(999) {}
 

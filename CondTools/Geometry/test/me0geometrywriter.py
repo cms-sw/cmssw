@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ME0GeometryWriter")
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process("ME0GeometryWriter",Phase2C17I13M9)
 process.load('CondCore.CondDB.CondDB_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load('Configuration.StandardSequences.DD4hep_GeometrySimPhase2_cff')

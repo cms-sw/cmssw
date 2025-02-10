@@ -115,10 +115,12 @@ namespace edm::eventsetup {
         }
       } else {
         foundFirstIndex = true;
-        returnValue.emplace_back(
-            keyIndex - beginIndex,
-            dataKeys_[keyIndex].name().value(),
-            components_[keyIndex] ? std::string_view(components_[keyIndex]->label_) : std::string_view());
+        returnValue.emplace_back(keyIndex - beginIndex,
+                                 dataKeys_[keyIndex].name().value(),
+                                 components_[keyIndex] ? components_[keyIndex]->label_.empty()
+                                                             ? std::string_view(components_[keyIndex]->type_)
+                                                             : std::string_view(components_[keyIndex]->label_)
+                                                       : std::string_view());
       }
       ++keyIndex;
     }

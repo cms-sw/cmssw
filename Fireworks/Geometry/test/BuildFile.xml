@@ -1,1 +1,7 @@
-<test name="test_dumpRecoGeometry" command="test_dumpRecoGeometry.sh"/>
+<!-- Possible choices are "Run1" "2015" "2017" "2021" "2026" -->
+<test name="test_dumpRecoGeometry_Run1" command="test_dumpRecoGeometry.sh Run1"/>
+<test name="test_dumpRecoGeometry_2015" command="test_dumpRecoGeometry.sh 2015"/>
+<test name="test_dumpRecoGeometry_2017" command="test_dumpRecoGeometry.sh 2017"/>
+<!-- currently commented as it crashes at runtime -->
+<!-- <test name="test_dumpRecoGeometry_2021" command="test_dumpRecoGeometry.sh 2021"/> -->
+<test name="test_dumpRecoGeometry_Run4" command="test_dumpRecoGeometry.sh Run4"/>

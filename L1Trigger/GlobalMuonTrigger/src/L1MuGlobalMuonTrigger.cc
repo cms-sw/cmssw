@@ -359,7 +359,7 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
         m_Sorter->print();
 
       // store found track candidates in a container
-      if (m_Sorter->numberOfCands() > 0) {
+      if (m_Sorter && m_Sorter->numberOfCands() > 0) {
         const std::vector<const L1MuGMTExtendedCand*>& gmt_cont = m_Sorter->Cands();
         std::vector<const L1MuGMTExtendedCand*>::const_iterator iexc;
         for (iexc = gmt_cont.begin(); iexc != gmt_cont.end(); iexc++) {

@@ -29,8 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TrackerTraits>
     class GetHits {
     public:
-      template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(const TAcc& acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                     pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams,
                                     BeamSpotPOD const* __restrict__ bs,
                                     SiPixelDigisSoAConstView digis,

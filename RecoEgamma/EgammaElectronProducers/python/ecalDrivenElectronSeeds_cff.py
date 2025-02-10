@@ -19,6 +19,10 @@ phase2_hgcal.toModify(
     endcapSuperClusters = 'particleFlowSuperClusterHGCal',
     allowHGCal = True,
 )
+phase2_hgcal.toModify(
+    ecalDrivenElectronSeeds.HGCalConfig,
+    hgcalHitMap = cms.InputTag("recHitMapProducer", "hgcalRecHitMap"),
+)
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toModify(ecalDrivenElectronSeeds,

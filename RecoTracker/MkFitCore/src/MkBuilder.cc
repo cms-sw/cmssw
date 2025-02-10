@@ -120,14 +120,14 @@ namespace {
     const float pt = 1.f / fir->getPar(0, 0, 3);
     std::cout << "propagate to lay=" << ilay << " start from x=" << fir->getPar(0, 0, 0)
               << " y=" << fir->getPar(0, 0, 1) << " z=" << fir->getPar(0, 0, 2)
-              << " r=" << getHypot(fir->getPar(0, 0, 0), fir->getPar(0, 0, 1))
+              << " r=" << hipo(fir->getPar(0, 0, 0), fir->getPar(0, 0, 1))
               << " px=" << pt * std::cos(fir->getPar(0, 0, 4)) << " py=" << pt * std::sin(fir->getPar(0, 0, 4))
               << " pz=" << pt / std::tan(fir->getPar(0, 0, 5)) << " pT=" << pt << std::endl;
   }
 
   void post_prop_print(int ilay, MkBase *fir) {
     std::cout << "propagate to lay=" << ilay << " arrive at x=" << fir->getPar(0, 1, 0) << " y=" << fir->getPar(0, 1, 1)
-              << " z=" << fir->getPar(0, 1, 2) << " r=" << getHypot(fir->getPar(0, 1, 0), fir->getPar(0, 1, 1))
+              << " z=" << fir->getPar(0, 1, 2) << " r=" << hipo(fir->getPar(0, 1, 0), fir->getPar(0, 1, 1))
               << std::endl;
   }
 
@@ -468,7 +468,7 @@ namespace mkfit {
 
     TrackVec &cands = m_tracks;
 
-    tbb::parallel_for_each(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
+    TBB_PARALLEL_FOR_EACH(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
       if (iteration_dir == SteeringParams::IT_BkwSearch && !m_job->steering_params(region).has_bksearch_plan()) {
         printf("No backward search plan for region %d\n", region);
         return;
@@ -485,7 +485,7 @@ namespace mkfit {
 
       const RegionOfSeedIndices rosi(m_seedEtaSeparators, region);
 
-      tbb::parallel_for(rosi.tbb_blk_rng_vec(), [&](const tbb::blocked_range<int> &blk_rng) {
+      TBB_PARALLEL_FOR(rosi.tbb_blk_rng_vec(), [&](const tbb::blocked_range<int> &blk_rng) {
         auto mkfndr = g_exe_ctx.m_finders.makeOrGet();
 
         RangeOfSeedIndices rng = rosi.seed_rng(blk_rng);
@@ -660,7 +660,7 @@ namespace mkfit {
               continue;
             }
             // Check if the candidate is close to it's max_r, pi/2 - 0.2 rad (11.5 deg)
-            if (iteration_dir == SteeringParams::IT_FwdSearch && ccand[ic].pT() < 1.2) {
+            if (iteration_dir == SteeringParams::IT_FwdSearch && ccand[ic].pT() < 1.2f) {
               const float dphi = std::abs(ccand[ic].posPhi() - ccand[ic].momPhi());
               if (ccand[ic].posRsq() > 625.f && dphi > 1.371f && dphi < 4.512f) {
                 // printf("Stopping cand at r=%f, posPhi=%.1f momPhi=%.2f pt=%.2f emomEta=%.2f\n",
@@ -760,7 +760,7 @@ namespace mkfit {
 
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
 
-    tbb::parallel_for_each(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
+    TBB_PARALLEL_FOR_EACH(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
       if (iteration_dir == SteeringParams::IT_BkwSearch && !m_job->steering_params(region).has_bksearch_plan()) {
         printf("No backward search plan for region %d\n", region);
         return;
@@ -779,7 +779,7 @@ namespace mkfit {
       dprint("adaptiveSPT " << adaptiveSPT << " fill " << rosi.count() << "/" << eoccs.size() << " region " << region);
 
       // loop over seeds
-      tbb::parallel_for(rosi.tbb_blk_rng_std(adaptiveSPT), [&](const tbb::blocked_range<int> &seeds) {
+      TBB_PARALLEL_FOR(rosi.tbb_blk_rng_std(adaptiveSPT), [&](const tbb::blocked_range<int> &seeds) {
         auto mkfndr = g_exe_ctx.m_finders.makeOrGet();
 
         const int start_seed = seeds.begin();
@@ -950,7 +950,7 @@ namespace mkfit {
 
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
 
-    tbb::parallel_for_each(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
+    TBB_PARALLEL_FOR_EACH(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
       if (iteration_dir == SteeringParams::IT_BkwSearch && !m_job->steering_params(region).has_bksearch_plan()) {
         printf("No backward search plan for region %d\n", region);
         return;
@@ -963,7 +963,7 @@ namespace mkfit {
           Config::numThreadsEvents * eoccs.size() / Config::numThreadsFinder + 1, 4, Config::numSeedsPerTask);
       dprint("adaptiveSPT " << adaptiveSPT << " fill " << rosi.count() << "/" << eoccs.size() << " region " << region);
 
-      tbb::parallel_for(rosi.tbb_blk_rng_std(adaptiveSPT), [&](const tbb::blocked_range<int> &seeds) {
+      TBB_PARALLEL_FOR(rosi.tbb_blk_rng_std(adaptiveSPT), [&](const tbb::blocked_range<int> &seeds) {
         auto cloner = g_exe_ctx.m_cloners.makeOrGet();
         auto mkfndr = g_exe_ctx.m_finders.makeOrGet();
 
@@ -1119,7 +1119,7 @@ namespace mkfit {
         // mkfndr->copyOutParErr(eoccs.refCandidates_nc(), end - itrack, true);
 
         // For prop-to-plane propagate from the last hit, not layer center.
-        if constexpr (Config::usePropToPlane) {
+        if /*constexpr*/ (Config::usePropToPlane) {
           mkfndr->inputTracksAndHitIdx(eoccs.refCandidates(), seed_cand_idx, itrack, end, false);
         }
 
@@ -1237,10 +1237,10 @@ namespace mkfit {
 #endif
 
   void MkBuilder::backwardFitBH() {
-    tbb::parallel_for_each(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
+    TBB_PARALLEL_FOR_EACH(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
       const RegionOfSeedIndices rosi(m_seedEtaSeparators, region);
 
-      tbb::parallel_for(rosi.tbb_blk_rng_vec(), [&](const tbb::blocked_range<int> &blk_rng) {
+      TBB_PARALLEL_FOR(rosi.tbb_blk_rng_vec(), [&](const tbb::blocked_range<int> &blk_rng) {
         auto mkfndr = g_exe_ctx.m_finders.makeOrGet();
 
         RangeOfSeedIndices rng = rosi.seed_rng(blk_rng);
@@ -1335,7 +1335,7 @@ namespace mkfit {
   void MkBuilder::backwardFit() {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
 
-    tbb::parallel_for_each(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
+    TBB_PARALLEL_FOR_EACH(m_job->regions_begin(), m_job->regions_end(), [&](int region) {
       const RegionOfSeedIndices rosi(m_seedEtaSeparators, region);
 
       // adaptive seeds per task based on the total estimated amount of work to divide among all threads
@@ -1343,7 +1343,7 @@ namespace mkfit {
           Config::numThreadsEvents * eoccs.size() / Config::numThreadsFinder + 1, 4, Config::numSeedsPerTask);
       dprint("adaptiveSPT " << adaptiveSPT << " fill " << rosi.count() << "/" << eoccs.size() << " region " << region);
 
-      tbb::parallel_for(rosi.tbb_blk_rng_std(adaptiveSPT), [&](const tbb::blocked_range<int> &cands) {
+      TBB_PARALLEL_FOR(rosi.tbb_blk_rng_std(adaptiveSPT), [&](const tbb::blocked_range<int> &cands) {
         auto mkfndr = g_exe_ctx.m_finders.makeOrGet();
 
         fit_cands(mkfndr.get(), cands.begin(), cands.end(), region);

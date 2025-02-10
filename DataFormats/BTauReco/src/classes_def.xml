@@ -392,7 +392,7 @@
   <class name="edm::ValueMap<edm::Ptr<reco::BaseTagInfo> >" />
   <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > >" />
   <class name="std::vector<reco::BaseTagInfo *>" />
-  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" rntupleSplit="false"/>
+  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" rntupleStreamerMode="true"/>
  <exclusion>
   <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >">
    <method name="sort" />
@@ -489,7 +489,15 @@
   <class name="edm::Wrapper<reco::DeepDoubleXTagInfoCollection>"/>
   
   <class name="btagbtvdeep::DeepBoostedJetFeatures"/>
+  <class name="btagbtvdeep::DeepBoostedJetFeaturesCollection"/>
+  <class name="btagbtvdeep::DeepBoostedJetFeaturesRef"/>
+  <class name="btagbtvdeep::DeepBoostedJetFeaturesFwdRef"/>
+  <class name="btagbtvdeep::DeepBoostedJetFeaturesRefProd"/>
+  <class name="btagbtvdeep::DeepBoostedJetFeaturesRefVector"/>
+  <class name="edm::Wrapper<btagbtvdeep::DeepBoostedJetFeaturesCollection>" persistent="false"/>
+
   <class name="btagbtvdeep::LostTracksFeatures"/>
+
   <class name="reco::DeepBoostedJetTagInfo"/>
   <class name="reco::DeepBoostedJetTagInfoCollection"/>
   <class name="reco::DeepBoostedJetTagInfoRef"/>

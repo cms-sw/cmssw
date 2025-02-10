@@ -43,8 +43,8 @@ namespace {
 
     ~TestCallMonitor() override { ++s_calls; }
 
-    void allocCalled(size_t iRequestedSize, size_t iActualSize) final { ++s_calls; }
-    void deallocCalled(size_t iActualSize) final { ++s_calls; }
+    void allocCalled(size_t iRequestedSize, size_t iActualSize, void const*) final { ++s_calls; }
+    void deallocCalled(size_t iActualSize, void const*) final { ++s_calls; }
   };
 
   bool s_started = false;
@@ -62,12 +62,12 @@ namespace {
       tester_->callDealloc(1);
     }
 
-    void allocCalled(size_t iRequestedSize, size_t iActualSize) final {
+    void allocCalled(size_t iRequestedSize, size_t iActualSize, void const*) final {
       ++s_calls;
       tester_->callAlloc(1, 1);
       tester_->callDealloc(1);
     }
-    void deallocCalled(size_t iActualSize) final {
+    void deallocCalled(size_t iActualSize, void const*) final {
       ++s_calls;
       tester_->callAlloc(1, 1);
       tester_->callDealloc(1);
@@ -182,7 +182,7 @@ TEST_CASE("Test API for AllocMonitorRegistry", "[AllocMonitorRegistry]") {
 
       t.callAlloc(1, 1, [&t]() {
         t.callAlloc(1, 1);
-        return 1;
+        return reinterpret_cast<void*>(1);
       });
       CHECK(2 == s_calls);
 

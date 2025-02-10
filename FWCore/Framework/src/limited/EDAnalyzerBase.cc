@@ -27,11 +27,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 
 //
 // constants, enums and typedefs
@@ -53,9 +51,9 @@ namespace edm {
     bool EDAnalyzerBase::doEvent(EventTransitionInfo const& info,
                                  ActivityRegistry* act,
                                  ModuleCallingContext const* mcc) {
+      EventSignalsSentry sentry(act, mcc);
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
-      EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
@@ -231,12 +229,10 @@ namespace edm {
 
     void EDAnalyzerBase::prevalidate(ConfigurationDescriptions& iConfig) { edmodule_mightGet_config(iConfig); }
 
-    void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase*, ProductRegistry* reg) {
+    void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase*, SignallingProductRegistry* reg) {
       if (callWhenNewProductsRegistered_) {
         reg->callForEachBranch(callWhenNewProductsRegistered_);
-
-        Service<ConstProductRegistry> regService;
-        regService->watchProductAdditions(callWhenNewProductsRegistered_);
+        reg->watchProductAdditions(callWhenNewProductsRegistered_);
       }
     }
     static const std::string kBaseType("EDAnalyzer");

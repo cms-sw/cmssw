@@ -75,7 +75,7 @@ void DataModeScoutingRun3::readEvent(edm::EventPrincipal& eventPrincipal) {
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<SDSRawDataCollection>(std::move(rawData)));
   eventPrincipal.put(
-      daqProvenanceHelpers_[0]->branchDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
+      daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
 
   eventCached_ = false;
 }
@@ -109,7 +109,7 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeScoutingRu
   return daqProvenanceHelpers_;
 }
 
-bool DataModeScoutingRun3::nextEventView() {
+bool DataModeScoutingRun3::nextEventView(RawInputFile*) {
   blockCompleted_ = false;
   if (eventCached_)
     return true;

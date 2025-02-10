@@ -70,7 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     template <typename T>
     T const& get(device::EDGetToken<T> const& token) const {
       auto const& deviceProduct = constEvent_.get(token.underlyingToken());
-      if constexpr (detail::useProductDirectly<T>) {
+      if constexpr (detail::useProductDirectly) {
         return deviceProduct;
       } else {
         // try to re-use queue from deviceProduct if our queue has not yet been used
@@ -90,7 +90,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     template <typename T>
     edm::Handle<T> getHandle(device::EDGetToken<T> const& token) const {
       auto deviceProductHandle = constEvent_.getHandle(token.underlyingToken());
-      if constexpr (detail::useProductDirectly<T>) {
+      if constexpr (detail::useProductDirectly) {
         return deviceProductHandle;
       } else {
         if (not deviceProductHandle) {
@@ -114,7 +114,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     // The idea for Ref-like things in this domain differs from earlier Refs anyway
     template <typename T, typename... Args>
     void emplace(device::EDPutToken<T> const& token, Args&&... args) {
-      if constexpr (detail::useProductDirectly<T>) {
+      if constexpr (detail::useProductDirectly) {
         event_->emplace(token.underlyingToken(), std::forward<Args>(args)...);
       } else {
         event_->emplace(token.underlyingToken(), metadata_, std::forward<Args>(args)...);
@@ -130,7 +130,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
 
     template <typename T>
     void put(device::EDPutToken<T> const& token, std::unique_ptr<T> product) {
-      if constexpr (detail::useProductDirectly<T>) {
+      if constexpr (detail::useProductDirectly) {
         event_->emplace(token.underlyingToken(), std::move(*product));
       } else {
         event_->emplace(token.underlyingToken(), metadata_, std::move(*product));

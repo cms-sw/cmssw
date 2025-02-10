@@ -666,6 +666,7 @@ void TMultiDimFet::MakeCandidates() {
 
   // The temporary array to store the powers in. We don't need to
   // initialize this array however.
+  assert(fNVariables > 0);
   Int_t *powers = new Int_t[fNVariables * fMaxFunctions];
 
   // store of `control variables'

@@ -243,57 +243,54 @@ std::pair<float, float> ticl::computeLocalTracksterTime(const Trackster &trackst
                                                         size_t N) {
   float tracksterTime = 0.;
   float tracksterTimeErr = 0.;
-  std::set<uint32_t> usedLC;
 
-  auto project_lc_to_pca = [](const std::vector<double> &point, const std::vector<double> &segment_end) {
-    double dot_product = 0.0;
-    double segment_dot = 0.0;
+  auto project_lc_to_pca = [](const std::array<float, 3> &point, const std::array<float, 3> &segment_end) {
+    float dot_product = 0.0;
+    float segment_dot = 0.0;
 
     for (int i = 0; i < 3; ++i) {
       dot_product += point[i] * segment_end[i];
       segment_dot += segment_end[i] * segment_end[i];
     }
 
-    double projection = 0.0;
+    float projection = 0.0;
     if (segment_dot != 0.0) {
       projection = dot_product / segment_dot;
     }
 
-    std::vector<double> closest_point(3);
+    std::array<float, 3> closest_point;
     for (int i = 0; i < 3; ++i) {
       closest_point[i] = projection * segment_end[i];
     }
 
-    double distance = 0.0;
+    float distanceSquared = 0.f;
     for (int i = 0; i < 3; ++i) {
-      distance += std::pow(point[i] - closest_point[i], 2);
+      distanceSquared += std::pow(point[i] - closest_point[i], 2);
     }
-
-    return std::sqrt(distance);
+    return distanceSquared;
   };
 
-  constexpr double c = 29.9792458;  // cm/ns
+  constexpr float c = 29.9792458;  // cm/ns
   for (size_t i = 0; i < N; ++i) {
     // Add timing from layerClusters not already used
-    if ((usedLC.insert(trackster.vertices(i))).second) {
-      float timeE = layerClustersTime.get(trackster.vertices(i)).second;
-      if (timeE > 0.f) {
-        float time = layerClustersTime.get(trackster.vertices(i)).first;
-        timeE = 1.f / pow(timeE, 2);
-        float x = layerClusters[trackster.vertices(i)].x();
-        float y = layerClusters[trackster.vertices(i)].y();
-        float z = layerClusters[trackster.vertices(i)].z();
+    float timeE = layerClustersTime.get(trackster.vertices(i)).second;
+    if (timeE > 0.f) {
+      float time = layerClustersTime.get(trackster.vertices(i)).first;
+      timeE = 1.f / pow(timeE, 2);
+      float x = layerClusters[trackster.vertices(i)].x();
+      float y = layerClusters[trackster.vertices(i)].y();
+      float z = layerClusters[trackster.vertices(i)].z();
 
-        if (project_lc_to_pca({x, y, z}, {barycenter[0], barycenter[1], barycenter[2]}) < 3) {  // set MR to 3
-          float deltaT = 1.f / c *
-                         std::sqrt(((barycenter[2] / z - 1.f) * x) * ((barycenter[2] / z - 1.f) * x) +
-                                   ((barycenter[2] / z - 1.f) * y) * ((barycenter[2] / z - 1.f) * y) +
-                                   (barycenter[2] - z) * (barycenter[2] - z));
-          time = std::abs(barycenter[2]) < std::abs(z) ? time - deltaT : time + deltaT;
+      if (project_lc_to_pca({{x, y, z}}, {{barycenter[0], barycenter[1], barycenter[2]}}) < 9.f) {  // set MR to 3
+        float invz = 1.f / z;
+        float deltaT = 1.f / c *
+                       std::sqrt(((barycenter[2] * invz - 1.f) * x) * ((barycenter[2] * invz - 1.f) * x) +
+                                 ((barycenter[2] * invz - 1.f) * y) * ((barycenter[2] * invz - 1.f) * y) +
+                                 (barycenter[2] - z) * (barycenter[2] - z));
+        time = std::abs(barycenter[2]) < std::abs(z) ? time - deltaT : time + deltaT;
 
-          tracksterTime += time * timeE;
-          tracksterTimeErr += timeE;
-        }
+        tracksterTime += time * timeE;
+        tracksterTimeErr += timeE;
       }
     }
   }
@@ -308,16 +305,12 @@ std::pair<float, float> ticl::computeTracksterTime(const Trackster &trackster,
                                                    size_t N) {
   std::vector<float> times;
   std::vector<float> timeErrors;
-  std::set<uint32_t> usedLC;
 
   for (size_t i = 0; i < N; ++i) {
-    // Add timing from layerClusters not already used
-    if ((usedLC.insert(trackster.vertices(i))).second) {
-      float timeE = layerClustersTime.get(trackster.vertices(i)).second;
-      if (timeE > 0.f) {
-        times.push_back(layerClustersTime.get(trackster.vertices(i)).first);
-        timeErrors.push_back(1.f / pow(timeE, 2));
-      }
+    float timeE = layerClustersTime.get(trackster.vertices(i)).second;
+    if (timeE > 0.f) {
+      times.push_back(layerClustersTime.get(trackster.vertices(i)).first);
+      timeErrors.push_back(1.f / pow(timeE, 2));
     }
   }
 

@@ -22,11 +22,11 @@ process = cms.Process("demo",eras.Phase2C17I13M9)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if options.geom == 'v16':
-    geomFile = 'Configuration.Geometry.GeometryExtended2026D100Reco_cff'
+    geomFile = 'Configuration.Geometry.GeometryExtendedRun4D100Reco_cff'
 elif options.geom == 'v17':
-    geomFile = 'Configuration.Geometry.GeometryExtended2026D110Reco_cff'
+    geomFile = 'Configuration.Geometry.GeometryExtendedRun4D110Reco_cff'
 elif options.geom == 'v18':
-    geomFile = 'Configuration.Geometry.GeometryExtended2026D104Reco_cff'
+    geomFile = 'Configuration.Geometry.GeometryExtendedRun4D104Reco_cff'
 else:
     geomFile = 'UNKNOWN GEOMETRY!'
     raise Exception(geomFile)

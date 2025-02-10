@@ -6,7 +6,6 @@ Test wrapper to generate an express processing config and actually push
 it into cmsRun for testing with a few input files etc from the command line
 
 """
-from __future__ import print_function
 
 import sys
 import getopt
@@ -31,6 +30,7 @@ class RunExpressProcessing:
         self.inputLFN = None
         self.alcaRecos = None
         self.nThreads = None
+        self.dat = False
 
     def __call__(self):
         if self.scenario == None:
@@ -90,9 +90,11 @@ class RunExpressProcessing:
                 if self.alcaRecos:
                     kwds['skims'] = self.alcaRecos
 
-
             if self.nThreads:
-                kwds['nThreads'] = self.nThreads
+                kwds['nThreads'] = int(self.nThreads)
+
+            if self.dat:
+                kwds['inputSource'] = 'DAT'
 
             process = scenario.expressProcessing(self.globalTag, **kwds)
 
@@ -135,7 +137,7 @@ class RunExpressProcessing:
 
 if __name__ == '__main__':
     valid = ["scenario=", "raw", "reco", "fevt", "dqm", "dqmio", "no-output",
-             "global-tag=", "lfn=", 'alcarecos=', "nThreads="]
+             "global-tag=", "lfn=", "dat", 'alcarecos=', "nThreads="]
     usage = \
 """
 RunExpressProcessing.py <options>
@@ -149,6 +151,7 @@ Where options are:
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
+ --dat (to enable streamer files as input)
  --alcarecos=plus_seprated_list
  --nThreads=Number_of_cores_or_Threads_used
 
@@ -156,7 +159,7 @@ Examples:
 
 python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlCosmics0T+SiStripCalZeroBias
 
-python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlMinBias+SiStripCalZeroBias
+python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store/whatever --dat --fevt --dqmio --alcarecos=TkAlMinBias+SiStripCalZeroBias
 
 """
     try:
@@ -192,5 +195,7 @@ python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store
             expressinator.alcaRecos = [ x for x in arg.split('+') if len(x) > 0 ]
         if opt == "--nThreads":
             expressinator.nThreads = arg
+        if opt == "--dat":
+            expressinator.dat = True
 
     expressinator()

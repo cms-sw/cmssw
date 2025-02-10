@@ -75,7 +75,7 @@ private:
   ///
   int quartic(double* q_coeff, double* q_sol) const;
   ///
-  int cubic(const double* c_coeff, double* c_sol) const;
+  unsigned int cubic(const double* c_coeff, double* c_sol) const;
   ///
   double sqr(const double x) const { return (x * x); }
   ///

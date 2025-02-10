@@ -20,7 +20,6 @@ ________________________________________________________________**/
 // ROOT
 #include "TMatrixD.h"
 #include "TMath.h"
-#include "Minuit2/VariableMetricMinimizer.h"
 #include "TH1F.h"
 
 // C++ standard
@@ -87,7 +86,6 @@ public:
   TH1F *GetVzHisto() { return h1z; }
 
 private:
-  ROOT::Minuit2::ModularFunctionMinimizer *theFitter;
   //BSzFcn* theGausszFcn;
   BSpdfsFcn *thePDF;
 

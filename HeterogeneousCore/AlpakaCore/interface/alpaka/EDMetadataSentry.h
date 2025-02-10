@@ -14,10 +14,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     class EDMetadataSentry {
     public:
       // For normal module
-      EDMetadataSentry(edm::StreamID stream);
+      EDMetadataSentry(edm::StreamID stream, bool synchronize);
 
       // For ExternalWork-module's produce()
-      EDMetadataSentry(std::shared_ptr<EDMetadata> metadata) : metadata_(std::move(metadata)) {}
+      EDMetadataSentry(std::shared_ptr<EDMetadata> metadata, bool synchronize)
+          : metadata_(std::move(metadata)), synchronize_(synchronize) {}
 
       EDMetadataSentry(EDMetadataSentry const&) = delete;
       EDMetadataSentry& operator=(EDMetadataSentry const&) = delete;
@@ -31,6 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     private:
       std::shared_ptr<EDMetadata> metadata_;
+      bool const synchronize_;
     };
   }  // namespace detail
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

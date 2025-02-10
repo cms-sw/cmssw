@@ -103,6 +103,19 @@ ecalClusterTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Basic cluster energy distribution.')
         ),
+        BCEt = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT BC transverse energy'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(150.0),
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('energy (GeV)')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Basic cluster transverse energy distribution.')
+        ),
         BCSizeMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT BC size map%(suffix)s'),
             kind = cms.untracked.string('TProfile2D'),
@@ -151,6 +164,16 @@ ecalClusterTask = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('2D distribution of the mean energy of the basic clusters.')
+        ),
+        BCEtMap = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT BC transverse energy map%(suffix)s'),
+            kind = cms.untracked.string('TProfile2D'),
+            zaxis = cms.untracked.PSet(
+                title = cms.untracked.string('energy (GeV)')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('2D distribution of the mean transverse energy of the basic clusters.')
         ),
         BCEtMapProjEta = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT BC ET projection eta%(suffix)s'),
@@ -272,6 +295,19 @@ ecalClusterTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Super cluster energy distribution.')
         ),
+        SCEt = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT SC transverse energy'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(150.0),
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('energy (GeV)')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Super cluster transverse energy distribution.')
+        ),
         SCRawE = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT SC raw energy'),
             kind = cms.untracked.string('TH1F'),
@@ -284,6 +320,19 @@ ecalClusterTask = cms.untracked.PSet(
             ),
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Super cluster raw energy distribution.')
+        ),
+        SCRawEt = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT SC raw transverse energy'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(150.0),
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('energy (GeV)')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Super cluster raw transverse energy distribution.')
         ),
         SCNcrystals = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT SC size (crystal)'),
@@ -336,6 +385,19 @@ ecalClusterTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Energy distribution (raw energy) of the super clusters (low scale).')
         ),
+        SCEtLow = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT SC transverse energy (low scale)'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(10.0),
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('energy (GeV)')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Transverse energy distribution (raw energy) of the super clusters (low scale).')
+        ),
         SCRawELow = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT SC raw energy (low scale)'),
             kind = cms.untracked.string('TH1F'),
@@ -348,6 +410,19 @@ ecalClusterTask = cms.untracked.PSet(
             ),
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Energy distribution of the super clusters (low scale).')
+        ),
+        SCRawEtLow = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT SC raw transverse energy (low scale)'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(10.0),
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('energy (GeV)')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Transverse energy distribution of the super clusters (low scale).')
         ),
         SCRawEHigh = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sClusterTask/%(prefix)sCLT SC raw energy (high scale)'),
@@ -498,4 +573,3 @@ ecalClusterTask = cms.untracked.PSet(
         )
     )
 )
-

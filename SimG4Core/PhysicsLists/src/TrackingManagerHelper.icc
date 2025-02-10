@@ -243,7 +243,7 @@ void TrackingManagerHelper::TrackChargedParticle(G4Track* aTrack, PhysicsImpl& p
       bool fieldExertsForce = false;
       if (auto* fieldMgr = fFieldPropagator->FindAndSetFieldManager(track.GetVolume())) {
         fieldMgr->ConfigureForTrack(&track);
-        if (const G4Field* ptrField = fieldMgr->GetDetectorField()) {
+        if (fieldMgr->GetDetectorField()) {
           fieldExertsForce = true;
         }
       }

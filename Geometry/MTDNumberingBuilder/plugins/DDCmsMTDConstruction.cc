@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 #include "Geometry/MTDNumberingBuilder/plugins/DDCmsMTDConstruction.h"
 
 #include <utility>
@@ -22,23 +24,40 @@ using angle_units::operators::convertRadToDeg;
 
 class DDNameFilter : public DDFilter {
 public:
+  void addNS(const std::string& addNS) { allowedNS_.emplace_back(addNS); }
   void add(const std::string& add) { allowed_.emplace_back(add); }
   void veto(const std::string& veto) { veto_.emplace_back(veto); }
 
   bool accept(const DDExpandedView& ev) const final {
-    std::string currentName(ev.logicalPart().name().fullname());
-    for (const auto& test : veto_) {
-      if (currentName.find(test) != std::string::npos)
-        return false;
+    if (allowedNS_.empty() && allowed_.empty() && veto_.empty()) {
+      return true;
     }
-    for (const auto& test : allowed_) {
-      if (currentName.find(test) != std::string::npos)
-        return true;
+    bool out(false);
+    std::string_view currentNSName(ev.logicalPart().name().ns());
+    for (const auto& test : allowedNS_) {
+      if (currentNSName.find(test) != std::string::npos) {
+        out = true;
+        if (!allowed_.empty() || !veto_.empty()) {
+          std::string_view currentName(ev.logicalPart().name().name());
+          for (const auto& test : veto_) {
+            if (currentName.find(test) != std::string::npos) {
+              return false;
+            }
+          }
+          for (const auto& test : allowed_) {
+            if (currentName.find(test) != std::string::npos) {
+              return true;
+            }
+          }
+        }
+        break;
+      }
     }
-    return false;
+    return out;
   }
 
 private:
+  std::vector<std::string> allowedNS_;
   std::vector<std::string> allowed_;
   std::vector<std::string> veto_;
 };
@@ -46,20 +65,13 @@ private:
 std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDCompactView& cpv) {
   std::string attribute{"CMSCutsRegion"};
   DDNameFilter filter;
-  filter.add("mtd:");
-  filter.add("btl:");
-  filter.add("etl:");
-
-  std::vector<std::string> volnames = {"FSide", "SupportPlate"};
-  for (auto const& theVol : volnames) {
-    filter.veto(theVol);
-  }
+  filter.addNS("mtd");
+  filter.addNS("btl");
+  filter.addNS("etl");
 
   DDFilteredView fv(cpv, filter);
 
   CmsMTDStringToEnum theCmsMTDStringToEnum;
-  // temporary workaround to distinguish BTL scenarios ordering without introducing a dependency on MTDTopologyMode
-  auto isBTLV2 = false;
   // temporary workaround to distinguish ETL scenarios ordering without introducing a dependency on MTDTopologyMode
   const bool prev8(fv.name().find("EModule") != std::string::npos);
 
@@ -122,12 +134,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
     // the level chosen for old corresponds to wafers for D50 and previous scenarios
     //
     if ((thisNode == GeometricTimingDet::BTLModule) && limit == 0) {
-      if (theCmsMTDConstruction.isBTLV2(fv)) {
-        limit = num;
-        isBTLV2 = true;
-      } else {
-        limit = num + 1;
-      }
+      limit = num;
     } else if ((thisNode == ETLEndComponent) && limit == 0) {
       limit = num;
     }
@@ -160,26 +167,15 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   edm::LogVerbatim("MTDNumbering") << "GeometricTimingDet order before sorting \n" << before.str();
 #endif
 
-  if (!isBTLV2) {
-    for (size_t index = 0; index < layer.size(); index++) {
-      GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
+  for (size_t index = 0; index < layer.size(); index++) {
+    GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
+    if (index > 0) {
       std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
       std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
-      if (index > 0) {
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
-      }
-    }
-  } else {
-    for (size_t index = 0; index < layer.size(); index++) {
-      GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
-      if (index > 0) {
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
-      } else {
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderPhi);
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderZ);
-      }
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
+    } else {
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderPhi);
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderZ);
     }
   }
 
@@ -212,8 +208,8 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   std::stringstream after(std::stringstream::in | std::stringstream::out);
   for (const auto& it : comp) {
     after << "ORDER2 " << it->geographicalId().rawId() << " " << static_cast<MTDDetId>(it->geographicalId()).mtdRR()
-          << " " << it->type() << " " << it->translation().z() << " "
-          << convertRadToDeg(angle0to2pi::make0To2pi(it->phi())) << "\n";
+          << " " << it->type() << " " << it->translation().z() << " " << convertRadToDeg(makempiToppi(it->phi()))
+          << "\n";
   }
   edm::LogVerbatim("MTDNumbering") << "GeometricTimingDet order after sorting \n" << after.str();
 #endif
@@ -262,8 +258,6 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   CmsMTDStringToEnum theCmsMTDStringToEnum;
 
   CmsMTDConstruction<cms::DDFilteredView> theCmsMTDConstruction;
-  // temporary workaround to distinguish BTL scenarios ordering without introducing a dependency on MTDTopologyMode
-  auto isBTLV2 = false;
   // temporary workaround to distinguish ETL scenarios ordering without introducing a dependency on MTDTopologyMode
   const bool prev8(fv.name().find("EModule") != std::string::npos);
 
@@ -305,11 +299,6 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("DD4hep_MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
-      if (isBTLV2 == false) {
-        if (theCmsMTDConstruction.isBTLV2(fv)) {
-          isBTLV2 = true;
-        }
-      }
       theCmsMTDConstruction.buildBTLModule(fv, layer.back());
     } else if (thisNode == ETLEndComponent) {
 #ifdef EDM_ML_DEBUG
@@ -332,26 +321,15 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   edm::LogVerbatim("DD4hep_MTDNumbering") << "GeometricTimingDet order before sorting \n" << before.str();
 #endif
 
-  if (!isBTLV2) {
-    for (size_t index = 0; index < layer.size(); index++) {
-      GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
+  for (size_t index = 0; index < layer.size(); index++) {
+    GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
+    if (index > 0) {
       std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
       std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
-      if (index > 0) {
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
-      }
-    }
-  } else {
-    for (size_t index = 0; index < layer.size(); index++) {
-      GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
-      if (index > 0) {
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
-      } else {
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderPhi);
-        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderZ);
-      }
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
+    } else {
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderPhi);
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderZ);
     }
   }
 
@@ -384,8 +362,8 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   std::stringstream after(std::stringstream::in | std::stringstream::out);
   for (const auto& it : comp) {
     after << "ORDER2 " << it->geographicalId().rawId() << " " << static_cast<MTDDetId>(it->geographicalId()).mtdRR()
-          << " " << it->type() << " " << it->translation().z() << " "
-          << convertRadToDeg(angle0to2pi::make0To2pi(it->phi())) << "\n";
+          << " " << it->type() << " " << it->translation().z() << " " << convertRadToDeg(makempiToppi(it->phi()))
+          << "\n";
   }
   edm::LogVerbatim("DD4hep_MTDNumbering") << "GeometricTimingDet order after sorting \n" << after.str();
 #endif

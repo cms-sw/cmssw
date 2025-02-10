@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "SimDataFormats/Associations/interface/VertexAssociation.h"
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
@@ -57,6 +58,8 @@ public:
 
   //! Return the quality of the match.
   double quality() const { return quality_; }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   bool bestMatchByMaxValue_;

@@ -256,7 +256,7 @@ std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluste
   double denominator = cluster->energy();
   double clEta = cluster->position().eta();
   double clPhi = cluster->position().phi();
-  std::shared_ptr<const CaloCellGeometry> this_cell;
+  CaloCellGeometryMayOwnPtr this_cell;
   EcalRecHitCollection::const_iterator rHit;
 
   const std::vector<std::pair<DetId, float>>& detId = cluster->hitsAndFractions();

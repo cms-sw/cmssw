@@ -264,7 +264,7 @@ namespace edm {
       finders_.reset();
 
       //Now handle providers since sources can also be finders and the sources can delay registering
-      // their Records and therefore could delay setting up their Proxies
+      // their Records and therefore could delay setting up their Resolvers
       psetIDToRecordKey_->clear();
       for (auto& productResolverProvider : *dataProviders_) {
         ParameterSetIDHolder psetID(productResolverProvider->description().pid_);
@@ -347,10 +347,6 @@ namespace edm {
         }
       }
 
-      auto indices = recordsToResolverIndices();
-      for (auto& provider : *dataProviders_) {
-        provider->updateLookup(indices);
-      }
       dataProviders_.reset();
 
       mustFinishConfiguration_ = false;
@@ -383,16 +379,16 @@ namespace edm {
 
       dependents.erase(std::unique(dependents.begin(), dependents.end()), dependents.end());
 
-      recProvider->resetProxies();
+      recProvider->resetResolvers();
       for (auto& d : dependents) {
-        d->resetProxies();
+        d->resetResolvers();
       }
     }
 
     void EventSetupProvider::forceCacheClear() {
       for (auto& recProvider : recordProviders_) {
         if (recProvider) {
-          recProvider->resetProxies();
+          recProvider->resetResolvers();
         }
       }
     }
@@ -538,6 +534,13 @@ namespace edm {
             ModuleFactory::get()->addTo(esController, *this, pset, resolverMaker, true);
           }
         }
+      }
+    }
+
+    void EventSetupProvider::updateLookup() {
+      auto indices = recordsToResolverIndices();
+      for (auto& recordProvider : recordProviders_) {
+        recordProvider->updateLookup(indices);
       }
     }
 

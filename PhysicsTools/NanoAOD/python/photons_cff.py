@@ -96,18 +96,17 @@ seedGainPho = cms.EDProducer("PhotonSeedGainProducer", src = cms.InputTag("slimm
 import RecoEgamma.EgammaTools.calibratedEgammas_cff
 
 calibratedPatPhotonsNano = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
-    produceCalibratedObjs = False,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain"),
+    produceCalibratedObjs = False
 )
 
 (run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(
     calibratedPatPhotonsNano,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain")
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain_v3")
 )
 
 (run2_egamma_2016 & ~tracker_apv_vfp30_2016).toModify(
     calibratedPatPhotonsNano,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain"),
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain_v1"),
 )
 
 run2_egamma_2017.toModify(
@@ -204,7 +203,7 @@ photonTable = simplePATPhotonFlatTableProducer.clone(
         cutBased = Var(
             "userInt('cutBasedID_loose')+userInt('cutBasedID_medium')+userInt('cutBasedID_tight')",
             "uint8",
-            doc="cut-based ID bitmap, RunIIIWinter22V1, (0:fail, 1:loose, 2:medium, 3:tight)",
+            doc="cut-based ID bitmap, RunIIIWinter22V1: fail ==0, loose >=1 , medium >=2, tight >=3",
         ),
         vidNestedWPBitmap = Var(
             "userInt('VIDNestedWPBitmap')",
@@ -222,12 +221,12 @@ photonTable = simplePATPhotonFlatTableProducer.clone(
         ecalPFClusterIso = Var("ecalPFClusterIso()",float,doc="sum pt of ecal clusters, vetoing clusters part of photon", precision=10),
         hcalPFClusterIso = Var("hcalPFClusterIso()",float,doc="sum pt of hcal clusters, vetoing clusters part of photon", precision=10), 
         pfPhoIso03 = Var("photonIso()",float,doc="PF absolute isolation dR=0.3, photon component (uncorrected)"),
-        pfChargedIso = Var("chargedHadronIso()",float,doc="PF absolute isolation dR=0.3, charged component with dxy,dz match to PV", precision=8),        
+        pfChargedIso = Var("chargedHadronIso()",float,doc="PF absolute isolation dR=0.3, charged component with dxy,dz match to PV", precision=10),        
         pfChargedIsoPFPV = Var("chargedHadronPFPVIso()",float,doc="PF absolute isolation dR=0.3, charged component (PF PV only)"),
         pfChargedIsoWorstVtx = Var("chargedHadronWorstVtxIso()",float,doc="PF absolute isolation dR=0.3, charged component (Vertex with largest isolation)"),
         pfRelIso03_chg_quadratic = Var("userFloat('PFIsoChgQuadratic')/pt",float,doc="PF relative isolation dR=0.3, charged hadron component (with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)"),
         pfRelIso03_all_quadratic = Var("userFloat('PFIsoAllQuadratic')/pt",float,doc="PF relative isolation dR=0.3, total (with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)"),
-        hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
+        hoe = Var("hadronicOverEm()",float,doc="H over E",precision=10),
         hoe_Tower = Var("hadTowOverEm()",float,doc="H over E Tower based calculation",precision=8),
         hoe_PUcorr = Var("userFloat('HoverEQuadratic')",float,doc="PU corrected H/E (cone-based with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)",precision=8),
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
@@ -284,11 +283,11 @@ run2_egamma.toModify(
     photonTable.variables,
     pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
     energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
-    eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
+    ptPreCorr = Var("pt",float,doc="pt of the photon before energy corrections"),
     cutBased = Var(
             "userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')",
             "uint8",
-            doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)",
+            doc="cut-based ID bitmap, Fall17V2: fail ==0, loose >=1 , medium >=2, tight >=3",
         ),
     vidNestedWPBitmap = Var(
             "userInt('VIDNestedWPBitmapFall17V2')",

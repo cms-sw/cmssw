@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducerAdaptor.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -376,6 +377,44 @@ private:
       m_globalEndLuminosityBlockSummaryCalled = false;
     }
   };
+
+  class TransformProd : public edm::stream::EDProducer<edm::Transformer> {
+  public:
+    TransformProd(edm::ParameterSet const&) {
+      token_ = produces<float>();
+      registerTransform(token_, [](edm::StreamID, float iV) { return int(iV); });
+    }
+
+    void produce(edm::Event& iEvent, edm::EventSetup const&) final {
+      //iEvent.emplace(token_, 3.625);
+    }
+
+  private:
+    edm::EDPutTokenT<float> token_;
+  };
+
+  class TransformAsyncProd : public edm::stream::EDProducer<edm::Transformer> {
+  public:
+    struct IntHolder {
+      IntHolder() : value_(0) {}
+      IntHolder(int iV) : value_(iV) {}
+      int value_;
+    };
+    TransformAsyncProd(edm::ParameterSet const&) {
+      token_ = produces<float>();
+      registerTransformAsync(
+          token_,
+          [](edm::StreamID, float iV, edm::WaitingTaskWithArenaHolder iHolder) { return IntHolder(iV); },
+          [](edm::StreamID, IntHolder iWaitValue) { return iWaitValue.value_; });
+    }
+
+    void produce(edm::Event& iEvent, edm::EventSetup const&) final {
+      //iEvent.emplace(token_, 3.625);
+    }
+
+  private:
+    edm::EDPutTokenT<float> token_;
+  };
 };
 unsigned int testStreamProducer::BasicProd::m_count = 0;
 unsigned int testStreamProducer::GlobalProd::m_count = 0;
@@ -407,10 +446,12 @@ testStreamProducer::testStreamProducer()
 
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
-  m_rp.reset(new edm::RunPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
+  m_rp.reset(
+      new edm::RunPrincipal(m_prodReg, edm::productResolversFactory::makePrimary, m_procConfig, &historyAppender_, 0));
   m_rp->setAux(edm::RunAuxiliary(eventID.run(), now, now));
   auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
-  m_lbp.reset(new edm::LuminosityBlockPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
+  m_lbp.reset(new edm::LuminosityBlockPrincipal(
+      m_prodReg, edm::productResolversFactory::makePrimary, m_procConfig, &historyAppender_, 0));
   m_lbp->setAux(*lumiAux);
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
@@ -421,7 +462,13 @@ testStreamProducer::testStreamProducer()
   edm::StreamID* pID = reinterpret_cast<edm::StreamID*>(&shadowID);
   assert(pID->value() == 0);
 
-  m_ep.reset(new edm::EventPrincipal(m_prodReg, m_idHelper, m_associationsHelper, m_procConfig, nullptr, *pID));
+  m_ep.reset(new edm::EventPrincipal(m_prodReg,
+                                     edm::productResolversFactory::makePrimary,
+                                     m_idHelper,
+                                     m_associationsHelper,
+                                     m_procConfig,
+                                     nullptr,
+                                     *pID));
   m_ep->fillEventPrincipal(eventAux, nullptr);
   m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);

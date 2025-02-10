@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoHI.HiJetAlgos.hiSignalParticleProducer_cfi import hiSignalParticleProducer as hiSignalGenParticles
-from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
+from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJetsNoNu
 from RecoHI.HiJetAlgos.HiGenCleaner_cff import hiPartons
 from RecoHI.HiJetAlgos.HiGenJets_cff import ak4HiGenJets
+ak4HiGenJetsNoNu = ak4HiGenJets.clone(src = "genParticlesForJetsNoNu")
 from RecoHI.HiJetAlgos.HiGenCleaner_cff import heavyIonCleanedGenJets
 from RecoHI.HiJetAlgos.hiSignalGenJetProducer_cfi import hiSignalGenJetProducer
-ak4HiSignalGenJets = hiSignalGenJetProducer.clone(src = "ak4HiGenJets")
+ak4HiSignalGenJets = hiSignalGenJetProducer.clone(src = "ak4HiGenJetsNoNu")
 
 allPartons = cms.EDProducer(
     "PartonSelector",
@@ -23,13 +24,13 @@ cleanedPartons = hiPartons.clone(
 
 hiGenJetsTask = cms.Task(
     hiSignalGenParticles,
-    genParticlesForJets,
+    genParticlesForJetsNoNu,
     allPartons,
-    ak4HiGenJets,
+    ak4HiGenJetsNoNu,
     ak4HiSignalGenJets
 )
 
-ak4HiGenJetsCleaned = heavyIonCleanedGenJets.clone(src = "ak4HiGenJets")
+ak4HiGenJetsCleaned = heavyIonCleanedGenJets.clone(src = "ak4HiGenJetsNoNu")
 hiCleanedGenJetsTask_ = hiGenJetsTask.copyAndExclude([hiSignalGenParticles,ak4HiSignalGenJets])
 hiCleanedGenJetsTask_.add(cleanedPartons,ak4HiGenJetsCleaned)
 genJetSubEvent.toReplaceWith(hiGenJetsTask,hiCleanedGenJetsTask_)

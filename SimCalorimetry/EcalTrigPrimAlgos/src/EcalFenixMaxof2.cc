@@ -33,11 +33,12 @@ void EcalFenixMaxof2::process(
 
   for (unsigned int i = 0; i < output.size(); i++) {
     if (nstrip - 1 == 0) {
-      output[i] = strip_oddmask[0][i] * ((bypasslinout[0][i]) & mask);
+      [[clang::suppress]] output[i] = strip_oddmask[0][i] * ((bypasslinout[0][i]) & mask);
     } else {
       for (int i2strip = 0; i2strip < nstrip - 1; ++i2strip) {
-        sumby2_[i2strip][i] = strip_oddmask[i2strip][i] * ((bypasslinout[i2strip][i]) & mask) +
-                              strip_oddmask[i2strip + 1][i] * ((bypasslinout[i2strip + 1][i]) & mask);
+        [[clang::suppress]] sumby2_[i2strip][i] =
+            strip_oddmask[i2strip][i] * ((bypasslinout[i2strip][i]) & mask) +
+            strip_oddmask[i2strip + 1][i] * ((bypasslinout[i2strip + 1][i]) & mask);
         if (sumby2_[i2strip][i] > output[i]) {
           output[i] = sumby2_[i2strip][i];
         }

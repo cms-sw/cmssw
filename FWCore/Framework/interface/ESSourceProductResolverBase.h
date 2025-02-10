@@ -1,16 +1,17 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESSourceProductResolverBase_h
 #define FWCore_Framework_ESSourceProductResolverBase_h
-// -*- C++ -*-
 //
 // Package:     FWCore/Framework
 // Class  :     ESSourceProductResolverBase
 //
-/**\class ESSourceProductResolverBase ESSourceProductResolverBase.h "FWCore/Framework/interface/ESSourceProductResolverBase.h"
+/**\class edm::eventsetup::ESSourceProductResolverBase
 
- Description: Base class for DataProxies for ESSources that can be specialized based on concurrency needs
+ Description: Base class for ESProductResolvers for ESSources that can be specialized based on concurrency needs
 
  Usage:
-    The ESSourceProductResolverBase provides the bases for DataProxies needed for ESSources. It allows customization of synchronization needs via the use of template parameters.
+    The ESSourceProductResolverBase provides the bases for ProductResolvers needed for ESSources.
+    It allows customization of synchronization needs via the use of template parameters.
 
     NOTE: if inheriting classes override `void invalidateCache()` they must be sure to call this classes
     implementation as part of the call.

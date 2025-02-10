@@ -685,8 +685,8 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
   if (!fjJets_.empty()) {
     // Distance between jet centers and overlap area -- for disk-based area calculation
     using RIJ = std::pair<double, double>;
-    std::vector<RIJ> rijStorage(fjJets_.size() * (fjJets_.size() / 2));
-    RIJ* rij[fjJets_.size()];
+    std::vector<RIJ> rijStorage(fjJets_.size() == 1 ? 1 : fjJets_.size() * (fjJets_.size() >> 1));
+    std::vector<RIJ*> rij(fjJets_.size());
     unsigned int k = 0;
     for (unsigned int ijet = 0; ijet < fjJets_.size(); ++ijet) {
       rij[ijet] = &rijStorage[k];
@@ -754,7 +754,8 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
         jetArea = M_PI;
         RIJ* distance = rij[ijet];
         for (unsigned jJet = 0; jJet < ijet; ++jJet) {
-          distance[jJet].first = std::sqrt(reco::deltaR2(etaJ[ijet], phiJ[ijet], etaJ[jJet], phiJ[jJet])) * orParam_;
+          [[clang::suppress]] distance[jJet].first =
+              std::sqrt(reco::deltaR2(etaJ[ijet], phiJ[ijet], etaJ[jJet], phiJ[jJet])) * orParam_;
           distance[jJet].second = reco::helper::VirtualJetProducerHelper::intersection(distance[jJet].first);
           jetArea -= distance[jJet].second;
           for (unsigned kJet = 0; kJet < jJet; ++kJet) {
@@ -765,7 +766,7 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
                                                                             distance[kJet].second,
                                                                             rij[jJet][kJet].second);
           }  // end loop over harder jets
-        }    // end loop over harder jets
+        }  // end loop over harder jets
         jetArea *= (rParam_ * rParam_);
       }
       auto& jet = (*jets)[ijet];

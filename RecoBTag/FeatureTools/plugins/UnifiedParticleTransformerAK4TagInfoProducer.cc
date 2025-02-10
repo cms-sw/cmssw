@@ -159,7 +159,7 @@ void UnifiedParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::Configu
   desc.add<double>("min_candidate_pt", 0.10);
   desc.add<bool>("flip", false);
   desc.add<bool>("sort_cand_by_pt", false);
-  desc.add<bool>("fix_lt_sorting", false);
+  desc.add<bool>("fix_lt_sorting", true);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("losttracks", edm::InputTag("lostTracks"));
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
@@ -171,7 +171,7 @@ void UnifiedParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::Configu
   desc.add<bool>("fallback_puppi_weight", false);
   desc.add<bool>("fallback_vertex_association", false);
   desc.add<bool>("is_weighted_jet", false);
-  desc.add<double>("min_jet_pt", 15.0);
+  desc.add<double>("min_jet_pt", 0.0);
   desc.add<double>("max_jet_eta", 2.5);
   descriptions.add("pfUnifiedParticleTransformerAK4TagInfos", desc);
 }
@@ -225,10 +225,10 @@ void UnifiedParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, c
 
     // reco jet reference (use as much as possible)
     const auto& jet = jets->at(jet_n);
-    if (jet.pt() < 15.0) {
+    if (jet.pt() < min_jet_pt_) {
       features.is_filled = false;
     }
-    if (std::abs(jet.eta()) > 2.5) {
+    if (std::abs(jet.eta()) > max_jet_eta_) {
       features.is_filled = false;
     }
     // dynamical casting to pointers, null if not possible

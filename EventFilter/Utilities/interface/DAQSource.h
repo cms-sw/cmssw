@@ -7,6 +7,7 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <queue>
 
 #include "oneapi/tbb/concurrent_queue.h"
 #include "oneapi/tbb/concurrent_vector.h"
@@ -20,7 +21,8 @@
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 
 //import InputChunk
-#include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "EventFilter/Utilities/interface/SourceRawFile.h"
 
 class FEDRawDataCollection;
 class InputSourceDescription;
@@ -72,6 +74,7 @@ private:
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
 
   void readSupervisor();
+  void fileDeleter();
   void dataArranger();
   void readWorker(unsigned int tid);
   void threadError();
@@ -92,10 +95,11 @@ private:
   uint64_t maxChunkSize_;     // for buffered read-ahead
   uint64_t eventChunkBlock_;  // how much read(2) asks at the time
   unsigned int readBlocks_;
+  int numConcurrentReads_;
   unsigned int numBuffers_;
   unsigned int maxBufferedFiles_;
-  unsigned int numConcurrentReads_;
   std::atomic<unsigned int> readingFilesCount_;
+  std::atomic<unsigned int> heldFilesCount_;
 
   // get LS from filename instead of event header
   const bool alwaysStartFromFirstLS_;
@@ -136,6 +140,7 @@ private:
 
   bool startedSupervisorThread_ = false;
   std::unique_ptr<std::thread> readSupervisorThread_;
+  std::unique_ptr<std::thread> fileDeleterThread_;
   std::unique_ptr<std::thread> dataArrangerThread_;
   std::vector<std::thread*> workerThreads_;
 
@@ -164,6 +169,7 @@ private:
   //supervisor thread wakeup
   std::mutex mWakeup_;
   std::condition_variable cvWakeup_;
+  std::condition_variable cvWakeupAll_;
 
   //variables for the single buffered mode
   int fileDescriptor_ = -1;
@@ -174,30 +180,6 @@ private:
   std::mutex monlock_;
 
   std::shared_ptr<DataMode> dataMode_;
-};
-
-class RawInputFile : public InputFile {
-public:
-  RawInputFile(evf::EvFDaqDirector::FileStatus status,
-               unsigned int lumi = 0,
-               std::string const& name = std::string(),
-               bool deleteFile = true,
-               int rawFd = -1,
-               uint64_t fileSize = 0,
-               uint16_t rawHeaderSize = 0,
-               uint32_t nChunks = 0,
-               int nEvents = 0,
-               DAQSource* parent = nullptr)
-      : InputFile(status, lumi, name, deleteFile, rawFd, fileSize, rawHeaderSize, nChunks, nEvents, nullptr),
-        sourceParent_(parent) {}
-  bool advance(unsigned char*& dataPosition, const size_t size);
-  void advance(const size_t size) {
-    chunkPosition_ += size;
-    bufferPosition_ += size;
-  }
-
-private:
-  DAQSource* sourceParent_;
 };
 
 #endif  // EventFilter_Utilities_DAQSource_h

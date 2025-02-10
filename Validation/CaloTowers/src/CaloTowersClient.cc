@@ -88,11 +88,13 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*>& hcalM
   if (useAllHistos != 0 && useAllHistos != 3)
     return 0;
 
+  assert(mapEnergy_N);
   double nevent = mapEnergy_N->getEntries();
   if (verbose_)
     std::cout << "nevent : " << nevent << std::endl;
 
   // mean number of towers per ieta
+  assert(Ntowers_vs_ieta);
   int nx = Ntowers_vs_ieta->getNbinsX();
   float cont;
   float econt;
@@ -139,6 +141,7 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*>& hcalM
       }
 
       // Occupancy (needed for occupancy vs ieta)
+      assert(occupancy_map);
       cnorm = occupancy_map->getBinContent(i, j) / fev;
       enorm = occupancy_map->getBinError(i, j) / fev;
       if (cnorm > 1.e-30)
@@ -163,6 +166,7 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*>& hcalM
 
     cnorm = sumphi / phi_factor;
     enorm = sqrt(sumphie) / phi_factor;
+    assert(occupancy_vs_ieta);
     occupancy_vs_ieta->setBinContent(i, cnorm);
     occupancy_vs_ieta->setBinError(i, enorm);
 

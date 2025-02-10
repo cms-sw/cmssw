@@ -1,4 +1,4 @@
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedVPatternRecognition.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedVPatternRecognition.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 MuonSeedVPatternRecognition::MuonSeedVPatternRecognition(const edm::ParameterSet& pset)

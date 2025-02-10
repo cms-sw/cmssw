@@ -13,7 +13,6 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -26,7 +25,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
 class testEDProducerProductRegistryCallback : public CppUnit::TestFixture {
@@ -58,7 +56,7 @@ namespace {
 
     void produce(StreamID, Event& e, EventSetup const&) const override;
 
-    void listen(BranchDescription const&);
+    void listen(ProductDescription const&);
   };
 
   TestMod::TestMod(ParameterSet const&) { produces<int>(); }
@@ -69,16 +67,16 @@ namespace {
   public:
     explicit ListenMod(ParameterSet const&);
     void produce(StreamID, Event& e, EventSetup const&) const override;
-    void listen(BranchDescription const&);
+    void listen(ProductDescription const&);
   };
 
   ListenMod::ListenMod(ParameterSet const&) {
     callWhenNewProductsRegistered(
-        [this](BranchDescription const& branchDescription) { this->listen(branchDescription); });
+        [this](ProductDescription const& productDescription) { this->listen(productDescription); });
   }
   void ListenMod::produce(StreamID, Event&, EventSetup const&) const {}
 
-  void ListenMod::listen(BranchDescription const& iDesc) {
+  void ListenMod::listen(ProductDescription const& iDesc) {
     edm::TypeID intType(typeid(int));
     //std::cout << "see class " << iDesc.typeName() << std::endl;
     if (iDesc.friendlyClassName() == intType.friendlyClassName()) {
@@ -91,16 +89,16 @@ namespace {
   public:
     explicit ListenFloatMod(ParameterSet const&);
     void produce(StreamID, Event& e, EventSetup const&) const;
-    void listen(BranchDescription const&);
+    void listen(ProductDescription const&);
   };
 
   ListenFloatMod::ListenFloatMod(ParameterSet const&) {
     callWhenNewProductsRegistered(
-        [this](BranchDescription const& branchDescription) { this->listen(branchDescription); });
+        [this](ProductDescription const& productDescription) { this->listen(productDescription); });
   }
   void ListenFloatMod::produce(StreamID, Event&, EventSetup const&) const {}
 
-  void ListenFloatMod::listen(BranchDescription const& iDesc) {
+  void ListenFloatMod::listen(ProductDescription const& iDesc) {
     edm::TypeID intType(typeid(int));
     //std::cout <<"see class "<<iDesc.typeName()<<std::endl;
     if (iDesc.friendlyClassName() == intType.friendlyClassName()) {
@@ -114,11 +112,6 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
   using namespace edm;
 
   SignallingProductRegistry preg;
-
-  //Need access to the ConstProductRegistry service
-  auto cReg = std::make_unique<ConstProductRegistry>(preg);
-  ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
-  ServiceRegistry::Operate startServices(token);
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
@@ -192,11 +185,6 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
 
   SignallingProductRegistry preg;
 
-  //Need access to the ConstProductRegistry service
-  auto cReg = std::make_unique<ConstProductRegistry>(preg);
-  ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
-  ServiceRegistry::Operate startServices(token);
-
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
   ParameterSet p1;
@@ -267,11 +255,6 @@ void testEDProducerProductRegistryCallback::testTwoListeners() {
   using namespace edm;
 
   SignallingProductRegistry preg;
-
-  //Need access to the ConstProductRegistry service
-  auto cReg = std::make_unique<ConstProductRegistry>(preg);
-  ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
-  ServiceRegistry::Operate startServices(token);
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 

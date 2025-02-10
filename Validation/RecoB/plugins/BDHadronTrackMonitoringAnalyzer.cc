@@ -327,7 +327,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event &iEvent, const ed
                                                             sqrt(momentum_tpr.perp2()) * momentum_tpr.z() /
                                                             sqrt(momentum_tpr.perp2());
 
-        TrkTruthnHitAll = 0;
+        [[clang::suppress]] TrkTruthnHitAll = 0;
         TrkTruthnHitPixel = 0;
         TrkTruthnHitStrip = 0;
         if (clusterRange.first != clusterRange.second) {

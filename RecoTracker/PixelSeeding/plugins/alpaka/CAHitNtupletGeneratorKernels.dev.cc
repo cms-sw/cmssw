@@ -9,8 +9,6 @@
 // CMSSW headers
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
@@ -66,8 +64,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             cms::alpakatools::make_device_buffer<cms::alpakatools::AtomicPairCounter::DoubleWord[]>(queue, 3u)},
         device_hitTuple_apc_{reinterpret_cast<cms::alpakatools::AtomicPairCounter *>(device_storage_.data())},
         device_hitToTuple_apc_{reinterpret_cast<cms::alpakatools::AtomicPairCounter *>(device_storage_.data() + 1)},
-        device_nCells_{cms::alpakatools::make_device_view(alpaka::getDev(queue),
-                                                          *reinterpret_cast<uint32_t *>(device_storage_.data() + 2))} {
+        device_nCells_{
+            cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(device_storage_.data() + 2))} {
 #ifdef GPU_DEBUG
     std::cout << "Allocation for tuple building. N hits " << nhits << std::endl;
 #endif

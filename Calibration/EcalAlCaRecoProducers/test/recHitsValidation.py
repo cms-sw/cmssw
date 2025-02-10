@@ -7,7 +7,7 @@ from PhysicsTools.PythonAnalysis import *
 
 #print_options.set_float_precision(4)
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+ROOT.FWLiteEnabler.enable()
 
 #import EcalDetId
 #from DataFormats.EcalDetId import *
@@ -77,42 +77,42 @@ event_counter=0
 
 for arg in sys.argv:
     if (arg=='testAlca1'):
-        print "testAlca1"
+        print("testAlca1")
         file="/tmp/"+os.environ["USER"]+"/testAlca1.root"
         file_format = "AlcaFromAOD"
         break
     elif(arg=='testAlca2'):
-        print 'testAlca2'
+        print('testAlca2')
         file="/tmp/"+os.environ["USER"]+"/testAlca2.root"
         file_format = "AlcaFromAOD_Recalib"
         break
     elif(arg=='testAlca3'):
-        print 'testAlca3'
+        print('testAlca3')
         file="/tmp/"+os.environ["USER"]+"/testAlca3.root"
         file_format = "AlcaFromAOD_Recalib"
         break
     elif(arg=='testAlca4'):
-        print 'testAlca4'
+        print('testAlca4')
         file="/tmp/"+os.environ["USER"]+"/testAlca4.root"
         file_format = "AlcaFromAOD_Recalib"
         break
     elif(arg=='AOD'):
-        print "AOD"
+        print("AOD")
         file="/tmp/"+os.environ["USER"]+"/rereco30Nov-AOD.root"
         file_format="AOD"
         break
     elif(arg=='AlcaFromAOD'):
-        print "AlcaFromAOD"
+        print("AlcaFromAOD")
         file="/tmp/"+os.environ["USER"]+"/AlcarecoFromAOD.root"
         file_format="AlcaFromAOD"
         break
     elif(arg=='AlcaFromAOD-recalib'):
-        print "AlcaFromAOD-recalib"
+        print("AlcaFromAOD-recalib")
         file="/tmp/"+os.environ["USER"]+"/AlcarecoFromAOD-recalib.root"
         file_format="AlcaFromAOD_Recalib"
         break
     elif(arg=='sandbox'):
-        print 'sandbox'
+        print('sandbox')
         #        file="/tmp/"+os.environ["USER"]+"/sandbox.root"
         #        file="/tmp/"+os.environ["USER"]+"/alcaRecoSkim-2.root"
         file="/tmp/"+os.environ["USER"]+"/alcaSkimSandbox.root"
@@ -121,7 +121,7 @@ for arg in sys.argv:
 #sandbox"
         break
     elif(arg=='sandboxRecalib'):
-        print 'sandbox recalib'
+        print('sandbox recalib')
 #        file="/tmp/"+os.environ["USER"]+"/Test-RecalibSandbox-GT_IC_LC.root"
 #        file="/tmp/"+os.environ["USER"]+"/SandboxReReco-noADCtoGeV.root"
         file="/tmp/"+os.environ["USER"]+"/SandboxReReco.root"
@@ -132,7 +132,7 @@ for arg in sys.argv:
         
         break
     elif(arg=='RECO'):
-        print 'RECO'
+        print('RECO')
         file="/tmp/"+os.environ["USER"]+"/SANDBOX/RAW-RECO.root"
         file_format="RECO"
         break
@@ -143,7 +143,7 @@ for arg in sys.argv:
 
 
 events = Events (file)
-print file
+print(file)
 handleElectrons = Handle('std::vector<reco::GsfElectron>')
 handleRecHitsEB = Handle('edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >')
 handleRecHitsEE = Handle('edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >')
@@ -198,9 +198,9 @@ EBrecHitmap_ele2 = TH2F("EBrecHitmap_ele2", "EBrecHitmap_ele2",
                    171,-85,85,
                    360,0,360)
 
-print file_format, file, electronTAG, processName, maxEvents
+print(file_format, file, electronTAG, processName, maxEvents)
 
-print "run\tlumi, event, energy, eSC, rawESC, e5x5, E_ES, etaEle, phiEle, etaSC, phiSC, clustersSize, nRecHits"
+print("run\tlumi, event, energy, eSC, rawESC, e5x5, E_ES, etaEle, phiEle, etaSC, phiSC, clustersSize, nRecHits")
 for event in events:
 
     if(maxEvents > 0 and event_counter > maxEvents):
@@ -214,7 +214,7 @@ for event in events:
 
         #    event.getByLabel(electronTAG, "", processName, handleElectrons)
     event.getByLabel(electronTAG, handleElectrons)
-    #    print file_format, file, electronTAG        
+    #    print(file_format, file, electronTAG        )
     electrons = handleElectrons.product()
 
     #    event.getByLabel("reducedEcalRecHitsEB", "", processName, handleRecHitsEB)
@@ -242,19 +242,19 @@ for event in events:
            for recHit in recHits_RECO:
                nRecHits_RECO=nRecHits_RECO+1
 #                if(recHit.checkFlag(EcalRecHit.kTowerRecovered)):
-#                   print recHit.id().rawId()
+#                   print(recHit.id().rawId())
        
            nRecHits_ALCASKIM=0
            for recHit in recHits_ALCASKIM:
                nRecHits_ALCASKIM=nRecHits_ALCASKIM+1
                #               if(recHit.checkFlag(EcalRecHit.kTowerRecovered)):
-               print recHit.id().rawId(), recHit.checkFlag(EcalRecHit.kTowerRecovered)
+               print(recHit.id().rawId(), recHit.checkFlag(EcalRecHit.kTowerRecovered))
                
            if(nRecHits_ALCASKIM != nRecHits_RECO):
-               print nRecHits_RECO, nRecHits_ALCASKIM
-               print recHits_RECO
-               print "------------------------------"
-               print recHits_ALCASKIM
+               print(nRecHits_RECO, nRecHits_ALCASKIM)
+               print(recHits_RECO)
+               print("------------------------------")
+               print(recHits_ALCASKIM)
     else:
        for electron in electrons:
            if(abs(electron.eta()) < 1.4442):
@@ -266,9 +266,9 @@ for event in events:
            for recHit in recHits_ALCARECO:
                nRecHits_ALCARECO=nRecHits_ALCARECO+1
                #               if(recHit.checkFlag(EcalRecHit.kTowerRecovered)):
-               print recHit.id().rawId(), recHit.checkFlag(EcalRecHit.kTowerRecovered)
+               print(recHit.id().rawId(), recHit.checkFlag(EcalRecHit.kTowerRecovered))
                
-print event_counter
+print(event_counter)
 
 
 

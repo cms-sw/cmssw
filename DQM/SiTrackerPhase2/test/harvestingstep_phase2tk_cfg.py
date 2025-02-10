@@ -15,7 +15,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D76Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')
@@ -75,7 +75,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
 # Path and EndPath definitions
-process.trackerphase2ValidationHarvesting_step = cms.Path(process.trackerphase2ValidationHarvesting_standalone
+process.trackerphase2ValidationHarvesting_step = cms.Path(process.trackerphase2ValidationHarvesting_standalone)
 ##default path in production
 #process.trackerphase2ValidationHarvesting_step = cms.Path(process.trackerphase2ValidationHarvesting)
 process.dqmsave_step = cms.Path(process.DQMSaver)

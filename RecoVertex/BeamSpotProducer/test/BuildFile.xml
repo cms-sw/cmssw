@@ -19,6 +19,7 @@
 </bin>
 
 <bin file="testBeamSpotCompatibility.cc">
+  <use name="RecoVertex/VertexTools"/>
   <use name="CondFormats/BeamSpotObjects"/>
   <use name="CondFormats/DataRecord"/>
   <use name="FWCore/TestProcessor"/>

@@ -5,6 +5,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -12,7 +13,8 @@
 template <typename TDev>
 class SiPixelDigisDevice : public PortableDeviceCollection<SiPixelDigisSoA, TDev> {
 public:
-  SiPixelDigisDevice() = default;
+  SiPixelDigisDevice(edm::Uninitialized) : PortableDeviceCollection<SiPixelDigisSoA, TDev>{edm::kUninitialized} {}
+
   template <typename TQueue>
   explicit SiPixelDigisDevice(size_t maxFedWords, TQueue queue)
       : PortableDeviceCollection<SiPixelDigisSoA, TDev>(maxFedWords + 1, queue) {}

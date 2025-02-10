@@ -118,10 +118,12 @@ namespace mkfit {
 
   void kalmanUpdatePlane(const MPlexLS& psErr,
                          const MPlexLV& psPar,
+                         const MPlexQI& Chg,
                          const MPlexHS& msErr,
                          const MPlexHV& msPar,
                          const MPlexHV& plNrm,
                          const MPlexHV& plDir,
+                         const MPlexHV& plPnt,
                          MPlexLS& outErr,
                          MPlexLV& outPar,
                          const int N_proc);
@@ -133,6 +135,7 @@ namespace mkfit {
                                      const MPlexHV& msPar,
                                      const MPlexHV& plNrm,
                                      const MPlexHV& plDir,
+                                     const MPlexHV& plPnt,
                                      MPlexLS& outErr,
                                      MPlexLV& outPar,
                                      MPlexQI& outFailFlag,
@@ -147,6 +150,7 @@ namespace mkfit {
                               const MPlexHV& msPar,
                               const MPlexHV& plNrm,
                               const MPlexHV& plDir,
+                              const MPlexHV& plPnt,
                               MPlexQF& outChi2,
                               const int N_proc);
 
@@ -157,6 +161,7 @@ namespace mkfit {
                                           const MPlexHV& msPar,
                                           const MPlexHV& plNrm,
                                           const MPlexHV& plDir,
+                                          const MPlexHV& plPnt,
                                           MPlexQF& outChi2,
                                           MPlexLV& propPar,
                                           MPlexQI& outFailFlag,
@@ -167,14 +172,30 @@ namespace mkfit {
   void kalmanOperationPlane(const int kfOp,
                             const MPlexLS& psErr,
                             const MPlexLV& psPar,
+                            const MPlexQI& Chg,
                             const MPlexHS& msErr,
                             const MPlexHV& msPar,
                             const MPlexHV& plNrm,
                             const MPlexHV& plDir,
+                            const MPlexHV& plPnt,
                             MPlexLS& outErr,
                             MPlexLV& outPar,
                             MPlexQF& outChi2,
                             const int N_proc);
+
+  void kalmanOperationPlaneLocal(const int kfOp,
+                                 const MPlexLS& psErr,
+                                 const MPlexLV& psPar,
+                                 const MPlexQI& Chg,
+                                 const MPlexHS& msErr,
+                                 const MPlexHV& msPar,
+                                 const MPlexHV& plNrm,
+                                 const MPlexHV& plDir,
+                                 const MPlexHV& plPnt,
+                                 MPlexLS& outErr,
+                                 MPlexLV& outPar,
+                                 MPlexQF& outChi2,
+                                 const int N_proc);
 
 }  // end namespace mkfit
 #endif

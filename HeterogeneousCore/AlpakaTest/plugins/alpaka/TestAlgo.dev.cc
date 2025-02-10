@@ -17,8 +17,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::View view, double xvalue) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  portabletest::TestDeviceCollection::View view,
+                                  double xvalue) const {
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
       const portabletest::Array flags = {{6, 4, 2, 0}};
 
@@ -36,8 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoMultiKernel2 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestDeviceMultiCollection2::View<1> view,
                                   double xvalue) const {
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
@@ -56,8 +56,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoMultiKernel3 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestDeviceMultiCollection3::View<2> view,
                                   double xvalue) const {
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
@@ -109,8 +108,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoStructKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestDeviceObject::Product* data,
                                   double x,
                                   double y,
@@ -157,8 +155,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoKernelUpdate {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestDeviceCollection::ConstView input,
                                   AlpakaESTestDataEDevice::ConstView esData,
                                   portabletest::TestDeviceCollection::View output) const {
@@ -176,12 +173,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         output[i] = {x, input[i].y(), input[i].z(), input[i].id(), input[i].flags(), input[i].m()};
       }
     }
+
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  portabletest::TestDeviceCollection::ConstView input,
+                                  TestAlgo::UpdateInfo const* updateInfo,
+                                  portabletest::TestDeviceCollection::View output) const {
+      // set this only once in the whole kernel grid
+      if (once_per_grid(acc)) {
+        output.r() = input.r();
+      }
+
+      // make a strided loop over the kernel grid, covering up to "size" elements
+      for (int32_t i : uniform_elements(acc, output.metadata().size())) {
+        double x = input[i].x();
+        x += updateInfo->x;
+        output[i] = {x, input[i].y(), input[i].z(), input[i].id(), input[i].flags(), input[i].m()};
+      }
+    }
   };
 
   class TestAlgoKernelUpdateMulti2 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestSoA::ConstView input,
                                   portabletest::TestSoA2::ConstView input2,
                                   AlpakaESTestDataEDevice::ConstView esData,
@@ -209,12 +222,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         output2[i] = {x2, input2[i].y2(), input2[i].z2(), input2[i].id2(), input2[i].m2()};
       }
     }
+
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  portabletest::TestSoA::ConstView input,
+                                  portabletest::TestSoA2::ConstView input2,
+                                  TestAlgo::UpdateInfo const* updateInfo,
+                                  portabletest::TestSoA::View output,
+                                  portabletest::TestSoA2::View output2) const {
+      // set this only once in the whole kernel grid
+      if (once_per_grid(acc)) {
+        output.r() = input.r();
+        output2.r2() = input2.r2();
+      }
+
+      // make a strided loop over the kernel grid, covering up to "size" elements
+      for (int32_t i : uniform_elements(acc, output.metadata().size())) {
+        double x = input[i].x();
+        x += updateInfo->x;
+        output[i] = {x, input[i].y(), input[i].z(), input[i].id(), input[i].flags(), input[i].m()};
+      }
+      for (int32_t i : uniform_elements(acc, output2.metadata().size())) {
+        double x2 = input2[i].x2();
+        x2 += updateInfo->x;
+        output2[i] = {x2, input2[i].y2(), input2[i].z2(), input2[i].id2(), input2[i].m2()};
+      }
+    }
   };
 
   class TestAlgoKernelUpdateMulti3 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   portabletest::TestSoA::ConstView input,
                                   portabletest::TestSoA2::ConstView input2,
                                   portabletest::TestSoA3::ConstView input3,
@@ -251,6 +288,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (i < esData.size()) {
           x3 += esData.val(i) + esData.val2(i);
         }
+        output3[i] = {x3, input3[i].y3(), input3[i].z3(), input3[i].id3(), input3[i].m3()};
+      }
+    }
+
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  portabletest::TestSoA::ConstView input,
+                                  portabletest::TestSoA2::ConstView input2,
+                                  portabletest::TestSoA3::ConstView input3,
+                                  TestAlgo::UpdateInfo const* updateInfo,
+                                  portabletest::TestSoA::View output,
+                                  portabletest::TestSoA2::View output2,
+                                  portabletest::TestSoA3::View output3) const {
+      // set this only once in the whole kernel grid
+      if (once_per_grid(acc)) {
+        output.r() = input.r();
+        output2.r2() = input2.r2();
+        output3.r3() = input3.r3();
+      }
+
+      // make a strided loop over the kernel grid, covering up to "size" elements
+      for (int32_t i : uniform_elements(acc, output.metadata().size())) {
+        double x = input[i].x();
+        x += updateInfo->x;
+        if (0 == i)
+          printf("Setting x[0] to %f\n", x);
+        output[i] = {x, input[i].y(), input[i].z(), input[i].id(), input[i].flags(), input[i].m()};
+      }
+      for (int32_t i : uniform_elements(acc, output2.metadata().size())) {
+        double x2 = input2[i].x2();
+        x2 += updateInfo->x;
+        output2[i] = {x2, input2[i].y2(), input2[i].z2(), input2[i].id2(), input2[i].m2()};
+      }
+      for (int32_t i : uniform_elements(acc, output3.metadata().size())) {
+        double x3 = input3[i].x3();
+        x3 += updateInfo->x;
         output3[i] = {x3, input3[i].y3(), input3[i].z3(), input3[i].id3(), input3[i].m3()};
       }
     }
@@ -337,10 +409,90 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     return collection;
   }
 
+  portabletest::TestDeviceCollection TestAlgo::update(Queue& queue,
+                                                      portabletest::TestDeviceCollection const& input,
+                                                      UpdateInfo const* d_updateInfo) const {
+    portabletest::TestDeviceCollection collection{input->metadata().size(), queue};
+
+    // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
+    uint32_t items = 64;
+
+    // use as many groups as needed to cover the whole problem
+    uint32_t groups = divide_up_by(collection->metadata().size(), items);
+
+    // map items to
+    //   - threads with a single element per thread on a GPU backend
+    //   - elements within a single thread on a CPU backend
+    auto workDiv = make_workdiv<Acc1D>(groups, items);
+
+    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernelUpdate{}, input.view(), d_updateInfo, collection.view());
+
+    return collection;
+  }
+
+  portabletest::TestDeviceMultiCollection2 TestAlgo::updateMulti2(Queue& queue,
+                                                                  portabletest::TestDeviceMultiCollection2 const& input,
+                                                                  UpdateInfo const* d_updateInfo) const {
+    portabletest::TestDeviceMultiCollection2 collection{input.sizes(), queue};
+
+    // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
+    uint32_t items = 64;
+
+    // use as many groups as needed to cover the whole problem
+    auto sizes = collection.sizes();
+    uint32_t groups = divide_up_by(*std::max_element(sizes.begin(), sizes.end()), items);
+
+    // map items to
+    //   - threads with a single element per thread on a GPU backend
+    //   - elements within a single thread on a CPU backend
+    auto workDiv = make_workdiv<Acc1D>(groups, items);
+
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        TestAlgoKernelUpdateMulti2{},
+                        input.view<portabletest::TestSoA>(),
+                        input.view<portabletest::TestSoA2>(),
+                        d_updateInfo,
+                        collection.view<portabletest::TestSoA>(),
+                        collection.view<portabletest::TestSoA2>());
+
+    return collection;
+  }
+
+  portabletest::TestDeviceMultiCollection3 TestAlgo::updateMulti3(Queue& queue,
+                                                                  portabletest::TestDeviceMultiCollection3 const& input,
+                                                                  UpdateInfo const* d_updateInfo) const {
+    portabletest::TestDeviceMultiCollection3 collection{input.sizes(), queue};
+
+    // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
+    uint32_t items = 64;
+
+    // use as many groups as needed to cover the whole problem
+    auto sizes = collection.sizes();
+    uint32_t groups = divide_up_by(*std::max_element(sizes.begin(), sizes.end()), items);
+
+    // map items to
+    //   - threads with a single element per thread on a GPU backend
+    //   - elements within a single thread on a CPU backend
+    auto workDiv = make_workdiv<Acc1D>(groups, items);
+
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        TestAlgoKernelUpdateMulti3{},
+                        input.view<portabletest::TestSoA>(),
+                        input.view<portabletest::TestSoA2>(),
+                        input.view<portabletest::TestSoA3>(),
+                        d_updateInfo,
+                        collection.view<portabletest::TestSoA>(),
+                        collection.view<portabletest::TestSoA2>(),
+                        collection.view<portabletest::TestSoA3>());
+
+    return collection;
+  }
+
   class TestZeroCollectionKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::ConstView view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestDeviceCollection::ConstView view) const {
       const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
       const portabletest::Array flags = {{0, 0, 0, 0}};
 
@@ -364,8 +516,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestZeroMultiCollectionKernel2 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceMultiCollection2::ConstView<1> view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestDeviceMultiCollection2::ConstView<1> view) const {
       const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
 
       // check this only once in the whole kernel grid
@@ -387,8 +538,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestZeroMultiCollectionKernel3 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceMultiCollection3::ConstView<2> view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestDeviceMultiCollection3::ConstView<2> view) const {
       const portabletest::Matrix matrix{{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}};
 
       // check this only once in the whole kernel grid
@@ -410,8 +560,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestZeroStructKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceObject::Product const* data) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, portabletest::TestDeviceObject::Product const* data) const {
       // check this only once in the whole kernel grid
       if (once_per_grid(acc)) {
         ALPAKA_ASSERT(data->x == 0.);

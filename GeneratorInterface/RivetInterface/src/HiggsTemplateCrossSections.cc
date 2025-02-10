@@ -73,7 +73,7 @@ namespace Rivet {
 
     /// @brief Checks whether the input particle has a parent with a given PDGID
     bool hasParent(const ConstGenParticlePtr &ptcl, int pdgID) {
-      for (auto parent : HepMCUtils::particles(ptcl->production_vertex(), Relatives::PARENTS))
+      for (const auto &parent : HepMCUtils::particles(ptcl->production_vertex(), Relatives::PARENTS))
         if (parent->pdg_id() == pdgID)
           return true;
       return false;
@@ -191,7 +191,7 @@ namespace Rivet {
       FourVector uncatV_v4(0, 0, 0, 0);
       int nWs = 0, nZs = 0;
       if (isVH(prodMode)) {
-        for (auto ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
+        for (const auto &ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
           if (PID::isW(ptcl->pdg_id())) {
             ++nWs;
             cat.V = Particle(ptcl);
@@ -204,7 +204,7 @@ namespace Rivet {
         if (nWs + nZs > 0)
           cat.V = getLastInstance(cat.V);
         else {
-          for (auto ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
+          for (const auto &ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
             if (!PID::isHiggs(ptcl->pdg_id())) {
               uncatV_decays += Particle(ptcl);
               uncatV_p4 += Particle(ptcl).momentum();
@@ -236,7 +236,7 @@ namespace Rivet {
       Particles Ws;
       if (prodMode == HTXS::TTH || prodMode == HTXS::TH) {
         // loop over particles produced in hard-scatter vertex
-        for (auto ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
+        for (const auto &ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
           if (!PID::isTop(ptcl->pdg_id()))
             continue;
           Particle top = getLastInstance(Particle(ptcl));
@@ -301,6 +301,29 @@ namespace Rivet {
 
       cat.jets25 = jets.jetsByPt(Cuts::pT > 25.0);
       cat.jets30 = jets.jetsByPt(Cuts::pT > 30.0);
+
+      // Temporary fix: add variables to perform STXS 1.3 classification with nanoAOD on-the-fly
+      // Vector-boson pt for VH production modes
+      if (isVH(prodMode)) {
+        cat.V_pt = cat.V.pt();
+      } else {
+        cat.V_pt = -999;
+      }
+      // Dijet variables using jets30 collection
+      if (cat.jets30.size() >= 2) {
+        cat.Mjj = (cat.jets30[0].mom() + cat.jets30[1].mom()).mass();
+        cat.ptHjj = (cat.jets30[0].mom() + cat.jets30[1].mom() + cat.higgs.momentum()).pt();
+        cat.dPhijj = cat.jets30[0].mom().phi() - cat.jets30[1].mom().phi();
+        // Return phi angle in the interval [-PI,PI)
+        if (cat.dPhijj >= Rivet::pi)
+          cat.dPhijj -= 2 * Rivet::pi;
+        else if (cat.dPhijj < -1 * Rivet::pi)
+          cat.dPhijj += 2 * Rivet::pi;
+      } else {
+        cat.Mjj = -999;
+        cat.ptHjj = -999;
+        cat.dPhijj = -999;
+      }
 
       // check that four mometum sum of all stable particles satisfies momentum consevation
       /*

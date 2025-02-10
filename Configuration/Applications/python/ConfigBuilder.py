@@ -63,7 +63,7 @@ defaultOptions.datatier = None
 defaultOptions.inlineEventContent = True
 defaultOptions.inlineObjects =''
 defaultOptions.hideGen=False
-from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey,VtxSmearedHIDefaultKey
+from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey
 defaultOptions.beamspot=None
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
@@ -1062,7 +1062,12 @@ class ConfigBuilder(object):
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
         if not self._options.beamspot:
-            self._options.beamspot=VtxSmearedDefaultKey
+            # GEN step always requires to have a VtxSmearing scenario (--beamspot) defined
+            # ...unless it's a special gen-only request (GEN:pgen_genonly)
+            if 'GEN' in self.stepMap and not 'pgen_genonly' in self.stepMap['GEN']:
+                raise Exception("Missing \'--beamspot\' option in the GEN step of the cmsDriver command!")
+            else:
+                self._options.beamspot=VtxSmearedDefaultKey
 
         # if its MC then change the raw2digi
         if self._options.isMC==True:
@@ -1095,8 +1100,6 @@ class ConfigBuilder(object):
             self.DQMDefaultSeq='DQMOfflineCosmics'
 
         if self._options.scenario=='HeavyIons':
-            if not self._options.beamspot:
-                self._options.beamspot=VtxSmearedHIDefaultKey
             self.HLTDefaultSeq = 'HIon'
             self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
             self.VALIDATIONDefaultSeq=''
@@ -1559,6 +1562,7 @@ class ConfigBuilder(object):
     def loadPhase2GTMenu(self, menuFile: str):
         import importlib
         menuPath = f'L1Trigger.Configuration.Phase2GTMenus.{menuFile}'
+        print(f"Loading P2GT menu from {menuPath}")
         menuModule = importlib.import_module(menuPath)
         
         theMenu = menuModule.menu
@@ -1574,7 +1578,7 @@ class ConfigBuilder(object):
                 if objType == cms.Path:
                     triggerPaths.append(objName)
         
-        triggerScheduleList = [getattr(self.process, name) for name in triggerPaths] #get the actual paths to put in the schedule
+        triggerScheduleList = [getattr(self.process, name) for name in sorted(triggerPaths)] #get the actual paths to put in the schedule
         self.schedule.extend(triggerScheduleList) #put them in the schedule for later
     
     # create the L1 GT step
@@ -1585,7 +1589,7 @@ class ConfigBuilder(object):
         self.scheduleSequence('l1tGTProducerSequence', 'Phase2L1GTProducer')
         self.scheduleSequence('l1tGTAlgoBlockProducerSequence', 'Phase2L1GTAlgoBlockProducer')
         if stepSpec == None:
-            defaultMenuFile = "prototype_2023_v1_0_0"
+            defaultMenuFile = "step1_2024"
             self.loadPhase2GTMenu(menuFile = defaultMenuFile)
         else:
             self.loadPhase2GTMenu(menuFile = stepSpec)

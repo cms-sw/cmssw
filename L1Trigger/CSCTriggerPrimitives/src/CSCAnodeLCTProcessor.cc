@@ -686,7 +686,7 @@ bool CSCAnodeLCTProcessor::patternDetection(
                 // find at what bx did pulse on this wire&layer start
                 // use hit_pesrist constraint on how far back we can go
                 int first_bx_layer = first_bx[key_wire] + drift_delay;
-                for (unsigned int dbx = 0; dbx < hit_persist; dbx++) {
+                for (unsigned int dbx = 0; (dbx < hit_persist) && (first_bx_layer > 0); dbx++) {
                   if (pulse_.isOneShotHighAtBX(i_layer, this_wire, first_bx_layer - 1)) {
                     first_bx_layer--;
                   } else

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cmath>
 #include <string>
+#include <algorithm>
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
@@ -29,7 +30,6 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 
 const float HcaluLUTTPGCoder::lsb_ = 1. / 16;
-const float HcaluLUTTPGCoder::zdc_lsb_ = 50.;
 
 const int HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
@@ -40,6 +40,7 @@ constexpr double MaximumFractionalError = 0.002;  // 0.2% error allowed from thi
 
 HcaluLUTTPGCoder::HcaluLUTTPGCoder()
     : topo_{},
+      emap_{},
       delay_{},
       LUTGenerationMode_{},
       FG_HF_thresholds_{},
@@ -71,10 +72,13 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder()
       linearLSB_QIE11_{},
       linearLSB_QIE11Overlap_{} {}
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top, const HcalTimeSlew* delay) { init(top, delay); }
+HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top, const HcalElectronicsMap* emap, const HcalTimeSlew* delay) {
+  init(top, emap, delay);
+}
 
-void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) {
+void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalElectronicsMap* emap, const HcalTimeSlew* delay) {
   topo_ = top;
+  emap_ = emap;
   delay_ = delay;
   LUTGenerationMode_ = true;
   FG_HF_thresholds_ = {0, 0};
@@ -283,7 +287,7 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
 
 void HcaluLUTTPGCoder::updateXML(const char* filename) {
   LutXml* _xml = new LutXml(filename);
-  _xml->create_lut_map();
+  _xml->create_lut_map(emap_);
   HcalSubdetector subdet[3] = {HcalBarrel, HcalEndcap, HcalForward};
   for (int ieta = -HcalDetId::kHcalEtaMask2; ieta <= (int)(HcalDetId::kHcalEtaMask2); ++ieta) {
     for (unsigned int iphi = 0; iphi <= HcalDetId::kHcalPhiMask2; ++iphi) {
@@ -367,8 +371,6 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
   // Here we will determine if we are using new version of TPs (1TS)
   // i.e. are we using a new pulse filter scheme.
-  const HcalElectronicsMap* emap = conditions.getHcalMapping();
-
   int lastHBRing = topo_->lastHBRing();
   int lastHERing = topo_->lastHERing();
 
@@ -378,13 +380,13 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
   bool foundHE = false;
   bool newHBtp = false;
   bool newHEtp = false;
-  std::vector<HcalElectronicsId> vIds = emap->allElectronicsIdTrigger();
+  std::vector<HcalElectronicsId> vIds = emap_->allElectronicsIdTrigger();
   for (std::vector<HcalElectronicsId>::const_iterator eId = vIds.begin(); eId != vIds.end(); eId++) {
     // The first HB or HE id is enough to tell whether to use new scheme in HB or HE
     if (foundHB and foundHE)
       break;
 
-    HcalTrigTowerDetId hcalTTDetId(emap->lookupTrigger(*eId));
+    HcalTrigTowerDetId hcalTTDetId(emap_->lookupTrigger(*eId));
     if (hcalTTDetId.null())
       continue;
 
@@ -595,10 +597,21 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       const HcalLutMetadatum* meta = metadata->getValues(cell);
 
       auto tpParam = conditions.getHcalTPChannelParameter(cell, false);
-      int weight = tpParam->getauxi1();
+      const int weight = tpParam->getauxi1();
+      int factorGeVPerCount = tpParam->getauxi2();
+      if (factorGeVPerCount == 0) {
+        edm::LogWarning("HcaluLUTTPGCoder")
+            << "WARNING: ZDC trigger spacing factor, taken from auxi2 field of HCALTPChannelParameters for the cell "
+               "with (zside, section, channel) =  ("
+            << cell.zside() << " , " << cell.section() << " , " << cell.channel()
+            << ") is set to the "
+               "default value of 0, which is an incompatible value for a spacing factor. Setting the value to 50 and "
+               "continuing.";
+        factorGeVPerCount = 50;
+      }
 
-      int lutId = getLUTId(cell);
-      int lutId_ootpu = lutId + sizeZDC_;
+      const int lutId = getLUTId(cell);
+      const int lutId_ootpu = lutId + sizeZDC_;
       Lut& lut = inputLUT_[lutId];
       Lut& lut_ootpu = inputLUT_[lutId_ootpu];
       float ped = 0;
@@ -652,13 +665,13 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
           lut[adc] = 0;
           lut_ootpu[adc] = 0;
         } else {
-          if ((adc2fC(adc) - ped) < (pedWidth * 5.)) {
+          if ((adc2fC(adc) - ped) < pedWidth) {
             lut[adc] = 0;
             lut_ootpu[adc] = 0;
           } else {
-            lut[adc] = std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib / zdc_lsb_)), MASK);
-            lut_ootpu[adc] =
-                std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * weight / (zdc_lsb_ * 256))), MASK);
+            auto lut_term = (adc2fC(adc) - ped) * gain * rcalib / factorGeVPerCount;
+            lut[adc] = std::clamp(int(lut_term), 0, MASK);
+            lut_ootpu[adc] = std::clamp(int(lut_term * weight / 256), 0, MASK);
           }
         }
       }

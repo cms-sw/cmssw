@@ -15,8 +15,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff') 
-process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D88Reco_cff') 
+process.load('Configuration.Geometry.GeometryExtendedRun4D88_cff')
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')

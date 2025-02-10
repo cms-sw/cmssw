@@ -56,6 +56,7 @@ namespace edm {
   class ActivityRegistry;
   class WaitingTaskHolder;
   class ServiceWeakToken;
+  class SignallingProductRegistry;
 
   namespace maker {
     template <typename T>
@@ -96,7 +97,7 @@ namespace edm {
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
-      void registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);
+      void registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, SignallingProductRegistry* reg);
 
       void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
@@ -129,7 +130,7 @@ namespace edm {
       std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
 
       ProductResolverIndex transformPrefetch_(size_t iTransformIndex) const noexcept;
-      size_t transformIndex_(edm::BranchDescription const& iBranch) const noexcept;
+      size_t transformIndex_(edm::ProductDescription const& iBranch) const noexcept;
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,

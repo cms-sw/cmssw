@@ -70,7 +70,7 @@ void RecordWriter::update(const void* iData, const std::type_info& iType, const 
     label = "";
   }
   std::map<std::pair<edm::TypeIDBase, std::string>, DataBuffer>::iterator itFound =
-      idToBuffer_.find(std::make_pair(edm::TypeIDBase(iType), std::string(iLabel)));
+      idToBuffer_.find(std::make_pair(edm::TypeIDBase(iType), std::string(label)));
   if (itFound == idToBuffer_.end()) {
     //first request
     DataBuffer buffer;
@@ -88,8 +88,8 @@ void RecordWriter::update(const void* iData, const std::type_info& iType, const 
 
     buffer.branch_ = tree_->Branch(
         (fwlite::format_type_to_mangled(className) + "__" + label).c_str(), trueClassName.c_str(), &buffer.pBuffer_);
-    idToBuffer_.insert(std::make_pair(std::make_pair(edm::TypeIDBase(iType), std::string(iLabel)), buffer));
-    itFound = idToBuffer_.find(std::make_pair(edm::TypeIDBase(iType), std::string(iLabel)));
+    idToBuffer_.insert(std::make_pair(std::make_pair(edm::TypeIDBase(iType), std::string(label)), buffer));
+    itFound = idToBuffer_.find(std::make_pair(edm::TypeIDBase(iType), std::string(label)));
   }
   edm::TypeWithDict t(iType);
   edm::ObjectWithDict o(t, const_cast<void*>(iData));

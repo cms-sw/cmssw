@@ -6,6 +6,8 @@
 /store/data/Run2018D/HIMinimumBias0/RAW/v1/000/325/112/00000/660F62BB-9932-D645-A4A4-0BBBDA3963E8.root
 /store/data/Run2022B/HLTPhysics/RAW/v1/000/355/456/00000/69b26b27-4bd1-4524-bc18-45f7b9b5e076.root
 /store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/370/293/00000/2ef73d2a-1fb7-4dac-9961-149525f9e887.root
+/store/data/Run2024H/EphemeralHLTPhysics0/RAW/v1/000/386/071/00000/3a502248-b2ac-4e8a-b9bf-5f98d5c688dd.root
+/store/data/Run2024I/EphemeralHLTPhysics0/RAW/v1/000/386/593/00000/91a08676-199e-404c-9957-f72772ef1354.root
 /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_5/143C21CD-E8A2-E311-87BE-0025904C66E8.root
 /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_7/72B2C6B5-9740-E411-8FF7-002618FDA26D.root
 /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_7/8C172C6B-28FD-E311-8A62-0026189438F4.root
@@ -19,6 +21,8 @@
 /store/relval/CMSSW_11_2_0_pre8/RelValZEE_14_HI_2021/GEN-SIM/112X_mcRun3_2021_realistic_HI_v11-v1/00000/65e018bc-2a25-4f53-b9cf-aba35a7b212d.root
 /store/relval/CMSSW_12_3_0_pre6/RelValTTbar_14TeV/GEN-SIM/123X_mcRun3_2021_realistic_v11-v1/10000/29297788-21c3-4bf2-afe0-5382f08fbcd5.root
 /store/relval/CMSSW_12_3_0_pre6/RelValZEE_14_HI_2021/GEN-SIM/123X_mcRun3_2021_realistic_HI_v11-v2/10000/3c102f6f-4b70-4b09-b646-504bc104414d.root
+/store/relval/CMSSW_14_1_0_pre7/RelValTTbar_14TeV/GEN-SIM/140X_mcRun3_2024_realistic_v21_STD_RegeneratedGS_2024_noPU-v1/2580000/959d2e44-5c2a-4a80-a499-d65354889e05.root
+/store/relval/CMSSW_14_1_0_pre7/RelValZEE_5362_HI_2023/GEN-SIM/140X_mcRun3_2023_realistic_HI_v4_STD_RegeneratedGS_2023HIN_noPU-v1/2580000/ca67f8db-780c-4078-84e8-61e514e56f1b.root
 /store/relval/CMSSW_5_3_16/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI53_LV1_mar03-v2/00000/143C21CD-E8A2-E311-87BE-0025904C66E8.root
 /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
 /store/relval/CMSSW_8_0_11/RelValProdTTbar/GEN-SIM/80X_mcRun1_realistic_v4-v1/10000/06A6C86B-C634-E611-93A5-0CC47A74525A.root

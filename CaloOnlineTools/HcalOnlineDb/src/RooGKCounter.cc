@@ -14,7 +14,7 @@ RooGKCounter::RooGKCounter() { init(); }
 RooGKCounter::RooGKCounter(const char *message) {
   init();
   _message = message;
-  if (_message.length() == 0)
+  if (_message.empty())
     printCount = false;
 }
 

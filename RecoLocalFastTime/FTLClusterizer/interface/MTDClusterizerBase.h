@@ -8,7 +8,7 @@
 #include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
 
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 
 #include <vector>
 #include <array>

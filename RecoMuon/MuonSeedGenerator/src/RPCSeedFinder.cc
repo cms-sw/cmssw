@@ -3,7 +3,7 @@
  *
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedFinder.h"
 #include <iomanip>
 
 using namespace std;

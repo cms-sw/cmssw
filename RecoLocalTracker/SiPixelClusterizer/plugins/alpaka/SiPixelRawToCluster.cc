@@ -1,4 +1,5 @@
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -79,7 +80,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   SiPixelRawToCluster<TrackerTraits>::SiPixelRawToCluster(const edm::ParameterSet& iConfig)
-      : rawGetToken_(consumes(iConfig.getParameter<edm::InputTag>("InputLabel"))),
+      : SynchronizingEDProducer(iConfig),
+        rawGetToken_(consumes(iConfig.getParameter<edm::InputTag>("InputLabel"))),
         digiPutToken_(produces()),
         clusterPutToken_(produces()),
         mapToken_(esConsumes()),
@@ -262,10 +264,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // are no valid pointers to clusters' Collection columns, instantiation
       // of TrackingRecHits fail. Example: workflow 11604.0
 
-      iEvent.emplace(digiPutToken_, nDigis_, iEvent.queue());
+      iEvent.emplace(digiPutToken_, 0, iEvent.queue());
       iEvent.emplace(clusterPutToken_, pixelTopology::Phase1::numberOfModules, iEvent.queue());
       if (includeErrors_) {
-        iEvent.emplace(digiErrorPutToken_);
+        iEvent.emplace(digiErrorPutToken_, 0, iEvent.queue());
         iEvent.emplace(fmtErrorToken_);
       }
       return;

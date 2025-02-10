@@ -11,20 +11,15 @@
 CandidateBoostedDoubleSecondaryVertexComputer::Tokens::Tokens(const edm::ParameterSet& parameters,
                                                               edm::ESConsumesCollector&& cc) {
   if (parameters.getParameter<bool>("useCondDB")) {
-    gbrForest_ = cc.consumes(edm::ESInputTag{"",
-                                             parameters.existsAs<std::string>("gbrForestLabel")
-                                                 ? parameters.getParameter<std::string>("gbrForestLabel")
-                                                 : ""});
+    gbrForest_ = cc.consumes(edm::ESInputTag{"", parameters.getParameter<std::string>("gbrForestLabel")});
   }
 }
 
 CandidateBoostedDoubleSecondaryVertexComputer::CandidateBoostedDoubleSecondaryVertexComputer(
     const edm::ParameterSet& parameters, Tokens tokens)
-    : weightFile_(parameters.existsAs<edm::FileInPath>("weightFile")
-                      ? parameters.getParameter<edm::FileInPath>("weightFile")
-                      : edm::FileInPath()),
-      useGBRForest_(parameters.existsAs<bool>("useGBRForest") ? parameters.getParameter<bool>("useGBRForest") : false),
-      useAdaBoost_(parameters.existsAs<bool>("useAdaBoost") ? parameters.getParameter<bool>("useAdaBoost") : false),
+    : weightFile_(parameters.getParameter<edm::FileInPath>("weightFile")),
+      useGBRForest_(parameters.getParameter<bool>("useGBRForest")),
+      useAdaBoost_(parameters.getParameter<bool>("useAdaBoost")),
       tokens_{tokens} {
   uses(0, "svTagInfos");
 
@@ -114,4 +109,12 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
 
   // return the final discriminator value
   return value;
+}
+
+void CandidateBoostedDoubleSecondaryVertexComputer::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("useCondDB", false);
+  desc.add<std::string>("gbrForestLabel", "");
+  desc.add<edm::FileInPath>("weightFile", edm::FileInPath());
+  desc.add<bool>("useGBRForest", false);
+  desc.add<bool>("useAdaBoost", false);
 }

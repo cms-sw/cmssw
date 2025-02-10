@@ -136,8 +136,8 @@ namespace cms {
     std::vector<StableProvenance const*> theProvenance;
     iEvent.getAllStableProvenance(theProvenance);
     for (auto const& provenance : theProvenance) {
-      edm::LogVerbatim("HcalAlCa") << " Print all module/label names " << provenance->moduleName() << " "
-                                   << provenance->moduleLabel() << " " << provenance->productInstanceName();
+      edm::LogVerbatim("HcalAlCa") << " Print all label names " << provenance->moduleLabel() << " "
+                                   << provenance->productInstanceName();
     }
 
     if (nameProd_ == "hoCalibProducer") {

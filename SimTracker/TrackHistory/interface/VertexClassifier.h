@@ -1,15 +1,12 @@
-
-#ifndef VertexClassifier_h
-#define VertexClassifier_h
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#ifndef SimTracker_TrackHistory_VertexClassifier_h
+#define SimTracker_TrackHistory_VertexClassifier_h
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
 #include "SimTracker/TrackHistory/interface/CMSProcessTypes.h"
 #include "SimTracker/TrackHistory/interface/VertexCategories.h"
 #include "SimTracker/TrackHistory/interface/VertexHistory.h"
@@ -39,6 +36,8 @@ public:
 
   //! Returns a reference to the vertex history used in the classification.
   VertexHistory const &history() const { return tracer_; }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   VertexHistory tracer_;

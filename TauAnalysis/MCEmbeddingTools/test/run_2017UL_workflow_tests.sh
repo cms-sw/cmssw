@@ -119,7 +119,7 @@ cmsDriver.py \
     --step NANO \
     --data \
     --conditions auto:run2_data \
-    --era Run2_2017,run2_nanoAOD_106Xv2 \
+    --era Run2_2017 \
     --eventcontent NANOAODSIM \
     --datatier NANOAODSIM \
     --customise TauAnalysis/MCEmbeddingTools/customisers.customiseNanoAOD \

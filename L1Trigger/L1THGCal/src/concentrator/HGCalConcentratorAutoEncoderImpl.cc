@@ -61,8 +61,6 @@ HGCalConcentratorAutoEncoderImpl::HGCalConcentratorAutoEncoderImpl(const edm::Pa
     }
   }
 
-  tensorflow::setLogging("0");
-
   for (const auto& modelFilePset : modelFilePaths_) {
     std::string encoderPath = modelFilePset.getParameter<edm::FileInPath>("encoderModelFile").fullPath();
     std::string decoderPath = modelFilePset.getParameter<edm::FileInPath>("decoderModelFile").fullPath();

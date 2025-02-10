@@ -12,6 +12,7 @@
 #include <array>
 #include <string>
 #include <cassert>
+#include <atomic>
 
 /** \class CaloCellGeometry
 
@@ -60,6 +61,8 @@ public:
   typedef EZArrayFL<CCGFloat> ParVec;
   typedef std::vector<ParVec> ParVecVec;
   typedef EZMgrFL<CCGFloat> ParMgr;
+
+  friend class CaloCellGeometryMayOwnPtr;
 
   static constexpr unsigned int k_cornerSize = 8;
 
@@ -114,8 +117,12 @@ protected:
 
   CaloCellGeometry(const CornersVec& cv, const CCGFloat* par);
 
-  CaloCellGeometry(void);
+  CaloCellGeometry();
 
+  CaloCellGeometry(CaloCellGeometry&&) = default;
+  CaloCellGeometry(CaloCellGeometry const&) = default;
+  CaloCellGeometry& operator=(CaloCellGeometry&&) = default;
+  CaloCellGeometry& operator=(CaloCellGeometry const&) = default;
   // MUST be called by children constructors
   void initSpan() {
     initCorners(m_corners);
@@ -146,6 +153,10 @@ private:
       m_repCorners[i] = {getCorners()[i].perp(), getCorners()[i].eta(), getCorners()[i].barePhi()};
   }
 
+  //These methods are ONLY used by CaloCellGeometryMayOwnPtr
+  void increment() const { ++m_ref.m_count; }
+  bool decrement() const { return 0 == --m_ref.m_count; }
+
   GlobalPoint m_refPoint;
   GlobalPoint m_backPoint;
   CornersVec m_corners;
@@ -154,6 +165,15 @@ private:
   float m_dEta;
   float m_dPhi;
   std::array<RhoEtaPhi, k_cornerSize> m_repCorners;
+  struct RefCount {
+    RefCount() = default;
+    RefCount(RefCount&&) {}
+    RefCount(RefCount const&) {}
+    RefCount& operator=(RefCount&&) { return *this; }
+    RefCount& operator=(const RefCount&) { return *this; }
+
+    mutable std::atomic<unsigned int> m_count = 0;
+  } m_ref;
 };
 
 std::ostream& operator<<(std::ostream& s, const CaloCellGeometry& cell);

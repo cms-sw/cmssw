@@ -100,7 +100,7 @@ class testEventsetup : public CppUnit::TestFixture {
   CPPUNIT_TEST(introspectionTest);
 
   CPPUNIT_TEST(iovExtensionTest);
-  CPPUNIT_TEST(resetProxiesTest);
+  CPPUNIT_TEST(resetResolversTest);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -132,7 +132,7 @@ public:
   void introspectionTest();
 
   void iovExtensionTest();
-  void resetProxiesTest();
+  void resetResolversTest();
 
 private:
   edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
@@ -422,14 +422,14 @@ namespace {
 
     void prefetch(edm::EventSetupImpl const& iImpl) const {
       auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
-      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
-      for (size_t i = 0; i != proxies.size(); ++i) {
+      auto const& resolvers = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != resolvers.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
           oneapi::tbb::task_group group;
           edm::FinalWaitingTask waitTask{group};
           rec->prefetchAsync(
-              WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
+              WaitingTaskHolder(group, &waitTask), resolvers[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
           waitTask.wait();
         }
       }
@@ -657,6 +657,18 @@ void testEventsetup::getDataWithESGetTokenTest() {
       provider.add(dummyProv);
     }
     {
+      edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 100, false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test22");
+      ps.addParameter<std::string>("appendToDataLabel", "blahblah");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
       edm::eventsetup::ComponentDescription description("ConsumesProducer", "consumes", 2, false);
       edm::ParameterSet ps;
       ps.addParameter<std::string>("name", "consumes");
@@ -735,6 +747,32 @@ void testEventsetup::getDataWithESGetTokenTest() {
       description.pid_ = ps.id();
       auto dummyProv = std::make_shared<SetMayConsumeProducer>(
           true, "testTwo", "doesNotExist", "productLabelForProducerWithProductLabelThatDoesntExist");
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description(
+          "SetMayConsumeProducer", "setMayConsumeWithUnlabeledModuleLabel", 101, false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "thisIsNotUsed");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<SetMayConsumeProducer>(
+          true, "DummyESProductResolverProvider", "blahblah", "productLabelForProducerWithMayConsumesUnlabeledCase");
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description(
+          "SetMayConsumeProducer", "setMayConsumeWithUnlabeledModuleLabel", 102, false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "thisIsNotUsed");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<SetMayConsumeProducer>(
+          true, "doesNotExist", "blahblah", "productLabelForProducerWithMayConsumesUnlabeledCaseNonexistent");
       dummyProv->setDescription(description);
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
@@ -874,6 +912,24 @@ void testEventsetup::getDataWithESGetTokenTest() {
 
     {
       DummyDataConsumer consumer{edm::ESInputTag("", "productLabelForProducerWithProductLabelThatDoesntExist")};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      CPPUNIT_ASSERT_THROW(consumer.prefetch(provider.eventSetupImpl()), edm::eventsetup::NoProductResolverException);
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "productLabelForProducerWithMayConsumesUnlabeledCase")};
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      EventSetup eventSetup{provider.eventSetupImpl(),
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event),
+                            pc};
+      const DummyData& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_ == data.value_);
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "productLabelForProducerWithMayConsumesUnlabeledCaseNonexistent")};
       consumer.updateLookup(provider.recordsToResolverIndices());
       CPPUNIT_ASSERT_THROW(consumer.prefetch(provider.eventSetupImpl()), edm::eventsetup::NoProductResolverException);
     }
@@ -1165,7 +1221,7 @@ void testEventsetup::preferTest() {
 
       EventSetupProvider::PreferredProviderInfo preferInfo;
       EventSetupProvider::RecordToDataMap recordToData;
-      //default means use all proxies
+      //default means use all resolvers
       preferInfo[ComponentDescription("DummyESProductResolverProvider", "", ComponentDescription::unknownID(), false)] =
           recordToData;
       provider.setPreferredProviderInfo(preferInfo);
@@ -1201,7 +1257,7 @@ void testEventsetup::preferTest() {
 
       EventSetupProvider::PreferredProviderInfo preferInfo;
       EventSetupProvider::RecordToDataMap recordToData;
-      //default means use all proxies
+      //default means use all resolvers
       preferInfo[ComponentDescription("DummyESProductResolverProvider", "", ComponentDescription::unknownID(), false)] =
           recordToData;
       provider.setPreferredProviderInfo(preferInfo);
@@ -1370,7 +1426,7 @@ void testEventsetup::iovExtensionTest() {
   }
 }
 
-void testEventsetup::resetProxiesTest() {
+void testEventsetup::resetResolversTest() {
   SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);

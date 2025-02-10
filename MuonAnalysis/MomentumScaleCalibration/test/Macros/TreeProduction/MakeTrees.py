@@ -48,7 +48,7 @@ class ThreadUrl(threading.Thread):
       inputFileName = data[0].split()[-1]
       num = str(data[1])
       outputFileName = data[3]
-      print "input file name = ", inputFileName, " output file name = ", outputFileName
+      print("input file name = ", inputFileName, " output file name = ", outputFileName)
       templateCfg = open("MuScleFit_template_cfg.py").read()
       templateCfg = templateCfg.replace("INPUTFILENAME", "rfio:"+filesDir+inputFileName).replace("OUTPUTTREENAME", outputFileName)
       cfgName = "MuScleFitTree_cfg_"+num+".py"
@@ -57,7 +57,7 @@ class ThreadUrl(threading.Thread):
       cfg.close()
 
       # Run the cmssw job
-      print "cd "+CMSSWDir+"; eval `scramv1 r -sh`; cd -; cmsRun "+cfgName
+      print("cd "+CMSSWDir+"; eval `scramv1 r -sh`; cd -; cmsRun "+cfgName)
       os.system("cd "+CMSSWDir+"; eval `scramv1 r -sh`; cd -; cmsRun "+cfgName)
       os.system("mv "+cfgName+" processedCfgs")
 
@@ -111,4 +111,4 @@ def main(numberOfThreads):
 # Run the jobs withTotalNumberOfThreads threads
 start = time.time()
 main(TotalNumberOfThreads)
-print "Elapsed Time: %s" % (time.time() - start)
+print("Elapsed Time: %s" % (time.time() - start))

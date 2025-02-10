@@ -390,7 +390,9 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 
   AccretionCluster acluster, cldata;
   acluster.add(pix, seed_adc);
-  cldata.add(pix, seed_adc);
+  if (!theFakePixels[pix.row() * theNumOfCols + pix.col()]) {
+    cldata.add(pix, seed_adc);
+  }
 
   //Here we search all pixels adjacent to all pixels in the cluster.
   bool dead_flag = false;

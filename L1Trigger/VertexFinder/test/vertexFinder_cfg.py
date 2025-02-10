@@ -39,7 +39,7 @@ if options.l1Tracks.count(':') != 1:
     raise RuntimeError("Value for 'l1Tracks' command-line argument (= '{}') should contain one colon".format(options.l1Tracks))
 
 l1TracksTag = cms.InputTag(options.l1Tracks.split(':')[0], options.l1Tracks.split(':')[1])
-print "  INPUT TRACK COLLECTION = {0}  {1}".format(*options.l1Tracks.split(':')) 
+print("  INPUT TRACK COLLECTION = {0}  {1}".format(*options.l1Tracks.split(':')) )
     
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )

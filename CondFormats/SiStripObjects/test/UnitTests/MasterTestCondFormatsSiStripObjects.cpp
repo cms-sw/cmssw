@@ -24,7 +24,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/CompilerOutputter.h>
 // #include <cppunit/TextTestProgressListener.h>
-#include <cppunit/BriefTestProgressListener.h> 
+#include <cppunit/BriefTestProgressListener.h>
 
 /**
  * Main function used to run all tests.
@@ -32,17 +32,14 @@
  * because we use the BriefTestProgressListener to output the name of each test.
  */
 
-int main( int argc, char* argv[] )
-{
+int main(int argc, char* argv[]) {
   std::string testPath = (argc > 1) ? std::string(argv[1]) : "";
   CppUnit::TextUi::TestRunner runner;
-  CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
-  runner.addTest( registry.makeTest() );
+  CppUnit::TestFactoryRegistry& registry = CppUnit::TestFactoryRegistry::getRegistry();
+  runner.addTest(registry.makeTest());
 
   // Outputs the name of each test when it is executed.
   CppUnit::BriefTestProgressListener progress;
-  runner.eventManager().addListener( &progress );
+  runner.eventManager().addListener(&progress);
   runner.run();
 }
-
-

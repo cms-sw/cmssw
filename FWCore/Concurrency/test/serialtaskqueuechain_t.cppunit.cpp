@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <unistd.h>
+#include <chrono>
 #include <memory>
 #include <atomic>
 #include <thread>
@@ -32,6 +32,7 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SerialTaskQueueChain_test);
+using namespace std::chrono_literals;
 
 void SerialTaskQueueChain_test::testPush() {
   std::atomic<unsigned int> count{0};
@@ -44,19 +45,19 @@ void SerialTaskQueueChain_test::testPush() {
     std::atomic<int> waiting{3};
     chain.push(group, [&count, &waiting] {
       CPPUNIT_ASSERT(count++ == 0);
-      usleep(10);
+      std::this_thread::sleep_for(10us);
       --waiting;
     });
 
     chain.push(group, [&count, &waiting] {
       CPPUNIT_ASSERT(count++ == 1);
-      usleep(10);
+      std::this_thread::sleep_for(10us);
       --waiting;
     });
 
     chain.push(group, [&count, &waiting] {
       CPPUNIT_ASSERT(count++ == 2);
-      usleep(10);
+      std::this_thread::sleep_for(10us);
       --waiting;
     });
 
@@ -80,19 +81,19 @@ void SerialTaskQueueChain_test::testPushOne() {
 
     chain.push(group, [&count, &waiting] {
       CPPUNIT_ASSERT(count++ == 0);
-      usleep(10);
+      std::this_thread::sleep_for(10us);
       --waiting;
     });
 
     chain.push(group, [&count, &waiting] {
       CPPUNIT_ASSERT(count++ == 1);
-      usleep(10);
+      std::this_thread::sleep_for(10us);
       --waiting;
     });
 
     chain.push(group, [&count, &waiting] {
       CPPUNIT_ASSERT(count++ == 2);
-      usleep(10);
+      std::this_thread::sleep_for(10us);
       --waiting;
     });
 

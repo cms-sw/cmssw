@@ -16,9 +16,7 @@
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 PhotonMVABasedHaloTagger::PhotonMVABasedHaloTagger(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
-    : geometryToken_(iC.esConsumes()),
-      ecalPFRechitThresholdsToken_(iC.esConsumes()),
-      ecalClusterToolsESGetTokens_(std::move(iC)) {
+    : geometryToken_(iC.esConsumes()), ecalPFRechitThresholdsToken_(iC.esConsumes()), ecalClusterToolsESGetTokens_(iC) {
   rhoLabel_ = iC.consumes<double>(conf.getParameter<edm::InputTag>("rhoLabel"));
 
   EBecalCollection_ = iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection"));
@@ -34,7 +32,7 @@ PhotonMVABasedHaloTagger::PhotonMVABasedHaloTagger(const edm::ParameterSet& conf
 double PhotonMVABasedHaloTagger::calculateMVA(const reco::Photon* pho,
                                               const GBRForest* gbr_,
                                               const edm::Event& iEvent,
-                                              const edm::EventSetup& es) {
+                                              const edm::EventSetup& es) const {
   bool isEB = pho->isEB();
 
   if (isEB)
@@ -50,8 +48,7 @@ double PhotonMVABasedHaloTagger::calculateMVA(const reco::Photon* pho,
   const auto& hbheRecHits = iEvent.get(HBHERecHitsCollection_);
 
   //gets geometry
-  pG_ = es.getHandle(geometryToken_);
-  const CaloGeometry* geo = pG_.product();
+  const CaloGeometry& geo = es.getData(geometryToken_);
 
   ///ECAL PF rechit thresholds
   auto const& thresholds = es.getData(ecalPFRechitThresholdsToken_);
@@ -60,31 +57,27 @@ double PhotonMVABasedHaloTagger::calculateMVA(const reco::Photon* pho,
       iEvent, ecalClusterToolsESGetTokens_.get(es), EBecalCollection_, EEecalCollection_);
 
   ///calculate the energy weighted X, Y and Z position of the photon cluster
+  EcalClus ecalClus;
   if (isEB)
-    calphoClusCoordinECAL(geo, pho, &thresholds, ecalRecHitsBarrel);
+    ecalClus = calphoClusCoordinECAL(geo, pho, &thresholds, ecalRecHitsBarrel);
   else
-    calphoClusCoordinECAL(geo, pho, &thresholds, ecalRecHitsEndcap);
+    ecalClus = calphoClusCoordinECAL(geo, pho, &thresholds, ecalRecHitsEndcap);
 
   ///calculate the HBHE cluster position hypothesis
-  calmatchedHBHECoordForBothHypothesis(geo, pho, hbheRecHits);
-  calmatchedESCoordForBothHypothesis(geo, pho, esRecHits);
+  auto hcalClus = calmatchedHBHECoordForBothHypothesis(geo, pho, hbheRecHits, ecalClus);
+  auto preshower = calmatchedESCoordForBothHypothesis(geo, pho, esRecHits, ecalClus);
 
   ///this function works for EE only. Above ones work for EB as well in case later one wants to put a similar function for EB without returning 1
 
   double angle_EE_HE_samedPhi = calAngleBetweenEEAndSubDet(
-      hcalClusNhits_samedPhi_,
-      hcalClusX_samedPhi_,
-      hcalClusY_samedPhi_,
-      hcalClusZ_samedPhi_);  //essentially caculates the angle and energy variables in the two hypothesis between EE and HE
+      hcalClus.samedPhi_,
+      ecalClus);  //essentially caculates the angle and energy variables in the two hypothesis between EE and HE
 
-  double angle_EE_HE_samedR =
-      calAngleBetweenEEAndSubDet(hcalClusNhits_samedR_, hcalClusX_samedR_, hcalClusY_samedR_, hcalClusZ_samedR_);
+  double angle_EE_HE_samedR = calAngleBetweenEEAndSubDet(hcalClus.samedR_, ecalClus);
 
-  double angle_EE_ES_samedPhi = calAngleBetweenEEAndSubDet(
-      preshowerNhits_samedPhi_, preshowerX_samedPhi_, preshowerY_samedPhi_, preshowerZ_samedPhi_);
+  double angle_EE_ES_samedPhi = calAngleBetweenEEAndSubDet(preshower.samedPhi_, ecalClus);
 
-  double angle_EE_ES_samedR =
-      calAngleBetweenEEAndSubDet(preshowerNhits_samedR_, preshowerX_samedR_, preshowerY_samedR_, preshowerZ_samedR_);
+  double angle_EE_ES_samedR = calAngleBetweenEEAndSubDet(preshower.samedR_, ecalClus);
 
   ////set all the above calculated variables as input to the MVA
 
@@ -95,10 +88,10 @@ double PhotonMVABasedHaloTagger::calculateMVA(const reco::Photon* pho,
 
   float vars[15];
 
-  vars[0] = preshowerE_samedPhi_;
-  vars[1] = hcalClusE_samedPhi_;
-  vars[2] = preshowerE_samedR_;
-  vars[3] = hcalClusE_samedR_;
+  vars[0] = preshower.samedPhi_.e_;
+  vars[1] = hcalClus.samedPhi_.e_;
+  vars[2] = preshower.samedR_.e_;
+  vars[3] = hcalClus.samedR_.e_;
   vars[4] = pho->full5x5_r9();
   vars[5] = pho->superCluster()->etaWidth();
   vars[6] = pho->superCluster()->phiWidth();
@@ -116,23 +109,29 @@ double PhotonMVABasedHaloTagger::calculateMVA(const reco::Photon* pho,
   return BHmva;
 }
 
-void PhotonMVABasedHaloTagger::calphoClusCoordinECAL(const CaloGeometry* geo,
-                                                     const reco::Photon* pho,
-                                                     const EcalPFRecHitThresholds* thresholds,
-                                                     const EcalRecHitCollection& ecalRecHits) {
-  ecalClusX_ = 0;
-  ecalClusY_ = 0;
-  ecalClusZ_ = 0;
-  ecalClusNhits_ = 0;
-  ecalClusE_ = 0;
+PhotonMVABasedHaloTagger::EcalClus PhotonMVABasedHaloTagger::calphoClusCoordinECAL(
+    const CaloGeometry& geo,
+    const reco::Photon* pho,
+    const EcalPFRecHitThresholds* thresholds,
+    const EcalRecHitCollection& ecalRecHits) const {
+  EcalClus ecalClus;
 
   double phoSCEta = pho->superCluster()->eta();
   double phoSCPhi = pho->superCluster()->phi();
 
+  if (thresholds == nullptr) {
+    throw cms::Exception("EmptyPFRechHitThresCollection")
+        << "In PhotonMVABasedHaloTagger::calphoClusCoordinECAL, EcalPFRecHitThresholds cannot be = nulptr";
+  }
+
   for (const auto& ecalrechit : ecalRecHits) {
     auto const det = ecalrechit.id();
     double rhE = ecalrechit.energy();
-    const GlobalPoint& rechitPoint = geo->getPosition(det);
+    float rhThres = (*thresholds)[det];
+    if (rhE <= rhThres)
+      continue;
+
+    const GlobalPoint& rechitPoint = geo.getPosition(det);
 
     double rhEta = rechitPoint.eta();
     double rhPhi = rechitPoint.phi();
@@ -140,52 +139,35 @@ void PhotonMVABasedHaloTagger::calphoClusCoordinECAL(const CaloGeometry* geo,
     double rhY = rechitPoint.y();
     double rhZ = rechitPoint.z();
 
-    if (thresholds == nullptr) {
-      throw cms::Exception("EmptyPFRechHitThresCollection")
-          << "In PhotonMVABasedHaloTagger::calphoClusCoordinECAL, EcalPFRecHitThresholds cannot be = nulptr";
-    }
-
-    float rhThres = (*thresholds)[det];
-
-    if (rhE <= rhThres)
-      continue;
-
     if (phoSCEta * rhEta < 0)
       continue;
 
     double dR2 = reco::deltaR2(rhEta, rhPhi, phoSCEta, phoSCPhi);
 
     if (dR2 < dr2Max_ECALClus_) {
-      ecalClusX_ += rhX * rhE;
-      ecalClusY_ += rhY * rhE;
-      ecalClusZ_ += rhZ * rhE;
-      ecalClusE_ += rhE;
-      ecalClusNhits_++;
+      ecalClus.x_ += rhX * rhE;
+      ecalClus.y_ += rhY * rhE;
+      ecalClus.z_ += rhZ * rhE;
+      ecalClus.e_ += rhE;
+      ecalClus.nHits_++;
     }
   }  //for(int ih=0; ih<nMatchedEErh[ipho]; ih++)
 
-  if (ecalClusNhits_ > 0) {  //should always be > 0 for an EM cluster
-    ecalClusX_ = ecalClusX_ / ecalClusE_;
-    ecalClusY_ = ecalClusY_ / ecalClusE_;
-    ecalClusZ_ = ecalClusZ_ / ecalClusE_;
-  }  //if(ecalClusNhits_>0)
+  if (ecalClus.nHits_ > 0) {  //should always be > 0 for an EM cluster
+    ecalClus.x_ = ecalClus.x_ / ecalClus.e_;
+    ecalClus.y_ = ecalClus.y_ / ecalClus.e_;
+    ecalClus.z_ = ecalClus.z_ / ecalClus.e_;
+  }  //if(ecalClus.nHits_>0)
+
+  return ecalClus;
 }
 
-void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGeometry* geo,
-                                                                    const reco::Photon* pho,
-                                                                    const HBHERecHitCollection& HBHERecHits) {
-  hcalClusX_samedPhi_ = 0;
-  hcalClusY_samedPhi_ = 0;
-  hcalClusZ_samedPhi_ = 0;
-
-  hcalClusNhits_samedPhi_ = 0;
-  hcalClusE_samedPhi_ = 0;
-
-  hcalClusX_samedR_ = 0;
-  hcalClusY_samedR_ = 0;
-  hcalClusZ_samedR_ = 0;
-  hcalClusNhits_samedR_ = 0;
-  hcalClusE_samedR_ = 0;
+PhotonMVABasedHaloTagger::HcalHyp PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(
+    const CaloGeometry& geo,
+    const reco::Photon* pho,
+    const HBHERecHitCollection& HBHERecHits,
+    const EcalClus& ecalClus) const {
+  HcalHyp returnValue;
 
   double phoSCEta = pho->superCluster()->eta();
   double phoSCPhi = pho->superCluster()->phi();
@@ -193,7 +175,7 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGe
   // Loop over HBHERecHit's
   for (const auto& hbherechit : HBHERecHits) {
     HcalDetId det = hbherechit.id();
-    const GlobalPoint& rechitPoint = geo->getPosition(det);
+    const GlobalPoint& rechitPoint = geo.getPosition(det);
 
     double rhEta = rechitPoint.eta();
     double rhPhi = rechitPoint.phi();
@@ -228,14 +210,14 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGe
       double rho2 = pow(rhX, 2) + pow(rhY, 2);
       isRHBehindECAL &= (rho2 >= rho2Min_ECALpos_ && rho2 <= rho2Max_ECALpos_);
       if (isRHBehindECAL) {
-        double dRho2 = pow(rhX - ecalClusX_, 2) + pow(rhY - ecalClusY_, 2);
+        double dRho2 = pow(rhX - ecalClus.x_, 2) + pow(rhY - ecalClus.y_, 2);
         isRHBehindECAL &= dRho2 <= dRho2Max_HCALClus_SamePhi_;
         if (isRHBehindECAL) {
-          hcalClusX_samedPhi_ += rhX * rhE;
-          hcalClusY_samedPhi_ += rhY * rhE;
-          hcalClusZ_samedPhi_ += rhZ * rhE;
-          hcalClusE_samedPhi_ += rhE;
-          hcalClusNhits_samedPhi_++;
+          returnValue.samedPhi_.x_ += rhX * rhE;
+          returnValue.samedPhi_.y_ += rhY * rhE;
+          returnValue.samedPhi_.z_ += rhZ * rhE;
+          returnValue.samedPhi_.e_ += rhE;
+          returnValue.samedPhi_.nHits_++;
         }
       }
     }  //if(rho>=31 && rho<=172)
@@ -244,42 +226,35 @@ void PhotonMVABasedHaloTagger::calmatchedHBHECoordForBothHypothesis(const CaloGe
     if (!isRHBehindECAL) {
       double dR2 = reco::deltaR2(phoSCEta, phoSCPhi, rhEta, rhPhi);
       if (dR2 < dR2Max_HCALClus_SamePhi_) {
-        hcalClusX_samedR_ += rhX * rhE;
-        hcalClusY_samedR_ += rhY * rhE;
-        hcalClusZ_samedR_ += rhZ * rhE;
-        hcalClusE_samedR_ += rhE;
-        hcalClusNhits_samedR_++;
+        returnValue.samedR_.x_ += rhX * rhE;
+        returnValue.samedR_.y_ += rhY * rhE;
+        returnValue.samedR_.z_ += rhZ * rhE;
+        returnValue.samedR_.e_ += rhE;
+        returnValue.samedR_.nHits_++;
       }
     }
   }  //for(int ih=0; ih<nMatchedHBHErh[ipho]; ih++)
 
-  if (hcalClusNhits_samedPhi_ > 0) {
-    hcalClusX_samedPhi_ = hcalClusX_samedPhi_ / hcalClusE_samedPhi_;
-    hcalClusY_samedPhi_ = hcalClusY_samedPhi_ / hcalClusE_samedPhi_;
-    hcalClusZ_samedPhi_ = hcalClusZ_samedPhi_ / hcalClusE_samedPhi_;
-  }  //if(hcalClusNhits_samedPhi_>0)
+  if (returnValue.samedPhi_.nHits_ > 0) {
+    returnValue.samedPhi_.x_ = returnValue.samedPhi_.x_ / returnValue.samedPhi_.e_;
+    returnValue.samedPhi_.y_ = returnValue.samedPhi_.y_ / returnValue.samedPhi_.e_;
+    returnValue.samedPhi_.z_ = returnValue.samedPhi_.z_ / returnValue.samedPhi_.e_;
+  }  //if(returnValue.samedPhi_.Nhits_>0)
 
-  if (hcalClusNhits_samedR_ > 0) {
-    hcalClusX_samedR_ = hcalClusX_samedR_ / hcalClusE_samedR_;
-    hcalClusY_samedR_ = hcalClusY_samedR_ / hcalClusE_samedR_;
-    hcalClusZ_samedR_ = hcalClusZ_samedR_ / hcalClusE_samedR_;
-  }  //if(hcalClusNhits_samedR_>0)
+  if (returnValue.samedR_.nHits_ > 0) {
+    returnValue.samedR_.x_ = returnValue.samedR_.x_ / returnValue.samedR_.e_;
+    returnValue.samedR_.y_ = returnValue.samedR_.y_ / returnValue.samedR_.e_;
+    returnValue.samedR_.z_ = returnValue.samedR_.z_ / returnValue.samedR_.e_;
+  }  //if(returnValue.samedR_.nHits_>0)
+  return returnValue;
 }
 
-void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeometry* geo,
-                                                                  const reco::Photon* pho,
-                                                                  const EcalRecHitCollection& ESRecHits) {
-  preshowerX_samedPhi_ = 0;
-  preshowerY_samedPhi_ = 0;
-  preshowerZ_samedPhi_ = 0;
-  preshowerNhits_samedPhi_ = 0;
-  preshowerE_samedPhi_ = 0;
-
-  preshowerX_samedR_ = 0;
-  preshowerY_samedR_ = 0;
-  preshowerZ_samedR_ = 0;
-  preshowerNhits_samedR_ = 0;
-  preshowerE_samedR_ = 0;
+PhotonMVABasedHaloTagger::PreshowerHyp PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(
+    const CaloGeometry& geo,
+    const reco::Photon* pho,
+    const EcalRecHitCollection& ESRecHits,
+    const EcalClus& ecalClus) const {
+  PreshowerHyp returnValue;
 
   double phoSCEta = pho->superCluster()->eta();
   double phoSCPhi = pho->superCluster()->phi();
@@ -301,7 +276,7 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeom
   double sin_phi = sin(phoSCPhi);
 
   for (const auto& esrechit : ESRecHits) {
-    const GlobalPoint& rechitPoint = geo->getPosition(esrechit.id());
+    const GlobalPoint& rechitPoint = geo.getPosition(esrechit.id());
 
     double rhEta = rechitPoint.eta();
     double rhX = rechitPoint.x();
@@ -320,7 +295,7 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeom
 
     //////same phi ----> the X and Y should be similar
     ////i.e. hit is required to be within the ----> seems better match with the data compared to 2.47
-    double dRho2 = pow(rhX - ecalClusX_, 2) + pow(rhY - ecalClusY_, 2);
+    double dRho2 = pow(rhX - ecalClus.x_, 2) + pow(rhY - ecalClus.y_, 2);
 
     if (dRho2 < tmpDiffdRho && dRho2 < dRho2Max_ESClus_) {
       tmpDiffdRho = dRho2;
@@ -350,7 +325,7 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeom
   //+/5  strips mean = 5*~2mm = +/-10 mm = 1 cm
 
   for (const auto& esrechit : ESRecHits) {
-    const GlobalPoint& rechitPoint = geo->getPosition(esrechit.id());
+    const GlobalPoint& rechitPoint = geo.getPosition(esrechit.id());
 
     double rhEta = rechitPoint.eta();
     double rhX = rechitPoint.x();
@@ -370,11 +345,11 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeom
       double dY_samephi = std::abs(matchY_samephi - rhY);
       isRHBehindECAL &= (dX_samephi < dXY_ESClus_SamePhi_ && dY_samephi < dXY_ESClus_SamePhi_);
       if (isRHBehindECAL) {
-        preshowerX_samedPhi_ += rhX * rhE;
-        preshowerY_samedPhi_ += rhY * rhE;
-        preshowerZ_samedPhi_ += rhZ * rhE;
-        preshowerE_samedPhi_ += rhE;
-        preshowerNhits_samedPhi_++;
+        returnValue.samedPhi_.x_ += rhX * rhE;
+        returnValue.samedPhi_.y_ += rhY * rhE;
+        returnValue.samedPhi_.z_ += rhZ * rhE;
+        returnValue.samedPhi_.e_ += rhE;
+        returnValue.samedPhi_.nHits_++;
       }
     }
 
@@ -384,41 +359,39 @@ void PhotonMVABasedHaloTagger::calmatchedESCoordForBothHypothesis(const CaloGeom
       double dY_samedR = std::abs(matchY_samedR - rhY);
 
       if (dX_samedR < dXY_ESClus_SamedR_ && dY_samedR < dXY_ESClus_SamedR_) {
-        preshowerX_samedR_ += rhX * rhE;
-        preshowerY_samedR_ += rhY * rhE;
-        preshowerZ_samedR_ += rhZ * rhE;
-        preshowerE_samedR_ += rhE;
-        preshowerNhits_samedR_++;
+        returnValue.samedR_.x_ += rhX * rhE;
+        returnValue.samedR_.y_ += rhY * rhE;
+        returnValue.samedR_.z_ += rhZ * rhE;
+        returnValue.samedR_.e_ += rhE;
+        returnValue.samedR_.nHits_++;
       }
     }
   }  ///for(int ih=0; ih<nMatchedESrh[ipho]; ih++)
 
-  if (preshowerNhits_samedPhi_ > 0) {
-    preshowerX_samedPhi_ = preshowerX_samedPhi_ / preshowerE_samedPhi_;
-    preshowerY_samedPhi_ = preshowerY_samedPhi_ / preshowerE_samedPhi_;
-    preshowerZ_samedPhi_ = preshowerZ_samedPhi_ / preshowerE_samedPhi_;
-  }  //if(preshowerNhits_samedPhi_>0)
+  if (returnValue.samedPhi_.nHits_ > 0) {
+    returnValue.samedPhi_.x_ = returnValue.samedPhi_.x_ / returnValue.samedPhi_.e_;
+    returnValue.samedPhi_.y_ = returnValue.samedPhi_.y_ / returnValue.samedPhi_.e_;
+    returnValue.samedPhi_.z_ = returnValue.samedPhi_.z_ / returnValue.samedPhi_.e_;
+  }  //if(preshowerSamedPhi_.nHits_>0)
 
-  if (preshowerNhits_samedR_ > 0) {
-    preshowerX_samedR_ = preshowerX_samedR_ / preshowerE_samedR_;
-    preshowerY_samedR_ = preshowerY_samedR_ / preshowerE_samedR_;
-    preshowerZ_samedR_ = preshowerZ_samedR_ / preshowerE_samedR_;
-  }  //if(preshowerNhits_samedR_>0)
+  if (returnValue.samedR_.nHits_ > 0) {
+    returnValue.samedR_.x_ = returnValue.samedR_.x_ / returnValue.samedR_.e_;
+    returnValue.samedR_.y_ = returnValue.samedR_.y_ / returnValue.samedR_.e_;
+    returnValue.samedR_.z_ = returnValue.samedR_.z_ / returnValue.samedR_.e_;
+  }  //if(preshowerSamedR_.nHits_>0)
+  return returnValue;
 }
 
-double PhotonMVABasedHaloTagger::calAngleBetweenEEAndSubDet(int nhits,
-                                                            double subdetClusX,
-                                                            double subdetClusY,
-                                                            double subdetClusZ) {
+double PhotonMVABasedHaloTagger::calAngleBetweenEEAndSubDet(CalClus const& subdetClus, EcalClus const& ecalClus) const {
   ////get the angle of the line joining the ECAL cluster and the subdetector wrt Z axis for any hypothesis
 
   double angle = -999;
 
-  if (ecalClusNhits_ > 0 && nhits > 0) {
-    double dR =
-        sqrt(pow(subdetClusX - ecalClusX_, 2) + pow(subdetClusY - ecalClusY_, 2) + pow(subdetClusZ - ecalClusZ_, 2));
+  if (ecalClus.nHits_ > 0 && subdetClus.nHits_ > 0) {
+    double dR = sqrt(pow(subdetClus.x_ - ecalClus.x_, 2) + pow(subdetClus.y_ - ecalClus.y_, 2) +
+                     pow(subdetClus.z_ - ecalClus.z_, 2));
 
-    double cosTheta = std::abs(subdetClusZ - ecalClusZ_) / dR;
+    double cosTheta = std::abs(subdetClus.z_ - ecalClus.z_) / dR;
 
     angle = acos(cosTheta);
   }

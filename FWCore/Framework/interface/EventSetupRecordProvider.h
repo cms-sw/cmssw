@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_EventSetupRecordProvider_h
 #define FWCore_Framework_EventSetupRecordProvider_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     EventSetupRecordProvider
@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 #include <map>
@@ -40,6 +41,7 @@ namespace edm {
     struct ComponentDescription;
     class DataKey;
     class ESProductResolverProvider;
+    class ESRecordsToProductResolverIndices;
     class EventSetupProvider;
     class EventSetupRecordImpl;
     class ParameterSetIDHolder;
@@ -140,8 +142,8 @@ namespace edm {
          all providers have been added.  An empty map is acceptable. */
       void usePreferred(DataToPreferredProviderMap const&);
 
-      ///This will clear the cache's of all the Proxies so that next time they are called they will run
-      void resetProxies();
+      ///This will clear the cache's of all the Resolvers so that next time they are called they will run
+      void resetResolvers();
 
       std::shared_ptr<EventSetupRecordIntervalFinder const> finder() const { return get_underlying_safe(finder_); }
       std::shared_ptr<EventSetupRecordIntervalFinder>& finder() { return get_underlying_safe(finder_); }
@@ -157,12 +159,14 @@ namespace edm {
 
       IntervalStatus intervalStatus() const { return intervalStatus_; }
 
+      void updateLookup(ESRecordsToProductResolverIndices const&);
+
     protected:
-      void addProxiesToRecordHelper(edm::propagate_const<std::shared_ptr<ESProductResolverProvider>>& dpp,
-                                    DataToPreferredProviderMap const& mp) {
-        addProxiesToRecord(get_underlying_safe(dpp), mp);
+      void addResolversToRecordHelper(edm::propagate_const<std::shared_ptr<ESProductResolverProvider>>& dpp,
+                                      DataToPreferredProviderMap const& mp) {
+        addResolversToRecord(get_underlying_safe(dpp), mp);
       }
-      void addProxiesToRecord(std::shared_ptr<ESProductResolverProvider>, DataToPreferredProviderMap const&);
+      void addResolversToRecord(std::shared_ptr<ESProductResolverProvider>, DataToPreferredProviderMap const&);
 
       std::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
         std::swap(iNew, finder());

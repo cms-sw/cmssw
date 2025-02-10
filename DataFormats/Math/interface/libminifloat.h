@@ -51,6 +51,10 @@ public:
 
   class ReduceMantissaToNbitsRounding {
   public:
+#ifdef CMS_UNDEFINED_SANITIZER
+    //Supress UBSan runtime error about -ve shift. This happens when bits==23
+    __attribute__((no_sanitize("shift")))
+#endif
     ReduceMantissaToNbitsRounding(int bits)
         : shift(23 - bits), mask((0xFFFFFFFF >> (shift)) << (shift)), test(1 << (shift - 1)), maxn((1 << bits) - 2) {
       assert(bits <= 23);  // "max mantissa size is 23 bits"

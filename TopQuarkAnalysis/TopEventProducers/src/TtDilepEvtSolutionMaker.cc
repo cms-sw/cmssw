@@ -157,7 +157,6 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
     }
     if (ee) {
       if (LepDiffCharge(&(*electrons)[0], &(*electrons)[1])) {
-        leptonFound = true;
         leptonFoundEE = true;
         if (HasPositiveCharge(&(*electrons)[0])) {
           selElectronp = 0;
@@ -169,7 +168,6 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
       }
     } else if (emu) {
       if (LepDiffCharge(&(*electrons)[0], &(*muons)[0])) {
-        leptonFound = true;
         if (HasPositiveCharge(&(*electrons)[0])) {
           leptonFoundEpMm = true;
           selElectronp = 0;
@@ -182,7 +180,6 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
       }
     } else if (mumu) {
       if (LepDiffCharge(&(*muons)[0], &(*muons)[1])) {
-        leptonFound = true;
         leptonFoundMM = true;
         if (HasPositiveCharge(&(*muons)[0])) {
           selMuonp = 0;
@@ -305,7 +302,6 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
   } else if (taus->size() > 1) {
     tautau = true;
     if (LepDiffCharge(&(*taus)[0], &(*taus)[1])) {
-      leptonFound = true;
       leptonFoundTT = true;
       if (HasPositiveCharge(&(*taus)[0])) {
         selTaup = 0;

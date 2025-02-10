@@ -13,7 +13,7 @@ def arguments(comp, resType = "Z", firstFile = "0", secondFile = "1") :
     elif( comp == "PhiMinus" ) :
         name = "phiMinus"
     else :
-        print "Error"
+        print("Error")
         return ""
     if( resType == "Z" ) :
         fitType = "2"
@@ -33,7 +33,7 @@ massProbablityName = "Z"
 macrosDir = os.popen("echo $CMSSW_BASE", "r").read().strip()
 macrosDir += "/src/MuonAnalysis/MomentumScaleCalibration/test/Macros/"
 
-print macrosDir+"Run.C"
+print(macrosDir+"Run.C")
 
 # Mass vs pt, eta, phi
 # --------------------

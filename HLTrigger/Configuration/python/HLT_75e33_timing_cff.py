@@ -89,13 +89,20 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonIniti
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonPixelTrackCleanerBySharedHits_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonTrackAlgoPriorityOrder_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPixelTracksCleanerBySharedHits_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTTRBWR_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithTrackAngle_cfi")
 
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFFittingSmootherForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectoryFitterForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectorySmootherForL2Muon_cfi")
 
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/trackdnn_source_cfi")
+
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParams_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPSiPixelCablingSoA_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPSiPixelGainCalibrationForHLTSoA_cfi")
+
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPModulesDevLST_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithoutRefit_cfi")
 
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_AK4PFPuppiJet520_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCaloId_L1Seeded_cfi")
@@ -107,6 +114,8 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoublePFPuppiJets128_
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele115_NonIso_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele26_WP70_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele32_WPTight_L1Seeded_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_IsoMu24_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Mu37_Mu27_FromL1TkMuon_cfi")
@@ -297,7 +306,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTPhoton108EBTightID
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTPhoton108EBTightIDTightIsoUnseededSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTPhoton187L1SeededSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTPhoton187UnseededSequence_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTTrackingV61Sequence_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTTrackingSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTInitialStepPVSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTInitialStepSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTIterTICLSequence_cfi")
@@ -367,6 +376,7 @@ fragment.schedule = cms.Schedule(*[
     fragment.L1T_TkIsoEle22TkEm12,
 
     fragment.HLT_Ele32_WPTight_L1Seeded,
+    fragment.HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1,
     fragment.HLT_Ele115_NonIso_L1Seeded,
     fragment.HLT_Ele26_WP70_L1Seeded,
     fragment.HLT_Photon108EB_TightID_TightIso_L1Seeded,
@@ -377,6 +387,7 @@ fragment.schedule = cms.Schedule(*[
 
     fragment.HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1,
     fragment.HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1,
+    fragment.HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1,
 
     ### Removed temporarily until final decision on L1T tau Phase-2
     #fragment.L1T_DoubleNNTau52,

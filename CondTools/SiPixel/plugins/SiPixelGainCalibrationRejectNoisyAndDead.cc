@@ -225,7 +225,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
     float gainforthiscol[2];
     float pedforthiscol[2];
     int nusedrows[2];
-    int nrowsrocsplit;
+    int nrowsrocsplit = 0;
     if (record_ == "SiPixelGainCalibrationOfflineRcd")
       nrowsrocsplit = theGainCalibrationDbInputOffline_->getNumberOfRowsToAverageOver();
     if (record_ == "SiPixelGainCalibrationForHLTRcd")

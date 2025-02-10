@@ -223,8 +223,6 @@ void GenPUProtonProducer::produce(StreamID, Event& evt, const EventSetup& es) co
     if (find(bunchList_.begin(), bunchList_.end(), bunch) != bunchList_.end()) {
       auto event = (*mixHepMC_itr).GetEvent();
 
-      size_t num_particles = event->particles_size();
-
       // Fill output collection
       unsigned int number_of_protons = 0;
       for (auto p = event->particles_begin(); p != event->particles_end(); ++p) {
@@ -237,7 +235,7 @@ void GenPUProtonProducer::produce(StreamID, Event& evt, const EventSetup& es) co
         }
       }
       LogDebug("GenPUProtonProducer") << "Idx : " << idx_mix << " Bunch : " << bunch
-                                      << " Number of particles : " << num_particles
+                                      << " Number of particles : " << event->particles_size()
                                       << " Number of protons : " << number_of_protons << endl;
 
       total_number_of_protons += number_of_protons;

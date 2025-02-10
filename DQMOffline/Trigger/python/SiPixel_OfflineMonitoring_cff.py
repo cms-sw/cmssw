@@ -13,16 +13,17 @@ from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 pp_on_PbPb_run3.toModify(hltSiPixelClusterShapeCache,
                          src =  "hltSiPixelClustersAfterSplittingPPOnAA")
 
-hltrefittedForPixelDQM = refittedForPixelDQM.clone(src ='hltMergedTracks',
-                                                   TTRHBuilder = 'WithTrackAngle') # no templates at HLT
+hltTrackRefitterForPixelDQM = refittedForPixelDQM.clone(src                     = "hltMergedTracks",
+                                                        beamSpot                = "hltOnlineBeamSpot",
+                                                        TTRHBuilder             = 'hltESPTTRHBWithTrackAngle') # no template at HLT
 
-pp_on_PbPb_run3.toModify(hltrefittedForPixelDQM,
+pp_on_PbPb_run3.toModify(hltTrackRefitterForPixelDQM,
                          src ='hltMergedTracksPPOnAA')
 
 sipixelMonitorHLTsequence = cms.Sequence(
     hltSiPixelClusterShapeCache
     + hltSiPixelPhase1ClustersAnalyzer
-    + hltrefittedForPixelDQM
+    + hltTrackRefitterForPixelDQM
     + hltSiPixelPhase1TrackClustersAnalyzer
     + hltSiPixelPhase1TrackResidualsAnalyzer,
     cms.Task(SiPixelTemplateStoreESProducer)

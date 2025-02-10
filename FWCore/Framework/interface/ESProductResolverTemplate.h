@@ -1,13 +1,13 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESProductResolverTemplate_h
 #define FWCore_Framework_ESProductResolverTemplate_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESProductResolverTemplate
 //
-/**\class ESProductResolverTemplate ESProductResolverTemplate.h FWCore/Framework/interface/ESProductResolverTemplate.h
+/**\class edm::eventsetup::ESProductResolverTemplate
 
- Description: A ESProductResolver base class which allows one to write type-safe proxies
+ Description: A ESProductResolver base class which allows one to write type-safe resolvers
 
               Note that ESProductResolver types that inherit from this are not allowed
               to get data from the EventSetup (they cannot consume anything).

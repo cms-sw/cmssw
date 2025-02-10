@@ -206,7 +206,6 @@ void RBCProcessRPCSimDigis::setDigiAt(int sector, int digipos, RPCData& block) {
   auto itr = std::find(s_sec1id.begin(), s_sec1id.end(), sector);
 
   if (itr == s_sec1id.end()) {
-    itr = std::find(s_sec2id.begin(), s_sec2id.end(), sector);
     isAoB = 1;
   }
 

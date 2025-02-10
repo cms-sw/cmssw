@@ -1,13 +1,13 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESProductResolver_h
 #define FWCore_Framework_ESProductResolver_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESProductResolver
 //
 /**\class edm::eventsetup::ESProductResolver
 
- Description: Base class for data Proxies held by a EventSetupRecord
+ Description: Base class for product resolvers held by a EventSetupRecord
 
  Usage:
     This class defines the interface used to handle retrieving data from an
@@ -45,7 +45,7 @@ namespace edm {
       virtual ~ESProductResolver();
 
       // ---------- const member functions ---------------------
-      bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
+      bool cacheIsValid() const;
 
       void prefetchAsync(WaitingTaskHolder,
                          EventSetupRecordImpl const&,
@@ -106,8 +106,7 @@ namespace edm {
     private:
       // ---------- member data --------------------------------
       ComponentDescription const* description_;
-      CMS_THREAD_SAFE mutable void const* cache_;  //protected by a global mutex
-      mutable std::atomic<bool> cacheIsValid_;
+      mutable std::atomic<void const*> cache_;
 
       // While implementing the set of code changes that enabled support
       // for concurrent IOVs, I have gone to some effort to maintain
