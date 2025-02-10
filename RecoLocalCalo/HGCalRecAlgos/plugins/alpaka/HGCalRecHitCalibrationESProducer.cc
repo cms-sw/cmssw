@@ -55,11 +55,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (arr_offset < 0) {
           arr_offset = 0;
           if (nrows_vals != arr_offset + nrows) {
-            edm::LogWarning("HGCalCalibrationESProducer")
+            throw edm::Exception(edm::errors::LogicError, "HGCalCalibrationESProducer")
                 << " Expected " << nrows << " rows, but got " << nrows_vals << "!";
           }
         } else if (nrows_vals < arr_offset + nrows) {
-          edm::LogWarning("HGCalCalibrationESProducer")
+          throw edm::Exception(edm::errors::LogicError, "HGCalCalibrationESProducer")
               << " Tried to copy " << nrows << " rows to SoA with offset " << arr_offset << ", but only have "
               << nrows_vals << " values in JSON!";
         }
@@ -71,10 +71,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename T, typename P>
       static void fill_SoA_eigen_row(P& soa, const std::vector<std::vector<T>>& values, const size_t row) {
         if (row >= values.size())
-          edm::LogWarning("HGCalCalibrationESProducer")
+          throw edm::Exception(edm::errors::LogicError, "HGCalCalibrationESProducer")
               << " Tried to copy row " << row << " to SoA, but only have " << values.size() << " values in JSON!";
         if (!values.empty() && int(values[0].size()) != soa.size())
-          edm::LogWarning("HGCalCalibrationESProducer")
+          throw edm::Exception(edm::errors::LogicError, "HGCalCalibrationESProducer")
               << " Expected " << soa.size() << " elements in Eigen vector, but got " << values[0].size() << "!";
         for (int i = 0; i < soa.size(); i++)
           soa(i) = values[row][i];
