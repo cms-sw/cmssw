@@ -41,7 +41,8 @@ namespace hgcaldigi {
                       // 0b100: No ECOND packet. The event builder state machine timed-out.
                       // 0b101: No ECOND packet due to BCID and/or OrbitID mismatch.
                       // 0b110: No ECOND packet. Packet was detected but was discarded due to Main Buffer overflow.
-                      SOA_COLUMN(uint8_t, cbFlag),  //cbflag
+                      // 0b111: ECOND CRC trailer error.
+                      SOA_COLUMN(uint16_t, cbFlag),  //cbflag
                       // ECON-D header information
                       // bit 0: Truncation flag
                       // bit 1: Match flag
