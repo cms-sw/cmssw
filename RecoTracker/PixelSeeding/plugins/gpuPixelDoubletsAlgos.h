@@ -47,13 +47,17 @@ namespace gpuPixelDoublets {
               const bool idealConditions,
               const float z0Cut,
               const float ptCut,
+              const int minYsizeB1,
+              const int minYsizeB2,
               const std::vector<int>& phiCutsV)
         : doClusterCut_(doClusterCut),
           doZ0Cut_(doZ0Cut),
           doPtCut_(doPtCut),
           idealConditions_(idealConditions),
           z0Cut_(z0Cut),
-          ptCut_(ptCut) {
+          ptCut_(ptCut),
+          minYsizeB1_(minYsizeB1),
+          minYsizeB2_(minYsizeB2) {
       assert(phiCutsV.size() == TrackerTraits::nPairs);
       std::copy(phiCutsV.begin(), phiCutsV.end(), &phiCuts[0]);
     }
@@ -65,6 +69,9 @@ namespace gpuPixelDoublets {
 
     float z0Cut_;
     float ptCut_;
+
+    int minYsizeB1_;
+    int minYsizeB2_;
 
     int phiCuts[T::nPairs];
 
@@ -107,11 +114,11 @@ namespace gpuPixelDoublets {
       auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
 
       if (innerB1)  // B1
-        if (mes > 0 && mes < T::minYsizeB1)
+        if (mes > 0 && mes < minYsizeB1_)
           return true;                                                                 // only long cluster  (5*8)
       bool innerB2 = (mi >= T::last_bpix1_detIndex) && (mi < T::last_bpix2_detIndex);  //FIXME number
       if (innerB2)                                                                     // B2 and F1
-        if (mes > 0 && mes < T::minYsizeB2)
+        if (mes > 0 && mes < minYsizeB2_)
           return true;
 
       return false;
