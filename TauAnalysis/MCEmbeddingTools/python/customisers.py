@@ -608,17 +608,16 @@ def customiseGenerator_HLT(process, changeProcessname=True, reselect=False):
         process.embeddingHltPixelVertices.clone()
     )
 
-    # replace the original detector state filters in the HLT with a dummy module
-    process.hltPixelTrackerHVOn = cms.EDFilter("EmbeddingDetectorStateFilter",
-        DcsStatusLabel = cms.untracked.InputTag("hltScalersRawToDigi"),
-        DebugOn = cms.untracked.bool(False),
-        DetectorType = cms.untracked.string('pixel')
+    # Replace the original detector state filters in the HLT with a dummy module with 100% efficiency. 
+    # Those original filters have a efficiency of 0% for embedding samples.
+    # This is due to the fact that the simulation of the tau decay happens in an empty detector.
+    # For more info see https://github.com/cms-sw/cmssw/pull/47299#discussion_r1949023230
+    process.hltPixelTrackerHVOn = cms.EDFilter("HLTBool",
+        result = cms.bool(True)
     )
 
-    process.hltStripTrackerHVOn = cms.EDFilter("EmbeddingDetectorStateFilter",
-        DcsStatusLabel = cms.untracked.InputTag("hltScalersRawToDigi"),
-        DebugOn = cms.untracked.bool(False),
-        DetectorType = cms.untracked.string('sistrip')
+    process.hltStripTrackerHVOn = cms.EDFilter("HLTBool",
+        result = cms.bool(True)
     )
 
     process = customisoptions(process)
