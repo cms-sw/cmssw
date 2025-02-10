@@ -2,10 +2,6 @@
 <use name="DataFormats/RPCRecHit"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/HcalRecHit"/>
-<use name="DataFormats/Common"/>
-<use name="DataFormats/FEDRawData"/>
-<use name="DataFormats/OnlineMetaData"/>
-<use name="DataFormats/Scalers"/>
 <use name="TrackingTools/TrackAssociator"/>
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="SimDataFormats/GeneratorProducts"/>
