@@ -7,7 +7,7 @@
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "EventFilter/HGCalRawToDigi/interface/UnpackerTools.h"
 #include <array>
 
 using namespace hgcal;
@@ -152,12 +152,21 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
             << "), got 0x" << econd_headers[0] << ".";
         return UNPACKER_STAT::WrongECONDHeader;
       }
+      const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
+      // Compute ECON-D trailer CRC
+      bool crcvalid = hgcal::econdCRCAnalysis(ptr, 0, econd_payload_length);
+      LogDebug("[HGCalUnpacker]") << "crc value " << crcvalid;
       ++ptr;
 
-      econdPacketInfo.view()[ECONDdenseIdx].cbFlag() = (uint8_t)(econd_pkt_status);
+      if (!crcvalid) {
+        econd_pkt_status |=
+            backend::ECONDPacketStatus::OfflinePayloadCRCError;  //If CRC errors in the trailer, update the pkt status
+      }
+
+      econdPacketInfo.view()[ECONDdenseIdx].cbFlag() = (uint16_t)(econd_pkt_status);
+
       // ECON-D payload length (num of 32b words)
       // NOTE: in the capture blocks, ECON-D packets do not have the trailing IDLE word
-      const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
       if (econd_payload_length > 469) {
         econdPacketInfo.view()[ECONDdenseIdx].exception() = 4;
         edm::LogWarning("[HGCalUnpacker]")
@@ -180,12 +189,13 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                   << ", econdIdx = " << econdIdx << ", econd_headers = " << std::hex
                                   << std::setfill('0') << std::setw(8) << econd_headers[0] << " " << econd_headers[1]
                                   << std::dec << ", econd_payload_length = " << econd_payload_length;
-
-      //quality check for ECON-D (no need to check again econd_pkt_status here again)
+      //quality check for ECON-D (check econd_pkt_status here for error in trailer CRC)
       if ((((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::EBO_POS) & ECOND_FRAME::EBO_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) ||
-          (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) || econd_payload_length == 0 || headerOnlyMode) {
+          (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) || econd_payload_length == 0 ||
+          econd_pkt_status == backend::ECONDPacketStatus::OfflinePayloadCRCError ||
+          econd_pkt_status == backend::ECONDPacketStatus::InactiveECOND || headerOnlyMode) {
         continue;
       }
 

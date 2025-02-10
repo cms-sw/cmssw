@@ -4,6 +4,7 @@
 <use name="DataFormats/HGCalDigi"/>
 <use name="FWCore/ParameterSet"/>
 <use name="clhep"/>
+<use name="boost"/>
 <export>
   <lib name="1"/>
 </export>

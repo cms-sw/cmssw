@@ -13,7 +13,8 @@ namespace hgcal {
   namespace backend {
     namespace ECONDPacketStatus {
       constexpr uint8_t Normal = 0x0, PayloadTooLarge = 0x1, PayloadCRCError = 0x2, EventIDMismatch = 0x3,
-                        EBTimeout = 0x4, BCIDOrbitIDMismatch = 0x5, MainBufferOverflow = 0x6, InactiveECOND = 0x7;
+                        EBTimeout = 0x4, BCIDOrbitIDMismatch = 0x5, MainBufferOverflow = 0x6, InactiveECOND = 0x7,
+                        OfflinePayloadCRCError = 0x8;
     }  // namespace ECONDPacketStatus
   }  // namespace backend
 
@@ -25,7 +26,8 @@ namespace hgcal {
                        EHCRC_MASK = 0xff, EHCRC_POS = 0, ERXSTAT_POS = 29, ERXSTAT_MASK = 0x7, ERXHAM_POS = 26,
                        ERXHAM_MASK = 0x7, ERXFORMAT_POS = 25, ERXFORMAT_MASK = 0x1, COMMONMODE0_POS = 15,
                        COMMONMODE0_MASK = 0x3ff, COMMONMODE1_POS = 5, COMMONMODE1_MASK = 0x3ff, CHMAP32_POS = 0,
-                       CHMAP32_MASK = 0x1f, CHMAP0_POS = 0, CHMAP0_MASK = 0xffffffff, ERX_E_POS = 4, ERX_E_MASK = 1;
+                       CHMAP32_MASK = 0x1f, CHMAP0_POS = 0, CHMAP0_MASK = 0xffffffff, ERX_E_POS = 4, ERX_E_MASK = 1,
+                       CRC_POL = 0x4c11db7, CRC_INITREM = 0x0, CRC_FINALXOR = 0x0;
   }  // namespace ECOND_FRAME
 
   namespace BACKEND_FRAME {
