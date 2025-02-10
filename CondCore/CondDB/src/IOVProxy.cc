@@ -1,7 +1,15 @@
 #include <memory>
 
 #include "CondCore/CondDB/interface/IOVProxy.h"
+#include "CondCore/CondDB/interface/Session.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "SessionImpl.h"
+
+// Turns on diagnostics debug mode to simulate fetching invalid beamspot
+// #define BEAM_SPOT_DIAGNOSTICS_DEBUG
 
 namespace cond {
 
@@ -292,6 +300,136 @@ namespace cond {
         throwException("The transaction is not active.", ctx);
     }
 
+    reco::BeamSpot beamSpotFromBSOnlineObjects(std::unique_ptr<BeamSpotOnlineObjects> const& beamspotObj) {
+      //TODO Is that a good way to set up a debug mode?
+      // Is that even needed for final PR or should it be treated temporarty and remove before merging?
+      // If it would be merged with the debug mode it should probably be improved
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+      static int testCaseNr = 0;
+      const double invalidMatrix[][3] = {//Invalid non-0 matrix that appeared in crash logs
+                                         {0, 0, -4.84531e-151},
+                                         {0, 0, 0},
+                                         {-4.84531e-151, 0, 1.06053e-07}};
+#endif
+      bool changeFrame = false;
+      double f = changeFrame ? -1.0 : 1.0;
+      reco::BeamSpot::Point apoint(f * beamspotObj->x(), f * beamspotObj->y(), f * beamspotObj->z());
+
+      reco::BeamSpot::CovarianceMatrix matrix;
+      for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+        for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+          switch (testCaseNr) {
+            case 0:
+              matrix(i, j) = beamspotObj->covariance(i, j);
+              break;
+            case 1:
+              matrix(i, j) = 0;
+              break;
+            case 2:
+              if (i < 3 && j < 3)
+                matrix(i, j) = invalidMatrix[i][j];
+              break;
+          }
+#else
+          matrix(i, j) = beamspotObj->covariance(i, j);
+#endif
+        }
+      }
+
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+      if (testCaseNr == 3) {
+        return reco::BeamSpot();
+      }
+      testCaseNr++;
+#endif
+      reco::BeamSpot beamSpot = reco::BeamSpot(apoint,  // (force formatting)
+                                               beamspotObj->sigmaZ(),
+                                               beamspotObj->dxdz(),
+                                               beamspotObj->dydz(),
+                                               beamspotObj->beamWidthX(),
+                                               matrix);
+      beamSpot.setBeamWidthY(beamspotObj->beamWidthY());
+      beamSpot.setEmittanceX(beamspotObj->emittanceX());
+      beamSpot.setEmittanceY(beamspotObj->emittanceY());
+      beamSpot.setbetaStar(beamspotObj->betaStar());
+      return beamSpot;
+    }
+
+    bool printBeamSpotDiagnostics(std::shared_ptr<IOVProxyData> iovProxyData,
+                                  std::shared_ptr<SessionImpl> sessionImpl,
+                                  cond::Time_t lowerGroup,
+                                  cond::Time_t higherGroup) {
+      bool printedDiagnostics = false;
+      if (iovProxyData->tagInfo.payloadType == "BeamSpotOnlineObjects") {  //TODO refactor avoid unecessary nesting
+        cond::persistency::Session session(sessionImpl);
+        session.transaction().start(true);
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+        int iSeq = 0;
+#endif
+        for (const auto& [iov, hash] : iovProxyData->iovSequence) {
+          std::unique_ptr<BeamSpotOnlineObjects> beamspotObj = session.fetchPayload<BeamSpotOnlineObjects>(hash);
+          reco::BeamSpot beamSpot = beamSpotFromBSOnlineObjects(beamspotObj);
+
+          //Check validity of BeamSpot by validating error of VertexState created from it
+          VertexState beamVertexState(beamSpot);
+          bool vertexFromBSInvalid = (beamVertexState.error().cxx() <= 0.) || (beamVertexState.error().cyy() <= 0.) ||
+                                     (beamVertexState.error().czz() <= 0.);
+
+          //Check validity of BeamSpot by confirming it can be inverted
+          int inversionFail = 2;  //the .Inverse(...) will set it to 0 or 1
+          reco::BeamSpot::CovarianceMatrix errorInverse = beamSpot.covariance().Inverse(inversionFail);
+
+          double det;  //TODO do we check BS validity by det?
+          beamSpot.covariance().Det2(det);
+          //TODO probably can be refactored to avoid unecessary nesting
+          if (vertexFromBSInvalid || inversionFail) {
+            std::ostringstream s;  //tmp, just for better code formatting
+            s << "\n--------------------- BeamSpot Diagnostics (hash: " << hash << ") ----------------\n"
+              << "Fetched invalid beamspot obj of hash " << hash << "\n"
+              << "Tag: " << iovProxyData->tagInfo.name << "\n"
+              << "IOV: " << iov << "(" << cond::time::timeTypeName(iovProxyData->tagInfo.timeType) << ")\n"
+              << "Request info: "
+              << "' request interval [ " << lowerGroup << " , " << higherGroup << " ] "
+              << "new range [ " << iovProxyData->groupLowerIov << " , " << iovProxyData->groupHigherIov << " ] "
+              << "#entries " << iovProxyData->iovSequence.size() << "\n"
+              << "\n"
+              << "BeamSpotOnlineObjects:\n"
+              << *beamspotObj
+              << "\n"
+              //TODO probably no new info here, enough to preant only BeamSpotOnlineObjects
+              << "BeamSpot:\n"
+              << beamSpot << "\n"
+              << "BeamSpot (BS) rotatedCovariance3D:\n"
+              << beamSpot.rotatedCovariance3D() << "\n"
+              << "BS position: " << beamSpot.position() << "\n"
+              << "BS covariance Determinant: " << det << "\n"
+              << "Of matrix:  " << beamSpot.covariance() << "\n"
+              << "is VertexState(BS).error() invalid? (0=valid): " << vertexFromBSInvalid << "\n"
+              << "VertexState(BS).error().matrix(): \n"
+              << beamVertexState.error().matrix() << "\n"
+              << "err cxx() = " << beamVertexState.error().cxx() << "\n"
+              << "err cyy() = " << beamVertexState.error().cyy() << "\n"
+              << "err czz() = " << beamVertexState.error().czz() << "\n"
+              << "did BS.covariance() inversion failed? (0=ok, 1=failed): " << inversionFail << "\n"
+              << "BS.covariance().Inverse():\n"
+              << errorInverse << "\n"
+              << "\n-------------- end of BeamSpot Diagnostics (hash: " << hash << ") ----------------\n"
+              << std::endl;
+            edm::LogSystem("NewIOV") << s.str();
+            printedDiagnostics = true;
+          }
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+          if (iSeq >= 3)
+            break;
+          iSeq++;
+#endif
+        }
+        session.transaction().commit();
+      }
+      return printedDiagnostics;
+    }
+
     void IOVProxy::fetchSequence(cond::Time_t lowerGroup, cond::Time_t higherGroup) {
       m_data->iovSequence.clear();
       m_session->iovSchema().iovTable().select(
@@ -313,7 +451,13 @@ namespace cond {
           m_data->groupHigherIov = cond::time::MAX_VAL;
         }
       }
-
+#ifdef BEAM_SPOT_DIAGNOSTICS_DEBUG
+      if (printBeamSpotDiagnostics(m_data, m_session, lowerGroup, higherGroup)) {
+        std::exit(0);  //To avoid long exection of unrelated code after diagnostics got printed
+      }
+#else
+      printBeamSpotDiagnostics(m_data, m_session, lowerGroup, higherGroup);
+#endif
       m_data->numberOfQueries++;
     }
 

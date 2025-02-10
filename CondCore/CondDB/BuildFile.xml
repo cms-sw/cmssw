@@ -1,5 +1,7 @@
 <use name="CondFormats/Serialization"/>
 <use name="CondFormats/Common"/>
+<use name="CondFormats/BeamSpotObjects"/>
+<use name="RecoVertex/VertexPrimitives"/>
 <use name="FWCore/Framework"/>
 <use name="Utilities/OpenSSL"/>
 <use name="boost"/>
