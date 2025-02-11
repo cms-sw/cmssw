@@ -15,7 +15,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 
@@ -71,31 +70,30 @@ using angle_units::operators::convertRadToDeg;
 using cms_rounding::roundIfNear0;
 
 DD4hep_TestMTDIdealGeometry::DD4hep_TestMTDIdealGeometry(const edm::ParameterSet& iConfig)
-: tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
-ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
-thisN_(),
-btlNS_(),
-etlNS_() {
+    : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
+      ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
+      thisN_(),
+      btlNS_(),
+      etlNS_() {
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
   dddetToken_ = esConsumes<DDDetector, IdealGeometryRecord>(tag_);
   dspecToken_ = esConsumes<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
 }
 
 void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
   auto pDD = iSetup.getTransientHandle(dddetToken_);
-  
+
   auto pSP = iSetup.getTransientHandle(dspecToken_);
 
   auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
   auto btlCrysLayout = MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode());
-  
+
   if (ddTopNodeName_ != "BarrelTimingLayer" && ddTopNodeName_ != "EndcapTimingLayer") {
     edm::LogWarning("DD4hep_TestMTDIdealGeometry") << ddTopNodeName_ << "Not valid top MTD volume";
     return;
   }
-  
+
   if (!pDD.isValid()) {
     edm::LogError("DD4hep_TestMTDIdealGeometry") << "ESTransientHandle<DDCompactView> pDD is not valid!";
     return;
@@ -105,16 +103,16 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   } else {
     edm::LogWarning("DD4hep_TestMTDIdealGeometry") << "NO label found pDD.description() returned false.";
   }
-  
+
   if (!pSP.isValid()) {
     edm::LogError("DD4hep_TestMTDIdealGeometry") << "ESTransientHandle<DDSpecParRegistry> pSP is not valid!";
     return;
   }
-  
+
   DDFilteredView fv(pDD.product(), pDD.product()->description()->worldVolume());
   fv.next(0);
   edm::LogInfo("DD4hep_TestMTDIdealGeometry") << fv.name();
-  
+
   DDSpecParRefs specs;
   std::string attribute("ReadOutName"), name;
   if (ddTopNodeName_ == "BarrelTimingLayer") {
@@ -127,14 +125,14 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
     return;
   }
   pSP.product()->filter(specs, attribute, name);
-  
+
   edm::LogVerbatim("Geometry").log([&specs](auto& log) {
     log << "Filtered DD SpecPar Registry size: " << specs.size() << "\n";
     for (const auto& t : specs) {
       log << "\nSpecPar " << t.first << ":\nRegExps { ";
       for (const auto& ki : t.second->paths)
-      log << ki << " ";
-    log << "};\n ";
+        log << ki << " ";
+      log << "};\n ";
       for (const auto& kl : t.second->spars) {
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
@@ -144,27 +142,27 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
       }
     }
   });
-  
+
   bool write = false;
   bool isBarrel = true;
   bool exitLoop = false;
   uint32_t level(0);
   uint32_t count(0);
-  
-  
+
   do {
     if (dd4hep::dd::noNamespace(fv.name()) == "BarrelTimingLayer") {
       isBarrel = true;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
       if (static_cast<int>(btlCrysLayout) < static_cast<int>(BTLDetId::CrysLayout::v4)) {
-        edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "BTL electronics mapping not available for BTL crystal layout " << static_cast<int>(btlCrysLayout) 
-                                                    << ", use layout 7 (v4) or later!" << std::endl;
+        edm::LogInfo("DD4hep_TestMTDIdealGeometry")
+            << "BTL electronics mapping not available for BTL crystal layout " << static_cast<int>(btlCrysLayout)
+            << ", use layout 7 (v4) or later!" << std::endl;
       }
     } else if (dd4hep::dd::noNamespace(fv.name()) == "EndcapTimingLayer") {
       isBarrel = false;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
     }
-    
+
     if (level > 0 && fv.navPos().size() < level) {
       level = 0;
       write = false;
@@ -180,25 +178,25 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
       count += 1;
     }
 
-    #ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DD4hep_TestMTDIdealGeometry")
-    << "level= " << level << " isBarrel= " << isBarrel << " exitLoop= " << exitLoop << " count= " << count << " "
-    << fv.path();
-    #endif
-    
+        << "level= " << level << " isBarrel= " << isBarrel << " exitLoop= " << exitLoop << " count= " << count << " "
+        << fv.path();
+#endif
+
     // Test only the desired subdetector
-    
+
     if (exitLoop && isBarrel) {
       break;
     }
-    
+
     // Actions for MTD volumes: searchg for sensitive detectors
-    
+
     if (write) {
       std::stringstream ss;
-      
+
       theBaseNumber(fv);
-      
+
       auto print_path = [&]() {
         ss << " - OCMS[0]/";
         for (int ii = thisN_.getLevels() - 1; ii-- > 0;) {
@@ -208,13 +206,13 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           ss << "]/";
         }
       };
-      
+
       print_path();
-      
+
       edm::LogInfo("DD4hep_TestMTDPath") << ss.str();
-      
+
       bool isSens = false;
-      
+
       for (auto const& t : specs) {
         for (auto const& it : t.second->paths) {
           if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(fv.name()), dd4hep::dd::realTopName(it))) {
@@ -223,36 +221,37 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           }
         }
       }
-      
+
       if (isSens) {
         //
         // Test of numbering scheme for sensitive detectors
         //
-        
+
         std::stringstream sunitt;
         std::stringstream snum;
-        
+
         if (isBarrel) {
           BTLDetId theId(btlNS_.getUnitID(thisN_));
           sunitt << theId.rawId();
           snum << theId;
-          
+
           if (static_cast<int>(btlCrysLayout) >= static_cast<int>(BTLDetId::CrysLayout::v4)) {
             BTLElectronicsMapping btlEM = BTLElectronicsMapping(btlCrysLayout);
             snum << "\n";
             snum << "----------------------------------------------------------------------------" << std::endl;
-            snum << " CCBoard: " << btlEM.CCBoard(theId) << " FEBoard: " << btlEM.FEBoard(theId) << " TOFHIRASIC: "
-            << btlEM.TOFHIRASIC(theId) << "\n SiPMCh   minus: " << btlEM.SiPMCh(theId, 0) << " plus: " << btlEM.SiPMCh(theId, 1)
-            << "\n TOFHIRCh minus: " << btlEM.TOFHIRCh(theId, 0) << " plus: " << btlEM.TOFHIRCh(theId, 1) << "\n";
+            snum << " CCBoard: " << btlEM.CCBoard(theId) << " FEBoard: " << btlEM.FEBoard(theId)
+                 << " TOFHIRASIC: " << btlEM.TOFHIRASIC(theId) << "\n SiPMCh   minus: " << btlEM.SiPMCh(theId, 0)
+                 << " plus: " << btlEM.SiPMCh(theId, 1) << "\n TOFHIRCh minus: " << btlEM.TOFHIRCh(theId, 0)
+                 << " plus: " << btlEM.TOFHIRCh(theId, 1) << "\n";
             snum << "----------------------------------------------------------------------------" << std::endl;
-          } 
+          }
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
           sunitt << theId.rawId();
           snum << theId;
         }
         edm::LogInfo("DD4hep_TestMTDNumbering") << snum.str();
-              
+
         //
         // Test of positions for sensitive detectors
         //

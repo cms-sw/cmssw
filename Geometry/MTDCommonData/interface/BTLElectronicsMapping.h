@@ -6,7 +6,7 @@
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include <Geometry/MTDCommonData/interface/MTDTopologyMode.h>
-          
+
 /** \brief BTL TOFHIR channel mapping with crystal BTLDetId
     Convention:
       SiPMside 0 == Minus Side
@@ -79,7 +79,7 @@ public:
   int CCBoardFromRU(uint32_t dmodule);
   int CCBoard(BTLDetId det);
   int CCBoard(uint32_t rawID);
-  
+
 private:
 };
 

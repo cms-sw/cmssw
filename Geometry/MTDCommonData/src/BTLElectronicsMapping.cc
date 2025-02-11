@@ -7,9 +7,10 @@
 #include <algorithm>
 #include <vector>
 BTLElectronicsMapping::BTLElectronicsMapping(const BTLDetId::CrysLayout lay) {
-  if (static_cast<int>(lay) < 7){
-    throw cms::Exception("BTLElectronicsMapping") << "MTD Topology mode with layout " << static_cast<int>(lay) << " is not supported\n"
-                                                  << "use layout : 7 (v4) or later!" << std::endl;
+  if (static_cast<int>(lay) < 7) {
+    throw cms::Exception("BTLElectronicsMapping")
+        << "MTD Topology mode with layout " << static_cast<int>(lay) << " is not supported\n"
+        << "use layout : 7 (v4) or later!" << std::endl;
   }
 }
 
