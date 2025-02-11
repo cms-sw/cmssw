@@ -17,7 +17,7 @@
 
 class GenCandMotherTableProducer : public edm::global::EDProducer<> {
 public:
-  GenCandMotherTableProducer(edm::ParameterSet const& params)
+  GenCandMotherTableProducer(edm::ParameterSet const &params)
       : objName_(params.getParameter<std::string>("objName")),
         branchName_(params.getParameter<std::string>("branchName")),
         src_(consumes<edm::View<pat::PackedGenParticle>>(params.getParameter<edm::InputTag>("src"))),
@@ -27,7 +27,7 @@ public:
 
   ~GenCandMotherTableProducer() override {}
 
-  void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
+  void produce(edm::StreamID id, edm::Event &iEvent, const edm::EventSetup &iSetup) const override {
     edm::Handle<edm::View<pat::PackedGenParticle>> cands;
     iEvent.getByToken(src_, cands);
     unsigned int ncand = cands->size();
@@ -116,7 +116,7 @@ public:
     return fromC;
   }
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<std::string>("objName", "GenCands")
         ->setComment("name of the nanoaod::FlatTable to extend with this table");

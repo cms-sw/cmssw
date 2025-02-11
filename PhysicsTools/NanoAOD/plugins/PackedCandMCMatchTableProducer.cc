@@ -20,7 +20,8 @@ public:
         branchName_(params.getParameter<std::string>("branchName")),
         doc_(params.getParameter<std::string>("docString")),
         src_(consumes<reco::CandidateView>(params.getParameter<edm::InputTag>("src"))),
-        genPartsToken_(consumes<edm::View<pat::PackedGenParticle>>(params.getParameter<edm::InputTag>("genparticles"))) {
+        genPartsToken_(
+            consumes<edm::View<pat::PackedGenParticle>>(params.getParameter<edm::InputTag>("genparticles"))) {
     produces<nanoaod::FlatTable>();
   }
 
@@ -47,7 +48,6 @@ public:
       if (iter != genParts->end()) {
         key[i] = iter - genParts->begin();
       }
-
     }
     tab->addColumn<int>(branchName_ + "Idx", key, "Index into GenCands list for " + doc_);
     iEvent.put(std::move(tab));
