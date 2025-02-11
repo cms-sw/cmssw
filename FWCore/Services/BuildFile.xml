@@ -1,9 +1,10 @@
 <use name="SimDataFormats/RandomEngine"/>
+<use name="FWCore/AbstractServices"/>
+<use name="FWCore/Catalog"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/Catalog"/>
 <use name="boost"/>
 <use name="tinyxml2"/>
 <use name="rootcore"/>
