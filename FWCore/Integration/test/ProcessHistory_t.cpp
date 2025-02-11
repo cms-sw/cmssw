@@ -93,6 +93,9 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       edm::ProcessConfiguration pc6("HLT", psetID, "500yz872djk999patch10", edm::HardwareResourcesDescription());
       edm::ProcessConfiguration pc7("HLT", psetID, "xb500yz872djk999patch10", edm::HardwareResourcesDescription());
       edm::ProcessConfiguration pc8("HLT", psetID, "CMSSW_4_4_0_pre5", edm::HardwareResourcesDescription());
+      edm::HardwareResourcesDescription hrd;
+      hrd.microarchitecture = "fred";
+      edm::ProcessConfiguration pc9("HLT", psetID, "CMSSW_4_4_0_pre5", hrd);
 
       pc1.setProcessConfigurationID();
       pc2.setProcessConfigurationID();
@@ -102,6 +105,9 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       pc6.setProcessConfigurationID();
       pc7.setProcessConfigurationID();
       pc8.setProcessConfigurationID();
+      pc9.setProcessConfigurationID();
+
+      REQUIRE(pc9.id() != pc8.id());
 
       pc1.reduce();
       pc2.reduce();
@@ -111,6 +117,9 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       pc6.reduce();
       pc7.reduce();
       pc8.reduce();
+      pc9.reduce();
+
+      REQUIRE(pc9.id() == pc8.id());
 
       edm::ProcessConfiguration pc1expected("HLT", psetID, "", edm::HardwareResourcesDescription());
       edm::ProcessConfiguration pc2expected("HLT", psetID, "a", edm::HardwareResourcesDescription());
@@ -120,6 +129,7 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       edm::ProcessConfiguration pc6expected("HLT", psetID, "500yz872", edm::HardwareResourcesDescription());
       edm::ProcessConfiguration pc7expected("HLT", psetID, "xb500yz872", edm::HardwareResourcesDescription());
       edm::ProcessConfiguration pc8expected("HLT", psetID, "CMSSW_4_4", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc9expected = pc8expected;
 
       REQUIRE(pc1 == pc1expected);
       REQUIRE(pc2 == pc2expected);
@@ -129,6 +139,7 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       REQUIRE(pc6 == pc6expected);
       REQUIRE(pc7 == pc7expected);
       REQUIRE(pc8 == pc8expected);
+      REQUIRE(pc9 == pc9expected);
 
       REQUIRE(pc1.id() == pc1expected.id());
       REQUIRE(pc2.id() == pc2expected.id());
@@ -138,6 +149,7 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       REQUIRE(pc6.id() == pc6expected.id());
       REQUIRE(pc7.id() == pc7expected.id());
       REQUIRE(pc8.id() == pc8expected.id());
+      REQUIRE(pc9.id() == pc9expected.id());
 
       REQUIRE(pc7.id() != pc8expected.id());
     }
