@@ -34,7 +34,6 @@ class GlobalContext;
 class StreamID;
 
 namespace edm {
-  class PathsAndConsumesOfModulesBase;
   class ProcessContext;
 }  // namespace edm
 

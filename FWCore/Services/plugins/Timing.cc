@@ -59,7 +59,7 @@ namespace edm {
       double getTotalCPU() const override;
 
     private:
-      void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
+      void preBeginJob(ProcessContext const&);
       void beginProcessing();
       void postEndJob();
 
@@ -438,7 +438,7 @@ namespace edm {
       descriptions.setComment("This service reports the time it takes to run each module in a job.");
     }
 
-    void Timing::preBeginJob(PathsAndConsumesOfModulesBase const& pathsAndConsumes, ProcessContext const& pc) {
+    void Timing::preBeginJob(ProcessContext const& pc) {
       if (pc.isSubProcess()) {
         ++nSubProcesses_;
       } else {
