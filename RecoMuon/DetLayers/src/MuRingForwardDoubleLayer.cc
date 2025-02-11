@@ -6,6 +6,8 @@
 #include <RecoMuon/DetLayers/interface/MuRingForwardDoubleLayer.h>
 #include <RecoMuon/DetLayers/interface/MuDetRing.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <DataFormats/MuonDetId/interface/MuonSubdetId.h>
+#include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
 #include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
@@ -182,18 +184,132 @@ bool MuRingForwardDoubleLayer::isCrack(const GlobalPoint& gp) const {
 }
 
 void MuRingForwardDoubleLayer::selfTest() const {
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
+
   const std::vector<const GeomDet*>& frontDets = theFrontLayer.basicComponents();
   const std::vector<const GeomDet*>& backDets = theBackLayer.basicComponents();
 
-  std::vector<const GeomDet*>::const_iterator frontItr = frontDets.begin(), lastFront = frontDets.end(),
-                                              backItr = backDets.begin(), lastBack = backDets.end();
+  // Collect front/back chambers by sub-detectors
+  std::vector<const GeomDet*> frontCSCs, backCSCs;
+  std::vector<const GeomDet*> frontRPCs, backRPCs;
+  std::vector<const GeomDet*> frontGEMs, backGEMs;
+  std::vector<const GeomDet*> frontIRPCs, backIRPCs;
+  std::vector<const GeomDet*> frontME0s, backME0s;
 
-  // test that each front z is less than each back z
-  for (; frontItr != lastFront; ++frontItr) {
-    float frontz = fabs((**frontItr).surface().position().z());
-    for (; backItr != lastBack; ++backItr) {
-      float backz = fabs((**backItr).surface().position().z());
-      assert(frontz < backz);
+  for ( const GeomDet* frontDet : frontDets ) {
+    const int subdetId = frontDet->geographicalId().subdetId();
+    if ( subdetId == MuonSubdetId::CSC ) {
+      frontCSCs.push_back(frontDet);
+    }
+    else if ( subdetId == MuonSubdetId::GEM ) {
+      frontGEMs.push_back(frontDet);
+    }
+    else if ( subdetId == MuonSubdetId::ME0 ) {
+      frontME0s.push_back(frontDet);
+    }
+    else if ( subdetId == MuonSubdetId::RPC ) {
+      // RPC has to split existing RPC and iRPC
+      const RPCDetId rpcId(frontDet->geographicalId());
+      const int ring = rpcId.ring();
+      if ( ring == 1 ) {
+        frontIRPCs.push_back(frontDet);
+      }
+      else {
+        frontRPCs.push_back(frontDet);
+      }
     }
   }
+
+  for ( const GeomDet* backDet : backDets ) {
+    const int subdetId = backDet->geographicalId().subdetId();
+    if ( subdetId == MuonSubdetId::CSC ) {
+      backCSCs.push_back(backDet);
+    }
+    else if ( subdetId == MuonSubdetId::GEM ) {
+      backGEMs.push_back(backDet);
+    }
+    else if ( subdetId == MuonSubdetId::ME0 ) {
+      backME0s.push_back(backDet);
+    }
+    else if ( subdetId == MuonSubdetId::RPC ) {
+      // RPC has to split existing RPC and iRPC
+      const RPCDetId rpcId(backDet->geographicalId());
+      const int ring = rpcId.ring();
+      if ( ring == 1 ) {
+        backIRPCs.push_back(backDet);
+      }
+      else {
+        backRPCs.push_back(backDet);
+      }
+    }
+  }
+
+  // Perform test for each subsystems, that front-z is less than back-z
+  // In other word, maximum of front-z must be less than minimum of back-z
+
+  // Check the CSC ordering
+  double maxZFrontCSC = 0, minZBackCSC = 1e9;
+  for ( auto frontCSC : frontCSCs ) {
+    const double z = std::abs(frontCSC->surface().position().z());
+    if ( maxZFrontCSC < z ) maxZFrontCSC = z;
+  }
+  for ( auto backCSC : backCSCs ) {
+    const double z = std::abs(backCSC->surface().position().z());
+    if ( minZBackCSC > z ) minZBackCSC = z;
+  }
+  if ( frontCSCs.size() + backCSCs.size() != 0 ) LogTrace(metname) << "CSC " << maxZFrontCSC << '<' << minZBackCSC << endl;
+  assert(maxZFrontCSC < minZBackCSC);
+
+  // Check the RPC ordering
+  double maxZFrontRPC = 0, minZBackRPC = 1e9;
+  for ( auto frontRPC : frontRPCs ) {
+    const double z = std::abs(frontRPC->surface().position().z());
+    if ( maxZFrontRPC < z ) maxZFrontRPC = z;
+  }
+  for ( auto backRPC : backRPCs ) {
+    const double z = std::abs(backRPC->surface().position().z());
+    if ( minZBackRPC > z ) minZBackRPC = z;
+  }
+  if ( frontRPCs.size() + backRPCs.size() != 0 ) LogTrace(metname) << "RPC " << maxZFrontRPC << '<' << minZBackRPC << endl;
+  assert(maxZFrontRPC < minZBackRPC);
+
+  // Check the GEM ordering
+  double maxZFrontGEM = 0, minZBackGEM = 1e9;
+  for ( auto frontGEM : frontGEMs ) {
+    const double z = std::abs(frontGEM->surface().position().z());
+    if ( maxZFrontGEM < z ) maxZFrontGEM = z;
+  }
+  for ( auto backGEM : backGEMs ) {
+    const double z = std::abs(backGEM->surface().position().z());
+    if ( minZBackGEM > z ) minZBackGEM = z;
+  }
+  if ( frontGEMs.size() + backGEMs.size() != 0 ) LogTrace(metname) << "GEM " << maxZFrontGEM << '<' << minZBackGEM << endl;
+  assert(maxZFrontGEM < minZBackGEM);
+
+  // Check the IRPC ordering
+  double maxZFrontIRPC = 0, minZBackIRPC = 1e9;
+  for ( auto frontIRPC : frontIRPCs ) {
+    const double z = std::abs(frontIRPC->surface().position().z());
+    if ( maxZFrontIRPC < z ) maxZFrontIRPC = z;
+  }
+  for ( auto backIRPC : backIRPCs ) {
+    const double z = std::abs(backIRPC->surface().position().z());
+    if ( minZBackIRPC > z ) minZBackIRPC = z;
+  }
+  if ( frontIRPCs.size() + backIRPCs.size() != 0 ) LogTrace(metname) << "IRPC " << maxZFrontIRPC << '<' << minZBackIRPC << endl;
+  assert(maxZFrontIRPC < minZBackIRPC);
+
+  // Check the ME0 ordering
+  double maxZFrontME0 = 0, minZBackME0 = 1e9;
+  for ( auto frontME0 : frontME0s ) {
+    const double z = std::abs(frontME0->surface().position().z());
+    if ( maxZFrontME0 < z ) maxZFrontME0 = z;
+  }
+  for ( auto backME0 : backME0s ) {
+    const double z = std::abs(backME0->surface().position().z());
+    if ( minZBackME0 > z ) minZBackME0 = z;
+  }
+  if ( frontME0s.size() + backME0s.size() != 0 ) LogTrace(metname) << "ME0 " << maxZFrontME0 << '<' << minZBackME0 << endl;
+  assert(maxZFrontME0 < minZBackME0);
+
 }

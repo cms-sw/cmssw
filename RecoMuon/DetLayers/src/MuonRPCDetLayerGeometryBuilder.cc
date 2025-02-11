@@ -300,13 +300,16 @@ void MuonRPCDetLayerGeometryBuilder::makeBarrelRods(vector<const GeomDet*>& geom
 bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId& rpcId) {
   const int station = rpcId.station();
   const int ring = rpcId.ring();
-  const int segment = RPCGeomServ(rpcId).segment();
+  const int sector = RPCGeomServ(rpcId).segment();
 
+  // The front/back or off-yoke/on-yoke rule is different for the iRPC, RE+-1, and the others.
   if (ring == 1) {
-    return true;
+    return (sector % 2 != 0);
   } else if (station == 1) {
-    return (segment % 2 == 0);
+    // For RE+-1, even chambers are closer to the IP
+    return (sector % 2 == 0);
   } else {
-    return (segment % 2 != 0);
+    // For the others, odd chambers are closer to the IP
+    return (sector % 2 != 0);
   }
 }
