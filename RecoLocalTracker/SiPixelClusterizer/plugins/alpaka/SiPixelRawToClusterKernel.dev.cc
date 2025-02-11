@@ -35,7 +35,7 @@
 #include "PixelClustering.h"
 #include "SiPixelRawToClusterKernel.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace pixelDetails {
@@ -493,21 +493,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           alpaka::syncBlockThreads(acc);
         }
 #ifdef GPU_DEBUG
-        ALPAKA_ASSERT_ACC(0 == clus_view[1].moduleStart());
-        auto c0 = std::min(maxHitsInModule, clus_view[2].clusModuleStart());
-        ALPAKA_ASSERT_ACC(c0 == clus_view[2].moduleStart());
-        ALPAKA_ASSERT_ACC(clus_view[1024].moduleStart() >= clus_view[1023].moduleStart());
-        ALPAKA_ASSERT_ACC(clus_view[1025].moduleStart() >= clus_view[1024].moduleStart());
-        ALPAKA_ASSERT_ACC(clus_view[numberOfModules].moduleStart() >= clus_view[1025].moduleStart());
+        ALPAKA_ASSERT_ACC(0 == clus_view[0].clusModuleStart());
+        auto c0 = std::min(maxHitsInModule, clus_view[1].clusModuleStart());
+        ALPAKA_ASSERT_ACC(c0 == clus_view[1].clusModuleStart());
+        ALPAKA_ASSERT_ACC(clus_view[1024].clusModuleStart() >= clus_view[1023].clusModuleStart());
+        ALPAKA_ASSERT_ACC(clus_view[1025].clusModuleStart() >= clus_view[1024].clusModuleStart());
+        ALPAKA_ASSERT_ACC(clus_view[numberOfModules].clusModuleStart() >= clus_view[1025].clusModuleStart());
 
-        for (uint32_t i : cms::alpakatools::independent_group_elements(acc, numberOfModules + 1)) {
-          if (0 != i)
-            ALPAKA_ASSERT_ACC(clus_view[i].moduleStart() >= clus_view[i - 1].moduleStart());
+        for (uint32_t i : cms::alpakatools::independent_group_elements(acc, numberOfModules)) {
+          ALPAKA_ASSERT_ACC(clus_view[i + 1].clusModuleStart() >= clus_view[i].clusModuleStart());
           // Check BPX2 (1), FP1 (4)
           constexpr auto bpix2 = TrackerTraits::layerStart[1];
           constexpr auto fpix1 = TrackerTraits::layerStart[4];
           if (i == bpix2 || i == fpix1)
-            printf("moduleStart %d %d\n", i, clus_view[i].moduleStart());
+            printf("moduleStart %d %d\n", i, clus_view[i].clusModuleStart());
         }
 
 #endif
