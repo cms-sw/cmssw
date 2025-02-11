@@ -306,7 +306,7 @@ void JetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm::Even
     // Jet related
     svTable->addColumn<float>("phirel", sv_phirel, "DeltaPhi(sv, jet)", 10);
     svTable->addColumn<float>("ptrel", sv_ptrel, "pT relative to parent jet", 10);
-    svTable->addColumn<float>("deltaR", sv_deltaR, "dR from parent jet", 10);
+    svTable->addColumn<float>("deltaR", sv_deltaR, "dR from parent jet - 0.5", 10);
     svTable->addColumn<float>("enration", sv_enratio, "energy relative to parent jet", 10);
   }
   iEvent.put(std::move(svTable), nameSV_);
