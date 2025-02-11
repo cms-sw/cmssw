@@ -8,13 +8,6 @@ process = cms.Process("CompareGeometryTest",_PH2_ERA,dd4hep)
 
 process.source = cms.Source("EmptySource")
 
-# process.source = cms.Source("EmptyIOVSource",
-#                             lastValue = cms.uint64(1),
-#                             timetype = cms.string('runnumber'),
-#                             firstValue = cms.uint64(1),
-#                             interval = cms.uint64(1)
-#                             )
-
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
         )
@@ -63,9 +56,9 @@ process.MessageLogger.files.mtdCommonDataDD4hep = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Configuration.Geometry.GeometryDD4hepExtendedRun4Default_cff')
-
 process.load("Geometry.MTDNumberingBuilder.mtdTopology_cfi")
+
+process.load('Configuration.Geometry.GeometryDD4hepExtendedRun4DefaultReco_cff')
 
 process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('',''),

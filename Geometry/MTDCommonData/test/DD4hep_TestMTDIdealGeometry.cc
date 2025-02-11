@@ -89,6 +89,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
 
   auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
+  auto btlCrysLayout = MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode());
   
   if (ddTopNodeName_ != "BarrelTimingLayer" && ddTopNodeName_ != "EndcapTimingLayer") {
     edm::LogWarning("DD4hep_TestMTDIdealGeometry") << ddTopNodeName_ << "Not valid top MTD volume";
@@ -132,8 +133,8 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
     for (const auto& t : specs) {
       log << "\nSpecPar " << t.first << ":\nRegExps { ";
       for (const auto& ki : t.second->paths)
-        log << ki << " ";
-      log << "};\n ";
+      log << ki << " ";
+    log << "};\n ";
       for (const auto& kl : t.second->spars) {
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
@@ -150,12 +151,15 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   uint32_t level(0);
   uint32_t count(0);
   
-
+  
   do {
     if (dd4hep::dd::noNamespace(fv.name()) == "BarrelTimingLayer") {
       isBarrel = true;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
-      edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "Building Electronics Mapping..." << std::endl;
+      if (static_cast<int>(btlCrysLayout) < static_cast<int>(BTLDetId::CrysLayout::v4)) {
+        edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "BTL electronics mapping not available for BTL crystal layout " << static_cast<int>(btlCrysLayout) 
+                                                    << ", use layout 7 (v4) or later!" << std::endl;
+      }
     } else if (dd4hep::dd::noNamespace(fv.name()) == "EndcapTimingLayer") {
       isBarrel = false;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
@@ -230,21 +234,24 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         
         if (isBarrel) {
           BTLDetId theId(btlNS_.getUnitID(thisN_));
-          BTLElectronicsMapping btlEM = BTLElectronicsMapping(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
           sunitt << theId.rawId();
           snum << theId;
-          snum << "\n";
-          snum << "----------------------------------------------------------------------------" << std::endl;
-          snum << " CCBoard: " << btlEM.CCBoard(theId) << " FEBoard: " << btlEM.FEBoard(theId) << " TOFHIRASIC: "
-               << btlEM.TOFHIRASIC(theId) << "\nSiPMCh left: " << btlEM.SiPMCh(theId, 0) << " right: " << btlEM.SiPMCh(theId, 1)
-               << "\nTOFHIRCh left: " << btlEM.TOFHIRCh(theId, 0) << " right: " << btlEM.TOFHIRCh(theId, 1) << "\n";
-               snum << "----------------------------------------------------------------------------" << std::endl;
-              } else {
-                ETLDetId theId(etlNS_.getUnitID(thisN_));
-                sunitt << theId.rawId();
-                snum << theId;
-              }
-              edm::LogInfo("DD4hep_TestMTDNumbering") << snum.str();
+          
+          if (static_cast<int>(btlCrysLayout) >= static_cast<int>(BTLDetId::CrysLayout::v4)) {
+            BTLElectronicsMapping btlEM = BTLElectronicsMapping(btlCrysLayout);
+            snum << "\n";
+            snum << "----------------------------------------------------------------------------" << std::endl;
+            snum << " CCBoard: " << btlEM.CCBoard(theId) << " FEBoard: " << btlEM.FEBoard(theId) << " TOFHIRASIC: "
+            << btlEM.TOFHIRASIC(theId) << "\n SiPMCh   minus: " << btlEM.SiPMCh(theId, 0) << " plus: " << btlEM.SiPMCh(theId, 1)
+            << "\n TOFHIRCh minus: " << btlEM.TOFHIRCh(theId, 0) << " plus: " << btlEM.TOFHIRCh(theId, 1) << "\n";
+            snum << "----------------------------------------------------------------------------" << std::endl;
+          } 
+        } else {
+          ETLDetId theId(etlNS_.getUnitID(thisN_));
+          sunitt << theId.rawId();
+          snum << theId;
+        }
+        edm::LogInfo("DD4hep_TestMTDNumbering") << snum.str();
               
         //
         // Test of positions for sensitive detectors
