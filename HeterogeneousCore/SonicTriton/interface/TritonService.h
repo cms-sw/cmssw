@@ -18,7 +18,6 @@
 namespace edm {
   class ActivityRegistry;
   class ConfigurationDescriptions;
-  class PathsAndConsumesOfModulesBase;
   class ProcessContext;
   class ModuleDescription;
   namespace service {
@@ -123,7 +122,7 @@ private:
   void preModuleConstruction(edm::ModuleDescription const&);
   void postModuleConstruction(edm::ModuleDescription const&);
   void preModuleDestruction(edm::ModuleDescription const&);
-  void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
+  void preBeginJob(edm::ProcessContext const&);
   void postEndJob();
 
   //helper

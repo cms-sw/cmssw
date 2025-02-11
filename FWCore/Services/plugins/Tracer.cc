@@ -67,7 +67,7 @@ namespace edm {
 
       void preallocate(service::SystemBounds const&);
 
-      void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
+      void preBeginJob(ProcessContext const&);
       void postBeginJob();
       void preEndJob();
       void postEndJob();
@@ -546,7 +546,7 @@ void Tracer::preallocate(service::SystemBounds const& bounds) {
                         << bounds.maxNumberOfStreams() << " streams";
 }
 
-void Tracer::preBeginJob(PathsAndConsumesOfModulesBase const& pathsAndConsumes, ProcessContext const& pc) {
+void Tracer::preBeginJob(ProcessContext const& pc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_) << indention_ << " starting: begin job";
 }
