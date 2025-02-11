@@ -22,6 +22,7 @@
 <use name="MagneticField/Records"/>
 <use name="root"/>
 <use name="boost"/>
+<flag REM_CXX_FLAGS="-Werror=maybe-uninitialized"/>
 <export>
   <lib name="1"/>
 </export>
