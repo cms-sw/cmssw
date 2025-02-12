@@ -1447,7 +1447,8 @@ class ConfigBuilder(object):
                             self._options.nConcurrentIOVs = 1
                     elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
                         self._options.inlineObjects+=','+name
-
+                    if name == 'ProductionFilterSequence':
+                        self.productionFilterSequence = 'ProductionFilterSequence'
             if stepSpec == self.GENDefaultSeq or stepSpec == 'pgen_genonly':
                 if 'ProductionFilterSequence' in genModules and ('generator' in genModules):
                     self.productionFilterSequence = 'ProductionFilterSequence'
