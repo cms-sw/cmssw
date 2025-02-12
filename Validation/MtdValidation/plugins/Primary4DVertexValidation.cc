@@ -31,6 +31,7 @@
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
@@ -258,6 +259,7 @@ private:
   const bool trkRecSel(const reco::TrackBase&);
 
   // ----------member data ---------------------------
+  
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theTTBToken;
   TrackFilterForPVFindingBase* theTrackFilter;
   const std::string folder_;
@@ -291,8 +293,7 @@ private:
 
   bool use_only_charged_tracks_;
   bool optionalPlots_;
-  bool use3dNoTime_;
-  
+  bool use3dNoTime_; 
   const double minProbHeavy_;
   const double trackweightTh_;
   const double mvaTh_;
@@ -302,7 +303,8 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> RecTrackToken_;
 
   edm::EDGetTokenT<std::vector<PileupSummaryInfo>> vecPileupSummaryInfoToken_;
-   edm::EDGetTokenT<reco::TrackCollection> trkToken;
+  
+  edm::EDGetTokenT<reco::TrackCollection> trkToken;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
@@ -529,7 +531,7 @@ private:
 // constructors and destructor
 Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iConfig)
     : theTTBToken(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))), 
-      folder_(iConfig.getParameter<std::string>("folder")),
+      folder_(iConfig.getParameter<std::string>("folder")),	
       use_only_charged_tracks_(iConfig.getParameter<bool>("useOnlyChargedTracks")),
       optionalPlots_(iConfig.getUntrackedParameter<bool>("optionalPlots")),
       use3dNoTime_(iConfig.getParameter<bool>("use3dNoTime")),
@@ -687,11 +689,11 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   mePUvsRealV_ =
       ibook.bookProfile("PUvsReal", "#PU vertices vs #real matched vertices;#PU;#real ", 100, 0, 300, 100, 0, 200);
   mePUvsFakeV_ =
-      ibook.bookProfile("PUvsFake", "#PU vertices vs #fake matched vertices;#PU;#fake ", 100, 0, 300, 300, 0, 300);
+      ibook.bookProfile("PUvsFake", "#PU vertices vs #fake matched vertices;#PU;#fake ", 100, 0, 300, 100, 0, 20);
   mePUvsOtherFakeV_ = ibook.bookProfile(
-      "PUvsOtherFake", "#PU vertices vs #other fake matched vertices;#PU;#other fake ", 100, 0, 300, 300, 0, 300);
+      "PUvsOtherFake", "#PU vertices vs #other fake matched vertices;#PU;#other fake ", 100, 0, 300, 100, 0, 20);
   mePUvsSplitV_ =
-      ibook.bookProfile("PUvsSplit", "#PU vertices vs #split matched vertices;#PU;#split ", 100, 0, 300, 300, 0, 300);
+      ibook.bookProfile("PUvsSplit", "#PU vertices vs #split matched vertices;#PU;#split ", 100, 0, 300, 100, 0, 20);
   meMatchQual_ = ibook.book1D("MatchQuality", "RECO-SIM vertex match quality; ", 8, 0, 8.);
   meDeltaZrealreal_ = ibook.book1D("DeltaZrealreal", "#Delta Z real-real; |#Delta Z (r-r)| [cm]", 100, 0, 0.5);
   meDeltaZfakefake_ = ibook.book1D("DeltaZfakefake", "#Delta Z fake-fake; |#Delta Z (f-f)| [cm]", 100, 0, 0.5);
@@ -1494,7 +1496,7 @@ void Primary4DVertexValidation::observablesFromJets(const std::vector<reco::Trac
   fjInputs_.clear();
   size_t countScale0 = 0;
   for (size_t i = 0; i < reco_Tracks.size(); i++) {
-    const auto recotr = reco_Tracks[i];
+    const auto& recotr = reco_Tracks[i];
     const auto mass = mass_Tracks[i];
     float scale = 1.;
     if (recotr.charge() == 0) {
@@ -2037,6 +2039,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
     r2s_ = recoToSimH.product();
   else
     edm::LogWarning("Primary4DVertexValidation") << "recoToSimH is not valid";
+
   reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> BeamSpotH;
   iEvent.getByToken(RecBeamSpotToken_, BeamSpotH);
@@ -2685,7 +2688,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   LogTrace("Primary4DVertexValidation") << "is_fake: " << fake;
   LogTrace("Primary4DVertexValidation") << "split_from: " << split;
   LogTrace("Primary4DVertexValidation") << "other fake: " << other_fake;
-  std::cout<<" Fake: "<<fake<<" Real: "<<real <<" other fake: "<<other_fake<<" split: "<<split<<std::endl; 
   mePUvsRealV_->Fill(simpv.size(), real);
   mePUvsFakeV_->Fill(simpv.size(), fake);
   mePUvsOtherFakeV_->Fill(simpv.size(), other_fake);
