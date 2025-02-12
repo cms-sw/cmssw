@@ -10,7 +10,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/Span.h"
 
 // L1 scouting
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
@@ -92,7 +91,7 @@ void MuTagJetBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
     const auto& muons = muonsCollection->bxIterator(bx);
 
     // we have at least N jets and N muons
-    if (jets.size() < minNJet_ && muons.size() < minNJet_)
+    if (std::ssize(jets) < minNJet_ && std::ssize(muons) < minNJet_)
       continue;
 
     // it must satisfy certain requirements
