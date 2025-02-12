@@ -89,7 +89,9 @@ namespace edm {
       bool contains(ProductID id) const;
 
       /// Size of this collection (number of keys)
-      unsigned int size() const { return ref_offsets_.empty() ? 0 : ref_offsets_.size() - 1; }
+      unsigned int size() const {
+        return ref_offsets_.empty() ? 0 : static_cast<unsigned int>(ref_offsets_.size() - 1);
+      }
 
       /// True if it's empty (no keys)
       bool empty() const { return ref_offsets_.empty(); }
@@ -100,23 +102,25 @@ namespace edm {
       /// You can't access the map for this collection while filling it
       class FastFiller {
       public:
+        using size_type = unsigned int;
+
         FastFiller(const FastFiller &) = delete;
         FastFiller &operator=(const FastFiller &) = delete;
 
         /// Make a filler for a collection with a given product id and size
-        FastFiller(IndexRangeAssociation &assoc, ProductID id, unsigned int size);
+        FastFiller(IndexRangeAssociation &assoc, ProductID id, size_type size);
 
         /// When the FastFiller goes out of scope, it unlocks the map so you can make a new one
         ~FastFiller();
 
         /// Sets the starting offset for this key.
         template <typename RefKey>
-        void insert(const RefKey &r, unsigned int startingOffset, unsigned int size) {
+        void insert(const RefKey &r, size_type startingOffset, size_type size) {
           insert(r.id(), r.key(), startingOffset, size);
         }
 
         /// Sets the starting offset for this key (non-templated variant)
-        void insert(edm::ProductID id, unsigned int key, unsigned int startingOffset, unsigned int size);
+        void insert(edm::ProductID id, unsigned int key, size_type startingOffset, size_type size);
 
       private:
         IndexRangeAssociation &assoc_;
@@ -208,9 +212,11 @@ namespace edm {
     /// You can't access the map for this collection while filling it
     class FastFiller {
     public:
+      using size_type = edm::helper::IndexRangeAssociation::FastFiller::size_type;
       template <typename HandleType>
       FastFiller(MultiAssociation &assoc, const HandleType &handle)
-          : assoc_(assoc), indexFiller_(new IndexFiller(assoc_.indices_, handle.id(), handle->size())) {}
+          : assoc_(assoc),
+            indexFiller_(new IndexFiller(assoc_.indices_, handle.id(), static_cast<size_type>(handle->size()))) {}
 
       FastFiller(MultiAssociation &assoc, edm::ProductID id, unsigned int size)
           : assoc_(assoc), indexFiller_(new IndexFiller(assoc_.indices_, id, size)) {}
@@ -250,7 +256,7 @@ namespace edm {
       LazyFiller(MultiAssociation &assoc, const HandleType &handle, bool fillOnExit = false)
           : assoc_(assoc),
             id_(handle.id()),
-            size_(handle->size()),
+            size_(static_cast<decltype(size_)>(handle->size())),
             tempValues_(new TempValues()),
             fillOnExit_(fillOnExit) {}
       ~LazyFiller() noexcept(false) {
@@ -333,7 +339,7 @@ namespace edm {
 
   template <typename C>
   void MultiAssociation<C>::FastFiller::setValues(const edm::ProductID &id, unsigned int key, const Collection &vals) {
-    indexFiller_->insert(id, key, assoc_.data_.size(), vals.size());
+    indexFiller_->insert(id, key, static_cast<size_type>(assoc_.data_.size()), static_cast<size_type>(vals.size()));
     for (typename Collection::const_iterator it = vals.begin(), ed = vals.end(); it != ed; ++it) {
       assoc_.data_.push_back(*it);
     }

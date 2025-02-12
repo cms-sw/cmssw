@@ -36,13 +36,13 @@ namespace test_average {
       int res[n];
       int qq[n];
       for (auto& y : qq)
-        y = std::max(0., normal_dist(e2));
+        y = static_cast<int>(std::max(0., normal_dist(e2)));
 
-      auto theLoop = [&](int i) {
+      auto theLoop = [&](size_t i) {
         kk++;
         v.reserve(res[i] = localRA.upper());
         v.resize(qq[i]);
-        localRA.update(v.size());
+        localRA.update(static_cast<unsigned int>(v.size()));
         decltype(v) t;
         swap(v, t);
       };

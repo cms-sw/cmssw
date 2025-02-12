@@ -143,10 +143,10 @@ namespace edm {
     inline auto makeThinnedIndexes(std::vector<unsigned int> const& keys,
                                    std::vector<WrapperBase const*> const& foundContainers,
                                    ThinnedAssociation const* thinnedAssociation) {
-      unsigned const nKeys = keys.size();
+      auto const nKeys = keys.size();
       std::vector<unsigned int> thinnedIndexes(nKeys, kThinningDoNotLookForThisIndex);
       bool hasAny = false;
-      for (unsigned k = 0; k < nKeys; ++k) {
+      for (size_t k = 0; k < nKeys; ++k) {
         // Already found this one
         if (foundContainers[k] != nullptr) {
           continue;
@@ -241,7 +241,7 @@ namespace edm {
         // Set the pointers and indexes into the thinned container (if we can find it)
         ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
         WrapperBase const* thinnedCollection = getByProductID(thinnedCollectionPID);
-        unsigned const nKeys = keys.size();
+        auto const nKeys = keys.size();
         if (thinnedCollection == nullptr) {
           // Thinned container is not found, try looking recursively in thinned containers
           // which were made by selecting elements from this thinned container.
@@ -255,7 +255,7 @@ namespace edm {
           if (slimmedAllowed and slimmed.has_value()) {
             return slimmed;
           }
-          for (unsigned k = 0; k < nKeys; ++k) {
+          for (decltype(keys.size()) k = 0; k < nKeys; ++k) {
             if (foundContainers[k] == nullptr)
               continue;
             if (thinnedIndexes[k] == kThinningDoNotLookForThisIndex)
@@ -263,7 +263,7 @@ namespace edm {
             keys[k] = thinnedIndexes[k];
           }
         } else {
-          for (unsigned k = 0; k < nKeys; ++k) {
+          for (decltype(keys.size()) k = 0; k < nKeys; ++k) {
             if (thinnedIndexes[k] == kThinningDoNotLookForThisIndex)
               continue;
             keys[k] = thinnedIndexes[k];
@@ -346,7 +346,7 @@ namespace edm {
         auto [slimmedAssociation, slimmedIndexes] = std::move(*slimmed);
         ProductID const& slimmedCollectionPID = slimmedAssociation->thinnedCollectionID();
         WrapperBase const* slimmedCollection = getByProductID(slimmedCollectionPID);
-        unsigned const nKeys = keys.size();
+        auto nKeys = keys.size();
         if (slimmedCollection == nullptr) {
           getThinnedProducts(slimmedCollectionPID,
                              thinnedAssociationsHelper,
@@ -355,7 +355,7 @@ namespace edm {
                              getByProductID,
                              foundContainers,
                              slimmedIndexes);
-          for (unsigned k = 0; k < nKeys; ++k) {
+          for (decltype(nKeys) k = 0; k < nKeys; ++k) {
             if (foundContainers[k] == nullptr)
               continue;
             if (slimmedIndexes[k] == kThinningDoNotLookForThisIndex)
@@ -363,7 +363,7 @@ namespace edm {
             keys[k] = slimmedIndexes[k];
           }
         } else {
-          for (unsigned k = 0; k < nKeys; ++k) {
+          for (decltype(nKeys) k = 0; k < nKeys; ++k) {
             if (slimmedIndexes[k] == kThinningDoNotLookForThisIndex)
               continue;
             keys[k] = slimmedIndexes[k];

@@ -89,7 +89,7 @@ void testCPUTimer::testTiming()
     getrusage(RUSAGE_SELF, &theUsage2);
     nowTime.tv_sec = theUsage2.ru_utime.tv_sec;
     nowTime.tv_usec = theUsage2.ru_utime.tv_usec;
-  } while (nowTime.tv_sec - startTime.tv_sec + 1E-6 * (nowTime.tv_usec - startTime.tv_usec) < 1);
+  } while (double(nowTime.tv_sec - startTime.tv_sec) + 1E-6 * double(nowTime.tv_usec - startTime.tv_usec) < 1);
   timer.stop();
 
   if ((timer.realTime() < 1.0) or (timer.cpuTime() < 1.0)) {

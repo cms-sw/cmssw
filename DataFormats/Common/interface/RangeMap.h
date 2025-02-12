@@ -115,10 +115,10 @@ namespace edm {
       }
       assert(i == map_.end());
       pairType& p = map_[id];
-      p.first = collection_.size();
+      p.first = static_cast<decltype(p.first)>(collection_.size());
       for (CI ii = begin; ii != end; ++ii)
         collection_.push_back(P::clone(*ii));
-      p.second = collection_.size();
+      p.second = static_cast<decltype(p.second)>(collection_.size());
     }
     /// return number of contained object
     size_t size() const { return collection_.size(); }

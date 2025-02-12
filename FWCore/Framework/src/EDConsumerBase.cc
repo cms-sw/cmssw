@@ -67,15 +67,16 @@ unsigned int EDConsumerBase::recordConsumes(BranchType iBranch,
     throwConsumesCallAfterFrozen(iType, iTag);
   }
 
-  unsigned int index = m_tokenInfo.size();
+  unsigned int index = static_cast<unsigned int>(m_tokenInfo.size());
 
   bool skipCurrentProcess = iTag.willSkipCurrentProcess();
 
   const size_t labelSize = iTag.label().size();
   const size_t productInstanceSize = iTag.instance().size();
-  unsigned int labelStart = m_tokenLabels.size();
-  unsigned short delta1 = labelSize + 1;
-  unsigned short delta2 = labelSize + 2 + productInstanceSize;
+  unsigned int labelStart = static_cast<unsigned int>(m_tokenLabels.size());
+  assert(labelSize + 2 + productInstanceSize < std::numeric_limits<unsigned short>::max());
+  unsigned short delta1 = static_cast<unsigned short>(labelSize + 1);
+  unsigned short delta2 = static_cast<unsigned short>(labelSize + 2 + productInstanceSize);
   m_tokenInfo.emplace_back(TokenLookupInfo{iType.type(), ProductResolverIndexInvalid, skipCurrentProcess, iBranch},
                            iAlwaysGets,
                            LabelPlacement{labelStart, delta1, delta2},
@@ -199,7 +200,7 @@ std::tuple<ESTokenIndex, char const*> EDConsumerBase::recordESConsumes(
   // empty labels we will assume we can reuse the first entry
   unsigned int startOfComponentName = 0;
   if (not iTag.module().empty()) {
-    startOfComponentName = m_tokenLabels.size();
+    startOfComponentName = static_cast<unsigned int>(m_tokenLabels.size());
 
     m_tokenLabels.reserve(m_tokenLabels.size() + iTag.module().size() + 1);
     {
@@ -529,7 +530,7 @@ void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) 
     auto newTokenLabels = makeEmptyTokenLabels();
 
     // first calculate the size of the new vector and reserve memory for it
-    std::vector<char>::size_type newSize = newTokenLabels.size();
+    auto newSize = newTokenLabels.size();
     std::string newProcessName;
     for (auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>(); iter != itEnd; ++iter) {
       newProcessName = &m_tokenLabels[iter->m_startOfModuleLabel + iter->m_deltaToProcessName];
@@ -540,7 +541,7 @@ void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) 
     }
     newTokenLabels.reserve(newSize);
 
-    unsigned int newStartOfModuleLabel = newTokenLabels.size();
+    auto newStartOfModuleLabel = newTokenLabels.size();
     for (auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>(); iter != itEnd; ++iter) {
       unsigned int startOfModuleLabel = iter->m_startOfModuleLabel;
       unsigned short deltaToProcessName = iter->m_deltaToProcessName;

@@ -60,7 +60,7 @@ namespace edm {
 
       bool wantEvent(EventForOutput const& e);
 
-      unsigned int numberOfTokens() const { return selectors_.size(); }
+      auto numberOfTokens() const { return selectors_.size(); }
       EDGetToken token(unsigned int index) const { return selectors_[index].token(); }
 
     private:

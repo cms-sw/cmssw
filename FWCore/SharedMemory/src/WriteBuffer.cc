@@ -62,7 +62,7 @@ WriteBuffer::~WriteBuffer() {
 // member functions
 //
 void WriteBuffer::growBuffer(std::size_t iLength) {
-  int newBuffer = (bufferInfo_->index_ + 1) % 2;
+  char newBuffer = static_cast<char>((bufferInfo_->index_ + 1) % 2);
   bool destroyedBuffer = false;
   auto oldIndex = bufferInfo_->index_;
   if (sm_) {

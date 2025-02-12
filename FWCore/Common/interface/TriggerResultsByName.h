@@ -47,6 +47,7 @@ namespace edm {
 
   class TriggerResultsByName {
   public:
+    using size_type = std::vector<std::string>::size_type;
     TriggerResultsByName(TriggerResults const* triggerResults, TriggerNames const* triggerNames);
 
     bool isValid() const;
@@ -91,17 +92,17 @@ namespace edm {
     std::vector<std::string> const& triggerNames() const;
 
     // Throws if the number is out of range.
-    std::string const& triggerName(unsigned i) const;
+    std::string const& triggerName(size_type i) const;
 
     // If the input name is not known, this returns a value
     // equal to the size.
-    unsigned triggerIndex(std::string const& pathName) const;
+    size_type triggerIndex(std::string const& pathName) const;
 
     // The number of trigger names.
-    std::vector<std::string>::size_type size() const;
+    size_type size() const;
 
   private:
-    unsigned getAndCheckIndex(std::string const& pathName) const;
+    size_type getAndCheckIndex(std::string const& pathName) const;
 
     void throwTriggerResultsMissing() const;
     void throwTriggerNamesMissing() const;

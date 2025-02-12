@@ -5,7 +5,7 @@
 // as it is in memory of file
 namespace edm::streamer {
   struct Header {
-    Header(uint32 code, uint32 size) : code_(code) { convert(size, size_); }
+    Header(uint32 code, uint32 size) : code_(static_cast<uint8>(code)) { convert(size, size_); }
 
     uint8 code_;        // type of the message
     char_uint32 size_;  // of entire message including all headers

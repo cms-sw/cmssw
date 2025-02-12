@@ -83,7 +83,7 @@ void TestMapOfVectors::find() {
 void TestMapOfVectors::iterator() {
   MII m(om);
   TheMap::const_iterator op = om.begin();
-  unsigned int lt = 0;
+  size_t lt = 0;
   for (MII::const_iterator p = m.begin(); p != m.end(); ++p) {
     CPPUNIT_ASSERT((*p).first == (*op).first);
     CPPUNIT_ASSERT(std::equal((*p).second.begin(), (*p).second.end(), (*op).second.begin()));

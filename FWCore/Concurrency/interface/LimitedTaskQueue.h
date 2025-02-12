@@ -104,7 +104,7 @@ namespace edm {
     template <typename T>
     void pushAndPause(oneapi::tbb::task_group& iGroup, T&& iAction);
 
-    unsigned int concurrencyLimit() const { return m_queues.size(); }
+    size_t concurrencyLimit() const { return m_queues.size(); }
 
   private:
     // ---------- member data --------------------------------

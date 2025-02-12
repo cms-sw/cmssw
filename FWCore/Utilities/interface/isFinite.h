@@ -32,7 +32,7 @@ namespace edm {
 
   template <>
   constexpr bool isFinite(long double x) {
-    double xx = x;
+    double xx = static_cast<double>(x);
     return isFinite(xx);
   }
 

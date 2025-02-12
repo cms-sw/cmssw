@@ -59,7 +59,7 @@ namespace edm::shared_memory {
     READBUFFER& buffer_;
     TClass* const class_;
     TBufferFile bufferFile_;
-    int previousBufferIdentifier_ = 0;
+    decltype(buffer_.bufferIdentifier()) previousBufferIdentifier_ = 0;
   };
 }  // namespace edm::shared_memory
 

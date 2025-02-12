@@ -177,9 +177,9 @@ namespace edm {
       }
       Table<Args...>& operator=(Table<Args...> const& iOther) { return operator=(Table<Args...>(iOther)); }
 
-      unsigned int size() const { return m_size; }
+      auto size() const { return m_size; }
 
-      void resize(unsigned int iNewSize) {
+      void resize(size_t iNewSize) {
         if (m_size == iNewSize) {
           return;
         }
@@ -239,7 +239,7 @@ namespace edm {
 
     private:
       // Member data
-      unsigned int m_size = 0;
+      size_t m_size = 0;
       std::array<void*, sizeof...(Args)> m_values = {{nullptr}};  //! keep ROOT from trying to store this
 
       template <typename U>

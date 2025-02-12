@@ -72,7 +72,7 @@ namespace edm {
       } else {
         dfh.setAtLeast2(typeString.size() + 10U);
       }
-      dfh.setAtLeast3(8U);
+      dfh.setAtLeast3(8);
     }
     if (dfh.pass() == 1) {
       dfh.indent(os);

@@ -113,10 +113,12 @@ CPUTimer::Times CPUTimer::calculateDeltaTime() const {
   struct timespec tp;
 
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp);
-  returnValue.cpu_ = tp.tv_sec - startCPUTime_.tv_sec + nanosecToSec * (tp.tv_nsec - startCPUTime_.tv_nsec);
+  returnValue.cpu_ =
+      double(tp.tv_sec - startCPUTime_.tv_sec) + nanosecToSec * double(tp.tv_nsec - startCPUTime_.tv_nsec);
 
   clock_gettime(CLOCK_MONOTONIC, &tp);
-  returnValue.real_ = tp.tv_sec - startRealTime_.tv_sec + nanosecToSec * (tp.tv_nsec - startRealTime_.tv_nsec);
+  returnValue.real_ =
+      double(tp.tv_sec - startRealTime_.tv_sec) + nanosecToSec * double(tp.tv_nsec - startRealTime_.tv_nsec);
 #else
   rusage theUsage;
   if (0 != getrusage(RUSAGE_SELF, &theUsage)) {

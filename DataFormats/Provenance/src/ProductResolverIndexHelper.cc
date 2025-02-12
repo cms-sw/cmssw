@@ -317,7 +317,7 @@ namespace edm {
     std::string previousModuleLabel;
     std::string previousInstance;
     unsigned int iCountTypes = 0;
-    unsigned int iCountCharacters = 0;
+    size_t iCountCharacters = 0;
     for (auto const& item : *items_) {
       if (iFirstThisType || item.typeID() != previousTypeID || item.kindOfType() != previousKindOfType) {
         ++iCountTypes;
@@ -348,7 +348,7 @@ namespace edm {
     }
 
     // Size and fill the process name vector
-    unsigned int processNamesSize = 0;
+    size_t processNamesSize = 0;
     for (auto const& processItem : *processItems_) {
       processNamesSize += processItem.size();
       ++processNamesSize;
@@ -375,7 +375,7 @@ namespace edm {
     unsigned int iCount = 0;
     unsigned int iBeginning = 0;
     iCountCharacters = 0;
-    unsigned int previousCharacterCount = 0;
+    size_t previousCharacterCount = 0;
     if (!items_->empty()) {
       for (auto const& item : *items_) {
         if (iFirstThisType || item.typeID() != previousTypeID || item.kindOfType() != previousKindOfType) {
@@ -391,22 +391,20 @@ namespace edm {
         ++iCount;
 
         if (iFirstThisType || item.moduleLabel() != previousModuleLabel || item.instance() != previousInstance) {
-          unsigned int labelSize = item.moduleLabel().size();
-          for (unsigned int j = 0; j < labelSize; ++j) {
-            bigNamesContainer_.push_back(item.moduleLabel()[j]);
+          for (auto const& label : item.moduleLabel()) {
+            bigNamesContainer_.push_back(label);
           }
           bigNamesContainer_.push_back('\0');
 
-          unsigned int instanceSize = item.instance().size();
-          for (unsigned int j = 0; j < instanceSize; ++j) {
-            bigNamesContainer_.push_back(item.instance()[j]);
+          for (auto const& instance : item.instance()) {
+            bigNamesContainer_.push_back(instance);
           }
           bigNamesContainer_.push_back('\0');
 
           previousCharacterCount = iCountCharacters;
 
-          iCountCharacters += labelSize;
-          iCountCharacters += instanceSize;
+          iCountCharacters += item.moduleLabel().size();
+          iCountCharacters += item.instance().size();
           iCountCharacters += 2;
         }
 
@@ -536,7 +534,7 @@ namespace edm {
     unsigned int endType = beginElements_;
     if (kindOfType == ELEMENT_TYPE) {
       beginType = beginElements_;
-      endType = sortedTypeIDs_.size();
+      endType = static_cast<unsigned int>(sortedTypeIDs_.size());
     }
 
     while (beginType < endType) {
@@ -565,7 +563,7 @@ namespace edm {
         ++p;
       }
       if (*ptr == *p) {
-        return beginName - begin;
+        return static_cast<unsigned int>(beginName - begin);
       }
       while (*ptr) {
         ++ptr;

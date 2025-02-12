@@ -24,7 +24,7 @@ namespace edm::streamer {
     uint8* startAddress() const { return buf_; }
     void setDataLength(uint32 registry_length);
     uint8* dataAddress() const { return data_addr_; }
-    uint32 headerSize() const { return data_addr_ - buf_; }
+    uint32 headerSize() const { return static_cast<uint32>(data_addr_ - buf_); }
     uint32 size() const;
     uint32 run() const; /** Required by EOF Record Builder */
     uint32 bufferSize() const { return size_; }

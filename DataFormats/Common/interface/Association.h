@@ -43,7 +43,7 @@ namespace edm {
       size_t k = i;
       if (k >= ref_->size())
         throwIndexMapBound();
-      return reference_type(ref_, k);
+      return reference_type(ref_, static_cast<typename reference_type::key_type>(k));
     }
 
     reference_type get(ProductID id, size_t idx) const { return get(rawIndexOf(id, idx)); }

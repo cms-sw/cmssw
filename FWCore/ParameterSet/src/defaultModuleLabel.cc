@@ -22,9 +22,10 @@ namespace edm {
         break;
     if (ups > 1 and ups != label.size())
       --ups;
-    for (unsigned int i = 0; i < ups; ++i)
-      label[i] = std::tolower(label[i]);
-
+    for (unsigned int i = 0; i < ups; ++i) {
+      //documentation for tolower says to cast the input
+      label[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(label[i])));
+    }
     return label;
   }
 }  // namespace edm

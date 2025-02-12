@@ -30,16 +30,18 @@ namespace edm {
     std::vector<HLTPathStatus> paths_;
 
   public:
+    using size_type = decltype(paths_)::size_type;
+
     /// Constructor - for n paths
-    HLTGlobalStatus(const unsigned int n = 0) : paths_(n) {}
+    HLTGlobalStatus(size_type n = 0) : paths_(n) {}
 
     /// Get number of paths stored
-    unsigned int size() const { return paths_.size(); }
+    auto size() const { return paths_.size(); }
 
     /// Reset status for all paths
     void reset() {
-      const unsigned int n(size());
-      for (unsigned int i = 0; i != n; ++i)
+      const auto n(size());
+      for (decltype(size()) i = 0; i != n; ++i)
         paths_[i].reset();
     }
 
@@ -54,24 +56,24 @@ namespace edm {
 
     // accessors to ith element of paths_
 
-    const HLTPathStatus& at(const unsigned int i) const { return paths_.at(i); }
-    HLTPathStatus& at(const unsigned int i) { return paths_.at(i); }
-    const HLTPathStatus& operator[](const unsigned int i) const { return paths_[i]; }
-    HLTPathStatus& operator[](const unsigned int i) { return paths_[i]; }
+    const HLTPathStatus& at(size_type i) const { return paths_.at(i); }
+    HLTPathStatus& at(size_type i) { return paths_.at(i); }
+    const HLTPathStatus& operator[](size_type i) const { return paths_[i]; }
+    HLTPathStatus& operator[](size_type i) { return paths_[i]; }
 
     /// Was ith path run?
-    bool wasrun(const unsigned int i) const { return at(i).wasrun(); }
+    bool wasrun(size_type i) const { return at(i).wasrun(); }
     /// Has ith path accepted the event?
-    bool accept(const unsigned int i) const { return at(i).accept(); }
+    bool accept(size_type i) const { return at(i).accept(); }
     /// Has ith path encountered an error (exception)?
-    bool error(const unsigned int i) const { return at(i).error(); }
+    bool error(size_type i) const { return at(i).error(); }
 
     /// Get status of ith path
-    hlt::HLTState state(const unsigned int i) const { return at(i).state(); }
+    hlt::HLTState state(size_type i) const { return at(i).state(); }
     /// Get index (slot position) of module giving the decision of the ith path
-    unsigned int index(const unsigned int i) const { return at(i).index(); }
+    unsigned int index(size_type i) const { return at(i).index(); }
     /// Reset the ith path
-    void reset(const unsigned int i) { at(i).reset(); }
+    void reset(size_type i) { at(i).reset(); }
     /// swap function
     void swap(HLTGlobalStatus& other) { paths_.swap(other.paths_); }
 
@@ -79,7 +81,7 @@ namespace edm {
     /// Global state variable calculated on the fly
     bool State(unsigned int icase) const {
       bool flags[3] = {false, false, false};
-      const unsigned int n(size());
+      const auto n(size());
       for (unsigned int i = 0; i != n; ++i) {
         const hlt::HLTState s(state(i));
         if (s != hlt::Ready) {
@@ -105,7 +107,7 @@ namespace edm {
     text[1] = "1";
     text[2] = "0";
     text[3] = "e";
-    const unsigned int n(hlt.size());
+    const auto n(hlt.size());
     for (unsigned int i = 0; i != n; ++i)
       ost << text[hlt.state(i)];
     return ost;

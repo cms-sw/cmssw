@@ -58,7 +58,8 @@ namespace edm {
     std::vector<unsigned int> storedCacheIndices;
 
     // Number of processes in StoredProcessBlockHelper.
-    unsigned int nStoredProcesses = storedProcessBlockHelper.processesWithProcessBlockProducts().size();
+    unsigned int nStoredProcesses =
+        static_cast<unsigned int>(storedProcessBlockHelper.processesWithProcessBlockProducts().size());
 
     if (!productsFromInputKept_) {
       // This is really simple if we are not keeping any ProcessBlock products

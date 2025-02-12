@@ -860,17 +860,17 @@ namespace edm {
       void handleToEndOfContiguousEventsInLumis(EntryOrderInitializationInfo& info,
                                                 EntryNumber_t currentRun,
                                                 int endOfRunEntries);
-      EntryNumber_t lowestInLumi(EntryOrderInitializationInfo& info, int currentLumi) const;
+      EntryNumber_t lowestInLumi(EntryOrderInitializationInfo& info, EntryNumber_t currentLumi) const;
       void handleLumisWithNoEvents(std::vector<TTreeEntryAndIndex>::const_iterator& nextLumiWithNoEvents,
                                    std::vector<TTreeEntryAndIndex>::const_iterator& endLumisWithNoEvents,
                                    EntryNumber_t lumiTTreeEntryNumber,
                                    bool completeAll = false);
       void handleLumiWithEvents(EntryOrderInitializationInfo& info,
-                                int currentLumi,
+                                EntryNumber_t currentLumi,
                                 EntryNumber_t firstBeginEventsContiguousLumi);
       void handleLumiEntriesNoRemainingEvents(EntryOrderInitializationInfo& info,
                                               int& iLumiIndex,
-                                              int currentLumi,
+                                              EntryNumber_t currentLumi,
                                               EntryNumber_t firstBeginEventsContiguousLumi,
                                               bool completeAll = false);
 

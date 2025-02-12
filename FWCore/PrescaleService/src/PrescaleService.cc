@@ -148,8 +148,8 @@ namespace edm {
     }
 
     // static method
-    unsigned int PrescaleService::findDefaultIndex(std::string const& label, std::vector<std::string> const& labels) {
-      for (unsigned int i = 0; i < labels.size(); ++i) {
+    size_t PrescaleService::findDefaultIndex(std::string const& label, std::vector<std::string> const& labels) {
+      for (size_t i = 0; i < labels.size(); ++i) {
         if (labels[i] == label) {
           return i;
         }

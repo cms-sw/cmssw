@@ -56,7 +56,7 @@ namespace edmtest {
         triggerResultsPutToken_(produces()) {}
 
   void TestWriteTriggerResults::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
-    edm::HLTGlobalStatus hltGlobalStatus(hltStates_.size());
+    edm::HLTGlobalStatus hltGlobalStatus(static_cast<unsigned int>(hltStates_.size()));
     for (unsigned int i = 0; i < hltStates_.size(); ++i) {
       assert(i < moduleIndexes_.size());
       hltGlobalStatus[i] = edm::HLTPathStatus(static_cast<edm::hlt::HLTState>(hltStates_[i]), moduleIndexes_[i]);

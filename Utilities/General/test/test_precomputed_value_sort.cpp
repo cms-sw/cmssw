@@ -60,12 +60,12 @@ int main() {
   // Create a vector with some random Points
   vector<Point> v1;
   v1.reserve(6);
-  v1.push_back(Point(-1.343, 2.445));
-  v1.push_back(Point(-1.566, 1.678));
-  v1.push_back(Point(-1.678, 1.569));
-  v1.push_back(Point(-3.138, 5.321));
-  v1.push_back(Point(-5.12, 0.321));
-  v1.push_back(Point(-5.12, -0.321));
+  v1.push_back(Point(-1.343f, 2.445f));
+  v1.push_back(Point(-1.566f, 1.678f));
+  v1.push_back(Point(-1.678f, 1.569f));
+  v1.push_back(Point(-3.138f, 5.321f));
+  v1.push_back(Point(-5.12f, 0.321f));
+  v1.push_back(Point(-5.12f, -0.321f));
 
   vector<float> r;
   r.reserve(v1.size());
@@ -73,7 +73,7 @@ int main() {
   phi.reserve(v1.size());
   for (vector<Point>::iterator i = v1.begin(); i != v1.end(); ++i) {
     r.push_back(i->r());
-    phi.push_back(i->phi());
+    phi.push_back(static_cast<float>(i->phi()));
   }
   std::sort(r.begin(), r.end());
   std::sort(phi.begin(), phi.end());

@@ -243,7 +243,7 @@ namespace edm {
         }
 
         // This is intended for use by Framework unit tests only
-        unsigned int cacheSize() const { return cacheImpl_.cacheSize(); }
+        auto cacheSize() const { return cacheImpl_.cacheSize(); }
 
       private:
         void doSelectInputProcessBlocks(ProductRegistry const& productRegistry,

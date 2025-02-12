@@ -208,7 +208,7 @@ namespace edmtest {
       sum += stepSize * cos(i * stepSize);
     }
 
-    e.emplace(token_, value_ + sum);
+    e.emplace(token_, value_ + static_cast<int>(sum));
 
     if (e.luminosityBlock() == lumiNumberToThrow_) {
       throw cms::Exception("Test");
@@ -257,7 +257,7 @@ namespace edmtest {
       sum += stepSize * cos(i * stepSize);
     }
 
-    e.emplace(token_, value_ + sum);
+    e.emplace(token_, value_ + static_cast<decltype(value_)>(sum));
     --reentrancy_;
   }
 

@@ -29,7 +29,7 @@ namespace edm {
     unsigned int numberEventsInRun() const { return numberEventsInRun_; }
     unsigned int numberEventsInLumi() const { return numberEventsInLumi_; }
     TimeValue_t presentTime() const { return presentTime_; }
-    unsigned int timeBetweenEvents() const { return timeBetweenEvents_; }
+    auto timeBetweenEvents() const { return timeBetweenEvents_; }
     unsigned int eventCreationDelay() const { return eventCreationDelay_; }
     unsigned int numberEventsInThisRun() const { return numberEventsInThisRun_; }
     unsigned int numberEventsInThisLumi() const { return numberEventsInThisLumi_; }

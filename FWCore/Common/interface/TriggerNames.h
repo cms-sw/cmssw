@@ -74,11 +74,11 @@ namespace edm {
     Strings const& triggerNames() const;
 
     // Throws if the index is out of range.
-    std::string const& triggerName(unsigned int index) const;
+    std::string const& triggerName(std::size_t index) const;
 
     // If the input name is not known, this returns a value
     // equal to the size.
-    unsigned int triggerIndex(std::string_view name) const;
+    std::size_t triggerIndex(std::string_view name) const;
 
     // The number of trigger names.
     std::size_t size() const;

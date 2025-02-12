@@ -63,7 +63,7 @@ namespace edm {
     DataFrameContainer() : m_subdetId(0), m_stride(0), m_ids(), m_data() {}
 
     explicit DataFrameContainer(size_t istride, int isubdet = 0, size_t isize = 0)
-        : m_subdetId(isubdet), m_stride(istride), m_ids(isize), m_data(isize * m_stride) {}
+        : m_subdetId(isubdet), m_stride(static_cast<size_type>(istride)), m_ids(isize), m_data(isize * m_stride) {}
 
     void swap(DataFrameContainer& rh) {
       std::swap(m_subdetId, rh.m_subdetId);
@@ -126,9 +126,9 @@ namespace edm {
 
     const_IterPair pair(size_t i) const { return const_IterPair(m_ids.begin() + i, m_data.begin() + i * m_stride); }
 
-    DataFrame operator[](size_t i) { return DataFrame(*this, i); }
+    DataFrame operator[](size_t i) { return DataFrame(*this, static_cast<DataFrame::size_type>(i)); }
 
-    DataFrame operator[](size_t i) const { return DataFrame(*this, i); }
+    DataFrame operator[](size_t i) const { return DataFrame(*this, static_cast<DataFrame::size_type>(i)); }
 
     /// slow interface
     /// The iterator returned can not safely be used across threads
@@ -136,7 +136,8 @@ namespace edm {
       const_IdIter p = std::lower_bound(m_ids.begin(), m_ids.end(), i);
       return (p == m_ids.end() || (*p) != i)
                  ? end()
-                 : boost::make_transform_iterator(boost::counting_iterator<int>(p - m_ids.begin()), IterHelp(*this));
+                 : boost::make_transform_iterator(boost::counting_iterator<int>(static_cast<int>(p - m_ids.begin())),
+                                                  IterHelp(*this));
     }
 
     /// The iterator returned can not safely be used across threads
@@ -153,7 +154,7 @@ namespace edm {
 
     bool empty() const { return m_ids.empty(); }
 
-    size_type size() const { return m_ids.size(); }
+    size_type size() const { return static_cast<size_type>(m_ids.size()); }
 
     data_type operator()(size_t cell, size_t frame) const { return m_data[cell * m_stride + frame]; }
 

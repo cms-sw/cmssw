@@ -636,11 +636,11 @@ void StallMonitor::postEvent(StreamContext const& sc) {
 
 void StallMonitor::postEndJob() {
   // Prepare summary
-  std::size_t width{};
+  int width{};
   edm::for_all(moduleStats_, [&width](auto const& stats) {
     if (stats.numberOfStalls() == 0u)
       return;
-    width = std::max(width, stats.label().size());
+    width = std::max(width, static_cast<int>(stats.label().size()));
   });
 
   OStreamColumn tag{"StallMonitor>"};

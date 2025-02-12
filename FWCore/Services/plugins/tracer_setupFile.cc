@@ -234,7 +234,7 @@ namespace {
     }
 
   private:
-    int findRecordIndices(edm::eventsetup::EventSetupRecordKey const& iKey) const {
+    auto findRecordIndices(edm::eventsetup::EventSetupRecordKey const& iKey) const {
       auto index = std::type_index(iKey.type().value());
       auto itFind = std::find(recordIndices_->begin(), recordIndices_->end(), index);
       return itFind - recordIndices_->begin();

@@ -20,7 +20,7 @@ TEST_CASE("test edmNew::DetSetVector", "[edmNew::DetSetVector]") {
   {
     FF ff(dstv, 1);
     ff.push_back(T());
-    ff[0].v = 2.1;
+    ff[0].v = 2.1f;
   }
   {
     FF ff(dstv, 2);
@@ -32,9 +32,9 @@ TEST_CASE("test edmNew::DetSetVector", "[edmNew::DetSetVector]") {
   REQUIRE(dstv.detsetSize(0) == 1);
 
   DST d1 = *dstv.find(2);
-  d1[0].v = 3.14;
+  d1[0].v = 3.14f;
   DST d2 = dstv.insert(4, 3);
-  d2[0].v = 4.15;
+  d2[0].v = 4.15f;
 
   SECTION("iterator") {
     int i = 0;

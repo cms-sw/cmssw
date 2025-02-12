@@ -253,7 +253,7 @@ namespace edm {
 
     EDProductGetter const* getter = productGetter();
     if (getter) {
-      return REF(id(), key(), getter);
+      return REF(id(), static_cast<typename REF::key_type>(key()), getter);
     }
 
     T const* value = get();
@@ -267,7 +267,7 @@ namespace edm {
       newValue = dynamic_cast<typename REF::value_type const*>(value);
     }
     if (newValue) {
-      return REF(id(), newValue, key(), isTransient());
+      return REF(id(), newValue, static_cast<typename REF::key_type>(key()), isTransient());
     }
 
     Exception::throwThis(errors::InvalidReference,
@@ -341,11 +341,11 @@ namespace edm {
 namespace edm {
   template <class T>
   inline RefToBase<T>::RefToBase(RefToBaseProd<T> const& r, size_t i)
-      : holder_(r.operator->()->refAt(i).holder_->clone()) {}
+      : holder_(r.operator->()->refAt(static_cast<typename View<T>::size_type>(i)).holder_->clone()) {}
 
   template <typename T>
   inline RefToBase<T>::RefToBase(Handle<View<T>> const& handle, size_t i)
-      : holder_(handle.operator->()->refAt(i).holder_->clone()) {}
+      : holder_(handle.operator->()->refAt(static_cast<typename View<T>::size_type>(i)).holder_->clone()) {}
 
 }  // namespace edm
 

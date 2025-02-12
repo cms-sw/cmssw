@@ -76,8 +76,8 @@ double ChildrenCPUTimer::calculateDeltaTime() const {
     throw cms::Exception("CPUTimerFailed") << errno;
   }
 
-  returnValue = theUsage.ru_stime.tv_sec + theUsage.ru_utime.tv_sec - startCPUTime_.tv_sec +
-                microsecToSec * (theUsage.ru_stime.tv_usec + theUsage.ru_utime.tv_usec - startCPUTime_.tv_usec);
+  returnValue = double(theUsage.ru_stime.tv_sec + theUsage.ru_utime.tv_sec - startCPUTime_.tv_sec) +
+                microsecToSec * double(theUsage.ru_stime.tv_usec + theUsage.ru_utime.tv_usec - startCPUTime_.tv_usec);
   return returnValue;
 }
 //

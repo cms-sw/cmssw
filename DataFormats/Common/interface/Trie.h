@@ -184,17 +184,17 @@ namespace edm {
     /// add an entry in the Trie, if entry already exist an exception
     /// is throw
     void insert(std::string const &str, const T &value);
-    void insert(const char *str, unsigned strLen, const T &value);
+    void insert(const char *str, size_t strLen, const T &value);
     /// associates a value to a string, if string is already in Trie,
     /// value is overwriten
     void setEntry(std::string const &str, const T &value);
-    void setEntry(const char *str, unsigned strLen, const T &value);
+    void setEntry(const char *str, size_t strLen, const T &value);
     /// get an entry in the Trie
     const T &find(std::string const &str) const;
-    const T &find(const char *str, unsigned strLen) const;
+    const T &find(const char *str, size_t strLen) const;
     /// get node matching a string
     const TrieNode<T> *node(std::string const &str) const;
-    const TrieNode<T> *node(const char *str, unsigned strLen) const;
+    const TrieNode<T> *node(const char *str, size_t strLen) const;
     ///  get initial TrieNode
     const TrieNode<T> *initialNode() const;
     /// display content of trie in output stream
@@ -203,7 +203,7 @@ namespace edm {
     void clear();
 
   private:
-    TrieNode<T> *_addEntry(const char *str, unsigned strLen);
+    TrieNode<T> *_addEntry(const char *str, size_t strLen);
 
   private:
     /// value returned when no match is found in trie
@@ -505,14 +505,14 @@ void edm::Trie<T>::setEntry(std::string const &str, const T &value) {
   setEntry(str.c_str(), str.size(), value);
 }
 template <typename T>
-void edm::Trie<T>::setEntry(const char *str, unsigned strLen, const T &value) {
+void edm::Trie<T>::setEntry(const char *str, size_t strLen, const T &value) {
   TrieNode<T> *node = _addEntry(str, strLen);
   node->setValue(value);
 }
 
 template <typename T>
-edm::TrieNode<T> *edm::Trie<T>::_addEntry(const char *str, unsigned strLen) {
-  unsigned pos = 0;
+edm::TrieNode<T> *edm::Trie<T>::_addEntry(const char *str, size_t strLen) {
+  size_t pos = 0;
   bool found = true;
   TrieNode<T> *node = _initialNode, *previous = nullptr;
 
@@ -530,7 +530,7 @@ edm::TrieNode<T> *edm::Trie<T>::_addEntry(const char *str, unsigned strLen) {
   // Add part of the word which is not in Trie
   if (!node || pos != strLen) {
     node = previous;
-    for (unsigned i = pos; i < strLen; ++i) {
+    for (auto i = pos; i < strLen; ++i) {
       TrieNode<T> *newNode = _factory->newNode(_empty);
       node->addSubNode(str[pos], newNode);
       node = newNode;
@@ -547,7 +547,7 @@ void edm::Trie<T>::insert(std::string const &str, const T &value) {
 }
 
 template <typename T>
-void edm::Trie<T>::insert(const char *str, unsigned strLen, const T &value) {
+void edm::Trie<T>::insert(const char *str, size_t strLen, const T &value) {
   TrieNode<T> *node = _addEntry(str, strLen);
 
   // Set the value on the last node
@@ -562,8 +562,8 @@ const T &edm::Trie<T>::find(std::string const &str) const {
 }
 
 template <typename T>
-const T &edm::Trie<T>::find(const char *str, unsigned strLen) const {
-  unsigned pos = 0;
+const T &edm::Trie<T>::find(const char *str, size_t strLen) const {
+  size_t pos = 0;
   bool found = true;
   const TrieNode<T> *node = _initialNode;
 
@@ -586,8 +586,8 @@ edm::TrieNode<T> const *edm::Trie<T>::node(std::string const &str) const {
 }
 
 template <typename T>
-edm::TrieNode<T> const *edm::Trie<T>::node(const char *str, unsigned strLen) const {
-  unsigned pos = 0;
+edm::TrieNode<T> const *edm::Trie<T>::node(const char *str, size_t strLen) const {
+  size_t pos = 0;
   bool found = true;
   const TrieNode<T> *node = _initialNode;
 

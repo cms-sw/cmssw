@@ -567,14 +567,14 @@ namespace edm {
           (*os) << indent;                    //of the ELstring
           if (last != ' ')
             (*os) << ' ';
-          charsOnLine = indent.length() + 1;
+          charsOnLine = static_cast<decltype(charsOnLine)>(indent.length() + 1);
         }
 
         if (nl) {
           (*os) << newline << std::flush;
           charsOnLine = 0;
         } else {
-          charsOnLine += s.length();
+          charsOnLine += static_cast<decltype(charsOnLine)>(s.length());
         }
       }
 

@@ -166,7 +166,7 @@ namespace edm {
                 FillViewHelperVector const& helpers,
                 EDProductGetter const* getter)
       : items_(), vPtrs_() {
-    size_type numElements = pointers.size();
+    size_type numElements = static_cast<size_type>(pointers.size());
 
     // If the two input vectors are not of the same size, there is a
     // logic error in the framework code that called this.
@@ -223,7 +223,7 @@ namespace edm {
 
   template <typename T>
   inline typename View<T>::size_type View<T>::size() const {
-    return items_.size();
+    return static_cast<typename View<T>::size_type>(items_.size());
   }
 
   template <typename T>

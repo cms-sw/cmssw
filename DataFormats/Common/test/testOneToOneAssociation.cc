@@ -43,7 +43,7 @@ void testOneToOneAssociation::dummy() {
   const edm::Ref<CVal>& x = v[edm::Ref<CKey>()];
   x.id();
   ++f;
-  int n = v.numberOfAssociations(edm::Ref<CKey>());
+  auto n = v.numberOfAssociations(edm::Ref<CKey>());
   ++n;
   std::cout << "numberOfAssociations:" << n << std::endl;
   edm::Ref<Assoc> r;

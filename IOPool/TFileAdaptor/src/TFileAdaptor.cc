@@ -242,8 +242,8 @@ void TFileAdaptor::stats(std::ostream& o) const {
     << " Cache hint:" << cacheHint_ << '\n'
     << " Read hint:" << readHint_ << '\n'
     << "Storage statistics: " << edm::storage::StorageAccount::summaryText() << "; tfile/read=?/?/"
-    << (TFile::GetFileBytesRead() / oneMeg) << "MB/?ms/?ms/?ms"
-    << "; tfile/write=?/?/" << (TFile::GetFileBytesWritten() / oneMeg) << "MB/?ms/?ms/?ms";
+    << (static_cast<float>(TFile::GetFileBytesRead()) / oneMeg) << "MB/?ms/?ms/?ms"
+    << "; tfile/write=?/?/" << (static_cast<float>(TFile::GetFileBytesWritten()) / oneMeg) << "MB/?ms/?ms/?ms";
 }
 
 void TFileAdaptor::statsXML(std::map<std::string, std::string>& data) const {
@@ -259,8 +259,8 @@ void TFileAdaptor::statsXML(std::map<std::string, std::string>& data) const {
   edm::storage::StorageAccount::fillSummary(data);
   std::ostringstream r;
   std::ostringstream w;
-  r << (TFile::GetFileBytesRead() / oneMeg);
-  w << (TFile::GetFileBytesWritten() / oneMeg);
+  r << (static_cast<float>(TFile::GetFileBytesRead()) / oneMeg);
+  w << (static_cast<float>(TFile::GetFileBytesWritten()) / oneMeg);
   data.insert(std::make_pair("ROOT-tfile-read-totalMegabytes", r.str()));
   data.insert(std::make_pair("ROOT-tfile-write-totalMegabytes", w.str()));
 }

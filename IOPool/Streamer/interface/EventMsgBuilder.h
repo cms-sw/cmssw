@@ -27,7 +27,7 @@ namespace edm::streamer {
     void setBufAddr(uint8* buf_addr) { buf_ = buf_addr; }
     void setEventAddr(uint8* event_addr) { event_addr_ = event_addr; }
     uint8* eventAddr() const { return event_addr_; }
-    uint32 headerSize() const { return event_addr_ - buf_; }
+    uint32 headerSize() const { return static_cast<uint32>(event_addr_ - buf_); }
     uint32 size() const;
     uint32 bufferSize() const { return size_; }
 

@@ -434,7 +434,7 @@ namespace edm {
                << *i << " is an unrecognized name for a PSet\n";
       }
       psnames.clear();
-      unsigned int n = pset.getParameterSetNames(psnames, true);
+      auto n = pset.getParameterSetNames(psnames, true);
       if (n > 0) {
         end = psnames.end();
         for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
@@ -656,7 +656,7 @@ namespace edm {
         flaws_ << psetName << " PSet: \n" << *i << " is an unrecognized name for a PSet in this context \n";
       }
       psnames.clear();
-      unsigned int n = pset.getParameterSetNames(psnames, true);
+      auto n = pset.getParameterSetNames(psnames, true);
       if (n > 0) {
         end = psnames.end();
         for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
@@ -740,7 +740,7 @@ namespace edm {
                << "PSets not allowed within a category PSet\n";
       }
       psnames.clear();
-      unsigned int n = pset.getParameterSetNames(psnames, true);
+      auto n = pset.getParameterSetNames(psnames, true);
       if (n > 0) {
         end = psnames.end();
         for (vString::const_iterator i = psnames.begin(); i != end; ++i) {

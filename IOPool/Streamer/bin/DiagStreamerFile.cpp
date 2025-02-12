@@ -43,7 +43,7 @@ namespace {
   bool uncompressBuffer(unsigned char* inputBuffer,
                         unsigned int inputSize,
                         std::vector<unsigned char>& outputBuffer,
-                        unsigned int expectedFullSize);
+                        unsigned long int expectedFullSize);
   bool test_chksum(EventMsgView const* eview);
   bool test_uncompress(EventMsgView const* eview, std::vector<unsigned char>& dest);
   void readfile(std::string filename, std::string outfile);
@@ -280,9 +280,9 @@ namespace {
   bool uncompressBuffer(unsigned char* inputBuffer,
                         unsigned int inputSize,
                         std::vector<unsigned char>& outputBuffer,
-                        unsigned int expectedFullSize) {
+                        unsigned long int expectedFullSize) {
     unsigned long origSize = expectedFullSize;
-    unsigned long uncompressedSize = expectedFullSize * 1.1;
+    unsigned long uncompressedSize = static_cast<unsigned long>(static_cast<double>(expectedFullSize) * 1.1);
     outputBuffer.resize(uncompressedSize);
     int ret = uncompress(&outputBuffer[0], &uncompressedSize, inputBuffer, inputSize);
     if (ret == Z_OK) {

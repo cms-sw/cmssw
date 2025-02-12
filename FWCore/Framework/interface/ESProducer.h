@@ -243,7 +243,7 @@ namespace edm {
     // These next four functions are intended for use in this class and
     // class ESProducerExternalWork only. They should not be used in
     // other classes derived from them.
-    unsigned int consumesInfoSize() const { return consumesInfos_.size(); }
+    size_t consumesInfoSize() const { return consumesInfos_.size(); }
 
     ESConsumesInfo* consumesInfoPushBackNew() {
       consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());

@@ -41,7 +41,7 @@ namespace edm {
 
     if (!result.empty()) {
       // and trailing quotes
-      int lastpos = result.size() - 1;
+      auto lastpos = result.size() - 1;
       if (result[lastpos] == '"' || result[lastpos] == '\'') {
         result.erase(lastpos, 1);
       }

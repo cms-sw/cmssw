@@ -458,7 +458,7 @@ namespace edm {
           sevName = std::string("Log") + sevName;
           sevName = dualLogName(sevName);
           if (sevName != "UnusedSeverity") {
-            sm[sevName] = p3[k].t;
+            sm[sevName] = static_cast<double>(p3[k].t);
           }
         }
       }  // for k

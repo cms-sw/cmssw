@@ -53,18 +53,18 @@ namespace edm {
   class OStreamColumn {
   public:
     explicit OStreamColumn(std::string const& t);
-    explicit OStreamColumn(std::string const& t, std::size_t const w);
+    explicit OStreamColumn(std::string const& t, int const w);
 
     template <typename T>
     auto operator()(T const& t) const {
       return OStreamColumnEntry<T>{*this, t};
     }
 
-    std::size_t width() const { return width_; }
+    auto width() const { return width_; }
 
   private:
     std::string title_;
-    std::size_t width_;
+    int width_;
 
     friend std::ostream& operator<<(std::ostream&, OStreamColumn const&);
 

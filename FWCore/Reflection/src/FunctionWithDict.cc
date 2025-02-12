@@ -77,10 +77,10 @@ namespace edm {
     void** data = const_cast<void**>(values.data());
     assert(funcptr_.fGeneric);
     if (ret == nullptr) {
-      (*funcptr_.fGeneric)(obj.address(), values.size(), data, nullptr);
+      (*funcptr_.fGeneric)(obj.address(), static_cast<int>(values.size()), data, nullptr);
       return;
     }
-    (*funcptr_.fGeneric)(obj.address(), values.size(), data, ret->address());
+    (*funcptr_.fGeneric)(obj.address(), static_cast<int>(values.size()), data, ret->address());
   }
 
   /// Call a static function.
@@ -89,10 +89,10 @@ namespace edm {
     void** data = const_cast<void**>(values.data());
     assert(funcptr_.fGeneric);
     if (ret == nullptr) {
-      (*funcptr_.fGeneric)(nullptr, values.size(), data, nullptr);
+      (*funcptr_.fGeneric)(nullptr, static_cast<int>(values.size()), data, nullptr);
       return;
     }
-    (*funcptr_.fGeneric)(nullptr, values.size(), data, ret->address());
+    (*funcptr_.fGeneric)(nullptr, static_cast<int>(values.size()), data, ret->address());
   }
 
   IterWithDict<TMethodArg> FunctionWithDict::begin() const {

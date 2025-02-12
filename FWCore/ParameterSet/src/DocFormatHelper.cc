@@ -8,7 +8,7 @@
 namespace edm {
 
   namespace {
-    void wrapAndPrintLine(std::ostream& os, std::string const& text, size_t indent, size_t suggestedWidth) {
+    void wrapAndPrintLine(std::ostream& os, std::string const& text, int indent, size_t suggestedWidth) {
       char oldFill = os.fill();
 
       size_t length = text.size();
@@ -95,10 +95,7 @@ namespace edm {
   // by a single blank space with no extra space in the input text,
   // otherwise the extra spaces and newlines get printed
   // making the output not nicely formatted ...
-  void DocFormatHelper::wrapAndPrintText(std::ostream& os,
-                                         std::string const& text,
-                                         size_t indent,
-                                         size_t suggestedWidth) {
+  void DocFormatHelper::wrapAndPrintText(std::ostream& os, std::string const& text, int indent, size_t suggestedWidth) {
     size_t pos = text.find_first_of('\n');
     if (pos == std::string::npos) {
       // no embedded newlines

@@ -16,7 +16,7 @@ namespace edm {
 
     // Constructors and destructor.
     TRandomAdaptor();
-    TRandomAdaptor(long seed);
+    TRandomAdaptor(unsigned int seed);
     TRandomAdaptor(int rowIndex, int colIndex);
     TRandomAdaptor(std::istream& is);
     ~TRandomAdaptor() override;

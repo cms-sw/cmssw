@@ -49,7 +49,7 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile,
 
     wchar_t** argvt = vp_argv.data();
 
-    PySys_SetArgv(args.size(), argvt);
+    PySys_SetArgv(static_cast<int>(args.size()), argvt);
   }
   read(config, isFile);
 }

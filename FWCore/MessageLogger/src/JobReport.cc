@@ -319,7 +319,7 @@ namespace edm {
         // while comments are usually ignored by xml parsers
         auto padding = (endpos - pos) - (kJobReportEndElement.size() + kMinSizeOfComment);
         *(impl_->ost_) << "<!--";
-        for (int i = padding; i > 0; --i) {
+        for (auto i = padding; i > 0; --i) {
           (*impl_->ost_) << ' ';
         }
         *(impl_->ost_) << "-->\n";

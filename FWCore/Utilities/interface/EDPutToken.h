@@ -103,7 +103,7 @@ namespace edm {
     static constexpr unsigned int s_uninitializedValue = 0xFFFFFFFF;
 
     constexpr explicit EDPutTokenT(unsigned int iValue) noexcept : m_value(iValue) {}
-    constexpr explicit EDPutTokenT(unsigned long int iValue) noexcept : m_value(iValue) {}
+    constexpr explicit EDPutTokenT(unsigned long int iValue) noexcept : m_value(static_cast<unsigned int>(iValue)) {}
 
     // ---------- member data --------------------------------
     value_type m_value;
