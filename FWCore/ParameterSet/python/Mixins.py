@@ -706,13 +706,20 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
                 else:
                     result += ', '
             result += self.pythonValueForItem(v,options)
+        if n>=256:
+            result +=' ) '
+        moreArgs = self._additionalInitArguments(options)
+        if moreArgs:
+            if i > 0:
+                result += ', \n' + options.indentation()
+            result += moreArgs
         if n>nPerLine:
             options.unindent()
             result += '\n'+options.indentation()
-        if n>=256:
-            result +=' ) '
         result += ')'
-        return result            
+        return result  
+    def _additionalInitArguments(self, options):
+        return ''
     def directDependencies(self):
         return []
     @staticmethod
