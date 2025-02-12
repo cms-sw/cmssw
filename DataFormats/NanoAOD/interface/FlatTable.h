@@ -3,10 +3,10 @@
 
 #include "DataFormats/Math/interface/libminifloat.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/Span.h"
 
 #include <cstdint>
 #include <vector>
+#include <span>
 #include <string>
 #include <type_traits>
 
@@ -49,6 +49,10 @@ namespace nanoaod {
       Double,
     };  // We could have other Float types with reduced mantissa, and similar
 
+    // special case: bool stored as vector of uint8
+    template <typename T>
+    using ColumnStorageType = std::conditional_t<std::is_same_v<T, bool>, uint8_t, T>;
+
     FlatTable() : size_(0) {}
     FlatTable(unsigned int size, const std::string &name, bool singleton, bool extension = false)
         : size_(size), name_(name), singleton_(singleton), extension_(extension) {}
@@ -74,14 +78,14 @@ namespace nanoaod {
     template <typename T>
     auto columnData(unsigned int column) const {
       auto begin = beginData<T>(column);
-      return edm::Span(begin, begin + size_);
+      return std::span<const ColumnStorageType<T>>(begin, size_t(size_));
     }
 
     /// get a column by index (non-const)
     template <typename T>
     auto columnData(unsigned int column) {
       auto begin = beginData<T>(column);
-      return edm::Span(begin, begin + size_);
+      return std::span<ColumnStorageType<T>>(begin, size_);
     }
 
     /// get a column value for singleton (const)
@@ -196,21 +200,20 @@ namespace nanoaod {
     template <typename T, class This>
     static auto &bigVectorImpl(This &table) {
       // helper function to avoid code duplication, for the two accessor functions that differ only in const-ness
-      if constexpr (std::is_same<T, uint8_t>())
+      using StorageT = ColumnStorageType<T>;
+      if constexpr (std::is_same<StorageT, uint8_t>())
         return table.uint8s_;
-      else if constexpr (std::is_same<T, int16_t>())
+      else if constexpr (std::is_same<StorageT, int16_t>())
         return table.int16s_;
-      else if constexpr (std::is_same<T, uint16_t>())
+      else if constexpr (std::is_same<StorageT, uint16_t>())
         return table.uint16s_;
-      else if constexpr (std::is_same<T, int32_t>())
+      else if constexpr (std::is_same<StorageT, int32_t>())
         return table.int32s_;
-      else if constexpr (std::is_same<T, uint32_t>())
+      else if constexpr (std::is_same<StorageT, uint32_t>())
         return table.uint32s_;
-      else if constexpr (std::is_same<T, bool>())
-        return table.uint8s_;  // special case: bool stored as vector of uint8
-      else if constexpr (std::is_same<T, float>())
+      else if constexpr (std::is_same<StorageT, float>())
         return table.floats_;
-      else if constexpr (std::is_same<T, double>())
+      else if constexpr (std::is_same<StorageT, double>())
         return table.doubles_;
       else
         static_assert(dependent_false<T>::value, "unsupported type");
