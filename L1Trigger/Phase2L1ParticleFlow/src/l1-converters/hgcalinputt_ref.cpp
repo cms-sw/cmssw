@@ -122,7 +122,7 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
     // FIXME: the scaling here is added to the encoded word.
     out.hwSrrTot = w_sigmarrtot * l1ct::srrtot_t(l1ct::Scales::SRRTOT_LSB);
     // We just downscale precision and round to the nearest integer
-    out.hwMeanZ = l1ct::meanz_t(std::min(w_meanz.to_int() + 4, (1 << 12) - 1) >> 3);
+    out.hwMeanZ = l1ct::meanz_t(std::min(w_meanz.to_int() + 1, (1 << 12) - 1) >> 1);
     // Compute an H/E value: 1/emf - 1 as needed by Composite ID
     // NOTE: this uses the total cluster energy, which is not the case for the eot shower shape!
     // FIXME: could drop once we move the model to the eot fraction
@@ -139,8 +139,6 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
                                                      w_sigmaphiphi * SIGMAPHIPHI_LSB,
                                                      w_sigmazz * SIGMAZZ_LSB};
 
-  // evaluate multiclass model
-  valid = multiclass_id_.evaluate(out, inputs);
 
   // Apply EM interpretation scenario
   if (emInterpScenario_ == UseEmInterp::No) {  // we do not use EM interpretation
@@ -160,6 +158,9 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
              UseEmInterp::AllKeepTot) {  // for all objs, replace EM part with EM interp, preserve pT
     // FIXME: we do not recompute hoe for now...
   }
+
+  // evaluate multiclass model
+  valid = multiclass_id_.evaluate(out, inputs);
 
   // Calibrate pt and set error
   if (corrector_.valid()) {
