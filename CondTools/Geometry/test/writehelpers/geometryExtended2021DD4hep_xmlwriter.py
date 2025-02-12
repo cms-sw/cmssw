@@ -1,5 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
+import argparse
+import sys
+
+parser = argparse.ArgumentParser(prog=sys.argv[0], description='Generate XML geometry.')
+parser.add_argument("--geom", help="Name of parameter", type=str, default='ExtendedGeometry2021')
+parser.add_argument("--out", help="Prefix for output file", type=str, default='ge')
+
+args = parser.parse_args()
+
 process = cms.Process("GeometryXMLWriter")
 
 process.source = cms.Source("EmptyIOVSource",
@@ -10,7 +19,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cms'+args.geom+'.xml'),
                                             appendToDataLabel = cms.string('make-payload')
                                            )
 
@@ -19,7 +28,7 @@ process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
                                                 )
 
 process.BigXMLWriter = cms.EDAnalyzer("OutputDD4hepToDDL",
-                              fileName = cms.untracked.string("./geSingleBigFile.xml")
+                              fileName = cms.untracked.string("./"+args.out+"SingleBigFile.xml")
                               )
 
 
