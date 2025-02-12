@@ -39,9 +39,11 @@
 #include "DataFormats/JetReco/interface/JPTJet.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
@@ -57,6 +59,7 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
@@ -129,6 +132,22 @@ private:
 
   //edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
 
+  //For scouting datasets
+  //const edm::InputTag triggerResultsTag;
+  //const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> scoutingVerticesToken_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonsToken_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> scoutingPfJetsToken_;
+  edm::EDGetTokenT<double> scoutingMetToken_;
+  edm::EDGetTokenT<double> scoutingRhoToken_;
+  //const edm::EDGetTokenT<std::vector<pat::Muon>> offlineMuonsToken_;
+  //const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken_;
+  //const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> primaryVerticesToken_;
+  //const edm::EDGetTokenT<double> rhoToken_;
+  //const edm::EDGetTokenT<std::vector<Run3ScoutingPhoton>> photonsToken_;
+  //const edm::EDGetTokenT<std::vector<Run3ScoutingParticle>> pfcandsToken_;
+  //const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
+
   edm::InputTag inputJetIDValueMap;
   edm::EDGetTokenT<edm::ValueMap<reco::JetID>> jetID_ValueMapToken_;
   edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1gtTrigMenuToken_;
@@ -198,6 +217,9 @@ private:
   double asymmetryThirdJetCut_;
   double balanceThirdJetCut_;
 
+  //variables specific for Scouting jets
+  double jetEnergy;
+
   //
   int fillJIDPassFrac_;
   std::string m_l1algoname_;
@@ -214,10 +236,12 @@ private:
   MonitorElement* mPt_log;
   MonitorElement* mEta;
   MonitorElement* mPhi;
+  MonitorElement* mJetArea;
   MonitorElement* mPt_uncor;
   MonitorElement* mEta_uncor;
   MonitorElement* mPhi_uncor;
   MonitorElement* mConstituents_uncor;
+  MonitorElement* mJetArea_uncor;
 
   MonitorElement* mJetEnergyCorr;
   MonitorElement* mJetEnergyCorrVSEta;
@@ -229,39 +253,46 @@ private:
   MonitorElement* mPhiVSEta;
 
   MonitorElement* mPt_Barrel;
+  MonitorElement* mEta_Barrel;
   MonitorElement* mPhi_Barrel;
   MonitorElement* mConstituents_Barrel;
   MonitorElement* mHFrac_Barrel;
   MonitorElement* mEFrac_Barrel;
 
   MonitorElement* mPt_EndCap;
+  MonitorElement* mEta_EndCap;
   MonitorElement* mPhi_EndCap;
   MonitorElement* mConstituents_EndCap;
   MonitorElement* mHFrac_EndCap;
   MonitorElement* mEFrac_EndCap;
 
   MonitorElement* mPt_Forward;
+  MonitorElement* mEta_Forward;
   MonitorElement* mPhi_Forward;
   MonitorElement* mConstituents_Forward;
   MonitorElement* mHFrac_Forward;
   MonitorElement* mEFrac_Forward;
 
   MonitorElement* mPt_Barrel_Hi;
+  MonitorElement* mEta_Barrel_Hi;
   MonitorElement* mPhi_Barrel_Hi;
   MonitorElement* mConstituents_Barrel_Hi;
   MonitorElement* mHFrac_Barrel_Hi;
 
   MonitorElement* mPt_EndCap_Hi;
+  MonitorElement* mEta_EndCap_Hi;
   MonitorElement* mPhi_EndCap_Hi;
   MonitorElement* mConstituents_EndCap_Hi;
   MonitorElement* mHFrac_EndCap_Hi;
 
   MonitorElement* mPt_Forward_Hi;
+  MonitorElement* mEta_Forward_Hi;
   MonitorElement* mPhi_Forward_Hi;
   MonitorElement* mConstituents_Forward_Hi;
   MonitorElement* mHFrac_Forward_Hi;
 
   MonitorElement* mNJets;
+  MonitorElement* mNJets_Hi;
   MonitorElement* mDPhi;
 
   // Leading Jet Parameters
@@ -484,12 +515,25 @@ private:
 
   MonitorElement* mChargedHadronEnergy;
   MonitorElement* mNeutralHadronEnergy;
+  MonitorElement* mNeutralHadronEnergynoHF;
+  MonitorElement* mNeutralHadronEnergywHF;
+  MonitorElement* mHFHadronEnergy;
   MonitorElement* mChargedEmEnergy;
   MonitorElement* mChargedMuEnergy;
+  MonitorElement* mPhotonEnergy;
   MonitorElement* mNeutralEmEnergy;
+  MonitorElement* mNeutralEmEnergywHF;
+  MonitorElement* mHFEMEnergy;
+  MonitorElement* mHOEnergy;
   MonitorElement* mChargedMultiplicity;
   MonitorElement* mNeutralMultiplicity;
+  MonitorElement* mChargedHadronMultiplicity;
+  MonitorElement* mNeutralHadronMultiplicity;
   MonitorElement* mMuonMultiplicity;
+  MonitorElement* mElectronMultiplicity;
+  MonitorElement* mPhotonMultiplicity;
+  MonitorElement* mHFHadronMultiplicity;
+  MonitorElement* mHFEMMultiplicity;
 
   //it is there for ak4PFCHS
   MonitorElement* mAxis2_lowPt_Barrel;
@@ -556,13 +600,109 @@ private:
   MonitorElement* mCHFrac;
   MonitorElement* mNHFrac;
   MonitorElement* mPhFrac;
+  MonitorElement* mMuFrac;
+  MonitorElement* mCEMFrac;
+  MonitorElement* mNEMFrac;
   MonitorElement* mHFEMFrac;
   MonitorElement* mHFHFrac;
+  MonitorElement* mHOFrac;
   MonitorElement* mCHFrac_profile;
   MonitorElement* mNHFrac_profile;
   MonitorElement* mPhFrac_profile;
+  MonitorElement* mCEMFrac_profile;
+  MonitorElement* mNEMFrac_profile;
   MonitorElement* mHFEMFrac_profile;
   MonitorElement* mHFHFrac_profile;
+
+  MonitorElement* mCHFrac_Lo;
+  MonitorElement* mNHFrac_Lo;
+  MonitorElement* mPhFrac_Lo;
+  MonitorElement* mMuFrac_Lo;
+  MonitorElement* mCEMFrac_Lo;
+  MonitorElement* mNEMFrac_Lo;
+  MonitorElement* mHFEMFrac_Lo;
+  MonitorElement* mHFHFrac_Lo;
+  MonitorElement* mHOFrac_Lo;
+
+  MonitorElement* mCHFrac_Hi;
+  MonitorElement* mNHFrac_Hi;
+  MonitorElement* mPhFrac_Hi;
+  MonitorElement* mMuFrac_Hi;
+  MonitorElement* mCEMFrac_Hi;
+  MonitorElement* mNEMFrac_Hi;
+  MonitorElement* mHFEMFrac_Hi;
+  MonitorElement* mHFHFrac_Hi;
+  MonitorElement* mHOFrac_Hi;
+
+  MonitorElement* mCHFrac_Hi_altBinning;
+  MonitorElement* mNHFrac_Hi_altBinning;
+  MonitorElement* mPhFrac_Hi_altBinning;
+  MonitorElement* mMuFrac_Hi_altBinning;
+  MonitorElement* mCEMFrac_Hi_altBinning;
+  MonitorElement* mNEMFrac_Hi_altBinning;
+  MonitorElement* mHFEMFrac_Hi_altBinning;
+  MonitorElement* mHFHFrac_Hi_altBinning;
+  MonitorElement* mHOFrac_Hi_altBinning;
+
+  MonitorElement* mCHFrac_Barrel;
+  MonitorElement* mNHFrac_Barrel;
+  MonitorElement* mPhFrac_Barrel;
+  MonitorElement* mMuFrac_Barrel;
+  MonitorElement* mCEMFrac_Barrel;
+  MonitorElement* mNEMFrac_Barrel;
+  MonitorElement* mHFEMFrac_Barrel;
+  MonitorElement* mHFHFrac_Barrel;
+  MonitorElement* mHOFrac_Barrel;
+
+  MonitorElement* mCHFrac_EndCap;
+  MonitorElement* mNHFrac_EndCap;
+  MonitorElement* mPhFrac_EndCap;
+  MonitorElement* mMuFrac_EndCap;
+  MonitorElement* mCEMFrac_EndCap;
+  MonitorElement* mNEMFrac_EndCap;
+  MonitorElement* mHFEMFrac_EndCap;
+  MonitorElement* mHFHFrac_EndCap;
+  MonitorElement* mHOFrac_EndCap;
+
+  MonitorElement* mCHFrac_Forward;
+  MonitorElement* mNHFrac_Forward;
+  MonitorElement* mPhFrac_Forward;
+  MonitorElement* mMuFrac_Forward;
+  MonitorElement* mCEMFrac_Forward;
+  MonitorElement* mNEMFrac_Forward;
+  MonitorElement* mHFEMFrac_Forward;
+  MonitorElement* mHFHFrac_Forward;
+  MonitorElement* mHOFrac_Forward;
+
+  MonitorElement* mCHFrac_Barrel_Hi;
+  MonitorElement* mNHFrac_Barrel_Hi;
+  MonitorElement* mPhFrac_Barrel_Hi;
+  MonitorElement* mMuFrac_Barrel_Hi;
+  MonitorElement* mCEMFrac_Barrel_Hi;
+  MonitorElement* mNEMFrac_Barrel_Hi;
+  MonitorElement* mHFEMFrac_Barrel_Hi;
+  MonitorElement* mHFHFrac_Barrel_Hi;
+  MonitorElement* mHOFrac_Barrel_Hi;
+
+  MonitorElement* mCHFrac_EndCap_Hi;
+  MonitorElement* mNHFrac_EndCap_Hi;
+  MonitorElement* mPhFrac_EndCap_Hi;
+  MonitorElement* mMuFrac_EndCap_Hi;
+  MonitorElement* mCEMFrac_EndCap_Hi;
+  MonitorElement* mNEMFrac_EndCap_Hi;
+  MonitorElement* mHFEMFrac_EndCap_Hi;
+  MonitorElement* mHFHFrac_EndCap_Hi;
+  MonitorElement* mHOFrac_EndCap_Hi;
+
+  MonitorElement* mCHFrac_Forward_Hi;
+  MonitorElement* mNHFrac_Forward_Hi;
+  MonitorElement* mPhFrac_Forward_Hi;
+  MonitorElement* mMuFrac_Forward_Hi;
+  MonitorElement* mCEMFrac_Forward_Hi;
+  MonitorElement* mNEMFrac_Forward_Hi;
+  MonitorElement* mHFEMFrac_Forward_Hi;
+  MonitorElement* mHFHFrac_Forward_Hi;
+  MonitorElement* mHOFrac_Forward_Hi;
 
   JetMETDQMDCSFilter* DCSFilterForJetMonitoring_;
   JetMETDQMDCSFilter* DCSFilterForDCSMonitoring_;
@@ -789,6 +929,7 @@ private:
   bool isPFJet_;
   bool isMiniAODJet_;
   bool isPUPPIJet_;
+  bool isScoutingJet_;
 
   bool fill_jet_high_level_histo;
 
