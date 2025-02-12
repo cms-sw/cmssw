@@ -32,7 +32,7 @@
 
   <test name="TestIOPoolStreamerFailures" command="run_failures.sh"/>
 
-  <test name="TestIOPoolStreamerReducedProcessHistory" command="run_TestReducedProcessHistory.sh"/>
+  <test name="TestIOPoolStreamerReducedProcessHistoryVersion" command="run_TestReducedProcessHistoryVersion.sh"/>
 
   <library file="StreamThingProducer.cc" name="StreamThingProducer">
     <flags EDM_PLUGIN="1"/>
