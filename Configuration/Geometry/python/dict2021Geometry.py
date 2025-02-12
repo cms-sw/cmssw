@@ -1616,7 +1616,7 @@ caloDict = {
 muonDict = {
     "abbrev" : "M",
     "name" : "muon",
-    "default" : 8,
+    "default" : 6,
     "M1" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml',
