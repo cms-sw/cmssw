@@ -1403,7 +1403,7 @@ trackerDict = {
 caloDict = {
     "abbrev" : "C",
     "name" : "calo",
-    "default" : 3,
+    "default" : 2,
     "C1" : {
         1 : [
             'Geometry/EcalCommonData/data/ebcon/2021/v1/ebcon.xml',
@@ -1616,7 +1616,7 @@ caloDict = {
 muonDict = {
     "abbrev" : "M",
     "name" : "muon",
-    "default" : 5,
+    "default" : 6,
     "M1" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml',
@@ -1982,7 +1982,7 @@ muonDict = {
 forwardDict = {
     "abbrev" : "F",
     "name" : "forward",
-    "default" : 1,
+    "default" : 3,
     "F1" : {
         2 : [
             'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
