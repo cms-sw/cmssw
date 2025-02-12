@@ -273,9 +273,6 @@ void HLTGenValSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 void HLTGenValSource::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run& run, const edm::EventSetup& setup) {
   iBooker.setCurrentFolder(dirName_);
   iBooker.bookString("HLTGenValInfo", infoString_);
-  if (infoString_ == "{}" || infoString_.empty()) {
-    std::cout << "infostr" << infoString_ << std::endl;
-  }
 
   // booking all histograms
   for (long unsigned int i = 0; i < collectionPath_.size(); i++) {

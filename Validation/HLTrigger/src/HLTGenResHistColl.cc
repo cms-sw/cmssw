@@ -7,11 +7,9 @@ namespace {
     trigger::size_type begin = 0;
     trigger::size_type end = 0;
     for (trigger::size_type collNr = 0; collNr < triggerEvent.sizeCollections(); ++collNr) {
-      //std::cout <<collNr<<" collection label "<<triggerEvent.collectionTag(collNr).label()<<" "<<triggerEvent.collectionKey(collNr)<<std::endl;
       std::string collection = triggerEvent.collectionTag(collNr).label();
       if (collection == collectionName) {
         if (hltProcessName.empty() || triggerEvent.collectionTag(collNr).process() == hltProcessName) {
-          //begin = triggerEvent.collectionKey(collNr);
           if (collNr == 0) {
             begin = 0;
           } else {
@@ -161,7 +159,6 @@ void HLTGenResHistColl::fillHists(const HLTGenValObject& obj, edm::Handle<trigge
       }
     }
   }
-  // if(objType_=="ele") std::cout <<"objType "<<objType_<<" "<<obj.pt()<<" best "<<bestMatch<<std::endl;
   HLTGenValObject objWithTrig(obj);
   if (bestMatch) {
     objWithTrig.setTrigObject(*bestMatch);
