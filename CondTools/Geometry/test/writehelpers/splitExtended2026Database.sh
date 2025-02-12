@@ -1,11 +1,11 @@
 #!/bin/sh
 
-conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2025_mc --destdb GeometryFileExtended2025.db
-conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2025ZeroMaterial_mc --destdb GeometryFileExtended2025ZeroMaterial.db
-conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2025FlatMinus05Percent_mc --destdb GeometryFileExtended2025FlatMinus05Percent.db
-conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2025FlatMinus10Percent_mc --destdb GeometryFileExtended2025FlatMinus10Percent.db
-conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2025FlatPlus05Percent_mc --destdb GeometryFileExtended2025FlatPlus05Percent.db
-conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2025FlatPlus10Percent_mc --destdb GeometryFileExtended2025FlatPlus10Percent.db
+conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2026_mc --destdb GeometryFileExtended2026.db
+conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2026ZeroMaterial_mc --destdb GeometryFileExtended2026ZeroMaterial.db
+conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2026FlatMinus05Percent_mc --destdb GeometryFileExtended2026FlatMinus05Percent.db
+conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2026FlatMinus10Percent_mc --destdb GeometryFileExtended2026FlatMinus10Percent.db
+conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2026FlatPlus05Percent_mc --destdb GeometryFileExtended2026FlatPlus05Percent.db
+conddb --yes --db myfile.db copy XMLFILE_Geometry_TagXX_Extended2026FlatPlus10Percent_mc --destdb GeometryFileExtended2026FlatPlus10Percent.db
 conddb --yes --db myfile.db copy TKRECO_Geometry_TagXX                  --destdb TKRECO_Geometry.db
 conddb --yes --db myfile.db copy TKParameters_Geometry_TagXX            --destdb TKParameters_Geometry.db
 conddb --yes --db myfile.db copy EBRECO_Geometry_TagXX                  --destdb EBRECO_Geometry.db
