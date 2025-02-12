@@ -95,10 +95,8 @@ namespace perftools {
     Records m_records;
   };
 
-  template class perftools::EdmEventSize<perftools::EdmEventMode::Leaves>;
-
-  template class perftools::EdmEventSize<perftools::EdmEventMode::Branches>;
-
+  extern template class perftools::EdmEventSize<perftools::EdmEventMode::Leaves>;
+  extern template class perftools::EdmEventSize<perftools::EdmEventMode::Branches>;
 }  // namespace perftools
 
 #endif  // PerfTools_EdmEventSize_H
