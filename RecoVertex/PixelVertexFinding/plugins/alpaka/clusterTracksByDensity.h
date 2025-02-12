@@ -10,6 +10,7 @@
 #include "DataFormats/VertexSoA/interface/ZVertexSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoVertex/PixelVertexFinding/interface/PixelVertexWorkSpaceLayout.h"
 
@@ -54,12 +55,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
     using Hist = cms::alpakatools::HistoContainer<uint8_t, 256, 16000, 8, uint16_t>;
     auto& hist = alpaka::declareSharedVar<Hist, __COUNTER__>(acc);
-    auto& hws = alpaka::declareSharedVar<Hist::Counter[32], __COUNTER__>(acc);
+    constexpr int warpSize = cms::alpakatools::warpSize;
+    auto& hws = alpaka::declareSharedVar<Hist::Counter[warpSize], __COUNTER__>(acc);
 
     for (auto j : cms::alpakatools::uniform_elements(acc, Hist::totbins())) {
       hist.off[j] = 0;
     }
-    for (auto j : cms::alpakatools::uniform_elements(acc, 32)) {
+    for (auto j : cms::alpakatools::uniform_elements(acc, warpSize)) {
       hws[j] = 0;  // used by prefix scan in hist.finalize()
     }
     alpaka::syncBlockThreads(acc);
