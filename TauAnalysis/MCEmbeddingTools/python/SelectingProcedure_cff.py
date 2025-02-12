@@ -1,17 +1,31 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import (
+    run2_HLTconditions_2016,
+)
+from Configuration.Eras.Modifier_run2_HLTconditions_2017_cff import (
+    run2_HLTconditions_2017,
+)
+from Configuration.Eras.Modifier_run2_HLTconditions_2018_cff import (
+    run2_HLTconditions_2018,
+)
 from Configuration.StandardSequences.PAT_cff import *
-
-from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import patMuons
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
-from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
+from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import patMuons
 
 ## Trigger requirements
 doubleMuonHLTTrigger = cms.EDFilter("TriggerResultsFilter",
     hltResults = cms.InputTag("TriggerResults","","HLT"),
     l1tResults = cms.InputTag(""),
     throw = cms.bool(False),
-    triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v* OR HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*") # from 2017 on (up to Run 3, it seems)
+    triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v*") # unprescaled trigger for 2022,23,24 (see https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT2022, https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT2023, https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT2024)
 )
+
+# change the used triggers for run2
+run2_HLTconditions_2018.toModify(doubleMuonHLTTrigger,
+                                    triggerConditions = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*"])
+
+run2_HLTconditions_2017.toModify(doubleMuonHLTTrigger,
+                                 triggerConditions = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*"])
 
 run2_HLTconditions_2016.toModify(doubleMuonHLTTrigger,
                                  triggerConditions = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*"])

@@ -3,6 +3,7 @@
 
 # Various set of customise functions needed for embedding
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
 from PhysicsTools.NanoAOD.common_cff import ExtVar
 
 ################################ Customizer for skimming ###########################
@@ -234,6 +235,37 @@ to_bemanipulate.append(
     )
 )
 
+# add some collections for run2
+run2_common.toModify(
+    to_bemanipulate,
+    lambda l: l.extend(
+        [
+            module_manipulate(
+                module_name="conversionStepTracks",
+                manipulator_name="Track",
+                steps=["SIM", "MERGE"],
+            ),
+            module_manipulate(
+                module_name="ckfInOutTracksFromConversions",
+                manipulator_name="Track",
+                steps=["SIM", "MERGE"],
+            ),
+            module_manipulate(
+                module_name="electronMergedSeeds",
+                manipulator_name="ElectronSeed",
+                steps=["SIM", "MERGE"],
+            ),
+            module_manipulate(
+                module_name="ecalDrivenElectronSeeds",
+                manipulator_name="EcalDrivenElectronSeed",
+                steps=["SIM", "MERGE"],
+            ),
+            module_manipulate(module_name="hbheprereco", manipulator_name="HBHERecHit"),
+            module_manipulate(module_name="zdcreco", manipulator_name="ZDCRecHit"),
+        ]
+    ),
+)
+
 
 def modify_outputModules(process, keep_drop_list=[], module_veto_list=[]):
     outputModulesList = [key for key, value in process.outputModules.items()]
@@ -324,7 +356,7 @@ def keepCleaned(dataTier):
         "keep *_l1extraParticles_*_" + dataTier,
         "keep TrajectorySeeds_*_*_*",
         "keep recoElectronSeeds_*_*_*",
-        "drop recoIsoDepositedmValueMap_muIsoDepositTk_*_*" ,
+        "drop recoIsoDepositedmValueMap_muIsoDepositTk_*_*",
         "drop recoIsoDepositedmValueMap_muIsoDepositTkDisplaced_*_*",
         "drop *_ctppsProtons_*_*",
         "drop *_ctppsLocalTrackLiteProducer_*_*",
@@ -554,6 +586,7 @@ def customiseGenerator_preHLT(process, changeProcessname=True, reselect=False):
     )
 
     # Disable noise simulation
+    run2_common.toModify(process.mix.digitizers.castor, doNoise = cms.bool(False))
     process.mix.digitizers.ecal.doESNoise = cms.bool(False)
     process.mix.digitizers.ecal.doENoise = cms.bool(False)
 
@@ -608,7 +641,7 @@ def customiseGenerator_HLT(process, changeProcessname=True, reselect=False):
         process.embeddingHltPixelVertices.clone()
     )
 
-    # Replace the original detector state filters in the HLT with a dummy module with 100% efficiency. 
+    # Replace the original detector state filters in the HLT with a dummy module with 100% efficiency.
     # Those original filters have a efficiency of 0% for embedding samples.
     # This is due to the fact that the simulation of the tau decay happens in an empty detector.
     # For more info see https://github.com/cms-sw/cmssw/pull/47299#discussion_r1949023230
