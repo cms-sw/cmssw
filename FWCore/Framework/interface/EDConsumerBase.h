@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_EDConsumerBase_h
 #define FWCore_Framework_EDConsumerBase_h
-// -*- C++ -*-
 //
 // Package:     FWCore/Framework
 // Class  :     EDConsumerBase
@@ -21,14 +21,15 @@
 // system include files
 #include <array>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 #include <array>
 #include <cassert>
 #include <tuple>
+#include <utility>
 
 // user include files
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
@@ -36,7 +37,8 @@
 #include "FWCore/Framework/interface/HCTypeTag.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
@@ -67,8 +69,9 @@ namespace edm {
   class WillGetIfMatch;
 
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+  }  // namespace eventsetup
 
   class EDConsumerBase {
   public:
@@ -103,6 +106,7 @@ namespace edm {
     // ---------- member functions ---------------------------
     void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
     void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&);
+    void releaseMemoryPostLookupSignal();
     void selectInputProcessBlocks(ProductRegistry const& productRegistry,
                                   ProcessBlockHelperBase const& processBlockHelperBase) {
       doSelectInputProcessBlocks(productRegistry, processBlockHelperBase);
@@ -117,10 +121,15 @@ namespace edm {
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                          std::string const& processName) const;
 
+    void esModulesWhoseProductsAreConsumed(
+        std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
+        eventsetup::ESRecordsToProductResolverIndices const&) const;
+
     /// Convert "@currentProcess" in InputTag process names to the actual current process name.
     void convertCurrentProcessAlias(std::string const& processName);
 
-    std::vector<ConsumesInfo> consumesInfo() const;
+    std::vector<ModuleConsumesInfo> moduleConsumesInfos() const;
+    std::vector<ModuleConsumesESInfo> moduleConsumesESInfos(eventsetup::ESRecordsToProductResolverIndices const&) const;
 
     ESResolverIndex const* esGetTokenIndices(edm::Transition iTrans) const {
       if (iTrans < edm::Transition::NumberOfEventSetupTransitions) {
@@ -250,6 +259,31 @@ namespace edm {
 
     virtual void doSelectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&);
 
+    struct ESTokenLookupInfo {
+      eventsetup::EventSetupRecordKey m_record;
+      eventsetup::DataKey m_key;
+      unsigned int m_startOfComponentName;
+    };
+
+    enum { kESLookupInfo, kESResolverIndex };
+
+    using ESTokenLookupInfoContainer = edm::SoATuple<ESTokenLookupInfo, ESResolverIndex>;
+
+    ESTokenLookupInfoContainer const& esTokenLookupInfoContainer() const {
+      return esDataThatCanBeDeletedEarly_->esTokenLookupInfoContainer_;
+    }
+
+    using ESResolverIndexContainer = std::array<std::vector<ESResolverIndex>, kNumberOfEventSetupTransitions>;
+
+    using ConsumesIndexConverter =
+        std::vector<std::pair<ESResolverIndexContainer::size_type, std::vector<ESResolverIndex>::size_type>>;
+
+    // This can be used to convert from an index used to access esTokenLookupInfoContainer_
+    // into the 2 indexes needed to access esItemsToGetFromTransition_
+    ConsumesIndexConverter const& consumesIndexConverter() const {
+      return esDataThatCanBeDeletedEarly_->consumesIndexConverter_;
+    }
+
     // ---------- member data --------------------------------
 
     struct TokenLookupInfo {
@@ -282,27 +316,17 @@ namespace edm {
 
     std::array<std::vector<ProductResolverIndexAndSkipBit>, edm::NumBranchTypes> itemsToGetFromBranch_;
 
-    struct ESTokenLookupInfo {
-      eventsetup::EventSetupRecordKey m_record;
-      eventsetup::DataKey m_key;
-      unsigned int m_startOfComponentName;
+    struct ESDataThatCanBeDeletedEarly {
+      ESTokenLookupInfoContainer esTokenLookupInfoContainer_;
+      ConsumesIndexConverter consumesIndexConverter_;
     };
 
-    // TODO We would like to be able to access m_esTokenInfo from the
-    // index in the token, but this is currently not possible. One idea
-    // for this is to order the entries in m_esToken so that all the ones
-    // for transition 0 come first, then the ones for for transition 1
-    // and so on for all the transitions. Within a transition, the
-    // entries would be in the same order in m_esTokenInfo and
-    // esItemsToGetFromTransition_. This is something for future
-    // development and might require a change to SoATuple to support
-    // inserts in the middle of the data structure.
-    enum { kESLookupInfo, kESResolverIndex };
-    edm::SoATuple<ESTokenLookupInfo, ESResolverIndex> m_esTokenInfo;
-    std::array<std::vector<ESResolverIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
-        esItemsToGetFromTransition_;
-    std::array<std::vector<ESRecordIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
-        esRecordsToGetFromTransition_;
+    std::unique_ptr<ESDataThatCanBeDeletedEarly> esDataThatCanBeDeletedEarly_;
+
+    ESResolverIndexContainer esItemsToGetFromTransition_;
+
+    std::array<std::vector<ESRecordIndex>, kNumberOfEventSetupTransitions> esRecordsToGetFromTransition_;
+
     bool frozen_;
     bool containsCurrentProcessAlias_;
   };

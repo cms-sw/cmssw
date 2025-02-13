@@ -94,6 +94,8 @@ namespace edm {
 
     void resetAll();
 
+    void releaseMemoryPostLookupSignal();
+
   private:
     WorkerRegistry workerReg_;
     ExceptionToActionTable const* actionTable_;

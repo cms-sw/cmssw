@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef FWCore_Utilities_ESGetToken_h
 #define FWCore_Utilities_ESGetToken_h
-// -*- C++ -*-
 //
 // Package:     FWCore/Utilities
 // Class  :     ESGetToken
 //
-/**\class ESGetToken ESGetToken.h "FWCore/Utilities/interface/ESGetToken.h"
+/**\class edm::ESGetToken
 
  Description: A token used to get data from the event setup system
 
@@ -71,6 +71,8 @@ namespace edm {
 
     constexpr char const* productLabel() const noexcept { return m_productLabel; }
     char const* m_productLabel{nullptr};
+    // Note that for ESProducers, m_transitionID is actually a produceMethodID
+    // (count of the setWhatProduced methods in the ESProducer)
     unsigned int m_transitionID{std::numeric_limits<unsigned int>::max()};
     ESTokenIndex m_index{std::numeric_limits<int>::max()};
   };

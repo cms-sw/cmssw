@@ -22,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
