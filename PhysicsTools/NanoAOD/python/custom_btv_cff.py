@@ -54,6 +54,7 @@ def update_jets_AK4(process):
                              'L2L3Residual']), 'None'),
         btagDiscriminators=_btagDiscriminators,
         postfix='PuppiWithDeepInfo',
+        btagInfos=["pfUnifiedParticleTransformerAK4TagInfos"],
     )
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.jetPuppiCorrFactorsNano.src = "selectedUpdatedPatJetsPuppiWithDeepInfo"
@@ -61,6 +62,7 @@ def update_jets_AK4(process):
     
     
     process.updatedPatJetsTransientCorrectedPuppiWithDeepInfo.tagInfoSources.append(cms.InputTag("pfDeepFlavourTagInfosPuppiWithDeepInfo"))
+    process.updatedPatJetsTransientCorrectedPuppiWithDeepInfo.tagInfoSources.append(cms.InputTag("pfUnifiedParticleTransformerAK4TagInfosPuppiWithDeepInfo"))
     process.updatedPatJetsTransientCorrectedPuppiWithDeepInfo.addTagInfos = cms.bool(True)
 
     
@@ -507,9 +509,9 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
     # AK4
     if addAK4:
         if scheme == "btvSF":
-            _n_cpf = 3 
-            _n_npf = 3
-            _n_sv = 4
+            _n_cpf = 2
+            _n_npf = 2
+            _n_sv = 2
         elif scheme == "DeepJet":
             _n_cpf = 25 
             _n_npf = 25
@@ -538,14 +540,14 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
             ))
     
          # from Run3 onwards, always set storeAK4Truth to True for MC
-        process.customAK4ConstituentsForDeepJetTable = cms.EDProducer("PatJetDeepJetTableProducer",
+        process.customAK4ConstituentsForJetTaggerTable = cms.EDProducer("PatJetTaggerTableProducer",
                                                                         jets = cms.InputTag("linkedObjects","jets"),
                                                                         n_cpf=cms.uint32(_n_cpf),
                                                                         n_npf=cms.uint32(_n_npf),
                                                                         n_sv=cms.uint32(_n_sv)
                                                                       )
         process.customizeJetTask.add(process.customJetExtTable)
-        process.customizeJetTask.add(process.customAK4ConstituentsForDeepJetTable)
+        process.customizeJetTask.add(process.customAK4ConstituentsForJetTaggerTable)
     # AK8
     if addAK8:
         process = update_jets_AK8(process)
@@ -646,6 +648,12 @@ def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
                                                             trkPhi = Var("?hasTrackDetails()?pseudoTrack().phi():-1", float, doc="track phi", precision=12),
                                                          )
                                     )
+    kwargs = { }
+    import os
+    sv_sort = os.getenv('CMSSW_NANOAOD_SV_SORT')
+    if sv_sort is not None: kwargs['sv_sort'] = cms.untracked.string(sv_sort)
+    pf_sort = os.getenv('CMSSW_NANOAOD_PF_SORT')
+    if pf_sort is not None: kwargs['pf_sort'] = cms.untracked.string(pf_sort)
     process.customAK8ConstituentsTable = cms.EDProducer("PatJetConstituentTableProducer",
                                                         candidates = candInput,
                                                         jets = cms.InputTag("finalJetsAK8"),
@@ -654,6 +662,7 @@ def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
                                                         idx_name = cms.string("pFCandsIdx"),
                                                         nameSV = cms.string("FatJetSVs"),
                                                         idx_nameSV = cms.string("sVIdx"),
+                                                        **kwargs,
                                                         )
     process.customAK4ConstituentsTable = cms.EDProducer("PatJetConstituentTableProducer",
                                                         candidates = candInput,
@@ -663,6 +672,7 @@ def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
                                                         idx_name = cms.string("pFCandsIdx"),
                                                         nameSV = cms.string("JetSVs"),
                                                         idx_nameSV = cms.string("sVIdx"),
+                                                        **kwargs,
                                                         )
     process.customizedPFCandsTask.add(process.customConstituentsExtTable)
 
