@@ -17,16 +17,17 @@ doubleMuonHLTTrigger = cms.EDFilter("TriggerResultsFilter",
     hltResults = cms.InputTag("TriggerResults","","HLT"),
     l1tResults = cms.InputTag(""),
     throw = cms.bool(False),
-    triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v*") # unprescaled trigger for 2022,23,24 (see https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT2022, https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT2023, https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT2024)
+    triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v*") # unprescaled trigger for 2018,22,23,24 (see https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT2018, https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT2022, https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT2023, https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLT2024)
 )
 
-# change the used triggers for run2
-run2_HLTconditions_2018.toModify(doubleMuonHLTTrigger,
-                                    triggerConditions = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*"])
-
+#### change the used triggers for run2 ####
+# Use two different triggers as the Mass8 one has a higer luminosity in 2017 according to https://cmshltinfo.app.cern.ch/summary?search=HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass&year=2017&paths=true&prescaled=true&stream-types=Physics
+# probably because he was already active in earlier runs than the Mass3p8 trigger
+# Both are unprescaled
 run2_HLTconditions_2017.toModify(doubleMuonHLTTrigger,
                                  triggerConditions = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*"])
 
+# Both are unprescaled according to https://cmshltinfo.app.cern.ch/summary?search=HLT_Mu17_TrkIsoVVL_&year=2016&paths=true&prescaled=true&stream-types=Physics
 run2_HLTconditions_2016.toModify(doubleMuonHLTTrigger,
                                  triggerConditions = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*"])
 
