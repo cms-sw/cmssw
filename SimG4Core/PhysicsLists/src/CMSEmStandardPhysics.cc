@@ -73,6 +73,11 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
   fG4HepEmActive = p.getParameter<bool>("G4HepEmActive");
+  std::string type = p.getParameter<std::string>("type");
+  if (type == "SimG4Core/Physics/FTFP_BERT_EMH") {
+    edm::LogVerbatim("PhysicsList") << "EMM -> EMH: Forcing usage of G4HepEm";
+    fG4HepEmActive = true;
+  }
   if (fG4HepEmActive) {
     // At the moment, G4HepEm supports only one configuration of MSC, so use
     // the most generic parameters everywhere.
@@ -275,6 +280,9 @@ void CMSEmStandardPhysics::ConstructProcess() {
   ph->RegisterProcess(ss, particle);
 
   if (fG4HepEmActive) {
+    if (verboseLevel > 0) {
+      edm::LogVerbatim("PhysicsList") << "G4HepEm is active, registering G4HepEmTrackingManager";
+    }
     auto* hepEmTM = new CMSHepEmTrackingManager(highEnergyLimit);
     G4Electron::Electron()->SetTrackingManager(hepEmTM);
     G4Positron::Positron()->SetTrackingManager(hepEmTM);

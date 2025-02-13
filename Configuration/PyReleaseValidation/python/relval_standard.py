@@ -587,6 +587,8 @@ for e_n,era in enumerate(era_mask_2024):
         suff = "ZB_" if "ZeroBias" in step_name else ""
         workflows[wf_number] = ['',[step_name,'HLTDR3_2024','RECONANORUN3_' + suff + 'reHLT_2024','HARVESTRUN3_' + suff + '2024']]
 
+## special HLT scouting workflow (with hardcoded private input file from ScoutingPFMonitor skimmed to remove all events without scouting)
+workflows[145.415] = ['',['HLTDR3_ScoutingPFMonitor_2024','RECONANORUN3_ScoutingPFMonitor_reHLT_2024','HARVESTRUN3_ScoutingPFMonitor_2024']]
 ##################################################################
 
 ### fastsim ###
