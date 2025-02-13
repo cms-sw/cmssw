@@ -129,7 +129,7 @@ namespace l1t {
   // Global Muon Trigger
 
   struct L1TGT_GMT_PromptDisplacedMuon : public L1TGT_Common3Vector<64> {
-    ap_uint<5> z0;
+    ap_int<5> z0;
     ap_int<7> d0;
     ap_uint<1> charge;
     ap_uint<4> qualityScore;
