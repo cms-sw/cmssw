@@ -15,10 +15,11 @@
       <use name="DataFormats/Common"/>
       <use name="DataFormats/TestObjects"/>
 </library>
-  
-  <library file="ThinningThingProducer.cc,SlimmingThingProducer.cc,WhatsIt.cc,GadgetRcd.cc,Doodad.cc,WhatsItESProducer.cc,WhatsItAnalyzer.cc,WhatsItWatcherAnalyzer.cc,DoodadESProducer.cc,DoodadEDLooper.cc,DoodadESSource.cc" name="FWCoreIntegrationTestWithWhatsItDoodad">
+
+  <library file="ThinningThingProducer.cc,SlimmingThingProducer.cc,WhatsIt.cc,GadgetRcd.cc,Doodad.cc,WhatsItESProducer.cc,WhatsItAnalyzer.cc,WhatsItWatcherAnalyzer.cc,DoodadESProducer.cc,DoodadEDLooper.cc,DoodadESSource.cc,ConsumeWhatsIt.cc,MayConsumeWhatsIt.cc,ConsumeIOVTestInfoAnalyzer.cc" name="FWCoreIntegrationTestWithWhatsItDoodad">
       <flags EDM_PLUGIN="1"/>
       <use name="FWCore/Framework"/>
+      <use name="FWCore/Integration"/>
       <use name="DataFormats/TestObjects"/>
 </library>
 
@@ -137,5 +138,5 @@
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
   </library>
-  
+
 </environment>

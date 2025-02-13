@@ -70,26 +70,33 @@ TEST_CASE("test ESRecordsToProductResolverIndices", "[ESRecordsToProductResolver
         {"three", "three", false, false},
         {"four", "four", false, false},
     };
-    std::vector<
-        std::pair<EventSetupRecordKey, std::pair<std::vector<DataKey>, std::vector<ComponentDescription const*> > > >
+    std::vector<std::pair<EventSetupRecordKey, std::pair<std::vector<DataKey>, std::vector<ComponentDescription const*>>>>
         orderedOfKeys = {{records[0], {{dataKeys[0], dataKeys[1], dataKeys[2]}, {p + 1, p + 2, p + 3}}},
                          {records[1], {{}, {}}},
                          {records[2], {{dataKeys[1]}, {p + 4}}}};
+    std::vector<std::vector<unsigned int>> produceMethodIDs = {{21, 22, 23}, {}, {24}};
 
     unsigned int index = 0;
     for (auto const& pr : orderedOfKeys) {
-      REQUIRE(index + 1 == r2pi.dataKeysInRecord(index, pr.first, pr.second.first, pr.second.second));
+      REQUIRE(index + 1 ==
+              r2pi.dataKeysInRecord(index, pr.first, pr.second.first, pr.second.second, produceMethodIDs[index]));
       ++index;
     }
+    auto idIter = produceMethodIDs.begin();
     for (auto const& pr : orderedOfKeys) {
       index = 0;
       auto it = pr.second.second.begin();
       for (auto const& dk : pr.second.first) {
         REQUIRE(index == (unsigned)r2pi.indexInRecord(pr.first, dk).value());
         REQUIRE(*it == r2pi.component(pr.first, dk));
+        auto [componentDescription, produceMethodID] =
+            r2pi.componentAndProduceMethodID(pr.first, edm::ESResolverIndex(index));
+        REQUIRE(*it == componentDescription);
+        REQUIRE((*idIter)[index] == produceMethodID);
         ++index;
         ++it;
       }
+      ++idIter;
     }
     {
       auto v = ESTagGetterTester::info(r2pi.makeTagGetter(records[0], dataKeys[0].type()));

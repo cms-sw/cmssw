@@ -250,7 +250,11 @@ namespace {
       std::vector<DataKey> dataKeys;
       dummyRecordImpl.fillRegisteredDataKeys(dataKeys);
 
-      (void)resolverIndices.dataKeysInRecord(0, iKey, dataKeys, dummyRecordImpl.componentsForRegisteredDataKeys());
+      (void)resolverIndices.dataKeysInRecord(0,
+                                             iKey,
+                                             dataKeys,
+                                             dummyRecordImpl.componentsForRegisteredDataKeys(),
+                                             dummyRecordImpl.produceMethodIDsForRegisteredDataKeys());
 
       iConsumer.updateLookup(resolverIndices);
       iConsumer.prefetch(dummyRecordImpl);

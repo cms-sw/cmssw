@@ -80,6 +80,12 @@ namespace edm {
     }
   }
 
+  void WorkerManager::releaseMemoryPostLookupSignal() {
+    for (auto& worker : allWorkers_) {
+      worker->releaseMemoryPostLookupSignal();
+    }
+  }
+
   void WorkerManager::beginJob(ProductRegistry const& iRegistry,
                                eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                                ProcessBlockHelperBase const& processBlockHelperBase,

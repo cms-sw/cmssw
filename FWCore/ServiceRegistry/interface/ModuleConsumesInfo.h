@@ -1,13 +1,13 @@
-#ifndef FWCore_ServiceRegistry_ConsumesInfo_h
-#define FWCore_ServiceRegistry_ConsumesInfo_h
+#ifndef FWCore_ServiceRegistry_ModuleConsumesInfo_h
+#define FWCore_ServiceRegistry_ModuleConsumesInfo_h
 
-/**\class edm::ConsumesInfo
+/**\class edm::ModuleConsumesInfo
 
    Description: Contains information about a product
    a module will get (consume).
 
    Usage: These are typically returned by the PathsAndConsumesOfModules
-   object obtained in the PreBeginJob callback for a service.
+   object available in selected service callbacks.
 */
 //
 // Original Author: W. David Dagenhart
@@ -20,16 +20,16 @@
 #include <string_view>
 
 namespace edm {
-  class ConsumesInfo {
+  class ModuleConsumesInfo {
   public:
-    ConsumesInfo(TypeID const& iType,
-                 char const* iLabel,
-                 char const* iInstance,
-                 char const* iProcess,
-                 BranchType iBranchType,
-                 KindOfType iKindOfType,
-                 bool iAlwaysGets,
-                 bool iSkipCurrentProcess_);
+    ModuleConsumesInfo(TypeID const& iType,
+                       char const* iLabel,
+                       char const* iInstance,
+                       char const* iProcess,
+                       BranchType iBranchType,
+                       KindOfType iKindOfType,
+                       bool iAlwaysGets,
+                       bool iSkipCurrentProcess_);
 
     TypeID const& type() const { return type_; }
     std::string_view label() const { return label_; }

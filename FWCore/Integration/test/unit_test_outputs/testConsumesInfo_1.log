@@ -4,6 +4,7 @@ paths:
   p2
   p3
   p11
+  testEventSetupPath
 end paths:
   e
   p1ep2
@@ -31,13 +32,24 @@ modules on path p3:
   intProducerD
   intProducerE
 modules on path p11:
-modules on end path e:
+  --- there are no modules on this path ---
+modules on path testEventSetupPath:
+  testReadLumiESSource
+  testReadLumiESSource1
+  testReadLumiESSource2
+  testReadLumiESSource3
+  concurrentIOVAnalyzer
+  WhatsItAnalyzer
+  consumeIOVTestInfoAnalyzer
+  consumeIOVTestInfoAnalyzer2
+modules on endpath e:
   testManyConsumingProducer
   out
-modules on end path p1ep2:
+modules on endpath p1ep2:
+  --- there are no modules on this endpath ---
 All modules and modules in the current process whose products they consume:
 (This does not include modules from previous processes or the source)
-(Exclusively considers Event products, not Run, Lumi, or ProcessBlock products)
+(Exclusively considers consumed Event and EventSetup products, not Run, Lumi, or ProcessBlock products)
   IntProducer/'intProducerA'
   IntProducer/'intProducerF'
   IntProducer/'intProducerG'
@@ -47,18 +59,23 @@ All modules and modules in the current process whose products they consume:
   IntVectorProducer/'intVectorProducer'
   IntProducer/'intProducer'
   TestFindProduct/'a1'
-  TestFindProduct/'a2' consumes products from these modules:
-    IntProducer/'intProducerA'
-  TestFindProduct/'a3' consumes products from these modules:
-    IntProducer/'intProducerA'
-  TestFindProduct/'a4' consumes products from these modules:
-    IntProducer/'intProducerA'
+  TestFindProduct/'a2'
+    consumes products from these modules:
+      IntProducer/'intProducerA'
+  TestFindProduct/'a3'
+    consumes products from these modules:
+      IntProducer/'intProducerA'
+  TestFindProduct/'a4'
+    consumes products from these modules:
+      IntProducer/'intProducerA'
   TestContextAnalyzer/'test'
-  TestFindProduct/'testView1' consumes products from these modules:
-    IntVectorProducer/'intVectorProducer'
+  TestFindProduct/'testView1'
+    consumes products from these modules:
+      IntVectorProducer/'intVectorProducer'
   IntProducer/'testStreamingProducer'
-  ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes products from these modules:
-    IntProducer/'testStreamingProducer'
+  ConsumingStreamAnalyzer/'testStreamingAnalyzer'
+    consumes products from these modules:
+      IntProducer/'testStreamingProducer'
   IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
   IntProducerEndProcessBlock/'intProducerEndProcessBlock'
   TestFindProduct/'processBlockTest1'
@@ -66,29 +83,100 @@ All modules and modules in the current process whose products they consume:
   IntProducer/'intProducerC'
   IntProducer/'intProducerD'
   IntProducer/'intProducerE'
-  ConsumingIntProducer/'testManyConsumingProducer' consumes products from these modules:
-    TriggerResultInserter/'TriggerResults'
-  PoolOutputModule/'out' consumes products from these modules:
-    TriggerResultInserter/'TriggerResults'
-    IntProducer/'intProducerA'
-    IntProducer/'intProducer'
-    IntProducer/'intProducerU'
-    ConsumingIntProducer/'testManyConsumingProducer'
-    IntProducer/'testStreamingProducer'
-    IntVectorProducer/'intVectorProducer'
+  RunLumiESAnalyzer/'testReadLumiESSource'
+    consumes products during Event from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+    consumes products during BeginLuminosityBlock from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+    consumes products during EndLuminosityBlock from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+    consumes products during BeginRun from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+    consumes products during EndRun from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+  RunLumiESAnalyzer/'testReadLumiESSource1'
+    consumes products from these modules:
+      IntProducer/'intProducer'
+    consumes products during Event from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+    consumes products during BeginLuminosityBlock from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+    consumes products during EndLuminosityBlock from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+    consumes products during BeginRun from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+    consumes products during EndRun from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+  RunLumiESAnalyzer/'testReadLumiESSource2'
+    consumes products during Event from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+  RunLumiESAnalyzer/'testReadLumiESSource3'
+    consumes products during Event from these EventSetup modules:
+      RunLumiESSource/'runLumiESSource' ESSource
+  ConcurrentIOVAnalyzer/'concurrentIOVAnalyzer'
+    consumes products during Event from these EventSetup modules:
+      ConcurrentIOVESSource/'concurrentIOVESSource' ESSource
+      ConcurrentIOVESProducer/'concurrentIOVESProducer' ESProducer
+  WhatsItAnalyzer/'WhatsItAnalyzer'
+    consumes products during Event from these EventSetup modules:
+      WhatsItESProducer/'' ESProducer
+  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer'
+    consumes products during Event from these EventSetup modules:
+      MayConsumeWhatsIt/'mayConsumeWhatsIt' ESProducer
+  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer2'
+    consumes products during Event from these EventSetup modules:
+      MayConsumeWhatsIt/'mayConsumeWhatsIt' ESProducer
+  ConsumingIntProducer/'testManyConsumingProducer'
+    consumes products from these modules:
+      TriggerResultInserter/'TriggerResults'
+  PoolOutputModule/'out'
+    consumes products from these modules:
+      TriggerResultInserter/'TriggerResults'
+      IntProducer/'intProducerA'
+      IntProducer/'intProducer'
+      IntProducer/'intProducerU'
+      ConsumingIntProducer/'testManyConsumingProducer'
+      IntProducer/'testStreamingProducer'
+      IntVectorProducer/'intVectorProducer'
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'p'
   PathStatusInserter/'p2'
   PathStatusInserter/'p3'
   PathStatusInserter/'p11'
+  PathStatusInserter/'testEventSetupPath'
   EndPathStatusInserter/'e'
   EndPathStatusInserter/'p1ep2'
+All EventSetup modules:
+  RunLumiESSource/'runLumiESSource'
+  ConcurrentIOVESProducer/'concurrentIOVESProducer'
+    consumes products from these EventSetup modules:
+      ConcurrentIOVESSource/'concurrentIOVESSource'
+  ConcurrentIOVESSource/'concurrentIOVESSource'
+  ConsumeWhatsIt/'consumeWhatsIt'
+    consumes products from these EventSetup modules:
+      DoodadESSource/'DoodadESSource'
+      WhatsItESProducer/'WhatsItESProducer'
+  MayConsumeWhatsIt/'mayConsumeWhatsIt'
+    consumes products from these EventSetup modules:
+      DoodadESSource/'DoodadESSource'
+      WhatsItESProducer/'WhatsItESProducer'
+      ConsumeWhatsIt/'consumeWhatsIt'
+  WhatsItESProducer/'WhatsItESProducer'
+    consumes products from these EventSetup modules:
+      DoodadESSource/'DoodadESSource'
+  DoodadESSource/'DoodadESSource'
 All modules (listed by class and label) and all their consumed products.
 Consumed products are listed by type, label, instance, process.
 For products not in the event, 'processBlock', 'run' or 'lumi' is added to indicate the TTree they are from.
 For products that are declared with mayConsume, 'may consume' is added.
 For products consumed for Views, 'element type' is added
 For products only read from previous processes, 'skip current process' is added
+Consumed EventSetup products are listed by record type, data type, product label,
+transition of request, whether module is ESSource, ESProducer, or ESProducerLooper,
+and the module type and module label of the EventSetup module producing the product.
+Next is the produceMethodID (counts setWhatProduced calls in ESProducers, otherwise 0).
+If the requested module label was specified, then there is a remark in parentheses
+stating whether it matched the actual module label of the producer.
   IntProducer/'intProducerA'
   IntProducer/'intProducerF'
   IntProducer/'intProducerG'
@@ -97,87 +185,253 @@ For products only read from previous processes, 'skip current process' is added
   IntProducer/'intProducerU'
   IntVectorProducer/'intVectorProducer'
   IntProducer/'intProducer'
-  TestFindProduct/'a1' consumes:
-    edmtest::IntProduct 'source' '' ''
-    edmtest::IntProduct 'source' '' '', skip current process
-    edmtest::IntProduct 'intProducer' '' '', skip current process
-    edmtest::IntProduct 'intProducerU' '' '', skip current process
-  TestFindProduct/'a2' consumes:
-    edmtest::IntProduct 'intProducerA' '' ''
-  TestFindProduct/'a3' consumes:
-    edmtest::IntProduct 'aliasForInt' '' ''
-  TestFindProduct/'a4' consumes:
-    edmtest::IntProduct 'intProducerA' '' 'PROD1'
+  TestFindProduct/'a1'
+    consumes:
+      edmtest::IntProduct 'source' '' ''
+      edmtest::IntProduct 'source' '' '', skip current process
+      edmtest::IntProduct 'intProducer' '' '', skip current process
+      edmtest::IntProduct 'intProducerU' '' '', skip current process
+  TestFindProduct/'a2'
+    consumes:
+      edmtest::IntProduct 'intProducerA' '' ''
+  TestFindProduct/'a3'
+    consumes:
+      edmtest::IntProduct 'aliasForInt' '' ''
+  TestFindProduct/'a4'
+    consumes:
+      edmtest::IntProduct 'intProducerA' '' 'PROD1'
   TestContextAnalyzer/'test'
-  TestFindProduct/'testView1' consumes:
-    int 'intVectorProducer' '' 'PROD1', element type
+  TestFindProduct/'testView1'
+    consumes:
+      int 'intVectorProducer' '' 'PROD1', element type
   IntProducer/'testStreamingProducer'
-  ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes:
-    edmtest::IntProduct 'testStreamingProducer' '' '', may consume
+  ConsumingStreamAnalyzer/'testStreamingAnalyzer'
+    consumes:
+      edmtest::IntProduct 'testStreamingProducer' '' '', may consume
   IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
   IntProducerEndProcessBlock/'intProducerEndProcessBlock'
-  TestFindProduct/'processBlockTest1' consumes:
-    edmtest::IntProduct 'intProducerBeginProcessBlock' '' '', processBlock
-    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' '' '', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
+  TestFindProduct/'processBlockTest1'
+    consumes:
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' '', processBlock
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' '' '', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
   IntProducer/'intProducerB'
   IntProducer/'intProducerC'
   IntProducer/'intProducerD'
   IntProducer/'intProducerE'
-  ConsumingIntProducer/'testManyConsumingProducer' consumes:
-    edm::TriggerResults 'TriggerResults' '' ''
-    edm::TriggerResults 'TriggerResults' '' 'PROD1'
-  PoolOutputModule/'out' consumes:
-    edm::TriggerResults 'TriggerResults' '' 'PROD1'
-    edmtest::IntProduct 'aliasForInt' '' 'PROD1'
-    edmtest::IntProduct 'intProducer' '' 'PROD1'
-    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerU' '' 'PROD1'
-    edmtest::IntProduct 'source' '' 'PROD1'
-    edmtest::IntProduct 'testManyConsumingProducer' '' 'PROD1'
-    edmtest::IntProduct 'testStreamingProducer' '' 'PROD1'
-    std::vector<int> 'intVectorProducer' '' 'PROD1'
+  RunLumiESAnalyzer/'testReadLumiESSource'
+    consumes from EventSetup:
+      ESTestRecordC edmtest::IOVTestInfo '' Event ESSource RunLumiESSource/'runLumiESSource' 0
+      ESTestRecordC edmtest::IOVTestInfo 'nonEmptyLabel' Event ESSource RunLumiESSource/'runLumiESSource' 1
+      ESTestRecordC edmtest::IOVTestInfo '' BeginRun ESSource RunLumiESSource/'runLumiESSource' 0
+      ESTestRecordC edmtest::IOVTestInfo '' BeginLuminosityBlock ESSource RunLumiESSource/'runLumiESSource' 0
+      ESTestRecordC edmtest::IOVTestInfo '' EndLuminosityBlock ESSource RunLumiESSource/'runLumiESSource' 0
+      ESTestRecordC edmtest::IOVTestInfo '' EndRun ESSource RunLumiESSource/'runLumiESSource' 0
+  RunLumiESAnalyzer/'testReadLumiESSource1'
+    consumes:
+      edmtest::IntProduct 'intProducer' '' ''
+    consumes from EventSetup:
+      ESTestRecordC edmtest::IOVTestInfo '' Event ESSource RunLumiESSource/'runLumiESSource' 0 (module label matches requested label)
+      ESTestRecordC edmtest::IOVTestInfo 'nonEmptyLabel' Event ESSource RunLumiESSource/'runLumiESSource' 1
+      ESTestRecordC edmtest::IOVTestInfo '' BeginRun ESSource RunLumiESSource/'runLumiESSource' 0 (module label matches requested label)
+      ESTestRecordC edmtest::IOVTestInfo '' BeginLuminosityBlock ESSource RunLumiESSource/'runLumiESSource' 0 (module label matches requested label)
+      ESTestRecordC edmtest::IOVTestInfo '' EndLuminosityBlock ESSource RunLumiESSource/'runLumiESSource' 0 (module label matches requested label)
+      ESTestRecordC edmtest::IOVTestInfo '' EndRun ESSource RunLumiESSource/'runLumiESSource' 0 (module label matches requested label)
+  RunLumiESAnalyzer/'testReadLumiESSource2'
+    consumes from EventSetup:
+      ESTestRecordC edmtest::IOVTestInfo 'productLabelThatDoesNotExist' Event, No EventSetup module configured to produce this data.
+      ESTestRecordC edmtest::IOVTestInfo 'nonEmptyLabel' Event ESSource RunLumiESSource/'runLumiESSource' 1
+      ESTestRecordC edmtest::IOVTestInfo 'productLabelThatDoesNotExist' BeginRun, No EventSetup module configured to produce this data.
+      ESTestRecordC edmtest::IOVTestInfo 'productLabelThatDoesNotExist' BeginLuminosityBlock, No EventSetup module configured to produce this data.
+      ESTestRecordC edmtest::IOVTestInfo 'productLabelThatDoesNotExist' EndLuminosityBlock, No EventSetup module configured to produce this data.
+      ESTestRecordC edmtest::IOVTestInfo 'productLabelThatDoesNotExist' EndRun, No EventSetup module configured to produce this data.
+  RunLumiESAnalyzer/'testReadLumiESSource3'
+    consumes from EventSetup:
+      ESTestRecordC edmtest::IOVTestInfo '' Event, EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
+      ESTestRecordC edmtest::IOVTestInfo 'nonEmptyLabel' Event ESSource RunLumiESSource/'runLumiESSource' 1
+      ESTestRecordC edmtest::IOVTestInfo '' BeginRun, EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
+      ESTestRecordC edmtest::IOVTestInfo '' BeginLuminosityBlock, EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
+      ESTestRecordC edmtest::IOVTestInfo '' EndLuminosityBlock, EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
+      ESTestRecordC edmtest::IOVTestInfo '' EndRun, EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
+  ConcurrentIOVAnalyzer/'concurrentIOVAnalyzer'
+    consumes from EventSetup:
+      ESTestRecordI edmtest::IOVTestInfo '' Event ESSource ConcurrentIOVESSource/'concurrentIOVESSource' 0
+      ESTestRecordI edmtest::IOVTestInfo 'fromESProducer' Event ESProducer ConcurrentIOVESProducer/'concurrentIOVESProducer' 0
+  WhatsItAnalyzer/'WhatsItAnalyzer'
+    consumes from EventSetup:
+      GadgetRcd edmtest::WhatsIt '' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 0
+      GadgetRcd edmtest::WhatsIt 'A' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 1
+      GadgetRcd edmtest::WhatsIt 'B' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 2
+      GadgetRcd edmtest::WhatsIt 'C' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 3
+      GadgetRcd edmtest::WhatsIt 'D' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 4
+  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer'
+    consumes from EventSetup:
+      GadgetRcd edmtest::IOVTestInfo 'DependsOnMayConsume' Event ESProducer MayConsumeWhatsIt/'mayConsumeWhatsIt' 0
+  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer2'
+    consumes from EventSetup:
+      GadgetRcd edmtest::IOVTestInfo 'DependsOnMayConsume2' Event ESProducer MayConsumeWhatsIt/'mayConsumeWhatsIt' 1
+  ConsumingIntProducer/'testManyConsumingProducer'
+    consumes:
+      edm::TriggerResults 'TriggerResults' '' ''
+      edm::TriggerResults 'TriggerResults' '' 'PROD1'
+  PoolOutputModule/'out'
+    consumes:
+      edm::TriggerResults 'TriggerResults' '' 'PROD1'
+      edmtest::IntProduct 'aliasForInt' '' 'PROD1'
+      edmtest::IntProduct 'intProducer' '' 'PROD1'
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerU' '' 'PROD1'
+      edmtest::IntProduct 'source' '' 'PROD1'
+      edmtest::IntProduct 'testManyConsumingProducer' '' 'PROD1'
+      edmtest::IntProduct 'testStreamingProducer' '' 'PROD1'
+      std::vector<int> 'intVectorProducer' '' 'PROD1'
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'p'
   PathStatusInserter/'p2'
   PathStatusInserter/'p3'
   PathStatusInserter/'p11'
+  PathStatusInserter/'testEventSetupPath'
   EndPathStatusInserter/'e'
   EndPathStatusInserter/'p1ep2'
+All EventSetup modules (listed by class and label) and all their consumed products.
+These modules can only consume EventSetup products. These are listed by record type,
+data type, product label, whether the module is ESSource, ESProducer, or ESProducerLooper,
+and the module type and module label of the EventSetup module producing the product.
+Next is the produceMethodID (counts setWhatProduced calls in ESProducers, otherwise 0).
+If the requested module label was specified, then there is a remark in parentheses
+stating whether it matched the actual module label of the producer.
+  RunLumiESSource/'runLumiESSource'
+    Consumed products for consumer produce method: 0
+      --- no products consumed ---
+    Consumed products for consumer produce method: 1
+      --- no products consumed ---
+  ConcurrentIOVESProducer/'concurrentIOVESProducer'
+    Consumed products for consumer produce method: 0
+      ESTestRecordI edmtest::IOVTestInfo '' ESSource ConcurrentIOVESSource/'concurrentIOVESSource' 0
+  ConcurrentIOVESSource/'concurrentIOVESSource'
+    Consumed products for consumer produce method: 0
+      --- no products consumed ---
+  ConsumeWhatsIt/'consumeWhatsIt'
+    Consumed products for consumer produce method: 0
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+      GadgetRcd edmtest::WhatsIt '' ESProducer WhatsItESProducer/'WhatsItESProducer' 0
+      GadgetRcd edmtest::WhatsIt 'A' ESProducer WhatsItESProducer/'WhatsItESProducer' 1
+      GadgetRcd edmtest::WhatsIt 'B' ESProducer WhatsItESProducer/'WhatsItESProducer' 2
+      GadgetRcd edmtest::WhatsIt 'C' ESProducer WhatsItESProducer/'WhatsItESProducer' 3
+      GadgetRcd edmtest::WhatsIt 'D' ESProducer WhatsItESProducer/'WhatsItESProducer' 4
+    Consumed products for consumer produce method: 1
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+      GadgetRcd edmtest::WhatsIt '' ESProducer WhatsItESProducer/'WhatsItESProducer' 0
+      GadgetRcd edmtest::WhatsIt 'A' ESProducer WhatsItESProducer/'WhatsItESProducer' 1
+      GadgetRcd edmtest::WhatsIt 'B' ESProducer WhatsItESProducer/'WhatsItESProducer' 2
+      GadgetRcd edmtest::WhatsIt 'C' ESProducer WhatsItESProducer/'WhatsItESProducer' 3
+      GadgetRcd edmtest::WhatsIt 'D' ESProducer WhatsItESProducer/'WhatsItESProducer' 4
+    Consumed products for consumer produce method: 2
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+      GadgetRcd edmtest::WhatsIt '' ESProducer WhatsItESProducer/'WhatsItESProducer' 0
+      GadgetRcd edmtest::WhatsIt 'A' ESProducer WhatsItESProducer/'WhatsItESProducer' 1
+      GadgetRcd edmtest::WhatsIt 'B' ESProducer WhatsItESProducer/'WhatsItESProducer' 2
+      GadgetRcd edmtest::WhatsIt 'C' ESProducer WhatsItESProducer/'WhatsItESProducer' 3
+      GadgetRcd edmtest::WhatsIt 'D' ESProducer WhatsItESProducer/'WhatsItESProducer' 4
+    Consumed products for consumer produce method: 3
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+      GadgetRcd edmtest::WhatsIt 'productLabelThatDoesNotExist', No EventSetup module configured to produce this data.
+      GadgetRcd edmtest::WhatsIt 'productLabelThatDoesNotExist', No EventSetup module configured to produce this data.
+      GadgetRcd edmtest::WhatsIt 'B', EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
+      GadgetRcd edmtest::WhatsIt 'C', EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
+      GadgetRcd edmtest::WhatsIt 'D', EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
+    Consumed products for consumer produce method: 4
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+      GadgetRcd edmtest::WhatsIt '' ESProducer WhatsItESProducer/'WhatsItESProducer' 0 (module label matches requested label)
+      GadgetRcd edmtest::WhatsIt 'A' ESProducer WhatsItESProducer/'WhatsItESProducer' 1 (module label matches requested label)
+      GadgetRcd edmtest::WhatsIt 'B' ESProducer WhatsItESProducer/'WhatsItESProducer' 2 (module label matches requested label)
+      GadgetRcd edmtest::WhatsIt 'C' ESProducer WhatsItESProducer/'WhatsItESProducer' 3 (module label matches requested label)
+      GadgetRcd edmtest::WhatsIt 'D' ESProducer WhatsItESProducer/'WhatsItESProducer' 4 (module label matches requested label)
+  MayConsumeWhatsIt/'mayConsumeWhatsIt'
+    Consumed products for consumer produce method: 0
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+      GadgetRcd edmtest::WhatsIt
+        May Consumes, available products that might be consumed (they match record type and product type):
+          '' ESProducer WhatsItESProducer/'WhatsItESProducer' 0
+          'A' ESProducer WhatsItESProducer/'WhatsItESProducer' 1
+          'AR' ESProducer ConsumeWhatsIt/'consumeWhatsIt' 1
+          'B' ESProducer WhatsItESProducer/'WhatsItESProducer' 2
+          'BR' ESProducer ConsumeWhatsIt/'consumeWhatsIt' 2
+          'C' ESProducer WhatsItESProducer/'WhatsItESProducer' 3
+          'CR' ESProducer ConsumeWhatsIt/'consumeWhatsIt' 3
+          'D' ESProducer WhatsItESProducer/'WhatsItESProducer' 4
+          'DR' ESProducer ConsumeWhatsIt/'consumeWhatsIt' 4
+          'R' ESProducer ConsumeWhatsIt/'consumeWhatsIt' 0
+    Consumed products for consumer produce method: 1
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+      GadgetRcd ESTestDataA
+        May Consumes, available products that might be consumed (they match record type and product type):
+          --- no available products that match ---
+  WhatsItESProducer/'WhatsItESProducer'
+    Consumed products for consumer produce method: 0
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+    Consumed products for consumer produce method: 1
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+    Consumed products for consumer produce method: 2
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+    Consumed products for consumer produce method: 3
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+    Consumed products for consumer produce method: 4
+      GadgetRcd edmtest::Doodad '' ESSource DoodadESSource/'DoodadESSource' 0
+  DoodadESSource/'DoodadESSource'
+    Consumed products for consumer produce method: 0
+      --- no products consumed ---
 
 Process name = PROD2
 paths:
   path1
 end paths:
+  --- there are no endpaths ---
 modules on path path1:
   intProducerB
   intProducerD
 All modules and modules in the current process whose products they consume:
 (This does not include modules from previous processes or the source)
-(Exclusively considers Event products, not Run, Lumi, or ProcessBlock products)
+(Exclusively considers consumed Event and EventSetup products, not Run, Lumi, or ProcessBlock products)
   IntProducer/'intProducerF'
   IntProducer/'intProducerH'
   IntProducer/'intProducerB'
   IntProducer/'intProducerD'
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'path1'
+All EventSetup modules:
+  --- there are no EventSetup modules ---
 All modules (listed by class and label) and all their consumed products.
 Consumed products are listed by type, label, instance, process.
 For products not in the event, 'processBlock', 'run' or 'lumi' is added to indicate the TTree they are from.
 For products that are declared with mayConsume, 'may consume' is added.
 For products consumed for Views, 'element type' is added
 For products only read from previous processes, 'skip current process' is added
+Consumed EventSetup products are listed by record type, data type, product label,
+transition of request, whether module is ESSource, ESProducer, or ESProducerLooper,
+and the module type and module label of the EventSetup module producing the product.
+Next is the produceMethodID (counts setWhatProduced calls in ESProducers, otherwise 0).
+If the requested module label was specified, then there is a remark in parentheses
+stating whether it matched the actual module label of the producer.
   IntProducer/'intProducerF'
   IntProducer/'intProducerH'
   IntProducer/'intProducerB'
   IntProducer/'intProducerD'
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'path1'
+All EventSetup modules (listed by class and label) and all their consumed products.
+These modules can only consume EventSetup products. These are listed by record type,
+data type, product label, whether the module is ESSource, ESProducer, or ESProducerLooper,
+and the module type and module label of the EventSetup module producing the product.
+Next is the produceMethodID (counts setWhatProduced calls in ESProducers, otherwise 0).
+If the requested module label was specified, then there is a remark in parentheses
+stating whether it matched the actual module label of the producer.
+  --- there are no EventSetup modules ---
 
 Process name = COPY
 paths:
@@ -185,6 +439,7 @@ paths:
   path1
   path2
   path3
+  testEventSetupPath
 end paths:
   ep1
   ep2
@@ -232,15 +487,19 @@ modules on path path3:
   intProducerBeginProcessBlock
   intProducerEndProcessBlock
   processBlockTest1
-modules on end path ep1:
+modules on path testEventSetupPath:
+  testReadLumiESSource
+  concurrentIOVAnalyzer
+modules on endpath ep1:
   intVectorProducer
   testManyConsumingProducer
-modules on end path ep2:
-modules on end path endPath:
+modules on endpath ep2:
+  --- there are no modules on this endpath ---
+modules on endpath endPath:
   testOneOutput
 All modules and modules in the current process whose products they consume:
 (This does not include modules from previous processes or the source)
-(Exclusively considers Event products, not Run, Lumi, or ProcessBlock products)
+(Exclusively considers consumed Event and EventSetup products, not Run, Lumi, or ProcessBlock products)
   IntProducer/'intProducerF'
   IntProducer/'intProducerG'
   IntVectorProducer/'intVectorProducer'
@@ -248,261 +507,375 @@ All modules and modules in the current process whose products they consume:
   ThingWithMergeProducer/'thingWithMergeProducer'
   TestMergeResults/'testMergeResults'
   TestFindProduct/'testView1'
-  TestFindProduct/'testView2' consumes products from these modules:
-    IntVectorProducer/'intVectorProducer'
-  TestFindProduct/'testView3' consumes products from these modules:
-    IntVectorProducer/'intVectorProducer'
+  TestFindProduct/'testView2'
+    consumes products from these modules:
+      IntVectorProducer/'intVectorProducer'
+  TestFindProduct/'testView3'
+    consumes products from these modules:
+      IntVectorProducer/'intVectorProducer'
   IntProducer/'testStreamingProducer'
-  ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes products from these modules:
-    IntProducer/'testStreamingProducer'
+  ConsumingStreamAnalyzer/'testStreamingAnalyzer'
+    consumes products from these modules:
+      IntProducer/'testStreamingProducer'
   IntProducer/'intProducerB'
   IntProducer/'intProducerC'
-  TestFindProduct/'a1' consumes products from these modules:
-    IntProducer/'intProducerB'
+  TestFindProduct/'a1'
+    consumes products from these modules:
+      IntProducer/'intProducerB'
   TestFindProduct/'a2'
-  TestFindProduct/'a3' consumes products from these modules:
-    IntProducer/'intProducerC'
+  TestFindProduct/'a3'
+    consumes products from these modules:
+      IntProducer/'intProducerC'
   TestFindProduct/'a4'
   TestFindProduct/'a5'
   TestFindProduct/'a6'
   TestFindProduct/'a7'
   TestFindProduct/'a8'
-  TestFindProduct/'a9' consumes products from these modules:
-    IntProducer/'intProducerF'
+  TestFindProduct/'a9'
+    consumes products from these modules:
+      IntProducer/'intProducerF'
   TestFindProduct/'a10'
-  TestFindProduct/'a11' consumes products from these modules:
-    IntProducer/'intProducerG'
+  TestFindProduct/'a11'
+    consumes products from these modules:
+      IntProducer/'intProducerG'
   TestFindProduct/'a12'
   TestFindProduct/'a13'
   TestFindProduct/'a14'
   TestFindProduct/'a15'
   TestFindProduct/'a16'
-  TestFindProduct/'a17' consumes products from these modules:
-    IntProducer/'intProducerB'
-  TestFindProduct/'a18' consumes products from these modules:
-    IntProducer/'intProducerC'
+  TestFindProduct/'a17'
+    consumes products from these modules:
+      IntProducer/'intProducerB'
+  TestFindProduct/'a18'
+    consumes products from these modules:
+      IntProducer/'intProducerC'
   TestFindProduct/'a19'
   TestFindProduct/'a20'
-  TestFindProduct/'a21' consumes products from these modules:
-    IntProducer/'intProducerF'
-  TestFindProduct/'a22' consumes products from these modules:
-    IntProducer/'intProducerG'
+  TestFindProduct/'a21'
+    consumes products from these modules:
+      IntProducer/'intProducerF'
+  TestFindProduct/'a22'
+    consumes products from these modules:
+      IntProducer/'intProducerG'
   TestFindProduct/'a23'
   TestFindProduct/'a24'
-  TestFindProduct/'a25' consumes products from these modules:
-    IntProducer/'intProducerB'
-    IntProducer/'intProducerC'
-    IntProducer/'intProducerF'
-    IntProducer/'intProducerG'
+  TestFindProduct/'a25'
+    consumes products from these modules:
+      IntProducer/'intProducerB'
+      IntProducer/'intProducerC'
+      IntProducer/'intProducerF'
+      IntProducer/'intProducerG'
   IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
   IntProducerEndProcessBlock/'intProducerEndProcessBlock'
   TestFindProduct/'processBlockTest1'
-  ConsumingIntProducer/'testManyConsumingProducer' consumes products from these modules:
-    TriggerResultInserter/'TriggerResults'
-  TestOneOutput/'testOneOutput' consumes products from these modules:
-    TriggerResultInserter/'TriggerResults'
-    IntProducer/'intProducerB'
-    IntProducer/'intProducerC'
-    IntProducer/'intProducerF'
-    IntProducer/'intProducerG'
-    ConsumingIntProducer/'testManyConsumingProducer'
-    IntProducer/'testStreamingProducer'
-    IntVectorProducer/'intVectorProducer'
+  RunLumiESAnalyzer/'testReadLumiESSource'
+    consumes products during Event from these EventSetup modules:
+      RunLumiESSource/'runLumiESSourceCopy' ESSource
+    consumes products during BeginLuminosityBlock from these EventSetup modules:
+      RunLumiESSource/'runLumiESSourceCopy' ESSource
+    consumes products during EndLuminosityBlock from these EventSetup modules:
+      RunLumiESSource/'runLumiESSourceCopy' ESSource
+    consumes products during BeginRun from these EventSetup modules:
+      RunLumiESSource/'runLumiESSourceCopy' ESSource
+    consumes products during EndRun from these EventSetup modules:
+      RunLumiESSource/'runLumiESSourceCopy' ESSource
+  ConcurrentIOVAnalyzer/'concurrentIOVAnalyzer'
+    consumes products during Event from these EventSetup modules:
+      ConcurrentIOVESSource/'concurrentIOVESSource' ESSource
+      ConcurrentIOVESProducer/'concurrentIOVESProducer' ESProducer
+  ConsumingIntProducer/'testManyConsumingProducer'
+    consumes products from these modules:
+      TriggerResultInserter/'TriggerResults'
+  TestOneOutput/'testOneOutput'
+    consumes products from these modules:
+      TriggerResultInserter/'TriggerResults'
+      IntProducer/'intProducerB'
+      IntProducer/'intProducerC'
+      IntProducer/'intProducerF'
+      IntProducer/'intProducerG'
+      ConsumingIntProducer/'testManyConsumingProducer'
+      IntProducer/'testStreamingProducer'
+      IntVectorProducer/'intVectorProducer'
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'p3'
   PathStatusInserter/'path1'
   PathStatusInserter/'path2'
   PathStatusInserter/'path3'
+  PathStatusInserter/'testEventSetupPath'
   EndPathStatusInserter/'ep1'
   EndPathStatusInserter/'ep2'
   EndPathStatusInserter/'endPath'
+All EventSetup modules:
+  RunLumiESSource/'runLumiESSourceCopy'
+  ConcurrentIOVESProducer/'concurrentIOVESProducer'
+    consumes products from these EventSetup modules:
+      ConcurrentIOVESSource/'concurrentIOVESSource'
+  ConcurrentIOVESSource/'concurrentIOVESSource'
 All modules (listed by class and label) and all their consumed products.
 Consumed products are listed by type, label, instance, process.
 For products not in the event, 'processBlock', 'run' or 'lumi' is added to indicate the TTree they are from.
 For products that are declared with mayConsume, 'may consume' is added.
 For products consumed for Views, 'element type' is added
 For products only read from previous processes, 'skip current process' is added
+Consumed EventSetup products are listed by record type, data type, product label,
+transition of request, whether module is ESSource, ESProducer, or ESProducerLooper,
+and the module type and module label of the EventSetup module producing the product.
+Next is the produceMethodID (counts setWhatProduced calls in ESProducers, otherwise 0).
+If the requested module label was specified, then there is a remark in parentheses
+stating whether it matched the actual module label of the producer.
   IntProducer/'intProducerF'
   IntProducer/'intProducerG'
   IntVectorProducer/'intVectorProducer'
   TestContextAnalyzer/'test'
   ThingWithMergeProducer/'thingWithMergeProducer'
-  TestMergeResults/'testMergeResults' consumes:
-    edmtest::Thing 'thingWithMergeProducer' 'event' 'PROD'
-    edmtest::Thing 'thingWithMergeProducer' 'beginRun' 'PROD', run
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' 'PROD', run
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' 'PROD', run
-    edmtest::Thing 'thingWithMergeProducer' 'beginRun' '', run
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' '', run
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' '', run
-    edmtest::Thing 'thingWithMergeProducer' 'endRun' 'PROD', run
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'endRun' 'PROD', run
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endRun' 'PROD', run
-    edmtest::Thing 'thingWithMergeProducer' 'endRun' '', run
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'endRun' '', run
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endRun' '', run
-    edmtest::Thing 'thingWithMergeProducer' 'endLumi' 'PROD', lumi
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'endLumi' 'PROD', lumi
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endLumi' 'PROD', lumi
-    edmtest::Thing 'thingWithMergeProducer' 'endLumi' '', lumi
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'endLumi' '', lumi
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endLumi' '', lumi
-    edmtest::Thing 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
-    edmtest::Thing 'thingWithMergeProducer' 'beginLumi' '', lumi
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' '', lumi
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' '', lumi
-  TestFindProduct/'testView1' consumes:
-    int 'intVectorProducer' '' 'PROD1', element type
-  TestFindProduct/'testView2' consumes:
-    int 'intVectorProducer' '' 'COPY', element type
-  TestFindProduct/'testView3' consumes:
-    int 'intVectorProducer' '' 'COPY', element type
+  TestMergeResults/'testMergeResults'
+    consumes:
+      edmtest::Thing 'thingWithMergeProducer' 'event' 'PROD'
+      edmtest::Thing 'thingWithMergeProducer' 'beginRun' 'PROD', run
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' 'PROD', run
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' 'PROD', run
+      edmtest::Thing 'thingWithMergeProducer' 'beginRun' '', run
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' '', run
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' '', run
+      edmtest::Thing 'thingWithMergeProducer' 'endRun' 'PROD', run
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'endRun' 'PROD', run
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endRun' 'PROD', run
+      edmtest::Thing 'thingWithMergeProducer' 'endRun' '', run
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'endRun' '', run
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endRun' '', run
+      edmtest::Thing 'thingWithMergeProducer' 'endLumi' 'PROD', lumi
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'endLumi' 'PROD', lumi
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endLumi' 'PROD', lumi
+      edmtest::Thing 'thingWithMergeProducer' 'endLumi' '', lumi
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'endLumi' '', lumi
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endLumi' '', lumi
+      edmtest::Thing 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
+      edmtest::Thing 'thingWithMergeProducer' 'beginLumi' '', lumi
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' '', lumi
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' '', lumi
+  TestFindProduct/'testView1'
+    consumes:
+      int 'intVectorProducer' '' 'PROD1', element type
+  TestFindProduct/'testView2'
+    consumes:
+      int 'intVectorProducer' '' 'COPY', element type
+  TestFindProduct/'testView3'
+    consumes:
+      int 'intVectorProducer' '' 'COPY', element type
   IntProducer/'testStreamingProducer'
-  ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes:
-    edmtest::IntProduct 'testStreamingProducer' '' '', may consume
+  ConsumingStreamAnalyzer/'testStreamingAnalyzer'
+    consumes:
+      edmtest::IntProduct 'testStreamingProducer' '' '', may consume
   IntProducer/'intProducerB'
   IntProducer/'intProducerC'
-  TestFindProduct/'a1' consumes:
-    edmtest::IntProduct 'intProducerB' '' ''
-  TestFindProduct/'a2' consumes:
-    edmtest::IntProduct 'intProducerB' '' '', skip current process
-  TestFindProduct/'a3' consumes:
-    edmtest::IntProduct 'intProducerC' '' ''
-  TestFindProduct/'a4' consumes:
-    edmtest::IntProduct 'intProducerC' '' '', skip current process
-  TestFindProduct/'a5' consumes:
-    edmtest::IntProduct 'intProducerD' '' ''
-  TestFindProduct/'a6' consumes:
-    edmtest::IntProduct 'intProducerD' '' '', skip current process
-  TestFindProduct/'a7' consumes:
-    edmtest::IntProduct 'intProducerE' '' ''
-  TestFindProduct/'a8' consumes:
-    edmtest::IntProduct 'intProducerE' '' '', skip current process
-  TestFindProduct/'a9' consumes:
-    edmtest::IntProduct 'intProducerF' '' ''
-  TestFindProduct/'a10' consumes:
-    edmtest::IntProduct 'intProducerF' '' '', skip current process
-  TestFindProduct/'a11' consumes:
-    edmtest::IntProduct 'intProducerG' '' ''
-  TestFindProduct/'a12' consumes:
-    edmtest::IntProduct 'intProducerG' '' '', skip current process
-  TestFindProduct/'a13' consumes:
-    edmtest::IntProduct 'intProducerH' '' ''
-  TestFindProduct/'a14' consumes:
-    edmtest::IntProduct 'intProducerH' '' '', skip current process
-  TestFindProduct/'a15' consumes:
-    edmtest::IntProduct 'intProducerI' '' ''
-  TestFindProduct/'a16' consumes:
-    edmtest::IntProduct 'intProducerI' '' '', skip current process
-  TestFindProduct/'a17' consumes:
-    edmtest::IntProduct 'intProducerB' '' 'COPY'
-  TestFindProduct/'a18' consumes:
-    edmtest::IntProduct 'intProducerC' '' 'COPY'
-  TestFindProduct/'a19' consumes:
-    edmtest::IntProduct 'intProducerD' '' 'COPY'
-  TestFindProduct/'a20' consumes:
-    edmtest::IntProduct 'intProducerE' '' 'COPY'
-  TestFindProduct/'a21' consumes:
-    edmtest::IntProduct 'intProducerF' '' 'COPY'
-  TestFindProduct/'a22' consumes:
-    edmtest::IntProduct 'intProducerG' '' 'COPY'
-  TestFindProduct/'a23' consumes:
-    edmtest::IntProduct 'intProducerH' '' 'COPY'
-  TestFindProduct/'a24' consumes:
-    edmtest::IntProduct 'intProducerI' '' 'COPY'
-  TestFindProduct/'a25' consumes:
-    edmtest::IntProduct 'intProducerB' '' 'COPY'
-    edmtest::IntProduct 'intProducerC' '' ''
-    edmtest::IntProduct 'intProducerD' '' ''
-    edmtest::IntProduct 'intProducerF' '' 'COPY'
-    edmtest::IntProduct 'intProducerG' '' 'COPY'
-    edmtest::IntProduct 'intProducerI' '' ''
-    edmtest::IntProduct 'intProducerE' '' 'COPY'
-    edmtest::IntProduct 'intProducerH' '' 'COPY'
-    edmtest::IntProduct 'intProducerQ' 'INSTANCE' 'DOESNOTEXIST'
+  TestFindProduct/'a1'
+    consumes:
+      edmtest::IntProduct 'intProducerB' '' ''
+  TestFindProduct/'a2'
+    consumes:
+      edmtest::IntProduct 'intProducerB' '' '', skip current process
+  TestFindProduct/'a3'
+    consumes:
+      edmtest::IntProduct 'intProducerC' '' ''
+  TestFindProduct/'a4'
+    consumes:
+      edmtest::IntProduct 'intProducerC' '' '', skip current process
+  TestFindProduct/'a5'
+    consumes:
+      edmtest::IntProduct 'intProducerD' '' ''
+  TestFindProduct/'a6'
+    consumes:
+      edmtest::IntProduct 'intProducerD' '' '', skip current process
+  TestFindProduct/'a7'
+    consumes:
+      edmtest::IntProduct 'intProducerE' '' ''
+  TestFindProduct/'a8'
+    consumes:
+      edmtest::IntProduct 'intProducerE' '' '', skip current process
+  TestFindProduct/'a9'
+    consumes:
+      edmtest::IntProduct 'intProducerF' '' ''
+  TestFindProduct/'a10'
+    consumes:
+      edmtest::IntProduct 'intProducerF' '' '', skip current process
+  TestFindProduct/'a11'
+    consumes:
+      edmtest::IntProduct 'intProducerG' '' ''
+  TestFindProduct/'a12'
+    consumes:
+      edmtest::IntProduct 'intProducerG' '' '', skip current process
+  TestFindProduct/'a13'
+    consumes:
+      edmtest::IntProduct 'intProducerH' '' ''
+  TestFindProduct/'a14'
+    consumes:
+      edmtest::IntProduct 'intProducerH' '' '', skip current process
+  TestFindProduct/'a15'
+    consumes:
+      edmtest::IntProduct 'intProducerI' '' ''
+  TestFindProduct/'a16'
+    consumes:
+      edmtest::IntProduct 'intProducerI' '' '', skip current process
+  TestFindProduct/'a17'
+    consumes:
+      edmtest::IntProduct 'intProducerB' '' 'COPY'
+  TestFindProduct/'a18'
+    consumes:
+      edmtest::IntProduct 'intProducerC' '' 'COPY'
+  TestFindProduct/'a19'
+    consumes:
+      edmtest::IntProduct 'intProducerD' '' 'COPY'
+  TestFindProduct/'a20'
+    consumes:
+      edmtest::IntProduct 'intProducerE' '' 'COPY'
+  TestFindProduct/'a21'
+    consumes:
+      edmtest::IntProduct 'intProducerF' '' 'COPY'
+  TestFindProduct/'a22'
+    consumes:
+      edmtest::IntProduct 'intProducerG' '' 'COPY'
+  TestFindProduct/'a23'
+    consumes:
+      edmtest::IntProduct 'intProducerH' '' 'COPY'
+  TestFindProduct/'a24'
+    consumes:
+      edmtest::IntProduct 'intProducerI' '' 'COPY'
+  TestFindProduct/'a25'
+    consumes:
+      edmtest::IntProduct 'intProducerB' '' 'COPY'
+      edmtest::IntProduct 'intProducerC' '' ''
+      edmtest::IntProduct 'intProducerD' '' ''
+      edmtest::IntProduct 'intProducerF' '' 'COPY'
+      edmtest::IntProduct 'intProducerG' '' 'COPY'
+      edmtest::IntProduct 'intProducerI' '' ''
+      edmtest::IntProduct 'intProducerE' '' 'COPY'
+      edmtest::IntProduct 'intProducerH' '' 'COPY'
+      edmtest::IntProduct 'intProducerQ' 'INSTANCE' 'DOESNOTEXIST'
   IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
   IntProducerEndProcessBlock/'intProducerEndProcessBlock'
-  TestFindProduct/'processBlockTest1' consumes:
-    edmtest::IntProduct 'intProducerBeginProcessBlock' '' '', processBlock
-    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'COPY', processBlock
-    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerBeginProcessBlock' '' '', processBlock
-    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'COPY', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' '' '', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'COPY', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'COPY', processBlock
-  ConsumingIntProducer/'testManyConsumingProducer' consumes:
-    edm::TriggerResults 'TriggerResults' '' ''
-    edm::TriggerResults 'TriggerResults' '' 'COPY'
-    edm::TriggerResults 'TriggerResults' '' 'PROD1'
-    edm::TriggerResults 'TriggerResults' '' 'PROD2'
-  TestOneOutput/'testOneOutput' consumes:
-    edm::TriggerResults 'TriggerResults' '' 'COPY'
-    edm::TriggerResults 'TriggerResults' '' 'PROD1'
-    edm::TriggerResults 'TriggerResults' '' 'PROD2'
-    edmtest::IntProduct 'aliasForInt' '' 'PROD1'
-    edmtest::IntProduct 'intProducer' '' 'PROD1'
-    edmtest::IntProduct 'intProducerB' '' 'COPY'
-    edmtest::IntProduct 'intProducerB' '' 'PROD1'
-    edmtest::IntProduct 'intProducerB' '' 'PROD2'
-    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'COPY', processBlock
-    edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerC' '' 'COPY'
-    edmtest::IntProduct 'intProducerC' '' 'PROD1'
-    edmtest::IntProduct 'intProducerD' '' 'PROD1'
-    edmtest::IntProduct 'intProducerD' '' 'PROD2'
-    edmtest::IntProduct 'intProducerE' '' 'PROD1'
-    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'COPY', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'COPY', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'COPY', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'COPY', processBlock
-    edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'PROD1', processBlock
-    edmtest::IntProduct 'intProducerF' '' 'COPY'
-    edmtest::IntProduct 'intProducerF' '' 'PROD1'
-    edmtest::IntProduct 'intProducerF' '' 'PROD2'
-    edmtest::IntProduct 'intProducerG' '' 'COPY'
-    edmtest::IntProduct 'intProducerG' '' 'PROD1'
-    edmtest::IntProduct 'intProducerH' '' 'PROD1'
-    edmtest::IntProduct 'intProducerH' '' 'PROD2'
-    edmtest::IntProduct 'intProducerI' '' 'PROD1'
-    edmtest::IntProduct 'intProducerU' '' 'PROD1'
-    edmtest::IntProduct 'source' '' 'PROD1'
-    edmtest::IntProduct 'testManyConsumingProducer' '' 'COPY'
-    edmtest::IntProduct 'testManyConsumingProducer' '' 'PROD1'
-    edmtest::IntProduct 'testStreamingProducer' '' 'COPY'
-    edmtest::IntProduct 'testStreamingProducer' '' 'PROD1'
-    edmtest::Thing 'thingWithMergeProducer' 'beginLumi' 'COPY', lumi
-    edmtest::Thing 'thingWithMergeProducer' 'beginRun' 'COPY', run
-    edmtest::Thing 'thingWithMergeProducer' 'endLumi' 'COPY', lumi
-    edmtest::Thing 'thingWithMergeProducer' 'endRun' 'COPY', run
-    edmtest::Thing 'thingWithMergeProducer' 'event' 'COPY'
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' 'COPY', lumi
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' 'COPY', run
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endLumi' 'COPY', lumi
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endRun' 'COPY', run
-    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'event' 'COPY'
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' 'COPY', lumi
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' 'COPY', run
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'endLumi' 'COPY', lumi
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'endRun' 'COPY', run
-    edmtest::ThingWithMerge 'thingWithMergeProducer' 'event' 'COPY'
-    std::vector<int> 'intVectorProducer' '' 'COPY'
-    std::vector<int> 'intVectorProducer' '' 'PROD1'
+  TestFindProduct/'processBlockTest1'
+    consumes:
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' '', processBlock
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'COPY', processBlock
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' '', processBlock
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'COPY', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' '' '', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' '' 'COPY', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' '' 'COPY', processBlock
+  RunLumiESAnalyzer/'testReadLumiESSource'
+    consumes from EventSetup:
+      ESTestRecordC edmtest::IOVTestInfo '' Event ESSource RunLumiESSource/'runLumiESSourceCopy' 0
+      ESTestRecordC edmtest::IOVTestInfo 'nonEmptyLabel' Event ESSource RunLumiESSource/'runLumiESSourceCopy' 1
+      ESTestRecordC edmtest::IOVTestInfo '' BeginRun ESSource RunLumiESSource/'runLumiESSourceCopy' 0
+      ESTestRecordC edmtest::IOVTestInfo '' BeginLuminosityBlock ESSource RunLumiESSource/'runLumiESSourceCopy' 0
+      ESTestRecordC edmtest::IOVTestInfo '' EndLuminosityBlock ESSource RunLumiESSource/'runLumiESSourceCopy' 0
+      ESTestRecordC edmtest::IOVTestInfo '' EndRun ESSource RunLumiESSource/'runLumiESSourceCopy' 0
+  ConcurrentIOVAnalyzer/'concurrentIOVAnalyzer'
+    consumes from EventSetup:
+      ESTestRecordI edmtest::IOVTestInfo '' Event ESSource ConcurrentIOVESSource/'concurrentIOVESSource' 0
+      ESTestRecordI edmtest::IOVTestInfo 'fromESProducer' Event ESProducer ConcurrentIOVESProducer/'concurrentIOVESProducer' 0
+  ConsumingIntProducer/'testManyConsumingProducer'
+    consumes:
+      edm::TriggerResults 'TriggerResults' '' ''
+      edm::TriggerResults 'TriggerResults' '' 'COPY'
+      edm::TriggerResults 'TriggerResults' '' 'PROD1'
+      edm::TriggerResults 'TriggerResults' '' 'PROD2'
+  TestOneOutput/'testOneOutput'
+    consumes:
+      edm::TriggerResults 'TriggerResults' '' 'COPY'
+      edm::TriggerResults 'TriggerResults' '' 'PROD1'
+      edm::TriggerResults 'TriggerResults' '' 'PROD2'
+      edmtest::IntProduct 'aliasForInt' '' 'PROD1'
+      edmtest::IntProduct 'intProducer' '' 'PROD1'
+      edmtest::IntProduct 'intProducerB' '' 'COPY'
+      edmtest::IntProduct 'intProducerB' '' 'PROD1'
+      edmtest::IntProduct 'intProducerB' '' 'PROD2'
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'COPY', processBlock
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerC' '' 'COPY'
+      edmtest::IntProduct 'intProducerC' '' 'PROD1'
+      edmtest::IntProduct 'intProducerD' '' 'PROD1'
+      edmtest::IntProduct 'intProducerD' '' 'PROD2'
+      edmtest::IntProduct 'intProducerE' '' 'PROD1'
+      edmtest::IntProduct 'intProducerEndProcessBlock' '' 'COPY', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'COPY', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'COPY', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'COPY', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerF' '' 'COPY'
+      edmtest::IntProduct 'intProducerF' '' 'PROD1'
+      edmtest::IntProduct 'intProducerF' '' 'PROD2'
+      edmtest::IntProduct 'intProducerG' '' 'COPY'
+      edmtest::IntProduct 'intProducerG' '' 'PROD1'
+      edmtest::IntProduct 'intProducerH' '' 'PROD1'
+      edmtest::IntProduct 'intProducerH' '' 'PROD2'
+      edmtest::IntProduct 'intProducerI' '' 'PROD1'
+      edmtest::IntProduct 'intProducerU' '' 'PROD1'
+      edmtest::IntProduct 'source' '' 'PROD1'
+      edmtest::IntProduct 'testManyConsumingProducer' '' 'COPY'
+      edmtest::IntProduct 'testManyConsumingProducer' '' 'PROD1'
+      edmtest::IntProduct 'testStreamingProducer' '' 'COPY'
+      edmtest::IntProduct 'testStreamingProducer' '' 'PROD1'
+      edmtest::Thing 'thingWithMergeProducer' 'beginLumi' 'COPY', lumi
+      edmtest::Thing 'thingWithMergeProducer' 'beginRun' 'COPY', run
+      edmtest::Thing 'thingWithMergeProducer' 'endLumi' 'COPY', lumi
+      edmtest::Thing 'thingWithMergeProducer' 'endRun' 'COPY', run
+      edmtest::Thing 'thingWithMergeProducer' 'event' 'COPY'
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' 'COPY', lumi
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' 'COPY', run
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endLumi' 'COPY', lumi
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endRun' 'COPY', run
+      edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'event' 'COPY'
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' 'COPY', lumi
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' 'COPY', run
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'endLumi' 'COPY', lumi
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'endRun' 'COPY', run
+      edmtest::ThingWithMerge 'thingWithMergeProducer' 'event' 'COPY'
+      std::vector<int> 'intVectorProducer' '' 'COPY'
+      std::vector<int> 'intVectorProducer' '' 'PROD1'
   TriggerResultInserter/'TriggerResults'
   PathStatusInserter/'p3'
   PathStatusInserter/'path1'
   PathStatusInserter/'path2'
   PathStatusInserter/'path3'
+  PathStatusInserter/'testEventSetupPath'
   EndPathStatusInserter/'ep1'
   EndPathStatusInserter/'ep2'
   EndPathStatusInserter/'endPath'
+All EventSetup modules (listed by class and label) and all their consumed products.
+These modules can only consume EventSetup products. These are listed by record type,
+data type, product label, whether the module is ESSource, ESProducer, or ESProducerLooper,
+and the module type and module label of the EventSetup module producing the product.
+Next is the produceMethodID (counts setWhatProduced calls in ESProducers, otherwise 0).
+If the requested module label was specified, then there is a remark in parentheses
+stating whether it matched the actual module label of the producer.
+  RunLumiESSource/'runLumiESSourceCopy'
+    Consumed products for consumer produce method: 0
+      --- no products consumed ---
+    Consumed products for consumer produce method: 1
+      --- no products consumed ---
+  ConcurrentIOVESProducer/'concurrentIOVESProducer'
+    Consumed products for consumer produce method: 0
+      ESTestRecordI edmtest::IOVTestInfo '' ESSource ConcurrentIOVESSource/'concurrentIOVESSource' 0
+  ConcurrentIOVESSource/'concurrentIOVESSource'
+    Consumed products for consumer produce method: 0
+      --- no products consumed ---
 
+RunLumiESSource::produce startIOV = 1:0 endIOV = 1:0 IOV index = 0 cache identifier = 2
+RunLumiESSource::produce startIOV = 1:0 endIOV = 1:0 IOV index = 0 cache identifier = 2
+RunLumiESSource::produce startIOV = 1:1 endIOV = 1:1 IOV index = 0 cache identifier = 3
+RunLumiESSource::produce startIOV = 1:1 endIOV = 1:1 IOV index = 0 cache identifier = 3
+RunLumiESSource::produceNonEmptyLabel startIOV = 1:1 endIOV = 1:1 IOV index = 0 cache identifier = 3
+RunLumiESSource::produceNonEmptyLabel startIOV = 1:1 endIOV = 1:1 IOV index = 0 cache identifier = 3
+RunLumiESSource::produce startIOV = 1:4294967295 endIOV = 1:4294967295 IOV index = 0 cache identifier = 4
+RunLumiESSource::produce startIOV = 1:4294967295 endIOV = 1:4294967295 IOV index = 0 cache identifier = 4
 TestFindProduct sum = 12
 TestFindProduct sum = 300
 TestFindProduct sum = 300

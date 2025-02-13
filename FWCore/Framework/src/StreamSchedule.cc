@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -187,7 +188,7 @@ namespace edm {
         std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
         std::unordered_multimap<std::string, StreamSchedule::AliasInfo> const& aliasMap,
         std::string const& productModuleLabel,
-        ConsumesInfo const& consumesInfo) {
+        ModuleConsumesInfo const& consumesInfo) {
       std::optional<std::string> best;
       int wildcardsInBest = std::numeric_limits<int>::max();
       bool bestIsAmbiguous = false;
@@ -580,7 +581,7 @@ namespace edm {
         continue;
       }
       //determine if this module could read a branch we want to delete early
-      auto consumes = w->consumesInfo();
+      auto consumes = w->moduleConsumesInfos();
       if (not consumes.empty()) {
         bool foundAtLeastOneMatchingBranch = false;
         for (auto const& product : consumes) {
@@ -758,7 +759,7 @@ namespace edm {
       PreallocationConfiguration const* prealloc,
       std::shared_ptr<ProcessConfiguration const> processConfiguration) {
     std::vector<Worker*> returnValue;
-    auto const& consumesInfo = worker->consumesInfo();
+    auto const& consumesInfo = worker->moduleConsumesInfos();
     auto moduleLabel = worker->description()->moduleLabel();
     using namespace productholderindexhelper;
     for (auto const& ci : consumesInfo) {

@@ -1,18 +1,21 @@
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
-
+#include "FWCore/ServiceRegistry/interface/ESModuleConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesESInfo.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
 #include <limits>
 #include <unordered_set>
-namespace edm {
+#include <utility>
 
-  PathsAndConsumesOfModules::PathsAndConsumesOfModules() = default;
-  PathsAndConsumesOfModules::~PathsAndConsumesOfModules() = default;
+namespace edm {
 
   void PathsAndConsumesOfModules::initialize(Schedule const* schedule, std::shared_ptr<ProductRegistry const> preg) {
     schedule_ = schedule;
@@ -49,6 +52,48 @@ namespace edm {
                                         modulesWhoseProductsAreConsumedBy_,
                                         modulesInPreviousProcessesWhoseProductsAreConsumedBy_,
                                         *preg);
+  }
+
+  void PathsAndConsumesOfModules::initializeForEventSetup(
+      eventsetup::ESRecordsToProductResolverIndices&& esRecordsToProductResolverIndices,
+      eventsetup::EventSetupProvider const& eventSetupProvider) {
+    esRecordsToProductResolverIndices_ = std::move(esRecordsToProductResolverIndices);
+    schedule_->fillESModuleAndConsumesInfo(esModulesWhoseProductsAreConsumedBy_, esRecordsToProductResolverIndices_);
+    eventSetupProvider.fillAllESProductResolverProviders(allESProductResolverProviders_);
+
+    for (unsigned int i = 0; i < allESProductResolverProviders_.size(); ++i) {
+      eventsetup::ComponentDescription const& componentDescription = allESProductResolverProviders_[i]->description();
+      esModuleIDToIndex_.emplace_back(componentDescription.id_, i);
+      allComponentDescriptions_.push_back(&componentDescription);
+    }
+    sort_all(esModuleIDToIndex_);
+
+    esModulesWhoseProductsAreConsumedByESModule_.resize(allESProductResolverProviders_.size());
+    auto it = esModulesWhoseProductsAreConsumedByESModule_.begin();
+    for (auto& provider : allESProductResolverProviders_) {
+      ESProducer const* esProducer = dynamic_cast<ESProducer const*>(provider);
+      if (esProducer) {
+        esProducer->esModulesWhoseProductsAreConsumed(*it, esRecordsToProductResolverIndices_);
+      }
+      ++it;
+    }
+    eventSetupInfoInitialized_ = true;
+  }
+
+  void PathsAndConsumesOfModules::checkEventSetupInitialization() const {
+    // It is our intent to eventually migrate all Services using PathsAndConsumesOfModules
+    // to use the LookupInitializationComplete signal and eliminate that argument from
+    // the interface of the functions called for preBeginRun. Then everything related to
+    // this function can be deleted.
+    if (!eventSetupInfoInitialized_) {
+      throw cms::Exception("LogicError")
+          << "In PathsAndConsumesOfModules, a function used to access EventSetup information\n"
+             "was called before the EventSetup information was initialized. The most likely\n"
+             "fix for this is for the Service trying to access the information to use the\n"
+             "LookupInitializationComplete signal instead of the PreBeginJob signal to get\n"
+             "access to the PathsAndConsumesOfModules object. The EventSetup information is\n"
+             "not initialized yet at preBeginJob.\n";
+    }
   }
 
   void PathsAndConsumesOfModules::removeModules(std::vector<ModuleDescription const*> const& modules) {
@@ -93,6 +138,13 @@ namespace edm {
     return modulesInPreviousProcessesWhoseProductsAreConsumedBy_.at(moduleIndex(moduleID));
   }
 
+  std::vector<std::string> const& PathsAndConsumesOfModules::doPaths() const { return paths_; }
+  std::vector<std::string> const& PathsAndConsumesOfModules::doEndPaths() const { return endPaths_; }
+
+  std::vector<ModuleDescription const*> const& PathsAndConsumesOfModules::doAllModules() const {
+    return allModuleDescriptions_;
+  }
+
   ModuleDescription const* PathsAndConsumesOfModules::doModuleDescription(unsigned int moduleID) const {
     unsigned int dummy = 0;
     auto target = std::make_pair(moduleID, dummy);
@@ -119,14 +171,54 @@ namespace edm {
     return modulesWhoseProductsAreConsumedBy_[branchType].at(moduleIndex(moduleID));
   }
 
-  std::vector<ConsumesInfo> PathsAndConsumesOfModules::doConsumesInfo(unsigned int moduleID) const {
+  std::vector<eventsetup::ComponentDescription const*> const&
+  PathsAndConsumesOfModules::doESModulesWhoseProductsAreConsumedBy(unsigned int moduleID, Transition transition) const {
+    checkEventSetupInitialization();
+    return esModulesWhoseProductsAreConsumedBy_[static_cast<unsigned int>(transition)].at(moduleIndex(moduleID));
+  }
+
+  std::vector<ModuleConsumesInfo> PathsAndConsumesOfModules::doModuleConsumesInfos(unsigned int moduleID) const {
     Worker const* worker = schedule_->allWorkers().at(moduleIndex(moduleID));
-    return worker->consumesInfo();
+    return worker->moduleConsumesInfos();
+  }
+
+  std::vector<ModuleConsumesESInfo> PathsAndConsumesOfModules::doModuleConsumesESInfos(unsigned int moduleID) const {
+    checkEventSetupInitialization();
+    Worker const* worker = schedule_->allWorkers().at(moduleIndex(moduleID));
+    return worker->moduleConsumesESInfos(esRecordsToProductResolverIndices_);
   }
 
   unsigned int PathsAndConsumesOfModules::doLargestModuleID() const {
     // moduleIDToIndex_ is sorted, so last element has the largest ID
     return moduleIDToIndex_.empty() ? 0 : moduleIDToIndex_.back().first;
+  }
+
+  std::vector<eventsetup::ComponentDescription const*> const& PathsAndConsumesOfModules::doAllESModules() const {
+    checkEventSetupInitialization();
+    return allComponentDescriptions_;
+  }
+
+  eventsetup::ComponentDescription const* PathsAndConsumesOfModules::doComponentDescription(
+      unsigned int esModuleID) const {
+    return allComponentDescriptions_.at(esModuleIndex(esModuleID));
+  }
+
+  std::vector<std::vector<eventsetup::ComponentDescription const*>> const&
+  PathsAndConsumesOfModules::doESModulesWhoseProductsAreConsumedByESModule() const {
+    checkEventSetupInitialization();
+    return esModulesWhoseProductsAreConsumedByESModule_;
+  }
+
+  std::vector<std::vector<ESModuleConsumesInfo>> PathsAndConsumesOfModules::doESModuleConsumesInfos(
+      unsigned int esModuleID) const {
+    checkEventSetupInitialization();
+    eventsetup::ESProductResolverProvider const* provider =
+        allESProductResolverProviders_.at(esModuleIndex(esModuleID));
+    ESProducer const* esProducer = dynamic_cast<ESProducer const*>(provider);
+    if (esProducer) {
+      return esProducer->esModuleConsumesInfos(esRecordsToProductResolverIndices_);
+    }
+    return {};
   }
 
   unsigned int PathsAndConsumesOfModules::moduleIndex(unsigned int moduleID) const {
@@ -137,6 +229,18 @@ namespace edm {
     if (iter == moduleIDToIndex_.end() || iter->first != moduleID) {
       throw Exception(errors::LogicError)
           << "PathsAndConsumesOfModules::moduleIndex: Unknown moduleID " << moduleID << "\n";
+    }
+    return iter->second;
+  }
+
+  unsigned int PathsAndConsumesOfModules::esModuleIndex(unsigned int esModuleID) const {
+    unsigned int dummy = 0;
+    auto target = std::make_pair(esModuleID, dummy);
+    std::vector<std::pair<unsigned int, unsigned int>>::const_iterator iter =
+        std::lower_bound(esModuleIDToIndex_.begin(), esModuleIDToIndex_.end(), target);
+    if (iter == esModuleIDToIndex_.end() || iter->first != esModuleID) {
+      throw Exception(errors::LogicError)
+          << "PathsAndConsumesOfModules::moduleIndex: Unknown esModuleID " << esModuleID << "\n";
     }
     return iter->second;
   }
