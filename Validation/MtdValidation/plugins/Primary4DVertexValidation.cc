@@ -259,7 +259,7 @@ private:
   const bool trkRecSel(const reco::TrackBase&);
 
   // ----------member data ---------------------------
-  
+
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theTTBToken;
   TrackFilterForPVFindingBase* theTrackFilter;
   const std::string folder_;
@@ -293,7 +293,7 @@ private:
 
   bool use_only_charged_tracks_;
   bool optionalPlots_;
-  bool use3dNoTime_; 
+  bool use3dNoTime_;
   const double minProbHeavy_;
   const double trackweightTh_;
   const double mvaTh_;
@@ -303,7 +303,7 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> RecTrackToken_;
 
   edm::EDGetTokenT<std::vector<PileupSummaryInfo>> vecPileupSummaryInfoToken_;
-  
+
   edm::EDGetTokenT<reco::TrackCollection> trkToken;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
@@ -530,8 +530,8 @@ private:
 
 // constructors and destructor
 Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iConfig)
-    : theTTBToken(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))), 
-      folder_(iConfig.getParameter<std::string>("folder")),	
+    : theTTBToken(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      folder_(iConfig.getParameter<std::string>("folder")),
       use_only_charged_tracks_(iConfig.getParameter<bool>("useOnlyChargedTracks")),
       optionalPlots_(iConfig.getUntrackedParameter<bool>("optionalPlots")),
       use3dNoTime_(iConfig.getParameter<bool>("use3dNoTime")),
@@ -573,8 +573,9 @@ Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iC
     theTrackFilter = new TrackFilterForPVFinding(iConfig.getParameter<edm::ParameterSet>("TkFilterParameters"));
   } else if (trackSelectionAlgorithm == "filterWithThreshold") {
     theTrackFilter = new HITrackFilterForPVFinding(iConfig.getParameter<edm::ParameterSet>("TkFilterParameters"));
-  } else { 
-    edm::LogWarning("MVATrainingNtuple: unknown track selection algorithm: " + trackSelectionAlgorithm);
+  } else {
+    edm::LogWarning("Primary4DVertexValidation")
+        << "unknown track selection algorithm: " + trackSelectionAlgorithm << std::endl;
   }
 }
 
@@ -724,7 +725,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meSimPVZ_ = ibook.book1D("simPVZ", "#Sim vertices/10 mm", 30, -15., 15.);
   meSimPVT_ = ibook.book1D("simPVT", "#Sim vertices/50 ps", 30, -0.75, 0.75);
   meSimPVTvsZ_ = ibook.bookProfile("simPVTvsZ", "PV Time vs Z", 30, -15., 15., 30, -0.75, 0.75);
-  
+
   meVtxTrackMult_ = ibook.book1D("VtxTrackMult", "Log10(Vertex track multiplicity)", 80, 0.5, 2.5);
   meVtxTrackW_ = ibook.book1D("VtxTrackW", "Vertex track weight (all)", 50, 0., 1.);
   meVtxTrackWnt_ = ibook.book1D("VtxTrackWnt", "Vertex track Wnt", 50, 0., 1.);
@@ -2090,31 +2091,32 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   t_tks = (*theB).build(tks, beamSpot, t0Safe, sigmat0Safe);
 
-    // track filter
+  // track filter
   std::vector<reco::TransientTrack>&& seltks = theTrackFilter->select(t_tks);
 
   int unassociatedCount = 0;
   for (std::vector<reco::TransientTrack>::const_iterator itk = seltks.begin(); itk != seltks.end(); itk++) {
-    reco::TrackBaseRef trackref = (*itk).trackBaseRef();	  
+    reco::TrackBaseRef trackref = (*itk).trackBaseRef();
     bool isAssociated = false;
     for (unsigned int iv = 0; iv < recopv.size(); iv++) {
-	const reco::Vertex* vertex = recopv.at(iv).recVtx;
-        for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
-          if (*iTrack == trackref) { 
-                isAssociated = true;
-                break;
-            }
+      const reco::Vertex* vertex = recopv.at(iv).recVtx;
+      for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
+        if (*iTrack == trackref) {
+          isAssociated = true;
+          break;
         }
-        if (isAssociated) break;
+      }
+      if (isAssociated)
+        break;
     }
 
     if (!isAssociated) {
-        unassociatedCount++;
-       }
+      unassociatedCount++;
     }
-    double fraction  = double(unassociatedCount)/(seltks.size()); 
-    meUnAssocTracks_->Fill(log10(unassociatedCount));
-    meFractionUnAssocTracks_->Fill(fraction);
+  }
+  double fraction = double(unassociatedCount) / (seltks.size());
+  meUnAssocTracks_->Fill(log10(unassociatedCount));
+  meFractionUnAssocTracks_->Fill(fraction);
 
   // Loop on tracks
   for (unsigned int iv = 0; iv < recopv.size(); iv++) {
