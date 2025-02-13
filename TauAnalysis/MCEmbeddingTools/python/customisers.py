@@ -585,8 +585,12 @@ def customiseGenerator_preHLT(process, changeProcessname=True, reselect=False):
         "Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector."
     )
 
-    # Disable noise simulation
-    run2_common.toModify(process.mix.digitizers.castor, doNoise = cms.bool(False))
+    #### Disable noise simulation ####
+    # Castor was a detector in CMS till 2018.
+    for i in to_bemanipulate:
+        print(i.module_name)
+    run2_common.toModify(process, lambda x: print("DAS ######################################", to_bemanipulate))
+    run2_common.toModify(process, lambda p: setattr(p.mix.digitizers.castor, "doNoise", cms.bool(False)))
     process.mix.digitizers.ecal.doESNoise = cms.bool(False)
     process.mix.digitizers.ecal.doENoise = cms.bool(False)
 
