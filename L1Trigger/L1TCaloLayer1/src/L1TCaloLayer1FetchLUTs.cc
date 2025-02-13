@@ -197,8 +197,9 @@ bool L1TCaloLayer1FetchLUTs(
               calibratedECalInput *= ecalSF.at(phiBin * ecalScaleETBins.size() * 28 + etBin * 28 + etaBin);
             if (useLSB)
               calibratedECalInput /= caloLSB;
-            if (ecalInput < ecalZSF.size() / 28 - 1) 
+            if (ecalInput < ecalZSF.size() / 28 - 1)
               calibratedECalInput *= ecalZSF.at(ecalInput * 28 + etaBin);
+
             value = calibratedECalInput;
             if (fwVersion > 2) {
               // Saturate if either decompressed value is over 127.5 GeV or input saturated
@@ -263,8 +264,8 @@ bool L1TCaloLayer1FetchLUTs(
             if (useCalib)
               calibratedHcalInput *= hcalSF.at(phiBin * hcalScaleETBins.size() * 28 + etBin * 28 + etaBin);
             if (useLSB)
-              calibratedHcalInput /= caloLSB; 
-            if (hcalInput < hcalZSF.size() / 28 - 1) 
+              calibratedHcalInput /= caloLSB;
+            if (hcalInput < hcalZSF.size() / 28 - 1)
               calibratedHcalInput *= hcalZSF.at(hcalInput * 28 + etaBin);
             value = calibratedHcalInput;
             if (fwVersion > 2) {
