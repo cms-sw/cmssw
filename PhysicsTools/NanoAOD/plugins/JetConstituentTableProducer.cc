@@ -32,10 +32,10 @@ using namespace btagbtvdeep;
 
 namespace {
 
-std::string toupper(std::string s) {
-  std::transform(s.begin(), s.end(), s.begin(), ::toupper);
-  return s;
-}
+  std::string toupper(std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+    return s;
+  }
 
 }  // namespace
 
@@ -95,10 +95,10 @@ JetConstituentTableProducer<T>::JetConstituentTableProducer(const edm::Parameter
       vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       cand_token_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("candidates"))),
       sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
-      track_builder_token_(esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
+      track_builder_token_(
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
       sv_sort_(iConfig.getUntrackedParameter<std::string>("sv_sort")),
-      pf_sort_(iConfig.getUntrackedParameter<std::string>("pf_sort"))
-{
+      pf_sort_(iConfig.getUntrackedParameter<std::string>("pf_sort")) {
   produces<nanoaod::FlatTable>(name_);
   produces<nanoaod::FlatTable>(nameSV_);
   produces<std::vector<reco::CandidatePtr>>();
@@ -155,19 +155,22 @@ void JetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm::Even
         jetSVs.push_back(&sv);
       }
     }
-    if(toupper(sv_sort_) == "IP") {
+    if (toupper(sv_sort_) == "IP") {
       // sort by dxy significance
-      std::sort(jetSVs.begin(), jetSVs.end(),
-          [this](const reco::VertexCompositePtrCandidate *sva, const reco::VertexCompositePtrCandidate *svb) {
-            return sv_vertex_comparator(*sva, *svb, *pv_);
-          });
-    } else if(toupper(sv_sort_) == "PT") {
-      std::sort(jetSVs.begin(), jetSVs.end(),
-          [](const reco::VertexCompositePtrCandidate *sva, const reco::VertexCompositePtrCandidate *svb) {
-            return sva->pt() > svb->pt();
-          });
-    } else if(!sv_sort_.empty()) {
-      throw cms::Exception("Configuration") << "Unknown sorting option for secondary vertices: " << sv_sort_ << std::endl;
+      std::sort(jetSVs.begin(),
+                jetSVs.end(),
+                [this](const reco::VertexCompositePtrCandidate *sva, const reco::VertexCompositePtrCandidate *svb) {
+                  return sv_vertex_comparator(*sva, *svb, *pv_);
+                });
+    } else if (toupper(sv_sort_) == "PT") {
+      std::sort(jetSVs.begin(),
+                jetSVs.end(),
+                [](const reco::VertexCompositePtrCandidate *sva, const reco::VertexCompositePtrCandidate *svb) {
+                  return sva->pt() > svb->pt();
+                });
+    } else if (!sv_sort_.empty()) {
+      throw cms::Exception("Configuration")
+          << "Unknown sorting option for secondary vertices: " << sv_sort_ << std::endl;
     }
 
     for (const auto &sv : jetSVs) {
@@ -206,17 +209,20 @@ void JetConstituentTableProducer<T>::produce(edm::Event &iEvent, const edm::Even
 
     // PF Cands
     std::vector<reco::CandidatePtr> const &daughters = jet.daughterPtrVector();
-    std::vector<size_t> dauidx; dauidx.reserve(daughters.size());
-    for(size_t i = 0; i < daughters.size(); ++i) dauidx.push_back(i);
-    if(toupper(pf_sort_) == "PT") {
+    std::vector<size_t> dauidx;
+    dauidx.reserve(daughters.size());
+    for (size_t i = 0; i < daughters.size(); ++i)
+      dauidx.push_back(i);
+    if (toupper(pf_sort_) == "PT") {
       std::sort(dauidx.begin(), dauidx.end(), [&daughters](size_t i, size_t j) {
         return daughters[i]->pt() > daughters[j]->pt();
       });
-    } else if(!pf_sort_.empty()) {
-      throw cms::Exception("Configuration") << "Unknown sorting option for particle flow candidates: " << pf_sort_ << std::endl;
+    } else if (!pf_sort_.empty()) {
+      throw cms::Exception("Configuration")
+          << "Unknown sorting option for particle flow candidates: " << pf_sort_ << std::endl;
     }
 
-    for(size_t di : dauidx) {
+    for (size_t di : dauidx) {
       const auto &cand = daughters[di];
       auto candPtrs = cands_->ptrs();
       auto candInNewList = std::find(candPtrs.begin(), candPtrs.end(), cand);
