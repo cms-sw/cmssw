@@ -83,7 +83,7 @@ struct JetType1 {
 };
 
 void testTableFilling::soaDeclareDefaultTest1() {
-  std::vector<JetType1> jets = {{1., 3.14}, {2., 0.}, {4., 1.3}};
+  std::vector<JetType1> jets = {{1.f, 3.14f}, {2.f, 0.f}, {4.f, 1.3f}};
   std::vector<std::string> labels = {{"jet0", "jet1", "jet2"}};
 
   ts::EtaPhiTable table(jets);
@@ -101,10 +101,10 @@ struct JetType2 {
 };
 
 // ...so we need to write our own value_for_column function for JetType2
-double value_for_column(JetType2 const& iJ, ts::col::Phi*) { return iJ.phi_; }
+auto value_for_column(JetType2 const& iJ, ts::col::Phi*) { return iJ.phi_; }
 
 void testTableFilling::soaDeclareDefaultTest2() {
-  std::vector<JetType2> jets = {{1., 3.14}, {2., 0.}, {4., 1.3}};
+  std::vector<JetType2> jets = {{1.f, 3.14f}, {2.f, 0.f}, {4.f, 1.3f}};
   std::vector<std::string> labels = {{"jet0", "jet1", "jet2"}};
 
   ts::EtaPhiTable table(jets);
@@ -121,13 +121,13 @@ namespace ts::reco {
     const float phi_;
   };
 
-  double value_for_column(ts::reco::JetType3 const& iJ, ts::col::Phi*) { return iJ.phi_; }
+  auto value_for_column(ts::reco::JetType3 const& iJ, ts::col::Phi*) { return iJ.phi_; }
 }  // namespace ts::reco
 
 // same tests as for JetType2 but with the type and the value_for_column
 // defined in their own test namespace
 void testTableFilling::soaDeclareDefaultTest3() {
-  std::vector<ts::reco::JetType3> jets = {{1., 3.14}, {2., 0.}, {4., 1.3}};
+  std::vector<ts::reco::JetType3> jets = {{1.f, 3.14f}, {2.f, 0.f}, {4.f, 1.3f}};
   std::vector<std::string> labels = {{"jet0", "jet1", "jet2"}};
 
   ts::EtaPhiTable table(jets);
@@ -147,10 +147,10 @@ struct JetType4 {
   const float phi_;
 };
 
-double value_for_column(JetType4 const& iJ, ts::col::Phi*) { return iJ.phi_; }
+auto value_for_column(JetType4 const& iJ, ts::col::Phi*) { return iJ.phi_; }
 
 void testTableFilling::soaDeclareDefaultTest4() {
-  std::vector<JetType4> jets = {{1., 3.14}, {2., 0.}, {4., 1.3}};
+  std::vector<JetType4> jets = {{1.f, 3.14f}, {2.f, 0.f}, {4.f, 1.3f}};
   std::vector<std::string> labels = {{"jet0", "jet1", "jet2"}};
 
   ts::EtaPhiTable table(jets);
@@ -172,12 +172,12 @@ namespace ts::reco {
     const float phi_;
   };
 
-  double value_for_column(ts::reco::JetType5 const& iJ, ts::col::Phi*) { return iJ.phi_; }
+  auto value_for_column(ts::reco::JetType5 const& iJ, ts::col::Phi*) { return iJ.phi_; }
 
 }  // namespace ts::reco
 
 void testTableFilling::soaDeclareDefaultTest5() {
-  std::vector<ts::reco::JetType5> jets = {{1., 3.14}, {2., 0.}, {4., 1.3}};
+  std::vector<ts::reco::JetType5> jets = {{1.f, 3.14f}, {2.f, 0.f}, {4.f, 1.3f}};
   std::vector<std::string> labels = {{"jet0", "jet1", "jet2"}};
 
   ts::EtaPhiTable table(jets);

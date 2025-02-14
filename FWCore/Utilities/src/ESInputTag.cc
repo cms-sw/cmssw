@@ -29,7 +29,7 @@ ESInputTag::ESInputTag(std::string moduleLabel, std::string dataLabel)
 ESInputTag::ESInputTag(const std::string& iEncodedValue) {
   // string is delimited by colons
   std::vector<std::string> tokens = tokenize(iEncodedValue, ":");
-  int nwords = tokens.size();
+  auto nwords = tokens.size();
   if (nwords > 2) {
     throw edm::Exception(errors::Configuration, "ESInputTag")
         << "ESInputTag " << iEncodedValue << " has " << nwords << " tokens but only up two 2 are allowed.";

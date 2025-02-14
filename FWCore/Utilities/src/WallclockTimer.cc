@@ -93,7 +93,8 @@ double WallclockTimer::calculateDeltaTime() const {
   struct timespec tp;
 
   clock_gettime(CLOCK_MONOTONIC, &tp);
-  returnValue = tp.tv_sec - startRealTime_.tv_sec + nanosecToSec * (tp.tv_nsec - startRealTime_.tv_nsec);
+  returnValue = static_cast<double>(tp.tv_sec - startRealTime_.tv_sec) +
+                nanosecToSec * static_cast<double>(tp.tv_nsec - startRealTime_.tv_nsec);
 #else
   double const microsecToSec = 1E-6;
 

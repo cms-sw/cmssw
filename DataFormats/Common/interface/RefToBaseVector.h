@@ -141,8 +141,10 @@ namespace edm {
   template <class T>
   inline typename RefToBaseVector<T>::value_type RefToBaseVector<T>::at(size_type idx) const {
     if (holder_ == nullptr)
-      Exception::throwThis(
-          errors::InvalidReference, "Trying to dereference null RefToBaseVector<T> in method: at(", idx, ")\n");
+      Exception::throwThis(errors::InvalidReference,
+                           "Trying to dereference null RefToBaseVector<T> in method: at(",
+                           static_cast<int>(idx),
+                           ")\n");
     return holder_->at(idx);
   }
 

@@ -32,7 +32,7 @@ namespace edm {
 
     static size_t size(const T* iContainer) { return iContainer->size(); }
     static unsigned int indexFor(const value_type* iElement, const T* iContainer) {
-      return iElement - &(iContainer->front());
+      return static_cast<unsigned int>(iElement - &(iContainer->front()));
     }
 
     ContainerMaskTraits() = delete;

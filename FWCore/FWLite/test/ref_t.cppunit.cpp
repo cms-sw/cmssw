@@ -172,8 +172,8 @@ static void testTree(TTree* events) {
   TBranch* thingBranch = events->GetBranch("edmtestThings_Thing__TEST.");
   CPPUNIT_ASSERT(thingBranch != nullptr);
 
-  int nev = events->GetEntries();
-  for (int ev = 0; ev < nev; ++ev) {
+  auto nev = events->GetEntries();
+  for (decltype(nev) ev = 0; ev < nev; ++ev) {
     events->GetEntry(ev, 0);
     otherBranch->SetAddress(&pOthers);
     thingBranch->SetAddress(&pThings);
@@ -225,8 +225,8 @@ void testRefInROOT::testGoodChain() {
   TBranch* thingsBranch = nullptr;
   eventChain.SetBranchAddress("edmtestThings_Thing__TEST.", &pThings, &thingsBranch);
 
-  int nev = eventChain.GetEntries();
-  for (int ev = 0; ev < nev; ++ev) {
+  auto nev = eventChain.GetEntries();
+  for (decltype(nev) ev = 0; ev < nev; ++ev) {
     std::cout << "event #" << ev << std::endl;
     othersBranch->SetAddress(&pOthers);
     thingsBranch->SetAddress(&pThings);
@@ -251,8 +251,8 @@ void testRefInROOT::testMissingRef() {
 
   CPPUNIT_ASSERT(otherBranch != nullptr);
 
-  int nev = events->GetEntries();
-  for (int ev = 0; ev < nev; ++ev) {
+  auto nev = events->GetEntries();
+  for (decltype(nev) ev = 0; ev < nev; ++ev) {
     events->GetEntry(ev, 0);
     otherBranch->SetAddress(&pOthers);
     otherBranch->GetEntry(ev);
@@ -327,13 +327,13 @@ void testRefInROOT::testThinning() {
 
   std::vector<edmtest::TrackOfThings> const* vTracks = nullptr;
 
-  int nev = events->GetEntries();
-  for (int ev = 0; ev < nev; ++ev) {
+  auto nev = events->GetEntries();
+  for (decltype(nev) ev = 0; ev < nev; ++ev) {
     // The values in the tests below have no particular meaning.
     // It is just checking that we read the values known to be
     // be put in by the relevant producer.
 
-    int offset = 200 + ev * 100;
+    auto offset = 200 + ev * 100;
 
     events->GetEntry(ev, 0);
 

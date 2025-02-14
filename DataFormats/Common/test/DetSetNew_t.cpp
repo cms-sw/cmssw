@@ -184,7 +184,7 @@ void TestDetSet::filling() {
     CPPUNIT_ASSERT(ff.m_item.size == 0);
     CPPUNIT_ASSERT(ff.m_item.id == id);
     ntot += 1;
-    ff.push_back(3.14);
+    ff.push_back(3.14f);
     CPPUNIT_ASSERT(detsets.dataSize() == ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n - 1) == 1);
     CPPUNIT_ASSERT(detsets.m_data.back().v == 3.14f);
@@ -294,7 +294,7 @@ void TestDetSet::fillingTS() {
       CPPUNIT_ASSERT(ff.m_item.size == 0);
       CPPUNIT_ASSERT(ff.id() == id);
       ntot += 1;
-      ff.push_back(3.14);
+      ff.push_back(3.14f);
       CPPUNIT_ASSERT(detsets.dataSize() == ntot - 1);
       CPPUNIT_ASSERT(ff.m_item.size == 0);
       CPPUNIT_ASSERT(ff.size() == 1);
@@ -389,7 +389,7 @@ namespace {
         ff.resize(n);
         int nCopied = n;
         if (static_cast<size_t>(n) > test.sv.size()) {
-          nCopied = test.sv.size();
+          nCopied = static_cast<int>(test.sv.size());
         }
         std::copy(test.sv.begin(), test.sv.begin() + nCopied, ff.begin());
         if (ff.full()) {
