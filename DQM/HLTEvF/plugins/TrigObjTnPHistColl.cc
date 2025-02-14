@@ -122,7 +122,8 @@ void TrigObjTnPHistColl::FilterSelector::mergeTrigKeys(trigger::Keys& keys,
 
 void TrigObjTnPHistColl::FilterSelector::cleanTrigKeys(trigger::Keys& keys) {
   std::sort(keys.begin(), keys.end());
-  std::unique(keys.begin(), keys.end());
+  auto last = std::unique(keys.begin(), keys.end());
+  keys.erase(last, keys.end());
   while (!keys.empty() && keys.back() == std::numeric_limits<trigger::size_type>::max()) {
     keys.pop_back();
   }

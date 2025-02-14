@@ -117,7 +117,8 @@ void ReducedRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::Eve
   }
 
   std::sort(xtalsToStore.begin(), xtalsToStore.end());
-  std::unique(xtalsToStore.begin(), xtalsToStore.end());
+  auto last = std::unique(xtalsToStore.begin(), xtalsToStore.end());
+  xtalsToStore.erase(last, xtalsToStore.end());
 
   //   std::cout << "New Collection " << reducedHitsCollection_ << " size is " << miniRecHitCollection->size() << " original is " << recHitsHandle->size() << std::endl;
   iEvent.put(std::move(miniRecHitCollection), reducedHitsCollection_);
