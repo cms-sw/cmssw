@@ -102,7 +102,7 @@ process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.load('L1Trigger.Configuration.GTemulator_cff')
 process.GTemulation_step = cms.Path(process.GTemulator)
 
-process.load('L1Trigger.Phase2L1GT.l1tGTMenu_cff')
+process.load('L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1_2024.l1tGTMenu_cff')
 from L1Trigger.Phase2L1GT.l1tGTAlgoBlockProducer_cff import collectAlgorithmPaths
 
 
