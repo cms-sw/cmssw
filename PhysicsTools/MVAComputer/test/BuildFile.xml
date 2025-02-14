@@ -5,6 +5,7 @@
 <use name="CondFormats/PhysicsToolsObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="PhysicsTools/MVAComputer"/>
+<flags REM_CXXFLAGS="-Werror=array-bounds"/>
 <library file="testWriteMVAComputerCondDB.cc" name="testWriteMVAComputerCondDB">
   <use name="CondCore/DBOutputService"/>
   <flags EDM_PLUGIN="1"/>

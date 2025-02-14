@@ -1,3 +1,4 @@
+<flags REM_CXXFLAGS="-Werror=array-bounds"/>
 <library file="*.cc" name="RecoTauTagRecoTauPlugins">
   <use name="root"/>
   <use name="tbb"/>
