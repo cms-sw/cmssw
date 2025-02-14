@@ -4,6 +4,7 @@
 # Various set of customise functions needed for embedding
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from PhysicsTools.NanoAOD.common_cff import ExtVar
 
 ################################ Customizer for skimming ###########################
@@ -236,7 +237,11 @@ to_bemanipulate.append(
 )
 
 # add some collections for run2
-run2_common.toModify(
+# The era Modifier/ModifierChain is specified with the cmsDriver `--era` option or the cms.Process('NAME', era=...) constructor in the python config.
+# The `Modifier.toModify` method is executed if the Modifier is in the ModifierChain. (see https://github.com/cms-sw/cmssw/blob/master/FWCore/ParameterSet/python/Config.py#L1831)
+# The Run3 ModifierChain is based on the Run2 ModifierChain. Therefore the `run2_common` Modifier is included in both ModifierChains.
+# Those Modifiers allow bool operators to combine them. With `(run2_common & ~run3_common)` the `toModify` function is only executed if the era ModifierChain contains `run2_common` but not `run3_common`.
+(run2_common & ~run3_common).toModify(
     to_bemanipulate,
     lambda l: l.extend(
         [
@@ -587,10 +592,7 @@ def customiseGenerator_preHLT(process, changeProcessname=True, reselect=False):
 
     #### Disable noise simulation ####
     # Castor was a detector in CMS till 2018.
-    for i in to_bemanipulate:
-        print(i.module_name)
-    run2_common.toModify(process, lambda x: print("DAS ######################################", to_bemanipulate))
-    run2_common.toModify(process, lambda p: setattr(p.mix.digitizers.castor, "doNoise", cms.bool(False)))
+    (run2_common & ~run3_common).toModify(process, lambda p: setattr(p.mix.digitizers.castor, "doNoise", cms.bool(False)))
     process.mix.digitizers.ecal.doESNoise = cms.bool(False)
     process.mix.digitizers.ecal.doENoise = cms.bool(False)
 
