@@ -98,6 +98,9 @@ SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection);
 They have no implicit or explicit references to alpaka (neither as part of the class signature nor as part of its name).
 This could make it possible to read them back with different portability solutions in the future.
 
+An additional member function with signature `void aggregate(ConstView const& view)` lets the user to save columns 
+contiguously starting from a Customized View, concept explained in the section `View` of `DataFormats/SoATemplate/README.md`.
+
 ### `PortableDeviceCollection<T, TDev>`
 
 `PortableDeviceCollection<T, TDev>` is a class template that wraps a SoA type `T` and an alpaka device buffer, which
