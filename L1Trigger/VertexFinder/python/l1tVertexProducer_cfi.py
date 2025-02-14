@@ -31,7 +31,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # chi2dof < 5 for tracks with Pt > 10
         FH_DoTightChi2 = cms.bool(False),
         # PFA algorithm scan parameters (min,max,width) [cm]
-        PFA_ScanParameters = cms.vdouble(-20.46912512, 20.46912512, 0.03997876),
+        PFA_ScanParameters = cms.vdouble(-20.46912512, 20.46912512, 0.15991504),
         # Include eta-dependence of the estimated track resolution used in PFA
         PFA_EtaDependentResolution = cms.bool(True),
         # Scale factor for the PFA track resolution parameter (where the nominal values with and without eta-dependence are hard-coded using the fit results from Giovanna's thesis)

@@ -76,11 +76,22 @@ namespace l1tVertexFinder {
           // Estimates of vertex z0 and z0square based on optimal combination (weighted by 1/variance) of the z0 of the tracks associated to the vertex, weighted also by pT and association probability
           // Note, all tracks in the bin have association probability 1 based on the definiton of deltaZ above, so this method won't work well for large bin widths. In that case, the ErfcWeight should really be iteratively recalculated at the best estimate point of z0 (and not subtracting half the bin width in deltaZ), but this would require a second loop over tracks.
           zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / GaussianWidth / GaussianWidth;
-        }
-
-        if (settings_->vx_pfa_weightedz0() == 3) {
+        } else if (settings_->vx_pfa_weightedz0() == 3) {
           // Step function weight, to replicate fastHisto when used with settings_->vx_pfa_weightfunction() == 3
           zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean());
+        }
+        // Additional undocumented options for the purpose of comparison (to demonstrate the effect of using the eta-dependent width in the weighted sum)
+        else if (settings_->vx_pfa_weightedz0() == 4) {
+          // Step function weight divided by step function width (to maintain constant area when using eta-dependent resolution)
+          zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean()) /
+                    (GaussianWidth + 0.5 * settings_->vx_pfa_binwidth());
+        } else if (settings_->vx_pfa_weightedz0() == 5) {
+          // Step function weight weighted by 1/variance (relevant when using eta-dependent resolution)
+          zweight =
+              StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean()) / GaussianWidth / GaussianWidth;
+        } else if (settings_->vx_pfa_weightedz0() == 6) {
+          // ErfcWeight with only 1/width
+          zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / GaussianWidth;
         }
 
         SumZWeight += zweight;
