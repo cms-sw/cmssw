@@ -14,6 +14,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <algorithm>
+
 using std::vector;
 
 //DEFINE STATICS
