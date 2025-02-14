@@ -28,6 +28,19 @@ BTagMu_AK4DiJet20_Mu5_DeepJet = hltBTVmonitoring.clone(
     histoPSet = dict(jetPtBinning = [0,10,15,20,30,50,70,100,150,200,400,700,1000,1500,3000])
 )
 
+BTagMu_AK4DiJet20_Mu5_UParT = hltBTVmonitoring.clone(
+    FolderName = 'HLT/BTV/BTagMu_DiJet/AK4DiJet20_Mu5_UParTAK4',
+    nmuons = 1,
+    nelectrons = 0,
+    njets = 2,
+    muoSelection = 'pt>3 & abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
+    jetSelection = 'pt>10 & abs(eta)<2.4',
+    bjetSelection = 'pt>5 & abs(eta)<2.4',
+    btagAlgos = ["pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll"],
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_BTagMu_AK4DiJet20_Mu5_v*']),
+    histoPSet = dict(jetPtBinning = [0,10,15,20,30,50,70,100,150,200,400,700,1000,1500,3000])
+)
+
 BTagMu_AK4DiJet40_Mu5 = hltBTVmonitoring.clone(
     FolderName = 'HLT/BTV/BTagMu_DiJet/BTagMu_AK4DiJet40_Mu5',
     nmuons = 1,
@@ -49,6 +62,19 @@ BTagMu_AK4DiJet40_Mu5_DeepJet = hltBTVmonitoring.clone(
     jetSelection = 'pt>30 & abs(eta)<2.4',
     bjetSelection = 'pt>20 & abs(eta)<2.4',
     btagAlgos = ["pfDeepFlavourJetTags:probb", "pfDeepFlavourJetTags:probbb","pfDeepFlavourJetTags:problepb"],
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_BTagMu_AK4DiJet40_Mu5_v*']),
+    histoPSet = dict(jetPtBinning = [0,30,40,50,70,100,150,200,400,700,1000,1500,3000])
+)
+
+BTagMu_AK4DiJet40_Mu5_UParT = hltBTVmonitoring.clone(
+    FolderName = 'HLT/BTV/BTagMu_DiJet/AK4DiJet40_Mu5_UParTAK4',
+    nmuons = 1,
+    nelectrons = 0,
+    njets = 2,
+    muoSelection = 'pt>3 & abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
+    jetSelection = 'pt>30 & abs(eta)<2.4',
+    bjetSelection = 'pt>20 & abs(eta)<2.4',
+    btagAlgos = ["pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll"],
     numGenericTriggerEventPSet = dict(hltPaths = ['HLT_BTagMu_AK4DiJet40_Mu5_v*']),
     histoPSet = dict(jetPtBinning = [0,30,40,50,70,100,150,200,400,700,1000,1500,3000])
 )
@@ -76,6 +102,18 @@ BTagMu_AK4DiJet70_Mu5_DeepJet = hltBTVmonitoring.clone(
     histoPSet = dict(jetPtBinning = [0,50,60,70,80,90,100,150,200,400,700,1000,1500,3000])
 )
 
+BTagMu_AK4DiJet70_Mu5_UParT = hltBTVmonitoring.clone(
+    FolderName = 'HLT/BTV/BTagMu_DiJet/AK4DiJet70_Mu5_UParTAK4',
+    nmuons = 1,
+    nelectrons = 0,
+    njets = 2,
+    muoSelection = 'pt>3 & abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
+    jetSelection = 'pt>50 & abs(eta)<2.4',
+    btagAlgos = ["pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll"],
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_BTagMu_AK4DiJet70_Mu5_v*']),
+    histoPSet = dict(jetPtBinning = [0,50,60,70,80,90,100,150,200,400,700,1000,1500,3000])
+)
+
 BTagMu_AK4DiJet110_Mu5 = hltBTVmonitoring.clone(
     FolderName = 'HLT/BTV/BTagMu_DiJet/BTagMu_AK4DiJet110_Mu5',
     nmuons = 1,
@@ -95,6 +133,18 @@ BTagMu_AK4DiJet110_Mu5_DeepJet = hltBTVmonitoring.clone(
     muoSelection = 'pt>3 & abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
     jetSelection = 'pt>90 & abs(eta)<2.4',
     btagAlgos = ["pfDeepFlavourJetTags:probb", "pfDeepFlavourJetTags:probbb","pfDeepFlavourJetTags:problepb"],
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_BTagMu_AK4DiJet110_Mu5_v*']),
+    histoPSet = dict(jetPtBinning = [0,90,100,110,120,130,150,200,400,700,1000,1500,3000])
+)
+
+BTagMu_AK4DiJet110_Mu5_UParT = hltBTVmonitoring.clone(
+    FolderName = 'HLT/BTV/BTagMu_DiJet/AK4DiJet110_Mu5_UParTAK4',
+    nmuons = 1,
+    nelectrons = 0,
+    njets = 2,
+    muoSelection = 'pt>3 & abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
+    jetSelection = 'pt>90 & abs(eta)<2.4',
+    btagAlgos = ["pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll"],
     numGenericTriggerEventPSet = dict(hltPaths = ['HLT_BTagMu_AK4DiJet110_Mu5_v*']),
     histoPSet = dict(jetPtBinning = [0,90,100,110,120,130,150,200,400,700,1000,1500,3000])
 )
@@ -122,6 +172,19 @@ BTagMu_AK4DiJet170_Mu5_DeepJet = hltBTVmonitoring.clone(
     histoPSet = dict(jetPtBinning = [0,150,160,170,180,190,200,400,700,1000,1500,3000])
 )
 
+BTagMu_AK4DiJet170_Mu5_UParT = hltBTVmonitoring.clone(
+    FolderName = 'HLT/BTV/BTagMu_DiJet/AK4DiJet170_Mu5_UParTAK4',
+    nmuons = 1,
+    nelectrons = 0,
+    njets = 2,
+    muoSelection = 'pt>3 & abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
+    jetSelection = 'pt>150 & abs(eta)<2.4',
+    btagAlgos = ["pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll"],
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_BTagMu_AK4DiJet170_Mu5_v*']),
+    histoPSet = dict(jetPtBinning = [0,150,160,170,180,190,200,400,700,1000,1500,3000])
+)
+
+
 BTagMu_AK4Jet300_Mu5 = hltBTVmonitoring.clone(
     FolderName = 'HLT/BTV/BTagMu_Jet/BTagMu_AK4Jet300_Mu5',
     nmuons = 1,
@@ -145,6 +208,17 @@ BTagMu_AK4Jet300_Mu5_DeepJet = hltBTVmonitoring.clone(
     histoPSet = dict(jetPtBinning = [0,250,280,300,320,360,400,700,1000,1500,3000])
 )
 
+BTagMu_AK4Jet300_Mu5_UParT = hltBTVmonitoring.clone(
+    FolderName = 'HLT/BTV/BTagMu_Jet/BTagMu_AK4Jet300_Mu5_UParTAK4',
+    nmuons = 1,
+    nelectrons = 0,
+    njets = 1,
+    muoSelection = 'pt>3 & abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
+    jetSelection = 'pt>250 & abs(eta)<2.4',
+    btagAlgos = ["pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll"],
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_BTagMu_AK4Jet300_Mu5_v*']),
+    histoPSet = dict(jetPtBinning = [0,250,280,300,320,360,400,700,1000,1500,3000])
+)
 
 #BTagMu AK8
 BTagMu_AK8DiJet170_Mu5 = hltBTVmonitoring.clone(
@@ -212,6 +286,18 @@ BTagMonitor_PFJet40_DeepJet = hltBTVmonitoring.clone(
     numGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFJet40_v*'])
 )
 
+BTagMonitor_PFJet40_UParT = hltBTVmonitoring.clone(
+    FolderName = 'HLT/BTV/PFJet/PFJet40_UParTAK4',
+    nmuons = 0,
+    nelectrons = 0,
+    njets = 1,
+    jetSelection = 'pt>30 & abs(eta)<2.4',
+    bjetSelection = 'pt>20 & abs(eta)<2.4',
+    btagAlgos = ["pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll"],
+    histoPSet = dict(jetPtBinning = [0,30,35,40,45,50,60,70,100,150,200,400,700,1000,1500,3000]),
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_PFJet40_v*'])
+)
+
 # PFJet AK8
 BTagMonitor_AK8PFJet40 = hltBTVmonitoring.clone(
     FolderName = 'HLT/BTV/PFJet/AK8PFJet40',
@@ -268,18 +354,24 @@ BTagMonitor_AK8PFJetFwd40_DeepJet = hltBTVmonitoring.clone(
 btagMonitorHLT = cms.Sequence(
     BTagMu_AK4DiJet20_Mu5
   + BTagMu_AK4DiJet20_Mu5_DeepJet
+  + BTagMu_AK4DiJet20_Mu5_UParT
   + BTagMu_AK4DiJet40_Mu5
   + BTagMu_AK4DiJet40_Mu5_DeepJet
+  + BTagMu_AK4DiJet40_Mu5_UParT
   + BTagMu_AK4DiJet70_Mu5
   + BTagMu_AK4DiJet70_Mu5_DeepJet
+  + BTagMu_AK4DiJet70_Mu5_UParT
   + BTagMu_AK4DiJet110_Mu5
   + BTagMu_AK4DiJet110_Mu5_DeepJet
+  + BTagMu_AK4DiJet110_Mu5_UParT
   + BTagMu_AK4DiJet170_Mu5
   + BTagMu_AK4DiJet170_Mu5_DeepJet
+  + BTagMu_AK4DiJet170_Mu5_UParT
   + BTagMu_AK8DiJet170_Mu5
   + BTagMu_AK8Jet170_DoubleMu5
   + BTagMu_AK4Jet300_Mu5
   + BTagMu_AK4Jet300_Mu5_DeepJet
+  + BTagMu_AK4Jet300_Mu5_UParT
   + BTagMu_AK8Jet300_Mu5
 )
 
@@ -290,6 +382,7 @@ pp_on_PbPb_run3.toReplaceWith(btagMonitorHLT,btagMonitorHLT.copyAndExclude([BTag
 btvHLTDQMSourceExtra = cms.Sequence(
     BTagMonitor_PFJet40
   + BTagMonitor_PFJet40_DeepJet
+  + BTagMonitor_PFJet40_UParT
   + BTagMonitor_AK8PFJet40
   + BTagMonitor_PFJetFwd40_DeepJet
   + BTagMonitor_AK8PFJetFwd40_DeepJet
