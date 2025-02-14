@@ -3,7 +3,6 @@
 
 #include <memory>
 
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -67,8 +66,8 @@ void testmaker2::maker2Test()
 
   edm::SignallingProductRegistry preg;
   edm::PreallocationConfiguration prealloc;
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = std::make_shared<ProcessConfiguration>(
+      "PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::HardwareResourcesDescription());
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
 

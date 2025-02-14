@@ -24,7 +24,6 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -75,7 +74,8 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
-  edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  edm::ProcessConfiguration pc(
+      "PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::HardwareResourcesDescription());
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   auto rp =
       std::make_shared<edm::RunPrincipal>(pregc, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
@@ -165,7 +165,7 @@ void testEventGetRefBeforePut::getRefTest() {
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
   auto pcPtr = std::make_shared<edm::ProcessConfiguration>(
-      processName, dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+      processName, dummyProcessPset.id(), edm::getReleaseVersion(), edm::HardwareResourcesDescription());
   edm::ProcessConfiguration& pc = *pcPtr;
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   auto rp =

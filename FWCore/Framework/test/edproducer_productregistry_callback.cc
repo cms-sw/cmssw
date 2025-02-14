@@ -9,7 +9,6 @@
 #include <iostream>
 #include "cppunit/extensions/HelperMacros.h"
 #include <memory>
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
@@ -132,8 +131,8 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = std::make_shared<ProcessConfiguration>(
+      "PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::HardwareResourcesDescription());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
@@ -204,8 +203,8 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = std::make_shared<ProcessConfiguration>(
+      "PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::HardwareResourcesDescription());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
@@ -275,8 +274,8 @@ void testEDProducerProductRegistryCallback::testTwoListeners() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = std::make_shared<ProcessConfiguration>(
+      "PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::HardwareResourcesDescription());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);

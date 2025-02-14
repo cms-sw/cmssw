@@ -27,7 +27,6 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -63,8 +62,7 @@ private:
       std::string const& tag,
       std::string const& processName,
       edm::ParameterSet const& moduleParams,
-      std::string const& release = edm::getReleaseVersion(),
-      std::string const& pass = edm::getPassID());
+      std::string const& release = edm::getReleaseVersion());
   std::shared_ptr<edm::ProductDescription> fake_single_process_branch(
       std::string const& tag, std::string const& processName, std::string const& productInstanceName = std::string());
 
@@ -90,14 +88,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION(test_ep);
 std::shared_ptr<edm::ProcessConfiguration> test_ep::fake_single_module_process(std::string const& tag,
                                                                                std::string const& processName,
                                                                                edm::ParameterSet const& moduleParams,
-                                                                               std::string const& release,
-                                                                               std::string const& pass) {
+                                                                               std::string const& release) {
   edm::ParameterSet processParams;
   processParams.addParameter(processName, moduleParams);
   processParams.addParameter<std::string>("@process_name", processName);
 
   processParams.registerIt();
-  auto result = std::make_shared<edm::ProcessConfiguration>(processName, processParams.id(), release, pass);
+  auto result = std::make_shared<edm::ProcessConfiguration>(
+      processName, processParams.id(), release, edm::HardwareResourcesDescription());
   processConfigurations_[tag] = result;
   return result;
 }
