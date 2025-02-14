@@ -34,7 +34,6 @@ namespace trackerDTC {
   class AnalyzerDAQ : public one::EDAnalyzer<one::WatchRuns, one::SharedResources> {
   public:
     AnalyzerDAQ(const ParameterSet& iConfig);
-    void beginJob() override {}
     void beginRun(const Run& iEvent, const EventSetup& iSetup) override;
     void analyze(const Event& iEvent, const EventSetup& iSetup) override;
     void endRun(const Run& iEvent, const EventSetup& iSetup) override {}
@@ -45,8 +44,6 @@ namespace trackerDTC {
     EDGetTokenT<TTClusterDetSetVec> edGetToken_;
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
-    // stores, calculates and provides run-time constants
-    const Setup* setup_ = nullptr;
 
     // Histograms
 
@@ -68,18 +65,18 @@ namespace trackerDTC {
 
   void AnalyzerDAQ::beginRun(const Run& iEvent, const EventSetup& iSetup) {
     // helper class to store configurations
-    setup_ = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // book histograms
     Service<TFileService> fs;
     TFileDirectory dir;
     dir = fs->mkdir("Modules");
     int maxOcc = 150;
-    int numChannels = setup_->numDTCs() * setup_->numModulesPerDTC();
+    int numChannels = setup->numDTCs() * setup->numModulesPerDTC();
     hisModules_ = dir.make<TH1F>("His Module Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profModules_ = dir.make<TProfile>("Prof Module Occupancy", ";", numChannels, -.5, numChannels - .5);
     dir = fs->mkdir("DTCs");
     maxOcc = 3456;
-    numChannels = setup_->numDTCs();
+    numChannels = setup->numDTCs();
     hisDTCs_ = dir.make<TH1F>("His DTC Occupancy", ";", maxOcc / 16, -.5, maxOcc - .5);
     profDTCs_ = dir.make<TProfile>("Prof DTC Occupancy", ";", numChannels, -.5, numChannels - .5);
     dir = fs->mkdir("Tracker");
@@ -88,19 +85,19 @@ namespace trackerDTC {
   }
 
   void AnalyzerDAQ::analyze(const Event& iEvent, const EventSetup& iSetup) {
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // read in original TTCluster collection
     Handle<TTClusterDetSetVec> handle;
     iEvent.getByToken<TTClusterDetSetVec>(edGetToken_, handle);
     // apply cabling map, reorganise cluster collections
-    vector<vector<deque<TTClusterRef>>> dtcs(setup_->numDTCs(),
-                                             vector<deque<TTClusterRef>>(setup_->numModulesPerDTC()));
+    vector<vector<deque<TTClusterRef>>> dtcs(setup->numDTCs(), vector<deque<TTClusterRef>>(setup->numModulesPerDTC()));
     for (auto itModule = handle->begin(); itModule != handle->end(); itModule++) {
       // DetSetVec->detId - 1 or + 0 = tk layout det id depending from which of both sensor planes the cluster has been constructed
       const DetId& detIdModule = itModule->detId();
-      const int offset = setup_->trackerTopology()->isLower(detIdModule) ? 0 : setup_->offsetDetIdTP();
+      const int offset = setup->trackerTopology()->isLower(detIdModule) ? 0 : setup->offsetDetIdTP();
       const DetId detId = detIdModule + offset;
       // corresponding sensor module
-      SensorModule* sm = setup_->sensorModule(detId);
+      SensorModule* sm = setup->sensorModule(detId);
       // empty cluster collection
       deque<TTClusterRef>& module = dtcs[sm->dtcId()][sm->modId()];
       for (TTClusterDetSet::const_iterator itCluster = itModule->begin(); itCluster != itModule->end(); itCluster++)

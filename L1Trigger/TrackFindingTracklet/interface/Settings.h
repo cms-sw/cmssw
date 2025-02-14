@@ -158,6 +158,7 @@ namespace trklet {
     }
 
     unsigned int teunits(unsigned int iSeed) const { return teunits_[iSeed]; }
+    unsigned int trpunits(unsigned int iSeed) const { return trpunits_[iSeed]; }
 
     unsigned int NTC(int seed) const { return ntc_[seed]; }
 
@@ -666,7 +667,8 @@ namespace trklet {
     int chisqphifactbits_{14};
     int chisqzfactbits_{14};
 
-    std::array<unsigned int, N_SEED> teunits_{{5, 2, 5, 3, 3, 2, 3, 2, 0, 0, 0, 0}};  //teunits used by seed
+    std::array<unsigned int, N_SEED> teunits_{{5, 2, 5, 3, 3, 2, 3, 2, 0, 0, 0, 0}};       //teunits used by seed
+    std::array<unsigned int, N_SEED> trpunits_{{0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10}};  //trpunits used by seed
 
     std::array<unsigned int, N_LAYER + N_DISK> vmrlutzbits_{
         {7, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3}};  // zbits used by LUT in VMR
