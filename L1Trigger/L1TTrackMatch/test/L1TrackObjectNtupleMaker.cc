@@ -209,7 +209,7 @@ private:
   //edm::InputTag TrackMETEmuExtendedInputTag;
   edm::InputTag TrackMHTExtendedInputTag;
   edm::InputTag TrackMHTEmuExtendedInputTag;
-  
+
   edm::InputTag TrackPhiCandsInputTag;
   edm::InputTag TrackBsCandsInputTag;
   edm::InputTag TrackPhiCandsEmulationInputTag;
@@ -1045,7 +1045,7 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_trkfastjetExt_ntracks;
   delete m_trkfastjetExt_tp_sumpt;
   delete m_trkfastjetExt_truetp_sumpt;
-  
+
   delete m_phicands_eta;
   delete m_phicands_phi;
   delete m_phicands_mass;
@@ -1063,7 +1063,6 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_bscandsemulation_phi;
   delete m_bscandsemulation_mass;
   delete m_bscandsemulation_pt;
-
 }
 
 ////////////
@@ -1336,7 +1335,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_trkfastjetExt_ntracks = new std::vector<int>;
   m_trkfastjetExt_tp_sumpt = new std::vector<float>;
   m_trkfastjetExt_truetp_sumpt = new std::vector<float>;
-  
+
   m_phicands_eta = new std::vector<float>;
   m_phicands_phi = new std::vector<float>;
   m_phicands_mass = new std::vector<float>;
@@ -1345,7 +1344,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_phicandsemulation_phi = new std::vector<float>;
   m_phicandsemulation_mass = new std::vector<float>;
   m_phicandsemulation_pt = new std::vector<float>;
-  
+
   m_bscands_eta = new std::vector<float>;
   m_bscands_phi = new std::vector<float>;
   m_bscands_mass = new std::vector<float>;
@@ -1354,7 +1353,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_bscandsemulation_phi = new std::vector<float>;
   m_bscandsemulation_mass = new std::vector<float>;
   m_bscandsemulation_pt = new std::vector<float>;
-  
+
   // ntuple
   eventTree = fs->make<TTree>("eventTree", "Event tree");
   if (SaveAllTracks && (Displaced == "Prompt" || Displaced == "Both")) {
@@ -1651,25 +1650,25 @@ void L1TrackObjectNtupleMaker::beginJob() {
       eventTree->Branch("trkHTEmuExt", &trkHTEmuExt, "trkHTEmuExt/F");
     }
   }
-  
+
   if (SaveTrackPhiCands) {
     eventTree->Branch("phicands_eta", &m_phicands_eta);
     eventTree->Branch("phicands_mass", &m_phicands_mass);
     eventTree->Branch("phicands_pt", &m_phicands_pt);
     eventTree->Branch("phicands_phi", &m_phicands_phi);
-    
+
     eventTree->Branch("phicandsemulation_eta", &m_phicandsemulation_eta);
     eventTree->Branch("phicandsemulation_mass", &m_phicandsemulation_mass);
     eventTree->Branch("phicandsemulation_pt", &m_phicandsemulation_pt);
     eventTree->Branch("phicandsemulation_phi", &m_phicandsemulation_phi);
   }
-  
+
   if (SaveTrackBsCands) {
     eventTree->Branch("bscands_eta", &m_bscands_eta);
     eventTree->Branch("bscands_mass", &m_bscands_mass);
     eventTree->Branch("bscands_pt", &m_bscands_pt);
     eventTree->Branch("bscands_phi", &m_bscands_phi);
-    
+
     eventTree->Branch("bscandsemulation_eta", &m_bscandsemulation_eta);
     eventTree->Branch("bscandsemulation_mass", &m_bscandsemulation_mass);
     eventTree->Branch("bscandsemulation_pt", &m_bscandsemulation_pt);
@@ -1683,8 +1682,8 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
   if (not available_)
     return;  // No ROOT file open.
 
-  if (!(MyProcess == 13 || MyProcess == 11 || MyProcess == 211 || MyProcess == 6 || MyProcess == 15 ||
-        MyProcess == 1 || MyProcess == 321)) {
+  if (!(MyProcess == 13 || MyProcess == 11 || MyProcess == 211 || MyProcess == 6 || MyProcess == 15 || MyProcess == 1 ||
+        MyProcess == 321)) {
     edm::LogVerbatim("Tracklet") << "The specified MyProcess is invalid! Exiting...";
     return;
   }
@@ -1960,13 +1959,13 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_phicands_pt->clear();
     m_phicands_phi->clear();
     m_phicands_mass->clear();
-    
+
     m_phicandsemulation_eta->clear();
     m_phicandsemulation_pt->clear();
     m_phicandsemulation_phi->clear();
     m_phicandsemulation_mass->clear();
   }
-  
+
   if (SaveTrackBsCands) {
     m_bscands_eta->clear();
     m_bscands_pt->clear();
@@ -1978,7 +1977,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     m_bscandsemulation_phi->clear();
     m_bscandsemulation_mass->clear();
   }
-  
+
   // -----------------------------------------------------------------------------------------------
   // retrieve various containers
   // -----------------------------------------------------------------------------------------------
@@ -2074,12 +2073,12 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
   edm::Handle<L1TrackRefCollection> TTTrackExtendedSelectedAssociatedEmulationForEtMissHandle;
   edm::Handle<L1TrackRefCollection> TTTrackExtendedSelectedForEtMissHandle;
   edm::Handle<L1TrackRefCollection> TTTrackExtendedSelectedEmulationForEtMissHandle;
-  
+
   edm::Handle<l1t::TkPhiCandidateCollection> TrackPhiCandsHandle;
   edm::Handle<l1t::TkBsCandidateCollection> TrackBsCandsHandle;
   edm::Handle<l1t::TkLightMesonWordCollection> TrackPhiCandsEmulationHandle;
   edm::Handle<l1t::TkLightMesonWordCollection> TrackBsCandsEmulationHandle;
-  
+
   L1TrackCollection::const_iterator iterL1Track;
 
   if (Displaced == "Prompt" || Displaced == "Both") {
@@ -2185,7 +2184,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
   } else {
     edm::LogWarning("DataNotFound") << "\nWarning: SimVertexHandle not found in the event" << std::endl;
   }
-  
+
   // ----------------------------------------------------------------------------------------------
   // loop over L1 stubs
   // ----------------------------------------------------------------------------------------------
@@ -2504,7 +2503,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
       this_l1track++;
     }  //end track loop
-  }    //end if SaveAllTracks
+  }  //end if SaveAllTracks
 
   // ----------------------------------------------------------------------------------------------
   // loop over (extended) L1 tracks
@@ -2718,7 +2717,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         m_trkExt_selected_associated_emulation_foretmiss_index->push_back(this_l1track);
       this_l1track++;
     }  //end track loop
-  }    //end if SaveAllTracks (displaced)
+  }  //end if SaveAllTracks (displaced)
 
   // ----------------------------------------------------------------------------------------------
   // loop over tracking particles
@@ -2970,7 +2969,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
           }
 
         }  // end loop over matched L1 tracks
-      }    // end has at least 1 matched L1 track
+      }  // end has at least 1 matched L1 track
       // ----------------------------------------------------------------------------------------------
 
       float tmp_matchtrk_pt = -999;
@@ -3141,7 +3140,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
           }
 
         }  // end loop over matched L1 tracks
-      }    // end has at least 1 matched L1 track
+      }  // end has at least 1 matched L1 track
       // ----------------------------------------------------------------------------------------------
 
       float tmp_matchtrkExt_pt = -999;
@@ -3390,7 +3389,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         m_trkjetExt_nTightDisplaced->push_back(jetIter->nTightDisptracks());
       }
     }
-  
+
     if (!TrackJetsEmuHandle.isValid() && (Displaced == "Prompt" || Displaced == "Both"))
       edm::LogWarning("DataNotFound") << "\nWarning: TrackJetsEmuHandle not found" << std::endl;
     else if (TrackJetsEmuHandle.isValid() && (Displaced == "Prompt" || Displaced == "Both")) {
@@ -3422,45 +3421,38 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     if (TrackPhiCandsHandle.isValid()) {
       std::vector<l1t::TkPhiCandidate>::const_iterator phicandsIter;
       for (phicandsIter = TrackPhiCandsHandle->begin(); phicandsIter != TrackPhiCandsHandle->end(); ++phicandsIter) {
-        if (0) cout << "Phi Candidate: ("
-                    << phicandsIter->pt() << ", "
-                    << phicandsIter->eta() << ", "
-                    << phicandsIter->phi() << ", "
-                    << phicandsIter->mass()
-                    << ")" << endl;
+        if (0)
+          cout << "Phi Candidate: (" << phicandsIter->pt() << ", " << phicandsIter->eta() << ", " << phicandsIter->phi()
+               << ", " << phicandsIter->mass() << ")" << endl;
         m_phicands_phi->push_back(phicandsIter->phi());
         m_phicands_eta->push_back(phicandsIter->eta());
         m_phicands_pt->push_back(phicandsIter->pt());
         m_phicands_mass->push_back(phicandsIter->mass());
       }
     }
-    
+
     if (TrackPhiCandsEmulationHandle.isValid()) {
       std::vector<l1t::TkLightMesonWord>::const_iterator phicandsemulationIter;
-      for (phicandsemulationIter = TrackPhiCandsEmulationHandle->begin(); phicandsemulationIter != TrackPhiCandsEmulationHandle->end(); ++phicandsemulationIter) {
-        if (0) cout << "Emu Phi Candidate: ("
-                    << phicandsemulationIter->pt() << ", "
-                    << phicandsemulationIter->glbeta() << ", "
-                    << phicandsemulationIter->glbphi() << ", "
-                    << phicandsemulationIter->mass()
-                    << ")" << endl;
+      for (phicandsemulationIter = TrackPhiCandsEmulationHandle->begin();
+           phicandsemulationIter != TrackPhiCandsEmulationHandle->end();
+           ++phicandsemulationIter) {
+        if (0)
+          cout << "Emu Phi Candidate: (" << phicandsemulationIter->pt() << ", " << phicandsemulationIter->glbeta()
+               << ", " << phicandsemulationIter->glbphi() << ", " << phicandsemulationIter->mass() << ")" << endl;
         m_phicandsemulation_phi->push_back(phicandsemulationIter->glbphi());
-	m_phicandsemulation_eta->push_back(phicandsemulationIter->glbeta());
-	m_phicandsemulation_pt->push_back(phicandsemulationIter->pt());
-	m_phicandsemulation_mass->push_back(phicandsemulationIter->mass());
+        m_phicandsemulation_eta->push_back(phicandsemulationIter->glbeta());
+        m_phicandsemulation_pt->push_back(phicandsemulationIter->pt());
+        m_phicandsemulation_mass->push_back(phicandsemulationIter->mass());
       }
     }
-  } // end track phicands                                                                                                                                                                                                                                                                                                                                                     
+  }  // end track phicands
   if (SaveTrackBsCands) {
     if (TrackBsCandsHandle.isValid()) {
       std::vector<l1t::TkBsCandidate>::const_iterator bscandsIter;
       for (bscandsIter = TrackBsCandsHandle->begin(); bscandsIter != TrackBsCandsHandle->end(); ++bscandsIter) {
-        if (0) cout << "Bs Candidate: ("
-                    << bscandsIter->pt() << ", "
-                    << bscandsIter->eta() << ", "
-                    << bscandsIter->phi() << ", "
-                    << bscandsIter->mass()
-                    << ")" << endl;
+        if (0)
+          cout << "Bs Candidate: (" << bscandsIter->pt() << ", " << bscandsIter->eta() << ", " << bscandsIter->phi()
+               << ", " << bscandsIter->mass() << ")" << endl;
 
         m_bscands_phi->push_back(bscandsIter->phi());
         m_bscands_eta->push_back(bscandsIter->eta());
@@ -3468,26 +3460,25 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         m_bscands_mass->push_back(bscandsIter->mass());
       }
     }
-    
+
     if (TrackBsCandsEmulationHandle.isValid()) {
       std::vector<l1t::TkLightMesonWord>::const_iterator bscandsemulationIter;
-      for (bscandsemulationIter = TrackBsCandsEmulationHandle->begin(); bscandsemulationIter != TrackBsCandsEmulationHandle->end(); ++bscandsemulationIter) {
-        if (0) cout << "Emu bs Candidate: ("
-                    << bscandsemulationIter->pt() << ", "
-                    << bscandsemulationIter->glbeta() << ", "
-                    << bscandsemulationIter->glbphi() << ", "
-                    << bscandsemulationIter->mass()
-                    << ")" << endl;
-	
+      for (bscandsemulationIter = TrackBsCandsEmulationHandle->begin();
+           bscandsemulationIter != TrackBsCandsEmulationHandle->end();
+           ++bscandsemulationIter) {
+        if (0)
+          cout << "Emu bs Candidate: (" << bscandsemulationIter->pt() << ", " << bscandsemulationIter->glbeta() << ", "
+               << bscandsemulationIter->glbphi() << ", " << bscandsemulationIter->mass() << ")" << endl;
+
         m_bscandsemulation_phi->push_back(bscandsemulationIter->glbphi());
         m_bscandsemulation_eta->push_back(bscandsemulationIter->glbeta());
         m_bscandsemulation_pt->push_back(bscandsemulationIter->pt());
         m_bscandsemulation_mass->push_back(bscandsemulationIter->mass());
       }
     }
-  } // end track bscands    
+  }  // end track bscands
   eventTree->Fill();
-} // end of analyze()
+}  // end of analyze()
 
 int L1TrackObjectNtupleMaker::getSelectedTrackIndex(const L1TrackRef& trackRef,
                                                     const edm::Handle<L1TrackRefCollection>& selectedTrackRefs) const {

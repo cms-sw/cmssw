@@ -44,9 +44,8 @@ namespace l1t {
       kNtracksSize = 3,
       kIndexSize = 8,
       kUnassignedSize = 9,
-      kTkLightMesonWordSize = 
-        kValidSize + kPtSize + kGlbPhiSize + kGlbEtaSize + kZ0Size + kMassSize + kTypeSize + 
-        kNtracksSize + 2 * kIndexSize + kUnassignedSize
+      kTkLightMesonWordSize = kValidSize + kPtSize + kGlbPhiSize + kGlbEtaSize + kZ0Size + kMassSize + kTypeSize +
+                              kNtracksSize + 2 * kIndexSize + kUnassignedSize
     };
 
     enum TkLightMesonBitLocations {
@@ -74,34 +73,35 @@ namespace l1t {
       kUnassignedMSB = kUnassignedLSB + TkLightMesonBitWidths::kUnassignedSize - 1
     };
 
-    using valid_t      = ap_uint<TkLightMesonBitWidths::kValidSize>;
-    using pt_t         = ap_ufixed<TkLightMesonBitWidths::kPtSize, TkLightMesonBitWidths::kPtMagSize, AP_RND_CONV, AP_SAT>;
-    using glbphi_t     = ap_int<TkLightMesonBitWidths::kGlbPhiSize>;
-    using glbeta_t     = ap_int<TkLightMesonBitWidths::kGlbEtaSize>;
-    using z0_t         = ap_int<TkLightMesonBitWidths::kZ0Size>;     // 40cm / 0.1
-    using mass_t       = ap_ufixed<TkLightMesonBitWidths::kMassSize, TkLightMesonBitWidths::kMassMagSize, AP_RND_CONV, AP_SAT>;
-    using type_t       = ap_uint<TkLightMesonBitWidths::kTypeSize>;       //type of meson
-    using ntracks_t    = ap_uint<TkLightMesonBitWidths::kNtracksSize>;    //number of tracks
-    using index_t      = ap_uint<TkLightMesonBitWidths::kIndexSize>;      //index of track in collection
-    using unassigned_t = ap_uint<TkLightMesonBitWidths::kUnassignedSize>; // Unassigned bits
+    using valid_t = ap_uint<TkLightMesonBitWidths::kValidSize>;
+    using pt_t = ap_ufixed<TkLightMesonBitWidths::kPtSize, TkLightMesonBitWidths::kPtMagSize, AP_RND_CONV, AP_SAT>;
+    using glbphi_t = ap_int<TkLightMesonBitWidths::kGlbPhiSize>;
+    using glbeta_t = ap_int<TkLightMesonBitWidths::kGlbEtaSize>;
+    using z0_t = ap_int<TkLightMesonBitWidths::kZ0Size>;  // 40cm / 0.1
+    using mass_t =
+        ap_ufixed<TkLightMesonBitWidths::kMassSize, TkLightMesonBitWidths::kMassMagSize, AP_RND_CONV, AP_SAT>;
+    using type_t = ap_uint<TkLightMesonBitWidths::kTypeSize>;              //type of meson
+    using ntracks_t = ap_uint<TkLightMesonBitWidths::kNtracksSize>;        //number of tracks
+    using index_t = ap_uint<TkLightMesonBitWidths::kIndexSize>;            //index of track in collection
+    using unassigned_t = ap_uint<TkLightMesonBitWidths::kUnassignedSize>;  // Unassigned bits
 
     using tklightmesonword_bs_t = std::bitset<TkLightMesonBitWidths::kTkLightMesonWordSize>;
-    using tklightmesonword_t    = ap_uint<TkLightMesonBitWidths::kTkLightMesonWordSize>;
+    using tklightmesonword_t = ap_uint<TkLightMesonBitWidths::kTkLightMesonWordSize>;
 
   public:
     // ----------Constructors --------------------------
     TkLightMesonWord() {}
-    TkLightMesonWord(valid_t valid, 
-		     pt_t pt, 
-		     glbphi_t phi, 
-		     glbeta_t eta, 
-		     z0_t z0, 
-		     mass_t mass, 
-		     type_t type, 
-		     ntracks_t ntracks, 
-		     index_t firstIndex, 
-		     index_t secondIndex, 
-		     unassigned_t unassigned); 
+    TkLightMesonWord(valid_t valid,
+                     pt_t pt,
+                     glbphi_t phi,
+                     glbeta_t eta,
+                     z0_t z0,
+                     mass_t mass,
+                     type_t type,
+                     ntracks_t ntracks,
+                     index_t firstIndex,
+                     index_t secondIndex,
+                     unassigned_t unassigned);
     ~TkLightMesonWord() {}
 
     // ----------copy constructor ----------------------
@@ -115,7 +115,9 @@ namespace l1t {
 
     // ----------member functions (getters) ------------
     // These functions return arbitarary precision words (lists of bits) for each quantity
-    valid_t validWord() const { return tkLightMesonWord()(TkLightMesonBitLocations::kValidMSB, TkLightMesonBitLocations::kValidLSB); }
+    valid_t validWord() const {
+      return tkLightMesonWord()(TkLightMesonBitLocations::kValidMSB, TkLightMesonBitLocations::kValidLSB);
+    }
     pt_t ptWord() const {
       pt_t ret;
       ret.V = tkLightMesonWord()(TkLightMesonBitLocations::kPtMSB, TkLightMesonBitLocations::kPtLSB);
@@ -195,17 +197,17 @@ namespace l1t {
     unsigned int unassigned() const { return unassignedWord().to_uint(); }
 
     // ----------member functions (setters) ------------
-    void setTkLightMesonWord(valid_t valid, 
-			     pt_t pt, 
-			     glbphi_t phi,  
-			     glbeta_t eta, 
-			     z0_t z0, 
-			     mass_t mass, 
-			     type_t type, 
-			     ntracks_t ntracks, 
-			     index_t firstIndex, 
-			     index_t secondIndex, 
-			     unassigned_t unassigned);
+    void setTkLightMesonWord(valid_t valid,
+                             pt_t pt,
+                             glbphi_t phi,
+                             glbeta_t eta,
+                             z0_t z0,
+                             mass_t mass,
+                             type_t type,
+                             ntracks_t ntracks,
+                             index_t firstIndex,
+                             index_t secondIndex,
+                             unassigned_t unassigned);
 
   private:
     // ----------private member functions --------------

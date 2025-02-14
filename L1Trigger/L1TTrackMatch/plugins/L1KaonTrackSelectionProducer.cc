@@ -17,7 +17,7 @@
 */
 //----------------------------------------------------------------------------
 // Authors: Alexx Perloff, Pritam Palit (original version, 2021),
-//          Sweta Baradia, Suchandra Dutta, Subir Sarkar (February 2025)  
+//          Sweta Baradia, Suchandra Dutta, Subir Sarkar (February 2025)
 //----------------------------------------------------------------------------
 // system include files
 #include <algorithm>
@@ -68,11 +68,11 @@ public:
 
 private:
   // ----------constants, enums and typedefs ---------
-  using L1Track                  = TTTrack<Ref_Phase2TrackerDigi_>;
-  using TTTrackCollection        = std::vector<L1Track>;
-  using TTTrackRef               = edm::Ref<TTTrackCollection>;
-  using TTTrackRefCollection     = edm::RefVector<TTTrackCollection>;
-  using TTTrackCollectionHandle  = edm::Handle<TTTrackRefCollection>;
+  using L1Track = TTTrack<Ref_Phase2TrackerDigi_>;
+  using TTTrackCollection = std::vector<L1Track>;
+  using TTTrackRef = edm::Ref<TTTrackCollection>;
+  using TTTrackRefCollection = edm::RefVector<TTTrackCollection>;
+  using TTTrackCollectionHandle = edm::Handle<TTTrackRefCollection>;
   using TTTrackRefCollectionUPtr = std::unique_ptr<TTTrackRefCollection>;
 
   // ----------meprintDebugInfomber functions ----------------------
@@ -80,13 +80,13 @@ private:
 
   // ----------selectors -----------------------------
   // Based on recommendations from https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideGenericSelectors
-  // Track charge selection 
+  // Track charge selection
 
-  bool TTTrackChargeSelector(const L1Track& t) const { return std::signbit(t.rInv()) ;}; 
+  bool TTTrackChargeSelector(const L1Track& t) const { return std::signbit(t.rInv()); };
 
-  bool TTTrackWordChargeSelector (const L1Track& t) const {
-    ap_uint<1> chargeEmulationBits = t.getTrackWord()(
-	       TTTrack_TrackWord::TrackBitLocations::kRinvMSB, TTTrack_TrackWord::TrackBitLocations::kRinvMSB);
+  bool TTTrackWordChargeSelector(const L1Track& t) const {
+    ap_uint<1> chargeEmulationBits = t.getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kRinvMSB,
+                                                      TTTrack_TrackWord::TrackBitLocations::kRinvMSB);
     return chargeEmulationBits.to_uint();
   };
 
@@ -101,16 +101,16 @@ private:
 // constructors and destructor
 //
 L1KaonTrackSelectionProducer::L1KaonTrackSelectionProducer(const edm::ParameterSet& iConfig)
-  : l1TracksToken_(consumes<TTTrackRefCollection>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
-    outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")),
-    processSimulatedTracks_(iConfig.getParameter<bool>("processSimulatedTracks")),
-    processEmulatedTracks_(iConfig.getParameter<bool>("processEmulatedTracks")),
-    debug_(iConfig.getParameter<int>("debug")) {
+    : l1TracksToken_(consumes<TTTrackRefCollection>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
+      outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")),
+      processSimulatedTracks_(iConfig.getParameter<bool>("processSimulatedTracks")),
+      processEmulatedTracks_(iConfig.getParameter<bool>("processEmulatedTracks")),
+      debug_(iConfig.getParameter<int>("debug")) {
   // Ensure that the configuration makes sense
   if (!processSimulatedTracks_ && !processEmulatedTracks_) {
     throw cms::Exception("You must process at least one of the track collections (simulated or emulated).");
   }
- 
+
   // Get additional input tags and define the EDM output based on the previous configuration parameters
   if (processSimulatedTracks_) {
     produces<TTTrackRefCollection>(outputCollectionName_ + "Positivecharge");
@@ -138,16 +138,16 @@ void L1KaonTrackSelectionProducer::produce(edm::StreamID, edm::Event& iEvent, co
   TTTrackCollectionHandle l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
   size_t nTracks = l1TracksHandle->size();
-  if (!nTracks) return;
+  if (!nTracks)
+    return;
 
-  
   if (processSimulatedTracks_) {
-    vTTPosTrackOutput->reserve(static_cast<std::size_t>(std::round(nTracks*0.6)));
-    vTTNegTrackOutput->reserve(static_cast<std::size_t>(std::round(nTracks*0.6)));
+    vTTPosTrackOutput->reserve(static_cast<std::size_t>(std::round(nTracks * 0.6)));
+    vTTNegTrackOutput->reserve(static_cast<std::size_t>(std::round(nTracks * 0.6)));
   }
   if (processEmulatedTracks_) {
-    vTTPosTrackEmulationOutput->reserve(static_cast<std::size_t>(std::round(nTracks*0.6)));
-    vTTNegTrackEmulationOutput->reserve(static_cast<std::size_t>(std::round(nTracks*0.6)));
+    vTTPosTrackEmulationOutput->reserve(static_cast<std::size_t>(std::round(nTracks * 0.6)));
+    vTTNegTrackEmulationOutput->reserve(static_cast<std::size_t>(std::round(nTracks * 0.6)));
   }
 
   for (size_t i = 0; i < nTracks; i++) {
@@ -156,15 +156,14 @@ void L1KaonTrackSelectionProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
     // Select tracks based on the floating point TTTrack
     if (processSimulatedTracks_) {
-      (!TTTrackChargeSelector(track) ? vTTPosTrackOutput->push_back(trackRef)
-             	                     : vTTNegTrackOutput->push_back(trackRef));
+      (!TTTrackChargeSelector(track) ? vTTPosTrackOutput->push_back(trackRef) : vTTNegTrackOutput->push_back(trackRef));
     }
     // Select tracks based on the bitwise accurate TTTrack_TrackWord
     if (processEmulatedTracks_) {
       (!TTTrackWordChargeSelector(track) ? vTTPosTrackEmulationOutput->push_back(trackRef)
                                          : vTTNegTrackEmulationOutput->push_back(trackRef));
     }
-  }  
+  }
   // Put the outputs into the event
   if (processSimulatedTracks_) {
     iEvent.put(std::move(vTTPosTrackOutput), outputCollectionName_ + "Positivecharge");
