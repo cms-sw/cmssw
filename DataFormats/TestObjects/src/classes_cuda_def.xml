@@ -1,0 +1,13 @@
+<lcgdict>
+  <!--
+  A simple data product used to test that the framework handles correctly the case of
+  edm::Wrapper<T> where
+    - T has a dictionary
+    - edm::Wrapper<T> does not have a dictionary
+    - the corresponding classes.h file includes CUDA headers
+  -->
+  <class name="edmtest::MissingDictionaryCUDAObject"/>
+  <!--
+  <class name="edm::Wrapper<edmtest::MissingDictionaryCUDAObject>" splitLevel="0"/>
+  -->
+</lcgdict>
