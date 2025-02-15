@@ -54,7 +54,7 @@ etlValidation = cms.Sequence(process.etlSimHitsValid + process.etlDigiHitsValid 
 # --- Global Validation
 process.load("Validation.MtdValidation.mtdTracksValid_cfi")
 process.load("Validation.MtdValidation.mtdEleIsoValid_cfi")
-process.load("Validation.MtdValidation.vertices4DValid_cfi")
+process.load("Validation.MtdValidation.vertices4DValid_cff")
 
 # process.btlDigiHitsValid.optionalPlots = True
 # process.etlDigiHitsValid.optionalPlots = True
