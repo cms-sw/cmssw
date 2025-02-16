@@ -1,0 +1,12 @@
+<use name="DataFormats/NanoAOD"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="IOPool/Provenance"/>
+<use name="CommonTools/Utils"/> <!-- expressionParser -->
+<use name="Utilities/General"/> <!-- Demangle -->
+<library file="*.cc" name="HLTriggerHLTUpgradeNano_plugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+

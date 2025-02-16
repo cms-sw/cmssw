@@ -1,0 +1,11 @@
+<use name="FWCore/Utilities"/>
+<use name="FWCore/Common"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/StdDictionaries"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="boost"/>
+<export>
+  <lib   name="1"/>
+</export>
+
