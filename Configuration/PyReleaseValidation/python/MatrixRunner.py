@@ -1,4 +1,5 @@
 import os, sys, time
+import subprocess
 
 from collections import Counter
 
@@ -16,9 +17,23 @@ class MatrixRunner(object):
         self.threadList = []
         self.maxThreads = nThrMax
         self.nThreads = nThreads
-        self.gpu = gpu
+        self.gpus = ()
 
-        if self.gpu:
+        if gpu:
+            print("> Running with --gpu option. Checking the GPUs available.")
+            cuda = subprocess.check_output("cudaComputeCapabilities", shell=True, executable="/bin/bash").decode('utf8')
+            # Building on top of the {cuda|rocm}ComputeCapabilities 
+            # output in case of no {NVIDIA|AMD} GPU:
+            # 'no XXX-capable device is detecte'
+            if "capable device is detected" in cuda:
+                cuda = 0
+            else:   
+                print(cuda.split("\n"))
+            rocm = subprocess.check_output("rocmComputeCapabilities", shell=True, executable="/bin/bash").decode('utf8')
+            if "capable device is detected" in rocm:
+                rocm = 0
+            else:
+                print(cuda.split("\n"))
             print("Checks for GPU")
             pass
 
