@@ -1,19 +1,26 @@
 import os, sys, time
 
+from collections import Counter
+
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
 from Configuration.PyReleaseValidation.WorkFlowRunner import WorkFlowRunner
-
+from Configuration.PyReleaseValidation.MatrixUtil import check_dups
 # ================================================================================
 
 class MatrixRunner(object):
 
-    def __init__(self, wfIn=None, nThrMax=4, nThreads=1):
+    def __init__(self, wfIn=None, nThrMax=4, nThreads=1, gpu=False):
 
         self.workFlows = wfIn
 
         self.threadList = []
         self.maxThreads = nThrMax
         self.nThreads = nThreads
+        self.gpu = gpu
+
+        if self.gpu:
+            print("Checks for GPU")
+            pass
 
         #the directories in which it happened
         self.runDirs={}
@@ -43,12 +50,19 @@ class MatrixRunner(object):
             print('resetting to default number of process threads = %s' %  self.maxThreads)
 
         print('Running %s %s %s, each with %s thread%s per process' % ('up to' if self.maxThreads > 1 else '', self.maxThreads, 'concurrent jobs' if self.maxThreads > 1 else 'job', self.nThreads, 's' if self.nThreads > 1 else ''))
+        
+        njob = None
+        wfs_to_run = self.workFlows
+        withDups = False
+        if testList:
+            withDups = len(check_dups(testList))>0
+            wfs_to_run = [wf for wf in self.workFlows if float(wf.numId) in testList for i in range(Counter(testList)[wf.numId])]
 
+        for n,wf in enumerate(wfs_to_run):
 
-        for wf in self.workFlows:
-
-            if testList and float(wf.numId) not in [float(x) for x in testList]: continue
-
+            if withDups and opt.nProcs > 1: # to avoid overwriting the work areas
+                njob = n
+        
             item = wf.nameId
             if os.path.islink(item) : continue # ignore symlinks
 
@@ -58,7 +72,7 @@ class MatrixRunner(object):
 
             print('\nPreparing to run %s %s' % (wf.numId, item))
             sys.stdout.flush()
-            current = WorkFlowRunner(wf,opt,noRun,dryRun,cafVeto)
+            current = WorkFlowRunner(wf,opt,noRun,dryRun,cafVeto,njob)
             self.threadList.append(current)
             current.start()
             if not dryRun:
