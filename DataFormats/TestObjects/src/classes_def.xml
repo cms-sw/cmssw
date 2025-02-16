@@ -146,6 +146,16 @@
  <class name="edm::Wrapper<std::vector<edmtest::Thing> >"/>
  <class name="edm::Wrapper<std::vector<edmtest::OtherThing> >"/>
 
+ <class name="edmtest::ThingWithPostInsert" ClassVersion="3">
+  <version ClassVersion="3" checksum="2193684721"/>
+ </class>
+ <class name="edm::Wrapper<edmtest::ThingWithPostInsert>"/>
+
+ <class name="edmtest::ThingWithDoNotSort" ClassVersion="3">
+  <version ClassVersion="3" checksum="1286605803"/>
+ </class>
+ <class name="edm::Wrapper<edmtest::ThingWithDoNotSort>"/>
+
  <class name="edmNew::DetSetVector<edmtest::Thing>"/>
  <class name="edm::Ref<edmNew::DetSetVector<edmtest::Thing>, edmtest::Thing, edmNew::DetSetVector<edmtest::Thing>::FindForDetSetVector>"/>
  <class name="edm::RefVector<edmNew::DetSetVector<edmtest::Thing>, edmtest::Thing, edmNew::DetSetVector<edmtest::Thing>::FindForDetSetVector>"/>
