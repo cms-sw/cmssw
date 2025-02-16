@@ -7,7 +7,7 @@ from os.path import exists, basename, join
 from datetime import datetime
 
 class WorkFlowRunner(Thread):
-    def __init__(self, wf, opt, noRun=False, dryRun=False, cafVeto=True):
+    def __init__(self, wf, opt, noRun=False, dryRun=False, cafVeto=True, jobNumber=None):
         Thread.__init__(self)
         self.wf = wf
 
@@ -29,6 +29,9 @@ class WorkFlowRunner(Thread):
         self.recycle = opt.recycle
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
+        if jobNumber is not None:
+            self.wfDir = self.wfDir + '_job' + str(jobNumber)
+        print(self.wfDir)
         return
 
     def doCmd(self, cmd):

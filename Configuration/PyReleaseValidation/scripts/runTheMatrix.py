@@ -28,8 +28,6 @@ def runSelected(opt):
         testSet = set(opt.testList)
         undefSet = testSet - definedSet
         if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
-        duplicates = [wf for wf in testSet if definedWf.count(wf)>1 ]
-        if len(duplicates)>0: raise ValueError('Duplicated workflows: '+', '.join(map(str,list(duplicates))))
 
     ret = 0
     if opt.show:
@@ -497,7 +495,7 @@ if __name__ == '__main__':
                 except:
                     print(entry,'is not a possible selected entry')
 
-        opt.testList = list(set(testList))
+        opt.testList = list(testList)
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
