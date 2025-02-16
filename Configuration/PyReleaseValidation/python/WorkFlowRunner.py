@@ -7,24 +7,26 @@ from os.path import exists, basename, join
 from datetime import datetime
 
 class WorkFlowRunner(Thread):
-    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False, nThreads=1, nStreams=0, maxSteps=9999, nEvents=0):
+    def __init__(self, wf, opt, noRun=False, dryRun=False, cafVeto=True):
         Thread.__init__(self)
         self.wf = wf
 
-        self.status=-1
-        self.report=''
-        self.nfail=0
-        self.npass=0
-        self.noRun=noRun
-        self.dryRun=dryRun
-        self.cafVeto=cafVeto
-        self.dasOptions=dasOptions
-        self.jobReport=jobReport
-        self.nThreads=nThreads
-        self.nStreams=nStreams
-        self.maxSteps=maxSteps
-        self.nEvents=nEvents
-        self.recoOutput=''
+        self.status = -1
+        self.report  =''
+        self.nfail = 0
+        self.npass = 0
+        self.noRun = noRun
+        self.dryRun = dryRun
+        self.cafVeto = cafVeto
+        self.dasOptions = opt.dasOptions
+        self.jobReport = opt.jobReports
+        self.nThreads = opt.nThreads
+        self.nStreams = opt.nStreams
+        self.maxSteps = opt.maxSteps
+        self.nEvents = opt.nEvents
+        self.recoOutput = ''
+        self.startFrom = opt.startFrom
+        self.recycle = opt.recycle
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
         return
@@ -98,6 +100,9 @@ class WorkFlowRunner(Thread):
                 self.stat.append('NOTRUN')
                 continue
             if not isinstance(com,str):
+                if self.recycle:
+                    inFile = self.recycle
+                    continue
                 if self.cafVeto and (com.location == 'CAF' and not onCAF):
                     print("You need to be no CAF to run",self.wf.numId)
                     self.npass.append(0)
@@ -147,6 +152,15 @@ class WorkFlowRunner(Thread):
             else:
                 #chaining IO , which should be done in WF object already and not using stepX.root but <stepName>.root
                 cmd += com
+
+                if self.startFrom:
+                    steps = cmd.split("-s ")[1].split(" ")[0]
+                    if self.startFrom not in steps:
+                        continue
+                    else:
+                        self.startFrom = False
+                        inFile = self.recycle
+                
                 if self.noRun:
                     cmd +=' --no_exec'
                 # in case previous step used DAS query (either filelist of das:)
@@ -191,6 +205,7 @@ class WorkFlowRunner(Thread):
                   cmd = split[0] + event_token + '%s ' % self.nEvents + pos_cmd
                 cmd+=closeCmd(istep,self.wf.nameId)            
                 retStep = 0
+
                 if istep>self.maxSteps:
                    wf_stats = open("%s/wf_steps.txt" % self.wfDir,"a")
                    wf_stats.write('step%s:%s\n' % (istep, cmd))

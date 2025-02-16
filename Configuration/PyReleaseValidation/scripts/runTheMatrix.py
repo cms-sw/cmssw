@@ -173,7 +173,20 @@ if __name__ == '__main__':
                         dest='memoryOffset',
                         type=int,
                         default=3000)
+    
+    parser.add_argument('--startFrom',
+                        help='Start from a specific step (e.g. GEN,SIM,DIGI,RECO)',
+                        dest='startFrom',
+                        type=str,
+                        default=None)
 
+    parser.add_argument('--recycle',
+                        help='Input file to recycle. To be used if the first step is an input step or togehter with --startFrom. '
+                        'N.B.: runTheMatrix.py will create its own workdirectory so if yo use a relative path, be careful.',
+                        dest='recycle',
+                        type=str,
+                        default=None)
+                        
     parser.add_argument('--addMemPerCore',
                         help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
                         dest='memPerCore',
@@ -216,6 +229,12 @@ if __name__ == '__main__':
                         default=False,
                         action='store_true')
 
+    parser.add_argument('-c','--checkInputs',
+                        help='Check if the default inputs are well defined. To be used with --show',
+                        dest='checkInputs',
+                        default=False,
+                        action='store_true')
+    
     parser.add_argument('-e','--extended',
                         help='Show details of workflows, used with --show',
                         dest='extended',
