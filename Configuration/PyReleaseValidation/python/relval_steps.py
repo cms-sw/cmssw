@@ -1,9 +1,11 @@
+import sys
+
 from .MatrixUtil import *
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
 from Configuration.Skimming.autoSkim import autoSkim
-from .upgradeWorkflowComponents import step3_trackingOnly
+from Configuration.PyReleaseValidation.upgradeWorkflowComponents import step3_trackingOnly,undefInput
 
 # step1 gensim: for run1
 step1Defaults = {'--relval'      : None, # need to be explicitly set
@@ -4595,13 +4597,17 @@ baseDataSetReleaseBetter={}
 for gen in upgradeFragments:
     for ds in defaultDataSets:
         key=gen[:-4]+'_'+ds
-        version='1'
+        version = "1"
+        if defaultDataSets[ds] == '' or ds =='Run4D98':
+            version = undefInput
         if key in versionOverrides:
             version = versionOverrides[key]
         baseDataSetReleaseBetter[key]=defaultDataSets[ds]+version
 
 PUDataSets={}
 for ds in defaultDataSets:
+    if "GenOnly" in ds:
+        continue
     key='MinBias_14TeV_pythia8_TuneCP5'+'_'+ds
     name=baseDataSetReleaseBetter[key]
     if '2017' in ds:
@@ -4620,7 +4626,6 @@ for ds in defaultDataSets:
 
     #PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     #PUDataSets[ds]={'-n':10,'--pileup':'AVE_70_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-
 
 upgradeStepDict={}
 for specialType,specialWF in upgradeWFs.items():
