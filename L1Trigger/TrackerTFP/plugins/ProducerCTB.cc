@@ -79,9 +79,9 @@ namespace trackerTFP {
     edPutTokenTTTracks_ = produces<TTTracks>(branchTracks);
     edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes();
+    esGetTokenDataFormats_ = esConsumes();
+    esGetTokenLayerEncoding_ = esConsumes();
   }
 
   void ProducerCTB::beginRun(const Run& iRun, const EventSetup& iSetup) {

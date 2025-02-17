@@ -245,10 +245,10 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
       esGetTokenBfield_(esConsumes<edm::Transition::BeginRun>()),
       esGetTokenTGeom_(esConsumes()),
       esGetTokenTTopo_(esConsumes()),
-      esGetTokenSetup_(esConsumes<Setup, SetupRcd, Transition::BeginRun>()),
-      esGetTokenChannelAssignment_(esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>()),
-      esGetTokenTrackQuality_(esConsumes<TrackQuality, DataFormatsRcd, Transition::BeginRun>()),
-      esGetTokenHPH_(esConsumes<hph::Setup, hph::SetupRcd, edm::Transition::BeginRun>()) {
+      esGetTokenSetup_(esConsumes<Transition::BeginRun>()),
+      esGetTokenChannelAssignment_(esConsumes<Transition::BeginRun>()),
+      esGetTokenTrackQuality_(esConsumes<Transition::BeginRun>()),
+      esGetTokenHPH_(esConsumes<Transition::BeginRun>()) {
   if (readMoreMcTruth_) {
     getTokenTTClusterMCTruth_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthClusterInputTag);
     getTokenTrackingParticle_ = consumes<std::vector<TrackingParticle>>(TrackingParticleInputTag);

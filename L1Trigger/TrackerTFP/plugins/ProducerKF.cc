@@ -139,9 +139,9 @@ namespace trackerTFP {
     edPutTokenNumStatesTruncated_ = produces<int>(branchTruncated);
     edPutTokenChi2s_ = produces<vector<pair<double, double>>>(branchTracks);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes();
+    esGetTokenDataFormats_ = esConsumes();
+    esGetTokenLayerEncoding_ = esConsumes();
   }
 
   void ProducerKF::beginRun(const Run& iRun, const EventSetup& iSetup) {
