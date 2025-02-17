@@ -1,41 +1,21 @@
 import os, sys, time
-import subprocess
 
 from collections import Counter
 
-from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
 from Configuration.PyReleaseValidation.WorkFlowRunner import WorkFlowRunner
 from Configuration.PyReleaseValidation.MatrixUtil import check_dups
 # ================================================================================
 
 class MatrixRunner(object):
 
-    def __init__(self, wfIn=None, nThrMax=4, nThreads=1, gpu=False):
+    def __init__(self, wfIn=None, nThrMax=4, nThreads=1, gpus=None):
 
         self.workFlows = wfIn
 
         self.threadList = []
         self.maxThreads = nThrMax
         self.nThreads = nThreads
-        self.gpus = ()
-
-        if gpu:
-            print("> Running with --gpu option. Checking the GPUs available.")
-            cuda = subprocess.check_output("cudaComputeCapabilities", shell=True, executable="/bin/bash").decode('utf8')
-            # Building on top of the {cuda|rocm}ComputeCapabilities 
-            # output in case of no {NVIDIA|AMD} GPU:
-            # 'no XXX-capable device is detecte'
-            if "capable device is detected" in cuda:
-                cuda = 0
-            else:   
-                print(cuda.split("\n"))
-            rocm = subprocess.check_output("rocmComputeCapabilities", shell=True, executable="/bin/bash").decode('utf8')
-            if "capable device is detected" in rocm:
-                rocm = 0
-            else:
-                print(cuda.split("\n"))
-            print("Checks for GPU")
-            pass
+        self.gpus = gpus
 
         #the directories in which it happened
         self.runDirs={}
@@ -87,7 +67,10 @@ class MatrixRunner(object):
 
             print('\nPreparing to run %s %s' % (wf.numId, item))
             sys.stdout.flush()
-            current = WorkFlowRunner(wf,opt,noRun,dryRun,cafVeto,njob)
+            gpu_cmd = None
+            if self.gpus is not None:
+                gpu_cmd = next(self.gpus).gpuBind()
+            current = WorkFlowRunner(wf,opt,noRun,dryRun,cafVeto,njob,gpu_cmd)
             self.threadList.append(current)
             current.start()
             if not dryRun:
