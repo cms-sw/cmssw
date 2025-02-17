@@ -1,5 +1,5 @@
-#ifndef DataFormats_ME0StubCollection_H
-#define DataFormats_ME0StubCollection_H
+#ifndef DataFormats_GEMDigi_ME0StubCollection_H
+#define DataFormats_GEMDigi_ME0StubCollection_H
 
 /** \class ME0StubCollection
  *

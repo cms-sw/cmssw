@@ -1,5 +1,5 @@
-#ifndef DataFormats_ME0Stub_H
-#define DataFormats_ME0Stub_H
+#ifndef DataFormats_GEMDigi_ME0Stub_H
+#define DataFormats_GEMDigi_ME0Stub_H
 
 #include <vector>
 #include <cstdint>
