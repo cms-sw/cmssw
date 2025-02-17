@@ -9,6 +9,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
+#include "FWCore/Utilities/interface/DeviceGlobal.h"
 #include "FWCore/Utilities/interface/HostDeviceConstant.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
@@ -21,7 +22,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
 #ifdef GPU_DEBUG
-  HOST_DEVICE_CONSTANT uint32_t gMaxHit = 0;
+  DEVICE_GLOBAL uint32_t gMaxHit = 0;
 #endif
 
   namespace pixelStatus {
