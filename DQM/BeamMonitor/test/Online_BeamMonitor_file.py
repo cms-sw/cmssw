@@ -1,19 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import FWCore.ParameterSet.VarParsing as VarParsing
-options = VarParsing.VarParsing()
-options.register("runNumber",
-                 326479,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "")
-options.register("maxEvents",
-                 100,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "number of events to run")
-options.parseArguments()
-
 process = cms.Process("DQM")
 
 process.load("CondCore.CondDB.CondDB_cfi")
@@ -36,10 +22,8 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
                                         )
 process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') 
 
-import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
-process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
-        timeThreshold = 999999 # for express allow >48h old payloads for replays. DO NOT CHANGE
-)
+process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+from DQM.Integration.config.unitteststreamerinputsource_cfi import options
 
 # initialize MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -52,22 +36,18 @@ process.MessageLogger.cout = cms.untracked.PSet(
         limit = cms.untracked.int32(1)
     ),
     OnlineBeamMonitor = cms.untracked.PSet(
-        reportEvery = cms.untracked.int32(1), # every 1000th only
+        reportEvery = cms.untracked.int32(1),
  	limit = cms.untracked.int32(0)
     ))
 
-process.source = cms.Source("EmptySource")
-process.source.numberEventsInRun=cms.untracked.uint32(100)
-process.source.firstRun = cms.untracked.uint32(options.runNumber)
-process.source.firstLuminosityBlock = cms.untracked.uint32(1)
-process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(1)
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
+process.maxEvents.input = cms.untracked.int32(options.maxEvents)
 
 #process.load("DQMServices.Core.DQMEDAnalyzer") 
 process.onlineBeamMonitor = cms.EDProducer("OnlineBeamMonitor",
                                            MonitorName         = cms.untracked.string("onlineBeamMonitor"),
                                            AppendRunToFileName = cms.untracked.bool(False),
                                            WriteDIPAscii       = cms.untracked.bool(True),
+                                           OnlineBeamSpotLabel = cms.untracked.InputTag("hltOnlineBeamSpot"),
                                            DIPFileName         = cms.untracked.string("BeamFitResultsForDIP.txt"))
 
 
@@ -88,7 +68,6 @@ process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(4),
     numberOfStreams = cms.untracked.uint32 (4),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(2)
-
     )
 
 #process.Tracer = cms.Service("Tracer")

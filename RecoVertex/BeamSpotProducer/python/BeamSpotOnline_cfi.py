@@ -7,4 +7,4 @@ onlineBeamSpotProducer = _mod.beamSpotOnlineProducer.clone(
 )
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify(onlineBeamSpotProducer, useTransientRecord = True)
+run3_common.toModify(onlineBeamSpotProducer, useBSOnlineRecords = True, timeThreshold = 48, sigmaZThreshold = 2, sigmaXYThreshold = 4)
