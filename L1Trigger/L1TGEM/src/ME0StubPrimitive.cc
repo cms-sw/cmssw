@@ -37,7 +37,8 @@ void ME0StubPrimitive::update_quality() {
 void ME0StubPrimitive::fit(int max_span) {
   if (id != 0) {
     std::vector<double> tmp;
-    tmp.reserve(centroid.size()); for (double cent : centroid) {
+    tmp.reserve(centroid.size());
+    for (double cent : centroid) {
       tmp.push_back(cent - (max_span / 2 + 1));
     }
     std::vector<double> x;
