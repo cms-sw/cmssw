@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import sys, os
 
+from itertools import cycle
+
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
 from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector,performInjectionOptionTest
-
+from Configuration.PyReleaseValidation.MatrixUtil import cleanComputeCapabilities
 # ================================================================================
 
 def showRaw(opt):
@@ -34,7 +36,7 @@ def runSelected(opt):
         mrd.show(opt.testList, opt.extended, opt.cafVeto)
         if opt.testList : print('selected items:', opt.testList)
     else:
-        mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads)
+        mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads, opt.selected_gpus)
         ret = mRunnerHi.runTests(opt)
 
     if opt.wmcontrol:
@@ -448,6 +450,33 @@ if __name__ == '__main__':
                           default='')
 
     opt = parser.parse_args()
+
+    opt.selected_gpus = None
+    if opt.gpu:
+
+        print(">> Running with --gpu option. Checking the available and supported GPUs.")
+        gpus = cleanComputeCapabilities("cuda")
+        gpus = gpus + cleanComputeCapabilities("rocm", len(gpus))
+        available_gpus = gpus
+
+        print("> GPUs Available:")
+        [print(f) for f in available_gpus]
+
+        # Filtering ONLY CUDA GPUs on capability
+        gpus = [g for g in gpus if not g.isCUDA() or (g.isCUDA() and g.capability in opt.CUDACapabilities)]
+
+        # Filtering by name (if parsed)
+        if len(opt.GPUName) > 0:
+            gpus = [g for g in gpus if g.name == opt.GPUName]
+
+        if available_gpus != gpus:
+            print(">> Selected:")   
+            [print(f) for f in gpus]
+        else:
+            print(">> All selected!")
+        
+        opt.selected_gpus = cycle(gpus)
+    
     if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.failed_from:
