@@ -17,7 +17,6 @@ namespace l1t {
 
     struct Config {
       bool skip_centroids;
-      // int32_t ly_thresh;
       std::vector<int32_t> ly_thresh_patid;
       std::vector<int32_t> ly_thresh_eta;
       int32_t max_span;
