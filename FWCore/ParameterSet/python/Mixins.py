@@ -697,7 +697,9 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         if n>=256:
             #wrap in a tuple since they don't have a size constraint
             result+=" ("
+        wroteAtLeastOne = False
         for i, v in enumerate(self):
+            wroteAtLeastOne = True
             if i == 0:
                 if n>nPerLine: result += '\n'+options.indentation()
             else:
@@ -710,7 +712,7 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
             result +=' ) '
         moreArgs = self._additionalInitArguments(options)
         if moreArgs:
-            if i > 0:
+            if wroteAtLeastOne:
                 result += ', \n' + options.indentation()
             result += moreArgs
         if n>nPerLine:
