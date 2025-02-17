@@ -133,7 +133,7 @@ namespace trackerDTC {
       edGetTokenReconstructable_ = consumes<StubAssociation>(inputTagReconstructable);
     }
     // book ES product
-    esGetToken_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
+    esGetToken_ = esConsumes<Transition::BeginRun>();
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);

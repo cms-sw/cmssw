@@ -49,7 +49,7 @@ namespace trackerTFP {
     edGetToken_ = consumes<TTDTC>(InputTag(label, branch));
     edPutToken_ = produces<StreamsStub>(branch);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes();
   }
 
   void ProducerPP::produce(Event& iEvent, const EventSetup& iSetup) {

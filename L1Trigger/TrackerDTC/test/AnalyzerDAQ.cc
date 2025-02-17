@@ -60,7 +60,7 @@ namespace trackerDTC {
     const auto& inputTag = iConfig.getParameter<InputTag>("InputTagTTClusterDetSetVec");
     edGetToken_ = consumes<TTClusterDetSetVec>(inputTag);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<Transition::BeginRun>();
   }
 
   void AnalyzerDAQ::beginRun(const Run& iEvent, const EventSetup& iSetup) {

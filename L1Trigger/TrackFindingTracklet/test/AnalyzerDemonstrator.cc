@@ -89,9 +89,9 @@ namespace trklet {
     if (labelOut != "ProducerIRin")
       edGetTokenTracksOut_ = consumes<StreamsTrack>(InputTag(labelOut, branchTracks));
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
-    esGetTokenDemonstrator_ = esConsumes<Demonstrator, SetupRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<Transition::BeginRun>();
+    esGetTokenChannelAssignment_ = esConsumes<Transition::BeginRun>();
+    esGetTokenDemonstrator_ = esConsumes<Transition::BeginRun>();
     //
     TBin_ = labelIn == "l1tTTTracksFromTrackletEmulation";
     TBout_ = labelOut == "l1tTTTracksFromTrackletEmulation";
