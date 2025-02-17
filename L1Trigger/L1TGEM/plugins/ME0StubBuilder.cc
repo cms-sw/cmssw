@@ -134,13 +134,6 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* paddigis, ME0StubCollecti
             SegList_processed.push_back(seg_final);
         }
 
-        //////////////////////////// debug ////////////////////////////
-        // for (auto seg : SegList_processed) {
-        //     std::cout<<"region="<<id.region()<<", chamber="<<id.chamber()
-        //               <<", "<<seg<<std::endl;
-        // }
-        //////////////////////////// debug ////////////////////////////
-
         oc.put(id, SegList_processed.begin(), SegList_processed.end());
     }
 }

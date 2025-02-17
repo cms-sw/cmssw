@@ -113,24 +113,8 @@ std::vector<ME0StubPrimitive> l1t::me0::process_partition(const std::vector<UInt
     std::vector<ME0StubPrimitive> max_segs;
     const std::vector<ME0StubPrimitive> segments = pat_mux(partition_data, partition_bx_data, partition, config);
 
-    // //debug
-    // std::cout<<"Partition = "<<partition<<std::endl;
-    // std::cout<<std::endl;
-    // std::cout<<"before pre-deghost"<<std::endl;
-    // for (auto seg : segments) {
-    //     if (seg.PatternId()!=0) std::cout<<seg<<std::endl;
-    // }
-    // std::cout<<std::endl;
-
     if (config.deghost_pre) {tmp = cancel_edges(segments, config.group_width, config.ghost_width, config.edge_distance);}
     else {tmp = segments;}
-
-    //debug
-    // std::cout<<"before chunk"<<std::endl;
-    // for (auto seg : segments) {
-    //     if (seg.PatternId()!=0) std::cout<<seg<<std::endl;
-    // }
-    // std::cout<<std::endl;
     
     std::vector<std::vector<ME0StubPrimitive>> chunked = chunk(tmp, config.group_width);
     for (const std::vector<ME0StubPrimitive>& seg_v : chunked) {
@@ -141,22 +125,8 @@ std::vector<ME0StubPrimitive> l1t::me0::process_partition(const std::vector<UInt
         max_segs.push_back(max_seg);
     }
 
-    // //debug
-    // std::cout<<"before post deghost"<<std::endl;
-    // for (auto seg : max_segs) {
-    //     if (seg.PatternId()!=0) std::cout<<seg<<std::endl;
-    // }
-    // std::cout<<std::endl;
-
     if (config.deghost_post) {out = cancel_edges(max_segs, 0, 1, 1);}
     else {out = max_segs;}
-
-    // //debug
-    // std::cout<<"after post deghost"<<std::endl;
-    // for (auto seg : max_segs) {
-    //     if (seg.PatternId()!=0) std::cout<<seg<<std::endl;
-    // }
-    // std::cout<<std::endl;
 
     return out;
 }
