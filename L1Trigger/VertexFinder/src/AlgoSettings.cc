@@ -67,6 +67,7 @@ namespace l1tVertexFinder {
   const std::map<std::string, Algorithm> AlgoSettings::algoNameMap = {
       {"PFA", Algorithm::PFA},
       {"PFASingleVertex", Algorithm::PFASingleVertex},
+      {"PFASimple", Algorithm::PFASimple},
       {"fastHisto", Algorithm::fastHisto},
       {"fastHistoEmulation", Algorithm::fastHistoEmulation},
       {"fastHistoLooseAssociation", Algorithm::fastHistoLooseAssociation},
@@ -82,6 +83,7 @@ namespace l1tVertexFinder {
   const std::map<Algorithm, Precision> AlgoSettings::algoPrecisionMap = {
       {Algorithm::PFA, Precision::Simulation},
       {Algorithm::PFASingleVertex, Precision::Simulation},
+      {Algorithm::PFASimple, Precision::Simulation},
       {Algorithm::fastHisto, Precision::Simulation},
       {Algorithm::fastHistoEmulation, Precision::Emulation},
       {Algorithm::fastHistoLooseAssociation, Precision::Simulation},

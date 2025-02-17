@@ -126,7 +126,10 @@ namespace l1tVertexFinder {
     double highestPt = 0.;
     unsigned int numHighPtTracks = 0;
 
+    const float sqrt0p5 = std::sqrt(0.5);
+
     float SumZ = 0.;
+    float SumZWeightPFA = 0.;
     float z0square = 0.;
     float trackPt = 0.;
 
@@ -153,7 +156,46 @@ namespace l1tVertexFinder {
       }
 
       pt += std::pow(trackPt, settings_->vx_weightedmean());
-      if (bin_centers.empty() && counts.empty()) {
+      if (settings_->vx_algo() == Algorithm::PFASimple && settings_->vx_pfa_weightedz0() > 0) {
+        // Calculate weighted-average z0 for PFASimple
+        // Note the next few lines recompute the PFA width parameter (GaussianWidth) previously computed in PFASimple(). This could instead be saved as a track property.
+        float trackAbsEta = std::fabs(track->eta());
+        // Hard-coded eta-dependent and constant parametrisations of the PFA Gaussian width parameter taken from Giovanna's thesis: https://cds.cern.ch/record/2909504
+        float GaussianWidth = settings_->vx_pfa_etadependentresolution()
+                                  ? 0.09867 + 0.0007 * trackAbsEta + 0.0587 * trackAbsEta * trackAbsEta
+                                  : 0.15;
+        // Customise PFA width parameter (via multiplicative scale factor)
+        GaussianWidth *= settings_->vx_pfa_resolutionSF();
+        float deltaZ = std::fabs(track->z0() - vertex.z0());
+        float zweight = 0.;
+
+        if (settings_->vx_pfa_weightedz0() == 1) {
+          // Nominal PFA weight function. No need to include 1/sqrt(2pi) normalisation constant in weight function, as it cancels out in the weighted sum.
+          float GaussianWeight = std::exp(-0.5 * std::pow(deltaZ / GaussianWidth, 2)) / GaussianWidth;
+          // Gaussian- and pT-weighted sums for estimates of vertex z0 and z0square based on the points of highest cumulative density of the contributions from each track at a given z0 position
+          zweight = GaussianWeight * std::pow(trackPt, settings_->vx_weightedmean());
+        }
+
+        // Alternative definitions of PFA weights (added subsequent to Giovanna's thesis)
+        // Redefine deltaZ as the distance of the track from the bin edge (zero if inside the bin)
+        deltaZ = (deltaZ > 0.5 * settings_->vx_pfa_binwidth()) ? deltaZ - 0.5 * settings_->vx_pfa_binwidth() : 0;
+
+        if (settings_->vx_pfa_weightedz0() == 2) {
+          // Use Erfc to reduce the weight based on the probability that a track from a vertex in this bin would be closer than deltaZ to the edge of the bin
+          float ErfcWeight = std::erfc(sqrt0p5 * deltaZ / GaussianWidth);
+          // Estimates of vertex z0 and z0square based on optimal combination (weighted by 1/variance) of the z0 of the tracks associated to the vertex, weighted also by pT and association probability
+          // Note, all tracks in the bin have association probability 1 based on the definiton of deltaZ above, so this method won't work well for large bin widths. In that case, the ErfcWeight should really be iteratively recalculated at the best estimate point of z0 (and not subtracting half the bin width in deltaZ), but this would require a second loop over tracks.
+          zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / GaussianWidth / GaussianWidth;
+        } else if (settings_->vx_pfa_weightedz0() == 3) {
+          // Step function that allows tracks at most 1 sigma from the bin edge
+          float StepFunctionWeight = deltaZ > GaussianWidth ? 0 : 1;
+          // Step function weight, to replicate fastHisto when used with settings_->vx_pfa_weightfunction() == 3
+          zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean());
+        }
+        SumZWeightPFA += zweight;
+        SumZ += track->z0() * zweight;
+        z0square += track->z0() * track->z0() * zweight;
+      } else if (bin_centers.empty() && counts.empty()) {
         SumZ += track->z0() * std::pow(trackPt, settings_->vx_weightedmean());
         z0square += track->z0() * track->z0();
       } else {
@@ -165,11 +207,23 @@ namespace l1tVertexFinder {
           ibin++;
         }
       }
-    }
+    }  // end loop over tracks
 
-    z0 = SumZ / ((settings_->vx_weightedmean() > 0) ? pt : vertex.numTracks());
-    z0square /= vertex.numTracks();
-    z0width = sqrt(std::abs(z0 * z0 - z0square));
+    if (settings_->vx_algo() == Algorithm::PFASimple) {
+      // Alternative z0 calculation when using PFASimple
+      if (settings_->vx_pfa_weightedz0() > 0 && SumZWeightPFA > 0) {
+        z0 = SumZ / SumZWeightPFA;
+        z0square /= SumZWeightPFA;
+        z0width = sqrt(std::abs(z0 * z0 - z0square));
+      } else {
+        z0 = vertex.z0();
+        z0width = 0.;
+      }
+    } else {
+      z0 = SumZ / ((settings_->vx_weightedmean() > 0) ? pt : vertex.numTracks());
+      z0square /= vertex.numTracks();
+      z0width = sqrt(std::abs(z0 * z0 - z0square));
+    }
 
     vertex.setParameters(pt, z0, z0width, highPt, numHighPtTracks, highestPt);
   }
@@ -716,6 +770,44 @@ namespace l1tVertexFinder {
       }
     }
   }
+
+  void VertexFinder::PFASimple() {
+    float vxPt = 0.;
+    RecoVertex leading_vertex;
+
+    int nbins = std::ceil((settings_->vx_pfa_max() - settings_->vx_pfa_min()) / settings_->vx_pfa_binwidth());
+    for (int i = 0; i <= nbins; ++i) {
+      float z = settings_->vx_pfa_min() + i * settings_->vx_pfa_binwidth();
+      RecoVertex vertex;
+      vertex.setZ0(z);
+      for (const L1Track& track : fitTracks_) {
+        float trackAbsEta = std::fabs(track.eta());
+        // Hard-coded eta-dependent and constant parametrisations of the PFA Gaussian width parameter taken from Giovanna's thesis: https://cds.cern.ch/record/2909504
+        float GaussianWidth = settings_->vx_pfa_etadependentresolution()
+                                  ? 0.09867 + 0.0007 * trackAbsEta + 0.0587 * trackAbsEta * trackAbsEta
+                                  : 0.15;
+        // Customise PFA width parameter (via multiplicative scale factor)
+        GaussianWidth *= settings_->vx_pfa_resolutionSF();
+        if (std::abs(z - track.z0()) > GaussianWidth + 0.5 * settings_->vx_pfa_binwidth())
+          continue;
+
+        if (settings_->vx_pfa_doqualitycuts() &
+            (track.pt() <
+             settings_->vx_TrackMinPt()))  // minimal additional quality cut as done in fastHistoEmulation()
+          continue;
+
+        vertex.insert(&track);
+      }  // end loop over tracks
+      computeAndSetVertexParameters(vertex, {}, {});
+      if (vertex.pt() > vxPt) {
+        leading_vertex = vertex;
+        vxPt = vertex.pt();
+      }
+    }
+
+    vertices_.emplace_back(leading_vertex);
+    pv_index_ = 0;
+  }  // end of PFASimple
 
   /**
   * @note This method is the same as PFA() when settings_->vx_nvtx()=1

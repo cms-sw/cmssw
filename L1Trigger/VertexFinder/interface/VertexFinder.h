@@ -141,6 +141,8 @@ namespace l1tVertexFinder {
     void PFA();
     /// Peak finding algorithm, single vertex
     void PFASingleVertex();
+    /// Peak finding algorithm, single vertex, fastHisto-like simplification (by using step functon PFA weights)
+    void PFASimple();
     /// DBSCAN algorithm
     void DBSCAN();
     /// High pT Vertex Algorithm

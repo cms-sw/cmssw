@@ -13,6 +13,7 @@ namespace l1tVertexFinder {
   enum class Algorithm {
     PFA,
     PFASingleVertex,
+    PFASimple,
     fastHisto,
     fastHistoEmulation,
     fastHistoLooseAssociation,
