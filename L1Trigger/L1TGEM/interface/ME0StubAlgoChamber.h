@@ -9,13 +9,14 @@
 #include <algorithm>
 
 namespace l1t {
-    namespace me0 {
-        // map<int, vector<vector<uint64_t>>> cross_partition_cancellation(vector<vector<uint64_t>> segments);
-        std::vector<std::vector<ME0StubPrimitive>> cross_partition_cancellation(std::vector<std::vector<ME0StubPrimitive>>& segments, int cross_part_seg_width);
-        std::vector<ME0StubPrimitive> process_chamber(const std::vector<std::vector<UInt192>>& chamber_data,
-                                                      const std::vector<std::vector<std::vector<int>>>& chamber_bx_data,
-                                                      Config& config);
-    }
-}
+  namespace me0 {
+    // map<int, vector<vector<uint64_t>>> cross_partition_cancellation(vector<vector<uint64_t>> segments);
+    std::vector<std::vector<ME0StubPrimitive>> cross_partition_cancellation(
+        std::vector<std::vector<ME0StubPrimitive>>& segments, int cross_part_seg_width);
+    std::vector<ME0StubPrimitive> process_chamber(const std::vector<std::vector<UInt192>>& chamber_data,
+                                                  const std::vector<std::vector<std::vector<int>>>& chamber_bx_data,
+                                                  Config& config);
+  }  // namespace me0
+}  // namespace l1t
 
 #endif

@@ -2,38 +2,30 @@
 
 using namespace l1t::me0;
 
-bool l1t::me0::is_ghost(const ME0StubPrimitive& seg,
-              const ME0StubPrimitive& comp,
-              bool check_ids,
-              bool check_strips) {
-    /*
+bool l1t::me0::is_ghost(const ME0StubPrimitive& seg, const ME0StubPrimitive& comp, bool check_ids, bool check_strips) {
+  /*
     takes in a segment and a list of segments to ensure that there aren't
     copies of the same data (ID value identical) or mirrors (ID value + 2 or - 2
     from each other)
     */
 
-    bool ghost = (seg.Quality() < comp.Quality()) &&
-                 (!check_strips || (std::abs(seg.Strip()-comp.Strip()) < 2)) &&
-                 (!check_ids || ((seg.PatternId() == comp.PatternId()) || (seg.PatternId()+2 == comp.PatternId()) || (seg.PatternId() == comp.PatternId()+2)));
-    return ghost;
+  bool ghost = (seg.Quality() < comp.Quality()) && (!check_strips || (std::abs(seg.Strip() - comp.Strip()) < 2)) &&
+               (!check_ids || ((seg.PatternId() == comp.PatternId()) || (seg.PatternId() + 2 == comp.PatternId()) ||
+                               (seg.PatternId() == comp.PatternId() + 2)));
+  return ghost;
 }
 
 bool l1t::me0::is_at_edge(int x, int group_width, int edge_distance) {
-    if (group_width > 0) {
-        return ((x%group_width) < edge_distance) || ((x%group_width) >= (group_width-edge_distance));
-    }
-    else {
-        return true;
-    }
+  if (group_width > 0) {
+    return ((x % group_width) < edge_distance) || ((x % group_width) >= (group_width - edge_distance));
+  } else {
+    return true;
+  }
 };
 
-
-std::vector<ME0StubPrimitive> l1t::me0::cancel_edges(const std::vector<ME0StubPrimitive>& segments,
-                                                     int group_width,
-                                                     int ghost_width,
-                                                     int edge_distance,
-                                                     bool verbose) {
-    /*
+std::vector<ME0StubPrimitive> l1t::me0::cancel_edges(
+    const std::vector<ME0StubPrimitive>& segments, int group_width, int ghost_width, int edge_distance, bool verbose) {
+  /*
     Takes in a list of SEGMENTS and is designed to perform ghost
     cancellation on the edges of the "groups".
 
@@ -63,41 +55,44 @@ std::vector<ME0StubPrimitive> l1t::me0::cancel_edges(const std::vector<ME0StubPr
     etc
     */
 
-    std::vector<ME0StubPrimitive> canceled_segements = segments;
-    // std::vector<ME0StubPrimitive> canceled_segements;
-    // std::copy(segments.begin(), segments.end(), std::back_inserter(canceled_segements));
-    std::vector<int> comps;
-    
-    bool ghost;
-    for (int i=0; i < static_cast<int>(segments.size()); ++i) {
-        if (is_at_edge(i,group_width,edge_distance)) {
-            for (int x = i-ghost_width; x < i; ++x) {
-                if (x >= 0) {comps.push_back(x);}
-            }
-            for (int x = i+1; x < i+ghost_width+1; ++x) {
-                if (x < static_cast<int>(segments.size())) {comps.push_back(x);}
-            }
+  std::vector<ME0StubPrimitive> canceled_segements = segments;
+  // std::vector<ME0StubPrimitive> canceled_segements;
+  // std::copy(segments.begin(), segments.end(), std::back_inserter(canceled_segements));
+  std::vector<int> comps;
 
-            for (int comp : comps) {
-                ghost = is_ghost(segments[i], segments[comp]);
-                if (ghost) {
-                    // canceled_segements[i] = ME0StubPrimitive();
-                    canceled_segements[i].reset();
-                }
-            }
-            comps.clear();
+  bool ghost;
+  for (int i = 0; i < static_cast<int>(segments.size()); ++i) {
+    if (is_at_edge(i, group_width, edge_distance)) {
+      for (int x = i - ghost_width; x < i; ++x) {
+        if (x >= 0) {
+          comps.push_back(x);
         }
+      }
+      for (int x = i + 1; x < i + ghost_width + 1; ++x) {
+        if (x < static_cast<int>(segments.size())) {
+          comps.push_back(x);
+        }
+      }
+
+      for (int comp : comps) {
+        ghost = is_ghost(segments[i], segments[comp]);
+        if (ghost) {
+          // canceled_segements[i] = ME0StubPrimitive();
+          canceled_segements[i].reset();
+        }
+      }
+      comps.clear();
     }
-    
-    return canceled_segements;
+  }
+
+  return canceled_segements;
 }
 
 std::vector<ME0StubPrimitive> l1t::me0::process_partition(const std::vector<UInt192>& partition_data,
                                                           const std::vector<std::vector<int>>& partition_bx_data,
                                                           int partition,
                                                           Config& config) {
-    
-    /*
+  /*
     takes in partition data, a group size, and a ghost width to return a
     smaller data set, using ghost edge cancellation and segment quality
     filtering
@@ -108,25 +103,33 @@ std::vector<ME0StubPrimitive> l1t::me0::process_partition(const std::vector<UInt
     steps: process partition data with pat_mux, perfom edge cancellations,
     divide partition into pieces, take best segment from each piece
     */
-    std::vector<ME0StubPrimitive> tmp;
-    std::vector<ME0StubPrimitive> out;
-    std::vector<ME0StubPrimitive> max_segs;
-    const std::vector<ME0StubPrimitive> segments = pat_mux(partition_data, partition_bx_data, partition, config);
+  std::vector<ME0StubPrimitive> tmp;
+  std::vector<ME0StubPrimitive> out;
+  std::vector<ME0StubPrimitive> max_segs;
+  const std::vector<ME0StubPrimitive> segments = pat_mux(partition_data, partition_bx_data, partition, config);
 
-    if (config.deghost_pre) {tmp = cancel_edges(segments, config.group_width, config.ghost_width, config.edge_distance);}
-    else {tmp = segments;}
-    
-    std::vector<std::vector<ME0StubPrimitive>> chunked = chunk(tmp, config.group_width);
-    for (const std::vector<ME0StubPrimitive>& seg_v : chunked) {
-        ME0StubPrimitive max_seg = ME0StubPrimitive();
-        for (const ME0StubPrimitive& seg : seg_v) {
-            if (max_seg.Quality() < seg.Quality()) {max_seg = seg;}
-        }
-        max_segs.push_back(max_seg);
+  if (config.deghost_pre) {
+    tmp = cancel_edges(segments, config.group_width, config.ghost_width, config.edge_distance);
+  } else {
+    tmp = segments;
+  }
+
+  std::vector<std::vector<ME0StubPrimitive>> chunked = chunk(tmp, config.group_width);
+  for (const std::vector<ME0StubPrimitive>& seg_v : chunked) {
+    ME0StubPrimitive max_seg = ME0StubPrimitive();
+    for (const ME0StubPrimitive& seg : seg_v) {
+      if (max_seg.Quality() < seg.Quality()) {
+        max_seg = seg;
+      }
     }
+    max_segs.push_back(max_seg);
+  }
 
-    if (config.deghost_post) {out = cancel_edges(max_segs, 0, 1, 1);}
-    else {out = max_segs;}
+  if (config.deghost_post) {
+    out = cancel_edges(max_segs, 0, 1, 1);
+  } else {
+    out = max_segs;
+  }
 
-    return out;
+  return out;
 }
