@@ -139,8 +139,8 @@ namespace trklet {
     edPutTokenNumStatesAccepted_ = produces<int>(branchTracks);
     edPutTokenNumStatesTruncated_ = produces<int>(branchTruncated);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, ChannelAssignmentRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes();
+    esGetTokenDataFormats_ = esConsumes();
   }
 
   void ProducerKF::beginRun(const Run& iRun, const EventSetup& iSetup) {

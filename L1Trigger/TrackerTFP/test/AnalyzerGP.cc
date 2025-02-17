@@ -96,8 +96,8 @@ namespace trackerTFP {
       edGetTokenAss_ = consumes<StubAssociation>(inputTagAss);
     }
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<Transition::BeginRun>();
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);

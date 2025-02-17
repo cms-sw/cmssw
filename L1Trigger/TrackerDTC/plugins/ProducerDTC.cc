@@ -66,9 +66,9 @@ namespace trackerDTC {
     edPutTokenAccepted_ = produces<TTDTC>(branchAccepted);
     edPutTokenLost_ = produces<TTDTC>(branchLost);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, SetupRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes();
+    esGetTokenDataFormats_ = esConsumes();
+    esGetTokenLayerEncoding_ = esConsumes();
   }
 
   void ProducerDTC::produce(Event& iEvent, const EventSetup& iSetup) {

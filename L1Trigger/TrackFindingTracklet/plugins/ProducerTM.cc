@@ -72,9 +72,9 @@ namespace trklet {
     edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
     edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, ChannelAssignmentRcd, Transition::BeginRun>();
-    esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes();
+    esGetTokenDataFormats_ = esConsumes();
+    esGetTokenChannelAssignment_ = esConsumes();
   }
 
   void ProducerTM::produce(Event& iEvent, const EventSetup& iSetup) {

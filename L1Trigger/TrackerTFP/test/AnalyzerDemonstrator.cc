@@ -74,8 +74,8 @@ namespace trackerTFP {
     if (labelOut == "ProducerCTB" || labelOut == "ProducerKF" || labelOut == "ProducerDR" || labelOut == "ProducerTFP")
       edGetTokenTracksOut_ = consumes<StreamsTrack>(InputTag(labelOut, branchTracks));
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDemonstrator_ = esConsumes<Demonstrator, SetupRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<Transition::BeginRun>();
+    esGetTokenDemonstrator_ = esConsumes<Transition::BeginRun>();
   }
 
   void AnalyzerDemonstrator::beginRun(const Run& iEvent, const EventSetup& iSetup) {

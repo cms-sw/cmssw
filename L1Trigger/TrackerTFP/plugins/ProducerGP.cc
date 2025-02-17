@@ -67,9 +67,9 @@ namespace trackerTFP {
     edGetToken_ = consumes<StreamsStub>(InputTag(label, branch));
     edPutToken_ = produces<StreamsStub>(branch);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenLayerEncoding_ = esConsumes<LayerEncoding, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes();
+    esGetTokenDataFormats_ = esConsumes();
+    esGetTokenLayerEncoding_ = esConsumes();
   }
 
   void ProducerGP::beginRun(const Run& iRun, const EventSetup& iSetup) {
