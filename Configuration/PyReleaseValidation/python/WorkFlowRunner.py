@@ -7,7 +7,7 @@ from os.path import exists, basename, join
 from datetime import datetime
 
 class WorkFlowRunner(Thread):
-    def __init__(self, wf, opt, noRun=False, dryRun=False, cafVeto=True, jobNumber=None):
+    def __init__(self, wf, opt, noRun=False, dryRun=False, cafVeto=True, jobNumber=None, gpu = None):
         Thread.__init__(self)
         self.wf = wf
 
@@ -18,6 +18,8 @@ class WorkFlowRunner(Thread):
         self.noRun = noRun
         self.dryRun = dryRun
         self.cafVeto = cafVeto
+        self.gpu = gpu
+
         self.dasOptions = opt.dasOptions
         self.jobReport = opt.jobReports
         self.nThreads = opt.nThreads
@@ -31,7 +33,7 @@ class WorkFlowRunner(Thread):
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
         if jobNumber is not None:
             self.wfDir = self.wfDir + '_job' + str(jobNumber)
-        print(self.wfDir)
+
         return
 
     def doCmd(self, cmd):
@@ -154,6 +156,9 @@ class WorkFlowRunner(Thread):
 
             else:
                 #chaining IO , which should be done in WF object already and not using stepX.root but <stepName>.root
+                if self.gpu is not None:
+                    cmd = cmd + self.gpu
+
                 cmd += com
 
                 if self.startFrom:
