@@ -16,23 +16,23 @@ namespace l1t {
         typedef std::bitset<192> UInt192;
 
         struct Config {
-            bool skip_centroids = false;
-            // int32_t ly_thresh = 4;
-            std::vector<int32_t> ly_thresh_patid = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 4, 4, 4, 4, 4};
-            std::vector<int32_t> ly_thresh_eta = {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4};
-            int32_t max_span = 37;
-            int32_t width = 192;
-            bool deghost_pre = true;
-            bool deghost_post = true;
-            int32_t group_width = 8;
-            int32_t ghost_width = 1;
-            bool x_prt_en = true;
-            bool en_non_pointing = false;
-            int32_t cross_part_seg_width = 4;
-            int32_t num_outputs = 4;
-            bool check_ids = false;
-            int32_t edge_distance = 2;
-            int32_t num_or = 2;
+            bool skip_centroids;
+            // int32_t ly_thresh;
+            std::vector<int32_t> ly_thresh_patid;
+            std::vector<int32_t> ly_thresh_eta;
+            int32_t max_span;
+            int32_t width;
+            bool deghost_pre;
+            bool deghost_post;
+            int32_t group_width;
+            int32_t ghost_width;
+            bool x_prt_en;
+            bool en_non_pointing;
+            int32_t cross_part_seg_width;
+            int32_t num_outputs;
+            bool check_ids;
+            int32_t edge_distance;
+            int32_t num_or;
         };
 
         class hi_lo_t {
