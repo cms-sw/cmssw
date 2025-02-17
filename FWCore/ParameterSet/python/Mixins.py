@@ -268,6 +268,8 @@ class _Parameterizable(object):
             self.__addParameter(name, value)
         if v is not None:
             self.__validator=v
+    def hasNoParameters(self) -> bool:
+        return len(self.__parameterNames) == 0
     def __setattr__(self,name:str,value):
         #since labels are not supposed to have underscores at the beginning
         # I will assume that if we have such then we are setting an internal variable
