@@ -365,14 +365,23 @@ namespace edm {
                                                                    int indentation,
                                                                    CfiOptions& options) const {
     bool nextOneStartsWithAComma = false;
-    for_all(vPset_,
-            std::bind(&writeOneElementToCfi,
-                      std::placeholders::_1,
-                      std::ref(os),
-                      indentation,
-                      options,
-                      std::ref(nextOneStartsWithAComma)));
-    os << "\n";
+    for (auto const& p : vPset_) {
+      writeOneElementToCfi(p, os, indentation, options, nextOneStartsWithAComma);
+    }
+    if (cfi::shouldWriteUntyped(options) or psetDesc_->empty() or psetDesc_->anythingAllowed() or
+        psetDesc_->isUnknown()) {
+      os << "\n";
+    } else {
+      if (not vPset_.empty()) {
+        os << ",";
+      }
+      os << "\n";
+      printSpaces(os, indentation + 2);
+      CfiOptions fullOp = cfi::Typed{};
+      os << "template = cms.PSetTemplate(";
+      psetDesc_->writeCfi(os, false, indentation + 4, fullOp);
+      os << ")\n";
+    }
     printSpaces(os, indentation);
   }
 
