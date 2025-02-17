@@ -183,5 +183,5 @@ Several detector combinations have been generated:
 * D114 = T39+C19+M11+I17+O9+F8
 * D115 = T35+C20+M11+I17+O9+F8 
 * D116 = T35+C25+M12+I17+O10+F9
-* D117 = T35+C18+M11+I18+O9+F8
+* D117 = T35+C25+M12+I18+O10+F9
 
