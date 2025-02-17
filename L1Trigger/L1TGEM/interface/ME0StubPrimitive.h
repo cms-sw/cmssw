@@ -1,5 +1,5 @@
-#ifndef DataFormats_ME0StubPrimitive_H
-#define DataFormats_ME0StubPrimitive_H
+#ifndef L1Trigger_L1TGEM_ME0StubPrimitive_H
+#define L1Trigger_L1TGEM_ME0StubPrimitive_H
 
 #include <vector>
 #include <cstdint>

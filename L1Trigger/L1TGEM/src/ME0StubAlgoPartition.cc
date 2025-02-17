@@ -56,8 +56,6 @@ std::vector<ME0StubPrimitive> l1t::me0::cancel_edges(
     */
 
   std::vector<ME0StubPrimitive> canceled_segements = segments;
-  // std::vector<ME0StubPrimitive> canceled_segements;
-  // std::copy(segments.begin(), segments.end(), std::back_inserter(canceled_segements));
   std::vector<int> comps;
 
   bool ghost;

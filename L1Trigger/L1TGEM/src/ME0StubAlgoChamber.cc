@@ -120,7 +120,6 @@ std::vector<ME0StubPrimitive> l1t::me0::process_chamber(
 
   // pick the best N outputs from each partition
   for (int i = 0; i < static_cast<int>(segments.size()); ++i) {
-    // segments[i] = segment_sorter(segments[i], config.num_outputs);
     segment_sorter(segments[i], config.num_outputs);
   }
 
@@ -133,13 +132,11 @@ std::vector<ME0StubPrimitive> l1t::me0::process_chamber(
   }
   joined_segments.push_back(segments[14]);
   for (int i = 0; i < static_cast<int>(joined_segments.size()); ++i) {
-    // joined_segments[i] = segment_sorter(joined_segments[i], config.num_outputs);
     segment_sorter(joined_segments[i], config.num_outputs);
   }
 
   // concatenate together all of the segments, sort them, and pick the best N outputs
   std::vector<ME0StubPrimitive> concatenated = concatVector(joined_segments);
-  // concatenated = segment_sorter(concatenated, config.num_outputs);
   segment_sorter(concatenated, config.num_outputs);
 
   return concatenated;

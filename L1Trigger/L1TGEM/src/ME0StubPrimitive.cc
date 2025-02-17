@@ -35,23 +35,23 @@ void ME0StubPrimitive::update_quality() {
   }
 }
 void ME0StubPrimitive::fit(int max_span) {
-  if (id!=0) {
+  if (id != 0) {
     std::vector<double> tmp;
-    for (double cent : centroid) {
-      tmp.push_back(cent-(max_span/2+1));
+    tmp.reserve(centroid.size()); for (double cent : centroid) {
+      tmp.push_back(cent - (max_span / 2 + 1));
     }
     std::vector<double> x;
     std::vector<double> centroids;
-    for (uint32_t i=0; i < tmp.size(); ++i) {
-      if (tmp[i] != -1*(max_span/2+1)) {
-        x.push_back(i-2.5);
+    for (uint32_t i = 0; i < tmp.size(); ++i) {
+      if (tmp[i] != -1 * (max_span / 2 + 1)) {
+        x.push_back(i - 2.5);
         centroids.push_back(tmp[i]);
       }
     }
     std::vector<double> fit = llse_fit(x, centroids);
     bend_ang = fit[0];
     substrip = fit[1];
-    mse      = fit[2];
+    mse = fit[2];
   }
 }
 std::vector<double> ME0StubPrimitive::llse_fit(const std::vector<double>& x, const std::vector<double>& y) {

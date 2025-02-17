@@ -8,11 +8,9 @@ uint64_t l1t::me0::parse_data(const UInt192& data, int strip, int max_span) {
   if (strip < max_span / 2 + 1) {
     data_shifted = data << (max_span / 2 - strip);
     parsed_data = (data_shifted & UInt192(0xffffffffffffffff >> (64 - max_span))).to_ullong();
-    // parsed_data = (data_shifted & UInt192(pow(2,max_span)-1)).to_ullong();
   } else {
     data_shifted = data >> (strip - max_span / 2);
     parsed_data = (data_shifted & UInt192(0xffffffffffffffff >> (64 - max_span))).to_ullong();
-    // parsed_data = (data_shifted & UInt192(pow(2,max_span)-1)).to_ullong();
   }
   return parsed_data;
 }

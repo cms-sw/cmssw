@@ -21,27 +21,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-// using namespace l1t::me0;
-
 class ME0StubAlgorithmBase;
 
 class ME0StubBuilder {
 public:
-  /** Configure the algorithm via ctor.
-     * Receives ParameterSet percolated down from EDProducer
-     * which owns this Builder.
-     */
   explicit ME0StubBuilder(const edm::ParameterSet&);
-  /// Destructor
   ~ME0StubBuilder();
 
-  /** Find stubs in each ensemble of 6 GEM layers, build ME0Stub's ,
-     *  and fill into output collection.
-     */
   void build(const GEMPadDigiCollection* paddigis, ME0StubCollection& oc);
-
-  /** Cache pointer to geometry _for current event_
-     */
 
   static void fillDescription(edm::ParameterSetDescription& descriptions);
 

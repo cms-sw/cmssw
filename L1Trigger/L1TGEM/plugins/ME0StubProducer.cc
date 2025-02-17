@@ -20,25 +20,20 @@
 #include "DataFormats/GEMDigi/interface/ME0StubCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0Stub.h"
 
-// #include "RecoLocalMuon/GEMSegment/plugins/GEMSegmentBuilder.h"
 #include "L1Trigger/L1TGEM/plugins/ME0StubBuilder.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-// using namespace l1t::me0;
-
 class ME0StubProducer : public edm::stream::EDProducer<> {
 public:
-  /// Constructor
   explicit ME0StubProducer(const edm::ParameterSet&);
-  /// Destructor
   ~ME0StubProducer() override {}
-  /// Produce the ME0Stub collection
+
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  int iev;  // events through
+  int iev;
   edm::EDGetTokenT<GEMPadDigiCollection> theGEMPadDigiToken;
   std::unique_ptr<ME0StubBuilder> segmentBuilder_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
@@ -46,9 +41,8 @@ private:
 
 ME0StubProducer::ME0StubProducer(const edm::ParameterSet& ps) : iev(0) {
   theGEMPadDigiToken = consumes<GEMPadDigiCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  segmentBuilder_ = std::make_unique<ME0StubBuilder>(ps);  // pass on the Parameter Set
+  segmentBuilder_ = std::make_unique<ME0StubBuilder>(ps);
   gemGeomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
-  // register what this produces
   produces<ME0StubCollection>();
 }
 
@@ -62,17 +56,13 @@ void ME0StubProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
 void ME0StubProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   LogDebug("ME0StubProducer") << "start producing segments for " << ++iev << "th event with GEM data";
 
-  // get the collection of GEMDigi
   edm::Handle<GEMPadDigiCollection> gemPadDigis;
   ev.getByToken(theGEMPadDigiToken, gemPadDigis);
 
-  // create empty collection of Segments
   auto oc = std::make_unique<ME0StubCollection>();
 
-  // fill the collection
-  segmentBuilder_->build(gemPadDigis.product(), *oc);  //@@ FILL oc
+  segmentBuilder_->build(gemPadDigis.product(), *oc);
 
-  // put collection in event
   ev.put(std::move(oc));
 }
 
