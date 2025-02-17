@@ -5,6 +5,3 @@ onlineBeamSpotProducer = _mod.beamSpotOnlineProducer.clone(
                                         setSigmaZ = -1, #negative value disables it.
                                         gtEvmLabel = 'gtEvmDigis'
 )
-
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify(onlineBeamSpotProducer, useTransientRecord = True)
