@@ -421,7 +421,7 @@ if __name__ == '__main__':
                           help='Specify a comma-separated list of CUDA "compute capabilities", or GPU hardware architectures, that the job can use.',
                           dest='CUDACapabilities',
                           type=lambda x: x.split(','),
-                          default='6.0,6.1,6.2,7.0,7.2,7.5,8.0,8.6')
+                          default='6.0,6.1,6.2,7.0,7.2,7.5,8.0,8.6,8.7,8.9,9.0,12.0')
 
     # read the CUDA runtime version included in CMSSW
     cudart_version = None
