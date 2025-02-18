@@ -30,10 +30,10 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True), allowUnscheduled = cms.untracked.bool(False) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1008))
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.MessageLogger.cerr.threshold = "DEBUG"
-process.MessageLogger.debugModules = ["l1tLayer1BarrelTDR"]
+# process.MessageLogger.cerr.threshold = "DEBUG"
+# process.MessageLogger.debugModules = ["l1tLayer1BarrelTDR"]
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:inputs110X.root'),
@@ -125,9 +125,6 @@ process.l1tLayer1BarrelSerenity.regionizerAlgoParameters = cms.PSet(
         nCalo = cms.uint32(15),
         nEmCalo = cms.uint32(12),
         nMu = cms.uint32(2))
-process.l1tLayer1BarrelSerenity.gctEmInputConversionAlgo = cms.string("Ideal")
-delattr(process.l1tLayer1BarrelSerenity, "gctEmInputConversionParameters")
-process.l1tLayer1BarrelSerenity.gctHadInputConversionAlgo = cms.string("Ideal")
 process.l1tLayer1BarrelSerenity.pfAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelSerenity.pfAlgoParameters.nSelCalo = 15
 process.l1tLayer1BarrelSerenity.pfAlgoParameters.nCalo = 15
@@ -138,10 +135,22 @@ process.l1tLayer1BarrelSerenity.puAlgoParameters.nOut = 27
 process.l1tLayer1BarrelSerenity.puAlgoParameters.finalSortAlgo = "FoldedHybrid"
 process.l1tLayer1BarrelSerenity.caloSectors = cms.VPSet(
         cms.PSet(
-            etaBoundaries = cms.vdouble(-1.5, 1.5),
+            etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
             phiSlices     = cms.uint32(3),
+            phiZero       = cms.double(math.pi/18)
+        ),
+        cms.PSet(
+            etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
+            phiSlices     = cms.uint32(3),
+            phiZero       = cms.double(math.pi*7/18)
         )
     )
+# process.l1tLayer1BarrelSerenity.caloSectors = cms.VPSet(
+#         cms.PSet(
+#             etaBoundaries = cms.vdouble(-1.5, 1.5),
+#             phiSlices     = cms.uint32(3),
+#         )
+#     )
 
 if args.serenity:
     process.l1tLayer1.pfProducers[0] = "l1tLayer1BarrelSerenity"

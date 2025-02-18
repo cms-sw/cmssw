@@ -14,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/allowedValues.h"
 
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCluster.h"
@@ -82,11 +81,11 @@ private:
   // For calo, can give either the already converted containers, or the raw containers (for GCT only)
   // These are the already converted containers
   edm::EDGetTokenT<l1t::PFClusterCollection> emCands_;
-  edm::EDGetTokenT<l1t::PFClusterCollection> hadCands_;
+  edm::EDGetTokenT<l1t::HGCalMulticlusterBxCollection> hadHGCalCands_;
 
   // can alternately give the raw containers (for GCT)
-  edm::EDGetTokenT<l1tp2::GCTEmDigiClusterCollection> emRawCands_;
-  edm::EDGetTokenT<l1tp2::GCTHadDigiClusterCollection> hadRawCands_;
+  edm::EDGetTokenT<l1tp2::GCTEmDigiClusterCollection> emGCTRawCands_;
+  edm::EDGetTokenT<l1tp2::GCTHadDigiClusterCollection> hadGCTRawCands_;
 
   float emPtCut_, hadPtCut_;
 
@@ -122,16 +121,16 @@ private:
   void produce(edm::Event &, const edm::EventSetup &) override;
   void encodeAndAddHgcalCluster(ap_uint<256> &word,
                                 l1ct::DetectorSector<ap_uint<256>> &sec,
-                                const l1t::L1Candidate &calo) const;
-  void getDecodedGctEmCluster(l1ct::EmCaloObjEmu &calo,
-                              l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec,
-                              const l1tp2::DigitizedClusterCorrelator &digi) const;
-  void getDecodedGctPFCluster(l1ct::HadCaloObjEmu &calo,
-                              l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec,
-                              const l1t::PFCluster *c) const;
+                                const l1t::HGCalMulticluster &calo) const;
+  void addDecodedEmCalo(l1ct::EmCaloObjEmu &decCalo,
+                        const edm::Ptr<l1t::L1Candidate> &caloPtr,
+                        l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec);
   void addEmPFCluster(const l1ct::EmCaloObjEmu &decCalo,
                       const l1ct::PFRegionEmu &region,
                       std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const;
+  void addDecodedHadCalo(l1ct::HadCaloObjEmu &decCalo,
+                         const edm::Ptr<l1t::L1Candidate> &caloPtr,
+                         l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec);
 
   void addHadPFCluster(const l1ct::HadCaloObjEmu &decCalo,
                        const l1ct::PFRegionEmu &region,
@@ -144,12 +143,11 @@ private:
   // add object, tracking references
   void addTrack(const l1t::PFTrack &t, l1t::PFTrackRef ref);
   void addMuon(const l1t::SAMuon &t, l1t::PFCandidate::MuonRef ref);
-  // // for already decoded calos as input
-  // void addHadCalo(const l1t::PFCluster &t, l1t::L1Candidate ref);
-  // void addEmCalo(const l1t::PFCluster &t, l1t::L1Candidate ref);
-  // for raw calos as input
-  void addEmCaloRaw(const l1tp2::GCTEmDigiClusterLink &link, unsigned int linkidx, unsigned int entidx);
-  void addHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link, unsigned int linkidx, unsigned int entidx);
+  // HGCAl input clusters
+  void addHGCalHadCalo(const l1t::HGCalMulticluster &calo, const edm::Ptr<l1t::L1Candidate> &caloPtr);
+  // for GCT raw calos as input
+  void addGCTEmCaloRaw(const l1tp2::GCTEmDigiClusterLink &link, unsigned int linkidx, unsigned int entidx);
+  void addGCTHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link, unsigned int linkidx, unsigned int entidx);
   // add objects in already-decoded format
   void addDecodedTrack(l1ct::DetectorSector<l1ct::TkObjEmu> &sec, const l1t::PFTrack &t);
   void addDecodedMuon(l1ct::DetectorSector<l1ct::MuObjEmu> &sec, const l1t::SAMuon &t);
@@ -158,7 +156,7 @@ private:
 
   void rawHgcalClusterEncode(ap_uint<256> &cwrd,
                              const l1ct::DetectorSector<ap_uint<256>> &sec,
-                             const l1t::HGCalMulticluster *c) const;
+                             const l1t::HGCalMulticluster &c) const;
 
   // fetching outputs
   std::unique_ptr<l1t::PFCandidateCollection> fetchHadCalo() const;
@@ -264,24 +262,24 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
     throw cms::Exception("Configuration", "Unsupported muonInputConversionAlgo");
 
   const std::string &hgcalInAlgo = iConfig.getParameter<std::string>("hgcalInputConversionAlgo");
-  if (hgcalInAlgo == "Emulator") {
-    hgcalInput_ = std::make_unique<l1ct::HgcalClusterDecoderEmulator>(
-        iConfig.getParameter<edm::ParameterSet>("hgcalInputConversionParameters"));
-  } else if (hgcalInAlgo != "Ideal")
-    throw cms::Exception("Configuration", "Unsupported hgcalInputConversionAlgo");
-
+  const edm::InputTag hadHGCClusters = iConfig.getParameter<edm::InputTag>("hadClusters");
+  if (!hadHGCClusters.label().empty()) {
+    hadHGCalCands_ = consumes<l1t::HGCalMulticlusterBxCollection>(hadHGCClusters);
+    if (hgcalInAlgo == "Emulator") {
+      hgcalInput_ = std::make_unique<l1ct::HgcalClusterDecoderEmulator>(
+          iConfig.getParameter<edm::ParameterSet>("hgcalInputConversionParameters"));
+    } else if (hgcalInAlgo != "None")
+      throw cms::Exception("Configuration", "Unsupported hgcalInputConversionAlgo");
+  }
   const std::string &gctEmInAlgo = iConfig.getParameter<std::string>("gctEmInputConversionAlgo");
   const edm::InputTag emClusters = iConfig.getParameter<edm::InputTag>("emClusters");
   if (!emClusters.label().empty()) {
     if (gctEmInAlgo == "Emulator") {
       gctEmInput_ = std::make_unique<l1ct::GctEmClusterDecoderEmulator>(
           iConfig.getParameter<edm::ParameterSet>("gctEmInputConversionParameters"));
-      emRawCands_ = consumes<l1tp2::GCTEmDigiClusterCollection>(emClusters);
-    } else if (gctEmInAlgo == "Ideal") {
-      emCands_ = consumes<l1t::PFClusterCollection>(emClusters);
-    } else {
+      emGCTRawCands_ = consumes<l1tp2::GCTEmDigiClusterCollection>(emClusters);
+    } else if (gctEmInAlgo != "None")
       throw cms::Exception("Configuration", "Unsupported gctEmInputConversionAlgo");
-    }
   }
   const std::string &gctHadInAlgo = iConfig.getParameter<std::string>("gctHadInputConversionAlgo");
   const edm::InputTag hadClusters = iConfig.getParameter<edm::InputTag>("hadClusters");
@@ -289,12 +287,9 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
     if (gctHadInAlgo == "Emulator") {
       gctHadInput_ = std::make_unique<l1ct::GctHadClusterDecoderEmulator>(
           iConfig.getParameter<edm::ParameterSet>("gctHadInputConversionParameters"));
-      hadRawCands_ = consumes<l1tp2::GCTHadDigiClusterCollection>(hadClusters);
-    } else if (gctHadInAlgo == "Ideal") {
-      hadCands_ = consumes<l1t::PFClusterCollection>(hadClusters);
-    } else {
+      hadGCTRawCands_ = consumes<l1tp2::GCTHadDigiClusterCollection>(hadClusters);
+    } else if (gctHadInAlgo != "None")
       throw cms::Exception("Configuration", "Unsupported gctHadInputConversionAlgo");
-    }
   }
 
   const std::string &regalgo = iConfig.getParameter<std::string>("regionizerAlgo");
@@ -410,14 +405,14 @@ void L1TCorrelatorLayer1Producer::fillDescriptions(edm::ConfigurationDescription
   desc.ifValue(edm::ParameterDescription<std::string>("muonInputConversionAlgo", "Ideal", true),
                "Ideal" >> emptyGroup or "Emulator" >> getParDesc<l1ct::GMTMuonDecoderEmulator>("muonInputConversion"));
   desc.ifValue(
-      edm::ParameterDescription<std::string>("hgcalInputConversionAlgo", "Ideal", true),
-      "Ideal" >> emptyGroup or "Emulator" >> getParDesc<l1ct::HgcalClusterDecoderEmulator>("hgcalInputConversion"));
+      edm::ParameterDescription<std::string>("hgcalInputConversionAlgo", "None", true),
+      "None" >> emptyGroup or "Emulator" >> getParDesc<l1ct::HgcalClusterDecoderEmulator>("hgcalInputConversion"));
   desc.ifValue(
-      edm::ParameterDescription<std::string>("gctEmInputConversionAlgo", "Ideal", true),
-      "Ideal" >> emptyGroup or "Emulator" >> getParDesc<l1ct::GctEmClusterDecoderEmulator>("gctEmInputConversion"));
+      edm::ParameterDescription<std::string>("gctEmInputConversionAlgo", "None", true),
+      "None" >> emptyGroup or "Emulator" >> getParDesc<l1ct::GctEmClusterDecoderEmulator>("gctEmInputConversion"));
   desc.ifValue(
-      edm::ParameterDescription<std::string>("gctHadInputConversionAlgo", "Ideal", true),
-      "Ideal" >> emptyGroup or "Emulator" >> getParDesc<l1ct::GctHadClusterDecoderEmulator>("gctHadInputConversion"));
+      edm::ParameterDescription<std::string>("gctHadInputConversionAlgo", "None", true),
+      "None" >> emptyGroup or "Emulator" >> getParDesc<l1ct::GctHadClusterDecoderEmulator>("gctHadInputConversion"));
   // Regionizer
   auto idealRegPD = getParDesc<l1ct::RegionizerEmulator>("regionizerAlgo");
   auto tdrRegPD = getParDesc<l1ct::TDRRegionizerEmulator>("regionizerAlgo");
@@ -532,68 +527,36 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   }
   // ------ READ CALOS -----
 
-  // std::cout << "regionizer = " << config_.getParameter<std::string>("regionizerAlgo")
-  //   << ", pfAlgo = " << config_.getParameter<std::string>("pfAlgo")
-  //   << ", dumpFileName = " << config_.getUntrackedParameter<std::string>("dumpFileName")  << std::endl;
-  // ensure that only raw or decoded calo information is avalable, not both
-  if (!emCands_.isUninitialized() && !emRawCands_.isUninitialized()) {
-    throw cms::Exception("Both emClusters and emRawClusters should not be filled");
-  }
-
-  if (!hadCands_.isUninitialized() && !hadRawCands_.isUninitialized()) {
-    throw cms::Exception("Both hadClusters and hadRawClusters should not be filled");
-  }
-
-  // std::cout
-  //   << ", emCands_.isUninitialized() = " << emCands_.isUninitialized() << ", emRawCands_.isUninitialized() = " << emRawCands_.isUninitialized()
-  //   << ", hadCands_.isUninitialized() = " << hadCands_.isUninitialized() << ", hadRawCands_.isUninitialized() = " << hadRawCands_.isUninitialized()
-  //   << ", dumpFileName = " << config_.getUntrackedParameter<std::string>("dumpFileName")  << std::endl;
-
-  // // this is for parsing decoded calo information
-  // if (!emCands_.isUninitialized()) {
-  //   edm::Handle<l1t::PFClusterCollection> caloHandle;
-  //   iEvent.getByToken(emCands_, caloHandle);
-  //   const auto &calos = *caloHandle;
-  //   for (unsigned int ic = 0, nc = calos.size(); ic < nc; ++ic) {
-  //     const auto &calo = calos[ic];
-  //     if (debugR_ > 0 && deltaR(calo.eta(), calo.phi(), debugEta_, debugPhi_) > debugR_)
-  //       continue;
-  //     if (calo.pt() > emPtCut_)
-  //       addEmCalo(calo, l1t::PFClusterRef(caloHandle, ic));
-  //   }
-  // }
-  // if (!hadCands_.isUninitialized()) {
-  //   edm::Handle<l1t::PFClusterCollection> caloHandle;
-  //   iEvent.getByToken(hadCands_, caloHandle);
-  //   const auto &calos = *caloHandle;
-  //   for (unsigned int ic = 0, nc = calos.size(); ic < nc; ++ic) {
-  //     const auto &calo = calos[ic];
-  //     if (debugR_ > 0 && deltaR(calo.eta(), calo.phi(), debugEta_, debugPhi_) > debugR_)
-  //       continue;
-  //     if (calo.pt() > hadPtCut_)
-  //       addHadCalo(calo, l1t::PFClusterRef(caloHandle, ic));
-  //   }
-  // }
-
   // this is for parsing raw calo information
-  if (!emRawCands_.isUninitialized()) {
-    auto caloHandle = iEvent.getHandle(emRawCands_);
+  if (!emGCTRawCands_.isUninitialized()) {
+    auto caloHandle = iEvent.getHandle(emGCTRawCands_);
     const auto &links = *caloHandle;
     for (unsigned int ic = 0; ic < links.size(); ++ic) {
       const auto &link = links[ic];
       for (unsigned int ie = 0; ie < link.size(); ++ie) {
-        addEmCaloRaw(link, ic, ie);
+        addGCTEmCaloRaw(link, ic, ie);
       }
     }
   }
 
-  if (!hadRawCands_.isUninitialized()) {
-    auto caloHandle = iEvent.getHandle(hadRawCands_);
+  if (!hadHGCalCands_.isUninitialized()) {
+    auto caloHandle = iEvent.getHandle(hadHGCalCands_);
+    if (caloHandle.isValid()) {
+      const auto &calos = *caloHandle;
+      for (unsigned int ic = 0, nc = calos.size(); ic < nc; ++ic) {
+        const auto &calo = calos[ic];
+        addHGCalHadCalo(calo, edm::Ptr<l1t::L1Candidate>(caloHandle, ic));
+      }
+    }
+  }
+
+  if (!hadGCTRawCands_.isUninitialized()) {
+    auto caloHandle = iEvent.getHandle(hadGCTRawCands_);
     const auto &links = *caloHandle;
     for (unsigned int ic = 0; ic < links.size(); ++ic) {
       const auto &link = links[ic];
       for (unsigned int ie = 0; ie < link.size(); ++ie) {
-        addHadCaloRaw(link, ic, ie);
+        addGCTHadCaloRaw(link, ic, ie);
       }
     }
   }
@@ -738,22 +701,22 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
 
 void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
                                                         const l1ct::DetectorSector<ap_uint<256>> &sec,
-                                                        const l1t::HGCalMulticluster *c) const {
+                                                        const l1t::HGCalMulticluster &c) const {
   cwrd = 0;
 
   // implemented as of interface document (version of 15/11/2025)
-  ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_pt = c->pt();
+  ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_pt = c.pt();
   // NOTE: We use iPt here for now despite final HGC FW implementation might be different
-  ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_empt = c->iPt(l1t::HGCalMulticluster::EnergyInterpretation::EM);
+  ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_empt = c.iPt(l1t::HGCalMulticluster::EnergyInterpretation::EM);
 
   // NOTE: this number is not consistent with the iPt interpretation nor with hoe.
   // hoe uses the total cluster em and had energies while eot computed in the showershapes only accounts for a
   // a max radius from the cluster center. This is the value used by the ID models
-  ap_uint<8> w_emfrac = std::min(round(c->eot() * 256), float(255.));
+  ap_uint<8> w_emfrac = std::min(round(c.eot() * 256), float(255.));
 
   // NOTE II: we compute a second eot value to propagate the value of the total hadronic energy as in
   // the hoe computation
-  float em_frac_tot = c->hOverE() < 0 ? 0. : 1. / (c->hOverE() + 1.);
+  float em_frac_tot = c.hOverE() < 0 ? 0. : 1. / (c.hOverE() + 1.);
   ap_uint<8> w_emfrac_tot = std::min(round(em_frac_tot * 256), float(255.));
 
   static constexpr float ETAPHI_LSB = M_PI / 720;
@@ -761,19 +724,19 @@ void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
   static constexpr float SIGMAPHIPHI_LSB = 0.12822 / (1 << 7);
   static constexpr float SIGMAETAETA_LSB = 0.148922 / (1 << 5);
 
-  ap_uint<10> w_eta = round(fabs(c->eta()) / ETAPHI_LSB);
-  ap_int<9> w_phi = round(sec.region.localPhi(c->phi()) / ETAPHI_LSB);
+  ap_uint<10> w_eta = round(fabs(c.eta()) / ETAPHI_LSB);
+  ap_int<9> w_phi = round(sec.region.localPhi(c.phi()) / ETAPHI_LSB);
   // FIXME: we keep subtracting an arbitrary number different from the HLGCal FW one
-  ap_ufixed<12, 11, AP_RND_CONV, AP_SAT> w_meanz = fabs(c->zBarycenter()) - 320;  // LSB = 0.5cm
+  ap_ufixed<12, 11, AP_RND_CONV, AP_SAT> w_meanz = fabs(c.zBarycenter()) - 320;  // LSB = 0.5cm
 
-  ap_uint<6> w_showerlenght = c->showerLength();
-  ap_uint<7> w_sigmazz = round(c->sigmaZZ() / SIGMAZZ_LSB);
-  ap_uint<7> w_sigmaphiphi = round(c->sigmaPhiPhiTot() / SIGMAPHIPHI_LSB);
-  ap_uint<6> w_coreshowerlenght = c->coreShowerLength();
-  ap_uint<5> w_sigmaetaeta = round(c->sigmaEtaEtaTot() / SIGMAETAETA_LSB);
+  ap_uint<6> w_showerlenght = c.showerLength();
+  ap_uint<7> w_sigmazz = round(c.sigmaZZ() / SIGMAZZ_LSB);
+  ap_uint<7> w_sigmaphiphi = round(c.sigmaPhiPhiTot() / SIGMAPHIPHI_LSB);
+  ap_uint<6> w_coreshowerlenght = c.coreShowerLength();
+  ap_uint<5> w_sigmaetaeta = round(c.sigmaEtaEtaTot() / SIGMAETAETA_LSB);
   // NOTE: this is an arbitrary choice to keep the rounding consistent with the "addDecodedHadCalo" one
   // FIXME: the scaling here is added to the encoded word...
-  ap_uint<13> w_sigmarrtot = round(c->sigmaRRTot() * l1ct::Scales::SRRTOT_SCALE / l1ct::Scales::SRRTOT_LSB);
+  ap_uint<13> w_sigmarrtot = round(c.sigmaRRTot() * l1ct::Scales::SRRTOT_SCALE / l1ct::Scales::SRRTOT_LSB);
 
   // Word 0
   cwrd(13, 0) = w_pt.range();     // 14 bits: 13-0
@@ -799,12 +762,8 @@ void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
 
 void L1TCorrelatorLayer1Producer::encodeAndAddHgcalCluster(ap_uint<256> &word,
                                                            l1ct::DetectorSector<ap_uint<256>> &sec,
-                                                           const l1t::L1Candidate &calo) const {
-  const l1t::HGCalMulticluster *hgcalCluster = dynamic_cast<const l1t::HGCalMulticluster *>(&calo);
-  if (hgcalCluster)
-    rawHgcalClusterEncode(word, sec, hgcalCluster);
-  else
-    throw cms::Exception("CastFailed", "input L1Candidate is not l1t::HGCalMulticluster\n");
+                                                           const l1t::HGCalMulticluster &calo) const {
+  rawHgcalClusterEncode(word, sec, calo);
   sec.obj.push_back(word);
 }
 
@@ -828,6 +787,14 @@ void L1TCorrelatorLayer1Producer::addEmPFCluster(const l1ct::EmCaloObjEmu &decCa
   setRefs_(pfClusters->back(), decCalo);
 }
 
+void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::EmCaloObjEmu &decCalo,
+                                                   const edm::Ptr<l1t::L1Candidate> &caloPtr,
+                                                   l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec) {
+  clusterRefMap_[caloPtr.get()] = caloPtr;
+  decCalo.src = caloPtr.get();
+  sec.obj.push_back(decCalo);
+}
+
 void L1TCorrelatorLayer1Producer::addHadPFCluster(const l1ct::HadCaloObjEmu &decCalo,
                                                   const l1ct::PFRegionEmu &region,
                                                   std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const {
@@ -846,6 +813,14 @@ void L1TCorrelatorLayer1Producer::addHadPFCluster(const l1ct::HadCaloObjEmu &dec
   pfClusters->back().setHwQual(decCalo.hwEmID.to_int());
   pfClusters->back().setCaloDigi(decCalo);
   setRefs_(pfClusters->back(), decCalo);
+}
+
+void L1TCorrelatorLayer1Producer::addDecodedHadCalo(l1ct::HadCaloObjEmu &decCalo,
+                                                    const edm::Ptr<l1t::L1Candidate> &caloPtr,
+                                                    l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec) {
+  clusterRefMap_[caloPtr.get()] = caloPtr;
+  decCalo.src = caloPtr.get();
+  sec.obj.push_back(decCalo);
 }
 
 void L1TCorrelatorLayer1Producer::addUInt(unsigned int value, std::string iLabel, edm::Event &iEvent) {
@@ -957,6 +932,26 @@ void L1TCorrelatorLayer1Producer::addMuon(const l1t::SAMuon &mu, l1t::PFCandidat
   muonRefMap_[&mu] = ref;
 }
 
+void L1TCorrelatorLayer1Producer::addHGCalHadCalo(const l1t::HGCalMulticluster &calo,
+                                                  const edm::Ptr<l1t::L1Candidate> &caloPtr) {
+  for (unsigned int isec = 0; isec < event_.decoded.hadcalo.size(); isec++) {
+    auto &sec = event_.decoded.hadcalo[isec];
+    // Get the raw and decoded sectors
+    if (sec.region.contains(calo.eta(), calo.phi())) {
+      auto &sec_raw = event_.raw.hgcalcluster[isec];
+      // Get the raw word
+      ap_uint<256> cwrd = 0;
+      encodeAndAddHgcalCluster(cwrd, sec_raw, calo);
+      // Crete the decoded object calling the unpacker
+      // Use the valid flag to reject PU clusters when creating the decoded object
+      bool valid = true;
+      l1ct::HadCaloObjEmu decCalo = hgcalInput_->decode(sec_raw.region, cwrd, valid);
+      if (decCalo.floatPt() > hadPtCut_ && valid)
+        addDecodedHadCalo(decCalo, caloPtr, sec);
+    }
+  }
+}
+
 // void L1TCorrelatorLayer1Producer::addHadCalo(const l1t::PFCluster &c, l1t::L1Candidate ref) {
 //   int sidx = 0;
 //   for (auto &sec : event_.decoded.hadcalo) {
@@ -987,16 +982,16 @@ void L1TCorrelatorLayer1Producer::addMuon(const l1t::SAMuon &mu, l1t::PFCandidat
 // to reg. order:  GCT1 SLR3-, GCT2 SLR3-, GCT3 SLR3-, GCT1 SLR3+, GCT2 SLR3+, GCT3 SLR3+,
 //                 GCT1 SLR1-, GCT2 SLR1-, GCT3 SLR1-, GCT1 SLR1+, GCT2 SLR1+, GCT3 SLR1+
 
-void L1TCorrelatorLayer1Producer::addEmCaloRaw(const l1tp2::GCTEmDigiClusterLink &link,
-                                               unsigned int linkidx,
-                                               unsigned int entidx) {
+void L1TCorrelatorLayer1Producer::addGCTEmCaloRaw(const l1tp2::GCTEmDigiClusterLink &link,
+                                                  unsigned int linkidx,
+                                                  unsigned int entidx) {
   event_.raw.gctEm[calomapping[linkidx]].obj.push_back(link[entidx].data());
   addDecodedGCTEmCalo(event_.decoded.emcalo[calomapping[linkidx]], link[entidx]);
 }
 
-void L1TCorrelatorLayer1Producer::addHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link,
-                                                unsigned int linkidx,
-                                                unsigned int entidx) {
+void L1TCorrelatorLayer1Producer::addGCTHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link,
+                                                   unsigned int linkidx,
+                                                   unsigned int entidx) {
   event_.raw.gctHad[calomapping[linkidx]].obj.push_back(link[entidx].data());
   addDecodedGCTHadCalo(event_.decoded.hadcalo[calomapping[linkidx]], link[entidx]);
 }
@@ -1061,9 +1056,8 @@ void L1TCorrelatorLayer1Producer::addDecodedGCTEmCalo(l1ct::DetectorSector<l1ct:
   l1ct::EmCaloObjEmu calo = gctEmInput_->decode(sec, digi.data());
 
   auto caloPtr = edm::refToPtr(digi.clusterRef());
-  clusterRefMap_[caloPtr.get()] = caloPtr;
-  calo.src = caloPtr.get();
-  sec.obj.push_back(calo);
+  // FIXME: should check hwPt > 0
+  addDecodedEmCalo(calo, caloPtr, sec);
 }
 
 void L1TCorrelatorLayer1Producer::addDecodedGCTHadCalo(l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec,
@@ -1071,9 +1065,8 @@ void L1TCorrelatorLayer1Producer::addDecodedGCTHadCalo(l1ct::DetectorSector<l1ct
   l1ct::HadCaloObjEmu calo = gctHadInput_->decode(sec, digi.data());
 
   auto caloPtr = edm::refToPtr(digi.clusterRef());
-  clusterRefMap_[caloPtr.get()] = caloPtr;
-  calo.src = caloPtr.get();
-  sec.obj.push_back(calo);
+  // FIXME: should check hwPt > 0
+  addDecodedHadCalo(calo, caloPtr, sec);
 }
 
 template <typename T>
