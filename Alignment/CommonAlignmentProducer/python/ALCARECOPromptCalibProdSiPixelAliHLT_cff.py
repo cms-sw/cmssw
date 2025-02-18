@@ -13,7 +13,10 @@ from Alignment.CommonAlignmentProducer.LSNumberFilter_cfi import *
 
 # Ingredient: onlineBeamSpot
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-onlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+onlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone(
+    useBSOnlineRecords = True,
+    timeThreshold = 999999
+)
 
 # Ingredient: ALCARECOTkAlMinBiasHLT
 from  Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import ALCARECOTkAlMinBias
