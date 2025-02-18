@@ -118,6 +118,8 @@ def customizeHLTfor47047(process):
         delattr(process, esProducer.label())
 
     for prod in producers_by_type(process, "HBHERecHitProducerPortable@alpaka", "alpaka_serial_sync::HBHERecHitProducerPortable"):
+        if not hasattr(prod, 'mahiPulseOffSets'):
+            continue
         pulseOffsetLabel = prod.mahiPulseOffSets.getModuleLabel()
         if hasattr(process, pulseOffsetLabel):
             esProducer = getattr(process, pulseOffsetLabel)
@@ -127,6 +129,8 @@ def customizeHLTfor47047(process):
         delattr(process, prod.label())
 
     for prod in producers_by_type(process, "PFClusterSoAProducer@alpaka", "alpaka_serial_sync::PFClusterSoAProducer"):
+        if not hasattr(prod, 'pfClusterParams'):
+            continue
         clusterParamsLabel = prod.pfClusterParams.getModuleLabel()
         if hasattr(process, clusterParamsLabel):
             esProducer = getattr(process, clusterParamsLabel)
