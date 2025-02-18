@@ -197,6 +197,8 @@ class _PSetTemplate(object):
     def __call__(self, value):
         self.__dict__
         return self._pset.clone(**value)
+    def _isEmpty(self) -> bool:
+        return self._pset.hasNoParameters()
     def _isValid(self, value) -> bool:
         return isinstance(value,dict) or isinstance(value, PSet)
     def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
@@ -1459,7 +1461,7 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     def copy(self):
         return copy.copy(self)
     def _additionalInitArguments(self, options):
-        if self._template:
+        if self._template and not self._template._isEmpty():
             #NOTE: PSetTemplate.dumpPython does not include the 'cms.' part
             return 'template = cms.'+self._template.dumpPython(options)
         return None
@@ -2420,6 +2422,10 @@ if __name__ == "__main__":
             ptest = VPSet(PSet(b=int32(3)), template = PSetTemplate(a=required.int32))
             self.assertEqual(len(ptest), 1)
             self.assertEqual(ptest[0].b.value(), 3)
+            self.assertEqual(ptest.dumpPython(),"cms.VPSet(cms.PSet(\n    b = cms.int32(3)\n), \ntemplate = cms.PSetTemplate(\n    a = cms.required.int32\n))"
+                             )
+            ptest = VPSet(template=PSetTemplate())
+            self.assertEqual(ptest.dumpPython(),"cms.VPSet()")
             #will inject `a=required.int32` into the PSet when starting from a dict()
             ptest = VPSet(dict(), template = PSetTemplate(a=required.int32))
             self.assertEqual(len(ptest), 1)
