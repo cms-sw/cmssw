@@ -31,15 +31,15 @@ autoCond = {
     'run2_data_promptlike_hi'      :    '140X_dataRun2_PromptLike_HI_v1',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'              :    '140X_dataRun2_HLT_relval_v1',
-    # GlobalTag for Run3 HLT: identical the online GT 140X_dataRun3_HLT_v4 with snapshot at 2024-11-28 13:17:51 (UTC)
+    # GlobalTag for Run3 HLT: identical the online GT 140X_dataRun3_HLT_v2 with snapshot at 2024-11-28 13:17:51 (UTC)
     'run3_hlt'                     :    '141X_dataRun3_HLT_frozen_v2',
     # GlobalTag for Run3 data relvals (express GT): same as 141X_dataRun3_Express_v4 but with snapshot at 2024-11-28 13:23:29 (UTC)
     'run3_data_express'            :    '141X_dataRun3_Express_frozen_v4',
     # GlobalTag for Run3 data relvals (prompt GT): same as 141X_dataRun3_Prompt_v4 but with snapshot at 2024-11-28 13:26:44 (UTC)
     'run3_data_prompt'             :    '141X_dataRun3_Prompt_frozen_v4',
-    # GlobalTag for Run3 offline data reprocessing - snapshot at 2024-11-12 07:39:42 (UTC)
-    'run3_data'                    :    '141X_dataRun3_v5',
-    # GlobalTag for Run3 offline data reprocessing with Prompt GT, currently for 2022FG - snapshot at 2024-02-12 12:00:00 (UTC)
+    # GlobalTag for Run3 offline data reprocessing - snapshot at 2025-02-09 15:35:33 (UTC)
+    'run3_data'                    :    '141X_dataRun3_v6',
+    # GlobalTag for Run3 offline data reprocessing with Prompt GT, currently for 2022FG - snapshot at 2024-05-31 08:53:25 (UTC)
     'run3_data_PromptAnalysis'     :    '140X_dataRun3_PromptAnalysis_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'           :    '131X_mc2017_design_v3',
@@ -100,11 +100,11 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2024 detector for Heavy Ion
     'phase1_2024_realistic_hi'     :    '141X_mcRun3_2024_realistic_HI_v13',
     # GlobalTag for MC production with realistic conditions for Phase1 2024 detector for ppRef5TeV
-    'phase1_2024_realistic_ppRef5TeV'     :    '141X_mcRun3_2024_realistic_ppRef5TeV_v7',
+    'phase1_2024_realistic_ppRef5TeV' : '141X_mcRun3_2024_realistic_ppRef5TeV_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2025
-    'phase1_2025_design'           :    '140X_mcRun3_2024_design_v11',
-    # GlobalTag for MC production with realistic conditions for Phase1 2024
-    'phase1_2025_realistic'        :    '142X_mcRun3_2025_realistic_v2',
+    'phase1_2025_design'           :    '142X_mcRun3_2025_design_v1',
+    # GlobalTag for MC production with realistic conditions for Phase1 2025
+    'phase1_2025_realistic'        :    '142X_mcRun3_2025_realistic_v7',
     # GlobalTag for MC production with realistic conditions for Phase2
     'phase2_realistic'             :    '141X_mcRun4_realistic_v3'
 }
