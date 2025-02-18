@@ -450,32 +450,42 @@ if __name__ == '__main__':
                           default='')
 
     opt = parser.parse_args()
-
     opt.selected_gpus = None
-    if opt.gpu:
+    
+    if opt.gpu != 'forbidden':
 
         print(">> Running with --gpu option. Checking the available and supported GPUs.")
         gpus = cleanComputeCapabilities("cuda")
         gpus = gpus + cleanComputeCapabilities("rocm", len(gpus))
         available_gpus = gpus
 
-        print("> GPUs Available:")
-        [print(f) for f in available_gpus]
-
-        # Filtering ONLY CUDA GPUs on capability
-        gpus = [g for g in gpus if not g.isCUDA() or (g.isCUDA() and g.capability in opt.CUDACapabilities)]
-
-        # Filtering by name (if parsed)
-        if len(opt.GPUName) > 0:
-            gpus = [g for g in gpus if g.name == opt.GPUName]
-
-        if available_gpus != gpus:
-            print(">> Selected:")   
-            [print(f) for f in gpus]
+        if len(available_gpus) == 0:
+            print(">> No GPU available!")
+            opt.gpu = 'forbidden'
         else:
-            print(">> All selected!")
-        
-        opt.selected_gpus = cycle(gpus)
+            print(">> GPUs available:")
+            [print(f) for f in available_gpus]
+
+            # Filtering ONLY CUDA GPUs on capability
+            gpus = [g for g in gpus if not g.isCUDA() or (g.isCUDA() and g.capability in opt.CUDACapabilities)]
+
+            # Filtering by name (if parsed)
+            if len(opt.GPUName) > 0:
+                gpus = [g for g in gpus if g.name == opt.GPUName]
+
+            if available_gpus != gpus:
+                if len(gpus) > 0:
+                    print(">> GPUs selected:")   
+                    [print(f) for f in gpus]
+                else:
+                    print(">> No GPU selected!")
+            else:
+                print(">> All selected!")
+
+            if len(gpus) > 0:
+                opt.selected_gpus = cycle(gpus)
+            else:
+                opt.gpu = 'forbidden'
     
     if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
