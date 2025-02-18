@@ -35,7 +35,6 @@
 #include "RooThresholdCategory.h"
 #include "RooTrace.h"
 #include "RooWorkspace.h"
-#include "RooTreeDataStore.h"
 
 using namespace std;
 using namespace RooFit;
@@ -351,9 +350,10 @@ string TagProbeFitter::calculateEfficiency(string dirName,
     RooDataSet* data_bin(nullptr);
     RooArgSet tmpVars;
 
+    TString cutStr = TString::Format("allCats==%d", iCat);
     if (not split_mode) {
       //create the dataset
-      data_bin = (RooDataSet*)data->reduce(Cut(TString::Format("allCats==%d", iCat)));
+      data_bin = (RooDataSet*)data->reduce(Cut(cutStr));
     } else {
       data_bin = new RooDataSet("data", "data", dataVars, WeightVar(weightVar.empty() ? nullptr : weightVar.c_str()));
 
@@ -366,20 +366,14 @@ string TagProbeFitter::calculateEfficiency(string dirName,
       printf("Input number of events: %u\n", n_entries);
       unsigned int first_entry = 0;
       while (first_entry < n_entries) {
-        TTree* copyTree = inputTree->CopyTree("", "", split_mode, first_entry);
-        RooTreeDataStore store("reader",
-                               "reader",
-                               dataVars,
-                               *copyTree,
-                               /*selExpr=*/"",
-                               /*wgtVarName=*/(weightVar.empty() ? nullptr : weightVar.c_str()));
-        for (unsigned int i = 0; i < store.GetEntries(); ++i) {
+        std::unique_ptr<TTree> tree{inputTree->CopyTree("", "", split_mode, first_entry)};
+        RooArgSet varsWithAllCats{dataVars};
+        varsWithAllCats.add(allCats);
+        RooDataSet store("store", "store", varsWithAllCats, Cut(cutStr), Import(*tree), WeightVar(weightVar.c_str()));
+        for (int i = 0; i < store.numEntries(); ++i) {
           store.get(i);
-          if (allCats.getIndex() == iCat) {
-            data_bin->add(dataVars, weightVar.empty() ? 1.0 : dataVars.getRealValue(weightVar.c_str()));
-          }
+          data_bin->add(*store.get(), store.weight());
         }
-        delete copyTree;
         first_entry += split_mode;
         data_bin->Print("V");
       }
