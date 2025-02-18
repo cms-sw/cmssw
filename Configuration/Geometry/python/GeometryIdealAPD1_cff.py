@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Ideal geometry, needed for simulation
 from Geometry.CMSCommonData.cmsIdealGeometryAPD1XML_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
 # Reconstruction geometry services
 #  Tracking Geometry
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
@@ -17,6 +17,7 @@ from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi impor
 #Muon
 from Geometry.MuonNumbering.muonGeometryConstants_cff import *
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
+from Geometry.MuonNumbering.muonOffsetESProducer_cff import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 
 #  Alignment
@@ -32,3 +33,4 @@ from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
 from Geometry.HcalCommonData.hcalDDConstants_cff import *
+from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *
