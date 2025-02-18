@@ -16,7 +16,7 @@ static loadFWLite lfw;
 #include <vector>
 #include <iostream>
 
-void triggernames_multi_cint()
+int triggernames_multi_cint()
 {
   std::vector<std::string> files1;
   files1.push_back(std::string("prodmerge.root"));
@@ -56,8 +56,9 @@ void triggernames_multi_cint()
           triggerNames.triggerIndex("p2") != 2) {
 	std::cout << "Trigger names do match expected values\n";
 	std::cout << "In script triggernames_multi_cint.C\n";
-        exit(1);
+        return 1;
       }
     }
   }
+  return 0;
 }

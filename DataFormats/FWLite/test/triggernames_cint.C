@@ -16,7 +16,7 @@ static loadFWLite lfw;
 #include <vector>
 #include <iostream>
 
-void triggernames_cint()
+int triggernames_cint()
 {
   // TFile f1("prodmerge.root");
   // fwlite::Event ev(&f1);
@@ -55,7 +55,7 @@ void triggernames_cint()
           triggerNames.triggerIndex("p2") != 2) {
 	std::cout << "Trigger names do match expected values\n";
 	std::cout << "In script triggernames_cint.C\n";
-        exit(1);
+        return 1;
       }
     }
 
@@ -71,4 +71,5 @@ void triggernames_cint()
     }
     */
   }
+  return 0;
 }

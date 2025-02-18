@@ -20,7 +20,7 @@ static loadFWLite lfw;
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #endif
 
-void runlumi_looping_cint()
+int runlumi_looping_cint()
 {
     TFile f("prodmerge.root");
     fwlite::Run r(&f);
@@ -111,5 +111,5 @@ void runlumi_looping_cint()
         returnValue = 1;
     }
 
-    exit(returnValue);
+    return returnValue;
 }

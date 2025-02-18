@@ -20,7 +20,7 @@ static loadFWLite lfw;
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #endif
 
-void chainevent_looping_cint()
+int chainevent_looping_cint()
 {
 vector<string>  files;
 files.push_back("empty_a.root");
@@ -108,5 +108,5 @@ for (int j = 0; j<20; ++j) {
     }
   }
 
-exit(returnValue);
+return returnValue;
 }
