@@ -202,7 +202,7 @@ namespace trklet {
         formTracks(lostTracks, lostStubs, lost, offset + channel);
         nTracks += tracks.size();
         nStubs += accumulate(tracks.begin(), tracks.end(), 0UL, [](auto sum, const vector<TTStubRef>& track) {
-          return sum + track.size();
+          return sum + static_cast<int>(track.size());
         });
         nLost += lost.size();
         allTracks += tracks.size();
