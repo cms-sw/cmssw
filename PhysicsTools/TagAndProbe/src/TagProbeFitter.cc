@@ -373,7 +373,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,
                                *copyTree,
                                /*selExpr=*/"",
                                /*wgtVarName=*/(weightVar.empty() ? nullptr : weightVar.c_str()));
-        for (unsigned int i = 0; i < store.GetEntries(); ++i) {
+        for (unsigned int i = 0; i < copyTree->GetEntries(); ++i) {
           store.get(i);
           if (allCats.getIndex() == iCat) {
             data_bin->add(dataVars, weightVar.empty() ? 1.0 : dataVars.getRealValue(weightVar.c_str()));
