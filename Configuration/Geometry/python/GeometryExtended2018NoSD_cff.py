@@ -5,8 +5,10 @@ import FWCore.ParameterSet.Config as cms
 #
 # Ideal 2018 geometry with no SD declaration
 from Geometry.CMSCommonData.cmsExtendedGeometry2018NoSDXML_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
 from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
 from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *
+from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *
 from Geometry.MuonNumbering.muonGeometryConstants_cff import *
+from Geometry.MuonNumbering.muonOffsetESProducer_cff import *
 
