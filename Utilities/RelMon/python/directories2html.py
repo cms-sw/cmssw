@@ -79,16 +79,15 @@ def fairy_url_single(run,sample,version,plot_path,tier,draw_opts="",h=250,w=200)
   return fairy_url
  
 #-------------------------------------------------------------------------------
-style_location="/cms-service-reldqm"
 def get_page_header(directory=None, standalone=False, additional_header=""):
-  style_location="/cms-service-reldqm"
-  if standalone:
-    style_location = "https://raw.githubusercontent.com/cms-PdmV/RelMonService2/77c534ec93401ca5de222ac62a6422f02389dafc/report_website/" #RelMonService2 
+
   javascripts=''
   style=''
   tablestyle=''
   thead_h = 400 
   wrapper_h = 1500
+  style_location="https://cms-pdmv-prod.web.cern.ch/relmon//cms-service-reldqm/"
+  
   if directory!=None and len(directory.comparisons)>0:
     meta=directory.meta
     style='img.fail {border:1px solid #ff0000;}\n'+\
@@ -115,14 +114,13 @@ def get_page_header(directory=None, standalone=False, additional_header=""):
   javascripts=""
 
   
-
   html='<html>'+\
        '<head>'+\
        '<title>RelMon Summary</title>'+\
-       '<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>' + \
-       '<link rel="stylesheet" href="%s/screen.css" type="text/css" media="screen, projection">'%style_location+\
-       '<link rel="stylesheet" href="%s/print.css" type="text/css" media="print">'%style_location+\
-       '<link rel="stylesheet" href="%s/fancy-type-screen.css" type="text/css" media="screen, projection">'%style_location+\
+       '<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>' +\
+       '<link rel="stylesheet" href="%s/screen.css" type="text/css" media="screen, projection">'%(style_location) +\
+       '<link rel="stylesheet" href="%s/print.css" type="text/css" media="print">'%(style_location) +\
+       '<link rel="stylesheet" href="%s/fancy-type-screen.css" type="text/css" media="screen, projection">'%(style_location) +\
        '<style type="text/css">'+\
        '.rotation {display: block;-webkit-transform: rotate(-90deg);-moz-transform: rotate(-90deg); }'+\
        '%s'%style+\
