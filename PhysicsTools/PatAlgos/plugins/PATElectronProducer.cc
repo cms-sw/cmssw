@@ -724,7 +724,8 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
           //remove duplicates
           std::sort(selectedCells.begin(), selectedCells.end());
-          std::unique(selectedCells.begin(), selectedCells.end());
+          auto last = std::unique(selectedCells.begin(), selectedCells.end());
+          selectedCells.erase(last, selectedCells.end());
 
           // Retrieve the corresponding RecHits
 
@@ -968,7 +969,8 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
       //remove duplicates
       std::sort(selectedCells.begin(), selectedCells.end());
-      std::unique(selectedCells.begin(), selectedCells.end());
+      auto last = std::unique(selectedCells.begin(), selectedCells.end());
+      selectedCells.erase(last, selectedCells.end());
 
       // Retrieve the corresponding RecHits
 
