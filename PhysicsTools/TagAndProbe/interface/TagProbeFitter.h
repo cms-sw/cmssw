@@ -85,11 +85,6 @@ public:
   /// suppress most of the output from RooFit and Minuit
   void setQuiet(bool quiet_ = true);
 
-  /// split mode - use it for very large input files (slower that non-split mode, which is the default)
-  ///    0 - import input TTree as a whole (non-split mode)
-  ///    non-zero value - use split reading mode and read specified number of events for each iteration
-  void setSplitMode(unsigned int nevents);
-
 protected:
   ///pointer to the input TTree Chain of data
   TChain* inputTree;
@@ -147,11 +142,6 @@ protected:
 
   /// suppress most printout
   bool quiet;
-
-  /// split mode - use it for very large input files (slower that non-split mode, which is the default)
-  ///    0 - import input TTree as a whole (non-split mode)
-  ///    non-zero value - use split reading mode and read specified number of events for each iteration
-  unsigned int split_mode;
 
   ///fix or release variables selected by user
   void varFixer(RooWorkspace* w, bool fix);

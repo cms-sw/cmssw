@@ -20,22 +20,19 @@ public:
 
 private:
   TagProbeFitter fitter;
-  unsigned int split_mode;  // number of events to read per cycle (slower, but memory efficient)
 };
 
 TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
-    : fitter(
-          pset.getParameter<vector<string> >("InputFileNames"),
-          pset.getParameter<string>("InputDirectoryName"),
-          pset.getParameter<string>("InputTreeName"),
-          pset.getParameter<string>("OutputFileName"),
-          pset.existsAs<unsigned int>("NumCPU") ? pset.getParameter<unsigned int>("NumCPU") : 1,
-          pset.existsAs<bool>("SaveWorkspace") ? pset.getParameter<bool>("SaveWorkspace") : false,
-          pset.existsAs<bool>("floatShapeParameters") ? pset.getParameter<bool>("floatShapeParameters") : true,
-          pset.existsAs<vector<string> >("fixVars") ? pset.getParameter<vector<string> >("fixVars") : vector<string>()),
-      split_mode(pset.existsAs<unsigned int>("SplitMode") ? pset.getParameter<unsigned int>("SplitMode") : 0) {
+    : fitter(pset.getParameter<vector<string> >("InputFileNames"),
+             pset.getParameter<string>("InputDirectoryName"),
+             pset.getParameter<string>("InputTreeName"),
+             pset.getParameter<string>("OutputFileName"),
+             pset.existsAs<unsigned int>("NumCPU") ? pset.getParameter<unsigned int>("NumCPU") : 1,
+             pset.existsAs<bool>("SaveWorkspace") ? pset.getParameter<bool>("SaveWorkspace") : false,
+             pset.existsAs<bool>("floatShapeParameters") ? pset.getParameter<bool>("floatShapeParameters") : true,
+             pset.existsAs<vector<string> >("fixVars") ? pset.getParameter<vector<string> >("fixVars")
+                                                       : vector<string>()) {
   fitter.setQuiet(pset.getUntrackedParameter("Quiet", false));
-  fitter.setSplitMode(split_mode);
 
   if (pset.existsAs<bool>("binnedFit")) {
     bool binned = pset.getParameter<bool>("binnedFit");
