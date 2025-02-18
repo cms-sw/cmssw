@@ -1398,6 +1398,36 @@ vp = cms.VPSet(
     p = cms.PSet(),
     vp = cms.VPSet(
     )
+  ),
+  template = cms.PSetTemplate(
+    i = cms.required.int32,
+    vi = cms.required.vint32,
+    ui = cms.required.uint32,
+    vui = cms.required.vuint32,
+    l = cms.required.int64,
+    vl = cms.required.vint64,
+    ul = cms.required.uint64,
+    vul = cms.required.vuint64,
+    b = cms.required.bool,
+    d = cms.required.double,
+    vd = cms.required.vdouble,
+    s = cms.required.string,
+    vs = cms.required.vstring,
+    t = cms.required.InputTag,
+    vt = cms.required.VInputTag,
+    et = cms.required.ESInputTag,
+    vet = cms.required.VESInputTag,
+    f = cms.required.FileInPath,
+    e = cms.required.EventID,
+    ve = cms.required.VEventID,
+    L = cms.required.LuminosityBlockID,
+    vL = cms.required.VLuminosityBlockID,
+    er = cms.required.EventRange,
+    ver = cms.required.VEventRange,
+    Lr = cms.required.LuminosityBlockRange,
+    vLr = cms.required.VLuminosityBlockRange,
+    p = cms.PSet(),
+    vp = cms.required.VPSet
   )
 )
 )-";
