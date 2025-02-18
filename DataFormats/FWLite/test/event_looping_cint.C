@@ -4,11 +4,11 @@ using namespace std;
 
 #if defined(__CINT__) && !defined(__MAKECINT__)
 class loadFWLite {
-   public:
-      loadFWLite() {
-         gSystem->Load("libFWCoreFWLite");
-         FWLiteEnabler::enable();
-      }
+public:
+  loadFWLite() {
+    gSystem->Load("libFWCoreFWLite");
+    FWLiteEnabler::enable();
+  }
 };
 
 static loadFWLite lfw;
@@ -20,57 +20,56 @@ static loadFWLite lfw;
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #endif
 
-int event_looping_cint()
-{
-TFile f("good_a.root");
-fwlite::Event e(&f);
+int event_looping_cint() {
+  TFile f("good_a.root");
+  fwlite::Event e(&f);
 
-int i =0;
-int returnValue = 0;
-for( ;e.isValid();++e,++i) {
-  fwlite::Handle<vector<edmtest::Thing> > pThing;
-  //pThing.getByLabel(e,"Thing","","TEST"); //WORKS
-  pThing.getByLabel(e,"Thing");
-  
-  for(int i=0; i!=pThing.ref().size();++i) {
-    cout <<pThing.ref().at(i).a<< " ";
+  int i = 0;
+  int returnValue = 0;
+  for (; e.isValid(); ++e, ++i) {
+    fwlite::Handle<vector<edmtest::Thing> > pThing;
+    //pThing.getByLabel(e,"Thing","","TEST"); //WORKS
+    pThing.getByLabel(e, "Thing");
+
+    for (int i = 0; i != pThing.ref().size(); ++i) {
+      cout << pThing.ref().at(i).a << " ";
+    }
+    cout << endl;
   }
-  cout << endl;
-}  
-if (i==0) {
-  cout <<"First loop failed!"<<endl;
-  returnValue = 1;
-}
-e.toBegin();
+  if (i == 0) {
+    cout << "First loop failed!" << endl;
+    returnValue = 1;
+  }
+  e.toBegin();
 
-i=0;
-for( ;e;++e,++i) { 
-}
+  i = 0;
+  for (; e; ++e, ++i) {
+  }
 
-if (i==0) {
-  cout <<"Second loop failed!"<<endl;
-  returnValue = 1;
-}
+  if (i == 0) {
+    cout << "Second loop failed!" << endl;
+    returnValue = 1;
+  }
 
-i=0;
-for(e.toBegin(); !e.atEnd();++e,++i) {
-   fwlite::Handle<vector<edmtest::Thing> > pThing;
-   //pThing.getByLabel(e,"Thing","","TEST"); //WORKS
-   pThing.getByLabel(e,"Thing");
-   
-   for(int i=0; i!=pThing.ref().size();++i) {
-      cout <<pThing.ref().at(i).a<<" ";
-   }
-   cout << endl;
+  i = 0;
+  for (e.toBegin(); !e.atEnd(); ++e, ++i) {
+    fwlite::Handle<vector<edmtest::Thing> > pThing;
+    //pThing.getByLabel(e,"Thing","","TEST"); //WORKS
+    pThing.getByLabel(e, "Thing");
 
-   //DOES NOT WORK
-   //for(vector<edmtest::Thing>::const_iterator it = pThing.data()->begin(); it != pThing.data()->end();++it) {
-   //   cout <<(*it).a<<endl;
-   //}
-}
-if (i==0) {
-  cout <<"Third loop failed!"<<endl;
-  returnValue = 1;
-}
-return returnValue;
+    for (int i = 0; i != pThing.ref().size(); ++i) {
+      cout << pThing.ref().at(i).a << " ";
+    }
+    cout << endl;
+
+    //DOES NOT WORK
+    //for(vector<edmtest::Thing>::const_iterator it = pThing.data()->begin(); it != pThing.data()->end();++it) {
+    //   cout <<(*it).a<<endl;
+    //}
+  }
+  if (i == 0) {
+    cout << "Third loop failed!" << endl;
+    returnValue = 1;
+  }
+  return returnValue;
 }

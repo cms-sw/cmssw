@@ -1,10 +1,10 @@
 #if defined(__CINT__) && !defined(__MAKECINT__)
 class loadFWLite {
-  public:
-    loadFWLite() {
-      gSystem->Load("libFWCoreFWLite");
-      FWLiteEnabler::enable();
-    }
+public:
+  loadFWLite() {
+    gSystem->Load("libFWCoreFWLite");
+    FWLiteEnabler::enable();
+  }
 };
 
 static loadFWLite lfw;
@@ -16,8 +16,7 @@ static loadFWLite lfw;
 #include <vector>
 #include <iostream>
 
-int triggernames_multi_cint()
-{
+int triggernames_multi_cint() {
   std::vector<std::string> files1;
   files1.push_back(std::string("prodmerge.root"));
 
@@ -27,12 +26,12 @@ int triggernames_multi_cint()
 
   fwlite::MultiChainEvent ev(files1, files2);
   fwlite::Handle<edm::TriggerResults> hTriggerResults;
-  
+
   int iEvent = 0;
-  for (ev.toBegin(); ! ev.atEnd(); ++ev) {
+  for (ev.toBegin(); !ev.atEnd(); ++ev) {
     ++iEvent;
-    hTriggerResults.getByLabel(ev,"TriggerResults","","TEST");
-    edm::TriggerNames const&  triggerNames = ev.triggerNames(*hTriggerResults);
+    hTriggerResults.getByLabel(ev, "TriggerResults", "", "TEST");
+    edm::TriggerNames const& triggerNames = ev.triggerNames(*hTriggerResults);
 
     std::vector<std::string> const& names = triggerNames.triggerNames();
     for (unsigned i = 0; i < triggerNames.size(); ++i) {
@@ -44,18 +43,12 @@ int triggernames_multi_cint()
     std::cout << "index for p2 = " << triggerNames.triggerIndex("p2") << std::endl;
 
     if (iEvent == 1) {
-      if (triggerNames.size() != 3U ||
-          names[0] != "p" ||
-          names[1] != "p1" ||
-          names[2] != "p2" ||
-          triggerNames.triggerName(0) != "p" ||
-          triggerNames.triggerName(1) != "p1" ||
-          triggerNames.triggerName(2) != "p2" ||
-          triggerNames.triggerIndex("p") != 0 ||
-          triggerNames.triggerIndex("p1") != 1 ||
-          triggerNames.triggerIndex("p2") != 2) {
-	std::cout << "Trigger names do match expected values\n";
-	std::cout << "In script triggernames_multi_cint.C\n";
+      if (triggerNames.size() != 3U || names[0] != "p" || names[1] != "p1" || names[2] != "p2" ||
+          triggerNames.triggerName(0) != "p" || triggerNames.triggerName(1) != "p1" ||
+          triggerNames.triggerName(2) != "p2" || triggerNames.triggerIndex("p") != 0 ||
+          triggerNames.triggerIndex("p1") != 1 || triggerNames.triggerIndex("p2") != 2) {
+        std::cout << "Trigger names do match expected values\n";
+        std::cout << "In script triggernames_multi_cint.C\n";
         return 1;
       }
     }
