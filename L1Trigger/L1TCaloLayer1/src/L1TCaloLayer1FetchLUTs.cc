@@ -197,7 +197,7 @@ bool L1TCaloLayer1FetchLUTs(
               calibratedECalInput *= ecalSF.at(phiBin * ecalScaleETBins.size() * 28 + etBin * 28 + etaBin);
             if (useLSB)
               calibratedECalInput /= caloLSB;
-            if (ecalInput < ecalZSF.size() / 28 - 1)
+            if (ecalZSF.size() >= 28 && ecalInput < ecalZSF.size() / 28 - 1)
               calibratedECalInput *= ecalZSF.at(ecalInput * 28 + etaBin);
 
             value = calibratedECalInput;
@@ -265,7 +265,7 @@ bool L1TCaloLayer1FetchLUTs(
               calibratedHcalInput *= hcalSF.at(phiBin * hcalScaleETBins.size() * 28 + etBin * 28 + etaBin);
             if (useLSB)
               calibratedHcalInput /= caloLSB;
-            if (hcalInput < hcalZSF.size() / 28 - 1)
+            if (hcalZSF.size() >= 28 && hcalInput < hcalZSF.size() / 28 - 1)
               calibratedHcalInput *= hcalZSF.at(hcalInput * 28 + etaBin);
             value = calibratedHcalInput;
             if (fwVersion > 2) {
