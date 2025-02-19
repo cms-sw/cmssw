@@ -103,4 +103,7 @@ autoNANO = {
     # NANOGEN (from MiniAOD)
     'GENFromMini': {'sequence': 'PhysicsTools/NanoAOD/nanogen_cff.nanogenSequence',
                     'customize': 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGENFromMini'},
+    'NGTScout' : {'sequence': 'HLTrigger/HLTUpgradeNano/hltUpgradeNano_cff.hltUpgradeNanoSequence'},
+    'NGTScoutWithGen' : {'sequence': '@NGTScout',
+                         'customize': 'HLTrigger/HLTUpgradeNano/hltUpgradeNano_cff.addAssociators'},
 }
