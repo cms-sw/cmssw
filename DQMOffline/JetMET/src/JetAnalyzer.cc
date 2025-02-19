@@ -292,7 +292,7 @@ JetAnalyzer::~JetAnalyzer() {
 
 // ***********************************************************
 void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
-  if(isScoutingJet_){
+  if (isScoutingJet_) {
     if (!jetCleaningFlag_) {
       ibooker.setCurrentFolder("HLT/ScoutingOffline/Jet/Uncleaned" + mInputCollection_.label());
       DirName = "HLT/ScoutingOffline/Jet/Uncleaned" + mInputCollection_.label();
@@ -2591,7 +2591,7 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //set general folders first --> change later on for different folders
-  if(isScoutingJet_){
+  if (isScoutingJet_) {
     if (!jetCleaningFlag_) {
       DirName = "HLT/ScoutingOffline/Jet/Uncleaned" + mInputCollection_.label();
     }
