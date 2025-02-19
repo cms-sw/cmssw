@@ -181,7 +181,7 @@ namespace trklet {
       formTracks(streamsTrack, streamsStub, tracks, region);
       nTracks += tracks.size();
       nStubs += accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const vector<TTStubRef>& track) {
-        return sum += (int)track.size();
+        return sum + static_cast<int>(track.size());
       });
       allTracks += tracks.size();
       if (!useMCTruth_)

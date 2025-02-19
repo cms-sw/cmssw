@@ -217,7 +217,7 @@ namespace trackerTFP {
         for (int layer = 0; layer < setup_->numLayers(); layer++) {
           const StreamStub& stream = acceptedStubs[offsetStub + layer];
           const int nStubs = accumulate(stream.begin(), stream.end(), 0, [](int sum, const FrameStub& frame) {
-            return sum += (frame.first.isNonnull() ? 1 : 0);
+            return sum + (frame.first.isNonnull() ? 1 : 0);
           });
           hisStubs_->Fill(nStubs);
           profStubs_->Fill(channel * setup_->numLayers() + layer, nStubs);

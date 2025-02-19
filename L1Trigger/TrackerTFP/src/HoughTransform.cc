@@ -35,7 +35,7 @@ namespace trackerTFP {
   // fill output products
   void HoughTransform::produce(const vector<vector<StubGP*>>& streamsIn, vector<deque<StubHT*>>& streamsOut) {
     // count and reserve ht stubs
-    auto multiplicity = [](int sum, StubGP* s) { return sum += s ? 1 + s->inv2RMax() - s->inv2RMin() : 0; };
+    auto multiplicity = [](int sum, StubGP* s) { return sum + (s ? 1 + s->inv2RMax() - s->inv2RMin() : 0); };
     int nStubs(0);
     for (const vector<StubGP*>& input : streamsIn)
       nStubs += accumulate(input.begin(), input.end(), 0, multiplicity);

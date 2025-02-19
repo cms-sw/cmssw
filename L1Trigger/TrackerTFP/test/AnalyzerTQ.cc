@@ -175,7 +175,7 @@ namespace trackerTFP {
       profTracks_->Fill(region, tracks.size());
       const int nTracks = tracks.size();
       const int nStubs = accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const vector<TTStubRef>& track) {
-        return sum += (int)track.size();
+        return sum + static_cast<int>(track.size());
       });
       allTracks += tracks.size();
       if (!useMCTruth_)
@@ -242,7 +242,7 @@ namespace trackerTFP {
     const int offset = region * setup_->numLayers();
     const StreamTrack& streamTrack = streamsTrack[region];
     const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const FrameTrack& frame) {
-      return sum += (frame.first.isNonnull() ? 1 : 0);
+      return sum + (frame.first.isNonnull() ? 1 : 0);
     });
     tracks.reserve(numTracks);
     for (int frame = 0; frame < (int)streamTrack.size(); frame++) {
