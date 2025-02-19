@@ -17,48 +17,44 @@
 //
 
 // system include files
+#include "TLorentzVector.h"
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <iterator>
-#include <fstream>
-#include <string>
 #include <memory>
-#include "TLorentzVector.h"
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEXMLStringProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 
+#include "CLHEP/Random/RandExponential.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "CLHEP/Random/RandExponential.h"
-
-//
-// class declaration
-//
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -89,6 +85,7 @@ private:
   const reco::Candidate *find_original_muon(const reco::Candidate *muon);
   void assign_4vector(TLorentzVector &Lepton, const pat::Muon *muon, std::string FSRmode);
   void mirror(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
+  void InitialRecoCorrection(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
   void rotate180(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
 
   LHERunInfoProduct::Header give_slha();
@@ -96,9 +93,10 @@ private:
   edm::EDGetTokenT<edm::View<pat::Muon>> muonsCollection_;
   edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
   int particleToEmbed_;
-  bool mirror_, rotate180_;
-  const double tauMass_ = 1.77682;
-  const double elMass_ = 0.00051;
+  bool mirror_, rotate180_, InitialRecoCorrection_;
+  static constexpr double tauMass_ = 1.77682;
+  static constexpr double muonMass_ = 0.1057;
+  static constexpr double elMass_ = 0.00051;
   const int embeddingParticles[3]{11, 13, 15};
 
   std::ofstream file;
@@ -114,7 +112,7 @@ private:
 // constructors and destructor
 //
 EmbeddingLHEProducer::EmbeddingLHEProducer(const edm::ParameterSet &iConfig) {
-  //register your products
+  // register your products
   produces<LHEEventProduct>();
   produces<LHERunInfoProduct, edm::Transition::BeginRun>();
   produces<math::XYZTLorentzVectorD>("vertexPosition");
@@ -123,6 +121,7 @@ EmbeddingLHEProducer::EmbeddingLHEProducer(const edm::ParameterSet &iConfig) {
   vertexCollection_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
   particleToEmbed_ = iConfig.getParameter<int>("particleToEmbed");
   mirror_ = iConfig.getParameter<bool>("mirror");
+  InitialRecoCorrection_ = iConfig.getParameter<bool>("InitialRecoCorrection");
   rotate180_ = iConfig.getParameter<bool>("rotate180");
   studyFSRmode_ = iConfig.getUntrackedParameter<std::string>("studyFSRmode", "");
 
@@ -133,7 +132,7 @@ EmbeddingLHEProducer::EmbeddingLHEProducer(const edm::ParameterSet &iConfig) {
     file.open(lhe_ouputfile, std::fstream::out | std::fstream::trunc);
   }
 
-  //check if particle can be embedded
+  // check if particle can be embedded
   if (std::find(std::begin(embeddingParticles), std::end(embeddingParticles), particleToEmbed_) ==
       std::end(embeddingParticles)) {
     throw cms::Exception("Configuration") << "The given particle to embed is not in the list of allowed particles.";
@@ -188,6 +187,9 @@ void EmbeddingLHEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iS
     } else if (mu_minus_found && mu_plus_found)
       break;
   }
+  InitialRecoCorrection(
+      positiveLepton,
+      negativeLepton);  // corrects Z mass peak to take into account smearing happening due to first muon reconstruction in the selection step
   mirror(positiveLepton, negativeLepton);                    // if no mirror, function does nothing.
   rotate180(positiveLepton, negativeLepton);                 // if no rotate180, function does nothing
   transform_mumu_to_tautau(positiveLepton, negativeLepton);  // if MuonEmbedding, function does nothing.
@@ -221,28 +223,10 @@ void EmbeddingLHEProducer::beginRunProduce(edm::Run &run, edm::EventSetup const 
   // set number of processes: 1 for Z to tau tau
   heprup.resize(1);
 
-  //Process independent information
-
-  //beam particles ID (two protons)
-  //heprup.IDBMUP.first = 2212;
-  //heprup.IDBMUP.second = 2212;
-
-  //beam particles energies (both 6.5 GeV)
-  //heprup.EBMUP.first = 6500.;
-  //heprup.EBMUP.second = 6500.;
-
-  //take default pdf group for both beamparticles
-  //heprup.PDFGUP.first = -1;
-  //heprup.PDFGUP.second = -1;
-
-  //take certan pdf set ID (same as in officially produced DYJets LHE files)
-  //heprup.PDFSUP.first = -1;
-  //heprup.PDFSUP.second = -1;
-
-  //master switch for event weight iterpretation (same as in officially produced DYJets LHE files)
+  // master switch for event weight iterpretation (same as in officially produced DYJets LHE files)
   heprup.IDWTUP = 3;
 
-  //Information for first process (Z to tau tau), for now only placeholder:
+  // Information for first process (Z to tau tau), for now only placeholder:
   heprup.XSECUP[0] = 1.;
   heprup.XERRUP[0] = 0;
   heprup.XMAXUP[0] = 1;
@@ -270,13 +254,9 @@ void EmbeddingLHEProducer::fill_lhe_from_mumu(TLorentzVector &positiveLepton,
   TLorentzVector Z = positiveLepton + negativeLepton;
   int leptonPDGID = particleToEmbed_;
 
-  // double tau_ctau = 0.00871100; //cm
-  double tau_ctau0 = 8.71100e-02;  // mm (for Pythia)
-  double tau_ctau_p =
-      tau_ctau0 * CLHEP::RandExponential::shoot(engine);  // return -std::log(HepRandom::getTheEngine()->flat());
-  // replaces tau = process[iNow].tau0() * rndmPtr->exp(); from pythia8212/src/ProcessContainer.cc which is not initialized for ProcessLevel:all = off mode (no beam particle mode)
+  static constexpr double tau_ctau0 = 8.71100e-02;  // mm (for Pythia)
+  double tau_ctau_p = tau_ctau0 * CLHEP::RandExponential::shoot(engine);
   double tau_ctau_n = tau_ctau0 * CLHEP::RandExponential::shoot(engine);
-  //std::cout<<"tau_ctau P: "<<tau_ctau_p<<" tau_ctau N:  "<<tau_ctau_n<<std::endl;
 
   fill_lhe_with_particle(outlhe, Z, 23, 9.0, 0);
   fill_lhe_with_particle(outlhe, positiveLepton, -leptonPDGID, 1.0, tau_ctau_p);
@@ -317,7 +297,7 @@ void EmbeddingLHEProducer::fill_lhe_with_particle(
     outlhe.MOTHUP[particleindex].first = 1;   // Mother is the Z (first partile)
     outlhe.MOTHUP[particleindex].second = 1;  // Mother is the Z (first partile)
 
-    outlhe.ISTUP[particleindex] = 1;  //status
+    outlhe.ISTUP[particleindex] = 1;  // status
   }
 
   return;
@@ -338,7 +318,6 @@ void EmbeddingLHEProducer::transform_mumu_to_tautau(TLorentzVector &positiveLept
 
   TVector3 boost_from_Z_to_LAB = Z.BoostVector();
   TVector3 boost_from_LAB_to_Z = -Z.BoostVector();
-
   // Boosting the two leptons to Z restframe, then both are back to back. This means, same 3-momentum squared
   positiveLepton.Boost(boost_from_LAB_to_Z);
   negativeLepton.Boost(boost_from_LAB_to_Z);
@@ -352,7 +331,7 @@ void EmbeddingLHEProducer::transform_mumu_to_tautau(TLorentzVector &positiveLept
     return;
   }
 
-  //Computing scale, applying it on the 3-momenta and building new 4 momenta of the taus
+  // Computing scale, applying it on the 3-momenta and building new 4 momenta of the taus
   double scale = std::sqrt(lep_3momentum_squared / positiveLepton.Vect().Mag2());
   positiveLepton.SetPxPyPzE(scale * positiveLepton.Px(),
                             scale * positiveLepton.Py(),
@@ -363,7 +342,7 @@ void EmbeddingLHEProducer::transform_mumu_to_tautau(TLorentzVector &positiveLept
                             scale * negativeLepton.Pz(),
                             std::sqrt(lep_energy_squared));
 
-  //Boosting the new taus back to LAB frame
+  // Boosting the new taus back to LAB frame
   positiveLepton.Boost(boost_from_Z_to_LAB);
   negativeLepton.Boost(boost_from_Z_to_LAB);
 
@@ -421,6 +400,38 @@ void EmbeddingLHEProducer::rotate180(TLorentzVector &positiveLepton, TLorentzVec
   edm::LogInfo("TauEmbedding") << "MuMinus after. Pt: " << negativeLepton.Pt() << " Eta: " << negativeLepton.Eta()
                                << " Phi: " << negativeLepton.Phi() << " Mass: " << negativeLepton.M();
 
+  return;
+}
+
+void EmbeddingLHEProducer::InitialRecoCorrection(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton) {
+  if (!InitialRecoCorrection_)
+    return;
+  edm::LogInfo("TauEmbedding") << "Applying initial reconstruction correction";
+  TLorentzVector Z = positiveLepton + negativeLepton;
+  edm::LogInfo("TauEmbedding") << "MuMinus before. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M();
+  float diLeptonMass = (positiveLepton + negativeLepton).M();
+  if (diLeptonMass > 60. && diLeptonMass < 122.) {
+    static constexpr float zmass = 91.1876;
+    float correction_deviation =
+        5.;  // to ensure only a correction that drops corresponding to a Gaussian with mean zmass and std. dev. 5 GeV
+    double EmbeddingCorrection =
+        1.138;  // value derived by function fitting to fold embedded mass spectrum back to original selection when using mu -> mu embedding
+    EmbeddingCorrection /=
+        (EmbeddingCorrection -
+         (EmbeddingCorrection - 1.) * exp(-pow((diLeptonMass - zmass), 2.) / (2. * pow(correction_deviation, 2.))));
+    EmbeddingCorrection = ((diLeptonMass + (EmbeddingCorrection - 1.) * zmass) / (diLeptonMass * EmbeddingCorrection));
+    double correctedpositiveLeptonEnergy =
+        std::sqrt((pow(muonMass_, 2) / pow(EmbeddingCorrection, 2)) + pow(positiveLepton.Px(), 2) +
+                  pow(positiveLepton.Py(), 2) + pow(positiveLepton.Pz(), 2));
+    double correctednegativeLeptonEnergy =
+        std::sqrt((pow(muonMass_, 2) / pow(EmbeddingCorrection, 2)) + pow(negativeLepton.Px(), 2) +
+                  pow(negativeLepton.Py(), 2) + pow(negativeLepton.Pz(), 2));
+    positiveLepton.SetE(correctedpositiveLeptonEnergy);
+    negativeLepton.SetE(correctednegativeLeptonEnergy);
+    positiveLepton *= EmbeddingCorrection;
+    negativeLepton *= EmbeddingCorrection;
+    edm::LogInfo("TauEmbedding") << "MuMinus after. Pt: " << negativeLepton.Pt() << " Mass: " << negativeLepton.M();
+  }
   return;
 }
 
@@ -549,12 +560,12 @@ LHERunInfoProduct::Header EmbeddingLHEProducer::give_slha() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void EmbeddingLHEProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  // The following says we do not know what parameters are allowed so do no validation
+  //  Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(EmbeddingLHEProducer);

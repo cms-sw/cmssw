@@ -54,7 +54,7 @@ void LowPtGSFToTrackLinker::produce(edm::StreamID, edm::Event& iEvent, const edm
   //map Track --> GSF and fill GSF --> PackedCandidates and GSF --> Lost associations
   for (unsigned int igsf = 0; igsf < ngsf; ++igsf) {
     reco::GsfTrackRef gref(gsftracks, igsf);
-    reco::TrackRef trk = preid->at(gref->seedRef().castTo<reco::ElectronSeedRef>().index()).trackRef();
+    reco::TrackRef trk = gref->seedRef().castTo<reco::ElectronSeedRef>()->ctfTrack();
 
     if (trk.id() != tracks.id()) {
       throw cms::Exception(

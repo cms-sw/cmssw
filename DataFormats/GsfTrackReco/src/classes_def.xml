@@ -52,4 +52,11 @@
   <class name="edm::reftobase::Holder<reco::Track, reco::GsfTrackRef>" />
   <class name="edm::reftobase::RefHolder<reco::GsfTrackRef>" />
 
+  <!-- ValueMap<reco::GsfTrack> -->
+  <class name="edm::ValueMap<reco::GsfTrackRefVector>" />
+  <class name="edm::Wrapper<edm::ValueMap<reco::GsfTrackRefVector> >" />
+  <class name="std::vector<edm::RefVector<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> > >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> > >"/>
+  
   </lcgdict>
