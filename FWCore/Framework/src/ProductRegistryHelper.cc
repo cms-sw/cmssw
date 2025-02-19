@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Reflection/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Reflection/interface/SetClassParsing.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include <vector>
@@ -40,6 +41,13 @@ namespace edm {
     std::vector<std::string> missingDictionaries;
     std::vector<std::string> producedTypes;
     std::set<std::tuple<BranchType, std::type_index, std::string>> registeredProducts;
+
+    // Disable ROOT automatic class parsing while registering products.
+    // This done to avoid trying to build missing dictionaries for edm::Wrapper<T>
+    // when the dictionary for T itself is present and the relevant classes.h file
+    // includes a CUDA-related header, as that causes ROOT to fail before we can
+    // issue the proper error message about missing dictionaries.
+    edm::SetClassParsing guard(false);
 
     for (TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
       if (p->transition_ == Transition::BeginRun && not iProd->hasAbilityToProduceInBeginRuns()) {
