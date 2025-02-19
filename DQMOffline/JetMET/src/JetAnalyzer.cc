@@ -292,12 +292,19 @@ JetAnalyzer::~JetAnalyzer() {
 
 // ***********************************************************
 void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
-  if (jetCleaningFlag_) {
-    ibooker.setCurrentFolder("JetMET/Jet/Cleaned" + mInputCollection_.label());
-    DirName = "JetMET/Jet/Cleaned" + mInputCollection_.label();
+  if(isScoutingJet_){
+    if (!jetCleaningFlag_) {
+      ibooker.setCurrentFolder("HLT/ScoutingOffline/Jet/Uncleaned" + mInputCollection_.label());
+      DirName = "HLT/ScoutingOffline/Jet/Uncleaned" + mInputCollection_.label();
+    }
   } else {
-    ibooker.setCurrentFolder("JetMET/Jet/Uncleaned" + mInputCollection_.label());
-    DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
+    if (jetCleaningFlag_) {
+      ibooker.setCurrentFolder("JetMET/Jet/Cleaned" + mInputCollection_.label());
+      DirName = "JetMET/Jet/Cleaned" + mInputCollection_.label();
+    } else {
+      ibooker.setCurrentFolder("JetMET/Jet/Uncleaned" + mInputCollection_.label());
+      DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
+    }
   }
 
   jetME = ibooker.book1D("jetReco", "jetReco", 5, 1, 5);  // --> for .../JetMET/Run summary/Jet/.../jetReco plots
@@ -2584,12 +2591,18 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //set general folders first --> change later on for different folders
-  if (jetCleaningFlag_) {
-    //dbe_->setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());
-    DirName = "JetMET/Jet/Cleaned" + mInputCollection_.label();
+  if(isScoutingJet_){
+    if (!jetCleaningFlag_) {
+      DirName = "HLT/ScoutingOffline/Jet/Uncleaned" + mInputCollection_.label();
+    }
   } else {
-    //dbe_->setCurrentFolder("JetMET/Jet/Uncleaned"+mInputCollection_.label());
-    DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
+    if (jetCleaningFlag_) {
+      //dbe_->setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());
+      DirName = "JetMET/Jet/Cleaned" + mInputCollection_.label();
+    } else {
+      //dbe_->setCurrentFolder("JetMET/Jet/Uncleaned"+mInputCollection_.label());
+      DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
+    }
   }
 
   Handle<ValueMap<float>> puJetIdMva;
