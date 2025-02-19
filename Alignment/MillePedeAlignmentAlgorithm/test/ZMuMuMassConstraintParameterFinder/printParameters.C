@@ -13,9 +13,9 @@ bool isValidFile(const TString& fileName) {
   return true;
 }
 
-void printParameters(const TString& fileName) {
+int printParameters(const TString& fileName) {
   if (!isValidFile(fileName)) {
-    exit(EXIT_FAILURE);
+    return EXIT_FAILURE);
   }
 
   TFile* file = TFile::Open(fileName, "read");
@@ -30,5 +30,5 @@ void printParameters(const TString& fileName) {
   std::cout << "  PrimaryWidth = " << htemp->GetRMS() << "\n";
   std::cout << "========================================\n";
 
-  exit(EXIT_SUCCESS);
+  return EXIT_SUCCESS;
 }
