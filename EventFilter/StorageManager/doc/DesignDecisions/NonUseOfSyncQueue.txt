@@ -1,0 +1,43 @@
+Why we do not use toolbox::SyncQueue<T>
+=======================================
+
+Single producer/single consumer limitation
+------------------------------------------
+
+The class template SyncQueue<T>, according to its authors, is suitable
+only for use with a single producer and a single consumer. This seems
+not to be a feature of SyncQueue<T> directly; rather, it is a result
+of the implementation of the toolbox::Condition class.
+
+Condition contains a POSIX condition variable, POSIX mutex, and an
+integer; the integer is the resource protected by the mutex, and whose
+state changes are signaled by the condition variable.
+
+This is an unusual use for a POSIX condition variable. Usually, the
+mutex and condition variable are associated directly with the resource
+in need of protection: for the SyncQueue<T>, this would be the
+std::list<T> that contains the elements in the queue.
+
+Because we need a synchronized queue that can service multiple
+producers (e.g., multiple I2O threads), SyncQueue<T> is not adequate
+for our purposes.
+
+Lack for exception safety
+-------------------------
+
+Furthermore, SyncQueue<T> lacks exception safety. If the copy
+constructor of T throws an exception within the call to push or pop,
+the queue will remain locked forever.
+
+Lacking functionality
+---------------------
+
+In order to produce some of the required status reports, it is
+necessary to iterate through the queue. SyncQueue<T> provides no
+facility for iteration.
+
+During some state transitions, we require the ability to clear a
+queue, disposing of its contents. SyncQueue<T> provides no means to
+clear the queue, except by a repeated calls to pop(), which is
+needlessly inefficient.
+

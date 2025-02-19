@@ -1,0 +1,9 @@
+eval `scramv1 ru -sh`
+xdaq.exe -h .host -p .portn -e profile.xml &
+if ! perl webPingXDAQ.pl .host .portn 10
+then
+  echo "executive didn't start properly"
+else
+  perl sendCmdToApp.pl .host .portn SiStripClient.xml
+fi
+

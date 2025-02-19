@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="pixfwdDisks.xml" eval="true">
+ <Constant name="DiskRmin"         value="37.5*mm"/>
+ <Constant name="DiskRmax"         value="166.0*mm"/>
+ <Constant name="DiskHalfWidth"    value="35.75*mm"/> 
+</ConstantsSection>
+ 
+<SolidSection label="pixfwdDisks.xml">
+ <Tubs name="PixelForwardDisk1"  startPhi="0."  deltaPhi="360*deg"
+       rMin="[DiskRmin]" rMax="[DiskRmax]" dz="[DiskHalfWidth]"/> 
+ <Tubs name="PixelForwardDisk2"  startPhi="0."  deltaPhi="360*deg"
+       rMin="[DiskRmin]" rMax="[DiskRmax]" dz="[DiskHalfWidth]"/> 
+ <Tubs name="PixelForwardDisk3"  startPhi="0."  deltaPhi="360*deg"
+       rMin="[DiskRmin]" rMax="[DiskRmax]" dz="[DiskHalfWidth]"/> 
+</SolidSection>
+ 
+<LogicalPartSection label="pixfwdDisks.xml">
+ <LogicalPart name="pixfwdDisks:PixelForwardDisk1" category="envelope">
+  <rSolid name="pixfwdDisks:PixelForwardDisk1"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="pixfwdDisks:PixelForwardDisk2" category="envelope">
+  <rSolid name="pixfwdDisks:PixelForwardDisk2"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+
+ <LogicalPart name="pixfwdDisks:PixelForwardDisk3" category="envelope">
+  <rSolid name="pixfwdDisks:PixelForwardDisk3"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+</DDDefinition>

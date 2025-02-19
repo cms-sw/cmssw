@@ -1,0 +1,134 @@
+ <html> 
+ <!-- DO NOT ERASE 
+UF Analsis Viewer (v1.5) 
+Author : Ronny Remington, University of Florida 
+Inspired by technology developed by M.Schmitt, B. Scurlock, and R. Remington (UF) 
+Date : 02/12/09  -->
+<head> 
+ <title> 
+ 
+ </title> 
+ <h3 align="center"> 
+ UF Analysis Viewer 
+   </h3> 
+  <script type="text/javascript">    
+ function ThumbnailPlot(plot) {              
+ <!-- clear_l()-->                    
+ document.getElementById("thumblink_l").href = plot     
+ document.getElementById("thumb_l").src = plot          
+ document.getElementById("thumb_l").width = " 581 "   
+ document.getElementById("thumb_l").height = " 378 "    
+ document.getElementById("thumb_l").border = "1"      
+ }    
+ function clear_l() {      
+ document.getElementById("thumblink_l").href = "#"   
+ document.getElementById("thumb_l").src = ""         
+ document.getElementById("thumb_l").width = "0"      
+ document.getElementById("thumb_l").height = "0"     
+ document.getElementById("thumb_l").border = "0"     
+ }     
+function ThumbnailNote(flag,id) { 
+if (flag=="1"){ 
+if( document.layers) document.all[''+id+''].visibility = "show" 
+else if ( document.all) document.all[''+id+''].visibility = "visible" 
+else if ( document.getElementById) document.getElementById(''+id+'').style.visibility = "visible" 
+}
+  else 
+ if( flag=="0"){ 
+ if( document.layers) document.all[''+id+''].visibility = "hide" 
+else if ( document.all) document.all[''+id+''].visibility = "hidden" 
+else if ( document.getElementById) document.getElementById(''+id+'').style.visibility = "hidden" 
+} 
+} 
+ function ClearNotes() { 
+  } 
+ </script>   
+ <style type="text/css">   
+ #thumb_gen {position: absolute; position: fixed; left: 420; top: 80; text-align: center;}   
+ #main_d {position: absolute; position: fixed; left: 10px;}    
+</style> 
+
+</head >  
+  <body bgcolor="#ffffff" > 
+ <br>
+<br>
+<strong> CaloTower </strong><br>
+
+<a href="CaloTowers/CT_Occ.png" onMouseOver="ThumbnailPlot('CaloTower/CT_Occ.png'), ClearNotes(),  ThumbnailNote(1,'div_CT_Occ.png'  ) "> <img src="CaloTowers/CT_Occ.png" style="height:22px; width:25px;"><small>CaloTower/CT_Occ.png</small></a> <br> 
+<a href="CaloTowers/CT_Et.png" onMouseOver="ThumbnailPlot('CaloTower/CT_Et.png'), ClearNotes(),  ThumbnailNote(1,'div_CT_Et.png'  ) "> <img src="CaloTowers/CT_Et.png" style="height:22px; width:25px;"><small>CaloTower/CT_Et.png</small></a> <br> 
+<a href="CaloTowers/CT_emEt.png" onMouseOver="ThumbnailPlot('CaloTower/CT_emEt.png'), ClearNotes(),  ThumbnailNote(1,'div_CT_emEt.png'  ) "> <img src="CaloTowers/CT_emEt.png" style="height:22px; width:25px;"><small>CaloTower/CT_emEt.png</small></a> <br> 
+<a href="CaloTowers/CT_hadEt.png" onMouseOver="ThumbnailPlot('CaloTower/CT_hadEt.png'), ClearNotes(),  ThumbnailNote(1,'div_CT_hadEt.png'  ) "> <img src="CaloTowers/CT_hadEt.png" style="height:22px; width:25px;"><small>CaloTower/CT_hadEt.png</small></a> <br> 
+
+<br>
+<strong> CaloJet (AntiKt) </strong><br>
+
+<a href="JetDQM/CaloJetAntiKt/Constituents.png" onMouseOver="ThumbnailPlot('JetDQM/CaloJetAntiKt/Constituents.png '), ClearNotes(),  ThumbnailNote(1,'div_Constituents.png'  ) "> <img src="JetDQM/CaloJetAntiKt/Constituents.png" style="height:22px; width:25px;"><small>JetDQM/CaloJetAntiKt/Constituents.png</small></a> <br> 
+<a href="JetDQM/CaloJetAntiKt/Eta.png" onMouseOver="ThumbnailPlot('JetDQM/CaloJetAntiKt/Eta.png '), ClearNotes(),  ThumbnailNote(1,'div_Eta.png'  ) "> <img src="JetDQM/CaloJetAntiKt/Eta.png" style="height:22px; width:25px;"><small>JetDQM/CaloJetAntiKt/Eta.png</small></a> <br> 
+<a href="JetDQM/CaloJetAntiKt/Mass.png" onMouseOver="ThumbnailPlot('JetDQM/CaloJetAntiKt/Mass.png '), ClearNotes(),  ThumbnailNote(1,'div_Mass.png'  ) "> <img src="JetDQM/CaloJetAntiKt/Mass.png" style="height:22px; width:25px;"><small>JetDQM/CaloJetAntiKt/Mass.png</small></a> <br> 
+<a href="JetDQM/CaloJetAntiKt/N90Hits.png" onMouseOver="ThumbnailPlot('JetDQM/CaloJetAntiKt/N90Hits.png '), ClearNotes(),  ThumbnailNote(1,'div_N90Hits.png'  ) "> <img src="JetDQM/CaloJetAntiKt/N90Hits.png" style="height:22px; width:25px;"><small>JetDQM/CaloJetAntiKt/N90Hits.png</small></a> <br> 
+<a href="JetDQM/CaloJetAntiKt/Phi.png" onMouseOver="ThumbnailPlot('JetDQM/CaloJetAntiKt/Phi.png '), ClearNotes(),  ThumbnailNote(1,'div_Phi.png'  ) "> <img src="JetDQM/CaloJetAntiKt/Phi.png" style="height:22px; width:25px;"><small>JetDQM/CaloJetAntiKt/Phi.png</small></a> <br> 
+<a href="JetDQM/CaloJetAntiKt/fHPD.png" onMouseOver="ThumbnailPlot('JetDQM/CaloJetAntiKt/fHPD.png '), ClearNotes(),  ThumbnailNote(1,'div_fHPD.png'  ) "> <img src="JetDQM/CaloJetAntiKt/fHPD.png" style="height:22px; width:25px;"><small>JetDQM/CaloJetAntiKt/fHPD.png</small></a> <br> 
+<a href="JetDQM/CaloJetAntiKt/pt.png" onMouseOver="ThumbnailPlot('JetDQM/CaloJetAntiKt/pt.png '), ClearNotes(),  ThumbnailNote(1,'div_pt.png'  ) "> <img src="JetDQM/CaloJetAntiKt/pt.png" style="height:22px; width:25px;"><small>JetDQM/CaloJetAntiKt/pt.png</small></a> <br> 
+<a href="JetDQM/CaloJetAntiKt/resEMF.png" onMouseOver="ThumbnailPlot('JetDQM/CaloJetAntiKt/resEMF.png '), ClearNotes(),  ThumbnailNote(1,'div_resEMF.png'  ) "> <img src="JetDQM/CaloJetAntiKt/resEMF.png" style="height:22px; width:25px;"><small>JetDQM/CaloJetAntiKt/resEMF.png</small></a> <br> 
+
+<br>
+<strong> CaloMET </strong><br>
+
+<a href="METDQM/CaloMET/MET.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/MET.png '), ClearNotes(),  ThumbnailNote(1,'div_MET.png'  ) "> <img src="METDQM/CaloMET/MET.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/MET.png</small></a> <br> 
+<a href="METDQM/CaloMET/MET_logx.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/MET_logx.png '), ClearNotes(),  ThumbnailNote(1,'div_MET_logx.png'  ) "> <img src="METDQM/CaloMET/MET_logx.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/MET_logx.png</small></a> <br> 
+<a href="METDQM/CaloMET/METRate.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/METRate.png '), ClearNotes(),  ThumbnailNote(1,'div_METRate.png'  ) "> <img src="METDQM/CaloMET/METRate.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/METRate.png</small></a> <br> 
+<a href="METDQM/CaloMET/SumET.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/SumET.png '), ClearNotes(),  ThumbnailNote(1,'div_SumET.png'  ) "> <img src="METDQM/CaloMET/SumET.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/SumET.png</small></a> <br> 
+<a href="METDQM/CaloMET/SumET_logx.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/SumET_logx.png '), ClearNotes(),  ThumbnailNote(1,'div_SumET_logx.png'  ) "> <img src="METDQM/CaloMET/SumET_logx.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/SumET_logx.png</small></a> <br> 
+<a href="METDQM/CaloMET/MEx.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/MEx.png '), ClearNotes(),  ThumbnailNote(1,'div_MEx.png'  ) "> <img src="METDQM/CaloMET/MEx.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/MEx.png</small></a> <br> 
+<a href="METDQM/CaloMET/MEy.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/MEy.png '), ClearNotes(),  ThumbnailNote(1,'div_MEy.png'  ) "> <img src="METDQM/CaloMET/MEy.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/MEy.png</small></a> <br> 
+<a href="METDQM/CaloMET/METPhi.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/METPhi.png '), ClearNotes(),  ThumbnailNote(1,'div_METPhi.png'  ) "> <img src="METDQM/CaloMET/METPhi.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/METPhi.png</small></a> <br> 
+<a href="METDQM/CaloMET/METPhi002.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/METPhi002.png '), ClearNotes(),  ThumbnailNote(1,'div_METPhi002.png'  ) "> <img src="METDQM/CaloMET/METPhi002.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/METPhi002.png</small></a> <br> 
+<a href="METDQM/CaloMET/METPhi010.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/METPhi010.png '), ClearNotes(),  ThumbnailNote(1,'div_METPhi010.png'  ) "> <img src="METDQM/CaloMET/METPhi010.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/METPhi010.png</small></a> <br> 
+<a href="METDQM/CaloMET/METPhi020.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/METPhi020.png '), ClearNotes(),  ThumbnailNote(1,'div_METPhi020.png'  ) "> <img src="METDQM/CaloMET/METPhi020.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/METPhi020.png</small></a> <br> 
+<a href="METDQM/CaloMET/EmEtFraction.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/EmEtFraction.png '), ClearNotes(),  ThumbnailNote(1,'div_EmEtFraction.png'  ) "> <img src="METDQM/CaloMET/EmEtFraction.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/EmEtFraction.png</small></a> <br> 
+<a href="METDQM/CaloMET/EmEtFraction002.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/EmEtFraction002.png '), ClearNotes(),  ThumbnailNote(1,'div_EmEtFraction002.png'  ) "> <img src="METDQM/CaloMET/EmEtFraction002.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/EmEtFraction002.png</small></a> <br>
+<a href="METDQM/CaloMET/EmEtFraction010.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/EmEtFraction010.png '), ClearNotes(),  ThumbnailNote(1,'div_EmEtFraction010.png'  ) "> <img src="METDQM/CaloMET/EmEtFraction010.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/EmEtFraction010.png</small></a> <br>
+<a href="METDQM/CaloMET/EmEtFraction020.png" onMouseOver="ThumbnailPlot('METDQM/CaloMET/EmEtFraction020.png '), ClearNotes(),  ThumbnailNote(1,'div_EmEtFraction020.png'  ) "> <img src="METDQM/CaloMET/EmEtFraction020.png" style="height:22px; width:25px;"><small>METDQM/CaloMET/EmEtFraction020.png</small></a> <br> 
+
+<br>
+<strong> CaloMETNoHF </strong><br>
+
+<a href="METDQM/CaloMETNoHF/MET.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/MET.png '), ClearNotes(),  ThumbnailNote(1,'div_MET.png'  ) "> <img src="METDQM/CaloMETNoHF/MET.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/MET.png</small></a> <br> 
+<a href="METDQM/CaloMETNoHF/MET_logx.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/MET_logx.png '), ClearNotes(),  ThumbnailNote(1,'div_MET_logx.png'  ) "> <img src="METDQM/CaloMETNoHF/MET_logx.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/MET_logx.png</small></a> <br> 
+<a href="METDQM/CaloMETNoHF/METRate.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/METRate.png '), ClearNotes(),  ThumbnailNote(1,'div_METRate.png'  ) "> <img src="METDQM/CaloMETNoHF/METRate.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/METRate.png</small></a> <br> 
+<a href="METDQM/CaloMETNoHF/SumET.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/SumET.png '), ClearNotes(),  ThumbnailNote(1,'div_SumET.png'  ) "> <img src="METDQM/CaloMETNoHF/SumET.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/SumET.png</small></a> <br> 
+<a href="METDQM/CaloMETNoHF/SumET_logx.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/SumET_logx.png '), ClearNotes(),  ThumbnailNote(1,'div_SumET_logx.png'  ) "> <img src="METDQM/CaloMETNoHF/SumET_logx.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/SumET_logx.png</small></a> <br> 
+<a href="METDQM/CaloMETNoHF/MEx.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/MEx.png '), ClearNotes(),  ThumbnailNote(1,'div_MEx.png'  ) "> <img src="METDQM/CaloMETNoHF/MEx.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/MEx.png</small></a> <br> 
+<a href="METDQM/CaloMETNoHF/MEy.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/MEy.png '), ClearNotes(),  ThumbnailNote(1,'div_MEy.png'  ) "> <img src="METDQM/CaloMETNoHF/MEy.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/MEy.png</small></a> <br> 
+<a href="METDQM/CaloMETNoHF/METPhi.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/METPhi.png '), ClearNotes(),  ThumbnailNote(1,'div_METPhi.png'  ) "> <img src="METDQM/CaloMETNoHF/METPhi.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/METPhi.png</small></a> <br> 
+<a href="METDQM/CaloMETNoHF/METPhi002.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/METPhi002.png '), ClearNotes(),  ThumbnailNote(1,'div_METPhi002.png'  ) "> <img src="METDQM/CaloMETNoHF/METPhi002.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/METPhi002.png</small></a> <br> 
+<a href="METDQM/CaloMETNoHF/METPhi010.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/METPhi010.png '), ClearNotes(),  ThumbnailNote(1,'div_METPhi010.png'  ) "> <img src="METDQM/CaloMETNoHF/METPhi010.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/METPhi010.png</small></a> <br> 
+<a href="METDQM/CaloMETNoHF/METPhi020.png" onMouseOver="ThumbnailPlot('METDQM/CaloMETNoHF/METPhi020.png '), ClearNotes(),  ThumbnailNote(1,'div_METPhi020.png'  ) "> <img src="METDQM/CaloMETNoHF/METPhi020.png" style="height:22px; width:25px;"><small>METDQM/CaloMETNoHF/METPhi020.png</small></a> <br> 
+
+<br>
+<strong> TcMET </strong><br>
+
+<a href="METDQM/TcMET/MET.png" onMouseOver="ThumbnailPlot('METDQM/TcMET/MET.png '), ClearNotes(),  ThumbnailNote(1,'div_MET.png'  ) "> <img src="METDQM/TcMET/MET.png" style="height:22px; width:25px;"><small>METDQM/TcMET/MET.png</small></a> <br> 
+<a href="METDQM/TcMET/MET_logx.png" onMouseOver="ThumbnailPlot('METDQM/TcMET/MET_logx.png '), ClearNotes(),  ThumbnailNote(1,'div_MET_logx.png'  ) "> <img src="METDQM/TcMET/MET_logx.png" style="height:22px; width:25px;"><small>METDQM/TcMET/MET_logx.png</small></a> <br> 
+<a href="METDQM/TcMET/METRate.png" onMouseOver="ThumbnailPlot('METDQM/TcMET/METRate.png '), ClearNotes(),  ThumbnailNote(1,'div_METRate.png'  ) "> <img src="METDQM/TcMET/METRate.png" style="height:22px; width:25px;"><small>METDQM/TcMET/METRate.png</small></a> <br> 
+<a href="METDQM/TcMET/SumET.png" onMouseOver="ThumbnailPlot('METDQM/TcMET/SumET.png '), ClearNotes(),  ThumbnailNote(1,'div_SumET.png'  ) "> <img src="METDQM/TcMET/SumET.png" style="height:22px; width:25px;"><small>METDQM/TcMET/SumET.png</small></a> <br> 
+<a href="METDQM/TcMET/SumET_logx.png" onMouseOver="ThumbnailPlot('METDQM/TcMET/SumET_logx.png '), ClearNotes(),  ThumbnailNote(1,'div_SumET_logx.png'  ) "> <img src="METDQM/TcMET/SumET_logx.png" style="height:22px; width:25px;"><small>METDQM/TcMET/SumET_logx.png</small></a> <br> 
+<a href="METDQM/TcMET/MEx.png" onMouseOver="ThumbnailPlot('METDQM/TcMET/MEx.png '), ClearNotes(),  ThumbnailNote(1,'div_MEx.png'  ) "> <img src="METDQM/TcMET/MEx.png" style="height:22px; width:25px;"><small>METDQM/TcMET/MEx.png</small></a> <br> 
+<a href="METDQM/TcMET/MEy.png" onMouseOver="ThumbnailPlot('METDQM/TcMET/MEy.png '), ClearNotes(),  ThumbnailNote(1,'div_MEy.png'  ) "> <img src="METDQM/TcMET/MEy.png" style="height:22px; width:25px;"><small>METDQM/TcMET/MEy.png</small></a> <br> 
+<a href="METDQM/TcMET/METPhi.png" onMouseOver="ThumbnailPlot('METDQM/TcMET/METPhi.png '), ClearNotes(),  ThumbnailNote(1,'div_METPhi.png'  ) "> <img src="METDQM/TcMET/METPhi.png" style="height:22px; width:25px;"><small>METDQM/TcMET/METPhi.png</small></a> <br> 
+
+<br>
+<strong> PfMET </strong><br>
+
+<a href="METDQM/PfMET/MET.png" onMouseOver="ThumbnailPlot('METDQM/PfMET/MET.png '), ClearNotes(),  ThumbnailNote(1,'div_MET.png'  ) "> <img src="METDQM/PfMET/MET.png" style="height:22px; width:25px;"><small>METDQM/PfMET/MET.png</small></a> <br> 
+<a href="METDQM/PfMET/MET_logx.png" onMouseOver="ThumbnailPlot('METDQM/PfMET/MET_logx.png '), ClearNotes(),  ThumbnailNote(1,'div_MET_logx.png'  ) "> <img src="METDQM/PfMET/MET_logx.png" style="height:22px; width:25px;"><small>METDQM/PfMET/MET_logx.png</small></a> <br> 
+<a href="METDQM/PfMET/METRate.png" onMouseOver="ThumbnailPlot('METDQM/PfMET/METRate.png '), ClearNotes(),  ThumbnailNote(1,'div_METRate.png'  ) "> <img src="METDQM/PfMET/METRate.png" style="height:22px; width:25px;"><small>METDQM/PfMET/METRate.png</small></a> <br> 
+<a href="METDQM/PfMET/SumET.png" onMouseOver="ThumbnailPlot('METDQM/PfMET/SumET.png '), ClearNotes(),  ThumbnailNote(1,'div_SumET.png'  ) "> <img src="METDQM/PfMET/SumET.png" style="height:22px; width:25px;"><small>METDQM/PfMET/SumET.png</small></a> <br> 
+<a href="METDQM/PfMET/SumET_logx.png" onMouseOver="ThumbnailPlot('METDQM/PfMET/SumET_logx.png '), ClearNotes(),  ThumbnailNote(1,'div_SumET_logx.png'  ) "> <img src="METDQM/PfMET/SumET_logx.png" style="height:22px; width:25px;"><small>METDQM/PfMET/SumET_logx.png</small></a> <br> 
+<a href="METDQM/PfMET/MEx.png" onMouseOver="ThumbnailPlot('METDQM/PfMET/MEx.png '), ClearNotes(),  ThumbnailNote(1,'div_MEx.png'  ) "> <img src="METDQM/PfMET/MEx.png" style="height:22px; width:25px;"><small>METDQM/PfMET/MEx.png</small></a> <br> 
+<a href="METDQM/PfMET/MEy.png" onMouseOver="ThumbnailPlot('METDQM/PfMET/MEy.png '), ClearNotes(),  ThumbnailNote(1,'div_MEy.png'  ) "> <img src="METDQM/PfMET/MEy.png" style="height:22px; width:25px;"><small>METDQM/PfMET/MEy.png</small></a> <br> 
+<a href="METDQM/PfMET/METPhi.png" onMouseOver="ThumbnailPlot('METDQM/PfMET/METPhi.png '), ClearNotes(),  ThumbnailNote(1,'div_METPhi.png'  ) "> <img src="METDQM/PfMET/METPhi.png" style="height:22px; width:25px;"><small>METDQM/PfMET/METPhi.png</small></a> <br> 
+
+<div id="thumb_gen"><a href="#" id="thumblink_l"><img src="" id="thumb_l" width=0 height=0 border=0></a></div> 
+</body> 
+ </html> 

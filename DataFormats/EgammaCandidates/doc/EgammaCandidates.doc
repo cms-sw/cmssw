@@ -1,0 +1,47 @@
+/*!
+\page DataFormats_EgammaCandidates Package DataFormats/EgammaCandidates
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/EgammaCandidates/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/EgammaCandidates/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Persistent classes for high level Egamma Reco data format.
+
+\subsection interface Public interface
+- reco::Electron: Electron from associated reco::Track and reco::SuperCluster.
+- reco::Photon: Photon from an associated reco::SuperCluster.
+- reco::ElectronCandidate: Electron candidate with associated reco::Track and reco::SuperCluster. 
+  It is a subclass of reco::Candidate.
+- reco::PhotonCandidate: Photon candidate with an associated reco::SuperCluster. 
+  It is a subclass of reco::Candidate.
+
+
+\subsection typedefs 
+
+- reco::ElectronCollection: collection of reco::Electron objects
+- reco::ElectronRef: persistent reference to a reco::Electron object
+- reco::ElectronRefProd: reference to a reco::Electron collection
+- reco::ElectronRefVector: vector of references to reco::Electron objects in the same collection
+- reco::electron_iterator: iterator over a vector of references to reco::Electron objects in the same collection
+
+- reco::PhotonCollection: collection of reco::Photon objects
+- reco::PhotonRef: persistent reference to a reco::Photon object
+- reco::PhotonRefProd: reference to a reco::Photon collection
+- reco::PhotonRefVector: vector of references to reco::Photon objects in the same collection
+- reco::photon_iterator: iterator over a vector of references to reco::Photon objects in the same collection
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Mostly completed.
+
+<hr>
+Last updated: @DATE@ <a href="mailto:rahatlou@cern.ch">Shahram Rahatlou</a>
+*/

@@ -1,0 +1,6 @@
+<environment>
+  <bin   file="runtestTqafTopJetCombination.cpp">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash TopQuarkAnalysis/TopJetCombination/test runtests.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+</environment>

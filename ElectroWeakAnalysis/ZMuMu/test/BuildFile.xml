@@ -1,0 +1,3 @@
+<bin   file="errorMatrix.cpp" name="errorMatrix">
+  <flags NO_TESTRUN="1"/>
+</bin>

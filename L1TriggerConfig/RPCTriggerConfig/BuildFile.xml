@@ -1,0 +1,11 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="CondFormats/RPCObjects"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="Geometry/RPCGeometry"/>
+<use   name="L1Trigger/RPCTrigger"/>
+<use   name="CondTools/L1Trigger"/>
+<use   name="boost"/>
+<flags   EDM_PLUGIN="1"/>

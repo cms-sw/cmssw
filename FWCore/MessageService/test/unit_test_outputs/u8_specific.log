@@ -1,0 +1,32 @@
+%MSG-i expect_specific:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+The following outputs are expected: 
+lim0bydefaults appearing in events 1,2,3,4,5,6,12,18,30 
+
+%MSG
+%MSG-i lim0bydefaults:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default limit of 0: 1
+%MSG
+%MSG-i lim0bydefaults:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default limit of 0: 2
+%MSG
+%MSG-i lim0bydefaults:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default limit of 0: 3
+%MSG
+%MSG-i lim0bydefaults:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default limit of 0: 4
+%MSG
+%MSG-i lim0bydefaults:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default limit of 0: 5
+%MSG
+%MSG-i lim0bydefaults:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default limit of 0: 6
+%MSG
+%MSG-i lim0bydefaults:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default limit of 0: 12
+%MSG
+%MSG-i lim0bydefaults:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default limit of 0: 18
+%MSG
+%MSG-i lim0bydefaults:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default and dest default limit of 0: 30
+%MSG

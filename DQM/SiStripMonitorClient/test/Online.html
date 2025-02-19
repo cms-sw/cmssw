@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"  
+   "http://www.w3.org/TR/2000/REC-xhtml1-20000126/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<title>SiStrip DQM Viewer</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="css, stylesheets, form" />
+
+<link type="text/css" href="jquery/css/screen.css" rel="stylesheet" />
+<link type="text/css" href="jquery/css/smoothness/jquery-ui-1-7-custom.css" rel="stylesheet" />
+<script type="text/javascript" src="jquery/js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="jquery/js/jquery-ui-1.7.custom.min.js"></script>
+
+<script type="text/javascript" src="jquery/treeview/jquery.treeview.js"></script>
+<link   type="text/css" href="jquery/treeview/jquery-treeview.css" rel="stylesheet" />
+
+<script type="text/javascript" src="jquery/cluetip/jquery.cluetip.js"></script>
+<link type="text/css" href="jquery/cluetip/jquery-cluetip.css" rel="stylesheet" />
+
+<script type="text/javascript" src="WebLib.js"></script> 
+
+<form name="Form1" action="javascript:void%200">
+  <div class="bloc" id="bloc1" style="width:55%;height=300%;float:left;">
+    <fieldset style="background:#BEFFA6;">
+      <legend >Drawing Canvas</legend>
+      <div id="canvas" style="overflow:hidden;">
+        <img id="drawingcanvas"
+             src="images/blank.png" 
+             style="border: 1px solid #000;"
+             name="canvas">
+        </img>
+      </div>
+      <br/>
+      <div id="progressbar" style="float:left;margin-top:1.0%;margin-left:5%;">
+         <img id="progress_icon"
+              src="images/loading.gif"
+              style="margin-bottom:-3px;padding-bottom:0px;height:20px;">
+         </img>
+         <label class="label"
+                id="progress_message"
+                style="text-align:left;">
+         </label>
+      </div>
+    </fieldset>
+  </div>
+  <div class = "dqmControls" id="dqmControls"style = "width:45%;height:100%;float:right;">
+    <fieldset style="background:#DDEFFF;">
+      <div class="bloc"  id="bloc2_1" style="background:#C093FF;">
+	<fieldset>
+	  <label id="tkmap_option_name" style="margin-left:2%">
+            TkMap Option :
+          </label>
+          <select name="TrackerMapOption" 
+	  	  id="tkmap_option"
+	          style="width:30%;height:5%;text-align;margin-right:2%">
+                 <option value="QTestAlarm"> QTestAlarm </option>
+          </select>
+          <input name="UpdateTrackerMap"
+                 id="update_tkmap"
+                 value="Update"
+		 style="width:20%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+		 onClick="RequestHistos.UpdateTrackerMapOption()"
+		 type="submit">                   
+          </input>
+          <input name="OpenTrackerMap" 
+                 id="open_tkmap"
+                 value="Open Tk Map"
+	         style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                 onClick="RequestHistos.OpenTrackerMap()"
+                 type="submit">                   
+          </input>
+        </fieldset>
+      </div>  
+      <div id="tabPanel1">
+        <ul>
+          <li><a href="#shifterTab"><span>Shifter View</span></a></li>
+          <li><a href="#non-geomTab"><span>Non-Geom View</span></a></li>
+          <li><a href="#summaryTab"><span>Summary View</span></a></li>
+          <li><a href="#alarmTab"><span>Alarm View</span></a></li>
+          <li><a href="#expertTab"><span>Expert View</span></a></li>
+        </ul>
+        <div id="shifterTab">
+          <div class="bloc" id="bloc2_2"> 
+	    <div class="bloc" id="bloc2_2_1" style="background:#BEFFA6;">
+              <fieldset>
+                 <label id="summ_plot"
+		        style="margin-left:2%">
+		    Select & Plot Summary:
+                 </label>
+                 <select name="SummaryPlotType" 
+                         id="summary_plot_type"
+                         style="width:30%;height:5%;text-align;margin-right:2%">
+                   <option value="Global_Tracks"> Global Tracks </option>
+                   <option value="Local_Tracks"> Local Tracks </option>
+                 </select>
+                 <input name="DrawSummary" 
+                        id="draw_summary"
+                        value="DrawSummary" 
+                        style="width:30%;"
+                        onClick="RequestHistos.DrawSelectedSummary();" 
+                        type="submit">
+                 </input>
+		   <br/>
+		   <br/>
+                 <label id="slide_show"
+                        style="margin-left:2%">
+                        Slide Show of Summary Plots:
+                 </label>
+                 <input name="StartSLShow" 
+                        id="start_slide_show"
+                        value="|<<" 
+                        onClick="SlideShow.ShowFirst();" 
+                        type="image"
+                        src="images/player_start.png">
+                 </input>
+                 <input name="PreviousSLShow" 
+                        id="previous_slide_show"
+                        value="<<" 
+                        onClick="SlideShow.ShowPrev();" 
+                        type="image"
+                        src="images/player_rew.png">
+                 </input>
+                 <input name="PlaySLShow" 
+                        id="play_slide_show"
+                        value=">" 
+                        onClick="SlideShow.StartSlideShow();" 
+                        type="image"
+                        src="images/player_play.png">
+                 </input>
+                 <input name="StopSLShow" 
+                        id="stop_slide_show"
+                        value="||" 
+                        onClick="SlideShow.StopSlideShow();" 
+                        type="image"
+                        src="images/player_stop.png">
+                 </input>
+                 <input name="NextSLShow" 
+                        id="next_slide_show"
+                        value=">>" 
+                        onClick="SlideShow.ShowNext();" 
+                        type="image"
+                        src="images/player_fwd.png">
+                 </input>
+                 <input name="EndSLShow" 
+                        id="end_slide_show"
+                        value=">>|" 
+                        onClick="SlideShow.ShowLast();" 
+                        type="image"
+                        src="images/player_end.png">
+                 </input>
+	         <br/>
+   		 <br/>
+                 <input name="QtestResultLite" 
+                        id="check_qtest_result_lite"
+                        value="QTest Result" 
+                        style="width:40%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                        onClick="RequestHistos.CheckQualityTestResultsLite()" 
+                        type="submit">
+                 </input>  
+                 <input name="QtestResultDetail" 
+                        id="check_qtest_result_detail"
+                        value="QTest Result Detail" 
+                        style="width:40%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                        onClick="RequestHistos.CheckQualityTestResultsDetail()" 
+                        type="submit">
+                 </input>  
+                 <input name="ShiftReport" 
+                        id="check_shift_report"
+                        value="Shift Report" 
+                        style="width:40%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                        onClick="RequestHistos.CheckShiftReport()" 
+                        type="submit">
+                 </input>  
+              </fieldset>
+            </div>
+            <div class="block" id="summary_status_area" style="overflow:scroll;height:370px;width:100%;background:#FFF8C9;"> 
+       	    </div>
+          </div>
+        </div>
+        <div id="non-geomTab">
+          <div class="bloc" id="bloc2_3"> 
+            <div class="bloc" id="bloc2_3_1" style="background:#BEFFA6;">
+              <fieldset>
+		  <label id="runtag">
+                     Select Type :
+	          </label>
+                  <select name="HistoTypeTag" 
+                          id="comm_type_tag"
+                          style="width:35%;height:5%;text-align;margin-right:0%">
+                       <option value="ReadoutView" SELECTED> HardwareError </option>
+                       <option value="ReadoutView"> Connection Run </option>
+                       <option value="ControlView"> Timing Run</option>
+                       <option value="ControlView"> Gain Run </option>
+                       <option value="ControlView"> Vpsp Run </option>
+                       <option value="ControlView"> Pedestal Run </option>
+                  </select>
+                  <input name="NonGeometricHistos" 
+                         id="get_nongeo_histos"
+                         value="Get Tree" 
+                         style="width:30%;margin-left:2%;margin-top:2%"
+                         onClick="RequestHistos.RequestNonGeomeHistoList()" 
+                         type="submit">
+                  </input>
+              </fieldset>
+      	    </div>
+	    </br>
+   	    <div class="bloc" id="non_geo_hlist" style="overflow:scroll;height:450px;width:100%;background:#FFF8C9;"> 
+      	    </div> 
+	  </div>
+        </div>
+        <div id="summaryTab">
+          <div class="bloc" id="bloc2_4"> 
+      	    <div class="bloc" id="bloc2_4_1" style="background:#BEFFA6;">
+              <fieldset>
+                  <label id="summary_structures">
+                     Sub-Detectors:
+	          </label>
+                  <select name="StructureForSummary" 
+                         id="summ_struc_name"
+                         style="width:35%;height:5%;text-align;margin-right:0%">
+                       <option value="MechanicalView/TIB" SELECTED> TIB </option>
+                  </select>
+                  <br/>
+                  <br/>
+                  <input name="listsummary" 
+                         id="list_summary"
+                         value="Get Tree" 
+                         style="width:30%;margin-left:2%;margin-top:2%"
+                         onClick="RequestHistos.RequestSummaryHistoList()" 
+                         type="submit">
+                  </input>
+                  <input name="ConddbSummaryHisto" 
+                         id="conddb_sumamry_histos"
+                         value="Draw ConDB Histo(s)" 
+                         style="width:45%;margin-left:15%;margin-top:2%"
+                         onClick="RequestHistos.DrawLayerCondDBHisto()" 
+                         type="submit">
+                  </input>
+	      </fieldset>
+      	    </div>
+	    </br>
+   	    <div class="bloc" id="summary_hlist" style="overflow:scroll;height:450px;width:100%;background:#FFF8C9;"> 
+      	    </div> 
+	  </div>
+        </div>
+        <div id="alarmTab">
+          <div class="bloc" id="bloc2_5"> 
+            <div class="bloc" id="bloc2_5_1" style="background:#BEFFA6;">
+              <fieldset>
+                  <label id="alarm_structures">
+                     Sub-Detectors:
+	          </label>
+                  <select name="StructureForAlarm" 
+                          id="alarm_struc_name"
+                          style="width:35%;height:5%;text-align;margin-right:0%">
+                       <option value="MechanicalView/TIB" SELECTED> TIB </option>
+                  </select>
+                  <input name="listalarm" 
+                         id="read_alarm"
+                         value="Get Alarms" 
+                         style="width:30%;margin-left:2%;margin-top:2%"
+                         onClick="RequestHistos.RequestAlarmList()" 
+                         type="submit">
+                  </input>
+	      </fieldset>
+            </div>
+   	    <br/>
+   	    <div class="bloc" id="alarm_list" style="overflow:scroll;height:370px;width:100%;background:#FFF8C9;"> 
+      	    </div> 
+            <div class="block" id="alarm_status_area" style="overflow:scroll;height:100px;width:100%;background:#F2FFE6"> 
+            </div>
+	  </div>
+        </div>
+        <div id="expertTab">
+          <div class="bloc" id="bloc2_6"> 
+            <div class="bloc" id="bloc2_6_1" style="background:#BEFFA6">
+	      <fieldset>
+	          <input type="radio" 
+	                 class="radio" 
+                         style="margin-right:1%"
+                         id="module_histos" 
+                         name="HistoTypeSelection"
+                         checked>
+                         Modules
+                  </input>
+                  <select name="StructureForModules" 
+                          id="mod_struc_name"
+                          style="width:20%;height:5%;text-align;margin-right:3%">
+                       <option value="ALL"SELECTED> TIB </option>
+                  </select>
+                  <select name="mod_num"
+                          id="module_numbers"
+                          style="margin-left:1%;position:absolute;z-index:0;width:100px;clip:rect(0px,100px,22px,80px);"
+                          onChange="RequestHistos.SetSelectedValue();">
+                  </select>
+                  <input type="text"
+                         name="mod_num_edit"
+                         id="module_number_edit"
+                         style="margin-left:1%;position:absolute;z-index:1000;width:80px;"
+                  </input>
+                  <br/>
+                  <br/>
+	          <input type="radio" 
+	                 class="radio" 
+                         style="margin-right:1%"
+                         id="global_histos" 
+                         name="HistoTypeSelection">
+                         Global
+                  </input>
+                  <input type="text"
+                         name="global_histo_path"
+                         id="ghisto_path"
+                         style="margin-left:1%;position:absolute;z-index:1000;width:100px;"
+                         value="SiStrip/Tracks"
+                  </input>                  
+                  <br/>
+                  <br/>
+                  <br/>
+                  <input name="listhisto" 
+                         id="list_histos"
+                         value="Get Histo List" 
+                         style="margin-left:0%;margin-top:-4%;float:right;"
+                         onClick="RequestHistos.RequestHistoList()" 
+                         type="submit">
+                  </input>
+	      </fieldset>
+            </div>
+            <div class="bloc" id="bloc2_6_2">
+              <fieldset>
+                <select size=12 multiple
+                        style="width:100%;height:350px;font-size:10pt;background:#FFF8C9"
+                        name="HistoListArea"
+                        id="histolistarea">
+                </select>
+              </fieldset>
+            </div>
+            <div class="bloc" id="bloc2_6_3"
+              <fieldset style="background:#FFAD5A;">
+                <legend >Drawing Options</legend>
+	        <input type="checkbox" 
+	               class="check" 
+	               style="margin-right:2%"
+                       id="logy" 
+                       name="logy">
+                       Toggle logy
+                </input>
+                <label id="drawing_option_label"
+                       style="margin-left:30%;margin-top:1%">
+                       DrawOption:
+	        </label>
+                <select name="draw_opt" 
+                        id="drawing_options"
+                        style="width:20%;margin-top:1%"
+                     <option value=" " SELECTED>Normal</option>
+                     <option value="BOX">Box</option>
+                     <option value="LEGO1">Lego1</option>
+                     <option value="LEGO2">Lego2</option>
+                     <option value="projection">Y-Projection</option>
+                </select
+                <br/>
+                <br/>
+                <input name="CondDBModuleHisto" 
+                       id="conddb_Module_histos"
+                       value="Draw ConDB Histo(s)" 
+                       style="width:45%;margin-left:2%;"
+                       onClick="RequestHistos.DrawModuleCondDBHisto()" 
+                       type="submit">
+                </input>
+                <input name="drawhisto" 
+                       id="draw_histos"
+                       value="Draw Histo(s)" 
+                       style="width:35%;margin-left:15%;"
+                       onClick="RequestHistos.DrawSelectedHistos();" 
+                       type="submit">
+                </input>
+                <br/>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>
+</body>
+</html>

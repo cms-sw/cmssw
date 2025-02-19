@@ -1,0 +1,74 @@
+
+/*!
+
+\page RecoMuon_MuonIsolationProducers Package RecoMuon/MuonIsolationProducers
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoMuon/MuonIsolationProducers/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoMuon/MuonIsolationProducers/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+This package contains producers of muon isolation related objects for offline.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+None: modules only.
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- MuIsoDepositProducer: produce MuIsoDepositAssociationMap(s) using an extractor (ExtractorPSet.ComponentName)
+- MuIsolatorResultProducer: produce iso results, like sums, counts, flags using an isolator [e.g., sumPt (tracks) or sumEt (calo)]
+uses MuIsoDepositAssociationMap(s) on input; 
+can also exclude deposits in veto-cones of other muons (key-objects of the input maps).
+
+\subsection configuration Configuration files
+- \b muIsoDepositCalByAssociatorHits.cfi : configure MuIsoDepositProducer:muIsoDepositCalByAssociatorHits.
+With recoTracks_globalMuons on input this will use CaloExtractorByAssociator and recoHits (ee, eb, hbhe, ho) to produce 3 MuIsoDeposits (ecal, hcal, ho) per muon.
+Everything above 3*sigmaNoiseEnergy and etThreshold in cone R<1 is collected. Veto cone sizes are 0.07, 0.1, 0.1 for ecal, hcal, ho.
+- \b muIsoDepositCalByAssociatorTowers.cfi
+With recoTracks_globalMuons on input this will use CaloExtractorByAssociator and CaloTowers to produce 3 MuIsoDeposits (ecal, hcal, ho) per muon.
+Everything above 3*sigmaNoiseEnergy and etThreshold in cone R<1 is collected. Veto cone sizes are 0.07, 0.1, 0.1 for ecal, hcal, ho.
+- \b muIsoDepositCal.cfi
+With recoTracks_globalMuons on input this will use CaloExtractor and CaloTowers to produce 1 MuIsoDeposits (Weight_E(=1.5)*ecal+Weight_H(=1)*hcal) per muon.
+Everything above 3*sigmaNoiseEnergy and etThreshold in cone R<1 is collected. Veto cone sizes are 0.07, 0.1 for ecal, hcal.
+Outer energy (ho) is not considered.
+- \b muIsoDepositCtfTk.cfi
+With recoTracks_globalMuons on input this will use TrackExtractor and recoTracks_ctfWithMaterialTracks in dR [0.01, 1], |dZ|<0.2, |d_r(xy)|< 0.1
+to produce MuIsoDepositAssociationMap.
+- \b muIsoDeposits.cff
+Based on the above .cfi files defines additional (clone) modules and sequences to be used in a muon isolation path.
+Defines additional muIsoDepositCalEcal & muIsoDepositCalHcal: the same as muIsoDepositCal, but with (Weight_E, Weight_H) of (1, 0) and (0, 1) respectively.
+\n Defines sequences: 
+  -# sequence muIsoDepositsAssoc = {muIsoDepositCalByAssociatorTowers & muIsoDepositCalByAssociatorHits}
+  -# sequence muIsoDepositsCal = {muIsoDepositCalEcal & muIsoDepositCalHcal}
+  -# sequence muIsoDepositsTk = {muIsoDepositCtfTk}
+  -# sequence muIsoDepositsAll = {muIsoDepositCtfTk & muIsoDepositsAssoc & muIsoDepositsCal}
+
+
+- \b muIsolation_EventContent.cff
+Defines RecoMuonMuonIsolation{FEVT,RECO,AOD} blocks with OutputCommands
+containing outputs of the muon isolation producers. 
+FEVT and RECO  and AOD keep all the outputs.
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+- IsolationExample : analyze trackSumPt using MuIsoByTrackPt
+- MuIsoDepositAnalyzer : printout of all input MuIso*AssociationMap(s)
+- isoTest.cfg : use this to run all modules configured in the /data [full-scale test] of the extractors and producers.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Need to implement a producer based on a concrete isolator or on a MuIsoBaseAlgorithm.
+
+<hr>
+Last updated:
+@DATE@  Author: Slava Krutelyov.
+*/
+

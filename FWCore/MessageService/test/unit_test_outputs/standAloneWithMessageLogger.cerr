@@ -1,0 +1,109 @@
+Default settings
+%MSG-w cat_A: 
+LogWarning  was used to send cat_A
+%MSG
+%MSG-w cat_B: 
+LogWarning  was used to send cat_B
+%MSG
+LogPrint    was used to send cat_A
+LogPrint    was used to send cat_B
+%MSG-e cat_A: 
+LogError    was used to send cat_A
+%MSG
+%MSG-e cat_B: 
+LogError    was used to send cat_B
+%MSG
+LogProblem  was used to send cat_A
+LogProblem  was used to send cat_B
+threshold DEBUG
+%MSG-d cat_A: 
+ standAloneTest.cpp:8
+LogDebug    was used to send cat_A
+%MSG
+%MSG-d cat_B: 
+ standAloneTest.cpp:9
+LogDebug    was used to send cat_B
+%MSG
+LogTrace    was used to send cat_A
+LogTrace    was used to send cat_B
+%MSG-i cat_A: 
+LogInfo     was used to send cat_A
+%MSG
+%MSG-i cat_B: 
+LogInfo     was used to send cat_B
+%MSG
+LogVerbatim was used to send cat_A
+LogVerbatim was used to send cat_B
+%MSG-w cat_A: 
+LogWarning  was used to send cat_A
+%MSG
+%MSG-w cat_B: 
+LogWarning  was used to send cat_B
+%MSG
+LogPrint    was used to send cat_A
+LogPrint    was used to send cat_B
+%MSG-e cat_A: 
+LogError    was used to send cat_A
+%MSG
+%MSG-e cat_B: 
+LogError    was used to send cat_B
+%MSG
+LogProblem  was used to send cat_A
+LogProblem  was used to send cat_B
+threshold INFO
+%MSG-i cat_A: 
+LogInfo     was used to send cat_A
+%MSG
+%MSG-i cat_B: 
+LogInfo     was used to send cat_B
+%MSG
+LogVerbatim was used to send cat_A
+LogVerbatim was used to send cat_B
+%MSG-w cat_A: 
+LogWarning  was used to send cat_A
+%MSG
+%MSG-w cat_B: 
+LogWarning  was used to send cat_B
+%MSG
+LogPrint    was used to send cat_A
+LogPrint    was used to send cat_B
+%MSG-e cat_A: 
+LogError    was used to send cat_A
+%MSG
+%MSG-e cat_B: 
+LogError    was used to send cat_B
+%MSG
+LogProblem  was used to send cat_A
+LogProblem  was used to send cat_B
+threshold WARNING
+%MSG-w cat_A: 
+LogWarning  was used to send cat_A
+%MSG
+%MSG-w cat_B: 
+LogWarning  was used to send cat_B
+%MSG
+LogPrint    was used to send cat_A
+LogPrint    was used to send cat_B
+%MSG-e cat_A: 
+LogError    was used to send cat_A
+%MSG
+%MSG-e cat_B: 
+LogError    was used to send cat_B
+%MSG
+LogProblem  was used to send cat_A
+LogProblem  was used to send cat_B
+threshold ELerror
+%MSG-e cat_A: 
+LogError    was used to send cat_A
+%MSG
+%MSG-e cat_B: 
+LogError    was used to send cat_B
+%MSG
+LogProblem  was used to send cat_A
+LogProblem  was used to send cat_B
+squelch cat_A
+%MSG-e cat_B: 
+LogError    was used to send cat_B
+%MSG
+LogProblem  was used to send cat_B
+squelch cat_B

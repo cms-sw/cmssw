@@ -1,0 +1,4 @@
+<library   file="*.cc" name="FWCoreMessageServicePlugins">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/MessageService"/>
+</library>

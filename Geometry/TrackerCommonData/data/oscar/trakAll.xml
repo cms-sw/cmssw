@@ -1,0 +1,767 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="trak.xml">
+		<Polycone name="TRAK" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-2.935*m" rMin="0.0*fm" rMax="1.233*m"/>
+			<ZSection z="2.935*m" rMin="0.0*fm" rMax="1.233*m"/>
+		</Polycone>
+		<Tubs name="SSUC" rMin="1.182*m" rMax="1.188*m" dz="2.82*m" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SSUD" rMin="1.187*m" rMax="1.188*m" dz="2.82*m" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SVCP" rMin="0*fm" rMax="1.9*mm" dz="2.82*m" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TPPN" rMin="7.4*cm" rMax="1.233*m" dz="4.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TPP1" rMin="30*cm" rMax="1.105*m" dz="1.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TPP2" rMin="30*cm" rMax="1.105*m" dz="3.85*cm" startPhi="80*deg" deltaPhi="20*deg"/>
+		<Tubs name="TPP3" rMin="30*cm" rMax="62.5*cm" dz="3.85*cm" startPhi="100*deg" deltaPhi="160*deg"/>
+		<Tubs name="TPP4" rMin="62.5*cm" rMax="1.105*m" dz="3.85*cm" startPhi="10*deg" deltaPhi="70*deg"/>
+		<Tubs name="TPP5" rMin="30*cm" rMax="1.105*m" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TPPX" rMin="1.105*m" rMax="1.233*m" dz="4.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SVTX" rMin="19*cm" rMax="1.18*m" dz="2.82*m" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SPUP" rMin="22*cm" rMax="22.2*cm" dz="1.105*m" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Box name="SPP2" dx="10*cm" dy="500*mum" dz="1.105*m"/>
+	</SolidSection>
+	<LogicalPartSection label="trak.xml">
+		<LogicalPart name="TRAK" category="unspecified">
+			<rSolid name="TRAK"/>
+			<rMaterial name="materials:Vacuum"/>
+		</LogicalPart>
+		<LogicalPart name="SSUC" category="unspecified">
+			<rSolid name="SSUC"/>
+			<rMaterial name="materials:T_Foam"/>
+		</LogicalPart>
+		<LogicalPart name="SSUD" category="unspecified">
+			<rSolid name="SSUD"/>
+			<rMaterial name="materials:Tk_SO_FC_G"/>
+		</LogicalPart>
+		<LogicalPart name="SVCP" category="unspecified">
+			<rSolid name="SVCP"/>
+			<rMaterial name="materials:active_screen"/>
+		</LogicalPart>
+		<LogicalPart name="TPPN" category="unspecified">
+			<rSolid name="TPPN"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="TPP1" category="unspecified">
+			<rSolid name="TPP1"/>
+			<rMaterial name="materials:Tk_panels_in"/>
+		</LogicalPart>
+		<LogicalPart name="TPP2" category="unspecified">
+			<rSolid name="TPP2"/>
+			<rMaterial name="materials:Tk_panels_mid1"/>
+		</LogicalPart>
+		<LogicalPart name="TPP3" category="unspecified">
+			<rSolid name="TPP3"/>
+			<rMaterial name="materials:Tk_panels_mid2"/>
+		</LogicalPart>
+		<LogicalPart name="TPP4" category="unspecified">
+			<rSolid name="TPP4"/>
+			<rMaterial name="materials:Tk_panels_mid3"/>
+		</LogicalPart>
+		<LogicalPart name="TPP5" category="unspecified">
+			<rSolid name="TPP5"/>
+			<rMaterial name="materials:Tk_panels_out"/>
+		</LogicalPart>
+		<LogicalPart name="TPPX" category="unspecified">
+			<rSolid name="TPPX"/>
+			<rMaterial name="materials:Tk_panels_up"/>
+		</LogicalPart>
+		<LogicalPart name="SVTX" category="unspecified">
+			<rSolid name="SVTX"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SPUP" category="unspecified">
+			<rSolid name="SPUP"/>
+			<rMaterial name="materials:Tk_CF_supp_sili"/>
+		</LogicalPart>
+		<LogicalPart name="SPP2" category="unspecified">
+			<rSolid name="SPP2"/>
+			<rMaterial name="materials:Tk_CF_supp_sili"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="trak.xml">
+		<PosPart copyNumber="1">
+			<rParent name="trak:TRAK"/>
+			<rChild name="trak:SSUC"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SSUD"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.184*m" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.18147*m" y="7.74373*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.17387*m" y="15.4543*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.16125*m" y="23.0987*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.14366*m" y="30.6442*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.12117*m" y="38.0584*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.09387*m" y="45.3097*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.0619*m" y="52.367*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.02537*m" y="59.2*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="98.446*cm" y="65.7795*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="93.933*cm" y="72.0774*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="89.0178*cm" y="78.0666*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="83.7214*cm" y="83.7214*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="78.0665*cm" y="89.0178*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="72.0773*cm" y="93.933*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="65.7795*cm" y="98.446*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="59.2*cm" y="1.02537*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="52.367*cm" y="1.0619*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="45.3097*cm" y="1.09387*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="38.0584*cm" y="1.12117*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="30.6442*cm" y="1.14366*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="23.0987*cm" y="1.16125*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="15.4543*cm" y="1.17387*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="7.74372*cm" y="1.18147*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="1.184*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-7.74373*cm" y="1.18147*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-15.4543*cm" y="1.17387*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-23.0987*cm" y="1.16125*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-30.6442*cm" y="1.14366*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-38.0584*cm" y="1.12117*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-45.3097*cm" y="1.09387*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="32">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-52.367*cm" y="1.0619*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="33">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-59.2*cm" y="1.02537*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="34">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-65.7795*cm" y="98.446*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="35">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-72.0774*cm" y="93.933*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="36">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-78.0666*cm" y="89.0178*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="37">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-83.7214*cm" y="83.7214*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="38">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-89.0178*cm" y="78.0665*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="39">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-93.933*cm" y="72.0774*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="40">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-98.446*cm" y="65.7795*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="41">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.02537*m" y="59.2*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="42">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.0619*m" y="52.367*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="43">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.09387*m" y="45.3097*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="44">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.12117*m" y="38.0584*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="45">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.14366*m" y="30.6442*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="46">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.16125*m" y="23.0987*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="47">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.17387*m" y="15.4543*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="48">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.18147*m" y="7.74373*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="49">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.184*m" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="50">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.18146*m" y="-7.74375*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="51">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.17387*m" y="-15.4543*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="52">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.16125*m" y="-23.0987*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="53">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.14366*m" y="-30.6442*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="54">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.12117*m" y="-38.0584*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="55">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.09387*m" y="-45.3097*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="56">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.0619*m" y="-52.367*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="57">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.02537*m" y="-59.2*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="58">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-98.446*cm" y="-65.7795*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="59">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-93.933*cm" y="-72.0774*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="60">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-89.0178*cm" y="-78.0666*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="61">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-83.7214*cm" y="-83.7215*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="62">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-78.0665*cm" y="-89.0178*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="63">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-72.0774*cm" y="-93.933*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="64">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-65.7795*cm" y="-98.446*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="65">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-59.2*cm" y="-1.02537*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="66">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-52.367*cm" y="-1.0619*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="67">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-45.3097*cm" y="-1.09387*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="68">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-38.0584*cm" y="-1.12117*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="69">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-30.6442*cm" y="-1.14366*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="70">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-23.0987*cm" y="-1.16125*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="71">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-15.4543*cm" y="-1.17387*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="72">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-7.74371*cm" y="-1.18147*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="73">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-1.184*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="74">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="7.74377*cm" y="-1.18146*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="75">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="15.4543*cm" y="-1.17387*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="76">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="23.0987*cm" y="-1.16125*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="77">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="30.6442*cm" y="-1.14366*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="78">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="38.0585*cm" y="-1.12117*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="79">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="45.3097*cm" y="-1.09387*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="80">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="52.367*cm" y="-1.0619*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="81">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="59.2*cm" y="-1.02537*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="82">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="65.7795*cm" y="-98.446*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="83">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="72.0774*cm" y="-93.933*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="84">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="78.0665*cm" y="-89.0178*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="85">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="83.7215*cm" y="-83.7214*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="86">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="89.0179*cm" y="-78.0665*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="87">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="93.933*cm" y="-72.0773*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="88">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="98.446*cm" y="-65.7795*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="89">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.02537*m" y="-59.2*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="90">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.0619*m" y="-52.367*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="91">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.09387*m" y="-45.3097*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="92">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.12117*m" y="-38.0584*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="93">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.14366*m" y="-30.6442*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="94">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.16125*m" y="-23.0987*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="95">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.17387*m" y="-15.4543*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="96">
+			<rParent name="trak:SSUC"/>
+			<rChild name="trak:SVCP"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="1.18147*m" y="-7.74369*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cms:TRAK"/>
+			<rChild name="trak:TPPN"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="2.865*m"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:TRAK"/>
+			<rChild name="trak:TPPN"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-2.865*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPP1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-4.35*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPP2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPP2"/>
+			<rRotation name="rotations:R180"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPP3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPP3"/>
+			<rRotation name="rotations:R180"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPP4"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPP4"/>
+			<rRotation name="rotations:R090"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPP4"/>
+			<rRotation name="rotations:R180"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPP4"/>
+			<rRotation name="rotations:R270"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPP5"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="4*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:TPPN"/>
+			<rChild name="trak:TPPX"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cms:TRAK"/>
+			<rChild name="trak:SVTX"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:SVTX"/>
+			<rChild name="trak:SPUP"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:SVTX"/>
+			<rChild name="trak:SPP2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="19.45*cm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trak:SVTX"/>
+			<rChild name="trak:SPP2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-19.45*cm" z="0*fm"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

@@ -1,0 +1,58 @@
+
+/*!
+
+\page FastSimDataFormats_NuclearInteractions Package FastSimDataFormats/NuclearInteractions
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/FastSimDataFormats/NuclearInteractions/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/FastSimDataFormats/NuclearInteractions/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+Definition of a few DataFormates needed for the specific treatment of the Nuclear Interactions and their secondary vertices in Fast Simulation. <br>
+Used by FastSimulation/MaterialEffects.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- FSimDisplacedVertex <br>
+- FSimDisplacedVertexFwd <br>
+This data format is designed to combine the informations from FSimVertex and its FSimVertexType. It is not part of general FastSimulation sequence and useful for  private productions and analyses.
+
+- FSimVertexType <br>
+- FSimVertexTypeFwd <br>
+It holds the information about the nature of a SimVertex within the Famos or Generation sequences.
+
+- NUEvent <br>
+It defines the whole set of simulated tracks exiting from a Nuclear Interaction in the Fast Simulation.
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

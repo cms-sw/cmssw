@@ -1,0 +1,29 @@
+#! /usr/bin/env python
+
+from FWCore.ParameterSet.TreeCrawler import getImportTree
+import sys, os
+
+import optparse
+usage = "%prog [configuration file name]"
+parser = optparse.OptionParser(usage=usage)
+
+(options, args) = parser.parse_args()
+if len(args) != 1:
+    parser.error("wrong number of arguments")
+
+filename = args[0]
+
+sys.path.append(os.environ["PWD"])
+path = sys.path[:]
+
+# get the dependencies
+importTree = getImportTree(filename, path)  
+
+# finally dump the tree
+importTree.dump(0)
+
+
+
+
+
+

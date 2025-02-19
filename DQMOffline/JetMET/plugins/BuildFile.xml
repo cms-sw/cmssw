@@ -1,0 +1,7 @@
+<use name="DQMOffline/JetMET"/>
+<use name="DQMServices/Components"/>
+<use name="DQMServices/Core"/>
+
+<library name="DQMOfflineJetMETPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>

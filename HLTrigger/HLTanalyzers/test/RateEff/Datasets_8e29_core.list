@@ -1,0 +1,61 @@
+# Some primary datasets are defined in this input text file.
+# It is just a collection of blocks of the form:
+#   PrimaryDatasetA:
+#   TriggerPath1
+#   TriggerPath2
+#   ...
+# Whitespace is irrelevant, but do remember that a colon (:) 
+# is used to indicate the start of the next primary dataset 
+# definition block. To-end-of-line comments beginning with 
+# the pound sign (#) are allowed.
+
+
+Jets15:
+  HLT_L1Jet15
+  HLT_DiJetAve15
+  HLT_Jet30
+
+Jets30_Bjets:
+  HLT_Jet50
+  HLT_Jet80
+  HLT_DiJetAve30
+
+Met:
+  HLT_L1MET20
+  HLT_MET35
+
+Ele_Tau:
+  HLT_Ele10_SW_L1R
+  HLT_DoubleEle5_SW_L1R
+  HLT_DoubleEle10_LW_OnlyPixelM_L1R
+  HLT_LooseIsoTau_MET30
+  HLT_LooseIsoTau_MET30_L1MET
+  HLT_DoubleLooseIsoTau
+
+Gamma:
+  HLT_Photon15_L1R
+  HLT_IsoPhoton10_L1R
+
+MuL1:
+  HLT_L1MuOpen
+  HLT_L1Mu
+  HLT_L2Mu9
+
+Mu3:
+  HLT_Mu3
+  HLT_DoubleMu3
+
+MinB:
+  HLT_ZeroBias
+  HLT_MinBias
+  HLT_MinBiasHcal
+  HLT_MinBiasEcal
+  HLT_MinBiasPixel
+  HLT_MinBiasPixel_Trk5
+  HLT_ForwardBSC
+  HLT_BackwardBSC
+  HLT_CSCBeamHalo
+  HLT_CSCBeamHaloRing2or3
+  HLT_CSCBeamHaloOverlapRing1
+  HLT_CSCBeamHaloOverlapRing2
+

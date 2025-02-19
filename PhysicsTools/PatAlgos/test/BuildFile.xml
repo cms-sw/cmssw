@@ -1,0 +1,18 @@
+<export>
+</export>
+<library   name="PhysicsToolsPatAlgos_testAnalyzers" file="private/*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="DataFormats/BTauReco"/>
+  <use   name="PhysicsTools/PatUtils"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use   name="PhysicsTools/UtilAlgos"/>
+  <use   name="root"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<environment>
+  <bin   file="runtestPhysicsToolsPatAlgos.cpp">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash PhysicsTools/PatAlgos/test runtests.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+</environment>

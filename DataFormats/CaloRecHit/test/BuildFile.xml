@@ -1,0 +1,6 @@
+<bin   name="testCaloCluster" file="testRunner.cpp,testCaloCluster.cppunit.cc">
+ 
+  <use   name="DataFormats/CaloRecHit"/>
+  <use   name="DataFormats/Math"/>
+  <use   name="cppunit"/>
+</bin>

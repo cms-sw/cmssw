@@ -1,0 +1,14 @@
+<use   name="TrackingTools/Records"/>
+<use   name="FWCore/Framework"/>
+<use   name="DataFormats/Common"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="RecoLocalTracker/SiPixelRecHits"/>
+<use   name="RecoLocalTracker/SiStripRecHitConverter"/>
+<use   name="RecoTracker/TransientTrackingRecHit"/>
+<use   name="clhep"/>
+<use   name="boost"/>
+<use   name="root"/>
+<library   file="*.cc" name="TTRHBuilderTest">
+<flags   EDM_PLUGIN="1"/>
+</library>
+<bin file="TrackerHitSizes.cpp"/>

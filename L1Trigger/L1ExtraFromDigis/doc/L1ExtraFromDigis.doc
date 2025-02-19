@@ -1,0 +1,46 @@
+
+/*!
+
+\page L1Trigger_L1ExtraFromDigis Package L1Trigger/L1ExtraFromDigis
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi//CMSSW/L1Trigger/L1ExtraFromDigis/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/L1Trigger/L1ExtraFromDigis/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+Modules to convert Level-1 trigger hardware objects into L1Extra physical
+representations.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- L1ExtraParticlesProd
+- L1ExtraParticleMapProd
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Default parameters given in
+L1Trigger/L1ExtraFromDigis/data/l1extraParticles.cfi and
+L1Trigger/L1ExtraFromDigis/data/l1extraParticleMap.cfi.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+L1ExtraParticlesProd complete.  L1ExtraParticleMapProd needs to make use of
+GT emulator objects, rather than temporary kludge of evaluating trigger
+conditions from L1Extra particle objects.
+
+<hr>
+Last updated:
+@DATE@  Author: Werner Sun
+*/
+

@@ -1,0 +1,13 @@
+Lumi PSet test run: 1 luminosityBlock: 2
+LRange PSet test '1:2-4:4294967295'
+ERange PSet test '1:2-4:4294967295'
+VLumi PSet test run: 1 luminosityBlock: 2
+VLumi PSet test run: 2 luminosityBlock: 2
+VLumi PSet test run: 3 luminosityBlock: 3
+VLRange PSet test '1:2-4:4294967295'
+VLRange PSet test '99:99-99:99'
+VLRange PSet test '3:4-5:9'
+VERange PSet test '1:2-4:4294967295'
+VERange PSet test '99:99-99:99'
+VERange PSet test '3:4-5:9'
+VERange PSet test '9:9-11:1'

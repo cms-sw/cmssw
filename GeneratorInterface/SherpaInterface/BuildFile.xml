@@ -1,0 +1,14 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="GeneratorInterface/Core"/>
+<use name="GeneratorInterface/ExternalDecays"/>
+<use name="GeneratorInterface/Pythia6Interface"/>
+<use name="boost"/>
+<use name="clhep"/>
+<use name="sherpa"/>
+<use name="frontier_client"/>
+<use name="FWCore/Services"/>
+<use name="zlib"/>
+<flags EDM_PLUGIN="1"/>

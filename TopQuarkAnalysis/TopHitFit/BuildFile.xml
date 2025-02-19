@@ -1,0 +1,7 @@
+<use   name="clhep"/>
+<use   name="ROOT"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="FWCore/ParameterSet"/>
+<export>
+  <lib   name="1"/>
+</export>

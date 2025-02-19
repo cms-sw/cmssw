@@ -1,0 +1,4 @@
+<use   name="SimCalorimetry/EcalSelectiveReadoutProducers"/>
+<library   file="*.cc" name="EcalSelectiveReadoutProducersPlugin">
+  <flags   EDM_PLUGIN="1"/>
+</library>

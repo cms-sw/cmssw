@@ -1,0 +1,57 @@
+
+/*!
+
+\page Geometry_CommonTopologies Package Geometry/CommonTopologies
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Geometry/CommonTopologies/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Geometry/CommonTopologies/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+Base classes for channel topologies used in tracking detectors.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- BowedSurfaceDeformation
+- PixelTopology
+- RadialStripTopology
+- RectangularStripTopology
+- StripTopology
+- SurfaceDeformation
+- SurfaceDeformationFactory
+- Topology
+- TrapezoidalStripTopology
+- TwoBowedSurfacesDeformation
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Stable.
+
+<hr>
+Last updated:
+@DATE@  Author:  N. Amapane
+*/
+

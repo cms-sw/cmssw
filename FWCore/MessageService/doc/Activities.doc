@@ -1,0 +1,159 @@
+	The Signals That Services Can Subscribe To
+	------------------------------------------
+	
+This is based on ActivityRegistry.h, and is current per Mar 18, 2009
+
+    Services can connect to the signals distributed by the ActivityRegistry 
+    in order to monitor the activity of the application.
+    
+    Each possible callback has some defined signature, which we here list in 
+    angle brackets, e.g., <void, edm::EventID const&, edm::Timestamp const&>.
+    We also list in braces which AR_WATCH_USING_METHOD_ is used for those
+    callbacks {0}, {1}, or {2}.
+
+		<void>									{0}
+PostBeginJob 		after all modules have gotten their beginJob called
+PostEndJob		after all modules have gotten their endJob called
+PreSource		before the source starts creating an Event
+PostSource		after the source starts creating an Event [sic]
+PreSourceLumi		before the source starts creating a Lumi
+PostSourceLumi		after the source starts creating a Lumi [sic]
+PreSourceRun		before the source starts creating a Run
+PostSourceRun		after the source starts creating a Run [sic]
+PreOpenFile		before the **source** opens a file
+PostOpenFile		after the **source** opens a file
+PreCloseFile		before the **source** closes a file
+PostCloseFile		after the **source** closes a file
+JobFailure		if event processing or end-of-job processing fails 
+			with an uncaught exception
+
+		<void, edm::EventID const&, edm::Timestamp const&>   			{2}
+PreProcessEvent		after the Event has been created by the InputSource 
+			but before any modules have seen the Event
+
+		<void, Event const&, EventSetup const&>					{2}
+PostProcessEvent	after all modules have finished processing the Event		
+
+		<void, edm::RunID const&, edm::Timestamp const&>			{2}
+PreBeginRun		after the Run has been created by the InputSource 
+			but before any modules have seen the Run
+PreEndRun		before the endRun is processed
+
+		<void, Run const&, EventSetup const&> 					{2}
+PostBeginRun		after all modules have finished processing the beginRun
+PostEndRun		after all modules have finished processing the Run
+
+		<void, edm::LuminosityBlockID const&, edm::Timestamp const&>		{2}
+PreBeginLumi		after the LuminosityBlock has been created by the InputSource 
+			but before any modules have seen the LuminosityBlock
+PreEndLumi		before the endLuminosityBlock is processed
+
+		<void, LuminosityBlock const&, EventSetup const&> 			{2}
+PostBeginLumi		after all modules have finished processing the beginLuminosityBlock
+PostEndLumi		after all modules have finished processing the LuminosityBlock
+
+		<void, std::string const&>						{1}		
+PreProcessPath		before starting to process a Path for an event
+PrePathBeginRun		before starting to process a Path for beginRun
+PrePathEndRun		before starting to process a Path for endRun
+PrePathBeginLumi		before starting to process a Path for beginLumi
+PrePathEndLumi		before starting to process a Path for endLumi
+
+		<void, std::string const&, HLTPathStatus const&>			{1}
+PostProcessPath		after all modules have finished for the Path for an event
+PostPathBeginRun	after all modules have finished for the Path for beginRun
+PostPathEndRun		after all modules have finished for the Path for endRun
+PostPathBeginLumi	after all modules have finished for the Path for beginLumi
+PostPathEndLumi		after all modules have finished for the Path for endLumi
+
+		<void, ModuleDescription const&>					{1}
+PreModuleConstruction	before the module is constructed
+PostModuleConstruction	after the module was constructed
+PreModuleBeginJob	before the module does beginJob
+PostModuleBeginJob	after the module had done beginJob
+PreModuleEndJob		before the module does endJob
+PostModuleEndJob	after the module had done endJob	
+PreModule		before the module starts processing the Event
+PostModule		after the module finished processing the Event
+PreModuleBeginRun	before the module starts processing beginRun
+PostModuleBeginRun	after the module finished processing beginRun
+PreModuleEndRun		before the module starts processing endRun
+PostModuleEndRun	after the module finished processing endRun
+PreModuleBeginLumi	before the module starts processing beginLumi
+PostModuleBeginLumi	after the module finished processing beginLumi
+PreModuleEndLumi	before the module starts processing endLumi
+PostModuleEndLumi	after the module finished processing endLumi
+PreSourceConstruction	before the source is constructed
+PostSourceConstruction	after the source was constructed
+
+
+Assuming every module did things in every possible phase (which of course 
+is not realistic), the order of normal phases would be the following. 
+(Note - the relation between file opens and run/lumi assumed here, that 
+a Run contains possibly multiple Lumis and that a Lumi consists of possibly
+multiple files, may not be correct.)
+
+		
+PostBeginJob 	
+PreSourceConstruction	
+PostSourceConstruction
+  --- per module ---
+  PreModuleConstruction
+  PostModuleConstruction
+  PreModuleBeginJob
+  PostModuleBeginJob
+  --- per run ---
+  PreSourceRun
+  PostSourceRun
+  PreBeginRun
+  PrePathBeginRun
+    -- per module ---
+    PreModuleBeginRun
+    PostModuleBeginRun
+  PostPathBeginRun
+  PostBeginRun
+    --- per Lumi ---
+    PreSourceLumi
+    PostSourceLumi
+    PreBeginLumi 
+    PrePathBeginLumi
+       --- per module ---
+       PreModuleBeginLumi
+       PostModuleBeginLumi
+    PostPathBeginLumi
+    PostBeginLumi
+      --- per file ---
+      PreOpenFile
+      PostOpenFile
+	--- per event ---
+	PreSource
+	PostSource
+	PreProcessEvent
+	PreProcessPath
+	  --- per module ---
+	  PreModule
+	  PostModule
+	PostProcessPath
+	PostProcessEvent
+      PreCloseFile
+      PostCloseFile
+    PreEndLumi
+    PrePathEndLumi
+      --- per module ---
+      PreModuleEndLumi
+      PostModuleEndLumi
+    PostPathEndLumi
+    PostEndLumi
+  PreEndRun
+  PrePathEndRun
+    --- per module---
+    PreModuleEndRun
+    PostModuleEndRun
+  PostPathEndRun
+  PostEndRun
+  --- per module ---
+  PreModuleEndJob
+  PostModuleEndJob
+PostEndJob		
+
+

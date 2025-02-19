@@ -1,0 +1,17 @@
+<export>
+</export>
+<library   name="CommonToolsParticleFlow_plugins" file="*.cc">
+  <use   name="DataFormats/ParticleFlowCandidate"/>
+  <use   name="DataFormats/JetReco"/>
+  <use   name="DataFormats/TauReco"/>
+  <use   name="DataFormats/METReco"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="DataFormats/VertexReco"/>
+  <use   name="PhysicsTools/IsolationAlgos"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="JetMETCorrections/Objects"/>
+  <use   name="CommonTools/Utils"/>
+  <use   name="CommonTools/ParticleFlow"/>
+</library>

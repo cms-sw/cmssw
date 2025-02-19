@@ -1,0 +1,59 @@
+
+/*!
+
+\page Alignment_TrackerAlignment Package Alignment/TrackerAlignment
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Alignment/TrackerAlignment/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Alignment/TrackerAlignment/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+This package allows to propagate movements through the various Tracker sub-structures downto sensor level. 
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- AlignablePixelHalfBarrel
+- AlignablePixelHalfBarrelLayer
+- AlignableTID
+- AlignableTIDLayer
+- AlignableTIDRing
+- AlignableTrackerBarrelLayer
+- AlignableTrackerCompositeBuilder
+- AlignableTrackerEndcap
+- AlignableTrackerEndcapLayer
+- AlignableTracker
+- AlignableTrackerHalfBarrel
+- AlignableTrackerModifier
+- AlignableTrackerPetal
+- AlignableTrackerRod
+- MisalignedTrackerESProducer
+- MisalignmentScenarioBuilder
+- TrackerAlignableId
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- MisalignedTrackerESProducer: provides a way to apply custom misalignment to the tracker and save it to the database. See the <A HREF="https://twiki.cern.ch/twiki/bin/view/CMS/MisalignmentTools">MisalignmentTools</A> TWiki page for details. A number of pre-defined scenarios can be found in the data directory.
+  
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+A number of configuration files are available in the test directory. They illustrate how to apply misalignment, save to a local database, read it back or read from the central database.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Current release is stable. Work on the alignment position errors is ongoing.
+
+<hr>
+Last updated: 
+@DATE@  Author: Frederic Ronga
+*/
+

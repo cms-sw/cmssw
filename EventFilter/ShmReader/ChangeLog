@@ -1,0 +1,185 @@
+2012-07-03 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-14
+	* check cell state when sending error event in destructor
+
+2012-06-29 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-13
+	* not sending error event for lumi cells from destructor
+	* more error logs
+
+2012-05-27 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-12
+	* reverting changes introduced with V01-05-09 and V01-05-10
+	  which were not necessary and caused RB stopping problems
+
+2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-11
+	* fix Buildfile.xml compile warning
+
+2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-10
+	* revert latest changes to lumi handling, current is also safe
+	* pid for currently used raw cell written into shared memory
+	  (currently unused on the RB side)
+
+2012-05-22 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-09
+	* keeping raw cell occupied during processing of Lumi message
+
+2011-06-27  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-08
+	* always return 1 from fillRawData for Event type (>0 only checked)
+
+2011-05-11  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-07
+	* added cross checks of event type for special events
+
+2011-04-15  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-06
+	* change fatal exception to error message and recall 
+	
+2011-04-13  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-05 (V01-05-04 already used)
+	* throw fatal exception when receiving EOL with ls = 0
+
+2010-05-17  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-03 (V01-05-02 already used)
+	* issue stop only on STOP event (EMPTY event generates error message)
+	
+2010-02-02  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-01
+	* Merge branch mods into 350
+
+2010-01-20  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-00-01
+	* do not set evtstate to processing for LUMISECTION events
+
+2010-01-12  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-00-00
+	* End-of-lumisection event signal to EP - backport for 333
+
+2010-01-11  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-00
+	* End-of-lumisection event signal to EP
+	
+2009-10-19  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-04-01
+	* do not attach shared memory in constructor (for use with MPEP)
+	
+2009-07-07  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-04-00
+	* implement DaqBaseReader::setRunNumber introduced in
+	IORawData/DaqSource V01-06-17.
+
+2008-10-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-03-00
+	* add Kurt's changes
+	* write the process id to the error event record in shared memory
+
+2008-06-13  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-02-00
+	* if we are still attached to shm when the destructor hits, send
+	the last processed event to the error stream and deregister this
+	process from the buffer.
+
+2007-11-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-01-01
+	* detach from shared memory segment in destructor if it isn't
+	null: this ensures that configure -> halt -> configure works
+	properly 
+	
+2007-05-24  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-01-00
+	* note that V01-00-00 was tagged by whomever for the plugins
+	framework change
+	* this version is in line with EventFilter/FUShmBuffer V00-04-00
+	and EventFilter/ResourceBroker V00-07-00
+
+2007-03-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-01
+	* make FUShmReader 'pset-less': no (dummy) pset needs to be
+	provided for the configuration of the DaqSource anymore
+
+2007-03-21  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-00
+	* based on EventFilter/ShmBuffer V00-03-00
+
+2007-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-00
+	* depend on EventFilter/ShmBuffer instead of
+	EventFilter/ResourceBroker
+	* adjust to API typo fix of FUShmBuffer: shm_dettach -> shm_detach
+	* (yet another) fix to shutdown procedure.
+
+2007-03-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-02-01
+	* fix to shutdown procedure.
+
+2007-03-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-02-00
+	* compliant with FWCore reorganziation in 140 series.
+
+2007-03-07  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-01-04
+	* this is actually V00-01-01 plus adjusting to the reorganization
+	of FWCore.
+
+	
+2007-03-01  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-01-03
+	* set event_ pointer to 0 before exiting event loop, needed for
+	stop/start of FUEP.
+
+2007-02-21  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-01-02
+	* minor fixes
+ 	
+2007-02-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-01-01
+	* adapt ShmBuffer interface change w.r.t. event discardal
+	* interpret empty buffer cells being passed as the signal to shut
+	down
+	
+
+2007-01-17  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-01-00
+	* call 'ShmBuffer::scheduleForDiscard()' if event is processed,
+	requires ResourceBroker V00-01-00.
+
+2006-11-22  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-00-01
+	* first import into CVS
+	
+

@@ -1,0 +1,14 @@
+<use   name="CalibCalorimetry/HcalAlgos"/>
+<use   name="CalibFormats/HcalObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/HcalObjects"/>
+<use   name="DataFormats/HcalDetId"/>
+<use   name="Geometry/ForwardGeometry"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="boost"/>
+<flags   EDM_PLUGIN="1"/>

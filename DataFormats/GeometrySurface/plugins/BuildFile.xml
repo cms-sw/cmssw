@@ -1,0 +1,5 @@
+<library   file="*.cc" name="BlockWipedAllocatorServicePlugins">
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="DataFormats/GeometrySurface"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

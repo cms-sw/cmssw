@@ -1,0 +1,29 @@
+<bin   name="TestFWCorePluginManagerPluginFactoryManager" file="pluginfactorymanager_t.cc">
+  <use   name="boost"/>
+  <use   name="cppunit"/>
+  <use   name="FWCore/PluginManager"/>
+</bin>
+<bin   name="TestFWCorePluginManagerPluginManager" file="pluginmanager_t.cc">
+  <use   name="boost"/>
+  <use   name="cppunit"/>
+  <use   name="FWCore/PluginManager"/>
+  <lib   name="TestFWCorePluginManagerDummyFactory"/>
+</bin>
+<bin   name="TestFWCorePluginManagerCacheParser" file="cacheparser_t.cc">
+  <use   name="boost"/>
+  <use   name="cppunit"/>
+  <use   name="FWCore/PluginManager"/>
+</bin>
+<bin   name="TestFWCorePluginManagerPluginFactory" file="pluginfactory_t.cc">
+  <use   name="boost"/>
+  <use   name="cppunit"/>
+  <use   name="FWCore/PluginManager"/>
+</bin>
+<library   file="DummyFactory.cc" name="TestFWCorePluginManagerDummyFactory">
+  <use   name="FWCore/PluginManager"/>
+</library>
+<library   file="OneDummy.cc,TwoDummy.cc" name="TestFWCorePluginManagerDummyPlugins">
+  <use   name="FWCore/PluginManager"/>
+  <lib   name="TestFWCorePluginManagerDummyFactory"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

@@ -1,0 +1,3 @@
+<bin  file="Singleton_.cpp">
+ <use   name="cppunit"/>
+</bin>

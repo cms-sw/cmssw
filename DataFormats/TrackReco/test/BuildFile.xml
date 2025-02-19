@@ -1,0 +1,4 @@
+<use   name="DataFormats/TrackReco"/>
+<bin   name="testDataFormatsTrackReco" file="testTrack.cc,testRunner.cpp">
+  <use   name="cppunit"/>
+</bin>

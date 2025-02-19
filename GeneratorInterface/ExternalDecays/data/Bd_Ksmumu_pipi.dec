@@ -1,0 +1,27 @@
+# This is the decay file for the decay B0 -> MU+ MU- Ks
+#
+# Descriptor: [B0 -> mu+ mu- {,gamma} {,gamma} Ks]cc
+#
+# NickName: 
+#
+# Physics: Includes radiative mode
+#
+# Tested: Yes
+# By:     K. Ulmer
+# Date:   2-26-08
+#
+Alias      MyB0        B0
+Alias      Myanti-B0   anti-B0
+ChargeConj MyB0        Myanti-B0
+Alias      MyK_S0      K_S0
+ChargeConj MyK_S0      MyK_S0
+#
+Decay MyB0
+  1.000        MyK_S0     mu+     mu-     BTOSLLBALL;
+Enddecay
+CDecay Myanti-B0
+#
+Decay MyK_S0
+  1.000        pi+       pi-              PHSP;
+Enddecay
+End

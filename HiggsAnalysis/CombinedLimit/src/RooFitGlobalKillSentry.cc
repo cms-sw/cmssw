@@ -1,0 +1,1 @@
+#include "../interface/RooFitGlobalKillSentry.h"

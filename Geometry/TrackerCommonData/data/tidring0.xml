@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tidring0.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+		<Constant name="Rmin" value="22.5261*cm"/>
+		<Constant name="NPhi" value="24"/>
+		<Constant name="PhiOff" value="0*deg"/>
+		<Constant name="ICBR" value="40.250*cm"/>
+		<Constant name="ICBTailR" value="[ICBR]+[tidringpar:ICBW]/2"/>
+		<Constant name="RPos" value="[Rmin]+[tidmodule0:ModuleHeight]/2"/>
+		<Constant name="ICCRPos" value="[Rmin]+[tidmodule0:ModuleHeight]+[tidringpar:ICCROffset]+[tidringpar:ICCH]/2"/>
+		<Constant name="ICBTailW" value="([tidringpar:Rout]-[ICBTailR]-            [tidringpar:ICBTailTol])"/>
+		<Constant name="ICBTailRPos" value="([tidringpar:Rout]+[ICBTailR]-            [tidringpar:ICBTailTol])/2"/>
+		<Constant name="CCUMrPos" value="[ICBTailR]+2*[tidringpar:ICBTailTol]+[tidringpar:CCUMW]/2"/>
+		<Constant name="CoolR1" value="[Rmin]+[tidmodule0:ModuleHeight]-[tidmodule0:CoolInsertShift]"/>
+		<Constant name="CoolR2" value="[Rmin]+[tidmodule0:ModuleHeight]-[tidmodpar:CoolInsertHeightDS]+[tidringpar:CoolD]/2"/>
+		<Constant name="DOHMrIn" value="44.5*cm"/>
+		<Constant name="DOHMrOut" value="50.5*cm"/>
+		<Constant name="DOHMrOff" value="-0.5*cm"/>
+		<Constant name="DOHMdPhi" value="18*deg"/>
+		<Constant name="CoolManifoldL" value="17*cm"/>
+		<Constant name="FlatCablerIn" value="[ICBR]+[tidringpar:ICBW]/2"/>
+		<Constant name="FlatCablerOut" value="[FlatCablerIn]+6*cm"/>
+		<Constant name="FlatCabledPhi" value="30*deg"/>
+		<Constant name="FlatCablephiPos" value="21*deg"/>
+		<!-- palced symmetrically wrt the MC at 21 deg -->
+		<Constant name="FlatCablephiPosOff" value="3*deg"/>
+		<Constant name="FlatCablephiPosL" value="[FlatCablephiPos]-[FlatCablephiPosOff]-[FlatCabledPhi]/2"/>
+		<Constant name="FlatCablephiPosR" value="[FlatCablephiPos]+[FlatCablephiPosOff]+[FlatCabledPhi]/2"/>
+		<Constant name="ModuleFixationInsertsInR" value="28.8*cm"/>
+		<Constant name="ModuleFixationInsertsOutR" value="37.7*cm"/>
+	</ConstantsSection>
+	<SolidSection label="tidring0.xml">
+		<Tubs name="TIDRing0ICB" rMin="([ICBR]-[tidringpar:ICBW]/2)" rMax="([ICBR]+[tidringpar:ICBW]/2)" dz="[tidringpar:ICBT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
+		<Box name="TIDRing0ICBTail" dx="[tidringpar:ICBTailH]/2" dy="[ICBTailW]/2" dz="[tidringpar:ICBTailT]/2"/>
+		<Torus name="TIDRing0Cool1" innerRadius="[zero]" outerRadius="[tidringpar:CoolD]/2" torusRadius="[CoolR1]" startPhi="0*deg" deltaPhi="360.*deg"/>
+		<Torus name="TIDRing0Cool2" innerRadius="[zero]" outerRadius="[tidringpar:CoolD]/2" torusRadius="[CoolR2]" startPhi="0*deg" deltaPhi="360.*deg"/>
+		<Tubs name="TIDRing0DOHM" rMin="([DOHMrIn])" rMax="([DOHMrOut])" dz="[tidringpar:DOHMT]/2" startPhi="-[DOHMdPhi]/2" deltaPhi="[DOHMdPhi]"/>
+		<Tubs name="TIDRing0FiberLayer" rMin="([ICBR]-[tidringpar:ICBW]/2)" rMax="([ICBR]+[tidringpar:ICBW]/2)" dz="[tidringpar:FiberLayerT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
+		<Box name="TIDRing0CoolManifold" dx="[tidringpar:CoolManifoldW]/2" dy="[CoolManifoldL]/2" dz="[tidringpar:CoolManifoldT]/2"/>
+		<Tubs name="TIDRing0FlatCable" rMin="[FlatCablerIn]" rMax="[FlatCablerOut]" dz="[tidringpar:FlatCableT]/2" startPhi="-[FlatCabledPhi]/2" deltaPhi="[FlatCabledPhi]"/>
+	</SolidSection>
+	<LogicalPartSection label="tidring0.xml">
+		<LogicalPart name="TIDStructure0" category="unspecified">
+			<rSolid name="tidringpar:TIDStructure"/>
+			<rMaterial name="tidmaterial:TID_Mech"/>
+		</LogicalPart>
+		<LogicalPart name="TIDICC0" category="unspecified">
+			<rSolid name="tidringpar:TIDICCDS"/>
+			<rMaterial name="tidmaterial:TID_DSAOHBox"/>
+		</LogicalPart>
+		<LogicalPart name="TIDRing0ICBTail" category="unspecified">
+			<rSolid name="tidring0:TIDRing0ICBTail"/>
+			<rMaterial name="tidmaterial:TID_ICB1"/>
+		</LogicalPart>
+		<LogicalPart name="TIDRing0ICB" category="unspecified">
+			<rSolid name="tidring0:TIDRing0ICB"/>
+			<rMaterial name="tidmaterial:TID_ICB1"/>
+		</LogicalPart>
+		<LogicalPart name="TIDRing0DOHM" category="unspecified">
+			<rSolid name="tidring0:TIDRing0DOHM"/>
+			<rMaterial name="tidmaterial:TID_DOHM1"/>
+		</LogicalPart>
+		<LogicalPart name="TIDRing0Cool1" category="unspecified">
+			<rSolid name="tidring0:TIDRing0Cool1"/>
+			<rMaterial name="tidmaterial:TID_CoolPipe"/>
+		</LogicalPart>
+		<LogicalPart name="TIDRing0Cool2" category="unspecified">
+			<rSolid name="tidring0:TIDRing0Cool2"/>
+			<rMaterial name="tidmaterial:TID_CoolPipe"/>
+		</LogicalPart>
+		<LogicalPart name="TIDRing0FiberLayer" category="unspecified">
+			<rSolid name="tidring0:TIDRing0FiberLayer"/>
+			<rMaterial name="tidmaterial:TID_FiberLayer"/>
+		</LogicalPart>
+		<LogicalPart name="TIDRing0CoolManifold" category="unspecified">
+			<rSolid name="tidring0:TIDRing0CoolManifold"/>
+			<rMaterial name="tidmaterial:TID_CoolManifold"/>
+		</LogicalPart>
+		<LogicalPart name="TIDRing0FlatCable" category="unspecified">
+			<rSolid name="tidring0:TIDRing0FlatCable"/>
+			<rMaterial name="tibtidcommonmaterial:TIBTID_AmphCable"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tidring0:TIDStructure0"/>
+		<String name="ChildName" value="tidring0:TIDRing0CoolManifold"/>
+		<Numeric name="N" value="2"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="113*deg"/>
+		<Numeric name="Radius" value="[tidringpar:CoolManifoldR]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+	</Algorithm>
+	<!-- Inserts for module fixation  -->
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tidring0:TIDStructure0"/>
+		<String name="ChildName" value="tidringpar:TIDModuleFix"/>
+		<Numeric name="N" value="24"/>
+		<Numeric name="StartCopyNo" value="3"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="-9.90 *deg"/>
+		<Numeric name="Radius" value="[ModuleFixationInsertsInR]"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			[zero], [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tidring0:TIDStructure0"/>
+		<String name="ChildName" value="tidringpar:TIDModuleFix"/>
+		<Numeric name="N" value="24"/>
+		<Numeric name="StartCopyNo" value="27"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="+9.90*deg"/>
+		<Numeric name="Radius" value="[ModuleFixationInsertsInR]"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			[zero], [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tidring0:TIDStructure0"/>
+		<String name="ChildName" value="tidringpar:TIDModuleFix"/>
+		<Numeric name="N" value="24"/>
+		<Numeric name="StartCopyNo" value="51"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="-5.04*deg"/>
+		<Numeric name="Radius" value="[ModuleFixationInsertsOutR]"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			[zero], [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tidring0:TIDStructure0"/>
+		<String name="ChildName" value="tidringpar:TIDModuleFix"/>
+		<Numeric name="N" value="24"/>
+		<Numeric name="StartCopyNo" value="75"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="+5.04*deg"/>
+		<Numeric name="Radius" value="[ModuleFixationInsertsOutR]"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			[zero], [zero], [zero]
+		</Vector>
+	</Algorithm>
+</DDDefinition>

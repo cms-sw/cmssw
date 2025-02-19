@@ -1,0 +1,15 @@
+ <TESTSCONFIGURATION>
+ 
+ <QTEST name="Mu_Comp2RefKolmogorov">
+         <TYPE>Comp2RefKolmogorov</TYPE>       
+         <PARAM name="testparam">0</PARAM>
+         <PARAM name="error">0.30</PARAM>
+         <PARAM name="warning">0.70</PARAM>
+ </QTEST>
+ 
+ <LINK name="*MuonRecoAnalyzer/*_*">
+         <TestName activate="true">Mu_Comp2RefKolmogorov</TestName>
+ </LINK>
+ 
+ </TESTSCONFIGURATION>
+

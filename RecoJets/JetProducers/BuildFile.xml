@@ -1,0 +1,14 @@
+<use   name="boost"/>
+<use   name="FWCore/Framework"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="SimDataFormats/CaloHit"/>
+<use   name="RecoJets/JetAlgorithms"/>
+<use   name="DataFormats/CastorReco"/>
+<use   name="fastjet"/>
+<export>
+  <lib   name="1"/>
+</export>

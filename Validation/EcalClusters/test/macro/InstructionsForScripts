@@ -1,0 +1,49 @@
+
+///////////////////////
+
+
+Starting Scripts  FitEta.C or FitEt.C
+
+//--------------------
+Main points:
+A.
+	There are three types of SC analyzed by the code 
+EnergyScaleAnalyzer.cc. The tree 'energyScale' has a brach em_scType.
+Depending which one you are interested to look at you need to require that SuperCluster type 
+
+Hybrid      SC -> "em_scType == 1"
+Dynamic     SC -> "em_scType == 2"
+FixedMatrix SC -> "em_scType == 3"
+
+As a default, in scripts it is set to 1 ( Hybrid SC ).
+
+
+B
+In case multiple root files as a input function 
+void load_noET() {}
+need to be modified.
+
+
+
+//---------------------
+(1)
+FitEta.C and FitEt.C is used to make the performance plots ( mean/effSigma of ETreco/ETmc ) as a function Eta and Et accordingly.
+
+(2)
+e.g. how to plot performace vs. ET:
+
+> root -l FitEt.C > out.et
+> grep Result out.et > output
+> python plotMeanVsET.py    
+( Which takes file 'output' as an input and produces plot_MeanVsET.C )
+> root -l plot_MeanVsET.C  
+
+or
+
+> python plotEffSigmaVsET.py
+> root -l plot_EffSigmaVsET.C
+
+//-------------------------------------
+Similarly, if you wnat to look at performance vs Eta.
+
+

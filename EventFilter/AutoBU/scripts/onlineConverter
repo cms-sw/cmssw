@@ -1,0 +1,44 @@
+#!/usr/bin/env perl
+
+
+# get environment variables
+#my $java_home = get_env_variable("JAVA_HOME");
+
+# build the ConfDbGUI jar file if necessary
+my $confdbbase = $ENV{"CMSSW_BASE"}."/src/EventFilter/ConfigDB";
+my $converter_jar = "$confdbbase/lib/cmssw-evf-confdb-converter.jar";
+my $classpath      = $converter_jar;
+my $usage =
+    "USAGE:\nonlineConverter - retrieve EP and SM config from DB    \n" .
+    "\t-d                   (target db [default: cms_cond.cern.ch ])\n" .
+    "\t-h                   (db host   [default: cmsr1-v.cern.ch  ])\n" .
+    "\t-u                   (db user   [default: cms_hltdev_reader])\n" .
+    "\t-c                   (full path of configuration to retrieve)\n\n";
+
+die $usage if @ARGV<2;
+
+if (!-e $converter_jar)
+{
+    print "\nBuilding $converter_jar ...\n";
+    `ant converter`;
+
+    if (-e $converter_jar)
+    {
+	print "$converter_jar successfully built.\n";
+    }
+    else { die ("Failed to build $converter_jar\n"); }
+}
+
+# add MySQL JDBC Driver to claspath
+$classpath = $classpath . ":$confdbbase/ext/mysql-connector-java-5.0.5-bin.jar";
+
+# add Oracle JDBC Driver to classpath
+$classpath = $classpath . ":$confdbbase/ext/ojdbc14.jar";
+
+# start the GUI
+#print @ARGV
+system ("java -classpath $classpath confdb.converter.OnlineConverter --ep @ARGV | csplit - /#/; mv xx01 EP.py; rm xx00;"); 
+system ("java -classpath $classpath confdb.converter.OnlineConverter --sm @ARGV | csplit - /#/ > SM.py; mv xx01 SM.py; rm xx00;"); 
+exit 0;
+
+

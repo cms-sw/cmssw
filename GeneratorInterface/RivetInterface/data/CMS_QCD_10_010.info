@@ -1,0 +1,35 @@
+Name: CMS_QCD_10_010
+Year: 2011
+Summary: Traditional UE measurement at sqrt(s)=0.9 and 7 TeV. Charge particle analysis transverse to the leading jets.
+Experiment: CMS
+Collider: LHC
+SpiresID: 
+Status: UNVALIDATED
+Authors:
+ - Mohammed Zakaria (mzakaria@ufl.edu) 
+References:
+  - CMS-PAS-QCD-10-010 document and https://twiki.cern.ch/twiki/bin/view/CMSPublic/PhysicsResultsQCD10010
+  - arXiv:1107.0330v1 [hep-ex] 
+RunInfo:
+   Non single diffrative events. Switch on single diffraction on generator. 
+   The profile plots require large statistics.
+Beams: [p+, p+]
+Energies: [900, 7000]
+pT Cuts: pT > 0.5 GeV (all tracks).
+Description: 
+   A measurement of the underlying activity in scattering processes with a hard
+   scale in the several GeV region is performed in proton-proton collisions at
+   Energies of 0.9 and 7 TeV, using data collected by the CMS experiment at the
+   LHC. The production of charged particles with pseudorapidity |eta| < 2 and
+   transverse momentum pT > 0.5 GeV/c is studied in the azimuthal region transverse
+   to that of the leading set of charged particles forming a track-jet. Various 
+   comparisons are made between the two different energies and also beteen two 
+   sets of cuts on pT for leading track jet pT-leading > 3 GeV and pT-leading > 20 GeV.
+   The activity is studied using 5 types of plots. 2 profile plots for the 
+   multiplcity of charged particles and the scalar sum of pT. and 3 distributions 
+   for the two previous quantities as well we pT for all the particles in the 
+   transverse region. 
+BibKey: 
+BibTeX: 
+To do:
+ - UPDATE REFERENCES AND BIBTEX WHEN PUBLISHED

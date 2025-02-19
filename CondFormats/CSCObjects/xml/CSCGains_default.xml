@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="CSCGains" >
+   <Class name="CSCGains"  mapping_version="CSCGains_automatic_default" >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

@@ -1,0 +1,2 @@
+<bin   name="cmsScimark2" file="scimark2.c,array.c,FFT.c,kernel.c,LU.c,MonteCarlo.c,Random.c,SOR.c,SparseCompRow.c,Stopwatch.c">
+</bin>

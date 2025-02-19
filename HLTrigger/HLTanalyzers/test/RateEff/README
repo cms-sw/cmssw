@@ -1,0 +1,326 @@
+README for OpenHLT rate and Efficiencies calculating scripts
+
+  Chi-Nhan Nguyen <chinhan@cern.ch>
+  Jonathan Hollar <jjhollar@cern.ch>
+  Pedrame Bargassa <bargassa@cern.ch>
+  Silvia Goy Lopez <goylopez@cern.ch>
+
+************************************** 
+1. Introduction
+************************************** 
+
+
+
+--------------------------------------  
+1a. Running the scripts
+--------------------------------------  
+ 
+  Once the binary file is built, the rate-calculating script can be run using:
+  
+  ./OHltRateEff <cfgfile> 
+
+  Some arguments in the cfg file are as follows (see example hltmenu_1E31_2008Dec04.cfg):
+  [incomplete docu here!]
+    
+    nEntries: Number of events to run over.
+          That number will be used for each sample.
+          If there exist less events in a sample than requested than the script
+          will run over all existing.
+          Any number < 0 will be interpreted as "running over all existing events".
+          Default is all (-1).
+  
+    versionTag: A string describing this menu. This will be appended to the name of the output files.
+          
+    doPrintAll: If set to 1 all printouts incl. overlap coefficient etc,
+            and also the TeX file is generated.
+            Otherwise only the most basic  info is printed out to stdout.
+    
+    
+
+**************************************
+2. Input samples and cross-sections
+**************************************
+  Samples are registered via the process tag, example:
+
+	process:{
+ 		names = ["minbias","qcdpt30"]; # arbitrary names
+ 		paths = ["/uscmst1b_scratch/lpc1/lpctrig/apana/data/MinBias/lumi8e29/",
+			"/uscmst1b_scratch/lpc1/lpctrig/apana/data/QCDpt30/lumi8e29/];
+			# paths to set of files
+ 		fnames = ["Summer08_MinBias*root","Summer08_QCDpt30*root"];
+			# list of filenames, asterisks can be used
+ 		doMuonCuts = [false];
+			# against muon double counting, only used for special case
+			# if enriched muon samples are used with minbias samples, otherwise always 'false'
+ 		doElecCuts = [false]; #
+			# against electron double counting, only used for special case
+			# if enriched electron samples are used with minbias, otherwise always 'false'
+ 		sigmas = [7.53E10,1E8]; # 10 TeV xsecs * filter efficiencies
+	};
+
+
+**************************************
+3. Trigger examples
+**************************************
+
+-------------------------------------- 
+3a. Adding new OpenHLT triggers
+-------------------------------------- 
+
+        To add a new OpenHLT trigger, the first step is to register it in the 
+	cfg file:  
+	triggers = ( 
+		("HLT_L1MuOpen","L1_SingleMu OR L1_SingleMuOpen", 5, 1.5),
+	...
+	) 
+ 
+        Where the items denote the name, the logical expression of the L1 seeds,
+	the prescale and the eventsize (MB) of that trigger. 
+	L1 condition of the trigger is parsed by using the L1GtLogicParser also
+	used for HLTLevel1GTSeed. Hence, you can use any kind of logic expressions like:
+	"(L1_SingleMu OR L1_SingleMuOpen) AND L1_SingleMu3".
+
+	If you run on samples with unprescaled L1 triggers, you can simulate the L1 prescale
+	by running a preloop sequence with: doL1preloop = true.
+	In that case you also have to provide the list of L1 triggers and prescales, example:
+
+
+	 	L1triggers = ( 
+			#
+  			("L1_SingleMu0", 1),
+			...
+		);
+
+
+	Once the trigger is registered, the actual trigger logic must be implemented in OHltTreeOpen.cpp;
+	this is done in two places.
+	The first is the OHltTree::CheckOpenHlt method, where the L1 and HLT pass/fail conditions
+	are decided.
+  	The second is in dedicated methods where the HLT trigger algorithms are emulated.
+	A single one of these dedicated
+  	methods can be used by several OpenHLT triggers if they differ only in their thresholds. 
+
+  	Several example OpenHLT triggers are provided as templates; these are described in detail below.
+
+--------------------------------------  
+3b. Example OpenHLT jet triggers  
+--------------------------------------  
+ 
+        One example OpenHLT jet trigger (corresponding to HLT1jet) is implemented. The algorithm is  
+        implemented in the OHltTree::OpenHlt1JetPassed method. This method takes a single argument:
+
+    double pt:  Jet pT threshold.
+
+  The trigger passes if N>=1 jets above threshold are found in the event. 
+
+--------------------------------------
+3c. Example OpenHLT muon triggers
+--------------------------------------
+  
+  Three example OpenHLT muon triggers (corresponding to HLT1MuonNonIso, HLT1MuonIso, and HLT2MuonNonIso) are 
+  available. 
+
+  The algorithm for the single muon triggers is implemented in the OHltTree::OpenHlt1MuonPassed method. This 
+  takes five arguments:
+
+    double ptl1:  L1extra pT threshold 
+    double ptl2:  L2 muon pT threshold
+    double ptl3:  L3 muon pT threshold
+    double dr:  L3 dR threshold
+    int iso:  L3 isolation (1 if isolated, 0 if non-isolated)
+
+  The algorithm starts from L3 muons and applies pT, eta, dr, and isolation criteria. It 
+  then finds the L2 muon matched to the L3 muon, and applies pT and eta cuts. It then finds
+  the L1extra muon most closely matched to the L2 muon, and applies pT and quality cuts. For the 
+  single muon triggers, the L1 quality must be between 4 and 7 (inclusive). The trigger passes if 
+  N>=1 muons satisfying all these criteria are found.
+
+  The algorithm for the double muon triggers is implemented in the OHltTree::OpenHlt2MuonPassed 
+  method. The arguments to this method are:
+
+          double ptl1:    L1extra pT threshold  
+                double ptl2:    L2 muon pT threshold 
+                double ptl3:    L3 muon pT threshold 
+                double dr:      L3 dR threshold 
+                int iso:        L3 isolation (1 if isolated, 0 if non-isolated) 
+
+  The algorithm is identical to the single muon case described above, with the exception of the L1extra muons, 
+  which must have quality between 3 and 7 (inclusive). The trigger passes if N>=2 muons satisfying all these 
+  criteria are found.
+
+  * Note that in CMSSW releases 2_X and higher, the L2 and L3 muon pT thresholds are implemented as flat cuts.
+    In earlier releases, the thresholds were implemented as 90% CL upper limits. OpenHLT examples of the old pT 
+    threshold implementation are found at the beginning of the OpenHlt1MuonPassed and OpenHlt2MuonPassed examples.
+
+
+--------------------------------------
+3d. Example OpenHLT electron triggers
+--------------------------------------
+  
+  One example OpenHLT electron trigger (HLT1Electron) are available. 
+
+  The algorithm for the single electron triggers is implemented in the OHltTree::OpenHlt1ElectronPassed method.
+        This takes five arguments:
+
+    float   Et: Et threshold in GeV
+    int   L1iso:  L1 is isolated (1: yes, 0: no)
+    float Tiso: Track isolation in GeV
+    float Hiso: Hcal isolation in GeV
+
+  In the example code some cuts are mandatory and cannot be varied.
+  They have the following default values:
+    ohEleNewSC[i]>0                 : Is 1, if electron found by Super Cluster Algo, otherwise 0
+    ohEleHiso[i]/ohEleEt[i] < 0.05  : Hadronic fraction smaller than 0.05
+    ohElePixelSeeds[i]>0    : Pixel seed found or not (1 or 0)
+
+--------------------------------------
+3e. Example OpenHLT photon triggers
+--------------------------------------
+  
+  One example OpenHLT electron trigger (HLT1Electron) are available. 
+
+  The algorithm for the single electron triggers is implemented in the OHltTree::OpenHlt1ElectronPassed method.
+        This takes five arguments:
+
+    float   Et: Et threshold in GeV
+    int   L1iso:  L1 is isolated (1: yes, 0: no)
+    float Tiso: Track isolation in GeV
+    float Eiso: Ecal isolation in GeV
+    float HisoBR: Barrel Hcal isolation in GeV
+    float HisoEC: Endcap Hcal isolation in GeV
+
+
+--------------------------------------
+3f. Example OpenHLT tau triggers
+--------------------------------------
+  
+  Several examples are available in OHltTree.cpp. 
+
+  The algorithm for the Tau triggers is implemented in OHltTree::OpenHltTauPassed method.
+        As an example one can take the HLT2TauPixel path, which can be implemented as
+
+  if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=2) {} using
+        OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso)
+
+  The if statement asks for at least 2 tau candidates which fullfil both these criteria:        
+
+    float   Et: L2 calo Et threshold in GeV
+    int   Eiso: L2 is Ecal isolated (1: yes, 0: no)
+    float L25Tpt: L2.5 pixel leading Track Pt threshold in GeV
+    int   L25Tiso:  L2.5 is Track isolated (1: yes, 0: no)
+    float L3Tpt:  L3 si+pix leading Track Pt threshold in GeV
+    int   L3Tiso: L3 is Track isolated (1: yes, 0: no)
+
+
+
+
+
+
+--------------------------------------
+3. Efficiency code
+--------------------------------------
+
+ Signal sample definition: 
+	If in the config file the sample name (names in process) is either zmumu or zee, 
+then the sample is supposed to be of signal type and some efficiency code is run. 
+Other kind of signal samples are yet to be defined. If you do not want to run the efficiency code
+it is enough to name your sample in some other way.
+	There are two kinds of output for this code
+
+ a) A print-out with the efficiency of every path in the given menu.
+ b) A root file containing turn-on curves for MC/L1/RECO quantities matched with HLT objects.
+
+
+	Detailed explanation of a) and b) is given bellow:
+
+ a) The routine calcEff is defined in OHltRateEff.cpp and called from the main programm.
+It prints out as text the efficiency of every trigger path, taking as normalization events 
+in the sample passing a predifined set of cuts for muons and electrons.
+These normalization cuts are defined depending on the sample and based on MC
+quantities in OHltTree::Loop (OHltTree.cpp)
+-  muons eta cut 2.1, pt >3GeV (for zmumu sample 2 such muons are required)
+-  electrons eta cut 2.5, pt>5 GeV (for zee sample 2 such electrons are required)
+The user can modify these cuts and then recompile the code (make OHltRateEff)
+The efficiency definition is given by: number of events passing the path trigger condition 
+divided by the number of events in the sample surviving the normalization cuts.
+This calculation is based on MC quantities for normalization definition, therefore the 
+MC branch must be available in the sample and set to true in the config file (selectBranchMC),
+in order to obtain the corresponding printout.
+
+b) The routine PlotOHltEffCurves is called in OHltTree::Loop (OHltTree.cpp)
+Just before the calling of the routine one should set the hlteffmode variable,
+which is a TString taking as possible values: "GEN", "L1","RECO", so that turn on curves 
+of HLT objects are computed for MC,L1 or RECO variables.
+By default hlteffmode= "GEN"
+The variable ohltobject describes what would be the HLT object to be studied.
+For zmumu sample ohltobject="muon" and for zee sample ohltobject="electron" by default. 
+Code is implemented also for "photon" and "jet" HLT objects.
+The PlotOHltEffCurves routine itself is defined in PlotOHltEffCurves.cpp file.
+A matching is done dr = sqrt((deta*deta) + (dphi*dphi))<drmatch between the hltobject 
+and the gen,l1 or reco object. The default value for drmatch=0.5.
+A pt turn-on curve is constructed by filling one histogram with the pt distribution of the
+gen,l1 or reco objects (denominator of turn-on curve) and another histogram with the pt 
+distribution of the gen,l1 or reco objects that have been matched to the corresponding hlt 
+object. Similarly an eta turn-on curve is also obtained. 
+The pt turn-on curve is obtained for events within a eta range given by etacutforpt = 3.0.
+The eta turn-on curve is obtained for events with pt> ptcutforeta = 5.0.
+As output a .root file is created containing the numerator and denominator of the 
+turn-on curves (pt,eta) and the turn-on curve itself with binomial errors applied.
+
+Available signal samples:
+The following samples are OpenHLT rootuples, 50kevents reprocessed to have 1E31 L1 seeds 
+available, using IdealV12 conditions
+Top:
+ 	Original sample: /TTJets-madgraph/Fall08_IDEAL_V11_redigi_v10/GEN-SIM-RAW
+	Output OpenHLT : /castor/cern.ch/user/g/goys/OpenHLT/TTjets_L1E31 
+Zmumu:
+ 	Original sample: /Zmumu/Summer08_IDEAL_V11_redigi_v2/GEN-SIM-RAW
+	Output OpenHLT : /castor/cern.ch/user/g/goys/OpenHLT/Zmumu_L1E31/ 
+Zee:
+ 	Original sample: /Zee/Summer08_IDEAL_V11_redigi_v2/GEN-SIM-RAW
+	Output OpenHLT : /castor/cern.ch/user/g/goys/OpenHLT/Zee_L1E31/ 
+Wmunu:
+ 	Original sample: /Wmunu/Summer08_IDEAL_V11_redigi_v2/GEN-SIM-RAW
+	Output OpenHLT : /castor/cern.ch/user/g/goys/OpenHLT/Wmunu_L1E31/ 
+Wenu:
+ 	Original sample: /Wenu/Summer08_IDEAL_V11_redigi_v1/GEN-SIM-RAW
+	Output OpenHLT : /castor/cern.ch/user/g/goys/OpenHLT/Wenu_L1E31/ 
+
+  In case of comments, suggestions, doubts or problems please contact goylopez@cern.ch
+
+
+
+
+
+
+PD part to be implemented, old description below:
+
+--------------------------------------
+4. Primary Datasets code
+--------------------------------------
+
+  The primary datasets evaluation happens as part of the event loop. Its purpose is to
+    1) Evaluate the rates of datasets, correlation (i.e. fraction of shared events) between 
+       datasets, and total output overhead for storing datasets. 
+    2) Evaluate the correlation of "new triggers" with the primary datasets, and also the
+       rate of unique events that can be added by a particular new trigger to each of the
+       primary datasets, if it were to be placed in that location.
+       
+  The "new triggers" are defined to be all the triggers that do not appear in one or more
+  primary datasets, as read from the <sPrimaryDatasets> input file. As mentioned, if
+  <sPrimaryDatasets> = "" is provided, every trigger is considered to be a dataset (so, 
+  there are _no_ new triggers) -- this is useful for outputting the trigger-vs-trigger
+  correlation plot, which can help you diagnose whether your proposed trigger has already
+  been (mostly) superceded by some other trigger(s).
+  
+  The code produces two output files:
+    a) X_scenario_correlations.root : a few histograms (one per sample, and for "all", "rate",
+                                      and "physics" combinations of samples) with the 2D 
+                                      correlation plots that can be used for deciding which 
+                                      triggers go into which datasets.
+    b) X_scenario_correlations.pdf  : essentially the same information as (a), but in numerical 
+                                      form (tables). Specifically, this shows the rate that 
+                                      would be added by each trigger, if it were to be added to 
+                                      a particular dataset.
+  Here X is the same as the OHltRateEff main output name.
+  

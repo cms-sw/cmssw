@@ -1,0 +1,12 @@
+Commissioning:
+  HLT_Activity_L1A
+  HLT_Activity_DT
+  HLT_Activity_DT_Tuned
+  HLT_Activity_EcalREM
+  HLT_Activity_Ecal
+  OpenHLT_Activity_Ecal_SC7
+  OpenHLT_Activity_Ecal_SC15
+  HLT_Activity_PixelClusters
+  HLT_SelectEcalSpikes_L1R
+  HLT_SelectEcalSpikesHighEt_L1R
+  HLT_L1_BptxXOR_BscMinBiasOR

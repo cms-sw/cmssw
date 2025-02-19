@@ -1,0 +1,7 @@
+<use   name="Utilities/StorageFactory"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Catalog"/>
+<use   name="rootcore"/>
+<flags   EDM_PLUGIN="1"/>

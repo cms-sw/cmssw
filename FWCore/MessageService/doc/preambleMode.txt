@@ -1,0 +1,48 @@
+	The workings of ELoutput::preambleMode 
+	--------------------------------------
+
+(A MessageLogger maintenance document)
+
+
+preambleMode is a data member of the ELoutput destination class.
+
+Its use is in emitToken:  
+void ELoutput::emitToken( const ELstring & s, bool nl )  { ...
+
+The first tokens may be of a header nature, in which
+case certain line control and other processing is done.  That is indicated
+if preambleMode is true; otherwise the token s is output without further ado.
+
+preambleMode is established in several places.  The key one is in 
+  bool ELoutput::log( const edm::ErrorObj & msg )  {...
+which sets it true **regardless of incoming value**, does whatever header work
+is specified by configuration information, and sets it false before 
+emitting the ordinary items in the message string.  
+
+In each ctor, it is also established.  Prior to Sept 2 2010 the code
+looked like:
+
+ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart ) {
+  if (emitAtStart) {
+    bool tprm = preambleMode;
+    preambleMode = true;
+    emitToken( "\n=================================================", true );
+    emitToken( "\nMessage Log File written by MessageLogger service \n" );
+    emitToken( "\n=================================================\n", true );
+    preambleMode = tprm;
+  }
+
+Note that the value used for those emitToken calls is invariably true;
+note also that whatever value preambleMode had coming in was preserved, 
+only to be wiped out by the first log call.  Therefore, the use of tprm
+was unnecessary.  Moreover, it was technically use of an unititialized
+data member.
+
+Two possible choices for a fix could have been considered:  Initializing
+preambleMode (to true) in the initializer list, or removing the use of
+tprm.  Since we are going to the trouble of initializing all the other data
+members, as is good coding form, we did the former fix, initializing
+preambleMode (to true) in the initializer list for each ctor.  We also
+removed the now-completely-superfluous code using tprm.
+
+

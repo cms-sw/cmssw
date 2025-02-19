@@ -1,0 +1,11 @@
+<use name="DataFormats/VertexReco"/>
+<use name="Fireworks/Core"/>
+<use name="rootcore"/>
+<use name="opengl"/>
+<lib name="Eve"/>
+<lib name="Geom"/>
+<lib name="Physics"/>
+<lib name="RGL"/>
+<export>
+  <lib name="1"/>
+</export>

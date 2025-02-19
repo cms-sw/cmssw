@@ -1,0 +1,31 @@
+#!/bin/tcsh
+
+setenv JobName JOBNAMETEMPLATE
+
+echo  "Job started at "
+\date;
+
+setenv CMSSW_VER 3_4_1
+setenv CMSSW_DIR ${CMSSW_BASE}/src/Alignment/OfflineValidation/test
+setenv LXBATCH_DIR `pwd`
+
+cd $CMSSW_DIR
+eval `scramv1 runtime -csh`
+cd $LXBATCH_DIR
+
+cp  ${CMSSW_DIR}/PVValResults/submittedCfg/${JobName}_cfg.py .
+echo "cmsRun ${JobName}_cfg.py"
+
+cmsRun ${JobName}_cfg.py >& ${JobName}.out;
+
+echo "Content of working directory is: "
+\ls -lrt
+
+cp OUTFILETEMPLATE ${CMSSW_DIR}/PVValResults/
+
+rfcp ${JobName}.out ${CASTOR_HOME}/test/
+
+echo  "Job ended at "
+\date;
+
+exit 0

@@ -1,0 +1,117 @@
+Indices:
+create index hlt_runnum on hlt(runnum);
+create index hlt_cmslsnum on hlt(cmslsnum asc);
+create index trg_runnum on trg(runnum);
+create index trg_cmslsnum on trg(cmslsnum asc);
+create index lumisummary_runnum on lumisummary(runnum);
+create index lumisummary_cmslsnum on lumisummary(cmslsnum asc);
+create index lumisummary_lumiversion on lumisummary(lumiversion);
+create index cmsrunsummary_fillnum on cmsrunsummary(fillnum asc);
+create index cmsrunsummary_hltkey on cmsrunsummary(hltkey);
+
+alter table CMSRUNSUMMARY add ("STARTTIME" timestamp(6) );
+alter table CMSRUNSUMMARY add ("STOPTIME" timestamp(6) );
+
+alter table LUMIDETAIL drop constraint DETAILSOURCE;
+alter table LUMIDETAIL add (constraint DETAILSOURCE foreign key (LUMISUMMARY_ID) references LUMISUMMARY (LUMISUMMARY_ID) ON DELETE CASCADE);
+
+
+Glossary: FK=Foreign Key, PK=Primary Key
+          lumiversion represents each lumi (re)processing
+========
+table a:  LUMIVALIDATION 
+columns:  runnum(uint32,PK), NOT NULL
+          cmslsnum(uint32,PK), NOT NULL 
+	  flag(string), NOT NULL (28)
+          comment(string), NOT NULL (1024)
+
+========
+table 1:  CMSRUNSUMMARY 
+columns:  runnum(uint32,PK), NOT NULL
+          fillnum(uint32) 
+          sequence(string),  NOT NULL 56
+          hltkey(string),    NOT NULL 128
+          l1key(string), 128
+          fillscheme(string), 128,
+	  ncollidingbunches (uint32),
+          startime(timestamp(6)) ,
+          stoptime(timestamp(6))
+
+=======
+table 2:  LUMISUMMARY (insert one row per run+lumiLS+lumiversion from LUMI_RAW file)
+columns:  
+	  lumisummary_id(uint64, PK) NOT NULL
+          runnum(uint32),            NOT NULL range index
+          cmslsnum(uint32),	     
+          lumilsnum(uint32),         NOT NULL
+          lumiversion(string),       NOT NULL 28
+          dtnorm(float),             NOT NULL
+          lhcnorm(float),            NOT NULL
+          instlumi(float),           NOT NULL
+          instlumierror(float),      NOT NULL
+          instlumiquality(short),    NOT NULL
+          cmsalive(short),           NOT NULL
+          startorbit(uint32),        NOT NULL
+          numorbit(uint32),          NOT NULL 
+          lumisectionquality(short)  NOT NULL // use max 3 bits [HLX,HF,BRAN]
+          beamenergy(float)          NOT NULL 
+          beamstatus(string)         NOT NULL 56
+	  cmsbxindexblob(blob)
+          beamintensityblob_1(blob)
+          beamintensityblob_2(blob)
+======
+table 3:  LUMIDETAIL (insert 1 rows per run+lumiLS+lumiversion+algorithm from LUMI_RAW file)
+columns: 
+          lumidetail_id(uint64, PK)  NOT NULL
+          lumisummary_id(FK refers to LUMISUMMARY.lumisummary_id), NOT NULL
+	  bxlumivalue(blob),//blob of float                        NOT NULL
+          bxlumierror(blob), //blob of float                       NOT NULL
+          bxlumiquality(blob), //blob of short                     NOT NULL
+          algoname(string), //occ1,occ2,et,bran        (28)        NOT NULL
+          
+======
+table 4:  TRG (insert 192 rows per run+cmsls/populate from GT-DB)
+columns:  
+          trg_id(uint64, PK),   NOT NULL
+          runnum(uint32),       NOT NULL range index
+          cmslsnum(uint32),     NOT NULL 
+                               //lumi section id taken by cmsdaq,count from 1
+          bitnum(uint32),       NOT NULL //range : 0-127 algo;128-192 tech
+          bitname(string),      NOT NULL 128
+          trgcount(uint32),     NOT NULL
+          deadtime(uint64),     NOT NULL //deadtimebeamactive 
+          prescale(uint32),     NOT NULL
+	  
+	  alter table trg add constraint trg_unique UNIQUE( runnum,cmslsnum,bitnum) deferrable initially deferred NOVALIDATE;
+	  alter table trg enable NOVALIDATE constraint  trg_unique;
+======
+table 5: HLT (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
+         hlt_id(uint64, PK),    NOT NULL
+	 runnum(uint32),        NOT NULL range index
+         cmslsnum(uint32),    NOT NULL
+         pathname(string),      NOT NULL 256
+         inputcount(uint32),    NOT NULL
+         acceptcount(uint32),   NOT NULL
+         prescale(uint32)       NOT NULL
+	  
+======
+table 6: TRGHLTMAP (insert 1 row per hltpath-l1seed / populated from ConfDB+L1Seed expression parser)
+         hltkey(string),        NOT NULL 128
+         hltpathname(string),   NOT NULL 256
+         l1seed(string)         NOT NULL 1024
+
+======
+table 7: FILLSCHEME (insert 1 row per fillscheme)
+         fillscheme_id(uint64),        NOT NULL PK
+         fillschemepattern(string),    NOT NULL (128)
+	 correctionfactor(float),            NOT NULL
+
+ ====== other helper id tables======
+         lumisummary_id, NEXTID (uint64,PK)
+         lumidetail_id, NEXTID (uint64,PK),
+         hlt_id, NEXTID (uint64),
+         trg_id, NEXTID (uint64)       
+         fillscheme_id, NEXTID (uint64)
+ 
+From LumiProducer, we query lumisummary,lumidetail,trg,hlt data in 100 LS(tunable parameter) batch into memory in one DB connection then close the connection. When a new LS is requested, we open a new DB connection asking for this LS+100 into memory.  
+

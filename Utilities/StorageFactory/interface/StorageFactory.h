@@ -1,0 +1,90 @@
+#ifndef STORAGE_FACTORY_STORAGE_FACTORY_H
+# define STORAGE_FACTORY_STORAGE_FACTORY_H
+
+# include "Utilities/StorageFactory/interface/StorageMaker.h"
+# include "Utilities/StorageFactory/interface/LocalFileSystem.h"
+# include "Utilities/StorageFactory/interface/IOTypes.h"
+# include "Utilities/StorageFactory/interface/IOFlags.h"
+# include <string>
+# include <map>
+
+class Storage;
+class StorageFactory 
+{
+public:
+  enum CacheHint
+  {
+    CACHE_HINT_APPLICATION,
+    CACHE_HINT_STORAGE,
+    CACHE_HINT_LAZY_DOWNLOAD,
+    CACHE_HINT_AUTO_DETECT
+  };
+
+  enum ReadHint
+  {
+    READ_HINT_UNBUFFERED,
+    READ_HINT_READAHEAD,
+    READ_HINT_AUTO
+  };
+
+  static StorageFactory *get (void);
+  ~StorageFactory (void);
+
+  // implicit copy constructor
+  // implicit assignment operator
+
+  void		setCacheHint(CacheHint value);
+  CacheHint	cacheHint(void) const;
+
+  void		setReadHint(ReadHint value);
+  ReadHint	readHint(void) const;
+
+  bool		enableAccounting (bool enabled);
+  bool		accounting (void) const;
+
+  void		setTimeout(unsigned int timeout);
+  unsigned int	timeout(void) const;
+
+  void          setDebugLevel(unsigned int level);
+  unsigned int  debugLevel(void) const;
+
+  void		setTempDir (const std::string &s, double minFreeSpace);
+  std::string	tempDir (void) const;
+  std::string	tempPath (void) const;
+  double	tempMinFree (void) const;
+
+  void		stagein (const std::string &url);
+  Storage *	open (const std::string &url,
+	    	      int mode = IOFlags::OpenRead);
+  bool		check (const std::string &url,
+	    	       IOOffset *size = 0);
+  void		activateTimeout (const std::string &url);
+
+  Storage *	wrapNonLocalFile (Storage *s,
+				  const std::string &proto,
+				  const std::string &path,
+				  int mode);
+
+protected:
+  typedef std::map<std::string, StorageMaker *> MakerTable;
+
+  StorageFactory (void);
+  StorageMaker *getMaker (const std::string &proto);
+  StorageMaker *getMaker (const std::string &url,
+			  std::string &protocol,
+			  std::string &rest);
+  
+  MakerTable	m_makers;
+  CacheHint	m_cacheHint;
+  ReadHint	m_readHint;
+  bool		m_accounting;
+  double	m_tempfree;
+  std::string	m_temppath;
+  std::string	m_tempdir;
+  unsigned int  m_timeout;
+  unsigned int  m_debugLevel;
+  LocalFileSystem m_lfs;
+  static StorageFactory s_instance;
+};
+
+#endif // STORAGE_FACTORY_STORAGE_FACTORY_H

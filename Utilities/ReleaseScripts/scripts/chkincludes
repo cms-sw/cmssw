@@ -1,0 +1,394 @@
+#!/usr/bin/env perl
+use Cwd;
+use File::Basename;
+use lib dirname($0);
+use Getopt::Long;
+use SCRAMGenUtils;
+$|=1;
+
+#Getopt::Long::config qw(default no_ignore_case require_order);
+if(&GetOptions(
+               "--pack=s",\$package,
+               "--clean",\$clean,
+	       "--vclean",\$vclean,
+	       "--detail",\$detail,
+	       "--update",\$localupdate,
+	       "--headers",\$headers,
+               "--help",\$help,
+              ) eq ""){print "ERROR: Wrong arguments.\n"; &usage_msg(); exit 1;}
+
+if (defined $help){&help_msg(0);}
+if(defined $clean){$clean=1;}
+else{$clean=0;}
+if (defined $vclean){$clean=2;}
+if (defined $localupdate){$localupdate=1;}
+else{$localupdate=0;}
+if (defined $detail){$detail=1;}
+else{$detail=0;}
+if (defined $headers){$headers="";}
+else{$headers="--skipheaders";}
+if((!defined $package) || ($package=~/^\s*$/)){$package="";}
+
+my $curdir=cwd();
+my $scriptdir=dirname($0);
+my $xincargs="";
+while(my $arg=shift)
+{
+  if($arg=~/\s/){$arg="\"$arg\"";}
+  #$xincargs.=" $arg";
+}
+
+my $localtop = &SCRAMGenUtils::scramReleaseTop($curdir);
+if($localtop eq ""){die "\"$curdir\" is not a SCRAM-based project area. Please create a SCRAM-based project dev area and run this script";}
+my $releasetop=&SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP","$localtop") || $localtop;
+if($releasetop eq $localtop){die "\"$localtop\" is a release area. Please run this script in your developer area.\n";}
+&SCRAMGenUtils::init($localtop);
+
+my $arch=&SCRAMGenUtils::getScramArch();
+my $tmpdir="${localtop}/tmp/IncludeChecker/${arch}";
+my $src=&SCRAMGenUtils::getFromEnvironmentFile("SCRAM_SOURCEDIR",$localtop) || "src";
+
+$package=~s/^\s*//;$package=~s/\s*$//;
+if($package eq ""){$package=$src;}
+if($clean)
+{
+  my $msg=0;
+  foreach my $file (`find ${tmpdir}/inccopy/self -name "*.original_file_wo_incchk_changes" -type f`)
+  {
+    chomp $file;
+    $file=~s/\.original_file_wo_incchk_changes//;
+    my $rf=$file; $rf=~s/^${tmpdir}\/inccopy\/self\/inc\d+\///;
+    if(!$msg){print "Copying original files back to ${localtop}/${src}:\n";$msg=1;}
+    print "  $rf\n";
+    system("mv ${file}.original_file_wo_incchk_changes $file; cp -f $file ${localtop}/src/${rf}");
+  }
+  if (-d $tmpdir)
+  {
+    if($clean>1){system("rm -rf $tmpdir");}
+    else{foreach my $d (&SCRAMGenUtils::readDir($tmpdir)){if($d!~/^(inccopy|backup)$/){system("rm -rf ${tmpdir}/${d}");}}}
+  }
+  exit 0;
+}
+if (!-d $package){$package="${src}/${package}";}
+if(-d $package)
+{
+  my $d=$package;
+  if($d!~/^\//){$d="${curdir}/${package}";}
+  $d=&SCRAMGenUtils::fixPath($d);
+  if($d=~/^$localtop\/(${src}\/*.*)$/){$package=$1;}
+  else{$package="";}
+}
+if($package eq ""){die "Please use a valid Subsystem/Package name.\n  Usage: $0 <Subsystem/Package|clean>";}
+if(!-d "${localtop}/${package}")
+{die "There is no such subsystem/package/directory \"$package\" available under \"${localtop}\". Please first checkout this package.";}
+my $scram=$SCRAMGenUtils::SCRAM_CMD;
+system("mkdir -p ${tmpdir}/config ${tmpdir}/log;$scram b -r echo_CXX ufast >/dev/null 2>&1");
+my $localbackup="${tmpdir}/inccopy/self/inc0";
+my $incmap=&copyExternalIncludes ($arch,$localtop,"${tmpdir}/inccopy");
+
+print ">> IncludeChecker temporary directory: ${tmpdir}\n";
+
+my $cache={};
+my $cfile="${tmpdir}/cache/files.info";
+if(-f $cfile){$cache=&SCRAMGenUtils::readHashCache($cfile);}
+&processPack ($package,$cache);
+if(-d "${tmpdir}/cache"){&SCRAMGenUtils::writeHashCache($cache,$cfile);}
+if ($localupdate && (-d "${tmpdir}/includechecker/${src}"))
+{
+  my $msg=0;
+  foreach my $f (`find ${tmpdir}/includechecker/${src} -name "*.backup_new" -type f`)
+  {
+    chomp $f;
+    my $rf=$f; $rf=~s/\.backup_new$//;$rf=~s/^${tmpdir}\/includechecker\/src\///;
+    if(!$msg){print "Cleaning up Include Checker comments from ${localtop}/${src}:\n";$msg=1;}
+    print "  ${rf}\n";
+    system("mv ${f} ${localtop}/${src}/${rf}");
+    if (-f "${localbackup}/${rf}"){system("cp -pf ${localtop}/${src}/${rf} ${localbackup}/${rf}");}
+  }
+}
+system("rm -f ${tmp_dir}/chkquit");
+exit 0;
+
+sub processPack ()
+{
+  if (-f "${tmp_dir}/chkquit"){return;}
+  my $package=shift;
+  my $cache=shift;
+  my $uniqpack=$package; $uniqpack=~s/\///g;
+  my $configfile="${tmpdir}/config/${uniqpack}";
+  print "################# $package #############################\n";
+  print ">> IncludeChecker log file           : ${tmpdir}/log/${uniqpack}\n";
+  print ">> IncludeChecker config file        : ${tmpdir}/config/${uniqpack}\n";
+  my $cont=0;
+  if(-f "${tmpdir}/log/${uniqpack}")
+  {
+    my $c=0;
+    while(-f "${tmpdir}/log/${uniqpack}.${c}"){$c++;}
+    system("mv ${tmpdir}/log/${uniqpack} ${tmpdir}/log/${uniqpack}.${c}");
+    $cont=1;
+  }
+  if((-f "${tmpdir}/cache/config_cache") && ($cont==0)){system("touch ${tmpdir}/cache/config_cache.append");}
+  else{system("rm -f ${tmpdir}/cache/config_cache.append");}
+  if(!-f $configfile)
+  {
+    print ">> Running \"${scriptdir}/createconfig.pl ${localtop}/${package}\"\n";
+    system("${scriptdir}/createconfig.pl ${localtop}/${package} > ${configfile}.tmp && mv ${configfile}.tmp $configfile");
+    if(-f "extra_includechecker.conf"){system("cat extra_includechecker.conf >> $configfile");}
+    &updateMapping($configfile,$incmap);
+  }
+  print ">> Waiting for copy process to finish .... ";
+  &SCRAMGenUtils::waitForChild ();
+  print "[ DONE ]\n";
+  print ">> Running \"includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive --local $headers $xincargs\"\n";
+  print ">> Log file for the includechecker.pl processing: ${tmpdir}/log/${uniqpack}\n";
+  system("${scriptdir}/includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive --local $headers $xincargs 2>&1 > ${tmpdir}/log/${uniqpack}");
+  print ">> Done: includechecker.pl\n";
+  if(-f "${tmp_dir}/chkquit"){return;}
+  &processResult($cache);
+  my $deps={};
+  $deps=&copyNewFiles();
+  foreach my $pack (keys %$deps)
+  {
+    my $packx=$pack; $packx=~s/\///;
+    if(!-f "${tmpdir}/config/${packx}"){&processPack("${src}/${pack}",$cache);}
+  }
+}
+
+sub processResult ()
+{
+  my $cache=shift;
+  my $newfiles = &getNewFiles("${tmpdir}/cache/files");
+  my $done=[];
+  my $failed=[];
+  my $skipped=[];
+  my $total=0;
+  foreach my $f (@$newfiles)
+  {
+    if(-f $f)
+    {
+      my $rf=$f; $rf=~s/^${tmpdir}\/cache\/files\///;
+      if(exists $cache->{read}{$rf}){next;}
+      $cache->{read}{$rf}=1;
+      $total++;
+      my $ref=&SCRAMGenUtils::readHashCache($f);
+      if ((exists $ref->{ERROR}) && ($ref->{ERROR}==1)){push @$failed,$rf;next;}
+      if ((exists $ref->{FINAL_DONE}) && ($ref->{FINAL_DONE}==1)){push @$done,$rf;next;}
+      if ((exists $ref->{INTERNAL_SKIP}) && ($ref->{INTERNAL_SKIP}==1)){push @$skipped,$rf;next;}
+    }
+  }
+  print "Total files checked:           $total\n";
+  print "  Failed due to compilation:   ",scalar(@$failed),"\n";
+  foreach my $f (@$failed){print "    $f\n";}
+  print "  Skipped:                     ",scalar(@$skipped),"\n";
+  if($detail){foreach my $f (@$skipped){print "    $f\n";}}
+  print "  Successfully processed:      ",scalar(@$done),"\n";
+}
+
+sub copyNewFiles ()
+{
+  my $newdeps={};
+  my $newfiles = &getNewFiles("${tmpdir}/includechecker");
+  my $modfile=scalar(@$newfiles);
+  my $doscramb=0;
+  foreach my $f (@$newfiles)
+  {
+    my $rf=$f; $rf=~s/^${tmpdir}\/includechecker\/${src}\///;
+    my $pack=$rf; $pack=~s/^([^\/]+?\/[^\/]+?)\/.+/$1/;
+    if(!-d "${localtop}/${src}/${pack}")
+    {
+      if(-d "${releasetop}/${src}/${pack}")
+      {
+        my $subsys=dirname("${localtop}/${src}/${pack}");
+        system("mkdir -p $subsys; cp -r ${releasetop}/${src}/${pack} $subsys");
+        $doscramb=1;
+	$newdeps->{$pack}=1;
+      }
+    }
+    my $oref; my $iref;
+    my $added=0; my $removed=0;
+    open($iref,$f) || die "Can not open file \"$f\" for reading.";
+    open($oref,">$f.backup_new") || die "Can not open file \"$f.backup_new\" for writing.";
+    while(my $line=<$iref>)
+    {
+      chomp $line;
+      if($line=~/^\s*\/\/INCLUDECHECKER: Removed this line:/){$removed++;next;}
+      elsif($line=~/(.*?)\/\/INCLUDECHECKER: Added this line\s*$/){$added++;$line=$1;}
+      print $oref "$line\n";
+    }
+    close($oref); close($iref);
+    if ($removed || $added)
+    {
+      system("mv $f $f.modified_by_incchk");
+      print "    $rf ($removed,$added)\n";
+    }
+    else{system("rm -f $f.backup_new $f");$modfile--;}
+  }
+  if($modfile == 0){print "It seemed that file(s) processed successfully by includechecker are all good. No include statement added/removed.\n";}
+  else{print "  Modified by includechecker:  $modfile\n";}
+  if($doscramb){system("cd $localtop; $scram b -r echo_CXX 2>&1 > /dev/null");}
+  return $newdeps;
+}
+
+sub getNewFiles ()
+{
+  my $dir=shift;
+  my $files=shift || [];
+  foreach my $d (&SCRAMGenUtils::readDir($dir))
+  {
+    my $fullpath="${dir}/${d}";
+    if(-d $fullpath){&getNewFiles($fullpath,$files);}
+    elsif(-f $fullpath)
+    {
+      if($fullpath=~/(.*?)\.(backup_new|modified_by_incchk)$/){next;}
+      push @$files,$fullpath;
+    }
+  }
+  return $files;
+}
+
+sub copyExternalIncludes ()
+{
+  my $arch=shift;
+  my $release=shift;
+  my $des=shift;
+  my $map=shift || {};
+
+  my %incdir=();
+  my %cache=();
+  if (!-f "${des}/mapping.txt")
+  {print "MSG: Copying all the external includes files under ${des} directory. This might take few mins.\n";}
+  $cache{toolcache}=&SCRAMGenUtils::readCache(&SCRAMGenUtils::fixCacheFileName("${release}/.SCRAM/${arch}/ToolCache.db"));
+
+  if(exists $cache{toolcache}{SETUP})
+  {
+    foreach my $t (keys %{$cache{toolcache}{SETUP}})
+    {
+      if(exists $cache{toolcache}{SETUP}{$t}{INCLUDE})
+      {
+        my $c=0;
+        foreach my $d (@{$cache{toolcache}{SETUP}{$t}{INCLUDE}})
+        {
+	  if(-d $d)
+	  {
+	    my $inc="inc$c";
+	    $incdir{$d}{$t}="$inc";
+	    $c++;
+	    if (($t eq "self") && ($d eq "${release}/${src}"))
+	    {
+	      $localbackup="${des}/${t}/${inc}";
+	      &syncDirs("${release}/${src}",$localbackup);
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  my %udir=();
+  foreach my $d (sort keys %incdir)
+  {
+    my $link="";
+    foreach my $ud (keys %udir)
+    {
+      my $xud=quotemeta($ud);
+      if ($d=~/^$xud(\/.*|)$/)
+      {
+        $link=$udir{$ud};
+        last;
+      }
+    }
+    foreach my $t (keys %{$incdir{$d}})
+    {
+      my $inc=$incdir{$d}{$t};
+      my $xd=quotemeta($d);
+      $map->{$xd}="${des}/${t}/${inc}";
+      if(!-e "${des}/${t}/${inc}")
+      {
+        system("mkdir -p ${des}/${t}");
+        if(!$link)
+	{
+	  if($detail){print "  Copying: $d -> ${des}/${t}/${inc}\n";}
+	  my $pid=&SCRAMGenUtils::forkProcess(10);
+	  if ($pid==0){system("cp -rL $d ${des}/${t}/${inc}"); exit 0;}
+	  $link="../${t}/${inc}";
+	}
+        else{system("cd ${des}/${t}; ln -s ${link} $inc");}
+      }
+      elsif($link eq ""){$link="../${t}/${inc}";}
+    }
+    $udir{$d}=$link;
+  }
+  &SCRAMGenUtils::writeHashCache($map,"${des}/mapping.txt");
+  return $map;
+}
+
+sub updateMapping ()
+{
+  my $file=shift;
+  my $map=shift;
+  my $refi;my $refo;
+  open($refi,$file) || die "Can not open file for reading: $file\n";
+  open($refo,">${file}.new") || die "Can not open file for writing: ${file}.new\n";
+  while(my $line=<$refi>)
+  {
+    chomp $line;
+    foreach my $xd (keys %{$map})
+    {
+      while($line=~/^(.*)$xd(\/.*|\s.*|)$/)
+      {
+        my $d=$map->{$xd};
+	$line="$1$d$2";
+      }
+    }
+    print $refo "$line\n";
+  }
+  close($refi); close($refo);
+  system("mv ${file}.new $file");
+}
+
+sub syncDirs ()
+{
+  my $src=shift;
+  my $des=shift;
+  my $dref;
+  opendir($dref,$src) || die "Can not open directory for reading: $src";
+  if (!-d $des){system("mkdir -p $des");}
+  foreach my $p (readdir($dref))
+  {
+    if (($p eq ".") || ($p eq "..")){next;}
+    my $srcp="${src}/${p}";
+    my $desp="${des}/${p}";
+    if (-d $srcp){&syncDirs($srcp,$desp);}
+    elsif(!-e $desp){system("cp -p $srcp $desp");}
+  }
+  closedir($dref);
+}
+
+sub usage_msg ()
+{
+  my $f=basename($0);
+  print "\nUsage: $f [--pack <pack>] [--update] [--clean] [--vclean] [--detail] [--help] [--headers]\n\n";
+}
+
+sub help_msg ()
+{
+  &usage_msg ();
+  print " --pack <pack>\n",
+        "          <pack> could have following values:\n",
+	"            <subsystem> e.g. FWCore or src/FWCore.\n",
+	"            <package>  e.g FWCore/Framework OR src/FWCore/Framework.\n",
+	"            By default it runs for all sub-system(s) available under\n",
+	"            your src directory.\n",
+	" --clean  To cleanup preveious modifications made by include checker.\n",
+	" --vclean Same as clean but it also deletes the copy of external includes.\n",
+	" --update To remove the include checker comments from the modified files\n",
+	"          in your src directory.\n",
+	" --headers Force to check c/c++ header files too.\n";
+	" --detail For detail output messages.\n";
+	" --help   To print this help message.\n\n";
+  print "It is a wrapper script to run includechecker. It automatically creates\n",
+        "configuration and runs inlcudechecker. It can also clean the newly\n",
+	"modified files (--update) by removing the include checker comments.\n",
+	"NOTE: You need to run this from a user developer area.\n";
+  exit shift;
+}

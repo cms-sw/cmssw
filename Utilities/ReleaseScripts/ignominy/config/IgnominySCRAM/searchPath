@@ -1,0 +1,1331 @@
+#!/usr/bin/env perl
+use File::Basename;
+use Storable qw(nstore retrieve);
+
+$|=1;
+my $release=shift;
+my $outdir=shift;
+
+my $whoami=`whoami`; chomp $whoami;
+my $CURDIR=`pwd`; chomp $CURDIR;
+my $SCRIPT_PATH=dirname($0);
+if($SCRIPT_PATH !~ /^\//){$SCRIPT_PATH="${CURDIR}/${SCRIPT_PATH}";}
+#current scram arch
+my $SCRAM_CMD="scramv1";
+my $SCRAM_VER="V[12]_.*";
+my $SCRAM_ARCH=`$SCRAM_CMD arch`; chomp $SCRAM_ARCH;
+my $DEPS_ARCH=`echo $SCRAM_ARCH | sed 's/[_/][_/]*/-/g' | tr '[A-Z]' '[a-z]'`;
+my $DEPS_DOC_RELDIR="doc/deps/$DEPS_ARCH";
+my $BASE_ANALYSIS_URL="http://www.cern.ch/ignominy/CMSProjects";
+my $PROJECT_RELEASE_BASE="/afs/cern.ch/cms/Releases";
+my $searchcachefile="searchcache";
+my $searchcache = {};
+my $searchcachedirty = 0;
+my $localtop    = "";
+my $CACHE;
+my $LOCALCACHE;
+my %LCG_ARCH_MAP;
+my $ignoreTest=0;
+my $LibExt="so";
+if ($^O=~/darwin/io){$LibExt="dylib";}
+
+my $extra_tool_info={};
+$extra_tool_info->{EXTRA_TOOL_INFO}{iguana}{FILES_PACKAGE_MAP}{'classlib\/.+'}="Iguana/Utilities";
+$extra_tool_info->{EXTRA_TOOL_INFO}{iguana}{FILES_PACKAGE_MAP}{'gl2ps.h$'}="Iguana/GL2PS";
+$extra_tool_info->{EXTRA_TOOL_INFO}{cmssw}{FILES_PACKAGE_MAP}{'classlib\/.+'}="Iguana/Utilities";
+$extra_tool_info->{EXTRA_TOOL_INFO}{cmssw}{FILES_PACKAGE_MAP}{'gl2ps.h$'}="Iguana/GL2PS";
+$extra_tool_info->{EXTRA_TOOL_INFO}{rootcore}{FILES_PACKAGE_MAP}{'Reflex\/'}="Rootrflx";
+$extra_tool_info->{EXTRA_TOOL_INFO}{rootcore}{FILES_PACKAGE_MAP}{'Math\/'}="Rootmath";
+$extra_tool_info->{EXTRA_TOOL_INFO}{rootcore}{FILES_PACKAGE_MAP}{'Minuit2\/'}="Rootminuit2";
+$extra_tool_info->{EXTRA_TOOL_INFO}{rootcore}{FILES_PACKAGE_MAP}{'Cintex\/'}="Rootcintex";
+$extra_tool_info->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'boost\/filesystem(\/|\.).+'}="Boost_filesystem";
+$extra_tool_info->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'boost\/program_options(\/|\.).+'}="Boost_program_options";
+$extra_tool_info->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'boost\/regex(\/|[\.\_]).+'}="Boost_regex";
+$extra_tool_info->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'boost\/python(\/|\.).+'}="Boost_python";
+$extra_tool_info->{TOOL_DONE}={};
+
+foreach my $t (keys %{$extra_tool_info->{EXTRA_TOOL_INFO}})
+{
+  if(exists $extra_tool_info->{EXTRA_TOOL_INFO}{$t}{FILES_PACKAGE_MAP})
+  {
+    foreach my $reg (keys %{$extra_tool_info->{EXTRA_TOOL_INFO}{$t}{FILES_PACKAGE_MAP}})
+    {
+      my $t1=lc($extra_tool_info->{EXTRA_TOOL_INFO}{$t}{FILES_PACKAGE_MAP}{$reg});
+      $extra_tool_info->{TOOL_ORDER}{$t1}{pretools}{$t}=1;
+    }
+  }
+}
+
+if((!defined $outdir) || ($outdir eq "")){$outdir=$CURDIR;}
+my $toolver="${outdir}/tool-versions.conf";
+my $verdep="${outdir}/versions-deps.conf";
+my $vers="${outdir}/versions";
+my $prodmap="${outdir}/products.txt";
+my $exclude_metrics="${outdir}/exclude-metrics";
+my $exclude_bins="";
+
+if(defined $release)
+{
+  if(!-d $release)
+  {
+    print STDERR "ERROR: Release directory \"$release\" does not exist.\n"; 
+    &exit_prog(1);
+  }
+  else{chdir($release); $release=`/bin/pwd`; chomp $release;}
+}
+else{$release=$CURDIR; chomp $release;}
+my $dir=&scram_release_top($release);
+if(-d "${dir}/.SCRAM"){$release=$dir;}
+else{print STDERR "ERROR: Can not find release directory for \"$release\".\n"; &exit_prog(1);}
+
+if(!-f "${release}/.SCRAM/Environment")
+{
+  print STDERR "ERROR: ${release}/.SCRAM/Environment does not exist.\n"; 
+  &exit_prog(1);
+}
+my $SCRAM_BASE=&getScramPath($release);
+unshift @INC,"${SCRAM_BASE}/src";
+$localtop    = $release;
+$CACHE->{ENVIRONMENT}={};
+$CACHE->{LOCALTOP}=$release;
+&read_Environment ();
+
+#set project name and version
+my $project_name= &get_scram_variable("SCRAM_PROJECTNAME",1);
+my $self        = lc($project_name);
+my $project_ver = &get_scram_variable("SCRAM_PROJECTVERSION",1);
+my $src_name    = &get_scram_variable("SCRAM_SOURCEDIR",1) || "src";
+my $src_path="${release}/${src_name}";
+my $config_name = &get_scram_variable("SCRAM_CONFIGDIR",1) || "config";
+my $releasetop  = &get_scram_variable("RELEASETOP",1);
+my $scram_ver   = `cat ${release}/${config_name}/scram_version`; chomp $scram_ver;
+if ($scram_ver!~/^$SCRAM_VER/)
+{
+  print STDERR "ERROR: $project_name version $project_ver is based on SCRAM version $scram_ver,\n";
+  print STDERR "ERROR: while this version of IGNOMINY supports SCRAM version $SCRAM_VER.\n";
+  &exit_prog(1);
+}
+my %uniqToolLibdir = ();
+if($releasetop eq ""){$releasetop=$localtop;}
+
+&parse_project ();
+if ($searchcachedirty){&writesearchcache ($searchcache, $searchcachefile);}
+&scram_defaults ();
+
+sub printToFile ()
+{
+  my $file=shift || return;
+  my $msg=shift;
+  system("echo \'$msg\' >> $file");
+}
+
+sub parse_project ()
+{
+  my $toolcache;
+  my $projectcache;
+
+  my $APP="$project_name $project_ver";
+  system("rm -f $toolver $verdep $vers $prodmap");
+  system("touch $toolver $verdep $vers $prodmap");
+  &printToFile ($verdep, "################################################################################");
+  &printToFile ($verdep, "# Direct version dependencies");
+  &printToFile ($verdep, "");
+  &printToFile ($vers, "<HTML><HEAD><TITLE>$APP external tools versions</TITLE></HEAD><BODY>");
+  &printToFile ($vers, "<CENTER><H1>$APP External Tools Versions Information</H1></CENTER>");
+  &printToFile ($vers, "<BR><BR><CENTER><TABLE CELLPADDING=\"2\" CELLSPACING=\"2\" BORDER=\"1\"");
+  &printToFile ($vers, "STYLE=\"WIDTH: 50%; TEXT-ALIGN: LEFT; MARGIN-LEFT: AUTO; MARGIN-RIGHT: AUTO; ");
+  &printToFile ($vers, "BACKGROUND-COLOR: RGB(255, 255, 204);\"><TBODY>");
+  &printToFile ($vers, "<TR><TD><B>Tool Name</B></TD><TD><B>Version Number</B></TD></TR>");
+
+  $toolcache=&readcache("${releasetop}/.SCRAM/${SCRAM_ARCH}/ToolCache.db");
+  $LOCALCACHE->{SCRAM_PROJECTS}{$self}{TOOL}=$toolcache;
+  $projectcache=&readcache("${releasetop}/.SCRAM/${SCRAM_ARCH}/ProjectCache.db");
+  $LOCALCACHE->{SCRAM_PROJECTS}{$self}{PROJECT}=$projectcache;
+
+  print "option match pre-gen\n";
+  
+  &addProjectInfo ("self", $LOCALCACHE->{SCRAM_PROJECTS}{$self});
+  if ($exclude_bins ne "")
+  {
+    system("touch $exclude_metrics");
+    system("echo \"$exclude_bins\" >> $exclude_metrics");
+  }
+  foreach my $t (&getOrderedTools($toolcache))
+  {
+    if ($t eq "self"){next;}
+    my $vlink="";
+    my $name=&toolTag($t, $LOCALCACHE->{SCRAM_PROJECTS}{$self}, "TOOLNAME") || lc($t);
+    my $ver=&toolTag($t, $LOCALCACHE->{SCRAM_PROJECTS}{$self}, "TOOLVERSION");
+    $vlink=$ver;
+    &printToFile ($toolver, "version ^$name\$:$ver");
+    if (&isExist ("$t:SCRAM_PROJECT", $toolcache->{SETUP}) && $toolcache->{SETUP}{$t}{SCRAM_PROJECT})
+    {
+      my $base=&toolBase($t, $LOCALCACHE->{SCRAM_PROJECTS}{$self});
+      my $uct=uc($t);
+      &printToFile ($verdep, "${uct}/${uct}:");
+      if(($base ne "") && (-d $base))
+      {
+	if (&isCMSProject ($t))
+	{
+	  my $depfile="${base}/${DEPS_DOC_RELDIR}/index.html";
+	  if (-e $depfile)
+	  {
+	    $depfile=~s/^($PROJECT_RELEASE_BASE)(.+)/${BASE_ANALYSIS_URL}${2}/;
+	    $vlink="<A TARGET=_blank HREF=\"$depfile\">$ver</A>"
+	  }
+	}
+	my $error=0;
+	foreach my $f ("Tool", "Project")
+	{
+	  my $file=&cachefilename("${base}/.SCRAM/${SCRAM_ARCH}/${f}Cache.db");
+	  if (-f "$file"){$LOCALCACHE->{SCRAM_PROJECTS}{$t}{uc($f)}=&readcache("$file");}
+	  else{print STDERR "ERROR: Missing cache file $file for tool $t.\n";$error++;}
+	}
+	if(!$error){&addProjectInfo ($t, $LOCALCACHE->{SCRAM_PROJECTS}{$t});}
+      }
+      else{print STDERR "ERROR: Missing ${uct}_BASE for tool $t.\n"; }
+    }
+    else{
+      &addToolInfo($t, $LOCALCACHE->{SCRAM_PROJECTS}{$self},0,1);
+      &printToFile ($verdep, $CACHE->{SUBSYSTEMS}{$t}."/${name}:");
+    }
+    &printToFile ($vers, "<TR><TD>$name</TD><TD>$vlink</TD></TR>");
+  }
+  &printToFile ($vers, "</TBODY></TABLE></CENTER></BODY></HTML>");
+  print "#Uniq Tool Libs\n";
+  foreach my $libdir (keys %uniqToolLibdir)
+  {
+    my $from=$uniqToolLibdir{$libdir}{from};
+    my $count=$uniqToolLibdir{$libdir}{count};
+    if ($count>1){$from="${from}_EXTRA";}
+    my $libdirq=quotemeta("${libdir}/");
+    print "match ^$libdirq.+\$:'$from'\n";
+  }
+}
+
+sub addProjectInfo ()
+{
+  my $tool=shift || return;
+  my $cache=shift  || return;
+  
+  my $func="process_$tool";
+  if (exists &$func){return &$func($tool, $cache);}
+  
+  my $tool1=$tool;
+  if($tool eq "self"){$tool1=$self;}
+  my $uct=uc($tool1);
+  
+  if (&isCMSProject ($tool1))
+  {
+    print "#CMS/$uct\n";
+    &addCMSProjectInfo ($tool, $cache);
+  }
+  elsif(&isLCGProject ($tool1))
+  {
+    print "#LCGAPP/$uct\n";
+    &addLCGProjectInfo ($tool, $cache);
+  }
+  else{print "#Project \"$tool1\" type unknown.\n";}
+}
+
+
+sub addProductMap()
+{
+  my $tool=shift;
+  if ($tool ne "self"){return;}
+  my $class=shift;
+  my $type=shift;
+  if ($class=~/(PACKAGE|SUBSYSTEM|PYTHON|DATA_INSTALL)/){return;}
+  my $dir=shift;
+  my $name=shift;
+  if ($type=~/^LIBRARY$/)
+  {
+    my $file=shift;
+    if ($file=~/\/plugin${name}\.${LibExt}$/){$type="PLUGINS";}
+  }
+  if ($class eq "CLASSLIB"){$class="LIBRARY"; $type="LIBRARY";}
+  &printToFile ($prodmap, "$class:$type:$dir:$name");
+}
+
+sub addCMSProjectInfo ()
+{
+  my $tool=shift || return;
+  my $cache=shift  || return;
+  my $cache1=$LOCALCACHE->{SCRAM_PROJECTS}{$self};
+  
+  my $libdirs=[];
+  my $bindirs=[];
+  
+  my $base="";
+  my $system="";
+  my $testd="";
+  my $found=0;
+  if ($tool eq "self")
+  {
+    $system="";
+    $base=$releasetop;
+    if(&isExist("RUNTIME#PATH:PATH", $cache1->{TOOL}{SETUP}{$tool}, "#")){$bindirs=$cache1->{TOOL}{SETUP}{$tool}{RUNTIME}{"PATH:PATH"};}
+    
+    foreach my $td1 ("tests/bin", "tests", "test/bin", "test")
+    {
+      my $td="${base}/${td1}/${SCRAM_ARCH}";
+      foreach my $d (@{$bindirs})
+      {if($d=~/^$td$/){$found=1;last;}}
+      if((!$found) && (-d $td)){push @{$bindirs}, $td;}
+    }
+    if (!-f "$searchcachefile" && -f "${base}/${DEPS_DOC_RELDIR}/${searchcachefile}")
+    {system("cp ${base}/${DEPS_DOC_RELDIR}/${searchcachefile} $searchcachefile");}
+  }
+  else
+  {
+    $system=uc($tool);
+    $base=&toolBase($tool, $cache1);
+    if (!-f "$searchcachefile" && -f "${base}/${DEPS_DOC_RELDIR}/${searchcachefile}")
+    {
+      my $sc=&readsearchcache ("${base}/${DEPS_DOC_RELDIR}/${searchcachefile}");
+      foreach my $key (keys %{$sc})
+      {$searchcache->{$key}="${system}/".$sc->{$key};}
+      $searchcachedirty=1;
+    }
+  }
+  $testd="${base}/tests/lib/${SCRAM_ARCH}";
+  if(&isExist("RUNTIME#PATH:LD_LIBRARY_PATH", $cache1->{TOOL}{SETUP}{$tool}, "#")){$libdirs=$cache1->{TOOL}{SETUP}{$tool}{RUNTIME}{"PATH:LD_LIBRARY_PATH"};}
+  elsif(&isExist("LIBDIR", $cache1->{TOOL}{SETUP}{$tool})){$libdirs=$cache1->{TOOL}{SETUP}{$tool}{LIBDIR};}
+  $found=0;
+  foreach my $d (@{$libdirs})
+  {if($d=~/^$testd$/){$found=1; last;}}
+  if((!$found) && (-d $testd)){push @{$libdirs}, $testd;}
+  
+  my %bins=(); my %libs=();
+  my %xdirs=();
+  if(&isExist ("PROJECT:BUILDTREE", $cache))
+  {
+    foreach my $dir (keys %{$cache->{PROJECT}{BUILDTREE}})
+    {
+      if($dir=~/\/(CVS|.admin|doc|domain|html)(\/|)$/){next;}
+      my $class=&getTag ("CLASS", $cache->{PROJECT}{BUILDTREE}{$dir}, "");
+      my $name=&getTag ("NAME", $cache->{PROJECT}{BUILDTREE}{$dir}, "");
+      my $parent=&getTag ("PARENT", $cache->{PROJECT}{BUILDTREE}{$dir}, "");
+      if (($class=~/(LIBRARY|CLASSLIB)/i) && ($name ne "") && ($parent ne ""))
+      {
+        if ($scram_ver=~/^V1_0_/)
+        {
+          if ($class eq "CLASSLIB"){$name="classlib";}
+	  else
+	  {
+	    my $sname=&run_func("safename",$tool, $dir);
+            if($sname){$name=$sname;}
+	  }
+        }
+	foreach my $libexp ('"lib".$name.".$LibExt"','"plugin".$name.".$LibExt"','$name.".iglet"')
+	{
+	  my $libname=eval "$libexp";
+	  foreach my $d (@{$libdirs})
+	  {
+	    if(-f "${d}/${libname}")
+	    {
+	      my $libpath="${d}/${libname}";
+	      $libpath=&getActualPath ($libpath);
+	      &addProductMap($tool,$class,$class,$dir,$name,$libpath);
+	      my $libpathq=quotemeta($libpath);
+	      if ($tool eq "self"){print "scan libs $libpath\n";}
+	      if($system){print "match ^".$libpathq."\$:\'${system}/${parent}\'\n";}
+	      else{print "match ^".$libpathq."\$:\'${parent}\'\n";}
+	      $libs{$libname}=1;
+	      last;
+	    }
+	  }
+	}
+      }
+      elsif (($class=~/PYTHON/i) && ($tool eq "self") && ($name ne "") && ($parent ne ""))
+      {
+	my $lib_prefix="Py";
+	foreach my $d (@{$libdirs})
+	{
+	  my $libname="$name";
+	  if (!-f "${d}/${lib_prefix}${libname}.${LibExt}")
+	  {
+	    if($parent=~/^(.+?)\/([^\/]+)$/)
+	    {$libname="$1$2";}
+	  }
+	  if(-f "${d}/${lib_prefix}${libname}.${LibExt}")
+	  {
+	    my $libpath="${d}/${lib_prefix}${libname}.${LibExt}";
+	    $libpath=&getActualPath ($libpath);
+	    &addProductMap($tool,$class,$class,$dir,$name,$libpath);
+	    my $libpathq=quotemeta($libpath);
+	    if ($tool eq "self"){print "scan libs $libpath\n";}
+	    if($system){print "match ^".$libpathq."\$:\'${system}/${parent}/python\'\n";}
+	    else{print "match ^".$libpathq."\$:\'${parent}/python\'\n";}
+	    $libs{"${lib_prefix}${libname}.${libext}"}=1;
+            $libpathq=quotemeta("${parent}/python");
+	    print "match ^.+\\/$libpathq\\/.+\$:\'${parent}/python\'\n";
+	    last;
+	  }
+	}
+      }
+      elsif ((!$ignoreTest) && ($tool eq "self") && ($class eq "TEST"))
+      {
+	if (&isExist ("RAWDATA:content:BUILDPRODUCTS",$cache->{PROJECT}{BUILDTREE}{$dir}))
+	{
+	  foreach my $type (keys %{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}})
+	  {
+	    my $srcdir="${base}/${src_name}/${dir}";
+	    $type=uc($type);
+	    if ($type eq "BIN")
+	    {
+	      foreach my $bp (keys %{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}})
+	      {
+		$name=$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{NAME};
+		$found=0;
+		foreach my $d (@{$bindirs})
+		{
+		  my $bin="${d}/$name";
+		  if (-f $bin && -x $bin)
+		  {
+		    $found=1;
+		    $bin=&getActualPath ($bin);
+		    &addProductMap($tool,$class,$type,$dir,$name,$bin);
+		    my $binq=quotemeta($bin);
+		    print "scan bins $bin\n";
+		    print "match ^$binq\$:\'${parent}_${name}\'\n";
+		    $binq=quotemeta("${dir}/${name}");
+		    print "match ^.+\\/$binq\\/.+\$:\'${parent}_${name}\'\n";
+		    if (exists $cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{FILES})
+		    {
+		      foreach my $binfile (@{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{FILES}})
+		      {
+		        $xdirs{dirname("${dir}/${binfile}")}=1;
+			if($binfile=~/^(.+?\.)[^\.]+$/){$binfile=$1;}
+			$binfile=quotemeta("${dir}/${binfile}");
+			print "match ^.+\\/${binfile}.+\$:\'${parent}_${name}\'\n";
+		      }
+		    }
+		    $bins{$name}=1;
+		    my $bsrcdir=basename($srcdir);
+		    if (($name=~/^test.+/) || ($bsrcdir eq "test") || ($bsrcdir eq "stub"))
+		    {$exclude_bins="${exclude_bins} ${parent}_${name}";}
+		    last;
+		  }
+		}
+		if(!$found)
+		{print STDERR "Can not find \"$name\" executable in any of the binary directories.\n";}
+	      }
+	    }
+	    elsif ($type eq "LIBRARY")
+	    {
+	      foreach my $bp (keys %{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}})
+	      {
+	        $name=$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{NAME};
+		foreach my $libexp ('"lib".$name.".$LibExt"','"plugin".$name.".$LibExt"','$name.".iglet"')
+	        {
+	          my $libname=eval "$libexp";
+                  foreach my $d (@{$libdirs})
+		  {
+	            my $libpath="${d}/${libname}";
+	            if (-f "$libpath")
+	            {
+	              $libpath=&getActualPath ($libpath);
+	              &addProductMap($tool,$class,$type,$dir,$name,$libpath);
+		      my $libpathq=quotemeta($libpath);
+	              print "scan libs $libpath\n";
+	              if($system){print "match ^".$libpathq."\$:\'${system}/${parent}_${name}\'\n";}
+	              else{print "match ^".$libpathq."\$:\'${parent}_${name}\'\n";}
+		      if (exists $cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{FILES})
+		      {
+		        foreach my $libfile (@{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{FILES}})
+		        {
+		          $xdirs{dirname("${dir}/${libfile}")}=1;
+			  if($libfile=~/^(.+?\.)[^\.]+$/){$libfile=$1;}
+			  $libfile=quotemeta("${dir}/${libfile}");
+			  print "match ^.+\\/${libfile}.+\$:\'${parent}_${name}\'\n";
+		        }
+		      }
+	              $libs{$libname}=1;
+	              last;
+	            }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+      elsif (($tool eq "self") && ($class=~/^(BINARY|PLUGINS)$/i))
+      {
+	if (&isExist ("RAWDATA:content:BUILDPRODUCTS",$cache->{PROJECT}{BUILDTREE}{$dir}))
+	{
+	  foreach my $type (keys %{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}})
+	  {
+	    my $srcdir="${base}/${src_name}/${dir}";
+	    $type=uc($type);
+	    if ($type eq "BIN")
+	    {
+	      foreach my $bp (keys %{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}})
+	      {
+		$name=$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{NAME};
+		$found=0;
+		foreach my $d (@{$bindirs})
+		{
+		  my $bin="${d}/$name";
+		  if (-f $bin && -x $bin)
+		  {
+		    $found=1;
+		    $bin=&getActualPath ($bin);
+		    &addProductMap($tool,$class,$type,$dir,$name,$bin);
+		    my $binq=quotemeta($bin);
+		    print "scan bins $bin\n";
+		    print "match ^$binq\$:\'${parent}_${name}\'\n";
+		    $binq=quotemeta("${dir}/${name}");
+		    print "match ^.+\\/$binq\\/.+\$:\'${parent}_${name}\'\n";
+		    if (exists $cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{FILES})
+		    {
+		      foreach my $binfile (@{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{FILES}})
+		      {
+		        $xdirs{dirname("${dir}/${binfile}")}=1;
+			if($binfile=~/^(.+?\.)[^\.]+$/){$binfile=$1;}
+			$binfile=quotemeta("${dir}/${binfile}");
+			print "match ^.+\\/${binfile}.+\$:\'${parent}_${name}\'\n";
+		      }
+		    }
+		    $bins{$name}=1;
+		    my $bsrcdir=basename($srcdir);
+		    if (($name=~/^test.+/) || ($bsrcdir eq "test") || ($bsrcdir eq "stub"))
+		    {$exclude_bins="${exclude_bins} ${parent}_${name}";}
+		    last;
+		  }
+		}
+		if(!$found)
+		{print STDERR "Can not find \"$name\" executable in any of the binary directories.\n";}
+	      }
+	    }
+	    elsif ($type eq "LIBRARY")
+	    {
+	      foreach my $bp (keys %{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}})
+	      {
+	        $name=$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{NAME};
+		foreach my $libexp ('"lib".$name.".$LibExt"','"plugin".$name.".$LibExt"','$name.".iglet"')
+	        {
+	          my $libname=eval "$libexp";
+		  foreach my $d (@{$libdirs})
+		  {
+	            my $libpath="${d}/${libname}";
+	            if (-f "$libpath")
+	            {
+	              $libpath=&getActualPath ($libpath);
+		      &addProductMap($tool,$class,$type,$dir,$name,$libpath);
+	              my $libpathq=quotemeta($libpath);
+	              print "scan libs $libpath\n";
+	              if($system){print "match ^".$libpathq."\$:\'${system}/${parent}_${name}\'\n";}
+	              else{print "match ^".$libpathq."\$:\'${parent}_${name}\'\n";}
+		      if (exists $cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{FILES})
+		      {
+		        foreach my $libfile (@{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{FILES}})
+		        {
+		          $xdirs{dirname("${dir}/${libfile}")}=1;
+			  if($libfile=~/^(.+?\.)[^\.]+$/){$libfile=$1;}
+			  $libfile=quotemeta("${dir}/${libfile}");
+			  print "match ^.+\\/${libfile}.+\$:\'${parent}_${name}\'\n";
+		        }
+		      }
+	              $libs{$libname}=1;
+	              last;
+	            }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  my $xtool=$tool;
+  if($xtool eq "self"){$xtool=lc($project_name);}
+  if(&isExist ("EXTRA_TOOL_INFO:$xtool:FILES_PACKAGE_MAP",$extra_tool_info))
+  {
+    my $baserx=quotemeta($base);
+    foreach my $reg (keys %{$extra_tool_info->{EXTRA_TOOL_INFO}{$xtool}{FILES_PACKAGE_MAP}})
+    {
+      my $t=$extra_tool_info->{EXTRA_TOOL_INFO}{$xtool}{FILES_PACKAGE_MAP}{$reg};
+      if($system eq ""){print "match ^$baserx\\/.+?\/$reg:'${t}'\n";}
+      else{print "match ^$baserx\\/.+?\\/$reg:'${system}/${t}'\n";}
+    }
+  }
+  foreach my $x ([$bindirs , \%bins], [$libdirs , \%libs])
+  {
+    foreach my $d (@{$x->[0]})
+    {
+      if (!-d $d){next;}
+      if($d=~/^$localtop\/external\/$SCRAM_ARCH/){next;}
+      $d=&getActualPath ($d);
+      opendir(DIR, "$d") || next;
+      my $rejected="";
+      foreach my $f (readdir(DIR))
+      {
+	if ((-d $f) || ($f=~/^\./)){next;}
+        if ((!exists $x->[1]{$f}) && ($f!~/\.reg$/))
+        {
+	  $f=quotemeta($f);
+	  if ($rejected){$rejected="$rejected|$f";}
+	  else{$rejected=$f;}
+        }
+      }
+      closedir(DIR);
+      if ($rejected)
+      {
+        $rejected=quotemeta($d)."\\/($rejected)";
+        print "option define reject-binary \$filepath =~ m/^$rejected\$/\n";
+      }
+    }
+  }
+  
+  my $src="${base}/${src_name}";
+  my $srcq=quotemeta($src);
+  print "search include .*:(.*):\"$src/\$1\"\n";
+  if($system){
+    foreach my $xd (keys %xdirs)
+    {
+      my $xdq=quotemeta($xd);
+      print "match ^.+\\/$xdq(\\/.+|)\$:\"$system/$xd\"\n";
+    }
+    print "match ^$srcq\\/([^/]+)\\/([^/]+)\\/:\"$system/\$1/\$2\"\n";
+  }
+  else{
+    foreach my $xd (sort {$b cmp $a} keys %xdirs)
+    {
+      my $xdq=quotemeta($xd);
+      print "match ^.+\\/$xdq(\\/.+|)\$:\"$xd\"\n";
+    }
+    print "match ^$srcq\\/([^/]+)\\/([^/]+)\\/:\"\$1/\$2\"\n";
+  }
+}
+
+sub addLCGProjectInfo ()
+{
+  my $tool=shift || return;
+  my $cache=shift  || return;
+  my $cache1=$LOCALCACHE->{SCRAM_PROJECTS}{$self};
+  my $arch=$SCRAM_ARCH;
+  if(exists $LCG_ARCH_MAP{$arch}){$arch=$LCG_ARCH_MAP{$arch};}
+  
+  my $libdirs=[];
+  if(&isExist("RUNTIME#PATH:LD_LIBRARY_PATH", $cache1->{TOOL}{SETUP}{$tool}, "#")){$libdirs=$cache1->{TOOL}{SETUP}{$tool}{RUNTIME}{"PATH:LD_LIBRARY_PATH"};}
+  elsif(&isExist("LIBDIR", $cache1->{TOOL}{SETUP}{$tool})){$libdirs=$cache1->{TOOL}{SETUP}{$tool}{LIBDIR};}
+  
+  my $base=&toolBase($tool, $cache1);
+  my $system=uc($tool);
+  my $testd="${base}/${arch}/tests/lib";
+  my $found=0;
+  
+  foreach my $d (@{$libdirs})
+  {if($d=~/^$testd$/){$found=1; last;}}
+  if(!$found){push @{$libdirs}, $testd;}
+  
+  my %libs=();
+  if(&isExist ("PROJECT:BUILDTREE", $cache))
+  {
+    foreach my $dir (keys %{$cache->{PROJECT}{BUILDTREE}})
+    {
+      my $name=&getTag ("NAME", $cache->{PROJECT}{BUILDTREE}{$dir}, "");
+      my $class=&getTag ("CLASS", $cache->{PROJECT}{BUILDTREE}{$dir}, "");
+      my $parent=&getTag ("PARENT", $cache->{PROJECT}{BUILDTREE}{$dir}, "");
+      if(&isExist ("RAWDATA:content:EXPORT:LIB", $cache->{PROJECT}{BUILDTREE}{$dir}) && ($name ne ""))
+      {
+        my $lib="";
+	if ($scram_ver=~/^V1_0_/)
+	{
+          my $sname=&run_func("safename",$tool, $dir);
+          if($sname){$lib=$sname;}
+          else
+          {
+            foreach my $l (@{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{EXPORT}{LIB}})
+            {if(($l=~/^lcg_$name$/) || ($l=~/^$name$/)){$lib=$l; last;}}
+          }
+	}
+	else{$lib=$name;}
+	if ($lib ne "")
+	{
+	  foreach my $d (@{$libdirs})
+	  {
+	    my $libpath="${d}/lib${lib}.${LibExt}";
+	    if (-f $libpath)
+	    {
+	      $libpath=&getActualPath ($libpath);
+	      my $libpathq=quotemeta($libpath);
+	      print "match ^".$libpathq."\$:\'${system}/${dir}\'\n";
+	      $libs{"lib${lib}.${LibExt}"}=1;
+	      last;
+	    }
+	  }
+	}
+      }
+      elsif ($class=~/LIBRARY/i)
+      {
+	if ($scram_ver=~/^V1_0_/)
+	{
+	  my $sname=&run_func("safename",$tool, $dir);
+	  if($sname){$name=$sname;}
+	}
+	foreach my $d (@{$libdirs})
+	{
+	  my $libpath="${d}/lib${name}.${LibExt}";
+	  if (-f "$libpath")
+	  {
+	    $libpath=&getActualPath ($libpath);
+	    my $libpathq=quotemeta($libpath);
+	    print "match ^".$libpathq."\$:\'${system}/${parent}\'\n";
+	    $libs{"lib${name}.${LibExt}"}=1;
+	    last;
+	  }
+	}
+      }
+    }
+  }
+  foreach my $x ([$libdirs , \%libs])
+  {
+    foreach my $d (@{$x->[0]})
+    {
+      if (!-d $d){next;}
+      $d=&getActualPath ($d);
+      opendir(DIR, "$d") || next;
+      my $rejected="";
+      foreach my $f (readdir(DIR))
+      {
+	if (-d $f){next;}
+        if (!exists $x->[1]{$f})
+        {
+	  $f=quotemeta($f);
+	  if ($rejected){$rejected="$rejected|$f";}
+	  else{$rejected=$f;}
+        }
+      }
+      closedir(DIR);
+      if ($rejected)
+      {
+        $rejected=quotemeta($d)."\\/($rejected)";
+        print "option define reject-binary \$filepath =~ m/^$rejected\$/\n";
+      }
+    }
+  }
+
+  my $src="${base}/${src_name}";
+  my $srcq=quotemeta($src);
+  opendir(DIR, &getActualPath("$src")) || return;
+  my @srcs=readdir(DIR); closedir(DIR);
+  
+  my $incdirs=[];
+  if(&isExist("INCLUDE", $cache1->{TOOL}{SETUP}{$tool})){$incdirs=$cache1->{TOOL}{SETUP}{$tool}{INCLUDE};}
+  if(scalar(@{$incdirs})>0)
+  {
+    foreach my $inc (@{$incdirs})
+    {
+      if ((!-e $inc) || (!-d &getActualPath("$inc"))){next;}
+      print "search include .*:(.*):\"${inc}/\$1\"\n";
+    }
+    foreach my $inc (@{$incdirs})
+    {
+      if ((!-e $inc) || (!-d &getActualPath("$inc"))){next;}
+      my $incq=quotemeta("$inc");
+      opendir(DIR, &getActualPath("$inc")) || return;
+      my @include=readdir(DIR); closedir(DIR);
+      foreach my $d (@include)
+      {
+        if (($d eq ".") || ($d eq "..")){next;}
+        foreach my $s (@srcs)
+        {
+          if (($s eq ".") || ($s eq "..")){next;}
+          if (-d "${src}/${s}/${d}")
+          {
+            my $q="${incq}\\/".quotemeta($d);
+  	    print "match ^$q\\/:\"$system/$s/$d\"\n";
+	    last;
+          }
+        }
+      }
+    }
+  }
+  else
+  {
+    foreach my $s (@srcs)
+    {
+      if (($s eq ".") || ($s eq "..") || ($s eq "CVS") || ($s eq "Documentation")){next;}
+      if (!-d "${src}/${s}"){next;}
+      opendir(DIR, &getActualPath("${src}/${s}")) || return;
+      my @subdir = readdir(DIR); closedir(DIR);
+      foreach my $d (@subdir)
+      {
+        if (($d eq ".") || ($d eq "..") || ($d eq "CVS") || ($d eq "Documentation")){next;}
+	if (-d "${src}/${s}/${d}")
+        {
+          my $q="${srcq}\\/".quotemeta("$s/$d");
+	  print "match ^$q\\/:\"$system/$s/$d\"\n";
+        }
+      }
+    }
+  }
+}
+
+sub addToolInfo ()
+{
+  my $tool=shift || return;
+  my $cache=shift || return;
+  my $force=shift || 0;
+  my $add_archive=shift || 0;
+  if(exists $extra_tool_info->{TOOL_DONE}{$tool}){return;}
+  $extra_tool_info->{TOOL_DONE}{$tool}=1;
+  if(&isExist("TOOL_ORDER:$tool:pretools",$extra_tool_info))
+  {foreach my $t (keys %{$extra_tool_info->{TOOL_ORDER}{$tool}{pretools}}){&addToolInfo ($t,$cache);}}
+
+  my $system=&getSystem ($tool, $cache);
+  $CACHE->{SUBSYSTEMS}{$tool}=$system;
+  if (!$force)
+  {
+    my $func="process_$tool";
+    if (exists &$func){return &$func($tool, $cache);}
+  }
+  print "#$system/".ucfirst($tool)."\n";
+  my $tool1=ucfirst ($tool);
+  my $libdirs=[""];
+  my $incdirs=[];
+  if(&isExist("TOOL:SETUP:$tool:LIBDIR", $cache)){$libdirs=$cache->{TOOL}{SETUP}{$tool}{LIBDIR};}
+  if(&isExist("TOOL:SETUP:$tool:INCLUDE", $cache)){$incdirs=$cache->{TOOL}{SETUP}{$tool}{INCLUDE};}
+  my %missing = ();
+  foreach my $libdir (@{$libdirs})
+  {
+    if(&isExist("TOOL:SETUP:$tool:LIB", $cache))
+    {
+      foreach my $lib (@{$cache->{TOOL}{SETUP}{$tool}{LIB}})
+      {
+	if(!exists $CACHE->{LIBMAP}{$lib})
+	{$CACHE->{LIBMAP}{$lib}="${system}/${tool1}";}
+	elsif($CACHE->{LIBMAP}{$lib} ne "${system}/${tool1}")
+        {print "#WARNING: $lib exported from ${system}/${tool1} has already been exported by ".$CACHE->{LIBMAP}{$lib}."\n";}
+        my $libq=quotemeta($lib);
+	print "match \\/lib".$libq."[\\.\\-\\_].*(so|dylib|a).*\$:\'${system}/${tool1}\'\n";
+        if ($libdir ne "")
+	{
+	  my $libpath="${libdir}/lib${lib}.so";
+          if (!-e $libpath){$libpath="${libdir}/lib${lib}.dylib";}
+	  if(!-e $libpath)
+          {
+	    $libpath="${libdir}/lib${lib}.a";
+	    if (!-e $libpath)
+	    {$missing{$lib}=1;next;}
+	    if(!$add_archive){next;}
+	    print "scan libs $libpath\n";
+	  }
+	  if (exists $missing{$lib}){delete $missing{$lib};}
+	  $libpath=&getActualPath ($libpath);
+	  my $libdir1=dirname ($libpath);
+	  my $libpathq=quotemeta("${libdir1}/lib${lib}");
+	  print "match ^$libpathq\[\\.\\-\\_\].*(so|dylib|a).*\$:\'${system}/${tool1}\'\n";
+        }
+      }
+    }
+    if($libdir ne "")
+    {
+      $libdir=&getActualPath ($libdir);
+      if(exists $uniqToolLibdir{$libdir}){$uniqToolLibdir{$libdir}{count}++;}
+      else{$uniqToolLibdir{$libdir}{count}=1;$uniqToolLibdir{$libdir}{from}="${system}/${tool1}";}
+    }
+  }
+  foreach my $miss (keys %missing)
+  {
+    print "#WARNING: Can not find library \"$miss\" in following directory/directories\n";
+    foreach my $libdir (@{$libdirs})
+    {
+      if($libdir eq ""){next;}
+      else{print "  #$libdir\n";}
+    }
+  }
+  if(exists $extra_tool_info->{EXTRA_TOOL_INFO}{$tool})
+  {
+    foreach my $incdir (@{$incdirs})
+    {
+      my $incdirrx=quotemeta($incdir);
+      foreach my $reg (keys %{$extra_tool_info->{EXTRA_TOOL_INFO}{$tool}{FILES_PACKAGE_MAP}})
+      {
+        my $t=$extra_tool_info->{EXTRA_TOOL_INFO}{$tool}{FILES_PACKAGE_MAP}{$reg};
+	print "match ^$incdirrx\\/$reg:'${system}/${t}'\n";
+      }
+    }
+  }
+  foreach my $incdir (@{$incdirs})
+  {
+    my $incdirrx=quotemeta($incdir);
+    print "search include .*:(.*):\"$incdir/\$1\"\n";
+    print "match ^$incdirrx\\/:'${system}/${tool1}'\n";
+  }
+}
+
+sub isCMSProject ()
+{
+  my $name=shift || return 0;
+  $name=uc($name);
+  if ($name=~/^(IGUANA|IGUANACMS|IGNOMINY|GEOMETRY|ORCA|COBRA|OSCAR|PHYSH|CMSSW)$/){return 1;}
+  return 0;
+}
+
+sub isLCGProject ()
+{
+  my $name=shift || return 0;
+  $name=uc($name);
+  if ($name=~/^(SEAL|PI|POOL|CORAL)$/){return 1;}
+  return 0;
+}
+
+sub toolBase ()
+{
+  my $tool=shift || return;
+  my $cache=shift || return;
+  my $btag=uc($tool)."_BASE"; $btag=~tr/-/_/;
+  return &toolTag($tool, $cache, $btag, shift);
+}
+
+sub toolTag ()
+{
+  my $tool=shift || return;
+  my $cache=shift || return;
+  my $tag=shift || return;
+  my $sep=shift || ":";
+  return &getTag ("TOOL${sep}SETUP${sep}$tool${sep}$tag",$cache, undef, $sep);
+}
+
+sub getTag ()
+{
+  my $tag=shift || return;
+  my $cache=shift || return;
+  my $default=shift;
+  my $sep=shift || ":";
+  if (&isExist ("$tag", $cache, $sep))
+  {
+    my $ref=$cache;
+    foreach my $item (split /$sep/, $tag)
+    {
+      if(!exists $ref->{$item}){return $default;}
+      $ref=$ref->{$item};
+    }
+    return $ref;
+  }
+  return $default;
+}
+
+sub getSystem ()
+{
+  my $system="tools";
+  my $tool=shift || return $system;
+  my $cache=shift || return $system;
+  if(&isExist ("TOOL:DOWNLOADED:url:$tool", $cache))
+  {
+    my $url=$cache->{TOOL}{DOWNLOADED}{url}{$tool};
+    if($url=~/.*?module=SCRAMToolBox\/(.+?)\/.+?\&.*/){$system=$1;}
+    elsif($url=~/.*?\/SCRAMToolBox\/(.+?)\/.+$/){$system=$1;}
+  }
+  return $system;
+}
+
+sub cachefilename ()
+{
+  my $file=shift;
+  if (($scram_ver=~/^V2_/) && ($file!~/\.gz$/)) {$file="${file}.gz";}
+  return $file;
+}
+
+sub readcache()
+{
+  require Cache::CacheUtilities;
+  my $file=&cachefilename(shift || "${release}/.SCRAM/${SCRAM_ARCH}/ToolCache.db");
+  return &Cache::CacheUtilities::read($file);
+}
+
+sub writecache()
+{
+  my ($object,$file) = @_;
+  if (($scram_ver=~/^V2/) && ($file!~/\.gz$/)){$file="${file}.gz";}
+  &Cache::CacheUtilities::write($object,$file);
+}
+
+sub isExist ()
+{
+  my $list=shift || return 0;
+  my $ref=shift || return 0;
+  my $sep=shift || ":";
+  foreach my $item (split /$sep/, $list)
+  {
+    if(!exists $ref->{$item}){return 0;}
+    $ref=$ref->{$item};
+  }
+  return 1;
+}
+
+sub exit_prog(){
+  my $code=shift || 0;
+  exit $code;
+}
+
+#return the scram base project base directory
+sub scram_release_top(){
+  return &check_while_subdir_found(shift,".SCRAM");
+}
+
+sub check_while_subdir_found(){
+  my $dir=shift;
+  my $subdir=shift;
+  while((!-d "${dir}/${subdir}") && ($dir ne "/")){$dir=dirname($dir);}
+  if(-d "${dir}/${subdir}"){return $dir;}
+  return "";
+}
+
+#this sub-routine will return a scram variable by running the
+#`scram build echo_<variable>` command
+sub _get_scram_variable(){
+  my $var=shift;
+  my $options=shift || "";
+  my $value=`cd ${localtop}/${src_name}; $SCRAM_CMD build $options echo_${var} 2>&1 | grep $var`; 
+  chomp $value;
+  $value=~s/.+?=\s*//;
+  if($value =~ /^\s*(.+)\s*$/){$value=$1;}
+  else{$value="";}
+  return $value;
+}
+
+sub getScramPath ()
+{
+  my $rel=shift;
+  my $sbase=`cd $rel; sh -v scram --help 2>&1 | grep SCRAMV1_ROOT=`; chomp $sbase;
+  $sbase=~s/SCRAMV1_ROOT=["']//; $sbase=~s/['"].*//;
+  if (!-d "${sbase}/src"){die "ERROR: Could not find SCRAM base path.\n";}
+  return $sbase;
+}
+
+sub read_Environment (){
+  foreach my $rf ("Environment","${SCRAM_ARCH}/Environment")
+  {
+    my $env_file="${localtop}/.SCRAM/${rf}";
+    if (!-f $env_file){next;}
+    foreach my $line (`cat $env_file`){
+      chomp $line;
+      if($line=~/^ *$/){next;}
+      elsif($line=~/^ *#/){next;}
+      elsif($line=~/^ *([^ ]+?) *= *(.+)$/){$CACHE->{ENVIRONMENT}{$1}=$2;}
+    }
+  }
+}
+
+sub get_scram_variable(){
+  my $var=shift || return "";
+  my $flag=shift;
+  if(exists $CACHE->{ENVIRONMENT}{$var}){return $CACHE->{ENVIRONMENT}{$var};}
+  elsif(defined $flag){return "";}
+  else{return &_get_scram_variable($var);}
+}
+
+sub getActualPath ()
+{
+  my $path=&_getFullPath (shift) || return "";
+  if (-e $path)
+  {
+    my $pass=0;
+    while(($pass==0) || (-l $path))
+    {
+      $pass++;
+      if (-d $path){$path=&_getActualDir ($path)}
+      else{$path=&_getActualFile ($path)};
+    }
+  }
+  else{print "#ERROR: $path: Dose not exist\n";}
+  return $path;
+}
+
+sub _getFullPath ()
+{
+  my $f=shift || return "";
+  if ($f!~/^\//){return "${CURDIR}/${f}";}
+  return $f;
+}
+
+sub _getActualDir ()
+{
+  my $dir=shift || return "";
+  my $link=`cd $dir 2>&1; /bin/pwd`; chomp $link;
+  return $link;
+}
+
+sub _getActualFile ()
+{
+  my $file=shift || return "";
+  my $link=readlink($file);
+  if ($link eq ""){$link=$file;}
+  elsif ($link!~/^\//)
+  {$link=dirname($file)."/$link";}
+  $link=&_getActualDir(dirname($link))."/".basename($link);
+  return $link;
+}
+
+sub getOrderedTools (){
+  if ($scram_ver=~/^V1_/){return &getOrderedToolsV1 (@_);}
+  else { return &getOrderedToolsV2 (@_); }
+}
+
+sub getOrderedToolsV1 (){
+  my $cache=shift;
+  my $rev=shift || 0;
+  my @t =();
+  
+  foreach my $tool (keys %{$cache->{SELECTED}})
+  {
+    my $index=$cache->{SELECTED}{$tool};
+    if(&isExist ("SETUP:$tool",  $cache)){$t[$index]=$tool;}
+    else{$t[$index]="";}
+  }
+  if ($rev){@t=reverse @t;}
+  foreach my $x (@t)
+  {if($x ne ""){push @tools, $x;}}
+  return @tools;
+}
+
+sub getOrderedToolsV2 ()
+{
+  require BuildSystem::ToolManager;
+  my $cache=shift;
+  my $rev=shift || 0;
+  my $otools = $cache->toolsdata();
+  my $tools  = $cache->setup();
+  if (exists $tools->{'self'}){push @$otools,$tools->{'self'};}
+  my @t =();
+  my @compilertools=();
+  foreach my $tool ( reverse @$otools )
+  {
+    if ($tool->scram_compiler()){push @compilertools,$tool; next;}
+    push @t,$tool->toolname();
+  }
+  foreach my $tool ( @compilertools ){push @t,$tool->toolname();}
+  if ($rev){@t=reverse @t;}
+  return @t;
+}
+
+sub archive_lib_tool ()
+{
+  my $tool=shift || return;
+  my $cache=shift || return;
+  &addToolInfo ($tool, $cache, 1, 1);
+}
+
+sub readsearchcache()
+   {
+   my ($file) = @_;
+   my $cache = eval "retrieve(\"$file\")";
+   die "Cache load error:$file: ",$EVAL_ERROR,"\n", if ($EVAL_ERROR);
+   return $cache;
+   }
+
+sub writesearchcache ()
+{
+   my ($object,$file) = @_;
+   eval {nstore($object,$file);};
+   die "Cache write error:$file: ",$EVAL_ERROR,"\n", if ($EVAL_ERROR);
+   return;
+}
+
+###########################################################
+#sub process_qutexmlrpc ()
+#{&archive_lib_tool (shift, shift);}
+
+sub process_x11 ()
+{
+  print "match ^/usr/X11:'System/X11'\n";
+  &addToolInfo (shift, shift, 1, 1);
+}
+
+sub process_cxxcompiler ()
+{
+  my $tool=shift || return;
+  my $cache=shift || return;
+  my $cxx=&toolTag($tool, $cache, "CXX");
+  if (($cxx eq "") || (!-f $cxx) || (!-x $cxx)){return;}
+  
+  $cxx=~/^(\/.+)\/bin\/[^\/]+/;
+  my $root=$1;
+  my $dir=`$cxx -v 2>&1 | grep /specs | sed 's/.* //; s|/specs||'`; chomp $dir;
+  my $v=`$cxx -dumpversion`; chomp $v;
+  my $rootq=quotemeta($root);
+  print "match ^$rootq\\/.+\$:'<Compiler>'\n";
+  foreach my $item ("stdc++","g2c","gcc_s","supc++")
+  {
+    my $item1=$item;
+    $item1=~s/\++//;
+    print "match ^/usr/(local/|)lib/lib${item1}:'<Compiler>'\n";
+    foreach my $d ("$root/lib", $dir)
+    {
+      my %cache;
+      foreach my $lib (`ls $d/lib$item* 2>&1`)
+      {
+        if($?==0)
+	{
+	  chomp $lib;
+	  $lib=&getActualPath ($lib);
+	  if (exists $cache{$lib}){next;}
+	  $cache{$lib}=1;
+	  if ($lib=~/(.+)\.a$/)
+	  {
+	    my $so="${1}.so";
+	    if(-f $so){next;}
+            $so="${1}.dylib";
+            if (-f $so){next;}
+	  }
+	  print "scan libs $lib\n";
+	}
+      }
+    }
+  }
+  # Add include searchers for compiler headers.
+  print "search include .*:(.*):\"$dir/include/\$1\"\n";  # 2.x
+  print "search include .*:(.*):\"$root/include/c++/$v/\$1\"\n"; # 3.x
+  print "search include .*:(.*):\"$root/include/c++/$v/backward/\$1\"\n"; # 3.x
+  print "search include .*:(.*):\"$root/include/c++/$v/ext/\$1\"\n"; # 3.x
+  print "search include .*:(.*):\"$root/include/g++/\$1\"\n"; # 2.x
+
+  if ($v=~/^2\..*/)
+  {
+    print 'symbol ignore . ^__builtin',"\n";
+    print 'symbol ignore . ^__pure_virtual',"\n";
+    print 'symbol ignore . ^__u(div|mod)di',"\n";
+
+    print 'symbol ignore . ^__eh_',"\n";
+    print 'symbol ignore . ^__gmon_',"\n";
+    print 'symbol ignore . ^__libc_',"\n";
+    print 'symbol ignore . ^_IO_',"\n";
+
+    print 'symbol ignore . ^__ti',"\n";         # type info
+    print 'symbol ignore . ^__tft?\d',"\n";      # ?
+    print 'symbol ignore . ^__vt_',"\n";         # virtual function table
+    
+    print 'symbol ignore . ^_\._9bad_alloc$',"\n";
+  }
+  elsif($v=~/^3\..*/)
+  {
+    print 'symbol ignore . ^__pure_virtual',"\n"; # FIXME: Temporary to disambiguate 2.95 CLHEP/GEANT4
+    print 'symbol ignore . ^__dso_handle$',"\n";
+
+    print 'symbol ignore . ^_ZTI',"\n";          # type info
+    print 'symbol ignore . ^_ZTV',"\n";          # virtual function table
+    print 'symbol ignore . ^_ZTT',"\n";          # ?
+    print 'symbol ignore . ^_ZGV',"\n";          # gaurd variables
+
+    print 'symbol ignore . ^_ZNSs4_Rep11_S_terminalE$',"\n";
+    print 'symbol ignore . ^_ZNSs4_Rep11_S_max_sizeE$',"\n";
+    print 'symbol ignore . ^_ZNSt24__default_alloc_templateILb1ELi0EE22_S_node_allocator_lockE$',"\n";
+  }
+}
+
+sub scram_defaults ()
+{
+  # determine whether it's a leaf or a subsystem, and automatically
+  # generated matchers for every package.
+  print '# SCRAM defaults',"\n";
+  print 'option define package            $dir=~/^$root\/src\/[^\/]+$/',"\n";
+  print 'option define package-type       grep(m|^\Q$path/|, keys %packages) ? "subsystem" : "leaf"',"\n";
+  print 'option define package-match-rule "^(\Q$root/\E)?((\\.)?\\/)?\Q@{[&concat_path($src_root, $fullname)]}/\E"',"\n";
+  print 'option define package-match-rule "^\Q@{[&concat_path($incdir, $src_root, $fullname)]}/\E"',"\n";
+  print 'option define package-match-rule "^\Q@{[&concat_path($root, $build_root, $fullname)]}/\E"',"\n";
+  print 'option define package-match-rule "^\Q@{[&concat_path($bindir, $name)]}\E\$"',"\n";
+  print 'option define package-match-rule "^\Q$bindir/\E(example|test)_\Q$name\E(_[^/]+)?\$"',"\n";
+  print 'option define package-match-rule "^\Q@{[&concat_path($libdir, \'lib\'.$name)]}\E(_[a-z_]+)?\.(so|dylib|a)"',"\n";
+  print 'option define package-build-dir  &concat_path($root, $build_root, $name, $relative)',"\n";
+
+  # Add standard places to look for things.
+  #  - generated include tree
+  #  - interface/include directory in a package
+  #  - release src tree
+  #  - system locations
+  print 'search include .*:(.*):"$incdir/src/$1"',"\n";
+  print 'search include .*:(.*):"$root/src/$name/interface/$1"',"\n";
+  print 'search include .*:(.*):"$root/src/$name/include/$1"',"\n";
+  print 'search include .*:(.*):"$root/src/$1"',"\n";
+  # print 'search include .*:(.*):"$root/$build_root/$1"',"\n";
+  print 'search include .*:(.*):"/usr/include/$1"',"\n";
+  print 'search include .*:(.*):"/usr/local/include/$1"',"\n";
+  print 'search include .*:^(/.*):"$1"',"\n";
+
+  print '# don\'t allow standard headers from object space to confuse search',"\n";
+  print 'reject include ^(algorithm|bitset|deque|exception|[a-z]*stream[a-z]*|functional)$',"\n";
+  print 'reject include ^(io[a-z]+|iterator|limits|list|map|memory|new|numeric|queue|set|stack)$',"\n";
+  print 'reject include ^(stdexcept|string|typeinfo|utility|vector)$',"\n";
+  print 'reject include ^c[a-z]+$',"\n";
+
+  # Add matchers for stuff we generally stumble across even though we
+  # didn't really find it in configuration.  Typically comes in
+  # through hidden dependencies not recorded in the project but that
+  # are there (e.g. CERNLIB has parts that use Motif, but we don't
+  # use them, but yet ignominy finds those and wants to assign them
+  # to something; or they could be in commented-out code sections).
+  #print 'match /include/Xm/:"System/Motif"',"\n";
+  #print 'match /lib/libXm\.:"System/Motif"',"\n";
+  print 'match ^/usr/local/(lib|include)/([^/]+):"ASIS/$2"',"\n";
+  print 'match ^/usr/(lib|include)/:"<OS>"',"\n";
+  print 'match ^/lib/:"<OS>"',"\n";
+
+  # Ignore basic things we don't want to see: the compiler and system.
+  print 'output ignore package ^<Compiler>$',"\n";
+  print 'output ignore package ^<OS>$',"\n";
+  #print 'output ignore binary ^/usr/',"\n";
+}
+
+sub run_func ()
+{
+  my $func=shift || return "";
+  my $tool=shift || return "";
+  if($tool eq "self"){$tool=$self;}
+  $tool=lc($tool);
+  $func.="_${tool}";
+  if(exists &$func){return &$func(@_);}
+  return "";
+}
+
+sub safename_pool ()
+{return &safename_lcglevel1(shift,"lcg_");}
+sub safename_seal ()
+{return &safename_lcglevel2(shift,"lcg_");}
+sub safename_coral ()
+{return &safename_lcglevel1(shift,"lcg_");}
+
+sub safename_lcglevel1 ()
+{
+  my $dir=shift;
+  my $pre=shift;
+  my @d=split /\/+/, $dir;
+  if(scalar(@d)==2){return $pre.$d[0];}
+  else{return "";}
+}
+
+sub safename_lcglevel2 ()
+{
+  my $dir=shift;
+  my $pre=shift;
+  my @d=split /\/+/, $dir;
+  if(scalar(@d)==3){return $pre.$d[1];}
+  else{return "";}
+}
+
+sub safename_ignominy ()
+{return &safename_cms1(shift);}
+sub safename_iguana ()
+{return &safename_cms1(shift);}
+sub safename_cmssw ()
+{return &safename_cms2(shift);}
+
+sub safename_cms1 ()
+{
+  my $dir=shift;
+  my @d=split /\/+/, $dir;
+  if(scalar(@d)==3){return $d[1];}
+  else{return "";}
+}
+sub safename_cms2 ()
+{
+  my $dir=shift;
+  my @d=split /\/+/, $dir;
+  if(scalar(@d)==3){return "$d[0]$d[1]";}
+  else{return "";}
+}

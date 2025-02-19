@@ -1,0 +1,153 @@
+<library   file="SiStripPedestalsPyWrapper.cc" name="SiStripPedestalsPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripNoisesPyWrapper.cc" name="SiStripNoisesPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripFedCablingPyWrapper.cc" name="SiStripFedCablingPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripLorentzAnglePyWrapper.cc" name="SiStripLorentzAnglePyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripApvGainPyWrapper.cc" name="SiStripApvGainPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripBadStripPyWrapper.cc" name="SiStripBadStripPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripBadStripPyWrapper.cc" name="SiStripBadStripPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripBadStripPyWrapper.cc" name="SiStripBadStripPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripBadStripPyWrapper.cc" name="SiStripBadStripPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripRunSummaryPyWrapper.cc" name="SiStripRunSummaryPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripThresholdPyWrapper.cc" name="SiStripThresholdPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripSummaryPyWrapper.cc" name="SiStripSummaryPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripDetVOffPyWrapper.cc" name="SiStripDetVOffPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripLatencyPyWrapper.cc" name="SiStripLatencyPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripConfObjectPyWrapper.cc" name="SiStripConfObjectPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiStripBaseDelayPyWrapper.cc" name="SiStripBaseDelayPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="AlCaRecoTriggerBitsPyWrapper.cc" name="AlCaRecoTriggerBitsPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/HLTObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

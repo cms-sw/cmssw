@@ -1,0 +1,21 @@
+/*!
+\page DataFormats_Common Package DataFormats/Common
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Commonly used persistent containers, references and other EDM related classes.
+
+\section cat Class categories
+- \ref DataFormats_Common_edm "EDM related classes"
+- \ref DataFormats_Common_containers "Common persistent containers"
+- \ref DataFormats_Common_references "Common persistent references"
+- \ref DataFormats_Common_helpers "Common helper classes"
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/

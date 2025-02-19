@@ -1,0 +1,15 @@
+ <use name="CondFormats/Alignment"/>
+ <use name="CondFormats/DataRecord"/>
+ <use name="CondFormats/GeometryObjects"/>
+ <use name="DetectorDescription/Core"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="Geometry/CSCGeometry"/>
+ <use name="Geometry/CSCGeometryBuilder"/>
+ <use name="Geometry/MuonNumbering"/>
+ <use name="Geometry/Records"/>
+ <use name="Geometry/TrackingGeometryAligner"/>
+ <use name="boost"/>
+<library file="CSCGeometryESModule.cc">
+ <flags EDM_PLUGIN="1"/>
+</library>

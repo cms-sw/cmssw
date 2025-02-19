@@ -1,0 +1,21 @@
+<use   name="Alignment/TwoBodyDecay"/>
+<use   name="DataFormats/CLHEP"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/TrackingRecHit"/>
+<use   name="DataFormats/TrajectoryState"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="TrackingTools/AnalyticalJacobians"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/MaterialEffects"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/TrackFitters"/>
+<use   name="TrackingTools/TransientTrackingRecHit"/>
+<use   name="RecoTracker/TransientTrackingRecHit"/>
+<use   name="TrackPropagation/RungeKutta"/>
+<export>
+  <lib   name="1"/>
+</export>

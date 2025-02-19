@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tibmodule2.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+		<Constant name="HybridY" value="[CFFrameY]+[tibmodpar:CFFrameDy]+[tibmodpar:HybridDy]"/>
+		<Constant name="PAY" value="[CFFrameY]+[tibmodpar:CFFrameDy]+[tibmodpar:PADy]"/>
+		<Constant name="CFFrameY" value="-[tibmodpar:SSModuleDy]+[tibmodpar:CFFrameDy]"/>
+		<Constant name="KaptonBoxY" value="[CFFrameY]+[tibmodpar:CFFrameDy]+[tibmodpar:KaptonBoxDy]"/>
+		<Constant name="WaferY" value="-0.140*mm"/>
+	</ConstantsSection>
+	<LogicalPartSection label="tibmodule2.xml">
+		<LogicalPart name="TIBModule2" category="unspecified">
+			<rSolid name="tibmodpar:TIBSSModule"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TIBHybrid2" category="unspecified">
+			<rSolid name="tibmodpar:TIBHybrid"/>
+			<rMaterial name="tibtidcommonmaterial:TIBTID_Hybrid"/>
+		</LogicalPart>
+		<LogicalPart name="TIBWaferRphi2" category="unspecified">
+			<rSolid name="tibmodpar:TIBSSWafer"/>
+			<rMaterial name="materials:Silicon"/>
+		</LogicalPart>
+		<LogicalPart name="TIBActiveRphi2" category="unspecified">
+			<rSolid name="tibmodpar:TIBSSActive"/>
+			<rMaterial name="materials:Silicon"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tibmodule2.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tibmodule2:TIBWaferRphi2"/>
+			<rChild name="tibmodule2:TIBActiveRphi2"/>
+			<Translation x="[zero]" y="[zero]" z="[tracker:BackPlaneDz]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tibmodule2:TIBModule2"/>
+			<rChild name="tibmodule2:TIBWaferRphi2"/>
+			<rRotation name="tibmodpar:Rphi"/>
+			<Translation x="[zero]" y="[tibmodule2:WaferY]" z="[tibmodpar:WaferZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tibmodule2:TIBModule2"/>
+			<rChild name="tibmodule2:TIBHybrid2"/>
+			<Translation x="[zero]" y="[tibmodule2:HybridY]" z="-[tibmodpar:HybridZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tibmodule2:TIBModule2"/>
+			<rChild name="tibmodpar:TIBPA1"/>
+			<Translation x="[zero]" y="[tibmodule2:PAY]" z="-[tibmodpar:PAZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tibmodule2:TIBModule2"/>
+			<rChild name="tibmodpar:TIBModCFFrameRPhi"/>
+			<Translation x="[zero]" y="[tibmodule2:CFFrameY]" z="[tibmodpar:CFFrameZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tibmodule2:TIBModule2"/>
+			<rChild name="tibmodpar:TIBModCFFrameHybRPhi"/>
+			<Translation x="[zero]" y="[tibmodule2:CFFrameY]" z="[tibmodpar:CFFrameHybZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tibmodule2:TIBModule2"/>
+			<rChild name="tibmodpar:TIBModKaptonBoxRPhi"/>
+			<Translation x="[zero]" y="[tibmodule2:KaptonBoxY]" z="[tibmodpar:KaptonBoxZ]"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

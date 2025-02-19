@@ -1,0 +1,7 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/HLTReco"/>
+<use   name="DQMServices/Core"/>
+<use   name="root"/>
+<flags   EDM_PLUGIN="1"/>

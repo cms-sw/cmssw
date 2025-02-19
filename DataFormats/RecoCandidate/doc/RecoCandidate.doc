@@ -1,0 +1,31 @@
+/*!
+\page DataFormats_RecoCandidate Package DataFormats/RecoCandidate
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/RecoCandidate/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/RecoCandidate/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Implementation of \ref DataFormats_Candidate "Candidate" classes 
+with components from Reco data format objects.
+
+\subsection interface Public interface
+- reco::RecoCandidate: base class for all Reco candidate types.
+- reco::RecoChargedCandidate: reco::RecoCandidate subclass containing a reference to a reco::Track
+- reco::RecoEcalCandidate: reco::RecoCandidate subclass containing a reference to a reco::SuperCluster
+- reco::RecoCaloTowerCandidate: reco::RecoCandidate subclass containing a reference to a CaloTower
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Complete.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/

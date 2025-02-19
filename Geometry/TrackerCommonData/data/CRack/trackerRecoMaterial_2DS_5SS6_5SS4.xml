@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="spec-pars2.xml">
+    <SpecPar name="TrackerRecMaterialTOBLayer1" eval="true">
+      <PartSelector path="//TOB/LAYER1/TOBRod_SS6H/TOBRod4H/TOBRodCentral4H/TOBModule4/TOBWaferRphi4/TOBActiveRphi4"/>
+      <Parameter name="TrackerRadLength" value="0.053"/>
+      <Parameter name="TrackerXi" value="1.17e-04"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer2" eval="true">
+      <PartSelector path="//TOB/LAYER2/TOBRod_DSL_L2/TOBRod1L/TOBRodCentral1L/TOBModule0/TOBWaferSter0/TOBActiveSter0"/>
+      <PartSelector path="//TOB/LAYER2/TOBRod_DSL_L2/TOBRod1L/TOBRodCentral1L/TOBModule0/TOBWaferRphi0/TOBActiveRphi0"/>
+      <Parameter name="TrackerRadLength" value="0.045"/>
+      <Parameter name="TrackerXi" value="9.46e-05"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer3" eval="true">
+      <PartSelector path="//TOB/LAYER3/TOBRod_SS6H/TOBRod4H/TOBRodCentral4L/TOBModule4/TOBWaferRphi4/TOBActiveRphi4"/>
+      <PartSelector path="//TOB/LAYER3/TOBRod_SS6H/TOBRod4H/TOBRodCentral4H/TOBModule4/TOBWaferRphi4/TOBActiveRphi4"/>
+      <Parameter name="TrackerRadLength" value="0.033"/>
+      <Parameter name="TrackerXi" value="6.83e-05"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer4" eval="true">
+      <PartSelector path="//TOB/LAYER4/TOBRod_SS4H/TOBRod2H/TOBRodCentral2H/TOBModule2/TOBWaferRphi2/TOBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.032"/>
+      <Parameter name="TrackerXi" value="6.72e-05"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer5" eval="true">
+      <PartSelector path="//TOB/LAYER5/TOBRod_SS6L/TOBRod4L/TOBRodCentral4L/TOBModule4/TOBWaferRphi4/TOBActiveRphi4"/>
+      <Parameter name="TrackerRadLength" value="0.028"/>
+      <Parameter name="TrackerXi" value="6.01e-05"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer6" eval="true">
+      <PartSelector path="//TOB/LAYER6/TOBRod_DSH_L2/TOBRod1H/TOBRodCentral1H/TOBModule0/TOBWaferRphi0/TOBActiveRphi0"/>
+      <PartSelector path="//TOB/LAYER6/TOBRod_DSH_L2/TOBRod1H/TOBRodCentral1H/TOBModule0/TOBWaferSter0/TOBActiveSter0"/>
+      <Parameter name="TrackerRadLength" value="0.018"/>
+      <Parameter name="TrackerXi" value="3.83e-05"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer7" eval="true">
+      <PartSelector path="//TOB/LAYER7/TOBRod_SS4L/TOBRod2L/TOBRodCentral2L/TOBModule2/TOBWaferRphi2/TOBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.018"/>
+      <Parameter name="TrackerXi" value="3.83e-05"/>
+    </SpecPar>
+    <SpecPar name="TrackerRecMaterialTOBLayer8" eval="true">
+      <PartSelector path="//TOB/LAYER8/TOBRod_SS4H/TOBRod2H/TOBRodCentral2H/TOBModule2/TOBWaferRphi2/TOBActiveRphi2"/>
+      <PartSelector path="//TOB/LAYER8/TOBRod_SS4L/TOBRod2L/TOBRodCentral2L/TOBModule2/TOBWaferRphi2/TOBActiveRphi2"/>
+      <Parameter name="TrackerRadLength" value="0.018"/>
+      <Parameter name="TrackerXi" value="3.83e-05"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

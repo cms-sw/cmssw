@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="cmsextent.xml" eval="true">
+		<Constant name="Rmin" value="0*fm"/>
+		<Constant name="Zmin" value="0*fm"/>
+		<Constant name="HallZ" value="27.0*m"/>
+		<Constant name="HallR" value="13.0*m"/>
+		<Constant name="CMSR1" value="8.30*m"/>
+		<Constant name="CMSR2" value="1.00*m"/>
+		<Constant name="CMSZ1" value="450.0*m"/>
+		<Constant name="CMSZ2" value="26.0*m"/>
+	</ConstantsSection>
+	<SolidSection label="cmsextent.xml">
+		<Tubs name="CMStoZDC" rMin="[Rmin]" rMax="[CMSR2]" dz="56*m" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="ZDCtoFP420" rMin="[Rmin]" rMax="[CMSR2]" dz="120*m" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="cmsextent.xml">
+		<LogicalPart name="CMStoZDC" category="unspecified">
+			<rSolid name="CMStoZDC"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="ZDCtoFP420" category="unspecified">
+			<rSolid name="ZDCtoFP420"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="cmsextent.xml">
+		<PosPart copyNumber="1">
+			<rParent name="cms:CMSE"/>
+			<rChild name="cmsextent:CMStoZDC"/>
+			<Translation x="0*fm" y="0*fm" z="83*m"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:CMSE"/>
+			<rChild name="cmsextent:CMStoZDC"/>
+			<Translation x="0*fm" y="0*fm" z="-83*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cms:CMSE"/>
+			<rChild name="cmsextent:ZDCtoFP420"/>
+			<Translation x="0*fm" y="0*fm" z="270*m"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:CMSE"/>
+			<rChild name="cmsextent:ZDCtoFP420"/>
+			<Translation x="0*fm" y="0*fm" z="-270*m"/>
+		</PosPart>
+	</PosPartSection>
+	<SpecParSection label="cmsextent.xml" eval="true">
+		<SpecPar name="cmsextent">
+			<PartSelector path="//CMStoZDC"/>
+			<PartSelector path="//ZDCtoFP420"/>
+			<Parameter name="CMSCutsRegion" value="InterimRegion" eval="false"/>
+			<Parameter name="ProdCutsForElectrons" value="1*mm"/>
+			<Parameter name="ProdCutsForPositrons" value="1*mm"/>
+			<Parameter name="ProdCutsForGamma" value="1*mm"/>
+		</SpecPar>
+	</SpecParSection>
+</DDDefinition>

@@ -1,0 +1,65 @@
+#run with old version
+set dir1=/afs/cern.ch/cms/sdt/web/CondCore/SQLiteData
+foreach x ($dir1/*.db)
+echo $x
+foreach tag (`cmscond_list_iov -c sqlite_file:$x`)
+cmscond_list_iov -c sqlite_file:$x -t $tag > `basename $x`_dump.${tag}
+end
+end
+
+##
+##
+
+
+#prepare dictionaries
+set dict=`ls $CMSSW_RELEASE_BASE/lib/slc4_ia32_gcc345/ | grep libCondForm | xargs -n 1 -I T basename T .so | cut -c 4-80 | xargs`
+
+touch drop
+
+
+#set dir=/build/vin/SQLiteData
+#foreach x ($dir/*.db)
+#echo $x
+#pool_upgrade_pool_schema -c sqlite_file:$x -d $dict
+#foreach tag (`cmscond_list_iov -c sqlite_file:$x`)
+#cmscond_delete_iov  -c sqlite_file:$x -t $tag
+#end
+#pool_drop_container -n "cond::IOV" --full -c sqlite_file:$x
+#echo ".exit" | sqlite3 -batch -init drop $x
+#end
+#rm drop
+
+#pool_remove_object_relational_mapping -v CONDIOV_2.0 -c sqlite_file:$x
+#pool_remove_object_relational_mapping -v automatic_default_for_cond::IOV -c sqlite_file:$x
+
+
+
+#
+## with the new version 
+#
+set dir=/build/vin/SQLiteData
+echo "drop table METADATA;" >> drop
+foreach x ($dir/*.db)
+echo $x
+pool_upgrade_pool_schema -c sqlite_file:$x -d $dict
+pool_drop_container -n "cond::IOV" --full -c sqlite_file:$x
+echo ".exit" | sqlite3 -batch -init drop $x
+end
+rm drop
+
+foreach x (*_dump*)
+set file = `echo $x | sed 's/_dump.*$//'`
+echo $file
+cmscond_load_iov -c sqlite_file:$dir/$file $x
+end
+
+
+foreach x ($dir/*.db)
+echo $x
+pool_query_database -c sqlite_file:$x -d $dict
+foreach tag (`cmscond_list_iov -c sqlite_file:$x`)
+echo $tag
+cmscond_list_iov -c sqlite_file:$x -t $tag
+end
+end
+

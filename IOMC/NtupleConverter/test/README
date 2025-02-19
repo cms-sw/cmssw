@@ -1,0 +1,10 @@
+# Joanna.Weng@cern.ch
+
+cmsRun mcntpl.cfg reads a CMKIN ntpl, which has been 
+converted via h2root to a root file in order to use 
+old ntpl for comparisons and debuging
+
+WARNING: Only standard Pythia ntpls and ntpls with
+a single or two particles are supported and tested.
+Ntpls produced with external generators and interfaced to 
+CMKIN are NOT tested.

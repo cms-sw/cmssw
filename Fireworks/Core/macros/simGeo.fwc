@@ -1,0 +1,323 @@
+<config name="top" version="1">
+ <config name="CommonPreferences" version="1">
+  <config name="     " version="0">
+    <string>2</string>
+  </config>
+  <config name="Show y=0 points as markers" version="0">
+    <string>1</string>
+  </config>
+  <config name="backgroundColIdx" version="0">
+    <string>1</string>
+  </config>
+  <config name="Brightness" version="0">
+    <string>0</string>
+  </config>
+  <config name="Transparency 2D" version="0">
+    <string>50</string>
+  </config>
+  <config name="Transparency 3D" version="0">
+    <string>90</string>
+  </config>
+  <config name="GeometryColor 0 " version="0">
+    <string>1032</string>
+  </config>
+  <config name="GeometryColor 1 " version="0">
+    <string>1033</string>
+  </config>
+  <config name="GeometryColor 2 " version="0">
+    <string>1026</string>
+  </config>
+  <config name="GeometryColor 3 " version="0">
+    <string>1017</string>
+  </config>
+  <config name="GeometryColor 4 " version="0">
+    <string>1025</string>
+  </config>
+  <config name="GeometryColor 5 " version="0">
+    <string>1022</string>
+  </config>
+  <config name="ScaleMode" version="0">
+    <string>1</string>
+  </config>
+  <config name="EnergyToLength [GeV/m]" version="0">
+    <string>50</string>
+  </config>
+  <config name="MaximumLength [m]" version="0">
+    <string>3</string>
+  </config>
+  <config name="PlotEt" version="0">
+    <string>1</string>
+  </config>
+ </config>
+ <config name="EventItems" version="1">
+ </config>
+ <config name="EventNavigator" version="1">
+  <config name="EventFilters" version="1">
+  </config>
+  <config name="EventFilter_mode" version="0">
+    <string>1</string>
+  </config>
+  <config name="EventFilter_enabled" version="0">
+    <string>0</string>
+  </config>
+ </config>
+ <config name="GUI" version="1">
+  <config name="main window" version="3">
+   <config name="x" version="0">
+     <string>227</string>
+   </config>
+   <config name="y" version="0">
+     <string>50</string>
+   </config>
+   <config name="width" version="0">
+     <string>1080</string>
+   </config>
+   <config name="height" version="0">
+     <string>735</string>
+   </config>
+   <config name="summaryWeight" version="0">
+     <string>0.0857178</string>
+   </config>
+   <config name="leftWeight" version="0">
+     <string>1.00321</string>
+   </config>
+   <config name="rightWeight" version="0">
+     <string>0.996796</string>
+   </config>
+  </config>
+  <config name="views" version="1">
+   <config name="3D RecHit" version="8">
+    <config name="Image Scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Overlay Event Info" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Logo" version="0">
+      <string>0</string>
+    </config>
+    <config name="Smooth points" version="0">
+      <string>0</string>
+    </config>
+    <config name="Point size" version="0">
+      <string>1</string>
+    </config>
+    <config name="Smooth lines" version="0">
+      <string>0</string>
+    </config>
+    <config name="Line width" version="0">
+      <string>1</string>
+    </config>
+    <config name="Outline width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Wireframe width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Show Camera Guide" version="0">
+      <string>0</string>
+    </config>
+    <config name="UseGlobalEnergyScale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Show Muon Barrel" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Muon Endcap" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Pixel Barrel" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Pixel Endcap" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Tracker Barrel" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Tracker Endcap" version="0">
+      <string>0</string>
+    </config>
+    <config name="Render Style" version="0">
+      <string>0</string>
+    </config>
+    <config name="View dependent Clip" version="0">
+      <string>0</string>
+    </config>
+    <config name="Enable Tooltips" version="0">
+      <string>0</string>
+    </config>
+    <config name="EventInfoTextSize" version="0">
+      <string>0.03</string>
+    </config>
+    <config name="EventInfoPosX" version="0">
+      <string>0.05</string>
+    </config>
+    <config name="EventInfoPosY" version="0">
+      <string>0.95</string>
+    </config>
+    <config name="LogoSize" version="0">
+      <string>0.2</string>
+    </config>
+    <config name="LogoPosX" version="0">
+      <string>0.02</string>
+    </config>
+    <config name="LogoPosY" version="0">
+      <string>0.98</string>
+    </config>
+    <config name="ScaleMode" version="0">
+      <string>1</string>
+    </config>
+    <config name="EnergyToLength [GeV/m]" version="0">
+      <string>50</string>
+    </config>
+    <config name="MaximumLength [m]" version="0">
+      <string>3</string>
+    </config>
+    <config name="PlotEt" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrix0Plain3D" version="0">
+      <string>0.290922</string>
+    </config>
+    <config name="cameraMatrix1Plain3D" version="0">
+      <string>-0.956717</string>
+    </config>
+    <config name="cameraMatrix2Plain3D" version="0">
+      <string>0.00757307</string>
+    </config>
+    <config name="cameraMatrix3Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix4Plain3D" version="0">
+      <string>0.956744</string>
+    </config>
+    <config name="cameraMatrix5Plain3D" version="0">
+      <string>0.29093</string>
+    </config>
+    <config name="cameraMatrix6Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix7Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix8Plain3D" version="0">
+      <string>-0.00220312</string>
+    </config>
+    <config name="cameraMatrix9Plain3D" version="0">
+      <string>0.00724566</string>
+    </config>
+    <config name="cameraMatrix10Plain3D" version="0">
+      <string>0.999972</string>
+    </config>
+    <config name="cameraMatrix11Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix12Plain3D" version="0">
+      <string>1676.42</string>
+    </config>
+    <config name="cameraMatrix13Plain3D" version="0">
+      <string>-5513.03</string>
+    </config>
+    <config name="cameraMatrix14Plain3D" version="0">
+      <string>43.6384</string>
+    </config>
+    <config name="cameraMatrix15Plain3D" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrixBase0Plain3D" version="0">
+      <string>-1</string>
+    </config>
+    <config name="cameraMatrixBase1Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase2Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase3Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase4Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase5Plain3D" version="0">
+      <string>-0</string>
+    </config>
+    <config name="cameraMatrixBase6Plain3D" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrixBase7Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase8Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase9Plain3D" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrixBase10Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase11Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase12Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase13Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase14Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase15Plain3D" version="0">
+      <string>1</string>
+    </config>
+    <config name="Plain3D FOV" version="0">
+      <string>28.5297</string>
+    </config>
+   </config>
+   <config name="Geometry Table" version="1">
+    <config name="Mode:" version="0">
+      <string>0</string>
+    </config>
+    <config name="Materials:" version="0">
+      <string></string>
+    </config>
+    <config name="ExpandList:" version="0">
+      <string>1</string>
+    </config>
+    <config name="VisLevel:" version="0">
+      <string>1</string>
+    </config>
+    <config name="IgnoreVisLevelOnFilter" version="0">
+      <string>1</string>
+    </config>
+    <config name="Viewers" version="1">
+     <config name="3D RecHit" version="1">
+     </config>
+    </config>
+   </config>
+  </config>
+  <config name="view area" version="3">
+   <config name="3D RecHit" version="3">
+    <config name="weight" version="0">
+      <string>1.00321</string>
+    </config>
+    <config name="undocked" version="0">
+      <string>0</string>
+    </config>
+   </config>
+   <config name="Geometry Table" version="3">
+    <config name="weight" version="0">
+      <string>1</string>
+    </config>
+    <config name="undocked" version="0">
+      <string>0</string>
+    </config>
+   </config>
+  </config>
+  <config name="controllers" version="1">
+  </config>
+ </config>
+</config>

@@ -1,0 +1,10 @@
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/DTRecHit"/>
+<use   name="DataFormats/DTDigi"/>
+<use   name="DataFormats/Common"/>
+<use   name="Geometry/DTGeometry"/>
+<use   name="CalibMuon/DTDigiSync"/>
+<export>
+  <lib   name="1"/>
+</export>

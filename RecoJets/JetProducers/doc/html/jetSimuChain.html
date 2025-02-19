@@ -1,0 +1,210 @@
+<html>
+<head>
+  <title>Examples of Simulation+Reconstruction Chain in CMSSW</title>
+</head>
+<h2>
+Examples of Simulation+Reconstruction Chain in CMSSW
+</h2>
+<p>
+The user should be aware that CMSSW evolving rapidly,
+and all examples will change quickly.  This page is for training
+people who will help in the rapid development and testing cycle.  What you learn
+is not garanteed to work for very long . . .
+</p>
+<p>
+This procedure is supposed to work for vanila CMSSW_0_6_0.
+It has been tested with CMSSW_0_6_0_pre6 with some patches (see below)
+</p>
+
+The full chain includes following steps:
+<ul>
+<li> Generation of the event. Producing generator level information.
+<li> Running GEANT4 simulation for the CMS detector. Producing SimHits.
+<li> Digitization, simulation of detector readout. Producing digits.
+<li> Calorimeter reconstruction. Producing CaloHits.
+<li> Combining CaloHits into Calorimeter towers. Producing CaloTowers.
+<li> Running jet algorithms. Producing Jets.
+</ul>
+
+The entire chain is split into two pieces: generation and reconstruction.
+
+<h3> Setup working area </h3>
+Usual sequence for CMSSW_0_6_0:
+<pre>
+scramv1 project CMSSW CMSSW_0_6_0
+cd CMSSW_0_6_0/src
+eval `scramv1 runtime -csh`
+</pre>
+Need extra patches for CMSSW_0_6_0_pre6:
+<pre>
+scramv1 project CMSSW CMSSW_0_6_0_pre6
+cd CMSSW_0_6_0_pre6/src
+cmscvsroot CMSSW
+cvs co -r V01-03-00 DataFormats/JetReco
+cvs co -r V00-01-07 RecoJets/JetAlgorithms
+cvs co -r V00-01-06 RecoJets/JetProducers
+cvs co -r V00-04-02 RecoLocalCalo/CaloTowersCreator
+eval `scramv1 runtime -csh`
+scramv1 b
+</pre>
+Get configuration files:
+<ul>
+<li> <a href='../../test/Example_Gen+DetSim+Digi.cfg'> Example_Gen+DetSim+Digi.cfg</a>
+<li> <a href='../../Example_Calorimetry+Jets.cfg'>  Example_Calorimetry+Jets.cfg</a>
+<li> <a href='../../pt_gun.cfi'>  pt_gun.cfi </a>
+<li> <a href='../../pythia_Z700_dijets.cfi'> pythia_Z700_dijets.cfi </a>
+</ul>
+
+<h3> Generation </h3>
+The configuration file is <a href='../../Example_Gen+DetSim+Digi.cfg'> Example_Gen+DetSim+Digi.cfg</a>.
+To run particle gun sample, run 
+<pre>
+cmsRun -p Example_Gen+DetSim+Digi.cfg
+</pre> 
+To run Pythia Z'(700)->dijets,
+first include <a href='pythia_Z700_dijets.cfi'> pythia_Z700_dijets.cfi </a> instead of 
+<a href='pt_gun.cfi'>  pt_gun.cfi </a> in the Example_Gen+DetSim+Digi.cfg file.
+
+It generates 5 events and produces file evtgen_detsim_digi.root containing generator level information, SimHits including
+CaloSimHits, and digis.
+<br>
+CMSSW_0_6_0_pre6 generation job may coredump in the very end. This is a known issue not affecting the generated data file.
+
+<h3>Reconstruction </h3>
+The configuration file is <a href='Example_Calorimetry+Jets.cfg'>  Example_Calorimetry+Jets.cfg</a>.
+To run particle gun sample, run 
+<pre>
+cmsRun -p  Example_Calorimetry+Jets.cfg
+</pre> 
+
+The produced file evtgen_jets.root contains generator level information, reconstructed intermediate objects,
+like CaloTowers, and also jets reconstracted using generator level information as well as true CaloTower
+information.
+
+<p>Some comments to the configuration file are below...</p>
+<hr align='left' width=50%>
+<pre>
+        module out = PoolOutputModule {
+            untracked string fileName = 'evtgen_jets.root'
+            untracked vstring outputCommands = 
+          {
+            "keep *",
+            "drop *_muoncscdigi_*_*",
+            "drop *_muondtdigi_*_*",
+            "drop *_stripdigi_*_*",
+            "drop *_pixdigi_*_*",
+            "drop *_hcaldigi_*_*",
+            "drop *_ecaldigi_*_*",
+            "drop *_SimG4Object_*_*"
+          }
+        } 
+</pre>
+Drop all digis and all simulation objects from output.
+<hr align='left' width=50%>	
+<pre>
+   module genCandidates = HepMCCandidateProducer {
+# pick right source - different for different generators
+   	# string src = "PythiaSource"
+   	string src = "FlatRandomPtGunSource"
+        untracked bool verbose = false
+        bool stableOnly = true
+    	vstring excludeList = { "nu(e)0", "nu(mu)0", "nu(tau)0", "mu-", "K(L)0", "n0" }
+  }
+</pre>
+This converts generator level particles into generic CandidateCollectin
+to be used as a unified input by jet algorithms. 
+Note, that generator module name needs to be explicitly specified here.
+<hr align='left' width=50%>
+<pre>
+#   module caloTowers = CaloTowerCandidateCreator {
+#          string src = "towermaker"
+#   }
+   module caloTowers = CaloTowerCandidateProducer {
+          string src = "towermaker"
+   }
+ </pre>
+This converts CaloTowers collection into generic CandidateCollectin
+to be used as a unified input by jet algorithms. In pre3 we still
+use CaloTowerCandidateProducer, however in later releases supported by
+the Calorimetry group CaloTowerCandidateCreator should be used.
+<hr align='left' width=50%>  
+<pre>
+   block mcone_jet_parameters = {
+          untracked int32 debugLevel = 1
+          double seedThreshold = 3.0
+          double towerThreshold = 1.0
+          double coneAreaFraction = 1.0
+          int32 maxPairSize = 2
+          int32 maxIterations = 100
+          double overlapThreshold = .75
+   }
+
+   block kt_jet_parameters = {
+          int32 ktAngle = 2
+          int32 ktRecom = 1
+          double ktECut = 1.0
+          double ktRParam = 1.0
+   }
+</pre>
+Common MidConeJets and KtJets reconstruction parameters. 
+<hr align='left' width=50%>
+<pre>
+   module mcone5gen =  MidpointJetProducer {
+          using mcone_jet_parameters
+          double coneRadius = 0.5
+          string src = "genCandidates"
+          untracked string jetType = "GenJet"
+   }
+
+   module mcone7gen =  MidpointJetProducer {
+          using mcone_jet_parameters
+          double coneRadius = 0.7
+          string src = "genCandidates"
+          untracked string jetType = "GenJet"
+   }
+
+   module ktjetgen =  KtJetProducer {
+          using kt_jet_parameters
+          string src = "genCandidates"
+          untracked string jetType = "GenJet"
+         }
+</pre>
+Specific parameters for MidCone 0.5, MidCone 0.7, and Kt jets reconstructed
+from Generator particles and producing specific CaloJets
+<hr align='left' width=50%>         
+<pre>  
+   module mcone5 =  MidpointJetProducer {
+          using mcone_jet_parameters
+          double coneRadius = 0.5
+          string src = "caloTowers"
+          untracked string jetType = "CaloJet"
+   }
+
+   module mcone7 =  MidpointJetProducer {
+          using mcone_jet_parameters
+          double coneRadius = 0.7
+          string src = "caloTowers"
+          untracked string jetType = "CaloJet"
+   }
+
+   module ktjet =  KtJetProducer {
+          using kt_jet_parameters
+          string src = "caloTowers"
+	  untracked string jetType = "CaloJet"
+         }
+</pre>
+Specific parameters for MidCone 0.5, MidCone 0.7, and Kt jets reconstructed
+from CaloTowers and producing specific CaloJets
+
+<h3> Jet Analysis </h3>
+As a hook for further analysis, let's make a simple distribution:
+<pre>
+root.exe evtgen_jets.root
+root [1] Events->Draw("CaloJets_mcone5.obj.m_data.e:GenJets_mcone5gen.obj.m_data.e");
+</pre>
+This plots energy of reconstructed CaloJet vs energy of corresponding reconstructed GenJet.
+
+<hr align=center>
+Last updated <!--DATE-->
+	      May 2, 2006 by <a HREF="mailto:ratnikov@fnal.gov"> Fedor Ratnikov </a> 
+</html>

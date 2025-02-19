@@ -1,0 +1,5 @@
+<use   name="GeneratorInterface/PyquenInterface"/>
+<use   name="pydata"/>
+<library   file="*.cc" name="GeneratorInterfacePyquenInterfacePlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

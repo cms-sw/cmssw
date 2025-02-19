@@ -1,0 +1,43 @@
+
+/*!
+
+\page RecoLocalTracker_ClusterParameterEstimator Package RecoLocalTracker/ClusterParameterEstimator
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoLocalTracker/ClusterParameterEstimator/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoLocalTracker/ClusterParameterEstimator/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+Abstract classes for pixel and strip cluster parameter estimator. The concrete classes are implemented in RecoLocalTracker/SiStripRecHitConverter and RecoLocalTracker/SiPixelRecHits.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- ClusterParameterEstimator
+- PixelClusterParameterEstimator
+- StripClusterParameterEstimator
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: Chiara Genta.
+*/
+

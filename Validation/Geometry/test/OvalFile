@@ -1,0 +1,10 @@
+<!===== ==========================================================
+ ! environment for MixingModule validation
+ !===============================================================>
+
+<config name="run tool" value="oval">
+
+<executable name="cmsRun" args="runP.cfg">
+
+
+

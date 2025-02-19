@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="trak.xml">
+		<Polycone name="TRAK" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-2.935*m" rMin="0.0*fm" rMax="1.233*m"/>
+			<ZSection z="2.935*m" rMin="0.0*fm" rMax="1.233*m"/>
+		</Polycone>
+		<Tubs name="SVTX" rMin="19*cm" rMax="1.18*m" dz="2.82*m" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="trak.xml">
+		<LogicalPart name="TRAK" category="unspecified">
+			<rSolid name="TRAK"/>
+			<rMaterial name="materials:Vacuum"/>
+		</LogicalPart>
+		<LogicalPart name="SVTX" category="unspecified">
+			<rSolid name="SVTX"/>
+			<rMaterial name="materials:Vacuum"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="trak.xml">
+		<PosPart copyNumber="1">
+			<rParent name="trak:TRAK"/>
+			<rChild name="trak:SVTX"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

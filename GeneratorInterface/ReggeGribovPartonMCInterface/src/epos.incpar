@@ -1,0 +1,8 @@
+      parameter(maxdataDf=100,nbpf=30)
+      double precision xminDf,xmaxDf,xfitmin,xshmin,xggfit
+      common /parvar/ xminDf,xmaxDf,xfitmin,xshmin,xggfit
+     &               ,nmcxDf,nmcbDf,nptf,smaxDf,bmaxDf,sfshlim
+      common /fitpar/ numparDf,parDf(nbpf,4),numdataDf,numminDf,
+     &                datafitD(maxdataDF,3),fparDf,betac,betae
+      common /epspar/epscrw,epscrp,egyscr,iscreeni,epscrs,epscrx,epscrh
+     &,znurho,zbrads,epscrd,bglaubx,b2xscr,fegypp,zbcutx

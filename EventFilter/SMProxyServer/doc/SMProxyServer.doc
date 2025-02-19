@@ -1,0 +1,51 @@
+
+/*!
+
+\page EventFilter_SMProxyServer Package EventFilter/SMProxyServer
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/SMProxyServer/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/SMProxyServer/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+The XDAQ application SMProxyServer is provided by this package.
+
+The Storage Manager Proxy Server is used in the CMS online system.
+It acts as intermediary between the StorageManager and the online consumers,
+serving events and DQM histograms via HTTP requests.
+
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- smproxy::SMProxyServer
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+None. The main functionality is tested in the stor::StorageManager package.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Stable
+
+<hr>
+Last updated:
+@DATE@  Author: <a href="mailto:remigius.mommsen@cern.ch">Remi Mommsen</a>
+*/
+

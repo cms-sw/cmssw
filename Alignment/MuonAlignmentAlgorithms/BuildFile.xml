@@ -1,0 +1,19 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="CommonTools/Utils"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="TrackingTools/TrackFitters"/>
+<use   name="Alignment/CommonAlignment"/>
+<use   name="RecoMuon/TransientTrackingRecHit"/>
+<use   name="clhep"/>
+<use   name="root"/>
+<use   name="rootcore"/>
+<use   name="rootminuit"/>
+<export>
+  <lib   name="1"/>
+</export>

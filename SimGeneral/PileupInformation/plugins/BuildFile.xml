@@ -1,0 +1,4 @@
+<use   name="SimGeneral/PileupInformation"/>
+<library   file="*.cc" name="SimGeneralPileupInformationPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

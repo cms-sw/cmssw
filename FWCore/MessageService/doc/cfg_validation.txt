@@ -1,0 +1,226 @@
+	Design of validation for the cfg PSet for the MessageService
+	---------------------------------------------------------
+
+The following errors in configuring the message service 
+should be detected and reported rather than  proceeding
+with a job, because the mysterious behavior they cause
+is too tough to track down by hand:
+
+At the main level, only the following PSets are allowed:
+  A destination, as listed in the vstring destinations 
+  A category, as listed in the vstring categories or messageIDs
+  One of the following keywords, which are valid as PSets at the main level
+	default  
+	Note:  The meaning of default as a PSet at the main level is that
+	of a DESTINATION PSet, not a category PSet.  However, for the 
+	default desitnation, 
+
+At the main level, only the following vstrings are allowed:
+    categories		vstring
+    messageIDs		vstring
+    fwkJobReports	vstring
+    destinations	vstring
+    statistics		vstring
+
+    The following are errors:
+    In the destinations vstring, duplicate names.
+    In the statistics vstring, duplicate names. 
+    In the fwkJobReports vstring, duplicate names.
+    In the categories vstring, duplicate names or names matching one of the
+    destinations or statistics or fwkJobReports or a keyword.  
+    Any destination or category is used as anything other than a PSet
+
+    debugModules	vstring
+    suppressInfo     	vstring
+    suppressDebug    	vstring
+    suppressWarning	vstring
+
+    The following are errors:
+    Use of wildcards with suppressInfo or suppressWarning or suppressDebug.
+    suppressDebug unless debugModules = "*"
+    More than one debugModules if one is "*"
+    
+
+At the main level, only the following non-PSets non-vstrings are allowed:
+    messageSummaryToJobReport    		bool
+    generate_preconfiguration_message		string
+    threshold					string	only certain values
+    
+Within a destination PSet, only the following PSets are allowed:
+  A category, as listed in the vstring categories or messageIDs
+  One of the following keywords, which are valid as PSets at this level
+	default  
+    	ERROR
+    	WARNING
+   	INFO
+    	DEBUG
+ 
+Within a destination PSet, only the following non-PSets are allowed:
+    placeholder		bool	forbids others (because it will just return)!
+    threshold		string	only certain values
+    noLineBreaks	bool
+    lineLength   	int
+    noTimeStamps	bool
+    output		string
+    filename		string
+    extension		string
+
+Within a default PSet at the main level (which behaves much like a destination
+PSet), only the following PSets are allowed:
+  A category, as listed in the vstring categories or messageIDs
+  One of the following keywords, which are valid as PSets at this level
+   	ERROR
+    	WARNING
+   	INFO
+    	DEBUG
+	(Note that default is NOT present here)
+  	 
+Within a default PSet at the main level, only the following non-PSets are 
+allowed:
+    placeholder		bool	forbids others (because it will just return)!
+    threshold		string	only certain values
+    noLineBreaks	bool
+    lineLength   	int
+    noTimeStamps	bool
+  And the following, which stem from being able to establish defaults 
+  for categories: 
+    limit		int
+    reportEvery		int
+    timespan		int
+
+Within a statistics PSet, only the following (all non-PSets) are allowed:
+    placeholder		bool
+    output		string
+    filename		string
+    extension		string
+    reset		bool
+    
+Within the fwkJobReport PSet only the following non-PSets are allowed:
+    placeholder		bool
+    output		string
+    filename		string
+    extension		string
+
+
+Within a severity PSet, whether or not it is in the main or nested in a 
+destination PSet,only the following are allowed:
+    limit		int
+    reportEvery		int
+    timespan		int
+    threshold	        int
+    
+Within a category PSet, whether or not this is the default category PSet,
+and whether or not it is in the main or nested in a destination PSet,  
+only the following are allowed:
+    limit		int
+    reportEvery		int
+    timespan		int
+
+
+Not allowed:
+
+Use of filename or extension of cerr or cout.  (But output can be cerr or cout.)
+
+In the destinations vstring, duplicate names.
+
+In the statistics vstring, duplicate names, or cerr when destinations has
+cout or vice-versa. 
+
+In the fwkJobReports vstring, duplicate names.
+
+In the categories vstring, duplicate names or names matching one of the
+destinations or statistics or a keyword.  
+
+Any destination or category is used as anything other than a PSet
+
+Use of wildcards with suppressInfo or suppressWarning or suppressDebug not
+allowed.
+
+Anything tracked is not allowed.
+
+The following is strongly discouraged unless the intent is to redirect
+cout and cerr into different files:
+	In the destinations vstring, presence of both cerr and cout.
+However, this is NOT flagged as a flaw because it can be legit.
+
+
+
+
+
+==========================================================================
+
+Where does this validation get done?
+
+Don't want all the modules to have been created (significant work into the job)
+but do want the services, particularly Message service and Job Report, to have
+started.
+
+Partial Answer:  The validation should be done before or during
+preModuleConstruction and preSourceConstruction, which should 
+(possibly issue a message and) throw if there is a problem.
+
+However, the PSet supplied to the ctor is no longer trivially available at
+that point.  Although it could be saved, there would be potential snags:
+* Saving by reference suffers a tiny risk of the PSet goign away.
+* Saving by copying begs the question of what can and can't be asked of a copy.
+* Saving the PSet ID should be airtight, but it may be a bit convoluted 
+  (according to jbk) to re-obtain the PSet from the ID.
+
+The solution is to do the validation -- and store the results -- in the
+MessageService::MessageLogger ctor.  But we don't throw in that ctor, because 
+that would squelch operation of the logger, which assumedly is "good enough"
+despite the unintended behavior due to errors in the configuration.
+Instead, we **check** the result in preModuleConstruction or 
+preSourceConstruction, whichever happens first.
+
+============================================================================
+
+Working with a PSet:
+
+The following (in addition to getParameter and getUntrackedParameter<T>) are 
+potentially useful for validation:
+
+    template <typename T>
+    std::vector<std::string> getParameterNamesForType(bool trackiness = 
+						      true) const ;
+    ParameterSet trackedPart() const;
+    bool empty() const;
+    
+    (the above two in tandem give us a way to check that everything is
+    untracked)
+						      
+
+    // Return the names of all parameters of type ParameterSet,
+    // pushing the names into the argument 'output'. Return the number
+    // of names pushed into the vector. If 'trackiness' is true, we
+    // return tracked parameters; if 'trackiness' is false, w return
+    // untracked parameters.
+    size_t getParameterSetNames(std::vector<std::string>& output,
+				bool trackiness = true) const;
+						      
+
+
+    /// checks if a parameter exists
+    bool exists(std::string const& parameterName) const;
+
+    /// checks if a parameter exists as a given type
+    template <typename T>
+    bool existsAs(std::string const& parameterName, bool trackiness=true) const {
+       std::vector<std::string> names = getParameterNamesForType<T>(trackiness);
+       return std::find(names.begin(), names.end(), parameterName) != names.end();
+    }
+
+
+
+
+============================================================================
+
+Code plan:
+
+Each type of PSet and collection can be validated separately.  So for
+example, we have validateDestinationPSet().  And the various overall lists
+can be validated in context of the other lists.
+
+We ask whether a parameter exists as the expected type before looking at 
+its value; that way, we can see if it is there but with the wrong type.
+

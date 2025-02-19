@@ -1,0 +1,56 @@
+    How to Deal With Messages Before the MessageServicePresence Exists
+    ------------------------------------------------------------------
+    
+When a message is issued, the MessageSender causes (via a MessageLoggerQ 
+method) something to be placed onto the SingleConsumerQ.  In the current
+implementation, for each message a buffer on the queue is obtained, and 
+the message is placed into that buffer, which is then committed.  The code
+blocks if no buffer is ever going to be available (which would be the case
+if the MessageServerPresence were never instantiated).
+
+We want to be able to cope witht he case of many messages issued before the 
+MessageServerPresence exists, prinicpally to be able to handle "debug-level"
+information issued by the plug-in manager itself.  As long as the number of
+messages does not exceed the queue capacity (1000), there is no problem: 
+Once the presence is instantiated, the run() method will take care of dealing
+with each message in the order in which they were received.  The destinations
+will not have been configured yet, but at least the information will go to 
+cerr.  (One could decide on a different pre-configuration destination, but
+that is a separate issue.)
+
+What we want to add is some suitable behavior in the case where the queue 
+capacity is exceeded before the service presence has been instatntiated.
+The current "suitable behavior" would be to put the message onto the queue
+**only if there have been fewer than 999 such messages so far**.  If the queue
+depth is exceeded, then queue (once, as the last viable entry) a system-level 
+message about further messages before configuration going to cerr, and 
+route the string of the message to cerr.  A minor modification to this is to
+say that if there are multiple consumers, each has some known share to use
+in place of 999.
+
+Of course, once the presence is instantiated, the current policy of just adding
+the message to the queue is proper.  The best way to implement this decision
+is by installing one or the other "policy functions" as the action which
+normally corresponds to queue-ing up the message.  Then in the future, if
+the nature of the queue changes so that we could implement other options
+(such as "drop the initial entries and queue the new one), we can merely write
+and install some different policy function.
+
+---
+
+A separate issue - the pre-copnfiguration messages come out on cerr.
+Maybe there would be an advantage in delaying logging till logger configuration
+has happened; then they would come out in the desired destination files.
+
+The problem is that by delaying the output, you ensure that if the problem is so
+severe that the job never gets to the configuration step, the developer gets 
+no output, thus no clues as to what went wrong.
+
+A "modified limit hangout" might be to push each pre-config ErrorObj onto 
+a vector of them (we could conceivably want to limit the total size of this
+vector) along with logging it to cerr.  Then at the tail end of configure_errlog
+we could log each of those objects in the normal way!
+
+----
+
+When should we do these things?

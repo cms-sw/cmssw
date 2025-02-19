@@ -1,0 +1,39 @@
+<SOAP-ENV:Envelope
+   SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+   xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/">
+ 
+  <SOAP-ENV:Header>
+
+  </SOAP-ENV:Header>
+
+  <SOAP-ENV:Body>
+
+    <xdaq:Configure xmlns:xdaq="urn:xdaq-soap:3.0">
+
+      <xc:Partition 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+       xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
+       xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+	
+    	 <xc:Context url="http://.host:.portn">
+	    
+                <xc:Application class="SiStripClient" id="15" instance="0" network="local">
+                  <properties xmlns="urn:xdaq-application:SiStripClient" xsi:type="soapenc:Struct">
+                    <serverHost xsi:type="xsd:string">.collector</serverHost>
+                    <serverPort xsi:type="xsd:unsignedLong">9090</serverPort>
+                    <reconnectDelaySecs xsi:type="xsd:unsignedLong">5</reconnectDelaySecs>
+                    <actAsServer xsi:type="xsd:boolean">false</actAsServer>
+                  </properties>
+                </xc:Application>
+
+                <xc:Module>.libpath</xc:Module>
+
+         </xc:Context>
+
+      </xc:Partition>
+    </xdaq:Configure>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

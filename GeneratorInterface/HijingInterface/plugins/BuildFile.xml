@@ -1,0 +1,4 @@
+<use   name="GeneratorInterface/HijingInterface"/>
+<library   file="*.cc" name="GeneratorInterfaceHijingInterfacePlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

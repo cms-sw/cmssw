@@ -1,0 +1,8 @@
+<use   name="hepmc"/>
+<use   name="FastSimulation/ParticlePropagator"/>
+<use   name="GeneratorInterface/Pythia6Interface"/>
+<use   name="f77compiler"/>
+<use   name="pydata"/>
+<export>
+  <lib   name="1"/>
+</export>

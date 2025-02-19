@@ -1,0 +1,173 @@
+TIB MODULES
+============
+
+$$  This includes all the volumes that make up the TIB modules
+$$  as well as the electronics on the module string !
+
+
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+o  Hybrid for single sided module [moved to tibtid_common.in]
+o  Hybrid for double sided module [moved to tibtid_common.in]
+
+o TIB HV kapton 
+  -------------
+
+20071013 GSguazzoni
+
+MCVolume: 31.7cm^2*0.3mm = 0.951 cm^3
+
+(1) Kapton thickness 120 micron
+(2) Copper traces and pad estimated 2.45cm^2 
+(3) SMD resistors
+(4) SMD capacitors (~0.2g)
+(5) Silicon sensor siliconic glue (0.5g)
+(6) Module aluminum fixings 
+(7) Stainless steel screws
+               
+......................................................................
+# "TIB KaptonHV"            "TIB_ModKaptonBox"      0.95100   -1.
+* 1 "Kapton"                "T_Kapton"              0.01200   31.7 ELE
+* 2 "Copper"                "Copper"                0.00038   2.45 ELE
+* 3 "Resistors"             "Ceramic"               0.00320    1   ELE
+* 4 "Capacitors"            "Barium_Titanate"       0.01661    2   ELE
+* 5 "Glue"                  "Silicone_Gel"          0.51813    1   SUP
+* 6 "Inserts"               "Aluminium"             0.00926    2   SUP
+* 7 "Screws"                "Iron"                  0.00381    2   SUP
+......................................................................
+======================================================================
+
+o TIB SS Module AOH box  
+  ---------------------
+
+20071013 GSguazzoni
+
+MCVolume: 3.6cm*3.6cm*0.22cm =  2.8512 cm^3
+
+(5), (6) Hybrid AOH tail is fully contained here
+(8), (9), (10) Half hybrid LV tail here (other half in SSMCModConn)
+(11), (12) Part of module HV tail here (other part in SSMCModConn)
+(11) Kapton thickness 120micron, surface ~4cm2
+(12) Copper thickness 35micron, occupancy ~12%
+
+......................................................................
+# "TIBSSAOHBox"            "TIB_SSAOHBox"           2.85120   -1.
+* 1 "AOH"                  "TIBTID_AOH"             3.45000    1  ELE
+* 2 "NAIS Conn case"       "Polyethylene"           0.16842    1  ELE
+* 3 "NAIS Conn pins"       "T_Bronze"               0.01237    1  ELE
+* 4 "Stiffner"             "T_FR4"                  0.11176    1  ELE
+* 5 "AOH tail"             "TIBTID_HybridTails"     0.01860 3.66  ELE
+* 6 "Half LV tail"         "TIBTID_HybridTails"     0.01860 1.47  ELE
+* 7 "Kapton HV tail (part)" "T_Kapton"              0.04800    1  ELE
+* 8 "Copper HV tail (part)" "Copper"                0.00168    1  ELE 
+* 9 "Screws"               "Iron"                   0.00381    2  SUP
+......................................................................
+======================================================================
+
+o TIB DS Module AOH box  
+  ---------------------
+
+20071014 GSguazzoni
+
+MCVolume: 3.6cm*6.0cm*0.22cm = 4.752 cm^3
+              
+......................................................................
+# "TIBDSAOHBox"            "TIB_DSAOHBox"          4.75200   -1.
+* 1 "2x SS AOH Box"        "TIB_SSAOHBox"          2.85120    2  ELE
+......................................................................
+======================================================================
+
+o TIB Module hybrid ledge
+  -----------------------
+
+20071014 GSguazzoni
+
+MCVolume: 0.44383 cm^3
+          
+(1) Aluminium
+(2) Carbon fiber leg
+
+NB The ledge description in the simulation is simplified: the
+   resulting MC volume is smaller than real physical volume!
+NB Part of the DS Module ledge is in the module volume itself!
+
+......................................................................
+# "Module Hyb Ledge"       "TIB_ModHybLedge"        0.44383   -1.
+* 1 "Aluminum"             "Aluminium"              0.85076    1  SUP
+* 2 "CF leg"               "Carbon fibre str."      0.17751    1  SUP
+......................................................................
+======================================================================
+               
+o TIB Module dummy ledge
+  -----------------------
+
+20071014 GSguazzoni
+
+MCVolume: 0.42 cm^3
+          
+(1) Aluminium
+(2) Carbon fiber leg
+
+NB The ledge description in the simulation is simplified: the
+   resulting MC volume is smaller than real physical volume!
+NB Part of the DS Module ledge is in the module volume itself!
+
+......................................................................
+# "Module Dummy Ledge"     "TIB_ModDummyLedge"      0.42000   -1.
+* 1 "Aluminum"             "Aluminium"              0.74753    1  SUP
+* 2 "CF leg"               "Carbon fibre str."      0.17751    1  SUP
+......................................................................
+======================================================================
+               
+o TIB AOH ledge
+  -----------------------
+
+20071014 GSguazzoni
+
+MCVolume: 0.24037 cm^3
+          
+(1) Aluminium
+
+NB The ledge description in the simulation is simplified: the
+   resulting MC volume is smaller than real physical volume!
+
+......................................................................
+# "AOH Ledge"              "TIB_AOHLedge"           0.24037   -1.
+* 1 "Aluminium"            "Aluminium"              0.49630    1  SUP
+......................................................................
+======================================================================
+
+o TIB DS Module Spacers
+  ---------------------
+
+20071014 GSguazzoni
+
+MCVolume: 1.*1.*0.035 cm^3
+
+Volumes per cm2
+
+......................................................................
+# "DS Module Spacer per cm2" "TIB_Spacer"          0.03500   -1.
+* 1 "Alumina"              "Alumina"               0.02500    1  SUP
+* 2 "Glue"                 "Epoxy"                 0.01000    1  SUP
+......................................................................
+======================================================================
+
+# "END"  "END"  0.  0.   
+this has to be the last line !

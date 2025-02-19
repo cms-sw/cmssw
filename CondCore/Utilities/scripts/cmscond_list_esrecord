@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+import os,fnmatch,string
+from optparse import OptionParser
+class listESrecord:
+    def __init__(self):
+        """
+        Search in 
+        usage: %prog [options]
+        -l, --local: search in local CMSSW_BASE (optional.If not specified will search in $CMSSW_RELEASE_BASE)
+        -s, --subsystem: search for the given subsystem (optional. If not specified will search in all directories match pattern CondCore/[Subsystem]Plugins 
+        -v, --verbose: switch on verbose mode
+        -h, --help: print usage
+        """
+        self.__cmsswbase='$CMSSW_BASE'
+        self.__cmsswreleasebase='$CMSSW_RELEASE_BASE'
+        self.__local=False
+        self.__verbose=False
+        self.__plugindir=[]
+    def parsecmdln(self):
+        """
+        Parse command line
+        """
+        usage = "usage: \%prog [options] \n"
+        parser = OptionParser()
+        parser.add_option("-l","--local",action="store_true",dest="islocal",
+                          help="search in local CMSSW_BASE (optional.If not specified will search in $CMSSW_RELEASE_BASE")
+        parser.add_option("-s","--subsystem",action="store",dest="subsystem",
+                          help="search for the given subsystem (optional. If not specified will search in all directories match pattern CondCore/[Subsystem]Plugins")
+        parser.add_option("-v","--verbose",action="store_true",dest="verbose",
+                          help="verbose mode")
+        
+        (options, args) = parser.parse_args()
+        if options.islocal :
+            self.__local=True
+        if options.subsystem :
+            searchdir=''
+            if self.__local is True:
+                searchdir=os.path.expandvars(self.__cmsswbase)
+            else:
+                searchdir=os.path.expandvars(self.__cmsswreleasebase)
+            plugindir=options.subsystem+'Plugins'
+            searchdir=os.path.join(searchdir,'src','CondCore',plugindir)
+            self.__plugindir.append(searchdir)
+        else :
+            searchdir=''
+            if self.__local is True:
+                searchdir=os.path.expandvars(self.__cmsswbase)
+            else:
+                searchdir=os.path.expandvars(self.__cmsswreleasebase)
+            searchdir=os.path.join(searchdir,'src','CondCore')
+            plugindirs=fnmatch.filter(os.listdir(searchdir),'*Plugins')
+            for dir in plugindirs:
+                r=os.path.join(searchdir,dir)
+                self.__plugindir.append(r)
+    def parsePluginfiles(self):
+        """Loop over plugin dir and parse plugindir/src/plugin.cc
+        """
+        print 'found in ',self.__plugindir
+        print 'EventSetup record \t type'
+        print '###################################################'
+        for d in self.__plugindir:
+            mydir=os.path.join(d,'src')
+            pluginfiles=fnmatch.filter(os.listdir(mydir),'*.cc')
+            for pluginfile in pluginfiles:
+                f=open(os.path.join(mydir,pluginfile),'r',-1)
+                lines=f.read().split('\n')
+                for line in lines:
+                   cleanline=('').join(line.split(' '))
+                   result=self.parseCondPlugin(cleanline)
+                   if result is not None:
+                       print result[0],'\t',result[1]
+                f.close()
+    def parseCondPlugin(self,dataproxy):
+        """
+        dataproxy:REGISTER_PLUGIN(recordnae,objectname)
+        """
+        pos=dataproxy.find("REGISTER_PLUGIN(")
+        if pos is -1:
+            return None
+        pos=pos+len('REGISTER_PLUGIN(')
+        closeb=dataproxy.rfind(')')
+        subs=dataproxy[pos:closeb]
+        result=subs.split(',')
+        return result
+if __name__ == "__main__":
+    me=listESrecord()
+    me.parsecmdln()
+    me.parsePluginfiles()
+

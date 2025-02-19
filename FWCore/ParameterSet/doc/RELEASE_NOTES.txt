@@ -1,0 +1,161 @@
+2006-05-03  Marc Paterno  <paterno@fnal.gov>
+
+	* Modified lexer to strip away "return" (\r) characters. This
+	allows configuration files represented in textual internet
+	protocols, as well as files created on operating system that use
+	\r\n as the line terminator, to be handled correctly.
+
+02-03-06 mfp. Add ability to get names of all parameters of a given type
+    to ParameterSet, and tests for it.
+
+28-02-06 mfp. Added ability to get names of all directly-included
+    ParameterSets and vectors of ParameterSets. This was added to
+    support the recursive "explosion" of a ParameterSet to produce
+    all the ParameterSets it contains.
+
+27-02-06 mfp. Added thread-safe Registry class, to provide a
+    repository for the persistent part of ParameterSets used in a
+    whole program. This is a first step towards providing persistency
+    of ParameterSets in a framework program.
+
+07-02-06 mfp. Added ability for parser and tree walker to deal with
+    creating untracked parameters of type ParameterSet. Added
+    tests to the test suite to verify correct behavior. Removed
+    another wrong test which had required failure when attempting
+    to make an empty ParameterSet.
+
+06-02-06 mfp. Add tests of generation of ParameterSetID.
+    Added tests to verify that modification of untracked parameters
+    does *not* cause a change in ParameterSetID, but addition
+    of a (tracked) parameter *does* change the ParameterSetID.
+
+03-02-06 mfp. More fixing of mis-handled untracked/tracked
+   differentiation.
+
+    Removed 'ValueError' and 'EntryError' classes, in favor of use of
+    edm::Exception.
+
+    Fixed mixing of untracked and tracked parameters.
+    Fixed tests to reflect correct behavior.
+
+02-02-06 mfp. Removed default c'tor for Entry class.
+
+02-02-06 mfp. Starting to fix long-standing mishandling of untracked
+   parameters. Removed check for 'label' entry in the ParameterSet's
+   table; this seems to have been a leftover from a previous
+   misunderstanding regarding ParameterSet objects having names. This
+   was also probably the source of the (defunct) error messages
+   regarding 'anonymous parameter sets'.
+
+31-01-06 mfp. Remove unnecessary rejection of empty parameter sets
+   from MakersProcess.cc
+   Add test for overriding 'used' blocks and PSets; test is commented
+   out because the current code fails! The test/sample.txt file is
+   correct in its use. The failure is not in the parser, but in the tree
+   walker code.
+
+17-01-06 mfp. Added protection to prevent circular inclusion.
+   Also made EdmConfigToPython use preprocesser.
+
+17-01-06 mfp. Added 'include' functionality, via use of
+    preprocessor. Also modified the lexer/parser to disallow
+    multi-line strings, which (up to very recently) were not
+    working correctly anyway. This was done in order to make
+    the preprocessing simpler to understand, and so that the
+    preprocessing did not need to understand when it was
+    "within" a string.
+
+    The preprocessor is currently lacking protection against
+    circular inclusion. This will be added soon. This preliminary
+    check-in is being done so that Jim can work elsewhere in
+    ParameterSet without colliding.
+
+12-01-06 mfp. Fixed bug in pset_lex.l
+
+The bug was in the pattern that identified double-quoted strings.  The
+(wrong) behavior to was have a newline terminate a double-quoted
+string. This had at least two bad effects:
+  -- we would fail to catch errors in which a double-quoted string
+     did not have an ending double-quote, e.g.
+              string s = "Note the lack of trailing double-quote
+     did not produce a parse error
+  -- we would fail to parse what should have been a legal string,
+     e.g.
+        string s = "line 1
+                    line 2"
+     would cause a parse error.
+
+Note this problem only appeared for double-quoted
+strings. Single-quoted strings behaved correctly.
+  
+
+17-11-05 mfp & cdj. Fixed handling of unnamed source; "@main_input"
+magic name now injected into ParameterSet, not parse tree.
+
+15-11-05 mfp. Changed FileInPath to deal with new versions of its
+environment variables.
+   CMSDATA          --> CMSSW_DATA_PATH
+   CMS_SEARCH_PATH  --> CMSSW_SEARCH_PATH
+
+Modified tests to fit. Code and tests also deal with the old
+environment variables, as a temporary measure.
+
+01-11-05 mfp. Attempted to run the "test/run_all_parser_t.sh" script.
+
+The tests fail because the output from printing the parse tree is no
+longer legal input. The reason for failure (there may be others, but
+this is the first encountered, which stops the test) is that the 'main
+input source' is written out with a name '@main'; the grammar requires
+the main input source to be unnamed. Furthermore, '@main' is not a
+legal name.
+
+This problem is not yet solved.
+
+Added support for FileInPath; see the header for details.
+
+12-08-05 mfp Added member template to ParameterSet to allow adding
+parameters to an existing ParameterSet object.
+
+NOTE: ParameterSets don't seem to deal well with 'infinity' as a value
+of a double; see the commented-out line in ps_t.cppunit.cc that causes
+a failed test. Similarly, ParameterSets don't deal well with NaN as a
+value for a double.
+
+
+14-07-05 jbk
+Changed the exceptions from std::runtime_error to edm::Exception.
+It is still unclear what the best route is for identifying
+exceptions from this package.  Currently nearly all types
+are edm::Exception with category "Configuration".  The constructor
+message string includes "Invalid" or a string related to the 
+place where the error occurred.  Another approach could be to
+just use cms::Exception in a derived class, where the category
+would be the derived class name and the message string could
+be from a constructor argument.  This class could include
+information in the message about the fact that this is
+the parameterset package.  Currently many of the throw
+exceptions include this information in the thrown data.
+
+18-07-05 jbk
+Changed the process pset visit function that creates a pset
+that is contained within a process section of the configuration file.
+(visitPSet)  Now this function adds the the child pset to the 
+process pset.
+
+07-09-05 jbk
+Found out that endpath was not implemented! Now it is.  Many
+endpaths can be specified.  I was careful to sort them to the
+end and retain the relative order of path and endpath 
+statements from the original file.  The testing is woefully
+inadequate.
+
+18-01-06 jbk
+inject a new pset into a "process pset" now.  The injected one
+looks like this:
+  untracked pset @trigger_paths = 
+    { 
+      vstring @paths = { p1,p2,....,pn }
+      vstring @end_paths = { e1,e2,...,en }
+    }
+where p1... and e1... are all the names of the path and
+endpath statements in the main pset.

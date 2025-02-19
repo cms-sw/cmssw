@@ -1,0 +1,12 @@
+
+universe=vanilla
+
+executable=minbias_evtrepro_fnal.csh
+
+output = /uscmst1b_scratch/lpc1/3DayLifetime/yarba_j/170pre8-evtrepro/MB_evtrepro_FNAL_$(Process).out
+error = /uscmst1b_scratch/lpc1/3DayLifetime/yarba_j/170pre8-evtrepro/MB_evtrepro_FNAL_$(Process).err
+log = /uscmst1b_scratch/lpc1/3DayLifetime/yarba_j/170pre8-evtrepro/MB_evtrepro_FNAL_$(Process).log
+
+Arguments = $(Process)
+queue 2
+

@@ -1,0 +1,33 @@
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+%MSG-i expect_overall_unnamed:  UnitTestClient_E:sendSomeMessages  Run: 1 Event: 1
+The following outputs are expected: 
+unlisted_category    appearing in events 1,2,3,4,5,10,15,25,45 
+
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default limit of 5: 1
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default limit of 5: 2
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default limit of 5: 3
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default limit of 5: 4
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default limit of 5: 5
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default limit of 5: 10
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default limit of 5: 15
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default limit of 5: 25
+%MSG
+%MSG-i unlisted_category:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with overall default limit of 5: 45
+%MSG

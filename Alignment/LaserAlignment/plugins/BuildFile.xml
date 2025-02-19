@@ -1,0 +1,28 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ServiceRegistry"/>
+
+<library   name="LaserAlignmentPlugins" file="*cc">
+  <use   name="EventFilter/SiStripRawToDigi"/>
+  <use   name="Geometry/CommonTopologies"/>
+  <use   name="Geometry/TrackerGeometryBuilder"/>
+  <use   name="Geometry/TrackerNumberingBuilder"/>
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CondFormats/Alignment"/>
+  <use   name="CondCore/DBOutputService"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/Alignment"/>
+  <use   name="DataFormats/SiStripDetId"/>
+  <use   name="TrackingTools/TrajectoryState"/>
+  <use   name="Alignment/LaserAlignment"/>
+  <use   name="Alignment/TrackerAlignment"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="boost"/>
+  <use   name="CLHEP"/>
+  <use   name="rootcore"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

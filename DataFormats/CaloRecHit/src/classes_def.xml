@@ -1,0 +1,19 @@
+<lcgdict>
+  <class name="CaloRecHit" ClassVersion="10">
+   <version ClassVersion="10" checksum="582597904"/>
+  </class>
+  <class name="reco::CaloCluster" ClassVersion="10">
+   <version ClassVersion="10" checksum="4003646624"/>
+  </class>
+
+  <class name="edm::RefToBase<CaloRecHit>"/>
+  <class name="edm::Ptr<reco::CaloCluster>"/>
+  <class name="edm::PtrVector<reco::CaloCluster>"/>
+  <class name="edm::Wrapper<edm::PtrVector<reco::CaloCluster> >"/>
+  <class name="std::vector<edm::Ptr<reco::CaloCluster> >"/>
+  <class name="reco::CaloID" ClassVersion="10">
+   <version ClassVersion="10" checksum="2360607337"/>
+  </class>
+  <class name="edm::reftobase::BaseHolder<CaloRecHit>"/>
+
+</lcgdict>

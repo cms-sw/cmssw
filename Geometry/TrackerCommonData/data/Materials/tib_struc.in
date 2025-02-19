@@ -1,0 +1,348 @@
+TIB Structure (anything but modules)
+====================================
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, Type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+o TIB Layer CF support cylinder
+  -----------------------------
+
+GSguazzoni 20080218
+
+(1) CF of cylinder skins
+(2)(3) Kapton strips (320g) to hold optical
+       fibers and fixing glue (170g) evenly distributed over
+       ~13627cm3 of "TIB_CFCylinder" volume.
+(4) Silicone spirals (300g) to group fibers, distributed as above
+......................................................................
+# "TIB layer support"      "TIB_CFCylinder"       1.      -1.
+* 1 "CF cylinder"          "Carbon fibre str."    1.       1   SUP
+* 2 "Kapton strips"        "T_Kapton"             0.01677  1   SUP
+* 3 "Glue"                 "Epoxy"                0.00960  1   SUP
+* 4 "Silicone spirals"     "Silicone_Gel"         0.02281  1   SUP 
+......................................................................
+======================================================================
+
+o TIB String cooling pipe per cm (~elliptical section)
+  ----------------------------------------------------
+
+20071014 GSguazzoni
+
+MCVolume: 0.45cm*0.21cm*1cm = 0.09450 cm^3
+          
+(1) Aluminium: weight per cm of the pipe before the 'flattening'
+    operation;
+(2) Coolant: internal volume after flattening computed assuming two
+    half-circular section (1.05mm in radius) and a regtangular section
+    ( (4.5mm-2.1mm)*2.1mm ).
+
+NB A factor 1.0225 applied to both components to take into account the
+   fact that the pipe is not straight as in the simulation...
+
+Volumes per cm
+
+......................................................................
+# "TIB Cooling Pipe per cm" "TIB_CoolPipe"          0.09450   -1.
+* 1 "Pipe"                 "Aluminium"              0.03542    1  COL
+* 2 "Coolant"              "C6F14_F2_-30C"          0.05009    1  COL
+......................................................................
+======================================================================
+               
+o TIB Mother Cable per cm (no head, only narrower part)
+  -----------------------------------------------------
+
+20071014 GSguazzoni
+
+MCVolume: 2.4cm*0.12*1cm = 0.09450 cm^3
+
+Is called 'cable' but is more a PCB!
+
+Nominal thickness 1266micron; measured ~1150 micron          
+
+Mesured value: 0.589g/cm (fit over several cables, different in length)
+
+(1) See below;
+(2) Copper (5 layers): 35micron*0.13*2+35micron*0.90*2+70micron*0.90*1
+    [thickness*occupancy*number_of_layers] (GDeRobertis 20070903)
+(3) See below;
+(4) AOH fiber pigtail; on average, over the MC length, there are 4cm
+    (12cm) of pigtail per cm of MC for SS (DS) strings; on average
+    7.14 (average weighted on the number of DS and SS strings!)
+
+Kapton (1.4g/cm2) vs. glue (1.3 g/cm2) relative composition inferred 
+from measured weight.
+
+Volumes per cm
+
+......................................................................
+# "TIB MotherCable per cm" "TIB_MCable"             0.28800   -1.
+* 1 "PCB Kapton"           "T_Kapton"               0.17786    1  ELE
+* 2 "PCB Copper"           "Copper"                 0.03248    1  ELE
+* 3 "PCB Glue"             "Epoxy"                  0.03692    1  ELE
+* 4 "Fiber Pigtails (average)" "T_FiberPigtail"     0.7854E-2 7.14 CAB
+......................................................................
+======================================================================
+               
+o TIB SS Module Connector box on MC 
+  ---------------------------------
+
+20071014 GSguazzoni
+
+MCVolume: 8*0.57cm*0.69cm*0.31cm = 0.97538 cm^3
+
+......................................................................
+# "SSMCModConn"            "TIB_SSMCModConn"        0.97538   -1.
+* 1 "Half LV tail"         "TIBTID_HybridTails"     0.01860 1.47  ELE
+* 2 "Kapton Last 19mm HV tail" "T_Kapton"           0.01596    1  ELE
+* 3 "Copper Last 19mm HV tail" "Copper"             0.00056    1  ELE
+* 4 "Stiffner LV connector" "T_FR4"                 0.08824    1  ELE
+* 5 "Stiffner HV connector" "T_FR4"                 0.00841    1  ELE
+* 6 "Connectors hyb side case" "Polyethylene"       0.20526    1  ELE
+* 7 "Connectors hyb side pins" "T_Bronze"           0.00169   30  ELE
+* 8 "Connectors MC side case"  "Polyethylene"       0.31579    1  ELE
+* 9 "Connectors MC side pins"  "T_Bronze"           0.00007   30  ELE
+......................................................................
+======================================================================
+               
+o TIB DS Module Connector box on MC 
+  ---------------------------------
+
+20071014 GSguazzoni
+
+MCVolume: 8*0.74cm*0.97cm*0.25cm = 1.43560 cm^3
+
+......................................................................
+# "DSMCModConn"            "TIB_DSMCModConn"       1.43560   -1.
+* 1 "2x SSMCModConn"       "TIB_SSMCModConn"       0.97538    2  ELE
+......................................................................
+======================================================================
+
+o TIB Head of the Mother Cable (CCMU and connectors)
+  --------------------------------------------------
+
+20071014 GSguazzoni
+
+MCVolume: 3.2cm*0.5cm*4.4cm = 7.04 cm^3
+
+(1), (2), (3) See MotherCable
+(16) AOH fiber pigtail; on average, over the MC head, there are 6*4.4cm
+    (18*4.4cm) of pigtail for SS (DS) strings; on average
+    ~47cm (average weighted on the number of DS and SS strings!)
+
+......................................................................
+# "MCHead"                 "TIB_MCHead"             7.04000   -1.
+* 1 "CCUM"                 "TIBTID_CCUM"            6.00000    1  ELE
+* 2 "Kapton"               "T_Kapton"               1.04343    1  ELE
+* 3 "Copper"               "Copper"                 0.19054    1  ELE
+* 4 "Glue"                 "Epoxy"                  0.21662    1  ELE
+* 5 "Capacitors"           "Barium_Titanate"        0.04983    1  ELE
+* 6 "2x CCU Conn case"     "Polyethylene"           0.84211    1  ELE
+* 7 "2x CCU Conn pins"     "T_Bronze"               0.05624    1  ELE
+* 8 "HV+LV MC side case"   "Polyethylene"           0.52632    1  ELE
+* 9 "HV+LV MC side pins"   "T_Bronze"               0.06749    1  ELE
+* 10 "HV+LV Medusa side case" "Polyethylene"        0.21053    1  CAB
+* 11 "HV+LV Medusa side pins" "T_Bronze"            0.05624    1  CAB
+* 12 "I2C conn MC side case" "Polyethylene"         0.42105    1  ELE
+* 13 "I2C conn MC side pins and support" "T_Bronze" 0.04499    1  ELE
+* 14 "I2C conn Cable side case" "Polyethylene"      0.94737    1  CAB
+* 15 "I2C conn Cable side pins" "T_Bronze"          0.04124    1  CAB
+* 16 "Fiber Pigtails (average)" "T_FiberPigtail"    0.00785   47  CAB
+......................................................................
+======================================================================
+               
+o TIB Internal Manifold rings per cm (barrel flange CF + cooling pipes)
+  --------------------------------------------------------------------
+
+20071014 GSguazzoni
+
+MCVolume: 3.4cm*0.8cm*1cm = 2.72 cm^3
+
+Volumes per cm
+
+......................................................................
+# "MFRing INT per cm"      "TIB_MFIntRing"           2.72000  -1.
+* 1 "Square-section MF pipe" "Aluminium"             0.29159   2  COL
+* 2 "Caps and joint fittings" "Aluminium"            0.06759   2  COL
+* 3 "Joints and ring nuts"    "Aluminium"            0.02233   2  COL
+* 4 "Coolant"              "C6F14_F2_-30C"           0.43760   2  COL
+* 5 "Structure"            "Carbon fibre str."       0.21000   1  SUP
+* 6 "Inserts"              "Aluminium"               0.01715   1  SUP
+* 7 "GNDing hardware"      "Copper"                  0.04500   1  CAB
+* 8 "GNDing hw Plating"    "Gold"                    0.00090   1  CAB             
+......................................................................
+======================================================================
+
+o TIB External Manifold rings per cm (barrel flange CF + cooling pipes)
+  ---------------------------------------------------------------------
+
+20071014 GSguazzoni
+
+MCVolume: 3.4cm*0.8cm*1cm = 2.72 cm^3
+
+With respect to internal only an average amount of Amphenol cables
+is added...
+
+Volumes per cm
+
+......................................................................
+# "MFRing EXT per cm"      "TIB_MFExtRing"          2.72000   -1.
+* 1 "MFRing INT per cm"    "TIB_MFIntRing"          2.72000    1  COL
+* 2 "Amphenol cable 26cond per cm" "TIBTID_AmphCable" 0.1 0.2688 CAB
+......................................................................
+======================================================================
+               
+o TIB Mixture for central support rings
+  -------------------------------------
+
+20071014 GSguazzoni
+
+MCVolume: 1.cm^3
+
+Real volume larger than simulated volume...
+
+(1) CF
+(2) Aluminum inserts
+
+Volumes per cm
+
+......................................................................
+# "CentSupport per cm3"    "TIB_CentRing"           1.00000   -1.
+* 1 "CF" "Carbon fibre str."                        1.87500    1  SUP
+* 2 "Aluminium" "Aluminium"                         0.09375    1  SUP
+......................................................................
+======================================================================
+               
+o TIB DOHM Primary Board
+  ----------------------
+
+20070924 GSguazzoni
+
+MCVolume: 28.5*6.0*0.4 cm^3 = 68.4 cm^3
+
+(7)-(8) On board I2C connectors: 7x26pins, 1x50pins, 1x12pins ~9.5x26pins
+(15)-(16) I2C connector cable side; on average 6.17 cables/DOHM 
+          (also DOHM-AUX 50pins connector and PT1000 12pins connector 
+          occupancy taken into account)
+(17)-(20) I2C caps; on average 9.5-6.17 cap/connector
+(28)      CF pillars for DOHM carrier; located below the DOHM,
+          inserted here
+
+......................................................................
+# "DOHM Primary"           "TIB_DOHM"               68.4      -1.
+* 1 "PCB FR4"              "T_FR4"                  24.000     1  ELE
+* 2 "PCB Copper"           "Copper"                 1.0750     1  ELE
+* 3 "Resistors"            "Ceramic"                0.0036    11  ELE
+* 4 "Capacitors"           "Barium_Titanate"        0.0036    18  ELE
+* 5 "IC chips copper"      "Copper"                 0.00446    7  ELE
+* 6 "IC chips EMC"         "Epoxy"                  0.03077    7  ELE
+* 7 "I2C conn DOHM side case" "Polyethylene"        0.42105  9.5  ELE
+* 8 "I2C conn DOHM side pins" "T_Bronze"            0.04499  9.5  ELE
+* 9 "LV conn DOHM side case" "Polyethylene"         1.57895    1  ELE
+* 10 "LV conn DOHM side pins" "T_Bronze"            0.21000    1  ELE
+* 11 "NAIS Conn case"      "Polyethylene"           0.31474    2  ELE
+* 12 "NAIS Conn pins"      "T_Bronze"               0.02016    2  ELE
+* 13 "2x CCU Conn case"    "Polyethylene"           0.84211    1  ELE
+* 14 "2x CCU Conn pins"    "T_Bronze"               0.05624    1  ELE
+* 15 "I2C Conn cable side case" "Polyethylene"      0.94737 6.17  CAB
+* 16 "I2C Conn cable side pins" "T_Bronze"          0.04124 6.17  CAB
+* 17 "I2C Conn cap fr4"    "T_FR4"                  0.29000 3.33  ELE
+* 18 "I2C Conn cap copper traces" "Copper"          0.01299 3.33  ELE
+* 19 "I2C Conn cap conn case" "Polyethylene"        0.73684 3.33  ELE
+* 20 "I2C Conn cap conn pins" "T_Bronze"            0.04124 3.33  ELE
+* 21 "CCUM"                "TIBTID_CCUM"            6.00000    1  ELE
+* 22 "DOH"                 "TIBTID_DOH"             3.85000    2  ELE
+* 23 "LV conn medusa side case" "Polyethylene"      3.15789    1  ELE
+* 24 "LV conn medusa side pins" "T_Bronze"          0.10500    1  ELE
+* 25 "Optical fibers"      "T_FiberPigtail"         0.00785   72  CAB
+* 26 "Medusa Cables"       "T_MedusaWire"           0.01131  108  CAB
+* 27 "Al screws and supports" "Aluminium"           0.61111    1  SUP
+* 28 "CF Supports"         "Carbon fibre str."      7.10059    1  SUP
+......................................................................
+======================================================================
+               
+o TIB DOHM Auxiliary Board
+  ------------------------
+
+20070924 GSguazzoni
+
+MCVolume: 15.5*6.0*0.4 cm^3 = 37.2 cm^3
+
+(7)-(8) On board I2C connectors: 8x26pins, 1x50pins ~10x26pins
+(9)-(10) I2C conncetor cable side; on average 7.72 cables/DOHM 
+          (also DOHM-AUX 50pins connector occupancy taken into account)
+(11)-(14) I2C caps; on average 10-7.72 cap/connector
+(16)      CF pillars for DOHM carrier; located below the AUX,
+          inserted here
+
+......................................................................
+# "AUX"                    "TIB_AUX"                37.2      -1.
+* 1 "PCB FR4"              "T_FR4"                  12.9200    1  ELE
+* 2 "PCB Copper"           "Copper"                 0.56500    1  ELE
+* 3 "Resistors"            "Ceramic"                0.00360   12  ELE
+* 4 "Capacitors" 	   "Barium_Titanate"	    0.00360   15  ELE
+* 5 "IC chips copper" 	   "Copper" 		    0.00446    2  ELE
+* 6 "IC chips EMC"	   "Epoxy" 		    0.03077    2  ELE
+* 7 "I2C conn MC side case" "Polyethylene" 	    0.42105   10  ELE
+* 8 "I2C conn MC side pins and support" "T_Bronze"  0.04499   10  ELE
+* 9 "I2C Connectors cable side case" "Polyethylene" 0.94737 7.72  CAB
+* 10 "I2C Connectors cable side pins" "T_Bronze"    0.04124 7.72  CAB
+* 11 "I2C Connectors cap fr4" "T_FR4" 		    0.29000 2.28  ELE
+* 12 "I2C Connectors cap copper traces" "Copper"    0.01268 2.28  ELE
+* 13 "I2C Connectors cap conn case" "Polyethylene"  0.73684 2.28  ELE
+* 14 "I2C Connectors cap conn pins" "T_Bronze" 	    0.04124 2.28  ELE
+* 15 "Al screws and supports" "Aluminium" 	    0.61111    1  SUP
+* 16 "CF Supports"         "Carbon fibre str." 	    7.10059    1  SUP
+......................................................................
+======================================================================
+               
+o TIB DOHM Carrier mixture
+  ------------------------
+
+20070924 GSguazzoni
+
+MCVolume: 40885 cm^3
+
+Surface = total volume over thickness 47672/0.8 cm^2
+
+......................................................................
+# "DOHM Carrier"           "TIB_DOHMCarrier"        40885.    -1.
+* 1 "CF Skins" 		   "Carbon fibre str." 	    0.080  59590. SUP
+* 2 "Glue" 		   "Epoxy"                  0.015  59590. SUP
+* 3 "Kapton foil" 	   "T_Kapton" 		    0.015  59590. SUP
+* 4 "Aluminum foil" 	   "Aluminium" 		    0.002  59590. SUP
+* 5 "Amphenol cable 26cond per cm" "TIBTID_AmphCable" 0.1  19778. CAB
+* 6 "Support hardware"     "Aluminium"              3.074     56  SUP
+* 7 "GNDing hardware" 	   "Copper" 		   16.741      1  CAB
+......................................................................
+======================================================================
+              
+o TIB Pillars mixture
+  ------------------------
+
+20071220 GSguazzoni
+
+MCVolume: 1 cm^3
+
+......................................................................
+# "TIB Pillar"             "TIB_Pillar" 	    1.    -1.
+* 1 "CF" 		   "Carbon fibre str." 	    0.60   1    SUP
+* 2 "Aluminium" 	   "Aluminium"              0.12   1    SUP
+......................................................................
+======================================================================
+
+# "END"  "END"  0.  0.   
+this has to be the last line !

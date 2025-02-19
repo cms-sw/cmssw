@@ -1,0 +1,581 @@
+TIBTID common services 
+======================
+
+$$  ATTENTION: Materials calculated in this file are used
+$$             in mixtures for other materials !
+$$             So if you change something, do not forget to  
+$$             update the materials input file and the dimensions
+$$             in the other materials that use it !!
+$$
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                        Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, Type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+This file is intended as a transitional file to add new materials and
+mixtures for the TIB and TID services. Then these materials, if needed, 
+can be moved in the relevant .in files. (GSguazzoni 28.06.2007)
+
+=====================================================================
+
+o AOH/DOH Fiber Pigtail 
+  ---------------------
+
+20070709 GSguazzoni
+
+MCVolume: (pi*(1/2)^2 mm^2)*1cm = 0.007854 cm^3
+
+Total Weight/m from direct measurement.
+Fractional composition from data sheets.
+
+Fiber pigtails exist in two versions, differing in the secondary
+coating (transparent acrylate, green PE). This is taken into account
+in the mixture below, by including both materials with 50% of the
+secondary coating volume each.
+
+Nominal outer diameter is 0.9mm.
+MC diameter set to 1mm to have better agreement between measured and
+computed weight given PE and Acrylate build-in densities.
+(1) Core (quartz) 0<diam<9micron +
+    Cladding (quartz) 9<diam<125micron ==> 0.000123 cm^3
+(2) Coating (acrylate) 125<diam<250micron ==> 0.000368 cm^3
+(3) Secondary Coating (acrylate, transp) 250<diam<900micron (nominal)
+    <1mm used below ==> 0.007363/2 cm^2 = 0.003681 cm^3
+(4) Secondary Coating (PE, green) 250<diam<900micron (nominal),
+    <1mm used below ==> 0.007363/2 cm^2 = 0.003681 cm^3
+
+Volumes per centimeter.
+.....................................................................
+# "AOH-DOH Fiber Pigtail"   "T_FiberPigtail"        0.7854E-2 -1.
+* 1 "Core+Cladding"         "Quartz"                0.0123E-2  1  CAB
+* 2 "Coating"               "Acrylate"              0.0368E-2  1  CAB
+* 3 "Secondary Coating"     "Acrylate"              0.3681E-2  1  CAB
+* 4 "Secondary Coating"     "Polyethylene"          0.3682E-2  1  CAB
+......................................................................
+======================================================================
+
+o AOH/DOH Fiber Pigtail MU Connector
+  ----------------------------------
+
+20070710 GSguazzoni
+
+MCVolume: (.43*.65*3.0) cm^3 = 0.8385 cm^3
+
+Total Weight and fractional composition from direct measurement.
+
+MC volume given roughly by the outer envelope of the connector.
+(1) Ferrule (Zirconia, Cu-Ni) + load spring (Cu-Be?) 0.28g, all
+    material X0 equivalent to Cu ==> 0.28/8.96 = 0.0313 cm^3
+(2) Plastic Case (Polyethylene) ==> 0.52/0.95 = 0.5474 cm^3
+(3) Plastic 2D tag (Polyethylene) ==> 0.12/0.95 = 0.1263 cm^3
+
+Volumes per piece.
+.....................................................................
+# "Pigtail MU connector"    "T_PigtailMUConn"       0.8385    -1.
+* 1 "Ferrule"               "Copper"                0.0313     1  CAB
+* 2 "Plastic"               "Polyethylene"          0.5474     1  CAB
+* 3 "2D tags"               "Polyethylene"          0.1263     1  CAB
+......................................................................
+======================================================================
+
+o TST Copper 10mm cooling pipe with coolant
+  -----------------------------------------
+
+20070702 GSguazzoni
+
+MCVolume: (pi*(10/2)^2 mm^2)*1cm = 0.7854 cm^3
+
+Outer diameter: 10 mm
+Internal diameter: 9 mm
+(1) Cu xsect:              14.92 mm^2
+(2) Coolant xsect          62.63 mm^2
+
+Volumes per centimeter.
+......................................................................
+# "TST Cu 10mm pipe"            "T_Cu10mmPipe"    0.7854   -1.
+* 1 "Copper"                    "Copper"          0.1492    1   COL
+* 2 "Coolant"                   "C6F14_F2_-30C"   0.6362    1   COL
+......................................................................
+======================================================================
+
+o TIB/TID Aluminium 6mm cooling pipe with coolant
+  -----------------------------------------------
+
+20070710 GSguazzoni
+
+MCVolume: (pi*(6/2)^2 mm^2)*1cm = 0.2827 cm^3
+
+Outer diameter: 6 mm
+Internal diameter: 5 mm
+(1) Al xsect:               8.64 mm^2
+(2) Coolant xsect          19.63 mm^2
+
+Volumes per centimeter.
+......................................................................
+# "TIBTID Al 6mm pipe"          "T_Al6mmPipe"     0.2827   -1.
+* 1 "Aluminium"                 "Aluminium"       0.0864    1   COL
+* 2 "Coolant"                   "C6F14_F2_-30C"   0.1963    1   COL
+......................................................................
+======================================================================
+
+o Medusa/CAB60 Male (medusa side) connector
+  -----------------------------------------
+
+20070711 GSguazzoni
+
+MCVolume: (5.3*3.9*1.2)/2 cm^3 = 12.4 cm^3
+
+Total Weight and fractional composition from direct measurement.
+MC Volume: half of the male/female connector assembly volume 
+(roughly from external dimensions).
+
+(1) Plastic, PE (Pin holder) 
+             ==> 2.2g/0.95g/cm^3 = 2.3158 cm^3
+(2) Pins, bronze ==> 7.71g/8.89g/cm^3 = 0.8668 cm^3
+(3) Solder, tin ==> 2.4g/7.31g/cm^3 = 0.3283 cm^3
+(4) Shell, brass ==> 5.3g/8.5g/cm^3 = 0.6235 cm^3 
+(5) Clamp&screws, iron ==> 2.97g/7.87g/cm^3= 0.3773 cm^3
+
+Volumes per piece.
+......................................................................
+# "Medusa-CAB60 male connector"    "T_MedCABMaleConn"     12.4  -1.
+* 1 "Pin holder"              "Polyethylene"         2.3158  1  CAB
+* 2 "Pins"                    "T_Bronze"             0.8668  1  CAB
+* 3 "Solder"                  "Tin"                  0.3283  1  CAB
+* 4 "Shell"                   "Brass"                0.6235  1  CAB
+* 5 "Clamp and screws"        "Iron"                 0.3773  1  SUP
+......................................................................
+======================================================================
+
+o Medusa/CAB60 Female (CAB60 side) connector
+  -----------------------------------------
+
+20070711 GSguazzoni
+
+MCVolume: (5.3*3.9*1.2)/2 cm^3 = 12.4 cm^3
+
+Total Weight and fractional composition from direct measurement.
+MC Volume: half of the male/female connector assembly volume 
+(roughly from external dimensions).
+
+(1) Plastic, PE (Pin holder + resin) 
+             ==> 8.2g/0.95g/cm^3 = 8.6316 cm^3
+(2) Pins, bronze ==> 6.74g/8.89g/cm^3 = 0.7585 cm^3
+(3) Solder, tin ==> 2.4g/7.31g/cm^3 = 0.3283 cm^3
+(4) Shell, brass ==> 4.9g/8.5g/cm^3 = 0.5765 cm^3 
+(5) Clamp fasteners, iron ==> 1.30g/7.87g/cm^3= 0.1652 cm^3
+
+Volumes per piece.
+......................................................................
+# "Medusa-CAB60 female connector"    "T_MedCABFemaleConn"    12.4  -1.
+* 1 "Pin holder"              "Polyethylene"         8.6316  1  CAB
+* 2 "Pins"                    "T_Bronze"             0.7585  1  CAB
+* 3 "Solder"                  "Tin"                  0.3283  1  CAB
+* 4 "Shell"                   "Brass"                0.5765  1  CAB
+* 5 "Clamp fastener"          "Iron"                 0.1652  1  SUP
+......................................................................
+======================================================================
+
+o Medusa/CAB Ctrl PLCC Male (medusa side) connector
+  -------------------------------------------------
+
+20070711 GSguazzoni
+
+MCVolume: (7.0*3.9*1.2) cm^3 = 16.4 cm^3
+
+Total Weight and fractional composition from direct measurement.
+MC Volume: half of the male/female connector assembly volume 
+(roughly from external dimensions).
+
+(1) Plastic, PE (Pin holder) 
+             ==> 3.3g/0.95g/cm^3 = 3.4737 cm^3
+(2) Pins, bronze ==> 7.49g/8.89g/cm^3 = 0.8430 cm^3
+(3) Solder, tin ==> 2.7g/7.31g/cm^3 = 0.3694 cm^3
+(4) Shell, brass ==> 6.8g/8.5g/cm^3 = 0.8000 cm^3 
+(5) Clamp&screws, iron ==> 3.57g/7.87g/cm^3= 0.4535 cm^3
+
+Volumes per piece.
+......................................................................
+# "Medusa-PLCC male connector"    "T_MedPLCCMaleConn"     16.4  -1.
+* 1 "Pin holder"              "Polyethylene"         3.4737  1  CAB
+* 2 "Pins"                    "T_Bronze"             0.8430  1  CAB
+* 3 "Solder"                  "Tin"                  0.3694  1  CAB
+* 4 "Shell"                   "Brass"                0.8000  1  CAB
+* 5 "Clamp and screws"        "Iron"                 0.4535  1  SUP
+......................................................................
+======================================================================
+
+o Medusa/CAB Ctrl PLCC Female (PLCC side) connector
+  -------------------------------------------------
+
+20070711 GSguazzoni
+
+MCVolume: (7.0*3.9*1.2)/2 cm^3 = 16.4 cm^3
+
+Total Weight and fractional composition from direct measurement.
+MC Volume: half of the male/female connector assembly volume 
+(roughly from external dimensions).
+
+(1) Plastic, PE (Pin holder + resin) 
+             ==> 11.5g/0.95g/cm^3 = 12.1053 cm^3
+(2) Pins, bronze ==> 6.96g/8.89g/cm^3 = 0.7826 cm^3
+(3) Solder, tin ==> 2.7g/7.31g/cm^3 = 0.3694 cm^3
+(4) Shell, brass ==> 6.4g/8.5g/cm^3 = 0.7529 cm^3 
+(5) Clamp fasteners, iron ==> 1.30g/7.87g/cm^3= 0.1652 cm^3
+
+Volumes per piece.
+......................................................................
+# "Medusa-PLCC female connector"   "T_MedPLCCFemaleConn"     16.4  -1.
+* 1 "Pin holder"              "Polyethylene"        12.1053  1  CAB
+* 2 "Pins"                    "T_Bronze"             0.7826  1  CAB
+* 3 "Solder"                  "Tin"                  0.3694  1  CAB
+* 4 "Shell"                   "Brass"                0.7529  1  CAB
+* 5 "Clamp fastener"          "Iron"                 0.1652  1  SUP
+......................................................................
+======================================================================
+
+o TIB/TID Medusa Cable wire
+  -------------------------
+
+20070710 GSguazzoni
+
+MCVolume: (pi*(1.2/2)^2 mm^2)*1cm = 1.1310E-2 cm^3
+
+Outer diameter: 1.2mm
+
+Weight/m inferred from direct measurement.
+
+(1) Copper conductor ==> 0.01928g/(8.96g/cm^3) = 2.1518E-3 cm^3
+(2) PE Insulation ==> 0.00793g/(.95g/cm^3) = 8.3453E-3 cm^3
+
+Volumes per centimeter.
+......................................................................
+# "TIBTID Medusa wire"          "T_MedusaWire"    1.1310E-2   -1.
+* 1 "Cu Conductor"              "Copper"          2.1518E-3    1   CAB
+* 2 "Insulation"                "Polyethylene"    8.3453E-3    1   CAB
+......................................................................
+======================================================================
+
+o TIB Flange mixture
+  ------------------
+
+20070922 GSguazzoni
+
+MCVolume:  15225.2 cm^3
+
+(1) Medusa wires 1796m
+(2) Cooling Pipes 11.64m
+(3) Fiber pigtail 664m
+(4) Al hardware
+(5) CF disk
+(6) Generic aluminum hardware
+(7) CF layer connecting hardware
+......................................................................
+# "TIB Flange mixture"        "TIB_Flange"            15225.2 -1.
+* 1 "TIBTID Medusa wire"      "T_MedusaWire"   1.1310E-2  179600   CAB
+* 2 "TIBTID Al 6mm pipe"      "T_Al6mmPipe"    0.2827       1164   COL
+* 3 "AOH-DOH Fiber Pigtail"   "T_FiberPigtail" 0.7854E-2   66400   CAB
+* 4 "Amphenol cable 26cond"   "TIBTID_AmphCable" 0.1000     1348   CAB
+* 5 "CF disk"                 "Carbon fibre str." 95.51        1   SUP
+* 6 "Al hardware"             "Aluminium"          2.22       20   SUP
+* 7 "CF interconnecting plates" "Carbon fibre str."  8.00     12   SUP
+......................................................................
+======================================================================
+
+o TIBTID Service Cylinder mixture
+  -------------------------------
+
+20080218 GSguazzoni
+
+MCVolume:  28372.3 cm^3
+Outer radius:  540 mm
+Internal radius: 520 mm
+DeltaZ: 42.6 mm
+
+(1) Medusa wires 2173m
+(2) Cooling Pipes 43.46m
+(3) Fiber pigtail 2362.5m
+(4) Shield (Cu) 264.2g/8.69g/cm^3 = 29.486 cm^3
+(5) Shield (kapton) 322.9g/1.4g/cm^3 = 230.684 cm^3
+(6) Kapton tape 750g/1.4g/cm^3 = 535.7 cm^3
+(7) Carbon Fiber Fixing 92cm^3
+(8) Medusa LV distribution card (G10) 64*0.7 cm^3
+(9) Medusa LV distribution card (Copper) 64*0.05 cm^3           
+(10) Medusa LV distibution card (shrinkable sheath) 64*3.0 cm^3
+(11) Medusa LV distibution card (Glue) 64*0.8 cm^3
+......................................................................
+# "TIBTID Service cylinder mixture" "TIBTID_ServiceCylinder" 28372.3 -1.
+*  1 "TIBTID Medusa wire"      "T_MedusaWire"   1.1310E-2  217300   CAB
+*  2 "TIBTID Al 6mm pipe"      "T_Al6mmPipe"    0.2827       4346   COL
+*  3 "AOH-DOH Fiber Pigtail"   "T_FiberPigtail" 0.7854E-2  236250   CAB
+*  4 "Shield Cu"               "Copper"         29.486          1   SUP
+*  5 "Shield Kapton"	       "T_Kapton"       230.684	        1   SUP	
+*  6 "Kapton tape"	       "T_Kapton"       535.7	        1   SUP	
+*  7 "CF Fixings"              "Carbon fibre str." 98.          1   SUP	
+*  8 "Medusa LV card"          "T_G10"          0.70           64   CAB
+*  9 "Medusa LV card"          "Copper"         0.05           64   CAB
+* 10 "Medusa LV card"          "Polyethylene"   3.00           64   CAB
+* 11 "Medusa LV card"          "Epoxy"          0.80           64   CAB
+......................................................................
+======================================================================
+
+o TIBTID Service Disk mixture
+  ------------------------
+
+20070712 GSguazzoni
+
+MCVolume:  9818.53 cm^3
+
+(1) Medusa wires 449m
+(2) Cooling Pipes 8.28m
+(3) Fiber pigtail 488m
+(4) Shield (Cu) 54.6g/8.69g/cm^3 = 6.1 cm^3
+(5) Shield (kapton) 66.7g/1.4g/cm^3 = 47.65 cm^3
+(6) FR4 T-shaped support 12*115.6g/1.7g/cm^3 = 12*68 cm^3
+(7) Al C-shaped support 2*267g/2.7g/cm^3 = 2*98.9 cm^3
+(8) Carbon Fiber Fixing 92cm^3
+......................................................................
+# "TIBTID Service Disk mixture"    "TIBTID_ServiceDisk"    9818.53 -1.
+* 1 "TIBTID Medusa wire"      "T_MedusaWire"   1.1310E-2   44900   CAB
+* 2 "TIBTID Al 6mm pipe"      "T_Al6mmPipe"    0.2827        828   COL
+* 3 "AOH-DOH Fiber Pigtail"   "T_FiberPigtail" 0.7854E-2   48800   CAB
+* 4 "Shield Cu"               "Copper"         6.1             1   SUP
+* 5 "Shield Kapton"	      "T_Kapton"       47.65	       1   SUP	
+* 6 "T-shaped supports"       "T_FR4"	        68.00	      12   SUP	
+* 7 "C-shaped supports"       "Aluminium"       98.9           2   SUP    
+* 8 "CF Fixings"              "Carbon fibre str." 288.         1   SUP	
+......................................................................
+======================================================================
+
+o TIBTID Front Optical Panel mixture
+  ----------------------------------
+
+20070713 GSguazzoni
+
+MCVolume:  28803.6 cm^3
+
+(1) Ruggedized Ribbon, <L>=41.5, mult=470*<L>[cm] = 19505
+(2) Al supports, 144g/2.7g/cm^3 = 53.3 cm^3
+(3) FR4 screens, 27.8 cm^3
+......................................................................
+# "TIBTID Opto Panel Front"       "TIBTID_OptoPanelFront"  28803.6 -1.
+* 1 "Ruggedized Ribbon"           "T_RuggRibbon"    8.6E-2   19505 CAB
+* 2 "Al supports"                 "Aluminium"         53.3       1 SUP
+* 3 "FR4 screens"                 "T_FR4"             27.8       1 SUP
+......................................................................
+======================================================================
+
+o TIBTID Optical Connector mixture
+  --------------------------------
+
+20070713 GSguazzoni
+
+MCVolume:  31671.7 cm^3
+
+(1) FR4 panels, 1352g/1.7g/cm^3 = 795.3 cm^3 
+(2) Al supports, 260g/2.7g/cm^3 = 96.0 cm^3
+(3) FR4 screens, 38.6 cm^3
+(4) Ribbon 12x MU connector mult=470 
+(5) Pigtail MU connector mult=5076
+......................................................................
+# "TIBTID Opto Connector mixture" "TIBTID_OptoConnectors"  31671.7 -1.
+* 1 "FR4 panels"                  "T_FR4"            795.3       1 SUP
+* 2 "Al supports"                 "Aluminium"         96.0       1 SUP
+* 3 "FR4 screens"                 "T_FR4"             38.6       1 SUP
+* 4 "Ribbon 12x MU connector"     "T_Ribbon12xMUConn" 12.0     470 CAB
+* 5 "Pigtail MU connector"        "T_PigtailMUConn"    0.8385 5076 CAB
+......................................................................
+======================================================================
+
+o TIBTID Back Optical Panel Inner mixture
+  ---------------------------------------
+
+20080218 GSguazzoni
+
+MCVolume:  19636.4 cm^3
+
+(1) FR4 screens, 340.7 cm^3
+(2) AOH-DOH Fiber Pigtail, 1777m
+(3) Al supports, 115g/2.7g/cm^3 = 42.7 cm^3
+(4) Silicone spirals, 458, ~1.6g each ==> ~1.7cm^3 each
+......................................................................
+# "TIBTID OptoPanelBackInner" "TIBTID_OptoPanelBackInner"  19636.4 -1.
+* 1 "FR4 panels"              "T_FR4"                340.7       1 SUP
+* 2 "AOH-DOH Fiber Pigtail"   "T_FiberPigtail"   0.7854E-2  177700 CAB
+* 3 "Al supports"             "Aluminium"             42.7       1 SUP
+* 4 "Silicone spirals"        "Silicone_Gel"          1.70     458 SUP
+......................................................................
+======================================================================
+
+o TIBTID Back Optical Panel Outer mixture
+  ---------------------------------------
+
+20070713 GSguazzoni
+
+MCVolume:  31174.7 cm^3
+
+(1) FR4 screens, 512.3 cm^3
+(2) Ruggedized Ribbon, <L>=25.5cm, mult=470*<L>[cm]= 11985 
+(3) AOH-DOH Fiber Pigtail, 2822m
+......................................................................
+# "TIBTID OptoPanelBackOuter" "TIBTID_OptoPanelBackOuter"  31174.7 -1.
+* 1 "FR4 panels"              "T_FR4"                512.3       1 SUP
+* 2 "Ruggedized Ribbon"       "T_RuggRibbon"        8.6E-2   11985 CAB
+* 3 "AOH-DOH Fiber Pigtail"   "T_FiberPigtail"   0.7854E-2  282200 CAB
+......................................................................
+======================================================================
+
+o Margherita Mixture
+  ------------------
+
+20070713 GSguazzoni
+
+MCVolume:  34077.4 cm^3
+
+(1) Panels, FR4 9560g/1.7g/cm^3 = 5623.4 cm^3
+(2) Panels, Cu skin 890.7g/8.96g/cm^3 = 99.4 cm^3
+(3) Panels, Au plating 214.1g/18.85g/cm^3 = 11.36 cm^3
+(4) Screens, CF 1087g/1.69g/cm^3 = 643.36 cm^3
+(5) Screens, Kapton 154g/1.4g/cm^3 = 110.3 cm^3
+(6) Screens, Epoxy 119g/1.3g/cm^3 = 91.91 cm^3
+(7) Screens, Al supports 58.8g/2.7g/cm^3 = 21.78 cm^3 
+(8) Shield, Cu 280g/8.96g/cm^3 = 31.25 cm^3
+(9) Shield, Kapton 85g/1.4g/cm^3 = 60.7 cm^3
+(10) CAB60 Male connectors mult=244
+(11) PLCC Male connectors multi=60
+(12) Medusa wires 5382m
+(13) TIBTID Al 6mm pipe 49.52m
+(14) Kapton tape 750g/1.4g/cm^3 = 535.7 cm^3
+......................................................................
+# "TIBTID Margherita Mixture"      "TIBTID_Margherita"      34077. -1.
+* 1 "Panels"                       "T_FR4"             5623.4    1 SUP
+* 2 "Panel skin"                   "Copper"              99.4    1 SUP
+* 3 "Panel plating"                "Gold"                11.4    1 SUP
+* 4 "Screens"                      "Carbon fibre str."  643.4    1 SUP
+* 5 "Screens"                      "T_Kapton"           110.3    1 SUP
+* 6 "Screens"                      "Epoxy"               91.9    1 SUP
+* 7 "Screens"                      "Aluminium"           21.78   1 SUP
+* 8 "Shield"                       "Copper"              31.25   1 SUP
+* 9 "Shield"                       "T_Kapton"            60.7    1 SUP
+* 10 "Medusa-CAB60 male connector" "T_MedCABMaleConn"    12.4  244 CAB
+* 11 "Medusa-PLCC male connector"  "T_MedPLCCMaleConn"   16.4   60 CAB
+* 12 "TIBTID Medusa wire"          "T_MedusaWire" 1.1310E-2 538200 CAB
+* 13 "TIBTID Al 6mm pipe"          "T_Al6mmPipe"       0.2827 4952 COL
+* 14 "Kapton tape"                 "T_Kapton"              535.7 1 SUP
+......................................................................
+======================================================================
+
+o Power Connector Ring Mixture
+  ----------------------------
+
+20070712 GSguazzoni
+
+MCVolume:  29613.7 cm^3
+Outer radius:  950 mm
+Internal radius: 767 mm
+Thickness: 30 mm
+
+Average cable lenght computed from drawings...
+(1) Cable CAB 60, <L>=6.3cm, mult=244*<L>[cm]=1537
+(2) Cable PLCC, <L>=13.2cm, mult= 60*<L>[cm]=792
+(3) Ribbon, L=18.3cm, mult=470*L[cm]=8601
+(4) CAB60 Female connectors mult=244
+(5) PLCC Female connectors multi=60
+......................................................................
+# "Pwr connectors ring mixture"    "TIBTID_PowerConnectors" 29614. -1.
+* 1 "MS CAB 60 Al cable TIBD" "CAB_Al60TIBTID"        0.7854   1537 CAB
+* 2 "MS PLCC CAB Ctrl cable"  "MS_CntrlTIBTID"       0.7854    792 CAB
+* 3 "Ruggedized Ribbon"       "T_RuggRibbon"       8.6000E-2  8601 CAB
+* 4 "Medusa-CAB60 female connector" "T_MedCABFemaleConn"  12.4 244 CAB
+* 5 "Medusa-PLCC female connector" "T_MedPLCCFemaleConn"  16.4  60 CAB
+......................................................................
+======================================================================
+
+o TST Mixture, axial part
+  -----------------------
+
+20070710 GSguazzoni
+
+MCVolume: 113159.3 cm^3
+
+Outer radius: 1158.5 mm
+Internal radius: 1147.5 mm
+Length L = 1420 mm = 142 cm
+(1) Cable CAB 60 (multiplicity=244*L[cm]=34648)
+(2) Cable PLCC   (multiplicity= 60*L[cm]=8520)
+(3) TST Cu 10mm cooling pipes (multiplicity= 72*L[cm]=10224)
+(4) Ribbon (multiplicity=470*L[cm]=66740)
+(5) Cu-Be support clips, 0.32g ==> 0.32/8.96=0.03571 cm^3
+           (multiplicity=(244+60+72)*3=1128, there are 3 per cable 
+           or pipe)
+(6) External aluminum skin (Rin 1157.5mm, Rout 1158.5mm, L=142cm) ==>
+           10331.8 cm^3
+......................................................................
+# "TST, axial part"           "TIBTID_TSTCabAxial"  113159.  -1.
+* 1 "MS CAB 60 Al cable TIBD" "CAB_Al60TIBTID"       0.7854  34648 CAB
+* 2 "MS PLCC CAB Ctrl cable"  "MS_CntrlTIBTID"       0.7854   8520 CAB
+* 3 "TST Cu 10mm pipe"        "T_Cu10mmPipe"         0.7854  10224 COL
+* 4 "Ruggedized Ribbon"       "T_RuggRibbon"       8.6000E-2 66740 CAB
+* 5 "Clips"                   "Copper"              3.571E-2  1128 SUP
+* 6 "Al skin"                 "Aluminium"          10.332E3      1 SUP 
+......................................................................
+======================================================================
+
+o TST Mixture, radial part
+  ------------------------
+
+20070710 GSguazzoni
+
+MCVolume: 40208.6 cm^3
+
+Outer radius:  1158.5 mm
+Internal radius: 950 mm
+Length L = (1157.5 - 950) mm = 20.75 cm
+(1) Cable CAB 60, kfact=1.1, mult=244*kfact*L[cm]=5569
+(2) Cable PLCC, kfact=1.1, mult= 60*kfact*L[cm]=1370
+(3) TST Cu 10mm cooling pipes, kfact=1.25, mult= 72*kfact*L[cm]=1867
+(4) Ribbon, kfact=1, mult=470*L[cm]=9752
+......................................................................
+# "TST, radial part"          "TIBTID_TSTCabRadial"  40208.6      -1.
+* 1 "MS CAB 60 Al cable TIBD" "CAB_Al60TIBTID"       0.7854  5569 CAB
+* 2 "MS PLCC CAB Ctrl cable"  "MS_CntrlTIBTID"       0.7854  1370 CAB
+* 3 "TST Cu 10mm pipe"        "T_Cu10mmPipe"         0.7854  1867 COL
+* 4 "Ruggedized Ribbon"       "T_RuggRibbon"       8.6000E-2 9752 CAB
+......................................................................
+======================================================================
+
+# "END"  "END"  0.  0.   
+this has to be the last line !
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

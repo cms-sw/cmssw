@@ -1,0 +1,16 @@
+<!-- Data brick with LUT goes here -->        
+   <DATA_SET>
+      <VERSION>test:2</VERSION>
+      <SUBVERSION>1</SUBVERSION>
+      <CREATE_TIMESTAMP>2000-01-01 00:00:00.0</CREATE_TIMESTAMP>
+      <CREATED_BY_USER>gennadiy sample</CREATED_BY_USER>
+      <PART>
+         <KIND_OF_PART>HCAL HTR Crate</KIND_OF_PART>
+         <NAME_LABEL>CRATE01</NAME_LABEL>
+      </PART>   
+      <DATA>
+         <TRIG_PRIM_LOOKUPTBL_DATA_FILE>./testLUT_0.xml</TRIG_PRIM_LOOKUPTBL_DATA_FILE>
+         <CRATE>0</CRATE>
+      </DATA>
+   </DATA_SET>
+

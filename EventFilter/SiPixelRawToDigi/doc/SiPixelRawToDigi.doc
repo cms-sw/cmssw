@@ -1,0 +1,48 @@
+
+/*!
+
+\page EventFilter_SiPixelRawToDigi Package EventFilter/SiPixelRawToDigi
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/EventFilter/SiPixelRawToDigi/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/EventFilter/SiPixelRawToDigi/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+perform Raw to digi (and back) conversions.
+
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+<b> PixelDataFormatter </b>
+Performs actual conversion between raw and digi <br>
+<b> SiPixelDigiToRaw </b>
+steering for digi to raw <br>
+<b> SiPixelRawToDigi </b>
+steering for raw to digi. <br>
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- SiPixelDigiToRaw
+- SiPixelRawToDigi
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+The runDigiToRaw.cfg config file is example of digi to raw data conversion. The other way example is runRawToDigi.cfg. Both require file "pixelToFED.ascii" to be located in working directory. 
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+complete, stable, the persistent cabling map is missing. 
+
+<hr>
+Last updated:
+@DATE@  Author: Marcin Konecki.
+*/
+

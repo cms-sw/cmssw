@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tecring2f.xml" eval="true">
+		<Constant name="Modules" value="3"/>
+		<Constant name="DPhi" value="360*deg/[tecring2:NPhi]"/>
+		<Constant name="Phi" value="([Modules]-1)*[DPhi]"/>
+		<Constant name="Phi0" value="-[Phi]/2"/>
+		<Constant name="AngleHyb0" value="-9.375*deg"/>
+		<Constant name="AngleHyb1" value="-3.125*deg"/>
+		<Constant name="AngleHyb2" value="3.125*deg"/>
+		<Constant name="AngleHyb3" value="9.375*deg"/>
+		<Constant name="Bridges" value="1"/>
+		<Constant name="PhiBridge" value="[Phi0]+[DPhi]"/>
+		<Constant name="CoolIns0" value="0202"/>
+		<Constant name="CoolIns1" value="1111"/>
+		<Constant name="CoolIns2" value="2020"/>
+	</ConstantsSection>
+	<LogicalPartSection label="tecring2f.xml">
+		<LogicalPart name="TECRing2F" category="unspecified">
+			<rSolid name="tecring2:TECRing2"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<Algorithm name="track:DDTECPhiAlgo">
+		<rParent name="tecring2f:TECRing2F"/>
+		<String name="ChildName" value="tecmodule2:TECModule2"/>
+		<Numeric name="StartAngle" value="[Phi0]"/>
+		<Numeric name="IncrAngle" value="[DPhi]"/>
+		<Numeric name="Radius" value="[tecring2:RPos]"/>
+		<Numeric name="ZIn" value="[tecring2:ModuleZ]"/>
+		<Numeric name="ZOut" value="-[tecring2:ModuleZ]-[tecmodpar:SideFrameThick]"/>
+		<Numeric name="Number" value="[Modules]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+	</Algorithm>
+	<Algorithm name="track:DDTECPhiAltAlgo">
+		<rParent name="tecring2f:TECRing2F"/>
+		<String name="ChildName" value="tecmodule2:TECModule2Bridge"/>
+		<Numeric name="StartAngle" value="[PhiBridge]"/>
+		<Numeric name="IncrAngle" value="2*[DPhi]"/>
+		<Numeric name="Radius" value="[tecring2:BridgeR]"/>
+		<Numeric name="ZIn" value="[tecring2:BridgeZ]"/>
+		<Numeric name="ZOut" value="[tecring2:BridgeZ]"/>
+		<Numeric name="Number" value="[Bridges]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+	</Algorithm>
+</DDDefinition>

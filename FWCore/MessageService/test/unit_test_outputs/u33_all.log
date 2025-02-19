@@ -1,0 +1,138 @@
+%MSG-w cat_BJ:  UTC_V1:ssm_1a@beginJob pre-events
+T1 beginJob warning with identifier 11 event 0
+%MSG
+%MSG-w cat_BJ:  UTC_V1:ssm_1b@beginJob pre-events
+T1 beginJob warning with identifier 12 event 0
+%MSG
+%MSG-i cat_BR:  UTC_V1:ssm_1a@beginRun Run: 1
+T1 beginRun info with identifier 11 event 0
+%MSG
+%MSG-i cat_BR:  UTC_V1:ssm_1b@beginRun Run: 1
+T1 beginRun info with identifier 12 event 0
+%MSG
+%MSG-w cat_BL:  UTC_V1:ssm_1a@beginLumi Run: 1 Lumi: 1
+T1 beginLumi warning with identifier 11 event 0
+%MSG
+%MSG-w cat_BL:  UTC_V1:ssm_1b@beginLumi Run: 1 Lumi: 1
+T1 beginLumi warning with identifier 12 event 0
+%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UTC_V1:ssm_1a Run: 1 Event: 1
+T1 analyze error with identifier 11 event 0
+%MSG
+%MSG-w cat_A:  UTC_V1:ssm_1a Run: 1 Event: 1
+T1 analyze warning with identifier 11 event 0
+%MSG
+%MSG-i cat_A:  UTC_V1:ssm_1a Run: 1 Event: 1
+T1 analyze info with identifier 11 event 0
+%MSG
+%MSG-e cat_A:  UTC_V2:ssm_2a Run: 1 Event: 1
+T1 analyze error with identifier 21 event 0
+%MSG
+%MSG-w cat_A:  UTC_V2:ssm_2a Run: 1 Event: 1
+T1 analyze warning with identifier 21 event 0
+%MSG
+%MSG-e cat_A:  UTC_V1:ssm_1b Run: 1 Event: 1
+T1 analyze error with identifier 12 event 0
+%MSG
+%MSG-w cat_A:  UTC_V1:ssm_1b Run: 1 Event: 1
+T1 analyze warning with identifier 12 event 0
+%MSG
+%MSG-i cat_A:  UTC_V1:ssm_1b Run: 1 Event: 1
+T1 analyze info with identifier 12 event 0
+%MSG
+%MSG-e cat_A:  UTC_V2:ssm_2b Run: 1 Event: 1
+T1 analyze error with identifier 22 event 0
+%MSG
+%MSG-w cat_A:  UTC_V2:ssm_2b Run: 1 Event: 1
+T1 analyze warning with identifier 22 event 0
+%MSG
+%MSG-i cat_A:  UTC_V2:ssm_2b Run: 1 Event: 1
+T1 analyze info with identifier 22 event 0
+%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UTC_V1:ssm_1a Run: 1 Event: 2
+T1 analyze error with identifier 11 event 1
+%MSG
+%MSG-w cat_A:  UTC_V1:ssm_1a Run: 1 Event: 2
+T1 analyze warning with identifier 11 event 1
+%MSG
+%MSG-i cat_A:  UTC_V1:ssm_1a Run: 1 Event: 2
+T1 analyze info with identifier 11 event 1
+%MSG
+%MSG-e cat_A:  UTC_V2:ssm_2a Run: 1 Event: 2
+T1 analyze error with identifier 21 event 1
+%MSG
+%MSG-w cat_A:  UTC_V2:ssm_2a Run: 1 Event: 2
+T1 analyze warning with identifier 21 event 1
+%MSG
+%MSG-e cat_A:  UTC_V1:ssm_1b Run: 1 Event: 2
+T1 analyze error with identifier 12 event 1
+%MSG
+%MSG-w cat_A:  UTC_V1:ssm_1b Run: 1 Event: 2
+T1 analyze warning with identifier 12 event 1
+%MSG
+%MSG-i cat_A:  UTC_V1:ssm_1b Run: 1 Event: 2
+T1 analyze info with identifier 12 event 1
+%MSG
+%MSG-e cat_A:  UTC_V2:ssm_2b Run: 1 Event: 2
+T1 analyze error with identifier 22 event 1
+%MSG
+%MSG-w cat_A:  UTC_V2:ssm_2b Run: 1 Event: 2
+T1 analyze warning with identifier 22 event 1
+%MSG
+%MSG-i cat_A:  UTC_V2:ssm_2b Run: 1 Event: 2
+T1 analyze info with identifier 22 event 1
+%MSG
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkReport            -i AfterSource                            2        2
+    2 cat_A                -i UTC_V1:ssm_1a                          2        2
+    3 cat_A                -i UTC_V1:ssm_1b                          2        2
+    4 cat_A                -i UTC_V2:ssm_2b                          2        2
+    5 cat_BR               -i UTC_V1:ssm_1a@be                       1        1
+    6 cat_BR               -i UTC_V1:ssm_1b@be                       1        1
+    7 cat_A                -w UTC_V1:ssm_1a                          2        2
+    8 cat_A                -w UTC_V1:ssm_1b                          2        2
+    9 cat_A                -w UTC_V2:ssm_2a                          2        2
+   10 cat_A                -w UTC_V2:ssm_2b                          2        2
+   11 cat_BJ               -w UTC_V1:ssm_1a@be                       1        1
+   12 cat_BJ               -w UTC_V1:ssm_1b@be                       1        1
+   13 cat_BL               -w UTC_V1:ssm_1a@be                       1        1
+   14 cat_BL               -w UTC_V1:ssm_1b@be                       1        1
+   15 cat_A                -e UTC_V1:ssm_1a                          2        2
+   16 cat_A                -e UTC_V1:ssm_1b                          2        2
+   17 cat_A                -e UTC_V2:ssm_2a                          2        2
+   18 cat_A                -e UTC_V2:ssm_2b                          2        2
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkReport            PostBeginLumi    PostProcessEvent 
+    2 cat_A                1/1              1/2              
+    3 cat_A                1/1              1/2              
+    4 cat_A                1/1              1/2              
+    5 cat_BR               Run: 1                            
+    6 cat_BR               Run: 1                            
+    7 cat_A                1/1              1/2              
+    8 cat_A                1/1              1/2              
+    9 cat_A                1/1              1/2              
+   10 cat_A                1/1              1/2              
+   11 cat_BJ               pre-events                        
+   12 cat_BJ               pre-events                        
+   13 cat_BL               Run: 1 Lumi: 1                    
+   14 cat_BL               Run: 1 Lumi: 1                    
+   15 cat_A                1/1              1/2              
+   16 cat_A                1/1              1/2              
+   17 cat_A                1/1              1/2              
+   18 cat_A                1/1              1/2              
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                   10                  10
+Warning                12                  12
+Error                   8                   8

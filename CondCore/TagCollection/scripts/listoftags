@@ -1,0 +1,15 @@
+#!/bin/sh
+if [ "$1" == "" ]; then
+   echo "Usage: $0 <connect> <treename>"
+   exit
+fi
+CONNECT=$1
+TREE=$2
+TMP=`mktemp`
+cp /afs/cern.ch/cms/DB/conddb/authentication.xml .
+cmscond_tagtree_list -c $CONNECT -T $TREE | awk '{print $4,$1,$3}' > ${TMP}
+cp ${TMP} mytmp 
+
+#rm authentication.xml
+awk -F / '{print $NF}' ${TMP} | awk -F "tag:" '{print $1,$2,$3}' | awk -F "leafnode:" '{print $1,$2}' | awk '{printf "%-25s %-35s %s\n",$1,$2,$3}' | sort
+rm ${TMP}

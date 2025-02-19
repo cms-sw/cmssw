@@ -1,0 +1,101 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+
+my $usage = "$0 [--media={a0,a1,a2,a3,a4,a5,a6}] [--margin=DIM] [--prefix=PFX] FILE...\n";
+my %sizes = ( 'a0' => [2379, 3364],
+	      'a1' => [1682, 2379],
+	      'a2' => [1189, 1682],
+	      'a3' => [841, 1189],
+	      'a4' => [595, 841],
+	      'a5' => [421, 595],
+	      'a6' => [298, 421] );
+
+my $prefix = "A4";
+my $margin = 20;
+my $xsize = 595;
+my $ysize = 841;
+
+while (scalar @ARGV && $ARGV[0] =~ /^--(.*)$/) {
+  my $arg = $1;
+  if ($1 =~ /^media=(.*)/) {
+    die "media `$1' not recognised\n" if ! exists $sizes{$1};
+    $xsize = $sizes{$1}[0];
+    $ysize = $sizes{$1}[1];
+    $prefix = uc($1);
+  } elsif ($1 =~ /^margin=(.*)/) {
+    $margin = $1;
+  } elsif ($1 =~ /^prefix=(.*)/) {
+    $prefix = $1;
+  } else {
+    print STDERR "unrecognised option `$arg'\n";
+    die $usage;
+  }
+  shift(@ARGV);
+}
+
+foreach my $file (@ARGV) {
+  my $out = $file;
+  $out =~ s|.*/||;
+  $out = "$prefix-$out";
+
+  open(PS, "< $file") || die "$file: cannot read: $!\n";
+  open(OUT, "> $out") || die "$out: cannot write: $!\n";
+
+  my $scale = 1;
+  my @offset = (0, 0);
+  my $swap = 0;
+  my $xmargin = 0;
+  my $ymargin = 0;
+  my $didscale = 0;
+
+  while (<PS>) {
+    if (/^\%\%(Page|)BoundingBox:\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/) {
+      my ($llx, $lly, $urx, $ury) = ($2, $3, $4, $5);
+      my ($width, $height) = ($urx - $llx, $ury - $lly);
+      my $max = ($urx > $ury ? $urx : $ury);
+      $swap = ($max eq $urx && $urx > $xsize - 2*$margin);
+
+      my $refx = (!$swap ? $urx : $ury);
+      my $refy = (!$swap ? $ury : $urx);
+      $scale = ($refx * $scale <= $xsize - 2*$margin
+		? $scale : int(($xsize-2*$margin) / $refx * 100.0) / 100.0);
+      $scale = ($refy * $scale <= $ysize - 2*$margin
+		? $scale : int(($ysize-2*$margin) / $refy * 100.0) / 100.0);
+
+      my $nwidth  = (!$swap ? $width : $height) * $scale;
+      my $nheight = (!$swap ? $height : $width) * $scale;
+      my $nllx    = (!$swap ? $llx * $scale : $xsize - $margin - $ury * $scale);
+      my $nlly    = (!$swap ? $lly : $llx) * $scale;
+
+      if ($nllx < $margin) {
+	$xmargin = $margin - $nllx;
+	$nllx = $margin;
+      }
+      if ($nlly < $margin) {
+	$ymargin = $margin - $nlly;
+	$nlly = $margin;
+      }
+      my @nbbox = (int($nllx), int($nlly),
+		   int($nllx + $nwidth + .5),
+		   int($nlly + $nheight + .5));
+
+      print OUT "%%" . ($1 ? $1 : "") . "Orientation: "
+	. ($swap ? "Landscape\n" : "Portrait\n");
+      $_ = "%%" . ($1 ? $1 : "") . "BoundingBox: " . join(" ", @nbbox) . "\n";
+    }
+    if (/^\%\%End(Setup|Prolog)/) {
+      if (! $didscale) {
+        $didscale = 1;
+        print OUT "90 rotate 0 -$xsize $margin add translate\n" if ($swap);
+        print OUT sprintf "%d %d translate\n",
+	  int(!$swap ? $xmargin : $ymargin),
+	  int(!$swap ? $ymargin : -$xmargin);
+        print OUT "$scale $scale scale\n" if ($scale ne 1);
+      }
+    }
+    print OUT;
+  }
+  close(OUT);
+  close(PS);
+}

@@ -1,0 +1,15 @@
+<use   name="CalibMuon/CSCCalibration"/>
+<use   name="CondFormats/CSCObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="DataFormats/CSCDigi"/>
+<use   name="DataFormats/CSCRecHit"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/MuonDetId"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/Records"/>
+<flags   EDM_PLUGIN="1"/>

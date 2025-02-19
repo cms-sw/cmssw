@@ -1,0 +1,116 @@
+\documentclass{cmspaper}
+\input epsf
+\usepackage{graphicx}
+\begin{document}
+
+%==============================================================================
+% title page for few authors
+
+\begin{titlepage}
+
+% select one of the following and type in the proper number:
+%  \cmsnote{2005/000}
+  \internalnote{2006/000}
+%  \conferencereport{2005/000}
+   \date{8 November 2006}
+
+  \title{The CMS Storage Manager}
+
+  \begin{Authlist}
+    A.~Afaq, W.~Badgett, K.~Biery, H.~Cheung, J.~Kowalkowski, 
+    E.~Sexton-Kennedy
+       \Instfoot{fermilab}{Fermilab, Batavia, IL, USA}
+    M.~Klute, C.~Paus
+       \Instfoot{mit}{MIT, Cambridge, MA, USA}
+  \end{Authlist}
+
+% if needed, use the following:
+\collaboration{Storage Manager Working Group}
+%\collaboration{CMS collaboration}
+
+
+  \begin{abstract}
+    Documentation for the Storage Manager, including the requirements,
+    architecture and design, implementation, and a user manual.
+  \end{abstract} 
+
+% if needed, use the following:
+%\conference{Presented at {\it Physics Rumours}, Coconut Island, April 1, 2005}
+%\submitted{Submitted to {\it Physics Rumours}}
+%\note{Working version}
+  
+\end{titlepage}
+
+\setcounter{page}{2}%JPP
+
+%==============================================================================
+% title page for many authors
+%
+%\begin{titlepage}
+%  \internalnote{2005/000}
+%  \title{CMS Technical Note Template}
+%
+%  \begin{Authlist}
+%    A.~Author\Iref{cern}, B.~Author\Iref{cern}, C.~Author\IAref{cern}{a},
+%    D.~Author\IIref{cern}{ieph}, E.~Author\IIAref{cern}{ieph}{b},
+%    F.~Author\Iref{ieph}
+%  \end{Authlist}
+%
+%  \Instfoot{cern}{CERN, Geneva, Switzerland}
+%  \Instfoot{ieph}{Institute of Experimental Physics, Hepcity, Wonderland}
+%  \Anotfoot{a}{On leave from prison}
+%  \Anotfoot{b}{Now at the Moon}
+%
+%  \begin{abstract}
+%    This is a template of a CMS paper, written in LaTeX,
+%    processed with {\it cmspaper.sty} style.
+%    It is based on the {\it cernart.sty} and {\it articlet.sty} styles.
+%    There are two versions of the title page.
+%    The current one is designed for many authors.
+%    The one on the previous page is for few authors.
+%    Just delete the one which you do not need.
+%  \end{abstract} 
+%  
+%\end{titlepage}
+%
+%==============================================================================
+
+\section{Introduction to the Storage Manager}
+
+\input{use_cases.tex}
+
+\section{Requirements}
+
+\input{requirements_df.tex}
+
+\input{requirements_es.tex}
+
+\input{requirements_hw.tex}
+
+\input{design.tex}
+
+\input{external.tex}
+
+\input{performance.tex}
+
+
+\pagebreak
+\input{user_manual.tex}
+
+%\section{Reference example}
+%
+%References should be placed at the end of the note 
+%(see example \cite{NOTE000}).
+%
+%\begin{thebibliography}{9}
+%  \bibitem {NOTE000} {\bf CMS Note 2005/000},
+%    X.Somebody et al.,
+%    {\em "CMS Note Template"}.
+%\end{thebibliography}
+ 
+%------------------------------------------------------------------------------
+
+\pagebreak
+\input{glossary.tex}
+
+\end{document}

@@ -1,0 +1,5 @@
+<use   name="FWCore/Framework"/>
+<use   name="TopQuarkAnalysis/TopSkimming"/>
+<library   file="*.cc" name="TopQuarkAnalysisTopSkimmingPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

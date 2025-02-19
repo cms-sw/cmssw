@@ -1,0 +1,150 @@
+#!/bin/sh
+
+prefix=`echo "$APP" | sed 's/ .*//' | tr a-z A-Z`
+binsel="Direct binary"
+srcsel="Direct source"
+comsel="Direct combined"
+domsel="Domain only"
+
+bindep="$APP Direct Binary Dependencies"
+srcdep="$APP Direct Source Dependencies"
+dirdep="$APP Direct Dependencies"
+apps="Ig_Examples Ig_Applications Cmscan/Example"
+opts="--shape=ellipse"
+confp="--url=$UTILSDIR/url.conf --group=$UTILSDIR/group-purpose.conf --rename=$UTILSDIR/rename-short.conf"
+confo="--url=$UTILSDIR/url.conf --group=$UTILSDIR/group-origin.conf --rename=$UTILSDIR/rename-short.conf"
+confd="--url=$UTILSDIR/url.conf --group=$UTILSDIR/group-domain.conf"
+
+hpgl_packages=
+grep '^found package.* of type `leaf' $DEPDIR/log | sed 's/.* package `//; s/'\''.*//' > /tmp/$$
+grep 'instantiating package' $DEPDIR/log | sed 's/.*package //' | grep -v '<' >> /tmp/$$
+ps_packages=`cat /tmp/$$`
+grep '^found package.* of type `subsystem' $DEPDIR/log | sed 's/.* package `//; s/'\''.*//' > /tmp/$$
+grep 'instantiating package' $DEPDIR/log | sed 's/.*package //; /^[^\/]*$/d; s|/.*||' >> /tmp/$$
+ps_subsystems=`sort < /tmp/$$ | uniq`
+ps_subsystems="$ps_subsystems"
+rm -f /tmp/$$
+
+rm -f $DEPDIR/*.dot $DEPDIR/*.ps $DEPDIR/*.hpgl $DEPDIR/*.gif
+
+b=$prefix-00-Domains-O
+deps2dot $opts $confd $DEPDIR/dependencies.txt "$domsel" \
+  "$dirdep:\\nDomains Only by Origin" no '^\(.*\)$' > $DEPDIR/$b.dot
+dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+b=$prefix-00-Domains-OS
+deps2dot $opts $confd --long-edges=no $DEPDIR/dependencies.txt "$domsel" \
+  "$dirdep:\\nDomains Only by Origin\\n(Edges Suppressed!)" no '^\(.*\)$' > $DEPDIR/$b.dot
+dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+
+b=$prefix-01-ImportAndExternal-P
+deps2dot $opts $confp $DEPDIR/dependencies.txt "$comsel" \
+  "$dirdep:\\nImported/LHC++ by Purpose" no $apps 'Ig[A-Z0-9]' Cmscan \
+  > $DEPDIR/$b.dot
+dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+b=$prefix-01-ImportAndExternal-PS
+deps2dot $opts $confp --long-edges=no $DEPDIR/dependencies.txt "$comsel" \
+  "$dirdep:\\nImported/LHC++ by Purpose\\n(Edges Suppressed!)" no $apps 'Ig[A-Z0-9]' Cmscan \
+  > $DEPDIR/$b.dot
+dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+b=$prefix-01-ImportAndExternal-O
+deps2dot $opts $confo $DEPDIR/dependencies.txt "$comsel" \
+  "$dirdep:\\nImported/LHC++ by Origin" no $apps 'Ig[A-Z0-9]' Cmscan\
+  > $DEPDIR/$b.dot
+dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+b=$prefix-01-ImportAndExternal-OS
+deps2dot $opts $confo --long-edges=no $DEPDIR/dependencies.txt "$comsel" \
+  "$dirdep:\\nImported/LHC++ by Origin\\n(Edges Suppressed!)" no $apps 'Ig[A-Z0-9]' Cmscan\
+  > $DEPDIR/$b.dot
+dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+
+b=$prefix-01-AllLibs-P
+deps2dot $opts $confp $DEPDIR/dependencies.txt "$comsel" \
+  "$dirdep:\\nLibraries by Purpose" no $apps \
+  > $DEPDIR/$b.dot
+dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+b=$prefix-01-AllLibs-PS
+deps2dot $opts $confp --long-edges=no $DEPDIR/dependencies.txt "$comsel" \
+  "$dirdep:\\nLibraries by Purpose\\n(Edges Suppressed!)" no $apps \
+  > $DEPDIR/$b.dot
+dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+b=$prefix-01-AllLibs-O
+deps2dot $opts $confo $DEPDIR/dependencies.txt "$comsel" \
+  "$dirdep:\\nLibraries by Origin" no $apps \
+  > $DEPDIR/$b.dot
+dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+b=$prefix-01-AllLibs-OS
+deps2dot $opts $confo --long-edges=no $DEPDIR/dependencies.txt "$comsel" \
+  "$dirdep:\\nLibraries by Origin\\n(Edges Suppressed!)" no $apps \
+  > $DEPDIR/$b.dot
+dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+
+for f in $ps_subsystems; do
+  case $f in Ig_Documentation | SW ) continue ;; esac
+  frx=`echo $f | sed 's/+/\\\\+/g'`
+  case $f in
+    Ig_* | Cmscan ) res_title="IGUANA only" res="Ig_ Cmscan" ;;
+    * )             res_title="LHC++ only"  res=$frx/ ;;
+  esac
+
+  b=$prefix-02-$f-RP
+  deps2dot $opts $confp $DEPDIR/dependencies.txt "$comsel" \
+    "$dirdep:\\nSubsystem $f by Purpose\\n(Restricted to $res_title)" \
+    yes $frx/ ! yes $res > $DEPDIR/$b.dot
+  dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+
+  b=$prefix-02-$f-RPS
+  deps2dot $opts $confp --long-edges=no $DEPDIR/dependencies.txt "$comsel" \
+    "$dirdep:\\nSubsystem $f by Purpose\\n(Restricted to $res_title)\\n(Edges Suppressed!)" \
+    yes $frx/ ! yes $res > $DEPDIR/$b.dot
+  dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+
+  b=$prefix-02-$f-RO
+  deps2dot $opts $confo $DEPDIR/dependencies.txt "$comsel" \
+    "$dirdep:\\nSubsystem $f by Origin\\n(Restricted to $res_title)" \
+    yes $frx/ ! yes $res > $DEPDIR/$b.dot
+  dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+
+  b=$prefix-02-$f-ROS
+  deps2dot $opts $confo --long-edges=no $DEPDIR/dependencies.txt "$comsel" \
+    "$dirdep:\\nSubsystem $f by Origin\\n(Restricted to $res_title)\\n(Edges Suppressed!)" \
+    yes $frx/ ! yes $res > $DEPDIR/$b.dot
+  dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+done
+
+for f in $ps_packages; do
+  case $f in
+    Ig_Documentation* | Ig_Infrastructure* | Ig_Utilities* | \
+    SW/* | System/* | CERNLIB/* | ASIS/* | XMLTools/* )
+      continue ;;
+  esac
+  frx=`echo $f | sed 's/+/\\\\+/g'`
+  res="! no IgCxxFeatures IgConfiguration"
+
+  b=$prefix-`echo $f | sed 's|/|-|g'`-P
+  deps2dot $opts $confp $DEPDIR/dependencies.txt "$comsel" \
+    "$dirdep:\\n$f by Purpose" yes $frx\$ $res > $DEPDIR/$b.dot
+  dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+
+  b=$prefix-`echo $f | sed 's|/|-|g'`-PS
+  deps2dot $opts $confp --long-edges=no $DEPDIR/dependencies.txt "$comsel" \
+    "$dirdep:\\n$f by Purpose\\n(Edges Suppressed!)" yes $frx\$ $res > $DEPDIR/$b.dot
+  dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+
+  b=$prefix-`echo $f | sed 's|/|-|g'`-O
+  deps2dot $opts $confo $DEPDIR/dependencies.txt "$comsel" \
+    "$dirdep:\\n$f by Origin" yes $frx\$ $res > $DEPDIR/$b.dot
+  dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+
+  b=$prefix-`echo $f | sed 's|/|-|g'`-OS
+  deps2dot $opts $confo --long-edges=no $DEPDIR/dependencies.txt "$comsel" \
+    "$dirdep:\\n$f by Origin\\n(Edges Suppressed!)" yes $frx\$ $res > $DEPDIR/$b.dot
+  dot -Tps -o $DEPDIR/$b.ps $DEPDIR/$b.dot
+done
+
+# for f in $hpgl_packages; do
+#   b=$prefix-`echo $f | sed 's|/|-|g'`-P
+#   dot -Thpgl -o $DEPDIR/$b.hpgl $DEPDIR/$b.dot
+# done
+
+cd $DEPDIR
+rescale $prefix-*.ps

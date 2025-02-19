@@ -1,0 +1,63 @@
+
+/*!
+
+\page FastSimulation_MuonSimHitProducer Package FastSimulation/MuonSimHitProducer
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/FastSimulation/MuonSimHitProducer/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/FastSimulation/MuonSimHitProducer/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+The MuonSimHitProducer package propagates the muon particle through the muon chambers, and generates the same objects as the corresponnding g4SimHit producer, namely:
+- A collection of PSimHit with label "MuonCSCHits";
+- A collection of PSimHit with label "MuonDTHits";
+- A collection of PSimHit with label "MuonRPCHits".
+
+The following material effects can be switched on in the muon chambers:
+- dE/dx (default: ON);
+- multiple scattering (default: ON);
+- bremssstrahlung (not yet fully implemented, default: OFF).
+
+An emulation of the RecHit reconstruction inefficiency due to delta-ray emission is implemented (at the level of SimHit's),
+and it is customizable separately in CSC and DT through the parameters simHitCSCIneffParameters and simHitDTIneffParameters
+
+\endhtmlonly
+
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- MuonSimHitProducer
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- MuonSimHitProducer
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+For all test of Fast Simulation packages, please rely on usual cmsDriver commands, or on the script in FastSimulation/Configuration/test
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Almost completed (missing muon bremsstrahlung)
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

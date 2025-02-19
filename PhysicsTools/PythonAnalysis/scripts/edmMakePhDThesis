@@ -1,0 +1,203 @@
+#!/usr/bin/env python
+import sys, time, random
+
+### a list of various titels. the actual one is picked randomly
+titles = ("SuSy exclusion limits with pp collisions at 14 TeV",
+          "First Observation of an Unparticle at 666 GeV",
+          "FCNC with CMS at LHC via ABRV XTC",
+          "Rediscovery of the Top Quark with CMS at 210 GeV",
+          "From Aleph to CMS - Discovery of SM Higgs at 116.4 GeV",
+          "Dead read-out channel studies with heavy-ion collisions at the LHC",
+         )
+
+
+### To be displayed messages at the beginning of the job
+initialMessages = """Preparing table of contents...
+Preparing introduction...
+Preparing theory chapter...
+Preparing detector chapter...
+"""
+
+### definition of a stack trace
+# better ideas are welcome
+# took root stack trace because that one is easy to get
+stackTrace = """*** Break *** segmentation violation
+(no debugging symbols found)
+Using host libthread_db library "/lib/tls/libthread_db.so.1".
+Attaching to program: /proc/6594/exe, process 6594
+(no debugging symbols found)...done.
+(no debugging symbols found)...done.
+[Thread debugging using libthread_db enabled]
+[New Thread -1208949056 (LWP 6594)]
+0x006ba7a2 in _dl_sysinfo_int80 () from /lib/ld-linux.so.2
+#1  0x0177e473 in __waitpid_nocancel () from /lib/tls/libc.so.6
+#2  0x01728359 in do_system () from /lib/tls/libc.so.6
+#3  0x016ed78d in system () from /lib/tls/libpthread.so.0
+#4  0x00992df5 in TUnixSystem::Exec () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#5  0x009932b9 in TUnixSystem::StackTrace () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#6  0x00991064 in TUnixSystem::DispatchSignals () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#7  0x0098ee64 in SigHandler () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#8  0x00995c6c in sighandler () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#9  <signal handler called>
+#10 0x0175d2cb in strlen () from /lib/tls/libc.so.6
+#11 0x01731235 in vfprintf () from /lib/tls/libc.so.6
+#12 0x0174942b in vsprintf () from /lib/tls/libc.so.6
+#13 0x0173666b in sprintf () from /lib/tls/libc.so.6
+#14 0x0029dde5 in G__type2string () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#15 0x001d03c1 in Cint::G__TypeInfo::Name () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#16 0x008e5996 in TCint::UpdateListOfTypes () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#17 0x0087bebd in TROOT::GetListOfTypes () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#18 0x0087b0df in TROOT::GetType () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#19 0x0087a4ed in TROOT::GetClass () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#20 0x0087c01a in TROOT::IgnoreInclude () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#21 0x008e3a92 in IgnoreInclude () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#22 0x00232137 in G__loadfile () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#23 0x00284595 in G__loadsystemfile () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#24 0x008e4bd5 in TCint::Load () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#25 0x008960b1 in TSystem::Load () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#26 0x00993f99 in TUnixSystem::Load () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#27 0x0087cc70 in TROOT::LoadClass () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#28 0x008e8b27 in TCint::AutoLoadCallback () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#29 0x008e3b4c in TCint_AutoLoadCallback () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#30 0x03e8a313 in edm::ALL_AutoLoadCallback ()
+
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/cmssw/CMSSW_1_6_8/lib/slc4_ia32_gcc345/libFWCoreRootAutoLibraryLoader.so
+#31 0x0028bff0 in G__class_autoloading () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#32 0x0028c538 in G__defined_tagname () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#33 0x0021aad5 in G__make_ifunctable () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#34 0x0026141d in G__exec_statement () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#35 0x0028eab1 in G__define_struct () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#36 0x0025f883 in G__exec_statement () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#37 0x002963b4 in G__replacetemplate () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#38 0x00295205 in G__instantiate_templateclass () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#39 0x0028c77b in G__defined_tagname () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#40 0x0029401b in G__templatemaptypename () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#41 0x002944ca in G__gettemplatearglist () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#42 0x00294ea2 in G__instantiate_templateclass () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#43 0x0028c77b in G__defined_tagname () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#44 0x0029bdbd in G__defined_type () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#45 0x00260b0e in G__exec_statement () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#46 0x0025c4f5 in G__exec_loop () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#47 0x0025ceee in G__exec_for () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#48 0x00261c0c in G__exec_statement () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#49 0x001d51f1 in G__exec_tempfile_core () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#50 0x001d54fb in G__exec_tempfile () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#51 0x0026baaa in G__process_cmd () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCint.so
+#52 0x008e4de3 in TCint::ProcessLine () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#53 0x008e4f7d in TCint::ProcessLineSynch () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#54 0x00806fc0 in TApplication::ProcessFile () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#55 0x00806824 in TApplication::ProcessLine () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#56 0x053a8054 in TRint::HandleTermInput () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libRint.so
+#57 0x053a65bb in TTermInputHandler::Notify () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libRint.so
+#58 0x053a850e in TTermInputHandler::ReadNotify () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libRint.so
+#59 0x009914f5 in TUnixSystem::CheckDescriptors () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#60 0x0099022e in TUnixSystem::DispatchOneEvent () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#61 0x00892c9c in TSystem::InnerLoop () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#62 0x00892c35 in TSystem::Run () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#63 0x00807119 in TApplication::Run () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libCore.so
+#64 0x053a79c0 in TRint::Run () 
+from /afs/cern.ch/cms/sw/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS3q//lib/libRint.so
+#65 0x08048d81 in main ()
+"""
+
+### show rotating symbol, since non working software should at least look fancy
+def printRotor(number, end=" \n"):
+   rotor = "-\|/"
+   sys.stdout.write("  ")
+   for i in range(number):
+     for symbol in rotor:
+       sys.stdout.write(symbol)
+       sys.stdout.flush()
+       time.sleep(0.1)
+       sys.stdout.write("\b")
+   sys.stdout.write(end)
+   sys.stdout.flush()
+
+
+# got it? we are writing crap ;-)
+def printSingleLine(line,number, end = " "):
+   print line.ljust(40),
+   printRotor(number,end = end)
+
+
+###########################
+#  Main part of the crap  #
+###########################
+if __name__ == "__main__":
+
+  title = titles[int(random.random()*len(titles))]
+
+  print "Searching for topic...  ",
+  printRotor(6)
+  print "\nProposing:    ",title,"\n"
+  
+  time.sleep(2)
+  for line in initialMessages.splitlines():
+    printSingleLine(line, 2, end="DONE\n")
+
+  printSingleLine("Preparing analysis chapter...", 2, end= " \n")
+
+  # and now let the poor user read tons of stupid output
+  try:
+    for i in xrange(10):
+      for line in stackTrace.splitlines():
+        print line
+        time.sleep(0.01)
+  except KeyboardInterrupt:
+    print "\nAh! Smart enough to find the way out of the procedure. ;-)"
+    print "That was saving you from another",int((10-i)*131*0.01),"seconds of silly output."
+   

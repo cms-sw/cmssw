@@ -1,0 +1,8 @@
+LogVerbatim was used to send this message
+%MSG-i cat_B:  UnitTestClient_H:sendSomeMessages Run: 1 Event: 1
+LogInfo was used to send this other message
+%MSG
+LogVerbatim was used to send this message
+%MSG-i cat_B:  UnitTestClient_H:sendSomeMessages Run: 1 Event: 2
+LogInfo was used to send this other message
+%MSG

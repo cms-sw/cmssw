@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<BODY bgcolor="FFFFFF">
+<title>
+          CMS MessageLogger: Routing Messges to log4cplus
+</title>
+
+<center>
+<h1> <img src="header-public.gif" align="center"> </h1>
+
+<font color=red>
+<h1>CMS MessageLogger Service
+<br> 
+Routing Messges to <code>log4cplus</code></h1>
+</font>
+</center>
+
+<pre>
+process TEST = {
+  <font color=red>service = MLlog4cplus</font>
+  service = MessageLogger {
+    vstring destinations = {   "detailedInfo.txt"  }
+    <font color=red>PSet log4cplus     = { string threshold = "ERROR"   }</font>
+  }
+  untracked PSet maxEvents = {untracked int32 input = 5}
+  path p = { myAnalysisModule }
+  module myAnalysisModule = ModuleThatIssuesMessages { }
+  source = EmptySource { }
+}
+</pre>
+
+The <font color=red>service = MLlog4cplus</font> informs the ssytem to 
+attach a destination 
+which will send messages of <code>log4cplus</code>.  
+The <font color=red>PSet log4cplus     = {...}</font> configures 
+that destination, just the same as any other output destination could be 
+configured.
+<p>
+Note, however, that the <code>vstring destinations = {...}</code> list
+<em>must not</em>
+include <code>"log4cplus"</code>.  The contents of that vstring are used to
+decide which ordinary file (or cout or cerr) destinations to create and attach.
+<p>
+Some special information pertaining to using log4cplus as a destination for
+messages:
+<ul>
+<li>
+The four severities of MessageLogger messages correspond to the four 
+directives for issuing to <code>log4cplus</code>.  For instance,
+<code>LogWarning("category")</code> leads to a <code>LOG4CPLUS_WARN(...)</code>
+call.
+<li>
+<code>log4cplus</code> dispatches to "appenders". For example, a 
+<code>fileAppender</code> may be established to write the text to 
+a file, or a <code>consoleAppender</code> to write to the job console.
+It is up to the user code or configuration file to establish which
+appenders are wanted.
+<li>
+In the current implementation, 
+the <code>MLlog4cplus</code> service automatically
+establishes a <code>fileAppender</code> writing <code>log4cplus.ouput</code>.
+CMS may decide instead that only appenders explicitly requested should be
+established, in which case that automatic appender feature will be removed. 
+<li>
+The noLineBreaks option is set by default, so that the text sent to 
+log4cplus will be a single line for each message.  
+If the user injects explicit <code>\n</code>
+linebreaks, however, these will become part of the message, which will no longer
+be a single line.
+<li>
+The context and module label information sent to log4cplus will match that 
+in the message itself.
+<li>
+All threshold, limit, timespan, and any other options which can be configured
+for an output destination in the .cfg file, can also be configured for the
+<code>log4cplus</code> destination. If a message would not be reported by a 
+destination configured in that manner, 
+then no <code>LOG4CPLUS_XXXX(...)</code> will be called.
+</ul> 
+
+
+
+
+<p><center>
+<img src="bar.gif"></center>
+
+<p><center>
+<a href="http://www.uscms.org/SoftwareComputing/index.html">
+USCMS Software and Computing Home Page </a> - 
+<a href="MessageLogger.html"> CMS MessageLogger Service Page </a> -
+<a href="parameters.html#example"> Configuration File </a>
+</center>
+
+<p>
+      <hr>
+      <address><a href="mailto:mf@fnal.gov">Mark Fischler</a></address>
+<!-- hhmts start -->
+Last modified: November 29, 2005
+<!-- hhmts end -->
+</body>
+

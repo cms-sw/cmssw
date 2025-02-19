@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <PosPartSection label="muonMB.xml">
+  <PosPart copyNumber="1">
+   <rParent name="muonBase:MUON"/>
+   <rChild name="muonBase:MB"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="muonBase:MB"/>
+   <rChild name="muonBase:MBWheel_2N"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm" y="0*fm" z="-5.342*m"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="muonBase:MB"/>
+   <rChild name="muonBase:MBWheel_1N"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm" y="0*fm" z="-2.686*m"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="muonBase:MB"/>
+   <rChild name="muonBase:MBWheel_0"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="muonBase:MB"/>
+   <rChild name="muonBase:MBWheel_1P"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm" y="0*fm" z="2.686*m"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="muonBase:MB"/>
+   <rChild name="muonBase:MBWheel_2P"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm" y="0*fm" z="5.342*m"/>
+  </PosPart>
+ </PosPartSection>
+</DDDefinition>

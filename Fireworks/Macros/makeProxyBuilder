@@ -1,0 +1,164 @@
+#!/usr/bin/env perl
+# Author: D.Kovalskyi
+
+use warnings;
+
+$CLASSNAME = '';
+$TYPE      = '';
+$PURPOSE   = '';
+$HELP      = 0;
+
+
+#-------------------------------------------------------------------------------
+# Parse command-line arguments
+
+while ($#ARGV >= 0 and $ARGV[0] =~ m/^--([-\w]+)(?:=(.+))?$/)
+{
+  my $var = uc $1;
+  my $val = defined $2 ? $2 : 1;
+  $var =~ s/-/_/g;
+  eval("\$$var = '$val';");
+  shift @ARGV;
+}
+
+if ($HELP or $#ARGV < 0 or $#ARGV > 0)
+{
+  print STDERR <<"FNORD";
+usage: $0 [OPTIONS] classname
+
+  classname - class-name to use, also file-name
+
+OPTIONS
+
+    --help               describe command and arguments
+
+    --type=<string>      data collection type
+    --purpose=<string>   purpose of proxy builer
+FNORD
+  exit 1;
+}
+
+$CLASSNAME = shift;
+$now_string = gmtime();
+#-------------------------------------------------------------------------------
+# Ask for arguments that were not given as options
+
+if ($TYPE eq "")
+{
+  print "\nA data proxy builder maps a data collection of the form std::vector<T>\n",
+  "to a collection of TEveElements - ROOT graphical primitives.\n",
+  "What is the data type(T) type you want to read: "; 
+  $TYPE = <STDIN>;
+  $TYPE =~ s/\n//;
+}
+
+if ($PURPOSE eq "")
+{
+  print "\nProxy builders for various views with the same input data types are grouped\n",
+  "by their \"purpose\". For example reco::Track collections can be \"Tracks\",\n", 
+  "\"GlobalMuons\", \"rsTracks\" etc. If you choose one of the existing names like\n",
+  "\"Muons\" or \"Electrons\", output of your new proxy builder will be associated to\n",
+  "to all other products created by other proxies for this \"purpose\".\n";
+  print "What is the \"purpose\" of the new proxy builder? ";
+  $PURPOSE = <STDIN>;
+  $PURPOSE =~ s/\n//;
+}
+
+#-------------------------------------------------------------------------------
+# Output the file
+
+my $output = "${CLASSNAME}.cc";
+
+open (OUT, ">$output") or die "Cannot write to file $output\n$!\n";
+
+print OUT <<"FNORD";
+// -*- C++ -*-
+//
+// Package: Fireworks
+// Class  : $CLASSNAME
+
+/*
+
+ Description: [one line class summary]
+
+ Usage:
+    <usage>
+
+*/
+//
+// Original Author: 
+//         Created: $now_string 
+//
+//
+
+// system include files
+
+// user include files
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "TEvePointSet.h"
+
+// forward declarations
+
+class $CLASSNAME : public FWSimpleProxyBuilderTemplate<$TYPE> {
+public:
+   $CLASSNAME();
+   virtual ~$CLASSNAME();
+
+   // ---------- const member functions ---------------------
+
+   // ---------- static member functions --------------------
+
+   // ---------- member functions ---------------------------
+
+   REGISTER_PROXYBUILDER_METHODS();
+
+private:
+   $CLASSNAME(const $CLASSNAME&); // stop default
+   const $CLASSNAME& operator=(const $CLASSNAME&); // stop default
+   
+   void build(const $TYPE&, unsigned int, TEveElement&, const FWViewContext*);
+
+   // ---------- member data --------------------------------
+};
+
+//
+// constructors and destructor
+//
+${CLASSNAME}::${CLASSNAME}()
+{
+}
+
+${CLASSNAME}::~${CLASSNAME}()
+{
+}
+
+//
+// member functions
+//
+void 
+${CLASSNAME}::build(const $TYPE& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
+{
+   //// Just an example that creates a bunch of points
+   // TEvePointSet* pointSet = new TEvePointSet();
+   // pointSet->SetNextPoint( iData.x(), iData.y(), iData.z() );
+   // setupAddElement(pointSet, &oItemHolder);
+}
+
+//
+// const member functions
+//
+
+//
+// static member functions
+//
+
+REGISTER_FWPROXYBUILDER($CLASSNAME, $TYPE, "$PURPOSE", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
+FNORD
+
+close OUT;
+
+print "\nFile $output is created.\n", 
+  "Please add necessary include files to read the data type you selected\n",
+  "and provide code that builds graphical representation of your data.\n", 
+  "When you done, compile your code by typing \"make\"\n";
+

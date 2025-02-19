@@ -1,0 +1,10 @@
+<environment>
+  <bin   file="DiagStreamerFile.cpp">
+    <use   name="FWCore/Utilities"/>
+    <use   name="IOPool/Streamer"/>
+  </bin>
+  <bin   file="CalcAdler32.cpp">
+    <use   name="FWCore/Utilities"/>
+    <use   name="boost"/>
+  </bin>
+</environment>

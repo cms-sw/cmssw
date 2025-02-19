@@ -1,0 +1,32 @@
+time cms_anycp rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw /tmp/innocent/crap
+time cms_anycp rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw /tmp/innocent/crap1 /tmp/innocent/crap2
+t0cksum rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw ; cksum /tmp/innocent/crap; cksum /tmp/innocent/crap1 ; cksum /tmp/innocent/crap2 ;
+
+time cms_anycp /tmp/innocent/crap /tmp/innocent/crap1 /tmp/innocent/crap2
+t0cksum rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw ; cksum /tmp/innocent/crap; cksum /tmp/innocent/crap1 ; cksum /tmp/innocent/crap2 ;
+
+time cms_anycp /tmp/innocent/crap rfio:/castor/cern.ch/user/i/innocent/tmp/crap1 rfio:/castor/cern.ch/user/i/innocent/tmp/crap2
+t0cksum rfio:/castor/cern.ch/user/i/innocent/tmp/crap1;t0cksum rfio:/castor/cern.ch/user/i/innocent/tmp/crap2
+
+time cms_anycp rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw rfio:/castor/cern.ch/user/i/innocent/tmp/crap1  rfio:/castor/cern.ch/user/i/innocent/tmp/crap2
+time cms_anycp rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw rfio:/castor/cern.ch/user/i/innocent/tmp/crap
+t0cksum rfio:/castor/cern.ch/user/i/innocent/tmp/crap&; t0cksum rfio:/castor/cern.ch/user/i/innocent/tmp/crap1&;t0cksum rfio:/castor/cern.ch/user/i/innocent/tmp/crap2
+
+
+
+time cms_anycp rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw rfio:lxcmsa:/data1/innocent/tmp/crap
+time cms_anycp rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2
+t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap;t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap1; t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap2;
+
+time cms_anycp rfio:lxcmsa:/data2/wildish/T0/indices/RAW.0.0.10.21f8a2c3e0594cb29e3564ab7caad5f1.raw rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap;t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap1; t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap2;  t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap3; 
+
+
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat rfio:lxcmsa:/data1/innocent/tmp/crap
+time cms_anycp rfio:lxcmsa:/data2/innocent/File-00002000MB.dat  rfio:lxcmsa:/data1/innocent/tmp/crap1 rfio:lxcmsa:/data1/innocent/tmp/crap2 rfio:lxcmsa:/data1/innocent/tmp/crap3
+t0cksum  rfio:lxcmsa:/data2/innocent/File-00002000MB.dat; t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap;t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap1; t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap2;  t0cksum rfio:lxcmsa:/data1/innocent/tmp/crap3; 
+
+
+
+
+

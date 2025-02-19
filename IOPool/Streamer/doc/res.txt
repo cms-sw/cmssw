@@ -1,0 +1,166 @@
+
+---------- out 3 events ----------
+
+162K
+
+==24157== 
+==24157== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 143 from 2)
+==24157== malloc/free: in use at exit: 11,922,045 bytes in 66,297 blocks.
+==24157== malloc/free: 162,668 allocs, 96,371 frees, 61,009,963 bytes allocated.
+==24157== For counts of detected errors, rerun with: -v
+==24157== searching for pointers to 66,297 not-freed blocks.
+==24157== checked 22,586,924 bytes.
+==24157== 
+==24157== LEAK SUMMARY:
+==24157==    definitely lost: 33,036 bytes in 146 blocks.
+==24157==      possibly lost: 1,023,403 bytes in 6,564 blocks.
+==24157==    still reachable: 10,865,606 bytes in 59,587 blocks.
+==24157==         suppressed: 0 bytes in 0 blocks.
+==24157== Use --leak-check=full to see details of leaked memory.
+
+62K
+
+==24165== 
+==24165== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 143 from 2)
+==24165== malloc/free: in use at exit: 11,922,045 bytes in 66,297 blocks.
+==24165== malloc/free: 162,667 allocs, 96,370 frees, 43,663,809 bytes
+allocated.
+==24165== For counts of detected errors, rerun with: -v
+==24165== searching for pointers to 66,297 not-freed blocks.
+==24165== checked 22,586,928 bytes.
+==24165== 
+==24165== LEAK SUMMARY:
+==24165==    definitely lost: 33,036 bytes in 146 blocks.
+==24165==      possibly lost: 1,023,435 bytes in 6,565 blocks.
+==24165==    still reachable: 10,865,574 bytes in 59,586 blocks.
+==24165==         suppressed: 0 bytes in 0 blocks.
+==24165== Use --leak-check=full to see details of leaked memory.
+
+42K
+
+==24169== 
+==24169== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 143 from 2)
+==24169== malloc/free: in use at exit: 11,922,045 bytes in 66,297 blocks.
+==24169== malloc/free: 162,665 allocs, 96,368 frees, 37,069,497 bytes
+allocated.
+==24169== For counts of detected errors, rerun with: -v
+==24169== searching for pointers to 66,297 not-freed blocks.
+==24169== checked 22,586,908 bytes.
+==24169== 
+==24169== LEAK SUMMARY:
+==24169==    definitely lost: 33,036 bytes in 146 blocks.
+==24169==      possibly lost: 1,023,435 bytes in 6,565 blocks.
+==24169==    still reachable: 10,865,574 bytes in 59,586 blocks.
+==24169==         suppressed: 0 bytes in 0 blocks.
+==24169== Use --leak-check=full to see details of leaked memory.
+
+--------------- in 3 events ---------------
+
+42K
+
+==24191== 
+==24191== ERROR SUMMARY: 3005 errors from 24 contexts (suppressed: 217 from 2)
+==24191== malloc/free: in use at exit: 27,515,068 bytes in 133,024 blocks.
+==24191== malloc/free: 1,041,808 allocs, 908,784 frees, 112,643,582 bytes allocated.
+==24191== For counts of detected errors, rerun with: -v
+==24191== searching for pointers to 133,024 not-freed blocks.
+==24191== checked 29,544,156 bytes.
+==24191== 
+==24191== LEAK SUMMARY:
+==24191==    definitely lost: 28,603 bytes in 187 blocks.
+==24191==      possibly lost: 3,919,701 bytes in 14,804 blocks.
+==24191==    still reachable: 23,566,764 bytes in 118,033 blocks.
+==24191==         suppressed: 0 bytes in 0 blocks.
+==24191== Use --leak-check=full to see details of leaked memory.
+
+62K
+
+==26733== 
+==26733== ERROR SUMMARY: 3399 errors from 24 contexts (suppressed: 217 from 2)
+==26733== malloc/free: in use at exit: 28,715,068 bytes in 133,024 blocks.
+==26733== malloc/free: 1,041,809 allocs, 908,785 frees, 118,340,734 bytes allocated.
+==26733== For counts of detected errors, rerun with: -v
+==26733== searching for pointers to 133,024 not-freed blocks.
+==26733== checked 30,751,392 bytes.
+==26733== 
+==26733== LEAK SUMMARY:
+==26733==    definitely lost: 3,205 bytes in 52 blocks.
+==26733==      possibly lost: 5,117,319 bytes in 14,849 blocks.
+==26733==    still reachable: 23,594,544 bytes in 118,123 blocks.
+==26733==         suppressed: 0 bytes in 0 blocks.
+==26733== Use --leak-check=full to see details of leaked memory.
+
+162K
+
+==27390== 
+==27390== ERROR SUMMARY: 3451 errors from 24 contexts (suppressed: 217 from 2)
+==27390== malloc/free: in use at exit: 34,715,068 bytes in 133,024 blocks.
+==27390== malloc/free: 1,041,809 allocs, 908,785 frees, 137,486,079 bytes allocated.
+==27390== For counts of detected errors, rerun with: -v
+==27390== searching for pointers to 133,024 not-freed blocks.
+==27390== checked 36,751,668 bytes.
+==27390== 
+==27390== LEAK SUMMARY:
+==27390==    definitely lost: 2,851 bytes in 47 blocks.
+==27390==      possibly lost: 11,116,281 bytes in 14,839 blocks.
+==27390==    still reachable: 23,595,936 bytes in 118,138 blocks.
+==27390==         suppressed: 0 bytes in 0 blocks.
+==27390== Use --leak-check=full to see details of leaked memory.
+
+
+-------------------- out 4 events ------------------------
+
+62K
+
+==28507== 
+==28507== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 143 from 2)
+==28507== malloc/free: in use at exit: 11,922,045 bytes in 66,297 blocks.
+==28507== malloc/free: 162,811 allocs, 96,514 frees, 46,425,154 bytes allocated.
+==28507== For counts of detected errors, rerun with: -v
+==28507== searching for pointers to 66,297 not-freed blocks.
+==28507== checked 22,586,976 bytes.
+==28507== 
+==28507== LEAK SUMMARY:
+==28507==    definitely lost: 33,036 bytes in 146 blocks.
+==28507==      possibly lost: 1,023,467 bytes in 6,566 blocks.
+==28507==    still reachable: 10,865,542 bytes in 59,585 blocks.
+==28507==         suppressed: 0 bytes in 0 blocks.
+==28507== Use --leak-check=full to see details of leaked memory.
+
+-------------------- in 4 events ---------------------
+
+62K
+
+==28514== 
+==28514== ERROR SUMMARY: 3240 errors from 24 contexts (suppressed: 217 from 2)
+==28514== malloc/free: in use at exit: 29,955,893 bytes in 133,029 blocks.
+==28514== malloc/free: 1,042,228 allocs, 909,199 frees, 123,697,441 bytes allocated.
+==28514== For counts of detected errors, rerun with: -v
+==28514== searching for pointers to 133,029 not-freed blocks.
+==28514== checked 31,991,192 bytes.
+==28514== 
+==28514== LEAK SUMMARY:
+==28514==    definitely lost: 3,718 bytes in 60 blocks.
+==28514==      possibly lost: 6,357,404 bytes in 14,845 blocks.
+==28514==    still reachable: 23,594,771 bytes in 118,124 blocks.
+==28514==         suppressed: 0 bytes in 0 blocks.
+==28514== Use --leak-check=full to see details of leaked memory.
+
+-------------------- in 5 events -----------------------
+
+62K
+
+==28700== 
+==28700== ERROR SUMMARY: 2743 errors from 24 contexts (suppressed: 217 from 2)
+==28700== malloc/free: in use at exit: 31,196,718 bytes in 133,034 blocks.
+==28700== malloc/free: 1,042,646 allocs, 909,612 frees, 129,054,146 bytes allocated.
+==28700== For counts of detected errors, rerun with: -v
+==28700== searching for pointers to 133,034 not-freed blocks.
+==28700== checked 33,231,560 bytes.
+==28700== 
+==28700== LEAK SUMMARY:
+==28700==    definitely lost: 3,451 bytes in 55 blocks.
+==28700==      possibly lost: 7,598,419 bytes in 14,860 blocks.
+==28700==    still reachable: 23,594,848 bytes in 118,119 blocks.
+==28700==         suppressed: 0 bytes in 0 blocks.
+==28700== Use --leak-check=full to see details of leaked memory.

@@ -1,0 +1,6 @@
+#ifndef RecoTracker_SpecialSeedGenerators_ClusterChecker_H
+#define RecoTracker_SpecialSeedGenerators_ClusterChecker_H
+
+#include "RecoTracker/TkSeedGenerator/interface/ClusterChecker.h"
+
+#endif

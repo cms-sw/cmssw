@@ -1,0 +1,6 @@
+<use   name="boost"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="MagneticField/VolumeGeometry"/>
+<export>
+  <lib   name="1"/>
+</export>

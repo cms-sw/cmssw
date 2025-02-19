@@ -1,0 +1,114 @@
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 0
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 0
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 1
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 1
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 2
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 2
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 5
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 5
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 8
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 8
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 14
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 14
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 26
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 26
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 50
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 50
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 98
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 98
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 194
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 194
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 386
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 386
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 770
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 770
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 1538
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 1538
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 3074
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 3074
+%MSG
+%MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+A 6146
+%MSG
+%MSG-e cat_B:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
+B 6146
+%MSG
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkReport            -i AfterSource                            1        1
+    2 cat_A                -e UnitTestClient_R                   10000*   10000
+    3 cat_B                -e UnitTestClient_R                   10000*   10000
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkReport            PostBeginLumi                     
+    2 cat_A                1/1              1/1              1/1
+    3 cat_B                1/1              1/1              1/1
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                    1                   1
+Error               20000               20000

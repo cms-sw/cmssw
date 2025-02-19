@@ -1,0 +1,4 @@
+<use   name="DQM/DTMonitorModule"/>
+<library   file="plugins.cc" name="DQMDTMonitorModulePlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

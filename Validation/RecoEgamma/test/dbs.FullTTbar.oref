@@ -1,0 +1,98 @@
+
+[oval run] =================================================
+[oval run] USER : chamont
+[oval run] HOST : lxplus447.cern.ch
+[oval run] OVAL_ENVNAME = FullTTbar
+[oval run] TEST_RELEASE = 3_11_0_pre5
+[oval run] TEST_GLOBAL_TAG = MC_311_V0
+[oval run] TEST_GLOBAL_STARTUP_TAG = START311_V0
+[oval run] TEST_GLOBAL_VERSION = v1
+[oval run] TEST_OUTPUT_BASE = electronHistos.root
+[oval run] TEST_HISTOS_FILE = electronHistos.${OVAL_ENVNAME}.root
+[oval run] TEST_OUTPUT_LOGS = *.${OVAL_ENVNAME}.olog
+[oval run] DBS_RELEASE = CMSSW_${TEST_RELEASE}
+[oval run] DBS_TIER = -RECO
+[oval run] DBS_COND = ${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}
+[oval run] VAL_NEW_RELEASE = 3_11_0_pre5
+[oval run] VAL_REF_RELEASE = 3_11_0_pre3
+[oval run] VAL_COMMENT = No electron code change.
+[oval run] STORE_RELEASE = ${VAL_NEW_RELEASE}
+[oval run] VAL_WEB = /afs/cern.ch/cms/Physics/egamma/www/validation
+[oval run] VAL_URL = http://cmsdoc.cern.ch/Physics/egamma/www/validation
+[oval run] STORE_WEB = ${VAL_WEB}
+[oval run] TEST_AFS_DIR = /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation
+[oval run] VAL_HISTOS = ElectronMcSignalHistos.txt
+[oval run] VAL_ANALYZER = ElectronMcSignalValidator
+[oval run] VAL_CONFIGURATION = ElectronMcSignalValidation_cfg.py
+[oval run] DBS_SAMPLE = RelValTTbar
+[oval run] electronDbsDiscovery.txt:
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValSingleElectronPt10-MC-RECO.root
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValSingleElectronPt35-MC-RECO.root
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValTTbar-MC-RECO.root
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValZEE-MC-RECO.root
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValZEE-START-RECO.root
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValQCD_Pt_80_120-MC-RECO.root
+[oval run] run tool: scram
+[oval run] error: /(?-xism:^dataset has 0 files:$)/
+[oval run] final instruction: ./electronDbsDiscovery.py
+[oval run] =================================================
+
+dataset has 9 files:
+/store/relval/CMSSW_3_11_0_pre5/RelValTTbar/GEN-SIM-RECO/MC_311_V0-v1/0065/84434DF5-1224-E011-9BC9-00304867915A.root
+/store/relval/CMSSW_3_11_0_pre5/RelValTTbar/GEN-SIM-RECO/MC_311_V0-v1/0063/B4CC4985-D223-E011-BAF8-00261894384A.root
+/store/relval/CMSSW_3_11_0_pre5/RelValTTbar/GEN-SIM-RECO/MC_311_V0-v1/0063/6ADC1E9E-D823-E011-A432-002618943809.root
+/store/relval/CMSSW_3_11_0_pre5/RelValTTbar/GEN-SIM-RECO/MC_311_V0-v1/0063/6A50328B-D223-E011-A97C-003048678FC6.root
+/store/relval/CMSSW_3_11_0_pre5/RelValTTbar/GEN-SIM-RECO/MC_311_V0-v1/0063/421DC87C-D323-E011-938C-00304867BEC0.root
+/store/relval/CMSSW_3_11_0_pre5/RelValTTbar/GEN-SIM-RECO/MC_311_V0-v1/0063/3C3C1677-D123-E011-BC0F-002618943842.root
+/store/relval/CMSSW_3_11_0_pre5/RelValTTbar/GEN-SIM-RECO/MC_311_V0-v1/0063/36FBCB7E-D323-E011-BC3C-002618943943.root
+/store/relval/CMSSW_3_11_0_pre5/RelValTTbar/GEN-SIM-RECO/MC_311_V0-v1/0063/2CDD42AF-DB23-E011-96D3-003048679296.root
+/store/relval/CMSSW_3_11_0_pre5/RelValTTbar/GEN-SIM-RECO/MC_311_V0-v1/0063/262E686A-D323-E011-8C08-0026189438A0.root
+
+[oval run] ==========================================
+[oval run] result: OK
+[oval run] ==========================================
+
+[oval diff] ================================================
+[oval diff] OVAL_ENVNAME = FullTTbar
+[oval diff] TEST_RELEASE = 3_11_0_pre5
+[oval diff] TEST_GLOBAL_TAG = MC_311_V0
+[oval diff] TEST_GLOBAL_STARTUP_TAG = START311_V0
+[oval diff] TEST_GLOBAL_VERSION = v1
+[oval diff] TEST_OUTPUT_BASE = electronHistos.root
+[oval diff] TEST_HISTOS_FILE = electronHistos.${OVAL_ENVNAME}.root
+[oval diff] TEST_OUTPUT_LOGS = *.${OVAL_ENVNAME}.olog
+[oval diff] DBS_RELEASE = CMSSW_${TEST_RELEASE}
+[oval diff] DBS_TIER = -RECO
+[oval diff] DBS_COND = ${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}
+[oval diff] VAL_NEW_RELEASE = 3_11_0_pre5
+[oval diff] VAL_REF_RELEASE = 3_11_0_pre3
+[oval diff] VAL_COMMENT = No electron code change.
+[oval diff] STORE_RELEASE = ${VAL_NEW_RELEASE}
+[oval diff] VAL_WEB = /afs/cern.ch/cms/Physics/egamma/www/validation
+[oval diff] VAL_URL = http://cmsdoc.cern.ch/Physics/egamma/www/validation
+[oval diff] STORE_WEB = ${VAL_WEB}
+[oval diff] TEST_AFS_DIR = /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation
+[oval diff] VAL_HISTOS = ElectronMcSignalHistos.txt
+[oval diff] VAL_ANALYZER = ElectronMcSignalValidator
+[oval diff] VAL_CONFIGURATION = ElectronMcSignalValidation_cfg.py
+[oval diff] DBS_SAMPLE = RelValTTbar
+[oval diff] electronDbsDiscovery.txt:
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValSingleElectronPt10-MC-RECO.root
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValSingleElectronPt35-MC-RECO.root
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValTTbar-MC-RECO.root
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValZEE-MC-RECO.root
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValZEE-START-RECO.root
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValQCD_Pt_80_120-MC-RECO.root
+[oval diff] diff line: /(?-xism:^(TH1.Print Name  = [a-zA-Z_]+, Entries= ).*$)/
+[oval diff] diff line: /(?-xism:^(h_\S+ has )\d+ entries of mean value \S+$)/
+[oval diff] diff number: /(?-xism:^dataset has (\d+) files:$)/ ~ 1
+[oval diff] diff number: /(?-xism:^TH1.Print Name  = [a-zA-Z_]+, Entries= (\d+),.*$)/ ~ 20%
+[oval diff] diff number: /(?-xism:^TH1.Print Name  = [a-zA-Z_]+, Entries= \d+, Total sum= (\S+)$)/ ~ 10%
+[oval diff] diff number: /(?-xism:^h_\S+ has (\d+) entries of mean value \S+$)/ ~ 20%
+[oval diff] diff number: /(?-xism:^h_\S+ has \d+ entries of mean value (\S+)$)/ ~ 10%
+[oval diff] ================================================
+
+[oval diff] =========================================
+[oval diff] result: OK
+[oval diff] =========================================
+

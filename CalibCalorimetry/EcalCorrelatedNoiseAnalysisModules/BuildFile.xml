@@ -1,0 +1,8 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="TBDataFormats/EcalTBObjects"/>
+<use   name="CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos"/>
+<use   name="root"/>
+<flags   EDM_PLUGIN="1"/>

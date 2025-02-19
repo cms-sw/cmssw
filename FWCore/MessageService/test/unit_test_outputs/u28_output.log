@@ -1,0 +1,89 @@
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogError was used to send this other message
+%MSG
+%MSG-w cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogWarning was used to send this message
+%MSG
+%MSG-w cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogWarning was used to send this other message
+%MSG
+%MSG-i cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogInfo was used to send this message
+%MSG
+%MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogInfo was used to send this other message
+%MSG
+%MSG-i FwkJob:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+<Message>LogInfo was used to send a job report</Message>
+%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogError was used to send this other message
+%MSG
+%MSG-w cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogWarning was used to send this message
+%MSG
+%MSG-w cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogWarning was used to send this other message
+%MSG
+%MSG-i cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogInfo was used to send this message
+%MSG
+%MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogInfo was used to send this other message
+%MSG
+%MSG-i FwkJob:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+<Message>LogInfo was used to send a job report</Message>
+%MSG
+Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogError was used to send this other message
+%MSG
+%MSG-w cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogWarning was used to send this message
+%MSG
+%MSG-w cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogWarning was used to send this other message
+%MSG
+%MSG-i cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogInfo was used to send this message
+%MSG
+%MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogInfo was used to send this other message
+%MSG
+%MSG-i FwkJob:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+<Message>LogInfo was used to send a job report</Message>
+%MSG
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 cat_A                -w UnitTestClient_A                       3        3
+    2 cat_B                -w UnitTestClient_A                       3        3
+    3 cat_A                -e UnitTestClient_A                       3        3
+    4 cat_B                -e UnitTestClient_A                       3        3
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 cat_A                1/1              1/2              1/3
+    2 cat_B                1/1              1/2              1/3
+    3 cat_A                1/1              1/2              1/3
+    4 cat_B                1/1              1/2              1/3
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Warning                 6                   6
+Error                   6                   6

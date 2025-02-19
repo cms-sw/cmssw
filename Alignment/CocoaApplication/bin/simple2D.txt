@@ -1,0 +1,110 @@
+//#include simple2D.param
+
+laser_posY 0.0
+laser_angX 0.
+sens1_posY  0.
+sens2_posY 0.
+
+GLOBAL_OPTIONS
+dumpInAllFrames 1
+
+//stopAfter1stIteration 1
+
+calParamInyfMatrix 1
+
+rotateAroundLocal 1
+
+report_verbose 5
+
+saveMatrices 0
+
+debug_verbose 0
+
+length_value_dimension 1//millimeter
+
+length_error_dimension 2//micrometer
+
+angle_value_dimension 3//degrees
+
+angle_error_dimension 1//millirad
+
+output_length_value_dimension 1//millimeter
+
+output_length_error_dimension 1//micrometers
+
+output_angle_value_dimension 3//degrees
+
+output_angle_error_dimension 3//millirad
+
+maxNoFitIterations 5000
+
+fitQualityCut 0.001
+reportOutReadSigma 0
+reportOutReadQuality 0
+//#include report.outyf
+
+PARAMETERS
+
+error_prec_mes_ccd  100
+
+sens_pos_err 10
+sens_ang_err 10
+
+SYSTEM_TREE_DESCRIPTION
+
+object system laser 2 sensor2D
+
+SYSTEM_TREE_DATA
+
+system s
+laser laser1
+  centre 
+    X   0.   10  fix
+    Y   laser_posY  10  unk
+    Z   0.   10  fix 
+   angles           
+    X   laser_angX   1   unk
+    Y   1.  10   fix
+    Z   45.   10   fix
+sensor2D sens1
+  centre
+    X   0  sens_pos_err  fix
+    Y   sens1_posY  sens_pos_err  cal
+    Z   100  sens_pos_err  fix 
+  angles           
+    X   0   sens_ang_err  fix
+    Y   0   sens_ang_err  fix
+    Z   0   sens_ang_err  fix
+sensor2D sens2
+  centre
+    X   0  sens_pos_err  fix
+    Y   sens2_posY  sens_pos_err  cal
+    Z   200  sens_pos_err  fix 
+  angles           
+    X   0   sens_ang_err  fix
+    Y   0   sens_ang_err  fix
+    Z   0   sens_ang_err  fix
+
+
+MEASUREMENTS
+
+SENSOR2D sens1
+s/laser1 & s/sens1
+H 1.2342595    error_prec_mes_ccd  
+V 1.2342595    error_prec_mes_ccd  
+//H 0.1    error_prec_mes_ccd  
+//V 0.20  error_prec_mes_ccd	
+//H 1.2342595    error_prec_mes_ccd  
+//V 0.20  error_prec_mes_ccd	
+
+SENSOR2D
+s/laser1 & s/sens2
+H   2.468519  error_prec_mes_ccd  
+V   2.568519  error_prec_mes_ccd  
+//H 0.1  error_prec_mes_ccd  
+//V 0.21   error_prec_mes_ccd	
+//V 0.21   error_prec_mes_ccd	
+
+measurements_from_file simple2D.meas
+
+

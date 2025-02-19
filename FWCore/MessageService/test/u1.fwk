@@ -1,0 +1,111 @@
+<FrameworkJobReport>
+
+  <Report>
+    <Severity> -e </Severity>
+    <Category> cat_A </Category>
+    <Message> 
+      <Item> LogError was used to send this message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -e </Severity>
+    <Category> cat_B </Category>
+    <Message> 
+      <Item> LogError was used to send this other message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -w </Severity>
+    <Category> cat_A </Category>
+    <Message> 
+      <Item> LogWarning was used to send this message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -w </Severity>
+    <Category> cat_B </Category>
+    <Message> 
+      <Item> LogWarning was used to send this other message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -i </Severity>
+    <Category> cat_A </Category>
+    <Message> 
+      <Item> LogInfo was used to send this message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -i </Severity>
+    <Category> cat_B </Category>
+    <Message> 
+      <Item> LogInfo was used to send this other message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -e </Severity>
+    <Category> cat_A </Category>
+    <Message> 
+      <Item> LogError was used to send this message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -e </Severity>
+    <Category> cat_B </Category>
+    <Message> 
+      <Item> LogError was used to send this other message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -w </Severity>
+    <Category> cat_A </Category>
+    <Message> 
+      <Item> LogWarning was used to send this message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -w </Severity>
+    <Category> cat_B </Category>
+    <Message> 
+      <Item> LogWarning was used to send this other message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -i </Severity>
+    <Category> cat_A </Category>
+    <Message> 
+      <Item> LogInfo was used to send this message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+  <Report>
+    <Severity> -i </Severity>
+    <Category> cat_B </Category>
+    <Message> 
+      <Item> LogInfo was used to send this other message  </Item>
+    </Message>
+    <Module> UnitTestClient_A:sendSomeMessages </Module>
+  </Report>
+
+</FrameworkJobReport>

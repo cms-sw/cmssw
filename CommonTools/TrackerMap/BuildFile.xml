@@ -1,0 +1,7 @@
+<use   name="FWCore/Framework"/>
+<use   name="CondFormats/SiStripObjects"/>
+<use   name="CalibFormats/SiStripObjects"/>
+<use   name="rootgraphics"/>
+<export>
+  <lib   name="1"/>
+</export>

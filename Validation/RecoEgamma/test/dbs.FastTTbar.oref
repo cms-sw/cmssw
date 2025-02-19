@@ -1,0 +1,196 @@
+
+[oval run] =================================================
+[oval run] USER : chamont
+[oval run] HOST : lxplus402.cern.ch
+[oval run] OVAL_ENVNAME = FastTTbar
+[oval run] TEST_RELEASE = 3_11_0_pre3
+[oval run] TEST_GLOBAL_TAG = MC_310_V3
+[oval run] TEST_GLOBAL_STARTUP_TAG = START310_V3
+[oval run] TEST_GLOBAL_VERSION = v1
+[oval run] TEST_OUTPUT_BASE = electronHistos.root
+[oval run] TEST_HISTOS_FILE = electronHistos.${OVAL_ENVNAME}.root
+[oval run] TEST_OUTPUT_LOGS = *.${OVAL_ENVNAME}.olog
+[oval run] DBS_RELEASE = CMSSW_${TEST_RELEASE}
+[oval run] DBS_TIER = -RECO
+[oval run] DBS_COND = ${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}
+[oval run] VAL_NEW_RELEASE = 3_11_0_pre3
+[oval run] VAL_REF_RELEASE = 3_11_0_pre2
+[oval run] VAL_COMMENT = No electron code change.
+[oval run] STORE_RELEASE = ${VAL_NEW_RELEASE}
+[oval run] VAL_WEB = /afs/cern.ch/cms/Physics/egamma/www/validation
+[oval run] VAL_URL = http://cmsdoc.cern.ch/Physics/egamma/www/validation
+[oval run] STORE_WEB = ${VAL_WEB}
+[oval run] TEST_AFS_DIR = /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation
+[oval run] DBS_COND = ${TEST_GLOBAL_TAG}*FastSim*-v2
+[oval run] VAL_ANALYZER = ElectronMcSignalValidator
+[oval run] VAL_CONFIGURATION = ElectronMcSignalValidation_cfg.py
+[oval run] VAL_HISTOS = ElectronMcSignalHistos.txt
+[oval run] DBS_SAMPLE = RelValTTbar
+[oval run] electronDbsDiscovery.txt:
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValSingleElectronPt10-MC-RECO.root
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValSingleElectronPt35-MC-RECO.root
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValTTbar-MC-RECO.root
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValZEE-MC-RECO.root
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValZEE-START-RECO.root
+[oval run]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValQCD_Pt_80_120-MC-RECO.root
+[oval run] run tool: scram
+[oval run] error: /(?-xism:^dataset has 0 files:$)/
+[oval run] final instruction: ./electronDbsDiscovery.py
+[oval run] =================================================
+
+dataset has 100 files:
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/F8B9DD09-EB1B-E011-B8A4-00261894393B.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/F64B5902-EC1B-E011-BF20-002354EF3BD0.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/F461C004-EC1B-E011-8438-001A928116DA.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/F42F547C-EF1B-E011-A2CA-001A928116DA.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/EAE84189-EB1B-E011-8EFE-0018F3D0965E.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/E0BB348C-EB1B-E011-A5FA-003048678FE0.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/DECB6D09-EB1B-E011-AA78-003048679228.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/DE8B068D-EB1B-E011-A5A7-003048678DD6.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/DC3D0501-EC1B-E011-932C-002354EF3BD2.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/D8D04190-EB1B-E011-8EF6-001A928116F0.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/D865A302-EC1B-E011-9DD8-0026189438E9.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/D64981F8-EF1B-E011-91AF-001A92971B04.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/D4ACF289-EB1B-E011-B3E6-0026189438FD.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/D2AA120A-EB1B-E011-BED6-003048678B12.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/D265B87C-EF1B-E011-9547-001A92971B96.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/D2129489-EB1B-E011-A060-002618943843.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/D0022EFE-EE1B-E011-827A-001A92811714.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/CE53E17D-EF1B-E011-9E36-001BFCDBD15E.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/CE14398C-EB1B-E011-A242-001A92971BBE.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/CE0CD70A-EB1B-E011-BE86-00261894388A.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/CC1D708F-EB1B-E011-9E9B-001A928116DA.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/CC016BF7-EF1B-E011-88D7-001A928116D8.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/CA4C847C-EF1B-E011-B235-001A92971B94.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/BC219B89-EB1B-E011-A0C9-002618943826.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/BAD4698C-EB1B-E011-9EBB-001BFCDBD15E.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/BA19B604-EC1B-E011-A134-001A92971B9C.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/B034A58C-EB1B-E011-A37D-00261894388A.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/AE5F858D-EB1B-E011-AAE0-0018F3D096A2.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/ACB1E609-EB1B-E011-8BC4-002618943869.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/A8957274-F11B-E011-9B18-001A92971B94.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/A4ABD47A-EF1B-E011-98A1-001A92971B04.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/A453BC7C-EF1B-E011-BBF4-0018F3D09680.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/A4244E8C-EB1B-E011-8FE2-003048678FC4.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/9AC8BD0F-EB1B-E011-BD04-001BFCDBD15E.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/9A50768D-EB1B-E011-98D3-0030486792DE.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/98F022F2-F01B-E011-AC32-003048679228.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/96D7197C-EF1B-E011-A5D2-00261894385D.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/965A720E-EB1B-E011-AC5F-001BFCDBD15E.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/94D9C489-EB1B-E011-B525-00248C0BE014.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/923E407F-EF1B-E011-9BD3-0018F3D095FC.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/90841B7E-EF1B-E011-BD81-001A928116C6.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/8E70C77E-EF1B-E011-A874-001A92811702.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/8E7057F8-EF1B-E011-A0D0-001A92971B04.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/8C8B9004-EC1B-E011-8D35-0018F3D095F2.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/886A0980-EF1B-E011-96BA-001A92811720.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/82F9BF0D-EB1B-E011-82DD-0018F3D095FC.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/7ECFC909-EB1B-E011-AA50-0030486792BA.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/785B618C-EB1B-E011-AA49-00261894396F.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/783F3580-EF1B-E011-B1DB-001A92810AB2.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/7443A47F-EF1B-E011-A296-0018F3D0964A.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/704DA305-EC1B-E011-AA04-0018F3D096E4.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/6EF8037B-EF1B-E011-8585-002354EF3BE6.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/6A875C7E-EF1B-E011-8665-001A92971BC8.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/68ED5A7B-EF1B-E011-B30D-003048679228.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/685A5B0D-EB1B-E011-A596-001A92971BBE.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/66986C8D-EB1B-E011-9024-0026189438A9.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/667BD40B-EB1B-E011-9AC4-002618943826.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/6641188E-EB1B-E011-A3E7-001A92811702.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/644F6C8D-EB1B-E011-92D2-00304867BFC6.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/64131282-EC1B-E011-A71A-002618943896.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/60828805-EC1B-E011-BA9B-001BFCDBD182.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/5E859605-EC1B-E011-830A-001A92811702.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/5E6A5304-EC1B-E011-854E-003048678FE0.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/569D0E0B-EB1B-E011-9648-002618943843.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/56471B8B-EB1B-E011-95A1-002354EF3BE6.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/54D7630A-EB1B-E011-A2B5-003048678AF4.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/50DADC0A-EB1B-E011-A9A1-0026189438AA.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/4C6EE304-EC1B-E011-9EF5-001A928116AE.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/46722F8E-EB1B-E011-8116-003048678B0A.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/4223A18D-EB1B-E011-ADD2-0026189438C0.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/40EACA8F-EB1B-E011-AF85-001A928116AE.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/3CDC8A8C-EB1B-E011-A5DC-003048678ED4.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/3ABFD67E-EF1B-E011-992F-0018F3D096BE.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/34EF0A8E-EB1B-E011-99D1-003048678B0E.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/34CCAF89-EB1B-E011-8BAB-003048679228.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/3416A404-EC1B-E011-B117-0018F3D09690.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/304E678B-EB1B-E011-8D91-002354EF3BD2.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/3038C390-EB1B-E011-8DFE-0018F3D095FC.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/2CFF328B-EB1B-E011-A29D-0026189438E9.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/2A6CFF7C-EF1B-E011-8484-001A928116D8.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/2A1F9C09-EB1B-E011-9359-00248C55CC97.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/2A07688C-EB1B-E011-BFFB-003048678B5E.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/28D816FF-EB1B-E011-A19B-003048678B0A.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/28D5450B-EB1B-E011-85F8-0026189438FD.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/24157CF3-EF1B-E011-A215-003048679228.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/22E00F04-EC1B-E011-BE49-003048678FE0.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/20D49405-EC1B-E011-8849-0018F3D096A2.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/1CC3C189-EB1B-E011-BF25-0018F3D096E4.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/1458A40B-EB1B-E011-9DE3-003048678FE4.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/1269CA8A-EB1B-E011-B485-0030486792BA.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/1256F88D-EB1B-E011-85AF-003048678B0C.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/12095F8D-EB1B-E011-AE82-001BFCDBD182.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/0E76390E-EB1B-E011-AAC2-0018F3D096E4.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/0E53B177-F01B-E011-A36E-0018F3D09690.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/0A68057D-EF1B-E011-9AD6-001A92811714.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/0A1CED8A-EB1B-E011-B5CA-00261894393B.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/08B19D8D-EB1B-E011-B790-001A92971B9C.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/06864590-EB1B-E011-85D8-001BFCDBD15E.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/0247B904-EC1B-E011-90CA-001A92971B0C.root
+/store/relval/CMSSW_3_11_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v2/0062/0237FD8A-EB1B-E011-8703-00304867BF18.root
+
+[oval run] ==========================================
+[oval run] result: OK
+[oval run] ==========================================
+
+[oval diff] ================================================
+[oval diff] OVAL_ENVNAME = FastTTbar
+[oval diff] TEST_RELEASE = 3_11_0_pre3
+[oval diff] TEST_GLOBAL_TAG = MC_310_V3
+[oval diff] TEST_GLOBAL_STARTUP_TAG = START310_V3
+[oval diff] TEST_GLOBAL_VERSION = v1
+[oval diff] TEST_OUTPUT_BASE = electronHistos.root
+[oval diff] TEST_HISTOS_FILE = electronHistos.${OVAL_ENVNAME}.root
+[oval diff] TEST_OUTPUT_LOGS = *.${OVAL_ENVNAME}.olog
+[oval diff] DBS_RELEASE = CMSSW_${TEST_RELEASE}
+[oval diff] DBS_TIER = -RECO
+[oval diff] DBS_COND = ${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}
+[oval diff] VAL_NEW_RELEASE = 3_11_0_pre3
+[oval diff] VAL_REF_RELEASE = 3_11_0_pre2
+[oval diff] VAL_COMMENT = No electron code change.
+[oval diff] STORE_RELEASE = ${VAL_NEW_RELEASE}
+[oval diff] VAL_WEB = /afs/cern.ch/cms/Physics/egamma/www/validation
+[oval diff] VAL_URL = http://cmsdoc.cern.ch/Physics/egamma/www/validation
+[oval diff] STORE_WEB = ${VAL_WEB}
+[oval diff] TEST_AFS_DIR = /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation
+[oval diff] DBS_COND = ${TEST_GLOBAL_TAG}*FastSim*-v2
+[oval diff] VAL_ANALYZER = ElectronMcSignalValidator
+[oval diff] VAL_CONFIGURATION = ElectronMcSignalValidation_cfg.py
+[oval diff] VAL_HISTOS = ElectronMcSignalHistos.txt
+[oval diff] DBS_SAMPLE = RelValTTbar
+[oval diff] electronDbsDiscovery.txt:
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValSingleElectronPt10-MC-RECO.root
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValSingleElectronPt35-MC-RECO.root
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValTTbar-MC-RECO.root
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValZEE-MC-RECO.root
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValZEE-START-RECO.root
+[oval diff]   /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation/RelValQCD_Pt_80_120-MC-RECO.root
+[oval diff] diff line: /(?-xism:^(TH1.Print Name  = [a-zA-Z_]+, Entries= ).*$)/
+[oval diff] diff line: /(?-xism:^(h_\S+ has )\d+ entries of mean value \S+$)/
+[oval diff] diff number: /(?-xism:^dataset has (\d+) files:$)/ ~ 1
+[oval diff] diff number: /(?-xism:^TH1.Print Name  = [a-zA-Z_]+, Entries= (\d+),.*$)/ ~ 20%
+[oval diff] diff number: /(?-xism:^TH1.Print Name  = [a-zA-Z_]+, Entries= \d+, Total sum= (\S+)$)/ ~ 10%
+[oval diff] diff number: /(?-xism:^h_\S+ has (\d+) entries of mean value \S+$)/ ~ 20%
+[oval diff] diff number: /(?-xism:^h_\S+ has \d+ entries of mean value (\S+)$)/ ~ 10%
+[oval diff] ================================================
+
+=== olog #41 !~ oref #37 (>1)
+olog: dataset has 100 files:
+---
+oref: dataset has 0 files:
+
+[oval diff] =========================================
+[oval diff] result: DIFFS
+[oval diff] =========================================
+
