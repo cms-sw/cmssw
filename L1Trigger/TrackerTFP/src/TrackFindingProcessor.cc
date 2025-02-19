@@ -125,7 +125,7 @@ namespace trackerTFP {
                                       vector<deque<Track*>>& outputs) {
     // count input objects
     int nTracks(0);
-    auto valid = [](int sum, const FrameTrack& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto valid = [](int sum, const FrameTrack& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     for (const StreamTrack& tracks : inputs)
       nTracks += accumulate(tracks.begin(), tracks.end(), 0, valid);
     tracks_.reserve(nTracks);

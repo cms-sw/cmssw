@@ -94,11 +94,11 @@ namespace trackerTFP {
     // read in DTC Product and produce TFP product
     const StreamsStub& streamsStub = iEvent.get(edGetToken_);
     // helper
-    auto validFrame = [](int sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto validFrame = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     auto nSectors = [](int sum, const StubPP& object) {
       const int nPhiT = object.phiTMax() - object.phiTMin() + 1;
       const int nZT = object.zTMax() - object.zTMin() + 1;
-      return sum += nPhiT * nZT;
+      return sum + nPhiT * nZT;
     };
     auto toFrame = [](StubGP* object) { return object ? object->frame() : FrameStub(); };
     // produce GP product per region

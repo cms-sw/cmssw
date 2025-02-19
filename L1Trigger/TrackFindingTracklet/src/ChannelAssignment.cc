@@ -108,7 +108,7 @@ namespace trklet {
     numSeedingLayers_ = max_element(seedTypesSeedLayers_.begin(), seedTypesSeedLayers_.end(), bigger)->size();
     maxNumProjectionLayers_ =
         max_element(seedTypesProjectionLayers_.begin(), seedTypesProjectionLayers_.end(), bigger)->size();
-    auto acc = [](int sum, vector<int> ints) { return sum += (int)ints.size(); };
+    auto acc = [](int sum, vector<int> ints) { return sum + static_cast<int>(ints.size()); };
     offsetsStubs_.reserve(numSeedTypes_);
     numChannelsStub_ = accumulate(
         seedTypesProjectionLayers_.begin(), seedTypesProjectionLayers_.end(), numSeedingLayers_ * numSeedTypes_, acc);
