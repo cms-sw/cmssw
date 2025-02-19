@@ -193,7 +193,7 @@ namespace trklet {
       for (int seedType = 0; seedType < channelAssignment_->numSeedTypes(); seedType++) {
         const int nTracks =
             accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [seedType](int sum, const TTTrackRef& ttTrackRef) {
-              return sum += ((int)ttTrackRef->trackSeedType() == seedType ? 1 : 0);
+              return sum + (static_cast<int>(ttTrackRef->trackSeedType()) == seedType ? 1 : 0);
             });
         hisChannel_->Fill(nTracks);
         profChannel_->Fill(seedType, nTracks);

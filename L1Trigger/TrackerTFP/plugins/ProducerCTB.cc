@@ -115,7 +115,7 @@ namespace trackerTFP {
     const StreamsStub& streamsStub = iEvent.get(edGetToken_);
     // count stubs
     int nStubsHT(0);
-    auto validFrame = [](int sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto validFrame = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     for (const StreamStub& stream : streamsStub)
       nStubsHT += accumulate(stream.begin(), stream.end(), 0, validFrame);
     // create input objects and count tracks
@@ -175,7 +175,7 @@ namespace trackerTFP {
     }
     // store TTTracks
     int nTracks(0);
-    auto valid = [](int sum, TrackCTB* track) { return sum += (track ? 1 : 0); };
+    auto valid = [](int sum, TrackCTB* track) { return sum + (track ? 1 : 0); };
     for (const vector<deque<TrackCTB*>>& region : streamsTracks)
       for (const deque<TrackCTB*>& channel : region)
         nTracks += accumulate(channel.begin(), channel.end(), 0, valid);

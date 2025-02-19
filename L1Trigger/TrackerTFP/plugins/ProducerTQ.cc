@@ -85,7 +85,7 @@ namespace trackerTFP {
   void ProducerTQ::produce(Event& iEvent, const EventSetup& iSetup) {
     // helper class to determine Track Quality
     const TrackQuality* trackQuality = &iSetup.getData(esGetTokenTrackQuality_);
-    auto valid = [](int sum, const FrameTrack& frame) { return sum += (frame.first.isNull() ? 0 : 1); };
+    auto valid = [](int sum, const FrameTrack& frame) { return sum + (frame.first.isNull() ? 0 : 1); };
     // empty TQ product
     StreamsTrack outputTracks(numRegions_);
     Streams outputTracksAdd(numRegions_);

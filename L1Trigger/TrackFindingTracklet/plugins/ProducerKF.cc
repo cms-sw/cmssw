@@ -158,7 +158,7 @@ namespace trklet {
     const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
-    auto valid = [](int sum, const FrameTrack& f) { return sum += (f.first.isNull() ? 0 : 1); };
+    auto valid = [](int sum, const FrameTrack& f) { return sum + (f.first.isNull() ? 0 : 1); };
     // empty KF products
     StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
     StreamsTrack streamsTrack(setup->numRegions());

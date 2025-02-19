@@ -255,7 +255,7 @@ namespace trackerTFP {
     for (Stub* stub : stubs_)
       stub->update(hitsPhi_, hitsZ_, stubIds, setup->ctbMaxStubs());
     const int nLayer =
-        accumulate(stubIds.begin(), stubIds.end(), 0, [](int sum, int i) { return sum += (i > 0 ? 1 : 0); });
+        accumulate(stubIds.begin(), stubIds.end(), 0, [](int sum, int i) { return sum + (i > 0 ? 1 : 0); });
     if (nLayer < setup->ctbMinLayers())
       valid_ = false;
     size_ = *max_element(stubIds.begin(), stubIds.end());
@@ -370,7 +370,7 @@ namespace trackerTFP {
     }
     // add all gaps
     const int size =
-        accumulate(tracks.begin(), tracks.end(), 0, [](int sum, Track* track) { return sum += track->size_; });
+        accumulate(tracks.begin(), tracks.end(), 0, [](int sum, Track* track) { return sum + track->size_; });
     for (int frame = 0; frame < size;) {
       const int trackId = tracks[frame]->trackId_;
       const int length = tracks[frame]->size_;

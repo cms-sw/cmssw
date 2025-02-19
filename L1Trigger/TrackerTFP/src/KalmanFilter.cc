@@ -51,7 +51,7 @@ namespace trackerTFP {
         addLayer(stream);
       // count total number of final states
       const int nStates =
-          accumulate(stream.begin(), stream.end(), 0, [](int sum, State* state) { return sum += (state ? 1 : 0); });
+          accumulate(stream.begin(), stream.end(), 0, [](int sum, State* state) { return sum + (state ? 1 : 0); });
       // apply truncation
       if (setup_->enableTruncation() && (int)stream.size() > setup_->numFramesHigh())
         stream.resize(setup_->numFramesHigh());
