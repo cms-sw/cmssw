@@ -34,8 +34,10 @@ autoNANO = {
     # Scouting nano
     'Scout' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.scoutingNanoSequence',
                'customize': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNano'},
+    'ScoutMonitor' : {'sequence': '@Scout',
+                       'customize': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNanoForScoutingPFMonitor+@Scout'},
     'ScoutFromMini' : {'sequence': '@Scout',
-                       'customize': '@Scout+PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNanoFromMini'},
+                       'customize': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNanoFromMini+@Scout'},
     # JME nano
     'JME': {'sequence': '@PHYS',
             'customize': '@PHYS+PhysicsTools/NanoAOD/custom_jme_cff.PrepJMECustomNanoAOD'},
