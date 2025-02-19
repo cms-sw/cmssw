@@ -23,7 +23,7 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
             IncludeDY = cms.bool(False)
     ),
   ),
-  pythiaPylistVerbosity = cms.untracked.int32(0),
+  pythiaPylistVerbosity = cms.untracked.int32(1),
   filterEfficiency = cms.untracked.double(1.0),
   pythiaHepMCVerbosity = cms.untracked.bool(False),
   comEnergy = cms.double(13000.),
@@ -35,7 +35,8 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
         
         'JetMatching:merge = off',
         'Init:showChangedSettings = off', 
-        'Init:showChangedParticleData = off'
+        'Init:showChangedParticleData = off',
+        'ProcessLevel:all = off',
     ),
     parameterSets = cms.vstring('pythia8CommonSettings',
                                 'pythia8CUEP8M1Settings',
