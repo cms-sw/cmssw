@@ -15,7 +15,7 @@ bool isValidFile(const TString& fileName) {
 
 int printParameters(const TString& fileName) {
   if (!isValidFile(fileName)) {
-    return EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
 
   TFile* file = TFile::Open(fileName, "read");
