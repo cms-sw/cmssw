@@ -1015,7 +1015,7 @@ namespace evf {
                                          bool requireHeader,
                                          bool retry,
                                          bool closeFile) {
-    //skip opening file if rawFd is already intiialized
+    //skip opening file if rawFd is already intialized
     if (rawFd == -1 && (rawFd = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
       if (retry) {
         edm::LogWarning("EvFDaqDirector")
@@ -1031,7 +1031,7 @@ namespace evf {
                                   false,
                                   closeFile);
       } else {
-        //check again (even if retry = false?)
+        //try again
         if ((rawFd = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
           edm::LogError("EvFDaqDirector")
               << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
