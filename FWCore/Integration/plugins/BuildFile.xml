@@ -1,4 +1,11 @@
 <environment>
+  <library file="GlobalIntProducer.cc,GlobalStringProducer.cc,GlobalStringAnalyzer.cc" name="FWCoreIntegrationTestStd">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Utilities"/>
+  </library>
+
   <library file="TestPSetAnalyzer.cc,ProducerWithPSetDesc.cc,TestDescriptionComments.cc" name="FWCoreIntegrationTestPSet">
     <flags EDM_PLUGIN="1"/>
     <use name="DataFormats/Provenance"/>
