@@ -641,7 +641,7 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
           double eta = puCenters_[ie];
           double etamin = eta - puWidth_;
           double etamax = eta + puWidth_;
-          fastjet::RangeDefinition range_rho(etamin, etamax);
+          fastjet::Selector range_rho(fastjet::SelectorRapRange(etamin, etamax));
           fastjet::BackgroundEstimator bkgestim(*clusterSequenceWithArea, range_rho);
           bkgestim.set_excluded_jets(fjexcluded_jets);
           rhos->push_back(bkgestim.rho());
