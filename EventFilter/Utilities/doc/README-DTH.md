@@ -3,21 +3,9 @@
 
 <br>
 This patch implements unpacking of the the DTH data format by `DAQSource` into `FedRawDataCollection`.
+It both generates and consumes files with DTH format.
 
-It is rebased over CMSSW master (compatible with 15_0_0_pre2 at the time this file is commited), but it builds and runs in 14_2_0 as well. All changes are contained in `EventFilter/Utilities`.
-
-## Fetching the code
-
-```
-scram project CMSSW_15_0_0_pre2 #or CMSSW_14_2_0 (currently it compiles and runs also in 14_X releases)
-git cms-addpkg EventFilter/Utilities
-git remote add smorovic https://github.com/smorovic/cmssw.git
-git fetch smorovic dev-dth-byte-order-commit-3:dev-dth-byte-order-commit-3
-git checkout dev-dth-byte-order-commit-3
-scram b #-jN
-```
-
-Run the unit test (generates and consumes files with DTH format):
+#Run the unit test
 ```
 cmsenv
 cd src/EventFilter/Utilities/test
