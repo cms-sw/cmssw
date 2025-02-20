@@ -7,6 +7,7 @@
 //#include <memory>
 //#include <mutex>
 //#include <thread>
+#include <memory>
 #include <queue>
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -238,7 +239,7 @@ public:
   }
   void queue(UnpackedRawEventWrapper* ec) {
     if (!frdcQueue_.get())
-      frdcQueue_.reset(new std::queue<std::unique_ptr<UnpackedRawEventWrapper>>());
+      frdcQueue_ = std::make_unique<std::queue<std::unique_ptr<UnpackedRawEventWrapper>>>();
     std::unique_ptr<UnpackedRawEventWrapper> uptr(ec);
     frdcQueue_->push(std::move(uptr));
   }
