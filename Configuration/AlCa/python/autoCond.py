@@ -25,6 +25,8 @@ autoCond = {
     'run2_mc_pa'                   :    '131X_mcRun2_pA_v3',
     # GlobalTag for Run2 data reprocessing
     'run2_data'                    :    '141X_dataRun2_v2',
+    # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
+    'run2_data_HEfail'             :    '140X_dataRun2_HEfail_v1',
     # GlobalTag for Run2 HI data
     'run2_data_promptlike_hi'      :    '140X_dataRun2_PromptLike_HI_v1',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
