@@ -21,7 +21,7 @@ using namespace std;
 // default ctor
 //  - csa      the ClusterSequenceArea to use
 //  - range    the range over which jets will be considered
-BackgroundEstimator::BackgroundEstimator(const ClusterSequenceAreaBase &csa, const RangeDefinition &range)
+BackgroundEstimator::BackgroundEstimator(const ClusterSequenceAreaBase &csa, const Selector &range)
     : _csa(csa), _range(range) {
   reset();
 }
@@ -77,7 +77,7 @@ void BackgroundEstimator::_compute() {
       excluded |= (_excluded_jets[j].cluster_hist_index() == ref_idx);
 
     // check if the jet is in the range
-    if (_range.is_in_range(current_jet)) {
+    if (_range.pass(current_jet)) {
       if (excluded) {
         // keep track of the explicitly excluded jets
         _n_jets_excluded++;
