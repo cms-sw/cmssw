@@ -1,7 +1,6 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_Hit_h
 #define RecoTracker_LSTCore_src_alpaka_Hit_h
 
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/alpakastdAlgorithm.h"
 #include "HeterogeneousCore/AlpakaMath/interface/deltaPhi.h"
