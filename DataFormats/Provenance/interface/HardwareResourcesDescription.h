@@ -7,6 +7,15 @@
 #include <vector>
 
 namespace edm {
+  /**
+   * Description of various hardware details stored as part of
+   * ProcessConfiguration
+   *
+   * An object can be serialized as a string. An object with empty
+   * content will be serialized as an empty string (this was a simple
+   * way to preserve backwards (and forwards) compatibility in
+   * ProcessHistory for the ID checksum)
+   */
   struct HardwareResourcesDescription {
     HardwareResourcesDescription() = default;
     explicit HardwareResourcesDescription(std::string_view serialized);
