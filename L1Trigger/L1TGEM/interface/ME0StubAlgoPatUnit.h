@@ -25,21 +25,8 @@ namespace l1t {
         int partition = -1,
         std::vector<int> ly_thresh_patid =
             {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 4, 4, 4, 4, 4},  // layer count threshold for 17 pattern ids
-        std::vector<int> ly_thresh_eta = {4,
-                                          5,
-                                          4,
-                                          5,
-                                          4,
-                                          5,
-                                          4,
-                                          5,
-                                          4,
-                                          5,
-                                          4,
-                                          5,
-                                          4,
-                                          5,
-                                          4},  // layer count threshold for 8 eta partitions + 7 "virtual" eta partitions
+        std::vector<int> ly_thresh_eta = 
+            {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4},  // layer count threshold for 8 eta partitions + 7 "virtual" eta partitions
         int input_max_span = 37,
         bool skip_centroids = true,
         int num_or = 2,
