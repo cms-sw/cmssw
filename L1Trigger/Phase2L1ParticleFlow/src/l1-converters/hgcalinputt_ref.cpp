@@ -1,4 +1,5 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/hgcalinput_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/nn_activation.h"
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -7,7 +8,11 @@
 l1ct::HgcalClusterDecoderEmulator::HgcalClusterDecoderEmulator(const edm::ParameterSet &pset)
     : slim_(pset.getParameter<bool>("slim")),
       multiclass_id_(pset.getParameterSet("multiclass_id")),
-      corrector_(pset.getParameter<std::string>("corrector"), pset.getParameter<double>("correctorEmfMax")),
+      corrector_(pset.getParameter<std::string>("corrector"),
+                 pset.getParameter<double>("correctorEmfMax"),
+                 false,
+                 pset.getParameter<bool>("emulateCorrections"),
+                 l1tpf::corrector::EmulationMode::Correction),
       emInterpScenario_(setEmInterpScenario(pset.getParameter<std::string>("emInterpScenario"))) {}
 
 edm::ParameterSetDescription l1ct::HgcalClusterDecoderEmulator::getParameterSetDescription() {
@@ -15,6 +20,7 @@ edm::ParameterSetDescription l1ct::HgcalClusterDecoderEmulator::getParameterSetD
   description.add<bool>("slim", false);
   description.add<std::string>("corrector", "");
   description.add<double>("correctorEmfMax", -1);
+  description.add<bool>("emulateCorrections", false);
   description.add<edm::ParameterSetDescription>("multiclass_id", MultiClassID::getParameterSetDescription());
   description.add<std::string>("emInterpScenario", "No");
   return description;
@@ -51,10 +57,11 @@ l1ct::HgcalClusterDecoderEmulator::HgcalClusterDecoderEmulator(const std::string
                                                                bool slim,
                                                                const std::string &corrector,
                                                                float correctorEmfMax,
+                                                               bool emulateCorrections,
                                                                const std::string &emInterpScenario)
     : slim_{slim},
       multiclass_id_(model, wp_pt, wp_PU, wp_Pi, wp_EgEm, wp_PFEm),
-      corrector_(corrector, correctorEmfMax),
+      corrector_(corrector, correctorEmfMax, false, emulateCorrections, l1tpf::corrector::EmulationMode::Correction),
       emInterpScenario_(setEmInterpScenario(emInterpScenario)) {}
 
 l1ct::HgcalClusterDecoderEmulator::~HgcalClusterDecoderEmulator() {}
@@ -75,11 +82,6 @@ l1ct::HgcalClusterDecoderEmulator::UseEmInterp l1ct::HgcalClusterDecoderEmulator
 l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegionEmu &sector,
                                                               const ap_uint<256> &in,
                                                               bool &valid) const {
-  constexpr float ETAPHI_LSB = M_PI / 720;
-  constexpr float SIGMAZZ_LSB = 778.098 / (1 << 7);
-  constexpr float SIGMAPHIPHI_LSB = 0.12822 / (1 << 7);
-  constexpr float SIGMAETAETA_LSB = 0.148922 / (1 << 5);
-
   // Word 0
   ap_uint<14> w_pt = in(13, 0);       // 14 bits: 13-0
   ap_uint<14> w_empt = in(27, 14);    // 14 bits: 27-14
@@ -129,16 +131,14 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
     ap_ufixed<10, 5, AP_RND_CONV, AP_SAT> w_hoe = 256.0 / (w_emf_tot.to_int() + 0.5) - 1;
     out.hwHoe = w_hoe;
   }
-  // FIXME: use hardware values everywhere
   std::vector<MultiClassID::bdt_feature_t> inputs = {w_showerlenght,
                                                      w_coreshowerlenght,
-                                                     w_emf / 256.,
-                                                     w_abseta * ETAPHI_LSB,
-                                                     w_meanz * 0.5,  // We use the full resolution here
-                                                     w_sigmaetaeta * SIGMAETAETA_LSB,
-                                                     w_sigmaphiphi * SIGMAPHIPHI_LSB,
-                                                     w_sigmazz * SIGMAZZ_LSB};
-
+                                                     w_emf,
+                                                     w_abseta - 256,
+                                                     w_meanz,  // We use the full resolution here
+                                                     w_sigmaetaeta,
+                                                     w_sigmaphiphi,
+                                                     w_sigmazz};
 
   // Apply EM interpretation scenario
   if (emInterpScenario_ == UseEmInterp::No) {  // we do not use EM interpretation
@@ -159,8 +159,7 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
     // FIXME: we do not recompute hoe for now...
   }
 
-  // evaluate multiclass model
-  valid = multiclass_id_.evaluate(out, inputs);
+  bool notPU = multiclass_id_.evaluate(out, inputs);
 
   // Calibrate pt and set error
   if (corrector_.valid()) {
@@ -168,6 +167,9 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
     out.hwPt = l1ct::Scales::makePtFromFloat(newpt);
     // NOTE: hoe/emfrac are not updated
   }
+
+  // evaluate multiclass model
+  valid = notPU && out.hwPt > 0;
 
   return out;
 }
@@ -177,8 +179,18 @@ l1ct::HgcalClusterDecoderEmulator::MultiClassID::MultiClassID(const std::string 
                                                               const std::vector<double> &wp_PU,
                                                               const std::vector<double> &wp_Pi,
                                                               const std::vector<double> &wp_EgEm,
-                                                              const std::vector<double> &wp_PFEm)
-    : wp_pt_(wp_pt), wp_PU_(wp_PU), wp_Pi_(wp_Pi), wp_EgEm_(wp_EgEm), wp_PFEm_(wp_PFEm) {
+                                                              const std::vector<double> &wp_PFEm) {
+  for (auto pt : wp_pt)
+    wp_pt_.emplace_back(pt);
+  for (auto pu : wp_PU)
+    wp_PU_.emplace_back(pu);
+  for (auto pi : wp_Pi)
+    wp_Pi_.emplace_back(pi);
+  for (auto egem : wp_EgEm)
+    wp_EgEm_.emplace_back(egem);
+  for (auto pfem : wp_PFEm)
+    wp_PFEm_.emplace_back(pfem);
+
 #ifdef CMSSW_GIT_HASH
   auto resolvedFileName = edm::FileInPath(model).fullPath();
 #else
@@ -190,15 +202,17 @@ l1ct::HgcalClusterDecoderEmulator::MultiClassID::MultiClassID(const std::string 
 bool l1ct::HgcalClusterDecoderEmulator::MultiClassID::evaluate(l1ct::HadCaloObjEmu &cl,
                                                                const std::vector<bdt_feature_t> &inputs) const {
   auto bdt_score = multiclass_bdt_->decision_function(inputs);  //0 is pu, 1 is pi, 2 is eg
-  float raw_scores[3] = {bdt_score[0], bdt_score[1], bdt_score[2]};
-  float sm_scores[3];
-  softmax(raw_scores, sm_scores);
+  bdt_score_t raw_scores[3] = {bdt_score[0], bdt_score[1], bdt_score[2]};
+  l1ct::id_prob_t sm_scores[3];
+  nnet::softmax_stable<bdt_score_t, l1ct::id_prob_t, softmax_config>(raw_scores, sm_scores);
+
+  // softmax_stable<>
 
   unsigned int pt_bin = 0;
-  for (size_t i = wp_pt_.size() - 1; i > 0; --i) {
+  for (size_t i = wp_pt_.size(); i > 0; --i) {
     if (cl.hwPt >=
-        wp_pt_[i]) {  // FIXME: we use the cluster pt to determine the bin before changes due to EM interpretation?
-      pt_bin = i + 1;
+        wp_pt_[i - 1]) {  // FIXME: we use the cluster pt to determine the bin before changes due to EM interpretation?
+      pt_bin = i;
       break;
     }
   }

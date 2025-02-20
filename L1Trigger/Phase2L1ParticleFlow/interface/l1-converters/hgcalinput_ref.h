@@ -5,6 +5,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/corrector.h"
 // FIXME: move to the include from external package
 #include "L1Trigger/Phase2L1ParticleFlow/interface/conifer.h"
+// #include "conifer.h"
 
 namespace edm {
   class ParameterSet;
@@ -23,13 +24,14 @@ namespace l1ct {
                                 bool slim = false,
                                 const std::string &corrector = "",
                                 float correctorEmfMax = -1,
+                                bool emulateCorrections = false,
                                 const std::string &emInterpScenario = "no");
     HgcalClusterDecoderEmulator(const edm::ParameterSet &pset);
 
     class MultiClassID {
     public:
-      typedef ap_fixed<20, 10> bdt_feature_t;
-      typedef ap_fixed<20, 6> bdt_score_t;
+      typedef ap_ufixed<9, 9, AP_RND_CONV, AP_SAT> bdt_feature_t;
+      typedef ap_fixed<18, 4, AP_RND_CONV, AP_SAT> bdt_score_t;
 
       MultiClassID(const std::string &model,
                    const std::vector<double> &wp_pt,
@@ -45,11 +47,22 @@ namespace l1ct {
       void softmax(const float rawScores[3], float scores[3]) const;
 
     private:
-      std::vector<double> wp_pt_;
-      std::vector<double> wp_PU_;
-      std::vector<double> wp_Pi_;
-      std::vector<double> wp_EgEm_;
-      std::vector<double> wp_PFEm_;
+      std::vector<l1ct::pt_t> wp_pt_;
+      std::vector<l1ct::id_prob_t> wp_PU_;
+      std::vector<l1ct::id_prob_t> wp_Pi_;
+      std::vector<l1ct::id_prob_t> wp_EgEm_;
+      std::vector<l1ct::id_prob_t> wp_PFEm_;
+
+      typedef ap_fixed<18, 8> activation_table_t;
+      typedef ap_fixed<18, 8, AP_RND, AP_SAT> activation_exp_table_t;
+      typedef ap_fixed<18, 8, AP_RND, AP_SAT> activation_inv_table_t;
+
+      struct softmax_config {
+        static const unsigned n_in = 3;
+        static const unsigned table_size = 1024;
+        typedef activation_exp_table_t exp_table_t;
+        typedef activation_inv_table_t inv_table_t;
+      };
 
       conifer::BDT<bdt_feature_t, bdt_score_t, false> *multiclass_bdt_;
     };
