@@ -30,7 +30,6 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
 
-
 using namespace evf;
 
 void DataModeDTH::readEvent(edm::EventPrincipal& eventPrincipal) {
@@ -117,7 +116,6 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeDTH::makeD
 }
 
 void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) {
-
   //addr points to beginning of the main file orbit block
 
   //get file array info
@@ -138,13 +136,12 @@ void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) 
     bool ohThisFile = false;
     //intial orbit header was advanced over by source (first file only)
     auto nextAddr = buf + rawFile->bufferOffsets_[i];
-    auto startAddr = nextAddr;//save start position of the orbit
-    auto maxAddr = buf + rawFile->bufferEnds_[i];//end of stripe / file
+    auto startAddr = nextAddr;                     //save start position of the orbit
+    auto maxAddr = buf + rawFile->bufferEnds_[i];  //end of stripe / file
 
-
-    LogDebug("DataModeDTH") << "make data block view for file " << i << " at offsets: " << rawFile->bufferOffsets_[i] << " to: " << rawFile->bufferEnds_[i]
-                            << " blockAddr: 0x" << std::hex << (uint64_t)nextAddr << " chunkOffset: 0x"
-                            << std::hex << (uint64_t)(nextAddr - buf);
+    LogDebug("DataModeDTH") << "make data block view for file " << i << " at offsets: " << rawFile->bufferOffsets_[i]
+                            << " to: " << rawFile->bufferEnds_[i] << " blockAddr: 0x" << std::hex << (uint64_t)nextAddr
+                            << " chunkOffset: 0x" << std::hex << (uint64_t)(nextAddr - buf);
 
     checksumValid_ = true;
     if (!checksumError_.empty())
@@ -179,9 +176,8 @@ void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) 
           //each file must contain at least one orbit nr of the first file
           assert(orbitHeader->orbitNumber() == firstOrbitHeader_->orbitNumber());
           ohThisFile = true;
-        } else
-          if (orbitHeader->orbitNumber() != firstOrbitHeader_->orbitNumber())
-            break;
+        } else if (orbitHeader->orbitNumber() != firstOrbitHeader_->orbitNumber())
+          break;
         assert(orbitHeader->eventCount() == firstOrbitHeader_->eventCount());
       }
 
@@ -191,25 +187,24 @@ void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) 
           checksumValid_ = false;
           if (!checksumError_.empty())
             checksumError_ += "\n";
-          checksumError_ +=
-            fmt::format("Found a wrong crc32c checksum in orbit header v{} run: {} orbit: {} sourceId: {} wcount: {} events: {} flags: {}. Expected {:x} but calculated {:x}",
-                        orbitHeader->version(),
-                        orbitHeader->runNumber(),
-                        orbitHeader->orbitNumber(),
-                        orbitHeader->sourceID(),
-                        orbitHeader->packed_word_count(),
-                        orbitHeader->eventCount(),
-                        orbitHeader->flags(),
-                        orbitHeader->crc(),
-                        crc);
+          checksumError_ += fmt::format(
+              "Found a wrong crc32c checksum in orbit header v{} run: {} orbit: {} sourceId: {} wcount: {} events: {} "
+              "flags: {}. Expected {:x} but calculated {:x}",
+              orbitHeader->version(),
+              orbitHeader->runNumber(),
+              orbitHeader->orbitNumber(),
+              orbitHeader->sourceID(),
+              orbitHeader->packed_word_count(),
+              orbitHeader->eventCount(),
+              orbitHeader->flags(),
+              orbitHeader->crc(),
+              crc);
         }
       }
-      LogDebug("DataModeDTH") << "DTH orbit block version:"  << orbitHeader->version()
-                              << " sourceID:" << orbitHeader->sourceID()
-                              << " run:" << orbitHeader->runNumber()
+      LogDebug("DataModeDTH") << "DTH orbit block version:" << orbitHeader->version()
+                              << " sourceID:" << orbitHeader->sourceID() << " run:" << orbitHeader->runNumber()
                               << " orbitNr:" << orbitHeader->orbitNumber()
-                              << " evtFragments:" << orbitHeader->eventCount()
-                              << " crc32c:" << orbitHeader->crc()
+                              << " evtFragments:" << orbitHeader->eventCount() << " crc32c:" << orbitHeader->crc()
                               << " flagMask:" << std::hex << orbitHeader->flags();
       //push current orbit to the list of orbits
       auto srcOrbitSize = orbitHeader->totalSize();
@@ -256,14 +251,14 @@ bool DataModeDTH::nextEventView(RawInputFile*) {
   size_t last_eID = 0;
 
   for (size_t i = 0; i < addrsEnd_.size(); i++) {
-
     if (addrsEnd_[i] == addrsStart_[i]) {
       blockCompletedAny = true;
       continue;
     } else {
       assert(addrsEnd_[i] > addrsStart_[i]);
       blockCompletedAll = false;
-      if (blockCompletedAny) continue;
+      if (blockCompletedAny)
+        continue;
     }
 
     evf::DTHFragmentTrailer_v1* trailer =
@@ -293,8 +288,7 @@ bool DataModeDTH::nextEventView(RawInputFile*) {
           << " flags: " << std::bitset<16>(trailer->flags());
 
     LogDebug("DataModeDTH") << "DTH fragment trailer in block " << i << " eventID: " << trailer->eventID()
-                            << " payloadSizeBytes: " <<  trailer->payloadSizeBytes()
-                            << " crc: " << trailer->crc()
+                            << " payloadSizeBytes: " << trailer->payloadSizeBytes() << " crc: " << trailer->crc()
                             << " flagMask: " << std::hex << trailer->flags();
 
     //update address array
@@ -322,10 +316,10 @@ bool DataModeDTH::nextEventView(RawInputFile*) {
 
 //striped mode functions
 void DataModeDTH::makeDirectoryEntries(std::vector<std::string> const& baseDirs,
-                                              std::vector<int> const& numSources,
-                                              std::vector<int> const& sourceIDs,
-                                              std::string const& sourceIdentifier,
-                                              std::string const& runDir) {
+                                       std::vector<int> const& numSources,
+                                       std::vector<int> const& sourceIDs,
+                                       std::string const& sourceIdentifier,
+                                       std::string const& runDir) {
   std::filesystem::path runDirP(runDir);
   for (auto& baseDir : baseDirs) {
     std::filesystem::path baseDirP(baseDir);
@@ -336,26 +330,28 @@ void DataModeDTH::makeDirectoryEntries(std::vector<std::string> const& baseDirs,
 
     for (auto sourceID : sourceIDs) {
       std::stringstream ss;
-      ss << "_" + sourceIdentifier << std::setfill('0') << std::setw(4) <<  std::to_string(sourceID);
+      ss << "_" + sourceIdentifier << std::setfill('0') << std::setw(4) << std::to_string(sourceID);
       buSourceStrings_.push_back(ss.str());
     }
 
     if (baseDirs.size() != numSources.size())
-      throw cms::Exception("DataModeDTH::makeDirectoryEntries") << "Number of defined directories not compatible with numSources list length";
+      throw cms::Exception("DataModeDTH::makeDirectoryEntries")
+          << "Number of defined directories not compatible with numSources list length";
 
     unsigned int sum = 0;
-    for (auto numSource: numSources) {
+    for (auto numSource : numSources) {
       buNumSources_.push_back(numSource);
       sum += numSource;
     }
 
     if (sum != sourceIDs.size())
-      throw cms::Exception("DataModeDTH::makeDirectoryEntries") << "Number of defined sources not consistent with the list of sourceIDs";
+      throw cms::Exception("DataModeDTH::makeDirectoryEntries")
+          << "Number of defined sources not consistent with the list of sourceIDs";
   }
 }
 
 std::pair<bool, std::vector<std::string>> DataModeDTH::defineAdditionalFiles(std::string const& primaryName,
-                                                                                    bool fileListMode) const {
+                                                                             bool fileListMode) const {
   //non-striped mode
   if (buPaths_.empty())
     return std::make_pair(true, std::vector<std::string>());
@@ -366,10 +362,11 @@ std::pair<bool, std::vector<std::string>> DataModeDTH::defineAdditionalFiles(std
   auto extpos = primaryName.rfind('.');
   auto indexpos = primaryName.find("_index");
   assert(indexpos != std::string::npos);
-  auto cutoff = primaryName.find('_', indexpos + 1); //search after index
-  if (cutoff == std::string::npos) cutoff = extpos; //no source
+  auto cutoff = primaryName.find('_', indexpos + 1);  //search after index
+  if (cutoff == std::string::npos)
+    cutoff = extpos;  //no source
   auto slashpos = primaryName.rfind('/', indexpos);
-  auto startoff = slashpos == std::string::npos ? 0 : slashpos + 1;//determine if directory path is returned
+  auto startoff = slashpos == std::string::npos ? 0 : slashpos + 1;  //determine if directory path is returned
 
   std::string primStem = primaryName.substr(startoff, cutoff - startoff);
   std::string ext = primaryName.substr(extpos);
@@ -377,15 +374,15 @@ std::pair<bool, std::vector<std::string>> DataModeDTH::defineAdditionalFiles(std
   if (!buSourceStrings_.empty()) {
     int counter = 0;
     for (size_t i = 0; i < buPaths_.size(); i++) {
-      for (size_t j = 0; j < (size_t) buNumSources_[i]; j++) {
+      for (size_t j = 0; j < (size_t)buNumSources_[i]; j++) {
         std::string replacement = buPaths_[i].generic_string() + ("/" + primStem + buSourceStrings_[counter] + ext);
         counter++;
-        if (i==0 && j==0) continue;
+        if (i == 0 && j == 0)
+          continue;
         additionalFiles.push_back(replacement);
       }
     }
-  }
-  else {
+  } else {
     auto fullpath = std::filesystem::path(primStem + ext);
     auto fullname = fullpath.filename();
     for (size_t i = 1; i < buPaths_.size(); i++) {
@@ -397,8 +394,8 @@ std::pair<bool, std::vector<std::string>> DataModeDTH::defineAdditionalFiles(std
 }
 
 //count events in raw file (in absence of file header) and return open file descriptor
-int DataModeDTH::eventCounterCallback(std::string const& name, int& rawFd, int64_t& totalSize, uint32_t sLS, bool& found) const {
-
+int DataModeDTH::eventCounterCallback(
+    std::string const& name, int& rawFd, int64_t& totalSize, uint32_t sLS, bool& found) const {
   uint32_t orbit_count = 0;
   uint32_t event_count = 0;
 
@@ -413,8 +410,8 @@ int DataModeDTH::eventCounterCallback(std::string const& name, int& rawFd, int64
   if ((rawFd = ::open(name.c_str(), O_RDONLY)) < 0) {
     assert(rawFd == -1);
     found = false;
-    edm::LogError("EvFDaqDirector")
-      << "parseFRDFileHeader - failed to open input file -: " << name << " : " << strerror(errno);
+    edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - failed to open input file -: " << name << " : "
+                                    << strerror(errno);
     return -1;
   }
   found = true;

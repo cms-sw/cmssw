@@ -193,20 +193,18 @@ public:
   int64_t fileSizeLeft() const { return (int64_t)fileSize_ - (int64_t)bufferPosition_; }
   int64_t fileSizeLeft(size_t fidx) const { return (int64_t)diskFileSizes_[fidx] - (int64_t)bufferOffsets_[fidx]; }
 
-  bool complete() const {
-    return bufferPosition_ == fileSize_;
-  }
+  bool complete() const { return bufferPosition_ == fileSize_; }
 
   bool buffersComplete() const {
     unsigned complete = 0;
-    for (size_t fidx=0; fidx < bufferOffsets_.size() ; fidx++) {
-      if ((int64_t)bufferEnds_[fidx] - (int64_t)bufferOffsets_[fidx] == 0) complete++;
+    for (size_t fidx = 0; fidx < bufferOffsets_.size(); fidx++) {
+      if ((int64_t)bufferEnds_[fidx] - (int64_t)bufferOffsets_[fidx] == 0)
+        complete++;
     }
     if (complete && complete < bufferOffsets_.size())
-        throw cms::Exception("InputFile") << "buffers are inconsistent for input files with primary " << fileName_;
+      throw cms::Exception("InputFile") << "buffers are inconsistent for input files with primary " << fileName_;
     return complete > 0;
   }
-
 };
 
 class DAQSource;
@@ -231,12 +229,10 @@ public:
     bufferPosition_ += size;
   }
   void advanceBuffers(const size_t size) {
-    for (size_t bidx=0; bidx < bufferOffsets_.size(); bidx++)
+    for (size_t bidx = 0; bidx < bufferOffsets_.size(); bidx++)
       bufferOffsets_[bidx] += size;
   }
-  void advanceBuffer(const size_t size, const size_t bidx) {
-    bufferOffsets_[bidx] += size;
-  }
+  void advanceBuffer(const size_t size, const size_t bidx) { bufferOffsets_[bidx] += size; }
   void queue(UnpackedRawEventWrapper* ec) {
     if (!frdcQueue_.get())
       frdcQueue_ = std::make_unique<std::queue<std::unique_ptr<UnpackedRawEventWrapper>>>();

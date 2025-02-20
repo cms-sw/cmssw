@@ -113,12 +113,11 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
     }
   }
 
-  dataMode_->makeDirectoryEntries(
-      daqDirector_->getBUBaseDirs(),
-      daqDirector_->getBUBaseDirsNSources(),
-      daqDirector_->getBUBaseDirsSourceIDs(),
-      daqDirector_->getSourceIdentifier(),
-      daqDirector_->runString());
+  dataMode_->makeDirectoryEntries(daqDirector_->getBUBaseDirs(),
+                                  daqDirector_->getBUBaseDirsNSources(),
+                                  daqDirector_->getBUBaseDirsSourceIDs(),
+                                  daqDirector_->getSourceIdentifier(),
+                                  daqDirector_->runString());
 
   auto& daqProvenanceHelpers = dataMode_->makeDaqProvenanceHelpers();
   for (const auto& daqProvenanceHelper : daqProvenanceHelpers)
@@ -514,7 +513,8 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     currentFile_->advance(currentFile_->rawHeaderSize_);
     currentFile_->advanceBuffers(currentFile_->rawHeaderSize_);
   }
-  LogDebug("DAQSource") << "after header bufferPosition: " << currentFile_->bufferPosition_ << " fileSizeLeft:" << currentFile_->fileSizeLeft();
+  LogDebug("DAQSource") << "after header bufferPosition: " << currentFile_->bufferPosition_
+                        << " fileSizeLeft:" << currentFile_->fileSizeLeft();
 
   //file is too short to fit event (or event block, orbit...) header
   if (currentFile_->fileSizeLeft() < dataMode_->headerSize())
@@ -830,8 +830,8 @@ void DAQSource::readSupervisor() {
           }
         }
       } else {
-
-        RawFileEvtCounter countFunc = [&](std::string const& name, int& fd, int64_t& fsize, uint32_t sLS, bool& found) -> unsigned int {
+        RawFileEvtCounter countFunc =
+            [&](std::string const& name, int& fd, int64_t& fsize, uint32_t sLS, bool& found) -> unsigned int {
           return dataMode_->eventCounterCallback(name, fd, fsize, sLS, found);
         };
 
