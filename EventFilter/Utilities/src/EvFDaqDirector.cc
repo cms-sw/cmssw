@@ -105,8 +105,7 @@ namespace evf {
     }
     if (useFileBroker_) {
       if (fileBrokerHost_.empty() || fileBrokerHost_ == "InValid")
-        throw cms::Exception("EvFDaqDirector")
-            << "fileBrokerHost parameter is not valid or empty";
+        throw cms::Exception("EvFDaqDirector") << "fileBrokerHost parameter is not valid or empty";
 
       resolver_ = std::make_unique<boost::asio::ip::tcp::resolver>(io_service_);
       query_ = std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_);
@@ -264,8 +263,9 @@ namespace evf {
           std::filesystem::copy_file(hltSourceDirectory_ + "/fffParameters.jsn", tmphltdir + "/fffParameters.jsn");
           //also try to copy new DAQ parameters file
           try {
-          std::filesystem::copy_file(hltSourceDirectory_ + "/daqParameters.jsn", tmphltdir + "/daqParameters.jsn");
-          } catch (...) {}
+            std::filesystem::copy_file(hltSourceDirectory_ + "/daqParameters.jsn", tmphltdir + "/daqParameters.jsn");
+          } catch (...) {
+          }
 
           std::string optfiles[3] = {"hltinfo", "blacklist", "whitelist"};
           for (auto& optfile : optfiles) {
@@ -395,13 +395,15 @@ namespace evf {
     desc.addUntracked<std::vector<int>>("buBaseDirsNumStreams", std::vector<int>())
         ->setComment("Number of streams for each BU base ramdisk directories for multi-file DAQSource models");
     desc.addUntracked<std::vector<int>>("buBaseDirsStreamIDs", std::vector<int>())
-        ->setComment("SourceId, FEDId or sfbId combined list for each source in buBaseDirsNumStreams in identical order. If left empty, it can be inferred dynamically from input");
-    desc.addUntracked<std::string>("sourceIdentifier", std::string())->setComment("String prefix of IDs in raw filenames. None expected if left empty");
+        ->setComment(
+            "SourceId, FEDId or sfbId combined list for each source in buBaseDirsNumStreams in identical order. If "
+            "left empty, it can be inferred dynamically from input");
+    desc.addUntracked<std::string>("sourceIdentifier", std::string())
+        ->setComment("String prefix of IDs in raw filenames. None expected if left empty");
     desc.addUntracked<unsigned int>("runNumber", 0)->setComment("Run Number in ramdisk to open");
     desc.addUntracked<bool>("useFileBroker", false)
         ->setComment("Use BU file service to grab input data instead of NFS file locking");
-    desc.addUntracked<bool>("fileBrokerHostFromCfg", true)
-        ->setComment("Kept for compatibility with scripts");
+    desc.addUntracked<bool>("fileBrokerHostFromCfg", true)->setComment("Kept for compatibility with scripts");
     desc.addUntracked<std::string>("fileBrokerHost", "InValid")->setComment("BU file service host.");
     desc.addUntracked<std::string>("fileBrokerPort", "8080")->setComment("BU file service port");
     desc.addUntracked<bool>("fileBrokerKeepAlive", true)
@@ -1013,10 +1015,8 @@ namespace evf {
                                          bool requireHeader,
                                          bool retry,
                                          bool closeFile) {
-
     //skip opening file if rawFd is already intiialized
     if (rawFd == -1 && (rawFd = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
-
       if (retry) {
         edm::LogWarning("EvFDaqDirector")
             << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
@@ -1113,15 +1113,14 @@ namespace evf {
     return 0;  //OK
   }
 
-  bool EvFDaqDirector::hasFRDFileHeader(std::string const& rawPath, int& rawFd, bool &hasErr, bool closeFile) const {
-
-    auto retOK = [&](bool found=false, bool err=true) -> bool {
+  bool EvFDaqDirector::hasFRDFileHeader(std::string const& rawPath, int& rawFd, bool& hasErr, bool closeFile) const {
+    auto retOK = [&](bool found = false, bool err = true) -> bool {
       if (rawFd != -1) {
-        if (closeFile || !found) {//do not pass rawFd if not found
+        if (closeFile || !found) {  //do not pass rawFd if not found
           close(rawFd);
           rawFd = -1;
         } else {
-          lseek(rawFd, 0, SEEK_SET); //reset position
+          lseek(rawFd, 0, SEEK_SET);  //reset position
         }
       }
       return found;
@@ -1156,8 +1155,8 @@ namespace evf {
     uint16_t frd_version = getFRDFileHeaderVersion(fileId->id_, fileId->version_);
 
     if (frd_version == 0) {
-        //no header detected or unsupported version
-        return retOK(false);
+      //no header detected or unsupported version
+      return retOK(false);
     } else if (frd_version == 1) {
       //version 1 header
       if (!checkFileRead(hdr, rawFd, sizeof(FRDFileHeaderContent_v1), rawPath))
@@ -1189,7 +1188,6 @@ namespace evf {
     edm::LogError("EvFDaqDirector") << "unsupported FRD file header version " << frd_version;
     return retErr();
   }
-
 
   //TODO: sjould it be int& intfile ?
   bool EvFDaqDirector::checkFileRead(char* buf, int& infile, std::size_t buf_sz, std::string const& path) {
@@ -1887,109 +1885,114 @@ namespace evf {
   }
 
   EvFDaqDirector::FileStatus EvFDaqDirector::discoverFile(unsigned int& fakeHttpStatus,
-                                                               bool& fakeServerError,
-                                                               uint32_t& serverLS,
-                                                               uint32_t& closedServerLS,
-                                                               std::string& nextFileJson,
-                                                               std::string& nextFileRaw,
-                                                               bool& rawHeader,
-                                                               int maxLS) {
+                                                          bool& fakeServerError,
+                                                          uint32_t& serverLS,
+                                                          uint32_t& closedServerLS,
+                                                          std::string& nextFileJson,
+                                                          std::string& nextFileRaw,
+                                                          bool& rawHeader,
+                                                          int maxLS) {
     fakeHttpStatus = 200;
     fakeServerError = false;
     //rawHeader = true; //assume header, let check be done and fallback to discover files if not
-    rawHeader = false; //assume header, let check be done and fallback to discover files if not
-    std::regex regex_ls("_ls([0-9]+)");  // Match _ls followed by digits
+    rawHeader = false;                         //assume header, let check be done and fallback to discover files if not
+    std::regex regex_ls("_ls([0-9]+)");        // Match _ls followed by digits
     std::regex regex_index("_index([0-9]+)");  // Match _ls followed by digits
 
     // Lambda function to extract the number after _ls
     auto extractIndexNumber = [&regex_index](const std::string& filename) -> int {
-        std::smatch match;
-        if (std::regex_search(filename, match, regex_index)) {
-            return std::stoi(match[1].str()); // Convert the matched number to an integer
-        }
-        return -1; // Return -1 if no match is found
+      std::smatch match;
+      if (std::regex_search(filename, match, regex_index)) {
+        return std::stoi(match[1].str());  // Convert the matched number to an integer
+      }
+      return -1;  // Return -1 if no match is found
     };
-
 
     // Lambda function to extract the number after _ls
     auto extractLumiSectionNumber = [&regex_ls](const std::string& filename) -> int {
-        std::smatch match;
-        if (std::regex_search(filename, match, regex_ls)) {
-            return std::stoi(match[1].str()); // Convert the matched number to an integer
-        }
-        return -1; // Return -1 if no match is found
+      std::smatch match;
+      if (std::regex_search(filename, match, regex_ls)) {
+        return std::stoi(match[1].str());  // Convert the matched number to an integer
+      }
+      return -1;  // Return -1 if no match is found
     };
 
     int maxClosedLS = 0;
 
     // Lambda to list and sort files by the number after _ls
     auto listSortedFilesByLS = [&](std::string const& path) -> std::vector<std::string> {
-        std::vector<std::string> filenames;
-        // Collect filenames
-        try {
-          for (const auto& entry : std::filesystem::directory_iterator(path)) {
-            if (std::filesystem::is_regular_file(entry.path())) { // Only files, not directories
-              auto fname = entry.path().filename().string();
-              //only files with run
-              if (!(fname.rfind("run", 0) == 0))
+      std::vector<std::string> filenames;
+      // Collect filenames
+      try {
+        for (const auto& entry : std::filesystem::directory_iterator(path)) {
+          if (std::filesystem::is_regular_file(entry.path())) {  // Only files, not directories
+            auto fname = entry.path().filename().string();
+            //only files with run
+            if (!(fname.rfind("run", 0) == 0))
+              continue;
+            if (fname.find("_EoR.jsn") != std::string::npos) {
+              filenames.push_back(entry.path().filename().string());
+              continue;
+            }
+            auto lumi = extractLumiSectionNumber(fname);
+            if (fname.find("_EoLS.jsn") != std::string::npos) {
+              if (lumi > (int)maxClosedLS)
+                maxClosedLS = lumi;
+              if (lumi >= (int)lastFileIdx_.first)
+                filenames.push_back(entry.path().filename().string());
+              continue;
+            }
+            if (!source_identifier_.empty()) {
+              if (fname.rfind(sourceid_first_) == std::string::npos)
                 continue;
-              if (fname.find("_EoR.jsn") != std::string::npos) {
+              //repeat search for EoR and EOLS with sourceid
+              if (fname.find("_EoR") != std::string::npos) {
                 filenames.push_back(entry.path().filename().string());
                 continue;
               }
-              auto lumi = extractLumiSectionNumber(fname);
-              if (fname.find("_EoLS.jsn") != std::string::npos) {
-                if (lumi > (int)maxClosedLS) maxClosedLS = lumi;
+              if (fname.find("_EoLS") != std::string::npos) {
+                if (lumi > (int)maxClosedLS)
+                  maxClosedLS = lumi;
                 if (lumi >= (int)lastFileIdx_.first)
                   filenames.push_back(entry.path().filename().string());
                 continue;
               }
-              if (!source_identifier_.empty()) {
-                if (fname.rfind(sourceid_first_) == std::string::npos)
-                  continue;
-                //repeat search for EoR and EOLS with sourceid
-                if (fname.find("_EoR") != std::string::npos) {
-                  filenames.push_back(entry.path().filename().string());
-                  continue;
-                }
-                if (fname.find("_EoLS") != std::string::npos) {
-                  if (lumi > (int)maxClosedLS) maxClosedLS = lumi;
-                  if (lumi >= (int)lastFileIdx_.first)
-                    filenames.push_back(entry.path().filename().string());
-                  continue;
-                }
-              }
-                //exclude json and similar, only raw file is parsed
-              if (fname.size() < 4 || fname.substr(fname.size()-4) != std::string(".raw"))
-                continue;
-              if (lumi >= (int)lastFileIdx_.first) {
-                if (extractIndexNumber(fname) >= lastFileIdx_.second) {
-                  filenames.push_back(entry.path().filename().string());
-                }
+            }
+            //exclude json and similar, only raw file is parsed
+            if (fname.size() < 4 || fname.substr(fname.size() - 4) != std::string(".raw"))
+              continue;
+            if (lumi >= (int)lastFileIdx_.first) {
+              if (extractIndexNumber(fname) >= lastFileIdx_.second) {
+                filenames.push_back(entry.path().filename().string());
               }
             }
           }
-
-          // Sort filenames based on the extracted number after _ls
-          std::sort(filenames.begin(), filenames.end(), [&](const std::string& a, const std::string& b) {
-            if (a.find("_EoR") != std::string::npos) return false;
-            if (b.find("_EoR") != std::string::npos) return true;
-            auto ls_a = extractLumiSectionNumber(a);
-            auto ls_b = extractLumiSectionNumber(b);
-            if (ls_a == ls_b) {
-              if (a.find("_EoLS") != std::string::npos) return false;
-              if (b.find("_EoLS") != std::string::npos) return true;
-              return extractIndexNumber(a) < extractIndexNumber(b);
-            }
-            return extractLumiSectionNumber(a) < extractLumiSectionNumber(b);
-          });
-
-        } catch (const std::filesystem::filesystem_error& e) {
-            edm::LogWarning("EvFDaqDirector") << "Error accessing directory: " << e.what();
-            fakeServerError = true;
         }
 
-        return filenames;
+        // Sort filenames based on the extracted number after _ls
+        std::sort(filenames.begin(), filenames.end(), [&](const std::string& a, const std::string& b) {
+          if (a.find("_EoR") != std::string::npos)
+            return false;
+          if (b.find("_EoR") != std::string::npos)
+            return true;
+          auto ls_a = extractLumiSectionNumber(a);
+          auto ls_b = extractLumiSectionNumber(b);
+          if (ls_a == ls_b) {
+            if (a.find("_EoLS") != std::string::npos)
+              return false;
+            if (b.find("_EoLS") != std::string::npos)
+              return true;
+            return extractIndexNumber(a) < extractIndexNumber(b);
+          }
+          return extractLumiSectionNumber(a) < extractLumiSectionNumber(b);
+        });
+
+      } catch (const std::filesystem::filesystem_error& e) {
+        edm::LogWarning("EvFDaqDirector") << "Error accessing directory: " << e.what();
+        fakeServerError = true;
+      }
+
+      return filenames;
     };
 
     std::function<EvFDaqDirector::FileStatus(bool)> findNextFile = [&](bool recheck) -> EvFDaqDirector::FileStatus {
@@ -1999,16 +2002,17 @@ namespace evf {
       if (files.empty())
         return noFile;
 
-      for (auto const& name: files) {
+      for (auto const& name : files) {
         auto nextLS = extractLumiSectionNumber(name);
-        LogDebug("EvFDaqDirector") << "next file is:" << name << " serverLS:" << serverLS << " closedSrvLS:" << closedServerLS << " next LS: " << nextLS;
+        LogDebug("EvFDaqDirector") << "next file is:" << name << " serverLS:" << serverLS
+                                   << " closedSrvLS:" << closedServerLS << " next LS: " << nextLS;
 
         assert(nextLS >= 0);
         if (nextLS == 0) {
           //EOR
           //TODO: rescan
           if (recheck)
-              return findNextFile(false);
+            return findNextFile(false);
           closedServerLS = maxClosedLS;
           return runEnded;
         }
@@ -2017,7 +2021,7 @@ namespace evf {
           //received EOLS, open next LS
           //TODO: rescan
           if (recheck)
-              return findNextFile(false);
+            return findNextFile(false);
           //assert((int)serverLS <= nextLS);
           serverLS = nextLS + 1;
           lastFileIdx_.first = serverLS;
@@ -2034,13 +2038,19 @@ namespace evf {
           std::filesystem::create_directory(bu_run_dir_ + fileprefix);
         }
         std::filesystem::path p = name;
-        auto nextFileRawTmp = fmt::format("{}{}{}_{}_pid{}{}", bu_run_dir_, fileprefix, p.stem().string(), hostname_, getpid(), p.extension().string());
+        auto nextFileRawTmp = fmt::format("{}{}{}_{}_pid{}{}",
+                                          bu_run_dir_,
+                                          fileprefix,
+                                          p.stem().string(),
+                                          hostname_,
+                                          getpid(),
+                                          p.extension().string());
         try {
           //grab file if possible
           std::filesystem::rename(rawpath, nextFileRawTmp);
           //apply changes
           nextFileRaw = nextFileRawTmp;
-          serverLS = nextLS;//if changed
+          serverLS = nextLS;  //if changed
           closedServerLS = nextLS - 1;
 
           //update last info
@@ -2052,16 +2062,16 @@ namespace evf {
           return newFile;
         } catch (const std::filesystem::filesystem_error& e) {
           if (e.code().value() == ESTALE) {
-             edm::LogWarning("EvFDaqDirector") << "Filesystem ESTALE error:" << e.what() << " for source file:" << rawpath;
-             continue; //grabbed? try next file
-          }
-          else if (e.code() == std::errc::no_such_file_or_directory) {
+            edm::LogWarning("EvFDaqDirector")
+                << "Filesystem ESTALE error:" << e.what() << " for source file:" << rawpath;
+            continue;  //grabbed? try next file
+          } else if (e.code() == std::errc::no_such_file_or_directory) {
             //try next raw file in case other process grabbed it
             continue;
             //if (recheck)
             //  return findNextFile(false);
           } else
-             edm::LogWarning("EvFDaqDirector") << "Filesystem error: " << e.what();
+            edm::LogWarning("EvFDaqDirector") << "Filesystem error: " << e.what();
 
           fakeServerError = true;
           return noFile;
@@ -2181,7 +2191,7 @@ namespace evf {
       } else if (eventCounter) {
         //there is no header: then try to use model to count events
         serverEventsInNewFile = eventCounter(nextFileRaw, rawFd, fileSizeFromMetadata, serverLS, fileFound);
-      }else {
+      } else {
         //or look for json file (deprecated)
         serverEventsInNewFile = grabNextJsonFile(nextFileJson, nextFileRaw, fileSizeFromMetadata, fileFound);
       }

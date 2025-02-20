@@ -189,7 +189,6 @@ namespace evf {
     unsigned int lsWithFilesOpen(unsigned int ls) const;
 
   private:
-
     void createLumiSectionFiles(const uint32_t lumiSection,
                                 const uint32_t currentLumiSection,
                                 bool doCreateBoLS,
@@ -224,7 +223,7 @@ namespace evf {
                   bool& setExceptionState);
     void openFULockfileStream(bool create);
     static bool checkFileRead(char* buf, int& infile, std::size_t buf_sz, std::string const& path);
-    bool hasFRDFileHeader(std::string const& rawPath, int& rawFd, bool &hasErr, bool closeFile) const;
+    bool hasFRDFileHeader(std::string const& rawPath, int& rawFd, bool& hasErr, bool closeFile) const;
     std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
     std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
     std::string mergedFileNameStem(const unsigned int ls, std::string const& stream) const;
