@@ -357,18 +357,18 @@ void DataModeDTH::makeDirectoryEntries(std::vector<std::string> const& baseDirs,
 std::pair<bool, std::vector<std::string>> DataModeDTH::defineAdditionalFiles(std::string const& primaryName,
                                                                                     bool fileListMode) const {
   //non-striped mode
-  if (!buPaths_.size())
+  if (buPaths_.empty())
     return std::make_pair(true, std::vector<std::string>());
 
   std::vector<std::string> additionalFiles;
 
   //not touching primary file name as found by input mechanism. Format assumes source is last parameter in the filename
-  auto extpos = primaryName.rfind(".");
+  auto extpos = primaryName.rfind('.');
   auto indexpos = primaryName.find("_index");
   assert(indexpos != std::string::npos);
-  auto cutoff = primaryName.find("_", indexpos + 1); //search after index
+  auto cutoff = primaryName.find('_', indexpos + 1); //search after index
   if (cutoff == std::string::npos) cutoff = extpos; //no source
-  auto slashpos = primaryName.rfind("/", indexpos);
+  auto slashpos = primaryName.rfind('/', indexpos);
   auto startoff = slashpos == std::string::npos ? 0 : slashpos + 1;//determine if directory path is returned
 
   std::string primStem = primaryName.substr(startoff, cutoff - startoff);

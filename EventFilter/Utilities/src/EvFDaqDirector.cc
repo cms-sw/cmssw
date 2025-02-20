@@ -158,7 +158,7 @@ namespace evf {
     pid_ = ss.str();
 
     if (!source_identifier_.empty()) {
-      if (!bu_base_dirs_source_ids_.size())
+      if (bu_base_dirs_source_ids_.empty())
         throw cms::Exception("EvFDaqDirector") << "buBaseDirsStreamIDs should not be empty with sourceIdentifier set";
       std::stringstream ss2;
       ss2 << "_" << source_identifier_ << std::setfill('0') << std::setw(4) << bu_base_dirs_source_ids_[0];
@@ -1996,7 +1996,7 @@ namespace evf {
       // Call the lambda and print the sorted filenames
       std::vector<std::string> files = listSortedFilesByLS(bu_run_dir_);
 
-      if (!files.size())
+      if (files.empty())
         return noFile;
 
       for (auto const& name: files) {
