@@ -2,7 +2,7 @@ import sys, os
 
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
 from Configuration.PyReleaseValidation.MatrixUtil import InputInfo
-
+from Configuration.PyReleaseValidation.upgradeWorkflowComponents import defaultDataSets,undefInput
 # ================================================================================
 
 class MatrixException(Exception):
@@ -25,8 +25,9 @@ class MatrixReader(object):
         self.apply=opt.apply
         self.commandLineWf=opt.workflow
         self.overWrite=opt.overWrite
-
+        
         self.noRun = opt.noRun
+        self.checkInputs = opt.checkInputs
         return
 
     def reset(self, what='all'):
@@ -126,6 +127,21 @@ class MatrixReader(object):
             return copyStep
         else:    
             return step
+
+    def verifyDefaultInputs(self):
+        for wf in self.workFlowSteps.values():
+            undefs = [driver for driver in wf[2] if isinstance(driver,str) and undefInput in driver ]
+            if len(undefs)>0:
+                raise ValueError("""in MatrixReader.py:{0}
+=============================================================================
+For wf {1}(*) the default dataset not defined in defaultDataSets dictionary.
+With --checkInputs option this throws an error.
+                                 
+(*)
+{2}
+
+=============================================================================
+                             """.format(sys._getframe(1).f_lineno - 1,wf[0],wf))    
 
     def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
         
@@ -332,6 +348,8 @@ class MatrixReader(object):
 
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                if self.checkInputs:
+                    self.verifyDefaultInputs()
             except Exception as e:
                 print("ERROR reading file:", matrixFile, str(e))
                 raise
@@ -507,6 +525,8 @@ class MatrixReader(object):
             
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                if self.checkInputs:
+                    self.verifyDefaultInputs()
             except Exception as e:
                 print("ERROR reading file:", matrixFile, str(e))
                 raise
