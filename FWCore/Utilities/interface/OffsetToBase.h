@@ -46,7 +46,7 @@ namespace edm {
   template <typename T>
   void const* pointerToBase(std::type_info const& baseTypeInfo, T const* address) {
     OffsetToBase<T> offsetToBase;
-    int offset = offsetToBase.offsetToBase(baseTypeInfo);
+    auto offset = offsetToBase.offsetToBase(baseTypeInfo);
     void const* ptr = address;
     return static_cast<char const*>(ptr) + offset;
   }

@@ -39,7 +39,8 @@ namespace edm {
 
   public:
     /// constructor
-    HLTPathStatus(const hlt::HLTState state = hlt::Ready, const unsigned int index = 0) : status_(index * 4 + state) {
+    HLTPathStatus(const hlt::HLTState state = hlt::Ready, const unsigned int index = 0)
+        : status_(static_cast<uint16_t>(index * 4 + state)) {
       assert(((int)state) < 4);
       assert(index < 16384);
     }

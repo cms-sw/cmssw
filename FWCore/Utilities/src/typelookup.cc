@@ -41,7 +41,7 @@ namespace {
     static constexpr size_t value = (size_t)((sizeof(size_t) == sizeof(u)) ? u : ull);
   };
 
-  constexpr size_t hash_multiplier = select_size_t_constant<2654435769U, 11400714819323198485ULL>::value;
+  constexpr auto hash_multiplier = select_size_t_constant<2654435769U, 11400714819323198485ULL>::value;
 
   struct StringHash {
     inline size_t operator()(const char* s) const {

@@ -24,7 +24,7 @@ using namespace edm;
 // utility functions
 // ----------------------------------------------------------------------
 
-static char to_hex(unsigned int i) { return i + (i < 10u ? '0' : ('A' - 10)); }
+static char to_hex(unsigned int i) { return static_cast<char>(i + (i < 10u ? '0' : ('A' - 10))); }
 
 // ----------------------------------------------------------------------
 
@@ -690,9 +690,10 @@ bool edm::encode(std::string& to, std::vector<ESInputTag> const& from) {
 bool edm::decode(edm::EventID& to, std::string_view from) {
   std::vector<std::string> tokens = edm::tokenize(std::string(from), ":");
   assert(tokens.size() == 2 || tokens.size() == 3);
-  unsigned int run = strtoul(tokens[0].c_str(), nullptr, 0);
-  unsigned int lumi = (tokens.size() == 2 ? 0 : strtoul(tokens[1].c_str(), nullptr, 0));
-  unsigned long long event = strtoull(tokens[tokens.size() - 1].c_str(), nullptr, 0);
+  RunNumber_t run = static_cast<RunNumber_t>(strtoul(tokens[0].c_str(), nullptr, 0));
+  LuminosityBlockNumber_t lumi =
+      (tokens.size() == 2 ? 0 : static_cast<LuminosityBlockNumber_t>(strtoul(tokens[1].c_str(), nullptr, 0)));
+  EventNumber_t event = strtoull(tokens[tokens.size() - 1].c_str(), nullptr, 0);
   to = edm::EventID(run, lumi, event);
 
   return true;
@@ -746,8 +747,8 @@ bool edm::encode(std::string& to, std::vector<edm::EventID> const& from) {
 bool edm::decode(edm::LuminosityBlockID& to, std::string_view from) {
   std::vector<std::string> tokens = edm::tokenize(std::string(from), ":");
   assert(tokens.size() == 2);
-  unsigned int run = strtoul(tokens[0].c_str(), nullptr, 0);
-  unsigned int lumi = strtoul(tokens[1].c_str(), nullptr, 0);
+  auto run = static_cast<RunNumber_t>(strtoul(tokens[0].c_str(), nullptr, 0));
+  auto lumi = static_cast<LuminosityBlockNumber_t>(strtoul(tokens[1].c_str(), nullptr, 0));
   to = edm::LuminosityBlockID(run, lumi);
   return true;
 }  // decode to LuminosityBlockID

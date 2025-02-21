@@ -61,7 +61,7 @@ int ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf
   }
 
   // Handle case 1 separately to make the for-loop cleaner.
-  int iopb_offset = m_iov.size();
+  int iopb_offset = static_cast<int>(m_iov.size());
   // Because we re-use the buffer from ROOT, we are guarantee this iopb will
   // fit.
   assert(static_cast<IOSize>(len[0]) <= buffer_size);
@@ -89,7 +89,7 @@ int ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf
       // This is so we can "perfectly pack" buffers consisting of only big
       // reads - in such a case, read coalescing doesn't help much.
       m_idx_to_iopb.push_back(iopb_offset);
-      m_idx_to_iopb_offset.push_back(pos[idx] - iopb.offset());
+      m_idx_to_iopb_offset.push_back(static_cast<int>(pos[idx] - iopb.offset()));
       iopb.set_size(pos[idx] + len[idx] - iopb.offset());
       buffer_used += (len[idx] + extra_bytes);
       m_extra_bytes += extra_bytes;
@@ -124,12 +124,12 @@ int ReadRepacker::packInternal(long long int *pos, int *len, int nbuf, char *buf
  */
 void ReadRepacker::unpack(char *buf) {
   char *root_result_ptr = buf;
-  int nbuf = m_idx_to_iopb.size();
-  for (int idx = 0; idx < nbuf; idx++) {
-    int iov_idx = m_idx_to_iopb[idx];
+  auto nbuf = m_idx_to_iopb.size();
+  for (decltype(nbuf) idx = 0; idx < nbuf; idx++) {
+    auto iov_idx = m_idx_to_iopb[idx];
     IOPosBuffer &iopb = m_iov[iov_idx];
-    int iopb_offset = m_idx_to_iopb_offset[idx];
-    char *io_result_ptr = static_cast<char *>(iopb.data()) + iopb_offset;
+    auto iopb_offset = m_idx_to_iopb_offset[idx];
+    auto io_result_ptr = static_cast<char *>(iopb.data()) + iopb_offset;
     // Note that we use the input buffer as a temporary where possible.
     // Hence, the source and destination can overlap; use memmove instead of memcpy.
     memmove(root_result_ptr, io_result_ptr, m_len[idx]);

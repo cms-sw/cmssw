@@ -56,12 +56,11 @@ namespace edm {
       TableView(Table<OArgs...> const& iTable) : m_size(iTable.size()) {
         fillArray(iTable, std::make_index_sequence<sizeof...(Args)>{});
       }
-      TableView(unsigned int iSize, std::array<void*, sizeof...(Args)>& iArray) : m_size(iSize), m_values(iArray) {}
+      TableView(size_t iSize, std::array<void*, sizeof...(Args)>& iArray) : m_size(iSize), m_values(iArray) {}
 
-      TableView(unsigned int iSize, std::array<void const*, sizeof...(Args)>& iArray)
-          : m_size(iSize), m_values(iArray) {}
+      TableView(size_t iSize, std::array<void const*, sizeof...(Args)>& iArray) : m_size(iSize), m_values(iArray) {}
 
-      unsigned int size() const { return m_size; }
+      auto size() const { return m_size; }
 
       template <typename U>
       typename U::type const& get(size_t iRow) const {
@@ -78,7 +77,7 @@ namespace edm {
 
     private:
       std::array<void const*, sizeof...(Args)> m_values;
-      unsigned int m_size;
+      size_t m_size;
 
       template <typename U>
       void const* columnAddress() const {
