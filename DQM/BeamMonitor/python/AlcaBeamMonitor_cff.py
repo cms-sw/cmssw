@@ -5,11 +5,6 @@ from DQM.BeamMonitor.AlcaBeamMonitor_cfi import *
 from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
 dqmPerLSsaving.toModify(AlcaBeamMonitor, perLSsaving=True)
 
-import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
-BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
-    timeThreshold = 999999 # accept even old payloads for MC/Data ReReco. DO NOT CHANGE
-)
-
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 scalerBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
