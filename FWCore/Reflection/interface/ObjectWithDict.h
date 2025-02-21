@@ -34,9 +34,15 @@ namespace edm {
     ObjectWithDict get(std::string const& memberName) const;
     //ObjectWithDict construct() const;
     void destruct(bool dealloc) const;
+
     template <typename T>
-    T objectCast() {
-      return *reinterpret_cast<T*>(address_);
+    T& objectCast() {
+      return *reinterpret_cast<T*>(address());
+    }
+
+    template <typename T>
+    T const& objectCast() const {
+      return *reinterpret_cast<T*>(address());
     }
   };
 
