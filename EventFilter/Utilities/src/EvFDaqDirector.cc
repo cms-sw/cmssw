@@ -1109,7 +1109,6 @@ namespace evf {
       rawFd = -1;
     }
 
-    rawFd = rawFd;
     return 0;  //OK
   }
 
@@ -1135,7 +1134,6 @@ namespace evf {
       return false;
     };
 
-    size_t readOff = 0;
     //open or inherit fd
     if (rawFd == -1) {
       if ((rawFd = ::open(rawPath.c_str(), O_RDONLY)) < 0) {
@@ -1149,7 +1147,6 @@ namespace evf {
     char hdr[sizeof(FRDFileHeader_v2)];
     if (!checkFileRead(hdr, rawFd, sizeof(FRDFileHeaderIdentifier), rawPath))
       return retErr();
-    readOff += sizeof(FRDFileHeaderIdentifier);
 
     FRDFileHeaderIdentifier* fileId = (FRDFileHeaderIdentifier*)hdr;
     uint16_t frd_version = getFRDFileHeaderVersion(fileId->id_, fileId->version_);
@@ -1161,7 +1158,6 @@ namespace evf {
       //version 1 header
       if (!checkFileRead(hdr, rawFd, sizeof(FRDFileHeaderContent_v1), rawPath))
         return retErr();
-      readOff += sizeof(FRDFileHeaderContent_v1);
       FRDFileHeaderContent_v1* fhContent = (FRDFileHeaderContent_v1*)hdr;
       uint32_t headerSizeRaw = fhContent->headerSize_;
       if (headerSizeRaw != sizeof(FRDFileHeader_v1)) {
@@ -1174,7 +1170,6 @@ namespace evf {
       //version 2 heade
       if (!checkFileRead(hdr, rawFd, sizeof(FRDFileHeaderContent_v2), rawPath))
         return retErr();
-      readOff += sizeof(FRDFileHeaderContent_v2);
       FRDFileHeaderContent_v2* fhContent = (FRDFileHeaderContent_v2*)hdr;
       uint32_t headerSizeRaw = fhContent->headerSize_;
       if (headerSizeRaw != sizeof(FRDFileHeader_v2)) {
