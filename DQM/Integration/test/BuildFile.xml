@@ -24,7 +24,7 @@
 <!-- <test name="TestDQMOnlineClient-scal_dqm_sourceclient" command="runtest.sh scal_dqm_sourceclient-live_cfg.py"/> -->
 <test name="TestDQMOnlineClient-sistrip_dqm_sourceclient" command="runtest.sh sistrip_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-sistrip_approx_dqm_sourceclient" command="runtest.sh sistrip_approx_dqm_sourceclient-live_cfg.py 362321 hi_run"/>
-<test name="TestDQMOnlineClient-onlinebeammonitor_dqm_sourceclient" command="runtest.sh onlinebeammonitor_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-onlinebeammonitor_dqm_sourceclient" command="runtest.sh onlinebeammonitor_dqm_sourceclient-live_cfg.py 381594 pp_run"/>
 <test name="TestDQMOnlineClient-ecalgpu_dqm_sourceclient" command="runtest.sh ecalgpu_dqm_sourceclient-live_cfg.py 381594"/>
 <test name="TestDQMOnlineClient-hcalgpu_dqm_sourceclient" command="runtest.sh hcalgpu_dqm_sourceclient-live_cfg.py 381594"/>
 <test name="TestDQMOnlineClient-pixelgpu_dqm_sourceclient" command="runtest.sh pixelgpu_dqm_sourceclient-live_cfg.py 381594"/>
