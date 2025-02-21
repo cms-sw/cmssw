@@ -8,7 +8,7 @@
 #include <filesystem>
 #include "catch.hpp"
 
-static constexpr auto s_tag = "[PoolOutputSource]";
+static constexpr auto s_tag = "[RNTupleOutputSource]";
 
 namespace {
   std::string setOutputFile(std::string const& iConfig, std::string const& iFileName) {
@@ -18,14 +18,14 @@ namespace {
 
   std::string setInputFile(std::string const& iConfig, std::string const& iFileName) {
     using namespace std::string_literals;
-    return iConfig + "\nprocess.source.fileNames = ['file:"s + iFileName + "']\n";
+    return iConfig + "\nprocess.source.fileName = 'file:"s + iFileName + "'\n";
   }
 }  // namespace
-TEST_CASE("Tests of PoolOuput -> PoolSource", s_tag) {
+TEST_CASE("Tests of RNTupleOuput -> RNTupleSource", s_tag) {
   const std::string baseOutConfig{
       R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()
-process.out = cms.OutputModule('PoolOutputModule',
+process.out = cms.OutputModule('RNTupleOutputModule',
                       fileName = cms.untracked.string('')
 )
 process.add_(cms.Service("InitRootHandlers"))
@@ -37,14 +37,14 @@ process.moduleToTest(process.out)
   const std::string baseSourceConfig{
       R"_(from FWCore.TestProcessor.TestSourceProcess import *
 process = TestSourceProcess()
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(''))
+process.source = cms.Source("RNTupleSource", fileName = cms.untracked.string(''))
 process.add_(cms.Service("InitRootHandlers"))
 process.add_(cms.Service("SiteLocalConfigService"))
 process.add_(cms.Service("JobReportService"))
     )_"};
 
   SECTION("OneEmptyEvent") {
-    const std::string fileName = "one_event.root";
+    const std::string fileName = "one_event.rntpl";
     {
       auto configString = setOutputFile(baseOutConfig, fileName);
 
@@ -93,7 +93,7 @@ process.add_(cms.Service("JobReportService"))
   }
 
   SECTION("EventWithThing") {
-    const std::string fileName = "thing.root";
+    const std::string fileName = "thing.rntpl";
     {
       auto configString = setOutputFile(baseOutConfig, fileName);
 
@@ -134,6 +134,7 @@ process.add_(cms.Service("JobReportService"))
         REQUIRE(r.luminosityBlock() == 1);
         REQUIRE(r.event() == 1);
         auto v = r.get<std::vector<edmtest::Thing>>("thing", "", "TEST");
+        REQUIRE(v.isValid());
         REQUIRE(v->size() == 1);
         REQUIRE((*v)[0].a == 1);
       }
@@ -144,8 +145,9 @@ process.add_(cms.Service("JobReportService"))
     }
     std::filesystem::remove(fileName);
   }
+
   SECTION("EventWithRef") {
-    const std::string fileName = "ref.root";
+    const std::string fileName = "ref.rntpl";
     {
       auto configString = setOutputFile(baseOutConfig, fileName) +
                           "process.other = cms.EDProducer('OtherThingProducer', thingTag = cms.InputTag('thing'))\n"
@@ -199,6 +201,18 @@ process.add_(cms.Service("JobReportService"))
         REQUIRE((*o)[1].a == 1);
         REQUIRE((*o)[0].ref.isNonnull());
         REQUIRE((*o)[0].ref->a == 1);
+        REQUIRE((*o)[0].refProd.isNonnull());
+        REQUIRE((*o)[0].refProd->size() == 1);
+        REQUIRE((*o)[0].refVec.size() == 2);
+        REQUIRE((*o)[0].refVec[0]->a == 1);
+        REQUIRE((*o)[0].ptr.isNonnull());
+        REQUIRE((*o)[0].ptr->a == 1);
+        REQUIRE((*o)[0].ptrVec.size() == 2);
+        REQUIRE((*o)[0].ptrVec[0]->a == 1);
+        REQUIRE((*o)[0].refToBaseProd.isNonnull());
+        REQUIRE((*o)[0].refToBaseProd->size() == 1);
+        REQUIRE((*o)[0].refToBase.isNonnull());
+        REQUIRE((*o)[0].refToBase->a == 1);
       }
       {
         auto n = tester.findNextTransition();

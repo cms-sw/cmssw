@@ -1,0 +1,8 @@
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/Common"/>
+<use name="rootntuple"/>
+<flags EDM_PLUGIN="1"/>
