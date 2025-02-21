@@ -96,7 +96,7 @@ std::bitset<6> HcalFinegrainBit::compute(const HcalFinegrainBit::TowerTDC& tower
   }
 
   // very delayed (001000), slightly delayed (000100), prompt (000010), depth flag (000001), 2 reserved bits (110000)
-  if (DeepEnergy > 0 && EarlyEnergy == 0)
+  if (DeepEnergy > 0 && EarlyEnergy == 0 && abs(tp_ieta) != 16)
     result[0] = true;  // 000001
   else
     result[0] = false;

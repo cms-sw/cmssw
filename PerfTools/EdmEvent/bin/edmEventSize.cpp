@@ -1,4 +1,4 @@
-/** measure branch sizes
+/** measure branch or leaves sizes
  *
  *
  */
@@ -37,28 +37,88 @@ static const char* const kAlphabeticOrderOpt = "alphabetic-order";
 static const char* const kAlphabeticOrderCommandOpt = "alphabetic-order,A";
 static const char* const kFormatNamesOpt = "format-names";
 static const char* const kFormatNamesCommandOpt = "format-names,F";
+static const char* const kOutputFormatOpt = "output-format";
+static const char* const kOutputFormatCommandOpt = "output-format,f";
+static const char* const kLeavesSizeOpt = "get-leaves-size";
+static const char* const kLeavesSizeCommandOpt = "get-leaves-size,L";
+
+template <perftools::EdmEventMode M>
+void processRecord(const boost::program_options::variables_map& vm,
+                   const std::string& fileName,
+                   const std::string& treeName,
+                   bool verbose) {
+  using EventSize = typename perftools::EdmEventSize<M>;
+  using Error = typename EventSize::Error;
+  try {
+    EventSize me(fileName, treeName);
+
+    if (vm.count(kFormatNamesOpt))
+      me.formatNames();
+
+    if (vm.count(kAlphabeticOrderOpt))
+      me.sortAlpha();
+
+    if (verbose) {
+      std::cout << std::endl;
+      if (vm.count(kOutputFormatOpt) && vm[kOutputFormatOpt].as<std::string>() == "json")
+        me.dumpJson(std::cout);
+      else
+        me.dump(std::cout);
+      std::cout << std::endl;
+    }
+
+    if (vm.count(kOutputOpt)) {
+      std::ofstream of(vm[kOutputOpt].as<std::string>().c_str());
+      if (vm.count(kOutputFormatOpt) && vm[kOutputFormatOpt].as<std::string>() == "json")
+        me.dumpJson(of);
+      else
+        me.dump(of);
+      of << std::endl;
+    }
+
+    bool plot = (vm.count(kPlotOpt) > 0);
+    bool save = (vm.count(kSavePlotOpt) > 0);
+    if (plot || save) {
+      std::string plotName;
+      std::string histName;
+      if (plot)
+        plotName = vm[kPlotOpt].as<std::string>();
+      if (save)
+        histName = vm[kSavePlotOpt].as<std::string>();
+      int top = 0;
+      if (vm.count(kPlotTopOpt) > 0)
+        top = vm[kPlotTopOpt].as<int>();
+      me.produceHistos(plotName, histName, top);
+    }
+  } catch (Error const& error) {
+    std::cerr << "Error: " << error.descr << std::endl;
+    exit(error.code);
+  }
+}
 
 int main(int argc, char* argv[]) {
   using namespace boost::program_options;
-  using namespace std;
 
-  string programName(argv[0]);
-  string descString(programName);
+  std::string programName(argv[0]);
+  std::string descString(programName);
   descString += " [options] ";
   descString += "data_file \nAllowed options";
   options_description desc(descString);
 
   // clang-format off
-  desc.add_options()(kHelpCommandOpt, "produce help message")(kAutoLoadCommandOpt,
-                                                              "automatic library loading (avoid root warnings)")(
-      kDataFileCommandOpt, value<string>(), "data file")(
-      kTreeNameCommandOpt, value<string>(), "tree name (default \"Events\")")(
-      kOutputCommandOpt, value<string>(), "output file")(kAlphabeticOrderCommandOpt,
-                                                         "sort by alphabetic order (default: sort by size)")(
-      kFormatNamesCommandOpt, "format product name as \"product:label (type)\" (default: use full branch name)")(
-      kPlotCommandOpt, value<string>(), "produce a summary plot")(
-      kPlotTopCommandOpt, value<int>(), "plot only the <arg> top size branches")(
-      kSavePlotCommandOpt, value<string>(), "save plot into root file <arg>")(kVerboseCommandOpt, "verbose printout");
+    desc.add_options()(kHelpCommandOpt, "produce help message")(
+            kAutoLoadCommandOpt,"automatic library loading (avoid root warnings)")(
+            kDataFileCommandOpt, value<std::string>(), "data file")(
+            kTreeNameCommandOpt, value<std::string>(), "tree name (default \"Events\")")(
+            kOutputCommandOpt, value<std::string>(), "output file")(
+            kAlphabeticOrderCommandOpt, "sort by alphabetic order (default: sort by size)")(
+            kFormatNamesCommandOpt, "format product name as \"product:label (type)\" or \"product:label (type) object (object type)\" (default: use full branch name)")(
+            kPlotCommandOpt, value<std::string>(), "produce a summary plot")(
+            kPlotTopCommandOpt, value<int>(), "plot only the <arg> top size branches")(
+            kSavePlotCommandOpt, value<std::string>(), "save plot into root file <arg>")(
+            kVerboseCommandOpt, "verbose printout")(
+            kOutputFormatCommandOpt, value<std::string>(), "output file format as text or json (default: text)")(
+            kLeavesSizeCommandOpt, "get size of every leaf in the tree");
   // clang-format on
 
   positional_options_description p;
@@ -74,12 +134,12 @@ int main(int argc, char* argv[]) {
   }
 
   if (vm.count(kHelpOpt)) {
-    cout << desc << std::endl;
+    std::cout << desc << std::endl;
     return 0;
   }
 
   if (!vm.count(kDataFileOpt)) {
-    cerr << programName << ": no data file given" << endl;
+    std::cerr << programName << ": no data file given" << std::endl;
     return 7001;
   }
 
@@ -93,53 +153,16 @@ int main(int argc, char* argv[]) {
 
   bool verbose = vm.count(kVerboseOpt) > 0;
 
-  std::string fileName = vm[kDataFileOpt].as<string>();
+  std::string fileName = vm[kDataFileOpt].as<std::string>();
 
   std::string treeName = "Events";
   if (vm.count(kTreeNameOpt))
-    treeName = vm[kTreeNameOpt].as<string>();
+    treeName = vm[kTreeNameOpt].as<std::string>();
 
-  perftools::EdmEventSize me;
-
-  try {
-    me.parseFile(fileName, treeName);
-  } catch (perftools::EdmEventSize::Error const& error) {
-    std::cerr << programName << ":" << error.descr << std::endl;
-    return error.code;
-  }
-
-  if (vm.count(kFormatNamesOpt))
-    me.formatNames();
-
-  if (vm.count(kAlphabeticOrderOpt))
-    me.sortAlpha();
-
-  if (verbose) {
-    std::cout << std::endl;
-    me.dump(std::cout);
-    std::cout << std::endl;
-  }
-
-  if (vm.count(kOutputOpt)) {
-    std::ofstream of(vm[kOutputOpt].as<std::string>().c_str());
-    me.dump(of);
-    of << std::endl;
-  }
-
-  bool plot = (vm.count(kPlotOpt) > 0);
-  bool save = (vm.count(kSavePlotOpt) > 0);
-  if (plot || save) {
-    std::string plotName;
-    std::string histName;
-    if (plot)
-      plotName = vm[kPlotOpt].as<string>();
-    if (save)
-      histName = vm[kSavePlotOpt].as<string>();
-    int top = 0;
-    if (vm.count(kPlotTopOpt) > 0)
-      top = vm[kPlotTopOpt].as<int>();
-    me.produceHistos(plotName, histName, top);
-  }
+  if (vm.count(kLeavesSizeOpt))
+    processRecord<perftools::EdmEventMode::Leaves>(vm, fileName, treeName, verbose);
+  else
+    processRecord<perftools::EdmEventMode::Branches>(vm, fileName, treeName, verbose);
 
   return 0;
 }

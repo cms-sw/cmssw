@@ -94,7 +94,7 @@ namespace edm {
 
       CallbackExternalWork* clone() {
         return new CallbackExternalWork(
-            Base::producer(), acquireFunction_, Base::produceFunction(), Base::transitionID(), Base::decorator());
+            Base::producer(), acquireFunction_, Base::produceFunction(), Base::produceMethodID(), Base::decorator());
       }
 
       void prefetchAsync(WaitingTaskHolder iTask,
@@ -177,7 +177,7 @@ namespace edm {
                             }
                             TRecord rec;
                             edm::ESParentContext pc{&context};
-                            rec.setImpl(record, Base::transitionID(), resolvers, eventSetupImpl, &pc);
+                            rec.setImpl(record, Base::produceMethodID(), resolvers, eventSetupImpl, &pc);
                             ServiceRegistry::Operate operate(serviceToken.lock());
                             record->activityRegistry()->preESModuleAcquireSignal_.emit(record->key(), context);
                             struct EndGuard {

@@ -137,6 +137,84 @@ process.processBlockTest1 = cms.EDAnalyzer("TestFindProduct",
   )
 )
 
+process.runLumiESSource = cms.ESSource("RunLumiESSource")
+
+process.testReadLumiESSource = cms.EDAnalyzer("RunLumiESAnalyzer")
+
+process.testReadLumiESSource1 = cms.EDAnalyzer("RunLumiESAnalyzer",
+    esInputTag = cms.ESInputTag('runLumiESSource', ''),
+    getIntProduct = cms.bool(True)
+)
+
+process.testReadLumiESSource2 = cms.EDAnalyzer("RunLumiESAnalyzer",
+    esInputTag = cms.ESInputTag('runLumiESSource', 'productLabelThatDoesNotExist'),
+    checkDataProductContents = cms.bool(False)
+)
+
+process.testReadLumiESSource3 = cms.EDAnalyzer("RunLumiESAnalyzer",
+    esInputTag = cms.ESInputTag('moduleLabelThatDoesNotMatch', ''),
+    checkDataProductContents = cms.bool(False)
+)
+
+process.concurrentIOVESSource = cms.ESSource("ConcurrentIOVESSource",
+    iovIsRunNotTime = cms.bool(True),
+    firstValidLumis = cms.vuint32(1, 4, 6, 7, 8, 9),
+    invalidLumis = cms.vuint32(),
+    concurrentFinder = cms.bool(True)
+)
+
+process.concurrentIOVESProducer = cms.ESProducer("ConcurrentIOVESProducer")
+
+process.concurrentIOVAnalyzer = cms.EDAnalyzer("ConcurrentIOVAnalyzer",
+                              checkExpectedValues = cms.untracked.bool(False)
+)
+
+process.WhatsItAnalyzer = cms.EDAnalyzer("WhatsItAnalyzer",
+    expectedValues = cms.untracked.vint32(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+
+
+process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
+
+process.DoodadESSource = cms.ESSource("DoodadESSource")
+
+process.consumeWhatsIt = cms.ESProducer("ConsumeWhatsIt",
+    esInputTag_in_produce = cms.ESInputTag("", ""),
+    esInputTagA_in_produce = cms.ESInputTag("", "A"),
+    esInputTagB_in_produce = cms.ESInputTag("", "B"),
+    esInputTagC_in_produce = cms.ESInputTag("", "C"),
+    esInputTagD_in_produce = cms.ESInputTag("", "D"),
+    esInputTag_in_produceA = cms.ESInputTag("", ""),
+    esInputTagA_in_produceA = cms.ESInputTag("", "A"),
+    esInputTagB_in_produceA = cms.ESInputTag("", "B"),
+    esInputTagC_in_produceA = cms.ESInputTag("", "C"),
+    esInputTagD_in_produceA = cms.ESInputTag("", "D"),
+    esInputTag_in_produceB = cms.ESInputTag("", ""),
+    esInputTagA_in_produceB = cms.ESInputTag("", "A"),
+    esInputTagB_in_produceB = cms.ESInputTag("", "B"),
+    esInputTagC_in_produceB = cms.ESInputTag("", "C"),
+    esInputTagD_in_produceB = cms.ESInputTag("", "D"),
+    esInputTag_in_produceC = cms.ESInputTag("", "productLabelThatDoesNotExist"),
+    esInputTagA_in_produceC = cms.ESInputTag("", "productLabelThatDoesNotExist"),
+    esInputTagB_in_produceC = cms.ESInputTag("moduleLabelThatDoesNotMatch", "B"),
+    esInputTagC_in_produceC = cms.ESInputTag("moduleLabelThatDoesNotMatch", "C"),
+    esInputTagD_in_produceC = cms.ESInputTag("moduleLabelThatDoesNotMatch", "D"),
+    esInputTag_in_produceD = cms.ESInputTag("WhatsItESProducer", ""),
+    esInputTagA_in_produceD = cms.ESInputTag("WhatsItESProducer", "A"),
+    esInputTagB_in_produceD = cms.ESInputTag("WhatsItESProducer", "B"),
+    esInputTagC_in_produceD = cms.ESInputTag("WhatsItESProducer", "C"),
+    esInputTagD_in_produceD = cms.ESInputTag("WhatsItESProducer", "D")
+)
+
+process.mayConsumeWhatsIt = cms.ESProducer("MayConsumeWhatsIt")
+
+process.consumeIOVTestInfoAnalyzer = cms.EDAnalyzer("ConsumeIOVTestInfoAnalyzer",
+    esInputTag = cms.untracked.ESInputTag("", "DependsOnMayConsume")
+)
+
+process.consumeIOVTestInfoAnalyzer2 = cms.EDAnalyzer("ConsumeIOVTestInfoAnalyzer",
+    esInputTag = cms.untracked.ESInputTag("", "DependsOnMayConsume2")
+)
+
 process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3 *
                      process.a4 *
                      process.test * process.testView1 *
@@ -157,6 +235,17 @@ process.p3 = cms.Path(
 
 
 process.p11 = cms.Path()
+
+process.testEventSetupPath = cms.Path(
+    process.testReadLumiESSource *
+    process.testReadLumiESSource1 *
+    process.testReadLumiESSource2 *
+    process.testReadLumiESSource3 *
+    process.concurrentIOVAnalyzer *
+    process.WhatsItAnalyzer *
+    process.consumeIOVTestInfoAnalyzer *
+    process.consumeIOVTestInfoAnalyzer2
+)
 
 process.t = cms.Task(
     process.intProducerU,
@@ -470,10 +559,29 @@ copyProcess.testOneOutput = cms.OutputModule("TestOneOutput",
     expectedProductsFromInputKept = cms.untracked.bool(False)
 )
 
+copyProcess.runLumiESSourceCopy = cms.ESSource("RunLumiESSource")
+
+copyProcess.testReadLumiESSource = cms.EDAnalyzer("RunLumiESAnalyzer")
+
+copyProcess.concurrentIOVESSource = cms.ESSource("ConcurrentIOVESSource",
+    iovIsRunNotTime = cms.bool(True),
+    firstValidLumis = cms.vuint32(1, 4, 6, 7, 8, 9),
+    invalidLumis = cms.vuint32(),
+    concurrentFinder = cms.bool(True)
+)
+
+copyProcess.concurrentIOVESProducer = cms.ESProducer("ConcurrentIOVESProducer")
+
+copyProcess.concurrentIOVAnalyzer = cms.EDAnalyzer("ConcurrentIOVAnalyzer",
+                              checkExpectedValues = cms.untracked.bool(False)
+)
+
 copyProcess.path3 = cms.Path(
     copyProcess.intProducerBeginProcessBlock *
     copyProcess.intProducerEndProcessBlock *
     copyProcess.processBlockTest1
 )
+
+copyProcess.testEventSetupPath = cms.Path(copyProcess.testReadLumiESSource * copyProcess.concurrentIOVAnalyzer)
 
 copyProcess.endPath = cms.EndPath(copyProcess.testOneOutput)

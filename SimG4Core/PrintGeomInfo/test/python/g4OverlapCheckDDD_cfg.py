@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckDDD_cfg.py geometry=2021 tol=0.1
 #
-#   Options for geometry 2016, 2016dev, 2017, 2018, 2021, 2023, 2024
+#   Options for geometry 2016, 2016dev, 2017, 2018, 2021, 2023, 2024, 2025
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "2024",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2016dev, 2017, 2018, 2021, 2023, 2024")
+                  "geometry of operations: 2016, 2016dev, 2017, 2018, 2021, 2023, 2024, 2025")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,

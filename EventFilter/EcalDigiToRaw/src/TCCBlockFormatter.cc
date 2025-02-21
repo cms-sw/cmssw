@@ -21,8 +21,8 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
     cout << "enter in TCCBlockFormatter::DigiToRaw " << endl;
 
   int HEADER_SIZE = 8 * 9;
-  int bx = bx_;
-  int lv1 = lv1_;
+  auto const bx = bx_;
+  auto const lv1 = lv1_;
 
   const EcalTrigTowerDetId& detid = trigprim.id();
 

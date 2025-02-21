@@ -29,6 +29,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 // forward declarations
@@ -81,6 +82,8 @@ namespace edm {
       std::vector<DataKey> registeredDataKeys() const;
 
       std::vector<ComponentDescription const*> componentsForRegisteredDataKeys() const;
+      std::vector<unsigned int> produceMethodIDsForRegisteredDataKeys() const;
+
       // ---------- member functions ---------------------------
 
       ///returns the first matching ESProductResolverProvider or a 'null' if not found
@@ -158,6 +161,9 @@ namespace edm {
       void setEventSetupImpl(EventSetupImpl* value) { eventSetupImpl_ = value; }
 
       IntervalStatus intervalStatus() const { return intervalStatus_; }
+
+      void fillAllESProductResolverProviders(std::vector<ESProductResolverProvider const*>&,
+                                             std::unordered_set<unsigned int>& componentIDs) const;
 
       void updateLookup(ESRecordsToProductResolverIndices const&);
 

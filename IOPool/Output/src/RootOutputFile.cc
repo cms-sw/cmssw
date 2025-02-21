@@ -815,13 +815,21 @@ namespace edm {
                                         SelectedProducts const& branches,
                                         std::string const& processName) const {
     if (tree && tree->GetNbranches() != 0) {
+      auto const& aliasForBranches = om_->aliasForBranches();
       for (auto const& selection : branches) {
         ProductDescription const& pd = *selection.first;
         if (pd.branchType() == InProcess && processName != pd.processName()) {
           continue;
         }
         std::string const& full = pd.branchName() + "obj";
-        if (pd.branchAliases().empty()) {
+        bool matched = false;
+        for (auto const& matcher : aliasForBranches) {
+          if (matcher.match(pd.branchName())) {
+            tree->SetAlias(matcher.alias_.c_str(), full.c_str());
+            matched = true;
+          }
+        }
+        if (not matched and pd.branchAliases().empty()) {
           std::string const& alias = (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName());
           tree->SetAlias(alias.c_str(), full.c_str());
         } else {

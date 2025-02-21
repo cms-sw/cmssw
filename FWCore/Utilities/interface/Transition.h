@@ -22,6 +22,9 @@ namespace edm {
     NumberOfEventSetupTransitions = BeginProcessBlock
   };
 
+  constexpr unsigned int kNumberOfEventSetupTransitions =
+      static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions);
+
   //Useful for converting EndBranchType to BranchType
   constexpr BranchType convertToBranchType(Transition iValue) {
     constexpr BranchType branches[] = {InEvent, InLumi, InLumi, InRun, InRun, InProcess, InProcess};

@@ -96,7 +96,6 @@ if __name__ == '__main__':
             12834.0,    # RelValTTbar_14TeV             2024
             12846.0,    # RelValZEE_13                  2024
             13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
-            12834.7,    # RelValTTbar_14TeV             2024 mkFit
             16834.0,    # RelValTTbar_14TeV             2025
             17034.0,    # RelValTTbar_14TeV		2025 PU = Run3_Flat55To75_PoissonOOTPU
             14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim

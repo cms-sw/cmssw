@@ -1059,9 +1059,9 @@ class Process(object):
         specialImportRegistry._reset()
         header = "import FWCore.ParameterSet.Config as cms"
         result = "process = cms.Process(\""+self.__name+"\")\n\n"
-        if self.source_():
+        if not self.source_() is None:
             result += "process.source = "+self.source_().dumpPython(options)
-        if self.looper_():
+        if not self.looper_() is None:
             result += "process.looper = "+self.looper_().dumpPython()
         result+=self._dumpPythonList(self.psets, options)
         result+=self._dumpPythonList(self.vpsets, options)
@@ -1103,10 +1103,10 @@ class Process(object):
 
         result = 'process = cms.Process("' + self.__name + '")\n\n'
 
-        if self.source_():
+        if not self.source_() is None:
             parts['source'] = (None, 'source = ' + self.source_().dumpPython(options))
 
-        if self.looper_():
+        if not self.looper_() is None:
             parts['looper'] = (None, 'looper = ' + self.looper_().dumpPython())
 
         parts.update(self._splitPythonList('psets', self.psets, options))

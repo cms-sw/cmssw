@@ -1,6 +1,7 @@
 /** \file PerfTools/EdmEvent/interface/EdmEventSize.cc
  *
  *  \author Vincenzo Innocente
+ *  \author Simone Rossi Tisbeni
  */
 #include "PerfTools/EdmEvent/interface/EdmEventSize.h"
 #include <valarray>
@@ -9,6 +10,7 @@
 #include <ostream>
 #include <limits>
 #include <cassert>
+#include <numeric>
 
 #include "Rtypes.h"
 #include "TROOT.h"
@@ -20,10 +22,12 @@
 #include "TH1.h"
 #include "TCanvas.h"
 #include "Riostream.h"
+#include "TDataMember.h"
+#include "TLeaf.h"
 
 #include "TBufferFile.h"
 
-namespace {
+namespace perftools {
 
   enum Indices { kUncompressed, kCompressed };
 
@@ -65,19 +69,52 @@ namespace {
       size[kUncompressed] += buf.Length();
     return size;
   }
-}  // namespace
 
-namespace perftools {
+  template <EdmEventMode M>
+  using Record = EdmEventSize<M>::Record;
 
-  EdmEventSize::EdmEventSize() : m_nEvents(0) {}
+  template <EdmEventMode M>
+  EdmEventSize<M>::EdmEventSize() : m_nEvents(0) {}
 
-  EdmEventSize::EdmEventSize(std::string const& fileName, std::string const& treeName) : m_nEvents(0) {
-    parseFile(fileName);
+  template <EdmEventMode M>
+  EdmEventSize<M>::EdmEventSize(std::string const& fileName, std::string const& treeName) : m_nEvents(0) {
+    parseFile(fileName, treeName);
   }
 
-  void EdmEventSize::parseFile(std::string const& fileName, std::string const& treeName) {
+  template <EdmEventMode M>
+  typename EdmEventSize<M>::Records getLeaves(TBranch* b) {
+    typename EdmEventSize<M>::Records new_leaves;
+    auto subBranches = b->GetListOfBranches();
+    const size_t nl = subBranches->GetEntries();
+    if (nl == 0) {
+      TLeaf* l = dynamic_cast<TLeaf*>(b->GetListOfLeaves()->At(0));
+      if (l == nullptr)
+        return new_leaves;
+
+      std::string const leaf_name = l->GetName();
+      std::string const leaf_type = l->GetTypeName();
+      size_t compressed_size = l->GetBranch()->GetZipBytes();
+      size_t uncompressed_size = l->GetBranch()->GetTotBytes();
+      std::string full_name = leaf_name + '|' + leaf_type;
+      full_name.erase(std::remove(full_name.begin(), full_name.end(), ' '), full_name.end());
+      size_t nEvents = l->GetBranch()->GetEntries();
+      new_leaves.push_back(Record<M>(full_name, nEvents, compressed_size, uncompressed_size));
+    } else {
+      for (size_t j = 0; j < nl; ++j) {
+        TBranch* subBranch = dynamic_cast<TBranch*>(subBranches->At(j));
+        if (subBranch == nullptr)
+          continue;
+        auto leaves = getLeaves<M>(subBranch);
+        new_leaves.insert(new_leaves.end(), leaves.begin(), leaves.end());
+      }
+    }
+    return new_leaves;
+  }
+
+  template <EdmEventMode M>
+  void EdmEventSize<M>::parseFile(std::string const& fileName, std::string const& treeName) {
     m_fileName = fileName;
-    m_branches.clear();
+    m_records.clear();
 
     TFile* file = TFile::Open(fileName.c_str());
     if (file == nullptr || (!(*file).IsOpen()))
@@ -100,7 +137,7 @@ namespace perftools {
       throw Error("tree \"" + treeName + "\" in file " + fileName + " contains no branches", 7006);
 
     const size_t n = branches->GetEntries();
-    m_branches.reserve(n);
+    m_records.reserve(n);
     for (size_t i = 0; i < n; ++i) {
       TBranch* b = dynamic_cast<TBranch*>(branches->At(i));
       if (b == nullptr)
@@ -109,79 +146,208 @@ namespace perftools {
       if (name == "EventAux")
         continue;
       size_type s = getTotalSize(b);
-      m_branches.push_back(
-          BranchRecord(name, double(s[kCompressed]) / double(m_nEvents), double(s[kUncompressed]) / double(m_nEvents)));
+      size_t compressed_size = s[kCompressed];
+      size_t uncompressed_size = s[kUncompressed];
+      if constexpr (M == EdmEventMode::Branches) {
+        m_records.push_back(Record(name, m_nEvents, compressed_size, uncompressed_size));
+      } else if constexpr (M == EdmEventMode::Leaves) {
+        Records new_leaves = getLeaves<M>(b);
+        m_records.insert(m_records.end(), new_leaves.begin(), new_leaves.end());
+
+        auto new_leaves_compressed =
+            std::accumulate(new_leaves.begin(), new_leaves.end(), 0, [](size_t sum, Record const& leaf) {
+              return sum + leaf.compr_size;
+            });
+        auto new_leaves_uncompressed =
+            std::accumulate(new_leaves.begin(), new_leaves.end(), 0, [](size_t sum, Record const& leaf) {
+              return sum + leaf.uncompr_size;
+            });
+        size_t overehead_compressed = compressed_size - new_leaves_compressed;
+        size_t overehead_uncompressed = uncompressed_size - new_leaves_uncompressed;
+        m_records.push_back(Record(name + "overhead", m_nEvents, overehead_compressed, overehead_uncompressed));
+      } else {
+        throw Error("Unsupported mode", 7007);
+      }
     }
-    std::sort(m_branches.begin(),
-              m_branches.end(),
-              std::bind(std::greater<double>(),
-                        std::bind(&BranchRecord::compr_size, std::placeholders::_1),
-                        std::bind(&BranchRecord::compr_size, std::placeholders::_2)));
+    std::sort(m_records.begin(),
+              m_records.end(),
+              std::bind(std::greater<size_t>(),
+                        std::bind(&Record::compr_size, std::placeholders::_1),
+                        std::bind(&Record::compr_size, std::placeholders::_2)));
   }
 
-  void EdmEventSize::sortAlpha() {
-    std::sort(m_branches.begin(),
-              m_branches.end(),
+  template <EdmEventMode M>
+  void EdmEventSize<M>::sortAlpha() {
+    std::sort(m_records.begin(),
+              m_records.end(),
               std::bind(std::less<std::string>(),
-                        std::bind(&BranchRecord::name, std::placeholders::_1),
-                        std::bind(&BranchRecord::name, std::placeholders::_2)));
+                        std::bind(&Record::name, std::placeholders::_1),
+                        std::bind(&Record::name, std::placeholders::_2)));
   }
 
   namespace detail {
     // format as product:label (type)
-    void shorterName(EdmEventSize::BranchRecord& br) {
-      size_t b = br.fullName.find('_');
-      size_t e = br.fullName.rfind('_');
-      if (b == e)
-        br.name = br.fullName;
-      else {
-        // remove type and process
-        br.name = br.fullName.substr(b + 1, e - b - 1);
-        // change label separator in :
-        e = br.name.rfind('_');
-        if (e != std::string::npos)
-          br.name.replace(e, 1, ":");
-        // add the type name
-        br.name.append(" (" + br.fullName.substr(0, b) + ")");
+    template <EdmEventMode M>
+    void shorterName(Record<M>& record) {
+      if constexpr (M == EdmEventMode::Branches) {
+        std::string const& fullName = record.name;
+        size_t b = fullName.find('_');
+        size_t e = fullName.rfind('_');
+        if (b == e)
+          record.name = fullName;
+        else {
+          // remove type and process
+          record.name = fullName.substr(b + 1, e - b - 1);
+          // change label separator in :
+          e = record.name.rfind('_');
+          if (e != std::string::npos)
+            record.name.replace(e, 1, ":");
+          // add the type name
+          record.name.append(" (" + fullName.substr(0, b) + ")");
+        }
+      } else if constexpr (M == EdmEventMode::Leaves) {
+        size_t b = record.type.find('_');
+        size_t e = record.type.rfind('_');
+        if (b == e)
+          record.name = record.type;
+        else {
+          // remove type and process
+          record.name = record.type.substr(b + 1, e - b - 1);
+          // change label separator in :
+          e = record.name.rfind('_');
+          if (e != std::string::npos)
+            record.name.replace(e, 1, ":");
+          // add the type name
+          record.name.append(" (" + record.type.substr(0, b) + ")");
+        }
+        if (!record.label.empty()) {
+          // object is objectName_objectType. Transform in objectName (objectType) and add to name
+          e = record.label.find('|');
+          if (e != std::string::npos) {
+            std::string obj = record.label.substr(0, e);
+            std::string objType = record.label.substr(e + 1);
+            record.name.append(" " + obj + " (" + objType + ")");
+          } else {
+            record.name.append(" " + record.label);
+          }
+        }
+      } else {
+        throw EdmEventSize<M>::Error("Unsupported mode", 7007);
       }
     }
 
   }  // namespace detail
 
-  void EdmEventSize::formatNames() { std::for_each(m_branches.begin(), m_branches.end(), &detail::shorterName); }
-
-  namespace detail {
-
-    void dump(std::ostream& co, EdmEventSize::BranchRecord const& br) {
-      co << br.name << " " << br.uncompr_size << " " << br.compr_size << "\n";
-    }
-  }  // namespace detail
-
-  void EdmEventSize::dump(std::ostream& co, bool header) const {
-    if (header) {
-      co << "File " << m_fileName << " Events " << m_nEvents << "\n";
-      co << "Branch Name | Average Uncompressed Size (Bytes/Event) | Average Compressed Size (Bytes/Event) \n";
-    }
-    std::for_each(m_branches.begin(), m_branches.end(), std::bind(detail::dump, std::ref(co), std::placeholders::_1));
+  template <EdmEventMode M>
+  void EdmEventSize<M>::formatNames() {
+    std::for_each(m_records.begin(), m_records.end(), std::bind(detail::shorterName<M>, std::placeholders::_1));
   }
 
   namespace detail {
 
+    template <EdmEventMode M>
+    void dump(std::ostream& co, Record<M> const& record) {
+      co << record.name << " " << static_cast<double>(record.uncompr_size) / static_cast<double>(record.nEvents) << " "
+         << static_cast<double>(record.compr_size) / static_cast<double>(record.nEvents) << "\n";
+    }
+
+    const std::string RESOURCES_JSON = R"("resources": [
+{
+"name": "size_uncompressed",
+"description" : "uncompressed size",
+"unit" : "B",
+"title" : "Data Size"
+},
+{
+"name":"size_compressed",
+"description": "compressed size",
+"unit" : "B",
+"title" : "Data Size"
+}
+],
+)";
+
+    template <EdmEventMode M>
+    void dumpJson(std::ostream& co, Record<M> const& record, bool isLast = false) {
+      co << "{\n";
+      co << "\"events\": " << record.nEvents << ",\n";
+      co << "\"type\": \"" << record.type << "\",\n";
+      co << "\"label\": \"" << record.label << "\",\n";
+      co << "\"size_compressed\": " << record.compr_size << ",\n";
+      co << "\"size_uncompressed\": " << record.uncompr_size << ",\n";
+      co << "\"ratio\": "
+         << (record.uncompr_size == 0
+                 ? 0.0
+                 : static_cast<double>(record.compr_size) / static_cast<double>(record.uncompr_size));
+      co << (isLast ? "}\n" : "},\n");
+    }
+
+  }  // namespace detail
+
+  template <EdmEventMode M>
+  void EdmEventSize<M>::dump(std::ostream& co, bool header) const {
+    if (header) {
+      co << "File " << m_fileName << " Events " << m_nEvents << "\n";
+      if constexpr (M == EdmEventMode::Branches) {
+        co << "Branch Name | Average Uncompressed Size (Bytes/Event) | Average Compressed Size (Bytes/Event) \n";
+      } else if constexpr (M == EdmEventMode::Leaves) {
+        co << "Leaf Name | Average Uncompressed Size (Bytes/Event) | Average Compressed Size (Bytes/Event) \n";
+      } else {
+        throw Error("Unsupported mode", 7007);
+      }
+    }
+
+    std::for_each(m_records.begin(), m_records.end(), std::bind(detail::dump<M>, std::ref(co), std::placeholders::_1));
+  }
+
+  template <EdmEventMode M>
+  void EdmEventSize<M>::dumpJson(std::ostream& co) const {
+    // Modules json
+    co << "{\n";
+    co << "\"modules\": [\n";
+
+    std::for_each(
+        m_records.begin(), m_records.end() - 1, [&co](const Record& record) { detail::dumpJson<M>(co, record); });
+    detail::dumpJson<M>(co, m_records.back(), true);
+
+    co << "],\n";
+
+    // Resources json
+    co << detail::RESOURCES_JSON;
+
+    // Total json
+    co << "\"total\": {\n";
+    co << "\"events\": " << m_nEvents << ",\n";
+    auto [total_uncompressed, total_compressed] = std::accumulate(
+        m_records.begin(), m_records.end(), std::make_pair<size_t>(0, 0), [](auto sum, Record const& leaf) {
+          return std::make_pair(sum.first + leaf.uncompr_size, sum.second + leaf.compr_size);
+        });
+    co << "\"size_uncompressed\": " << total_uncompressed << ",\n";
+    co << "\"size_compressed\": " << total_compressed << ",\n";
+    co << "\"ratio\": "
+       << (total_uncompressed == 0 ? 0.0
+                                   : static_cast<double>(total_compressed) / static_cast<double>(total_uncompressed))
+       << "\n";
+    co << "}\n}\n";
+  }
+
+  namespace detail {
     struct Hist {
       explicit Hist(int itop)
           : top(itop),
-            uncompressed("uncompressed", "branch sizes", top, -0.5, -0.5 + top),
-            compressed("compressed", "branch sizes", top, -0.5, -0.5 + top),
+            uncompressed("uncompressed", "sizes", top, -0.5, -0.5 + top),
+            compressed("compressed", "sizes", top, -0.5, -0.5 + top),
             cxAxis(compressed.GetXaxis()),
             uxAxis(uncompressed.GetXaxis()),
             x(0) {}
 
-      void fill(EdmEventSize::BranchRecord const& br) {
+      template <EdmEventMode M>
+      void fill(Record<M> const& record) {
         if (x < top) {
-          cxAxis->SetBinLabel(x + 1, br.name.c_str());
-          uxAxis->SetBinLabel(x + 1, br.name.c_str());
-          compressed.Fill(x, br.compr_size);
-          uncompressed.Fill(x, br.uncompr_size);
+          cxAxis->SetBinLabel(x + 1, record.name.c_str());
+          uxAxis->SetBinLabel(x + 1, record.name.c_str());
+          compressed.Fill(x, record.compr_size);
+          uncompressed.Fill(x, record.uncompr_size);
           x++;
         }
       }
@@ -221,18 +387,24 @@ namespace perftools {
       TH1F compressed;
       TAxis* cxAxis;
       TAxis* uxAxis;
-
       int x;
     };
 
   }  // namespace detail
 
-  void EdmEventSize::produceHistos(std::string const& plot, std::string const& file, int top) const {
+  template <EdmEventMode M>
+  void EdmEventSize<M>::produceHistos(std::string const& plot, std::string const& file, int top) const {
     if (top == 0)
-      top = m_branches.size();
+      top = m_records.size();
+
     detail::Hist h(top);
+    if constexpr (M == EdmEventMode::Leaves) {
+      h.uncompressed.SetTitle("Leaf sizes");
+      h.compressed.SetTitle("Leaf sizes");
+    }
     std::for_each(
-        m_branches.begin(), m_branches.end(), std::bind(&detail::Hist::fill, std::ref(h), std::placeholders::_1));
+        m_records.begin(), m_records.end(), std::bind(&detail::Hist::fill<M>, std::ref(h), std::placeholders::_1));
+
     h.finalize();
     if (!plot.empty()) {
       gROOT->SetStyle("Plain");
@@ -251,4 +423,6 @@ namespace perftools {
     }
   }
 
+  template class perftools::EdmEventSize<perftools::EdmEventMode::Leaves>;
+  template class perftools::EdmEventSize<perftools::EdmEventMode::Branches>;
 }  // namespace perftools

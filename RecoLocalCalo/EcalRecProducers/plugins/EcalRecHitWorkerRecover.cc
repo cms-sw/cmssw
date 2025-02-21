@@ -179,7 +179,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
         (flags == EcalRecHitWorkerRecover::EE_single && !recoverEEIsolatedChannels_) ||
         (flags == EcalRecHitWorkerRecover::EB_VFE && !recoverEBVFE_) ||
         (flags == EcalRecHitWorkerRecover::EE_VFE && !recoverEEVFE_)) {
-      EcalRecHit hit(detId, 0., 0., EcalRecHit::kDead);
+      EcalRecHit hit(detId, 0., 0.);
       hit.setFlag(EcalRecHit::kDead);
       insertRecHit(hit, result);  // insert trivial rechit with kDead flag
       return true;
@@ -188,7 +188,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
       EcalTrigTowerDetId ttDetId(((EBDetId)detId).tower());
       std::vector<DetId> vid = ttMap_->constituentsOf(ttDetId);
       for (std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit) {
-        EcalRecHit hit((*dit), 0., 0., EcalRecHit::kDead);
+        EcalRecHit hit((*dit), 0., 0.);
         hit.setFlag(EcalRecHit::kDead);
         insertRecHit(hit, result);  // insert trivial rechit with kDead flag
       }
@@ -210,7 +210,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
         }
       }
       for (size_t i = 0; i < eeC.size(); ++i) {
-        EcalRecHit hit(eeC[i], 0., 0., EcalRecHit::kDead);
+        EcalRecHit hit(eeC[i], 0., 0.);
         hit.setFlag(EcalRecHit::kDead);
         insertRecHit(hit, result);  // insert trivial rechit with kDead flag
       }
@@ -227,7 +227,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
     bool AcceptRecHit = true;
     float ebEn = ebDeadChannelCorrector.correct(
         detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, sum8RecoveryThreshold_, &AcceptRecHit);
-    EcalRecHit hit(detId, ebEn, 0., EcalRecHit::kDead);
+    EcalRecHit hit(detId, ebEn, 0.);
 
     if (hit.energy() != 0 and AcceptRecHit == true) {
       hit.setFlag(EcalRecHit::kNeighboursRecovered);
@@ -245,7 +245,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
     bool AcceptRecHit = true;
     float eeEn = eeDeadChannelCorrector.correct(
         detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, sum8RecoveryThreshold_, &AcceptRecHit);
-    EcalRecHit hit(detId, eeEn, 0., EcalRecHit::kDead);
+    EcalRecHit hit(detId, eeEn, 0.);
     if (hit.energy() != 0 and AcceptRecHit == true) {
       hit.setFlag(EcalRecHit::kNeighboursRecovered);
     } else {

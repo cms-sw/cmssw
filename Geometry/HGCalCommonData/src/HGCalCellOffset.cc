@@ -570,7 +570,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
             cellX_[k] * sqrt3_ * guardRingOffset_;  // Area of inactive region form guardring and other effects
         cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea;
         double offMag = (((-2.0 / 15.0) * totalArea * cellX_[k]) - ((cellX_[k] - (0.5 * guardRingOffset_)) * cutArea)) /
-                        (cellArea[k][j]);  // Magnitude of offset
+                        (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);  // Magnitude of offset
         // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
         // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
         // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)
@@ -589,7 +589,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea;
         double offMag =  // Magnitude of offset
             (((5.0 / 42.0) * totalArea * cellX_[k]) - ((cellX_[k] - (0.5 * guardRingOffset_))) * (cutArea)) /
-            (cellArea[k][j]);
+            (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
         // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
         // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
         // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)

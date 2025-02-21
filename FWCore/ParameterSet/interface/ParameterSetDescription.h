@@ -296,6 +296,7 @@ namespace edm {
 
     const_iterator end() const { return entries_.end(); }
 
+    bool empty() const noexcept { return entries_.empty(); }
     // Better performance if space is reserved for the number of
     // top level parameters before any are added.
     void reserve(SetDescriptionEntries::size_type n) { entries_.reserve(n); }

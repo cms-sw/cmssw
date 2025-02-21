@@ -246,16 +246,20 @@ class Chi2(StatisticalTest):
     StatisticalTest.__init__(self,threshold)
     self.name="Chi2"     
 
-  def check_filled_bins(self,min_filled):
-    nbins=self.h1.GetNbinsX()
-    n_filled_l=[]
-    for h in self.h1,self.h2:
-      nfilled=0.
-      for ibin in range(0,nbins+2):
-        if h.GetBinContent(ibin)>0:
-          nfilled+=1
+  def check_filled_bins(self, min_filled=1):
+    nbinsX = self.h1.GetNbinsX()
+    nbinsY = self.h1.GetNbinsY()
+    n_filled_l = []
+    for h in self.h1, self.h2:
+      nfilled = 0
+      for ibinX in range(1, nbinsX+1):
+        for ibinY in range(1, nbinsY+1):
+          if h.GetBinContent(ibinX, ibinY) > 0:
+            nfilled += 1
       n_filled_l.append(nfilled)
-    return len([x for x in n_filled_l if x>=min_filled] )>0
+    is_filled = len([x for x in n_filled_l if x >= min_filled]) > 0
+    single_bin_filled = len([x for x in n_filled_l if x == 1]) == len(n_filled_l)
+    return is_filled, single_bin_filled
 
   def absval(self):
     nbins=getNbins(self.h1)
@@ -270,20 +274,34 @@ class Chi2(StatisticalTest):
           h.SetBinContent(i,0)
 
   def check_histograms(self, histogram):
-      if histogram.InheritsFrom("TProfile") or  (histogram.GetEntries()!=histogram.GetSumOfWeights()):
-          return 'W'
-      else:
-          return 'U'
+    if histogram.InheritsFrom("TProfile") or (histogram.GetEntries()!=histogram.GetSumOfWeights()):
+      return 'W'
+    else:
+      return 'U'
+
+  def compare_filled_bin(self):
+    nbinsX = self.h1.GetNbinsX()
+    nbinsY = self.h1.GetNbinsY()
+    for ibinX in range(1, nbinsX+1):
+      for ibinY in range(1, nbinsY+1):
+        if self.h1.GetBinContent(ibinX, ibinY) >= 1 and self.h2.GetBinContent(ibinX, ibinY) >= 1:
+          return 1
+    return 0
 
   def do_test(self):
     self.absval()
-    if self.check_filled_bins(3):
+    is_filled, single_bin_filled = self.check_filled_bins()
+    if is_filled:
+      if single_bin_filled:
+         return self.compare_filled_bin()
+      #print(self.h1.GetName())
       #if self.h1.InheritsFrom("TProfile") or  (self.h1.GetEntries()!=self.h1.GetSumOfWeights()):
       #  chi2=self.h1.Chi2Test(self.h2,'WW')
       #  #if chi2==0: print "DEBUG",self.h1.GetName(),"Chi2 is:", chi2
       #  return chi2
       #else:
       #  return self.h1.Chi2Test(self.h2,'UU')
+      #
       hist1 = self.check_histograms(self.h1)
       hist2 = self.check_histograms(self.h2)
       if hist1 =='W' and hist2 =='W': ##in case 

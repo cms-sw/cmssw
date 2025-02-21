@@ -39,7 +39,6 @@ namespace edm::eventsetup::impl {
 
     void setTagGetter(ESTagGetter iGetter) { getter_ = std::move(iGetter); }
 
-  protected:
     ESTagGetter const& tagGetter() const { return getter_; }
 
   private:

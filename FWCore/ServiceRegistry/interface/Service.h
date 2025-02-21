@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <optional>
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -26,7 +27,7 @@
 // forward declarations
 
 namespace edm {
-  template <class T>
+  template <typename T>
   class Service {
   public:
     Service() {}
@@ -40,6 +41,28 @@ namespace edm {
     bool isAvailable() const { return ServiceRegistry::instance().template isAvailable<T>(); }
 
     operator bool() const { return isAvailable(); }
+
+    ///iF should be a functor and will only be called if the Service is available
+    template <typename F>
+      requires(!requires(F&& iF, T* t) {
+                { iF(*t) } -> std::same_as<void>;
+              })
+    auto and_then(F&& iF, T* t) -> std::optional<decltype(iF(*t))> const {
+      if (isAvailable()) {
+        return iF(*(operator->()));
+      }
+      return std::nullopt;
+    }
+
+    template <typename F>
+      requires(requires(F&& iF, T* t) {
+        { iF(*t) } -> std::same_as<void>;
+      })
+    void and_then(F&& iF) const {
+      if (isAvailable()) {
+        iF(*(operator->()));
+      }
+    }
 
     // ---------- static member functions --------------------
 

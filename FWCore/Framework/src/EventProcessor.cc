@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/ModuleChanger.h"
 #include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -645,7 +646,9 @@ namespace edm {
                                  preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
-    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
+
+    PathsAndConsumesOfModules pathsAndConsumesOfModules;
+    pathsAndConsumesOfModules.initialize(schedule_.get(), preg());
 
     std::vector<ModuleProcessName> consumedBySubProcesses;
     for_all(subProcesses_,
@@ -666,11 +669,11 @@ namespace edm {
             });
 
     // Note: all these may throw
-    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, printDependencies_);
+    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, printDependencies_);
     if (deleteNonConsumedUnscheduledModules_) {
-      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedBySubProcesses);
+      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules, consumedBySubProcesses);
           not unusedModules.empty()) {
-        pathsAndConsumesOfModules_.removeModules(unusedModules);
+        pathsAndConsumesOfModules.removeModules(unusedModules);
 
         edm::LogInfo("DeleteModules").log([&unusedModules](auto& l) {
           l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, "
@@ -717,7 +720,10 @@ namespace edm {
     //   looper_->beginOfJob(es);
     //}
     espController_->finishConfiguration();
-    actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
+
+    eventsetup::ESRecordsToProductResolverIndices esRecordsToProductResolverIndices = esp_->recordsToResolverIndices();
+
+    actReg_->eventSetupConfigurationSignal_(esRecordsToProductResolverIndices, processContext_);
     try {
       convertException::wrap([&]() { input_->doBeginJob(*preg_); });
     } catch (cms::Exception& ex) {
@@ -733,7 +739,7 @@ namespace edm {
     std::exception_ptr firstException;
     CMS_SA_ALLOW try {
       schedule_->beginJob(
-          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, pathsAndConsumesOfModules_, processContext_);
+          *preg_, esRecordsToProductResolverIndices, *processBlockHelper_, pathsAndConsumesOfModules, processContext_);
     } catch (...) {
       firstException = std::current_exception();
     }
@@ -748,7 +754,7 @@ namespace edm {
         looper_->updateLookup(InRun, *runLookup, mustPrefetchMayGet);
         looper_->updateLookup(InLumi, *lumiLookup, mustPrefetchMayGet);
         looper_->updateLookup(InEvent, *eventLookup, mustPrefetchMayGet);
-        looper_->updateLookup(esp_->recordsToResolverIndices());
+        looper_->updateLookup(esRecordsToProductResolverIndices);
       } catch (...) {
         firstException = std::current_exception();
       }
@@ -762,6 +768,12 @@ namespace edm {
     }
     if (firstException) {
       std::rethrow_exception(firstException);
+    }
+    pathsAndConsumesOfModules.initializeForEventSetup(std::move(esRecordsToProductResolverIndices), *esp_);
+    actReg_->lookupInitializationCompleteSignal_(pathsAndConsumesOfModules, processContext_);
+    schedule_->releaseMemoryPostLookupSignal();
+    for (auto& subProcess : subProcesses_) {
+      subProcess.initializePathsAndConsumes();
     }
 
     beginJobSucceeded_ = true;

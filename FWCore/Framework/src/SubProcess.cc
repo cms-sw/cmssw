@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
@@ -250,10 +251,11 @@ namespace edm {
 
   std::vector<ModuleProcessName> SubProcess::keepOnlyConsumedUnscheduledModules(bool deleteModules) {
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
-    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
+    pathsAndConsumesOfModules_ = std::make_unique<PathsAndConsumesOfModules>();
+    pathsAndConsumesOfModules_->initialize(schedule_.get(), preg_);
 
     // Note: all these may throw
-    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, false);
+    checkForModuleDependencyCorrectness(*pathsAndConsumesOfModules_, false);
 
     // Consumes information from the child SubProcesses
     std::vector<ModuleProcessName> consumedByChildren;
@@ -271,9 +273,9 @@ namespace edm {
 
     // Non-consumed unscheduled modules in this SubProcess, take into account of the consumes from child SubProcesses
     if (deleteModules) {
-      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedByChildren);
+      if (auto const unusedModules = nonConsumedUnscheduledModules(*pathsAndConsumesOfModules_, consumedByChildren);
           not unusedModules.empty()) {
-        pathsAndConsumesOfModules_.removeModules(unusedModules);
+        pathsAndConsumesOfModules_->removeModules(unusedModules);
 
         edm::LogInfo("DeleteModules").log([&unusedModules, this](auto& l) {
           l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, "
@@ -291,9 +293,9 @@ namespace edm {
     }
 
     // Products possibly consumed from the parent (Sub)Process
-    for (auto const& description : pathsAndConsumesOfModules_.allModules()) {
+    for (auto const& description : pathsAndConsumesOfModules_->allModules()) {
       for (auto const& dep :
-           pathsAndConsumesOfModules_.modulesInPreviousProcessesWhoseProductsAreConsumedBy(description->id())) {
+           pathsAndConsumesOfModules_->modulesInPreviousProcessesWhoseProductsAreConsumedBy(description->id())) {
         auto it = std::lower_bound(consumedByChildren.begin(),
                                    consumedByChildren.end(),
                                    ModuleProcessName{dep.moduleLabel(), dep.processName()});
@@ -306,6 +308,16 @@ namespace edm {
   void SubProcess::doBeginJob() { beginJob(); }
 
   void SubProcess::doEndJob(ExceptionCollector& collector) { endJob(collector); }
+
+  void SubProcess::initializePathsAndConsumes() {
+    pathsAndConsumesOfModules_->initializeForEventSetup(esp_->recordsToResolverIndices(), *esp_);
+    actReg_->lookupInitializationCompleteSignal_(*pathsAndConsumesOfModules_, processContext_);
+    schedule_->releaseMemoryPostLookupSignal();
+    for (auto& subProcess : subProcesses_) {
+      subProcess.initializePathsAndConsumes();
+    }
+    pathsAndConsumesOfModules_.reset();
+  }
 
   void SubProcess::beginJob() {
     // If event selection is being used, the SubProcess class reads TriggerResults
@@ -322,7 +334,7 @@ namespace edm {
     std::exception_ptr firstException;
     CMS_SA_ALLOW try {
       schedule_->beginJob(
-          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, pathsAndConsumesOfModules_, processContext_);
+          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, *pathsAndConsumesOfModules_, processContext_);
     } catch (...) {
       firstException = std::current_exception();
     }

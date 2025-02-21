@@ -9,18 +9,20 @@
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
+#include "FWCore/Utilities/interface/DeviceGlobal.h"
 #include "FWCore/Utilities/interface/HostDeviceConstant.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 
 //#define GPU_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
 #ifdef GPU_DEBUG
-  HOST_DEVICE_CONSTANT uint32_t gMaxHit = 0;
+  DEVICE_GLOBAL uint32_t gMaxHit = 0;
 #endif
 
   namespace pixelStatus {
@@ -179,11 +181,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                                                       TrackerTraits::maxPixInModule,
                                                       TrackerTraits::clusterBits,
                                                       uint16_t>;
-#if defined(__HIP_DEVICE_COMPILE__)
-        constexpr auto warpSize = __AMDGCN_WAVEFRONT_SIZE;
-#else
-        constexpr auto warpSize = 32;
-#endif
+        constexpr int warpSize = cms::alpakatools::warpSize;
         auto& hist = alpaka::declareSharedVar<Hist, __COUNTER__>(acc);
         auto& ws = alpaka::declareSharedVar<typename Hist::Counter[warpSize], __COUNTER__>(acc);
         for (uint32_t j : cms::alpakatools::independent_group_elements(acc, Hist::totbins())) {
