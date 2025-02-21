@@ -41,6 +41,8 @@
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
   <test name="TestIntegrationExistingDictionary" command="run_TestExistingDictionary.sh"/>
   <test name="TestIntegrationEmptyRootFile" command="run_TestEmptyRootFile.sh"/>
+  <test name="TestStdProducts" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testStdProducts_cfg.py"/>
+  <test name="TestPostInsertProducer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testPostInsertProducer_cfg.py"/>
 
   <bin file="ProcessConfiguration_t.cpp,ProcessHistory_t.cpp" name="TestIntegrationDataFormatsProvenance">
     <use name="FWCore/ParameterSet"/>
