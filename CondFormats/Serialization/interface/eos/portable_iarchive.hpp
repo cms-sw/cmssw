@@ -409,7 +409,14 @@ namespace eos {
       // created through BOOST_STRONG_TYPEDEF(X, some unsigned int) like
       // library_version_type, collection_size_type, item_version_type,
       // class_id_type, object_id_type, version_type and tracking_type
+#if defined(__GNUC__) && __GNUC__ >= 14
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-user-defined"
+#endif
       load((typename boost::uint_t<sizeof(T) * CHAR_BIT>::least&)(t));
+#if defined(__GNUC__) && __GNUC__ >= 14
+#pragma GCC diagnostic pop
+#endif
     }
   };
 
