@@ -16,7 +16,8 @@
 
 // dummy structs to ensure backward compatibility
 struct HcalUpgradeDataFrame {
-  typedef HcalDetId key_type;
+  using key_type = HcalDetId;
+  HcalDetId id() const { return HcalDetId(); }
 };
 struct HcalUpgradeQIESample {};
 typedef edm::SortedCollection<HcalUpgradeDataFrame> HBHEUpgradeDigiCollection;
