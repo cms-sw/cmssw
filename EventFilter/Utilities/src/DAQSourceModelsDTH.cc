@@ -396,7 +396,6 @@ std::pair<bool, std::vector<std::string>> DataModeDTH::defineAdditionalFiles(std
 //count events in raw file (in absence of file header) and return open file descriptor
 int DataModeDTH::eventCounterCallback(
     std::string const& name, int& rawFd, int64_t& totalSize, uint32_t sLS, bool& found) const {
-  uint32_t orbit_count = 0;
   uint32_t event_count = 0;
 
   auto fileClose = [&]() -> int {
@@ -455,7 +454,6 @@ int DataModeDTH::eventCounterCallback(
     if (firstSourceId == -1)
       firstSourceId = oh->sourceID();
     if (oh->sourceID() == (unsigned)firstSourceId) {
-      orbit_count++;
       event_count += oh->eventCount();
     }
     //else skip counting events from all source IDs in the file (assume they are same)
