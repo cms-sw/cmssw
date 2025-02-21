@@ -1,5 +1,4 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiHostCollection.h"
 #include "DataFormats/HcalDigi/interface/alpaka/HcalDigiDeviceCollection.h"
 
@@ -35,13 +34,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HostCollectionPhase1 = hcal::Phase1DigiHostCollection;
     using HostCollectionPhase0 = hcal::Phase0DigiHostCollection;
 
-    using DeviceCollectionPhase1 = hcal::Phase1DigiDeviceCollection;
-    using DeviceCollectionPhase0 = hcal::Phase0DigiDeviceCollection;
-
     // output product tokens
-    device::EDPutToken<DeviceCollectionPhase1> digisF01HEToken_;
-    device::EDPutToken<DeviceCollectionPhase0> digisF5HBToken_;
-    device::EDPutToken<DeviceCollectionPhase1> digisF3HBToken_;
+    edm::EDPutTokenT<HostCollectionPhase1> digisF01HEToken_;
+    edm::EDPutTokenT<HostCollectionPhase0> digisF5HBToken_;
+    edm::EDPutTokenT<HostCollectionPhase1> digisF3HBToken_;
 
     struct ConfigParameters {
       uint32_t maxChannelsF01HE, maxChannelsF5HB, maxChannelsF3HB;
@@ -87,9 +83,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // stack host memory in the queue
     HostCollectionPhase0 hf5_(size, event.queue());
 
-    // device product
-    DeviceCollectionPhase0 df5_(size, event.queue());
-
     // set SoA_Scalar;
     hf5_.view().stride() = stride;
     hf5_.view().size() = hbheDigis.size();
@@ -112,9 +105,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         hf5_vi.data()[i + 1] = sample;
       }
     }
-    // copy hf5 to df5
-    alpaka::memcpy(event.queue(), df5_.buffer(), hf5_.const_buffer());
-    event.emplace(digisF5HBToken_, std::move(df5_));
+    event.emplace(digisF5HBToken_, std::move(hf5_));
 
     if (qie11Digis.empty()) {
       event.emplace(digisF01HEToken_, 0, event.queue());
@@ -144,10 +135,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // stack host memory in the queue
       HostCollectionPhase1 hf1_(size_f1, event.queue());
       HostCollectionPhase1 hf3_(size_f3, event.queue());
-
-      // device product
-      DeviceCollectionPhase1 df1_(size_f1, event.queue());
-      DeviceCollectionPhase1 df3_(size_f3, event.queue());
 
       // set SoA_Scalar;
       hf1_.view().stride() = stride01;
@@ -187,11 +174,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       hf1_.view().size() = size_f1;
       hf3_.view().size() = size_f3;
 
-      alpaka::memcpy(event.queue(), df1_.buffer(), hf1_.const_buffer());
-      alpaka::memcpy(event.queue(), df3_.buffer(), hf3_.const_buffer());
-
-      event.emplace(digisF01HEToken_, std::move(df1_));
-      event.emplace(digisF3HBToken_, std::move(df3_));
+      event.emplace(digisF01HEToken_, std::move(hf1_));
+      event.emplace(digisF3HBToken_, std::move(hf3_));
     }
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
