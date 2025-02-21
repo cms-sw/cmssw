@@ -3,7 +3,6 @@ from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
 
 hltUpgradeNanoTask = cms.Task(nanoMetadata)
-hltUpgradeNanoSequence = cms.Sequence(hltUpgradeNanoTask)
 
 
 ### Tracksters
@@ -31,8 +30,31 @@ trackstersTable = cms.EDProducer(
     )
 )
 
+### Tracksters Associators
+trackstersAssociationTable = cms.EDProducer(
+    "TracksterAssociationCollectionTableProducer",
+    src=cms.InputTag("allTrackstersToSimTrackstersAssociationsByHits:ticlSimTrackstersToticlTrackstersMerge"),
+#    cut=cms.string(""),
+    name=cms.string("SimTS2TSMergeByHits"),
+    doc=cms.string("Association betwewn SimTracksters and tracksterMerge, by hits."),
+    singleton=cms.bool(True),  # the number of entries is variable
+    collectionVariables = cms.PSet(
+        assoc = cms.PSet(
+            name = cms.string("assoc"),
+            doc = cms.string("Association links."),
+            useCount = cms.bool(True),
+            useOffset = cms.bool(True),
+            variables = cms.PSet(
+                elements = Var("indices", "uint", doc="Layer clusters indices."),
+                scores = Var("scores", "uint", doc="Layer clusters indices."),
+            )
+        )
+    )
+)
 
-hltUpgradeNanoTask.add(trackstersTable)
+hltUpgradeNanoTask.add(trackstersTable, trackstersAssociationTable)
+
+hltUpgradeNanoSequence = cms.Sequence(hltUpgradeNanoTask)
 
 
 def addAssociators(process):
