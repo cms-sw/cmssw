@@ -71,13 +71,17 @@ process.FastMonitoringService = cms.Service("FastMonitoringService",
 )
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
-    useFileBroker = cms.untracked.bool(False),
+    useFileBroker = cms.untracked.bool(True),
     fileBrokerHostFromCfg = cms.untracked.bool(False),
     fileBrokerHost = cms.untracked.string("htcp40.cern.ch"),
     runNumber = cms.untracked.uint32(options.runNumber),
     baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.fuBaseDir),
     buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
     directorIsBU = cms.untracked.bool(False),
+    #buBaseDirsAll = cms.untracked.vstring(options.fffBaseDir+"/"+options.buBaseDir),
+    #buBaseDirsNumStreams = cms.untracked.vint32(1),
+    #buBaseDirsStreamIDs = cms.untracked.vint32(1),
+    #sourceIdentifier = cms.untracked.string("source")
 )
 
 try:
@@ -89,6 +93,7 @@ except Exception as ex:
 ram_dir_path=options.buBaseDir+"/run"+str(options.runNumber).zfill(6)+"/"
 
 process.source = cms.Source("DAQSource",
+    fileDiscoveryMode = cms.untracked.bool(True),
     testing = cms.untracked.bool(True),
     dataMode = cms.untracked.string(options.daqSourceMode),
     verifyChecksum = cms.untracked.bool(True if options.daqSourceMode != "DTH" else False),
@@ -98,14 +103,6 @@ process.source = cms.Source("DAQSource",
     maxChunkSize = cms.untracked.uint32(10),
     numBuffers = cms.untracked.uint32(3),
     maxBufferedFiles = cms.untracked.uint32(2),
-    fileListMode = cms.untracked.bool(True),
-    fileNames = cms.untracked.vstring(
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0001_index000000.raw",
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0001_index000001.raw",
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0002_index000000.raw",
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0002_index000001.raw"
-    )
-
 )
 
 process.PrescaleService = cms.Service( "PrescaleService",

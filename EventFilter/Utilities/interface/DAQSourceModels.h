@@ -60,13 +60,21 @@ public:
   virtual std::pair<bool, std::vector<std::string>> defineAdditionalFiles(std::string const& primaryName,
                                                                           bool fileListMode) const = 0;
 
-  virtual bool isMultiDir() { return false; }
+  virtual bool isMultiDir() const { return false; }
   virtual void makeDirectoryEntries(std::vector<std::string> const& baseDirs,
                                     std::vector<int> const& numSources,
+                                    std::vector<int> const& sourceIDs,
+                                    std::string const& sourceIdentifier,
                                     std::string const& runDir) = 0;
   void setTesting(bool testing) { testing_ = testing; }
 
   bool errorDetected() { return errorDetected_; }
+
+  //pre-parse file to count events
+  virtual bool hasEventCounterCallback() const { return false; }
+  virtual int eventCounterCallback(std::string const& name, int& fd, int64_t& fsize, uint32_t sLS, bool& found) const {
+    return -1;
+  }
 
 protected:
   DAQSource* daqSource_;

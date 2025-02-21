@@ -362,6 +362,8 @@ std::string DataModeFRDPreUnpack::getChecksumError() const { return ec_->errmsg(
 
 void DataModeFRDStriped::makeDirectoryEntries(std::vector<std::string> const& baseDirs,
                                               std::vector<int> const& numSources,
+                                              std::vector<int> const& sourceIDs,
+                                              std::string const& sourceIdentifier,
                                               std::string const& runDir) {
   std::filesystem::path runDirP(runDir);
   for (auto& baseDir : baseDirs) {
