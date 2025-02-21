@@ -18,6 +18,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+// -- new -- [GS]
+#include "DataFormats/PatCandidates/interface/Electron.h"
+
 #include <algorithm>
 #include <cmath>
 #include <memory>
@@ -35,7 +38,8 @@ private:
   double max_dxy_;
   double max_dz_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> v_recoVertexToken_;
-  edm::EDGetTokenT<std::vector<reco::GsfElectron>> v_recoGsfElectronToken_;
+  //edm::EDGetTokenT<std::vector<reco::GsfElectron>> v_recoGsfElectronToken_;
+  edm::EDGetTokenT<pat::ElectronCollection> v_recoGsfElectronToken_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,8 +51,10 @@ GsfElectronFromPVSelector::GsfElectronFromPVSelector(edm::ParameterSet const& iC
       max_dz_{iConfig.getParameter<double>("max_dz")},
       v_recoVertexToken_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex"))},
       v_recoGsfElectronToken_{
-          consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("srcElectron"))} {
-  produces<std::vector<reco::GsfElectron>>();
+          //consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("srcElectron"))} {
+          consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("srcElectron"))} {
+  //produces<std::vector<reco::GsfElectron>>();
+  produces<pat::ElectronCollection>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,10 +65,12 @@ void GsfElectronFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::
   edm::Handle<std::vector<reco::Vertex>> vertices;
   iEvent.getByToken(v_recoVertexToken_, vertices);
 
-  edm::Handle<std::vector<reco::GsfElectron>> gsfElectrons;
+  //edm::Handle<std::vector<reco::GsfElectron>> gsfElectrons;
+  edm::Handle<pat::ElectronCollection> gsfElectrons;
   iEvent.getByToken(v_recoGsfElectronToken_, gsfElectrons);
 
-  auto goodGsfElectrons = std::make_unique<std::vector<reco::GsfElectron>>();
+  //auto goodGsfElectrons = std::make_unique<std::vector<reco::GsfElectron>>();
+  auto goodGsfElectrons = std::make_unique<pat::ElectronCollection>();
 
   if (!vertices->empty() && !gsfElectrons->empty()) {
     auto const& pv = vertices->front();
