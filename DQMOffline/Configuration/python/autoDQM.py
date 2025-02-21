@@ -266,3 +266,12 @@ autoDQM['phase2'] = ['','','']
 for i in [0,2]:
     autoDQM['phase2'][i] = '+'.join([autoDQM[m][i] for m in _phase2_allowed])
 autoDQM['phase2'][1] = 'PostDQMOffline'
+
+# Creating autoDQM['phase2FakeHLT'] excluding elements containing 'HLTMon'
+autoDQM['phase2FakeHLT'] = []
+for val in autoDQM['phase2']:
+    if any('HLTMon' in s for s in val.split('+')):
+        filtered_val = '+'.join(filter(lambda x: 'HLTMon' not in x, val.split('+')))
+        autoDQM['phase2FakeHLT'].append(filtered_val)
+    else:
+        autoDQM['phase2FakeHLT'].append(val)
