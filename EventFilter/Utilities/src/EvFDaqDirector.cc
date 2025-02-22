@@ -116,8 +116,7 @@ namespace evf {
             << "fileBrokerHostFromCfg must be set to true if fileBrokerHost parameter is not valid or empty";
 
       resolver_ = std::make_unique<boost::asio::ip::tcp::resolver>(io_service_);
-      query_ = std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_);
-      endpoint_iterator_ = std::make_unique<boost::asio::ip::tcp::resolver::iterator>(resolver_->resolve(*query_));
+      endpoint_iterator_ = std::make_unique<boost::asio::ip::tcp::resolver::results_type>(resolver_->resolve(fileBrokerHost_, fileBrokerPort_));
       socket_ = std::make_unique<boost::asio::ip::tcp::socket>(io_service_);
     }
 
