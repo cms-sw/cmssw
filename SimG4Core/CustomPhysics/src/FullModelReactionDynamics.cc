@@ -2304,7 +2304,10 @@ G4double FullModelReactionDynamics::GenerateNBodyEvent(const G4double totalEnerg
 
   G4double bang, cb, sb, s0, s1, s2, c, s, esys, a, b, gama, beta;
   pcm[0][0] = 0.0;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
   pcm[1][0] = pd[0];
+#pragma GCC diagnostic pop
   pcm[2][0] = 0.0;
   for (i = 1; i < vecLen; ++i) {
     pcm[0][i] = 0.0;
