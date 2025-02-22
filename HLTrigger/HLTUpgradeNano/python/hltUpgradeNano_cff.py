@@ -16,47 +16,51 @@ trackstersTable = cms.EDProducer(
     variables=cms.PSet(
         raw_energy=Var("raw_energy", "float", doc="Raw Energy of the trackster"),
     ),
-    collectionVariables = cms.PSet(
-        tracksterVertices = cms.PSet(
-            name = cms.string("vertices"),
-            doc = cms.string("Vertex properties"),
-            useCount = cms.bool(True),
-            useOffset = cms.bool(True),
-            variables = cms.PSet(
-                vertices = Var("vertices", "uint", doc="Layer clusters indices."),
-                vertex_mult = Var("vertex_multiplicity", "float", doc="Fraction of Layer cluster energy used by the Trackster.")
-            )
+    collectionVariables=cms.PSet(
+        tracksterVertices=cms.PSet(
+            name=cms.string("vertices"),
+            doc=cms.string("Vertex properties"),
+            useCount=cms.bool(True),
+            useOffset=cms.bool(True),
+            variables=cms.PSet(
+                vertices=Var("vertices", "uint", doc="Layer clusters indices."),
+                vertex_mult=Var(
+                    "vertex_multiplicity",
+                    "float",
+                    doc="Fraction of Layer cluster energy used by the Trackster.",
+                ),
+            ),
         )
-    )
+    ),
 )
 
 ### Tracksters Associators
-trackstersAssociationTable = cms.EDProducer(
-    "TracksterAssociationCollectionTableProducer",
-    src=cms.InputTag("allTrackstersToSimTrackstersAssociationsByHits:ticlSimTrackstersToticlTrackstersMerge"),
-#    cut=cms.string(""),
+trackstersAssociationOneToManyTable = cms.EDProducer(
+    "TracksterAssociationOneToManyCollectionTableProducer",
+    src=cms.InputTag(
+        "allTrackstersToSimTrackstersAssociationsByHits:ticlSimTrackstersToticlTrackstersMerge"
+    ),
     name=cms.string("SimTS2TSMergeByHits"),
     doc=cms.string("Association betwewn SimTracksters and tracksterMerge, by hits."),
     singleton=cms.bool(True),  # the number of entries is variable
-    collectionVariables = cms.PSet(
-        assoc = cms.PSet(
-            name = cms.string("assoc"),
-            doc = cms.string("Association links."),
-            useCount = cms.bool(True),
-            useOffset = cms.bool(True),
-            variables = cms.PSet(
-                elements = Var("indices", "uint", doc="Layer clusters indices."),
-                scores = Var("scores", "uint", doc="Layer clusters indices."),
-            )
+    collectionVariables=cms.PSet(
+        links=cms.PSet(
+            name=cms.string("SimTS2TSMergeByHitsLinks"),
+            doc=cms.string("Association links."),
+            useCount=cms.bool(True),
+            useOffset=cms.bool(False),
+            variables=cms.PSet(
+                index=Var("index", "uint", doc="Layer clusters indices."),
+                score=Var("score", "float", doc="Layer clusters score."),
+            ),
         )
-    )
+    ),
 )
 
-hltUpgradeNanoTask.add(trackstersTable, trackstersAssociationTable)
+hltUpgradeNanoTask.add(trackstersTable, trackstersAssociationOneToManyTable)
 
 hltUpgradeNanoSequence = cms.Sequence(hltUpgradeNanoTask)
 
 
 def addAssociators(process):
-
     return process

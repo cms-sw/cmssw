@@ -28,10 +28,28 @@ for i, event in enumerate(events):
         print(t_idx, vertex_multiplicity, event.tracksters_raw_energy[t_idx])
     print("Exploring connections and scores")
     print("Connections for {} objects".format(event.nSimTS2TSMergeByHits))
-    for obj_idx, obj in enumerate(range(event.nSimTS2TSMergeByHits)):
-        offset = event.SimTS2TSMergeByHits_oassoc[obj_idx]
-        count = event.SimTS2TSMergeByHits_nassoc[obj_idx]
-        elements = event.assoc_indices[offset : offset + count]
-        scores = event.assoc_scores[offset : offset + count]
-        if len(elements) > 0:
-            print(obj_idx, elements, scores)
+    try:  # Offset pattern
+        offset = 0
+        entries = event.nSimTS2TSMergeByHits
+        for obj_idx, obj in enumerate(range(entries - 1)):
+            next_offset = event.SimTS2TSMergeByHits_oSimTS2TSMergeByHitsLinks[
+                obj_idx + 1
+            ]
+            elements = event.SimTS2TSMergeByHitsLinks_index[offset:next_offset]
+            scores = event.SimTS2TSMergeByHitsLinks_score[offset:next_offset]
+            if len(elements) > 0:
+                print("Offset ", obj_idx, elements, scores)
+            offset = next_offset
+    except AttributeError as e:
+        print(f"An AttributeError occurred: {e}")
+    try:  # Count pattern
+        offset = 0
+        for obj_idx, obj in enumerate(range(event.nSimTS2TSMergeByHits)):
+            count = event.SimTS2TSMergeByHits_nSimTS2TSMergeByHitsLinks[obj_idx]
+            elements = event.SimTS2TSMergeByHitsLinks_index[offset : offset + count]
+            scores = event.SimTS2TSMergeByHitsLinks_score[offset : offset + count]
+            if len(elements) > 0:
+                print("Count ", obj_idx, elements, scores)
+            offset = offset + count
+    except AttributeError as e:
+        print(f"An AttributeError occurred: {e}")

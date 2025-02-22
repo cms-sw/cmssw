@@ -1,78 +1,31 @@
 #include <numeric>  // iota
+#include <type_traits>
+#include <iostream>
+
 #include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
-template <typename ObjType, typename ValType>
-class DummyVariable : public Variable<ObjType> {
-public:
-  DummyVariable(const std::string &aname, const edm::ParameterSet &cfg) : Variable<ObjType>(aname, cfg) {}
-  ~DummyVariable() override {}
+// Concept to check if a type is a valid AssociationMap of AssociationElement, both onetoOne and oneToMany.
+// For oneToOne pass as Container the type std::vector<T::AssociationElementType>
+// For oneToMany pass as Container the type std::vector<std::vector<T::AssociationElementType>>
+template <typename T, typename Container>
+concept IsValidAssociationMap = requires {
+  typename T::Traits;
+  typename T::AssociationElementType;
+  typename T::V;
+  typename T::Type;
 
-  void fill(std::vector<const ObjType *> &selobjs, nanoaod::FlatTable &out) const override {
-    /**
-    std::vector<ValType> vals(selobjs.size());
-    for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-      vals[i] = func_(*selobjs[i]);
-      if constexpr (std::is_same<ValType, float>()) {
-        if (this->precision_ == -2) {
-          auto prec = precisionFunc_(*selobjs[i]);
-          if (prec > 0) {
-            vals[i] = MiniFloatConverter::reduceMantissaToNbitsRounding(vals[i], prec);
-          }
-        }
-      }
-    }
-    out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
-    */
-  }
+  requires std::is_same_v<typename T::Type, Container>;
 };
 
-template <typename ObjType, typename ValType>
-class DummyCollectionVariable : public CollectionVariable<ObjType> {
-public:
-  DummyCollectionVariable(const std::string &aname, const edm::ParameterSet &cfg)
-      : CollectionVariable<ObjType>(aname, cfg) {}
-  ~DummyCollectionVariable() override {}
-
-  std::unique_ptr<std::vector<unsigned int>> getCounts(std::vector<const ObjType *> &selobjs) const override {
-    auto counts = std::make_unique<std::vector<unsigned int>>();
-    return counts;
-    /**
-    for (auto const &obj : selobjs)
-      counts->push_back(func_(*obj).size());
-    return counts;
-    */
-  }
-
-  void fill(std::vector<const ObjType *> &selobjs, nanoaod::FlatTable &out) const override {
-    /**
-    std::vector<ValType> vals;
-    for (unsigned int i = 0; i < selobjs.size(); ++i) {
-      for (ValType val : func_(*selobjs[i])) {
-        if constexpr (std::is_same<ValType, float>()) {
-          if (this->precision_ == -2) {
-            auto prec = precisionFunc_(*selobjs[i]);
-            if (prec > 0) {
-              val = MiniFloatConverter::reduceMantissaToNbitsRounding(val, prec);
-            }
-          }
-        }
-        vals.push_back(val);
-      }
-    }
-    out.template addColumn<ValType>(this->name_, vals, this->doc_, this->precision_);
-    */
-  }
-};
-
-// TODO: specialize only for the required association types.
 template <typename T>
-class SimpleAssociationCollectionFlatTableProducer : public SimpleFlatTableProducerBase<T, T> {
+  requires IsValidAssociationMap<T, std::vector<std::vector<typename T::AssociationElementType>>>
+class AssociationOneToManyFlatTableProducer : public SimpleFlatTableProducerBase<T, T> {
 public:
-  SimpleAssociationCollectionFlatTableProducer(edm::ParameterSet const &params)
-      : SimpleFlatTableProducerBase<T, T>(params) {
+  using TProd = T::AssociationElementType;
+  AssociationOneToManyFlatTableProducer(edm::ParameterSet const &params) : SimpleFlatTableProducerBase<T, T>(params) {
     if (params.existsAs<edm::ParameterSet>("collectionVariables")) {
       edm::ParameterSet const &collectionVarsPSet = params.getParameter<edm::ParameterSet>("collectionVariables");
       for (const std::string &coltablename :
@@ -108,19 +61,22 @@ public:
         }
         this->coltables.push_back(std::move(coltable));
         edm::stream::EDProducer<>::produces<nanoaod::FlatTable>(coltables.back().name + "Table");
+        std::cout << "MR OneToMany will produce " << coltables.back().name + "Table" << std::endl;
       }
     }
   }
 
-  ~SimpleAssociationCollectionFlatTableProducer() override {}
+  ~AssociationOneToManyFlatTableProducer() override {}
 
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override {
+    // same as SimpleFlatTableProducer
     edm::Handle<T> prod;
     iEvent.getByToken(SimpleFlatTableProducerBase<T, T>::src_, prod);
 
-    //    std::unique_ptr<nanoaod::FlatTable> out = fillTable(iEvent, src);
+    // First unroll the Container inside the associator map.
+
     auto table_size = prod->getMap().size();
-    std::cout << "MR creating table of size: " << table_size << std::endl;
+    std::cout << "MR OneToMany creating table of size: " << table_size << std::endl;
     auto out = std::make_unique<nanoaod::FlatTable>(table_size, this->name_, false);
     std::vector<int> vals(table_size);
     std::iota(vals.begin(), vals.end(), 0);
@@ -134,37 +90,47 @@ public:
       counts.push_back(links.size());
       coltablesize += counts.back();
     }
-    // add count branch if requested
-    out->template addColumn<uint16_t>("n" + coltables[0].name, counts, "counts for linked objects.");
-    // add offset branch if requested
-    unsigned int offset = 0;
-    std::vector<unsigned int> offsets;
-    offsets.reserve(table_size);
-    for (auto const &count : counts) {
-      offsets.push_back(offset);
-      offset += count;
-    }
-    out->template addColumn<uint16_t>("o" + coltables[0].name, offsets, "offsets for linked objects.");
 
-    out->setDoc(SimpleFlatTableProducerBase<T, T>::doc_);
-    iEvent.put(std::move(out));
-
-    std::vector<int32_t> all_links;
-    all_links.reserve(coltablesize);
-    std::vector<float> all_scores;
-    all_scores.reserve(coltablesize);
-    for (auto const &links : prod->getMap()) {
-      for (auto const &alink : links) {
-        all_links.push_back(alink.index());
-        all_scores.push_back(alink.score());
+    std::vector<const TProd *> selobjs;
+    selobjs.reserve(coltablesize);
+    if (prod.isValid() || !(this->skipNonExistingSrc_)) {
+      for (unsigned int i = 0, n = prod->size(); i < n; ++i) {
+        const auto &obj = (*prod)[i];
+        for (auto const &assocElement : obj) {
+          selobjs.push_back(&assocElement);
+        }
       }
     }
-    std::unique_ptr<nanoaod::FlatTable> outcoltable =
-        std::make_unique<nanoaod::FlatTable>(coltablesize, coltables[0].name, false, false);
-    outcoltable->template addColumn<int32_t>("indices", all_links, "Indices of linked objects.");
 
-    outcoltable->template addColumn<float>("scores", all_scores, "Scores of linked objects.");
-    iEvent.put(std::move(outcoltable), coltables[0].name + "Table");
+    // collection variable tables
+    for (const auto &coltable : this->coltables) {
+      // add count branch if requested
+      if (coltable.useCount)
+        out->template addColumn<uint16_t>("n" + coltable.name, counts, "counts for " + coltable.name);
+      // add offset branch if requested
+      if (coltable.useOffset) {
+        unsigned int offset = 0;
+        std::vector<unsigned int> offsets;
+        offsets.reserve(table_size);
+        for (auto const &count : counts) {
+          offsets.push_back(offset);
+          offset += count;
+        }
+        out->template addColumn<uint16_t>("o" + coltable.name, offsets, "offsets for " + coltable.name);
+      }
+
+      std::unique_ptr<nanoaod::FlatTable> outcoltable =
+          std::make_unique<nanoaod::FlatTable>(coltablesize, coltable.name, false, false);
+      for (const auto &colvar : coltable.colvars) {
+        colvar->fill(selobjs, *outcoltable);
+      }
+      outcoltable->setDoc(coltable.doc);
+      iEvent.put(std::move(outcoltable), coltable.name + "Table");
+    }
+
+    // put the main table into the event
+    out->setDoc(this->doc_);
+    iEvent.put(std::move(out));
   }
 
   // Make compiler happy.
@@ -218,7 +184,7 @@ public:
 
 protected:
   template <typename R>
-  using VectorVar = DummyCollectionVariable<T, R>;
+  using VectorVar = FuncVariable<TProd, StringObjectFunction<TProd>, R>;
 
   using IntVectorVar = VectorVar<int32_t>;
   using UIntVectorVar = VectorVar<uint32_t>;
@@ -233,7 +199,7 @@ protected:
     std::string doc;
     bool useCount;
     bool useOffset;
-    std::vector<std::unique_ptr<CollectionVariable<T>>> colvars;
+    std::vector<std::unique_ptr<Variable<TProd>>> colvars;
   };
   std::vector<CollectionVariableTableInfo> coltables;
 };
@@ -242,7 +208,7 @@ typedef ticl::AssociationMap<vector<vector<ticl::AssociationElement<pair<ticl::S
                              vector<ticl::Trackster>,
                              vector<ticl::Trackster>>
     associationMap;
-typedef SimpleAssociationCollectionFlatTableProducer<associationMap> TracksterAssociationCollectionTableProducer;
+typedef AssociationOneToManyFlatTableProducer<associationMap> TracksterAssociationOneToManyCollectionTableProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(TracksterAssociationCollectionTableProducer);
+DEFINE_FWK_MODULE(TracksterAssociationOneToManyCollectionTableProducer);
