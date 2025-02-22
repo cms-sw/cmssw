@@ -32,6 +32,15 @@
     <use name="DataFormats/TestObjects"/>
   </library>
 
+  <library file="WrapperBaseProducer.cc" name="FWCoreIntegrationWrapperBase">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/TestObjects"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Reflection"/>
+    <use name="FWCore/Utilities"/>
+  </library>
+
   <library file="HistProducer.cc" name="TestHistProducer">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
