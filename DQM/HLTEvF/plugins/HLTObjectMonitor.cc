@@ -84,6 +84,7 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
 
 public:
   explicit HLTObjectMonitor(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -309,24 +310,23 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   wallTime_pset = iConfig.getParameter<edm::ParameterSet>("wallTime");
   plotMap[&wallTime_] = &wallTime_pset;
 
-  for (auto item = plotMap.begin(); item != plotMap.end(); item++) {
-    (*item->first).pathName = (*item->second).getParameter<string>("pathName");
-    (*item->first).moduleName = (*item->second).getParameter<string>("moduleName");
-    (*item->first).nBins = (*item->second).getParameter<int>("NbinsX");
-    (*item->first).xMin = (*item->second).getParameter<double>("Xmin");
-    (*item->first).xMax = (*item->second).getParameter<double>("Xmax");
-    (*item->first).xAxisLabel = (*item->second).getParameter<string>("axisLabel");
-    (*item->first).plotLabel = (*item->second).getParameter<string>("plotLabel");
-    (*item->first).displayInPrimary = (*item->second).getParameter<bool>("mainWorkspace");
+  for (auto& [key, value] : plotMap) {
+    key->pathName = value->getParameter<std::string>("pathName");
+    key->moduleName = value->getParameter<std::string>("moduleName");
+    key->nBins = value->getParameter<int>("NbinsX");
+    key->xMin = value->getParameter<double>("Xmin");
+    key->xMax = value->getParameter<double>("Xmax");
+    key->xAxisLabel = value->getParameter<std::string>("axisLabel");
+    key->plotLabel = value->getParameter<std::string>("plotLabel");
+    key->displayInPrimary = value->getParameter<bool>("mainWorkspace");
 
-    if ((*item->second).exists("pathName_OR")) {
-      (*item->first).pathNameOR = (*item->second).getParameter<string>("pathName_OR");
+    if (value->exists("pathName_OR")) {
+      key->pathNameOR = value->getParameter<std::string>("pathName_OR");
     }
-    if ((*item->second).exists("moduleName_OR")) {
-      (*item->first).moduleNameOR = (*item->second).getParameter<string>("moduleName_OR");
+    if (value->exists("moduleName_OR")) {
+      key->moduleNameOR = value->getParameter<std::string>("moduleName_OR");
     }
-
-    plotList.push_back(item->first);
+    plotList.push_back(key);
   }
   plotMap.clear();
 
@@ -862,31 +862,69 @@ double HLTObjectMonitor::get_wall_time() {
   return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-HLTObjectMonitor::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-HLTObjectMonitor::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-// void
-// HLTObjectMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-//   //The following says we do not know what parameters are allowed so do no validation
-//   // Please change this to state exactly what you do use, even if it is no parameters
-//   edm::ParameterSetDescription desc;
-//   desc.setUnknown();
-//   descriptions.addDefault(desc);
-// }
+void HLTObjectMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("processName", "HLT");
+
+  auto addPSet = [](edm::ParameterSetDescription& desc, const std::string& name) {
+    edm::ParameterSetDescription pset;
+    pset.add<std::string>("pathName", "");
+    pset.add<std::string>("moduleName", "");
+    pset.addOptional<std::string>("pathName_OR");
+    pset.addOptional<std::string>("moduleName_OR");
+    pset.add<std::string>("plotLabel", "");
+    pset.add<std::string>("axisLabel", "");
+    pset.add<bool>("mainWorkspace", false);
+    pset.add<int>("NbinsX", 50);
+    pset.add<double>("Xmin", 0.0);
+    pset.add<double>("Xmax", 1.0);
+    desc.add<edm::ParameterSetDescription>(name, pset);
+  };
+
+  addPSet(desc, "alphaT");
+  addPSet(desc, "photonPt");
+  addPSet(desc, "photonEta");
+  addPSet(desc, "photonPhi");
+  addPSet(desc, "muonPt");
+  addPSet(desc, "muonEta");
+  addPSet(desc, "muonPhi");
+  addPSet(desc, "l2muonPt");
+  addPSet(desc, "l2muonEta");
+  addPSet(desc, "l2muonPhi");
+  addPSet(desc, "l2NoBPTXmuonPt");
+  addPSet(desc, "l2NoBPTXmuonEta");
+  addPSet(desc, "l2NoBPTXmuonPhi");
+  addPSet(desc, "electronPt");
+  addPSet(desc, "electronEta");
+  addPSet(desc, "electronPhi");
+  addPSet(desc, "jetPt");
+  addPSet(desc, "jetAK8Pt");
+  addPSet(desc, "jetAK8Mass");
+  addPSet(desc, "tauPt");
+  addPSet(desc, "diMuonLowMass");
+  addPSet(desc, "caloMetPt");
+  addPSet(desc, "caloMetPhi");
+  addPSet(desc, "pfMetPt");
+  addPSet(desc, "pfMetPhi");
+  addPSet(desc, "caloHtPt");
+  addPSet(desc, "pfHtPt");
+  addPSet(desc, "bJetEta");
+  addPSet(desc, "bJetPhi");
+  addPSet(desc, "bJetCSVCalo");
+  addPSet(desc, "bJetCSVPF");
+  addPSet(desc, "rsq");
+  addPSet(desc, "mr");
+  addPSet(desc, "diMuonMass");
+  addPSet(desc, "pAL1DoubleMuZMass");
+  addPSet(desc, "pAL2DoubleMuZMass");
+  addPSet(desc, "pAL3DoubleMuZMass");
+  addPSet(desc, "diElecMass");
+  addPSet(desc, "muonDxy");
+  addPSet(desc, "muonDz");
+  addPSet(desc, "wallTime");
+  descriptions.addWithDefaultLabel(desc);
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HLTObjectMonitor);
