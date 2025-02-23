@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 #include "TMath.h"
 #include <iostream>
 #include <map>
