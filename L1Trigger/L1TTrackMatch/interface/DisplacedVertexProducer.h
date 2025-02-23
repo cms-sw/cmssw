@@ -170,8 +170,7 @@ private:
   const edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> ttTrackMCTruthToken_;
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackToken_;
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackGTTToken_;
-  const std::string outputTrackCollectionName_;
-  const std::string outputTrackEmulationCollectionName_;
+  const std::string outputVertexCollectionName_;
   const std::string model_;
   const bool runEmulation_;
   const edm::ParameterSet cutSet_;
