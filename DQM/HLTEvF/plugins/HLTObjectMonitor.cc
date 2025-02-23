@@ -91,6 +91,7 @@ private:
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
   vector<hltPlot*> plotList;
   double dxyFinder(double, double, edm::Handle<reco::RecoChargedCandidateCollection>, edm::Handle<reco::BeamSpot>);
+  double dzFinder(double, double, edm::Handle<reco::RecoChargedCandidateCollection>, edm::Handle<reco::BeamSpot>);
   double get_wall_time(void);
   // ----------member data ---------------------------
 
@@ -153,6 +154,7 @@ private:
   edm::ParameterSet pAL3DoubleMuZMass_pset;
   edm::ParameterSet diElecMass_pset;
   edm::ParameterSet muonDxy_pset;
+  edm::ParameterSet muonDz_pset;
   edm::ParameterSet wallTime_pset;
 
   string processName_;
@@ -196,6 +198,7 @@ private:
   hltPlot pAL3DoubleMuZMass_;
   hltPlot diElecMass_;
   hltPlot muonDxy_;
+  hltPlot muonDz_;
   hltPlot wallTime_;
 };
 
@@ -297,6 +300,8 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   plotMap[&diElecMass_] = &diElecMass_pset;
   muonDxy_pset = iConfig.getParameter<edm::ParameterSet>("muonDxy");
   plotMap[&muonDxy_] = &muonDxy_pset;
+  muonDz_pset = iConfig.getParameter<edm::ParameterSet>("muonDz");
+  plotMap[&muonDz_] = &muonDz_pset;
   jetAK8Pt_pset = iConfig.getParameter<edm::ParameterSet>("jetAK8Pt");
   plotMap[&jetAK8Pt_] = &jetAK8Pt_pset;
   tauPt_pset = iConfig.getParameter<edm::ParameterSet>("tauPt");
@@ -560,13 +565,19 @@ void HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         iEvent.getByToken(chargedCandToken_, recoChargedCands);
         edm::Handle<reco::BeamSpot> recoBeamSpot;
         iEvent.getByToken(beamSpotToken_, recoBeamSpot);
-        double muon_dxy;
+        double muon_dxy, muon_dz;
 
         if (recoChargedCands.isValid() && recoBeamSpot.isValid()) {
           for (const auto& key : keys) {
             muon_dxy = dxyFinder(objects[key].eta(), objects[key].phi(), recoChargedCands, recoBeamSpot);
-            if (muon_dxy != -99.)
+            if (muon_dxy != -99.) {
               muonDxy_.ME->Fill(muon_dxy);
+            }
+
+            muon_dz = dzFinder(objects[key].eta(), objects[key].phi(), recoChargedCands, recoBeamSpot);
+            if (muon_dz != -99.) {
+              muonDz_.ME->Fill(muon_dz);
+            }
           }
         }
       }
@@ -824,6 +835,24 @@ double HLTObjectMonitor::dxyFinder(double eta,
     }
   }
   return dxy;
+}
+
+double HLTObjectMonitor::dzFinder(double eta,
+                                  double phi,
+                                  edm::Handle<reco::RecoChargedCandidateCollection> recoChargedCands,
+                                  edm::Handle<reco::BeamSpot> recoBeamSpot) {
+  double dz = -99.;
+  for (reco::RecoChargedCandidateCollection::const_iterator l3Muon = recoChargedCands->begin();
+       l3Muon != recoChargedCands->end();
+       l3Muon++) {
+    if (deltaR(eta, phi, l3Muon->eta(), l3Muon->phi()) < 0.1) {
+      dz = (l3Muon->vz() - recoBeamSpot->z0()) -
+           ((l3Muon->vx() - recoBeamSpot->x0()) * l3Muon->px() + (l3Muon->vy() - recoBeamSpot->y0()) * l3Muon->py()) /
+               l3Muon->pt() * (l3Muon->pz() / l3Muon->pt());
+      break;
+    }
+  }
+  return dz;
 }
 
 double HLTObjectMonitor::get_wall_time() {
