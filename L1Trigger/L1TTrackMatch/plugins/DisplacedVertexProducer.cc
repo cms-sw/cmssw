@@ -168,8 +168,7 @@ DisplacedVertexProducer::DisplacedVertexProducer(const edm::ParameterSet& iConfi
           iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
       trackGTTToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(
           iConfig.getParameter<edm::InputTag>("l1TracksGTTInputTag"))),
-      outputTrackCollectionName_(iConfig.getParameter<std::string>("l1TrackVertexCollectionName")),
-      outputTrackEmulationCollectionName_(iConfig.getParameter<std::string>("l1TrackEmulationVertexCollectionName")),
+      outputVertexCollectionName_(iConfig.getParameter<std::string>("l1TrackVertexCollectionName")),
       model_(iConfig.getParameter<std::string>("model")),
       runEmulation_(iConfig.getParameter<bool>("runEmulation")),
       cutSet_(iConfig.getParameter<edm::ParameterSet>("cutSet")),
@@ -188,8 +187,7 @@ DisplacedVertexProducer::DisplacedVertexProducer(const edm::ParameterSet& iConfi
       RTMin_(cutSet_.getParameter<double>("RTMin")),
       RTMax_(cutSet_.getParameter<double>("RTMax")) {
   //--- Define EDM output to be written to file (if required)
-  produces<l1t::DisplacedTrackVertexCollection>(outputTrackCollectionName_);
-  if(runEmulation_) produces<l1t::DisplacedTrackVertexCollection>(outputTrackEmulationCollectionName_);
+  produces<l1t::DisplacedTrackVertexCollection>(outputVertexCollectionName_);
 }
 
 void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -202,85 +200,47 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
   std::vector<TTTrack<Ref_Phase2TrackerDigi_>>::const_iterator iterL1Track;
   int this_l1track = 0;
   std::vector<std::pair<Track_Parameters, edm::Ptr<TrackingParticle>>> selectedTracksWithTruth;
-  std::vector<std::pair<Track_Parameters, edm::Ptr<TrackingParticle>>> selectedTracksEmulationWithTruth;
 
-  //Simulation track selection loop
+  //track selection loop
   for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_ptr(TTTrackHandle, this_l1track);
+    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> gtttrack_ptr(TTTrackGTTHandle, this_l1track);
     this_l1track++;
 
-    float pt = l1track_ptr->momentum().perp();
-    float eta = l1track_ptr->momentum().eta();
-    float phi = l1track_ptr->momentum().phi();
-    float z0 = l1track_ptr->z0();  //cm
-    float x0 = l1track_ptr->POCA().x();
-    float y0 = l1track_ptr->POCA().y();
-    float d0 = -x0 * sin(phi) + y0 * cos(phi);
-    float rinv = l1track_ptr->rInv();
-    float chi2rphi = l1track_ptr->chi2XYRed();
-    float chi2rz = l1track_ptr->chi2ZRed();
-    float bendchi2 = l1track_ptr->stubPtConsistency();
-    float MVA1 = l1track_ptr->trkMVA1();
-    
-    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
-        stubRefs = l1track_ptr->getStubRefs();
-    int nstub = (int)stubRefs.size();
-    
-    if (chi2rz < chi2rzMax_ && MVA1 > promptMVAMin_ && pt > ptMin_ && fabs(eta) < etaMax_) {
-      if (fabs(d0) > dispD0Min_) {
-        if (MVA1 <= promptMVADispTrackMin_)
-          continue;
-      }
-      if (fabs(eta) > overlapEtaMin_ && fabs(eta) < overlapEtaMax_) {
-        if (nstub <= overlapNStubsMin_)
-          continue;
-      }
-      if (fabs(eta) > diskEtaMin_) {
-        if (fabs(d0) <= diskD0Min_)
-          continue;
-      }
-      if (fabs(eta) <= diskEtaMin_) {
-        if (fabs(d0) <= barrelD0Min_)
-          continue;
-      }
+    float pt, eta, phi, z0, d0, rho, chi2rphi, chi2rz, bendchi2, MVA1;
+    int nstub;
 
-      Track_Parameters track = Track_Parameters(pt,
-                                                -d0,
-                                                z0,
-                                                eta,
-                                                phi,
-                                                (1/rinv),
-                                                (this_l1track - 1),
-                                                nstub,
-                                                chi2rphi,
-                                                chi2rz,
-                                                bendchi2,
-                                                MVA1);
-
-      edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
-      selectedTracksWithTruth.push_back(std::make_pair(track, my_tp));
+    if(runEmulation_){
+      pt = FloatPtFromBits(*gtttrack_ptr);
+      eta = FloatEtaFromBits(*gtttrack_ptr);
+      phi = FloatPhiFromBits(*gtttrack_ptr);
+      z0 = gtttrack_ptr->getZ0(); //cm
+      d0 = gtttrack_ptr->getD0();
+      int charge = ChargeFromBits(*gtttrack_ptr);
+      rho = charge*convertPtToR(pt);
+      chi2rphi = gtttrack_ptr->getChi2RPhi();
+      chi2rz = gtttrack_ptr->getChi2RZ();
+      bendchi2 = gtttrack_ptr->getBendChi2();
+      MVA1 = gtttrack_ptr->getMVAQuality();
+      nstub = gtttrack_ptr->getNStubs();
     }
-  }
-
-  //Emulation track selection loop
-  this_l1track = 0;
-  for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_ptr(TTTrackGTTHandle, this_l1track);
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_ref(TTTrackHandle, this_l1track);
-    this_l1track++;
-    
-    float pt = FloatPtFromBits(*l1track_ptr);
-    float eta = FloatEtaFromBits(*l1track_ptr);
-    float phi = FloatPhiFromBits(*l1track_ptr);
-    float z0 = l1track_ptr->getZ0(); //cm
-    float d0 = l1track_ptr->getD0();
-    int charge = ChargeFromBits(*l1track_ptr);
-    float rho = charge*convertPtToR(pt);
-    float chi2rphi = l1track_ptr->getChi2RPhi();
-    float chi2rz = l1track_ptr->getChi2RZ();
-    float bendchi2 = l1track_ptr->getBendChi2();
-    float MVA1 = l1track_ptr->getMVAQuality();
-    int nstub = l1track_ptr->getNStubs();
+    else{
+      pt = l1track_ptr->momentum().perp();
+      eta = l1track_ptr->momentum().eta();
+      phi = l1track_ptr->momentum().phi();
+      z0 = l1track_ptr->z0();  //cm
+      float x0 = l1track_ptr->POCA().x();
+      float y0 = l1track_ptr->POCA().y();
+      d0 = -x0 * sin(phi) + y0 * cos(phi);
+      rho = 1/l1track_ptr->rInv();
+      chi2rphi = l1track_ptr->chi2XYRed();
+      chi2rz = l1track_ptr->chi2ZRed();
+      bendchi2 = l1track_ptr->stubPtConsistency();
+      MVA1 = l1track_ptr->trkMVA1();  
+      std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
+        stubRefs = l1track_ptr->getStubRefs();
+      nstub = (int)stubRefs.size();
+    }
     
     if (chi2rz < chi2rzMax_ && MVA1 > promptMVAMin_ && pt > ptMin_ && fabs(eta) < etaMax_) {
       if (fabs(d0) > dispD0Min_) {
@@ -313,12 +273,12 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
                                                 bendchi2,
                                                 MVA1);
 
-      edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ref);
-      selectedTracksEmulationWithTruth.push_back(std::make_pair(track, my_tp));
+      edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
+      selectedTracksWithTruth.push_back(std::make_pair(track, my_tp));
     }
   }
 
-  //Simulation vertex loop
+  //vertex loop
   std::unique_ptr<l1t::DisplacedTrackVertexCollection> product(new std::vector<l1t::DisplacedTrackVertex>());
   for (int i = 0; i < int(selectedTracksWithTruth.size() - 1); i++) {
     for (int j = i + 1; j < int(selectedTracksWithTruth.size()); j++) {
@@ -366,116 +326,66 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
                                                                          vertex.openingAngle,
                                                                          vertex.p_mag,
                                                                          isReal);
+
+      if(runEmulation_){
+	std::vector<ap_fixed<13,8,AP_RND_CONV, AP_SAT>> Transformed_features = {selectedTracksWithTruth[i].first.pt*0.25,
+	  selectedTracksWithTruth[j].first.pt*0.25,
+	  selectedTracksWithTruth[i].first.eta,
+	  selectedTracksWithTruth[j].first.eta,
+	  selectedTracksWithTruth[i].first.phi,
+	  selectedTracksWithTruth[j].first.phi,
+	  selectedTracksWithTruth[i].first.d0,
+	  selectedTracksWithTruth[j].first.d0,
+	  selectedTracksWithTruth[i].first.z0,
+	  selectedTracksWithTruth[j].first.z0,
+	  selectedTracksWithTruth[i].first.chi2rz+0.07,
+	  selectedTracksWithTruth[j].first.chi2rz+0.07,
+	  selectedTracksWithTruth[i].first.bendchi2+0.07,
+	  selectedTracksWithTruth[j].first.bendchi2+0.07,
+	  selectedTracksWithTruth[i].first.MVA1+0.07,
+	  selectedTracksWithTruth[j].first.MVA1+0.07,
+	  vertex.d_T,
+	  vertex.R_T,
+	  vertex.cos_T,
+	  vertex.delta_z*0.125};
+	conifer::BDT<ap_fixed<13,8,AP_RND_CONV, AP_SAT>, ap_fixed<13,8,AP_RND_CONV, AP_SAT>> bdt(this->model_);
+	std::vector<ap_fixed<13,8,AP_RND_CONV, AP_SAT>> output = bdt.decision_function(Transformed_features);
+	outputVertex.setScore(output.at(0).to_float());
+      }
+      else{
+	std::vector<float> Transformed_features = {float(selectedTracksWithTruth[i].first.pt*0.25),
+	  float(selectedTracksWithTruth[j].first.pt*0.25),
+	  selectedTracksWithTruth[i].first.eta,
+	  selectedTracksWithTruth[j].first.eta,
+	  selectedTracksWithTruth[i].first.phi,
+	  selectedTracksWithTruth[j].first.phi,
+	  selectedTracksWithTruth[i].first.d0,
+	  selectedTracksWithTruth[j].first.d0,
+	  selectedTracksWithTruth[i].first.z0,
+	  selectedTracksWithTruth[j].first.z0,
+	  float(selectedTracksWithTruth[i].first.chi2rz+0.07),
+	  float(selectedTracksWithTruth[j].first.chi2rz+0.07),
+	  float(selectedTracksWithTruth[i].first.bendchi2+0.07),
+	  float(selectedTracksWithTruth[j].first.bendchi2+0.07),
+	  float(selectedTracksWithTruth[i].first.MVA1+0.07),
+	  float(selectedTracksWithTruth[j].first.MVA1+0.07),
+	  vertex.d_T,
+	  vertex.R_T,
+	  vertex.cos_T,
+	  float(vertex.delta_z*0.125)};
+	conifer::BDT<float,float> bdt(this->model_);
+	std::vector<float> output = bdt.decision_function(Transformed_features);
+	outputVertex.setScore(output.at(0));
+      }
       
-      std::vector<float> Transformed_features = {float(selectedTracksWithTruth[i].first.pt*0.25),
-	                                         float(selectedTracksWithTruth[j].first.pt*0.25),
-                                                 selectedTracksWithTruth[i].first.eta,
-                                                 selectedTracksWithTruth[j].first.eta,
-                                                 selectedTracksWithTruth[i].first.phi,
-                                                 selectedTracksWithTruth[j].first.phi,
-                                                 selectedTracksWithTruth[i].first.d0,
-                                                 selectedTracksWithTruth[j].first.d0,
-                                                 selectedTracksWithTruth[i].first.z0,
-                                                 selectedTracksWithTruth[j].first.z0,
-                                                 float(selectedTracksWithTruth[i].first.chi2rz+0.07),
-                                                 float(selectedTracksWithTruth[j].first.chi2rz+0.07),
-                                                 float(selectedTracksWithTruth[i].first.bendchi2+0.07),
-                                                 float(selectedTracksWithTruth[j].first.bendchi2+0.07),
-                                                 float(selectedTracksWithTruth[i].first.MVA1+0.07),
-                                                 float(selectedTracksWithTruth[j].first.MVA1+0.07),
-                                                 vertex.d_T,
-                                                 vertex.R_T,
-                                                 vertex.cos_T,
-                                                 float(vertex.delta_z*0.125)};
- 
-      conifer::BDT<float,float> bdt(this->model_);
-      std::vector<float> output = bdt.decision_function(Transformed_features);
-      outputVertex.setScore(output.at(0));
+      
       product->emplace_back(outputVertex);
     }
   }
 
   // //=== Store output
-  iEvent.put(std::move(product), outputTrackCollectionName_);
-  if(!runEmulation_) return;
-  
-  //Emulation vertex loop
-  std::unique_ptr<l1t::DisplacedTrackVertexCollection> productEmulation(new std::vector<l1t::DisplacedTrackVertex>());
-  for (int i = 0; i < int(selectedTracksEmulationWithTruth.size() - 1); i++) {
-    for (int j = i + 1; j < int(selectedTracksEmulationWithTruth.size()); j++) {
-      if (dist_TPs(selectedTracksEmulationWithTruth[i].first, selectedTracksEmulationWithTruth[j].first) != 0)
-        continue;
-      Double_t x_dv_trk = -9999.0;
-      Double_t y_dv_trk = -9999.0;
-      Double_t z_dv_trk = -9999.0;
-      edm::Ptr<TrackingParticle> tp_i = selectedTracksEmulationWithTruth[i].second;
-      edm::Ptr<TrackingParticle> tp_j = selectedTracksEmulationWithTruth[j].second;
-      bool isReal = false;
-      if (!tp_i.isNull() && !tp_j.isNull()) {
-        bool isHard_i = false;
-        bool isHard_j = false;
-        if (!tp_i->genParticles().empty() && !tp_j->genParticles().empty()) {
-          isHard_i = tp_i->genParticles()[0]->isHardProcess() || tp_i->genParticles()[0]->fromHardProcessFinalState();
-          isHard_j = tp_j->genParticles()[0]->isHardProcess() || tp_j->genParticles()[0]->fromHardProcessFinalState();
-        }
-
-        if (tp_i->eventId().event() == 0 && tp_j->eventId().event() == 0 && fabs(tp_i->vx() - tp_j->vx()) < 0.0001 &&
-            fabs(tp_i->vy() - tp_j->vy()) < 0.0001 && fabs(tp_i->vz() - tp_j->vz()) < 0.0001 && isHard_i && isHard_j &&
-            ((tp_i->charge() + tp_j->charge()) == 0)) {
-          isReal = true;
-        }
-      }
-
-      int inTraj =
-          calcVertex(selectedTracksEmulationWithTruth[i].first, selectedTracksEmulationWithTruth[j].first, x_dv_trk, y_dv_trk, z_dv_trk);
-      Vertex_Parameters vertex = Vertex_Parameters(
-          x_dv_trk, y_dv_trk, z_dv_trk, selectedTracksEmulationWithTruth[i].first, selectedTracksEmulationWithTruth[j].first);
-
-      if(vertex.R_T>RTMax_) continue;
-      if(vertex.R_T<RTMin_) continue;
-      
-      l1t::DisplacedTrackVertex outputVertex = l1t::DisplacedTrackVertex(selectedTracksEmulationWithTruth[i].first.index,
-                                                                         selectedTracksEmulationWithTruth[j].first.index,
-                                                                         inTraj,
-                                                                         vertex.d_T,
-                                                                         vertex.R_T,
-                                                                         vertex.cos_T,
-                                                                         vertex.delta_z,
-                                                                         vertex.x_dv,
-                                                                         vertex.y_dv,
-                                                                         vertex.z_dv,
-                                                                         vertex.openingAngle,
-                                                                         vertex.p_mag,
-                                                                         isReal);
-
-      std::vector<ap_fixed<13,8,AP_RND_CONV, AP_SAT>> Transformed_features = {selectedTracksEmulationWithTruth[i].first.pt*0.25,
-                                                 selectedTracksEmulationWithTruth[j].first.pt*0.25,
-                                                 selectedTracksEmulationWithTruth[i].first.eta,
-                                                 selectedTracksEmulationWithTruth[j].first.eta,
-                                                 selectedTracksEmulationWithTruth[i].first.phi,
-                                                 selectedTracksEmulationWithTruth[j].first.phi,
-                                                 selectedTracksEmulationWithTruth[i].first.d0,
-                                                 selectedTracksEmulationWithTruth[j].first.d0,
-                                                 selectedTracksEmulationWithTruth[i].first.z0,
-                                                 selectedTracksEmulationWithTruth[j].first.z0,
-                                                 selectedTracksEmulationWithTruth[i].first.chi2rz+0.07,
-                                                 selectedTracksEmulationWithTruth[j].first.chi2rz+0.07,
-                                                 selectedTracksEmulationWithTruth[i].first.bendchi2+0.07,
-                                                 selectedTracksEmulationWithTruth[j].first.bendchi2+0.07,
-                                                 selectedTracksEmulationWithTruth[i].first.MVA1+0.07,
-                                                 selectedTracksEmulationWithTruth[j].first.MVA1+0.07,
-                                                 vertex.d_T,
-                                                 vertex.R_T,
-                                                 vertex.cos_T,
-                                                 vertex.delta_z*0.125};
-
-      conifer::BDT<ap_fixed<13,8,AP_RND_CONV, AP_SAT>, ap_fixed<13,8,AP_RND_CONV, AP_SAT>> bdt(this->model_);
-      std::vector<ap_fixed<13,8,AP_RND_CONV, AP_SAT>> output = bdt.decision_function(Transformed_features);
-      outputVertex.setScore(output.at(0).to_float());
-      productEmulation->emplace_back(outputVertex);
-    }
-  }
-  iEvent.put(std::move(productEmulation), outputTrackEmulationCollectionName_);
+  iEvent.put(std::move(product), outputVertexCollectionName_);
+ 
 }
 
 DEFINE_FWK_MODULE(DisplacedVertexProducer);
