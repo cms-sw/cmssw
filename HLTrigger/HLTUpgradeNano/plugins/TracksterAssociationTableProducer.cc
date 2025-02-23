@@ -1,6 +1,4 @@
-#include <numeric>  // iota
 #include <type_traits>
-#include <iostream>
 
 #include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
 
@@ -36,11 +34,7 @@ public:
     // First unroll the Container inside the associator map.
 
     auto table_size = prod->getMap().size();
-    std::cout << "MR OneToOne creating table of size: " << table_size << std::endl;
     auto out = std::make_unique<nanoaod::FlatTable>(table_size, this->name_, false);
-    std::vector<int> vals(table_size);
-    std::iota(vals.begin(), vals.end(), 0);
-    out->template addColumn<int32_t>("srcIdx", vals, "Index of the source objects.");
 
     std::vector<const TProd *> selobjs;
     if (prod.isValid() || !(this->skipNonExistingSrc_)) {
@@ -117,11 +111,7 @@ public:
     // First unroll the Container inside the associator map.
 
     auto table_size = prod->getMap().size();
-    std::cout << "MR OneToMany creating table of size: " << table_size << std::endl;
     auto out = std::make_unique<nanoaod::FlatTable>(table_size, this->name_, false);
-    std::vector<int> vals(table_size);
-    std::iota(vals.begin(), vals.end(), 0);
-    out->template addColumn<int32_t>("srcIdx", vals, "Index of the source objects.");
 
     // Now proceed with the variable-sized linked objects.
     unsigned int coltablesize = 0;

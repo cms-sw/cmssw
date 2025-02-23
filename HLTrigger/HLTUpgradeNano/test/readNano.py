@@ -57,7 +57,7 @@ for i, event in enumerate(events):
         for i in range(event.nSimCl2CPWithFraction):
             print(
                 "SimCl {} is linked to CP {} with fraction {}".format(
-                    event.SimCl2CPWithFraction_srcIdx[i],
+                    i,
                     event.SimCl2CPWithFraction_index[i],
                     event.SimCl2CPWithFraction_fraction[i],
                 )
