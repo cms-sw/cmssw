@@ -53,3 +53,14 @@ for i, event in enumerate(events):
             offset = offset + count
     except AttributeError as e:
         print(f"An AttributeError occurred: {e}")
+    try:
+        for i in range(event.nSimCl2CPWithFraction):
+            print(
+                "SimCl {} is linked to CP {} with fraction {}".format(
+                    event.SimCl2CPWithFraction_srcIdx[i],
+                    event.SimCl2CPWithFraction_index[i],
+                    event.SimCl2CPWithFraction_fraction[i],
+                )
+            )
+    except AttributeError as e:
+        print(f"An AttributeError occurred: {e}")

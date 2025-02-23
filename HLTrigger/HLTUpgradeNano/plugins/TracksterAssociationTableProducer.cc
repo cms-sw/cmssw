@@ -6,8 +6,10 @@
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
+#include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 
-// Concept to check if a type is a valid AssociationMap of AssociationElement, both onetoOne and oneToMany.
+// Concept to check if a type is a valid AssociationMap of AssociationElement, both oneToOne and oneToMany.
 // For oneToOne pass as Container the type std::vector<T::AssociationElementType>
 // For oneToMany pass as Container the type std::vector<std::vector<T::AssociationElementType>>
 template <typename T, typename Container>
@@ -18,6 +20,45 @@ concept IsValidAssociationMap = requires {
   typename T::Type;
 
   requires std::is_same_v<typename T::Type, Container>;
+};
+
+template <typename T>
+  requires IsValidAssociationMap<T, std::vector<typename T::AssociationElementType>>
+class AssociationOneToOneFlatTableProducer : public SimpleFlatTableProducerBase<typename T::AssociationElementType, T> {
+public:
+  using TProd = T::AssociationElementType;
+  AssociationOneToOneFlatTableProducer(edm::ParameterSet const &params)
+      : SimpleFlatTableProducerBase<typename T::AssociationElementType, T>(params) {}
+
+  ~AssociationOneToOneFlatTableProducer() override {}
+
+  std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &iEvent, const edm::Handle<T> &prod) const override {
+    // First unroll the Container inside the associator map.
+
+    auto table_size = prod->getMap().size();
+    std::cout << "MR OneToOne creating table of size: " << table_size << std::endl;
+    auto out = std::make_unique<nanoaod::FlatTable>(table_size, this->name_, false);
+    std::vector<int> vals(table_size);
+    std::iota(vals.begin(), vals.end(), 0);
+    out->template addColumn<int32_t>("srcIdx", vals, "Index of the source objects.");
+
+    std::vector<const TProd *> selobjs;
+    if (prod.isValid() || !(this->skipNonExistingSrc_)) {
+      for (unsigned int i = 0, n = prod->size(); i < n; ++i) {
+        const auto &obj = (*prod)[i];
+        selobjs.push_back(&obj);
+      }
+    }
+
+    for (const auto &var : this->vars_)
+      var->fill(selobjs, *out);
+    return out;
+  }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducer<T>::baseDescriptions();
+    descriptions.addWithDefaultLabel(desc);
+  }
 };
 
 template <typename T>
@@ -204,11 +245,18 @@ protected:
   std::vector<CollectionVariableTableInfo> coltables;
 };
 
+typedef ticl::
+    AssociationMap<vector<ticl::AssociationElement<ticl::FractionType>>, vector<SimCluster>, vector<CaloParticle>>
+        SimCl2CPAssociationMapOneToOne;
 typedef ticl::AssociationMap<vector<vector<ticl::AssociationElement<pair<ticl::SharedEnergyType, float>>>>,
                              vector<ticl::Trackster>,
                              vector<ticl::Trackster>>
-    associationMap;
-typedef AssociationOneToManyFlatTableProducer<associationMap> TracksterAssociationOneToManyCollectionTableProducer;
+    associationMapOneToMany;
+
+typedef AssociationOneToOneFlatTableProducer<SimCl2CPAssociationMapOneToOne> SimCl2CPAssociationOneToOneTableProducer;
+typedef AssociationOneToManyFlatTableProducer<associationMapOneToMany>
+    TracksterAssociationOneToManyCollectionTableProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SimCl2CPAssociationOneToOneTableProducer);
 DEFINE_FWK_MODULE(TracksterAssociationOneToManyCollectionTableProducer);

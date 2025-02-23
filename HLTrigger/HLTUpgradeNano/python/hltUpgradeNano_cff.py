@@ -57,7 +57,21 @@ trackstersAssociationOneToManyTable = cms.EDProducer(
     ),
 )
 
-hltUpgradeNanoTask.add(trackstersTable, trackstersAssociationOneToManyTable)
+### Tracksters Associators
+simCl2CPOneToOneFlatTable = cms.EDProducer(
+    "SimCl2CPAssociationOneToOneTableProducer",
+    src=cms.InputTag("SimClusterToCaloParticleAssociation:simClusterToCaloParticleMap"),
+    name=cms.string("SimCl2CPWithFraction"),
+    doc=cms.string("Association betwewn SimClusters and CaloParticles, by ???."),
+    singleton=cms.bool(True),  # the number of entries is variable
+    variables=cms.PSet(
+        index=Var("index", "int", doc="Index of linked CaloParticle."),
+        fraction=Var("fraction", "float", doc="Fraction of linked CaloParticle."),
+    ),
+)
+hltUpgradeNanoTask.add(
+    trackstersTable, trackstersAssociationOneToManyTable, simCl2CPOneToOneFlatTable
+)
 
 hltUpgradeNanoSequence = cms.Sequence(hltUpgradeNanoTask)
 
