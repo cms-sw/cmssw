@@ -25,11 +25,13 @@ int main(int argc, char** argv) {
   };
   std::vector<std::function<bool(unsigned int)>> sels = {
       [&](unsigned int isim) { return 1.; },
-      [&](unsigned int isim) { return abs(lstEff.sim_eta().at(isim)) < 2.4; },
-      [&](unsigned int isim) { return abs(lstEff.sim_eta().at(isim)) > 1.1 and abs(lstEff.sim_eta().at(isim)) < 1.7; },
+      [&](unsigned int isim) { return std::abs(lstEff.sim_eta().at(isim)) < 2.4; },
       [&](unsigned int isim) {
-        return (abs(lstEff.sim_eta().at(isim)) < 1.1 or abs(lstEff.sim_eta().at(isim)) > 1.7) and
-               abs(lstEff.sim_eta().at(isim)) < 2.4;
+        return std::abs(lstEff.sim_eta().at(isim)) > 1.1 and std::abs(lstEff.sim_eta().at(isim)) < 1.7;
+      },
+      [&](unsigned int isim) {
+        return (std::abs(lstEff.sim_eta().at(isim)) < 1.1 or std::abs(lstEff.sim_eta().at(isim)) > 1.7) and
+               std::abs(lstEff.sim_eta().at(isim)) < 2.4;
       }};
   pdgids.insert(pdgids.end(), ana.pdgids.begin(), ana.pdgids.end());
 
@@ -584,7 +586,7 @@ void fillEfficiencySet(int isimtrk, SimTrackSetDefinition& effset) {
   bool sel = effset.sel(isimtrk);
 
   if (effset.pdgid != 0) {
-    if (abs(pdgidtrk) != abs(effset.pdgid))
+    if (std::abs(pdgidtrk) != std::abs(effset.pdgid))
       return;
   }
 
@@ -607,7 +609,7 @@ void fillEfficiencySet(int isimtrk, SimTrackSetDefinition& effset) {
   const float vtx_perp_thresh = 2.5;
 
   // N minus eta cut
-  if (pt > ana.pt_cut and abs(vtx_z) < vtx_z_thresh and abs(vtx_perp) < vtx_perp_thresh) {
+  if (pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh and std::abs(vtx_perp) < vtx_perp_thresh) {
     // vs. eta plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_eta", eta);
     if (pass)
@@ -617,7 +619,7 @@ void fillEfficiencySet(int isimtrk, SimTrackSetDefinition& effset) {
   }
 
   // N minus pt cut
-  if (abs(eta) < ana.eta_cut and abs(vtx_z) < vtx_z_thresh and abs(vtx_perp) < vtx_perp_thresh) {
+  if (std::abs(eta) < ana.eta_cut and std::abs(vtx_z) < vtx_z_thresh and std::abs(vtx_perp) < vtx_perp_thresh) {
     // vs. pt plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_pt", pt);
     if (pass)
@@ -627,7 +629,7 @@ void fillEfficiencySet(int isimtrk, SimTrackSetDefinition& effset) {
   }
 
   // N minus dxy cut
-  if (abs(eta) < ana.eta_cut and pt > ana.pt_cut and abs(vtx_z) < vtx_z_thresh) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh) {
     // vs. dxy plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_dxy", dxy);
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_vxy", vtx_perp);
@@ -641,7 +643,7 @@ void fillEfficiencySet(int isimtrk, SimTrackSetDefinition& effset) {
   }
 
   // N minus dz cut
-  if (abs(eta) < ana.eta_cut and pt > ana.pt_cut and abs(vtx_perp) < vtx_perp_thresh) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_perp) < vtx_perp_thresh) {
     // vs. dz plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_dz", dz);
     if (pass)
@@ -651,7 +653,8 @@ void fillEfficiencySet(int isimtrk, SimTrackSetDefinition& effset) {
   }
 
   // All phase-space cuts
-  if (abs(eta) < ana.eta_cut and pt > ana.pt_cut and abs(vtx_z) < vtx_z_thresh and abs(vtx_perp) < vtx_perp_thresh) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut and std::abs(vtx_z) < vtx_z_thresh and
+      std::abs(vtx_perp) < vtx_perp_thresh) {
     // vs. Phi plot
     ana.tx.pushbackToBranch<float>(category_name + "_ef_denom_phi", phi);
     if (pass)
@@ -687,12 +690,12 @@ void fillFakeRateSet(int itc, RecoTrackSetDefinition& FRset) {
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_fr_numer_eta", eta);
   }
-  if (abs(eta) < ana.eta_cut) {
+  if (std::abs(eta) < ana.eta_cut) {
     ana.tx.pushbackToBranch<float>(category_name + "_fr_denom_pt", pt);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_fr_numer_pt", pt);
   }
-  if (abs(eta) < ana.eta_cut and pt > ana.pt_cut) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut) {
     ana.tx.pushbackToBranch<float>(category_name + "_fr_denom_phi", phi);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_fr_numer_phi", phi);
@@ -725,12 +728,12 @@ void fillDuplicateRateSet(int itc, RecoTrackSetDefinition& DRset) {
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_dr_numer_eta", eta);
   }
-  if (abs(eta) < ana.eta_cut) {
+  if (std::abs(eta) < ana.eta_cut) {
     ana.tx.pushbackToBranch<float>(category_name + "_dr_denom_pt", pt);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_dr_numer_pt", pt);
   }
-  if (abs(eta) < ana.eta_cut and pt > ana.pt_cut) {
+  if (std::abs(eta) < ana.eta_cut and pt > ana.pt_cut) {
     ana.tx.pushbackToBranch<float>(category_name + "_dr_denom_phi", phi);
     if (pass)
       ana.tx.pushbackToBranch<float>(category_name + "_dr_numer_phi", phi);
