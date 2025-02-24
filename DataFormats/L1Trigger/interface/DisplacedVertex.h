@@ -36,7 +36,6 @@ namespace l1t {
   typedef std::vector<DisplacedTrueVertex> DisplacedTrueVertexCollection;
 
   class DisplacedTrackVertex {
-    
   public:
     DisplacedTrackVertex(int firstIndexTrk,
                          int secondIndexTrk,
