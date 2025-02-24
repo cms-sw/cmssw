@@ -10,6 +10,7 @@
 <use   name="root"/>
 <use   name="rootrflx"/>
 <use   name="hls"/>
+<use   name="conifer"/>
 <export>
   <lib   name="1"/>
 </export>

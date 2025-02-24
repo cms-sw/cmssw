@@ -231,7 +231,7 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       z0 = l1track_ptr->z0();  //cm
       float x0 = l1track_ptr->POCA().x();
       float y0 = l1track_ptr->POCA().y();
-      d0 = -x0 * sin(phi) + y0 * cos(phi);
+      d0 = x0 * sin(phi) - y0 * cos(phi);
       rho = 1/l1track_ptr->rInv();
       chi2rphi = l1track_ptr->chi2XYRed();
       chi2rz = l1track_ptr->chi2ZRed();
@@ -261,7 +261,7 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       }
 
       Track_Parameters track = Track_Parameters(pt,
-                                                -d0,
+                                                d0,
                                                 z0,
                                                 eta,
                                                 phi,
