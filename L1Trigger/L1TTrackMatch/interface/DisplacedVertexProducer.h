@@ -84,8 +84,8 @@ public:
     bendchi2 = bendchi2_in;
     MVA1 = MVA1_in;
   }
-  Track_Parameters(){};
-  ~Track_Parameters(){};
+  Track_Parameters() {};
+  ~Track_Parameters() {};
 };
 
 inline std::valarray<float> calcPVec(Track_Parameters a, double_t v_x, double_t v_y) {
@@ -117,11 +117,7 @@ public:
   float d_T;
   float delta_z;
   float phi;
-  Vertex_Parameters(Double_t x_dv_in,
-                    Double_t y_dv_in,
-                    Double_t z_dv_in,
-                    Track_Parameters a_in,
-                    Track_Parameters b_in)
+  Vertex_Parameters(Double_t x_dv_in, Double_t y_dv_in, Double_t z_dv_in, Track_Parameters a_in, Track_Parameters b_in)
       : a(a_in), b(b_in) {
     x_dv = x_dv_in;
     y_dv = y_dv_in;
@@ -147,18 +143,18 @@ public:
     delta_z = fabs(a_in.z(x_dv_in, y_dv_in) - b_in.z(x_dv_in, y_dv_in));
   }
 
-  Vertex_Parameters(){};
-  ~Vertex_Parameters(){};
+  Vertex_Parameters() {};
+  ~Vertex_Parameters() {};
 };
 
 class DisplacedVertexProducer : public edm::global::EDProducer<> {
 public:
-  explicit DisplacedVertexProducer(const edm::ParameterSet&);
+  explicit DisplacedVertexProducer(const edm::ParameterSet &);
   ~DisplacedVertexProducer() override = default;
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
 
 private:
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   double FloatPtFromBits(const L1TTTrackType &) const;
   double FloatEtaFromBits(const L1TTTrackType &) const;
   double FloatPhiFromBits(const L1TTTrackType &) const;
@@ -174,8 +170,8 @@ private:
   const std::string model_;
   const bool runEmulation_;
   const edm::ParameterSet cutSet_;
-  const double chi2rzMax_, promptMVAMin_, ptMin_, etaMax_, dispD0Min_, promptMVADispTrackMin_,
-      overlapEtaMin_, overlapEtaMax_;
+  const double chi2rzMax_, promptMVAMin_, ptMin_, etaMax_, dispD0Min_, promptMVADispTrackMin_, overlapEtaMin_,
+      overlapEtaMax_;
   const int overlapNStubsMin_;
   const double diskEtaMin_, diskD0Min_, barrelD0Min_, RTMin_, RTMax_;
 };

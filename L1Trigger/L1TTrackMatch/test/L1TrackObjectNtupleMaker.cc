@@ -135,7 +135,7 @@ public:
   double DoublePhiFromBits(const L1Track&) const;
   int ChargeFromBits(const L1Track&) const;
   double convertPtToR(double pt);
-  
+
   // Mandatory methods
   void beginJob() override;
   void endJob() override;
@@ -144,9 +144,8 @@ public:
   // Other member functions
   int getSelectedTrackIndex(const L1TrackRef& trackRef,
                             const edm::Handle<L1TrackRefCollection>& selectedTrackRefs) const;
-  int getSelectedTrackPtrIndex(const L1TrackPtr& trackPtr,
-			       const edm::Handle<L1TrackCollection>& trackCollection) const;
-  
+  int getSelectedTrackPtrIndex(const L1TrackPtr& trackPtr, const edm::Handle<L1TrackCollection>& trackCollection) const;
+
 private:
   //-----------------------------------------------------------------------------------------------
   // Containers of parameters passed by python configuration file
@@ -324,7 +323,7 @@ private:
   std::vector<float>* m_dv_del_Z;
   std::vector<bool>* m_dv_isReal;
   std::vector<float>* m_dv_score;
-  
+
   // all L1 tracks (prompt)
   std::vector<float>* m_trk_pt;
   std::vector<float>* m_trk_eta;
@@ -437,7 +436,7 @@ private:
   std::vector<float>* m_trkExtEmu_bendchi2;
   std::vector<float>* m_trkExtEmu_MVA;
   std::vector<int>* m_trkExtEmu_nstub;
-  
+
   // all tracking particles
   std::vector<float>* m_tp_pt;
   std::vector<float>* m_tp_eta;
@@ -507,7 +506,7 @@ private:
   std::vector<float>* m_matchtrkExtEmu_bendchi2;
   std::vector<float>* m_matchtrkExtEmu_MVA;
   std::vector<int>* m_matchtrkExtEmu_nstub;
-  
+
   // ALL stubs
   std::vector<float>* m_allstub_x;
   std::vector<float>* m_allstub_y;
@@ -812,7 +811,7 @@ L1TrackObjectNtupleMaker::L1TrackObjectNtupleMaker(edm::ParameterSet const& iCon
   GenJetToken_ = consumes<std::vector<reco::GenJet>>(GenJetInputTag);
   GenParticleToken_ = consumes<std::vector<reco::GenParticle>>(GenParticleInputTag);
   SimVertexToken_ = consumes<std::vector<SimVertex>>(SimVertexInputTag);
-  if (runDispVert){
+  if (runDispVert) {
     DispVertToken_ = consumes<std::vector<l1t::DisplacedTrackVertex>>(DisplacedVertexInputTag);
   }
   L1VertexToken_ = consumes<l1t::VertexCollection>(RecoVertexInputTag);
@@ -942,7 +941,7 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_trkExtEmu_bendchi2;
   delete m_trkExtEmu_MVA;
   delete m_trkExtEmu_nstub;
-  
+
   delete m_tp_pt;
   delete m_tp_eta;
   delete m_tp_phi;
@@ -979,7 +978,7 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_dv_del_Z;
   delete m_dv_isReal;
   delete m_dv_score;
-  
+
   delete m_matchtrk_pt;
   delete m_matchtrk_eta;
   delete m_matchtrk_phi;
@@ -1027,7 +1026,7 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_matchtrkExtEmu_bendchi2;
   delete m_matchtrkExtEmu_MVA;
   delete m_matchtrkExtEmu_nstub;
-  
+
   delete m_allstub_x;
   delete m_allstub_y;
   delete m_allstub_z;
@@ -1194,30 +1193,31 @@ bool L1TrackObjectNtupleMaker::findHiggsToBAncestor(T particle) {
 template <typename T>
 bool L1TrackObjectNtupleMaker::isHard(T particle) {
   reco::GenParticleRefVector genParts = particle->genParticles();
-  if(genParts.size()==0){
+  if (genParts.size() == 0) {
     return false;
   }
-  if(genParts[0]->isHardProcess() || genParts[0]->fromHardProcessFinalState()){
+  if (genParts[0]->isHardProcess() || genParts[0]->fromHardProcessFinalState()) {
     return true;
   }
   return false;
 }
 
-double L1TrackObjectNtupleMaker::DoublePtFromBits(const L1Track &track) const {
-  ap_uint<14> ptEmulationBits = track.getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1, TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
+double L1TrackObjectNtupleMaker::DoublePtFromBits(const L1Track& track) const {
+  ap_uint<14> ptEmulationBits = track.getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1,
+                                                     TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
   ap_ufixed<14, 9> ptEmulation;
   ptEmulation.V = (ptEmulationBits.range());
   return ptEmulation.to_double();
 }
 
-double L1TrackObjectNtupleMaker::DoubleEtaFromBits(const L1Track &track) const {
+double L1TrackObjectNtupleMaker::DoubleEtaFromBits(const L1Track& track) const {
   TTTrack_TrackWord::tanl_t etaBits = track.getTanlWord();
   l1trackunpacker::glbeta_intern digieta;
   digieta.V = etaBits.range();
   return (double)digieta;
 }
 
-double L1TrackObjectNtupleMaker::DoublePhiFromBits(const L1Track &track) const {
+double L1TrackObjectNtupleMaker::DoublePhiFromBits(const L1Track& track) const {
   int Sector = track.phiSector();
   double sector_phi_value = 0;
   if (Sector < 5) {
@@ -1226,25 +1226,26 @@ double L1TrackObjectNtupleMaker::DoublePhiFromBits(const L1Track &track) const {
     sector_phi_value = (-1.0 * M_PI + M_PI / 9.0 + (Sector - 5) * 2.0 * M_PI / 9.0);
   }
   l1trackunpacker::glbphi_intern trkphiSector = l1trackunpacker::DoubleToBit(
-					   sector_phi_value, TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4, TTTrack_TrackWord::stepPhi0);
+      sector_phi_value, TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4, TTTrack_TrackWord::stepPhi0);
   l1trackunpacker::glbphi_intern local_phiBits = 0;
   local_phiBits.V = track.getPhiWord();
-  l1trackunpacker::glbphi_intern local_phi =
-    l1trackunpacker::DoubleToBit(l1trackunpacker::BitToDouble(local_phiBits, TTTrack_TrackWord::TrackBitWidths::kPhiSize, TTTrack_TrackWord::stepPhi0),
-		TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4,
-		TTTrack_TrackWord::stepPhi0);
+  l1trackunpacker::glbphi_intern local_phi = l1trackunpacker::DoubleToBit(
+      l1trackunpacker::BitToDouble(
+          local_phiBits, TTTrack_TrackWord::TrackBitWidths::kPhiSize, TTTrack_TrackWord::stepPhi0),
+      TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4,
+      TTTrack_TrackWord::stepPhi0);
   l1trackunpacker::glbphi_intern digiphi = local_phi + trkphiSector;
   return l1trackunpacker::BitToDouble(
-		     digiphi, TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4, TTTrack_TrackWord::stepPhi0);
+      digiphi, TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4, TTTrack_TrackWord::stepPhi0);
 }
 
-int L1TrackObjectNtupleMaker::ChargeFromBits(const L1Track &track) const {
+int L1TrackObjectNtupleMaker::ChargeFromBits(const L1Track& track) const {
   ap_uint<1> chargeBit = track.getTrackWord()[TTTrack_TrackWord::TrackBitLocations::kRinvMSB];
-  return 1 - (2*chargeBit.to_uint());
+  return 1 - (2 * chargeBit.to_uint());
 }
 
-double L1TrackObjectNtupleMaker::convertPtToR(double pt){
-  return 100.0 * (1.0 / (0.3 * 3.8)) * pt; //returns R in cm
+double L1TrackObjectNtupleMaker::convertPtToR(double pt) {
+  return 100.0 * (1.0 / (0.3 * 3.8)) * pt;  //returns R in cm
 }
 
 ////////////
@@ -1407,7 +1408,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_dv_del_Z = new std::vector<float>;
   m_dv_isReal = new std::vector<bool>;
   m_dv_score = new std::vector<float>;
-    
+
   m_matchtrk_pt = new std::vector<float>;
   m_matchtrk_eta = new std::vector<float>;
   m_matchtrk_phi = new std::vector<float>;
@@ -1455,7 +1456,7 @@ void L1TrackObjectNtupleMaker::beginJob() {
   m_matchtrkExtEmu_bendchi2 = new std::vector<float>;
   m_matchtrkExtEmu_MVA = new std::vector<float>;
   m_matchtrkExtEmu_nstub = new std::vector<int>;
-  
+
   m_allstub_x = new std::vector<float>;
   m_allstub_y = new std::vector<float>;
   m_allstub_z = new std::vector<float>;
@@ -2274,10 +2275,10 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
   //Displaced vertices
   edm::Handle<std::vector<l1t::DisplacedTrackVertex>> DispVertHandle;
-  if (runDispVert){
+  if (runDispVert) {
     iEvent.getByToken(DispVertToken_, DispVertHandle);
   }
-  
+
   //Vertex
   edm::Handle<l1t::VertexCollection> L1PrimaryVertexHandle;
   iEvent.getByToken(L1VertexToken_, L1PrimaryVertexHandle);
@@ -2777,7 +2778,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
 
       this_l1track++;
     }  //end track loop
-  }    //end if SaveAllTracks
+  }  //end if SaveAllTracks
 
   // ----------------------------------------------------------------------------------------------
   // loop over (extended) L1 tracks
@@ -2830,7 +2831,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       float tmp_trkEmu_phi = DoublePhiFromBits(*l1track_ref);
       float tmp_trkEmu_z0 = l1track_ref->getZ0();
       float tmp_trkEmu_d0 = l1track_ref->getD0();
-      float tmp_trkEmu_rho = ChargeFromBits(*l1track_ref)*convertPtToR(tmp_trkEmu_pt);
+      float tmp_trkEmu_rho = ChargeFromBits(*l1track_ref) * convertPtToR(tmp_trkEmu_pt);
       float tmp_trkEmu_chi2rphi = l1track_ref->getChi2RPhi();
       float tmp_trkEmu_chi2rz = l1track_ref->getChi2RZ();
       float tmp_trkEmu_bendchi2 = l1track_ref->getBendChi2();
@@ -2965,7 +2966,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
           myFake = 1;
 
         myTP_pdgid = my_tp->pdgId();
-	myTP_isHard = isHard(my_tp);
+        myTP_isHard = isHard(my_tp);
         myTP_pt = my_tp->p4().pt();
         myTP_eta = my_tp->p4().eta();
         myTP_phi = my_tp->p4().phi();
@@ -3050,7 +3051,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
         m_trkExt_selected_associated_emulation_foretmiss_index->push_back(this_l1track);
       this_l1track++;
     }  //end track loop
-  }    //end if SaveAllTracks (displaced)
+  }  //end if SaveAllTracks (displaced)
 
   // ----------------------------------------------------------------------------------------------
   // loop over tracking particles
@@ -3306,7 +3307,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
           }
 
         }  // end loop over matched L1 tracks
-      }    // end has at least 1 matched L1 track
+      }  // end has at least 1 matched L1 track
       // ----------------------------------------------------------------------------------------------
 
       float tmp_matchtrk_pt = -999;
@@ -3396,7 +3397,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       m_matchtrk_seed->push_back(tmp_matchtrk_seed);
       m_matchtrk_hitpattern->push_back(tmp_matchtrk_hitpattern);
     }
-  
+
     // ----------------------------------------------------------------------------------------------
     // look for L1 tracks (extended) matched to the tracking particle
     if (Displaced == "Displaced" || Displaced == "Both") {
@@ -3479,7 +3480,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
           }
 
         }  // end loop over matched L1 tracks
-      }    // end has at least 1 matched L1 track
+      }  // end has at least 1 matched L1 track
       // ----------------------------------------------------------------------------------------------
 
       float tmp_matchtrkExt_pt = -999;
@@ -3512,25 +3513,25 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       float tmp_matchtrkExtEmu_bendchi2 = -999;
       float tmp_matchtrkExtEmu_MVA = -999;
       int tmp_matchtrkExtEmu_nstub = -999;
-      
+
       if (nMatch > 1 && DebugMode)
         edm::LogVerbatim("Tracklet") << "WARNING *** 2 or more matches to genuine L1 tracks ***";
 
       if (nMatch > 0) {
-	int index = getSelectedTrackPtrIndex(matchedTracks.at(i_track),TTTrackExtendedHandle);
-	L1TrackRef l1track_ref(TTTrackExtendedGTTHandle, index);
-	tmp_matchtrkExtEmu_pt = DoublePtFromBits(*l1track_ref);
-	tmp_matchtrkExtEmu_eta = DoubleEtaFromBits(*l1track_ref);
-	tmp_matchtrkExtEmu_phi = DoublePhiFromBits(*l1track_ref);
-	tmp_matchtrkExtEmu_z0 = l1track_ref->getZ0();
-	tmp_matchtrkExtEmu_d0 = l1track_ref->getD0();
-	tmp_matchtrkExtEmu_rho = ChargeFromBits(*l1track_ref)*convertPtToR(tmp_matchtrkExtEmu_pt);
-	tmp_matchtrkExtEmu_chi2rphi = l1track_ref->getChi2RPhi();
-	tmp_matchtrkExtEmu_chi2rz = l1track_ref->getChi2RZ();
-	tmp_matchtrkExtEmu_bendchi2 = l1track_ref->getBendChi2();
-	tmp_matchtrkExtEmu_MVA = l1track_ref->getMVAQuality();
-	tmp_matchtrkExtEmu_nstub = l1track_ref->getNStubs();
-	
+        int index = getSelectedTrackPtrIndex(matchedTracks.at(i_track), TTTrackExtendedHandle);
+        L1TrackRef l1track_ref(TTTrackExtendedGTTHandle, index);
+        tmp_matchtrkExtEmu_pt = DoublePtFromBits(*l1track_ref);
+        tmp_matchtrkExtEmu_eta = DoubleEtaFromBits(*l1track_ref);
+        tmp_matchtrkExtEmu_phi = DoublePhiFromBits(*l1track_ref);
+        tmp_matchtrkExtEmu_z0 = l1track_ref->getZ0();
+        tmp_matchtrkExtEmu_d0 = l1track_ref->getD0();
+        tmp_matchtrkExtEmu_rho = ChargeFromBits(*l1track_ref) * convertPtToR(tmp_matchtrkExtEmu_pt);
+        tmp_matchtrkExtEmu_chi2rphi = l1track_ref->getChi2RPhi();
+        tmp_matchtrkExtEmu_chi2rz = l1track_ref->getChi2RZ();
+        tmp_matchtrkExtEmu_bendchi2 = l1track_ref->getBendChi2();
+        tmp_matchtrkExtEmu_MVA = l1track_ref->getMVAQuality();
+        tmp_matchtrkExtEmu_nstub = l1track_ref->getNStubs();
+
         tmp_matchtrkExt_pt = matchedTracks.at(i_track)->momentum().perp();
         tmp_matchtrkExt_eta = matchedTracks.at(i_track)->momentum().eta();
         tmp_matchtrkExt_phi = matchedTracks.at(i_track)->momentum().phi();
@@ -3812,10 +3813,11 @@ int L1TrackObjectNtupleMaker::getSelectedTrackIndex(const L1TrackRef& trackRef,
 }
 
 int L1TrackObjectNtupleMaker::getSelectedTrackPtrIndex(const L1TrackPtr& trackPtr,
-						       const edm::Handle<L1TrackCollection>& trackCollection) const {
-  for(uint i=0;i<trackCollection->size();i++){
-    L1TrackPtr l1track_ptr(trackCollection,i);
-    if(trackPtr==l1track_ptr) return (int)i;
+                                                       const edm::Handle<L1TrackCollection>& trackCollection) const {
+  for (uint i = 0; i < trackCollection->size(); i++) {
+    L1TrackPtr l1track_ptr(trackCollection, i);
+    if (trackPtr == l1track_ptr)
+      return (int)i;
   }
   return -1;
 }
