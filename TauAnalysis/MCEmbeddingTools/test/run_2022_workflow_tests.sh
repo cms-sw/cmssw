@@ -10,7 +10,7 @@ function die {
 }
 
 ## This is a PRE SKIMED dataset
-dataset="root://eoscms.cern.ch//store/group/phys_tau/embedding_test_files/2022_G_RAW.root"
+dataset="root://eoscms.cern.ch//store/group/phys_tau/embedding_test_files/2022_G_RAW_CMSSW_12_4_X.root"
 
 echo "################ Selection ################"
 cmsDriver.py RECO \

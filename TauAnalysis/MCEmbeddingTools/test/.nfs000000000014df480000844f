@@ -10,18 +10,18 @@ function die {
 }
 
 ## This is a PRE SKIMED dataset
-dataset="root://eoscms.cern.ch//store/group/phys_tau/embedding_test_files/2016_G-v1_RAW_preselected.root"
+dataset="root://eoscms.cern.ch//store/group/phys_tau/embedding_test_files/2022_G_RAW_CMSSW_12_4_X.root"
 
 echo "################ Selection ################"
 cmsDriver.py RECO \
     --step RAW2DIGI,L1Reco,RECO,PAT \
     --data \
     --scenario pp \
-    --conditions auto:run2_data \
-    --era Run2_2016 \
+    --conditions auto:run3_data \
+    --era Run3 \
     --eventcontent RAWRECO \
     --datatier RAWRECO \
-    --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting_Reselect \
+    --customise TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting \
     --filein $dataset \
     --fileout file:selection.root \
     -n -1 \
@@ -32,11 +32,11 @@ cmsDriver.py LHEprodandCLEAN \
     --step RAW2DIGI,RECO,PAT \
     --data \
     --scenario pp \
-    --conditions auto:run2_data \
-    --era Run2_2016 \
+    --conditions auto:run3_data \
+    --era Run3 \
     --eventcontent RAWRECO \
     --datatier RAWRECO \
-    --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning_Reselect \
+    --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning \
     --filein file:selection.root \
     --fileout file:lhe_and_cleaned.root \
     -n -1 \
@@ -47,14 +47,15 @@ echo "################ Simulation (MC & Detector) ################"
 cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
     --step GEN,SIM,DIGI,L1,DIGI2RAW \
     --mc \
-    --beamspot Realistic25ns13TeV2016Collision \
+    --beamspot Realistic25ns13p6TeVEarly2022Collision \
     --geometry DB:Extended \
-    --era Run2_2016 \
-    --conditions auto:run2_mc \
+    --era Run3 \
+    --conditions auto:phase1_2022_realistic_postEE \
     --eventcontent RAWSIM \
     --datatier RAWSIM \
     --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_preHLT_Reselect \
+    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_preHLT \
+    --customise_commands 'process.generator.HepMCFilter.filterParameters.MuMuCut = cms.string("(Mu.Pt > 18 && Had.Pt > 18 && Mu.Eta < 2.2 && Had.Eta < 2.4)");process.generator.HepMCFilter.filterParameters.Final_States = cms.vstring("MuHad");process.generator.nAttempts = cms.uint32(1000);' \
     --filein file:lhe_and_cleaned.root \
     --fileout file:simulated_and_cleaned_prehlt.root \
     -n -1 \
@@ -65,14 +66,15 @@ echo "################ Simulation (Trigger) ################"
 cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
     --step HLT:Fake2 \
     --mc \
-    --beamspot Realistic25ns13TeV2016Collision \
+    --beamspot Realistic25ns13p6TeVEarly2022Collision \
     --geometry DB:Extended \
-    --era Run2_2016 \
-    --conditions auto:run2_mc \
+    --era Run3 \
+    --conditions auto:phase1_2022_realistic_postEE \
     --eventcontent RAWSIM \
     --datatier RAWSIM \
     --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_HLT_Reselect \
+    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_HLT \
+    --customise_commands 'process.source.bypassVersionCheck = cms.untracked.bool(True);' \
     --filein file:simulated_and_cleaned_prehlt.root \
     --fileout file:simulated_and_cleaned_hlt.root \
     -n -1 \
@@ -83,14 +85,15 @@ echo "################ Simulation (Reconstruction) ################"
 cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
     --step RAW2DIGI,L1Reco,RECO,RECOSIM \
     --mc \
-    --beamspot Realistic25ns13TeV2016Collision \
+    --beamspot Realistic25ns13p6TeVEarly2022Collision \
     --geometry DB:Extended \
-    --era Run2_2016 \
-    --conditions auto:run2_mc \
+    --era Run3 \
+    --conditions auto:phase1_2022_realistic_postEE \
     --eventcontent RAWRECOSIMHLT \
     --datatier RAW-RECO-SIM \
     --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_postHLT_Reselect \
+    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_postHLT \
+    --customise_commands 'process.source.bypassVersionCheck = cms.untracked.bool(True);' \
     --filein file:simulated_and_cleaned_hlt.root \
     --fileout file:simulated_and_cleaned_posthlt.root \
     -n -1 \
@@ -102,12 +105,12 @@ cmsDriver.py PAT \
     --step PAT \
     --data \
     --scenario pp \
-    --conditions auto:run2_data \
-    --era Run2_2016 \
+    --conditions auto:run3_data \
+    --era Run3 \
     --eventcontent MINIAODSIM \
     --datatier USER \
     --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseMerging_Reselect \
+    TauAnalysis/MCEmbeddingTools/customisers.customiseMerging \
     --filein file:simulated_and_cleaned_posthlt.root \
     --fileout file:merged.root \
     -n -1 \
@@ -118,8 +121,8 @@ echo "################ NanoAOD Production ################"
 cmsDriver.py \
     --step NANO \
     --data \
-    --conditions auto:run2_data \
-    --era Run2_2016 \
+    --conditions auto:run3_data \
+    --era Run3 \
     --eventcontent NANOAODSIM \
     --datatier NANOAODSIM \
     --customise TauAnalysis/MCEmbeddingTools/customisers.customiseNanoAOD \
