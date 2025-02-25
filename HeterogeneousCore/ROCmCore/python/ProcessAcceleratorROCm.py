@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import os
-
 from HeterogeneousCore.Common.PlatformStatus import PlatformStatus
 
 class ProcessAcceleratorROCm(cms.ProcessAccelerator):
@@ -16,7 +14,18 @@ class ProcessAcceleratorROCm(cms.ProcessAccelerator):
         # Check if ROCm is available, and if the system has at least one usable device.
         # These should be checked on each worker node, because it depends both
         # on the architecture and on the actual hardware present in the machine.
-        status = PlatformStatus(os.waitstatus_to_exitcode(os.system("rocmIsEnabled")))
+        import subprocess
+        import os
+        # Preloading profiling shared libraries (such as from
+        # AllocMonitor) has caused rocmIsEnabled to segfault in some
+        # circumstances. Removing LD_PRELOAD from the environment
+        # works around the problem.
+        env = os.environ.copy()
+        if "LD_PRELOAD" in env:
+            del env["LD_PRELOAD"]
+        p = subprocess.Popen("rocmIsEnabled", env=env)
+        p.communicate()
+        status = PlatformStatus(p.returncode)
         return self.labels() if status == PlatformStatus.Success else []
 
     def apply(self, process, accelerators):
