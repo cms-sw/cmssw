@@ -92,7 +92,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   HGCalDigiDevice::View digis,
                                   HGCalRecHitDevice::View recHits,
                                   HGCalCalibParamDevice::ConstView calibs) const {
-      auto toa_to_ps = [&](uint32_t toa, float toatops) { return toa * toatops; };
+      auto toa_inl_corr = [&](uint32_t toa, hgcalrechit::Vector32f ctdc_p, hgcalrechit::Vector8f ftdc_p) {
+        auto gray = toa / 256;
+        auto ptdc = toa % 256;
+        auto ctdc = ptdc / 8;
+        auto ftdc = ptdc % 8;
+        auto ctdc_corr = uint(ctdc - ctdc_p[ctdc]) % 32;
+        auto ftdc_corr = uint(ftdc - ftdc_p[ftdc]) % 8;
+        return (ftdc_corr + 8 * ctdc_corr + 256 * gray) % 1024;
+      };
+
+      auto toa_tw_corr = [&](uint32_t toa, float energy, hgcalrechit::Vector3f p) {
+        return toa - ((energy > p[2]) ? (p[0] + p[1] * std::log(energy - p[2])) : 0.f);
+      };
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
         auto calib = calibs[idx];
@@ -103,7 +115,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          calibvalid);
         bool isToAavailable((digiflags != hgcal::DIGI_FLAG::ZS_ToA) && (digiflags != hgcal::DIGI_FLAG::ZS_ToA_ADCm1));
         bool isGood(isAvailable && isToAavailable);
-        recHits[idx].time() = isGood * toa_to_ps(digi.toa(), calib.TOAtops());
+        //INL correction
+        auto toa = isGood * toa_inl_corr(digi.toa(), calib.TOA_CTDC(), calib.TOA_FTDC());
+        //timewalk correction
+        toa = isGood * toa_tw_corr(toa, recHits[idx].energy(), calib.TOA_TW());
+        //toa to ps
+        recHits[idx].time() = toa * hgcalrechit::TOAtops;
       }
     }
   };
