@@ -18,6 +18,8 @@
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
+#include "DataFormats/TestObjects/interface/ThingWithPostInsert.h"
+#include "DataFormats/TestObjects/interface/ThingWithDoNotSort.h"
 #include "DataFormats/TestObjects/interface/TrackOfThings.h"
 #include "DataFormats/TestObjects/interface/TrackOfDSVThings.h"
 
