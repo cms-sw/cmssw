@@ -255,7 +255,9 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
       }
       if (!dataServer.empty()) {
         m_disabledSourceStrings.insert(dataServer);
-        m_disabledExcludeStrings.insert(excludeString);
+        if (not excludeString.empty()) {
+          m_disabledExcludeStrings.insert(excludeString);
+        }
       }
       // In this case, we didn't go anywhere - we stayed at the redirector and it gave us a file-not-found.
       if (lastUrl == new_filename) {
@@ -835,7 +837,9 @@ void RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c
   // function may be called from within XrdCl::ResponseHandler::HandleResponseWithHosts
   // In such a case, if you close a file in the handler, it will deadlock
   m_disabledSourceStrings.insert(source_ptr->ID());
-  m_disabledExcludeStrings.insert(source_ptr->ExcludeID());
+  if (auto const &eid = source_ptr->ExcludeID(); not eid.empty()) {
+    m_disabledExcludeStrings.insert(eid);
+  }
   m_disabledSources.insert(source_ptr);
 
   std::unique_lock<std::recursive_mutex> sentry(m_source_mutex);
