@@ -4,6 +4,8 @@ using namespace edm::streamer;
 
 void DataModeScoutingRun3::makeDirectoryEntries(std::vector<std::string> const& baseDirs,
                                                 std::vector<int> const& numSources,
+                                                std::vector<int> const& sourceIDs,
+                                                std::string const& sourceIdentifier,
                                                 std::string const& runDir) {
   std::filesystem::path runDirP(runDir);
   for (auto& baseDir : baseDirs) {
