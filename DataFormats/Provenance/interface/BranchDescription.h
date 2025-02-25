@@ -20,7 +20,8 @@ This description also applies to every product instance on the branch.
 #include <set>
 #include <string>
 
-#if !defined(DataFormats_Provenance_ProductDescription_h)
+#if (not defined __INCLUDE_LEVEL__ or __INCLUDE_LEVEL__ > 0) and \
+    not defined(DataFormats_Provenance_ProductDescription_h)
 #error The name BranchDescription is deprecated, please use ProductDescription instead.
 #endif
 /*
