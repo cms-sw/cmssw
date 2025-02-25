@@ -41,6 +41,10 @@ public:
 
   KalmanVertexFitter* clone() const override { return new KalmanVertexFitter(*this); }
 
+  void setTrackerBounds(float trackerBoundsRadius, float trackerBoundsHalfLength) {
+    theSequentialFitter->setTrackerBounds(trackerBoundsRadius, trackerBoundsHalfLength);
+  }
+
 public:
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
 
@@ -108,7 +112,7 @@ private:
 
   edm::ParameterSet defaultParameters() const;
 
-  const SequentialVertexFitter<5>* theSequentialFitter;
+  SequentialVertexFitter<5>* theSequentialFitter;
 };
 
 #endif
