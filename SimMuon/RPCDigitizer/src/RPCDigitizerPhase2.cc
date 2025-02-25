@@ -1,4 +1,4 @@
-#include "SimMuon/RPCDigitizer/src/IRPCDigitizer.h"
+#include "SimMuon/RPCDigitizer/src/RPCDigitizerPhase2.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -9,18 +9,17 @@
 
 // default constructor allocates default wire and strip digitizers
 
-IRPCDigitizer::IRPCDigitizer(const edm::ParameterSet& config)
-    : theRPCSim{RPCSimFactory::get()->create(config.getParameter<std::string>("digiIRPCModel"),
-                                             config.getParameter<edm::ParameterSet>("digiIRPCModelConfig"))} {
-  theNoise = config.getParameter<bool>("doBkgNoise");
-}
+RPCDigitizerPhase2::RPCDigitizerPhase2(const edm::ParameterSet& config)
+    : theRPCSim{RPCSimFactory::get()->create(config.getParameter<std::string>("digiModel"),
+                                             config.getParameter<edm::ParameterSet>("digiModelConfig"))},
+      theNoise{config.getParameter<bool>("doBkgNoise")} {}
 
-IRPCDigitizer::~IRPCDigitizer() = default;
+RPCDigitizerPhase2::~RPCDigitizerPhase2() = default;
 
-void IRPCDigitizer::doAction(MixCollection<PSimHit>& simHits,
-                             IRPCDigiCollection& rpcDigis,
-                             RPCDigiSimLinks& rpcDigiSimLink,
-                             CLHEP::HepRandomEngine* engine) {
+void RPCDigitizerPhase2::doAction(MixCollection<PSimHit>& simHits,
+                            RPCDigiPhase2Collection& rpcDigis,
+                            RPCDigiSimLinks& rpcDigiSimLink,
+                            CLHEP::HepRandomEngine* engine) {
   theRPCSim->setRPCSimSetUp(theSimSetUp);
 
   // arrange the hits by roll
@@ -31,8 +30,8 @@ void IRPCDigitizer::doAction(MixCollection<PSimHit>& simHits,
 
   if (!theGeometry) {
     throw cms::Exception("Configuration")
-        << "IRPCDigitizer requires the RPCGeometry \n which is not present in the configuration file.  You must add "
-           "the service\n in the configuration file or remove the modules that require it.";
+        << "RPCDigitizerPhase2 requires the RPCGeometry \n which is not present in the configuration file.  You must add the "
+           "service\n in the configuration file or remove the modules that require it.";
   }
 
   const std::vector<const RPCRoll*>& rpcRolls = theGeometry->rolls();
@@ -40,7 +39,7 @@ void IRPCDigitizer::doAction(MixCollection<PSimHit>& simHits,
     RPCDetId id = (*r)->id();
     const edm::PSimHitContainer& rollSimHits = hitMap[id];
 
-    if ((*r)->isIRPC()) {
+    if (!((*r)->isIRPC())) {
       theRPCSim->simulate(*r, rollSimHits, engine);
 
       if (theNoise) {
@@ -56,7 +55,7 @@ void IRPCDigitizer::doAction(MixCollection<PSimHit>& simHits,
   }
 }
 
-const RPCRoll* IRPCDigitizer::findDet(int detId) const {
+const RPCRoll* RPCDigitizerPhase2::findDet(int detId) const {
   assert(theGeometry != nullptr);
   const GeomDetUnit* detUnit = theGeometry->idToDetUnit(RPCDetId(detId));
   return dynamic_cast<const RPCRoll*>(detUnit);

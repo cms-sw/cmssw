@@ -3,6 +3,7 @@
 <use name="CoralBase"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/RPCDigi"/>
+<use name="DataFormats/IRPCDigi"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>

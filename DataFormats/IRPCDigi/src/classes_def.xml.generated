@@ -1,0 +1,14 @@
+<lcgdict>
+
+<class name="IRPCDigi" ClassVersion="0">
+ <version ClassVersion="0" checksum="4103044833"/>
+  <version ClassVersion="-1" checksum="0"/>
+</class>
+
+<class name="std::vector<IRPCDigi>"/>
+<class name="std::map<RPCDetId,std::vector<IRPCDigi> >"/>
+<class name="std::pair<RPCDetId,std::vector<IRPCDigi> >"/>
+<class name="MuonDigiCollection<RPCDetId,IRPCDigi>"/>                                                                                         <class name="edm::Wrapper<MuonDigiCollection<RPCDetId,IRPCDigi>>" splitLevel="0"/>   
+  
+</lcgdict>
+ 

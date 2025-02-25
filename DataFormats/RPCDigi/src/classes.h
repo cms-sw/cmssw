@@ -1,5 +1,6 @@
 #include <DataFormats/RPCDigi/interface/RPCDigi.h>
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
+#include <DataFormats/RPCDigi/interface/RPCDigiPhase2.h>
 #include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
 #include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiL1Link.h"
