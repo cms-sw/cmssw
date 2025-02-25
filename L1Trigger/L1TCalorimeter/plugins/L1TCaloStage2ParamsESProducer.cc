@@ -345,6 +345,8 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   m_params_helper.setQ2LUT(*q2LUT);
 
   // Layer 1 LUT specification
+  m_params_helper.setLayer1ECalZSFactors(conf.getParameter<std::vector<double>>("layer1ECalZSFactors"));
+  m_params_helper.setLayer1HCalZSFactors(conf.getParameter<std::vector<double>>("layer1HCalZSFactors"));
   m_params_helper.setLayer1ECalScaleFactors(conf.getParameter<std::vector<double>>("layer1ECalScaleFactors"));
   m_params_helper.setLayer1HCalScaleFactors(conf.getParameter<std::vector<double>>("layer1HCalScaleFactors"));
   m_params_helper.setLayer1HFScaleFactors(conf.getParameter<std::vector<double>>("layer1HFScaleFactors"));
