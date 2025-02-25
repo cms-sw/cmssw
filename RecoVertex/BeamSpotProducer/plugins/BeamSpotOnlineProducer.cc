@@ -13,7 +13,6 @@ ________________________________________________________________**/
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
-#include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -37,6 +36,8 @@ public:
   /// constructor
   explicit BeamSpotOnlineProducer(const edm::ParameterSet& iConf);
 
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) override;
+
   /// produce a beam spot class
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
@@ -46,17 +47,18 @@ public:
 private:
   // helper methods
   bool shouldShout(const edm::Event& iEvent) const;
-  bool processRecords(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::BeamSpot& result, bool shoutMODE);
-  void createBeamSpotFromRecord(const BeamSpotObjects& spotDB, reco::BeamSpot& result) const;
+  bool processRecords(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, bool shoutMODE);
+  void createBeamSpotFromRecord(const BeamSpotObjects& spotDB);
   template <typename TokenType>
-  const BeamSpotOnlineObjects getBeamSpotFromRecord(const TokenType& token,
-                                                    const edm::Event& event,
-                                                    const edm::EventSetup& setup);
+  const BeamSpotOnlineObjects& getBeamSpotFromRecord(const TokenType& token,
+                                                     const edm::LuminosityBlock& lumi,
+                                                     const edm::EventSetup& setup,
+                                                     const std::string whichrecord);
   const BeamSpotOnlineObjects& chooseBS(const BeamSpotOnlineObjects& bs1, const BeamSpotOnlineObjects& bs2);
-  bool processScalers(const edm::Event& iEvent, reco::BeamSpot& result, bool shoutMODE);
-  void createBeamSpotFromScaler(const BeamSpotOnline& spotOnline, reco::BeamSpot& result) const;
+  bool processScalers(const edm::Event& iEvent, bool shoutMODE);
+  void createBeamSpotFromScaler(const BeamSpotOnline& spotOnline);
   bool isInvalidScaler(const BeamSpotOnline& spotOnline, bool shoutMODE) const;
-  void createBeamSpotFromDB(const edm::EventSetup& iSetup, reco::BeamSpot& result, bool shoutMODE) const;
+  void createBeamSpotFromDB(const edm::EventSetup& iSetup, bool shoutMODE);
 
   // data members
   const bool changeFrame_;
@@ -75,6 +77,7 @@ private:
   edm::ESWatcher<BeamSpotOnlineLegacyObjectsRcd> beamLegacyRcdESWatcher_;
   edm::ESWatcher<BeamSpotOnlineHLTObjectsRcd> beamHLTRcdESWatcher_;
 
+  reco::BeamSpot result;
   const unsigned int theBeamShoutMode;
   BeamSpotOnlineObjects fakeBS_;
 };
@@ -93,21 +96,12 @@ BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
                                        : consumes<BeamSpotOnlineCollection>(iconf.getParameter<InputTag>("src"))),
       l1GtEvmReadoutRecordToken_(consumes<L1GlobalTriggerEvmReadoutRecord>(iconf.getParameter<InputTag>("gtEvmLabel"))),
       beamToken_(esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>()),
-      beamTokenLegacy_(esConsumes<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>()),
-      beamTokenHLT_(esConsumes<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd>()),
+      beamTokenLegacy_(
+          esConsumes<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd, edm::Transition::BeginLuminosityBlock>()),
+      beamTokenHLT_(
+          esConsumes<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd, edm::Transition::BeginLuminosityBlock>()),
       theBeamShoutMode(iconf.getUntrackedParameter<unsigned int>("beamMode", 11)) {
-  fakeBS_.setBeamWidthX(0.1);
-  fakeBS_.setBeamWidthY(0.1);
-  fakeBS_.setSigmaZ(15.);
-  fakeBS_.setPosition(0.0001, 0.0001, 0.0001);
   fakeBS_.setType(reco::BeamSpot::Fake);
-  fakeBS_.setCovariance(0, 0, 5e-10);
-  fakeBS_.setCovariance(1, 1, 5e-10);
-  fakeBS_.setCovariance(2, 2, 0.002);
-  fakeBS_.setCovariance(3, 3, 0.002);
-  fakeBS_.setCovariance(4, 4, 5e-11);
-  fakeBS_.setCovariance(5, 5, 5e-11);
-  fakeBS_.setCovariance(6, 6, 1e-09);
   theMaxR2 = iconf.getParameter<double>("maxRadius");
   theMaxR2 *= theMaxR2;
 
@@ -130,27 +124,33 @@ void BeamSpotOnlineProducer::fillDescriptions(edm::ConfigurationDescriptions& iD
   iDesc.addWithDefaultLabel(ps);
 }
 
-void BeamSpotOnlineProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto result = std::make_unique<reco::BeamSpot>();
+void BeamSpotOnlineProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
+  /// fetch online records only at the beginning of a lumisection
+  if (useBSOnlineRecords_) {
+    processRecords(lumi, setup, true);
+  }
+}
 
+void BeamSpotOnlineProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Determine if we should "shout" based on the beam mode
   bool shoutMODE = shouldShout(iEvent);
   bool fallBackToDB{false};
 
-  // Use transient record if enabled
+  // Use online records if enabled
   if (useBSOnlineRecords_) {
-    fallBackToDB = processRecords(iEvent, iSetup, *result, shoutMODE);
+    fallBackToDB = result.type() != reco::BeamSpot::Tracker;
   } else {
     // Process online beam spot scalers
-    fallBackToDB = processScalers(iEvent, *result, shoutMODE);
+    fallBackToDB = processScalers(iEvent, shoutMODE);
   }
 
   // Fallback to DB if necessary
   if (fallBackToDB) {
-    createBeamSpotFromDB(iSetup, *result, shoutMODE);
+    createBeamSpotFromDB(iSetup, shoutMODE);
   }
 
-  iEvent.put(std::move(result));
+  std::unique_ptr<reco::BeamSpot> toput = std::make_unique<reco::BeamSpot>(result);
+  iEvent.put(std::move(toput));
 }
 
 bool BeamSpotOnlineProducer::shouldShout(const edm::Event& iEvent) const {
@@ -161,40 +161,50 @@ bool BeamSpotOnlineProducer::shouldShout(const edm::Event& iEvent) const {
   return true;  // Default to "shout" if the record is missing
 }
 
-bool BeamSpotOnlineProducer::processRecords(const edm::Event& iEvent,
+bool BeamSpotOnlineProducer::processRecords(const edm::LuminosityBlock& iLumi,
                                             const edm::EventSetup& iSetup,
-                                            reco::BeamSpot& result,
                                             bool shoutMODE) {
-  auto const spotDBLegacy = getBeamSpotFromRecord(beamTokenLegacy_, iEvent, iSetup);
-  auto const spotDBHLT = getBeamSpotFromRecord(beamTokenHLT_, iEvent, iSetup);
+  auto const& spotDBLegacy = getBeamSpotFromRecord(beamTokenLegacy_, iLumi, iSetup, "BeamSpotOnlineLegacyObjectsRcd");
+  auto const& spotDBHLT = getBeamSpotFromRecord(beamTokenHLT_, iLumi, iSetup, "BeamSpotOnlineHLTObjectsRcd");
   auto const& spotDB = chooseBS(spotDBLegacy, spotDBHLT);
 
   if (spotDB.beamType() != reco::BeamSpot::Tracker) {
     if (shoutMODE && (beamLegacyRcdESWatcher_.check(iSetup) || beamHLTRcdESWatcher_.check(iSetup))) {
-      edm::LogWarning("BeamSpotOnlineProducer")
-          << "Online Beam Spot producer falls back to DB value due to fake beamspot in transient record.";
+      edm::LogWarning("BeamSpotOnlineProducer") << "None of the online records holds a valid beam spot. The Online "
+                                                   "Beam Spot producer falls back to the PCL value.";
     }
     return true;  // Trigger fallback to DB
   }
 
   // Create BeamSpot from transient record
-  createBeamSpotFromRecord(spotDB, result);
+  createBeamSpotFromRecord(spotDB);
   return false;  // No fallback needed
 }
 
 template <typename TokenType>
-const BeamSpotOnlineObjects BeamSpotOnlineProducer::getBeamSpotFromRecord(const TokenType& token,
-                                                                          const Event& event,
-                                                                          const EventSetup& setup) {
+const BeamSpotOnlineObjects& BeamSpotOnlineProducer::getBeamSpotFromRecord(const TokenType& token,
+                                                                           const LuminosityBlock& lumi,
+                                                                           const EventSetup& setup,
+                                                                           const std::string whichrecord) {
   const auto& bs = setup.getData(token);
   if (bs.sigmaZ() < sigmaZThreshold_ || bs.beamWidthX() < sigmaXYThreshold_ || bs.beamWidthY() < sigmaXYThreshold_ ||
       bs.beamType() != reco::BeamSpot::Tracker) {
+    edm::LogWarning("BeamSpotOnlineProducer")
+        << "The beam spot record does not pass the fit sanity checks (record: " << whichrecord << ")" << std::endl
+        << "sigmaZ: " << bs.sigmaZ() << std::endl
+        << "sigmaX: " << bs.beamWidthX() << std::endl
+        << "sigmaY: " << bs.beamWidthY() << std::endl
+        << "type: " << bs.beamType();
     return fakeBS_;
   }
-  auto evtime = std::chrono::seconds(event.time().value() >> 32);
+  auto lumitime = std::chrono::seconds(lumi.beginTime().value() >> 32);
   auto bstime = std::chrono::microseconds(bs.creationTime());
   auto threshold = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::hours(timeThreshold_)).count();
-  if ((evtime - bstime).count() > threshold) {
+  if ((lumitime - bstime).count() > threshold) {
+    edm::LogWarning("BeamSpotOnlineProducer")
+        << "The beam spot record is too old. (record: " << whichrecord << ")" << std::endl
+        << "record creation time: " << std::chrono::duration_cast<std::chrono::seconds>(bstime).count()
+        << "lumi block time: " << std::chrono::duration_cast<std::chrono::seconds>(lumitime).count();
     return fakeBS_;
   }
   return bs;
@@ -213,7 +223,7 @@ const BeamSpotOnlineObjects& BeamSpotOnlineProducer::chooseBS(const BeamSpotOnli
   }
 }
 
-void BeamSpotOnlineProducer::createBeamSpotFromRecord(const BeamSpotObjects& spotDB, reco::BeamSpot& result) const {
+void BeamSpotOnlineProducer::createBeamSpotFromRecord(const BeamSpotObjects& spotDB) {
   double f = changeFrame_ ? -1.0 : 1.0;
   reco::BeamSpot::Point apoint(f * spotDB.x(), f * spotDB.y(), f * spotDB.z());
 
@@ -233,7 +243,7 @@ void BeamSpotOnlineProducer::createBeamSpotFromRecord(const BeamSpotObjects& spo
   result.setType(reco::BeamSpot::Tracker);
 }
 
-bool BeamSpotOnlineProducer::processScalers(const edm::Event& iEvent, reco::BeamSpot& result, bool shoutMODE) {
+bool BeamSpotOnlineProducer::processScalers(const edm::Event& iEvent, bool shoutMODE) {
   edm::Handle<BeamSpotOnlineCollection> handleScaler;
   iEvent.getByToken(scalerToken_, handleScaler);
 
@@ -243,7 +253,7 @@ bool BeamSpotOnlineProducer::processScalers(const edm::Event& iEvent, reco::Beam
 
   // Extract data from scaler
   BeamSpotOnline spotOnline = *(handleScaler->begin());
-  createBeamSpotFromScaler(spotOnline, result);
+  createBeamSpotFromScaler(spotOnline);
 
   // Validate the scaler data
   if (isInvalidScaler(spotOnline, shoutMODE)) {
@@ -252,7 +262,7 @@ bool BeamSpotOnlineProducer::processScalers(const edm::Event& iEvent, reco::Beam
   return false;  // No fallback needed
 }
 
-void BeamSpotOnlineProducer::createBeamSpotFromScaler(const BeamSpotOnline& spotOnline, reco::BeamSpot& result) const {
+void BeamSpotOnlineProducer::createBeamSpotFromScaler(const BeamSpotOnline& spotOnline) {
   double f = changeFrame_ ? -1.0 : 1.0;
   reco::BeamSpot::Point apoint(f * spotOnline.x(), spotOnline.y(), f * spotOnline.z());
 
@@ -293,9 +303,7 @@ bool BeamSpotOnlineProducer::isInvalidScaler(const BeamSpotOnline& spotOnline, b
   return false;
 }
 
-void BeamSpotOnlineProducer::createBeamSpotFromDB(const edm::EventSetup& iSetup,
-                                                  reco::BeamSpot& result,
-                                                  bool shoutMODE) const {
+void BeamSpotOnlineProducer::createBeamSpotFromDB(const edm::EventSetup& iSetup, bool shoutMODE) {
   edm::ESHandle<BeamSpotObjects> beamhandle = iSetup.getHandle(beamToken_);
   const BeamSpotObjects* spotDB = beamhandle.product();
 
