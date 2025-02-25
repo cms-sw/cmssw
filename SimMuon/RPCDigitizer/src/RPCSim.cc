@@ -50,7 +50,6 @@ void RPCSim::fillDigis(int rollDetId, RPCDigiPhase2Collection& digis) {
   rpc_digis_phase2.clear();
 }
 
-
 void RPCSim::addLinks(unsigned int strip, int bx) {
   std::pair<unsigned int, int> digi(strip, bx);
   std::pair<DetectorHitMap::iterator, DetectorHitMap::iterator> channelHitItr = theDetectorHitMap.equal_range(digi);

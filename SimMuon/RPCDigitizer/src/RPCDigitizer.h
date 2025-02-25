@@ -34,7 +34,7 @@ class RPCDigitizer {
 public:
   typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
   RPCDigitizer(const edm::ParameterSet& config, bool type);
-  
+
   ~RPCDigitizer();
 
   // *** digitize ***
@@ -52,13 +52,13 @@ public:
 
   /// finds the rpc det unit in the geometry associated with this det ID
   const RPCRoll* findDet(int detId) const;
-    
+
 private:
   const RPCGeometry* theGeometry;
   std::unique_ptr<RPCSim> theRPCSim;
   RPCSimSetUp* theSimSetUp;
   bool theNoise;
-  bool theType; // true for RPC, false for iRPC
+  bool theType;  // true for RPC, false for iRPC
 };
 
 #endif

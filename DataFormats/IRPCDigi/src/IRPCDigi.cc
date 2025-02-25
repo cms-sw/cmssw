@@ -8,21 +8,10 @@
 #include "DataFormats/IRPCDigi/interface/IRPCDigi.h"
 #include <iostream>
 
-
 IRPCDigi::IRPCDigi(int strip, int bxLR, int bxHR, int sbxLR, int sbxHR, int fineLR, int fineHR)
-  : strip_(strip),
-    bxLR_(bxLR),
-    bxHR_(bxHR),
-    sbxLR_(sbxLR),
-    sbxHR_(sbxHR),
-    fineLR_(fineLR),
-    fineHR_(fineHR) {}
+    : strip_(strip), bxLR_(bxLR), bxHR_(bxHR), sbxLR_(sbxLR), sbxHR_(sbxHR), fineLR_(fineLR), fineHR_(fineHR) {}
 
-IRPCDigi::IRPCDigi()
-    : strip_(0),
-      bxLR_(0),
-      sbxLR_(0) {}
-
+IRPCDigi::IRPCDigi() : strip_(0), bxLR_(0), sbxLR_(0) {}
 
 // Comparison
 bool IRPCDigi::operator==(const IRPCDigi& digi) const {

@@ -71,8 +71,8 @@ RPCSimModelTimingPhase2::RPCSimModelTimingPhase2(const edm::ParameterSet& config
 RPCSimModelTimingPhase2::~RPCSimModelTimingPhase2() { delete _rpcSync; }
 
 void RPCSimModelTimingPhase2::simulate(const RPCRoll* roll,
-                                 const edm::PSimHitContainer& rpcHits,
-                                 CLHEP::HepRandomEngine* engine) {
+                                       const edm::PSimHitContainer& rpcHits,
+                                       CLHEP::HepRandomEngine* engine) {
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
   theRpcDigiSimLinks.clear();
   theDetectorHitMap.clear();
@@ -82,7 +82,7 @@ void RPCSimModelTimingPhase2::simulate(const RPCRoll* roll,
   RPCGeomServ RPCname(rpcId);
 
   const Topology& topology = roll->specs()->topology();
-  
+
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
     if (!eledig && _hit->particleType() == 11)
       continue;
@@ -93,22 +93,22 @@ void RPCSimModelTimingPhase2::simulate(const RPCRoll* roll,
     if (rpcId.region() == 0) {
       const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(&(roll->topology()));
       striplength = (top_->stripLength());
-      
+
     } else {
       const TrapezoidalStripTopology* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
       striplength = (top_->stripLength());
     }
 
-    double precise_time = _rpcSync->getTiming(&(*_hit), engine,striplength);
-    std::pair<int,int> tdc = _rpcSync->getBX_SBX(precise_time);
+    double precise_time = _rpcSync->getTiming(&(*_hit), engine, striplength);
+    std::pair<int, int> tdc = _rpcSync->getBX_SBX(precise_time);
     float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
 
     std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
 
     // Effinciecy
-    int centralStrip = topology.channel(entr) + 1;    
+    int centralStrip = topology.channel(entr) + 1;
     float fire = CLHEP::RandFlat::shoot(engine);
-        
+
     if (fire < veff[centralStrip - 1]) {
       int fstrip = centralStrip;
       int lstrip = centralStrip;
@@ -150,8 +150,8 @@ void RPCSimModelTimingPhase2::simulate(const RPCRoll* roll,
       //leading to un-physical "shift" of the cluster
       for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
         std::pair<int, int> digi(*i, tdc.first);
-       	RPCDigiPhase2 adigi(*i, tdc.first,tdc.second);
-	rpc_digis_phase2.insert(adigi);
+        RPCDigiPhase2 adigi(*i, tdc.first, tdc.second);
+        rpc_digis_phase2.insert(adigi);
         theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &(*_hit)));
       }
     }
@@ -192,7 +192,7 @@ void RPCSimModelTimingPhase2::simulateNoise(const RPCRoll* roll, CLHEP::HepRando
       double precise_time = CLHEP::RandFlat::shoot(engine, (nbxing * gate) / gate);
       int time_hit = (static_cast<int>(precise_time)) - nbxing / 2;
       int sbx = CLHEP::RandFlat::shootInt(long(0), long(10));
-      RPCDigiPhase2 adigi(j + 1, time_hit,sbx);
+      RPCDigiPhase2 adigi(j + 1, time_hit, sbx);
       rpc_digis_phase2.insert(adigi);
     }
   }

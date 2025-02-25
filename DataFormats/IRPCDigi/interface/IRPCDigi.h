@@ -13,7 +13,7 @@
 
 class IRPCDigi {
 public:
-  explicit IRPCDigi(int strip, int bxLR, int bxHR, int sbxLR, int sbxHR, int fineLR, int fineHR); 
+  explicit IRPCDigi(int strip, int bxLR, int bxHR, int sbxLR, int sbxHR, int fineLR, int fineHR);
   IRPCDigi();
 
   bool operator==(const IRPCDigi& digi) const;
@@ -31,12 +31,12 @@ public:
 
 private:
   uint16_t strip_;
-  int32_t bxLR_;    //BX from low radius FEB
-  int32_t bxHR_;    //BX from high radius FEB 
-  int8_t sbxLR_;   //sub-BX from low radius FEB     
-  int8_t sbxHR_;   //sub-BX from high radius FEB  
-  int8_t fineLR_;     //high resolution time rom low radius FEB       
-  int8_t fineHR_;     //high resolution time rom high radius FEB 
+  int32_t bxLR_;   //BX from low radius FEB
+  int32_t bxHR_;   //BX from high radius FEB
+  int8_t sbxLR_;   //sub-BX from low radius FEB
+  int8_t sbxHR_;   //sub-BX from high radius FEB
+  int8_t fineLR_;  //high resolution time rom low radius FEB
+  int8_t fineHR_;  //high resolution time rom high radius FEB
 };
 
 std::ostream& operator<<(std::ostream& o, const IRPCDigi& digi);

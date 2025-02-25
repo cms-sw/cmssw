@@ -85,11 +85,11 @@ void RPCDigiPhase2Producer::produce(edm::Event& e, const edm::EventSetup& eventS
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
   LogDebug("RPCDigiPhase2Producer") << "[RPCDigiPhase2Producer::produce] got the CLHEP::HepRandomEngine engine from "
-                                        "the edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
+                                       "the edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
   LogDebug("RPCDigiPhase2Producer") << "[RPCDigiPhase2Producer::produce] test the CLHEP::HepRandomEngine by firing "
-                                        "once RandFlat ---- this must be the first time in SimMuon/RPCDigitizerPhase2";
+                                       "once RandFlat ---- this must be the first time in SimMuon/RPCDigitizerPhase2";
   LogDebug("RPCDigiPhase2Producer") << "[RPCDigiPhase2Producer::produce] to activate the test go in "
-                                        "RPCDigiPhase2Producer.cc and uncomment the line below";
+                                       "RPCDigiPhase2Producer.cc and uncomment the line below";
 
   edm::Handle<CrossingFrame<PSimHit>> cf;
   e.getByToken(crossingFrameToken, cf);
@@ -100,7 +100,8 @@ void RPCDigiPhase2Producer::produce(edm::Event& e, const edm::EventSetup& eventS
   std::unique_ptr<RPCDigiPhase2Collection> pDigis(new RPCDigiPhase2Collection());
   std::unique_ptr<RPCDigitizerPhase2SimLinks> RPCDigitSimLink(new RPCDigitizerPhase2SimLinks());
 
-  theRPCDigitizerPhase2->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);   //make "bakelite RPC" digitizer do the action
+  theRPCDigitizerPhase2->doAction(
+      *hits, *pDigis, *RPCDigitSimLink, engine);  //make "bakelite RPC" digitizer do the action
 
   e.put(std::move(pDigis));
   //store the SimDigiLinks in the event

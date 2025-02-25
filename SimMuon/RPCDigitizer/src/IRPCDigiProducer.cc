@@ -68,9 +68,6 @@ void IRPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventS
   const RPCGeometry* pGeom = &*hGeom;
   _pGeom = &*hGeom;
 
-
-
-
   edm::ESHandle<RPCStripNoises> noiseRcd = eventSetup.getHandle(noiseToken);
 
   edm::ESHandle<RPCClusterSize> clsRcd = eventSetup.getHandle(clsToken);
@@ -90,11 +87,11 @@ void IRPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
   LogDebug("IRPCDigiProducer") << "[IRPCDigiProducer::produce] got the CLHEP::HepRandomEngine engine from "
-                                        "the edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
+                                  "the edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
   LogDebug("IRPCDigiProducer") << "[IRPCDigiProducer::produce] test the CLHEP::HepRandomEngine by firing "
-                                        "once RandFlat ---- this must be the first time in SimMuon/RPCDigitizer";
+                                  "once RandFlat ---- this must be the first time in SimMuon/RPCDigitizer";
   LogDebug("IRPCDigiProducer") << "[IRPCDigiProducer::produce] to activate the test go in "
-                                        "IRPCDigiProducer.cc and uncomment the line below";
+                                  "IRPCDigiProducer.cc and uncomment the line below";
 
   const edm::Handle<CrossingFrame<PSimHit>>& cf = e.getHandle(crossingFrameToken);
 

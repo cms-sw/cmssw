@@ -17,9 +17,9 @@ RPCDigitizerPhase2::RPCDigitizerPhase2(const edm::ParameterSet& config)
 RPCDigitizerPhase2::~RPCDigitizerPhase2() = default;
 
 void RPCDigitizerPhase2::doAction(MixCollection<PSimHit>& simHits,
-                            RPCDigiPhase2Collection& rpcDigis,
-                            RPCDigiSimLinks& rpcDigiSimLink,
-                            CLHEP::HepRandomEngine* engine) {
+                                  RPCDigiPhase2Collection& rpcDigis,
+                                  RPCDigiSimLinks& rpcDigiSimLink,
+                                  CLHEP::HepRandomEngine* engine) {
   theRPCSim->setRPCSimSetUp(theSimSetUp);
 
   // arrange the hits by roll
@@ -30,7 +30,8 @@ void RPCDigitizerPhase2::doAction(MixCollection<PSimHit>& simHits,
 
   if (!theGeometry) {
     throw cms::Exception("Configuration")
-        << "RPCDigitizerPhase2 requires the RPCGeometry \n which is not present in the configuration file.  You must add the "
+        << "RPCDigitizerPhase2 requires the RPCGeometry \n which is not present in the configuration file.  You must "
+           "add the "
            "service\n in the configuration file or remove the modules that require it.";
   }
 
@@ -48,8 +49,7 @@ void RPCDigitizerPhase2::doAction(MixCollection<PSimHit>& simHits,
     }
 
     theRPCSim->fillDigis((*r)->id(), rpcDigis);
-    if (rpcDigiSimLink.find((theRPCSim->rpcDigiSimLinks()).detId()) ==
-	rpcDigiSimLink.end()){
+    if (rpcDigiSimLink.find((theRPCSim->rpcDigiSimLinks()).detId()) == rpcDigiSimLink.end()) {
       rpcDigiSimLink.insert(theRPCSim->rpcDigiSimLinks());
     }
   }

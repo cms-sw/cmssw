@@ -45,7 +45,7 @@ public:
   virtual void fillDigis(int rollDetId, IRPCDigiCollection& digis);
 
   virtual void fillDigis(int rollDetId, RPCDigiPhase2Collection& digis);
-  
+
   void setRPCSimSetUp(RPCSimSetUp* setup) { theSimSetUp = setup; }
 
   RPCSimSetUp* getRPCSimSetUp() { return theSimSetUp; }

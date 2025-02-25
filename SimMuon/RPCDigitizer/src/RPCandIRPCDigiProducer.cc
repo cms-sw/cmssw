@@ -51,9 +51,9 @@ RPCandIRPCDigiProducer::RPCandIRPCDigiProducer(const edm::ParameterSet& ps) {
 
   theRPCSimSetUpRPC = new RPCSimSetUp(ps);
   theRPCSimSetUpIRPC = new RPCSimSetUp(ps);
-  theRPCDigitizer = new RPCDigitizer(ps,true);  
+  theRPCDigitizer = new RPCDigitizer(ps, true);
   //theIRPCDigitizer = new IRPCDigitizer(ps);
-  theIRPCDigitizer = new RPCDigitizer(ps,false);
+  theIRPCDigitizer = new RPCDigitizer(ps, false);
   crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
   geomToken = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
   noiseToken = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
