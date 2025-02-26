@@ -125,10 +125,6 @@ public:
   ~L1TrackObjectNtupleMaker() override;
 
   template <typename T>
-  bool findHiggsToMuAncestor(T particle);
-  template <typename T>
-  bool findHiggsToBAncestor(T particle);
-  template <typename T>
   bool isHard(T particle);
   double DoublePtFromBits(const L1Track&) const;
   double DoubleEtaFromBits(const L1Track&) const;
@@ -207,7 +203,6 @@ private:
   edm::InputTag RecoVertexEmuInputTag;
   edm::InputTag GenParticleInputTag;
   edm::InputTag DisplacedVertexInputTag;
-  edm::InputTag DisplacedVertexEmulationInputTag;
 
   edm::InputTag TrackFastJetsInputTag;
   edm::InputTag TrackJetsInputTag;
@@ -673,7 +668,6 @@ L1TrackObjectNtupleMaker::L1TrackObjectNtupleMaker(edm::ParameterSet const& iCon
   GenParticleInputTag = iConfig.getParameter<InputTag>("GenParticleInputTag");
   SimVertexInputTag = iConfig.getParameter<InputTag>("SimVertexInputTag");
   DisplacedVertexInputTag = iConfig.getParameter<InputTag>("DisplacedVertexInputTag");
-  DisplacedVertexEmulationInputTag = iConfig.getParameter<InputTag>("DisplacedVertexEmulationInputTag");
 
   if (Displaced == "Prompt" || Displaced == "Both") {
     L1TrackInputTag = iConfig.getParameter<edm::InputTag>("L1TrackInputTag");
@@ -1131,63 +1125,6 @@ void L1TrackObjectNtupleMaker::endJob() {
   delete m_trkfastjetExt_ntracks;
   delete m_trkfastjetExt_tp_sumpt;
   delete m_trkfastjetExt_truetp_sumpt;
-}
-
-template <typename T>
-bool L1TrackObjectNtupleMaker::findHiggsToMuAncestor(T particle) {
-  if ((particle->pdgId() == 13 || particle->pdgId() == -13) && particle->genParticles().size() > 0) {
-    reco::GenParticleRef genPart = particle->genParticles()[0];
-    reco::GenParticleRefVector parentParts = genPart->motherRefVector();
-    if (parentParts.size() > 0) {
-      while (parentParts[0]->pdgId() == 13 || parentParts[0]->pdgId() == -13)
-        parentParts = parentParts[0]->motherRefVector();
-      reco::GenParticleRefVector daughters = parentParts[0]->daughterRefVector();
-      bool hasMuon = false;
-      bool hasAntiMuon = false;
-      for (auto daughter : daughters) {
-        if (daughter->pdgId() == 13)
-          hasMuon = true;
-        if (daughter->pdgId() == -13)
-          hasAntiMuon = true;
-      }
-      if (hasMuon && hasAntiMuon) {
-        bool hAncestor = false;
-        while (parentParts.size() > 0) {
-          if (parentParts[0]->pdgId() == 25)
-            hAncestor = true;
-          parentParts = parentParts[0]->motherRefVector();
-        }
-        if (hAncestor) {
-          return true;
-        }
-      }
-    }
-  }  //mu or anti mu
-  return false;
-}
-
-template <typename T>
-bool L1TrackObjectNtupleMaker::findHiggsToBAncestor(T particle) {
-  TrackingVertexRef parentVert = particle->parentVertex();
-  TrackingParticle currentParticle = *particle;
-  while (currentParticle.genParticles().size() == 0 && parentVert->nSourceTracks() > 0) {
-    TrackingParticleRefVector sourceTPs = parentVert->sourceTracks();
-    currentParticle = *sourceTPs[0];
-    parentVert = currentParticle.parentVertex();
-  }
-  bool bAncestor = false;
-  bool hAncestor = false;
-  reco::GenParticleRefVector genParticles = currentParticle.genParticles();
-  while (genParticles.size() > 0) {
-    if (hAncestor == false && abs(genParticles[0]->pdgId()) == 5)
-      bAncestor = true;
-    if (genParticles[0]->pdgId() == 25)
-      hAncestor = true;
-    genParticles = genParticles[0]->motherRefVector();
-  }
-  if (bAncestor && hAncestor)
-    return true;
-  return false;
 }
 
 template <typename T>
