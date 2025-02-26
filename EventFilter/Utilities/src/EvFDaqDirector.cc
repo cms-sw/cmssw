@@ -23,6 +23,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <cstdio>
+#include <regex>
 #include <boost/algorithm/string.hpp>
 #include <fmt/printf.h>
 
@@ -40,7 +41,9 @@ namespace evf {
       : base_dir_(pset.getUntrackedParameter<std::string>("baseDir")),
         bu_base_dir_(pset.getUntrackedParameter<std::string>("buBaseDir")),
         bu_base_dirs_all_(pset.getUntrackedParameter<std::vector<std::string>>("buBaseDirsAll")),
-        bu_base_dirs_nSources_(pset.getUntrackedParameter<std::vector<int>>("buBaseDirsNumStreams")),
+        bu_base_dirs_n_sources_(pset.getUntrackedParameter<std::vector<int>>("buBaseDirsNumStreams")),
+        bu_base_dirs_source_ids_(pset.getUntrackedParameter<std::vector<int>>("buBaseDirsStreamIDs")),
+        source_identifier_(pset.getUntrackedParameter<std::string>("sourceIdentifier")),
         run_(pset.getUntrackedParameter<unsigned int>("runNumber")),
         useFileBroker_(pset.getUntrackedParameter<bool>("useFileBroker")),
         fileBrokerHostFromCfg_(pset.getUntrackedParameter<bool>("fileBrokerHostFromCfg", false)),
@@ -101,19 +104,8 @@ namespace evf {
       }
     }
     if (useFileBroker_) {
-      if (fileBrokerHostFromCfg_) {
-        //find BU data address from hltd configuration
-        fileBrokerHost_ = std::string();
-        struct stat buf;
-        if (stat("/etc/appliance/bus.config", &buf) == 0) {
-          std::ifstream busconfig("/etc/appliance/bus.config", std::ifstream::in);
-          std::getline(busconfig, fileBrokerHost_);
-        }
-        if (fileBrokerHost_.empty())
-          throw cms::Exception("EvFDaqDirector") << "No file service or BU data address information";
-      } else if (fileBrokerHost_.empty() || fileBrokerHost_ == "InValid")
-        throw cms::Exception("EvFDaqDirector")
-            << "fileBrokerHostFromCfg must be set to true if fileBrokerHost parameter is not valid or empty";
+      if (fileBrokerHost_.empty() || fileBrokerHost_ == "InValid")
+        throw cms::Exception("EvFDaqDirector") << "fileBrokerHost parameter is not valid or empty";
 
       resolver_ = std::make_unique<boost::asio::ip::tcp::resolver>(io_service_);
       query_ = std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_);
@@ -144,18 +136,17 @@ namespace evf {
     }
 
     // set number of streams in each BU's ramdisk
-    if (bu_base_dirs_nSources_.empty()) {
+    if (bu_base_dirs_n_sources_.empty()) {
       // default is 1 stream per ramdisk
       for (unsigned int i = 0; i < bu_base_dirs_all_.size(); i++) {
-        bu_base_dirs_nSources_.push_back(1);
+        bu_base_dirs_n_sources_.push_back(1);
       }
-    } else if (bu_base_dirs_nSources_.size() != bu_base_dirs_all_.size()) {
+    } else if (bu_base_dirs_n_sources_.size() != bu_base_dirs_all_.size()) {
       throw cms::Exception("DaqDirector")
           << " Error while setting number of sources: size mismatch with BU base directory vector";
     } else {
       for (unsigned int i = 0; i < bu_base_dirs_all_.size(); i++) {
-        bu_base_dirs_nSources_.push_back(bu_base_dirs_nSources_[i]);
-        edm::LogInfo("EvFDaqDirector") << "Setting " << bu_base_dirs_nSources_[i] << " sources"
+        edm::LogInfo("EvFDaqDirector") << "Setting " << bu_base_dirs_n_sources_[i] << " sources"
                                        << " for ramdisk " << bu_base_dirs_all_[i];
       }
     }
@@ -164,6 +155,14 @@ namespace evf {
     std::stringstream ss;
     ss << getpid();
     pid_ = ss.str();
+
+    if (!source_identifier_.empty()) {
+      if (bu_base_dirs_source_ids_.empty())
+        throw cms::Exception("EvFDaqDirector") << "buBaseDirsStreamIDs should not be empty with sourceIdentifier set";
+      std::stringstream ss2;
+      ss2 << "_" << source_identifier_ << std::setfill('0') << std::setw(4) << bu_base_dirs_source_ids_[0];
+      sourceid_first_ = ss2.str();
+    }
   }
 
   void EvFDaqDirector::updateRunParams() {
@@ -179,7 +178,6 @@ namespace evf {
   }
 
   void EvFDaqDirector::initRun() {
-    std::cout << " init Run " << std::endl;
     // check if base dir exists or create it accordingly
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
@@ -263,6 +261,11 @@ namespace evf {
 
           std::filesystem::copy_file(hltSourceDirectory_ + "/HltConfig.py", tmphltdir + "/HltConfig.py");
           std::filesystem::copy_file(hltSourceDirectory_ + "/fffParameters.jsn", tmphltdir + "/fffParameters.jsn");
+          //also try to copy new DAQ parameters file
+          try {
+            std::filesystem::copy_file(hltSourceDirectory_ + "/daqParameters.jsn", tmphltdir + "/daqParameters.jsn");
+          } catch (...) {
+          }
 
           std::string optfiles[3] = {"hltinfo", "blacklist", "whitelist"};
           for (auto& optfile : optfiles) {
@@ -391,11 +394,16 @@ namespace evf {
         ->setComment("BU base ramdisk directories for multi-file DAQSource models");
     desc.addUntracked<std::vector<int>>("buBaseDirsNumStreams", std::vector<int>())
         ->setComment("Number of streams for each BU base ramdisk directories for multi-file DAQSource models");
+    desc.addUntracked<std::vector<int>>("buBaseDirsStreamIDs", std::vector<int>())
+        ->setComment(
+            "SourceId, FEDId or sfbId combined list for each source in buBaseDirsNumStreams in identical order. If "
+            "left empty, it can be inferred dynamically from input");
+    desc.addUntracked<std::string>("sourceIdentifier", std::string())
+        ->setComment("String prefix of IDs in raw filenames. None expected if left empty");
     desc.addUntracked<unsigned int>("runNumber", 0)->setComment("Run Number in ramdisk to open");
     desc.addUntracked<bool>("useFileBroker", false)
         ->setComment("Use BU file service to grab input data instead of NFS file locking");
-    desc.addUntracked<bool>("fileBrokerHostFromCfg", true)
-        ->setComment("Allow service to discover BU address from hltd configuration");
+    desc.addUntracked<bool>("fileBrokerHostFromCfg", true)->setComment("Kept for compatibility with scripts");
     desc.addUntracked<std::string>("fileBrokerHost", "InValid")->setComment("BU file service host.");
     desc.addUntracked<std::string>("fileBrokerPort", "8080")->setComment("BU file service port");
     desc.addUntracked<bool>("fileBrokerKeepAlive", true)
@@ -542,6 +550,7 @@ namespace evf {
                                       << ". error = " << strerror(errno);
   }
 
+  //deprecated (file locking mode)
   EvFDaqDirector::FileStatus EvFDaqDirector::updateFuLock(unsigned int& ls,
                                                           std::string& nextFile,
                                                           uint32_t& fsize,
@@ -810,6 +819,7 @@ namespace evf {
     return std::stoi(data);
   }
 
+  //deprecated (file locking mode)
   bool EvFDaqDirector::bumpFile(unsigned int& ls,
                                 unsigned int& index,
                                 std::string& nextFile,
@@ -909,6 +919,7 @@ namespace evf {
     return false;
   }
 
+  //deprecated (file locking mode)
   void EvFDaqDirector::tryInitializeFuLockFile() {
     if (fu_rw_lock_stream == nullptr)
       edm::LogError("EvFDaqDirector") << "Error creating fu read/write lock stream " << strerror(errno);
@@ -1004,9 +1015,8 @@ namespace evf {
                                          bool requireHeader,
                                          bool retry,
                                          bool closeFile) {
-    int infile;
-
-    if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
+    //skip opening file if rawFd is already intialized
+    if (rawFd == -1 && (rawFd = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
       if (retry) {
         edm::LogWarning("EvFDaqDirector")
             << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
@@ -1021,7 +1031,8 @@ namespace evf {
                                   false,
                                   closeFile);
       } else {
-        if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
+        //try again
+        if ((rawFd = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
           edm::LogError("EvFDaqDirector")
               << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
           if (errno == ENOENT)
@@ -1034,7 +1045,7 @@ namespace evf {
 
     //v2 is the largest possible read
     char hdr[sizeof(FRDFileHeader_v2)];
-    if (!checkFileRead(hdr, infile, sizeof(FRDFileHeaderIdentifier), rawSourcePath))
+    if (!checkFileRead(hdr, rawFd, sizeof(FRDFileHeaderIdentifier), rawSourcePath))
       return -1;
 
     FRDFileHeaderIdentifier* fileId = (FRDFileHeaderIdentifier*)hdr;
@@ -1044,11 +1055,11 @@ namespace evf {
       //no header (specific sequence not detected)
       if (requireHeader) {
         edm::LogError("EvFDaqDirector") << "no header or invalid version string found in:" << rawSourcePath;
-        close(infile);
+        close(rawFd);
         return -1;
       } else {
         //no header, but valid file
-        lseek(infile, 0, SEEK_SET);
+        lseek(rawFd, 0, SEEK_SET);
         rawHeaderSize = 0;
         lsFromHeader = 0;
         eventsFromHeader = -1;
@@ -1056,14 +1067,14 @@ namespace evf {
       }
     } else if (frd_version == 1) {
       //version 1 header
-      if (!checkFileRead(hdr, infile, sizeof(FRDFileHeaderContent_v1), rawSourcePath))
+      if (!checkFileRead(hdr, rawFd, sizeof(FRDFileHeaderContent_v1), rawSourcePath))
         return -1;
       FRDFileHeaderContent_v1* fhContent = (FRDFileHeaderContent_v1*)hdr;
       uint32_t headerSizeRaw = fhContent->headerSize_;
       if (headerSizeRaw != sizeof(FRDFileHeader_v1)) {
         edm::LogError("EvFDaqDirector") << "inconsistent header size: " << rawSourcePath << " size: " << headerSizeRaw
                                         << " v:" << frd_version;
-        close(infile);
+        close(rawFd);
         return -1;
       }
       //allow header size to exceed read size. Future header versions will not break this, but the size can change.
@@ -1075,14 +1086,14 @@ namespace evf {
 
     } else if (frd_version == 2) {
       //version 2 heade
-      if (!checkFileRead(hdr, infile, sizeof(FRDFileHeaderContent_v2), rawSourcePath))
+      if (!checkFileRead(hdr, rawFd, sizeof(FRDFileHeaderContent_v2), rawSourcePath))
         return -1;
       FRDFileHeaderContent_v2* fhContent = (FRDFileHeaderContent_v2*)hdr;
       uint32_t headerSizeRaw = fhContent->headerSize_;
       if (headerSizeRaw != sizeof(FRDFileHeader_v2)) {
         edm::LogError("EvFDaqDirector") << "inconsistent header size: " << rawSourcePath << " size: " << headerSizeRaw
                                         << " v:" << frd_version;
-        close(infile);
+        close(rawFd);
         return -1;
       }
       //allow header size to exceed read size. Future header versions will not break this, but the size can change.
@@ -1094,24 +1105,100 @@ namespace evf {
     }
 
     if (closeFile) {
-      close(infile);
-      infile = -1;
+      close(rawFd);
+      rawFd = -1;
     }
 
-    rawFd = infile;
     return 0;  //OK
   }
 
-  bool EvFDaqDirector::checkFileRead(char* buf, int infile, std::size_t buf_sz, std::string const& path) {
+  bool EvFDaqDirector::hasFRDFileHeader(std::string const& rawPath, int& rawFd, bool& hasErr, bool closeFile) const {
+    auto retOK = [&](bool found = false, bool err = true) -> bool {
+      if (rawFd != -1) {
+        if (closeFile || !found) {  //do not pass rawFd if not found
+          close(rawFd);
+          rawFd = -1;
+        } else {
+          lseek(rawFd, 0, SEEK_SET);  //reset position
+        }
+      }
+      return found;
+    };
+
+    auto retErr = [&]() -> bool {
+      if (rawFd != -1) {
+        close(rawFd);
+        rawFd = -1;
+      }
+      hasErr = true;
+      return false;
+    };
+
+    //open or inherit fd
+    if (rawFd == -1) {
+      if ((rawFd = ::open(rawPath.c_str(), O_RDONLY)) < 0) {
+        edm::LogWarning("EvFDaqDirector")
+            << "parseFRDFileHeader - failed to open input file -: " << rawPath << " : " << strerror(errno);
+        return retErr();
+      }
+    }
+
+    //v2 is the largest possible read
+    char hdr[sizeof(FRDFileHeader_v2)];
+    if (!checkFileRead(hdr, rawFd, sizeof(FRDFileHeaderIdentifier), rawPath))
+      return retErr();
+
+    FRDFileHeaderIdentifier* fileId = (FRDFileHeaderIdentifier*)hdr;
+    uint16_t frd_version = getFRDFileHeaderVersion(fileId->id_, fileId->version_);
+
+    if (frd_version == 0) {
+      //no header detected or unsupported version
+      return retOK(false);
+    } else if (frd_version == 1) {
+      //version 1 header
+      if (!checkFileRead(hdr, rawFd, sizeof(FRDFileHeaderContent_v1), rawPath))
+        return retErr();
+      FRDFileHeaderContent_v1* fhContent = (FRDFileHeaderContent_v1*)hdr;
+      uint32_t headerSizeRaw = fhContent->headerSize_;
+      if (headerSizeRaw != sizeof(FRDFileHeader_v1)) {
+        edm::LogError("EvFDaqDirector") << "inconsistent header size: " << rawPath << " size: " << headerSizeRaw
+                                        << " v:" << frd_version;
+        return retErr();
+      }
+      return retOK(true);
+    } else if (frd_version == 2) {
+      //version 2 heade
+      if (!checkFileRead(hdr, rawFd, sizeof(FRDFileHeaderContent_v2), rawPath))
+        return retErr();
+      FRDFileHeaderContent_v2* fhContent = (FRDFileHeaderContent_v2*)hdr;
+      uint32_t headerSizeRaw = fhContent->headerSize_;
+      if (headerSizeRaw != sizeof(FRDFileHeader_v2)) {
+        edm::LogError("EvFDaqDirector") << "inconsistent header size: " << rawPath << " size: " << headerSizeRaw
+                                        << " v:" << frd_version;
+        return retErr();
+      }
+      return retOK(true);
+    }
+
+    edm::LogError("EvFDaqDirector") << "unsupported FRD file header version " << frd_version;
+    return retErr();
+  }
+
+  //TODO: sjould it be int& intfile ?
+  bool EvFDaqDirector::checkFileRead(char* buf, int& infile, std::size_t buf_sz, std::string const& path) {
+    if (infile == -1) {
+      edm::LogError("EvFDaqDirector") << "file:" << path << " not open ";
+      return false;
+    }
     ssize_t sz_read = ::read(infile, buf, buf_sz);
     if (sz_read < 0) {
-      edm::LogError("EvFDaqDirector") << "rawFileHasHeader - unable to read " << path << " : " << strerror(errno);
+      edm::LogError("EvFDaqDirector") << "checkFileRead - unable to read " << path << " : " << strerror(errno);
       if (infile != -1)
         close(infile);
       return false;
     }
     if ((size_t)sz_read < buf_sz) {
-      edm::LogError("EvFDaqDirector") << "rawFileHasHeader - file smaller than header: " << path;
+      edm::LogError("EvFDaqDirector") << "checkFileRead - file smaller than header: " << path;
       if (infile != -1)
         close(infile);
       return false;
@@ -1119,6 +1206,7 @@ namespace evf {
     return true;
   }
 
+  //deprecated (file locking mode)
   bool EvFDaqDirector::rawFileHasHeader(std::string const& rawSourcePath, uint16_t& rawHeaderSize) {
     int infile;
     if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
@@ -1247,6 +1335,7 @@ namespace evf {
     return nbEventsWrittenRaw;
   }
 
+  //old deprecated format with supporting JSON files
   int EvFDaqDirector::grabNextJsonFile(std::string const& jsonSourcePath,
                                        std::string const& rawSourcePath,
                                        int64_t& fileSizeFromJson,
@@ -1430,6 +1519,7 @@ namespace evf {
     return -1;
   }
 
+  //deprecated (old format with json files)
   int EvFDaqDirector::grabNextJsonFileAndUnlock(std::filesystem::path const& jsonSourcePath) {
     std::string data;
     try {
@@ -1789,6 +1879,206 @@ namespace evf {
     return fileStatus;
   }
 
+  EvFDaqDirector::FileStatus EvFDaqDirector::discoverFile(unsigned int& fakeHttpStatus,
+                                                          bool& fakeServerError,
+                                                          uint32_t& serverLS,
+                                                          uint32_t& closedServerLS,
+                                                          std::string& nextFileJson,
+                                                          std::string& nextFileRaw,
+                                                          bool& rawHeader,
+                                                          int maxLS) {
+    fakeHttpStatus = 200;
+    fakeServerError = false;
+    //rawHeader = true; //assume header, let check be done and fallback to discover files if not
+    rawHeader = false;                         //assume header, let check be done and fallback to discover files if not
+    std::regex regex_ls("_ls([0-9]+)");        // Match _ls followed by digits
+    std::regex regex_index("_index([0-9]+)");  // Match _ls followed by digits
+
+    // Lambda function to extract the number after _ls
+    auto extractIndexNumber = [&regex_index](const std::string& filename) -> int {
+      std::smatch match;
+      if (std::regex_search(filename, match, regex_index)) {
+        return std::stoi(match[1].str());  // Convert the matched number to an integer
+      }
+      return -1;  // Return -1 if no match is found
+    };
+
+    // Lambda function to extract the number after _ls
+    auto extractLumiSectionNumber = [&regex_ls](const std::string& filename) -> int {
+      std::smatch match;
+      if (std::regex_search(filename, match, regex_ls)) {
+        return std::stoi(match[1].str());  // Convert the matched number to an integer
+      }
+      return -1;  // Return -1 if no match is found
+    };
+
+    int maxClosedLS = 0;
+
+    // Lambda to list and sort files by the number after _ls
+    auto listSortedFilesByLS = [&](std::string const& path) -> std::vector<std::string> {
+      std::vector<std::string> filenames;
+      // Collect filenames
+      try {
+        for (const auto& entry : std::filesystem::directory_iterator(path)) {
+          if (std::filesystem::is_regular_file(entry.path())) {  // Only files, not directories
+            auto fname = entry.path().filename().string();
+            //only files with run
+            if (!(fname.rfind("run", 0) == 0))
+              continue;
+            if (fname.find("_EoR.jsn") != std::string::npos) {
+              filenames.push_back(entry.path().filename().string());
+              continue;
+            }
+            auto lumi = extractLumiSectionNumber(fname);
+            if (fname.find("_EoLS.jsn") != std::string::npos) {
+              if (lumi > (int)maxClosedLS)
+                maxClosedLS = lumi;
+              if (lumi >= (int)lastFileIdx_.first)
+                filenames.push_back(entry.path().filename().string());
+              continue;
+            }
+            if (!source_identifier_.empty()) {
+              if (fname.rfind(sourceid_first_) == std::string::npos)
+                continue;
+              //repeat search for EoR and EOLS with sourceid
+              if (fname.find("_EoR") != std::string::npos) {
+                filenames.push_back(entry.path().filename().string());
+                continue;
+              }
+              if (fname.find("_EoLS") != std::string::npos) {
+                if (lumi > (int)maxClosedLS)
+                  maxClosedLS = lumi;
+                if (lumi >= (int)lastFileIdx_.first)
+                  filenames.push_back(entry.path().filename().string());
+                continue;
+              }
+            }
+            //exclude json and similar, only raw file is parsed
+            if (fname.size() < 4 || fname.substr(fname.size() - 4) != std::string(".raw"))
+              continue;
+            if (lumi >= (int)lastFileIdx_.first) {
+              if (extractIndexNumber(fname) >= lastFileIdx_.second) {
+                filenames.push_back(entry.path().filename().string());
+              }
+            }
+          }
+        }
+
+        // Sort filenames based on the extracted number after _ls
+        std::sort(filenames.begin(), filenames.end(), [&](const std::string& a, const std::string& b) {
+          if (a.find("_EoR") != std::string::npos)
+            return false;
+          if (b.find("_EoR") != std::string::npos)
+            return true;
+          auto ls_a = extractLumiSectionNumber(a);
+          auto ls_b = extractLumiSectionNumber(b);
+          if (ls_a == ls_b) {
+            if (a.find("_EoLS") != std::string::npos)
+              return false;
+            if (b.find("_EoLS") != std::string::npos)
+              return true;
+            return extractIndexNumber(a) < extractIndexNumber(b);
+          }
+          return extractLumiSectionNumber(a) < extractLumiSectionNumber(b);
+        });
+
+      } catch (const std::filesystem::filesystem_error& e) {
+        edm::LogWarning("EvFDaqDirector") << "Error accessing directory: " << e.what();
+        fakeServerError = true;
+      }
+
+      return filenames;
+    };
+
+    std::function<EvFDaqDirector::FileStatus(bool)> findNextFile = [&](bool recheck) -> EvFDaqDirector::FileStatus {
+      // Call the lambda and print the sorted filenames
+      std::vector<std::string> files = listSortedFilesByLS(bu_run_dir_);
+
+      if (files.empty())
+        return noFile;
+
+      for (auto const& name : files) {
+        auto nextLS = extractLumiSectionNumber(name);
+        LogDebug("EvFDaqDirector") << "next file is:" << name << " serverLS:" << serverLS
+                                   << " closedSrvLS:" << closedServerLS << " next LS: " << nextLS;
+
+        assert(nextLS >= 0);
+        if (nextLS == 0) {
+          //EOR
+          //TODO: rescan
+          if (recheck)
+            return findNextFile(false);
+          closedServerLS = maxClosedLS;
+          return runEnded;
+        }
+        auto nextIndex = extractIndexNumber(name);
+        if (nextIndex == -1) {
+          //received EOLS, open next LS
+          //TODO: rescan
+          if (recheck)
+            return findNextFile(false);
+          //assert((int)serverLS <= nextLS);
+          serverLS = nextLS + 1;
+          lastFileIdx_.first = serverLS;
+          lastFileIdx_.second = -1;
+          LogDebug("EvFDaqDirector") << "next serverLS (EOLS) is :" << serverLS;
+          closedServerLS = nextLS;
+          return noFile;
+        }
+        //new file!
+        std::string fileprefix = "/fu/";
+        std::string rawpath = bu_run_dir_ + "/" + name;  //filestem should be raw
+        //make destination dir
+        if (!std::filesystem::exists(bu_run_dir_ + fileprefix)) {
+          std::filesystem::create_directory(bu_run_dir_ + fileprefix);
+        }
+        std::filesystem::path p = name;
+        auto nextFileRawTmp = fmt::format("{}{}{}_{}_pid{}{}",
+                                          bu_run_dir_,
+                                          fileprefix,
+                                          p.stem().string(),
+                                          hostname_,
+                                          getpid(),
+                                          p.extension().string());
+        try {
+          //grab file if possible
+          std::filesystem::rename(rawpath, nextFileRawTmp);
+          //apply changes
+          nextFileRaw = nextFileRawTmp;
+          serverLS = nextLS;  //if changed
+          closedServerLS = nextLS - 1;
+
+          //update last info
+          lastFileIdx_.first = serverLS;
+          lastFileIdx_.second = nextIndex;
+
+          nextFileJson = "";
+          LogDebug("EvFDaqDirector") << "return newFile";
+          return newFile;
+        } catch (const std::filesystem::filesystem_error& e) {
+          if (e.code().value() == ESTALE) {
+            edm::LogWarning("EvFDaqDirector")
+                << "Filesystem ESTALE error:" << e.what() << " for source file:" << rawpath;
+            continue;  //grabbed? try next file
+          } else if (e.code() == std::errc::no_such_file_or_directory) {
+            //try next raw file in case other process grabbed it
+            continue;
+            //if (recheck)
+            //  return findNextFile(false);
+          } else
+            edm::LogWarning("EvFDaqDirector") << "Filesystem error: " << e.what();
+
+          fakeServerError = true;
+          return noFile;
+        }
+        break;
+      }
+      return noFile;
+    };
+
+    return findNextFile(true);
+  }
+
   EvFDaqDirector::FileStatus EvFDaqDirector::getNextFromFileBroker(const unsigned int currentLumiSection,
                                                                    unsigned int& ls,
                                                                    std::string& nextFileRaw,
@@ -1797,7 +2087,9 @@ namespace evf {
                                                                    int32_t& serverEventsInNewFile,
                                                                    int64_t& fileSizeFromMetadata,
                                                                    uint64_t& thisLockWaitTimeUs,
-                                                                   bool requireHeader) {
+                                                                   bool requireHeader,
+                                                                   bool fsDiscovery,
+                                                                   RawFileEvtCounter eventCounter) {
     EvFDaqDirector::FileStatus fileStatus = noFile;
 
     //int retval = -1;
@@ -1837,9 +2129,9 @@ namespace evf {
     gettimeofday(&ts_lockbegin, nullptr);
 
     std::string nextFileJson;
-    uint32_t serverLS, closedServerLS;
-    unsigned int serverHttpStatus;
-    bool serverError;
+    uint32_t serverLS = 0, closedServerLS = 0;
+    unsigned int serverHttpStatus = 0;
+    bool serverError = false;
 
     //local lock to force index json and EoLS files to appear in order
     if (fileBrokerUseLocalLock_)
@@ -1847,8 +2139,12 @@ namespace evf {
 
     int maxLS = stopFileLS < 0 ? -1 : std::max(stopFileLS, (int)currentLumiSection);
     bool rawHeader = false;
-    fileStatus = contactFileBroker(
-        serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, rawHeader, maxLS);
+    if (fsDiscovery)
+      fileStatus = discoverFile(
+          serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, rawHeader, maxLS);
+    else
+      fileStatus = contactFileBroker(
+          serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, rawHeader, maxLS);
 
     if (serverError) {
       //do not update anything
@@ -1874,11 +2170,26 @@ namespace evf {
     bool fileFound = true;
 
     if (fileStatus == newFile) {
-      if (rawHeader > 0)
+      bool hasErrHdr = false;
+      //either file broker API reports raw file header of we try to detect ift by reading fi
+      //note: hasFRDFileHeader and grabNextJsonFromRaw could also be unified
+      //assert(rawFd == -1); //checked by caller
+      if (!rawHeader)
+        rawHeader = hasFRDFileHeader(nextFileRaw, rawFd, hasErrHdr, false);
+
+      if (hasErrHdr) {
+        //error reading header, set to -1 and trigger error downstream
+        serverEventsInNewFile = -1;
+      } else if (rawHeader) {
         serverEventsInNewFile = grabNextJsonFromRaw(
             nextFileRaw, rawFd, rawHeaderSize, fileSizeFromMetadata, fileFound, serverLS, false, requireHeader);
-      else
+      } else if (eventCounter) {
+        //there is no header: then try to use model to count events
+        serverEventsInNewFile = eventCounter(nextFileRaw, rawFd, fileSizeFromMetadata, serverLS, fileFound);
+      } else {
+        //or look for json file (deprecated)
         serverEventsInNewFile = grabNextJsonFile(nextFileJson, nextFileRaw, fileSizeFromMetadata, fileFound);
+      }
     }
     //closing file in case of any error
     if (serverEventsInNewFile < 0 && rawFd != -1) {
