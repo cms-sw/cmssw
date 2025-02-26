@@ -213,7 +213,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
       ex.clearMessage();
       ex.clearContext();
       ex.clearAdditionalInfo();
-      ex << "XrdCl::File::Open(name='" << m_name << "', flags=0x" << std::hex << m_flags << ", permissions=0"
+      ex << "XrdCl::File::Open(name='" << new_filename << "', flags=0x" << std::hex << m_flags << ", permissions=0"
          << std::oct << m_perms << std::dec << ") => error '" << openStatus.ToStr() << "' (errno=" << openStatus.errNo
          << ", code=" << openStatus.code << ")";
       ex.addContext("Calling XrdFile::open()");
@@ -233,7 +233,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
       ex.clearMessage();
       ex.clearContext();
       ex.clearAdditionalInfo();
-      ex << "XrdCl::File::Open(name='" << m_name << "', flags=0x" << std::hex << m_flags << ", permissions=0"
+      ex << "XrdCl::File::Open(name='" << new_filename << "', flags=0x" << std::hex << m_flags << ", permissions=0"
          << std::oct << m_perms << std::dec << ") => error '" << status->ToStr() << "' (errno=" << status->errNo
          << ", code=" << status->code << ")";
       ex.addContext("Calling XrdFile::open()");
