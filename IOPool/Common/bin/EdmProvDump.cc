@@ -79,8 +79,18 @@ namespace {
     const_iterator end() const { return children_.end(); }
 
     void print(std::ostream& os) const {
-      os << config_.processName() << " '" << config_.passID() << "' '" << config_.releaseVersion() << "' [" << simpleId_
-         << "]  (" << config_.parameterSetID() << ")" << std::endl;
+      auto const& hwresources = config_.hardwareResourcesDescription();
+      os << config_.processName() << " '" << config_.releaseVersion() << "' [" << simpleId_ << "]  ("
+         << config_.parameterSetID() << ")"
+         << "  (" << hwresources.microarchitecture;
+      if (not hwresources.selectedAccelerators.empty()) {
+        os << "; " << hwresources.selectedAccelerators.front();
+        for (auto it = hwresources.selectedAccelerators.begin() + 1; it != hwresources.selectedAccelerators.end();
+             ++it) {
+          os << "," << *it;
+        }
+      }
+      os << ")" << std::endl;
     }
 
     void printHistory(std::string const& iIndent = std::string("  ")) const;
@@ -116,8 +126,9 @@ std::ostream& operator<<(std::ostream& os, edm::ProcessHistory& iHist) {
   std::string const indentDelta("  ");
   std::string indent = indentDelta;
   for (auto const& process : iHist) {
-    os << indent << process.processName() << " '" << process.passID() << "' '" << process.releaseVersion() << "' ("
-       << process.parameterSetID() << ")" << std::endl;
+    // TODO: add printout of HardwareResourcesDescription
+    os << indent << process.processName() << " '" << process.releaseVersion() << "' (" << process.parameterSetID()
+       << ")" << std::endl;
     indent += indentDelta;
   }
   return os;
