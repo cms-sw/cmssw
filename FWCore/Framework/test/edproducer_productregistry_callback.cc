@@ -9,8 +9,6 @@
 #include <iostream>
 #include "cppunit/extensions/HelperMacros.h"
 #include <memory>
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
@@ -26,6 +24,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Utilities/interface/TypeID.h"
+
+#include "makeDummyProcessConfiguration.h"
 
 class testEDProducerProductRegistryCallback : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEDProducerProductRegistryCallback);
@@ -132,8 +132,7 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD", dummyProcessPset.id());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
@@ -204,8 +203,7 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD", dummyProcessPset.id());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
@@ -275,8 +273,7 @@ void testEDProducerProductRegistryCallback::testTwoListeners() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD", dummyProcessPset.id());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);

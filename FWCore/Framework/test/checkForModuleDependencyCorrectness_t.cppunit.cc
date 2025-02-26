@@ -24,6 +24,8 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "cppunit/extensions/HelperMacros.h"
 
+#include "makeDummyProcessConfiguration.h"
+
 namespace edm {
   class ESProducer;
 
@@ -117,7 +119,7 @@ namespace {
     std::unordered_map<std::string, unsigned int> modsToIndex;
     std::unordered_map<unsigned int, std::string> indexToMods;
 
-    const edm::ProcessConfiguration pc("TEST", edm::ParameterSetID{}, "CMSSW_x_y_z", "??");
+    const edm::ProcessConfiguration pc = edmtest::makeDummyProcessConfiguration("TEST");
 
     //In actual configuration building, the source is always assigned id==0
     m_cache.emplace_back(

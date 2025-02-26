@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include "DataFormats/Provenance/interface/HardwareResourcesDescription.h"
+
 namespace edm {
 
   class ResourceInformation {
@@ -21,6 +23,8 @@ namespace edm {
     ResourceInformation(ResourceInformation const&) = delete;
     ResourceInformation const& operator=(ResourceInformation const&) = delete;
     virtual ~ResourceInformation();
+
+    virtual HardwareResourcesDescription hardwareResourcesDescription() const = 0;
 
     virtual std::vector<std::string> const& selectedAccelerators() const = 0;
     virtual std::vector<std::string> const& cpuModels() const = 0;
