@@ -170,7 +170,7 @@ DisplacedVertexProducer::DisplacedVertexProducer(const edm::ParameterSet& iConfi
       trackGTTToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(
           iConfig.getParameter<edm::InputTag>("l1TracksGTTInputTag"))),
       outputVertexCollectionName_(iConfig.getParameter<std::string>("l1TrackVertexCollectionName")),
-      model_(iConfig.getParameter<std::string>("model")),
+      model_(iConfig.getParameter<edm::FileInPath>("model")),
       runEmulation_(iConfig.getParameter<bool>("runEmulation")),
       cutSet_(iConfig.getParameter<edm::ParameterSet>("cutSet")),
       chi2rzMax_(cutSet_.getParameter<double>("chi2rzMax")),
@@ -341,7 +341,8 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
             vertex.R_T,
             vertex.cos_T,
             vertex.delta_z * 0.125};
-        conifer::BDT<ap_fixed<13, 8, AP_RND_CONV, AP_SAT>, ap_fixed<13, 8, AP_RND_CONV, AP_SAT>> bdt(this->model_);
+        conifer::BDT<ap_fixed<13, 8, AP_RND_CONV, AP_SAT>, ap_fixed<13, 8, AP_RND_CONV, AP_SAT>> bdt(
+            this->model_.fullPath());
         std::vector<ap_fixed<13, 8, AP_RND_CONV, AP_SAT>> output = bdt.decision_function(Transformed_features);
         outputVertex.setScore(output.at(0).to_float());
       } else {
@@ -365,7 +366,7 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
                                                    vertex.R_T,
                                                    vertex.cos_T,
                                                    float(vertex.delta_z * 0.125)};
-        conifer::BDT<float, float> bdt(this->model_);
+        conifer::BDT<float, float> bdt(this->model_.fullPath());
         std::vector<float> output = bdt.decision_function(Transformed_features);
         outputVertex.setScore(output.at(0));
       }
