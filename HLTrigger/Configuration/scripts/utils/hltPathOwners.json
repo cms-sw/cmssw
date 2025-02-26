@@ -313,6 +313,30 @@
       "HLT-Scouting"
     ]
   },
+  "DST_PFScouting_DoubleMuonNoVtx_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting"
+    ]
+  },
+  "DST_PFScouting_DoubleMuonVtxMonitorJPsi_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting"
+    ]
+  },
+  "DST_PFScouting_DoubleMuonVtxMonitorZ_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting"
+    ]
+  },
+  "DST_PFScouting_DoubleMuonVtx_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting"
+    ]
+  },
   "DST_PFScouting_DoubleMuon_v": {
     "online?": true,
     "owners": [
@@ -4475,6 +4499,12 @@
       "SMP"
     ]
   },
+  "HLT_IsoMu24_HLTTracking_v": {
+    "online?": true,
+    "owners": [
+      "Tracker"
+    ]
+  },
   "HLT_IsoMu24_OneProng32_v": {
     "online?": true,
     "owners": [
@@ -5510,6 +5540,18 @@
     "online?": true,
     "owners": [
       "NPS"
+    ]
+  },
+  "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_HLTTracking_v": {
+    "online?": true,
+    "owners": [
+      "Tracker"
+    ]
+  },
+  "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_HLTTracking_v": {
+    "online?": true,
+    "owners": [
+      "Tracker"
     ]
   },
   "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v": {
