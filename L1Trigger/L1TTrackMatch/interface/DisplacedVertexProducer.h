@@ -167,7 +167,7 @@ private:
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackToken_;
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackGTTToken_;
   const std::string outputVertexCollectionName_;
-  const std::string model_;
+  const edm::FileInPath model_;
   const bool runEmulation_;
   const edm::ParameterSet cutSet_;
   const double chi2rzMax_, promptMVAMin_, ptMin_, etaMax_, dispD0Min_, promptMVADispTrackMin_, overlapEtaMin_,
