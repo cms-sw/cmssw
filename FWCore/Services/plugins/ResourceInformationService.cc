@@ -31,6 +31,8 @@ namespace edm {
 
       static void fillDescriptions(ConfigurationDescriptions&);
 
+      HardwareResourcesDescription hardwareResourcesDescription() const final;
+
       std::vector<std::string> const& selectedAccelerators() const final;
       std::vector<std::string> const& cpuModels() const final;
       std::vector<std::string> const& gpuModels() const final;
@@ -88,6 +90,21 @@ namespace edm {
       ParameterSetDescription desc;
       desc.addUntracked<bool>("verbose", false);
       descriptions.add("ResourceInformationService", desc);
+    }
+
+    HardwareResourcesDescription ResourceInformationService::hardwareResourcesDescription() const {
+      // It is important to have this function defined in a plugin
+      // library. It expands the CMS_MICRO_ARCH macro, and loading the
+      // library via plugin mechanism rather than as a dependence of
+      // another library has the best chance to capture the best
+      // microarchitecture that scram decided to use
+
+      HardwareResourcesDescription ret;
+      ret.microarchitecture = CMS_MICRO_ARCH;  // macro expands to string literal
+      ret.cpuModels = cpuModels();
+      ret.selectedAccelerators = selectedAccelerators();
+      ret.gpuModels = gpuModels();
+      return ret;
     }
 
     std::vector<std::string> const& ResourceInformationService::selectedAccelerators() const {

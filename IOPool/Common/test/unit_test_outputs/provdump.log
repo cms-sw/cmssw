@@ -9,7 +9,7 @@ ParameterSetID: bddf733236a388bb9b184c2c3a457281
  }
      -------------------------
 Processing History:
-  PROD1 ''
+  PROD1
 ---------Producers with data in file---------
 Module: TriggerResults PROD1
  PSet id:7499781d3ee2b1d28897c5e8d339ecd8
