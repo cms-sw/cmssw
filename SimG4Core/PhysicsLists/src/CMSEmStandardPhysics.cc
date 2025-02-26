@@ -288,14 +288,14 @@ void CMSEmStandardPhysics::ConstructProcess() {
     // as well as  `SetApplyCuts` and `SetLowestElectronEnergy` are taken from
     // `G4EmParameters` so we set only the step function parameters here.
 
-    config->SetEnergyLossStepLimitFunctionParameters(0.8, 1.0*CLHEP::mm);
+    config->SetEnergyLossStepLimitFunctionParameters(0.8, 1.0 * CLHEP::mm);
 
     // Then set special configuration for some regions:
     // ------------------------------------------------
     if (nullptr != aRegion) {
       // HCal region
       const G4String& rname = aRegion->GetName();
-      config->SetMinimalMSCStepLimit(fStepLimitType==fMinimal, rname);
+      config->SetMinimalMSCStepLimit(fStepLimitType == fMinimal, rname);
       config->SetMSCRangeFactor(fRangeFactor, rname);
       config->SetMSCSafetyFactor(fSafetyFactor, rname);
     }
@@ -303,12 +303,12 @@ void CMSEmStandardPhysics::ConstructProcess() {
     if (nullptr != bRegion) {
       // HGCal region
       const G4String& rname = bRegion->GetName();
-      config->SetMinimalMSCStepLimit(fStepLimitType==fMinimal, rname);
+      config->SetMinimalMSCStepLimit(fStepLimitType == fMinimal, rname);
       config->SetMSCRangeFactor(fRangeFactor, rname);
       config->SetMSCSafetyFactor(fSafetyFactor, rname);
 
       config->SetWoodcockTrackingRegion(rname);
-      config->SetWDTEnergyLimit(0.5*CLHEP::MeV);
+      config->SetWDTEnergyLimit(0.5 * CLHEP::MeV);
     }
 
     G4Electron::Electron()->SetTrackingManager(hepEmTM);
