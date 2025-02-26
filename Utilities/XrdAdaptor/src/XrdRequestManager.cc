@@ -563,6 +563,14 @@ void RequestManager::getPrettyActiveSourceNames(std::vector<std::string> &source
   }
 }
 
+void RequestManager::getPrettyInactiveSourceNames(std::vector<std::string> &sources) const {
+  std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+  sources.reserve(m_inactiveSources.size());
+  for (auto const &source : m_inactiveSources) {
+    sources.push_back(source->PrettyID());
+  }
+}
+
 void RequestManager::getDisabledSourceNames(std::vector<std::string> &sources) const {
   sources.reserve(m_disabledSourceStrings.size());
   for (auto const &source : m_disabledSourceStrings) {
@@ -575,6 +583,11 @@ void RequestManager::addConnections(cms::Exception &ex) const {
   getPrettyActiveSourceNames(sources);
   for (auto const &source : sources) {
     ex.addAdditionalInfo("Active source: " + source);
+  }
+  sources.clear();
+  getPrettyInactiveSourceNames(sources);
+  for (auto const &source : sources) {
+    ex.addAdditionalInfo("Inactive source: " + source);
   }
   sources.clear();
   getDisabledSourceNames(sources);
