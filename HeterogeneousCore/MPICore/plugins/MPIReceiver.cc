@@ -33,7 +33,6 @@ public:
     for (auto const& product : products) {
       auto const& type = product.getParameter<std::string>("type");
       auto const& label = product.getParameter<std::string>("label");
-
       Entry entry;
       entry.type = edm::TypeWithDict::byName(type);
       entry.wrappedType = edm::TypeWithDict::byName("edm::Wrapper<" + type + ">");
@@ -50,6 +49,11 @@ public:
     // read the MPIToken used to establish the communication channel
     MPIToken token = event.get(upstream_);
 
+    // Receive the number of products
+    int numProducts;
+    token.channel()->receiveProduct(instance_, numProducts);
+    edm::LogAbsolute("MPIReceiver") << "Received number of products: " << numProducts;
+
     for (auto const& entry : products_) {
       auto product = std::make_unique<edm::GenericProduct>();
       product->object_ = entry.type.construct();
@@ -57,7 +61,7 @@ public:
 
       // receive the data sent over the MPI channel
       // note: currently this uses a blocking probe/recv
-      token.channel()->receiveSerializedProduct(instance_, product->object_);
+      token.channel()->receiveProduct(instance_, product->object_);
 
       // put the data into the Event
       event.put(entry.token, std::move(product));
