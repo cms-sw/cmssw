@@ -286,7 +286,6 @@ void OnlineBeamMonitor::fetchBeamSpotInformation(const Event& iEvent, const Even
   }
   if (auto bsOnlineHandle = iEvent.getHandle(bsOnlineToken_)) {
     auto const& spotOnline = *bsOnlineHandle;
-    //std::cout << " from the online collection " << spotOnline << std::endl;
 
     beamSpotInfo->beamSpotsMap_["Online"] = spotOnline;
 
