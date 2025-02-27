@@ -197,7 +197,7 @@ const BeamSpotOnlineObjects& BeamSpotOnlineProducer::getBeamSpotFromRecord(const
         << "type: " << bs.beamType();
     return fakeBS_;
   }
-  auto lumitime = std::chrono::seconds(lumi.beginTime().value() >> 32);
+  auto lumitime = std::chrono::seconds(lumi.beginTime().unixTime());
   auto bstime = std::chrono::microseconds(bs.creationTime());
   auto threshold = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::hours(timeThreshold_)).count();
   if ((lumitime - bstime).count() > threshold) {
