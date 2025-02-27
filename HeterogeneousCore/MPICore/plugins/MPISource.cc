@@ -173,7 +173,7 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
 
         // receive the ProcessHistory
         history_.clear();
-        channel_.receiveSerializedProduct(0, history_);
+        channel_.receiveProduct(0, history_);
         history_.initializeTransients();
         if (processHistoryRegistryForUpdate().registerProcessHistory(history_)) {
           edm::LogAbsolute("MPI") << "new ProcessHistory registered: " << history_;

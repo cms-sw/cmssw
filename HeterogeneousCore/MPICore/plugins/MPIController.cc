@@ -134,7 +134,7 @@ void MPIController::beginRun(edm::Run const& run, edm::EventSetup const& setup) 
   channel_.sendBeginRun(aux);
 
   // transmit the ProcessHistory
-  channel_.sendSerializedProduct(0, run.processHistory());
+  channel_.sendProduct(0, run.processHistory());
 }
 
 void MPIController::endRun(edm::Run const& run, edm::EventSetup const& setup) {
