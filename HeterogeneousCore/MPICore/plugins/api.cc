@@ -2,6 +2,7 @@
 #include <array>
 #include <cstring>
 #include <tuple>
+#include <cassert>
 
 // ROOT headers
 #include <TBufferFile.h>
@@ -158,9 +159,15 @@ MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, MPI_Mess
 // serialize an object of generic type using its ROOT dictionary, and send the binary blob
 void MPIChannel::sendSerializedProduct_(int instance, TClass const* type, void const* product) {
   TBufferFile buffer{TBuffer::kWrite};
-  buffer.WriteClassBuffer(type, const_cast<void*>(product));
+  type->Streamer(const_cast<void*>(product), buffer);
   int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;
   MPI_Send(buffer.Buffer(), buffer.Length(), MPI_BYTE, dest_, tag, comm_);
+}
+
+// send simple datatypes directly
+void MPIChannel::sendTrivialProduct_(int instance, edm::ObjectWithDict const& product) {
+  int tag = EDM_MPI_SendTrivialProduct | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Send(product.address(), product.typeOf().size(), MPI_BYTE, dest_, tag, comm_);
 }
 
 // receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
@@ -173,5 +180,16 @@ void MPIChannel::receiveSerializedProduct_(int instance, TClass const* type, voi
   MPI_Get_count(&status, MPI_BYTE, &size);
   TBufferFile buffer{TBuffer::kRead, size};
   MPI_Mrecv(buffer.Buffer(), size, MPI_BYTE, &message, &status);
-  const_cast<TClass*>(type)->ReadBuffer(buffer, product);
+  type->Streamer(product, buffer);
+}
+
+void MPIChannel::receiveTrivialProduct_(int instance, edm::ObjectWithDict& product) {
+  int tag = EDM_MPI_SendTrivialProduct | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Message message;
+  MPI_Status status;
+  MPI_Mprobe(dest_, tag, comm_, &message, &status);
+  int size;
+  MPI_Get_count(&status, MPI_BYTE, &size);
+  assert(static_cast<int>(product.typeOf().size()) == size);
+  MPI_Mrecv(product.address(), size, MPI_BYTE, &message, MPI_STATUS_IGNORE);
 }
