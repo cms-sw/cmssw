@@ -21,7 +21,7 @@ echo
 MASTER="/online/special/2024/v1.6/Special" # no version, take the latest one
 TARGET="/online/special/2024/v1.6/TABLE"   # where to store the online-compliant menu
 PREFIX="online_"
-TABLES="Circulating Cosmics ECALTiming FirstCollisions LumiScan PPS Splashes TrackerVR"
+TABLES="Circulating Cosmics ECAL FirstCollisions LumiScan PPS Splashes TrackerVR"
 
 source subtables.sh
 createSubtables "v3/run3" "$MASTER" "$TARGET" "$PREFIX" "$TABLES"
