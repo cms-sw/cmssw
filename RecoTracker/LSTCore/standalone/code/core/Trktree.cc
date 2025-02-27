@@ -3,6 +3,40 @@ Trktree trk;
 
 void Trktree::Init(TTree *tree) {
   tree->SetMakeClass(1);
+
+  // Added by Kasia --------------------------------------------------------------------
+  sim_etadiffs_branch = 0;
+  if (tree->GetBranch("sim_etadiffs") != 0) {
+    sim_etadiffs_branch = tree->GetBranch("sim_etadiffs");
+    if (sim_etadiffs_branch) { sim_etadiffs_branch->SetAddress(&sim_etadiffs_); }
+  }
+  sim_phidiffs_branch = 0;
+  if (tree->GetBranch("sim_phidiffs") != 0) {
+    sim_phidiffs_branch = tree->GetBranch("sim_phidiffs");
+    if (sim_phidiffs_branch) { sim_phidiffs_branch->SetAddress(&sim_phidiffs_); }
+  }
+  sim_rjet_branch = 0;
+  if (tree->GetBranch("sim_rjet") != 0) {
+    sim_rjet_branch = tree->GetBranch("sim_rjet");
+    if (sim_rjet_branch) { sim_rjet_branch->SetAddress(&sim_rjet_); }
+  }
+  sim_jet_eta_branch = 0;
+  if (tree->GetBranch("sim_jet_eta") != 0) {
+    sim_jet_eta_branch = tree->GetBranch("sim_jet_eta");
+    if (sim_jet_eta_branch) { sim_jet_eta_branch->SetAddress(&sim_jet_eta_); }
+  }
+  sim_jet_phi_branch = 0;
+  if (tree->GetBranch("sim_jet_phi") != 0) {
+    sim_jet_phi_branch = tree->GetBranch("sim_jet_phi");
+    if (sim_jet_phi_branch) { sim_jet_phi_branch->SetAddress(&sim_jet_phi_); }
+  }
+  sim_jet_pt_branch = 0;
+  if (tree->GetBranch("sim_jet_pt") != 0) {
+    sim_jet_pt_branch = tree->GetBranch("sim_jet_pt");
+    if (sim_jet_pt_branch) { sim_jet_pt_branch->SetAddress(&sim_jet_pt_); }
+  }
+  //------------------------------------------------------------------------------------
+
   see_stateCcov01_branch = 0;
   if (tree->GetBranch("see_stateCcov01") != 0) {
     see_stateCcov01_branch = tree->GetBranch("see_stateCcov01");
@@ -2129,6 +2163,14 @@ void Trktree::Init(TTree *tree) {
   tree->SetMakeClass(0);
 }
 void Trktree::GetEntry(unsigned int idx) {
+
+  sim_etadiffs_isLoaded = false; // Added by Kasia
+  sim_phidiffs_isLoaded = false; // Added by Kasia
+  sim_rjet_isLoaded = false; // Added by Kasia
+  sim_jet_eta_isLoaded = false; // Added by Kasia
+  sim_jet_phi_isLoaded = false; // Added by Kasia
+  sim_jet_pt_isLoaded = false; // Added by Kasia
+
   index = idx;
   see_stateCcov01_isLoaded = false;
   simhit_rod_isLoaded = false;
@@ -2435,6 +2477,14 @@ void Trktree::GetEntry(unsigned int idx) {
   see_stateTrajGlbPy_isLoaded = false;
 }
 void Trktree::LoadAllBranches() {
+
+  if (sim_etadiffs_branch != 0) sim_etadiffs(); // Added by Kasia
+  if (sim_phidiffs_branch != 0) sim_phidiffs(); // Added by Kasia
+  if (sim_rjet_branch != 0) sim_rjet(); // Added by Kasia
+  if (sim_jet_eta_branch != 0) sim_jet_eta(); // Added by Kasia
+  if (sim_jet_phi_branch != 0) sim_jet_phi(); // Added by Kasia
+  if (sim_jet_pt_branch != 0) sim_jet_pt(); // Added by Kasia
+
   if (see_stateCcov01_branch != 0)
     see_stateCcov01();
   if (simhit_rod_branch != 0)
@@ -3042,6 +3092,86 @@ void Trktree::LoadAllBranches() {
   if (see_stateTrajGlbPy_branch != 0)
     see_stateTrajGlbPy();
 }
+
+// Added by Kasia
+const std::vector<float> &Trktree::sim_etadiffs() {
+  if (not sim_etadiffs_isLoaded) {
+    if (sim_etadiffs_branch != 0) {
+      sim_etadiffs_branch->GetEntry(index);
+    } else {
+      printf("branch sim_etadiffs_branch does not exist!\n");
+      exit(1);
+    }
+    sim_etadiffs_isLoaded = true;
+  }
+  return *sim_etadiffs_;
+}
+// Added by Kasia
+const std::vector<float> &Trktree::sim_phidiffs() {
+  if (not sim_phidiffs_isLoaded) {
+    if (sim_phidiffs_branch != 0) {
+      sim_phidiffs_branch->GetEntry(index);
+    } else {
+      printf("branch sim_phidiffs_branch does not exist!\n");
+      exit(1);
+    }
+    sim_phidiffs_isLoaded = true;
+  }
+  return *sim_phidiffs_;
+}
+// Added by Kasia
+const std::vector<float> &Trktree::sim_rjet() {
+  if (not sim_rjet_isLoaded) {
+    if (sim_rjet_branch != 0) {
+      sim_rjet_branch->GetEntry(index);
+    } else {
+      printf("branch sim_rjet_branch does not exist!\n");
+      exit(1);
+    }
+    sim_rjet_isLoaded = true;
+  }
+  return *sim_rjet_;
+}
+// Added by Kasia
+const std::vector<float> &Trktree::sim_jet_eta() {
+  if (not sim_jet_eta_isLoaded) {
+    if (sim_jet_eta_branch != 0) {
+      sim_jet_eta_branch->GetEntry(index);
+    } else {
+      printf("branch sim_jet_eta_branch does not exist!\n");
+      exit(1);
+    }
+    sim_jet_eta_isLoaded = true;
+  }
+  return *sim_jet_eta_;
+}
+// Added by Kasia
+const std::vector<float> &Trktree::sim_jet_phi() {
+  if (not sim_jet_phi_isLoaded) {
+    if (sim_jet_phi_branch != 0) {
+      sim_jet_phi_branch->GetEntry(index);
+    } else {
+      printf("branch sim_jet_phi_branch does not exist!\n");
+      exit(1);
+    }
+    sim_jet_phi_isLoaded = true;
+  }
+  return *sim_jet_phi_;
+}
+// Added by Kasia
+const std::vector<float> &Trktree::sim_jet_pt() {
+  if (not sim_jet_pt_isLoaded) {
+    if (sim_jet_pt_branch != 0) {
+      sim_jet_pt_branch->GetEntry(index);
+    } else {
+      printf("branch sim_jet_pt_branch does not exist!\n");
+      exit(1);
+    }
+    sim_jet_pt_isLoaded = true;
+  }
+  return *sim_jet_pt_;
+}
+
 const std::vector<float> &Trktree::see_stateCcov01() {
   if (not see_stateCcov01_isLoaded) {
     if (see_stateCcov01_branch != 0) {

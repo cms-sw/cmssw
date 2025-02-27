@@ -28,7 +28,7 @@ void parseArguments(int argc, char** argv) {
       "job_index of split jobs (--nsplit_jobs must be set. index starts from 0. i.e. 0, 1, 2, 3, etc...)",
       cxxopts::value<int>())(
       "g,pdgid", "additional pdgid filtering to use (must be comma separated)", cxxopts::value<std::string>())(
-      "p,pt_cut", "Transverse momentum cut", cxxopts::value<float>()->default_value("0.9"))(
+      "p,pt_cut", "Transverse momentum cut", cxxopts::value<float>()->default_value("50"))( // Kasia changed from 0.9
       "e,eta_cut", "Pseudorapidity cut", cxxopts::value<float>()->default_value("4.5"))(
       "d,debug", "Run debug job. i.e. overrides output option to 'debug.root' and 'recreate's the file.")("h,help",
                                                                                                           "Print help");

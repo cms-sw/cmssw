@@ -16,6 +16,37 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 class Trktree {
 private:
 protected:
+
+  // Added by Kasia
+  std::vector<float> *sim_etadiffs_;
+  TBranch *sim_etadiffs_branch;
+  bool sim_etadiffs_isLoaded;
+
+  // Added by Kasia
+  std::vector<float> *sim_phidiffs_;
+  TBranch *sim_phidiffs_branch;
+  bool sim_phidiffs_isLoaded;
+
+  // Added by Kasia
+  std::vector<float> *sim_rjet_;
+  TBranch *sim_rjet_branch;
+  bool sim_rjet_isLoaded;
+
+  // Added by Kasia
+  std::vector<float> *sim_jet_eta_;
+  TBranch *sim_jet_eta_branch;
+  bool sim_jet_eta_isLoaded;
+
+  // Added by Kasia
+  std::vector<float> *sim_jet_phi_;
+  TBranch *sim_jet_phi_branch;
+  bool sim_jet_phi_isLoaded;
+
+  // Added by Kasia
+  std::vector<float> *sim_jet_pt_;
+  TBranch *sim_jet_pt_branch;
+  bool sim_jet_pt_isLoaded;
+
   unsigned int index;
   std::vector<float> *see_stateCcov01_;
   TBranch *see_stateCcov01_branch;
@@ -931,6 +962,14 @@ public:
   void Init(TTree *tree);
   void GetEntry(unsigned int idx);
   void LoadAllBranches();
+
+  const std::vector<float> &sim_etadiffs(); // Added by Kasia
+  const std::vector<float> &sim_phidiffs(); // Added by Kasia
+  const std::vector<float> &sim_rjet(); // Added by Kasia
+  const std::vector<float> &sim_jet_eta(); // Added by Kasia
+  const std::vector<float> &sim_jet_phi(); // Added by Kasia
+  const std::vector<float> &sim_jet_pt(); // Added by Kasia
+
   const std::vector<float> &see_stateCcov01();
   const std::vector<unsigned short> &simhit_rod();
   const std::vector<float> &trk_phi();
@@ -1242,6 +1281,13 @@ extern Trktree trk;
 #endif
 
 namespace tas {
+
+  const std::vector<float> &sim_etadiffs(); // Added by Kasia
+  const std::vector<float> &sim_phidiffs(); // Added by Kasia
+  const std::vector<float> &sim_rjet(); // Added by Kasia
+  const std::vector<float> &sim_jet_eta(); // Added by Kasia
+  const std::vector<float> &sim_jet_phi(); // Added by Kasia
+  const std::vector<float> &sim_jet_pt(); // Added by Kasia
 
   const std::vector<float> &see_stateCcov01();
   const std::vector<unsigned short> &simhit_rod();

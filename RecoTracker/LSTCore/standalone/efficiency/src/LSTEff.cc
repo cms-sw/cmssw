@@ -3,6 +3,44 @@ LSTEff lstEff;
 
 void LSTEff::Init(TTree *tree) {
   tree->SetMakeClass(1);
+
+  // Added by Kasia -------------------------------------------------------------
+  sim_etadiffs_branch = 0;
+  if (tree->GetBranch("sim_etadiffs") != 0) {
+    sim_etadiffs_branch = tree->GetBranch("sim_etadiffs");
+    if (sim_etadiffs_branch) { sim_etadiffs_branch->SetAddress(&sim_etadiffs_); }
+  }
+  sim_phidiffs_branch = 0;
+  if (tree->GetBranch("sim_phidiffs") != 0) {
+    sim_phidiffs_branch = tree->GetBranch("sim_phidiffs");
+    if (sim_phidiffs_branch) { sim_phidiffs_branch->SetAddress(&sim_phidiffs_); }
+  }
+
+  sim_rjet_branch = 0;
+  if (tree->GetBranch("sim_rjet") != 0) {
+    sim_rjet_branch = tree->GetBranch("sim_rjet");
+    if (sim_rjet_branch) { sim_rjet_branch->SetAddress(&sim_rjet_); }
+  }
+
+  sim_jet_eta_branch = 0;
+  if (tree->GetBranch("sim_jet_eta") != 0) {
+    sim_jet_eta_branch = tree->GetBranch("sim_jet_eta");
+    if (sim_jet_eta_branch) { sim_jet_eta_branch->SetAddress(&sim_jet_eta_); }
+  }
+
+  sim_jet_phi_branch = 0;
+  if (tree->GetBranch("sim_jet_phi") != 0) {
+    sim_jet_phi_branch = tree->GetBranch("sim_jet_phi");
+    if (sim_jet_phi_branch) { sim_jet_phi_branch->SetAddress(&sim_jet_phi_); }
+  }
+
+  sim_jet_pt_branch = 0;
+  if (tree->GetBranch("sim_jet_pt") != 0) {
+    sim_jet_pt_branch = tree->GetBranch("sim_jet_pt");
+    if (sim_jet_pt_branch) { sim_jet_pt_branch->SetAddress(&sim_jet_pt_); }
+  }
+  // ----------------------------------------------------------------------------
+
   pT5_occupancies_branch = 0;
   if (tree->GetBranch("pT5_occupancies") != 0) {
     pT5_occupancies_branch = tree->GetBranch("pT5_occupancies");
@@ -1028,6 +1066,15 @@ void LSTEff::Init(TTree *tree) {
   tree->SetMakeClass(0);
 }
 void LSTEff::GetEntry(unsigned int idx) {
+
+  // Added by Kasia
+  sim_etadiffs_isLoaded = false;
+  sim_phidiffs_isLoaded = false;
+  sim_rjet_isLoaded = false;
+  sim_jet_eta_isLoaded = false;
+  sim_jet_phi_isLoaded = false;
+  sim_jet_pt_isLoaded = false;
+
   index = idx;
   pT5_occupancies_isLoaded = false;
   t3_phi_isLoaded = false;
@@ -1177,6 +1224,15 @@ void LSTEff::GetEntry(unsigned int idx) {
   pT3_matched_simIdx_isLoaded = false;
 }
 void LSTEff::LoadAllBranches() {
+
+  // Added by Kasia
+  if (sim_etadiffs_branch != 0) sim_etadiffs();
+  if (sim_phidiffs_branch != 0) sim_phidiffs();
+  if (sim_rjet_branch != 0) sim_rjet();
+  if (sim_jet_eta_branch != 0) sim_jet_eta();
+  if (sim_jet_phi_branch != 0) sim_jet_phi();
+  if (sim_jet_pt_branch != 0) sim_jet_pt();
+
   if (pT5_occupancies_branch != 0)
     pT5_occupancies();
   if (t3_phi_branch != 0)
@@ -1470,6 +1526,82 @@ void LSTEff::LoadAllBranches() {
   if (pT3_matched_simIdx_branch != 0)
     pT3_matched_simIdx();
 }
+
+// Added by Kasia ----------------------------------------------------------
+const std::vector<float> &LSTEff::sim_etadiffs() {
+if (not sim_etadiffs_isLoaded) {
+  if (sim_etadiffs_branch != 0) {
+    sim_etadiffs_branch->GetEntry(index);
+  } else {
+    printf("branch sim_etadiffs_branch does not exist!\n");
+    exit(1);
+  }
+  sim_etadiffs_isLoaded = true;
+}
+return *sim_etadiffs_;
+}
+const std::vector<float> &LSTEff::sim_phidiffs() {
+if (not sim_phidiffs_isLoaded) {
+  if (sim_phidiffs_branch != 0) {
+    sim_phidiffs_branch->GetEntry(index);
+  } else {
+    printf("branch sim_phidiffs_branch does not exist!\n");
+    exit(1);
+  }
+  sim_phidiffs_isLoaded = true;
+}
+return *sim_phidiffs_;
+}
+const std::vector<float> &LSTEff::sim_rjet() {
+if (not sim_rjet_isLoaded) {
+  if (sim_rjet_branch != 0) {
+    sim_rjet_branch->GetEntry(index);
+  } else {
+    printf("branch sim_rjet_branch does not exist!\n");
+    exit(1);
+  }
+  sim_rjet_isLoaded = true;
+}
+return *sim_rjet_;
+}
+const std::vector<float> &LSTEff::sim_jet_eta() {
+  if (not sim_jet_eta_isLoaded) {
+    if (sim_jet_eta_branch != 0) {
+      sim_jet_eta_branch->GetEntry(index);
+    } else {
+      printf("branch sim_jet_eta_branch does not exist!\n");
+      exit(1);
+    }
+    sim_jet_eta_isLoaded = true;
+  }
+  return *sim_jet_eta_;
+}
+const std::vector<float> &LSTEff::sim_jet_phi() {
+  if (not sim_jet_phi_isLoaded) {
+    if (sim_jet_phi_branch != 0) {
+      sim_jet_phi_branch->GetEntry(index);
+    } else {
+      printf("branch sim_jet_phi_branch does not exist!\n");
+      exit(1);
+    }
+    sim_jet_phi_isLoaded = true;
+  }
+  return *sim_jet_phi_;
+}
+const std::vector<float> &LSTEff::sim_jet_pt() {
+  if (not sim_jet_pt_isLoaded) {
+    if (sim_jet_pt_branch != 0) {
+      sim_jet_pt_branch->GetEntry(index);
+    } else {
+      printf("branch sim_jet_pt_branch does not exist!\n");
+      exit(1);
+    }
+    sim_jet_pt_isLoaded = true;
+  }
+  return *sim_jet_pt_;
+}
+// --------------------------------------------------------------------------
+
 const int &LSTEff::pT5_occupancies() {
   if (not pT5_occupancies_isLoaded) {
     if (pT5_occupancies_branch != 0) {
@@ -3244,6 +3376,15 @@ void LSTEff::progress(int nEventsTotal, int nEventsChain) {
   }
 }
 namespace tas {
+  
+  // Added by Kasia
+  const std::vector<float> &sim_etadiffs() { return lstEff.sim_etadiffs(); }
+  const std::vector<float> &sim_phidiffs() { return lstEff.sim_phidiffs(); }
+  const std::vector<float> &sim_rjet() { return lstEff.sim_rjet(); }
+  const std::vector<float> &sim_jet_eta() { return lstEff.sim_jet_eta(); }
+  const std::vector<float> &sim_jet_phi() { return lstEff.sim_jet_phi(); }
+  const std::vector<float> &sim_jet_pt() { return lstEff.sim_jet_pt(); }
+
   const int &pT5_occupancies() { return lstEff.pT5_occupancies(); }
   const std::vector<float> &t3_phi() { return lstEff.t3_phi(); }
   const std::vector<float> &t5_score_rphisum() { return lstEff.t5_score_rphisum(); }

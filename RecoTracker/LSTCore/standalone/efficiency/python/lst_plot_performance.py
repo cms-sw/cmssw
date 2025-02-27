@@ -9,7 +9,7 @@ from math import sqrt
 
 sel_choices = ["base", "loweta", "xtr", "vtr", "none"]
 metric_choices = ["eff", "fakerate", "duplrate"]
-variable_choices = ["pt", "ptmtv", "ptlow", "eta", "phi", "dxy", "dz", "vxy"]
+variable_choices = ["pt", "ptmtv", "ptlow", "eta", "phi", "dxy", "dz", "vxy", "etadiffs", "phidiffs", "rjet"] # Last three added by Kasia
 objecttype_choices = ["TC", "pT5", "T5", "pT3", "pLS", "pT5_lower", "pT3_lower", "T5_lower"]
 #lowerObjectType = ["pT5_lower", "pT3_lower", "T5_lower"]
 
@@ -413,6 +413,12 @@ def get_chargestr(charge):
 def set_label(eff, output_name, raw_number):
     if "phi" in output_name:
         title = "#phi"
+    elif "_etadiffs" in output_name: # Added by Kasia
+        title = "#eta diffs"
+    elif "_phidiffs" in output_name: # Added by Kasia
+        title = "#phi diffs"
+    elif "_rjet" in output_name: # Added by Kasia
+        title = "r_jet"
     elif "_dz" in output_name:
         title = "z [cm]"
     elif "_dxy" in output_name:
@@ -645,7 +651,7 @@ def plot_standard_performance_plots(args):
     metrics = metric_choices
     yzooms = [False, True]
     variables = {
-            "eff": ["pt", "ptlow", "ptmtv", "eta", "phi", "dxy", "dz", "vxy"],
+            "eff": ["pt", "ptlow", "ptmtv", "eta", "phi", "dxy", "dz", "vxy", "etadiffs", "phidiffs", "rjet"], # Last three added by Kasia,
             "fakerate": ["pt", "ptlow", "ptmtv", "eta", "phi"],
             "duplrate": ["pt", "ptlow", "ptmtv", "eta", "phi"],
             }
@@ -663,6 +669,9 @@ def plot_standard_performance_plots(args):
             "dxy": [False, True],
             "vxy": [False, True],
             "dz": [False, True],
+            "etadiffs": [False, True], # Added by Kasia
+            "phidiffs": [False, True],  # Added by Kasia
+            "rjet": [False, True]  # Added by Kasia
             }
     types = objecttype_choices
     breakdowns = {

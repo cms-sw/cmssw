@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
     ana.input_file_list_tstring =
         TString::Format("%s/trackingNtuple_6pion_1k_pt_0p5_50.root", TrackingNtupleDir.Data());
   else if (ana.input_raw_string.EqualTo("PU200"))
-    ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_ttbar_PU200.root", TrackingNtupleDir.Data());
+    ana.input_file_list_tstring = "new_tree.root"; // ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_ttbar_PU200.root", TrackingNtupleDir.Data()); // Added by Kasia
   else if (ana.input_raw_string.EqualTo("PU200RelVal"))
     ana.input_file_list_tstring = TString::Format(
         "%s/RelValTTbar_14TeV_CMSSW_12_5_0_pre3/",

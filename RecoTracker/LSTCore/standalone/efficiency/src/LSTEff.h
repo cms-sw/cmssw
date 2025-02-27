@@ -16,6 +16,28 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 class LSTEff {
 private:
 protected:
+
+  // Added by Kasia ------------------
+  std::vector<float> *sim_etadiffs_;
+  TBranch *sim_etadiffs_branch;
+  bool sim_etadiffs_isLoaded;
+  std::vector<float> *sim_phidiffs_;
+  TBranch *sim_phidiffs_branch;
+  bool sim_phidiffs_isLoaded;
+  std::vector<float> *sim_rjet_;
+  TBranch *sim_rjet_branch;
+  bool sim_rjet_isLoaded;
+  std::vector<float> *sim_jet_eta_;
+  TBranch *sim_jet_eta_branch;
+  bool sim_jet_eta_isLoaded;
+  std::vector<float> *sim_jet_phi_;
+  TBranch *sim_jet_phi_branch;
+  bool sim_jet_phi_isLoaded;
+  std::vector<float> *sim_jet_pt_;
+  TBranch *sim_jet_pt_branch;
+  bool sim_jet_pt_isLoaded;
+  // ------------------------------
+
   unsigned int index;
   int pT5_occupancies_;
   TBranch *pT5_occupancies_branch;
@@ -460,6 +482,16 @@ public:
   void Init(TTree *tree);
   void GetEntry(unsigned int idx);
   void LoadAllBranches();
+
+  // Added by Kasia
+  const std::vector<float> &sim_etadiffs();
+  const std::vector<float> &sim_phidiffs();
+  const std::vector<float> &sim_rjet();
+  const std::vector<float> &sim_jet_eta();
+  const std::vector<float> &sim_jet_phi();
+  const std::vector<float> &sim_jet_pt();
+  
+
   const int &pT5_occupancies();
   const std::vector<float> &t3_phi();
   const std::vector<float> &t5_score_rphisum();
@@ -614,6 +646,14 @@ extern LSTEff lstEff;
 #endif
 
 namespace tas {
+
+  // Added by Kasia
+  const std::vector<float> &sim_etadiffs();
+  const std::vector<float> &sim_phidiffs();
+  const std::vector<float> &sim_rjet();
+  const std::vector<float> &sim_jet_eta();
+  const std::vector<float> &sim_jet_phi();
+  const std::vector<float> &sim_jet_pt();
 
   const int &pT5_occupancies();
   const std::vector<float> &t3_phi();
