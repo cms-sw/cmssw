@@ -79,18 +79,9 @@ namespace {
     const_iterator end() const { return children_.end(); }
 
     void print(std::ostream& os) const {
-      auto const& hwresources = config_.hardwareResourcesDescription();
+      // TODO: add printout of HardwareResourcesDescription
       os << config_.processName() << " '" << config_.releaseVersion() << "' [" << simpleId_ << "]  ("
-         << config_.parameterSetID() << ")"
-         << "  (" << hwresources.microarchitecture;
-      if (not hwresources.selectedAccelerators.empty()) {
-        os << "; " << hwresources.selectedAccelerators.front();
-        for (auto it = hwresources.selectedAccelerators.begin() + 1; it != hwresources.selectedAccelerators.end();
-             ++it) {
-          os << "," << *it;
-        }
-      }
-      os << ")" << std::endl;
+         << config_.parameterSetID() << ")" << std::endl;
     }
 
     void printHistory(std::string const& iIndent = std::string("  ")) const;
