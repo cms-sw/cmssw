@@ -1,4 +1,10 @@
 <FrameworkJobReport>
+
+<Process>
+  <Name>TEST</Name>
+  <ReducedConfigurationID>{Value}</ReducedConfigurationID>
+  <ParameterSetID>{Value}</ParameterSetID>
+</Process>
 <MessageSummary>
   <Category_f_FwkReport  Value="1" />
   <Category_i_cat_A  Value="6" />
