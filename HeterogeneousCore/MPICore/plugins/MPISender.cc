@@ -80,6 +80,9 @@ public:
     // read the MPIToken used to establish the communication channel
     MPIToken token = event.get(upstream_);
 
+    int numProducts = static_cast<int>(products_.size());
+    token.channel()->sendProduct(instance_, numProducts);
+    
     for (auto const& product : products_) {
       // read the products to be sent over the MPI channel
       edm::GenericHandle handle(product.type);
@@ -87,7 +90,7 @@ public:
       edm::ObjectWithDict const* object = handle.product();
       // send the products over MPI
       // note: currently this uses a blocking send
-      token.channel()->sendSerializedProduct(instance_, *object);
+      token.channel()->sendProduct(instance_, *object);
     }
 
     // write a shallow copy of the channel to the output, so other modules can consume it
