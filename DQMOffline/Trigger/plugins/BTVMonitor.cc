@@ -68,10 +68,10 @@ private:
 
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
   edm::EDGetTokenT<edm::View<pat::Muon>> muoToken_;
-  edm::EDGetTokenT<edm::View<pat::Electron>> eleToken_; 
-  edm::EDGetTokenT<edm::ValueMap<bool> > elecIDToken_;
+  edm::EDGetTokenT<edm::View<pat::Electron>> eleToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool>> elecIDToken_;
   edm::EDGetTokenT<pat::PhotonCollection> phoToken_;
-  edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
+  edm::EDGetTokenT<edm::View<pat::Jet>> jetToken_;
   edm::EDGetTokenT<pat::METCollection> metToken_;
   std::vector<std::string> btagAlgos_;
   struct PVcut {
@@ -271,45 +271,45 @@ BTVMonitor::BTVMonitor(const edm::ParameterSet& iConfig)
       MHT_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("MHTPSet"))),
       met_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("metBinning")),
       HT_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("HTBinning")),
-          jetPt_variable_binning_(
-            iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetPtBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("HTBinning")),
+      jetPt_variable_binning_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("jetPtBinning")),
       muPt_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muPtBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("muPtBinning")),
       elePt_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("elePtBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("elePtBinning")),
       jetEta_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetEtaBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("jetEtaBinning")),
       muEta_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muEtaBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("muEtaBinning")),
       eleEta_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("eleEtaBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("eleEtaBinning")),
       invMass_mumu_variable_binning_(iConfig.getParameter<edm::ParameterSet>("histoPSet")
-                                         .getParameter<std::vector<double> >("invMassVariableBinning")),
+                                         .getParameter<std::vector<double>>("invMassVariableBinning")),
       MHT_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("MHTVariableBinning")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("MHTVariableBinning")),
       HT_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("HTBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("HTBinning2D")),
       jetPt_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetPtBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("jetPtBinning2D")),
       muPt_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muPtBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("muPtBinning2D")),
       elePt_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("elePtBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("elePtBinning2D")),
       phoPt_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("phoPtBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("phoPtBinning2D")),
       jetEta_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetEtaBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("jetEtaBinning2D")),
       muEta_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muEtaBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("muEtaBinning2D")),
       eleEta_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("eleEtaBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("eleEtaBinning2D")),
       phoEta_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("phoEtaBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("phoEtaBinning2D")),
       phi_variable_binning_2D_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("phiBinning2D")),
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("phiBinning2D")),
       num_genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
       den_genTriggerEventFlag_(new GenericTriggerEventFlag(
@@ -681,7 +681,6 @@ void BTVMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     bookME(ibooker, muPt_.at(iMu), histname, histtitle, muPt_variable_binning_);
     setMETitle(muPt_.at(iMu), "muon p_{T} [GeV]", "events");
 
-
     histname = "muEta_";
     histtitle = "muon #eta - ";
     histname.append(index);
@@ -866,7 +865,8 @@ void BTVMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     histtitle = "b-jet DeepFlavour - ";
     histname.append(index);
     histtitle.append(index);
-    bookME(ibooker, bjetDeepFlav_.at(iBJet), histname, histtitle, csv_binning_.nbins, csv_binning_.xmin, csv_binning_.xmax);
+    bookME(
+        ibooker, bjetDeepFlav_.at(iBJet), histname, histtitle, csv_binning_.nbins, csv_binning_.xmin, csv_binning_.xmax);
     setMETitle(bjetDeepFlav_.at(iBJet), "b-jet Deep Flavour", "events");
 
     histname = "bjetPNet_";
@@ -880,7 +880,8 @@ void BTVMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     histtitle = "b-jet UParT - ";
     histname.append(index);
     histtitle.append(index);
-    bookME(ibooker, bjetUParT_.at(iBJet), histname, histtitle, csv_binning_.nbins, csv_binning_.xmin, csv_binning_.xmax);
+    bookME(
+        ibooker, bjetUParT_.at(iBJet), histname, histtitle, csv_binning_.nbins, csv_binning_.xmin, csv_binning_.xmax);
     setMETitle(bjetUParT_.at(iBJet), "b-jet UParT", "events");
 
     if (enable2DPlots_) {
@@ -1007,7 +1008,7 @@ void BTVMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     return;
   }
 
-  edm::Handle<edm::ValueMap<bool> > eleIDHandle;
+  edm::Handle<edm::ValueMap<bool>> eleIDHandle;
   iEvent.getByToken(elecIDToken_, eleIDHandle);
   if (!eleIDHandle.isValid() && nelectrons_ > 0) {
     edm::LogWarning("BTVMonitor") << "Electron ID handle not valid \n";
@@ -1179,9 +1180,8 @@ void BTVMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   JetBTagMap bjets;
 
   if (nbjets_ > 0) {
-
     edm::Handle<edm::View<pat::Jet>> bjetHandle;
-    iEvent.getByToken(jetToken_, bjetHandle); 
+    iEvent.getByToken(jetToken_, bjetHandle);
     if (!bjetHandle.isValid()) {
       edm::LogWarning("BTVMonitor") << "B-Jet handle not valid, skipping event\n";
       return;
@@ -1201,29 +1201,29 @@ void BTVMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       bool havePNet = false;
       bool haveUParT = false;
 
-      for (auto const& algoName : btagAlgos_) { // loop over all specified b-tagging algorithms
+      for (auto const& algoName : btagAlgos_) {  // loop over all specified b-tagging algorithms
         float disc = bJet.bDiscriminator(algoName);
         if (!std::isfinite(disc)) {
           continue;
         }
         if (algoName.find("DeepFlavour") != std::string::npos) {
-          deepFlavScore += disc; // Sum three deepFlavour scores
+          deepFlavScore += disc;  // Sum three deepFlavour scores
           haveDeepFlav = true;
         }
         if (algoName.find("ParticleNet") != std::string::npos) {
-          pNetScore = disc; 
+          pNetScore = disc;
           havePNet = true;
         }
         if (algoName.find("ParticleTransformer") != std::string::npos) {
-          UParTScore = disc; 
+          UParTScore = disc;
           haveUParT = true;
         }
       }
 
-      BTagScores scores; 
+      BTagScores scores;
       scores["deepFlav"] = haveDeepFlav ? deepFlavScore : std::numeric_limits<float>::quiet_NaN();
-      scores["PNet"] = havePNet    ? pNetScore    : std::numeric_limits<float>::quiet_NaN();
-      scores["UParT"] = haveUParT    ? UParTScore    : std::numeric_limits<float>::quiet_NaN();
+      scores["PNet"] = havePNet ? pNetScore : std::numeric_limits<float>::quiet_NaN();
+      scores["UParT"] = haveUParT ? UParTScore : std::numeric_limits<float>::quiet_NaN();
       bjets.insert(std::make_pair(jetRef, scores));
 
       if (bjets.size() < nbjets_) {
@@ -1380,12 +1380,12 @@ void BTVMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   for (auto& bjet : bjets) {
     if (iBJet >= nbjets_)
       break;
-    const BTagScores &scores = bjet.second;
+    const BTagScores& scores = bjet.second;
 
     bjetPhi_.at(iBJet).fill(trg_passed, bjet.first->phi());
     bjetEta_.at(iBJet).fill(trg_passed, bjet.first->eta());
     bjetPt_.at(iBJet).fill(trg_passed, bjet.first->pt());
-    bjetDeepFlav_.at(iBJet).fill(trg_passed, scores.at("deepFlav")); 
+    bjetDeepFlav_.at(iBJet).fill(trg_passed, scores.at("deepFlav"));
     bjetPNet_.at(iBJet).fill(trg_passed, scores.at("PNet"));
     bjetUParT_.at(iBJet).fill(trg_passed, scores.at("UParT"));
     bjetPtEta_.at(iBJet).fill(trg_passed, bjet.first->pt(), bjet.first->eta());
@@ -1412,9 +1412,12 @@ void BTVMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<edm::InputTag>("photons", edm::InputTag("slimmedPhotons"));
   desc.add<edm::InputTag>("jets", edm::InputTag("slimmedJetsPuppi"));
   desc.add<edm::InputTag>("met", edm::InputTag("slimmedMETs"));
-  desc.add<std::vector<std::string> >(
-      "btagAlgos", {"pfDeepFlavourJetTags:probb", "pfDeepFlavourJetTags:probbb", "pfDeepFlavourJetTags:problepb", 
-      "pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:BvsAll", "pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll"});
+  desc.add<std::vector<std::string>>("btagAlgos",
+                                     {"pfDeepFlavourJetTags:probb",
+                                      "pfDeepFlavourJetTags:probbb",
+                                      "pfDeepFlavourJetTags:problepb",
+                                      "pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:BvsAll",
+                                      "pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll"});
 
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
@@ -1483,31 +1486,31 @@ void BTVMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   std::vector<double> bins = {0.,   20.,  40.,  60.,  80.,  90.,  100., 110., 120., 130., 140., 150., 160.,
                               170., 180., 190., 200., 220., 240., 260., 280., 300., 350., 400., 450., 1000.};
   std::vector<double> eta_bins = {-3., -2.5, -2., -1.5, -1., -.5, 0., .5, 1., 1.5, 2., 2.5, 3.};
-  histoPSet.add<std::vector<double> >("metBinning", bins);
-  histoPSet.add<std::vector<double> >("HTBinning", bins);
-  histoPSet.add<std::vector<double> >("jetPtBinning", bins);
-  histoPSet.add<std::vector<double> >("elePtBinning", bins);
-  histoPSet.add<std::vector<double> >("muPtBinning", bins);
-  histoPSet.add<std::vector<double> >("jetEtaBinning", eta_bins);
-  histoPSet.add<std::vector<double> >("eleEtaBinning", eta_bins);
-  histoPSet.add<std::vector<double> >("muEtaBinning", eta_bins);
-  histoPSet.add<std::vector<double> >("invMassVariableBinning", bins);
-  histoPSet.add<std::vector<double> >("MHTVariableBinning", bins);
+  histoPSet.add<std::vector<double>>("metBinning", bins);
+  histoPSet.add<std::vector<double>>("HTBinning", bins);
+  histoPSet.add<std::vector<double>>("jetPtBinning", bins);
+  histoPSet.add<std::vector<double>>("elePtBinning", bins);
+  histoPSet.add<std::vector<double>>("muPtBinning", bins);
+  histoPSet.add<std::vector<double>>("jetEtaBinning", eta_bins);
+  histoPSet.add<std::vector<double>>("eleEtaBinning", eta_bins);
+  histoPSet.add<std::vector<double>>("muEtaBinning", eta_bins);
+  histoPSet.add<std::vector<double>>("invMassVariableBinning", bins);
+  histoPSet.add<std::vector<double>>("MHTVariableBinning", bins);
 
   std::vector<double> bins_2D = {0., 40., 80., 100., 120., 140., 160., 180., 200., 240., 280., 350., 450., 1000.};
   std::vector<double> eta_bins_2D = {-3., -2., -1., 0., 1., 2., 3.};
   std::vector<double> phi_bins_2D = {
       -3.1415, -2.5132, -1.8849, -1.2566, -0.6283, 0, 0.6283, 1.2566, 1.8849, 2.5132, 3.1415};
-  histoPSet.add<std::vector<double> >("HTBinning2D", bins_2D);
-  histoPSet.add<std::vector<double> >("jetPtBinning2D", bins_2D);
-  histoPSet.add<std::vector<double> >("elePtBinning2D", bins_2D);
-  histoPSet.add<std::vector<double> >("muPtBinning2D", bins_2D);
-  histoPSet.add<std::vector<double> >("phoPtBinning2D", bins_2D);
-  histoPSet.add<std::vector<double> >("jetEtaBinning2D", eta_bins_2D);
-  histoPSet.add<std::vector<double> >("eleEtaBinning2D", eta_bins_2D);
-  histoPSet.add<std::vector<double> >("muEtaBinning2D", eta_bins_2D);
-  histoPSet.add<std::vector<double> >("phoEtaBinning2D", eta_bins_2D);
-  histoPSet.add<std::vector<double> >("phiBinning2D", phi_bins_2D);
+  histoPSet.add<std::vector<double>>("HTBinning2D", bins_2D);
+  histoPSet.add<std::vector<double>>("jetPtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double>>("elePtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double>>("muPtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double>>("phoPtBinning2D", bins_2D);
+  histoPSet.add<std::vector<double>>("jetEtaBinning2D", eta_bins_2D);
+  histoPSet.add<std::vector<double>>("eleEtaBinning2D", eta_bins_2D);
+  histoPSet.add<std::vector<double>>("muEtaBinning2D", eta_bins_2D);
+  histoPSet.add<std::vector<double>>("phoEtaBinning2D", eta_bins_2D);
+  histoPSet.add<std::vector<double>>("phiBinning2D", phi_bins_2D);
 
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
