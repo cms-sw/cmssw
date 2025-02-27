@@ -30,13 +30,13 @@ namespace Phase2L1GMT {
   //coord2 k cutoffs: 1024, 7168, 4096, 2048, 4096
   const unsigned int BITSHIFTCURVSCALEC1 = 12;
   const unsigned int BITSHIFTCURVSCALEC2LEADS[5] = {10, 13, 12, 11, 12};
-  const unsigned int BITSHIFTCURVSCALEC2CORRS[5] = {0,  10,  0,  0,  0};
-  
+  const unsigned int BITSHIFTCURVSCALEC2CORRS[5] = {0, 10, 0, 0, 0};
+
   const unsigned int BITSPROP = BITSPHI - 2;
   const ap_uint<BITSPROP> PROPMAX = ~ap_uint<BITSPROP>(0);
   const ap_uint<BITSSIGMACOORD> SIGMAMAX = ~ap_uint<BITSSIGMACOORD>(0);
   const ap_uint<BITSSIGMACOORD> SIGMAMIN = 2;
-  
+
   struct propagation_t {
     ap_int<BITSSTUBCOORD> coord1;
     ap_uint<BITSSIGMACOORD> sigma_coord1;

@@ -163,7 +163,7 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
 
   ap_uint<BITSPROPCOORD> prop1_coord1 = 0;
   ap_uint<BITSPROPCOORD> prop2_coord1 = 0;
-  ap_uint<BITSPROPCOORD> prop3_coord1 = 0; 
+  ap_uint<BITSPROPCOORD> prop3_coord1 = 0;
   ap_uint<BITSPROPCOORD> prop1_coord2 = 0;
   ap_uint<BITSPROPCOORD> prop2_coord2 = 0;
   ap_uint<BITSPROPCOORD> prop3_coord2 = 0;
@@ -177,9 +177,9 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   ap_uint<1> is_barrel = 0;
 
   //1 extra bit to sense overflows, 1 for sign
-  ap_int<BITSPROP+2> dphi_c1 = 0;
-  ap_int<BITSPROP+2> dphi_c2 = 0;
- 
+  ap_int<BITSPROP + 2> dphi_c1 = 0;
+  ap_int<BITSPROP + 2> dphi_c2 = 0;
+
   uint reducedAbsEta = track.abseta() / 8;
 
   //Propagate to layers
@@ -213,12 +213,11 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   if (k < 0) {
     absK = ap_uint<BITSTTCURV - 1>(-k);
     negativeCurv = 1;
-  }
-  else {
+  } else {
     absK = ap_uint<BITSTTCURV - 1>(k);
   }
 
-  ap_uint<2 * BITSTTCURV - 2> k2All = k * k; //to match firmware
+  ap_uint<2 * BITSTTCURV - 2> k2All = k * k;  //to match firmware
   ap_uint<BITSTTCURV2> k2 = k2All / 2;
 
   //coord 1 propagation is c*k + d*k^2 for low k, c*k + d*k_cutoff^2 + 2d*k_cutoff*(k - k_cutoff) + e*(k - k_cutoff)^2 for high k (above cutoff)
@@ -226,24 +225,24 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   ap_uint<BITSPROPCOORD + BITSTTCURV - 1> dphi_c1Full = prop1_coord1 * absK;
   dphi_c1 = dphi_c1Full >> BITSHIFTPROP1C1;
 
-  if (absK <= (1<<BITSHIFTCURVSCALEC1)) {
-    ap_uint<BITSPROPCOORD + 2*BITSTTCURV - 2> dphi2_c1Full = prop2_coord1 * k2;
-    dphi_c1 += (dphi2_c1Full >> (BITSHIFTPROP2C1-1)); //- because k2 already did one shift
-  }
-  else {
-    ap_uint<BITSPROPCOORD + 2*BITSTTCURV - 2 + BITSHIFTCURVSCALEC1 + 1> dphi2A_c1Full = prop2_coord1 * absK;
+  if (absK <= (1 << BITSHIFTCURVSCALEC1)) {
+    ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 2> dphi2_c1Full = prop2_coord1 * k2;
+    dphi_c1 += (dphi2_c1Full >> (BITSHIFTPROP2C1 - 1));  //- because k2 already did one shift
+  } else {
+    ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 2 + BITSHIFTCURVSCALEC1 + 1> dphi2A_c1Full = prop2_coord1 * absK;
     dphi_c1 += ((dphi2A_c1Full << (BITSHIFTCURVSCALEC1 + 1)) >> BITSHIFTPROP2C1);
-    ap_uint<BITSPROPCOORD + 2*BITSHIFTCURVSCALEC1> dphi2B_c1Full = prop2_coord1;
-    dphi_c1 -= (dphi2B_c1Full << (2*BITSHIFTCURVSCALEC1)) >> BITSHIFTPROP2C1;
+    ap_uint<BITSPROPCOORD + 2 * BITSHIFTCURVSCALEC1> dphi2B_c1Full = prop2_coord1;
+    dphi_c1 -= (dphi2B_c1Full << (2 * BITSHIFTCURVSCALEC1)) >> BITSHIFTPROP2C1;
 
     ap_uint<BITSTTCURV2 + 1> k2pad = k2;
     ap_uint<BITSTTCURV - 1 + BITSHIFTCURVSCALEC1 + 1> absKpad = absK;
-    ap_uint<BITSPROPCOORD + 2*BITSTTCURV - 2> dphi3_c1Full = (k2pad << 1) + (1 << (2*BITSHIFTCURVSCALEC1)) - (absKpad << (BITSHIFTCURVSCALEC1+1));
+    ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 2> dphi3_c1Full =
+        (k2pad << 1) + (1 << (2 * BITSHIFTCURVSCALEC1)) - (absKpad << (BITSHIFTCURVSCALEC1 + 1));
     dphi3_c1Full *= prop3_coord1;
     dphi_c1 += (dphi3_c1Full >> BITSHIFTPROP3C1);
   }
 
-  if (dphi_c1 > PROPMAX) //c1 should only propagate in one direction, no abs needed
+  if (dphi_c1 > PROPMAX)  //c1 should only propagate in one direction, no abs needed
     dphi_c1 = PROPMAX;
 
   //subtract the magnitude for positive k, add the magnitude for negative k
@@ -252,40 +251,42 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
 
   out.coord1 = ((phi + dphi_c1) >> PHISHIFT);
 
-
   //coord 2 propagation is of the same functional form as coord 1 but now the 3rd coefficient e can be negative and the cutoff curvatures vary as a function of tflayer
   //in particular layer 1 has a cutoff that is not an exponent of 2 so we store it as a difference of exponents of 2 below (2^LEADS - 2^CORRS)
   ap_uint<BITSPROPCOORD + BITSTTCURV - 1> dphi_c2Full = prop1_coord2 * absK;
   dphi_c2 = dphi_c2Full >> BITSHIFTPROP1C2;
 
   if (absK <= ((1 << (BITSHIFTCURVSCALEC2LEADS[layer])) - (1 << (BITSHIFTCURVSCALEC2CORRS[layer])))) {
-    ap_uint<BITSPROPCOORD + 2*BITSTTCURV - 2> dphi2_c2Full = prop2_coord2 * k2;
-    dphi_c2 += (dphi2_c2Full >> (BITSHIFTPROP2C2-1)); //-1 because k2 already did one shift
-  }
-  else {
+    ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 2> dphi2_c2Full = prop2_coord2 * k2;
+    dphi_c2 += (dphi2_c2Full >> (BITSHIFTPROP2C2 - 1));  //-1 because k2 already did one shift
+  } else {
     ap_uint<BITSTTCURV2 + 1> k2pad = k2;
-    ap_uint<BITSTTCURV - 1 + BITSTTCURV> absKpad = absK; //bitsttcurv gives enough padding
+    ap_uint<BITSTTCURV - 1 + BITSTTCURV> absKpad = absK;  //bitsttcurv gives enough padding
 
-    ap_uint<BITSPROPCOORD + 2*BITSTTCURV - 2> dphi2_c2Full = (absKpad << (BITSHIFTCURVSCALEC2LEADS[layer]+1)) - (1 << (2*BITSHIFTCURVSCALEC2LEADS[layer]));
+    ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 2> dphi2_c2Full =
+        (absKpad << (BITSHIFTCURVSCALEC2LEADS[layer] + 1)) - (1 << (2 * BITSHIFTCURVSCALEC2LEADS[layer]));
     if (BITSHIFTCURVSCALEC2CORRS[layer] != 0) {
       dphi2_c2Full += (1 << (BITSHIFTCURVSCALEC2LEADS[layer] + BITSHIFTCURVSCALEC2CORRS[layer] + 1));
-      dphi2_c2Full -= ((absKpad << (BITSHIFTCURVSCALEC2CORRS[layer]+1)) + (1 << (2*BITSHIFTCURVSCALEC2CORRS[layer])));
+      dphi2_c2Full -=
+          ((absKpad << (BITSHIFTCURVSCALEC2CORRS[layer] + 1)) + (1 << (2 * BITSHIFTCURVSCALEC2CORRS[layer])));
     }
     dphi_c2 += (dphi2_c2Full >> BITSHIFTPROP2C2);
 
-    ap_uint<BITSPROPCOORD + 2*BITSTTCURV - 2> dphi3_c2Full = (k2pad << 1) + (1 << (2*BITSHIFTCURVSCALEC2LEADS[layer])) - (absKpad << (BITSHIFTCURVSCALEC2LEADS[layer]+1));
+    ap_uint<BITSPROPCOORD + 2 * BITSTTCURV - 2> dphi3_c2Full = (k2pad << 1) +
+                                                               (1 << (2 * BITSHIFTCURVSCALEC2LEADS[layer])) -
+                                                               (absKpad << (BITSHIFTCURVSCALEC2LEADS[layer] + 1));
     if (BITSHIFTCURVSCALEC2CORRS[layer] != 0) {
-      dphi3_c2Full += ((1 << (2*BITSHIFTCURVSCALEC2CORRS[layer])) + (absKpad << (BITSHIFTCURVSCALEC2CORRS[layer]+1))); 
+      dphi3_c2Full +=
+          ((1 << (2 * BITSHIFTCURVSCALEC2CORRS[layer])) + (absKpad << (BITSHIFTCURVSCALEC2CORRS[layer] + 1)));
       dphi3_c2Full -= (1 << (BITSHIFTCURVSCALEC2LEADS[layer] + BITSHIFTCURVSCALEC2CORRS[layer] + 1));
     }
     dphi3_c2Full *= prop3_coord2;
     if (layer == 0 or layer == 4) {
       dphi_c2 += (dphi3_c2Full >> BITSHIFTPROP3C2);
-    }
-    else {
+    } else {
       dphi_c2 -= (dphi3_c2Full >> BITSHIFTPROP3C2);
     }
-  }  
+  }
 
   if (dphi_c2 > PROPMAX)
     dphi_c2 = PROPMAX;
@@ -320,7 +321,6 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
     out.sigma_coord2 = SIGMAMIN;
   else
     out.sigma_coord2 = s2k;
-
 
   ap_int<BITSETA> eta = track.eta();
   out.eta = eta / ETADIVIDER;
