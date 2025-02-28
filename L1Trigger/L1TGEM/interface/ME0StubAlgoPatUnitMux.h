@@ -9,16 +9,16 @@
 
 namespace l1t {
   namespace me0 {
-    uint64_t parse_data(const UInt192& data, int strip, int max_span);
-    std::vector<uint64_t> extract_data_window(const std::vector<UInt192>& ly_dat, int strip, int max_span);
-    std::vector<int> parse_bx_data(const std::vector<int>& bx_data, int strip, int max_span);
-    std::vector<std::vector<int>> extract_bx_data_window(const std::vector<std::vector<int>>& ly_dat,
-                                                         int strip,
-                                                         int max_span);
-    std::vector<ME0StubPrimitive> pat_mux(const std::vector<UInt192>& partition_data,
-                                          const std::vector<std::vector<int>>& partition_bx_data,
-                                          int partition,
-                                          Config& config);
+    uint64_t parseData(const UInt192& data, int strip, int maxSpan);
+    std::vector<uint64_t> extractDataWindow(const std::vector<UInt192>& layerData, int strip, int maxSpan);
+    std::vector<int> parseBxData(const std::vector<int>& bxData, int strip, int maxSpan);
+    std::vector<std::vector<int>> extractBxDataWindow(const std::vector<std::vector<int>>& layerData,
+                                                      int strip,
+                                                      int maxSpan);
+    std::vector<ME0StubPrimitive> patMux(const std::vector<UInt192>& partitionData,
+                                         const std::vector<std::vector<int>>& partitionBxData,
+                                         int partition,
+                                         Config& config);
   }  // namespace me0
 }  // namespace l1t
 #endif

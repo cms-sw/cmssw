@@ -137,8 +137,9 @@
 <class name="MuonDigiCollection<ME0DetId,ME0TriggerDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0TriggerDigi> >" splitLevel="0"/>
 
-<class name="ME0Stub" ClassVersion="3">
+<class name="ME0Stub" ClassVersion="4">
  <version ClassVersion="3" checksum="896321440"/>
+ <version ClassVersion="4" checksum="1308525807"/>
 </class>
 <class name="std::vector<ME0Stub*>" splitLevel="0"/>
 <class name="edm::OwnVector<ME0Stub,edm::ClonePolicy<ME0Stub> >" splitLevel="0"  rntupleSplit="false" />

@@ -10,11 +10,11 @@
 
 namespace l1t {
   namespace me0 {
-    std::vector<std::vector<ME0StubPrimitive>> cross_partition_cancellation(
-        std::vector<std::vector<ME0StubPrimitive>>& segments, int cross_part_seg_width);
-    std::vector<ME0StubPrimitive> process_chamber(const std::vector<std::vector<UInt192>>& chamber_data,
-                                                  const std::vector<std::vector<std::vector<int>>>& chamber_bx_data,
-                                                  Config& config);
+    std::vector<std::vector<ME0StubPrimitive>> crossPartitionCancellation(
+        std::vector<std::vector<ME0StubPrimitive>>& segments, int crossPartSegWidth);
+    std::vector<ME0StubPrimitive> processChamber(const std::vector<std::vector<UInt192>>& chamberData,
+                                                 const std::vector<std::vector<std::vector<int>>>& chamberBxData,
+                                                 Config& config);
   }  // namespace me0
 }  // namespace l1t
 

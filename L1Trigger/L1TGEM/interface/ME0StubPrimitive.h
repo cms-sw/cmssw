@@ -12,73 +12,79 @@ class ME0StubPrimitive final {
 public:
   // Constructors
   ME0StubPrimitive();
-  ME0StubPrimitive(int lc_, int hc_, int id_, int strip_, int partition_);
-  ME0StubPrimitive(int lc_, int hc_, int id_, int strip_, int partition_, double bx_);
-  ME0StubPrimitive(int lc_, int hc_, int id_, int strip_, int partition_, double bx_, std::vector<double>& centroid_);
+  ME0StubPrimitive(int layerCount, int hitCount, int patternId, int strip, int etaPartition);
+  ME0StubPrimitive(int layerCount, int hitCount, int patternId, int strip, int etaPartition, double bx);
+  ME0StubPrimitive(int layerCount,
+                   int hitCount,
+                   int patternId,
+                   int strip,
+                   int etaPartition,
+                   double bx,
+                   std::vector<double>& centroids);
 
   // clone
   ME0StubPrimitive* clone() const { return new ME0StubPrimitive(*this); }
 
   // Get private variable
-  int LayerCount() const { return lc; }
-  int HitCount() const { return hc; }
-  int PatternId() const { return id; }
-  int Strip() const { return strip; }
-  int EtaPartition() const { return partition; }
-  int BX() const { return bx; }
-  double SubStrip() const { return substrip; }
-  double BendingAngle() const { return bend_ang; }
-  double MSE() const { return mse; }
-  std::vector<double> Centroids() const { return centroid; }
-  int Quality() const { return quality; }
-  int MaxClusterSize() const { return max_cluster_size; }
-  int MaxNoise() const { return max_noise; }
+  int layerCount() const { return layerCount_; }
+  int hitCount() const { return hitCount_; }
+  int patternId() const { return patternId_; }
+  int strip() const { return strip_; }
+  int etaPartition() const { return etaPartition_; }
+  int bx() const { return bx_; }
+  double subStrip() const { return subStrip_; }
+  double bendingAngle() const { return bendingAngle_; }
+  double mse() const { return mse_; }
+  std::vector<double> centroids() const { return centroids_; }
+  int quality() const { return quality_; }
+  int maxClusterSize() const { return maxClusterSize_; }
+  int maxNoise() const { return maxNoise_; }
 
   // Set private variable
-  void SetLayerCount(int lc_) { lc = lc_; }
-  void SetHitCount(int hc_) { hc = hc_; }
-  void SetPatternId(int id_) { id = id_; }
-  void SetStrip(int strip_) { strip = strip_; }
-  void SetEtaPartition(int partition_) { partition = partition_; }
-  void SetBX(double bx_) { bx = bx_; }
-  void SetCentroids(std::vector<double> centroid_) { centroid = centroid_; }
-  void SetMaxClusterSize(int max_cluster_size_) { max_cluster_size = max_cluster_size_; }
-  void SetMaxNoise(int max_noise_) { max_noise = max_noise_; }
+  void setLayerCount(int layerCount) { layerCount_ = layerCount; }
+  void setHitCount(int hitCount) { hitCount_ = hitCount; }
+  void setPatternId(int patternId) { patternId_ = patternId; }
+  void setStrip(int strip) { strip_ = strip; }
+  void setEtaPartition(int etaPartition) { etaPartition_ = etaPartition; }
+  void setBx(double bx) { bx_ = bx; }
+  void setCentroids(std::vector<double> centroids) { centroids_ = centroids; }
+  void setMaxClusterSize(int maxClusterSize) { maxClusterSize_ = maxClusterSize; }
+  void setMaxNoise(int maxNoise) { maxNoise_ = maxNoise; }
 
   void reset();
-  void update_quality();
-  void fit(int max_span = 37);
+  void updateQuality();
+  void fit(int maxSpan = 37);
 
   // operators
   bool operator==(const ME0StubPrimitive& other) {
-    if (lc == 0 && other.lc == 0) {
+    if (layerCount_ == 0 && other.layerCount_ == 0) {
       return true;
     }
-    return (quality == other.quality);
+    return (quality_ == other.quality_);
   }
-  bool operator>(const ME0StubPrimitive& other) { return (quality > other.quality); }
-  bool operator<(const ME0StubPrimitive& other) { return (quality < other.quality); }
-  bool operator>=(const ME0StubPrimitive& other) { return (quality >= other.quality); }
-  bool operator<=(const ME0StubPrimitive& other) { return (quality <= other.quality); }
+  bool operator>(const ME0StubPrimitive& other) { return (quality_ > other.quality_); }
+  bool operator<(const ME0StubPrimitive& other) { return (quality_ < other.quality_); }
+  bool operator>=(const ME0StubPrimitive& other) { return (quality_ >= other.quality_); }
+  bool operator<=(const ME0StubPrimitive& other) { return (quality_ <= other.quality_); }
   // ostream
   friend std::ostream& operator<<(std::ostream& os, const ME0StubPrimitive& stub) {
-    os << "id=" << stub.PatternId() << ", lc=" << stub.LayerCount() << ", strip=" << stub.Strip()
-       << ", prt=" << stub.EtaPartition() << ", quality=" << stub.Quality();
+    os << "id=" << stub.patternId() << ", lc=" << stub.layerCount() << ", strip=" << stub.strip()
+       << ", prt=" << stub.etaPartition() << ", quality=" << stub.quality();
     return os;
   }
 
 private:
-  int lc, hc, id, strip, partition;
-  double bx = -9999;
-  std::vector<double> centroid;
-  double substrip = 0.0;
-  double bend_ang = 0.0;
-  double mse = 9999;
-  int quality = 0;
-  int max_cluster_size = 0;
-  int max_noise = 0;
-  bool ignore_bend = false;
-  std::vector<double> llse_fit(const std::vector<double>& x, const std::vector<double>& y);
+  int layerCount_, hitCount_, patternId_, strip_, etaPartition_;
+  double bx_ = -9999;
+  std::vector<double> centroids_;
+  double subStrip_ = 0.0;
+  double bendingAngle_ = 0.0;
+  double mse_ = 9999;
+  int quality_ = 0;
+  int maxClusterSize_ = 0;
+  int maxNoise_ = 0;
+  bool ignoreBend_ = false;
+  std::vector<double> llseFit(const std::vector<double>& x, const std::vector<double>& y);
 };
 
 #endif

@@ -3,21 +3,21 @@
 using namespace l1t::me0;
 
 //define functions to generate patterns
-hi_lo_t l1t::me0::mirror_hi_lo(const hi_lo_t& ly) {
-  hi_lo_t mirrored{-1 * (ly.lo), -1 * (ly.hi)};
+HiLo l1t::me0::mirrorHiLo(const HiLo& layer) {
+  HiLo mirrored{-1 * (layer.lo), -1 * (layer.hi)};
   return mirrored;
 }
-patdef_t l1t::me0::mirror_patdef(const patdef_t& pat, int id) {
-  std::vector<hi_lo_t> layers_;
-  layers_.reserve(pat.layers.size());
-  for (hi_lo_t l : pat.layers) {
-    layers_.push_back(mirror_hi_lo(l));
+PatternDefinition l1t::me0::mirrorPatternDefinition(const PatternDefinition& pattern, int id) {
+  std::vector<HiLo> layers_;
+  layers_.reserve(pattern.layers.size());
+  for (HiLo l : pattern.layers) {
+    layers_.push_back(mirrorHiLo(l));
   }
-  patdef_t mirrored{id, layers_};
+  PatternDefinition mirrored{id, layers_};
   return mirrored;
 }
-std::vector<hi_lo_t> l1t::me0::create_pat_ly(double lower, double upper) {
-  std::vector<hi_lo_t> layer_list;
+std::vector<HiLo> l1t::me0::createPatternLayer(double lower, double upper) {
+  std::vector<HiLo> layerList;
   double hi, lo;
   int hi_i, lo_i;
   for (int i = 0; i < 6; ++i) {
@@ -36,11 +36,11 @@ std::vector<hi_lo_t> l1t::me0::create_pat_ly(double lower, double upper) {
     }
     hi_i = std::ceil(hi);
     lo_i = std::floor(lo);
-    layer_list.push_back(hi_lo_t{hi_i, lo_i});
+    layerList.push_back(HiLo{hi_i, lo_i});
   }
-  return layer_list;
+  return layerList;
 }
-int l1t::me0::count_ones(u_int64_t x) {
+int l1t::me0::countOnes(uint64_t x) {
   int cnt = 0;
   while (x > 0) {
     if (x & 1) {
@@ -50,45 +50,45 @@ int l1t::me0::count_ones(u_int64_t x) {
   }
   return cnt;
 }
-int l1t::me0::max_cluster_size(uint64_t x) {
+int l1t::me0::maxClusterSize(uint64_t x) {
   int size = 0;
-  int max_size = 0;
+  int maxSize = 0;
   while (x > 0) {
     if ((x & 1) == 1) {
       size++;
     } else {
-      if (size > max_size) {
-        max_size = size;
+      if (size > maxSize) {
+        maxSize = size;
       }
       size = 0;
     }
     x = x >> 1;
   }
-  if (size > max_size) {
-    max_size = size;
+  if (size > maxSize) {
+    maxSize = size;
   }
-  return max_size;
+  return maxSize;
 }
-UInt192 l1t::me0::set_bit(int index, UInt192 num1 = UInt192(0)) {
+UInt192 l1t::me0::setBit(int index, UInt192 num1 = UInt192(0)) {
   UInt192 num2 = (UInt192(1) << index);
   UInt192 final_v = num1 | num2;
   return final_v;
 }
-UInt192 l1t::me0::clear_bit(int index, UInt192 num) {
+UInt192 l1t::me0::clearBit(int index, UInt192 num) {
   UInt192 bit = UInt192(1) & (num >> index);
   return num ^ (bit << index);
 }
-uint64_t l1t::me0::one_bit_mask(int num) {
-  uint64_t o_mask = 0;
-  int bit_num = 0;
+uint64_t l1t::me0::oneBitMask(int num) {
+  uint64_t oMask = 0;
+  int bitNum = 0;
   while (num != 0) {
-    o_mask |= (1 << bit_num);
+    oMask |= (1 << bitNum);
     num = (num >> 1);
-    ++bit_num;
+    ++bitNum;
   }
-  return o_mask;
+  return oMask;
 }
-std::vector<int> l1t::me0::find_ones(uint64_t& data) {
+std::vector<int> l1t::me0::findOnes(uint64_t& data) {
   std::vector<int> ones;
   int cnt = 0;
   while (data > 0) {
@@ -100,8 +100,8 @@ std::vector<int> l1t::me0::find_ones(uint64_t& data) {
   }
   return ones;
 }
-std::pair<double, std::vector<int>> l1t::me0::find_centroid(uint64_t& data) {
-  std::vector<int> ones = find_ones(data);
+std::pair<double, std::vector<int>> l1t::me0::findCentroid(uint64_t& data) {
+  std::vector<int> ones = findOnes(data);
   if (static_cast<int>(ones.size()) == 0) {
     return {0.0, ones};
   }
@@ -111,18 +111,18 @@ std::pair<double, std::vector<int>> l1t::me0::find_centroid(uint64_t& data) {
   }
   return {static_cast<double>(sum) / static_cast<double>(ones.size()), ones};
 }
-std::vector<std::vector<ME0StubPrimitive>> l1t::me0::chunk(const std::vector<ME0StubPrimitive>& in_list, int n) {
+std::vector<std::vector<ME0StubPrimitive>> l1t::me0::chunk(const std::vector<ME0StubPrimitive>& inList, int n) {
   std::vector<std::vector<ME0StubPrimitive>> chunks;
-  int size = in_list.size();
+  int size = inList.size();
   for (int i = 0; i < (size + n - 1) / n; ++i) {
-    std::vector<ME0StubPrimitive> chunk(in_list.begin() + i * n, in_list.begin() + std::min((i + 1) * n, size));
+    std::vector<ME0StubPrimitive> chunk(inList.begin() + i * n, inList.begin() + std::min((i + 1) * n, size));
     chunks.push_back(chunk);
   }
   return chunks;
 }
-void l1t::me0::segment_sorter(std::vector<ME0StubPrimitive>& segs, int n) {
+void l1t::me0::segmentSorter(std::vector<ME0StubPrimitive>& segs, int n) {
   std::sort(segs.begin(), segs.end(), [](const ME0StubPrimitive& lhs, const ME0StubPrimitive& rhs) {
-    return (lhs.Quality() > rhs.Quality());
+    return (lhs.quality() > rhs.quality());
   });
   segs = std::vector<ME0StubPrimitive>(segs.begin(), std::min(segs.begin() + n, segs.end()));
 }

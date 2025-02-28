@@ -1,5 +1,5 @@
-#ifndef L1Trigger_L1TGEM_ME0StubBuilder_h
-#define L1Trigger_L1TGEM_ME0StubBuilder_h
+#ifndef L1Trigger_L1TGEM_ME0StubBuilder_H
+#define L1Trigger_L1TGEM_ME0StubBuilder_H
 
 /** \class ME0StubBuilder derived by GEMSegmentBuilder
  * Algorithm to build ME0Stub's from GEMPadDigi collection
@@ -28,28 +28,28 @@ public:
   explicit ME0StubBuilder(const edm::ParameterSet&);
   ~ME0StubBuilder();
 
-  void build(const GEMPadDigiCollection* paddigis, ME0StubCollection& oc);
+  void build(const GEMPadDigiCollection* padDigis, ME0StubCollection& oc);
 
   static void fillDescription(edm::ParameterSetDescription& descriptions);
 
 private:
-  bool skip_centroids;
-  std::vector<int32_t> ly_thresh_patid;
-  std::vector<int32_t> ly_thresh_eta;
-  int32_t max_span;
-  int32_t width;
-  bool deghost_pre;
-  bool deghost_post;
-  int32_t group_width;
-  int32_t ghost_width;
-  bool x_prt_en;
-  bool en_non_pointing;
-  int32_t cross_part_seg_width;
-  int32_t num_outputs;
-  bool check_ids;
-  int32_t edge_distance;
-  int32_t num_or;
-  double mse_thresh;
+  bool skipCentroids_;
+  std::vector<int32_t> layerThresholdPatternId_;
+  std::vector<int32_t> layerThresholdEta_;
+  int32_t maxSpan_;
+  int32_t width_;
+  bool deghostPre_;
+  bool deghostPost_;
+  int32_t groupWidth_;
+  int32_t ghostWidth_;
+  bool xPartitionEnabled_;
+  bool enableNonPointing_;
+  int32_t crossPartitionSegmentWidth_;
+  int32_t numOutputs_;
+  bool checkIds_;
+  int32_t edgeDistance_;
+  int32_t numOr_;
+  double mseThreshold_;
 };
 
 #endif

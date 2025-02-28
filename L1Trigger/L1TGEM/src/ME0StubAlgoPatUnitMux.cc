@@ -2,74 +2,73 @@
 
 using namespace l1t::me0;
 
-uint64_t l1t::me0::parse_data(const UInt192& data, int strip, int max_span) {
-  UInt192 data_shifted;
-  uint64_t parsed_data;
-  if (strip < max_span / 2 + 1) {
-    data_shifted = data << (max_span / 2 - strip);
-    parsed_data = (data_shifted & UInt192(0xffffffffffffffff >> (64 - max_span))).to_ullong();
+uint64_t l1t::me0::parseData(const UInt192& data, int strip, int maxSpan) {
+  UInt192 dataShifted;
+  uint64_t parsedData;
+  if (strip < maxSpan / 2 + 1) {
+    dataShifted = data << (maxSpan / 2 - strip);
+    parsedData = (dataShifted & UInt192(0xffffffffffffffff >> (64 - maxSpan))).to_ullong();
   } else {
-    data_shifted = data >> (strip - max_span / 2);
-    parsed_data = (data_shifted & UInt192(0xffffffffffffffff >> (64 - max_span))).to_ullong();
+    dataShifted = data >> (strip - maxSpan / 2);
+    parsedData = (dataShifted & UInt192(0xffffffffffffffff >> (64 - maxSpan))).to_ullong();
   }
-  return parsed_data;
+  return parsedData;
 }
-std::vector<uint64_t> l1t::me0::extract_data_window(const std::vector<UInt192>& ly_dat, int strip, int max_span) {
+std::vector<uint64_t> l1t::me0::extractDataWindow(const std::vector<UInt192>& layerData, int strip, int maxSpan) {
   std::vector<uint64_t> out;
-  out.reserve(ly_dat.size());
-  for (const UInt192& data : ly_dat) {
-    out.push_back(parse_data(data, strip, max_span));
+  out.reserve(layerData.size());
+  for (const UInt192& data : layerData) {
+    out.push_back(parseData(data, strip, maxSpan));
   }
   return out;
 }
-std::vector<int> l1t::me0::parse_bx_data(const std::vector<int>& bx_data, int strip, int max_span) {
-  std::vector<int> data_shifted;
-  std::vector<int> parsed_bx_data;
-  if (strip < max_span / 2 + 1) {
-    std::vector<std::vector<int>> seed = {std::vector<int>((max_span / 2 - strip), -9999), bx_data};
-    data_shifted = concatVector(seed);
-    parsed_bx_data = std::vector<int>(data_shifted.begin(), data_shifted.begin() + max_span);
+std::vector<int> l1t::me0::parseBxData(const std::vector<int>& bxData, int strip, int maxSpan) {
+  std::vector<int> dataShifted;
+  std::vector<int> parsedBxData;
+  if (strip < maxSpan / 2 + 1) {
+    std::vector<std::vector<int>> seed = {std::vector<int>((maxSpan / 2 - strip), -9999), bxData};
+    dataShifted = concatVector(seed);
+    parsedBxData = std::vector<int>(dataShifted.begin(), dataShifted.begin() + maxSpan);
   } else {
-    int shift = strip - max_span / 2;
-    int num_appended_nedded = shift + max_span - static_cast<int>(bx_data.size());
-    if (num_appended_nedded > 0) {
-      std::vector<std::vector<int>> seed = {bx_data, std::vector<int>(num_appended_nedded, -9999)};
-      data_shifted = concatVector(seed);
+    int shift = strip - maxSpan / 2;
+    int numAppendedNeeded = shift + maxSpan - static_cast<int>(bxData.size());
+    if (numAppendedNeeded > 0) {
+      std::vector<std::vector<int>> seed = {bxData, std::vector<int>(numAppendedNeeded, -9999)};
+      dataShifted = concatVector(seed);
     } else {
-      data_shifted = bx_data;
+      dataShifted = bxData;
     }
-    parsed_bx_data = std::vector<int>(data_shifted.begin() + shift, data_shifted.begin() + shift + max_span);
+    parsedBxData = std::vector<int>(dataShifted.begin() + shift, dataShifted.begin() + shift + maxSpan);
   }
-  return parsed_bx_data;
+  return parsedBxData;
 }
-std::vector<std::vector<int>> l1t::me0::extract_bx_data_window(const std::vector<std::vector<int>>& ly_dat,
-                                                               int strip,
-                                                               int max_span) {
+std::vector<std::vector<int>> l1t::me0::extractBxDataWindow(const std::vector<std::vector<int>>& layerData,
+                                                            int strip,
+                                                            int maxSpan) {
   std::vector<std::vector<int>> out;
-  out.reserve(ly_dat.size());
-  for (const std::vector<int>& data : ly_dat) {
-    out.push_back(parse_bx_data(data, strip, max_span));
+  out.reserve(layerData.size());
+  for (const std::vector<int>& data : layerData) {
+    out.push_back(parseBxData(data, strip, maxSpan));
   }
   return out;
 }
-std::vector<ME0StubPrimitive> l1t::me0::pat_mux(const std::vector<UInt192>& partition_data,
-                                                const std::vector<std::vector<int>>& partition_bx_data,
-                                                int partition,
-                                                Config& config) {
+std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<UInt192>& partitionData,
+                                               const std::vector<std::vector<int>>& partitionBxData,
+                                               int partition,
+                                               Config& config) {
   std::vector<ME0StubPrimitive> out;
   for (int strip = 0; strip < config.width; ++strip) {
-    const std::vector<uint64_t>& data_window = extract_data_window(partition_data, strip, config.max_span);
-    const std::vector<std::vector<int>>& bx_data_window =
-        extract_bx_data_window(partition_bx_data, strip, config.max_span);
-    const ME0StubPrimitive& seg = pat_unit(data_window,
-                                           bx_data_window,
-                                           strip,
-                                           partition,
-                                           config.ly_thresh_patid,
-                                           config.ly_thresh_eta,
-                                           config.max_span,
-                                           config.skip_centroids,
-                                           config.num_or);
+    const std::vector<uint64_t>& dataWindow = extractDataWindow(partitionData, strip, config.maxSpan);
+    const std::vector<std::vector<int>>& bxDataWindow = extractBxDataWindow(partitionBxData, strip, config.maxSpan);
+    const ME0StubPrimitive& seg = patUnit(dataWindow,
+                                          bxDataWindow,
+                                          strip,
+                                          partition,
+                                          config.layerThresholdPatternId,
+                                          config.layerThresholdEta,
+                                          config.maxSpan,
+                                          config.skipCentroids,
+                                          config.numOr);
     out.push_back(seg);
   }
   return out;

@@ -6,20 +6,20 @@
 
 namespace l1t {
   namespace me0 {
-    bool is_ghost(const ME0StubPrimitive& seg,
-                  const ME0StubPrimitive& comp,
-                  bool check_ids = false,
-                  bool check_strips = false);
-    bool is_at_edge(int x, int group_width, int edge_distance);
-    std::vector<ME0StubPrimitive> cancel_edges(const std::vector<ME0StubPrimitive>& segments,
-                                               int group_width = 8,
-                                               int ghost_width = 2,
-                                               int edge_distance = 2,
-                                               bool verbose = false);
-    std::vector<ME0StubPrimitive> process_partition(const std::vector<UInt192>& partition_data,
-                                                    const std::vector<std::vector<int>>& partition_bx_data,
-                                                    int partition,
-                                                    Config& config);
+    bool isGhost(const ME0StubPrimitive& segment,
+                 const ME0StubPrimitive& comparison,
+                 bool checkIds = false,
+                 bool checkStrips = false);
+    bool isAtEdge(int x, int groupWidth, int edgeDistance);
+    std::vector<ME0StubPrimitive> cancelEdges(const std::vector<ME0StubPrimitive>& segments,
+                                              int groupWidth = 8,
+                                              int ghostWidth = 2,
+                                              int edgeDistance = 2,
+                                              bool verbose = false);
+    std::vector<ME0StubPrimitive> processPartition(const std::vector<UInt192>& partitionData,
+                                                   const std::vector<std::vector<int>>& partitionBxData,
+                                                   int partition,
+                                                   Config& config);
   }  // namespace me0
 }  // namespace l1t
 

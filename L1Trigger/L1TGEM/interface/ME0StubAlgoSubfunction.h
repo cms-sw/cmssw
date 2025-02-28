@@ -16,37 +16,37 @@ namespace l1t {
     typedef std::bitset<192> UInt192;
 
     struct Config {
-      bool skip_centroids;
-      std::vector<int32_t> ly_thresh_patid;
-      std::vector<int32_t> ly_thresh_eta;
-      int32_t max_span;
+      bool skipCentroids;
+      std::vector<int32_t> layerThresholdPatternId;
+      std::vector<int32_t> layerThresholdEta;
+      int32_t maxSpan;
       int32_t width;
-      bool deghost_pre;
-      bool deghost_post;
-      int32_t group_width;
-      int32_t ghost_width;
-      bool x_prt_en;
-      bool en_non_pointing;
-      int32_t cross_part_seg_width;
-      int32_t num_outputs;
-      bool check_ids;
-      int32_t edge_distance;
-      int32_t num_or;
+      bool deghostPre;
+      bool deghostPost;
+      int32_t groupWidth;
+      int32_t ghostWidth;
+      bool xPartitionEnabled;
+      bool enableNonPointing;
+      int32_t crossPartitionSegmentWidth;
+      int32_t numOutputs;
+      bool checkIds;
+      int32_t edgeDistance;
+      int32_t numOr;
     };
 
-    class hi_lo_t {
+    class HiLo {
     private:
     public:
       int hi, lo;
-      hi_lo_t(int hi_, int lo_) : hi(hi_), lo(lo_) {}
+      HiLo(int hi, int lo) : hi(hi), lo(lo) {}
     };
 
-    class patdef_t {
+    class PatternDefinition {
     private:
     public:
       int id;
-      std::vector<hi_lo_t> layers;
-      patdef_t(int id_, std::vector<hi_lo_t> layers_) : id(id_), layers(layers_) {}
+      std::vector<HiLo> layers;
+      PatternDefinition(int id, std::vector<HiLo> layers) : id(id), layers(layers) {}
     };
 
     class Mask {
@@ -54,23 +54,23 @@ namespace l1t {
     public:
       int id;
       std::vector<uint64_t> mask;
-      Mask(int id_, std::vector<uint64_t> mask_) : id(id_), mask(mask_) {}
-      std::string to_string() const;
+      Mask(int id, std::vector<uint64_t> mask) : id(id), mask(mask) {}
+      std::string toString() const;
     };
 
-    hi_lo_t mirror_hi_lo(const hi_lo_t& ly);
-    patdef_t mirror_patdef(const patdef_t& pat, int id);
-    std::vector<hi_lo_t> create_pat_ly(double lower, double upper);
+    HiLo mirrorHiLo(const HiLo& layer);
+    PatternDefinition mirrorPatternDefinition(const PatternDefinition& pattern, int id);
+    std::vector<HiLo> createPatternLayer(double lower, double upper);
 
-    int count_ones(uint64_t x);
-    int max_cluster_size(uint64_t x);
-    UInt192 set_bit(int index, UInt192 num1);
-    UInt192 clear_bit(int index, UInt192 num);
-    uint64_t one_bit_mask(int num);
-    std::vector<int> find_ones(uint64_t& data);
-    std::pair<double, std::vector<int>> find_centroid(uint64_t& data);
-    std::vector<std::vector<ME0StubPrimitive>> chunk(const std::vector<ME0StubPrimitive>& in_list, int n);
-    void segment_sorter(std::vector<ME0StubPrimitive>& segs, int n);
+    int countOnes(uint64_t x);
+    int maxClusterSize(uint64_t x);
+    UInt192 setBit(int index, UInt192 num);
+    UInt192 clearBit(int index, UInt192 num);
+    uint64_t oneBitMask(int num);
+    std::vector<int> findOnes(uint64_t& data);
+    std::pair<double, std::vector<int>> findCentroid(uint64_t& data);
+    std::vector<std::vector<ME0StubPrimitive>> chunk(const std::vector<ME0StubPrimitive>& inList, int n);
+    void segmentSorter(std::vector<ME0StubPrimitive>& segments, int n);
     std::vector<int> concatVector(const std::vector<std::vector<int>>& vec);
     std::vector<ME0StubPrimitive> concatVector(const std::vector<std::vector<ME0StubPrimitive>>& vec);
   }  // namespace me0

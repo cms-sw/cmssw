@@ -12,73 +12,74 @@
 
 class ME0Stub final {
 public:
-  ME0Stub() : detId(), etaPartition(0), padStrip(0), bending_angle(0), layercount(0), quality(0), patternId(0), bx(0) {}
+  ME0Stub()
+      : detId_(), etaPartition_(0), padStrip_(0), bendingAngle_(0), layerCount_(0), quality_(0), patternId_(0), bx_(0) {}
   ME0Stub(const GEMDetId& id, const ME0StubPrimitive& stub)
-      : detId(id),
-        etaPartition(stub.EtaPartition()),
-        padStrip(stub.Strip() + stub.SubStrip()),
-        bending_angle(stub.BendingAngle()),
-        layercount(stub.LayerCount()),
-        quality(stub.Quality()),
-        patternId(stub.PatternId()),
-        bx(stub.BX()) {}
+      : detId_(id),
+        etaPartition_(stub.etaPartition()),
+        padStrip_(stub.strip() + stub.subStrip()),
+        bendingAngle_(stub.bendingAngle()),
+        layerCount_(stub.layerCount()),
+        quality_(stub.quality()),
+        patternId_(stub.patternId()),
+        bx_(stub.bx()) {}
   ME0Stub(const GEMDetId& id,
-          int etaPartition_,
-          double padStrip_,
-          double bending_angle_,
-          int layercount_,
-          int quality_,
-          int patternId_,
-          double bx_)
-      : detId(id),
-        etaPartition(etaPartition_),
-        padStrip(padStrip_),
-        bending_angle(bending_angle_),
-        layercount(layercount_),
-        quality(quality_),
-        patternId(patternId_),
-        bx(bx_) {}
+          int etaPartition,
+          double padStrip,
+          double bendingAngle,
+          int layerCount,
+          int quality,
+          int patternId,
+          double bx)
+      : detId_(id),
+        etaPartition_(etaPartition),
+        padStrip_(padStrip),
+        bendingAngle_(bendingAngle),
+        layerCount_(layerCount),
+        quality_(quality),
+        patternId_(patternId),
+        bx_(bx) {}
 
   // clone
   ME0Stub* clone() const { return new ME0Stub(*this); }
 
   // Get private variable
-  GEMDetId DetId() const { return detId; }
-  int EtaPartition() const { return etaPartition; }
-  double Strip() const { return padStrip; }
-  double BendingAngle() const { return bending_angle; }
-  int LayerCount() const { return layercount; }
-  int Quality() const { return quality; }
-  int PatternId() const { return patternId; }
-  double BX() const { return bx; }
+  GEMDetId detId() const { return detId_; }
+  int etaPartition() const { return etaPartition_; }
+  double strip() const { return padStrip_; }
+  double bendingAngle() const { return bendingAngle_; }
+  int layerCount() const { return layerCount_; }
+  int quality() const { return quality_; }
+  int patternId() const { return patternId_; }
+  double bx() const { return bx_; }
 
   // operators
   bool operator==(const ME0Stub& other) {
-    if (layercount == 0 && other.layercount == 0) {
+    if (layerCount_ == 0 && other.layerCount_ == 0) {
       return true;
     }
-    return (quality == other.quality);
+    return (quality_ == other.quality_);
   }
-  bool operator>(const ME0Stub& other) { return (quality > other.quality); }
-  bool operator<(const ME0Stub& other) { return (quality < other.quality); }
-  bool operator>=(const ME0Stub& other) { return (quality >= other.quality); }
-  bool operator<=(const ME0Stub& other) { return (quality <= other.quality); }
+  bool operator>(const ME0Stub& other) { return (quality_ > other.quality_); }
+  bool operator<(const ME0Stub& other) { return (quality_ < other.quality_); }
+  bool operator>=(const ME0Stub& other) { return (quality_ >= other.quality_); }
+  bool operator<=(const ME0Stub& other) { return (quality_ <= other.quality_); }
   // ostream
   friend std::ostream& operator<<(std::ostream& os, const ME0Stub& stub) {
-    os << "id=" << stub.PatternId() << ", lc=" << stub.LayerCount() << ", strip=" << std::fixed << std::setprecision(3)
-       << stub.Strip() << ", prt=" << stub.EtaPartition() << ", quality=" << stub.Quality();
+    os << "id=" << stub.patternId() << ", lc=" << stub.layerCount() << ", strip=" << std::fixed << std::setprecision(3)
+       << stub.strip() << ", prt=" << stub.etaPartition() << ", quality=" << stub.quality();
     return os;
   }
 
 private:
-  GEMDetId detId;
-  int etaPartition;
-  double padStrip;
-  double bending_angle;
-  int layercount;
-  int quality;
-  int patternId;
-  double bx;
+  GEMDetId detId_;
+  int etaPartition_;
+  double padStrip_;
+  double bendingAngle_;
+  int layerCount_;
+  int quality_;
+  int patternId_;
+  double bx_;
 };
 
 #endif
