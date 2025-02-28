@@ -44,7 +44,7 @@ namespace Phase2L1GMT {
   //Track Muon Match
   const int BITSSIGMAETA = 4;
   const int BITSSIGMACOORD = 4;
-  const int BITSPROPCOORD = 9;
+  const int BITSPROPCOORD = 6; //lowered this to make room for another prop coefficient
   const int BITSPROPSIGMACOORD_A = 6;
   const int BITSPROPSIGMACOORD_B = 6;
   const int BITSPROPSIGMAETA_A = 5;
