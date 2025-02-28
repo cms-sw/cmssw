@@ -2,6 +2,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalFEDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
@@ -12,13 +13,13 @@
 
 using namespace hgcal;
 
-uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
-                                    const FEDRawData& fed_data,
-                                    const HGCalMappingModuleIndexer& moduleIndexer,
-                                    const HGCalConfiguration& config,
-                                    hgcaldigi::HGCalDigiHost& digis,
-                                    hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
-                                    bool headerOnlyMode) {
+uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
+                                     const FEDRawData& fed_data,
+                                     const HGCalMappingModuleIndexer& moduleIndexer,
+                                     const HGCalConfiguration& config,
+                                     hgcaldigi::HGCalDigiHost& digis,
+                                     hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
+                                     bool headerOnlyMode) {
   // ReadoutSequence object for this FED
   const auto& fedReadoutSequence = moduleIndexer.getFEDReadoutSequences()[fedId];
   // Configuration object for this FED
@@ -45,8 +46,9 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
   const auto* const header = reinterpret_cast<const uint64_t*>(fed_data.data());
   const auto* const trailer = reinterpret_cast<const uint64_t*>(fed_data.data() + fed_data.size());
   LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << " nwords (64b) = " << std::distance(header, trailer);
-
   const auto* ptr = header;
+
+#ifdef EDM_ML_DEBUG
   for (unsigned iword = 0; ptr < trailer; ++iword) {
     LogDebug("[HGCalUnpacker]") << std::setw(8) << iword << ": 0x" << std::hex << std::setfill('0') << std::setw(16)
                                 << *ptr << " (" << std::setfill('0') << std::setw(8)
@@ -54,9 +56,10 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                 << std::setw(8) << *reinterpret_cast<const uint32_t*>(ptr) << ")" << std::dec;
     ++ptr;
   }
-
   LogDebug("[HGCalUnpacker]") << "@@@\n";
   ptr = header;
+#endif
+
   // check SLink header (128b)
   // sanity check
   auto slink_header = *(ptr + 1);
@@ -70,7 +73,7 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                        << ((slink_header >> (BACKEND_FRAME::SLINK_BOE_POS + 32)) &
                                            BACKEND_FRAME::SLINK_BOE_MASK)
                                        << " from " << slink_header << ".";
-    return UNPACKER_STAT::WrongSLinkHeader;
+    return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorSLinkHeader);
   }
 
   ptr += 2;
@@ -79,6 +82,7 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
   uint32_t globalECONDIdx = static_cast<uint32_t>(-1);
 
   // parse SLink body (capture blocks)
+  bool hasActiveCBFlags(false);
   for (uint32_t captureblockIdx = 0; captureblockIdx < HGCalMappingModuleIndexer::maxCBperFED_ && ptr < trailer - 2;
        captureblockIdx++) {
     // check capture block header (64b)
@@ -104,7 +108,7 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
               << ", 64b padding word caught before parsing all max capture blocks, captureblockIdx = "
               << captureblockIdx;
           econdPacketInfo.view()[ECONDdenseIdx].exception() = 7;
-          return UNPACKER_STAT::Normal;
+          return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorCaptureBlockHeader);
         }
       }
       econdPacketInfo.view()[ECONDdenseIdx].exception() = 2;
@@ -114,9 +118,10 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                          << ((cb_header >> (BACKEND_FRAME::CAPTUREBLOCK_RESERVED_POS + 32)) &
                                              BACKEND_FRAME::CAPTUREBLOCK_RESERVED_MASK)
                                          << " from 0x" << cb_header << ".";
-      return UNPACKER_STAT::WrongCaptureBlockHeader;
+      return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorCaptureBlockHeader);
     }
     ++ptr;
+
     // parse Capture Block body (ECON-Ds)
     for (uint32_t econdIdx = 0; econdIdx < HGCalMappingModuleIndexer::maxECONDperCB_; econdIdx++) {
       auto econd_pkt_status = (cb_header >> (3 * econdIdx)) & 0b111;
@@ -126,7 +131,8 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
         // always increment the global ECON-D index (unless inactive/unconnected)
         globalECONDIdx++;
       }
-
+      hasActiveCBFlags = (econd_pkt_status != backend::ECONDPacketStatus::Normal) &&
+                         (econd_pkt_status != backend::ECONDPacketStatus::InactiveECOND);
       bool pkt_exists =
           (econd_pkt_status == backend::ECONDPacketStatus::Normal) ||
           (econd_pkt_status == backend::ECONDPacketStatus::PayloadCRCError) ||
@@ -142,27 +148,32 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
       auto econd_headers = to_32b_words(ptr);
       uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, globalECONDIdx);
       econdPacketInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
+      const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
+
       // sanity check
+      // econd_payload_length must contain at least 1 word (CRC) otherwise it's corrupted
       if (((econd_headers[0] >> ECOND_FRAME::HEADER_POS) & ECOND_FRAME::HEADER_MASK) !=
-          fedConfig.econds[globalECONDIdx].headerMarker) {
+              fedConfig.econds[globalECONDIdx].headerMarker ||
+          econd_payload_length == 0) {
         econdPacketInfo.view()[ECONDdenseIdx].exception() = 3;
         edm::LogWarning("[HGCalUnpacker]")
             << "Expected a ECON-D header at word " << std::dec << (uint32_t)(ptr - header) << "/0x" << std::hex
             << (uint32_t)(ptr - header) << " (marker: 0x" << fedConfig.econds[globalECONDIdx].headerMarker
-            << "), got 0x" << econd_headers[0] << ".";
-        return UNPACKER_STAT::WrongECONDHeader;
+            << "), got 0x" << econd_headers[0] << " and payload=" << econd_payload_length << ".";
+        return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorECONDHeader) |
+               (hasActiveCBFlags << hgcaldigi::FEDUnpackingFlags::ActiveCaptureBlockFlags);
       }
-      const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
+
       // Compute ECON-D trailer CRC
       bool crcvalid = hgcal::econdCRCAnalysis(ptr, 0, econd_payload_length);
       LogDebug("[HGCalUnpacker]") << "crc value " << crcvalid;
       ++ptr;
 
       if (!crcvalid) {
+        hasActiveCBFlags = true;
         econd_pkt_status |=
             backend::ECONDPacketStatus::OfflinePayloadCRCError;  //If CRC errors in the trailer, update the pkt status
       }
-
       econdPacketInfo.view()[ECONDdenseIdx].cbFlag() = (uint16_t)(econd_pkt_status);
 
       // ECON-D payload length (num of 32b words)
@@ -171,7 +182,8 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
         econdPacketInfo.view()[ECONDdenseIdx].exception() = 4;
         edm::LogWarning("[HGCalUnpacker]")
             << "Unpacked payload length=" << econd_payload_length << " exceeds the maximal length=469";
-        return UNPACKER_STAT::ECONDPayloadLengthOverflow;
+        return (0x1 << hgcaldigi::FEDUnpackingFlags::ECONDPayloadLengthOverflow) |
+               (hasActiveCBFlags << hgcaldigi::FEDUnpackingFlags::ActiveCaptureBlockFlags);
       }
       const auto econdFlag = ((econd_headers[0] >> ECOND_FRAME::BITT_POS) & 0b1111111) +
                              (((econd_headers[1] >> ECOND_FRAME::BITS_POS) & 0b1) << hgcaldigi::ECONDFlag::BITS_POS);
@@ -330,6 +342,7 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
               digis.view()[denseIdx].cm() = cmSum;
               digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::Normal;
             }
+
             iword += 1;
           }
         }
@@ -341,10 +354,12 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
             << "Mismatch between unpacked and expected ECON-D #" << (int)globalECONDIdx << " payload length\n"
             << "  unpacked payload length=" << iword + 1 << "\n"
             << "  expected payload length=" << econd_payload_length;
-        return UNPACKER_STAT::ECONDPayloadLengthMismatch;
+        return (0x1 << hgcaldigi::FEDUnpackingFlags::ECONDPayloadLengthMismatch) |
+               (hasActiveCBFlags << hgcaldigi::FEDUnpackingFlags::ActiveCaptureBlockFlags);
       }
     }
   }
+
   // skip the padding word as the last capture block will be aligned to 128b if needed
   if (std::distance(ptr, header) % 2) {
     ++ptr;
@@ -359,7 +374,10 @@ uint8_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                        << (uint32_t)(trailer - header) << "Unpacked trailer at" << std::dec
                                        << (uint32_t)(trailer - header + 2) << "/0x" << std::hex
                                        << (uint32_t)(ptr - header + 2);
-    return UNPACKER_STAT::WrongSLinkTrailer;
+    return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorSLinkTrailer) |
+           (hasActiveCBFlags << hgcaldigi::FEDUnpackingFlags::ActiveCaptureBlockFlags);
   }
-  return UNPACKER_STAT::Normal;
+
+  return (0x1 << hgcaldigi::FEDUnpackingFlags::NormalUnpacking) |
+         (hasActiveCBFlags << hgcaldigi::FEDUnpackingFlags::ActiveCaptureBlockFlags);
 }
