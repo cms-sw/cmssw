@@ -1652,11 +1652,13 @@ upgradeWFs['ProdLikePU180'] = UpgradeWorkflow_ProdLikeRunningPU(
 
 class UpgradeWorkflow_HLT75e33Timing(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        # skip RECO, ALCA and HARVEST
-        if ('ALCA' in step) or ('Reco' in step) or ('HARVEST' in step) or ('HLT' in step):
+        # skip RECO, ALCA and HLT
+        if ('ALCA' in step) or ('Reco' in step) or ('HLT' in step):
             stepDict[stepName][k] = None
         elif 'DigiTrigger' in step:
             stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
@@ -1691,49 +1693,78 @@ upgradeWFs['HLTTiming75e33'] = UpgradeWorkflow_HLT75e33Timing(
     offset = 0.75,
 )
 upgradeWFs['HLTTiming75e33'].step2 = {
-    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing'
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
 }
 
 upgradeWFs['HLTTiming75e33Alpaka'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33Alpaka'].suffix = '_HLT75e33TimingAlpaka'
 upgradeWFs['HLTTiming75e33Alpaka'].offset = 0.751
 upgradeWFs['HLTTiming75e33Alpaka'].step2 = {
-    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
-    '--procModifiers': 'alpaka'
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'alpaka',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33Alpaka'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
 }
 
 upgradeWFs['HLTTiming75e33TiclV5'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33TiclV5'].suffix = '_HLT75e33TimingTiclV5'
 upgradeWFs['HLTTiming75e33TiclV5'].offset = 0.752
 upgradeWFs['HLTTiming75e33TiclV5'].step2 = {
-    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
-    '--procModifiers': 'ticl_v5'
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'ticl_v5',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33TiclV5'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
 }
 
 upgradeWFs['HLTTiming75e33AlpakaSingleIter'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33AlpakaSingleIter'].suffix = '_HLT75e33TimingAlpakaSingleIter'
 upgradeWFs['HLTTiming75e33AlpakaSingleIter'].offset = 0.753
 upgradeWFs['HLTTiming75e33AlpakaSingleIter'].step2 = {
-    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
-    '--procModifiers': 'alpaka,singleIterPatatrack'
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'alpaka,singleIterPatatrack',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33AlpakaSingleIter'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
 }
 
 upgradeWFs['HLTTiming75e33AlpakaSingleIterLST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33AlpakaSingleIterLST'].suffix = '_HLT75e33TimingAlpakaSingleIterLST'
 upgradeWFs['HLTTiming75e33AlpakaSingleIterLST'].offset = 0.754
 upgradeWFs['HLTTiming75e33AlpakaSingleIterLST'].step2 = {
-    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
-    '--procModifiers': 'alpaka,singleIterPatatrack,trackingLST'
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'alpaka,singleIterPatatrack,trackingLST',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLST'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
 }
 
 upgradeWFs['HLTTiming75e33AlpakaLST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33AlpakaLST'].suffix = '_HLT75e33TimingAlpakaLST'
 upgradeWFs['HLTTiming75e33AlpakaLST'].offset = 0.755
 upgradeWFs['HLTTiming75e33AlpakaLST'].step2 = {
-    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing',
-    '--procModifiers': 'alpaka,trackingLST'
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'alpaka,trackingLST',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
 }
-
+upgradeWFs['HLTTiming75e33AlpakaLST'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
+}
 
 class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -1755,10 +1786,12 @@ upgradeWFs['HLTwDIGI75e33'] = UpgradeWorkflow_HLTwDIGI75e33(
 class UpgradeWorkflow_NGTScouting(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         # skip RECO, ALCA and HARVEST
-        if ('ALCA' in step) or ('Reco' in step) or ('HARVEST' in step) or ('HLT' in step):
+        if ('ALCA' in step) or ('Reco' in step) or ('HLT' in step):
             stepDict[stepName][k] = None
         elif 'DigiTrigger' in step:
             stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+        elif 'HARVEST' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
@@ -1786,7 +1819,12 @@ upgradeWFs['NGTScouting'] = UpgradeWorkflow_NGTScouting(
     offset = 0.77,
 )
 upgradeWFs['NGTScouting'].step2 = {
-    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting'
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['NGTScouting'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
 }
 
 class UpgradeWorkflow_L1Complete(UpgradeWorkflow):
