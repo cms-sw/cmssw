@@ -151,10 +151,8 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
 
       // sanity check
-      // econd_payload_length must contain at least 1 word (CRC) otherwise it's corrupted
       if (((econd_headers[0] >> ECOND_FRAME::HEADER_POS) & ECOND_FRAME::HEADER_MASK) !=
-              fedConfig.econds[globalECONDIdx].headerMarker ||
-          econd_payload_length == 0) {
+          fedConfig.econds[globalECONDIdx].headerMarker) {
         econdPacketInfo.view()[ECONDdenseIdx].exception() = 3;
         edm::LogWarning("[HGCalUnpacker]")
             << "Expected a ECON-D header at word " << std::dec << (uint32_t)(ptr - header) << "/0x" << std::hex
@@ -204,7 +202,6 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       //quality check for ECON-D (check econd_pkt_status here for error in trailer CRC)
       if ((((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::EBO_POS) & ECOND_FRAME::EBO_MASK) >= 0b10) ||
-          (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) ||
           (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) || econd_payload_length == 0 ||
           econd_pkt_status == backend::ECONDPacketStatus::OfflinePayloadCRCError ||
           econd_pkt_status == backend::ECONDPacketStatus::InactiveECOND || headerOnlyMode) {
