@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
 #include <algorithm>
@@ -57,8 +56,9 @@ namespace sistrip {
         counterDiffMax_(config.getParameter<uint32_t>("CounterDiffMaxAllowed")),
         productRegistry_(new edm::SignallingProductRegistry),
         source_(constructSource(config.getParameter<edm::ParameterSet>("SpySource"))),
-        processConfiguration_(
-            new edm::ProcessConfiguration(std::string("@MIXING"), edm::getReleaseVersion(), edm::getPassID())),
+        // hardware information is not needed for the "overlay"
+        processConfiguration_(std::make_unique<edm::ProcessConfiguration>(
+            "@MIXING", edm::getReleaseVersion(), edm::HardwareResourcesDescription())),
         eventPrincipal_() {
     // Use the empty parameter set for the parameter set ID of our "@MIXING" process.
     processConfiguration_->setParameterSetID(edm::ParameterSet::emptyParameterSetID());

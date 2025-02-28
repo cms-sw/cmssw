@@ -48,7 +48,6 @@ namespace edm {
 
     std::string const& processName() const;
     std::string const& releaseVersion() const;
-    std::string const& passID() const;
     ParameterSetID const& mainParameterSetID() const;
 
     // compiler-written copy c'tor, assignment, and d'tor are correct.

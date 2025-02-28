@@ -16,7 +16,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
@@ -88,7 +87,9 @@ namespace edm {
                    ->makeVectorInputSource(
                        pset, VectorInputSourceDescription(productRegistry_, edm::PreallocationConfiguration()))
                    .release()),
-        processConfiguration_(new ProcessConfiguration(std::string("@MIXING"), getReleaseVersion(), getPassID())),
+        // hardware information is not needed for the "overlay"
+        processConfiguration_(std::make_shared<ProcessConfiguration>(
+            "@MIXING", getReleaseVersion(), edm::HardwareResourcesDescription())),
         processContext_(new ProcessContext()),
         eventPrincipal_(),
         lumiPrincipal_(),
