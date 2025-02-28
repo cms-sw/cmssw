@@ -29,6 +29,7 @@ ________________________________________________________________**/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 class BeamSpotOnlineProducer : public edm::stream::EDProducer<> {
 public:
@@ -51,8 +52,7 @@ private:
   template <typename RecordType, typename TokenType>
   const BeamSpotOnlineObjects& getBeamSpotFromRecord(const TokenType& token,
                                                      const edm::LuminosityBlock& lumi,
-                                                     const edm::EventSetup& setup,
-                                                     const std::string whichrecord);
+                                                     const edm::EventSetup& setup);
   const BeamSpotOnlineObjects& chooseBS(const BeamSpotOnlineObjects& bs1, const BeamSpotOnlineObjects& bs2);
   bool processScalers(const edm::Event& iEvent, bool shoutMODE);
   void createBeamSpotFromScaler(const BeamSpotOnline& spotOnline);
@@ -159,10 +159,8 @@ bool BeamSpotOnlineProducer::shouldShout(const edm::Event& iEvent) const {
 bool BeamSpotOnlineProducer::processRecords(const edm::LuminosityBlock& iLumi,
                                             const edm::EventSetup& iSetup,
                                             bool shoutMODE) {
-  auto const& spotDBLegacy = getBeamSpotFromRecord<BeamSpotOnlineLegacyObjectsRcd>(
-      beamTokenLegacy_, iLumi, iSetup, "BeamSpotOnlineLegacyObjectsRcd");
-  auto const& spotDBHLT =
-      getBeamSpotFromRecord<BeamSpotOnlineHLTObjectsRcd>(beamTokenHLT_, iLumi, iSetup, "BeamSpotOnlineHLTObjectsRcd");
+  auto const& spotDBLegacy = getBeamSpotFromRecord<BeamSpotOnlineLegacyObjectsRcd>(beamTokenLegacy_, iLumi, iSetup);
+  auto const& spotDBHLT = getBeamSpotFromRecord<BeamSpotOnlineHLTObjectsRcd>(beamTokenHLT_, iLumi, iSetup);
   auto const& spotDB = chooseBS(spotDBLegacy, spotDBHLT);
 
   if (spotDB.beamType() != reco::BeamSpot::Tracker) {
@@ -181,11 +179,11 @@ bool BeamSpotOnlineProducer::processRecords(const edm::LuminosityBlock& iLumi,
 template <typename RecordType, typename TokenType>
 const BeamSpotOnlineObjects& BeamSpotOnlineProducer::getBeamSpotFromRecord(const TokenType& token,
                                                                            const LuminosityBlock& lumi,
-                                                                           const EventSetup& setup,
-                                                                           const std::string whichrecord) {
+                                                                           const EventSetup& setup) {
   auto const bsRecord = setup.tryToGet<RecordType>();
+  const auto& recordTypeName = edm::typeDemangle(typeid(RecordType).name());
   if (!bsRecord) {
-    edm::LogWarning("BeamSpotOnlineProducer") << "No " << whichrecord << " found in the EventSetup";
+    edm::LogWarning("BeamSpotOnlineProducer") << "No " << recordTypeName << " found in the EventSetup";
     return fakeBS_;
   }
   const auto& bsHandle = setup.getHandle(token);
@@ -194,7 +192,7 @@ const BeamSpotOnlineObjects& BeamSpotOnlineProducer::getBeamSpotFromRecord(const
     if (bs.sigmaZ() < sigmaZThreshold_ || bs.beamWidthX() < sigmaXYThreshold_ || bs.beamWidthY() < sigmaXYThreshold_ ||
         bs.beamType() != reco::BeamSpot::Tracker) {
       edm::LogWarning("BeamSpotOnlineProducer")
-          << "The beam spot record does not pass the fit sanity checks (record: " << whichrecord << ")" << std::endl
+          << "The beam spot record does not pass the fit sanity checks (record: " << recordTypeName << ")" << std::endl
           << "sigmaZ: " << bs.sigmaZ() << std::endl
           << "sigmaX: " << bs.beamWidthX() << std::endl
           << "sigmaY: " << bs.beamWidthY() << std::endl
@@ -206,14 +204,14 @@ const BeamSpotOnlineObjects& BeamSpotOnlineProducer::getBeamSpotFromRecord(const
     auto threshold = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::hours(timeThreshold_)).count();
     if ((lumitime - bstime).count() > threshold) {
       edm::LogWarning("BeamSpotOnlineProducer")
-          << "The beam spot record is too old. (record: " << whichrecord << ")" << std::endl
+          << "The beam spot record is too old. (record: " << recordTypeName << ")" << std::endl
           << "record creation time: " << std::chrono::duration_cast<std::chrono::seconds>(bstime).count()
           << "lumi block time: " << std::chrono::duration_cast<std::chrono::seconds>(lumitime).count();
       return fakeBS_;
     }
     return bs;
   } else {
-    edm::LogWarning("BeamSpotOnlineProducer") << "Invalid online beam spot handle for the record: " << whichrecord;
+    edm::LogWarning("BeamSpotOnlineProducer") << "Invalid online beam spot handle for the record: " << recordTypeName;
     return fakeBS_;
   }
 }
