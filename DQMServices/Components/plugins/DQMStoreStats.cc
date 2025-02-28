@@ -678,7 +678,7 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
                      getEmptyMetric(it->getTH2I()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0),
                      it->getNbinsX() * it->getNbinsY() * sizeof(int));
         break;
-      case MonitorElement::Kind::TH2Poly:
+      case MonitorElement::Kind::TH2Poly: {
         std::vector<double> polyArray = GetTH2PolyArray(it->getTH2Poly());
         int nBins = polyArray.size() - 1;
         currentSubfolder.AddBinsD(
@@ -688,6 +688,7 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
                      getEmptyMetric(polyArray.data(), nBins + 1, 1, 0),
                      nBins * sizeof(double));
         break;
+      }
       case MonitorElement::Kind::TPROFILE2D:
         currentSubfolder.AddBinsD(
             it->getNbinsX() * it->getNbinsY(),
