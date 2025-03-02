@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 
-#include "FWCore/Utilities/interface/TimingServiceBase.h"
+#include "FWCore/AbstractServices/interface/TimingServiceBase.h"
 
 #include "ThreadAllocInfo.h"
 

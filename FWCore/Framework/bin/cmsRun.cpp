@@ -3,6 +3,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about it.
 ----------------------------------------------------------------------*/
 
+#include "FWCore/AbstractServices/interface/TimingServiceBase.h"
 #include "FWCore/Framework/interface/CmsRunParser.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/defaultCmsRunServices.h"
@@ -26,7 +27,6 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/Utilities/interface/TimingServiceBase.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "TError.h"

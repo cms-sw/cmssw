@@ -8,6 +8,7 @@
 // Original Author:  Natalia Garcia
 // CPU.cc: v 1.0 2009/01/08 11:31:07
 
+#include "FWCore/AbstractServices/interface/CPUServiceBase.h"
 #include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,7 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/CPUServiceBase.h"
 
 #include "cpu_features/cpu_features_macros.h"
 

@@ -1,8 +1,8 @@
-#ifndef FWCore_Utilities_TimingServiceBase_h
-#define FWCore_Utilities_TimingServiceBase_h
+#ifndef FWCore_AbstractServices_interface_TimingServiceBase_h
+#define FWCore_AbstractServices_interface_TimingServiceBase_h
 // -*- C++ -*-
 //
-// Package:     FWCore/Utilities
+// Package:     FWCore/AbstractServices
 // Class  :     TimingServiceBase
 //
 /**\class TimingServiceBase TimingServiceBase.h "TimingServiceBase.h"
@@ -29,8 +29,10 @@ namespace edm {
   class TimingServiceBase {
   public:
     TimingServiceBase();
-    TimingServiceBase(const TimingServiceBase&) = delete;                   // stop default
-    const TimingServiceBase& operator=(const TimingServiceBase&) = delete;  // stop default
+    TimingServiceBase(const TimingServiceBase&) = delete;
+    const TimingServiceBase& operator=(const TimingServiceBase&) = delete;
+    TimingServiceBase(TimingServiceBase&&) = delete;
+    const TimingServiceBase& operator=(TimingServiceBase&&) = delete;
     virtual ~TimingServiceBase();
 
     // ---------- member functions ---------------------------

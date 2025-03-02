@@ -1,8 +1,8 @@
-#ifndef FWCore_Utilities_CPUServiceBase_h
-#define FWCore_Utilities_CPUServiceBase_h
+#ifndef FWCore_AbstractServices_interface_CPUServiceBase_h
+#define FWCore_AbstractServices_interface_CPUServiceBase_h
 // -*- C++ -*-
 //
-// Package:     FWCore/Utilities
+// Package:     FWCore/AbstractServices
 // Class  :     CPUServiceBase
 //
 /**\class edm::CPUServiceBase
@@ -23,8 +23,10 @@ namespace edm {
   class CPUServiceBase {
   public:
     CPUServiceBase();
-    CPUServiceBase(const CPUServiceBase &) = delete;                   // stop default
-    const CPUServiceBase &operator=(const CPUServiceBase &) = delete;  // stop default
+    CPUServiceBase(const CPUServiceBase &) = delete;
+    const CPUServiceBase &operator=(const CPUServiceBase &) = delete;
+    CPUServiceBase(CPUServiceBase &&) = delete;
+    const CPUServiceBase &operator=(CPUServiceBase &&) = delete;
 
     virtual ~CPUServiceBase();
   };

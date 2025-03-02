@@ -8,10 +8,8 @@
 // Original Author:  Jim Kowalkowski
 //
 
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-
-#include "FWCore/Utilities/interface/TimingServiceBase.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/AbstractServices/interface/TimingServiceBase.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -20,6 +18,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
