@@ -475,7 +475,7 @@ int getDenomSimTrkType(int isimtrk) {
     return 1;  // sim
   const float &pt = trk.sim_pt()[isimtrk];
   const float &eta = trk.sim_eta()[isimtrk];
-  if (pt < 1 or abs(eta) > 2.4)
+  if (pt < 1 or std::abs(eta) > 2.4)
     return 2;  // sim and charged
   const int &bunch = trk.sim_bunchCrossing()[isimtrk];
   const int &event = trk.sim_event()[isimtrk];
@@ -486,7 +486,7 @@ int getDenomSimTrkType(int isimtrk) {
   const float &vtx_perp = sqrt(vtx_x * vtx_x + vtx_y * vtx_y);
   if (vtx_perp > 2.5)
     return 3;  // pt > 1 and abs(eta) < 2.4
-  if (abs(vtx_z) > 30)
+  if (std::abs(vtx_z) > 30)
     return 4;  // pt > 1 and abs(eta) < 2.4 and vtx < 2.5
   if (bunch != 0)
     return 5;  // pt > 1 and abs(eta) < 2.4 and vtx < 2.5 and vtx < 300
@@ -546,7 +546,7 @@ float drfracSimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx) {
   auto [x, y, z, r] = helix.get_helix_point(t);
 
   // ( expected_r - simhit_r ) / expected_r
-  float drfrac = abs(helix.compare_radius(point)) / r;
+  float drfrac = std::abs(helix.compare_radius(point)) / r;
 
   return drfrac;
 }
