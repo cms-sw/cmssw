@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import sys, os
 
+from itertools import cycle
+
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
 from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector,performInjectionOptionTest
-
+from Configuration.PyReleaseValidation.MatrixUtil import cleanComputeCapabilities
 # ================================================================================
 
 def showRaw(opt):
@@ -28,15 +30,13 @@ def runSelected(opt):
         testSet = set(opt.testList)
         undefSet = testSet - definedSet
         if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
-        duplicates = [wf for wf in testSet if definedWf.count(wf)>1 ]
-        if len(duplicates)>0: raise ValueError('Duplicated workflows: '+', '.join(map(str,list(duplicates))))
 
     ret = 0
     if opt.show:
         mrd.show(opt.testList, opt.extended, opt.cafVeto)
         if opt.testList : print('selected items:', opt.testList)
     else:
-        mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads)
+        mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads, opt.selected_gpus)
         ret = mRunnerHi.runTests(opt)
 
     if opt.wmcontrol:
@@ -173,7 +173,20 @@ if __name__ == '__main__':
                         dest='memoryOffset',
                         type=int,
                         default=3000)
+    
+    parser.add_argument('--startFrom',
+                        help='Start from a specific step (e.g. GEN,SIM,DIGI,RECO)',
+                        dest='startFrom',
+                        type=str,
+                        default=None)
 
+    parser.add_argument('--recycle',
+                        help='Input file to recycle. To be used if the first step is an input step or togehter with --startFrom. '
+                        'N.B.: runTheMatrix.py will create its own workdirectory so if yo use a relative path, be careful.',
+                        dest='recycle',
+                        type=str,
+                        default=None)
+                        
     parser.add_argument('--addMemPerCore',
                         help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
                         dest='memPerCore',
@@ -216,6 +229,12 @@ if __name__ == '__main__':
                         default=False,
                         action='store_true')
 
+    parser.add_argument('-c','--checkInputs',
+                        help='Check if the default inputs are well defined. To be used with --show',
+                        dest='checkInputs',
+                        default=False,
+                        action='store_true')
+    
     parser.add_argument('-e','--extended',
                         help='Show details of workflows, used with --show',
                         dest='extended',
@@ -402,7 +421,7 @@ if __name__ == '__main__':
                           help='Specify a comma-separated list of CUDA "compute capabilities", or GPU hardware architectures, that the job can use.',
                           dest='CUDACapabilities',
                           type=lambda x: x.split(','),
-                          default='6.0,6.1,6.2,7.0,7.2,7.5,8.0,8.6')
+                          default='6.0,6.1,6.2,7.0,7.2,7.5,8.0,8.6,8.7,8.9,9.0,12.0')
 
     # read the CUDA runtime version included in CMSSW
     cudart_version = None
@@ -431,6 +450,43 @@ if __name__ == '__main__':
                           default='')
 
     opt = parser.parse_args()
+    opt.selected_gpus = None
+    
+    if opt.gpu != 'forbidden':
+
+        print(">> Running with --gpu option. Checking the available and supported GPUs.")
+        gpus = cleanComputeCapabilities("cuda")
+        gpus = gpus + cleanComputeCapabilities("rocm", len(gpus))
+        available_gpus = gpus
+
+        if len(available_gpus) == 0:
+            print(">> No GPU available!")
+            opt.gpu = 'forbidden'
+        else:
+            print(">> GPUs available:")
+            [print(f) for f in available_gpus]
+
+            # Filtering ONLY CUDA GPUs on capability
+            gpus = [g for g in gpus if not g.isCUDA() or (g.isCUDA() and g.capability in opt.CUDACapabilities)]
+
+            # Filtering by name (if parsed)
+            if len(opt.GPUName) > 0:
+                gpus = [g for g in gpus if g.name == opt.GPUName]
+
+            if available_gpus != gpus:
+                if len(gpus) > 0:
+                    print(">> GPUs selected:")   
+                    [print(f) for f in gpus]
+                else:
+                    print(">> No GPU selected!")
+            else:
+                print(">> All selected!")
+
+            if len(gpus) > 0:
+                opt.selected_gpus = cycle(gpus)
+            else:
+                opt.gpu = 'forbidden'
+    
     if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.failed_from:
@@ -478,7 +534,7 @@ if __name__ == '__main__':
                 except:
                     print(entry,'is not a possible selected entry')
 
-        opt.testList = list(set(testList))
+        opt.testList = list(testList)
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
