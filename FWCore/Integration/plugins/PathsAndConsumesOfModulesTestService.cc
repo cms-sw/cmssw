@@ -14,7 +14,8 @@ namespace edmtest {
   public:
     PathsAndConsumesOfModulesTestService(edm::ParameterSet const& pset, edm::ActivityRegistry& iRegistry)
         : modulesConsumes_(pset.getParameter<decltype(modulesConsumes_)>("modulesAndConsumes")) {
-      iRegistry.watchPreBeginJob(this, &PathsAndConsumesOfModulesTestService::preBeginJob);
+      iRegistry.watchLookupInitializationComplete(this,
+                                                  &PathsAndConsumesOfModulesTestService::lookupInitializationComplete);
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -29,7 +30,8 @@ namespace edmtest {
       descriptions.setComment("This service is intended to be used in framework tests.");
     }
 
-    void preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes, edm::ProcessContext const&) const {
+    void lookupInitializationComplete(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes,
+                                      edm::ProcessContext const&) const {
       auto const& allModules = pathsAndConsumes.allModules();
       for (auto const& moduleToCheck : modulesConsumes_) {
         auto found =
