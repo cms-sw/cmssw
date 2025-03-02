@@ -12,7 +12,7 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/IRPCDigi/interface/IRPCDigiCollection.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include <string>
@@ -38,7 +38,7 @@ public:
 
   // *** digitize ***
   void doAction(MixCollection<PSimHit>& simHits,
-                RPCDigiCollection& rpcDigis,
+                IRPCDigiCollection& rpcDigis,
                 RPCDigiSimLinks& rpcDigiSimLink,
                 CLHEP::HepRandomEngine*);
 
