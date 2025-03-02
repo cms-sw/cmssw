@@ -11,6 +11,7 @@
 <use   name="rootrflx"/>
 <use   name="hls"/>
 <use   name="conifer"/>
+<use   name="hepmc"/>
 <export>
   <lib   name="1"/>
 </export>
