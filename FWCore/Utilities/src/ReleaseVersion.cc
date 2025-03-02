@@ -40,8 +40,8 @@ namespace edm {
           }
         }
 */
-        major_ = std::stoul(parts[0]);
-        minor_ = std::stoul(parts[1]);
+        major_ = static_cast<unsigned int>(std::stoul(parts[0]));
+        minor_ = static_cast<unsigned int>(std::stoul(parts[1]));
         //        point_ = std::stoul(parts[2]);
         irregular_ = false;
       } catch (std::exception const&) {

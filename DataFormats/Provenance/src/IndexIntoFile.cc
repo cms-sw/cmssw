@@ -171,7 +171,7 @@ namespace edm {
              beginOfLumi->run() == endOfLumi->run() && beginOfLumi->lumi() == endOfLumi->lumi()) {
         ++endOfLumi;
       }
-      int nEvents = 0;
+      long long int nEvents = 0;
       for (std::vector<RunOrLumiIndexes>::iterator iter = beginOfLumi; iter != endOfLumi; ++iter) {
         if (runOrLumiEntries_[iter->indexToGetEntry()].beginEvents() != invalidEntry) {
           nEvents += runOrLumiEntries_[iter->indexToGetEntry()].endEvents() -
@@ -312,7 +312,7 @@ namespace edm {
       insertResult = reducedPHIDToIndex.insert(mapEntry);
 
       if (insertResult.second) {
-        insertResult.first->second = reducedPHIDs.size();
+        insertResult.first->second = static_cast<int>(reducedPHIDs.size());
         reducedPHIDs.push_back(reducedPHID);
       }
       phidIndexConverter.push_back(insertResult.first->second);
@@ -326,11 +326,8 @@ namespace edm {
       return;
     }
 
-    std::map<IndexIntoFile::IndexRunKey, int> runOrderMap;
-    std::pair<std::map<IndexIntoFile::IndexRunKey, int>::iterator, bool> runInsertResult;
-
-    std::map<IndexIntoFile::IndexRunLumiKey, int> lumiOrderMap;
-    std::pair<std::map<IndexIntoFile::IndexRunLumiKey, int>::iterator, bool> lumiInsertResult;
+    std::map<IndexIntoFile::IndexRunKey, EntryNumber_t> runOrderMap;
+    std::map<IndexIntoFile::IndexRunLumiKey, EntryNumber_t> lumiOrderMap;
 
     // loop over all the RunOrLumiEntry's
     for (auto& item : runOrLumiEntries_) {
@@ -339,7 +336,7 @@ namespace edm {
 
       // Convert the phid-run order
       IndexIntoFile::IndexRunKey runKey(item.processHistoryIDIndex(), item.run());
-      runInsertResult = runOrderMap.insert(std::pair<IndexIntoFile::IndexRunKey, int>(runKey, 0));
+      auto runInsertResult = runOrderMap.emplace(runKey, 0);
       if (runInsertResult.second) {
         runInsertResult.first->second = item.orderPHIDRun();
       } else {
@@ -349,7 +346,7 @@ namespace edm {
       // Convert the phid-run-lumi order for the lumi entries
       if (item.lumi() != 0) {
         IndexIntoFile::IndexRunLumiKey lumiKey(item.processHistoryIDIndex(), item.run(), item.lumi());
-        lumiInsertResult = lumiOrderMap.insert(std::pair<IndexIntoFile::IndexRunLumiKey, int>(lumiKey, 0));
+        auto lumiInsertResult = lumiOrderMap.emplace(lumiKey, 0);
         if (lumiInsertResult.second) {
           lumiInsertResult.first->second = item.orderPHIDRunLumi();
         } else {
@@ -369,10 +366,11 @@ namespace edm {
       std::vector<ProcessHistoryID>::const_iterator iterExisting =
           std::find(processHistoryIDs.begin(), processHistoryIDs.end(), *iter);
       if (iterExisting == processHistoryIDs.end()) {
-        oldToNewIndex[iter - processHistoryIDs_.begin()] = processHistoryIDs.size();
+        oldToNewIndex[static_cast<int>(iter - processHistoryIDs_.begin())] = static_cast<int>(processHistoryIDs.size());
         processHistoryIDs.push_back(*iter);
       } else {
-        oldToNewIndex[iter - processHistoryIDs_.begin()] = iterExisting - processHistoryIDs.begin();
+        oldToNewIndex[static_cast<int>(iter - processHistoryIDs_.begin())] =
+            static_cast<int>(iterExisting - processHistoryIDs.begin());
       }
     }
     processHistoryIDs_ = processHistoryIDs;
@@ -553,8 +551,14 @@ namespace edm {
         continue;
 
       if (lumi == invalidLumi && event == invalidEvent) {
-        IndexIntoFileItr indexItr(
-            this, numericalOrder, kRun, iRun - runOrLumiIndexes().begin(), invalidIndex, invalidIndex, 0, 0);
+        IndexIntoFileItr indexItr(this,
+                                  numericalOrder,
+                                  kRun,
+                                  static_cast<int>(iRun - runOrLumiIndexes().begin()),
+                                  invalidIndex,
+                                  invalidIndex,
+                                  0,
+                                  0);
         indexItr.initializeRun();
         return indexItr;
       }
@@ -569,8 +573,8 @@ namespace edm {
           IndexIntoFileItr indexItr(this,
                                     numericalOrder,
                                     kRun,
-                                    iRun - runOrLumiIndexes().begin(),
-                                    iLumi - runOrLumiIndexes().begin(),
+                                    static_cast<int>(iRun - runOrLumiIndexes().begin()),
+                                    static_cast<int>(iLumi - runOrLumiIndexes().begin()),
                                     invalidIndex,
                                     0,
                                     0);
@@ -603,7 +607,7 @@ namespace edm {
           indexToEvent = eventIter - eventNumbers().begin() - beginEventNumbers;
         }
 
-        int newIndexToLumi = iLumi - runOrLumiIndexes().begin();
+        auto newIndexToLumi = iLumi - runOrLumiIndexes().begin();
         while (runOrLumiEntries_[runOrLumiIndexes()[newIndexToLumi].indexToGetEntry()].entry() == invalidEntry) {
           ++newIndexToLumi;
           assert(static_cast<unsigned>(newIndexToLumi) < runOrLumiEntries_.size());
@@ -613,9 +617,9 @@ namespace edm {
         return IndexIntoFileItr(this,
                                 numericalOrder,
                                 kRun,
-                                iRun - runOrLumiIndexes().begin(),
-                                newIndexToLumi,
-                                iLumi - runOrLumiIndexes().begin(),
+                                static_cast<int>(iRun - runOrLumiIndexes().begin()),
+                                static_cast<int>(newIndexToLumi),
+                                static_cast<int>(iLumi - runOrLumiIndexes().begin()),
                                 indexToEvent,
                                 endEventNumbers - beginEventNumbers);
       }
@@ -655,7 +659,7 @@ namespace edm {
             indexToEvent = eventIter - eventNumbers().begin() - beginEventNumbers;
           }
 
-          int newIndexToLumi = iLumi - runOrLumiIndexes().begin();
+          auto newIndexToLumi = iLumi - runOrLumiIndexes().begin();
           while (runOrLumiEntries_[runOrLumiIndexes()[newIndexToLumi].indexToGetEntry()].entry() == invalidEntry) {
             ++newIndexToLumi;
             assert(static_cast<unsigned>(newIndexToLumi) < runOrLumiEntries_.size());
@@ -665,9 +669,9 @@ namespace edm {
           return IndexIntoFileItr(this,
                                   numericalOrder,
                                   kRun,
-                                  iRun - runOrLumiIndexes().begin(),
-                                  newIndexToLumi,
-                                  iLumi - runOrLumiIndexes().begin(),
+                                  static_cast<int>(iRun - runOrLumiIndexes().begin()),
+                                  static_cast<int>(newIndexToLumi),
+                                  static_cast<int>(iLumi - runOrLumiIndexes().begin()),
                                   indexToEvent,
                                   endEventNumbers - beginEventNumbers);
         }
@@ -755,7 +759,7 @@ namespace edm {
   IndexIntoFile::SortedRunOrLumiItr IndexIntoFile::beginRunOrLumi() const { return SortedRunOrLumiItr(this, 0); }
 
   IndexIntoFile::SortedRunOrLumiItr IndexIntoFile::endRunOrLumi() const {
-    return SortedRunOrLumiItr(this, runOrLumiEntries().size());
+    return SortedRunOrLumiItr(this, static_cast<unsigned int>(runOrLumiEntries().size()));
   }
 
   void IndexIntoFile::set_intersection(IndexIntoFile const& indexIntoFile,
@@ -1826,7 +1830,7 @@ namespace edm {
     // This takes care of only Runs with no Events at the end of
     // the Runs TTree that were not already added.
     addRunsWithNoEvents(info);
-    indexedSize_ = fileOrderRunOrLumiEntry_.size();
+    indexedSize_ = static_cast<int>(fileOrderRunOrLumiEntry_.size());
   }
 
   IndexIntoFile::IndexIntoFileItrImpl* IndexIntoFile::IndexIntoFileItrEntryOrder::clone() const {
@@ -2361,7 +2365,7 @@ namespace edm {
   }
 
   IndexIntoFile::EntryNumber_t IndexIntoFile::IndexIntoFileItrEntryOrder::lowestInLumi(
-      EntryOrderInitializationInfo& info, int currentLumi) const {
+      EntryOrderInitializationInfo& info, EntryNumber_t currentLumi) const {
     auto const& runOrLumiEntries = indexIntoFile()->runOrLumiEntries();
     int iEnd = static_cast<int>(runOrLumiEntries.size());
 
@@ -2399,7 +2403,7 @@ namespace edm {
   }
 
   void IndexIntoFile::IndexIntoFileItrEntryOrder::handleLumiWithEvents(EntryOrderInitializationInfo& info,
-                                                                       int currentLumi,
+                                                                       EntryNumber_t currentLumi,
                                                                        EntryNumber_t firstBeginEventsContiguousLumi) {
     auto const& runOrLumiEntries = indexIntoFile()->runOrLumiEntries();
     int iLumiIndex = info.firstIndexOfLumi_[currentLumi];
@@ -2421,7 +2425,7 @@ namespace edm {
   void IndexIntoFile::IndexIntoFileItrEntryOrder::handleLumiEntriesNoRemainingEvents(
       EntryOrderInitializationInfo& info,
       int& iLumiIndex,
-      int currentLumi,
+      EntryNumber_t currentLumi,
       EntryNumber_t firstBeginEventsContiguousLumi,
       bool completeAll) {
     auto const& runOrLumiEntries = indexIntoFile()->runOrLumiEntries();

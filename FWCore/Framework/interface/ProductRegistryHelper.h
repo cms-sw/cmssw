@@ -168,7 +168,7 @@ namespace edm {
     BranchAliasSetter produces(const TypeID& id,
                                std::string instanceName = std::string(),
                                bool recordProvenance = true) {
-      unsigned int index = typeLabelList_.size();
+      auto index = typeLabelList_.size();
       typeLabelList_.emplace_back(convertToTransition(B), id, std::move(instanceName));
       recordProvenanceList_.push_back(recordProvenance and B == InEvent);
       return BranchAliasSetter{typeLabelList_.back(), EDPutToken{static_cast<unsigned int>(index)}};
@@ -177,18 +177,18 @@ namespace edm {
     BranchAliasSetter produces(const TypeID& id,
                                std::string instanceName = std::string(),
                                bool recordProvenance = true) {
-      unsigned int index = typeLabelList_.size();
+      auto index = typeLabelList_.size();
       typeLabelList_.emplace_back(B, id, std::move(instanceName));
       recordProvenanceList_.push_back(recordProvenance and B == Transition::Event);
-      return BranchAliasSetter{typeLabelList_.back(), EDPutToken{index}};
+      return BranchAliasSetter{typeLabelList_.back(), EDPutToken{static_cast<unsigned int>(index)}};
     }
 
     EDPutToken transforms(const TypeID& id, std::string instanceName) {
-      unsigned int index = typeLabelList_.size();
+      auto index = typeLabelList_.size();
       typeLabelList_.emplace_back(Transition::Event, id, std::move(instanceName));
       typeLabelList_.back().isTransform_ = true;
       recordProvenanceList_.push_back(true);
-      return EDPutToken{index};
+      return EDPutToken{static_cast<unsigned int>(index)};
     }
 
     virtual bool hasAbilityToProduceInBeginProcessBlocks() const { return false; }

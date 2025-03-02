@@ -10,7 +10,7 @@
 
 namespace {
   struct ReadWriteTestBuffer {
-    std::pair<char*, std::size_t> buffer() { return std::pair(&buffer_.front(), size()); }
+    std::pair<char*, UInt_t> buffer() { return std::pair(&buffer_.front(), size()); }
 
     int bufferIdentifier() { return bufferIdentifier_; }
 
@@ -23,7 +23,7 @@ namespace {
       std::copy(iStart, iStart + iLength, std::back_insert_iterator(buffer_));
     }
 
-    std::size_t size() const { return buffer_.size(); }
+    UInt_t size() const { return static_cast<UInt_t>(buffer_.size()); }
 
     std::vector<char> buffer_;
     int bufferIdentifier_ = 1;

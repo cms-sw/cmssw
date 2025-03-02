@@ -85,7 +85,7 @@ namespace edm::streamer {
     // needed for streamer file
     uint32 descLength() const { return desc_len_; }
     const uint8* descData() const { return desc_start_; }
-    uint32 headerSize() const { return desc_start_ - buf_; }
+    uint32 headerSize() const { return static_cast<uint32>(desc_start_ - buf_); }
     uint32 eventHeaderSize() const;
     uint32 adler32_chksum() const { return adler32_chksum_; }
     std::string hostName() const;

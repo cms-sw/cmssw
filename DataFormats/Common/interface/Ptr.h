@@ -184,9 +184,9 @@ namespace edm {
       EDProductGetter const* getter = productGetter();
       if (getter != nullptr) {
         WrapperBase const* prod = getter->getIt(core_.id());
-        unsigned int iKey = key_;
+        unsigned int iKey = static_cast<unsigned int>(key_);
         if (prod == nullptr) {
-          auto optionalProd = getter->getThinnedProduct(core_.id(), key_);
+          auto optionalProd = getter->getThinnedProduct(core_.id(), iKey);
           if (not optionalProd.has_value()) {
             if (throwIfNotFound) {
               core_.productNotFoundException(typeid(T));
