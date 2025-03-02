@@ -1,25 +1,117 @@
-/*
-Scouting EGamma DQM core implementation.
+// -*- C++ -*-
+//
+// Package:    HLTriggerOffline/Scouting
+// Class:      ScoutingEGammaCollectionMonitoring
+//
+/**\class ScoutingEGammaCollectionMonitoring
+
+ ScoutingEGammaCollectionMonitoring.cc
+ HLTriggerOffline/Scouting/plugins/ScoutingEGammaCollectionMonitoring.cc
 
  Description: ScoutingEGammaCollectionMonitoring is developed to enable us to
-monitor the comparison between pat::Object and Run3Scouting<Object>.
+ monitor the comparison between pat::Object and Run3Scouting<Object>.
 
  Implementation:
-     * Current runs on top of MINIAOD dataformat of the
-ScoutingEGammaCollectionMonitoring dataset.
+     * Current runs on top of MINIAOD dataformat of the 
+       ScoutingEGammaCollectionMonitoring dataset.
      * Implemented only for electrons as of now.
-
-Authors: Ting-Hsiang Hsu, Abanti Ranadhir Sahasransu
 */
 
-#include "ScoutingEGammaCollectionMonitoring.h"
+//
+// Original Authors:  Abanti Ranadhir Sahasransu, Ting-Hsiang Hsu
+//          Created:  Sun, 18 Aug 2024 13:02:11 GMT
+//
+//
 
+// system includes
+#include <cmath>
+#include <string>
+#include <vector>
 #include <algorithm>
 #include <numeric>
 
+// user includes
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+#include "ScoutingDQMUtils.h"
+
+//
+// class declaration
+//
+
+struct kThreeMomentumHistos {
+  dqm::reco::MonitorElement* h1Pt;
+  dqm::reco::MonitorElement* h1Eta;
+  dqm::reco::MonitorElement* h1Phi;
+};
+
+struct kInvmHistos {
+  dqm::reco::MonitorElement* h1N;
+  kThreeMomentumHistos electrons;
+  kThreeMomentumHistos electron1;
+  kThreeMomentumHistos electron2;
+  dqm::reco::MonitorElement* h1InvMass12;
+  dqm::reco::MonitorElement* h1InvMassID;
+  dqm::reco::MonitorElement* h1InvMassIDEBEB;
+  dqm::reco::MonitorElement* h1InvMassIDEBEE;
+  dqm::reco::MonitorElement* h1InvMassIDEEEE;
+  dqm::reco::MonitorElement* h1InvMassID_passDoubleEG_DST;
+  dqm::reco::MonitorElement* h1InvMassIDEBEB_passDoubleEG_DST;
+  dqm::reco::MonitorElement* h1InvMassIDEBEE_passDoubleEG_DST;
+  dqm::reco::MonitorElement* h1InvMassIDEEEE_passDoubleEG_DST;
+  dqm::reco::MonitorElement* h1InvMassID_passSinglePhoton_DST;
+  dqm::reco::MonitorElement* h1InvMassIDEBEB_passSinglePhoton_DST;
+  dqm::reco::MonitorElement* h1InvMassIDEBEE_passSinglePhoton_DST;
+  dqm::reco::MonitorElement* h1InvMassIDEEEE_passSinglePhoton_DST;
+};
+
+struct kHistogramsScoutingEGammaCollectionMonitoring {
+  kInvmHistos patElectron;
+  kInvmHistos sctElectron;
+};
+
+class ScoutingEGammaCollectionMonitoring : public DQMGlobalEDAnalyzer<kHistogramsScoutingEGammaCollectionMonitoring> {
+public:
+  explicit ScoutingEGammaCollectionMonitoring(const edm::ParameterSet&);
+  ~ScoutingEGammaCollectionMonitoring() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void bookHistograms(DQMStore::IBooker&,
+                      edm::Run const&,
+                      edm::EventSetup const&,
+                      kHistogramsScoutingEGammaCollectionMonitoring&) const override;
+
+  void dqmAnalyze(edm::Event const&,
+                  edm::EventSetup const&,
+                  kHistogramsScoutingEGammaCollectionMonitoring const&) const override;
+
+  // ------------ member data ------------
+  const std::string outputInternalPath_;
+  const edm::EDGetToken triggerResultsToken_;
+  const edm::EDGetTokenT<edm::View<pat::Electron>> electronCollection_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> scoutingElectronCollection_;
+  const edm::EDGetTokenT<edm::ValueMap<bool>> eleIdMapTightToken_;
+};
 
 ScoutingEGammaCollectionMonitoring::ScoutingEGammaCollectionMonitoring(const edm::ParameterSet& iConfig)
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
@@ -29,15 +121,6 @@ ScoutingEGammaCollectionMonitoring::ScoutingEGammaCollectionMonitoring(const edm
       scoutingElectronCollection_(consumes<std::vector<Run3ScoutingElectron>>(
           iConfig.getParameter<edm::InputTag>("ScoutingElectronCollection"))),
       eleIdMapTightToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("eleIdMapTight"))) {}
-
-ScoutingEGammaCollectionMonitoring::~ScoutingEGammaCollectionMonitoring() {}
-
-// Function to convert pseudo-rapidity to theta
-double getPtFromEnergyMassEta(double energy, double mass, double eta) {
-  double theta = 2.0 * std::atan(std::exp(-eta));
-  double pt = std::sqrt(energy * energy - mass * mass) * std::sin(theta);
-  return pt;
-}
 
 // ------------ method called for each event  ------------
 
@@ -72,8 +155,8 @@ void ScoutingEGammaCollectionMonitoring::dqmAnalyze(edm::Event const& iEvent,
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(triggerResultsToken_, triggerResults);
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
-  bool fire_doubleEG_DST = hasPatternInHLTPath(triggerNames, "DST_PFScouting_DoubleEG");
-  bool fire_singlePhoton_DST = hasPatternInHLTPath(triggerNames, "DST_PFScouting_SinglePhotonEB");
+  bool fire_doubleEG_DST = scoutingDQMUtils::hasPatternInHLTPath(triggerNames, "DST_PFScouting_DoubleEG");
+  bool fire_singlePhoton_DST = scoutingDQMUtils::hasPatternInHLTPath(triggerNames, "DST_PFScouting_SinglePhotonEB");
 
   // Loop to verify the sorting of pat::Electron collection - REMOVE IN ONLINE
   // DQM
@@ -137,7 +220,7 @@ void ScoutingEGammaCollectionMonitoring::dqmAnalyze(edm::Event const& iEvent,
     histos.sctElectron.electrons.h1Pt->Fill(sctEls->at(idx).pt());
     histos.sctElectron.electrons.h1Eta->Fill(sctEls->at(idx).eta());
     histos.sctElectron.electrons.h1Phi->Fill(sctEls->at(idx).phi());
-    if (scoutingElectronID(sctEls->at(idx)))
+    if (scoutingDQMUtils::scoutingElectronID(sctEls->at(idx)))
       tight_sctElectron_index.push_back(idx);
   }
   sortedSctIdx.clear();
@@ -154,41 +237,45 @@ void ScoutingEGammaCollectionMonitoring::dqmAnalyze(edm::Event const& iEvent,
     math::PtEtaPhiMLorentzVector sctEl0(sctEls->at(tight_sctElectron_index[0]).pt(),
                                         sctEls->at(tight_sctElectron_index[0]).eta(),
                                         sctEls->at(tight_sctElectron_index[0]).phi(),
-                                        ELECTRON_MASS);
+                                        scoutingDQMUtils::ELECTRON_MASS);
     math::PtEtaPhiMLorentzVector sctEl1(sctEls->at(tight_sctElectron_index[1]).pt(),
                                         sctEls->at(tight_sctElectron_index[1]).eta(),
                                         sctEls->at(tight_sctElectron_index[1]).phi(),
-                                        ELECTRON_MASS);
+                                        scoutingDQMUtils::ELECTRON_MASS);
     size_t gsfTrkIdx0 = 9999, gsfTrkIdx1 = 9999;
-    bool foundGoodGsfTrkIdx0 = scoutingElectronGsfTrackIdx(sctEls->at(tight_sctElectron_index[0]), gsfTrkIdx0);
-    bool foundGoodGsfTrkIdx1 = scoutingElectronGsfTrackIdx(sctEls->at(tight_sctElectron_index[1]), gsfTrkIdx1);
+    bool foundGoodGsfTrkIdx0 =
+        scoutingDQMUtils::scoutingElectronGsfTrackIdx(sctEls->at(tight_sctElectron_index[0]), gsfTrkIdx0);
+    bool foundGoodGsfTrkIdx1 =
+        scoutingDQMUtils::scoutingElectronGsfTrackIdx(sctEls->at(tight_sctElectron_index[1]), gsfTrkIdx1);
 
     if (!foundGoodGsfTrkIdx0 || !foundGoodGsfTrkIdx1)
       return;
 
     math::PtEtaPhiMLorentzVector sctElCombined0(
-        getPtFromEnergyMassEta(
-            sctEl0.energy(), ELECTRON_MASS, sctEls->at(tight_sctElectron_index[0]).trketa()[gsfTrkIdx0]),
+        scoutingDQMUtils::computePtFromEnergyMassEta(sctEl0.energy(),
+                                                     scoutingDQMUtils::ELECTRON_MASS,
+                                                     sctEls->at(tight_sctElectron_index[0]).trketa()[gsfTrkIdx0]),
         sctEls->at(tight_sctElectron_index[0]).trketa()[gsfTrkIdx0],
         sctEls->at(tight_sctElectron_index[0]).trkphi()[gsfTrkIdx0],
-        ELECTRON_MASS);
+        scoutingDQMUtils::ELECTRON_MASS);
     math::PtEtaPhiMLorentzVector sctElCombined1(
-        getPtFromEnergyMassEta(
-            sctEl1.energy(), ELECTRON_MASS, sctEls->at(tight_sctElectron_index[1]).trketa()[gsfTrkIdx1]),
+        scoutingDQMUtils::computePtFromEnergyMassEta(sctEl1.energy(),
+                                                     scoutingDQMUtils::ELECTRON_MASS,
+                                                     sctEls->at(tight_sctElectron_index[1]).trketa()[gsfTrkIdx1]),
         sctEls->at(tight_sctElectron_index[1]).trketa()[gsfTrkIdx1],
         sctEls->at(tight_sctElectron_index[1]).trkphi()[gsfTrkIdx1],
-        ELECTRON_MASS);
+        scoutingDQMUtils::ELECTRON_MASS);
 
     double invMass = (sctElCombined0 + sctElCombined1).mass();
     histos.sctElectron.h1InvMassID->Fill(invMass);
-    if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < ELE_etaEB &&
-        fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < ELE_etaEB) {
+    if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+        fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
       histos.sctElectron.h1InvMassIDEBEB->Fill(invMass);
-    } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < ELE_etaEB &&
-               fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > ELE_etaEB) {
+    } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+               fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
       histos.sctElectron.h1InvMassIDEBEE->Fill(invMass);
-    } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) > ELE_etaEB &&
-               fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < ELE_etaEB) {
+    } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) > scoutingDQMUtils::ELE_etaEB &&
+               fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
       histos.sctElectron.h1InvMassIDEBEE->Fill(invMass);
     } else {
       histos.sctElectron.h1InvMassIDEEEE->Fill(invMass);
@@ -196,14 +283,14 @@ void ScoutingEGammaCollectionMonitoring::dqmAnalyze(edm::Event const& iEvent,
 
     if (fire_doubleEG_DST) {
       histos.sctElectron.h1InvMassID_passDoubleEG_DST->Fill(invMass);
-      if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < ELE_etaEB &&
-          fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < ELE_etaEB) {
+      if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+          fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
         histos.sctElectron.h1InvMassIDEBEB_passDoubleEG_DST->Fill(invMass);
-      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < ELE_etaEB &&
-                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > ELE_etaEB) {
+      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
         histos.sctElectron.h1InvMassIDEBEE_passDoubleEG_DST->Fill(invMass);
-      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) > ELE_etaEB &&
-                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < ELE_etaEB) {
+      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) > scoutingDQMUtils::ELE_etaEB &&
+                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
         histos.sctElectron.h1InvMassIDEBEE_passDoubleEG_DST->Fill(invMass);
       } else {
         histos.sctElectron.h1InvMassIDEEEE_passDoubleEG_DST->Fill(invMass);
@@ -211,14 +298,14 @@ void ScoutingEGammaCollectionMonitoring::dqmAnalyze(edm::Event const& iEvent,
     }
     if (fire_singlePhoton_DST) {
       histos.sctElectron.h1InvMassID_passSinglePhoton_DST->Fill(invMass);
-      if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < ELE_etaEB &&
-          fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < ELE_etaEB) {
+      if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+          fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
         histos.sctElectron.h1InvMassIDEBEB_passSinglePhoton_DST->Fill(invMass);
-      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < ELE_etaEB &&
-                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > ELE_etaEB) {
+      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
         histos.sctElectron.h1InvMassIDEBEE_passSinglePhoton_DST->Fill(invMass);
-      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) > ELE_etaEB &&
-                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < ELE_etaEB) {
+      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) > scoutingDQMUtils::ELE_etaEB &&
+                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
         histos.sctElectron.h1InvMassIDEBEE_passSinglePhoton_DST->Fill(invMass);
       } else {
         histos.sctElectron.h1InvMassIDEEEE_passSinglePhoton_DST->Fill(invMass);
@@ -345,9 +432,6 @@ void ScoutingEGammaCollectionMonitoring::bookHistograms(DQMStore::IBooker& ibook
 // ------------ method fills 'descriptions' with the allowed parameters for the
 // module  ------------
 void ScoutingEGammaCollectionMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no
-  // validation Please change this to state exactly what you do use, even if it
-  // is no parameters
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
   desc.add<edm::InputTag>("TriggerResultTag", edm::InputTag("TriggerResults", "", "HLT"));
@@ -355,108 +439,7 @@ void ScoutingEGammaCollectionMonitoring::fillDescriptions(edm::ConfigurationDesc
   desc.add<edm::InputTag>("ScoutingElectronCollection", edm::InputTag("hltScoutingEgammaPacker"));
   desc.add<edm::InputTag>("eleIdMapTight",
                           edm::InputTag("egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-tight"));
-  descriptions.add("ScoutingEGammaCollectionMonitoring", desc);
-}
-
-bool ScoutingEGammaCollectionMonitoring::scoutingElectronID(const Run3ScoutingElectron el) const {
-  bool isEB = (fabs(el.eta()) < ELE_etaEB);
-  if (isEB) {
-    if (el.sigmaIetaIeta() > 0.015)
-      return false;
-    if (el.hOverE() > 0.2)
-      return false;
-    if (fabs(el.dEtaIn()) > 0.008)
-      return false;
-    if (fabs(el.dPhiIn()) > 0.06)
-      return false;
-    if (el.ecalIso() / el.pt() > 0.25)
-      return false;
-    return true;
-
-  } else {
-    if (el.sigmaIetaIeta() > 0.045)
-      return false;
-    if (el.hOverE() > 0.2)
-      return false;
-    if (fabs(el.dEtaIn()) > 0.012)
-      return false;
-    if (fabs(el.dPhiIn()) > 0.06)
-      return false;
-    if (el.ecalIso() / el.pt() > 0.1)
-      return false;
-    return true;
-  }
-}
-
-bool ScoutingEGammaCollectionMonitoring::scoutingElectronGsfTrackID(const Run3ScoutingElectron el,
-                                                                    size_t trackIdx) const {
-  if (trackIdx > el.trkpt().size())
-    edm::LogError("ScoutingEGammaCollectionMonitoring")
-        << "Invalid track index for electron: Exceeds the number of tracks";
-
-  math::PtEtaPhiMLorentzVector particleSC(el.pt(), el.eta(), el.phi(), ELECTRON_MASS);
-  math::PtEtaPhiMLorentzVector particleTrk(
-      el.trkpt()[trackIdx], el.trketa()[trackIdx], el.trkphi()[trackIdx], ELECTRON_MASS);
-
-  double scEnergy = particleSC.energy();
-  double trkEnergy = particleTrk.energy();
-  double relEnergyDiff = fabs(scEnergy - trkEnergy) / scEnergy;
-  double dPhi = deltaPhi(particleSC.phi(), particleTrk.phi());
-
-  bool isEB = (fabs(el.eta()) < ELE_etaEB);
-  if (isEB) {
-    if (el.trkpt()[trackIdx] < 12)
-      return false;
-    if (relEnergyDiff > 1)
-      return false;
-    if (dPhi > 0.06)
-      return false;
-    if (el.trkchi2overndf()[trackIdx] > 3)
-      return false;
-    return true;
-  } else {
-    if (el.trkpt()[trackIdx] < 12)
-      return false;
-    if (relEnergyDiff > 1)
-      return false;
-    if (dPhi > 0.06)
-      return false;
-    if (el.trkchi2overndf()[trackIdx] > 2)
-      return false;
-    return true;
-  }
-}
-
-bool ScoutingEGammaCollectionMonitoring::scoutingElectronGsfTrackIdx(const Run3ScoutingElectron el,
-                                                                     size_t& trackIdx) const {
-  bool foundGoodGsfTrkIdx = false;
-  for (size_t i = 0; i < el.trkpt().size(); ++i) {
-    if (scoutingElectronGsfTrackID(el, i)) {
-      if (!foundGoodGsfTrkIdx) {
-        foundGoodGsfTrkIdx = true;
-        trackIdx = i;
-      } else {
-        double relPtDiff = fabs(el.trkpt()[i] - el.pt()) / el.pt();
-        double relPtDiffOld = fabs(el.trkpt()[trackIdx] - el.pt()) / el.pt();
-        if (relPtDiff < relPtDiffOld)
-          trackIdx = i;
-      }
-    }
-  }
-  return foundGoodGsfTrkIdx;
-}
-
-bool ScoutingEGammaCollectionMonitoring::hasPatternInHLTPath(const edm::TriggerNames& triggerNames,
-                                                             const std::string& pattern) const {
-  for (unsigned int i = 0; i < triggerNames.size(); ++i) {
-    const std::string& triggerName = triggerNames.triggerName(i);
-
-    // Check if triggerName starts with the specified prefix
-    if (triggerName.find(pattern) == 0) {  // Position 0 means it starts with 'prefix'
-      return true;                         // Pattern match found
-    }
-  }
-  return false;  // No match found
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // define this as a plug-in
