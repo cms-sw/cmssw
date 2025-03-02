@@ -1,23 +1,131 @@
 /*
-Scouting Muon DQM core implementation. This code does the following:
-  1) Reads muon collection, scouting muon collection and scouting vertex
-collection 2) Tag and Probe method: For each event, check whether one of the
-muons passes a tight ID (tag), and pair it with another muon in the event
-(probe). If this dimuon system is within the mass range of the J/Psi, monitor
-distributions of the probe and the efficiency of the probe to pass certain IDs.
-For now we are measuring the efficiency of the probe passing the tag ID (If the
-dimuon system is within J/Psi, add it to the denominator distributions, and if
-the probe passes the tag ID, add it to the numerator distributions as well.) 3)
-Fills histograms Author: Javier Garcia de Castro, email:javigdc@bu.edu
+
+  Class definition for ScoutingMuonTagProbeAnalyzer.cc. Declares each
+  histogram (MonitorElement), numerator and denominator histogram structure
+  (kProbeKinematicMuonHistos), and any functions used in
+  ScoutingMuonTagProbeAnalyzer.cc. Also declares the token to read the
+  scouting muon and scouting vertex collections.
+
+  Author: Javier Garcia de Castro, email:javigdc@bu.edu
 */
 
-// Files to include
-#include "ScoutingMuonTagProbeAnalyzer.h"
-
+// system includes
 #include <cmath>
 #include <iostream>
+#include <iostream>
+#include <string>
+#include <vector>
 
+// user includes
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+struct kProbeKinematicMuonHistos {
+  dqm::reco::MonitorElement* hPt;
+  dqm::reco::MonitorElement* hEta;
+  dqm::reco::MonitorElement* hPhi;
+  dqm::reco::MonitorElement* hInvMass;
+  dqm::reco::MonitorElement* hNormChisq;
+  dqm::reco::MonitorElement* hTrk_dxy;
+  dqm::reco::MonitorElement* hTrk_dz;
+  dqm::reco::MonitorElement* hnPixel;
+  dqm::reco::MonitorElement* hnTracker;
+  dqm::reco::MonitorElement* htrk_qoverp;
+  dqm::reco::MonitorElement* htype;
+  dqm::reco::MonitorElement* hcharge;
+  dqm::reco::MonitorElement* hecalIso;
+  dqm::reco::MonitorElement* hhcalIso;
+  dqm::reco::MonitorElement* htrackIso;
+  dqm::reco::MonitorElement* hnValidStandAloneMuonHits;
+  dqm::reco::MonitorElement* hnStandAloneMuonMatchedStations;
+  dqm::reco::MonitorElement* hnValidRecoMuonHits;
+  dqm::reco::MonitorElement* hnRecoMuonChambers;
+  dqm::reco::MonitorElement* hnRecoMuonChambersCSCorDT;
+  dqm::reco::MonitorElement* hnRecoMuonMatches;
+  dqm::reco::MonitorElement* hnRecoMuonMatchedStations;
+  dqm::reco::MonitorElement* hnRecoMuonExpectedMatchedStations;
+  dqm::reco::MonitorElement* hnValidPixelHits;
+  dqm::reco::MonitorElement* hnValidStripHits;
+  dqm::reco::MonitorElement* hnPixelLayersWithMeasurement;
+  dqm::reco::MonitorElement* hnTrackerLayersWithMeasurement;
+  dqm::reco::MonitorElement* htrk_chi2;
+  dqm::reco::MonitorElement* htrk_ndof;
+  dqm::reco::MonitorElement* htrk_lambda;
+  dqm::reco::MonitorElement* htrk_pt;
+  dqm::reco::MonitorElement* htrk_eta;
+  dqm::reco::MonitorElement* htrk_dxyError;
+  dqm::reco::MonitorElement* htrk_dzError;
+  dqm::reco::MonitorElement* htrk_qoverpError;
+  dqm::reco::MonitorElement* htrk_lambdaError;
+  dqm::reco::MonitorElement* htrk_phiError;
+  dqm::reco::MonitorElement* htrk_dsz;
+  dqm::reco::MonitorElement* htrk_dszError;
+  dqm::reco::MonitorElement* htrk_vx;
+  dqm::reco::MonitorElement* htrk_vy;
+  dqm::reco::MonitorElement* htrk_vz;
+  dqm::reco::MonitorElement* hLxy;
+  dqm::reco::MonitorElement* hXError;
+  dqm::reco::MonitorElement* hYError;
+  dqm::reco::MonitorElement* hChi2;
+  dqm::reco::MonitorElement* hZ;
+  dqm::reco::MonitorElement* hx;
+  dqm::reco::MonitorElement* hy;
+  dqm::reco::MonitorElement* hZerror;
+  dqm::reco::MonitorElement* htracksSize;
+};
+
+struct kTagProbeMuonHistos {
+  kProbeKinematicMuonHistos resonanceJ_numerator;
+  kProbeKinematicMuonHistos resonanceJ_denominator;
+};
+
+class ScoutingMuonTagProbeAnalyzer : public DQMGlobalEDAnalyzer<kTagProbeMuonHistos> {
+public:
+  explicit ScoutingMuonTagProbeAnalyzer(const edm::ParameterSet& conf);
+  ~ScoutingMuonTagProbeAnalyzer() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, kTagProbeMuonHistos const&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kTagProbeMuonHistos&) const override;
+  void bookHistograms_resonance(DQMStore::IBooker&,
+                                edm::Run const&,
+                                edm::EventSetup const&,
+                                kProbeKinematicMuonHistos&,
+                                const std::string&) const;
+  void fillHistograms_resonance(const kProbeKinematicMuonHistos histos,
+                                const Run3ScoutingMuon& mu,
+                                const Run3ScoutingVertex& vertex,
+                                const float inv_mass,
+                                const float lxy) const;
+  bool scoutingMuonID(const Run3ScoutingMuon mu) const;
+
+  const std::string outputInternalPath_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> scoutingVtxCollection_;
+  const bool runWithoutVtx_;
+};
+
+/*
+  This code does the following:
+     1) Reads muon collection, scouting muon collection and scouting vertex
+collection 
+     2) Tag and Probe method: For each event, check whether one of the
+     muons passes a tight ID (tag), and pair it with another muon in the event
+     (probe). If this dimuon system is within the mass range of the J/Psi, monitor
+     distributions of the probe and the efficiency of the probe to pass certain IDs.
+     For now we are measuring the efficiency of the probe passing the tag ID (If the
+     dimuon system is within J/Psi, add it to the denominator distributions, and if
+     the probe passes the tag ID, add it to the numerator distributions as well.) 
+     3) Fills histograms
+*/
 
 ScoutingMuonTagProbeAnalyzer::ScoutingMuonTagProbeAnalyzer(const edm::ParameterSet& iConfig)
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
@@ -26,8 +134,6 @@ ScoutingMuonTagProbeAnalyzer::ScoutingMuonTagProbeAnalyzer(const edm::ParameterS
       scoutingVtxCollection_(
           consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("ScoutingVtxCollection"))),
       runWithoutVtx_(iConfig.getParameter<bool>("runWithoutVertex")) {}
-
-ScoutingMuonTagProbeAnalyzer::~ScoutingMuonTagProbeAnalyzer() = default;
 
 void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
                                               edm::EventSetup const& iSetup,
@@ -124,8 +230,8 @@ bool ScoutingMuonTagProbeAnalyzer::scoutingMuonID(const Run3ScoutingMuon mu) con
 
 // Fill histograms
 void ScoutingMuonTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematicMuonHistos histos,
-                                                            const Run3ScoutingMuon mu,
-                                                            const Run3ScoutingVertex vertex,
+                                                            const Run3ScoutingMuon& mu,
+                                                            const Run3ScoutingVertex& vertex,
                                                             const float inv_mass,
                                                             const float lxy) const {
   histos.hPt->Fill(mu.pt());
@@ -338,7 +444,7 @@ void ScoutingMuonTagProbeAnalyzer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("ScoutingMuonCollection", edm::InputTag("Run3ScoutingMuons"));
   desc.add<edm::InputTag>("ScoutingVtxCollection", edm::InputTag("hltScoutingMuonPackerNoVtx"));
   desc.add<bool>("runWithoutVertex", true);
-  descriptions.add("ScoutingMuonTagProbeAnalyzer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(ScoutingMuonTagProbeAnalyzer);
