@@ -1,33 +1,107 @@
 /*
-Scouting Muon DQM for L1 seeds. This code does the following:
-  1) Reads pat muon and scouting muon collections, and writes an array of
+  Scouting Muon DQM for L1 seeds. 
+  This code does the following:
+
+     1) Reads pat muon and scouting muon collections, and writes an array of
 scouting muon triggers (selected in python/ScoutingMuonTriggerAnalyzer_cfi.py)
-  2) For each event, if the event passes a logical OR of HLTriggers it is added
-to the denominator, and if it passes any of the scouting muon triggers it is
+
+     2) For each event, if the event passes a logical OR of HLTriggers it is added
+     to the denominator, and if it passes any of the scouting muon triggers it is
      added to the numerator of that specific trigger.
-  3) Fills histograms for both leading and subleading muon in the event.
-Author: Javier Garcia de Castro, email:javigdc@bu.edu
+
+     3) Fills histograms for both leading and subleading muon in the event.
+  
+  Author: Javier Garcia de Castro, email:javigdc@bu.edu
 */
 
-// Files to include
-#include "ScoutingMuonTriggerAnalyzer.h"
-
+// system includes
 #include <cmath>
 #include <iostream>
+#include <string>
+#include <vector>
 
+// user includes
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
+
+// Classes to be declared
+class ScoutingMuonTriggerAnalyzer : public DQMEDAnalyzer {
+public:
+  explicit ScoutingMuonTriggerAnalyzer(const edm::ParameterSet& conf);
+  ~ScoutingMuonTriggerAnalyzer() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+  // data members
+  const std::string outputInternalPath_;
+  triggerExpression::Data triggerCache_;
+  const std::vector<std::string> vtriggerSelection_;
+
+  const edm::EDGetTokenT<std::vector<pat::Muon>> muonCollection_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
+
+  std::vector<triggerExpression::Evaluator*> vtriggerSelector_;
+  edm::EDGetToken algToken_;
+  std::shared_ptr<l1t::L1TGlobalUtil> l1GtUtils_;
+  std::vector<std::string> l1Seeds_;
+  TString l1Names[100] = {""};
+  Bool_t l1Result[100] = {false};
+
+  // Histogram declaration
+  // DENOMINATORS:
+  dqm::reco::MonitorElement* h_invMass_denominator;
+  dqm::reco::MonitorElement* h_pt1_l1_denominator;
+  dqm::reco::MonitorElement* h_eta1_l1_denominator;
+  dqm::reco::MonitorElement* h_phi1_l1_denominator;
+  dqm::reco::MonitorElement* h_dxy1_l1_denominator;
+  dqm::reco::MonitorElement* h_pt2_l1_denominator;
+  dqm::reco::MonitorElement* h_eta2_l1_denominator;
+  dqm::reco::MonitorElement* h_phi2_l1_denominator;
+  dqm::reco::MonitorElement* h_dxy2_l1_denominator;
+
+  // NUMERATORS:
+  std::vector<dqm::reco::MonitorElement*> h_invMass_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_pt1_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_eta1_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_phi1_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_dxy1_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_pt2_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_eta2_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_phi2_l1_numerators;
+  std::vector<dqm::reco::MonitorElement*> h_dxy2_l1_numerators;
+};
 
 // Read the collections and triggers
 ScoutingMuonTriggerAnalyzer::ScoutingMuonTriggerAnalyzer(const edm::ParameterSet& iConfig)
-    : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
-      triggerCache_(triggerExpression::Data(iConfig.getParameterSet("triggerConfiguration"), consumesCollector())),
-      vtriggerSelection_(iConfig.getParameter<vector<string>>("triggerSelection")) {
-  scoutingMuonCollection_ =
-      consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("ScoutingMuonCollection"));
+    : outputInternalPath_{iConfig.getParameter<std::string>("OutputInternalPath")},
+      triggerCache_{triggerExpression::Data(iConfig.getParameterSet("triggerConfiguration"), consumesCollector())},
+      vtriggerSelection_{iConfig.getParameter<vector<string>>("triggerSelection")},
+      scoutingMuonCollection_{
+          consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("ScoutingMuonCollection"))},
+      algToken_{consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<edm::InputTag>("AlgInputTag"))} {
   vtriggerSelector_.reserve(vtriggerSelection_.size());
   for (auto const& vt : vtriggerSelection_)
     vtriggerSelector_.push_back(triggerExpression::parse(vt));
-  algToken_ = consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<edm::InputTag>("AlgInputTag"));
   l1GtUtils_ = std::make_shared<l1t::L1TGlobalUtil>(iConfig, consumesCollector(), l1t::UseEventSetupIn::RunAndEvent);
   l1Seeds_ = iConfig.getParameter<std::vector<std::string>>("l1Seeds");
   for (unsigned int i = 0; i < l1Seeds_.size(); i++) {
@@ -35,8 +109,6 @@ ScoutingMuonTriggerAnalyzer::ScoutingMuonTriggerAnalyzer(const edm::ParameterSet
     l1Names[i] = TString(l1seed);
   }
 }
-
-ScoutingMuonTriggerAnalyzer::~ScoutingMuonTriggerAnalyzer() = default;
 
 // Core of the implementation
 void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -166,13 +238,19 @@ void ScoutingMuonTriggerAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
 // Input tags to read collections and L1 seeds
 void ScoutingMuonTriggerAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
+  desc.add<vector<string>>("triggerSelection", {});
+  desc.add<edm::InputTag>("ScoutingMuonCollection", edm::InputTag("hltScoutingMuonPackerVtx"));
   desc.add<edm::InputTag>("AlgInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<std::vector<std::string>>("l1Seeds", {});
   desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
-  desc.setUnknown();
-  descriptions.addDefault(desc);
-  descriptions.add("ScoutingMuonTriggerAnalyzer", desc);
+  desc.add<bool>("ReadPrescalesFromFile", false);
+  edm::ParameterSetDescription triggerConfig;
+  triggerConfig.setAllowAnything();
+  desc.add<edm::ParameterSetDescription>("triggerConfiguration", triggerConfig);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(ScoutingMuonTriggerAnalyzer);
