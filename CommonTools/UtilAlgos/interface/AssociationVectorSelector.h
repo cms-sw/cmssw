@@ -68,9 +68,10 @@ void AssociationVectorSelector<KeyRefProd, CVal, KeySelector, ValSelector>::prod
   KeyRefProd ref = evt.getRefBeforePut<collection_t>();
   unique_ptr<association_t> selectedAssociation(new association_t(ref, selected.get()));
   size = selected->size();
-  OrphanHandle<collection_t> oh = evt.put(std::move(selected));
-  for (size_t i = 0; i != size; ++i)
+  evt.put(std::move(selected));
+  for (size_t i = 0; i != size; ++i) {
     selectedAssociation->setValue(i, selectedValues[i]);
+  }
   evt.put(std::move(selectedAssociation));
 }
 

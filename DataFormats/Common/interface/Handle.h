@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_Handle_h
-#define DataFormats_Common_Handle_h
+#ifndef DataFormats_Common_interface_Handle_h
+#define DataFormats_Common_interface_Handle_h
 
 /*----------------------------------------------------------------------
   
@@ -40,17 +40,10 @@ namespace edm {
     Handle(T const* prod, Provenance const* prov);
 
     Handle(std::shared_ptr<HandleExceptionFactory const>&&);
-    Handle(Handle const&) = default;
-    Handle& operator=(Handle&&) = default;
-    Handle& operator=(Handle const&) = default;
-
-    ~Handle();
 
     T const* product() const;
     T const* operator->() const;  // alias for product()
     T const& operator*() const;
-
-  private:
   };
 
   template <class T>
@@ -62,9 +55,6 @@ namespace edm {
   template <class T>
   Handle<T>::Handle(std::shared_ptr<edm::HandleExceptionFactory const>&& iWhyFailed)
       : HandleBase(std::move(iWhyFailed)) {}
-
-  template <class T>
-  Handle<T>::~Handle() {}
 
   template <class T>
   T const* Handle<T>::product() const {
@@ -80,5 +70,7 @@ namespace edm {
   T const& Handle<T>::operator*() const {
     return *product();
   }
+
 }  // namespace edm
-#endif
+
+#endif  // DataFormats_Common_interface_Handle_h

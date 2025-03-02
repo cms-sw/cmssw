@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_HandleBase_h
-#define DataFormats_Common_HandleBase_h
+#ifndef DataFormats_Common_interface_HandleBase_h
+#define DataFormats_Common_interface_HandleBase_h
 
 /*----------------------------------------------------------------------
   
@@ -25,17 +25,18 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 ----------------------------------------------------------------------*/
 
+#include <algorithm>
 #include <cassert>
+#include <memory>
+
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Common/interface/HandleExceptionFactory.h"
-#include <algorithm>
-
-#include <memory>
 
 namespace cms {
   class Exception;
 }
+
 namespace edm {
   class HandleBase {
   public:
@@ -46,7 +47,9 @@ namespace edm {
       assert(prov);
     }
 
-    ~HandleBase() {}
+    ///Used when the attempt to get the data failed
+    HandleBase(std::shared_ptr<HandleExceptionFactory const>&& iWhyFailed)
+        : product_(nullptr), prov_(nullptr), whyFailedFactory_(iWhyFailed) {}
 
     void clear() {
       product_ = nullptr;
@@ -55,16 +58,9 @@ namespace edm {
     }
 
     void swap(HandleBase& other) {
-      using std::swap;
-      swap(product_, other.product_);
+      std::swap(product_, other.product_);
       std::swap(prov_, other.prov_);
-      swap(whyFailedFactory_, other.whyFailedFactory_);
-    }
-
-    HandleBase& operator=(HandleBase const& rhs) {
-      HandleBase temp(rhs);
-      this->swap(temp);
-      return *this;
+      std::swap(whyFailedFactory_, other.whyFailedFactory_);
     }
 
     bool isValid() const { return product_ && prov_; }
@@ -74,19 +70,6 @@ namespace edm {
     Provenance const* provenance() const { return prov_; }
 
     ProductID id() const;
-
-    HandleBase(HandleBase const&) = default;
-
-    ///Used when the attempt to get the data failed
-    HandleBase(std::shared_ptr<HandleExceptionFactory const>&& iWhyFailed)
-        : product_(), prov_(nullptr), whyFailedFactory_(iWhyFailed) {}
-
-    HandleBase& operator=(HandleBase&& rhs) {
-      product_ = rhs.product_;
-      prov_ = rhs.prov_;
-      whyFailedFactory_ = std::move(rhs.whyFailedFactory_);
-      return *this;
-    }
 
     std::shared_ptr<cms::Exception> whyFailed() const {
       if (whyFailedFactory_.get()) {
@@ -112,6 +95,7 @@ namespace edm {
 
   // Free swap function
   inline void swap(HandleBase& a, HandleBase& b) { a.swap(b); }
+
 }  // namespace edm
 
-#endif
+#endif  // DataFormats_Common_interface_HandleBase_h
