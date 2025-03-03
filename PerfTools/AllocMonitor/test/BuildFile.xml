@@ -23,4 +23,18 @@
     <flags CXXFLAGS="-O0"/>
   </bin>
   <test name="TestPerfToolsModuleAllocMonitor" command="runModuleAlloc.sh"/>
+
+  <!-- can't be part of the catch2 tests above because of ASAN exclusion -->
+  <bin file="test_intrusiveAllocMonitor.cc" name="testIntrusiveAllocMonitor">
+    <use name="FWCore/AbstractServices"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="PerfTools/AllocMonitor"/>
+    <use name="PerfTools/AllocMonitorPreload"/>
+  </bin>
+  <test name="testIntrusiveAllocMonitorOutput" command="testIntrusiveAllocMonitor 2>&amp;1 | grep -q 'Vector fill: requested'">
+    <flags PRE_TEST="testIntrusiveAllocMonitor"/>
+  </test>
 </ifrelease>
