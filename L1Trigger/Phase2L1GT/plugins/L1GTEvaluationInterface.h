@@ -57,10 +57,6 @@ namespace l1t {
 
     ap_uint<N> pack() const override { return pack_common(); }
 
-    static L1TGT_Common3Vector from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_Common3Vector(1, gtObject.hwPT(), gtObject.hwPhi(), gtObject.hwEta());
-    }
-
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object;
       gt_object.setHwPT(pT);
@@ -83,10 +79,6 @@ namespace l1t {
     ap_uint<46> pack_common() const { return l1t_pack_int<ap_uint<46>>(valid, pT, phi, scalarSumPT); }
 
     ap_uint<64> pack() const override { return pack_common(); }
-
-    static L1TGT_CommonSum from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_CommonSum(1, gtObject.hwPT(), gtObject.hwPhi(), gtObject.hwScalarSumPT());
-    }
 
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object;
@@ -122,10 +114,6 @@ namespace l1t {
       return l1t_pack_int<ap_uint<WIDTH>>(L1TGT_Common3Vector::pack_common(), seed_pT);
     }
 
-    static L1TGT_GCT_tau6p6 from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_GCT_tau6p6(1, gtObject.hwPT(), gtObject.hwPhi(), gtObject.hwEta(), gtObject.hwSeed_pT());
-    }
-
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object(L1TGT_Common3Vector::to_GTObject());
       gt_object.setHwSeed_pT(seed_pT);
@@ -141,7 +129,7 @@ namespace l1t {
   // Global Muon Trigger
 
   struct L1TGT_GMT_PromptDisplacedMuon : public L1TGT_Common3Vector<64> {
-    ap_uint<5> z0;
+    ap_int<5> z0;
     ap_int<7> d0;
     ap_uint<1> charge;
     ap_uint<4> qualityScore;
@@ -158,17 +146,6 @@ namespace l1t {
 
     ap_uint<WIDTH> pack() const override {
       return l1t_pack_int<ap_uint<WIDTH>>(L1TGT_Common3Vector::pack_common(), z0, d0, charge, qualityScore);
-    }
-
-    static L1TGT_GMT_PromptDisplacedMuon from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_GMT_PromptDisplacedMuon(1,
-                                           gtObject.hwPT(),
-                                           gtObject.hwPhi(),
-                                           gtObject.hwEta(),
-                                           gtObject.hwZ0() >> 12,
-                                           gtObject.hwD0() >> 5,
-                                           gtObject.hwCharge(),
-                                           gtObject.hwQualityScore());
     }
 
     P2GTCandidate to_GTObject() const override {
@@ -213,19 +190,6 @@ namespace l1t {
           L1TGT_Common3Vector::pack_common(), z0, d0, charge, qualityFlags, isolationPT, beta);
     }
 
-    static L1TGT_GMT_TrackMatchedmuon from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_GMT_TrackMatchedmuon(1,
-                                        gtObject.hwPT(),
-                                        gtObject.hwPhi(),
-                                        gtObject.hwEta(),
-                                        gtObject.hwZ0() >> 7,
-                                        gtObject.hwD0() >> 2,
-                                        gtObject.hwCharge(),
-                                        gtObject.hwQualityFlags(),
-                                        gtObject.hwIsolationPT(),
-                                        gtObject.hwBeta());
-    }
-
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object(L1TGT_Common3Vector::to_GTObject());
       gt_object.setHwZ0(static_cast<int>(z0) << 7);
@@ -254,15 +218,6 @@ namespace l1t {
 
     ap_uint<WIDTH> pack() const override {
       return l1t_pack_int<ap_uint<WIDTH>>(valid, pT, eta, phi, mass, qualityFlags);
-    }
-
-    static L1TGT_GMT_TopoObject from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_GMT_TopoObject(1,
-                                  gtObject.hwPT() / 5,
-                                  gtObject.hwPhi() >> 5,
-                                  gtObject.hwEta() >> 5,
-                                  gtObject.hwMass(),
-                                  gtObject.hwQualityFlags());
     }
 
     P2GTCandidate to_GTObject() const override {
@@ -301,16 +256,6 @@ namespace l1t {
           L1TGT_Common3Vector::pack_common(), z0, number_of_tracks, number_of_displaced_tracks);
     }
 
-    static L1TGT_GTT_PromptJet from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_GTT_PromptJet(1,
-                                 gtObject.hwPT(),
-                                 gtObject.hwPhi(),
-                                 gtObject.hwEta(),
-                                 gtObject.hwZ0() >> 7,
-                                 gtObject.hwNumber_of_tracks(),
-                                 gtObject.hwNumber_of_displaced_tracks());
-    }
-
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object(L1TGT_Common3Vector::to_GTObject());
       gt_object.setHwZ0(static_cast<int>(z0) << 7);
@@ -341,16 +286,6 @@ namespace l1t {
     ap_uint<WIDTH> pack() const override {
       return l1t_pack_int<ap_uint<WIDTH>>(
           L1TGT_Common3Vector::pack_common(), z0, number_of_tracks, number_of_displaced_tracks);
-    }
-
-    static L1TGT_GTT_DisplacedJet from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_GTT_DisplacedJet(1,
-                                    gtObject.hwPT(),
-                                    gtObject.hwPhi(),
-                                    gtObject.hwEta(),
-                                    gtObject.hwZ0() >> 7,
-                                    gtObject.hwNumber_of_tracks(),
-                                    gtObject.hwNumber_of_displaced_tracks());
     }
 
     P2GTCandidate to_GTObject() const override {
@@ -387,17 +322,6 @@ namespace l1t {
       return l1t_pack_int<ap_uint<WIDTH>>(L1TGT_Common3Vector::pack_common(), seed_pT, seed_z0, charge, type);
     }
 
-    static L1TGT_GTT_HadronicTau from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_GTT_HadronicTau(1,
-                                   gtObject.hwPT(),
-                                   gtObject.hwPhi(),
-                                   gtObject.hwEta(),
-                                   gtObject.hwSeed_pT(),
-                                   gtObject.hwSeed_z0(),
-                                   gtObject.hwCharge(),
-                                   gtObject.hwType());
-    }
-
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object(L1TGT_Common3Vector::to_GTObject());
       gt_object.setHwSeed_pT(seed_pT);
@@ -422,10 +346,6 @@ namespace l1t {
       return l1t_pack_int<ap_uint<WIDTH>>(L1TGT_Common3Vector::pack_common(), z0);
     }
 
-    static L1TGT_GTT_LightMeson from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_GTT_LightMeson(1, gtObject.hwPT(), gtObject.hwPhi(), gtObject.hwEta(), gtObject.hwZ0() >> 7);
-    }
-
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object(L1TGT_Common3Vector::to_GTObject());
       gt_object.setHwZ0(static_cast<int>(z0) << 7);
@@ -440,8 +360,6 @@ namespace l1t {
     L1TGT_GTT_Track() {};
 
     ap_uint<WIDTH> pack() const override { return ap_uint<WIDTH>(0); }
-
-    static L1TGT_GTT_Track from_GTObject(const P2GTCandidate& gtObject) { return L1TGT_GTT_Track(); }
 
     P2GTCandidate to_GTObject() const override { return P2GTCandidate(); }
   };
@@ -473,15 +391,6 @@ namespace l1t {
           valid, z0, number_of_tracks_in_pv, sum_pT_pv, qualityScore, number_of_tracks_not_in_pv);
     }
 
-    static L1TGT_GTT_PrimaryVert from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_GTT_PrimaryVert(1,
-                                   gtObject.hwZ0() / 5,
-                                   gtObject.hwNumber_of_tracks_in_pv(),
-                                   gtObject.hwSum_pT_pv(),
-                                   gtObject.hwQualityScore(),
-                                   gtObject.hwNumber_of_tracks_not_in_pv());
-    }
-
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object;
       gt_object.setHwZ0(static_cast<int>(z0) * 5);
@@ -504,10 +413,6 @@ namespace l1t {
 
     ap_uint<WIDTH> pack() const override {
       return l1t_pack_int<ap_uint<WIDTH>>(L1TGT_Common3Vector::pack_common(), z0);
-    }
-
-    static L1TGT_CL2_Jet from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_CL2_Jet(1, gtObject.hwPT(), gtObject.hwPhi(), gtObject.hwEta(), gtObject.hwZ0() >> 7);
     }
 
     P2GTCandidate to_GTObject() const override {
@@ -545,17 +450,6 @@ namespace l1t {
       return l1t_pack_int<ap_uint<WIDTH>>(L1TGT_Common3Vector::pack_common(), seed_pT, seed_z0, charge, type);
     }
 
-    static L1TGT_CL2_Tau from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_CL2_Tau(1,
-                           gtObject.hwPT(),
-                           gtObject.hwPhi(),
-                           gtObject.hwEta(),
-                           gtObject.hwSeed_pT(),
-                           gtObject.hwSeed_z0(),
-                           gtObject.hwCharge(),
-                           gtObject.hwType());
-    }
-
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object(L1TGT_Common3Vector::to_GTObject());
       gt_object.setHwSeed_pT(seed_pT);
@@ -591,17 +485,6 @@ namespace l1t {
       return l1t_pack_int<ap_uint<WIDTH>>(L1TGT_Common3Vector::pack_common(), qualityFlags, isolationPT, charge, z0);
     }
 
-    static L1TGT_CL2_Electron from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_CL2_Electron(1,
-                                gtObject.hwPT(),
-                                gtObject.hwPhi(),
-                                gtObject.hwEta(),
-                                gtObject.hwQualityFlags(),
-                                gtObject.hwIsolationPT(),
-                                gtObject.hwCharge(),
-                                gtObject.hwZ0() >> 7);
-    }
-
     P2GTCandidate to_GTObject() const override {
       P2GTCandidate gt_object(L1TGT_Common3Vector::to_GTObject());
       gt_object.setHwQualityFlags(qualityFlags);
@@ -622,11 +505,6 @@ namespace l1t {
 
     ap_uint<WIDTH> pack() const override {
       return l1t_pack_int<ap_uint<WIDTH>>(L1TGT_Common3Vector::pack_common(), qualityFlags, isolationPT);
-    }
-
-    static L1TGT_CL2_Photon from_GTObject(const P2GTCandidate& gtObject) {
-      return L1TGT_CL2_Photon(
-          1, gtObject.hwPT(), gtObject.hwPhi(), gtObject.hwEta(), gtObject.hwQualityFlags(), gtObject.hwIsolationPT());
     }
 
     P2GTCandidate to_GTObject() const override {
