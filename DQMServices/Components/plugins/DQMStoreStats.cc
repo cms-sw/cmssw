@@ -517,7 +517,7 @@ void DQMStoreStats::calcIgProfDump(Folder& root) {
 
 std::vector<double> DQMStoreStats::GetTH2PolyArray(TH2Poly* poly) {
   int nBins = poly->GetNumberOfBins();
-  std::vector<double> array(nBins + 1, 0.0); // Initialize with zeros
+  std::vector<double> array(nBins + 1, 0.0);  // Initialize with zeros
   for (int i = 1; i <= nBins; i++) {
     array[i] = poly->GetBinContent(i);
   }
@@ -681,12 +681,8 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
       case MonitorElement::Kind::TH2Poly: {
         std::vector<double> polyArray = GetTH2PolyArray(it->getTH2Poly());
         int nBins = polyArray.size() - 1;
-        currentSubfolder.AddBinsD(
-            nBins,
-            getEmptyMetric(polyArray.data(), nBins + 1, 1, 0));
-        curr->update(nBins,
-                     getEmptyMetric(polyArray.data(), nBins + 1, 1, 0),
-                     nBins * sizeof(double));
+        currentSubfolder.AddBinsD(nBins, getEmptyMetric(polyArray.data(), nBins + 1, 1, 0));
+        curr->update(nBins, getEmptyMetric(polyArray.data(), nBins + 1, 1, 0), nBins * sizeof(double));
         break;
       }
       case MonitorElement::Kind::TPROFILE2D:
