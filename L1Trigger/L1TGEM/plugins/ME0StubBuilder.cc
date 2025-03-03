@@ -35,23 +35,23 @@ ME0StubBuilder::ME0StubBuilder(const edm::ParameterSet& ps) {
 ME0StubBuilder::~ME0StubBuilder() {}
 
 void ME0StubBuilder::fillDescription(edm::ParameterSetDescription& desc) {
-  desc.add<bool>("skip_centroids", false);
-  desc.add<std::vector<int32_t>>("ly_thresh_patid", {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 4, 4, 4, 4, 4});
-  desc.add<std::vector<int32_t>>("ly_thresh_eta", {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4});
-  desc.add<int32_t>("max_span", 37);
+  desc.add<bool>("skipCentroids", false);
+  desc.add<std::vector<int32_t>>("layerThresholdPatternId", {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 4, 4, 4, 4, 4});
+  desc.add<std::vector<int32_t>>("layerThresholdEta", {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4});
+  desc.add<int32_t>("maxSpan", 37);
   desc.add<int32_t>("width", 192);
-  desc.add<bool>("deghost_pre", true);
-  desc.add<bool>("deghost_post", true);
-  desc.add<int32_t>("group_width", 8);
-  desc.add<int32_t>("ghost_width", 1);
-  desc.add<bool>("x_prt_en", true);
-  desc.add<bool>("en_non_pointing", false);
-  desc.add<int32_t>("cross_part_seg_width", 4);
-  desc.add<int32_t>("num_outputs", 4);
-  desc.add<bool>("check_ids", false);
-  desc.add<int32_t>("edge_distance", 2);
-  desc.add<int32_t>("num_or", 2);
-  desc.add<double>("mse_thresh", 0.75);
+  desc.add<bool>("deghostPre", true);
+  desc.add<bool>("deghostPost", true);
+  desc.add<int32_t>("groupWidth", 8);
+  desc.add<int32_t>("ghostWidth", 1);
+  desc.add<bool>("xPartitionEnabled", true);
+  desc.add<bool>("enableNonPointing", false);
+  desc.add<int32_t>("crossPartitionSegmentWidth", 4);
+  desc.add<int32_t>("numOutputs", 4);
+  desc.add<bool>("checkIds", false);
+  desc.add<int32_t>("edgeDistance", 2);
+  desc.add<int32_t>("numOr", 2);
+  desc.add<double>("mseThreshold", 0.75);
 }
 
 void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollection& oc) {
