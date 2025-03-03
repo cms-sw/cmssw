@@ -149,23 +149,6 @@ namespace edm {
     return size;
   }
 
-  // adjust provenance for input products after new input file has been merged
-  bool Principal::adjustToNewProductRegistry(ProductRegistry const& reg) {
-    ProductRegistry::ProductList const& prodsList = reg.productList();
-    for (auto const& prod : prodsList) {
-      ProductDescription const& bd = prod.second;
-      if (!bd.produced() && (bd.branchType() == branchType_)) {
-        auto cbd = std::make_shared<ProductDescription const>(bd);
-        auto phb = getExistingProduct(cbd->branchID());
-        if (phb == nullptr || phb->productDescription().branchName() != cbd->branchName()) {
-          return false;
-        }
-        phb->resetProductDescription(cbd);
-      }
-    }
-    return true;
-  }
-
   void Principal::addDroppedProduct(ProductDescription const& bd) {
     addProductOrThrow(std::make_unique<DroppedDataProductResolver>(std::make_shared<ProductDescription const>(bd)));
   }

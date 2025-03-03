@@ -74,8 +74,6 @@ namespace edm {
 
     ~Principal() override;
 
-    bool adjustToNewProductRegistry(ProductRegistry const& reg);
-
     void adjustIndexesAfterProductRegistryAddition();
 
     void fillPrincipal(DelayedReader* reader);

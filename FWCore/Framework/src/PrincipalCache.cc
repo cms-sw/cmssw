@@ -44,8 +44,6 @@ namespace edm {
     for (auto& eventPrincipal : eventPrincipals_) {
       if (eventPrincipal) {
         eventPrincipal->adjustIndexesAfterProductRegistryAddition();
-        bool eventOK = eventPrincipal->adjustToNewProductRegistry(*reg);
-        assert(eventOK);
       }
     }
   }
