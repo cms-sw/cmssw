@@ -77,6 +77,13 @@ def puppiAK4METReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDi
   if hasattr(process,"patJetFlavourAssociationPuppi"):
     process.patJetFlavourAssociationPuppi.weights = cms.InputTag(puppiLabel)
 
+  process.load("RecoJets.JetProducers.PileupJetID_cfi")
+  task.add(process.pileUpJetIDPuppiTask)
+  process.pileupJetIdPuppi.srcConstituentWeights = puppiLabel
+  process.pileupJetIdPuppi.vertexes = pvLabel
+  process.patJetsPuppi.userData.userFloats.src += [cms.InputTag("pileupJetIdPuppi:fullDiscriminant")]
+  process.patJetsPuppi.userData.userInts.src += [cms.InputTag("pileupJetIdPuppi:fullId")]
+
   #=============================================
   #
   # Update the selectedPatJet collection.
