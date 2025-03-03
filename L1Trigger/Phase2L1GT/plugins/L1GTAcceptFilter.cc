@@ -26,33 +26,41 @@ private:
 
   const edm::EDGetTokenT<P2GTAlgoBlockMap> algoBlocksToken_;
   const DecisionType decisionEnum_;
+  int triggerType_;
 };
 
 L1GTAcceptFilter::L1GTAcceptFilter(const edm::ParameterSet& config)
     : algoBlocksToken_(consumes<P2GTAlgoBlockMap>(config.getParameter<edm::InputTag>("algoBlocksTag"))),
       decisionEnum_(config.getParameter<std::string>("decision") == "beforeBxMaskAndPrescale" ? beforeBxMaskAndPrescale
                     : config.getParameter<std::string>("decision") == "beforePrescale"        ? beforePrescale
-                                                                                              : final) {}
+                                                                                              : final),
+      triggerType_(config.getParameter<int>("triggerType")) {}
 
 bool L1GTAcceptFilter::filter(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
   const P2GTAlgoBlockMap& algoMap = event.get(algoBlocksToken_);
   bool decision = false;
+  bool veto = false;
   for (const auto& [name, algoBlock] : algoMap) {
-    if (decisionEnum_ == beforeBxMaskAndPrescale) {
-      decision |= algoBlock.decisionBeforeBxMaskAndPrescale();
-    } else if (decisionEnum_ == beforePrescale) {
-      decision |= algoBlock.decisionBeforePrescale();
-    } else {
-      decision |= algoBlock.decisionFinal();
+    if (algoBlock.isVeto()) {
+      veto |= algoBlock.decisionFinal();
+    } else if ((algoBlock.triggerTypes() & triggerType_) > 0) {
+      if (decisionEnum_ == beforeBxMaskAndPrescale) {
+        decision |= algoBlock.decisionBeforeBxMaskAndPrescale();
+      } else if (decisionEnum_ == beforePrescale) {
+        decision |= algoBlock.decisionBeforePrescale();
+      } else {
+        decision |= algoBlock.decisionFinal();
+      }
     }
   }
 
-  return decision;
+  return decision && !veto;
 }
 
 void L1GTAcceptFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("algoBlocksTag");
+  desc.add<int>("triggerType", 1);
   desc.ifValue(edm::ParameterDescription<std::string>("decision", "final", true),
                edm::allowedValues<std::string>("beforeBxMaskAndPrescale", "beforePrescale", "final"));
 
