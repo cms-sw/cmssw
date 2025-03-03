@@ -943,7 +943,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #---------
         pfTaus = cms.EDFilter("PATTauRefSelector",
                               src = tauCollection,
-                              cut = cms.string('pt > 18.0 & abs(eta) < 2.6 & tauID("decayModeFinding") > 0.5 & isPFTau')
+                              cut = cms.string('pt > 18.0 & abs(eta) < 2.6 & tauID("decayModeFindingNewDMs") > 0.5 & isPFTau')
                               )
         addToProcessAndTask("pfTaus"+postfix, pfTaus, process, getMETUncertainties_task)
         #---------------------------------------------------------------------
