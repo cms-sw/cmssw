@@ -23,9 +23,9 @@ namespace l1t {
         const std::vector<std::vector<int>>& bxData,
         int strip = 0,
         int partition = -1,
-        std::vector<int> layerThresholdPatternId = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 4, 4, 4, 4, 4},
+        const std::vector<int>& layerThresholdPatternId = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 4, 4, 4, 4, 4},
         // layer count threshold for 17 pattern ids
-        std::vector<int> layerThresholdEta = {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4},
+        const std::vector<int>& layerThresholdEta = {4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4},
         // layer count threshold for 8 eta partitions + 7 "virtual" eta partitions
         int inputMaxSpan = 37,
         bool skipCentroids = true,

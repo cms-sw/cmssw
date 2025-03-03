@@ -14,23 +14,23 @@ typedef std::vector<std::vector<UInt192>> ME0ChamberData;
 typedef std::vector<std::vector<std::vector<int>>> ME0ChamberBXData;
 
 ME0StubBuilder::ME0StubBuilder(const edm::ParameterSet& ps) {
-  skipCentroids_ = ps.getParameter<bool>("skip_centroids");
-  layerThresholdPatternId_ = ps.getParameter<std::vector<int32_t>>("ly_thresh_patid");
-  layerThresholdEta_ = ps.getParameter<std::vector<int32_t>>("ly_thresh_eta");
-  maxSpan_ = ps.getParameter<int32_t>("max_span");
+  skipCentroids_ = ps.getParameter<bool>("skipCentroids");
+  layerThresholdPatternId_ = ps.getParameter<std::vector<int32_t>>("layerThresholdPatternId");
+  layerThresholdEta_ = ps.getParameter<std::vector<int32_t>>("layerThresholdEta");
+  maxSpan_ = ps.getParameter<int32_t>("maxSpan");
   width_ = ps.getParameter<int32_t>("width");
-  deghostPre_ = ps.getParameter<bool>("deghost_pre");
-  deghostPost_ = ps.getParameter<bool>("deghost_post");
-  groupWidth_ = ps.getParameter<int32_t>("group_width");
-  ghostWidth_ = ps.getParameter<int32_t>("ghost_width");
-  xPartitionEnabled_ = ps.getParameter<bool>("x_prt_en");
-  enableNonPointing_ = ps.getParameter<bool>("en_non_pointing");
-  crossPartitionSegmentWidth_ = ps.getParameter<int32_t>("cross_part_seg_width");
-  numOutputs_ = ps.getParameter<int32_t>("num_outputs");
-  checkIds_ = ps.getParameter<bool>("check_ids");
-  edgeDistance_ = ps.getParameter<int32_t>("edge_distance");
-  numOr_ = ps.getParameter<int32_t>("num_or");
-  mseThreshold_ = ps.getParameter<double>("mse_thresh");
+  deghostPre_ = ps.getParameter<bool>("deghostPre");
+  deghostPost_ = ps.getParameter<bool>("deghostPost");
+  groupWidth_ = ps.getParameter<int32_t>("groupWidth");
+  ghostWidth_ = ps.getParameter<int32_t>("ghostWidth");
+  xPartitionEnabled_ = ps.getParameter<bool>("xPartitionEnabled");
+  enableNonPointing_ = ps.getParameter<bool>("enableNonPointing");
+  crossPartitionSegmentWidth_ = ps.getParameter<int32_t>("crossPartitionSegmentWidth");
+  numOutputs_ = ps.getParameter<int32_t>("numOutputs");
+  checkIds_ = ps.getParameter<bool>("checkIds");
+  edgeDistance_ = ps.getParameter<int32_t>("edgeDistance");
+  numOr_ = ps.getParameter<int32_t>("numOr");
+  mseThreshold_ = ps.getParameter<double>("mseThreshold");
 }
 ME0StubBuilder::~ME0StubBuilder() {}
 
