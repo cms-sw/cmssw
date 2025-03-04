@@ -43,6 +43,9 @@ public:
     */
   class Doublet {
   public:
+    // possible states of the doublet (could be set by an analyzer according to doublet cuts)
+    enum class Status : uint8_t { undef, alive, killed };
+
     // default constructor
     Doublet() = default;
 
@@ -79,10 +82,21 @@ public:
     // method to get the global position of the outer RecHit
     GlobalPoint outerGlobalPos() const;
 
+    // methods to set status to undef, alive or killed
+    void setUndef() { status_ = Status::undef; }
+    void setAlive() { status_ = Status::alive; }
+    void setKilled() { status_ = Status::killed; }
+
+    // methods to check if status is undef, alive or killed
+    bool isUndef() const { return status_ == Status::undef; }
+    bool isAlive() const { return status_ == Status::alive; }
+    bool isKilled() const { return status_ == Status::killed; }
+
   private:
     TrackingParticleRef trackingParticleRef_;                   // reference to the TrackingParticle
     std::pair<SiPixelRecHitRef, SiPixelRecHitRef> recHitRefs_;  // reference pair to RecHits of the Doublet
     std::pair<uint8_t, uint8_t> layerIds_;                      // pair of layer IDs corresponding to the RecHits
+    Status status_;                                            // status of the doublet
     int8_t numSkippedLayers_;                                   // number of layers skipped by the Doublet
     int16_t layerPairId_;            // ID of the layer pair as defined in the reconstruction for the doublets
     GlobalVector beamSpotPosition_;  // global position of the beam spot (needed to correct the global RecHit position)
@@ -138,15 +152,23 @@ public:
   void sortRecHits();
 
   // method to produce the SimDoublets from the RecHits
-  std::vector<Doublet> getSimDoublets(const TrackerTopology* trackerTopology = nullptr) const;
+  void buildSimDoublets(const TrackerTopology* trackerTopology = nullptr) const;
+
+  // method to access the SimDoublets
+  std::vector<Doublet>& getSimDoublets() const { return doublets_; }
+  std::vector<Doublet>& getSimDoublets(const TrackerTopology* trackerTopology = nullptr) const {
+    buildSimDoublets(trackerTopology);
+    return doublets_;
+  }
 
 private:
   TrackingParticleRef trackingParticleRef_;  // reference to the TrackingParticle
-  SiPixelRecHitRefVector recHitRefVector_;   // reference vector to RecHits associated to the TP (sorted afer building)
+  SiPixelRecHitRefVector recHitRefVector_;   // reference vector to RecHits associated to the TP (sorted after building)
   std::vector<uint8_t> layerIdVector_;       // vector of layer IDs corresponding to the RecHits
   GlobalVector beamSpotPosition_;  // global position of the beam spot (needed to correct the global RecHit position)
   bool recHitsAreSorted_{false};   // true if RecHits were sorted
   int numLayers_{0};               // number of layers hit by the TrackingParticle
+  mutable std::vector<Doublet> doublets_{};  // vector of true doublets
 };
 
 // collection of SimDoublets

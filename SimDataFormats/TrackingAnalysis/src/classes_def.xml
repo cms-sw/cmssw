@@ -43,7 +43,13 @@
 
   <class name="SimDoublets" ClassVersion="3">
    <version ClassVersion="3" checksum="2009082523"/>
+    <field name="doublets_" transient="true" />
   </class>
   <class name="std::vector<SimDoublets>"/>
   <class name="edm::Wrapper< std::vector<SimDoublets> >"/>
+
+  <ioread sourceClass = "SimDoublets" version="[1-]" targetClass="SimDoublets" source="" target="doublets_">
+  <![CDATA[ doublets_={};
+  ]]>
+  </ioread>
 </lcgdict>
