@@ -19,7 +19,7 @@ options.register('type',
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D110, D116")
 options.register('tol',
-                 0.01,
+                 0.0,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
                  "Tolerance for checking overlaps: 0.0, 0.01, 0.1, 1.0"
