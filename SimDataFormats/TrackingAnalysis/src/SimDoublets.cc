@@ -64,7 +64,9 @@ SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
                               size_t const innerIndex,
                               size_t const outerIndex,
                               const TrackerTopology* trackerTopology)
-    : trackingParticleRef_(simDoublets.trackingParticle()), beamSpotPosition_(simDoublets.beamSpotPosition()) {
+    : trackingParticleRef_(simDoublets.trackingParticle()),
+      status_(SimDoublets::Doublet::Status::undef),
+      beamSpotPosition_(simDoublets.beamSpotPosition()) {
   // fill recHits and layers
   recHitRefs_ = std::make_pair(simDoublets.recHits(innerIndex), simDoublets.recHits(outerIndex));
   layerIds_ = std::make_pair(simDoublets.layerIds(innerIndex), simDoublets.layerIds(outerIndex));
@@ -129,17 +131,14 @@ void SimDoublets::sortRecHits() {
   recHitsAreSorted_ = true;
 }
 
-// method to produce the true doublets on the fly
-std::vector<SimDoublets::Doublet> SimDoublets::getSimDoublets(const TrackerTopology* trackerTopology) const {
-  // create output vector for the doublets
-  std::vector<SimDoublets::Doublet> doubletVector;
-
+// method to produce the true doublets
+void SimDoublets::buildSimDoublets(const TrackerTopology* trackerTopology) const {
   // confirm that the RecHits are sorted
   assert(recHitsAreSorted_);
 
   // check if there are at least two hits
   if (numRecHits() < 2) {
-    return doubletVector;
+    return;
   }
 
   // loop over the RecHits/layer Ids
@@ -164,9 +163,7 @@ std::vector<SimDoublets::Doublet> SimDoublets::getSimDoublets(const TrackerTopol
         break;
       }
 
-      doubletVector.push_back(SimDoublets::Doublet(*this, i, j, trackerTopology));
+      doublets_.push_back(SimDoublets::Doublet(*this, i, j, trackerTopology));
     }
   }  // end loop over the RecHits/layer Ids
-
-  return doubletVector;
 }
