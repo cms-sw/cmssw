@@ -18,8 +18,6 @@ public:
   void getNewObjects() override;
   std::string id() const override;
 
-  static constexpr unsigned int kLumisectionsQueryLimit = 4000;  // enough for fills not exceeding 25h
-
 private:
   void addEmptyPayload(cond::Time_t iov);
 

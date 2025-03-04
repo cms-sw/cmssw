@@ -1,5 +1,6 @@
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
+#include "CondTools/RunInfo/interface/LHCInfoHelper.h"
 #include "CondTools/RunInfo/interface/LHCInfoPopConSourceHandler.h"
 #include "CondTools/RunInfo/interface/LumiSectionFilter.h"
 #include "CondTools/RunInfo/interface/OMSAccess.h"
@@ -159,7 +160,7 @@ size_t LHCInfoPopConSourceHandler::getLumiData(const cond::OMSService& oms,
   query->addOutputVars({"start_time", "delivered_lumi", "recorded_lumi"});
   query->filterEQ("fill_number", fillId);
   query->filterGT("start_time", beginFillTime).filterLT("start_time", endFillTime);
-  query->limit(kLumisectionsQueryLimit);
+  query->limit(cond::lhcInfoHelper::kLumisectionsQueryLimit);
   size_t nlumi = 0;
   if (query->execute()) {
     auto res = query->result();
