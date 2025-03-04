@@ -37,5 +37,8 @@
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigi.h"
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h"
 
+#include "DataFormats/GEMDigi/interface/ME0Stub.h"
+#include "DataFormats/GEMDigi/interface/ME0StubCollection.h"
+
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
