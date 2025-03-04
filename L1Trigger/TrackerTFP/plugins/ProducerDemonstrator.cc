@@ -13,7 +13,8 @@ using namespace tt;
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerDemonstrator
-   *  \brief  Class to demontrate correctness of track trigger emulators
+   *  \brief  ESProducer providing the algorithm to run input data through modelsim
+   *          and to compares results with expected output data
    *  \author Thomas Schuh
    *  \date   2020, Nov
    */
@@ -21,19 +22,23 @@ namespace trackerTFP {
   public:
     ProducerDemonstrator(const ParameterSet& iConfig);
     ~ProducerDemonstrator() override {}
-    unique_ptr<Demonstrator> produce(const DemonstratorRcd& rcd);
+    unique_ptr<Demonstrator> produce(const SetupRcd& rcd);
 
   private:
-    const ParameterSet iConfig_;
+    Demonstrator::Config iConfig_;
     ESGetToken<Setup, SetupRcd> esGetToken_;
   };
 
-  ProducerDemonstrator::ProducerDemonstrator(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerDemonstrator::ProducerDemonstrator(const ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
+    iConfig_.dirIPBB_ = iConfig.getParameter<string>("DirIPBB");
+    iConfig_.runTime_ = iConfig.getParameter<double>("RunTime");
+    iConfig_.linkMappingIn_ = iConfig.getParameter<vector<int>>("LinkMappingIn");
+    iConfig_.linkMappingOut_ = iConfig.getParameter<vector<int>>("LinkMappingOut");
   }
 
-  unique_ptr<Demonstrator> ProducerDemonstrator::produce(const DemonstratorRcd& rcd) {
+  unique_ptr<Demonstrator> ProducerDemonstrator::produce(const SetupRcd& rcd) {
     const Setup* setup = &rcd.get(esGetToken_);
     return make_unique<Demonstrator>(iConfig_, setup);
   }

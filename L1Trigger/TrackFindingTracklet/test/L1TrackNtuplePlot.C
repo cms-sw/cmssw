@@ -54,7 +54,7 @@ void L1TrackNtuplePlot(TString type,
                        float TP_minPt = 2.0,
                        float TP_maxPt = 100.0,
                        float TP_maxEta = 2.4,
-                       float TP_maxDxy = 1.0,
+                       float TP_maxLxy = 1.0,
                        float TP_maxD0 = 1.0,
                        bool doDetailedPlots = false) {
   // type:              this is the name of the input file you want to process (minus ".root" extension)
@@ -68,7 +68,7 @@ void L1TrackNtuplePlot(TString type,
 
   // TP_select_injet: only look at TPs that are within a jet with pt > 30 GeV (==1) or within a jet with pt > 100 GeV (==2), >200 GeV (==3) or all TPs (==0)
 
-  //--  N.B. For standard displaced tracking plots, set TP_minPt=3.0, TP_maxEta=2.0, TP_maxDxy=10.0,
+  //--  N.B. For standard displaced tracking plots, set TP_minPt=3.0, TP_maxEta=2.0, TP_maxLxy=10.0,
   //--  TO_maxD0=10.0, doDetailedPlots=true. (Efficiency plots vs eta also usually made for d0 < 5).
 
   gROOT->SetBatch();
@@ -148,7 +148,7 @@ void L1TrackNtuplePlot(TString type,
   vector<float>* tp_pt;
   vector<float>* tp_eta;
   vector<float>* tp_phi;
-  vector<float>* tp_dxy;
+  vector<float>* tp_lxy;
   vector<float>* tp_z0;
   vector<float>* tp_d0;
   vector<int>* tp_pdgid;
@@ -206,7 +206,7 @@ void L1TrackNtuplePlot(TString type,
   TBranch* b_tp_pt;
   TBranch* b_tp_eta;
   TBranch* b_tp_phi;
-  TBranch* b_tp_dxy;
+  TBranch* b_tp_lxy;
   TBranch* b_tp_z0;
   TBranch* b_tp_d0;
   TBranch* b_tp_pdgid;
@@ -262,7 +262,7 @@ void L1TrackNtuplePlot(TString type,
   tp_pt = 0;
   tp_eta = 0;
   tp_phi = 0;
-  tp_dxy = 0;
+  tp_lxy = 0;
   tp_z0 = 0;
   tp_d0 = 0;
   tp_pdgid = 0;
@@ -318,7 +318,7 @@ void L1TrackNtuplePlot(TString type,
   tree->SetBranchAddress("tp_pt", &tp_pt, &b_tp_pt);
   tree->SetBranchAddress("tp_eta", &tp_eta, &b_tp_eta);
   tree->SetBranchAddress("tp_phi", &tp_phi, &b_tp_phi);
-  tree->SetBranchAddress("tp_dxy", &tp_dxy, &b_tp_dxy);
+  tree->SetBranchAddress("tp_lxy", &tp_lxy, &b_tp_lxy);
   tree->SetBranchAddress("tp_z0", &tp_z0, &b_tp_z0);
   tree->SetBranchAddress("tp_d0", &tp_d0, &b_tp_d0);
   tree->SetBranchAddress("tp_pdgid", &tp_pdgid, &b_tp_pdgid);
@@ -1240,7 +1240,7 @@ void L1TrackNtuplePlot(TString type,
       }
 
       // kinematic cuts
-      if (std::abs(tp_dxy->at(it)) > TP_maxDxy)
+      if (std::abs(tp_lxy->at(it)) > TP_maxLxy)
         continue;
       if (std::abs(tp_d0->at(it)) > TP_maxD0)
         continue;
