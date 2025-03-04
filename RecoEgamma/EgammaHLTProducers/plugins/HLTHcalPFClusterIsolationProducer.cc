@@ -214,13 +214,10 @@ void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid,
         }
       }
       if (doEffAreaCorrection_) {
-        if (rho > effectiveAreasThres_[iEA]) {
-          sum = sum - rho * (1 + effectiveAreasCorr_[iEA]) * effectiveAreas_[iEA];
-        } else {
-          sum = sum - rho * effectiveAreas_[iEA];
-        }
+        float correction = (rho > effectiveAreasThres_[iEA]) ? (1 + effectiveAreasCorr_[iEA]) : 1;
+        sum -= rho * correction * effectiveAreas_[iEA];
       } else {
-        sum = sum - rho * effectiveAreas_[iEA];
+        sum -= rho * effectiveAreas_[iEA];
       }
     }
 
