@@ -334,6 +334,66 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
   doublet.setAlive();
 }
 
+// function that fills all histograms for cut variables
+template <typename TrackerTraits>
+void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
+    bool passed,
+    int const layerPairIdIndex,
+    simdoublets::CellCutVariables const& cellCutVariables,
+    simdoublets::ClusterSizeCutManager const& clusterSizeCutManager) {
+  // -------------------------------------------------------------------------
+  //  layer pair independent cuts (global folder)
+  // -------------------------------------------------------------------------
+  // radius of the circle defined by the two RecHits and the beamspot
+  h_curvatureR_.fill(passed, cellCutVariables.curvature());
+  // pT that this curvature radius corresponds to
+  h_pTFromR_.fill(passed, cellCutVariables.pT());
+  // longitudinal impact parameter with respect to the beamspot
+  h_z0_.fill(passed, cellCutVariables.z0());
+
+  // -------------------------------------------------------------------------
+  //  layer pair dependent cuts (sub-folders for layer pairs)
+  // -------------------------------------------------------------------------
+  // dr = (outer_r - inner_r) histogram
+  hVector_dr_[layerPairIdIndex].fill(passed, cellCutVariables.dr());
+  // dphi histogram
+  hVector_dphi_[layerPairIdIndex].fill(passed, cellCutVariables.dphi());
+  hVector_idphi_[layerPairIdIndex].fill(passed, cellCutVariables.idphi());
+  // z of the inner RecHit histogram
+  hVector_innerZ_[layerPairIdIndex].fill(passed, cellCutVariables.inner_z());
+
+  // -------------------------------------------------------------------------
+  //  cluster size cuts (global + sub-folders for layer pairs)
+  // -------------------------------------------------------------------------
+  // cluster size in local y histogram
+  hVector_Ysize_[layerPairIdIndex].fill(passed, cellCutVariables.Ysize());
+  // histograms for clusterCut
+  // YsizeB1 cut
+  if (clusterSizeCutManager.isSubjectToYsizeB1()) {
+    h_YsizeB1_.fill(passed, cellCutVariables.Ysize());
+  }
+  // YsizeB2 cut
+  if (clusterSizeCutManager.isSubjectToYsizeB2()) {
+    h_YsizeB2_.fill(passed, cellCutVariables.Ysize());
+  }
+  // histograms for zSizeCut
+  // DYsize12 cut
+  if (clusterSizeCutManager.isSubjectToDYsize12()) {
+    hVector_DYsize_[layerPairIdIndex].fill(passed, cellCutVariables.DYsize());
+    h_DYsize12_.fill(passed, cellCutVariables.DYsize());
+  }
+  // DYsize cut
+  if (clusterSizeCutManager.isSubjectToDYsize()) {
+    hVector_DYsize_[layerPairIdIndex].fill(passed, cellCutVariables.DYsize());
+    h_DYsize_.fill(passed, cellCutVariables.DYsize());
+  }
+  // DYPred cut
+  if (clusterSizeCutManager.isSubjectToDYPred()) {
+    hVector_DYPred_[layerPairIdIndex].fill(passed, cellCutVariables.DYPred());
+    h_DYPred_.fill(passed, cellCutVariables.DYPred());
+  }
+}
+
 // main function that fills the histograms
 template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -397,59 +457,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
         passed = doublet.isAlive();  // true if doublet passed
 
         // -------------------------------------------------------------------------
-        //  layer pair dependent cuts (sub-folders for layer pairs)
+        //  cut histograms for SimDoublets (cutParameters folder)
         // -------------------------------------------------------------------------
-
-        // dr = (outer_r - inner_r) histogram
-        hVector_dr_[layerPairIdIndex].fill(passed, cellCutVariables.dr());
-        // dphi histogram
-        hVector_dphi_[layerPairIdIndex].fill(passed, cellCutVariables.dphi());
-        hVector_idphi_[layerPairIdIndex].fill(passed, cellCutVariables.idphi());
-        // z of the inner RecHit histogram
-        hVector_innerZ_[layerPairIdIndex].fill(passed, cellCutVariables.inner_z());
-
-        // -------------------------------------------------------------------------
-        //  cluster size cuts (global + sub-folders for layer pairs)
-        // -------------------------------------------------------------------------
-
-        // cluster size in local y histogram
-        hVector_Ysize_[layerPairIdIndex].fill(passed, cellCutVariables.Ysize());
-
-        // histograms for clusterCut
-        // YsizeB1 cut
-        if (clusterSizeCutManager.isSubjectToYsizeB1()) {
-          h_YsizeB1_.fill(passed, cellCutVariables.Ysize());
-        }
-        // YsizeB2 cut
-        if (clusterSizeCutManager.isSubjectToYsizeB2()) {
-          h_YsizeB2_.fill(passed, cellCutVariables.Ysize());
-        }
-
-        // histograms for zSizeCut
-        // DYsize12 cut
-        if (clusterSizeCutManager.isSubjectToDYsize12()) {
-          hVector_DYsize_[layerPairIdIndex].fill(passed, cellCutVariables.DYsize());
-          h_DYsize12_.fill(passed, cellCutVariables.DYsize());
-        }
-        // DYsize cut
-        if (clusterSizeCutManager.isSubjectToDYsize()) {
-          hVector_DYsize_[layerPairIdIndex].fill(passed, cellCutVariables.DYsize());
-          h_DYsize_.fill(passed, cellCutVariables.DYsize());
-        }
-        // DYPred cut
-        if (clusterSizeCutManager.isSubjectToDYPred()) {
-          hVector_DYPred_[layerPairIdIndex].fill(passed, cellCutVariables.DYPred());
-          h_DYPred_.fill(passed, cellCutVariables.DYPred());
-        }
-
-        // -------------------------------------------------------------------------
-        //  general histograms for SimDoublets (general folder)
-        // -------------------------------------------------------------------------
-
-        // fill the number histograms
-        // histogram of all valid doublets
-        h_numVsPt_.fill(passed, true_pT);
-        h_numVsEta_.fill(passed, true_eta);
+        fillCutHistograms(passed, layerPairIdIndex, cellCutVariables, clusterSizeCutManager);
 
       } else {
         // if not considered set the doublet as killed
@@ -458,24 +468,15 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       }
 
       // ---------------------------------------------------------------------------
-      //  more general plots (general folder)
+      //  general plots related to SimDoublets (general folder)
       // ---------------------------------------------------------------------------
-
+      // fill histograms for SimDoublet numbers
+      h_numVsPt_.fill(passed, true_pT);
+      h_numVsEta_.fill(passed, true_eta);
       // layer pair combinations
       h_layerPairs_.fill(passed, doublet.innerLayerId(), doublet.outerLayerId());
       // number of skipped layers by SimDoublets
       h_numSkippedLayers_.fill(passed, doublet.numSkippedLayers());
-
-      // ---------------------------------------------------------------------------
-      //  layer pair independent cuts (global folder)
-      // ---------------------------------------------------------------------------
-
-      // radius of the circle defined by the two RecHits and the beamspot
-      h_curvatureR_.fill(passed, cellCutVariables.curvature());
-      // pT that this curvature radius corresponds to
-      h_pTFromR_.fill(passed, cellCutVariables.pT());
-      // longitudinal impact parameter with respect to the beamspot
-      h_z0_.fill(passed, cellCutVariables.z0());
 
       // if the doublet passes all cuts
       if (passed) {
@@ -490,10 +491,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     // -----------------------------------------------------------------------------
     //  general plots related to TrackingParticles (general folder)
     // -----------------------------------------------------------------------------
-
     // Now check if the TrackingParticle is reconstructable by at least two conencted SimDoublets surviving the cuts
     passedTP = simdoublets::haveCommonElement<SiPixelRecHitRef>(innerRecHitsPassing, outerRecHitsPassing);
-
     // fill histograms for number of SimDoublets
     h_numSimDoubletsPerTrackingParticle_.fill(passedTP, numSimDoublets);
     h_numLayersPerTrackingParticle_.fill(passedTP, simDoublets.numLayers());
