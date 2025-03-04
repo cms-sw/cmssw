@@ -28,7 +28,6 @@
  */
 
 #include <cstring>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -50,6 +49,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 namespace edmtest {
 
@@ -136,16 +136,45 @@ namespace edmtest {
       event.getByToken(product.getToken_, handle);
       edm::WrapperBase const* wrapper = handle.product();
 
-      // write the wrapper into a TBuffer
-      TBufferFile buffer(TBuffer::kWrite);
-      product.wrappedType_.getClass()->Streamer(const_cast<edm::WrapperBase*>(wrapper), buffer);
-
-      // read back a copy of the product form the TBuffer
-      buffer.SetReadMode();
-      buffer.SetBufferOffset(0);
       std::unique_ptr<edm::WrapperBase> clone(
           reinterpret_cast<edm::WrapperBase*>(product.wrappedType_.getClass()->New()));
-      product.wrappedType_.getClass()->Streamer(clone.get(), buffer);
+
+      if (wrapper->hasTrivialCopyTraits()) {
+        // Use the trivialCopy traits to clone the wrapped object.
+
+        // mark the clone as present
+        clone->markAsPresent();
+
+        // initialise the clone, if the type requires it
+        if (wrapper->hasTrivialCopyProperties()) {
+          clone->trivialCopyInitialize(wrapper->trivialCopyParameters());
+        }
+
+        // copy the source regions to the target
+        auto sources = wrapper->trivialCopyRegions();
+        auto targets = clone->trivialCopyRegions();
+        assert(sources.size() == targets.size());
+        for (size_t i = 0; i < sources.size(); ++i) {
+          assert(sources[i].data() != nullptr);
+          assert(targets[i].data() != nullptr);
+          assert(targets[i].size_bytes() == sources[i].size_bytes());
+          std::memcpy(targets[i].data(), sources[i].data(), sources[i].size_bytes());
+        }
+
+        // finalize the clone after the trivialCopy, if the type requires it
+        clone->trivialCopyFinalize();
+      } else {
+        // Use ROOT-based serialisation and deserialisation to clone the wrapped object.
+
+        // write the wrapper into a TBuffer
+        TBufferFile buffer(TBuffer::kWrite);
+        product.wrappedType_.getClass()->Streamer(const_cast<edm::WrapperBase*>(wrapper), buffer);
+
+        // read back a copy of the product form the TBuffer
+        buffer.SetReadMode();
+        buffer.SetBufferOffset(0);
+        product.wrappedType_.getClass()->Streamer(clone.get(), buffer);
+      }
 
       // move the wrapper into the Event
       event.put(product.putToken_, std::move(clone));
