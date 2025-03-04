@@ -21,15 +21,11 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
   vector<DetLayer*> result[2];  // one for each endcap
 
   const int mtdTopologyMode = topo.getMTDTopologyMode();
-  ETLDetId::EtlLayout etlL = MTDTopologyMode::etlLayoutFromTopoMode(mtdTopologyMode);
+  MTDTopologyMode::EtlLayout etlL = MTDTopologyMode::etlLayoutFromTopoMode(mtdTopologyMode);
   // number of layers is identical for post TDR scenarios, pick v4
   // loop on number of sectors per face, two faces per disc (i.e. layer) taken into account in layer building (front/back)
   unsigned int nSector(1);
-  if (etlL == ETLDetId::EtlLayout::v4) {
-    nSector *= ETLDetId::kETLv4maxSector;
-  } else if (etlL == ETLDetId::EtlLayout::v5) {
-    nSector *= ETLDetId::kETLv5maxSector;
-  } else if (etlL == ETLDetId::EtlLayout::v8) {
+  if (etlL == MTDTopologyMode::EtlLayout::v5 || etlL == MTDTopologyMode::EtlLayout::v8) {
     nSector *= ETLDetId::kETLv5maxSector;
   } else {
     throw cms::Exception("MTDDetLayers") << "Not implemented scenario " << mtdTopologyMode;

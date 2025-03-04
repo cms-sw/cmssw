@@ -59,8 +59,8 @@ bool MTDParametersFromDD::build(const DDCompactView* cvp, PMTDParameters& ptp) {
     throw cms::Exception("MTDParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
 
-  if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == ETLDetId::EtlLayout::v5 ||
-      MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == ETLDetId::EtlLayout::v8) {
+  if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v5 ||
+      MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v8) {
     std::array<std::string, 8> etlLayout{{
         "StartCopyNo_Front_Left",
         "StartCopyNo_Front_Right",
@@ -134,8 +134,8 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
     throw cms::Exception("MTDParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
 
-  if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == ETLDetId::EtlLayout::v5 ||
-      MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == ETLDetId::EtlLayout::v8) {
+  if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v5 ||
+      MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v8) {
     std::array<std::string, 8> etlLayout{{
         "StartCopyNo_Front_Left",
         "StartCopyNo_Front_Right",
