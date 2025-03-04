@@ -67,6 +67,10 @@ private:
   const double rhoScale_;
   const std::vector<double> effectiveAreas_;
   const std::vector<double> absEtaLowEdges_;
+
+  const bool doEffAreaCorrection_;
+  const std::vector<double> effectiveAreasCorr_;
+  const std::vector<double> effectiveAreasThres_;
 };
 
 template <typename T1>
@@ -91,7 +95,10 @@ HLTHcalPFClusterIsolationProducer<T1>::HLTHcalPFClusterIsolationProducer(const e
       rhoMax_(config.getParameter<double>("rhoMax")),
       rhoScale_(config.getParameter<double>("rhoScale")),
       effectiveAreas_(config.getParameter<std::vector<double>>("effectiveAreas")),
-      absEtaLowEdges_(config.getParameter<std::vector<double>>("absEtaLowEdges")) {
+      absEtaLowEdges_(config.getParameter<std::vector<double>>("absEtaLowEdges")),
+      doEffAreaCorrection_(config.getParameter<bool>("doEffAreaCorrection")),
+      effectiveAreasCorr_(config.getParameter<std::vector<double>>("effectiveAreasCorr")),
+      effectiveAreasThres_(config.getParameter<std::vector<double>>("effectiveAreasThres")){
   if (doRhoCorrection_) {
     if (absEtaLowEdges_.size() != effectiveAreas_.size())
       throw cms::Exception("IncompatibleVects") << "absEtaLowEdges and effectiveAreas should be of the same size. \n";
@@ -149,6 +156,9 @@ void HLTHcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
   desc.add<bool>("useEt", true);
   desc.add<std::vector<double>>("effectiveAreas", {0.2, 0.25});   // 2016 post-ichep sinEle default
   desc.add<std::vector<double>>("absEtaLowEdges", {0.0, 1.479});  // Barrel, Endcap
+  desc.add<bool>("doEffAreaCorrection", false);
+  desc.add<std::vector<double>>("effectiveAreasCorr", {0.0, 0.0});
+  desc.add<std::vector<double>>("effectiveAreasThres", {0.0, 0.0});
   descriptions.add(defaultModuleLabel<HLTHcalPFClusterIsolationProducer<T1>>(), desc);
 }
 
@@ -177,7 +187,6 @@ void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid,
 
   iEvent.getByToken(recoCandidateProducer_, recoCandHandle);
   iEvent.getByToken(pfClusterProducerHCAL_, clusterHcalHandle);
-  //const reco::PFClusterCollection* forIsolationHcal = clusterHcalHandle.product();
   clusterHandles.push_back(clusterHcalHandle);
 
   if (useHF_) {
@@ -193,7 +202,6 @@ void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid,
 
   for (unsigned int iReco = 0; iReco < recoCandHandle->size(); iReco++) {
     T1Ref candRef(recoCandHandle, iReco);
-
     float sum = isoAlgo.getSum(candRef, clusterHandles);
 
     if (doRhoCorrection_) {
@@ -205,9 +213,17 @@ void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid,
           break;
         }
       }
-      sum = sum - rho * effectiveAreas_[iEA];
+      if (doEffAreaCorrection_){
+	if (rho>effectiveAreasThres_[iEA]){
+	  sum = sum - rho * (1 + effectiveAreasCorr_[iEA]) * effectiveAreas_[iEA];
+	}else{
+	  sum = sum - rho * effectiveAreas_[iEA];
+	}
+      }else{	
+	sum = sum - rho * effectiveAreas_[iEA];
+      }
     }
-
+    
     recoCandMap.insert(candRef, sum);
   }
 
