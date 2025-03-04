@@ -2,12 +2,15 @@
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 #include <boost/crc.hpp>
 #include <vector>
-#include <algorithm>
 #include <iostream>
 //
 //
 
 bool hgcal::econdCRCAnalysis(const uint64_t *header, const uint32_t pos, const uint32_t payloadLength) {
+  //there needs to be at least the CRC word otherwise it can't be checked
+  if (payloadLength == 0)
+    return false;
+
   int index = 0;
   std::vector<uint32_t> data32b;  //  reading 32-bit words, input is 64b
 
