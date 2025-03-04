@@ -3,10 +3,11 @@
 #include <vector>
 
 // CMSSW include files
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/BranchPattern.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
+#include "DataFormats/Provenance/interface/ProductNamePattern.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/GenericHandle.h"
+#include "FWCore/Framework/interface/WrapperBaseHandle.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,7 +24,7 @@ public:
   MPISender(edm::ParameterSet const& config)
       : upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
         token_(produces<MPIToken>()),
-        patterns_(edm::branchPatterns(config.getParameter<std::vector<std::string>>("products"))),
+        patterns_(edm::productPatterns(config.getParameter<std::vector<std::string>>("products"))),
         instance_(config.getParameter<int32_t>("instance"))  //
   {
     // instance 0 is reserved for the MPIController / MPISource pair
@@ -34,28 +35,30 @@ public:
 
     products_.reserve(patterns_.size());
 
-    callWhenNewProductsRegistered([this](edm::BranchDescription const& branch) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const& product) {
       static const std::string_view kPathStatus("edm::PathStatus");
       static const std::string_view kEndPathStatus("edm::EndPathStatus");
 
-      switch (branch.branchType()) {
+      switch (product.branchType()) {
         case edm::InEvent:
-          if (branch.className() == kPathStatus or branch.className() == kEndPathStatus)
+          if (product.className() == kPathStatus or product.className() == kEndPathStatus)
             return;
           for (auto const& pattern : patterns_) {
-            if (pattern.match(branch)) {
+            if (pattern.match(product)) {
               Entry entry;
-              entry.type = branch.unwrappedType();
+              entry.type = product.unwrappedType();
+              entry.wrappedType = product.wrappedType();
               // TODO move this to EDConsumerBase::consumes() ?
               entry.token = this->consumes(
-                  edm::TypeToGet{branch.unwrappedTypeID(), edm::PRODUCT_TYPE},
-                  edm::InputTag{branch.moduleLabel(), branch.productInstanceName(), branch.processName()});
-              products_.push_back(entry);
-              //
-              edm::LogAbsolute("MPISender")
-                  << "send branch \"" << branch.friendlyClassName() << '_' << branch.moduleLabel() << '_'
-                  << branch.productInstanceName() << '_' << branch.processName() << "\" of type \"" << entry.type.name()
-                  << "\" over MPI channel instance " << instance_;
+                  edm::TypeToGet{product.unwrappedTypeID(), edm::PRODUCT_TYPE},
+                  edm::InputTag{product.moduleLabel(), product.productInstanceName(), product.processName()});
+
+              edm::LogVerbatim("MPISender")
+                  << "send product \"" << product.friendlyClassName() << '_' << product.moduleLabel() << '_'
+                  << product.productInstanceName() << '_' << product.processName() << "\" of type \""
+                  << entry.type.name() << "\" over MPI channel instance " << instance_;
+
+              products_.emplace_back(std::move(entry));
               break;
             }
           }
@@ -69,7 +72,7 @@ public:
 
         default:
           throw edm::Exception(edm::errors::LogicError)
-              << "Unexpected branch type " << branch.branchType() << "\nPlease contact a Framework developer\n";
+              << "Unexpected branch type " << product.branchType() << "\nPlease contact a Framework developer\n";
       }
     });
 
@@ -82,15 +85,15 @@ public:
 
     int numProducts = static_cast<int>(products_.size());
     token.channel()->sendProduct(instance_, numProducts);
-    
-    for (auto const& product : products_) {
+
+    for (auto const& entry : products_) {
       // read the products to be sent over the MPI channel
-      edm::GenericHandle handle(product.type);
-      event.getByToken(product.token, handle);
-      edm::ObjectWithDict const* object = handle.product();
+      edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
+      event.getByToken(entry.token, handle);
+      edm::WrapperBase const* wrapper = handle.product();
       // send the products over MPI
       // note: currently this uses a blocking send
-      token.channel()->sendProduct(instance_, *object);
+      token.channel()->sendProduct(instance_, entry.wrappedType, *wrapper);
     }
 
     // write a shallow copy of the channel to the output, so other modules can consume it
@@ -101,15 +104,16 @@ public:
 private:
   struct Entry {
     edm::TypeWithDict type;
+    edm::TypeWithDict wrappedType;
     edm::EDGetToken token;
   };
 
   // TODO consider if upstream_ should be a vector instead of a single token ?
   edm::EDGetTokenT<MPIToken> const upstream_;  // MPIToken used to establish the communication channel
-  edm::EDPutTokenT<MPIToken> const token_;    // copy of the MPIToken that may be used to implement an ordering relation
-  std::vector<edm::BranchPattern> patterns_;  // branches to read from the Event and send over the MPI channel
-  std::vector<Entry> products_;               // types and tokens corresponding to the branches
-  int32_t const instance_;                    // instance used to identify the source-destination pair
+  edm::EDPutTokenT<MPIToken> const token_;  // copy of the MPIToken that may be used to implement an ordering relation
+  std::vector<edm::ProductNamePattern> patterns_;  // branches to read from the Event and send over the MPI channel
+  std::vector<Entry> products_;                    // types and tokens corresponding to the branches
+  int32_t const instance_;                         // instance used to identify the source-destination pair
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
