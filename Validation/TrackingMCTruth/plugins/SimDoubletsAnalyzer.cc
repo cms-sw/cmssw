@@ -15,10 +15,133 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDoubletsAnalyzer.h"
 
 #include <cstddef>
 
 namespace simdoublets {
+  // class that calculate and stores all cut variables for a given doublet
+  struct CellCutVariables {
+    void calculateCutVariables(SimDoublets::Doublet const& doublet) {
+      // inner RecHit properties
+      inner_z_ = doublet.innerGlobalPos().z();
+      double inner_r = doublet.innerGlobalPos().perp();
+      double inner_phi = doublet.innerGlobalPos().barePhi();  // returns float, whereas .phi() returns phi object
+      int inner_iphi = unsafe_atan2s<7>(doublet.innerGlobalPos().y(), doublet.innerGlobalPos().x());
+      // outer RecHit properties
+      double outer_z = doublet.outerGlobalPos().z();
+      double outer_r = doublet.outerGlobalPos().perp();
+      double outer_phi = doublet.outerGlobalPos().barePhi();
+      int outer_iphi = unsafe_atan2s<7>(doublet.outerGlobalPos().y(), doublet.outerGlobalPos().x());
+
+      // relative properties
+      dz_ = outer_z - inner_z_;
+      dr_ = outer_r - inner_r;
+      dphi_ = reco::deltaPhi(inner_phi, outer_phi);
+      idphi_ = std::min(std::abs(int16_t(outer_iphi - inner_iphi)), std::abs(int16_t(inner_iphi - outer_iphi)));
+
+      // longitudinal impact parameter with respect to the beamspot
+      z0_ = std::abs(inner_r * outer_z - inner_z_ * outer_r) / dr_;
+
+      // radius of the circle defined by the two RecHits and the beamspot
+      curvature_ = 1.f / 2.f * std::sqrt((dr_ / dphi_) * (dr_ / dphi_) + (inner_r * outer_r));
+
+      // pT that this curvature radius corresponds to
+      pT_ = curvature_ / 87.78f;
+
+      // cluster size variables
+      Ysize_ = doublet.innerRecHit()->cluster()->sizeY();
+      DYsize_ = std::abs(Ysize_ - doublet.outerRecHit()->cluster()->sizeY());
+      DYPred_ = std::abs(Ysize_ - int(std::abs(dz_ / dr_) * pixelTopology::Phase2::dzdrFact + 0.5f));
+    }
+
+    // methods to get the cut variables
+    double inner_z() const { return inner_z_; }
+    double dz() const { return dz_; }
+    double dr() const { return dr_; }
+    double dphi() const { return dphi_; }
+    double z0() const { return z0_; }
+    double curvature() const { return curvature_; }
+    double pT() const { return pT_; }
+    int idphi() const { return idphi_; }
+    int Ysize() const { return Ysize_; }
+    int DYsize() const { return DYsize_; }
+    int DYPred() const { return DYPred_; }
+
+  private:
+    double inner_z_, dz_, dr_, dphi_, z0_, curvature_, pT_;  // double-valued variables
+    int idphi_, Ysize_, DYsize_, DYPred_;                    // integer-valued variables
+  };
+
+  // class to help keep track of which cluster size cuts are applied
+  struct ClusterSizeCutManager {
+    // flags indicating to which cluster size cuts the doublet is subject to
+    enum class CutStatusBit : uint8_t {
+      subjectToYsizeB1 = 1,
+      subjectToYsizeB2 = 1 << 1,
+      subjectToDYsize = 1 << 2,
+      subjectToDYsize12 = 1 << 3,
+      subjectToDYPred = 1 << 4
+    };
+
+    // reset to "not subject to any cut"
+    void reset() { status_ = 0; }
+
+    // set is subject to cuts...
+    void setSubjectToYsizeB1() { status_ |= uint8_t(CutStatusBit::subjectToYsizeB1); }
+    void setSubjectToYsizeB2() { status_ |= uint8_t(CutStatusBit::subjectToYsizeB2); }
+    void setSubjectToDYsize() { status_ |= uint8_t(CutStatusBit::subjectToDYsize); }
+    void setSubjectToDYsize12() { status_ |= uint8_t(CutStatusBit::subjectToDYsize12); }
+    void setSubjectToDYPred() { status_ |= uint8_t(CutStatusBit::subjectToDYPred); }
+
+    // check if is subject to cuts...
+    bool isSubjectToYsizeB1() const { return status_ & uint8_t(CutStatusBit::subjectToYsizeB1); }
+    bool isSubjectToYsizeB2() const { return status_ & uint8_t(CutStatusBit::subjectToYsizeB2); }
+    bool isSubjectToDYsize() const { return status_ & uint8_t(CutStatusBit::subjectToDYsize); }
+    bool isSubjectToDYsize12() const { return status_ & uint8_t(CutStatusBit::subjectToDYsize12); }
+    bool isSubjectToDYPred() const { return status_ & uint8_t(CutStatusBit::subjectToDYPred); }
+
+    // function that determines for a given doublet which cuts should be applied
+    void setSubjectsToCuts(SimDoublets::Doublet const& doublet) {
+      // determine the moduleId
+      const GeomDetUnit* geomDetUnit = doublet.innerRecHit()->det();
+      const uint32_t moduleId = geomDetUnit->index();
+
+      // define bools needed to decide on cutting parameters
+      const bool innerInB1 = (doublet.innerLayerId() == 0);
+      const bool innerInB2 = (doublet.innerLayerId() == 1);
+      const bool isOuterLadder = (0 == (moduleId / 8) % 2);  // check if this even makes sense in Phase-2
+      const bool innerInBarrel = (doublet.innerLayerId() < 4);
+      const bool outerInBarrel = (doublet.outerLayerId() < 4);
+
+      // YsizeB1 & YsizeB2 cuts
+      if (!outerInBarrel) {
+        if (innerInB1 && isOuterLadder) {
+          setSubjectToYsizeB1();
+        }
+        if (innerInB2) {
+          setSubjectToYsizeB2();
+        }
+      }
+
+      // DYsize, DYsizeB12 & DYPred cuts
+      if (innerInBarrel) {
+        if (outerInBarrel) {  // onlyBarrel
+          if (innerInB1 && isOuterLadder) {
+            setSubjectToDYsize12();
+          } else if (!innerInB1) {
+            setSubjectToDYsize();
+          }
+        } else {  // not onlyBarrel
+          setSubjectToDYPred();
+        }
+      }
+    }
+
+  private:
+    uint8_t status_{0};
+  };
+
   // helper function that takes the layerPairId and returns two strings with the
   // inner and outer layer id
   std::pair<std::string, std::string> getInnerOuterLayerNames(int const layerPairId) {
@@ -154,6 +277,65 @@ SimDoubletsAnalyzer<TrackerTraits>::~SimDoubletsAnalyzer() {}
 template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
 
+// function to apply cuts and set doublet to alive if it passes and to killed otherwise
+template <typename TrackerTraits>
+void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(SimDoublets::Doublet& doublet,
+                                                   int const layerPairIdIndex,
+                                                   simdoublets::CellCutVariables const& cellCutVariables,
+                                                   simdoublets::ClusterSizeCutManager const& clusterSizeCutManager) const {
+  // apply all cuts, break after the first cut that kills the doublet
+  // z window cut
+  if (cellCutVariables.inner_z() < cellMinz_[layerPairIdIndex] ||
+      cellCutVariables.inner_z() > cellMaxz_[layerPairIdIndex]) {
+    doublet.setKilled();
+    return;
+  }
+  // z0cutoff
+  if (cellCutVariables.dr() > cellMaxr_[layerPairIdIndex] || cellCutVariables.dr() < 0 ||
+      cellCutVariables.z0() > cellZ0Cut_) {
+    doublet.setKilled();
+    return;
+  }
+  // ptcut
+  if (cellCutVariables.pT() < cellPtCut_) {
+    doublet.setKilled();
+    return;
+  }
+  // iphicut
+  if (cellCutVariables.idphi() > cellPhiCuts_[layerPairIdIndex]) {
+    doublet.setKilled();
+    return;
+  }
+  // YsizeB1 cut
+  if (clusterSizeCutManager.isSubjectToYsizeB1() && (cellCutVariables.Ysize() < cellMinYSizeB1_)) {
+    doublet.setKilled();
+    return;
+  }
+  // YsizeB2 cut
+  if (clusterSizeCutManager.isSubjectToYsizeB2() && (cellCutVariables.Ysize() < cellMinYSizeB2_)) {
+    doublet.setKilled();
+    return;
+  }
+  // DYsize12 cut
+  if (clusterSizeCutManager.isSubjectToDYsize12() && (cellCutVariables.DYsize() > cellMaxDYSize12_)) {
+    doublet.setKilled();
+    return;
+  }
+  // DYsize cut
+  if (clusterSizeCutManager.isSubjectToDYsize() && (cellCutVariables.DYsize() > cellMaxDYSize_)) {
+    doublet.setKilled();
+    return;
+  }
+  // DYPred cut
+  if (clusterSizeCutManager.isSubjectToDYPred() && (cellCutVariables.DYPred() > cellMaxDYPred_)) {
+    doublet.setKilled();
+    return;
+  }
+
+  // if the function is still going, the doublet survived
+  doublet.setAlive();
+}
+
 template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -169,10 +351,14 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
   std::vector<SiPixelRecHitRef> outerRecHitsPassing;
 
   // initialize a bunch of variables that we will use in the coming for loops
-  double true_pT, true_eta, inner_r, inner_z, inner_phi, outer_r, outer_z, outer_phi, dz, dr, dphi, z0, curvature, pT;
-  int numSimDoublets, pass_numSimDoublets, inner_iphi, outer_iphi, idphi, layerPairId, layerPairIdIndex,
-      innerClusterSizeY;
-  bool doubletGetsCut, subjectToYsizeB1, subjectToYsizeB2, subjectToDYsize, subjectToDYsize12, subjectToDYPred;
+  double true_pT, true_eta;
+  int numSimDoublets, pass_numSimDoublets, layerPairId, layerPairIdIndex;
+
+  // initialize the manager for keeping track of which cluster cuts are applied to the inidividual doublets
+  simdoublets::ClusterSizeCutManager clusterSizeCutManager;
+
+  // initialize the structure holding the cut variables for an individual doublet
+  simdoublets::CellCutVariables cellCutVariables;
 
   // loop over SimDoublets (= loop over TrackingParticles)
   for (auto const& simDoublets : simDoubletsCollection) {
@@ -201,21 +387,12 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     outerRecHitsPassing.clear();
 
     // loop over those doublets
-    for (auto const& doublet : doublets) {
-      // RecHit properties
-      inner_r = doublet.innerGlobalPos().perp();
-      inner_z = doublet.innerGlobalPos().z();
-      inner_phi = doublet.innerGlobalPos().barePhi();  // returns float, whereas .phi() returns phi object
-      inner_iphi = unsafe_atan2s<7>(doublet.innerGlobalPos().y(), doublet.innerGlobalPos().x());
-      outer_r = doublet.outerGlobalPos().perp();
-      outer_z = doublet.outerGlobalPos().z();
-      outer_phi = doublet.outerGlobalPos().barePhi();
-      outer_iphi = unsafe_atan2s<7>(doublet.outerGlobalPos().y(), doublet.outerGlobalPos().x());
+    for (auto& doublet : doublets) {
+      // reset clusterSizeCutManager to "no cluster cuts applied"
+      clusterSizeCutManager.reset();
 
-      dz = outer_z - inner_z;
-      dr = outer_r - inner_r;
-      dphi = reco::deltaPhi(inner_phi, outer_phi);
-      idphi = std::min(std::abs(int16_t(outer_iphi - inner_iphi)), std::abs(int16_t(inner_iphi - outer_iphi)));
+      // calculate the cut variables for the given doublet
+      cellCutVariables.calculateCutVariables(doublet);
 
       // ----------------------------------------------------------
       // general plots (general folder)
@@ -232,16 +409,13 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       // ----------------------------------------------------------
 
       // longitudinal impact parameter with respect to the beamspot
-      z0 = std::abs(inner_r * outer_z - inner_z * outer_r) / dr;
-      h_z0_->Fill(z0);
+      h_z0_->Fill(cellCutVariables.z0());
 
       // radius of the circle defined by the two RecHits and the beamspot
-      curvature = 1.f / 2.f * std::sqrt((dr / dphi) * (dr / dphi) + (inner_r * outer_r));
-      h_curvatureR_->Fill(curvature);
+      h_curvatureR_->Fill(cellCutVariables.curvature());
 
       // pT that this curvature radius corresponds to
-      pT = curvature / 87.78f;
-      h_pTFromR_->Fill(pT);
+      h_pTFromR_->Fill(cellCutVariables.pT());
 
       // ----------------------------------------------------------
       // layer pair dependent cuts (sub-folders for layer pairs)
@@ -250,121 +424,62 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       // first, get layer pair Id and exclude layer pairs that are not considered
       layerPairId = doublet.layerPairId();
       if (layerPairId2Index_.find(layerPairId) == layerPairId2Index_.end()) {
+        // if not considered set the doublet as killed
+        doublet.setKilled();
         continue;
       }
 
       // get the position of the layer pair in the vectors of histograms
       layerPairIdIndex = layerPairId2Index_.at(layerPairId);
 
+      // determine which cluster size cuts the doublet is subject to
+      clusterSizeCutManager.setSubjectsToCuts(doublet);
+
+      // apply the cuts for doublet building according to the set cut values
+      applyCuts(doublet, layerPairIdIndex, cellCutVariables, clusterSizeCutManager);
+
       // dr = (outer_r - inner_r) histogram
-      hVector_dr_[layerPairIdIndex]->Fill(dr);
+      hVector_dr_[layerPairIdIndex]->Fill(cellCutVariables.dr());
 
       // dphi histogram
-      hVector_dphi_[layerPairIdIndex]->Fill(dphi);
-      hVector_idphi_[layerPairIdIndex]->Fill(idphi);
+      hVector_dphi_[layerPairIdIndex]->Fill(cellCutVariables.dphi());
+      hVector_idphi_[layerPairIdIndex]->Fill(cellCutVariables.idphi());
 
       // z of the inner RecHit histogram
-      hVector_innerZ_[layerPairIdIndex]->Fill(inner_z);
+      hVector_innerZ_[layerPairIdIndex]->Fill(cellCutVariables.inner_z());
 
       // ----------------------------------------------------------
       // cluster size cuts (global + sub-folders for layer pairs)
       // ----------------------------------------------------------
 
       // cluster size in local y histogram
-      innerClusterSizeY = doublet.innerRecHit()->cluster()->sizeY();
-      hVector_Ysize_[layerPairIdIndex]->Fill(innerClusterSizeY);
-
-      // create bool that indicates if the doublet gets cut
-      doubletGetsCut = false;
-      // create bools that trace if doublet is subject to any clsuter size cut
-      subjectToYsizeB1 = false;
-      subjectToYsizeB2 = false;
-      subjectToDYsize = false;
-      subjectToDYsize12 = false;
-      subjectToDYPred = false;
-
-      // apply all cuts that do not depend on the cluster size
-      // z window cut
-      if (inner_z < cellMinz_[layerPairIdIndex] || inner_z > cellMaxz_[layerPairIdIndex]) {
-        doubletGetsCut = true;
-      }
-      // z0cutoff
-      if (dr > cellMaxr_[layerPairIdIndex] || dr < 0 || z0 > cellZ0Cut_) {
-        doubletGetsCut = true;
-      }
-      // ptcut
-      if (pT < cellPtCut_) {
-        doubletGetsCut = true;
-      }
-      // iphicut
-      if (idphi > cellPhiCuts_[layerPairIdIndex]) {
-        doubletGetsCut = true;
-      }
-
-      // determine the moduleId
-      const GeomDetUnit* geomDetUnit = doublet.innerRecHit()->det();
-      const uint32_t moduleId = geomDetUnit->index();
-
-      // define bools needed to decide on cutting parameters
-      const bool innerInB1 = (doublet.innerLayerId() == 0);
-      const bool innerInB2 = (doublet.innerLayerId() == 1);
-      const bool isOuterLadder = (0 == (moduleId / 8) % 2);  // check if this even makes sense in Phase-2
-      const bool innerInBarrel = (doublet.innerLayerId() < 4);
-      const bool outerInBarrel = (doublet.outerLayerId() < 4);
+      hVector_Ysize_[layerPairIdIndex]->Fill(cellCutVariables.Ysize());
 
       // histograms for clusterCut
-      // cluster size in local y
-      if (!outerInBarrel) {
-        if (innerInB1 && isOuterLadder) {
-          subjectToYsizeB1 = true;
-          h_YsizeB1_->Fill(innerClusterSizeY);
-          // apply the cut
-          if (innerClusterSizeY < cellMinYSizeB1_) {
-            doubletGetsCut = true;
-          }
-        }
-        if (innerInB2) {
-          subjectToYsizeB2 = true;
-          h_YsizeB2_->Fill(innerClusterSizeY);
-          // apply the cut
-          if (innerClusterSizeY < cellMinYSizeB2_) {
-            doubletGetsCut = true;
-          }
-        }
+      // YsizeB1 cut
+      if (clusterSizeCutManager.isSubjectToYsizeB1()) {
+        h_YsizeB1_->Fill(cellCutVariables.Ysize());
+      }
+      // YsizeB2 cut
+      if (clusterSizeCutManager.isSubjectToYsizeB2()) {
+        h_YsizeB2_->Fill(cellCutVariables.Ysize());
       }
 
       // histograms for zSizeCut
-      int DYsize{0}, DYPred{0};
-      if (innerInBarrel) {
-        if (outerInBarrel) {  // onlyBarrel
-          DYsize = std::abs(innerClusterSizeY - doublet.outerRecHit()->cluster()->sizeY());
-          if (innerInB1 && isOuterLadder) {
-            subjectToDYsize12 = true;
-            hVector_DYsize_[layerPairIdIndex]->Fill(DYsize);
-            h_DYsize12_->Fill(DYsize);
-            // apply the cut
-            if (DYsize > cellMaxDYSize12_) {
-              doubletGetsCut = true;
-            }
-          } else if (!innerInB1) {
-            subjectToDYsize = true;
-            hVector_DYsize_[layerPairIdIndex]->Fill(DYsize);
-            h_DYsize_->Fill(DYsize);
-            // apply the cut
-            if (DYsize > cellMaxDYSize_) {
-              doubletGetsCut = true;
-            }
-          }
-        } else {  // not onlyBarrel
-          subjectToDYPred = true;
-          DYPred = std::abs(innerClusterSizeY - int(std::abs(dz / dr) * pixelTopology::Phase2::dzdrFact + 0.5f));
-          hVector_DYPred_[layerPairIdIndex]->Fill(DYPred);
-          h_DYPred_->Fill(DYPred);
-          // apply the cut
-          if (DYPred > cellMaxDYPred_) {
-            doubletGetsCut = true;
-          }
-        }
+      // DYsize12 cut
+      if (clusterSizeCutManager.isSubjectToDYsize12()) {
+        hVector_DYsize_[layerPairIdIndex]->Fill(cellCutVariables.DYsize());
+        h_DYsize12_->Fill(cellCutVariables.DYsize());
+      }
+      // DYsize cut
+      if (clusterSizeCutManager.isSubjectToDYsize()) {
+        hVector_DYsize_[layerPairIdIndex]->Fill(cellCutVariables.DYsize());
+        h_DYsize_->Fill(cellCutVariables.DYsize());
+      }
+      // DYPred cut
+      if (clusterSizeCutManager.isSubjectToDYPred()) {
+        hVector_DYPred_[layerPairIdIndex]->Fill(cellCutVariables.DYPred());
+        h_DYPred_->Fill(cellCutVariables.DYPred());
       }
 
       // ----------------------------------------------------------
@@ -377,7 +492,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       h_numVsEta_->Fill(true_eta);
 
       // if the doublet passes all cuts
-      if (!doubletGetsCut) {
+      if (doublet.isAlive()) {
         // increment number of SimDoublets passing all cuts
         pass_numSimDoublets++;
 
@@ -391,25 +506,25 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
         outerRecHitsPassing.push_back(doublet.outerRecHit());
 
         // fill pass_ histograms
-        h_pass_z0_->Fill(z0);
-        h_pass_pTFromR_->Fill(pT);
-        hVector_pass_dr_[layerPairIdIndex]->Fill(dr);
-        hVector_pass_idphi_[layerPairIdIndex]->Fill(idphi);
-        hVector_pass_innerZ_[layerPairIdIndex]->Fill(inner_z);
-        if (subjectToDYPred) {
-          h_pass_DYPred_->Fill(DYPred);
+        h_pass_z0_->Fill(cellCutVariables.z0());
+        h_pass_pTFromR_->Fill(cellCutVariables.pT());
+        hVector_pass_dr_[layerPairIdIndex]->Fill(cellCutVariables.dr());
+        hVector_pass_idphi_[layerPairIdIndex]->Fill(cellCutVariables.idphi());
+        hVector_pass_innerZ_[layerPairIdIndex]->Fill(cellCutVariables.inner_z());
+        if (clusterSizeCutManager.isSubjectToDYPred()) {
+          h_pass_DYPred_->Fill(cellCutVariables.DYPred());
         }
-        if (subjectToDYsize) {
-          h_pass_DYsize_->Fill(DYsize);
+        if (clusterSizeCutManager.isSubjectToDYsize()) {
+          h_pass_DYsize_->Fill(cellCutVariables.DYsize());
         }
-        if (subjectToDYsize12) {
-          h_pass_DYsize12_->Fill(DYsize);
+        if (clusterSizeCutManager.isSubjectToDYsize12()) {
+          h_pass_DYsize12_->Fill(cellCutVariables.DYsize());
         }
-        if (subjectToYsizeB1) {
-          h_pass_YsizeB1_->Fill(innerClusterSizeY);
+        if (clusterSizeCutManager.isSubjectToYsizeB1()) {
+          h_pass_YsizeB1_->Fill(cellCutVariables.Ysize());
         }
-        if (subjectToYsizeB2) {
-          h_pass_YsizeB2_->Fill(innerClusterSizeY);
+        if (clusterSizeCutManager.isSubjectToYsizeB2()) {
+          h_pass_YsizeB2_->Fill(cellCutVariables.Ysize());
         }
       }
     }  // end loop over those doublets

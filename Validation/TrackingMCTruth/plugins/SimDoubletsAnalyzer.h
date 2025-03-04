@@ -53,6 +53,11 @@
 #include <string>
 #include <map>
 
+namespace simdoublets {
+  struct CellCutVariables;
+  struct ClusterSizeCutManager;
+}  // namespace simdoublets
+
 // -------------------------------------------------------------------------------------------------------------
 // class declaration
 // -------------------------------------------------------------------------------------------------------------
@@ -70,6 +75,12 @@ private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  // function to apply cuts and set doublet to alive if it passes and to killed otherwise
+  void applyCuts(SimDoublets::Doublet&,
+                 int const,
+                 simdoublets::CellCutVariables const&,
+                 simdoublets::ClusterSizeCutManager const&) const;
 
   // ------------ member data ------------
 
