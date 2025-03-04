@@ -56,6 +56,7 @@
 namespace simdoublets {
   struct CellCutVariables;
   struct ClusterSizeCutManager;
+  void BinLogX(TH1*);
 }  // namespace simdoublets
 
 // -------------------------------------------------------------------------------------------------------------
@@ -70,6 +71,65 @@ public:
 
   void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  // this is simply a little helper to allow us to book histograms easier
+  // it automatically books both a pass and tot histogram and allows us to fill them easily
+  class CoupledMonitorElement {
+  public:
+    CoupledMonitorElement() {}
+    ~CoupledMonitorElement() {}
+
+    template <typename... Args>
+    void fill(const bool pass, Args... args) {
+      if (pass)
+        h_pass_->Fill(args...);
+      h_total_->Fill(args...);
+    }
+
+    template <typename... Args>
+    void book1D(DQMStore::IBooker& ibooker,
+                const std::string& name,
+                const std::string& title,
+                const std::string& xlabel,
+                const std::string& ylabel,
+                Args... args) {
+      const std::string& xylabels = "; " + xlabel + "; " + ylabel;
+      h_pass_ = ibooker.book1D("pass_" + name, title + " (pass)" + xylabels, args...);
+      h_total_ = ibooker.book1D(name, title + " (all)" + xylabels, args...);
+    }
+
+    template <typename... Args>
+    void book2D(DQMStore::IBooker& ibooker,
+                const std::string& name,
+                const std::string& title,
+                const std::string& xlabel,
+                const std::string& ylabel,
+                Args... args) {
+      const std::string& xylabels = "; " + xlabel + "; " + ylabel;
+      h_pass_ = ibooker.book2D("pass_" + name, title + " (pass)" + xylabels, args...);
+      h_total_ = ibooker.book2D(name, title + " (all)" + xylabels, args...);
+    }
+
+    template <typename... Args>
+    void book1DLogX(DQMStore::IBooker& ibooker,
+                    const std::string& name,
+                    const std::string& title,
+                    const std::string& xlabel,
+                    const std::string& ylabel,
+                    Args&&... args) {
+      const std::string& xylabels = "; " + xlabel + "; " + ylabel;
+      auto hp = std::make_unique<TH1F>(("pass_" + name).c_str(), (title + " (pass)" + xylabels).c_str(), std::forward<Args>(args)...);
+      auto ht = std::make_unique<TH1F>(name.c_str(), (title + " (all)" + xylabels).c_str(), std::forward<Args>(args)...);
+      simdoublets::BinLogX(hp.get());
+      simdoublets::BinLogX(ht.get());
+      h_pass_ = ibooker.book1D("pass_" + name, hp.release());
+      h_total_ = ibooker.book1D(name, ht.release());
+    }
+
+  private:
+    MonitorElement* h_pass_ = nullptr;
+    MonitorElement* h_total_ = nullptr;
+  };
 
 private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -111,46 +171,32 @@ private:
   // profiles to be filled
   MonitorElement* h_effSimDoubletsPerTPVsPt_;
   MonitorElement* h_effSimDoubletsPerTPVsEta_;
-  // histograms to be filled
-  MonitorElement* h_layerPairs_;
-  MonitorElement* h_numSkippedLayers_;
-  MonitorElement* h_numSimDoubletsPerTrackingParticle_;
-  MonitorElement* h_numLayersPerTrackingParticle_;
-  MonitorElement* h_numTPVsPt_;
-  MonitorElement* h_pass_numTPVsPt_;
-  MonitorElement* h_numTPVsEta_;
-  MonitorElement* h_pass_numTPVsEta_;
-  MonitorElement* h_numVsPt_;
-  MonitorElement* h_pass_numVsPt_;
-  MonitorElement* h_numVsEta_;
-  MonitorElement* h_pass_numVsEta_;
-  MonitorElement* h_z0_;
-  MonitorElement* h_curvatureR_;
-  MonitorElement* h_pTFromR_;
-  MonitorElement* h_YsizeB1_;
-  MonitorElement* h_YsizeB2_;
-  MonitorElement* h_DYsize12_;
-  MonitorElement* h_DYsize_;
-  MonitorElement* h_DYPred_;
-  MonitorElement* h_pass_layerPairs_;
-  MonitorElement* h_pass_z0_;
-  MonitorElement* h_pass_pTFromR_;
-  MonitorElement* h_pass_YsizeB1_;
-  MonitorElement* h_pass_YsizeB2_;
-  MonitorElement* h_pass_DYsize12_;
-  MonitorElement* h_pass_DYsize_;
-  MonitorElement* h_pass_DYPred_;
+  // histograms of TrackingParticles
+  CoupledMonitorElement h_numTPVsPt_;
+  CoupledMonitorElement h_numTPVsEta_;
+  // histograms of SimDoublets
+  CoupledMonitorElement h_layerPairs_;
+  CoupledMonitorElement h_numSkippedLayers_;
+  CoupledMonitorElement h_numSimDoubletsPerTrackingParticle_;
+  CoupledMonitorElement h_numLayersPerTrackingParticle_;
+  CoupledMonitorElement h_numVsPt_;
+  CoupledMonitorElement h_numVsEta_;
+  CoupledMonitorElement h_z0_;
+  CoupledMonitorElement h_curvatureR_;
+  CoupledMonitorElement h_pTFromR_;
+  CoupledMonitorElement h_YsizeB1_;
+  CoupledMonitorElement h_YsizeB2_;
+  CoupledMonitorElement h_DYsize12_;
+  CoupledMonitorElement h_DYsize_;
+  CoupledMonitorElement h_DYPred_;
   // vectors of histograms (one hist per layer pair)
-  std::vector<MonitorElement*> hVector_dr_;
-  std::vector<MonitorElement*> hVector_dphi_;
-  std::vector<MonitorElement*> hVector_idphi_;
-  std::vector<MonitorElement*> hVector_innerZ_;
-  std::vector<MonitorElement*> hVector_Ysize_;
-  std::vector<MonitorElement*> hVector_DYsize_;
-  std::vector<MonitorElement*> hVector_DYPred_;
-  std::vector<MonitorElement*> hVector_pass_dr_;
-  std::vector<MonitorElement*> hVector_pass_idphi_;
-  std::vector<MonitorElement*> hVector_pass_innerZ_;
+  std::vector<CoupledMonitorElement> hVector_dr_;
+  std::vector<CoupledMonitorElement> hVector_dphi_;
+  std::vector<CoupledMonitorElement> hVector_idphi_;
+  std::vector<CoupledMonitorElement> hVector_innerZ_;
+  std::vector<CoupledMonitorElement> hVector_Ysize_;
+  std::vector<CoupledMonitorElement> hVector_DYsize_;
+  std::vector<CoupledMonitorElement> hVector_DYPred_;
 };
 
 #endif

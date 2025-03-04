@@ -262,9 +262,6 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
   hVector_Ysize_.resize(numLayerPairs);
   hVector_DYsize_.resize(numLayerPairs);
   hVector_DYPred_.resize(numLayerPairs);
-  hVector_pass_dr_.resize(numLayerPairs);
-  hVector_pass_idphi_.resize(numLayerPairs);
-  hVector_pass_innerZ_.resize(numLayerPairs);
 }
 
 template <typename TrackerTraits>
@@ -279,10 +276,11 @@ void SimDoubletsAnalyzer<TrackerTraits>::dqmBeginRun(const edm::Run& iRun, const
 
 // function to apply cuts and set doublet to alive if it passes and to killed otherwise
 template <typename TrackerTraits>
-void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(SimDoublets::Doublet& doublet,
-                                                   int const layerPairIdIndex,
-                                                   simdoublets::CellCutVariables const& cellCutVariables,
-                                                   simdoublets::ClusterSizeCutManager const& clusterSizeCutManager) const {
+void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
+    SimDoublets::Doublet& doublet,
+    int const layerPairIdIndex,
+    simdoublets::CellCutVariables const& cellCutVariables,
+    simdoublets::ClusterSizeCutManager const& clusterSizeCutManager) const {
   // apply all cuts, break after the first cut that kills the doublet
   // z window cut
   if (cellCutVariables.inner_z() < cellMinz_[layerPairIdIndex] ||
@@ -353,6 +351,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
   // initialize a bunch of variables that we will use in the coming for loops
   double true_pT, true_eta;
   int numSimDoublets, pass_numSimDoublets, layerPairId, layerPairIdIndex;
+  bool passed, passedTP;
 
   // initialize the manager for keeping track of which cluster cuts are applied to the inidividual doublets
   simdoublets::ClusterSizeCutManager clusterSizeCutManager;
@@ -374,14 +373,6 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     // number of SimDoublets of the Tracking Particle passing all cuts
     pass_numSimDoublets = 0;
 
-    // fill histograms for number of SimDoublets
-    h_numSimDoubletsPerTrackingParticle_->Fill(numSimDoublets);
-    h_numLayersPerTrackingParticle_->Fill(simDoublets.numLayers());
-
-    // fill histograms for number of TrackingParticles
-    h_numTPVsPt_->Fill(true_pT);
-    h_numTPVsEta_->Fill(true_eta);
-
     // clear passing inner and outer RecHits
     innerRecHitsPassing.clear();
     outerRecHitsPassing.clear();
@@ -395,145 +386,127 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       cellCutVariables.calculateCutVariables(doublet);
 
       // ----------------------------------------------------------
-      // general plots (general folder)
-      // ----------------------------------------------------------
-
-      // outer layer vs inner layer of SimDoublets
-      h_layerPairs_->Fill(doublet.innerLayerId(), doublet.outerLayerId());
-
-      // number of skipped layers by SimDoublets
-      h_numSkippedLayers_->Fill(doublet.numSkippedLayers());
-
-      // ----------------------------------------------------------
-      // layer pair independent cuts (global folder)
-      // ----------------------------------------------------------
-
-      // longitudinal impact parameter with respect to the beamspot
-      h_z0_->Fill(cellCutVariables.z0());
-
-      // radius of the circle defined by the two RecHits and the beamspot
-      h_curvatureR_->Fill(cellCutVariables.curvature());
-
-      // pT that this curvature radius corresponds to
-      h_pTFromR_->Fill(cellCutVariables.pT());
-
-      // ----------------------------------------------------------
       // layer pair dependent cuts (sub-folders for layer pairs)
       // ----------------------------------------------------------
 
       // first, get layer pair Id and exclude layer pairs that are not considered
       layerPairId = doublet.layerPairId();
-      if (layerPairId2Index_.find(layerPairId) == layerPairId2Index_.end()) {
+      if (layerPairId2Index_.find(layerPairId) != layerPairId2Index_.end()) {
+        // get the position of the layer pair in the vectors of histograms
+        layerPairIdIndex = layerPairId2Index_.at(layerPairId);
+
+        // determine which cluster size cuts the doublet is subject to
+        clusterSizeCutManager.setSubjectsToCuts(doublet);
+
+        // apply the cuts for doublet building according to the set cut values
+        applyCuts(doublet, layerPairIdIndex, cellCutVariables, clusterSizeCutManager);
+
+        // doublet passed
+        passed = doublet.isAlive();
+
+        // dr = (outer_r - inner_r) histogram
+        hVector_dr_[layerPairIdIndex].fill(passed, cellCutVariables.dr());
+
+        // dphi histogram
+        hVector_dphi_[layerPairIdIndex].fill(passed, cellCutVariables.dphi());
+        hVector_idphi_[layerPairIdIndex].fill(passed, cellCutVariables.idphi());
+
+        // z of the inner RecHit histogram
+        hVector_innerZ_[layerPairIdIndex].fill(passed, cellCutVariables.inner_z());
+
+        // ----------------------------------------------------------
+        // cluster size cuts (global + sub-folders for layer pairs)
+        // ----------------------------------------------------------
+
+        // cluster size in local y histogram
+        hVector_Ysize_[layerPairIdIndex].fill(passed, cellCutVariables.Ysize());
+
+        // histograms for clusterCut
+        // YsizeB1 cut
+        if (clusterSizeCutManager.isSubjectToYsizeB1()) {
+          h_YsizeB1_.fill(passed, cellCutVariables.Ysize());
+        }
+        // YsizeB2 cut
+        if (clusterSizeCutManager.isSubjectToYsizeB2()) {
+          h_YsizeB2_.fill(passed, cellCutVariables.Ysize());
+        }
+
+        // histograms for zSizeCut
+        // DYsize12 cut
+        if (clusterSizeCutManager.isSubjectToDYsize12()) {
+          hVector_DYsize_[layerPairIdIndex].fill(passed, cellCutVariables.DYsize());
+          h_DYsize12_.fill(passed, cellCutVariables.DYsize());
+        }
+        // DYsize cut
+        if (clusterSizeCutManager.isSubjectToDYsize()) {
+          hVector_DYsize_[layerPairIdIndex].fill(passed, cellCutVariables.DYsize());
+          h_DYsize_.fill(passed, cellCutVariables.DYsize());
+        }
+        // DYPred cut
+        if (clusterSizeCutManager.isSubjectToDYPred()) {
+          hVector_DYPred_[layerPairIdIndex].fill(passed, cellCutVariables.DYPred());
+          h_DYPred_.fill(passed, cellCutVariables.DYPred());
+        }
+
+        // ----------------------------------------------------------
+        // all kinds of plots for doublets passing all cuts
+        // ----------------------------------------------------------
+
+        // fill the number histograms
+        // histogram of all valid doublets
+        h_numVsPt_.fill(passed, true_pT);
+        h_numVsEta_.fill(passed, true_eta);
+
+      } else {
         // if not considered set the doublet as killed
         doublet.setKilled();
-        continue;
-      }
-
-      // get the position of the layer pair in the vectors of histograms
-      layerPairIdIndex = layerPairId2Index_.at(layerPairId);
-
-      // determine which cluster size cuts the doublet is subject to
-      clusterSizeCutManager.setSubjectsToCuts(doublet);
-
-      // apply the cuts for doublet building according to the set cut values
-      applyCuts(doublet, layerPairIdIndex, cellCutVariables, clusterSizeCutManager);
-
-      // dr = (outer_r - inner_r) histogram
-      hVector_dr_[layerPairIdIndex]->Fill(cellCutVariables.dr());
-
-      // dphi histogram
-      hVector_dphi_[layerPairIdIndex]->Fill(cellCutVariables.dphi());
-      hVector_idphi_[layerPairIdIndex]->Fill(cellCutVariables.idphi());
-
-      // z of the inner RecHit histogram
-      hVector_innerZ_[layerPairIdIndex]->Fill(cellCutVariables.inner_z());
-
-      // ----------------------------------------------------------
-      // cluster size cuts (global + sub-folders for layer pairs)
-      // ----------------------------------------------------------
-
-      // cluster size in local y histogram
-      hVector_Ysize_[layerPairIdIndex]->Fill(cellCutVariables.Ysize());
-
-      // histograms for clusterCut
-      // YsizeB1 cut
-      if (clusterSizeCutManager.isSubjectToYsizeB1()) {
-        h_YsizeB1_->Fill(cellCutVariables.Ysize());
-      }
-      // YsizeB2 cut
-      if (clusterSizeCutManager.isSubjectToYsizeB2()) {
-        h_YsizeB2_->Fill(cellCutVariables.Ysize());
-      }
-
-      // histograms for zSizeCut
-      // DYsize12 cut
-      if (clusterSizeCutManager.isSubjectToDYsize12()) {
-        hVector_DYsize_[layerPairIdIndex]->Fill(cellCutVariables.DYsize());
-        h_DYsize12_->Fill(cellCutVariables.DYsize());
-      }
-      // DYsize cut
-      if (clusterSizeCutManager.isSubjectToDYsize()) {
-        hVector_DYsize_[layerPairIdIndex]->Fill(cellCutVariables.DYsize());
-        h_DYsize_->Fill(cellCutVariables.DYsize());
-      }
-      // DYPred cut
-      if (clusterSizeCutManager.isSubjectToDYPred()) {
-        hVector_DYPred_[layerPairIdIndex]->Fill(cellCutVariables.DYPred());
-        h_DYPred_->Fill(cellCutVariables.DYPred());
+        passed = false;
       }
 
       // ----------------------------------------------------------
-      // all kinds of plots for doublets passing all cuts
+      // general plots (general folder)
       // ----------------------------------------------------------
 
-      // fill the number histograms
-      // histogram of all valid doublets
-      h_numVsPt_->Fill(true_pT);
-      h_numVsEta_->Fill(true_eta);
+      // layer pair combinations
+      h_layerPairs_.fill(passed, doublet.innerLayerId(), doublet.outerLayerId());
+
+      // number of skipped layers by SimDoublets
+      h_numSkippedLayers_.fill(passed, doublet.numSkippedLayers());
+
+      // ----------------------------------------------------------
+      // layer pair independent cuts (global folder)
+      // ----------------------------------------------------------
+
+      // radius of the circle defined by the two RecHits and the beamspot
+      h_curvatureR_.fill(passed, cellCutVariables.curvature());
+
+      // pT that this curvature radius corresponds to
+      h_pTFromR_.fill(passed, cellCutVariables.pT());
+
+      // longitudinal impact parameter with respect to the beamspot
+      h_z0_.fill(passed, cellCutVariables.z0());
 
       // if the doublet passes all cuts
-      if (doublet.isAlive()) {
+      if (passed) {
         // increment number of SimDoublets passing all cuts
         pass_numSimDoublets++;
-
-        // fill histogram of doublets that pass all cuts
-        h_pass_layerPairs_->Fill(doublet.innerLayerId(), doublet.outerLayerId());
-        h_pass_numVsPt_->Fill(true_pT);
-        h_pass_numVsEta_->Fill(true_eta);
 
         // also put the inner/outer RecHit in the respective vector
         innerRecHitsPassing.push_back(doublet.innerRecHit());
         outerRecHitsPassing.push_back(doublet.outerRecHit());
-
-        // fill pass_ histograms
-        h_pass_z0_->Fill(cellCutVariables.z0());
-        h_pass_pTFromR_->Fill(cellCutVariables.pT());
-        hVector_pass_dr_[layerPairIdIndex]->Fill(cellCutVariables.dr());
-        hVector_pass_idphi_[layerPairIdIndex]->Fill(cellCutVariables.idphi());
-        hVector_pass_innerZ_[layerPairIdIndex]->Fill(cellCutVariables.inner_z());
-        if (clusterSizeCutManager.isSubjectToDYPred()) {
-          h_pass_DYPred_->Fill(cellCutVariables.DYPred());
-        }
-        if (clusterSizeCutManager.isSubjectToDYsize()) {
-          h_pass_DYsize_->Fill(cellCutVariables.DYsize());
-        }
-        if (clusterSizeCutManager.isSubjectToDYsize12()) {
-          h_pass_DYsize12_->Fill(cellCutVariables.DYsize());
-        }
-        if (clusterSizeCutManager.isSubjectToYsizeB1()) {
-          h_pass_YsizeB1_->Fill(cellCutVariables.Ysize());
-        }
-        if (clusterSizeCutManager.isSubjectToYsizeB2()) {
-          h_pass_YsizeB2_->Fill(cellCutVariables.Ysize());
-        }
       }
     }  // end loop over those doublets
 
     // Now check if the TrackingParticle is reconstructable by at least two conencted SimDoublets surviving the cuts
-    if (simdoublets::haveCommonElement<SiPixelRecHitRef>(innerRecHitsPassing, outerRecHitsPassing)) {
-      h_pass_numTPVsPt_->Fill(true_pT);
-      h_pass_numTPVsEta_->Fill(true_eta);
-    }
+    passedTP = simdoublets::haveCommonElement<SiPixelRecHitRef>(innerRecHitsPassing, outerRecHitsPassing);
+
+    // fill histograms for number of SimDoublets
+    h_numSimDoubletsPerTrackingParticle_.fill(passedTP, numSimDoublets);
+    h_numLayersPerTrackingParticle_.fill(passedTP, simDoublets.numLayers());
+
+    // fill histograms for number of TrackingParticles
+    h_numTPVsPt_.fill(passedTP, true_pT);
+    h_numTPVsEta_.fill(passedTP, true_eta);
 
     // Fill the efficiency profile per Tracking Particle only if the TP has at least one SimDoublet
     if (numSimDoublets > 0) {
@@ -583,186 +556,149 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                                   0,
                                                   1,
                                                   " ");
-  h_layerPairs_ = ibook.book2D("layerPairs",
-                               "Layer pairs in SimDoublets; Inner layer ID; Outer layer ID",
-                               TrackerTraits::numberOfLayers,
-                               -0.5,
-                               -0.5 + TrackerTraits::numberOfLayers,
-                               TrackerTraits::numberOfLayers,
-                               -0.5,
-                               -0.5 + TrackerTraits::numberOfLayers);
-  h_pass_layerPairs_ = ibook.book2D("pass_layerPairs",
-                                    "Layer pairs in SimDoublets passing all cuts; Inner layer ID; Outer layer ID",
-                                    TrackerTraits::numberOfLayers,
-                                    -0.5,
-                                    -0.5 + TrackerTraits::numberOfLayers,
-                                    TrackerTraits::numberOfLayers,
-                                    -0.5,
-                                    -0.5 + TrackerTraits::numberOfLayers);
-  h_numSkippedLayers_ = ibook.book1D(
-      "numSkippedLayers", "Number of skipped layers; Number of skipped layers; Number of SimDoublets", 16, -1.5, 14.5);
-  h_numSimDoubletsPerTrackingParticle_ =
-      ibook.book1D("numSimDoubletsPerTrackingParticle",
-                   "Number of SimDoublets per Tracking Particle; Number of SimDoublets; Number of Tracking Particles",
-                   31,
-                   -0.5,
-                   30.5);
-  h_numLayersPerTrackingParticle_ =
-      ibook.book1D("numLayersPerTrackingParticle",
-                   "Number of layers hit by Tracking Particle; Number of layers; Number of Tracking Particles",
-                   29,
-                   -0.5,
-                   28.5);
-  h_numTPVsPt_ = simdoublets::make1DLogX(
+  h_layerPairs_.book2D(ibook,
+                       "layerPairs",
+                       "Layer pairs in SimDoublets",
+                       "Inner layer ID",
+                       "Outer layer ID",
+                       TrackerTraits::numberOfLayers,
+                       -0.5,
+                       -0.5 + TrackerTraits::numberOfLayers,
+                       TrackerTraits::numberOfLayers,
+                       -0.5,
+                       -0.5 + TrackerTraits::numberOfLayers);
+  h_numSkippedLayers_.book1D(ibook,
+                             "numSkippedLayers",
+                             "Number of skipped layers",
+                             "Number of skipped layers",
+                             "Number of SimDoublets",
+                             16,
+                             -1.5,
+                             14.5);
+  h_numSimDoubletsPerTrackingParticle_.book1D(ibook,
+                                              "numSimDoubletsPerTrackingParticle",
+                                              "Number of SimDoublets per Tracking Particle",
+                                              "Number of SimDoublets",
+                                              "Number of Tracking Particles",
+                                              31,
+                                              -0.5,
+                                              30.5);
+  h_numLayersPerTrackingParticle_.book1D(ibook,
+                                         "numLayersPerTrackingParticle",
+                                         "Number of layers hit by Tracking Particle",
+                                         "Number of layers",
+                                         "Number of Tracking Particles",
+                                         29,
+                                         -0.5,
+                                         28.5);
+  h_numTPVsPt_.book1DLogX(ibook,
+                          "numTPVsPt",
+                          "Total number of TrackingParticles",
+                          "True transverse momentum p_{T} [GeV]",
+                          "Number of TrackingParticles",
+                          pTNBins,
+                          pTmin,
+                          pTmax);
+  h_numTPVsEta_.book1D(
       ibook,
-      "numTPVsPt",
-      "Total number of TrackingParticles; True transverse momentum p_{T} [GeV]; Total number of TrackingParticles",
-      pTNBins,
-      pTmin,
-      pTmax);
-  h_pass_numTPVsPt_ = simdoublets::make1DLogX(ibook,
-                                              "pass_numTPVsPt",
-                                              "Reconstructable TrackingParticles (two or more connected SimDoublets "
-                                              "pass cuts); True transverse momentum p_{T} [GeV]; "
-                                              "Number of reconstructable TrackingParticles",
-                                              pTNBins,
-                                              pTmin,
-                                              pTmax);
-  h_numTPVsEta_ =
-      ibook.book1D("numTPVsEta",
-                   "Total number of TrackingParticles; True pseudorapidity #eta; Total number of TrackingParticles",
-                   etaNBins,
-                   etamin,
-                   etamax);
-  h_pass_numTPVsEta_ = ibook.book1D("pass_numTPVsEta",
-                                    "Reconstructable TrackingParticles (two or more connected SimDoublets "
-                                    "pass cuts); True pseudorapidity #eta; Number of reconstructable TrackingParticles",
-                                    etaNBins,
-                                    etamin,
-                                    etamax);
-  h_numVsPt_ = simdoublets::make1DLogX(
-      ibook,
-      "numVsPt",
-      "Total number of SimDoublets; True transverse momentum p_{T} [GeV]; Total number of SimDoublets",
-      pTNBins,
-      pTmin,
-      pTmax);
-  h_pass_numVsPt_ = simdoublets::make1DLogX(ibook,
-                                            "pass_numVsPt",
-                                            "Number of passing SimDoublets; True transverse momentum p_{T} [GeV]; "
-                                            "Number of SimDoublets passing all cuts",
-                                            pTNBins,
-                                            pTmin,
-                                            pTmax);
-  h_numVsEta_ = ibook.book1D("numVsEta",
-                             "Total number of SimDoublets; True pseudorapidity #eta; Total number of SimDoublets",
-                             etaNBins,
-                             etamin,
-                             etamax);
-  h_pass_numVsEta_ =
-      ibook.book1D("pass_numVsEta",
-                   "Number of SimDoublets; True pseudorapidity #eta; Number of SimDoublets passing all cuts",
-                   etaNBins,
-                   etamin,
-                   etamax);
+      "numTPVsEta",
+      "TrackingParticles [all='all passing the selection' or pass='+ two or more connected SimDoublets pass all cuts']",
+      "True pseudorapidity #eta",
+      "Number of TrackingParticles",
+      etaNBins,
+      etamin,
+      etamax);
+  h_numVsPt_.book1DLogX(ibook,
+                        "numVsPt",
+                        "Number of SimDoublets",
+                        "True transverse momentum p_{T} [GeV]",
+                        "Number of SimDoublets",
+                        pTNBins,
+                        pTmin,
+                        pTmax);
+  h_numVsEta_.book1D(ibook,
+                     "numVsEta",
+                     "Number of SimDoublets",
+                     "True pseudorapidity #eta",
+                     "Number of SimDoublets",
+                     etaNBins,
+                     etamin,
+                     etamax);
 
-  // -------------------------------------------------------------
+  // --------------------------------------------------------------
   // booking layer pair independent cut histograms (global folder)
-  // -------------------------------------------------------------
+  // --------------------------------------------------------------
 
   ibook.setCurrentFolder(folder_ + "/cutParameters/global");
 
   // histogram for z0cutoff  (z0Cut)
-  h_z0_ = ibook.book1D("z0", "z_{0}; Longitudinal impact parameter z_{0} [cm]; Number of SimDoublets", 51, -1, 50);
-  h_pass_z0_ = ibook.book1D(
-      "pass_z0",
-      "z_{0} of SimDoublets passing all cuts; Longitudinal impact parameter z_{0} [cm]; Number of SimDoublets",
-      51,
-      -1,
-      50);
+  h_z0_.book1D(ibook,
+               "z0",
+               "z_{0} of SimDoublets",
+               "Longitudinal impact parameter z_{0} [cm]",
+               "Number of SimDoublets",
+               51,
+               -1,
+               50);
 
   // histograms for ptcut  (ptCut)
-  h_curvatureR_ = ibook.book1D(
-      "curvatureR", "Curvature from SimDoublet+beamspot; Curvature radius [cm] ; Number of SimDoublets", 100, 0, 1000);
-  h_pTFromR_ = simdoublets::make1DLogX(
-      ibook,
-      "pTFromR",
-      "Transverse momentum from curvature; Transverse momentum p_{T} [GeV]; Number of SimDoublets",
-      pTNBins,
-      pTmin,
-      pTmax);
-  h_pass_pTFromR_ = simdoublets::make1DLogX(ibook,
-                                            "pass_pTFromR",
-                                            "Transverse momentum from curvature of SimDoublets passing all cuts; "
-                                            "Transverse momentum p_{T} [GeV]; Number of SimDoublets",
-                                            pTNBins,
-                                            pTmin,
-                                            pTmax);
+  h_curvatureR_.book1D(ibook,
+                       "curvatureR",
+                       "Curvature from 3 points of beamspot + RecHits of SimDoublets",
+                       "Curvature radius [cm]",
+                       "Number of SimDoublets",
+                       100,
+                       0,
+                       1000);
+  h_pTFromR_.book1DLogX(ibook,
+                        "pTFromR",
+                        "Transverse momentum from curvature",
+                        "Transverse momentum p_{T} [GeV]",
+                        "Number of SimDoublets",
+                        pTNBins,
+                        pTmin,
+                        pTmax);
 
   // histograms for clusterCut  (minYsizeB1 and minYsizeB2)
-  h_YsizeB1_ = ibook.book1D(
-      "YsizeB1",
-      "Cluster size along z (inner from B1); Size along z of inner cluster [num of pixels]; Number of SimDoublets",
-      51,
-      -1,
-      50);
-  h_YsizeB2_ = ibook.book1D(
-      "YsizeB2",
-      "Cluster size along z (inner not from B1); Size along z of inner cluster [num of pixels]; Number of SimDoublets",
-      51,
-      -1,
-      50);
-  h_pass_YsizeB1_ = ibook.book1D("pass_YsizeB1",
-                                 "Cluster size along z of SimDoublets passing all cuts (inner from B1); Size along z "
-                                 "of inner cluster [num of pixels]; Number of SimDoublets",
-                                 51,
-                                 -1,
-                                 50);
-  h_pass_YsizeB2_ = ibook.book1D("pass_YsizeB2",
-                                 "Cluster size along z of SimDoublets passing all cuts (inner not from B1); Size along "
-                                 "z of inner cluster [num of pixels]; Number of SimDoublets",
-                                 51,
-                                 -1,
-                                 50);
-
+  h_YsizeB1_.book1D(ibook,
+                    "YsizeB1",
+                    "Cluster size along z of inner RecHit [from BPix1]",
+                    "Size along z of inner cluster [num of pixels]",
+                    "Number of SimDoublets",
+                    51,
+                    -1,
+                    50);
+  h_YsizeB2_.book1D(ibook,
+                    "YsizeB2",
+                    "Cluster size along z of inner RecHit [not from BPix1]",
+                    "Size along z of inner cluster [num of pixels]",
+                    "Number of SimDoublets",
+                    51,
+                    -1,
+                    50);
   // histograms for zSizeCut  (maxDYsize12, maxDYsize and maxDYPred)
-  h_DYsize12_ =
-      ibook.book1D("DYsize12",
-                   "Difference in cluster size along z (inner from B1); Absolute difference in cluster size along z of "
-                   "the two RecHits [num of pixels]; Number of SimDoublets",
+  h_DYsize12_.book1D(ibook,
+                     "DYsize12",
+                     "Difference in cluster size along z [inner from BPix1]",
+                     "Absolute difference in cluster size along z of "
+                     "the two RecHits [num of pixels]",
+                     "Number of SimDoublets",
+                     31,
+                     -1,
+                     30);
+  h_DYsize_.book1D(ibook,
+                   "DYsize",
+                   "Difference in cluster size along z [inner not from BPix1]",
+                   "Absolute difference in cluster size along z of the two RecHits [num of pixels]",
+                   "Number of SimDoublets",
                    31,
                    -1,
                    30);
-  h_DYsize_ = ibook.book1D("DYsize",
-                           "Difference in cluster size along z; Absolute difference in cluster size along z of the two "
-                           "RecHits [num of pixels]; Number of SimDoublets",
-                           31,
-                           -1,
-                           30);
-  h_DYPred_ = ibook.book1D("DYPred",
-                           "Difference between actual and predicted cluster size along z of inner cluster; Absolute "
-                           "difference [num of pixels]; Number of SimDoublets",
-                           201,
-                           -1,
-                           200);
-  h_pass_DYsize12_ = ibook.book1D("pass_DYsize12",
-                                  "Difference in cluster size along z of SimDoublets passing all cuts (inner from B1); "
-                                  "Absolute difference in cluster size along z of "
-                                  "the two RecHits [num of pixels]; Number of SimDoublets",
-                                  31,
-                                  -1,
-                                  30);
-  h_pass_DYsize_ =
-      ibook.book1D("pass_DYsize",
-                   "Difference in cluster size along z of SimDoublets passing all cuts; Absolute difference in "
-                   "cluster size along z of the two RecHits [num of pixels]; Number of SimDoublets",
-                   31,
-                   -1,
-                   30);
-  h_pass_DYPred_ =
-      ibook.book1D("pass_DYPred",
-                   "Difference between actual and predicted cluster size along z of inner cluster of SimDoublets "
-                   "passing all cuts; Absolute difference [num of pixels]; Number of SimDoublets",
+  h_DYPred_.book1D(ibook,
+                   "DYPred",
+                   "Difference between actual and predicted cluster size along z of inner cluster",
+                   "Absolute difference [num of pixels]",
+                   "Number of SimDoublets",
                    201,
                    -1,
                    200);
@@ -791,79 +727,75 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
     ibook.setCurrentFolder(folder_ + subFolderName);
 
     // histogram for z0cutoff  (maxr)
-    hVector_dr_.at(layerPairIdIndex) = ibook.book1D(
-        "dr",
-        "dr of RecHit pair " + layerTitle + "; dr between outer and inner RecHit [cm]; Number of SimDoublets",
-        31,
-        -1,
-        30);
-    hVector_pass_dr_.at(layerPairIdIndex) = ibook.book1D(
-        "pass_dr",
-        "dr of RecHit pair " + layerTitle +
-            " for SimDoublets passing all cuts; dr between outer and inner RecHit [cm]; Number of SimDoublets",
-        31,
-        -1,
-        30);
+    hVector_dr_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "dr",
+                "dr of RecHit pair " + layerTitle,
+                "dr between outer and inner RecHit [cm]",
+                "Number of SimDoublets",
+                31,
+                -1,
+                30);
 
     // histograms for iphicut  (phiCuts)
-    hVector_dphi_.at(layerPairIdIndex) = ibook.book1D(
-        "dphi",
-        "dphi of RecHit pair " + layerTitle + "; d#phi between outer and inner RecHit [rad]; Number of SimDoublets",
-        50,
-        -M_PI,
-        M_PI);
-    hVector_idphi_.at(layerPairIdIndex) =
-        ibook.book1D("idphi",
-                     "idphi of RecHit pair " + layerTitle +
-                         "; Absolute int d#phi between outer and inner RecHit; Number of SimDoublets",
-                     50,
-                     0,
-                     1000);
-    hVector_pass_idphi_.at(layerPairIdIndex) = ibook.book1D("pass_idphi",
-                                                            "idphi of RecHit pair " + layerTitle +
-                                                                " for SimDoublets passing all cuts; Absolute int d#phi "
-                                                                "between outer and inner RecHit; Number of SimDoublets",
-                                                            50,
-                                                            0,
-                                                            1000);
+    hVector_dphi_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "dphi",
+                "dphi of RecHit pair " + layerTitle,
+                "d#phi between outer and inner RecHit [rad]",
+                "Number of SimDoublets",
+                50,
+                -M_PI,
+                M_PI);
+    hVector_idphi_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "idphi",
+                "idphi of RecHit pair " + layerTitle,
+                "Absolute int d#phi between outer and inner RecHit",
+                "Number of SimDoublets",
+                50,
+                0,
+                1000);
 
     // histogram for z window  (minz and maxz)
-    hVector_innerZ_.at(layerPairIdIndex) =
-        ibook.book1D("innerZ",
-                     "z of the inner RecHit " + layerTitle + "; z of inner RecHit [cm]; Number of SimDoublets",
-                     100,
-                     -300,
-                     300);
-    hVector_pass_innerZ_.at(layerPairIdIndex) =
-        ibook.book1D("pass_innerZ",
-                     "z of the inner RecHit " + layerTitle +
-                         " for SimDoublets passing all cuts; z of inner RecHit [cm]; Number of SimDoublets",
-                     100,
-                     -300,
-                     300);
+    hVector_innerZ_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "innerZ",
+                "z of the inner RecHit " + layerTitle,
+                "z of inner RecHit [cm]",
+                "Number of SimDoublets",
+                100,
+                -300,
+                300);
 
     // histograms for cluster size and size differences
-    hVector_DYsize_.at(layerPairIdIndex) =
-        ibook.book1D("DYsize",
-                     "Difference in cluster size along z between outer and inner RecHit " + layerTitle +
-                         "; Absolute difference in cluster size along z of the two "
-                         "RecHits [num of pixels]; Number of SimDoublets",
-                     51,
-                     -1,
-                     50);
-    hVector_DYPred_.at(layerPairIdIndex) =
-        ibook.book1D("DYPred",
-                     "Difference between actual and predicted cluster size along z of inner cluster " + layerTitle +
-                         "; Absolute difference [num of pixels]; Number of SimDoublets",
-                     51,
-                     -1,
-                     50);
-    hVector_Ysize_.at(layerPairIdIndex) = ibook.book1D(
-        "Ysize",
-        "Cluster size along z " + layerTitle + "; Size along z of inner cluster [num of pixels]; Number of SimDoublets",
-        51,
-        -1,
-        50);
+    hVector_DYsize_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "DYsize",
+                "Difference in cluster size along z between outer and inner RecHit " + layerTitle,
+                "Absolute difference in cluster size along z of the two RecHits [num of pixels]",
+                "Number of SimDoublets",
+                51,
+                -1,
+                50);
+    hVector_DYPred_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "DYPred",
+                "Difference between actual and predicted cluster size along z of inner cluster " + layerTitle,
+                "Absolute difference [num of pixels]",
+                "Number of SimDoublets",
+                51,
+                -1,
+                50);
+    hVector_Ysize_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "Ysize",
+                "Cluster size along z " + layerTitle,
+                "Size along z of inner cluster [num of pixels]",
+                "Number of SimDoublets",
+                51,
+                -1,
+                50);
   }
 }
 
