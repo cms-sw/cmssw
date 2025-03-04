@@ -680,12 +680,15 @@ class ConfigBuilder(object):
             if streamType=='': continue
             if streamType == 'ALCARECO' and not 'ALCAPRODUCER' in self._options.step: continue
             if streamType=='DQMIO': streamType='DQM'
+            streamQualifier=''
+            if streamType[-1].isdigit():
+                ## a special case where --eventcontent MINIAODSIM1 is set to have more than one output in a chain of configuration
+                streamQualifier = str(streamType[-1])
+                streamType = streamType[:-1]
             eventContent=streamType
             ## override streamType to eventContent in case NANOEDM
-            if streamType == "NANOEDMAOD" :
-                eventContent = "NANOAOD"
-            elif streamType == "NANOEDMAODSIM" :
-                eventContent = "NANOAODSIM"
+            if streamType.startswith("NANOEDMAOD"):
+                eventContent = eventContent.replace("NANOEDM","NANO")
             theEventContent = getattr(self.process, eventContent+"EventContent")
             if i==0:
                 theFileName=self._options.outfile_name
@@ -714,10 +717,11 @@ class ConfigBuilder(object):
                 output.dataset.filterName = cms.untracked.string('StreamALCACombined')
 
             if "MINIAOD" in streamType:
+                ## we should definitely get rid of this customization by now
                 from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
                 miniAOD_customizeOutput(output)
 
-            outputModuleName=streamType+'output'
+            outputModuleName=streamType+streamQualifier+'output'
             setattr(self.process,outputModuleName,output)
             outputModule=getattr(self.process,outputModuleName)
             setattr(self.process,outputModuleName+'_step',cms.EndPath(outputModule))
