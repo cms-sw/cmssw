@@ -611,8 +611,6 @@ void MELaserPrim::fillHistograms() {
     nentries = pn_tree->GetEntriesFast();
     assert(nentries % 2 == 0);
     int module_(0);
-    id1_ = _sm;
-    id2_ = 0;
 
     Long64_t jentry = 0;
 

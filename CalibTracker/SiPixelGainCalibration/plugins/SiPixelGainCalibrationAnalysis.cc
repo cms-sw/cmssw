@@ -209,7 +209,6 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
   for (uint32_t ii = 0; ii < ipix->getnpoints() && ii < 200; ii++) {
     //    std::cout << ipix->getsum(ii) << " " << ipix->getnentries(ii) << " " << ipix->getsumsquares(ii) << std::endl;
     nallpoints++;
-    use_point = true;
     if (useVcalHigh_) {
       xvalsall[ii] = vCalValues_[ii] * scalarVcalHigh_VcalLow_;
     } else
@@ -276,7 +275,6 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
       use_point = false;
     if (ii > 1 && fabs(yvalsall[ii] - yvalsall[ii - 1]) < 5. && yvalsall[ii] > 0.8 * maxgoodvalinfit &&
         reject_plateaupoints_) {
-      use_point = false;
       break;
     }
 
@@ -289,8 +287,6 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
   }
 
   float chi2, slope, intercept, prob, slopeerror, intercepterror;
-  prob = chi2 = -1;
-  slope = intercept = slopeerror = intercepterror = 0;
 
   // now check on number of points. If bad just start taking the first 4:
 
