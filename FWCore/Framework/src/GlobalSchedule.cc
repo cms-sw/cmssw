@@ -98,7 +98,6 @@ namespace edm {
   void GlobalSchedule::beginJob(ProductRegistry const& iRegistry,
                                 eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                                 ProcessBlockHelperBase const& processBlockHelperBase,
-                                PathsAndConsumesOfModulesBase const& pathsAndConsumesOfModules,
                                 ProcessContext const& processContext) {
     GlobalContext globalContext(GlobalContext::Transition::kBeginJob, processContext_);
     unsigned int const managerIndex =
@@ -107,9 +106,7 @@ namespace edm {
     std::exception_ptr exceptionPtr;
     CMS_SA_ALLOW try {
       try {
-        convertException::wrap([this, &pathsAndConsumesOfModules, &processContext]() {
-          actReg_->preBeginJobSignal_(pathsAndConsumesOfModules, processContext);
-        });
+        convertException::wrap([this, &processContext]() { actReg_->preBeginJobSignal_(processContext); });
       } catch (cms::Exception& ex) {
         exceptionContext(ex, globalContext, "Handling pre signal, likely in a service function");
         throw;
