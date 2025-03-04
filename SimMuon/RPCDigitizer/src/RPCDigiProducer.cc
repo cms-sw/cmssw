@@ -55,7 +55,7 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
            "in the configuration file or remove the modules that require it.";
   }
   theRPCSimSetUp = new RPCSimSetUp(ps);
-  theDigitizer = new RPCDigitizer(ps);
+  theDigitizer = new RPCDigitizer(ps, true);
   geomToken = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
   noiseToken = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
   clsToken = esConsumes<RPCClusterSize, RPCClusterSizeRcd, edm::Transition::BeginRun>();
