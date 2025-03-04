@@ -50,12 +50,15 @@ class MatrixRunner(object):
         wfs_to_run = self.workFlows
         withDups = False
         if testList:
-            withDups = len(check_dups(testList))>0
+            if opt.allowDuplicates: 
+                withDups = len(check_dups(testList))>0
+            else:
+                testList = set(testList)
             wfs_to_run = [wf for wf in self.workFlows if float(wf.numId) in testList for i in range(Counter(testList)[wf.numId])]
 
         for n,wf in enumerate(wfs_to_run):
 
-            if withDups and opt.nProcs > 1: # to avoid overwriting the work areas
+            if opt.allowDuplicates and withDups and opt.nProcs > 1: # to avoid overwriting the work areas 
                 njob = n
         
             item = wf.nameId

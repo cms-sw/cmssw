@@ -30,7 +30,8 @@ def runSelected(opt):
         testSet = set(opt.testList)
         undefSet = testSet - definedSet
         if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
-
+        if not opt.allowDuplicates:
+            testList = testSet
     ret = 0
     if opt.show:
         mrd.show(opt.testList, opt.extended, opt.cafVeto)
@@ -186,7 +187,13 @@ if __name__ == '__main__':
                         dest='recycle',
                         type=str,
                         default=None)
-                        
+
+    parser.add_argument('--allowDuplicates',
+                        help='Allow to have duplicate workflow numbers in the list',
+                        dest='allowDuplicates',
+                        default=False,
+                        action='store_true')
+
     parser.add_argument('--addMemPerCore',
                         help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
                         dest='memPerCore',
