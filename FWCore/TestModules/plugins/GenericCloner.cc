@@ -136,16 +136,43 @@ namespace edmtest {
       event.getByToken(product.getToken_, handle);
       edm::WrapperBase const* wrapper = handle.product();
 
-      // write the wrapper into a TBuffer
-      TBufferFile buffer(TBuffer::kWrite);
-      product.wrappedType_.getClass()->Streamer(const_cast<edm::WrapperBase*>(wrapper), buffer);
-
-      // read back a copy of the product form the TBuffer
-      buffer.SetReadMode();
-      buffer.SetBufferOffset(0);
       std::unique_ptr<edm::WrapperBase> clone(
           reinterpret_cast<edm::WrapperBase*>(product.wrappedType_.getClass()->New()));
-      product.wrappedType_.getClass()->Streamer(clone.get(), buffer);
+
+      if (wrapper->hasMemcpyTraits()) {
+        // Use the memcpy traits to clone the wrapped object.
+
+        // mark the clone as present
+        clone->markAsPresent();
+
+        // initialise the clone, if the type requires it
+        if (wrapper->hasMemcpyInit()) {
+          clone->memcpyInitialize(wrapper->memcpyParameters());
+        }
+
+        // copy the source regions to the target
+        auto sources = wrapper->memcpyRegions();
+        auto targets = clone->memcpyRegions();
+        assert(sources.size() == targets.size());
+        for (size_t i = 0; i < sources.size(); ++i) {
+          assert(targets[i].second == sources[i].second);
+          std::memcpy(targets[i].first, sources[i].first, sources[i].second);
+        }
+
+        // finalize the clone after the memcpy, if the type requires it
+        clone->memcpyFinalize();
+      } else {
+        // Use ROOT-based serialisation and deserialisation to clone the wrapped object.
+
+        // write the wrapper into a TBuffer
+        TBufferFile buffer(TBuffer::kWrite);
+        product.wrappedType_.getClass()->Streamer(const_cast<edm::WrapperBase*>(wrapper), buffer);
+
+        // read back a copy of the product form the TBuffer
+        buffer.SetReadMode();
+        buffer.SetBufferOffset(0);
+        product.wrappedType_.getClass()->Streamer(clone.get(), buffer);
+      }
 
       // move the wrapper into the Event
       event.put(product.putToken_, std::move(clone));
