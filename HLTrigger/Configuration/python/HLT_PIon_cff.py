@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_14_2_0/PIon --cff --data --type PIon
+# hltGetConfiguration /dev/CMSSW_15_0_0/PIon --cff --data --type PIon
 
-# /dev/CMSSW_14_2_0/PIon/V16 (CMSSW_14_2_0)
+# /dev/CMSSW_15_0_0/PIon/V6 (CMSSW_15_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_2_0/PIon/V16")
+  tableName = cms.string("/dev/CMSSW_15_0_0/PIon/V6")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -1476,11 +1476,6 @@ fragment.HcalTimeSlewEP = cms.ESSource( "HcalTimeSlewEP",
       )
     )
 )
-fragment.ecalMultifitParametersSource = cms.ESSource( "EmptyESSource",
-    recordName = cms.string( "EcalMultifitParametersRcd" ),
-    iovIsRunNotTime = cms.bool( True ),
-    firstValid = cms.vuint32( 1 )
-)
 fragment.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "JetTagComputerRecord" ),
     iovIsRunNotTime = cms.bool( True ),
@@ -1493,11 +1488,6 @@ fragment.hltESSEcalSeverityLevel = cms.ESSource( "EmptyESSource",
 )
 fragment.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
-    iovIsRunNotTime = cms.bool( True ),
-    firstValid = cms.vuint32( 1 )
-)
-fragment.hltESSJobConfigurationGPURecord = cms.ESSource( "EmptyESSource",
-    recordName = cms.string( "JobConfigurationGPURecord" ),
     iovIsRunNotTime = cms.bool( True ),
     firstValid = cms.vuint32( 1 )
 )
@@ -1532,46 +1522,12 @@ fragment.ppsPixelTopologyESSource = cms.ESSource( "PPSPixelTopologyESSource",
     appendToDataLabel = cms.string( "" )
 )
 
-fragment.hltESPTrajectoryCleanerBySharedHitsP5 = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHitsP5" ),
-  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  fractionShared = cms.double( 0.19 ),
-  ValidHitBonus = cms.double( 5.0 ),
-  MissingHitPenalty = cms.double( 20.0 ),
-  allowSharedFirstHit = cms.bool( True )
-)
-fragment.hltESFittingSmootherRKP5 = cms.ESProducer( "KFFittingSmootherESProducer",
-  ComponentName = cms.string( "hltESFittingSmootherRKP5" ),
-  Fitter = cms.string( "hltESPRKTrajectoryFitter" ),
-  Smoother = cms.string( "hltESPRKTrajectorySmoother" ),
-  EstimateCut = cms.double( 20.0 ),
-  MaxFractionOutliers = cms.double( 0.3 ),
-  MaxNumberOfOutliers = cms.int32( 3 ),
-  MinDof = cms.int32( 2 ),
-  NoOutliersBeginEnd = cms.bool( False ),
-  MinNumberOfHits = cms.int32( 4 ),
-  MinNumberOfHitsHighEta = cms.int32( 5 ),
-  HighEtaSwitch = cms.double( 5.0 ),
-  RejectTracks = cms.bool( True ),
-  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
-  NoInvalidHitsBeginEnd = cms.bool( True ),
-  LogPixelProbabilityCut = cms.double( 0.0 ),
-  appendToDataLabel = cms.string( "" )
-)
-fragment.hltESChi2MeasurementEstimatorForP5 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
-  MaxChi2 = cms.double( 100.0 ),
-  nSigma = cms.double( 4.0 ),
-  MaxDisplacement = cms.double( 100.0 ),
-  MaxSagitta = cms.double( -1.0 ),
-  MinimalTolerance = cms.double( 0.5 ),
-  MinPtForHitRecoveryInGluedDet = cms.double( 100000.0 ),
-  ComponentName = cms.string( "hltESChi2MeasurementEstimatorForP5" ),
-  appendToDataLabel = cms.string( "" )
-)
 fragment.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
-  PropagationDirection = cms.string( "anyDirection" )
+  SimpleMagneticField = cms.string( "" ),
+  PropagationDirection = cms.string( "anyDirection" ),
+  MaxDPhi = cms.double( 1.6 ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProducer",
   AlgoName = cms.string( "CSCChannelMapperPostls1" )
@@ -1593,6 +1549,7 @@ fragment.CaloTowerTopologyEP = cms.ESProducer( "CaloTowerTopologyEP",
   appendToDataLabel = cms.string( "" )
 )
 fragment.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  dump = cms.untracked.vstring(  ),
   appendToDataLabel = cms.string( "" )
 )
 fragment.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
@@ -1729,14 +1686,16 @@ fragment.SiStripClusterizerConditionsESProducer = cms.ESProducer( "SiStripCluste
 fragment.SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
   EtaDivisions = cms.untracked.uint32( 20 ),
   PhiDivisions = cms.untracked.uint32( 20 ),
-  EtaMax = cms.untracked.double( 2.5 )
+  EtaMax = cms.untracked.double( 2.5 ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.SimpleSecondaryVertex3TrkComputer = cms.ESProducer( "SimpleSecondaryVertexESProducer",
   use3d = cms.bool( True ),
-  unBoost = cms.bool( False ),
   useSignificance = cms.bool( True ),
+  unBoost = cms.bool( False ),
   minTracks = cms.uint32( 3 ),
-  minVertices = cms.uint32( 1 )
+  minVertices = cms.uint32( 1 ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   ComponentName = cms.string( "SteppingHelixPropagatorAny" ),
@@ -1756,10 +1715,12 @@ fragment.SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorES
   debug = cms.bool( False ),
   ApplyRadX0Correction = cms.bool( True ),
   useMagVolumes = cms.bool( True ),
-  returnTangentPlane = cms.bool( True )
+  returnTangentPlane = cms.bool( True ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
-  ComponentName = cms.string( "TransientTrackBuilder" )
+  ComponentName = cms.string( "TransientTrackBuilder" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "CaloDetIdAssociator" ),
@@ -1774,7 +1735,8 @@ fragment.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
 fragment.cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "CosmicNavigationSchool" ),
   PluginName = cms.string( "" ),
-  SimpleMagneticField = cms.string( "" )
+  SimpleMagneticField = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
   verbosity = cms.untracked.uint32( 1 ),
@@ -1809,14 +1771,6 @@ fragment.ecalElectronicsMappingHostESProducer = cms.ESProducer( "EcalElectronics
   alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
 )
 fragment.ecalMultifitConditionsHostESProducer = cms.ESProducer( "EcalMultifitConditionsHostESProducer@alpaka",
-  appendToDataLabel = cms.string( "" ),
-  alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
-)
-fragment.ecalMultifitParametersHostESProducer = cms.ESProducer( "EcalMultifitParametersHostESProducer@alpaka",
-  EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
-  EEtimeFitParameters = cms.vdouble( -2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277 ),
-  EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
-  EEamplitudeFitParameters = cms.vdouble( 1.89, 1.4 ),
   appendToDataLabel = cms.string( "" ),
   alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
 )
@@ -1876,11 +1830,6 @@ fragment.hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeME0 = cms.bool( False )
 )
 fragment.hcalMahiConditionsESProducer = cms.ESProducer( "HcalMahiConditionsESProducer@alpaka",
-  appendToDataLabel = cms.string( "" ),
-  alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
-)
-fragment.hcalMahiPulseOffsetsESProducer = cms.ESProducer( "HcalMahiPulseOffsetsESProducer@alpaka",
-  pulseOffsets = cms.vint32( -3, -2, -1, 0, 1, 2, 3, 4 ),
   appendToDataLabel = cms.string( "" ),
   alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
 )
@@ -1946,9 +1895,11 @@ fragment.hcalSiPMCharacteristicsESProducer = cms.ESProducer( "HcalSiPMCharacteri
 )
 fragment.hltBoostedDoubleSecondaryVertexAK8Computer = cms.ESProducer( "CandidateBoostedDoubleSecondaryVertexESProducer",
   useCondDB = cms.bool( False ),
+  gbrForestLabel = cms.string( "" ),
   weightFile = cms.FileInPath( "RecoBTag/SecondaryVertex/data/BoostedDoubleSV_AK8_BDT_v4.weights.xml.gz" ),
   useGBRForest = cms.bool( True ),
-  useAdaBoost = cms.bool( False )
+  useAdaBoost = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
   trackPseudoSelection = cms.PSet( 
@@ -1987,24 +1938,26 @@ fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexES
     sip3dSigMin = cms.double( -99999.9 ),
     sip3dValMin = cms.double( -99999.9 )
   ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
   trackFlip = cms.bool( False ),
-  vertexFlip = cms.bool( False ),
-  SoftLeptonFlip = cms.bool( False ),
   useTrackWeights = cms.bool( True ),
+  SoftLeptonFlip = cms.bool( False ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
   correctVertexMass = cms.bool( True ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
-  charmCut = cms.double( 1.5 ),
   minimumTrackWeight = cms.double( 0.5 ),
-  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
-  trackMultiplicityMin = cms.uint32( 3 ),
+  charmCut = cms.double( 1.5 ),
   trackSort = cms.string( "sip2dSig" ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  vertexFlip = cms.bool( False ),
   useCategories = cms.bool( True ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
     'CombinedSVPseudoVertex',
     'CombinedSVNoVertex' ),
+  calibrationRecord = cms.string( "" ),
   recordLabel = cms.string( "HLT" ),
-  categoryVariableName = cms.string( "vertexCategory" )
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexESProducer",
   trackPseudoSelection = cms.PSet( 
@@ -2063,39 +2016,49 @@ fragment.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertex
     sip3dSigMin = cms.double( -99999.9 ),
     sip2dSigMin = cms.double( -99999.9 )
   ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
   trackFlip = cms.bool( False ),
-  vertexFlip = cms.bool( False ),
-  SoftLeptonFlip = cms.bool( False ),
   useTrackWeights = cms.bool( True ),
+  SoftLeptonFlip = cms.bool( False ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
   correctVertexMass = cms.bool( True ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
-  charmCut = cms.double( 1.5 ),
   minimumTrackWeight = cms.double( 0.5 ),
-  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
-  trackMultiplicityMin = cms.uint32( 3 ),
+  charmCut = cms.double( 1.5 ),
   trackSort = cms.string( "sip2dSig" ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  vertexFlip = cms.bool( False ),
   useCategories = cms.bool( True ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
     'CombinedSVIVFV2PseudoVertex',
     'CombinedSVIVFV2NoVertex' ),
+  calibrationRecord = cms.string( "" ),
   recordLabel = cms.string( "HLT" ),
-  categoryVariableName = cms.string( "vertexCategory" )
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltDisplacedDijethltESPPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCountingESProducer",
+  nthTrack = cms.int32( -1 ),
   impactParameterType = cms.int32( 1 ),
-  minimumImpactParameter = cms.double( -1.0 ),
-  useSignedImpactParameterSig = cms.bool( True ),
-  maximumDistanceToJetAxis = cms.double( 999999.0 ),
   deltaR = cms.double( -1.0 ),
   deltaRmin = cms.double( 0.0 ),
-  maximumDecayLength = cms.double( 999999.0 ),
   maxImpactParameter = cms.double( 0.1 ),
   maxImpactParameterSig = cms.double( 999999.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  maximumDistanceToJetAxis = cms.double( 999999.0 ),
   trackQualityClass = cms.string( "any" ),
-  nthTrack = cms.int32( -1 )
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltDisplacedDijethltESPTrackCounting2D1st = cms.ESProducer( "TrackCountingESProducer",
+  minimumImpactParameter = cms.double( 0.05 ),
+  useSignedImpactParameterSig = cms.bool( False ),
+  nthTrack = cms.int32( 1 ),
+  impactParameterType = cms.int32( 1 ),
+  deltaR = cms.double( -1.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
+  trackQualityClass = cms.string( "any" ),
+  useVariableJTA = cms.bool( False ),
   a_dR = cms.double( -0.001053 ),
   b_dR = cms.double( 0.6263 ),
   a_pT = cms.double( 0.005263 ),
@@ -2105,25 +2068,49 @@ fragment.hltDisplacedDijethltESPTrackCounting2D1st = cms.ESProducer( "TrackCount
   min_pT_dRcut = cms.double( 0.5 ),
   max_pT_dRcut = cms.double( 0.1 ),
   max_pT_trackPTcut = cms.double( 3.0 ),
-  minimumImpactParameter = cms.double( 0.05 ),
-  useSignedImpactParameterSig = cms.bool( False ),
-  impactParameterType = cms.int32( 1 ),
-  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
-  deltaR = cms.double( -1.0 ),
-  maximumDecayLength = cms.double( 999999.0 ),
-  nthTrack = cms.int32( 1 ),
-  trackQualityClass = cms.string( "any" ),
-  useVariableJTA = cms.bool( False )
+  appendToDataLabel = cms.string( "" )
+)
+fragment.hltESChi2MeasurementEstimatorForP5 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  MaxChi2 = cms.double( 100.0 ),
+  nSigma = cms.double( 4.0 ),
+  MaxDisplacement = cms.double( 100.0 ),
+  MaxSagitta = cms.double( -1.0 ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 100000.0 ),
+  ComponentName = cms.string( "hltESChi2MeasurementEstimatorForP5" ),
+  appendToDataLabel = cms.string( "" )
+)
+fragment.hltESFittingSmootherRKP5 = cms.ESProducer( "KFFittingSmootherESProducer",
+  ComponentName = cms.string( "hltESFittingSmootherRKP5" ),
+  Fitter = cms.string( "hltESPRKTrajectoryFitter" ),
+  Smoother = cms.string( "hltESPRKTrajectorySmoother" ),
+  EstimateCut = cms.double( 20.0 ),
+  MaxFractionOutliers = cms.double( 0.3 ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
+  MinNumberOfHits = cms.int32( 4 ),
+  MinNumberOfHitsHighEta = cms.int32( 5 ),
+  HighEtaSwitch = cms.double( 5.0 ),
+  RejectTracks = cms.bool( True ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
+  NoInvalidHitsBeginEnd = cms.bool( True ),
+  LogPixelProbabilityCut = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPAnalyticalPropagator" ),
-  PropagationDirection = cms.string( "alongMomentum" )
+  SimpleMagneticField = cms.string( "" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPBwdAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
-  MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPBwdAnalyticalPropagator" ),
-  PropagationDirection = cms.string( "oppositeToMomentum" )
+  SimpleMagneticField = cms.string( "" ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   SimpleMagneticField = cms.string( "" ),
@@ -2261,7 +2248,8 @@ fragment.hltESPChi2MeasurementEstimator9 = cms.ESProducer( "Chi2MeasurementEstim
 fragment.hltESPCloseComponentsMerger5D = cms.ESProducer( "CloseComponentsMergerESProducer5D",
   ComponentName = cms.string( "hltESPCloseComponentsMerger5D" ),
   MaxComponents = cms.int32( 12 ),
-  DistanceMeasure = cms.string( "hltESPKullbackLeiblerDistance5D" )
+  DistanceMeasure = cms.string( "hltESPKullbackLeiblerDistance5D" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPDetachedQuadStepChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
   MaxChi2 = cms.double( 9.0 ),
@@ -2312,85 +2300,72 @@ fragment.hltESPDetachedTripletStepTrajectoryCleanerBySharedHits = cms.ESProducer
   allowSharedFirstHit = cms.bool( True )
 )
 fragment.hltESPDisplacedDijethltPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCountingESProducer",
+  nthTrack = cms.int32( -1 ),
   impactParameterType = cms.int32( 1 ),
-  minimumImpactParameter = cms.double( -1.0 ),
-  useSignedImpactParameterSig = cms.bool( True ),
-  maximumDistanceToJetAxis = cms.double( 999999.0 ),
   deltaR = cms.double( -1.0 ),
   deltaRmin = cms.double( 0.0 ),
-  maximumDecayLength = cms.double( 999999.0 ),
   maxImpactParameter = cms.double( 0.1 ),
   maxImpactParameterSig = cms.double( 999999.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  maximumDistanceToJetAxis = cms.double( 999999.0 ),
   trackQualityClass = cms.string( "any" ),
-  nthTrack = cms.int32( -1 )
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPDisplacedDijethltPromptTrackCountingESProducerLong = cms.ESProducer( "PromptTrackCountingESProducer",
+  nthTrack = cms.int32( -1 ),
   impactParameterType = cms.int32( 1 ),
-  minimumImpactParameter = cms.double( -1.0 ),
-  useSignedImpactParameterSig = cms.bool( True ),
-  maximumDistanceToJetAxis = cms.double( 999999.0 ),
   deltaR = cms.double( -1.0 ),
   deltaRmin = cms.double( 0.0 ),
-  maximumDecayLength = cms.double( 999999.0 ),
   maxImpactParameter = cms.double( 0.2 ),
   maxImpactParameterSig = cms.double( 999999.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  maximumDistanceToJetAxis = cms.double( 999999.0 ),
   trackQualityClass = cms.string( "any" ),
-  nthTrack = cms.int32( -1 )
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPDisplacedDijethltPromptTrackCountingESProducerShortSig5 = cms.ESProducer( "PromptTrackCountingESProducer",
+  nthTrack = cms.int32( -1 ),
   impactParameterType = cms.int32( 1 ),
-  minimumImpactParameter = cms.double( -1.0 ),
-  useSignedImpactParameterSig = cms.bool( False ),
-  maximumDistanceToJetAxis = cms.double( 999999.0 ),
   deltaR = cms.double( -1.0 ),
   deltaRmin = cms.double( 0.0 ),
-  maximumDecayLength = cms.double( 999999.0 ),
   maxImpactParameter = cms.double( 0.05 ),
   maxImpactParameterSig = cms.double( 5.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  maximumDistanceToJetAxis = cms.double( 999999.0 ),
   trackQualityClass = cms.string( "any" ),
-  nthTrack = cms.int32( -1 )
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPDisplacedDijethltTrackCounting2D1st = cms.ESProducer( "TrackCountingESProducer",
-  a_dR = cms.double( -0.001053 ),
-  b_dR = cms.double( 0.6263 ),
-  a_pT = cms.double( 0.005263 ),
-  b_pT = cms.double( 0.3684 ),
-  min_pT = cms.double( 120.0 ),
-  max_pT = cms.double( 500.0 ),
-  min_pT_dRcut = cms.double( 0.5 ),
-  max_pT_dRcut = cms.double( 0.1 ),
-  max_pT_trackPTcut = cms.double( 3.0 ),
   minimumImpactParameter = cms.double( 0.05 ),
   useSignedImpactParameterSig = cms.bool( False ),
+  nthTrack = cms.int32( 1 ),
   impactParameterType = cms.int32( 1 ),
-  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
   deltaR = cms.double( -1.0 ),
   maximumDecayLength = cms.double( 999999.0 ),
-  nthTrack = cms.int32( 1 ),
+  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
   trackQualityClass = cms.string( "any" ),
-  useVariableJTA = cms.bool( False )
+  useVariableJTA = cms.bool( False ),
+  a_dR = cms.double( -0.001053 ),
+  b_dR = cms.double( 0.6263 ),
+  a_pT = cms.double( 0.005263 ),
+  b_pT = cms.double( 0.3684 ),
+  min_pT = cms.double( 120.0 ),
+  max_pT = cms.double( 500.0 ),
+  min_pT_dRcut = cms.double( 0.5 ),
+  max_pT_dRcut = cms.double( 0.1 ),
+  max_pT_trackPTcut = cms.double( 3.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPDisplacedDijethltTrackCounting2D1stLoose = cms.ESProducer( "TrackCountingESProducer",
-  a_dR = cms.double( -0.001053 ),
-  b_dR = cms.double( 0.6263 ),
-  a_pT = cms.double( 0.005263 ),
-  b_pT = cms.double( 0.3684 ),
-  min_pT = cms.double( 120.0 ),
-  max_pT = cms.double( 500.0 ),
-  min_pT_dRcut = cms.double( 0.5 ),
-  max_pT_dRcut = cms.double( 0.1 ),
-  max_pT_trackPTcut = cms.double( 3.0 ),
   minimumImpactParameter = cms.double( 0.03 ),
   useSignedImpactParameterSig = cms.bool( False ),
+  nthTrack = cms.int32( 1 ),
   impactParameterType = cms.int32( 1 ),
-  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
   deltaR = cms.double( -1.0 ),
   maximumDecayLength = cms.double( 999999.0 ),
-  nthTrack = cms.int32( 1 ),
+  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
   trackQualityClass = cms.string( "any" ),
-  useVariableJTA = cms.bool( False )
-)
-fragment.hltESPDisplacedDijethltTrackCounting2D2ndLong = cms.ESProducer( "TrackCountingESProducer",
+  useVariableJTA = cms.bool( False ),
   a_dR = cms.double( -0.001053 ),
   b_dR = cms.double( 0.6263 ),
   a_pT = cms.double( 0.005263 ),
@@ -2400,18 +2375,32 @@ fragment.hltESPDisplacedDijethltTrackCounting2D2ndLong = cms.ESProducer( "TrackC
   min_pT_dRcut = cms.double( 0.5 ),
   max_pT_dRcut = cms.double( 0.1 ),
   max_pT_trackPTcut = cms.double( 3.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+fragment.hltESPDisplacedDijethltTrackCounting2D2ndLong = cms.ESProducer( "TrackCountingESProducer",
   minimumImpactParameter = cms.double( 0.2 ),
   useSignedImpactParameterSig = cms.bool( True ),
+  nthTrack = cms.int32( 2 ),
   impactParameterType = cms.int32( 1 ),
-  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
   deltaR = cms.double( -1.0 ),
   maximumDecayLength = cms.double( 999999.0 ),
-  nthTrack = cms.int32( 2 ),
+  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
   trackQualityClass = cms.string( "any" ),
-  useVariableJTA = cms.bool( False )
+  useVariableJTA = cms.bool( False ),
+  a_dR = cms.double( -0.001053 ),
+  b_dR = cms.double( 0.6263 ),
+  a_pT = cms.double( 0.005263 ),
+  b_pT = cms.double( 0.3684 ),
+  min_pT = cms.double( 120.0 ),
+  max_pT = cms.double( 500.0 ),
+  min_pT_dRcut = cms.double( 0.5 ),
+  max_pT_dRcut = cms.double( 0.1 ),
+  max_pT_trackPTcut = cms.double( 3.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPDummyDetLayerGeometry = cms.ESProducer( "DetLayerGeometryESProducer",
-  ComponentName = cms.string( "hltESPDummyDetLayerGeometry" )
+  ComponentName = cms.string( "hltESPDummyDetLayerGeometry" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPElectronMaterialEffects = cms.ESProducer( "GsfMaterialEffectsESProducer",
   BetheHeitlerParametrization = cms.string( "BetheHeitler_cdfmom_nC6_O5.par" ),
@@ -2439,7 +2428,8 @@ fragment.hltESPFastSteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPr
   debug = cms.bool( False ),
   ApplyRadX0Correction = cms.bool( True ),
   useMagVolumes = cms.bool( True ),
-  returnTangentPlane = cms.bool( True )
+  returnTangentPlane = cms.bool( True ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPFastSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   ComponentName = cms.string( "hltESPFastSteppingHelixPropagatorOpposite" ),
@@ -2459,7 +2449,8 @@ fragment.hltESPFastSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHe
   debug = cms.bool( False ),
   ApplyRadX0Correction = cms.bool( True ),
   useMagVolumes = cms.bool( True ),
-  returnTangentPlane = cms.bool( True )
+  returnTangentPlane = cms.bool( True ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPFittingSmootherIT = cms.ESProducer( "KFFittingSmootherESProducer",
   ComponentName = cms.string( "hltESPFittingSmootherIT" ),
@@ -2513,7 +2504,8 @@ fragment.hltESPFwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialES
   ptMin = cms.double( -1.0 )
 )
 fragment.hltESPGlobalDetLayerGeometry = cms.ESProducer( "GlobalDetLayerGeometryESProducer",
-  ComponentName = cms.string( "hltESPGlobalDetLayerGeometry" )
+  ComponentName = cms.string( "hltESPGlobalDetLayerGeometry" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPGsfElectronFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
   ComponentName = cms.string( "hltESPGsfElectronFittingSmoother" ),
@@ -2534,19 +2526,21 @@ fragment.hltESPGsfElectronFittingSmoother = cms.ESProducer( "KFFittingSmootherES
   appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPGsfTrajectoryFitter = cms.ESProducer( "GsfTrajectoryFitterESProducer",
-  Merger = cms.string( "hltESPCloseComponentsMerger5D" ),
   ComponentName = cms.string( "hltESPGsfTrajectoryFitter" ),
   MaterialEffectsUpdator = cms.string( "hltESPElectronMaterialEffects" ),
   GeometricalPropagator = cms.string( "hltESPAnalyticalPropagator" ),
-  RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" )
+  Merger = cms.string( "hltESPCloseComponentsMerger5D" ),
+  RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPGsfTrajectorySmoother = cms.ESProducer( "GsfTrajectorySmootherESProducer",
-  Merger = cms.string( "hltESPCloseComponentsMerger5D" ),
   ComponentName = cms.string( "hltESPGsfTrajectorySmoother" ),
   MaterialEffectsUpdator = cms.string( "hltESPElectronMaterialEffects" ),
-  ErrorRescaling = cms.double( 100.0 ),
   GeometricalPropagator = cms.string( "hltESPBwdAnalyticalPropagator" ),
-  RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" )
+  Merger = cms.string( "hltESPCloseComponentsMerger5D" ),
+  RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" ),
+  ErrorRescaling = cms.double( 100.0 ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPHighPtTripletStepChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
   MaxChi2 = cms.double( 30.0 ),
@@ -2722,11 +2716,13 @@ fragment.hltESPKFTrajectorySmootherForMuonTrackLoader = cms.ESProducer( "KFTraje
   appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPKFUpdator = cms.ESProducer( "KFUpdatorESProducer",
-  ComponentName = cms.string( "hltESPKFUpdator" )
+  ComponentName = cms.string( "hltESPKFUpdator" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPKullbackLeiblerDistance5D = cms.ESProducer( "DistanceBetweenComponentsESProducer5D",
+  DistanceMeasure = cms.string( "KullbackLeibler" ),
   ComponentName = cms.string( "hltESPKullbackLeiblerDistance5D" ),
-  DistanceMeasure = cms.string( "KullbackLeibler" )
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
   ComponentName = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
@@ -2862,70 +2858,8 @@ fragment.hltESPMixedTripletStepTrajectoryCleanerBySharedHits = cms.ESProducer( "
   allowSharedFirstHit = cms.bool( True )
 )
 fragment.hltESPMuonTransientTrackingRecHitBuilder = cms.ESProducer( "MuonTransientTrackingRecHitBuilderESProducer",
-  ComponentName = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" )
-)
-fragment.hltESPPFClusterParams = cms.ESProducer( "PFClusterParamsESProducer@alpaka",
-  seedFinder = cms.PSet( 
-    thresholdsByDetector = cms.VPSet( 
-      cms.PSet(  seedingThresholdPt = cms.double( 0.0 ),
-        seedingThreshold = cms.vdouble( 0.125, 0.25, 0.35, 0.35 ),
-        detector = cms.string( "HCAL_BARREL1" )
-      ),
-      cms.PSet(  seedingThresholdPt = cms.double( 0.0 ),
-        seedingThreshold = cms.vdouble( 0.1375, 0.275, 0.275, 0.275, 0.275, 0.275, 0.275 ),
-        detector = cms.string( "HCAL_ENDCAP" )
-      )
-    ),
-    nNeighbours = cms.int32( 4 )
-  ),
-  initialClusteringStep = cms.PSet(  thresholdsByDetector = cms.VPSet( 
-  cms.PSet(  gatheringThreshold = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
-    detector = cms.string( "HCAL_BARREL1" )
-  ),
-  cms.PSet(  gatheringThreshold = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 ),
-    detector = cms.string( "HCAL_ENDCAP" )
-  )
-) ),
-  pfClusterBuilder = cms.PSet( 
-    minFracTot = cms.double( 1.0E-20 ),
-    stoppingTolerance = cms.double( 1.0E-8 ),
-    positionCalc = cms.PSet( 
-      minAllowedNormalization = cms.double( 1.0E-9 ),
-      minFractionInCalc = cms.double( 1.0E-9 )
-    ),
-    maxIterations = cms.uint32( 5 ),
-    recHitEnergyNorms = cms.VPSet( 
-      cms.PSet(  recHitEnergyNorm = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
-        detector = cms.string( "HCAL_BARREL1" )
-      ),
-      cms.PSet(  recHitEnergyNorm = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 ),
-        detector = cms.string( "HCAL_ENDCAP" )
-      )
-    ),
-    showerSigma = cms.double( 10.0 ),
-    minFractionToKeep = cms.double( 1.0E-7 ),
-    excludeOtherSeeds = cms.bool( True ),
-    timeResolutionCalcBarrel = cms.PSet( 
-      corrTermLowE = cms.double( 0.0 ),
-      threshLowE = cms.double( 6.0 ),
-      noiseTerm = cms.double( 21.86 ),
-      constantTermLowE = cms.double( 4.24 ),
-      noiseTermLowE = cms.double( 8.0 ),
-      threshHighE = cms.double( 15.0 ),
-      constantTerm = cms.double( 2.82 )
-    ),
-    timeResolutionCalcEndcap = cms.PSet( 
-      corrTermLowE = cms.double( 0.0 ),
-      threshLowE = cms.double( 6.0 ),
-      noiseTerm = cms.double( 21.86 ),
-      constantTermLowE = cms.double( 4.24 ),
-      noiseTermLowE = cms.double( 8.0 ),
-      threshHighE = cms.double( 15.0 ),
-      constantTerm = cms.double( 2.82 )
-    )
-  ),
-  appendToDataLabel = cms.string( "" ),
-  alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
+  ComponentName = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPPFRecHitHCALParams = cms.ESProducer( "PFRecHitHCALParamsESProducer@alpaka",
   energyThresholdsHB = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
@@ -3160,27 +3094,31 @@ fragment.hltESPSiPixelGainCalibrationForHLTSoA = cms.ESProducer( "SiPixelGainCal
 )
 fragment.hltESPSmartPropagator = cms.ESProducer( "SmartPropagatorESProducer",
   ComponentName = cms.string( "hltESPSmartPropagator" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "PropagatorWithMaterial" ),
   MuonPropagator = cms.string( "hltESPSteppingHelixPropagatorAlong" ),
-  PropagationDirection = cms.string( "alongMomentum" ),
-  Epsilon = cms.double( 5.0 )
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPSmartPropagatorAny = cms.ESProducer( "SmartPropagatorESProducer",
   ComponentName = cms.string( "hltESPSmartPropagatorAny" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "PropagatorWithMaterial" ),
   MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-  PropagationDirection = cms.string( "alongMomentum" ),
-  Epsilon = cms.double( 5.0 )
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPSmartPropagatorAnyOpposite = cms.ESProducer( "SmartPropagatorESProducer",
   ComponentName = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "PropagatorWithMaterialOpposite" ),
   MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
-  Epsilon = cms.double( 5.0 )
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPSoftLeptonByDistance = cms.ESProducer( "LeptonTaggerByDistanceESProducer",
-  distance = cms.double( 0.5 )
+  distance = cms.double( 0.5 ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPSteppingHelixPropagatorAlong = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   ComponentName = cms.string( "hltESPSteppingHelixPropagatorAlong" ),
@@ -3200,7 +3138,8 @@ fragment.hltESPSteppingHelixPropagatorAlong = cms.ESProducer( "SteppingHelixProp
   debug = cms.bool( False ),
   ApplyRadX0Correction = cms.bool( True ),
   useMagVolumes = cms.bool( True ),
-  returnTangentPlane = cms.bool( True )
+  returnTangentPlane = cms.bool( True ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   ComponentName = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
@@ -3220,7 +3159,8 @@ fragment.hltESPSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixP
   debug = cms.bool( False ),
   ApplyRadX0Correction = cms.bool( True ),
   useMagVolumes = cms.bool( True ),
-  returnTangentPlane = cms.bool( True )
+  returnTangentPlane = cms.bool( True ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
   ComponentName = cms.string( "hltESPStripCPEfromTrackAngle" ),
@@ -3405,6 +3345,14 @@ fragment.hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleane
   MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( False )
 )
+fragment.hltESPTrajectoryCleanerBySharedHitsP5 = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHitsP5" ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.19 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
+)
 fragment.hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
   ComponentName = cms.string( "hltESPTrajectoryFitterRK" ),
   Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
@@ -3473,7 +3421,8 @@ fragment.muonSeededTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCl
 fragment.navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "SimpleNavigationSchool" ),
   PluginName = cms.string( "" ),
-  SimpleMagneticField = cms.string( "ParabolicMf" )
+  SimpleMagneticField = cms.string( "ParabolicMf" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "PreshowerDetIdAssociator" ),
