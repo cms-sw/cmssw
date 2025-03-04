@@ -1,0 +1,16 @@
+<lcgdict>
+
+ <class name="reco::TransientTrack"/> 
+ <class name="std::vector<reco::TransientTrack>"  ClassVersion="6">
+    <version ClassVersion="6" checksum="1695337441"/>
+ </class>
+ <class name="edm::Wrapper<std::vector<reco::TransientTrack> >"/>
+ <class name="KinVtxFitter"/>
+ <class name="std::vector<KinVtxFitter>"/>
+ <class name="edm::Wrapper<std::vector<KinVtxFitter> >"/>
+
+ <class name="edm::RefProd<pat::CompositeCandidateCollection>" />
+ <class name="edm::Association<pat::CompositeCandidateCollection>" />
+ <class name="edm::Wrapper<edm::Association<pat::CompositeCandidateCollection> >" />
+
+</lcgdict>
