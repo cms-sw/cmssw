@@ -216,7 +216,7 @@ namespace edm {
         ->setComment("Initially, columns start with a page of this size (bytes).");
     desc.addUntracked<unsigned long long>("maxUnzippedPageSize", ops.GetMaxUnzippedPageSize())
         ->setComment("Pages can grow only to the given limit (bytes).");
-    desc.addUntracked<unsigned long long>("pageBufferBudget", ops.GetPageBufferBudget())
+    desc.addUntracked<unsigned long long>("pageBufferBudget", 0)
         ->setComment(
             "The maximum size that the sum of all page buffers used for writing into a persistent sink are allowed to "
             "use."
