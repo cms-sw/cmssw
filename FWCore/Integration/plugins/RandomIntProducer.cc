@@ -31,12 +31,12 @@ namespace edmtest {
 
   void RandomIntProducer::produce(edm::Event& iEvent, edm::EventSetup const&) {
     edm::Service<edm::RandomNumberGenerator> gen;
-    iEvent.emplace(evToken_, CLHEP::RandFlat::shootInt(&gen->getEngine(iEvent.streamID()), 10));
+    iEvent.emplace(evToken_, static_cast<int>(CLHEP::RandFlat::shootInt(&gen->getEngine(iEvent.streamID()), 10)));
   }
 
   void RandomIntProducer::beginLuminosityBlockProduce(edm::LuminosityBlock& iLumi, edm::EventSetup const&) {
     edm::Service<edm::RandomNumberGenerator> gen;
-    iLumi.emplace(lumiToken_, CLHEP::RandFlat::shootInt(&gen->getEngine(iLumi.index()), 10));
+    iLumi.emplace(lumiToken_, static_cast<int>(CLHEP::RandFlat::shootInt(&gen->getEngine(iLumi.index()), 10)));
   }
 
 }  // namespace edmtest

@@ -145,7 +145,7 @@ namespace edm {
       void finishConfiguration();
       void clearComponents();
 
-      unsigned indexOfNextProcess() const { return providers_.size(); }
+      auto indexOfNextProcess() const { return providers_.size(); }
 
       void lookForMatches(ParameterSetID const& psetID,
                           unsigned subProcessIndex,

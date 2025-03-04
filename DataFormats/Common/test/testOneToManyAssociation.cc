@@ -42,7 +42,7 @@ void testOneToManyAssociation::dummy() {
     Assoc::const_iterator f = v.find(edm::Ref<CKey>());
     v.numberOfAssociations(edm::Ref<CKey>());
     const edm::RefVector<CVal>& x = v[edm::Ref<CKey>()];
-    int n = x.size();
+    auto n = x.size();
     ++f;
     n = v.numberOfAssociations(edm::Ref<CKey>());
     ++n;
@@ -64,7 +64,7 @@ void testOneToManyAssociation::dummy() {
     Assoc::const_iterator f = v.find(edm::Ref<CKey>());
     v.numberOfAssociations(edm::Ref<CKey>());
     const std::vector<std::pair<edm::Ref<CVal>, double> >& x = v[edm::Ref<CKey>()];
-    int n = x.size();
+    auto n = x.size();
     ++f;
     n = v.numberOfAssociations(edm::Ref<CKey>());
     ++n;

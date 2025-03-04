@@ -39,8 +39,8 @@ ProductInfo::ProductInfo(const edm::Provenance &prov, TBranch &branch, edm::EDGe
 void ProductInfo::addBranchSizes(TBranch &branch, Long64_t &size) {
   size += branch.GetTotalSize();  // Includes size of branch metadata
   // Now recurse through any subbranches.
-  Long64_t nB = branch.GetListOfBranches()->GetEntries();
-  for (Long64_t i = 0; i < nB; ++i) {
+  auto nB = branch.GetListOfBranches()->GetEntries();
+  for (decltype(nB) i = 0; i < nB; ++i) {
     TBranch *btemp = (TBranch *)branch.GetListOfBranches()->At(i);
     if (btemp != nullptr) {
       addBranchSizes(*btemp, size);

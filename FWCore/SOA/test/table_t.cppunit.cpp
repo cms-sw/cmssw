@@ -77,8 +77,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testTable);
 
 void testTable::rowviewCtrTest() {
   int id = 1;
-  float eta = 3.14;
-  float phi = 1.5;
+  float eta = 3.14f;
+  float phi = 1.5f;
   std::string label{"foo"};
 
   std::array<void const*, 4> variables{{&id, &eta, &phi, &label}};
@@ -93,8 +93,8 @@ void testTable::rowviewCtrTest() {
 
 void testTable::rawTableItrTest() {
   int ids[] = {1, 2, 3};
-  float etas[] = {3.14, 2.5, 0.3};
-  float phis[] = {1.5, -0.2, 2.9};
+  float etas[] = {3.14f, 2.5f, 0.3f};
+  float phis[] = {1.5f, -0.2f, 2.9f};
 
   std::array<void*, 3> variables{{ids, etas, phis}};
 
@@ -136,9 +136,9 @@ namespace {
     double phi_;
   };
 
-  double value_for_column(JetType const& iJ, ts::Eta*) { return iJ.eta_; }
+  auto value_for_column(JetType const& iJ, ts::Eta*) { return static_cast<ts::Eta::type>(iJ.eta_); }
 
-  double value_for_column(JetType const& iJ, ts::Phi*) { return iJ.phi_; }
+  auto value_for_column(JetType const& iJ, ts::Phi*) { return static_cast<ts::Phi::type>(iJ.phi_); }
 
   bool tolerance(double a, double b) { return std::abs(a - b) < 10E-6; }
 }  // namespace
@@ -146,8 +146,8 @@ namespace {
 void testTable::tableColumnTest() {
   using namespace ts;
   using namespace edm::soa;
-  std::array<double, 3> eta = {{1., 2., 4.}};
-  std::array<double, 3> phi = {{3.14, 0., 1.3}};
+  std::array<float, 3> eta = {{1.f, 2.f, 4.f}};
+  std::array<float, 3> phi = {{3.14f, 0.f, 1.3f}};
 
   JetTable jets{eta, phi};
   {
@@ -170,8 +170,8 @@ void testTable::tableColumnTest() {
 void testTable::tableViewConversionTest() {
   using namespace ts;
   using namespace edm::soa;
-  std::array<double, 3> eta = {{1., 2., 4.}};
-  std::array<double, 3> phi = {{3.14, 0., 1.3}};
+  std::array<float, 3> eta = {{1.f, 2.f, 4.f}};
+  std::array<float, 3> phi = {{3.14f, 0.f, 1.3f}};
 
   JetTable jets{eta, phi};
 
@@ -192,7 +192,7 @@ void testTable::tableViewConversionTest() {
   std::vector<double> px = {0.1, 0.9, 1.3};
   std::vector<double> py = {0.8, 1.7, 2.1};
   std::vector<double> pz = {0.4, 1.0, 0.7};
-  std::vector<double> energy = {1.4, 3.7, 4.1};
+  std::vector<float> energy = {1.4f, 3.7f, 4.1f};
 
   ParticleTable particles{px, py, pz, energy};
 
@@ -213,8 +213,8 @@ void testTable::tableViewConversionTest() {
 void testTable::tableCtrTest() {
   using namespace ts;
   using namespace edm::soa;
-  std::array<double, 3> eta = {{1., 2., 4.}};
-  std::array<double, 3> phi = {{3.14, 0., 1.3}};
+  std::array<float, 3> eta = {{1.f, 2.f, 4.f}};
+  std::array<float, 3> phi = {{3.14f, 0.f, 1.3f}};
 
   JetTable jets{eta, phi};
 
@@ -231,7 +231,7 @@ void testTable::tableCtrTest() {
   std::vector<double> px = {0.1, 0.9, 1.3};
   std::vector<double> py = {0.8, 1.7, 2.1};
   std::vector<double> pz = {0.4, 1.0, 0.7};
-  std::vector<double> energy = {1.4, 3.7, 4.1};
+  std::vector<float> energy = {1.4f, 3.7f, 4.1f};
 
   ParticleTable particles{px, py, pz, energy};
 
@@ -273,7 +273,7 @@ void testTable::tableStandardOpsTest() {
   std::vector<double> px = {0.1, 0.9, 1.3};
   std::vector<double> py = {0.8, 1.7, 2.1};
   std::vector<double> pz = {0.4, 1.0, 0.7};
-  std::vector<double> energy = {1.4, 3.7, 4.1};
+  std::vector<float> energy = {1.4f, 3.7f, 4.1f};
 
   ParticleTable particles{px, py, pz, energy};
 
@@ -339,8 +339,8 @@ void testTable::tableExaminerTest() {
   using namespace edm::soa;
   using namespace ts;
 
-  std::array<double, 3> eta = {{1., 2., 4.}};
-  std::array<double, 3> phi = {{3.14, 0., 1.3}};
+  std::array<float, 3> eta = {{1.f, 2.f, 4.f}};
+  std::array<float, 3> phi = {{3.14f, 0.f, 1.3f}};
   int size = eta.size();
   CPPUNIT_ASSERT(size == 3);
 
@@ -358,7 +358,7 @@ void testTable::tableResizeTest() {
   std::vector<double> px = {0.1, 0.9, 1.3};
   std::vector<double> py = {0.8, 1.7, 2.1};
   std::vector<double> pz = {0.4, 1.0, 0.7};
-  std::vector<double> energy = {1.4, 3.7, 4.1};
+  std::vector<float> energy = {1.4f, 3.7f, 4.1f};
 
   ParticleTable particlesStandard{px, py, pz, energy};
 
@@ -394,13 +394,13 @@ void testTable::mutabilityTest() {
   using namespace edm::soa;
   using namespace ts;
 
-  std::array<double, 3> eta = {{1., 2., 4.}};
-  std::array<double, 3> phi = {{3.14, 0., 1.3}};
+  std::array<float, 3> eta = {{1.f, 2.f, 4.f}};
+  std::array<float, 3> phi = {{3.14f, 0.f, 1.3f}};
   JetTable jets{eta, phi};
 
   jets.get<Eta>(0) = 0.;
   CPPUNIT_ASSERT(jets.get<Eta>(0) == 0.);
-  jets.get<Phi>(1) = 0.03;
+  jets.get<Phi>(1) = 0.03f;
   CPPUNIT_ASSERT(tolerance(jets.get<Phi>(1), 0.03));
 
   auto row = jets.row(2);
@@ -411,7 +411,7 @@ void testTable::mutabilityTest() {
   CPPUNIT_ASSERT(row.get<Eta>() == 5.);
   CPPUNIT_ASSERT(row.get<Phi>() == 6.);
 
-  row.copyValuesFrom(JetType{7., 8.}, column_fillers(Phi::filler([](JetType const&) { return 9.; })));
+  row.copyValuesFrom(JetType{7., 8.}, column_fillers(Phi::filler([](JetType const&) { return 9.f; })));
   CPPUNIT_ASSERT(row.get<Eta>() == 7.);
   CPPUNIT_ASSERT(row.get<Phi>() == 9.);
 
