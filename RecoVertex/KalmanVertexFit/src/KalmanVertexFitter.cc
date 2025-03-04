@@ -35,9 +35,8 @@ void KalmanVertexFitter::setup(const edm::ParameterSet& pSet, bool useSmoothing,
                                                         smoother,
                                                         LinearizedTrackStateFactory());
   }
-  if (useMuonSystemBounds) {
-    theSequentialFitter->setTrackerBounds(muonSystemBoundsRadius, muonSystemBoundsHalfLength);
-  }
+  if (useMuonSystemBounds)
+    theSequentialFitter->setMuonSystemBounds();
 }
 
 edm::ParameterSet KalmanVertexFitter::defaultParameters() const {

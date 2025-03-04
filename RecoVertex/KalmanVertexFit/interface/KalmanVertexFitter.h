@@ -109,9 +109,6 @@ private:
   edm::ParameterSet defaultParameters() const;
 
   SequentialVertexFitter<5>* theSequentialFitter;
-
-  float muonSystemBoundsRadius{740.};
-  float muonSystemBoundsHalfLength{960.};
 };
 
 #endif
