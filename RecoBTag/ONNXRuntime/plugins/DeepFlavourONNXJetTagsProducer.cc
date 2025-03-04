@@ -14,6 +14,7 @@
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXSessionOptions.h"
 
 using namespace cms::Ort;
 
@@ -85,12 +86,15 @@ void DeepFlavourONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<std::vector<std::string>>("output_names", {"ID_pred/Softmax:0"});
   desc.add<std::vector<std::string>>(
       "flav_names", std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probuds", "probg"});
+  desc.add<std::string>("onnx_backend", "default");
 
   descriptions.add("pfDeepFlavourJetTags", desc);
 }
 
 std::unique_ptr<ONNXRuntime> DeepFlavourONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
-  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath());
+  auto session_options = cms::Ort::getSessionOptions(iConfig.getParameter<std::string>("onnx_backend"));
+  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath(),
+                                       &session_options);
 }
 
 void DeepFlavourONNXJetTagsProducer::globalEndJob(const ONNXRuntime* cache) {}
