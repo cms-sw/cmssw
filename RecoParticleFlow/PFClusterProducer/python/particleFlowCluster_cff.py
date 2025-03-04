@@ -66,7 +66,8 @@ particleFlowCluster = cms.Sequence(particleFlowClusterTask)
 #HGCal
 
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cfi import particleFlowRecHitHGC
-pfClusteringHGCalTask = cms.Task(particleFlowRecHitHGC)
+from RecoParticleFlow.PFClusterProducer.barrelLayerClusters_cff import barrelLayerClustersEB, barrelLayerClustersHB
+pfClusteringHGCalTask = cms.Task(particleFlowRecHitHGC, barrelLayerClustersEB, barrelLayerClustersHB)
 pfClusteringHGCal = cms.Sequence(pfClusteringHGCalTask)
 
 _phase2_hgcal_particleFlowClusterTask = particleFlowClusterTask.copy()
