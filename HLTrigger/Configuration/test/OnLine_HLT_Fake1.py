@@ -1,13 +1,13 @@
-# hltGetConfiguration /dev/CMSSW_14_2_0/Fake1 --full --data --type Fake1 --unprescale --process HLTFake1 --globaltag auto:run2_hlt_Fake1 --input file:RelVal_Raw_Fake1_DATA.root
+# hltGetConfiguration /dev/CMSSW_15_0_0/Fake1 --full --data --type Fake1 --unprescale --process HLTFake1 --globaltag auto:run2_hlt_Fake1 --input file:RelVal_Raw_Fake1_DATA.root
 
-# /dev/CMSSW_14_2_0/Fake1/V5 (CMSSW_14_2_0)
+# /dev/CMSSW_15_0_0/Fake1/V5 (CMSSW_15_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake1" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_2_0/Fake1/V5")
+  tableName = cms.string("/dev/CMSSW_15_0_0/Fake1/V5")
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -40,6 +40,8 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
 )
 
 process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  dump = cms.untracked.vstring(  ),
+  file = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP",
