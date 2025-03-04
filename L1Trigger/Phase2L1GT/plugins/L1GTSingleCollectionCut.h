@@ -91,6 +91,9 @@ namespace l1t {
           minPtMultiplicityN_(config.getParameter<unsigned int>("minPtMultiplicityN")),
           minPtMultiplicityCut_(getOptionalParam<int, double>(
               "minPtMultiplicityCut", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })) {
+      if (!std::is_sorted(regionsAbsEtaLowerBounds_.begin(), regionsAbsEtaLowerBounds_.end())) {
+        throw cms::Exception("Configuration") << "\'regionsAbsEtaLowerBounds\' is not sorted.";
+      }
       if (!regionsMinPt_.empty() && regionsAbsEtaLowerBounds_.size() != regionsMinPt_.size()) {
         throw cms::Exception("Configuration")
             << "\'regionsMinPt\' has " << regionsMinPt_.size() << " entries, but requires "
