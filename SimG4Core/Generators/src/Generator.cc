@@ -484,9 +484,7 @@ void Generator::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC::GenPartic
     } else {
       isInList = std::abs(vp->pdg_id()) == 1000015;
     }
-    bool checkStatus = fFixG4Primary
-                           ? ((status == 23 && isInList) || (status > 50 && status < 100))
-                           : status > 3;
+    bool checkStatus = fFixG4Primary ? ((status == 23 && isInList) || (status > 50 && status < 100)) : status > 3;
 
     if ((status == 2 || checkStatus) && (*vpdec)->end_vertex() != nullptr) {
       double x2 = (*vpdec)->end_vertex()->position().x();

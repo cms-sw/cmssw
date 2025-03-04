@@ -700,6 +700,6 @@ hgcaltb.toModify(g4SimHits,
 ## Fix for long-lived slepton simulation
 ##
 from Configuration.ProcessModifiers.fixLongLivedSleptonSim_cff import fixLongLivedSleptonSim
-dd4hep.toModify( g4SimHits,
-                 Generator = dict(IsSlepton = True)
+fixLongLivedSleptonSim.toModify( g4SimHits,
+                                 Generator = dict(IsSlepton = True)
 )
