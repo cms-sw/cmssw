@@ -3,7 +3,7 @@
 
 // CMSSW include files
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/GenericProduct.h"
+#include "FWCore/Framework/interface/WrapperBaseOrphanHandle.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,10 +38,10 @@ public:
       entry.wrappedType = edm::TypeWithDict::byName("edm::Wrapper<" + type + ">");
       entry.token = produces(edm::TypeID{entry.type.typeInfo()}, label);
 
-      edm::LogAbsolute("MPIReceiver") << "receive type \"" << entry.type.name() << "\" for label \"" << label
+      edm::LogVerbatim("MPIReceiver") << "receive type \"" << entry.type.name() << "\" for label \"" << label
                                       << "\" over MPI channel instance " << this->instance_;
 
-      products_.push_back(entry);
+      products_.emplace_back(std::move(entry));
     }
   }
 
@@ -52,19 +52,18 @@ public:
     // Receive the number of products
     int numProducts;
     token.channel()->receiveProduct(instance_, numProducts);
-    edm::LogAbsolute("MPIReceiver") << "Received number of products: " << numProducts;
+    edm::LogVerbatim("MPIReceiver") << "Received number of products: " << numProducts;
 
     for (auto const& entry : products_) {
-      auto product = std::make_unique<edm::GenericProduct>();
-      product->object_ = entry.type.construct();
-      product->wrappedType_ = entry.wrappedType;
+      std::unique_ptr<edm::WrapperBase> wrapper(
+          reinterpret_cast<edm::WrapperBase*>(entry.wrappedType.getClass()->New()));
 
       // receive the data sent over the MPI channel
       // note: currently this uses a blocking probe/recv
-      token.channel()->receiveProduct(instance_, product->object_);
+      token.channel()->receiveProduct(instance_, entry.wrappedType, *wrapper);
 
       // put the data into the Event
-      event.put(entry.token, std::move(product));
+      event.put(entry.token, std::move(wrapper));
     }
 
     // write a shallow copy of the channel to the output, so other modules can consume it
