@@ -17,7 +17,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     BeamSpotDeviceProducer(edm::ParameterSet const& config)
         : EDProducer(config),
           legacyToken_{consumes(config.getParameter<edm::InputTag>("src"))},
-          deviceToken_{produces()} {}
+          podToken_{produces()} {}
 
     void produce(edm::StreamID, device::Event& event, device::EventSetup const& setup) const override {
       reco::BeamSpot const& beamspot = event.get(legacyToken_);
@@ -35,13 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       hostProduct->emittanceY = beamspot.emittanceY();
       hostProduct->betaStar = beamspot.betaStar();
 
-      if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
-        event.emplace(deviceToken_, std::move(hostProduct));
-      } else {
-        BeamSpotDevice deviceProduct{event.queue()};
-        alpaka::memcpy(event.queue(), deviceProduct.buffer(), hostProduct.const_buffer());
-        event.emplace(deviceToken_, std::move(deviceProduct));
-      }
+      event.emplace(podToken_, std::move(hostProduct));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -52,7 +46,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::EDGetTokenT<reco::BeamSpot> legacyToken_;
-    const device::EDPutToken<BeamSpotDevice> deviceToken_;
+    const edm::EDPutTokenT<BeamSpotHost> podToken_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
