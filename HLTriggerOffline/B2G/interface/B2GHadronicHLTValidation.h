@@ -82,8 +82,7 @@ private:
   unsigned int minJets_;
   double htMin_;
   // Trigger
-  std::string sTrigger_;
-  edm::EDGetTokenT<edm::TriggerResults> tokTrigger_;
+  const edm::EDGetTokenT<edm::TriggerResults> tokTrigger_;
   std::vector<std::string> vsPaths_;
   // Flags
   bool isAll_ = false;
@@ -117,14 +116,12 @@ inline B2GHadronicHLTValidation::B2GHadronicHLTValidation(const edm::ParameterSe
       etaJets_(iConfig.getUntrackedParameter<double>("etaJets", 0.)),
       minJets_(iConfig.getUntrackedParameter<unsigned int>("minJets", 0)),
       htMin_(iConfig.getUntrackedParameter<double>("htMin", 0.0)),
-      sTrigger_(iConfig.getUntrackedParameter<std::string>("sTrigger", "TriggerResults")),
+      tokTrigger_(consumes(iConfig.getParameter<edm::InputTag>("triggerResults"))),
       vsPaths_(iConfig.getUntrackedParameter<std::vector<std::string>>("vsPaths"))
 
 {
   // Jets
   tokJets_ = consumes<edm::View<reco::Jet>>(edm::InputTag(sJets_));
-  // Trigger
-  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "HLT"));
 }
 
 inline B2GHadronicHLTValidation::~B2GHadronicHLTValidation() {
