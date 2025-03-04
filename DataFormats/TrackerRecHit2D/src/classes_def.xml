@@ -71,6 +71,8 @@
  <class name="edmNew::DetSet<SiPixelRecHit>"/>
  <class name="edmNew::DetSetVector<SiStripRecHit2D>"/>
  <class name="edmNew::DetSetVector<SiStripRecHit1D>"/>
+ 
+ <class name="SiPixelRecHitRefVector"/>
 
  <class name="edm::Wrapper<edmNew::DetSetVector<SiStripRecHit2D> >"/>
  <class name="edm::Wrapper<edmNew::DetSetVector<SiStripRecHit1D> >"/>
