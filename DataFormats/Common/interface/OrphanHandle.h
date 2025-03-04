@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_OrphanHandle_h
-#define DataFormats_Common_OrphanHandle_h
+#ifndef DataFormats_Common_interface_OrphanHandle_h
+#define DataFormats_Common_interface_OrphanHandle_h
 
 /*----------------------------------------------------------------------
   
@@ -22,23 +22,20 @@ To check validity, one can use the isValid() function.
 #include "DataFormats/Common/interface/OrphanHandleBase.h"
 
 namespace edm {
+
   template <typename T>
   class OrphanHandle : public OrphanHandleBase {
   public:
-    typedef T element_type;
+    using element_type = T;
 
     // Default constructed handles are invalid.
     OrphanHandle();
 
     OrphanHandle(T const* prod, ProductID const& id);
 
-    ~OrphanHandle();
-
     T const* product() const;
     T const* operator->() const;  // alias for product()
     T const& operator*() const;
-
-  private:
   };
 
   template <class T>
@@ -46,9 +43,6 @@ namespace edm {
 
   template <class T>
   OrphanHandle<T>::OrphanHandle(T const* prod, ProductID const& theId) : OrphanHandleBase(prod, theId) {}
-
-  template <class T>
-  OrphanHandle<T>::~OrphanHandle() {}
 
   template <class T>
   T const* OrphanHandle<T>::product() const {
@@ -66,4 +60,5 @@ namespace edm {
   }
 
 }  // namespace edm
-#endif
+
+#endif  // DataFormats_Common_interface_OrphanHandle_h

@@ -9,23 +9,21 @@
   \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.8 2010/10/20 23:09:25 wmtan Exp $
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
 #include <ext/algorithm>
 #include <memory>
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 
 namespace pat {
   class PATGenCandsFromSimTracksProducer : public edm::stream::EDProducer<> {
@@ -326,7 +324,10 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
   }
 
   // Write to the Event, and get back a handle (which can be useful for debugging)
-  edm::OrphanHandle<reco::GenParticleCollection> orphans = event.put(std::move(cands));
+#ifdef DEBUG_PATGenCandsFromSimTracksProducer
+  edm::OrphanHandle<reco::GenParticleCollection> orphans =
+#endif
+      event.put(std::move(cands));
 
 #ifdef DEBUG_PATGenCandsFromSimTracksProducer
   std::cout << "Produced a list of " << orphans->size() << " genParticles." << std::endl;
