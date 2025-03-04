@@ -9,6 +9,7 @@
 #include <TClass.h>
 
 // CMSSW headers
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 
@@ -92,6 +93,11 @@ public:
     }
   }
 
+  // serialize a wrapped object using its ROOT dictionary, and transmit it
+  void sendProduct(int instance, edm::TypeWithDict const& type, edm::WrapperBase const& wrapper) {
+    sendSerializedProduct_(instance, type.getClass(), &wrapper);
+  }
+
   // signal that an expected product will not be transmitted
   void sendSkipProduct() { sendEmpty_(EDM_MPI_SkipProduct); }
 
@@ -122,6 +128,11 @@ public:
     } else {
       receiveTrivialProduct_(instance, product);
     }
+  }
+
+  // receive a wrapped object, and deserialize it using its ROOT dictionary
+  void receiveProduct(int instance, edm::TypeWithDict const& type, edm::WrapperBase& wrapper) {
+    receiveSerializedProduct_(instance, type.getClass(), &wrapper);
   }
 
 private:
