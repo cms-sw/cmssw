@@ -99,7 +99,7 @@ void SCEnergyCorrectorDRNProducer::produce(edm::Event& iEvent, const edm::EventS
     ++i;
   }
 
-  auto scHandle = iEvent.put(std::move(corrSCs));
+  iEvent.put(std::move(corrSCs));
 }
 
 void SCEnergyCorrectorDRNProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
