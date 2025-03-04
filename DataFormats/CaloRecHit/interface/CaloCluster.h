@@ -41,7 +41,9 @@ namespace reco {
       hgcal_had = 7,
       hgcal_scintillator = 8,
       hfnose = 9,
-      undefined = 1000
+      barrel_em = 10,
+      barrel_had = 11,
+      undefined = -1 
     };
 
     // super-cluster flags
