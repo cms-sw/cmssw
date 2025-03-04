@@ -175,9 +175,9 @@ namespace edmtest {
         // finalize the clone after the trivialCopy, if the type requires it
         mutable_serialiser->trivialCopyFinalize();
       } else {
-        edm::LogInfo("GenericCloner")
-            << "No specialization of TrivialCopyTraits found for type " << product.objectType_.typeInfo().name()
-            << ", falling back to the ROOT serialization.";
+        edm::LogInfo("GenericCloner") << "No specialization of TrivialCopyTraits found for type "
+                                      << product.objectType_.typeInfo().name()
+                                      << ", falling back to the ROOT serialization.";
         // Use ROOT-based serialisation and deserialisation to clone the wrapped object.
 
         // write the wrapper into a TBuffer
