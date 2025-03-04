@@ -253,7 +253,6 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat) : PixelConfigBase(
 
   // Read below quantities pertaining to a single FED that are equal accross 36 channels
   if (first) {
-    first = false;
     //VME base address
     //Fed Base Address
     sscanf(tableMat[1][colM["VME_ADDRS_HEX"]].c_str(), "%lx", &FEDBASE_0);
