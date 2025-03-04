@@ -118,8 +118,10 @@ public:
                     const std::string& ylabel,
                     Args&&... args) {
       const std::string& xylabels = "; " + xlabel + "; " + ylabel;
-      auto hp = std::make_unique<TH1F>(("pass_" + name).c_str(), (title + " (pass)" + xylabels).c_str(), std::forward<Args>(args)...);
-      auto ht = std::make_unique<TH1F>(name.c_str(), (title + " (all)" + xylabels).c_str(), std::forward<Args>(args)...);
+      auto hp = std::make_unique<TH1F>(
+          ("pass_" + name).c_str(), (title + " (pass)" + xylabels).c_str(), std::forward<Args>(args)...);
+      auto ht =
+          std::make_unique<TH1F>(name.c_str(), (title + " (all)" + xylabels).c_str(), std::forward<Args>(args)...);
       simdoublets::BinLogX(hp.get());
       simdoublets::BinLogX(ht.get());
       h_pass_ = ibooker.book1D("pass_" + name, hp.release());
@@ -141,6 +143,12 @@ private:
                  int const,
                  simdoublets::CellCutVariables const&,
                  simdoublets::ClusterSizeCutManager const&) const;
+
+  //  function that fills all histograms for cut variables (in folder cutParameters)
+  void fillCutHistograms(bool,
+                         int const,
+                         simdoublets::CellCutVariables const&,
+                         simdoublets::ClusterSizeCutManager const&);
 
   // ------------ member data ------------
 
