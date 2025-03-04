@@ -27,13 +27,13 @@ public:
    * \param useSmoothing Specifies whether the tracks should be refit or not.
    */
 
-  KalmanVertexFitter(bool useSmoothing = false);
+  KalmanVertexFitter(bool useSmoothing = false, bool useMuonSystemBounds = false);
 
   /**
    * Same as above, using a ParameterSet to set the convergence criteria
    */
 
-  KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing = false);
+  KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing = false, bool useMuonSystemBounds = false);
 
   KalmanVertexFitter(const KalmanVertexFitter& other) : theSequentialFitter(other.theSequentialFitter->clone()) {}
 
@@ -104,11 +104,14 @@ public:
   //  edm::ParameterSet defaultParameters() const;
 
 private:
-  void setup(const edm::ParameterSet& pSet, bool useSmoothing);
+  void setup(const edm::ParameterSet& pSet, bool useSmoothing, bool useMuonSystemBounds);
 
   edm::ParameterSet defaultParameters() const;
 
-  const SequentialVertexFitter<5>* theSequentialFitter;
+  SequentialVertexFitter<5>* theSequentialFitter;
+
+  float muonSystemBoundsRadius{740.};
+  float muonSystemBoundsHalfLength{960.};
 };
 
 #endif

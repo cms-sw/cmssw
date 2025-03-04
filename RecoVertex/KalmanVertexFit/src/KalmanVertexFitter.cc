@@ -7,14 +7,16 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanTrackToTrackCovCalculator.h"
 #include "RecoVertex/LinearizationPointFinders/interface/FsmwLinearizationPointFinder.h"
 
-KalmanVertexFitter::KalmanVertexFitter(bool useSmoothing) {
+KalmanVertexFitter::KalmanVertexFitter(bool useSmoothing, bool useMuonSystemBounds) {
   edm::ParameterSet pSet = defaultParameters();
-  setup(pSet, useSmoothing);
+  setup(pSet, useSmoothing, useMuonSystemBounds);
 }
 
-KalmanVertexFitter::KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing) { setup(pSet, useSmoothing); }
+KalmanVertexFitter::KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing, bool useMuonSystemBounds) {
+  setup(pSet, useSmoothing, useMuonSystemBounds);
+}
 
-void KalmanVertexFitter::setup(const edm::ParameterSet& pSet, bool useSmoothing) {
+void KalmanVertexFitter::setup(const edm::ParameterSet& pSet, bool useSmoothing, bool useMuonSystemBounds) {
   if (useSmoothing) {
     KalmanVertexTrackUpdator<5> vtu;
     KalmanSmoothedVertexChi2Estimator<5> vse;
@@ -32,6 +34,9 @@ void KalmanVertexFitter::setup(const edm::ParameterSet& pSet, bool useSmoothing)
                                                         KalmanVertexUpdator<5>(),
                                                         smoother,
                                                         LinearizedTrackStateFactory());
+  }
+  if (useMuonSystemBounds) {
+    theSequentialFitter->setTrackerBounds(muonSystemBoundsRadius, muonSystemBoundsHalfLength);
   }
 }
 
