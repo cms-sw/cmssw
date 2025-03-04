@@ -23,7 +23,6 @@
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
-#include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
 
 namespace onlinebeammonitor {
   struct BeamSpotInfo {
@@ -36,11 +35,13 @@ class OnlineBeamMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<onli
 public:
   OnlineBeamMonitor(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   std::shared_ptr<onlinebeammonitor::BeamSpotInfo> globalBeginLuminosityBlock(
       const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) const override;
+  void fetchBeamSpotInformation(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
 
@@ -55,7 +56,7 @@ private:
 
   //Parameters
   std::string monitorName_;
-  edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> bsTransientToken_;
+  edm::EDGetTokenT<reco::BeamSpot> bsOnlineToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> bsHLTToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> bsLegacyToken_;
   std::ofstream fasciiDIP;
@@ -76,6 +77,8 @@ private:
   bool appendRunTxt_;
   bool writeDIPTxt_;
   std::string outputDIPTxt_;
+
+  bool shouldReadEvent_;
 };
 
 #endif
