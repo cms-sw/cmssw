@@ -98,7 +98,7 @@ HLTHcalPFClusterIsolationProducer<T1>::HLTHcalPFClusterIsolationProducer(const e
       absEtaLowEdges_(config.getParameter<std::vector<double>>("absEtaLowEdges")),
       doEffAreaCorrection_(config.getParameter<bool>("doEffAreaCorrection")),
       effectiveAreasCorr_(config.getParameter<std::vector<double>>("effectiveAreasCorr")),
-      effectiveAreasThres_(config.getParameter<std::vector<double>>("effectiveAreasThres")){
+      effectiveAreasThres_(config.getParameter<std::vector<double>>("effectiveAreasThres")) {
   if (doRhoCorrection_) {
     if (absEtaLowEdges_.size() != effectiveAreas_.size())
       throw cms::Exception("IncompatibleVects") << "absEtaLowEdges and effectiveAreas should be of the same size. \n";
@@ -213,17 +213,17 @@ void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid,
           break;
         }
       }
-      if (doEffAreaCorrection_){
-	if (rho>effectiveAreasThres_[iEA]){
-	  sum = sum - rho * (1 + effectiveAreasCorr_[iEA]) * effectiveAreas_[iEA];
-	}else{
-	  sum = sum - rho * effectiveAreas_[iEA];
-	}
-      }else{	
-	sum = sum - rho * effectiveAreas_[iEA];
+      if (doEffAreaCorrection_) {
+        if (rho > effectiveAreasThres_[iEA]) {
+          sum = sum - rho * (1 + effectiveAreasCorr_[iEA]) * effectiveAreas_[iEA];
+        } else {
+          sum = sum - rho * effectiveAreas_[iEA];
+        }
+      } else {
+        sum = sum - rho * effectiveAreas_[iEA];
       }
     }
-    
+
     recoCandMap.insert(candRef, sum);
   }
 
