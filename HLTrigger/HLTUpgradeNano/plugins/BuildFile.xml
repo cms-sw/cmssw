@@ -7,7 +7,7 @@
 <use name="CommonTools/Utils"/> <!-- expressionParser -->
 <use name="Utilities/General"/> <!-- Demangle -->
 <use name="SimDataFormats/Associations"/>
-<library file="*.cc" name="HLTriggerHLTUpgradeNano_plugins">
+<library file="*.cc" name="HLTriggerHLTUpgradeNano">
   <flags EDM_PLUGIN="1"/>
 </library>
 

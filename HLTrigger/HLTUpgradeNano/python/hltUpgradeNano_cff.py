@@ -42,7 +42,6 @@ trackstersAssociationOneToManyTable = cms.EDProducer(
     ),
     name=cms.string("SimTS2TSMergeByHits"),
     doc=cms.string("Association betwewn SimTracksters and tracksterMerge, by hits."),
-    singleton=cms.bool(True),  # the number of entries is variable
     collectionVariables=cms.PSet(
         links=cms.PSet(
             name=cms.string("SimTS2TSMergeByHitsLinks"),
@@ -63,7 +62,6 @@ simCl2CPOneToOneFlatTable = cms.EDProducer(
     src=cms.InputTag("SimClusterToCaloParticleAssociation:simClusterToCaloParticleMap"),
     name=cms.string("SimCl2CPWithFraction"),
     doc=cms.string("Association betwewn SimClusters and CaloParticles, by ???."),
-    singleton=cms.bool(True),  # the number of entries is variable
     variables=cms.PSet(
         index=Var("index", "int", doc="Index of linked CaloParticle."),
         fraction=Var("fraction", "float", doc="Fraction of linked CaloParticle."),

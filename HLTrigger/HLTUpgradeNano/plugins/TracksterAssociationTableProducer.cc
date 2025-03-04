@@ -50,7 +50,8 @@ public:
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-    edm::ParameterSetDescription desc = SimpleFlatTableProducer<T>::baseDescriptions();
+    edm::ParameterSetDescription desc =
+        SimpleFlatTableProducerBase<typename T::AssociationElementType, T>::baseDescriptions();
     descriptions.addWithDefaultLabel(desc);
   }
 };
@@ -172,7 +173,7 @@ public:
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-    edm::ParameterSetDescription desc = SimpleFlatTableProducer<T>::baseDescriptions();
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, T>::baseDescriptions();
     edm::ParameterSetDescription colvariable;
     colvariable.add<std::string>("expr")->setComment(
         "a function to define the content of the branch in the flat table");
