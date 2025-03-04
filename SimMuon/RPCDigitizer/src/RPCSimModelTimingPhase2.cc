@@ -1,6 +1,6 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
-#include "SimMuon/RPCDigitizer/src/RPCSimModelTiming.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimModelTimingPhase2.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
 #include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
@@ -37,7 +37,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSim(config) {
+RPCSimModelTimingPhase2::RPCSimModelTimingPhase2(const edm::ParameterSet& config) : RPCSim(config) {
   aveEff = config.getParameter<double>("averageEfficiency");
   aveCls = config.getParameter<double>("averageClusterSize");
   resRPC = config.getParameter<double>("timeResolution");
@@ -52,8 +52,6 @@ RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSim(c
   nbxing = config.getParameter<int>("Nbxing");
   gate = config.getParameter<double>("Gate");
   frate = config.getParameter<double>("Frate");
-  do_Y = config.getParameter<bool>("do_Y_coordinate");
-  sigmaY = config.getParameter<double>("sigmaY");
   eledig = config.getParameter<bool>("digitizeElectrons");
 
   if (rpcdigiprint) {
@@ -70,11 +68,11 @@ RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSim(c
   _rpcSync = new RPCSynchronizer(config);
 }
 
-RPCSimModelTiming::~RPCSimModelTiming() { delete _rpcSync; }
+RPCSimModelTimingPhase2::~RPCSimModelTimingPhase2() { delete _rpcSync; }
 
-void RPCSimModelTiming::simulate(const RPCRoll* roll,
-                                 const edm::PSimHitContainer& rpcHits,
-                                 CLHEP::HepRandomEngine* engine) {
+void RPCSimModelTimingPhase2::simulate(const RPCRoll* roll,
+                                       const edm::PSimHitContainer& rpcHits,
+                                       CLHEP::HepRandomEngine* engine) {
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
   theRpcDigiSimLinks.clear();
   theDetectorHitMap.clear();
@@ -91,19 +89,25 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr = _hit->entryPoint();
 
-    int time_hit = _rpcSync->getSimHitBxAndTimingForIRPC(&(*_hit), engine);
-    double precise_time = _rpcSync->getSmearedTime();
+    float striplength;
+    if (rpcId.region() == 0) {
+      const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(&(roll->topology()));
+      striplength = (top_->stripLength());
 
+    } else {
+      const TrapezoidalStripTopology* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
+      striplength = (top_->stripLength());
+    }
+
+    double precise_time = _rpcSync->getTiming(&(*_hit), engine, striplength);
+    std::pair<int, int> tdc = _rpcSync->getBX_SBX(precise_time);
     float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
 
     std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
 
     // Effinciecy
     int centralStrip = topology.channel(entr) + 1;
-    ;
     float fire = CLHEP::RandFlat::shoot(engine);
-
-    float smearedPositionY = CLHEP::RandGaussQ::shoot(engine, _hit->localPosition().y(), sigmaY);
 
     if (fire < veff[centralStrip - 1]) {
       int fstrip = centralStrip;
@@ -141,28 +145,20 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
           }
         }
       }
-
       //digitize all the strips in the cluster
       //in the previuos version some strips were dropped
       //leading to un-physical "shift" of the cluster
       for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
-        std::pair<int, int> digi(*i, time_hit);
-        RPCDigi adigi(*i, time_hit);
-        adigi.hasTime(true);
-        adigi.setTime(precise_time);
-        if (do_Y) {
-          adigi.hasY(true);
-          adigi.setY(smearedPositionY);
-          adigi.setDeltaY(sigmaY);
-        }
-        rpc_digis.insert(adigi);
+        std::pair<int, int> digi(*i, tdc.first);
+        RPCDigiPhase2 adigi(*i, tdc.first, tdc.second);
+        rpc_digis_phase2.insert(adigi);
         theDetectorHitMap.insert(DetectorHitMap::value_type(digi, &(*_hit)));
       }
     }
   }
 }
 
-void RPCSimModelTiming::simulateNoise(const RPCRoll* roll, CLHEP::HepRandomEngine* engine) {
+void RPCSimModelTimingPhase2::simulateNoise(const RPCRoll* roll, CLHEP::HepRandomEngine* engine) {
   RPCDetId rpcId = roll->id();
   RPCGeomServ RPCname(rpcId);
   std::vector<float> vnoise = (getRPCSimSetUp())->getNoise(rpcId.rawId());
@@ -195,22 +191,14 @@ void RPCSimModelTiming::simulateNoise(const RPCRoll* roll, CLHEP::HepRandomEngin
     for (int i = 0; i < N_hits; i++) {
       double precise_time = CLHEP::RandFlat::shoot(engine, (nbxing * gate) / gate);
       int time_hit = (static_cast<int>(precise_time)) - nbxing / 2;
-      RPCDigi adigi(j + 1, time_hit);
-      adigi.hasTime(true);
-      adigi.setTime(precise_time);
-      if (do_Y) {
-        double positionY = CLHEP::RandFlat::shoot(engine, striplength);
-        positionY -= striplength / 2;
-        adigi.hasY(true);
-        adigi.setY(positionY);
-        adigi.setDeltaY(sigmaY);
-      }
-      rpc_digis.insert(adigi);
+      int sbx = CLHEP::RandFlat::shootInt(long(0), long(10));
+      RPCDigiPhase2 adigi(j + 1, time_hit, sbx);
+      rpc_digis_phase2.insert(adigi);
     }
   }
 }
 
-int RPCSimModelTiming::getClSize(uint32_t id, float posX, CLHEP::HepRandomEngine* engine) {
+int RPCSimModelTimingPhase2::getClSize(uint32_t id, float posX, CLHEP::HepRandomEngine* engine) {
   std::vector<double> clsForDetId = getRPCSimSetUp()->getCls(id);
 
   int cnt = 1;
@@ -256,7 +244,7 @@ int RPCSimModelTiming::getClSize(uint32_t id, float posX, CLHEP::HepRandomEngine
   return min;
 }
 
-int RPCSimModelTiming::LeftRightNeighbour(const RPCRoll& roll, const LocalPoint& hit_pos, int strip) {
+int RPCSimModelTimingPhase2::LeftRightNeighbour(const RPCRoll& roll, const LocalPoint& hit_pos, int strip) {
   //if left return -1
   //if right return +1
 
