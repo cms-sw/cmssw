@@ -4,6 +4,19 @@ This package contains modules that are used in framework tests, but
 are generic-enough to be usable outside of the framework as well.
 Their interfaces are intended to be relatively stable.
 
+## `edmtest::GlobalIntProducer`, `edmtest::GlobalFloatProducer`, `edmtest::GlobalStringProducer`, `edmtest::GlobalVectorProducer`
+
+These modules can be used to produce into the event plain C++ data types based
+on configurable values: a single `int`, a single `float`, a single `std::string`,
+a `vector<double>`.
+
+
+## `edmtest::GlobalIntAnalyzer`, `edmtest::GlobalFloatAnalyzer`, `edmtest::GlobalStringAnalyzer`, `edmtest::GlobalVectorAnalyzer`
+
+These modules can be used to read form the event plain C++ data types, and
+compare them with configurable expected values: a single `int`, a single `float`,
+a single `std::string`, a `vector<double>`.
+
 
 ## `edmtest::StreamIDFilter`
 

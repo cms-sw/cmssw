@@ -55,17 +55,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (arr_offset < 0) {
           arr_offset = 0;
           if (nrows_vals != arr_offset + nrows) {
-            edm::LogWarning("HGCalCalibrationESProducer")
+            throw edm::Exception(edm::errors::LogicError, "HGCalCalibrationESProducer")
                 << " Expected " << nrows << " rows, but got " << nrows_vals << "!";
           }
         } else if (nrows_vals < arr_offset + nrows) {
-          edm::LogWarning("HGCalCalibrationESProducer")
+          throw edm::Exception(edm::errors::LogicError, "HGCalCalibrationESProducer")
               << " Tried to copy " << nrows << " rows to SoA with offset " << arr_offset << ", but only have "
               << nrows_vals << " values in JSON!";
         }
         auto begin = values.begin() + arr_offset;
         auto end = (begin + nrows > values.end()) ? values.end() : begin + nrows;
         std::copy(begin, end, &column_SoA[offset]);
+      }
+
+      template <typename T, typename P>
+      static void fill_SoA_eigen_row(P& soa, const std::vector<std::vector<T>>& values, const size_t row) {
+        if (row >= values.size())
+          throw edm::Exception(edm::errors::LogicError, "HGCalCalibrationESProducer")
+              << " Tried to copy row " << row << " to SoA, but only have " << values.size() << " values in JSON!";
+        if (!values.empty() && int(values[row].size()) != soa.size())
+          throw edm::Exception(edm::errors::LogicError, "HGCalCalibrationESProducer")
+              << " Expected " << soa.size() << " elements in Eigen vector, but got " << values[row].size() << "!";
+        for (int i = 0; i < soa.size(); i++)
+          soa(i) = values[row][i];
       }
 
       std::optional<hgcalrechit::HGCalCalibParamHost> produce(const HGCalModuleConfigurationRcd& iRecord) {
@@ -117,6 +129,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             fill_SoA_column<float>(
                 product.view().BXm1_slope(), calib_data[module]["BXm1_slope"], offset_soa, nchans, offset_arr);
           }
+          // default parameters for fine-grain TDC, coarse-grain TDC and time-walk corrections that allow passthrough
+          if (calib_data[module].find("TOA_CTDC") == calib_data[module].end())
+            calib_data[module]["TOA_CTDC"] = std::vector<std::vector<float>>(nrows, std::vector<float>(32, 0.));
+          if (calib_data[module].find("TOA_FTDC") == calib_data[module].end())
+            calib_data[module]["TOA_FTDC"] = std::vector<std::vector<float>>(nrows, std::vector<float>(8, 0.));
+          if (calib_data[module].find("TOA_TW") == calib_data[module].end())
+            calib_data[module]["TOA_TW"] = std::vector<std::vector<float>>(nrows, std::vector<float>(3, 0.));
+          //
           // fill columns for gain-independent calibration parameters
           fill_SoA_column<float>(product.view().TOTtoADC(), calib_data[module]["TOTtoADC"], offset, nrows);
           fill_SoA_column<float>(product.view().TOT_ped(), calib_data[module]["TOT_ped"], offset, nrows);
@@ -124,9 +144,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           fill_SoA_column<float>(product.view().TOT_P0(), calib_data[module]["TOT_P0"], offset, nrows);
           fill_SoA_column<float>(product.view().TOT_P1(), calib_data[module]["TOT_P1"], offset, nrows);
           fill_SoA_column<float>(product.view().TOT_P2(), calib_data[module]["TOT_P2"], offset, nrows);
-          fill_SoA_column<float>(product.view().TOAtops(), calib_data[module]["TOAtops"], offset, nrows);
           fill_SoA_column<float>(product.view().MIPS_scale(), calib_data[module]["MIPS_scale"], offset, nrows);
           fill_SoA_column<unsigned char>(product.view().valid(), calib_data[module]["Valid"], offset, nrows);
+          //
+          // fill vectors for ToA correction parameters
+          for (size_t n = 0; n < nrows; n++) {
+            auto vi = product.view()[offset + n];
+            fill_SoA_eigen_row<float>(vi.TOA_CTDC(), calib_data[module]["TOA_CTDC"], n);
+            fill_SoA_eigen_row<float>(vi.TOA_FTDC(), calib_data[module]["TOA_FTDC"], n);
+            fill_SoA_eigen_row<float>(vi.TOA_TW(), calib_data[module]["TOA_TW"], n);
+          }
         }
 
         return product;

@@ -562,7 +562,6 @@ int main(int argc, const char* argv[]) {
           "\n"
           " **Additional options for building\n"
           "  --use-phiq-arr           use phi-Q arrays in select hit indices (def: %s)\n"
-          "  --kludge-cms-hit-errors  make sure err(xy) > 15 mum, err(z) > 30 mum (def: %s)\n"
           "  --backward-fit           perform backward fit during building (def: %s)\n"
           "  --no-backward-search     do not do backward search after backward fit\n"
           "                           (def: do search if backward-fit is enabled and available in given iteration)\n"
@@ -711,7 +710,6 @@ int main(int argc, const char* argv[]) {
           b2a(Config::useDeadModules),
 
           b2a(Config::usePhiQArrays),
-          b2a(Config::kludgeCmsHitErrors),
           b2a(Config::backwardFit),
           b2a(Config::includePCA),
           int(Config::usePropToPlane),
@@ -882,8 +880,6 @@ int main(int argc, const char* argv[]) {
       Config::useHitsForDuplicates = false;
     } else if (*i == "--use-dead-modules") {
       Config::useDeadModules = true;
-    } else if (*i == "--kludge-cms-hit-errors") {
-      Config::kludgeCmsHitErrors = true;
     } else if (*i == "--backward-fit") {
       Config::backwardFit = true;
     } else if (*i == "--no-backward-search") {

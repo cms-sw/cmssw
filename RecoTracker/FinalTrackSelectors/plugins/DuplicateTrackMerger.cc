@@ -286,7 +286,17 @@ namespace {
       const auto ev = iEvent.id().event();
       const auto aOriAlgo = a->originalAlgo();
       const auto bOriAlgo = b->originalAlgo();
+      const auto aSeedRef = a->seedRef();
+      if (!aSeedRef) {
+        LogDebug("DuplicateTrackMerger") << "aSeedRef is null!";
+        return false;
+      }
       const auto aSeed = a->seedRef().key();
+      const auto bSeedRef = b->seedRef();
+      if (!bSeedRef) {
+        LogDebug("DuplicateTrackMerger") << "bSeedRef is null!";
+        return false;
+      }
       const auto bSeed = b->seedRef().key();
       return ((ev == 6903 && ((aOriAlgo == 23 && aSeed == 695 && bOriAlgo == 5 && bSeed == 652) ||
                               (aOriAlgo == 23 && aSeed == 400 && bOriAlgo == 7 && bSeed == 156) ||

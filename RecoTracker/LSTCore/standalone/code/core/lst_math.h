@@ -74,7 +74,7 @@ namespace lst_math {
       center_.push_back(center_vec_z);
 
       // Lambda
-      lam_ = copysign(M_PI / 2. - 2. * atan(exp(-abs(eta))), eta);
+      lam_ = copysign(M_PI / 2. - 2. * atan(exp(-std::abs(eta))), eta);
     }
 
     const std::vector<float> center() { return center_; }

@@ -105,11 +105,11 @@ def reportModulesWithMemoryGrowth(fileParser, showEvents):
                     ret.append((m._label, m._type, mem))
     return ret
 
-def reportModuleDataProductMemory(fileParser, showEvents):
+def reportModuleDataProductMemory(fileParser, showEvents, defaultRetain):
     ret = []
     for m in fileParser.modules.values():
         l = list()
-        retained = False
+        retained = defaultRetain
         sum = 0
         for e in m._eventInfo:
             l.append(e._dataProdAlloc)
@@ -118,16 +118,16 @@ def reportModuleDataProductMemory(fileParser, showEvents):
                 retained = True
         if retained:
             if showEvents:
-                ret.append((m._label, m._type, float(sum)/len(l), l))
+                ret.append((m._label, m._type, float(sum)/max(1,len(l)), l))
             else:
-                ret.append((m._label, m._type, float(sum)/len(l)))
+                ret.append((m._label, m._type, float(sum)/max(1,len(l))))
     return ret
                 
-def reportModuleRetainingMemory(fileParser, showEvents):
+def reportModuleRetainingMemory(fileParser, showEvents, defaultRetain):
     ret =[]
     for m in fileParser.modules.values():
         l = list()
-        retained = False
+        retained = defaultRetain
         sum = 0
         for e in m._eventInfo[1:]:
             l.append(e._new)
@@ -136,16 +136,16 @@ def reportModuleRetainingMemory(fileParser, showEvents):
                 retained = True
         if retained:
             if showEvents:
-                ret.append((m._label, m._type, float(sum)/len(l), l))
+                ret.append((m._label, m._type, float(sum)/max(len(l),1), l))
             else:
-                ret.append((m._label, m._type, float(sum)/len(l)))
+                ret.append((m._label, m._type, float(sum)/max(len(l),1)))
     return ret
 
-def reportModuleTemporary(fileParser, showEvents):
+def reportModuleTemporary(fileParser, showEvents, defaultRetain):
     ret = []
     for m in fileParser.modules.values():
         l = list()
-        retained = False
+        retained = defaultRetain
         sum = 0
         for e in m._eventInfo:
             l.append(e._temp)
@@ -154,16 +154,16 @@ def reportModuleTemporary(fileParser, showEvents):
                 retained = True
         if retained:
             if showEvents:
-                ret.append((m._label, m._type, float(sum)/len(l), l))
+                ret.append((m._label, m._type, float(sum)/max(1,len(l)), l))
             else:
-                ret.append((m._label, m._type, float(sum)/len(l)))
+                ret.append((m._label, m._type, float(sum)/max(1,len(l))))
     return ret
 
-def reportModuleNTemporary(fileParser, showEvents):
+def reportModuleNTemporary(fileParser, showEvents, defaultRetain):
     ret = []
     for m in fileParser.modules.values():
         l = list()
-        retained = False
+        retained = defaultRetain
         sum = 0
         for e in m._eventInfo:
             l.append(e._nTemp)
@@ -172,9 +172,9 @@ def reportModuleNTemporary(fileParser, showEvents):
                 retained = True
         if retained:
             if showEvents:
-                ret.append((m._label, m._type, float(sum)/len(l), l))
+                ret.append((m._label, m._type, float(sum)/max(1,len(l)), l))
             else:
-                ret.append((m._label, m._type, float(sum)/len(l)))
+                ret.append((m._label, m._type, float(sum)/max(1,len(l))))
     return ret
 
 
@@ -192,21 +192,27 @@ def printReport(values, showEvents, summary, eventSummary, maxColumn):
                     width = len(v[c])
                 if width > columnWidths[c]:
                     columnWidths[c] = width
+    elif maxColumn != -1:
+            columnWidths = [maxColumn, maxColumn, maxColumn]
+            label = label[:maxColumn]
+            classType = classType[:maxColumn]
+    if maxColumn != -1:
+        print(f"{label:{columnWidths[0]}} {classType:{columnWidths[1]}} {summary:{columnWidths[2]}}")
     else:
-        columnWidths = [maxColumn, maxColumn, maxColumn]
-        label = label[:maxColumn]
-        classType = classType[:maxColumn]
-    print(f"{label:{columnWidths[0]}} {classType:{columnWidths[1]}} {summary:{columnWidths[2]}}")
+        print(f"{label}, {classType}, {summary}")
     if showEvents:
         print(f" [{eventSummary}]")
         
     for v in values:
         label = v[0]
         classType = v[1]
-        if maxColumn:
+        if maxColumn !=0 and maxColumn != -1:
             label = label[:maxColumn]
             classType = classType[:maxColumn]
-        print(f"{label:{columnWidths[0]}} {classType:{columnWidths[1]}} {v[2]:{columnWidths[2]}.2f}")
+        if maxColumn != -1:
+            print(f"{label:{columnWidths[0]}} {classType:{columnWidths[1]}} {v[2]:{columnWidths[2]}.2f}")
+        else:
+            print(f"{label}, {classType}, {v[2]:.2f}")
         if showEvents:
             print(f" {v[3]}")
 
@@ -225,21 +231,23 @@ if __name__=="__main__":
     
     parser.add_argument('--eventData', help='for each report, show the per event data associated to the report', action='store_true')
     parser.add_argument('--maxColumn', type=int, help='maximum column width for report, 0 for no constraint', default=0)
+    parser.add_argument('--csv', help='output chosen information all modules in a comma separated value format', action='store_true')
     args = parser.parse_args()
     
     inputfile = args.filename
 
     fileParser = FileParser()
     fileParser.parse(inputfile)
-
+    if args.csv:
+        args.maxColumn = -1
     if args.grew:
         printReport(reportModulesWithMemoryGrowth(fileParser, args.eventData), args.eventData, "total memory growth", "growth each event", args.maxColumn)
     if args.retained:
-        printReport(reportModuleRetainingMemory(fileParser, args.eventData), args.eventData, "average retained", "retained each event", args.maxColumn)
+        printReport(reportModuleRetainingMemory(fileParser, args.eventData, args.csv), args.eventData, "average retained", "retained each event", args.maxColumn)
     if args.product:
         printReport(reportModuleDataProductMemory(fileParser, args.eventData), args.eventData, "average data products size", "data products size each event", args.maxColumn)
     if args.tempSize:
-        printReport(reportModuleTemporary(fileParser, args.eventData), args.eventData, "average temporary allocation size", "temporary allocation size each event", args.maxColumn)
+        printReport(reportModuleTemporary(fileParser, args.eventData, args.csv), args.eventData, "average temporary allocation size", "temporary allocation size each event", args.maxColumn)
     if args.nTemp:
-        printReport(reportModuleNTemporary(fileParser, args.eventData), args.eventData, "average # of temporary allocation", "# of temporary allocations each event", args.maxColumn)
+        printReport(reportModuleNTemporary(fileParser, args.eventData, args.csv), args.eventData, "average # of temporary allocation", "# of temporary allocations each event", args.maxColumn)
     #print(fileParser.modules)

@@ -18,6 +18,7 @@
 #include "L1GTSingleCollectionCut.h"
 #include "L1GTCorrelationalCut.h"
 #include "L1GTSingleInOutLUT.h"
+#include "L1GTOptionalParam.h"
 
 #include <cinttypes>
 #include <memory>
@@ -48,6 +49,9 @@ private:
 
   const L1GTCorrelationalCut deltaCuts_;
 
+  const std::optional<unsigned int> minQualityScoreSum_;
+  const std::optional<unsigned int> maxQualityScoreSum_;
+
   const edm::EDGetTokenT<P2GTCandidateCollection> token1_;
   const edm::EDGetTokenT<P2GTCandidateCollection> token2_;
   const edm::EDGetTokenT<P2GTCandidateCollection> primVertToken_;
@@ -60,6 +64,8 @@ L1GTDoubleObjectCond::L1GTDoubleObjectCond(const edm::ParameterSet& config)
       enable_sanity_checks_(config.getUntrackedParameter<bool>("sanity_checks")),
       inv_mass_checks_(config.getUntrackedParameter<bool>("inv_mass_checks")),
       deltaCuts_(config, config, scales_, enable_sanity_checks_, inv_mass_checks_),
+      minQualityScoreSum_(getOptionalParam<unsigned int>("minQualityScoreSum", config)),
+      maxQualityScoreSum_(getOptionalParam<unsigned int>("maxQualityScoreSum", config)),
       token1_(consumes<P2GTCandidateCollection>(collection1Cuts_.tag())),
       token2_(collection1Cuts_.tag() == collection2Cuts_.tag()
                   ? token1_
@@ -73,6 +79,10 @@ L1GTDoubleObjectCond::L1GTDoubleObjectCond(const edm::ParameterSet& config)
 
   if (inv_mass_checks_) {
     produces<InvariantMassErrorCollection>();
+  }
+
+  if ((minQualityScoreSum_ || maxQualityScoreSum_) && !(collection1Cuts_.tag() == collection2Cuts_.tag())) {
+    throw cms::Exception("Configuration") << "A qualityScore sum can only be calculated within one collection.";
   }
 }
 
@@ -94,6 +104,9 @@ void L1GTDoubleObjectCond::fillDescriptions(edm::ConfigurationDescriptions& desc
 
   L1GTCorrelationalCut::fillPSetDescription(desc);
   L1GTCorrelationalCut::fillLUTDescriptions(desc);
+
+  desc.addOptional<unsigned int>("minQualityScoreSum");
+  desc.addOptional<unsigned int>("maxQualityScoreSum");
 
   edm::ParameterSetDescription scalesDesc;
   L1GTScales::fillPSetDescription(scalesDesc);
@@ -128,6 +141,14 @@ bool L1GTDoubleObjectCond::filter(edm::StreamID, edm::Event& event, const edm::E
       pass &= collection2Cuts_.checkObject(col2->at(idx2));
       pass &= collection2Cuts_.checkPrimaryVertices(col2->at(idx2), *primVertCol);
       pass &= deltaCuts_.checkObjects(col1->at(idx1), col2->at(idx2), massErrors);
+
+      if (minQualityScoreSum_ || maxQualityScoreSum_) {
+        unsigned int qualityScoreSum =
+            col1->at(idx1).hwQualityScore().to_uint() + col2->at(idx2).hwQualityScore().to_uint();
+
+        pass &= minQualityScoreSum_ ? qualityScoreSum > minQualityScoreSum_ : true;
+        pass &= maxQualityScoreSum_ ? qualityScoreSum < maxQualityScoreSum_ : true;
+      }
 
       condition_result |= pass;
 

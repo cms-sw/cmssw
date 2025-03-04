@@ -1,32 +1,76 @@
-#include "ElectronEfficiencyPlotter.h"
-
-// Framework
+// system includes
 #include <cmath>
 #include <string>
 
+// user includes
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+// ROOT includes
 #include "TF1.h"
 #include "TH1F.h"
+
+class ElectronEfficiencyPlotter : public DQMEDHarvester {
+public:
+  // Constructor
+  ElectronEfficiencyPlotter(const edm::ParameterSet &ps);
+  // Destructor
+  ~ElectronEfficiencyPlotter() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+protected:
+  // DQM Client Diagnostic
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+
+private:
+  // counters
+  const int ptBin_;
+  const double ptMin_;
+  const double ptMax_;
+  const std::string ID_;
+  const std::string theFolder_;
+  const std::string sourceFolder_;
+
+  MonitorElement *h_eff_pt_EB_doubleEG_HLT;
+  MonitorElement *h_eff_pt_EE_doubleEG_HLT;
+  MonitorElement *h_eff_pt_EB_singlePhoton_HLT;
+  MonitorElement *h_eff_pt_EE_singlePhoton_HLT;
+
+  void calculateEfficiency(MonitorElement *Numerator, MonitorElement *Denominator, MonitorElement *Efficiency);
+};
 
 using namespace edm;
 using namespace std;
 
 // Constructor
-ElectronEfficiencyPlotter::ElectronEfficiencyPlotter(const edm::ParameterSet &ps) {
-  ptBin_ = ps.getParameter<int>("ptBin");
-  ptMin_ = ps.getParameter<double>("ptMin");
-  ptMax_ = ps.getParameter<double>("ptMax");
+ElectronEfficiencyPlotter::ElectronEfficiencyPlotter(const edm::ParameterSet &ps)
+    : ptBin_{ps.getParameter<int>("ptBin")},
+      ptMin_{ps.getParameter<double>("ptMin")},
+      ptMax_{ps.getParameter<double>("ptMax")},
+      ID_{ps.getParameter<string>("sctElectronID")},
+      theFolder_{ps.getParameter<string>("folder")},
+      sourceFolder_{ps.getParameter<string>("srcFolder")} {}
 
-  ID_ = ps.getParameter<string>("sctElectronID");
-  theFolder_ = ps.getParameter<string>("folder");
-  sourceFolder_ = ps.getParameter<string>("srcFolder");
+void ElectronEfficiencyPlotter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<int>("ptBin", 5);
+  desc.add<double>("ptMin", 0);
+  desc.add<double>("ptMax", 100);
+  desc.add<string>("sctElectronID", {});
+  desc.add<string>("folder", {});
+  desc.add<string>("srcFolder", {});
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void ElectronEfficiencyPlotter::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {

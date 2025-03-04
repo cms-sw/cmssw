@@ -151,7 +151,6 @@ namespace mkfit {
 
     extern bool dumpForPlots;
 
-    extern bool kludgeCmsHitErrors;
     extern bool backwardFit;
     extern bool backwardSearch;
 

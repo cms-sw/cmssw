@@ -172,7 +172,7 @@ namespace dqmservices {
         if (unitTest_) {
           throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::openNextFileInp")
               << std::string("Can't deserialize registry data (in open file): ") + e.what()
-              << "\n error: data file corrupted";
+              << "\n error: data file corrupted, rethrowing!";
         }
 
         fiterator_.logFileAction(std::string("Can't deserialize registry data (in open file): ") + e.what(), p);
@@ -354,6 +354,12 @@ namespace dqmservices {
 
       deserializeEvent(*eview);
     } catch (const cms::Exception& e) {
+      if (unitTest_) {
+        throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::checkNext")
+            << std::string("Can't deserialize event or registry data: ") + e.what()
+            << "\n error: data file corrupted, rethrowing!";
+      }
+
       // try to recover from corrupted files/events
       fiterator_.logFileAction(std::string("Can't deserialize event or registry data: ") + e.what());
       closeFileImp_("data file corrupted");
@@ -435,6 +441,11 @@ namespace dqmservices {
         }
       }
     } catch (const cms::Exception& e) {
+      if (unitTest_) {
+        throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::skip")
+            << std::string("Can't deserialize registry data: ") + e.what()
+            << "\n error: data file corrupted, rethrowing!";
+      }
       // try to recover from corrupted files/events
       fiterator_.logFileAction(std::string("Can't deserialize event data: ") + e.what());
       closeFileImp_("data file corrupted");

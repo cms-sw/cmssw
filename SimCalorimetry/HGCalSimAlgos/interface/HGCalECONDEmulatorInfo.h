@@ -3,6 +3,7 @@
 
 #include <bitset>
 #include <vector>
+#include <cstdint>
 
 class HGCalECONDEmulatorInfo {
 public:

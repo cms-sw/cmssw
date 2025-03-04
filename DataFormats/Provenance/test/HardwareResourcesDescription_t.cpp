@@ -11,6 +11,7 @@ TEST_CASE("HardwareResourcesDescription", "[HardwareResourcesDescription]") {
   SECTION("Default construction") {
     edm::HardwareResourcesDescription resources;
     CHECK(edm::HardwareResourcesDescription(resources.serialize()) == resources);
+    CHECK(resources.serialize().empty());
   }
 
   SECTION("Microarchitecture") {

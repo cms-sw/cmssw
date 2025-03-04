@@ -72,7 +72,7 @@ process.FastMonitoringService = cms.Service("FastMonitoringService",
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     useFileBroker = cms.untracked.bool(False),
-    fileBrokerHostFromCfg = cms.untracked.bool(True),
+    fileBrokerHostFromCfg = cms.untracked.bool(False),
     fileBrokerHost = cms.untracked.string("htcp40.cern.ch"),
     runNumber = cms.untracked.uint32(options.runNumber),
     baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.fuBaseDir),
@@ -91,7 +91,7 @@ ram_dir_path=options.buBaseDir+"/run"+str(options.runNumber).zfill(6)+"/"
 process.source = cms.Source("DAQSource",
     testing = cms.untracked.bool(True),
     dataMode = cms.untracked.string(options.daqSourceMode),
-    verifyChecksum = cms.untracked.bool(True),
+    verifyChecksum = cms.untracked.bool(True if options.daqSourceMode != "DTH" else False),
     useL1EventID = cms.untracked.bool(False),
     eventChunkBlock = cms.untracked.uint32(2),
     eventChunkSize = cms.untracked.uint32(3),
@@ -129,10 +129,7 @@ process.filter2 = cms.EDFilter("HLTPrescaler",
                                L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
                                )
 
-if options.daqSourceMode == "DTH":
-    sleepTime = 0
-else:
-    sleepTime = 58
+sleepTime = 5
 process.a = cms.EDAnalyzer("ExceptionGenerator",
     defaultAction = cms.untracked.int32(0),
     defaultQualifier = cms.untracked.int32(sleepTime))
@@ -146,12 +143,9 @@ process.tcdsRawToDigi = cms.EDProducer("TcdsRawToDigi",
 )
 
 if options.daqSourceMode == "DTH":
-
     process.p1 = cms.Path(process.a*process.filter1)
-    sleepTime = 5
 else:
     process.p1 = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
-    sleepTime = 50
 
 process.p2 = cms.Path(process.b*process.filter2)
 

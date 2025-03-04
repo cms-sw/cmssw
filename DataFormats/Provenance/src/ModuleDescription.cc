@@ -48,8 +48,6 @@ namespace edm {
 
   std::string const& ModuleDescription::releaseVersion() const { return processConfiguration().releaseVersion(); }
 
-  std::string const& ModuleDescription::passID() const { return processConfiguration().passID(); }
-
   ParameterSetID const& ModuleDescription::mainParameterSetID() const {
     return processConfiguration().parameterSetID();
   }
@@ -75,7 +73,8 @@ namespace edm {
       return true;
     if (rh.releaseVersion() < releaseVersion())
       return false;
-    if (passID() < rh.passID())
+    if (processConfiguration().hardwareResourcesDescriptionSerialized() <
+        rh.processConfiguration().hardwareResourcesDescriptionSerialized())
       return true;
     return false;
   }

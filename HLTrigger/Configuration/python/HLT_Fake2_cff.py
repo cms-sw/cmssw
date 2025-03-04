@@ -1,13 +1,13 @@
-# hltGetConfiguration /dev/CMSSW_14_2_0/Fake2 --cff --data --type Fake2
+# hltGetConfiguration /dev/CMSSW_15_0_0/Fake2 --cff --data --type Fake2
 
-# /dev/CMSSW_14_2_0/Fake2/V5 (CMSSW_14_2_0)
+# /dev/CMSSW_15_0_0/Fake2/V5 (CMSSW_15_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_2_0/Fake2/V5")
+  tableName = cms.string("/dev/CMSSW_15_0_0/Fake2/V5")
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -51,6 +51,8 @@ fragment.GlobalParameters = cms.ESProducer( "StableParametersTrivialProducer",
   appendToDataLabel = cms.string( "" )
 )
 fragment.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  dump = cms.untracked.vstring(  ),
+  file = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 fragment.hcalDDDRecConstants = cms.ESProducer( "HcalDDDRecConstantsESModule",

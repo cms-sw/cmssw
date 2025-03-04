@@ -6,7 +6,8 @@
 BranchChildren: Dependency information between branches.
 
 ----------------------------------------------------------------------*/
-#if !defined(DataFormats_Provenance_ProductDependencies_h)
+#if (not defined __INCLUDE_LEVEL__ or __INCLUDE_LEVEL__ > 0) and \
+    not defined(DataFormats_Provenance_ProductDependencies_h)
 #error The name BranchChildren is deprecated, please use ProductDependencies instead.
 #endif
 

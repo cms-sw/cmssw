@@ -191,7 +191,7 @@ void TPStubValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
 
   // Collections of products
   auto vTrackingParticlesHandle = iEvent.put(std::move(vTrackingParticles));
-  auto vAllMatchedTPsHandle = iEvent.put(std::move(vAllMatchedTPs), outputCollectionNames_[2]);
+  iEvent.put(std::move(vAllMatchedTPs), outputCollectionNames_[2]);
 
   // Value maps to TP/Stub
   auto TPV = std::make_unique<edm::ValueMap<l1tVertexFinder::TP>>();

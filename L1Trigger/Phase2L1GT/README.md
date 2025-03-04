@@ -253,6 +253,15 @@ The following 3-body correlational cuts are available:
 | `minTransMass` | $\frac{m_{T,1,2}^2}{2} +  \frac{m_{T,1,3}^2}{2} +  \frac{m_{T,2,3}^2}{2} > \frac{X^2}{2}$ | `cms.double` |  `floor(X**2 * LUT_Scale / (2 * pT_lsb**2))` |
 | `maxTransMass` | $\frac{m_{T,1,2}^2}{2} +  \frac{m_{T,1,3}^2}{2} +  \frac{m_{T,2,3}^2}{2} < \frac{X^2}{2}$ | `cms.double` |  `ceil(X**2 * LUT_Scale / (2 * pT_lsb**2))` |
 
+The following N-body correlational cuts are available (N = 2 for DoubleObjectCondition, N = 3 for TripleObjectCondition and N = 4 for the QuadObjectCondition):
+
+| Name | Expression | Datatype | Hardware conversion |
+|:-----|:----------:|:-------------:|:--------:|
+| `minQualityScoreSum`* | $\sum^N_{i=1} \mathrm{qualityScore} > X$ | `cms.unit32` | `X` |
+| `maxQualityScoreSum`* | $\sum^N_{i=1} \mathrm{qualityScore} < X$ | `cms.unit32` | `X` |
+
+\*: For N=4 the 4 objects should be from the same input collection to guarantee timing closure of the FPGA firmware.
+
 ## Algorithms
 
 Conditions are combined to algorithms via the [`L1GTAlgoBlockProducer`](plugins/L1GTAlgoBlockProducer.cc). To configure this behavior, a `cms.PSet` algorithm configuration should be added to the `algorithms` `cms.VPset`, included via:

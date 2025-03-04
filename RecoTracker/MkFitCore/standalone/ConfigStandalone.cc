@@ -53,7 +53,6 @@ namespace mkfit {
     int cmsSelMinLayers = 12;
     int nMinFoundHits = 10;
 
-    bool kludgeCmsHitErrors = false;
     bool backwardFit = false;
     bool backwardSearch = true;
 
