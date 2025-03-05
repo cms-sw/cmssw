@@ -639,18 +639,18 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 
         // histos for efficiency vs phi
         fillPlotNoFlow(h_simulphi[w], TPphi);
-        if (xTPeta < 0.9) {
+        if (absEta < 0.9) {
           fillPlotNoFlow(h_simulphiB[w], TPphi);
-        } else if (xTPeta < 1.2) {
+        } else if (absEta < 1.2) {
           fillPlotNoFlow(h_simulphiO[w], TPphi);
         } else {
           fillPlotNoFlow(h_simulphiE[w], TPphi);
         }
         if (TP_is_matched) {
           fillPlotNoFlow(h_assocphi[w], TPphi);
-          if (xTPeta < 0.9) {
+          if (absEta < 0.9) {
             fillPlotNoFlow(h_assocphiB[w], TPphi);
-          } else if (xTPeta < 1.2) {
+          } else if (absEta < 1.2) {
             fillPlotNoFlow(h_assocphiO[w], TPphi);
           } else {
             fillPlotNoFlow(h_assocphiE[w], TPphi);
@@ -671,18 +671,18 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 
         // histos for efficiency vs pT
         fillPlotNoFlow(h_simulpT[w], xTPpt);
-        if (xTPeta < 0.9) {
+        if (absEta < 0.9) {
           fillPlotNoFlow(h_simulpTB[w], xTPpt);
-        } else if (xTPeta < 1.2) {
+        } else if (absEta < 1.2) {
           fillPlotNoFlow(h_simulpTO[w], xTPpt);
         } else {
           fillPlotNoFlow(h_simulpTE[w], xTPpt);
         }
         if (TP_is_matched) {
           fillPlotNoFlow(h_assocpT[w], xTPpt);
-          if (xTPeta < 0.9) {
+          if (absEta < 0.9) {
             fillPlotNoFlow(h_assocpTB[w], xTPpt);
-          } else if (xTPeta < 1.2) {
+          } else if (absEta < 1.2) {
             fillPlotNoFlow(h_assocpTO[w], xTPpt);
           } else {
             fillPlotNoFlow(h_assocpTE[w], xTPpt);
