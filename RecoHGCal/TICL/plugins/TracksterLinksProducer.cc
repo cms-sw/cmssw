@@ -241,7 +241,7 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
     // Run inference algorithm
     inferenceAlgo_->inputData(layerClusters, *resultTracksters);
     inferenceAlgo_->runInference(
-				 *resultTracksters);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
+        *resultTracksters);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
   }
 
   evt.put(std::move(linkedResultTracksters));
@@ -285,7 +285,8 @@ void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &de
   desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByDNN", inferenceDesc);
 
   edm::ParameterSetDescription inferenceDescPFN;
-  inferenceDescPFN.addNode(edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
+  inferenceDescPFN.addNode(
+      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
   desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByPFN", inferenceDescPFN);
 
   edm::ParameterSetDescription inferenceDescCNNv4;

@@ -74,7 +74,7 @@ namespace ticl {
       input_Data_[1][index_tr + 3] = static_cast<float>(trackster.barycenter().y());
       input_Data_[1][index_tr + 4] = static_cast<float>(std::abs(trackster.barycenter().z()));
       input_Data_[1][index_tr + 5] = static_cast<float>(std::abs(trackster.barycenter().eta()));
-      input_Data_[1][index_tr + 6] = static_cast<float>(trackster.barycenter().phi());      
+      input_Data_[1][index_tr + 6] = static_cast<float>(trackster.barycenter().phi());
 
       // Prepare indices and sort clusters based on energy
       std::vector<int> clusterIndices(trackster.vertices().size());
@@ -85,7 +85,7 @@ namespace ticl {
       std::sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &trackster](const int& a, const int& b) {
         return layerClusters[trackster.vertices(a)].energy() > layerClusters[trackster.vertices(b)].energy();
       });
-      
+
       std::vector<int> seenClusters(eidNLayers_, 0);
 
       // Fill input data with cluster information
@@ -94,7 +94,7 @@ namespace ticl {
         int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
         if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
           auto index_lc = (i * eidNLayers_ + j) * eidNFeatures_ * eidNClusters_ + seenClusters[j] * eidNFeatures_;
-	  // Adding more features regarding LC, such as E, eta, phi, x, y, z, and nhits.
+          // Adding more features regarding LC, such as E, eta, phi, x, y, z, and nhits.
           input_Data_[0][index_lc] =
               static_cast<float>(cluster.energy() / static_cast<float>(trackster.vertex_multiplicity(k)));
           input_Data_[0][index_lc + 1] = static_cast<float>(std::abs(cluster.eta()));
@@ -142,15 +142,16 @@ namespace ticl {
   void TracksterInferenceByPFN::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     iDesc.add<int>("algo_verbosity", 0);
     iDesc
-        .add<edm::FileInPath>("onnxPIDModelPath",
-                              edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/patternrecognition/id_v0.onnx"))
+        .add<edm::FileInPath>(
+            "onnxPIDModelPath",
+            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/patternrecognition/id_v0.onnx"))
         ->setComment("Path to ONNX PID model CLU3D");
     iDesc
         .add<edm::FileInPath>(
             "onnxEnergyModelPath",
             edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/patternrecognition/energy_v0.onnx"))
         ->setComment("Path to ONNX Energy model CLU3D");
-    iDesc.add<std::vector<std::string>>("inputNames", {"input","input_tr_features"});
+    iDesc.add<std::vector<std::string>>("inputNames", {"input", "input_tr_features"});
     iDesc.add<std::vector<std::string>>("output_en", {"enreg_output"});
     iDesc.add<std::vector<std::string>>("output_id", {"pid_output"});
     iDesc.add<double>("eid_min_cluster_energy", 1.0);
