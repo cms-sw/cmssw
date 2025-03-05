@@ -856,11 +856,16 @@ namespace edm {
 
   // free function
   std::vector<ParameterSet> popSubProcessVParameterSet(ParameterSet& parameterSet) {
-    std::vector<std::string> subProcesses =
-        parameterSet.getUntrackedParameter<std::vector<std::string>>("@all_subprocesses");
-    if (!subProcesses.empty()) {
-      return parameterSet.popVParameterSet("subProcesses");
-    }
+    // We're going to delete everything related to SubProcesses soon, but as a first
+    // step we are just deleting the part implementing the configuration support in
+    // ParameterSet. Temporarily, we need to have this function return an empty vector
+    // so everything continues to work on the C++ side.
+
+    //std::vector<std::string> subProcesses =
+    //    parameterSet.getUntrackedParameter<std::vector<std::string>>("@all_subprocesses");
+    //if (!subProcesses.empty()) {
+    //  return parameterSet.popVParameterSet("subProcesses");
+    //}
     return {};
   }
 }  // namespace edm
