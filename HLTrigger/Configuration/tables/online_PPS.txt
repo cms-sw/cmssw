@@ -46,7 +46,7 @@ HLT_HT300_Beamspot_PixelClusters_WP2_v*
 
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsPromptOutput
