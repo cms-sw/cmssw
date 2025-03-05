@@ -23,6 +23,7 @@ Implementation:
 #include <cmath>
 #include "TGraphErrors.h"
 #include "TMath.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 using std::cout;
 using std::endl;
@@ -340,7 +341,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
   chi2 = func_->GetChisquare() / ((float)npoints - func_->GetNpar());
   prob = TMath::Prob(func_->GetChisquare(), npoints - func_->GetNpar());
   size_t ntimes = 0;
-  while ((std::isnan(slope) || std::isnan(intercept)) && ntimes < 10) {
+  while ((edm::isNotFinite(slope) || edm::isNotFinite(intercept)) && ntimes < 10) {
     ntimes++;
     makehistopersistent = true;
     //    std::cout << slope << " " << intercept << " " << prob << std::endl;
@@ -364,7 +365,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
     status = 0;
   if (slope != 0)
     slope = 1. / slope;
-  if (std::isnan(slope) || std::isnan(intercept)) {
+  if (edm::isNotFinite(slope) || edm::isNotFinite(intercept)) {
     status = -6;
     bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col() + 1, ipix->row() + 1, status);
     if (writeSummary_) {
