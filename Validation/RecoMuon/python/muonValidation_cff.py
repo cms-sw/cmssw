@@ -25,7 +25,7 @@ MTV.muonTPSelector.src = ("TPmu")
 ##############################################
 
 trkMuonTrackVTrackAssoc = MTV.clone(
-    associatormap = 'tpToTkmuTrackAssociation',
+    associatormap = ('tpToTkmuTrackAssociation',),
     associators = ('trackAssociatorByHits',),
     #label = ('generalTracks',),
     label = ('probeTracks',),
@@ -36,7 +36,7 @@ trkMuonTrackVTrackAssoc.muonTPSelector.src = ("TPtrack")
 # MuonAssociatorByHits used for all track collections
 
 trkProbeTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToTkMuonAssociation',
+    associatormap = ('tpToTkMuonAssociation',),
     #label = ('generalTracks',),
     label = ('probeTracks',),
     label_tp = ("TPtrack"),
@@ -44,37 +44,37 @@ trkProbeTrackVMuonAssoc = MTV.clone(
 )
 trkProbeTrackVMuonAssoc.muonTPSelector.src = ("TPtrack")
 staSeedTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToStaSeedAssociation',
+    associatormap = ('tpToStaSeedAssociation',),
     label = ('seedsOfSTAmuons',),
     muonHistoParameters = staSeedMuonHistoParameters
 )
 staMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToStaMuonAssociation',
+    associatormap = ('tpToStaMuonAssociation',),
     label = ('standAloneMuons',),
     muonHistoParameters = staMuonHistoParameters
 )
 staUpdMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToStaUpdMuonAssociation',
+    associatormap = ('tpToStaUpdMuonAssociation',),
     label = ('standAloneMuons:UpdatedAtVtx',),
     muonHistoParameters = staUpdMuonHistoParameters
 )
 glbMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToGlbMuonAssociation',
+    associatormap = ('tpToGlbMuonAssociation',),
     label = ('globalMuons',),
     muonHistoParameters = glbMuonHistoParameters
 )
 staRefitMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToStaRefitMuonAssociation',
+    associatormap = ('tpToStaRefitMuonAssociation',),
     label = ('refittedStandAloneMuons',),
     muonHistoParameters = staMuonHistoParameters
 )
 staRefitUpdMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToStaRefitUpdMuonAssociation',
+    associatormap = ('tpToStaRefitUpdMuonAssociation',),
     label = ('refittedStandAloneMuons:UpdatedAtVtx',),
     muonHistoParameters = staUpdMuonHistoParameters
 )
 displacedTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToDisplacedTrkMuonAssociation',
+    associatormap = ('tpToDisplacedTrkMuonAssociation',),
     label = ('displacedTracks',),
     label_tp = ("TPtrack"),
     muonTPSelector = displacedMuonTPSet,
@@ -83,7 +83,7 @@ displacedTrackVMuonAssoc = MTV.clone(
 displacedTrackVMuonAssoc.muonTPSelector.src = ("TPtrack")
 
 displacedStaSeedTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToDisplacedStaSeedAssociation',
+    associatormap = ('tpToDisplacedStaSeedAssociation',),
     label = ('seedsOfDisplacedSTAmuons',),
     muonTPSelector = displacedMuonTPSet,
     muonHistoParameters = displacedStaSeedMuonHistoParameters
@@ -91,7 +91,7 @@ displacedStaSeedTrackVMuonAssoc = MTV.clone(
 displacedStaSeedTrackVMuonAssoc.muonTPSelector.src = ("TPmu")
 
 displacedStaMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToDisplacedStaMuonAssociation',
+    associatormap = ('tpToDisplacedStaMuonAssociation',),
     label = ('displacedStandAloneMuons',),
     muonTPSelector = displacedMuonTPSet,
     muonHistoParameters = displacedStaMuonHistoParameters
@@ -99,7 +99,7 @@ displacedStaMuonTrackVMuonAssoc = MTV.clone(
 displacedStaMuonTrackVMuonAssoc.muonTPSelector.src = ("TPmu")
 
 displacedGlbMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToDisplacedGlbMuonAssociation',
+    associatormap = ('tpToDisplacedGlbMuonAssociation',),
     label = ('displacedGlobalMuons',),
     muonTPSelector = displacedMuonTPSet,
     muonHistoParameters = displacedGlbMuonHistoParameters
@@ -107,27 +107,27 @@ displacedGlbMuonTrackVMuonAssoc = MTV.clone(
 displacedGlbMuonTrackVMuonAssoc.muonTPSelector.src = ("TPmu")
 
 tevMuonFirstTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToTevFirstMuonAssociation',
+    associatormap = ('tpToTevFirstMuonAssociation',),
     label = ('tevMuons:firstHit',),
     muonHistoParameters = glbMuonHistoParameters
 )
 tevMuonPickyTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToTevPickyMuonAssociation',
+    associatormap = ('tpToTevPickyMuonAssociation',),
     label = ('tevMuons:picky',),
     muonHistoParameters = glbMuonHistoParameters
 )
 tevMuonDytTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToTevDytMuonAssociation',
+    associatormap = ('tpToTevDytMuonAssociation',),
     label = ('tevMuons:dyt',),
     muonHistoParameters = glbMuonHistoParameters
 )
 tunepMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToTunePMuonAssociation',
+    associatormap = ('tpToTunePMuonAssociation',),
     label = ('tunepMuonTracks',),
     muonHistoParameters = glbMuonHistoParameters
 )
 pfMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToPFMuonAssociation',
+    associatormap = ('tpToPFMuonAssociation',),
     label = ('pfMuonTracks',),
     label_tp = ("TPpfmu"),
     muonHistoParameters = glbMuonHistoParameters
@@ -135,17 +135,17 @@ pfMuonTrackVMuonAssoc = MTV.clone(
 pfMuonTrackVMuonAssoc.muonTPSelector.src = ("TPpfmu")
 
 recomuMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpTorecoMuonMuonAssociation',
+    associatormap = ('tpTorecoMuonMuonAssociation',),
     label = ('recoMuonTracks',),
     muonHistoParameters = glbMuonHistoParameters
 )
 gemMuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToGEMMuonMuonAssociation',
+    associatormap = ('tpToGEMMuonMuonAssociation',),
     label = ('extractGemMuons',),
     muonHistoParameters = gemMuonHistoParameters
 )
 me0MuonTrackVMuonAssoc = MTV.clone(
-    associatormap = 'tpToME0MuonMuonAssociation',
+    associatormap = ('tpToME0MuonMuonAssociation',),
     label = ('extractMe0Muons',),
     muonTPSelector = me0MuonTPSet,
     muonHistoParameters = me0MuonHistoParameters
@@ -164,36 +164,36 @@ MTVcosmic = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone(
 
 # cosmics 2-leg reco
 trkCosmicMuonTrackVSelMuonAssoc = MTVcosmic.clone(
-    associatormap = 'tpToTkCosmicSelMuonAssociation',
+    associatormap = ('tpToTkCosmicSelMuonAssociation',),
     label = ('ctfWithMaterialTracksP5LHCNavigation',),
     BiDirectional_RecoToSim_association = False,
     muonHistoParameters = trkCosmicMuonHistoParameters
 )
 staCosmicMuonTrackVSelMuonAssoc = MTVcosmic.clone(
-    associatormap = 'tpToStaCosmicSelMuonAssociation',
+    associatormap = ('tpToStaCosmicSelMuonAssociation',),
     label = ('cosmicMuons',),
     BiDirectional_RecoToSim_association = False,
     muonHistoParameters = staCosmicMuonHistoParameters
 )
 glbCosmicMuonTrackVSelMuonAssoc = MTVcosmic.clone(
-    associatormap = 'tpToGlbCosmicSelMuonAssociation',
+    associatormap = ('tpToGlbCosmicSelMuonAssociation',),
     label = ('globalCosmicMuons',),
     BiDirectional_RecoToSim_association = False,
     muonHistoParameters = glbCosmicMuonHistoParameters
 )
 # cosmics 1-leg reco
 trkCosmic1LegMuonTrackVSelMuonAssoc = MTVcosmic.clone(
-    associatormap = 'tpToTkCosmic1LegSelMuonAssociation',
+    associatormap = ('tpToTkCosmic1LegSelMuonAssociation',),
     label = ('ctfWithMaterialTracksP5',),
     muonHistoParameters = trkCosmic1LegMuonHistoParameters
 )
 staCosmic1LegMuonTrackVSelMuonAssoc = MTVcosmic.clone(
-    associatormap = 'tpToStaCosmic1LegSelMuonAssociation',
+    associatormap = ('tpToStaCosmic1LegSelMuonAssociation',),
     label = ('cosmicMuons1Leg',),
     muonHistoParameters = staCosmic1LegMuonHistoParameters
 )
 glbCosmic1LegMuonTrackVSelMuonAssoc = MTVcosmic.clone(
-    associatormap = 'tpToGlbCosmic1LegSelMuonAssociation',
+    associatormap = ('tpToGlbCosmic1LegSelMuonAssociation',),
     label = ('globalCosmicMuons1Leg',),
     muonHistoParameters = glbCosmic1LegMuonHistoParameters
 )

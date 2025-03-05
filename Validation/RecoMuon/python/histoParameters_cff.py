@@ -14,7 +14,6 @@ defaultMuonHistoParameters = cms.PSet(
     mindR = cms.double(0.),
     maxdR = cms.double(10.),
     #
-    useFabsEta = cms.bool(False),
     minEta = cms.double(-2.5),
     maxEta = cms.double(2.5),
     nintEta = cms.int32(50),
@@ -23,7 +22,6 @@ defaultMuonHistoParameters = cms.PSet(
     maxPt = cms.double(2000.),
     nintPt = cms.int32(50),
     useLogPt=cms.untracked.bool(True),
-    useInvPt = cms.bool(False),
     #
     minPhi = cms.double(-3.1416),
     maxPhi = cms.double(3.1416),

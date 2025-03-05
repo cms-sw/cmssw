@@ -34,49 +34,18 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
-class MuonTrackValidatorBase {
-  typedef dqm::legacy::DQMStore DQMStore;
-  typedef dqm::legacy::MonitorElement MonitorElement;
-
-public:
-  /// Constructor
-  MuonTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector iC) : MuonTrackValidatorBase(pset) {
-    bsSrc_Token = iC.consumes<reco::BeamSpot>(bsSrc);
-    if (label_tp_refvector)
-      tp_refvector_Token = iC.consumes<TrackingParticleRefVector>(label_tp);
-    else
-      tp_Token = iC.consumes<TrackingParticleCollection>(label_tp);
-    pileupinfo_Token = iC.consumes<std::vector<PileupSummaryInfo> >(label_pileupinfo);
-    for (unsigned int www = 0; www < label.size(); www++) {
-      track_Collection_Token[www] = iC.consumes<edm::View<reco::Track> >(label[www]);
-    }
-  }
-
-  MuonTrackValidatorBase(const edm::ParameterSet& pset)
-      : label(pset.getParameter<std::vector<edm::InputTag> >("label")),
-        bsSrc(pset.getParameter<edm::InputTag>("beamSpot")),
-        label_tp(pset.getParameter<edm::InputTag>("label_tp")),
-        label_tp_refvector(pset.getParameter<bool>("label_tp_refvector")),
-        label_pileupinfo(pset.getParameter<edm::InputTag>("label_pileupinfo")),
-        associators(pset.getParameter<std::vector<std::string> >("associators")),
-        out(pset.getParameter<std::string>("outputFile")),
-        parametersDefiner(pset.getParameter<std::string>("parametersDefiner")),
-        muonHistoParameters(pset.getParameter<edm::ParameterSet>("muonHistoParameters")),
-        ignoremissingtkcollection_(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection", false))
-
-  {
+struct HistoParams {
+  HistoParams(edm::ParameterSet muonHistoParameters) {
     mindR = muonHistoParameters.getParameter<double>("mindR");
     maxdR = muonHistoParameters.getParameter<double>("maxdR");
     nintdR = muonHistoParameters.getParameter<int>("nintdR");
     minEta = muonHistoParameters.getParameter<double>("minEta");
     maxEta = muonHistoParameters.getParameter<double>("maxEta");
     nintEta = muonHistoParameters.getParameter<int>("nintEta");
-    useFabsEta = muonHistoParameters.getParameter<bool>("useFabsEta");
     minPt = muonHistoParameters.getParameter<double>("minPt");
     maxPt = muonHistoParameters.getParameter<double>("maxPt");
     nintPt = muonHistoParameters.getParameter<int>("nintPt");
     useLogPt = muonHistoParameters.getUntrackedParameter<bool>("useLogPt", false);
-    useInvPt = muonHistoParameters.getParameter<bool>("useInvPt");
     minNHit = muonHistoParameters.getParameter<double>("minNHit");
     maxNHit = muonHistoParameters.getParameter<double>("maxNHit");
     nintNHit = muonHistoParameters.getParameter<int>("nintNHit");
@@ -155,87 +124,15 @@ public:
     }
   }
 
-  /// Destructor
-  virtual ~MuonTrackValidatorBase() noexcept(false) {}
-
-  template <typename T>
-  void fillPlotNoFlow(MonitorElement* h, T val) {
-    h->Fill(std::min(std::max(val, ((T)h->getTH1()->GetXaxis()->GetXmin())), ((T)h->getTH1()->GetXaxis()->GetXmax())));
-  }
-
-  void doProfileX(TH2* th2, MonitorElement* me) {
-    if (th2->GetNbinsX() == me->getNbinsX()) {
-      TProfile* p1 = (TProfile*)th2->ProfileX();
-      p1->Copy(*me->getTProfile());
-      delete p1;
-    } else {
-      throw cms::Exception("MuonTrackValidator") << "Different number of bins!";
-    }
-  }
-
-  void doProfileX(MonitorElement* th2m, MonitorElement* me) { doProfileX(th2m->getTH2F(), me); }
-
-  //  virtual double getEta(double eta) {
-  double getEta(double eta) {
-    if (useFabsEta)
-      return fabs(eta);
-    else
-      return eta;
-  }
-
-  //  virtual double getPt(double pt) {
-  double getPt(double pt) {
-    if (useInvPt && pt != 0)
-      return 1 / pt;
-    else
-      return pt;
-  }
-
-  void BinLogX(TH1* h) {
-    TAxis* axis = h->GetXaxis();
-    int bins = axis->GetNbins();
-
-    float from = axis->GetXmin();
-    float to = axis->GetXmax();
-    float width = (to - from) / bins;
-    float* new_bins = new float[bins + 1];
-
-    for (int i = 0; i <= bins; i++) {
-      new_bins[i] = TMath::Power(10, from + i * width);
-    }
-    axis->Set(bins, new_bins);
-    delete[] new_bins;
-  }
-
-protected:
-  std::vector<edm::InputTag> label;
-  edm::InputTag bsSrc;
-  edm::InputTag label_tp;
-  bool label_tp_refvector;
-  edm::InputTag label_pileupinfo;
-  std::vector<std::string> associators;
-  std::string out;
-  std::string parametersDefiner;
-  std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > track_Collection_Token;
-  edm::EDGetTokenT<reco::BeamSpot> bsSrc_Token;
-  edm::EDGetTokenT<TrackingParticleCollection> tp_Token;
-  edm::EDGetTokenT<TrackingParticleRefVector> tp_refvector_Token;
-  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupinfo_Token;
-  edm::ESHandle<MagneticField> theMF;
-
-  edm::ParameterSet muonHistoParameters;
-
   int minNTracks, maxNTracks, nintNTracks;
   int minFTracks, maxFTracks, nintFTracks;
   double mindR, maxdR;
   int nintdR;
   double minEta, maxEta;
   int nintEta;
-  bool useFabsEta;
   double minPt, maxPt;
   int nintPt;
   bool useLogPt;
-  bool useInvPt;
   double minNHit, maxNHit;
   int nintNHit;
   double minDTHit, maxDTHit;
@@ -273,11 +170,116 @@ protected:
   int dxyRes_nbin;
   double dzRes_rangeMin, dzRes_rangeMax;
   int dzRes_nbin;
-
   bool usetracker, usemuon;
   bool do_TRKhitsPlots, do_MUOhitsPlots;
+};
+
+class MuonTrackValidatorBase {
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
+
+public:
+  /// Constructor
+  MuonTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector iC) : MuonTrackValidatorBase(pset) {
+    bsSrc_Token = iC.consumes<reco::BeamSpot>(bsSrc);
+
+    if (label_tp_refvector)
+      tp_refvector_Token = iC.consumes<TrackingParticleRefVector>(label_tp);
+    else
+      tp_Token = iC.consumes<TrackingParticleCollection>(label_tp);
+
+    pileupinfo_Token = iC.consumes<std::vector<PileupSummaryInfo>>(label_pileupinfo);
+
+    histoParameters.reserve(label.size());
+    for (unsigned int www = 0; www < label.size(); ++www) {
+      track_Collection_Token[www] = iC.consumes<edm::View<reco::Track>>(label[www]);
+      // Get histo parameters
+      histoParameters.push_back(HistoParams(muonHistoParameters[www]));
+    }
+  }
+
+  MuonTrackValidatorBase(const edm::ParameterSet& pset)
+      : label(pset.getParameter<std::vector<edm::InputTag>>("label")),
+        bsSrc(pset.getParameter<edm::InputTag>("beamSpot")),
+        label_tp(pset.getParameter<edm::InputTag>("label_tp")),
+        label_tp_refvector(pset.getParameter<bool>("label_tp_refvector")),
+        label_pileupinfo(pset.getParameter<edm::InputTag>("label_pileupinfo")),
+        associators(pset.getParameter<std::vector<std::string>>("associators")),
+        out(pset.getParameter<std::string>("outputFile")),
+        parametersDefiner(pset.getParameter<std::string>("parametersDefiner")),
+        ignoremissingtkcollection_(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection", false)),
+        muonHistoParameters(pset.getParameter<std::vector<edm::ParameterSet>>("muonHistoParameters")) {
+    histoParameters.reserve(label.size());
+    for (size_t www = 0; www < label.size(); ++www) {
+      histoParameters.emplace_back(muonHistoParameters[www]);
+    }
+  }
+  /// Destructor
+  virtual ~MuonTrackValidatorBase() noexcept(false) {}
+
+  template <typename T>
+  void fillPlotNoFlow(MonitorElement* h, T val) {
+    h->Fill(std::min(std::max(val, ((T)h->getTH1()->GetXaxis()->GetXmin())), ((T)h->getTH1()->GetXaxis()->GetXmax())));
+  }
+
+  void doProfileX(TH2* th2, MonitorElement* me) {
+    if (th2->GetNbinsX() == me->getNbinsX()) {
+      TProfile* p1 = (TProfile*)th2->ProfileX();
+      p1->Copy(*me->getTProfile());
+      delete p1;
+    } else {
+      throw cms::Exception("MuonTrackValidator") << "Different number of bins!";
+    }
+  }
+
+  void doProfileX(MonitorElement* th2m, MonitorElement* me) { doProfileX(th2m->getTH2F(), me); }
+
+  //  virtual double getEta(double eta) {
+  double getEta(double eta) { return eta; }
+
+  //  virtual double getPt(double pt) {
+  double getPt(double pt) { return pt; }
+
+  void BinLogX(TH1* h) {
+    TAxis* axis = h->GetXaxis();
+    int bins = axis->GetNbins();
+
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    float* new_bins = new float[bins + 1];
+
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+    }
+    axis->Set(bins, new_bins);
+    delete[] new_bins;
+  }
+
+protected:
+  std::vector<edm::InputTag> label;
+  edm::InputTag bsSrc;
+  edm::InputTag label_tp;
+  bool label_tp_refvector;
+  edm::InputTag label_pileupinfo;
+  std::vector<std::string> associators;
+  std::string out;
+  std::string parametersDefiner;
+  std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> track_Collection_Token;
+  edm::EDGetTokenT<reco::BeamSpot> bsSrc_Token;
+  edm::EDGetTokenT<TrackingParticleCollection> tp_Token;
+  edm::EDGetTokenT<TrackingParticleRefVector> tp_refvector_Token;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileupinfo_Token;
+  edm::ESHandle<MagneticField> theMF;
+
   bool ignoremissingtkcollection_;
 
+  std::vector<edm::ParameterSet> muonHistoParameters;
+
+  std::vector<HistoParams> histoParameters;
+
+  // collections
+  std::vector<MonitorElement*> h_assoc_coll, h_simul_coll, h_reco_coll, h_assoc2_coll;
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_nhits, h_charge;
   std::vector<MonitorElement*> h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_misideta;

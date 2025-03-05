@@ -22,47 +22,47 @@ MTVhlt.muonTPSelector.src = ("TPmu")
 ################################################
 
 l2MuonMuTrackV = MTVhlt.clone(
-    associatormap = 'tpToL2MuonAssociation',
+    associatormap = ('tpToL2MuonAssociation',),
     label = ('hltL2Muons',),
     muonHistoParameters = staMuonHistoParameters
 )
 l2UpdMuonMuTrackV = MTVhlt.clone(
-    associatormap = 'tpToL2UpdMuonAssociation',
+    associatormap = ('tpToL2UpdMuonAssociation',),
     label = ('hltL2Muons:UpdatedAtVtx',),
     muonHistoParameters = staUpdMuonHistoParameters
 )
 l3OITkMuonMuTrackV = MTVhlt.clone(
-    associatormap = 'tpToL3OITkMuonAssociation',
+    associatormap = ('tpToL3OITkMuonAssociation',),
     label = ('hltIterL3OIMuonTrackSelectionHighPurity:',),
     muonHistoParameters = trkMuonHistoParameters
 )
 l3TkMuonMuTrackV = MTVhlt.clone(
-    associatormap = 'tpToL3TkMuonAssociation',
+    associatormap = ('tpToL3TkMuonAssociation',),
     label = ('hltIterL3MuonMerged:',),
     muonHistoParameters = trkMuonHistoParameters
 )
 l3IOFromL1TkMuonMuTrackV = MTVhlt.clone(
-    associatormap = 'tpToL3FromL1TkMuonAssociation',
+    associatormap = ('tpToL3FromL1TkMuonAssociation',),
     label = ('hltIterL3MuonAndMuonFromL1Merged:',),
     muonHistoParameters = trkMuonHistoParameters
 )
 l0l3FromL1TkMuonMuTrackV = MTVhlt.clone(
-    associatormap = 'tpToL0L3FromL1TkMuonAssociation',
+    associatormap = ('tpToL0L3FromL1TkMuonAssociation',),
     label = ('hltIter0IterL3FromL1MuonTrackSelectionHighPurity:',),
     muonHistoParameters = trkMuonHistoParameters
 )
 l3GlbMuonMuTrackV = MTVhlt.clone(
-    associatormap = 'tpToL3GlbMuonAssociation',
+    associatormap = ('tpToL3GlbMuonAssociation',),
     label = ('hltIterL3GlbMuon:',),
     muonHistoParameters = glbMuonHistoParameters
 )
 l3NoIDMuonMuTrackV = MTVhlt.clone(
-    associatormap = 'tpToL3NoIDMuonAssociation',
+    associatormap = ('tpToL3NoIDMuonAssociation',),
     label = ('hltIterL3MuonsNoIDTracks:',),
     muonHistoParameters = glbMuonHistoParameters
 )
 l3MuonMuTrackV = MTVhlt.clone(
-    associatormap = 'tpToL3MuonAssociation',
+    associatormap = ('tpToL3MuonAssociation',),
     label = ('hltIterL3MuonsTracks:',),
     muonHistoParameters = glbMuonHistoParameters
 )
@@ -73,75 +73,105 @@ l3MuonMuTrackV = MTVhlt.clone(
 
 # L2 standalone muons seeds
 Phase2l2MuSeedV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL2SeedAssociation',
+    associatormap = ('Phase2tpToL2SeedAssociation',),
     label = ('hltPhase2L2MuonSeedTracks',),
-    muonHistoParameters = staSeedMuonHistoParameters
+    muonHistoParameters = (staSeedMuonHistoParameters,)
 )
 # L2 standalone muons
 Phase2l2MuV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL2MuonAssociation',
+    associatormap = ('Phase2tpToL2MuonAssociation',),
     label = ('hltL2MuonsFromL1TkMuon',),
-    muonHistoParameters = staMuonHistoParameters
+    muonHistoParameters = (staMuonHistoParameters,)
 )
 # L2 standalone muons updated at vertex
 Phase2l2MuUpdV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL2MuonUpdAssociation',
+    associatormap = ('Phase2tpToL2MuonUpdAssociation',),
     label = ('hltL2MuonsFromL1TkMuon:UpdatedAtVtx',),
-    muonHistoParameters = staMuonHistoParameters
+    muonHistoParameters = (staUpdMuonHistoParameters,)
 )
 # L3 IO inner tracks
 Phase2l3IOTkV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL3IOTkAssociation',
+    associatormap = ('Phase2tpToL3IOTkAssociation',),
     label = ('hltIter2Phase2L3FromL1TkMuonMerged',),
-    muonHistoParameters = trkMuonHistoParameters
+    muonHistoParameters = (trkMuonHistoParameters,)
 )
 # L3 OI inner tracks
 Phase2l3OITkV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL3OITkAssociation',
+    associatormap = ('Phase2tpToL3OITkAssociation',),
     label = ('hltPhase2L3OIMuonTrackSelectionHighPurity',),
-    muonHistoParameters = trkMuonHistoParameters
+    muonHistoParameters = (trkMuonHistoParameters,)
 )
 # L2 muons to reuse (IO first only)
 Phase2L2MuToReuseV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL2MuonToReuseAssociation',
+    associatormap = ('Phase2tpToL2MuonToReuseAssociation',),
     label = ('hltPhase2L3MuonFilter:L2MuToReuse',),
-    muonHistoParameters = staMuonHistoParameters
+    muonHistoParameters = (staMuonHistoParameters,)
 )
 # L3 IO inner tracks filtered (IO first only)
 Phase2l3IOTkFilteredV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL3IOTkFilteredAssociation',
+    associatormap = ('Phase2tpToL3IOTkFilteredAssociation',),
     label = ('hltPhase2L3MuonFilter:L3IOTracksFiltered',),
-    muonHistoParameters = trkMuonHistoParameters
+    muonHistoParameters = (trkMuonHistoParameters,)
 )
 # L3 OI inner tracks filtered (OI first only)
 Phase2l3OITkFilteredV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL3OITkFilteredAssociation',
+    associatormap = ('Phase2tpToL3OITkFilteredAssociation',),
     label = ('hltPhase2L3MuonFilter:L3OITracksFiltered',),
-    muonHistoParameters = trkMuonHistoParameters
+    muonHistoParameters = (trkMuonHistoParameters,)
 )
 # L3 inner tracks merged
 Phase2l3TkMergedV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL3TkMergedAssociation',
+    associatormap = ('Phase2tpToL3TkMergedAssociation',),
     label = ('hltPhase2L3MuonMerged',),
-    muonHistoParameters = trkMuonHistoParameters
+    muonHistoParameters = (trkMuonHistoParameters,)
 )
 # L3 global muons
 Phase2l3GlbMuonV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL3GlbMuonMergedAssociation',
+    associatormap = ('Phase2tpToL3GlbMuonMergedAssociation',),
     label = ('hltPhase2L3GlbMuon',),
-    muonHistoParameters = glbMuonHistoParameters
+    muonHistoParameters = (glbMuonHistoParameters,)
 )
 # L3 Muons no ID
 Phase2l3MuNoIdTrackV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL3MuonNoIdAssociation',
+    associatormap = ('Phase2tpToL3MuonNoIdAssociation',),
     label = ('hltPhase2L3MuonNoIdTracks',),
-    muonHistoParameters = glbMuonHistoParameters
+    muonHistoParameters = (glbMuonHistoParameters,)
 )
 # L3 Muons ID
 Phase2l3MuIdTrackV = MTVhlt.clone(
-    associatormap = 'Phase2tpToL3MuonIdAssociation',
+    associatormap = ('Phase2tpToL3MuonIdAssociation',),
     label = ('hltPhase2L3MuonIdTracks',),
-    muonHistoParameters = glbMuonHistoParameters
+    muonHistoParameters = (glbMuonHistoParameters,)
+)
+
+phase2HltMuonV = MTVhlt.clone(
+    associatormap = ('Phase2tpToL2SeedAssociation',
+                     'Phase2tpToL2MuonAssociation',
+                     'Phase2tpToL2MuonUpdAssociation',
+                     'Phase2tpToL3IOTkAssociation',
+                     'Phase2tpToL3OITkAssociation',
+                     'Phase2tpToL3TkMergedAssociation',
+                     'Phase2tpToL3GlbMuonMergedAssociation',
+                     'Phase2tpToL3MuonNoIdAssociation',
+                     'Phase2tpToL3MuonIdAssociation'),
+    label = ('hltPhase2L2MuonSeedTracks',
+             'hltL2MuonsFromL1TkMuon',
+             'hltL2MuonsFromL1TkMuon:UpdatedAtVtx',
+             'hltIter2Phase2L3FromL1TkMuonMerged',
+             'hltPhase2L3OIMuonTrackSelectionHighPurity',
+             'hltPhase2L3MuonMerged',
+             'hltPhase2L3GlbMuon',
+             'hltPhase2L3MuonNoIdTracks',
+             'hltPhase2L3MuonIdTracks'),
+    muonHistoParameters = (staSeedMuonHistoParameters,
+                           staMuonHistoParameters,
+                           staUpdMuonHistoParameters,
+                           trkMuonHistoParameters,
+                           trkMuonHistoParameters,
+                           trkMuonHistoParameters,
+                           glbMuonHistoParameters,
+                           glbMuonHistoParameters,
+                           glbMuonHistoParameters)
 )
 
 #
@@ -164,7 +194,9 @@ muonValidationHLT_seq = cms.Sequence(muonAssociationHLT_seq
 # The Phase-2 sequences
 #
 
-Phase2MuonValidationHLT_seq = cms.Sequence(muonAssociationHLT_seq
+Phase2MuonValidationHLT_seq = cms.Sequence(muonAssociationHLT_seq + phase2HltMuonV)
+
+_Phase2MuonValidationHLT_seq = cms.Sequence(muonAssociationHLT_seq
                                     +Phase2l2MuSeedV
                                     +Phase2l2MuV
                                     +Phase2l2MuUpdV

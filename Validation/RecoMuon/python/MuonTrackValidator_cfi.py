@@ -33,19 +33,20 @@ muonTrackValidator = DQMEDAnalyzer("MuonTrackValidator",
     UseAssociators = cms.bool(False),
     useGEMs = cms.bool(False),
     useME0 = cms.bool(False),
-    associatormap = cms.InputTag("tpToMuonTrackAssociation"),
+    associatormap = cms.VInputTag(cms.InputTag("tpToMuonTrackAssociation")),
     #
     # BiDirectional Logic for RecoToSim association corrects the Fake rates (counting ghosts and split tracks as fakes)
     #  setting it to False the ghost and split tracks are counted as good ones
     #  the default setting is True: should NOT be changed !
     BiDirectional_RecoToSim_association = cms.bool(True),
+    doSummaryPlots = cms.bool(True),
     #
     # Output File / Directory
     outputFile = cms.string(''),
     dirName = cms.string('Muons/RecoMuonV/MuonTrack/'),
     #
     # Parameters defining which histograms to make and their attributes (nbins, range: min, max...)
-    muonHistoParameters = cms.PSet(defaultMuonHistoParameters)
+    muonHistoParameters = cms.VPSet(defaultMuonHistoParameters,)
 )
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
