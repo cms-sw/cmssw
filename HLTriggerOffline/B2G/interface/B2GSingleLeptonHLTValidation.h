@@ -101,8 +101,7 @@ private:
   double etaJets_;
   unsigned int minJets_;
   // Trigger
-  std::string sTrigger_;
-  edm::EDGetTokenT<edm::TriggerResults> tokTrigger_;
+  const edm::EDGetTokenT<edm::TriggerResults> tokTrigger_;
   std::vector<std::string> vsPaths_;
   // Flags
   bool isAll_ = false;
@@ -145,7 +144,7 @@ inline B2GSingleLeptonHLTValidation::B2GSingleLeptonHLTValidation(const edm::Par
       ptJets1_(iConfig.getUntrackedParameter<double>("ptJets1", 0.)),
       etaJets_(iConfig.getUntrackedParameter<double>("etaJets", 0.)),
       minJets_(iConfig.getUntrackedParameter<unsigned int>("minJets", 0)),
-      sTrigger_(iConfig.getUntrackedParameter<std::string>("sTrigger", "TriggerResults")),
+      tokTrigger_(consumes(iConfig.getParameter<edm::InputTag>("triggerResults"))),
       vsPaths_(iConfig.getUntrackedParameter<std::vector<std::string>>("vsPaths"))
 
 {
@@ -155,8 +154,6 @@ inline B2GSingleLeptonHLTValidation::B2GSingleLeptonHLTValidation(const edm::Par
   tokMuons_ = consumes<edm::View<reco::Muon>>(edm::InputTag(sMuons_));
   // Jets
   tokJets_ = consumes<edm::View<reco::Jet>>(edm::InputTag(sJets_));
-  // Trigger
-  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "HLT"));
 }
 
 inline B2GSingleLeptonHLTValidation::~B2GSingleLeptonHLTValidation() {
