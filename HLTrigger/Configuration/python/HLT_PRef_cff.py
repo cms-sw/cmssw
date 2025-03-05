@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/PRef --cff --data --type PRef
 
-# /dev/CMSSW_15_0_0/PRef/V6 (CMSSW_15_0_0)
+# /dev/CMSSW_15_0_0/PRef/V7 (CMSSW_15_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/PRef/V6")
+  tableName = cms.string("/dev/CMSSW_15_0_0/PRef/V7")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 

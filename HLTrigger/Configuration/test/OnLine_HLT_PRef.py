@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_15_0_0/PRef/V6 (CMSSW_15_0_0)
+# /dev/CMSSW_15_0_0/PRef/V7 (CMSSW_15_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTPRef" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/PRef/V6")
+  tableName = cms.string("/dev/CMSSW_15_0_0/PRef/V7")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
