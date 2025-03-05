@@ -263,10 +263,10 @@ _phase2_siml1emulator.add(l1tMETMLProducer)
 from L1Trigger.Phase2L1ParticleFlow.L1NNTauProducer_cff import *
 _phase2_siml1emulator.add(l1tNNTauProducerPuppi)
 
-# MultiJets
+# SC4NGJets
 # ########################################################################
-from L1Trigger.Phase2L1ParticleFlow.L1MultiJetProducer_cff import *
-_phase2_siml1emulator.add(L1TMultiJetsTask)
+from L1Trigger.Phase2L1ParticleFlow.l1tSC4NGJetProducer_cff import *
+_phase2_siml1emulator.add(l1tSC4NGJetTask)
 
 # BJets
 # ########################################################################

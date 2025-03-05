@@ -1,8 +1,8 @@
-#include "L1Trigger/Phase2L1ParticleFlow/interface/MultiJetId.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/L1TSC4NGJetID.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include <cmath>
 
-MultiJetId::MultiJetId(const std::shared_ptr<hls4mlEmulator::Model> model,
+L1TSC4NGJetID::L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model,
                        int iNParticles)
     : modelRef_(model) {
   NNvectorVar_.clear();
@@ -28,7 +28,7 @@ MultiJetId::MultiJetId(const std::shared_ptr<hls4mlEmulator::Model> model,
 }
 
 
-void MultiJetId::setNNVectorVar() {
+void L1TSC4NGJetID::setNNVectorVar() {
   NNvectorVar_.clear();
   for (int i0 = 0; i0 < fNParticles_; i0++) {
     NNvectorVar_.push_back(fPt_rel_phys_.get()[i0]); //pT as a fraction of jet pT
@@ -56,7 +56,7 @@ void MultiJetId::setNNVectorVar() {
   }
 }
 
-std::vector<float> MultiJetId::EvaluateNNFixed() {
+std::vector<float> L1TSC4NGJetID::EvaluateNNFixed() {
   const int NInputs = 336;
   classtype classresult;
   regressiontype regressionresult;
@@ -76,20 +76,16 @@ std::vector<float> MultiJetId::EvaluateNNFixed() {
   modelRef_->predict();
   modelRef_->read_result(&modelResult);
 
-  regressionresult = modelResult.first;
-  classresult = modelResult.second;
-
   std::vector<float> modelResult_;
   for (unsigned int i = 0; i < 8; i++) {
-    modelResult_.push_back(classresult[i].to_float());
+    modelResult_.push_back(modelResult.second[i].to_float());
   }
-  modelResult_.push_back(regressionresult[0].to_float());
-
+  modelResult_.push_back(modelResult.first[0].to_float());  
   return modelResult_;
 }  //end EvaluateNNFixed
 
 
-std::vector<float> MultiJetId::computeFixed(const l1t::PFJet &iJet, bool useRawPt) {
+std::vector<float> L1TSC4NGJetID::computeFixed(const l1t::PFJet &iJet, bool useRawPt) {
   for (int i0 = 0; i0 < fNParticles_; i0++) {
     fPt_rel_phys_.get()[i0] = 0;
     fDEta_phys_.get()[i0] = 0;

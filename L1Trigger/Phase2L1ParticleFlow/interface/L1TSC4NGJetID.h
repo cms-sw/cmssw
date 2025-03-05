@@ -1,5 +1,5 @@
-#ifndef L1TRIGGER_PHASE2L1PARTICLEFLOWS_MULTIJETID_H
-#define L1TRIGGER_PHASE2L1PARTICLEFLOWS_MULTIJETID_H
+#ifndef L1TRIGGER_PHASE2L1PARTICLEFLOWS_L1TSC4NGJetID_H
+#define L1TRIGGER_PHASE2L1PARTICLEFLOWS_L1TSC4NGJetID_H
 
 #include <string>
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
@@ -11,16 +11,16 @@
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
 
-class MultiJetId {
+class L1TSC4NGJetID {
 public:
-  MultiJetId(const std::shared_ptr<hls4mlEmulator::Model> model,
+  L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model,
              int iNParticles);
-  ~MultiJetId() = default;
+  ~L1TSC4NGJetID() = default;
 
-  typedef ap_fixed<24,12,AP_RND,AP_SAT> inputtype;
-  typedef std::array<ap_fixed<24,12,AP_RND,AP_SAT>, 8> classtype; 
-  typedef std::array<ap_fixed<24,12,AP_RND,AP_SAT>, 1> regressiontype;
-  typedef std::pair<regressiontype, classtype> pairtype;
+  typedef ap_fixed<24,12,AP_RND,AP_SAT,0> inputtype;
+  typedef std::array<ap_ufixed<24,12,AP_RND,AP_SAT,0>, 8> classtype; 
+  typedef std::array<ap_fixed<16,6>,1> regressiontype;
+  typedef std::pair<regressiontype,classtype> pairtype;
 
   void setNNVectorVar();
   std::vector<float> EvaluateNNFixed();

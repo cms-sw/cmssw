@@ -34,13 +34,15 @@ namespace l1t {
     void addConstituent(const edm::Ptr<l1t::PFCandidate>& cand) { constituents_.emplace_back(cand); }
 
     // add jet tag prediction results
-    void addTagScores(std::vector<float> scores, std::vector<l1ct::JetTagClass> classes){
+    void addTagScores(std::vector<float> scores, std::vector<l1ct::JetTagClass> classes, float ptcorrection){
       tagScores_ = scores;
       tagClasses_ = classes;
+      ptCorrection_ = ptcorrection;
     }
 
     std::vector<float> getTagScores() const { return tagScores_; }
     std::vector<l1ct::JetTagClass> getTagClasses() const { return tagClasses_; }
+    float getPtCorrection() const { return ptCorrection_; }
 
     // candidate interface
     size_t numberOfDaughters() const override { return constituents_.size(); }
@@ -68,11 +70,13 @@ namespace l1t {
     Constituents constituents_;
     std::vector<l1ct::JetTagClass> tagClasses_;
     std::vector<float> tagScores_;
+    float ptCorrection_;
     std::array<PackedJet, 2> encodedJet_ = {{{{0, 0}}, {{0, 0}}}};
   };
 
   typedef std::vector<l1t::PFJet> PFJetCollection;
   typedef edm::Ref<l1t::PFJetCollection> PFJetRef;
+  typedef edm::RefVector<l1t::PFJetCollection> PFJetRefVector;
   typedef std::vector<l1t::PFJetRef> PFJetVectorRef;
 }  // namespace l1t
 #endif
