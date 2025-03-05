@@ -14,6 +14,7 @@ MPCoincidenceFilter::MPCoincidenceFilter(const ParameterSet &pset)
       debug_(pset.getUntrackedParameter<bool>("debug")),
       co_option_(pset.getParameter<int>("co_option")),
       co_quality_(pset.getParameter<int>("co_quality")),
+      co_wh2option_(pset.getParameter<int>("co_wh2option")),
       scenario_(pset.getParameter<int>("scenario")) {}
 
 // ============================================================================
@@ -37,7 +38,7 @@ void MPCoincidenceFilter::run(edm::Event &iEvent,
   else if (scenario_ == SLICE_TEST)
     shift_back = 400;
 
-  auto filteredMPs = filter(inMPaths, allMPaths, co_option_, co_quality_, shift_back);
+  auto filteredMPs = filter(inMPaths, allMPaths, co_option_, co_quality_, co_wh2option_, shift_back);
   for (auto &mp : filteredMPs)
     outMPaths.push_back(mp);
 }
@@ -51,6 +52,7 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
                                                        std::vector<metaPrimitive> allMPs,
                                                        int co_option,
                                                        int co_quality,
+                                                       int co_wh2option,
                                                        double shift_back) {
   std::vector<metaPrimitive> outMPs;
 
@@ -58,9 +60,9 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
     DTChamberId chId(mp.rawId);
     DTSuperLayerId slId(mp.rawId);
 
-    bool PhiMP = false;
+    bool PhiMP = 0;
     if (slId.superLayer() != 2)
-      PhiMP = true;
+      PhiMP = 1;
 
     int sector = chId.sector();
     int wheel = chId.wheel();
@@ -70,7 +72,11 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
     if (sector == 14)
       sector = 10;
 
-    if (co_option == -1 || mp.quality > 5)
+    bool wh2pass = 0;
+    if(abs(wheel)==2 && station==1 && co_wh2option==1)wh2pass=1;
+    if(abs(wheel)==2 && station<3  && co_wh2option==2)wh2pass=1;
+
+    if (co_option == -1 || mp.quality > 5 || wh2pass==1)
       outMPs.push_back(mp);
     else {
       int sector_p1 = sector + 1;
@@ -93,15 +99,15 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
       float t0 = (mp.t0 - shift_back * LHC_CLK_FREQ) * ((float)TIME_TO_TDC_COUNTS / (float)LHC_CLK_FREQ);
       t0 = t0 - t0_mean;
 
-      bool co_found = false;
+      bool co_found = 0;
 
       for (auto &mp2 : allMPs) {
         DTChamberId chId2(mp2.rawId);
         DTSuperLayerId slId2(mp2.rawId);
 
-        bool PhiMP2 = false;
+        bool PhiMP2 = 0;
         if (slId2.superLayer() != 2)
-          PhiMP2 = true;
+          PhiMP2 = 1;
 
         int qcut = co_quality;  // Tested for 0,1,5
         if (mp.quality > qcut)
@@ -120,15 +126,15 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
         if (sector2 == 14)
           sector2 = 10;
 
-        bool SectorSearch = false;
+        bool SectorSearch = 0;
         if (sector2 == sector || sector2 == sector_p1 || sector2 == sector_m1)
-          SectorSearch = true;
+          SectorSearch = 1;
         if (SectorSearch != 1)
           continue;
 
-        bool WheelSearch = false;
+        bool WheelSearch = 0;
         if (wheel2 == wheel || wheel2 == wheel - 1 || wheel2 == wheel + 1)
-          WheelSearch = true;
+          WheelSearch = 1;
         if (WheelSearch != 1)
           continue;
 
@@ -147,13 +153,13 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
 
         float thres = t0_width + t0_width2;
 
-        bool SameCh = false;
+        bool SameCh = 0;
         if (station2 == station && sector2 == sector && wheel2 == wheel)
-          SameCh = true;
+          SameCh = 1;
 
-        bool Wh2Exc = false;
+        bool Wh2Exc = 0;
         if (abs(wheel) == 2 && station < 3 && SameCh == 1)
-          Wh2Exc = true;  // exception for WH2 MB1/2
+          Wh2Exc = 1;  // exception for WH2 MB1/2
 
         if (Wh2Exc == 1 && PhiMP != PhiMP2) {  // pass if Phi-Th(large k) pair in same chamber
           float k = 0;
@@ -163,10 +169,10 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
             k = mp2.phiB;
 
           if (wheel == 2 && k > 0.9) {
-            co_found = true;
+            co_found = 1;
             break;
           } else if (wheel == -2 && k < -0.9) {
-            co_found = true;
+            co_found = 1;
             break;
           }
         }
@@ -180,7 +186,7 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
           continue;  // Different chambers + not adjacent chambers (standard)
 
         if (abs(t02 - t0) < thres) {
-          co_found = true;
+          co_found = 1;
           break;
         }
       }  // loop over all MPs and look for co
