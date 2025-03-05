@@ -90,7 +90,7 @@ elif(offlineTesting):
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
     #you may need to set manually the GT in the line below
-    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:hltonline', '')
 
 #--------------------------------------------
 ## Patch to avoid using Run Info information in reconstruction
@@ -233,6 +233,13 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
 else :
     process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
+
+    from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+    # Replace gtDigis with gtStage2Digis when stage2L1Trigger is active
+    stage2L1Trigger.toReplaceWith(
+      process.RecoForDQM_LocalReco,
+      cms.Sequence(process.siPixelDigis * process.siStripDigis * process.gtStage2Digis * process.trackerlocalreco)
+    )
 #------------------------------------------------------
 # Switch for channel errors per FED ID trend plots.
 #------------------------------------------------------
@@ -516,6 +523,7 @@ process.ecalDigisCPU.InputLabel = rawDataCollectorLabel
 process.ecalPreshowerDigis.sourceTag = rawDataCollectorLabel
 process.gctDigis.inputLabel = rawDataCollectorLabel
 process.gtDigis.DaqGtInputTag = rawDataCollectorLabel
+process.gtStage2Digis.InputLabel = rawDataCollectorLabel
 process.hcalDigis.InputLabel = rawDataCollectorLabel
 process.muonCSCDigis.InputObjects = rawDataCollectorLabel
 process.muonDTDigis.inputLabel = rawDataCollectorLabel
