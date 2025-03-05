@@ -230,19 +230,19 @@ void TracksterLinksProducer::produce(edm::Event &evt, const edm::EventSetup &es)
     }
   }
 
-  if (regressionAndPid_) {
-    // Run inference algorithm
-    inferenceAlgo_->inputData(layerClusters, *resultTracksters);
-    inferenceAlgo_->runInference(
-        *resultTracksters);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
-  }
-
   assignPCAtoTracksters(*resultTracksters,
                         layerClusters,
                         layerClustersTimes,
                         rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z(),
                         rhtools_,
                         true);
+
+  if (regressionAndPid_) {
+    // Run inference algorithm
+    inferenceAlgo_->inputData(layerClusters, *resultTracksters);
+    inferenceAlgo_->runInference(
+				 *resultTracksters);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
+  }
 
   evt.put(std::move(linkedResultTracksters));
   evt.put(std::move(resultMask));
@@ -284,6 +284,10 @@ void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &de
   inferenceDesc.addNode(edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByDNN", true));
   desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByDNN", inferenceDesc);
 
+  edm::ParameterSetDescription inferenceDescPFN;
+  inferenceDescPFN.addNode(edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
+  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByPFN", inferenceDescPFN);
+
   edm::ParameterSetDescription inferenceDescCNNv4;
   inferenceDescCNNv4.addNode(
       edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByCNNv4", true));
@@ -298,7 +302,7 @@ void TracksterLinksProducer::fillDescriptions(edm::ConfigurationDescriptions &de
   desc.add<bool>("regressionAndPid", false);
   desc.add<std::string>("detector", "HGCAL");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
-  desc.add<std::string>("inferenceAlgo", "TracksterInferenceByDNN");
+  desc.add<std::string>("inferenceAlgo", "TracksterInferenceByPFN");
   descriptions.add("tracksterLinksProducer", desc);
 }
 
