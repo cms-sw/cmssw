@@ -125,6 +125,7 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
       m_connection(),
       m_connectionString(""),
       m_frontierKey(""),
+      m_recordsToDebug(iConfig.getUntrackedParameter<std::vector<std::string>>("recordsToDebug", std::vector<std::string>())),
       m_lastRun(0),   // for the stat
       m_lastLumi(0),  // for the stat
       m_policy(NOREFRESH),
@@ -256,11 +257,35 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
    */
   std::vector<std::unique_ptr<cond::ProductResolverWrapperBase>> resolverWrappers(m_tagCollection.size());
   size_t ipb = 0;
+
+  // Log the content of m_recordsToDebug and the value of m_printDebug
+  // TODO is it needed?
+  // std::ostringstream recordsStream;
+  // recordsStream << "m_recordsToDebug contains:";
+  // for (const auto& record : m_recordsToDebug) {
+  //   recordsStream << " " << record;
+  // }
+  // edm::LogSystem("CondDBESSource") << recordsStream.str();
+
   for (it = itBeg; it != itEnd; ++it) {
     size_t ind = ipb++;
     resolverWrappers[ind] = std::unique_ptr<cond::ProductResolverWrapperBase>{
         cond::ProductResolverFactory::get()->tryToCreate(buildName(it->second.recordName()))};
-    if (!resolverWrappers[ind].get()) {
+    
+    if (resolverWrappers[ind].get()) {
+      
+      resolverWrappers[ind]->setPrintDebug(
+        std::find(m_recordsToDebug.begin(), m_recordsToDebug.end(), it->second.recordName()) != m_recordsToDebug.end());
+      // //TODO remove debug
+      // edm::LogSystem("CondDBESSource") << "Initializing resolver for record \"" << it->second.recordName()
+      //    << "\" and label \"" << it->second.recordLabel()
+      //    << "\"\n tag \"" << it->second.tagName()
+      //    << "\"; from CondDBESSource constructor";
+
+      
+      // edm::LogSystem("CondDBESSource") << "m_printDebug is set to: " << resolverWrappers[ind]->m_printDebug;
+    }
+    else {
       edm::LogWarning("CondDBESSource") << "Plugin for Record " << it->second.recordName() << " has not been found.";
     }
   }
