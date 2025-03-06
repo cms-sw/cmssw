@@ -33,9 +33,24 @@ namespace edm {
   class SignallingProductRegistry : public ProductRegistry {
   public:
     SignallingProductRegistry() : ProductRegistry(), productAddedSignal_(), typeAddedStack_() {}
+
     explicit SignallingProductRegistry(ProductRegistry const& preg)
         : ProductRegistry(preg.productList(), false), productAddedSignal_(), typeAddedStack_() {}
     signalslot::Signal<void(ProductDescription const&)> productAddedSignal_;
+
+    struct Copy {};
+
+    SignallingProductRegistry(ProductRegistry const& preg, Copy): ProductRegistry(preg), productAddedSignal_(), typeAddedStack_() {};
+    
+    void addProduct(ProductDescription const& productdesc, bool iFromListener = false) {
+      addProduct_(productdesc, iFromListener);
+    }
+
+    void addLabelAlias(ProductDescription const& productdesc,
+                       std::string const& labelAlias,
+                       std::string const& instanceAlias) {
+      addLabelAlias_(productdesc, labelAlias, instanceAlias);
+    }
 
     SignallingProductRegistry(SignallingProductRegistry const&) = delete;             // Disallow copying and moving
     SignallingProductRegistry& operator=(SignallingProductRegistry const&) = delete;  // Disallow copying and moving
@@ -49,6 +64,8 @@ namespace edm {
       using std::placeholders::_1;
       serviceregistry::connect_but_block_self(productAddedSignal_, std::bind(iMethod, iObj, _1));
     }
+
+    ProductRegistry const& registry() { return *this; }
 
   private:
     void addCalled(ProductDescription const&, bool) override;

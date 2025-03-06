@@ -29,8 +29,6 @@
 
 namespace edm {
 
-  ProductRegistry::ProductRegistry() : productList_(), transient_() {}
-
   ProductRegistry::Transients::Transients()
       : frozen_(false),
         productProduced_(),
@@ -65,7 +63,7 @@ namespace edm {
     freezeIt(toBeFrozen);
   }
 
-  void ProductRegistry::addProduct(ProductDescription const& productDesc, bool fromListener) {
+  void ProductRegistry::addProduct_(ProductDescription const& productDesc, bool fromListener) {
     assert(productDesc.produced());
     throwIfFrozen();
     std::pair<ProductList::iterator, bool> ret =
@@ -105,9 +103,9 @@ namespace edm {
     addCalled(productDesc, fromListener);
   }
 
-  void ProductRegistry::addLabelAlias(ProductDescription const& productDesc,
-                                      std::string const& labelAlias,
-                                      std::string const& instanceAlias) {
+  void ProductRegistry::addLabelAlias_(ProductDescription const& productDesc,
+                                       std::string const& labelAlias,
+                                       std::string const& instanceAlias) {
     assert(productDesc.produced());
     assert(productDesc.branchID().isValid());
     throwIfFrozen();
@@ -440,11 +438,11 @@ namespace edm {
           }
         }
         ProductResolverIndex index = new_productLookups[desc.branchType()]->insert(typeID,
-                                                  desc.moduleLabel().c_str(),
-                                                  desc.productInstanceName().c_str(),
-                                                  desc.processName().c_str(),
-                                                  containedTypeID,
-                                                  baseTypesOfContainedType);
+                                                                                   desc.moduleLabel().c_str(),
+                                                                                   desc.productInstanceName().c_str(),
+                                                                                   desc.processName().c_str(),
+                                                                                   containedTypeID,
+                                                                                   baseTypesOfContainedType);
 
         transient_.branchIDToIndex_[desc.branchID()] = index;
       }

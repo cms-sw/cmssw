@@ -47,7 +47,7 @@ namespace edm {
   // Constructor
   // make secondary input source
   SecondaryProducer::SecondaryProducer(ParameterSet const& pset)
-      : productRegistry_(std::make_shared<SignallingProductRegistry>()),
+      : productRegistry_(std::make_shared<ProductRegistry>()),
         secInput_(makeSecInput(pset)),
         processConfiguration_(std::make_unique<ProcessConfiguration>(
             std::string("PROD"), getReleaseVersion(), HardwareResourcesDescription())),

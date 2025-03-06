@@ -1,7 +1,7 @@
 #ifndef FWCore_Framework_src_processEDAliases_h
 #define FWCore_Framework_src_processEDAliases_h
 
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <unordered_set>
@@ -21,7 +21,7 @@ namespace edm::detail {
                         std::unordered_set<std::string> const& aliasModulesToProcess,
                         ParameterSet const& proc_pset,
                         std::string const& processName,
-                        ProductRegistry& preg);
+                        SignallingProductRegistry& preg);
 }  // namespace edm::detail
 
 #endif

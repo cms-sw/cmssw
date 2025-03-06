@@ -65,7 +65,7 @@ namespace {
 
   struct Responder {
     std::string name_;
-    edm::ProductRegistry* reg_;
+    edm::SignallingProductRegistry* reg_;
     Responder(std::string const& iName, edm::SignallingProductRegistry& iReg) : name_(iName), reg_(&iReg) {
       iReg.watchProductAdditions(this, &Responder::respond);
     }
@@ -225,7 +225,7 @@ void testProductRegistry::testProductRegistration() {
 }
 
 void testProductRegistry::testAddAlias() {
-  edm::ProductRegistry reg;
+  edm::SignallingProductRegistry reg;
 
   reg.addProduct(*intBranch_);
   reg.addLabelAlias(*intBranch_, "aliasi", "instanceAlias");

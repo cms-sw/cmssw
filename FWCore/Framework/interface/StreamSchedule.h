@@ -221,7 +221,7 @@ namespace edm {
                                std::vector<std::string> const& branchesToDeleteEarly,
                                std::multimap<std::string, std::string> const& referencesToBranches,
                                std::vector<std::string> const& modulesToSkip,
-                               edm::SignallingProductRegistry const& preg);
+                               edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkersBeginEnd() const { return workerManagerBeginEnd_.allWorkers(); }

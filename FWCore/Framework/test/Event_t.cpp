@@ -30,6 +30,7 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -168,7 +169,7 @@ private:
                                                std::string const& productInstanceLabel,
                                                bool doCommit = true);
 
-  std::shared_ptr<ProductRegistry> availableProducts_;
+  std::shared_ptr<SignallingProductRegistry> availableProducts_;
   std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
   std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
@@ -197,7 +198,7 @@ void testEvent::registerProduct(std::string const& tag,
                                 std::string const& processName,
                                 std::string const& productInstanceName) {
   if (!availableProducts_)
-    availableProducts_.reset(new ProductRegistry());
+    availableProducts_.reset(new SignallingProductRegistry());
 
   ParameterSet moduleParams;
   moduleParams.template addParameter<std::string>("@module_type", moduleClassName);
@@ -317,7 +318,7 @@ std::unique_ptr<ProducerBase> testEvent::emplaceProduct(T product,
 }
 
 testEvent::testEvent()
-    : availableProducts_(new ProductRegistry()),
+    : availableProducts_(new SignallingProductRegistry()),
       branchIDListHelper_(new BranchIDListHelper()),
       thinnedAssociationsHelper_(new ThinnedAssociationsHelper()),
       principal_(),

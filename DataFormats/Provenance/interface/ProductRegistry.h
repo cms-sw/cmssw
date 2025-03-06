@@ -37,8 +37,9 @@ namespace edm {
   public:
     typedef std::map<BranchKey, ProductDescription> ProductList;
 
-    ProductRegistry();
-
+    ProductRegistry() = default;
+    ProductRegistry(const ProductRegistry&) = default;
+    ProductRegistry(ProductRegistry&&) = default;
     // A constructor from the persistent data members from another product registry.
     // saves time by not copying the transient components.
     // The constructed registry will be frozen by default.
@@ -47,12 +48,6 @@ namespace edm {
     virtual ~ProductRegistry() {}
 
     typedef std::map<BranchKey, ProductDescription const> ConstProductList;
-
-    void addProduct(ProductDescription const& productdesc, bool iFromListener = false);
-
-    void addLabelAlias(ProductDescription const& productdesc,
-                       std::string const& labelAlias,
-                       std::string const& instanceAlias);
 
     void copyProduct(ProductDescription const& productdesc);
 
@@ -117,7 +112,6 @@ namespace edm {
     bool anyProducts(BranchType const brType) const;
 
     std::shared_ptr<ProductResolverIndexHelper const> productLookup(BranchType branchType) const;
-    std::shared_ptr<ProductResolverIndexHelper> productLookup(BranchType branchType);
 
     // returns the appropriate ProductResolverIndex else ProductResolverIndexInvalid if no BranchID is available
     ProductResolverIndex indexFrom(BranchID const& iID) const;
@@ -162,6 +156,13 @@ namespace edm {
       using AliasToOriginalVector = std::vector<std::tuple<KindOfType, TypeID, std::string, std::string, std::string>>;
       AliasToOriginalVector aliasToOriginal_;
     };
+
+  protected:
+    void addProduct_(ProductDescription const& productdesc, bool iFromListener = false);
+
+    void addLabelAlias_(ProductDescription const& productdesc,
+                        std::string const& labelAlias,
+                        std::string const& instanceAlias);
 
   private:
     void setProductProduced(BranchType branchType) {

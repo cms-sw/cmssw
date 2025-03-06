@@ -109,7 +109,7 @@ namespace edm {
     }
 
     void initializeBranchToReadingWorker(std::vector<std::string> const& branchesToDeleteEarly,
-                                         SignallingProductRegistry const& preg,
+                                         ProductRegistry const& preg,
                                          std::multimap<std::string, Worker*>& branchToReadingWorker) {
       auto vBranchesToDeleteEarly = branchesToDeleteEarly;
       // Remove any duplicates
@@ -540,7 +540,7 @@ namespace edm {
                                              std::vector<std::string> const& branchesToDeleteEarly,
                                              std::multimap<std::string, std::string> const& referencesToBranches,
                                              std::vector<std::string> const& modulesToSkip,
-                                             edm::SignallingProductRegistry const& preg) {
+                                             edm::ProductRegistry const& preg) {
     // setup the list with those products actually registered for this job
     std::multimap<std::string, Worker*> branchToReadingWorker;
     initializeBranchToReadingWorker(branchesToDeleteEarly, preg, branchToReadingWorker);

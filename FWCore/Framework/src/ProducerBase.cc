@@ -23,7 +23,7 @@ namespace edm {
     public:
       CallbackWrapper(ProductRegistryHelper* iProd,
                       std::function<void(ProductDescription const&)> iCallback,
-                      ProductRegistry* iReg,
+                      SignallingProductRegistry* iReg,
                       const ModuleDescription& iDesc)
           : prod_(iProd), callback_(iCallback), reg_(iReg), mdesc_(iDesc), lastSize_(iProd->typeLabelList().size()) {}
 
@@ -46,7 +46,7 @@ namespace edm {
     private:
       ProductRegistryHelper* prod_;
       std::function<void(ProductDescription const&)> callback_;
-      ProductRegistry* reg_;
+      SignallingProductRegistry* reg_;
       ModuleDescription mdesc_;
       unsigned int lastSize_;
     };

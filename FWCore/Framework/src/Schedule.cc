@@ -153,9 +153,7 @@ namespace edm {
 
     typedef std::vector<std::string> vstring;
 
-    void processSwitchProducers(ParameterSet const& proc_pset,
-                                std::string const& processName,
-                                SignallingProductRegistry& preg) {
+    void processSwitchProducers(ParameterSet const& proc_pset, std::string const& processName, ProductRegistry& preg) {
       // Update Switch ProductDescriptions for the chosen case
       struct BranchesCases {
         BranchesCases(std::vector<std::string> cases) : caseLabels{std::move(cases)} {}
@@ -605,6 +603,7 @@ namespace edm {
     std::map<std::string, std::vector<std::pair<std::string, int>>> outputModulePathPositions;
     reduceParameterSet(proc_pset, tns.getEndPaths(), modulesInConfig, usedModuleLabels, outputModulePathPositions);
     {
+      //CDJ: needs SignallingProductRegistry
       std::vector<std::string> aliases = proc_pset.getParameter<std::vector<std::string>>("@all_aliases");
       detail::processEDAliases(aliases, {}, proc_pset, processConfiguration->processName(), preg);
     }
@@ -682,7 +681,9 @@ namespace edm {
         productTypesConsumed.emplace(typeid(TriggerResults));
       }
       // The RandomNumberGeneratorService is not a module, yet it consumes.
-      { RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed); }
+      {
+        RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed);
+      }
       preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName());
     }
 
@@ -1275,7 +1276,7 @@ namespace edm {
   void Schedule::initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly,
                                        std::multimap<std::string, std::string> const& referencesToBranches,
                                        std::vector<std::string> const& modulesToSkip,
-                                       edm::SignallingProductRegistry const& preg) {
+                                       edm::ProductRegistry const& preg) {
     for (auto& stream : streamSchedules_) {
       stream->initializeEarlyDelete(
           *moduleRegistry(), branchesToDeleteEarly, referencesToBranches, modulesToSkip, preg);

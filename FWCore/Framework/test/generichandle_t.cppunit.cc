@@ -21,6 +21,7 @@ Test of GenericHandle class.
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -150,7 +151,7 @@ void testGenericHandle::getbyLabelTest() {
 
   product.init();
 
-  auto preg = std::make_unique<edm::ProductRegistry>();
+  auto preg = std::make_unique<edm::SignallingProductRegistry>();
   preg->addProduct(product);
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
