@@ -17,7 +17,9 @@
   <version ClassVersion="3" checksum="1236020577"/>
  </class>
 
-<class name="L1Phase2MuDTShower" ClassVersion="7">
+<class name="L1Phase2MuDTShower" ClassVersion="9">
+ <version ClassVersion="9" checksum="448482846"/>
+ <version ClassVersion="8" checksum="1870162932"/>
  <version ClassVersion="7" checksum="3499440359"/>
  <version ClassVersion="6" checksum="1855990307"/>
  <version ClassVersion="5" checksum="1887794940"/>

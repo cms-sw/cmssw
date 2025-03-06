@@ -7,43 +7,30 @@
 using namespace cmsdt;
 
 ShowerCandidate::ShowerCandidate() {
-  nhits_ = 0;
-  avgTime_ = 0;
-  avgPos_ = 0;
+    clear();
 }
 
-ShowerCandidate::ShowerCandidate(ShowerBuffer& buff){
-  nhits_ = buff.getNhits();
-  rawId_ = buff.getRawId();
-  for ( auto& hit : buff.getHits() ){
-    hits_.push_back(hit);
-  }
+ShowerCandidate& ShowerCandidate::operator=(const ShowerCandidate &other) {
+    if (this != &other) {
+        nhits_ = other.nhits_;
+        rawId_ = other.rawId_;
+        bx_ = other.bx_;
+        wmin_ = other.wmin_;
+        wmax_ = other.wmax_;
+        avgPos_ = other.avgPos_;
+        avgTime_ = other.avgTime_;
+        shower_flag_ = other.shower_flag_;
+    }
+    return *this;
 }
 
-ShowerCandidate::ShowerCandidate(ShowerBufferPtr& buffPtr){
-  nhits_ = buffPtr->getNhits();
-  rawId_ = buffPtr->getRawId();
-  for ( auto& hit : buffPtr->getHits() ){
-    hits_.push_back(hit);
-  }
- 
-  // Set properties of the shower candidate 
-  setAvgTime();
-  setAvgPos();
-}
-
-
-void ShowerCandidate::setAvgPos() {
-  // Sets the average position in X axis 
-  for (auto& hit : hits_) {
-      avgPos_ = avgPos_ + hit->wireHorizPos();
-  }
-  avgPos_ = avgPos_ / nhits_;
-}
-
-void ShowerCandidate::setAvgTime() {
-  for (auto& hit : hits_) {
-      avgTime_ = avgTime_ + hit->tdcTimeStamp();
-  }
-  avgTime_ = avgTime_ / nhits_;
+void ShowerCandidate::clear() {
+    nhits_ = 0;
+    bx_ = 0;
+    wmin_ = 0;
+    wmax_ = 0;
+    avgPos_ = 0;
+    avgTime_ = 0;
+    shower_flag_ = false;
+    wires_profile_.resize(96, 0);
 }

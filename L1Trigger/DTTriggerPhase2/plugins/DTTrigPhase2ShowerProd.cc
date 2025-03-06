@@ -1,6 +1,8 @@
 /*
-    EDProducer class for shower computation in Phase2 DTs.
-    Author: Carlos Vico Villalba (U. Oviedo)
+    EDProducer class for shower emulation in Phase2 DTs.
+    Authors: 
+        - Carlos Vico Villalba (U. Oviedo)
+        - Daniel Estrada Acevedo (U. Oviedo)
 */
 
 // Include CMSSW plugins
@@ -36,13 +38,11 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTShowerContainer.h"
 
 // Functionalities
-#include "L1Trigger/DTTriggerPhase2/interface/ShowerGrouping.h"
-#include "L1Trigger/DTTriggerPhase2/interface/ShowerBuffer.h"
+#include "L1Trigger/DTTriggerPhase2/interface/ShowerBuilder.h"
 #include "L1Trigger/DTTriggerPhase2/interface/ShowerCandidate.h"
 
 // DT trigger GeomUtils
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
-
 
 // C++ built-ins
 #include <fstream>
@@ -62,7 +62,6 @@ class DTTrigPhase2ShowerProd : public edm::stream::EDProducer<> {
     typedef DTDigiMap::iterator DTDigiMap_iterator;
     typedef DTDigiMap::const_iterator DTDigiMap_const_iterator;
 
-
     public:
         // Public methods/attributes
         
@@ -80,6 +79,8 @@ class DTTrigPhase2ShowerProd : public edm::stream::EDProducer<> {
 
         //! endRun: finish things
         void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
+
+        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
         // Members
         const DTGeometry* dtGeo_;
@@ -88,46 +89,51 @@ class DTTrigPhase2ShowerProd : public edm::stream::EDProducer<> {
     private:
         // Private methods/attributes
         bool debug_; // Debug flag
-        int nHits_per_bx_; // Number of hits sent by the OBDT per bx
+        int showerTaggingAlgo_; // Shower tagging algorithm
         edm::InputTag digiTag_; // Digi collection label
         edm::EDGetTokenT<DTDigiCollection> dtDigisToken_; // Digi container
-        std::unique_ptr<ShowerGrouping> showerBuilder;
-
-        
-        void ShowerDebugger(string msg, int vlevel);
-    protected:
-        // Protected methods/attributes       
+        std::unique_ptr<ShowerBuilder> showerBuilder; // Shower builder instance      
 };
 
 /* Implementation of the plugin */
 DTTrigPhase2ShowerProd::DTTrigPhase2ShowerProd(const ParameterSet& pset) {
     // Constructor implementation
     produces<L1Phase2MuDTShowerContainer>();
-
     // Unpack information from pset
     debug_ = pset.getUntrackedParameter<bool>("debug");
     digiTag_ = pset.getParameter<edm::InputTag>("digiTag");
-    nHits_per_bx_ = pset.getParameter<int>("nHits_per_bx");
+    showerTaggingAlgo_ = pset.getParameter<int>("showerTaggingAlgo");
 
     // Fetch consumes
     dtDigisToken_ = consumes<DTDigiCollection>(digiTag_);
 
     // Algorithm functionalities
     edm::ConsumesCollector consumesColl(consumesCollector());
-    showerBuilder = std::make_unique<ShowerGrouping>(pset, consumesColl);
+    showerBuilder = std::make_unique<ShowerBuilder>(pset, consumesColl);
 
     // Load geometry
     dtGeomH = esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 
+    if (debug_) {
+        LogDebug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: constructor" << endl;
+        if (showerTaggingAlgo_ == 0) {
+            LogDebug("DTTrigPhase2ShowerProd") << "Using standalone mode" << endl;
+        }
+        else if (showerTaggingAlgo_ == 1) {
+            LogDebug("DTTrigPhase2ShowerProd") << "Using firmware emulation mode" << endl;
+        }
+        else LogError("DTTrigPhase2ShowerProd") << "Unrecognized shower tagging algorithm" << endl;
+    }
 }
 
 DTTrigPhase2ShowerProd::~DTTrigPhase2ShowerProd() {
     // Destructor implementation
+    if (debug_) LogDebug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: destructor" << endl;
 }
 
 void DTTrigPhase2ShowerProd::beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {
     // beginRun implementation
-    if (debug_) ShowerDebugger("DTTrigPhase2ShowerProd::beginRun beginRun started", 1);
+    if (debug_) LogDebug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: beginRun started" << endl;
 
     showerBuilder->initialise(iEventSetup);
     if (auto geom = iEventSetup.getHandle(dtGeomH)) {
@@ -137,7 +143,7 @@ void DTTrigPhase2ShowerProd::beginRun(edm::Run const& iRun, const edm::EventSetu
 
 void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& iEventSetup) {
     // produce implementation
-    if (debug_) ShowerDebugger("DTTrigPhase2ShowerProd::produce Processing event", 1);
+    if (debug_) LogDebug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: produce Processing event" << endl;
 
     // Fetch the handle for hits
     edm::Handle<DTDigiCollection> dtdigis;
@@ -146,103 +152,101 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
     // 1. Preprocessing: store digi information by chamber
     DTDigiMap digiMap;
     DTDigiCollection::DigiRangeIterator detUnitIt;
-    if (debug_) ShowerDebugger("Preprocessing hits...", 2);
+    if (debug_) LogDebug("DTTrigPhase2ShowerProd") << "    Preprocessing hits..." << endl;
+
     for (const auto& detUnitIt : *dtdigis) {
         const DTLayerId& layId = detUnitIt.first;
         const DTChamberId chambId = layId.superlayerId().chamberId();
         const DTDigiCollection::Range& digi_range = detUnitIt.second; // This is the digi collection
-        digiMap[chambId].put( digi_range, layId );
+        digiMap[chambId].put(digi_range, layId);
     }
     
-    if (debug_) ShowerDebugger("Hits preprocessed.", 2);
+    if (debug_) LogDebug("DTTrigPhase2ShowerProd") << "    Hits preprocessed: " << digiMap.size() 
+        << " DT chambers to analyze" << endl;
 
-    // 2. Look for showers in each station
-    if (debug_) ShowerDebugger("Searching for showers!", 2);
-    std::map<int, ShowerBufferPtr> ShowerBuffers;
+    // 2. Look for showers in each chamber
+    if (debug_) LogDebug("DTTrigPhase2ShowerProd") << "    Building shower candidates for:" << endl; 
+
+    std::map<DTSuperLayerId, ShowerCandidatePtr> ShowerCandidates;
     for (const auto& ich : dtGeo_->chambers()) {
         const DTChamber* chamb = ich;
         DTChamberId chid = chamb->id();
         DTDigiMap_iterator dmit = digiMap.find(chid);
 
+        DTSuperLayerId sl1id = chamb -> superLayer(1) -> id();
+        DTSuperLayerId sl3id = chamb -> superLayer(3) -> id();
+
         if (dmit == digiMap.end())
             continue;
-        showerBuilder->run(iEvent, iEventSetup, (*dmit).second, ShowerBuffers[chid.rawId()] );
 
-        // Save the rawId of this shower
-        ShowerBuffers[chid.rawId()]->rawId( chid.rawId() );
+        if (debug_) LogDebug("DTTrigPhase2ShowerProd") << "      " << chid << endl;
+
+        showerBuilder->run(iEvent, iEventSetup, (*dmit).second, ShowerCandidates[sl1id], ShowerCandidates[sl3id]);
+
+        // Save the rawId of these shower candidates
+        ShowerCandidates[sl1id]->rawId(sl1id.rawId());
+        ShowerCandidates[sl3id]->rawId(sl3id.rawId());
     }
 
-    // 3. Build shower candidates
-    if (debug_) ShowerDebugger("Building shower candidates!", 2);
-    
-    std::map<int, ShowerCandidatePtr> showerCands;
-    for (auto& ch_showerBuf : ShowerBuffers) {
-      // In normal conditions, there's just one buffer per event. 
-      // when considering delays from OBDT, there might be multiple ones
+    // 3. Check shower candidates and store them if flagged
+    if (debug_) LogDebug("DTTrigPhase2ShowerProd") << "    Selecting shower candidates" << endl;
 
-      auto showerBufIt = ch_showerBuf.second;
-      if (showerBufIt->isFlagged()) {
-          if (debug_) ShowerDebugger("Building a shower candidate", 3);
-          
-          DTChamberId chId(showerBufIt->getRawId());
+    std::vector<L1Phase2MuDTShower> outShower; // prepare output container
+    for (auto& sl_showerCand : ShowerCandidates) {
+        auto showerCandIt = sl_showerCand.second;
+        
+        if (showerCandIt->isFlagged()) {
+            DTSuperLayerId slId(showerCandIt->getRawId());
 
-          // Create the candidate
-          auto showerCand = std::make_shared<ShowerCandidate>(showerBufIt);
-          auto rawId = showerBufIt->getRawId();
-
-          if (debug_) {
-             ShowerDebugger("  - Properties of this shower candidate:", 3);
-             ShowerDebugger("Wheel:" + std::to_string(chId.wheel()) , 4);
-             ShowerDebugger("Sector:" + std::to_string(chId.sector()-1) , 4);
-             ShowerDebugger("Station:" + std::to_string(chId.station()) , 4);
-             ShowerDebugger("nHits:" + std::to_string(showerCand->getNhits()) , 4);
-             ShowerDebugger("avgPos:" + std::to_string(showerCand->getAvgPos()) , 4);
-             ShowerDebugger("avgTime:" + std::to_string(showerCand->getAvgTime()) , 4);
-          }
-
-          showerCands[rawId] = std::move(showerCand); 
-      }
-    } 
-    if (debug_) ShowerDebugger("Storing results!", 2);
-
-    // 4. Storing results
-    std::vector<L1Phase2MuDTShower> outShower;
-    for (auto &chamber_showerCand : showerCands) {
-        auto showerCandIt = chamber_showerCand.second;
-        DTChamberId chId(showerCandIt->getRawId());
-
-        outShower.emplace_back(
-          L1Phase2MuDTShower(
-            -1, // BX
-            chId.wheel(), // Wheel
-            chId.sector()-1, // Sector 
-            chId.station(), // Station
-            showerCandIt->getNhits(), // number of digis
-            showerCandIt->getAvgPos(), // Average position
-            showerCandIt->getAvgTime()  // AVerage time
-          )
-        );
+            if (debug_) {
+                LogDebug("DTTrigPhase2ShowerProd") << "      Shower candidate tagged in chamber"
+                << slId.chamberId() << ", SL" << slId.superlayer();
+            }
+            // 4. Storing results
+            outShower.emplace_back(
+                L1Phase2MuDTShower(
+                    slId.wheel(), // Wheel
+                    slId.sector(), // Sector 
+                    slId.station(), // Station
+                    slId.superlayer(), // SuperLayer 
+                    showerCandIt->getNhits(), // number of digis
+                    showerCandIt->getBX(), // BX
+                    showerCandIt->getMinWire(), // Min wire
+                    showerCandIt->getMaxWire(), // Max wire
+                    showerCandIt->getAvgPos(), // Average position
+                    showerCandIt->getAvgTime(), // Average time
+                    showerCandIt->getWiresProfile() // Wires profile
+                )
+            ); 
+        }
     }
+    if (debug_) LogDebug("DTTrigPhase2ShowerProd") << "    Storing results..." << endl;
 
+    // 4.1 Storing results
     std::unique_ptr<L1Phase2MuDTShowerContainer> resultShower(new L1Phase2MuDTShowerContainer);
     resultShower->setContainer(outShower);
     iEvent.put(std::move(resultShower));
-
 }
 
 void DTTrigPhase2ShowerProd::endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {
     // endRun implementation
+    if (debug_) LogDebug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: endRun" << endl;
 }
 
-void DTTrigPhase2ShowerProd::ShowerDebugger(string msg, int vlevel){
-    /* Debugger */
-    int indent = vlevel*2; // Each vlevel is a 2 space indent
-    string indent_txt = string(indent, ' ');
-    auto indented_msg = indent_txt + msg;
-    if (vlevel == 1) cout << indent_txt << ">> " << msg << endl;
-    if (vlevel == 2) cout << indent_txt << "* " << msg << endl;
-    if (vlevel == 3) cout << indent_txt << "+ " << msg << endl;
-    if (vlevel == 4) cout << indent_txt << "     " << msg << endl;
+void DTTrigPhase2ShowerProd::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    // dtTriggerPhase2Shower
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("digiTag", edm::InputTag("CalibratedDigis"));
+    desc.add<int>("showerTaggingAlgo", 1);
+    desc.add<int>("threshold_for_shower", 6);
+    desc.add<int>("nHits_per_bx", 8);
+    desc.add<int>("obdt_hits_bxpersistence", 4);
+    desc.add<int>("obdt_wire_relaxing_time", 2);
+    desc.add<int>("bmtl1_hits_bxpersistence", 16);
+    desc.add<int>("scenario", 0);
+    desc.addUntracked<bool>("debug", false);
+
+    descriptions.add("dtTriggerPhase2Shower", desc);
 }
 
 
