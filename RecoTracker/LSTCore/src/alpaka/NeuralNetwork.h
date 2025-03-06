@@ -1,8 +1,8 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_NeuralNetwork_h
 #define RecoTracker_LSTCore_src_alpaka_NeuralNetwork_h
 
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+#include "HeterogeneousCore/AlpakaMath/interface/deltaPhi.h"
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
@@ -85,25 +85,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst::t5dnn {
         z1 / kZ_max,                               // inner T3: First hit z normalized
         r1 / kR_max,                               // inner T3: First hit r normalized
 
-        eta2 - eta1,                             // inner T3: Difference in eta between hit 2 and 1
-        reco::deltaPhi(phi2, phi1) / kPhi_norm,  // inner T3: Difference in phi between hit 2 and 1
-        (z2 - z1) / kZ_max,                      // inner T3: Difference in z between hit 2 and 1 normalized
-        (r2 - r1) / kR_max,                      // inner T3: Difference in r between hit 2 and 1 normalized
+        eta2 - eta1,                                              // inner T3: Difference in eta between hit 2 and 1
+        cms::alpakatools::deltaPhi(acc, phi2, phi1) / kPhi_norm,  // inner T3: Difference in phi between hit 2 and 1
+        (z2 - z1) / kZ_max,  // inner T3: Difference in z between hit 2 and 1 normalized
+        (r2 - r1) / kR_max,  // inner T3: Difference in r between hit 2 and 1 normalized
 
-        eta3 - eta2,                             // inner T3: Difference in eta between hit 3 and 2
-        reco::deltaPhi(phi3, phi2) / kPhi_norm,  // inner T3: Difference in phi between hit 3 and 2
-        (z3 - z2) / kZ_max,                      // inner T3: Difference in z between hit 3 and 2 normalized
-        (r3 - r2) / kR_max,                      // inner T3: Difference in r between hit 3 and 2 normalized
+        eta3 - eta2,                                              // inner T3: Difference in eta between hit 3 and 2
+        cms::alpakatools::deltaPhi(acc, phi3, phi2) / kPhi_norm,  // inner T3: Difference in phi between hit 3 and 2
+        (z3 - z2) / kZ_max,  // inner T3: Difference in z between hit 3 and 2 normalized
+        (r3 - r2) / kR_max,  // inner T3: Difference in r between hit 3 and 2 normalized
 
-        eta4 - eta3,                             // outer T3: Difference in eta between hit 4 and 3
-        reco::deltaPhi(phi4, phi3) / kPhi_norm,  // inner T3: Difference in phi between hit 4 and 3
-        (z4 - z3) / kZ_max,                      // outer T3: Difference in z between hit 4 and 3 normalized
-        (r4 - r3) / kR_max,                      // outer T3: Difference in r between hit 4 and 3 normalized
+        eta4 - eta3,                                              // outer T3: Difference in eta between hit 4 and 3
+        cms::alpakatools::deltaPhi(acc, phi4, phi3) / kPhi_norm,  // inner T3: Difference in phi between hit 4 and 3
+        (z4 - z3) / kZ_max,  // outer T3: Difference in z between hit 4 and 3 normalized
+        (r4 - r3) / kR_max,  // outer T3: Difference in r between hit 4 and 3 normalized
 
-        eta5 - eta4,                             // outer T3: Difference in eta between hit 5 and 4
-        reco::deltaPhi(phi5, phi4) / kPhi_norm,  // inner T3: Difference in phi between hit 5 and 4
-        (z5 - z4) / kZ_max,                      // outer T3: Difference in z between hit 5 and 4 normalized
-        (r5 - r4) / kR_max,                      // outer T3: Difference in r between hit 5 and 4 normalized
+        eta5 - eta4,                                              // outer T3: Difference in eta between hit 5 and 4
+        cms::alpakatools::deltaPhi(acc, phi5, phi4) / kPhi_norm,  // inner T3: Difference in phi between hit 5 and 4
+        (z5 - z4) / kZ_max,  // outer T3: Difference in z between hit 5 and 4 normalized
+        (r5 - r4) / kR_max,  // outer T3: Difference in r between hit 5 and 4 normalized
 
         alpaka::math::log10(acc, innerRadius),   // T5 inner radius (t5_innerRadius)
         alpaka::math::log10(acc, bridgeRadius),  // T5 bridge radius (t5_bridgeRadius)

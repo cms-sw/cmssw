@@ -1,12 +1,11 @@
-#include "FWCore/Reflection/interface/ObjectWithDict.h"
-
-#include "FWCore/Reflection/interface/BaseWithDict.h"
-#include "FWCore/Reflection/interface/MemberWithDict.h"
-#include "FWCore/Reflection/interface/TypeWithDict.h"
-
 #ifndef _LIBCPP_VERSION
 #include <cxxabi.h>
 #endif
+
+#include "FWCore/Reflection/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/MemberWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 namespace edm {
 
@@ -15,19 +14,6 @@ namespace edm {
     return obj;
   }
 
-  ObjectWithDict::ObjectWithDict() : type_(), address_(nullptr) {}
-
-  ObjectWithDict::ObjectWithDict(TypeWithDict const& type, void* address) : type_(type), address_(address) {}
-
-  ObjectWithDict::ObjectWithDict(std::type_info const& ti, void* address)
-      : type_(TypeWithDict(ti)), address_(address) {}
-
-  ObjectWithDict::operator bool() const { return bool(type_) && (address_ != nullptr); }
-
-  void* ObjectWithDict::address() const { return address_; }
-
-  TypeWithDict ObjectWithDict::typeOf() const { return type_; }
-
   class DummyVT {
   public:
     virtual ~DummyVT();
@@ -35,6 +21,7 @@ namespace edm {
 
   DummyVT::~DummyVT() {}
 
+  // FIXME improve TypeWithDict::byTypeInfo to return by const& and return by const& here
   TypeWithDict ObjectWithDict::dynamicType() const {
     if (!type_.isVirtual()) {
       return type_;

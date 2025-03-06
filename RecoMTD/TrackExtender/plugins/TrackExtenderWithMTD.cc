@@ -1,64 +1,48 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <sstream>
 
-#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
-#include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-
-#include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
-
-#include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDChannelIdentifier.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
-#include "RecoMTD/TransientTrackingRecHit/interface/MTDTransientTrackingRecHitBuilder.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
-
-#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
-#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
-
-#include <sstream>
-
-#include "Geometry/CommonTopologies/interface/Topology.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "DataFormats/Math/interface/Rounding.h"
-
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
+#include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
+#include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
+#include "RecoMTD/TransientTrackingRecHit/interface/MTDTransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 using namespace std;
 using namespace edm;
@@ -1058,7 +1042,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     ++itrack;
   }
 
-  auto outTrksHandle = ev.put(std::move(output));
+  ev.put(std::move(output));
   ev.put(std::move(extras));
   ev.put(std::move(outhits));
 

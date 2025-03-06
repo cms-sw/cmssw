@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_OrphanHandleBase_h
-#define DataFormats_Common_OrphanHandleBase_h
+#ifndef DataFormats_Common_interface_OrphanHandleBase_h
+#define DataFormats_Common_interface_OrphanHandleBase_h
 
 /*----------------------------------------------------------------------
   
@@ -20,14 +20,16 @@ To check validity, one can use the isValid() function.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 namespace edm {
+
   class OrphanHandleBase {
   public:
-    OrphanHandleBase() : product_(), id_(ProductID()) {}
+    OrphanHandleBase() : product_(nullptr), id_() {}
 
     OrphanHandleBase(void const* iProd, ProductID const& iId) : product_(iProd), id_(iId) { assert(iProd); }
 
@@ -37,17 +39,16 @@ namespace edm {
     }
 
     void swap(OrphanHandleBase& other) {
-      using std::swap;
-      swap(product_, other.product_);
+      std::swap(product_, other.product_);
       std::swap(id_, other.id_);
     }
 
     bool isValid() const { return product_ && id_ != ProductID(); }
 
-    ProductID id() const;
+    ProductID id() const { return id_; }
 
   protected:
-    void const* productStorage() const;
+    void const* productStorage() const { return product_; }
 
   private:
     void const* product_;
@@ -56,6 +57,7 @@ namespace edm {
 
   // Free swap function
   inline void swap(OrphanHandleBase& a, OrphanHandleBase& b) { a.swap(b); }
+
 }  // namespace edm
 
-#endif
+#endif  // DataFormats_Common_interface_OrphanHandleBase_h

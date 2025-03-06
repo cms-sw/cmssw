@@ -193,7 +193,7 @@ namespace cms {
 #ifdef __CUDA_ARCH__
           atomicAdd(off.data() + i, co.off[i]);
 #else
-          auto &a = (std::atomic<Counter> &)(off[i]);
+          std::atomic_ref<Counter> a{off[i]};
           a += co.off[i];
 #endif
         }
@@ -203,7 +203,7 @@ namespace cms {
 #ifdef __CUDA_ARCH__
         return atomicAdd(&x, 1);
 #else
-        auto &a = (std::atomic<Counter> &)(x);
+        std::atomic_ref<Counter> a{x};
         return a++;
 #endif
       }
@@ -212,7 +212,7 @@ namespace cms {
 #ifdef __CUDA_ARCH__
         return atomicSub(&x, 1);
 #else
-        auto &a = (std::atomic<Counter> &)(x);
+        std::atomic_ref<Counter> a{x};
         return a--;
 #endif
       }
