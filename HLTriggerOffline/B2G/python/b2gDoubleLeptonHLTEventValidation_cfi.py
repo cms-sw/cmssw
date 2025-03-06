@@ -20,7 +20,7 @@ b2gDoubleLeptonEleMuHLTValidation = DQMEDAnalyzer('B2GDoubleLeptonHLTValidation'
         minLeptons = cms.untracked.uint32(2),
 
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
+        triggerResults     = cms.InputTag("TriggerResults", "", "HLT"),
         vsPaths      = cms.untracked.vstring(['HLT_Mu37_Ele27_CaloIdL_GsfTrkIdVL','HLT_Mu27_Ele37_CaloIdL_GsfTrkIdVL']),
 )
 
@@ -43,6 +43,6 @@ b2gDoubleElectronHLTValidation = DQMEDAnalyzer('B2GDoubleLeptonHLTValidation',
         minLeptons = cms.untracked.uint32(2),
 
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
+        triggerResults     = cms.InputTag("TriggerResults", "", "HLT"),
         vsPaths      = cms.untracked.vstring(['HLT_DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL']),
 )

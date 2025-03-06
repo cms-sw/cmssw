@@ -62,18 +62,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             alpaka::math::acosh(
                 acc, alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y + ihit_z * ihit_z) / hits.rts()[ihit]);
         auto found_pointer = alpaka_std::lower_bound(modules.mapdetId(), modules.mapdetId() + nModules, iDetId);
+        ALPAKA_ASSERT_ACC(found_pointer != modules.mapdetId() + nModules);
         int found_index = std::distance(modules.mapdetId(), found_pointer);
-        if (found_pointer == modules.mapdetId() + nModules)
-          found_index = -1;
         uint16_t lastModuleIndex = modules.mapIdx()[found_index];
 
         hits.moduleIndices()[ihit] = lastModuleIndex;
 
         if (modules.subdets()[lastModuleIndex] == Endcap && modules.moduleType()[lastModuleIndex] == TwoS) {
           found_pointer = alpaka_std::lower_bound(geoMapDetId, geoMapDetId + nEndCapMap, iDetId);
+          ALPAKA_ASSERT_ACC(found_pointer != geoMapDetId + nEndCapMap);
           found_index = std::distance(geoMapDetId, found_pointer);
-          if (found_pointer == geoMapDetId + nEndCapMap)
-            found_index = -1;
           float phi = geoMapPhi[found_index];
           float cos_phi = alpaka::math::cos(acc, phi);
           hits.highEdgeXs()[ihit] = ihit_x + 2.5f * cos_phi;

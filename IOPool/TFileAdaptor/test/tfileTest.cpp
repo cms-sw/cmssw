@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 
+#include "boost/system/system_error.hpp"
 #include "boost/filesystem/operations.hpp"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"

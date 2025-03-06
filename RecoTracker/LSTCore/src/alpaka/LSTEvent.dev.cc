@@ -1047,21 +1047,14 @@ void LSTEvent::addMiniDoubletsToEventExplicit() {
       cms::alpakatools::make_device_view(queue_, modules.layers(), nLowerModules_);  // only lower modules
   alpaka::memcpy(queue_, module_layers_buf, module_layers_view, nLowerModules_);
 
-  auto module_hitRanges_buf = cms::alpakatools::make_host_buffer<ArrayIx2[]>(queue_, nLowerModules_);
-  auto hits = hitsDC_->view<HitsRangesSoA>();
-  auto hitRanges_view =
-      cms::alpakatools::make_device_view(queue_, hits.hitRanges(), nLowerModules_);  // only lower modules
-  alpaka::memcpy(queue_, module_hitRanges_buf, hitRanges_view, nLowerModules_);
-
   alpaka::wait(queue_);  // wait for inputs before using them
 
   auto const* nMDsCPU = nMDsCPU_buf.data();
   auto const* module_subdets = module_subdets_buf.data();
   auto const* module_layers = module_layers_buf.data();
-  auto const* module_hitRanges = module_hitRanges_buf.data();
 
   for (unsigned int i = 0; i < nLowerModules_; i++) {
-    if (!(nMDsCPU[i] == 0 or module_hitRanges[i][0] == -1)) {
+    if (nMDsCPU[i] != 0) {
       if (module_subdets[i] == Barrel) {
         n_minidoublets_by_layer_barrel_[module_layers[i] - 1] += nMDsCPU[i];
       } else {

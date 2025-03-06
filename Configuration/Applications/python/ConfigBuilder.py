@@ -139,7 +139,7 @@ def filesFromList(fileName,s=None):
         print("found parent files:",sec)
     return (prim,sec)
 
-def filesFromDASQuery(query,option="",s=None):
+def filesFromDASQuery(query,option="",s=None,max_files=None):
     import os,time
     import FWCore.ParameterSet.Config as cms
     prim=[]
@@ -172,6 +172,10 @@ def filesFromDASQuery(query,option="",s=None):
     # remove any duplicates
     prim = sorted(list(set(prim)))
     sec = sorted(list(set(sec)))
+    if max_files:
+        max_files=int(max_files)
+        prim = prim[:max_files]
+        sec = sec[:max_files]
     if s:
         if not hasattr(s,"fileNames"):
             s.fileNames=cms.untracked.vstring(prim)
@@ -412,12 +416,19 @@ class ConfigBuilder(object):
         self.addedObjects.append(("Input source","source"))
 
         def filesFromOption(self):
+            def _datasetname_and_maxfiles(entry):
+                if ":" in entry:
+                    return entry.split(":")
+                else:
+                    return entry,None
+
             for entry in self._options.filein.split(','):
                 print("entry",entry)
                 if entry.startswith("filelist:"):
-                    filesFromList(entry[9:],self.process.source)
+                    filesFromList(entry.split(":",1)[1],self.process.source)
                 elif entry.startswith("dbs:") or entry.startswith("das:"):
-                    filesFromDASQuery('file dataset = %s'%(entry[4:]),self._options.dasoption,self.process.source)
+                    dataset_name,max_files = _datasetname_and_maxfiles(entry.split(":",1)[1])
+                    filesFromDASQuery('file dataset = %s'%(dataset_name),self._options.dasoption,self.process.source,max_files)
                 else:
                     self.process.source.fileNames.append(self._options.dirin+entry)
             if self._options.secondfilein:
@@ -426,9 +437,10 @@ class ConfigBuilder(object):
                 for entry in self._options.secondfilein.split(','):
                     print("entry",entry)
                     if entry.startswith("filelist:"):
-                        self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
+                        self.process.source.secondaryFileNames.extend((filesFromList(entry.split(":",1)[1]))[0])
                     elif entry.startswith("dbs:") or entry.startswith("das:"):
-                        self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset = %s'%(entry[4:]),self._options.dasoption))[0])
+                        dataset_name,max_files = _datasetname_and_maxfiles(entry.split(":",1)[1])
+                        self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset = %s'%(dataset_name),self._options.dasoption))[0])
                     else:
                         self.process.source.secondaryFileNames.append(self._options.dirin+entry)
 
@@ -680,12 +692,15 @@ class ConfigBuilder(object):
             if streamType=='': continue
             if streamType == 'ALCARECO' and not 'ALCAPRODUCER' in self._options.step: continue
             if streamType=='DQMIO': streamType='DQM'
+            streamQualifier=''
+            if streamType[-1].isdigit():
+                ## a special case where --eventcontent MINIAODSIM1 is set to have more than one output in a chain of configuration
+                streamQualifier = str(streamType[-1])
+                streamType = streamType[:-1]
             eventContent=streamType
             ## override streamType to eventContent in case NANOEDM
-            if streamType == "NANOEDMAOD" :
-                eventContent = "NANOAOD"
-            elif streamType == "NANOEDMAODSIM" :
-                eventContent = "NANOAODSIM"
+            if streamType.startswith("NANOEDMAOD"):
+                eventContent = eventContent.replace("NANOEDM","NANO")
             theEventContent = getattr(self.process, eventContent+"EventContent")
             if i==0:
                 theFileName=self._options.outfile_name
@@ -714,10 +729,11 @@ class ConfigBuilder(object):
                 output.dataset.filterName = cms.untracked.string('StreamALCACombined')
 
             if "MINIAOD" in streamType:
+                ## we should definitely get rid of this customization by now
                 from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
                 miniAOD_customizeOutput(output)
 
-            outputModuleName=streamType+'output'
+            outputModuleName=streamType+streamQualifier+'output'
             setattr(self.process,outputModuleName,output)
             outputModule=getattr(self.process,outputModuleName)
             setattr(self.process,outputModuleName+'_step',cms.EndPath(outputModule))

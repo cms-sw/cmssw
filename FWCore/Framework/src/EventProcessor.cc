@@ -55,6 +55,8 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 
+#include "FWCore/AbstractServices/interface/RootHandlers.h"
+
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
@@ -74,7 +76,6 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/RootHandlers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -2034,8 +2035,6 @@ namespace edm {
   void EventProcessor::readAndMergeRun(RunProcessingStatus& iStatus) {
     RunPrincipal& runPrincipal = *iStatus.runPrincipal();
 
-    bool runOK = runPrincipal.adjustToNewProductRegistry(*preg_);
-    assert(runOK);
     runPrincipal.mergeAuxiliary(*input_->runAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -2063,8 +2062,6 @@ namespace edm {
            input_->processHistoryRegistry().reducedProcessHistoryID(lumiPrincipal.aux().processHistoryID()) ==
                input_->processHistoryRegistry().reducedProcessHistoryID(
                    input_->luminosityBlockAuxiliary()->processHistoryID()));
-    bool lumiOK = lumiPrincipal.adjustToNewProductRegistry(*preg());
-    assert(lumiOK);
     lumiPrincipal.mergeAuxiliary(*input_->luminosityBlockAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
