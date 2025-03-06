@@ -13,8 +13,6 @@
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
-#include "FWCore/Utilities/interface/GetPassID.h"
-
 namespace edm {
   namespace {
     class ThrowingDelayedReader : public DelayedReader {
@@ -105,7 +103,7 @@ namespace edm {
     productRegistryUpdate().updateFromInput(branches);
 
     ProcessHistory ph;
-    ph.emplace_back("INPUTTEST", dummy.id(), PROJECT_VERSION, getPassID());
+    ph.emplace_back("INPUTTEST", dummy.id(), PROJECT_VERSION, HardwareResourcesDescription());
     processHistoryRegistry().registerProcessHistory(ph);
     historyID_ = ph.id();
 

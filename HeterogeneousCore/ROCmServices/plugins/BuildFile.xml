@@ -1,6 +1,7 @@
 <iftool name="rocm">
   <use name="rocm"/>
   <use name="DataFormats/Provenance"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
