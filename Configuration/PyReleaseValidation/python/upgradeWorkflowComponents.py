@@ -1752,6 +1752,43 @@ upgradeWFs['HLTwDIGI75e33'] = UpgradeWorkflow_HLTwDIGI75e33(
     offset = 0.76,
 )
 
+class UpgradeWorkflow_NGTScouting(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # skip RECO, ALCA and HARVEST
+        if ('ALCA' in step) or ('Reco' in step) or ('HARVEST' in step) or ('HLT' in step):
+            stepDict[stepName][k] = None
+        elif 'DigiTrigger' in step:
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and 'Run4' in key
+upgradeWFs['NGTScouting'] = UpgradeWorkflow_NGTScouting(
+    steps = [
+        'Reco',
+        'RecoGlobal',
+        'RecoNano',
+        'DigiTrigger',
+        'ALCA',
+        'ALCAPhase2',
+        'HARVESTGlobal',
+    ],
+    PU = [
+        'Reco',
+        'RecoGlobal',
+        'RecoNano',
+        'DigiTrigger',
+        'ALCA',
+        'ALCAPhase2',
+        'HARVESTGlobal'
+    ],
+    suffix = '_NGTScouting',
+    offset = 0.77,
+)
+upgradeWFs['NGTScouting'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting'
+}
+
 class UpgradeWorkflow_L1Complete(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Digi' in step and 'NoHLT' not in step:
