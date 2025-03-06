@@ -30,7 +30,7 @@ void cond::ProductResolverWrapperBase::addInfo(std::string const& il, std::strin
 void cond::ProductResolverWrapperBase::loadTag(std::string const& tag) {
   m_session.transaction().start(true);
   m_iovProxy = m_session.readIov(tag);
-  m_iovProxy.m_printDebug = m_printDebug;
+  m_iovProxy.setPrintDebug(m_printDebug);
   m_session.transaction().commit();
   m_currentIov.clear();
   m_requests = std::make_shared<std::vector<cond::Iov_t>>();
@@ -42,7 +42,7 @@ void cond::ProductResolverWrapperBase::loadTag(std::string const& tag) {
 void cond::ProductResolverWrapperBase::loadTag(std::string const& tag, boost::posix_time::ptime const& snapshotTime) {
   m_session.transaction().start(true);
   m_iovProxy = m_session.readIov(tag, snapshotTime);
-  m_iovProxy.m_printDebug = m_printDebug;
+  m_iovProxy.setPrintDebug(m_printDebug);
   m_session.transaction().commit();
   m_currentIov.clear();
   m_requests = std::make_shared<std::vector<cond::Iov_t>>();

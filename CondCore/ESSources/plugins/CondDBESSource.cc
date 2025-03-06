@@ -278,8 +278,8 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     
     if (resolverWrappers[ind].get()) {
       
-      resolverWrappers[ind]->m_printDebug = 
-        std::find(m_recordsToDebug.begin(), m_recordsToDebug.end(), it->second.recordName()) != m_recordsToDebug.end();
+      resolverWrappers[ind]->setPrintDebug(
+        std::find(m_recordsToDebug.begin(), m_recordsToDebug.end(), it->second.recordName()) != m_recordsToDebug.end());
       // //TODO remove debug
       // edm::LogSystem("CondDBESSource") << "Initializing resolver for record \"" << it->second.recordName()
       //    << "\" and label \"" << it->second.recordLabel()
