@@ -37,3 +37,9 @@ product read from the `Event`.
 Together `edmtest::EventIDProducer` and `edmtest::EventIDValidator` can be used
 to validate that an object produced in a given event is being read back in the
 same event.
+
+
+## `edmtest::CheckClassInfo`
+
+This module will query the TClass, ClassProperty and ClassInfo of all the
+persistent products specified in its configuration.
