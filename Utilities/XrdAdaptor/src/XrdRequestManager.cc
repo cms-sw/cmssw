@@ -839,13 +839,11 @@ void RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c
   m_disabledSources.insert(source_ptr);
 
   std::unique_lock<std::recursive_mutex> sentry(m_source_mutex);
-  if ((!m_activeSources.empty()) && (m_activeSources[0].get() == source_ptr.get())) {
+  if (auto found = std::ranges::find_if(
+          m_activeSources, [&source_ptr](std::shared_ptr<Source> const &src) { return src.get() == source_ptr.get(); });
+      found != m_activeSources.end()) {
     auto oldSources = m_activeSources;
-    m_activeSources.erase(m_activeSources.begin());
-    reportSiteChange(oldSources, m_activeSources);
-  } else if ((m_activeSources.size() > 1) && (m_activeSources[1].get() == source_ptr.get())) {
-    auto oldSources = m_activeSources;
-    m_activeSources.erase(m_activeSources.begin() + 1);
+    m_activeSources.erase(found);
     reportSiteChange(oldSources, m_activeSources);
   }
   std::shared_ptr<Source> new_source;
