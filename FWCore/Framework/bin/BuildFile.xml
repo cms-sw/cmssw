@@ -3,6 +3,7 @@
   <use name="tbb"/>
   <use name="boost"/>
   <use name="boost_program_options"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
@@ -17,6 +18,7 @@
   <use name="boost"/>
   <use name="boost_program_options"/>
   <use name="tcmalloc_minimal"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
@@ -31,6 +33,7 @@
   <use name="boost"/>
   <use name="boost_program_options"/>
   <use name="jemalloc"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
@@ -46,6 +49,7 @@
   <use name="boost"/>
   <use name="boost_program_options"/>
   <use name="jemalloc"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
@@ -60,6 +64,7 @@
   <use name="boost"/>
   <use name="boost_program_options"/>
   <use name="jemalloc"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
@@ -74,6 +79,7 @@
   <use name="boost"/>
   <use name="boost_program_options"/>
   <use name="gperf_tcmalloc_and_profiler"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
@@ -88,6 +94,7 @@
   <use name="boost"/>
   <use name="boost_program_options"/>
   <use name="jemalloc-prof"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
