@@ -59,10 +59,6 @@ namespace {
       CondDBESSource::ResolverMap::const_iterator p = m_resolvers.find(name);
       if (p != m_resolvers.end())
         return (*p).second->iovProxy();
-      // auto proxy = cond::persistency::IOVProxy();
-      
-      // proxy.m_source = "CondGetterFromESSource::get, default-ctored IOVProxy";
-      // return proxy; 
       return cond::persistency::IOVProxy();
     }
 

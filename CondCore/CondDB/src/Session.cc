@@ -63,7 +63,6 @@ namespace cond {
     IOVProxy Session::readIov(const std::string& tagName) {
       m_session->openIovDb();
       IOVProxy proxy(m_session);
-      // proxy.m_source = "Session::readIov(" + tagName + ")";
       proxy.load(tagName);
       return proxy;
     }
@@ -72,7 +71,6 @@ namespace cond {
       m_session->openIovDb();
       IOVProxy proxy(m_session);
       proxy.load(tagName, snapshottime);
-      // proxy.m_source = "Session::readIov(" + tagName + ", snapshottime)";
       return proxy;
     }
 
