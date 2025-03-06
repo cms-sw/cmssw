@@ -484,20 +484,21 @@ void DDHGCalMixRotatedFineCassette::constructLayers(const DDLogicalPart& module,
                                       << convertRadToDeg(-alpha_ + 2._pi) << " with " << pgonZ.size() << " sections";
         for (unsigned int k = 0; k < pgonZ.size(); ++k)
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
-	edm::LogVerbatim("HGCalGeom") << "LayeerSense " << layerSense_[ly];
+        edm::LogVerbatim("HGCalGeom") << "LayeerSense " << layerSense_[ly];
 #endif
-	if (layerSense_[ly] < 0) {
-	  int absType = -layerSense_[ly];
-	  unsigned int num = (absType <= waferTypes_) ? passiveFull_.size() : passivePart_.size();
+        if (layerSense_[ly] < 0) {
+          int absType = -layerSense_[ly];
+          unsigned int num = (absType <= waferTypes_) ? passiveFull_.size() : passivePart_.size();
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << "Abstype " << absType << " num " << num;
+          edm::LogVerbatim("HGCalGeom") << "Abstype " << absType << " num " << num;
 #endif
-	  if (num > 1)
-	    positionMix(glog, name, copy, thick_[ii], matter, absType, fine, cpv);
-	}
+          if (num > 1)
+            positionMix(glog, name, copy, thick_[ii], matter, absType, fine, cpv);
+        }
       } else {
         double rins = (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
-        double routs = (sensitiveMode_< 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
+        double routs =
+            (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
         DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rins, routs, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG

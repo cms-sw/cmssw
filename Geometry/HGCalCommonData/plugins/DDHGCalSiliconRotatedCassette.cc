@@ -59,47 +59,47 @@ private:
   static constexpr double tol1_ = 0.01;
   static constexpr double tol2_ = 0.00001;
 
-  int waferTypes_;                        // Number of wafer types
-  int passiveTypes_;                      // Number of passive types
-  int facingTypes_;                       // Types of facings of modules toward IP
-  int orientationTypes_;                  // Number of wafer orienations
-  int partialTypes_;                      // Number of partial types
-  int placeOffset_;                       // Offset for placement
-  int firstLayer_;                        // Copy # of the first sensitive layer
-  int absorbMode_;                        // Absorber mode
-  int sensitiveMode_;                     // Sensitive mode
-  int passiveMode_;                       // Mode for passive volumes
-  double zMinBlock_;                      // Starting z-value of the block
-  double waferSize_;                      // Width of the wafer
-  double waferSepar_;                     // Sensor separation
-  int sectors_;                           // Sectors
-  int cassettes_;                         // Cassettes
-  std::string rotstr_;                    // Rotation matrix (if needed)
-  std::vector<std::string> waferFull_;    // Names of full wafer modules
-  std::vector<std::string> waferPart_;    // Names of partial wafer modules
-  std::vector<std::string> passiveAbsorb_;// Names of passive absorber modules
-  std::vector<std::string> passiveCool_;  // Names of passive cooling modules
-  std::vector<std::string> materials_;    // names of materials
-  std::vector<std::string> names_;        // Names of volumes
-  std::vector<double> thick_;             // Thickness of the material
-  std::vector<int> copyNumber_;           // Initial copy numbers
-  std::vector<int> layers_;               // Number of layers in a section
-  std::vector<double> layerThick_;        // Thickness of each section
-  std::vector<int> layerType_;            // Type of the layer
-  std::vector<int> layerSense_;           // Content of a layer (sensitive?)
-  std::vector<double> slopeB_;            // Slope at the lower R
-  std::vector<double> zFrontB_;           // Starting Z values for the slopes
-  std::vector<double> rMinFront_;         // Corresponding rMin's
-  std::vector<double> slopeT_;            // Slopes at the larger R
-  std::vector<double> zFrontT_;           // Starting Z values for the slopes
-  std::vector<double> rMaxFront_;         // Corresponding rMax's
-  std::vector<int> layerOrient_;          // Layer orientation (Centering, rotations..)
-  std::vector<int> waferIndex_;           // Wafer index for the types
-  std::vector<int> waferProperty_;        // Wafer property
-  std::vector<int> waferLayerStart_;      // Index of wafers in each layer
-  std::vector<double> cassetteShift_;     // Shifts of the cassetes
-  std::string nameSpace_;                 // Namespace of this and ALL sub-parts
-  std::unordered_set<int> copies_;        // List of copy #'s
+  int waferTypes_;                          // Number of wafer types
+  int passiveTypes_;                        // Number of passive types
+  int facingTypes_;                         // Types of facings of modules toward IP
+  int orientationTypes_;                    // Number of wafer orienations
+  int partialTypes_;                        // Number of partial types
+  int placeOffset_;                         // Offset for placement
+  int firstLayer_;                          // Copy # of the first sensitive layer
+  int absorbMode_;                          // Absorber mode
+  int sensitiveMode_;                       // Sensitive mode
+  int passiveMode_;                         // Mode for passive volumes
+  double zMinBlock_;                        // Starting z-value of the block
+  double waferSize_;                        // Width of the wafer
+  double waferSepar_;                       // Sensor separation
+  int sectors_;                             // Sectors
+  int cassettes_;                           // Cassettes
+  std::string rotstr_;                      // Rotation matrix (if needed)
+  std::vector<std::string> waferFull_;      // Names of full wafer modules
+  std::vector<std::string> waferPart_;      // Names of partial wafer modules
+  std::vector<std::string> passiveAbsorb_;  // Names of passive absorber modules
+  std::vector<std::string> passiveCool_;    // Names of passive cooling modules
+  std::vector<std::string> materials_;      // names of materials
+  std::vector<std::string> names_;          // Names of volumes
+  std::vector<double> thick_;               // Thickness of the material
+  std::vector<int> copyNumber_;             // Initial copy numbers
+  std::vector<int> layers_;                 // Number of layers in a section
+  std::vector<double> layerThick_;          // Thickness of each section
+  std::vector<int> layerType_;              // Type of the layer
+  std::vector<int> layerSense_;             // Content of a layer (sensitive?)
+  std::vector<double> slopeB_;              // Slope at the lower R
+  std::vector<double> zFrontB_;             // Starting Z values for the slopes
+  std::vector<double> rMinFront_;           // Corresponding rMin's
+  std::vector<double> slopeT_;              // Slopes at the larger R
+  std::vector<double> zFrontT_;             // Starting Z values for the slopes
+  std::vector<double> rMaxFront_;           // Corresponding rMax's
+  std::vector<int> layerOrient_;            // Layer orientation (Centering, rotations..)
+  std::vector<int> waferIndex_;             // Wafer index for the types
+  std::vector<int> waferProperty_;          // Wafer property
+  std::vector<int> waferLayerStart_;        // Index of wafers in each layer
+  std::vector<double> cassetteShift_;       // Shifts of the cassetes
+  std::string nameSpace_;                   // Namespace of this and ALL sub-parts
+  std::unordered_set<int> copies_;          // List of copy #'s
   double alpha_, cosAlpha_;
 };
 
@@ -390,12 +390,12 @@ void DDHGCalSiliconRotatedCassette::constructLayers(const DDLogicalPart& module,
         if (layerSense_[ly] > 0) {
           positionSensitive(glog, (copy - firstLayer_), cpv);
         } else if (passiveMode_ > 0) {
-	  unsigned int num = (-layerSense_[ly] <= waferTypes_) ? passiveAbsorb_.size() : passiveCool_.size();
-	  if (num > 0)
-	    positionPassiveNew(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
-	} else {
-	  positionPassive(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
-	}
+          unsigned int num = (-layerSense_[ly] <= waferTypes_) ? passiveAbsorb_.size() : passiveCool_.size();
+          if (num > 0)
+            positionPassiveNew(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
+        } else {
+          positionPassive(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
+        }
       }
       DDTranslation r1(0, 0, zz);
       DDRotation rot;
@@ -544,9 +544,9 @@ void DDHGCalSiliconRotatedCassette::positionSensitive(const DDLogicalPart& glog,
 
 // Position the passive modules (mode == 0)
 void DDHGCalSiliconRotatedCassette::positionPassive(const DDLogicalPart& glog,
-						    int layer,
-						    int absType,
-						    DDCompactView& cpv) {
+                                                    int layer,
+                                                    int absType,
+                                                    DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: positionPassiveAbsorber is called";
 #endif
@@ -561,7 +561,10 @@ void DDHGCalSiliconRotatedCassette::positionPassive(const DDLogicalPart& glog,
   double dy = 0.75 * dely;
   const auto& xyoff = geomTools_.shiftXY(layercenter, (waferSize_ + waferSepar_));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: PositionPassive Layer " << layer << " LayerCenter " << layercenter << ":" << layertype << " r " << delx << " R " << dely << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1);
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: PositionPassive Layer " << layer << " LayerCenter "
+                                << layercenter << ":" << layertype << " r " << delx << " R " << dely << " dy " << dy
+                                << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
+                                << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1);
   int ium(0), ivm(0), kount(0);
   edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: " << glog.ddname() << "  r " << delx << " R " << dely
                                 << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
@@ -651,15 +654,16 @@ void DDHGCalSiliconRotatedCassette::positionPassive(const DDLogicalPart& glog,
 
 // Position the passive modules (mode > 0)
 void DDHGCalSiliconRotatedCassette::positionPassiveNew(const DDLogicalPart& glog,
-						       int layer,
-						       int absType,
-						       DDCompactView& cpv) {
+                                                       int layer,
+                                                       int absType,
+                                                       DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: positionPassiveNew is called";
   int kount(0);
 #endif
   bool type = (absType <= waferTypes_);
-  int num = type ? (passiveAbsorb_.size() / (cassettes_ * layers_.size())) : (passiveCool_.size() / (cassettes_ * layers_.size()));
+  int num = type ? (passiveAbsorb_.size() / (cassettes_ * layers_.size()))
+                 : (passiveCool_.size() / (cassettes_ * layers_.size()));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Type " << type << " number per cassette " << num;
 #endif
@@ -669,11 +673,14 @@ void DDHGCalSiliconRotatedCassette::positionPassiveNew(const DDLogicalPart& glog
       int i1 = num * k + n;
       int i2 = num * layer * cassettes_ + i1;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette::Passive2: layer " << layer + 1 << " cassette " << " PassiveIndex " << i1 << ":" << i2  << ":" << passiveAbsorb_.size() << ":" << passiveCool_.size();
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette::Passive2: layer " << layer + 1 << " cassette "
+                                    << " PassiveIndex " << i1 << ":" << i2 << ":" << passiveAbsorb_.size() << ":"
+                                    << passiveCool_.size();
 #endif
       std::string passive = (type) ? passiveAbsorb_[i2] : passiveCool_[i2];
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette: Passive2 " << passive << " number " << i2 << " pos " << xpos << ":" << ypos << ":" << zpos;
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette: Passive2 " << passive << " number " << i2
+                                    << " pos " << xpos << ":" << ypos << ":" << zpos;
       kount++;
 #endif
       DDTranslation tran(xpos, ypos, zpos);
@@ -681,7 +688,8 @@ void DDHGCalSiliconRotatedCassette::positionPassiveNew(const DDLogicalPart& glog
       DDName name = DDName(DDSplit(passive).first, DDSplit(passive).second);
       cpv.position(name, glog.ddname(), i2, tran, rotation);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette: " << name << " number " << i2 << " positioned in " << glog.ddname() << " at " << tran << " with no rotation";
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette: " << name << " number " << i2
+                                    << " positioned in " << glog.ddname() << " at " << tran << " with no rotation";
 #endif
     }
   }

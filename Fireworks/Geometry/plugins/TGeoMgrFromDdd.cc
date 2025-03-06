@@ -174,7 +174,9 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
     auto info = walker.current();
 
     if (m_verbose) {
-      edm::LogVerbatim("TGeoMgrFromDdd") << "parentStack of size " << parentStack.size() << " info " << &info << " first " << &(info.first) << " second " << info.second << " Name " << info.first.name();
+      edm::LogVerbatim("TGeoMgrFromDdd") << "parentStack of size " << parentStack.size() << " info " << &info
+                                         << " first " << &(info.first) << " second " << info.second << " Name "
+                                         << info.first.name();
       auto num = (info.second != nullptr) ? info.second->copyno() : 0;
       edm::LogVerbatim("TGeoMgrFromDdd") << info.first.name() << " " << num << " "
                                          << DDSolidShapesName::name(info.first.solid().shape());
@@ -240,7 +242,7 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
 TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& iSolid) {
   if (m_verbose)
     edm::LogVerbatim("TGeoMgrFromDdd") << "createShape with name: " << iName
-				       << " and solid: " << iSolid.name().fullname();
+                                       << " and solid: " << iSolid.name().fullname();
 
   DDBase<DDName, DDI::Solid*>::def_type defined(iSolid.isDefined());
   if (!defined.first)
@@ -254,7 +256,7 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
     if (m_verbose) {
       std::ostringstream st1;
       for (const double& par : params)
-	st1 << " : " << par;
+        st1 << " : " << par;
       edm::LogVerbatim("TGeoMgrFromDdd") << params.size() << " Parameters" << st1.str();
     }
     switch (iSolid.shape()) {
@@ -604,8 +606,8 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
 TGeoVolume* TGeoMgrFromDdd::createVolume(const std::string& iName, const DDSolid& iSolid, const DDMaterial& iMaterial) {
   if (m_verbose)
     edm::LogVerbatim("TGeoMgrFromDdd") << "createVolume with name: " << iName
-				       << " and solid: " << iSolid.name().fullname() << " and material "
-				       << iMaterial.name().fullname();
+                                       << " and solid: " << iSolid.name().fullname() << " and material "
+                                       << iMaterial.name().fullname();
   TGeoVolume* v = nameToVolume_[iName];
   if (v == nullptr) {
     TGeoShape* solid =
