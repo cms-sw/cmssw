@@ -2034,8 +2034,6 @@ namespace edm {
   void EventProcessor::readAndMergeRun(RunProcessingStatus& iStatus) {
     RunPrincipal& runPrincipal = *iStatus.runPrincipal();
 
-    bool runOK = runPrincipal.adjustToNewProductRegistry(*preg_);
-    assert(runOK);
     runPrincipal.mergeAuxiliary(*input_->runAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -2063,8 +2061,6 @@ namespace edm {
            input_->processHistoryRegistry().reducedProcessHistoryID(lumiPrincipal.aux().processHistoryID()) ==
                input_->processHistoryRegistry().reducedProcessHistoryID(
                    input_->luminosityBlockAuxiliary()->processHistoryID()));
-    bool lumiOK = lumiPrincipal.adjustToNewProductRegistry(*preg());
-    assert(lumiOK);
     lumiPrincipal.mergeAuxiliary(*input_->luminosityBlockAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());

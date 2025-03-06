@@ -9,7 +9,14 @@ from ..sequences.HLTInitialStepSequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
 from ..sequences.HLTOtLocalRecoSequence_cfi import *
 
-HLTTrackingSequence = cms.Sequence((HLTItLocalRecoSequence+HLTOtLocalRecoSequence+hltTrackerClusterCheck+HLTPhase2PixelTracksSequence+hltPhase2PixelVertices+HLTInitialStepSequence+HLTHighPtTripletStepSequence+hltGeneralTracks))
+HLTTrackingSequence = cms.Sequence(HLTItLocalRecoSequence+
+                                   HLTOtLocalRecoSequence+
+                                   hltTrackerClusterCheck+
+                                   HLTPhase2PixelTracksSequence+
+                                   hltPhase2PixelVertices+
+                                   HLTInitialStepSequence+
+                                   HLTHighPtTripletStepSequence+
+                                   hltGeneralTracks)
 
 from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
 singleIterPatatrack.toReplaceWith(HLTTrackingSequence, HLTTrackingSequence.copyAndExclude([HLTHighPtTripletStepSequence]))
