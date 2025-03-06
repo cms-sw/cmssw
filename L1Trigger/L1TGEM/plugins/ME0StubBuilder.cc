@@ -134,7 +134,14 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
       else
         seg.setEtaPartition(seg.etaPartition() / 2);
 
-      ME0Stub segFinal(id, seg);
+      ME0Stub segFinal(id,
+                       seg.etaPartition(),
+                       seg.strip() + seg.subStrip(),
+                       seg.bendingAngle(),
+                       seg.layerCount(),
+                       seg.quality(),
+                       seg.patternId(),
+                       seg.bx());
 
       segListProcessed.push_back(segFinal);
     }
