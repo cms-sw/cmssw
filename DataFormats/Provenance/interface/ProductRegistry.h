@@ -152,7 +152,7 @@ namespace edm {
       std::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
 
-      std::array<edm::propagate_const<std::shared_ptr<ProductResolverIndexHelper>>, NumBranchTypes> productLookups_;
+      std::array<std::shared_ptr<const ProductResolverIndexHelper>, NumBranchTypes> productLookups_;
 
       std::array<ProductResolverIndex, NumBranchTypes> nextIndexValues_;
 

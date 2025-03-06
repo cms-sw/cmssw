@@ -143,11 +143,7 @@ namespace edm {
   }
 
   std::shared_ptr<ProductResolverIndexHelper const> ProductRegistry::productLookup(BranchType branchType) const {
-    return get_underlying_safe(transient_.productLookups_[branchType]);
-  }
-
-  std::shared_ptr<ProductResolverIndexHelper> ProductRegistry::productLookup(BranchType branchType) {
-    return get_underlying_safe(transient_.productLookups_[branchType]);
+    return transient_.productLookups_[branchType];
   }
 
   void ProductRegistry::setFrozen(bool initializeLookupInfo) {
@@ -319,6 +315,11 @@ namespace edm {
 
     transient_.branchIDToIndex_.clear();
 
+    std::array<std::shared_ptr<ProductResolverIndexHelper>, NumBranchTypes> new_productLookups{
+        {std::make_shared<ProductResolverIndexHelper>(),
+         std::make_shared<ProductResolverIndexHelper>(),
+         std::make_shared<ProductResolverIndexHelper>(),
+         std::make_shared<ProductResolverIndexHelper>()}};
     for (auto const& product : productList_) {
       auto const& desc = product.second;
 
@@ -438,8 +439,7 @@ namespace edm {
             }
           }
         }
-        ProductResolverIndex index = productLookup(desc.branchType())
-                                         ->insert(typeID,
+        ProductResolverIndex index = new_productLookups[desc.branchType()]->insert(typeID,
                                                   desc.moduleLabel().c_str(),
                                                   desc.productInstanceName().c_str(),
                                                   desc.processName().c_str(),
@@ -454,8 +454,11 @@ namespace edm {
       throwMissingDictionariesException(missingDictionaries, context, producedTypes, branchNamesForMissing);
     }
 
-    for (auto& iterProductLookup : transient_.productLookups_) {
+    for (auto& iterProductLookup : new_productLookups) {
       iterProductLookup->setFrozen();
+    }
+    for (size_t i = 0; i < new_productLookups.size(); ++i) {
+      transient_.productLookups_[i] = std::move(new_productLookups[i]);
     }
 
     unsigned int indexIntoNextIndexValue = 0;
