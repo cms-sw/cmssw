@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_RootHandlers_h
-#define FWCore_Utilities_RootHandlers_h
+#ifndef FWCore_AbstractServices_interface_RootHandlers_h
+#define FWCore_AbstractServices_interface_RootHandlers_h
 
 #include "FWCore/Utilities/interface/propagate_const.h"
 namespace edm {
@@ -20,7 +20,12 @@ namespace edm {
     friend class edm::EventProcessor;
 
   public:
-    virtual ~RootHandlers() {}
+    RootHandlers() = default;
+    RootHandlers(RootHandlers const&) = delete;
+    RootHandlers& operator=(RootHandlers const&) = delete;
+    RootHandlers(RootHandlers&&) = delete;
+    RootHandlers& operator=(RootHandlers&&) = delete;
+    virtual ~RootHandlers() = default;
 
     template <typename F>
     void ignoreWarningsWhileDoing(F iFunc, SeverityLevel level = SeverityLevel::kWarning) {
@@ -36,4 +41,4 @@ namespace edm {
   };
 }  // end of namespace edm
 
-#endif  // InitRootHandlers_H
+#endif
