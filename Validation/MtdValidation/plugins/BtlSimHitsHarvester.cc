@@ -38,6 +38,8 @@ private:
 
   // --- Histograms
   MonitorElement* meHitOccupancy_;
+  static constexpr int nRU_ = 6;
+  MonitorElement* meHitOccupancyRUSlice_[nRU_];
 };
 
 // ------------ constructor and destructor --------------
@@ -51,8 +53,15 @@ void BtlSimHitsHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter&
   // --- Get the monitoring histograms
   MonitorElement* meBtlHitLogEnergy = igetter.get(folder_ + "BtlHitLogEnergy");
   MonitorElement* meNevents = igetter.get(folder_ + "BtlNevents");
-
-  if (!meBtlHitLogEnergy || !meNevents) {
+  MonitorElement* meBtlHitLogEnergyRUSlice[nRU_];
+  bool missing_ru_slice = false;
+  for(unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+    meBtlHitLogEnergyRUSlice[ihistoRU] = igetter.get(folder_ + "BtlHitLogEnergyRUSlice_" + std::to_string(ihistoRU + 1));
+    if(!meBtlHitLogEnergyRUSlice[ihistoRU]){
+      missing_ru_slice = true;
+    }
+  }
+  if (!meBtlHitLogEnergy || !meNevents || missing_ru_slice) {
     edm::LogError("BtlSimHitsHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
@@ -69,12 +78,28 @@ void BtlSimHitsHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter&
                                  meBtlHitLogEnergy->getNbinsX(),
                                  meBtlHitLogEnergy->getTH1()->GetXaxis()->GetXmin(),
                                  meBtlHitLogEnergy->getTH1()->GetXaxis()->GetXmax());
+  for(unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+    std::string name = "BtlHitOccupancyRUSlice" + std::to_string(ihistoRU + 1);
+    std::string title = "BTL cell occupancy vs hit energy (RU " + std::to_string(ihistoRU + 1) + ");log_{10}(E_{SIM} [MeV]); Occupancy per event";
+    meHitOccupancyRUSlice_[ihistoRU] = ibook.book1D(name,
+                                                    title,
+                                                    meBtlHitLogEnergyRUSlice[ihistoRU]->getNbinsX(),
+                                                    meBtlHitLogEnergyRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmin(),
+                                                    meBtlHitLogEnergyRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmax());
+    }
 
   // --- Calculate the cumulative histogram
   double bin_sum = meBtlHitLogEnergy->getBinContent(meBtlHitLogEnergy->getNbinsX() + 1);
   for (int ibin = meBtlHitLogEnergy->getNbinsX(); ibin >= 1; --ibin) {
     bin_sum += meBtlHitLogEnergy->getBinContent(ibin);
     meHitOccupancy_->setBinContent(ibin, scale * bin_sum);
+  }
+  for(unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+    double bin_sum_RUSlice = meBtlHitLogEnergyRUSlice[ihistoRU]->getBinContent(meBtlHitLogEnergyRUSlice[ihistoRU]->getNbinsX() + 1);
+    for (int ibin = meBtlHitLogEnergyRUSlice[ihistoRU]->getNbinsX(); ibin >= 1; --ibin) {
+      bin_sum_RUSlice += meBtlHitLogEnergyRUSlice[ihistoRU]->getBinContent(ibin);
+      meHitOccupancyRUSlice_[ihistoRU]->setBinContent(ibin, scale * bin_sum_RUSlice);
+    }
   }
 }
 

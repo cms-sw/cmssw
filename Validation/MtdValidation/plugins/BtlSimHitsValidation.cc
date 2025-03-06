@@ -59,6 +59,7 @@ private:
   const float hitMinEnergy_;
 
   static constexpr float BXTime_ = 25.;  // [ns]
+  static constexpr int nRU_ = 6;
 
   edm::EDGetTokenT<CrossingFrame<PSimHit> > btlSimHitsToken_;
 
@@ -74,6 +75,8 @@ private:
 
   MonitorElement* meHitEnergy_;
   MonitorElement* meHitLogEnergy_;
+  MonitorElement* meHitRUvsLogEnergy_;
+  MonitorElement* meHitLogEnergyRUSlice_[nRU_];
   MonitorElement* meHitTime_;
 
   MonitorElement* meHitXlocal_;
@@ -203,6 +206,12 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
     meHitLogEnergy_->Fill(log10(ene_tot_cell));
 
+    BTLDetId detId(cell.first);
+    if (detId.runit() > 0 && detId.globalRunit() <= nRU_) {
+      meHitLogEnergyRUSlice_[detId.globalRunit()-1]->Fill(log10(ene_tot_cell));
+    }
+    meHitRUvsLogEnergy_->Fill(detId.globalRunit()-1, log10(ene_tot_cell));
+
     // --- Skip cells with a total anergy less than hitMinEnergy_
     if (ene_tot_cell < hitMinEnergy_) {
       continue;
@@ -234,7 +243,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     }
 
     // --- Get the hit global position
-    BTLDetId detId(cell.first);
+    //BTLDetId detId(cell.first);
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr) {
@@ -252,7 +261,6 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     const auto& global_point = thedet->toGlobal(local_point);
 
     // --- Fill the histograms
-
     meHitEnergy_->Fill(ene_tot_cell);
     meHitTime_->Fill(m_hits.at(v_hitID[0]).time);
 
@@ -368,6 +376,14 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL SIM hits energy;E_{SIM} [MeV]", 100, 0., 20.);
   meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL SIM hits energy;log_{10}(E_{SIM} [MeV])", 200, -6., 3.);
+  meHitRUvsLogEnergy_= ibook.bookProfile("BtlHitRUvsLogEnergy","BTL SIM hits energy;nRU_;log_{10}(E_{SIM} [MeV])", 200, -10., 10, -6., 3.);
+  for(unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+
+            std::string name = "BtlHitLogEnergyRUSlice_" + std::to_string(ihistoRU + 1);
+            std::string title = "BTL SIM hits energy (RU " + std::to_string(ihistoRU + 1) +");log_{10}(E_{SIM} [MeV])";
+            meHitLogEnergyRUSlice_[ihistoRU] = ibook.book1D(name, title, 200, -6., 3.);
+
+  }
   meHitTime_ = ibook.book1D("BtlHitTime", "BTL SIM hits ToA;ToA_{SIM} [ns]", 100, 0., 25.);
 
   meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL SIM local X;X_{SIM}^{LOC} [mm]", 100, -30., 30.);
