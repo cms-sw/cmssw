@@ -106,7 +106,7 @@ namespace cond {
     TimeType timeType() const { return m_iovProxy.tagInfo().timeType; }
 
     void setPrintDebug(bool printDebug) { m_printDebug = printDebug; }
-    
+
   private:
     std::string m_label;
     std::string m_connString;

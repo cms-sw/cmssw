@@ -161,8 +161,6 @@ namespace cond {
       // maybe will be removed with a re-design of the top level interface (ESSources )
       const std::shared_ptr<SessionImpl>& session() const;
 
-      std::string m_source = "default constructed"; //TODO remvoe debug 
-
       void setPrintDebug(bool printDebug) { m_printDebug = printDebug; }
 
     private:
@@ -174,7 +172,7 @@ namespace cond {
     private:
       std::shared_ptr<IOVProxyData> m_data;
       std::shared_ptr<SessionImpl> m_session;
-      
+
       // whether additional debug info should be printed in fetchSequence
       bool m_printDebug = false;
     };

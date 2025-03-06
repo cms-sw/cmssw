@@ -34,10 +34,10 @@ void cond::ProductResolverWrapperBase::loadTag(std::string const& tag) {
   m_session.transaction().commit();
   m_currentIov.clear();
   m_requests = std::make_shared<std::vector<cond::Iov_t>>();
-  if(m_printDebug) { //TODO
+  if (m_printDebug) {
     edm::LogSystem("ProductResolverWrapperBase") << "loadTag executed with tag: " << tag;
-  } 
-} 
+  }
+}
 
 void cond::ProductResolverWrapperBase::loadTag(std::string const& tag, boost::posix_time::ptime const& snapshotTime) {
   m_session.transaction().start(true);
@@ -46,9 +46,9 @@ void cond::ProductResolverWrapperBase::loadTag(std::string const& tag, boost::po
   m_session.transaction().commit();
   m_currentIov.clear();
   m_requests = std::make_shared<std::vector<cond::Iov_t>>();
-  if(m_printDebug) { //TODO
-    edm::LogSystem("ProductResolverWrapperBase") << "loadTag executed with tag: " << tag 
-                                              << " and snapshotTime: " << snapshotTime;
+  if (m_printDebug) {
+    edm::LogSystem("ProductResolverWrapperBase")
+        << "loadTag executed with tag: " << tag << " and snapshotTime: " << snapshotTime;
   }
 }
 
@@ -65,11 +65,10 @@ cond::ValidityInterval cond::ProductResolverWrapperBase::setIntervalFor(Time_t t
     m_currentIov = m_iovProxy.getInterval(time);
     m_session.transaction().commit();
   }
-  if(m_printDebug) { //TODO
-    edm::LogSystem("ProductResolverWrapperBase") << "setIntervalFor for tag:" << m_iovProxy.tagInfo().name 
-                                                 << " executed with time: " << time << "\n" 
-                                                 << " set ValidityInterval: since: " << m_currentIov.since 
-                                                 << " till: " << m_currentIov.till;
+  if (m_printDebug) {
+    edm::LogSystem("ProductResolverWrapperBase")
+        << "setIntervalFor for tag:" << m_iovProxy.tagInfo().name << " executed with time: " << time << "\n"
+        << " set ValidityInterval: since: " << m_currentIov.since << " till: " << m_currentIov.till;
   }
   return cond::ValidityInterval(m_currentIov.since, m_currentIov.till);
 }
