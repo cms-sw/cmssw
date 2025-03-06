@@ -509,16 +509,16 @@ double SoftLepton::boostedPPar(const math::XYZVector &vector, const math::XYZVec
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void SoftLepton::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<unsigned int>("muonSelection", 1);
-  desc.add<edm::InputTag>("leptons", edm::InputTag("muons"));
-  desc.add<edm::InputTag>("primaryVertex", edm::InputTag("offlinePrimaryVertices"));
-  desc.add<edm::InputTag>("leptonCands", edm::InputTag());
-  desc.add<edm::InputTag>("leptonId", edm::InputTag());
-  desc.add<unsigned int>("refineJetAxis", 0);
-  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
-  desc.add<double>("leptonDeltaRCut", 0.4);
-  desc.add<double>("leptonChi2Cut", 9999.0);
-  descriptions.addDefault(desc);
+  desc.add<unsigned int>("muonSelection", 1)->setComment("Specify the muon SelectionType, default is 'AllGlobalMuons'.");
+  desc.add<edm::InputTag>("leptons", edm::InputTag("muons"))->setComment("InputTag for the lepton collection.");
+  desc.add<edm::InputTag>("primaryVertex", edm::InputTag("offlinePrimaryVertices"))->setComment("InputTag for the primary vertex collection.");
+  desc.add<edm::InputTag>("leptonCands", edm::InputTag())->setComment("InputTag for the lepton candidates collection, optional.");
+  desc.add<edm::InputTag>("leptonId", edm::InputTag())->setComment("InputTag for the lepton ID collection, optional.");
+  desc.add<unsigned int>("refineJetAxis", 0)->setComment("Specify if a modified jet axis is to be used. See SoftLepton::AxisType for details.");
+  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"))->setComment("InputTag for the jet collection.");
+  desc.add<double>("leptonDeltaRCut", 0.4)->setComment("Specify the maximum allowed value for the distance in DeltaR between the lepton and the jet axis.");
+  desc.add<double>("leptonChi2Cut", 9999.0)->setComment("Specify the maximum allowed value for the normalized chi2 of the lepton.");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(SoftLepton);
