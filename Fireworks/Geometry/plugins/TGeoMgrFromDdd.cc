@@ -45,6 +45,7 @@
 
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <cmath>
+#include <sstream>
 
 using CLHEP::cm;
 using CLHEP::deg;
@@ -173,7 +174,7 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
     auto info = walker.current();
 
     if (m_verbose) {
-      edm::LogVerbatim("TGeoMgrFromDdd") << "parentStack of size " << parentStack.size();
+      edm::LogVerbatim("TGeoMgrFromDdd") << "parentStack of size " << parentStack.size() << " info " << &info << " first " << &(info.first) << " second " << info.second << " Name " << info.first.name();
       auto num = (info.second != nullptr) ? info.second->copyno() : 0;
       edm::LogVerbatim("TGeoMgrFromDdd") << info.first.name() << " " << num << " "
                                          << DDSolidShapesName::name(info.first.solid().shape());
@@ -237,8 +238,9 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
 //==============================================================================
 
 TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& iSolid) {
-  edm::LogVerbatim("TGeoMgrFromDdd") << "createShape with name: " << iName
-                                     << " and solid: " << iSolid.name().fullname();
+  if (m_verbose)
+    edm::LogVerbatim("TGeoMgrFromDdd") << "createShape with name: " << iName
+				       << " and solid: " << iSolid.name().fullname();
 
   DDBase<DDName, DDI::Solid*>::def_type defined(iSolid.isDefined());
   if (!defined.first)
@@ -249,6 +251,12 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
   TGeoShape* rSolid = nameToShape_[iName];
   if (rSolid == nullptr) {
     const std::vector<double>& params = iSolid.parameters();
+    if (m_verbose) {
+      std::ostringstream st1;
+      for (const double& par : params)
+	st1 << " : " << par;
+      edm::LogVerbatim("TGeoMgrFromDdd") << params.size() << " Parameters" << st1.str();
+    }
     switch (iSolid.shape()) {
       case DDSolidShape::ddbox:
         rSolid = new TGeoBBox(iName.c_str(), params[0] / cm, params[1] / cm, params[2] / cm);
@@ -587,15 +595,17 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
     edm::LogError("TGeoMgrFromDdd") << "COULD NOT MAKE " << iName << " of a shape " << iSolid;
   }
 
-  edm::LogVerbatim("TGeoMgrFromDdd") << "solid " << iName << " has been created.";
+  if (m_verbose)
+    edm::LogVerbatim("TGeoMgrFromDdd") << "solid " << iName << " has been created.";
 
   return rSolid;
 }
 
 TGeoVolume* TGeoMgrFromDdd::createVolume(const std::string& iName, const DDSolid& iSolid, const DDMaterial& iMaterial) {
-  edm::LogVerbatim("TGeoMgrFromDdd") << "createVolume with name: " << iName
-                                     << " and solid: " << iSolid.name().fullname() << " and material "
-                                     << iMaterial.name().fullname();
+  if (m_verbose)
+    edm::LogVerbatim("TGeoMgrFromDdd") << "createVolume with name: " << iName
+				       << " and solid: " << iSolid.name().fullname() << " and material "
+				       << iMaterial.name().fullname();
   TGeoVolume* v = nameToVolume_[iName];
   if (v == nullptr) {
     TGeoShape* solid =
@@ -617,7 +627,8 @@ TGeoVolume* TGeoMgrFromDdd::createVolume(const std::string& iName, const DDSolid
 
 TGeoMaterial* TGeoMgrFromDdd::createMaterial(const DDMaterial& iMaterial) {
   std::string mat_name = m_fullname ? iMaterial.name().fullname() : iMaterial.name().name();
-  edm::LogVerbatim("TGeoMgrFromDdd") << "createMaterial with name: " << mat_name;
+  if (m_verbose)
+    edm::LogVerbatim("TGeoMgrFromDdd") << "createMaterial with name: " << mat_name;
   TGeoMaterial* mat = nameToMaterial_[mat_name];
 
   if (mat == nullptr) {
