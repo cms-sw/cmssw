@@ -7,6 +7,8 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanTrackToTrackCovCalculator.h"
 #include "RecoVertex/LinearizationPointFinders/interface/FsmwLinearizationPointFinder.h"
 
+KalmanVertexFitter::KalmanVertexFitter(bool useSmoothing) : KalmanVertexFitter(useSmoothing, false) {}
+
 KalmanVertexFitter::KalmanVertexFitter(bool useSmoothing, bool useMuonSystemBounds) {
   edm::ParameterSet pSet = defaultParameters();
   setup(pSet, useSmoothing, useMuonSystemBounds);

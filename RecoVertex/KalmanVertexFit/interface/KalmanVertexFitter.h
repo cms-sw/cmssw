@@ -27,7 +27,13 @@ public:
    * \param useSmoothing Specifies whether the tracks should be refit or not.
    */
 
-  KalmanVertexFitter(bool useSmoothing = false, bool useMuonSystemBounds = false);
+  KalmanVertexFitter(bool useSmoothing = false);
+
+  /**
+   * Same as above, including a boolean for extending tracker bounds to muon system
+   * \param useMuonSystemBounds Specifies whether the tracker bounds should include the muon system or not.
+   */
+  KalmanVertexFitter(bool useSmoothing, bool useMuonSystemBounds);
 
   /**
    * Same as above, using a ParameterSet to set the convergence criteria
