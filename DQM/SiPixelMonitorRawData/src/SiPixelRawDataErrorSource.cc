@@ -196,8 +196,10 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
   for (TrackerGeometry::DetContainer::const_iterator it = pDD->detsPXB().begin(); it != pDD->detsPXB().end(); it++) {
     const GeomDetUnit *geoUnit = dynamic_cast<const GeomDetUnit *>(*it);
     // check if it is a detUnit
-    if (geoUnit == nullptr)
+    if (geoUnit == nullptr) {
       LogError("PixelDQM") << "Pixel GeomDet is not a GeomDetUnit!" << std::endl;
+      continue;
+    }
     const PixelGeomDetUnit *pixDet = dynamic_cast<const PixelGeomDetUnit *>(geoUnit);
     int nrows = (pixDet->specificTopology()).nrows();
     int ncols = (pixDet->specificTopology()).ncolumns();
