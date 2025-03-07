@@ -385,7 +385,8 @@ private:
   MonitorElement* meSimPVTvsZ_;
 
   MonitorElement* meVtxTrackMult_;
-  MonitorElement* meVtxTrackMultAllVtx_;
+  MonitorElement* meVtxTrackMultPassNdof_;
+  MonitorElement* meVtxTrackMultFailNdof_;
   MonitorElement* meVtxTrackW_;
   MonitorElement* meVtxTrackWnt_;
   MonitorElement* meVtxTrackRecLVMult_;
@@ -592,8 +593,8 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
   // --- histograms booking
-  meUnAssocTracks_ = ibook.book1D("UnAssocTracks", "Unassociated tracks", 160, 0.5, 4.5);
-  meUnAssocTracksFake_ = ibook.book1D("UnAssocTracksFake", "Unassociated fake tracks", 160, 0.5, 4.5);
+  meUnAssocTracks_ = ibook.book1D("UnAssocTracks", "Log10(Unassociated tracks)", 160, 0.5, 4.5);
+  meUnAssocTracksFake_ = ibook.book1D("UnAssocTracksFake", "Log10(Unassociated fake tracks)", 160, 0.5, 4.5);
   meFractionUnAssocTracks_ = ibook.book1D("FractionUnAssocTracks", "Fraction Unassociated tracks", 160, 0.0, 1.);
   meFractionUnAssocTracksFake_ =
       ibook.book1D("FractionUnAssocTracksFake", "Fraction Unassociated fake tracks", 160, 0.0, 1.);
@@ -733,7 +734,9 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meSimPVTvsZ_ = ibook.bookProfile("simPVTvsZ", "PV Time vs Z", 30, -15., 15., 30, -0.75, 0.75);
 
   meVtxTrackMult_ = ibook.book1D("VtxTrackMult", "Log10(Vertex track multiplicity)", 80, 0.5, 2.5);
-  meVtxTrackMultAllVtx_ = ibook.book1D("VtxTrackMultAllVtx", "Log10(Vertex track multiplicity all vtx)", 80, 0.5, 2.5);
+  meVtxTrackMultPassNdof_ =
+      ibook.book1D("VtxTrackMultPassNdof", "Log10(Vertex track multiplicity for ndof>4)", 80, 0.5, 2.5);
+  meVtxTrackMultFailNdof_ = ibook.book1D("VtxTrackMultFailNdof", "Vertex track multiplicity for ndof<4", 50, 0., 50.);
   meVtxTrackW_ = ibook.book1D("VtxTrackW", "Vertex track weight (all)", 50, 0., 1.);
   meVtxTrackWnt_ = ibook.book1D("VtxTrackWnt", "Vertex track Wnt", 50, 0., 1.);
   meVtxTrackRecLVMult_ =
@@ -2675,18 +2678,10 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   meRecVerNumber_->Fill(recopv.size());
   for (unsigned int ir = 0; ir < recopv.size(); ir++) {
+    const reco::Vertex* vertex = recopv.at(ir).recVtx;
     if (recopv.at(ir).ndof > selNdof_) {
       meRecPVZ_->Fill(recopv.at(ir).z);
-      const reco::Vertex* vertex = recopv.at(ir).recVtx;
-      unsigned int nt = 0;
-      for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
-        if (trackAssoc[*iTrack] == -1) {
-          edm::LogWarning("mtdTracks") << "Extended track not associated";
-          continue;
-        }
-        nt++;
-      }
-      meVtxTrackMultAllVtx_->Fill(log10(nt));
+      meVtxTrackMultPassNdof_->Fill(log10(vertex->tracksSize()));
 
       if (recopv.at(ir).recVtx->tError() > 0.) {
         meRecPVT_->Fill(recopv.at(ir).recVtx->t());
@@ -2710,6 +2705,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
         split++;
       }
     }  // ndof
+    else {
+      meVtxTrackMultFailNdof_->Fill(vertex->tracksSize());
+    }
   }
 
   LogTrace("Primary4DVertexValidation") << "is_real: " << real;
