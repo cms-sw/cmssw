@@ -515,7 +515,7 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
         'keep l1tTauBXVector_*_Tau_*',
     )
 )
-%(process)s.MinimalOutput = cms.FinalPath( %(process)s.hltOutputMinimal )
+%(process)s.MinimalOutput = cms.EndPath( %(process)s.hltOutputMinimal )
 %(process)s.schedule.append( %(process)s.MinimalOutput )
 """
     elif not self.config.fragment and self.config.output == 'full':
@@ -531,7 +531,7 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
     ),
     outputCommands = cms.untracked.vstring( 'keep *' )
 )
-%(process)s.FullOutput = cms.FinalPath( %(process)s.hltOutputFull )
+%(process)s.FullOutput = cms.EndPath( %(process)s.hltOutputFull )
 %(process)s.schedule.append( %(process)s.FullOutput )
 """
 
@@ -712,14 +712,14 @@ if 'GlobalTag' in %%(dict)s:
       other_path = re.compile(r'(.*\b(process\.)?DQMOutput = cms\.(Final|End)Path\()(.*)')
       if empty_path.search(self.data):
         # replace an empty DQMOutput path
-        self.data = empty_path.sub(dqmstore + '\n%(process)s.DQMOutput = cms.FinalPath( %(process)s.dqmOutput )\n', self.data)
+        self.data = empty_path.sub(dqmstore + '\n%(process)s.DQMOutput = cms.EndPath( %(process)s.dqmOutput )\n', self.data)
       elif other_path.search(self.data):
         # prepend the dqmOutput to the DQMOutput path
         self.data = other_path.sub(dqmstore + r'\g<1> %(process)s.dqmOutput +\g<4>', self.data)
       else:
         # create a new DQMOutput path with the dqmOutput module
         self.data += dqmstore
-        self.data += '\n%(process)s.DQMOutput = cms.FinalPath( %(process)s.dqmOutput )\n'
+        self.data += '\n%(process)s.DQMOutput = cms.EndPath( %(process)s.dqmOutput )\n'
         self.data += '%(process)s.schedule.append( %(process)s.DQMOutput )\n'
 
 
