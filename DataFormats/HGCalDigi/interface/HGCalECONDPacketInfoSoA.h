@@ -20,16 +20,20 @@ namespace hgcaldigi {
   }  // namespace ECONDFlag
 
   // functions to parse ECONDFlag
-  inline bool truncatedFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITT_POS) & 0b1); }
-  inline bool matchFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITM_POS) & 0b1); }
-  inline uint8_t eboFlag(uint8_t econdFlag) {
+  inline constexpr bool truncatedFlag(uint8_t econdFlag) {
+    return ((econdFlag >> hgcaldigi::ECONDFlag::BITT_POS) & 0b1);
+  }
+  inline constexpr bool matchFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITM_POS) & 0b1); }
+  inline constexpr uint8_t eboFlag(uint8_t econdFlag) {
     return ((econdFlag >> hgcaldigi::ECONDFlag::EBO_POS) & hgcaldigi::ECONDFlag::EBO_MASK);
   }
-  inline uint8_t htFlag(uint8_t econdFlag) {
+  inline constexpr uint8_t htFlag(uint8_t econdFlag) {
     return ((econdFlag >> hgcaldigi::ECONDFlag::HT_POS) & hgcaldigi::ECONDFlag::HT_MASK);
   }
-  inline bool expectedFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITE_POS) & 0b1); }
-  inline bool StatFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITS_POS) & 0b1); }
+  inline constexpr bool expectedFlag(uint8_t econdFlag) {
+    return ((econdFlag >> hgcaldigi::ECONDFlag::BITE_POS) & 0b1);
+  }
+  inline constexpr bool StatFlag(uint8_t econdFlag) { return ((econdFlag >> hgcaldigi::ECONDFlag::BITS_POS) & 0b1); }
 
   // generate structure of arrays (SoA) layout with Digi dataformat
   GENERATE_SOA_LAYOUT(HGCalECONDPacketInfoSoALayout,
