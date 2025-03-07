@@ -16,7 +16,7 @@ namespace edm {
                              std::string const& processName,
                              std::string const& alias,
                              std::string const& instanceAlias,
-                             SignallingProductRegistry const& preg,
+                             ProductRegistry const& preg,
                              std::multimap<BranchKey, BranchKey>& aliasMap,
                              std::map<BranchKey, BranchKey>& aliasKeys) {
       std::string const star("*");
@@ -109,7 +109,7 @@ namespace edm {
 
       // Auxiliary search structure to support wildcard for friendlyClassName
       std::multimap<std::string, BranchKey> moduleLabelToBranches;
-      for (auto const& prod : preg.productList()) {
+      for (auto const& prod : preg.registry().productList()) {
         if (processName == prod.second.processName()) {
           moduleLabelToBranches.emplace(prod.first.moduleLabel(), prod.first);
         }
@@ -150,7 +150,7 @@ namespace edm {
                                     processName,
                                     alias,
                                     instanceAlias,
-                                    preg,
+                                    preg.registry(),
                                     aliasMap,
                                     aliasKeys);
               }
@@ -166,8 +166,9 @@ namespace edm {
             } else if (productInstanceName == star) {
               bool match = false;
               BranchKey lowerBound(friendlyClassName, moduleLabel, empty, empty);
-              for (ProductRegistry::ProductList::const_iterator it = preg.productList().lower_bound(lowerBound);
-                   it != preg.productList().end() && it->first.friendlyClassName() == friendlyClassName &&
+              for (ProductRegistry::ProductList::const_iterator it =
+                       preg.registry().productList().lower_bound(lowerBound);
+                   it != preg.registry().productList().end() && it->first.friendlyClassName() == friendlyClassName &&
                    it->first.moduleLabel() == moduleLabel;
                    ++it) {
                 if (it->first.processName() != processName) {
@@ -181,14 +182,14 @@ namespace edm {
                                     processName,
                                     alias,
                                     instanceAlias,
-                                    preg,
+                                    preg.registry(),
                                     aliasMap,
                                     aliasKeys);
               }
               if (!match) {
                 // No product was found matching the alias.
                 // We throw an exception only if a module with the specified module label was created in this process.
-                for (auto const& product : preg.productList()) {
+                for (auto const& product : preg.registry().productList()) {
                   if (moduleLabel == product.first.moduleLabel() && processName == product.first.processName()) {
                     throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
                         << "There are no products of type '" << friendlyClassName << "'\n"
@@ -203,7 +204,7 @@ namespace edm {
                                   processName,
                                   alias,
                                   instanceAlias,
-                                  preg,
+                                  preg.registry(),
                                   aliasMap,
                                   aliasKeys);
             }
@@ -214,8 +215,8 @@ namespace edm {
       // Now add the new alias entries to the product registry.
       for (auto const& aliasEntry : aliasMap) {
         // Then check that the alias-for product exists
-        ProductRegistry::ProductList::const_iterator it = preg.productList().find(aliasEntry.first);
-        assert(it != preg.productList().end());
+        ProductRegistry::ProductList::const_iterator it = preg.registry().productList().find(aliasEntry.first);
+        assert(it != preg.registry().productList().end());
         preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel(), aliasEntry.second.productInstanceName());
       }
     }

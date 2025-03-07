@@ -67,38 +67,42 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
   SECTION("test main functions") {
     edm::SignallingProductRegistry productRegistry;
 
-    // not mergeable
-    edm::ProductDescription prod1(edm::InRun,
-                                  "label",
-                                  "PROD",
-                                  "edmtest::Thing",
-                                  "edmtestThing",
-                                  "instance",
-                                  edm::TypeWithDict::byName("edmtest::Thing"),
-                                  false);
-    productRegistry.copyProduct(prod1);
+    {
+      edm::ProductRegistry inputRegistry;
+      // not mergeable
+      edm::ProductDescription prod1(edm::InRun,
+                                    "label",
+                                    "PROD",
+                                    "edmtest::Thing",
+                                    "edmtestThing",
+                                    "instance",
+                                    edm::TypeWithDict::byName("edmtest::Thing"),
+                                    false);
+      inputRegistry.copyProduct(prod1);
 
-    // This one should be used
-    edm::ProductDescription prod2(edm::InRun,
-                                  "aLabel",
-                                  "APROD",
-                                  "edmtest::ThingWithMerge",
-                                  "edmtestThingWithMerge",
-                                  "instance",
-                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
-                                  false);
-    productRegistry.copyProduct(prod2);
+      // This one should be used
+      edm::ProductDescription prod2(edm::InRun,
+                                    "aLabel",
+                                    "APROD",
+                                    "edmtest::ThingWithMerge",
+                                    "edmtestThingWithMerge",
+                                    "instance",
+                                    edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                    false);
+      inputRegistry.copyProduct(prod2);
 
-    //not in a Run
-    edm::ProductDescription prod3(edm::InLumi,
-                                  "bLabel",
-                                  "BPROD",
-                                  "edmtest::ThingWithMerge",
-                                  "edmtestThingWithMerge",
-                                  "instance",
-                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
-                                  false);
-    productRegistry.copyProduct(prod3);
+      //not in a Run
+      edm::ProductDescription prod3(edm::InLumi,
+                                    "bLabel",
+                                    "BPROD",
+                                    "edmtest::ThingWithMerge",
+                                    "edmtestThingWithMerge",
+                                    "instance",
+                                    edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                    false);
+      inputRegistry.copyProduct(prod3);
+      productRegistry.addFromInput(inputRegistry);
+    }
 
     // produced
     edm::ProductDescription prod4(edm::InRun,
@@ -111,45 +115,50 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
                                   true);
     productRegistry.addProduct(prod4);
 
-    // dropped
-    edm::ProductDescription prod5(edm::InRun,
-                                  "dLabel",
-                                  "DPROD",
-                                  "edmtest::ThingWithMerge",
-                                  "edmtestThingWithMerge",
-                                  "instance",
-                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
-                                  false);
-    prod5.setDropped(true);
-    productRegistry.copyProduct(prod5);
+    {
+      edm::ProductRegistry inputRegistry;
+      // dropped
+      edm::ProductDescription prod5(edm::InRun,
+                                    "dLabel",
+                                    "DPROD",
+                                    "edmtest::ThingWithMerge",
+                                    "edmtestThingWithMerge",
+                                    "instance",
+                                    edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                    false);
+      prod5.setDropped(true);
+      inputRegistry.copyProduct(prod5);
 
-    // Should be used but the same process name
-    edm::ProductDescription prod6(edm::InRun,
-                                  "eLabel",
-                                  "APROD",
-                                  "edmtest::ThingWithMerge",
-                                  "edmtestThingWithMerge",
-                                  "instance",
-                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
-                                  false);
-    productRegistry.copyProduct(prod6);
+      // Should be used but the same process name
+      edm::ProductDescription prod6(edm::InRun,
+                                    "eLabel",
+                                    "APROD",
+                                    "edmtest::ThingWithMerge",
+                                    "edmtestThingWithMerge",
+                                    "instance",
+                                    edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                    false);
+      inputRegistry.copyProduct(prod6);
 
-    // Should be used
-    edm::ProductDescription prod7(edm::InRun,
-                                  "fLabel",
-                                  "AAPROD",
-                                  "edmtest::ThingWithMerge",
-                                  "edmtestThingWithMerge",
-                                  "instance",
-                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
-                                  false);
-    productRegistry.copyProduct(prod7);
+      // Should be used
+      edm::ProductDescription prod7(edm::InRun,
+                                    "fLabel",
+                                    "AAPROD",
+                                    "edmtest::ThingWithMerge",
+                                    "edmtestThingWithMerge",
+                                    "instance",
+                                    edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                    false);
+      inputRegistry.copyProduct(prod7);
+
+      productRegistry.addFromInput(inputRegistry);
+    }
 
     edm::MergeableRunProductProcesses mergeableRunProductProcesses;
 
     REQUIRE(mergeableRunProductProcesses.size() == 0);
 
-    mergeableRunProductProcesses.setProcessesWithMergeableRunProducts(productRegistry);
+    mergeableRunProductProcesses.setProcessesWithMergeableRunProducts(productRegistry.registry());
 
     REQUIRE(mergeableRunProductProcesses.size() == 2);
 

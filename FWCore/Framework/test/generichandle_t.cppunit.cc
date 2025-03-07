@@ -155,10 +155,10 @@ void testGenericHandle::getbyLabelTest() {
   preg->addProduct(product);
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
-  branchIDListHelper->updateFromRegistry(*preg);
+  branchIDListHelper->updateFromRegistry(preg->registry());
   auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
 
-  edm::ProductRegistry::ProductList const& pl = preg->productList();
+  edm::ProductRegistry::ProductList const& pl = preg->registry().productList();
   edm::BranchKey const bk(product);
   edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
@@ -166,7 +166,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::Timestamp fakeTime;
   std::string uuid = edm::createGlobalIdentifier();
   auto pc = edmtest::makeDummyProcessConfiguration("PROD", dummyProcessPset.id());
-  std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
+  std::shared_ptr<edm::ProductRegistry const> pregc(std::make_shared<edm::ProductRegistry>(preg->moveTo()));
   auto rp =
       std::make_shared<edm::RunPrincipal>(pregc, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   rp->setAux(edm::RunAuxiliary(col.run(), fakeTime, fakeTime));

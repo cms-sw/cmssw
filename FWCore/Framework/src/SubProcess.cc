@@ -174,7 +174,7 @@ namespace edm {
 
     // set the items
     act_table_ = std::move(items.act_table_);
-    preg_ = items.preg();
+    preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
 
     subProcessParentageHelper_ = items.subProcessParentageHelper();
     subProcessParentageHelper_->update(parentSubProcessParentageHelper, *parentProductRegistry);

@@ -291,7 +291,7 @@ namespace edm {
       processSwitchEDAliases(proc_pset, preg, *processConfiguration, allConditionalMods);
 
       //find branches created by the conditional modules
-      for (auto const& prod : preg.productList()) {
+      for (auto const& prod : preg.registry().productList()) {
         if (allConditionalMods.find(prod.first.moduleLabel()) != allConditionalMods.end()) {
           conditionalModsBranches_.emplace(prod.first.moduleLabel(), &prod.second);
         }

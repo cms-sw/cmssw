@@ -40,6 +40,7 @@ namespace edm {
     ProductRegistry() = default;
     ProductRegistry(const ProductRegistry&) = default;
     ProductRegistry(ProductRegistry&&) = default;
+    ProductRegistry& operator=(ProductRegistry&&) = default;
     // A constructor from the persistent data members from another product registry.
     // saves time by not copying the transient components.
     // The constructed registry will be frozen by default.
@@ -64,8 +65,6 @@ namespace edm {
                       ProductDescription::MatchMode branchesMustMatch = ProductDescription::Permissive);
 
     void updateFromInput(ProductList const& other);
-    // triggers callbacks for modules watching registration
-    void addFromInput(edm::ProductRegistry const&);
 
     void updateFromInput(std::vector<ProductDescription> const& other);
 
@@ -90,21 +89,6 @@ namespace edm {
     // colon-initialization list.
     std::vector<ProductDescription const*> allProductDescriptions() const;
 
-    //NOTE: this is not const since we only want items that have non-const access to this class to be
-    // able to call this internal iteration
-    // Called only for branches that are present (part of avoiding creating type information for dropped branches)
-    template <typename T>
-    void callForEachBranch(T const& iFunc) {
-      //NOTE: If implementation changes from a map, need to check that iterators are still valid
-      // after an insert with the new container, else need to copy the container and iterate over the copy
-      for (ProductRegistry::ProductList::const_iterator itEntry = productList_.begin(), itEntryEnd = productList_.end();
-           itEntry != itEntryEnd;
-           ++itEntry) {
-        if (itEntry->second.present()) {
-          iFunc(itEntry->second);
-        }
-      }
-    }
     ProductList::size_type size() const { return productList_.size(); }
 
     void print(std::ostream& os) const;
@@ -163,6 +147,8 @@ namespace edm {
     void addLabelAlias_(ProductDescription const& productdesc,
                         std::string const& labelAlias,
                         std::string const& instanceAlias);
+    // triggers callbacks for modules watching registration
+    void addFromInput_(edm::ProductRegistry const&);
 
   private:
     void setProductProduced(BranchType branchType) {

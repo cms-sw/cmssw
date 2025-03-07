@@ -82,7 +82,7 @@ namespace edm {
         prod.setDropped(true);
       }
     }
-    subProcessBlockHelper.updateFromParentProcess(parentProcessBlockHelper, *preg_);
+    subProcessBlockHelper.updateFromParentProcess(parentProcessBlockHelper, preg_->registry());
   }
 
   ServiceToken ScheduleItems::initServices(std::vector<ParameterSet>& pServiceSets,

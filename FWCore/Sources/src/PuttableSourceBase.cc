@@ -42,7 +42,7 @@ PuttableSourceBase::PuttableSourceBase(ParameterSet const& iPSet, InputSourceDes
 void PuttableSourceBase::registerProducts() {
   SignallingProductRegistry reg;
   registerProducts(this, &reg, moduleDescription());
-  productRegistryUpdate().addFromInput(reg);
+  productRegistryUpdate() = std::move(reg.moveTo());
 }
 
 void PuttableSourceBase::beginJob(edm::ProductRegistry const& r) {

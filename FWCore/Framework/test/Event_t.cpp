@@ -376,7 +376,7 @@ testEvent::testEvent()
 
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
-  branchIDListHelper_->updateFromRegistry(*availableProducts_);
+  branchIDListHelper_->updateFromRegistry(availableProducts_->registry());
 }
 
 testEvent::~testEvent() {}
@@ -440,7 +440,7 @@ void testEvent::setUp() {
   // and that is used to create the product holder in the principal used to
   // look up the object.
 
-  std::shared_ptr<ProductRegistry const> preg(availableProducts_);
+  std::shared_ptr<ProductRegistry const> preg(std::make_shared<ProductRegistry>(availableProducts_->registry()));
   std::string uuid = createGlobalIdentifier();
   Timestamp time = make_timestamp();
   EventID id = make_id();

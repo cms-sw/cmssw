@@ -528,7 +528,7 @@ namespace edm {
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
-      preg_ = items.preg();
+      preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
       mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
       branchIDListHelper_ = items.branchIDListHelper();
       thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();

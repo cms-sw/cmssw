@@ -212,7 +212,7 @@ namespace edm {
     }
   }
 
-  void ProductRegistry::addFromInput(edm::ProductRegistry const& other) {
+  void ProductRegistry::addFromInput_(edm::ProductRegistry const& other) {
     throwIfFrozen();
     for (auto const& prod : other.productList_) {
       ProductList::iterator iter = productList_.find(prod.first);

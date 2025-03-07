@@ -140,7 +140,7 @@ void test_ep::setUp() {
   pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
   pProductRegistry_->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
-  branchIDListHelper->updateFromRegistry(*pProductRegistry_);
+  branchIDListHelper->updateFromRegistry(pProductRegistry_->registry());
   auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
 
   // Put products we'll look for into the EventPrincipal.
@@ -156,7 +156,7 @@ void test_ep::setUp() {
 
     branch.init();
 
-    edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
+    edm::ProductRegistry::ProductList const& pl = pProductRegistry_->registry().productList();
     edm::BranchKey const bk(branch);
     edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
@@ -169,16 +169,17 @@ void test_ep::setUp() {
     assert(process);
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
+    auto pRegistry = std::make_shared<edm::ProductRegistry const>(pProductRegistry_->registry());
     auto rp = std::make_shared<edm::RunPrincipal>(
-        pProductRegistry_, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
+        pRegistry, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
     rp->setAux(edm::RunAuxiliary(eventID_.run(), now, now));
     edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
     lbp_ = std::make_shared<edm::LuminosityBlockPrincipal>(
-        pProductRegistry_, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
+        pRegistry, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
     lbp_->setAux(lumiAux);
     lbp_->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
-    pEvent_.reset(new edm::EventPrincipal(pProductRegistry_,
+    pEvent_.reset(new edm::EventPrincipal(pRegistry,
                                           edm::productResolversFactory::makePrimary,
                                           branchIDListHelper,
                                           thinnedAssociationsHelper,
