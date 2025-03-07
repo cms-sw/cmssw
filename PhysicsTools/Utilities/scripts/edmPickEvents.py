@@ -53,17 +53,19 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents
 ## Subroutines ##
 #################
 
+
 def getFileNames(run, lumi, client=None):
     """Return files for given DAS query"""
-    if  client == 'das_client':
+    if client == "das_client":
         return getFileNames_das_client(run, lumi)
-    elif client == 'dasgoclient':
+    elif client == "dasgoclient":
         return getFileNames_dasgoclient(run, lumi)
     # default action
-    for path in os.getenv('PATH').split(':'):
-        if  os.path.isfile(os.path.join(path, 'dasgoclient')):
+    for path in os.getenv("PATH").split(":"):
+        if os.path.isfile(os.path.join(path, "dasgoclient")):
             return getFileNames_dasgoclient(run, lumi)
     return getFileNames_das_client(run, lumi)
+
 
 def getFileNames_das_client(run, lumi):
     """Return files for given DAS query via das_client"""
@@ -71,31 +73,32 @@ def getFileNames_das_client(run, lumi):
 
     query = f"file dataset={dataset} run={run} lumi={lumi} | grep file.name"
     jsondict = get_data(query)
-    status = jsondict['status']
-    if status != 'ok':
+    status = jsondict["status"]
+    if status != "ok":
         print(f"DAS query status: {status}")
         return files
 
-    mongo_query = jsondict['mongo_query']
-    filters = mongo_query['filters']
-    data = jsondict['data']
+    mongo_query = jsondict["mongo_query"]
+    filters = mongo_query["filters"]
+    data = jsondict["data"]
 
     files = []
     for row in data:
-        file = [r for r in get_value(row, filters['grep'])][0]
+        file = [r for r in get_value(row, filters["grep"])][0]
         if len(file) > 0 and not file in files:
             files.append(file)
 
     return files
 
+
 def getFileNames_dasgoclient(run, lumi):
     """Return files for given DAS query via dasgoclient"""
     query = f"file dataset={dataset} run={run} lumi={lumi}"
-    cmd = ['dasgoclient', '-query', query, '-json']
+    cmd = ["dasgoclient", "-query", query, "-json"]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     files = []
     err = proc.stderr.read()
-    if  err:
+    if err:
         print(f"DAS error: {err}")
         print(proc.stdout.read())
         sys.exit(1)
@@ -103,8 +106,8 @@ def getFileNames_dasgoclient(run, lumi):
         dasout = proc.stdout.read()
         try:
             for row in json.loads(dasout):
-                for rec in row.get('file', []):
-                    fname = rec.get('name', '')
+                for rec in row.get("file", []):
+                    fname = rec.get("name", "")
                     if fname:
                         files.append(fname)
         except:
@@ -112,23 +115,23 @@ def getFileNames_dasgoclient(run, lumi):
             sys.exit(1)
     return files
 
+
 def fullCPMpath():
-    base = os.environ.get('CMSSW_BASE')
+    base = os.environ.get("CMSSW_BASE")
     if not base:
         raise RuntimeError("CMSSW Environment not set")
     retval = f"{base}/src/PhysicsTools/Utilities/configuration/copyPickMerge_cfg.py"
     if os.path.exists(retval):
         return retval
-    base = os.environ.get('CMSSW_RELEASE_BASE')
+    base = os.environ.get("CMSSW_RELEASE_BASE")
     retval = f"{base}/src/PhysicsTools/Utilities/configuration/copyPickMerge_cfg.py"
     if os.path.exists(retval):
         return retval
     raise RuntimeError("Could not find copyPickMerge_cfg.py")
 
 
-
 # crab template
-crabTemplate = '''
+crabTemplate = """
 ## Edited By Raman Khurana
 ##
 ## CRAB documentation : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCrab
@@ -170,7 +173,7 @@ config.section_("Site")
 ## Change site name accordingly
 config.Site.storageSite = "T2_US_Wisconsin"
 
-'''
+"""
 
 ########################
 ## ################## ##
@@ -180,63 +183,102 @@ config.Site.storageSite = "T2_US_Wisconsin"
 
 if __name__ == "__main__":
 
-    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter, description='''This program
+    parser = ArgumentParser(
+        formatter_class=ArgumentDefaultsHelpFormatter,
+        description="""This program
 facilitates picking specific events from a data set.  For full details, please visit
-https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents''')
-    parser.add_argument('--output', dest='base', type=str,
-                        default='pickevents',
-                        help='Base name to use for output files (root, JSON, run and event list, etc.)")')
-    parser.add_argument('--runInteractive', dest='runInteractive', action='store_true',
-                        help = 'Call "cmsRun" command if possible.  Can take a long time.')
-    parser.add_argument('--printInteractive', dest='printInteractive', action='store_true',
-                        help = 'Print "cmsRun" command instead of running it.')
-    parser.add_argument('--maxEventsInteractive', dest='maxEventsInteractive', type=int,
-                        default=20,
-                        help = 'Maximum number of events allowed to be processed interactively.')
-    parser.add_argument('--crab', dest='crab', action='store_true',
-                        help = 'Force CRAB setup instead of interactive mode')
-    parser.add_argument('--crabCondor', dest='crabCondor', action='store_true',
-                        help = 'Tell CRAB to use Condor scheduler (FNAL or OSG sites).')
-    parser.add_argument('--email', dest='email', type=str,
-                        default=None,
-                        help="Specify email for CRAB")
-    das_cli = ''
-    parser.add_argument('--das-client', dest='das_cli', type=str,
-                        default=das_cli,
-                        help="Specify das client to use")
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents""",
+    )
+    parser.add_argument(
+        "--output",
+        dest="base",
+        type=str,
+        default="pickevents",
+        help='Base name to use for output files (root, JSON, run and event list, etc.)")',
+    )
+    parser.add_argument(
+        "--runInteractive",
+        dest="runInteractive",
+        action="store_true",
+        help='Call "cmsRun" command if possible.  Can take a long time.',
+    )
+    parser.add_argument(
+        "--printInteractive",
+        dest="printInteractive",
+        action="store_true",
+        help='Print "cmsRun" command instead of running it.',
+    )
+    parser.add_argument(
+        "--maxEventsInteractive",
+        dest="maxEventsInteractive",
+        type=int,
+        default=20,
+        help="Maximum number of events allowed to be processed interactively.",
+    )
+    parser.add_argument(
+        "--crab",
+        dest="crab",
+        action="store_true",
+        help="Force CRAB setup instead of interactive mode",
+    )
+    parser.add_argument(
+        "--crabCondor",
+        dest="crabCondor",
+        action="store_true",
+        help="Tell CRAB to use Condor scheduler (FNAL or OSG sites).",
+    )
+    parser.add_argument(
+        "--email", dest="email", type=str, default=None, help="Specify email for CRAB"
+    )
+    das_cli = ""
+    parser.add_argument(
+        "--das-client",
+        dest="das_cli",
+        type=str,
+        default=das_cli,
+        help="Specify das client to use",
+    )
     parser.add_argument("dataset", type=str)
-    parser.add_argument("events", metavar="events_or_events.txt", type=str, nargs='+')
+    parser.add_argument("events", metavar="events_or_events.txt", type=str, nargs="+")
     options = parser.parse_args()
 
-    global dataset # make dataset a global variable to, so other functions can access it
+    global dataset  # make dataset a global variable to, so other functions can access it
     dataset = options.dataset
-    
-    event_list = set() # List with all unique events in the form of (run, lumi, event) tuples
-    run_lumi_list = set() # List containing all unique (run, lumi) tuples; this can be considerably smaller than event_list
-    
+
+    event_list = (
+        set()
+    )  # List with all unique events in the form of (run, lumi, event) tuples
+    run_lumi_list = (
+        set()
+    )  # List containing all unique (run, lumi) tuples; this can be considerably smaller than event_list
+
     if len(options.events) > 1 or ":" in options.events[0]:
         # events are coming in from the command line
         for piece in options.events:
             try:
-                run, lumi, event = piece.split(':')
+                run, lumi, event = piece.split(":")
             except:
                 raise RuntimeError(f"'{piece}' is not a proper event")
-            run_lumi_list.add((int(run), int(lumi)))  # only save run and lumi in a tuple, as event is not needed for DAS query
+            run_lumi_list.add(
+                (int(run), int(lumi))
+            )  # only save run and lumi in a tuple, as event is not needed for DAS query
             event_list.add((int(run), int(lumi), int(event)))
     else:
         # read events from file
-        with open(options.events[0], 'r') as f:
-            commentRE = re.compile(r'#.+$')
+        with open(options.events[0], "r") as f:
+            commentRE = re.compile(r"#.+$")
             for line in f:
-                line = commentRE.sub('', line)
+                line = commentRE.sub("", line)
                 try:
-                    run, lumi, event = line.split(':')
+                    run, lumi, event = line.split(":")
                 except:
                     print(f"Skipping '{line.strip()}'.")
                     continue
-                run_lumi_list.add((int(run), int(lumi)))  # only save run and lumi in a tuple, as event is not needed for DAS query
+                run_lumi_list.add(
+                    (int(run), int(lumi))
+                )  # only save run and lumi in a tuple, as event is not needed for DAS query
                 event_list.add((int(run), int(lumi), int(event)))
-            
+
     if not run_lumi_list:
         print("No events defined.  Aborting.")
         sys.exit()
@@ -250,12 +292,23 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents''')
         ## CRAB ##
         ##########
         if options.runInteractive:
-            raise RuntimeError("This job cannot be run interactively, but rather by crab.  Please call without the '--runInteractive' flag or increase the '--maxEventsInteractive' value.")
-        run_lumi_list_helper = LumiList(lumis = run_lumi_list) # use LumiList as helper to write JSON file
-        eventsToProcess = '\n'.join(sorted(["{run}:{event}".format(run=event_tuple[0], event=event_tuple[2]) for event_tuple in event_list]))
+            raise RuntimeError(
+                "This job cannot be run interactively, but rather by crab.  Please call without the '--runInteractive' flag or increase the '--maxEventsInteractive' value."
+            )
+        run_lumi_list_helper = LumiList(
+            lumis=run_lumi_list
+        )  # use LumiList as helper to write JSON file
+        eventsToProcess = "\n".join(
+            sorted(
+                [
+                    "{run}:{event}".format(run=event_tuple[0], event=event_tuple[2])
+                    for event_tuple in event_list
+                ]
+            )
+        )
 
         # setup the CRAB dictionary
-        date = datetime.now().strftime('%Y%m%d_%H%M%S')
+        date = datetime.now().strftime("%Y%m%d_%H%M%S")
         base = options.base
         crabDict = {
             "runEvent": f"{base}_runEvents.txt",
@@ -266,26 +319,34 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents''')
             "dataset": dataset,
             "email": (
                 options.email
-                if options.email # guess email from environment if not provided
+                if options.email  # guess email from environment if not provided
                 else f"{subprocess.getoutput('whoami')}@{'.'.join(subprocess.getoutput('hostname').split('.')[-2:])}"
             ),
             "WorkArea": date,
-            "useServer": '',
+            "useServer": "",
             "scheduler": "condor" if options.crabCondor else "remoteGlidein",
         }
-        
-        run_lumi_list_helper.writeJSON(crabDict['json'])
-        with open(crabDict['runEvent'], 'w') as f:
-            f.write (eventsToProcess + "\n")
-        with open (crabDict['crabcfg'], 'w') as f:
-            f.write (crabTemplate.format(crabDict))
-        
-        print("Please visit CRAB twiki for instructions on how to setup environment for CRAB:\nhttps://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCrab\n")
+
+        run_lumi_list_helper.writeJSON(crabDict["json"])
+        with open(crabDict["runEvent"], "w") as f:
+            f.write(eventsToProcess + "\n")
+        with open(crabDict["crabcfg"], "w") as f:
+            f.write(crabTemplate.format(crabDict))
+
+        print(
+            "Please visit CRAB twiki for instructions on how to setup environment for CRAB:\nhttps://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCrab\n"
+        )
         if options.crabCondor:
-            print("You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF\n")
+            print(
+                "You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF\n"
+            )
             if not os.path.exists(f"{os.environ.get('HOME')}/.profile"):
-                print("** WARNING: ** You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above.\n")
-        print(f"Setup your environment for CRAB and edit {crabDict['crabcfg']} to make any desired changed.  Then run:\n\ncrab submit -c {crabDict['crabcfg']}\n")
+                print(
+                    "** WARNING: ** You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above.\n"
+                )
+        print(
+            f"Setup your environment for CRAB and edit {crabDict['crabcfg']} to make any desired changed.  Then run:\n\ncrab submit -c {crabDict['crabcfg']}\n"
+        )
 
     else:
 
@@ -295,31 +356,35 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents''')
         files = set()
         events_not_in_dataset = []
         # for search of files onl the run and lumisection is relevant. So remove the event and remove the dublicates
-        
+
         for run, lumi in run_lumi_list:
-            print(f"Getting files for run = {run}; lumi = {lumi}", end=': ')
+            print(f"Getting files for run = {run}; lumi = {lumi}", end=": ")
             # Query DAS for files containing the run and lumi
             eventFiles = getFileNames(run, lumi, options.das_cli)
-            if eventFiles == ['[]']: # event not contained in the input dataset
-                print(f"\n** WARNING: ** According to a DAS query, run = {run}; lumi = {lumi}; not contained in {dataset}.  Skipping.")
+            if eventFiles == ["[]"]:  # event not contained in the input dataset
+                print(
+                    f"\n** WARNING: ** According to a DAS query, run = {run}; lumi = {lumi}; not contained in {dataset}.  Skipping."
+                )
                 events_not_in_dataset.append((run, lumi))
             else:
                 print(f"Found {len(eventFiles)} files")
                 files.update(eventFiles)
-        
+
         # Remove events from the event_list for which no files were found in the dataset
         for event_tuple in event_list:
             if event_tuple[:2] in events_not_in_dataset:
                 print("Purging run = {}; lumi = {}; event = {}".format(*event_tuple))
                 event_list.remove(event_tuple)
-        
-        
-        source = ','.join(files) + '\n'
-        eventsToProcess = ','.join(sorted([f"{run}:{lumi}:{event}" for run, lumi, event in event_list]))
-        command = f'edmCopyPickMerge outputFile={options.base}.root \\\n  eventsToProcess={eventsToProcess} \\\n  inputFiles={source}'
-        print(f"\nYou can now execute the command (also found in 'pickEvents.sh')\n\n{command}")
+
+        source = ",".join(files) + "\n"
+        eventsToProcess = ",".join(
+            sorted([f"{run}:{lumi}:{event}" for run, lumi, event in event_list])
+        )
+        command = f"edmCopyPickMerge outputFile={options.base}.root \\\n  eventsToProcess={eventsToProcess} \\\n  inputFiles={source}"
+        print(
+            f"\nYou can now execute the command (also found in 'pickEvents.sh')\n\n{command}"
+        )
         with open("pickEvents.sh", "w") as f:
             f.write(f"#!/bin/bash\n{command}")
         if options.runInteractive and not options.printInteractive:
             os.system(command)
-
