@@ -17,7 +17,7 @@ ProductRegistryHelper:
 
 namespace edm {
   class ModuleDescription;
-  class SignallingProductRegistry;
+  class SignallingProductRegistryFiller;
   struct DoNotRecordParents;
 
   template <Transition B>
@@ -104,7 +104,7 @@ namespace edm {
     static void addToRegistry(TypeLabelList::const_iterator const& iBegin,
                               TypeLabelList::const_iterator const& iEnd,
                               ModuleDescription const& iDesc,
-                              SignallingProductRegistry& iReg,
+                              SignallingProductRegistryFiller& iReg,
                               ProductRegistryHelper* iProd,
                               bool iIsListener = false);
 

@@ -14,7 +14,7 @@
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
@@ -65,7 +65,7 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
   }
 
   SECTION("test main functions") {
-    edm::SignallingProductRegistry productRegistry;
+    edm::SignallingProductRegistryFiller productRegistry;
 
     {
       edm::ProductRegistry inputRegistry;

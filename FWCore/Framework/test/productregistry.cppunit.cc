@@ -10,7 +10,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -65,8 +65,8 @@ namespace {
 
   struct Responder {
     std::string name_;
-    edm::SignallingProductRegistry* reg_;
-    Responder(std::string const& iName, edm::SignallingProductRegistry& iReg) : name_(iName), reg_(&iReg) {
+    edm::SignallingProductRegistryFiller* reg_;
+    Responder(std::string const& iName, edm::SignallingProductRegistryFiller& iReg) : name_(iName), reg_(&iReg) {
       iReg.watchProductAdditions(this, &Responder::respond);
     }
     void respond(edm::ProductDescription const& iDesc) {
@@ -138,7 +138,7 @@ void testProductRegistry::tearDown() {
 
 void testProductRegistry::testSignal() {
   using namespace edm;
-  SignallingProductRegistry reg;
+  SignallingProductRegistryFiller reg;
 
   int hear = 0;
   Listener listening(hear);
@@ -153,7 +153,7 @@ void testProductRegistry::testSignal() {
 
 void testProductRegistry::testWatch() {
   using namespace edm;
-  SignallingProductRegistry reg;
+  SignallingProductRegistryFiller reg;
 
   int hear = 0;
   Listener listening(hear);
@@ -180,7 +180,7 @@ void testProductRegistry::testWatch() {
 }
 void testProductRegistry::testCircular() {
   using namespace edm;
-  SignallingProductRegistry reg;
+  SignallingProductRegistryFiller reg;
 
   int hear = 0;
   Listener listening(hear);
@@ -225,7 +225,7 @@ void testProductRegistry::testProductRegistration() {
 }
 
 void testProductRegistry::testAddAlias() {
-  edm::SignallingProductRegistry reg;
+  edm::SignallingProductRegistryFiller reg;
 
   reg.addProduct(*intBranch_);
   reg.addLabelAlias(*intBranch_, "aliasi", "instanceAlias");

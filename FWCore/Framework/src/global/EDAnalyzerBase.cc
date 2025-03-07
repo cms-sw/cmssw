@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -227,7 +227,7 @@ namespace edm {
 
     void EDAnalyzerBase::prevalidate(ConfigurationDescriptions& iConfig) { edmodule_mightGet_config(iConfig); }
 
-    void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase*, SignallingProductRegistry* reg) {
+    void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase*, SignallingProductRegistryFiller* reg) {
       if (callWhenNewProductsRegistered_) {
         reg->callForEachBranch(callWhenNewProductsRegistered_);
         reg->watchProductAdditions(callWhenNewProductsRegistered_);

@@ -25,7 +25,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -71,7 +71,7 @@ private:
   std::map<std::string, std::shared_ptr<edm::ProductDescription> > productDescriptions_;
   std::map<std::string, std::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
 
-  std::shared_ptr<edm::SignallingProductRegistry> pProductRegistry_;
+  std::shared_ptr<edm::SignallingProductRegistryFiller> pProductRegistry_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
   std::shared_ptr<edm::EventPrincipal> pEvent_;
 
@@ -132,7 +132,7 @@ void test_ep::setUp() {
   eventID_ = edm::EventID(101, 1, 20);
 
   // We can only insert products registered in the ProductRegistry.
-  pProductRegistry_.reset(new edm::SignallingProductRegistry);
+  pProductRegistry_.reset(new edm::SignallingProductRegistryFiller);
   pProductRegistry_->addProduct(*fake_single_process_branch("hlt", "HLT"));
   pProductRegistry_->addProduct(*fake_single_process_branch("prod", "PROD"));
   pProductRegistry_->addProduct(*fake_single_process_branch("test", "TEST"));

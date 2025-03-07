@@ -29,12 +29,14 @@
 #include <vector>
 
 namespace edm {
-
+  class SignallingProductRegistryFiller;
   class ProductResolverIndexHelper;
   class TypeID;
 
   class ProductRegistry {
   public:
+    friend class SignallingProductRegistryFiller;
+
     typedef std::map<BranchKey, ProductDescription> ProductList;
 
     ProductRegistry() = default;
@@ -46,7 +48,7 @@ namespace edm {
     // The constructed registry will be frozen by default.
     explicit ProductRegistry(ProductList const& productList, bool toBeFrozen = true);
 
-    virtual ~ProductRegistry() {}
+    ~ProductRegistry() = default;
 
     typedef std::map<BranchKey, ProductDescription const> ConstProductList;
 
@@ -141,14 +143,29 @@ namespace edm {
       AliasToOriginalVector aliasToOriginal_;
     };
 
-  protected:
-    void addProduct_(ProductDescription const& productdesc, bool iFromListener = false);
+  private:
+    //The following three routines are only called by SignallingProductRegistryFiller
+    void addProduct_(ProductDescription const& productdesc);
 
-    void addLabelAlias_(ProductDescription const& productdesc,
-                        std::string const& labelAlias,
-                        std::string const& instanceAlias);
+    ProductDescription const& addLabelAlias_(ProductDescription const& productdesc,
+                                             std::string const& labelAlias,
+                                             std::string const& instanceAlias);
+
     // triggers callbacks for modules watching registration
-    void addFromInput_(edm::ProductRegistry const&);
+    template <typename F>
+    void addFromInput_(edm::ProductRegistry const& iReg, F&& iCallback) {
+      throwIfFrozen();
+      for (auto const& prod : iReg.productList_) {
+        ProductList::iterator iter = productList_.find(prod.first);
+        if (iter == productList_.end()) {
+          productList_.insert(std::make_pair(prod.first, prod.second));
+          iCallback(prod.second);
+        } else {
+          assert(combinable(iter->second, prod.second));
+          iter->second.merge(prod.second);
+        }
+      }
+    }
 
   private:
     void setProductProduced(BranchType branchType) {
@@ -172,7 +189,6 @@ namespace edm {
 
     void checkForDuplicateProcessName(ProductDescription const& desc, std::string const* processName) const;
 
-    virtual void addCalled(ProductDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
 

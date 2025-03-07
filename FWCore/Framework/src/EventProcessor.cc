@@ -1099,7 +1099,7 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if (looper_) {
-      SignallingProductRegistry sReg(*preg(), edm::SignallingProductRegistry::Copy{});
+      SignallingProductRegistryFiller sReg(*preg());
       ModuleChanger changer(schedule_.get(), &sReg, esp_->recordsToResolverIndices());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetupImpl());

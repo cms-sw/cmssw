@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -70,7 +70,7 @@ namespace edm {
     std::shared_ptr<TriggerResultInserter> makeInserter(
         ParameterSet& proc_pset,
         PreallocationConfiguration const& iPrealloc,
-        SignallingProductRegistry& preg,
+        SignallingProductRegistryFiller& preg,
         ExceptionToActionTable const& actions,
         std::shared_ptr<ActivityRegistry> areg,
         std::shared_ptr<ProcessConfiguration const> processConfiguration) {
@@ -113,7 +113,7 @@ namespace edm {
     void makePathStatusInserters(std::vector<edm::propagate_const<std::shared_ptr<T>>>& pathStatusInserters,
                                  std::vector<std::string> const& pathNames,
                                  PreallocationConfiguration const& iPrealloc,
-                                 SignallingProductRegistry& preg,
+                                 SignallingProductRegistryFiller& preg,
                                  std::shared_ptr<ActivityRegistry> areg,
                                  std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                  std::string const& moduleTypeName) {
@@ -155,7 +155,7 @@ namespace edm {
 
     void processSwitchProducers(ParameterSet const& proc_pset,
                                 std::string const& processName,
-                                SignallingProductRegistry& preg) {
+                                SignallingProductRegistryFiller& preg) {
       // Update Switch ProductDescriptions for the chosen case
       struct BranchesCases {
         BranchesCases(std::vector<std::string> cases) : caseLabels{std::move(cases)} {}
@@ -489,7 +489,7 @@ namespace edm {
 
   Schedule::Schedule(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
-                     SignallingProductRegistry& preg,
+                     SignallingProductRegistryFiller& preg,
                      ExceptionToActionTable const& actions,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -581,7 +581,7 @@ namespace edm {
 
   void Schedule::finishSetup(ParameterSet& proc_pset,
                              service::TriggerNamesService const& tns,
-                             SignallingProductRegistry& preg,
+                             SignallingProductRegistryFiller& preg,
                              BranchIDListHelper& branchIDListHelper,
                              ProcessBlockHelperBase& processBlockHelper,
                              ThinnedAssociationsHelper& thinnedAssociationsHelper,
@@ -605,7 +605,6 @@ namespace edm {
     std::map<std::string, std::vector<std::pair<std::string, int>>> outputModulePathPositions;
     reduceParameterSet(proc_pset, tns.getEndPaths(), modulesInConfig, usedModuleLabels, outputModulePathPositions);
     {
-      //CDJ: needs SignallingProductRegistry
       std::vector<std::string> aliases = proc_pset.getParameter<std::vector<std::string>>("@all_aliases");
       detail::processEDAliases(aliases, {}, proc_pset, processConfiguration->processName(), preg);
     }
@@ -683,9 +682,7 @@ namespace edm {
         productTypesConsumed.emplace(typeid(TriggerResults));
       }
       // The RandomNumberGeneratorService is not a module, yet it consumes.
-      {
-        RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed);
-      }
+      { RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed); }
       preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName());
     }
 
@@ -1220,7 +1217,7 @@ namespace edm {
 
   bool Schedule::changeModule(std::string const& iLabel,
                               ParameterSet const& iPSet,
-                              const SignallingProductRegistry& iRegistry,
+                              const SignallingProductRegistryFiller& iRegistry,
                               eventsetup::ESRecordsToProductResolverIndices const& iIndices) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {

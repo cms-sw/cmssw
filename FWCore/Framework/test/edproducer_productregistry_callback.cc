@@ -10,7 +10,7 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include <memory>
 
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -111,7 +111,7 @@ namespace {
 void testEDProducerProductRegistryCallback::testCircularRef() {
   using namespace edm;
 
-  SignallingProductRegistry preg;
+  SignallingProductRegistryFiller preg;
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
@@ -182,7 +182,7 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
 void testEDProducerProductRegistryCallback::testCircularRef2() {
   using namespace edm;
 
-  SignallingProductRegistry preg;
+  SignallingProductRegistryFiller preg;
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
@@ -252,7 +252,7 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
 void testEDProducerProductRegistryCallback::testTwoListeners() {
   using namespace edm;
 
-  SignallingProductRegistry preg;
+  SignallingProductRegistryFiller preg;
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
