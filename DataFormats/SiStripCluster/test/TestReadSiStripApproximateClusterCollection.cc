@@ -77,7 +77,7 @@ namespace edmtest {
       unsigned int j = 0;
       for (const auto& cluster : detClusters) {
         unsigned int iOffset = j + iEvent.id().event();
-        if (cluster.barycenter() != expectedIntegralValues_[1] + iOffset) {
+        if (std::round(cluster.barycenter() * 65535.0 / 770.0) != expectedIntegralValues_[1] + iOffset) {
           throwWithMessage("barycenter does not have expected value");
         }
         if (cluster.width() != expectedIntegralValues_[2] + iOffset) {
