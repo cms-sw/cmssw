@@ -514,7 +514,6 @@ namespace edm {
                             std::string("PathStatusInserter"));
 
     if (endPathNames_->size() > 1) {
-      //NOTE: FinalPaths are a type of EndPath
       makePathStatusInserters(endPathStatusInserters_,
                               *endPathNames_,
                               prealloc,
