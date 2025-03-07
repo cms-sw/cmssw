@@ -63,7 +63,8 @@ namespace simdoublets {
 SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
                               size_t const innerIndex,
                               size_t const outerIndex,
-                              const TrackerTopology* trackerTopology)
+                              const TrackerTopology* trackerTopology,
+                              std::vector<size_t> const& innerNeighborsIndices)
     : trackingParticleRef_(simDoublets.trackingParticle()),
       status_(SimDoublets::Doublet::Status::undef),
       beamSpotPosition_(simDoublets.beamSpotPosition()) {
@@ -76,6 +77,11 @@ SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
 
   // determine Id of the layer pair
   layerPairId_ = simdoublets::getLayerPairId(layerIds_);
+
+  // fill the inner neighbors
+  for (size_t const neighborIndex : innerNeighborsIndices) {
+    innerNeighbors_.emplace_back(SimDoublets::Doublet::Neighbor(neighborIndex));
+  }
 }
 
 GlobalPoint SimDoublets::Doublet::innerGlobalPos() const {
@@ -141,6 +147,15 @@ void SimDoublets::buildSimDoublets(const TrackerTopology* trackerTopology) const
     return;
   }
 
+  // vector of length NrecHits that holds for each RecHit references to all the
+  // doublets that have this hit as an outer hit
+  std::vector<std::vector<size_t>> innerDoubletsOfRecHit{};
+  // resize vector innerDoubletsOfRecHit to actual number of RecHits
+  innerDoubletsOfRecHit.resize(numRecHits());
+
+  // updatable current number of doublets
+  uint nDoublets{0};
+
   // loop over the RecHits/layer Ids
   for (size_t i = 0; i < layerIdVector_.size(); i++) {
     uint8_t innerLayerId = layerIdVector_[i];
@@ -156,14 +171,127 @@ void SimDoublets::buildSimDoublets(const TrackerTopology* trackerTopology) const
       }
     }
 
-    // build the doublets of the inner hit i with all outer hits in the layer outerLayerId
+    // build the doublets of the inner hit i with all outer hits j in the layer outerLayerId
     for (size_t j = outerLayerStart; j < layerIdVector_.size(); j++) {
       // break if the hit doesn't belong to the outer layer anymore
       if (outerLayerId != layerIdVector_[j]) {
         break;
       }
 
-      doublets_.push_back(SimDoublets::Doublet(*this, i, j, trackerTopology));
+      // create and append new doublet
+      doublets_.emplace_back(SimDoublets::Doublet(*this, i, j, trackerTopology, innerDoubletsOfRecHit.at(i)));
+
+      // save the index of the new doublet in the outer RecHit's innerDoubletsOfRecHit
+      innerDoubletsOfRecHit.at(j).push_back(nDoublets);
+
+      // update the number of doublets
+      nDoublets++;
     }
   }  // end loop over the RecHits/layer Ids
+}
+
+// function to recursively build the Ntuplets from a given starting doublet
+// (the building starts from the outside and ends inside)
+// at each addition of a SimDoublet, a new SimNtuplet is stored
+void SimDoublets::buildSimNtuplets(std::vector<SimDoublets::Ntuplet>& simNtuplets,
+                                   SimDoublets::Doublet const& doublet,
+                                   size_t numSimDoublets,
+                                   size_t const lastLayerId,
+                                   SimDoublets::Ntuplet::Status status) const {
+  // update the status of the current SimNtuplet by adding the information from the new doublet
+  numSimDoublets++;
+  switch (status) {
+    case SimDoublets::Ntuplet::Status::killedByDoubletCuts:
+      // if the Ntuplet already got killed by doublet cuts,
+      // nothing will change this state as those are the first cuts applied
+      break;
+    case SimDoublets::Ntuplet::Status::undefDoubletCuts:
+      // similar if previous doublet cuts were undefined,
+      // nothing should change this state unless the new doublet got killed (stronger statement)
+      if (doublet.isKilled()) {
+        status = SimDoublets::Ntuplet::Status::killedByDoubletCuts;
+      }
+      break;
+    default:
+      // in all other cases,
+      // we want to check if the new doublet even survived or was checked at all
+      if (doublet.isKilled()) {
+        status = SimDoublets::Ntuplet::Status::killedByDoubletCuts;
+      } else if (doublet.isUndef()) {
+        status = SimDoublets::Ntuplet::Status::undefDoubletCuts;
+      }
+      break;
+  }
+
+  // in case our current Ntuplet has more than 1 doublet, we add the current state
+  // as a new SimNtuplet to the collection
+  if (numSimDoublets > 1) {
+    simNtuplets.emplace_back(SimDoublets::Ntuplet(numSimDoublets, status, doublet.innerLayerId(), lastLayerId));
+  }
+
+  // then loop over the inner neighboring doublets of the current doublet
+  for (auto const& neighbor : doublet.innerNeighborsView()) {
+    // get the inner neighboring doublet and the status of this connection
+    auto const& neighborDoublet = doublets_.at(neighbor.neighborIndex());
+
+    // update the status according to the connection status to the neighbor
+    switch (status) {
+      case SimDoublets::Ntuplet::Status::undefDoubletConnectionCuts:
+        // if previous connection cuts were undefined,
+        // we only want to change the status if the new connection was actually killed
+        if (neighbor.isKilled()) {
+          status = SimDoublets::Ntuplet::Status::killedByDoubletConnectionCuts;
+        }
+        break;
+      case SimDoublets::Ntuplet::Status::alive:
+        // if the Ntuplet is still alive,
+        // check if the new connection changes this
+        if (neighbor.isKilled()) {
+          status = SimDoublets::Ntuplet::Status::killedByDoubletConnectionCuts;
+        } else if (neighbor.isUndef()) {
+          status = SimDoublets::Ntuplet::Status::undefDoubletConnectionCuts;
+        }
+        break;
+      default:
+        // in all other cases,
+        // we don't want the status to change as it already is in a stronger state
+        break;
+    }
+
+    // call this function recursively
+    // this will add the neighboring doublet and build the next Ntuplet
+    buildSimNtuplets(simNtuplets, neighborDoublet, numSimDoublets, lastLayerId, status);
+  }
+}
+
+// method to produce and get the SimNtuplets
+// (collection of all possible Ntuplets you can build from the SimDoublets)
+std::vector<SimDoublets::Ntuplet> SimDoublets::getSimNtuplets() const {
+  // create the vector of SimNtuplets
+  std::vector<SimDoublets::Ntuplet> simNtuplets{};
+
+  // check if there are at least two doublets
+  if (numDoublets() < 2) {
+    return simNtuplets;
+  }
+
+  // // updatable number of SimDoublets in the SimNtuplet
+  // size_t numSimDoublets, lastLayerId;
+  // // updatable status of the currently build SimNtuplet
+  // SimDoublets::Ntuplet::Status status;
+
+  // loop over all SimDoublets, using them as starting points for building Ntuplets
+  for (auto const& doublet : doublets_) {
+    // // reset the number of SimDoublets in the Ntuplet(s) to 1
+    // numSimDoublets = 1;
+    // // reset the status of the Ntuplet to the default alive
+    // status = SimDoublets::Ntuplet::Status::alive;
+    // // set the lastLayerId to the one of the starting doublet (we build from outside to inside)
+    // lastLayerId = doublet.outerLayerId();
+
+    // recursively find the next inner neighbors and build SimNtuplets at every stage of adding
+    buildSimNtuplets(simNtuplets, doublet);
+  }
+
+  return simNtuplets;
 }
