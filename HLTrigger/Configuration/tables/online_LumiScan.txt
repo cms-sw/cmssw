@@ -30,7 +30,7 @@ HLT_L1SingleMuCosmics_EMTF_v*
 HLT_Physics_v*	# CMSHLT-3210
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsGatedOutput
