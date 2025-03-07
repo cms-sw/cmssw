@@ -108,7 +108,7 @@ namespace edm {
   class ExceptionCollector;
   class MergeableRunProductMetadata;
   class OutputModuleCommunicator;
-  class SignallingProductRegistry;
+  class SignallingProductRegistryFiller;
   class PreallocationConfiguration;
   class StreamSchedule;
   class GlobalSchedule;
@@ -132,7 +132,7 @@ namespace edm {
 
     Schedule(ParameterSet& proc_pset,
              service::TriggerNamesService const& tns,
-             SignallingProductRegistry& pregistry,
+             SignallingProductRegistryFiller& pregistry,
              ExceptionToActionTable const& actions,
              std::shared_ptr<ActivityRegistry> areg,
              std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -141,7 +141,7 @@ namespace edm {
              ModuleTypeResolverMaker const* resolverMaker);
     void finishSetup(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
-                     SignallingProductRegistry& preg,
+                     SignallingProductRegistryFiller& preg,
                      BranchIDListHelper& branchIDListHelper,
                      ProcessBlockHelperBase& processBlockHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
@@ -291,7 +291,7 @@ namespace edm {
     /// Returns true if successful.
     bool changeModule(std::string const& iLabel,
                       ParameterSet const& iPSet,
-                      const SignallingProductRegistry& iRegistry,
+                      const SignallingProductRegistryFiller& iRegistry,
                       eventsetup::ESRecordsToProductResolverIndices const&);
 
     /// Deletes module with label iLabel

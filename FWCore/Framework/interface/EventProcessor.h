@@ -18,7 +18,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/PrincipalCache.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

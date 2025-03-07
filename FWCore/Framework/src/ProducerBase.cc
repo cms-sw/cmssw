@@ -4,7 +4,7 @@
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 
 #include "FWCore/Framework/interface/ProducesCollector.h"
 
@@ -23,7 +23,7 @@ namespace edm {
     public:
       CallbackWrapper(ProductRegistryHelper* iProd,
                       std::function<void(ProductDescription const&)> iCallback,
-                      SignallingProductRegistry* iReg,
+                      SignallingProductRegistryFiller* iReg,
                       const ModuleDescription& iDesc)
           : prod_(iProd), callback_(iCallback), reg_(iReg), mdesc_(iDesc), lastSize_(iProd->typeLabelList().size()) {}
 
@@ -46,14 +46,14 @@ namespace edm {
     private:
       ProductRegistryHelper* prod_;
       std::function<void(ProductDescription const&)> callback_;
-      SignallingProductRegistry* reg_;
+      SignallingProductRegistryFiller* reg_;
       ModuleDescription mdesc_;
       unsigned int lastSize_;
     };
   }  // namespace
 
   void ProducerBase::registerProducts(ProducerBase* producer,
-                                      SignallingProductRegistry* iReg,
+                                      SignallingProductRegistryFiller* iReg,
                                       ModuleDescription const& md) {
     if (typeLabelList().empty() && !registrationCallback()) {
       return;

@@ -22,7 +22,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -156,7 +156,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
   product.init();
 
-  auto preg = std::make_unique<edm::SignallingProductRegistry>();
+  auto preg = std::make_unique<edm::SignallingProductRegistryFiller>();
   preg->addProduct(product);
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();

@@ -106,7 +106,7 @@ namespace edm {
       void doRespondToCloseOutputFile() { clearInputProcessBlockCaches(); }
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
-      void registerProductsAndCallbacks(EDFilterBase* module, SignallingProductRegistry* reg) {
+      void registerProductsAndCallbacks(EDFilterBase* module, SignallingProductRegistryFiller* reg) {
         registerProducts(module, reg, moduleDescription_);
       }
       std::string workerType() const { return "WorkerT<EDFilter>"; }

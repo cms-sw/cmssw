@@ -15,20 +15,20 @@ This struct is used to communication parameters into the module factory.
 
 namespace edm {
   class ProcessConfiguration;
-  class SignallingProductRegistry;
+  class SignallingProductRegistryFiller;
   class PreallocationConfiguration;
 
   struct MakeModuleParams {
     MakeModuleParams() : pset_(nullptr), reg_(nullptr), preallocate_(nullptr), processConfiguration_() {}
 
     MakeModuleParams(ParameterSet* pset,
-                     SignallingProductRegistry& reg,
+                     SignallingProductRegistryFiller& reg,
                      PreallocationConfiguration const* prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration)
         : pset_(pset), reg_(&reg), preallocate_(prealloc), processConfiguration_(processConfiguration) {}
 
     ParameterSet* pset_;
-    SignallingProductRegistry* reg_;
+    SignallingProductRegistryFiller* reg_;
     PreallocationConfiguration const* preallocate_;
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
   };

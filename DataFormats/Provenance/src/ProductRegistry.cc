@@ -63,7 +63,7 @@ namespace edm {
     freezeIt(toBeFrozen);
   }
 
-  void ProductRegistry::addProduct_(ProductDescription const& productDesc, bool fromListener) {
+  void ProductRegistry::addProduct_(ProductDescription const& productDesc) {
     assert(productDesc.produced());
     throwIfFrozen();
     std::pair<ProductList::iterator, bool> ret =
@@ -100,12 +100,11 @@ namespace edm {
             << "descendants of those products.\n";
       }
     }
-    addCalled(productDesc, fromListener);
   }
 
-  void ProductRegistry::addLabelAlias_(ProductDescription const& productDesc,
-                                       std::string const& labelAlias,
-                                       std::string const& instanceAlias) {
+  ProductDescription const& ProductRegistry::addLabelAlias_(ProductDescription const& productDesc,
+                                                            std::string const& labelAlias,
+                                                            std::string const& instanceAlias) {
     assert(productDesc.produced());
     assert(productDesc.branchID().isValid());
     throwIfFrozen();
@@ -114,7 +113,7 @@ namespace edm {
     assert(ret.second);
     transient_.aliasToOriginal_.emplace_back(
         PRODUCT_TYPE, productDesc.unwrappedTypeID(), labelAlias, instanceAlias, productDesc.moduleLabel());
-    addCalled(bd, false);
+    return ret.first->second;
   }
 
   void ProductRegistry::copyProduct(ProductDescription const& productDesc) {
@@ -178,8 +177,6 @@ namespace edm {
     }
   }
 
-  void ProductRegistry::addCalled(ProductDescription const&, bool) {}
-
   std::vector<std::string> ProductRegistry::allBranchNames() const {
     std::vector<std::string> result;
     result.reserve(productList().size());
@@ -209,20 +206,6 @@ namespace edm {
   void ProductRegistry::updateFromInput(std::vector<ProductDescription> const& other) {
     for (ProductDescription const& productDescription : other) {
       copyProduct(productDescription);
-    }
-  }
-
-  void ProductRegistry::addFromInput_(edm::ProductRegistry const& other) {
-    throwIfFrozen();
-    for (auto const& prod : other.productList_) {
-      ProductList::iterator iter = productList_.find(prod.first);
-      if (iter == productList_.end()) {
-        productList_.insert(std::make_pair(prod.first, prod.second));
-        addCalled(prod.second, false);
-      } else {
-        assert(combinable(iter->second, prod.second));
-        iter->second.merge(prod.second);
-      }
     }
   }
 

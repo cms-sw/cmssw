@@ -2,7 +2,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 
 #include "processEDAliases.h"
 
@@ -92,7 +92,7 @@ namespace edm {
                           std::unordered_set<std::string> const& aliasModulesToProcess,
                           ParameterSet const& proc_pset,
                           std::string const& processName,
-                          SignallingProductRegistry& preg) {
+                          SignallingProductRegistryFiller& preg) {
       if (aliasNamesToProcess.empty()) {
         return;
       }

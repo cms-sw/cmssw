@@ -23,7 +23,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/src/insertSelectedProcesses.h"
@@ -259,7 +259,7 @@ namespace edm {
 
     void OutputModuleCore::doEndJob() { endJob(); }
 
-    void OutputModuleCore::registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistry* reg) {
+    void OutputModuleCore::registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistryFiller* reg) {
       if (callWhenNewProductsRegistered_) {
         reg->callForEachBranch(callWhenNewProductsRegistered_);
 
