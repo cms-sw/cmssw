@@ -485,7 +485,7 @@ bool Pythia8HepMC3Hadronizer::initializeForInternalPartons() {
   if (TopRecoilHook1) {
     edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
     if (!fTopRecoilHook.get())
-      fTopRecoilHook.reset(new TopRecoilHook());
+      fTopRecoilHook = std::make_shared<TopRecoilHook>();
     (fUserHooksVector->hooks).push_back(fTopRecoilHook);
   }
 
@@ -652,7 +652,7 @@ bool Pythia8HepMC3Hadronizer::initializeForExternalPartons() {
   if (TopRecoilHook1) {
     edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
     if (!fTopRecoilHook.get())
-      fTopRecoilHook.reset(new TopRecoilHook());
+      fTopRecoilHook = std::make_shared<TopRecoilHook>();
     (fUserHooksVector->hooks).push_back(fTopRecoilHook);
   }
 
