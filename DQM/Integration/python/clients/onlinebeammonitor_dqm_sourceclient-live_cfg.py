@@ -46,10 +46,6 @@ process.dqmSaver.runNumber     = options.runNumber
 # process.dqmSaverPB.tag         = 'OnlineBeamMonitor'
 # process.dqmSaverPB.runNumber   = options.runNumber
 
-# for running offline enhance the time validity of the online beamspot in DB
-if (unitTest or process.isDqmPlayback.value):
-  process.BeamSpotESProducer.timeThreshold = cms.int32(int(1e6))
-
 #-----------------------------
 # BeamMonitor
 #-----------------------------
@@ -57,6 +53,7 @@ process.dqmOnlineBeamMonitor = cms.EDProducer("OnlineBeamMonitor",
 MonitorName         = cms.untracked.string("OnlineBeamMonitor"),
 AppendRunToFileName = cms.untracked.bool(False),
 WriteDIPAscii       = cms.untracked.bool(True),
+OnlineBeamSpotLabel = cms.untracked.InputTag("hltOnlineBeamSpot"),
 DIPFileName         = cms.untracked.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsForDIP.txt")
 )
 
