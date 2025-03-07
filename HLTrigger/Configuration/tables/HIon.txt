@@ -270,7 +270,7 @@ HLT_HIUPC_HFafterglowCombined_v*           # CMSHLT-3335
 
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCAP0Output
 ALCAPHISYMOutput

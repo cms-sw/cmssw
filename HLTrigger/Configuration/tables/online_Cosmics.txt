@@ -47,7 +47,7 @@ HLT_L1EXT_HCAL_LaserMon4_v*
 
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 PhysicsCommissioningOutput
 ExpressCosmicsOutput

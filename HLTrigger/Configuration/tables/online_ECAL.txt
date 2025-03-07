@@ -19,7 +19,7 @@ HLT_SpecialHLTPhysics_v*
 HLT_Physics_v*	# CMSHLT-3210
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsPromptOutput
