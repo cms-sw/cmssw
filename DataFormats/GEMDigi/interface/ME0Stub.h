@@ -8,21 +8,11 @@
 #include <iomanip>
 
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "L1Trigger/L1TGEM/interface/ME0StubPrimitive.h"
 
 class ME0Stub final {
 public:
   ME0Stub()
       : detId_(), etaPartition_(0), padStrip_(0), bendingAngle_(0), layerCount_(0), quality_(0), patternId_(0), bx_(0) {}
-  ME0Stub(const GEMDetId& id, const ME0StubPrimitive& stub)
-      : detId_(id),
-        etaPartition_(stub.etaPartition()),
-        padStrip_(stub.strip() + stub.subStrip()),
-        bendingAngle_(stub.bendingAngle()),
-        layerCount_(stub.layerCount()),
-        quality_(stub.quality()),
-        patternId_(stub.patternId()),
-        bx_(stub.bx()) {}
   ME0Stub(const GEMDetId& id,
           int etaPartition,
           double padStrip,
