@@ -14,7 +14,7 @@ INCLUDEFLAGS= -ILST -I$(shell pwd) -Icode -Icode/core -I${ALPAKA_ROOT}/include -
 ifdef CMSSW_RELEASE_BASE
 INCLUDEFLAGS:= ${INCLUDEFLAGS} -I${CMSSW_RELEASE_BASE}/src
 endif
-LDFLAGS     = -g -O2 $(LSTLIB) -L${TRACKLOOPERDIR}/LST $(shell rooutil-config --libs) $(shell root-config --libs) -L${CMSSW_BASE}/lib/${SCRAM_ARCH} -lFWCoreMessageLogger
+LDFLAGS     = -g -O2 $(LSTLIB) -L${TRACKLOOPERDIR}/LST $(shell rooutil-config --libs) $(shell root-config --libs)
 LDFLAGS_CUDA= -L${CUDA_HOME}/lib64 -lcudart
 LDFLAGS_ROCM= -L${ROCM_ROOT}/lib -lamdhip64
 ALPAKAFLAGS = -DALPAKA_DEBUG=0

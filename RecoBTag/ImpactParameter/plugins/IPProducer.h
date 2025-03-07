@@ -443,21 +443,30 @@ template <>
 inline void IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers::FromJTA>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<double>("maximumTransverseImpactParameter", 0.2);
-  desc.add<int>("minimumNumberOfHits", 8);
-  desc.add<double>("minimumTransverseMomentum", 1.0);
-  desc.add<edm::InputTag>("primaryVertex", edm::InputTag("offlinePrimaryVertices"));
-  desc.add<double>("maximumLongitudinalImpactParameter", 17.0);
-  desc.add<bool>("computeGhostTrack", true);
-  desc.add<double>("ghostTrackPriorDeltaR", 0.03);
-  desc.add<edm::InputTag>("jetTracks", edm::InputTag("ak4JetTracksAssociatorAtVertexPF"));
-  desc.add<bool>("jetDirectionUsingGhostTrack", false);
-  desc.add<int>("minimumNumberOfPixelHits", 2);
-  desc.add<bool>("jetDirectionUsingTracks", false);
-  desc.add<bool>("computeProbabilities", true);
-  desc.add<bool>("useTrackQuality", false);
-  desc.add<double>("maximumChiSquared", 5.0);
-  descriptions.addDefault(desc);
+  desc.add<double>("maximumTransverseImpactParameter", 0.2)
+      ->setComment("Set upper threshold for the track transverse impact parameter.");
+  desc.add<int>("minimumNumberOfHits", 8)->setComment("Set lower threshold for the number of valid hits per track.");
+  desc.add<double>("minimumTransverseMomentum", 1.0)
+      ->setComment("Set lower threshold for the minimum track transverse momentum.");
+  desc.add<edm::InputTag>("primaryVertex", edm::InputTag("offlinePrimaryVertices"))
+      ->setComment("InputTag for the primary vertex collection.");
+  desc.add<double>("maximumLongitudinalImpactParameter", 17.0)
+      ->setComment("Set upper threshold for the track transverse impact parameter.");
+  desc.add<bool>("computeGhostTrack", true)->setComment("Flag to produce ghost track collection.");
+  desc.add<double>("ghostTrackPriorDeltaR", 0.03)->setComment("Set cone radius for the ghost track fit.");
+  desc.add<edm::InputTag>("jetTracks", edm::InputTag("ak4JetTracksAssociatorAtVertexPF"))
+      ->setComment("InputTag for the jet-track association collection.");
+  desc.add<bool>("jetDirectionUsingGhostTrack", false)
+      ->setComment("Flag to build the jet momentum using ghost tracks.");
+  desc.add<int>("minimumNumberOfPixelHits", 2)
+      ->setComment("Set lower threshold for the number of valid pixel hits per track.");
+  desc.add<bool>("jetDirectionUsingTracks", false)
+      ->setComment("Flag to include the track momentum into the jet momentum.");
+  desc.add<bool>("computeProbabilities", true)
+      ->setComment("Flag to produce output probabilities for the tracks to originate from the PV.");
+  desc.add<bool>("useTrackQuality", false)->setComment("Flag to use the track quality in the probability calculation.");
+  desc.add<double>("maximumChiSquared", 5.0)->setComment("Set upper threshold for the track normalized chi2.");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 template <>
@@ -465,24 +474,34 @@ inline void
 IPProducer<std::vector<reco::CandidatePtr>, reco::JetTagInfo, IPProducerHelpers::FromJetAndCands>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<double>("maximumTransverseImpactParameter", 0.2);
-  desc.add<int>("minimumNumberOfHits", 8);
-  desc.add<double>("minimumTransverseMomentum", 1.0);
-  desc.add<edm::InputTag>("primaryVertex", edm::InputTag("offlinePrimaryVertices"));
-  desc.add<double>("maximumLongitudinalImpactParameter", 17.0);
-  desc.add<bool>("computeGhostTrack", true);
-  desc.add<double>("maxDeltaR", 0.4);
-  desc.add<edm::InputTag>("candidates", edm::InputTag("particleFlow"));
-  desc.add<bool>("jetDirectionUsingGhostTrack", false);
-  desc.add<int>("minimumNumberOfPixelHits", 2);
-  desc.add<bool>("jetDirectionUsingTracks", false);
-  desc.add<bool>("computeProbabilities", true);
-  desc.add<bool>("useTrackQuality", false);
-  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
-  desc.add<double>("ghostTrackPriorDeltaR", 0.03);
-  desc.add<double>("maximumChiSquared", 5.0);
-  desc.addOptional<bool>("explicitJTA", false);
-  descriptions.addDefault(desc);
+  desc.add<double>("maximumTransverseImpactParameter", 0.2)
+      ->setComment("Set upper threshold for the track transverse impact parameter.");
+  desc.add<int>("minimumNumberOfHits", 8)->setComment("Set lower threshold for the number of valid hits per track.");
+  desc.add<double>("minimumTransverseMomentum", 1.0)
+      ->setComment("Set lower threshold for the minimum track transverse momentum.");
+  desc.add<edm::InputTag>("primaryVertex", edm::InputTag("offlinePrimaryVertices"))
+      ->setComment("InputTag for the primary vertex collection.");
+  desc.add<double>("maximumLongitudinalImpactParameter", 17.0)
+      ->setComment("Set upper threshold for the track transverse impact parameter.");
+  desc.add<bool>("computeGhostTrack", true)->setComment("Flag to produce ghost track collection.");
+  desc.add<double>("maxDeltaR", 0.4)
+      ->setComment("Set upper threshold for the maximum distance between tracks and jets.");
+  desc.add<edm::InputTag>("candidates", edm::InputTag("particleFlow"))
+      ->setComment("InputTag for the particle flow candidate collection.");
+  desc.add<bool>("jetDirectionUsingGhostTrack", false)
+      ->setComment("Flag to build the jet momentum using ghost tracks.");
+  desc.add<int>("minimumNumberOfPixelHits", 2)
+      ->setComment("Set lower threshold for the number of valid pixel hits per track.");
+  desc.add<bool>("jetDirectionUsingTracks", false)
+      ->setComment("Flag to include the track momentum into the jet momentum.");
+  desc.add<bool>("computeProbabilities", true)
+      ->setComment("Flag to produce output probabilities for the tracks to originate from the PV.");
+  desc.add<bool>("useTrackQuality", false)->setComment("Flag to use the track quality in the probability calculation.");
+  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"))->setComment("InputTag for the jet collection.");
+  desc.add<double>("ghostTrackPriorDeltaR", 0.03)->setComment("Set cone radius for the ghost track fit.");
+  desc.add<double>("maximumChiSquared", 5.0)->setComment("Set upper threshold for the track normalized chi2.");
+  desc.addOptional<bool>("explicitJTA", false)->setComment("Flag to explicitly assign jets to tracks.");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #endif
