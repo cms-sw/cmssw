@@ -131,6 +131,9 @@ Muon system:
 * M10: same as M9 but with a realistic support structure for GE0, Shield structure modified in muonYoke
 * M11: same as M10 but with a corrected eta partition sizes for GE21
 * M12: same as M11 but removing overlaps in yoke, MB3, GE0 + adding DT shield
+* M13: same as M10 with right front-back relation between alternate phi segments
+* M14: same as M11 with right front-back relation between alternate phi segments
+* M15: same as M12 with right front-back relation between alternate phi segments
 
 Fast Timing system:
 * I10: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, ETL in position defined in O4, material adjustments
@@ -142,15 +145,17 @@ Fast Timing system:
 * I16: Starting from I15, revised BTL with complete passive material description, it needs Tracker T31 or newer
 * I17: Same as I16, BTL with one crystal thickness (type) only, ETL with LGAD split into two sensors
 * I18: Same as I17, needed for updated BTL numbering scheme and BTLDetId format
+* I19: BTL I18/v4, ETL v9 with 2024 full layout
+* I20: BTL I18/v4, ETL v10 with 2024 1.7 layout
 
 The script also handles the common and forward elements of the geometry:
-* O4: detailed cavern description, changes for modified CALO region for endcap part, no overlaps inside the Muon System 
-* O5: same as O4 but with changes needed for new support structure 
-* O6: same as O5 with changes needed for new defintion of boundaries
-* O7: same as O6 with changes needed for new defintion of calorimeter boundaries
-* O8: same as O7 with changes needed for a newer definition of calorimeter boundaries
-* O9: same as O8 with changes needed to support the additional notch in ETL
-*O10: same as O9 with changes needed to support the shields for DT
+*  O4: detailed cavern description, changes for modified CALO region for endcap part, no overlaps inside the Muon System 
+*  O5: same as O4 but with changes needed for new support structure 
+*  O6: same as O5 with changes needed for new defintion of boundaries
+*  O7: same as O6 with changes needed for new defintion of calorimeter boundaries
+*  O8: same as O7 with changes needed for a newer definition of calorimeter boundaries
+*  O9: same as O8 with changes needed to support the additional notch in ETL
+* O10: same as O9 with changes needed to support the shields for DT
 
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
 * F3: same as F2 but changes due to HFNose
@@ -162,26 +167,27 @@ The script also handles the common and forward elements of the geometry:
 * F9: same as F8 after removing overlap in rotated shield
 
 Several detector combinations have been generated:
-* D95 = T31+C17+M10+I16+O9+F8
-* D96 = T31+C18+M10+I16+O9+F8
-* D98 = T32+C17+M10+I16+O9+F8
-* D99 = T32+C18+M10+I16+O9+F8
-* D100 = T34+C17+M11+I16+O9+F8
-* D101 = T34+C18+M11+I16+O9+F8
-* D102 = T35+C17+M11+I16+O9+F8
-* D103 = T35+C21+M11+I17+O9+F8
-* D104 = T35+C22+M11+I16+O9+F8
-* D105 = T35+C17+M11+I17+O9+F8
-* D106 = T35+C23+M11+I17+O9+F8
-* D107 = T32+C17+M11+I17+O9+F8
-* D108 = T35+C19+M11+I17+O9+F8
-* D109 = T35+C24+M11+I17+O9+F8
-* D110 = T35+C18+M11+I17+O9+F8 (Current Phase-2 baseline from CMSSW_14_1_0_pre2)
-* D111 = T36+C24+M11+I17+O9+F8
-* D112 = T37+C24+M11+I17+O9+F8
-* D113 = T38+C24+M11+I17+O9+F8
-* D114 = T39+C19+M11+I17+O9+F8
-* D115 = T35+C20+M11+I17+O9+F8 
-* D116 = T35+C25+M12+I17+O10+F9
-* D117 = T35+C25+M12+I18+O10+F9
-
+* D95 = T31+C17+M13+I16+O9+F8
+* D96 = T31+C18+M13+I16+O9+F8
+* D98 = T32+C17+M13+I16+O9+F8
+* D99 = T32+C18+M13+I16+O9+F8
+* D100 = T34+C17+M14+I16+O9+F8
+* D101 = T34+C18+M14+I16+O9+F8
+* D102 = T35+C17+M14+I16+O9+F8
+* D103 = T35+C21+M14+I17+O9+F8
+* D104 = T35+C22+M14+I16+O9+F8
+* D105 = T35+C17+M14+I17+O9+F8
+* D106 = T35+C23+M14+I17+O9+F8
+* D107 = T32+C17+M14+I17+O9+F8
+* D108 = T35+C19+M14+I17+O9+F8
+* D109 = T35+C24+M14+I17+O9+F8
+* D110 = T35+C18+M14+I17+O9+F8 (Current Phase-2 baseline from CMSSW_14_1_0_pre2)
+* D111 = T36+C24+M14+I17+O9+F8
+* D112 = T37+C24+M14+I17+O9+F8
+* D113 = T38+C24+M14+I17+O9+F8
+* D114 = T39+C19+M14+I17+O9+F8
+* D115 = T35+C20+M14+I17+O9+F8 
+* D116 = T35+C25+M15+I17+O10+F9
+* D117 = T35+C25+M15+I18+O10+F9
+* D118 = T35+C25+M15+I19+O10+F9
+* D119 = T35+C25+M15+I20+O10+F9
