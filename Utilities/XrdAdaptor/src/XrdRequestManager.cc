@@ -213,7 +213,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
       ex.clearMessage();
       ex.clearContext();
       ex.clearAdditionalInfo();
-      ex << "XrdCl::File::Open(name='" << m_name << "', flags=0x" << std::hex << m_flags << ", permissions=0"
+      ex << "XrdCl::File::Open(name='" << new_filename << "', flags=0x" << std::hex << m_flags << ", permissions=0"
          << std::oct << m_perms << std::dec << ") => error '" << openStatus.ToStr() << "' (errno=" << openStatus.errNo
          << ", code=" << openStatus.code << ")";
       ex.addContext("Calling XrdFile::open()");
@@ -233,7 +233,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
       ex.clearMessage();
       ex.clearContext();
       ex.clearAdditionalInfo();
-      ex << "XrdCl::File::Open(name='" << m_name << "', flags=0x" << std::hex << m_flags << ", permissions=0"
+      ex << "XrdCl::File::Open(name='" << new_filename << "', flags=0x" << std::hex << m_flags << ", permissions=0"
          << std::oct << m_perms << std::dec << ") => error '" << status->ToStr() << "' (errno=" << status->errNo
          << ", code=" << status->code << ")";
       ex.addContext("Calling XrdFile::open()");
@@ -563,6 +563,14 @@ void RequestManager::getPrettyActiveSourceNames(std::vector<std::string> &source
   }
 }
 
+void RequestManager::getPrettyInactiveSourceNames(std::vector<std::string> &sources) const {
+  std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+  sources.reserve(m_inactiveSources.size());
+  for (auto const &source : m_inactiveSources) {
+    sources.push_back(source->PrettyID());
+  }
+}
+
 void RequestManager::getDisabledSourceNames(std::vector<std::string> &sources) const {
   sources.reserve(m_disabledSourceStrings.size());
   for (auto const &source : m_disabledSourceStrings) {
@@ -575,6 +583,11 @@ void RequestManager::addConnections(cms::Exception &ex) const {
   getPrettyActiveSourceNames(sources);
   for (auto const &source : sources) {
     ex.addAdditionalInfo("Active source: " + source);
+  }
+  sources.clear();
+  getPrettyInactiveSourceNames(sources);
+  for (auto const &source : sources) {
+    ex.addAdditionalInfo("Inactive source: " + source);
   }
   sources.clear();
   getDisabledSourceNames(sources);
