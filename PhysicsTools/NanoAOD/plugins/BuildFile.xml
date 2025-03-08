@@ -31,6 +31,7 @@
   <use name="CommonTools/Utils"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="CommonTools/CandAlgos"/>
+  <use name="PhysicsTools/JetMCUtils"/>
   <use name="RecoBTag/FeatureTools"/>
   <use name="RecoJets/JetAlgorithms"/>
   <use name="TrackingTools/Records"/>
