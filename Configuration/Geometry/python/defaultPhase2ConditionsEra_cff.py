@@ -2,7 +2,9 @@ from Configuration.PyReleaseValidation.upgradeWorkflowComponents import upgradeP
 from Configuration.AlCa.autoCond import autoCond
 from Configuration.StandardSequences.Eras import eras
 
-DEFAULT_VERSION = "Run4D110"
+#DEFAULT_VERSION = "Run4D110"
+DEFAULT_VERSION = "Run4D200"
+#DEFAULT_VERSION = "Run4D201"
 
 def get_era_and_conditions(version_key):
     """Retrieve the era and global tag for a given version key.

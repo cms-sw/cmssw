@@ -90,14 +90,16 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
                                         << " side = " << std::setw(4) << modId.mtdSide()
                                         << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc() << " "
                                         << std::setw(4) << modId.discSide() << " " << std::setw(4) << modId.sector()
-                                        << " mod/type = " << std::setw(4) << modId.module() << " " << std::setw(4)
-                                        << modId.modType() << " pos = " << fvecround(imod->position(), 4);
+                                        << " mod/type/sens = " << std::setw(4) << modId.module() << " " << std::setw(4)
+                                        << modId.modType() << std::setw(4) << modId.sensor()
+                                        << " pos = " << fvecround(imod->position(), 4);
         LogVerbatim("MTDLayerDump") << std::fixed << std::setw(5) << imodInd << " ETLDetId " << modId.rawId()
                                     << " side = " << std::setw(4) << modId.mtdSide()
                                     << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc() << " " << std::setw(4)
                                     << modId.discSide() << " " << std::setw(4) << modId.sector()
-                                    << " mod/type = " << std::setw(4) << modId.module() << " " << std::setw(4)
-                                    << modId.modType() << " pos = " << fvecround(imod->position(), 2);
+                                    << " mod/type/sens = " << std::setw(4) << modId.module() << " " << std::setw(4)
+                                    << modId.modType() << std::setw(4) << modId.sensor()
+                                    << " pos = " << fvecround(imod->position(), 2);
         for (int iside = -1; iside <= 1; iside += 2) {
           size_t idetNew = isector->hshift(modId, iside);
           if (idetNew >= isector->basicComponents().size()) {
@@ -110,15 +112,15 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
             LogVerbatim("MTDLayerDumpFull")
                 << std::fixed << "...............hshift= " << std::setw(2) << iside << " side = " << std::setw(4)
                 << newId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " " << std::setw(4)
-                << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type = " << std::setw(4)
-                << newId.module() << " " << std::setw(4) << newId.modType()
+                << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type/sens = " << std::setw(4)
+                << newId.module() << " " << std::setw(4) << newId.modType() << std::setw(4) << newId.sensor()
                 << " pos = " << fvecround(isector->basicComponents()[idetNew]->position(), 4);
             LogVerbatim("MTDLayerDump") << std::fixed << "...............hshift= " << std::setw(2) << iside
                                         << " side = " << std::setw(4) << newId.mtdSide()
                                         << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " "
                                         << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
-                                        << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4)
-                                        << newId.modType()
+                                        << " mod/type/sens = " << std::setw(4) << newId.module() << " " << std::setw(4)
+                                        << newId.modType() << std::setw(4) << newId.sensor()
                                         << " pos = " << fvecround(isector->basicComponents()[idetNew]->position(), 2);
           }
         }
@@ -135,14 +137,14 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
               LogVerbatim("MTDLayerDumpFull")
                   << std::fixed << ".......closest.vshift= " << std::setw(2) << iside << " side = " << std::setw(4)
                   << newId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " " << std::setw(4)
-                  << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type = " << std::setw(4)
-                  << newId.module() << " " << std::setw(4) << newId.modType()
+                  << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type/sens = " << std::setw(4)
+                  << newId.module() << " " << std::setw(4) << newId.modType() << std::setw(4) << newId.sensor()
                   << " pos = " << fvecround(isector->basicComponents()[closest]->position(), 4);
               LogVerbatim("MTDLayerDump")
                   << std::fixed << ".......closest.vshift= " << std::setw(2) << iside << " side = " << std::setw(4)
                   << newId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " " << std::setw(4)
-                  << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type = " << std::setw(4)
-                  << newId.module() << " " << std::setw(4) << newId.modType()
+                  << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type/sens = " << std::setw(4)
+                  << newId.module() << " " << std::setw(4) << newId.modType() << std::setw(4) << newId.sensor()
                   << " pos = " << fvecround(isector->basicComponents()[closest]->position(), 2);
             }
           } else {
@@ -150,15 +152,15 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
             LogVerbatim("MTDLayerDumpFull")
                 << std::fixed << "...............vshift= " << std::setw(2) << iside << " side = " << std::setw(4)
                 << newId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " " << std::setw(4)
-                << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type = " << std::setw(4)
-                << newId.module() << " " << std::setw(4) << newId.modType()
+                << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type/sens = " << std::setw(4)
+                << newId.module() << " " << std::setw(4) << newId.modType() << std::setw(4) << newId.sensor()
                 << " pos = " << fvecround(isector->basicComponents()[idetNew]->position(), 4);
             LogVerbatim("MTDLayerDump") << std::fixed << "...............vshift= " << std::setw(2) << iside
                                         << " side = " << std::setw(4) << newId.mtdSide()
                                         << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " "
                                         << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
-                                        << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4)
-                                        << newId.modType()
+                                        << " mod/type/sens = " << std::setw(4) << newId.module() << " " << std::setw(4)
+                                        << newId.modType() << std::setw(4) << newId.sensor()
                                         << " pos = " << fvecround(isector->basicComponents()[idetNew]->position(), 2);
           }
         }

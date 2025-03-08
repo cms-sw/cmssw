@@ -1,4 +1,4 @@
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 #include "RecoMTD/DetLayers/interface/ETLDetLayerGeometryBuilder.h"
 
@@ -22,10 +22,9 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
 
   const int mtdTopologyMode = topo.getMTDTopologyMode();
   MTDTopologyMode::EtlLayout etlL = MTDTopologyMode::etlLayoutFromTopoMode(mtdTopologyMode);
-  // number of layers is identical for post TDR scenarios, pick v4
   // loop on number of sectors per face, two faces per disc (i.e. layer) taken into account in layer building (front/back)
   unsigned int nSector(1);
-  if (etlL == MTDTopologyMode::EtlLayout::v5 || etlL == MTDTopologyMode::EtlLayout::v8) {
+  if (static_cast<int>(etlL) >= static_cast<int>(MTDTopologyMode::EtlLayout::v5)) {
     nSector *= ETLDetId::kETLv5maxSector;
   } else {
     throw cms::Exception("MTDDetLayers") << "Not implemented scenario " << mtdTopologyMode;
