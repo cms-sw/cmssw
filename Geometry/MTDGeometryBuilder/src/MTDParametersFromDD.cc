@@ -1,4 +1,4 @@
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 #include "Geometry/MTDGeometryBuilder/interface/MTDParametersFromDD.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
@@ -59,28 +59,36 @@ bool MTDParametersFromDD::build(const DDCompactView* cvp, PMTDParameters& ptp) {
     throw cms::Exception("MTDParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
 
+  std::vector<std::string> etlLayout;
   if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v5 ||
       MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v8) {
-    std::array<std::string, 8> etlLayout{{
-        "StartCopyNo_Front_Left",
-        "StartCopyNo_Front_Right",
-        "StartCopyNo_Back_Left",
-        "StartCopyNo_Back_Right",
-        "Offset_Front_Left",
-        "Offset_Front_Right",
-        "Offset_Back_Left",
-        "Offset_Back_Right",
-    }};
-    int sector(10);
-    for (const auto& name : etlLayout) {
-      auto const& v = cvp->vector(name);
-      if (!v.empty()) {
-        sector++;
-        std::vector<int> ipos = dbl_to_int(v);
-        putOne(sector, ipos, ptp);
-      } else {
-        throw cms::Exception("MTDParametersFromDD") << "Not found " << name << " but needed.";
-      }
+    etlLayout.emplace_back("StartCopyNo_Front_Left");
+    etlLayout.emplace_back("StartCopyNo_Front_Right");
+    etlLayout.emplace_back("StartCopyNo_Back_Left");
+    etlLayout.emplace_back("StartCopyNo_Back_Right");
+    etlLayout.emplace_back("Offset_Front_Left");
+    etlLayout.emplace_back("Offset_Front_Right");
+    etlLayout.emplace_back("Offset_Back_Left");
+    etlLayout.emplace_back("Offset_Back_Right");
+  } else if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v9) {
+    etlLayout.emplace_back("StartCopyNo_Front_Disc_1");
+    etlLayout.emplace_back("StartCopyNo_Back_Disc_1");
+    etlLayout.emplace_back("StartCopyNo_Front_Disc_2");
+    etlLayout.emplace_back("StartCopyNo_Back_Disc_2");
+    etlLayout.emplace_back("Offset_Front_Disc_1");
+    etlLayout.emplace_back("Offset_Back_Disc_1");
+    etlLayout.emplace_back("Offset_Front_Disc_2");
+    etlLayout.emplace_back("Offset_Back_Disc_2");
+  }
+  int sector(10);
+  for (const auto& name : etlLayout) {
+    auto const& v = cvp->vector(name);
+    if (!v.empty()) {
+      sector++;
+      std::vector<int> ipos = dbl_to_int(v);
+      putOne(sector, ipos, ptp);
+    } else {
+      throw cms::Exception("MTDParametersFromDD") << "Not found " << name << " but needed.";
     }
   }
 
@@ -134,36 +142,44 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
     throw cms::Exception("MTDParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
 
+  std::vector<std::string> etlLayout;
   if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v5 ||
       MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v8) {
-    std::array<std::string, 8> etlLayout{{
-        "StartCopyNo_Front_Left",
-        "StartCopyNo_Front_Right",
-        "StartCopyNo_Back_Left",
-        "StartCopyNo_Back_Right",
-        "Offset_Front_Left",
-        "Offset_Front_Right",
-        "Offset_Back_Left",
-        "Offset_Back_Right",
-    }};
-    int sector(10);  // add vector index with offset, to distinguish from subdet
-    for (const auto& name : etlLayout) {
-      bool found(false);
-      for (auto const& it : vmap) {
-        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), name)) {
-          sector++;
-          std::vector<int> ipos;
-          ipos.reserve(it.second.size());
-          for (const auto& i : it.second)
-            ipos.emplace_back(std::round(i));
-          putOne(sector, ipos, ptp);
-          found = true;
-          break;
-        }
+    etlLayout.emplace_back("StartCopyNo_Front_Left");
+    etlLayout.emplace_back("StartCopyNo_Front_Right");
+    etlLayout.emplace_back("StartCopyNo_Back_Left");
+    etlLayout.emplace_back("StartCopyNo_Back_Right");
+    etlLayout.emplace_back("Offset_Front_Left");
+    etlLayout.emplace_back("Offset_Front_Right");
+    etlLayout.emplace_back("Offset_Back_Left");
+    etlLayout.emplace_back("Offset_Back_Right");
+  } else if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v9) {
+    etlLayout.emplace_back("StartCopyNo_Front_Disc_1");
+    etlLayout.emplace_back("StartCopyNo_Back_Disc_1");
+    etlLayout.emplace_back("StartCopyNo_Front_Disc_2");
+    etlLayout.emplace_back("StartCopyNo_Back_Disc_2");
+    etlLayout.emplace_back("Offset_Front_Disc_1");
+    etlLayout.emplace_back("Offset_Back_Disc_1");
+    etlLayout.emplace_back("Offset_Front_Disc_2");
+    etlLayout.emplace_back("Offset_Back_Disc_2");
+  }
+  int sector(10);  // add vector index with offset, to distinguish from subdet
+  for (const auto& name : etlLayout) {
+    bool found(false);
+    for (auto const& it : vmap) {
+      if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), name)) {
+        sector++;
+        std::vector<int> ipos;
+        ipos.reserve(it.second.size());
+        for (const auto& i : it.second)
+          ipos.emplace_back(std::round(i));
+        putOne(sector, ipos, ptp);
+        found = true;
+        break;
       }
-      if (!found) {
-        throw cms::Exception("MTDParametersFromDD") << "Not found " << name << " but needed.";
-      }
+    }
+    if (!found) {
+      throw cms::Exception("MTDParametersFromDD") << "Not found " << name << " but needed.";
     }
   }
 

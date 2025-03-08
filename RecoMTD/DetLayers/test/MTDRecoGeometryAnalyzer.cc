@@ -315,14 +315,15 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
         LogVerbatim("MTDLayerDumpFull") << std::fixed << "ETLDetId " << modId.rawId() << " side = " << std::setw(4)
                                         << modId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc()
                                         << " " << std::setw(4) << modId.discSide() << " " << std::setw(4)
-                                        << modId.sector() << " mod/type = " << std::setw(4) << modId.module() << " "
-                                        << std::setw(4) << modId.modType()
-                                        << " pos = " << fvecround(imod->position(), 4);
+                                        << modId.sector() << " mod/type/sensor = " << std::setw(4) << modId.module()
+                                        << " " << std::setw(4) << modId.modType() << " " << std::setw(4)
+                                        << modId.sensor() << " pos = " << fvecround(imod->position(), 4);
         LogVerbatim("MTDLayerDump") << std::fixed << "ETLDetId " << modId.rawId() << " side = " << std::setw(4)
                                     << modId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc() << " "
                                     << std::setw(4) << modId.discSide() << " " << std::setw(4) << modId.sector()
-                                    << " mod/type = " << std::setw(4) << modId.module() << " " << std::setw(4)
-                                    << modId.modType() << " pos = " << fvecround(imod->position(), 2);
+                                    << " mod/type/sensor = " << std::setw(4) << modId.module() << " " << std::setw(4)
+                                    << modId.modType() << " " << std::setw(4) << modId.sensor()
+                                    << " pos = " << fvecround(imod->position(), 2);
       }
     }
   }
