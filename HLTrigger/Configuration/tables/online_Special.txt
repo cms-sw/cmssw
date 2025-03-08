@@ -109,7 +109,7 @@ AlCa_LumiPixelsCounts_ZeroBias_v*     # CMSHLT-3092
 HLT_CDC_L2cosmic_5p5_er1p0_v*	      # CMSHLT-3092
 HLT_CDC_L2cosmic_10_er1p0_v*	      # CMSHLT-3092
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsGatedOutput

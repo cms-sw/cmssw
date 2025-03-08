@@ -35,10 +35,19 @@ HLT_ZeroBias_IsolatedBunches_v*
 HLT_ZeroBias_LastCollisionInTrain_v*
 HLT_ZeroBias_v*
 HLT_SpecialZeroBias_v*
+HLT_L1MinimumBiasHF0ANDBptxAND_v*   # CMSHLT-3427
+HLT_PixelClusters_WP1_v*
+HLT_PixelClusters_WP2_v*
+HLT_HT300_Beamspot_PixelClusters_WP2_v*
+HLT_PixelClusters_WP2_HighRate_v*   # CMSHLT-3427
+
+DQM_EcalReconstruction_v*
+DQM_HcalReconstruction_v*
+DQM_PixelReconstruction_v*
 
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsPromptOutput
@@ -68,12 +77,6 @@ PhysicsSpecialZeroBias8Output
 PhysicsSpecialZeroBias9Output
 NanoDSTOutput
 RPCMONOutput
-HLT_PixelClusters_WP1_v*
-HLT_PixelClusters_WP2_v*
-HLT_HT300_Beamspot_PixelClusters_WP2_v*
-DQM_EcalReconstruction_v*
-DQM_HcalReconstruction_v*
-DQM_PixelReconstruction_v*
 DQMGPUvsCPUOutput
 
 ######## Paths that are different between online and offline ########

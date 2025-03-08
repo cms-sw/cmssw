@@ -139,7 +139,7 @@ HLT_PPRefUPC_SingleJet28_ZDC1nOR_v*       # CMSHLT-3325
 HLT_PPRefUPC_ZDC1nAsymXOR_v*              # CMSHLT-3325
 HLT_PPRefUPC_ZDC1nOR_v*                   # CMSHLT-3325
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCAP0Output
 ALCAPHISYMOutput

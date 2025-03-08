@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/HIon --full --data --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_15_0_0/HIon/V6 (CMSSW_15_0_0)
+# /dev/CMSSW_15_0_0/HIon/V8 (CMSSW_15_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTHIon" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/HIon/V6")
+  tableName = cms.string("/dev/CMSSW_15_0_0/HIon/V8")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -28743,6 +28743,21 @@ process.hltOutputDQMCalibration = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
+process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputEcalCalibration.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_EcalLaser' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltEcalCalibrationRaw_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
 process.hltOutputHIDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHIDQM.root" ),
     compressionAlgorithm = cms.untracked.string( "ZSTD" ),
@@ -28834,21 +28849,6 @@ process.hltOutputHIDQMOnlineBeamspot = cms.OutputModule( "PoolOutputModule",
       'keep recoTracks_hltPFMuonMergingPPOnAA_*_*',
       'keep recoVertexs_hltVerticesPFFilterPPOnAA_*_*' )
 )
-process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputEcalCalibration.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
-    compressionLevel = cms.untracked.int32( 3 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_EcalLaser' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltEcalCalibrationRaw_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
 process.hltOutputHIExpress = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHIExpress.root" ),
     compressionAlgorithm = cms.untracked.string( "ZSTD" ),
@@ -28899,6 +28899,22 @@ process.hltOutputHIExpressRawPrime = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
+process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputNanoDST.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_L1Accept' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltFEDSelectorL1_*_*',
+      'keep *_hltFEDSelectorL1uGTTest_*_*',
+      'keep *_hltFEDSelectorTCDS_*_*',
+      'keep edmTriggerResults_*_*_*' )
+)
 process.hltOutputPhysicsHICommissioning = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsHICommissioning.root" ),
     compressionAlgorithm = cms.untracked.string( "ZSTD" ),
@@ -28943,134 +28959,6 @@ process.hltOutputPhysicsHIForward1 = cms.OutputModule( "PoolOutputModule",
         dataTier = cms.untracked.string( "RAW" )
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward1' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIForward2 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIForward2.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
-    compressionLevel = cms.untracked.int32( 3 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward2' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIForward3 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIForward3.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
-    compressionLevel = cms.untracked.int32( 3 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward3' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIForward4 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIForward4.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
-    compressionLevel = cms.untracked.int32( 3 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward4' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIForward5 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIForward5.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
-    compressionLevel = cms.untracked.int32( 3 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward5' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIForward6 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIForward6.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
-    compressionLevel = cms.untracked.int32( 3 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward6' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIForward7 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIForward7.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
-    compressionLevel = cms.untracked.int32( 3 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward7' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIForward8 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIForward8.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
-    compressionLevel = cms.untracked.int32( 3 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward8' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIForward9 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIForward9.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
-    compressionLevel = cms.untracked.int32( 3 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward9' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep FEDRawDataCollection_rawDataRepacker_*_*',
       'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
@@ -29237,6 +29125,134 @@ process.hltOutputPhysicsHIForward19 = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
+process.hltOutputPhysicsHIForward2 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIForward2.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward2' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIForward3 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIForward3.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward3' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIForward4 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIForward4.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward4' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIForward5 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIForward5.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward5' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIForward6 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIForward6.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward6' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIForward7 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIForward7.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward7' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIForward8 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIForward8.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward8' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIForward9 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIForward9.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIForward9' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
 process.hltOutputPhysicsHIHLTPhysics = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsHIHLTPhysics.root" ),
     compressionAlgorithm = cms.untracked.string( "ZSTD" ),
@@ -29345,150 +29361,6 @@ process.hltOutputPhysicsHIPhysicsRawPrime1 = cms.OutputModule( "PoolOutputModule
         dataTier = cms.untracked.string( "RAW" )
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime1' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime2 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime2.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime2' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime3 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime3.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime3' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime4 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime4.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime4' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime5 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime5.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime5' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime6 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime6.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime6' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime7 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime7.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime7' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime8 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime8.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime8' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime9 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime9.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime9' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltSiStripClusters2ApproxClusters_*_*',
       'keep DetIds_hltSiStripRawToDigi_*_*',
@@ -29677,6 +29549,24 @@ process.hltOutputPhysicsHIPhysicsRawPrime19 = cms.OutputModule( "PoolOutputModul
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
+process.hltOutputPhysicsHIPhysicsRawPrime2 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime2.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime2' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
 process.hltOutputPhysicsHIPhysicsRawPrime20 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime20.root" ),
     compressionAlgorithm = cms.untracked.string( "LZMA" ),
@@ -29857,6 +29747,24 @@ process.hltOutputPhysicsHIPhysicsRawPrime29 = cms.OutputModule( "PoolOutputModul
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
+process.hltOutputPhysicsHIPhysicsRawPrime3 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime3.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime3' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
 process.hltOutputPhysicsHIPhysicsRawPrime30 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime30.root" ),
     compressionAlgorithm = cms.untracked.string( "LZMA" ),
@@ -29885,6 +29793,618 @@ process.hltOutputPhysicsHIPhysicsRawPrime31 = cms.OutputModule( "PoolOutputModul
         dataTier = cms.untracked.string( "RAW" )
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime31' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime32 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime32.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime32' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime33 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime33.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime33' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime34 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime34.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime34' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime35 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime35.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime35' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime36 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime36.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime36' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime37 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime37.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime37' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime38 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime38.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime38' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime39 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime39.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime39' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime4 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime4.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime4' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime40 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime40.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime40' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime41 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime41.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime41' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime42 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime42.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime42' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime43 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime43.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime43' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime44 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime44.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime44' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime45 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime45.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime45' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime46 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime46.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime46' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime47 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime47.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime47' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime48 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime48.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime48' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime49 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime49.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime49' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime5 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime5.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime5' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime50 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime50.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime50' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime51 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime51.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime51' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime52 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime52.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime52' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime53 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime53.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime53' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime54 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime54.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime54' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime55 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime55.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime55' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime56 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime56.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime56' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime57 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime57.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime57' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime58 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime58.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime58' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime59 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime59.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime59' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime6 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime6.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime6' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime7 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime7.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime7' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime8 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime8.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime8' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltSiStripClusters2ApproxClusters_*_*',
+      'keep DetIds_hltSiStripRawToDigi_*_*',
+      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHIPhysicsRawPrime9 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime9.root" ),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime9' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltSiStripClusters2ApproxClusters_*_*',
       'keep DetIds_hltSiStripRawToDigi_*_*',
@@ -29975,22 +30495,6 @@ process.hltOutputPhysicsHIZeroBiasRAW2 = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
-process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputNanoDST.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
-    compressionLevel = cms.untracked.int32( 3 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_L1Accept' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltFEDSelectorL1_*_*',
-      'keep *_hltFEDSelectorL1uGTTest_*_*',
-      'keep *_hltFEDSelectorTCDS_*_*',
-      'keep edmTriggerResults_*_*_*' )
-)
 process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputRPCMON.root" ),
     compressionAlgorithm = cms.untracked.string( "ZSTD" ),
@@ -30011,510 +30515,6 @@ process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltFEDSelectorRPC_*_*',
       'keep *_hltFEDSelectorTCDS_*_*',
       'keep *_hltFEDSelectorTwinMux_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime59 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime59.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime59' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime58 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime58.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime58' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime57 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime57.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime57' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime56 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime56.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime56' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime55 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime55.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime55' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime54 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime54.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime54' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime53 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime53.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime53' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime52 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime52.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime52' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime51 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime51.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime51' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime50 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime50.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime50' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime49 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime49.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime49' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime48 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime48.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime48' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime47 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime47.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime47' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime46 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime46.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime46' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime45 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime45.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime45' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime44 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime44.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime44' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime42 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime42.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime42' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime41 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime41.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime41' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime40 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime40.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime40' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime39 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime39.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime39' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime38 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime38.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime38' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime37 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime37.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime37' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime36 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime36.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime36' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime35 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime35.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime35' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime34 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime34.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime34' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime33 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime33.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime33' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime32 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime32.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime32' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputPhysicsHIPhysicsRawPrime43 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputPhysicsHIPhysicsRawPrime43.root" ),
-    compressionAlgorithm = cms.untracked.string( "LZMA" ),
-    compressionLevel = cms.untracked.int32( 4 ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime43' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltSiStripClusters2ApproxClusters_*_*',
-      'keep DetIds_hltSiStripRawToDigi_*_*',
-      'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -30944,83 +30944,6 @@ process.Dataset_L1Accept = cms.Path( process.HLTDatasetPathBeginSequence + proce
 process.Dataset_RPCMonitor = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetRPCMonitor + process.hltPreDatasetRPCMonitor )
 process.Dataset_TestEnablesEcalHcal = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetTestEnablesEcalHcal + process.hltPreDatasetTestEnablesEcalHcal )
 process.Dataset_TestEnablesEcalHcalDQM = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetTestEnablesEcalHcalDQM + process.hltPreDatasetTestEnablesEcalHcalDQM )
-process.ALCAP0Output = cms.FinalPath( process.hltOutputALCAP0 )
-process.ALCAPHISYMOutput = cms.FinalPath( process.hltOutputALCAPHISYM )
-process.CalibrationOutput = cms.FinalPath( process.hltOutputCalibration )
-process.DQMCalibrationOutput = cms.FinalPath( process.hltOutputDQMCalibration )
-process.HIDQMOutput = cms.FinalPath( process.hltOutputHIDQM )
-process.HIDQMEventDisplayOutput = cms.FinalPath( process.hltOutputHIDQMEventDisplay )
-process.HIDQMGPUvsCPUOutput = cms.FinalPath( process.hltOutputHIDQMGPUvsCPU )
-process.HIDQMOnlineBeamspotOutput = cms.FinalPath( process.hltOutputHIDQMOnlineBeamspot )
-process.EcalCalibrationOutput = cms.FinalPath( process.hltOutputEcalCalibration )
-process.HIExpressOutput = cms.FinalPath( process.hltOutputHIExpress )
-process.HIExpressAlignmentOutput = cms.FinalPath( process.hltOutputHIExpressAlignment )
-process.HIExpressRawPrimeOutput = cms.FinalPath( process.hltOutputHIExpressRawPrime )
-process.PhysicsHICommissioningOutput = cms.FinalPath( process.hltOutputPhysicsHICommissioning )
-process.PhysicsHIForward0Output = cms.FinalPath( process.hltOutputPhysicsHIForward0 )
-process.PhysicsHIForward1Output = cms.FinalPath( process.hltOutputPhysicsHIForward1 )
-process.PhysicsHIForward2Output = cms.FinalPath( process.hltOutputPhysicsHIForward2 )
-process.PhysicsHIForward3Output = cms.FinalPath( process.hltOutputPhysicsHIForward3 )
-process.PhysicsHIForward4Output = cms.FinalPath( process.hltOutputPhysicsHIForward4 )
-process.PhysicsHIForward5Output = cms.FinalPath( process.hltOutputPhysicsHIForward5 )
-process.PhysicsHIForward6Output = cms.FinalPath( process.hltOutputPhysicsHIForward6 )
-process.PhysicsHIForward7Output = cms.FinalPath( process.hltOutputPhysicsHIForward7 )
-process.PhysicsHIForward8Output = cms.FinalPath( process.hltOutputPhysicsHIForward8 )
-process.PhysicsHIForward9Output = cms.FinalPath( process.hltOutputPhysicsHIForward9 )
-process.PhysicsHIForward10Output = cms.FinalPath( process.hltOutputPhysicsHIForward10 )
-process.PhysicsHIForward11Output = cms.FinalPath( process.hltOutputPhysicsHIForward11 )
-process.PhysicsHIForward12Output = cms.FinalPath( process.hltOutputPhysicsHIForward12 )
-process.PhysicsHIForward13Output = cms.FinalPath( process.hltOutputPhysicsHIForward13 )
-process.PhysicsHIForward14Output = cms.FinalPath( process.hltOutputPhysicsHIForward14 )
-process.PhysicsHIForward15Output = cms.FinalPath( process.hltOutputPhysicsHIForward15 )
-process.PhysicsHIForward16Output = cms.FinalPath( process.hltOutputPhysicsHIForward16 )
-process.PhysicsHIForward17Output = cms.FinalPath( process.hltOutputPhysicsHIForward17 )
-process.PhysicsHIForward18Output = cms.FinalPath( process.hltOutputPhysicsHIForward18 )
-process.PhysicsHIForward19Output = cms.FinalPath( process.hltOutputPhysicsHIForward19 )
-process.PhysicsHIHLTPhysicsOutput = cms.FinalPath( process.hltOutputPhysicsHIHLTPhysics )
-process.PhysicsHIMinimumBias0Output = cms.FinalPath( process.hltOutputPhysicsHIMinimumBias0 )
-process.PhysicsHIMinimumBias1Output = cms.FinalPath( process.hltOutputPhysicsHIMinimumBias1 )
-process.PhysicsHIMinimumBias2Output = cms.FinalPath( process.hltOutputPhysicsHIMinimumBias2 )
-process.PhysicsHIMinimumBias3Output = cms.FinalPath( process.hltOutputPhysicsHIMinimumBias3 )
-process.PhysicsHIPhysicsRawPrime0Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime0 )
-process.PhysicsHIPhysicsRawPrime1Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime1 )
-process.PhysicsHIPhysicsRawPrime2Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime2 )
-process.PhysicsHIPhysicsRawPrime3Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime3 )
-process.PhysicsHIPhysicsRawPrime4Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime4 )
-process.PhysicsHIPhysicsRawPrime5Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime5 )
-process.PhysicsHIPhysicsRawPrime6Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime6 )
-process.PhysicsHIPhysicsRawPrime7Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime7 )
-process.PhysicsHIPhysicsRawPrime8Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime8 )
-process.PhysicsHIPhysicsRawPrime9Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime9 )
-process.PhysicsHIPhysicsRawPrime10Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime10 )
-process.PhysicsHIPhysicsRawPrime11Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime11 )
-process.PhysicsHIPhysicsRawPrime12Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime12 )
-process.PhysicsHIPhysicsRawPrime13Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime13 )
-process.PhysicsHIPhysicsRawPrime14Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime14 )
-process.PhysicsHIPhysicsRawPrime15Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime15 )
-process.PhysicsHIPhysicsRawPrime16Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime16 )
-process.PhysicsHIPhysicsRawPrime17Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime17 )
-process.PhysicsHIPhysicsRawPrime18Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime18 )
-process.PhysicsHIPhysicsRawPrime19Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime19 )
-process.PhysicsHIPhysicsRawPrime20Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime20 )
-process.PhysicsHIPhysicsRawPrime21Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime21 )
-process.PhysicsHIPhysicsRawPrime22Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime22 )
-process.PhysicsHIPhysicsRawPrime23Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime23 )
-process.PhysicsHIPhysicsRawPrime24Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime24 )
-process.PhysicsHIPhysicsRawPrime25Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime25 )
-process.PhysicsHIPhysicsRawPrime26Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime26 )
-process.PhysicsHIPhysicsRawPrime27Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime27 )
-process.PhysicsHIPhysicsRawPrime28Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime28 )
-process.PhysicsHIPhysicsRawPrime29Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime29 )
-process.PhysicsHIPhysicsRawPrime30Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime30 )
-process.PhysicsHIPhysicsRawPrime31Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime31 )
-process.PhysicsHITrackerNZSOutput = cms.FinalPath( process.hltOutputPhysicsHITrackerNZS )
-process.PhysicsHIZeroBiasOutput = cms.FinalPath( process.hltOutputPhysicsHIZeroBias )
-process.PhysicsHIZeroBiasRAW0Output = cms.FinalPath( process.hltOutputPhysicsHIZeroBiasRAW0 )
-process.PhysicsHIZeroBiasRAW1Output = cms.FinalPath( process.hltOutputPhysicsHIZeroBiasRAW1 )
-process.PhysicsHIZeroBiasRAW2Output = cms.FinalPath( process.hltOutputPhysicsHIZeroBiasRAW2 )
-process.NanoDSTOutput = cms.FinalPath( process.hltOutputNanoDST )
-process.RPCMONOutput = cms.FinalPath( process.hltOutputRPCMON )
 process.Dataset_HIPhysicsRawPrime1 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetHIPhysicsRawPrime + process.hltPreDatasetHIPhysicsRawPrime1 )
 process.Dataset_HIPhysicsRawPrime2 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetHIPhysicsRawPrime + process.hltPreDatasetHIPhysicsRawPrime2 )
 process.Dataset_HIPhysicsRawPrime3 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetHIPhysicsRawPrime + process.hltPreDatasetHIPhysicsRawPrime3 )
@@ -31080,37 +31003,114 @@ process.Dataset_HIPhysicsRawPrime56 = cms.Path( process.HLTDatasetPathBeginSeque
 process.Dataset_HIPhysicsRawPrime57 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetHIPhysicsRawPrime + process.hltPreDatasetHIPhysicsRawPrime57 )
 process.Dataset_HIPhysicsRawPrime58 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetHIPhysicsRawPrime + process.hltPreDatasetHIPhysicsRawPrime58 )
 process.Dataset_HIPhysicsRawPrime59 = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetHIPhysicsRawPrime + process.hltPreDatasetHIPhysicsRawPrime59 )
-process.PhysicsHIPhysicsRawPrime59Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime59 )
-process.PhysicsHIPhysicsRawPrime58Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime58 )
-process.PhysicsHIPhysicsRawPrime57Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime57 )
-process.PhysicsHIPhysicsRawPrime56Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime56 )
-process.PhysicsHIPhysicsRawPrime55Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime55 )
-process.PhysicsHIPhysicsRawPrime54Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime54 )
-process.PhysicsHIPhysicsRawPrime53Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime53 )
-process.PhysicsHIPhysicsRawPrime52Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime52 )
-process.PhysicsHIPhysicsRawPrime51Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime51 )
-process.PhysicsHIPhysicsRawPrime50Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime50 )
-process.PhysicsHIPhysicsRawPrime49Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime49 )
-process.PhysicsHIPhysicsRawPrime48Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime48 )
-process.PhysicsHIPhysicsRawPrime47Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime47 )
-process.PhysicsHIPhysicsRawPrime46Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime46 )
-process.PhysicsHIPhysicsRawPrime45Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime45 )
-process.PhysicsHIPhysicsRawPrime44Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime44 )
-process.PhysicsHIPhysicsRawPrime42Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime42 )
-process.PhysicsHIPhysicsRawPrime41Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime41 )
-process.PhysicsHIPhysicsRawPrime40Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime40 )
-process.PhysicsHIPhysicsRawPrime39Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime39 )
-process.PhysicsHIPhysicsRawPrime38Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime38 )
-process.PhysicsHIPhysicsRawPrime37Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime37 )
-process.PhysicsHIPhysicsRawPrime36Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime36 )
-process.PhysicsHIPhysicsRawPrime35Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime35 )
-process.PhysicsHIPhysicsRawPrime34Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime34 )
-process.PhysicsHIPhysicsRawPrime33Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime33 )
-process.PhysicsHIPhysicsRawPrime32Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime32 )
-process.PhysicsHIPhysicsRawPrime43Output = cms.FinalPath( process.hltOutputPhysicsHIPhysicsRawPrime43 )
+process.ALCAP0Output = cms.EndPath( process.hltOutputALCAP0 )
+process.ALCAPHISYMOutput = cms.EndPath( process.hltOutputALCAPHISYM )
+process.CalibrationOutput = cms.EndPath( process.hltOutputCalibration )
+process.DQMCalibrationOutput = cms.EndPath( process.hltOutputDQMCalibration )
+process.EcalCalibrationOutput = cms.EndPath( process.hltOutputEcalCalibration )
+process.HIDQMOutput = cms.EndPath( process.hltOutputHIDQM )
+process.HIDQMEventDisplayOutput = cms.EndPath( process.hltOutputHIDQMEventDisplay )
+process.HIDQMGPUvsCPUOutput = cms.EndPath( process.hltOutputHIDQMGPUvsCPU )
+process.HIDQMOnlineBeamspotOutput = cms.EndPath( process.hltOutputHIDQMOnlineBeamspot )
+process.HIExpressOutput = cms.EndPath( process.hltOutputHIExpress )
+process.HIExpressAlignmentOutput = cms.EndPath( process.hltOutputHIExpressAlignment )
+process.HIExpressRawPrimeOutput = cms.EndPath( process.hltOutputHIExpressRawPrime )
+process.NanoDSTOutput = cms.EndPath( process.hltOutputNanoDST )
+process.PhysicsHICommissioningOutput = cms.EndPath( process.hltOutputPhysicsHICommissioning )
+process.PhysicsHIForward0Output = cms.EndPath( process.hltOutputPhysicsHIForward0 )
+process.PhysicsHIForward1Output = cms.EndPath( process.hltOutputPhysicsHIForward1 )
+process.PhysicsHIForward10Output = cms.EndPath( process.hltOutputPhysicsHIForward10 )
+process.PhysicsHIForward11Output = cms.EndPath( process.hltOutputPhysicsHIForward11 )
+process.PhysicsHIForward12Output = cms.EndPath( process.hltOutputPhysicsHIForward12 )
+process.PhysicsHIForward13Output = cms.EndPath( process.hltOutputPhysicsHIForward13 )
+process.PhysicsHIForward14Output = cms.EndPath( process.hltOutputPhysicsHIForward14 )
+process.PhysicsHIForward15Output = cms.EndPath( process.hltOutputPhysicsHIForward15 )
+process.PhysicsHIForward16Output = cms.EndPath( process.hltOutputPhysicsHIForward16 )
+process.PhysicsHIForward17Output = cms.EndPath( process.hltOutputPhysicsHIForward17 )
+process.PhysicsHIForward18Output = cms.EndPath( process.hltOutputPhysicsHIForward18 )
+process.PhysicsHIForward19Output = cms.EndPath( process.hltOutputPhysicsHIForward19 )
+process.PhysicsHIForward2Output = cms.EndPath( process.hltOutputPhysicsHIForward2 )
+process.PhysicsHIForward3Output = cms.EndPath( process.hltOutputPhysicsHIForward3 )
+process.PhysicsHIForward4Output = cms.EndPath( process.hltOutputPhysicsHIForward4 )
+process.PhysicsHIForward5Output = cms.EndPath( process.hltOutputPhysicsHIForward5 )
+process.PhysicsHIForward6Output = cms.EndPath( process.hltOutputPhysicsHIForward6 )
+process.PhysicsHIForward7Output = cms.EndPath( process.hltOutputPhysicsHIForward7 )
+process.PhysicsHIForward8Output = cms.EndPath( process.hltOutputPhysicsHIForward8 )
+process.PhysicsHIForward9Output = cms.EndPath( process.hltOutputPhysicsHIForward9 )
+process.PhysicsHIHLTPhysicsOutput = cms.EndPath( process.hltOutputPhysicsHIHLTPhysics )
+process.PhysicsHIMinimumBias0Output = cms.EndPath( process.hltOutputPhysicsHIMinimumBias0 )
+process.PhysicsHIMinimumBias1Output = cms.EndPath( process.hltOutputPhysicsHIMinimumBias1 )
+process.PhysicsHIMinimumBias2Output = cms.EndPath( process.hltOutputPhysicsHIMinimumBias2 )
+process.PhysicsHIMinimumBias3Output = cms.EndPath( process.hltOutputPhysicsHIMinimumBias3 )
+process.PhysicsHIPhysicsRawPrime0Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime0 )
+process.PhysicsHIPhysicsRawPrime1Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime1 )
+process.PhysicsHIPhysicsRawPrime10Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime10 )
+process.PhysicsHIPhysicsRawPrime11Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime11 )
+process.PhysicsHIPhysicsRawPrime12Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime12 )
+process.PhysicsHIPhysicsRawPrime13Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime13 )
+process.PhysicsHIPhysicsRawPrime14Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime14 )
+process.PhysicsHIPhysicsRawPrime15Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime15 )
+process.PhysicsHIPhysicsRawPrime16Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime16 )
+process.PhysicsHIPhysicsRawPrime17Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime17 )
+process.PhysicsHIPhysicsRawPrime18Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime18 )
+process.PhysicsHIPhysicsRawPrime19Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime19 )
+process.PhysicsHIPhysicsRawPrime2Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime2 )
+process.PhysicsHIPhysicsRawPrime20Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime20 )
+process.PhysicsHIPhysicsRawPrime21Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime21 )
+process.PhysicsHIPhysicsRawPrime22Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime22 )
+process.PhysicsHIPhysicsRawPrime23Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime23 )
+process.PhysicsHIPhysicsRawPrime24Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime24 )
+process.PhysicsHIPhysicsRawPrime25Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime25 )
+process.PhysicsHIPhysicsRawPrime26Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime26 )
+process.PhysicsHIPhysicsRawPrime27Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime27 )
+process.PhysicsHIPhysicsRawPrime28Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime28 )
+process.PhysicsHIPhysicsRawPrime29Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime29 )
+process.PhysicsHIPhysicsRawPrime3Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime3 )
+process.PhysicsHIPhysicsRawPrime30Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime30 )
+process.PhysicsHIPhysicsRawPrime31Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime31 )
+process.PhysicsHIPhysicsRawPrime32Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime32 )
+process.PhysicsHIPhysicsRawPrime33Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime33 )
+process.PhysicsHIPhysicsRawPrime34Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime34 )
+process.PhysicsHIPhysicsRawPrime35Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime35 )
+process.PhysicsHIPhysicsRawPrime36Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime36 )
+process.PhysicsHIPhysicsRawPrime37Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime37 )
+process.PhysicsHIPhysicsRawPrime38Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime38 )
+process.PhysicsHIPhysicsRawPrime39Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime39 )
+process.PhysicsHIPhysicsRawPrime4Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime4 )
+process.PhysicsHIPhysicsRawPrime40Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime40 )
+process.PhysicsHIPhysicsRawPrime41Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime41 )
+process.PhysicsHIPhysicsRawPrime42Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime42 )
+process.PhysicsHIPhysicsRawPrime43Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime43 )
+process.PhysicsHIPhysicsRawPrime44Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime44 )
+process.PhysicsHIPhysicsRawPrime45Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime45 )
+process.PhysicsHIPhysicsRawPrime46Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime46 )
+process.PhysicsHIPhysicsRawPrime47Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime47 )
+process.PhysicsHIPhysicsRawPrime48Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime48 )
+process.PhysicsHIPhysicsRawPrime49Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime49 )
+process.PhysicsHIPhysicsRawPrime5Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime5 )
+process.PhysicsHIPhysicsRawPrime50Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime50 )
+process.PhysicsHIPhysicsRawPrime51Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime51 )
+process.PhysicsHIPhysicsRawPrime52Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime52 )
+process.PhysicsHIPhysicsRawPrime53Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime53 )
+process.PhysicsHIPhysicsRawPrime54Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime54 )
+process.PhysicsHIPhysicsRawPrime55Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime55 )
+process.PhysicsHIPhysicsRawPrime56Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime56 )
+process.PhysicsHIPhysicsRawPrime57Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime57 )
+process.PhysicsHIPhysicsRawPrime58Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime58 )
+process.PhysicsHIPhysicsRawPrime59Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime59 )
+process.PhysicsHIPhysicsRawPrime6Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime6 )
+process.PhysicsHIPhysicsRawPrime7Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime7 )
+process.PhysicsHIPhysicsRawPrime8Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime8 )
+process.PhysicsHIPhysicsRawPrime9Output = cms.EndPath( process.hltOutputPhysicsHIPhysicsRawPrime9 )
+process.PhysicsHITrackerNZSOutput = cms.EndPath( process.hltOutputPhysicsHITrackerNZS )
+process.PhysicsHIZeroBiasOutput = cms.EndPath( process.hltOutputPhysicsHIZeroBias )
+process.PhysicsHIZeroBiasRAW0Output = cms.EndPath( process.hltOutputPhysicsHIZeroBiasRAW0 )
+process.PhysicsHIZeroBiasRAW1Output = cms.EndPath( process.hltOutputPhysicsHIZeroBiasRAW1 )
+process.PhysicsHIZeroBiasRAW2Output = cms.EndPath( process.hltOutputPhysicsHIZeroBiasRAW2 )
+process.RPCMONOutput = cms.EndPath( process.hltOutputRPCMON )
 
 
-process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.AlCa_EcalPhiSymForHI_v12, process.AlCa_EcalEtaEBonlyForHI_v13, process.AlCa_EcalEtaEEonlyForHI_v13, process.AlCa_EcalPi0EBonlyForHI_v13, process.AlCa_EcalPi0EEonlyForHI_v13, process.AlCa_RPCMuonNormalisationForHI_v11, process.DQM_HIPixelReconstruction_v12, process.DQM_HIEcalReconstruction_v10, process.DQM_HIHcalReconstruction_v8, process.DST_Physics_v16, process.HLT_HIEphemeralPhysics_v5, process.HLT_HIEphemeralZeroBias_v5, process.HLT_EcalCalibration_v4, process.HLT_HcalCalibration_v6, process.HLT_HIL1NotBptxOR_v14, process.HLT_HIL1UnpairedBunchBptxPlus_v14, process.HLT_HIL1UnpairedBunchBptxMinus_v14, process.HLT_HIPhysics_v14, process.HLT_HIPhysicsForZS_v14, process.HLT_HIRandom_v7, process.HLT_HIRandom_HighRate_v3, process.HLT_HIHcalNZS_v14, process.HLT_HIHcalPhiSym_v14, process.HLT_HIZeroBias_v14, process.HLT_HIZeroBias_HighRate_v7, process.HLT_HIZeroBias_FirstCollisionAfterAbortGap_v14, process.HLT_HIZeroBias_HighRateRAW_v4, process.HLT_HIMinimumBiasHF1AND_v7, process.HLT_HIMinimumBiasHF1AND_copy_v6, process.HLT_HIMinimumBiasHF1ANDZDC1nOR_v4, process.HLT_HIMinimumBiasHF1ANDZDC2nOR_v7, process.HLT_HIMinimumBiasHF1ANDZDC1nOR_copy_v4, process.HLT_HIMinimumBiasHF1ANDZDC2nOR_copy_v6, process.HLT_HICentrality30100_FirstCollisionAfterAbortGap_v14, process.HLT_HICentrality50100MinimumBiasHF1AND_Beamspot_v1, process.HLT_HIL1Centrality30_50_v7, process.HLT_HIL1_UCC_0_0p5_v7, process.HLT_HIL1_UCC_0_1_v7, process.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_v6, process.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_ZDC1nOR_v4, process.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_ZDC2nOR_v6, process.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_v6, process.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_ZDC1nOR_v4, process.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_ZDC2nOR_v6, process.HLT_HIPuAK4CaloJet80Eta5p1_v14, process.HLT_HIPuAK4CaloJet100Eta5p1_v14, process.HLT_HIPuAK4CaloJet120Eta2p1_v7, process.HLT_HIPuAK4CaloJet120Eta5p1_v14, process.HLT_HIPuAK4CaloJet40Fwd_v7, process.HLT_HIPuAK4CaloJet60Fwd_v7, process.HLT_HIPuAK4CaloJet80Fwd_v7, process.HLT_HIPuAK4CaloJet100Fwd_v7, process.HLT_HIPuAK4CaloJet120Fwd_v7, process.HLT_HIGEDPhoton10_v14, process.HLT_HIGEDPhoton10_EB_v14, process.HLT_HIGEDPhoton20_v14, process.HLT_HIGEDPhoton20_EB_v14, process.HLT_HIGEDPhoton30_v14, process.HLT_HIGEDPhoton30_EB_v14, process.HLT_HIGEDPhoton40_v14, process.HLT_HIGEDPhoton40_EB_v14, process.HLT_HIGEDPhoton50_v14, process.HLT_HIGEDPhoton50_EB_v14, process.HLT_HIGEDPhoton60_v14, process.HLT_HIGEDPhoton60_EB_v14, process.HLT_HIDoubleGEDPhoton20_v7, process.HLT_HIEle10Gsf_v14, process.HLT_HIEle15Gsf_v14, process.HLT_HIEle20Gsf_v14, process.HLT_HIEle30Gsf_v14, process.HLT_HIEle40Gsf_v14, process.HLT_HIEle50Gsf_v14, process.HLT_HIEle15Ele10Gsf_v14, process.HLT_HIEle15Ele10GsfMass50_v14, process.HLT_HIDoubleEle10Gsf_v14, process.HLT_HIDoubleEle10GsfMass50_v14, process.HLT_HIDoubleEle15Gsf_v14, process.HLT_HIDoubleEle15GsfMass50_v14, process.HLT_HIUPC_ZeroBias_MinPixelCluster400_MaxPixelCluster10000_v13, process.HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v12, process.HLT_HIUPC_ZeroBias_SinglePixelTrack_MaxPixelTrack_v13, process.HLT_HIUPC_NotMBHF2_v5, process.HLT_HIUPC_ZDC1nOR_MinPixelCluster400_MaxPixelCluster10000_v13, process.HLT_HIUPC_ZDC1nOR_SinglePixelTrackLowPt_MaxPixelCluster400_v12, process.HLT_HIUPC_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity20_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity30_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity40_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity20_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity30_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity40_v13, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v5, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v5, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v5, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity20_v5, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity30_v5, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity40_v5, process.HLT_HIUPC_SingleMuCosmic_BptxAND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_v10, process.HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_v10, process.HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v12, process.HLT_HIUPC_SingleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_NotMBHF2OR_v12, process.HLT_HIUPC_SingleMuOpen_NotMBHF2OR_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v10, process.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v10, process.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v6, process.HLT_HIUPC_DoubleMuCosmic_BptxAND_MaxPixelCluster1000_v6, process.HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v6, process.HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_v10, process.HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v6, process.HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v10, process.HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleEG2_NotMBHF2AND_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v12, process.HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v15, process.HLT_HIUPC_SingleEG3_NotMBHF2AND_v12, process.HLT_HIUPC_SingleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v14, process.HLT_HIUPC_SingleEG3_NotMBHF2OR_v12, process.HLT_HIUPC_SingleEG3_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v14, process.HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v15, process.HLT_HIUPC_SingleEG4_NotMBHF2AND_v1, process.HLT_HIUPC_SingleEG5_NotMBHF2AND_v12, process.HLT_HIUPC_SingleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v14, process.HLT_HIUPC_DoubleEG2_BptxAND_SinglePixelTrack_MaxPixelTrack_v15, process.HLT_HIUPC_DoubleEG2_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v14, process.HLT_HIUPC_DoubleEG2_NotMBHF2AND_v12, process.HLT_HIUPC_DoubleEG3_NotMBHF2AND_v1, process.HLT_HIUPC_DoubleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v1, process.HLT_HIUPC_DoubleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v15, process.HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v14, process.HLT_HIUPC_DoubleEG5_NotMBHF2AND_v12, process.HLT_HIUPC_SingleJet8_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet12_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet16_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet20_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet24_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet28_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet8_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet12_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet16_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet20_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet24_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet28_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet8_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet12_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet16_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet20_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet24_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet28_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_ZeroBias_MaxPixelCluster10000_v2, process.HLT_HIUPC_ZDC1nOR_MaxPixelCluster10000_v2, process.HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity20400_v2, process.HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity30400_v2, process.HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity40400_v2, process.HLT_HIUPC_ZDC1nAND_NotMBHF2_MaxPixelCluster10000_v2, process.HLT_HIUPC_MinPixelThrust0p8_MaxPixelCluster10000_v2, process.HLT_HIUPC_SingleUncorrJet8_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet12_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet16_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet20_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet24_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet28_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet8_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet12_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet16_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet20_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet24_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet28_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet8_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet12_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet16_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet20_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet24_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet28_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_ZDC1nOR_RapGap_MaxPixelCluster10000_v2, process.HLT_HIUPC_SingleJet8_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet12_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet16_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet20_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet24_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet28_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet8_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet12_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet16_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet20_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet24_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet28_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet8_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet12_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet16_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet20_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet24_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet28_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_Random_HighRate_v1, process.HLT_HIUPC_HFafterglowCombined_v1, process.HLT_HIL1SingleMuOpen_Centrality30to100_v1, process.HLT_HIL1SingleMu0_Centrality30to100_v1, process.HLT_HIL1SingleMu0_Centrality40to100_v1, process.HLT_HIL1SingleMu0_v7, process.HLT_HIL1SingleMu0_Open_v7, process.HLT_HIL1SingleMu0_Cosmic_v7, process.HLT_HIL1SingleMu5_SingleEG20Gsf_v7, process.HLT_HIL1SingleMu5_SingleGEDPhoton20_v7, process.HLT_HIL1SingleMu7_SingleEG20Gsf_v7, process.HLT_HIL1SingleMu7_SingleGEDPhoton20_v1, process.HLT_HIL2DoubleMuOpen_Centrality40to100_v1, process.HLT_HIL2DoubleMuOpen_SS_v1, process.HLT_HIL2DoubleMuOpen_OS_v1, process.HLT_HIL1DoubleMu0_v7, process.HLT_HIL2DoubleMu0_SQ_v1, process.HLT_HIL1DoubleMu0_MaxDr3p5_Open_v7, process.HLT_HIL1DoubleMu0_SQ_v7, process.HLT_HIL2SingleMuOpen_Centrality30to100_v1, process.HLT_HIL2SingleMu0_Centrality30to100_v1, process.HLT_HIL2SingleMu0_Centrality40to100_v1, process.HLT_HIL2SingleMu3_Open_v7, process.HLT_HIL2SingleMu5_v7, process.HLT_HIL2SingleMu7_v7, process.HLT_HIL2SingleMu12_v1, process.HLT_HIL2DoubleMu0_Open_v7, process.HLT_HIL2DoubleMu0_M1p5to6_Open_v7, process.HLT_HIL2DoubleMu0_M7to15_Open_v7, process.HLT_HIL2DoubleMu2p8_M1p5to6_Open_v7, process.HLT_HIL2DoubleMu3_M7to15_Open_v7, process.HLT_HIDmesonPPOnAATrackingGlobal_Dpt30_v8, process.HLT_HIDmesonPPOnAATrackingGlobal_Dpt45_v8, process.HLT_HIDmesonPPOnAATrackingGlobal_Dpt60_v8, process.HLT_HICscCluster_Loose_v7, process.HLT_HICscCluster_Medium_v7, process.HLT_HICscCluster_Tight_v7, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.Dataset_AlCaP0, process.Dataset_AlCaPhiSym, process.Dataset_EcalLaser, process.Dataset_HIDQMGPUvsCPU, process.Dataset_HIDQMOnlineBeamspot, process.Dataset_HIEmptyBX, process.Dataset_HIEphemeralHLTPhysics, process.Dataset_HIEphemeralZeroBias0, process.Dataset_HIEphemeralZeroBias1, process.Dataset_HIEventDisplay, process.Dataset_HIExpressAlignment, process.Dataset_HIExpressPhysics, process.Dataset_HIExpressPhysicsRawPrime, process.Dataset_HIForward0, process.Dataset_HIForward1, process.Dataset_HIForward2, process.Dataset_HIForward3, process.Dataset_HIForward4, process.Dataset_HIForward5, process.Dataset_HIForward6, process.Dataset_HIForward7, process.Dataset_HIForward8, process.Dataset_HIForward9, process.Dataset_HIForward10, process.Dataset_HIForward11, process.Dataset_HIForward12, process.Dataset_HIForward13, process.Dataset_HIForward14, process.Dataset_HIForward15, process.Dataset_HIForward16, process.Dataset_HIForward17, process.Dataset_HIForward18, process.Dataset_HIForward19, process.Dataset_HIHLTPhysics, process.Dataset_HIHcalNZS, process.Dataset_HIOnlineMonitor, process.Dataset_HIMinimumBias0, process.Dataset_HIMinimumBias1, process.Dataset_HIMinimumBias2, process.Dataset_HIMinimumBias3, process.Dataset_HIPhysicsRawPrime0, process.Dataset_HITrackerNZS, process.Dataset_HIZeroBias0, process.Dataset_HIZeroBias1, process.Dataset_HIZeroBias2, process.Dataset_L1Accept, process.Dataset_RPCMonitor, process.Dataset_TestEnablesEcalHcal, process.Dataset_TestEnablesEcalHcalDQM, process.ALCAP0Output, process.ALCAPHISYMOutput, process.CalibrationOutput, process.DQMCalibrationOutput, process.HIDQMOutput, process.HIDQMEventDisplayOutput, process.HIDQMGPUvsCPUOutput, process.HIDQMOnlineBeamspotOutput, process.EcalCalibrationOutput, process.HIExpressOutput, process.HIExpressAlignmentOutput, process.HIExpressRawPrimeOutput, process.PhysicsHICommissioningOutput, process.PhysicsHIForward0Output, process.PhysicsHIForward1Output, process.PhysicsHIForward2Output, process.PhysicsHIForward3Output, process.PhysicsHIForward4Output, process.PhysicsHIForward5Output, process.PhysicsHIForward6Output, process.PhysicsHIForward7Output, process.PhysicsHIForward8Output, process.PhysicsHIForward9Output, process.PhysicsHIForward10Output, process.PhysicsHIForward11Output, process.PhysicsHIForward12Output, process.PhysicsHIForward13Output, process.PhysicsHIForward14Output, process.PhysicsHIForward15Output, process.PhysicsHIForward16Output, process.PhysicsHIForward17Output, process.PhysicsHIForward18Output, process.PhysicsHIForward19Output, process.PhysicsHIHLTPhysicsOutput, process.PhysicsHIMinimumBias0Output, process.PhysicsHIMinimumBias1Output, process.PhysicsHIMinimumBias2Output, process.PhysicsHIMinimumBias3Output, process.PhysicsHIPhysicsRawPrime0Output, process.PhysicsHIPhysicsRawPrime1Output, process.PhysicsHIPhysicsRawPrime2Output, process.PhysicsHIPhysicsRawPrime3Output, process.PhysicsHIPhysicsRawPrime4Output, process.PhysicsHIPhysicsRawPrime5Output, process.PhysicsHIPhysicsRawPrime6Output, process.PhysicsHIPhysicsRawPrime7Output, process.PhysicsHIPhysicsRawPrime8Output, process.PhysicsHIPhysicsRawPrime9Output, process.PhysicsHIPhysicsRawPrime10Output, process.PhysicsHIPhysicsRawPrime11Output, process.PhysicsHIPhysicsRawPrime12Output, process.PhysicsHIPhysicsRawPrime13Output, process.PhysicsHIPhysicsRawPrime14Output, process.PhysicsHIPhysicsRawPrime15Output, process.PhysicsHIPhysicsRawPrime16Output, process.PhysicsHIPhysicsRawPrime17Output, process.PhysicsHIPhysicsRawPrime18Output, process.PhysicsHIPhysicsRawPrime19Output, process.PhysicsHIPhysicsRawPrime20Output, process.PhysicsHIPhysicsRawPrime21Output, process.PhysicsHIPhysicsRawPrime22Output, process.PhysicsHIPhysicsRawPrime23Output, process.PhysicsHIPhysicsRawPrime24Output, process.PhysicsHIPhysicsRawPrime25Output, process.PhysicsHIPhysicsRawPrime26Output, process.PhysicsHIPhysicsRawPrime27Output, process.PhysicsHIPhysicsRawPrime28Output, process.PhysicsHIPhysicsRawPrime29Output, process.PhysicsHIPhysicsRawPrime30Output, process.PhysicsHIPhysicsRawPrime31Output, process.PhysicsHITrackerNZSOutput, process.PhysicsHIZeroBiasOutput, process.PhysicsHIZeroBiasRAW0Output, process.PhysicsHIZeroBiasRAW1Output, process.PhysicsHIZeroBiasRAW2Output, process.NanoDSTOutput, process.RPCMONOutput, process.Dataset_HIPhysicsRawPrime1, process.Dataset_HIPhysicsRawPrime2, process.Dataset_HIPhysicsRawPrime3, process.Dataset_HIPhysicsRawPrime4, process.Dataset_HIPhysicsRawPrime5, process.Dataset_HIPhysicsRawPrime6, process.Dataset_HIPhysicsRawPrime7, process.Dataset_HIPhysicsRawPrime8, process.Dataset_HIPhysicsRawPrime9, process.Dataset_HIPhysicsRawPrime10, process.Dataset_HIPhysicsRawPrime11, process.Dataset_HIPhysicsRawPrime12, process.Dataset_HIPhysicsRawPrime13, process.Dataset_HIPhysicsRawPrime14, process.Dataset_HIPhysicsRawPrime15, process.Dataset_HIPhysicsRawPrime16, process.Dataset_HIPhysicsRawPrime17, process.Dataset_HIPhysicsRawPrime18, process.Dataset_HIPhysicsRawPrime19, process.Dataset_HIPhysicsRawPrime20, process.Dataset_HIPhysicsRawPrime21, process.Dataset_HIPhysicsRawPrime22, process.Dataset_HIPhysicsRawPrime23, process.Dataset_HIPhysicsRawPrime24, process.Dataset_HIPhysicsRawPrime25, process.Dataset_HIPhysicsRawPrime26, process.Dataset_HIPhysicsRawPrime27, process.Dataset_HIPhysicsRawPrime28, process.Dataset_HIPhysicsRawPrime29, process.Dataset_HIPhysicsRawPrime30, process.Dataset_HIPhysicsRawPrime31, process.Dataset_HIPhysicsRawPrime32, process.Dataset_HIPhysicsRawPrime33, process.Dataset_HIPhysicsRawPrime34, process.Dataset_HIPhysicsRawPrime35, process.Dataset_HIPhysicsRawPrime36, process.Dataset_HIPhysicsRawPrime37, process.Dataset_HIPhysicsRawPrime38, process.Dataset_HIPhysicsRawPrime39, process.Dataset_HIPhysicsRawPrime40, process.Dataset_HIPhysicsRawPrime41, process.Dataset_HIPhysicsRawPrime42, process.Dataset_HIPhysicsRawPrime43, process.Dataset_HIPhysicsRawPrime44, process.Dataset_HIPhysicsRawPrime45, process.Dataset_HIPhysicsRawPrime46, process.Dataset_HIPhysicsRawPrime47, process.Dataset_HIPhysicsRawPrime48, process.Dataset_HIPhysicsRawPrime49, process.Dataset_HIPhysicsRawPrime50, process.Dataset_HIPhysicsRawPrime51, process.Dataset_HIPhysicsRawPrime52, process.Dataset_HIPhysicsRawPrime53, process.Dataset_HIPhysicsRawPrime54, process.Dataset_HIPhysicsRawPrime55, process.Dataset_HIPhysicsRawPrime56, process.Dataset_HIPhysicsRawPrime57, process.Dataset_HIPhysicsRawPrime58, process.Dataset_HIPhysicsRawPrime59, process.PhysicsHIPhysicsRawPrime59Output, process.PhysicsHIPhysicsRawPrime58Output, process.PhysicsHIPhysicsRawPrime57Output, process.PhysicsHIPhysicsRawPrime56Output, process.PhysicsHIPhysicsRawPrime55Output, process.PhysicsHIPhysicsRawPrime54Output, process.PhysicsHIPhysicsRawPrime53Output, process.PhysicsHIPhysicsRawPrime52Output, process.PhysicsHIPhysicsRawPrime51Output, process.PhysicsHIPhysicsRawPrime50Output, process.PhysicsHIPhysicsRawPrime49Output, process.PhysicsHIPhysicsRawPrime48Output, process.PhysicsHIPhysicsRawPrime47Output, process.PhysicsHIPhysicsRawPrime46Output, process.PhysicsHIPhysicsRawPrime45Output, process.PhysicsHIPhysicsRawPrime44Output, process.PhysicsHIPhysicsRawPrime42Output, process.PhysicsHIPhysicsRawPrime41Output, process.PhysicsHIPhysicsRawPrime40Output, process.PhysicsHIPhysicsRawPrime39Output, process.PhysicsHIPhysicsRawPrime38Output, process.PhysicsHIPhysicsRawPrime37Output, process.PhysicsHIPhysicsRawPrime36Output, process.PhysicsHIPhysicsRawPrime35Output, process.PhysicsHIPhysicsRawPrime34Output, process.PhysicsHIPhysicsRawPrime33Output, process.PhysicsHIPhysicsRawPrime32Output, process.PhysicsHIPhysicsRawPrime43Output, ))
+process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.AlCa_EcalPhiSymForHI_v12, process.AlCa_EcalEtaEBonlyForHI_v13, process.AlCa_EcalEtaEEonlyForHI_v13, process.AlCa_EcalPi0EBonlyForHI_v13, process.AlCa_EcalPi0EEonlyForHI_v13, process.AlCa_RPCMuonNormalisationForHI_v11, process.DQM_HIPixelReconstruction_v12, process.DQM_HIEcalReconstruction_v10, process.DQM_HIHcalReconstruction_v8, process.DST_Physics_v16, process.HLT_HIEphemeralPhysics_v5, process.HLT_HIEphemeralZeroBias_v5, process.HLT_EcalCalibration_v4, process.HLT_HcalCalibration_v6, process.HLT_HIL1NotBptxOR_v14, process.HLT_HIL1UnpairedBunchBptxPlus_v14, process.HLT_HIL1UnpairedBunchBptxMinus_v14, process.HLT_HIPhysics_v14, process.HLT_HIPhysicsForZS_v14, process.HLT_HIRandom_v7, process.HLT_HIRandom_HighRate_v3, process.HLT_HIHcalNZS_v14, process.HLT_HIHcalPhiSym_v14, process.HLT_HIZeroBias_v14, process.HLT_HIZeroBias_HighRate_v7, process.HLT_HIZeroBias_FirstCollisionAfterAbortGap_v14, process.HLT_HIZeroBias_HighRateRAW_v4, process.HLT_HIMinimumBiasHF1AND_v7, process.HLT_HIMinimumBiasHF1AND_copy_v6, process.HLT_HIMinimumBiasHF1ANDZDC1nOR_v4, process.HLT_HIMinimumBiasHF1ANDZDC2nOR_v7, process.HLT_HIMinimumBiasHF1ANDZDC1nOR_copy_v4, process.HLT_HIMinimumBiasHF1ANDZDC2nOR_copy_v6, process.HLT_HICentrality30100_FirstCollisionAfterAbortGap_v14, process.HLT_HICentrality50100MinimumBiasHF1AND_Beamspot_v1, process.HLT_HIL1Centrality30_50_v7, process.HLT_HIL1_UCC_0_0p5_v7, process.HLT_HIL1_UCC_0_1_v7, process.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_v6, process.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_ZDC1nOR_v4, process.HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_ZDC2nOR_v6, process.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_v6, process.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_ZDC1nOR_v4, process.HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_ZDC2nOR_v6, process.HLT_HIPuAK4CaloJet80Eta5p1_v14, process.HLT_HIPuAK4CaloJet100Eta5p1_v14, process.HLT_HIPuAK4CaloJet120Eta2p1_v7, process.HLT_HIPuAK4CaloJet120Eta5p1_v14, process.HLT_HIPuAK4CaloJet40Fwd_v7, process.HLT_HIPuAK4CaloJet60Fwd_v7, process.HLT_HIPuAK4CaloJet80Fwd_v7, process.HLT_HIPuAK4CaloJet100Fwd_v7, process.HLT_HIPuAK4CaloJet120Fwd_v7, process.HLT_HIGEDPhoton10_v14, process.HLT_HIGEDPhoton10_EB_v14, process.HLT_HIGEDPhoton20_v14, process.HLT_HIGEDPhoton20_EB_v14, process.HLT_HIGEDPhoton30_v14, process.HLT_HIGEDPhoton30_EB_v14, process.HLT_HIGEDPhoton40_v14, process.HLT_HIGEDPhoton40_EB_v14, process.HLT_HIGEDPhoton50_v14, process.HLT_HIGEDPhoton50_EB_v14, process.HLT_HIGEDPhoton60_v14, process.HLT_HIGEDPhoton60_EB_v14, process.HLT_HIDoubleGEDPhoton20_v7, process.HLT_HIEle10Gsf_v14, process.HLT_HIEle15Gsf_v14, process.HLT_HIEle20Gsf_v14, process.HLT_HIEle30Gsf_v14, process.HLT_HIEle40Gsf_v14, process.HLT_HIEle50Gsf_v14, process.HLT_HIEle15Ele10Gsf_v14, process.HLT_HIEle15Ele10GsfMass50_v14, process.HLT_HIDoubleEle10Gsf_v14, process.HLT_HIDoubleEle10GsfMass50_v14, process.HLT_HIDoubleEle15Gsf_v14, process.HLT_HIDoubleEle15GsfMass50_v14, process.HLT_HIUPC_ZeroBias_MinPixelCluster400_MaxPixelCluster10000_v13, process.HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v12, process.HLT_HIUPC_ZeroBias_SinglePixelTrack_MaxPixelTrack_v13, process.HLT_HIUPC_NotMBHF2_v5, process.HLT_HIUPC_ZDC1nOR_MinPixelCluster400_MaxPixelCluster10000_v13, process.HLT_HIUPC_ZDC1nOR_SinglePixelTrackLowPt_MaxPixelCluster400_v12, process.HLT_HIUPC_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity20_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity30_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF1AND_PixelTrackMultiplicity40_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity20_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity30_v13, process.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity40_v13, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity20_v5, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity30_v5, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF1AND_PixelTrackMultiplicity40_v5, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity20_v5, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity30_v5, process.HLT_HIUPC_ZDC1nAsymXOR_MBHF2AND_PixelTrackMultiplicity40_v5, process.HLT_HIUPC_SingleMuCosmic_BptxAND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_v10, process.HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_v10, process.HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v12, process.HLT_HIUPC_SingleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_NotMBHF2OR_v12, process.HLT_HIUPC_SingleMuOpen_NotMBHF2OR_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v10, process.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v10, process.HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v6, process.HLT_HIUPC_DoubleMuCosmic_BptxAND_MaxPixelCluster1000_v6, process.HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v6, process.HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_v10, process.HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v6, process.HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v10, process.HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v6, process.HLT_HIUPC_SingleEG2_NotMBHF2AND_ZDC1nOR_SinglePixelTrack_MaxPixelTrack_v12, process.HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v15, process.HLT_HIUPC_SingleEG3_NotMBHF2AND_v12, process.HLT_HIUPC_SingleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v14, process.HLT_HIUPC_SingleEG3_NotMBHF2OR_v12, process.HLT_HIUPC_SingleEG3_NotMBHF2OR_SinglePixelTrack_MaxPixelTrack_v14, process.HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v15, process.HLT_HIUPC_SingleEG4_NotMBHF2AND_v1, process.HLT_HIUPC_SingleEG5_NotMBHF2AND_v12, process.HLT_HIUPC_SingleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v14, process.HLT_HIUPC_DoubleEG2_BptxAND_SinglePixelTrack_MaxPixelTrack_v15, process.HLT_HIUPC_DoubleEG2_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v14, process.HLT_HIUPC_DoubleEG2_NotMBHF2AND_v12, process.HLT_HIUPC_DoubleEG3_NotMBHF2AND_v1, process.HLT_HIUPC_DoubleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v1, process.HLT_HIUPC_DoubleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v15, process.HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v14, process.HLT_HIUPC_DoubleEG5_NotMBHF2AND_v12, process.HLT_HIUPC_SingleJet8_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet12_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet16_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet20_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet24_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet28_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet8_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet12_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet16_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet20_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet24_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet28_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet8_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet12_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet16_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet20_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet24_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet28_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_ZeroBias_MaxPixelCluster10000_v2, process.HLT_HIUPC_ZDC1nOR_MaxPixelCluster10000_v2, process.HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity20400_v2, process.HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity30400_v2, process.HLT_HIUPC_ZDC1nOR_MBHF1AND_PixelTrackMultiplicity40400_v2, process.HLT_HIUPC_ZDC1nAND_NotMBHF2_MaxPixelCluster10000_v2, process.HLT_HIUPC_MinPixelThrust0p8_MaxPixelCluster10000_v2, process.HLT_HIUPC_SingleUncorrJet8_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet12_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet16_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet20_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet24_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet28_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet8_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet12_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet16_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet20_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet24_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet28_ZDC1nXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet8_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet12_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet16_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet20_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet24_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet28_ZDC1nAsymXOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet8_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet12_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleUncorrJet16_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_ZDC1nOR_RapGap_MaxPixelCluster10000_v2, process.HLT_HIUPC_SingleJet8_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet12_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet16_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet20_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet24_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet28_ZDC1nXOR_RapGap_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet8_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet12_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet16_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet20_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet24_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleJet28_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet8_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet12_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet16_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet20_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet24_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_SingleUncorrJet28_NotZDC_OR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotZDCAND_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet8_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet12_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_DoubleJet16_DeltaPhi2p0_NotZDC1nOR_MaxPixelCluster10000_v1, process.HLT_HIUPC_Random_HighRate_v1, process.HLT_HIUPC_HFafterglowCombined_v1, process.HLT_HIL1SingleMuOpen_Centrality30to100_v1, process.HLT_HIL1SingleMu0_Centrality30to100_v1, process.HLT_HIL1SingleMu0_Centrality40to100_v1, process.HLT_HIL1SingleMu0_v7, process.HLT_HIL1SingleMu0_Open_v7, process.HLT_HIL1SingleMu0_Cosmic_v7, process.HLT_HIL1SingleMu5_SingleEG20Gsf_v7, process.HLT_HIL1SingleMu5_SingleGEDPhoton20_v7, process.HLT_HIL1SingleMu7_SingleEG20Gsf_v7, process.HLT_HIL1SingleMu7_SingleGEDPhoton20_v1, process.HLT_HIL2DoubleMuOpen_Centrality40to100_v1, process.HLT_HIL2DoubleMuOpen_SS_v1, process.HLT_HIL2DoubleMuOpen_OS_v1, process.HLT_HIL1DoubleMu0_v7, process.HLT_HIL2DoubleMu0_SQ_v1, process.HLT_HIL1DoubleMu0_MaxDr3p5_Open_v7, process.HLT_HIL1DoubleMu0_SQ_v7, process.HLT_HIL2SingleMuOpen_Centrality30to100_v1, process.HLT_HIL2SingleMu0_Centrality30to100_v1, process.HLT_HIL2SingleMu0_Centrality40to100_v1, process.HLT_HIL2SingleMu3_Open_v7, process.HLT_HIL2SingleMu5_v7, process.HLT_HIL2SingleMu7_v7, process.HLT_HIL2SingleMu12_v1, process.HLT_HIL2DoubleMu0_Open_v7, process.HLT_HIL2DoubleMu0_M1p5to6_Open_v7, process.HLT_HIL2DoubleMu0_M7to15_Open_v7, process.HLT_HIL2DoubleMu2p8_M1p5to6_Open_v7, process.HLT_HIL2DoubleMu3_M7to15_Open_v7, process.HLT_HIDmesonPPOnAATrackingGlobal_Dpt30_v8, process.HLT_HIDmesonPPOnAATrackingGlobal_Dpt45_v8, process.HLT_HIDmesonPPOnAATrackingGlobal_Dpt60_v8, process.HLT_HICscCluster_Loose_v7, process.HLT_HICscCluster_Medium_v7, process.HLT_HICscCluster_Tight_v7, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.Dataset_AlCaP0, process.Dataset_AlCaPhiSym, process.Dataset_EcalLaser, process.Dataset_HIDQMGPUvsCPU, process.Dataset_HIDQMOnlineBeamspot, process.Dataset_HIEmptyBX, process.Dataset_HIEphemeralHLTPhysics, process.Dataset_HIEphemeralZeroBias0, process.Dataset_HIEphemeralZeroBias1, process.Dataset_HIEventDisplay, process.Dataset_HIExpressAlignment, process.Dataset_HIExpressPhysics, process.Dataset_HIExpressPhysicsRawPrime, process.Dataset_HIForward0, process.Dataset_HIForward1, process.Dataset_HIForward2, process.Dataset_HIForward3, process.Dataset_HIForward4, process.Dataset_HIForward5, process.Dataset_HIForward6, process.Dataset_HIForward7, process.Dataset_HIForward8, process.Dataset_HIForward9, process.Dataset_HIForward10, process.Dataset_HIForward11, process.Dataset_HIForward12, process.Dataset_HIForward13, process.Dataset_HIForward14, process.Dataset_HIForward15, process.Dataset_HIForward16, process.Dataset_HIForward17, process.Dataset_HIForward18, process.Dataset_HIForward19, process.Dataset_HIHLTPhysics, process.Dataset_HIHcalNZS, process.Dataset_HIOnlineMonitor, process.Dataset_HIMinimumBias0, process.Dataset_HIMinimumBias1, process.Dataset_HIMinimumBias2, process.Dataset_HIMinimumBias3, process.Dataset_HIPhysicsRawPrime0, process.Dataset_HITrackerNZS, process.Dataset_HIZeroBias0, process.Dataset_HIZeroBias1, process.Dataset_HIZeroBias2, process.Dataset_L1Accept, process.Dataset_RPCMonitor, process.Dataset_TestEnablesEcalHcal, process.Dataset_TestEnablesEcalHcalDQM, process.Dataset_HIPhysicsRawPrime1, process.Dataset_HIPhysicsRawPrime2, process.Dataset_HIPhysicsRawPrime3, process.Dataset_HIPhysicsRawPrime4, process.Dataset_HIPhysicsRawPrime5, process.Dataset_HIPhysicsRawPrime6, process.Dataset_HIPhysicsRawPrime7, process.Dataset_HIPhysicsRawPrime8, process.Dataset_HIPhysicsRawPrime9, process.Dataset_HIPhysicsRawPrime10, process.Dataset_HIPhysicsRawPrime11, process.Dataset_HIPhysicsRawPrime12, process.Dataset_HIPhysicsRawPrime13, process.Dataset_HIPhysicsRawPrime14, process.Dataset_HIPhysicsRawPrime15, process.Dataset_HIPhysicsRawPrime16, process.Dataset_HIPhysicsRawPrime17, process.Dataset_HIPhysicsRawPrime18, process.Dataset_HIPhysicsRawPrime19, process.Dataset_HIPhysicsRawPrime20, process.Dataset_HIPhysicsRawPrime21, process.Dataset_HIPhysicsRawPrime22, process.Dataset_HIPhysicsRawPrime23, process.Dataset_HIPhysicsRawPrime24, process.Dataset_HIPhysicsRawPrime25, process.Dataset_HIPhysicsRawPrime26, process.Dataset_HIPhysicsRawPrime27, process.Dataset_HIPhysicsRawPrime28, process.Dataset_HIPhysicsRawPrime29, process.Dataset_HIPhysicsRawPrime30, process.Dataset_HIPhysicsRawPrime31, process.Dataset_HIPhysicsRawPrime32, process.Dataset_HIPhysicsRawPrime33, process.Dataset_HIPhysicsRawPrime34, process.Dataset_HIPhysicsRawPrime35, process.Dataset_HIPhysicsRawPrime36, process.Dataset_HIPhysicsRawPrime37, process.Dataset_HIPhysicsRawPrime38, process.Dataset_HIPhysicsRawPrime39, process.Dataset_HIPhysicsRawPrime40, process.Dataset_HIPhysicsRawPrime41, process.Dataset_HIPhysicsRawPrime42, process.Dataset_HIPhysicsRawPrime43, process.Dataset_HIPhysicsRawPrime44, process.Dataset_HIPhysicsRawPrime45, process.Dataset_HIPhysicsRawPrime46, process.Dataset_HIPhysicsRawPrime47, process.Dataset_HIPhysicsRawPrime48, process.Dataset_HIPhysicsRawPrime49, process.Dataset_HIPhysicsRawPrime50, process.Dataset_HIPhysicsRawPrime51, process.Dataset_HIPhysicsRawPrime52, process.Dataset_HIPhysicsRawPrime53, process.Dataset_HIPhysicsRawPrime54, process.Dataset_HIPhysicsRawPrime55, process.Dataset_HIPhysicsRawPrime56, process.Dataset_HIPhysicsRawPrime57, process.Dataset_HIPhysicsRawPrime58, process.Dataset_HIPhysicsRawPrime59, process.ALCAP0Output, process.ALCAPHISYMOutput, process.CalibrationOutput, process.DQMCalibrationOutput, process.EcalCalibrationOutput, process.HIDQMOutput, process.HIDQMEventDisplayOutput, process.HIDQMGPUvsCPUOutput, process.HIDQMOnlineBeamspotOutput, process.HIExpressOutput, process.HIExpressAlignmentOutput, process.HIExpressRawPrimeOutput, process.NanoDSTOutput, process.PhysicsHICommissioningOutput, process.PhysicsHIForward0Output, process.PhysicsHIForward1Output, process.PhysicsHIForward10Output, process.PhysicsHIForward11Output, process.PhysicsHIForward12Output, process.PhysicsHIForward13Output, process.PhysicsHIForward14Output, process.PhysicsHIForward15Output, process.PhysicsHIForward16Output, process.PhysicsHIForward17Output, process.PhysicsHIForward18Output, process.PhysicsHIForward19Output, process.PhysicsHIForward2Output, process.PhysicsHIForward3Output, process.PhysicsHIForward4Output, process.PhysicsHIForward5Output, process.PhysicsHIForward6Output, process.PhysicsHIForward7Output, process.PhysicsHIForward8Output, process.PhysicsHIForward9Output, process.PhysicsHIHLTPhysicsOutput, process.PhysicsHIMinimumBias0Output, process.PhysicsHIMinimumBias1Output, process.PhysicsHIMinimumBias2Output, process.PhysicsHIMinimumBias3Output, process.PhysicsHIPhysicsRawPrime0Output, process.PhysicsHIPhysicsRawPrime1Output, process.PhysicsHIPhysicsRawPrime10Output, process.PhysicsHIPhysicsRawPrime11Output, process.PhysicsHIPhysicsRawPrime12Output, process.PhysicsHIPhysicsRawPrime13Output, process.PhysicsHIPhysicsRawPrime14Output, process.PhysicsHIPhysicsRawPrime15Output, process.PhysicsHIPhysicsRawPrime16Output, process.PhysicsHIPhysicsRawPrime17Output, process.PhysicsHIPhysicsRawPrime18Output, process.PhysicsHIPhysicsRawPrime19Output, process.PhysicsHIPhysicsRawPrime2Output, process.PhysicsHIPhysicsRawPrime20Output, process.PhysicsHIPhysicsRawPrime21Output, process.PhysicsHIPhysicsRawPrime22Output, process.PhysicsHIPhysicsRawPrime23Output, process.PhysicsHIPhysicsRawPrime24Output, process.PhysicsHIPhysicsRawPrime25Output, process.PhysicsHIPhysicsRawPrime26Output, process.PhysicsHIPhysicsRawPrime27Output, process.PhysicsHIPhysicsRawPrime28Output, process.PhysicsHIPhysicsRawPrime29Output, process.PhysicsHIPhysicsRawPrime3Output, process.PhysicsHIPhysicsRawPrime30Output, process.PhysicsHIPhysicsRawPrime31Output, process.PhysicsHIPhysicsRawPrime32Output, process.PhysicsHIPhysicsRawPrime33Output, process.PhysicsHIPhysicsRawPrime34Output, process.PhysicsHIPhysicsRawPrime35Output, process.PhysicsHIPhysicsRawPrime36Output, process.PhysicsHIPhysicsRawPrime37Output, process.PhysicsHIPhysicsRawPrime38Output, process.PhysicsHIPhysicsRawPrime39Output, process.PhysicsHIPhysicsRawPrime4Output, process.PhysicsHIPhysicsRawPrime40Output, process.PhysicsHIPhysicsRawPrime41Output, process.PhysicsHIPhysicsRawPrime42Output, process.PhysicsHIPhysicsRawPrime43Output, process.PhysicsHIPhysicsRawPrime44Output, process.PhysicsHIPhysicsRawPrime45Output, process.PhysicsHIPhysicsRawPrime46Output, process.PhysicsHIPhysicsRawPrime47Output, process.PhysicsHIPhysicsRawPrime48Output, process.PhysicsHIPhysicsRawPrime49Output, process.PhysicsHIPhysicsRawPrime5Output, process.PhysicsHIPhysicsRawPrime50Output, process.PhysicsHIPhysicsRawPrime51Output, process.PhysicsHIPhysicsRawPrime52Output, process.PhysicsHIPhysicsRawPrime53Output, process.PhysicsHIPhysicsRawPrime54Output, process.PhysicsHIPhysicsRawPrime55Output, process.PhysicsHIPhysicsRawPrime56Output, process.PhysicsHIPhysicsRawPrime57Output, process.PhysicsHIPhysicsRawPrime58Output, process.PhysicsHIPhysicsRawPrime59Output, process.PhysicsHIPhysicsRawPrime6Output, process.PhysicsHIPhysicsRawPrime7Output, process.PhysicsHIPhysicsRawPrime8Output, process.PhysicsHIPhysicsRawPrime9Output, process.PhysicsHITrackerNZSOutput, process.PhysicsHIZeroBiasOutput, process.PhysicsHIZeroBiasRAW0Output, process.PhysicsHIZeroBiasRAW1Output, process.PhysicsHIZeroBiasRAW2Output, process.RPCMONOutput, ))
 
 
 # source module (EDM inputs)
@@ -31154,7 +31154,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
 )
 
-process.DQMOutput = cms.FinalPath( process.dqmOutput )
+process.DQMOutput = cms.EndPath( process.dqmOutput )
 process.schedule.append( process.DQMOutput )
 
 # add specific customizations
