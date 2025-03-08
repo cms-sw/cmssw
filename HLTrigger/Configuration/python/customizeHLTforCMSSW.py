@@ -20,15 +20,6 @@ from HLTrigger.Configuration.common import *
 
 
 def customiseForOffline(process):
-    # For running HLT offline on Run-3 Data, use "(OnlineBeamSpotESProducer).timeThreshold = 1e6",
-    # in order to pick the beamspot that was actually used by the HLT (instead of a "fake" beamspot).
-    # These same settings can be used offline for Run-3 Data and Run-3 MC alike.
-    # Note: the products of the OnlineBeamSpotESProducer are used only
-    #       if the configuration uses "(BeamSpotOnlineProducer).useTransientRecord = True".
-    # See CMSHLT-2271 and CMSHLT-2300 for further details.
-    for prod in esproducers_by_type(process, 'OnlineBeamSpotESProducer'):
-        prod.timeThreshold = int(1e6)
-
     # For running HLT offline and relieve the strain on Frontier so it will no longer inject a
     # transaction id which tells Frontier to add a unique "&freshkey" to many query URLs.
     # That was intended as a feature to only be used by the Online HLT, to guarantee that fresh conditions
@@ -48,6 +39,19 @@ def customiseForOffline(process):
 
     return process
 
+def customizeHLTfor47378(process):
+    """Needed following the migration of the online beam spot arbitration to the edproducer"""
+    import copy
+    for esprod in list(esproducers_by_type(process, "OnlineBeamSpotESProducer")):
+        delattr(process, esprod.label())
+
+    for edprod in producers_by_type(process, "BeamSpotOnlineProducer"):
+        if hasattr(edprod, 'useTransientRecord'):
+            setattr(edprod, 'useBSOnlineRecords', copy.deepcopy(getattr(edprod, 'useTransientRecord')))
+            delattr(edprod, 'useTransientRecord')
+    
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -55,5 +59,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customizeHLTfor47378(process)
     
     return process
