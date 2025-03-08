@@ -5,6 +5,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/MemcpyTraits.h"
 #include "DataFormats/Portable/interface/PortableHostObject.h"
 #include "DataFormats/Portable/interface/PortableDeviceObject.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/concepts.h"
@@ -56,5 +57,32 @@ namespace cms::alpakatools {
     }
   };
 }  // namespace cms::alpakatools
+
+// Specialize the MemcpyTraits for PortableObject
+namespace edm {
+
+  template <typename T>
+  struct MemcpyTraits<PortableHostObject<T>> {
+    static std::vector<std::pair<void*, std::size_t>> regions(PortableHostObject<T>& object) {
+      return {{object.data(), sizeof(T)}};
+    }
+
+    static std::vector<std::pair<void const*, std::size_t>> regions(PortableHostObject<T> const& object) {
+      return {{object.data(), sizeof(T)}};
+    }
+  };
+
+  template <typename T, typename TDev>
+  struct MemcpyTraits<PortableDeviceObject<T, TDev>> {
+    static std::vector<std::pair<void*, std::size_t>> regions(PortableDeviceObject<T, TDev>& object) {
+      return {{object.data(), sizeof(T)}};
+    }
+
+    static std::vector<std::pair<void const*, std::size_t>> regions(PortableDeviceObject<T, TDev> const& object) {
+      return {{object.data(), sizeof(T)}};
+    }
+  };
+
+}  // namespace edm
 
 #endif  // DataFormats_Portable_interface_PortableObject_h
