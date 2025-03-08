@@ -107,7 +107,6 @@ void DTExpandMap::expandSteering(std::ifstream& file) {
     whe = rosEntry.v1;
     def = rosEntry.v2;
     sec = rosEntry.v3;
-    rob = rosEntry.v4;
     mt1 = rosEntry.v5;
     mi1 = rosEntry.v6;
     iros = entryList.begin();
