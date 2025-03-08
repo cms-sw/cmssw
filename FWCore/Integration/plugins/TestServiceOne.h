@@ -29,7 +29,7 @@ namespace edmtest {
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-    void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
+    void preBeginJob(edm::ProcessContext const&);
     void postBeginJob();
     void preEndJob();
     void postEndJob();
