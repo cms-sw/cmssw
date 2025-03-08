@@ -22,7 +22,7 @@ namespace edm {
   class ProcessConfiguration;
   class ProcessContext;
   class ProductRegistry;
-  class SignallingProductRegistry;
+  class SignallingProductRegistryFiller;
   class StreamID;
   class PreallocationConfiguration;
   class SubProcessParentageHelper;
@@ -82,8 +82,8 @@ namespace edm {
                                              ProcessContext const*,
                                              ProcessBlockHelperBase& processBlockHelper);
 
-    std::shared_ptr<SignallingProductRegistry const> preg() const { return get_underlying_safe(preg_); }
-    std::shared_ptr<SignallingProductRegistry>& preg() { return get_underlying_safe(preg_); }
+    std::shared_ptr<SignallingProductRegistryFiller const> preg() const { return get_underlying_safe(preg_); }
+    std::shared_ptr<SignallingProductRegistryFiller>& preg() { return get_underlying_safe(preg_); }
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {
       return get_underlying_safe(branchIDListHelper_);
     }
@@ -103,7 +103,7 @@ namespace edm {
     std::shared_ptr<ProcessConfiguration>& processConfiguration() { return get_underlying_safe(processConfiguration_); }
 
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
-    edm::propagate_const<std::shared_ptr<SignallingProductRegistry>> preg_;
+    edm::propagate_const<std::shared_ptr<SignallingProductRegistryFiller>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     edm::propagate_const<std::shared_ptr<SubProcessParentageHelper>> subProcessParentageHelper_;

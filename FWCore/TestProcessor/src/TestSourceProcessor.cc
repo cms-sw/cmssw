@@ -162,7 +162,7 @@ namespace edm::test {
     processConfiguration_ = items.processConfiguration();
 
     processContext_.setProcessConfiguration(processConfiguration_.get());
-    preg_ = items.preg();
+    preg_ = std::make_shared<edm::ProductRegistry>(items.preg()->moveTo());
     principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
 
     preg_->setFrozen();

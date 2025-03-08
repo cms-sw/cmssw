@@ -6,7 +6,7 @@
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -54,7 +54,7 @@ namespace sistrip {
         reorderedDigisTag_(config.getParameter<edm::InputTag>("SpyReorderedDigisTag")),
         virginRawDigisTag_(config.getParameter<edm::InputTag>("SpyVirginRawDigisTag")),
         counterDiffMax_(config.getParameter<uint32_t>("CounterDiffMaxAllowed")),
-        productRegistry_(new edm::SignallingProductRegistry),
+        productRegistry_(new edm::ProductRegistry),
         source_(constructSource(config.getParameter<edm::ParameterSet>("SpySource"))),
         // hardware information is not needed for the "overlay"
         processConfiguration_(std::make_unique<edm::ProcessConfiguration>(

@@ -10,7 +10,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -65,8 +65,8 @@ namespace {
 
   struct Responder {
     std::string name_;
-    edm::ProductRegistry* reg_;
-    Responder(std::string const& iName, edm::SignallingProductRegistry& iReg) : name_(iName), reg_(&iReg) {
+    edm::SignallingProductRegistryFiller* reg_;
+    Responder(std::string const& iName, edm::SignallingProductRegistryFiller& iReg) : name_(iName), reg_(&iReg) {
       iReg.watchProductAdditions(this, &Responder::respond);
     }
     void respond(edm::ProductDescription const& iDesc) {
@@ -138,7 +138,7 @@ void testProductRegistry::tearDown() {
 
 void testProductRegistry::testSignal() {
   using namespace edm;
-  SignallingProductRegistry reg;
+  SignallingProductRegistryFiller reg;
 
   int hear = 0;
   Listener listening(hear);
@@ -153,7 +153,7 @@ void testProductRegistry::testSignal() {
 
 void testProductRegistry::testWatch() {
   using namespace edm;
-  SignallingProductRegistry reg;
+  SignallingProductRegistryFiller reg;
 
   int hear = 0;
   Listener listening(hear);
@@ -176,11 +176,11 @@ void testProductRegistry::testWatch() {
   // 1 from the 'float'
   // 1 from 'one' responding to the original call
   CPPUNIT_ASSERT(4 * 2 == hear);
-  CPPUNIT_ASSERT(4 == reg.size());
+  CPPUNIT_ASSERT(4 == reg.registry().size());
 }
 void testProductRegistry::testCircular() {
   using namespace edm;
-  SignallingProductRegistry reg;
+  SignallingProductRegistryFiller reg;
 
   int hear = 0;
   Listener listening(hear);
@@ -201,7 +201,7 @@ void testProductRegistry::testCircular() {
   // 1 from 'two' responding to the original call
   // 1 from 'one' responding to 'two'
   CPPUNIT_ASSERT(5 * 2 == hear);
-  CPPUNIT_ASSERT(5 == reg.size());
+  CPPUNIT_ASSERT(5 == reg.registry().size());
 }
 
 void testProductRegistry::testProductRegistration() {
@@ -225,7 +225,7 @@ void testProductRegistry::testProductRegistration() {
 }
 
 void testProductRegistry::testAddAlias() {
-  edm::ProductRegistry reg;
+  edm::SignallingProductRegistryFiller reg;
 
   reg.addProduct(*intBranch_);
   reg.addLabelAlias(*intBranch_, "aliasi", "instanceAlias");
@@ -250,32 +250,37 @@ void testProductRegistry::testAddAlias() {
   std::set<edm::TypeID> elementTypesConsumed{intBranch_->unwrappedTypeID(), edm::TypeID(typeid(edmtest::Simple))};
   reg.setFrozen(productTypesConsumed, elementTypesConsumed, "TEST");
   {
-    auto notFound = reg.aliasToModules(edm::PRODUCT_TYPE, intBranch_->unwrappedTypeID(), "alias", "instance");
+    auto notFound =
+        reg.registry().aliasToModules(edm::PRODUCT_TYPE, intBranch_->unwrappedTypeID(), "alias", "instance");
     CPPUNIT_ASSERT(notFound.empty());
   }
   {
-    auto found = reg.aliasToModules(edm::PRODUCT_TYPE, intBranch_->unwrappedTypeID(), "aliasi", "instanceAlias");
+    auto found =
+        reg.registry().aliasToModules(edm::PRODUCT_TYPE, intBranch_->unwrappedTypeID(), "aliasi", "instanceAlias");
     CPPUNIT_ASSERT(found.size() == 1);
     CPPUNIT_ASSERT(found[0] == "labeli");
   }
   {
-    auto found = reg.aliasToModules(edm::PRODUCT_TYPE, floatBranch_->unwrappedTypeID(), "aliasf", "instanceAlias");
+    auto found =
+        reg.registry().aliasToModules(edm::PRODUCT_TYPE, floatBranch_->unwrappedTypeID(), "aliasf", "instanceAlias");
     CPPUNIT_ASSERT(found.size() == 1);
     CPPUNIT_ASSERT(found[0] == "labelf");
   }
   {
-    auto found = reg.aliasToModules(edm::PRODUCT_TYPE, intVecBranch_->unwrappedTypeID(), "aliasvi", "instanceAlias");
-    CPPUNIT_ASSERT(found.size() == 1);
-    CPPUNIT_ASSERT(found[0] == "labelvi");
-  }
-  {
-    auto found = reg.aliasToModules(edm::ELEMENT_TYPE, intBranch_->unwrappedTypeID(), "aliasvi", "instanceAlias");
+    auto found =
+        reg.registry().aliasToModules(edm::PRODUCT_TYPE, intVecBranch_->unwrappedTypeID(), "aliasvi", "instanceAlias");
     CPPUNIT_ASSERT(found.size() == 1);
     CPPUNIT_ASSERT(found[0] == "labelvi");
   }
   {
     auto found =
-        reg.aliasToModules(edm::ELEMENT_TYPE, edm::TypeID(typeid(edmtest::Simple)), "aliasovsimple", "instanceAlias");
+        reg.registry().aliasToModules(edm::ELEMENT_TYPE, intBranch_->unwrappedTypeID(), "aliasvi", "instanceAlias");
+    CPPUNIT_ASSERT(found.size() == 1);
+    CPPUNIT_ASSERT(found[0] == "labelvi");
+  }
+  {
+    auto found = reg.registry().aliasToModules(
+        edm::ELEMENT_TYPE, edm::TypeID(typeid(edmtest::Simple)), "aliasovsimple", "instanceAlias");
     CPPUNIT_ASSERT(found.size() == 2);
     CPPUNIT_ASSERT(std::find(found.begin(), found.end(), "labelovsimple") != found.end());
     CPPUNIT_ASSERT(std::find(found.begin(), found.end(), "labelovsimplederived") != found.end());
