@@ -395,7 +395,7 @@ Bool_t TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len
     pack_count = repacker.pack(
         static_cast<long long int *>(current_pos), current_len, remaining, current_buffer, remaining_buffer_size);
 
-    int real_bytes_processed = repacker.realBytesProcessed();
+    auto real_bytes_processed = repacker.realBytesProcessed();
     IOSize io_buffer_used = repacker.bufferUsed();
 
     // Issue readv, then unpack buffers.

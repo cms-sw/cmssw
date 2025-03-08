@@ -23,13 +23,13 @@ namespace edm {
     inputIndexToJobIndex_.clear();
     inputIndexToJobIndex_.resize(bidlists.size());
     for (auto it = bidlists.begin(), itEnd = bidlists.end(); it != itEnd; ++it) {
-      BranchListIndex oldBlix = it - bidlists.begin();
+      auto oldBlix = static_cast<BranchListIndex>(it - bidlists.begin());
       auto j = find_in_all(branchIDLists_, *it);
-      BranchListIndex blix = j - branchIDLists_.begin();
+      auto blix = static_cast<BranchListIndex>(j - branchIDLists_.begin());
       if (j == branchIDLists_.end()) {
         branchIDLists_.push_back(*it);
         for (BranchIDList::const_iterator i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
-          ProductIndex pix = i - it->begin();
+          auto pix = static_cast<ProductIndex>(i - it->begin());
           branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
         }
       }
@@ -44,11 +44,11 @@ namespace edm {
   void BranchIDListHelper::updateFromParent(BranchIDLists const& bidlists) {
     inputIndexToJobIndex_.resize(bidlists.size());
     for (auto it = bidlists.begin() + nAlreadyCopied_, itEnd = bidlists.end(); it != itEnd; ++it) {
-      BranchListIndex oldBlix = it - bidlists.begin();
-      BranchListIndex blix = branchIDLists_.size();
+      auto oldBlix = static_cast<BranchListIndex>(it - bidlists.begin());
+      BranchListIndex blix = static_cast<BranchListIndex>(branchIDLists_.size());
       branchIDLists_.push_back(*it);
       for (BranchIDList::const_iterator i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
-        ProductIndex pix = i - it->begin();
+        auto pix = static_cast<ProductIndex>(i - it->begin());
         branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
       }
       inputIndexToJobIndex_[oldBlix] = blix;
@@ -70,12 +70,12 @@ namespace edm {
       }
     }
     if (!bidlist.empty()) {
-      BranchListIndex blix = branchIDLists_.size();
+      auto blix = static_cast<BranchListIndex>(branchIDLists_.size());
       producedBranchListIndex_ = blix;
       //preg.setProducedBranchListIndex(blix);
       branchIDLists_.push_back(bidlist);
       for (BranchIDList::const_iterator i = bidlist.begin(), iEnd = bidlist.end(); i != iEnd; ++i) {
-        ProductIndex pix = i - bidlist.begin();
+        auto pix = static_cast<ProductIndex>(i - bidlist.begin());
         branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
       }
     }

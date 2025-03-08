@@ -39,10 +39,12 @@ void IndexRangeAssociation::swap(IndexRangeAssociation &other) {
   ref_offsets_.swap(other.ref_offsets_);
 }
 
-IndexRangeAssociation::FastFiller::FastFiller(IndexRangeAssociation &assoc, ProductID id, unsigned int size)
+IndexRangeAssociation::FastFiller::FastFiller(IndexRangeAssociation &assoc, ProductID id, size_type size)
     : assoc_(assoc),
       id_(id),
-      start_(assoc.ref_offsets_.empty() ? 0 : assoc.ref_offsets_.size() - 1),  // must skip the end marker element
+      start_(assoc.ref_offsets_.empty()
+                 ? 0
+                 : static_cast<decltype(start_)>(assoc.ref_offsets_.size() - 1)),  // must skip the end marker element
       end_(start_ + size),
       lastKey_(-1) {
   if (assoc_.isFilling_)
@@ -95,8 +97,8 @@ IndexRangeAssociation::FastFiller::~FastFiller() {
 
 void IndexRangeAssociation::FastFiller::insert(edm::ProductID id,
                                                unsigned int key,
-                                               unsigned int startingOffset,
-                                               unsigned int size) {
+                                               size_type startingOffset,
+                                               size_type size) {
   if (id != id_)
     IndexRangeAssociation::throwUnexpectedProductID(id, id_, "FastFiller::insert");
   if (int(key) <= lastKey_)

@@ -64,7 +64,7 @@ namespace edm {
   HLTPathStatus const& TriggerResultsByName::at(std::string const& pathName) const {
     if (triggerResults_ == nullptr)
       throwTriggerResultsMissing();
-    unsigned i = getAndCheckIndex(pathName);
+    auto i = getAndCheckIndex(pathName);
     return triggerResults_->at(i);
   }
 
@@ -77,7 +77,7 @@ namespace edm {
   HLTPathStatus const& TriggerResultsByName::operator[](std::string const& pathName) const {
     if (triggerResults_ == nullptr)
       throwTriggerResultsMissing();
-    unsigned i = getAndCheckIndex(pathName);
+    auto i = getAndCheckIndex(pathName);
     return triggerResults_->at(i);
   }
 
@@ -90,7 +90,7 @@ namespace edm {
   bool TriggerResultsByName::wasrun(std::string const& pathName) const {
     if (triggerResults_ == nullptr)
       throwTriggerResultsMissing();
-    unsigned i = getAndCheckIndex(pathName);
+    auto i = getAndCheckIndex(pathName);
     return triggerResults_->wasrun(i);
   }
 
@@ -103,7 +103,7 @@ namespace edm {
   bool TriggerResultsByName::accept(std::string const& pathName) const {
     if (triggerResults_ == nullptr)
       throwTriggerResultsMissing();
-    unsigned i = getAndCheckIndex(pathName);
+    auto i = getAndCheckIndex(pathName);
     return triggerResults_->accept(i);
   }
 
@@ -116,7 +116,7 @@ namespace edm {
   bool TriggerResultsByName::error(std::string const& pathName) const {
     if (triggerResults_ == nullptr)
       throwTriggerResultsMissing();
-    unsigned i = getAndCheckIndex(pathName);
+    auto i = getAndCheckIndex(pathName);
     return triggerResults_->error(i);
   }
 
@@ -129,7 +129,7 @@ namespace edm {
   hlt::HLTState TriggerResultsByName::state(std::string const& pathName) const {
     if (triggerResults_ == nullptr)
       throwTriggerResultsMissing();
-    unsigned i = getAndCheckIndex(pathName);
+    auto i = getAndCheckIndex(pathName);
     return triggerResults_->state(i);
   }
 
@@ -142,7 +142,7 @@ namespace edm {
   unsigned TriggerResultsByName::index(std::string const& pathName) const {
     if (triggerResults_ == nullptr)
       throwTriggerResultsMissing();
-    unsigned i = getAndCheckIndex(pathName);
+    auto i = getAndCheckIndex(pathName);
     return triggerResults_->index(i);
   }
 
@@ -160,7 +160,7 @@ namespace edm {
     return triggerNames_->triggerNames();
   }
 
-  std::string const& TriggerResultsByName::triggerName(unsigned i) const {
+  std::string const& TriggerResultsByName::triggerName(size_type i) const {
     if (triggerResults_ == nullptr)
       throwTriggerResultsMissing();
     if (triggerNames_ == nullptr)
@@ -168,7 +168,7 @@ namespace edm {
     return triggerNames_->triggerName(i);
   }
 
-  unsigned TriggerResultsByName::triggerIndex(std::string const& pathName) const {
+  TriggerResultsByName::size_type TriggerResultsByName::triggerIndex(std::string const& pathName) const {
     if (triggerResults_ == nullptr)
       throwTriggerResultsMissing();
     if (triggerNames_ == nullptr)
@@ -176,16 +176,16 @@ namespace edm {
     return triggerNames_->triggerIndex(pathName);
   }
 
-  std::vector<std::string>::size_type TriggerResultsByName::size() const {
+  TriggerResultsByName::size_type TriggerResultsByName::size() const {
     if (triggerResults_ == nullptr)
       throwTriggerResultsMissing();
     return triggerResults_->size();
   }
 
-  unsigned TriggerResultsByName::getAndCheckIndex(std::string const& pathName) const {
+  TriggerResultsByName::size_type TriggerResultsByName::getAndCheckIndex(std::string const& pathName) const {
     if (triggerNames_ == nullptr)
       throwTriggerNamesMissing();
-    unsigned i = triggerNames_->triggerIndex(pathName);
+    auto i = triggerNames_->triggerIndex(pathName);
     if (i == triggerNames_->size()) {
       throw edm::Exception(edm::errors::LogicError)
           << "TriggerResultsByName::getAndCheckIndex\n"

@@ -54,32 +54,32 @@ void testSoATuple::builtinTest() {
   s.reserve(3);
   CPPUNIT_ASSERT(s.size() == 0);
 
-  s.push_back(std::make_tuple(int{1}, float{3.2}, false));
+  s.push_back(std::make_tuple(int{1}, float{3.2f}, false));
   //std::cout <<s.get<1>(0)<<std::endl;
   CPPUNIT_ASSERT(s.size() == 1);
   CPPUNIT_ASSERT(1 == s.get<0>(0));
-  CPPUNIT_ASSERT(float{3.2} == s.get<1>(0));
+  CPPUNIT_ASSERT(float{3.2f} == s.get<1>(0));
   CPPUNIT_ASSERT(false == s.get<2>(0));
 
-  s.push_back(std::make_tuple(int{2}, float{3.1415}, true));
+  s.push_back(std::make_tuple(int{2}, float{3.1415f}, true));
   CPPUNIT_ASSERT(s.size() == 2);
   CPPUNIT_ASSERT(1 == s.get<0>(0));
-  CPPUNIT_ASSERT(float{3.2} == s.get<1>(0));
+  CPPUNIT_ASSERT(float{3.2f} == s.get<1>(0));
   CPPUNIT_ASSERT(false == s.get<2>(0));
   CPPUNIT_ASSERT(2 == s.get<0>(1));
-  CPPUNIT_ASSERT(float{3.1415} == s.get<1>(1));
+  CPPUNIT_ASSERT(float{3.1415f} == s.get<1>(1));
   CPPUNIT_ASSERT(true == s.get<2>(1));
 
-  s.push_back(std::make_tuple(int{-1}, float{58.6}, true));
+  s.push_back(std::make_tuple(int{-1}, float{58.6f}, true));
   CPPUNIT_ASSERT(s.size() == 3);
   CPPUNIT_ASSERT(1 == s.get<0>(0));
-  CPPUNIT_ASSERT(float{3.2} == s.get<1>(0));
+  CPPUNIT_ASSERT(float{3.2f} == s.get<1>(0));
   CPPUNIT_ASSERT(false == s.get<2>(0));
   CPPUNIT_ASSERT(2 == s.get<0>(1));
-  CPPUNIT_ASSERT(float{3.1415} == s.get<1>(1));
+  CPPUNIT_ASSERT(float{3.1415f} == s.get<1>(1));
   CPPUNIT_ASSERT(true == s.get<2>(1));
   CPPUNIT_ASSERT(-1 == s.get<0>(2));
-  CPPUNIT_ASSERT(float{58.6} == s.get<1>(2));
+  CPPUNIT_ASSERT(float{58.6f} == s.get<1>(2));
   CPPUNIT_ASSERT(true == s.get<2>(2));
 }
 

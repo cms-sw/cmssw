@@ -114,7 +114,7 @@ namespace edm {
       void loadPosMap(PosMap& posmap, Strings const& names) {
         size_type const n(names.size());
         for (size_type i = 0; i != n; ++i) {
-          posmap[names[i]] = i;
+          posmap[names[i]] = static_cast<unsigned int>(i);
         }
       }
 
