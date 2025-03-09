@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -82,11 +82,10 @@ namespace edm {
         fixed_(type_ == "fixed"),
         none_(type_ == "none"),
         fileNameHash_(0U),
-        productRegistry_(new SignallingProductRegistry),
-        input_(VectorInputSourceFactory::get()
-                   ->makeVectorInputSource(
-                       pset, VectorInputSourceDescription(productRegistry_, edm::PreallocationConfiguration()))
-                   .release()),
+        productRegistry_(),
+        input_(VectorInputSourceFactory::get()->makeVectorInputSource(
+            pset,
+            VectorInputSourceDescription(std::make_shared<edm::ProductRegistry>(), edm::PreallocationConfiguration()))),
         // hardware information is not needed for the "overlay"
         processConfiguration_(std::make_shared<ProcessConfiguration>(
             "@MIXING", getReleaseVersion(), edm::HardwareResourcesDescription())),
@@ -108,6 +107,7 @@ namespace edm {
     processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
     processContext_->setProcessConfiguration(processConfiguration_.get());
 
+    SignallingProductRegistryFiller filler;
     if (pset.existsAs<std::vector<ParameterSet> >("producers", true)) {
       std::vector<ParameterSet> producers = pset.getParameter<std::vector<ParameterSet> >("producers");
 
@@ -122,13 +122,14 @@ namespace edm {
       serviceToken_ = edm::ServiceRegistry::createContaining(
           std::move(baseGen), edm::ServiceRegistry::instance().presentToken(), true);
 
-      provider_ = std::make_unique<SecondaryEventProvider>(producers, *productRegistry_, processConfiguration_);
+      provider_ = std::make_unique<SecondaryEventProvider>(producers, filler, processConfiguration_);
     }
-
-    productRegistry_->setFrozen();
+    filler.addFromInput(*input_->productRegistry());
+    filler.setFrozen();
+    productRegistry_ = std::make_shared<ProductRegistry>(filler.moveTo());
 
     // A modified HistoryAppender must be used for unscheduled processing.
-    eventPrincipal_ = std::make_unique<EventPrincipal>(input_->productRegistry(),
+    eventPrincipal_ = std::make_unique<EventPrincipal>(productRegistry_,
                                                        edm::productResolversFactory::makePrimary,
                                                        std::make_shared<BranchIDListHelper>(),
                                                        std::make_shared<ThinnedAssociationsHelper>(),

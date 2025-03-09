@@ -72,7 +72,7 @@ namespace edm {
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::registerProductsAndCallbacks(ProducingModuleAdaptorBase const*,
-                                                                     SignallingProductRegistry* reg) {
+                                                                     SignallingProductRegistryFiller* reg) {
       auto firstMod = m_streamModules[0];
       if (firstMod->registrationCallback() and m_streamModules.size() > 1) {
         //we have a callback so we will collect all callbacks and create a new callback which calls them all.

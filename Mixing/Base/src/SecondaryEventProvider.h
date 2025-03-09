@@ -15,7 +15,7 @@ namespace edm {
   class SecondaryEventProvider {
   public:
     SecondaryEventProvider(std::vector<ParameterSet>& psets,
-                           SignallingProductRegistry& pregistry,
+                           SignallingProductRegistryFiller& pregistry,
                            std::shared_ptr<ProcessConfiguration> processConfiguration);
 
     void beginRun(RunPrincipal& run,
