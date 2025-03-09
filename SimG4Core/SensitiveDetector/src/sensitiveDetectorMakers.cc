@@ -34,6 +34,7 @@ namespace sim {
           retValue[info.name_] = SensitiveDetectorPluginFactory::get()->create(info.name_, pset, cc);
         }
       }
+    } else if ((chosenMakers.size() == 1) && (chosenMakers[0] == "NONE")) {
     } else {
       for (auto const& name : chosenMakers) {
         retValue[name] = SensitiveDetectorPluginFactory::get()->create(name, pset, cc);
