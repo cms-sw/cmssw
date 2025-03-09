@@ -94,6 +94,8 @@ public:
     layout.ROOTStreamerCleaner();
   }
 
+  void deep_copy(ConstView const& view) { layout_.deep_copy(view); }
+
 private:
   std::optional<Buffer> buffer_;  //!
   Layout layout_;                 //
