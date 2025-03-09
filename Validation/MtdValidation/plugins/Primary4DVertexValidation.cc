@@ -334,7 +334,9 @@ private:
 
   // histogram declaration
   MonitorElement* meUnAssocTracks_;
+  MonitorElement* meUnAssocTracksFake_;
   MonitorElement* meFractionUnAssocTracks_;
+  MonitorElement* meFractionUnAssocTracksFake_;
   MonitorElement* meTrackEffPtTot_;
   MonitorElement* meTrackMatchedTPEffPtTot_;
   MonitorElement* meTrackMatchedTPEffPtMtd_;
@@ -383,6 +385,8 @@ private:
   MonitorElement* meSimPVTvsZ_;
 
   MonitorElement* meVtxTrackMult_;
+  MonitorElement* meVtxTrackMultPassNdof_;
+  MonitorElement* meVtxTrackMultFailNdof_;
   MonitorElement* meVtxTrackW_;
   MonitorElement* meVtxTrackWnt_;
   MonitorElement* meVtxTrackRecLVMult_;
@@ -589,8 +593,11 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
   // --- histograms booking
-  meUnAssocTracks_ = ibook.book1D("UnAssocTracks", "Unassociated tracks", 160, 0.5, 4.5);
+  meUnAssocTracks_ = ibook.book1D("UnAssocTracks", "Log10(Unassociated tracks)", 160, 0.5, 4.5);
+  meUnAssocTracksFake_ = ibook.book1D("UnAssocTracksFake", "Log10(Unassociated fake tracks)", 160, 0.5, 4.5);
   meFractionUnAssocTracks_ = ibook.book1D("FractionUnAssocTracks", "Fraction Unassociated tracks", 160, 0.0, 1.);
+  meFractionUnAssocTracksFake_ =
+      ibook.book1D("FractionUnAssocTracksFake", "Fraction Unassociated fake tracks", 160, 0.0, 1.);
   meTrackEffPtTot_ = ibook.book1D("EffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
   meTrackEffEtaTot_ = ibook.book1D("EffEtaTot", "Eta of tracks associated to LV; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffPtTot_ =
@@ -727,6 +734,9 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meSimPVTvsZ_ = ibook.bookProfile("simPVTvsZ", "PV Time vs Z", 30, -15., 15., 30, -0.75, 0.75);
 
   meVtxTrackMult_ = ibook.book1D("VtxTrackMult", "Log10(Vertex track multiplicity)", 80, 0.5, 2.5);
+  meVtxTrackMultPassNdof_ =
+      ibook.book1D("VtxTrackMultPassNdof", "Log10(Vertex track multiplicity for ndof>4)", 80, 0.5, 2.5);
+  meVtxTrackMultFailNdof_ = ibook.book1D("VtxTrackMultFailNdof", "Vertex track multiplicity for ndof<4", 10, 0., 10.);
   meVtxTrackW_ = ibook.book1D("VtxTrackW", "Vertex track weight (all)", 50, 0., 1.);
   meVtxTrackWnt_ = ibook.book1D("VtxTrackWnt", "Vertex track Wnt", 50, 0., 1.);
   meVtxTrackRecLVMult_ =
@@ -2095,6 +2105,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   std::vector<reco::TransientTrack>&& seltks = theTrackFilter->select(t_tks);
 
   int unassociatedCount = 0;
+  int unassociatedCountFake = 0;
   for (std::vector<reco::TransientTrack>::const_iterator itk = seltks.begin(); itk != seltks.end(); itk++) {
     reco::TrackBaseRef trackref = (*itk).trackBaseRef();
     bool isAssociated = false;
@@ -2112,11 +2123,18 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
     if (!isAssociated) {
       unassociatedCount++;
+      auto found = r2s_->find(trackref);
+      if (found == r2s_->end())
+        unassociatedCountFake++;
     }
   }
   double fraction = double(unassociatedCount) / (seltks.size());
   meUnAssocTracks_->Fill(log10(unassociatedCount));
   meFractionUnAssocTracks_->Fill(fraction);
+
+  double fractionFake = double(unassociatedCountFake) / (seltks.size());
+  meUnAssocTracksFake_->Fill(log10(unassociatedCountFake));
+  meFractionUnAssocTracksFake_->Fill(fractionFake);
 
   // Loop on tracks
   for (unsigned int iv = 0; iv < recopv.size(); iv++) {
@@ -2660,8 +2678,11 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   meRecVerNumber_->Fill(recopv.size());
   for (unsigned int ir = 0; ir < recopv.size(); ir++) {
+    const reco::Vertex* vertex = recopv.at(ir).recVtx;
     if (recopv.at(ir).ndof > selNdof_) {
       meRecPVZ_->Fill(recopv.at(ir).z);
+      meVtxTrackMultPassNdof_->Fill(log10(vertex->tracksSize()));
+
       if (recopv.at(ir).recVtx->tError() > 0.) {
         meRecPVT_->Fill(recopv.at(ir).recVtx->t());
       }
@@ -2684,6 +2705,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
         split++;
       }
     }  // ndof
+    else {
+      meVtxTrackMultFailNdof_->Fill(vertex->tracksSize());
+    }
   }
 
   LogTrace("Primary4DVertexValidation") << "is_real: " << real;
