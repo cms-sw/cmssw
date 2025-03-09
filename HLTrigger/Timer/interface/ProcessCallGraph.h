@@ -125,8 +125,8 @@ public:
   // to be called from preSourceConstruction(...)
   void preSourceConstruction(edm::ModuleDescription const &);
 
-  // to be called from preBeginJob(...)
-  void preBeginJob(edm::PathsAndConsumesOfModulesBase const &, edm::ProcessContext const &);
+  // to be called from lookupInitializationComplete(...)
+  void lookupInitializationComplete(edm::PathsAndConsumesOfModulesBase const &, edm::ProcessContext const &);
 
   // number of modules stored in the call graph
   unsigned int size() const;
