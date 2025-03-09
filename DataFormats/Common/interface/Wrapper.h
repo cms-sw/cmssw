@@ -7,11 +7,13 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#include "DataFormats/Common/interface/MemcpyTraits.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/WrapperDetail.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
 #include <algorithm>
@@ -59,6 +61,7 @@ namespace edm {
     }
 
     bool isPresent_() const override { return present; }
+    void markAsPresent_() override { present = true; }
     std::type_info const& dynamicTypeInfo_() const override { return typeid(T); }
     std::type_info const& wrappedTypeInfo_() const override { return typeid(Wrapper<T>); }
 
@@ -80,6 +83,14 @@ namespace edm {
                           std::vector<void const*>& oPtr) const override;
 
     std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const override;
+
+    bool hasMemcpyTraits_() const override;
+    bool hasMemcpyInit_() const override;
+    void memcpyInitialize_(std::vector<size_t> const&) override;
+    std::vector<size_t> memcpyParameters_() const override;
+    std::vector<std::pair<void const*, size_t>> memcpyRegions_() const override;
+    std::vector<std::pair<void*, size_t>> memcpyRegions_() override;
+    void memcpyFinalize_() override;
 
   private:
     T obj;
@@ -176,13 +187,86 @@ namespace edm {
       }
     };
   }  // namespace soa
+
   template <typename T>
   inline std::shared_ptr<edm::soa::TableExaminerBase> Wrapper<T>::tableExaminer_() const {
     return soa::MakeTableExaminer<T>::make(&obj);
+  }
+
+  template <typename T>
+  inline bool Wrapper<T>::hasMemcpyTraits_() const {
+    if constexpr (requires(T& t) { edm::MemcpyTraits<T>::regions(t); }) {
+      return true;
+    }
+    return false;
+  }
+
+  template <typename T>
+  inline bool Wrapper<T>::hasMemcpyInit_() const {
+    if constexpr (requires(T& t) { edm::MemcpyTraits<T>::initialize(t, std::vector<std::size_t>{}); }) {
+      return true;
+    }
+    return false;
+  }
+
+  template <typename T>
+  void Wrapper<T>::memcpyInitialize_(std::vector<size_t> const& parameters) {
+    if (not present) {
+      throw edm::Exception(edm::errors::LogicError) << "Attempt to access an empty Wrapper";
+    }
+    if constexpr (requires(T& t) { edm::MemcpyTraits<T>::initialize(t, std::vector<std::size_t>{}); }) {
+      edm::MemcpyTraits<T>::initialize(obj, parameters);
+    }
+  }
+
+  template <typename T>
+  inline std::vector<size_t> Wrapper<T>::memcpyParameters_() const {
+    if (not present) {
+      throw edm::Exception(edm::errors::LogicError) << "Attempt to access an empty Wrapper";
+    }
+    if constexpr (requires(T& t) { edm::MemcpyTraits<T>::parameters(t); }) {
+      return edm::MemcpyTraits<T>::parameters(obj);
+    } else {
+      return {};
+    }
+  }
+
+  template <typename T>
+  inline std::vector<std::pair<void const*, size_t>> Wrapper<T>::memcpyRegions_() const {
+    if (not present) {
+      throw edm::Exception(edm::errors::LogicError) << "Attempt to access an empty Wrapper";
+    }
+    if constexpr (requires(T const& t) { edm::MemcpyTraits<T>::regions(t); }) {
+      return edm::MemcpyTraits<T>::regions(obj);
+    } else {
+      return {};
+    }
+  }
+
+  template <typename T>
+  inline std::vector<std::pair<void*, size_t>> Wrapper<T>::memcpyRegions_() {
+    if (not present) {
+      throw edm::Exception(edm::errors::LogicError) << "Attempt to access an empty Wrapper";
+    }
+    if constexpr (requires(T& t) { edm::MemcpyTraits<T>::regions(t); }) {
+      return edm::MemcpyTraits<T>::regions(obj);
+    } else {
+      return {};
+    }
+  }
+
+  template <typename T>
+  inline void Wrapper<T>::memcpyFinalize_() {
+    if (not present) {
+      throw edm::Exception(edm::errors::LogicError) << "Attempt to access an empty Wrapper";
+    }
+    if constexpr (requires(T& t) { edm::MemcpyTraits<T>::finalize(t); }) {
+      edm::MemcpyTraits<T>::finalize(obj);
+    }
   }
 
 }  // namespace edm
 
 #include "DataFormats/Common/interface/WrapperView.icc"
 
-#endif
+#endif  // DataFormats_Common_Wrapper_h
