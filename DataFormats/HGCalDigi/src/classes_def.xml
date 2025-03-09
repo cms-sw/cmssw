@@ -56,4 +56,9 @@
   <class name="hgcaldigi::HGCalECONDPacketInfoHost"/>
   <class name="edm::Wrapper<hgcaldigi::HGCalECONDPacketInfoHost>" splitLevel="0"/>
 
+  <class name="hgcaldigi::HGCalFEDPacketInfoSoA"/>
+  <class name="hgcaldigi::HGCalFEDPacketInfoSoA::View"/>
+  <class name="hgcaldigi::HGCalFEDPacketInfoHost"/>
+  <class name="edm::Wrapper<hgcaldigi::HGCalFEDPacketInfoHost>" splitLevel="0"/>
+
 </lcgdict>
