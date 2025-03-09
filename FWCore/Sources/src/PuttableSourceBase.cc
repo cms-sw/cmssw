@@ -41,6 +41,7 @@ PuttableSourceBase::PuttableSourceBase(ParameterSet const& iPSet, InputSourceDes
 
 void PuttableSourceBase::registerProducts() {
   SignallingProductRegistryFiller reg;
+  reg.addFromInput(productRegistryUpdate());
   registerProducts(this, &reg, moduleDescription());
   productRegistryUpdate() = reg.moveTo();
 }
