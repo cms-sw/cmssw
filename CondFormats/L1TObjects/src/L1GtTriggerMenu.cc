@@ -351,7 +351,6 @@ void L1GtTriggerMenu::buildGtConditionMap() {
   size_t vecCorrelationSize = m_vecCorrelationTemplate.size();
   if (condMapSize < vecCorrelationSize) {
     m_conditionMap.resize(vecCorrelationSize);
-    condMapSize = m_conditionMap.size();
   }
 
   chipNr = -1;

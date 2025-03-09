@@ -68,7 +68,7 @@ namespace pos {
     void setAuthor(std::string author) { creator_ = author; }
     void setComment(std::string comment) { comment_ = comment; }
     std::string getAuthor() const { return creator_; }
-    std::string getComment() const { return base64_encode((unsigned char *)comment_.c_str(), comment_.length()); }
+    std::string getComment() const { return base64_encode((unsigned char const *)comment_.c_str(), comment_.length()); }
 
   private:
     std::string description_;

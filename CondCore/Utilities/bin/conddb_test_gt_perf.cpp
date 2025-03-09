@@ -426,7 +426,6 @@ struct invoker {
 
 int cond::TestGTPerf::execute() {
   std::string gtag = getOptionValue<std::string>("globaltag");
-  bool debug = hasDebug();
   std::string connect = getOptionValue<std::string>("connect");
   bool verbose = hasOptionValue("verbose");
 
