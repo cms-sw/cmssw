@@ -104,14 +104,14 @@ namespace edm {
       *label = state->getLabel();
 
       std::vector<uint32_t> const& seedVector = state->getSeed();
-      *seedLength = seedVector.size();
+      *seedLength = static_cast<decltype(seedLengths_)::value_type>(seedVector.size());
 
       for (std::vector<uint32_t>::const_iterator j = seedVector.begin(), jEnd = seedVector.end(); j != jEnd; ++j) {
         seedVectors_.push_back(*j);
       }
 
       std::vector<uint32_t> const& stateVector = state->getState();
-      *stateLength = stateVector.size();
+      *stateLength = static_cast<decltype(stateLengths_)::value_type>(stateVector.size());
 
       for (std::vector<uint32_t>::const_iterator j = stateVector.begin(), jEnd = stateVector.end(); j != jEnd; ++j) {
         stateVectors_.push_back(*j);

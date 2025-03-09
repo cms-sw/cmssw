@@ -89,7 +89,7 @@ namespace edm {
         impl::TableItrAdvance<sizeof...(Args) - 1, Args...>::advance(m_values, iOffset);
       }
 
-      explicit TableItr(std::array<void*, sizeof...(Args)> const& iValues, unsigned int iOffset) : m_values{iValues} {
+      explicit TableItr(std::array<void*, sizeof...(Args)> const& iValues, size_t iOffset) : m_values{iValues} {
         impl::TableItrAdvance<sizeof...(Args) - 1, Args...>::advance(m_values, static_cast<long>(iOffset));
       }
 
@@ -126,7 +126,7 @@ namespace edm {
         impl::ConstTableItrAdvance<sizeof...(Args) - 1, Args...>::advance(m_values, iOffset);
       }
 
-      ConstTableItr(std::array<void const*, sizeof...(Args)> const& iValues, unsigned int iOffset) : m_values{iValues} {
+      ConstTableItr(std::array<void const*, sizeof...(Args)> const& iValues, size_t iOffset) : m_values{iValues} {
         impl::ConstTableItrAdvance<sizeof...(Args) - 1, Args...>::advance(m_values, static_cast<long>(iOffset));
       }
 

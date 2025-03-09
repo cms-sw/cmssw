@@ -48,9 +48,9 @@ int main(int argc, char* argv[]) {
 
     lseek(myFD, 0, SEEK_SET);
 
-    int readSize = 0;
+    decltype(read(myFD, nullptr, EDMFILEUTILADLERBUFSIZE)) readSize = 0;
     while ((readSize = read(myFD, buffer.get(), EDMFILEUTILADLERBUFSIZE)) > 0) {
-      adlerCksum = adler32(adlerCksum, buffer.get(), readSize);
+      adlerCksum = adler32(adlerCksum, buffer.get(), static_cast<unsigned int>(readSize));
       fileSize += readSize;
     }
 

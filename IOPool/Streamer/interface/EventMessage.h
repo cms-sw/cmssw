@@ -79,7 +79,7 @@ namespace edm::streamer {
     const uint8* eventData() const { return event_start_; }
     uint8* startAddress() const { return buf_; }
     uint32 eventLength() const { return event_len_; }
-    uint32 headerSize() const { return event_start_ - buf_; }
+    uint32 headerSize() const { return static_cast<uint32>(event_start_ - buf_); }
     uint32 protocolVersion() const;
     uint32 run() const;
     uint64 event() const;

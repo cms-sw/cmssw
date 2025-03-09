@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
   monitor.setAction([&]() { std::cerr << "Action run\n"; });
   if (argc > 1) {
     char* end;
-    int sig = std::strtol(argv[1], &end, 10);
+    int sig = static_cast<int>(std::strtol(argv[1], &end, 10));
     raise(sig);
   }
   return 0;

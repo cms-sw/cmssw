@@ -125,7 +125,8 @@ namespace edm {
 
       assert(processesWithProcessBlockProducts().empty());
       setProcessesWithProcessBlockProducts(storedProcessBlockHelper.processesWithProcessBlockProducts());
-      nProcessesInFirstFile_ = processesWithProcessBlockProducts().size();
+      nProcessesInFirstFile_ =
+          static_cast<decltype(nProcessesInFirstFile_)>(processesWithProcessBlockProducts().size());
     }
   }
 
@@ -138,7 +139,7 @@ namespace edm {
     std::vector<std::string> const& storedProcesses = storedProcessBlockHelper.processesWithProcessBlockProducts();
     std::vector<unsigned int> const& storedCacheIndices = storedProcessBlockHelper.processBlockCacheIndices();
 
-    outerOffset_ = processBlockCacheIndices_.size();
+    outerOffset_ = static_cast<decltype(outerOffset_)>(processBlockCacheIndices_.size());
 
     if (nProcessesInFirstFile_ == 0) {
       // There were no ProcessBlock products in the first file. Nothing to do.
@@ -190,7 +191,7 @@ namespace edm {
         offset += entries;
       }
 
-      unsigned int nFinalProcesses = finalProcesses.size();
+      unsigned int nFinalProcesses = static_cast<unsigned int>(finalProcesses.size());
       std::vector<unsigned int> newOffsets;
       newOffsets.reserve(nFinalProcesses);
       offset = 0;
@@ -199,7 +200,7 @@ namespace edm {
         offset += nEntries[finalIndexToStoredIndex[iNew]];
       }
 
-      unsigned int nOuterLoop = storedCacheIndices.size() / storedProcesses.size();
+      unsigned int nOuterLoop = static_cast<unsigned int>(storedCacheIndices.size() / storedProcesses.size());
       assert(nOuterLoop * storedProcesses.size() == storedCacheIndices.size());
       newCacheIndices.reserve(nOuterLoop * nFinalProcesses);
       unsigned int storedOuterOffset = 0;
@@ -214,7 +215,7 @@ namespace edm {
           }
           newCacheIndices.emplace_back(newCacheIndex);
         }
-        storedOuterOffset += storedProcesses.size();
+        storedOuterOffset += static_cast<unsigned int>(storedProcesses.size());
       }
     }
     storedProcessBlockHelper.setProcessBlockCacheIndices(std::move(newCacheIndices));
@@ -243,7 +244,7 @@ namespace edm {
 
     // Append the cache indices from the current input file to the
     // cache indices container from the previous files.
-    unsigned int nCacheIndexVectors = storedCacheIndices.size() / storedProcesses.size();
+    unsigned int nCacheIndexVectors = static_cast<unsigned int>(storedCacheIndices.size() / storedProcesses.size());
     assert(storedProcesses.size() * nCacheIndexVectors == storedCacheIndices.size());
     processBlockCacheIndices_.resize(processBlockCacheIndices_.size() + nCacheIndexVectors);
     unsigned int storedIndex = 0;

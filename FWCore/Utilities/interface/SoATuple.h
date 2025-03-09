@@ -159,7 +159,7 @@ namespace edm {
     /** Returns const access to data element I of item iIndex */
     template <unsigned int I>
     typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const& get(
-        unsigned int iIndex) const {
+        size_t iIndex) const {
       typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type
           ReturnType;
       return *(static_cast<ReturnType const*>(m_values[I]) + iIndex);
@@ -188,7 +188,7 @@ namespace edm {
 
     // ---------- member functions ---------------------------
     /** Makes sure to hold enough memory to contain at least iToSize entries. */
-    void reserve(unsigned int iToSize) {
+    void reserve(size_t iToSize) {
       if (iToSize > m_reserved) {
         changeSize(iToSize);
       }
@@ -258,7 +258,7 @@ namespace edm {
     }
 
   private:
-    void changeSize(unsigned int iToSize) {
+    void changeSize(size_t iToSize) {
       assert(m_size <= iToSize);
       const size_t memoryNeededInBytes = soahelper::SoATupleHelper<sizeof...(Args), Args...>::spaceNeededFor(iToSize);
       //align memory of the array to be on the strictest alignment boundary for any type in the Tuple
