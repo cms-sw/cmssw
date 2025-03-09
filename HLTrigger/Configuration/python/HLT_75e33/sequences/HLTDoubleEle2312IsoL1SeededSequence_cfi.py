@@ -6,7 +6,6 @@ from ..sequences.HLTElePixelMatchL1SeededSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTGsfElectronL1SeededSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaL1SeededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 from ..sequences.HLTTrackingSequence_cfi import *
@@ -43,44 +42,43 @@ from ..modules.hltEgammaHGCalLayerClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHoverEL1Seeded_cfi import *
 
 
-HLTDoubleEle2312IsoL1SeededSequence = cms.Sequence(HLTL1Sequence
-    +hltEGL1SeedsForDoubleEleIsolatedFilter
-    +HLTDoFullUnpackingEgammaEcalL1SeededSequence
-    +HLTPFClusteringForEgammaL1SeededSequence
-    +HLTHgcalTiclPFClusteringForEgammaL1SeededSequence
-    +hltEgammaCandidatesL1Seeded
-    +hltEgammaCandidatesWrapperL1Seeded
-    +hltEG23EtL1SeededFilter
-    +hltDiEG12EtL1SeededFilter
-    +hltEgammaClusterShapeL1Seeded
-    +hltDiEG2312IsoClusterShapeL1SeededFilter
-    +hltEgammaHGCALIDVarsL1Seeded
-    +hltDiEG2312IsoClusterShapeSigmavvL1SeededFilter
-    +hltDiEG2312IsoClusterShapeSigmawwL1SeededFilter
-    +hltDiEG2312IsoHgcalHEL1SeededFilter
-    +HLTEGammaDoLocalHcalSequence
-    +HLTFastJetForEgammaSequence
-    +hltEgammaHoverEL1Seeded
-    +hltDiEG2312IsoHEL1SeededFilter
-    +hltEgammaEcalPFClusterIsoL1Seeded
-    +hltDiEG2312IsoEcalIsoL1SeededFilter
-    +hltEgammaHGCalLayerClusterIsoL1Seeded
-    +hltDiEG2312IsoHgcalIsoL1SeededFilter
-    +HLTPFHcalClusteringForEgammaSequence
-    +hltEgammaHcalPFClusterIsoL1Seeded
-    +hltDiEG2312IsoHcalIsoL1SeededFilter
-    +HLTElePixelMatchL1SeededSequence
-    +hltDiEle2312IsoPixelMatchL1SeededFilter
-    +hltDiEle2312IsoPMS2L1SeededFilter
-    +HLTGsfElectronL1SeededSequence
-    +hltDiEle2312IsoGsfOneOEMinusOneOPL1SeededFilter
-    +hltDiEle2312IsoGsfDetaL1SeededFilter
-    +hltDiEle2312IsoGsfDphiL1SeededFilter
-    +hltDiEle2312IsoBestGsfNLayerITL1SeededFilter
-    +hltDiEle2312IsoBestGsfChi2L1SeededFilter
-    +hltEgammaEleL1TrkIsoL1Seeded
-    +hltDiEle2312IsoGsfTrackIsoFromL1TracksL1SeededFilter
-    +HLTTrackingSequence
-    +hltEgammaEleGsfTrackIsoL1Seeded
-    +hltDiEle2312IsoGsfTrackIsoL1SeededFilter
-)
+HLTDoubleEle2312IsoL1SeededSequence = cms.Sequence(hltEGL1SeedsForDoubleEleIsolatedFilter
+                                                   +HLTDoFullUnpackingEgammaEcalL1SeededSequence
+                                                   +HLTPFClusteringForEgammaL1SeededSequence
+                                                   +HLTHgcalTiclPFClusteringForEgammaL1SeededSequence
+                                                   +hltEgammaCandidatesL1Seeded
+                                                   +hltEgammaCandidatesWrapperL1Seeded
+                                                   +hltEG23EtL1SeededFilter
+                                                   +hltDiEG12EtL1SeededFilter
+                                                   +hltEgammaClusterShapeL1Seeded
+                                                   +hltDiEG2312IsoClusterShapeL1SeededFilter
+                                                   +hltEgammaHGCALIDVarsL1Seeded
+                                                   +hltDiEG2312IsoClusterShapeSigmavvL1SeededFilter
+                                                   +hltDiEG2312IsoClusterShapeSigmawwL1SeededFilter
+                                                   +hltDiEG2312IsoHgcalHEL1SeededFilter
+                                                   +HLTEGammaDoLocalHcalSequence
+                                                   +HLTFastJetForEgammaSequence
+                                                   +hltEgammaHoverEL1Seeded
+                                                   +hltDiEG2312IsoHEL1SeededFilter
+                                                   +hltEgammaEcalPFClusterIsoL1Seeded
+                                                   +hltDiEG2312IsoEcalIsoL1SeededFilter
+                                                   +hltEgammaHGCalLayerClusterIsoL1Seeded
+                                                   +hltDiEG2312IsoHgcalIsoL1SeededFilter
+                                                   +HLTPFHcalClusteringForEgammaSequence
+                                                   +hltEgammaHcalPFClusterIsoL1Seeded
+                                                   +hltDiEG2312IsoHcalIsoL1SeededFilter
+                                                   +HLTElePixelMatchL1SeededSequence
+                                                   +hltDiEle2312IsoPixelMatchL1SeededFilter
+                                                   +hltDiEle2312IsoPMS2L1SeededFilter
+                                                   +HLTGsfElectronL1SeededSequence
+                                                   +hltDiEle2312IsoGsfOneOEMinusOneOPL1SeededFilter
+                                                   +hltDiEle2312IsoGsfDetaL1SeededFilter
+                                                   +hltDiEle2312IsoGsfDphiL1SeededFilter
+                                                   +hltDiEle2312IsoBestGsfNLayerITL1SeededFilter
+                                                   +hltDiEle2312IsoBestGsfChi2L1SeededFilter
+                                                   +hltEgammaEleL1TrkIsoL1Seeded
+                                                   +hltDiEle2312IsoGsfTrackIsoFromL1TracksL1SeededFilter
+                                                   +HLTTrackingSequence
+                                                   +hltEgammaEleGsfTrackIsoL1Seeded
+                                                   +hltDiEle2312IsoGsfTrackIsoL1SeededFilter
+                                                   )
