@@ -70,7 +70,7 @@ bool MTDParametersFromDD::build(const DDCompactView* cvp, PMTDParameters& ptp) {
     etlLayout.emplace_back("Offset_Front_Right");
     etlLayout.emplace_back("Offset_Back_Left");
     etlLayout.emplace_back("Offset_Back_Right");
-  } else if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v9) {
+  } else if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) >= MTDTopologyMode::EtlLayout::v9) {
     etlLayout.emplace_back("StartCopyNo_Front_Disc_1");
     etlLayout.emplace_back("StartCopyNo_Back_Disc_1");
     etlLayout.emplace_back("StartCopyNo_Front_Disc_2");
@@ -153,7 +153,7 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
     etlLayout.emplace_back("Offset_Front_Right");
     etlLayout.emplace_back("Offset_Back_Left");
     etlLayout.emplace_back("Offset_Back_Right");
-  } else if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v9) {
+  } else if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) >= MTDTopologyMode::EtlLayout::v9) {
     etlLayout.emplace_back("StartCopyNo_Front_Disc_1");
     etlLayout.emplace_back("StartCopyNo_Back_Disc_1");
     etlLayout.emplace_back("StartCopyNo_Front_Disc_2");
