@@ -21,11 +21,13 @@
 #include "TH2S.h"
 #include "TH2I.h"
 #include "TH2D.h"
+#include "TH2Poly.h"
 #include "TH3F.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TObjString.h"
 #include "TAxis.h"
+#include "TGraph.h"
 
 #include <mutex>
 #include <memory>
@@ -55,7 +57,7 @@ namespace dqm {
     static const int STATUS_OK = 100;   //< Test was succesful.
     static const int WARNING = 200;     //< Test had some problems.
     static const int ERROR = 300;       //< Test has failed.
-  }                                     // namespace qstatus
+  }  // namespace qstatus
 
   namespace me_util {
     using Channel = DQMChannel;
@@ -374,6 +376,7 @@ namespace dqm::impl {
     virtual int getNbinsY() const;
     virtual int getNbinsZ() const;
     virtual int getBin(int binx, int biny) const;
+    virtual int getNcells() const;
     virtual std::string getAxisTitle(int axis = 1) const;
     virtual std::string getTitle() const;
 
@@ -398,6 +401,9 @@ namespace dqm::impl {
     virtual const std::string &getStringValue() const;
 
     // non-const -- thread safety and semantical issues
+    virtual void addBin(TGraph *graph);
+    virtual void addBin(int n, const double *x, const double *y);
+    virtual void addBin(double x1, double y1, double x2, double y2);
     virtual void setBinContent(int binx, double content);
     virtual void setBinContent(int binx, int biny, double content);
     virtual void setBinContent(int binx, int biny, int binz, double content);
@@ -443,6 +449,7 @@ namespace dqm::impl {
     virtual TH2S *getTH2S();
     virtual TH2I *getTH2I();
     virtual TH2D *getTH2D();
+    virtual TH2Poly *getTH2Poly();
     virtual TH3F *getTH3F();
     virtual TProfile *getTProfile();
     virtual TProfile2D *getTProfile2D();
@@ -510,6 +517,10 @@ namespace dqm::legacy {
     using dqm::reco::MonitorElement::getTH2D;
     virtual TH2D *getTH2D() const {
       return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2D();
+    };
+    using dqm::reco::MonitorElement::getTH2Poly;
+    virtual TH2Poly *getTH2Poly() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2Poly();
     };
     using dqm::reco::MonitorElement::getTH3F;
     virtual TH3F *getTH3F() const {
