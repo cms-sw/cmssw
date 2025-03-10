@@ -1404,7 +1404,7 @@ void BTVMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   desc.add<bool>("requireValidHLTPaths", true);
 
-  desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
+  desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("slimmedElectrons"));
   desc.add<edm::InputTag>("elecID",
