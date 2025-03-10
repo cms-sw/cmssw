@@ -6,7 +6,6 @@ from ..sequences.HLTElePixelMatchL1SeededSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTGsfElectronL1SeededSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaL1SeededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 from ..sequences.HLTTrackingSequence_cfi import *
@@ -42,8 +41,8 @@ from ..modules.hltEgammaClusterShapeL1Seeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsL1Seeded_cfi import *
 from ..modules.hltEgammaHoverEL1Seeded_cfi import *
 
-HLTEle32WPTightL1SeededSequence = cms.Sequence(HLTL1Sequence
-    +hltEGL1SeedsForSingleEleIsolatedFilter
+HLTEle32WPTightL1SeededSequence = cms.Sequence(
+    hltEGL1SeedsForSingleEleIsolatedFilter
     +HLTDoFullUnpackingEgammaEcalL1SeededSequence
     +HLTPFClusteringForEgammaL1SeededSequence
     +HLTHgcalTiclPFClusteringForEgammaL1SeededSequence
