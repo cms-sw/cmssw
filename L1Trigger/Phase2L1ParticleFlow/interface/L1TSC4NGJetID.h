@@ -5,6 +5,8 @@
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
+#include "DataFormats/L1TParticleFlow/interface/datatypes.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/jetmet/L1SeedConePFJetEmulator.h"
 
 //HLS4ML compiled emulator modeling
 #include <string>
@@ -29,15 +31,14 @@ public:
 private:
   std::vector<inputtype> NNvectorVar_;
   int fNParticles_;
-  unique_ptr<float[]> fPt_rel_phys_;
-  unique_ptr<float[]> fDEta_phys_;
-  unique_ptr<float[]> fDPhi_phys_;
+  unique_ptr<float[]> fPt_;
+  unique_ptr<float[]> fPt_rel_;
+  unique_ptr<float[]> fDEta_;
+  unique_ptr<float[]> fDPhi_;
   unique_ptr<float[]> fPt_log_;
-  unique_ptr<float[]> fEta_phys_;
-  unique_ptr<float[]> fPhi_phys_;
   unique_ptr<float[]> fMass_;
   unique_ptr<float[]> fZ0_;
-  unique_ptr<float[]> fDxy_phys_;
+  unique_ptr<float[]> fDxy_;
   unique_ptr<int[]> fIs_filled_;
   unique_ptr<float[]> fPuppi_weight_;
   unique_ptr<int[]> fEmID_;
