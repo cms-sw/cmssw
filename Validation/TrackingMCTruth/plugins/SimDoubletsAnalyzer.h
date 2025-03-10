@@ -140,12 +140,14 @@ private:
 
   // function to apply cuts and set doublet to alive if it passes and to killed otherwise
   void applyCuts(SimDoublets::Doublet&,
+                 bool const,
                  int const,
                  simdoublets::CellCutVariables const&,
                  simdoublets::ClusterSizeCutManager const&) const;
 
   //  function that fills all histograms for cut variables (in folder cutParameters)
-  void fillCutHistograms(bool,
+  void fillCutHistograms(SimDoublets::Doublet const&,
+                         bool const,
                          int const,
                          simdoublets::CellCutVariables const&,
                          simdoublets::ClusterSizeCutManager const&);
@@ -172,6 +174,11 @@ private:
   int cellMaxDYPred_;
   double cellZ0Cut_;
   double cellPtCut_;
+  double CAThetaCutBarrel_over_ptmin_;
+  double CAThetaCutForward_over_ptmin_;
+  double dcaCutInnerTriplet_;
+  double dcaCutOuterTriplet_;
+  double hardCurvCut_;
 
   std::string folder_;  // main folder in the DQM file
 
@@ -205,6 +212,12 @@ private:
   std::vector<CoupledMonitorElement> hVector_Ysize_;
   std::vector<CoupledMonitorElement> hVector_DYsize_;
   std::vector<CoupledMonitorElement> hVector_DYPred_;
+  // histograms of doublet connections
+  CoupledMonitorElement h_CAThetaCutBarrel_;
+  CoupledMonitorElement h_CAThetaCutForward_;
+  CoupledMonitorElement h_dcaCutInnerTriplet_;
+  CoupledMonitorElement h_dcaCutOuterTriplet_;
+  CoupledMonitorElement h_hardCurvCut_;
 };
 
 #endif
