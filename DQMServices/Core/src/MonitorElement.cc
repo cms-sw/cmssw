@@ -243,6 +243,8 @@ namespace dqm::impl {
       static_cast<TH2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
     else if (kind() == Kind::TH2I)
       static_cast<TH2I *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
+    else if (kind() == Kind::TH2Poly)
+      static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
     else if (kind() == Kind::TPROFILE)
       static_cast<TProfile *>(accessRootObject(access, __PRETTY_FUNCTION__, 1))->Fill(x, yw, 1);
     else
@@ -329,6 +331,8 @@ namespace dqm::impl {
       static_cast<TH2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
     else if (kind() == Kind::TH2I)
       static_cast<TH2I *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
+    else if (kind() == Kind::TH2Poly)
+      static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
     else if (kind() == Kind::TH3F)
       static_cast<TH3F *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw, 1);
     else if (kind() == Kind::TPROFILE)
@@ -361,8 +365,32 @@ namespace dqm::impl {
       access.value.scalar_.real = 0;
     else if (kind() == Kind::STRING)
       access.value.scalar_.str.clear();
-    else
+    else if (kind() == Kind::TH1F)
       return accessRootObject(access, __PRETTY_FUNCTION__, 1)->Reset();
+    else if (kind() == Kind::TH1S)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->Reset();
+    else if (kind() == Kind::TH1D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->Reset();
+    else if (kind() == Kind::TH1I)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->Reset();
+    else if (kind() == Kind::TPROFILE)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->Reset();
+    else if (kind() == Kind::TH2F)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TH2S)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TH2D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TH2I)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TH2Poly)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TPROFILE2D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->Reset();
+    else if (kind() == Kind::TH3F)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 3)->Reset();
+    else
+      incompatible(__PRETTY_FUNCTION__);
   }
 
   /// convert scalar data into a string.
@@ -642,6 +670,39 @@ namespace dqm::impl {
     }
   }
 
+  // Returns number of cells (9 indicates empty TH2Poly without user-defined bins)
+  int MonitorElement::getNcells() const {
+    auto access = this->access();
+    if (kind() == Kind::TH1F)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    else if (kind() == Kind::TH1S)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    else if (kind() == Kind::TH1D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    else if (kind() == Kind::TH1I)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    else if (kind() == Kind::TPROFILE)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetNcells();
+    else if (kind() == Kind::TH2F)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TH2S)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TH2D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TH2I)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TH2Poly)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TPROFILE2D)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 2)->GetNcells();
+    else if (kind() == Kind::TH3F)
+      return accessRootObject(access, __PRETTY_FUNCTION__, 3)->GetNcells();
+    else {
+      incompatible(__PRETTY_FUNCTION__);
+      return 0;
+    }
+  }
+
   /// get # of bin entries (for profiles)
   double MonitorElement::getBinEntries(int bin) const {
     auto access = this->access();
@@ -687,7 +748,37 @@ namespace dqm::impl {
   }
 
   /*** setter methods (wrapper around ROOT methods) ****/
-  //
+
+  // Add a polygonal bin to a TH2Poly histogram through TGraph
+  void MonitorElement::addBin(TGraph *graph) {
+    auto access = this->accessMut();
+    if (kind() == Kind::TH2Poly) {
+      static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->AddBin(graph);
+    } else {
+      incompatible(__PRETTY_FUNCTION__);
+    }
+  }
+
+  // Add a polygonal bin to a TH2Poly histogram through arrays
+  void MonitorElement::addBin(int n, const double *x, const double *y) {
+    auto access = this->accessMut();
+    if (kind() == Kind::TH2Poly) {
+      static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->AddBin(n, x, y);
+    } else {
+      incompatible(__PRETTY_FUNCTION__);
+    }
+  }
+
+  // Add a rectangular bin to a TH2Poly histogram
+  void MonitorElement::addBin(double x1, double y1, double x2, double y2) {
+    auto access = this->accessMut();
+    if (kind() == Kind::TH2Poly) {
+      static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->AddBin(x1, y1, x2, y2);
+    } else {
+      incompatible(__PRETTY_FUNCTION__);
+    }
+  }
+
   /// set content of bin (1-D)
   void MonitorElement::setBinContent(int binx, double content) {
     auto access = this->accessMut();
@@ -1030,6 +1121,12 @@ namespace dqm::impl {
     auto access = this->accessMut();
     assert(kind() == Kind::TH2D);
     return static_cast<TH2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
+  }
+
+  TH2Poly *MonitorElement::getTH2Poly() {
+    auto access = this->accessMut();
+    assert(kind() == Kind::TH2Poly);
+    return static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
   }
 
   TH3F *MonitorElement::getTH3F() {
