@@ -44,7 +44,6 @@ namespace edm {
   class ParameterSetDescription;
   class ProcessContext;
   class ProcessHistoryRegistry;
-  class SignallingProductRegistry;
   class StreamContext;
   class ModuleCallingContext;
   class SharedResourcesAcquirer;

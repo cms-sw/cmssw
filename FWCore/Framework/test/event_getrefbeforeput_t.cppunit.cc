@@ -22,6 +22,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -155,18 +156,18 @@ void testEventGetRefBeforePut::getRefTest() {
 
   product.init();
 
-  auto preg = std::make_unique<edm::ProductRegistry>();
+  auto preg = std::make_unique<edm::SignallingProductRegistryFiller>();
   preg->addProduct(product);
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
-  branchIDListHelper->updateFromRegistry(*preg);
+  branchIDListHelper->updateFromRegistry(preg->registry());
   auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
   edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
   auto pcPtr = edmtest::makeSharedDummyProcessConfiguration(processName);
   edm::ProcessConfiguration& pc = *pcPtr;
-  std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
+  std::shared_ptr<edm::ProductRegistry const> pregc(std::make_shared<edm::ProductRegistry>(preg->moveTo()));
   auto rp =
       std::make_shared<edm::RunPrincipal>(pregc, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   rp->setAux(edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
