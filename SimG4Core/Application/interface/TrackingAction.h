@@ -31,10 +31,10 @@ public:
 
   SimActivityRegistry::BeginOfTrackSignal m_beginOfTrackSignal;
   SimActivityRegistry::EndOfTrackSignal m_endOfTrackSignal;
- 
+
   TrackingAction(TrackingAction&) = delete;
   TrackingAction& operator=(const TrackingAction& right) = delete;
- 
+
 private:
   SimTrackManager* trackManager_;
   CMSG4TrackInterface* interface_;
