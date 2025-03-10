@@ -6,13 +6,14 @@
 
 // user include files
 #include "Validation/TrackingMCTruth/plugins/SimDoubletsAnalyzer.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/Histograms/interface/MonitorElementCollection.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDoubletsAnalyzer.h"
@@ -22,17 +23,23 @@
 namespace simdoublets {
   // class that calculate and stores all cut variables for a given doublet
   struct CellCutVariables {
-    void calculateCutVariables(SimDoublets::Doublet const& doublet) {
+    void calculateCutVariables(SimDoublets::Doublet const& doublet, SimDoublets const& simDoublets) {
       // inner RecHit properties
-      inner_z_ = doublet.innerGlobalPos().z();
-      double inner_r = doublet.innerGlobalPos().perp();
-      double inner_phi = doublet.innerGlobalPos().barePhi();  // returns float, whereas .phi() returns phi object
-      int inner_iphi = unsafe_atan2s<7>(doublet.innerGlobalPos().y(), doublet.innerGlobalPos().x());
+      GlobalPoint inner_globalPosition = doublet.innerGlobalPos();
+      inner_z_ = inner_globalPosition.z();
+      double inner_r = inner_globalPosition.perp();
+      double inner_phi = inner_globalPosition.barePhi();  // returns float, whereas .phi() returns phi object
+      double inner_x = inner_globalPosition.x();
+      double inner_y = inner_globalPosition.y();
+      int inner_iphi = unsafe_atan2s<7>(inner_globalPosition.y(), inner_x);
       // outer RecHit properties
-      double outer_z = doublet.outerGlobalPos().z();
-      double outer_r = doublet.outerGlobalPos().perp();
-      double outer_phi = doublet.outerGlobalPos().barePhi();
-      int outer_iphi = unsafe_atan2s<7>(doublet.outerGlobalPos().y(), doublet.outerGlobalPos().x());
+      GlobalPoint outer_globalPosition = doublet.outerGlobalPos();
+      double outer_z = outer_globalPosition.z();
+      double outer_r = outer_globalPosition.perp();
+      double outer_x = outer_globalPosition.x();
+      double outer_y = outer_globalPosition.y();
+      double outer_phi = outer_globalPosition.barePhi();
+      int outer_iphi = unsafe_atan2s<7>(outer_globalPosition.y(), outer_globalPosition.x());
 
       // relative properties
       dz_ = outer_z - inner_z_;
@@ -53,6 +60,29 @@ namespace simdoublets {
       Ysize_ = doublet.innerRecHit()->cluster()->sizeY();
       DYsize_ = std::abs(Ysize_ - doublet.outerRecHit()->cluster()->sizeY());
       DYPred_ = std::abs(Ysize_ - int(std::abs(dz_ / dr_) * pixelTopology::Phase2::dzdrFact + 0.5f));
+
+      // cuts on doublet connections (loop over all inner neighboring doublets)
+      for (auto const& neighbor : doublet.innerNeighborsView()) {
+        // get the inner RecHit of the inner neighbor
+        GlobalPoint neighbor_globalPosition = simDoublets.getSimDoublet(neighbor.index()).innerGlobalPos();
+        double neighbor_z = neighbor_globalPosition.z();
+        double neighbor_r = neighbor_globalPosition.perp();
+        double neighbor_x = neighbor_globalPosition.x();
+        double neighbor_y = neighbor_globalPosition.y();
+
+        // alignement cut variable in R-Z assuming ptmin = 1 GeV
+        double radius_diff = std::abs(neighbor_r - outer_r);
+        double distance_13_squared = radius_diff * radius_diff + (neighbor_z - outer_z) * (neighbor_z - outer_z);
+        double tan_12_13_half_mul_distance_13_squared = fabs(
+            neighbor_z * (inner_r - outer_r) + inner_z_ * (outer_r - neighbor_r) + outer_z * (neighbor_r - inner_r));
+        double denominator = std::sqrt(distance_13_squared) * radius_diff;
+        CAThetaCut_.push_back(tan_12_13_half_mul_distance_13_squared / denominator);
+
+        // alignement cut variables in x-y
+        CircleEq<double> eq(neighbor_x, neighbor_y, inner_x, inner_y, outer_x, outer_y);
+        hardCurvCut_.push_back(eq.curvature());
+        dcaCut_.push_back(std::abs(eq.dca0() / eq.curvature()));
+      }
     }
 
     // methods to get the cut variables
@@ -67,10 +97,17 @@ namespace simdoublets {
     int Ysize() const { return Ysize_; }
     int DYsize() const { return DYsize_; }
     int DYPred() const { return DYPred_; }
+    std::vector<double> const& CAThetaCut() const { return CAThetaCut_; }
+    std::vector<double> const& dcaCut() const { return dcaCut_; }
+    std::vector<double> const& hardCurvCut() const { return hardCurvCut_; }
+    double CAThetaCut(int i) const { return CAThetaCut_.at(i); }
+    double dcaCut(int i) const { return dcaCut_.at(i); }
+    double hardCurvCut(int i) const { return hardCurvCut_.at(i); }
 
   private:
     double inner_z_, dz_, dr_, dphi_, z0_, curvature_, pT_;  // double-valued variables
     int idphi_, Ysize_, DYsize_, DYPred_;                    // integer-valued variables
+    std::vector<double> CAThetaCut_, dcaCut_, hardCurvCut_;  // doublet connection cut variables
   };
 
   // class to help keep track of which cluster size cuts are applied
@@ -212,6 +249,18 @@ namespace simdoublets {
   void fillDescriptionsCommon(edm::ParameterSetDescription& desc) {
     desc.add<std::string>("folder", "Tracking/TrackingMCTruth/SimDoublets");
 
+    // cutting parameters for connecting doublets
+    desc.add<double>("CAThetaCutBarrel", 0.002)->setComment("Cut on RZ alignement for Barrel in GeV");
+    desc.add<double>("CAThetaCutForward", 0.003)->setComment("Cut on RZ alignement for Forward in GeV");
+    desc.add<double>("ptmin", 0.9)
+        ->setComment(
+            "Minimum tranverse momentum considered for the multiple scattering expectation when checking alignement in "
+            "R-z plane of two doublets in GeV");
+    desc.add<double>("dcaCutInnerTriplet", 0.15)->setComment("Cut on origin radius when the inner hit is on BPix1");
+    desc.add<double>("dcaCutOuterTriplet", 0.25)->setComment("Cut on origin radius when the inner hit is not on BPix1");
+    desc.add<double>("hardCurvCut", 1. / (0.35 * 87.))
+        ->setComment("Cut on minimum curvature, used in DCA ntuplet selection");
+
     // cut parameters with scalar values
     desc.add<int>("cellMaxDYSize12", TrackerTraits::maxDYsize12)
         ->setComment("Maximum difference in cluster size for B1/B2");
@@ -240,6 +289,13 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
       cellMaxDYPred_(iConfig.getParameter<int>("cellMaxDYPred")),
       cellZ0Cut_(iConfig.getParameter<double>("cellZ0Cut")),
       cellPtCut_(iConfig.getParameter<double>("cellPtCut")),
+      CAThetaCutBarrel_over_ptmin_(iConfig.getParameter<double>("CAThetaCutBarrel") /
+                                   iConfig.getParameter<double>("ptmin")),
+      CAThetaCutForward_over_ptmin_(iConfig.getParameter<double>("CAThetaCutForward") /
+                                    iConfig.getParameter<double>("ptmin")),
+      dcaCutInnerTriplet_(iConfig.getParameter<double>("dcaCutInnerTriplet")),
+      dcaCutOuterTriplet_(iConfig.getParameter<double>("dcaCutOuterTriplet")),
+      hardCurvCut_(iConfig.getParameter<double>("hardCurvCut")),
       folder_(iConfig.getParameter<std::string>("folder")) {
   // get layer pairs from configuration
   std::vector<int> layerPairs{iConfig.getParameter<std::vector<int>>("layerPairs")};
@@ -278,69 +334,81 @@ void SimDoubletsAnalyzer<TrackerTraits>::dqmBeginRun(const edm::Run& iRun, const
 template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
     SimDoublets::Doublet& doublet,
+    bool const hasValidNeighbors,
     int const layerPairIdIndex,
     simdoublets::CellCutVariables const& cellCutVariables,
     simdoublets::ClusterSizeCutManager const& clusterSizeCutManager) const {
-  // apply all cuts, break after the first cut that kills the doublet
-  // z window cut
-  if (cellCutVariables.inner_z() < cellMinz_[layerPairIdIndex] ||
-      cellCutVariables.inner_z() > cellMaxz_[layerPairIdIndex]) {
-    doublet.setKilled();
-    return;
-  }
-  // z0cutoff
-  if (cellCutVariables.dr() > cellMaxr_[layerPairIdIndex] || cellCutVariables.dr() < 0 ||
-      cellCutVariables.z0() > cellZ0Cut_) {
-    doublet.setKilled();
-    return;
-  }
-  // ptcut
-  if (cellCutVariables.pT() < cellPtCut_) {
-    doublet.setKilled();
-    return;
-  }
-  // iphicut
-  if (cellCutVariables.idphi() > cellPhiCuts_[layerPairIdIndex]) {
-    doublet.setKilled();
-    return;
-  }
-  // YsizeB1 cut
-  if (clusterSizeCutManager.isSubjectToYsizeB1() && (cellCutVariables.Ysize() < cellMinYSizeB1_)) {
-    doublet.setKilled();
-    return;
-  }
-  // YsizeB2 cut
-  if (clusterSizeCutManager.isSubjectToYsizeB2() && (cellCutVariables.Ysize() < cellMinYSizeB2_)) {
-    doublet.setKilled();
-    return;
-  }
-  // DYsize12 cut
-  if (clusterSizeCutManager.isSubjectToDYsize12() && (cellCutVariables.DYsize() > cellMaxDYSize12_)) {
-    doublet.setKilled();
-    return;
-  }
-  // DYsize cut
-  if (clusterSizeCutManager.isSubjectToDYsize() && (cellCutVariables.DYsize() > cellMaxDYSize_)) {
-    doublet.setKilled();
-    return;
-  }
-  // DYPred cut
-  if (clusterSizeCutManager.isSubjectToDYPred() && (cellCutVariables.DYPred() > cellMaxDYPred_)) {
-    doublet.setKilled();
-    return;
+  // -------------------------------------------------------------------------
+  //  apply cuts for doublet creation
+  // -------------------------------------------------------------------------
+
+  if (/* z window cut */
+      (cellCutVariables.inner_z() < cellMinz_[layerPairIdIndex] ||
+       cellCutVariables.inner_z() > cellMaxz_[layerPairIdIndex]) ||
+      /* z0cutoff */
+      (cellCutVariables.dr() > cellMaxr_[layerPairIdIndex] || cellCutVariables.dr() < 0 ||
+       cellCutVariables.z0() > cellZ0Cut_) ||
+      /* ptcut */
+      (cellCutVariables.pT() < cellPtCut_) ||
+      /* idphicut */
+      (cellCutVariables.idphi() > cellPhiCuts_[layerPairIdIndex]) ||
+      /* YsizeB1 cut */
+      (clusterSizeCutManager.isSubjectToYsizeB1() && (cellCutVariables.Ysize() < cellMinYSizeB1_)) ||
+      /* YsizeB2 cut */
+      (clusterSizeCutManager.isSubjectToYsizeB2() && (cellCutVariables.Ysize() < cellMinYSizeB2_)) ||
+      /* DYsize12 cut */
+      (clusterSizeCutManager.isSubjectToDYsize12() && (cellCutVariables.DYsize() > cellMaxDYSize12_)) ||
+      /* DYsize cut */
+      (clusterSizeCutManager.isSubjectToDYsize() && (cellCutVariables.DYsize() > cellMaxDYSize_)) ||
+      /* DYPred cut */
+      (clusterSizeCutManager.isSubjectToDYPred() && (cellCutVariables.DYPred() > cellMaxDYPred_))) {
+    // if any of the cuts apply kill the doublet
+    doublet.setKilledByCuts();
+  } else {
+    // if the function arrives here, the doublet survived
+    doublet.setAlive();
   }
 
-  // if the function is still going, the doublet survived
-  doublet.setAlive();
+  // -------------------------------------------------------------------------
+  //  apply cuts for doublet connections
+  // -------------------------------------------------------------------------
+  if (hasValidNeighbors) {
+    // loop over the inner neighboring doublets of the doublet
+    for (int i{0}; auto& neighbor : doublet.innerNeighbors()) {
+      if (
+          /* apply CAThetaCut
+          use Barrel if the centered common RecHit of the connection is in the barrel
+          else Forward */
+          (cellCutVariables.CAThetaCut(i) >
+           ((doublet.innerLayerId() < 4) ? CAThetaCutBarrel_over_ptmin_ : CAThetaCutForward_over_ptmin_)) ||
+          /* apply hardCurvCut */
+          (cellCutVariables.hardCurvCut(i) > hardCurvCut_) ||
+          /* apply dcaCut 
+          use Inner if the inner RecHit is on BPix 1
+          else Outer */
+          (cellCutVariables.dcaCut(i) >
+           ((doublet.innerNeighborsInnerLayerId() == 0) ? dcaCutInnerTriplet_ : dcaCutOuterTriplet_))) {
+        neighbor.setKilled();
+      } else {
+        neighbor.setAlive();
+      }
+
+      i++;
+    }
+  }
 }
 
 // function that fills all histograms for cut variables
 template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
-    bool passed,
+    SimDoublets::Doublet const& doublet,
+    bool hasValidNeighbors,
     int const layerPairIdIndex,
     simdoublets::CellCutVariables const& cellCutVariables,
     simdoublets::ClusterSizeCutManager const& clusterSizeCutManager) {
+  // check if the doublet passed all cuts
+  bool passed = doublet.isAlive();
+
   // -------------------------------------------------------------------------
   //  layer pair independent cuts (global folder)
   // -------------------------------------------------------------------------
@@ -392,6 +460,37 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
     hVector_DYPred_[layerPairIdIndex].fill(passed, cellCutVariables.DYPred());
     h_DYPred_.fill(passed, cellCutVariables.DYPred());
   }
+
+  // -------------------------------------------------------------------------
+  //  connection cuts (connectionCuts folder)
+  // -------------------------------------------------------------------------
+  bool passedConnect;
+  // check if connection cut histograms should be filled
+  if (hasValidNeighbors) {
+    // loop over the inner neighboring doublets of the doublet
+    for (int i{0}; auto const& neighbor : doublet.innerNeighborsView()) {
+      // get the status of the connection
+      passedConnect = neighbor.isAlive();
+
+      // fill the histograms
+      // hard curvature cut
+      h_hardCurvCut_.fill(passedConnect, cellCutVariables.hardCurvCut(i));
+      // dca cut
+      if (doublet.innerNeighborsInnerLayerId() == 0) {
+        h_dcaCutInnerTriplet_.fill(passedConnect, cellCutVariables.dcaCut(i));
+      } else {
+        h_dcaCutOuterTriplet_.fill(passedConnect, cellCutVariables.dcaCut(i));
+      }
+      // CATheta cut
+      if (doublet.innerLayerId() < 4) {
+        h_CAThetaCutBarrel_.fill(passedConnect, cellCutVariables.CAThetaCut(i));
+      } else {
+        h_CAThetaCutForward_.fill(passedConnect, cellCutVariables.CAThetaCut(i));
+      }
+
+      i++;
+    }
+  }
 }
 
 // main function that fills the histograms
@@ -411,7 +510,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
   // initialize a bunch of variables that we will use in the coming for loops
   double true_pT, true_eta;
   int numSimDoublets, pass_numSimDoublets, layerPairId, layerPairIdIndex;
-  bool passed, passedTP;
+  bool passed, passedTP, hasValidNeighbors;
 
   // initialize the manager for keeping track of which cluster cuts are applied to the inidividual doublets
   simdoublets::ClusterSizeCutManager clusterSizeCutManager;
@@ -441,7 +540,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       clusterSizeCutManager.reset();
 
       // calculate the cut variables for the given doublet
-      cellCutVariables.calculateCutVariables(doublet);
+      cellCutVariables.calculateCutVariables(doublet, simDoublets);
 
       // first, get layer pair Id and exclude layer pairs that are not considered
       layerPairId = doublet.layerPairId();
@@ -449,23 +548,27 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
         // get the position of the layer pair in the vectors of histograms
         layerPairIdIndex = layerPairId2Index_.at(layerPairId);
 
+        // check if the SimDoublet's inner neighbors also are from a considered layer pair
+        hasValidNeighbors = (doublet.numInnerNeighbors() > 0 &&
+                             !(simDoublets.getSimDoublet(doublet.innerNeighborIndex(0)).isKilledByMissingLayerPair()));
+
         // determine which cluster size cuts the doublet is subject to
         clusterSizeCutManager.setSubjectsToCuts(doublet);
 
         // apply the cuts for doublet building according to the set cut values
-        applyCuts(doublet, layerPairIdIndex, cellCutVariables, clusterSizeCutManager);
-        passed = doublet.isAlive();  // true if doublet passed
+        applyCuts(doublet, hasValidNeighbors, layerPairIdIndex, cellCutVariables, clusterSizeCutManager);
 
         // -------------------------------------------------------------------------
         //  cut histograms for SimDoublets (cutParameters folder)
         // -------------------------------------------------------------------------
-        fillCutHistograms(passed, layerPairIdIndex, cellCutVariables, clusterSizeCutManager);
+        fillCutHistograms(doublet, hasValidNeighbors, layerPairIdIndex, cellCutVariables, clusterSizeCutManager);
 
       } else {
         // if not considered set the doublet as killed
-        doublet.setKilled();
-        passed = false;
+        doublet.setKilledByMissingLayerPair();
       }
+
+      passed = doublet.isAlive();  // true if doublet passed
 
       // ---------------------------------------------------------------------------
       //  general plots related to SimDoublets (general folder)
@@ -590,15 +693,15 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                           pTNBins,
                           pTmin,
                           pTmax);
-  h_numTPVsEta_.book1D(
-      ibook,
-      "numTPVsEta",
-      "TrackingParticles [all='all passing the selection' or pass='+ two or more connected SimDoublets pass all cuts']",
-      "True pseudorapidity #eta",
-      "Number of TrackingParticles",
-      etaNBins,
-      etamin,
-      etamax);
+  h_numTPVsEta_.book1D(ibook,
+                       "numTPVsEta",
+                       "TrackingParticles [all='all passing the selection' or pass='+ two or more connected "
+                       "SimDoublets pass all cuts']",
+                       "True pseudorapidity #eta",
+                       "Number of TrackingParticles",
+                       etaNBins,
+                       etamin,
+                       etamax);
   h_numVsPt_.book1DLogX(ibook,
                         "numVsPt",
                         "Number of SimDoublets",
@@ -788,6 +891,60 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                 -1,
                 50);
   }
+
+  // -----------------------------------------------------------------
+  // booking connection cut histograms (connectionCuts folder)
+  // -----------------------------------------------------------------
+
+  ibook.setCurrentFolder(folder_ + "/cutParameters/connectionCuts");
+
+  // histogram for areAlignedRZ
+  h_CAThetaCutBarrel_.book1DLogX(ibook,
+                                 "CAThetaBarrel_over_ptmin",
+                                 "CATheta cut variable based on the area spaned by 3 RecHits of a pair of neighboring "
+                                 "SimDoublets in R-z with the shared RecHit in the barrel",
+                                 "CATheta cut variable",
+                                 "Number of SimDoublet connections",
+                                 51,
+                                 -6,
+                                 1);
+  h_CAThetaCutForward_.book1DLogX(ibook,
+                                  "CAThetaForward_over_ptmin",
+                                  "CATheta cut variable based on the area spaned by 3 RecHits of a pair of neighboring "
+                                  "SimDoublets in R-z with the shared RecHit in the endcap",
+                                  "CATheta cut variable",
+                                  "Number of SimDoublet connections",
+                                  51,
+                                  -6,
+                                  1);
+
+  // histogram for dcaCut (x-y alignement)
+  h_hardCurvCut_.book1DLogX(ibook,
+                            "hardCurv",
+                            "Curvature of a pair of neighboring SimDoublets",
+                            "Curvature [1/cm]",
+                            "Number of SimDoublet connections",
+                            51,
+                            -4,
+                            1);
+  h_dcaCutInnerTriplet_.book1DLogX(ibook,
+                               "dcaInner",
+                               "Closest transverse distance to beamspot based on the 3 RecHits of a pair of "
+                               "neighboring SimDoublets with the most inner RecHit on BPix1",
+                               "Transverse distance [cm]",
+                               "Number of SimDoublet connections",
+                               51,
+                               -6,
+                               1);
+  h_dcaCutOuterTriplet_.book1DLogX(ibook,
+                               "dcaOuter",
+                               "Closest transverse distance to beamspot based on the 3 RecHits of a pair of "
+                               "neighboring SimDoublets with the most inner RecHit not on BPix1",
+                               "Transverse distance [cm]",
+                               "Number of SimDoublet connections",
+                               51,
+                               -6,
+                               1);
 }
 
 // -------------------------------------------------------------------------------------------------------------
@@ -857,11 +1014,11 @@ void SimDoubletsAnalyzer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
           "Array of length 2*NumberOfPairs where the elements at 2i and 2i+1 are the inner and outer layers of layer "
           "pair i");
 
-  // cutting parameters
+  // cutting parameters for doublets
   desc.add<int>("cellMinYSizeB1", 25)->setComment("Minimum cluster size for inner RecHit from B1");
   desc.add<int>("cellMinYSizeB2", 15)->setComment("Minimum cluster size for inner RecHit not from B1");
   desc.add<double>("cellZ0Cut", 7.5)->setComment("Maximum longitudinal impact parameter");
-  desc.add<double>("cellPtCut", 0.85)->setComment("Minimum tranverse momentum");
+  desc.add<double>("cellPtCut", 0.85)->setComment("Minimum tranverse momentum in GeV");
   desc.add<std::vector<double>>(
           "cellMinz", std::vector<double>(std::begin(phase2PixelTopology::minz), std::end(phase2PixelTopology::minz)))
       ->setComment("Minimum z of inner RecHit for each layer pair");
