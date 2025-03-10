@@ -32,7 +32,6 @@ cond::CopyIovUtilities::CopyIovUtilities() : Utilities("conddb_copy_iov") {
 cond::CopyIovUtilities::~CopyIovUtilities() {}
 
 int cond::CopyIovUtilities::execute() {
-  bool debug = hasDebug();
   std::string connect = getOptionValue<std::string>("connect");
 
   // this is mandatory
