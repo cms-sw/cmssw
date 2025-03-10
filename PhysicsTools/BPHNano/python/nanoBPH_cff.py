@@ -24,6 +24,7 @@ from PhysicsTools.BPHNano.BToTrkTrkLL_cff import *
 from PhysicsTools.BPHNano.BToV0LL_cff import *
 
 
+
 vertexTable.svSrc = cms.InputTag("slimmedSecondaryVertices")
 
 
@@ -57,6 +58,7 @@ def nanoAOD_customizeDiMuonBPH(process):
     process.load('PhysicsTools.BPHNano.MuMu_cff')
     process.nanoSequenceMC = cms.Sequence( process.nanoSequence + MuMuSequence + MuMuTables )
     process.nanoSequence = cms.Sequence( process.nanoSequence + MuMuSequence + MuMuTables)
+
     return process
 
 
@@ -85,8 +87,6 @@ def nanoAOD_customizeBToTrkTrkLL(process):
     return process
 
 
-
-
 def nanoAOD_customizeBToKshortLL(process):
     process.load('PhysicsTools.BPHNano.V0_cff')
     process.load('PhysicsTools.BPHNano.BToV0LL_cff') 
@@ -99,6 +99,7 @@ def nanoAOD_customizeLambdabToLambdaLL(process):
     process.load('PhysicsTools.BPHNano.BToV0LL_cff')
     process.nanoSequenceMC = cms.Sequence( process.nanoSequence+ LambdaToProtonPiSequenceMC + LambdaToProtonPiTablesMC + LambdabToLambdaMuMuSequence + LambdabToLambdaMuMuTables  )
     process.nanoSequence = cms.Sequence( process.nanoSequence+ LambdaToProtonPiSequence + LambdaToProtonPiTables + LambdabToLambdaMuMuSequence + LambdabToLambdaMuMuTables  )
+
     return process
 
 

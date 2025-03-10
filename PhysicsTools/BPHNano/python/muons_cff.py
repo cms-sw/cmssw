@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.simplePATMuonFlatTableProducer_cfi import simplePATMuonFlatTableProducer
 
+
 Path=["HLT_DoubleMu4_LowMass_Displaced", "HLT_DoubleMu4_3_LowMass"]
 
 muonBPH = cms.EDProducer("MuonTriggerSelector",

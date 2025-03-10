@@ -110,7 +110,6 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
 
     if (!v0daughter1.hasTrackDetails()) continue;
     if (!v0daughter2.hasTrackDetails()) continue;
-
     if (fabs(v0daughter1.pdgId()) != 211) continue;// This cut do not affect the Lambda->proton pion candidates
     if (fabs(v0daughter2.pdgId()) != 211) continue;// This cut do not affect the Lambda->proton pion candidates
 
@@ -140,6 +139,7 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
     {Track1_mass, Track2_mass},
     {Track1_sigma,Track2_sigma} );
 
+
     if (!fitter.success()) continue;
 
     pat::CompositeCandidate cand;
@@ -155,6 +155,7 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
     cand.addUserFloat("sv_chi2", fitter.chi2());
     cand.addUserFloat("sv_prob", fitter.prob());
     cand.addUserFloat("fitted_mass", fitter.fitted_candidate().mass());
+
     cand.addUserFloat("massErr",
                       sqrt(fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
     cand.addUserFloat("cos_theta_2D",

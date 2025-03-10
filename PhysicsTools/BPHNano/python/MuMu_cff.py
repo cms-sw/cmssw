@@ -14,6 +14,7 @@ MuMu = cms.EDProducer(
                                   '&& charge() == 0'
                                   '&& userFloat("lep_deltaR") > 0.03'),
     postVtxSelection = cms.string('0 < userFloat("fitted_mass") && userFloat("fitted_mass") < 15.0'
+
                                   '&& userFloat("sv_prob") > 0.001')
 )
 

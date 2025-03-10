@@ -29,7 +29,6 @@
 #include <algorithm>
 #include "KinVtxFitter.h"
 
-
 class BToTrkLLBuilder : public edm::global::EDProducer<> {
 
   // perhaps we need better structure here (begin run etc)
@@ -267,8 +266,6 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup co
       cand.addUserFloat("constraint_mass", constraint_mass);
       cand.addUserFloat("constraint_massErr", constraint_massErr);
       cand.addUserFloat("constraint_mll" , constraint_mll);
-
-
 
       ret_val->push_back(cand);
     } // for(size_t ll_idx = 0; ll_idx < dileptons->size(); ++ll_idx) {

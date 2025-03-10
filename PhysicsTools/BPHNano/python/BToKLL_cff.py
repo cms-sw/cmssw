@@ -89,7 +89,6 @@ BToKmumuTable = cms.EDProducer(
     )
 )
 
-
 CountBToKmumu = cms.EDFilter("PATCandViewCountFilter",
     minNumber = cms.uint32(1),
     maxNumber = cms.uint32(999999),

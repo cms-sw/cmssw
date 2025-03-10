@@ -223,7 +223,6 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
       for (size_t idaughter = 0; idaughter < dnames.size(); idaughter++) {
         cand.addUserFloat(dnames[idaughter] + "_iso04", isos[idaughter]);
       }
-
       float constraint_sv_prob= -9.;
       float constraint_pt=-9.;
       float constraint_eta=-9.;
