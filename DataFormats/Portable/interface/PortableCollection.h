@@ -1,8 +1,11 @@
 #ifndef DataFormats_Portable_interface_PortableCollection_h
 #define DataFormats_Portable_interface_PortableCollection_h
 
+#include <type_traits>
+
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/MemcpyTraits.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/concepts.h"
@@ -93,5 +96,48 @@ namespace cms::alpakatools {
     }
   };
 }  // namespace cms::alpakatools
+
+// Specialize the MemcpyTraits for PortableColletion
+namespace edm {
+
+  template <typename T>
+  struct MemcpyTraits<PortableHostCollection<T>> {
+    static std::vector<std::size_t> properties(PortableHostCollection<T> const& object) {
+      return {object->metadata().size()};
+    }
+
+    static std::vector<std::pair<void*, std::size_t>> regions(PortableHostCollection<T>& object) {
+      void* address = object.buffer().data();
+      size_t size = alpaka::getExtentProduct(object.buffer());
+      return {{address, size}};
+    }
+
+    static std::vector<std::pair<void const*, std::size_t>> regions(PortableHostCollection<T> const& object) {
+      const void* address = object.buffer().data();
+      size_t size = alpaka::getExtentProduct(object.buffer());
+      return {{address, size}};
+    }
+  };
+
+  template <typename T, typename TDev>
+  struct MemcpyTraits<PortableDeviceCollection<T, TDev>> {
+    static std::vector<std::size_t> properties(PortableDeviceCollection<T, TDev> const& object) {
+      return {object->metadata().size()};
+    }
+
+    static std::vector<std::pair<void*, std::size_t>> regions(PortableDeviceCollection<T, TDev>& object) {
+      void* address = object.buffer().data();
+      size_t size = alpaka::getExtentProduct(object.buffer());
+      return {{address, size}};
+    }
+
+    static std::vector<std::pair<void const*, std::size_t>> regions(PortableDeviceCollection<T, TDev> const& object) {
+      const void* address = object.buffer().data();
+      size_t size = alpaka::getExtentProduct(object.buffer());
+      return {{address, size}};
+    }
+  };
+
+}  // namespace edm
 
 #endif  // DataFormats_Portable_interface_PortableCollection_h
