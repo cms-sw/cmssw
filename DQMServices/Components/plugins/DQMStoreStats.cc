@@ -338,6 +338,7 @@ protected:
 
 private:
   int calcstats(int);
+  std::vector<double> GetTH2PolyArray(TH2Poly* poly);
   void calcIgProfDump(Folder&);
   void dumpMemoryProfile();
   std::pair<unsigned int, unsigned int> readMemoryEntry() const;
@@ -514,6 +515,15 @@ void DQMStoreStats::calcIgProfDump(Folder& root) {
   stream << sql_statement << std::endl;
 }
 
+std::vector<double> DQMStoreStats::GetTH2PolyArray(TH2Poly* poly) {
+  int nBins = poly->GetNumberOfBins();
+  std::vector<double> array(nBins + 1, 0.0);  // Initialize with zeros
+  for (int i = 1; i <= nBins; i++) {
+    array[i] = poly->GetBinContent(i);
+  }
+  return array;
+}
+
 ///
 /// do the stats here and produce output;
 ///
@@ -668,6 +678,13 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
                      getEmptyMetric(it->getTH2I()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0),
                      it->getNbinsX() * it->getNbinsY() * sizeof(int));
         break;
+      case MonitorElement::Kind::TH2Poly: {
+        std::vector<double> polyArray = GetTH2PolyArray(it->getTH2Poly());
+        int nBins = polyArray.size() - 1;
+        currentSubfolder.AddBinsD(nBins, getEmptyMetric(polyArray.data(), nBins + 1, 1, 0));
+        curr->update(nBins, getEmptyMetric(polyArray.data(), nBins + 1, 1, 0), nBins * sizeof(double));
+        break;
+      }
       case MonitorElement::Kind::TPROFILE2D:
         currentSubfolder.AddBinsD(
             it->getNbinsX() * it->getNbinsY(),
