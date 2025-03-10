@@ -2,6 +2,7 @@
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 #include <boost/crc.hpp>
 #include <vector>
+#include <algorithm>
 #include <iostream>
 //
 //
