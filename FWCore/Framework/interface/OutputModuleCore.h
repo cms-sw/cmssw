@@ -180,8 +180,6 @@ namespace edm {
       bool wantAllEvents_;
       std::vector<detail::TriggerResultsBasedEventSelector> selectors_;
       ParameterSet selectEvents_;
-      std::vector<EDGetToken> tokensForEndPaths_;  //needed for FinalPath
-      bool onFinalPath_ = false;
       // ID of the ParameterSet that configured the event selector
       // subsystem.
       ParameterSetID selector_config_id_;
