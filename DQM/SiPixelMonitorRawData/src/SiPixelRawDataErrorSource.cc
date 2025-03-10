@@ -187,9 +187,6 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
 
   edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
-  const TrackerTopology *pTT = tTopoHandle.product();
-
   LogVerbatim("PixelDQM") << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;
   LogVerbatim("PixelDQM") << " *** I have " << pDD->detsPXB().size() << " barrel pixel detectors" << std::endl;
   LogVerbatim("PixelDQM") << " *** I have " << pDD->detsPXF().size() << " endcap pixel detectors" << std::endl;
@@ -199,8 +196,10 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
   for (TrackerGeometry::DetContainer::const_iterator it = pDD->detsPXB().begin(); it != pDD->detsPXB().end(); it++) {
     const GeomDetUnit *geoUnit = dynamic_cast<const GeomDetUnit *>(*it);
     // check if it is a detUnit
-    if (geoUnit == nullptr)
+    if (geoUnit == nullptr) {
       LogError("PixelDQM") << "Pixel GeomDet is not a GeomDetUnit!" << std::endl;
+      continue;
+    }
     const PixelGeomDetUnit *pixDet = dynamic_cast<const PixelGeomDetUnit *>(geoUnit);
     int nrows = (pixDet->specificTopology()).nrows();
     int ncols = (pixDet->specificTopology()).ncolumns();
@@ -227,32 +226,6 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
     LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
     uint32_t id = detId();
     SiPixelRawDataErrorModule *theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
-
-    PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
-    int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
-    int blade = PixelEndcapName(DetId(id), pTT, isUpgrade).bladeName();
-    int panel = PixelEndcapName(DetId(id), pTT, isUpgrade).pannelName();
-    int module = PixelEndcapName(DetId(id), pTT, isUpgrade).plaquetteName();
-
-    char sside[80];
-    sprintf(sside, "HalfCylinder_%i", side);
-    char sdisk[80];
-    sprintf(sdisk, "Disk_%i", disk);
-    char sblade[80];
-    sprintf(sblade, "Blade_%02i", blade);
-    char spanel[80];
-    sprintf(spanel, "Panel_%i", panel);
-    char smodule[80];
-    sprintf(smodule, "Module_%i", module);
-    std::string side_str = sside;
-    std::string disk_str = sdisk;
-    bool mask = side_str.find("HalfCylinder_1") != string::npos || side_str.find("HalfCylinder_2") != string::npos ||
-                side_str.find("HalfCylinder_4") != string::npos || disk_str.find("Disk_2") != string::npos;
-    // clutch to take all of FPIX, but no BPIX:
-    mask = false;
-    if (isPIB && mask)
-      continue;
-
     thePixelStructure.insert(pair<uint32_t, SiPixelRawDataErrorModule *>(id, theModule));
   }
 
