@@ -214,7 +214,7 @@ void OnlineBeamMonitor::fetchBeamSpotInformation(const Event& iEvent, const Even
   ESHandle<BeamSpotOnlineObjects> bsLegacyHandle;
   ESHandle<BeamSpotObjects> bsOnlineHandle;
 
-  // Additional values for DIP piiblication
+  // Additional values for DIP publication
   std::string startTimeStamp_ = "0";
   std::string startTimeStampHLT_ = "0";
   std::string startTimeStampLegacy_ = "0";
@@ -393,7 +393,7 @@ void OnlineBeamMonitor::fetchBeamSpotInformation(const Event& iEvent, const Even
 
       outFile.open(tmpname.c_str());
 
-      // Write out file for DIP piblication
+      // Write out file for DIP publication
       outFile << "Runnumber " << frun << std::endl;
       outFile << "BeginTimeOfFit " << startTimeStamp_ << " " << 0 << std::endl;
       outFile << "EndTimeOfFit " << stopTimeStamp_ << " " << 0 << std::endl;
