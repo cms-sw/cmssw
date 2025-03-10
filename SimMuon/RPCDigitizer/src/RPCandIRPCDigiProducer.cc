@@ -1,7 +1,7 @@
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimMuon/RPCDigitizer/src/RPCandIRPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
-#include "SimMuon/RPCDigitizer/src/IRPCDigitizer.h"
+//#include "SimMuon/RPCDigitizer/src/IRPCDigitizer.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -51,8 +51,9 @@ RPCandIRPCDigiProducer::RPCandIRPCDigiProducer(const edm::ParameterSet& ps) {
 
   theRPCSimSetUpRPC = new RPCSimSetUp(ps);
   theRPCSimSetUpIRPC = new RPCSimSetUp(ps);
-  theRPCDigitizer = new RPCDigitizer(ps);
-  theIRPCDigitizer = new IRPCDigitizer(ps);
+  theRPCDigitizer = new RPCDigitizer(ps, true);
+  //theIRPCDigitizer = new IRPCDigitizer(ps);
+  theIRPCDigitizer = new RPCDigitizer(ps, false);
   crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
   geomToken = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
   noiseToken = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
