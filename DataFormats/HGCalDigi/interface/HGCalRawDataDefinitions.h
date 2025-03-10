@@ -56,20 +56,6 @@ namespace hgcal {
         // flag for digi not in raw data
         NotAvailable = 0xFFFF;
   }  // namespace DIGI_FLAG
-  namespace UNPACKER_STAT {
-    //This aligns with the definitons in HGCalECONDPacketInfoSoA
-    // 0: Normal
-    // 1: Wrong S-Link header marker
-    // 2: Wrong Capture block header marker
-    // 3: Wrong ECON-D header marker
-    // 4: ECON-D payload length overflow(>469)
-    // 5: unpacked ECON-D length and payload length not match
-    // 6: S-Link trailer location error
-    // 7: S-Link End earlier
-    constexpr uint8_t Normal = 0, WrongSLinkHeader = 1, WrongCaptureBlockHeader = 2, WrongECONDHeader = 3,
-                      ECONDPayloadLengthOverflow = 4, ECONDPayloadLengthMismatch = 5, WrongSLinkTrailer = 6,
-                      EarlySLinkEnd = 7;
-  }  // namespace UNPACKER_STAT
 
 }  // namespace hgcal
 

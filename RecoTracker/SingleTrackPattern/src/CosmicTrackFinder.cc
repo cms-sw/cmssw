@@ -4,24 +4,23 @@
 #include <memory>
 #include <string>
 
-#include "RecoTracker/SingleTrackPattern/interface/CosmicTrackFinder.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
+#include "RecoTracker/SingleTrackPattern/interface/CosmicTrackFinder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 namespace cms {
 
@@ -163,7 +162,7 @@ namespace cms {
         // protection againt invalid initial states
         if (!firstState.isValid()) {
           edm::LogWarning("CosmicTrackFinder") << "invalid innerState, will not make TrackCandidate";
-          edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(std::move(output));
+          e.put(std::move(output));
           return;
         }
 
@@ -171,7 +170,7 @@ namespace cms {
         if (firstId != recHits.front().rawId()) {
           edm::LogWarning("CosmicTrackFinder") << "Mismatch in DetID of first hit: firstID= " << firstId
                                                << "   DetId= " << recHits.front().geographicalId().rawId();
-          edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(std::move(output));
+          e.put(std::move(output));
           return;
         }
 
@@ -180,6 +179,7 @@ namespace cms {
         output->push_back(TrackCandidate(recHits, theTraj.seed(), state, theTraj.seedRef()));
       }
     }
-    edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(std::move(output));
+    e.put(std::move(output));
   }
+
 }  // namespace cms

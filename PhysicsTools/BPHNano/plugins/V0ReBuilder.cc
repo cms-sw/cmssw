@@ -56,7 +56,8 @@ public:
     post_vtx_selection_{cfg.getParameter<std::string>("postVtxSelection")},
     v0s_{consumes<V0Collection>( cfg.getParameter<edm::InputTag>("V0s") )},
     beamspot_{consumes<reco::BeamSpot>( cfg.getParameter<edm::InputTag>("beamSpot") )},
-    track_match_{consumes<edm::Association<pat::CompositeCandidateCollection>>( cfg.getParameter<edm::InputTag>("track_match") )}
+    track_match_{consumes<edm::Association<pat::CompositeCandidateCollection>>( cfg.getParameter<edm::InputTag>("track_match") )},
+    isLambda_{cfg.getParameter<bool>("isLambda")}    
   {
     produces<pat::CompositeCandidateCollection>("SelectedV0Collection");
     produces<TransientTrackCollection>("SelectedV0TransientCollection");
@@ -76,6 +77,7 @@ private:
   const edm::EDGetTokenT<V0Collection> v0s_;
   const edm::EDGetTokenT<reco::BeamSpot> beamspot_;
   const edm::EDGetTokenT<edm::Association<pat::CompositeCandidateCollection>> track_match_;
+  const bool isLambda_;
 };
 
 void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const &iSetup) const {
@@ -108,19 +110,35 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
 
     if (!v0daughter1.hasTrackDetails()) continue;
     if (!v0daughter2.hasTrackDetails()) continue;
-    if (fabs(v0daughter1.pdgId()) != 211) continue;
-    if (fabs(v0daughter2.pdgId()) != 211) continue;
+    if (fabs(v0daughter1.pdgId()) != 211) continue;// This cut do not affect the Lambda->proton pion candidates
+    if (fabs(v0daughter2.pdgId()) != 211) continue;// This cut do not affect the Lambda->proton pion candidates
 
     if (!trk_selection_(v0daughter1) || !trk_selection_(v0daughter2)) continue;
 
-    const reco::TransientTrack v0daughter1_ttrack = theB->build(v0daughter1.bestTrack());
-    const reco::TransientTrack v0daughter2_ttrack = theB->build(v0daughter2.bestTrack());
+    reco::TransientTrack v0daughter1_ttrack; // 1st daughter, leading daughter to be assigned. Proton mass will be assigned for the Lambda->Proton Pion mode, Pion mass will be assigned for the Kshort->PionPion mode. 
+    reco::TransientTrack v0daughter2_ttrack; // 2nd daughter, subleading daughter to be assigned. It hass always the pion mass
 
+    if (v0daughter1.p()>v0daughter2.p())
+    {
+	v0daughter1_ttrack = theB->build(v0daughter1.bestTrack());
+	v0daughter2_ttrack = theB->build(v0daughter2.bestTrack());
+    }
+    else
+    {
+	v0daughter1_ttrack = theB->build(v0daughter2.bestTrack());
+	v0daughter2_ttrack = theB->build(v0daughter1.bestTrack());
+    }
+
+    float Track1_mass = (isLambda_) ? PROT_MASS : PI_MASS;
+    float Track1_sigma = PI_SIGMA;
+    float Track2_mass = PI_MASS;
+    float Track2_sigma = PI_SIGMA;    
     // create V0 vertex
     KinVtxFitter fitter(
     {v0daughter1_ttrack, v0daughter2_ttrack},
-    {v0daughter1.mass(), v0daughter2.mass()},
-    {K_SIGMA, K_SIGMA} );
+    {Track1_mass, Track2_mass},
+    {Track1_sigma,Track2_sigma} );
+
 
     if (!fitter.success()) continue;
 
@@ -136,6 +154,8 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
     cand.setCharge(v0daughter1.charge() + v0daughter2.charge());
     cand.addUserFloat("sv_chi2", fitter.chi2());
     cand.addUserFloat("sv_prob", fitter.prob());
+    cand.addUserFloat("fitted_mass", fitter.fitted_candidate().mass());
+
     cand.addUserFloat("massErr",
                       sqrt(fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
     cand.addUserFloat("cos_theta_2D",

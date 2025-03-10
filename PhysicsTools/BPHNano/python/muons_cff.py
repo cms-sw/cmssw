@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simplePATMuonFlatTableProducer_cfi import simplePATMuonFlatTableProducer
+
 
 Path=["HLT_DoubleMu4_LowMass_Displaced", "HLT_DoubleMu4_3_LowMass"]
 
@@ -20,7 +22,9 @@ countTrgMuons = cms.EDFilter("PATCandViewCountFilter",
     src       = cms.InputTag("muonBPH", "SelectedMuons")
 )
 
-muonBPHTable = cms.EDProducer("SimplePATMuonFlatTableProducer",
+
+#muonBPHTable = cms.EDProducer("SimpleCompositeCandidateFlatTableProducer",#SimplePATMuonFlatTableProducer",
+muonBPHTable = simplePATMuonFlatTableProducer.clone(
     src  = cms.InputTag("muonBPH:SelectedMuons"),
     cut  = cms.string(""), #we should not filter on cross linked collections
     name = cms.string("BPHMuon"),
@@ -49,7 +53,6 @@ muonBPHTable = cms.EDProducer("SimplePATMuonFlatTableProducer",
         pfRelIso04_all = Var("(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt", float, doc="PF relative isolation dR=0.4, total (deltaBeta corrections)"),
 #        isPFcand = Var("bestTrack().isPFMuon()", bool, doc="muon is PF candidate"),
         isPFcand = Var("isPFMuon",bool,doc="muon is PF candidate"),
-
         isGlobal    = Var("isGlobalMuon", bool, doc="muon is global muon"),
         isTracker   = Var("isTrackerMuon", bool, doc="muon is tracker muon"),
         looseId     = Var("passed('CutBasedIdLoose')", bool, doc="cut-based ID, medium WP"),

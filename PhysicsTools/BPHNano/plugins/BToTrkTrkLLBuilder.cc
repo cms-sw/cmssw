@@ -48,7 +48,7 @@ public:
     ditracks_ttracks_{consumes<TransientTrackCollection>( cfg.getParameter<edm::InputTag>("transientTracks") )},
     pu_tracks_(consumes<pat::CompositeCandidateCollection>(cfg.getParameter<edm::InputTag>("PUtracks"))),
     beamspot_{consumes<reco::BeamSpot>( cfg.getParameter<edm::InputTag>("beamSpot") )},
-    dilepton_constraint_{cfg.getParameter<double>("dileptonMassContraint")}
+    dilepton_constraint_{cfg.getParameter<bool>("dileptonMassContraint")}
   {
     //output
     produces<pat::CompositeCandidateCollection>();
@@ -76,7 +76,8 @@ private:
   const edm::EDGetTokenT<TransientTrackCollection> ditracks_ttracks_;
   const edm::EDGetTokenT<pat::CompositeCandidateCollection> pu_tracks_;
   const edm::EDGetTokenT<reco::BeamSpot> beamspot_;
-  const double dilepton_constraint_;
+  const bool dilepton_constraint_;
+
 
 };
 
@@ -277,41 +278,77 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
         cand.addUserFloat(dnames[idaughter] + "_iso04", isos[idaughter]);
       }
 
-      if (dilepton_constraint_ > 0) {
-        ParticleMass dilep_mass = dilepton_constraint_;
+      float constraint_sv_prob= -9.;
+      float constraint_pt=-9.;
+      float constraint_eta=-9.;
+      float constraint_phi=-9.;
+      float constraint_mass_KK=-9.;
+      float constraint_massErr_KK=-9.;
+      float constraint_mass_Kpi=-9.;
+      float constraint_massErr_Kpi=-9.;
+      float constraint_mass_piK=-9.;
+      float constraint_massErr_piK=-9.;
+      float constraint_mll=-9.;
+      
+      const double dilepton_mass = ll_ptr->userFloat("fitted_mass");
+      const double jpsi_bin[2] = {2.8, 3.35};
+      const double psi2s_bin[2] = {3.45, 3.85};
+
+      if (dilepton_constraint_ && ((dilepton_mass > jpsi_bin[0] && dilepton_mass < jpsi_bin[1]) ||
+           (dilepton_mass > psi2s_bin[0] && dilepton_mass < psi2s_bin[1]))) {
+
+        ParticleMass JPsi_mass = 3.0969;   // Jpsi mass 3.096900±0.000006
+        ParticleMass Psi2S_mass = 3.6861;  // Psi2S mass 3.6861093±0.0000034
+        ParticleMass mass_constraint = (dilepton_mass < jpsi_bin[1]) ? JPsi_mass : Psi2S_mass;
+
         // Mass constraint is applied to the first two particles in the "particles" vector
         // Make sure that the first two particles are the ones you want to constrain
-        KinVtxFitter constraint_fitter(
-            { leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
-              ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)
-            },
-            { l1_ptr->mass(), l2_ptr->mass(),
-              ditracks_ptr->userFloat("trk1_mass"), ditracks_ptr->userFloat("trk2_mass")
-            },
-            { LEP_SIGMA, LEP_SIGMA, K_SIGMA, K_SIGMA },
-            dilep_mass);
 
-        if (constraint_fitter.success()) {
-          auto constraint_p4 = constraint_fitter.fitted_p4();
-          cand.addUserFloat("constraint_sv_prob", constraint_fitter.prob());
-          cand.addUserFloat("constraint_pt", constraint_p4.pt());
-          cand.addUserFloat("constraint_eta", constraint_p4.eta());
-          cand.addUserFloat("constraint_phi", constraint_p4.phi());
-          cand.addUserFloat("constraint_mass", constraint_fitter.fitted_candidate().mass());
-          cand.addUserFloat("constraint_massErr",
-                            sqrt(constraint_fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
-          cand.addUserFloat("constraint_mll" ,
-                            (constraint_fitter.daughter_p4(0) + constraint_fitter.daughter_p4(1)).mass());
-        } else {
-          cand.addUserFloat("constraint_sv_prob", -99);
-          cand.addUserFloat("constraint_pt", -99);
-          cand.addUserFloat("constraint_eta", -99);
-          cand.addUserFloat("constraint_phi", -99);
-          cand.addUserFloat("constraint_mass", -99);
-          cand.addUserFloat("constraint_massErr", -99);
-          cand.addUserFloat("constraint_mll" , -99);
+        KinVtxFitter constraint_fitter_KK(
+          { leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
+          { l1_ptr->mass(), l2_ptr->mass(), K_MASS, K_MASS},
+          { LEP_SIGMA, LEP_SIGMA, K_SIGMA, K_SIGMA},
+	  mass_constraint);
+        if (!constraint_fitter_KK.success()) continue;
+        KinVtxFitter constraint_fitter_Kpi(
+          { leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
+          { l1_ptr->mass(), l2_ptr->mass(), K_MASS, PI_MASS},
+          { LEP_SIGMA, LEP_SIGMA, K_SIGMA, K_SIGMA},
+	  mass_constraint);
+        if (!constraint_fitter_Kpi.success()) continue;
+        KinVtxFitter constraint_fitter_piK(
+          { leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
+          { l1_ptr->mass(), l2_ptr->mass(), PI_MASS, K_MASS},
+          { LEP_SIGMA, LEP_SIGMA, K_SIGMA, K_SIGMA},
+	  mass_constraint);
+        if (!constraint_fitter_piK.success()) continue;
+
+        if (constraint_fitter_KK.success()) {
+          auto constraint_p4 = constraint_fitter_KK.fitted_p4();
+          constraint_sv_prob= constraint_fitter_KK.prob();
+          constraint_pt= constraint_p4.pt();
+          constraint_eta= constraint_p4.eta();
+          constraint_phi=constraint_p4.phi();
+          constraint_mass_KK= constraint_fitter_KK.fitted_candidate().mass();
+          constraint_massErr_KK=sqrt(constraint_fitter_KK.fitted_candidate().kinematicParametersError().matrix()(6, 6));
+          constraint_mass_Kpi= constraint_fitter_Kpi.fitted_candidate().mass();
+          constraint_massErr_Kpi=sqrt(constraint_fitter_Kpi.fitted_candidate().kinematicParametersError().matrix()(6, 6));
+          constraint_mass_piK= constraint_fitter_piK.fitted_candidate().mass();
+          constraint_massErr_piK=sqrt(constraint_fitter_piK.fitted_candidate().kinematicParametersError().matrix()(6, 6));
+          constraint_mll=(constraint_fitter_KK.daughter_p4(0) + constraint_fitter_KK.daughter_p4(1)).mass();
         }
       }
+      cand.addUserFloat("constraint_sv_prob", constraint_sv_prob);
+      cand.addUserFloat("constraint_pt", constraint_pt);
+      cand.addUserFloat("constraint_eta", constraint_eta);
+      cand.addUserFloat("constraint_phi", constraint_phi);
+      cand.addUserFloat("constraint_mass_KK", constraint_mass_KK);
+      cand.addUserFloat("constraint_massErr_KK", constraint_massErr_KK);
+      cand.addUserFloat("constraint_mass_Kpi", constraint_mass_Kpi);
+      cand.addUserFloat("constraint_massErr_Kpi", constraint_massErr_Kpi);
+      cand.addUserFloat("constraint_mass_piK", constraint_mass_piK);
+      cand.addUserFloat("constraint_massErr_piK", constraint_massErr_piK);
+      cand.addUserFloat("constraint_mll" , constraint_mll);
 
       ret_val->push_back(cand);
 

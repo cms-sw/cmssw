@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheck2021_cfg.py geometry=2021 tol=0.1
 #
-#   Options for geometry 2018, 2021, 2023, 2024, 2025
+#   Options for geometry 2018, 2021, 2023, 2024, 2025, 2025N, 2025P, 2025Q
 #           for tol      0.01, 0.1, 1.0
 #
 ###############################################################################
@@ -17,7 +17,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2018, 2021, 2023, 2024, 2025")
+                  "geometry of operations: 2018, 2021, 2023, 2024, 2025, 2025N,, 2025P, 2025Q")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,

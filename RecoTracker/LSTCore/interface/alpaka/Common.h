@@ -11,7 +11,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   using namespace ::lst;
 
-  ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstWarning(std::string_view warning) { edm::LogWarning("LST") << warning; }
+  ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstWarning(std::string_view warning) {
+#ifdef LST_STANDALONE
+    printf("%s\n", warning.data());
+#else
+    edm::LogWarning("LST") << warning;
+#endif
+  }
 
   // The constants below are usually used in functions like alpaka::math::min(),
   // expecting a reference (T const&) in the arguments. Hence,

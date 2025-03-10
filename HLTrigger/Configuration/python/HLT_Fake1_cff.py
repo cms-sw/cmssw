@@ -1,13 +1,13 @@
-# hltGetConfiguration /dev/CMSSW_14_2_0/Fake1 --cff --data --type Fake1
+# hltGetConfiguration /dev/CMSSW_15_0_0/Fake1 --cff --data --type Fake1
 
-# /dev/CMSSW_14_2_0/Fake1/V5 (CMSSW_14_2_0)
+# /dev/CMSSW_15_0_0/Fake1/V6 (CMSSW_15_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_2_0/Fake1/V5")
+  tableName = cms.string("/dev/CMSSW_15_0_0/Fake1/V6")
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -16,6 +16,8 @@ fragment.datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_Physics_v1',
   'HLT_ZeroBias_v1' ) )
 
 fragment.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  dump = cms.untracked.vstring(  ),
+  file = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 fragment.hcalDDDRecConstants = cms.ESProducer( "HcalDDDRecConstantsESModule",

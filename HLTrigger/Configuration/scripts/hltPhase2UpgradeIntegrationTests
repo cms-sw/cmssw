@@ -188,7 +188,7 @@ with open(dumped_config_file, "r") as f:
     config_content = f.read()
 
 # Use regex to find all HLT and L1T paths defined in process.schedule
-unsorted_hlt_paths = re.findall(r"process\.(HLT_[A-Za-z0-9_]+|L1T_[A-Za-z0-9_]+)", config_content)
+unsorted_hlt_paths = re.findall(r"process\.(HLT_[A-Za-z0-9_]+|L1T_[A-Za-z0-9_]+|DST_[A-Za-z0-9_]+)", config_content)
 
 # Remove duplicates and sort alphabetically
 hlt_paths = sorted(set(unsorted_hlt_paths))
