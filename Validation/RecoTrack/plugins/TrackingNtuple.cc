@@ -1292,7 +1292,7 @@ private:
       ph2_radL;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> ph2_bbxi;
   std::vector<uint64_t> ph2_usedMask;
-  std::vector<size_t> ph2_size;
+  std::vector<size_t> ph2_clustSize;
 
   ////////////////////
   // invalid (missing/inactive/etc) hits
@@ -1883,7 +1883,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("ph2_radL", &ph2_radL);
       t->Branch("ph2_bbxi", &ph2_bbxi);
       t->Branch("ph2_usedMask", &ph2_usedMask);
-      t->Branch("ph2_size", &ph2_size);
+      t->Branch("ph2_clustSize", &ph2_clustSize);
     }
     //invalid hits
     t->Branch("inv_isBarrel", &inv_isBarrel);
@@ -2311,7 +2311,7 @@ void TrackingNtuple::clearVariables() {
   ph2_radL.clear();
   ph2_bbxi.clear();
   ph2_usedMask.clear();
-  ph2_size.clear();
+  ph2_clustSize.clear();
   //invalid hits
   inv_isBarrel.clear();
   inv_detId.clear();
@@ -3379,7 +3379,7 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
       ph2_radL.push_back(hit->surface()->mediumProperties().radLen());
       ph2_bbxi.push_back(hit->surface()->mediumProperties().xi());
       ph2_usedMask.push_back(ph2OTUsedMask(hit->firstClusterRef().key()));
-      ph2_size.push_back(hit->cluster()->size());
+      ph2_clustSize.push_back(hit->cluster()->size());
 
       LogTrace("TrackingNtuple") << "phase2 OT cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
                                  << " rawId=" << hitId.rawId() << " pos =" << hit->globalPosition();
