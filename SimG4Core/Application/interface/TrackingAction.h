@@ -10,6 +10,7 @@
 #include <vector>
 
 class SimTrackManager;
+class CMSG4TrackInterface;
 class TrackWithHistory;
 class BeginOfTrack;
 class EndOfTrack;
@@ -31,8 +32,12 @@ public:
   SimActivityRegistry::BeginOfTrackSignal m_beginOfTrackSignal;
   SimActivityRegistry::EndOfTrackSignal m_endOfTrackSignal;
 
+  TrackingAction(TrackingAction&) = delete;
+  TrackingAction& operator=(const TrackingAction& right) = delete;
+
 private:
   SimTrackManager* trackManager_;
+  CMSG4TrackInterface* interface_;
   CMSSteppingVerbose* steppingVerbose_;
   const G4Track* g4Track_ = nullptr;
   TrackInformation* trkInfo_ = nullptr;
