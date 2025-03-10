@@ -93,7 +93,7 @@ namespace simdoublets {
     constexpr unsigned int numEndcapDisks = (TrackerTraits::numberOfLayers - numBarrelLayers) / 2;
 
     // set default to 999 (invalid)
-    unsigned int layerId{999};
+    unsigned int layerId{99};
 
     if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
       // subtract 1 in the barrel to get, e.g. for Phase 2, from (1,4) to (0,3)
