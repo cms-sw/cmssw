@@ -79,7 +79,7 @@ namespace edm {
 
   template <typename T>
   bool ContainerMask<T>::mask(const typename ContainerMaskTraits<T>::value_type* iElement) {
-    unsigned int index = ContainerMaskTraits<T>::indexFor(iElement, m_prod.product());
+    auto index = ContainerMaskTraits<T>::indexFor(iElement, m_prod.product());
     return this->mask(index);
   }
 

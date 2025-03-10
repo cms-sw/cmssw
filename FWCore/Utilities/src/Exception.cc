@@ -50,7 +50,7 @@ namespace cms {
   void Exception::init(std::string const& message) {
     ost_ << message;
     if (!message.empty()) {
-      unsigned sz = message.size() - 1;
+      auto sz = message.size() - 1;
       if (message[sz] != '\n' && message[sz] != ' ')
         ost_ << " ";
     }

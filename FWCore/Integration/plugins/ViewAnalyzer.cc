@@ -177,8 +177,8 @@ namespace edmtest {
     }
 
     // Make sure the references are right.
-    size_t numElements = hview->size();
-    for (size_t i = 0; i < numElements; ++i) {
+    auto numElements = hview->size();
+    for (typename view_t::size_type i = 0; i < numElements; ++i) {
       RefToBase<value_t> ref = hview->refAt(i);
       assert(ref.isNonnull());
     }

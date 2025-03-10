@@ -50,7 +50,7 @@ namespace {
 
   void func3() {
     double d = 1.11111;
-    float f = 2.22222;
+    float f = 2.22222f;
     unsigned int i = 75U;
     std::string s("a string");
     char* c1 = const_cast<char*>("a nonconst pointer");
@@ -90,7 +90,7 @@ namespace {
 
   void func4() {
     double d = 1.11111;
-    float f = 2.22222;
+    float f = 2.22222f;
     unsigned int i = 75U;
     std::string s("a string");
     char* c1 = const_cast<char*>("a nonconst pointer");

@@ -81,14 +81,14 @@ namespace edm {
     public:
       ProcessToken() : index_{undefinedIndex()} {}
 
-      int index() const { return index_; }
+      long long index() const { return index_; }
 
-      static int undefinedIndex() { return -1; }
+      static long long int undefinedIndex() { return -1; }
 
     private:
-      explicit ProcessToken(int index) : index_{index} {}
+      explicit ProcessToken(long long int index) : index_{index} {}
 
-      int index_;
+      long long int index_;
     };
 
     class TestProcessorConfig {
@@ -101,7 +101,7 @@ namespace edm {
      then the call order will be the order of the Processes in the history.*/
       ProcessToken addExtraProcess(std::string const& iProcessName) {
         extraProcesses_.emplace_back(iProcessName);
-        return ProcessToken(extraProcesses_.size() - 1);
+        return ProcessToken(static_cast<long long int>(extraProcesses_.size()) - 1);
       }
 
       std::vector<std::string> const& extraProcesses() const { return extraProcesses_; }
