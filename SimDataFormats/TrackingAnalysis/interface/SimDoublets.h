@@ -44,26 +44,26 @@ public:
   class Doublet {
   public:
     // possible states of the doublet (could be set by an analyzer according to doublet cuts)
-    enum class Status : uint8_t { undef, alive, killed };
+    enum class Status : uint8_t { undef, alive, killedByCuts, killedByMissingLayerPair };
 
     struct Neighbor {
-      Neighbor(size_t neighborIndex) : neighborIndex_(neighborIndex), status_(Status::undef) {}
+      Neighbor(size_t index) : index_(index), status_(Status::undef) {}
 
-      size_t neighborIndex() const { return neighborIndex_; }
+      size_t index() const { return index_; }
       Status status() const { return status_; }
 
       // methods to set status to undef, alive or killed
       void setUndef() { status_ = Status::undef; }
       void setAlive() { status_ = Status::alive; }
-      void setKilled() { status_ = Status::killed; }
+      void setKilled() { status_ = Status::killedByCuts; }
 
       // methods to check if status is undef, alive or killed
       bool isUndef() const { return status_ == Status::undef; }
       bool isAlive() const { return status_ == Status::alive; }
-      bool isKilled() const { return status_ == Status::killed; }
+      bool isKilled() const { return status_ == Status::killedByCuts; }
 
-      size_t neighborIndex_;
-      Status status_;
+      size_t index_;   // index of the neighboring doublet
+      Status status_;  // status of the connection to the neighboring doublet
     };
 
     // default constructor
@@ -102,18 +102,24 @@ public:
     // methods to set status to undef, alive or killed
     void setUndef() { status_ = Status::undef; }
     void setAlive() { status_ = Status::alive; }
-    void setKilled() { status_ = Status::killed; }
+    void setKilledByCuts() { status_ = Status::killedByCuts; }
+    void setKilledByMissingLayerPair() { status_ = Status::killedByMissingLayerPair; }
 
     // methods to check if status is undef, alive or killed
     bool isUndef() const { return status_ == Status::undef; }
     bool isAlive() const { return status_ == Status::alive; }
-    bool isKilled() const { return status_ == Status::killed; }
+    bool isKilledByCuts() const { return status_ == Status::killedByCuts; }
+    bool isKilledByMissingLayerPair() const { return status_ == Status::killedByMissingLayerPair; }
+    bool isKilled() const { return isKilledByCuts() || isKilledByMissingLayerPair(); }
 
-    // method to get the vector of inner nieghboring doublets
+    // method to get the vector of inner neighboring doublets
     std::vector<Neighbor>& innerNeighbors() { return innerNeighbors_; }
     std::vector<Neighbor> const& innerNeighborsView() const { return innerNeighbors_; }
+    int innerNeighborIndex(int i) const { return innerNeighbors_.at(i).index(); }
     // method to get the number of neighbors
-    size_t numInnerNeighbors() { return innerNeighbors_.size(); }
+    int numInnerNeighbors() const { return innerNeighbors_.size(); }
+    // method to get the inner layer ID of the neighbors
+    uint8_t innerNeighborsInnerLayerId() const { return innerNeighborsInnerLayerId_; }
 
   private:
     TrackingParticleRef trackingParticleRef_;                   // reference to the TrackingParticle
@@ -123,7 +129,8 @@ public:
     int8_t numSkippedLayers_;                                   // number of layers skipped by the Doublet
     int16_t layerPairId_;            // ID of the layer pair as defined in the reconstruction for the doublets
     GlobalVector beamSpotPosition_;  // global position of the beam spot (needed to correct the global RecHit position)
-    std::vector<Neighbor> innerNeighbors_{};  // indices of inner neighboring doublets
+    std::vector<Neighbor> innerNeighbors_{};   // indices of inner neighboring doublets and the status of the connection
+    uint8_t innerNeighborsInnerLayerId_{99};  // layer ID of the inner RecHit of the inner neighboring doublets
   };
 
   /**
@@ -139,6 +146,7 @@ public:
       alive,
       undefDoubletCuts,
       undefDoubletConnectionCuts,
+      killedByMissingLayerPair,
       killedByDoubletCuts,
       killedByDoubletConnectionCuts
     };
@@ -160,6 +168,7 @@ public:
     void setAlive() { status_ = Status::alive; }
     void setUndefDoubletCuts() { status_ = Status::undefDoubletCuts; }
     void setUndefDoubletConnectionCuts() { status_ = Status::undefDoubletConnectionCuts; }
+    void setKilledByMissingLayerPair() { status_ = Status::killedByMissingLayerPair; }
     void setKilledByDoubletCuts() { status_ = Status::killedByDoubletCuts; }
     void setKilledByDoubletConnectionCuts() { status_ = Status::killedByDoubletConnectionCuts; }
 
@@ -168,9 +177,12 @@ public:
     bool isUndefDoubletCuts() const { return status_ == Status::undefDoubletCuts; }
     bool isUndefDoubletConnectionCuts() const { return status_ == Status::undefDoubletConnectionCuts; }
     bool isUndef() const { return isUndefDoubletCuts() || isUndefDoubletConnectionCuts(); }
+    bool isKilledByMissingLayerPair() const { return status_ == Status::killedByMissingLayerPair; }
     bool isKilledByDoubletCuts() const { return status_ == Status::killedByDoubletCuts; }
     bool isKilledByDoubletConnectionCuts() const { return status_ == Status::killedByDoubletConnectionCuts; }
-    bool isKilled() const { return isKilledByDoubletCuts() || isKilledByDoubletConnectionCuts(); }
+    bool isKilled() const {
+      return isKilledByMissingLayerPair() || isKilledByDoubletCuts() || isKilledByDoubletConnectionCuts();
+    }
 
   private:
     int numDoublets_;       // number of doublets in the Ntuplet
@@ -232,13 +244,14 @@ public:
 
   // method to produce the SimDoublets from the RecHits
   void buildSimDoublets(const TrackerTopology* trackerTopology = nullptr) const;
-
   // method to access the SimDoublets
   std::vector<Doublet>& getSimDoublets() const { return doublets_; }
+  // method to build and access the SimDoublets
   std::vector<Doublet>& getSimDoublets(const TrackerTopology* trackerTopology) const {
     buildSimDoublets(trackerTopology);
     return doublets_;
   }
+  Doublet const& getSimDoublet(int const index) const { return doublets_.at(index); }
 
   // method to produce and get the SimNtuplets
   // (collection of all possible Ntuplets you can build from the SimDoublets)

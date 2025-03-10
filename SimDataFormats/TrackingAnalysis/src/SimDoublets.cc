@@ -79,8 +79,14 @@ SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
   layerPairId_ = simdoublets::getLayerPairId(layerIds_);
 
   // fill the inner neighbors
-  for (size_t const neighborIndex : innerNeighborsIndices) {
-    innerNeighbors_.emplace_back(SimDoublets::Doublet::Neighbor(neighborIndex));
+  for (size_t const index : innerNeighborsIndices) {
+    innerNeighbors_.emplace_back(SimDoublets::Doublet::Neighbor(index));
+  }
+
+  // if there are neighbors, get their inner layerId
+  if (innerNeighborsIndices.size() > 0) {
+    size_t index = innerNeighborsIndices.at(0);
+    innerNeighborsInnerLayerId_ = simDoublets.getSimDoublet(index).innerLayerId();
   }
 }
 
@@ -201,21 +207,33 @@ void SimDoublets::buildSimNtuplets(std::vector<SimDoublets::Ntuplet>& simNtuplet
   // update the status of the current SimNtuplet by adding the information from the new doublet
   numSimDoublets++;
   switch (status) {
+    case SimDoublets::Ntuplet::Status::killedByMissingLayerPair:
+      // if the Ntuplet already got killed by missing layer pair,
+      // nothing will change this state as this is first requirement
+      break;
     case SimDoublets::Ntuplet::Status::killedByDoubletCuts:
       // if the Ntuplet already got killed by doublet cuts,
       // nothing will change this state as those are the first cuts applied
+      // unless a layer pair is already missing
+      if (doublet.isKilledByMissingLayerPair()) {
+        status = SimDoublets::Ntuplet::Status::killedByMissingLayerPair;
+      }
       break;
     case SimDoublets::Ntuplet::Status::undefDoubletCuts:
       // similar if previous doublet cuts were undefined,
       // nothing should change this state unless the new doublet got killed (stronger statement)
-      if (doublet.isKilled()) {
+      if (doublet.isKilledByMissingLayerPair()) {
+        status = SimDoublets::Ntuplet::Status::killedByMissingLayerPair;
+      } else if (doublet.isKilledByCuts()) {
         status = SimDoublets::Ntuplet::Status::killedByDoubletCuts;
       }
       break;
     default:
       // in all other cases,
       // we want to check if the new doublet even survived or was checked at all
-      if (doublet.isKilled()) {
+      if (doublet.isKilledByMissingLayerPair()) {
+        status = SimDoublets::Ntuplet::Status::killedByMissingLayerPair;
+      } else if (doublet.isKilledByCuts()) {
         status = SimDoublets::Ntuplet::Status::killedByDoubletCuts;
       } else if (doublet.isUndef()) {
         status = SimDoublets::Ntuplet::Status::undefDoubletCuts;
@@ -232,7 +250,7 @@ void SimDoublets::buildSimNtuplets(std::vector<SimDoublets::Ntuplet>& simNtuplet
   // then loop over the inner neighboring doublets of the current doublet
   for (auto const& neighbor : doublet.innerNeighborsView()) {
     // get the inner neighboring doublet and the status of this connection
-    auto const& neighborDoublet = doublets_.at(neighbor.neighborIndex());
+    auto const& neighborDoublet = doublets_.at(neighbor.index());
 
     // update the status according to the connection status to the neighbor
     switch (status) {
