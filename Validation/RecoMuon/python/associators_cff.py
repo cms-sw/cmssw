@@ -370,7 +370,7 @@ tpToGlbCosmic1LegSelMuonAssociation = MABHcosmic.clone(
 )
 
 #
-# The full-sim association sequences
+# Offline Muon Association sequences
 #
 
 muonAssociation_seq = cms.Sequence(
@@ -402,6 +402,10 @@ muonAssociationCosmic_seq = cms.Sequence(
     +tpToGlbCosmicSelMuonAssociation+tpToGlbCosmic1LegSelMuonAssociation
     )
 
+#
+# The HLT association sequence
+#
+
 muonAssociationHLT_seq = cms.Sequence(
     tpToL2MuonAssociation+tpToL2UpdMuonAssociation
     +tpToL3OITkMuonAssociation+tpToL3TkMuonAssociation+tpToL3FromL1TkMuonAssociation+tpToL0L3FromL1TkMuonAssociation
@@ -411,10 +415,22 @@ muonAssociationHLT_seq = cms.Sequence(
     )
 
 #
-# The Phase-2 sim association sequences
+# The Phase 2 sequences
 #
 
-Phase2MuonAssociationHLT_seq = cms.Sequence(
+muonAssociationReduced_seq = cms.Sequence(
+    probeTracks_seq+tpToTkMuonAssociation
+    +tpToStaUpdMuonAssociation
+    +tpToGlbMuonAssociation
+    +tunepMuonTracks_seq+tpToTunePMuonAssociation
+    +pfMuonTracks_seq+tpToPFMuonAssociation
+    +recoMuonTracks_seq+tpTorecoMuonMuonAssociation
+    +tpToDisplacedStaMuonAssociation
+    +tpToDisplacedTrkMuonAssociation
+    +tpToDisplacedGlbMuonAssociation
+)
+
+_muonAssociationHLT_seq = cms.Sequence(
     hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
     +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
     +Phase2tpToL3IOTkAssociation+Phase2tpToL3OITkAssociation
@@ -424,10 +440,10 @@ Phase2MuonAssociationHLT_seq = cms.Sequence(
     )
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toReplaceWith(muonAssociationHLT_seq, Phase2MuonAssociationHLT_seq)
+phase2_muon.toReplaceWith(muonAssociationHLT_seq, _muonAssociationHLT_seq)
 
 # Inside-Out first
-Phase2IOFirstMuonAssociationHLT_seq = cms.Sequence(
+_muonAssociationHLT_seq_IO_first = cms.Sequence(
     hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
     +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
     +Phase2tpToL3IOTkAssociation+Phase2tpToL3OITkAssociation
@@ -437,7 +453,7 @@ Phase2IOFirstMuonAssociationHLT_seq = cms.Sequence(
     +hltPhase2L3MuonIdTracks+Phase2tpToL3MuonIdAssociation
     )
 # Outside-In first
-Phase2OIFirstMuonAssociationHLT_seq = cms.Sequence(
+_muonAssociationHLT_seq_OI_first = cms.Sequence(
     hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
     +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
     +Phase2tpToL3OITkAssociation+Phase2tpToL3OITkFilteredAssociation
@@ -448,10 +464,10 @@ Phase2OIFirstMuonAssociationHLT_seq = cms.Sequence(
     )
 
 from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
-phase2L2AndL3Muons.toReplaceWith(muonAssociationHLT_seq, Phase2IOFirstMuonAssociationHLT_seq)
+phase2L2AndL3Muons.toReplaceWith(muonAssociationHLT_seq, _muonAssociationHLT_seq_IO_first)
 
 from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
-(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toReplaceWith(muonAssociationHLT_seq, Phase2OIFirstMuonAssociationHLT_seq)
+(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toReplaceWith(muonAssociationHLT_seq, _muonAssociationHLT_seq_OI_first)
 
 # fastsim has no hlt specific dt hit collection
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
