@@ -150,6 +150,7 @@ namespace simdoublets {
       const bool isOuterLadder = (0 == (moduleId / 8) % 2);  // check if this even makes sense in Phase-2
       const bool innerInBarrel = (doublet.innerLayerId() < 4);
       const bool outerInBarrel = (doublet.outerLayerId() < 4);
+      const bool onlyBarrel = innerInBarrel && outerInBarrel;
 
       // YsizeB1 & YsizeB2 cuts
       if (!outerInBarrel) {
@@ -162,15 +163,17 @@ namespace simdoublets {
       }
 
       // DYsize, DYsizeB12 & DYPred cuts
-      if (innerInBarrel) {
-        if (outerInBarrel) {  // onlyBarrel
-          if (innerInB1 && isOuterLadder) {
-            setSubjectToDYsize12();
-          } else if (!innerInB1) {
-            setSubjectToDYsize();
+      if (!(innerInB1) || isOuterLadder) {
+        if (innerInBarrel || onlyBarrel) {
+          if (onlyBarrel) {  // onlyBarrel
+            if (innerInB1) {
+              setSubjectToDYsize12();
+            } else {
+              setSubjectToDYsize();
+            }
+          } else if (innerInBarrel) {  // not onlyBarrel
+            setSubjectToDYPred();
           }
-        } else {  // not onlyBarrel
-          setSubjectToDYPred();
         }
       }
     }
@@ -736,14 +739,14 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                50);
 
   // histograms for ptcut  (ptCut)
-  h_curvatureR_.book1D(ibook,
-                       "curvatureR",
-                       "Curvature from 3 points of beamspot + RecHits of SimDoublets",
-                       "Curvature radius [cm]",
-                       "Number of SimDoublets",
-                       100,
-                       0,
-                       1000);
+  h_curvatureR_.book1DLogX(ibook,
+                           "curvatureR",
+                           "Curvature from 3 points of beamspot + RecHits of SimDoublets",
+                           "Curvature radius [cm]",
+                           "Number of SimDoublets",
+                           100,
+                           2,
+                           4);
   h_pTFromR_.book1DLogX(ibook,
                         "pTFromR",
                         "Transverse momentum from curvature",
@@ -925,26 +928,26 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                             "Curvature [1/cm]",
                             "Number of SimDoublet connections",
                             51,
-                            -4,
+                            -50,
                             1);
   h_dcaCutInnerTriplet_.book1DLogX(ibook,
-                               "dcaInner",
-                               "Closest transverse distance to beamspot based on the 3 RecHits of a pair of "
-                               "neighboring SimDoublets with the most inner RecHit on BPix1",
-                               "Transverse distance [cm]",
-                               "Number of SimDoublet connections",
-                               51,
-                               -6,
-                               1);
+                                   "dcaInner",
+                                   "Closest transverse distance to beamspot based on the 3 RecHits of a pair of "
+                                   "neighboring SimDoublets with the most inner RecHit on BPix1",
+                                   "Transverse distance [cm]",
+                                   "Number of SimDoublet connections",
+                                   51,
+                                   -6,
+                                   1);
   h_dcaCutOuterTriplet_.book1DLogX(ibook,
-                               "dcaOuter",
-                               "Closest transverse distance to beamspot based on the 3 RecHits of a pair of "
-                               "neighboring SimDoublets with the most inner RecHit not on BPix1",
-                               "Transverse distance [cm]",
-                               "Number of SimDoublet connections",
-                               51,
-                               -6,
-                               1);
+                                   "dcaOuter",
+                                   "Closest transverse distance to beamspot based on the 3 RecHits of a pair of "
+                                   "neighboring SimDoublets with the most inner RecHit not on BPix1",
+                                   "Transverse distance [cm]",
+                                   "Number of SimDoublet connections",
+                                   51,
+                                   -6,
+                                   1);
 }
 
 // -------------------------------------------------------------------------------------------------------------
