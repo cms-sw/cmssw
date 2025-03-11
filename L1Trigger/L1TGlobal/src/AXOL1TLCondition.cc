@@ -41,6 +41,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+namespace {
+  //template function for reading results
+  template <typename ResultType, typename LossType>
+  LossType readResult(hls4mlEmulator::Model& model) {
+    std::pair<ResultType, LossType> ADModelResult;  //model outputs a pair of the (result vector, loss)
+    model.read_result(&ADModelResult);
+    return ADModelResult.second;
+  }
+}  // namespace
+
 l1t::AXOL1TLCondition::AXOL1TLCondition()
     : ConditionEvaluation(), m_gtAXOL1TLTemplate{nullptr}, m_gtGTB{nullptr}, m_model{nullptr} {}
 
