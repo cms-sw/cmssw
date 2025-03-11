@@ -19,8 +19,10 @@ from ..modules.hltHgcalSoARecHitsLayerClustersProducer_cfi import *
 from ..modules.hltHgcalSoALayerClustersProducer_cfi import *
 from ..modules.hltHgcalLayerClustersFromSoAProducer_cfi import *
 from ..modules.hltTiclTracksterLinks_cfi import *
-
-_HgcalLocalRecoUnseededSequence = cms.Sequence(hltHgcalDigis+hltHGCalUncalibRecHit+hltHGCalRecHit+hltParticleFlowRecHitHGC+hltHgcalLayerClustersEE+hltHgcalLayerClustersHSci+hltHgcalLayerClustersHSi+hltHgcalMergeLayerClusters)
+# Barrel layer clusters
+from ..modules.hltBarrelLayerClustersEB_cfi import *
+from ..modules.hltBarrelLayerClustersHB_cfi import *
+_HgcalLocalRecoUnseededSequence = cms.Sequence(hltHgcalDigis+hltHGCalUncalibRecHit+hltHGCalRecHit+hltParticleFlowRecHitHGC+hltHgcalLayerClustersEE+hltHgcalLayerClustersHSci+hltHgcalLayerClustersHSi+hltBarrelLayerClustersEB+hltBarrelLayerClustersHB+hltHgcalMergeLayerClusters)
 _HgcalTICLPatternRecognitionUnseededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHigh+hltTiclSeedingGlobal+hltTiclLayerTileProducer+hltTiclTrackstersCLUE3DHigh)
 _SuperclusteringUnseededSequence = cms.Sequence(hltParticleFlowClusterHGCalFromTICLUnseeded+hltParticleFlowSuperClusterHGCalFromTICLUnseeded)
 
@@ -40,6 +42,8 @@ alpaka.toReplaceWith(_HgcalLocalRecoUnseededSequence,
                                   + hltHgCalLayerClustersFromSoAProducer
                                   + hltHgcalLayerClustersHSci
                                   + hltHgcalLayerClustersHSi
+                                  + hltBarrelLayerClustersEB
+                                  + hltBarrelLayerClustersHB
                                   + hltHgcalMergeLayerClusters
                      ) 
 )
