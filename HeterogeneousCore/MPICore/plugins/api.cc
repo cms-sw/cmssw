@@ -193,3 +193,62 @@ void MPIChannel::receiveTrivialProduct_(int instance, edm::ObjectWithDict& produ
   assert(static_cast<int>(product.typeOf().size()) == size);
   MPI_Mrecv(product.address(), size, MPI_BYTE, &message, MPI_STATUS_IGNORE);
 }
+
+// transfer a wrapped object using its TrivialCopyTraits
+void MPIChannel::sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper) {
+  int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
+
+  // if the wrapped type requires it, send the properties required toinitialise the remote copy
+  if (wrapper->hasTrivialCopyProperties()) {
+    edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
+    MPI_Send(buffer.data(), buffer.size_bytes(), MPI_BYTE, dest_, tag, comm_);
+  }
+
+  // transfer the memory regions
+  auto regions = wrapper->trivialCopyRegions();
+  // TODO send the number of regions ?
+  for (size_t i = 0; i < regions.size(); ++i) {
+    assert(regions[i].data() != nullptr);
+    MPI_Send(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_);
+  }
+}
+
+// receive a wrapped object using its TrivialCopyTraits
+void MPIChannel::receiveTrivialCopyProduct_(int instance, edm::WrapperBase* wrapper) {
+  int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
+
+  MPI_Message message;
+  MPI_Status status;
+  int size;
+
+  // mark the wrapped object as present
+  wrapper->markAsPresent();
+
+  // if the wrapped type requires it, send the properties required toinitialise the remote copy
+  if (wrapper->hasTrivialCopyProperties()) {
+    edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
+    MPI_Mprobe(dest_, tag, comm_, &message, &status);
+    // check that the message size matches the expected buffer size
+    MPI_Get_count(&status, MPI_BYTE, &size);
+    assert(static_cast<int>(buffer.size_bytes()) == size);
+    // receive the properties
+    MPI_Mrecv(buffer.data(), buffer.size_bytes(), MPI_BYTE, &message, &status);
+    wrapper->trivialCopyInitialize(buffer);
+  }
+
+  // receive the memory regions
+  auto regions = wrapper->trivialCopyRegions();
+  // TODO receive and validate the number of regions ?
+  for (size_t i = 0; i < regions.size(); ++i) {
+    assert(regions[i].data() != nullptr);
+    MPI_Mprobe(dest_, tag, comm_, &message, &status);
+    // check that the message size matches the expected region size
+    MPI_Get_count(&status, MPI_BYTE, &size);
+    assert(static_cast<int>(regions[i].size_bytes()) == size);
+    // receive the data region
+    MPI_Mrecv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, &message, &status);
+  }
+
+  // finalize the clone after the trivialCopy, if the type requires it
+  wrapper->trivialCopyFinalize();
+}
