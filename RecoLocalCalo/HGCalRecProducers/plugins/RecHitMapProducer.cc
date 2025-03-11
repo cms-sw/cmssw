@@ -45,8 +45,7 @@ RecHitMapProducer::RecHitMapProducer(const edm::ParameterSet& ps)
       hits_ho_token_(consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("HOInput"))),
       hgcalOnly_(ps.getParameter<bool>("hgcalOnly")) {
   produces<DetIdRecHitMap>("hgcalRecHitMap");
-  if (!hgcalOnly_)
-    produces<DetIdRecHitMap>("barrelRecHitMap");
+  produces<DetIdRecHitMap>("barrelRecHitMap");
 }
 
 void RecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -79,16 +78,14 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
 
   evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
 
-  if (!hgcalOnly_) {
-    auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
-    MultiVectorManager<reco::PFRecHit> barrelRechitManager;
-    barrelRechitManager.addVector(evt.get(hits_eb_token_));
-    barrelRechitManager.addVector(evt.get(hits_hb_token_));
-    barrelRechitManager.addVector(evt.get(hits_ho_token_));
-    for (unsigned int i = 0; i < barrelRechitManager.size(); ++i) {
-      const auto recHitDetId = barrelRechitManager[i].detId();
-      hitMapBarrel->emplace(recHitDetId, i);
-    }
-    evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
+  auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
+  MultiVectorManager<reco::PFRecHit> barrelRechitManager;
+  barrelRechitManager.addVector(evt.get(hits_eb_token_));
+  barrelRechitManager.addVector(evt.get(hits_hb_token_));
+  barrelRechitManager.addVector(evt.get(hits_ho_token_));
+  for (unsigned int i = 0; i < barrelRechitManager.size(); ++i) {
+    const auto recHitDetId = barrelRechitManager[i].detId();
+    hitMapBarrel->emplace(recHitDetId, i);
   }
+  evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
 }
