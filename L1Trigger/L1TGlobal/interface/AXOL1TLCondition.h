@@ -25,14 +25,6 @@ namespace l1t {
   class L1Candidate;
   class GlobalBoard;
 
-  //template function for reading results
-  template <typename ResultType, typename LossType>
-  LossType readResult(hls4mlEmulator::Model& model) {
-    std::pair<ResultType, LossType> ADModelResult;  //model outputs a pair of the (result vector, loss)
-    model.read_result(&ADModelResult);
-    return ADModelResult.second;
-  }
-
   // class declaration
   class AXOL1TLCondition : public ConditionEvaluation {
   public:
