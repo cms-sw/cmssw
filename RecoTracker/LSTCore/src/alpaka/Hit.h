@@ -44,11 +44,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   EndcapGeometryDevConst endcapGeometry,
                                   ModulesConst modules,
                                   Hits hits,
-                                  HitsRanges hitsRanges,
-                                  unsigned int nHits) const  // Total number of hits in event
+                                  HitsRanges hitsRanges) const  // Total number of hits in event
     {
       auto geoMapDetId = endcapGeometry.geoMapDetId();  // DetId's from endcap map
       auto geoMapPhi = endcapGeometry.geoMapPhi();      // Phi values from endcap map
+      unsigned int nHits = hits.metadata().size();
       for (unsigned int ihit : cms::alpakatools::uniform_elements(acc, nHits)) {
         float ihit_x = hits.xs()[ihit];
         float ihit_y = hits.ys()[ihit];

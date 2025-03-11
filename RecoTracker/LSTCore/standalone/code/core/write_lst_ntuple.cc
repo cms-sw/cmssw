@@ -1183,7 +1183,7 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
 //________________________________________________________________________________________________________________________________
 void printHitMultiplicities(LSTEvent* event) {
   auto modules = event->getModules<ModulesSoA>();
-  auto hitRanges = event->getHits<HitsRangesSoA>();
+  auto hitRanges = event->getHitsRanges();
 
   int nHits = 0;
   for (unsigned int idx = 0; idx <= modules.nLowerModules();

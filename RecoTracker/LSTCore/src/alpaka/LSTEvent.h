@@ -4,6 +4,7 @@
 #include <optional>
 
 #include "RecoTracker/LSTCore/interface/HitsHostCollection.h"
+#include "RecoTracker/LSTCore/interface/HitsRangesHostCollection.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsHostCollection.h"
 #include "RecoTracker/LSTCore/interface/PixelQuintupletsHostCollection.h"
 #include "RecoTracker/LSTCore/interface/PixelTripletsHostCollection.h"
@@ -17,6 +18,7 @@
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/alpaka/LST.h"
 #include "RecoTracker/LSTCore/interface/alpaka/HitsDeviceCollection.h"
+#include "RecoTracker/LSTCore/interface/alpaka/HitsRangesDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/MiniDoubletsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/PixelQuintupletsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/PixelTripletsDeviceCollection.h"
@@ -53,6 +55,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     //Device stuff
     std::optional<ObjectRangesDeviceCollection> rangesDC_;
     std::optional<HitsDeviceCollection> hitsDC_;
+    std::optional<HitsRangesDeviceCollection> hitsRangesDC_;
     std::optional<MiniDoubletsDeviceCollection> miniDoubletsDC_;
     std::optional<SegmentsDeviceCollection> segmentsDC_;
     std::optional<PixelSegmentsDeviceCollection> pixelSegmentsDC_;
@@ -65,6 +68,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     //CPU interface stuff
     std::optional<ObjectRangesHostCollection> rangesHC_;
     std::optional<HitsHostCollection> hitsHC_;
+    std::optional<HitsRangesHostCollection> hitsRangesHC_;
     std::optional<MiniDoubletsHostCollection> miniDoubletsHC_;
     std::optional<SegmentsHostCollection> segmentsHC_;
     std::optional<PixelSegmentsHostCollection> pixelSegmentsHC_;
@@ -107,31 +111,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     void wait() const { alpaka::wait(queue_); }
 
     // Calls the appropriate hit function, then increments the counter
-    void addHitToEvent(std::vector<float> const& x,
-                       std::vector<float> const& y,
-                       std::vector<float> const& z,
-                       std::vector<unsigned int> const& detId,
-                       std::vector<unsigned int> const& idxInNtuple);
-    void addPixelSegmentToEventStart(std::vector<float> const& ptIn,
-                                     std::vector<float> const& ptErr,
-                                     std::vector<float> const& px,
-                                     std::vector<float> const& py,
-                                     std::vector<float> const& pz,
-                                     std::vector<float> const& eta,
-                                     std::vector<float> const& etaErr,
-                                     std::vector<float> const& phi,
-                                     std::vector<int> const& charge,
-                                     std::vector<unsigned int> const& seedIdx,
-                                     std::vector<int> const& superbin,
-                                     std::vector<PixelType> const& pixelType,
-                                     std::vector<char> const& isQuad);
+    void addHitToEvent(HitsHostCollection const* hitsHC);
+    void addPixelSegmentToEventStart(PixelSegmentsHostCollection const* pixelSegmentsHC);
 
     void createMiniDoublets();
-    void addPixelSegmentToEventFinalize(std::vector<unsigned int> hitIndices0,
-                                        std::vector<unsigned int> hitIndices1,
-                                        std::vector<unsigned int> hitIndices2,
-                                        std::vector<unsigned int> hitIndices3,
-                                        std::vector<float> deltaPhi_vec);
+    void addPixelSegmentToEventFinalize();
     void createSegmentsWithModuleMap();
     void createTriplets();
     void createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets);
@@ -179,6 +163,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     // HANDLE WITH CARE
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getHits(bool inCMSSW = false, bool sync = true);
+    template <typename TDev = Device>
+    HitsRangesConst getHitsRanges(bool sync = true);
     template <typename TDev = Device>
     ObjectRangesConst getRanges(bool sync = true);
     template <typename TSoA, typename TDev = Device>

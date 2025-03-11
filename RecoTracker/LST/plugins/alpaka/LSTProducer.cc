@@ -16,8 +16,6 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 #include "RecoTracker/LST/interface/LSTOutput.h"
-#include "RecoTracker/LST/interface/LSTPhase2OTHitsInput.h"
-#include "RecoTracker/LST/interface/LSTPixelSeedInput.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
@@ -38,8 +36,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void acquire(device::Event const& event, device::EventSetup const& setup) override {
       // Inputs
-      auto const& pixelSeeds = event.get(lstPixelSeedInputToken_);
-      auto const& phase2OTHits = event.get(lstPhase2OTHitsInputToken_);
+      auto& pixelSegmentsHC = event.get(lstPixelSeedInputToken_);
+      auto& hitsHC = event.get(lstPhase2OTHitsInputToken_);
 
       auto const& lstESDeviceData = setup.getData(lstESToken_);
 
@@ -47,25 +45,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                verbose_,
                static_cast<float>(ptCut_),
                &lstESDeviceData,
-               pixelSeeds.px(),
-               pixelSeeds.py(),
-               pixelSeeds.pz(),
-               pixelSeeds.dxy(),
-               pixelSeeds.dz(),
-               pixelSeeds.ptErr(),
-               pixelSeeds.etaErr(),
-               pixelSeeds.stateTrajGlbX(),
-               pixelSeeds.stateTrajGlbY(),
-               pixelSeeds.stateTrajGlbZ(),
-               pixelSeeds.stateTrajGlbPx(),
-               pixelSeeds.stateTrajGlbPy(),
-               pixelSeeds.stateTrajGlbPz(),
-               pixelSeeds.q(),
-               pixelSeeds.hitIdx(),
-               phase2OTHits.detId(),
-               phase2OTHits.x(),
-               phase2OTHits.y(),
-               phase2OTHits.z(),
+               &hitsHC,
+               &pixelSegmentsHC,
                nopLSDupClean_,
                tcpLSTriplets_);
     }
@@ -89,8 +70,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    edm::EDGetTokenT<LSTPixelSeedInput> lstPixelSeedInputToken_;
-    edm::EDGetTokenT<LSTPhase2OTHitsInput> lstPhase2OTHitsInputToken_;
+    edm::EDGetTokenT<lst::PixelSegmentsHostCollection> lstPixelSeedInputToken_;
+    edm::EDGetTokenT<lst::HitsHostCollection> lstPhase2OTHitsInputToken_;
     device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
     const bool verbose_;
     const double ptCut_;

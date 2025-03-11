@@ -4,53 +4,64 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Utilities/interface/transform.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 
+#include "FWCore/Utilities/interface/transform.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
 #include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
-
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
-#include "RecoTracker/LST/interface/LSTPixelSeedInput.h"
+#include "RecoTracker/LSTCore/interface/HitsHostCollection.h"
+#include "RecoTracker/LSTCore/interface/PixelSegmentsHostCollection.h"
+#include "RecoTracker/LSTCore/interface/LSTInput.h"
 
-class LSTPixelSeedInputProducer : public edm::global::EDProducer<> {
+class LSTInputProducer : public edm::global::EDProducer<> {
 public:
-  explicit LSTPixelSeedInputProducer(edm::ParameterSet const& iConfig);
-  ~LSTPixelSeedInputProducer() override = default;
+  explicit LSTInputProducer(edm::ParameterSet const& iConfig);
+  ~LSTInputProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
+  const double ptCut_;
+
+  const edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> phase2OTRecHitToken_;
+  const edm::EDPutTokenT<std::unique_ptr<lst::HitsHostCollection>> lstHitsInputPutToken_;
+
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> seedTokens_;
-  const edm::EDPutTokenT<LSTPixelSeedInput> lstPixelSeedInputPutToken_;
   const edm::EDPutTokenT<TrajectorySeedCollection> lstPixelSeedsPutToken_;
+  const edm::EDPutTokenT<std::unique_ptr<lst::PixelSegmentsHostCollection>> lstPixelSegmentsInputPutToken_;
 };
 
-LSTPixelSeedInputProducer::LSTPixelSeedInputProducer(edm::ParameterSet const& iConfig)
-    : mfToken_(esConsumes()),
+LSTInputProducer::LSTInputProducer(edm::ParameterSet const& iConfig)
+    : ptCut_(iConfig.getParameter<double>("ptCut")),
+      phase2OTRecHitToken_(consumes(iConfig.getParameter<edm::InputTag>("phase2OTRecHits"))),
+      lstHitsInputPutToken_(produces()),
+      mfToken_(esConsumes()),
       beamSpotToken_(consumes(iConfig.getParameter<edm::InputTag>("beamSpot"))),
-      lstPixelSeedInputPutToken_(produces()),
-      lstPixelSeedsPutToken_(produces()) {
+      lstPixelSeedsPutToken_(produces()),
+      lstPixelSegmentsInputPutToken_(produces()) {
   seedTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("seedTracks"),
                                       [&](const edm::InputTag& tag) { return consumes<edm::View<reco::Track>>(tag); });
 }
 
-void LSTPixelSeedInputProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void LSTInputProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.add<double>("ptCut", 0.8);
 
+  desc.add<edm::InputTag>("phase2OTRecHits", edm::InputTag("siPhase2RecHits"));
+
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<std::vector<edm::InputTag>>("seedTracks",
                                        std::vector<edm::InputTag>{edm::InputTag("lstInitialStepSeedTracks"),
                                                                   edm::InputTag("lstHighPtTripletStepSeedTracks")});
@@ -58,8 +69,33 @@ void LSTPixelSeedInputProducer::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.addWithDefaultLabel(desc);
 }
 
-void LSTPixelSeedInputProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  // Setup
+void LSTInputProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  // Get the phase2OTRecHits
+  auto const& phase2OTHits = iEvent.get(phase2OTRecHitToken_);
+
+  std::vector<unsigned int> ph2_detId;
+  ph2_detId.reserve(phase2OTHits.dataSize());
+  std::vector<float> ph2_x;
+  ph2_x.reserve(phase2OTHits.dataSize());
+  std::vector<float> ph2_y;
+  ph2_y.reserve(phase2OTHits.dataSize());
+  std::vector<float> ph2_z;
+  ph2_z.reserve(phase2OTHits.dataSize());
+  std::vector<TrackingRecHit const*> ph2_hits;
+  ph2_hits.reserve(phase2OTHits.dataSize());
+
+  for (auto const& it : phase2OTHits) {
+    const DetId hitId = it.detId();
+    for (auto const& hit : it) {
+      ph2_detId.push_back(hitId.rawId());
+      ph2_x.push_back(hit.globalPosition().x());
+      ph2_y.push_back(hit.globalPosition().y());
+      ph2_z.push_back(hit.globalPosition().z());
+      ph2_hits.push_back(&hit);
+    }
+  }
+
+  // Get the pixel seeds
   auto const& mf = iSetup.getData(mfToken_);
   auto const& bs = iEvent.get(beamSpotToken_);
 
@@ -149,23 +185,30 @@ void LSTPixelSeedInputProducer::produce(edm::StreamID iID, edm::Event& iEvent, c
     }
   }
 
-  LSTPixelSeedInput pixelSeedInput(std::move(see_px),
-                                   std::move(see_py),
-                                   std::move(see_pz),
-                                   std::move(see_dxy),
-                                   std::move(see_dz),
-                                   std::move(see_ptErr),
-                                   std::move(see_etaErr),
-                                   std::move(see_stateTrajGlbX),
-                                   std::move(see_stateTrajGlbY),
-                                   std::move(see_stateTrajGlbZ),
-                                   std::move(see_stateTrajGlbPx),
-                                   std::move(see_stateTrajGlbPy),
-                                   std::move(see_stateTrajGlbPz),
-                                   std::move(see_q),
-                                   std::move(see_hitIdx));
-  iEvent.emplace(lstPixelSeedInputPutToken_, std::move(pixelSeedInput));
+  auto [hitsHC, pixelSegmentsHC] = lst::prepareInput(see_px,
+                                                     see_py,
+                                                     see_pz,
+                                                     see_dxy,
+                                                     see_dz,
+                                                     see_ptErr,
+                                                     see_etaErr,
+                                                     see_stateTrajGlbX,
+                                                     see_stateTrajGlbY,
+                                                     see_stateTrajGlbZ,
+                                                     see_stateTrajGlbPx,
+                                                     see_stateTrajGlbPy,
+                                                     see_stateTrajGlbPz,
+                                                     see_q,
+                                                     see_hitIdx,
+                                                     ph2_detId,
+                                                     ph2_x,
+                                                     ph2_y,
+                                                     ph2_z,
+                                                     ptCut_);
+
+  iEvent.emplace(lstHitsInputPutToken_, std::move(hitsHC));
+  iEvent.emplace(lstPixelSegmentsInputPutToken_, std::move(pixelSegmentsHC));
   iEvent.emplace(lstPixelSeedsPutToken_, std::move(see_seeds));
 }
 
-DEFINE_FWK_MODULE(LSTPixelSeedInputProducer);
+DEFINE_FWK_MODULE(LSTInputProducer);

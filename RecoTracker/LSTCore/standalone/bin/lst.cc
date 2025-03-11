@@ -1,4 +1,5 @@
 #include "lst.h"
+#include "LSTInput.h"
 
 #include <typeinfo>
 
@@ -327,29 +328,8 @@ void run_lst() {
     }
   }
 
-  std::vector<std::vector<float>> out_trkX;
-  std::vector<std::vector<float>> out_trkY;
-  std::vector<std::vector<float>> out_trkZ;
-  std::vector<std::vector<unsigned int>> out_hitId;
-  std::vector<std::vector<unsigned int>> out_hitIdxs;
-  std::vector<std::vector<unsigned int>> out_hitIndices_vec0;
-  std::vector<std::vector<unsigned int>> out_hitIndices_vec1;
-  std::vector<std::vector<unsigned int>> out_hitIndices_vec2;
-  std::vector<std::vector<unsigned int>> out_hitIndices_vec3;
-  std::vector<std::vector<float>> out_deltaPhi_vec;
-  std::vector<std::vector<float>> out_ptIn_vec;
-  std::vector<std::vector<float>> out_ptErr_vec;
-  std::vector<std::vector<float>> out_px_vec;
-  std::vector<std::vector<float>> out_py_vec;
-  std::vector<std::vector<float>> out_pz_vec;
-  std::vector<std::vector<float>> out_eta_vec;
-  std::vector<std::vector<float>> out_etaErr_vec;
-  std::vector<std::vector<float>> out_phi_vec;
-  std::vector<std::vector<int>> out_charge_vec;
-  std::vector<std::vector<unsigned int>> out_seedIdx_vec;
-  std::vector<std::vector<int>> out_superbin_vec;
-  std::vector<std::vector<PixelType>> out_pixelType_vec;
-  std::vector<std::vector<char>> out_isQuad_vec;
+  std::vector<std::unique_ptr<HitsHostCollection>> out_hitsHC;
+  std::vector<std::unique_ptr<PixelSegmentsHostCollection>> out_pixelSegmentsHC;
   std::vector<int> evt_num;
   std::vector<TString> file_name;
 
@@ -363,29 +343,30 @@ void run_lst() {
     if (not goodEvent())
       continue;
 
-    addInputsToLineSegmentTrackingPreLoad(out_trkX,
-                                          out_trkY,
-                                          out_trkZ,
-                                          out_hitId,
-                                          out_hitIdxs,
-                                          out_hitIndices_vec0,
-                                          out_hitIndices_vec1,
-                                          out_hitIndices_vec2,
-                                          out_hitIndices_vec3,
-                                          out_deltaPhi_vec,
-                                          out_ptIn_vec,
-                                          out_ptErr_vec,
-                                          out_px_vec,
-                                          out_py_vec,
-                                          out_pz_vec,
-                                          out_eta_vec,
-                                          out_etaErr_vec,
-                                          out_phi_vec,
-                                          out_charge_vec,
-                                          out_seedIdx_vec,
-                                          out_superbin_vec,
-                                          out_pixelType_vec,
-                                          out_isQuad_vec);
+    auto [hitsHC, pixelSegmentsHC] = prepareInput(trk.see_px(),
+                                                  trk.see_py(),
+                                                  trk.see_pz(),
+                                                  trk.see_dxy(),
+                                                  trk.see_dz(),
+                                                  trk.see_ptErr(),
+                                                  trk.see_etaErr(),
+                                                  trk.see_stateTrajGlbX(),
+                                                  trk.see_stateTrajGlbY(),
+                                                  trk.see_stateTrajGlbZ(),
+                                                  trk.see_stateTrajGlbPx(),
+                                                  trk.see_stateTrajGlbPy(),
+                                                  trk.see_stateTrajGlbPz(),
+                                                  trk.see_q(),
+                                                  trk.see_hitIdx(),
+                                                  trk.ph2_detId(),
+                                                  trk.ph2_x(),
+                                                  trk.ph2_y(),
+                                                  trk.ph2_z(),
+                                                  ana.ptCut);
+
+    out_hitsHC.push_back(std::move(hitsHC));
+    out_pixelSegmentsHC.push_back(std::move(pixelSegmentsHC));
+
     evt_num.push_back(ana.looper.getCurrentEventIndex());
     file_name.push_back(ana.looper.getCurrentFileName());
   }
@@ -418,44 +399,20 @@ void run_lst() {
     float timing_TC;
 
 #pragma omp for  // nowait// private(event)
-    for (int evt = 0; evt < static_cast<int>(out_trkX.size()); evt++) {
+    for (int evt = 0; evt < static_cast<int>(out_hitsHC.size()); evt++) {
       if (ana.verbose >= 1)
         std::cout << "Running Event number = " << evt << " " << omp_get_thread_num() << std::endl;
 
       events.at(omp_get_thread_num())->initSync();
-      timing_input_loading = addInputsToEventPreLoad(events.at(omp_get_thread_num()),
-                                                     false,
-                                                     out_trkX.at(evt),
-                                                     out_trkY.at(evt),
-                                                     out_trkZ.at(evt),
-                                                     out_hitId.at(evt),
-                                                     out_hitIdxs.at(evt),
-                                                     out_ptIn_vec.at(evt),
-                                                     out_ptErr_vec.at(evt),
-                                                     out_px_vec.at(evt),
-                                                     out_py_vec.at(evt),
-                                                     out_pz_vec.at(evt),
-                                                     out_eta_vec.at(evt),
-                                                     out_etaErr_vec.at(evt),
-                                                     out_phi_vec.at(evt),
-                                                     out_charge_vec.at(evt),
-                                                     out_seedIdx_vec.at(evt),
-                                                     out_superbin_vec.at(evt),
-                                                     out_pixelType_vec.at(evt),
-                                                     out_isQuad_vec.at(evt));
+      timing_input_loading = addInputsToEventPreLoad(
+          events.at(omp_get_thread_num()), out_hitsHC.at(evt).get(), out_pixelSegmentsHC.at(evt).get());
 
       timing_MD = runMiniDoublet(events.at(omp_get_thread_num()), evt);
       timing_LS = runSegment(events.at(omp_get_thread_num()));
       timing_T3 = runT3(events.at(omp_get_thread_num()));
       timing_T5 = runQuintuplet(events.at(omp_get_thread_num()));
 
-      timing_pLS = runPixelLineSegment(events.at(omp_get_thread_num()),
-                                       out_hitIndices_vec0.at(evt),
-                                       out_hitIndices_vec1.at(evt),
-                                       out_hitIndices_vec2.at(evt),
-                                       out_hitIndices_vec3.at(evt),
-                                       out_deltaPhi_vec.at(evt),
-                                       ana.no_pls_dupclean);
+      timing_pLS = runPixelLineSegment(events.at(omp_get_thread_num()), ana.no_pls_dupclean);
 
       timing_pT5 = runPixelQuintuplet(events.at(omp_get_thread_num()));
       timing_pT3 = runpT3(events.at(omp_get_thread_num()));
@@ -515,7 +472,7 @@ void run_lst() {
     timevec.insert(timevec.end(), timing_information.begin(), timing_information.end());
   }
 
-  float avg_elapsed = full_elapsed / out_trkX.size();
+  float avg_elapsed = full_elapsed / out_hitsHC.size();
 
   std::cout << "Time for map loading = " << timeForMapLoading << " ms\n";
   std::cout << "Time for input loading = " << timeForInputLoading << " ms\n";
