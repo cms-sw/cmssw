@@ -198,8 +198,8 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
       if (iMu < NMuons) {  //stop if fill the Nobjects we need
         MuInput[0 + (3 * iMu)] = ((candMuVec->at(useBx, iMu))->hwPt()) /
                                  2;  //index 0,3,6,9 //have to do hwPt/2 in order to match original et inputs
-        MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEta();  //index 1,4,7,10
-        MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhi();  //index 2,5,8,11
+        MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEtaAtVtx();  //index 1,4,7,10
+        MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhiAtVtx();  //index 2,5,8,11
       }
     }
   }
