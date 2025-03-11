@@ -63,6 +63,7 @@ namespace hgcal {
 
     bool isSilicon(const DetId&) const;
     bool isScintillator(const DetId&) const;
+    bool isBarrel(const DetId&) const;
 
     bool isOnlySilicon(const unsigned int layer) const;
 
