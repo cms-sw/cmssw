@@ -11,6 +11,9 @@ from ..modules.hltHgcalSoARecHitsProducer_cfi import *
 from ..modules.hltHgcalSoARecHitsLayerClustersProducer_cfi import *
 from ..modules.hltHgcalSoALayerClustersProducer_cfi import *
 from ..modules.hltHgcalLayerClustersFromSoAProducer_cfi import *
+# Barrel layer clusters
+from ..modules.hltBarrelLayerClustersEB_cfi import *
+from ..modules.hltBarrelLayerClustersHB_cfi import *
 
 HLTHgcalLocalRecoSequence = cms.Sequence(
         hltHGCalUncalibRecHit+
@@ -18,6 +21,8 @@ HLTHgcalLocalRecoSequence = cms.Sequence(
         hltHgcalLayerClustersEE+
         hltHgcalLayerClustersHSci+
         hltHgcalLayerClustersHSi+
+        hltBarrelLayerClustersEB+
+        hltBarrelLayerClustersHB+
         hltHgcalMergeLayerClusters)
 
 _HLTHgcalLocalRecoSequence_heterogeneous = cms.Sequence(
@@ -29,6 +34,8 @@ _HLTHgcalLocalRecoSequence_heterogeneous = cms.Sequence(
         hltHgCalLayerClustersFromSoAProducer+
         hltHgcalLayerClustersHSci+
         hltHgcalLayerClustersHSi+
+        hltBarrelLayerClustersEB+
+        hltBarrelLayerClustersHB+
         hltHgcalMergeLayerClusters)
 
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
