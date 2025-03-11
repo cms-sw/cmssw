@@ -93,9 +93,13 @@ public:
     }
   }
 
-  // serialize a wrapped object using its ROOT dictionary, and transmit it
+  // transfer a wrapped object using the TrivialCopyTraits or its ROOT dictionary
   void sendProduct(int instance, edm::TypeWithDict const& type, edm::WrapperBase const& wrapper) {
-    sendSerializedProduct_(instance, type.getClass(), &wrapper);
+    if (wrapper.hasTrivialCopyTraits()) {
+      sendTrivialCopyProduct_(instance, &wrapper);
+    } else {
+      sendSerializedProduct_(instance, type.getClass(), &wrapper);
+    }
   }
 
   // signal that an expected product will not be transmitted
@@ -130,9 +134,13 @@ public:
     }
   }
 
-  // receive a wrapped object, and deserialize it using its ROOT dictionary
+  // receive a wrapped object using the TrivialCopyTraits or its ROOT dictionary
   void receiveProduct(int instance, edm::TypeWithDict const& type, edm::WrapperBase& wrapper) {
-    receiveSerializedProduct_(instance, type.getClass(), &wrapper);
+    if (wrapper.hasTrivialCopyTraits()) {
+      receiveTrivialCopyProduct_(instance, &wrapper);
+    } else {
+      receiveSerializedProduct_(instance, type.getClass(), &wrapper);
+    }
   }
 
 private:
@@ -193,6 +201,12 @@ private:
 
   // receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
   void receiveSerializedProduct_(int instance, TClass const* type, void* product);
+
+  // transfer a wrapped object using its TrivialCopyTraits
+  void sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper);
+
+  // receive a wrapped object using its TrivialCopyTraits
+  void receiveTrivialCopyProduct_(int instance, edm::WrapperBase* wrapper);
 
   // MPI intercommunicator
   MPI_Comm comm_ = MPI_COMM_NULL;
