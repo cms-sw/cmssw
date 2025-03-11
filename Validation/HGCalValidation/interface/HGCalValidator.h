@@ -67,7 +67,9 @@ public:
                                 std::vector<size_t>& selected_cPeff,
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
-                                MultiVectorManager<HGCRecHit> const& hits) const;
+                                std::unordered_map<DetId, const unsigned int> const&,
+                                MultiVectorManager<HGCRecHit> const& hgcalHits,
+                                MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -78,8 +80,8 @@ protected:
   std::vector<edm::InputTag> allTracksterTracksterAssociatorsLabels_;
   std::vector<edm::InputTag> allTracksterTracksterByHitsAssociatorsLabels_;
   edm::InputTag label_simTS, label_simTSFromCP;
-  edm::InputTag associator_;
-  edm::InputTag associatorSim_;
+  std::vector<edm::InputTag> associator_;
+  std::vector<edm::InputTag> associatorSim_;
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
   const bool doCaloParticleSelection_;
@@ -106,14 +108,16 @@ protected:
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
-  edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
-  edm::EDGetTokenT<ticl::RecoToSimCollection> associatorMapRtS;
-  edm::EDGetTokenT<ticl::SimToRecoCollection> associatorMapStR;
-  edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters> associatorMapSimtR;
-  edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClusters> associatorMapRtSim;
+  edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hgcalHitMap_;
+  edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> barrelHitMap_;
+  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollection>> associatorMapRtS;
+  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollection>> associatorMapStR;
+  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters> >associatorMapSimtR;
+  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClusters>> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
-  std::vector<edm::InputTag> hits_label_;
-  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_tokens_;
+  std::vector<edm::InputTag> hgcal_hits_label_, barrel_hits_label_;
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hgcal_hits_tokens_;
+  std::vector<edm::EDGetTokenT<std::vector<reco::PFRecHit>>> barrel_hits_tokens_;
   std::unique_ptr<TICLCandidateValidator> candidateVal_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterByHitsAssociatorsTokens_;

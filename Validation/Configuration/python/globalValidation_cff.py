@@ -45,6 +45,7 @@ from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.Configuration.hgcalSimValid_cff import *
 from Validation.Configuration.mtdSimValid_cff import *
 from Validation.Configuration.ecalSimValid_cff import *
+from Validation.Configuration.barrelSimValid_cff import *
 from Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff import *
 
 # filter/producer "pre-" sequence for globalValidation
@@ -196,7 +197,7 @@ globalValidationHCALOnly = cms.Sequence(
     + hcalRecHitsOnlyValidationSequence
     + pfClusterCaloOnlyValidationSequence
 )
-globalPrevalidationHGCal = cms.Sequence(hgcalAssociators, ticlSimTrackstersTask)
+globalPrevalidationHGCal = cms.Sequence(hgcalAssociators, barrelAssociators, ticlSimTrackstersTask)
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
 
