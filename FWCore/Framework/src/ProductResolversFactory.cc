@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "ProductResolvers.h"
 #include "DroppedDataProductResolver.h"
 
