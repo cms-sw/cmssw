@@ -130,7 +130,10 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
 
   //types of inputs and outputs
   typedef ap_fixed<18, 13> inputtype;
-  typedef std::array<ap_fixed<10, 7, AP_RND_CONV, AP_SAT>, 8> resulttype;  //v3
+  typedef ap_fixed<18, 14, AP_RND_CONV, AP_SAT> resulttype;  //v5 default
+  if ((m_model_loader.model_name() == "GTADModel_v3") || (m_model_loader.model_name() == "GTADModel_v4")) {
+    typedef std::array<ap_fixed<10, 7, AP_RND_CONV, AP_SAT>, 8> resulttype;  //v3/v4 overwrite
+  }
   typedef ap_ufixed<18, 14> losstype;
   typedef std::pair<resulttype, losstype> pairtype;
   // typedef std::array<ap_fixed<10, 7>, 13> resulttype;  //deprecated v1 type:
@@ -198,8 +201,8 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
       if (iMu < NMuons) {  //stop if fill the Nobjects we need
         MuInput[0 + (3 * iMu)] = ((candMuVec->at(useBx, iMu))->hwPt()) /
                                  2;  //index 0,3,6,9 //have to do hwPt/2 in order to match original et inputs
-        MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEta();  //index 1,4,7,10
-        MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhi();  //index 2,5,8,11
+        MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEtaAtVtx();  //index 1,4,7,10
+        MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhiAtVtx();  //index 2,5,8,11
       }
     }
   }
