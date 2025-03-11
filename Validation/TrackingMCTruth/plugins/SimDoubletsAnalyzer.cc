@@ -163,17 +163,15 @@ namespace simdoublets {
       }
 
       // DYsize, DYsizeB12 & DYPred cuts
-      if (!(innerInB1) || isOuterLadder) {
-        if (innerInBarrel || onlyBarrel) {
-          if (onlyBarrel) {  // onlyBarrel
-            if (innerInB1) {
-              setSubjectToDYsize12();
-            } else {
-              setSubjectToDYsize();
-            }
-          } else if (innerInBarrel) {  // not onlyBarrel
-            setSubjectToDYPred();
+      if ((!(innerInB1) || isOuterLadder) && (innerInBarrel || onlyBarrel)) {
+        if (onlyBarrel) {  // onlyBarrel
+          if (innerInB1) {
+            setSubjectToDYsize12();
+          } else {
+            setSubjectToDYsize();
           }
+        } else {  // innerInBarrel but not onlyBarrel
+          setSubjectToDYPred();
         }
       }
     }
