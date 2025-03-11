@@ -1,21 +1,135 @@
 /*
-Scouting EGamma DQM core implementation.
+  Scouting EGamma DQM core implementation.
 
- Description: ScoutingEGammaCollectionMonitoring is developed to enable us to
-monitor the comparison between pat::Object and Run3Scouting<Object>.
+  Description: ScoutingEGammaCollectionMonitoring is developed to enable us to
+  monitor the comparison between pat::Object and Run3Scouting<Object>.
 
- Implementation:
+  Implementation:
      * Current runs on top of MINIAOD dataformat of the
 ScoutingEGammaCollectionMonitoring dataset.
      * Implemented only for electrons as of now.
 
-Authors: Ting-Hsiang Hsu, Abanti Ranadhir Sahasransu
+  Authors: Ting-Hsiang Hsu, Abanti Ranadhir Sahasransu
 */
 
-#include "ScoutingElectronTagProbeAnalyzer.h"
+// system includes
+#include <string>
+#include <vector>
 
+// user include files
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+#include "ScoutingDQMUtils.h"
+
+/////////////////////////
+//  Class declaration  //
+/////////////////////////
+
+struct kSctProbeKinematicHistos {
+  dqm::reco::MonitorElement* hPt_Barrel;
+  dqm::reco::MonitorElement* hPt_Endcap;
+  dqm::reco::MonitorElement* hEta;
+  dqm::reco::MonitorElement* hEtavPhi;
+  dqm::reco::MonitorElement* hPhi;
+  dqm::reco::MonitorElement* hHoverE_Barrel;
+  dqm::reco::MonitorElement* hHoverE_Endcap;
+  dqm::reco::MonitorElement* hOoEMOoP_Barrel;
+  dqm::reco::MonitorElement* hOoEMOoP_Endcap;
+  dqm::reco::MonitorElement* hdPhiIn_Barrel;
+  dqm::reco::MonitorElement* hdPhiIn_Endcap;
+  dqm::reco::MonitorElement* hdEtaIn_Barrel;
+  dqm::reco::MonitorElement* hdEtaIn_Endcap;
+  dqm::reco::MonitorElement* hSigmaIetaIeta_Barrel;
+  dqm::reco::MonitorElement* hSigmaIetaIeta_Endcap;
+  dqm::reco::MonitorElement* hMissingHits_Barrel;
+  dqm::reco::MonitorElement* hMissingHits_Endcap;
+  dqm::reco::MonitorElement* hTrackfbrem_Barrel;
+  dqm::reco::MonitorElement* hTrackfbrem_Endcap;
+  dqm::reco::MonitorElement* hTrack_pt_Barrel;
+  dqm::reco::MonitorElement* hTrack_pt_Endcap;
+  dqm::reco::MonitorElement* hTrack_pMode_Barrel;
+  dqm::reco::MonitorElement* hTrack_pMode_Endcap;
+  dqm::reco::MonitorElement* hTrack_etaMode_Barrel;
+  dqm::reco::MonitorElement* hTrack_etaMode_Endcap;
+  dqm::reco::MonitorElement* hTrack_phiMode_Barrel;
+  dqm::reco::MonitorElement* hTrack_phiMode_Endcap;
+  dqm::reco::MonitorElement* hTrack_qoverpModeError_Barrel;
+  dqm::reco::MonitorElement* hTrack_qoverpModeError_Endcap;
+  dqm::reco::MonitorElement* hRelEcalIsolation_Barrel;
+  dqm::reco::MonitorElement* hRelEcalIsolation_Endcap;
+  dqm::reco::MonitorElement* hRelHcalIsolation_Barrel;
+  dqm::reco::MonitorElement* hRelHcalIsolation_Endcap;
+  dqm::reco::MonitorElement* hRelTrackIsolation_Barrel;
+  dqm::reco::MonitorElement* hRelTrackIsolation_Endcap;
+  dqm::reco::MonitorElement* hInvMass;
+  dqm::reco::MonitorElement* hPt_Barrel_passID;
+  dqm::reco::MonitorElement* hPt_Endcap_passID;
+  dqm::reco::MonitorElement* hPt_Barrel_passDSTsingleEG;
+  dqm::reco::MonitorElement* hPt_Endcap_passDSTsingleEG;
+  dqm::reco::MonitorElement* hPt_Barrel_passDSTdoubleEG;
+  dqm::reco::MonitorElement* hPt_Endcap_passDSTdoubleEG;
+};
+
+struct kSctTagProbeHistos {
+  kSctProbeKinematicHistos resonanceZ;
+  kSctProbeKinematicHistos resonanceJ;
+  kSctProbeKinematicHistos resonanceY;
+  kSctProbeKinematicHistos resonanceAll;
+};
+
+class ScoutingElectronTagProbeAnalyzer : public DQMGlobalEDAnalyzer<kSctTagProbeHistos> {
+public:
+  explicit ScoutingElectronTagProbeAnalyzer(const edm::ParameterSet& conf);
+  ~ScoutingElectronTagProbeAnalyzer() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, kSctTagProbeHistos const&) const override;
+
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kSctTagProbeHistos&) const override;
+
+  void bookHistograms_resonance(
+      DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, kSctProbeKinematicHistos&, const std::string&) const;
+
+  void fillHistograms_resonance(const kSctProbeKinematicHistos& histos,
+                                const Run3ScoutingElectron& el,
+                                const float inv_mass,
+                                const trigger::TriggerObjectCollection* legObjectsCollection) const;
+
+  bool scoutingElectron_passHLT(const Run3ScoutingElectron& el,
+                                const trigger::TriggerObjectCollection& legObjects) const;
+
+  // --------------------- member data  ----------------------
+  std::string outputInternalPath_;
+
+  const edm::EDGetToken triggerResultsToken_;
+  const edm::EDGetToken triggerSummaryToken_;
+  const edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+  const std::vector<std::string> filterToMatch_;
+
+  const edm::EDGetTokenT<std::vector<pat::Electron>> electronCollection_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> scoutingElectronCollection_;
+};
 
 ScoutingElectronTagProbeAnalyzer::ScoutingElectronTagProbeAnalyzer(const edm::ParameterSet& iConfig)
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
@@ -27,8 +141,6 @@ ScoutingElectronTagProbeAnalyzer::ScoutingElectronTagProbeAnalyzer(const edm::Pa
           consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("ElectronCollection"))),
       scoutingElectronCollection_(consumes<std::vector<Run3ScoutingElectron>>(
           iConfig.getParameter<edm::InputTag>("ScoutingElectronCollection"))) {}
-
-ScoutingElectronTagProbeAnalyzer::~ScoutingElectronTagProbeAnalyzer() = default;
 
 void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
                                                   edm::EventSetup const& iSetup,
@@ -70,7 +182,7 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   edm::LogInfo("ScoutingMonitoring") << "Process Run3ScoutingElectrons: " << sctEls->size();
 
   for (const auto& sct_el : *sctEls) {
-    if (!scoutingElectronID(sct_el))
+    if (!scoutingDQMUtils::scoutingElectronID(sct_el))
       continue;
     edm::LogInfo("ScoutingElectronTagProbeAnalyzer") << "Process Run3ScoutingElectrons: " << sct_el.sigmaIetaIeta();
 
@@ -102,13 +214,12 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   }
 }
 
-bool ScoutingElectronTagProbeAnalyzer::scoutingElectron_passHLT(const Run3ScoutingElectron el,
-                                                                TString filter,
-                                                                trigger::TriggerObjectCollection legObjects) const {
+bool ScoutingElectronTagProbeAnalyzer::scoutingElectron_passHLT(
+    const Run3ScoutingElectron& el, const trigger::TriggerObjectCollection& legObjects) const {
   bool foundTheLeg = false;
   for (unsigned int i = 0; i < legObjects.size(); i++) {
-    float delR = deltaR(legObjects.at(i).eta(), legObjects.at(i).phi(), el.eta(), el.phi());
-    if (delR < 0.1) {
+    float delR2 = deltaR2(legObjects.at(i).eta(), legObjects.at(i).phi(), el.eta(), el.phi());
+    if (delR2 < 0.01) {
       foundTheLeg = true;
       break;
     }
@@ -116,41 +227,9 @@ bool ScoutingElectronTagProbeAnalyzer::scoutingElectron_passHLT(const Run3Scouti
   return foundTheLeg;
 }
 
-bool ScoutingElectronTagProbeAnalyzer::scoutingElectronID(const Run3ScoutingElectron el) const {
-  math::PtEtaPhiMLorentzVector particle(el.pt(), el.eta(), el.phi(), 0.0005);
-  double particle_energy = particle.energy();
-  bool isEB = (fabs(el.eta()) < 1.479);
-  if (isEB) {
-    if (el.sigmaIetaIeta() > 0.015)
-      return false;
-    if (el.hOverE() > 0.2)
-      return false;
-    if (fabs(el.dEtaIn()) > 0.008)
-      return false;
-    if (fabs(el.dPhiIn()) > 0.06)
-      return false;
-    if (el.ecalIso() / particle_energy > 0.25)
-      return false;
-    return true;
-
-  } else {
-    if (el.sigmaIetaIeta() > 0.045)
-      return false;
-    if (el.hOverE() > 0.2)
-      return false;
-    if (fabs(el.dEtaIn()) > 0.012)
-      return false;
-    if (fabs(el.dPhiIn()) > 0.06)
-      return false;
-    if (el.ecalIso() / particle_energy > 0.1)
-      return false;
-    return true;
-  }
-}
-
 void ScoutingElectronTagProbeAnalyzer::fillHistograms_resonance(
-    const kSctProbeKinematicHistos histos,
-    const Run3ScoutingElectron el,
+    const kSctProbeKinematicHistos& histos,
+    const Run3ScoutingElectron& el,
     const float inv_mass,
     const trigger::TriggerObjectCollection* legObjectsCollection) const {
   histos.hEta->Fill(el.eta());
@@ -159,11 +238,11 @@ void ScoutingElectronTagProbeAnalyzer::fillHistograms_resonance(
 
   if (fabs(el.eta()) < 1.5) {
     histos.hPt_Barrel->Fill(el.pt());
-    if (scoutingElectronID(el))
+    if (scoutingDQMUtils::scoutingElectronID(el))
       histos.hPt_Barrel_passID->Fill(el.pt());
-    if (scoutingElectron_passHLT(el, "hltDoubleEG16EG12CaloIdLHEFilter", legObjectsCollection[0]))
+    if (scoutingElectron_passHLT(el, legObjectsCollection[0]))
       histos.hPt_Barrel_passDSTdoubleEG->Fill(el.pt());
-    if (scoutingElectron_passHLT(el, "hltSingleEG30CaloIdLHEFilter", legObjectsCollection[1]))
+    if (scoutingElectron_passHLT(el, legObjectsCollection[1]))
       histos.hPt_Barrel_passDSTsingleEG->Fill(el.pt());
     histos.hHoverE_Barrel->Fill(el.hOverE());
     histos.hOoEMOoP_Barrel->Fill(el.ooEMOop());
@@ -192,11 +271,11 @@ void ScoutingElectronTagProbeAnalyzer::fillHistograms_resonance(
     }
   } else {
     histos.hPt_Endcap->Fill(el.pt());
-    if (scoutingElectronID(el))
+    if (scoutingDQMUtils::scoutingElectronID(el))
       histos.hPt_Endcap_passID->Fill(el.pt());
-    if (scoutingElectron_passHLT(el, "hltDoubleEG16EG12CaloIdLHEFilter", legObjectsCollection[0]))
+    if (scoutingElectron_passHLT(el, legObjectsCollection[0]))
       histos.hPt_Endcap_passDSTdoubleEG->Fill(el.pt());
-    if (scoutingElectron_passHLT(el, "hltSingleEG30CaloIdLHEFilter", legObjectsCollection[1]))
+    if (scoutingElectron_passHLT(el, legObjectsCollection[1]))
       histos.hPt_Endcap_passDSTsingleEG->Fill(el.pt());
     histos.hHoverE_Endcap->Fill(el.hOverE());
     histos.hOoEMOoP_Endcap->Fill(el.ooEMOop());
@@ -389,7 +468,7 @@ void ScoutingElectronTagProbeAnalyzer::fillDescriptions(edm::ConfigurationDescri
   desc.add<edm::InputTag>("TriggerObjects", edm::InputTag("slimmedPatTrigger"));
   desc.add<edm::InputTag>("ElectronCollection", edm::InputTag("slimmedElectrons"));
   desc.add<edm::InputTag>("ScoutingElectronCollection", edm::InputTag("Run3ScoutingElectrons"));
-  descriptions.add("ScoutingElectronTagProbeAnalyzer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(ScoutingElectronTagProbeAnalyzer);
