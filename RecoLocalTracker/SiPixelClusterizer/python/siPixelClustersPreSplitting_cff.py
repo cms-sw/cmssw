@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from HeterogeneousCore.AlpakaCore.functions import *
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
+from Configuration.Eras.Modifier_run3_SiPixel_2025_cff import run3_SiPixel_2025
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
 # HIon Modifiers
@@ -43,6 +44,10 @@ siPixelClustersPreSplittingAlpaka = _siPixelRawToClusterAlpaka.clone()
     VCaltoElectronGain_L1   = 1,
     VCaltoElectronOffset    = 0,
     VCaltoElectronOffset_L1 = 0)
+
+(alpaka & run3_SiPixel_2025).toModify(siPixelClustersPreSplittingAlpaka,
+    # lowered L1 cluster charge threshold to cope with reduced charge collection efficiency in the sensor caused by radiation damage
+    clusterThreshold_layer1 = 2000)
 
 from RecoLocalTracker.SiPixelClusterizer.siPixelPhase2DigiToCluster_cfi import siPixelPhase2DigiToCluster as _siPixelPhase2DigiToCluster
 
