@@ -10,6 +10,10 @@
 
   <class name="l1ScoutingRun3::CaloObject"/>
 
+  <class name="l1ScoutingRun3::CaloTower" ClassVersion="3">
+    <version ClassVersion="3" checksum="3212859997"/>
+  </class>
+
   <class name="l1ScoutingRun3::EGamma" ClassVersion="3">
     <version ClassVersion="3" checksum="1578240696"/>
   </class>
@@ -28,6 +32,7 @@
   
   <class name="std::vector<l1ScoutingRun3::BMTFStub>"/>
   <class name="std::vector<l1ScoutingRun3::BxSums>"/>
+  <class name="std::vector<l1ScoutingRun3::CaloTower>"/>
   <class name="std::vector<l1ScoutingRun3::EGamma>"/>
   <class name="std::vector<l1ScoutingRun3::Jet>"/>
   <class name="std::vector<l1ScoutingRun3::Muon>"/>
@@ -35,6 +40,7 @@
   
   <class name="l1ScoutingRun3::BMTFStubOrbitCollection"/>
   <class name="l1ScoutingRun3::BxSumsOrbitCollection"/>
+  <class name="l1ScoutingRun3::CaloTowerOrbitCollection"/>
   <class name="l1ScoutingRun3::EGammaOrbitCollection"/>
   <class name="l1ScoutingRun3::JetOrbitCollection"/>
   <class name="l1ScoutingRun3::MuonOrbitCollection"/>
@@ -42,6 +48,7 @@
 
   <class name="edm::Wrapper<l1ScoutingRun3::BMTFStubOrbitCollection>"/>
   <class name="edm::Wrapper<l1ScoutingRun3::BxSumsOrbitCollection>"/>
+  <class name="edm::Wrapper<l1ScoutingRun3::CaloTowerOrbitCollection>"/>
   <class name="edm::Wrapper<l1ScoutingRun3::EGammaOrbitCollection>"/>
   <class name="edm::Wrapper<l1ScoutingRun3::JetOrbitCollection>"/>
   <class name="edm::Wrapper<l1ScoutingRun3::MuonOrbitCollection>"/>

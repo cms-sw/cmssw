@@ -21,6 +21,8 @@ public:
   static constexpr int BmtfMaxSDSID = 21;
   static constexpr int CaloTCPMinSDSID = 22;
   static constexpr int CaloTCPMaxSDSID = 29;
+  static constexpr int CaloTowerMinSDSID = 32;
+  static constexpr int CaloTowerMaxSDSID = 32;
 };
 
 #endif  // L1ScoutingRawData_SDSNumbering_h
