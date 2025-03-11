@@ -104,6 +104,20 @@ namespace l1ScoutingRun3 {
     };
   }  // namespace bmtf
 
+  namespace calol2 {
+    struct masksCaloTowers {
+      static constexpr uint32_t ET = 0x000001ff;
+      static constexpr uint32_t erBits = 0x00000e00;
+      static constexpr uint32_t miscBits = 0x0000f000;
+      static constexpr uint32_t zeroFlag = 0x00001000;
+      static constexpr uint32_t eohrFlag = 0x00002000;
+      static constexpr uint32_t hcalFlag = 0x00004000;
+      static constexpr uint32_t ecalFlag = 0x00008000;
+      static constexpr uint32_t eta = 0x00ff0000;
+      static constexpr uint32_t phi = 0xff000000;
+    };
+  }  // namespace calol2
+
   struct header_masks {
     static constexpr uint32_t bxmatch = 0x00ff << header_shifts::bxmatch;
     static constexpr uint32_t mAcount = 0x000f << header_shifts::mAcount;
