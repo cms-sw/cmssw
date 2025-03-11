@@ -369,7 +369,12 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     // It is the inverse of the denominator of the LCToCP score formula. Observe that this is the sum of the squares.
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : hits_and_fractions) {
-      const HIT* hit = hits_[hitMap_->at(haf.first)];
+      if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+        if (recHitTools_->isBarrel(haf.first)) continue;
+      } else {
+        if (!recHitTools_->isBarrel(haf.first)) continue;
+      }
+        const HIT* hit = hits_[hitMap_->at(haf.first)];
       invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
     }
     invLayerClusterEnergyWeight = 1.f / invLayerClusterEnergyWeight;
@@ -380,6 +385,8 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       bool hitWithNoCP = (detIdToCaloParticleId_Map.find(rh_detid) == detIdToCaloParticleId_Map.end());
 
       auto itcheck = hitMap_->find(rh_detid);
+      if (itcheck == hitMap_->end()) 
+        continue;
       const HIT* hit = hits_[itcheck->second];
       float hitEnergyWeight = hit->energy() * hit->energy();
 
@@ -437,6 +444,11 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       // Compute the correct normalization. Observe that this is the sum of the squares.
       float invCPEnergyWeight = 0.f;
       for (auto const& haf : cPOnLayer[cpId][layerId].hits_and_fractions) {
+        if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+          if (recHitTools_->isBarrel(haf.first)) continue;
+        } else {
+          if (!recHitTools_->isBarrel(haf.first)) continue;
+        }
         const HIT* hit = hits_[hitMap_->at(haf.first)];
         invCPEnergyWeight += std::pow(haf.second * hit->energy(), 2);
       }

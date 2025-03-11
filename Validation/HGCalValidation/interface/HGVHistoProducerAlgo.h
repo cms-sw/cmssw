@@ -20,6 +20,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
@@ -279,10 +280,12 @@ public:
                                       std::vector<size_t> const& cPIndices,
                                       std::vector<size_t> const& cPSelectedIndices,
                                       std::unordered_map<DetId, const unsigned int> const&,
+                                      std::unordered_map<DetId, const unsigned int> const&,
                                       unsigned int layers,
                                       const ticl::RecoToSimCollection& recSimColl,
                                       const ticl::SimToRecoCollection& simRecColl,
-                                      MultiVectorManager<HGCRecHit> const& hits) const;
+                                      MultiVectorManager<HGCRecHit> const& hgcalHits,
+                                      MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
   void layerClusters_to_SimClusters(const Histograms& histograms,
                                     const int count,
                                     edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -292,10 +295,12 @@ public:
                                     std::vector<size_t> const& sCIndices,
                                     const std::vector<float>& mask,
                                     std::unordered_map<DetId, const unsigned int> const&,
+                                    std::unordered_map<DetId, const unsigned int> const&,
                                     unsigned int layers,
                                     const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
                                     const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
-                                    MultiVectorManager<HGCRecHit> const& hits) const;
+                                    MultiVectorManager<HGCRecHit> const& hgcalHits,
+                                    MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
 
   void tracksters_to_SimTracksters_fp(const Histograms& histograms,
                                       const int count,
@@ -314,7 +319,9 @@ public:
                                 std::vector<SimVertex> const& simVertices,
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
-                                MultiVectorManager<HGCRecHit> const& hits) const;
+                                std::unordered_map<DetId, const unsigned int> const&,
+                                MultiVectorManager<HGCRecHit> const& hgcalHits,
+                                MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
   void fill_generic_cluster_histos(const Histograms& histograms,
                                    const int count,
                                    edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -324,12 +331,14 @@ public:
                                    std::vector<size_t> const& cPIndices,
                                    std::vector<size_t> const& cPSelectedIndices,
                                    std::unordered_map<DetId, const unsigned int> const&,
+                                   std::unordered_map<DetId, const unsigned int> const&,
                                    std::map<double, double> cummatbudg,
                                    unsigned int layers,
                                    std::vector<int> thicknesses,
                                    const ticl::RecoToSimCollection& recSimColl,
                                    const ticl::SimToRecoCollection& simRecColl,
-                                   MultiVectorManager<HGCRecHit> const& hits) const;
+                                   MultiVectorManager<HGCRecHit> const& hgcalHits,
+                                   MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
   void fill_simCluster_histos(const Histograms& histograms,
                               std::vector<SimCluster> const& simClusters,
                               unsigned int layers,
@@ -342,11 +351,13 @@ public:
                                          std::vector<SimCluster> const& simClusters,
                                          std::vector<size_t> const& sCIndices,
                                          const std::vector<float>& mask,
-                                         std::unordered_map<DetId, const unsigned int> const& hitMap,
+                                         std::unordered_map<DetId, const unsigned int> const& hgcalitMap,
+                                         std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
                                          unsigned int layers,
                                          const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
                                          const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
-                                         MultiVectorManager<HGCRecHit> const& hits) const;
+                                         MultiVectorManager<HGCRecHit> const& hgcalHits,
+                                         MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
   void fill_trackster_histos(const Histograms& histograms,
                              const int count,
@@ -416,6 +427,8 @@ private:
   // Must be in sync with labels in PostProcessorHGCAL_cfi.py
   std::array<std::string, numberOfValidationTypes_> valSuffix_ = {{"_byHits_CP", "_byLCs", "_byLCs_CP", "_byHits"}};
 
+  int barrelLayersOffset_ = 5;
+   
   //private data members
   double minEta_, maxEta_;
   int nintEta_;

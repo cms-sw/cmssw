@@ -241,9 +241,9 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook,
   histograms.h_caloparticle_nHits_matched_energy_layer[pdgid] =
       ibook.book2D("Energy of Rec-matched Hits vs layer",
                    "Energy of Hits in Sim Clusters (matched) vs layer",
-                   2 * layers,
+                   2 * layers + barrelLayersOffset_,
                    0.,
-                   (float)2 * layers,
+                   (float)2 * layers + barrelLayersOffset_,
                    100,
                    0.,
                    10.);
@@ -252,16 +252,16 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook,
                    "Energy of Hits only 1 Sim Clusters (matched) vs layer",
                    2 * layers,
                    0.,
-                   (float)2 * layers,
+                   (float)2 * layers + barrelLayersOffset_,
                    100,
                    0.,
                    10.);
   histograms.h_caloparticle_sum_energy_layer[pdgid] =
       ibook.book2D("Rec-matched Hits Sum Energy vs layer",
                    "Rescaled Sum Energy of Hits in Sim Clusters (matched) vs layer",
-                   2 * layers,
+                   2 * layers + barrelLayersOffset_,
                    0.,
-                   (float)2 * layers,
+                   (float)2 * layers + barrelLayersOffset_,
                    110,
                    0.,
                    110.);
@@ -271,21 +271,21 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::IBooker& ibook,
       "HitFractions_weighted", "Hit fractions weighted;Hit fraction;E_{hit}^{2} fraction", 101, 0, 1.01, 100, 0, 1);
 
   histograms.h_caloparticle_firstlayer[pdgid] =
-      ibook.book1D("First Layer", "First layer of the CaloParticles", 2 * layers, 0., (float)2 * layers);
+      ibook.book1D("First Layer", "First layer of the CaloParticles", 2 * layers + barrelLayersOffset_, 0., (float)2 * layers + barrelLayersOffset_);
   histograms.h_caloparticle_lastlayer[pdgid] =
-      ibook.book1D("Last Layer", "Last layer of the CaloParticles", 2 * layers, 0., (float)2 * layers);
+      ibook.book1D("Last Layer", "Last layer of the CaloParticles", 2 * layers + barrelLayersOffset_, 0., (float)2 * layers + barrelLayersOffset_);
   histograms.h_caloparticle_layersnum[pdgid] =
-      ibook.book1D("Number of Layers", "Number of layers of the CaloParticles", 2 * layers, 0., (float)2 * layers);
+      ibook.book1D("Number of Layers", "Number of layers of the CaloParticles", 2 * layers + barrelLayersOffset_, 0., (float)2 * layers + barrelLayersOffset_);
   histograms.h_caloparticle_firstlayer_matchedtoRecHit[pdgid] = ibook.book1D(
-      "First Layer (rec-matched hit)", "First layer of the CaloParticles (matched)", 2 * layers, 0., (float)2 * layers);
+      "First Layer (rec-matched hit)", "First layer of the CaloParticles (matched)", 2 * layers + barrelLayersOffset_, 0., (float)2 * layers + barrelLayersOffset_);
   histograms.h_caloparticle_lastlayer_matchedtoRecHit[pdgid] = ibook.book1D(
-      "Last Layer (rec-matched hit)", "Last layer of the CaloParticles (matched)", 2 * layers, 0., (float)2 * layers);
+      "Last Layer (rec-matched hit)", "Last layer of the CaloParticles (matched)", 2 * layers + barrelLayersOffset_, 0., (float)2 * layers + barrelLayersOffset_);
   histograms.h_caloparticle_layersnum_matchedtoRecHit[pdgid] =
       ibook.book1D("Number of Layers (rec-matched hit)",
                    "Number of layers of the CaloParticles (matched)",
-                   2 * layers,
+                   2 * layers + barrelLayersOffset_,
                    0.,
-                   (float)2 * layers);
+                   (float)2 * layers + barrelLayersOffset_);
 }
 
 void HGVHistoProducerAlgo::bookSimClusterHistos(DQMStore::IBooker& ibook,
@@ -293,7 +293,7 @@ void HGVHistoProducerAlgo::bookSimClusterHistos(DQMStore::IBooker& ibook,
                                                 unsigned int layers,
                                                 std::vector<int> thicknesses) {
   //---------------------------------------------------------------------------------------------------------------------------
-  for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
+  for (unsigned ilayer = 0; ilayer < 2 * layers + barrelLayersOffset_; ++ilayer) {
     auto istr1 = std::to_string(ilayer);
     while (istr1.size() < 2) {
       istr1.insert(0, "0");
@@ -303,8 +303,13 @@ void HGVHistoProducerAlgo::bookSimClusterHistos(DQMStore::IBooker& ibook,
     // first with the -z endcap
     if (ilayer < layers) {
       istr2 = std::to_string(ilayer + 1) + " in z-";
-    } else {  // then for the +z
+    } else if (ilayer >= layers and ilayer < 2*layers) {  // then for the +z
       istr2 = std::to_string(ilayer - (layers - 1)) + " in z+";
+    } else {
+      istr2 = std::to_string(ilayer - (2*layers)) + " in barrel";
+    }
+    if (ilayer > 2 * layers) {
+      istr1 = "_barrel" + istr1;
     }
     histograms.h_simclusternum_perlayer[ilayer] = ibook.book1D("totsimclusternum_layer_" + istr1,
                                                                "total number of SimClusters for layer " + istr2,
@@ -390,7 +395,7 @@ void HGVHistoProducerAlgo::bookSimClusterAssociationHistos(DQMStore::IBooker& ib
   sharedenergy_simcluster2layercl_vs_phi_perlayer.clear();
 
   //---------------------------------------------------------------------------------------------------------------------------
-  for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
+  for (unsigned ilayer = 0; ilayer < 2 * layers + barrelLayersOffset_; ++ilayer) {
     auto istr1 = std::to_string(ilayer);
     while (istr1.size() < 2) {
       istr1.insert(0, "0");
@@ -400,8 +405,14 @@ void HGVHistoProducerAlgo::bookSimClusterAssociationHistos(DQMStore::IBooker& ib
     // first with the -z endcap
     if (ilayer < layers) {
       istr2 = std::to_string(ilayer + 1) + " in z-";
-    } else {  // then for the +z
+    } else if (ilayer >= layers and ilayer < 2*layers) {  // then for the +z
       istr2 = std::to_string(ilayer - (layers - 1)) + " in z+";
+    } else {
+      istr2 = std::to_string(ilayer - (2*layers)) + " in barrel";
+    }
+
+    if (ilayer >= 2 * layers) {
+      istr1 = "_barrel" + istr1;
     }
     //-------------------------------------------------------------------------------------------------------------------------
     denom_layercl_in_simcl_eta_perlayer[ilayer] =
@@ -656,7 +667,7 @@ void HGVHistoProducerAlgo::bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibo
                    maxLongDepBary_));
 
   //---------------------------------------------------------------------------------------------------------------------------
-  for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
+  for (unsigned ilayer = 0; ilayer < 2 * layers + barrelLayersOffset_; ++ilayer) {
     auto istr1 = std::to_string(ilayer);
     while (istr1.size() < 2) {
       istr1.insert(0, "0");
@@ -666,9 +677,15 @@ void HGVHistoProducerAlgo::bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibo
     // first with the -z endcap
     if (ilayer < layers) {
       istr2 = std::to_string(ilayer + 1) + " in z-";
-    } else {  // then for the +z
+    } else if (ilayer >= layers and ilayer < 2*layers)  {  // then for the +z
       istr2 = std::to_string(ilayer - (layers - 1)) + " in z+";
+    } else {
+      istr2 = std::to_string(ilayer - (2*layers)) + " in barrel";
     }
+    if (ilayer >= 2 * layers) {
+      istr1 = "_barrel" + istr1;
+    }
+
     histograms.h_clusternum_perlayer[ilayer] = ibook.book1D("totclusternum_layer_" + istr1,
                                                             "total number of layer clusters for layer " + istr2,
                                                             nintTotNClsperlay_,
@@ -698,7 +715,7 @@ void HGVHistoProducerAlgo::bookClusterHistos_LCtoCP_association(DQMStore::IBooke
                                                                 Histograms& histograms,
                                                                 unsigned int layers) {
   //----------------------------------------------------------------------------------------------------------------------------
-  for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
+  for (unsigned ilayer = 0; ilayer < 2 * layers + barrelLayersOffset_; ++ilayer) {
     auto istr1 = std::to_string(ilayer);
     while (istr1.size() < 2) {
       istr1.insert(0, "0");
@@ -708,8 +725,13 @@ void HGVHistoProducerAlgo::bookClusterHistos_LCtoCP_association(DQMStore::IBooke
     // first with the -z endcap
     if (ilayer < layers) {
       istr2 = std::to_string(ilayer + 1) + " in z-";
-    } else {  // then for the +z
+    } else if (ilayer >= layers and ilayer < 2*layers) {  // then for the +z
       istr2 = std::to_string(ilayer - (layers - 1)) + " in z+";
+    } else {
+      istr2 = std::to_string(ilayer - (2*layers)) + " in barrel";
+    }
+    if (ilayer >= 2 * layers) {
+      istr1 = "_barrel" + istr1;
     }
     histograms.h_score_layercl2caloparticle_perlayer[ilayer] =
         ibook.book1D("Score_layercl2caloparticle_perlayer" + istr1,
@@ -866,7 +888,7 @@ void HGVHistoProducerAlgo::bookClusterHistos_CellLevel(DQMStore::IBooker& ibook,
                                                        unsigned int layers,
                                                        std::vector<int> thicknesses) {
   //----------------------------------------------------------------------------------------------------------------------------
-  for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
+  for (unsigned ilayer = 0; ilayer < 2 * layers + barrelLayersOffset_; ++ilayer) {
     auto istr1 = std::to_string(ilayer);
     while (istr1.size() < 2) {
       istr1.insert(0, "0");
@@ -876,7 +898,7 @@ void HGVHistoProducerAlgo::bookClusterHistos_CellLevel(DQMStore::IBooker& ibook,
     // first with the -z endcap
     if (ilayer < layers) {
       istr2 = std::to_string(ilayer + 1) + " in z-";
-    } else {  // then for the +z
+    } else if (ilayer >= layers and ilayer < 2*layers) {  // then for the +z
       istr2 = std::to_string(ilayer - (layers - 1)) + " in z+";
     }
     histograms.h_cellAssociation_perlayer[ilayer] =
@@ -1452,8 +1474,10 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
                                                     const CaloParticle& caloParticle,
                                                     std::vector<SimVertex> const& simVertices,
                                                     unsigned int layers,
-                                                    std::unordered_map<DetId, const unsigned int> const& hitMap,
-                                                    MultiVectorManager<HGCRecHit> const& hits) const {
+                                                    std::unordered_map<DetId, const unsigned int> const& hgcalHitMap,
+                                                    std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
+                                                    MultiVectorManager<HGCRecHit> const& hgcalHits,
+                                                    MultiVectorManager<reco::PFRecHit> const& barrelHits) const {
   const auto eta = getEta(caloParticle.eta());
   if (histograms.h_caloparticle_eta.count(pdgid)) {
     histograms.h_caloparticle_eta.at(pdgid)->Fill(eta);
@@ -1500,13 +1524,13 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
         // set to 0 if matched RecHit not found
         int layerId_matched_min = 999;
         int layerId_matched_max = 0;
-        std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(hitDetId);
-        if (itcheck != hitMap.end()) {
+        std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hgcalHitMap.find(hitDetId);
+        if (itcheck != hgcalHitMap.end()) {
           layerId_matched_min = layerId;
           layerId_matched_max = layerId;
           simHits_matched++;
 
-          const auto hitEn = (hits[itcheck->second]).energy();
+          const auto hitEn = (hgcalHits[itcheck->second]).energy();
           hitEnergyWeight_invSum += pow(hitEn, 2);
           const auto hitFr = h_and_f.second;
           const auto hitEnFr = hitEn * hitFr;
@@ -1567,7 +1591,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     }
 
     for (auto const& haf : haf_cp) {
-      const auto hitEn = (hits[hitMap.find(haf.first)->second]).energy();
+      const auto hitEn = (hgcalHits[hgcalHitMap.find(haf.first)->second]).energy();
       const auto weight = pow(hitEn, 2);
       histograms.h_caloparticle_fractions.at(pdgid)->Fill(haf.second, weight * hitEnergyWeight_invSum);
       histograms.h_caloparticle_fractions_weight.at(pdgid)->Fill(haf.second, weight * hitEnergyWeight_invSum, weight);
@@ -1711,11 +1735,13 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simClusterAssociation_hist
     std::vector<SimCluster> const& simClusters,
     std::vector<size_t> const& sCIndices,
     const std::vector<float>& mask,
-    std::unordered_map<DetId, const unsigned int> const& hitMap,
+    std::unordered_map<DetId, const unsigned int> const& hgcalHitMap,
+    std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
     unsigned int layers,
     const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
     const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap,
-    MultiVectorManager<HGCRecHit> const& hits) const {
+    MultiVectorManager<HGCRecHit> const& hgcalHits,
+    MultiVectorManager<reco::PFRecHit> const& barrelHits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :
@@ -1732,11 +1758,13 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simClusterAssociation_hist
                                simClusters,
                                sCIndices,
                                mask,
-                               hitMap,
+                               hgcalHitMap,
+                               barrelHitMap,
                                layers,
                                scsInLayerClusterMap,
                                lcsInSimClusterMap,
-                               hits);
+                               hgcalHits,
+                               barrelHits);
 }
 
 void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
@@ -1753,11 +1781,13 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                                           std::vector<CaloParticle> const& cP,
                                                           std::vector<size_t> const& cPIndices,
                                                           std::vector<size_t> const& cPSelectedIndices,
-                                                          std::unordered_map<DetId, const unsigned int> const& hitMap,
+                                                          std::unordered_map<DetId, const unsigned int> const& hgcalHitMap,
+                                                          std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
                                                           unsigned int layers,
                                                           const ticl::RecoToSimCollection& cpsInLayerClusterMap,
                                                           const ticl::SimToRecoCollection& cPOnLayerMap,
-                                                          MultiVectorManager<HGCRecHit> const& hits) const {
+                                                          MultiVectorManager<HGCRecHit> const& hgcalHits,
+                                                          MultiVectorManager<reco::PFRecHit> const& barrelHits) const {
   const auto nLayerClusters = clusters.size();
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
@@ -1769,7 +1799,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     for (const auto& simCluster : cP[cpId].simClusters()) {
       for (const auto& it_haf : simCluster->hits_and_fractions()) {
         const DetId hitid = (it_haf.first);
-        if (hitMap.find(hitid) != hitMap.end()) {
+        if (hgcalHitMap.find(hitid) != hgcalHitMap.end()) {
           if (detIdToCaloParticleId_Map.find(hitid) == detIdToCaloParticleId_Map.end()) {
             detIdToCaloParticleId_Map[hitid] = std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>();
             detIdToCaloParticleId_Map[hitid].emplace_back(
@@ -1806,8 +1836,12 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     std::vector<int> hitsToCaloParticleId(numberOfHitsInLC);
     const auto firstHitDetId = hits_and_fractions[0].first;
     int lcLayerId =
-        recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
-
+        recHitTools_->getLayerWithOffset(firstHitDetId);
+    bool isBarrel = recHitTools_->isBarrel(firstHitDetId);
+    if (!isBarrel) 
+      lcLayerId += layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+    else
+      lcLayerId += 2*layers;
     // This will store the fraction of the CaloParticle energy shared with the LayerCluster: e_shared/cp_energy
     std::unordered_map<unsigned, float> CPEnergyInLC;
 
@@ -1815,9 +1849,16 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       const DetId rh_detid = hits_and_fractions[iHit].first;
       const auto rhFraction = hits_and_fractions[iHit].second;
 
-      std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(rh_detid);
-      const HGCRecHit* hit = &(hits[itcheck->second]);
-
+      float hit_energy;
+      if (!isBarrel) {
+        std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hgcalHitMap.find(rh_detid);
+        const HGCRecHit* hit = &(hgcalHits[itcheck->second]);
+        hit_energy = hit->energy();
+      } else {
+        std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = barrelHitMap.find(rh_detid);
+        const reco::PFRecHit* hit = &(barrelHits[itcheck->second]);
+        hit_energy = hit->energy();
+      }
       if (detIdToLayerClusterId_Map.find(rh_detid) == detIdToLayerClusterId_Map.end()) {
         detIdToLayerClusterId_Map[rh_detid] = std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>();
       }
@@ -1841,7 +1882,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
         auto maxCPId = -1;
         for (auto& h : hit_find_in_CP->second) {
           const auto iCP = h.clusterId;
-          CPEnergyInLC[iCP] += h.fraction * hit->energy();
+          CPEnergyInLC[iCP] += h.fraction * hit_energy;
           // Keep track of which CaloParticle contributed the most, in terms
           // of energy, to this specific LayerCluster.
           if (CPEnergyInLC[iCP] > maxCPEnergyInLC) {
@@ -1859,11 +1900,16 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
 
   // Fill the plots to compute the different metrics linked to
   // reco-level, namely fake-rate an merge-rate. In this loop should *not*
-  // restrict only to the selected caloParaticles.
+  // restrict only to the selected caloParticles.
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
     const auto firstHitDetId = (clusters[lcId].hitsAndFractions())[0].first;
-    const int lcLayerId =
-        recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+    bool isBarrel = recHitTools_->isBarrel(firstHitDetId);
+    int lcLayerId =
+        recHitTools_->getLayerWithOffset(firstHitDetId);
+    if (!isBarrel)
+      lcLayerId += layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+    else
+      lcLayerId += 2*layers;
     histograms.h_denom_layercl_eta_perlayer.at(lcLayerId)->Fill(clusters[lcId].eta());
     histograms.h_denom_layercl_phi_perlayer.at(lcLayerId)->Fill(clusters[lcId].phi());
     //
@@ -1938,17 +1984,28 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     for (const auto& simCluster : cP[cpId].simClusters()) {
       for (const auto& it_haf : simCluster->hits_and_fractions()) {
         const DetId hitid = (it_haf.first);
-        const auto hitLayerId =
-            recHitTools_->getLayerWithOffset(hitid) + layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
-        std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(hitid);
-        if (itcheck != hitMap.end()) {
-          const HGCRecHit* hit = &(hits[itcheck->second]);
-          cPEnergyOnLayer[hitLayerId] += it_haf.second * hit->energy();
+        bool isBarrel = recHitTools_->isBarrel(hitid);
+        auto hitLayerId =
+            recHitTools_->getLayerWithOffset(hitid);
+        if (!isBarrel) {
+          hitLayerId += layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
+          std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hgcalHitMap.find(hitid);
+          if (itcheck != hgcalHitMap.end()) {
+            const HGCRecHit* hit = &(hgcalHits[itcheck->second]);
+            cPEnergyOnLayer[hitLayerId] += it_haf.second * hit->energy();
+          }
+        } else {
+          hitLayerId += 2*layers;
+          std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = barrelHitMap.find(hitid);
+          if (itcheck != barrelHitMap.end()) {
+            const reco::PFRecHit* hit = &(barrelHits[itcheck->second]);
+            cPEnergyOnLayer[hitLayerId] += it_haf.second * hit->energy();
+          }
         }
       }
     }
 
-    for (unsigned int layerId = 0; layerId < layers * 2; ++layerId) {
+    for (unsigned int layerId = 0; layerId < layers * 2 + barrelLayersOffset_; ++layerId) {
       if (!cPEnergyOnLayer[layerId])
         continue;
 
@@ -1961,8 +2018,12 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
 
       auto getLCLayerId = [&](const unsigned int lcId) {
         const auto firstHitDetId = (clusters[lcId].hitsAndFractions())[0].first;
-        const auto lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId) +
-                               layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+        bool isBarrel = recHitTools_->isBarrel(firstHitDetId);
+        auto lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
+        if (!isBarrel) 
+          lcLayerId += layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+        else 
+          lcLayerId += 2*layers;
         return lcLayerId;
       };
 
@@ -2014,11 +2075,13 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
     std::vector<SimCluster> const& sC,
     std::vector<size_t> const& sCIndices,
     const std::vector<float>& mask,
-    std::unordered_map<DetId, const unsigned int> const& hitMap,
+    std::unordered_map<DetId, const unsigned int> const& hgcalHitMap,
+    std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
     unsigned int layers,
     const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
     const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap,
-    MultiVectorManager<HGCRecHit> const& hits) const {
+    MultiVectorManager<HGCRecHit> const& hgcalHits,
+    MultiVectorManager<reco::PFRecHit> const& barrelHits) const {
   // Here fill the plots to compute the different metrics linked to
   // reco-level, namely fake-rate and merge-rate. In this loop should *not*
   // restrict only to the selected SimClusters.
@@ -2028,9 +2091,13 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
       continue;
     }
     const auto firstHitDetId = (clusters[lcId].hitsAndFractions())[0].first;
-    const auto lcLayerId =
-        recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
-    //Although the ones below are already created in the LC to CP association, will
+    bool isBarrel = recHitTools_->isBarrel(firstHitDetId);
+    auto lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
+    if (!isBarrel)
+      lcLayerId += layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+    else
+      lcLayerId += 2*layers;
+      //Although the ones below are already created in the LC to CP association, will
     //recreate them here since in the post processor it looks in a specific directory.
     histograms.h_denom_layercl_in_simcl_eta_perlayer[count].at(lcLayerId)->Fill(clusters[lcId].eta());
     histograms.h_denom_layercl_in_simcl_phi_perlayer[count].at(lcLayerId)->Fill(clusters[lcId].phi());
@@ -2112,12 +2179,22 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
 
     for (const auto& it_haf : sC[scId].hits_and_fractions()) {
       const DetId hitid = (it_haf.first);
-      const auto scLayerId =
-          recHitTools_->getLayerWithOffset(hitid) + layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
-      std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(hitid);
-      if (itcheck != hitMap.end()) {
-        const HGCRecHit* hit = &(hits[itcheck->second]);
-        sCEnergyOnLayer[scLayerId] += it_haf.second * hit->energy();
+      bool isBarrel = recHitTools_->isBarrel(hitid);
+      auto scLayerId = recHitTools_->getLayerWithOffset(hitid);
+      if (!isBarrel) {
+        scLayerId += layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
+        std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hgcalHitMap.find(hitid);
+        if (itcheck != hgcalHitMap.end()) {
+          const HGCRecHit* hit = &(hgcalHits[itcheck->second]);
+          sCEnergyOnLayer[scLayerId] += it_haf.second * hit->energy();
+        }
+      } else {
+        scLayerId += 2*layers;
+        std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = barrelHitMap.find(hitid);
+        if (itcheck != barrelHitMap.end()) {
+          const reco::PFRecHit* hit = &(barrelHits[itcheck->second]);
+          sCEnergyOnLayer[scLayerId] += it_haf.second * hit->energy();
+        }
       }
     }
 
@@ -2134,8 +2211,12 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
 
       auto getLCLayerId = [&](const unsigned int lcId) {
         const auto firstHitDetId = (clusters[lcId].hitsAndFractions())[0].first;
-        const unsigned int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId) +
-                                       layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+        bool isBarrel = recHitTools_->isBarrel(firstHitDetId);
+        unsigned int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
+        if (!isBarrel)
+          lcLayerId += layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+        else 
+          lcLayerId += 2*layers;
         return lcLayerId;
       };
 
@@ -2193,13 +2274,15 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
                                                        std::vector<CaloParticle> const& cP,
                                                        std::vector<size_t> const& cPIndices,
                                                        std::vector<size_t> const& cPSelectedIndices,
-                                                       std::unordered_map<DetId, const unsigned int> const& hitMap,
+                                                       std::unordered_map<DetId, const unsigned int> const& hgcalHitMap,
+                                                       std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
                                                        std::map<double, double> cummatbudg,
                                                        unsigned int layers,
                                                        std::vector<int> thicknesses,
                                                        const ticl::RecoToSimCollection& cpsInLayerClusterMap,
                                                        const ticl::SimToRecoCollection& cPOnLayerMap,
-                                                       MultiVectorManager<HGCRecHit> const& hits) const {
+                                                       MultiVectorManager<HGCRecHit> const& hgcalHits,
+                                                       MultiVectorManager<reco::PFRecHit> const& barrelHits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :
@@ -2231,11 +2314,13 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
                                  cP,
                                  cPIndices,
                                  cPSelectedIndices,
-                                 hitMap,
+                                 hgcalHitMap,
+                                 barrelHitMap,
                                  layers,
                                  cpsInLayerClusterMap,
                                  cPOnLayerMap,
-                                 hits);
+                                 hgcalHits,
+                                 barrelHits);
 
   //To find out the total amount of energy clustered per layer
   //Initialize with zeros because I see clear gives weird numbers.
@@ -2257,9 +2342,12 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
   // loop through clusters of the event
   for (const auto& lcId : clusters) {
     const auto seedid = lcId.seed();
+    if (recHitTools_->isBarrel(seedid)) {
+      continue;
+    }
     const double seedx = recHitTools_->getPosition(seedid).x();
     const double seedy = recHitTools_->getPosition(seedid).y();
-    DetId maxid = findmaxhit(lcId, hitMap, hits);
+    DetId maxid = findmaxhit(lcId, hgcalHitMap, hgcalHits);
 
     // const DetId maxid = lcId.max();
     double maxx = recHitTools_->getPosition(maxid).x();
@@ -2287,7 +2375,6 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
     bool cluslay = true;
     //zside that the current cluster belongs to.
     int zside = 0;
-
     const auto& hits_and_fractions = lcId.hitsAndFractions();
     for (std::vector<std::pair<DetId, float>>::const_iterator it_haf = hits_and_fractions.begin();
          it_haf != hits_and_fractions.end();
@@ -2340,8 +2427,8 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
             << "\n";
       }
 
-      std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(rh_detid);
-      if (itcheck == hitMap.end()) {
+      std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hgcalHitMap.find(rh_detid);
+      if (itcheck == hgcalHitMap.end()) {
         std::ostringstream st1;
         if ((rh_detid.det() == DetId::HGCalEE) || (rh_detid.det() == DetId::HGCalHSi)) {
           st1 << HGCSiliconDetId(rh_detid);
@@ -2355,7 +2442,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
         continue;
       }
 
-      const HGCRecHit* hit = &(hits[itcheck->second]);
+      const HGCRecHit* hit = &(hgcalHits[itcheck->second]);
       //Here for the per cell plots
       //----
       const double hit_x = recHitTools_->getPosition(rh_detid).x();
@@ -2941,6 +3028,7 @@ DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster& cluster,
        it_haf != hits_and_fractions.end();
        ++it_haf) {
     const DetId rh_detid = it_haf->first;
+    if (recHitTools_->isBarrel(rh_detid)) continue;
     const auto hitEn = (hits[hitMap.find(rh_detid)->second]).energy();
     if (maxene < hitEn) {
       maxene = hitEn;
