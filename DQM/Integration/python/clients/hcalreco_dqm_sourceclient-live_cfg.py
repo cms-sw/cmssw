@@ -198,5 +198,6 @@ process.options = cms.untracked.PSet(
 )
 
 process.options.wantSummary = True
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 
