@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <utility>
 
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
