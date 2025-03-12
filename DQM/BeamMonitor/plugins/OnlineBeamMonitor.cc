@@ -4,22 +4,24 @@
  * modified by Simone Gennai INFN/Bicocca
  */
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+// system includes
+#include <memory>
+#include <numeric>
+
+// user includes
 #include "DQM/BeamMonitor/plugins/OnlineBeamMonitor.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include "RecoVertex/BeamSpotProducer/interface/PVFitter.h"
-#include <memory>
-
-#include <numeric>
 
 using namespace std;
 using namespace edm;
@@ -136,16 +138,16 @@ void OnlineBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 // Slightly better error handler
 static void print_error(const std::exception& e) { edm::LogError("BeamSpotOnlineParameters") << e.what() << '\n'; }
 
-// Method to catch exceptions
-template <typename T, class Except, class Func, class Response>
-T try_(Func f, Response r) {
+// Generic try-catch template
+template <typename T, typename Func>
+T tryCatch(Func f, T errorValue) {
   try {
-    LogDebug("BeamSpotOnlineParameters") << "I have tried" << std::endl;
+    LogDebug("BeamSpotOnlineParameters") << "Trying function" << std::endl;
     return f();
-  } catch (Except& e) {
-    LogDebug("BeamSpotOnlineParameters") << "I have caught!" << std::endl;
-    r(e);
-    return static_cast<T>("-999");
+  } catch (const std::exception& e) {
+    LogDebug("BeamSpotOnlineParameters") << "Caught exception" << std::endl;
+    print_error(e);
+    return errorValue;
   }
 }
 
@@ -154,22 +156,45 @@ enum BSparameters {
   startTime = 0,  // 0 additional std::string parameters
   endTime = 1,    // 1
   lumiRange = 2,  // 2
-  END_OF_TYPES = 3,
+  events = 3,     // 3 additional int parameters
+  maxPV = 4,      // 4
+  nPV = 5,        // 5
+  meanPV = 6,     // 6 additional float parameters
+  meanErrPV = 7,  // 7
+  rmsPV = 8,      // 8
+  rmsErrPV = 9,   // 9
+  END_OF_TYPES = 10,
 };
 
-// Functor
-std::function<std::string(BSparameters, BeamSpotOnlineObjects)> myStringFunctor = [](BSparameters my_param,
-                                                                                     BeamSpotOnlineObjects m_payload) {
-  std::string ret("");
-  switch (my_param) {
-    case startTime:
-      return m_payload.startTime();
-    case endTime:
-      return m_payload.endTime();
-    case lumiRange:
-      return m_payload.lumiRange();
+// Unified functor
+using BeamSpotFunctor =
+    std::function<std::variant<std::string, int, float>(BSparameters, const BeamSpotOnlineObjects&)>;
+
+BeamSpotFunctor beamSpotFunctor = [](BSparameters param,
+                                     const BeamSpotOnlineObjects& payload) -> std::variant<std::string, int, float> {
+  switch (param) {
+    case BSparameters::startTime:
+      return payload.startTime();
+    case BSparameters::endTime:
+      return payload.endTime();
+    case BSparameters::lumiRange:
+      return payload.lumiRange();
+    case BSparameters::events:
+      return payload.usedEvents();
+    case BSparameters::maxPV:
+      return payload.maxPVs();
+    case BSparameters::nPV:
+      return payload.numPVs();
+    case BSparameters::meanPV:
+      return payload.meanPV();
+    case BSparameters::meanErrPV:
+      return payload.meanErrorPV();
+    case BSparameters::rmsPV:
+      return payload.rmsPV();
+    case BSparameters::rmsErrPV:
+      return payload.rmsErrorPV();
     default:
-      return ret;
+      throw std::invalid_argument("Unknown BS parameter");
   }
 };
 
@@ -188,8 +213,8 @@ void OnlineBeamMonitor::fetchBeamSpotInformation(const Event& iEvent, const Even
   ESHandle<BeamSpotOnlineObjects> bsHLTHandle;
   ESHandle<BeamSpotOnlineObjects> bsLegacyHandle;
   ESHandle<BeamSpotObjects> bsOnlineHandle;
-  //int lastLumiHLT_ = 0;
-  //int lastLumiLegacy_ = 0;
+
+  // Additional values for DIP publication
   std::string startTimeStamp_ = "0";
   std::string startTimeStampHLT_ = "0";
   std::string startTimeStampLegacy_ = "0";
@@ -199,24 +224,52 @@ void OnlineBeamMonitor::fetchBeamSpotInformation(const Event& iEvent, const Even
   std::string lumiRange_ = "0 - 0";
   std::string lumiRangeHLT_ = "0 - 0";
   std::string lumiRangeLegacy_ = "0 - 0";
+  int events_ = 0;
+  int eventsHLT_ = 0;
+  int eventsLegacy_ = 0;
+  int maxPV_ = 0;
+  int maxPVHLT_ = 0;
+  int maxPVLegacy_ = 0;
+  int nPV_ = 0;
+  int nPVHLT_ = 0;
+  int nPVLegacy_ = 0;
+  float meanPV_ = 0.;
+  float meanPVHLT_ = 0.;
+  float meanPVLegacy_ = 0.;
+  float meanErrPV_ = 0.;
+  float meanErrPVHLT_ = 0.;
+  float meanErrPVLegacy_ = 0.;
+  float rmsPV_ = 0.;
+  float rmsPVHLT_ = 0.;
+  float rmsPVLegacy_ = 0.;
+  float rmsErrPV_ = 0.;
+  float rmsErrPVHLT_ = 0.;
+  float rmsErrPVLegacy_ = 0.;
 
   if (auto bsHLTHandle = iSetup.getHandle(bsHLTToken_)) {
     auto const& spotDB = *bsHLTHandle;
 
-    //lastLumiHLT_ = spotDB.lastAnalyzedLumi();
-    startTimeStampHLT_ =
-        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::startTime, spotDB), print_error);
-    stopTimeStampHLT_ =
-        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::endTime, spotDB), print_error);
-    lumiRangeHLT_ =
-        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::lumiRange, spotDB), print_error);
+    auto fetchValue = [&](BSparameters param, auto defaultValue) {
+      return tryCatch([&]() { return std::get<decltype(defaultValue)>(beamSpotFunctor(param, spotDB)); }, defaultValue);
+    };
+
+    startTimeStampHLT_ = fetchValue(BSparameters::startTime, std::string("0"));
+    stopTimeStampHLT_ = fetchValue(BSparameters::endTime, std::string("0"));
+    lumiRangeHLT_ = fetchValue(BSparameters::lumiRange, std::string("0 - 0"));
+    eventsHLT_ = fetchValue(BSparameters::events, -999);
+    maxPVHLT_ = fetchValue(BSparameters::maxPV, -999);
+    nPVHLT_ = fetchValue(BSparameters::nPV, -999);
+    meanPVHLT_ = fetchValue(BSparameters::meanPV, -999.0f);
+    meanErrPVHLT_ = fetchValue(BSparameters::meanErrPV, -999.0f);
+    rmsPVHLT_ = fetchValue(BSparameters::rmsPV, -999.0f);
+    rmsErrPVHLT_ = fetchValue(BSparameters::rmsErrPV, -999.0f);
 
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
 
     BeamSpot::CovarianceMatrix matrix;
-    for (int i = 0; i < 7; ++i) {
-      for (int j = 0; j < 7; ++j) {
+    for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+      for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
         matrix(i, j) = spotDB.covariance(i, j);
       }
     }
@@ -242,23 +295,31 @@ void OnlineBeamMonitor::fetchBeamSpotInformation(const Event& iEvent, const Even
     LogError("OnlineBeamMonitor") << "The database BeamSpot (hlt record) is not valid at lumi: "
                                   << iLumi.id().luminosityBlock();
   }
+
   if (auto bsLegacyHandle = iSetup.getHandle(bsLegacyToken_)) {
     auto const& spotDB = *bsLegacyHandle;
+
+    auto fetchValue = [&](BSparameters param, auto defaultValue) {
+      return tryCatch([&]() { return std::get<decltype(defaultValue)>(beamSpotFunctor(param, spotDB)); }, defaultValue);
+    };
+
+    startTimeStampLegacy_ = fetchValue(BSparameters::startTime, std::string("0"));
+    stopTimeStampLegacy_ = fetchValue(BSparameters::endTime, std::string("0"));
+    lumiRangeLegacy_ = fetchValue(BSparameters::lumiRange, std::string("0 - 0"));
+    eventsLegacy_ = fetchValue(BSparameters::events, -999);
+    maxPVLegacy_ = fetchValue(BSparameters::maxPV, -999);
+    nPVLegacy_ = fetchValue(BSparameters::nPV, -999);
+    meanPVLegacy_ = fetchValue(BSparameters::meanPV, -999.0f);
+    meanErrPVLegacy_ = fetchValue(BSparameters::meanErrPV, -999.0f);
+    rmsPVLegacy_ = fetchValue(BSparameters::rmsPV, -999.0f);
+    rmsErrPVLegacy_ = fetchValue(BSparameters::rmsErrPV, -999.0f);
 
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
 
-    //lastLumiLegacy_ = spotDB.lastAnalyzedLumi();
-    startTimeStampLegacy_ =
-        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::startTime, spotDB), print_error);
-    stopTimeStampLegacy_ =
-        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::endTime, spotDB), print_error);
-    lumiRangeLegacy_ =
-        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::lumiRange, spotDB), print_error);
-
     BeamSpot::CovarianceMatrix matrix;
-    for (int i = 0; i < 7; ++i) {
-      for (int j = 0; j < 7; ++j) {
+    for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
+      for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
         matrix(i, j) = spotDB.covariance(i, j);
       }
     }
@@ -284,6 +345,7 @@ void OnlineBeamMonitor::fetchBeamSpotInformation(const Event& iEvent, const Even
     LogError("OnlineBeamMonitor") << "The database BeamSpot (legacy record) is not valid at lumi: "
                                   << iLumi.id().luminosityBlock();
   }
+
   if (auto bsOnlineHandle = iEvent.getHandle(bsOnlineToken_)) {
     auto const& spotOnline = *bsOnlineHandle;
 
@@ -300,31 +362,41 @@ void OnlineBeamMonitor::fetchBeamSpotInformation(const Event& iEvent, const Even
         sprintf(index, "%s%i", "_Run", frun);
         tmpname.insert(outputDIPTxt_.length() - 4, index);
       }
-      //int lastLumiAnalyzed_ = iLumi.id().luminosityBlock();
 
       if (beamSpotInfo->beamSpotsMap_.find("Online") != beamSpotInfo->beamSpotsMap_.end()) {
         if (beamSpotInfo->beamSpotsMap_.find("HLT") != beamSpotInfo->beamSpotsMap_.end() &&
             beamSpotInfo->beamSpotsMap_["Online"].x0() == beamSpotInfo->beamSpotsMap_["HLT"].x0()) {
-          // lastLumiAnalyzed_ = lastLumiHLT_;
           startTimeStamp_ = startTimeStampHLT_;
           stopTimeStamp_ = stopTimeStampHLT_;
           lumiRange_ = lumiRangeHLT_;
-
+          events_ = eventsHLT_;
+          maxPV_ = maxPVHLT_;
+          nPV_ = nPVHLT_;
+          meanPV_ = meanPVHLT_;
+          meanErrPV_ = meanErrPVHLT_;
+          rmsPV_ = rmsPVHLT_;
+          rmsErrPV_ = rmsErrPVHLT_;
         } else if (beamSpotInfo->beamSpotsMap_.find("Legacy") != beamSpotInfo->beamSpotsMap_.end() &&
                    beamSpotInfo->beamSpotsMap_["Online"].x0() == beamSpotInfo->beamSpotsMap_["Legacy"].x0()) {
-          //lastLumiAnalyzed_ = lastLumiLegacy_;
           startTimeStamp_ = startTimeStampLegacy_;
           stopTimeStamp_ = stopTimeStampLegacy_;
           lumiRange_ = lumiRangeLegacy_;
+          events_ = eventsLegacy_;
+          maxPV_ = maxPVLegacy_;
+          nPV_ = nPVLegacy_;
+          meanPV_ = meanPVLegacy_;
+          meanErrPV_ = meanErrPVLegacy_;
+          rmsPV_ = rmsPVLegacy_;
+          rmsErrPV_ = rmsErrPVLegacy_;
         }
       }
 
       outFile.open(tmpname.c_str());
 
-      outFile << "Runnumber " << frun << " bx " << 0 << std::endl;
+      // Write out file for DIP publication
+      outFile << "Runnumber " << frun << std::endl;
       outFile << "BeginTimeOfFit " << startTimeStamp_ << " " << 0 << std::endl;
       outFile << "EndTimeOfFit " << stopTimeStamp_ << " " << 0 << std::endl;
-      //outFile << "LumiRange " << lumiRange_ << " - " << lastLumiAnalyzed_ << std::endl;
       outFile << "LumiRange " << lumiRange_ << std::endl;
       outFile << "Type " << spotOnline.type() << std::endl;
       outFile << "X0 " << spotOnline.x0() << std::endl;
@@ -335,17 +407,23 @@ void OnlineBeamMonitor::fetchBeamSpotInformation(const Event& iEvent, const Even
       outFile << "dydz " << spotOnline.dydz() << std::endl;
       outFile << "BeamWidthX " << spotOnline.BeamWidthX() << std::endl;
       outFile << "BeamWidthY " << spotOnline.BeamWidthY() << std::endl;
-      for (int i = 0; i < 6; ++i) {
+      for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
         outFile << "Cov(" << i << ",j) ";
-        for (int j = 0; j < 7; ++j) {
+        for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
           outFile << spotOnline.covariance(i, j) << " ";
         }
         outFile << std::endl;
       }
-      outFile << "Cov(6,j) 0 0 0 0 0 0 " << spotOnline.covariance(6, 6) << std::endl;
       outFile << "EmittanceX " << spotOnline.emittanceX() << std::endl;
       outFile << "EmittanceY " << spotOnline.emittanceY() << std::endl;
       outFile << "BetaStar " << spotOnline.betaStar() << std::endl;
+      outFile << "events " << events_ << std::endl;
+      outFile << "meanPV " << meanPV_ << std::endl;
+      outFile << "meanErrPV " << meanErrPV_ << std::endl;
+      outFile << "rmsPV " << rmsPV_ << std::endl;
+      outFile << "rmsErrPV " << rmsErrPV_ << std::endl;
+      outFile << "maxPV " << maxPV_ << std::endl;
+      outFile << "nPV " << nPV_ << std::endl;
 
       outFile.close();
     }
