@@ -112,7 +112,7 @@ protected:
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> barrelHitMap_;
   std::vector<edm::EDGetTokenT<ticl::RecoToSimCollection>> associatorMapRtS;
   std::vector<edm::EDGetTokenT<ticl::SimToRecoCollection>> associatorMapStR;
-  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters> >associatorMapSimtR;
+  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters>> associatorMapSimtR;
   std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClusters>> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
   std::vector<edm::InputTag> hgcal_hits_label_, barrel_hits_label_;

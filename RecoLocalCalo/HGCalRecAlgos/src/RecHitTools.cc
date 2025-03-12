@@ -168,11 +168,11 @@ GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose, bool barrel) con
       y = getPosition(firstValidDetId).y();
     } else {
       const std::vector<DetId>& validDetIds = geom_->getValidDetIds(DetId::Hcal, HcalBarrel);
-      auto firstValidDetId = std::find_if(validDetIds.begin(), validDetIds.end(), 
-                                       [&](auto id){ return HcalDetId(id).depth() == layer; });
+      auto firstValidDetId =
+          std::find_if(validDetIds.begin(), validDetIds.end(), [&](auto id) { return HcalDetId(id).depth() == layer; });
       x = getPosition(*firstValidDetId).x();
       y = getPosition(*firstValidDetId).y();
-    }    
+    }
   } else {
     const HGCalDDDConstants* ddd = get_ddd(geom_, geometryType_, fhOffset_, lay);
     if (geometryType_ == 1) {
@@ -493,15 +493,11 @@ bool RecHitTools::isSilicon(const DetId& id) const {
           (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)));
 }
 
-bool RecHitTools::isScintillator(const DetId& id) const { 
-  return (id.det() == DetId::HGCalHSc ||
-          id.det() == DetId::Ecal ||
-          id.det() == DetId::Hcal);
+bool RecHitTools::isScintillator(const DetId& id) const {
+  return (id.det() == DetId::HGCalHSc || id.det() == DetId::Ecal || id.det() == DetId::Hcal);
 }
 
-bool RecHitTools::isBarrel(const DetId& id) const {
-  return (id.det() == DetId::Ecal || id.det() == DetId::Hcal);
-}
+bool RecHitTools::isBarrel(const DetId& id) const { return (id.det() == DetId::Ecal || id.det() == DetId::Hcal); }
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
   // HFnose TODO
   bool isonlysilicon = (layer % bhLastLayer_) < bhOffset_;
@@ -544,14 +540,14 @@ float RecHitTools::getPt(const DetId& id, const float& hitEnergy, const float& v
 }
 
 unsigned int RecHitTools::lastLayerEE(bool nose, bool barrel) const {
-  if(barrel)
+  if (barrel)
     return ecalBarrelLastLayer_;
   else
     return (nose ? HFNoseDetId::HFNoseLayerEEmax : fhOffset_);
 }
 
 unsigned int RecHitTools::lastLayer(bool nose, bool barrel) const {
-  if(barrel)
+  if (barrel)
     return hcalBarrelLastLayer_;
   else
     return (nose ? noseLastLayer_ : bhLastLayer_);

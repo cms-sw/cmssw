@@ -43,7 +43,7 @@ namespace reco {
       hfnose = 9,
       barrel_em = 10,
       barrel_had = 11,
-      undefined = -1 
+      undefined = -1
     };
 
     // super-cluster flags

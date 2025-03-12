@@ -51,7 +51,7 @@ public:
   void setThresholds(edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>,
                      edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd>) override;
 
-  void populate(const HGCRecHitCollection& hits) override{};
+  void populate(const HGCRecHitCollection& hits) override {};
   void populate(const reco::PFRecHitCollection& hits) override;
   // this is the method that will start the clusterisation (it is possible to invoke this method
   // more than once - but make sure it is with different hit collections (or else use reset)
@@ -173,9 +173,7 @@ private:
   }
 
   void prepareDataStructures(const unsigned int layerId);
-  void calculateLocalDensity(const TILE& lt,
-                             const unsigned int layerId,
-                             float delta_c);
+  void calculateLocalDensity(const TILE& lt, const unsigned int layerId, float delta_c);
   void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, float delta_c);
   int findAndAssignClusters(const unsigned int layerId, float delta_c);
   void passSharedClusterIndex(const TILE& lt, const unsigned int layerId, float delta_c);
