@@ -51,12 +51,12 @@ namespace edm {
     bool isProductEqual(WrapperBase const* newProduct) const { return isProductEqual_(newProduct); }
     bool hasSwap() const { return hasSwap_(); }
     void swapProduct(WrapperBase* newProduct) { swapProduct_(newProduct); }
+    void moveFrom(void* ptr, std::type_info const& type) { moveFrom_(ptr, type); }
 
     std::shared_ptr<soa::TableExaminerBase> tableExaminer() const { return tableExaminer_(); }
 
   private:
     virtual std::type_info const& dynamicTypeInfo_() const = 0;
-
     virtual std::type_info const& wrappedTypeInfo_() const = 0;
 
     // This will never be called.
@@ -70,6 +70,7 @@ namespace edm {
     virtual bool isProductEqual_(WrapperBase const* newProduct) const = 0;
     virtual bool hasSwap_() const = 0;
     virtual void swapProduct_(WrapperBase* newProduct) = 0;
+    virtual void moveFrom_(void* ptr, std::type_info const& type) = 0;
 
     virtual void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,

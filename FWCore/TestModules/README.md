@@ -37,3 +37,14 @@ product read from the `Event`.
 Together `edmtest::EventIDProducer` and `edmtest::EventIDValidator` can be used
 to validate that an object produced in a given event is being read back in the
 same event.
+
+
+## `edmtest::GenericCloner`
+
+This module will clone all the event products declared by its configuration,
+using their ROOT dictionaries.
+The products can be specified either as module labels (_e.g._ `<module label>`)
+or as branch names (_e.g._ `<product type>_<module label>_<instance name>_<process name>`).
+Glob expressions (`?` and `*`) are supported in module labels and within the
+individual fields of branch names, similar to an `OutputModule`'s `keep`
+statements.
