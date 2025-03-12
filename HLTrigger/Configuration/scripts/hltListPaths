@@ -37,7 +37,7 @@ def getPathList(args):
   if not isinstance(process, cms.Process):
     raise Exception(f'query did not return a valid HLT menu:\n query="{cmdline}"')
 
-  usePaths, useEndPaths, useFinalPaths = False, False, False
+  usePaths, useEndPaths = False, False
 
   # Paths only
   if args.selection == 'paths':
@@ -47,17 +47,13 @@ def getPathList(args):
   elif args.selection == 'endpaths':
     useEndPaths = True
 
-  # FinalPaths only
-  elif args.selection == 'finalpaths':
-    useFinalPaths = True
-
-  # Paths, EndPaths, and FinalPaths ('all')
+  # Paths and EndPaths ('all')
   elif args.selection == 'all':
-    usePaths, useEndPaths, useFinalPaths = True, True, True
+    usePaths, useEndPaths = True, True
 
   # invalid value
   else:
-    raise RuntimeError(f'ERROR: invalid value for option "--selection" (must be "paths", "endpaths", "finalpaths", or "all"): {args.selection}')
+    raise RuntimeError(f'ERROR: invalid value for option "--selection" (must be "paths", "endpaths", or "all"): {args.selection}')
 
   path_keep_rules = []
   for path_keep_rule in args.path_keep_rules.split(','):
@@ -72,7 +68,6 @@ def getPathList(args):
   for pathDict in [
     process.paths_() if usePaths else None,
     process.endpaths_() if useEndPaths else None,
-    process.finalpaths_() if useFinalPaths else None,
   ]:
     if pathDict == None:
       continue
@@ -145,7 +140,7 @@ def hltMenu(name):
   return name if os.path.isfile(name) else options.ConnectionHLTMenu(name)
 
 parser = argparse.ArgumentParser(
-  description       = 'List all the Paths, EndPaths and FinalPaths of an HLT configuration.',
+  description       = 'List all the Paths and EndPaths of an HLT configuration.',
   argument_default  = argparse.SUPPRESS,
   formatter_class   = formatter,
   add_help          = False )
@@ -187,17 +182,12 @@ group.add_argument('-e', '--only-endpaths',
                     action  = 'store_const',
                     const   = 'endpaths',
                     help    = 'List only EndPaths' )
-group.add_argument('-f', '--only-finalpaths',
-                    dest    = 'selection',
-                    action  = 'store_const',
-                    const   = 'finalpaths',
-                    help    = 'List only FinalPaths' )
 group.add_argument('-a', '--all', 
                     dest    = 'selection',
                     action  = 'store_const',
                     const   = 'all',
                     default = 'all',
-                    help    = 'List Paths, EndPaths and FinalPaths (default)' )
+                    help    = 'List Paths and EndPaths (default)' )
 
 parser.add_argument('--no-dependent-paths',
                     dest    = 'no_dependent_paths',
