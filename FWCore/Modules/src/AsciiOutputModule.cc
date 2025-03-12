@@ -34,6 +34,7 @@ namespace edm {
     int prescale_;
     int verbosity_;
     int counter_;
+    bool allProvenance_;
   };
 
   AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset)
@@ -41,7 +42,8 @@ namespace edm {
         global::OutputModule<>(pset),
         prescale_(pset.getUntrackedParameter<unsigned int>("prescale")),
         verbosity_(pset.getUntrackedParameter<unsigned int>("verbosity")),
-        counter_(0) {
+        counter_(0),
+        allProvenance_(pset.getUntrackedParameter<bool>("allProvenance")) {
     if (prescale_ == 0)
       prescale_ = 1;
   }
@@ -101,6 +103,29 @@ namespace edm {
             }
           }
         }
+      } else if (allProvenance_) {
+        auto const& prov = e.getStableProvenance(desc.originalBranchID());
+        LogAbsolute("AsciiOut") << prov;
+        if (verbosity_ > 2) {
+          ProductDescription const& desc2 = prov.productDescription();
+          std::string const& process = desc2.processName();
+          std::string const& label = desc2.moduleLabel();
+          ProcessHistory const& processHistory = e.processHistory();
+
+          for (ProcessConfiguration const& pc : processHistory) {
+            if (pc.processName() == process) {
+              ParameterSetID const& psetID = pc.parameterSetID();
+              pset::Registry const* psetRegistry = pset::Registry::instance();
+              ParameterSet const* processPset = psetRegistry->getMapped(psetID);
+              if (processPset) {
+                if (desc.isAlias()) {
+                  LogAbsolute("AsciiOut") << "Alias PSet\n" << processPset->getParameterSet(desc.moduleLabel());
+                }
+                LogAbsolute("AsciiOut") << processPset->getParameterSet(label) << "\n";
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -115,6 +140,8 @@ namespace edm {
             "1: event ID and timestamp only\n"
             "2: provenance for each kept product\n"
             ">2: PSet and provenance for each kept product");
+    desc.addUntracked("allProvenance", false)
+        ->setComment("when printing provenance info, also print stable provenance of non-kept data products.");
     OutputModule::fillDescription(desc);
     descriptions.add("asciiOutput", desc);
   }
