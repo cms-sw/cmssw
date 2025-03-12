@@ -59,7 +59,15 @@ def puppiJetMETReclusterFromMiniAOD(process, runOnMC, useExistingWeights=False, 
       'pfDeepFlavourJetTags:probb',
       'pfDeepFlavourJetTags:probbb',
       'pfDeepFlavourJetTags:problepb',
-      'pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'
+      'pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll',
+      'pfUnifiedParticleTransformerAK4JetTags:ptcorr',
+      'pfUnifiedParticleTransformerAK4JetTags:ptnu',
+      'pfUnifiedParticleTransformerAK4JetTags:ptreshigh',
+      'pfUnifiedParticleTransformerAK4JetTags:ptreslow',
+      'pfUnifiedParticleTransformerAK4V1JetTags:ptcorr',
+      'pfUnifiedParticleTransformerAK4V1JetTags:ptnu',
+      'pfUnifiedParticleTransformerAK4V1JetTags:ptreshigh',
+      'pfUnifiedParticleTransformerAK4V1JetTags:ptreslow',
     )
   )
   process = setupPuppiAK4AK8METReclustering(process, runOnMC,
