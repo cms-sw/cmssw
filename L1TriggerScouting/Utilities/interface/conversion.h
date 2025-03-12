@@ -32,6 +32,14 @@ namespace l1ScoutingRun3 {
 
   }  // namespace demux
 
+  namespace calol2 {
+
+    inline float fEt(int hwEt) { return scales::et_scale * hwEt; };
+    inline float fEta(int hwEta) { return scales::eta_scale * hwEta; };
+    inline float fPhi(int hwPhi) { return _setPhiRange(scales::phi_scale * hwPhi); };
+
+  }  // namespace calol2
+
 }  // namespace l1ScoutingRun3
 
 #endif
