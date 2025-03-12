@@ -50,7 +50,6 @@ public:
       Neighbor(size_t index) : index_(index), status_(Status::undef) {}
 
       size_t index() const { return index_; }
-      Status status() const { return status_; }
 
       // methods to set status to undef, alive or killed
       void setUndef() { status_ = Status::undef; }
@@ -122,14 +121,13 @@ public:
     uint8_t innerNeighborsInnerLayerId() const { return innerNeighborsInnerLayerId_; }
 
   private:
-    TrackingParticleRef trackingParticleRef_;                   // reference to the TrackingParticle
     std::pair<SiPixelRecHitRef, SiPixelRecHitRef> recHitRefs_;  // reference pair to RecHits of the Doublet
     std::pair<uint8_t, uint8_t> layerIds_;                      // pair of layer IDs corresponding to the RecHits
     Status status_;                                             // status of the doublet
     int8_t numSkippedLayers_;                                   // number of layers skipped by the Doublet
     int16_t layerPairId_;            // ID of the layer pair as defined in the reconstruction for the doublets
     GlobalVector beamSpotPosition_;  // global position of the beam spot (needed to correct the global RecHit position)
-    std::vector<Neighbor> innerNeighbors_{};   // indices of inner neighboring doublets and the status of the connection
+    std::vector<Neighbor> innerNeighbors_{};  // indices of inner neighboring doublets and the status of the connection
     uint8_t innerNeighborsInnerLayerId_{99};  // layer ID of the inner RecHit of the inner neighboring doublets
   };
 
@@ -141,52 +139,67 @@ public:
     */
   class Ntuplet {
   public:
-    // possible states of the Ntuplet (depending on its constituents)
-    enum class Status : uint8_t {
-      alive,
-      undefDoubletCuts,
-      undefDoubletConnectionCuts,
-      killedByMissingLayerPair,
-      killedByDoubletCuts,
-      killedByDoubletConnectionCuts
+    // flags indicating qualities of Ntuplet (depending on its constituents)
+    enum class StatusBit : uint8_t {
+      hasUndefDoubletCuts = 1,
+      hasUndefDoubletConnectionCuts = 1 << 1,
+      hasMissingLayerPair = 1 << 2,
+      hasKilledDoublets = 1 << 3,
+      hasKilledConnections = 1 << 4,
+      isTooShort = 1 << 5
     };
 
     // default constructor
     Ntuplet() = default;
 
     // constructor
-    Ntuplet(int const numDoublets, Status const status, uint8_t const firstLayerId, uint8_t const lastLayerId)
+    Ntuplet(uint8_t const numDoublets, uint8_t const status, uint8_t const firstLayerId, uint8_t const lastLayerId)
         : numDoublets_(numDoublets), status_(status), firstLayerId_(firstLayerId), lastLayerId_(lastLayerId){};
 
     // accessing the different members
-    int numDoublets() const { return numDoublets_; }
-    int numRecHits() const { return (numDoublets_ + 1); }
+    uint8_t numDoublets() const { return numDoublets_; }
+    uint8_t numRecHits() const { return (numDoublets_ + 1); }
     uint8_t firstLayerId() const { return firstLayerId_; }
     uint8_t lastLayerId() const { return lastLayerId_; }
 
-    // methods to set status to alive, undef or killed
-    void setAlive() { status_ = Status::alive; }
-    void setUndefDoubletCuts() { status_ = Status::undefDoubletCuts; }
-    void setUndefDoubletConnectionCuts() { status_ = Status::undefDoubletConnectionCuts; }
-    void setKilledByMissingLayerPair() { status_ = Status::killedByMissingLayerPair; }
-    void setKilledByDoubletCuts() { status_ = Status::killedByDoubletCuts; }
-    void setKilledByDoubletConnectionCuts() { status_ = Status::killedByDoubletConnectionCuts; }
-
-    // methods to check if status is undef, alive or killed
-    bool isAlive() const { return status_ == Status::alive; }
-    bool isUndefDoubletCuts() const { return status_ == Status::undefDoubletCuts; }
-    bool isUndefDoubletConnectionCuts() const { return status_ == Status::undefDoubletConnectionCuts; }
-    bool isUndef() const { return isUndefDoubletCuts() || isUndefDoubletConnectionCuts(); }
-    bool isKilledByMissingLayerPair() const { return status_ == Status::killedByMissingLayerPair; }
-    bool isKilledByDoubletCuts() const { return status_ == Status::killedByDoubletCuts; }
-    bool isKilledByDoubletConnectionCuts() const { return status_ == Status::killedByDoubletConnectionCuts; }
-    bool isKilled() const {
-      return isKilledByMissingLayerPair() || isKilledByDoubletCuts() || isKilledByDoubletConnectionCuts();
+    // method to update an external status
+    static void updateStatus(uint8_t& status,
+                             bool const hasUndefDoubletCuts,
+                             bool const hasMissingLayerPair,
+                             bool const hasKilledDoublets,
+                             bool const hasUndefDoubletConnectionCuts,
+                             bool const hasKilledConnections,
+                             bool const isTooShort = false) {
+      status |= (uint8_t(hasUndefDoubletCuts) * uint8_t(StatusBit::hasUndefDoubletCuts) +
+                 uint8_t(hasMissingLayerPair) * uint8_t(StatusBit::hasMissingLayerPair) +
+                 uint8_t(hasKilledDoublets) * uint8_t(StatusBit::hasKilledDoublets) +
+                 uint8_t(hasUndefDoubletConnectionCuts) * uint8_t(StatusBit::hasUndefDoubletConnectionCuts) +
+                 uint8_t(hasKilledConnections) * uint8_t(StatusBit::hasKilledConnections) +
+                 uint8_t(isTooShort) * uint8_t(StatusBit::isTooShort));
     }
 
+    // methods to set status to alive, undef or killed
+    void setUndefDoubletCuts() { status_ |= uint8_t(StatusBit::hasUndefDoubletCuts); }
+    void setUndefDoubletConnectionCuts() { status_ |= uint8_t(StatusBit::hasUndefDoubletConnectionCuts); }
+    void setMissingLayerPair() { status_ |= uint8_t(StatusBit::hasMissingLayerPair); }
+    void setKilledDoublets() { status_ |= uint8_t(StatusBit::hasKilledDoublets); }
+    void setKilledConnections() { status_ |= uint8_t(StatusBit::hasKilledConnections); }
+    void setTooShort() { status_ |= uint8_t(StatusBit::isTooShort); }
+
+    // methods to check if status is undef, alive or killed
+    bool hasUndefDoubletCuts() const { return status_ & uint8_t(StatusBit::hasUndefDoubletCuts); }
+    bool hasUndefDoubletConnectionCuts() const { return status_ & uint8_t(StatusBit::hasUndefDoubletConnectionCuts); }
+    bool hasUndef() const { return hasUndefDoubletCuts() || hasUndefDoubletConnectionCuts(); }
+    bool hasMissingLayerPair() const { return status_ & uint8_t(StatusBit::hasMissingLayerPair); }
+    bool hasKilledDoublets() const { return status_ & uint8_t(StatusBit::hasKilledDoublets); }
+    bool hasKilledConnections() const { return status_ & uint8_t(StatusBit::hasKilledConnections); }
+    bool isKilled() const { return hasMissingLayerPair() || hasKilledDoublets() || hasKilledConnections(); }
+    bool isTooShort() const { return status_ & uint8_t(StatusBit::isTooShort); }
+    bool isAlive() const { return !(status_); }  // if nothing is set (no undef and no kills) the tuplet is alive
+
   private:
-    int numDoublets_;       // number of doublets in the Ntuplet
-    Status status_;         // status of the Ntuplet (alive, killed, etc.)
+    uint8_t numDoublets_;   // number of doublets in the Ntuplet
+    uint8_t status_;        // status flags of the Ntuplet (missing layer pairs, undefined cuts, killed doublets, etc.)
     uint8_t firstLayerId_;  // index of the first layer of the Ntuplet
     uint8_t lastLayerId_;   // index of the last layer of the Ntuplet
   };
@@ -237,37 +250,59 @@ public:
   // method to get number of RecHits in the SimDoublets
   int numRecHits() const { return layerIdVector_.size(); }
 
+  // method to get the number of SimDoublets
   int numDoublets() const { return doublets_.size(); }
 
   // method to sort the RecHits according to the position
   void sortRecHits();
 
   // method to produce the SimDoublets from the RecHits
-  void buildSimDoublets(const TrackerTopology* trackerTopology = nullptr) const;
+  void buildSimDoublets(const TrackerTopology* trackerTopology) const;
   // method to access the SimDoublets
   std::vector<Doublet>& getSimDoublets() const { return doublets_; }
   // method to build and access the SimDoublets
-  std::vector<Doublet>& getSimDoublets(const TrackerTopology* trackerTopology) const {
+  std::vector<Doublet>& buildAndGetSimDoublets(const TrackerTopology* trackerTopology) const {
     buildSimDoublets(trackerTopology);
     return doublets_;
   }
+  // method to access a single SimDoublet
   Doublet const& getSimDoublet(int const index) const { return doublets_.at(index); }
 
-  // method to produce and get the SimNtuplets
-  // (collection of all possible Ntuplets you can build from the SimDoublets)
-  std::vector<Ntuplet> getSimNtuplets() const;
+  // method to build the SimNtuplets
+  // minNumDoubletsToPass = the number of doublets required for the Ntuplet to not be considered too short
+  void buildSimNtuplets(size_t const minNumDoubletsToPass = 0) const;
+  // method to access the SimNtuplets
+  std::vector<Ntuplet>& getSimNtuplets() const { return ntuplets_; };
+  // method to build and access the SimNtuplets in one go
+  // minNumDoubletsToPass = the number of doublets required for the Ntuplet to not be considered too short
+  std::vector<Ntuplet>& buildAndGetSimNtuplets(size_t const minNumDoubletsToPass = 0) const {
+    buildSimNtuplets(minNumDoubletsToPass);
+    return ntuplets_;
+  };
+
+  // method to check if there are SimNtuplets
+  bool hasSimNtuplet() const { return longestNtupletIndex_ != -1; }
+  // method to check if there are alive SimNtuplet
+  bool hasAliveSimNtuplet() const { return longestAliveNtupletIndex_ != -1; }
+
+  // method to access the longest SimNtuplet
+  Ntuplet const& longestSimNtuplet() const { return ntuplets_.at(longestNtupletIndex_); }
+  // method to access the longest alive SimNtuplet
+  Ntuplet const& longestAliveSimNtuplet() const { return ntuplets_.at(longestAliveNtupletIndex_); }
+
+  // method to clear the mutable vectors once you finished using them
+  void clearMutables() const {
+    doublets_.clear();
+    ntuplets_.clear();
+  }
 
 private:
   // function for recursive building of Ntuplets
-  void buildSimNtuplets(std::vector<Ntuplet>& simNtuplets,
-                        Doublet const& doublet,
+  void buildSimNtuplets(Doublet const& doublet,
                         size_t numSimDoublets,
                         size_t lastLayerId,
-                        Ntuplet::Status status) const;
-  // overload the function to deal with the starting configuration
-  void buildSimNtuplets(std::vector<Ntuplet>& simNtuplets, Doublet const& doublet) const {
-    buildSimNtuplets(simNtuplets, doublet, 0, doublet.outerLayerId(), Ntuplet::Status::alive);
-  }
+                        uint8_t status,
+                        size_t const minNumDoubletsToPass) const;
 
   // class members
   TrackingParticleRef trackingParticleRef_;  // reference to the TrackingParticle
@@ -280,6 +315,12 @@ private:
   // non-persistent, mutable members:
   // vector of true doublets
   mutable std::vector<Doublet> doublets_{};
+  // vector of true Ntuplets
+  mutable std::vector<Ntuplet> ntuplets_{};
+  // index of the longest SimNtuplet
+  mutable int longestNtupletIndex_{-1};
+  // index of the longest SimNtuplet that survives
+  mutable int longestAliveNtupletIndex_{-1};
 };
 
 // collection of SimDoublets
