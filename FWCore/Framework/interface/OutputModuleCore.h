@@ -55,7 +55,7 @@ namespace edm {
   class PreallocationConfiguration;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
-  class SignallingProductRegistry;
+  class SignallingProductRegistryFiller;
 
   template <typename T>
   class OutputModuleCommunicatorT;
@@ -214,7 +214,7 @@ namespace edm {
       /// Tell the OutputModule that is must end the current file.
       void doCloseFile();
 
-      void registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistry*);
+      void registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistryFiller*);
 
       bool needToRunSelection() const noexcept;
       std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const noexcept;
