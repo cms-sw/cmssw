@@ -371,8 +371,15 @@ void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
     if (!doCaloParticleSelection_ || (doCaloParticleSelection_ && cpSelector(caloParticle, simVertices))) {
       selected_cPeff.push_back(j);
       if (doCaloParticlePlots_) {
-        histoProducerAlgo_->fill_caloparticle_histos(
-            histograms.histoProducerAlgo, id, caloParticle, simVertices, layers, hgcalHitMap, barrelHitMap, hgcalHits, barrelHits);
+        histoProducerAlgo_->fill_caloparticle_histos(histograms.histoProducerAlgo,
+                                                     id,
+                                                     caloParticle,
+                                                     simVertices,
+                                                     layers,
+                                                     hgcalHitMap,
+                                                     barrelHitMap,
+                                                     hgcalHits,
+                                                     barrelHits);
       }
     }
     ++j;
@@ -462,8 +469,15 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   // HGCRecHit are given to select the SimHits which are also reconstructed
   LogTrace("HGCalValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n" << std::endl;
   std::vector<size_t> selected_cPeff;
-  cpParametersAndSelection(
-      histograms, caloParticles, simVertices, selected_cPeff, totallayers_to_monitor_, hgcalHitMap, barrelHitMap, hgcalRechitManager, barrelRechitManager);
+  cpParametersAndSelection(histograms,
+                           caloParticles,
+                           simVertices,
+                           selected_cPeff,
+                           totallayers_to_monitor_,
+                           hgcalHitMap,
+                           barrelHitMap,
+                           hgcalRechitManager,
+                           barrelRechitManager);
 
   //get collections from the event
   //simClusters
@@ -797,11 +811,11 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
                                            edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
                                            edm::InputTag("HGCalRecHit", "HGCHEBRecHits"),
                                        });
-  desc.add<std::vector<edm::InputTag>>("barrel_hits", 
+  desc.add<std::vector<edm::InputTag>>("barrel_hits",
                                        {
                                            edm::InputTag("particleFlowRecHitECAL"),
                                            edm::InputTag("particleFlowRecHitHBHE"),
-                                      });
+                                       });
 
   desc.add<edm::InputTag>("label_lcl", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<std::vector<edm::InputTag>>("label_tst",
@@ -813,16 +827,12 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
                                        });
   desc.add<edm::InputTag>("label_simTS", edm::InputTag("ticlSimTracksters"));
   desc.add<edm::InputTag>("label_simTSFromCP", edm::InputTag("ticlSimTracksters", "fromCPs"));
-  desc.addUntracked<std::vector<edm::InputTag>>("associator", 
-                                                {
-                                                  edm::InputTag("layerClusterCaloParticleAssociationProducer"),
-                                                  edm::InputTag("barrelLayerClusterCaloParticleAssociation")
-                                                });
-  desc.addUntracked<std::vector<edm::InputTag>>("associatorSim", 
-                                                {
-                                                  edm::InputTag("layerClusterSimClusterAssociationProducer"),
-                                                  edm::InputTag("barrelLayerClusterSimClusterAssociation")
-                                                });
+  desc.addUntracked<std::vector<edm::InputTag>>("associator",
+                                                {edm::InputTag("layerClusterCaloParticleAssociationProducer"),
+                                                 edm::InputTag("barrelLayerClusterCaloParticleAssociation")});
+  desc.addUntracked<std::vector<edm::InputTag>>("associatorSim",
+                                                {edm::InputTag("layerClusterSimClusterAssociationProducer"),
+                                                 edm::InputTag("barrelLayerClusterSimClusterAssociation")});
   desc.addUntracked<bool>("SaveGeneralInfo", true);
   desc.addUntracked<bool>("doCaloParticlePlots", true);
   desc.addUntracked<bool>("doCaloParticleSelection", true);

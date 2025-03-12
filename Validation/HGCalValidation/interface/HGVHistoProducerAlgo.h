@@ -428,7 +428,7 @@ private:
   std::array<std::string, numberOfValidationTypes_> valSuffix_ = {{"_byHits_CP", "_byLCs", "_byLCs_CP", "_byHits"}};
 
   int barrelLayersOffset_ = 5;
-   
+
   //private data members
   double minEta_, maxEta_;
   int nintEta_;

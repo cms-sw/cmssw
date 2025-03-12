@@ -149,9 +149,8 @@ std::vector<reco::BasicCluster> BarrelCLUEAlgoT<T>::getClusters(bool) {
             clusterIndex.erase(clusterIndex_it);
             fractions.erase(fraction_it);
           }
-          if (norm_fraction >= fractionCutoff_){
-            cellsIdInCluster[clusterIndex[j]].push_back(
-              std::make_pair(i, norm_fraction));
+          if (norm_fraction >= fractionCutoff_) {
+            cellsIdInCluster[clusterIndex[j]].push_back(std::make_pair(i, norm_fraction));
           }
         }
         auto tot_norm_cleaned_fractions = std::accumulate(fractions.begin(), fractions.end(), 0.);
@@ -257,9 +256,7 @@ void BarrelCLUEAlgoT<T>::calculateLocalDensity(const T& lt, const unsigned int l
 }
 
 template <typename T>
-void BarrelCLUEAlgoT<T>::calculateDistanceToHigher(const T& lt,
-                                                   const unsigned int layerId,
-                                                   float delta_c) {
+void BarrelCLUEAlgoT<T>::calculateDistanceToHigher(const T& lt, const unsigned int layerId, float delta_c) {
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
 
