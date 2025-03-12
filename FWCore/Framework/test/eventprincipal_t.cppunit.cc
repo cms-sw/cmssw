@@ -25,6 +25,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -70,7 +71,7 @@ private:
   std::map<std::string, std::shared_ptr<edm::ProductDescription> > productDescriptions_;
   std::map<std::string, std::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
 
-  std::shared_ptr<edm::ProductRegistry> pProductRegistry_;
+  std::shared_ptr<edm::SignallingProductRegistryFiller> pProductRegistry_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
   std::shared_ptr<edm::EventPrincipal> pEvent_;
 
@@ -131,7 +132,7 @@ void test_ep::setUp() {
   eventID_ = edm::EventID(101, 1, 20);
 
   // We can only insert products registered in the ProductRegistry.
-  pProductRegistry_.reset(new edm::ProductRegistry);
+  pProductRegistry_.reset(new edm::SignallingProductRegistryFiller);
   pProductRegistry_->addProduct(*fake_single_process_branch("hlt", "HLT"));
   pProductRegistry_->addProduct(*fake_single_process_branch("prod", "PROD"));
   pProductRegistry_->addProduct(*fake_single_process_branch("test", "TEST"));
@@ -139,7 +140,7 @@ void test_ep::setUp() {
   pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
   pProductRegistry_->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
-  branchIDListHelper->updateFromRegistry(*pProductRegistry_);
+  branchIDListHelper->updateFromRegistry(pProductRegistry_->registry());
   auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
 
   // Put products we'll look for into the EventPrincipal.
@@ -155,7 +156,7 @@ void test_ep::setUp() {
 
     branch.init();
 
-    edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
+    edm::ProductRegistry::ProductList const& pl = pProductRegistry_->registry().productList();
     edm::BranchKey const bk(branch);
     edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
@@ -168,16 +169,17 @@ void test_ep::setUp() {
     assert(process);
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
+    auto pRegistry = std::make_shared<edm::ProductRegistry const>(pProductRegistry_->registry());
     auto rp = std::make_shared<edm::RunPrincipal>(
-        pProductRegistry_, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
+        pRegistry, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
     rp->setAux(edm::RunAuxiliary(eventID_.run(), now, now));
     edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
     lbp_ = std::make_shared<edm::LuminosityBlockPrincipal>(
-        pProductRegistry_, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
+        pRegistry, edm::productResolversFactory::makePrimary, *process, &historyAppender_, 0);
     lbp_->setAux(lumiAux);
     lbp_->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
-    pEvent_.reset(new edm::EventPrincipal(pProductRegistry_,
+    pEvent_.reset(new edm::EventPrincipal(pRegistry,
                                           edm::productResolversFactory::makePrimary,
                                           branchIDListHelper,
                                           thinnedAssociationsHelper,

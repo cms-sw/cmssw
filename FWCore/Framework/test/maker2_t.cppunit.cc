@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/maker/WorkerMaker.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 
@@ -65,7 +65,7 @@ void testmaker2::maker2Test()
 
   edm::ExceptionToActionTable table;
 
-  edm::SignallingProductRegistry preg;
+  edm::SignallingProductRegistryFiller preg;
   edm::PreallocationConfiguration prealloc;
   auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD");
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);

@@ -50,7 +50,7 @@ namespace edm {
   class ProductResolverIndexAndSkipBit;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
-  class SignallingProductRegistry;
+  class SignallingProductRegistryFiller;
 
   namespace maker {
     template <typename T>
@@ -92,7 +92,7 @@ namespace edm {
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
       std::string workerType() const { return "WorkerT<EDAnalyzerAdaptorBase>"; }
-      void registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, SignallingProductRegistry* reg);
+      void registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, SignallingProductRegistryFiller* reg);
 
     protected:
       template <typename T>

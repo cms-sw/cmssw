@@ -29,8 +29,6 @@
 
 namespace edm {
 
-  ProductRegistry::ProductRegistry() : productList_(), transient_() {}
-
   ProductRegistry::Transients::Transients()
       : frozen_(false),
         productProduced_(),
@@ -65,7 +63,7 @@ namespace edm {
     freezeIt(toBeFrozen);
   }
 
-  void ProductRegistry::addProduct(ProductDescription const& productDesc, bool fromListener) {
+  void ProductRegistry::addProduct_(ProductDescription const& productDesc) {
     assert(productDesc.produced());
     throwIfFrozen();
     std::pair<ProductList::iterator, bool> ret =
@@ -102,12 +100,11 @@ namespace edm {
             << "descendants of those products.\n";
       }
     }
-    addCalled(productDesc, fromListener);
   }
 
-  void ProductRegistry::addLabelAlias(ProductDescription const& productDesc,
-                                      std::string const& labelAlias,
-                                      std::string const& instanceAlias) {
+  ProductDescription const& ProductRegistry::addLabelAlias_(ProductDescription const& productDesc,
+                                                            std::string const& labelAlias,
+                                                            std::string const& instanceAlias) {
     assert(productDesc.produced());
     assert(productDesc.branchID().isValid());
     throwIfFrozen();
@@ -116,7 +113,7 @@ namespace edm {
     assert(ret.second);
     transient_.aliasToOriginal_.emplace_back(
         PRODUCT_TYPE, productDesc.unwrappedTypeID(), labelAlias, instanceAlias, productDesc.moduleLabel());
-    addCalled(bd, false);
+    return ret.first->second;
   }
 
   void ProductRegistry::copyProduct(ProductDescription const& productDesc) {
@@ -143,11 +140,7 @@ namespace edm {
   }
 
   std::shared_ptr<ProductResolverIndexHelper const> ProductRegistry::productLookup(BranchType branchType) const {
-    return get_underlying_safe(transient_.productLookups_[branchType]);
-  }
-
-  std::shared_ptr<ProductResolverIndexHelper> ProductRegistry::productLookup(BranchType branchType) {
-    return get_underlying_safe(transient_.productLookups_[branchType]);
+    return transient_.productLookups_[branchType];
   }
 
   void ProductRegistry::setFrozen(bool initializeLookupInfo) {
@@ -184,8 +177,6 @@ namespace edm {
     }
   }
 
-  void ProductRegistry::addCalled(ProductDescription const&, bool) {}
-
   std::vector<std::string> ProductRegistry::allBranchNames() const {
     std::vector<std::string> result;
     result.reserve(productList().size());
@@ -215,20 +206,6 @@ namespace edm {
   void ProductRegistry::updateFromInput(std::vector<ProductDescription> const& other) {
     for (ProductDescription const& productDescription : other) {
       copyProduct(productDescription);
-    }
-  }
-
-  void ProductRegistry::addFromInput(edm::ProductRegistry const& other) {
-    throwIfFrozen();
-    for (auto const& prod : other.productList_) {
-      ProductList::iterator iter = productList_.find(prod.first);
-      if (iter == productList_.end()) {
-        productList_.insert(std::make_pair(prod.first, prod.second));
-        addCalled(prod.second, false);
-      } else {
-        assert(combinable(iter->second, prod.second));
-        iter->second.merge(prod.second);
-      }
     }
   }
 
@@ -319,6 +296,11 @@ namespace edm {
 
     transient_.branchIDToIndex_.clear();
 
+    std::array<std::shared_ptr<ProductResolverIndexHelper>, NumBranchTypes> new_productLookups{
+        {std::make_shared<ProductResolverIndexHelper>(),
+         std::make_shared<ProductResolverIndexHelper>(),
+         std::make_shared<ProductResolverIndexHelper>(),
+         std::make_shared<ProductResolverIndexHelper>()}};
     for (auto const& product : productList_) {
       auto const& desc = product.second;
 
@@ -438,13 +420,12 @@ namespace edm {
             }
           }
         }
-        ProductResolverIndex index = productLookup(desc.branchType())
-                                         ->insert(typeID,
-                                                  desc.moduleLabel().c_str(),
-                                                  desc.productInstanceName().c_str(),
-                                                  desc.processName().c_str(),
-                                                  containedTypeID,
-                                                  baseTypesOfContainedType);
+        ProductResolverIndex index = new_productLookups[desc.branchType()]->insert(typeID,
+                                                                                   desc.moduleLabel().c_str(),
+                                                                                   desc.productInstanceName().c_str(),
+                                                                                   desc.processName().c_str(),
+                                                                                   containedTypeID,
+                                                                                   baseTypesOfContainedType);
 
         transient_.branchIDToIndex_[desc.branchID()] = index;
       }
@@ -454,8 +435,11 @@ namespace edm {
       throwMissingDictionariesException(missingDictionaries, context, producedTypes, branchNamesForMissing);
     }
 
-    for (auto& iterProductLookup : transient_.productLookups_) {
+    for (auto& iterProductLookup : new_productLookups) {
       iterProductLookup->setFrozen();
+    }
+    for (size_t i = 0; i < new_productLookups.size(); ++i) {
+      transient_.productLookups_[i] = std::move(new_productLookups[i]);
     }
 
     unsigned int indexIntoNextIndexValue = 0;
