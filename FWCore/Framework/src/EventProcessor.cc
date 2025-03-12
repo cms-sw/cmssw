@@ -1023,20 +1023,27 @@ namespace edm {
     SendSourceTerminationSignalIfException sentry(actReg_.get());
 
     if (streamRunActive_ > 0) {
+      //deals with data structures that allows merged Run products to be split on Lumi boundaries then
+      // in later processes reintegrated.
       streamRunStatus_[0]->runPrincipal()->preReadFile();
-      streamRunStatus_[0]->runPrincipal()->adjustIndexesAfterProductRegistryAddition();
     }
 
-    if (streamLumiActive_ > 0) {
-      streamLumiStatus_[0]->lumiPrincipal()->adjustIndexesAfterProductRegistryAddition();
-    }
-
+    auto sizeBefore = input_->productRegistry().size();
     fb_ = input_->readFile();
     //incase the input's registry changed
-    const size_t size = preg_->size();
-    preg_->merge(input_->productRegistry(), fb_ ? fb_->fileName() : std::string());
-    if (size < preg_->size()) {
-      principalCache_.adjustIndexesAfterProductRegistryAddition();
+    if (input_->productRegistry().size() != sizeBefore) {
+      auto temp = std::make_shared<edm::ProductRegistry>(*preg_);
+      temp->merge(input_->productRegistry(), fb_ ? fb_->fileName() : std::string());
+      preg_ = std::move(temp);
+      //This handles are presently unused Run/Lumis
+      principalCache_.adjustIndexesAfterProductRegistryAddition(edm::get_underlying_safe(preg_));
+      if (streamLumiActive_ > 0) {
+        //Can update the active ones now, even before an `end` transition is called because no OutputModule
+        // supports storing ProductDescriptions for Run/LuminosityBlock products which were dropped. Since only
+        // dropped products can change the ProductRegistry, only changes in Event can cause that.
+        streamRunStatus_[0]->runPrincipal()->possiblyUpdateAfterAddition(edm::get_underlying_safe(preg_));
+        streamLumiStatus_[0]->lumiPrincipal()->possiblyUpdateAfterAddition(edm::get_underlying_safe(preg_));
+      }
     }
     principalCache_.adjustEventsToNewProductRegistry(preg());
     if (preallocations_.numberOfStreams() > 1 and preallocations_.numberOfThreads() > 1) {
@@ -2022,6 +2029,7 @@ namespace edm {
 
   std::shared_ptr<RunPrincipal> EventProcessor::readRun() {
     auto rp = principalCache_.getAvailableRunPrincipalPtr();
+    rp->possiblyUpdateAfterAddition(preg());
     assert(rp);
     rp->setAux(*input_->runAuxiliary());
     {
@@ -2046,6 +2054,7 @@ namespace edm {
 
   std::shared_ptr<LuminosityBlockPrincipal> EventProcessor::readLuminosityBlock(std::shared_ptr<RunPrincipal> rp) {
     auto lbp = principalCache_.getAvailableLumiPrincipalPtr();
+    lbp->possiblyUpdateAfterAddition(preg());
     assert(lbp);
     lbp->setAux(*input_->luminosityBlockAuxiliary());
     {
