@@ -374,13 +374,16 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : hits_and_fractions) {
       if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-        if (recHitTools_->isBarrel(haf.first)) continue;
+        if (recHitTools_->isBarrel(haf.first))
+          continue;
         const HIT* hit = hits_[hitMap_->at(haf.first)];
         invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
       } else {
-        if (!recHitTools_->isBarrel(haf.first)) continue;
-          const HIT* hit = hits_[hitMap_->at(haf.first)];
-          invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());}
+        if (!recHitTools_->isBarrel(haf.first))
+          continue;
+        const HIT* hit = hits_[hitMap_->at(haf.first)];
+        invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
+      }
     }
     invLayerClusterEnergyWeight = 1.f / invLayerClusterEnergyWeight;
     for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
@@ -390,9 +393,11 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       bool hitWithSC = (detIdToSimClusterId_Map.find(rh_detid) != detIdToSimClusterId_Map.end());
 
       if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-        if (recHitTools_->isBarrel(rh_detid)) continue;
+        if (recHitTools_->isBarrel(rh_detid))
+          continue;
       } else {
-        if (!recHitTools_->isBarrel(rh_detid)) continue;
+        if (!recHitTools_->isBarrel(rh_detid))
+          continue;
       }
       auto itcheck = hitMap_->find(rh_detid);
       const HIT* hit = hits_[itcheck->second];
@@ -465,10 +470,12 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       float invSCEnergyWeight = 0.f;
       for (auto const& haf : lcsInSimCluster[scId][layerId].hits_and_fractions) {
         if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-          if (recHitTools_->isBarrel(haf.first)) continue;
+          if (recHitTools_->isBarrel(haf.first))
+            continue;
         } else {
-          if (!recHitTools_->isBarrel(haf.first)) continue;
-        }  
+          if (!recHitTools_->isBarrel(haf.first))
+            continue;
+        }
         const HIT* hit = hits_[hitMap_->at(haf.first)];
         invSCEnergyWeight += std::pow(haf.second * hit->energy(), 2);
       }

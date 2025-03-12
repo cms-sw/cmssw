@@ -41,8 +41,8 @@ private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> EEclusters_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> HSiclusters_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> HSciclusters_token_;
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> EBclusters_token_;  
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> HBclusters_token_;  
+  edm::EDGetTokenT<std::vector<reco::CaloCluster>> EBclusters_token_;
+  edm::EDGetTokenT<std::vector<reco::CaloCluster>> HBclusters_token_;
 
   std::string timeClname_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTimeEE_token_;
@@ -117,7 +117,7 @@ private:
                    const edm::EDGetTokenT<T> &HSi_token,
                    const edm::EDGetTokenT<T> &HSci_token,
                    const edm::EDGetTokenT<T> &EB_token,
-                    const edm::EDGetTokenT<T> &HB_token,
+                   const edm::EDGetTokenT<T> &HB_token,
                    T &merge) {
     edm::Handle<T> EE, HSi, HSci, EB, HB;
     // get values from all three part of detectors
@@ -178,7 +178,8 @@ void MergeClusterProducer::fillDescriptions(edm::ConfigurationDescriptions &desc
 void MergeClusterProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   //merge clusters
   std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
-  createMerge(evt, EEclusters_token_, HSiclusters_token_, HSciclusters_token_, EBclusters_token_, HBclusters_token_, *clusters);
+  createMerge(
+      evt, EEclusters_token_, HSiclusters_token_, HSciclusters_token_, EBclusters_token_, HBclusters_token_, *clusters);
   //put new clusters to event
   auto clusterHandle = evt.put(std::move(clusters));
 

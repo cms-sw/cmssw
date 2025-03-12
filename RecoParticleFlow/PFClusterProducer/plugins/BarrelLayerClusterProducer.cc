@@ -75,7 +75,7 @@ BarrelLayerClusterProducer::BarrelLayerClusterProducer(const edm::ParameterSet& 
   setAlgoId(type);
 
   algo_->setThresholds(consumesCollector().esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>(),
-                      consumesCollector().esConsumes<HcalPFCuts, HcalPFCutsRcd>());
+                       consumesCollector().esConsumes<HcalPFCuts, HcalPFCutsRcd>());
 
   timeResolutionCalc_ = std::make_unique<CaloRecHitResolutionProvider>(ps.getParameterSet("timeResolutionCalc"));
   produces<std::vector<float>>("InitialLayerClustersMask");
@@ -133,7 +133,7 @@ void BarrelLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup&
   auto clusterHandle = evt.put(std::move(clusters));
 
   edm::PtrVector<reco::BasicCluster> clusterPtrs;  //, clusterPtrsSharing;
-  
+
   std::vector<std::pair<float, float>> times;
   times.reserve(clusterHandle->size());
 
@@ -170,13 +170,13 @@ void BarrelLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup&
   std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
   layerClustersMask->resize(clusterHandle->size(), 1.0);
   evt.put(std::move(layerClustersMask), "InitialLayerClustersMask");
-    
+
   auto timeCl = std::make_unique<edm::ValueMap<std::pair<float, float>>>();
   edm::ValueMap<std::pair<float, float>>::Filler filler(*timeCl);
   filler.insert(clusterHandle, times.begin(), times.end());
   filler.fill();
   evt.put(std::move(timeCl), timeClname_);
-   
+
   algo_->reset();
 }
 
