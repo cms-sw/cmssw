@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     SignallingProductRegistry
+// Class  :     SignallingProductRegistryFiller
 //
 // Implementation:
 //     <Notes on implementation>
@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;
@@ -42,7 +42,7 @@ namespace {
   };
 }  // namespace
 
-void SignallingProductRegistry::addCalled(ProductDescription const& iProd, bool iFromListener) {
+void SignallingProductRegistryFiller::addCalled(ProductDescription const& iProd, bool iFromListener) {
   // Call only for present branches (part of avoiding adding type information for dropped branches)
   if (iProd.dropped())
     return;

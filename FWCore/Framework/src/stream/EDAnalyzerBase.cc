@@ -15,7 +15,7 @@
 // user include files
 #include "FWCore/Framework/interface/stream/EDAnalyzerBase.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -60,7 +60,7 @@ void EDAnalyzerBase::callWhenNewProductsRegistered(std::function<void(ProductDes
   callWhenNewProductsRegistered_ = func;
 }
 
-void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase const*, SignallingProductRegistry* reg) {
+void EDAnalyzerBase::registerProductsAndCallbacks(EDAnalyzerBase const*, SignallingProductRegistryFiller* reg) {
   if (callWhenNewProductsRegistered_) {
     reg->callForEachBranch(callWhenNewProductsRegistered_);
     reg->watchProductAdditions(callWhenNewProductsRegistered_);

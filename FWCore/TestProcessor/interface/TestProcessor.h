@@ -30,7 +30,7 @@
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/PrincipalCache.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/Schedule.h"

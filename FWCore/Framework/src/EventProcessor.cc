@@ -528,7 +528,7 @@ namespace edm {
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
-      preg_ = items.preg();
+      preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
       mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
       branchIDListHelper_ = items.branchIDListHelper();
       thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
@@ -1099,7 +1099,8 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if (looper_) {
-      ModuleChanger changer(schedule_.get(), preg_.get(), esp_->recordsToResolverIndices());
+      SignallingProductRegistryFiller sReg(*preg());
+      ModuleChanger changer(schedule_.get(), &sReg, esp_->recordsToResolverIndices());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetupImpl());
       looper_->setModuleChanger(nullptr);
