@@ -32,7 +32,8 @@
  <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > >" />
 
 
- <class name="SiStripApproximateCluster" ClassVersion="6">
+ <class name="SiStripApproximateCluster" ClassVersion="7">
+  <version ClassVersion="7" checksum="3059068941"/>
   <version ClassVersion="6" checksum="132211472"/>
   <version ClassVersion="5" checksum="3495825183"/>
   <version ClassVersion="4" checksum="2854791577"/>
