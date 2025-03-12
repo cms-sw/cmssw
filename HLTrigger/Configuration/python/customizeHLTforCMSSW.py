@@ -52,6 +52,21 @@ def customizeHLTfor47378(process):
     
     return process
 
+def customizeHLTfor47577(process):
+    """Needed to increase threshold of max number of strips clusters for cosmics"""
+
+    for prod in producers_by_type(process, "SimpleCosmicBONSeeder"):
+        if hasattr(prod, 'ClusterCheckPSet'):
+            pset = getattr(prod,'ClusterCheckPSet')
+            if hasattr(pset, 'MaxNumberOfStripClusters'):
+                prod.ClusterCheckPSet.MaxNumberOfStripClusters = 1000
+
+    for prod in producers_by_type(process, "CtfSpecialSeedGenerator"):
+        if hasattr(prod, 'MaxNumberOfStripClusters'):
+            prod.MaxNumberOfStripClusters = 1000
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -60,5 +75,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customizeHLTfor47378(process)
+    process = customizeHLTfor47577(process)
     
     return process
