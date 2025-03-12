@@ -361,8 +361,6 @@ void PedsFullNoiseAlgorithm::analyse() {
   }
 
   // Calculate the spread for noise and pedestal
-  apvID = -1;
-
   for (int iStrip = 0; iStrip < histoNoiseMean->GetNbinsX(); iStrip++) {
     if (iStrip < histoNoiseMean->GetNbinsX() / 2)
       apvID = 0;
@@ -380,7 +378,6 @@ void PedsFullNoiseAlgorithm::analyse() {
   }
 
   // loop on each strip in the lldChannel
-  apvID = 0;
   TH1S* histoResidualStrip = new TH1S("histoResidualStrip",
                                       "",
                                       histoNoise->GetNbinsX(),

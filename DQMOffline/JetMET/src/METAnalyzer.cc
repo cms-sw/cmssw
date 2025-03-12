@@ -1321,8 +1321,7 @@ void METAnalyzer::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
   TH1F* tlumisec;
 
-  MonitorElement* meLumiSec = map_dijet_MEs["aaa"];
-  meLumiSec = map_dijet_MEs["JetMET/lumisec"];
+  MonitorElement* meLumiSec = map_dijet_MEs["JetMET/lumisec"];
 
   int totlsec = 0;
   int totlssecsum = 0;
@@ -2145,7 +2144,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
 
     //protection for VERY special case where Z-Pt==0
     double u_par = 0;
-    double u_perp = sqrt(u_x * u_x + u_y * u_y);
+    double u_perp = 0;
     double e_Z_x = 0;
     double e_Z_y = 0;
     if (zCand.Pt() != 0) {
