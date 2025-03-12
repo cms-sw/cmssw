@@ -12,6 +12,7 @@
 #include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
+#include "SimG4Core/Application/interface/CMSG4TrackInterface.h"
 
 #include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
@@ -178,6 +179,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker for the thread " << id;
 
   // Initialize per-thread output
+  CMSG4TrackInterface::instance()->setThreadID(id);
   G4Threading::G4SetThreadId(id);
   G4UImanager::GetUIpointer()->SetUpForAThread(id);
   auto iPset = p.getUntrackedParameter<edm::ParameterSet>("CustomUIsession");
@@ -194,8 +196,6 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
         << "', valid are MessageLogger, MessageLoggerThreadPrefix, FilePerThread";
   }
   G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
-  //G4PhysListUtil::InitialiseParameters();
-  //G4LossTableManager::Instance();
 
   // sensitive detectors
   std::vector<std::string> onlySDs = p.getParameter<std::vector<std::string>>("OnlySDs");
