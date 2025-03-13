@@ -1157,7 +1157,10 @@ class ConfigBuilder(object):
                 if opt in GeometryConf:
                     return GeometryConf[opt]
                 else:
-                    raise Exception("Geometry "+opt+" does not exist!")
+                    if (opt=='SimDB'):
+                        return opt
+                    else:
+                        raise Exception("Geometry "+opt+" does not exist!")
 
             geoms=self._options.geometry.split(',')
             if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')
