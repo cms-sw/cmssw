@@ -33,6 +33,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+#include <sstream>
 
 //#define EDM_ML_DEBUG
 
@@ -60,11 +61,18 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   haveDemo_ = muonSD.getParameter<bool>("HaveDemoChambers");
   demoGEM_ = muonSD.getParameter<bool>("UseDemoHitGEM");
   demoRPC_ = muonSD.getParameter<bool>("UseDemoHitRPC");
+  removeGEMHits_ = muonSD.getParameter<std::vector<int32_t>>("RemoveGEMHits");
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonSim") << "create MuonSubDetector " << name << " with dd4hep flag " << dd4hep
                               << " Flags for Demonstration chambers " << haveDemo_ << " for GEM " << demoGEM_
-                              << " for RPC " << demoRPC_;
+                              << " for RPC " << demoRPC_ << " " << removeGEMHits_.size() << " GEM Hits to be removed";
+  if (!removeGEMHits_.empty()) {
+    std::ostringstream st1;
+    for (const auto& id : removeGEMHits_)
+      st1 << " " << id;
+    edm::LogVerbatim("MuonSim") << "IDs to be removed " << st1.str();
+  }
 #endif
   detector = new MuonSubDetector(name);
 
@@ -358,9 +366,20 @@ Local3DPoint MuonSensitiveDetector::FinalStepPositionVsParent(const G4Step* curr
 bool MuonSensitiveDetector::acceptHit(uint32_t id) {
   if (id == 0) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MuonSim") << "DetId " << id << " Flag " << false;
+    edm::LogVerbatim("MuonSim") << "DetId " << std::hex << id << std::dec << " Flag " << false;
 #endif
     return false;
+  }
+  if (!removeGEMHits_.empty()) {
+    if (DetId(id).subdetId() == MuonSubdetId::GEM) {
+      int id0 = ((GEMDetId(id).region() - GEMDetId::minRegionId)) * 10000 + GEMDetId(id).ring() * 1000 + GEMDetId(id).station() * 100 + GEMDetId(id).chamber();
+      if  (std::find(removeGEMHits_.begin(), removeGEMHits_.end(), id0) != removeGEMHits_.end()) {
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("MuonSim") << "Remove Hits for DetId " << GEMDetId(id);
+#endif
+	return false;
+      }
+    }
   }
   bool flag(true);
   if (haveDemo_) {
