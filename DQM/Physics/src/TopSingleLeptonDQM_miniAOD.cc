@@ -497,7 +497,8 @@ namespace TopSingleLepton_miniAOD {
       if (muon->isGlobalMuon()) {
         fill("muonDelZ_", muon->innerTrack()->vz());  // CB using inner track!
         fill("muonDelXY_", muon->innerTrack()->vx(), muon->innerTrack()->vy());
-
+        
+        // d_xy distribution
         if (muon->muonBestTrack().isNonnull()) {
           double dxy = muon->dB(pat::Muon::PV2D);
           fill("muonDxy_", dxy);
