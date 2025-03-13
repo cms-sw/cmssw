@@ -193,8 +193,18 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents""",
     parser.add_argument(
         "--email", dest="email", type=str, default=None, help="Specify email for CRAB"
     )
-    parser.add_argument("dataset", type=str, help="Name of the dataset to pick the events from. E.g. '/Muon/Run2022G-22Sep2023-v1/MINIAOD'.")
-    parser.add_argument("events", metavar="events", type=str, nargs="+", help="List of 'run:lumi:event' combinations separated by a space or path to a file containing one 'run:lumi:event' combination per line.")
+    parser.add_argument(
+        "dataset",
+        type=str,
+        help="Name of the dataset to pick the events from. E.g. '/Muon/Run2022G-22Sep2023-v1/MINIAOD'.",
+    )
+    parser.add_argument(
+        "events",
+        metavar="events",
+        type=str,
+        nargs="+",
+        help="List of 'run:lumi:event' combinations separated by a space or path to a file containing one 'run:lumi:event' combination per line.",
+    )
     options = parser.parse_args()
 
     global dataset  # make dataset a global variable to, so other functions can access it
