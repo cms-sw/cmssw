@@ -77,7 +77,8 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltEle*CaloIdLMWPMS2Filter')","2e (CaloIdL_MW seeded)"),
                 mksel("filter('hltDiEle*CaloIdLMWPMS2UnseededFilter')","2e (CaloIdL_MW unseeded)"),
                 mksel("filter('hlt*OverlapFilterIsoEle*ETau*PNet*Tau*')", "1e-1tau PNet"),
-                mksel("filter('hltEle30WPTightGsfTrackIsoFilter')","1e (HLT30WPTightGSfTrackIso)")
+                mksel("filter('hltEle30WPTightGsfTrackIsoFilter')","1e (HLT30WPTightGSfTrackIso)"),
+                mksel("filter('hltEle*erWPTightGsfTrackIsoFilterNoRhoCorrectionForVBF')", "WPTightGsfTrackIso for VBF"),
                 )
         ),
         Photon = cms.PSet(
@@ -104,7 +105,8 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltEG22Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter')","hltEG22Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter"),
                 mksel("filter('hltEG22R9Id85b90eHE12R9Id50b80eR9UnseededLastFilter')","hltEG22R9Id85b90eHE12R9Id50b80eR9UnseededLastFilter"),
                 mksel("filter('hltEG30Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eEcalIsoFilter')","hltEG30Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eEcalIsoFilter"),
-                mksel("filter('hltEG18TrackIso60Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eTrackIsoUnseededFilter')","hltEG18TrackIso60Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eTrackIsoUnseededFilter")
+                mksel("filter('hltEG18TrackIso60Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eTrackIsoUnseededFilter')","hltEG18TrackIso60Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eTrackIsoUnseededFilter"),
+                mksel("filter('hltEG*L1VBFLooseIsoEGHEFilter')", "hltEG*L1VBFLooseIsoEGHEFilter"),
             )
         ),
         Muon = cms.PSet(
@@ -172,13 +174,14 @@ triggerObjectTable = triggerObjectTableProducer.clone(
         ),
         BoostedTau = cms.PSet(
             id = cms.int32(1515),
-            sel = cms.string("type(85) && pt > 120 && coll('hltAK8PFJetsCorrected') && filter('hltAK8SinglePFJets*SoftDropMass40*ParticleNetTauTau')"),
+            sel = cms.string("type(85) && pt > 120 && filter('*TauTau*')"),
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(85)  && coll('hltAK8CaloJetsCorrectedIDPassed')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
-                mksel("filter('hltAK8SinglePFJets*SoftDropMass40*ParticleNetTauTau')","HLT_AK8PFJetX_SoftDropMass40_PFAK8ParticleNetTauTau0p30"),
-                mksel(["hltAK8SinglePFJets230SoftDropMass40PNetTauTauTag0p03"])
+                mksel("filter('hltAK8SinglePFJets*SoftDropMass*ParticleNetTauTau0p30')","HLT_AK8PFJetX_SoftDropMassY_PFAK8ParticleNetTauTau0p30"),
+                mksel("filter('hltAK8SinglePFJets*SoftDropMass*PNetTauTauTag0p03')","HLT_AK8PFJetX_SoftDropMassY_PNetTauTau0p03"),
+                mksel("filter('hltAK8SinglePFJets*SoftDropMass*PNetTauTauTag0p05')","HLT_AK8PFJetX_SoftDropMassY_PNetTauTau0p05"),
             )
         ),
         Jet = cms.PSet(
@@ -219,6 +222,17 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hlt2PFCentralJetTightIDPt30","hltPF2CentralJetTightIDPt30"]), # 28
                 mksel(["hlt1PFCentralJetTightIDPt60"]), # 29
                 mksel(["hltPF2CentralJetPt30PNet2BTagMean0p50"]), # 30
+                mksel(["hlt4PFCentralJetPt25"]),  # 31, for HLT_PFHT250_QuadPFJet25_PNet1BTag0p20_PNet1Tauh0p50_v
+                mksel(["hltPFCentralJetNoIDPt25PNet1BTag0p20"]),  # 32, for HLT_PFHT250_QuadPFJet25_PNet1BTag0p20_PNet1Tauh0p50_v
+                mksel(["hltPFCentralJetNoIDPt25PNet1TauHTag0p50"]),  # 33, for HLT_PFHT250_QuadPFJet25_PNet1BTag0p20_PNet1Tauh0p50_v
+                mksel(["hlt4PFCentralJetTightIDPt25"]),  # 34, for HLT_PFHT250_QuadPFJet25_PNet2BTagMean0p55_v
+                mksel(["hltPFCentralJetPt25PNet2BTagMean0p55"]),  # 35, for HLT_PFHT250_QuadPFJet25_PNet2BTagMean0p55_v
+                mksel(["hltL1PFJetCategoriesVBFinclLoose", "hltL1PFJetCategoriesVBFinclLooseTripleJet", "hltL1PFJetCategoriesVBFinclTight1050"]),  # 36, for VBF inclusive
+                mksel(["hltL1PFJetCategoriesVBFdijetQuadjet", "hltL1PFJetCategoriesVBFdijetFivejets", "hltL1PFJetCategoriesVBFdijetSixjets", "hltL1PFJetCategoriesVBFdijetTightQuadjet800"]),  # 37, for VBF+dijet
+                mksel(["hltL1PFJetCategoriesVBFMET", "hltL1PFJetCategoriesVBFMETTripleJet", "hltL1PFJetCategoriesVBFMETTight650"]),  # 38, for VBF+MET
+                mksel(["hltL1PFJetCategoriesVBFMu", "hltL1PFJetCategoriesVBFMuTripleJet", "hltL1PFJetCategoriesVBFMuTight750"]),  # 39, for VBF+mu
+                mksel(["hltOverlapFilterDoublePFJet45Photon12", "hltOverlapFilterDoublePFJet45Photon17", "hltDiPFJet50Photon22OverlapFilter"]),  # 40, for VBF+gamma
+                mksel(["hltOverlapFilterDoublePFJet45Ele12", "hltOverlapFilterDoublePFJet45Ele17", "hltDiPFJet50Ele22OverlapFilter"]),  # 41, for VBF+e
             ),
         ),
         FatJet = cms.PSet(
@@ -236,6 +250,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                        "hltAK8SinglePFJets275SoftDropMass40BTagParticleNetBB0p35"]), # 12 if nothing below is fired, #28 if also "hltAK8DoublePFJetSDModMass30", #60 if also "hltAK8DoublePFJetSDModMass50"
                 mksel(["hltAK8DoublePFJetSDModMass30"]), # 16 if onthing else (except #1), 20 if also #4, 28 if also #12
                 mksel(["hltAK8DoublePFJetSDModMass50"]), # 48 if also (obviously) "hltAK8DoublePFJetSDModMass30", 52 if also #4, #60 if all above
+                mksel(["hltAK8SinglePFJets*SoftDropMass*PNetBBTag0p06"]),
                 )
         ),
         MET = cms.PSet(
