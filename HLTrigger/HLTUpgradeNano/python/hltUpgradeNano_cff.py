@@ -36,12 +36,12 @@ trackstersTable = cms.EDProducer(
 
 ### Tracksters Associators
 trackstersAssociationOneToManyTable = cms.EDProducer(
-    "TracksterAssociationOneToManyCollectionTableProducer",
+    "TracksterTracksterEnergyScoreFlatTableProducer",
     src=cms.InputTag(
         "allTrackstersToSimTrackstersAssociationsByHits:ticlSimTrackstersToticlTrackstersMerge"
     ),
     name=cms.string("SimTS2TSMergeByHits"),
-    doc=cms.string("Association betwewn SimTracksters and tracksterMerge, by hits."),
+    doc=cms.string("Association between SimTracksters and tracksterMerge, by hits."),
     collectionVariables=cms.PSet(
         links=cms.PSet(
             name=cms.string("SimTS2TSMergeByHitsLinks"),
@@ -58,10 +58,10 @@ trackstersAssociationOneToManyTable = cms.EDProducer(
 
 ### Tracksters Associators
 simCl2CPOneToOneFlatTable = cms.EDProducer(
-    "SimCl2CPAssociationOneToOneTableProducer",
+    "SimClusterCaloParticleFractionFlatTableProducer",
     src=cms.InputTag("SimClusterToCaloParticleAssociation:simClusterToCaloParticleMap"),
     name=cms.string("SimCl2CPWithFraction"),
-    doc=cms.string("Association betwewn SimClusters and CaloParticles, by ???."),
+    doc=cms.string("Association between SimClusters and CaloParticles."),
     variables=cms.PSet(
         index=Var("index", "int", doc="Index of linked CaloParticle."),
         fraction=Var("fraction", "float", doc="Fraction of linked CaloParticle."),

@@ -1,3 +1,6 @@
+#ifndef HLTrigger_HLTUpgradeNano_AssociationMapFlatTable_h
+#define HLTrigger_HLTUpgradeNano_AssociationMapFlatTable_h
+
 #include <type_traits>
 
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
@@ -6,11 +9,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/TypedStringObjectMethodCaller.h"
-
-#include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
-#include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
-#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 
 // Concept to check if a type is a valid AssociationMap of AssociationElement, both oneToOne and oneToMany.
 // For oneToOne pass as Container the type std::vector<T::AssociationElementType>
@@ -241,18 +240,14 @@ protected:
   std::vector<CollectionVariableTableInfo> coltables;
 };
 
-typedef ticl::
-    AssociationMap<vector<ticl::AssociationElement<ticl::FractionType>>, vector<SimCluster>, vector<CaloParticle>>
-        SimCl2CPAssociationMapOneToOne;
-typedef ticl::AssociationMap<vector<vector<ticl::AssociationElement<pair<ticl::SharedEnergyType, float>>>>,
-                             vector<ticl::Trackster>,
-                             vector<ticl::Trackster>>
-    associationMapOneToMany;
+template <typename Source, typename Target>
+using AssociationMapOneToOneFraction =
+    ticl::AssociationMap<vector<ticl::AssociationElement<ticl::FractionType>>, std::vector<Source>, std::vector<Target>>;
 
-typedef AssociationOneToOneFlatTableProducer<SimCl2CPAssociationMapOneToOne> SimCl2CPAssociationOneToOneTableProducer;
-typedef AssociationOneToManyFlatTableProducer<associationMapOneToMany>
-    TracksterAssociationOneToManyCollectionTableProducer;
+template <typename Source, typename Target>
+using AssociationMapOneToManySharedEnergyScore =
+    ticl::AssociationMap<vector<vector<ticl::AssociationElement<pair<ticl::SharedEnergyType, float>>>>,
+                         vector<Source>,
+                         vector<Target>>;
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(SimCl2CPAssociationOneToOneTableProducer);
-DEFINE_FWK_MODULE(TracksterAssociationOneToManyCollectionTableProducer);
+#endif
