@@ -1,6 +1,11 @@
 #include <type_traits>
 
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/TypedStringObjectMethodCaller.h"
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
