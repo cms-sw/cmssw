@@ -9,6 +9,8 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterfwd.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterfwd.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 
 #include "RecoTracker/MkFit/interface/MkFitEventOfHits.h"
 #include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
@@ -50,6 +52,7 @@ private:
   const edm::EDGetTokenT<MkFitSeedWrapper> seedToken_;
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>> pixelMaskToken_;
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>> stripMaskToken_;
+  edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D>>> phase2MaskToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   const edm::ESGetToken<mkfit::IterationConfig, TrackerRecoGeometryRecord> mkFitIterConfigToken_;
   const edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
@@ -81,6 +84,7 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
   if (not clustersToSkip.label().empty()) {
     pixelMaskToken_ = consumes(clustersToSkip);
     stripMaskToken_ = consumes(clustersToSkip);
+    phase2MaskToken_ = consumes(clustersToSkip);
   }
 
   const auto build = iConfig.getParameter<std::string>("buildingRoutine");
@@ -153,32 +157,42 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
   const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
   const auto& mkFitIterConfig = iSetup.getData(mkFitIterConfigToken_);
 
-  const std::vector<bool>* pixelMaskPtr = nullptr;
-  std::vector<bool> pixelMask;
+  //const std::vector<bool>* pixelMaskPtr = nullptr;
+  std::vector<bool> pixelMask(pixelHits.hits().size(), false);
   std::vector<bool> stripMask(stripHits.hits().size(), false);
   if (not pixelMaskToken_.isUninitialized()) {
     if (not pixelHits.hits().empty()) {
       const auto& pixelContainerMask = iEvent.get(pixelMaskToken_);
-      pixelMask.resize(pixelContainerMask.size(), false);
+      //pixelMask.resize(pixelContainerMask.size(), false);
       if UNLIKELY (pixelContainerMask.refProd().id() != pixelHits.clustersID()) {
         throw cms::Exception("LogicError") << "MkFitHitWrapper has pixel cluster ID " << pixelHits.clustersID()
                                            << " but pixel cluster mask has " << pixelContainerMask.refProd().id();
       }
       pixelContainerMask.copyMaskTo(pixelMask);
-      pixelMaskPtr = &pixelMask;
+      //pixelMaskPtr = &pixelMask;
     }
 
     if (not stripHits.hits().empty()) {
-      const auto& stripContainerMask = iEvent.get(stripMaskToken_);
-      if UNLIKELY (stripContainerMask.refProd().id() != stripHits.clustersID()) {
-        throw cms::Exception("LogicError") << "MkFitHitWrapper has strip cluster ID " << stripHits.clustersID()
-                                           << " but strip cluster mask has " << stripContainerMask.refProd().id();
+      if (mkFitGeom.isPhase1()) {
+        const auto& stripContainerMask = iEvent.get(stripMaskToken_);
+        if UNLIKELY (stripContainerMask.refProd().id() != stripHits.clustersID()) {
+          throw cms::Exception("LogicError") << "MkFitHitWrapper has strip cluster ID " << stripHits.clustersID()
+                                             << " but strip cluster mask has " << stripContainerMask.refProd().id();
+        }
+        stripContainerMask.copyMaskTo(stripMask);
+      } else {
+        const auto& stripContainerMask = iEvent.get(phase2MaskToken_);
+        if UNLIKELY (stripContainerMask.refProd().id() != stripHits.clustersID()) {
+          throw cms::Exception("LogicError") << "MkFitHitWrapper has phase2 cluster ID " << stripHits.clustersID()
+                                             << " but phase2 cluster mask has " << stripContainerMask.refProd().id();
+        }
+        stripContainerMask.copyMaskTo(stripMask);
       }
-      stripContainerMask.copyMaskTo(stripMask);
     }
   } else {
-    if (mkFitGeom.isPhase1() && minGoodStripCharge_ > 0)
+    if (mkFitGeom.isPhase1() && minGoodStripCharge_ > 0) {
       stripClusterChargeCut(iEvent.get(stripClusterChargeToken_), stripMask);
+    }
   }
 
   // seeds need to be mutable because of the possible cleaning
@@ -189,7 +203,8 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
     mkfit::run_OneIteration(mkFitGeom.trackerInfo(),
                             mkFitIterConfig,
                             eventOfHits.get(),
-                            {pixelMaskPtr, &stripMask},
+                            {&pixelMask, &stripMask},
+                            //{pixelMaskPtr, &stripMask},
                             streamCache(iID)->get(),
                             seeds_mutable,
                             tracks,
