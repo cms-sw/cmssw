@@ -5,6 +5,34 @@
 
 \author W. David Dagenhart, created 15 September, 2020
 
+Historical Note: The code related to ProcessBlock was originally written
+to support SubProcesses being present in the job. The SubProcess feature
+was removed from the CMS Framework in 2025. This support for SubProcesses
+added complexity in the ProcessBlock code that is currently unnecessary.
+For example, it contains counters that are never greater than one, vectors
+that will never have more than one entry, the concept of the top ProcessBlockHelper
+when there will only ever be one... There are a couple reasons we didn't clean
+this up in 2025:
+
+    1. We are considering implementing a new feature similar to SubProcess,
+    but better. Hopefully, something that will be used.  The new feature might
+    make use of the ability of the ProcessBlock code to handle multiple
+    processes in the same job. We're not sure when this will happen or if
+    the current version of the code will be useful, but we're keeping it just
+    in case.
+
+    2. The current version of the code works well when there are not any SubProcesses.
+    Even when the Framework supported the feature, there usually were not any
+    configured. The risk of breaking something while simplifying the code is
+    significant. Also, it didn't seem worth the investment of expensive
+    developer time to clean this up. We had more important things that needed
+    to be done...
+
+We might revisit this when the new feature is implemented or if we decide not
+to implement it at all.
+
+The class SubProcessBlockHelper was deleted in 2025, but it is still in
+the git history and was the other class that inherited from ProcessBlockHelperBase.
 */
 
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
@@ -77,8 +105,8 @@ namespace edm {
     // files). The elements of the inner vector correspond to the
     // processes in processesWithProcessBlockProducts_ (exactly
     // 1 to 1 in the same order except it only includes those processes
-    // from the input, if the current Process and/or SubProcesses are
-    // added, then they are added to the container of cache indices when
+    // from the input, if the current Process is
+    // added, then it is added to the container of cache indices when
     // the output module makes its modified copy). The values inside
     // the inner vector are the cache indices into the cache vectors
     // contained by user modules. This cache order is the same as the
