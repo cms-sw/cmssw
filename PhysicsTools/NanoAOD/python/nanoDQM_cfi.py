@@ -981,7 +981,9 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 MHT = cms.string('id == 4'),
                 Muon = cms.string('id == 13'),
                 Photon = cms.string('id == 22'),
-                Tau = cms.string('id == 15')
+                Tau = cms.string('id == 15'),
+                FatJet = cms.string('id == 6'),
+                BoostedTau = cms.string('id == 1515'),
             ),
             plots = cms.VPSet(
                 Count1D('_size', 28, -0.5, 27.5),
