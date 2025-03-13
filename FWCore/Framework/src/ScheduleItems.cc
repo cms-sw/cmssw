@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -30,7 +30,7 @@
 namespace edm {
   ScheduleItems::ScheduleItems()
       : actReg_(std::make_shared<ActivityRegistry>()),
-        preg_(std::make_shared<SignallingProductRegistry>()),
+        preg_(std::make_shared<SignallingProductRegistryFiller>()),
         branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
         thinnedAssociationsHelper_(std::make_shared<ThinnedAssociationsHelper>()),
         subProcessParentageHelper_(),
@@ -42,7 +42,8 @@ namespace edm {
                                SubProcessBlockHelper& subProcessBlockHelper,
                                ProcessBlockHelperBase const& parentProcessBlockHelper)
       : actReg_(std::make_shared<ActivityRegistry>()),
-        preg_(std::make_shared<SignallingProductRegistry>(preg)),
+        preg_(std::make_shared<SignallingProductRegistryFiller>(preg.productList(),
+                                                                SignallingProductRegistryFiller::FromEarlierProcess())),
         branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
         thinnedAssociationsHelper_(std::make_shared<ThinnedAssociationsHelper>()),
         subProcessParentageHelper_(std::make_shared<SubProcessParentageHelper>()),
@@ -82,7 +83,7 @@ namespace edm {
         prod.setDropped(true);
       }
     }
-    subProcessBlockHelper.updateFromParentProcess(parentProcessBlockHelper, *preg_);
+    subProcessBlockHelper.updateFromParentProcess(parentProcessBlockHelper, preg_->registry());
   }
 
   ServiceToken ScheduleItems::initServices(std::vector<ParameterSet>& pServiceSets,

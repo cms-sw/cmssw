@@ -55,6 +55,8 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 
+#include "FWCore/AbstractServices/interface/RootHandlers.h"
+
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
@@ -74,7 +76,6 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/RootHandlers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -527,7 +528,7 @@ namespace edm {
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
-      preg_ = items.preg();
+      preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
       mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
       branchIDListHelper_ = items.branchIDListHelper();
       thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
@@ -1098,7 +1099,8 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if (looper_) {
-      ModuleChanger changer(schedule_.get(), preg_.get(), esp_->recordsToResolverIndices());
+      SignallingProductRegistryFiller sReg(*preg());
+      ModuleChanger changer(schedule_.get(), &sReg, esp_->recordsToResolverIndices());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetupImpl());
       looper_->setModuleChanger(nullptr);
@@ -2034,8 +2036,6 @@ namespace edm {
   void EventProcessor::readAndMergeRun(RunProcessingStatus& iStatus) {
     RunPrincipal& runPrincipal = *iStatus.runPrincipal();
 
-    bool runOK = runPrincipal.adjustToNewProductRegistry(*preg_);
-    assert(runOK);
     runPrincipal.mergeAuxiliary(*input_->runAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -2063,8 +2063,6 @@ namespace edm {
            input_->processHistoryRegistry().reducedProcessHistoryID(lumiPrincipal.aux().processHistoryID()) ==
                input_->processHistoryRegistry().reducedProcessHistoryID(
                    input_->luminosityBlockAuxiliary()->processHistoryID()));
-    bool lumiOK = lumiPrincipal.adjustToNewProductRegistry(*preg());
-    assert(lumiOK);
     lumiPrincipal.mergeAuxiliary(*input_->luminosityBlockAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());

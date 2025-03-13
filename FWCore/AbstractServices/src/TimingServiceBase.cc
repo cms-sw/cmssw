@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     Subsystem/Package
+// Package:     FWCore/AbstractServices
 // Class  :     TimingServiceBase
 //
 // Implementation:
@@ -15,7 +15,7 @@
 #include <sys/time.h>
 
 // user include files
-#include "FWCore/Utilities/interface/TimingServiceBase.h"
+#include "FWCore/AbstractServices/interface/TimingServiceBase.h"
 
 using namespace edm;
 //
@@ -32,6 +32,6 @@ void TimingServiceBase::jobStarted() {
 //
 // constructors and destructor
 //
-TimingServiceBase::TimingServiceBase() {}
+TimingServiceBase::TimingServiceBase() = default;
 
-TimingServiceBase::~TimingServiceBase() {}
+TimingServiceBase::~TimingServiceBase() = default;

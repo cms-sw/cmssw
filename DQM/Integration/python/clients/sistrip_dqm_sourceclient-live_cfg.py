@@ -89,7 +89,7 @@ elif(offlineTesting):
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
     #you may need to set manually the GT in the line below
-    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:hltonline', '')
 
 #--------------------------------------------
 ## Patch to avoid using Run Info information in reconstruction
@@ -116,13 +116,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 else:
     process.load("Configuration.StandardSequences.Reconstruction_cff")
-
-import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
-process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
-
-# for running offline enhance the time validity of the online beamspot in DB
-if ((not live) or process.isDqmPlayback.value): 
-  process.BeamSpotESProducer.timeThreshold = cms.int32(int(1e6))
 
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
@@ -232,6 +225,13 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
 else :
     process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
+
+    from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+    # Replace gtDigis with gtStage2Digis when stage2L1Trigger is active
+    stage2L1Trigger.toReplaceWith(
+      process.RecoForDQM_LocalReco,
+      cms.Sequence(process.siPixelDigis * process.siStripDigis * process.gtStage2Digis * process.trackerlocalreco)
+    )
 #------------------------------------------------------
 # Switch for channel errors per FED ID trend plots.
 #------------------------------------------------------
@@ -516,6 +516,7 @@ process.ecalDigisCPU.InputLabel = rawDataCollectorLabel
 process.ecalPreshowerDigis.sourceTag = rawDataCollectorLabel
 process.gctDigis.inputLabel = rawDataCollectorLabel
 process.gtDigis.DaqGtInputTag = rawDataCollectorLabel
+process.gtStage2Digis.InputLabel = rawDataCollectorLabel
 process.hcalDigis.InputLabel = rawDataCollectorLabel
 process.muonCSCDigis.InputObjects = rawDataCollectorLabel
 process.muonDTDigis.inputLabel = rawDataCollectorLabel

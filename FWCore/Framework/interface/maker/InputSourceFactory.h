@@ -9,7 +9,7 @@
 
 namespace edm {
 
-  class SignallingProductRegistry;
+  class SignallingProductRegistryFiller;
 
   typedef InputSource*(ISFunc)(ParameterSet const&, InputSourceDescription const&);
 

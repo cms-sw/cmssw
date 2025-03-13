@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 
 using namespace edm;
 //
@@ -40,9 +40,11 @@ PuttableSourceBase::PuttableSourceBase(ParameterSet const& iPSet, InputSourceDes
     : InputSource(iPSet, iISD) {}
 
 void PuttableSourceBase::registerProducts() {
-  SignallingProductRegistry reg;
+  SignallingProductRegistryFiller reg;
+  //this handled case were Source's construct injects items into the ProductRegistry
+  reg.addFromInput(productRegistryUpdate());
   registerProducts(this, &reg, moduleDescription());
-  productRegistryUpdate().addFromInput(reg);
+  productRegistryUpdate() = reg.moveTo();
 }
 
 void PuttableSourceBase::beginJob(edm::ProductRegistry const& r) {
