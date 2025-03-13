@@ -14,7 +14,7 @@ namespace edm {
       ProcessBlockHelperBase const& processBlockHelper) {
     processBlockHelper_ = &processBlockHelper;
 
-    // Copy the list of processes with ProcessBlock products from the EventProcessor or SubProcess,
+    // Copy the list of processes with ProcessBlock products from the EventProcessor,
     // except remove any processes where the output module calling this has dropped all ProcessBlock
     // products. We want to maintain the same order and only remove elements. Fill a vector that can
     // translate from one process list to the other.
@@ -30,8 +30,7 @@ namespace edm {
 
     for (auto const& addedProcess : processBlockHelper.addedProcesses()) {
       // count new processes producing ProcessBlock products that are
-      // kept by the OutputModule. There can be at most 1 except
-      // in the case of SubProcesses.
+      // kept by the OutputModule. There can be at most 1.
       if (std::find(processesWithProcessBlockProducts_.begin(),
                     processesWithProcessBlockProducts_.end(),
                     addedProcess) != processesWithProcessBlockProducts_.end()) {
@@ -63,7 +62,7 @@ namespace edm {
     if (!productsFromInputKept_) {
       // This is really simple if we are not keeping any ProcessBlock products
       // from the input file. Deal with that special case first.
-      // Except for the special case of a SubProcess, nStoredProcesses will be 1.
+      // nStoredProcesses will be 1.
       assert(nAddedProcesses_ == nStoredProcesses);
       storedCacheIndices.reserve(nStoredProcesses);
       for (unsigned int i = 0; i < nStoredProcesses; ++i) {
@@ -101,7 +100,7 @@ namespace edm {
       // corresponding to the processes in the input files. If there are more, then
       // they correspond to current process (and there only will be more if some
       // of the newly produced ProcessBlock products are going to be kept).
-      // There will be at most 1 added process except in the case of SubProcesses.
+      // There will be at most 1 added process.
       if (translateFromStoredIndex_[iStoredProcess] < cacheIndices[0].size()) {
         ++nInputProcesses;
       }
@@ -176,7 +175,7 @@ namespace edm {
           }
         } else {
           // This corresponds to the current process if it has newly produced
-          // ProcessBlock products (plus possibly SubProcesses).
+          // ProcessBlock products.
           storedCacheIndex = storedProcessOffset[nInputProcesses] + iStoredProcess - nInputProcesses;
         }
         storedCacheIndices.push_back(storedCacheIndex);
