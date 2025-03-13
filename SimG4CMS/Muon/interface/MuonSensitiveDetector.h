@@ -97,7 +97,7 @@ private:
   bool haveDemo_;
   bool demoGEM_;
   bool demoRPC_;
-  
+
   // For list of GEM DetId to be removed
   //     DetId = (region * 10000 + ring * 1000 + stattion * 100 +chamber)
   //     region = 0 for -1; 2 for +1

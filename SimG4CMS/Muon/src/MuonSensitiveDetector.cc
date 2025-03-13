@@ -372,12 +372,13 @@ bool MuonSensitiveDetector::acceptHit(uint32_t id) {
   }
   if (!removeGEMHits_.empty()) {
     if (DetId(id).subdetId() == MuonSubdetId::GEM) {
-      int id0 = ((GEMDetId(id).region() - GEMDetId::minRegionId)) * 10000 + GEMDetId(id).ring() * 1000 + GEMDetId(id).station() * 100 + GEMDetId(id).chamber();
-      if  (std::find(removeGEMHits_.begin(), removeGEMHits_.end(), id0) != removeGEMHits_.end()) {
+      int id0 = ((GEMDetId(id).region() - GEMDetId::minRegionId)) * 10000 + GEMDetId(id).ring() * 1000 +
+                GEMDetId(id).station() * 100 + GEMDetId(id).chamber();
+      if (std::find(removeGEMHits_.begin(), removeGEMHits_.end(), id0) != removeGEMHits_.end()) {
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("MuonSim") << "Remove Hits for DetId " << GEMDetId(id);
+        edm::LogVerbatim("MuonSim") << "Remove Hits for DetId " << GEMDetId(id);
 #endif
-	return false;
+        return false;
       }
     }
   }
