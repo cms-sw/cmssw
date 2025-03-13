@@ -54,44 +54,7 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents
 #################
 
 
-def getFileNames(run, lumi, client=None):
-    """Return files for given DAS query"""
-    if client == "das_client":
-        return getFileNames_das_client(run, lumi)
-    elif client == "dasgoclient":
-        return getFileNames_dasgoclient(run, lumi)
-    # default action
-    for path in os.getenv("PATH").split(":"):
-        if os.path.isfile(os.path.join(path, "dasgoclient")):
-            return getFileNames_dasgoclient(run, lumi)
-    return getFileNames_das_client(run, lumi)
-
-
-def getFileNames_das_client(run, lumi):
-    """Return files for given DAS query via das_client"""
-    files = []
-
-    query = f"file dataset={dataset} run={run} lumi={lumi} | grep file.name"
-    jsondict = get_data(query)
-    status = jsondict["status"]
-    if status != "ok":
-        print(f"DAS query status: {status}")
-        return files
-
-    mongo_query = jsondict["mongo_query"]
-    filters = mongo_query["filters"]
-    data = jsondict["data"]
-
-    files = []
-    for row in data:
-        file = [r for r in get_value(row, filters["grep"])][0]
-        if len(file) > 0 and not file in files:
-            files.append(file)
-
-    return files
-
-
-def getFileNames_dasgoclient(run, lumi):
+def getFileNames(run, lumi):
     """Return files for given DAS query via dasgoclient"""
     query = f"file dataset={dataset} run={run} lumi={lumi}"
     cmd = ["dasgoclient", "-query", query, "-json"]
@@ -230,16 +193,8 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents""",
     parser.add_argument(
         "--email", dest="email", type=str, default=None, help="Specify email for CRAB"
     )
-    das_cli = ""
-    parser.add_argument(
-        "--das-client",
-        dest="das_cli",
-        type=str,
-        default=das_cli,
-        help="Specify das client to use",
-    )
-    parser.add_argument("dataset", type=str)
-    parser.add_argument("events", metavar="events_or_events.txt", type=str, nargs="+")
+    parser.add_argument("dataset", type=str, help="Name of the dataset to pick the events from. E.g. '/Muon/Run2022G-22Sep2023-v1/MINIAOD'.")
+    parser.add_argument("events", metavar="events", type=str, nargs="+", help="List of 'run:lumi:event' combinations separated by a space or path to a file containing one 'run:lumi:event' combination per line.")
     options = parser.parse_args()
 
     global dataset  # make dataset a global variable to, so other functions can access it
@@ -331,7 +286,7 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents""",
         with open(crabDict["runEvent"], "w") as f:
             f.write(eventsToProcess + "\n")
         with open(crabDict["crabcfg"], "w") as f:
-            f.write(crabTemplate.format(crabDict))
+            f.write(crabTemplate.format(**crabDict))
 
         print(
             "Please visit CRAB twiki for instructions on how to setup environment for CRAB:\nhttps://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCrab\n"
@@ -360,7 +315,7 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents""",
         for run, lumi in run_lumi_list:
             print(f"Getting files for run = {run}; lumi = {lumi}", end=": ")
             # Query DAS for files containing the run and lumi
-            eventFiles = getFileNames(run, lumi, options.das_cli)
+            eventFiles = getFileNames(run, lumi)
             if eventFiles == ["[]"]:  # event not contained in the input dataset
                 print(
                     f"\n** WARNING: ** According to a DAS query, run = {run}; lumi = {lumi}; not contained in {dataset}.  Skipping."
