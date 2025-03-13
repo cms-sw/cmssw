@@ -817,6 +817,8 @@ class ConfigBuilder(object):
         try:
             if len(self.stepMap):
                 self.loadAndRemember(self.GeometryCFF)
+                if (self.GeometryCFF == 'Configuration/StandardSequences/GeometryRecoDB_cff'):
+                    print("Warning: Default GeometryRecoDB_cff is used. It may not work with your process.")
                 if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
                     self.loadAndRemember(self.SimGeometryCFF)
                     if self.geometryDBLabel:
@@ -1155,7 +1157,7 @@ class ConfigBuilder(object):
                 if opt in GeometryConf:
                     return GeometryConf[opt]
                 else:
-                    return opt
+                    raise Exception("Geometry "+opt+" does not exist!")
 
             geoms=self._options.geometry.split(',')
             if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')
