@@ -452,8 +452,8 @@ namespace SingleTopTChannelLepton {
 
         // d_xy distribution
         if (muon->muonBestTrack().isNonnull()) {
-            double dxy = muon->muonBestTrack()->dxy(Pvertex.position());
-            fill("muonDxy_", dxy);
+          double dxy = muon->muonBestTrack()->dxy(Pvertex.position());
+          fill("muonDxy_", dxy);
         }
 
         // apply preselection

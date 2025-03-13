@@ -517,11 +517,11 @@ namespace SingleTopTChannelLepton_miniAOD {
 
         // d_xy distribution
         if (muon->muonBestTrack().isNonnull()) {
-            double dxy = muon->dB(pat::Muon::PV2D);
-            fill("muonDxy_", dxy);
+          double dxy = muon->dB(pat::Muon::PV2D);
+          fill("muonDxy_", dxy);
 
-            double dxyError = muon->edB(pat::Muon::PV2D);
-            fill("muonDxyError_",dxyError);
+          double dxyError = muon->edB(pat::Muon::PV2D);
+          fill("muonDxyError_", dxyError);
         }
 
         // apply preselection loose muon

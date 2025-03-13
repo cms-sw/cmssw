@@ -274,7 +274,7 @@ namespace TopSingleLepton {
     hists_["muonDelXY_"] = ibooker.book2D("MuonDelXY", "d_{xy}(#mu)", 50, -0.1, 0.1, 50, -0.1, 0.1);
     // dxy distribution for muons
     hists_["muonDxy_"] = ibooker.book1D("MuonDxy", "d_{xy}(#mu)", 100, -0.05, 0.05);
-    
+
     // set axes titles for dxy for muons
     hists_["muonDelXY_"]->setAxisTitle("x [cm]", 1);
     hists_["muonDelXY_"]->setAxisTitle("y [cm]", 2);
@@ -465,8 +465,8 @@ namespace TopSingleLepton {
 
         // d_xy distribution
         if (muon->muonBestTrack().isNonnull()) {
-            double dxy = muon->muonBestTrack()->dxy(Pvertex.position());
-            fill("muonDxy_", dxy);
+          double dxy = muon->muonBestTrack()->dxy(Pvertex.position());
+          fill("muonDxy_", dxy);
         }
 
         // apply preselection
