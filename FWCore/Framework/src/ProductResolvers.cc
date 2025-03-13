@@ -400,8 +400,7 @@ namespace edm {
       if (productDescription().branchType() == InProcess &&
           mcc->parent().globalContext()->transition() == GlobalContext::Transition::kAccessInputProcessBlock) {
         // This is an accessInputProcessBlock transition
-        // We cannot access produced products in those transitions
-        // except for in SubProcesses where they should have already run.
+        // We cannot access produced products in those transitions.
         return;
       }
       if (productDescription().availableOnlyAtEndTransition() and mcc) {
@@ -879,41 +878,6 @@ namespace edm {
       realProduct().prefetchAsync(
           WaitingTaskHolder(*waitTask.group(), waiting), principal, skipCurrentProcess, token, sra, mcc);
     }
-  }
-
-  void ParentProcessProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) {
-    provRetriever_ = provRetriever;
-  }
-
-  void ParentProcessProductResolver::setProductID_(ProductID const&) {}
-
-  ProductProvenance const* ParentProcessProductResolver::productProvenancePtr_() const {
-    return provRetriever_ ? provRetriever_->branchIDToProvenance(bd_->originalBranchID()) : nullptr;
-  }
-
-  void ParentProcessProductResolver::resetProductData_(bool deleteEarly) {}
-
-  bool ParentProcessProductResolver::singleProduct_() const { return true; }
-
-  void ParentProcessProductResolver::throwNullRealProduct() const {
-    // In principle, this ought to be fixed. I noticed one hits this error
-    // when in a SubProcess and calling the Event::getProvenance function
-    // with a BranchID to a branch from an earlier SubProcess or the top
-    // level process and this branch is not kept in this SubProcess. It might
-    // be possible to hit this in other contexts. I say it ought to be
-    // fixed because one does not encounter this issue if the SubProcesses
-    // are split into genuinely different processes (in principle that
-    // ought to give identical behavior and results). No user has ever
-    // reported this issue which has been around for some time and it was only
-    // noticed when testing some rare corner cases after modifying Core code.
-    // After discussing this with Chris we decided that at least for the moment
-    // there are higher priorities than fixing this ... I converted it so it
-    // causes an exception instead of a seg fault. The issue that may need to
-    // be addressed someday is how ProductResolvers for non-kept branches are
-    // connected to earlier SubProcesses.
-    throw Exception(errors::LogicError)
-        << "ParentProcessProductResolver::throwNullRealProduct RealProduct pointer not set in this context.\n"
-        << "Contact a Framework developer\n";
   }
 
   NoProcessProductResolver::NoProcessProductResolver(std::vector<ProductResolverIndex> const& matchingHolders,
