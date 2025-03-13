@@ -1157,7 +1157,7 @@ class ConfigBuilder(object):
                 if opt in GeometryConf:
                     return GeometryConf[opt]
                 else:
-                    if (opt=='SimDB'):
+                    if (opt=='SimDB' or opt.startswith('DB:')):
                         return opt
                     else:
                         raise Exception("Geometry "+opt+" does not exist!")
