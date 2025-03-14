@@ -21,6 +21,7 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
+#include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
