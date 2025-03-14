@@ -1,5 +1,5 @@
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
-#include "RecoHGCal/TICL/interface/TracksterInferenceByDNN.h"
+#include "RecoHGCal/TICL/interface/TracksterInferenceByPFN.h"
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -10,8 +10,8 @@
 namespace ticl {
   using namespace cms::Ort;  // Use ONNXRuntime namespace
 
-  // Constructor for TracksterInferenceByDNN
-  TracksterInferenceByDNN::TracksterInferenceByDNN(const edm::ParameterSet& conf)
+  // Constructor for TracksterInferenceByPFN
+  TracksterInferenceByPFN::TracksterInferenceByPFN(const edm::ParameterSet& conf)
       : TracksterInferenceAlgoBase(conf),
         id_modelPath_(
             conf.getParameter<edm::FileInPath>("onnxPIDModelPath").fullPath()),  // Path to the PID model CLU3D
@@ -36,7 +36,7 @@ namespace ticl {
   }
 
   // Method to process input data and prepare it for inference
-  void TracksterInferenceByDNN::inputData(const std::vector<reco::CaloCluster>& layerClusters,
+  void TracksterInferenceByPFN::inputData(const std::vector<reco::CaloCluster>& layerClusters,
                                           std::vector<Trackster>& tracksters) {
     tracksterIndices_.clear();  // Clear previous indices
     for (int i = 0; i < static_cast<int>(tracksters.size()); i++) {
@@ -57,14 +57,24 @@ namespace ticl {
     if (batchSize_ == 0)
       return;  // Exit if no tracksters
 
-    std::vector<int64_t> inputShape = {batchSize_, eidNLayers_, eidNClusters_, eidNFeatures_};
-    input_shapes_ = {inputShape};
+    std::vector<int64_t> inputShape_lc = {batchSize_, eidNLayers_, eidNClusters_, eidNFeatures_};
+    std::vector<int64_t> inputShape_tr = {batchSize_, eidNFeatures_};
+    input_shapes_ = {inputShape_lc, inputShape_tr};
 
     input_Data_.clear();
     input_Data_.emplace_back(batchSize_ * eidNLayers_ * eidNClusters_ * eidNFeatures_, 0);
+    input_Data_.emplace_back(batchSize_ * eidNFeatures_, 0);
 
     for (int i = 0; i < batchSize_; i++) {
       const Trackster& trackster = tracksters[tracksterIndices_[i]];
+      auto index_tr = i * eidNFeatures_;
+      input_Data_[1][index_tr] = static_cast<float>(trackster.raw_energy());
+      input_Data_[1][index_tr + 1] = static_cast<float>(trackster.raw_em_energy());
+      input_Data_[1][index_tr + 2] = static_cast<float>(trackster.barycenter().x());
+      input_Data_[1][index_tr + 3] = static_cast<float>(trackster.barycenter().y());
+      input_Data_[1][index_tr + 4] = static_cast<float>(std::abs(trackster.barycenter().z()));
+      input_Data_[1][index_tr + 5] = static_cast<float>(std::abs(trackster.barycenter().eta()));
+      input_Data_[1][index_tr + 6] = static_cast<float>(trackster.barycenter().phi());
 
       // Prepare indices and sort clusters based on energy
       std::vector<int> clusterIndices(trackster.vertices().size());
@@ -83,11 +93,16 @@ namespace ticl {
         const reco::CaloCluster& cluster = layerClusters[trackster.vertices(k)];
         int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
         if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
-          auto index = (i * eidNLayers_ + j) * eidNFeatures_ * eidNClusters_ + seenClusters[j] * eidNFeatures_;
-          input_Data_[0][index] =
+          auto index_lc = (i * eidNLayers_ + j) * eidNFeatures_ * eidNClusters_ + seenClusters[j] * eidNFeatures_;
+          // Adding more features regarding LC, such as E, eta, phi, x, y, z, and nhits.
+          input_Data_[0][index_lc] =
               static_cast<float>(cluster.energy() / static_cast<float>(trackster.vertex_multiplicity(k)));
-          input_Data_[0][index + 1] = static_cast<float>(std::abs(cluster.eta()));
-          input_Data_[0][index + 2] = static_cast<float>(cluster.phi());
+          input_Data_[0][index_lc + 1] = static_cast<float>(std::abs(cluster.eta()));
+          input_Data_[0][index_lc + 2] = static_cast<float>(cluster.phi());
+          input_Data_[0][index_lc + 3] = static_cast<float>(cluster.x());
+          input_Data_[0][index_lc + 4] = static_cast<float>(cluster.y());
+          input_Data_[0][index_lc + 5] = static_cast<float>(std::abs(cluster.z()));
+          input_Data_[0][index_lc + 6] = static_cast<float>(cluster.hitsAndFractions().size());
           seenClusters[j]++;
         }
       }
@@ -95,7 +110,7 @@ namespace ticl {
   }
 
   // Method to run inference and update tracksters
-  void TracksterInferenceByDNN::runInference(std::vector<Trackster>& tracksters) {
+  void TracksterInferenceByPFN::runInference(std::vector<Trackster>& tracksters) {
     if (batchSize_ == 0)
       return;  // Exit if no batch
 
@@ -110,7 +125,6 @@ namespace ticl {
         }
       }
     }
-
     if (doPID_) {
       // Run PID model inference
       auto pidOutput = onnxPIDSession_->run(inputNames_, input_Data_, input_shapes_, output_id_, batchSize_);
@@ -125,19 +139,19 @@ namespace ticl {
     }
   }
   // Method to fill parameter set description for configuration
-  void TracksterInferenceByDNN::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  void TracksterInferenceByPFN::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     iDesc.add<int>("algo_verbosity", 0);
     iDesc
         .add<edm::FileInPath>(
             "onnxPIDModelPath",
-            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/id_v0.onnx"))
+            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/patternrecognition/id_v0.onnx"))
         ->setComment("Path to ONNX PID model CLU3D");
     iDesc
         .add<edm::FileInPath>(
             "onnxEnergyModelPath",
-            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/energy_v0.onnx"))
+            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/patternrecognition/energy_v0.onnx"))
         ->setComment("Path to ONNX Energy model CLU3D");
-    iDesc.add<std::vector<std::string>>("inputNames", {"input"});
+    iDesc.add<std::vector<std::string>>("inputNames", {"input", "input_tr_features"});
     iDesc.add<std::vector<std::string>>("output_en", {"enreg_output"});
     iDesc.add<std::vector<std::string>>("output_id", {"pid_output"});
     iDesc.add<double>("eid_min_cluster_energy", 1.0);
