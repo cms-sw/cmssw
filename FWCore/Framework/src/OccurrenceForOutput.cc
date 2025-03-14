@@ -29,6 +29,10 @@ namespace edm {
     return provRecorder_.principal().getProvenance(bid);
   }
 
+  StableProvenance const& OccurrenceForOutput::getStableProvenance(BranchID const& bid) const {
+    return provRecorder_.principal().getStableProvenance(bid);
+  }
+
   void OccurrenceForOutput::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provRecorder_.principal().getAllProvenance(provenances);
   }

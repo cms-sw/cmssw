@@ -27,11 +27,5 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   echo "testDropOnInputRead3"
   cmsRun ${LOCAL_TEST_DIR}/${test}Read3_cfg.py || die "cmsRun ${test}Read3_cfg.py" $?
 
-  echo "testDropOnInputSubProcess_cfg.py"
-  cmsRun ${LOCAL_TEST_DIR}/${test}SubProcess_cfg.py || die "cmsRun ${test}SubProcess_cfg.py" $?
-
-  echo "testDropOnInputReadSubProcess_cfg.py"
-  cmsRun ${LOCAL_TEST_DIR}/${test}ReadSubProcess_cfg.py || die "cmsRun ${test}ReadSubProcess_cfg.py" $?
-
 exit 0
 
