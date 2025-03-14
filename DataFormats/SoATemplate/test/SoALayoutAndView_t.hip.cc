@@ -20,11 +20,6 @@
 
 GENERATE_SOA_LAYOUT(SoAHostDeviceLayoutTemplate,
                     /*SoAHostDeviceViewTemplate,*/
-                    // predefined static scalars
-                    // size_t size;
-                    // size_t alignment;
-
-                    // columns: one value per element
                     SOA_COLUMN(double, x),
                     SOA_COLUMN(double, y),
                     SOA_COLUMN(double, z),
