@@ -172,6 +172,19 @@ namespace edm {
                                                 : "")
           << (!missingFromReg.empty() ? " Have missing info from ProductRegistry.\n" : "");
     }
+
+    //check consistency with all Intervals
+    if (e.productRegistry().cacheIdentifier() != e.getRun().productRegistry().cacheIdentifier()) {
+      throw cms::Exception("ProvenanceError")
+          << "The registry cache id for Event ( " << e.productRegistry().cacheIdentifier()
+          << " ) does not match the one for Run ( " << e.getRun().productRegistry().cacheIdentifier() << " )";
+    }
+    if (e.productRegistry().cacheIdentifier() != e.getLuminosityBlock().productRegistry().cacheIdentifier()) {
+      throw cms::Exception("ProvenanceError")
+          << "The registry cache id for Event ( " << e.productRegistry().cacheIdentifier()
+          << " ) does not match the one for LuminosityBlock ( "
+          << e.getLuminosityBlock().productRegistry().cacheIdentifier() << " )";
+    }
   }
 
   //

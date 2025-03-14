@@ -3,6 +3,8 @@ from argparse import ArgumentParser
 
 parser = ArgumentParser(description='Write streamer output file for provenance read test')
 parser.add_argument("--consumeProd2", help="add an extra producer to the job and drop on output", action="store_true")
+parser.add_argument("--diffRun", help="use a different run number", action="store_true")
+parser.add_argument("--diffLumi", help="use a different LuminosityBlock number", action="store_true")
 args = parser.parse_args()
 
 
@@ -11,11 +13,16 @@ process = cms.Process("OUTPUT")
 from FWCore.Modules.modules import EmptySource
 
 runNumber = 1
+lumiNumber = 1
+if args.diffRun:
+    runNumber = 2
+if args.diffLumi:
+    lumiNumber=2
 eventNumber = 1
 if args.consumeProd2:
     eventNumber = 2
 
-process.source = EmptySource(firstRun = runNumber, firstEvent = eventNumber )
+process.source = EmptySource(firstRun = runNumber, firstEvent = eventNumber, firstLuminosityBlock = lumiNumber )
 
 from FWCore.Framework.modules import AddIntsProducer, IntProducer
 

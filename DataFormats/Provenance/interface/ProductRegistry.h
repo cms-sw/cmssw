@@ -93,6 +93,11 @@ namespace edm {
 
     ProductList::size_type size() const { return productList_.size(); }
 
+    //If the value differs between two versions of the main registry then
+    // one must update any related meta data
+    using CacheID = ProductList::size_type;
+    CacheID cacheIdentifier() const { return size(); }
+
     void print(std::ostream& os) const;
 
     bool anyProducts(BranchType const brType) const;
