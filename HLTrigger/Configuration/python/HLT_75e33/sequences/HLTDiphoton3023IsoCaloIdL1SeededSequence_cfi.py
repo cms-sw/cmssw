@@ -24,12 +24,10 @@ from ..sequences.HLTDoFullUnpackingEgammaEcalL1SeededSequence_cfi import *
 from ..sequences.HLTEGammaDoLocalHcalSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaL1SeededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 
-HLTDiphoton3023IsoCaloIdL1SeededSequence = cms.Sequence(HLTL1Sequence
-                                                        +hltEGL1SeedsForDoublePhotonIsolatedFilter
+HLTDiphoton3023IsoCaloIdL1SeededSequence = cms.Sequence(hltEGL1SeedsForDoublePhotonIsolatedFilter
                                                         +HLTDoFullUnpackingEgammaEcalL1SeededSequence
                                                         +HLTPFClusteringForEgammaL1SeededSequence
                                                         +HLTHgcalTiclPFClusteringForEgammaL1SeededSequence
@@ -52,5 +50,5 @@ HLTDiphoton3023IsoCaloIdL1SeededSequence = cms.Sequence(HLTL1Sequence
                                                         +hltEgammaHGCalLayerClusterIsoL1Seeded
                                                         +hltDiEG3023IsoCaloIdHgcalIsoL1SeededFilter
                                                         +HLTPFHcalClusteringForEgammaSequence
-                                                        +hltEgammaHcalPFClusterIsoL1Seeded                                                        
+                                                        +hltEgammaHcalPFClusterIsoL1Seeded
                                                         +hltDiEG3023IsoCaloIdHcalIsoL1SeededFilter)
