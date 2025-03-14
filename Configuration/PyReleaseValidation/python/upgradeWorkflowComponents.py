@@ -3,6 +3,8 @@ from collections import OrderedDict
 from .MatrixUtil import merge, Kby, Mby, check_dups
 import re
 
+undefInput = "UNDEF"
+
 U2000by1={'--relval': '2000,1'}
 
 # DON'T CHANGE THE ORDER, only append new keys. Otherwise the numbering for the runTheMatrix tests will change.
@@ -3120,6 +3122,8 @@ upgradeProperties[2017] = {
 
 # standard PU sequences
 for key in list(upgradeProperties[2017].keys()):
+    if "GenOnly" in key:
+        continue
     upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
     if 'FS' not in key:
         # update ScenToRun list
@@ -3355,6 +3359,8 @@ upgradeProperties['Run4'] = {
 
 # standard PU sequences
 for key in list(upgradeProperties['Run4'].keys()):
+    if "GenOnly" in key:
+        continue
     upgradeProperties['Run4'][key+'PU'] = deepcopy(upgradeProperties['Run4'][key])
     upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
 
