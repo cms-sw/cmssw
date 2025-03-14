@@ -233,6 +233,10 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hltL1PFJetCategoriesVBFMu", "hltL1PFJetCategoriesVBFMuTripleJet", "hltL1PFJetCategoriesVBFMuTight750"]),  # 39, for VBF+mu
                 mksel(["hltOverlapFilterDoublePFJet45Photon12", "hltOverlapFilterDoublePFJet45Photon17", "hltDiPFJet50Photon22OverlapFilter"]),  # 40, for VBF+gamma
                 mksel(["hltOverlapFilterDoublePFJet45Ele12", "hltOverlapFilterDoublePFJet45Ele17", "hltDiPFJet50Ele22OverlapFilter"]),  # 41, for VBF+e
+                mksel("min(path('HLT_PFJet*_v*'),filter('hltSinglePFJet*'))", "SinglePFJetX"),  # 42
+                mksel("min(path('HLT_PFJetFwd*_v*'),filter('hltSinglePFFwdJet*'))", "SinglePFJetFwdX"),  # 43
+                mksel("min(path('HLT_DiPFJetAve*_v*'),filter('hltDiPFJetAve*'))", "DiPFJetAveX"),  # 44
+                mksel("min(path('HLT_DiPFJetAve*_HFJEC_v*'),filter('hltDiPFJetAve*ForHFJEC*'))", "DiPFJetAveX_HFJEC"),  # 45
             ),
         ),
         FatJet = cms.PSet(
