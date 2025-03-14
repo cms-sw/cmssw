@@ -9,12 +9,7 @@
 namespace lst {
 
   GENERATE_SOA_LAYOUT(HitsSoALayout,
-                      SOA_COLUMN(float, xs),
-                      SOA_COLUMN(float, ys),
-                      SOA_COLUMN(float, zs),
                       SOA_COLUMN(uint16_t, moduleIndices),
-                      SOA_COLUMN(unsigned int, idxs),
-                      SOA_COLUMN(unsigned int, detid),
                       SOA_COLUMN(float, rts),
                       SOA_COLUMN(float, phis),
                       SOA_COLUMN(float, etas),
@@ -22,13 +17,6 @@ namespace lst {
                       SOA_COLUMN(float, highEdgeYs),
                       SOA_COLUMN(float, lowEdgeXs),
                       SOA_COLUMN(float, lowEdgeYs))
-
-  GENERATE_SOA_LAYOUT(PixelHitsSoALayout,
-                      SOA_COLUMN(unsigned int, hitIndices0),
-                      SOA_COLUMN(unsigned int, hitIndices1),
-                      SOA_COLUMN(unsigned int, hitIndices2),
-                      SOA_COLUMN(unsigned int, hitIndices3),
-                      SOA_COLUMN(float, deltaPhi))
 
   GENERATE_SOA_LAYOUT(HitsRangesSoALayout,
                       SOA_COLUMN(ArrayIx2, hitRanges),
@@ -38,13 +26,10 @@ namespace lst {
                       SOA_COLUMN(int16_t, hitRangesnUpper))
 
   using HitsSoA = HitsSoALayout<>;
-  using PixelHitsSoA = PixelHitsSoALayout<>;
   using HitsRangesSoA = HitsRangesSoALayout<>;
 
   using Hits = HitsSoA::View;
   using HitsConst = HitsSoA::ConstView;
-  using PixelHits = PixelHitsSoA::View;
-  using PixelHitsConst = PixelHitsSoA::ConstView;
   using HitsRanges = HitsRangesSoA::View;
   using HitsRangesConst = HitsRangesSoA::ConstView;
 

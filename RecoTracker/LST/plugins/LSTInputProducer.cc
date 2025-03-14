@@ -16,8 +16,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
-#include "RecoTracker/LSTCore/interface/HitsHostCollection.h"
-#include "RecoTracker/LSTCore/interface/PixelSegmentsHostCollection.h"
+#include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
 #include "RecoTracker/LSTCore/interface/LSTInput.h"
 
 class LSTInputProducer : public edm::global::EDProducer<> {
@@ -33,23 +32,22 @@ private:
   const double ptCut_;
 
   const edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> phase2OTRecHitToken_;
-  const edm::EDPutTokenT<std::unique_ptr<lst::HitsHostCollection>> lstHitsInputPutToken_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> seedTokens_;
   const edm::EDPutTokenT<TrajectorySeedCollection> lstPixelSeedsPutToken_;
-  const edm::EDPutTokenT<std::unique_ptr<lst::PixelSegmentsHostCollection>> lstPixelSegmentsInputPutToken_;
+
+  const edm::EDPutTokenT<std::unique_ptr<lst::LSTInputHostCollection>> lstInputPutToken_;
 };
 
 LSTInputProducer::LSTInputProducer(edm::ParameterSet const& iConfig)
     : ptCut_(iConfig.getParameter<double>("ptCut")),
       phase2OTRecHitToken_(consumes(iConfig.getParameter<edm::InputTag>("phase2OTRecHits"))),
-      lstHitsInputPutToken_(produces()),
       mfToken_(esConsumes()),
       beamSpotToken_(consumes(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       lstPixelSeedsPutToken_(produces()),
-      lstPixelSegmentsInputPutToken_(produces()) {
+      lstInputPutToken_(produces()) {
   seedTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("seedTracks"),
                                       [&](const edm::InputTag& tag) { return consumes<edm::View<reco::Track>>(tag); });
 }
@@ -185,7 +183,7 @@ void LSTInputProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
     }
   }
 
-  auto [hitsHC, pixelSegmentsHC] = lst::prepareInput(see_px,
+  auto lstInputHC = lst::prepareInput(see_px,
                                                      see_py,
                                                      see_pz,
                                                      see_dxy,
@@ -206,8 +204,7 @@ void LSTInputProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
                                                      ph2_z,
                                                      ptCut_);
 
-  iEvent.emplace(lstHitsInputPutToken_, std::move(hitsHC));
-  iEvent.emplace(lstPixelSegmentsInputPutToken_, std::move(pixelSegmentsHC));
+  iEvent.emplace(lstInputPutToken_, std::move(lstInputHC));
   iEvent.emplace(lstPixelSeedsPutToken_, std::move(see_seeds));
 }
 

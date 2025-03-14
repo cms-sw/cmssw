@@ -53,14 +53,14 @@ void LST::getOutput(LSTEvent& event) {
   out_tc_seedIdx_.clear();
   out_tc_trackCandidateType_.clear();
 
-  auto const hits = event.getHits<HitsSoA>(/*inCMSSW*/ true, /*sync*/ false);  // sync on next line
+  auto const inputHits = event.getInput<InputHitsSoA>(/*inCMSSW*/ true, /*sync*/ false); // sync on next line
   auto const& trackCandidates = event.getTrackCandidates(/*inCMSSW*/ true, /*sync*/ true);
 
   unsigned int nTrackCandidates = trackCandidates.nTrackCandidates();
 
   for (unsigned int idx = 0; idx < nTrackCandidates; idx++) {
     short trackCandidateType = trackCandidates.trackCandidateType()[idx];
-    std::vector<unsigned int> hit_idx = getHitIdxs(trackCandidateType, trackCandidates.hitIndices()[idx], hits.idxs());
+    std::vector<unsigned int> hit_idx = getHitIdxs(trackCandidateType, trackCandidates.hitIndices()[idx], inputHits.idxs());
 
     out_tc_hitIdxs_.push_back(hit_idx);
     out_tc_len_.push_back(hit_idx.size());
@@ -73,14 +73,14 @@ void LST::run(Queue& queue,
               bool verbose,
               float const ptCut,
               LSTESData<Device> const* deviceESData,
-              HitsHostCollection const* hitsHC,
-              PixelSegmentsHostCollection const* pixelSegmentsHC,
+              LSTInputDeviceCollection const* lstInputDC,
               bool no_pls_dupclean,
               bool tc_pls_triplets) {
   auto event = LSTEvent(verbose, ptCut, queue, deviceESData);
 
-  event.addHitToEvent(hitsHC);
-  event.addPixelSegmentToEventStart(pixelSegmentsHC);
+  event.addInputToEvent(lstInputDC);
+  event.addHitToEvent();
+  event.addPixelSegmentToEventStart();
   event.createMiniDoublets();
   if (verbose) {
     alpaka::wait(queue);  // event calls are asynchronous: wait before printing

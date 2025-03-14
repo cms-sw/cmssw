@@ -25,8 +25,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     LSTProducer(edm::ParameterSet const& config)
         : SynchronizingEDProducer(config),
-          lstPixelSeedInputToken_{consumes(config.getParameter<edm::InputTag>("pixelSeedInput"))},
-          lstPhase2OTHitsInputToken_{consumes(config.getParameter<edm::InputTag>("phase2OTHitsInput"))},
+          lstInputToken_{consumes(config.getParameter<edm::InputTag>("lstInputHC"))},
           lstESToken_{esConsumes(edm::ESInputTag("", config.getParameter<std::string>("ptCutLabel")))},
           verbose_(config.getParameter<bool>("verbose")),
           ptCut_(config.getParameter<double>("ptCut")),
@@ -36,8 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void acquire(device::Event const& event, device::EventSetup const& setup) override {
       // Inputs
-      auto& pixelSegmentsHC = event.get(lstPixelSeedInputToken_);
-      auto& hitsHC = event.get(lstPhase2OTHitsInputToken_);
+      auto const& lstInputDC = event.get(lstInputToken_);
 
       auto const& lstESDeviceData = setup.getData(lstESToken_);
 
@@ -45,8 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                verbose_,
                static_cast<float>(ptCut_),
                &lstESDeviceData,
-               &hitsHC,
-               &pixelSegmentsHC,
+               &lstInputDC,
                nopLSDupClean_,
                tcpLSTriplets_);
     }
@@ -70,8 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    edm::EDGetTokenT<lst::PixelSegmentsHostCollection> lstPixelSeedInputToken_;
-    edm::EDGetTokenT<lst::HitsHostCollection> lstPhase2OTHitsInputToken_;
+    edm::EDGetTokenT<lst::LSTInputDeviceCollection> lstInputToken_;
     device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
     const bool verbose_;
     const double ptCut_;

@@ -601,8 +601,9 @@ TVector3 calculateR3FromPCA(const TVector3 &p3, const float dxy, const float dz)
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
 float addInputsToEventPreLoad(LSTEvent *event,
-                              lst::HitsHostCollection *hitsHC,
-                              lst::PixelSegmentsHostCollection *pixelSegmentsHC) {
+                              lst::LSTInputHostCollection *lstInputHC,
+                              LSTInputDeviceCollection *lstInputDC,
+                              ALPAKA_ACCELERATOR_NAMESPACE::Queue &queue) {
   TStopwatch my_timer;
 
   if (ana.verbose >= 2)
@@ -611,9 +612,14 @@ float addInputsToEventPreLoad(LSTEvent *event,
 
   my_timer.Start();
 
-  event->addHitToEvent(hitsHC);
+  // We can't use CopyToDevice because the device can be DevHost
+  alpaka::memcpy(queue, lstInputDC->buffer(), lstInputHC->buffer());
+  alpaka::wait(queue);
 
-  event->addPixelSegmentToEventStart(pixelSegmentsHC);
+  event->addInputToEvent(lstInputDC);
+  event->addHitToEvent();
+
+  event->addPixelSegmentToEventStart();
   event->wait();  // device side event calls are asynchronous: wait to measure time or print
   float hit_loading_elapsed = my_timer.RealTime();
 

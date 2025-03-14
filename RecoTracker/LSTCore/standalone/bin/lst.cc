@@ -4,6 +4,7 @@
 #include <typeinfo>
 
 using LSTEvent = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTEvent;
+using LSTInputDeviceCollection = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTInputDeviceCollection;
 using namespace ::lst;
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
@@ -328,8 +329,7 @@ void run_lst() {
     }
   }
 
-  std::vector<std::unique_ptr<HitsHostCollection>> out_hitsHC;
-  std::vector<std::unique_ptr<PixelSegmentsHostCollection>> out_pixelSegmentsHC;
+  std::vector<std::unique_ptr<LSTInputHostCollection>> out_lstInputHC;
   std::vector<int> evt_num;
   std::vector<TString> file_name;
 
@@ -343,7 +343,7 @@ void run_lst() {
     if (not goodEvent())
       continue;
 
-    auto [hitsHC, pixelSegmentsHC] = prepareInput(trk.see_px(),
+    auto lstInputHC = prepareInput(trk.see_px(),
                                                   trk.see_py(),
                                                   trk.see_pz(),
                                                   trk.see_dxy(),
@@ -364,8 +364,7 @@ void run_lst() {
                                                   trk.ph2_z(),
                                                   ana.ptCut);
 
-    out_hitsHC.push_back(std::move(hitsHC));
-    out_pixelSegmentsHC.push_back(std::move(pixelSegmentsHC));
+    out_lstInputHC.push_back(std::move(lstInputHC));
 
     evt_num.push_back(ana.looper.getCurrentEventIndex());
     file_name.push_back(ana.looper.getCurrentFileName());
@@ -399,13 +398,19 @@ void run_lst() {
     float timing_TC;
 
 #pragma omp for  // nowait// private(event)
-    for (int evt = 0; evt < static_cast<int>(out_hitsHC.size()); evt++) {
+    for (int evt = 0; evt < static_cast<int>(out_lstInputHC.size()); evt++) {
       if (ana.verbose >= 1)
         std::cout << "Running Event number = " << evt << " " << omp_get_thread_num() << std::endl;
 
       events.at(omp_get_thread_num())->initSync();
+
+      // We need to initialize it here so that it stays in scope
+      // FIXME: The queue should ideally be the same as in the event
+      auto& queue = queues[evt % ana.streams];
+      LSTInputDeviceCollection lstInputDC(out_lstInputHC.at(evt)->sizes(), queue);
+
       timing_input_loading = addInputsToEventPreLoad(
-          events.at(omp_get_thread_num()), out_hitsHC.at(evt).get(), out_pixelSegmentsHC.at(evt).get());
+          events.at(omp_get_thread_num()), out_lstInputHC.at(evt).get(), &lstInputDC, queue);
 
       timing_MD = runMiniDoublet(events.at(omp_get_thread_num()), evt);
       timing_LS = runSegment(events.at(omp_get_thread_num()));
@@ -472,7 +477,7 @@ void run_lst() {
     timevec.insert(timevec.end(), timing_information.begin(), timing_information.end());
   }
 
-  float avg_elapsed = full_elapsed / out_hitsHC.size();
+  float avg_elapsed = full_elapsed / out_lstInputHC.size();
 
   std::cout << "Time for map loading = " << timeForMapLoading << " ms\n";
   std::cout << "Time for input loading = " << timeForInputLoading << " ms\n";
