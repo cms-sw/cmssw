@@ -629,7 +629,7 @@ void SimpleCosmicBONSeeder::fillDescriptions(edm::ConfigurationDescriptions &des
 
   edm::ParameterSetDescription clusterCheckPSet;
   clusterCheckPSet.add<bool>("doClusterCheck", true);
-  clusterCheckPSet.add<uint32_t>("MaxNumberOfStripClusters", 300);
+  clusterCheckPSet.add<uint32_t>("MaxNumberOfStripClusters", 1000);
   clusterCheckPSet.add<edm::InputTag>("ClusterCollectionLabel", edm::InputTag("siStripClusters"));
   clusterCheckPSet.add<uint32_t>("DontCountDetsAboveNClusters", 20);
   clusterCheckPSet.add<uint32_t>("MaxNumberOfPixelClusters", 1000);
