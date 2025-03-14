@@ -128,13 +128,14 @@ namespace ticl {
   void TracksterInferenceByDNN::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     iDesc.add<int>("algo_verbosity", 0);
     iDesc
-        .add<edm::FileInPath>("onnxPIDModelPath",
-                              edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/patternrecognition/id_v0.onnx"))
+        .add<edm::FileInPath>(
+            "onnxPIDModelPath",
+            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/id_v0.onnx"))
         ->setComment("Path to ONNX PID model CLU3D");
     iDesc
         .add<edm::FileInPath>(
             "onnxEnergyModelPath",
-            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/patternrecognition/energy_v0.onnx"))
+            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/energy_v0.onnx"))
         ->setComment("Path to ONNX Energy model CLU3D");
     iDesc.add<std::vector<std::string>>("inputNames", {"input"});
     iDesc.add<std::vector<std::string>>("output_en", {"enreg_output"});
