@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="gem11.xml" eval="true">
   <Constant name="dzS1L" value="9.7025*cm"/>
@@ -1627,19 +1627,6 @@
     <rParent name="gem11:GEMDisk11N"/>
     <String name="ChildName" value="GEMBox11L"/>
     <String name="RotNameSpace" value="gemf"/>
-    <Numeric name="n" value="15"/>
-    <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+9)"/>
-    <Numeric name="incrCopyNo"  value="2"/>
-    <Numeric name="invert"      value="0"/>
-    <Numeric name="stepAngle"   value="-20*deg"/>
-    <Numeric name="startAngle"  value="110*deg"/>
-    <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value=" +9.50*mm"/>
-</Algorithm>
-<Algorithm name="muon:DDGEMAngular">
-    <rParent name="gem11:GEMDisk11N"/>
-    <String name="ChildName" value="GEMBox11L"/>
-    <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="2"/>
     <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+2)"/>
     <Numeric name="incrCopyNo"  value="2"/>
@@ -1653,7 +1640,7 @@
     <rParent name="gem11:GEMDisk11N"/>
     <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
-    <Numeric name="n" value="2"/>
+    <Numeric name="n" value="3"/>
     <Numeric name="startCopyNo" value="([gemf:Layer1Offset]+2)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
@@ -1677,14 +1664,40 @@
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11N"/>
+    <String name="ChildName" value="GEMBox11L"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="14"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+11)"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="rPosition"   value="[rPosL]"/>
+    <Numeric name="zoffset"     value=" +9.50*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gem11:GEMDisk11N"/>
+    <String name="ChildName" value="GEMBox11L"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="14"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer2Offset]+10)"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="rPosition"   value="[rPosL]"/>
+    <Numeric name="zoffset"     value="-28.90*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gem11:GEMDisk11N"/>
     <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
-    <Numeric name="n" value="15"/>
-    <Numeric name="startCopyNo" value="([gemf:Layer1Offset]+8)"/>
+    <Numeric name="n" value="14"/>
+    <Numeric name="startCopyNo" value="([gemf:Layer1Offset]+10)"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="-20*deg"/>
-    <Numeric name="startAngle"  value="120*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
     <Numeric name="rPosition"   value="[rPosS]"/>
     <Numeric name="zoffset"     value="+28.70*mm"/>
 </Algorithm>
@@ -1697,7 +1710,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="-20*deg"/>
-    <Numeric name="startAngle"  value="100*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
     <Numeric name="rPosition"   value="[rPosS]"/>
     <Numeric name="zoffset"     value=" -9.70*mm"/>
 </Algorithm>
