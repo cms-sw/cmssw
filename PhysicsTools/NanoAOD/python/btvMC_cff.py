@@ -121,39 +121,52 @@ ak4ak8genJetsParticleTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
                                                      variables = cms.PSet(CandVars
                                                                       )
                                                  )
+kwargs = { }
+import os
+sv_sort = os.getenv('CMSSW_NANOAOD_SV_SORT')
+if sv_sort is not None: kwargs['sv_sort'] = cms.untracked.string(sv_sort)
+pf_sort = os.getenv('CMSSW_NANOAOD_PF_SORT')
+if pf_sort is not None: kwargs['pf_sort'] = cms.untracked.string(pf_sort)
 ak8onlygenAK8ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
-                                                     candidates = cms.InputTag("ak8onlygenJetsConstituents"),
-                                                     jets = cms.InputTag("genJetsAK8Constituents"), # Note: The name has "Constituents" in it, but these are the jets
-                                                     name = cms.string("GenFatJetCands"),
-                                                     nameSV = cms.string("GenFatJetSVs"),
-                                                     idx_name = cms.string("pFCandsIdx"),
-                                                     idx_nameSV = cms.string("sVIdx"),
-                                                     readBtag = cms.bool(False))
+                                                candidates = cms.InputTag("ak8onlygenJetsConstituents"),
+                                                jets = cms.InputTag("genJetsAK8Constituents"), # Note: The name has "Constituents" in it, but these are the jets
+                                                name = cms.string("GenFatJetCands"),
+                                                nameSV = cms.string("GenFatJetSVs"),
+                                                idx_name = cms.string("pFCandsIdx"),
+                                                idx_nameSV = cms.string("sVIdx"),
+                                                readBtag = cms.bool(False),
+                                                **kwargs,
+                                                )
 ak4onlygenAK4ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
-                                                     candidates = cms.InputTag("ak4onlygenJetsConstituents"),
-                                                     jets = cms.InputTag("genJetsAK4Constituents"), # Note: The name has "Constituents" in it, but these are the jets
-                                                     name = cms.string("GenJetCands"),
-                                                     nameSV = cms.string("GenJetSVs"),
-                                                     idx_name = cms.string("pFCandsIdx"),
-                                                     idx_nameSV = cms.string("sVIdx"),
-                                                     readBtag = cms.bool(False))
+                                                candidates = cms.InputTag("ak4onlygenJetsConstituents"),
+                                                jets = cms.InputTag("genJetsAK4Constituents"), # Note: The name has "Constituents" in it, but these are the jets
+                                                name = cms.string("GenJetCands"),
+                                                nameSV = cms.string("GenJetSVs"),
+                                                idx_name = cms.string("pFCandsIdx"),
+                                                idx_nameSV = cms.string("sVIdx"),
+                                                readBtag = cms.bool(False),
+                                                **kwargs,
+                                                )
 ak4ak8genAK4ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
-                                                     candidates = cms.InputTag("ak4ak8genJetsConstituents"),
-                                                     jets = cms.InputTag("genJetsAK4Constituents"), # Note: The name has "Constituents" in it, but these are the jets
-                                                     name = cms.string("GenJetCands"),
-                                                     nameSV = cms.string("GenJetSVs"),
-                                                     idx_name = cms.string("pFCandsIdx"),
-                                                     idx_nameSV = cms.string("sVIdx"),
-                                                     readBtag = cms.bool(False))
-
+                                               candidates = cms.InputTag("ak4ak8genJetsConstituents"),
+                                               jets = cms.InputTag("genJetsAK4Constituents"), # Note: The name has "Constituents" in it, but these are the jets
+                                               name = cms.string("GenJetCands"),
+                                               nameSV = cms.string("GenJetSVs"),
+                                               idx_name = cms.string("pFCandsIdx"),
+                                               idx_nameSV = cms.string("sVIdx"),
+                                               readBtag = cms.bool(False),
+                                               **kwargs,
+                                               )
 ak4ak8genAK8ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
-                                                     candidates = cms.InputTag("ak4ak8genJetsConstituents"),
-                                                     jets = cms.InputTag("genJetsAK8Constituents"), # Note: The name has "Constituents" in it, but these are the jets
-                                                     name = cms.string("GenFatJetCands"),
-                                                     nameSV = cms.string("GenFatJetSVs"),
-                                                     idx_name = cms.string("pFCandsIdx"),
-                                                     idx_nameSV = cms.string("sVIdx"),
-                                                     readBtag = cms.bool(False))
+                                               candidates = cms.InputTag("ak4ak8genJetsConstituents"),
+                                               jets = cms.InputTag("genJetsAK8Constituents"), # Note: The name has "Constituents" in it, but these are the jets
+                                               name = cms.string("GenFatJetCands"),
+                                               nameSV = cms.string("GenFatJetSVs"),
+                                               idx_name = cms.string("pFCandsIdx"),
+                                               idx_nameSV = cms.string("sVIdx"),
+                                               readBtag = cms.bool(False),
+                                               **kwargs,
+                                               )
 btvAK4MCSequence = cms.Sequence(btvGenTable+btvAK4JetExtTable+btvMCTable)
 btvAK8MCSequence = cms.Sequence(btvGenTable+btvSubJetMCExtTable)
 #PF Cands of AK4 only , with cross linking to AK4 jets
