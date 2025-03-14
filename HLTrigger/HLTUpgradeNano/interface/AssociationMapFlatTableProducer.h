@@ -240,9 +240,43 @@ protected:
   std::vector<CollectionVariableTableInfo> coltables;
 };
 
+// OneToOne, Fraction and Fraction with Score
 template <typename Source, typename Target>
 using AssociationMapOneToOneFraction =
     ticl::AssociationMap<vector<ticl::AssociationElement<ticl::FractionType>>, std::vector<Source>, std::vector<Target>>;
+
+template <typename Source, typename Target>
+using AssociationMapOneToOneFractionScore =
+    ticl::AssociationMap<vector<ticl::AssociationElement<std::pair<ticl::FractionType, float>>>,
+                         std::vector<Source>,
+                         std::vector<Target>>;
+
+// OneToOne, SharedEnergy and SharedEnergy with Score
+template <typename Source, typename Target>
+using AssociationMapOneToOneSharedEnergy = ticl::
+    AssociationMap<vector<ticl::AssociationElement<ticl::SharedEnergyType>>, std::vector<Source>, std::vector<Target>>;
+
+template <typename Source, typename Target>
+using AssociationMapOneToOneSharedEnergyScore =
+    ticl::AssociationMap<vector<ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float>>>,
+                         std::vector<Source>,
+                         std::vector<Target>>;
+
+// OneToMany, Fraction and Fraction with Score
+template <typename Source, typename Target>
+using AssociationMapOneToManyFraction =
+    ticl::AssociationMap<vector<vector<ticl::AssociationElement<ticl::FractionType>>>, vector<Source>, vector<Target>>;
+
+template <typename Source, typename Target>
+using AssociationMapOneToManyFractionScore =
+    ticl::AssociationMap<vector<vector<ticl::AssociationElement<pair<ticl::FractionType, float>>>>,
+                         vector<Source>,
+                         vector<Target>>;
+
+// OneToMany, SharedEnergy and SharedEnergy with Score
+template <typename Source, typename Target>
+using AssociationMapOneToManySharedEnergy = ticl::
+    AssociationMap<vector<vector<ticl::AssociationElement<ticl::SharedEnergyType>>>, vector<Source>, vector<Target>>;
 
 template <typename Source, typename Target>
 using AssociationMapOneToManySharedEnergyScore =
