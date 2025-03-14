@@ -31,7 +31,7 @@ namespace reco {
     //Getters
     const std::vector<uint> &getOutEdges(const uint i) const;
     const std::vector<uint> &getInEdges(const uint i) const;
-    uint getAdjMatrix(const uint i, const uint j) const;
+    float getAdjMatrix(const uint i, const uint j) const;
     std::vector<float> getAdjMatrixRow(const uint i) const;
     std::vector<float> getAdjMatrixCol(const uint j) const;
 
