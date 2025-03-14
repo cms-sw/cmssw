@@ -135,15 +135,14 @@ void Tree::findLeafs(Node* local_root, std::list<Node*>& tn) {
     findLeafs(local_root->getRightDaughter(), tn);
 }
 
-Tree::Tree(Tree&& tree) {
-  if (rootNode)
-    delete rootNode;  // this line is the only reason not to use default move constructor
-  rootNode = tree.rootNode;
-  terminalNodes = std::move(tree.terminalNodes);
-  numTerminalNodes = tree.numTerminalNodes;
-  rmsError = tree.rmsError;
-  boostWeight = tree.boostWeight;
-  xmlVersion = tree.xmlVersion;
+Tree::Tree(Tree&& tree) noexcept
+    : rootNode(tree.rootNode),
+      terminalNodes(std::move(tree.terminalNodes)),
+      numTerminalNodes(tree.numTerminalNodes),
+      rmsError(tree.rmsError),
+      boostWeight(tree.boostWeight),
+      xmlVersion(tree.xmlVersion) {
+  tree.rootNode = nullptr;  // this line is the only reason not to use default move constructor
 }
 
 //////////////////////////////////////////////////////////////////////////
