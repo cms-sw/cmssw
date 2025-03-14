@@ -15,7 +15,7 @@ process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 
 ## input file (adapt input file name correspondingly)
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:topDQM_production.root"),
+    fileNames = cms.untracked.vstring("file:topDQM_production_MINIAOD.root"),
     processingMode = cms.untracked.string('RunsAndLumis')
 )
 
@@ -36,7 +36,7 @@ process.EDMtoMEConverter.convertOnEndRun  = True
 process.dqmSaver.saveByRun      = cms.untracked.int32( -1)
 process.dqmSaver.saveAtJobEnd   = cms.untracked.bool(True)
 process.dqmSaver.forceRunNumber = cms.untracked.int32(  1)
-process.dqmSaver.workflow       = cms.untracked.string('/TopVal/CMSSW_15_0_0_pre1/RECO') ## adapt apropriately
+process.dqmSaver.workflow       = cms.untracked.string('/TopVal/CMSSW_15_0_0_pre1/MINIAODSIM') ## adapt apropriately
 
 
 ## path definitions
