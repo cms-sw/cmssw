@@ -43,22 +43,22 @@ namespace edm {
   void PrincipalCache::adjustEventsToNewProductRegistry(std::shared_ptr<ProductRegistry const> reg) {
     for (auto& eventPrincipal : eventPrincipals_) {
       if (eventPrincipal) {
-        eventPrincipal->adjustIndexesAfterProductRegistryAddition();
+        eventPrincipal->possiblyUpdateAfterAddition(reg);
       }
     }
   }
 
-  void PrincipalCache::adjustIndexesAfterProductRegistryAddition() {
+  void PrincipalCache::adjustIndexesAfterProductRegistryAddition(std::shared_ptr<ProductRegistry const> iReg) {
     //Need to temporarily hold all the runs to clear out the runHolder_
     std::vector<std::shared_ptr<RunPrincipal>> tempRunPrincipals;
     while (auto p = runHolder_.tryToGet()) {
-      p->adjustIndexesAfterProductRegistryAddition();
+      p->possiblyUpdateAfterAddition(iReg);
       tempRunPrincipals.emplace_back(std::move(p));
     }
     //Need to temporarily hold all the lumis to clear out the lumiHolder_
     std::vector<std::shared_ptr<LuminosityBlockPrincipal>> tempLumiPrincipals;
     while (auto p = lumiHolder_.tryToGet()) {
-      p->adjustIndexesAfterProductRegistryAddition();
+      p->possiblyUpdateAfterAddition(iReg);
       tempLumiPrincipals.emplace_back(std::move(p));
     }
   }

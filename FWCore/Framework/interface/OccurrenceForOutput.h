@@ -64,6 +64,7 @@ namespace edm {
     Handle<PROD> getHandle(EDGetTokenT<PROD> token) const;
 
     Provenance getProvenance(BranchID const& theID) const;
+    StableProvenance const& getStableProvenance(BranchID const& ithID) const;
 
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 

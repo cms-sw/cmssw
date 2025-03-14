@@ -53,7 +53,7 @@ namespace edm {
 
     void adjustEventsToNewProductRegistry(std::shared_ptr<ProductRegistry const>);
 
-    void adjustIndexesAfterProductRegistryAddition();
+    void adjustIndexesAfterProductRegistryAddition(std::shared_ptr<ProductRegistry const>);
 
   private:
     std::unique_ptr<ProcessBlockPrincipal> processBlockPrincipal_;
