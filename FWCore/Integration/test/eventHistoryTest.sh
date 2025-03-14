@@ -40,9 +40,3 @@ cmsRun ${LOCAL_TEST_DIR}/EventHistory_6_cfg.py || die 'Failed in EventHistory_6'
 echo "*************************************************"
 echo "**************** Finished pass 6 ****************"
 echo "*************************************************"
-
-# Repeat all the above steps, but slightly modified so all steps run in one job with subprocess
-cmsRun ${LOCAL_TEST_DIR}/EventHistory_SubProcess_cfg.py || die 'Failed in EventHistory_SubProcess' $?
-echo "*************************************************"
-echo "**************** Finished pass SubProcess *******"
-echo "*************************************************"

@@ -29,8 +29,6 @@ class ESTestRecordB
           DependentRecordImplementation<ESTestRecordB, edm::mpl::Vector<ESTestRecordC, ESTestRecordD, ESTestRecordE> > {
 };
 
-class ESTestRecordZ : public edm::eventsetup::EventSetupRecordImplementation<ESTestRecordZ> {};
-
 class ESTestRecordK : public edm::eventsetup::EventSetupRecordImplementation<ESTestRecordK> {};
 
 class ESTestRecordI

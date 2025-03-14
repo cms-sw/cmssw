@@ -535,6 +535,15 @@ namespace edm {
       processConfiguration_ = items.processConfiguration();
       processContext_.setProcessConfiguration(processConfiguration_.get());
 
+      {
+        edm::Service<edm::JobReport> jr;
+        if (jr.isAvailable()) {
+          ProcessConfiguration reduced = *processConfiguration_;
+          reduced.reduce();
+          jr->reportProcess(reduced.processName(), reduced.id(), reduced.parameterSetID());
+        }
+      }
+
       FDEBUG(2) << parameterSet << std::endl;
 
       principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
