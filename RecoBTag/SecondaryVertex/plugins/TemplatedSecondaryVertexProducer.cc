@@ -1311,8 +1311,8 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::fillDescriptions(edm::Configur
   desc.add<edm::InputTag>("extSVCollection", edm::InputTag("secondaryVertices"))
       ->setComment("InputTag for an (optional) external secondary vertex collection.");
   desc.addOptionalNode(edm::ParameterDescription<bool>("useSVClustering", false, true) and
-                           edm::ParameterDescription<std::string>("jetAlgorithm", true) and
-                           edm::ParameterDescription<double>("rParam", true),
+		       edm::ParameterDescription<std::string>("jetAlgorithm", "", true) and
+		       edm::ParameterDescription<double>("rParam", 1.0, true),
                        true)
       ->setComment("Optional ParameterSet to steer any secondary vertex reclustering.");
   desc.addOptional<bool>("useSVMomentum", false)
