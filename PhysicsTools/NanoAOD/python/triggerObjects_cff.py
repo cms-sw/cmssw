@@ -54,7 +54,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
         Electron = cms.PSet(
             doc = cms.string("PixelMatched e/gamma"), # this may also select photons!
             id = cms.int32(11),
-            sel = cms.string("type(92) && pt > 7 && (coll('hltEgammaCandidates') || coll('hltEgammaCandidatesUnseeded')) && (filter('*PixelMatchFilter') || filter('*PixelMatchUnseededFilter'))"),
+            sel = cms.string("type(92) && pt > 7 && (coll('hltEgammaCandidates') || coll('hltEgammaCandidatesUnseeded')) && (filter('*PixelMatchFilter*') || filter('*PixelMatchUnseededFilter'))"),
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
             #l2seed = cms.string("type(92) && coll('')"),  l2deltaR = cms.double(0.5),
             skipObjectsNotPassingQualityBits = cms.bool(True),
