@@ -1,10 +1,7 @@
 <library file="*.cc" name="RecoPixelVertexingPixelTrackFittingPlugins">
-  <use name="cuda"/>
-  <use name="CUDADataFormats/Track"/>
   <use name="DataFormats/TrackSoA"/>
   <use name="DataFormats/TrackingRecHit"/>
   <use name="Geometry/Records"/>
   <use name="RecoTracker/PixelTrackFitting"/>
-  <use name="HeterogeneousCore/CUDACore"/>
   <flags EDM_PLUGIN="1"/>
 </library>

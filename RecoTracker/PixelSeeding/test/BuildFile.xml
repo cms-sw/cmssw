@@ -23,16 +23,10 @@
 <bin file="CircleEq_t.cpp">
 </bin>
 
-<bin file="CAsizes_t.cpp">
-  <use name="cuda"/>
-  <use name="eigen"/>
-  <use name="boost"/>
-</bin>
-
 <bin file="alpaka/CAsizes_t.cpp">
-<flags ALPAKA_BACKENDS="1"/>  
   <use name="alpaka"/>
   <use name="eigen"/>
   <use name="boost"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>
