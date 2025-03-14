@@ -33,7 +33,7 @@ namespace edm {
     std::string processName(productLabels.process);
     std::string selectedProcess;
 
-    unsigned int bestPosition = 0;
+    long int bestPosition = 0;
     for (auto const& prod : productRegistry.productList()) {
       ProductDescription const& desc = prod.second;
       if (desc.branchType() == InProcess && !desc.produced() && desc.present() &&
@@ -45,7 +45,9 @@ namespace edm {
                          processesWithProcessBlockProducts_.end(),
                          [&desc](auto const& processFromHelper) { return processFromHelper == desc.processName(); });
         if (found != processesWithProcessBlockProducts_.end()) {
-          const unsigned int position = std::distance(processesWithProcessBlockProducts_.begin(), found);
+          const auto position = std::distance(processesWithProcessBlockProducts_.begin(), found);
+          static_assert(std::is_same_v<decltype(bestPosition),
+                                       decltype(std::distance(processesWithProcessBlockProducts_.begin(), found))>);
           if (position >= bestPosition) {
             bestPosition = position;
             selectedProcess = desc.processName();

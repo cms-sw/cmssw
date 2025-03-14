@@ -225,7 +225,7 @@ namespace edm {
   template <typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::size_type
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::size() const {
-    return data_.size();
+    return static_cast<size_type>(data_.size());
   }
 
   template <typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>

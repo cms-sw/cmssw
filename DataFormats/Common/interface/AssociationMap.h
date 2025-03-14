@@ -175,31 +175,31 @@ namespace edm {
     const_iterator find(const key_type& k) const {
       if (ref_.key.id() != k.id())
         return end();
-      return find(k.key());
+      return find(static_cast<index_type>(k.key()));
     }
     /// erase the element whose key is k
     size_type erase(const key_type& k) {
-      index_type i = k.key();
+      index_type i = static_cast<index_type>(k.key());
       transientMap_.unsafe_erase(i);
       return map_.erase(i);
     }
     /// find element with specified reference key
     const result_type& operator[](const key_type& k) const {
       helpers::checkRef(ref_.key, k);
-      return get(k.key()).val;
+      return get(static_cast<index_type>(k.key())).val;
     }
 
     template <typename K>
     const result_type& operator[](const K& k) const {
       helpers::checkRef(ref_.key, k);
-      return get(k.key()).val;
+      return get(static_cast<index_type>(k.key())).val;
     }
 
     /// number of associations to a key
     size_type numberOfAssociations(const key_type& k) const {
       if (ref_.key.id() != k.id())
         return 0;
-      typename map_type::const_iterator f = map_.find(k.key());
+      auto f = map_.find(static_cast<index_type>(k.key()));
       if (f == map_.end())
         return 0;
       return Tag::size(f->second);
@@ -252,22 +252,21 @@ namespace edm {
     /// transient reference map
     mutable internal_transient_map_type transientMap_;
     /// find element with index i
-    const_iterator find(size_type i) const {
-      typename map_type::const_iterator f = map_.find(i);
+    const_iterator find(index_type i) const {
+      auto f = map_.find(i);
       if (f == map_.end())
         return end();
       return const_iterator(this, f);
     }
     /// return value_typeelement with key i
-    const value_type& get(size_type i) const {
-      typename internal_transient_map_type::const_iterator tf = transientMap_.find(i);
+    const value_type& get(index_type i) const {
+      auto tf = transientMap_.find(i);
       if (tf == transientMap_.end()) {
-        typename map_type::const_iterator f = map_.find(i);
+        auto f = map_.find(i);
         if (f == map_.end())
           Exception::throwThis(edm::errors::InvalidReference, "can't find reference in AssociationMap at position ", i);
         value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));
-        std::pair<typename internal_transient_map_type::const_iterator, bool> ins =
-            transientMap_.insert(std::make_pair(i, v));
+        auto ins = transientMap_.insert(std::make_pair(i, v));
         return ins.first->second;
       } else {
         return tf->second;
