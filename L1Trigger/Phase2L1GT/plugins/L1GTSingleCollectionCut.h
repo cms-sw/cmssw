@@ -63,9 +63,9 @@ namespace l1t {
           maxAbsEta_(getOptionalParam<int, double>(
               "maxAbsEta", config, [&scales](double value) { return scales.to_hw_eta_ceil(value); })),
           minIsolationPt_(getOptionalParam<int, double>(
-              "minRelIsolationPt", config, [&scales](double value) { return scales.to_hw_isolationPT_floor(value); })),
+              "minIsolationPt", config, [&scales](double value) { return scales.to_hw_isolationPT_floor(value); })),
           maxIsolationPt_(getOptionalParam<int, double>(
-              "maxRelIsolationPt", config, [&scales](double value) { return scales.to_hw_isolationPT_ceil(value); })),
+              "maxIsolationPt", config, [&scales](double value) { return scales.to_hw_isolationPT_ceil(value); })),
           minRelIsolationPt_(getOptionalParam<int, double>(
               "minRelIsolationPt",
               config,
