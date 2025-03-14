@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "CondCore/CondDB/interface/IOVProxy.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SessionImpl.h"
 
 namespace cond {
@@ -292,6 +293,23 @@ namespace cond {
         throwException("The transaction is not active.", ctx);
     }
 
+    bool printIOVSequenceDiagnostics(const IOVProxyData& iovProxyData,
+                                     cond::Time_t lowerGroup,
+                                     cond::Time_t higherGroup) {
+      std::ostringstream s;
+      s << "Fetched new IOV for '" << iovProxyData.tagInfo.name << "'\n"
+        << "payload type: " << iovProxyData.tagInfo.payloadType << "\n"
+        << "request interval [ " << lowerGroup << " , " << higherGroup << " ]\n"
+        << "new range [ " << iovProxyData.groupLowerIov << " , " << iovProxyData.groupHigherIov << " ]\n"
+        << "#entries " << iovProxyData.iovSequence.size() << "\n"
+        << "sequence (iov, hash): ";
+      for (const auto& [iov, hash] : iovProxyData.iovSequence) {
+        s << "(" << iov << ", " << hash << ") ";
+      }
+      edm::LogSystem("NewIOV") << s.str() << std::endl;
+      return true;
+    }
+
     void IOVProxy::fetchSequence(cond::Time_t lowerGroup, cond::Time_t higherGroup) {
       m_data->iovSequence.clear();
       m_session->iovSchema().iovTable().select(
@@ -313,8 +331,11 @@ namespace cond {
           m_data->groupHigherIov = cond::time::MAX_VAL;
         }
       }
-
       m_data->numberOfQueries++;
+
+      if (m_printDebug) {
+        printIOVSequenceDiagnostics(*m_data, lowerGroup, higherGroup);
+      }
     }
 
     cond::Iov_t IOVProxy::getInterval(cond::Time_t time) {
