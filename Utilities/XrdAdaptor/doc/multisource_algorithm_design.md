@@ -1,26 +1,31 @@
-Introduction
+# Multi-source algorithm design
+
+## Introduction
+
 The existing AAA infrastructure has a relatively high penalty for poor redirection decisions.  A client which is redirected to a "poor" server in terms of network locality (in terms of high latency or low bandwidth) will continue to use that server as long as it doesn't fail outright, even if there is a much better source available.
 
 Improving network locality argues for improving the redirector's redirection logic.  This is certainly needed, however network locality is not the only concern.  A site's storage can degrade in the middle of a file transfer (due to a device loss in the RAID, or sudden spurt of new transfers), making a "reasonable choice" at redirection time perform poorly overall.
 
 To reduce the penalty for poor redirection decisions, we aim to upgrade the CMSSW XrdAdaptor to be multi-source capable.  By actively using multiple sources and probing for additional ones, the client will be able to discover the fastest sources, even if the designation of "fastest" changes through the job's lifetime.
 
-Design Goals
+## Design Goals
+
 Design goals of the multi-source Xrootd client:
-(0) Determine a metric for quality of the source server.
-(1) Actively balance transfers over multiple links in order to determine several high-quality sources of the file.
-(2) Recover from transient IO errors at a single source.
-(3) Probe for additional possible sources during the file transfer.
-(4) Minimize the impact on the source site versus a single-source client. Understand both average case and the worst case scenarios.
-  - In particular, actively utilizing too many sources can cause TCP windows to stay small and OS read-ahead to be inefficient.
-  - Any speculative probes for additional sources should be a small percentage of the total traffic.
-  - Any retry mechanisms must have reasonable delays prior to failure.
-(5) Have the number of requests per source be proportional to source quality.
-  - Servers or sites experiencing a "soft failure" causing a degrade in quality will receive the least amount of traffic.
+0. Determine a metric for quality of the source server.
+1. Actively balance transfers over multiple links in order to determine several high-quality sources of the file.
+2. Recover from transient IO errors at a single source.
+3. Probe for additional possible sources during the file transfer.
+4. Minimize the impact on the source site versus a single-source client. Understand both average case and the worst case scenarios.
+   - In particular, actively utilizing too many sources can cause TCP windows to stay small and OS read-ahead to be inefficient.
+   - Any speculative probes for additional sources should be a small percentage of the total traffic.
+   - Any retry mechanisms must have reasonable delays prior to failure.
+5. Have the number of requests per source be proportional to source quality.
+   - Servers or sites experiencing a "soft failure" causing a degrade in quality will receive the least amount of traffic.
 
-Implementation
+## Implementation
 
-Quality metric
+### Quality metric
+
 A source's quality is to be defined, per-file, to be the average request response time over the last 5 time intervals. Each time interval is one minute long; time intervals with no data points are discarded.
 
 If there is no previously recorded data for a given source, it is assumed to have an average of 260ms (assumes a 256KB request, 1MB/s server speed, and 10ms of latency) in one time interval. When a new file is opened on a source, the prior average for that source is used for the first time interval.
@@ -29,7 +34,8 @@ Notes:
 - The request splitting algorithm outlined below will split all client requests into a series of requests at most 256KB (similar to what the Xrootd client does internally).  Since the request has a maximum size, it makes looking at the unweighted time per request more reasonable.
 - It may seem strange to the reader to not differentiate between bandwidth and latency, or somehow factoring in request size to the quality metric.  I believe it is acceptable to ignore this as the distribution of small and large requests will remain approximately constant throughout the job lifetime.
 
-Source selection algorithm
+### Source selection algorithm
+
 The client will maintain a set of up to two "active servers" and an arbitrary number of inactive servers. When the client opens a file, the initial data server it receives from the redirector becomes the first active server.
 
 For a 5-second grace period, this initial server remains the only active one. (The use of "5 seconds" as the grace period is motivated by the redirector's implementation; any internal file location requests triggered by the initial file open should be finished after 5 seconds.) After the grace period, the client enters source search mode.
@@ -46,50 +52,60 @@ If a source encounters an error (either a file IO error or a disconnect), then i
 
 If an inactive source's quality metric is better than an active source's metric, the two are swapped. This swap is not performed if the inactive source itself has been removed from the active set in the last two minutes. The "Active probe algorithm" section below describes one mechanism for updating an inactive source's quality metric.
 
-Request splitting algorithm
+### Request splitting algorithm
+
 When a client performs a new request, the request is balanced amongst the active servers using the following algorithm:
 
-1) Source A removes 256KB from the beginning of the request and places it at the end of its request queue.
-2) Source B removes 256KB from the end 256KB of the request and places it at the beginning of its request queue.
-3) Steps (1) and (2) are repeated until the original request has been completely split into the two queues.
+1. Source A removes 256KB from the beginning of the request and places it at the end of its request queue.
+2. Source B removes 256KB from the end 256KB of the request and places it at the beginning of its request queue.
+3. Steps (1) and (2) are repeated until the original request has been completely split into the two queues.
 
 After each client request has been fully split, the labels "A" and "B" are swapped. This allows a series of small client requests to be load-balanced between the two sources.
 
 Examples:
 
 For example, suppose a client requests to read 1024KB starting at offset 0. The client request and queues look like:
-
+```
 A: []
 B: []
 client request: [1024KB @ 0]
+```
 
 After steps 1 and 2, the sources have the following queues:
-
+```
 A: [256KB @ 0]
 B: [256KB @ 768KB]
 client request: [512KB @ 256KB]
+```
 
 After steps 1 and 2 are applied again, we have the following queues:
-
+```
 A: [256KB @ 0, 256KB @ 256KB]
 B: [256KB @ 512KB, 256KB @ 768KB]
 client request: []
+```
 
 Consider the following example for a vectored read request:
 Start:
+```
 A: []
 B: []
 client request: [192KB @ 0, 128KB @ 256KB, 128KB @ 512KB, 192KB @ 768KB]
+```
 
 Iteration 1:
+```
 A: [192KB @ 0, 64KB @ 256KB]
 B: [64KB @ 576KB, 192KB @ 768KB]
 client request: [64KB @ 320KB, 64KB @ 512KB]
+```
 
 Iteration 2:
+```
 A: [192KB @ 0, 64KB @ 256KB, 64KB @ 320KB, 64KB @ 512KB]
 B: [64KB @ 576KB, 192KB @ 768KB]
 client request: []
+```
 
 Notes:
 - The algorithm halts because, after each iteration, the client request is reduced by 512KB and the algorithm terminates once the client request is empty.
@@ -98,7 +114,7 @@ Notes:
 - If the client request, when performed in order, results in the server performing non-overlapping reads with monotonically-increasing offsets, then the split requests will also have this property.
 - TODO: We should have the initial assignment done with respect to the quality metric.  When the two servers are heavily out-of-balance, one may steal a lot of work from the other.  When work is stolen, it is performed via backward reads, which won't cause ideal filesystem performance.
 
-Load-balance algorithm
+### Load-balance algorithm
 
 When a client request is made, it is split into two sets of requests as described previously if there are two active servers. Each source performs the IO operations in its queue in order to completion.
 
@@ -113,7 +129,7 @@ Notes:
   - TODO: calculate the worst case over-read for very slow sources if they get their work stolen all the time.
   - The over-read is probably not as bad as having to take quite some time to give up on the source. We can probably introduce a penalty for sources that are the "victim" of a successful speculative read.
 
-Active probe algorithm
+### Active probe algorithm
 
 If the client is not in search mode, for every 1024KB of data read, generate a random number such that there will be a .25% chance the request will also be issued as a speculative read to an inactive source. If it has been at least 2 minutes since the last file-open request to the redirector, there is also a .25% chance the request will trigger a file-open and a speculative read in the redirector.
 
