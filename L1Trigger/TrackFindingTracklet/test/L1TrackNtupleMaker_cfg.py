@@ -42,8 +42,8 @@ process.MessageLogger.TrackTriggerHPH = dict(limit = -1)
 
 if GEOMETRY == "D88" or GEOMETRY == 'D98':
     print("using geometry " + GEOMETRY + " (tilted)")
-    process.load('Configuration.Geometry.GeometryExtended2026' + GEOMETRY + 'Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026' + GEOMETRY +'_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY + 'Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY +'_cff')
 else:
     print("this is not a valid geometry!!!")
 
@@ -117,8 +117,6 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 ############################################################
 
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
-process.load('L1Trigger.TrackerTFP.ProducerES_cff')
-process.load('L1Trigger.TrackerTFP.ProducerLayerEncoding_cff')
 
 # remake stubs?
 #from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
@@ -131,19 +129,19 @@ process.load('L1Trigger.TrackerTFP.ProducerLayerEncoding_cff')
 #process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs)
 
 
+# load code that associates stubs with mctruth
+process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
 # DTC emulation
-process.load('L1Trigger.TrackerDTC.ProducerED_cff')
+process.load('L1Trigger.TrackerDTC.DTC_cff')
 
 # load code that analyzes DTCStubs
-#process.load('L1Trigger.TrackerDTC.Analyzer_cff')
+process.load('L1Trigger.TrackerDTC.Analyzer_cff')
 
 # modify default cuts
 #process.TrackTriggerSetup.FrontEnd.BendCut = 5.0
 #process.TrackTriggerSetup.Hybrid.MinPt = 1.0
 
-process.dtc = cms.Path(process.TrackerDTCProducer)#*process.TrackerDTCAnalyzer)
-# Throw error if reading MC produced with different stub window sizes.
-process.TrackerDTCProducer.CheckHistory = True
+process.dtc = cms.Path(process.StubAssociator + process.ProducerDTC + process.AnalyzerDTC)
 
 ############################################################
 # L1 tracking
@@ -172,18 +170,18 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED'):
 # HYBRID_NEWKF: prompt tracking or reduced
 elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
     process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
+    process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
     NHELIXPAR = 4
-    L1TRK_NAME  = process.TrackFindingTrackletProducer_params.LabelKFout.value()
-    L1TRK_LABEL = process.TrackFindingTrackletProducer_params.BranchAcceptedTTTracks.value()
+    L1TRK_NAME  = process.TrackFindingTrackletAnalyzer_params.OutputLabelTFP.value()
+    L1TRK_LABEL = process.TrackFindingTrackletProducer_params.BranchTTTracks.value()
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigis"
     process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
-    process.HybridNewKF = cms.Sequence(process.L1THybridTracks + process.TrackFindingTrackletProducerTBout + process.TrackFindingTrackletProducerDRin + process.TrackFindingTrackletProducerDR + process.TrackFindingTrackletProducerKFin + process.TrackFindingTrackletProducerKF + process.TrackFindingTrackletProducerKFout)
+    process.HybridNewKF = cms.Sequence(process.L1THybridTracks + process.ProducerTM + process.ProducerDR + process.ProducerKF + process.ProducerTQ + process.ProducerTFP)
     process.TTTracksEmulation = cms.Path(process.HybridNewKF)
     #process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks)
     # Optionally include code producing performance plots & end-of-job summary.
     process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
-    process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
-    process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks + process.StubAssociator +  process.TrackFindingTrackletAnalyzerTracklet + process.TrackFindingTrackletAnalyzerTBout + process.TrackFindingTrackletAnalyzerDRin + process.TrackFindingTrackletAnalyzerDR + process.TrackFindingTrackletAnalyzerKFin + process.TrackFindingTrackletAnalyzerKF + process.TrackFindingTrackletAnalyzerKFout)
+    process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks + process.StubAssociator +  process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTQ + process.AnalyzerTFP )
     from L1Trigger.TrackFindingTracklet.Customize_cff import *
     if (L1TRKALGO == 'HYBRID_NEWKF'):
         fwConfig( process )
