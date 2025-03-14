@@ -119,6 +119,12 @@ private:
         case FlatTable::ColumnType::UInt32:
           vfill<uint32_t>(table, icol, rowsel);
           break;
+        case FlatTable::ColumnType::Int64:
+          vfill<int64_t>(table, icol, rowsel);
+          break;
+        case FlatTable::ColumnType::UInt64:
+          vfill<uint64_t>(table, icol, rowsel);
+          break;
         case FlatTable::ColumnType::Bool:
           vfill<bool>(table, icol, rowsel);
           break;
