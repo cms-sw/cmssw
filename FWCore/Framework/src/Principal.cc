@@ -31,7 +31,6 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <atomic>
-
 namespace edm {
 
   static ProcessHistory const s_emptyProcessHistory;
@@ -147,6 +146,13 @@ namespace edm {
       }
     }
     return size;
+  }
+
+  void Principal::possiblyUpdateAfterAddition(std::shared_ptr<ProductRegistry const> iProd) {
+    if (iProd.get() != preg_.get()) {
+      preg_ = iProd;
+      adjustIndexesAfterProductRegistryAddition();
+    }
   }
 
   void Principal::addDroppedProduct(ProductDescription const& bd) {

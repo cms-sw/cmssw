@@ -22,7 +22,7 @@ EDProducts into an Event.
 namespace edm {
   class ModuleDescription;
   class ProducesCollector;
-  class SignallingProductRegistry;
+  class SignallingProductRegistryFiller;
   class Event;
   class LuminosityBlock;
   class ProcessBlock;
@@ -76,7 +76,7 @@ namespace edm {
     /// used by the fwk to register list of products
     std::function<void(ProductDescription const&)> registrationCallback() const;
 
-    void registerProducts(ProducerBase*, SignallingProductRegistry*, ModuleDescription const&);
+    void registerProducts(ProducerBase*, SignallingProductRegistryFiller*, ModuleDescription const&);
 
     using ProductRegistryHelper::recordProvenanceList;
     using ProductRegistryHelper::typeLabelList;

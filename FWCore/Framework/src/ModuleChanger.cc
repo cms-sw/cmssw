@@ -29,7 +29,7 @@ using namespace edm;
 // constructors and destructor
 //
 ModuleChanger::ModuleChanger(Schedule* iSchedule,
-                             SignallingProductRegistry const* iRegistry,
+                             SignallingProductRegistryFiller const* iRegistry,
                              eventsetup::ESRecordsToProductResolverIndices iIndices)
     : schedule_(iSchedule), registry_(iRegistry), indices_(std::move(iIndices)) {}
 

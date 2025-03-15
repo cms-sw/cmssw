@@ -512,12 +512,6 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
         float lymatch = 9999.0;
         if (!expTrajMeasurements.empty()) {
           if (glmatch < 9999.) {  // if there is any propagated trajectory for this hit
-            const DetId &matchhit_detId = expTrajMeasurements[imatch].recHit()->geographicalId();
-
-            int matchhit_ladder = PXBDetId(matchhit_detId).ladder();
-            int dladder = abs(matchhit_ladder - hit_ladder);
-            if (dladder > 10)
-              dladder = 20 - dladder;
             LocalPoint lp = expTrajMeasurements[imatch].updatedState().localPosition();
             lxmatch = fabs(lp.x() - chklp.x());
             lymatch = fabs(lp.y() - chklp.y());

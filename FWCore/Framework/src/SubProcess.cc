@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
@@ -175,7 +174,7 @@ namespace edm {
 
     // set the items
     act_table_ = std::move(items.act_table_);
-    preg_ = items.preg();
+    preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
 
     subProcessParentageHelper_ = items.subProcessParentageHelper();
     subProcessParentageHelper_->update(parentSubProcessParentageHelper, *parentProductRegistry);
@@ -856,11 +855,16 @@ namespace edm {
 
   // free function
   std::vector<ParameterSet> popSubProcessVParameterSet(ParameterSet& parameterSet) {
-    std::vector<std::string> subProcesses =
-        parameterSet.getUntrackedParameter<std::vector<std::string>>("@all_subprocesses");
-    if (!subProcesses.empty()) {
-      return parameterSet.popVParameterSet("subProcesses");
-    }
+    // We're going to delete everything related to SubProcesses soon, but as a first
+    // step we are just deleting the part implementing the configuration support in
+    // ParameterSet. Temporarily, we need to have this function return an empty vector
+    // so everything continues to work on the C++ side.
+
+    //std::vector<std::string> subProcesses =
+    //    parameterSet.getUntrackedParameter<std::vector<std::string>>("@all_subprocesses");
+    //if (!subProcesses.empty()) {
+    //  return parameterSet.popVParameterSet("subProcesses");
+    //}
     return {};
   }
 }  // namespace edm

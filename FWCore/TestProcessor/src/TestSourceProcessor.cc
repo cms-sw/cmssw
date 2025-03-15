@@ -162,7 +162,7 @@ namespace edm::test {
     processConfiguration_ = items.processConfiguration();
 
     processContext_.setProcessConfiguration(processConfiguration_.get());
-    preg_ = items.preg();
+    preg_ = std::make_shared<edm::ProductRegistry>(items.preg()->moveTo());
     principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
 
     preg_->setFrozen();
@@ -229,7 +229,7 @@ namespace edm::test {
     const size_t size = preg_->size();
     preg_->merge(source_->productRegistry(), fb_ ? fb_->fileName() : std::string());
     if (size < preg_->size()) {
-      principalCache_.adjustIndexesAfterProductRegistryAddition();
+      principalCache_.adjustIndexesAfterProductRegistryAddition(preg_);
     }
     principalCache_.adjustEventsToNewProductRegistry(preg_);
 

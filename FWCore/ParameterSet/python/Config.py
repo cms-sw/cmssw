@@ -16,7 +16,7 @@ from .Modules import *
 from .Modules import _Module
 from .SequenceTypes import *
 from .SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
-from .SequenceVisitors import PathValidator, EndPathValidator, FinalPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
+from .SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
 from .MessageLogger import MessageLogger
 from . import DictTypes
 
@@ -125,13 +125,11 @@ class Process(object):
         self.__dict__['_Process__switchproducers'] = {}
         self.__dict__['_Process__source'] = None
         self.__dict__['_Process__looper'] = None
-        self.__dict__['_Process__subProcesses'] = []
         self.__dict__['_Process__schedule'] = None
         self.__dict__['_Process__analyzers'] = {}
         self.__dict__['_Process__outputmodules'] = {}
         self.__dict__['_Process__paths'] = DictTypes.SortedKeysDict()    # have to keep the order
         self.__dict__['_Process__endpaths'] = DictTypes.SortedKeysDict() # of definition
-        self.__dict__['_Process__finalpaths'] = DictTypes.SortedKeysDict() # of definition
         self.__dict__['_Process__sequences'] = {}
         self.__dict__['_Process__tasks'] = {}
         self.__dict__['_Process__conditionaltasks'] = {}
@@ -294,10 +292,6 @@ class Process(object):
     @staticmethod
     def defaultMaxLuminosityBlocks_():
         return untracked.PSet(input=untracked.int32(-1))
-    def subProcesses_(self):
-        """returns a list of the subProcesses that have been added to the Process"""
-        return self.__subProcesses
-    subProcesses = property(subProcesses_,doc='the SubProcesses that have been added to the Process')
     def analyzers_(self):
         """returns a dict of the analyzers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__analyzers)
@@ -314,10 +308,6 @@ class Process(object):
         """returns a dict of the endpaths that have been added to the Process"""
         return DictTypes.SortedAndFixedKeysDict(self.__endpaths)
     endpaths = property(endpaths_,doc="dictionary containing the endpaths for the process")
-    def finalpaths_(self):
-        """returns a dict of the finalpaths that have been added to the Process"""
-        return DictTypes.SortedAndFixedKeysDict(self.__finalpaths)
-    finalpaths = property(finalpaths_,doc="dictionary containing the finalpaths for the process")
     def sequences_(self):
         """returns a dict of the sequences that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__sequences)
@@ -520,9 +510,6 @@ class Process(object):
                     s = self.__findFirstUsingModule(self.endpaths,oldValue)
                     if s is not None:
                         raise ValueError(msg1+"endpath "+s.label_()+msg2)
-                    s = self.__findFirstUsingModule(self.finalpaths,oldValue)
-                    if s is not None:
-                        raise ValueError(msg1+"finalpath "+s.label_()+msg2)
 
             # In case of EDAlias, raise Exception always to avoid surprises
             if isinstance(newValue, EDAlias):
@@ -549,9 +536,6 @@ class Process(object):
                 s = self.__findFirstUsingModule(self.endpaths,oldValue)
                 if s is not None:
                     raise ValueError(msg1+"endpath "+s.label_()+msg2)
-                s = self.__findFirstUsingModule(self.finalpaths,oldValue)
-                if s is not None:
-                    raise ValueError(msg1+"finalpath "+s.label_()+msg2)
 
             if not self.__InExtendCall and (Schedule._itemIsValid(newValue) or isinstance(newValue, Task)):
                 self._replaceInScheduleDirectly(name, newValue)
@@ -702,13 +686,6 @@ class Process(object):
         except ModuleCloneError as msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in endpath %s is unknown to the process %s." %(context, msg, name, self._Process__name))
-    def _placeFinalPath(self,name:str,mod):
-        self._validateSequence(mod, name)
-        try:
-            self._place(name, mod, self.__finalpaths)
-        except ModuleCloneError as msg:
-            context = format_outerframe(4)
-            raise Exception("%sThe module %s in finalpath %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeSequence(self,name:str,mod):
         self._validateSequence(mod, name)
         self._place(name, mod, self.__sequences)
@@ -743,11 +720,6 @@ class Process(object):
             raise ValueError("The label '"+name+"' can not be used for a Looper.  Only 'looper' is allowed.")
         self.__dict__['_Process__looper'] = mod
         self.__dict__[mod.type_()] = mod
-    def _placeSubProcess(self,name:str,mod):
-        self.__dict__['_Process__subProcess'] = mod
-        self.__dict__[mod.type_()] = mod
-    def addSubProcess(self,mod):
-        self.__subProcesses.append(mod)
     def _placeService(self,typeName:str,mod):
         self._place(typeName, mod, self.__services)
         if typeName in self.__dict__:
@@ -846,10 +818,6 @@ class Process(object):
             config += options.indentation()+"source = "+self.source_().dumpConfig(options)
         if self.looper_():
             config += options.indentation()+"looper = "+self.looper_().dumpConfig(options)
-
-        config+=self._dumpConfigNamedList(self.subProcesses_(),
-                                  'subProcess',
-                                  options)
         config+=self._dumpConfigNamedList(self.producers_().items(),
                                   'module',
                                   options)
@@ -873,9 +841,6 @@ class Process(object):
                                   options)
         config+=self._dumpConfigNamedList(self.endpaths_().items(),
                                   'endpath',
-                                  options)
-        config+=self._dumpConfigNamedList(self.finalpaths_().items(),
-                                  'finalpath',
                                   options)
         config+=self._dumpConfigUnnamedList(self.services_().items(),
                                   'service',
@@ -912,12 +877,6 @@ class Process(object):
         for item in self.es_prefers_().values():
             result +=options.indentation()+'es_prefer '+item.targetLabel_()+' = '+item.dumpConfig(options)
         return result
-
-    def _dumpPythonSubProcesses(self, l, options:PrintOptions) -> str:
-        returnValue = ''
-        for item in l:
-            returnValue += item.dumpPython(options)+'\n\n'
-        return returnValue
 
     def _dumpPythonList(self, d, options:PrintOptions) -> str:
         returnValue = ''
@@ -1065,7 +1024,6 @@ class Process(object):
             result += "process.looper = "+self.looper_().dumpPython()
         result+=self._dumpPythonList(self.psets, options)
         result+=self._dumpPythonList(self.vpsets, options)
-        result+=self._dumpPythonSubProcesses(self.subProcesses_(), options)
         result+=self._dumpPythonList(self.producers_(), options)
         result+=self._dumpPythonList(self.switchProducers_(), options)
         result+=self._dumpPythonList(self.filters_() , options)
@@ -1081,7 +1039,6 @@ class Process(object):
         result+=self._dumpPythonList(self._itemsInDependencyOrder(self.sequences), options)
         result+=self._dumpPythonList(self.paths_(), options)
         result+=self._dumpPythonList(self.endpaths_(), options)
-        result+=self._dumpPythonList(self.finalpaths_(), options)
         result+=self._dumpPythonList(self.aliases_(), options)
         if not self.schedule_() == None:
             result += 'process.schedule = ' + self.schedule.dumpPython(options)
@@ -1111,10 +1068,6 @@ class Process(object):
 
         parts.update(self._splitPythonList('psets', self.psets, options))
         parts.update(self._splitPythonList('psets', self.vpsets, options))
-        # FIXME
-        #parts.update(self._splitPythonSubProcesses(self.subProcesses_(), options))
-        if len(self.subProcesses_()):
-          sys.stderr.write("error: subprocesses are not supported yet\n\n")
         parts.update(self._splitPythonList('modules', self.producers_(), options))
         parts.update(self._splitPythonList('modules', self.switchProducers_(), options))
         parts.update(self._splitPythonList('modules', self.filters_() , options))
@@ -1128,7 +1081,6 @@ class Process(object):
         parts.update(self._splitPythonList('sequences', self._itemsInDependencyOrder(self.sequences), options))
         parts.update(self._splitPythonList('paths', self.paths_(), options))
         parts.update(self._splitPythonList('paths', self.endpaths_(), options))
-        parts.update(self._splitPythonList('paths', self.finalpaths_(), options))
         parts.update(self._splitPythonList('modules', self.aliases_(), options))
 
         if options.targetDirectory is not None:
@@ -1176,8 +1128,6 @@ class Process(object):
         for sequenceable in self.paths.values():
             sequenceable.replace(old,new)
         for sequenceable in self.endpaths.values():
-            sequenceable.replace(old,new)
-        for sequenceable in self.finalpaths.values():
             sequenceable.replace(old,new)
     def _replaceInTasks(self, label:str, new):
         old = getattr(self,label)
@@ -1232,24 +1182,10 @@ class Process(object):
         aliases.sort()
         parameterSet.addVString(tracked, labelModules, modules)
         parameterSet.addVString(tracked, labelAliases, aliases)
-    def _insertSubProcessesInto(self, parameterSet, label:str, itemList, tracked:bool):
-        l = []
-        subprocs = []
-        for value in itemList:
-            name = value.getProcessName()
-            newLabel = value.nameInProcessDesc_(name)
-            l.append(newLabel)
-            pset = value.getSubProcessPSet(parameterSet)
-            subprocs.append(pset)
-        # alphabetical order is easier to compare with old language
-        l.sort()
-        parameterSet.addVString(tracked, label, l)
-        parameterSet.addVPSet(False,"subProcesses",subprocs)
     def _insertPaths(self, processPSet, nodeVisitor):
         scheduledPaths = []
         triggerPaths = []
         endpaths = []
-        finalpaths = []
         if self.schedule_() == None:
             # make one from triggerpaths & endpaths
             for name in self.paths_():
@@ -1258,45 +1194,19 @@ class Process(object):
             for name in self.endpaths_():
                 scheduledPaths.append(name)
                 endpaths.append(name)
-            for name in self.finalpaths_():
-                finalpaths.append(name)
         else:
             for path in self.schedule_():
                 pathname = path.label_()
+                scheduledPaths.append(pathname)
                 if pathname in self.endpaths_():
                     endpaths.append(pathname)
-                    scheduledPaths.append(pathname)
-                elif pathname in self.finalpaths_():
-                    finalpaths.append(pathname)
                 else:
-                    scheduledPaths.append(pathname)
                     triggerPaths.append(pathname)
             for task in self.schedule_()._tasks:
                 task.resolve(self.__dict__)
                 scheduleTaskValidator = ScheduleTaskValidator()
                 task.visit(scheduleTaskValidator)
                 task.visit(nodeVisitor)
-        # consolidate all final_paths into one EndPath
-        endPathWithFinalPathModulesName ="@finalPath"
-        finalPathEndPath = EndPath()
-        if finalpaths:
-          endpaths.append(endPathWithFinalPathModulesName)
-          scheduledPaths.append(endPathWithFinalPathModulesName)
-          finalpathValidator = FinalPathValidator()
-          modulesOnFinalPath = []
-          for finalpathname in finalpaths:
-              iFinalPath = self.finalpaths_()[finalpathname]
-              iFinalPath.resolve(self.__dict__)
-              finalpathValidator.setLabel(finalpathname)
-              iFinalPath.visit(finalpathValidator)
-              invalidModules = finalpathValidator.invalidModulesOnFinalpaths
-              if invalidModules:
-                  raise RuntimeError("FinalPath %s has non OutputModules %s" % (finalpathname, ",".join(invalidModules)))
-              modulesOnFinalPath.extend(iFinalPath.moduleNames())
-          for m in modulesOnFinalPath:
-            mod = getattr(self, m)
-            setattr(mod, "@onFinalPath", untracked.bool(True))
-            finalPathEndPath += mod
             
         processPSet.addVString(True, "@end_paths", endpaths)
         processPSet.addVString(True, "@paths", scheduledPaths)
@@ -1328,10 +1238,7 @@ class Process(object):
               decoratedList.append("@")
             iPath.insertInto(processPSet, triggername, decoratedList[:])
         for endpathname in endpaths:
-            if endpathname is not endPathWithFinalPathModulesName:
-              iEndPath = self.endpaths_()[endpathname]
-            else:
-              iEndPath = finalPathEndPath
+            iEndPath = self.endpaths_()[endpathname]
             iEndPath.resolve(self.__dict__)
             endpathValidator.setLabel(endpathname)
             lister.initialize()
@@ -1344,8 +1251,6 @@ class Process(object):
         for x in self.paths.values():
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         for x in self.endpaths.values():
-            x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
-        for x in self.finalpaths.values():
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         if not self.schedule_() == None:
             for task in self.schedule_()._tasks:
@@ -1375,7 +1280,6 @@ class Process(object):
             schedNames = set(( x.label_() for x in self.schedule_()))
             names = set(self.paths)
             names.update(set(self.endpaths))
-            names.update(set(self.finalpaths))
             unneededPaths = names - schedNames
             for n in unneededPaths:
                 delattr(self,n)
@@ -1386,7 +1290,6 @@ class Process(object):
         else:
             pths = list(self.paths.values())
             pths.extend(self.endpaths.values())
-            pths.extend(self.finalpaths.values())
             temp = Schedule(*pths)
             usedModules=set(temp.moduleNames())
         unneededModules = self._pruneModules(self.producers_(), usedModules)
@@ -1400,9 +1303,6 @@ class Process(object):
             p.visit(sv)
             p.visit(tv)
         for p in self.endpaths.values():
-            p.visit(sv)
-            p.visit(tv)
-        for p in self.finalpaths.values():
             p.visit(sv)
             p.visit(tv)
         def removeUnneeded(seqOrTasks, allSequencesOrTasks):
@@ -1421,7 +1321,7 @@ class Process(object):
             print("  modules:"+",".join(unneededModules))
             print("  tasks:"+",".join(unneededTaskLabels))
             print("  sequences:"+",".join(unneededSeqLabels))
-            print("  paths/endpaths/finalpaths:"+",".join(unneededPaths))
+            print("  paths/endpaths:"+",".join(unneededPaths))
     def _pruneModules(self, d, scheduledNames):
         moduleNames = set(d.keys())
         junk = moduleNames - scheduledNames
@@ -1483,7 +1383,6 @@ class Process(object):
         self._insertInto(adaptor, self.vpsets_())
         self._insertOneInto(adaptor,  "@all_sources", self.source_(), True)
         self._insertOneInto(adaptor,  "@all_loopers", self.looper_(), True)
-        self._insertSubProcessesInto(adaptor, "@all_subprocesses", self.subProcesses_(), False)
         self._insertManyInto(adaptor, "@all_esprefers", self.es_prefers_(), True)
         self._insertManyInto(adaptor, "@all_aliases", self.aliases_(), True)
         # This will visit all the paths and endpaths that are scheduled to run,
@@ -1702,61 +1601,6 @@ class FilteredStream(dict):
         return "FilteredStream object: %s" %self["name"]
     def __getattr__(self,attr):
         return self[attr]
-
-class SubProcess(_Unlabelable):
-    """Allows embedding another process within a parent process. This allows one to 
-    chain processes together directly in one cmsRun job rather than having to run
-    separate jobs that are connected via a temporary file.
-    """
-    def __init__(self,process, SelectEvents = untracked.PSet(), outputCommands = untracked.vstring()):
-        """
-        """
-        if not isinstance(process, Process):
-            raise ValueError("the 'process' argument must be of type cms.Process")
-        if not isinstance(SelectEvents,PSet):
-            raise ValueError("the 'SelectEvents' argument must be of type cms.untracked.PSet")
-        if not isinstance(outputCommands,vstring):
-            raise ValueError("the 'outputCommands' argument must be of type cms.untracked.vstring")
-        self.__process = process
-        self.__SelectEvents = SelectEvents
-        self.__outputCommands = outputCommands
-        # Need to remove MessageLogger from the subprocess now that MessageLogger is always present
-        if self.__process.MessageLogger is not MessageLogger:
-            print("""Warning: You have reconfigured service
-'edm::MessageLogger' in a subprocess.
-This service has already been configured.
-This particular service may not be reconfigured in a subprocess.
-The reconfiguration will be ignored.""")
-        del self.__process.MessageLogger
-    def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
-        out = "parentProcess"+str(hash(self))+" = process\n"
-        out += self.__process.dumpPython()
-        out += "childProcess = process\n"
-        out += "process = parentProcess"+str(hash(self))+"\n"
-        out += "process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = "+self.__SelectEvents.dumpPython(options) +", outputCommands = "+self.__outputCommands.dumpPython(options) +"))"
-        return out
-    def getProcessName(self) -> str:
-        return self.__process.name_()
-    def process(self):
-        return self.__process
-    def SelectEvents(self):
-        return self.__SelectEvents
-    def outputCommands(self):
-        return self.__outputCommands
-    def type_(self):
-        return 'subProcess'
-    def nameInProcessDesc_(self,label:str) -> str:
-        return label
-    def _place(self,label,process):
-        process._placeSubProcess('subProcess',self)
-    def getSubProcessPSet(self,parameterSet):
-        topPSet = parameterSet.newPSet()
-        self.__process.fillProcessDesc(topPSet)
-        subProcessPSet = parameterSet.newPSet()
-        self.__SelectEvents.insertInto(subProcessPSet,"SelectEvents")
-        self.__outputCommands.insertInto(subProcessPSet,"outputCommands")
-        subProcessPSet.addPSet(False,"process",topPSet)
-        return subProcessPSet
 
 class _ParameterModifier(object):
     """Helper class for Modifier that takes key/value pairs and uses them to reset parameters of the object"""
@@ -3316,65 +3160,6 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             t = Path(p.a, p.t1, Task(), p.t1)
             self.assertEqual(t.dumpPython(PrintOptions()), 'cms.Path(process.a, cms.Task(), process.t1)\n')
 
-        def testFinalPath(self):
-            p = Process("test")
-            p.a = OutputModule("MyOutputModule")
-            p.b = OutputModule("YourOutputModule")
-            p.c = OutputModule("OurOutputModule")
-            path = FinalPath(p.a)
-            path *= p.b
-            path += p.c
-            self.assertEqual(str(path),'a+b+c')
-            path = FinalPath(p.a*p.b+p.c)
-            self.assertEqual(str(path),'a+b+c')
-            path = FinalPath(p.a+ p.b*p.c)
-            self.assertEqual(str(path),'a+b+c')
-            path = FinalPath(p.a*(p.b+p.c))
-            self.assertEqual(str(path),'a+b+c')
-            p.es = ESProducer("AnESProducer")
-            self.assertRaises(TypeError,FinalPath, p.es)
-
-            t = FinalPath()
-            self.assertEqual(t.dumpPython(PrintOptions()), 'cms.FinalPath()\n')
-
-            t = FinalPath(p.a)
-            self.assertEqual(t.dumpPython(PrintOptions()), 'cms.FinalPath(process.a)\n')
-
-            self.assertRaises(TypeError, FinalPath, Task())
-            self.assertRaises(TypeError, FinalPath, p.a, Task())
-
-            p.prod = EDProducer("prodName")
-            p.t1 = Task(p.prod)
-            self.assertRaises(TypeError, FinalPath, p.a, p.t1, Task(), p.t1)
-
-            p.prod = EDProducer("prodName")
-            p.t1 = ConditionalTask(p.prod)
-            self.assertRaises(TypeError, FinalPath, p.a, p.t1, ConditionalTask(), p.t1)
-
-            p.t = FinalPath(p.a)
-            p.a = OutputModule("ReplacedOutputModule")
-            self.assertEqual(p.t.dumpPython(PrintOptions()), 'cms.FinalPath(process.a)\n')
-
-            p.anal = EDAnalyzer("MyAnalyzer")
-            p.t = FinalPath(p.anal)
-            pset = TestMakePSet()
-            self.assertRaises(RuntimeError, p.fillProcessDesc, pset)
-
-            p.prod = EDProducer("MyProducer")
-            p.t = FinalPath(p.prod)
-            pset = TestMakePSet()
-            self.assertRaises(RuntimeError, p.fillProcessDesc, pset)
-
-            p.filt = EDFilter("MyFilter")
-            p.t = FinalPath(p.filt)
-            pset = TestMakePSet()
-            self.assertRaises(RuntimeError, p.fillProcessDesc, pset)
-
-            p.outp = OutputModule("MyOutputModule")
-            p.t = FinalPath(p.outp)
-            pset = TestMakePSet()
-            p.fillProcessDesc(pset)
-
         def testCloneSequence(self):
             p = Process("test")
             a = EDAnalyzer("MyAnalyzer")
@@ -3711,41 +3496,6 @@ process.prefer("juicer",
             m2 = m.clone(p = PSet(i = int32(5)), j = int32(8))
             m2.p.i = 6
             m2.j = 8
-        def testSubProcess(self):
-            process = Process("Parent")
-            subProcess = Process("Child")
-            subProcess.a = EDProducer("A")
-            subProcess.p = Path(subProcess.a)
-            subProcess.add_(Service("Foo"))
-            process.addSubProcess(SubProcess(subProcess))
-            d = process.dumpPython()
-            equalD ="""parentProcess = process
-process.a = cms.EDProducer("A")
-process.Foo = cms.Service("Foo")
-process.p = cms.Path(process.a)
-childProcess = process
-process = parentProcess
-process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.untracked.PSet(
-), outputCommands = cms.untracked.vstring()))"""
-            equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcesses_()[0])))
-            # SubProcesses are dumped before Services, so in order to
-            # craft the dump of the Parent and Child manually the dump
-            # of the Parent needs to be split at the MessageLogger
-            # boundary (now when it is part of Process by default),
-            # and insert the dump of the Child between the top part of
-            # the Parent (before MessageLogger) and the bottom part of
-            # the Parent (after and including MessageLogger)
-            messageLoggerSplit = 'process.MessageLogger = cms.Service'
-            parentDumpSplit = Process('Parent').dumpPython().split(messageLoggerSplit)
-            childProcess = Process('Child')
-            del childProcess.MessageLogger
-            combinedDump = parentDumpSplit[0] + childProcess.dumpPython() + messageLoggerSplit + parentDumpSplit[1]
-            self.assertEqual(_lineDiff(d, combinedDump), equalD)
-            p = TestMakePSet()
-            process.fillProcessDesc(p)
-            self.assertEqual((True,['a']),p.values["subProcesses"][1][0].values["process"][1].values['@all_modules'])
-            self.assertEqual((True,['p']),p.values["subProcesses"][1][0].values["process"][1].values['@paths'])
-            self.assertEqual({'@service_type':(True,'Foo')}, p.values["subProcesses"][1][0].values["process"][1].values["services"][1][0].values)
         def testRefToPSet(self):
             proc = Process("test")
             proc.top = PSet(a = int32(1))

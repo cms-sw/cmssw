@@ -23,7 +23,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/src/insertSelectedProcesses.h"
@@ -77,25 +77,6 @@ namespace edm {
       selectors_.resize(1);
       wantAllEvents_ = detail::configureEventSelector(
           selectEvents_, process_name_, getAllTriggerNames(), selectors_[0], consumesCollector());
-
-      //Check if on final path
-      if (pset.exists("@onFinalPath")) {
-        onFinalPath_ = pset.getUntrackedParameter<bool>("@onFinalPath");
-      }
-      if (onFinalPath_) {
-        wantAllEvents_ = false;
-        if (not getAllTriggerNames().empty() and selectors_.front().numberOfTokens() == 0) {
-          //need to wait for trigger paths to finish
-          tokensForEndPaths_.push_back(consumes<TriggerResults>(edm::InputTag("TriggerResults", "", process_name_)));
-        }
-        //need to wait for EndPaths to finish
-        for (auto const& n : tns->getEndPaths()) {
-          if (n == "@finalPath") {
-            continue;
-          }
-          tokensForEndPaths_.push_back(consumes<EndPathStatus>(edm::InputTag(n, "", process_name_)));
-        }
-      }
     }
 
     void OutputModuleCore::configure(OutputModuleDescription const& desc) {
@@ -249,17 +230,11 @@ namespace edm {
 
     void OutputModuleCore::preallocLumis(unsigned int) {}
 
-    void OutputModuleCore::doBeginJob_() {
-      this->beginJob();
-      if (onFinalPath_) {
-        //this stops prefetching of the data products
-        resetItemsToGetFrom(edm::InEvent);
-      }
-    }
+    void OutputModuleCore::doBeginJob_() { this->beginJob(); }
 
     void OutputModuleCore::doEndJob() { endJob(); }
 
-    void OutputModuleCore::registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistry* reg) {
+    void OutputModuleCore::registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistryFiller* reg) {
       if (callWhenNewProductsRegistered_) {
         reg->callForEachBranch(callWhenNewProductsRegistered_);
 
@@ -273,13 +248,10 @@ namespace edm {
       std::vector<ProductResolverIndexAndSkipBit> returnValue;
       auto const& s = selectors_[0];
       auto const n = s.numberOfTokens();
-      returnValue.reserve(n + tokensForEndPaths_.size());
+      returnValue.reserve(n);
 
       for (unsigned int i = 0; i < n; ++i) {
         returnValue.emplace_back(uncheckedIndexFrom(s.token(i)));
-      }
-      for (auto token : tokensForEndPaths_) {
-        returnValue.emplace_back(uncheckedIndexFrom(token));
       }
       return returnValue;
     }
@@ -400,7 +372,6 @@ namespace edm {
                                            std::vector<std::string> const& defaultOutputCommands) {
       ProductSelectorRules::fillDescription(desc, "outputCommands", defaultOutputCommands);
       EventSelector::fillDescription(desc);
-      desc.addOptionalNode(ParameterDescription<bool>("@onFinalPath", false, false), false);
     }
 
     void OutputModuleCore::prevalidate(ConfigurationDescriptions&) {}

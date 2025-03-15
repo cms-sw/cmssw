@@ -143,7 +143,7 @@ namespace edm {
                    ParameterSet& proc_pset,
                    service::TriggerNamesService const& tns,
                    PreallocationConfiguration const& prealloc,
-                   SignallingProductRegistry& pregistry,
+                   SignallingProductRegistryFiller& pregistry,
                    ExceptionToActionTable const& actions,
                    std::shared_ptr<ActivityRegistry> areg,
                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -221,7 +221,7 @@ namespace edm {
                                std::vector<std::string> const& branchesToDeleteEarly,
                                std::multimap<std::string, std::string> const& referencesToBranches,
                                std::vector<std::string> const& modulesToSkip,
-                               edm::SignallingProductRegistry const& preg);
+                               edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkersBeginEnd() const { return workerManagerBeginEnd_.allWorkers(); }
@@ -260,11 +260,11 @@ namespace edm {
         std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
         std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
         ParameterSet& proc_pset,
-        SignallingProductRegistry& preg,
+        SignallingProductRegistryFiller& preg,
         PreallocationConfiguration const* prealloc,
         std::shared_ptr<ProcessConfiguration const> processConfiguration);
     void fillWorkers(ParameterSet& proc_pset,
-                     SignallingProductRegistry& preg,
+                     SignallingProductRegistryFiller& preg,
                      PreallocationConfiguration const* prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      std::string const& name,
@@ -274,7 +274,7 @@ namespace edm {
                      ConditionalTaskHelper const& conditionalTaskHelper,
                      std::unordered_set<std::string>& allConditionalModules);
     void fillTrigPath(ParameterSet& proc_pset,
-                      SignallingProductRegistry& preg,
+                      SignallingProductRegistryFiller& preg,
                       PreallocationConfiguration const* prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration,
                       int bitpos,
@@ -284,7 +284,7 @@ namespace edm {
                       ConditionalTaskHelper const& conditionalTaskHelper,
                       std::unordered_set<std::string>& allConditionalModules);
     void fillEndPath(ParameterSet& proc_pset,
-                     SignallingProductRegistry& preg,
+                     SignallingProductRegistryFiller& preg,
                      PreallocationConfiguration const* prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      int bitpos,
