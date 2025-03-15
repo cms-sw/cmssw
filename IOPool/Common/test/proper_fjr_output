@@ -1,5 +1,9 @@
 <FrameworkJobReport>
 
+<Process>
+  <Name>TESTMERGE</Name>
+</Process>
+
 <InputFile>
 <State  Value="closed"/>
 <LFN></LFN>
