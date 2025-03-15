@@ -59,7 +59,6 @@ private:
   const float hitMinEnergy_;
 
   static constexpr float BXTime_ = 25.;  // [ns]
-  static constexpr int nRU_ = 6;
 
   edm::EDGetTokenT<CrossingFrame<PSimHit> > btlSimHitsToken_;
 
@@ -74,9 +73,20 @@ private:
   MonitorElement* meNtrkPerCell_;
 
   MonitorElement* meHitEnergy_;
+
+  static constexpr int nRU_ = 6;
+  static constexpr double logE_min = -3;
+  static constexpr double logE_max = 2;
+  static constexpr double n_bin_logE = 100;
+
   MonitorElement* meHitLogEnergy_;
-  MonitorElement* meHitRUvsLogEnergy_;
-  MonitorElement* meHitLogEnergyRUSlice_[nRU_];
+  MonitorElement* meHitMultCell_;
+  MonitorElement* meHitMultCellRUSlice_[nRU_];
+  MonitorElement* meHitMultSM_;
+  MonitorElement* meHitMultSMRUSlice_[nRU_];
+  MonitorElement* meHitMultCellperSMvsE_;
+  MonitorElement* meHitMultCellperSMvsERUSlice_[nRU_];
+
   MonitorElement* meHitTime_;
 
   MonitorElement* meHitXlocal_;
@@ -149,6 +159,9 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   std::unordered_map<uint32_t, std::unordered_map<uint64_t, MTDHit> > m_btlHitsPerCell;
 
+  // --- Group cells by sensor module
+  std::unordered_map<uint64_t, std::vector<std::pair<uint32_t, std::unordered_map<uint64_t, MTDHit>>>> modules; // module Id and vector of cells
+
   // --- Loop over the BLT SIM hits and accumulate the hits with the same track ID in each cell
   for (auto const& simHit : btlSimHits) {
     // --- Use only SIM hits compatible with the in-time bunch-crossing
@@ -206,11 +219,13 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
     meHitLogEnergy_->Fill(log10(ene_tot_cell));
 
+    // --- Groups cells with hits by sensor module using the phi and eta indices obtained from topology.btlIndex()
     BTLDetId detId(cell.first);
-    if (detId.runit() > 0 && detId.globalRunit() <= nRU_) {
-      meHitLogEnergyRUSlice_[detId.globalRunit()-1]->Fill(log10(ene_tot_cell));
-    }
-    meHitRUvsLogEnergy_->Fill(detId.globalRunit()-1, log10(ene_tot_cell));
+    DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
+    std::pair<uint32_t, uint32_t> SMIndex = topology->btlIndex(geoId.rawId()); // Get phi-eta index
+    // --- Build a global Sensor Module Id by combining the phi-eta indices
+    uint64_t globalSMId = ((uint64_t)SMIndex.first << 32) | SMIndex.second;
+    modules[globalSMId].push_back(cell);
 
     // --- Skip cells with a total anergy less than hitMinEnergy_
     if (ene_tot_cell < hitMinEnergy_) {
@@ -243,8 +258,6 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     }
 
     // --- Get the hit global position
-    //BTLDetId detId(cell.first);
-    DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr) {
       throw cms::Exception("BtlSimHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
@@ -357,6 +370,38 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   }  // cell loop
 
+  // --- Iterate through energy thresholds
+  double bin_w_logE = (logE_max-logE_min)/n_bin_logE;
+  for (int i = 0; i < n_bin_logE; i++) {
+    double th_logE = logE_min + i * bin_w_logE;
+    // --- Loop over the BTL sensor modules
+    for (const auto& module : modules) {
+      bool SM_bool = false; // Check if a SM has at least a crystal above threshold
+      int crystal_count = 0; // Count crystals above threshold in this module
+      int SM_globalRunit = -1; // globalRunit for the SM
+      for (const auto& cell : module.second) {
+        float ene_tot_cell = 0.;
+        for (const auto& hit : cell.second) {
+          ene_tot_cell += hit.second.energy;
+        }
+        BTLDetId detId(cell.first);
+        SM_globalRunit = detId.globalRunit()-1;
+        if (log10(ene_tot_cell) > th_logE) {
+          SM_bool = true;
+          crystal_count++;
+          meHitMultCell_->Fill(th_logE + bin_w_logE / 2);
+          meHitMultCellRUSlice_[SM_globalRunit]->Fill(th_logE + bin_w_logE / 2);
+        }
+      }
+      meHitMultCellperSMvsE_->Fill(th_logE + bin_w_logE / 2, crystal_count);
+      meHitMultCellperSMvsERUSlice_[SM_globalRunit]->Fill(th_logE + bin_w_logE / 2, crystal_count);
+      // --- Check if a SM has at least a crystal above threshold
+      if (SM_bool && SM_globalRunit != -1) {
+        meHitMultSM_->Fill(th_logE + bin_w_logE / 2);
+        meHitMultSMRUSlice_[SM_globalRunit]->Fill(th_logE + bin_w_logE / 2);
+      }
+    }
+  }
   // --- This is to count the number of processed events, needed in the harvesting step
   meNevents_->Fill(0.5);
 }
@@ -370,20 +415,27 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   // --- histograms booking
 
   meNevents_ = ibook.book1D("BtlNevents", "Number of events", 1, 0., 1.);
-
   meNhits_ = ibook.book1D("BtlNhits", "Number of BTL cells with SIM hits;log_{10}(N_{BTL cells})", 100, 0., 5.25);
   meNtrkPerCell_ = ibook.book1D("BtlNtrkPerCell", "Number of tracks per BTL cell;N_{trk}", 10, 0., 10.);
 
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL SIM hits energy;E_{SIM} [MeV]", 100, 0., 20.);
   meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL SIM hits energy;log_{10}(E_{SIM} [MeV])", 200, -6., 3.);
-  meHitRUvsLogEnergy_= ibook.bookProfile("BtlHitRUvsLogEnergy","BTL SIM hits energy;nRU_;log_{10}(E_{SIM} [MeV])", 200, -10., 10, -6., 3.);
-  for(unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+  meHitMultCell_ = ibook.book1D("BtlHitMultCell", "BTL cell multiplicity vs energy threshold ;log_{10}(E{th} [MeV])", n_bin_logE, logE_min, logE_max);
+  meHitMultSM_ = ibook.book1D("BtlHitMultSM", "BTL SM multiplicity vs energy threshold; log_{10}(E_{th} [MeV])", n_bin_logE, logE_min, logE_max);
+  meHitMultCellperSMvsE_ = ibook.bookProfile("BtlHitMultCellperSMvsE", "BTL cell per SM vs energy threshold;log_{10}(E_{th} [MeV]); cells per SM", n_bin_logE, logE_min, logE_max, 0, 16);
 
-            std::string name = "BtlHitLogEnergyRUSlice_" + std::to_string(ihistoRU + 1);
-            std::string title = "BTL SIM hits energy (RU " + std::to_string(ihistoRU + 1) +");log_{10}(E_{SIM} [MeV])";
-            meHitLogEnergyRUSlice_[ihistoRU] = ibook.book1D(name, title, 200, -6., 3.);
-
+  for (unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+    std::string name_Cell = "BtlHitMultCellRUSlice" + std::to_string(ihistoRU);
+    std::string title_Cell = "BTL cell multiplicity vs energy threshold (RU " + std::to_string(ihistoRU) +");log_{10}(E_{th} [MeV])";
+    meHitMultCellRUSlice_[ihistoRU] = ibook.book1D(name_Cell, title_Cell, n_bin_logE, logE_min, logE_max);
+    std::string name_SM = "BtlHitMultSMRUSlice" + std::to_string(ihistoRU);
+    std::string title_SM = "BTL SM multiplicity vs energy threshold (RU " + std::to_string(ihistoRU) +");log_{10}(E_{th} [MeV])";
+    meHitMultSMRUSlice_[ihistoRU] = ibook.book1D(name_SM, title_SM, n_bin_logE, logE_min, logE_max);
+    std::string name_cellperSM = "BtlHitMultCellperSMvsERUSlice" + std::to_string(ihistoRU);
+    std::string title_cellperSM = "BTL cell per SM vs energy threshold (RU " + std::to_string(ihistoRU) +");log_{10}(E_{th} [MeV]);cells per SM";
+    meHitMultCellperSMvsERUSlice_[ihistoRU] = ibook.bookProfile(name_cellperSM, title_cellperSM, n_bin_logE, logE_min, logE_max, 0, 16);
   }
+
   meHitTime_ = ibook.book1D("BtlHitTime", "BTL SIM hits ToA;ToA_{SIM} [ns]", 100, 0., 25.);
 
   meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL SIM local X;X_{SIM}^{LOC} [mm]", 100, -30., 30.);
