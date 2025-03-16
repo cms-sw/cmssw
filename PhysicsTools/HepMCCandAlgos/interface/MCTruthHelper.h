@@ -659,7 +659,7 @@ template <typename P>
 const HepMC3::GenParticle *MCTruthHelper<P>::mother(const HepMC3::GenParticle &p, unsigned int imoth) const {
   if (numberOfMothers(p) > 0) {
     unsigned int imothi = 0;
-    for (HepMC3::ConstGenParticlePtr &mother : (p.production_vertex())->particles_in()) {
+    for (HepMC3::ConstGenParticlePtr& mother : (p.production_vertex())->particles_in()) {
       if(imothi == imoth) return mother.get();
       imothi++;
     }
@@ -702,7 +702,7 @@ template <typename P>
 const HepMC3::GenParticle *MCTruthHelper<P>::daughter(const HepMC3::GenParticle &p, unsigned int idau) const {
   if (numberOfDaughters(p) > 0) {
     unsigned int idaui = 0;
-    for (HepMC3::ConstGenParticlePtr &daughter : (p.end_vertex())->particles_out()) {
+    for (HepMC3::ConstGenParticlePtr& daughter : (p.end_vertex())->particles_out()) {
       if(idaui == idau) return daughter.get();
       idaui++;
     }
