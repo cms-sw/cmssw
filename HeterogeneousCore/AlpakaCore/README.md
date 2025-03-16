@@ -23,7 +23,7 @@ The `BuildFile.xml` must contain `<flags ALPAKA_BACKENDS="1"/>` to enable the be
   * If you need to transfer some data back to host, use `stream::SynchronizingEDProducer`
 * All code using `ALPAKA_ACCELERATOR_NAMESPACE` should be placed in `Package/SubPackage/{interface,src,plugins,test}/alpaka` directory
   * Alpaka-dependent code that uses templates instead of the namespace macro can be placed in `Package/SubPackage/interface` directory
-* All source files (not headers) using Alpaka device code (such as kernel call, functions called by kernels) must have a suffic `.dev.cc`, and be placed in the aforementioned `alpaka` subdirectory
+* All source files (not headers) using Alpaka device code (such as kernel call, functions called by kernels) must have a suffix `.dev.cc`, and be placed in the aforementioned `alpaka` subdirectory
 * Any code that `#include`s a header from the framework or from the `HeterogeneousCore/AlpakaCore` must be separated from the Alpaka device code, and have the usual `.cc` suffix.
   * Some framework headers are allowed to be used in `.dev.cc` files:
     * Any header containing only macros, e.g. `FWCore/Utilities/interface/CMSUnrollLoop.h`, `FWCore/Utilities/interface/stringize.h`
