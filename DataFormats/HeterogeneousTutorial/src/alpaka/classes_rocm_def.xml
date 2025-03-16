@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="alpaka_rocm_async::tutorial::JetsDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::tutorial::JetsDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::tutorial::JetsDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_rocm_async::tutorial::TripletsDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::tutorial::TripletsDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::tutorial::TripletsDeviceCollection>>" persistent="false"/>
+</lcgdict>

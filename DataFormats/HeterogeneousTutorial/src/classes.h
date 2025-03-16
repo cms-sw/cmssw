@@ -1,0 +1,5 @@
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/HeterogeneousTutorial/interface/JetsHostCollection.h"
+#include "DataFormats/HeterogeneousTutorial/interface/JetsSoA.h"
+#include "DataFormats/HeterogeneousTutorial/interface/TripletsHostCollection.h"
+#include "DataFormats/HeterogeneousTutorial/interface/TripletsSoA.h"

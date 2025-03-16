@@ -1,0 +1,24 @@
+<library file="*.cc" name="HeterogeneousCoreTutorialPlugins">
+  <use name="fmt"/>
+  <use name="DataFormats/HeterogeneousTutorial"/>
+  <use name="DataFormats/JetReco"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="alpaka/*.cc" name="HeterogeneousCoreTutorialPluginsPortable">
+  <use name="alpaka"/>
+  <use name="DataFormats/HeterogeneousTutorial"/>
+  <use name="DataFormats/JetReco"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="HeterogeneousCore/Tutorial"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
