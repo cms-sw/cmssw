@@ -21,9 +21,8 @@ using namespace reco;
 using namespace std;
 ////////////////////////////////////////////////////////////////////////////////////////
 template <class Jet>
-JetPlotsExample<Jet>::JetPlotsExample(edm::ParameterSet const& cfg) :
- JetToken_(consumes<JetCollection>(cfg.getParameter<std::string>("JetAlgorithm")))
-{
+JetPlotsExample<Jet>::JetPlotsExample(edm::ParameterSet const& cfg)
+    : JetToken_(consumes<JetCollection>(cfg.getParameter<std::string>("JetAlgorithm"))) {
   JetAlgorithm = cfg.getParameter<std::string>("JetAlgorithm");
   HistoFileName = cfg.getParameter<std::string>("HistoFileName");
   NJets = cfg.getParameter<int>("NJets");
