@@ -111,15 +111,15 @@ public:
 
   bool convertParticle3(reco::GenParticle& cand, const HepMC3::GenParticle* part, const IDto3Charge& id2Charge) const;
   bool fillIndices3(const HepMC3::GenEvent* mc,
-                   std::vector<const HepMC3::GenParticle*>& particles,
-                   std::vector<int>& barCodeVector,
-                   int offset,
-                   std::unordered_map<int, size_t>& barcodes) const;
+                    std::vector<const HepMC3::GenParticle*>& particles,
+                    std::vector<int>& barCodeVector,
+                    int offset,
+                    std::unordered_map<int, size_t>& barcodes) const;
   bool fillDaughters3(reco::GenParticleCollection& cand,
-                     const HepMC3::GenParticle* part,
-                     reco::GenParticleRefProd const& ref,
-                     size_t index,
-                     std::unordered_map<int, size_t>& barcodes) const;
+                      const HepMC3::GenParticle* part,
+                      reco::GenParticleRefProd const& ref,
+                      size_t index,
+                      std::unordered_map<int, size_t>& barcodes) const;
 
 private:
   /// source collection name
@@ -210,7 +210,7 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
   MixCollection<HepMCProduct>* cfhepmcprod = nullptr;
   size_t npiles = 1;
 
-  int ivhepmc=0;
+  int ivhepmc = 0;
   if (useCF_) {
     Handle<CrossingFrame<HepMCProduct>> cf;
     evt.getByToken(mixToken_, cf);
@@ -230,19 +230,17 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
       mc = mcp->GetEvent();
       if (mc == nullptr)
         throw edm::Exception(edm::errors::InvalidReference) << "HepMC has null pointer to GenEvent" << endl;
-      totalSize = mc->particles_size();
       ivhepmc = 2;
+      totalSize = mc->particles_size();
     } else {
       Handle<HepMC3Product> mcp3;
       bool found = evt.getByToken(srcToken3_, mcp3);
       if (!found)
         throw cms::Exception("ProductAbsent") << "No HepMCProduct, tried to get HepMC3Product, but it is also absent.";
+      ivhepmc = 3;
       mc3 = new HepMC3::GenEvent();
       mc3->read_data(*mcp3->GetEvent());
       totalSize = (mc3->particles()).size();
-      ivhepmc = 3;
-      std::cout << "GenParticleProducer HepMC version 3, totalsize = " << totalSize << std::endl;
-      //totalSize = 0; // to turn off production
     }
   }
 
@@ -326,10 +324,7 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
     }
   } else {  // Normal way from HepMCProduct or HepMC3Product
 
-    std::cout << "GPProducer case 2, normal way, version of HepMC = " << ivhepmc << std::endl;
-
-    if(ivhepmc == 2) {
-
+    if (ivhepmc == 2) {
       if (totalSize) {
         auto origin = (*mc->vertices_begin())->position();
         xyz0Ptr->SetXYZ(origin.x() * mmToCm, origin.y() * mmToCm, origin.z() * mmToCm);
@@ -356,11 +351,10 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
           }
         }
       }
+    }
 
-    } else { // ivhepmc = 3
-
+    if (ivhepmc == 3) {
       if (totalSize) {
-
         for (HepMC3::GenVertexPtr v : mc3->vertices()) {
           xyz0Ptr->SetXYZ((v->position()).x() * mmToCm, (v->position()).y() * mmToCm, (v->position()).z() * mmToCm);
           *t0Ptr = (v->position()).t() * mmToNs;
@@ -386,15 +380,12 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
             cands[d].setCollisionId(0);
           }
         }
-
       }
     }
-
-
-
   }
 
-  if(ivhepmc == 3) delete mc3;
+  if (ivhepmc == 3)
+    delete mc3;
   evt.put(std::move(candsPtr));
   if (saveBarCodes_)
     evt.put(std::move(barCodeVector));
@@ -427,8 +418,8 @@ bool GenParticleProducer::convertParticle(reco::GenParticle& cand,
 }
 
 bool GenParticleProducer::convertParticle3(reco::GenParticle& cand,
-                                          const HepMC3::GenParticle* part,
-                                          IDto3Charge const& id2Charge) const {
+                                           const HepMC3::GenParticle* part,
+                                           IDto3Charge const& id2Charge) const {
   Candidate::LorentzVector p4(part->momentum());
   int pdgId = part->pdg_id();
   cand.setThreeCharge(id2Charge.chargeTimesThree(pdgId));
@@ -437,7 +428,9 @@ bool GenParticleProducer::convertParticle3(reco::GenParticle& cand,
   cand.setP4(p4);
   cand.setCollisionId(0);
   if (part->production_vertex() != nullptr) {
-    ThreeVector vtx((part->production_vertex()->position()).x(), (part->production_vertex()->position()).y(), (part->production_vertex()->position()).z());
+    ThreeVector vtx((part->production_vertex()->position()).x(),
+                    (part->production_vertex()->position()).y(),
+                    (part->production_vertex()->position()).z());
     Candidate::Point vertex(vtx.x() * mmToCm, vtx.y() * mmToCm, vtx.z() * mmToCm);
     cand.setVertex(vertex);
   } else {
@@ -467,10 +460,10 @@ bool GenParticleProducer::fillDaughters(reco::GenParticleCollection& cands,
 }
 
 bool GenParticleProducer::fillDaughters3(reco::GenParticleCollection& cands,
-                                        const HepMC3::GenParticle* part,
-                                        reco::GenParticleRefProd const& ref,
-                                        size_t index,
-                                        std::unordered_map<int, size_t>& barcodes) const {
+                                         const HepMC3::GenParticle* part,
+                                         reco::GenParticleRefProd const& ref,
+                                         size_t index,
+                                         std::unordered_map<int, size_t>& barcodes) const {
   size_t numberOfMothers = (part->production_vertex())->particles_in_size();
   if (numberOfMothers > 0) {
     for (HepMC3::ConstGenParticlePtr mother : (part->production_vertex())->particles_in()) {
@@ -503,12 +496,12 @@ bool GenParticleProducer::fillIndices(const HepMC::GenEvent* mc,
 }
 
 bool GenParticleProducer::fillIndices3(const HepMC3::GenEvent* mc,
-                                      vector<const HepMC3::GenParticle*>& particles,
-                                      vector<int>& barCodeVector,
-                                      int offset,
-                                      std::unordered_map<int, size_t>& barcodes) const {
+                                       vector<const HepMC3::GenParticle*>& particles,
+                                       vector<int>& barCodeVector,
+                                       int offset,
+                                       std::unordered_map<int, size_t>& barcodes) const {
   size_t idx = offset;
-  for (const auto &p : mc->particles()) {
+  for (const auto& p : mc->particles()) {
     const HepMC3::GenParticle* particle = p.get();
     size_t barCode_this_event = particle->id();
     size_t barCode = barCode_this_event + offset;
