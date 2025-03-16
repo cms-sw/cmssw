@@ -1,0 +1,10 @@
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
+<export>
+  <lib name="1"/>
+</export>
