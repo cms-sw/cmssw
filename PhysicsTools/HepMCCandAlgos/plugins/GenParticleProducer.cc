@@ -355,7 +355,7 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
 
     if (ivhepmc == 3) {
       if (totalSize) {
-        for (HepMC3::GenVertexPtr v : mc3->vertices()) {
+        for (const HepMC3::GenVertexPtr& v : mc3->vertices()) {
           xyz0Ptr->SetXYZ((v->position()).x() * mmToCm, (v->position()).y() * mmToCm, (v->position()).z() * mmToCm);
           *t0Ptr = (v->position()).t() * mmToNs;
           break;
@@ -466,7 +466,7 @@ bool GenParticleProducer::fillDaughters3(reco::GenParticleCollection& cands,
                                          std::unordered_map<int, size_t>& barcodes) const {
   size_t numberOfMothers = (part->production_vertex())->particles_in_size();
   if (numberOfMothers > 0) {
-    for (HepMC3::ConstGenParticlePtr mother : (part->production_vertex())->particles_in()) {
+    for (const HepMC3::ConstGenParticlePtr& mother : (part->production_vertex())->particles_in()) {
       size_t m = barcodes.find(mother->id())->second;
       cands[m].addDaughter(GenParticleRef(ref, index));
       cands[index].addMother(GenParticleRef(ref, m));
