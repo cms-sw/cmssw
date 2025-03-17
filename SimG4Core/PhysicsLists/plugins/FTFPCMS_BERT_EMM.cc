@@ -18,13 +18,10 @@ FTFPCMS_BERT_EMM::FTFPCMS_BERT_EMM(const edm::ParameterSet& p) : PhysicsList(p) 
   double maxBERT = p.getParameter<double>("EmaxBERT") * CLHEP::GeV;
   double maxBERTpi = p.getParameter<double>("EmaxBERTpi") * CLHEP::GeV;
   std::string type = p.getParameter<std::string>("type");
-  edm::LogVerbatim("PhysicsList") << "CMS Physics List " << type
-                                  << "\n Flags for EM Physics: "
-				  << emPhys << "; Hadronic Physics: " << hadPhys
-                                  << "\n Transition energy Bertini/FTFP from "
-				  << minFTFP / CLHEP::GeV << " to "
-                                  << maxBERT / CLHEP::GeV << "; for pions to "
-				  << maxBERTpi / CLHEP::GeV << " GeV";
+  edm::LogVerbatim("PhysicsList") << "CMS Physics List " << type << "\n Flags for EM Physics: " << emPhys
+                                  << "; Hadronic Physics: " << hadPhys << "\n Transition energy Bertini/FTFP from "
+                                  << minFTFP / CLHEP::GeV << " to " << maxBERT / CLHEP::GeV << "; for pions to "
+                                  << maxBERTpi / CLHEP::GeV << " GeV";
 
   if (emPhys) {
     // EM Physics

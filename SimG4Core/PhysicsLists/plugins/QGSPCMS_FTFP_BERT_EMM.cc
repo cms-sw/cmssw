@@ -25,17 +25,12 @@ QGSPCMS_FTFP_BERT_EMM::QGSPCMS_FTFP_BERT_EMM(const edm::ParameterSet& p) : Physi
   double maxFTFP = p.getParameter<double>("EmaxFTFP") * CLHEP::GeV;
   double maxBERTpi = p.getParameter<double>("EmaxBERTpi") * CLHEP::GeV;
   std::string type = p.getParameter<std::string>("type");
-  edm::LogVerbatim("PhysicsList") << "CMS Physics List " << type
-                                  << "\n Flags for EM Physics " << emPhys
-                                  << ", for Hadronic Physics " << hadPhys
-				  << " and tracking cut " << tracking
-                                  << "   t(ns)= " << timeLimit / CLHEP::ns
-				  << "\n  transition energy Bertini/FTFP from "
-                                  << minFTFP / CLHEP::GeV << " to "
-				  << maxBERTpi / CLHEP::GeV << ":"
+  edm::LogVerbatim("PhysicsList") << "CMS Physics List " << type << "\n Flags for EM Physics " << emPhys
+                                  << ", for Hadronic Physics " << hadPhys << " and tracking cut " << tracking
+                                  << "   t(ns)= " << timeLimit / CLHEP::ns << "\n  transition energy Bertini/FTFP from "
+                                  << minFTFP / CLHEP::GeV << " to " << maxBERTpi / CLHEP::GeV << ":"
                                   << maxBERT / CLHEP::GeV << " GeV"
-                                  << "\n  transition energy FTFP/QGSP from "
-				  << minQGSP / CLHEP::GeV << " to "
+                                  << "\n  transition energy FTFP/QGSP from " << minQGSP / CLHEP::GeV << " to "
                                   << maxFTFP / CLHEP::GeV << " GeV";
 
   if (emPhys) {
