@@ -56,8 +56,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<edm::InputTag>("pixelSeedInput", edm::InputTag{"lstPixelSeedInputProducer"});
-      desc.add<edm::InputTag>("phase2OTHitsInput", edm::InputTag{"lstPhase2OTHitsInputProducer"});
+      desc.add<edm::InputTag>("lstInput", edm::InputTag{"lstInputProducer"});
       desc.add<bool>("verbose", false);
       desc.add<double>("ptCut", 0.8);
       desc.add<std::string>("ptCutLabel", "0.8");
