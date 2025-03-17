@@ -19,11 +19,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace testTrackingRecHitSoA {
 
     struct TestFillKernel {
-
       ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                     ::reco::TrackingRecHitView soa,
                                     ::reco::HitModuleSoAView mods) const {
-
         const uint32_t i(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
         const uint32_t j(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
 

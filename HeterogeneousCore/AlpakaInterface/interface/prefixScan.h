@@ -197,8 +197,8 @@ namespace cms::alpakatools {
           off = off + 1024 - 1;
           alpaka::syncBlockThreads(acc);
         }
-        blockPrefixScan(acc, psum + off , psum + off, blocksPerGrid - off, ws);
-      } 
+        blockPrefixScan(acc, psum + off, psum + off, blocksPerGrid - off, ws);
+      }
       // now it would have been handy to have the other blocks around...
       // Simplify the computation by having one version where threads per block = block size
       // and a second for the one thread per block accelerator.

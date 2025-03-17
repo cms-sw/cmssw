@@ -15,5 +15,4 @@ namespace reco {
   using TracksDevice = PortableDeviceMultiCollection<TDev, TrackSoA, TrackHitSoA>;
 }
 
-
 #endif  // DataFormats_Track_TracksDevice_H

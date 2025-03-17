@@ -37,18 +37,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     //Common Params
     void fillDescriptionsCommon(edm::ParameterSetDescription& desc) {
-      
       desc.add<double>("cellZ0Cut", 12.0f)->setComment("Z0 cut for cells");
       desc.add<double>("cellPtCut", 0.5f)->setComment("Preliminary pT cut at cell building level.");
-      
+
       //// Pixel Cluster Cuts (@cell level)
       desc.add<double>("dzdrFact", 8.0f * 0.0285f / 0.015f);
-      desc.add<unsigned int>("minYsizeB1", 1)->setComment("Cut on inner hit cluster size (in Y) for barrel-forward cells. Barrel 1 cut.");
-      desc.add<unsigned int>("minYsizeB2", 1)->setComment("Cut on inner hit cluster size (in Y) for barrel-forward cells. Barrel 2 cut.");
-      desc.add<unsigned int>("maxDYsize12", 28)->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Barrel 1-2 cells.");
-      desc.add<unsigned int>("maxDYsize", 20)->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Other barrel cells.");
-      desc.add<unsigned int>("maxDYPred", 20)->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Barrel-forward cells.");
-      
+      desc.add<unsigned int>("minYsizeB1", 1)
+          ->setComment("Cut on inner hit cluster size (in Y) for barrel-forward cells. Barrel 1 cut.");
+      desc.add<unsigned int>("minYsizeB2", 1)
+          ->setComment("Cut on inner hit cluster size (in Y) for barrel-forward cells. Barrel 2 cut.");
+      desc.add<unsigned int>("maxDYsize12", 28)
+          ->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Barrel 1-2 cells.");
+      desc.add<unsigned int>("maxDYsize", 20)
+          ->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Other barrel cells.");
+      desc.add<unsigned int>("maxDYPred", 20)
+          ->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Barrel-forward cells.");
+
       // Container sizes
       desc.add<std::string>("maxNumberOfDoublets", std::to_string(pixelTopology::Phase1::maxNumberOfDoublets));
       desc.add<std::string>("maxNumberOfTuples", std::to_string(pixelTopology::Phase1::maxNumberOfTuples));
@@ -56,7 +60,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<double>("avgCellsPerHit", 25.0f);
       desc.add<double>("avgCellsPerCell", 2.0f);
       desc.add<double>("avgTracksPerCell", 1.0f);
-      
+
       // nTuplet Cuts and Params
       desc.add<double>("ptmin", 0.9f)->setComment("Cut on minimum pt");
       //// 87 cm/GeV = 1/(3.8T * 0.3)
@@ -95,7 +99,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           (float)cfg.getParameter<double>("hardCurvCut"),
           (float)cfg.getParameter<double>("cellZ0Cut"),
           (float)cfg.getParameter<double>("cellPtCut"),
-          
+
           // Pixel Cluster Cut Params
           (float)cfg.getParameter<double>("dzdrFact"),
           (uint16_t)cfg.getParameter<unsigned int>("minYsizeB1"),
@@ -214,7 +218,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "Quality cuts based on the results of the track fit:\n  - apply a pT-dependent chi2 cut;\n  - apply "
             "\"region "
             "cuts\" based on the fit results (pT, Tip, Zip).");
-
   }
 
   // now this could be removed actually
@@ -241,7 +244,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "Quality cuts based on the results of the track fit:\n  - apply a pT-dependent chi2 cut;\n  - apply "
             "\"region "
             "cuts\" based on the fit results (pT, Tip, Zip).");
-
   }
 
   template <>
@@ -257,7 +259,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ->setComment(
             "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
             "Zip).");
-
   }
 
   template <typename TrackerTraits>
@@ -287,7 +288,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         m_params, hits_d.nHits(), hits_d.offsetBPIX2(), nDoublets, nTracks, geometry_d.view().metadata().size(), queue);
 
     kernels.prepareHits(hits_d.view(), hits_d.view<::reco::HitModuleSoA>(), geometry_d.view(), queue);
-    kernels.buildDoublets(hits_d.view(), geometry_d.view<::reco::CAGraphSoA>(), geometry_d.view<::reco::CALayersSoA>(), hits_d.offsetBPIX2(), queue);
+    kernels.buildDoublets(hits_d.view(),
+                          geometry_d.view<::reco::CAGraphSoA>(),
+                          geometry_d.view<::reco::CALayersSoA>(),
+                          hits_d.offsetBPIX2(),
+                          queue);
     kernels.launchKernels(hits_d.view(),
                           hits_d.offsetBPIX2(),
                           geometry_d.view().metadata().size(),

@@ -27,7 +27,6 @@ namespace edmtest {
     using HitsOnHost = ::reco::TrackingRecHitHost;
 
   private:
-
     edm::EDGetTokenT<HitsOnHost> getToken_;
   };
 
@@ -36,16 +35,14 @@ namespace edmtest {
 
   void TestReadHostHitSoA::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
     auto const& hits = iEvent.get(getToken_);
-    auto hitsView = hits.view(); 
+    auto hitsView = hits.view();
 
     for (int i = 0; i < hitsView.metadata().size(); ++i) {
-      if(hitsView[i].xGlobal() != float(i))
-      {
+      if (hitsView[i].xGlobal() != float(i)) {
         throw cms::Exception("TestWriteHostHitSoA Failure") << "TestReadHostHitSoA::analyze, entry. i = " << i;
       }
     }
   }
-
 
   void TestReadHostHitSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

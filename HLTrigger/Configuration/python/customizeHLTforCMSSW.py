@@ -39,7 +39,7 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTforXYZ(process):
+def customizeHLTfor47611(process):
     """ Add CAGeometry ESProducer"""
     
     if not hasattr(process, 'HLTRecoPixelTracksSequence'):
@@ -174,6 +174,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = customizeHLTfor47378(process)
-    process = customizeHLTforXXX(process)
+    process = customizeHLTfor47611(process)
 
     return process
