@@ -131,7 +131,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 #if G4VERSION_NUMBER >= 1130
   G4GeometryManager::GetInstance()->OptimiseInParallel(false);
 #endif
-  
+
   if (m_check) {
     m_kernel->SetVerboseLevel(2);
   }

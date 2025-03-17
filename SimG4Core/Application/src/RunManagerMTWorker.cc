@@ -12,7 +12,7 @@
 #include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
-#include "SimG4Core/Application/interface/CMSG4TrackInterface.h"
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
 #include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
@@ -41,6 +41,7 @@
 #include "HepMC3/Print.h"
 
 #include "SimG4Core/Physics/interface/PhysicsList.h"
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
@@ -292,8 +293,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   initializeTLS();
 
   int thisID = getThreadIndex();
-  edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMTWorker::initializeG4 in thread " << thisID << " is started";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeG4 in thread " << thisID << " is started";
 
   // Initialize worker part of shared resources (geometry, physics)
   G4WorkerThread::BuildGeometryAndPhysicsVector();
