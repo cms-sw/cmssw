@@ -63,6 +63,7 @@
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
 #include "G4ScoringManager.hh"
+#include "G4GeometryManager.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4GDMLParser.hh"
 #include "G4Threading.hh"
@@ -201,6 +202,10 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
   std::vector<std::string> onlySDs = p.getParameter<std::vector<std::string>>("OnlySDs");
   m_sdMakers = sim::sensitiveDetectorMakers(p, iC, onlySDs);
 
+#if G4VERSION_NUMBER >= 1130
+  G4GeometryManager::GetInstance()->OptimiseInParallel(false);
+#endif
+
   // TLS and watchers
   initializeTLS();
   if (m_hasWatchers) {
@@ -287,7 +292,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   initializeTLS();
 
   int thisID = getThreadIndex();
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeG4 in thread " << thisID << " is started";
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMTWorker::initializeG4 in thread " << thisID << " is started";
 
   // Initialize worker part of shared resources (geometry, physics)
   G4WorkerThread::BuildGeometryAndPhysicsVector();
