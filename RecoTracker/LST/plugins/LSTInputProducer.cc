@@ -38,7 +38,7 @@ private:
   std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> seedTokens_;
   const edm::EDPutTokenT<TrajectorySeedCollection> lstPixelSeedsPutToken_;
 
-  const edm::EDPutTokenT<std::unique_ptr<lst::LSTInputHostCollection>> lstInputPutToken_;
+  const edm::EDPutTokenT<lst::LSTInputHostCollection> lstInputPutToken_;
 };
 
 LSTInputProducer::LSTInputProducer(edm::ParameterSet const& iConfig)

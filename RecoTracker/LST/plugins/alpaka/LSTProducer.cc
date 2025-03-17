@@ -25,7 +25,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     LSTProducer(edm::ParameterSet const& config)
         : SynchronizingEDProducer(config),
-          lstInputToken_{consumes(config.getParameter<edm::InputTag>("lstInputHC"))},
+          lstInputToken_{consumes(config.getParameter<edm::InputTag>("lstInput"))},
           lstESToken_{esConsumes(edm::ESInputTag("", config.getParameter<std::string>("ptCutLabel")))},
           verbose_(config.getParameter<bool>("verbose")),
           ptCut_(config.getParameter<double>("ptCut")),

@@ -20,7 +20,7 @@ namespace lst {
     return {vx, vy, vz};
   }
 
-  std::unique_ptr<LSTInputHostCollection> prepareInput(std::vector<float> const& see_px,
+  LSTInputHostCollection prepareInput(std::vector<float> const& see_px,
                                                        std::vector<float> const& see_py,
                                                        std::vector<float> const& see_pz,
                                                        std::vector<float> const& see_dxy,
@@ -203,23 +203,23 @@ namespace lst {
     }
 
     std::array<int, 3> const soa_sizes{{nHits, nPixelHits, nPixelSeeds}};
-    auto lstInputHC = std::make_unique<LSTInputHostCollection>(soa_sizes, cms::alpakatools::host());
+    LSTInputHostCollection lstInputHC(soa_sizes, cms::alpakatools::host());
 
-    auto hits = lstInputHC->view<InputHitsSoA>();
+    auto hits = lstInputHC.view<InputHitsSoA>();
     std::memcpy(hits.xs(), trkX.data(), nHits * sizeof(float));
     std::memcpy(hits.ys(), trkY.data(), nHits * sizeof(float));
     std::memcpy(hits.zs(), trkZ.data(), nHits * sizeof(float));
     std::memcpy(hits.detid(), hitId.data(), nHits * sizeof(unsigned int));
     std::memcpy(hits.idxs(), hitIdxs.data(), nHits * sizeof(unsigned int));
 
-    auto pixelHits = lstInputHC->view<InputPixelHitsSoA>();
+    auto pixelHits = lstInputHC.view<InputPixelHitsSoA>();
     std::memcpy(pixelHits.hitIndices0(), hitIndices_vec0.data(), nPixelHits * sizeof(unsigned int));
     std::memcpy(pixelHits.hitIndices1(), hitIndices_vec1.data(), nPixelHits * sizeof(unsigned int));
     std::memcpy(pixelHits.hitIndices2(), hitIndices_vec2.data(), nPixelHits * sizeof(unsigned int));
     std::memcpy(pixelHits.hitIndices3(), hitIndices_vec3.data(), nPixelHits * sizeof(unsigned int));
     std::memcpy(pixelHits.deltaPhi(), deltaPhi_vec.data(), nPixelHits * sizeof(float));
 
-    auto pixelSeeds = lstInputHC->view<InputPixelSeedsSoA>();
+    auto pixelSeeds = lstInputHC.view<InputPixelSeedsSoA>();
     std::memcpy(pixelSeeds.ptIn(), ptIn_vec.data(), nPixelSeeds * sizeof(float));
     std::memcpy(pixelSeeds.ptErr(), ptErr_vec.data(), nPixelSeeds * sizeof(float));
     std::memcpy(pixelSeeds.px(), px_vec.data(), nPixelSeeds * sizeof(float));
