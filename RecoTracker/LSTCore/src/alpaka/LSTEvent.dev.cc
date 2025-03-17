@@ -80,14 +80,13 @@ void LSTEvent::resetEventSync() {
 }
 
 void LSTEvent::addInputToEvent(LSTInputDeviceCollection const* lstInputDC) {
-    lstInputDC_ = lstInputDC;
+  lstInputDC_ = lstInputDC;
 
-    pixelSize_ = lstInputDC_->sizes()[2];
-    pixelModuleIndex_ = pixelMapping_.pixelModuleIndex;
+  pixelSize_ = lstInputDC_->sizes()[2];
+  pixelModuleIndex_ = pixelMapping_.pixelModuleIndex;
 }
 
 void LSTEvent::addHitToEvent() {
-
   if (!hitsDC_) {
     int nHits = lstInputDC_->sizes()[0];
     std::array<int, 2> const hits_sizes{{nHits, static_cast<int>(nModules_)}};
@@ -129,8 +128,8 @@ void LSTEvent::addHitToEvent() {
 
 void LSTEvent::addPixelSegmentToEventStart() {
   if (pixelSize_ == n_max_pixel_segments_per_module) {
-      lstWarning(
-          "\
+    lstWarning(
+        "\
           *********************************************************\n\
           * Warning: Pixel line segments may be truncated.        *\n\
           * You need to increase n_max_pixel_segments_per_module. *\n\
@@ -138,7 +137,7 @@ void LSTEvent::addPixelSegmentToEventStart() {
   }
 
   if (!pixelSegmentsDC_) {
-      pixelSegmentsDC_.emplace(pixelSize_, queue_);
+    pixelSegmentsDC_.emplace(pixelSize_, queue_);
   }
 }
 
@@ -1284,18 +1283,19 @@ typename TSoA::ConstView LSTEvent::getInput(bool inCMSSW, bool sync) {
     return lstInputDC_->const_view<TSoA>();
   } else {
     if (!lstInputHC_) {
-        if (inCMSSW) {
-                auto hits_d = lstInputDC_->view<InputHitsSoA>();
-                int nHits = hits_d.metadata().size();
-                std::array<int, 3> const hits_sizes{{nHits, 0, 0}};
-                lstInputHC_.emplace(hits_sizes, queue_);
-                auto hits_h = lstInputHC_->view<InputHitsSoA>();
-                auto idxs_h = cms::alpakatools::make_host_view(hits_h.idxs(), nHits);
-                auto idxs_d = cms::alpakatools::make_device_view(queue_, hits_d.idxs(), nHits);
-                alpaka::memcpy(queue_, idxs_h, idxs_d);
-              } else {
-        lstInputHC_.emplace(cms::alpakatools::CopyToHost<PortableMultiCollection<TDev, InputHitsSoA, InputPixelHitsSoA, InputPixelSeedsSoA>>::copyAsync(
-          queue_, *lstInputDC_));
+      if (inCMSSW) {
+        auto hits_d = lstInputDC_->view<InputHitsSoA>();
+        int nHits = hits_d.metadata().size();
+        std::array<int, 3> const hits_sizes{{nHits, 0, 0}};
+        lstInputHC_.emplace(hits_sizes, queue_);
+        auto hits_h = lstInputHC_->view<InputHitsSoA>();
+        auto idxs_h = cms::alpakatools::make_host_view(hits_h.idxs(), nHits);
+        auto idxs_d = cms::alpakatools::make_device_view(queue_, hits_d.idxs(), nHits);
+        alpaka::memcpy(queue_, idxs_h, idxs_d);
+      } else {
+        lstInputHC_.emplace(cms::alpakatools::CopyToHost<
+                            PortableMultiCollection<TDev, InputHitsSoA, InputPixelHitsSoA, InputPixelSeedsSoA>>::
+                                copyAsync(queue_, *lstInputDC_));
       }
       if (sync)
         alpaka::wait(queue_);  // host consumers expect filled data
@@ -1314,7 +1314,7 @@ typename TSoA::ConstView LSTEvent::getHits(bool sync) {
   } else {
     if (!hitsHC_) {
       hitsHC_.emplace(cms::alpakatools::CopyToHost<PortableMultiCollection<TDev, HitsSoA, HitsRangesSoA>>::copyAsync(
-        queue_, *hitsDC_));
+          queue_, *hitsDC_));
       if (sync)
         alpaka::wait(queue_);  // host consumers expect filled data
     }

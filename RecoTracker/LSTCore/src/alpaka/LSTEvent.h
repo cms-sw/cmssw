@@ -53,7 +53,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     uint16_t pixelModuleIndex_;
 
     //Device stuff
-    LSTInputDeviceCollection const* lstInputDC_; // not owned
+    LSTInputDeviceCollection const* lstInputDC_;  // not owned
     std::optional<ObjectRangesDeviceCollection> rangesDC_;
     std::optional<HitsDeviceCollection> hitsDC_;
     std::optional<MiniDoubletsDeviceCollection> miniDoubletsDC_;

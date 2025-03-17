@@ -53,14 +53,15 @@ void LST::getOutput(LSTEvent& event) {
   out_tc_seedIdx_.clear();
   out_tc_trackCandidateType_.clear();
 
-  auto const inputHits = event.getInput<InputHitsSoA>(/*inCMSSW*/ true, /*sync*/ false); // sync on next line
+  auto const inputHits = event.getInput<InputHitsSoA>(/*inCMSSW*/ true, /*sync*/ false);  // sync on next line
   auto const& trackCandidates = event.getTrackCandidates(/*inCMSSW*/ true, /*sync*/ true);
 
   unsigned int nTrackCandidates = trackCandidates.nTrackCandidates();
 
   for (unsigned int idx = 0; idx < nTrackCandidates; idx++) {
     short trackCandidateType = trackCandidates.trackCandidateType()[idx];
-    std::vector<unsigned int> hit_idx = getHitIdxs(trackCandidateType, trackCandidates.hitIndices()[idx], inputHits.idxs());
+    std::vector<unsigned int> hit_idx =
+        getHitIdxs(trackCandidateType, trackCandidates.hitIndices()[idx], inputHits.idxs());
 
     out_tc_hitIdxs_.push_back(hit_idx);
     out_tc_len_.push_back(hit_idx.size());

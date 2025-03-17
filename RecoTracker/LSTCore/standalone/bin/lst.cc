@@ -344,25 +344,25 @@ void run_lst() {
       continue;
 
     auto lstInputHC = prepareInput(trk.see_px(),
-                                                  trk.see_py(),
-                                                  trk.see_pz(),
-                                                  trk.see_dxy(),
-                                                  trk.see_dz(),
-                                                  trk.see_ptErr(),
-                                                  trk.see_etaErr(),
-                                                  trk.see_stateTrajGlbX(),
-                                                  trk.see_stateTrajGlbY(),
-                                                  trk.see_stateTrajGlbZ(),
-                                                  trk.see_stateTrajGlbPx(),
-                                                  trk.see_stateTrajGlbPy(),
-                                                  trk.see_stateTrajGlbPz(),
-                                                  trk.see_q(),
-                                                  trk.see_hitIdx(),
-                                                  trk.ph2_detId(),
-                                                  trk.ph2_x(),
-                                                  trk.ph2_y(),
-                                                  trk.ph2_z(),
-                                                  ana.ptCut);
+                                   trk.see_py(),
+                                   trk.see_pz(),
+                                   trk.see_dxy(),
+                                   trk.see_dz(),
+                                   trk.see_ptErr(),
+                                   trk.see_etaErr(),
+                                   trk.see_stateTrajGlbX(),
+                                   trk.see_stateTrajGlbY(),
+                                   trk.see_stateTrajGlbZ(),
+                                   trk.see_stateTrajGlbPx(),
+                                   trk.see_stateTrajGlbPy(),
+                                   trk.see_stateTrajGlbPz(),
+                                   trk.see_q(),
+                                   trk.see_hitIdx(),
+                                   trk.ph2_detId(),
+                                   trk.ph2_x(),
+                                   trk.ph2_y(),
+                                   trk.ph2_z(),
+                                   ana.ptCut);
 
     out_lstInputHC.push_back(std::move(lstInputHC));
 
@@ -406,11 +406,11 @@ void run_lst() {
 
       // We need to initialize it here so that it stays in scope
       // FIXME: The queue should ideally be the same as in the event
-      auto& queue = queues[evt % ana.streams];
+      auto &queue = queues[evt % ana.streams];
       LSTInputDeviceCollection lstInputDC(out_lstInputHC.at(evt)->sizes(), queue);
 
-      timing_input_loading = addInputsToEventPreLoad(
-          events.at(omp_get_thread_num()), out_lstInputHC.at(evt).get(), &lstInputDC, queue);
+      timing_input_loading =
+          addInputsToEventPreLoad(events.at(omp_get_thread_num()), out_lstInputHC.at(evt).get(), &lstInputDC, queue);
 
       timing_MD = runMiniDoublet(events.at(omp_get_thread_num()), evt);
       timing_LS = runSegment(events.at(omp_get_thread_num()));

@@ -780,8 +780,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         //in outer hits - pt, eta, phi
         float slope = alpaka::math::sinh(acc, inputHits.ys()[mds.outerHitIndices()[innerMDIndex]]);
-        float intercept =
-            inputHits.zs()[mds.anchorHitIndices()[innerMDIndex]] - slope * hits.rts()[mds.anchorHitIndices()[innerMDIndex]];
+        float intercept = inputHits.zs()[mds.anchorHitIndices()[innerMDIndex]] -
+                          slope * hits.rts()[mds.anchorHitIndices()[innerMDIndex]];
         float score_lsq = (hits.rts()[mds.anchorHitIndices()[outerMDIndex]] * slope + intercept) -
                           (inputHits.zs()[mds.anchorHitIndices()[outerMDIndex]]);
         score_lsq = score_lsq * score_lsq;
