@@ -103,7 +103,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     subSystemName = GeomDetEnumerators::tkDetEnum[++subSystem];
     subSystemOffset = trackerGeometry->offsetDU(subSystemName);
 #endif
-    
+
     auto oldLayer = 0u;
     auto layerCount = 0;
 

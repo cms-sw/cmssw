@@ -25,7 +25,6 @@ namespace edmtest {
     using TracksOnHost = ::reco::TracksHost;
 
   private:
-
     edm::EDGetTokenT<TracksOnHost> getToken_;
   };
 
@@ -34,16 +33,14 @@ namespace edmtest {
 
   void TestReadHostTrackSoA::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
     auto const& tracks = iEvent.get(getToken_);
-    auto tracksView = tracks.view(); 
+    auto tracksView = tracks.view();
 
     for (int i = 0; i < tracksView.metadata().size(); ++i) {
-      if(tracksView[i].eta() != float(i))
-      {
+      if (tracksView[i].eta() != float(i)) {
         throw cms::Exception("TestReadHostTrackSoA Failure") << "TestReadHostTrackSoA::analyze, entry. i = " << i;
       }
     }
   }
-
 
   void TestReadHostTrackSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

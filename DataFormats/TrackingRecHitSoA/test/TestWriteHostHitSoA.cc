@@ -33,11 +33,10 @@ namespace edmtest {
       : hitSize_(iPSet.getParameter<unsigned int>("hitSize")), putToken_(produces()) {}
 
   void TestWriteHostHitSoA::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
-
     HitsOnHost hits(cms::alpakatools::host(), hitSize_, 100);
-    auto hitsView = hits.view(); 
+    auto hitsView = hits.view();
     for (unsigned int i = 0; i < hitSize_; ++i) {
-        hitsView[i].xGlobal() = float(i);
+      hitsView[i].xGlobal() = float(i);
     }
     iEvent.emplace(putToken_, std::move(hits));
   }
