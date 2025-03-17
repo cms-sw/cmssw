@@ -81,5 +81,6 @@
   <use name="RecoParticleFlow/PFTracking"/>
   <use name="RecoEcal/EgammaCoreTools"/>
   <use name="PhysicsTools/ONNXRuntime"/>
+  <use name="HeterogeneousCore/SonicTriton"/>
   <flags EDM_PLUGIN="1"/>
 </library>
