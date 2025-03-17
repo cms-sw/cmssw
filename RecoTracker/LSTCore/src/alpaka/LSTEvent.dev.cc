@@ -96,6 +96,12 @@ void LSTEvent::addHitToEvent() {
     alpaka::memset(queue_, buf, 0xff);
   }
 
+  if (!rangesDC_) {
+    rangesDC_.emplace(nLowerModules_ + 1, queue_);
+    auto buf = rangesDC_->buffer();
+    alpaka::memset(queue_, buf, 0xff);
+  }
+
   auto const hit_loop_workdiv = cms::alpakatools::make_workdiv<Acc1D>(max_blocks, 256);
 
   alpaka::exec<Acc1D>(queue_,
