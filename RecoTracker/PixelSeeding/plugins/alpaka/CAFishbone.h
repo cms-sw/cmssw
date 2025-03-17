@@ -36,10 +36,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                                   CellToTracks const* __restrict__ cellTracksHisto,
                                   uint32_t outerHits,
                                   bool checkTrack) const {
-
       // outermost parallel loop, using all grid elements along the slower dimension (Y or 0 in a 2D grid)
       for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, outerHits)) {
-        uint32_t size = outerHitHisto->size(idy);  
+        uint32_t size = outerHitHisto->size(idy);
         // printf("fishbone ---> outersize %d - ",idy,size);
 
         if (size < 2)
@@ -62,13 +61,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         //         }
         // #endif
         for (uint32_t ic : cms::alpakatools::independent_group_elements_x(acc, size)) {
-          
-//printf("cell0 = %d ci = %d\n",bin[0],bin[ic]);
+          //printf("cell0 = %d ci = %d\n",bin[0],bin[ic]);
           unsigned int otherCell = bin[ic];
           auto& ci = cells[otherCell];
-//	printf("xo = %.2f yo = %.2f zo = %.2f xi = %.2f yi = %.2f zi = %.2f \n",xo,yo,zo,ci.inner_x(hh),ci.inner_y(hh),ci.inner_z(hh));  
+          //	printf("xo = %.2f yo = %.2f zo = %.2f xi = %.2f yi = %.2f zi = %.2f \n",xo,yo,zo,ci.inner_x(hh),ci.inner_y(hh),ci.inner_z(hh));
           if (ci.unused())
-            continue; // for triplets equivalent to next
+            continue;  // for triplets equivalent to next
           if (checkTrack && cellTracksHisto->size(otherCell) == 0)
             continue;
 
@@ -80,15 +78,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           for (auto jc = ic + 1; jc < size; ++jc) {
             unsigned int nextCell = bin[jc];
             auto& cj = cells[nextCell];
-	    if (cj.unused())
-	    continue;
-	    if (checkTrack && cellTracksHisto->size(nextCell) == 0)  
-	    continue;
-#ifdef GPU_DEBUG 
-printf("xx = %.2f yo = %.2f zo = %.2f xi = %.2f yi = %.2f zi = %.2f xj = %.2f yj = %.2f zj = %.2f\n",xo,yo,zo,ci.inner_x(hh),ci.inner_y(hh),ci.inner_z(hh),cj.inner_x(hh),cj.inner_y(hh),cj.inner_z(hh));
+            if (cj.unused())
+              continue;
+            if (checkTrack && cellTracksHisto->size(nextCell) == 0)
+              continue;
+#ifdef GPU_DEBUG
+            printf("xx = %.2f yo = %.2f zo = %.2f xi = %.2f yi = %.2f zi = %.2f xj = %.2f yj = %.2f zj = %.2f\n",
+                   xo,
+                   yo,
+                   zo,
+                   ci.inner_x(hh),
+                   ci.inner_y(hh),
+                   ci.inner_z(hh),
+                   cj.inner_x(hh),
+                   cj.inner_y(hh),
+                   cj.inner_z(hh));
 #endif
 
-  if (ci.inner_detIndex(hh) == cj.inner_detIndex(hh))
+            if (ci.inner_detIndex(hh) == cj.inner_detIndex(hh))
               continue;
 
             float x2 = (cj.inner_x(hh) - xo);
@@ -107,12 +114,34 @@ printf("xx = %.2f yo = %.2f zo = %.2f xi = %.2f yi = %.2f zi = %.2f xj = %.2f yj
                   cj.kill();  // closest
                   ci.setFishbone(acc, cj.inner_hit_id(), cj.inner_z(hh), hh);
 #ifdef GPU_DEBUG
-                 printf("n1>n2 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f same\n",int(ci.layerPairId()),int(cj.layerPairId()),ci.inner_detIndex(hh), cj.inner_detIndex(hh), bin[ic], bin[jc],cos12 * cos12 / (n1*n2), n1, n2);
+                  printf(
+                      "n1>n2 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f "
+                      "same\n",
+                      int(ci.layerPairId()),
+                      int(cj.layerPairId()),
+                      ci.inner_detIndex(hh),
+                      cj.inner_detIndex(hh),
+                      bin[ic],
+                      bin[jc],
+                      cos12 * cos12 / (n1 * n2),
+                      n1,
+                      n2);
 #endif
                 } else {
                   ci.kill();  // farthest
 #ifdef GPU_DEBUG
-             printf("n1>n2 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f diff\n",int(ci.layerPairId()),int(cj.layerPairId()),ci.inner_detIndex(hh), cj.inner_detIndex(hh), bin[jc], bin[ic],cos12 * cos12 / (n1*n2), n1, n2); 
+                  printf(
+                      "n1>n2 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f "
+                      "diff\n",
+                      int(ci.layerPairId()),
+                      int(cj.layerPairId()),
+                      ci.inner_detIndex(hh),
+                      cj.inner_detIndex(hh),
+                      bin[jc],
+                      bin[ic],
+                      cos12 * cos12 / (n1 * n2),
+                      n1,
+                      n2);
 #endif
                   // break;  // removed to improve reproducibility, keep it for reference and tests
                 }
@@ -120,13 +149,35 @@ printf("xx = %.2f yo = %.2f zo = %.2f xi = %.2f yi = %.2f zi = %.2f xj = %.2f yj
                 if (!sameLayer) {
                   cj.kill();  // farthest
 #ifdef GPU_DEBUG
-             printf("n2>n1 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f diff\n",int(ci.layerPairId()),int(cj.layerPairId()),ci.inner_detIndex(hh), cj.inner_detIndex(hh), bin[ic], bin[jc],cos12 * cos12 / (n1*n2), n1, n2); 
+                  printf(
+                      "n2>n1 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f "
+                      "diff\n",
+                      int(ci.layerPairId()),
+                      int(cj.layerPairId()),
+                      ci.inner_detIndex(hh),
+                      cj.inner_detIndex(hh),
+                      bin[ic],
+                      bin[jc],
+                      cos12 * cos12 / (n1 * n2),
+                      n1,
+                      n2);
 #endif
                 } else {
                   ci.kill();  // closest
                   cj.setFishbone(acc, ci.inner_hit_id(), ci.inner_z(hh), hh);
 #ifdef GPU_DEBUG
-             printf("n2>n1 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f same\n",int(ci.layerPairId()),int(cj.layerPairId()),ci.inner_detIndex(hh), cj.inner_detIndex(hh), bin[jc], bin[ic],cos12 * cos12 / (n1*n2), n1, n2);
+                  printf(
+                      "n2>n1 lic = %d ljc = %d dic = %.2f djc = %.2f cell %d kill %d cos = %.7f n1 = %.3f n2 = %.3f "
+                      "same\n",
+                      int(ci.layerPairId()),
+                      int(cj.layerPairId()),
+                      ci.inner_detIndex(hh),
+                      cj.inner_detIndex(hh),
+                      bin[jc],
+                      bin[ic],
+                      cos12 * cos12 / (n1 * n2),
+                      n1,
+                      n2);
 #endif
                   // break;  // removed to improve reproducibility, keep it for reference and tests
                 }

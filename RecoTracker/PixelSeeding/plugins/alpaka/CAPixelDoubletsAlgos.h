@@ -37,12 +37,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   //Move this ^ definition in CAStructures maybe
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool __attribute__((always_inline)) zSizeCut(const TAcc& acc,
-                                                                              HitsConstView hh,
-                                                                              ::reco::CALayersSoAConstView ll,
-                                                                              AlgoParams const& params,
-                                                                              int i,
-                                                                              int o) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool __attribute__((always_inline)) zSizeCut(
+      const TAcc& acc, HitsConstView hh, ::reco::CALayersSoAConstView ll, AlgoParams const& params, int i, int o) {
     const uint32_t mi = hh[i].detectorIndex();
     const auto first_forward = ll.layerStarts()[4];
     const auto first_bpix2 = ll.layerStarts()[1];
@@ -50,7 +46,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     bool isOuterLadder = 0 == (mi / 8) % 2;
     auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
 #ifdef DOUBLETS_DEBUG
-    printf("i = %d o = %d mi = %d innerB1 = %d isOuterLadder = %d first_forward = %d first_bpix2 = %d\n",i,o,mi,innerB1,isOuterLadder,first_forward,first_bpix2);
+    printf("i = %d o = %d mi = %d innerB1 = %d isOuterLadder = %d first_forward = %d first_bpix2 = %d\n",
+           i,
+           o,
+           mi,
+           innerB1,
+           isOuterLadder,
+           first_forward,
+           first_bpix2);
 #endif
     if (mes < 0)
       return false;
@@ -64,44 +67,60 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     auto innerBarrel = mi < first_forward;
     auto onlyBarrel = mo < first_forward;
 #ifdef DOUBLETS_DEBUG
-    printf("i = %d o = %d mo = %d innerB1 = %d isOuterLadder = %d \n",i,o,mo,innerBarrel,onlyBarrel);
+    printf("i = %d o = %d mo = %d innerB1 = %d isOuterLadder = %d \n", i, o, mo, innerBarrel, onlyBarrel);
 #endif
     if (not innerBarrel and not onlyBarrel)
       return false;
     auto dy = innerB1 ? params.maxDYsize12_ : params.maxDYsize_;
-#ifdef DOUBLETS_DEBUG                                                                          
-    printf("i = %d o = %d dy = %d maxDYsize12_ = %d maxDYsize_ = %d dzdrFact_ = %.2f maxDYPred_ = %d \n",i,o,dy,params.maxDYsize12_,params.maxDYsize_,params.dzdrFact_,params.maxDYPred_);
+#ifdef DOUBLETS_DEBUG
+    printf("i = %d o = %d dy = %d maxDYsize12_ = %d maxDYsize_ = %d dzdrFact_ = %.2f maxDYPred_ = %d \n",
+           i,
+           o,
+           dy,
+           params.maxDYsize12_,
+           params.maxDYsize_,
+           params.dzdrFact_,
+           params.maxDYPred_);
 #endif
-    return onlyBarrel ? so > 0 && std::abs(so - mes) > dy
-                      : innerBarrel && std::abs(mes - int(std::abs(dz / dr) * params.dzdrFact_ + 0.5f)) > params.maxDYPred_;
+    return onlyBarrel
+               ? so > 0 && std::abs(so - mes) > dy
+               : innerBarrel && std::abs(mes - int(std::abs(dz / dr) * params.dzdrFact_ + 0.5f)) > params.maxDYPred_;
   }
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool __attribute__((always_inline)) clusterCut(const TAcc& acc,
-                                                                                HitsConstView hh,
-                                                                                ::reco::CALayersSoAConstView ll,
-                                                                                AlgoParams const& params,
-                                                                                uint32_t i) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool __attribute__((always_inline)) clusterCut(
+      const TAcc& acc, HitsConstView hh, ::reco::CALayersSoAConstView ll, AlgoParams const& params, uint32_t i) {
     const uint32_t mi = hh[i].detectorIndex();
     const auto first_bpix2 = ll.layerStarts()[1];
-    const auto first_bpix3 = ll.layerStarts()[2];                                                              
+    const auto first_bpix3 = ll.layerStarts()[2];
     bool innerB1orB2 = mi < ll.layerStarts()[2];
 #ifdef DOUBLETS_DEBUG
-   printf("i = %d mi = %d innerB1orB2 = %d innerB1 = %d innerB2 = %d minYsizeB1 = %d minYsizeB2 = %d isOuterLadder = %d mes = %d \n",i,mi,innerB1orB2,mi < first_bpix2,(mi >= first_bpix2) && (mi < first_bpix3), params.minYsizeB1_,params.minYsizeB2_, (0 == (mi / 8) % 2), (!(mi < first_bpix2)) || (0 == (mi / 8) % 2) ? hh[i].clusterSizeY() : -1);
-#endif 
+    printf(
+        "i = %d mi = %d innerB1orB2 = %d innerB1 = %d innerB2 = %d minYsizeB1 = %d minYsizeB2 = %d isOuterLadder = %d "
+        "mes = %d \n",
+        i,
+        mi,
+        innerB1orB2,
+        mi < first_bpix2,
+        (mi >= first_bpix2) && (mi < first_bpix3),
+        params.minYsizeB1_,
+        params.minYsizeB2_,
+        (0 == (mi / 8) % 2),
+        (!(mi < first_bpix2)) || (0 == (mi / 8) % 2) ? hh[i].clusterSizeY() : -1);
+#endif
     if (!innerB1orB2)
       return false;
 
     bool innerB1 = mi < first_bpix2;
-    
+
     bool isOuterLadder = 0 == (mi / 8) % 2;
     auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
 
     if (innerB1)  // B1
       if (mes > 0 && mes < params.minYsizeB1_)
-        return true;                                                                 // only long cluster  (5*8)
+        return true;  // only long cluster  (5*8)
     bool innerB2 = (mi >= first_bpix2) && (mi < first_bpix3);
-    if (innerB2)                                                                     // B2 and F1
+    if (innerB2)  // B2 and F1
       if (mes > 0 && mes < params.minYsizeB2_)
         return true;
 
@@ -121,7 +140,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       PhiBinner<TrackerTraits> const* phiBinner,
       HitToCell* outerHitHisto,
       AlgoParams const& params) {
-    
     const bool doClusterCut = params.minYsizeB1_ > 1 or params.minYsizeB2_ > 1;
     const bool doZSizeCut = params.maxDYsize12_ > 1 or params.maxDYsize_ > 1 or params.maxDYPred_ > 1;
 
@@ -143,16 +161,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
 #ifdef DOUBLETS_DEBUG
     if (cms::alpakatools::once_per_grid(acc))
-      printf("maxNumDoublets = %d  cc.metadata().size() = %d ll.metadata().size() = %d cellZ0Cut_ = %.2f cellPtCut_ = %.2f doClusterCut = %d doZ0Cut = %d  doPtCut = %d doZSizeCut = %d\n",
-             maxNumOfDoublets,
-             cc.metadata().size(),
-             ll.metadata().size(), 
-             params.cellZ0Cut_,
-             params.cellPtCut_,
-             doClusterCut,
-             params.cellZ0Cut_ > 0,
-             params.cellPtCut_ > 0,
-             doZSizeCut);
+      printf(
+          "maxNumDoublets = %d  cc.metadata().size() = %d ll.metadata().size() = %d cellZ0Cut_ = %.2f cellPtCut_ = "
+          "%.2f doClusterCut = %d doZ0Cut = %d  doPtCut = %d doZSizeCut = %d\n",
+          maxNumOfDoublets,
+          cc.metadata().size(),
+          ll.metadata().size(),
+          params.cellZ0Cut_,
+          params.cellPtCut_,
+          doClusterCut,
+          params.cellZ0Cut_ > 0,
+          params.cellPtCut_ > 0,
+          doZSizeCut);
 #endif
 
     if (cms::alpakatools::once_per_block(acc)) {
@@ -189,11 +209,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       ALPAKA_ASSERT_ACC(i >= offsets[inner]);
       ALPAKA_ASSERT_ACC(i < offsets[inner + 1]);
 #ifdef DOUBLETS_DEBUG
-      printf("pairLayerId = %d i = %d inner = %d outer = %d offsets[inner] = %d offsets[inner + 1] = %d\n",pairLayerId,i,inner,outer,offsets[inner],offsets[inner+1]);
+      printf("pairLayerId = %d i = %d inner = %d outer = %d offsets[inner] = %d offsets[inner + 1] = %d\n",
+             pairLayerId,
+             i,
+             inner,
+             outer,
+             offsets[inner],
+             offsets[inner + 1]);
 #endif
       // found hit corresponding to our worker thread, now do the job
-      if (hh[i].detectorIndex() > ll.layerStarts()[ll.metadata().size() - 1]) //FIXME use cc
-        continue;  // invalid
+      if (hh[i].detectorIndex() > ll.layerStarts()[ll.metadata().size() - 1])  //FIXME use cc
+        continue;                                                              // invalid
 
       /* maybe clever, not effective when zoCut is on
       auto bpos = (mi%8)/4;  // if barrel is 1 for z>0
@@ -205,13 +231,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
       if (mez < cc.minz()[pairLayerId] || mez > cc.maxz()[pairLayerId])
         continue;
-#ifdef DOUBLETS_DEBUG  
-     if (doClusterCut && outer > pixelTopology::last_barrel_layer)
-	printf("clustCut: %d %d \n",i,clusterCut<TAcc>(acc, hh, ll, params, i));
+#ifdef DOUBLETS_DEBUG
+      if (doClusterCut && outer > pixelTopology::last_barrel_layer)
+        printf("clustCut: %d %d \n", i, clusterCut<TAcc>(acc, hh, ll, params, i));
 #endif
 
-      if (doClusterCut && outer > pixelTopology::last_barrel_layer &&
-          clusterCut<TAcc>(acc, hh, ll, params, i))
+      if (doClusterCut && outer > pixelTopology::last_barrel_layer && clusterCut<TAcc>(acc, hh, ll, params, i))
         continue;
 
       auto mep = hh[i].iphi();
@@ -268,7 +293,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           auto mo = hh[oi].detectorIndex();
 
           // invalid
-          if (mo > pixelClustering::maxNumModules) //FIXME use cc?
+          if (mo > pixelClustering::maxNumModules)  //FIXME use cc?
             continue;
 
           if (params.cellZ0Cut_ > 0. && z0cutoff(oi))
@@ -280,8 +305,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           if (idphi > iphicut)
             continue;
 #ifdef DOUBLETS_DEBUG
-          printf("zSizeCut: %d %d %d \n",i,oi,zSizeCut<TAcc>(acc, hh, ll, params, i, oi));
-#endif         
+          printf("zSizeCut: %d %d %d \n", i, oi, zSizeCut<TAcc>(acc, hh, ll, params, i, oi));
+#endif
           if (doZSizeCut && zSizeCut<TAcc>(acc, hh, ll, params, i, oi))
             continue;
 
@@ -295,7 +320,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 #endif
             alpaka::atomicSub(acc, nCells, (uint32_t)1, alpaka::hierarchy::Blocks{});
             break;
-          } 
+          }
 
           outerHitHisto->count(acc, oi - hh.offsetBPIX2());
           cells[ind].init(hh, pairLayerId, inner, outer, i, oi);

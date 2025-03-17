@@ -580,7 +580,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     if (this->m_params.algoParams_.doSharedHitCut_ || this->m_params.algoParams_.doStats_) {
-     
       // fill hit->track "map"
       numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxTuples / 4, blockSize);
       workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
@@ -606,7 +605,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     if (this->m_params.algoParams_.doSharedHitCut_) {
       // mark duplicates (tracks that share at least one hit)
-      numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxTuples / 4, blockSize); 
+      numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxTuples / 4, blockSize);
       workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
       alpaka::exec<Acc1D>(queue,
                           workDiv1D,
@@ -691,13 +690,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::wait(queue);
     workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1, 1);
     alpaka::exec<Acc1D>(queue,
-        workDiv1D,
-        Kernel_printSizes{},
-        hh,
-    	tracks_view,
-        this->device_nCells_.data(),
-        this->device_nTriplets_.data(),
-        this->device_nCellTracks_.data());
+                        workDiv1D,
+                        Kernel_printSizes{},
+                        hh,
+                        tracks_view,
+                        this->device_nCells_.data(),
+                        this->device_nTriplets_.data(),
+                        this->device_nCellTracks_.data());
 
     alpaka::wait(queue);
 #endif
