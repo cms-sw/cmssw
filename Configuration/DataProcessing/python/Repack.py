@@ -70,9 +70,11 @@ def repackProcess(**args):
 
         selectEventsBase = output.get('selectEvents', None)
         rawSkim = output.get('rawSkim', None)
+
         if rawSkim:
-            
-            selectEventsBase = selectEventsBase.replace(":HLT", "")
+
+            selectEventsBase = [item.replace(":HLT", "") for item in selectEventsBase]
+
             process.baseSelection = hlt.hltHighLevel.clone(
                 TriggerResultsTag = "TriggerResults::HLT",
                 HLTPaths = cms.vstring(selectEventsBase)
