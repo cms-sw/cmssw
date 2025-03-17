@@ -7,13 +7,13 @@
 namespace conifer {
 
   /* ---
-* Balanced tree reduce implementation.
-* Reduces an array of inputs to a single value using the template binary operator 'Op',
-* for example summing all elements with Op_add, or finding the maximum with Op_max
-* Use only when the input array is fully unrolled. Or, slice out a fully unrolled section
-* before applying and accumulate the result over the rolled dimension.
-* Required for emulation to guarantee equality of ordering.
-* --- */
+  * Balanced tree reduce implementation.
+  * Reduces an array of inputs to a single value using the template binary operator 'Op',
+  * for example summing all elements with Op_add, or finding the maximum with Op_max
+  * Use only when the input array is fully unrolled. Or, slice out a fully unrolled section
+  * before applying and accumulate the result over the rolled dimension.
+  * Required for emulation to guarantee equality of ordering.
+  * --- */
   constexpr int floorlog2(int x) { return (x < 2) ? 0 : 1 + floorlog2(x / 2); }
 
   template <int B>
@@ -45,6 +45,19 @@ namespace conifer {
     T operator()(T a, T b) { return a + b; }
   };
 
+  template <typename T>
+  std::function<bool(T, T)> createSplit(const std::string& op) {
+    std::function<bool(T, T)> split;
+    if (op == "<") {
+      split = [](const T& a, const T& b) { return a < b; };
+    } else if (op == "<=") {
+      split = [](const T& a, const T& b) { return a <= b; };
+    } else {
+      throw std::invalid_argument("Invalid operator string: " + op);
+    }
+    return split;
+  }
+
   template <class T, class U>
   class DecisionTree {
   private:
@@ -55,28 +68,23 @@ namespace conifer {
     std::vector<U> value_;
     std::vector<double> threshold;
     std::vector<double> value;
-    std::string splitting_convention;
+    std::function<bool(T, T)> split;
 
   public:
-    U decision_function(const std::vector<T> &x) const {
+    U decision_function(const std::vector<T>& x) const {
       /* Do the prediction */
       int i = 0;
       bool comparison;
       while (feature[i] != -2) {  // continue until reaching leaf
-        // std::cout << "splitting conf: " << splitting_convention << std::endl;
-        if (splitting_convention == "<=") {
-          comparison = x[feature[i]] <= threshold_[i];
-        } else {
-          comparison = x[feature[i]] < threshold_[i];
-        }
+        comparison = split(x[feature[i]], threshold_[i]);
         i = comparison ? children_left[i] : children_right[i];
       }
       return value_[i];
     }
 
-    void init_(std::string splitting_convention_p) {
+    void init_(std::function<bool(T, T)> split) {
       /* Since T, U types may not be readable from the JSON, read them to double and the cast them here */
-      splitting_convention = splitting_convention_p;
+      this->split = split;
       std::transform(
           threshold.begin(), threshold.end(), std::back_inserter(threshold_), [](double t) -> T { return (T)t; });
       std::transform(value.begin(), value.end(), std::back_inserter(value_), [](double v) -> U { return (U)v; });
@@ -93,22 +101,26 @@ namespace conifer {
     unsigned int n_classes;
     unsigned int n_trees;
     unsigned int n_features;
+    double norm;
     std::vector<double> init_predict;
     std::vector<U> init_predict_;
     // vector of decision trees: outer dimension tree, inner dimension class
     std::vector<std::vector<DecisionTree<T, U>>> trees;
     OpAdd<U> add;
-    std::string splitting_convention;
 
   public:
     // Define how to read this class to/from JSON
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(BDT, n_classes, n_trees, n_features, init_predict, trees, splitting_convention);
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(BDT, n_classes, n_trees, n_features, norm, init_predict, trees);
 
     BDT(std::string filename) {
       /* Construct the BDT from conifer cpp backend JSON file */
       std::ifstream ifs(filename);
       nlohmann::json j = nlohmann::json::parse(ifs);
       from_json(j, *this);
+      auto splitting_convention =
+          j.value("splitting_convention",
+                  "<=");  // read the splitting convention with default value of "<=" if it's unspecified
+      auto split = createSplit<T>(splitting_convention);
       /* Do some transformation to initialise things into the proper emulation T, U types */
       if (n_classes == 2)
         n_classes = 1;
@@ -117,7 +129,7 @@ namespace conifer {
       });
       for (unsigned int i = 0; i < n_trees; i++) {
         for (unsigned int j = 0; j < n_classes; j++) {
-          trees.at(i).at(j).init_(splitting_convention);
+          trees.at(i).at(j).init_(split);
         }
       }
     }
@@ -139,6 +151,7 @@ namespace conifer {
         } else {
           values.at(i) = std::accumulate(values_trees.at(i).begin(), values_trees.at(i).end(), U(init_predict_.at(i)));
         }
+        values.at(i) *= (U)norm;
       }
 
       return values;

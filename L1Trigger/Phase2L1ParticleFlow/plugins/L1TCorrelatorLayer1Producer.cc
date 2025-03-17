@@ -809,6 +809,12 @@ void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::EmCaloObjEmu &decCalo,
                                                    l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec) {
   clusterRefMap_[caloPtr.get()] = caloPtr;
   decCalo.src = caloPtr.get();
+  if (decCalo.hwPt > 0) {  // NOTE: 0 pt clusters have null ptr. Do we need to keep them?
+    // FIXME: for now we extract these from the upstream object since they are not yet available in the digi format
+    const l1tp2::CaloCrystalCluster *crycl = dynamic_cast<const l1tp2::CaloCrystalCluster *>(decCalo.src);
+    decCalo.hwShowerShape = l1ct::shower_shape_t(crycl->e2x5() / crycl->e5x5());
+    decCalo.hwRelIso = l1ct::Scales::makeRelIso(crycl->isolation() / decCalo.hwPt.to_float());
+  }
   sec.obj.push_back(decCalo);
 }
 

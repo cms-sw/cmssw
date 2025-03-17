@@ -103,13 +103,8 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
         nTRACK_EGIN = 13,
         nEMCALO_EGIN = 10,
         nEM_EGOUT = 10,
-        algorithm = 2,
+        algorithm = 4,
         trkQualityPtMin = 0.,
-        compositeParametersTkEle = cms.PSet(
-            model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EB_v0.json"),
-            loose_wp=cms.double(-9999),
-            tight_wp=cms.double(0.0263672),
-        )
     ),
     tkEgSorterAlgo = cms.string("Barrel"),
     tkEgSorterParameters = tkEgSorterParameters.clone(

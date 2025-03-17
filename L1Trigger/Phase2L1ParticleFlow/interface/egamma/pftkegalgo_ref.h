@@ -37,7 +37,14 @@ namespace l1ct {
     std::vector<double> dPhiValues;
     float trkQualityPtMin;  // GeV
 
-    enum Algo { undefined = -1, elliptic = 0, compositeEE_v0 = 1, compositeEB_v0 = 2, compositeEE_v1 = 3 };
+    enum Algo {
+      undefined = -1,
+      elliptic = 0,
+      compositeEE_v0 = 1,
+      compositeEB_v0 = 2,
+      compositeEE_v1 = 3,
+      compositeEB_v1 = 4
+    };
 
     Algo algorithm;
     unsigned int nCompCandPerCluster;
@@ -68,11 +75,22 @@ namespace l1ct {
 
     struct CompIDParameters {
       CompIDParameters(const edm::ParameterSet &);
-      CompIDParameters(double bdtScore_loose_wp, double bdtScore_tight_wp, const std::string &model)
-          : bdtScore_loose_wp(bdtScore_loose_wp), bdtScore_tight_wp(bdtScore_tight_wp), conifer_model(model) {}
-      const id_score_t bdtScore_loose_wp;  // Conifer score/4
-      const id_score_t bdtScore_tight_wp;  // Conifer score/4
-      const std::string conifer_model;
+      CompIDParameters(const std::vector<double> &loose_wp_bins,
+                       const std::vector<double> &loose_wp,
+                       const std::vector<double> &tight_wp_bins,
+                       const std::vector<double> &tight_wp,
+                       const std::string &model,
+                       double dphi_max,
+                       double deta_max);
+
+      std::vector<double> loose_wp_bins_;
+      std::vector<double> loose_wp_;
+      std::vector<double> tight_wp_bins_;
+      std::vector<double> tight_wp_;
+      std::string conifer_model_;
+      double dPhi_max_;
+      double dEta_max_;
+
       static edm::ParameterSetDescription getParameterSetDescription();
     };
 
@@ -81,35 +99,36 @@ namespace l1ct {
     int debug = 0;
 
     PFTkEGAlgoEmuConfig(const edm::ParameterSet &iConfig);
-    PFTkEGAlgoEmuConfig(unsigned int nTrack,
-                        unsigned int nTrack_in,
-                        unsigned int nEmCalo_in,
-                        unsigned int nEmOut,
-                        bool filterHwQuality,
-                        bool doBremRecovery,
-                        bool writeBeforeBremRecovery = false,
-                        int caloHwQual = 4,
-                        bool doEndcapHwQual = false,
-                        float emClusterPtMin = 2.,
-                        float dEtaMaxBrem = 0.02,
-                        float dPhiMaxBrem = 0.1,
-                        const std::vector<double> &absEtaBoundaries = {0.0, 1.5},
-                        const std::vector<double> &dEtaValues = {0.015, 0.01},
-                        const std::vector<double> &dPhiValues = {0.07, 0.07},
-                        float trkQualityPtMin = 10.,
-                        unsigned int algo = 0,
-                        unsigned int nCompCandPerCluster = 4,
-                        bool writeEgSta = false,
-                        const IsoParameters &tkIsoParams_tkEle = {2., 0.6, 0.03, 0.2},
-                        const IsoParameters &tkIsoParams_tkEm = {2., 0.6, 0.07, 0.3},
-                        const IsoParameters &pfIsoParams_tkEle = {1., 0.6, 0.03, 0.2},
-                        const IsoParameters &pfIsoParams_tkEm = {1., 0.6, 0.07, 0.3},
-                        bool doTkIso = true,
-                        bool doPfIso = false,
-                        EGIsoEleObjEmu::IsoType hwIsoTypeTkEle = EGIsoEleObjEmu::IsoType::TkIso,
-                        EGIsoObjEmu::IsoType hwIsoTypeTkEm = EGIsoObjEmu::IsoType::TkIsoPV,
-                        const CompIDParameters &compIDparams = {-4, 0.214844, "compositeID.json"},
-                        int debug = 0)
+    PFTkEGAlgoEmuConfig(
+        unsigned int nTrack,
+        unsigned int nTrack_in,
+        unsigned int nEmCalo_in,
+        unsigned int nEmOut,
+        bool filterHwQuality,
+        bool doBremRecovery,
+        bool writeBeforeBremRecovery = false,
+        int caloHwQual = 4,
+        bool doEndcapHwQual = false,
+        float emClusterPtMin = 2.,
+        float dEtaMaxBrem = 0.02,
+        float dPhiMaxBrem = 0.1,
+        const std::vector<double> &absEtaBoundaries = {0.0, 1.5},
+        const std::vector<double> &dEtaValues = {0.015, 0.01},
+        const std::vector<double> &dPhiValues = {0.07, 0.07},
+        float trkQualityPtMin = 10.,
+        unsigned int algo = 0,
+        unsigned int nCompCandPerCluster = 4,
+        bool writeEgSta = false,
+        const IsoParameters &tkIsoParams_tkEle = {2., 0.6, 0.03, 0.2},
+        const IsoParameters &tkIsoParams_tkEm = {2., 0.6, 0.07, 0.3},
+        const IsoParameters &pfIsoParams_tkEle = {1., 0.6, 0.03, 0.2},
+        const IsoParameters &pfIsoParams_tkEm = {1., 0.6, 0.07, 0.3},
+        bool doTkIso = true,
+        bool doPfIso = false,
+        EGIsoEleObjEmu::IsoType hwIsoTypeTkEle = EGIsoEleObjEmu::IsoType::TkIso,
+        EGIsoObjEmu::IsoType hwIsoTypeTkEm = EGIsoObjEmu::IsoType::TkIsoPV,
+        const CompIDParameters &compIDparams = {{0.}, {-4}, {0.}, {0.214844}, "compositeID.json", 0.2, 0.2},
+        int debug = 0)
 
         : nTRACK(nTrack),
           nTRACK_EGIN(nTrack_in),
@@ -148,11 +167,169 @@ namespace l1ct {
         algorithm = Algo::compositeEB_v0;
       else if (algo == 3)
         algorithm = Algo::compositeEE_v1;
+      else if (algo == 4)
+        algorithm = Algo::compositeEB_v1;
       else
         throw std::invalid_argument("[PFTkEGAlgoEmuConfig]: Unknown algorithm type: " + std::to_string(algo));
     }
 
     static edm::ParameterSetDescription getParameterSetDescription();
+  };
+
+  struct CompositeCandidate {
+    unsigned int cluster_idx;
+    unsigned int track_idx;
+    double dpt;  // For sorting
+  };
+
+  class TkEGEleAssociationModel {
+  public:
+    TkEGEleAssociationModel(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params, int debug);
+    virtual ~TkEGEleAssociationModel() = default;
+
+    virtual id_score_t compute_score(const CompositeCandidate &cand,
+                                     const std::vector<EmCaloObjEmu> &emcalo,
+                                     const std::vector<TkObjEmu> &track,
+                                     const std::vector<float> additional_vars) const = 0;
+
+    bool geometric_match(const EmCaloObjEmu &emcalo, const TkObjEmu &track) const;
+
+    class WP {
+    public:
+      enum cut_type { score_cut = 0, pt_binned_cut = 1 };
+
+      cut_type getWPtype() const { return wp_type; }
+      virtual ~WP() = default;
+
+      virtual bool apply(const id_score_t &score, const float &var) const = 0;
+
+    protected:
+      WP(cut_type wp_type) : wp_type(wp_type) {}
+      cut_type wp_type;
+    };
+
+    class SimpleWP : public WP {
+    public:
+      id_score_t wp_value_;
+      SimpleWP(id_score_t wp_value) : WP(cut_type::score_cut), wp_value_(wp_value) {}
+      bool apply(const id_score_t &score, const float &var) const override { return score >= wp_value_; }
+    };
+
+    class BinnedWP1D : public WP {
+      std::vector<double> bin_low_edges_;
+      std::vector<id_score_t> wp_values_;
+
+    public:
+      BinnedWP1D(const std::vector<double> &bin_low_edges, const std::vector<id_score_t> &wp_values)
+          : WP(cut_type::pt_binned_cut), bin_low_edges_(bin_low_edges), wp_values_(wp_values) {}
+
+      bool apply(const id_score_t &score, const float &var) const override {
+        auto it = std::upper_bound(bin_low_edges_.begin(), bin_low_edges_.end(), var);
+        unsigned int bin_index = it - bin_low_edges_.begin() - 1;
+        return (score > id_score_t(wp_values_[bin_index]));
+      };
+    };
+
+    static std::unique_ptr<WP> createWP(const std::vector<double> &bin_low_edges,
+                                        const std::vector<double> &wp_values) {
+      assert(bin_low_edges.size() == wp_values.size() && "The size of bin_low_edges must match the size of wp_values.");
+      assert(wp_values.size() && "The size of bin_low_edges must not be 0.");
+
+      std::vector<id_score_t> wp_values_apf;
+      wp_values_apf.reserve(wp_values.size());
+      std::transform(wp_values.begin(), wp_values.end(), std::back_inserter(wp_values_apf), [](const double &val) {
+        return id_score_t(val);
+      });
+      if (bin_low_edges.size() == 1) {
+        return std::make_unique<SimpleWP>(id_score_t(wp_values_apf[0]));
+      }
+      return std::make_unique<BinnedWP1D>(bin_low_edges, wp_values_apf);
+    }
+
+    bool apply_wp_loose(float score, float var) const { return loose_wp_->apply(score, var); }
+
+    bool apply_wp_tight(float score, float var) const { return tight_wp_->apply(score, var); }
+
+    WP::cut_type loose_wp_type() const { return loose_wp_->getWPtype(); }
+
+    WP::cut_type tight_wp_type() const { return tight_wp_->getWPtype(); }
+
+  private:
+    std::unique_ptr<WP> loose_wp_;
+    std::unique_ptr<WP> tight_wp_;
+    float dphi2_max_;
+    float deta2_max_;
+
+  protected:
+    int debug_;
+  };
+
+  class TkEgCID_EE_v0 : public TkEGEleAssociationModel {
+  public:
+    TkEgCID_EE_v0(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params, int debug);
+
+    id_score_t compute_score(const CompositeCandidate &cand,
+                             const std::vector<EmCaloObjEmu> &emcalo,
+                             const std::vector<TkObjEmu> &track,
+                             const std::vector<float> additional_vars) const override;
+
+    typedef ap_fixed<21, 12, AP_RND_CONV, AP_SAT> bdt_feature_t;
+    typedef ap_fixed<12, 3, AP_RND_CONV, AP_SAT> bdt_score_t;
+
+  private:
+    conifer::BDT<bdt_feature_t, bdt_score_t, false> *model_;
+  };
+
+  class TkEgCID_EE_v1 : public TkEGEleAssociationModel {
+  public:
+    TkEgCID_EE_v1(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params, int debug);
+
+    id_score_t compute_score(const CompositeCandidate &cand,
+                             const std::vector<EmCaloObjEmu> &emcalo,
+                             const std::vector<TkObjEmu> &track,
+                             const std::vector<float> additional_vars) const override;
+
+    typedef ap_fixed<30, 20, AP_RND_CONV, AP_SAT> bdt_feature_t;
+    typedef ap_fixed<30, 20, AP_RND_CONV, AP_SAT> bdt_score_t;
+
+  private:
+    conifer::BDT<bdt_feature_t, bdt_score_t, false> *model_;
+  };
+
+  class TkEgCID_EB_v0 : public TkEGEleAssociationModel {
+  public:
+    TkEgCID_EB_v0(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params, int debug);
+
+    id_score_t compute_score(const CompositeCandidate &cand,
+                             const std::vector<EmCaloObjEmu> &emcalo,
+                             const std::vector<TkObjEmu> &track,
+                             const std::vector<float> additional_vars) const override;
+
+    typedef ap_fixed<24, 9, AP_RND_CONV, AP_SAT> bdt_feature_t;
+    typedef ap_fixed<12, 4, AP_RND_CONV, AP_SAT> bdt_score_t;
+
+  private:
+    conifer::BDT<bdt_feature_t, bdt_score_t, false> *model_;
+  };
+
+  class TkEgCID_EB_v1 : public TkEGEleAssociationModel {
+  public:
+    TkEgCID_EB_v1(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params, int debug);
+
+    id_score_t compute_score(const CompositeCandidate &cand,
+                             const std::vector<EmCaloObjEmu> &emcalo,
+                             const std::vector<TkObjEmu> &track,
+                             const std::vector<float> additional_vars) const override;
+
+    typedef ap_fixed<8, 1, AP_RND_CONV, AP_SAT> bdt_feature_t;
+    typedef ap_fixed<11, 4, AP_RND_CONV, AP_SAT> bdt_score_t;
+
+  private:
+    float scale(const float &x, const float &min_x, const int &bitshift, float inf = -1) const {
+      return inf + (x - min_x) / pow(2, bitshift);
+    }
+
+    conifer::BDT<bdt_feature_t, bdt_score_t, false> *model_;
   };
 
   class PFTkEGAlgoEmulator {
@@ -176,14 +353,7 @@ namespace l1ct {
 
     bool writeEgSta() const { return cfg.writeEgSta; }
 
-    typedef ap_fixed<21, 12, AP_RND_CONV, AP_SAT> bdt_feature_t;
-    typedef ap_fixed<12, 3, AP_RND_CONV, AP_SAT> bdt_score_t;
-
-    typedef ap_fixed<24, 9, AP_RND_CONV, AP_SAT> bdt_eb_feature_t;
-    typedef ap_fixed<12, 4, AP_RND_CONV, AP_SAT> bdt_eb_score_t;
-
-    typedef ap_fixed<30, 20, AP_RND_CONV, AP_SAT> bdt_ee_feature_t;
-    typedef ap_fixed<30, 20, AP_RND_CONV, AP_SAT> bdt_ee_score_t;
+    static float deltaPhi(float phi1, float phi2);
 
   private:
     void link_emCalo2emCalo(const std::vector<EmCaloObjEmu> &emcalo, std::vector<int> &emCalo2emCalo) const;
@@ -198,33 +368,6 @@ namespace l1ct {
                                         const std::vector<TkObjEmu> &track,
                                         std::vector<int> &emCalo2tk,
                                         std::vector<id_score_t> &emCaloTkBdtScore) const;
-
-    struct CompositeCandidate {
-      unsigned int cluster_idx;
-      unsigned int track_idx;
-      double dpt;  // For sorting
-    };
-
-    id_score_t compute_composite_score(CompositeCandidate &cand,
-                                       const std::vector<EmCaloObjEmu> &emcalo,
-                                       const std::vector<TkObjEmu> &track,
-                                       const PFTkEGAlgoEmuConfig::CompIDParameters &params) const;
-
-    id_score_t compute_composite_score_eb(CompositeCandidate &cand,
-                                          float sumTkPt,
-                                          unsigned int nTkMatch,
-                                          const std::vector<EmCaloObjEmu> &emcalo,
-                                          const std::vector<TkObjEmu> &track,
-                                          const PFTkEGAlgoEmuConfig::CompIDParameters &params) const;
-
-    id_score_t compute_composite_score_ee(CompositeCandidate &cand,
-                                          float sumTkPt,
-                                          unsigned int nTkMatch,
-                                          const std::vector<EmCaloObjEmu> &emcalo,
-                                          const std::vector<TkObjEmu> &track,
-                                          const PFTkEGAlgoEmuConfig::CompIDParameters &params) const;
-
-    float deltaPhi(float phi1, float phi2) const;
 
     void sel_emCalo(unsigned int nmax_sel,
                     const std::vector<EmCaloObjEmu> &emcalo,
@@ -396,7 +539,7 @@ namespace l1ct {
 
     PFTkEGAlgoEmuConfig cfg;
     // Could use a std::variant
-    void *model_;
+    std::unique_ptr<TkEGEleAssociationModel> tkEleModel_;
 
     int debug_;
   };

@@ -41,6 +41,8 @@ namespace l1ct {
 
   // FIXME: adjust range 10-11bits -> 1/4 - 1/2TeV is probably more than enough for all reasonable use cases
   typedef ap_ufixed<11, 9, AP_TRN, AP_SAT> iso_t;
+  typedef ap_ufixed<6, 0, AP_RND, AP_SAT> rel_iso_t;
+  typedef ap_ufixed<6, 0, AP_RND, AP_SAT> shower_shape_t;
 
   struct ParticleID {
     ap_uint<3> bits;
@@ -142,6 +144,7 @@ namespace l1ct {
   };
 
   namespace Scales {
+
     constexpr int INTPHI_PI = 720;
     constexpr int INTPHI_TWOPI = 2 * INTPHI_PI;
     constexpr float INTPT_LSB = 0.25;
@@ -154,6 +157,7 @@ namespace l1ct {
     constexpr float SRRTOT_LSB = 0.0019531250;  // pow(2, -9)
     constexpr unsigned int SRRTOT_SCALE = 64;   // pow(2, 6)
     constexpr float HOE_LSB = 0.031250000;      // pow(2, -5)
+    constexpr unsigned int RELISO_SCALE = 16;
 
     inline float floatPt(pt_t pt) { return pt.to_float(); }
     inline float floatPt(dpt_t pt) { return pt.to_float(); }
@@ -182,6 +186,8 @@ namespace l1ct {
     inline float floatIDScore(id_score_t score) { return score.to_float(); };
     inline float floatMass(mass2_t mass) { return mass.to_float(); }
     inline float floatIDProb(id_prob_t prob) { return prob.to_float(); };
+    inline float floatRelIso(rel_iso_t rel_iso) { return rel_iso.to_float() * RELISO_SCALE; }
+    inline float floatShoweShape(shower_shape_t showe_shape) { return showe_shape.to_float(); }
 
     inline pt_t makePt(int pt) { return ap_ufixed<16, 14>(pt) >> 2; }
     inline dpt_t makeDPt(int dpt) { return ap_fixed<18, 16>(dpt) >> 2; }
@@ -216,6 +222,7 @@ namespace l1ct {
     inline srrtot_t makeSrrTot(float var) { return srrtot_t(SRRTOT_LSB * round(var * SRRTOT_SCALE / SRRTOT_LSB)); };
     inline meanz_t makeMeanZ(float var) { return round(var - MEANZ_OFFSET); };
     inline hoe_t makeHoe(float var) { return hoe_t(HOE_LSB * round(var / HOE_LSB)); };
+    inline rel_iso_t makeRelIso(float var) { return rel_iso_t(var / RELISO_SCALE); };
 
     inline float maxAbsEta() { return ((1 << (eta_t::width - 1)) - 1) * ETAPHI_LSB; }
     inline float maxAbsPhi() { return ((1 << (phi_t::width - 1)) - 1) * ETAPHI_LSB; }
