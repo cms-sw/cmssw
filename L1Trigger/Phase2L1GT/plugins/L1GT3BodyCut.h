@@ -30,35 +30,34 @@ namespace l1t {
           minInvMassSqrDiv2_(getOptionalParam<int64_t, double>("minInvMass",
                                                                config,
                                                                [&](double value) {
-                                                                 return std::round(scales.to_hw_InvMassSqrDiv2(value) *
+                                                                 return std::floor(scales.to_hw_InvMassSqrDiv2(value) *
                                                                                    cosPhiLUT_.output_scale());
                                                                })),
-          maxInvMassSqrDiv2_(getOptionalParam<int64_t, double>("maxInvMass",
-                                                               config,
-                                                               [&](double value) {
-                                                                 return std::round(scales.to_hw_InvMassSqrDiv2(value) *
-                                                                                   cosPhiLUT_.output_scale());
-                                                               })),
+          maxInvMassSqrDiv2_(getOptionalParam<int64_t, double>(
+              "maxInvMass",
+              config,
+              [&](double value) { return std::ceil(scales.to_hw_InvMassSqrDiv2(value) * cosPhiLUT_.output_scale()); })),
           minTransMassSqrDiv2_(getOptionalParam<int64_t, double>(
               "minTransMass",
               config,
               [&](double value) {
-                return std::round(scales.to_hw_TransMassSqrDiv2(value) * cosPhiLUT_.output_scale());
+                return std::floor(scales.to_hw_TransMassSqrDiv2(value) * cosPhiLUT_.output_scale());
               })),
           maxTransMassSqrDiv2_(getOptionalParam<int64_t, double>(
               "maxTransMass",
               config,
               [&](double value) {
-                return std::round(scales.to_hw_TransMassSqrDiv2(value) * cosPhiLUT_.output_scale());
+                return std::ceil(scales.to_hw_TransMassSqrDiv2(value) * cosPhiLUT_.output_scale());
               })),
           scaleNormalShift_(std::round(std::log2(std::ceil(coshEtaLUT_.output_scale() / coshEtaLUT2_.output_scale())))),
           invMassResolutionReduceShift_([&]() {
             if (minInvMassSqrDiv2_) {
               return std::max<int>(
-                  std::ceil(std::log2(minInvMassSqrDiv2_.value() * cosPhiLUT_.output_scale() + 1.0)) - 16, 0);
+                  std::ceil(std::log2(std::floor(minInvMassSqrDiv2_.value() * cosPhiLUT_.output_scale() + 1.0))) - 16,
+                  0);
             } else if (maxInvMassSqrDiv2_) {
-              return std::max<int>(std::ceil(std::log2(maxInvMassSqrDiv2_.value() * cosPhiLUT_.output_scale())) - 16,
-                                   0);
+              return std::max<int>(
+                  std::ceil(std::log2(std::ceil(maxInvMassSqrDiv2_.value() * cosPhiLUT_.output_scale()))) - 16, 0);
             } else {
               return 0;
             }
@@ -66,10 +65,11 @@ namespace l1t {
           transMassResolutionReduceShift_([&]() {
             if (minTransMassSqrDiv2_) {
               return std::max<int>(
-                  std::ceil(std::log2(minTransMassSqrDiv2_.value() * cosPhiLUT_.output_scale() + 1.0)) - 16, 0);
+                  std::ceil(std::log2(std::floor(minTransMassSqrDiv2_.value() * cosPhiLUT_.output_scale() + 1.0))) - 16,
+                  0);
             } else if (maxTransMassSqrDiv2_) {
-              return std::max<int>(std::ceil(std::log2(maxTransMassSqrDiv2_.value() * cosPhiLUT_.output_scale())) - 16,
-                                   0);
+              return std::max<int>(
+                  std::ceil(std::log2(std::ceil(maxTransMassSqrDiv2_.value() * cosPhiLUT_.output_scale()))) - 16, 0);
             } else {
               return 0;
             }
