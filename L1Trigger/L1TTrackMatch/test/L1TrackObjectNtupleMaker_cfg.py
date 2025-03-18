@@ -80,8 +80,8 @@ process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStub
 
 
 # DTC emulation
-process.load('L1Trigger.TrackerDTC.ProducerED_cff')
-process.dtc = cms.Path(process.TrackerDTCProducer)
+process.load('L1Trigger.TrackerDTC.DTC_cff')
+process.dtc = cms.Path(process.ProducerDTC)
 
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 process.load("L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi")
