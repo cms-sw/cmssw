@@ -111,9 +111,9 @@ private:
         if (qualityBitsConfig[i].existsAs<unsigned int>("bit"))
           bit = qualityBitsConfig[i].getParameter<unsigned int>("bit");
         assert(!bits[bit] && "a quality bit was inserted twice");  // the bit should not have been set already
-        assert(bit < 31 && "quality bits are store on 32 bit");
+        assert(bit < 64 && "quality bits are store on 64 bits");
         bits[bit] = true;
-        qualityBitsFunc << std::to_string(int(pow(2, bit))) << "*("
+        qualityBitsFunc << std::to_string(1UL << bit) << "*("
                         << qualityBitsConfig[i].getParameter<std::string>("selection") << ")";
         qualityBitsDoc += std::to_string(bit) + " => " + qualityBitsConfig[i].getParameter<std::string>("doc");
       }
@@ -147,12 +147,12 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   const auto &trigObjs = iEvent.get(src_);
 
   std::vector<std::pair<const pat::TriggerObjectStandAlone *, const SelectedObject *>> selected;
-  std::map<int, std::map<const pat::TriggerObjectStandAlone *, int>> selected_bits;
+  std::map<int, std::map<const pat::TriggerObjectStandAlone *, uint64_t>> selected_bits;
   for (const auto &obj : trigObjs) {
     for (const auto &sel : sels_) {
       if (sel.match(obj)) {
-        selected_bits[sel.id][&obj] = int(sel.qualityBits(obj));
-        if (sel.skipObjectsNotPassingQualityBits ? (selected_bits[sel.id][&obj] > 0) : true) {
+        selected_bits[sel.id][&obj] = sel.qualityBits(obj);
+        if (sel.skipObjectsNotPassingQualityBits ? (selected_bits[sel.id][&obj] != 0) : true) {
           selected.emplace_back(&obj, &sel);
         }
       }
@@ -269,7 +269,8 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   std::vector<float> pt(nobj, 0), eta(nobj, 0), phi(nobj, 0), l1pt(nobj, 0), l1pt_2(nobj, 0), l2pt(nobj, 0);
   std::vector<int16_t> l1charge(nobj, 0);
   std::vector<uint16_t> id(nobj, 0);
-  std::vector<int> bits(nobj, 0), l1iso(nobj, 0);
+  std::vector<uint64_t> bits(nobj, 0);
+  std::vector<int> l1iso(nobj, 0);
   for (unsigned int i = 0; i < nobj; ++i) {
     const auto &obj = *selected[i].first;
     const auto &sel = *selected[i].second;
@@ -324,7 +325,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   tab->addColumn<int16_t>("l1charge", l1charge, "charge of associated L1 seed");
   tab->addColumn<float>("l1pt_2", l1pt_2, "pt of associated secondary L1 seed", 8);
   tab->addColumn<float>("l2pt", l2pt, "pt of associated 'L2' seed (i.e. HLT before tracking/PF)", 10);
-  tab->addColumn<int>("filterBits", bits, "extra bits of associated information: " + bitsDoc_);
+  tab->addColumn<uint64_t>("filterBits", bits, "extra bits of associated information: " + bitsDoc_);
   iEvent.put(std::move(tab));
 }
 
