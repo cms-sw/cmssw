@@ -79,13 +79,19 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       ctHWTaggedJet.hwTagScores[i] = JetScore_float[i];
     }
     float PtCorrection_ = JetScore_float[classes_.size()];    
+    ctHWTaggedJet.hwPt = (l1ct::pt_t)((float)ctHWTaggedJet.hwPt * PtCorrection_);
     l1gt::Jet gtHWTaggedJet = ctHWTaggedJet.toGT();
     // TODO set the regressed pT instead of the srcjet pt
-    l1t::PFJet edmTaggedJet(srcjet.pt() * PtCorrection_, srcjet.eta(), srcjet.phi(), srcjet.mass(),
+    l1t::PFJet edmTaggedJet(srcjet.pt() , srcjet.eta(), srcjet.phi(), srcjet.mass(),
                             gtHWTaggedJet.v3.pt.V, gtHWTaggedJet.v3.eta.V, gtHWTaggedJet.v3.phi.V
                            );
     edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::CT, ctHWTaggedJet.pack());
     edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::GT, gtHWTaggedJet.pack());
+
+    std::vector<edm::Ptr<l1t::PFCandidate>> constituents;
+    std::for_each(srcjet.constituents().begin(), srcjet.constituents().end(), [&](auto constituent) {
+      edmTaggedJet.addConstituent(constituent);
+    });
     edmTaggedJet.addTagScores(JetScore_float,classes_,PtCorrection_);
     taggedJets.push_back(edmTaggedJet);
   }
@@ -106,7 +112,7 @@ void L1TSC4NGJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("minPt", 20);
   desc.add<double>("maxEta", 2.4);
   desc.add<edm::InputTag>("vtx", edm::InputTag("L1VertexFinderEmulator", "L1VerticesEmulation"));
-  desc.add<std::vector<std::string>>("classes", {"uds", "g", "b", "c", "tau_p", "tau_n", "e", "mu"});
+  desc.add<std::vector<std::string>>("classes", {"b", "c", "uds", "g", "c", "tau_p", "tau_n", "e", "mu"});
   descriptions.add("l1tSC4NGJetProducer", desc);
 }
 
