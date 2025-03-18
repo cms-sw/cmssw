@@ -225,9 +225,6 @@ namespace edm {
       return ESGetTokenGeneric(static_cast<unsigned int>(Tr), index, iRecord.type());
     }
 
-    //used for FinalPath
-    void resetItemsToGetFrom(BranchType iType) { itemsToGetFromBranch_[iType].clear(); }
-
   private:
     virtual void extendUpdateLookup(BranchType iBranchType, ProductResolverIndexHelper const&);
     virtual void registerLateConsumes(eventsetup::ESRecordsToProductResolverIndices const&) {}
