@@ -20,7 +20,7 @@ namespace emtf {
 
     Tree(const Tree& tree);
     Tree& operator=(const Tree& tree);
-    Tree(Tree&& tree);
+    Tree(Tree&& tree) noexcept;
 
     void setRootNode(Node* sRootNode);
     Node* getRootNode();
