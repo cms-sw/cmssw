@@ -20,6 +20,12 @@ def repackProcess(**args):
     supported options:
 
     - outputs      : defines output modules
+    - globalTag    : contains trigger paths for the selected raw skims in outputs
+
+    Additional comments:
+
+    The selectEvents parameter within the outputs option is of type list, provided by T0.
+    The paths in the list have an added ":HLT" to the string, which needs to be removed for propper use of the raw skim machinery.
 
     """
     from Configuration.EventContent.EventContent_cff import RAWEventContent

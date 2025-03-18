@@ -52,7 +52,7 @@ class RunRepack:
 
         import FWCore.ParameterSet.Config as cms
 
-        process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(103) )
+        process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
         psetFile = open("RunRepackCfg.py", "w")
         psetFile.write(process.dumpPython())
