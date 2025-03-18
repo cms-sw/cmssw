@@ -81,6 +81,7 @@ class Eras (object):
                            'run2_HF_2017', 'run2_HCAL_2017', 'run2_HEPlan1_2017', 'run2_HB_2018','run2_HE_2018',
                            'run3_HB', 'run3_HFSL', 'run3_common', 'run3_RPC',
                            'phase1Pixel', 'run3_GEM', 'run2_GEM_2017',
+                           'run3_SiPixel_2025',
                            'run2_CSC_2018',
                            'phase2_common', 'phase2_tracker',
                            'phase2_muon', 'phase2_GEM', 'phase2_GE0',
