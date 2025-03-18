@@ -54,6 +54,7 @@ defaultOptions.dirin = ''
 defaultOptions.dirout = ''
 defaultOptions.filetype = 'EDM'
 defaultOptions.fileout = 'output.root'
+defaultOptions.rntuple_out = False
 defaultOptions.filtername = ''
 defaultOptions.lazy_download = False
 defaultOptions.custom_conditions = ''
@@ -450,6 +451,11 @@ class ConfigBuilder(object):
                                                fileNames = cms.untracked.vstring(),
                                                secondaryFileNames= cms.untracked.vstring())
                 filesFromOption(self)
+            if self._options.filetype == "EDM_RNTUPLE":
+                self.process.source=cms.Source("RNTupleSource",
+                                               fileNames = cms.untracked.vstring())#, 2ndary not supported yet
+                                               #secondaryFileNames= cms.untracked.vstring())
+                filesFromOption(self)
             elif self._options.filetype == "DAT":
                 self.process.source=cms.Source("NewEventStreamFileReader",fileNames = cms.untracked.vstring())
                 filesFromOption(self)
@@ -721,6 +727,10 @@ class ConfigBuilder(object):
             CppType='TimeoutPoolOutputModule'
         if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
         if not ignoreNano and "NANOAOD" in streamType : CppType='NanoAODOutputModule'
+        if self._options.rntuple_out and CppType == 'PoolOutputModule':
+            CppType='RNTupleOutputModule'
+            if len(fileName) > 5 and fileName[-5:] == '.root':
+                fileName = fileName.replace('.root', '.rntpl')
         output = cms.OutputModule(CppType,
                                   eventContent.clone(),
                                   fileName = cms.untracked.string(fileName),
@@ -1207,7 +1217,12 @@ class ConfigBuilder(object):
     # for alca, skims, etc
     def addExtraStream(self, name, stream, workflow='full'):
             # define output module and go from there
-        output = cms.OutputModule("PoolOutputModule")
+        if self._options.rntuple_out:
+            extension = '.rntpl'
+            output = cms.OutputModule('RNTupleOutputModule')
+        else:
+            extension = '.root'
+            output = cms.OutputModule("PoolOutputModule")
         if stream.selectEvents.parameters_().__len__()!=0:
             output.SelectEvents = stream.selectEvents
         else:
@@ -1232,8 +1247,7 @@ class ConfigBuilder(object):
         else:
             output.outputCommands = stream.content
 
-
-        output.fileName = cms.untracked.string(self._options.dirout+stream.name+'.root')
+        output.fileName = cms.untracked.string(self._options.dirout+stream.name+extension)
 
         output.dataset  = cms.untracked.PSet( dataTier = stream.dataTier,
                                               filterName = cms.untracked.string(stream.name))

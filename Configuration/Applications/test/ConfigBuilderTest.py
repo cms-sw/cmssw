@@ -130,6 +130,16 @@ if __name__=="__main__":
             options.datatier= "MINIAOD"
             options.eventcontent="MINIAOD"
             _test_addOutput(self, options, process, [OutStats('MINIAODoutput','PoolOutputModule','MINIAOD','output.root',outputCommands_)])
+            #MINIAOD w/ RNTuple
+            process = cms.Process("TEST")
+            outputCommands_ = cms.untracked.vstring('drop *', 'keep foo')
+            process.MINIAODEventContent = cms.PSet( outputCommands = outputCommands_)
+            options = copy.deepcopy(defaultOptions)
+            options.scenario = "TEST"
+            options.datatier= "MINIAOD"
+            options.eventcontent="MINIAOD"
+            options.rntuple_out = True
+            _test_addOutput(self, options, process, [OutStats('MINIAODoutput','RNTupleOutputModule','MINIAOD','output.rntpl',outputCommands_)])
             #MINIAOD1 [NOTE notiation not restricted to MINIAOD]
             #NOT SUPPORTED BY outputDefinition
             process = cms.Process("TEST")
@@ -149,6 +159,16 @@ if __name__=="__main__":
             options.datatier= "DQMIO"
             options.eventcontent="DQM"
             _test_addOutput(self, options, process, [OutStats('DQMoutput','DQMRootOutputModule','DQMIO','output.root',outputCommands_)])
+            #DQMIO & rntuple (will not change)
+            process = cms.Process("TEST")
+            outputCommands_ = cms.untracked.vstring('drop *', 'keep foo')
+            process.DQMEventContent = cms.PSet( outputCommands = outputCommands_)
+            options = copy.deepcopy(defaultOptions)
+            options.scenario = "TEST"
+            options.datatier= "DQMIO"
+            options.eventcontent="DQM"
+            options.rntuple_out = True
+            _test_addOutput(self, options, process, [OutStats('DQMoutput','DQMRootOutputModule','DQMIO','output.root',outputCommands_)])
             #DQMIO&DQMIO
             process = cms.Process("TEST")
             outputCommands_ = cms.untracked.vstring('drop *', 'keep foo')
@@ -157,6 +177,16 @@ if __name__=="__main__":
             options.scenario = "TEST"
             options.datatier= "DQMIO"
             options.eventcontent="DQMIO"
+            _test_addOutput(self, options, process, [OutStats('DQMoutput','DQMRootOutputModule','DQMIO','output.root',outputCommands_)])
+            #DQMIO&DQMIO & rntuple (will not change)
+            process = cms.Process("TEST")
+            outputCommands_ = cms.untracked.vstring('drop *', 'keep foo')
+            process.DQMEventContent = cms.PSet( outputCommands = outputCommands_)
+            options = copy.deepcopy(defaultOptions)
+            options.scenario = "TEST"
+            options.datatier= "DQMIO"
+            options.eventcontent="DQMIO"
+            options.rntuple_out = True
             _test_addOutput(self, options, process, [OutStats('DQMoutput','DQMRootOutputModule','DQMIO','output.root',outputCommands_)])
             #DQM, not DQMIO (decided by datatier)
             process = cms.Process("TEST")
@@ -185,6 +215,26 @@ if __name__=="__main__":
             options.datatier= "NANOAOD"
             options.eventcontent="NANOEDMAOD"
             _test_addOutput(self, options, process, [OutStats('NANOEDMAODoutput', 'PoolOutputModule', 'NANOAOD', 'output.root', outputCommands_)])
+            #NANOAOD & rntuple (no change)
+            process = cms.Process("TEST")
+            outputCommands_ = cms.untracked.vstring('drop *', 'keep foo')
+            process.NANOAODEventContent = cms.PSet( outputCommands = outputCommands_)
+            options = copy.deepcopy(defaultOptions)
+            options.scenario = "TEST"
+            options.datatier= "NANOAOD"
+            options.eventcontent="NANOAOD"
+            options.rntuple_out = True
+            _test_addOutput(self, options, process, [OutStats('NANOAODoutput','NanoAODOutputModule','NANOAOD','output.root',outputCommands_)])
+            #NANOEDMAOD & rntuple
+            process = cms.Process("TEST")
+            outputCommands_ = cms.untracked.vstring('drop *', 'keep foo')
+            process.NANOAODEventContent = cms.PSet( outputCommands = outputCommands_)
+            options = copy.deepcopy(defaultOptions)
+            options.scenario = "TEST"
+            options.datatier= "NANOAOD"
+            options.eventcontent="NANOEDMAOD"
+            options.rntuple_out = True
+            _test_addOutput(self, options, process, [OutStats('NANOEDMAODoutput', 'RNTupleOutputModule', 'NANOAOD', 'output.rntpl', outputCommands_)])
             #ALCARECO empty
             process = cms.Process("TEST")
             options.scenario = "TEST"
