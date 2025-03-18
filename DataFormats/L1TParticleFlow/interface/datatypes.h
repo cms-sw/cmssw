@@ -178,7 +178,6 @@ namespace l1ct {
     inline float floatMeanZ(meanz_t meanz) { return meanz + MEANZ_OFFSET; };
     inline float floatHoe(hoe_t hoe) { return hoe.to_float(); };
     inline float floatIDScore(id_score_t score) { return score.to_float(); };
-    inline float floatBtagScore(b_tag_score_t b_tag_score) { return b_tag_score.to_float(); }
 
     inline pt_t makePt(int pt) { return ap_ufixed<16, 14>(pt) >> 2; }
     inline dpt_t makeDPt(int dpt) { return ap_fixed<18, 16>(dpt) >> 2; }

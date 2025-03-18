@@ -49,12 +49,14 @@ namespace l1ct {
     static const unsigned NTagFields = 8;
     jet_tag_score_t hwTagScores[NTagFields];
 
-    static const std::vector<JetTagClass> tagClassesDefault_;
-    std::vector<JetTagClass> tagClasses;
+    static const JetTagClass tagClassesDefault_[NTagFields];
+    JetTagClass tagClassesArray[NTagFields];
 
-    Jet() : tagClasses(tagClassesDefault_){}
-    Jet(std::vector<JetTagClass> tagClasses){
-      this->tagClasses = tagClasses;
+    Jet() {
+      // Copy the default values to the array
+      for(unsigned i = 0; i < NTagFields; i++) {
+        tagClassesArray[i] = tagClassesDefault_[i];
+      }
     }
 
     inline bool operator==(const Jet &other) const {
@@ -85,17 +87,10 @@ namespace l1ct {
     float floatEta() const { return Scales::floatEta(hwEta); }
     float floatPhi() const { return Scales::floatPhi(hwPhi); }
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
-    float floatBTagScore() const {
-      float score = 0;
-      for(unsigned i = 0; i < tagClasses.size(); i++){
-        if(tagClasses[i] == JetTagClass("b")) score = (float) hwTagScores[i];          
-      }
-      return score;
-    }
     std::vector<float> floatIDScores() const {
-      std::vector<float> scores;
-      for(unsigned i = 0; i < tagClasses.size(); i++){
-        scores.push_back( (float) hwTagScores[i] );
+      std::vector<float> scores(NTagFields);
+      for(unsigned i = 0; i < NTagFields; i++){
+        scores[i] = (float) hwTagScores[i];
       }    
       return scores;
     }
