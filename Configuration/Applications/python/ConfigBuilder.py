@@ -817,8 +817,8 @@ class ConfigBuilder(object):
         try:
             if len(self.stepMap):
                 self.loadAndRemember(self.GeometryCFF)
-                if (self.GeometryCFF == 'Configuration/StandardSequences/GeometryRecoDB_cff'):
-                    print("Warning: Default GeometryRecoDB_cff is used. It may not work with your process.")
+                if (self.GeometryCFF == 'Configuration/StandardSequences/GeometryRecoDB_cff' and not self.geometryDBLabel):
+                    print("Warning: The default GeometryRecoDB_cff is being used; however, the DB geometry is not applied. You may need to verify your cmsDriver.")
                 if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
                     self.loadAndRemember(self.SimGeometryCFF)
                     if self.geometryDBLabel:
