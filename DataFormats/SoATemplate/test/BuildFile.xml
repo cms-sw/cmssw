@@ -26,7 +26,6 @@
   <use name="catch2"/>
 </bin>
 
-
 <!-- This test triggers a bug in ROOT, so it's kept disabled
 <bin file="SoAStreamer_t.cpp" name="SoAStreamer_t">
   <use name="root"/>

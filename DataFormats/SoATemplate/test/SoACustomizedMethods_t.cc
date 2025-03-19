@@ -10,6 +10,7 @@ GENERATE_SOA_LAYOUT(SoATemplate,
                     SOA_COLUMN(double, v_x),
                     SOA_COLUMN(double, v_y),
                     SOA_COLUMN(double, v_z),
+
                     SOA_ELEMENT_METHODS(void normalise() {
                       float norm_position = square_norm_position();
                       if (norm_position > 0.0f) {
@@ -24,15 +25,19 @@ GENERATE_SOA_LAYOUT(SoATemplate,
                         v_z() /= norm_velocity;
                       };
                     }),
+
                     SOA_CONST_ELEMENT_METHODS(
                         float square_norm_position() { return sqrt(x() * x() + y() * y() + z() * z()); };
+
                         double square_norm_velocity() { return sqrt(v_x() * v_x() + v_y() * v_y() + v_z() * v_z()); };
+
                         template <typename T1, typename T2>
                         auto time(T1 pos, T2 vel) {
                           if (not(vel == 0))
                             return pos / vel;
                           return 0.;
                         }),
+
                     SOA_SCALAR(int, detectorType))
 
 using SoA = SoATemplate<>;

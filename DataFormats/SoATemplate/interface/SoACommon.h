@@ -587,13 +587,13 @@ namespace cms::soa {
               BOOST_PP_EMPTY())
 
 /* Preprocessing loop for managing functions generation: only macros containing valid content are expanded */
-#define ENUM_FOR_PRED(r, state) BOOST_PP_LESS(BOOST_PP_TUPLE_ELEM(0, state), BOOST_PP_TUPLE_ELEM(1, state))
+#define ENUM_FOR_PRED(r, STATE) BOOST_PP_LESS(BOOST_PP_TUPLE_ELEM(0, STATE), BOOST_PP_TUPLE_ELEM(1, STATE))
 
-#define ENUM_FOR_OP(r, state) \
-  (BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(0, state)), BOOST_PP_TUPLE_ELEM(1, state), BOOST_PP_TUPLE_ELEM(2, state))
+#define ENUM_FOR_OP(r, STATE) \
+  (BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(0, STATE)), BOOST_PP_TUPLE_ELEM(1, STATE), BOOST_PP_TUPLE_ELEM(2, STATE))
 
-#define ENUM_FOR_MACRO(r, state) \
-  BOOST_PP_TUPLE_ENUM(BOOST_PP_SEQ_ELEM(BOOST_PP_TUPLE_ELEM(0, state), BOOST_PP_TUPLE_ELEM(2, state)))
+#define ENUM_FOR_MACRO(r, STATE) \
+  BOOST_PP_TUPLE_ENUM(BOOST_PP_SEQ_ELEM(BOOST_PP_TUPLE_ELEM(0, STATE), BOOST_PP_TUPLE_ELEM(2, STATE)))
 
 #define ENUM_IF_VALID(...)                                                                      \
   BOOST_PP_FOR((0, BOOST_PP_VARIADIC_SIZE(__VA_ARGS__), BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)), \

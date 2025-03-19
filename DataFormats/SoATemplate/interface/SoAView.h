@@ -473,7 +473,7 @@ namespace cms::soa {
  */
 
 // clang-format off
-#define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                      \
+#define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                      \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
@@ -887,7 +887,7 @@ namespace cms::soa {
 /**
  * Helper macro turning layout field declaration into view field declaration.
  */
-#define _VIEW_FIELD_FROM_LAYOUT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args, DATA) (DATA, NAME, NAME)
+#define _VIEW_FIELD_FROM_LAYOUT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA) (DATA, NAME, NAME)
 
 #define _VIEW_FIELD_FROM_LAYOUT(R, DATA, VALUE_TYPE_NAME)                                         \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, VALUE_TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \

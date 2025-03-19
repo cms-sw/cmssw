@@ -553,24 +553,6 @@
             bool RANGE_CHECKING = cms::soa::RangeChecking::Default>                                                    \
     struct ViewTemplateFreeParams;                                                                                     \
                                                                                                                        \
-    /* Helper function to compute the total number of methods */                                                       \
-    static constexpr std::pair<size_type, size_type> computeMethodsNumber() {                                          \
-      size_type _soa_methods_count = 0;                                                                                \
-      size_type _soa_const_methods_count = 0;                                                                          \
-                                                                                                                       \
-      _ITERATE_ON_ALL(_COUNT_SOA_METHODS, _soa_methods_count, __VA_ARGS__)                                             \
-      _ITERATE_ON_ALL(_COUNT_SOA_CONST_METHODS, _soa_const_methods_count, __VA_ARGS__)                                 \
-                                                                                                                       \
-      return {_soa_methods_count, _soa_const_methods_count};                                                           \
-    }                                                                                                                  \
-                                                                                                                       \
-    /* compile-time error launched if more than one macro for methods is declared */                                   \
-    static_assert(computeMethodsNumber().first <= 1,                                                                   \
-          "There can be at most one SOA_METHODS macro. Please declare all your methods inside the same macro.");       \
-                                                                                                                       \
-    static_assert(computeMethodsNumber().second <= 1,                                                                  \
-          "There can be at most one SOA_CONST_METHODS macro. Please declare all your methods inside the same macro."); \
-                                                                                                                       \
     /* dump the SoA internal structure */                                                                              \
     SOA_HOST_ONLY                                                                                                      \
     void soaToStreamInternal(std::ostream & _soa_impl_os) const {                                                      \
@@ -627,7 +609,6 @@
                                                                                                                        \
       Metadata& operator=(const Metadata&) = delete;                                                                   \
       Metadata(const Metadata&) = delete;                                                                              \
-                                                                                                                       \
                                                                                                                        \
     private:                                                                                                           \
       SOA_HOST_DEVICE SOA_INLINE Metadata(const CLASS& _soa_impl_parent) : parent_(_soa_impl_parent) {}                \
@@ -722,6 +703,24 @@
       if (mem_ + byteSize_ != _soa_impl_curMem)                                                                        \
         throw std::runtime_error("In " #CLASS "::" #CLASS ": unexpected end pointer.");                                \
     }                                                                                                                  \
+                                                                                                                       \
+    /* Helper function to compute the total number of methods */                                                       \
+    static constexpr std::pair<size_type, size_type> computeMethodsNumber() {                                          \
+      size_type _soa_methods_count = 0;                                                                                \
+      size_type _soa_const_methods_count = 0;                                                                          \
+                                                                                                                       \
+      _ITERATE_ON_ALL(_COUNT_SOA_METHODS, _soa_methods_count, __VA_ARGS__)                                             \
+      _ITERATE_ON_ALL(_COUNT_SOA_CONST_METHODS, _soa_const_methods_count, __VA_ARGS__)                                 \
+                                                                                                                       \
+      return {_soa_methods_count, _soa_const_methods_count};                                                           \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* compile-time error launched if more than one macro for methods is declared */                                   \
+    static_assert(computeMethodsNumber().first <= 1,                                                                   \
+          "There can be at most one SOA_METHODS macro. Please declare all your methods inside the same macro.");       \
+                                                                                                                       \
+    static_assert(computeMethodsNumber().second <= 1,                                                                  \
+          "There can be at most one SOA_CONST_METHODS macro. Please declare all your methods inside the same macro."); \
                                                                                                                        \
     /* Data members */                                                                                                 \
     std::byte* mem_ EDM_REFLEX_TRANSIENT;                                                                              \
