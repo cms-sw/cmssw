@@ -792,6 +792,10 @@ ParkingSingleMuon8Output # CMSHLT-3276
 ParkingSingleMuon9Output # CMSHLT-3276
 ParkingSingleMuon10Output # CMSHLT-3276
 ParkingSingleMuon11Output # CMSHLT-3276
+ParkingSingleMuon12Output # CMSHLT-3452
+ParkingSingleMuon13Output # CMSHLT-3452
+ParkingSingleMuon14Output # CMSHLT-3452
+ParkingSingleMuon15Output # CMSHLT-3452
 ParkingDoubleMuonLowMass0Output # CMSHLT-2261
 ParkingDoubleMuonLowMass1Output # CMSHLT-2261
 ParkingDoubleMuonLowMass2Output # CMSHLT-2261
