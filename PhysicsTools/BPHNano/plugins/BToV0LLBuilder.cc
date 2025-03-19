@@ -47,8 +47,6 @@ class BToV0LLBuilder : public edm::global::EDProducer<> {
         post_vtx_selection_{cfg.getParameter<std::string>("postVtxSelection")},
         dileptons_{consumes<pat::CompositeCandidateCollection>(
             cfg.getParameter<edm::InputTag>("dileptons"))},
-        //    dileptons_kinVtxs_{consumes<std::vector<KinVtxFitter> >(
-        //    cfg.getParameter<edm::InputTag>("dileptonKinVtxs") )},
         leptons_ttracks_{consumes<TransientTrackCollection>(
             cfg.getParameter<edm::InputTag>("leptonTransientTracks"))},
         v0s_{consumes<pat::CompositeCandidateCollection>(
@@ -79,7 +77,6 @@ class BToV0LLBuilder : public edm::global::EDProducer<> {
 
   // input
   const edm::EDGetTokenT<pat::CompositeCandidateCollection> dileptons_;
-  // const edm::EDGetTokenT<std::vector<KinVtxFitter> > dileptons_kinVtxs_;
   const edm::EDGetTokenT<TransientTrackCollection> leptons_ttracks_;
   const edm::EDGetTokenT<pat::CompositeCandidateCollection> v0s_;
   const edm::EDGetTokenT<TransientTrackCollection> v0_ttracks_;
@@ -93,8 +90,6 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt,
   // input
   edm::Handle<pat::CompositeCandidateCollection> dileptons;
   evt.getByToken(dileptons_, dileptons);
-  // edm::Handle<std::vector<KinVtxFitter> > dileptons_kinVtxs;
-  // evt.getByToken(dileptons_kinVtxs_, dileptons_kinVtxs);
   edm::Handle<TransientTrackCollection> leptons_ttracks;
   evt.getByToken(leptons_ttracks_, leptons_ttracks);
 

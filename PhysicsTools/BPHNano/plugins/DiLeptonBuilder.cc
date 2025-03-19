@@ -71,8 +71,6 @@ void DiLeptonBuilder<Lepton>::produce(edm::StreamID, edm::Event &evt,
   // output
   std::unique_ptr<pat::CompositeCandidateCollection> ret_value(
       new pat::CompositeCandidateCollection());
-  std::unique_ptr<std::vector<KinVtxFitter> > kinVtx_out(
-      new std::vector<KinVtxFitter>);
 
   for (size_t l1_idx = 0; l1_idx < leptons->size(); ++l1_idx) {
     edm::Ptr<Lepton> l1_ptr(leptons, l1_idx);
