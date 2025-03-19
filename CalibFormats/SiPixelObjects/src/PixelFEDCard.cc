@@ -24,7 +24,6 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat) : PixelConfigBase(
   vector<string> ins = tableMat[0];
   map<string, int> colM;
   vector<string> colNames;
-  bool first = true;
   /**
     EXTENSION_TABLE_NAME: FED_CONFIGURATION (VIEW: CONF_KEY_FED_CONFIGURATION_V)
     
@@ -252,110 +251,109 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat) : PixelConfigBase(
   }
 
   // Read below quantities pertaining to a single FED that are equal accross 36 channels
-  if (first) {
-    //VME base address
-    //Fed Base Address
-    sscanf(tableMat[1][colM["VME_ADDRS_HEX"]].c_str(), "%lx", &FEDBASE_0);
-    //      sscanf(tableMat[1][colM["PIXEL_FED"]].c_str(), "PxlFED_%ld",&fedNumber);
-    fedNumber = atoi(tableMat[1][colM["PIXEL_FED"]].c_str());
-    //Settable optical input parameters (one for each 12-receiver)
-    opt_cap[0] = atoi(tableMat[1][colM["OPT1_CAP"]].c_str());
-    opt_cap[1] = atoi(tableMat[1][colM["OPT2_CAP"]].c_str());
-    opt_cap[2] = atoi(tableMat[1][colM["OPT3_CAP"]].c_str());
-    opt_inadj[0] = atoi(tableMat[1][colM["OPT1_INP"]].c_str());
-    opt_inadj[1] = atoi(tableMat[1][colM["OPT2_INP"]].c_str());
-    opt_inadj[2] = atoi(tableMat[1][colM["OPT3_INP"]].c_str());
-    opt_ouadj[0] = atoi(tableMat[1][colM["OPT1_OUT"]].c_str());
-    opt_ouadj[1] = atoi(tableMat[1][colM["OPT2_OUT"]].c_str());
-    opt_ouadj[2] = atoi(tableMat[1][colM["OPT3_OUT"]].c_str());
 
-    //clock phases, use bits 0-8, select the clock edged
-    clkphs1_9 = atoi(tableMat[1][colM["NORTH_CLKPHB"]].c_str());          // TO BE VERIFIED
-    clkphs10_18 = atoi(tableMat[1][colM["NORTHCENTER_CLKPHB"]].c_str());  // TO BE VERIFIED
-    clkphs19_27 = atoi(tableMat[1][colM["SOUTHCENTER_CLKPHB"]].c_str());  // TO BE VERIFIED
-    clkphs28_36 = atoi(tableMat[1][colM["SOUTH_CLKPHB"]].c_str());        // TO BE VERIFIED
+  //VME base address
+  //Fed Base Address
+  sscanf(tableMat[1][colM["VME_ADDRS_HEX"]].c_str(), "%lx", &FEDBASE_0);
+  //      sscanf(tableMat[1][colM["PIXEL_FED"]].c_str(), "PxlFED_%ld",&fedNumber);
+  fedNumber = atoi(tableMat[1][colM["PIXEL_FED"]].c_str());
+  //Settable optical input parameters (one for each 12-receiver)
+  opt_cap[0] = atoi(tableMat[1][colM["OPT1_CAP"]].c_str());
+  opt_cap[1] = atoi(tableMat[1][colM["OPT2_CAP"]].c_str());
+  opt_cap[2] = atoi(tableMat[1][colM["OPT3_CAP"]].c_str());
+  opt_inadj[0] = atoi(tableMat[1][colM["OPT1_INP"]].c_str());
+  opt_inadj[1] = atoi(tableMat[1][colM["OPT2_INP"]].c_str());
+  opt_inadj[2] = atoi(tableMat[1][colM["OPT3_INP"]].c_str());
+  opt_ouadj[0] = atoi(tableMat[1][colM["OPT1_OUT"]].c_str());
+  opt_ouadj[1] = atoi(tableMat[1][colM["OPT2_OUT"]].c_str());
+  opt_ouadj[2] = atoi(tableMat[1][colM["OPT3_OUT"]].c_str());
 
-    // Control register and delays for the TTCrx
-    FineDes1Del = atoi(tableMat[1][colM["REG0_TTCRX_FDLA"]].c_str());
-    FineDes2Del = atoi(tableMat[1][colM["REG1_TTCRX_FDLA"]].c_str());
-    CoarseDel = atoi(tableMat[1][colM["REG2_TTCRX_CDLA"]].c_str());
-    ClkDes2 = atoi(tableMat[1][colM["REG3_TTCRX_CLKD2"]].c_str());
+  //clock phases, use bits 0-8, select the clock edged
+  clkphs1_9 = atoi(tableMat[1][colM["NORTH_CLKPHB"]].c_str());          // TO BE VERIFIED
+  clkphs10_18 = atoi(tableMat[1][colM["NORTHCENTER_CLKPHB"]].c_str());  // TO BE VERIFIED
+  clkphs19_27 = atoi(tableMat[1][colM["SOUTHCENTER_CLKPHB"]].c_str());  // TO BE VERIFIED
+  clkphs28_36 = atoi(tableMat[1][colM["SOUTH_CLKPHB"]].c_str());        // TO BE VERIFIED
 
-    Ccntrl = atoi(tableMat[1][colM["CENTER_CTRL"]].c_str());
-    modeRegister = atoi(tableMat[1][colM["CENTER_MODE"]].c_str());
+  // Control register and delays for the TTCrx
+  FineDes1Del = atoi(tableMat[1][colM["REG0_TTCRX_FDLA"]].c_str());
+  FineDes2Del = atoi(tableMat[1][colM["REG1_TTCRX_FDLA"]].c_str());
+  CoarseDel = atoi(tableMat[1][colM["REG2_TTCRX_CDLA"]].c_str());
+  ClkDes2 = atoi(tableMat[1][colM["REG3_TTCRX_CLKD2"]].c_str());
 
-    //data Regs adjustable fifo Almost Full levels
-    Nfifo1Bzlvl = atoi(tableMat[1][colM["NORTH_FIFO1_BZ_LVL"]].c_str());
-    NCfifo1Bzlvl = atoi(tableMat[1][colM["NORTHCENTER_FIFO1_BZ_LVL"]].c_str());
-    SCfifo1Bzlvl = atoi(tableMat[1][colM["SOUTHCENTER_FIFO1_BZ_LVL"]].c_str());
-    Sfifo1Bzlvl = atoi(tableMat[1][colM["SOUTH_FIFO1_BZ_LVL"]].c_str());
+  Ccntrl = atoi(tableMat[1][colM["CENTER_CTRL"]].c_str());
+  modeRegister = atoi(tableMat[1][colM["CENTER_MODE"]].c_str());
 
-    //Bits (1st 8) used to mask TBM trailer bits
-    N_TBMmask = atoi(tableMat[1][colM["NORTH_TBMMASK"]].c_str());
-    NC_TBMmask = atoi(tableMat[1][colM["NORTHCENTER_TBMMASK"]].c_str());
-    SC_TBMmask = atoi(tableMat[1][colM["SOUTHCENTER_TBMMASK"]].c_str());
-    S_TBMmask = atoi(tableMat[1][colM["SOUTH_TBMMASK"]].c_str());
+  //data Regs adjustable fifo Almost Full levels
+  Nfifo1Bzlvl = atoi(tableMat[1][colM["NORTH_FIFO1_BZ_LVL"]].c_str());
+  NCfifo1Bzlvl = atoi(tableMat[1][colM["NORTHCENTER_FIFO1_BZ_LVL"]].c_str());
+  SCfifo1Bzlvl = atoi(tableMat[1][colM["SOUTHCENTER_FIFO1_BZ_LVL"]].c_str());
+  Sfifo1Bzlvl = atoi(tableMat[1][colM["SOUTH_FIFO1_BZ_LVL"]].c_str());
 
-    //Bits (1st 8) used to set the Private Word in the gap and filler words
-    N_Pword = atoi(tableMat[1][colM["NORTH_PWORD"]].c_str());
-    NC_Pword = atoi(tableMat[1][colM["NORTHCENTER_PWORD"]].c_str());
-    SC_Pword = atoi(tableMat[1][colM["SOUTHCENTER_PWORD"]].c_str());
-    S_Pword = atoi(tableMat[1][colM["SOUTH_PWORD"]].c_str());
+  //Bits (1st 8) used to mask TBM trailer bits
+  N_TBMmask = atoi(tableMat[1][colM["NORTH_TBMMASK"]].c_str());
+  NC_TBMmask = atoi(tableMat[1][colM["NORTHCENTER_TBMMASK"]].c_str());
+  SC_TBMmask = atoi(tableMat[1][colM["SOUTHCENTER_TBMMASK"]].c_str());
+  S_TBMmask = atoi(tableMat[1][colM["SOUTH_TBMMASK"]].c_str());
 
-    Nbaseln = atoi(tableMat[1][colM["NORTH_BADJ"]].c_str());
-    NCbaseln = atoi(tableMat[1][colM["NORTHCENTER_BADJ"]].c_str());
-    SCbaseln = atoi(tableMat[1][colM["SOUTHCENTER_BADJ"]].c_str());
-    Sbaseln = atoi(tableMat[1][colM["SOUTH_BADJ"]].c_str());
+  //Bits (1st 8) used to set the Private Word in the gap and filler words
+  N_Pword = atoi(tableMat[1][colM["NORTH_PWORD"]].c_str());
+  NC_Pword = atoi(tableMat[1][colM["NORTHCENTER_PWORD"]].c_str());
+  SC_Pword = atoi(tableMat[1][colM["SOUTHCENTER_PWORD"]].c_str());
+  S_Pword = atoi(tableMat[1][colM["SOUTH_PWORD"]].c_str());
 
-    Ncntrl = atoi(tableMat[1][colM["NORTH_CTRL"]].c_str());
-    NCcntrl = atoi(tableMat[1][colM["NORTHCENTER_CTRL"]].c_str());
-    SCcntrl = atoi(tableMat[1][colM["SOUTHCENTER_CTRL"]].c_str());
-    Scntrl = atoi(tableMat[1][colM["SOUTH_CTRL"]].c_str());
+  Nbaseln = atoi(tableMat[1][colM["NORTH_BADJ"]].c_str());
+  NCbaseln = atoi(tableMat[1][colM["NORTHCENTER_BADJ"]].c_str());
+  SCbaseln = atoi(tableMat[1][colM["SOUTHCENTER_BADJ"]].c_str());
+  Sbaseln = atoi(tableMat[1][colM["SOUTH_BADJ"]].c_str());
 
-    //These bit sets the special dac mode for random triggers
-    SpecialDac = atoi(tableMat[1][colM["SPECDAC"]].c_str());
+  Ncntrl = atoi(tableMat[1][colM["NORTH_CTRL"]].c_str());
+  NCcntrl = atoi(tableMat[1][colM["NORTHCENTER_CTRL"]].c_str());
+  SCcntrl = atoi(tableMat[1][colM["SOUTHCENTER_CTRL"]].c_str());
+  Scntrl = atoi(tableMat[1][colM["SOUTH_CTRL"]].c_str());
 
-    //These bits set the number of Out of consecutive out of sync events until a TTs OOs
-    Ooslvl = atoi(tableMat[1][colM["OOS_LVL"]].c_str());
-    //These bits set the number of Empty events until a TTs Error
-    Errlvl = atoi(tableMat[1][colM["ERR_LVL"]].c_str());
+  //These bit sets the special dac mode for random triggers
+  SpecialDac = atoi(tableMat[1][colM["SPECDAC"]].c_str());
 
-    //Control Regs for setting ADC 1Vpp and 2Vpp
-    Nadcg = atoi(tableMat[1][colM["B1_ADCGN"]].c_str());
-    NCadcg = atoi(tableMat[1][colM["B2_ADCGN"]].c_str());
-    SCadcg = atoi(tableMat[1][colM["B3_ADCGN"]].c_str());
-    Sadcg = atoi(tableMat[1][colM["B4_ADCGN"]].c_str());
-    fifo3Wrnlvl = atoi(tableMat[1][colM["FIFO3_WRN_LVL"]].c_str());
-    FedTTCDelay = atoi(tableMat[1][colM["FED_MASTER_DELAY"]].c_str());
-    N_hitlimit = atoi(tableMat[1][colM["NO_HITLIMIT"]].c_str());
-    NC_hitlimit = atoi(tableMat[1][colM["NC_HITLIMIT"]].c_str());
-    SC_hitlimit = atoi(tableMat[1][colM["SC_HITLIMIT"]].c_str());
-    S_hitlimit = atoi(tableMat[1][colM["SO_HITLIMIT"]].c_str());
-    N_testreg = atoi(tableMat[1][colM["NO_TESTREG"]].c_str());
-    NC_testreg = atoi(tableMat[1][colM["NC_TESTREG"]].c_str());
-    SC_testreg = atoi(tableMat[1][colM["SC_TESTREG"]].c_str());
-    S_testreg = atoi(tableMat[1][colM["SO_TESTREG"]].c_str());
-    BusyHoldMin = atoi(tableMat[1][colM["BUSYHOLDMIN"]].c_str());
-    BusyWhenBehind = atoi(tableMat[1][colM["BUSYWHENBEHIND"]].c_str());
-    FeatureRegister = atoi(tableMat[1][colM["FEATUREREGISTER"]].c_str());
-    FIFO2Limit = atoi(tableMat[1][colM["FIFO2LIMIT"]].c_str());
-    LastDacOff = atoi(tableMat[1][colM["LASTDACOFF"]].c_str());
-    SimHitsPerRoc = atoi(tableMat[1][colM["SIMHITSPERROC"]].c_str());
-    TimeoutOROOSLimit = atoi(tableMat[1][colM["TIMEOUTOROOSLIMIT"]].c_str());
-    TriggerHoldoff = atoi(tableMat[1][colM["TRIGGERHOLDOFF"]].c_str());
+  //These bits set the number of Out of consecutive out of sync events until a TTs OOs
+  Ooslvl = atoi(tableMat[1][colM["OOS_LVL"]].c_str());
+  //These bits set the number of Empty events until a TTs Error
+  Errlvl = atoi(tableMat[1][colM["ERR_LVL"]].c_str());
 
-    SPARE1 = atoi(tableMat[1][colM["SPARE1"]].c_str());
-    SPARE2 = atoi(tableMat[1][colM["SPARE2"]].c_str());
-    SPARE3 = atoi(tableMat[1][colM["SPARE3"]].c_str());
-    SPARE4 = atoi(tableMat[1][colM["SPARE4"]].c_str());
-    SPARE5 = atoi(tableMat[1][colM["SPARE5"]].c_str());
-    SPARE6 = atoi(tableMat[1][colM["SPARE6"]].c_str());
-    SPARE7 = atoi(tableMat[1][colM["SPARE7"]].c_str());
-    SPARE8 = atoi(tableMat[1][colM["SPARE8"]].c_str());
-    SPARE9 = atoi(tableMat[1][colM["SPARE9"]].c_str());
-    SPARE10 = atoi(tableMat[1][colM["SPARE10"]].c_str());
+  //Control Regs for setting ADC 1Vpp and 2Vpp
+  Nadcg = atoi(tableMat[1][colM["B1_ADCGN"]].c_str());
+  NCadcg = atoi(tableMat[1][colM["B2_ADCGN"]].c_str());
+  SCadcg = atoi(tableMat[1][colM["B3_ADCGN"]].c_str());
+  Sadcg = atoi(tableMat[1][colM["B4_ADCGN"]].c_str());
+  fifo3Wrnlvl = atoi(tableMat[1][colM["FIFO3_WRN_LVL"]].c_str());
+  FedTTCDelay = atoi(tableMat[1][colM["FED_MASTER_DELAY"]].c_str());
+  N_hitlimit = atoi(tableMat[1][colM["NO_HITLIMIT"]].c_str());
+  NC_hitlimit = atoi(tableMat[1][colM["NC_HITLIMIT"]].c_str());
+  SC_hitlimit = atoi(tableMat[1][colM["SC_HITLIMIT"]].c_str());
+  S_hitlimit = atoi(tableMat[1][colM["SO_HITLIMIT"]].c_str());
+  N_testreg = atoi(tableMat[1][colM["NO_TESTREG"]].c_str());
+  NC_testreg = atoi(tableMat[1][colM["NC_TESTREG"]].c_str());
+  SC_testreg = atoi(tableMat[1][colM["SC_TESTREG"]].c_str());
+  S_testreg = atoi(tableMat[1][colM["SO_TESTREG"]].c_str());
+  BusyHoldMin = atoi(tableMat[1][colM["BUSYHOLDMIN"]].c_str());
+  BusyWhenBehind = atoi(tableMat[1][colM["BUSYWHENBEHIND"]].c_str());
+  FeatureRegister = atoi(tableMat[1][colM["FEATUREREGISTER"]].c_str());
+  FIFO2Limit = atoi(tableMat[1][colM["FIFO2LIMIT"]].c_str());
+  LastDacOff = atoi(tableMat[1][colM["LASTDACOFF"]].c_str());
+  SimHitsPerRoc = atoi(tableMat[1][colM["SIMHITSPERROC"]].c_str());
+  TimeoutOROOSLimit = atoi(tableMat[1][colM["TIMEOUTOROOSLIMIT"]].c_str());
+  TriggerHoldoff = atoi(tableMat[1][colM["TRIGGERHOLDOFF"]].c_str());
 
-  }  // end of 'first' condition
+  SPARE1 = atoi(tableMat[1][colM["SPARE1"]].c_str());
+  SPARE2 = atoi(tableMat[1][colM["SPARE2"]].c_str());
+  SPARE3 = atoi(tableMat[1][colM["SPARE3"]].c_str());
+  SPARE4 = atoi(tableMat[1][colM["SPARE4"]].c_str());
+  SPARE5 = atoi(tableMat[1][colM["SPARE5"]].c_str());
+  SPARE6 = atoi(tableMat[1][colM["SPARE6"]].c_str());
+  SPARE7 = atoi(tableMat[1][colM["SPARE7"]].c_str());
+  SPARE8 = atoi(tableMat[1][colM["SPARE8"]].c_str());
+  SPARE9 = atoi(tableMat[1][colM["SPARE9"]].c_str());
+  SPARE10 = atoi(tableMat[1][colM["SPARE10"]].c_str());
+
   [[clang::suppress]]
   for (int r = 1; r < size[0]; r++)  //Goes to every row of the FIRST Matrix (MUST BE 36, one for each FED channel)
   {
