@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     // Layers params
-    const std::vector<float> caThetaCuts_;
+    const std::vector<double> caThetaCuts_;
     const std::vector<double> caDCACuts_;
 
     // Cells params
@@ -55,7 +55,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   CAGeometryESProducer::CAGeometryESProducer(const edm::ParameterSet& iConfig)
       : ESProducer(iConfig),
-        caThetaCuts_(iConfig.getParameter<std::vector<float>>("caThetaCuts")),
+        caThetaCuts_(iConfig.getParameter<std::vector<double>>("caThetaCuts")),
         caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
         pairGraph_(iConfig.getParameter<std::vector<int>>("pairGraph")),
         startingPairs_(iConfig.getParameter<std::vector<int>>("startingPairs")),
@@ -180,7 +180,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // layers params
     desc.add<std::vector<double>>("caDCACuts", {0.15f, 0.25f, 0.25f, 0.25f, 0.25f, 0.25f, 0.25f, 0.25f, 0.25f, 0.25f})
         ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
-    desc.add<std::vector<float>>("caThetaCuts",
+    desc.add<std::vector<double>>("caThetaCuts",
                                   {0.002f, 0.002f, 0.002f, 0.002f, 0.003f, 0.003f, 0.003f, 0.003f, 0.003f, 0.003f})
         ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
     desc.add<std::vector<int>>("startingPairs", {0, 1, 2})
