@@ -32,3 +32,5 @@ TYPELOOKUP_DATA_REG(SiStripApvSimulationParameters);
 TYPELOOKUP_DATA_REG(Phase2TrackerModule);
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 TYPELOOKUP_DATA_REG(Phase2TrackerCabling);
+#include "CondFormats/SiStripObjects/interface/SiStripClusterizerConditionsHost.h"
+TYPELOOKUP_DATA_REG(SiStripClusterizerConditionsHost);

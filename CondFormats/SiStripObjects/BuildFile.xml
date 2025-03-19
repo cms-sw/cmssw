@@ -9,6 +9,16 @@
 <use name="clhep"/>
 <use name="boost"/>
 <use name="boost_serialization"/>
+<!--  -->
+<use name="alpaka"/>
+<use name="FWCore/Framework"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="CondFormats/SiStripObjects" for="alpaka"/>
+<flags ALPAKA_BACKENDS="1"/>
+<!--  -->
 <export>
   <lib name="1"/>
 </export>

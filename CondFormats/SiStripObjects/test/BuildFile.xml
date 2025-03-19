@@ -16,3 +16,21 @@
 <bin file="test_catch2_main.cpp,test_catch2_SiStripLatency.cpp" name="test_catch2_SiStripLatency">
   <use name="catch2"/>
 </bin>
+
+<bin name="SiStripClusterizerConditionsSoA" file="TestSiStripClusterizerConditionsSoA.cc" />
+
+<bin name="SiStripClusterizerConditionsSoA_alpaka" file="alpaka/TestSiStripClusterizerConditionsDevice.cc, alpaka/TestSiStripClusterizerConditionsDevice.dev.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="CondFormats/SiStripObjects" source_only="1"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin name="SiStripMappingSoA" file="TestSiStripMappingSoA.cc" />
+
+<bin name="SiStripMappingSoA_alpaka" file="alpaka/TestSiStripMappingDevice.cc, alpaka/TestSiStripMappingDevice.dev.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="CondFormats/SiStripObjects" source_only="1"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
