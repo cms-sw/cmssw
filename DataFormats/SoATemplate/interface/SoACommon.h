@@ -587,12 +587,12 @@ namespace cms::soa {
               BOOST_PP_EMPTY())
 
 /* Preprocessing loop for managing functions generation: only macros containing valid content are expanded */
-#define ENUM_FOR_PRED(r, STATE) BOOST_PP_LESS(BOOST_PP_TUPLE_ELEM(0, STATE), BOOST_PP_TUPLE_ELEM(1, STATE))
+#define ENUM_FOR_PRED(R, STATE) BOOST_PP_LESS(BOOST_PP_TUPLE_ELEM(0, STATE), BOOST_PP_TUPLE_ELEM(1, STATE))
 
-#define ENUM_FOR_OP(r, STATE) \
+#define ENUM_FOR_OP(R, STATE) \
   (BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(0, STATE)), BOOST_PP_TUPLE_ELEM(1, STATE), BOOST_PP_TUPLE_ELEM(2, STATE))
 
-#define ENUM_FOR_MACRO(r, STATE) \
+#define ENUM_FOR_MACRO(R, STATE) \
   BOOST_PP_TUPLE_ENUM(BOOST_PP_SEQ_ELEM(BOOST_PP_TUPLE_ELEM(0, STATE), BOOST_PP_TUPLE_ELEM(2, STATE)))
 
 #define ENUM_IF_VALID(...)                                                                      \
