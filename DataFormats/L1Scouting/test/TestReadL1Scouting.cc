@@ -1,6 +1,7 @@
 #include "DataFormats/L1Scouting/interface/L1ScoutingBMTFStub.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
+#include "DataFormats/L1Scouting/interface/L1ScoutingCaloTower.h"
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,6 +34,8 @@ namespace edmtest {
     void analyzeTaus(edm::Event const& iEvent) const;
     void analyzeBxSums(edm::Event const& iEvent) const;
     void analyzeBmtfStubs(edm::Event const& iEvent) const;
+    void analyzeCaloTowers(edm::Event const& iEvent) const;
+
 
     void throwWithMessageFromConstructor(const char*) const;
     void throwWithMessage(const char*) const;
@@ -57,6 +60,10 @@ namespace edmtest {
     const int bmtfStubClassVersion_;
     const std::vector<int> expectedBmtfStubValues_;
     const edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::BMTFStub>> bmtfStubToken_;
+
+    const int caloTowerClassVersion_;
+    const std::vector<int> expectedCaloTowerValues_;
+    const edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::CaloTower>> caloTowerToken_;
   };
 
   TestReadL1Scouting::TestReadL1Scouting(edm::ParameterSet const& iPSet)
@@ -73,7 +80,11 @@ namespace edmtest {
         bxSumsToken_(consumes(iPSet.getParameter<edm::InputTag>("bxSumsTag"))),
         bmtfStubClassVersion_(iPSet.getParameter<int>("bmtfStubClassVersion")),
         expectedBmtfStubValues_(iPSet.getParameter<std::vector<int>>("expectedBmtfStubValues")),
-        bmtfStubToken_(consumes(iPSet.getParameter<edm::InputTag>("bmtfStubTag"))) {
+        bmtfStubToken_(consumes(iPSet.getParameter<edm::InputTag>("bmtfStubTag"))),
+        caloTowerClassVersion_(iPSet.getParameter<int>("caloTowerClassVersion")),
+        expectedCaloTowerValues_(iPSet.getParameter<std::vector<int>>("expectedCaloTowerValues")),
+        caloTowerToken_(consumes(iPSet.getParameter<edm::InputTag>("caloTowerTag"))) {
+
     if (bxValues_.size() != 2) {
       throwWithMessageFromConstructor("bxValues must have 2 elements and it does not");
     }
@@ -95,6 +106,9 @@ namespace edmtest {
     if (expectedBmtfStubValues_.size() != 2) {
       throwWithMessageFromConstructor("bmtfStubValues_ must have 2 elements and it does not");
     }
+    if (expectedCaloTowerValues_.size() != 2) {
+      throwWithMessageFromConstructor("caloTowerValues_ must have 2 elements and it does not");
+    }
   }
 
   void TestReadL1Scouting::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
@@ -104,6 +118,8 @@ namespace edmtest {
     analyzeTaus(iEvent);
     analyzeBxSums(iEvent);
     analyzeBmtfStubs(iEvent);
+    analyzeCaloTowers(iEvent);
+
   }
 
   void TestReadL1Scouting::analyzeMuons(edm::Event const& iEvent) const {
@@ -360,6 +376,35 @@ namespace edmtest {
       }
     }
   }
+  void TestReadL1Scouting::analyzeCaloTowers(edm::Event const& iEvent) const {
+    auto const& caloTowersCollection = iEvent.get(caloTowersToken_);
+
+    for (const unsigned& bx : bxValues_) {
+      unsigned nCaloTowers = caloTowers.getBxSize(bx);
+      if (nCaloTowers != expectedCaloTowerValues_.size()) {
+        throwWithMessage("analyzeCaloTower, caloTowers do not have the expected bx size");
+      }
+
+      const auto& caloTowers = caloTowersCollection.bxIterator(bx);
+      for (unsigned i = 0; i < nCaloTowers; i++) {
+        if (caloTowers[i].hwEt() != expectedCaloTowerValues_[i]) {
+          throwWithMessage("analyzeCaloTowers, hwEt does not match the expected value");
+        }
+        if (caloTowers[i].erBits() != expectedCaloTowerValues_[i]) {
+          throwWithMessage("analyzeCaloTowers, erBits does not match the expected value");
+        }
+        if (caloTowers[i].miscBits() != expectedCaloTowerValues_[i]) {
+          throwWithMessage("analyzeCaloTowers, miscBits does not match the expected value");
+        }
+        if (caloTowers[i].hwEta() != expectedCaloTowerValues_[i]) {
+          throwWithMessage("analyzeCaloTowers, hwEta does not match the expected value");
+        }
+        if (caloTowers[i].hwPhi() != expectedCaloTowerValues_[i]) {
+          throwWithMessage("analyzeCaloTowers, hwPhi does not match the expected value");
+        }
+      }
+    }
+  }
 
   void TestReadL1Scouting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -377,6 +422,9 @@ namespace edmtest {
     desc.add<int>("bmtfStubClassVersion");
     desc.add<std::vector<int>>("expectedBmtfStubValues");
     desc.add<edm::InputTag>("bmtfStubTag");
+    desc.add<int>("caloTowerClassVersion");
+    desc.add<std::vector<int>>("expectedCaloTowerValues");
+    desc.add<edm::InputTag>("CaloTowerTag");
 
     descriptions.addDefault(desc);
   }

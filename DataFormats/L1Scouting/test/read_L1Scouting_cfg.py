@@ -6,6 +6,8 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test L1 Scouting
 
 parser.add_argument("--inputFile", type=str, help="Input file name (default: testL1Scouting.root)", default="testL1Scouting.root")
 parser.add_argument("--bmtfStubVersion", type=int, help="track data format version (default: 3)", default=3)
+parser.add_argument("--caloTowerVersion", type=int, help="track data format version (default: 3)", default=3)
+
 args = parser.parse_args()
 
 process = cms.Process("READ")
@@ -29,7 +31,10 @@ process.l1ScoutingTestAnalyzer = cms.EDAnalyzer("TestReadL1Scouting",
   expectedBxSumsValues = cms.vint32(13),
   bmtfStubClassVersion = cms.int32(args.bmtfStubVersion), 
   bmtfStubTag = cms.InputTag("l1ScoutingTestProducer", "", "PROD"),
-  expectedBmtfStubValues = cms.vint32(1, 2)
+  expectedBmtfStubValues = cms.vint32(1, 2),
+  caloTowerClassVersion = cms.int32(args.bmtfStubVersion), 
+  caloTowerTag = cms.InputTag("l1ScoutingTestProducer", "", "PROD"),
+  expectedCaloTowerValues = cms.vint32(14, 15)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
