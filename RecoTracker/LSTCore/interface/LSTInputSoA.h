@@ -22,7 +22,7 @@ namespace lst {
                       SOA_COLUMN(unsigned int, hitIndices3),
                       SOA_COLUMN(float, deltaPhi))
 
-  GENERATE_SOA_LAYOUT(PixelSeedsSoALayout,
+  GENERATE_SOA_LAYOUT(InputPixelSeedsSoALayout,
                       SOA_COLUMN(unsigned int, seedIdx),
                       SOA_COLUMN(int, charge),
                       SOA_COLUMN(int, superbin),
@@ -39,7 +39,7 @@ namespace lst {
 
   using InputHitsSoA = InputHitsSoALayout<>;
   using InputPixelHitsSoA = InputPixelHitsSoALayout<>;
-  using InputPixelSeedsSoA = PixelSeedsSoALayout<>;
+  using InputPixelSeedsSoA = InputPixelSeedsSoALayout<>;
 
   using InputHits = InputHitsSoA::View;
   using InputHitsConst = InputHitsSoA::ConstView;
