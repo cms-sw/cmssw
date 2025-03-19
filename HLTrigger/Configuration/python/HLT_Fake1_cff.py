@@ -1,13 +1,13 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/Fake1 --cff --data --type Fake1
 
-# /dev/CMSSW_15_0_0/Fake1/V7 (CMSSW_15_0_1)
+# /dev/CMSSW_15_0_0/Fake1/V8 (CMSSW_15_0_2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/Fake1/V7")
+  tableName = cms.string("/dev/CMSSW_15_0_0/Fake1/V8")
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -127,7 +127,10 @@ fragment.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     src = cms.InputTag( "hltScalersRawToDigi" ),
     gtEvmLabel = cms.InputTag( "" ),
     maxRadius = cms.double( 2.0 ),
-    useTransientRecord = cms.bool( False )
+    useBSOnlineRecords = cms.bool( False ),
+    timeThreshold = cms.int32( 48 ),
+    sigmaZThreshold = cms.double( 2.0 ),
+    sigmaXYThreshold = cms.double( 4.0 )
 )
 fragment.hltPrePhysics = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),

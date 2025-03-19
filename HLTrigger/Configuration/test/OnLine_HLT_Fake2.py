@@ -1,13 +1,13 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/Fake2 --full --data --type Fake2 --unprescale --process HLTFake2 --globaltag auto:run2_hlt_Fake2 --input file:RelVal_Raw_Fake2_DATA.root
 
-# /dev/CMSSW_15_0_0/Fake2/V7 (CMSSW_15_0_1)
+# /dev/CMSSW_15_0_0/Fake2/V8 (CMSSW_15_0_2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/Fake2/V7")
+  tableName = cms.string("/dev/CMSSW_15_0_0/Fake2/V8")
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -240,7 +240,10 @@ process.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     src = cms.InputTag( "hltScalersRawToDigi" ),
     gtEvmLabel = cms.InputTag( "" ),
     maxRadius = cms.double( 2.0 ),
-    useTransientRecord = cms.bool( False )
+    useBSOnlineRecords = cms.bool( False ),
+    timeThreshold = cms.int32( 48 ),
+    sigmaZThreshold = cms.double( 2.0 ),
+    sigmaXYThreshold = cms.double( 4.0 )
 )
 process.hltPrePhysics = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
