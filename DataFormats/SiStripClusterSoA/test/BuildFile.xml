@@ -1,0 +1,12 @@
+<bin name="SiStripClustersSoA" file="TestSiStripClustersSoA.cc">
+  <use name="DataFormats/Common"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="DataFormats/SiStripClusterSoA"/>
+</bin>
+<bin name="SiStripClustersSoA_alpaka" file="alpaka/TestSiStripClustersDevice.cc, alpaka/TestSiStripClustersDevice.dev.cc">
+  <use name="alpaka"/>
+  <use name="DataFormats/Common"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="DataFormats/SiStripClusterSoA" source_only="1"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
