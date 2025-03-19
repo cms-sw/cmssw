@@ -186,10 +186,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (offset_withinFedBufferBlocksRaw == 0) {
         mode = buff->readoutMode();
         if (mode == sistrip::READOUT_MODE_INVALID)
-          throw cms::Exception("[SiStripRawToCluster] Invalid readout mode for the first \"supposedly valid\" buffer");
+          throw cms::Exception("RawToDigi", "Invalid readout mode for the first \"supposedly valid\" buffer");
       } else if (buff->readoutMode() != mode) {
-        throw cms::Exception("[SiStripRawToCluster] Inconsistent readout mode for fedID ")
-            << fedID << " where readout mode is " << buff->readoutMode() << " != " << mode;
+        throw cms::Exception("RawToDigi") << "Inconsistent readout mode for fedID " << fedID
+                                          << " where readout mode is " << buff->readoutMode() << " != " << mode;
       }
 
       // Update the position of the pointer
@@ -203,7 +203,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // Verify Readout Mode
     if ((mode != sistrip::READOUT_MODE_ZERO_SUPPRESSED) && (mode != sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10))
-      throw cms::Exception("[SiStripRawToCluster] Unsupported readout mode ") << mode;
+      throw cms::Exception("RawToDigi") << "Unsupported readout mode: " << mode;
 
     /////////////////////////////////////////////////////////////////////////////
     // @brief    Map Detector Channels to FED Data
