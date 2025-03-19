@@ -11,10 +11,10 @@ const std::unordered_map<std::string, l1ct::JetTagClass::JetTagClassValue> l1ct:
   {"mu"    , l1ct::JetTagClass::JetTagClassValue::mu}
 };
 
-const std::vector<l1ct::JetTagClass> l1ct::Jet::tagClassesDefault_ {l1ct::JetTagClass("uds"),
-                                                                    l1ct::JetTagClass("g"),
-                                                                    l1ct::JetTagClass("b"),
+const l1ct::JetTagClass l1ct::Jet::tagClassesDefault_[NTagFields]= {l1ct::JetTagClass("b"),
                                                                     l1ct::JetTagClass("c"),
+                                                                    l1ct::JetTagClass("uds"),
+                                                                    l1ct::JetTagClass("g"),
                                                                     l1ct::JetTagClass("tau_p"),
                                                                     l1ct::JetTagClass("tau_n"),
                                                                     l1ct::JetTagClass("e"),
