@@ -152,11 +152,10 @@ GENERATE_SOA_LAYOUT(SoATemplate,
 
   // methods operating on element
   SOA_METHODS(
-    void scale() {
-      double r = norm()
-      x() /= r;
-      y() /= r;
-      z() /= r;
+    void scale(float arg) {
+      x() *= arg;
+      y() *= arg;
+      z() *= arg;
     }
   ),
   SOA_SCALAR(int, detectorType)

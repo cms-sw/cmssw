@@ -53,6 +53,12 @@
 #define _VALUE_TYPE_METHOD 3
 #define _VALUE_TYPE_CONST_METHOD 4
 
+/* declare the value of last valid column */
+#define _VALUE_LAST_COLUMN_TYPE _VALUE_TYPE_EIGEN_COLUMN
+
+/* declare a macro useful for passing a valid but not used value*/
+#define _VALUE_TYPE_UNUSED BOOST_PP_LIMIT_MAG
+
 /* The size type need to be "hardcoded" in the template parameters for classes serialized by ROOT */
 /* In practice, using a typedef as a template parameter to the Layout or its ViewTemplateFreeParams member
  * declaration fails ROOT dictionary generation.  */
@@ -557,8 +563,7 @@ namespace cms::soa {
 
   // Helper function to compute aligned size
   constexpr inline byte_size_type alignSize(byte_size_type size, byte_size_type alignment) {
-    return ((size + alignment - 1) / alignment) *
-           alignment;  //this is an integer division -> it rounds size to the next multiple of alignment
+    return ((size + alignment - 1) / alignment) * alignment;
   }
 
 }  // namespace cms::soa
@@ -566,8 +571,8 @@ namespace cms::soa {
 #define SOA_SCALAR(TYPE, NAME) (_VALUE_TYPE_SCALAR, TYPE, NAME, ~)
 #define SOA_COLUMN(TYPE, NAME) (_VALUE_TYPE_COLUMN, TYPE, NAME, ~)
 #define SOA_EIGEN_COLUMN(TYPE, NAME) (_VALUE_TYPE_EIGEN_COLUMN, TYPE, NAME, ~)
-#define SOA_METHODS(...) (_VALUE_TYPE_METHOD, _, _, (__VA_ARGS__))
-#define SOA_CONST_METHODS(...) (_VALUE_TYPE_CONST_METHOD, _, _, (__VA_ARGS__))
+#define SOA_ELEMENT_METHODS(...) (_VALUE_TYPE_METHOD, _, _, (__VA_ARGS__))
+#define SOA_CONST_ELEMENT_METHODS(...) (_VALUE_TYPE_CONST_METHOD, _, _, (__VA_ARGS__))
 
 /* Macro generating customized methods for the element */
 #define GENERATE_METHODS(R, DATA, FIELD)                                         \

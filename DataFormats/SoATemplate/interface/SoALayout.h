@@ -59,7 +59,7 @@
  */
 
 // clang-format off
-#define _COUNT_SOA_METHODS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args, DATA)                                                \
+#define _COUNT_SOA_METHODS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA)                                                \
         BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_METHOD),                                                    \
                     DATA++;,                                                                                           \
                     BOOST_PP_EMPTY())  
@@ -69,7 +69,7 @@
         BOOST_PP_EXPAND(_COUNT_SOA_METHODS_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA))     
 
 // clang-format off
-#define _COUNT_SOA_CONST_METHODS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args, DATA)                                          \
+#define _COUNT_SOA_CONST_METHODS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA)                                          \
         BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_CONST_METHOD),                                              \
                     DATA++;,                                                                                           \
                     BOOST_PP_EMPTY())  
@@ -79,7 +79,7 @@
         BOOST_PP_EXPAND(_COUNT_SOA_CONST_METHODS_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA))  
 
 // clang-format off
-#define _DECLARE_SOA_STREAM_INFO_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                                \
+#define _DECLARE_SOA_STREAM_INFO_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
   _SWITCH_ON_TYPE(                                                                                                     \
       VALUE_TYPE,                                                                                                      \
       /* Dump scalar */                                                                                                \
@@ -112,7 +112,7 @@
 
 // clang-format off
 #define _DECLARE_SOA_STREAM_INFO(R, DATA, TYPE_NAME)                                                                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_DECLARE_SOA_STREAM_INFO_IMPL TYPE_NAME))
 // clang-format on
@@ -121,7 +121,7 @@
  * Metadata member computing column pitch
  */
 // clang-format off
-#define _DEFINE_METADATA_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                                \
+#define _DEFINE_METADATA_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                                               \
@@ -193,55 +193,55 @@
 
 // clang-format off
 #define _DEFINE_METADATA_MEMBERS(R, DATA, TYPE_NAME)                                                                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_DEFINE_METADATA_MEMBERS_IMPL TYPE_NAME))
 // clang-format on
 
 // clang-format off
-#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                    \
+#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                    \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       (BOOST_PP_CAT(NAME, _)(nullptr)),                                                                                \
       /* Column */                                                                                                     \
       (BOOST_PP_CAT(NAME, _)(nullptr)),                                                                                \
       /* Eigen column */                                                                                               \
-      (BOOST_PP_CAT(NAME, Stride_)(0))                                                                                 \
       (BOOST_PP_CAT(NAME, ElementsWithPadding_)(0))                                                                    \
       (BOOST_PP_CAT(NAME, _)(nullptr))                                                                                 \
+      (BOOST_PP_CAT(NAME, Stride_)(0))                                                                                 \
   )
 // clang-format on
 
 // clang-format off
 #define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION(R, DATA, TYPE_NAME)                                                       \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL TYPE_NAME))
 // clang-format on            
               
 // clang-format off
-#define _DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                       \
+#define _DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                       \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)}),                                                  \
       /* Column */                                                                                                     \
       (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)}),                                                  \
       /* Eigen column */                                                                                               \
-      (BOOST_PP_CAT(NAME, Stride_){_soa_impl_other.BOOST_PP_CAT(NAME, Stride_)})                                       \
       (BOOST_PP_CAT(NAME, ElementsWithPadding_){_soa_impl_other.BOOST_PP_CAT(NAME, ElementsWithPadding_)})             \
       (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)})                                                   \
+      (BOOST_PP_CAT(NAME, Stride_){_soa_impl_other.BOOST_PP_CAT(NAME, Stride_)})                                       \
   )
 // clang-format on
 
 // clang-format off
 #define _DECLARE_MEMBER_COPY_CONSTRUCTION(R, DATA, TYPE_NAME)                                                          \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL TYPE_NAME))
 // clang-format on
 
 // clang-format off
-#define _DECLARE_MEMBER_ASSIGNMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                              \
+#define _DECLARE_MEMBER_ASSIGNMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                              \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       BOOST_PP_CAT(NAME, _) = _soa_impl_other.BOOST_PP_CAT(NAME, _);,                                                  \
@@ -256,7 +256,7 @@
 
 // clang-format off
 #define _DECLARE_MEMBER_ASSIGNMENT(R, DATA, TYPE_NAME)                                                                 \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_DECLARE_MEMBER_ASSIGNMENT_IMPL TYPE_NAME))
 // clang-format on
@@ -265,7 +265,7 @@
  * Declare the value_element data members
  */
 // clang-format off
-#define _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                           \
+#define _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                           \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
@@ -279,7 +279,7 @@
 
 // clang-format off
 #define _DEFINE_VALUE_ELEMENT_MEMBERS(R, DATA, TYPE_NAME)                                                              \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_DEFINE_VALUE_ELEMENT_MEMBERS_IMPL TYPE_NAME))
 // clang-format on
@@ -288,7 +288,7 @@
  * List of data members in the value_element constructor arguments
  */
 // clang-format off
-#define _VALUE_ELEMENT_CTOR_ARGS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                                \
+#define _VALUE_ELEMENT_CTOR_ARGS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
@@ -301,7 +301,7 @@
 
 // clang-format off
 #define _VALUE_ELEMENT_CTOR_ARGS(R, DATA, TYPE_NAME)                                                                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_VALUE_ELEMENT_CTOR_ARGS_IMPL TYPE_NAME))
 // clang-format on
@@ -310,7 +310,7 @@
  * List-initalise the value_element data members
  */
 // clang-format off
-#define _VALUE_ELEMENT_INITIALIZERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                             \
+#define _VALUE_ELEMENT_INITIALIZERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                             \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
@@ -323,7 +323,7 @@
 
 // clang-format off
 #define _VALUE_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME)                                                                \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_VALUE_ELEMENT_INITIALIZERS_IMPL TYPE_NAME))
 // clang-format on
@@ -332,15 +332,15 @@
  * Freeing of the ROOT-allocated column or scalar buffer
  */
 // clang-format off
-#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                         \
+#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                         \
   delete[] BOOST_PP_CAT(NAME, _);                                                                                      \
-  BOOST_PP_CAT(NAME, _) = nullptr; \
-  // clang-format on
+  BOOST_PP_CAT(NAME, _) = nullptr;
+// clang-format on
 
 // clang-format off
-#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)           \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2), \
-              BOOST_PP_EMPTY(),                                       \
+#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)                                                            \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME))
 // clang-format on
 
@@ -348,7 +348,7 @@
  * Computation of the column or scalar pointer location in the memory layout (at SoA construction time)
  */
 // clang-format off
-#define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                            \
+#define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                            \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_soa_impl_curMem);                                           \
@@ -374,7 +374,7 @@
 
 // clang-format off
 #define _ASSIGN_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)                                                               \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME))
 // clang-format on
@@ -383,7 +383,7 @@
  * Computation of the column or scalar size for SoA size computation
  */
 // clang-format off
-#define _ACCUMULATE_SOA_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                                 \
+#define _ACCUMULATE_SOA_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                 \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       _soa_impl_ret += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);                                               \
@@ -399,7 +399,7 @@
 
 // clang-format off
 #define _ACCUMULATE_SOA_ELEMENT(R, DATA, TYPE_NAME)                                                                    \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_ACCUMULATE_SOA_ELEMENT_IMPL TYPE_NAME))
 // clang-format on
@@ -408,7 +408,7 @@
  * Direct access to column pointer and indexed access
  */
 // clang-format off
-#define _DECLARE_SOA_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                                   \
+#define _DECLARE_SOA_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                   \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME() { return *BOOST_PP_CAT(NAME, _); }                                   \
@@ -427,7 +427,7 @@
 
 // clang-format off
 #define _DECLARE_SOA_ACCESSOR(R, DATA, TYPE_NAME)                                                                      \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_DECLARE_SOA_ACCESSOR_IMPL TYPE_NAME))
 // clang-format on
@@ -436,7 +436,7 @@
  * Direct access to column pointer (const) and indexed access.
  */
 // clang-format off
-#define _DECLARE_SOA_CONST_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                             \
+#define _DECLARE_SOA_CONST_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                             \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       SOA_HOST_DEVICE SOA_INLINE CPP_TYPE NAME() const { return *(BOOST_PP_CAT(NAME, _)); }                            \
@@ -455,7 +455,7 @@
 
 // clang-format off
 #define _DECLARE_SOA_CONST_ACCESSOR(R, DATA, TYPE_NAME)                                                                \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_DECLARE_SOA_CONST_ACCESSOR_IMPL TYPE_NAME))
 // clang-format on
@@ -464,7 +464,7 @@
  * SoA member ROOT streamer read (column pointers).
  */
 // clang-format off
-#define _STREAMER_READ_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                          \
+#define _STREAMER_READ_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                          \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                   \
@@ -480,7 +480,7 @@
 
 // clang-format off
 #define _STREAMER_READ_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                                             \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_STREAMER_READ_SOA_DATA_MEMBER_IMPL TYPE_NAME))
 // clang-format on
@@ -489,7 +489,7 @@
  * SoA class member declaration (column pointers).
  */
 // clang-format off
-#define _DECLARE_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args)                                                \
+#define _DECLARE_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       CPP_TYPE* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(scalar_) = nullptr;                                              \
@@ -498,15 +498,15 @@
       CPP_TYPE * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(elements_) = nullptr;                                           \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
-      byte_size_type BOOST_PP_CAT(NAME, Stride_) = 0;                                                                  \
       size_type BOOST_PP_CAT(NAME, ElementsWithPadding_) = 0; /* For ROOT serialization */                             \
       CPP_TYPE::Scalar * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(BOOST_PP_CAT(NAME, ElementsWithPadding_)) = nullptr;    \
+      byte_size_type BOOST_PP_CAT(NAME, Stride_) = 0;                                                                  \
   )
 // clang-format on
 
 // clang-format off
 #define _DECLARE_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                                                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), 2),                                                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
               BOOST_PP_EMPTY(),                                                                                        \
               BOOST_PP_EXPAND(_DECLARE_SOA_DATA_MEMBER_IMPL TYPE_NAME))
 // clang-format on

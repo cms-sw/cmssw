@@ -841,7 +841,7 @@ namespace cms::soa {
    _GENERATE_SOA_CONST_VIEW_PART_0(CONST_VIEW, VIEW,                                                                   \
      SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))                                              \
    _GENERATE_SOA_CONST_VIEW_PART_1(CONST_VIEW, VIEW,                                                                   \
-     SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST), (42, ~, ~))
+     SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST), (_VALUE_TYPE_UNUSED, ~, ~))
 
 #define GENERATE_SOA_CONST_VIEW(CONST_VIEW, VIEW, LAYOUTS_LIST, VALUE_LIST)                                            \
    _GENERATE_SOA_CONST_VIEW(CONST_VIEW, BOOST_PP_CAT(CONST_VIEW, Unused_),                                             \
@@ -889,9 +889,9 @@ namespace cms::soa {
  */
 #define _VIEW_FIELD_FROM_LAYOUT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, args, DATA) (DATA, NAME, NAME)
 
-#define _VIEW_FIELD_FROM_LAYOUT(R, DATA, VALUE_TYPE_NAME)                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, VALUE_TYPE_NAME), 2), \
-              BOOST_PP_EMPTY(),                                             \
+#define _VIEW_FIELD_FROM_LAYOUT(R, DATA, VALUE_TYPE_NAME)                                         \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, VALUE_TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                                   \
               BOOST_PP_EXPAND((_VIEW_FIELD_FROM_LAYOUT_IMPL BOOST_PP_TUPLE_PUSH_BACK(VALUE_TYPE_NAME, DATA))))
 
 #endif  // DataFormats_SoATemplate_interface_SoAView_h
