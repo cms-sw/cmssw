@@ -685,6 +685,98 @@ streamParkingSingleMuon11_datasetParkingSingleMuon11_selector.triggerConditions 
 )
 
 
+# stream ParkingSingleMuon12
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon12_datasetParkingSingleMuon12_selector
+streamParkingSingleMuon12_datasetParkingSingleMuon12_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon12_datasetParkingSingleMuon12_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon12_datasetParkingSingleMuon12_selector.throw      = cms.bool(False)
+streamParkingSingleMuon12_datasetParkingSingleMuon12_selector.triggerConditions = cms.vstring(
+    'HLT_Mu0_Barrel_L1HP10_v6',
+    'HLT_Mu0_Barrel_L1HP11_v6',
+    'HLT_Mu0_Barrel_L1HP6_IP6_v3',
+    'HLT_Mu0_Barrel_L1HP6_v3',
+    'HLT_Mu0_Barrel_L1HP7_v3',
+    'HLT_Mu0_Barrel_L1HP8_v4',
+    'HLT_Mu0_Barrel_L1HP9_v4',
+    'HLT_Mu0_Barrel_v6',
+    'HLT_Mu10_Barrel_L1HP11_IP6_v6',
+    'HLT_Mu6_Barrel_L1HP7_IP6_v3',
+    'HLT_Mu7_Barrel_L1HP8_IP6_v4',
+    'HLT_Mu8_Barrel_L1HP9_IP6_v4',
+    'HLT_Mu9_Barrel_L1HP10_IP6_v6'
+)
+
+
+# stream ParkingSingleMuon13
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon13_datasetParkingSingleMuon13_selector
+streamParkingSingleMuon13_datasetParkingSingleMuon13_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon13_datasetParkingSingleMuon13_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon13_datasetParkingSingleMuon13_selector.throw      = cms.bool(False)
+streamParkingSingleMuon13_datasetParkingSingleMuon13_selector.triggerConditions = cms.vstring(
+    'HLT_Mu0_Barrel_L1HP10_v6',
+    'HLT_Mu0_Barrel_L1HP11_v6',
+    'HLT_Mu0_Barrel_L1HP6_IP6_v3',
+    'HLT_Mu0_Barrel_L1HP6_v3',
+    'HLT_Mu0_Barrel_L1HP7_v3',
+    'HLT_Mu0_Barrel_L1HP8_v4',
+    'HLT_Mu0_Barrel_L1HP9_v4',
+    'HLT_Mu0_Barrel_v6',
+    'HLT_Mu10_Barrel_L1HP11_IP6_v6',
+    'HLT_Mu6_Barrel_L1HP7_IP6_v3',
+    'HLT_Mu7_Barrel_L1HP8_IP6_v4',
+    'HLT_Mu8_Barrel_L1HP9_IP6_v4',
+    'HLT_Mu9_Barrel_L1HP10_IP6_v6'
+)
+
+
+# stream ParkingSingleMuon14
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon14_datasetParkingSingleMuon14_selector
+streamParkingSingleMuon14_datasetParkingSingleMuon14_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon14_datasetParkingSingleMuon14_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon14_datasetParkingSingleMuon14_selector.throw      = cms.bool(False)
+streamParkingSingleMuon14_datasetParkingSingleMuon14_selector.triggerConditions = cms.vstring(
+    'HLT_Mu0_Barrel_L1HP10_v6',
+    'HLT_Mu0_Barrel_L1HP11_v6',
+    'HLT_Mu0_Barrel_L1HP6_IP6_v3',
+    'HLT_Mu0_Barrel_L1HP6_v3',
+    'HLT_Mu0_Barrel_L1HP7_v3',
+    'HLT_Mu0_Barrel_L1HP8_v4',
+    'HLT_Mu0_Barrel_L1HP9_v4',
+    'HLT_Mu0_Barrel_v6',
+    'HLT_Mu10_Barrel_L1HP11_IP6_v6',
+    'HLT_Mu6_Barrel_L1HP7_IP6_v3',
+    'HLT_Mu7_Barrel_L1HP8_IP6_v4',
+    'HLT_Mu8_Barrel_L1HP9_IP6_v4',
+    'HLT_Mu9_Barrel_L1HP10_IP6_v6'
+)
+
+
+# stream ParkingSingleMuon15
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon15_datasetParkingSingleMuon15_selector
+streamParkingSingleMuon15_datasetParkingSingleMuon15_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon15_datasetParkingSingleMuon15_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon15_datasetParkingSingleMuon15_selector.throw      = cms.bool(False)
+streamParkingSingleMuon15_datasetParkingSingleMuon15_selector.triggerConditions = cms.vstring(
+    'HLT_Mu0_Barrel_L1HP10_v6',
+    'HLT_Mu0_Barrel_L1HP11_v6',
+    'HLT_Mu0_Barrel_L1HP6_IP6_v3',
+    'HLT_Mu0_Barrel_L1HP6_v3',
+    'HLT_Mu0_Barrel_L1HP7_v3',
+    'HLT_Mu0_Barrel_L1HP8_v4',
+    'HLT_Mu0_Barrel_L1HP9_v4',
+    'HLT_Mu0_Barrel_v6',
+    'HLT_Mu10_Barrel_L1HP11_IP6_v6',
+    'HLT_Mu6_Barrel_L1HP7_IP6_v3',
+    'HLT_Mu7_Barrel_L1HP8_IP6_v4',
+    'HLT_Mu8_Barrel_L1HP9_IP6_v4',
+    'HLT_Mu9_Barrel_L1HP10_IP6_v6'
+)
+
+
 # stream ParkingSingleMuon2
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon2_datasetParkingSingleMuon2_selector
