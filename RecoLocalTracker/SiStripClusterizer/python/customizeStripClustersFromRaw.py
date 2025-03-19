@@ -24,47 +24,33 @@ def customizeHLTStripClustersFromRaw(process):
     return process
 
 
-def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, maxClSz:int = 16, sequences: cms.Sequence = None):
+def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize:int = 768, doNotReplaceInPath = []):
     if hasattr(process, 'hltSiStripRawToClustersFacility'):
         from RecoLocalTracker.SiStripZeroSuppression.DefaultAlgorithms_cff import DefaultAlgorithms
         from RecoLocalTracker.SiStripClusterizer.DefaultClusterizer_cff import DefaultClusterizer
-        # This is a super messy modifier. Someone with experience in these stuffs should review this
-        obj = process.hltSiStripRawToClustersFacility.clone()
-        defaultProducerPars = {
-            "ProductLabel" : cms.InputTag("rawDataCollector"),
-            "ConditionsLabel" : cms.string(""),
-            "CablingConditionsLabel" : cms.string(""),
-            #
-            "onDemand" : cms.bool(False),
-            "DoAPVEmulatorCheck" : cms.bool(False),
-            "LegacyUnpacker": cms.bool(False),
-            "HybridZeroSuppressed": cms.bool(False),
-            #
-            "Clusterizer": DefaultClusterizer,
-            "Algorithms": DefaultAlgorithms
-            }
-        # Override the parameters in the originalProducerPars with those user-configured so far in the process.hltSiStripRawToClustersFacility 
-        parameters = {}
-        for par in defaultProducerPars:
-            try:
-                if (obj.hasParameter(par)):
-                    defaultProducerPars[par] = obj.getParameter(par)
-            except AttributeError:
-                pass
-            
         
-        # Create the alpaka-producer and replace the one in process        
-        hltSiStripRawToClustersFacilityAlpaka = cms.EDProducer("SiStripRawToCluster@alpaka")
-        rmArgs = ['Algorithms', 'DoAPVEmulatorCheck', 'HybridZeroSuppressed', 'LegacyUnpacker', 'onDemand']        
-        for par in defaultProducerPars:
-            if par in rmArgs: continue
-            setattr(hltSiStripRawToClustersFacilityAlpaka, par, defaultProducerPars[par])
-        # Make sure there is maxClusterSize (if not present in the original producer)
-        if not hasattr(hltSiStripRawToClustersFacilityAlpaka.Clusterizer, 'MaxClusterSize'):
-            hltSiStripRawToClustersFacilityAlpaka.Clusterizer.MaxClusterSize = cms.uint32(maxClSz)
-            print(f"MaxClusterSize not in process.hltSiStripRawToClustersFacility.Clusterizer PSet. Setting MaxClusterSize to {maxClSz}")
+        # Take the parameters from the original producer
+        # (parameters_() makes a copy, this could cause issues if the parameters are changed after this customizer is applied)
+        initialPars = process.hltSiStripRawToClustersFacility.parameters_()
         
-        # Create the legacy objects
+        # Create the alpaka-producer and set its parameters from the original one
+        hltSiStripRawToClustersFacilityAlpaka = cms.EDProducer("SiStripRawToCluster@alpaka", **initialPars)
+        
+        # Add the extra pars (if not present)
+        if not hasattr(hltSiStripRawToClustersFacilityAlpaka, "ConditionsLabel"): hltSiStripRawToClustersFacilityAlpaka.ConditionsLabel = cms.string("")
+        if not hasattr(hltSiStripRawToClustersFacilityAlpaka, "CablingConditionsLabel"): hltSiStripRawToClustersFacilityAlpaka.CablingConditionsLabel = cms.string("")        
+        ## Make sure the Clusterizer PSet has the MaxClusterSize argument
+        if not hasattr(hltSiStripRawToClustersFacilityAlpaka.Clusterizer, "MaxClusterSize"):
+            # print(f"[hltSiStripRawToClustersFacility] No Clusterizer.MaxClusterSize defined. Defaulting to {MaxClusterSize}")
+            hltSiStripRawToClustersFacilityAlpaka.Clusterizer.MaxClusterSize = cms.uint32(MaxClusterSize)
+        
+        # The alpaka version work with only READOUT_MODE_ZERO_SUPPRESSED or READOUT_MODE_ZERO_SUPPRESSED_LITE10
+        
+        # Remove illegal parameters from the configuration
+        for par in ['Algorithms', 'DoAPVEmulatorCheck', 'HybridZeroSuppressed', 'LegacyUnpacker', 'onDemand']:
+            if hasattr(hltSiStripRawToClustersFacilityAlpaka, par): delattr(hltSiStripRawToClustersFacilityAlpaka, par)
+        
+        # Create the converter bringing the alpaka-made cluster into legacy objects
         hltSiStripClustersToLegacy = cms.EDProducer("SiStripClustersToLegacy@alpaka",
             source = cms.InputTag("hltSiStripRawToClustersFacilityAlpaka")
         )
@@ -76,18 +62,19 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, maxClSz:int = 
             Label = cms.string(""),
         )
         
-        process.hltSiStripClusterizerConditionsESProducerAlpaka = hltSiStripClusterizerConditionsESProducerAlpaka
+        # Add to process, if not already present
+        if not hasattr(process, "hltSiStripClusterizerConditionsESProducerAlpaka"): process.hltSiStripClusterizerConditionsESProducerAlpaka = hltSiStripClusterizerConditionsESProducerAlpaka
         process.hltSiStripRawToClustersFacilityAlpaka = hltSiStripRawToClustersFacilityAlpaka
         process.hltSiStripRawToClustersFacility = hltSiStripClustersToLegacy
         
-        sequencesToFix = ['HLTDoLocalStripSequence']
-        for seq in sequencesToFix:
-            if hasattr(process, seq):
-                sequence = getattr(process, seq)
-                print("Sequence before:")
-                print(sequence)
-                sequence.replace(process.hltSiStripRawToClustersFacility, process.hltSiStripRawToClustersFacilityAlpaka + process.hltSiStripRawToClustersFacility)
-                print("Sequence after:")
-                print(sequence)
+        sequencesToFix = []
+        for path_name, path in process.paths_().items():
+          if path.contains(process.hltSiStripRawToClustersFacility):
+            # If Path is in doNotReplaceInPath, then don't replace there
+            if path_name in doNotReplaceInPath: continue
+            
+            sequencesToFix.append(path_name)
+            pathToFix_ptr = getattr(process, path_name)
+            pathToFix_ptr.replace(process.hltSiStripRawToClustersFacility, process.hltSiStripRawToClustersFacilityAlpaka + process.hltSiStripRawToClustersFacility)
                 
     return process
