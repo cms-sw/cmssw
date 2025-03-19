@@ -64,7 +64,6 @@
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
 #include "G4ScoringManager.hh"
-#include "G4GeometryManager.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4GDMLParser.hh"
 #include "G4Threading.hh"
@@ -202,10 +201,6 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
   // sensitive detectors
   std::vector<std::string> onlySDs = p.getParameter<std::vector<std::string>>("OnlySDs");
   m_sdMakers = sim::sensitiveDetectorMakers(p, iC, onlySDs);
-
-#if G4VERSION_NUMBER >= 1130
-  G4GeometryManager::GetInstance()->OptimiseInParallel(false);
-#endif
 
   // TLS and watchers
   initializeTLS();

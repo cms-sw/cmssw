@@ -129,7 +129,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
       << "RunManagerMT: " << numPV << " physical volumes; " << numLV << " logical volumes; " << nn << " regions.";
 
 #if G4VERSION_NUMBER >= 1130
-  G4GeometryManager::GetInstance()->OptimiseInParallel(false);
+  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
 #endif
 
   if (m_check) {
