@@ -459,7 +459,7 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     opt.selected_gpus = None
     
-    if opt.gpu != 'forbidden':
+    if not opt.wmcontrol and opt.gpu != 'forbidden':
 
         print(">> Running with --gpu option. Checking the available and supported GPUs.")
         gpus = cleanComputeCapabilities("cuda")
@@ -467,8 +467,9 @@ if __name__ == '__main__':
         available_gpus = gpus
 
         if len(available_gpus) == 0:
+            if opt.gpu == 'required':
+                raise Exception('Launched with --gpu required and no GPU available!')
             print(">> No GPU available!")
-            opt.gpu = 'forbidden'
         else:
             print(">> GPUs available:")
             [print(f) for f in available_gpus]
@@ -485,6 +486,8 @@ if __name__ == '__main__':
                     print(">> GPUs selected:")   
                     [print(f) for f in gpus]
                 else:
+                    if opt.gpu == 'required':
+                        raise Exception('Launched with --gpu required and no GPU selected (among those available)!')
                     print(">> No GPU selected!")
             else:
                 print(">> All selected!")
@@ -492,7 +495,9 @@ if __name__ == '__main__':
             if len(gpus) > 0:
                 opt.selected_gpus = cycle(gpus)
             else:
-                opt.gpu = 'forbidden'
+                error_str = 'No GPU selected'
+                if opt.gpu == 'required':
+                    raise Exception('Launched with --gpu required and no GPU available (among those available)!')
     
     if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
