@@ -18,6 +18,7 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 
 #include "TFile.h"
 #include "ROOT/RNTuple.hxx"

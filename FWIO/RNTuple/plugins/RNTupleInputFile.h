@@ -3,6 +3,7 @@
 
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataProductsRNTuple.h"
 
 #include "TFile.h"
