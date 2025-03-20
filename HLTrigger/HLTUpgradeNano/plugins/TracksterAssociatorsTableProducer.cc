@@ -1,4 +1,4 @@
-#include "HLTrigger/HLTUpgradeNano/interface/AssociationMapFlatTableProducer.h"
+#include "PhysicsTools/NanoAOD/interface/AssociationMapFlatTableProducer.h"
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"

@@ -3,12 +3,7 @@
 
 #include <type_traits>
 
-#include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
-
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "CommonTools/Utils/interface/StringObjectFunction.h"
-#include "CommonTools/Utils/interface/TypedStringObjectMethodCaller.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 // Concept to check if a type is a valid AssociationMap of AssociationElement, both oneToOne and oneToMany.
