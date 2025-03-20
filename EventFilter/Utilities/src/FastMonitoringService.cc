@@ -1052,4 +1052,9 @@ namespace evf {
       fmt_->jsonMonitor_->snap(ls);
   }
 
+  bool FastMonitoringService::streamIsIdle(unsigned int i) const {
+    auto ms = microstate_.at(i);
+    return ms == getmIdle();
+  }
+
 }  //end namespace evf
