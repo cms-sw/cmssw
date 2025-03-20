@@ -372,9 +372,9 @@ pp Data reRECO workflows:
 | 2023.002001 	| Run2023D ZeroBias 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2023 |  	HLT:@relval2023 | 
 | 2023.000001 	| Run2023D MuonEG 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2023 |  	HLT:@relval2023 | 
 | 2024 	|  	|  	|  	|  	|
-| 145.014 	| Run2024B ZeroBias 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
-| 145.104 	| Run2024C JetMet0 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
-| 145.202 	| Run2024D EGamma0 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
+| 145.014 	| Run2024B ZeroBias 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2025 |  
+| 145.104 	| Run2024C JetMet0 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2025 |  
+| 145.202 	| Run2024D EGamma0 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2025 |  
 | 145.301 	| Run2024E DisplacedJet 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
 | 145.408 	| Run2024B ParkingDoubleMuonLowMass0 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
 | 145.500 	| Run2024B BTagMu 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
