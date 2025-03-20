@@ -229,18 +229,23 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
     }
 
     // check if the new SimNtuplet qualifies as longest SimNtuplet>
-    // - if it's the first Ntuplet, it becomes automatically the longest
-    // - otherwise:
-    //     - it needs to be longer than the current longest
-    //     - and it needs to be at least as alive as the current one
-    //     - if it is equally alive, prefer the one that starts further inside
-    if ((longestNtupletIndex_ == -1) ||                                           // it's the first SimNtuplet or
-        ((numSimDoublets >= ntuplets_.at(longestNtupletIndex_).numDoublets()) &&  // is at least as long and
-         ((ntuplets_.back().isAlive() > ntuplets_.at(longestNtupletIndex_).isAlive()) ||  // either more alive or
-          ((ntuplets_.back().isAlive() == ntuplets_.at(longestNtupletIndex_).isAlive()) &&
-           (ntuplets_.back().firstLayerId() <=
-            ntuplets_.at(longestNtupletIndex_).firstLayerId()))))  // equally alive but starts further inside
-    ) {
+    // A) if it's the first Ntuplet or longer than the current longest,
+    //    it becomes automatically the longest
+    // B) otherwise:
+    //     - it needs to be at least as long as the current longest
+    //     - and it needs to get at least as far in the reconstruction chain:
+    //        1. no missing layer pairs
+    //        2. all doublets survive
+    //        3. all connections survive
+    //        4. Ntuplet is long enough
+    if ((longestNtupletIndex_ == -1) || (numSimDoublets > ntuplets_.at(longestNtupletIndex_).numDoublets())) {
+      // case A)
+      longestNtupletIndex_ = ntuplets_.size() - 1;
+    }
+    else if ((numSimDoublets == ntuplets_.at(longestNtupletIndex_).numDoublets()) &&  // is at least as long
+          ntuplets_.back().getsFartherInRecoChainThanReference(
+              ntuplets_.at(longestNtupletIndex_))) {  // get farther in reconstruction
+      // case B)
       longestNtupletIndex_ = ntuplets_.size() - 1;
     }
 

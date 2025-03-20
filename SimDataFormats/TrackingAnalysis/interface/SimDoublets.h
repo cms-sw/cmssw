@@ -140,11 +140,13 @@ public:
   class Ntuplet {
   public:
     // flags indicating qualities of Ntuplet (depending on its constituents)
+    // The order is chosen in such a way that a smaller status value means that the Ntuplet get farther
+    // in the reconstruction chain. Hence, a value of 0 corresponds to the Ntuplet surviving reconstruction.
     enum class StatusBit : uint8_t {
-      hasUndefDoubletCuts = 1,
-      hasUndefDoubletConnectionCuts = 1 << 1,
-      hasMissingLayerPair = 1 << 2,
-      hasKilledDoublets = 1 << 3,
+      hasMissingLayerPair = 1,
+      hasUndefDoubletCuts = 1 << 1,
+      hasKilledDoublets = 1 << 2,
+      hasUndefDoubletConnectionCuts = 1 << 3,
       hasKilledConnections = 1 << 4,
       isTooShort = 1 << 5
     };
@@ -196,6 +198,14 @@ public:
     bool isKilled() const { return hasMissingLayerPair() || hasKilledDoublets() || hasKilledConnections(); }
     bool isTooShort() const { return status_ & uint8_t(StatusBit::isTooShort); }
     bool isAlive() const { return !(status_); }  // if nothing is set (no undef and no kills) the tuplet is alive
+
+    // method to compare the own status to a given one and check which one gets farther in the reconstruction chain
+    bool getsFartherInRecoChainThanReference(uint8_t const referenceStatusBit) const {
+      return status_ < referenceStatusBit;
+    }
+    bool getsFartherInRecoChainThanReference(Ntuplet const& referenceNtuplet) const {
+      return status_ < referenceNtuplet.status_;
+    }
 
   private:
     uint8_t numDoublets_;   // number of doublets in the Ntuplet
