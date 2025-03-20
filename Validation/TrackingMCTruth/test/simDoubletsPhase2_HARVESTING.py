@@ -52,7 +52,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', ''
 
 # Path and EndPath definitions
 process.load('Validation.TrackingMCTruth.PostProcessorSimDoublets_cff')  # load harvesting config for SimDoublets
-process.harvesting_step = cms.Path(process.postProcessorSimDoublets)
+process.harvesting_step = cms.Path(process.postProcessorSimDoubletsSequence)
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 # Schedule definition
