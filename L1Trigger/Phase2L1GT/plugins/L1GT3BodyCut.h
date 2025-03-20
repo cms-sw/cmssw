@@ -52,24 +52,18 @@ namespace l1t {
           scaleNormalShift_(std::round(std::log2(std::ceil(coshEtaLUT_.output_scale() / coshEtaLUT2_.output_scale())))),
           invMassResolutionReduceShift_([&]() {
             if (minInvMassSqrDiv2_) {
-              return std::max<int>(
-                  std::ceil(std::log2(std::floor(minInvMassSqrDiv2_.value() * cosPhiLUT_.output_scale() + 1.0))) - 16,
-                  0);
+              return std::max<int>(std::ceil(std::log2(minInvMassSqrDiv2_.value() + 1.0)) - 16, 0);
             } else if (maxInvMassSqrDiv2_) {
-              return std::max<int>(
-                  std::ceil(std::log2(std::ceil(maxInvMassSqrDiv2_.value() * cosPhiLUT_.output_scale()))) - 16, 0);
+              return std::max<int>(std::ceil(std::log2(maxInvMassSqrDiv2_.value())) - 16, 0);
             } else {
               return 0;
             }
           }()),
           transMassResolutionReduceShift_([&]() {
             if (minTransMassSqrDiv2_) {
-              return std::max<int>(
-                  std::ceil(std::log2(std::floor(minTransMassSqrDiv2_.value() * cosPhiLUT_.output_scale() + 1.0))) - 16,
-                  0);
+              return std::max<int>(std::ceil(std::log2(minTransMassSqrDiv2_.value() + 1.0)) - 16, 0);
             } else if (maxTransMassSqrDiv2_) {
-              return std::max<int>(
-                  std::ceil(std::log2(std::ceil(maxTransMassSqrDiv2_.value() * cosPhiLUT_.output_scale()))) - 16, 0);
+              return std::max<int>(std::ceil(std::log2(maxTransMassSqrDiv2_.value())) - 16, 0);
             } else {
               return 0;
             }
