@@ -87,7 +87,7 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         bool startWithComma = false;
         bool wroteSomething = false;
         edm::CfiOptions ops = edm::cfi::Typed{};
-        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
+        w.writeCfi(os, edm::ParameterModifier::kNone, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.int32"));
       }
@@ -110,7 +110,7 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         bool wroteSomething = false;
         edm::CfiOptions ops = edm::cfi::Typed{};
 
-        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
+        w.writeCfi(os, edm::ParameterModifier::kNone, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.untracked.uint32"));
       }
@@ -157,7 +157,7 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         bool wroteSomething = false;
         edm::CfiOptions ops = edm::cfi::Typed{};
 
-        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
+        w.writeCfi(os, edm::ParameterModifier::kNone, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.double"));
       }
@@ -192,7 +192,7 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         bool startWithComma = false;
         bool wroteSomething = false;
         edm::CfiOptions ops = edm::cfi::Typed{};
-        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
+        w.writeCfi(os, edm::ParameterModifier::kNone, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.PSetTemplate()"));
       }
@@ -242,7 +242,7 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         bool startWithComma = false;
         bool wroteSomething = false;
         edm::CfiOptions ops = edm::cfi::Typed{};
-        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
+        w.writeCfi(os, edm::ParameterModifier::kNone, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(),
                      Equals("\nallowAnyLabel_ = cms.required.PSetTemplate(\n  n1 = cms.untracked.uint32(1)\n)"));
@@ -295,7 +295,7 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         bool startWithComma = false;
         bool wroteSomething = false;
         edm::CfiOptions ops = edm::cfi::Typed{};
-        w.writeCfi(os, false, startWithComma, 0, ops, wroteSomething);
+        w.writeCfi(os, edm::ParameterModifier::kNone, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.VPSet"));
       }
@@ -1641,6 +1641,137 @@ p = dict(
     CHECK(psetDesc.isUnknown());
 
     psetDesc.validate(params);
+  }
+
+  SECTION("obsolete") {
+    SECTION("string") {
+      edm::ParameterSetDescription psetDesc;
+
+      psetDesc.add<std::string>("testname");
+      psetDesc.add<std::string>("hadDefault", "default");
+      psetDesc.addObsolete<std::string>("noLongerUsed");
+      SECTION("with obsolete") {
+        edm::ParameterSet params;
+        params.addParameter<std::string>("testname", std::string("testvalue"));
+        params.addParameter<std::string>("noLongerUsed", std::string("testvalue"));
+
+        psetDesc.validate(params);
+      }
+      SECTION("without obsolete") {
+        edm::ParameterSet params;
+        params.addParameter<std::string>("testname", std::string("testvalue"));
+        psetDesc.validate(params);
+        CHECK(not params.existsAs<std::string>("noLongerUsed"));
+      }
+      SECTION("writeCfi full") {
+        std::ostringstream s;
+        edm::CfiOptions fullOps = edm::cfi::Typed{};
+        psetDesc.writeCfi(s, false, 0, fullOps);
+        std::string expected = R"-(
+testname = cms.required.string,
+hadDefault = cms.string('default'),
+noLongerUsed = cms.obsolete.string
+)-";
+
+        CHECK(expected == s.str());
+      }
+      SECTION("writeCfi Untyped") {
+        std::ostringstream s;
+        edm::CfiOptions fullOps = edm::cfi::Untyped{edm::cfi::Paths{}};
+        psetDesc.writeCfi(s, false, 0, fullOps);
+        std::string expected = R"-(
+hadDefault = 'default'
+)-";
+        CHECK(expected == s.str());
+      }
+    }
+    SECTION("PSet") {
+      edm::ParameterSetDescription psetDesc;
+
+      psetDesc.add<std::string>("testname");
+      psetDesc.add<std::string>("hadDefault", "default");
+      psetDesc.addObsolete<edm::ParameterSetDescription>("noLongerUsed");
+      SECTION("with obsolete") {
+        edm::ParameterSet params;
+        params.addParameter<std::string>("testname", std::string("testvalue"));
+        edm::ParameterSet obs;
+        obs.addParameter<int>("something", 1);
+        params.addParameter<edm::ParameterSet>("noLongerUsed", obs);
+
+        psetDesc.validate(params);
+      }
+      SECTION("without obsolete") {
+        edm::ParameterSet params;
+        params.addParameter<std::string>("testname", std::string("testvalue"));
+        psetDesc.validate(params);
+      }
+      SECTION("writeCfi full") {
+        std::ostringstream s;
+        edm::CfiOptions fullOps = edm::cfi::Typed{};
+        psetDesc.writeCfi(s, false, 0, fullOps);
+        std::string expected = R"-(
+testname = cms.required.string,
+hadDefault = cms.string('default'),
+noLongerUsed = cms.obsolete.PSet
+)-";
+
+        CHECK(expected == s.str());
+      }
+      SECTION("writeCfi Untyped") {
+        std::ostringstream s;
+        edm::CfiOptions fullOps = edm::cfi::Untyped{edm::cfi::Paths{}};
+        psetDesc.writeCfi(s, false, 0, fullOps);
+        std::string expected = R"-(
+hadDefault = 'default'
+)-";
+        CHECK(expected == s.str());
+      }
+    }
+  }
+
+  SECTION("VPSet") {
+    edm::ParameterSetDescription psetDesc;
+
+    psetDesc.add<std::string>("testname");
+    psetDesc.add<std::string>("hadDefault", "default");
+    psetDesc.addVPSetObsolete("noLongerUsed");
+    SECTION("with obsolete") {
+      edm::ParameterSet params;
+      params.addParameter<std::string>("testname", std::string("testvalue"));
+
+      edm::ParameterSet obs;
+      obs.addParameter<int>("something", 1);
+      std::vector<edm::ParameterSet> vobs{1, obs};
+      params.addParameter<std::vector<edm::ParameterSet>>("noLongerUsed", vobs);
+
+      psetDesc.validate(params);
+    }
+    SECTION("without obsolete") {
+      edm::ParameterSet params;
+      params.addParameter<std::string>("testname", std::string("testvalue"));
+      psetDesc.validate(params);
+    }
+    SECTION("writeCfi full") {
+      std::ostringstream s;
+      edm::CfiOptions fullOps = edm::cfi::Typed{};
+      psetDesc.writeCfi(s, false, 0, fullOps);
+      std::string expected = R"-(
+testname = cms.required.string,
+hadDefault = cms.string('default'),
+noLongerUsed = cms.obsolete.VPSet
+)-";
+
+      CHECK(expected == s.str());
+    }
+    SECTION("writeCfi Untyped") {
+      std::ostringstream s;
+      edm::CfiOptions fullOps = edm::cfi::Untyped{edm::cfi::Paths{}};
+      psetDesc.writeCfi(s, false, 0, fullOps);
+      std::string expected = R"-(
+hadDefault = 'default'
+)-";
+      CHECK(expected == s.str());
+    }
   }
 
   SECTION("FileInPath") {
