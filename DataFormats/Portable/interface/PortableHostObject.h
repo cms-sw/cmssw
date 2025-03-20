@@ -7,6 +7,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/TrivialCopyTraits.h"
 #include "DataFormats/Common/interface/Uninitialized.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
@@ -114,5 +115,29 @@ private:
   std::optional<Buffer> buffer_;  //!
   Product* product_;
 };
+
+// Specialize the TrivialCopyTraits for PortableHostObject
+namespace edm {
+
+  template <typename T>
+  struct TrivialCopyTraits<PortableHostObject<T>> {
+    // this specialisation requires a initialize() method, but does not need to pass any parameters to it
+    using Properties = void;
+
+    static void initialize(PortableHostObject<T>& object) {
+      // replace the default-constructed empty object with one where the buffer has been allocated in pageable system memory
+      object = PortableHostObject<T>(cms::alpakatools::host());
+    }
+
+    static std::vector<std::span<std::byte>> regions(PortableHostObject<T>& object) {
+      return {{reinterpret_cast<std::byte*>(object.data()), sizeof(T)}};
+    }
+
+    static std::vector<std::span<const std::byte>> regions(PortableHostObject<T> const& object) {
+      return {{reinterpret_cast<std::byte const*>(object.data()), sizeof(T)}};
+    }
+  };
+
+}  // namespace edm
 
 #endif  // DataFormats_Portable_interface_PortableHostObject_h
