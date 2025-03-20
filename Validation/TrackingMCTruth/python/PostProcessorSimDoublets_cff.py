@@ -15,15 +15,41 @@ def _addNoFlow(module):
         if not tmp[ind-1] in _noflowSeen:
             module.noFlowDists.append(tmp[ind-1])
 
-_defaultSubdirs = ["Tracking/TrackingMCTruth/SimDoublets/general"]
+_defaultSubdirsGeneral = ["Tracking/TrackingMCTruth/SimDoublets/general"]
+_defaultSubdirsSimNtuplets = ["Tracking/TrackingMCTruth/SimDoublets/simNtuplets"]
 
 postProcessorSimDoublets = DQMEDHarvester("DQMGenericClient",
-    subDirs = cms.untracked.vstring(_defaultSubdirs),
+    subDirs = cms.untracked.vstring(_defaultSubdirsGeneral),
     efficiency = cms.vstring(
         "efficiency_vs_pT 'SimDoublets efficiency vs p_{T}; TP transverse momentum p_{T} [GeV]; Total fraction of SimDoublets passing all cuts' pass_numVsPt numVsPt",
         "efficiency_vs_eta 'SimDoublets efficiency vs #eta; TP pseudorapidity #eta; Total fraction of SimDoublets passing all cuts' pass_numVsEta numVsEta",
-        "efficiencyTP_vs_pT 'TrackingParticle efficiency (2 or more connected SimDoublets passing cuts); TP transverse momentum p_{T} [GeV]; Efficiency for TrackingParticles' pass_numTPVsPt numTPVsPt",
-        "efficiencyTP_vs_eta 'TrackingParticle efficiency (2 or more connected SimDoublets passing cuts); TP pseudorapidity #eta; Efficiency for TrackingParticles' pass_numTPVsEta numTPVsEta"
+        "efficiencyTP_vs_pT 'TrackingParticle efficiency (have an alive SimNtuplet); TP transverse momentum p_{T} [GeV]; Efficiency for TrackingParticles' pass_numTPVsPt numTPVsPt",
+        "efficiencyTP_vs_eta 'TrackingParticle efficiency (have an alive SimNtuplet); TP pseudorapidity #eta; Efficiency for TrackingParticles' pass_numTPVsEta numTPVsEta"
+    ),
+    resolution = cms.vstring(),
+    cumulativeDists = cms.untracked.vstring(),
+    noFlowDists = cms.untracked.vstring(),
+    outputFileName = cms.untracked.string(""),
+    makeGlobalEffienciesPlot = cms.untracked.bool(True)
+)
+
+postProcessorSimNtuplets = DQMEDHarvester("DQMGenericClient",
+    subDirs = cms.untracked.vstring(_defaultSubdirsSimNtuplets),
+    efficiency = cms.vstring(
+        "fracAlive_vs_pT 'Fraction of TPs with longest SimNtuplet being alive vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' pt_alive pt",
+        "fracAlive_vs_eta 'Fraction of TPs with longest SimNtuplet being alive vs #eta; TP pseudorapidity #eta; Fraction' eta_alive eta",
+        "fracUndefDoubletCuts_vs_pT 'Fraction of TPs with longest SimNtuplet having undef doublet cuts vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' pt_undefDoubletCuts pt",
+        "fracUndefDoubletCuts_vs_eta 'Fraction of TPs with longest SimNtuplet having undef doublet cuts vs #eta; TP pseudorapidity #eta; Fraction' eta_undefDoubletCuts eta",
+        "fracUndefConnectionCuts_vs_pT 'Fraction of TPs with longest SimNtuplet having undef connection cuts vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' pt_undefConnectionCuts pt",
+        "fracUndefConnectionCuts_vs_eta 'Fraction of TPs with longest SimNtuplet having undef connection cuts vs #eta; TP pseudorapidity #eta; Fraction' eta_undefConnectionCuts eta",
+        "fracMissingLayerPair_vs_pT 'Fraction of TPs with longest SimNtuplet with missing layer pair vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' pt_missingLayerPair pt",
+        "fracMissingLayerPair_vs_eta 'Fraction of TPs with longest SimNtuplet with missing layer pair vs #eta; TP pseudorapidity #eta; Fraction' eta_missingLayerPair eta",
+        "fracKilledDoublets_vs_pT 'Fraction of TPs with longest SimNtuplet with killed doublets vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' pt_killedDoublets pt",
+        "fracKilledDoublets_vs_eta 'Fraction of TPs with longest SimNtuplet with killed doublets vs #eta; TP pseudorapidity #eta; Fraction' eta_killedDoublets eta",
+        "fracKilledConnections_vs_pT 'Fraction of TPs with longest SimNtuplet with killed connections vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' pt_killedConnections pt",
+        "fracKilledConnections_vs_eta 'Fraction of TPs with longest SimNtuplet with killed connections vs #eta; TP pseudorapidity #eta; Fraction' eta_killedConnections eta",
+        "fracTooShort_vs_pT 'Fraction of TPs with longest SimNtuplet having 3 RecHits but yet being to short to pass the threshold vs p_{T}; TP transverse momentum p_{T} [GeV]; Fraction' pt_tooShort pt",
+        "fracTooShort_vs_eta 'Fraction of TPs with longest SimNtuplet having 3 RecHits but yet being to short to pass the threshold vs #eta; TP pseudorapidity #eta; Fraction' eta_tooShort eta",
     ),
     resolution = cms.vstring(),
     cumulativeDists = cms.untracked.vstring(),
@@ -33,3 +59,9 @@ postProcessorSimDoublets = DQMEDHarvester("DQMGenericClient",
 )
 
 _addNoFlow(postProcessorSimDoublets)
+
+
+postProcessorSimDoubletsSequence = cms.Sequence(
+    postProcessorSimDoublets +
+    postProcessorSimNtuplets
+)
