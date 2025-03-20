@@ -75,11 +75,12 @@ private:
   MonitorElement* meHitEnergy_;
 
   static constexpr int nRU_ = 6;
-  static constexpr double logE_min = -3;
+  static constexpr double logE_min = -2;
   static constexpr double logE_max = 2;
   static constexpr double n_bin_logE = 100;
 
   MonitorElement* meHitLogEnergy_;
+  MonitorElement* meHitLogEnergyRUSlice_[nRU_];
   MonitorElement* meHitMultCell_;
   MonitorElement* meHitMultCellRUSlice_[nRU_];
   MonitorElement* meHitMultSM_;
@@ -226,6 +227,8 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     // --- Build a global Sensor Module Id by combining the phi-eta indices
     uint64_t globalSMId = ((uint64_t)SMIndex.first << 32) | SMIndex.second;
     modules[globalSMId].push_back(cell);
+
+    meHitLogEnergyRUSlice_[detId.globalRunit()-1]->Fill(log10(ene_tot_cell));
 
     // --- Skip cells with a total anergy less than hitMinEnergy_
     if (ene_tot_cell < hitMinEnergy_) {
@@ -425,6 +428,9 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitMultCellperSMvsE_ = ibook.bookProfile("BtlHitMultCellperSMvsE", "BTL cell per SM vs energy threshold;log_{10}(E_{th} [MeV]); cells per SM", n_bin_logE, logE_min, logE_max, 0, 16);
 
   for (unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+    std::string name_LogEnergy = "BtlHitLogEnergyRUSlice" + std::to_string(ihistoRU);
+    std::string title_LogEnergy = "BTL SIM hits energy (RU " + std::to_string(ihistoRU) +");log_{10}(E_{SIM} [MeV])";
+    meHitLogEnergyRUSlice_[ihistoRU] = ibook.book1D(name_LogEnergy, title_LogEnergy, 200, -6., 3.);
     std::string name_Cell = "BtlHitMultCellRUSlice" + std::to_string(ihistoRU);
     std::string title_Cell = "BTL cell multiplicity vs energy threshold (RU " + std::to_string(ihistoRU) +");log_{10}(E_{th} [MeV])";
     meHitMultCellRUSlice_[ihistoRU] = ibook.book1D(name_Cell, title_Cell, n_bin_logE, logE_min, logE_max);

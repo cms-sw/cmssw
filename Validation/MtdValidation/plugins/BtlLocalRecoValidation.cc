@@ -88,7 +88,10 @@ private:
 
   MonitorElement* meNhits_;
 
+  static constexpr int nRU_ = 6;
+
   MonitorElement* meHitEnergy_;
+  MonitorElement* meHitEnergyRUSlice_[nRU_];
   MonitorElement* meHitLogEnergy_;
   MonitorElement* meHitTime_;
   MonitorElement* meHitTimeError_;
@@ -396,6 +399,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     const auto& global_point = thedet->toGlobal(local_point);
 
     meHitEnergy_->Fill(recHit.energy());
+    meHitEnergyRUSlice_[detId.globalRunit()-1]->Fill(recHit.energy());
     meHitLogEnergy_->Fill(log10(recHit.energy()));
     meHitTime_->Fill(recHit.time());
     meHitTimeError_->Fill(recHit.timeError());
@@ -957,6 +961,11 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meNhits_ = ibook.book1D("BtlNhits", "Number of BTL RECO hits;log_{10}(N_{RECO})", 100, 0., 5.25);
 
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL RECO hits energy;E_{RECO} [MeV]", 100, 0., 20.);
+  for (unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+    std::string name_Energy = "BtlHitEnergyRUSlice" + std::to_string(ihistoRU);
+    std::string title_Energy = "BTL RECO hits energy (RU " + std::to_string(ihistoRU) +");E_{RECO} [MeV])";
+    meHitEnergyRUSlice_[ihistoRU] = ibook.book1D(name_Energy, title_Energy, 100, 0., 20.);
+  }
   meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL RECO hits energy;log_{10}(E_{RECO} [MeV])", 16, -0.1, 1.5);
   meHitTime_ = ibook.book1D("BtlHitTime", "BTL RECO hits ToA;ToA_{RECO} [ns]", 100, 0., 25.);
   meHitTimeError_ = ibook.book1D("BtlHitTimeError", "BTL RECO hits ToA error;#sigma^{ToA}_{RECO} [ns]", 50, 0., 0.1);
