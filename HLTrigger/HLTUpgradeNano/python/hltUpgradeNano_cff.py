@@ -49,8 +49,13 @@ trackstersAssociationOneToManyTable = cms.EDProducer(
             useCount=cms.bool(True),
             useOffset=cms.bool(False),
             variables=cms.PSet(
-                index=Var("index", "uint", doc="Layer clusters indices."),
-                score=Var("score", "float", doc="Layer clusters score."),
+                index=Var("index", "uint", doc="Index of the associated Trackster."),
+                sharedEnergy=Var(
+                    "sharedEnergy",
+                    "float",
+                    doc="Shared energy with associated Trackster.",
+                ),
+                score=Var("score", "float", doc="Association score."),
             ),
         )
     ),

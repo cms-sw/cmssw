@@ -24,9 +24,12 @@ for i, event in enumerate(events):
         count = event.tracksters_nvertices[t_idx]
         vertices = event.vertices_vertices[offset : offset + count]
         vertex_multiplicity = event.vertices_vertex_mult[offset : offset + count]
-        print(t_idx, vertices, event.tracksters_raw_energy[t_idx])
-        print(t_idx, vertex_multiplicity, event.tracksters_raw_energy[t_idx])
-    print("Exploring connections and scores")
+        print(
+            t_idx,
+            list(zip(vertices, vertex_multiplicity)),
+            event.tracksters_raw_energy[t_idx],
+        )
+    print("Exploring connections,scores, and sharedEnergy")
     print("Connections for {} objects".format(event.nSimTS2TSMergeByHits))
     try:  # Offset pattern
         offset = 0
@@ -37,8 +40,11 @@ for i, event in enumerate(events):
             ]
             elements = event.SimTS2TSMergeByHitsLinks_index[offset:next_offset]
             scores = event.SimTS2TSMergeByHitsLinks_score[offset:next_offset]
+            sharedEnergy = event.SimTS2TSMergeByHitsLinks_shardEnergy[
+                offset:next_offset
+            ]
             if len(elements) > 0:
-                print("Offset ", obj_idx, elements, scores)
+                print("Offset ", obj_idx, elements, scores, sharedEnergy)
             offset = next_offset
     except AttributeError as e:
         print(f"An AttributeError occurred: {e}")
@@ -48,8 +54,11 @@ for i, event in enumerate(events):
             count = event.SimTS2TSMergeByHits_nSimTS2TSMergeByHitsLinks[obj_idx]
             elements = event.SimTS2TSMergeByHitsLinks_index[offset : offset + count]
             scores = event.SimTS2TSMergeByHitsLinks_score[offset : offset + count]
+            sharedEnergy = event.SimTS2TSMergeByHitsLinks_sharedEnergy[
+                offset : offset + count
+            ]
             if len(elements) > 0:
-                print("Count ", obj_idx, elements, scores)
+                print("Count ", obj_idx, elements, scores, sharedEnergy)
             offset = offset + count
     except AttributeError as e:
         print(f"An AttributeError occurred: {e}")
