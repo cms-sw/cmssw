@@ -14,6 +14,8 @@
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
+// #define CA_TRIPLET_HOLES
+
 namespace pixelCPEforDevice {
 
   // From https://cmssdt.cern.ch/dxr/CMSSW/source/CondFormats/SiPixelTransient/src/SiPixelGenError.cc#485-486
@@ -61,9 +63,6 @@ namespace pixelCPEforDevice {
   struct CommonParams {
     float theThicknessB;
     float theThicknessE;
-
-    uint16_t maxModuleStride;
-    uint8_t numberOfLaddersInBarrel;
   };
 
   struct DetParams {
@@ -98,13 +97,6 @@ namespace pixelCPEforDevice {
     int minCh[kGenErrorQBins];
 
     Frame frame;
-  };
-
-  template <typename TrackerTopology>
-  struct LayerGeometryT {
-    uint32_t layerStart[TrackerTopology::numberOfLayers + 1];
-    uint8_t layer[pixelTopology::layerIndexSize<TrackerTopology>];
-    uint16_t maxModuleStride;
   };
 
   constexpr int32_t MaxHitsInIter = pixelClustering::maxHitsInIter();
@@ -409,26 +401,23 @@ namespace pixelCPEforDevice {
 
   template <typename TrackerTopology>
   struct ParamsOnDeviceT {
-    using LayerGeometry = LayerGeometryT<TrackerTopology>;
-    using AverageGeometry = pixelTopology::AverageGeometryT<TrackerTopology>;
-
     CommonParams m_commonParams;
     // Will contain an array of DetParams instances
     DetParams m_detParams[TrackerTopology::numberOfModules];
-    LayerGeometry m_layerGeometry;
-    AverageGeometry m_averageGeometry;
 
     constexpr CommonParams const& __restrict__ commonParams() const { return m_commonParams; }
     constexpr DetParams const& __restrict__ detParams(int i) const { return m_detParams[i]; }
-    constexpr LayerGeometry const& __restrict__ layerGeometry() const { return m_layerGeometry; }
-    constexpr AverageGeometry const& __restrict__ averageGeometry() const { return m_averageGeometry; }
 
     CommonParams& commonParams() { return m_commonParams; }
     DetParams& detParams(int i) { return m_detParams[i]; }
-    LayerGeometry& layerGeometry() { return m_layerGeometry; }
-    AverageGeometry& averageGeometry() { return m_averageGeometry; }
 
-    constexpr uint8_t layer(uint16_t id) const { return m_layerGeometry.layer[id / TrackerTopology::maxModuleStride]; };
+#ifdef CA_TRIPLET_HOLES
+    using AverageGeometry = pixelTopology::AverageGeometryT<TrackerTopology>;
+
+    AverageGeometry m_averageGeometry;
+    constexpr AverageGeometry const& __restrict__ averageGeometry() const { return m_averageGeometry; }
+    AverageGeometry& averageGeometry() { return m_averageGeometry; }
+#endif  // CA_TRIPLETS_HOLE
   };
 
 }  // namespace pixelCPEforDevice
