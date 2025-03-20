@@ -11,7 +11,6 @@
 //
 
 // system include files
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
@@ -103,12 +102,12 @@ namespace edm {
     std::set<BranchID> missingFromMapper;
     std::set<BranchID> missingProductProvenance;
 
-    std::map<BranchID, const BranchDescription*> idToBranchDescriptions;
+    std::map<BranchID, const ProductDescription*> idToProductDescriptions;
     for (auto const& product : keptProducts()[InEvent]) {
-      BranchDescription const* branchDescription = product.first;
-      BranchID branchID = branchDescription->branchID();
-      idToBranchDescriptions[branchID] = branchDescription;
-      TypeID const& tid(branchDescription->unwrappedTypeID());
+      ProductDescription const* productDescription = product.first;
+      BranchID branchID = productDescription->branchID();
+      idToProductDescriptions[branchID] = productDescription;
+      TypeID const& tid(productDescription->unwrappedTypeID());
       EDGetToken const& token = product.second;
       BasicHandle bh = e.getByToken(token, tid);
       bool cannotFindProductProvenance = false;
@@ -129,12 +128,10 @@ namespace edm {
     }
 
     //Determine what BranchIDs are in the product registry
-    Service<ConstProductRegistry> reg;
-    ProductRegistry::ProductList const& prodList = reg->productList();
     std::set<BranchID> branchesInReg;
-    for (auto const& product : prodList) {
+    for (auto const& product : e.productRegistry().productList()) {
       branchesInReg.insert(product.second.branchID());
-      idToBranchDescriptions[product.second.branchID()] = &product.second;
+      idToProductDescriptions[product.second.branchID()] = &product.second;
     }
 
     std::set<BranchID> missingFromReg;
@@ -148,7 +145,7 @@ namespace edm {
       LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductProvenanceRetriever\n";
       for (std::set<BranchID>::iterator it = missingFromMapper.begin(), itEnd = missingFromMapper.end(); it != itEnd;
            ++it) {
-        LogProblem("ProvenanceChecker") << *it << " " << *(idToBranchDescriptions[*it]);
+        LogProblem("ProvenanceChecker") << *it << " " << *(idToProductDescriptions[*it]);
       }
     }
 
@@ -157,14 +154,14 @@ namespace edm {
       for (std::set<BranchID>::iterator it = missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
            it != itEnd;
            ++it) {
-        LogProblem("ProvenanceChecker") << *it << " " << *(idToBranchDescriptions[*it]);
+        LogProblem("ProvenanceChecker") << *it << " " << *(idToProductDescriptions[*it]);
       }
     }
 
     if (!missingFromReg.empty()) {
       LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductRegistry\n";
       for (auto const& item : missingFromReg) {
-        LogProblem("ProvenanceChecker") << item << " " << *(idToBranchDescriptions[item]);
+        LogProblem("ProvenanceChecker") << item << " " << *(idToProductDescriptions[item]);
       }
     }
 
@@ -174,6 +171,19 @@ namespace edm {
           << (!missingProductProvenance.empty() ? " Have missing ProductProvenance's from ProductResolver in Event.\n"
                                                 : "")
           << (!missingFromReg.empty() ? " Have missing info from ProductRegistry.\n" : "");
+    }
+
+    //check consistency with all Intervals
+    if (e.productRegistry().cacheIdentifier() != e.getRun().productRegistry().cacheIdentifier()) {
+      throw cms::Exception("ProvenanceError")
+          << "The registry cache id for Event ( " << e.productRegistry().cacheIdentifier()
+          << " ) does not match the one for Run ( " << e.getRun().productRegistry().cacheIdentifier() << " )";
+    }
+    if (e.productRegistry().cacheIdentifier() != e.getLuminosityBlock().productRegistry().cacheIdentifier()) {
+      throw cms::Exception("ProvenanceError")
+          << "The registry cache id for Event ( " << e.productRegistry().cacheIdentifier()
+          << " ) does not match the one for LuminosityBlock ( "
+          << e.getLuminosityBlock().productRegistry().cacheIdentifier() << " )";
     }
   }
 

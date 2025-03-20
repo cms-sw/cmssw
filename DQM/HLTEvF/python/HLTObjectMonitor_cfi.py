@@ -431,9 +431,19 @@ hltObjectMonitor = DQMEDAnalyzer('HLTObjectMonitor',
         plotLabel = cms.string("Muon_dxy"),
         axisLabel = cms.string("muon d_{xy} [mm]"),
         mainWorkspace = cms.bool(True),
-        NbinsX = cms.int32(2000),
-        Xmin = cms.double(-10),
-        Xmax = cms.double(10)
+        NbinsX = cms.int32(200),
+        Xmin = cms.double(-0.1),
+        Xmax = cms.double(0.1)
+        ),
+    muonDz = cms.PSet(
+        pathName = cms.string("HLT_DoubleMu43NoFiltersNoVtx"),
+        moduleName = cms.string("hltL3fDimuonL1f0L2NVf16L3NoFiltersNoVtxFiltered43"),
+        plotLabel = cms.string("Muon_dz"),
+        axisLabel = cms.string("muon d_{z} [mm]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(200),
+        Xmin = cms.double(-100),
+        Xmax = cms.double(100)
         ),
     wallTime = cms.PSet(
         pathName = cms.string("wall time per event"),
@@ -445,5 +455,4 @@ hltObjectMonitor = DQMEDAnalyzer('HLTObjectMonitor',
         Xmin = cms.double(0),
         Xmax = cms.double(0.005)
         )
-
 )

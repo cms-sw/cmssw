@@ -6,9 +6,13 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                         'PostDQMOffline',
                         '@dcs+@DQMMessageLogger+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
-	   'common': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@castor+@physics',
-                        'PostDQMOffline',
-                        '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
+	    'common': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@castor+@physics',
+                      'PostDQMOffline',
+                      '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
+            
+            'commonWithScouting': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@castor+@physics+@hltScouting',
+                                   'PostDQMOffline',
+                                   '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
             'commonFakeHLT': ['@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@beam+@castor+@physics',
                         'PostDQMOffline',
@@ -141,7 +145,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
 	    'physics': ['DQMOfflinePhysics',
 			'PostDQMOffline',
 			'DQMNone'],
-
+            
             'heavyFlavor': ['DQMOfflineHeavyFlavor',
                             'PostDQMOffline',
                             'DQMNone'],
@@ -219,6 +223,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                             'PostDQMOffline',
                             'dqmHarvesting'],
 
+	    'hltScouting': ['DQMOfflineScouting',
+			    'PostDQMOffline',
+			    'DQMHarvestHLTScouting'],
+
             'standardDQMExpress': ['DQMOfflineExpress',
                                    'PostDQMOffline',
                                    'dqmHarvestingExpress'],
@@ -258,3 +266,12 @@ autoDQM['phase2'] = ['','','']
 for i in [0,2]:
     autoDQM['phase2'][i] = '+'.join([autoDQM[m][i] for m in _phase2_allowed])
 autoDQM['phase2'][1] = 'PostDQMOffline'
+
+# Creating autoDQM['phase2FakeHLT'] excluding elements containing 'HLTMon'
+autoDQM['phase2FakeHLT'] = []
+for val in autoDQM['phase2']:
+    if any('HLTMon' in s for s in val.split('+')):
+        filtered_val = '+'.join(filter(lambda x: 'HLTMon' not in x, val.split('+')))
+        autoDQM['phase2FakeHLT'].append(filtered_val)
+    else:
+        autoDQM['phase2FakeHLT'].append(val)

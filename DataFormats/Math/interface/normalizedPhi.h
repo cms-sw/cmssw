@@ -6,7 +6,7 @@
 // return a value of phi into interval [-pi,+pi]
 template <typename T>
 constexpr T normalizedPhi(T phi) {
-  return reco::reduceRange(phi);
+  return reco::reducePhiRange(phi);
 }
 
 // cernlib V306

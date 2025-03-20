@@ -280,10 +280,7 @@ trackAssociated2pvSelector = trackWithVertexSelector.clone(
     zetaVtx = 999.,
     #rhoVtx = 0.2, ## tags used by b-tagging folks
     rhoVtx = 999., ## tags used by b-tagging folks
-    nSigmaDtVertex = 0.,
-    # should _not_ be used for the TrackWithVertexRefSelector
-    copyExtras = False, ## copies also extras and rechits on RECO
-    copyTrajectories = False # don't set this to true on AOD!
+    nSigmaDtVertex = 0.
 )
 
 highPurityPV0p1 = trackAssociated2pvSelector.clone(

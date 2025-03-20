@@ -22,7 +22,7 @@ void MassiveCandidateConverter::beginFirstRun(const EventSetup& es) {
 }
 
 void MassiveCandidateConverter::fillPSetDescription(edm::ParameterSetDescription& desc) {
-  desc.addNode(edm::ParameterDescription<int>("particleType", true) xor
-               edm::ParameterDescription<std::string>("particleType", true))
+  desc.addNode(edm::ParameterDescription<std::string>("particleType", std::string("pi+"), true) xor
+               edm::ParameterDescription<int>("particleType", true))
       ->setComment("the PdtEntry can be specified as either an 'int' or via its name using a 'string'");
 }

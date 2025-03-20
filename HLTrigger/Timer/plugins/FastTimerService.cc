@@ -1407,10 +1407,11 @@ void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string
   json j;
 
   // write a description of the resources
-  j["resources"] = json::array({json{{"time_real", "real time"}},
-                                json{{"time_thread", "cpu time"}},
-                                json{{"mem_alloc", "allocated memory"}},
-                                json{{"mem_free", "deallocated memory"}}});
+  j["resources"] = json::array(
+      {json{{"name", "time_real"}, {"description", "real time"}, {"unit", "ms"}, {"title", "Time"}},
+       json{{"name", "time_thread"}, {"description", "cpu time"}, {"unit", "ms"}, {"title", "Time"}},
+       json{{"name", "mem_alloc"}, {"description", "allocated memory"}, {"unit", "kB"}, {"title", "Memory"}},
+       json{{"name", "mem_free"}, {"description", "deallocated memory"}, {"unit", "kB"}, {"title", "Memory"}}});
 
   // write the resources used by the job
   j["total"] = encodeToJSON("Job",

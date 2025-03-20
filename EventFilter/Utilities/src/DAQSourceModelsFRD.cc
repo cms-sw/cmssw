@@ -65,7 +65,7 @@ void DataModeFRD::readEvent(edm::EventPrincipal& eventPrincipal) {
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(rawData)));
   eventPrincipal.put(
-      daqProvenanceHelpers_[0]->branchDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
+      daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
 }
 
 edm::Timestamp DataModeFRD::fillFEDRawDataCollection(FEDRawDataCollection& rawData,
@@ -213,7 +213,7 @@ void DataModeFRDPreUnpack::readEvent(edm::EventPrincipal& eventPrincipal) {
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(ec_->rawDataRef())));
   eventPrincipal.put(
-      daqProvenanceHelpers_[0]->branchDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
+      daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
 }
 
 void DataModeFRDPreUnpack::unpackFile(RawInputFile* currentFile) {
@@ -362,6 +362,8 @@ std::string DataModeFRDPreUnpack::getChecksumError() const { return ec_->errmsg(
 
 void DataModeFRDStriped::makeDirectoryEntries(std::vector<std::string> const& baseDirs,
                                               std::vector<int> const& numSources,
+                                              std::vector<int> const& sourceIDs,
+                                              std::string const& sourceIdentifier,
                                               std::string const& runDir) {
   std::filesystem::path runDirP(runDir);
   for (auto& baseDir : baseDirs) {
@@ -405,7 +407,7 @@ void DataModeFRDStriped::readEvent(edm::EventPrincipal& eventPrincipal) {
   }
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(rawData)));
   eventPrincipal.put(
-      daqProvenanceHelpers_[0]->branchDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
+      daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
   eventCached_ = false;
 }
 

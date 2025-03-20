@@ -422,7 +422,7 @@ namespace cms::alpakatools {
       } else if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
         // allocate pinned host memory accessible by the queue's platform
         using Platform = alpaka::Platform<alpaka::Dev<Queue>>;
-        return alpaka::allocMappedBuf<Platform, std::byte, size_t>(device_, platform<Platform>(), bytes);
+        return alpaka::allocMappedBuf<std::byte, size_t>(device_, platform<Platform>(), bytes);
       } else {
         // unsupported combination
         static_assert(std::is_same_v<Device, alpaka::Dev<Queue>> or std::is_same_v<Device, alpaka::DevCpu>,

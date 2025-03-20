@@ -26,8 +26,8 @@ namespace cond {
     friend int test::SmallWORMDict::test();
 
   public:
-    SmallWORMDict();
-    ~SmallWORMDict();
+    SmallWORMDict() = default;
+    ~SmallWORMDict() = default;
 
     struct Frame {
       Frame() : b(nullptr) {}

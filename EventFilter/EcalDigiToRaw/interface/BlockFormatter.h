@@ -9,6 +9,7 @@
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 class BlockFormatter {
 public:
@@ -26,11 +27,10 @@ public:
     bool doTower_;
   };
   struct Params {
-    int counter_;
     int orbit_number_;
     int bx_;
-    int lv1_;
-    int runnumber_;
+    unsigned int lv1_;
+    edm::RunNumber_t runnumber_;
   };
 
   explicit BlockFormatter(Config const& iC, Params const& iP);
@@ -44,11 +44,10 @@ public:
 protected:
   const std::vector<int32_t>* plistDCCId_;
 
-  int counter_;
   int orbit_number_;
   int bx_;
-  int lv1_;
-  int runnumber_;
+  unsigned int lv1_;
+  edm::RunNumber_t runnumber_;
 
   const bool debug_;
 

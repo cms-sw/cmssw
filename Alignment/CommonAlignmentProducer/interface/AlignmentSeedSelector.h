@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <vector>
 
 namespace edm {
@@ -21,6 +22,8 @@ public:
 
   /// select tracks
   Seeds select(const Seeds& seeds, const edm::Event& evt) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   /// private data members

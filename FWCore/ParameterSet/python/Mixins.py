@@ -268,6 +268,8 @@ class _Parameterizable(object):
             self.__addParameter(name, value)
         if v is not None:
             self.__validator=v
+    def hasNoParameters(self) -> bool:
+        return len(self.__parameterNames) == 0
     def __setattr__(self,name:str,value):
         #since labels are not supposed to have underscores at the beginning
         # I will assume that if we have such then we are setting an internal variable
@@ -697,7 +699,9 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         if n>=256:
             #wrap in a tuple since they don't have a size constraint
             result+=" ("
+        wroteAtLeastOne = False
         for i, v in enumerate(self):
+            wroteAtLeastOne = True
             if i == 0:
                 if n>nPerLine: result += '\n'+options.indentation()
             else:
@@ -706,13 +710,20 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
                 else:
                     result += ', '
             result += self.pythonValueForItem(v,options)
+        if n>=256:
+            result +=' ) '
+        moreArgs = self._additionalInitArguments(options)
+        if moreArgs:
+            if wroteAtLeastOne:
+                result += ', \n' + options.indentation()
+            result += moreArgs
         if n>nPerLine:
             options.unindent()
             result += '\n'+options.indentation()
-        if n>=256:
-            result +=' ) '
         result += ')'
-        return result            
+        return result  
+    def _additionalInitArguments(self, options):
+        return ''
     def directDependencies(self):
         return []
     @staticmethod

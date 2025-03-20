@@ -36,7 +36,7 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet)
       edm::ProcessMatch("*"), this);
   HORecHitgetter_ = edm::GetterOfProducts<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>>(
       edm::ProcessMatch("*"), this);
-  callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+  callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
     // in case of EDAliases, consume only the aliased-for original products
     if (bd.isAnyAlias())
       return;

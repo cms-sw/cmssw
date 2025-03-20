@@ -35,7 +35,7 @@ the worker is reset().
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
@@ -84,8 +84,9 @@ namespace edm {
     class CallImpl;
   }
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+  }  // namespace eventsetup
 
   class Worker {
   public:
@@ -166,7 +167,7 @@ namespace edm {
                                          ParentContext const&,
                                          typename T::Context const*) noexcept;
 
-    virtual size_t transformIndex(edm::BranchDescription const&) const noexcept = 0;
+    virtual size_t transformIndex(edm::ProductDescription const&) const noexcept = 0;
     void doTransformAsync(WaitingTaskHolder,
                           size_t iTransformIndex,
                           EventPrincipal const&,
@@ -211,6 +212,7 @@ namespace edm {
     //Used to make EDGetToken work
     virtual void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) = 0;
     virtual void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) = 0;
+    virtual void releaseMemoryPostLookupSignal() = 0;
     virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
     virtual void resolvePutIndicies(
         BranchType iBranchType,
@@ -223,9 +225,15 @@ namespace edm {
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;
 
+    virtual void esModulesWhoseProductsAreConsumed(
+        std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
+        eventsetup::ESRecordsToProductResolverIndices const&) const = 0;
+
     virtual void convertCurrentProcessAlias(std::string const& processName) = 0;
 
-    virtual std::vector<ConsumesInfo> consumesInfo() const = 0;
+    virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
+    virtual std::vector<ModuleConsumesESInfo> moduleConsumesESInfos(
+        eventsetup::ESRecordsToProductResolverIndices const&) const = 0;
 
     virtual Types moduleType() const = 0;
     virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
@@ -562,7 +570,7 @@ namespace edm {
                         info = m_eventTransitionInfo,
                         parentContext = m_parentContext,
                         serviceToken = m_serviceToken,
-                        holder = std::move(m_holder)]() {
+                        holder = std::move(m_holder)]() mutable {
                          //Need to make the services available
                          ServiceRegistry::Operate operateRunAcquire(serviceToken.lock());
 

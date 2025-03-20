@@ -519,7 +519,9 @@ public:
           for (int i = 0; i < vectorSize; i++) {
             wPS.push_back(genWeights.at(i + 2) / nominal);
           }
-          psWeightDocStr = "All PS weights (w_var / w_nominal)";
+          psWeightDocStr = ((int)genWeightChoice->psWeightIDs.size() == vectorSize)
+                               ? genWeightChoice->psWeightsDoc
+                               : "All PS weights (w_var / w_nominal)";
         } else {
           if (!psWeightWarning_.exchange(true))
             edm::LogWarning("LHETablesProducer")
@@ -530,8 +532,8 @@ public:
             wPS.push_back(genWeights.at(i) / nominal);
           }
           psWeightDocStr =
-              "PS weights (w_var / w_nominal);   [0] is ISR=2 FSR=1; [1] is ISR=1 FSR=2"
-              "[2] is ISR=0.5 FSR=1; [3] is ISR=1 FSR=0.5;";
+              "PS weights (w_var / w_nominal); default (maybe incorrect) order is: "
+              "[0] is ISR=2 FSR=1; [1] is ISR=1 FSR=2; [2] is ISR=0.5 FSR=1; [3] is ISR=1 FSR=0.5;";
         }
       } else {
         wPS.push_back(1.0);
@@ -989,7 +991,7 @@ public:
 
       std::regex scalew("LHE,\\s+id\\s+=\\s+(\\d+),\\s+(.+)\\,\\s+mur=(\\S+)\\smuf=(\\S+)");
       std::regex pdfw("LHE,\\s+id\\s+=\\s+(\\d+),\\s+(.+),\\s+Member\\s+(\\d+)\\s+of\\ssets\\s+(\\w+\\b)");
-      std::regex mainPSw("sr(Def|:murfac=)(Hi|Lo|_dn|_up|0.5|2.0)");
+      std::regex mainPSw("sr(Def|:murfac=|\\.murfac=)(Hi|Lo|_dn|_up|0\\.5|2\\.0)");
       std::smatch groups;
       auto weightNames = genLumiInfoHead->weightNames();
       std::unordered_map<std::string, uint32_t> knownPDFSetsFromGenInfo_;
@@ -1017,7 +1019,8 @@ public:
         } else if (line == "Baseline") {
           weightChoice->psBaselineID = weightIter;
         } else if (line.find("isr") != std::string::npos || line.find("fsr") != std::string::npos) {
-          weightChoice->matchPS_alt = line.find("sr:") != std::string::npos;  // (f/i)sr: for new weights
+          weightChoice->matchPS_alt = line.find("sr:") != std::string::npos ||
+                                      line.find("sr.") != std::string::npos;  // (f/i)sr: for new weights
           if (keepAllPSWeights_) {
             weightChoice->psWeightIDs.push_back(weightIter);  // PS variations
           } else if (std::regex_search(line, groups, mainPSw)) {
@@ -1031,17 +1034,19 @@ public:
         weightIter++;
       }
       if (keepAllPSWeights_) {
-        weightChoice->psWeightsDoc = "All PS weights (w_var / w_nominal)";
+        weightChoice->psWeightsDoc = "All PS weights (w_var / w_nominal) ";
       } else if (weightChoice->psWeightIDs.size() == 4) {
-        weightChoice->psWeightsDoc =
-            "PS weights (w_var / w_nominal);   [0] is ISR=2 FSR=1; [1] is ISR=1 FSR=2"
-            "[2] is ISR=0.5 FSR=1; [3] is ISR=1 FSR=0.5;";
+        weightChoice->psWeightsDoc = "PS weights (w_var / w_nominal) ";
         for (int i = 0; i < 4; i++) {
           if (static_cast<int>(weightChoice->psWeightIDs[i]) == -1)
             weightChoice->setMissingWeight(i);
         }
       } else {
         weightChoice->psWeightsDoc = "dummy PS weight (1.0) ";
+      }
+      for (unsigned i = 0; i < weightChoice->psWeightIDs.size(); ++i) {
+        weightChoice->psWeightsDoc +=
+            "[" + std::to_string(i) + "] " + weightNames.at(weightChoice->psWeightIDs.at(i)) + "; ";
       }
 
       weightChoice->scaleWeightIDs.clear();

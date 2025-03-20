@@ -16,10 +16,9 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
-#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/PrincipalCache.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -282,7 +281,6 @@ namespace edm {
     void processEventWithLooper(EventPrincipal&, unsigned int iStreamIndex);
 
     std::shared_ptr<ProductRegistry const> preg() const { return get_underlying_safe(preg_); }
-    std::shared_ptr<ProductRegistry>& preg() { return get_underlying_safe(preg_); }
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {
       return get_underlying_safe(branchIDListHelper_);
     }
@@ -327,7 +325,6 @@ namespace edm {
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext processContext_;
-    PathsAndConsumesOfModules pathsAndConsumesOfModules_;
     MergeableRunProductProcesses mergeableRunProductProcesses_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
     std::vector<edm::SerialTaskQueue> streamQueues_;

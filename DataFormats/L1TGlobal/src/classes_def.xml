@@ -40,10 +40,10 @@
   <class name="edm::Wrapper<std::vector<GlobalObjectMap> >"/>
   <!-- Adding ioread rules for backwards compatibility -->
   <ioread sourceClass="GlobalObjectMap" version="[3-10]"
-	  source="std::vector<std::vector<std::vector<L1TObjIndexType>>> m_combinationVector;"
-	  targetClass="GlobalObjectMap" target="m_combinationWithBxVector">
+          source="std::vector<std::vector<std::vector<L1TObjIndexType>>> m_combinationVector;"
+          targetClass="GlobalObjectMap" target="m_combinationWithBxVector">
     <![CDATA[
-	     m_combinationWithBxVector.clear();
+             m_combinationWithBxVector.clear();
              m_combinationWithBxVector.reserve(onfile.m_combinationVector.size());
              for(auto const& a0 : onfile.m_combinationVector) {
                CombinationsWithBxInCond b0;

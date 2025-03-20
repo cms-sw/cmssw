@@ -30,7 +30,7 @@
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/PrincipalCache.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/Schedule.h"
@@ -366,7 +366,7 @@ This simulates a problem happening early in the job which causes processing not 
       std::shared_ptr<RunPrincipal> runPrincipal_;
       std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
 
-      std::vector<std::pair<edm::BranchDescription, std::unique_ptr<WrapperBase>>> dataProducts_;
+      std::vector<std::pair<edm::ProductDescription, std::unique_ptr<WrapperBase>>> dataProducts_;
 
       RunNumber_t runNumber_ = 1;
       LuminosityBlockNumber_t lumiNumber_ = 1;

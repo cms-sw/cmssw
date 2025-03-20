@@ -2,7 +2,7 @@
 # Way to use this:  
 #   cmsRun g4OverlapCheckDD4hep_cfg.py geometry=2021 tol=0.1
 #
-#   Options for geometry 2017, 2018, 2021, 2023, 2024
+#   Options for geometry 2016, 2017, 2018, 2021, 2023, 2024, 2025
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -13,7 +13,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2017, 2018, 2021, 2023, 2024")
+                  "geometry of operations: 2016, 2017, 2018, 2021, 2023, 2024, 2025")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -27,7 +27,10 @@ baseName = "cmsDD4hep" + options.geometry
 geomName = "Configuration.Geometry.GeometryDD4hepExtended" + options.geometry + "Reco_cff"
 
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-if (options.geometry == "2017"):
+if (options.geometry == "2016"):
+    from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+    process = cms.Process('G4PrintGeometry',Run2_2016,dd4hep)
+elif (options.geometry == "2017"):
     from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
     process = cms.Process('G4PrintGeometry',Run2_2017,dd4hep)
 elif (options.geometry == "2018"):

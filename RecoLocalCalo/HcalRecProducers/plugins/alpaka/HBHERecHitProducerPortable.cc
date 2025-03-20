@@ -65,7 +65,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   HBHERecHitProducerPortable::HBHERecHitProducerPortable(edm::ParameterSet const& ps, HcalMahiPulseOffsetsCache const*)
-      : digisTokenF01HE_{consumes(ps.getParameter<edm::InputTag>("digisLabelF01HE"))},
+      : EDProducer(ps),
+        digisTokenF01HE_{consumes(ps.getParameter<edm::InputTag>("digisLabelF01HE"))},
         digisTokenF5HB_{consumes(ps.getParameter<edm::InputTag>("digisLabelF5HB"))},
         digisTokenF3HB_{consumes(ps.getParameter<edm::InputTag>("digisLabelF3HB"))},
         rechitsM0Token_{produces()},

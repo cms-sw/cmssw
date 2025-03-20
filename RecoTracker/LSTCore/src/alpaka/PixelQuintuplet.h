@@ -2,15 +2,17 @@
 #define RecoTracker_LSTCore_src_alpaka_PixelQuintuplet_h
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
+#include "RecoTracker/LSTCore/interface/HitsSoA.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
 #include "RecoTracker/LSTCore/interface/PixelTripletsSoA.h"
+#include "RecoTracker/LSTCore/interface/PixelSegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/QuintupletsSoA.h"
 #include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 
-#include "Hit.h"
+#include "Quintuplet.h"
 #include "PixelTriplet.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
@@ -468,7 +470,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                     ObjectRangesConst ranges,
                                                                     MiniDoubletsConst mds,
                                                                     SegmentsConst segments,
-                                                                    SegmentsPixelConst segmentsPixel,
+                                                                    PixelSegmentsConst pixelSegments,
                                                                     TripletsConst triplets,
                                                                     QuintupletsConst quintuplets,
                                                                     unsigned int pixelSegmentIndex,
@@ -493,7 +495,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        ranges,
                                        mds,
                                        segments,
-                                       segmentsPixel,
+                                       pixelSegments,
                                        triplets,
                                        pixelSegmentIndex,
                                        t5InnerT3Index,
@@ -545,16 +547,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                      mds.anchorRt()[fourthMDIndex],
                                      mds.anchorRt()[fifthMDIndex]};
 
-    float pixelSegmentPt = segmentsPixel.ptIn()[pixelSegmentArrayIndex];
-    float pixelSegmentPx = segmentsPixel.px()[pixelSegmentArrayIndex];
-    float pixelSegmentPy = segmentsPixel.py()[pixelSegmentArrayIndex];
-    float pixelSegmentPz = segmentsPixel.pz()[pixelSegmentArrayIndex];
-    int pixelSegmentCharge = segmentsPixel.charge()[pixelSegmentArrayIndex];
+    float pixelSegmentPt = pixelSegments.ptIn()[pixelSegmentArrayIndex];
+    float pixelSegmentPx = pixelSegments.px()[pixelSegmentArrayIndex];
+    float pixelSegmentPy = pixelSegments.py()[pixelSegmentArrayIndex];
+    float pixelSegmentPz = pixelSegments.pz()[pixelSegmentArrayIndex];
+    int pixelSegmentCharge = pixelSegments.charge()[pixelSegmentArrayIndex];
 
     rzChiSquared = 0;
 
     //get the appropriate centers
-    pixelRadius = segmentsPixel.circleRadius()[pixelSegmentArrayIndex];
+    pixelRadius = pixelSegments.circleRadius()[pixelSegmentArrayIndex];
 
     if (pixelRadius < 5.0f * kR1GeVf) {  //only apply r-z chi2 cuts for <5GeV tracks
       rzChiSquared = computePT5RZChiSquared(acc,
@@ -594,8 +596,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                     mds.anchorY()[fifthMDIndex]};
 
     //get the appropriate centers
-    centerX = segmentsPixel.circleCenterX()[pixelSegmentArrayIndex];
-    centerY = segmentsPixel.circleCenterY()[pixelSegmentArrayIndex];
+    centerX = pixelSegments.circleCenterX()[pixelSegmentArrayIndex];
+    centerY = pixelSegments.circleCenterY()[pixelSegmentArrayIndex];
 
     float T5CenterX = quintuplets.regressionCenterX()[quintupletIndex];
     float T5CenterY = quintuplets.regressionCenterY()[quintupletIndex];
@@ -634,13 +636,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   struct CreatePixelQuintupletsFromMap {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   ModulesPixelConst modulesPixel,
                                   MiniDoubletsConst mds,
                                   SegmentsConst segments,
-                                  SegmentsPixel segmentsPixel,
+                                  PixelSegments pixelSegments,
                                   Triplets triplets,
                                   Quintuplets quintuplets,
                                   QuintupletsOccupancyConst quintupletsOccupancy,
@@ -650,15 +651,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   unsigned int nPixelSegments,
                                   ObjectRangesConst ranges,
                                   const float ptCut) const {
-      auto const globalBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridBlockExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (unsigned int i_pLS = globalThreadIdx[1]; i_pLS < nPixelSegments; i_pLS += gridThreadExtent[1]) {
+      for (unsigned int i_pLS : cms::alpakatools::uniform_elements_z(acc, nPixelSegments)) {
         auto iLSModule_max = connectedPixelIndex[i_pLS] + connectedPixelSize[i_pLS];
-        for (unsigned int iLSModule = connectedPixelIndex[i_pLS] + globalBlockIdx[0]; iLSModule < iLSModule_max;
-             iLSModule += gridBlockExtent[0]) {
+        for (unsigned int iLSModule :
+             cms::alpakatools::uniform_elements_y(acc, connectedPixelIndex[i_pLS], iLSModule_max)) {
           //these are actual module indices
           uint16_t quintupletLowerModuleIndex = modulesPixel.connectedPixels()[iLSModule];
           if (quintupletLowerModuleIndex >= modules.nLowerModules())
@@ -666,7 +662,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           if (modules.moduleType()[quintupletLowerModuleIndex] == TwoS)
             continue;
           uint16_t pixelModuleIndex = modules.nLowerModules();
-          if (segmentsPixel.isDup()[i_pLS])
+          if (pixelSegments.isDup()[i_pLS])
             continue;
           unsigned int nOuterQuintuplets = quintupletsOccupancy.nQuintuplets()[quintupletLowerModuleIndex];
 
@@ -676,9 +672,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           unsigned int pixelSegmentIndex = ranges.segmentModuleIndices()[pixelModuleIndex] + i_pLS;
 
           //fetch the quintuplet
-          for (unsigned int outerQuintupletArrayIndex = globalThreadIdx[2];
-               outerQuintupletArrayIndex < nOuterQuintuplets;
-               outerQuintupletArrayIndex += gridThreadExtent[2]) {
+          for (unsigned int outerQuintupletArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterQuintuplets)) {
             unsigned int quintupletIndex =
                 ranges.quintupletModuleIndices()[quintupletLowerModuleIndex] + outerQuintupletArrayIndex;
 
@@ -692,7 +686,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          ranges,
                                                          mds,
                                                          segments,
-                                                         segmentsPixel,
+                                                         pixelSegments,
                                                          triplets,
                                                          quintuplets,
                                                          pixelSegmentIndex,
@@ -740,7 +734,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
                 triplets.partOfPT5()[quintuplets.tripletIndices()[quintupletIndex][0]] = true;
                 triplets.partOfPT5()[quintuplets.tripletIndices()[quintupletIndex][1]] = true;
-                segmentsPixel.partOfPT5()[i_pLS] = true;
+                pixelSegments.partOfPT5()[i_pLS] = true;
                 quintuplets.partOfPT5()[quintupletIndex] = true;
               }  // tot occupancy
             }  // end success

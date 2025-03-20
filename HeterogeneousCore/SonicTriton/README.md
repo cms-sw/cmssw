@@ -71,7 +71,7 @@ There are specific local input and output containers that should be used in prod
 Here, `T` is a primitive type, and the two aliases listed below are passed to `TritonInputData::toServer()`
 and returned by `TritonOutputData::fromServer()`, respectively:
 * `TritonInputContainer<T> = std::shared_ptr<TritonInput<T>> = std::shared_ptr<std::vector<std::vector<T>>>`
-* `TritonOutput<T> = std::vector<edm::Span<const T*>>`
+* `TritonOutput<T> = std::vector<std::span<const T>>`
 
 The `TritonInputContainer` object should be created using the helper function described below.
 It expects one vector per batch entry (i.e. the size of the outer vector is the batch size (rectangular case) or number of entries (ragged case)).

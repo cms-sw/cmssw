@@ -2,7 +2,6 @@
 
 #include "IOPool/Output/src/RootOutputFile.h"
 
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
@@ -11,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
@@ -26,6 +25,7 @@
 #include "TBranchElement.h"
 #include "TObjArray.h"
 #include "RVersion.h"
+#include "TDictAttributeMap.h"
 
 #include <fstream>
 #include <iomanip>
@@ -59,7 +59,7 @@ namespace edm {
         outputFileCount_(0),
         inputFileCount_(0),
         branchParents_(),
-        branchChildren_(),
+        productDependencies_(),
         overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
         compactEventAuxiliary_(pset.getUntrackedParameter<bool>("compactEventAuxiliary")),
         mergeJob_(pset.getUntrackedParameter<bool>("mergeJob")),
@@ -101,31 +101,33 @@ namespace edm {
                                                  s.getUntrackedParameter<int>("splitLevel"));
     }
 
+    auto const& branchAliases{pset.getUntrackedParameterSetVector("branchAliases")};
+    aliasForBranches_.reserve(branchAliases.size());
+    for (auto const& a : branchAliases) {
+      aliasForBranches_.emplace_back(a.getUntrackedParameter<std::string>("branch"),
+                                     a.getUntrackedParameter<std::string>("alias"));
+    }
     // We don't use this next parameter, but we read it anyway because it is part
     // of the configuration of this module.  An external parser creates the
     // configuration by reading this source code.
     pset.getUntrackedParameterSet("dataset");
   }
 
-  void PoolOutputModule::beginJob() {
-    Service<ConstProductRegistry> reg;
-    for (auto const& prod : reg->productList()) {
-      BranchDescription const& desc = prod.second;
-      if (desc.produced() && desc.branchType() == InEvent && !desc.isAlias()) {
-        producedBranches_.emplace_back(desc.branchID());
-      }
-    }
+  void PoolOutputModule::beginJob() {}
+
+  void PoolOutputModule::initialRegistry(edm::ProductRegistry const& iReg) {
+    reg_ = std::make_unique<ProductRegistry>(iReg.productList());
   }
 
   std::string const& PoolOutputModule::currentFileName() const { return rootOutputFile_->fileName(); }
 
-  PoolOutputModule::AuxItem::AuxItem() : basketSize_(BranchDescription::invalidBasketSize) {}
+  PoolOutputModule::AuxItem::AuxItem() : basketSize_(ProductDescription::invalidBasketSize) {}
 
-  PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd,
+  PoolOutputModule::OutputItem::OutputItem(ProductDescription const* bd,
                                            EDGetToken const& token,
                                            int splitLevel,
                                            int basketSize)
-      : branchDescription_(bd), token_(token), product_(nullptr), splitLevel_(splitLevel), basketSize_(basketSize) {}
+      : productDescription_(bd), token_(token), product_(nullptr), splitLevel_(splitLevel), basketSize_(basketSize) {}
 
   PoolOutputModule::OutputItem::Sorter::Sorter(TTree* tree) : treeMap_(new std::map<std::string, int>) {
     // Fill a map mapping branch names to an index specifying the order in the tree.
@@ -143,8 +145,8 @@ namespace edm {
     // Branches not found are always put at the end (i.e. not found > found).
     if (treeMap_->empty())
       return lh < rh;
-    std::string const& lstring = lh.branchDescription_->branchName();
-    std::string const& rstring = rh.branchDescription_->branchName();
+    std::string const& lstring = lh.productDescription_->branchName();
+    std::string const& rstring = rh.productDescription_->branchName();
     std::map<std::string, int>::const_iterator lit = treeMap_->find(lstring);
     std::map<std::string, int>::const_iterator rit = treeMap_->find(rstring);
     bool lfound = (lit != treeMap_->end());
@@ -159,15 +161,29 @@ namespace edm {
     return lh < rh;
   }
 
+  namespace {
+    std::regex convertBranchExpression(std::string const& iGlobBranchExpression) {
+      std::string tmp(iGlobBranchExpression);
+      boost::replace_all(tmp, "*", ".*");
+      boost::replace_all(tmp, "?", ".");
+      return std::regex(tmp);
+    }
+  }  // namespace
+
   inline bool PoolOutputModule::SpecialSplitLevelForBranch::match(std::string const& iBranchName) const {
     return std::regex_match(iBranchName, branch_);
   }
 
   std::regex PoolOutputModule::SpecialSplitLevelForBranch::convert(std::string const& iGlobBranchExpression) const {
-    std::string tmp(iGlobBranchExpression);
-    boost::replace_all(tmp, "*", ".*");
-    boost::replace_all(tmp, "?", ".");
-    return std::regex(tmp);
+    return convertBranchExpression(iGlobBranchExpression);
+  }
+
+  bool PoolOutputModule::AliasForBranch::match(std::string const& iBranchName) const {
+    return std::regex_match(iBranchName, branch_);
+  }
+
+  std::regex PoolOutputModule::AliasForBranch::convert(std::string const& iGlobBranchExpression) const {
+    return convertBranchExpression(iGlobBranchExpression);
   }
 
   void PoolOutputModule::fillSelectedItemList(BranchType branchType,
@@ -196,10 +212,10 @@ namespace edm {
 
     // Fill outputItemList with an entry for each branch.
     for (auto const& kept : keptVector) {
-      int splitLevel = BranchDescription::invalidSplitLevel;
-      int basketSize = BranchDescription::invalidBasketSize;
+      int splitLevel = ProductDescription::invalidSplitLevel;
+      int basketSize = ProductDescription::invalidBasketSize;
 
-      BranchDescription const& prod = *kept.first;
+      ProductDescription const& prod = *kept.first;
       if (branchType == InProcess && processName != prod.processName()) {
         continue;
       }
@@ -211,13 +227,31 @@ namespace edm {
         splitLevel = theBranch->GetSplitLevel();
         basketSize = theBranch->GetBasketSize();
       } else {
-        splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
+        auto wp = prod.wrappedType().getClass()->GetAttributeMap();
+        auto wpSplitLevel = ProductDescription::invalidSplitLevel;
+        if (wp && wp->HasKey("splitLevel")) {
+          wpSplitLevel = strtol(wp->GetPropertyAsString("splitLevel"), nullptr, 0);
+          if (wpSplitLevel < 0) {
+            throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " << wpSplitLevel
+                                                      << " is specified for class " << prod.wrappedName() << ".'\n";
+          }
+          wpSplitLevel += 1;  //Compensate for wrapper
+        }
+        splitLevel = (wpSplitLevel == ProductDescription::invalidSplitLevel ? splitLevel_ : wpSplitLevel);
         for (auto const& b : specialSplitLevelForBranches_) {
           if (b.match(prod.branchName())) {
             splitLevel = b.splitLevel_;
           }
         }
-        basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
+        auto wpBasketSize = ProductDescription::invalidBasketSize;
+        if (wp && wp->HasKey("basketSize")) {
+          wpBasketSize = strtol(wp->GetPropertyAsString("basketSize"), nullptr, 0);
+          if (wpBasketSize <= 0) {
+            throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " << wpBasketSize
+                                                      << " is specified for class " << prod.wrappedName() << "'.\n";
+          }
+        }
+        basketSize = (wpBasketSize == ProductDescription::invalidBasketSize ? basketSize_ : wpBasketSize);
       }
       outputItemList.emplace_back(&prod, kept.second, splitLevel, basketSize);
     }
@@ -231,10 +265,10 @@ namespace edm {
     if (isFileOpen()) {
       //Faster to read ChildrenBranches directly from input
       // file than to build it every event
-      auto const& branchToChildMap = fb.branchChildren().childLookup();
+      auto const& branchToChildMap = fb.productDependencies().childLookup();
       for (auto const& parentToChildren : branchToChildMap) {
         for (auto const& child : parentToChildren.second) {
-          branchChildren_.insertChild(parentToChildren.first, child);
+          productDependencies_.insertChild(parentToChildren.first, child);
         }
       }
       rootOutputFile_->beginInputFile(fb, remainingEvents());
@@ -305,7 +339,12 @@ namespace edm {
     rootOutputFile_->writeLuminosityBlock(lb);
   }
 
-  void PoolOutputModule::writeRun(RunForOutput const& r) { rootOutputFile_->writeRun(r); }
+  void PoolOutputModule::writeRun(RunForOutput const& r) {
+    if (!reg_ or (reg_->size() < r.productRegistry().size())) {
+      reg_ = std::make_unique<ProductRegistry>(r.productRegistry().productList());
+    }
+    rootOutputFile_->writeRun(r);
+  }
 
   void PoolOutputModule::writeProcessBlock(ProcessBlockForOutput const& pb) { rootOutputFile_->writeProcessBlock(pb); }
 
@@ -324,9 +363,9 @@ namespace edm {
     writeParentageRegistry();
     writeBranchIDListRegistry();
     writeThinnedAssociationsHelper();
-    writeProductDependencies();  //branchChildren used here
+    writeProductDependencies();  //productDependencies used here
     writeProcessBlockHelper();
-    branchChildren_.clear();
+    productDependencies_.clear();
     finishEndFile();
 
     doExtrasAfterCloseFile();
@@ -343,7 +382,10 @@ namespace edm {
   }
   void PoolOutputModule::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
   void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
-  void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
+  void PoolOutputModule::writeProductDescriptionRegistry() {
+    assert(reg_);
+    rootOutputFile_->writeProductDescriptionRegistry(*reg_);
+  }
   void PoolOutputModule::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
   void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
@@ -411,6 +453,14 @@ namespace edm {
 
   void PoolOutputModule::updateBranchParents(EventForOutput const& e) {
     ProductProvenanceRetriever const* provRetriever = e.productProvenanceRetrieverPtr();
+    if (producedBranches_.empty()) {
+      for (auto const& prod : e.productRegistry().productList()) {
+        ProductDescription const& desc = prod.second;
+        if (desc.produced() && desc.branchType() == InEvent && !desc.isAlias()) {
+          producedBranches_.emplace_back(desc.branchID());
+        }
+      }
+    }
     for (auto const& bid : producedBranches_) {
       updateBranchParentsForOneBranch(provRetriever, bid);
     }
@@ -445,7 +495,7 @@ namespace edm {
         ParentageRegistry::instance()->getMapped(eId, entryDesc);
         std::vector<BranchID> const& parents = entryDesc.parents();
         for (auto const& parent : parents) {
-          branchChildren_.insertChild(parent, child);
+          productDependencies_.insertChild(parent, child);
         }
       }
     }
@@ -529,6 +579,13 @@ namespace edm {
           "Name of branch needing a special split level. The name can contain wildcards '*' and '?'");
       specialSplit.addUntracked<int>("splitLevel")->setComment("The special split level for the branch");
       desc.addVPSetUntracked("overrideBranchesSplitLevel", specialSplit, std::vector<ParameterSet>());
+    }
+    {
+      ParameterSetDescription alias;
+      alias.addUntracked<std::string>("branch")->setComment(
+          "Name of branch which will get alias. The name can contain wildcards '*' and '?'");
+      alias.addUntracked<std::string>("alias")->setComment("The alias to give to the TBranch");
+      desc.addVPSetUntracked("branchAliases", alias, std::vector<ParameterSet>());
     }
     OutputModule::fillDescription(desc);
   }

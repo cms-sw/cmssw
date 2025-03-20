@@ -1,4 +1,5 @@
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
+#include "SimG4Core/Application/interface/CMSG4TrackInterface.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -11,8 +12,6 @@
 
 ExceptionHandler::ExceptionHandler(double th, bool tr) : m_eth(th), m_trace(tr) {}
 
-ExceptionHandler::~ExceptionHandler() {}
-
 bool ExceptionHandler::Notify(const char* exceptionOrigin,
                               const char* exceptionCode,
                               G4ExceptionSeverity severity,
@@ -22,12 +21,14 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
   static const G4String ws_banner = "\n-------- WWWW ------- G4Exception-START -------- WWWW -------\n";
   static const G4String we_banner = "\n-------- WWWW -------- G4Exception-END --------- WWWW -------\n";
 
-  G4Track* track = G4EventManager::GetEventManager()->GetTrackingManager()->GetTrack();
+  auto ig4 = CMSG4TrackInterface::instance();
+  const G4Track* track = ig4->getCurrentTrack();
+  int id = ig4->getThreadID();
   double ekin = m_eth;
 
   std::stringstream message;
   message << "*** G4Exception : " << exceptionCode << "\n"
-          << "      issued by : " << exceptionOrigin << "\n"
+          << "      issued by : " << exceptionOrigin << " in threadID=" << id << "\n"
           << description;
 
   // part of exception happens outside tracking loop
@@ -61,10 +62,10 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
   G4String code;
   mescode >> code;
 
-  // track is killed
+  // track should be killed, const_cast is allowed in this place
   if (ekin < m_eth && (code == "GeomNav0003" || code == "GeomField0003")) {
     localSeverity = JustWarning;
-    track->SetTrackStatus(fStopAndKill);
+    const_cast<G4Track*>(track)->SetTrackStatus(fStopAndKill);
     ++m_number;
   }
 

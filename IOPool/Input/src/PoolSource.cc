@@ -6,7 +6,7 @@
 #include "RootSecondaryFileSequence.h"
 #include "RunHelper.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"

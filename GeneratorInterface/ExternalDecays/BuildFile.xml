@@ -4,6 +4,7 @@
 <use name="heppdt"/>
 <use name="clhep"/>
 <use name="hepmc"/>
+<use name="hepmc3"/>
 <use name="GeneratorInterface/Core"/>
 <use name="GeneratorInterface/LHEInterface"/>
 <use name="GeneratorInterface/EvtGenInterface"/>

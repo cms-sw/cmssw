@@ -57,92 +57,106 @@ if __name__ == '__main__':
 
     #this can get out of here
     predefinedSet={
-        'limited' : [
-                    # See README for further details
-                    ###### MC (generated from scratch or from RelVals)
-                    ### FullSim
-                    # Run1 
-                    5.1,        # TTbar_8TeV_TuneCUETP8M1       FastSim                                 
-                    8,          # RelValBeamHalo                Cosmics
-                    9.0,        # RelValHiggs200ChargedTaus             
-                    25,         # RelValTTbar                           
-                    101.0,      # SingleElectronE120EHCAL       + ECALHCAL.customise + fullMixCustomize_cff.setCrossingFrameOn
-                    
-                    # Run2
-                    7.3,        # UndergroundCosmicSPLooseMu            
-                    1306.0,     # RelValSingleMuPt1_UP15                
-                    1330,       # RelValZMM_13                          
-                    135.4,      # ZEE_13TeV_TuneCUETP8M1                
-                    25202.0,    # RelValTTbar_13                PU = AVE_35_BX_25ns
-                    250202.181, # RelValTTbar_13                PREMIX   
+        # See README for further details
+        'run1_run2' : [
+            ###### MC (generated from scratch or from RelVal)
+            # Run1
+            5.1,        # TTbar_8TeV_TuneCUETP8M1       FastSim
+            8,          # RelValBeamHalo                Cosmics
+            9.0,        # RelValHiggs200ChargedTaus
+            25,         # RelValTTbar
+            101.0,      # SingleElectronE120EHCAL       + ECALHCAL.customise + fullMixCustomize_cff.setCrossingFrameOn
 
-                    # Run3
-                    11634.0,    # TTbar_14TeV                   2021
-                    13234.0,    # RelValTTbar_14TeV             2021 FastsSim
-                    12434.0,    # RelValTTbar_14TeV             2023
-                    12834.0,    # RelValTTbar_14TeV             2024
-                    12846.0,    # RelValZEE_13                  2024
-                    13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
-                    12834.7,    # RelValTTbar_14TeV             2024 mkFit
-                    16834.0,    # RelValTTbar_14TeV             2025
-                    14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim 
-                    14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
-                    2500.201,   # RelValTTbar_14TeV             NanoAOD from existing MINI
+            # Run2
+            7.3,        # UndergroundCosmicSPLooseMu
+            1306.0,     # RelValSingleMuPt1_UP15
+            1330,       # RelValZMM_13
+            135.4,      # ZEE_13TeV_TuneCUETP8M1
+            25202.0,    # RelValTTbar_13                PU = AVE_35_BX_25ns
+            250202.181, # RelValTTbar_13                PREMIX
 
-                    # Phase2
-                    29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline)
-                    24834.911,  # Previous DD4hep baseline for monitoring the stability of DD4hep workflow
-                    29634.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D110   DD4Hep (HLLHC14TeV BeamSpot) 
-                    29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D110         AVE_50_BX_25ns_m3p3     
-                    29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D110
-                    29700.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        ExtendedRun4D110  
-                    #23234.0,   # Need new workflow with HFNose
-                    29634.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline -  but using timing menu, and only up to step 2)
+            ###### pp Data
+            ## Run1
+            4.22,       # Run2011A  Cosmics
+            4.53,       # Run2012B  Photon                      miniAODs
+            1000,       # Run2011A  MinimumBias Prompt          RecoTLR.customisePrompt
+            1001,       # Run2011A  MinimumBias                 Data+Express
+            ## Run2
+            136.731,    # Run2016B SinglePhoton
+            136.793,    # Run2017C DoubleEG
+            136.874,    # Run2018C EGamma
+        ],
 
-                    ###### pp Data
-                    ## Run1
-                    4.22,       # Run2011A  Cosmics 
-                    4.53,       # Run2012B  Photon                      miniAODs
-                    1000,       # Run2011A  MinimumBias Prompt          RecoTLR.customisePrompt
-                    1001,       # Run2011A  MinimumBias                 Data+Express
-                    ## Run2
-                    136.731,    # Run2016B SinglePhoton  
-                    136.793,    # Run2017C DoubleEG                      
-                    136.874,    # Run2018C EGamma
-                     
-                    ## Run3
-                    # 2021
-                    139.001,    # Run2021  MinimumBias                  Commissioning2021   
-                    
-                    # 2022
-                    140.045,    # Run2022C JetHT
+        'run3' : [
+            ###### MC (generated from scratch or from RelVals)
+            # Run3
+            11634.0,    # TTbar_14TeV                   2021
+            13234.0,    # RelValTTbar_14TeV             2021 FastsSim
+            12434.0,    # RelValTTbar_14TeV             2023
+            12834.0,    # RelValTTbar_14TeV             2024
+            12846.0,    # RelValZEE_13                  2024
+            13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
+            16834.0,    # RelValTTbar_14TeV             2025
+            17034.0,    # RelValTTbar_14TeV		2025 PU = Run3_Flat55To75_PoissonOOTPU
+            14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim
+            14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
+            2500.201,   # RelValTTbar_14TeV             NanoAOD from existing MINI
 
-                    # 2023
-                    141.042,    # Run2023D ZeroBias
+            ###### pp Data
+            ## Run3
+            # 2021
+            139.001,    # Run2021  MinimumBias                  Commissioning2021
 
-                    # 2024
-                    145.014,      # Run2024B ZeroBias
-                    145.104,      # Run2024C JetMet0 
-                    145.202,      # Run2024D EGamma0
-                    145.301,      # Run2024E DisplacedJet
-                    145.408,      # Run2024F ParkingDoubleMuonLowMass0
-                    145.500,      # Run2024G BTagMu
-                    145.604,      # Run2024H JetMET0
-                    145.713,      # Run2024I Tau
-                    
-                    ###### Heavy Ions
-                    ## Data
-                    # Run2   
-                    140.56,    # HIRun2018A HIHardProbes                    Run2_2018_pp_on_AA 
-                    ## MC
-                    312.0,     # Pyquen_ZeemumuJets_pt10_2760GeV            PU : HiMixGEN 
+            # 2022
+            140.045,    # Run2022C JetHT
 
-                     ],
+            # 2023
+            141.042,    # Run2023D ZeroBias
+
+            # 2024
+            145.014,      # Run2024B ZeroBias
+            145.104,      # Run2024C JetMet0
+            145.202,      # Run2024D EGamma0
+            145.301,      # Run2024E DisplacedJet
+            145.408,      # Run2024F ParkingDoubleMuonLowMass0
+            145.500,      # Run2024G BTagMu
+            145.604,      # Run2024H JetMET0
+            145.713,      # Run2024I Tau
+        ],
+
+        'phase2' : [
+            ###### MC (generated from scratch or from RelVals)
+            # Phase2
+            29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline)
+            24834.911,  # Previous DD4hep baseline for monitoring the stability of DD4hep workflow
+            29634.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D110   DD4Hep (HLLHC14TeV BeamSpot)
+            29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D110         AVE_50_BX_25ns_m3p3
+            29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D110
+            29700.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T33        ExtendedRun4D110
+            #23234.0,   # Need new workflow with HFNose
+            29634.75,   # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline -  but using timing menu, and only up to step 2)
+        ],
+
+        'heavyIons' : [
+            ###### Heavy Ions
+            ## Data
+            # Run2
+            140.56,    # HIRun2018A HIHardProbes                    Run2_2018_pp_on_AA
+            ## MC
+            312.0,     # Pyquen_ZeemumuJets_pt10_2760GeV            PU : HiMixGEN
+        ],
+
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
-        }
+    }
 
+    predefinedSet['limited'] = (
+        predefinedSet['run1_run2'] +
+        predefinedSet['run3'] +
+        predefinedSet['phase2'] +
+        predefinedSet['heavyIons']
+    )
 
     import argparse
     usage = 'usage: runTheMatrix.py --show -s '
@@ -488,11 +502,12 @@ if __name__ == '__main__':
                 tmp = MatrixReader(self.opt_)
                 self.processes_ = dict()
                 for what in tmp.files:
-                    what = what.replace('relval_','')
+                    what = what.replace("relval_", "")
                     self.opt_.what = what
                     self.matrices_[what] = MatrixReader(self.opt_)
-                    self.matrices_[what].prepare(self.opt_.useInput, self.opt_.refRel,
-                                                self.opt_.fromScratch)
+                    self.matrices_[what].prepare(
+                        self.opt_.useInput, self.opt_.refRel, self.opt_.fromScratch
+                    )
                 os.system("clear")
 
             def do_clear(self, arg):
@@ -504,19 +519,25 @@ if __name__ == '__main__':
                 return True
 
             def default(self, inp):
-                if inp == 'x' or inp == 'q':
+                if inp == "x" or inp == "q":
                     return self.do_exit(inp)
                 else:
                     is_pipe = not isatty(sys.stdin.fileno())
                     print(Fore.RED + "Error: " + Fore.RESET + "unrecognized command.")
                     # Quit only if given a piped command.
                     if is_pipe:
-                      sys.exit(1)
+                        sys.exit(1)
 
             def help_predefined(self):
-                print("\n".join(["predefined [predef1 [...]]\n",
-                "Run w/o argument, it will print the list of known predefined workflows.",
-                "Run with space-separated predefined workflows, it will print the workflow-ids registered to them"]))
+                print(
+                    "\n".join(
+                        [
+                            "predefined [predef1 [...]]\n",
+                            "Run w/o argument, it will print the list of known predefined workflows.",
+                            "Run with space-separated predefined workflows, it will print the workflow-ids registered to them",
+                        ]
+                    )
+                )
 
             def complete_predefined(self, text, line, start_idx, end_idx):
                 if text and len(text) > 0:
@@ -535,12 +556,24 @@ if __name__ == '__main__':
                         else:
                             print("Unknown Set: %s" % w)
                 else:
-                    print("[ " + Fore.RED + ", ".join([str(k) for k in predefinedSet.keys()]) + Fore.RESET + " ]")
+                    print(
+                        "[ "
+                        + Fore.RED
+                        + ", ".join([str(k) for k in predefinedSet.keys()])
+                        + Fore.RESET
+                        + " ]"
+                    )
 
             def help_showWorkflow(self):
-                print("\n".join(["showWorkflow [workflow1 [...]]\n",
-                    "Run w/o arguments, it will print the list of registered macro-workflows.",
-                    "Run with space-separated workflows, it will print the full list of workflow-ids registered to them"]))
+                print(
+                    "\n".join(
+                        [
+                            "showWorkflow [workflow1 [...]]\n",
+                            "Run w/o arguments, it will print the list of registered macro-workflows.",
+                            "Run with space-separated workflows, it will print the full list of workflow-ids registered to them",
+                        ]
+                    )
+                )
 
             def complete_showWorkflow(self, text, line, start_idx, end_idx):
                 if text and len(text) > 0:
@@ -549,7 +582,7 @@ if __name__ == '__main__':
                     return self.matrices_.keys()
 
             def do_showWorkflow(self, arg):
-                if arg == '':
+                if arg == "":
                     print("Available workflows:")
                     for k in self.matrices_.keys():
                         print(Fore.RED + Style.BRIGHT + k)
@@ -561,9 +594,20 @@ if __name__ == '__main__':
                             print("Unknown workflow %s: skipping" % k)
                         else:
                             for wfl in self.matrices_[k].workFlows:
-                                print("%s %s" % (Fore.BLUE + str(wfl.numId) + Fore.RESET,
-                                                              Fore.GREEN + wfl.nameId + Fore.RESET))
-                            print("%s contains %d workflows" % (Fore.RED + k + Fore.RESET, len(self.matrices_[k].workFlows)))
+                                print(
+                                    "%s %s"
+                                    % (
+                                        Fore.BLUE + str(wfl.numId) + Fore.RESET,
+                                        Fore.GREEN + wfl.nameId + Fore.RESET,
+                                    )
+                                )
+                            print(
+                                "%s contains %d workflows"
+                                % (
+                                    Fore.RED + k + Fore.RESET,
+                                    len(self.matrices_[k].workFlows),
+                                )
+                            )
 
             def do_runWorkflow(self, arg):
                 # Split the input arguments into a list
@@ -576,22 +620,42 @@ if __name__ == '__main__':
                 workflow_id = args[1]
                 passed_down_args = list()
                 if len(args) > 2:
-                  passed_down_args = args[2:]
-                print(Fore.YELLOW + Style.BRIGHT + "Running with the following options:\n")
-                print(Fore.GREEN + Style.BRIGHT + "Workflow class: {}".format(workflow_class))
-                print(Fore.GREEN + Style.BRIGHT + "Workflow ID:    {}".format(workflow_id))
-                print(Fore.GREEN + Style.BRIGHT + "Additional runTheMatrix options: {}".format(passed_down_args))
+                    passed_down_args = args[2:]
+                print(
+                    Fore.YELLOW + Style.BRIGHT + "Running with the following options:\n"
+                )
+                print(
+                    Fore.GREEN
+                    + Style.BRIGHT
+                    + "Workflow class: {}".format(workflow_class)
+                )
+                print(
+                    Fore.GREEN + Style.BRIGHT + "Workflow ID:    {}".format(workflow_id)
+                )
+                print(
+                    Fore.GREEN
+                    + Style.BRIGHT
+                    + "Additional runTheMatrix options: {}".format(passed_down_args)
+                )
                 print(Style.RESET_ALL)
                 if workflow_class not in self.matrices_.keys():
-                    print(Fore.RED + Style.BRIGHT + "Unknown workflow selected: {}".format(workflow_class))
+                    print(
+                        Fore.RED
+                        + Style.BRIGHT
+                        + "Unknown workflow selected: {}".format(workflow_class)
+                    )
                     print("Available workflows:")
                     for k in self.matrices_.keys():
-                         print(Fore.RED + Style.BRIGHT + k)
+                        print(Fore.RED + Style.BRIGHT + k)
                     print(Style.RESET_ALL)
                     return
                 wflnums = [x.numId for x in self.matrices_[workflow_class].workFlows]
                 if float(workflow_id) not in wflnums:
-                    print(Fore.RED + Style.BRIGHT + "Unknown workflow {}".format(workflow_id))
+                    print(
+                        Fore.RED
+                        + Style.BRIGHT
+                        + "Unknown workflow {}".format(workflow_id)
+                    )
                     print(Fore.GREEN + Style.BRIGHT)
                     print(wflnums)
                     print(Style.RESET_ALL)
@@ -599,24 +663,28 @@ if __name__ == '__main__':
                 if workflow_id in self.processes_.keys():
                     # Check if the process is still active
                     if self.processes_[workflow_id][0].poll() is None:
-                        print(Fore.RED + Style.BRIGHT + "Workflow {} already running!".format(workflow_id))
+                        print(
+                            Fore.RED
+                            + Style.BRIGHT
+                            + "Workflow {} already running!".format(workflow_id)
+                        )
                         print(Style.RESET_ALL)
                         return
                 # If it was there but it's gone, proceeed and update the value for the same key
                 # run a job, redirecting standard output and error to files
-                lognames = ['stdout', 'stderr']
-                logfiles = tuple('%s_%s_%s.log' % (workflow_class, workflow_id, name) for name in lognames)
-                stdout = open(logfiles[0], 'w')
-                stderr = open(logfiles[1], 'w')
-                command = ('runTheMatrix.py', '-w', workflow_class, '-l', workflow_id)
+                lognames = ["stdout", "stderr"]
+                logfiles = tuple(
+                    "%s_%s_%s.log" % (workflow_class, workflow_id, name)
+                    for name in lognames
+                )
+                stdout = open(logfiles[0], "w")
+                stderr = open(logfiles[1], "w")
+                command = ("runTheMatrix.py", "-w", workflow_class, "-l", workflow_id)
                 if len(passed_down_args) > 0:
-                  command += tuple(passed_down_args)
+                    command += tuple(passed_down_args)
                 print(command)
-                p = subprocess.Popen(command,
-                    stdout = stdout,
-                    stderr = stderr)
+                p = subprocess.Popen(command, stdout=stdout, stderr=stderr)
                 self.processes_[workflow_id] = (p, time.time())
-
 
             def complete_runWorkflow(self, text, line, start_idx, end_idx):
                 if text and len(text) > 0:
@@ -625,42 +693,141 @@ if __name__ == '__main__':
                     return self.matrices_.keys()
 
             def help_runWorkflow(self):
-              print("\n".join(["runWorkflow workflow_class workflow_id\n",
-                "This command will launch a new and independent process that invokes",
-                "the command:\n",
-                "runTheMatrix.py -w workflow_class -l workflow_id [runTheMatrix.py options]",
-                "\nYou can specify just one workflow_class and workflow_id per invocation.",
-                "The job will continue even after quitting the interactive session.",
-                "stdout and stderr of the new process will be automatically",
-                "redirected to 2 logfiles whose names contain the workflow_class",
-                "and workflow_id. Mutiple command can be issued one after the other.",
-                "The working directory of the new process will be the directory",
-                "from which the interactive session has started.",
-                "Autocompletion is available for workflow_class, but",
-                "not for workflow_id. Supplying a wrong workflow_class or",
-                "a non-existing workflow_id for a valid workflow_class",
-                "will trigger an error and no process will be invoked.",
-                "The interactive shell will keep track of all active processes",
-                "and will prevent the accidental resubmission of an already",
-                "active jobs."]))
+                print(
+                    "\n".join(
+                        [
+                            "runWorkflow workflow_class workflow_id\n",
+                            "This command will launch a new and independent process that invokes",
+                            "the command:\n",
+                            "runTheMatrix.py -w workflow_class -l workflow_id [runTheMatrix.py options]",
+                            "\nYou can specify just one workflow_class and workflow_id per invocation.",
+                            "The job will continue even after quitting the interactive session.",
+                            "stdout and stderr of the new process will be automatically",
+                            "redirected to 2 logfiles whose names contain the workflow_class",
+                            "and workflow_id. Mutiple command can be issued one after the other.",
+                            "The working directory of the new process will be the directory",
+                            "from which the interactive session has started.",
+                            "Autocompletion is available for workflow_class, but",
+                            "not for workflow_id. Supplying a wrong workflow_class or",
+                            "a non-existing workflow_id for a valid workflow_class",
+                            "will trigger an error and no process will be invoked.",
+                            "The interactive shell will keep track of all active processes",
+                            "and will prevent the accidental resubmission of an already",
+                            "active jobs.",
+                        ]
+                    )
+                )
 
             def do_jobs(self, args):
                 print(Fore.GREEN + Style.BRIGHT + "List of jobs:")
                 for w in self.processes_.keys():
                     if self.processes_[w][0].poll() is None:
-                      print(Fore.YELLOW + Style.BRIGHT + "Active job: {} since {:.2f} seconds.".format(w, time.time() - self.processes_[w][1]))
+                        print(
+                            Fore.YELLOW
+                            + Style.BRIGHT
+                            + "Active job: {} since {:.2f} seconds.".format(
+                                w, time.time() - self.processes_[w][1]
+                            )
+                        )
                     else:
                         print(Fore.RED + Style.BRIGHT + "Done job: {}".format(w))
                 print(Style.RESET_ALL)
 
             def help_jobs(self):
-              print("\n".join(["Print a full list of active and done jobs submitted",
-                "in the ongoing interactive session"]))
+                print(
+                    "\n".join(
+                        [
+                            "Print a full list of active and done jobs submitted",
+                            "in the ongoing interactive session",
+                        ]
+                    )
+                )
+
+            def do_searchInCommands(self, arg):
+                args = arg.split()
+                if len(args) < 3:
+                    print("searchInCommands name regexp regexp")
+                    return
+                if args[0] not in self.matrices_.keys():
+                    print("Unknown workflow")
+                    return
+                import re
+
+                pattern_dataset = None
+                pattern_command = None
+                try:
+                    pattern_dataset = re.compile(args[1])
+                    pattern_command = re.compile(args[2])
+                except:
+                    print("Failed to compile regexp %s" % args[1])
+                    return
+                counter = 0
+                cached = []
+                cached_steps = {}
+                for wfl in self.matrices_[args[0]].workFlows:
+                    if re.match(pattern_dataset, wfl.nameId):
+                        for step, command in enumerate(wfl.cmds):
+                            if re.match(pattern_command, command):
+                                if wfl.numId not in cached:
+                                    cached.append(wfl.numId)
+                                    cached_steps[wfl.nameId] = {
+                                        "steps": [],
+                                        "numId": wfl.numId,
+                                    }
+                                    cached_steps[wfl.nameId]["steps"].append(step)
+                                else:
+                                    cached_steps[wfl.nameId]["steps"].append(step)
+                                counter += 1
+                for wfl in cached_steps:
+                    print(
+                        "%s %s [%s]"
+                        % (
+                            Fore.BLUE + str(cached_steps[wfl]["numId"]) + Fore.RESET,
+                            Fore.GREEN + wfl + Fore.RESET,
+                            Fore.YELLOW
+                            + " ".join(
+                                [str(command) for command in cached_steps[wfl]["steps"]]
+                            )
+                            + Fore.RESET,
+                        )
+                    )
+                print(
+                    "Found %s compatible commands inside %s workflows inside %s."
+                    % (
+                        Fore.RED + str(counter) + Fore.RESET,
+                        Fore.BLUE + str(len(cached_steps.keys())),
+                        Fore.YELLOW + str(args[0]),
+                    )
+                    + Fore.RESET
+                )
+
+            def help_searchInCommands(self):
+                print(
+                    "\n".join(
+                        [
+                            "searchInCommands wfl_name dataset_search_regexp command_search_regexp\n",
+                            "This command will search for a match within all workflows registered to wfl_name.",
+                            "The search is done on both the workflow name, via the dataset_search_regexp, and the actual cmsDriver steps registered to it, via command_search_regexp.",
+                        ]
+                    )
+                )
+
+            def complete_searchInCommands(self, text, line, start_idx, end_idx):
+                if text and len(text) > 0:
+                    return [t for t in self.matrices_.keys() if t.startswith(text)]
+                else:
+                    return self.matrices_.keys()
 
             def help_searchInWorkflow(self):
-                print("\n".join(["searchInWorkflow wfl_name search_regexp\n",
-                    "This command will search for a match within all workflows registered to wfl_name.",
-                    "The search is done on both the workflow name and the names of steps registered to it."]))
+                print(
+                    "\n".join(
+                        [
+                            "searchInWorkflow wfl_name search_regexp\n",
+                            "This command will search for a match within all workflows registered to wfl_name.",
+                            "The search is done on both the workflow name and the names of steps registered to it.",
+                        ]
+                    )
+                )
 
             def complete_searchInWorkflow(self, text, line, start_idx, end_idx):
                 if text and len(text) > 0:
@@ -677,6 +844,7 @@ if __name__ == '__main__':
                     print("Unknown workflow")
                     return
                 import re
+
                 pattern = None
                 try:
                     pattern = re.compile(args[1])
@@ -686,16 +854,30 @@ if __name__ == '__main__':
                 counter = 0
                 for wfl in self.matrices_[args[0]].workFlows:
                     if re.match(pattern, wfl.nameId):
-                      print("%s %s" % (Fore.BLUE + str(wfl.numId) + Fore.RESET,
-                                       Fore.GREEN + wfl.nameId + Fore.RESET))
-                      counter +=1
-                print("Found %s compatible workflows inside %s" % (Fore.RED + str(counter) + Fore.RESET,
-                                                                   Fore.YELLOW + str(args[0])) + Fore.RESET)
+                        print(
+                            "%s %s"
+                            % (
+                                Fore.BLUE + str(wfl.numId) + Fore.RESET,
+                                Fore.GREEN + wfl.nameId + Fore.RESET,
+                            )
+                        )
+                        counter += 1
+                print(
+                    "Found %s compatible workflows inside %s"
+                    % (Fore.RED + str(counter) + Fore.RESET, Fore.YELLOW + str(args[0]))
+                    + Fore.RESET
+                )
 
             def help_search(self):
-                print("\n".join(["search search_regexp\n",
-                    "This command will search for a match within all workflows registered.",
-                    "The search is done on both the workflow name and the names of steps registered to it."]))
+                print(
+                    "\n".join(
+                        [
+                            "search search_regexp\n",
+                            "This command will search for a match within all workflows registered.",
+                            "The search is done on both the workflow name and the names of steps registered to it.",
+                        ]
+                    )
+                )
 
             def do_search(self, arg):
                 args = arg.split()
@@ -703,11 +885,17 @@ if __name__ == '__main__':
                     print("search regexp")
                     return
                 for wfl in self.matrices_.keys():
-                    self.do_searchInWorkflow(' '.join([wfl, args[0]]))
+                    self.do_searchInWorkflow(" ".join([wfl, args[0]]))
 
             def help_dumpWorkflowId(self):
-                print("\n".join(["dumpWorkflowId [wfl-id1 [...]]\n",
-                    "Dumps the details (cmsDriver commands for all steps) of the space-separated workflow-ids in input."]))
+                print(
+                    "\n".join(
+                        [
+                            "dumpWorkflowId [wfl-id1 [...]]\n",
+                            "Dumps the details (cmsDriver commands for all steps) of the space-separated workflow-ids in input.",
+                        ]
+                    )
+                )
 
             def do_dumpWorkflowId(self, arg):
                 wflids = arg.split()
@@ -715,7 +903,7 @@ if __name__ == '__main__':
                     print("dumpWorkflowId [wfl-id1 [...]]")
                     return
 
-                fmt   = "[%s]: %s\n"
+                fmt = "[%s]: %s\n"
                 maxLen = 100
                 for wflid in wflids:
                     dump = True
@@ -724,10 +912,23 @@ if __name__ == '__main__':
                             if wfl.numId == float(wflid):
                                 if dump:
                                     dump = False
-                                    print(Fore.GREEN + str(wfl.numId) + Fore.RESET + " " + Fore.YELLOW + wfl.nameId + Fore.RESET)
-                                    for i,s in enumerate(wfl.cmds):
-                                        print(fmt % (Fore.RED + str(i+1) + Fore.RESET,
-                                          (str(s)+' ')))
+                                    print(
+                                        Fore.GREEN
+                                        + str(wfl.numId)
+                                        + Fore.RESET
+                                        + " "
+                                        + Fore.YELLOW
+                                        + wfl.nameId
+                                        + Fore.RESET
+                                    )
+                                    for i, s in enumerate(wfl.cmds):
+                                        print(
+                                            fmt
+                                            % (
+                                                Fore.RED + str(i + 1) + Fore.RESET,
+                                                (str(s) + " "),
+                                            )
+                                        )
                                     print("\nWorkflow found in %s." % key)
                                 else:
                                     print("Workflow also found in %s." % key)

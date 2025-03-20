@@ -6,16 +6,17 @@
 #include <vector>
 #include "oneapi/tbb/concurrent_unordered_map.h"
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
+#include "DataFormats/Provenance/interface/ProductDependenciesFwd.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
-  class BranchChildren;
   class ProcessHistoryRegistry;
 
   namespace dqh {
@@ -33,7 +34,7 @@ namespace edm {
                                  std::string const& friendlyName,
                                  std::string const& sourceLabel);
     ProcessHistoryID daqInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) const;
-    void saveInfo(BranchDescription const& oldBD, BranchDescription const& newBD) {
+    void saveInfo(ProductDescription const& oldBD, ProductDescription const& newBD) {
       oldProcessName_ = oldBD.processName();
       oldBranchID_ = oldBD.branchID();
       newBranchID_ = newBD.branchID();
@@ -42,19 +43,19 @@ namespace edm {
     void fixMetaData(ProcessConfigurationVector& pcv, std::vector<ProcessHistory>& phv);
     void fixMetaData(std::vector<BranchID>& branchIDs) const;
     void fixMetaData(BranchIDLists const&) const;
-    void fixMetaData(BranchChildren& branchChildren) const;
+    void fixMetaData(ProductDependencies& productDependencies) const;
     ProcessHistoryID const& mapProcessHistoryID(ProcessHistoryID const& phid);
     ParentageID const& mapParentageID(ParentageID const& phid) const;
     BranchID const& mapBranchID(BranchID const& branchID) const;
 
-    BranchDescription const& branchDescription() const { return constBranchDescription_; }
+    ProductDescription const& productDescription() const { return constProductDescription_; }
     ProcessHistoryID const* oldProcessHistoryID() const { return oldProcessHistoryID_; }
     ProductProvenance const& dummyProvenance() const { return dummyProvenance_; }
 
     void setOldParentageIDToNew(ParentageID const& iOld, ParentageID const& iNew);
 
   private:
-    BranchDescription const constBranchDescription_;
+    ProductDescription const constProductDescription_;
     ProductProvenance dummyProvenance_;
     ParameterSet processParameterSet_;
 

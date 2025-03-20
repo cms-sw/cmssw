@@ -92,8 +92,7 @@ private:
   unsigned int minLeptons_;
 
   // Trigger
-  std::string sTrigger_;
-  edm::EDGetTokenT<edm::TriggerResults> tokTrigger_;
+  const edm::EDGetTokenT<edm::TriggerResults> tokTrigger_;
   std::vector<std::string> vsPaths_;
   // Flags
   bool isAll_ = false;
@@ -131,7 +130,7 @@ inline B2GDoubleLeptonHLTValidation::B2GDoubleLeptonHLTValidation(const edm::Par
       isoMuons_(iConfig.getUntrackedParameter<double>("isoMuons", 0.)),
       minMuons_(iConfig.getUntrackedParameter<unsigned int>("minMuons", 0)),
       minLeptons_(iConfig.getUntrackedParameter<unsigned int>("minLeptons", 0)),
-      sTrigger_(iConfig.getUntrackedParameter<std::string>("sTrigger", "TriggerResults")),
+      tokTrigger_(consumes(iConfig.getParameter<edm::InputTag>("triggerResults"))),
       vsPaths_(iConfig.getUntrackedParameter<std::vector<std::string>>("vsPaths"))
 
 {
@@ -139,8 +138,6 @@ inline B2GDoubleLeptonHLTValidation::B2GDoubleLeptonHLTValidation(const edm::Par
   tokElectrons_ = consumes<edm::View<reco::GsfElectron>>(edm::InputTag(sElectrons_));
   // Muons
   tokMuons_ = consumes<edm::View<reco::Muon>>(edm::InputTag(sMuons_));
-  // Trigger
-  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "HLT"));
 }
 
 inline B2GDoubleLeptonHLTValidation::~B2GDoubleLeptonHLTValidation() {

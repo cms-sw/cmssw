@@ -33,87 +33,14 @@
 
 #include <boost/algorithm/string/replace.hpp>
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
+#include "DataFormats/Provenance/interface/ProductNamePattern.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-namespace {
-  struct ProductBranch {
-  public:
-    ProductBranch(std::string const& label) {
-      static const char kSeparator = '_';
-      static const char kWildcard = '*';
-      static const std::regex kAny{".*"};
-
-      // wildcard
-      if (label == kWildcard) {
-        type_ = kAny;
-        moduleLabel_ = kAny;
-        productInstanceName_ = kAny;
-        processName_ = kAny;
-        return;
-      }
-
-      int fields = std::count(label.begin(), label.end(), kSeparator) + 1;
-      if (fields == 1) {
-        // convert the module label into a regular expression
-        type_ = kAny;
-        moduleLabel_ = glob_to_regex(label);
-        productInstanceName_ = kAny;
-        processName_ = kAny;
-      } else if (fields == 4) {
-        // split the branch name into <product type>_<module label>_<instance name>_<process name>
-        // and convert the glob expressions into regular expressions
-        size_t first = 0, last = 0;
-        last = label.find(kSeparator, first);
-        type_ = glob_to_regex(label.substr(first, last - first));
-        first = last + 1;
-        last = label.find(kSeparator, first);
-        moduleLabel_ = glob_to_regex(label.substr(first, last - first));
-        first = last + 1;
-        last = label.find(kSeparator, first);
-        productInstanceName_ = glob_to_regex(label.substr(first, last - first));
-        first = last + 1;
-        last = label.find(kSeparator, first);
-        processName_ = glob_to_regex(label.substr(first, last - first));
-      } else {
-        // invalid input
-        throw edm::Exception(edm::errors::Configuration) << "Invalid module label or branch name: \"" << label << "\"";
-      }
-    }
-
-    bool match(edm::BranchDescription const& branch) const {
-      return (std::regex_match(branch.friendlyClassName(), type_) and
-              std::regex_match(branch.moduleLabel(), moduleLabel_) and
-              std::regex_match(branch.productInstanceName(), productInstanceName_) and
-              std::regex_match(branch.processName(), processName_));
-    }
-
-  private:
-    static std::regex glob_to_regex(std::string pattern) {
-      boost::replace_all(pattern, "*", ".*");
-      boost::replace_all(pattern, "?", ".");
-      return std::regex(pattern);
-    }
-
-    std::regex type_;
-    std::regex moduleLabel_;
-    std::regex productInstanceName_;
-    std::regex processName_;
-  };
-
-  std::vector<ProductBranch> make_patterns(std::vector<std::string> const& labels) {
-    std::vector<ProductBranch> patterns;
-    patterns.reserve(labels.size());
-    for (auto const& label : labels)
-      patterns.emplace_back(label);
-    return patterns;
-  }
-}  // namespace
 
 namespace edm {
   class GenericConsumer : public edm::global::EDAnalyzer<> {
@@ -126,22 +53,23 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    std::vector<ProductBranch> eventProducts_;
-    std::vector<ProductBranch> lumiProducts_;
-    std::vector<ProductBranch> runProducts_;
-    std::vector<ProductBranch> processProducts_;
+    std::vector<edm::ProductNamePattern> eventProducts_;
+    std::vector<edm::ProductNamePattern> lumiProducts_;
+    std::vector<edm::ProductNamePattern> runProducts_;
+    std::vector<edm::ProductNamePattern> processProducts_;
     std::string label_;
     bool verbose_;
   };
 
   GenericConsumer::GenericConsumer(ParameterSet const& config)
-      : eventProducts_(make_patterns(config.getUntrackedParameter<std::vector<std::string>>("eventProducts"))),
-        lumiProducts_(make_patterns(config.getUntrackedParameter<std::vector<std::string>>("lumiProducts"))),
-        runProducts_(make_patterns(config.getUntrackedParameter<std::vector<std::string>>("runProducts"))),
-        processProducts_(make_patterns(config.getUntrackedParameter<std::vector<std::string>>("processProducts"))),
+      : eventProducts_(edm::productPatterns(config.getUntrackedParameter<std::vector<std::string>>("eventProducts"))),
+        lumiProducts_(edm::productPatterns(config.getUntrackedParameter<std::vector<std::string>>("lumiProducts"))),
+        runProducts_(edm::productPatterns(config.getUntrackedParameter<std::vector<std::string>>("runProducts"))),
+        processProducts_(
+            edm::productPatterns(config.getUntrackedParameter<std::vector<std::string>>("processProducts"))),
         label_(config.getParameter<std::string>("@module_label")),
         verbose_(config.getUntrackedParameter<bool>("verbose")) {
-    callWhenNewProductsRegistered([this](edm::BranchDescription const& branch) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const& branch) {
       static const std::string kPathStatus("edm::PathStatus");
       static const std::string kEndPathStatus("edm::EndPathStatus");
 

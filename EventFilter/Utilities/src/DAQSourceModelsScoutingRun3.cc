@@ -4,6 +4,8 @@ using namespace edm::streamer;
 
 void DataModeScoutingRun3::makeDirectoryEntries(std::vector<std::string> const& baseDirs,
                                                 std::vector<int> const& numSources,
+                                                std::vector<int> const& sourceIDs,
+                                                std::string const& sourceIdentifier,
                                                 std::string const& runDir) {
   std::filesystem::path runDirP(runDir);
   for (auto& baseDir : baseDirs) {
@@ -75,7 +77,7 @@ void DataModeScoutingRun3::readEvent(edm::EventPrincipal& eventPrincipal) {
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<SDSRawDataCollection>(std::move(rawData)));
   eventPrincipal.put(
-      daqProvenanceHelpers_[0]->branchDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
+      daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
 
   eventCached_ = false;
 }

@@ -1,4 +1,4 @@
-#include "FWCore/Utilities/interface/RootHandlers.h"
+#include "FWCore/AbstractServices/interface/RootHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"

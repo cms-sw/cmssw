@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
@@ -25,7 +26,6 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
@@ -146,7 +146,7 @@ namespace edm {
 
     ServiceToken newToken = items.initServices(serviceSets, *processParameterSet_, token, iLegacy, false);
     parentActReg.connectToSubProcess(*items.actReg_);
-    serviceToken_ = items.addCPRandTNS(*processParameterSet_, newToken);
+    serviceToken_ = items.addTNS(*processParameterSet_, newToken);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -174,7 +174,7 @@ namespace edm {
 
     // set the items
     act_table_ = std::move(items.act_table_);
-    preg_ = items.preg();
+    preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
 
     subProcessParentageHelper_ = items.subProcessParentageHelper();
     subProcessParentageHelper_->update(parentSubProcessParentageHelper, *parentProductRegistry);
@@ -250,10 +250,11 @@ namespace edm {
 
   std::vector<ModuleProcessName> SubProcess::keepOnlyConsumedUnscheduledModules(bool deleteModules) {
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
-    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
+    pathsAndConsumesOfModules_ = std::make_unique<PathsAndConsumesOfModules>();
+    pathsAndConsumesOfModules_->initialize(schedule_.get(), preg_);
 
     // Note: all these may throw
-    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, false);
+    checkForModuleDependencyCorrectness(*pathsAndConsumesOfModules_, false);
 
     // Consumes information from the child SubProcesses
     std::vector<ModuleProcessName> consumedByChildren;
@@ -271,9 +272,9 @@ namespace edm {
 
     // Non-consumed unscheduled modules in this SubProcess, take into account of the consumes from child SubProcesses
     if (deleteModules) {
-      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedByChildren);
+      if (auto const unusedModules = nonConsumedUnscheduledModules(*pathsAndConsumesOfModules_, consumedByChildren);
           not unusedModules.empty()) {
-        pathsAndConsumesOfModules_.removeModules(unusedModules);
+        pathsAndConsumesOfModules_->removeModules(unusedModules);
 
         edm::LogInfo("DeleteModules").log([&unusedModules, this](auto& l) {
           l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, "
@@ -291,9 +292,9 @@ namespace edm {
     }
 
     // Products possibly consumed from the parent (Sub)Process
-    for (auto const& description : pathsAndConsumesOfModules_.allModules()) {
+    for (auto const& description : pathsAndConsumesOfModules_->allModules()) {
       for (auto const& dep :
-           pathsAndConsumesOfModules_.modulesInPreviousProcessesWhoseProductsAreConsumedBy(description->id())) {
+           pathsAndConsumesOfModules_->modulesInPreviousProcessesWhoseProductsAreConsumedBy(description->id())) {
         auto it = std::lower_bound(consumedByChildren.begin(),
                                    consumedByChildren.end(),
                                    ModuleProcessName{dep.moduleLabel(), dep.processName()});
@@ -306,6 +307,16 @@ namespace edm {
   void SubProcess::doBeginJob() { beginJob(); }
 
   void SubProcess::doEndJob(ExceptionCollector& collector) { endJob(collector); }
+
+  void SubProcess::initializePathsAndConsumes() {
+    pathsAndConsumesOfModules_->initializeForEventSetup(esp_->recordsToResolverIndices(), *esp_);
+    actReg_->lookupInitializationCompleteSignal_(*pathsAndConsumesOfModules_, processContext_);
+    schedule_->releaseMemoryPostLookupSignal();
+    for (auto& subProcess : subProcesses_) {
+      subProcess.initializePathsAndConsumes();
+    }
+    pathsAndConsumesOfModules_.reset();
+  }
 
   void SubProcess::beginJob() {
     // If event selection is being used, the SubProcess class reads TriggerResults
@@ -322,7 +333,7 @@ namespace edm {
     std::exception_ptr firstException;
     CMS_SA_ALLOW try {
       schedule_->beginJob(
-          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, pathsAndConsumesOfModules_, processContext_);
+          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, *pathsAndConsumesOfModules_, processContext_);
     } catch (...) {
       firstException = std::current_exception();
     }
@@ -355,18 +366,18 @@ namespace edm {
                                   std::map<BranchID, bool>& keepAssociation) {
     if (productSelector_.initialized())
       return;
-    productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
+    productSelector_.initialize(productSelectorRules_, preg.allProductDescriptions());
 
     // TODO: See if we can collapse keptProducts_ and productSelector_ into a
     // single object. See the notes in the header for ProductSelector
     // for more information.
 
-    std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
-    std::vector<BranchDescription const*> associationDescriptions;
+    std::map<BranchID, ProductDescription const*> trueBranchIDToKeptBranchDesc;
+    std::vector<ProductDescription const*> associationDescriptions;
     std::set<BranchID> keptProductsInEvent;
 
     for (auto const& it : preg.productList()) {
-      BranchDescription const& desc = it.second;
+      ProductDescription const& desc = it.second;
       if (desc.transient()) {
         // if the class of the branch is marked transient, output nothing
       } else if (!desc.present() && !desc.produced()) {
@@ -392,8 +403,8 @@ namespace edm {
     ProductSelector::fillDroppedToKept(preg, trueBranchIDToKeptBranchDesc, droppedBranchIDToKeptBranchID_);
   }
 
-  void SubProcess::keepThisBranch(BranchDescription const& desc,
-                                  std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+  void SubProcess::keepThisBranch(ProductDescription const& desc,
+                                  std::map<BranchID, ProductDescription const*>& trueBranchIDToKeptBranchDesc,
                                   std::set<BranchID>& keptProductsInEvent) {
     ProductSelector::checkForDuplicateKeptBranch(desc, trueBranchIDToKeptBranchDesc);
 
@@ -799,7 +810,7 @@ namespace edm {
   void SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
     SelectedProducts const& keptVector = keptProducts()[type];
     for (auto const& item : keptVector) {
-      BranchDescription const& desc = *item.first;
+      ProductDescription const& desc = *item.first;
       ProductResolverBase const* parentProductResolver = parentPrincipal.getProductResolver(desc.branchID());
       if (parentProductResolver != nullptr) {
         ProductResolverBase* productResolver = principal.getModifiableProductResolver(desc.branchID());
@@ -814,13 +825,13 @@ namespace edm {
   bool SubProcess::parentProducedProductIsKept(Principal const& parentPrincipal, Principal& principal) const {
     SelectedProducts const& keptVector = keptProducts()[InProcess];
     for (auto const& item : keptVector) {
-      BranchDescription const& desc = *item.first;
+      ProductDescription const& desc = *item.first;
       assert(desc.branchType() == InProcess);
       ProductResolverBase const* parentProductResolver = parentPrincipal.getProductResolver(desc.branchID());
       if (parentProductResolver != nullptr) {
         ProductResolverBase* productResolver = principal.getModifiableProductResolver(desc.branchID());
         if (productResolver != nullptr) {
-          if (parentProductResolver->branchDescription().produced()) {
+          if (parentProductResolver->productDescription().produced()) {
             return true;
           }
         }
@@ -844,11 +855,16 @@ namespace edm {
 
   // free function
   std::vector<ParameterSet> popSubProcessVParameterSet(ParameterSet& parameterSet) {
-    std::vector<std::string> subProcesses =
-        parameterSet.getUntrackedParameter<std::vector<std::string>>("@all_subprocesses");
-    if (!subProcesses.empty()) {
-      return parameterSet.popVParameterSet("subProcesses");
-    }
+    // We're going to delete everything related to SubProcesses soon, but as a first
+    // step we are just deleting the part implementing the configuration support in
+    // ParameterSet. Temporarily, we need to have this function return an empty vector
+    // so everything continues to work on the C++ side.
+
+    //std::vector<std::string> subProcesses =
+    //    parameterSet.getUntrackedParameter<std::vector<std::string>>("@all_subprocesses");
+    //if (!subProcesses.empty()) {
+    //  return parameterSet.popVParameterSet("subProcesses");
+    //}
     return {};
   }
 }  // namespace edm

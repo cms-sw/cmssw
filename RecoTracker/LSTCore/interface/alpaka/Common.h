@@ -11,32 +11,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   using namespace ::lst;
 
-  Vec3D constexpr elementsPerThread(Vec3D::all(static_cast<Idx>(1)));
-
-  ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstWarning(std::string warning) {
+  ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstWarning(std::string_view warning) {
+#ifdef LST_STANDALONE
+    printf("%s\n", warning.data());
+#else
     edm::LogWarning("LST") << warning;
-    return;
-  }
-
-  // Adjust grid and block sizes based on backend configuration
-  template <typename Vec, typename TAcc = Acc<typename Vec::Dim>>
-  ALPAKA_FN_HOST ALPAKA_FN_INLINE WorkDiv<typename Vec::Dim> createWorkDiv(const Vec& blocksPerGrid,
-                                                                           const Vec& threadsPerBlock,
-                                                                           const Vec& elementsPerThreadArg) {
-    Vec adjustedBlocks = blocksPerGrid;
-    Vec adjustedThreads = threadsPerBlock;
-
-    // special overrides for CPU/host cases
-    if constexpr (std::is_same_v<Platform, alpaka::PlatformCpu>) {
-      adjustedBlocks = Vec::all(static_cast<Idx>(1));
-
-      if constexpr (alpaka::accMatchesTags<TAcc, alpaka::TagCpuSerial>) {
-        // Serial execution, set threads to 1 as well
-        adjustedThreads = Vec::all(static_cast<Idx>(1));  // probably redundant
-      }
-    }
-
-    return WorkDiv<typename Vec::Dim>(adjustedBlocks, adjustedThreads, elementsPerThreadArg);
+#endif
   }
 
   // The constants below are usually used in functions like alpaka::math::min(),

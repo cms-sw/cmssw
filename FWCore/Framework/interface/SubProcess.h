@@ -2,10 +2,10 @@
 #define FWCore_Framework_SubProcess_h
 
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/PrincipalCache.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
@@ -30,7 +30,6 @@
 
 namespace edm {
   class ActivityRegistry;
-  class BranchDescription;
   class BranchIDListHelper;
   class EventPrincipal;
   class EventSetupImpl;
@@ -41,6 +40,7 @@ namespace edm {
   class MergeableRunProductMetadata;
   class ModuleTypeResolverMaker;
   class ParameterSet;
+  class PathsAndConsumesOfModules;
   class Principal;
   class ProcessBlockTransitionInfo;
   class ProductRegistry;
@@ -239,6 +239,8 @@ namespace edm {
       for_all(subProcesses_, [](auto& subProcess) { subProcess.clearCounters(); });
     }
 
+    void initializePathsAndConsumes();
+
   private:
     void beginJob();
     void endJob(ExceptionCollector&);
@@ -250,8 +252,8 @@ namespace edm {
     bool parentProducedProductIsKept(Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(
         std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
-    void keepThisBranch(BranchDescription const& desc,
-                        std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+    void keepThisBranch(ProductDescription const& desc,
+                        std::map<BranchID, ProductDescription const*>& trueBranchIDToKeptBranchDesc,
                         std::set<BranchID>& keptProductsInEvent);
 
     std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID() {
@@ -280,7 +282,7 @@ namespace edm {
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext processContext_;
-    PathsAndConsumesOfModules pathsAndConsumesOfModules_;
+    std::unique_ptr<PathsAndConsumesOfModules> pathsAndConsumesOfModules_;
     //We require 1 history for each Run, Lumi and Stream
     // The vectors first hold Stream info, then Lumi then Run
     unsigned int historyLumiOffset_;
@@ -296,10 +298,10 @@ namespace edm {
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<ParameterSet>> processParameterSet_;
 
-    // keptProducts_ are pointers to the BranchDescription objects describing
+    // keptProducts_ are pointers to the ProductDescription objects describing
     // the branches we are to write.
     //
-    // We do not own the BranchDescriptions to which we point.
+    // We do not own the ProductDescriptions to which we point.
     SelectedProductsForBranchType keptProducts_;
     ProductSelectorRules productSelectorRules_;
     ProductSelector productSelector_;

@@ -9,12 +9,13 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/transform.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 namespace edm {
@@ -29,6 +30,7 @@ namespace reco {
     explicit CorrectedJetProducer(const edm::ParameterSet& fParameters);
     ~CorrectedJetProducer() override {}
     void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     const edm::EDGetTokenT<JetCollection> mInput;
@@ -53,6 +55,16 @@ namespace reco {
       produces<JetCollection>();
     else
       produces<JetCollection>().setBranchAlias(alias);
+  }
+
+  template <class T>
+  void CorrectedJetProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src", edm::InputTag(""));
+    desc.add<std::vector<edm::InputTag> >("correctors", {});
+    desc.addUntracked<bool>("verbose", false);
+    desc.addUntracked<std::string>("alias", "");
+    descriptions.addWithDefaultLabel(desc);
   }
 
   template <class T>

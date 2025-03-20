@@ -71,3 +71,5 @@ bool V0Filter::operator()(const reco::Track *tracks, unsigned int n) const {
 
   return (*this)(&trackPtrs[0], n);
 }
+
+void V0Filter::fillPSetDescription(edm::ParameterSetDescription &desc) { desc.add<double>("k0sMassWindow", 0.); }

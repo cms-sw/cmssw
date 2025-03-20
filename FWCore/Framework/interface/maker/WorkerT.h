@@ -12,8 +12,10 @@ WorkerT: Code common to all workers.
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include <array>
 #include <map>
@@ -23,10 +25,13 @@ WorkerT: Code common to all workers.
 
 namespace edm {
 
-  class ModuleCallingContext;
   class ModuleProcessName;
   class ProductResolverIndexAndSkipBit;
   class ThinnedAssociationsHelper;
+
+  namespace eventsetup {
+    struct ComponentDescription;
+  }  // namespace eventsetup
 
   template <typename T>
   class WorkerT : public Worker {
@@ -57,6 +62,7 @@ namespace edm {
 
     void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) final;
     void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) final;
+    void releaseMemoryPostLookupSignal() final;
     void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) final;
 
     void resolvePutIndicies(
@@ -91,7 +97,7 @@ namespace edm {
 
     void implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&) final;
 
-    size_t transformIndex(edm::BranchDescription const&) const noexcept final;
+    size_t transformIndex(edm::ProductDescription const&) const noexcept final;
     void implDoTransformAsync(WaitingTaskHolder,
                               size_t iTransformIndex,
                               EventPrincipal const&,
@@ -131,11 +137,19 @@ namespace edm {
           modules, modulesInPreviousProcesses, preg, labelsToDesc, module_->moduleDescription().processName());
     }
 
+    void esModulesWhoseProductsAreConsumed(
+        std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
+        eventsetup::ESRecordsToProductResolverIndices const& iPI) const override {
+      module_->esModulesWhoseProductsAreConsumed(esModules, iPI);
+    }
+
     void convertCurrentProcessAlias(std::string const& processName) override {
       module_->convertCurrentProcessAlias(processName);
     }
 
-    std::vector<ConsumesInfo> consumesInfo() const override { return module_->consumesInfo(); }
+    std::vector<ModuleConsumesInfo> moduleConsumesInfos() const override;
+    std::vector<ModuleConsumesESInfo> moduleConsumesESInfos(
+        eventsetup::ESRecordsToProductResolverIndices const& iPI) const override;
 
     void itemsToGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsToGet(branchType, indexes);

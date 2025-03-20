@@ -1,8 +1,8 @@
-
+#include "Alignment/CommonAlignmentProducer/interface/AlignmentCSCBeamHaloSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
-#include "Alignment/CommonAlignmentProducer/interface/AlignmentCSCBeamHaloSelector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 // the following include is necessary to clone all track branches
 // including recoTrackExtras and TrackingRecHitsOwned.
@@ -30,6 +30,10 @@ struct CSCBeamHaloConfigSelector {
       all_.push_back(&*i);
     }
     selected_ = theSelector.select(all_, evt);  // might add dummy...
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    AlignmentCSCBeamHaloSelector::fillPSetDescription(desc);
   }
 
 private:

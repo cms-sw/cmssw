@@ -68,6 +68,6 @@ std::shared_ptr<FactorizedJetCorrectorCalculator const> JetCorrectorImplMakerBas
 }
 
 void JetCorrectorImplMakerBase::addToDescription(edm::ParameterSetDescription& iDescription) {
-  iDescription.add<std::string>("level");
-  iDescription.add<std::string>("algorithm");
+  iDescription.add<std::string>("level", "");
+  iDescription.add<std::string>("algorithm", "");
 }

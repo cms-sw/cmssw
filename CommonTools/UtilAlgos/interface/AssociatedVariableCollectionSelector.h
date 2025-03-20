@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
@@ -50,6 +51,11 @@ public:
       if (select_((*c)[idx], (*var)[edm::getRef(c, idx)]))
         addRef_(selected_, c, idx);
     }
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<edm::InputTag>("var", edm::InputTag(""));
+    Selector::fillPSetDescription(desc);
   }
 
 private:

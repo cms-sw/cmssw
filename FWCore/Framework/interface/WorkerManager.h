@@ -44,7 +44,7 @@ namespace edm {
     void deleteModuleIfExists(std::string const& moduleLabel);
 
     void addToUnscheduledWorkers(ParameterSet& pset,
-                                 ProductRegistry& preg,
+                                 SignallingProductRegistryFiller& preg,
                                  PreallocationConfiguration const* prealloc,
                                  std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                  std::string label,
@@ -87,12 +87,14 @@ namespace edm {
     ExceptionToActionTable const& actionTable() const { return *actionTable_; }
 
     Worker* getWorker(ParameterSet& pset,
-                      ProductRegistry& preg,
+                      SignallingProductRegistryFiller& preg,
                       PreallocationConfiguration const* prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration,
                       std::string const& label);
 
     void resetAll();
+
+    void releaseMemoryPostLookupSignal();
 
   private:
     WorkerRegistry workerReg_;

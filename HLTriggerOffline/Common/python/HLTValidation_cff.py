@@ -17,17 +17,20 @@ from HLTriggerOffline.Muon.HLTmultiTrackValidatorMuonTracks_cff import *
 # HCAL
 from Validation.HcalDigis.HLTHcalDigisParam_cfi import *
 from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
+## SiTracker Phase2
+from Validation.SiTrackerPhase2V.HLTPhase2TrackerValidationFirstStep_cff import *
 
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
-hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone()
-hgcalHitCalibrationHLT.folder = "HGCalHitCalibrationHLT"
-hgcalHitCalibrationHLT.recHitsEE = cms.InputTag("hltHGCalRecHit", "HGCEERecHits", "HLT")
-hgcalHitCalibrationHLT.recHitsFH = cms.InputTag("hltHGCalRecHit", "HGCHEFRecHits", "HLT")
-hgcalHitCalibrationHLT.recHitsBH = cms.InputTag("hltHGCalRecHit", "HGCHEBRecHits", "HLT")
-hgcalHitCalibrationHLT.hgcalMultiClusters = cms.InputTag("None")
-hgcalHitCalibrationHLT.electrons = cms.InputTag("None")
-hgcalHitCalibrationHLT.photons = cms.InputTag("None")
+hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone(
+    folder = "HLT/HGCalHitCalibration",
+    recHitsEE = ("hltHGCalRecHit", "HGCEERecHits", "HLT"),
+    recHitsFH = ("hltHGCalRecHit", "HGCHEFRecHits", "HLT"),
+    recHitsBH = ("hltHGCalRecHit", "HGCHEBRecHits", "HLT"),
+    hgcalMultiClusters = "None",
+    electrons = "None",
+    photons = "None"
+)
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -52,11 +55,20 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 # Temporary Phase-2 config
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toReplaceWith(hltassociation, hltassociation.copyAndExclude([egammaSelectors,
-                                                                           ExoticaValidationProdSeq,
-                                                                           hltMultiTrackValidationGsfTracks,
-                                                                           hltMultiTrackValidationMuonTracks])
-)
+
+# Create the modified sequence for phase 2
+_phase2_hltassociation = hltassociation.copyAndExclude([
+    egammaSelectors,
+    ExoticaValidationProdSeq,
+    hltMultiTrackValidationGsfTracks,
+    hltMultiTrackValidationMuonTracks
+])
+
+# Add hltTrackerphase2ValidationSource to the sequence
+_phase2_hltassociation += hltTrackerphase2ValidationSource
+
+# Apply the modification
+phase2_common.toReplaceWith(hltassociation, _phase2_hltassociation)
 
 # hcal
 from DQMOffline.Trigger.HCALMonitoring_cff import *

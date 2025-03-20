@@ -114,7 +114,8 @@ namespace cond {
       switch (timetype) {
         case RUNNUMBER:
           // last lumi and event of this run
-          return edm::IOVSyncValue(edm::EventID(time, edm::EventID::maxEventNumber(), edm::EventID::maxEventNumber()));
+          return edm::IOVSyncValue(
+              edm::EventID(time, edm::LuminosityBlockID::maxLuminosityBlockNumber(), edm::EventID::maxEventNumber()));
         case LUMIID: {
           // the same lumiblock
           edm::LuminosityBlockID l(time);
@@ -132,8 +133,9 @@ namespace cond {
       switch (timetype) {
         case RUNNUMBER:
           // last event of this run
-          return edm::IOVSyncValue(
-              edm::EventID(time.eventID().run(), edm::EventID::maxEventNumber(), edm::EventID::maxEventNumber()));
+          return edm::IOVSyncValue(edm::EventID(time.eventID().run(),
+                                                edm::LuminosityBlockID::maxLuminosityBlockNumber(),
+                                                edm::EventID::maxEventNumber()));
         case LUMIID:
           // the same lumiblock
           return edm::IOVSyncValue(

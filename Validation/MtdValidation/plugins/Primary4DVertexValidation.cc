@@ -32,6 +32,9 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
 // Fastjet
 #include <fastjet/internal/base.hh>
 #include "fastjet/PseudoJet.hh"
@@ -257,6 +260,8 @@ private:
 
   // ----------member data ---------------------------
 
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theTTBToken;
+  TrackFilterForPVFindingBase* theTrackFilter;
   const std::string folder_;
   static constexpr unsigned int NOT_MATCHED = 66666;
   static constexpr double simUnit_ = 1e9;     // sim time in s while reco time in ns
@@ -289,7 +294,6 @@ private:
   bool use_only_charged_tracks_;
   bool optionalPlots_;
   bool use3dNoTime_;
-
   const double minProbHeavy_;
   const double trackweightTh_;
   const double mvaTh_;
@@ -300,6 +304,7 @@ private:
 
   edm::EDGetTokenT<std::vector<PileupSummaryInfo>> vecPileupSummaryInfoToken_;
 
+  edm::EDGetTokenT<reco::TrackCollection> trkToken;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
@@ -328,6 +333,10 @@ private:
   edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> pdtToken_;
 
   // histogram declaration
+  MonitorElement* meUnAssocTracks_;
+  MonitorElement* meUnAssocTracksFake_;
+  MonitorElement* meFractionUnAssocTracks_;
+  MonitorElement* meFractionUnAssocTracksFake_;
   MonitorElement* meTrackEffPtTot_;
   MonitorElement* meTrackMatchedTPEffPtTot_;
   MonitorElement* meTrackMatchedTPEffPtMtd_;
@@ -376,6 +385,8 @@ private:
   MonitorElement* meSimPVTvsZ_;
 
   MonitorElement* meVtxTrackMult_;
+  MonitorElement* meVtxTrackMultPassNdof_;
+  MonitorElement* meVtxTrackMultFailNdof_;
   MonitorElement* meVtxTrackW_;
   MonitorElement* meVtxTrackWnt_;
   MonitorElement* meVtxTrackRecLVMult_;
@@ -523,7 +534,8 @@ private:
 
 // constructors and destructor
 Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iConfig)
-    : folder_(iConfig.getParameter<std::string>("folder")),
+    : theTTBToken(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      folder_(iConfig.getParameter<std::string>("folder")),
       use_only_charged_tracks_(iConfig.getParameter<bool>("useOnlyChargedTracks")),
       optionalPlots_(iConfig.getUntrackedParameter<bool>("optionalPlots")),
       use3dNoTime_(iConfig.getParameter<bool>("use3dNoTime")),
@@ -532,6 +544,7 @@ Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iC
       mvaTh_(iConfig.getParameter<double>("mvaTh")),
       pdtToken_(esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord>()) {
   vecPileupSummaryInfoToken_ = consumes<std::vector<PileupSummaryInfo>>(edm::InputTag(std::string("addPileupInfo")));
+  trkToken = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackLabel"));
   trackingParticleCollectionToken_ =
       consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
   trackingVertexCollectionToken_ = consumes<TrackingVertexCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
@@ -558,6 +571,16 @@ Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iC
   probPiToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("probPi"));
   probKToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("probK"));
   probPToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("probP"));
+  std::string trackSelectionAlgorithm =
+      iConfig.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<std::string>("algorithm");
+  if (trackSelectionAlgorithm == "filter") {
+    theTrackFilter = new TrackFilterForPVFinding(iConfig.getParameter<edm::ParameterSet>("TkFilterParameters"));
+  } else if (trackSelectionAlgorithm == "filterWithThreshold") {
+    theTrackFilter = new HITrackFilterForPVFinding(iConfig.getParameter<edm::ParameterSet>("TkFilterParameters"));
+  } else {
+    edm::LogWarning("Primary4DVertexValidation")
+        << "unknown track selection algorithm: " + trackSelectionAlgorithm << std::endl;
+  }
 }
 
 Primary4DVertexValidation::~Primary4DVertexValidation() {}
@@ -570,6 +593,11 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
   // --- histograms booking
+  meUnAssocTracks_ = ibook.book1D("UnAssocTracks", "Log10(Unassociated tracks)", 160, 0.5, 4.5);
+  meUnAssocTracksFake_ = ibook.book1D("UnAssocTracksFake", "Log10(Unassociated fake tracks)", 160, 0.5, 4.5);
+  meFractionUnAssocTracks_ = ibook.book1D("FractionUnAssocTracks", "Fraction Unassociated tracks", 160, 0.0, 1.);
+  meFractionUnAssocTracksFake_ =
+      ibook.book1D("FractionUnAssocTracksFake", "Fraction Unassociated fake tracks", 160, 0.0, 1.);
   meTrackEffPtTot_ = ibook.book1D("EffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
   meTrackEffEtaTot_ = ibook.book1D("EffEtaTot", "Eta of tracks associated to LV; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffPtTot_ =
@@ -706,6 +734,9 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meSimPVTvsZ_ = ibook.bookProfile("simPVTvsZ", "PV Time vs Z", 30, -15., 15., 30, -0.75, 0.75);
 
   meVtxTrackMult_ = ibook.book1D("VtxTrackMult", "Log10(Vertex track multiplicity)", 80, 0.5, 2.5);
+  meVtxTrackMultPassNdof_ =
+      ibook.book1D("VtxTrackMultPassNdof", "Log10(Vertex track multiplicity for ndof>4)", 80, 0.5, 2.5);
+  meVtxTrackMultFailNdof_ = ibook.book1D("VtxTrackMultFailNdof", "Vertex track multiplicity for ndof<4", 10, 0., 10.);
   meVtxTrackW_ = ibook.book1D("VtxTrackW", "Vertex track weight (all)", 50, 0., 1.);
   meVtxTrackWnt_ = ibook.book1D("VtxTrackWnt", "Vertex track Wnt", 50, 0., 1.);
   meVtxTrackRecLVMult_ =
@@ -1476,7 +1507,7 @@ void Primary4DVertexValidation::observablesFromJets(const std::vector<reco::Trac
   fjInputs_.clear();
   size_t countScale0 = 0;
   for (size_t i = 0; i < reco_Tracks.size(); i++) {
-    const auto recotr = reco_Tracks[i];
+    const auto& recotr = reco_Tracks[i];
     const auto mass = mass_Tracks[i];
     float scale = 1.;
     if (recotr.charge() == 0) {
@@ -2020,10 +2051,17 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   else
     edm::LogWarning("Primary4DVertexValidation") << "recoToSimH is not valid";
 
+  reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> BeamSpotH;
   iEvent.getByToken(RecBeamSpotToken_, BeamSpotH);
   if (!BeamSpotH.isValid())
     edm::LogWarning("Primary4DVertexValidation") << "BeamSpotH is not valid";
+  beamSpot = *BeamSpotH;
+
+  edm::Handle<reco::TrackCollection> tks;
+  iEvent.getByToken(trkToken, tks);
+  const auto& theB = &iSetup.getData(theTTBToken);
+  std::vector<reco::TransientTrack> t_tks;
 
   std::vector<simPrimaryVertex> simpv;  // a list of simulated primary MC vertices
   simpv = getSimPVs(TVCollectionH);
@@ -2060,6 +2098,43 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   // I have simPV and recoPV collections
   matchReco2Sim(recopv, simpv, sigmat0Safe, mtdQualMVA, BeamSpotH);
+
+  t_tks = (*theB).build(tks, beamSpot, t0Safe, sigmat0Safe);
+
+  // track filter
+  std::vector<reco::TransientTrack>&& seltks = theTrackFilter->select(t_tks);
+
+  int unassociatedCount = 0;
+  int unassociatedCountFake = 0;
+  for (std::vector<reco::TransientTrack>::const_iterator itk = seltks.begin(); itk != seltks.end(); itk++) {
+    reco::TrackBaseRef trackref = (*itk).trackBaseRef();
+    bool isAssociated = false;
+    for (unsigned int iv = 0; iv < recopv.size(); iv++) {
+      const reco::Vertex* vertex = recopv.at(iv).recVtx;
+      for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
+        if (*iTrack == trackref) {
+          isAssociated = true;
+          break;
+        }
+      }
+      if (isAssociated)
+        break;
+    }
+
+    if (!isAssociated) {
+      unassociatedCount++;
+      auto found = r2s_->find(trackref);
+      if (found == r2s_->end())
+        unassociatedCountFake++;
+    }
+  }
+  double fraction = double(unassociatedCount) / (seltks.size());
+  meUnAssocTracks_->Fill(log10(unassociatedCount));
+  meFractionUnAssocTracks_->Fill(fraction);
+
+  double fractionFake = double(unassociatedCountFake) / (seltks.size());
+  meUnAssocTracksFake_->Fill(log10(unassociatedCountFake));
+  meFractionUnAssocTracksFake_->Fill(fractionFake);
 
   // Loop on tracks
   for (unsigned int iv = 0; iv < recopv.size(); iv++) {
@@ -2603,8 +2678,11 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   meRecVerNumber_->Fill(recopv.size());
   for (unsigned int ir = 0; ir < recopv.size(); ir++) {
+    const reco::Vertex* vertex = recopv.at(ir).recVtx;
     if (recopv.at(ir).ndof > selNdof_) {
       meRecPVZ_->Fill(recopv.at(ir).z);
+      meVtxTrackMultPassNdof_->Fill(log10(vertex->tracksSize()));
+
       if (recopv.at(ir).recVtx->tError() > 0.) {
         meRecPVT_->Fill(recopv.at(ir).recVtx->t());
       }
@@ -2627,6 +2705,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
         split++;
       }
     }  // ndof
+    else {
+      meVtxTrackMultFailNdof_->Fill(vertex->tracksSize());
+    }
   }
 
   LogTrace("Primary4DVertexValidation") << "is_real: " << real;
@@ -2752,6 +2833,7 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
 
   desc.add<std::string>("folder", "MTD/Vertices");
   desc.add<edm::InputTag>("TPtoRecoTrackAssoc", edm::InputTag("trackingParticleRecoTrackAsssociation"));
+  desc.add<edm::InputTag>("TrackLabel", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("mtdTracks", edm::InputTag("trackExtenderWithMTD"));
   desc.add<edm::InputTag>("SimTag", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("offlineBS", edm::InputTag("offlineBeamSpot"));
@@ -2780,6 +2862,12 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("trackweightTh", 0.5);
   desc.add<double>("mvaTh", 0.8);
   desc.add<double>("minProbHeavy", 0.75);
+  {
+    edm::ParameterSetDescription psd0;
+    HITrackFilterForPVFinding::fillPSetDescription(psd0);  // extension of TrackFilterForPVFinding
+    desc.add<edm::ParameterSetDescription>("TkFilterParameters", psd0);
+  }
+
   descriptions.add("vertices4DValid", desc);
 }
 

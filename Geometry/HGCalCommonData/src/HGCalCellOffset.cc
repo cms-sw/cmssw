@@ -570,7 +570,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
             cellX_[k] * sqrt3_ * guardRingOffset_;  // Area of inactive region form guardring and other effects
         cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea;
         double offMag = (((-2.0 / 15.0) * totalArea * cellX_[k]) - ((cellX_[k] - (0.5 * guardRingOffset_)) * cutArea)) /
-                        (cellArea[k][j]);  // Magnitude of offset
+                        (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);  // Magnitude of offset
         // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
         // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
         // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)
@@ -579,8 +579,8 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         std::array<double, 6> tempOffsetY = {
             {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}};
         for (int i = 0; i < 6; ++i) {
-          offsetX[k][j][i] = tempOffsetX[i];
-          offsetY[k][j][i] = tempOffsetY[i];
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
         }
       } else if (j == HGCalCell::intExtCell) {                             //Offset for extended cells
         double totalArea = (7.0 * sqrt3_ / 4.0) * std::pow(cellX_[k], 2);  // Area of cell without any dead zone
@@ -589,7 +589,7 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset] = totalArea - cutArea;
         double offMag =  // Magnitude of offset
             (((5.0 / 42.0) * totalArea * cellX_[k]) - ((cellX_[k] - (0.5 * guardRingOffset_))) * (cutArea)) /
-            (cellArea[k][j]);
+            (cellAreaPartial[k][j - HGCalCell::partiaclWaferCellsOffset]);
         // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
         // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
         // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)
@@ -598,8 +598,8 @@ HGCalCellOffset::HGCalCellOffset(double waferSize,
         std::array<double, 6> tempOffsetY = {
             {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}};
         for (int i = 0; i < 6; ++i) {
-          offsetX[k][j][i] = tempOffsetX[i];
-          offsetY[k][j][i] = tempOffsetY[i];
+          offsetPartialX[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetX[i];
+          offsetPartialY[k][j - HGCalCell::partiaclWaferCellsOffset][i] = tempOffsetY[i];
         }
       } else if (j == (HGCalCell::intHalfExtCell)) {
         double totalArea = (7.0 * sqrt3_ / 8.0) * std::pow(cellX_[k], 2);

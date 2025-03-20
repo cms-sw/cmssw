@@ -113,6 +113,13 @@ def addGenCands(process, allPF = False, addAK4=False, addAK8=False):
     )
     process.btvGenTask.add(process.genCandsTable)
 
+    kwargs = { }
+    import os
+    sv_sort = os.getenv('CMSSW_NANOAOD_SV_SORT')
+    if sv_sort is not None: kwargs['sv_sort'] = cms.untracked.string(sv_sort)
+    pf_sort = os.getenv('CMSSW_NANOAOD_PF_SORT')
+    if pf_sort is not None: kwargs['pf_sort'] = cms.untracked.string(pf_sort)
+
     if addAK4:
         process.genAK4ConstituentsTable = cms.EDProducer("GenJetConstituentTableProducer",
             candidates = genCandInput,
@@ -121,7 +128,8 @@ def addGenCands(process, allPF = False, addAK4=False, addAK8=False):
             nameSV = cms.string("GenJetSVs"),
             idx_name = cms.string("genCandsIdx"),
             idx_nameSV = cms.string("sVIdx"),
-            readBtag = cms.bool(False)
+            readBtag = cms.bool(False),
+            **kwargs,
         )
         process.btvGenTask.add(process.genAK4ConstituentsTable)
     if addAK8:
@@ -132,7 +140,8 @@ def addGenCands(process, allPF = False, addAK4=False, addAK8=False):
             nameSV = cms.string("GenFatJetSVs"),
             idx_name = cms.string("genCandsIdx"),
             idx_nameSV = cms.string("sVIdx"),
-            readBtag = cms.bool(False)
+            readBtag = cms.bool(False),
+            **kwargs,
         )
         process.btvGenTask.add(process.genAK8ConstituentsTable)
 

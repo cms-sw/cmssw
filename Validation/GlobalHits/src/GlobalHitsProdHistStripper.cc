@@ -144,25 +144,25 @@ void GlobalHitsProdHistStripper::endRun(const edm::Run &iRun, const edm::EventSe
     /*
     std::cout << "Extracting histogram: " << std::endl
               << "       Module       : "
-              << (histogram1D.provenance()->branchDescription()).moduleLabel()
+              << (histogram1D.provenance()->productDescription()).moduleLabel()
               << std::endl
               << "       ProductID    : "
               <<
-    (histogram1D.provenance()->branchDescription()).productID().id()
+    (histogram1D.provenance()->productDescription()).productID().id()
               << std::endl
               << "       ClassName    : "
-              << (histogram1D.provenance()->branchDescription()).className()
+              << (histogram1D.provenance()->productDescription()).className()
               << std::endl
               << "       InstanceName : "
               <<
-    (histogram1D.provenance()->branchDescription()).productInstanceName()
+    (histogram1D.provenance()->productDescription()).productInstanceName()
               << std::endl
               << "       BranchName   : "
-              << (histogram1D.provenance()->branchDescription()).branchName()
+              << (histogram1D.provenance()->productDescription()).branchName()
               << std::endl;
     */
 
-    if ((histogram1D.provenance()->branchDescription()).moduleLabel() != "globalhitsprodhist")
+    if ((histogram1D.provenance()->productDescription()).moduleLabel() != "globalhitsprodhist")
       continue;
 
     std::string histname = histogram1D->GetName();

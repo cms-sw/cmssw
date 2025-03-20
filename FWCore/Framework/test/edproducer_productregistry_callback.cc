@@ -9,11 +9,8 @@
 #include <iostream>
 #include "cppunit/extensions/HelperMacros.h"
 #include <memory>
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -26,8 +23,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+
+#include "makeDummyProcessConfiguration.h"
 
 class testEDProducerProductRegistryCallback : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEDProducerProductRegistryCallback);
@@ -58,7 +56,7 @@ namespace {
 
     void produce(StreamID, Event& e, EventSetup const&) const override;
 
-    void listen(BranchDescription const&);
+    void listen(ProductDescription const&);
   };
 
   TestMod::TestMod(ParameterSet const&) { produces<int>(); }
@@ -69,16 +67,16 @@ namespace {
   public:
     explicit ListenMod(ParameterSet const&);
     void produce(StreamID, Event& e, EventSetup const&) const override;
-    void listen(BranchDescription const&);
+    void listen(ProductDescription const&);
   };
 
   ListenMod::ListenMod(ParameterSet const&) {
     callWhenNewProductsRegistered(
-        [this](BranchDescription const& branchDescription) { this->listen(branchDescription); });
+        [this](ProductDescription const& productDescription) { this->listen(productDescription); });
   }
   void ListenMod::produce(StreamID, Event&, EventSetup const&) const {}
 
-  void ListenMod::listen(BranchDescription const& iDesc) {
+  void ListenMod::listen(ProductDescription const& iDesc) {
     edm::TypeID intType(typeid(int));
     //std::cout << "see class " << iDesc.typeName() << std::endl;
     if (iDesc.friendlyClassName() == intType.friendlyClassName()) {
@@ -91,16 +89,16 @@ namespace {
   public:
     explicit ListenFloatMod(ParameterSet const&);
     void produce(StreamID, Event& e, EventSetup const&) const;
-    void listen(BranchDescription const&);
+    void listen(ProductDescription const&);
   };
 
   ListenFloatMod::ListenFloatMod(ParameterSet const&) {
     callWhenNewProductsRegistered(
-        [this](BranchDescription const& branchDescription) { this->listen(branchDescription); });
+        [this](ProductDescription const& productDescription) { this->listen(productDescription); });
   }
   void ListenFloatMod::produce(StreamID, Event&, EventSetup const&) const {}
 
-  void ListenFloatMod::listen(BranchDescription const& iDesc) {
+  void ListenFloatMod::listen(ProductDescription const& iDesc) {
     edm::TypeID intType(typeid(int));
     //std::cout <<"see class "<<iDesc.typeName()<<std::endl;
     if (iDesc.friendlyClassName() == intType.friendlyClassName()) {
@@ -113,12 +111,7 @@ namespace {
 void testEDProducerProductRegistryCallback::testCircularRef() {
   using namespace edm;
 
-  SignallingProductRegistry preg;
-
-  //Need access to the ConstProductRegistry service
-  auto cReg = std::make_unique<ConstProductRegistry>(preg);
-  ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
-  ServiceRegistry::Operate startServices(token);
+  SignallingProductRegistryFiller preg;
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
@@ -139,8 +132,7 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD", dummyProcessPset.id());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
@@ -184,18 +176,13 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
   //    1 from 'l2' in response to 't2'
   //       1 from 'l1' in response to 'l2'
   //std::cout <<"# products "<<preg.size()<<std::endl;
-  CPPUNIT_ASSERT(10 == preg.size());
+  CPPUNIT_ASSERT(10 == preg.registry().size());
 }
 
 void testEDProducerProductRegistryCallback::testCircularRef2() {
   using namespace edm;
 
-  SignallingProductRegistry preg;
-
-  //Need access to the ConstProductRegistry service
-  auto cReg = std::make_unique<ConstProductRegistry>(preg);
-  ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
-  ServiceRegistry::Operate startServices(token);
+  SignallingProductRegistryFiller preg;
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
@@ -216,8 +203,7 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD", dummyProcessPset.id());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
@@ -260,18 +246,13 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
   //    1 from 'l2' in response to 't2'
   //       1 from 'l1' in response to 'l2'
   //std::cout <<"# products "<<preg.size()<<std::endl;
-  CPPUNIT_ASSERT(10 == preg.size());
+  CPPUNIT_ASSERT(10 == preg.registry().size());
 }
 
 void testEDProducerProductRegistryCallback::testTwoListeners() {
   using namespace edm;
 
-  SignallingProductRegistry preg;
-
-  //Need access to the ConstProductRegistry service
-  auto cReg = std::make_unique<ConstProductRegistry>(preg);
-  ServiceToken token = ServiceRegistry::createContaining(std::move(cReg));
-  ServiceRegistry::Operate startServices(token);
+  SignallingProductRegistryFiller preg;
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
@@ -292,8 +273,7 @@ void testEDProducerProductRegistryCallback::testTwoListeners() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD", dummyProcessPset.id());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
@@ -335,5 +315,5 @@ void testEDProducerProductRegistryCallback::testTwoListeners() {
   //       1 from 'l2' in response to 'l1'
   //    1 from 'l2' in response to 't2'
   //std::cout <<"# products "<<preg.size()<<std::endl;
-  CPPUNIT_ASSERT(8 == preg.size());
+  CPPUNIT_ASSERT(8 == preg.registry().size());
 }

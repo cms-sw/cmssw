@@ -16,13 +16,12 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
 template <int NBINS, int S, int DELTA>
 struct mykernel {
-  template <typename TAcc, typename T>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, T const* __restrict__ v, uint32_t N) const {
+  template <typename T>
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, T const* __restrict__ v, uint32_t N) const {
     ALPAKA_ASSERT_ACC(v);
     ALPAKA_ASSERT_ACC(N == 12000);
 
-    const uint32_t threadIdxLocal(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
-    if (threadIdxLocal == 0) {
+    if (once_per_block(acc)) {
       printf("start kernel for %d data\n", N);
     }
 

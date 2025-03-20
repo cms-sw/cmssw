@@ -55,7 +55,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   PixelVertexProducerAlpaka<TrackerTraits>::PixelVertexProducerAlpaka(const edm::ParameterSet& conf)
-      : algo_(conf.getParameter<bool>("oneKernel"),
+      : EDProducer(conf),
+        algo_(conf.getParameter<bool>("oneKernel"),
               conf.getParameter<bool>("useDensity"),
               conf.getParameter<bool>("useDBSCAN"),
               conf.getParameter<bool>("useIterative"),

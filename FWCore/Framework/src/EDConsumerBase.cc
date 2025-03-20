@@ -11,21 +11,21 @@
 //
 
 // system include files
-#include <array>
 #include <algorithm>
-#include <cassert>
 #include <cstring>
 #include <set>
-#include <utility>
+#include <string_view>
 
 // user include files
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesESInfo.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
@@ -38,7 +38,10 @@ namespace {
 }  // namespace
 
 EDConsumerBase::EDConsumerBase()
-    : m_tokenLabels{makeEmptyTokenLabels()}, frozen_(false), containsCurrentProcessAlias_(false) {}
+    : m_tokenLabels{makeEmptyTokenLabels()},
+      esDataThatCanBeDeletedEarly_(std::make_unique<ESDataThatCanBeDeletedEarly>()),
+      frozen_(false),
+      containsCurrentProcessAlias_(false) {}
 
 EDConsumerBase::~EDConsumerBase() noexcept(false) {}
 
@@ -151,7 +154,9 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices 
   frozen_ = true;
 
   unsigned int index = 0;
-  for (auto it = m_esTokenInfo.begin<kESLookupInfo>(); it != m_esTokenInfo.end<kESLookupInfo>(); ++it, ++index) {
+  for (auto it = esTokenLookupInfoContainer().begin<kESLookupInfo>();
+       it != esTokenLookupInfoContainer().end<kESLookupInfo>();
+       ++it, ++index) {
     auto indexInRecord = iPI.indexInRecord(it->m_record, it->m_key);
     if (indexInRecord != ESResolverIndex::noResolverConfigured()) {
       const char* componentName = &(m_tokenLabels[it->m_startOfComponentName]);
@@ -166,15 +171,17 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices 
         }
       }
     }
-    m_esTokenInfo.get<kESResolverIndex>(index) = indexInRecord;
+    esDataThatCanBeDeletedEarly_->esTokenLookupInfoContainer_.get<kESResolverIndex>(index) = indexInRecord;
 
     int negIndex = -1 * (index + 1);
     for (auto& items : esItemsToGetFromTransition_) {
       for (auto& itemIndex : items) {
         if (itemIndex.value() == negIndex) {
           itemIndex = indexInRecord;
-          esRecordsToGetFromTransition_[&items - &esItemsToGetFromTransition_.front()][&itemIndex - &items.front()] =
-              iPI.recordIndexFor(it->m_record);
+          ESResolverIndexContainer::size_type transitionIndex = &items - &esItemsToGetFromTransition_.front();
+          std::vector<ESResolverIndex>::size_type indexToItemInTransition = &itemIndex - &items.front();
+          esRecordsToGetFromTransition_[transitionIndex][indexToItemInTransition] = iPI.recordIndexFor(it->m_record);
+          esDataThatCanBeDeletedEarly_->consumesIndexConverter_.emplace_back(transitionIndex, indexToItemInTransition);
           negIndex = 1;
           break;
         }
@@ -185,6 +192,8 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices 
     }
   }
 }
+
+void EDConsumerBase::releaseMemoryPostLookupSignal() { esDataThatCanBeDeletedEarly_.reset(); }
 
 std::tuple<ESTokenIndex, char const*> EDConsumerBase::recordESConsumes(
     Transition iTrans,
@@ -209,8 +218,8 @@ std::tuple<ESTokenIndex, char const*> EDConsumerBase::recordESConsumes(
     }
   }
 
-  auto index = static_cast<ESResolverIndex::Value_t>(m_esTokenInfo.size());
-  m_esTokenInfo.emplace_back(
+  auto index = static_cast<ESResolverIndex::Value_t>(esTokenLookupInfoContainer().size());
+  esDataThatCanBeDeletedEarly_->esTokenLookupInfoContainer_.emplace_back(
       ESTokenLookupInfo{iRecord, eventsetup::DataKey{iDataType, iTag.data().c_str()}, startOfComponentName},
       ESResolverIndex{-1});
   if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
@@ -220,7 +229,7 @@ std::tuple<ESTokenIndex, char const*> EDConsumerBase::recordESConsumes(
   esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back(-1 * (index + 1));
   esRecordsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back();
   return {ESTokenIndex{static_cast<ESTokenIndex::Value_t>(indexForToken)},
-          m_esTokenInfo.get<kESLookupInfo>(index).m_key.name().value()};
+          esTokenLookupInfoContainer().get<kESLookupInfo>(index).m_key.name().value()};
 }
 
 //
@@ -520,6 +529,28 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(
   }
 }
 
+void EDConsumerBase::esModulesWhoseProductsAreConsumed(
+    std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
+    eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
+  std::array<std::set<std::string>, kNumberOfEventSetupTransitions> alreadyFound;
+
+  unsigned int index = 0;
+  auto itResolver = esTokenLookupInfoContainer().begin<kESResolverIndex>();
+  for (auto it = esTokenLookupInfoContainer().begin<kESLookupInfo>();
+       it != esTokenLookupInfoContainer().end<kESLookupInfo>();
+       ++it, ++itResolver, ++index) {
+    auto [componentDescription, produceMethodID] = iPI.componentAndProduceMethodID(it->m_record, *itResolver);
+    if (componentDescription) {
+      std::string const& moduleLabel =
+          componentDescription->label_.empty() ? componentDescription->type_ : componentDescription->label_;
+      ESResolverIndexContainer::size_type transitionIndex = consumesIndexConverter()[index].first;
+      if (alreadyFound[transitionIndex].insert(moduleLabel).second) {
+        esModules[transitionIndex]->push_back(componentDescription);
+      }
+    }
+  }
+}
+
 void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) {
   frozen_ = true;
 
@@ -566,8 +597,8 @@ void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) 
   }
 }
 
-std::vector<ConsumesInfo> EDConsumerBase::consumesInfo() const {
-  std::vector<ConsumesInfo> result;
+std::vector<ModuleConsumesInfo> EDConsumerBase::moduleConsumesInfos() const {
+  std::vector<ModuleConsumesInfo> result;
   auto itAlways = m_tokenInfo.begin<kAlwaysGets>();
   auto itKind = m_tokenInfo.begin<kKind>();
   auto itLabels = m_tokenInfo.begin<kLabels>();
@@ -580,7 +611,7 @@ std::vector<ConsumesInfo> EDConsumerBase::consumesInfo() const {
 
     assert(*consumedModuleLabel != '\0');
 
-    // Just copy the information into the ConsumesInfo data structure
+    // Just copy the information into the ModuleConsumesInfo data structure
     result.emplace_back(itInfo->m_type,
                         consumedModuleLabel,
                         consumedInstance,
@@ -589,6 +620,48 @@ std::vector<ConsumesInfo> EDConsumerBase::consumesInfo() const {
                         *itKind,
                         *itAlways,
                         itInfo->m_index.skipCurrentProcess());
+  }
+  return result;
+}
+
+std::vector<ModuleConsumesESInfo> EDConsumerBase::moduleConsumesESInfos(
+    eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
+  std::vector<ModuleConsumesESInfo> result;
+
+  ModuleConsumesESInfo info;
+
+  unsigned int index = 0;
+  auto itResolver = esTokenLookupInfoContainer().begin<kESResolverIndex>();
+  for (auto it = esTokenLookupInfoContainer().begin<kESLookupInfo>();
+       it != esTokenLookupInfoContainer().end<kESLookupInfo>();
+       ++it, ++itResolver, ++index) {
+    info.eventSetupRecordType_ = it->m_record.name();
+    info.productType_ = it->m_key.type().name();
+    info.productLabel_ = it->m_key.name().value();
+    info.requestedModuleLabel_ = &(m_tokenLabels[it->m_startOfComponentName]);
+    info.transitionOfConsumer_ = static_cast<Transition>(consumesIndexConverter()[index].first);
+    info.moduleLabelMismatch_ = *itResolver == ESResolverIndex::moduleLabelDoesNotMatch();
+
+    // Initial values used in the case where there isn't an EventSetup
+    // module to produce the requested data. Test whether moduleType
+    // is empty to identify this case because it will be empty if and
+    // only if this is true.
+    info.moduleType_ = {};
+    info.moduleLabel_ = {};
+    info.produceMethodIDOfProducer_ = 0;
+    info.isSource_ = false;
+    info.isLooper_ = false;
+
+    auto [componentDescription, produceMethodID] = iPI.componentAndProduceMethodID(it->m_record, *itResolver);
+    if (componentDescription) {
+      info.moduleType_ = componentDescription->type_;
+      info.moduleLabel_ =
+          componentDescription->label_.empty() ? componentDescription->type_ : componentDescription->label_;
+      info.produceMethodIDOfProducer_ = produceMethodID;
+      info.isSource_ = componentDescription->isSource_;
+      info.isLooper_ = componentDescription->isLooper_;
+    }
+    result.push_back(info);
   }
   return result;
 }

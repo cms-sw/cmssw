@@ -105,7 +105,7 @@ void DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi
   // do this, because ProvInfo is not yet run in offline DQM
   MonitorElement *me = dbe_->get("Info/ProvInfo/CMSSW");
   if (!me)
-    me = dbe_->bookString("CMSSW", edm::getReleaseVersion().c_str());
+    dbe_->bookString("CMSSW", edm::getReleaseVersion().c_str());
 
   me = dbe_->get("Info/ProvInfo/runIsComplete");
   if (!me)
@@ -156,7 +156,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       // Abuse ProcessMatch as a "match all".
       jobmegetter_(edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InProcess)),
       runmegetter_(edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InRun)) {
-  callWhenNewProductsRegistered([this](edm::BranchDescription const &bd) {
+  callWhenNewProductsRegistered([this](edm::ProductDescription const &bd) {
     this->jobmegetter_(bd);
     this->runmegetter_(bd);
   });

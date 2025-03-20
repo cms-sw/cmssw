@@ -11,7 +11,7 @@ echo ${mytag}
 
 # Set the tag in all the scripts and the metadata text files
 sed -i {s/TagXX/${mytag}/g} *.py
-sed -i {s/TagXX/${mytag}/g} *.txt
+#sed -i {s/TagXX/${mytag}/g} *.txt
 sed -i {s/TagXX/${mytag}/g} splitExtended2016Database.sh
 
 # First read in the little XML files and create the

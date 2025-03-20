@@ -73,6 +73,8 @@ fatJetTable = simplePATJetFlatTableProducer.clone(
         globalParT3_TopbWmv = Var("bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probTopbWmv')",float,doc="Mass-decorrelated GlobalParT-3 Top->bWmv score",precision=10),
         globalParT3_TopbWtauhv = Var("bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probTopbWtauhv')",float,doc="Mass-decorrelated GlobalParT-3 Top->bWtauhv score",precision=10),
         globalParT3_QCD = Var("bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probQCD')",float,doc="Mass-decorrelated GlobalParT-3 QCD score.",precision=10),
+        globalParT3_WvsQCD = Var("?bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probXqq')+bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probXcs')+bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probQCD')>0?(bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probXqq')+bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probXcs'))/(bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probXqq')+bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probXcs')+bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probQCD')):-1",
+            float,doc="Mass-decorrelated GlobalParT-3 (Xqq+Xcs/Xqq+Xcs+QCD) binarized score.",precision=10),
         globalParT3_massCorrX2p = Var("bDiscriminator('pfGlobalParticleTransformerAK8JetTags:massCorrX2p')",float,doc="GlobalParT-3 mass regression corrector with respect to the original jet mass, optimised for resonance 2-prong (bb/cc/cs/ss/qq) jets. Use (massCorrX2p * mass * (1 - rawFactor)) to get the regressed mass",precision=10),
         globalParT3_massCorrGeneric = Var("bDiscriminator('pfGlobalParticleTransformerAK8JetTags:massCorrGeneric')",float,doc="GlobalParT-3 mass regression corrector with respect to the original jet mass, optimised for generic jet cases. Use (massCorrGeneric * mass * (1 - rawFactor)) to get the regressed mass",precision=10),
         globalParT3_withMassTopvsQCD = Var("bDiscriminator('pfGlobalParticleTransformerAK8JetTags:probWithMassTopvsQCD')",float,doc="GlobalParT-3 tagger (w/mass) Top vs QCD discriminator",precision=10),
@@ -251,6 +253,12 @@ subJetTable = simplePATJetFlatTableProducer.clone(
     variables = cms.PSet(P4Vars,
         btagDeepFlavB = Var("bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')",float,doc="DeepJet b+bb+lepb tag discriminator",precision=10),
         btagUParTAK4B = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')>0?bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll'):-1",float,precision=10,doc="UnifiedParT b vs. udscg"),
+        UParTAK4RegPtRawCorr = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptcorr'):-1",float,precision=10,doc="UnifiedParT universal flavor-aware visible pT regression (no neutrinos), correction relative to raw jet pT"),
+        UParTAK4RegPtRawCorrNeutrino = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu')>0?bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptnu'):-1",float,precision=10,doc="UnifiedParT universal flavor-aware pT regression neutrino correction, relative to visible. Correction relative to raw jet pT"),
+        UParTAK4RegPtRawRes = Var("?(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')+bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow'))>0?0.5*(bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreshigh')-bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:ptreslow')):-1",float,precision=10,doc="UnifiedParT universal flavor-aware jet pT resolution estimator, (q84 - q16)/2"),
+        UParTAK4V1RegPtRawCorr = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4V1JetTags:ptcorr')>0?bDiscriminator('pfUnifiedParticleTransformerAK4V1JetTags:ptcorr'):-1",float,precision=10,doc="UnifiedParT V1 universal flavor-aware visible pT regression (no neutrinos), correction relative to raw jet pT"),
+        UParTAK4V1RegPtRawCorrNeutrino = Var("?bDiscriminator('pfUnifiedParticleTransformerAK4V1JetTags:ptnu')>0?bDiscriminator('pfUnifiedParticleTransformerAK4V1JetTags:ptnu'):-1",float,precision=10,doc="UnifiedParT V1 universal flavor-aware pT regression neutrino correction, relative to visible. Correction relative to raw jet pT"),
+        UParTAK4V1RegPtRawRes = Var("?(bDiscriminator('pfUnifiedParticleTransformerAK4V1JetTags:ptreshigh')+bDiscriminator('pfUnifiedParticleTransformerAK4V1JetTags:ptreslow'))>0?0.5*(bDiscriminator('pfUnifiedParticleTransformerAK4V1JetTags:ptreshigh')-bDiscriminator('pfUnifiedParticleTransformerAK4V1JetTags:ptreslow')):-1",float,precision=10,doc="UnifiedParT V1 universal flavor-aware jet pT resolution estimator, (q84 - q16)/2"),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
         tau1 = Var("userFloat('NjettinessAK8Subjets:tau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
@@ -270,64 +278,35 @@ run2_nanoAOD_ANY.toModify(
 (run2_nanoAOD_106Xv2).toModify(
     subJetTable.variables,
     area = None,
+    UParTAK4RegPtRawCorr = None,
+    UParTAK4RegPtRawCorrNeutrino = None,
+    UParTAK4RegPtRawRes = None,
+    UParTAK4V1RegPtRawCorr = None,
+    UParTAK4V1RegPtRawCorrNeutrino = None,
+    UParTAK4V1RegPtRawRes = None,
 )
 
 run3_nanoAOD_pre142X.toModify(
     subJetTable.variables,
     btagDeepFlavB = None,
     btagUParTAK4B = None,
+    UParTAK4RegPtRawCorr = None,
+    UParTAK4RegPtRawCorrNeutrino = None,
+    UParTAK4RegPtRawRes = None,
+    UParTAK4V1RegPtRawCorr = None,
+    UParTAK4V1RegPtRawCorrNeutrino = None,
+    UParTAK4V1RegPtRawRes = None,
     btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
 )
-
 
 #jets are not as precise as muons
 fatJetTable.variables.pt.precision=10
 subJetTable.variables.pt.precision=10
 
-##############################################################
-# AK8 constituents
-###############################################################
-finalJetsAK8PFConstituents = cms.EDProducer("PatJetConstituentPtrSelector",
-    src = fatJetTable.src,
-    cut = cms.string("abs(eta) <= 2.5")
-)
-
-finalJetsPFConstituents = cms.EDProducer("PackedCandidatePtrMerger",
-    src = cms.VInputTag(cms.InputTag("finalJetsAK8PFConstituents", "constituents")),
-    skipNulls = cms.bool(True),
-    warnOnSkip = cms.bool(True)
-)
-
-pfCandidatesTable = cms.EDProducer("SimplePATCandidateFlatTableProducer",
-    src = cms.InputTag("finalJetsPFConstituents"),
-    cut = cms.string(""),
-    name = cms.string("PFCand"),
-    doc = cms.string("PF candidate constituents of AK8 puppi jets (FatJet) with |eta| <= 2.5."),
-    singleton = cms.bool(False),
-    extension = cms.bool(False),
-    variables = cms.PSet(
-        pt = Var("pt * puppiWeight()", float, doc="Puppi-weighted pt", precision=10),
-        mass = Var("mass * puppiWeight()", float, doc="Puppi-weighted mass", precision=10),
-        eta = Var("eta", float, precision=12),
-        phi = Var("phi", float, precision=12),
-        pdgId  = Var("pdgId", int, doc="PF candidate type (+/-211 = ChgHad, 130 = NeuHad, 22 = Photon, +/-11 = Electron, +/-13 = Muon, 1 = HFHad, 2 = HFEM)")
-    )
-)
-
-finalJetsAK8ConstituentsTable = cms.EDProducer("SimplePatJetConstituentTableProducer",
-    name = cms.string(fatJetTable.name.value()+"PFCand"),
-    candIdxName = cms.string("PFCandIdx"),
-    candIdxDoc = cms.string("Index in the PFCand table"),
-    jets = fatJetTable.src,
-    candidates = pfCandidatesTable.src,
-    jetCut = fatJetTable.cut
-)
-
 jetAK8UserDataTask = cms.Task()
-jetAK8Task = cms.Task(jetCorrFactorsAK8,updatedJetsAK8,jetAK8UserDataTask,updatedJetsAK8WithUserData,finalJetsAK8,finalJetsAK8PFConstituents,finalJetsPFConstituents)
+jetAK8Task = cms.Task(jetCorrFactorsAK8,updatedJetsAK8,jetAK8UserDataTask,updatedJetsAK8WithUserData,finalJetsAK8)
 
 #after lepton collections have been run
 jetAK8LepTask = cms.Task(lepInAK8JetVars)
 
-jetAK8TablesTask = cms.Task(fatJetTable,subJetTable,pfCandidatesTable,finalJetsAK8ConstituentsTable)
-
+jetAK8TablesTask = cms.Task(fatJetTable,subJetTable)

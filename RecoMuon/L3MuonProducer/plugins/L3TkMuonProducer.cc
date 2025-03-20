@@ -33,7 +33,7 @@ L3TkMuonProducer::L3TkMuonProducer(const ParameterSet& parameterSet) {
   produces<TrackExtraCollection>();
   produces<TrackingRecHitCollection>();
 
-  callWhenNewProductsRegistered([this](const edm::BranchDescription& iBD) {
+  callWhenNewProductsRegistered([this](const edm::ProductDescription& iBD) {
     edm::TypeID id(typeid(L3MuonTrajectorySeedCollection));
     if (iBD.unwrappedTypeID() == id) {
       this->mayConsume<L3MuonTrajectorySeedCollection>(

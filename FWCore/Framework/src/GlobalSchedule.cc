@@ -28,7 +28,7 @@ namespace edm {
       std::shared_ptr<ModuleRegistry> modReg,
       std::vector<std::string> const& iModulesToUse,
       ParameterSet& proc_pset,
-      ProductRegistry& pregistry,
+      SignallingProductRegistryFiller& pregistry,
       PreallocationConfiguration const& prealloc,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
@@ -192,6 +192,12 @@ namespace edm {
     for (auto& wm : workerManagers_) {
       wm.deleteModuleIfExists(iLabel);
     }
+  }
+
+  void GlobalSchedule::releaseMemoryPostLookupSignal() {
+    unsigned int const managerIndex =
+        numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_;
+    workerManagers_[managerIndex].releaseMemoryPostLookupSignal();
   }
 
   std::vector<ModuleDescription const*> GlobalSchedule::getAllModuleDescriptions() const {

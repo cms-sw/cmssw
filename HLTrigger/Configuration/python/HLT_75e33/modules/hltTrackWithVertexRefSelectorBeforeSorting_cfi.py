@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 hltTrackWithVertexRefSelectorBeforeSorting = cms.EDProducer("TrackWithVertexRefSelector",
-    copyExtras = cms.untracked.bool(False),
-    copyTrajectories = cms.untracked.bool(False),
     d0Max = cms.double(999.0),
     dzMax = cms.double(999.0),
     etaMax = cms.double(5.0),

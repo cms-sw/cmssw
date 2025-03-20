@@ -10,6 +10,7 @@
 #include "DataFormats/VertexSoA/interface/ZVertexSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoVertex/PixelVertexFinding/interface/PixelVertexWorkSpaceLayout.h"
 
@@ -54,12 +55,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
     using Hist = cms::alpakatools::HistoContainer<uint8_t, 256, 16000, 8, uint16_t>;
     auto& hist = alpaka::declareSharedVar<Hist, __COUNTER__>(acc);
-    auto& hws = alpaka::declareSharedVar<Hist::Counter[32], __COUNTER__>(acc);
+    constexpr int warpSize = cms::alpakatools::warpSize;
+    auto& hws = alpaka::declareSharedVar<Hist::Counter[warpSize], __COUNTER__>(acc);
 
     for (auto j : cms::alpakatools::uniform_elements(acc, Hist::totbins())) {
       hist.off[j] = 0;
     }
-    for (auto j : cms::alpakatools::uniform_elements(acc, 32)) {
+    for (auto j : cms::alpakatools::uniform_elements(acc, warpSize)) {
       hws[j] = 0;  // used by prefix scan in hist.finalize()
     }
     alpaka::syncBlockThreads(acc);
@@ -76,7 +78,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     // fill hist (bin shall be wider than "eps")
     for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
       int iz = static_cast<int>(zt[i] * 10.f);  // valid if eps <= 0.1
-      iz = std::clamp(iz, INT8_MIN, INT8_MAX);
+      // Equivalent of iz = std::clamp(iz, INT8_MIN, INT8_MAX)
+      // which doesn't compile with gcc14 due to reference to __glibcxx_assert
+      // See https://github.com/llvm/llvm-project/issues/95183
+      int tmp_max = std::max<int>(iz, INT8_MIN);
+      iz = std::min<int>(tmp_max, INT8_MAX);
       ALPAKA_ASSERT_ACC(iz - INT8_MIN >= 0);
       ALPAKA_ASSERT_ACC(iz - INT8_MIN < 256);
       izt[i] = iz - INT8_MIN;

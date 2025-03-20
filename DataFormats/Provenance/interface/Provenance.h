@@ -35,16 +35,16 @@ namespace edm {
   public:
     Provenance();
 
-    Provenance(std::shared_ptr<BranchDescription const> const& p, ProductID const& pid);
+    Provenance(std::shared_ptr<ProductDescription const> const& p, ProductID const& pid);
 
     Provenance(StableProvenance const&);
 
     StableProvenance const& stable() const { return stableProvenance_; }
     StableProvenance& stable() { return stableProvenance_; }
 
-    BranchDescription const& branchDescription() const { return stable().branchDescription(); }
-    std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {
-      return stable().constBranchDescriptionPtr();
+    ProductDescription const& productDescription() const { return stable().productDescription(); }
+    std::shared_ptr<ProductDescription const> const& constProductDescriptionPtr() const {
+      return stable().constProductDescriptionPtr();
     }
 
     ProductProvenance const* productProvenance() const;
@@ -53,7 +53,6 @@ namespace edm {
     std::string const& branchName() const { return stable().branchName(); }
     std::string const& className() const { return stable().className(); }
     std::string const& moduleLabel() const { return stable().moduleLabel(); }
-    std::string const& moduleName() const { return stable().moduleName(); }
     std::string const& processName() const { return stable().processName(); }
     std::string const& productInstanceName() const { return stable().productInstanceName(); }
     std::string const& friendlyClassName() const { return stable().friendlyClassName(); }
@@ -84,7 +83,9 @@ namespace edm {
       mergeableRunProductMetadata_ = mrpm;
     }
 
-    void setBranchDescription(std::shared_ptr<BranchDescription const> const& p) { stable().setBranchDescription(p); }
+    void setProductDescription(std::shared_ptr<ProductDescription const> const& p) {
+      stable().setProductDescription(p);
+    }
 
     void swap(Provenance&);
 

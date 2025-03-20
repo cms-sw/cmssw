@@ -2,13 +2,13 @@
 #include "RootOutputTree.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
+#include "FWCore/AbstractServices/interface/RootHandlers.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/RootHandlers.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -376,8 +376,8 @@ namespace edm {
                                  int splitLevel,
                                  int basketSize,
                                  bool produced) {
-    assert(splitLevel != BranchDescription::invalidSplitLevel);
-    assert(basketSize != BranchDescription::invalidBasketSize);
+    assert(splitLevel != ProductDescription::invalidSplitLevel);
+    assert(basketSize != ProductDescription::invalidBasketSize);
     TBranch* branch = tree_->Branch(branchName.c_str(), className.c_str(), &pProd, basketSize, splitLevel);
     assert(branch != nullptr);
     /*

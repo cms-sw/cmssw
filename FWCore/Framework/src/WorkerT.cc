@@ -19,6 +19,9 @@
 #include "FWCore/Framework/interface/limited/EDAnalyzerBase.h"
 #include "FWCore/Framework/interface/limited/OutputModuleBase.h"
 
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesESInfo.h"
+
 #include <type_traits>
 
 namespace edm {
@@ -304,36 +307,36 @@ namespace edm {
   }
 
   template <typename T>
-  inline size_t WorkerT<T>::transformIndex(edm::BranchDescription const&) const noexcept {
+  inline size_t WorkerT<T>::transformIndex(edm::ProductDescription const&) const noexcept {
     return -1;
   }
   template <>
-  inline size_t WorkerT<global::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<global::EDFilterBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<global::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<global::EDProducerBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
   inline size_t WorkerT<stream::EDProducerAdaptorBase>::transformIndex(
-      edm::BranchDescription const& iBranch) const noexcept {
+      edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<limited::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<limited::EDFilterBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<limited::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<limited::EDProducerBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<one::EDFilterBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<one::EDFilterBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
   template <>
-  inline size_t WorkerT<one::EDProducerBase>::transformIndex(edm::BranchDescription const& iBranch) const noexcept {
+  inline size_t WorkerT<one::EDProducerBase>::transformIndex(edm::ProductDescription const& iBranch) const noexcept {
     return module_->transformIndex_(iBranch);
   }
 
@@ -744,6 +747,11 @@ namespace edm {
   }
 
   template <typename T>
+  void WorkerT<T>::releaseMemoryPostLookupSignal() {
+    module_->releaseMemoryPostLookupSignal();
+  }
+
+  template <typename T>
   void WorkerT<T>::selectInputProcessBlocks(ProductRegistry const& productRegistry,
                                             ProcessBlockHelperBase const& processBlockHelperBase) {
     module_->selectInputProcessBlocks(productRegistry, processBlockHelperBase);
@@ -915,6 +923,17 @@ namespace edm {
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::stream::EDAnalyzerAdaptorBase>::moduleConcurrencyType() const {
     return Worker::kStream;
+  }
+
+  template <typename T>
+  std::vector<ModuleConsumesInfo> WorkerT<T>::moduleConsumesInfos() const {
+    return module_->moduleConsumesInfos();
+  }
+
+  template <typename T>
+  std::vector<ModuleConsumesESInfo> WorkerT<T>::moduleConsumesESInfos(
+      eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
+    return module_->moduleConsumesESInfos(iPI);
   }
 
   //Explicitly instantiate our needed templates to avoid having the compiler

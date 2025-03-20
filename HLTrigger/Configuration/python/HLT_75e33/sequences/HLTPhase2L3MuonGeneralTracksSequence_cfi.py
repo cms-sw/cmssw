@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from ..modules.hltTrackerClusterCheck_cfi import *
-from ..modules.hltPhase2L3MuonPixelTracksTrackingRegions_cfi import *
+from ..modules.hltPhase2L3MuonPixelTracksAndHighPtTripletTrackingRegions_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksSeedLayers_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksHitDoublets_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksHitQuadruplets_cfi import *
@@ -13,7 +13,6 @@ from ..modules.hltPhase2L3MuonInitialStepTracks_cfi import *
 from ..modules.hltPhase2L3MuonInitialStepTrackCutClassifier_cfi import *
 from ..modules.hltPhase2L3MuonInitialStepTracksSelectionHighPurity_cfi import *
 from ..modules.hltPhase2L3MuonHighPtTripletStepClusters_cfi import *
-from ..modules.hltPhase2L3MuonHighPtTripletStepTrackingRegions_cfi import *
 from ..modules.hltPhase2L3MuonHighPtTripletStepSeedLayers_cfi import *
 from ..modules.hltPhase2L3MuonHighPtTripletStepHitDoublets_cfi import *
 from ..modules.hltPhase2L3MuonHighPtTripletStepHitTriplets_cfi import *
@@ -27,7 +26,7 @@ from ..modules.hltPhase2L3MuonGeneralTracks_cfi import *
 
 HLTPhase2L3MuonGeneralTracksSequence = cms.Sequence(
     hltTrackerClusterCheck
-    +hltPhase2L3MuonPixelTracksTrackingRegions
+    +hltPhase2L3MuonPixelTracksAndHighPtTripletTrackingRegions
     +hltPhase2L3MuonPixelTracksSeedLayers
     +hltPhase2L3MuonPixelTracksHitDoublets
     +hltPhase2L3MuonPixelTracksHitQuadruplets
@@ -39,7 +38,6 @@ HLTPhase2L3MuonGeneralTracksSequence = cms.Sequence(
     +hltPhase2L3MuonInitialStepTrackCutClassifier
     +hltPhase2L3MuonInitialStepTracksSelectionHighPurity
     +hltPhase2L3MuonHighPtTripletStepClusters
-    +hltPhase2L3MuonHighPtTripletStepTrackingRegions
     +hltPhase2L3MuonHighPtTripletStepSeedLayers
     +hltPhase2L3MuonHighPtTripletStepHitDoublets
     +hltPhase2L3MuonHighPtTripletStepHitTriplets

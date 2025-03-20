@@ -16,8 +16,8 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe,
                                     const EcalElectronicsMapping* TheMapping)
 
 {
-  int bx = bx_;
-  int lv1 = lv1_ - 1;
+  auto const bx = bx_;
+  auto const lv1 = lv1_ - 1;
 
   int rdsize = rawdata.size() / 8;  // size in Word64
 

@@ -54,7 +54,6 @@ namespace edm {
         maxSecondsUntilRampdown_(desc.maxSecondsUntilRampdown_),
         processingMode_(RunsLumisAndEvents),
         moduleDescription_(desc.moduleDescription_),
-        productRegistry_(desc.productRegistry_),
         processHistoryRegistry_(new ProcessHistoryRegistry),
         branchIDListHelper_(desc.branchIDListHelper_),
         processBlockHelper_(desc.processBlockHelper_),
@@ -205,7 +204,7 @@ namespace edm {
                                                                     "Calling InputSource::readRunAuxiliary_");
   }
 
-  void InputSource::doBeginJob() { this->beginJob(); }
+  void InputSource::doBeginJob(edm::ProductRegistry const& iReg) { this->beginJob(iReg); }
 
   void InputSource::doEndJob() { endJob(); }
 
@@ -436,7 +435,7 @@ namespace edm {
                                                                         "Calling InputSource::reverseState__");
   }
 
-  void InputSource::beginJob() {}
+  void InputSource::beginJob(ProductRegistry const&) {}
 
   void InputSource::endJob() {}
 

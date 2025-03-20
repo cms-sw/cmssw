@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
+from PhysicsTools.NanoAOD.simpleGenJetFlatTableProducer_cfi import simpleGenJetFlatTableProducer
 from PhysicsTools.NanoAOD.simplePATJetFlatTableProducer_cfi import simplePATJetFlatTableProducer
 from PhysicsTools.NanoAOD.jetsAK8_cff import fatJetTable as _fatJetTable
 from PhysicsTools.NanoAOD.jetsAK8_cff import subJetTable as _subJetTable
@@ -18,7 +18,7 @@ jetMCTable = simplePATJetFlatTableProducer.clone(
         genJetIdx = Var("?genJetFwdRef().backRef().isNonnull() && genJetFwdRef().backRef().pt() > 10.?genJetFwdRef().backRef().key():-1", "int16", doc="index of matched gen jet"),
     )
 )
-genJetTable = simpleCandidateFlatTableProducer.clone(
+genJetTable = simpleGenJetFlatTableProducer.clone(
     src = cms.InputTag("slimmedGenJets"),
     cut = cms.string("pt > 10"),
     name = cms.string("GenJet"),
@@ -55,7 +55,7 @@ genJetFlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
     jetFlavourInfos = cms.InputTag("slimmedGenJetsFlavourInfos"),
 )
 
-genJetAK8Table = simpleCandidateFlatTableProducer.clone(
+genJetAK8Table = simpleGenJetFlatTableProducer.clone(
     src = cms.InputTag("slimmedGenJetsAK8"),
     cut = cms.string("pt > 100."),
     name = cms.string("GenJetAK8"),
@@ -96,7 +96,7 @@ fatJetMCTable = simplePATJetFlatTableProducer.clone(
     )
 )
 
-genSubJetAK8Table = simpleCandidateFlatTableProducer.clone(
+genSubJetAK8Table = simpleGenJetFlatTableProducer.clone(
     src = cms.InputTag("slimmedGenJetsAK8SoftDropSubJets"),
     name = cms.string("SubGenJetAK8"),
     doc  = cms.string("slimmedGenJetsAK8SoftDropSubJets, i.e. subjets of ak8 Jets made with visible genparticles"),

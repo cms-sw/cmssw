@@ -28,5 +28,5 @@ hltDiEle2312IsoGsfTrackIsoL1SeededFilter = cms.EDFilter("HLTEgammaGenericQuadrat
     thrRegularEE1 = cms.vdouble(4.0),
     thrRegularEE2 = cms.vdouble(4.0),
     useEt = cms.bool(True),
-    varTag = cms.InputTag("hltEgammaEleGsfTrackIsoV6L1Seeded")
+    varTag = cms.InputTag("hltEgammaEleGsfTrackIsoL1Seeded")
 )

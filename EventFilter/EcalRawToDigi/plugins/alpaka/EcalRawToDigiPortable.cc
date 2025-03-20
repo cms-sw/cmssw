@@ -57,7 +57,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   EcalRawToDigiPortable::EcalRawToDigiPortable(const edm::ParameterSet& ps)
-      : rawDataToken_{consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("InputLabel"))},
+      : EDProducer(ps),
+        rawDataToken_{consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("InputLabel"))},
         digisDevEBToken_{produces(ps.getParameter<std::string>("digisLabelEB"))},
         digisDevEEToken_{produces(ps.getParameter<std::string>("digisLabelEE"))},
         eMappingToken_{esConsumes()},

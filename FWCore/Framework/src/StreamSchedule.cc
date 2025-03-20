@@ -3,9 +3,9 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -155,7 +156,7 @@ namespace edm {
     Worker* getWorker(std::string const& moduleLabel,
                       ParameterSet& proc_pset,
                       WorkerManager& workerManager,
-                      ProductRegistry& preg,
+                      SignallingProductRegistryFiller& preg,
                       PreallocationConfiguration const* prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration) {
       bool isTracked;
@@ -184,10 +185,10 @@ namespace edm {
     }
 
     std::optional<std::string> findBestMatchingAlias(
-        std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+        std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
         std::unordered_multimap<std::string, StreamSchedule::AliasInfo> const& aliasMap,
         std::string const& productModuleLabel,
-        ConsumesInfo const& consumesInfo) {
+        ModuleConsumesInfo const& consumesInfo) {
       std::optional<std::string> best;
       int wildcardsInBest = std::numeric_limits<int>::max();
       bool bestIsAmbiguous = false;
@@ -263,7 +264,7 @@ namespace edm {
     using AliasInfo = StreamSchedule::AliasInfo;
 
     ConditionalTaskHelper(ParameterSet& proc_pset,
-                          ProductRegistry& preg,
+                          SignallingProductRegistryFiller& preg,
                           PreallocationConfiguration const* prealloc,
                           std::shared_ptr<ProcessConfiguration const> processConfiguration,
                           WorkerManager& workerManagerLumisAndEvents,
@@ -290,7 +291,7 @@ namespace edm {
       processSwitchEDAliases(proc_pset, preg, *processConfiguration, allConditionalMods);
 
       //find branches created by the conditional modules
-      for (auto const& prod : preg.productList()) {
+      for (auto const& prod : preg.registry().productList()) {
         if (allConditionalMods.find(prod.first.moduleLabel()) != allConditionalMods.end()) {
           conditionalModsBranches_.emplace(prod.first.moduleLabel(), &prod.second);
         }
@@ -299,9 +300,9 @@ namespace edm {
 
     std::unordered_multimap<std::string, AliasInfo> const& aliasMap() const { return aliasMap_; }
 
-    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModuleBranches(
+    std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModuleBranches(
         std::unordered_set<std::string> const& conditionalmods) const {
-      std::unordered_multimap<std::string, edm::BranchDescription const*> ret;
+      std::unordered_multimap<std::string, edm::ProductDescription const*> ret;
       for (auto const& mod : conditionalmods) {
         auto range = conditionalModsBranches_.equal_range(mod);
         ret.insert(range.first, range.second);
@@ -341,7 +342,7 @@ namespace edm {
     }
 
     void processSwitchEDAliases(ParameterSet const& proc_pset,
-                                ProductRegistry& preg,
+                                SignallingProductRegistryFiller& preg,
                                 ProcessConfiguration const& processConfiguration,
                                 std::unordered_set<std::string> const& allConditionalMods) {
       auto const& all_modules = proc_pset.getParameter<std::vector<std::string>>("@all_modules");
@@ -363,7 +364,7 @@ namespace edm {
     }
 
     std::unordered_multimap<std::string, AliasInfo> aliasMap_;
-    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches_;
+    std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModsBranches_;
   };
 
   // -----------------------------
@@ -376,7 +377,7 @@ namespace edm {
       ParameterSet& proc_pset,
       service::TriggerNamesService const& tns,
       PreallocationConfiguration const& prealloc,
-      ProductRegistry& preg,
+      SignallingProductRegistryFiller& preg,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
       std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -559,7 +560,7 @@ namespace edm {
           // so we should remove it from our list
           SelectedProductsForBranchType const& kept = comm->keptProducts();
           for (auto const& item : kept[InEvent]) {
-            BranchDescription const& desc = *item.first;
+            ProductDescription const& desc = *item.first;
             auto found = branchToReadingWorker.equal_range(desc.branchName());
             if (found.first != found.second) {
               --nUniqueBranchesToDelete;
@@ -580,7 +581,7 @@ namespace edm {
         continue;
       }
       //determine if this module could read a branch we want to delete early
-      auto consumes = w->consumesInfo();
+      auto consumes = w->moduleConsumesInfos();
       if (not consumes.empty()) {
         bool foundAtLeastOneMatchingBranch = false;
         for (auto const& product : consumes) {
@@ -751,14 +752,14 @@ namespace edm {
   std::vector<Worker*> StreamSchedule::tryToPlaceConditionalModules(
       Worker* worker,
       std::unordered_set<std::string>& conditionalModules,
-      std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+      std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
       std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
       ParameterSet& proc_pset,
-      ProductRegistry& preg,
+      SignallingProductRegistryFiller& preg,
       PreallocationConfiguration const* prealloc,
       std::shared_ptr<ProcessConfiguration const> processConfiguration) {
     std::vector<Worker*> returnValue;
-    auto const& consumesInfo = worker->consumesInfo();
+    auto const& consumesInfo = worker->moduleConsumesInfos();
     auto moduleLabel = worker->description()->moduleLabel();
     using namespace productholderindexhelper;
     for (auto const& ci : consumesInfo) {
@@ -825,7 +826,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
-                                   ProductRegistry& preg,
+                                   SignallingProductRegistryFiller& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    std::string const& pathName,
@@ -842,7 +843,7 @@ namespace edm {
 
     std::unordered_set<std::string> conditionalmods;
     //An EDAlias may be redirecting to a module on a ConditionalTask
-    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches;
+    std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModsBranches;
     std::unordered_map<std::string, unsigned int> conditionalModOrder;
     if (condRange.first != condRange.second) {
       for (auto it = condRange.first; it != condRange.second; ++it) {
@@ -933,7 +934,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillTrigPath(ParameterSet& proc_pset,
-                                    ProductRegistry& preg,
+                                    SignallingProductRegistryFiller& preg,
                                     PreallocationConfiguration const* prealloc,
                                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                     int bitpos,
@@ -967,7 +968,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillEndPath(ParameterSet& proc_pset,
-                                   ProductRegistry& preg,
+                                   SignallingProductRegistryFiller& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    int bitpos,

@@ -12,6 +12,7 @@
 #include "SimTracker/Common/interface/DigitizerUtility.h"
 #include "SimTracker/SiPixelDigitizer/plugins/PixelDigiAddTempInfo.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelSimHitExtraInfo.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelSimHitExtraInfoLite.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -89,6 +90,11 @@ public:
   void lateSignalReweight(const PixelGeomDetUnit* pixdet,
                           std::vector<PixelDigi>& digis,
                           std::vector<PixelSimHitExtraInfo>& newClass_Sim_extra,
+                          const TrackerTopology* tTopo,
+                          CLHEP::HepRandomEngine* engine);
+  void lateSignalReweight(const PixelGeomDetUnit* pixdet,
+                          std::vector<PixelDigi>& digis,
+                          std::vector<PixelSimHitExtraInfoLite>& newClass_Sim_extra,
                           const TrackerTopology* tTopo,
                           CLHEP::HepRandomEngine* engine);
 
@@ -277,6 +283,7 @@ private:
 
   const bool makeDigiSimLinks_;
   const bool store_SimHitEntryExitPoints_;
+  const bool store_SimHitEntryExitPointsLite_;
 
   const bool use_ineff_from_db_;
   const bool use_module_killing_;   // remove or not the dead pixel modules

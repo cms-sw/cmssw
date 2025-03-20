@@ -98,8 +98,8 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   //
   for (unsigned int i = 0; i < m_cutList.size(); i++) {
     m_fullCutList.push_back(std::vector<std::string>());
-    while (m_cutList[i].find("]") != std::string::npos) {
-      size_t pos = m_cutList[i].find("]");
+    while (m_cutList[i].find(']') != std::string::npos) {
+      size_t pos = m_cutList[i].find(']');
       m_fullCutList[i].push_back(m_cutList[i].substr(1, pos));
       m_cutList[i].erase(0, pos + 1);
     }
@@ -108,7 +108,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   for (unsigned int i = 0; i < m_fullCutList.size(); i++) {
     m_binList.push_back(std::vector<std::vector<double>>());
     for (unsigned int j = 0; j < m_fullCutList[i].size(); j++) {
-      size_t pos = m_fullCutList[i][j].find(";");
+      size_t pos = m_fullCutList[i][j].find(';');
       std::string observableName = m_fullCutList[i][j].substr(0, pos);
       m_fullCutList[i][j].erase(0, pos + 1);
 
@@ -125,8 +125,8 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   //
   for (unsigned int i = 0; i < m_jetCutList.size(); i++) {
     m_fullJetCutList.push_back(std::vector<std::string>());
-    while (m_jetCutList[i].find("]") != std::string::npos) {
-      size_t pos = m_jetCutList[i].find("]");
+    while (m_jetCutList[i].find(']') != std::string::npos) {
+      size_t pos = m_jetCutList[i].find(']');
       m_fullJetCutList[i].push_back(m_jetCutList[i].substr(1, pos));
       m_jetCutList[i].erase(0, pos + 1);
     }
@@ -135,7 +135,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   for (unsigned int i = 0; i < m_fullJetCutList.size(); i++) {
     m_jetBinList.push_back(std::vector<std::vector<double>>());
     for (unsigned int j = 0; j < m_fullJetCutList[i].size(); j++) {
-      size_t pos = m_fullJetCutList[i][j].find(";");
+      size_t pos = m_fullJetCutList[i][j].find(';');
       std::string observableName = m_fullJetCutList[i][j].substr(0, pos);
       m_fullJetCutList[i][j].erase(0, pos + 1);
 
@@ -219,31 +219,31 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     // Do the same for global observables (things like the number of PFCs in an event, or in a jet, etc)
     for (unsigned int i = 0; i < m_eventObservables.size(); i++) {
       std::string cEventObservable = m_eventObservables[i];
-      size_t pos = cEventObservable.find(";");
+      size_t pos = cEventObservable.find(';');
       std::string observableName = cEventObservable.substr(0, pos);
       cEventObservable.erase(0, pos + 1);
 
-      pos = cEventObservable.find(";");
+      pos = cEventObservable.find(';');
       std::string axisString = cEventObservable.substr(0, pos);
       cEventObservable.erase(0, pos + 1);
 
-      pos = cEventObservable.find(";");
+      pos = cEventObservable.find(';');
       int nBins = atoi(cEventObservable.substr(0, pos).c_str());
       cEventObservable.erase(0, pos + 1);
 
-      pos = cEventObservable.find(";");
+      pos = cEventObservable.find(';');
       float binMin = atof(cEventObservable.substr(0, pos).c_str());
       cEventObservable.erase(0, pos + 1);
 
-      pos = cEventObservable.find(";");
+      pos = cEventObservable.find(';');
       float binMax = atof(cEventObservable.substr(0, pos).c_str());
       cEventObservable.erase(0, pos + 1);
 
-      pos = cEventObservable.find(";");
+      pos = cEventObservable.find(';');
       int nBinsJet = atoi(cEventObservable.substr(0, pos).c_str());
       cEventObservable.erase(0, pos + 1);
 
-      pos = cEventObservable.find(";");
+      pos = cEventObservable.find(';');
       float binMinJet = atof(cEventObservable.substr(0, pos).c_str());
       cEventObservable.erase(0, pos + 1);
 
@@ -333,20 +333,20 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
 PFAnalyzer::binInfo PFAnalyzer::getBinInfo(std::string observableString) {
   PFAnalyzer::binInfo binningDetails;
 
-  size_t pos = observableString.find(";");
+  size_t pos = observableString.find(';');
   binningDetails.observable = observableString.substr(0, pos);
   observableString.erase(0, pos + 1);
 
   std::vector<double> binList = getBinList(observableString);
-  pos = observableString.find(";");
+  pos = observableString.find(';');
   binningDetails.axisName = observableString.substr(0, pos);
   observableString.erase(0, pos + 1);
 
-  pos = observableString.find(";");
+  pos = observableString.find(';');
   binningDetails.nBins = atoi(observableString.substr(0, pos).c_str());
   observableString.erase(0, pos + 1);
 
-  pos = observableString.find(";");
+  pos = observableString.find(';');
   binningDetails.binMin = atof(observableString.substr(0, pos).c_str());
   observableString.erase(0, pos + 1);
 
@@ -399,8 +399,8 @@ std::string PFAnalyzer::stringWithDecimals(int bin, std::vector<double> bins) {
 std::vector<double> PFAnalyzer::getBinList(std::string binString) {
   std::vector<double> binList;
 
-  while (binString.find(";") != std::string::npos) {
-    size_t pos = binString.find(";");
+  while (binString.find(';') != std::string::npos) {
+    size_t pos = binString.find(';');
     binList.push_back(atof(binString.substr(0, pos).c_str()));
     binString.erase(0, pos + 1);
   }
@@ -431,6 +431,7 @@ std::vector<std::string> PFAnalyzer::getAllSuffixes(std::vector<std::string> obs
 
   std::vector<std::vector<int>> binList;
 
+  binList.reserve(nTotalBins);
   for (int i = 0; i < nTotalBins; i++) {
     binList.push_back(std::vector<int>());
   }
@@ -451,6 +452,7 @@ std::vector<std::string> PFAnalyzer::getAllSuffixes(std::vector<std::string> obs
   }
 
   std::vector<std::string> allSuffixes;
+  allSuffixes.reserve(nTotalBins);
   for (int i = 0; i < nTotalBins; i++) {
     allSuffixes.push_back(getSuffix(binList[i], observables, binnings));
   }
@@ -702,7 +704,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
       std::vector<reco::PFCandidatePtr> pfConstits = cjet->getPFConstituents();
 
-      for (auto recoPF : pfConstits) {
+      for (const auto& recoPF : pfConstits) {
         for (unsigned int j = 0; j < m_fullCutList.size(); j++) {
           int binNumber = getPFBin(*recoPF, j);
           if (binNumber < 0)

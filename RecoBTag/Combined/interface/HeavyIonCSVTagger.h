@@ -30,6 +30,8 @@ public:
   float discriminator(const TagInfoHelper& tagInfo) const override;
   void initialize(const JetTagComputerRecord& record) override;
 
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
   typedef std::vector<edm::ParameterSet> vpset;
 
   struct MVAVar {

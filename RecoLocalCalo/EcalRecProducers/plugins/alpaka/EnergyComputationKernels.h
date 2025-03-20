@@ -10,6 +10,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Utilities/interface/HostDeviceConstant.h"
 
 #include "DeclsForKernels.h"
 #include "KernelHelpers.h"
@@ -19,8 +20,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::rechit {
 
-  ALPAKA_STATIC_ACC_MEM_CONSTANT constexpr float ip10[] = {
-      1.e5f, 1.e4f, 1.e3f, 1.e2f, 1.e1f, 1.e0f, 1.e-1f, 1.e-2f, 1.e-3f, 1.e-4};
+  HOST_DEVICE_CONSTANT float ip10[] = {1.e5f, 1.e4f, 1.e3f, 1.e2f, 1.e1f, 1.e0f, 1.e-1f, 1.e-2f, 1.e-3f, 1.e-4};
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool checkUncalibRecHitFlag(uint32_t const flags, EcalUncalibratedRecHit::Flags flag) {
     return flags & (0x1 << flag);

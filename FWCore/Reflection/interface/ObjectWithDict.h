@@ -23,20 +23,26 @@ namespace edm {
     static ObjectWithDict byType(TypeWithDict const&);
 
   public:
-    ObjectWithDict();
-    explicit ObjectWithDict(TypeWithDict const&, void* address);
-    explicit ObjectWithDict(std::type_info const&, void* address);
-    explicit operator bool() const;
-    void* address() const;
-    TypeWithDict typeOf() const;
+    ObjectWithDict() : address_(nullptr) {}
+    explicit ObjectWithDict(TypeWithDict const& type, void* address) : type_(type), address_(address) {}
+    explicit ObjectWithDict(std::type_info const& type, void* address) : type_(TypeWithDict(type)), address_(address) {}
+    explicit operator bool() const { return bool(type_) && (address_ != nullptr); }
+    void* address() const { return address_; }
+    TypeWithDict const& typeOf() const { return type_; }
     TypeWithDict dynamicType() const;
     ObjectWithDict castObject(TypeWithDict const&) const;
     ObjectWithDict get(std::string const& memberName) const;
     //ObjectWithDict construct() const;
     void destruct(bool dealloc) const;
+
     template <typename T>
-    T objectCast() {
-      return *reinterpret_cast<T*>(address_);
+    T& objectCast() {
+      return *reinterpret_cast<T*>(address());
+    }
+
+    template <typename T>
+    T const& objectCast() const {
+      return *reinterpret_cast<T*>(address());
     }
   };
 

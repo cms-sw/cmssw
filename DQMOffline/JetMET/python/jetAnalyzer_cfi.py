@@ -148,10 +148,90 @@ jetDQMAnalizerAk4PUPPICleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     JetType = cms.string('puppi'),
     jetsrc = "ak4PFJetsPuppi",
     METCollectionLabel = "pfMetPuppi",
-    JetCorrections = "ak4PFPuppiL1FastL2L3ResidualCorrector",
+    JetCorrections = cms.InputTag("dqmAk4PFPuppiL1FastL2L3ResidualCorrector"),
     JetIDVersion = "RUN2ULPUPPI",
     JetIDQuality = cms.string("TIGHT"),
     fillCHShistos = True,
+)
+
+jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone(  
+    JetType = cms.string('scouting'),
+    JetCorrections = cms.InputTag("dqmAk4PFScoutingL1FastL2L3ResidualCorrector"),
+    jetsrc = cms.InputTag("hltScoutingPFPacker"),                       ###---> this name goes to GUI and TTree under .../JetMET/Run summary/Jet
+    srcRho = cms.InputTag("hltScoutingPFPacker","rho"),
+    METCollectionLabel = cms.InputTag("hltScoutingPFPacker","pfMetPt"), ###---> this name goes to GUI and TTree under .../JetMET/Run summary/MET 
+    muonsrc = cms.InputTag("hltScoutingMuonPackerNoVtx","","HLT"),
+    l1algoname = cms.string("L1Tech_BPTX_plus_AND_minus.v0"),
+    filljetHighLevel = False,                                           ### for plots: "vertices" and "cleanup" in .../JetMET/Run summary/
+    fillsubstructure = False,
+    
+    highPtJetTrigger = cms.PSet(
+        andOr         = cms.bool( False ),
+        dbLabel        = cms.string("JetMETDQMTrigger"),
+        hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
+        hltPaths       = cms.vstring( 'DST_PFScouting_JetHT_v*'), 
+        andOrHlt       = cms.bool( True ),
+        errorReplyHlt  = cms.bool( False ),
+    ),
+    lowPtJetTrigger = cms.PSet(
+        andOr         = cms.bool( False ),
+        dbLabel        = cms.string("JetMETDQMTrigger"),
+        hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
+        hltPaths       = cms.vstring( 'DST_PFScouting_ZeroBias_v*'), 
+        andOrHlt       = cms.bool( True ),
+        errorReplyHlt  = cms.bool( False ),
+    ),
+
+    TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
+    processname                = cms.string("HLT"),                     
+
+    #
+    # Jet-related
+    #   
+
+    JetCleaningFlag            = cms.untracked.bool(False),       
+
+    runcosmics                 = False,                
+                                
+    #Cleanup parameters
+    CleaningParameters = cleaningParameters.clone(
+        bypassAllPVChecks = False,
+        ),
+
+    #for JPT and CaloJetID  
+    #InputJetIDValueMap         = cms.untracked.InputTag("ak4JetID"), 
+    #options for Calo and JPT: LOOSE,LOOSE_AOD,TIGHT,MINIMAL
+    #for PFJets: LOOSE,TIGHT
+    ###JetIDQuality               = cms.string("LOOSE"),
+    #options for Calo and JPT: PURE09,DQM09,CRAFT08
+    #for PFJets: FIRSTDATA
+    ###JetIDVersion               = cms.string("PURE09"),
+    #
+    #actually done only for PFJets at the moment
+    ###InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","fullDiscriminant"),
+    ###InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedDiscriminant"),
+    ###InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","fullId"),
+    ###InputCutPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedId"),
+
+    ###InputQGMultiplicity = cms.InputTag("QGTagger", "mult"),
+    ###InputQGLikelihood = cms.InputTag("QGTagger", "qgLikelihood"),
+    ###InputQGPtDToken = cms.InputTag("QGTagger", "ptD"),
+    ###InputQGAxis2 = cms.InputTag("QGTagger", "axis2"),
+
+    fillCHShistos = False,
+    #
+    # For jetAnalysis
+    #
+    jetAnalysis = jetDQMParameters.clone(),
+
+    #
+    # DCS ### -> only used in JetMETDQMFilter.cc
+    #                             
+    DCSFilterForJetMonitoring = cms.PSet(
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
+      #DebugOn = cms.untracked.bool(True),
+      alwaysPass = cms.untracked.bool(False)
+    )
 )
 
 jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD=jetDQMAnalyzerAk4PFUncleaned.clone(

@@ -46,6 +46,16 @@ autoNANO = {
                'customize': ','.join(['PhysicsTools/NanoAOD/l1trig_cff.nanoL1TrigObjCustomizeFull',
                                       'DPGAnalysis/L1TNanoAOD/l1tNano_cff.addCaloFull',
                                       'L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW'])},
+    # Phase-2 L1 DPG (from RAW/DIGI)
+    'Phase2L1DPG' : {'sequence': 'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.l1tPh2NanoSequence',
+                     'customize': ','.join([
+                        #  'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addFullPh2L1Nano', # <- this add all customisations listed below
+                         'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addPh2L1Objects',
+                         'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addPh2GTObjects',
+                        #  'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addGenObjects', # <- not included here as requires reco vertices and cannot be run in workflows w/o MINIAOD
+                         ])},
+    'Phase2L1DPGwithGen' : {'sequence': '@Phase2L1DPG',
+                            'customize': 'Phase2L1DPG+DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addGenObjects',},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG': {'sequence': '@PHYS',
               'customize': '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
@@ -54,10 +64,15 @@ autoNANO = {
               'customize': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoCustomize'},
     'MUDPGBKG': {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoProducerBkg',
                  'customize': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoBkgCustomize'},
+    # Muon High Level Trigger
+    'MUHLT' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerHlt_cff.hltMuNanoProducer',
+               'customize': 'DPGAnalysis/MuonTools/muNtupleProducerHlt_cff.hltMuNanoCustomize'},
     # HCAL flavors:
     'HCAL': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask'},
     'HCALCalib': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
                   'customize': 'DPGAnalysis/HcalNanoAOD/customiseHcalCalib_cff.customiseHcalCalib'},
+    'HCALMC': {'sequence': 'DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
+                  'customize': 'DPGAnalysis/HcalNanoAOD/customiseHcalMC_cff.customiseHcalMC'},
     # EGM flavours: add variables through customize
     'EGM': {'sequence': '@PHYS',
             'customize': '@PHYS+PhysicsTools/NanoAOD/egamma_custom_cff.addExtraEGammaVarsCustomize'},

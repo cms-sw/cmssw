@@ -33,7 +33,7 @@ namespace edm {
       ProcessHistoryID const& oldphID = i->first;
       for (ProcessHistory::const_iterator it = i->second.begin(), et = i->second.end(); it != et; ++it) {
         ParameterSetID const& newPsetID = convertID(it->parameterSetID());
-        newHist.emplace_back(it->processName(), newPsetID, it->releaseVersion(), it->passID());
+        newHist.emplace_back(it->processName(), newPsetID, it->releaseVersion(), it->hardwareResourcesDescription());
       }
       assert(newHist.size() == i->second.size());
       ProcessHistoryID newphID = newHist.id();
@@ -98,7 +98,7 @@ namespace edm {
       std::set<std::string> processNamesThatProduced;
       ProductRegistry::ProductList& prodList = productRegistry.productListUpdator();
       for (auto& item : prodList) {
-        BranchDescription& prod = item.second;
+        ProductDescription& prod = item.second;
         if (prod.branchType() == InEvent) {
           prod.init();
           processNamesThatProduced.insert(prod.processName());

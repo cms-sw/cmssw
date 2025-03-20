@@ -56,6 +56,11 @@ public:
         addRef_(selected_, c, i);
   }
 
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    // Use ParameterAdapter to fill the descriptions
+    reco::modules::ParameterAdapter<Selector>::fillPSetDescription(desc);
+  }
+
 private:
   Selector select_;
   StoreContainer selected_;

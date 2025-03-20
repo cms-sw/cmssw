@@ -690,6 +690,10 @@ phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
                             'keep *_hltGeneralTracks_*_*',
                             'keep *_hltInitialStepTrackSelectionHighPurity_*_*',
                             'keep *_hltHighPtTripletStepTrackSelectionHighPurity_*_*',
+                            'keep *_hltInitialStepTrackSelectionHighPuritypTTCLST_*_*',
+                            'keep *_hltInitialStepTrackSelectionHighPuritypLSTCLST_*_*',
+                            'keep *_hltInitialStepTracksT5TCLST_*_*',
+                            'keep *_hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST_*_*',
                             'keep *_hltOfflinePrimaryVertices_*_*',
                             'keep *_hltHGCalRecHit_*_*'
                         ])
@@ -712,6 +716,11 @@ phase2_muon.toModify(FEVTDEBUGHLTEventContent,
         'keep *_hltPhase2L3Muons_*_*'])
 
 from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
+(phase2_muon & ~phase2L2AndL3Muons).toModify(FEVTDEBUGHLTEventContent, 
+    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + [
+        'keep *_hltL2OfflineMuonSeeds_*_*'
+    ])
+
 (phase2_muon & phase2L2AndL3Muons).toModify(FEVTDEBUGHLTEventContent, 
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + [
         'keep *_hltPhase2L3MuonFilter_*_*'

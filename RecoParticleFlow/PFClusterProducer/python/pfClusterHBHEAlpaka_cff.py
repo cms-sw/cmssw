@@ -29,10 +29,6 @@ pfRecHitHCALTopologyRecordSource = cms.ESSource('EmptyESSource',
             firstValid = cms.vuint32(1)
     )
 
-hbheRecHitToSoA = _hcalRecHitSoAProducer.clone(
-        src = "hbhereco"
-    )
-
 pfRecHitHCALParamsESProducer = _pfRecHitHCALParamsESProducer.clone(
         energyThresholdsHB = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
         energyThresholdsHE = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 )
@@ -42,7 +38,7 @@ pfRecHitHCALTopologyESProducer = _pfRecHitHCALTopologyESProducer.clone()
 pfRecHitSoAProducerHCAL = _pfRecHitSoAProducerHCAL.clone(
         producers = cms.VPSet(
             cms.PSet(
-                src = cms.InputTag("hbheRecHitToSoA"),
+                src = cms.InputTag("hbheRecHitProducerPortable"),
                 params = cms.ESInputTag("pfRecHitHCALParamsESProducer:"),
             )
         ),
@@ -71,7 +67,6 @@ legacyPFClusterProducer = _legacyPFClusterProducer.clone(
 #Full Reco
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALParamsRecordSource)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALTopologyRecordSource)
-_alpaka_pfClusteringHBHEHFTask.add(hbheRecHitToSoA)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALParamsESProducer)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitHCALTopologyESProducer)
 _alpaka_pfClusteringHBHEHFTask.add(pfRecHitSoAProducerHCAL)
@@ -90,19 +85,10 @@ alpaka.toReplaceWith(pfClusteringHBHEHFTask, _alpaka_pfClusteringHBHEHFTask)
 
 #HCAL Only
 
-from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-
-hbheOnlyRecHitToSoA = _hcalRecHitSoAProducer.clone(
-        src = "hbheprereco"
-    )
-run3_HB.toModify(hbheOnlyRecHitToSoA,
-        src = "hbhereco"
-    )
-
 pfRecHitSoAProducerHBHEOnly = _pfRecHitSoAProducerHCAL.clone(
         producers = cms.VPSet(
             cms.PSet(
-                src = cms.InputTag("hbheOnlyRecHitToSoA"),
+                src = cms.InputTag("hbheRecHitProducerPortable"),
                 params = cms.ESInputTag("pfRecHitHCALParamsESProducer:"),
             )
         ),
@@ -129,7 +115,6 @@ legacyPFClusterProducerHBHEOnly = _legacyPFClusterProducer.clone(
 
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALParamsRecordSource)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALTopologyRecordSource)
-_alpaka_pfClusteringHBHEHFOnlyTask.add(hbheOnlyRecHitToSoA)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALParamsESProducer)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitHCALTopologyESProducer)
 _alpaka_pfClusteringHBHEHFOnlyTask.add(pfRecHitSoAProducerHBHEOnly)

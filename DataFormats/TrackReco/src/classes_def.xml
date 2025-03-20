@@ -29,16 +29,16 @@
   </class>
  <ioread
     sourceClass="reco::HitPattern"
-      source="uint16_t hitPattern[50]; uint8_t hitCount; uint8_t beginTrackHits; uint8_t endTrackHits;uint8_t beginInner; uint8_t endInner; uint8_t beginOuter; uint8_t endOuter;"
+      source="uint8_t hitCount; uint8_t beginTrackHits; uint8_t endTrackHits;uint8_t beginInner; uint8_t endInner; uint8_t beginOuter; uint8_t endOuter; uint16_t hitPattern[50];"
       targetClass="reco::HitPattern"
-      target=""
+      target="hitPattern,hitCount,beginTrackHits,endTrackHits,beginInner,endInner,beginOuter,endOuter"
       version="[12]"
       >
    <![CDATA[
-            (void) reco::HitPattern::fillNewHitPatternWithOldHitPattern_v12(onfile.hitPattern, *onfile.hitCount,
-                    *onfile.beginTrackHits, *onfile.endTrackHits,
-                    *onfile.beginInner,  *onfile.endInner,
-                    *onfile.beginOuter, *onfile.endOuter,
+            (void) reco::HitPattern::fillNewHitPatternWithOldHitPattern_v12(onfile.hitPattern, onfile.hitCount,
+                    onfile.beginTrackHits, onfile.endTrackHits,
+                    onfile.beginInner,  onfile.endInner,
+                    onfile.beginOuter, onfile.endOuter,
                     newObj);
       ]]>
  </ioread>

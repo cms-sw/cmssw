@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "oneapi/tbb/task_arena.h"
 
 #include <mutex>
@@ -52,7 +52,7 @@ namespace {
 
 namespace edm {
   SecondaryEventProvider::SecondaryEventProvider(std::vector<ParameterSet>& psets,
-                                                 ProductRegistry& preg,
+                                                 SignallingProductRegistryFiller& preg,
                                                  std::shared_ptr<ProcessConfiguration> processConfiguration)
       : exceptionToActionTable_(new ExceptionToActionTable),
         // no type resolver for modules in SecondaryEventProvider for now

@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/maker/InputSourceFactory.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
@@ -58,7 +59,6 @@ namespace {
   // ---------------------------------------------------------------
   std::unique_ptr<InputSource> makeInput(unsigned int moduleIndex,
                                          ParameterSet& params,
-                                         std::shared_ptr<ProductRegistry> preg,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                                          std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
@@ -96,7 +96,7 @@ namespace {
                          moduleIndex);
 
     InputSourceDescription isdesc(
-        md, preg, branchIDListHelper, processBlockHelper, thinnedAssociationsHelper, areg, -1, -1, 0, allocations);
+        md, branchIDListHelper, processBlockHelper, thinnedAssociationsHelper, areg, -1, -1, 0, allocations);
 
     return std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
   }
@@ -124,7 +124,7 @@ namespace edm::test {
     //initialize the services
     auto& serviceSets = procDesc->getServicesPSets();
     ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError, true);
-    serviceToken_ = items.addCPRandTNS(*psetPtr, token);
+    serviceToken_ = items.addTNS(*psetPtr, token);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -142,21 +142,18 @@ namespace edm::test {
 
     {
       // initialize the input source
-      auto tempReg = std::make_shared<ProductRegistry>();
       auto sourceID = ModuleDescription::getUniqueID();
 
       ServiceRegistry::Operate operate(serviceToken_);
       source_ = makeInput(sourceID,
                           *psetPtr,
-                          /*items.preg(),*/ tempReg,
                           items.branchIDListHelper(),
                           processBlockHelper_,
                           items.thinnedAssociationsHelper(),
                           items.actReg_,
                           items.processConfiguration(),
                           preallocations_);
-      items.preg()->addFromInput(*tempReg);
-      source_->switchTo(items.preg());
+      items.preg()->addFromInput(source_->productRegistry());
     }
 
     actReg_ = items.actReg_;
@@ -165,7 +162,7 @@ namespace edm::test {
     processConfiguration_ = items.processConfiguration();
 
     processContext_.setProcessConfiguration(processConfiguration_.get());
-    preg_ = items.preg();
+    preg_ = std::make_shared<edm::ProductRegistry>(items.preg()->moveTo());
     principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
 
     preg_->setFrozen();
@@ -202,7 +199,7 @@ namespace edm::test {
       principalCache_.insert(std::move(pb));
     }
 
-    source_->doBeginJob();
+    source_->doBeginJob(*preg_);
   }
 
   TestSourceProcessor::~TestSourceProcessor() {
@@ -227,13 +224,12 @@ namespace edm::test {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    size_t size = preg_->size();
+    auto oldCacheID = source_->productRegistry().cacheIdentifier();
     fb_ = source_->readFile();
-    if (size < preg_->size()) {
-      principalCache_.adjustIndexesAfterProductRegistryAddition();
+    //incase the input's registry changed
+    if (oldCacheID != source_->productRegistry().cacheIdentifier()) {
+      preg_->merge(source_->productRegistry(), fb_ ? fb_->fileName() : std::string());
     }
-    principalCache_.adjustEventsToNewProductRegistry(preg_);
-
     source_->fillProcessBlockHelper();
     ProcessBlockPrincipal& processBlockPrincipal = principalCache_.inputProcessBlockPrincipal();
     while (source_->nextProcessBlock(processBlockPrincipal)) {
@@ -264,6 +260,7 @@ namespace edm::test {
 
     //NOTE: should probably handle merging as well
     runPrincipal_ = principalCache_.getAvailableRunPrincipalPtr();
+    runPrincipal_->possiblyUpdateAfterAddition(preg_);
     runPrincipal_->setAux(*source_->runAuxiliary());
     source_->readRun(*runPrincipal_, *historyAppender_);
 
@@ -281,6 +278,7 @@ namespace edm::test {
 
     lumiPrincipal_ = principalCache_.getAvailableLumiPrincipalPtr();
     assert(lumiPrincipal_);
+    lumiPrincipal_->possiblyUpdateAfterAddition(preg_);
     lumiPrincipal_->setAux(*source_->luminosityBlockAuxiliary());
     source_->readLuminosityBlock(*lumiPrincipal_, *historyAppender_);
 
@@ -296,6 +294,7 @@ namespace edm::test {
     ServiceRegistry::Operate operate(serviceToken_);
 
     auto& event = principalCache_.eventPrincipal(0);
+    event.possiblyUpdateAfterAddition(preg_);
     StreamContext streamContext(event.streamID(), &processContext_);
 
     source_->readEvent(event, streamContext);

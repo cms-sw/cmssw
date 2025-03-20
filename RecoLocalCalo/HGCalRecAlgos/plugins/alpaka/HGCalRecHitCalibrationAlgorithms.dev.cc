@@ -92,7 +92,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   HGCalDigiDevice::View digis,
                                   HGCalRecHitDevice::View recHits,
                                   HGCalCalibParamDevice::ConstView calibs) const {
-      auto toa_to_ps = [&](uint32_t toa, float toatops) { return toa * toatops; };
+      auto toa_inl_corr = [&](uint32_t toa, hgcalrechit::Vector32f ctdc_p, hgcalrechit::Vector8f ftdc_p) {
+        auto gray = toa / 256;
+        auto ptdc = toa % 256;
+        auto ctdc = ptdc / 8;
+        auto ftdc = ptdc % 8;
+        auto ctdc_corr = uint(ctdc - ctdc_p[ctdc]) % 32;
+        auto ftdc_corr = uint(ftdc - ftdc_p[ftdc]) % 8;
+        return (ftdc_corr + 8 * ctdc_corr + 256 * gray) % 1024;
+      };
+
+      auto toa_tw_corr = [&](uint32_t toa, float energy, hgcalrechit::Vector3f p) {
+        return toa - ((energy > p[2]) ? (p[0] + p[1] * std::log(energy - p[2])) : 0.f);
+      };
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
         auto calib = calibs[idx];
@@ -103,7 +115,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          calibvalid);
         bool isToAavailable((digiflags != hgcal::DIGI_FLAG::ZS_ToA) && (digiflags != hgcal::DIGI_FLAG::ZS_ToA_ADCm1));
         bool isGood(isAvailable && isToAavailable);
-        recHits[idx].time() = isGood * toa_to_ps(digi.toa(), calib.TOAtops());
+        //INL correction
+        auto toa = isGood * toa_inl_corr(digi.toa(), calib.TOA_CTDC(), calib.TOA_FTDC());
+        //timewalk correction
+        toa = isGood * toa_tw_corr(toa, recHits[idx].energy(), calib.TOA_TW());
+        //toa to ps
+        recHits[idx].time() = toa * hgcalrechit::TOAtops;
       }
     }
   };
@@ -122,9 +139,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                 HGCalCalibParamDevice const& device_calib,
                                                                 HGCalConfigParamDevice const& device_config) const {
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Start of calibrate\n\n" << std::endl;
-    LogDebug("HGCalRecHitCalibrationAlgorithms")
-        << "N blocks: " << n_blocks_ << "\tN threads: " << n_threads_ << std::endl;
-    auto grid = make_workdiv<Acc1D>(n_blocks_, n_threads_);
 
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Copying the digis to the device\n\n" << std::endl;
     HGCalDigiDevice device_digis(host_digis.view().metadata().size(), queue);
@@ -133,6 +147,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     LogDebug("HGCalRecHitCalibrationAlgorithms")
         << "\n\nINFO -- Allocating rechits buffer and initiating values" << std::endl;
     HGCalRecHitDevice device_recHits(device_digis.view().metadata().size(), queue);
+
+    // number of items per group
+    uint32_t items = n_threads_;
+    // use as many groups as needed to cover the whole problem
+    uint32_t groups = divide_up_by(device_digis.view().metadata().size(), items);
+    // map items to
+    //   - threads with a single element per thread on a GPU backend
+    //   - elements within a single thread on a CPU backend
+    auto grid = make_workdiv<Acc1D>(groups, items);
+    LogDebug("HGCalRecHitCalibrationAlgorithms") << "N groups: " << groups << "\tN items: " << items << std::endl;
 
     alpaka::exec<Acc1D>(queue,
                         grid,
@@ -180,12 +204,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   }
 
-  void HGCalRecHitCalibrationAlgorithms::print_recHit_device(Queue& queue,
-                                                             HGCalRecHitDevice const& recHits,
-                                                             int max) const {
+  void HGCalRecHitCalibrationAlgorithms::print_recHit_device(
+      Queue& queue, PortableHostCollection<hgcalrechit::HGCalRecHitSoALayout<> >::View const& recHits, int max) const {
     auto grid = make_workdiv<Acc1D>(1, 1);
-    auto size = max > 0 ? max : recHits.view().metadata().size();
-    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_printRecHits{}, recHits.view(), size);
+    auto size = max > 0 ? max : recHits.metadata().size();
+    alpaka::exec<Acc1D>(queue, grid, HGCalRecHitCalibrationKernel_printRecHits{}, recHits, size);
 
     // ensure that the print operations are complete before returning
     alpaka::wait(queue);

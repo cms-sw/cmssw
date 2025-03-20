@@ -17,8 +17,9 @@ using namespace Pythia8;
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8HMC3InterfaceBase.h"
 
-#include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
+#include "ReweightUserHooks.h"
 #include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
+#include "TopRecoilHook.h"
 
 // PS matchning prototype
 //
@@ -75,6 +76,49 @@ namespace CLHEP {
 
 using namespace gen;
 
+//Insert class for use w/ PDFPtr for proton-photon flux
+//parameters hardcoded according to main70.cc in PYTHIA8 v3.10
+class Nucleus2gamma2 : public Pythia8::PDF {
+private:
+  double radius;
+  int z;
+
+public:
+  // Constructor.
+  Nucleus2gamma2(int idBeamIn, double R = -1.0, int Z = -1) : Pythia8::PDF(idBeamIn), radius(R), z(Z) {}
+
+  void xfUpdate(int, double x, double) override {
+    if (z == -1) {
+      // lead
+      if (idBeam == 1000822080)
+        z = 82;
+    }
+    if (radius == -1) {
+      // lead
+      if (idBeam == 1000822080)
+        radius = 6.636;
+    }
+
+    if (z < 0 || radius < 0)
+      throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
+          << " Invalid photon flux input parameters: beam ID= " << idBeam << " , radius= " << radius << " , z= " << z
+          << "\n";
+
+    // Minimum impact parameter (~2*radius) [fm].
+    double bmin = 2 * radius;
+
+    // Per-nucleon mass for lead.
+    double m2 = pow2(0.9314);
+    double alphaEM = 0.007297353080;
+    double hbarc = 0.197;
+    double xi = x * sqrt(m2) * bmin / hbarc;
+    double bK0 = besselK0(xi);
+    double bK1 = besselK1(xi);
+    double intB = xi * bK1 * bK0 - 0.5 * pow2(xi) * (pow2(bK1) - pow2(bK0));
+    xgamma = 2. * alphaEM * pow2(z) / M_PI * intB;
+  }
+};
+
 class Pythia8HepMC3Hadronizer : public Py8HMC3InterfaceBase {
 public:
   Pythia8HepMC3Hadronizer(const edm::ParameterSet &params);
@@ -111,6 +155,10 @@ private:
 
   double fBeam1PZ;
   double fBeam2PZ;
+
+  //PDFPtr for the photonFlux
+  //Following main70.cc example in PYTHIA8 v3.10
+  edm::ParameterSet photonFluxParams;
 
   //helper class to allow multiple user hooks simultaneously
   std::shared_ptr<UserHooksVector> fUserHooksVector;
@@ -149,6 +197,9 @@ private:
 
   //Generic customized hooks vector
   std::shared_ptr<UserHooksVector> fCustomHooksVector;
+
+  //RecoilToTop userhook
+  std::shared_ptr<TopRecoilHook> fTopRecoilHook;
 
   int EV1_nFinal;
   bool EV1_vetoOn;
@@ -212,6 +263,10 @@ Pythia8HepMC3Hadronizer::Pythia8HepMC3Hadronizer(const edm::ParameterSet &params
 
   // avoid filling weights twice (from v8.30x)
   toHepMC.set_store_weights(false);
+
+  if (params.exists("PhotonFlux")) {
+    photonFluxParams = params.getParameter<edm::ParameterSet>("PhotonFlux");
+  }
 
   // Reweight user hook
   //
@@ -364,6 +419,20 @@ bool Pythia8HepMC3Hadronizer::initializeForInternalPartons() {
     fMasterGen->settings.word("Beams:LHEF", lheFile_);
   }
 
+  if (!photonFluxParams.empty()) {
+    const auto &beamTypeA = photonFluxParams.getParameter<int>("beamTypeA");
+    const auto &beamTypeB = photonFluxParams.getParameter<int>("beamTypeB");
+    const auto &radiusA = photonFluxParams.getUntrackedParameter<double>("radiusA", -1.0);
+    const auto &radiusB = photonFluxParams.getUntrackedParameter<double>("radiusB", -1.0);
+    const auto &zA = photonFluxParams.getUntrackedParameter<int>("zA", -1);
+    const auto &zB = photonFluxParams.getUntrackedParameter<int>("zB", -1);
+    Pythia8::PDFPtr photonFluxA =
+        fMasterGen->settings.flag("PDF:beamA2gamma") ? make_shared<Nucleus2gamma2>(beamTypeA, radiusA, zA) : nullptr;
+    Pythia8::PDFPtr photonFluxB =
+        fMasterGen->settings.flag("PDF:beamB2gamma") ? make_shared<Nucleus2gamma2>(beamTypeB, radiusB, zB) : nullptr;
+    fMasterGen->setPhotonFluxPtr(photonFluxA, photonFluxB);
+  }
+
   if (!fUserHooksVector.get())
     fUserHooksVector = std::make_shared<UserHooksVector>();
   (fUserHooksVector->hooks).clear();
@@ -410,6 +479,14 @@ bool Pythia8HepMC3Hadronizer::initializeForInternalPartons() {
     if (!fPowhegHooksBB4L.get())
       fPowhegHooksBB4L = std::make_shared<PowhegHooksBB4L>();
     (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
+  }
+
+  bool TopRecoilHook1 = fMasterGen->settings.flag("TopRecoilHook:doTopRecoilIn");
+  if (TopRecoilHook1) {
+    edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
+    if (!fTopRecoilHook.get())
+      fTopRecoilHook = std::make_shared<TopRecoilHook>();
+    (fUserHooksVector->hooks).push_back(fTopRecoilHook);
   }
 
   //adapted from main89.cc in pythia8 examples
@@ -569,6 +646,14 @@ bool Pythia8HepMC3Hadronizer::initializeForExternalPartons() {
     if (!fPowhegHooksBB4L.get())
       fPowhegHooksBB4L = std::make_shared<PowhegHooksBB4L>();
     (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
+  }
+
+  bool TopRecoilHook1 = fMasterGen->settings.flag("TopRecoilHook:doTopRecoilIn");
+  if (TopRecoilHook1) {
+    edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
+    if (!fTopRecoilHook.get())
+      fTopRecoilHook = std::make_shared<TopRecoilHook>();
+    (fUserHooksVector->hooks).push_back(fTopRecoilHook);
   }
 
   //adapted from main89.cc in pythia8 examples
@@ -895,56 +980,72 @@ bool Pythia8HepMC3Hadronizer::residualDecay() {
   int NPartsBeforeDecays = pythiaEvent->size() - 1;  // do NOT count the very 1st "system" particle
                                                      // in Pythia8::Event record; it does NOT even
                                                      // get translated by the HepMCInterface to the
-                                                     // HepMC::GenEvent record !!!
-  //int NPartsAfterDecays = event().get()->particles_size();
-  int NPartsAfterDecays = 0;
-  for (auto p : (event3().get())->particles()) {
-    NPartsAfterDecays++;
-  }
+                                                     // HepMC3::GenEvent record !!!
 
+  int NPartsAfterDecays = ((event3().get())->particles()).size();
   if (NPartsAfterDecays == NPartsBeforeDecays)
     return true;
 
   bool result = true;
 
-// this below is to be rewritten in future development, then it will be uncommented
-#if 0
-  for (int ipart = NPartsAfterDecays; ipart > NPartsBeforeDecays; ipart--) {
-    HepMC::GenParticle *part = event().get()->barcode_to_particle(ipart);
+  for (const auto &p : (event3().get())->particles()) {
+    if (p->id() > NPartsBeforeDecays) {
+      if (p->status() == 1 && (fDecayer->particleData).canDecay(p->pid())) {
+        fDecayer->event.reset();
+        Particle py8part(p->pid(),
+                         93,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         p->momentum().x(),
+                         p->momentum().y(),
+                         p->momentum().z(),
+                         p->momentum().t(),
+                         p->generated_mass());
 
-    if (part->status() == 1 && (fDecayer->particleData).canDecay(part->pdg_id())) {
-      fDecayer->event.reset();
-      Particle py8part(part->pdg_id(),
-                       93,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       part->momentum().x(),
-                       part->momentum().y(),
-                       part->momentum().z(),
-                       part->momentum().t(),
-                       part->generated_mass());
-      HepMC::GenVertex *ProdVtx = part->production_vertex();
-      py8part.vProd(ProdVtx->position().x(), ProdVtx->position().y(), ProdVtx->position().z(), ProdVtx->position().t());
-      py8part.tau((fDecayer->particleData).tau0(part->pdg_id()));
-      fDecayer->event.append(py8part);
-      int nentries = fDecayer->event.size();
-      if (!fDecayer->event[nentries - 1].mayDecay())
-        continue;
-      fDecayer->next();
-      int nentries1 = fDecayer->event.size();
-      if (nentries1 <= nentries)
-        continue;  //same number of particles, no decays...
+        py8part.vProd(p->production_vertex()->position().x(),
+                      p->production_vertex()->position().y(),
+                      p->production_vertex()->position().z(),
+                      p->production_vertex()->position().t());
 
-      part->set_status(2);
+        py8part.tau((fDecayer->particleData).tau0(p->pid()));
+        fDecayer->event.append(py8part);
+        int nentries = fDecayer->event.size();
+        if (!fDecayer->event[nentries - 1].mayDecay())
+          continue;
+        result = fDecayer->next();
+        int nentries1 = fDecayer->event.size();
+        if (nentries1 <= nentries)
+          continue;  //same number of particles, no decays...
 
-      result = toHepMC.fill_next_event(*(fDecayer.get()), event().get(), -1, true, part);
+        p->set_status(2);
+
+        HepMC3::GenVertexPtr prod_vtx0 = make_shared<HepMC3::GenVertex>(  // neglect particle path to decay
+            HepMC3::FourVector(p->production_vertex()->position().x(),
+                               p->production_vertex()->position().y(),
+                               p->production_vertex()->position().z(),
+                               p->production_vertex()->position().t()));
+        prod_vtx0->add_particle_in(p);
+        (event3().get())->add_vertex(prod_vtx0);
+        HepMC3::GenParticle *pnew;
+        Pythia8::Event pyev = fDecayer->event;
+        double momFac = 1.;
+        for (int i = 2; i < pyev.size(); ++i) {
+          // Fill the particle.
+          pnew = new HepMC3::GenParticle(
+              HepMC3::FourVector(
+                  momFac * pyev[i].px(), momFac * pyev[i].py(), momFac * pyev[i].pz(), momFac * pyev[i].e()),
+              pyev[i].id(),
+              pyev[i].statusHepMC());
+          pnew->set_generated_mass(momFac * pyev[i].m());
+          prod_vtx0->add_particle_out(pnew);
+        }
+      }
     }
   }
-#endif
 
   return result;
 }

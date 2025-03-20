@@ -29,6 +29,8 @@ namespace reco {
   public:
     explicit StringCutObjectSelectorHandler(const edm::ParameterSet& cfg)
         : StringCutObjectSelector<T, Lazy>(cfg.getParameter<std::string>("cut")) {}
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<std::string>("cut", ""); }
   };
 }  // namespace reco
 

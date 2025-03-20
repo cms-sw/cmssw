@@ -35,7 +35,6 @@
   <ifrelease name="ASAN">
     <flags NO_TEST_PREFIX="1"/>
   </ifrelease>
-  <flags CXXFLAGS="-fopenmp"/>
   <use name="CommonTools/Utils"/>
 </bin>
 

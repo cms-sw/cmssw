@@ -5,7 +5,7 @@
  * Event) into streamer message objects.
  */
 #include "IOPool/Streamer/interface/StreamSerializer.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
@@ -14,7 +14,6 @@
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
@@ -59,7 +58,6 @@ namespace edm::streamer {
       sd.push_back(*selection.first);
       FDEBUG(9) << "StreamOutput got product = " << selection.first->className() << std::endl;
     }
-    Service<ConstProductRegistry> reg;
     sd.setParameterSetMap(psetMap);
 
     data_buffer.rootbuf_.Reset();
@@ -155,7 +153,7 @@ namespace edm::streamer {
     // lost when the streamer output module is used.
 
     for (auto const &selection : *selections_) {
-      BranchDescription const &desc = *selection.first;
+      ProductDescription const &desc = *selection.first;
       BasicHandle result = event.getByToken(selection.second, desc.unwrappedTypeID());
       if (!result.isValid()) {
         // No product with this ID was put in the event.

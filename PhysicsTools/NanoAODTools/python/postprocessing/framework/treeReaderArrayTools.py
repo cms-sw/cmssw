@@ -10,6 +10,7 @@ def InputTree(tree, entrylist=ROOT.MakeNullPointer(ROOT.TEntryList)):
     tree.entry = -1
     tree._entrylist = entrylist
     tree._ttreereader = ROOT.TTreeReader(tree, tree._entrylist)
+    ROOT.SetOwnership(tree._ttreereader, False)
     tree._ttreereader._isClean = True
     tree._ttrvs = {}
     tree._ttras = {}
@@ -117,6 +118,7 @@ def _makeValueReader(tree, typ, nam):
 
 def _remakeAllReaders(tree):
     _ttreereader = ROOT.TTreeReader(tree, getattr(tree, '_entrylist', ROOT.MakeNullPointer(ROOT.TEntryList)))
+    ROOT.SetOwnership(_ttreereader, False)
     _ttreereader._isClean = True
     _ttrvs = {}
     for k in tree._ttrvs.keys():

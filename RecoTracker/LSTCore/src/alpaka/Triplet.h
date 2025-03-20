@@ -8,10 +8,7 @@
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
-
-#include "Segment.h"
-#include "MiniDoublet.h"
-#include "Hit.h"
+#include "RecoTracker/LSTCore/interface/Circle.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
@@ -393,7 +390,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float alpha_InLo = __H2F(segments.dPhiChanges()[innerSegmentIndex]);
     float tl_axis_x = mds.anchorX()[thirdMDIndex] - mds.anchorX()[firstMDIndex];
     float tl_axis_y = mds.anchorY()[thirdMDIndex] - mds.anchorY()[firstMDIndex];
-    betaIn = alpha_InLo - phi_mpi_pi(acc, phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
+    betaIn = alpha_InLo - cms::alpakatools::reducePhiRange(
+                              acc, cms::alpakatools::phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
 
     //beta computation
     float drt_tl_axis = alpaka::math::sqrt(acc, tl_axis_x * tl_axis_x + tl_axis_y * tl_axis_y);
@@ -439,7 +437,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float tl_axis_x = mds.anchorX()[thirdMDIndex] - mds.anchorX()[firstMDIndex];
     float tl_axis_y = mds.anchorY()[thirdMDIndex] - mds.anchorY()[firstMDIndex];
 
-    betaIn = sdIn_alpha - phi_mpi_pi(acc, phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
+    betaIn = sdIn_alpha - cms::alpakatools::reducePhiRange(
+                              acc, cms::alpakatools::phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
 
     float betaInRHmin = betaIn;
     float betaInRHmax = betaIn;
@@ -492,7 +491,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float tl_axis_x = mds.anchorX()[thirdMDIndex] - mds.anchorX()[firstMDIndex];
     float tl_axis_y = mds.anchorY()[thirdMDIndex] - mds.anchorY()[firstMDIndex];
 
-    betaIn = sdIn_alpha - phi_mpi_pi(acc, phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
+    betaIn = sdIn_alpha - cms::alpakatools::reducePhiRange(
+                              acc, cms::alpakatools::phi(acc, tl_axis_x, tl_axis_y) - mds.anchorPhi()[firstMDIndex]);
 
     float sdIn_alphaRHmin = __H2F(segments.dPhiChangeMins()[innerSegmentIndex]);
     float sdIn_alphaRHmax = __H2F(segments.dPhiChangeMaxs()[innerSegmentIndex]);
@@ -629,39 +629,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE float computeRadiusFromThreeAnchorHits(
-      TAcc const& acc, float x1, float y1, float x2, float y2, float x3, float y3, float& g, float& f) {
-    float radius = 0.f;
-
-    //(g,f) -> center
-    //first anchor hit - (x1,y1), second anchor hit - (x2,y2), third anchor hit - (x3, y3)
-
-    float denomInv = 1.0f / ((y1 - y3) * (x2 - x3) - (x1 - x3) * (y2 - y3));
-
-    float xy1sqr = x1 * x1 + y1 * y1;
-
-    float xy2sqr = x2 * x2 + y2 * y2;
-
-    float xy3sqr = x3 * x3 + y3 * y3;
-
-    g = 0.5f * ((y3 - y2) * xy1sqr + (y1 - y3) * xy2sqr + (y2 - y1) * xy3sqr) * denomInv;
-
-    f = 0.5f * ((x2 - x3) * xy1sqr + (x3 - x1) * xy2sqr + (x1 - x2) * xy3sqr) * denomInv;
-
-    float c = ((x2 * y3 - x3 * y2) * xy1sqr + (x3 * y1 - x1 * y3) * xy2sqr + (x1 * y2 - x2 * y1) * xy3sqr) * denomInv;
-
-    if (((y1 - y3) * (x2 - x3) - (x1 - x3) * (y2 - y3) == 0) || (g * g + f * f - c < 0)) {
-#ifdef WARNINGS
-      printf("three collinear points or FATAL! r^2 < 0!\n");
-#endif
-      radius = -1.f;
-    } else
-      radius = alpaka::math::sqrt(acc, g * g + f * f - c);
-
-    return radius;
-  }
-
-  template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletConstraintsAndAlgo(TAcc const& acc,
                                                                    ModulesConst modules,
                                                                    MiniDoubletsConst mds,
@@ -694,7 +661,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float y2 = mds.anchorY()[secondMDIndex];
     float y3 = mds.anchorY()[thirdMDIndex];
 
-    circleRadius = computeRadiusFromThreeAnchorHits(acc, x1, y1, x2, y2, x3, y3, circleCenterX, circleCenterY);
+    std::tie(circleRadius, circleCenterX, circleCenterY) =
+        computeRadiusFromThreeAnchorHits(acc, x1, y1, x2, y2, x3, y3);
 
     if (not passRZConstraint(acc,
                              modules,
@@ -734,8 +702,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   struct CreateTriplets {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
                                   SegmentsConst segments,
@@ -746,11 +713,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   uint16_t* index_gpu,
                                   uint16_t nonZeroModules,
                                   const float ptCut) const {
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (uint16_t innerLowerModuleArrayIdx = globalThreadIdx[0]; innerLowerModuleArrayIdx < nonZeroModules;
-           innerLowerModuleArrayIdx += gridThreadExtent[0]) {
+      for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_elements_z(acc, nonZeroModules)) {
         uint16_t innerInnerLowerModuleIndex = index_gpu[innerLowerModuleArrayIdx];
         if (innerInnerLowerModuleIndex >= modules.nLowerModules())
           continue;
@@ -760,8 +723,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           continue;
 
         unsigned int nInnerSegments = segmentsOccupancy.nSegments()[innerInnerLowerModuleIndex];
-        for (unsigned int innerSegmentArrayIndex = globalThreadIdx[1]; innerSegmentArrayIndex < nInnerSegments;
-             innerSegmentArrayIndex += gridThreadExtent[1]) {
+        for (unsigned int innerSegmentArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerSegments)) {
           unsigned int innerSegmentIndex =
               ranges.segmentRanges()[innerInnerLowerModuleIndex][0] + innerSegmentArrayIndex;
 
@@ -769,8 +731,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           uint16_t middleLowerModuleIndex = segments.outerLowerModuleIndices()[innerSegmentIndex];
 
           unsigned int nOuterSegments = segmentsOccupancy.nSegments()[middleLowerModuleIndex];
-          for (unsigned int outerSegmentArrayIndex = globalThreadIdx[2]; outerSegmentArrayIndex < nOuterSegments;
-               outerSegmentArrayIndex += gridThreadExtent[2]) {
+          for (unsigned int outerSegmentArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
             unsigned int outerSegmentIndex = ranges.segmentRanges()[middleLowerModuleIndex][0] + outerSegmentArrayIndex;
 
             uint16_t outerOuterLowerModuleIndex = segments.outerLowerModuleIndices()[outerSegmentIndex];
@@ -841,18 +802,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   };
 
   struct CreateTripletArrayRanges {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   ObjectRanges ranges,
+                                  SegmentsConst segments,
                                   SegmentsOccupancyConst segmentsOccupancy,
                                   const float ptCut) const {
       // implementation is 1D with a single block
-      static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
-
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
 
       // Initialize variables in shared memory and set to 0
       int& nTotalTriplets = alpaka::declareSharedVar<int, __COUNTER__>(acc);
@@ -880,7 +837,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       // Select the appropriate occupancy matrix based on ptCut
       const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
 
-      for (uint16_t i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
+      for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
         if (segmentsOccupancy.nSegments()[i] == 0) {
           ranges.tripletModuleIndices()[i] = nTotalTriplets;
           ranges.tripletModuleOccupancy()[i] = 0;
@@ -895,15 +852,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
         int eta_number = getEtaBin(module_eta);
 
-        int occupancy = 0;
-        if (category_number != -1 && eta_number != -1) {
-          occupancy = occupancy_matrix[category_number][eta_number];
+        int dynamic_count = 0;
+        // How many segments are in module i?
+        int nSegments_i = segmentsOccupancy.nSegments()[i];
+        int firstSegmentIdx = ranges.segmentRanges()[i][0];
+        // Loop over all segments that live in module i
+        for (int s = 0; s < nSegments_i; ++s) {
+          int segIndex = firstSegmentIdx + s;
+          uint16_t midModule = segments.outerLowerModuleIndices()[segIndex];
+          dynamic_count += segmentsOccupancy.nSegments()[midModule];
         }
+
 #ifdef WARNINGS
-        else {
+        if (category_number == -1 || eta_number == -1) {
           printf("Unhandled case in createTripletArrayRanges! Module index = %i\n", i);
         }
 #endif
+        // Get matrix-based cap
+        int matrix_cap =
+            (category_number != -1 && eta_number != -1) ? occupancy_matrix[category_number][eta_number] : 0;
+
+        // Cap occupancy at minimum of dynamic count and matrix value
+        int occupancy = alpaka::math::min(acc, dynamic_count, matrix_cap);
 
         ranges.tripletModuleOccupancy()[i] = occupancy;
         unsigned int nTotT = alpaka::atomicAdd(acc, &nTotalTriplets, occupancy, alpaka::hierarchy::Threads{});
@@ -919,19 +889,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   };
 
   struct AddTripletRangesToEventExplicit {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   TripletsOccupancyConst tripletsOccupancy,
                                   ObjectRanges ranges) const {
       // implementation is 1D with a single block
-      static_assert(std::is_same_v<TAcc, ALPAKA_ACCELERATOR_NAMESPACE::Acc1D>, "Should be Acc1D");
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (uint16_t i = globalThreadIdx[0]; i < modules.nLowerModules(); i += gridThreadExtent[0]) {
+      for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
         if (tripletsOccupancy.nTriplets()[i] == 0) {
           ranges.tripletRanges()[i][0] = -1;
           ranges.tripletRanges()[i][1] = -1;

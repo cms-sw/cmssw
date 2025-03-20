@@ -34,7 +34,8 @@ std::string EtaPtBin::buildDescriptionString(const bool& etaActive_,
 
   std::string descr(stream.str());
   // remove blanks which are introduced when adding doubles
-  std::remove(descr.begin(), descr.end(), ' ');
+  auto last = std::remove(descr.begin(), descr.end(), ' ');
+  descr.erase(last, descr.end());
   std::replace(descr.begin(), descr.end(), '.', 'v');
 
   return descr;

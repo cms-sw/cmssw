@@ -22,7 +22,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class PFRecHitSoAProducer : public stream::SynchronizingEDProducer<> {
   public:
     PFRecHitSoAProducer(edm::ParameterSet const& config)
-        : topologyToken_(esConsumes(config.getParameter<edm::ESInputTag>("topology"))),
+        : SynchronizingEDProducer(config),
+          topologyToken_(esConsumes(config.getParameter<edm::ESInputTag>("topology"))),
           pfRecHitsToken_(produces()),
           sizeToken_(produces()),
           synchronise_(config.getUntrackedParameter<bool>("synchronise")),

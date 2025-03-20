@@ -9,19 +9,20 @@
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
+#include "FWCore/Utilities/interface/DeviceGlobal.h"
 #include "FWCore/Utilities/interface/HostDeviceConstant.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 
 //#define GPU_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
 #ifdef GPU_DEBUG
-  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-  HOST_DEVICE_CONSTANT uint32_t gMaxHit = 0;
+  DEVICE_GLOBAL uint32_t gMaxHit = 0;
 #endif
 
   namespace pixelStatus {
@@ -66,8 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
        *   - if `status` should be read through a `volatile` pointer (CUDA/ROCm)
        *   - if `status` should be read with an atomic load (CPU)
        */
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr void promote(TAcc const& acc,
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr void promote(Acc1D const& acc,
                                                           uint32_t* __restrict__ status,
                                                           const uint16_t x,
                                                           const uint16_t y) {
@@ -92,8 +92,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
   template <typename TrackerTraits>
   struct CountModules {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   SiPixelDigisSoAView digi_view,
                                   SiPixelClustersSoAView clus_view,
                                   const unsigned int numElements) const {
@@ -138,8 +137,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
     static constexpr uint32_t maxElementsPerBlock =
         cms::alpakatools::round_up_by(TrackerTraits::maxPixInModule / maxIterGPU, 128);
 
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   SiPixelDigisSoAView digi_view,
                                   SiPixelClustersSoAView clus_view,
                                   const unsigned int numElements) const {
@@ -183,11 +181,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                                                       TrackerTraits::maxPixInModule,
                                                       TrackerTraits::clusterBits,
                                                       uint16_t>;
-#if defined(__HIP_DEVICE_COMPILE__)
-        constexpr auto warpSize = __AMDGCN_WAVEFRONT_SIZE;
-#else
-        constexpr auto warpSize = 32;
-#endif
+        constexpr int warpSize = cms::alpakatools::warpSize;
         auto& hist = alpaka::declareSharedVar<Hist, __COUNTER__>(acc);
         auto& ws = alpaka::declareSharedVar<typename Hist::Counter[warpSize], __COUNTER__>(acc);
         for (uint32_t j : cms::alpakatools::independent_group_elements(acc, Hist::totbins())) {
@@ -310,7 +304,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
         // number of elements per thread
         constexpr uint32_t maxElements =
-            cms::alpakatools::requires_single_thread_per_block_v<TAcc> ? maxElementsPerBlock : 1;
+            cms::alpakatools::requires_single_thread_per_block_v<Acc1D> ? maxElementsPerBlock : 1;
         ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u] <= maxElements));
 
         constexpr unsigned int maxIter = maxIterGPU * maxElements;
@@ -462,8 +456,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           clus_view[thisModuleId].clusInModule() = foundClusters;
           clus_view[module].moduleId() = thisModuleId;
 #ifdef GPU_DEBUG
-          if (foundClusters > gMaxHit<TAcc>) {
-            gMaxHit<TAcc> = foundClusters;
+          if (foundClusters > gMaxHit) {
+            gMaxHit = foundClusters;
             if (foundClusters > 8)
               printf("max hit %d in %d\n", foundClusters, thisModuleId);
           }

@@ -21,18 +21,19 @@ Test of GenericHandle class.
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
 #include <iostream>
 #include <memory>
 #include <string>
+
+#include "makeDummyProcessConfiguration.h"
 
 // This is a gross hack, to allow us to test the event
 namespace edm {
@@ -77,7 +78,7 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::EventID id = edm::EventID::firstValidEvent();
   edm::Timestamp time;
   std::string uuid = edm::createGlobalIdentifier();
-  edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeDummyProcessConfiguration("PROD");
   auto preg = std::make_shared<edm::ProductRegistry>();
   preg->setFrozen();
   auto rp =
@@ -145,34 +146,27 @@ void testGenericHandle::getbyLabelTest() {
   edm::ParameterSet pset;
   pset.registerIt();
 
-  edm::BranchDescription product(edm::InEvent,
-                                 label,
-                                 processName,
-                                 dummytype.userClassName(),
-                                 className,
-                                 productInstanceName,
-                                 "",
-                                 pset.id(),
-                                 dummytype);
+  edm::ProductDescription product(
+      edm::InEvent, label, processName, dummytype.userClassName(), className, productInstanceName, dummytype);
 
   product.init();
 
-  auto preg = std::make_unique<edm::ProductRegistry>();
+  auto preg = std::make_unique<edm::SignallingProductRegistryFiller>();
   preg->addProduct(product);
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
-  branchIDListHelper->updateFromRegistry(*preg);
+  branchIDListHelper->updateFromRegistry(preg->registry());
   auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
 
-  edm::ProductRegistry::ProductList const& pl = preg->productList();
+  edm::ProductRegistry::ProductList const& pl = preg->registry().productList();
   edm::BranchKey const bk(product);
   edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
   edm::EventID col(1L, 1L, 1L);
   edm::Timestamp fakeTime;
   std::string uuid = edm::createGlobalIdentifier();
-  edm::ProcessConfiguration pc("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
-  std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
+  auto pc = edmtest::makeDummyProcessConfiguration("PROD", dummyProcessPset.id());
+  std::shared_ptr<edm::ProductRegistry const> pregc(std::make_shared<edm::ProductRegistry>(preg->moveTo()));
   auto rp =
       std::make_shared<edm::RunPrincipal>(pregc, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   rp->setAux(edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
@@ -190,10 +184,10 @@ void testGenericHandle::getbyLabelTest() {
                          edm::StreamID::invalidStreamID());
   ep.fillEventPrincipal(eventAux, nullptr);
   ep.setLuminosityBlockPrincipal(lbp.get());
-  edm::BranchDescription const& branchFromRegistry = it->second;
+  edm::ProductDescription const& branchFromRegistry = it->second;
   std::vector<edm::BranchID> const ids;
   edm::ProductProvenance prov(branchFromRegistry.branchID(), ids);
-  edm::BranchDescription const desc(branchFromRegistry);
+  edm::ProductDescription const desc(branchFromRegistry);
   ep.put(desc, std::move(pprod), prov);
 
   edm::GenericHandle h("edmtest::DummyProduct");

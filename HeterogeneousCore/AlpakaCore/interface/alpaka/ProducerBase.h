@@ -46,8 +46,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using Base = BaseT<Args..., edm::Transformer>;
 
   public:
-    // TODO: default constructor to be removed after all derived classes have been migrated
-    ProducerBase() : backendToken_(Base::produces("backend")) {}
     ProducerBase(edm::ParameterSet const& iConfig)
         : backendToken_(Base::produces("backend")),
           // The 'synchronize' parameter can be unset in Alpaka

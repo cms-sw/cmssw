@@ -90,3 +90,32 @@ bool TrackSelector::trackSelection(const Track &track,
          ipData.ip3d.value() <= sip3dValMax && ipData.ip3d.significance() >= sip3dSigMin &&
          ipData.ip3d.significance() <= sip3dSigMax;
 }
+
+void TrackSelector::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<unsigned int>("pixelHitsMin", 0);
+  desc.add<unsigned int>("totalHitsMin", 0);
+  desc.add<double>("ptMin", 0.0);
+  desc.add<double>("normChi2Max", 99999.9);
+  desc.add<double>("jetDeltaRMax", 0.3);
+  desc.add<double>("maxDistToAxis", 0.07);
+  desc.add<double>("maxDecayLen", 5);
+  desc.add<double>("sip2dValMin", -99999.9);
+  desc.add<double>("sip2dValMax", 99999.9);
+  desc.add<double>("sip2dSigMin", -99999.9);
+  desc.add<double>("sip2dSigMax", 99999.9);
+  desc.add<double>("sip3dValMin", -99999.9);
+  desc.add<double>("sip3dValMax", 99999.9);
+  desc.add<double>("sip3dSigMin", -99999.9);
+  desc.add<double>("sip3dSigMax", 99999.9);
+  desc.add<bool>("useVariableJTA", false);
+  desc.add<std::string>("qualityClass", "");
+  desc.add<double>("a_dR", -0.001053);
+  desc.add<double>("b_dR", 0.6263);
+  desc.add<double>("a_pT", 0.005263);
+  desc.add<double>("b_pT", 0.3684);
+  desc.add<double>("min_pT", 120);
+  desc.add<double>("max_pT", 500);
+  desc.add<double>("min_pT_dRcut", 0.5);
+  desc.add<double>("max_pT_dRcut", 0.1);
+  desc.add<double>("max_pT_trackPTcut", 3);
+}

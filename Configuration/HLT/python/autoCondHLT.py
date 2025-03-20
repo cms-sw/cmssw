@@ -38,7 +38,7 @@ hltGTs = {
     'run3_mc_FULL'           : ('phase1_2024_realistic'   ,l1Menus['FULL']),
     'run3_mc_GRun'           : ('phase1_2024_realistic'   ,l1Menus['GRun']),
     'run3_mc_2024v14'        : ('phase1_2024_realistic'   ,l1Menus['2024v14']),
-    'run3_mc_HIon'           : ('phase1_2023_realistic_hi',l1Menus['HIon']),
+    'run3_mc_HIon'           : ('phase1_2024_realistic_hi',l1Menus['HIon']),
     'run3_mc_PIon'           : ('phase1_2024_realistic'   ,l1Menus['PIon']),
     'run3_mc_PRef'           : ('phase1_2024_realistic'   ,l1Menus['PRef']),
     'run3_mc_Special'        : ('phase1_2024_realistic'   ,l1Menus['Special']),

@@ -458,6 +458,12 @@ namespace edmtest {
       for (auto const& label : labels) {
         tokens_.emplace_back(consumes(label));
       }
+      {
+        auto const& labels = p.getUntrackedParameter<std::vector<edm::InputTag>>("untrackedLabels");
+        for (auto const& label : labels) {
+          tokens_.emplace_back(consumes(label));
+        }
+      }
     }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
@@ -465,6 +471,10 @@ namespace edmtest {
       edm::ParameterSetDescription desc;
       desc.addUntracked<unsigned int>("onlyGetOnEvent", 0u);
       desc.add<std::vector<edm::InputTag>>("labels");
+      desc.addUntracked<std::vector<edm::InputTag>>("untrackedLabels", {})
+          ->setComment(
+              "Using this can change the stored ProductRegistry for the same ProcessHistory if this is the only module "
+              "that depends on these labels.");
       descriptions.addDefault(desc);
     }
 
@@ -614,7 +624,7 @@ namespace edmtest {
   public:
     explicit ManyIntWhenRegisteredProducer(edm::ParameterSet const& p)
         : sourceLabel_(p.getParameter<std::string>("src")) {
-      callWhenNewProductsRegistered([=, this](edm::BranchDescription const& iBranch) {
+      callWhenNewProductsRegistered([=, this](edm::ProductDescription const& iBranch) {
         if (iBranch.moduleLabel() == sourceLabel_) {
           if (iBranch.branchType() != edm::InEvent) {
             throw edm::Exception(edm::errors::UnimplementedFeature)
