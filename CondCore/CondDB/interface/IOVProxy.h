@@ -104,7 +104,8 @@ namespace cond {
       // the only way to construct it from scratch...
       explicit IOVProxy(const std::shared_ptr<SessionImpl>& session);
 
-      //
+      // TODO This seems to violate The rule of three: why copy constructor and assignment is defined but not the descructor?
+      // Is this ctor even needed? How is it different from the implicitly defined one?
       IOVProxy(const IOVProxy& rhs);
 
       //
@@ -160,6 +161,8 @@ namespace cond {
       // maybe will be removed with a re-design of the top level interface (ESSources )
       const std::shared_ptr<SessionImpl>& session() const;
 
+      void setPrintDebug(bool printDebug) { m_printDebug = printDebug; }
+
     private:
       void checkTransaction(const std::string& ctx) const;
       void resetIOVCache();
@@ -169,6 +172,9 @@ namespace cond {
     private:
       std::shared_ptr<IOVProxyData> m_data;
       std::shared_ptr<SessionImpl> m_session;
+
+      // whether additional debug info should be printed in fetchSequence
+      bool m_printDebug = false;
     };
 
   }  // namespace persistency
