@@ -37,8 +37,8 @@ autoCond = {
     'run3_data_express'            :    '150X_dataRun3_Express_frozen250122_v1',
     # GlobalTag for Run3 data relvals (prompt GT): same as 150X_dataRun3_Prompt_v1 but with snapshot at 2025-01-22 13:49:01 (UTC)
     'run3_data_prompt'             :    '150X_dataRun3_Prompt_frozen250122_v1',
-    # GlobalTag for Run3 offline data reprocessing - snapshot at 2025-02-09 15:35:33 (UTC)
-    'run3_data'                    :    '141X_dataRun3_v6',
+    # GlobalTag for Run3 offline data reprocessing - snapshot at 2025-03-19 17:13:09 (UTC)
+    'run3_data'                    :    '150X_dataRun3_v3',
     # GlobalTag for Run3 offline data reprocessing with Prompt GT, currently for 2022FG - snapshot at 2024-05-31 08:53:25 (UTC)
     'run3_data_PromptAnalysis'     :    '140X_dataRun3_PromptAnalysis_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
@@ -92,7 +92,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2024
     'phase1_2024_design'           :    '140X_mcRun3_2024_design_v11',
     # GlobalTag for MC production with realistic conditions for Phase1 2024
-    'phase1_2024_realistic'        :    '140X_mcRun3_2024_realistic_v26',
+    'phase1_2024_realistic'        :    '150X_mcRun3_2024_realistic_v2',
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2024, Strip tracker in DECO mode
     'phase1_2024_cosmics'          :    '140X_mcRun3_2024cosmics_realistic_deco_v14',
     # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2024, Strip tracker in DECO mode
@@ -108,7 +108,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2024, Strip tracker in DECO mode
     'phase1_2025_cosmics'          :    '142X_mcRun3_2025cosmics_realistic_deco_v1',
     # GlobalTag for MC production with realistic conditions for Phase2
-    'phase2_realistic'             :    '141X_mcRun4_realistic_v3'
+    'phase2_realistic'             :    '150X_mcRun4_realistic_v1'
 }
 
 aliases = {
