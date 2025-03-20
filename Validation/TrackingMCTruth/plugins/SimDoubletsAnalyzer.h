@@ -179,6 +179,7 @@ private:
   double dcaCutInnerTriplet_;
   double dcaCutOuterTriplet_;
   double hardCurvCut_;
+  int minNumDoubletsPerNtuplet_;
 
   std::string folder_;  // main folder in the DQM file
 
@@ -218,6 +219,34 @@ private:
   CoupledMonitorElement h_dcaCutInnerTriplet_;
   CoupledMonitorElement h_dcaCutOuterTriplet_;
   CoupledMonitorElement h_hardCurvCut_;
+  // histograms of Ntuplets
+  MonitorElement* h_aliveNtuplet_numRecHits_;
+  MonitorElement* h_aliveNtuplet_firstLayerId_;
+  MonitorElement* h_aliveNtuplet_lastLayerId_;
+  MonitorElement* h_aliveNtuplet_layerSpan_;
+  MonitorElement* h_aliveNtuplet_fracNumRecHits_eta_;
+  MonitorElement* h_aliveNtuplet_fracNumRecHits_pt_;
+  CoupledMonitorElement h_longNtuplet_numRecHits_;
+  CoupledMonitorElement h_longNtuplet_firstLayerId_;
+  CoupledMonitorElement h_longNtuplet_lastLayerId_;
+  CoupledMonitorElement h_longNtuplet_layerSpan_;
+  CoupledMonitorElement h_longNtuplet_eta_;
+  CoupledMonitorElement h_longNtuplet_pt_;
+  // longest SimNtuplets of the TP status
+  MonitorElement* h_longNtuplet_alive_eta_;
+  MonitorElement* h_longNtuplet_undefDoubletCuts_eta_;
+  MonitorElement* h_longNtuplet_undefConnectionCuts_eta_;
+  MonitorElement* h_longNtuplet_missingLayerPair_eta_;
+  MonitorElement* h_longNtuplet_killedDoublets_eta_;
+  MonitorElement* h_longNtuplet_killedConnections_eta_;
+  MonitorElement* h_longNtuplet_tooShort_eta_;
+  MonitorElement* h_longNtuplet_alive_pt_;
+  MonitorElement* h_longNtuplet_undefDoubletCuts_pt_;
+  MonitorElement* h_longNtuplet_undefConnectionCuts_pt_;
+  MonitorElement* h_longNtuplet_missingLayerPair_pt_;
+  MonitorElement* h_longNtuplet_killedDoublets_pt_;
+  MonitorElement* h_longNtuplet_killedConnections_pt_;
+  MonitorElement* h_longNtuplet_tooShort_pt_;
 };
 
 #endif
