@@ -554,7 +554,6 @@ streamParkingHH_datasetParkingHH_selector.triggerConditions = cms.vstring(
     'HLT_PFHT280_QuadPFJet35_PNet2BTagMean0p60_v9',
     'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_PNet3BTag_2p0_v5',
     'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_PNet3BTag_4p3_v5',
-    'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepJet_4p5_v13',
     'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v21',
     'HLT_PFHT340_QuadPFJet70_50_40_40_PNet2BTagMean0p70_v10',
     'HLT_PFHT400_FivePFJet_120_120_60_30_30_PNet2BTag_4p3_v6',
@@ -670,6 +669,98 @@ streamParkingSingleMuon11_datasetParkingSingleMuon11_selector.hltResults = cms.I
 streamParkingSingleMuon11_datasetParkingSingleMuon11_selector.l1tResults = cms.InputTag('')
 streamParkingSingleMuon11_datasetParkingSingleMuon11_selector.throw      = cms.bool(False)
 streamParkingSingleMuon11_datasetParkingSingleMuon11_selector.triggerConditions = cms.vstring(
+    'HLT_Mu0_Barrel_L1HP10_v6',
+    'HLT_Mu0_Barrel_L1HP11_v6',
+    'HLT_Mu0_Barrel_L1HP6_IP6_v3',
+    'HLT_Mu0_Barrel_L1HP6_v3',
+    'HLT_Mu0_Barrel_L1HP7_v3',
+    'HLT_Mu0_Barrel_L1HP8_v4',
+    'HLT_Mu0_Barrel_L1HP9_v4',
+    'HLT_Mu0_Barrel_v6',
+    'HLT_Mu10_Barrel_L1HP11_IP6_v6',
+    'HLT_Mu6_Barrel_L1HP7_IP6_v3',
+    'HLT_Mu7_Barrel_L1HP8_IP6_v4',
+    'HLT_Mu8_Barrel_L1HP9_IP6_v4',
+    'HLT_Mu9_Barrel_L1HP10_IP6_v6'
+)
+
+
+# stream ParkingSingleMuon12
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon12_datasetParkingSingleMuon12_selector
+streamParkingSingleMuon12_datasetParkingSingleMuon12_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon12_datasetParkingSingleMuon12_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon12_datasetParkingSingleMuon12_selector.throw      = cms.bool(False)
+streamParkingSingleMuon12_datasetParkingSingleMuon12_selector.triggerConditions = cms.vstring(
+    'HLT_Mu0_Barrel_L1HP10_v6',
+    'HLT_Mu0_Barrel_L1HP11_v6',
+    'HLT_Mu0_Barrel_L1HP6_IP6_v3',
+    'HLT_Mu0_Barrel_L1HP6_v3',
+    'HLT_Mu0_Barrel_L1HP7_v3',
+    'HLT_Mu0_Barrel_L1HP8_v4',
+    'HLT_Mu0_Barrel_L1HP9_v4',
+    'HLT_Mu0_Barrel_v6',
+    'HLT_Mu10_Barrel_L1HP11_IP6_v6',
+    'HLT_Mu6_Barrel_L1HP7_IP6_v3',
+    'HLT_Mu7_Barrel_L1HP8_IP6_v4',
+    'HLT_Mu8_Barrel_L1HP9_IP6_v4',
+    'HLT_Mu9_Barrel_L1HP10_IP6_v6'
+)
+
+
+# stream ParkingSingleMuon13
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon13_datasetParkingSingleMuon13_selector
+streamParkingSingleMuon13_datasetParkingSingleMuon13_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon13_datasetParkingSingleMuon13_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon13_datasetParkingSingleMuon13_selector.throw      = cms.bool(False)
+streamParkingSingleMuon13_datasetParkingSingleMuon13_selector.triggerConditions = cms.vstring(
+    'HLT_Mu0_Barrel_L1HP10_v6',
+    'HLT_Mu0_Barrel_L1HP11_v6',
+    'HLT_Mu0_Barrel_L1HP6_IP6_v3',
+    'HLT_Mu0_Barrel_L1HP6_v3',
+    'HLT_Mu0_Barrel_L1HP7_v3',
+    'HLT_Mu0_Barrel_L1HP8_v4',
+    'HLT_Mu0_Barrel_L1HP9_v4',
+    'HLT_Mu0_Barrel_v6',
+    'HLT_Mu10_Barrel_L1HP11_IP6_v6',
+    'HLT_Mu6_Barrel_L1HP7_IP6_v3',
+    'HLT_Mu7_Barrel_L1HP8_IP6_v4',
+    'HLT_Mu8_Barrel_L1HP9_IP6_v4',
+    'HLT_Mu9_Barrel_L1HP10_IP6_v6'
+)
+
+
+# stream ParkingSingleMuon14
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon14_datasetParkingSingleMuon14_selector
+streamParkingSingleMuon14_datasetParkingSingleMuon14_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon14_datasetParkingSingleMuon14_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon14_datasetParkingSingleMuon14_selector.throw      = cms.bool(False)
+streamParkingSingleMuon14_datasetParkingSingleMuon14_selector.triggerConditions = cms.vstring(
+    'HLT_Mu0_Barrel_L1HP10_v6',
+    'HLT_Mu0_Barrel_L1HP11_v6',
+    'HLT_Mu0_Barrel_L1HP6_IP6_v3',
+    'HLT_Mu0_Barrel_L1HP6_v3',
+    'HLT_Mu0_Barrel_L1HP7_v3',
+    'HLT_Mu0_Barrel_L1HP8_v4',
+    'HLT_Mu0_Barrel_L1HP9_v4',
+    'HLT_Mu0_Barrel_v6',
+    'HLT_Mu10_Barrel_L1HP11_IP6_v6',
+    'HLT_Mu6_Barrel_L1HP7_IP6_v3',
+    'HLT_Mu7_Barrel_L1HP8_IP6_v4',
+    'HLT_Mu8_Barrel_L1HP9_IP6_v4',
+    'HLT_Mu9_Barrel_L1HP10_IP6_v6'
+)
+
+
+# stream ParkingSingleMuon15
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingSingleMuon15_datasetParkingSingleMuon15_selector
+streamParkingSingleMuon15_datasetParkingSingleMuon15_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingSingleMuon15_datasetParkingSingleMuon15_selector.l1tResults = cms.InputTag('')
+streamParkingSingleMuon15_datasetParkingSingleMuon15_selector.throw      = cms.bool(False)
+streamParkingSingleMuon15_datasetParkingSingleMuon15_selector.triggerConditions = cms.vstring(
     'HLT_Mu0_Barrel_L1HP10_v6',
     'HLT_Mu0_Barrel_L1HP11_v6',
     'HLT_Mu0_Barrel_L1HP6_IP6_v3',
@@ -894,9 +985,7 @@ streamParkingVBF0_datasetParkingVBF0_selector.triggerConditions = cms.vstring(
     'HLT_QuadPFJet111_90_80_30_v9',
     'HLT_VBF_DiPFJet125_45_Mjj1050_v8',
     'HLT_VBF_DiPFJet125_45_Mjj1200_v6',
-    'HLT_VBF_DiPFJet45_Mjj650_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj650_PNetTauhPFJet45_L2NN_eta2p3_v6',
-    'HLT_VBF_DiPFJet45_Mjj750_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj750_PNetTauhPFJet45_L2NN_eta2p3_v6',
     'HLT_VBF_DiPFJet50_Mjj600_Ele22_eta2p1_WPTight_Gsf_v6',
     'HLT_VBF_DiPFJet50_Mjj650_Ele22_eta2p1_WPTight_Gsf_v6',
@@ -908,7 +997,6 @@ streamParkingVBF0_datasetParkingVBF0_selector.triggerConditions = cms.vstring(
     'HLT_VBF_DiPFJet80_45_Mjj750_PFMETNoMu85_v6',
     'HLT_VBF_DiPFJet95_45_Mjj750_Mu3_TrkIsoVVL_v6',
     'HLT_VBF_DiPFJet95_45_Mjj850_Mu3_TrkIsoVVL_v6',
-    'HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v13',
     'HLT_VBF_DoublePNetTauhPFJet20_eta2p2_v6'
 )
 
@@ -934,9 +1022,7 @@ streamParkingVBF0_datasetParkingVBF1_selector.triggerConditions = cms.vstring(
     'HLT_QuadPFJet111_90_80_30_v9',
     'HLT_VBF_DiPFJet125_45_Mjj1050_v8',
     'HLT_VBF_DiPFJet125_45_Mjj1200_v6',
-    'HLT_VBF_DiPFJet45_Mjj650_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj650_PNetTauhPFJet45_L2NN_eta2p3_v6',
-    'HLT_VBF_DiPFJet45_Mjj750_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj750_PNetTauhPFJet45_L2NN_eta2p3_v6',
     'HLT_VBF_DiPFJet50_Mjj600_Ele22_eta2p1_WPTight_Gsf_v6',
     'HLT_VBF_DiPFJet50_Mjj650_Ele22_eta2p1_WPTight_Gsf_v6',
@@ -948,7 +1034,6 @@ streamParkingVBF0_datasetParkingVBF1_selector.triggerConditions = cms.vstring(
     'HLT_VBF_DiPFJet80_45_Mjj750_PFMETNoMu85_v6',
     'HLT_VBF_DiPFJet95_45_Mjj750_Mu3_TrkIsoVVL_v6',
     'HLT_VBF_DiPFJet95_45_Mjj850_Mu3_TrkIsoVVL_v6',
-    'HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v13',
     'HLT_VBF_DoublePNetTauhPFJet20_eta2p2_v6'
 )
 
@@ -977,9 +1062,7 @@ streamParkingVBF1_datasetParkingVBF2_selector.triggerConditions = cms.vstring(
     'HLT_QuadPFJet111_90_80_30_v9',
     'HLT_VBF_DiPFJet125_45_Mjj1050_v8',
     'HLT_VBF_DiPFJet125_45_Mjj1200_v6',
-    'HLT_VBF_DiPFJet45_Mjj650_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj650_PNetTauhPFJet45_L2NN_eta2p3_v6',
-    'HLT_VBF_DiPFJet45_Mjj750_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj750_PNetTauhPFJet45_L2NN_eta2p3_v6',
     'HLT_VBF_DiPFJet50_Mjj600_Ele22_eta2p1_WPTight_Gsf_v6',
     'HLT_VBF_DiPFJet50_Mjj650_Ele22_eta2p1_WPTight_Gsf_v6',
@@ -991,7 +1074,6 @@ streamParkingVBF1_datasetParkingVBF2_selector.triggerConditions = cms.vstring(
     'HLT_VBF_DiPFJet80_45_Mjj750_PFMETNoMu85_v6',
     'HLT_VBF_DiPFJet95_45_Mjj750_Mu3_TrkIsoVVL_v6',
     'HLT_VBF_DiPFJet95_45_Mjj850_Mu3_TrkIsoVVL_v6',
-    'HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v13',
     'HLT_VBF_DoublePNetTauhPFJet20_eta2p2_v6'
 )
 
@@ -1017,9 +1099,7 @@ streamParkingVBF1_datasetParkingVBF3_selector.triggerConditions = cms.vstring(
     'HLT_QuadPFJet111_90_80_30_v9',
     'HLT_VBF_DiPFJet125_45_Mjj1050_v8',
     'HLT_VBF_DiPFJet125_45_Mjj1200_v6',
-    'HLT_VBF_DiPFJet45_Mjj650_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj650_PNetTauhPFJet45_L2NN_eta2p3_v6',
-    'HLT_VBF_DiPFJet45_Mjj750_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj750_PNetTauhPFJet45_L2NN_eta2p3_v6',
     'HLT_VBF_DiPFJet50_Mjj600_Ele22_eta2p1_WPTight_Gsf_v6',
     'HLT_VBF_DiPFJet50_Mjj650_Ele22_eta2p1_WPTight_Gsf_v6',
@@ -1031,7 +1111,6 @@ streamParkingVBF1_datasetParkingVBF3_selector.triggerConditions = cms.vstring(
     'HLT_VBF_DiPFJet80_45_Mjj750_PFMETNoMu85_v6',
     'HLT_VBF_DiPFJet95_45_Mjj750_Mu3_TrkIsoVVL_v6',
     'HLT_VBF_DiPFJet95_45_Mjj850_Mu3_TrkIsoVVL_v6',
-    'HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v13',
     'HLT_VBF_DoublePNetTauhPFJet20_eta2p2_v6'
 )
 
@@ -1060,9 +1139,7 @@ streamParkingVBF2_datasetParkingVBF4_selector.triggerConditions = cms.vstring(
     'HLT_QuadPFJet111_90_80_30_v9',
     'HLT_VBF_DiPFJet125_45_Mjj1050_v8',
     'HLT_VBF_DiPFJet125_45_Mjj1200_v6',
-    'HLT_VBF_DiPFJet45_Mjj650_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj650_PNetTauhPFJet45_L2NN_eta2p3_v6',
-    'HLT_VBF_DiPFJet45_Mjj750_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj750_PNetTauhPFJet45_L2NN_eta2p3_v6',
     'HLT_VBF_DiPFJet50_Mjj600_Ele22_eta2p1_WPTight_Gsf_v6',
     'HLT_VBF_DiPFJet50_Mjj650_Ele22_eta2p1_WPTight_Gsf_v6',
@@ -1074,7 +1151,6 @@ streamParkingVBF2_datasetParkingVBF4_selector.triggerConditions = cms.vstring(
     'HLT_VBF_DiPFJet80_45_Mjj750_PFMETNoMu85_v6',
     'HLT_VBF_DiPFJet95_45_Mjj750_Mu3_TrkIsoVVL_v6',
     'HLT_VBF_DiPFJet95_45_Mjj850_Mu3_TrkIsoVVL_v6',
-    'HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v13',
     'HLT_VBF_DoublePNetTauhPFJet20_eta2p2_v6'
 )
 
@@ -1100,9 +1176,7 @@ streamParkingVBF2_datasetParkingVBF5_selector.triggerConditions = cms.vstring(
     'HLT_QuadPFJet111_90_80_30_v9',
     'HLT_VBF_DiPFJet125_45_Mjj1050_v8',
     'HLT_VBF_DiPFJet125_45_Mjj1200_v6',
-    'HLT_VBF_DiPFJet45_Mjj650_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj650_PNetTauhPFJet45_L2NN_eta2p3_v6',
-    'HLT_VBF_DiPFJet45_Mjj750_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj750_PNetTauhPFJet45_L2NN_eta2p3_v6',
     'HLT_VBF_DiPFJet50_Mjj600_Ele22_eta2p1_WPTight_Gsf_v6',
     'HLT_VBF_DiPFJet50_Mjj650_Ele22_eta2p1_WPTight_Gsf_v6',
@@ -1114,7 +1188,6 @@ streamParkingVBF2_datasetParkingVBF5_selector.triggerConditions = cms.vstring(
     'HLT_VBF_DiPFJet80_45_Mjj750_PFMETNoMu85_v6',
     'HLT_VBF_DiPFJet95_45_Mjj750_Mu3_TrkIsoVVL_v6',
     'HLT_VBF_DiPFJet95_45_Mjj850_Mu3_TrkIsoVVL_v6',
-    'HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v13',
     'HLT_VBF_DoublePNetTauhPFJet20_eta2p2_v6'
 )
 
@@ -1143,9 +1216,7 @@ streamParkingVBF3_datasetParkingVBF6_selector.triggerConditions = cms.vstring(
     'HLT_QuadPFJet111_90_80_30_v9',
     'HLT_VBF_DiPFJet125_45_Mjj1050_v8',
     'HLT_VBF_DiPFJet125_45_Mjj1200_v6',
-    'HLT_VBF_DiPFJet45_Mjj650_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj650_PNetTauhPFJet45_L2NN_eta2p3_v6',
-    'HLT_VBF_DiPFJet45_Mjj750_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj750_PNetTauhPFJet45_L2NN_eta2p3_v6',
     'HLT_VBF_DiPFJet50_Mjj600_Ele22_eta2p1_WPTight_Gsf_v6',
     'HLT_VBF_DiPFJet50_Mjj650_Ele22_eta2p1_WPTight_Gsf_v6',
@@ -1157,7 +1228,6 @@ streamParkingVBF3_datasetParkingVBF6_selector.triggerConditions = cms.vstring(
     'HLT_VBF_DiPFJet80_45_Mjj750_PFMETNoMu85_v6',
     'HLT_VBF_DiPFJet95_45_Mjj750_Mu3_TrkIsoVVL_v6',
     'HLT_VBF_DiPFJet95_45_Mjj850_Mu3_TrkIsoVVL_v6',
-    'HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v13',
     'HLT_VBF_DoublePNetTauhPFJet20_eta2p2_v6'
 )
 
@@ -1183,9 +1253,7 @@ streamParkingVBF3_datasetParkingVBF7_selector.triggerConditions = cms.vstring(
     'HLT_QuadPFJet111_90_80_30_v9',
     'HLT_VBF_DiPFJet125_45_Mjj1050_v8',
     'HLT_VBF_DiPFJet125_45_Mjj1200_v6',
-    'HLT_VBF_DiPFJet45_Mjj650_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj650_PNetTauhPFJet45_L2NN_eta2p3_v6',
-    'HLT_VBF_DiPFJet45_Mjj750_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v6',
     'HLT_VBF_DiPFJet45_Mjj750_PNetTauhPFJet45_L2NN_eta2p3_v6',
     'HLT_VBF_DiPFJet50_Mjj600_Ele22_eta2p1_WPTight_Gsf_v6',
     'HLT_VBF_DiPFJet50_Mjj650_Ele22_eta2p1_WPTight_Gsf_v6',
@@ -1197,7 +1265,6 @@ streamParkingVBF3_datasetParkingVBF7_selector.triggerConditions = cms.vstring(
     'HLT_VBF_DiPFJet80_45_Mjj750_PFMETNoMu85_v6',
     'HLT_VBF_DiPFJet95_45_Mjj750_Mu3_TrkIsoVVL_v6',
     'HLT_VBF_DiPFJet95_45_Mjj850_Mu3_TrkIsoVVL_v6',
-    'HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v13',
     'HLT_VBF_DoublePNetTauhPFJet20_eta2p2_v6'
 )
 
@@ -1419,10 +1486,8 @@ streamPhysicsDispJetBTagMuEGTau_datasetMuonEG_selector.triggerConditions = cms.v
     'HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v30',
     'HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT350_DZ_v31',
     'HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT350_v31',
-    'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_v13',
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_DoubleAK4PFJet60_30_PNet2BTagMean0p50_v10',
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_DoubleAK4PFJet60_30_v10',
-    'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepJet_1p5_v13',
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PNet2BTagMean0p50_v9',
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_v13',
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFHT250_QuadPFJet25_PNet1BTag0p20_v6',
@@ -1444,15 +1509,10 @@ streamPhysicsDispJetBTagMuEGTau_datasetTau_selector.triggerConditions = cms.vstr
     'HLT_DoubleMediumChargedIsoDisplacedPFTauHPS32_Trk1_eta2p1_noDxy_v8',
     'HLT_DoubleMediumChargedIsoDisplacedPFTauHPS32_Trk1_eta2p1_v13',
     'HLT_DoubleMediumChargedIsoDisplacedPFTauHPS36_Trk1_eta2p1_v8',
-    'HLT_DoubleMediumDeepTauPFTauHPS30_L2NN_eta2p1_OneProng_v8',
-    'HLT_DoubleMediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet60_v12',
-    'HLT_DoubleMediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet75_v12',
-    'HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1_v12',
     'HLT_DoublePNetTauhPFJet26_L2NN_eta2p3_PFJet60_v6',
     'HLT_DoublePNetTauhPFJet26_L2NN_eta2p3_PFJet75_v6',
     'HLT_DoublePNetTauhPFJet30_Medium_L2NN_eta2p3_v6',
     'HLT_DoublePNetTauhPFJet30_Tight_L2NN_eta2p3_v6',
-    'HLT_LooseDeepTauPFTauHPS180_L2NN_eta2p1_v13',
     'HLT_SinglePNetTauhPFJet130_Loose_L2NN_eta2p3_v6',
     'HLT_SinglePNetTauhPFJet130_Medium_L2NN_eta2p3_v6',
     'HLT_SinglePNetTauhPFJet130_Tight_L2NN_eta2p3_v6'
@@ -1506,20 +1566,16 @@ streamPhysicsEGamma0_datasetEGamma0_selector.triggerConditions = cms.vstring(
     'HLT_Ele15_IsoVVVL_PFHT450_PFMET50_v28',
     'HLT_Ele15_IsoVVVL_PFHT450_v28',
     'HLT_Ele15_IsoVVVL_PFHT600_v32',
-    'HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v19',
     'HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v28',
     'HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v30',
     'HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v30',
     'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v29',
     'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v29',
-    'HLT_Ele24_eta2p1_WPTight_Gsf_LooseDeepTauPFTauHPS30_eta2p1_CrossL1_v13',
     'HLT_Ele24_eta2p1_WPTight_Gsf_PNetTauhPFJet30_Loose_eta2p3_CrossL1_v6',
     'HLT_Ele24_eta2p1_WPTight_Gsf_PNetTauhPFJet30_Medium_eta2p3_CrossL1_v6',
     'HLT_Ele24_eta2p1_WPTight_Gsf_PNetTauhPFJet30_Tight_eta2p3_CrossL1_v6',
     'HLT_Ele28_HighEta_SC20_Mass55_v23',
-    'HLT_Ele28_eta2p1_WPTight_Gsf_HT150_v25',
     'HLT_Ele30_WPTight_Gsf_v11',
-    'HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned_v25',
     'HLT_Ele32_WPTight_Gsf_L1DoubleEG_v19',
     'HLT_Ele32_WPTight_Gsf_v25',
     'HLT_Ele35_WPTight_Gsf_v19',
@@ -1632,20 +1688,16 @@ streamPhysicsEGamma1_datasetEGamma1_selector.triggerConditions = cms.vstring(
     'HLT_Ele15_IsoVVVL_PFHT450_PFMET50_v28',
     'HLT_Ele15_IsoVVVL_PFHT450_v28',
     'HLT_Ele15_IsoVVVL_PFHT600_v32',
-    'HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v19',
     'HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v28',
     'HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v30',
     'HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v30',
     'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v29',
     'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v29',
-    'HLT_Ele24_eta2p1_WPTight_Gsf_LooseDeepTauPFTauHPS30_eta2p1_CrossL1_v13',
     'HLT_Ele24_eta2p1_WPTight_Gsf_PNetTauhPFJet30_Loose_eta2p3_CrossL1_v6',
     'HLT_Ele24_eta2p1_WPTight_Gsf_PNetTauhPFJet30_Medium_eta2p3_CrossL1_v6',
     'HLT_Ele24_eta2p1_WPTight_Gsf_PNetTauhPFJet30_Tight_eta2p3_CrossL1_v6',
     'HLT_Ele28_HighEta_SC20_Mass55_v23',
-    'HLT_Ele28_eta2p1_WPTight_Gsf_HT150_v25',
     'HLT_Ele30_WPTight_Gsf_v11',
-    'HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned_v25',
     'HLT_Ele32_WPTight_Gsf_L1DoubleEG_v19',
     'HLT_Ele32_WPTight_Gsf_v25',
     'HLT_Ele35_WPTight_Gsf_v19',
@@ -2136,22 +2188,12 @@ streamPhysicsMuon0_datasetMuon0_selector.triggerConditions = cms.vstring(
     'HLT_DoubleMu48NoFiltersNoVtx_v14',
     'HLT_DoubleMu4_Mass3p8_DZ_PFHT350_v20',
     'HLT_HighPtTkMu100_v12',
-    'HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1_v13',
     'HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1_v6',
     'HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1_v6',
     'HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1_v6',
     'HLT_IsoMu20_v27',
     'HLT_IsoMu24_OneProng32_v9',
     'HLT_IsoMu24_TwoProngs35_v13',
-    'HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS180_eta2p1_v13',
-    'HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS30_eta2p1_CrossL1_v13',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS20_eta2p1_SingleL1_v12',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_CrossL1_v12',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_OneProng_CrossL1_v8',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet60_CrossL1_v12',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet75_CrossL1_v12',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1_v13',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS45_L2NN_eta2p1_CrossL1_v12',
     'HLT_IsoMu24_eta2p1_PFHT250_QuadPFJet25_PNet1Tauh0p50_v6',
     'HLT_IsoMu24_eta2p1_PFHT250_QuadPFJet25_v6',
     'HLT_IsoMu24_eta2p1_PFHT250_v6',
@@ -2282,22 +2324,12 @@ streamPhysicsMuon1_datasetMuon1_selector.triggerConditions = cms.vstring(
     'HLT_DoubleMu48NoFiltersNoVtx_v14',
     'HLT_DoubleMu4_Mass3p8_DZ_PFHT350_v20',
     'HLT_HighPtTkMu100_v12',
-    'HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1_v13',
     'HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1_v6',
     'HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1_v6',
     'HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1_v6',
     'HLT_IsoMu20_v27',
     'HLT_IsoMu24_OneProng32_v9',
     'HLT_IsoMu24_TwoProngs35_v13',
-    'HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS180_eta2p1_v13',
-    'HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS30_eta2p1_CrossL1_v13',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS20_eta2p1_SingleL1_v12',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_CrossL1_v12',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_OneProng_CrossL1_v8',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet60_CrossL1_v12',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet75_CrossL1_v12',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1_v13',
-    'HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS45_L2NN_eta2p1_CrossL1_v12',
     'HLT_IsoMu24_eta2p1_PFHT250_QuadPFJet25_PNet1Tauh0p50_v6',
     'HLT_IsoMu24_eta2p1_PFHT250_QuadPFJet25_v6',
     'HLT_IsoMu24_eta2p1_PFHT250_v6',

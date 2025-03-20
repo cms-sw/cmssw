@@ -39,34 +39,6 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTfor47378(process):
-    """Needed following the migration of the online beam spot arbitration to the edproducer"""
-    import copy
-    for esprod in list(esproducers_by_type(process, "OnlineBeamSpotESProducer")):
-        delattr(process, esprod.label())
-
-    for edprod in producers_by_type(process, "BeamSpotOnlineProducer"):
-        if hasattr(edprod, 'useTransientRecord'):
-            setattr(edprod, 'useBSOnlineRecords', copy.deepcopy(getattr(edprod, 'useTransientRecord')))
-            delattr(edprod, 'useTransientRecord')
-    
-    return process
-
-def customizeHLTfor47577(process):
-    """Needed to increase threshold of max number of strips clusters for cosmics"""
-
-    for prod in producers_by_type(process, "SimpleCosmicBONSeeder"):
-        if hasattr(prod, 'ClusterCheckPSet'):
-            pset = getattr(prod,'ClusterCheckPSet')
-            if hasattr(pset, 'MaxNumberOfStripClusters'):
-                prod.ClusterCheckPSet.MaxNumberOfStripClusters = 1000
-
-    for prod in producers_by_type(process, "CtfSpecialSeedGenerator"):
-        if hasattr(prod, 'MaxNumberOfStripClusters'):
-            prod.MaxNumberOfStripClusters = 1000
-
-    return process
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -74,7 +46,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customizeHLTfor47378(process)
-    process = customizeHLTfor47577(process)
     
     return process
