@@ -226,12 +226,16 @@ private:
   MonitorElement* h_aliveNtuplet_layerSpan_;
   MonitorElement* h_aliveNtuplet_fracNumRecHits_eta_;
   MonitorElement* h_aliveNtuplet_fracNumRecHits_pt_;
+  MonitorElement* h_aliveNtuplet_firstLayerVsEta_;
+  MonitorElement* h_aliveNtuplet_lastLayerVsEta_;
   CoupledMonitorElement h_longNtuplet_numRecHits_;
   CoupledMonitorElement h_longNtuplet_firstLayerId_;
   CoupledMonitorElement h_longNtuplet_lastLayerId_;
   CoupledMonitorElement h_longNtuplet_layerSpan_;
   CoupledMonitorElement h_longNtuplet_eta_;
   CoupledMonitorElement h_longNtuplet_pt_;
+  CoupledMonitorElement h_longNtuplet_firstLayerVsEta_;
+  CoupledMonitorElement h_longNtuplet_lastLayerVsEta_;
   // longest SimNtuplets of the TP status
   MonitorElement* h_longNtuplet_alive_eta_;
   MonitorElement* h_longNtuplet_undefDoubletCuts_eta_;
