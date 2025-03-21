@@ -52,12 +52,18 @@ parser.add_argument("--fileout",
                     type=str,
                     dest="fileout")
 
+parser.add_argument("--rntuple_out",
+                    help="If possible, use RNTuple format for output.",
+                    action="store_true",
+                    default=defaultOptions.rntuple_out,
+                    dest="rntuple_out")
+
 parser.add_argument("--filetype",
                     help="The type of the infile",
                     default=defaultOptions.filetype,
                     type=str,
                     dest="filetype",
-                    choices=['EDM','DAT','LHE','MDCB','DQM','DQMDAQ']
+                    choices=['EDM','DAT','LHE','MDCB','DQM','DQMDAQ', 'EDM_RNTUPLE']
                   )
 
 parser.add_argument("-n", "--number",
