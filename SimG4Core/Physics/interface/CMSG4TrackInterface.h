@@ -2,7 +2,7 @@
 #define SimG4Core_CMSG4TrackInterface_h 1
 
 //
-// Package:     Application
+// Package:     SimG4Core/Physics
 // Class  :     SimTrackInterface
 //
 // 10.03.2025   V.Ivantchenko
@@ -38,7 +38,7 @@ private:
   static G4ThreadLocal CMSG4TrackInterface* interface_;
 
   const G4Track* track_{nullptr};
-  int threadID_{0};
+  int threadID_{-1};
 };
 
 #endif
