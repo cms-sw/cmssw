@@ -582,10 +582,12 @@ offset_pd = 0.001 # less than 100 pds per year
 for e_n,era in enumerate(era_mask_2024):
     for p_n,pd in enumerate(pds_2024):
         wf_number = round(base_wf + offset_era * e_n + offset_pd * p_n,3)
-        dataset = "/" + pd + "/" + era + "-v1/RAW"
-        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1]
-        suff = "ZB_" if "ZeroBias" in step_name else ""
-        workflows[wf_number] = ['',[step_name,'HLTDR3_2024','RECONANORUN3_' + suff + 'reHLT_2024','HARVESTRUN3_' + suff + '2024']]
+        dataset = '/' + pd + '/' + era + '-v1/RAW'
+        step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1]
+        suff = 'ZB_' if 'ZeroBias' in step_name else ''
+        recosetup = 'RECONANORUN3_' + suff + 'reHLT_2024' 
+        recosetup = recosetup if era[-1] > 'E' else recosetup + '_Offline'
+        workflows[wf_number] = ['',[step_name,'HLTDR3_2024',recosetup,'HARVESTRUN3_' + suff + '2024']]
 
 ## special HLT scouting workflow (with hardcoded private input file from ScoutingPFMonitor skimmed to remove all events without scouting)
 workflows[145.415] = ['',['HLTDR3_ScoutingPFMonitor_2024','RECONANORUN3_ScoutingPFMonitor_reHLT_2024','HARVESTRUN3_ScoutingPFMonitor_2024']]
