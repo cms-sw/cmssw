@@ -14,6 +14,7 @@
 
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iomanip>
@@ -97,7 +98,7 @@ namespace edm {
 
   void ParameterDescriptionBase::validate_(ParameterSet& pset,
                                            std::set<std::string>& validatedLabels,
-                                           bool optional) const {
+                                           Modifier modifier) const {
     bool exists = exists_(pset, isTracked());
 
     if (exists) {
@@ -108,7 +109,11 @@ namespace edm {
       throwParameterWrongType();
     }
 
-    if (!exists && !optional) {
+    if (exists and modifier == Modifier::kObsolete) {
+      edm::LogWarning("Configuration") << "ignoring obsolete parameter '" << label() << "'";
+      return;
+    }
+    if (!exists && modifier == Modifier::kNone) {
       if (hasDefault()) {
         insertDefault_(pset);
         validatedLabels.insert(label());
@@ -119,7 +124,7 @@ namespace edm {
   }
 
   void ParameterDescriptionBase::writeCfi_(std::ostream& os,
-                                           bool optional,
+                                           Modifier modifier,
                                            bool& startWithComma,
                                            int indentation,
                                            CfiOptions& options,
@@ -131,11 +136,13 @@ namespace edm {
     auto check = cfi::needToSwitchToTyped(label(), options);
     if (check.first) {
       CfiOptions fullOp = cfi::Typed{};
-      writeFullCfi(os, optional, startWithComma, indentation, fullOp, wroteSomething);
+      writeFullCfi(os, modifier, startWithComma, indentation, fullOp, wroteSomething);
     } else if (shouldWriteUntyped(options)) {
-      writeLabelValueCfi(os, optional, startWithComma, indentation, options, wroteSomething);
+      if (modifier != Modifier::kObsolete) {
+        writeLabelValueCfi(os, modifier == Modifier::kOptional, startWithComma, indentation, options, wroteSomething);
+      }
     } else {
-      writeFullCfi(os, optional, startWithComma, indentation, options, wroteSomething);
+      writeFullCfi(os, modifier, startWithComma, indentation, options, wroteSomething);
     }
   }
 
@@ -199,7 +206,7 @@ namespace edm {
   }
 
   void ParameterDescriptionBase::writeFullCfi(std::ostream& os,
-                                              bool optional,
+                                              Modifier modifier,
                                               bool& startWithComma,
                                               int indentation,
                                               CfiOptions& options,
@@ -214,9 +221,11 @@ namespace edm {
 
     os << label() << " = cms.";
 
-    if (!hasDefault()) {
-      if (optional) {
+    if (modifier == Modifier::kObsolete or !hasDefault()) {
+      if (modifier == Modifier::kOptional) {
         os << "optional.";
+      } else if (modifier == Modifier::kObsolete) {
+        os << "obsolete.";
       } else {
         os << "required.";
       }
@@ -231,7 +240,12 @@ namespace edm {
       os << ")";
     }
   }
-  void ParameterDescriptionBase::print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {
+  void ParameterDescriptionBase::print_(std::ostream& os,
+                                        Modifier modifier,
+                                        bool writeToCfi,
+                                        DocFormatHelper& dfh) const {
+    const bool optional = (modifier == Modifier::kOptional);
+    const bool obsolete = (modifier == Modifier::kObsolete);
     if (dfh.pass() == 0) {
       dfh.setAtLeast1(label().size());
       if (isTracked()) {
@@ -262,6 +276,8 @@ namespace edm {
         os << std::setw(dfh.column3());
         if (optional) {
           os << "optional";
+        } else if (obsolete) {
+          os << "obsolete";
         } else {
           os << "";
         }
@@ -282,6 +298,8 @@ namespace edm {
 
         if (optional)
           os << "optional";
+        if (obsolete)
+          os << "obsolete";
         os << "\n";
 
         dfh.indent2(os);

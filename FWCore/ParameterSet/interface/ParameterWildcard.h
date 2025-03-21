@@ -37,9 +37,9 @@ namespace edm {
     ParameterDescriptionNode* clone() const override { return new ParameterWildcard(*this); }
 
   private:
-    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override {
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const override {
       std::vector<std::string> parameterNames = pset.getParameterNamesForType<T>(isTracked());
-      validateMatchingNames(parameterNames, validatedLabels, optional);
+      validateMatchingNames(parameterNames, validatedLabels, modifier != Modifier::kNone);
     }
 
     bool exists_(ParameterSet const& pset) const override {
@@ -77,7 +77,7 @@ namespace edm {
 
   private:
     void writeTemplate(std::ostream& os, int indentation, CfiOptions&) const override;
-    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const override;
 
     bool hasNestedContent_() const override;
 
@@ -110,7 +110,7 @@ namespace edm {
     ParameterDescriptionNode* clone() const override;
 
   private:
-    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const override;
 
     bool hasNestedContent_() const override;
 

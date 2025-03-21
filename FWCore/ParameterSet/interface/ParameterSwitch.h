@@ -60,8 +60,8 @@ namespace edm {
       }
     }
 
-    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override {
-      switch_.validate(pset, validatedLabels, optional);
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const override {
+      switch_.validate(pset, validatedLabels, modifier);
       if (switch_.exists(pset)) {
         T switchValue;
         if (switch_.isTracked()) {
@@ -71,7 +71,7 @@ namespace edm {
         }
         typename CaseMap::const_iterator selectedCase = cases_.find(switchValue);
         if (selectedCase != cases_.end()) {
-          selectedCase->second->validate(pset, validatedLabels, false);
+          selectedCase->second->validate(pset, validatedLabels, Modifier::kNone);
         } else {
           std::stringstream ss;
           ss << "The switch parameter with label \"" << switch_.label() << "\" has been assigned an illegal value.\n"
@@ -87,12 +87,12 @@ namespace edm {
     }
 
     void writeCfi_(std::ostream& os,
-                   bool optional,
+                   Modifier modifier,
                    bool& startWithComma,
                    int indentation,
                    CfiOptions& options,
                    bool& wroteSomething) const override {
-      switch_.writeCfi(os, optional, startWithComma, indentation, options, wroteSomething);
+      switch_.writeCfi(os, modifier, startWithComma, indentation, options, wroteSomething);
 
       if (std::holds_alternative<cfi::ClassFile>(options)) {
         std::set<std::string> labels;
@@ -108,13 +108,13 @@ namespace edm {
 
       typename CaseMap::const_iterator selectedCase = cases_.find(switch_.getDefaultValue());
       if (selectedCase != cases_.end()) {
-        selectedCase->second->writeCfi(os, optional, startWithComma, indentation, options, wroteSomething);
+        selectedCase->second->writeCfi(os, modifier, startWithComma, indentation, options, wroteSomething);
       }
     }
 
-    void print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const override {
+    void print_(std::ostream& os, Modifier modifier, bool writeToCfi, DocFormatHelper& dfh) const override {
       printBase(os,
-                optional,
+                modifier,
                 writeToCfi,
                 dfh,
                 switch_.label(),
@@ -126,7 +126,7 @@ namespace edm {
       DocFormatHelper new_dfh(dfh);
       printNestedContentBase(os, dfh, new_dfh, switch_.label());
 
-      switch_.print(os, optional, true, new_dfh);
+      switch_.print(os, modifierIsOptional(optional), true, new_dfh);
       for_all(cases_,
               std::bind(&ParameterSwitchBase::printCaseT<T>,
                         std::placeholders::_1,
@@ -140,7 +140,7 @@ namespace edm {
 
       new_dfh.indent(os);
       os << "switch:\n";
-      switch_.print(os, optional, true, new_dfh);
+      switch_.print(os, modifierIsOptional(optional), true, new_dfh);
       for_all(cases_,
               std::bind(&ParameterSwitchBase::printCaseT<T>,
                         std::placeholders::_1,
