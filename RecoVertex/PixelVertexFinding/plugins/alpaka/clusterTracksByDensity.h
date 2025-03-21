@@ -58,7 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     constexpr int warpSize = cms::alpakatools::warpSize;
     auto& hws = alpaka::declareSharedVar<Hist::Counter[warpSize], __COUNTER__>(acc);
 
-    for (auto j : cms::alpakatools::uniform_elements(acc, Hist::totbins())) {
+    for (auto j : cms::alpakatools::uniform_elements(acc, Hist::totbins() - 1)) {
       hist.off[j] = 0;
     }
     for (auto j : cms::alpakatools::uniform_elements(acc, warpSize)) {
