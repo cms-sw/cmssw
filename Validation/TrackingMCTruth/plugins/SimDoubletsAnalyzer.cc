@@ -606,6 +606,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       h_longNtuplet_firstLayerId_.fill(isAlive, longNtuplet.firstLayerId());
       h_longNtuplet_lastLayerId_.fill(isAlive, longNtuplet.lastLayerId());
       h_longNtuplet_layerSpan_.fill(isAlive, longNtuplet.firstLayerId(), longNtuplet.lastLayerId());
+      h_longNtuplet_firstLayerVsEta_.fill(isAlive, true_eta, longNtuplet.firstLayerId());
+      h_longNtuplet_lastLayerVsEta_.fill(isAlive, true_eta, longNtuplet.lastLayerId());
 
       // fill the respective histogram
       // 1. check if alive
@@ -653,6 +655,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
         h_aliveNtuplet_firstLayerId_->Fill(aliveNtuplet.firstLayerId());
         h_aliveNtuplet_lastLayerId_->Fill(aliveNtuplet.lastLayerId());
         h_aliveNtuplet_layerSpan_->Fill(aliveNtuplet.firstLayerId(), aliveNtuplet.lastLayerId());
+        h_aliveNtuplet_firstLayerVsEta_->Fill(true_eta, aliveNtuplet.firstLayerId());
+        h_aliveNtuplet_lastLayerVsEta_->Fill(true_eta, aliveNtuplet.lastLayerId());
 
         // relative length of alive SimNtuplet vs longest SimNtuplet
         relativeLength = aliveNtuplet.numRecHits() / longNtuplet.numRecHits();
@@ -1076,6 +1080,24 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                         0,
                         1,
                         " ");
+  h_aliveNtuplet_firstLayerVsEta_ =
+      ibook.book2D("alive_firstLayerVsEta",
+                   "First layer of longest alive SimNtuplet per TrackingParticle;True pseudorapidity #eta;First layer ID",
+                   etaNBins,
+                   etamin,
+                   etamax,
+                   TrackerTraits::numberOfLayers,
+                   -0.5,
+                   -0.5 + TrackerTraits::numberOfLayers);
+  h_aliveNtuplet_lastLayerVsEta_ =
+      ibook.book2D("alive_lastLayerVsEta",
+                   "Last layer of longest alive SimNtuplet per TrackingParticle;True pseudorapidity #eta;Last layer ID",
+                   etaNBins,
+                   etamin,
+                   etamax,
+                   TrackerTraits::numberOfLayers,
+                   -0.5,
+                   -0.5 + TrackerTraits::numberOfLayers);
   h_longNtuplet_numRecHits_.book1D(ibook,
                                    "numRecHits",
                                    "Number of RecHits in longest SimNtuplet per TrackingParticle",
@@ -1127,6 +1149,28 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                             etaNBins,
                             etamin,
                             etamax);
+  h_longNtuplet_firstLayerVsEta_.book2D(ibook,
+                                        "firstLayerVsEta",
+                                        "First layer of longest SimNtuplet per TrackingParticle",
+                                        "True pseudorapidity #eta",
+                                        "First layer ID",
+                                        etaNBins,
+                                        etamin,
+                                        etamax,
+                                        TrackerTraits::numberOfLayers,
+                                        -0.5,
+                                        -0.5 + TrackerTraits::numberOfLayers);
+  h_longNtuplet_lastLayerVsEta_.book2D(ibook,
+                                       "lastLayerVsEta",
+                                       "Last layer of longest SimNtuplet per TrackingParticle",
+                                       "True pseudorapidity #eta",
+                                       "Last layer ID",
+                                       etaNBins,
+                                       etamin,
+                                       etamax,
+                                       TrackerTraits::numberOfLayers,
+                                       -0.5,
+                                       -0.5 + TrackerTraits::numberOfLayers);
 
   // histograms of the longest SimNtuplets of the TrackingParticles
   h_longNtuplet_alive_pt_ = simdoublets::make1DLogX(ibook,
