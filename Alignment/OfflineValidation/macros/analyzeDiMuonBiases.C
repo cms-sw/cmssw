@@ -148,7 +148,7 @@ std::pair<TH1F*, TH1F*> makeProfileVsEta(TH2F* h2) {
   h_prof->GetXaxis()->SetTitle(h2->GetXaxis()->GetTitle());
   h_prof->GetYaxis()->SetTitle(updateTitle(h2->GetZaxis()->GetTitle(), TitleFormatType::MEAN));
   for (int i = 1; i <= nBinsX; i++) {
-    std::cout << i << " = " << average[i - 1] << std::endl;
+    //std::cout << i << " = " << average[i - 1] << std::endl;
     h_prof->SetBinContent(i, average[i - 1]);
     h_prof->SetBinError(i, RMS[i - 1] / nBinsY);
   }
@@ -157,7 +157,7 @@ std::pair<TH1F*, TH1F*> makeProfileVsEta(TH2F* h2) {
   h_RMS->GetXaxis()->SetTitle(h2->GetXaxis()->GetTitle());
   h_RMS->GetYaxis()->SetTitle(updateTitle(h2->GetZaxis()->GetTitle(), TitleFormatType::RMS));
   for (int i = 1; i <= nBinsX; i++) {
-    std::cout << i << " = " << average[i - 1] << std::endl;
+    //std::cout << i << " = " << average[i - 1] << std::endl;
     h_RMS->SetBinContent(i, RMS[i - 1]);
     h_RMS->SetBinError(i, RMS[i - 1] / std::sqrt(2 * (nBinsY - 1)));
   }
@@ -198,7 +198,7 @@ std::pair<TH1F*, TH1F*> makeProfileVsPhi(TH2F* h2) {
   h_prof->GetXaxis()->SetTitle(h2->GetYaxis()->GetTitle());
   h_prof->GetYaxis()->SetTitle(updateTitle(h2->GetZaxis()->GetTitle(), TitleFormatType::MEAN));
   for (int i = 1; i <= nBinsY; i++) {
-    std::cout << i << " = " << average[i - 1] << std::endl;
+    //std::cout << i << " = " << average[i - 1] << std::endl;
     h_prof->SetBinContent(i, average[i - 1]);
     h_prof->SetBinError(i, RMS[i - 1] / nBinsX);
   }
@@ -207,7 +207,7 @@ std::pair<TH1F*, TH1F*> makeProfileVsPhi(TH2F* h2) {
   h_RMS->GetXaxis()->SetTitle(h2->GetYaxis()->GetTitle());
   h_RMS->GetYaxis()->SetTitle(updateTitle(h2->GetZaxis()->GetTitle(), TitleFormatType::RMS));
   for (int i = 1; i <= nBinsY; i++) {
-    std::cout << i << " = " << average[i - 1] << std::endl;
+    //std::cout << i << " = " << average[i - 1] << std::endl;
     h_RMS->SetBinContent(i, RMS[i - 1]);
     h_RMS->SetBinError(i, RMS[i - 1] / std::sqrt(2 * (nBinsX - 1)));
   }
