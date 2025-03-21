@@ -60,4 +60,11 @@
   </bin>
   <test name="Miscellanea" command="testingScripts/test_unitMiscellanea.sh"/>
   <test name="SagittaBiasNtuplizer" command="testingScripts/test_unitSagittaBiasNtuplizer.sh"/>
+  <bin file="testanalyzeDiMuonBiases.cpp" name="testDiMuonBiasesPlotting">
+    <flags PRE_TEST="SagittaBiasNtuplizer"/>
+    <use name="rootmath"/>
+    <use name="roothistmatrix"/>
+    <use name="rootgraphics"/>
+    <use name="Alignment/OfflineValidation"/>
+  </bin>
 </environment>
