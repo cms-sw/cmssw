@@ -1,7 +1,0 @@
-<use name="CUDADataFormats/TrackingRecHit"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
-<flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
-
-<iftool name="cuda-gcc-support">
-  <bin file="TrackingRecHitSoA_test.cpp TrackingRecHitSoA_test.cu" name="TrackingRecHitSoA_test"/>
-</iftool>

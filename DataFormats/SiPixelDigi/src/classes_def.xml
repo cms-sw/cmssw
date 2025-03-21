@@ -49,7 +49,4 @@
 
    <class name="edmNew::DetSetVector<SiPixelCalibDigiError>"/>
    <class name="edm::Wrapper<edmNew::DetSetVector<SiPixelCalibDigiError> >"/>
-
-   <class name="legacy::SiPixelDigisSoA" persistent="false"/>
-   <class name="edm::Wrapper<legacy::SiPixelDigisSoA>" persistent="false"/>
 </lcgdict>
