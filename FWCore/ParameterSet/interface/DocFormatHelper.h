@@ -22,7 +22,7 @@ namespace edm {
         : brief_(false),
           lineWidth_(80),
           indentation_(4),
-          startColumn2_(24U),
+          startColumn2_(24),
           section_(),
           pass_(0),
           column1_(0),
@@ -48,22 +48,25 @@ namespace edm {
     int pass() const { return pass_; }
     void setPass(int value) { pass_ = value; }
 
-    size_t column1() const { return column1_; }
-    size_t column2() const { return column2_; }
-    size_t column3() const { return column3_; }
+    int column1() const { return column1_; }
+    int column2() const { return column2_; }
+    int column3() const { return column3_; }
 
-    void setAtLeast1(size_t width) {
+    void setAtLeast1(int width) {
       if (width > column1_)
         column1_ = width;
     }
-    void setAtLeast2(size_t width) {
+    void setAtLeast1(size_t width) { setAtLeast1(static_cast<int>(width)); }
+    void setAtLeast2(int width) {
       if (width > column2_)
         column2_ = width;
     }
-    void setAtLeast3(size_t width) {
+    void setAtLeast2(size_t width) { setAtLeast2(static_cast<int>(width)); }
+    void setAtLeast3(int width) {
       if (width > column3_)
         column3_ = width;
     }
+    void setAtLeast3(size_t width) { setAtLeast3(static_cast<int>(width)); }
 
     int counter() const { return counter_; }
     void setCounter(int value) { counter_ = value; }
@@ -75,7 +78,7 @@ namespace edm {
 
     size_t commentWidth() const;
 
-    static void wrapAndPrintText(std::ostream& os, std::string const& text, size_t indent, size_t suggestedWidth);
+    static void wrapAndPrintText(std::ostream& os, std::string const& text, int indent, size_t suggestedWidth);
 
     void indent(std::ostream& os) const;
     void indent2(std::ostream& os) const;
@@ -92,15 +95,15 @@ namespace edm {
     bool brief_;
     size_t lineWidth_;
     int indentation_;
-    size_t startColumn2_;
+    int startColumn2_;
 
     std::string section_;
 
     int pass_;
 
-    size_t column1_;
-    size_t column2_;
-    size_t column3_;
+    int column1_;
+    int column2_;
+    int column3_;
 
     int counter_;
 

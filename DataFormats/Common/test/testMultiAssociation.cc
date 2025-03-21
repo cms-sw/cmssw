@@ -122,10 +122,10 @@ public:
       RefVector<CVal> vals;
       for (std::vector<double>::const_iterator it2 = k.begin(), ed2 = k.end(); it2 != ed2; ++it2) {
         if (f(*it, *it2)) {
-          vals.push_back(Ref<CVal>(handleV, it2 - k.begin()));
+          vals.push_back(Ref<CVal>(handleV, static_cast<Ref<CVal>::key_type>(it2 - k.begin())));
         }
       }
-      filler.setValues(Ref<Key>(handle, it - handle->begin()), vals);
+      filler.setValues(Ref<Key>(handle, static_cast<Ref<Key>::key_type>(it - handle->begin())), vals);
     }
   }
 
@@ -139,13 +139,13 @@ public:
       RefVector<CVal> vals;
       for (std::vector<double>::const_iterator it2 = k.begin(), ed2 = k.end(); it2 != ed2; ++it2) {
         if (f(*it, *it2)) {
-          vals.push_back(Ref<CVal>(handleV, it2 - k.begin()));
+          vals.push_back(Ref<CVal>(handleV, static_cast<Ref<CVal>::key_type>(it2 - k.begin())));
         }
       }
       if (swap) {
-        filler.swapValues(Ref<Key>(handle, it - handle->begin()), vals);
+        filler.swapValues(Ref<Key>(handle, static_cast<Ref<Key>::key_type>(it - handle->begin())), vals);
       } else {
-        filler.setValues(Ref<Key>(handle, it - handle->begin()), vals);
+        filler.setValues(Ref<Key>(handle, static_cast<Ref<Key>::key_type>(it - handle->begin())), vals);
       }
     }
   }
@@ -162,7 +162,7 @@ public:
           vals.push_back(*it2);
         }
       }
-      filler.setValues(Ref<Key>(handle, it - handle->begin()), vals);
+      filler.setValues(Ref<Key>(handle, static_cast<Ref<Key>::key_type>(it - handle->begin())), vals);
     }
   }
 
@@ -180,9 +180,9 @@ public:
         }
       }
       if (swap) {
-        filler.swapValues(Ref<Key>(handle, it - handle->begin()), vals);
+        filler.swapValues(Ref<Key>(handle, static_cast<Ref<Key>::key_type>(it - handle->begin())), vals);
       } else {
-        filler.setValues(Ref<Key>(handle, it - handle->begin()), vals);
+        filler.setValues(Ref<Key>(handle, static_cast<Ref<Key>::key_type>(it - handle->begin())), vals);
       }
     }
   }
@@ -581,6 +581,7 @@ void testMultiAssociation::checkUnsortedKeys() {
 bool testMultiAssociation::tryBadFill(int i) {
   MultiRef m;
   MultiRef::Collection coll1;
+  using key1_type = Ref<CKey1>::key_type;
   coll1.push_back(Ref<CVal>(handleV, 1));
   switch (i) {
     case 0: {  // fill with right prod. id
@@ -630,7 +631,7 @@ bool testMultiAssociation::tryBadFill(int i) {
     } break;
     case 9: {  // Check index out of bounds
       MultiRef::FastFiller filler = m.fastFiller(handleK1);
-      filler.setValues(Ref<CKey1>(handleK1, handleK1->size() + 5, false), coll1);
+      filler.setValues(Ref<CKey1>(handleK1, static_cast<key1_type>(handleK1->size() + 5), false), coll1);
     } break;
     case 10: {  // Can copy a LazyFiller, if I don't fill twice
       MultiRef::LazyFiller filler = m.lazyFiller(handleK1, false);
@@ -721,6 +722,7 @@ void testMultiAssociation::checkBadRead() {
 
 void testMultiAssociation::checkWithPtr() {
   MultiPtr map;
+  using key_type = Ref<CKey1>::key_type;
   {  // Fill the map
     MultiPtr::FastFiller filler = map.fastFiller(handleK1);
     edm::TestHandle<CObj> handleObj(&der1s, ProductID(10));
@@ -730,12 +732,12 @@ void testMultiAssociation::checkWithPtr() {
         vals.push_back(PObj(handleObj, (3 * i + 4 * j) % 10));
       }
       if (!vals.empty())
-        filler.setValues(Ref<CKey1>(handleK1, i), vals);
+        filler.setValues(Ref<CKey1>(handleK1, static_cast<key_type>(i)), vals);
     }
   }
   {  // Read the map
     for (size_t i = 0; i < handleK1->size(); ++i) {
-      MultiPtr::const_range r = map[Ref<CKey1>(handleK1, i)];
+      MultiPtr::const_range r = map[Ref<CKey1>(handleK1, static_cast<key_type>(i))];
       CPPUNIT_ASSERT(static_cast<size_t>(r.size()) == ((i + 2) % 3));
       for (size_t j = 0; j < ((i + 2) % 3); ++j) {
         CPPUNIT_ASSERT(r[j].key() == (3 * i + 4 * j) % 10);
@@ -748,6 +750,7 @@ void testMultiAssociation::checkWithPtr() {
 }
 void testMultiAssociation::checkWithOwn() {
   MultiOwn map;
+  using key_type = Ref<CKey1>::key_type;
   {  // Fill the map
     MultiOwn::FastFiller filler = map.fastFiller(handleK1);
     for (size_t i = 0; i < handleK1->size(); ++i) {
@@ -756,12 +759,12 @@ void testMultiAssociation::checkWithOwn() {
         vals.push_back(bases[(i + j) % 3].clone());
       }
       if (!vals.empty())
-        filler.setValues(Ref<CKey1>(handleK1, i), vals);
+        filler.setValues(Ref<CKey1>(handleK1, static_cast<key_type>(i)), vals);
     }
   }
   {  // Read the map
     for (size_t i = 0; i < handleK1->size(); ++i) {
-      MultiOwn::const_range r = map[Ref<CKey1>(handleK1, i)];
+      MultiOwn::const_range r = map[Ref<CKey1>(handleK1, static_cast<key_type>(i))];
       CPPUNIT_ASSERT(static_cast<size_t>(r.size()) == ((i + 2) % 3));
       for (size_t j = 0; j < ((i + 2) % 3); ++j) {
         CPPUNIT_ASSERT((r.begin() + j)->id() == bases[(i + j) % 3].id());
