@@ -20,13 +20,6 @@ BTVEfficiency_BTagMu_DiJet = DQMEDHarvester("DQMGenericClient",
         "effic_jetPhi_2       'efficiency vs leading jet phi; jet phi ; efficiency' jetPhi_2_numerator       jetPhi_2_denominator",
         "effic_eventHT       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_numerator       eventHT_denominator",
         "effic_jetEtaPhi_HEP17       'efficiency vs jet #eta-#phi; jet #eta; jet #phi' jetEtaPhi_HEP17_numerator       jetEtaPhi_HEP17_denominator",
-        "effic_muPt_1_variableBinning       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_1_variableBinning_numerator       muPt_1_variableBinning_denominator",
-        "effic_muEta_1_variableBinning       'efficiency vs muon eta; muon eta ; efficiency' muEta_1_variableBinning_numerator       muEta_1_variableBinning_denominator",
-        "effic_jetPt_1_variableBinning       'efficiency vs leading jet pt; jet pt [GeV]; efficiency' jetPt_1_variableBinning_numerator       jetPt_1_variableBinning_denominator",
-        "effic_jetEta_1_variableBinning       'efficiency vs leading jet eta; jet eta ; efficiency' jetEta_1_variableBinning_numerator       jetEta_1_variableBinning_denominator",
-        "effic_jetPt_2_variableBinning       'efficiency vs leading jet pt; jet pt [GeV]; efficiency' jetPt_2_variableBinning_numerator       jetPt_2_variableBinning_denominator",
-        "effic_jetEta_2_variableBinning       'efficiency vs leading jet eta; jet eta ; efficiency' jetEta_2_variableBinning_numerator       jetEta_2_variableBinning_denominator",
-        "effic_eventHT_variableBinning       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_variableBinning_numerator       eventHT_variableBinning_denominator",
         "effic_jetMulti       'efficiency vs jet multiplicity; jet multiplicity; efficiency' jetMulti_numerator       jetMulti_denominator",
         "effic_muMulti       'efficiency vs muon multiplicity; muon multiplicity; efficiency' muMulti_numerator       muMulti_denominator",
         "effic_eleMulti       'efficiency vs electron multiplicity; electron multiplicity; efficiency' eleMulti_numerator       eleMulti_denominator",
@@ -41,9 +34,9 @@ BTVEfficiency_BTagMu_DiJet = DQMEDHarvester("DQMGenericClient",
         "effic_bjetPt_1      'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_numerator  bjetPt_1_denominator",
         "effic_bjetEta_1     'efficiency vs 1st b-jet eta; bjet eta ; efficiency'  bjetEta_1_numerator   bjetEta_1_denominator",
         "effic_bjetPhi_1     'efficiency vs 1st b-jet phi; bjet phi ; efficiency'  bjetPhi_1_numerator   bjetPhi_1_denominator",
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
-        "effic_bjetPt_1_variableBinning   'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_variableBinning_numerator   bjetPt_1_variableBinning_denominator",
-        "effic_bjetEta_1_variableBinning  'efficiency vs 1st b-jet eta; bjet eta ; efficiency' bjetEta_1_variableBinning_numerator     bjetEta_1_variableBinning_denominator",
+        "effic_bjetDeepFlav_1     'efficiency vs 1st b-jet DeepJet Score; bjet DeepJet Score; efficiency' bjetDeepFlav_1_numerator  bjetDeepFlav_1_denominator",
+        "effic_bjetPNet_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetPNet_1_numerator  bjetPNet_1_denominator",
+        "effic_bjetUParT_1     'efficiency vs 1st b-jet UParT Score; bjet UParT Score; efficiency' bjetUParT_1_numerator  bjetUParT_1_denominator",
         "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
         "effic_bjetPtEta_1    'efficiency vs 1st b-jet pt-#eta; jet pt [GeV]; bjet #eta' bjetPtEta_1_numerator   bjetPtEta_1_denominator",
         "effic_bjetEtaPhi_1    'efficiency vs 1st b-jet #eta-#phi; bjet #eta ; bjet #phi' bjetEtaPhi_1_numerator  bjetEtaPhi_1_denominator",
@@ -51,14 +44,6 @@ BTVEfficiency_BTagMu_DiJet = DQMEDHarvester("DQMGenericClient",
     ),
 )
 
-BTVEfficiency_BTagMu_DiJet_DeepJet = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/BTV/BTagMu_DiJet/*_DeepJet"),
-    verbose        = cms.untracked.uint32(0),
-    resolution     = cms.vstring(),
-    efficiency     = cms.vstring(
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet DeepJet score; DeepJet score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
-    )    
-)
 
 BTVEfficiency_BTagMu_Jet = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/BTV/BTagMu_Jet/*"),
@@ -73,13 +58,8 @@ BTVEfficiency_BTagMu_Jet = DQMEDHarvester("DQMGenericClient",
         "effic_jetPt_1       'efficiency vs leading jet pt; jet pt [GeV]; efficiency' jetPt_1_numerator       jetPt_1_denominator",
         "effic_jetEta_1       'efficiency vs leading jet eta; jet eta ; efficiency' jetEta_1_numerator       jetEta_1_denominator",
         "effic_jetPhi_1       'efficiency vs leading jet phi; jet phi ; efficiency' jetPhi_1_numerator       jetPhi_1_denominator",
-        "effic_eventHT       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_numerator       eventHT_denominator",
+        "effic_eventHT       'efficiency vs event HT; event HT [GeV]; efficiency' effic_muPt_1_variableBinning       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_1_variableBinning_numerator       muPt_1_variableBinning_denominator",
         "effic_jetEtaPhi_HEP17       'efficiency vs jet #eta-#phi; jet #eta; jet #phi' jetEtaPhi_HEP17_numerator       jetEtaPhi_HEP17_denominator",
-        "effic_muPt_1_variableBinning       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_1_variableBinning_numerator       muPt_1_variableBinning_denominator",
-        "effic_muEta_1_variableBinning       'efficiency vs muon eta; muon eta ; efficiency' muEta_1_variableBinning_numerator       muEta_1_variableBinning_denominator",
-        "effic_jetPt_1_variableBinning       'efficiency vs leading jet pt; jet pt [GeV]; efficiency' jetPt_1_variableBinning_numerator       jetPt_1_variableBinning_denominator",
-        "effic_jetEta_1_variableBinning       'efficiency vs leading jet eta; jet eta ; efficiency' jetEta_1_variableBinning_numerator       jetEta_1_variableBinning_denominator",
-        "effic_eventHT_variableBinning       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_variableBinning_numerator       eventHT_variableBinning_denominator",
         "effic_jetMulti       'efficiency vs jet multiplicity; jet multiplicity; efficiency' jetMulti_numerator       jetMulti_denominator",
         "effic_muMulti       'efficiency vs muon multiplicity; muon multiplicity; efficiency' muMulti_numerator       muMulti_denominator",
         "effic_eleMulti       'efficiency vs electron multiplicity; electron multiplicity; efficiency' eleMulti_numerator       eleMulti_denominator",
@@ -92,23 +72,14 @@ BTVEfficiency_BTagMu_Jet = DQMEDHarvester("DQMGenericClient",
         "effic_bjetPt_1      'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_numerator  bjetPt_1_denominator",
         "effic_bjetEta_1     'efficiency vs 1st b-jet eta; bjet eta ; efficiency'  bjetEta_1_numerator   bjetEta_1_denominator",
         "effic_bjetPhi_1     'efficiency vs 1st b-jet phi; bjet phi ; efficiency'  bjetPhi_1_numerator   bjetPhi_1_denominator",
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
-        "effic_bjetPt_1_variableBinning   'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_variableBinning_numerator   bjetPt_1_variableBinning_denominator",
-        "effic_bjetEta_1_variableBinning  'efficiency vs 1st b-jet eta; bjet eta ; efficiency' bjetEta_1_variableBinning_numerator     bjetEta_1_variableBinning_denominator",
+        "effic_bjetDeepFlav_1     'efficiency vs 1st b-jet DeepJet Score; bjet DeepJet Score; efficiency' bjetDeepFlav_1_numerator  bjetDeepFlav_1_denominator",
+        "effic_bjetPNet_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetPNet_1_numerator  bjetPNet_1_denominator",
+        "effic_bjetUParT_1     'efficiency vs 1st b-jet UParT Score; bjet UParT Score; efficiency' bjetUParT_1_numerator  bjetUParT_1_denominator",
         "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
         "effic_bjetPtEta_1    'efficiency vs 1st b-jet pt-#eta; jet pt [GeV]; bjet #eta' bjetPtEta_1_numerator   bjetPtEta_1_denominator",
         "effic_bjetEtaPhi_1    'efficiency vs 1st b-jet #eta-#phi; bjet #eta ; bjet #phi' bjetEtaPhi_1_numerator  bjetEtaPhi_1_denominator",
         "effic_DeltaR_jet_Mu    'efficiency vs #DeltaR between jet and mu; #DeltaR(jet,mu) ; efficiency' DeltaR_jet_Mu_numerator  DeltaR_jet_Mu_denominator",
     ),
-)
-
-BTVEfficiency_BTagMu_Jet_DeepJet = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/BTV/BTagMu_Jet/*_DeepJet"),
-    verbose        = cms.untracked.uint32(0),
-    resolution     = cms.vstring(),
-    efficiency     = cms.vstring(
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet DeepJet score; DeepJet score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
-    )
 )
 
 
@@ -130,13 +101,6 @@ BTVEfficiency_BTagDiMu_Jet = DQMEDHarvester("DQMGenericClient",
         "effic_jetPhi_1       'efficiency vs leading jet phi; jet phi ; efficiency' jetPhi_1_numerator       jetPhi_1_denominator",
         "effic_eventHT       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_numerator       eventHT_denominator",
         "effic_jetEtaPhi_HEP17       'efficiency vs jet #eta-#phi; jet #eta; jet #phi' jetEtaPhi_HEP17_numerator       jetEtaPhi_HEP17_denominator",
-        "effic_muPt_1_variableBinning       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_1_variableBinning_numerator       muPt_1_variableBinning_denominator",
-        "effic_muEta_1_variableBinning       'efficiency vs muon eta; muon eta ; efficiency' muEta_1_variableBinning_numerator       muEta_1_variableBinning_denominator",
-        "effic_muPt_2_variableBinning       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_2_variableBinning_numerator       muPt_2_variableBinning_denominator",
-        "effic_muEta_2_variableBinning       'efficiency vs muon eta; muon eta ; efficiency' muEta_2_variableBinning_numerator       muEta_2_variableBinning_denominator",
-        "effic_jetPt_1_variableBinning       'efficiency vs leading jet pt; jet pt [GeV]; efficiency' jetPt_1_variableBinning_numerator       jetPt_1_variableBinning_denominator",
-        "effic_jetEta_1_variableBinning       'efficiency vs leading jet eta; jet eta ; efficiency' jetEta_1_variableBinning_numerator       jetEta_1_variableBinning_denominator",
-        "effic_eventHT_variableBinning       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_variableBinning_numerator       eventHT_variableBinning_denominator",
         "effic_jetMulti       'efficiency vs jet multiplicity; jet multiplicity; efficiency' jetMulti_numerator       jetMulti_denominator",
         "effic_muMulti       'efficiency vs muon multiplicity; muon multiplicity; efficiency' muMulti_numerator       muMulti_denominator",
         "effic_eleMulti       'efficiency vs electron multiplicity; electron multiplicity; efficiency' eleMulti_numerator       eleMulti_denominator",
@@ -151,23 +115,14 @@ BTVEfficiency_BTagDiMu_Jet = DQMEDHarvester("DQMGenericClient",
         "effic_bjetPt_1      'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_numerator  bjetPt_1_denominator",
         "effic_bjetEta_1     'efficiency vs 1st b-jet eta; bjet eta ; efficiency'  bjetEta_1_numerator   bjetEta_1_denominator",
         "effic_bjetPhi_1     'efficiency vs 1st b-jet phi; bjet phi ; efficiency'  bjetPhi_1_numerator   bjetPhi_1_denominator",
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
-        "effic_bjetPt_1_variableBinning   'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_variableBinning_numerator   bjetPt_1_variableBinning_denominator",
-        "effic_bjetEta_1_variableBinning  'efficiency vs 1st b-jet eta; bjet eta ; efficiency' bjetEta_1_variableBinning_numerator     bjetEta_1_variableBinning_denominator",
+        "effic_bjetDeepFlav_1     'efficiency vs 1st b-jet DeepJet Score; bjet DeepJet Score; efficiency' bjetDeepFlav_1_numerator  bjetDeepFlav_1_denominator",
+        "effic_bjetPNet_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetPNet_1_numerator  bjetPNet_1_denominator",
+        "effic_bjetUParT_1     'efficiency vs 1st b-jet UParT Score; bjet UParT Score; efficiency' bjetUParT_1_numerator  bjetUParT_1_denominator",
         "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
         "effic_bjetPtEta_1    'efficiency vs 1st b-jet pt-#eta; jet pt [GeV]; bjet #eta' bjetPtEta_1_numerator   bjetPtEta_1_denominator",
         "effic_bjetEtaPhi_1    'efficiency vs 1st b-jet #eta-#phi; bjet #eta ; bjet #phi' bjetEtaPhi_1_numerator  bjetEtaPhi_1_denominator",
         "effic_DeltaR_jet_Mu    'efficiency vs #DeltaR between jet and mu; #DeltaR(jet,mu) ; efficiency' DeltaR_jet_Mu_numerator  DeltaR_jet_Mu_denominator",
     ),
-)
-
-BTVEfficiency_BTagDiMu_Jet_DeepJet = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/BTV/BTagDiMu_Jet/*_DeepJet"),
-    verbose        = cms.untracked.uint32(0),
-    resolution     = cms.vstring(),
-    efficiency     = cms.vstring(
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet DeepJet score; DeepJet score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
-    )
 )
 
 BTVEfficiency_PFJet = DQMEDHarvester("DQMGenericClient",
@@ -182,9 +137,6 @@ BTVEfficiency_PFJet = DQMEDHarvester("DQMGenericClient",
         "effic_jetPhi_1       'efficiency vs leading jet phi; jet phi ; efficiency' jetPhi_1_numerator       jetPhi_1_denominator",
         "effic_eventHT       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_numerator       eventHT_denominator",
         "effic_jetEtaPhi_HEP17       'efficiency vs jet #eta-#phi; jet #eta; jet #phi' jetEtaPhi_HEP17_numerator       jetEtaPhi_HEP17_denominator",
-        "effic_jetPt_1_variableBinning       'efficiency vs leading jet pt; jet pt [GeV]; efficiency' jetPt_1_variableBinning_numerator       jetPt_1_variableBinning_denominator",
-        "effic_jetEta_1_variableBinning       'efficiency vs leading jet eta; jet eta ; efficiency' jetEta_1_variableBinning_numerator       jetEta_1_variableBinning_denominator",
-        "effic_eventHT_variableBinning       'efficiency vs event HT; event HT [GeV]; efficiency' eventHT_variableBinning_numerator       eventHT_variableBinning_denominator",
         "effic_jetMulti       'efficiency vs jet multiplicity; jet multiplicity; efficiency' jetMulti_numerator       jetMulti_denominator",
         "effic_muMulti       'efficiency vs muon multiplicity; muon multiplicity; efficiency' muMulti_numerator       muMulti_denominator",
         "effic_eleMulti       'efficiency vs electron multiplicity; electron multiplicity; efficiency' eleMulti_numerator       eleMulti_denominator",
@@ -193,23 +145,14 @@ BTVEfficiency_PFJet = DQMEDHarvester("DQMGenericClient",
         "effic_bjetPt_1      'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_numerator  bjetPt_1_denominator",
         "effic_bjetEta_1     'efficiency vs 1st b-jet eta; bjet eta ; efficiency'  bjetEta_1_numerator   bjetEta_1_denominator",
         "effic_bjetPhi_1     'efficiency vs 1st b-jet phi; bjet phi ; efficiency'  bjetPhi_1_numerator   bjetPhi_1_denominator",
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator",
-        "effic_bjetPt_1_variableBinning   'efficiency vs 1st b-jet pt; bjet pt [GeV]; efficiency' bjetPt_1_variableBinning_numerator   bjetPt_1_variableBinning_denominator",
-        "effic_bjetEta_1_variableBinning  'efficiency vs 1st b-jet eta; bjet eta ; efficiency' bjetEta_1_variableBinning_numerator     bjetEta_1_variableBinning_denominator",
+        "effic_bjetDeepFlav_1     'efficiency vs 1st b-jet DeepJet Score; bjet DeepJet Score; efficiency' bjetDeepFlav_1_numerator  bjetDeepFlav_1_denominator",
+        "effic_bjetPNet_1     'efficiency vs 1st b-jet PNet Score; bjet PNet Score; efficiency' bjetPNet_1_numerator  bjetPNet_1_denominator",
+        "effic_bjetUParT_1     'efficiency vs 1st b-jet UParT Score; bjet UParT Score; efficiency' bjetUParT_1_numerator  bjetUParT_1_denominator",
         "effic_bjetMulti      'efficiency vs b-jet multiplicity; bjet multiplicity; efficiency' bjetMulti_numerator   bjetMulti_denominator",
         "effic_bjetPtEta_1    'efficiency vs 1st b-jet pt-#eta; jet pt [GeV]; bjet #eta' bjetPtEta_1_numerator   bjetPtEta_1_denominator",
         "effic_bjetEtaPhi_1    'efficiency vs 1st b-jet #eta-#phi; bjet #eta ; bjet #phi' bjetEtaPhi_1_numerator  bjetEtaPhi_1_denominator",
         "effic_DeltaR_jet_Mu    'efficiency vs #DeltaR between jet and mu; #DeltaR(jet,mu) ; efficiency' DeltaR_jet_Mu_numerator  DeltaR_jet_Mu_denominator",
     ),
-)
-
-BTVEfficiency_PFJet_DeepJet = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/BTV/PFJet/*_DeepJet"),
-    verbose        = cms.untracked.uint32(0),
-    resolution     = cms.vstring(),
-    efficiency     = cms.vstring(
-        "effic_bjetCSV_1     'efficiency vs 1st b-jet DeepJet score; DeepJet score; efficiency' bjetCSV_1_numerator  bjetCSV_1_denominator"
-    )
 )
 
 BTVEfficiency_TurnOnCurves = DQMEDHarvester("DQMGenericClient",
@@ -277,9 +220,5 @@ btaggingClient = cms.Sequence(
   + BTVEfficiency_BTagMu_Jet
   + BTVEfficiency_BTagDiMu_Jet
   + BTVEfficiency_PFJet
-  + BTVEfficiency_BTagMu_DiJet_DeepJet
-  + BTVEfficiency_BTagMu_Jet_DeepJet
-  + BTVEfficiency_BTagDiMu_Jet_DeepJet
-  + BTVEfficiency_PFJet_DeepJet
   + BJetTrackToTrackEfficiencies
 )
