@@ -24,7 +24,7 @@ postProcessorSimDoublets = DQMEDHarvester("DQMGenericClient",
         "efficiency_vs_pT 'SimDoublets efficiency vs p_{T}; TP transverse momentum p_{T} [GeV]; Total fraction of SimDoublets passing all cuts' pass_numVsPt numVsPt",
         "efficiency_vs_eta 'SimDoublets efficiency vs #eta; TP pseudorapidity #eta; Total fraction of SimDoublets passing all cuts' pass_numVsEta numVsEta",
         "efficiencyTP_vs_pT 'TrackingParticle efficiency (have an alive SimNtuplet); TP transverse momentum p_{T} [GeV]; Efficiency for TrackingParticles' pass_numTPVsPt numTPVsPt",
-        "efficiencyTP_vs_eta 'TrackingParticle efficiency (have an alive SimNtuplet); TP pseudorapidity #eta; Efficiency for TrackingParticles' pass_numTPVsEta numTPVsEta"
+        "efficiencyTP_vs_eta 'TrackingParticle efficiency (have an alive SimNtuplet); TP pseudorapidity #eta; Efficiency for TrackingParticles' pass_numTPVsEta numTPVsEta",
     ),
     resolution = cms.vstring(),
     cumulativeDists = cms.untracked.vstring(),
@@ -32,6 +32,21 @@ postProcessorSimDoublets = DQMEDHarvester("DQMGenericClient",
     outputFileName = cms.untracked.string(""),
     makeGlobalEffienciesPlot = cms.untracked.bool(True)
 )
+
+_addNoFlow(postProcessorSimDoublets)
+
+postProcessorSimDoublets2D = DQMEDHarvester("DQMGenericClient",
+    makeGlobalEffienciesPlot = cms.untracked.bool(False),
+    subDirs = cms.untracked.vstring(_defaultSubdirsGeneral),
+    efficiency = cms.vstring(
+        "efficiency_vs_layerPair 'Total fraction of SimDoublets passing all cuts; Inner layer ID; Outer layer ID' pass_layerPairs layerPairs"
+    ),
+    resolution = cms.vstring(),
+    noFlowDists = cms.untracked.vstring(),
+    outputFileName = cms.untracked.string("")
+)
+
+# _addNoFlow(postProcessorSimDoublets2D)
 
 postProcessorSimNtuplets = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring(_defaultSubdirsSimNtuplets),
@@ -58,10 +73,29 @@ postProcessorSimNtuplets = DQMEDHarvester("DQMGenericClient",
     makeGlobalEffienciesPlot = cms.untracked.bool(True)
 )
 
-_addNoFlow(postProcessorSimDoublets)
+_addNoFlow(postProcessorSimNtuplets)
+
+postProcessorSimNtuplets2D = DQMEDHarvester("DQMGenericClient",
+    makeGlobalEffienciesPlot = cms.untracked.bool(False),
+    subDirs = cms.untracked.vstring(_defaultSubdirsSimNtuplets),
+    efficiency = cms.vstring(
+        "fracAlive_firstLayer_vs_eta 'Fraction of TPs with longest SimNtuplet being alive; TP pseudorapidity #eta; First layer ID; Fraction' pass_firstLayerVsEta firstLayerVsEta",
+        "fracAlive_lastLayer_vs_eta 'Fraction of TPs with longest SimNtuplet being alive; TP pseudorapidity #eta; Last layer ID; Fraction' pass_lastLayerVsEta lastLayerVsEta",
+        "fracLost_firstLayer_vs_eta 'Fraction of TPs with longest SimNtuplet being lost; TP pseudorapidity #eta; First layer ID; Fraction' pass_firstLayerVsEta firstLayerVsEta fake",
+        "fracLost_lastLayer_vs_eta 'Fraction of TPs with longest SimNtuplet being lost; TP pseudorapidity #eta; Last layer ID; Fraction' pass_lastLayerVsEta lastLayerVsEta fake",
+    ),
+    resolution = cms.vstring(),
+    noFlowDists = cms.untracked.vstring(),
+    outputFileName = cms.untracked.string("")
+)
+
+# _addNoFlow(postProcessorSimNtuplets2D)
+
 
 
 postProcessorSimDoubletsSequence = cms.Sequence(
     postProcessorSimDoublets +
-    postProcessorSimNtuplets
+    postProcessorSimDoublets2D +
+    postProcessorSimNtuplets +
+    postProcessorSimNtuplets2D
 )
