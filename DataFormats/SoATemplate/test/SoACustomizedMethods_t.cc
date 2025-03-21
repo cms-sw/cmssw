@@ -27,12 +27,13 @@ GENERATE_SOA_LAYOUT(SoATemplate,
                     }),
 
                     SOA_CONST_ELEMENT_METHODS(
-                        float square_norm_position() { return sqrt(x() * x() + y() * y() + z() * z()); };
+                        float square_norm_position() const { return sqrt(x() * x() + y() * y() + z() * z()); };
 
-                        double square_norm_velocity() { return sqrt(v_x() * v_x() + v_y() * v_y() + v_z() * v_z()); };
+                        double square_norm_velocity()
+                            const { return sqrt(v_x() * v_x() + v_y() * v_y() + v_z() * v_z()); };
 
                         template <typename T1, typename T2>
-                        auto time(T1 pos, T2 vel) {
+                        auto time(T1 pos, T2 vel) const {
                           if (not(vel == 0))
                             return pos / vel;
                           return 0.;
@@ -108,8 +109,8 @@ TEST_CASE("SoACustomizedMethods") {
     REQUIRE(view[0].square_norm_position() == 0.f);
     REQUIRE(view[0].square_norm_velocity() == 0.);
     for (size_t i = 1; i < elems; i++) {
-      REQUIRE(std::abs(view[i].square_norm_position() - 1.f) < 1.e-6);
-      REQUIRE(std::abs(view[i].square_norm_velocity() - 1.) < 1.e-9);
+      REQUIRE_THAT(view[i].square_norm_position(), Catch::Matchers::WithinAbs(1.f, 1.e-6));
+      REQUIRE_THAT(view[i].square_norm_velocity(), Catch::Matchers::WithinAbs(1., 1.e-9));
     }
   }
 }

@@ -145,7 +145,7 @@ GENERATE_SOA_LAYOUT(SoATemplate,
   
   // methods operating on const_element
   SOA_CONST_METHODS(
-    auto norm() {
+    auto norm() const {
       return sqrt(x()*x() + y()+y() + z()*z());
     }
   ),
