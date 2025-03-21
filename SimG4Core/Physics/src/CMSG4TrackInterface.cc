@@ -1,4 +1,4 @@
-#include "SimG4Core/Application/interface/CMSG4TrackInterface.h"
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
 G4ThreadLocal CMSG4TrackInterface* CMSG4TrackInterface::interface_ = nullptr;
 
