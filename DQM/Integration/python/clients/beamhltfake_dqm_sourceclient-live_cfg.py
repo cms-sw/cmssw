@@ -164,6 +164,7 @@ print("Configured frontierKey", options.runUniqueKey)
 
 #---------
 # Final path
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 
 process.p = cms.Path( process.dqmcommon * process.monitor )

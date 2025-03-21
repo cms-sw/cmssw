@@ -237,6 +237,7 @@ process.p = cms.Path(
 #-------------------------------------
 #	Scheduling
 #-------------------------------------
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 process.options = cms.untracked.PSet(
 	Rethrow = cms.untracked.vstring(

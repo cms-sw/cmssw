@@ -163,4 +163,5 @@ process = customise(process)
 
 process.p = cms.Path( process.dqmcommon * process.monitor )
 
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
