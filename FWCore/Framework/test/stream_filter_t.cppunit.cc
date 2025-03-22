@@ -457,7 +457,7 @@ testStreamFilter::testStreamFilter()
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
-  //Only an EventProcessor or SubProcess is allowed to create a StreamID but I need one
+  //Only an EventProcessor is allowed to create a StreamID but I need one
   ShadowStreamID shadowID;
   shadowID.value = 0;
   edm::StreamID* pID = reinterpret_cast<edm::StreamID*>(&shadowID);
