@@ -1,4 +1,6 @@
 import os
+import subprocess
+
 class Matrix(dict):
     def __setitem__(self,key,value):
         if key in self:
@@ -281,3 +283,58 @@ def check_dups(input):
     dups = set(x for x in input if x in seen or seen.add(x))
     
     return dups
+
+class AvailableGPU():
+
+    def __init__(self, make, counter, id, capability, name):
+        self.make = make
+        self.counter = counter
+        self.id = id
+        self.capability = capability
+        self.name = name
+    
+    def __str__(self):
+        return "> GPU no.{0}: {1} - {2} - {3} - {4}".format(self.counter,self.make,self.id,self.capability,self.name)
+    
+    def isCUDA(self):
+        return self.make == 'CUDA'
+    def isROCM(self):
+        return self.make == 'ROCM'
+    
+    def gpuBind(self):
+        
+        cmd = ''
+        if self.make == 'CUDA':
+            cmd = 'CUDA_VISIBLE_DEVICES=' + str(self.id) + " HIP_VISIBLE_DEVICES= "
+        elif self.make == 'ROCM':
+            cmd = 'CUDA_VISIBLE_DEVICES= HIP_VISIBLE_DEVICES=' + str(self.id) + " "
+        
+        return cmd
+
+def cleanComputeCapabilities(make, offset = 0):
+        
+    # Building on top of {cuda|rocm}ComputeCapabilities
+    # with output:
+    # ID     computeCapability    Architetcure Model Info 
+
+    out = subprocess.run(make + "ComputeCapabilities", capture_output = True, text = True)
+
+    if out.returncode > 0:
+        return []
+
+    gpus = []
+    for f in out.stdout.split("\n"):
+
+        if not len(f)>0:
+            continue
+        
+        if "unsupported" in f:
+            print("> Warning! Unsupported GPU:")
+            print(" > " + " ".join(f))
+            continue
+
+        gpus.append(f.split())
+
+    gpus = [AvailableGPU(make.upper(), i + offset, int(f[0]),f[1]," ".join(f[2:])) for i,f in enumerate(gpus)]
+
+    return gpus
