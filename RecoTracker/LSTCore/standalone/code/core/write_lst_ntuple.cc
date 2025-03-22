@@ -160,6 +160,7 @@ void createOptionalOutputBranches() {
 
   // T5 DNN branches
   createT5DNNBranches();
+  createT3DNNBranches();
 
 #endif
 }
@@ -189,6 +190,40 @@ void createT5DNNBranches() {
       }
     }
   }
+}
+
+//________________________________________________________________________________________________________________________________
+void createT3DNNBranches() {
+  // Common branches for T3 properties based on TripletsSoA fields
+  ana.tx->createBranch<std::vector<float>>("t3_betaIn");
+  ana.tx->createBranch<std::vector<float>>("t3_centerX");
+  ana.tx->createBranch<std::vector<float>>("t3_centerY");
+  ana.tx->createBranch<std::vector<float>>("t3_radius");
+  ana.tx->createBranch<std::vector<bool>>("t3_partOfPT5");
+  ana.tx->createBranch<std::vector<bool>>("t3_partOfT5");
+  ana.tx->createBranch<std::vector<bool>>("t3_partOfPT3");
+  ana.tx->createBranch<std::vector<float>>("t3_pMatched");
+  ana.tx->createBranch<std::vector<float>>("t3_sim_vxy");
+  ana.tx->createBranch<std::vector<float>>("t3_sim_vz");
+
+  // Hit-specific branches (T3 has 4 hits from two segments)
+  std::vector<std::string> hitIndices = {"0", "1", "2", "3", "4", "5"};
+  std::vector<std::string> hitProperties = {"r", "x", "y", "z", "eta", "phi", "detId", "layer", "moduleType"};
+
+  for (const auto& idx : hitIndices) {
+    for (const auto& prop : hitProperties) {
+      std::string branchName = "t3_hit_" + idx + "_" + prop;
+      if (prop == "detId" || prop == "layer" || prop == "moduleType") {
+        ana.tx->createBranch<std::vector<int>>(branchName);
+      } else {
+        ana.tx->createBranch<std::vector<float>>(branchName);
+      }
+    }
+  }
+
+  // Additional metadata branches
+  ana.tx->createBranch<std::vector<int>>("t3_layer_binary");
+  ana.tx->createBranch<std::vector<std::vector<int>>>("t3_matched_simIdx");
 }
 
 //________________________________________________________________________________________________________________________________
@@ -339,6 +374,7 @@ void setOptionalOutputBranches(LSTEvent* event) {
   setQuintupletOutputBranches(event);
   setPixelTripletOutputBranches(event);
   setOccupancyBranches(event);
+  setT3DNNBranches(event);
   setT5DNNBranches(event);
 
 #endif
@@ -638,6 +674,42 @@ void setPixelTripletOutputBranches(LSTEvent* event) {
 }
 
 //________________________________________________________________________________________________________________________________
+void fillT3DNNBranches(LSTEvent* event, unsigned int iT3) {
+  auto hits = event->getHits<HitsSoA>();
+  auto modules = event->getModules<ModulesSoA>();
+
+  std::vector<unsigned int> hitIdx = getHitsFromT3(event, iT3);
+  std::vector<lst_math::Hit> hitObjects;
+
+  for (int i = 0; i < hitIdx.size(); ++i) {
+    unsigned int hit = hitIdx[i];
+    float x = hits.xs()[hit];
+    float y = hits.ys()[hit];
+    float z = hits.zs()[hit];
+    lst_math::Hit hitObj(x, y, z);
+    hitObjects.push_back(hitObj);
+
+    std::string idx = std::to_string(i);
+    ana.tx->pushbackToBranch<float>("t3_hit_" + idx + "_r", sqrt(x * x + y * y));
+    ana.tx->pushbackToBranch<float>("t3_hit_" + idx + "_x", x);
+    ana.tx->pushbackToBranch<float>("t3_hit_" + idx + "_y", y);
+    ana.tx->pushbackToBranch<float>("t3_hit_" + idx + "_z", z);
+    ana.tx->pushbackToBranch<float>("t3_hit_" + idx + "_eta", hitObj.eta());
+    ana.tx->pushbackToBranch<float>("t3_hit_" + idx + "_phi", hitObj.phi());
+
+    int subdet = trk.ph2_subdet()[hits.idxs()[hit]];
+    int is_endcap = subdet == 4;
+    int layer = trk.ph2_layer()[hits.idxs()[hit]] + 6 * is_endcap;
+    int detId = trk.ph2_detId()[hits.idxs()[hit]];
+    unsigned int module = hits.moduleIndices()[hit];
+
+    ana.tx->pushbackToBranch<int>("t3_hit_" + idx + "_detId", detId);
+    ana.tx->pushbackToBranch<int>("t3_hit_" + idx + "_layer", layer);
+    ana.tx->pushbackToBranch<int>("t3_hit_" + idx + "_moduleType", modules.moduleType()[module]);
+  }
+}
+
+//________________________________________________________________________________________________________________________________
 void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
   auto hits = event->getHits<HitsSoA>();
   auto modules = event->getModules<ModulesSoA>();
@@ -685,6 +757,69 @@ void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
   // Angles
   ana.tx->pushbackToBranch<float>("t5_t3_eta", hitObjects[2].eta());
   ana.tx->pushbackToBranch<float>("t5_t3_phi", hitObjects[0].phi());
+}
+
+void setT3DNNBranches(LSTEvent* event) {
+  auto const triplets = event->getTriplets<TripletsSoA>();
+  auto const tripletsOccupancy = event->getTriplets<TripletsOccupancySoA>();
+  auto modules = event->getModules<ModulesSoA>();
+  auto ranges = event->getRanges();
+
+  for (unsigned int lowerModuleIdx = 0; lowerModuleIdx < modules.nLowerModules(); ++lowerModuleIdx) {
+    int nTriplets = tripletsOccupancy.nTriplets()[lowerModuleIdx];
+    for (unsigned int idx = 0; idx < nTriplets; idx++) {
+      unsigned int tripletIndex = ranges.tripletModuleIndices()[lowerModuleIdx] + idx;
+
+      // Get hit indices and types
+      std::vector<unsigned int> hit_idx = getHitsFromT3(event, tripletIndex);
+      std::vector<unsigned int> hit_type = getHitTypesFromT3(event, tripletIndex);
+      std::vector<unsigned int> module_idx = getModuleIdxsFromT3(event, tripletIndex);
+
+      // Calculate layer binary representation
+      int layer_binary = 0;
+      for (size_t i = 0; i < module_idx.size(); i += 2) {
+        layer_binary |= (1 << (modules.layers()[module_idx[i]] + 6 * (modules.subdets()[module_idx[i]] == 4)));
+      }
+
+      // Get matching information with percent matched
+      float percent_matched;
+      std::vector<int> simidx = matchedSimTrkIdxs(hit_idx, hit_type, false, &percent_matched);
+
+      // Fill the branches with T3-specific data
+      ana.tx->pushbackToBranch<float>("t3_betaIn", triplets.betaIn()[tripletIndex]);
+      ana.tx->pushbackToBranch<float>("t3_centerX", triplets.centerX()[tripletIndex]);
+      ana.tx->pushbackToBranch<float>("t3_centerY", triplets.centerY()[tripletIndex]);
+      ana.tx->pushbackToBranch<float>("t3_radius", triplets.radius()[tripletIndex]);
+      ana.tx->pushbackToBranch<bool>("t3_partOfPT5", triplets.partOfPT5()[tripletIndex]);
+      ana.tx->pushbackToBranch<bool>("t3_partOfT5", triplets.partOfT5()[tripletIndex]);
+      ana.tx->pushbackToBranch<bool>("t3_partOfPT3", triplets.partOfPT3()[tripletIndex]);
+      ana.tx->pushbackToBranch<int>("t3_layer_binary", layer_binary);
+      ana.tx->pushbackToBranch<std::vector<int>>("t3_matched_simIdx", simidx);
+      ana.tx->pushbackToBranch<float>("t3_pMatched", percent_matched);
+
+      // Add vertex information for matched sim tracks
+      if (simidx.size() == 0) {
+        // No matched sim track - set default values
+        ana.tx->pushbackToBranch<float>("t3_sim_vxy", 0.0);
+        ana.tx->pushbackToBranch<float>("t3_sim_vz", 0.0);
+      } else {
+        // Get vertex information from the first matched sim track
+        int vtxidx = trk.sim_parentVtxIdx()[simidx[0]];
+        float vtx_x = trk.simvtx_x()[vtxidx];
+        float vtx_y = trk.simvtx_y()[vtxidx];
+        float vtx_z = trk.simvtx_z()[vtxidx];
+
+        // Calculate transverse distance from origin
+        float vxy = sqrt(vtx_x * vtx_x + vtx_y * vtx_y);
+
+        ana.tx->pushbackToBranch<float>("t3_sim_vxy", vxy);
+        ana.tx->pushbackToBranch<float>("t3_sim_vz", vtx_z);
+      }
+
+      // Fill hit-specific information
+      fillT3DNNBranches(event, tripletIndex);
+    }
+  }
 }
 
 //________________________________________________________________________________________________________________________________
