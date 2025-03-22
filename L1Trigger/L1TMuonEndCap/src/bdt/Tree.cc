@@ -28,37 +28,26 @@
 using namespace emtf;
 
 Tree::Tree() {
-  rootNode = new Node("root");
+  rootNode = std::make_unique<Node>("root");
 
-  terminalNodes.push_back(rootNode);
+  terminalNodes.push_back(rootNode.get());
   numTerminalNodes = 1;
   boostWeight = 0;
   xmlVersion = 2017;
 }
 
 Tree::Tree(std::vector<std::vector<Event*>>& cEvents) {
-  rootNode = new Node("root");
+  rootNode = std::make_unique<Node>("root");
   rootNode->setEvents(cEvents);
 
-  terminalNodes.push_back(rootNode);
+  terminalNodes.push_back(rootNode.get());
   numTerminalNodes = 1;
   boostWeight = 0;
   xmlVersion = 2017;
 }
-//////////////////////////////////////////////////////////////////////////
-// _______________________Destructor____________________________________//
-//////////////////////////////////////////////////////////////////////////
-
-Tree::~Tree() {
-  // When the tree is destroyed it will delete all of the nodes in the tree.
-  // The deletion begins with the rootnode and continues recursively.
-  if (rootNode)
-    delete rootNode;
-}
 
 Tree::Tree(const Tree& tree) {
-  // unfortunately, authors of these classes didn't use const qualifiers
-  rootNode = copyFrom(const_cast<Tree&>(tree).getRootNode());
+  rootNode = copyFrom(tree.getRootNode());
   numTerminalNodes = tree.numTerminalNodes;
   rmsError = tree.rmsError;
   boostWeight = tree.boostWeight;
@@ -66,16 +55,13 @@ Tree::Tree(const Tree& tree) {
 
   terminalNodes.resize(0);
   // find new leafs
-  findLeafs(rootNode, terminalNodes);
+  findLeafs(rootNode.get(), terminalNodes);
 
   ///    if( numTerminalNodes != terminalNodes.size() ) throw std::runtime_error();
 }
 
 Tree& Tree::operator=(const Tree& tree) {
-  if (rootNode)
-    delete rootNode;
-  // unfortunately, authors of these classes didn't use const qualifiers
-  rootNode = copyFrom(const_cast<Tree&>(tree).getRootNode());
+  rootNode = copyFrom(tree.getRootNode());
   numTerminalNodes = tree.numTerminalNodes;
   rmsError = tree.rmsError;
   boostWeight = tree.boostWeight;
@@ -83,32 +69,32 @@ Tree& Tree::operator=(const Tree& tree) {
 
   terminalNodes.resize(0);
   // find new leafs
-  findLeafs(rootNode, terminalNodes);
+  findLeafs(rootNode.get(), terminalNodes);
 
   ///    if( numTerminalNodes != terminalNodes.size() ) throw std::runtime_error();
 
   return *this;
 }
 
-Node* Tree::copyFrom(const Node* local_root) {
+std::unique_ptr<Node> Tree::copyFrom(const Node* local_root) {
   // end-case
   if (!local_root)
     return nullptr;
 
-  Node* lr = const_cast<Node*>(local_root);
+  const Node* lr = local_root;
 
   // recursion
-  Node* left_new_child = copyFrom(lr->getLeftDaughter());
-  Node* right_new_child = copyFrom(lr->getRightDaughter());
+  auto left_new_child = copyFrom(lr->getLeftDaughter());
+  auto right_new_child = copyFrom(lr->getRightDaughter());
 
   // performing main work at this level
-  Node* new_local_root = new Node(lr->getName());
+  auto new_local_root = std::make_unique<Node>(lr->getName());
   if (left_new_child)
-    left_new_child->setParent(new_local_root);
+    left_new_child->setParent(new_local_root.get());
   if (right_new_child)
-    right_new_child->setParent(new_local_root);
-  new_local_root->setLeftDaughter(left_new_child);
-  new_local_root->setRightDaughter(right_new_child);
+    right_new_child->setParent(new_local_root.get());
+  new_local_root->setLeftDaughter(std::move(left_new_child));
+  new_local_root->setRightDaughter(std::move(right_new_child));
   new_local_root->setErrorReduction(lr->getErrorReduction());
   new_local_root->setSplitValue(lr->getSplitValue());
   new_local_root->setSplitVariable(lr->getSplitVariable());
@@ -135,23 +121,14 @@ void Tree::findLeafs(Node* local_root, std::list<Node*>& tn) {
     findLeafs(local_root->getRightDaughter(), tn);
 }
 
-Tree::Tree(Tree&& tree) noexcept
-    : rootNode(tree.rootNode),
-      terminalNodes(std::move(tree.terminalNodes)),
-      numTerminalNodes(tree.numTerminalNodes),
-      rmsError(tree.rmsError),
-      boostWeight(tree.boostWeight),
-      xmlVersion(tree.xmlVersion) {
-  tree.rootNode = nullptr;  // this line is the only reason not to use default move constructor
-}
-
 //////////////////////////////////////////////////////////////////////////
 // ______________________Get/Set________________________________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Tree::setRootNode(Node* sRootNode) { rootNode = sRootNode; }
+void Tree::setRootNode(Node* sRootNode) { rootNode.reset(sRootNode); }
 
-Node* Tree::getRootNode() { return rootNode; }
+Node* Tree::getRootNode() { return rootNode.get(); }
+const Node* Tree::getRootNode() const { return rootNode.get(); }
 
 // ----------------------------------------------------------------------
 
@@ -249,7 +226,7 @@ void Tree::filterEvents(std::vector<Event*>& tEvents) {
 
   // The tree now knows about the events it needs to fit.
   // Filter them into a predictive region (terminal node).
-  filterEventsRecursive(rootNode);
+  filterEventsRecursive(rootNode.get());
 }
 
 // ----------------------------------------------------------------------
@@ -277,7 +254,7 @@ Node* Tree::filterEvent(Event* e) {
   // given by the tEvents vector.
 
   // Filter the event into a predictive region (terminal node).
-  Node* node = filterEventRecursive(rootNode, e);
+  Node* node = filterEventRecursive(rootNode.get(), e);
   return node;
 }
 
@@ -296,7 +273,7 @@ Node* Tree::filterEventRecursive(Node* node, Event* e) {
 
 // ----------------------------------------------------------------------
 
-void Tree::rankVariablesRecursive(Node* node, std::vector<double>& v) {
+void Tree::rankVariablesRecursive(Node* node, std::vector<double>& v) const {
   // We recursively go through all of the nodes in the tree and find the
   // total error reduction for each variable. The one with the most
   // error reduction should be the most important.
@@ -328,11 +305,11 @@ void Tree::rankVariablesRecursive(Node* node, std::vector<double>& v) {
 
 // ----------------------------------------------------------------------
 
-void Tree::rankVariables(std::vector<double>& v) { rankVariablesRecursive(rootNode, v); }
+void Tree::rankVariables(std::vector<double>& v) const { rankVariablesRecursive(rootNode.get(), v); }
 
 // ----------------------------------------------------------------------
 
-void Tree::getSplitValuesRecursive(Node* node, std::vector<std::vector<double>>& v) {
+void Tree::getSplitValuesRecursive(Node* node, std::vector<std::vector<double>>& v) const {
   // We recursively go through all of the nodes in the tree and find the
   // split points used for each split variable.
 
@@ -360,20 +337,22 @@ void Tree::getSplitValuesRecursive(Node* node, std::vector<std::vector<double>>&
 
 // ----------------------------------------------------------------------
 
-void Tree::getSplitValues(std::vector<std::vector<double>>& v) { getSplitValuesRecursive(rootNode, v); }
+void Tree::getSplitValues(std::vector<std::vector<double>>& v) const { getSplitValuesRecursive(rootNode.get(), v); }
 
 //////////////////////////////////////////////////////////////////////////
 // ______________________Storage/Retrieval______________________________//
 //////////////////////////////////////////////////////////////////////////
 
-template <typename T>
-std::string numToStr(T num) {
-  // Convert a number to a string.
-  std::stringstream ss;
-  ss << num;
-  std::string s = ss.str();
-  return s;
-}
+namespace {
+  template <typename T>
+  std::string numToStr(T num) {
+    // Convert a number to a string.
+    std::stringstream ss;
+    ss << num;
+    std::string s = ss.str();
+    return s;
+  }
+}  // namespace
 
 // ----------------------------------------------------------------------
 
@@ -392,10 +371,10 @@ void Tree::saveToXML(const char* c) {
 
   // Add the root node.
   XMLNodePointer_t root = xml->NewChild(nullptr, nullptr, rootNode->getName().c_str());
-  addXMLAttributes(xml, rootNode, root);
+  addXMLAttributes(xml, rootNode.get(), root);
 
   // Recursively write the tree to XML.
-  saveToXMLRecursive(xml, rootNode, root);
+  saveToXMLRecursive(xml, rootNode.get(), root);
 
   // Make the XML Document.
   XMLDocPointer_t xmldoc = xml->NewDoc();
@@ -464,7 +443,7 @@ void Tree::loadFromXML(const char* filename) {
     xmlVersion = 2016;
   }
   // Recursively connect nodes together.
-  loadFromXMLRecursive(xml, mainnode, rootNode);
+  loadFromXMLRecursive(xml, mainnode, rootNode.get());
 
   // Release memory before exit
   xml->FreeDoc(xmldoc);
@@ -548,12 +527,10 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
 
 void Tree::loadFromCondPayload(const L1TMuonEndCapForest::DTree& tree) {
   // start fresh in case this is not the only call to construct a tree
-  if (rootNode)
-    delete rootNode;
-  rootNode = new Node("root");
+  rootNode = std::make_unique<Node>("root");
 
   const L1TMuonEndCapForest::DTreeNode& mainnode = tree[0];
-  loadFromCondPayloadRecursive(tree, mainnode, rootNode);
+  loadFromCondPayloadRecursive(tree, mainnode, rootNode.get());
 }
 
 void Tree::loadFromCondPayloadRecursive(const L1TMuonEndCapForest::DTree& tree,
