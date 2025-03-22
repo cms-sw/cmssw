@@ -6,7 +6,6 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
-#include "PhysicsTools/BPHNano/plugins/KinVtxFitter.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #endif
