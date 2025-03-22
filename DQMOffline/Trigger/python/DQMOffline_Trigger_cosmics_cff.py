@@ -69,3 +69,9 @@ offlineHLTSource = cms.Sequence(
 
 #triggerCosmicOfflineDQMSource = cms.Sequence(onlineHLTSource*offlineHLTSource)
 triggerCosmicOfflineDQMSource = cms.Sequence(offlineHLTSource)
+
+# sequences run @tier0 on CosmicHLTMonitor PD
+OfflineHLTMonitoring = cms.Sequence(
+    cosmicTrackingMonitorHLT *
+    hltToOfflineCosmicsTrackValidatorSequence
+)
