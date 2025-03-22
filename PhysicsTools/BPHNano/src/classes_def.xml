@@ -6,8 +6,4 @@
  </class>
  <class name="edm::Wrapper<std::vector<reco::TransientTrack> >"/>
 
- <class name="edm::RefProd<pat::CompositeCandidateCollection>" />
- <class name="edm::Association<pat::CompositeCandidateCollection>" />
- <class name="edm::Wrapper<edm::Association<pat::CompositeCandidateCollection> >" />
-
 </lcgdict>
