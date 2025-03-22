@@ -12,7 +12,6 @@
 namespace edm {
   class ActivityRegistry;
   class ConfigurationDescriptions;
-  class PathsAndConsumesOfModulesBase;
   class ProcessContext;
 
   namespace service {
@@ -46,7 +45,7 @@ namespace edm {
       //
       // private member functions
       //
-      void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
+      void preBeginJob(ProcessContext const&);
       void postBeginJob();
 
       //
