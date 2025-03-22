@@ -129,7 +129,7 @@ KshortPiPiBPHMCTable = cms.EDProducer("CandMCMatchTableProducerBPH",
 
 
 LambdaProtonPiBPHMCTable = cms.EDProducer("CandMCMatchTableProducerBPH",
-    recoObjects = KshortToPiPiTable.src,
+    recoObjects = LambdaToProtonPiTable.src,
     genParts = cms.InputTag("finalGenParticlesBPH"),
     mcMap = cms.InputTag("LambdaProtonPiBPHMCMatch"),
     objName = LambdaToProtonPiTable.name,
