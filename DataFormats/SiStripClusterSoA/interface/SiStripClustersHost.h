@@ -5,10 +5,8 @@
 #include "DataFormats/SiStripClusterSoA/interface/SiStripClustersSoA.h"
 
 namespace sistrip {
-
   // SoA with SiStripClusters fields in host memory
   using SiStripClustersHost = PortableHostCollection<SiStripClustersSoA>;
-
 }  // namespace sistrip
 
 #endif  // DataFormats_SiStripClusterSoA_interface_SiStripClustersHost_h

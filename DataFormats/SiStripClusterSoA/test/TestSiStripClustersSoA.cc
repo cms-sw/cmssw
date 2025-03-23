@@ -8,7 +8,6 @@
 
 int main() {
   constexpr const int kMaxSeedStrips = 200000;
-  constexpr const int maxStripsPerCluster = 768;
 
   sistrip::SiStripClustersHost collection(kMaxSeedStrips, cms::alpakatools::host());
   collection.zeroInitialise();
@@ -16,7 +15,7 @@ int main() {
   for (int j = 0; j < kMaxSeedStrips; ++j) {
     clust_view.clusterIndex(j) = (uint32_t)(j);
     clust_view.clusterSize(j) = (uint32_t)(j * 2);
-    for (int k = 0; k < maxStripsPerCluster; ++k) {
+    for (int k = 0; k < sistrip::maxStripsPerCluster; ++k) {
       clust_view.clusterADCs(j)[k] = (uint8_t)((j + k) % 255);
     }
     clust_view.clusterDetId(j) = (uint32_t)(j + 12);
@@ -26,13 +25,13 @@ int main() {
     clust_view.charge(j) = (float)(j * -1.0f);
   }
   clust_view.nClusters() = kMaxSeedStrips;
-  clust_view.maxClusterSize() = maxStripsPerCluster;
+  clust_view.maxClusterSize() = sistrip::maxStripsPerCluster;
 
   // Assert
   for (int j = 0; j < kMaxSeedStrips; ++j) {
     assert(clust_view.clusterIndex(j) == (uint32_t)(j));
     assert(clust_view.clusterSize(j) == (uint32_t)(j * 2));
-    for (int k = 0; k < maxStripsPerCluster; ++k) {
+    for (int k = 0; k < sistrip::maxStripsPerCluster; ++k) {
       assert(clust_view.clusterADCs(j)[k] == (uint8_t)((j + k) % 255));
     }
     assert(clust_view.clusterDetId(j) == (uint32_t)(j + 12));
@@ -42,7 +41,7 @@ int main() {
     assert(clust_view.charge(j) == (float)(j * -1.0f));
   }
   assert(clust_view.nClusters() == kMaxSeedStrips);
-  assert(clust_view.maxClusterSize() == maxStripsPerCluster);
+  assert(clust_view.maxClusterSize() == sistrip::maxStripsPerCluster);
 
   return 0;
 }

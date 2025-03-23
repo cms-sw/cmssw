@@ -12,9 +12,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testSiStripClusterSoA {
   using namespace sistrip;
   using namespace cms::alpakatools;
 
-  constexpr int maxStripsPerCluster = 768;
-  using clusterADCsColumn = edm::StdArray<uint8_t, maxStripsPerCluster>;
-
   class TestFillKernel {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
@@ -74,7 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testSiStripClusterSoA {
     uint32_t items = 64;
     uint32_t groups = cms::alpakatools::divide_up_by(clust_view.metadata().size(), items);
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
-    alpaka::exec<Acc1D>(queue, workDiv, TestFillKernel{}, clust_view, kMaxSeedStrips, 768);
-    alpaka::exec<Acc1D>(queue, workDiv, TestVerifyKernel{}, clust_view, kMaxSeedStrips, 768);
+    alpaka::exec<Acc1D>(queue, workDiv, TestFillKernel{}, clust_view, kMaxSeedStrips, maxStripsPerCluster);
+    alpaka::exec<Acc1D>(queue, workDiv, TestVerifyKernel{}, clust_view, kMaxSeedStrips, maxStripsPerCluster);
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::testSiStripClusterSoA
