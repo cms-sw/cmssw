@@ -46,9 +46,11 @@ Muon system:
 * M13: Same as M9 with modified DTShield
 * M14: Same as M10 with modified DTShield
 * M15: Same as M11 with modified DTShield
+* M16: Same as M12 with unmounted GE11 for 2025
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
+* P8: First 2025 version with the rotated PPS detectors
 
 The script also handles the common and forward elements of the geometry:
 * O4: as O6, but with zero material
