@@ -14,22 +14,20 @@
 <!-- alpaka-based portable plugins -->
 <library file="alpaka/*.cc" name="RecoLocalTrackerSiStripClusterizerPluginsPortable">
   <use name="alpaka"/>
-  <use name="DataFormats/PortableTestObjects"/>
-  <use name="DataFormats/TestObjects"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/Utilities"/>
-  <use name="HeterogeneousCore/AlpakaCore"/>
-  <use name="HeterogeneousCore/AlpakaInterface"/>
-  <use name="HeterogeneousCore/AlpakaTest"/>
   <use name="CalibTracker/SiStripCommon"/>
   <use name="CalibFormats/SiStripObjects"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="DataFormats/SiStripClusterSoA"/>
   <use name="DataFormats/Portable"/>
   <use name="EventFilter/SiStripRawToDigi"/>
-  <use name="RecoLocalTracker/SiStripClusterizer"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoLocalTracker/Records"/>
+  <use name="RecoLocalTracker/SiStripClusterizer"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

@@ -3,12 +3,13 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripMappingSoA.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripMappingSoA.h"
+
 #include "TestSiStripMappingDevice.h"
 
 using namespace alpaka;
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE::testMappingSoA {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::testMappingSoA {
   class TestFillKernel {
   public:
     template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
@@ -51,4 +52,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testMappingSoA {
     alpaka::exec<Acc1D>(queue, workDiv, TestVerifyKernel{}, view);
   }
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::testMappingSoA
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::testMappingSoA

@@ -1,20 +1,18 @@
-#include <cstdlib>
-
 #include <alpaka/alpaka.hpp>
-
-#include "CondFormats/SiStripObjects/interface/SiStripMappingSoA.h"
-#include "CondFormats/SiStripObjects/interface/SiStripMappingHost.h"
-#include "CondFormats/SiStripObjects/interface/alpaka/SiStripMappingDevice.h"
-
 #include "FWCore/Utilities/interface/stringize.h"
+
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
+#include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripMappingDevice.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripMappingSoA.h"
+
 #include "TestSiStripMappingDevice.h"
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
+using namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip;
 
 int main() {
   // Get the list of devices on the current platform
@@ -31,10 +29,10 @@ int main() {
 
     // Inner scope to deallocate memory before destroying the stream
     {
-      // Instantiate tracks on device. PortableDeviceCollection allocates
-      // SoA on device automatically.
-      SiStripMappingDevice conditions_d(
-          100, queue);  // (the namespace specification is to avoid confusion with the non-alpaka sistrip namespace)
+      // A reasonable size for the collection is picked as O(strips), which should correspond to the the MappingDevice from conditions
+      constexpr const unsigned int nStrips = 200000;
+      SiStripMappingDevice conditions_d(nStrips, queue);
+
       testMappingSoA::runKernels(conditions_d.view(), queue);
 
       // Instantate tracks on host. This is where the data will be
@@ -42,9 +40,19 @@ int main() {
       SiStripMappingHost conditions_h(
           conditions_d.view().metadata().size(),
           queue);  // (the namespace specification is to avoid confusion with the non-alpaka sistrip namespace)
-      std::cout << "conditions_h.view().metadata().size() = " << conditions_h.view().metadata().size() << std::endl;
       alpaka::memcpy(queue, conditions_h.buffer(), conditions_d.const_buffer());
       alpaka::wait(queue);
+
+      // Check on host that all verified on the device also passes assertions here
+      for (uint32_t j = 0; j < nStrips; ++j) {
+        // assert(conditions_h->input(j) - arr == j % 10); this is supposed to be a pointer on the device memory space
+        assert(conditions_h->inoff(j) == (size_t)j);
+        assert(conditions_h->offset(j) == (size_t)j);
+        assert(conditions_h->length(j) == (uint16_t)(j % 65536));
+        assert(conditions_h->fedID(j) == (uint16_t)(j % 65536));
+        assert(conditions_h->fedCh(j) == (uint8_t)(j % 256));
+        assert(conditions_h->detID(j) == 3 * j);
+      }
     }
   }
 
