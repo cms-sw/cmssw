@@ -27,6 +27,7 @@ Generator::Generator(const ParameterSet &p)
       fEtaCuts(p.getParameter<bool>("ApplyEtaCuts")),
       fPhiCuts(p.getParameter<bool>("ApplyPhiCuts")),
       fFinalState(p.getParameter<bool>("FixOfFinalStateRadiation")),
+      fSlepton(p.getParameter<bool>("IsSlepton")),
       theMinPhiCut(p.getParameter<double>("MinPhiCut")),  // in radians (CMS standard)
       theMaxPhiCut(p.getParameter<double>("MaxPhiCut")),
       theMinEtaCut(p.getParameter<double>("MinEtaCut")),
@@ -154,7 +155,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         // be propagated by GEANT, so do not change their status code.
         status = 2;
       }
-      if(std::abs(pdg) == 9900015) status = 3;
+      if (std::abs(pdg) == 9900015)
+        status = 3;
 
       // Particles which are not decayed by generator
       if (status == 1) {
@@ -243,7 +245,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         status = 1;
       }
       // heavy neutrino should not be propagated by Geant4
-      if(std::abs(pdg) == 9900015) status = 3;
+      if (std::abs(pdg) == 9900015)
+        status = 3;
 
       double x2 = x1;
       double y2 = y1;
@@ -350,7 +353,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
           // Decay chain outside the fiducial cylinder defined by theRDecLenCut
           // are used for Geant4 tracking with predefined decay channel
           // In the case of decay in vacuum particle is not tracked by Geant4
-        } else if (2 == status && x2 * x2 + y2 * y2 >= theDecRCut2 && std::abs(z2) < Z_hector) {
+        } else if (2 == status && x2 * x2 + y2 * y2 >= theDecRCut2 && (fSlepton || std::abs(z2) < Z_hector)) {
           toBeAdded = true;
           if (verbose > 2)
             LogDebug("SimG4CoreGenerator") << "GenParticle barcode = " << (*pitr)->barcode() << " passed case 2"
@@ -452,10 +455,16 @@ void Generator::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC::GenPartic
     if (verbose > 2)
       LogDebug("SimG4CoreGenerator") << "Assigning a " << (*vpdec)->pdg_id() << " as daughter of a " << vp->pdg_id();
 
-    bool checkStatus = fFinalState ? (*vpdec)->status() > 3
-      : ((*vpdec)->status() == 23 && std::abs(vp->pdg_id()) == 1000015);   
-    if (((*vpdec)->status() == 2 || checkStatus) &&
-        (*vpdec)->end_vertex() != nullptr) {
+    bool isInList;
+    if (fSlepton) {
+      std::vector<int> fParticleList = {1000011, 1000013, 1000015, 2000011, 2000013, 2000015};
+      isInList = (std::find(fParticleList.begin(), fParticleList.end(), std::abs(vp->pdg_id())) != fParticleList.end());
+    } else {
+      isInList = std::abs(vp->pdg_id()) == 1000015;
+    }
+
+    bool checkStatus = fFinalState ? (*vpdec)->status() > 3 : ((*vpdec)->status() == 23 && isInList);
+    if (((*vpdec)->status() == 2 || checkStatus) && (*vpdec)->end_vertex() != nullptr) {
       double x2 = (*vpdec)->end_vertex()->position().x();
       double y2 = (*vpdec)->end_vertex()->position().y();
       double z2 = (*vpdec)->end_vertex()->position().z();
