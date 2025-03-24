@@ -29,7 +29,6 @@ private:
   const edm::EDGetTokenT<reco::PFRecHitCollection> hits_eb_token_;
   const edm::EDGetTokenT<reco::PFRecHitCollection> hits_hb_token_;
   const edm::EDGetTokenT<reco::PFRecHitCollection> hits_ho_token_;
-  bool hgcalOnly_;
 };
 
 DEFINE_FWK_MODULE(RecHitMapProducer);
@@ -41,9 +40,7 @@ RecHitMapProducer::RecHitMapProducer(const edm::ParameterSet& ps)
       hits_fh_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("FHInput"))),
       hits_bh_token_(consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("BHInput"))),
       hits_eb_token_(consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("EBInput"))),
-      hits_hb_token_(consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("HBInput"))),
-      hits_ho_token_(consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("HOInput"))),
-      hgcalOnly_(ps.getParameter<bool>("hgcalOnly")) {
+      hits_hb_token_(consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("HBInput"))) {
   produces<DetIdRecHitMap>("hgcalRecHitMap");
   produces<DetIdRecHitMap>("barrelRecHitMap");
 }
@@ -55,7 +52,6 @@ void RecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("BHInput", {"HGCalRecHit", "HGCHEBRecHits"});
   desc.add<edm::InputTag>("EBInput", {"particleFlowRecHitECAL", ""});
   desc.add<edm::InputTag>("HBInput", {"particleFlowRecHitHBHE", ""});
-  desc.add<edm::InputTag>("HOInput", {"particleFlowRecHitHO", ""});
   desc.add<bool>("hgcalOnly", true);
   descriptions.add("recHitMapProducer", desc);
 }
@@ -82,7 +78,6 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
   MultiVectorManager<reco::PFRecHit> barrelRechitManager;
   barrelRechitManager.addVector(evt.get(hits_eb_token_));
   barrelRechitManager.addVector(evt.get(hits_hb_token_));
-  barrelRechitManager.addVector(evt.get(hits_ho_token_));
   for (unsigned int i = 0; i < barrelRechitManager.size(); ++i) {
     const auto recHitDetId = barrelRechitManager[i].detId();
     hitMapBarrel->emplace(recHitDetId, i);
