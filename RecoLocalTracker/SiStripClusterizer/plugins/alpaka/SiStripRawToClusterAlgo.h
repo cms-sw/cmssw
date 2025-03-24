@@ -182,11 +182,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const bool legacyUnpacker_;
     const FEDLegacyReadoutMode lmode_ = READOUT_MODE_LEGACY_INVALID;
 
-  #ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
     void checkUnpackedStrips_(Queue& queue, StripClusterizerDevice& output) const;
     void checkPrefixSum_(Queue& queue, StripClusterizerDevice& output) const;
     void checkClusters_(Queue& queue) const;
-  #endif
+#endif
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 

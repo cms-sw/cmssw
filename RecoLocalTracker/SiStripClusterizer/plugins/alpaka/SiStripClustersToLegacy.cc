@@ -30,8 +30,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       descriptions.addWithDefaultLabel(desc);
     }
 
-    void acquire(device::Event const& iEvent, device::EventSetup const&) override {
-    }
+    void acquire(device::Event const& iEvent, device::EventSetup const&) override {}
 
     void produce(device::Event& iEvent, device::EventSetup const&) override {
       auto const& clusters_onHost = iEvent.get(siStripClustersToken_);

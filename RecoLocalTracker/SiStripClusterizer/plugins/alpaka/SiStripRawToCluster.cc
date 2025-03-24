@@ -79,7 +79,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // inputs
     edm::EDGetTokenT<FEDRawDataCollection> fedRawDataGetToken_;
     edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd> siStripConditionsGetToken_;
-    edm::ESGetToken<SiStripClusterizerConditionsHost, SiStripClusterizerConditionsRecord> siStripCablingConditionsGetToken_;
+    edm::ESGetToken<SiStripClusterizerConditionsHost, SiStripClusterizerConditionsRecord>
+        siStripCablingConditionsGetToken_;
 
     // outputs
     device::EDPutToken<SiStripClustersDevice> siStripClustersDevicePutToken_;
@@ -104,8 +105,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     bool legacy_ = false;  // legacy unpacking mode, for the future
 
-    // Debug functions
-    #ifdef EDM_ML_DEBUG
+// Debug functions
+#ifdef EDM_ML_DEBUG
     void print_SiStripClusterizerConditions_(SiStripClusterizerConditions const& conditions);
     void print_SiStripClusterizerConditionsHost_(SiStripClusterizerConditionsHost const& conditions);
     void print_SiStripDataCompare_(Queue& queue,
@@ -113,7 +114,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                    SiStripClusterizerConditionsHost const& cablingMapData,
                                    const int n_strips,
                                    bool extendedPrint);
-    #endif
+#endif
   };
 
   SiStripRawToCluster::SiStripRawToCluster(const edm::ParameterSet& iConfig)
@@ -157,10 +158,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Get the cabling map
     const auto& cablingMapData = iSetup.getData(siStripCablingConditionsGetToken_);
 
-    #if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
+#if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
     print_SiStripClusterizerConditions_(validFEDsConditions);
     print_SiStripClusterizerConditionsHost_(cablingMapData);
-    #endif
+#endif
 
     // Fill the raw_, buffers_ class members (i.e., from connected FED the FEDBuffers (and raw pointers) are populated)
     // [more precisely, I have the pointers of the raw_ and buffers_ pointing to valid data from the rawCollection]
@@ -317,7 +318,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
             + my_offset;                        // this is the offset I need to add to reach the FEDChannel object
 
         offset += (len - headerlen);
-        n_strips += (len - headerlen);  //((len >= headerlen) ? len-headerlen : len); unsure if some memory here could be saved (need to check with sistrip conveners)
+        n_strips +=
+            (len -
+             headerlen);  //((len >= headerlen) ? len-headerlen : len); unsure if some memory here could be saved (need to check with sistrip conveners)
 
 #if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
         if (i % 100 == 0)
@@ -435,8 +438,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }  // end loop over conn
   }
 
-  // Debug functions
-  #ifdef EDM_ML_DEBUG
+// Debug functions
+#ifdef EDM_ML_DEBUG
   void SiStripRawToCluster::print_SiStripClusterizerConditions_(SiStripClusterizerConditions const& conditions) {
     std::vector<unsigned int> detectors;
     std::vector<unsigned int> fedIds;
@@ -622,7 +625,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       }
     }
   }
-  #endif
+#endif
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
