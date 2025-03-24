@@ -1,9 +1,9 @@
-#ifndef RecoTracker_LSTCore_interface_LSTInput_h
-#define RecoTracker_LSTCore_interface_LSTInput_h
+#ifndef RecoTracker_LSTCore_interface_LSTPrepareInput_h
+#define RecoTracker_LSTCore_interface_LSTPrepareInput_h
 
 #include <memory>
-#include "Math/Vector3D.h"
-#include "Math/VectorUtil.h"
+#include <Math/Vector3D.h>
+#include <Math/VectorUtil.h>
 
 #include "RecoTracker/LSTCore/interface/Common.h"
 #include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
@@ -21,34 +21,31 @@ namespace lst {
   }
 
   LSTInputHostCollection prepareInput(std::vector<float> const& see_px,
-                                                       std::vector<float> const& see_py,
-                                                       std::vector<float> const& see_pz,
-                                                       std::vector<float> const& see_dxy,
-                                                       std::vector<float> const& see_dz,
-                                                       std::vector<float> const& see_ptErr,
-                                                       std::vector<float> const& see_etaErr,
-                                                       std::vector<float> const& see_stateTrajGlbX,
-                                                       std::vector<float> const& see_stateTrajGlbY,
-                                                       std::vector<float> const& see_stateTrajGlbZ,
-                                                       std::vector<float> const& see_stateTrajGlbPx,
-                                                       std::vector<float> const& see_stateTrajGlbPy,
-                                                       std::vector<float> const& see_stateTrajGlbPz,
-                                                       std::vector<int> const& see_q,
-                                                       std::vector<std::vector<int>> const& see_hitIdx,
-                                                       std::vector<unsigned int> const& ph2_detId,
-                                                       std::vector<float> const& ph2_x,
-                                                       std::vector<float> const& ph2_y,
-                                                       std::vector<float> const& ph2_z,
-                                                       float const ptCut) {
+                                      std::vector<float> const& see_py,
+                                      std::vector<float> const& see_pz,
+                                      std::vector<float> const& see_dxy,
+                                      std::vector<float> const& see_dz,
+                                      std::vector<float> const& see_ptErr,
+                                      std::vector<float> const& see_etaErr,
+                                      std::vector<float> const& see_stateTrajGlbX,
+                                      std::vector<float> const& see_stateTrajGlbY,
+                                      std::vector<float> const& see_stateTrajGlbZ,
+                                      std::vector<float> const& see_stateTrajGlbPx,
+                                      std::vector<float> const& see_stateTrajGlbPy,
+                                      std::vector<float> const& see_stateTrajGlbPz,
+                                      std::vector<int> const& see_q,
+                                      std::vector<std::vector<int>> const& see_hitIdx,
+                                      std::vector<unsigned int> const& ph2_detId,
+                                      std::vector<float> const& ph2_x,
+                                      std::vector<float> const& ph2_y,
+                                      std::vector<float> const& ph2_z,
+                                      float const ptCut) {
     std::vector<float> trkX;
     std::vector<float> trkY;
     std::vector<float> trkZ;
     std::vector<unsigned int> hitId;
     std::vector<unsigned int> hitIdxs;
-    std::vector<unsigned int> hitIndices_vec0;
-    std::vector<unsigned int> hitIndices_vec1;
-    std::vector<unsigned int> hitIndices_vec2;
-    std::vector<unsigned int> hitIndices_vec3;
+    std::vector<Params_pLS::ArrayUxHits> hitIndices_vec;
     std::vector<float> deltaPhi_vec;
     std::vector<float> ptIn_vec;
     std::vector<float> ptErr_vec;
@@ -64,15 +61,14 @@ namespace lst {
     std::vector<PixelType> pixelType_vec;
     std::vector<char> isQuad_vec;
 
+    const int hit_size = ph2_x.size();
+
     unsigned int count = 0;
     auto n_see = see_stateTrajGlbPx.size();
     px_vec.reserve(n_see);
     py_vec.reserve(n_see);
     pz_vec.reserve(n_see);
-    hitIndices_vec0.reserve(n_see);
-    hitIndices_vec1.reserve(n_see);
-    hitIndices_vec2.reserve(n_see);
-    hitIndices_vec3.reserve(n_see);
+    hitIndices_vec.reserve(n_see);
     ptIn_vec.reserve(n_see);
     ptErr_vec.reserve(n_see);
     etaErr_vec.reserve(n_see);
@@ -81,14 +77,14 @@ namespace lst {
     charge_vec.reserve(n_see);
     seedIdx_vec.reserve(n_see);
     deltaPhi_vec.reserve(n_see);
-    trkX = ph2_x;
-    trkY = ph2_y;
-    trkZ = ph2_z;
-    hitId = ph2_detId;
-    hitIdxs.resize(ph2_detId.size());
+    trkX.reserve(4 * n_see);
+    trkY.reserve(4 * n_see);
+    trkZ.reserve(4 * n_see);
+    hitId.reserve(4 * n_see);
+    hitIdxs.reserve(hit_size + 4 * n_see);
+    hitIdxs.resize(hit_size);
 
     std::iota(hitIdxs.begin(), hitIdxs.end(), 0);
-    const int hit_size = trkX.size();
 
     for (size_t iSeed = 0; iSeed < n_see; iSeed++) {
       ROOT::Math::XYZVector p3LH(see_stateTrajGlbPx[iSeed], see_stateTrajGlbPy[iSeed], see_stateTrajGlbPz[iSeed]);
@@ -159,10 +155,7 @@ namespace lst {
         py_vec.push_back(py);
         pz_vec.push_back(pz);
 
-        hitIndices_vec0.push_back(hitIdx0);
-        hitIndices_vec1.push_back(hitIdx1);
-        hitIndices_vec2.push_back(hitIdx2);
-        hitIndices_vec3.push_back(hitIdx3);
+        hitIndices_vec.push_back({hitIdx0, hitIdx1, hitIdx2, hitIdx3});
         ptIn_vec.push_back(ptIn);
         ptErr_vec.push_back(ptErr);
         etaErr_vec.push_back(etaErr);
@@ -186,7 +179,7 @@ namespace lst {
         float nz = 25.;
         int etabin = (p3PCA_Eta + 2.6) / ((2 * 2.6) / neta);
         int phibin = (p3PCA_Phi + std::numbers::pi_v<float>) / ((2. * std::numbers::pi_v<float>) / nphi);
-        int dzbin = (see_dz[iSeed] + 30) / (2 * 30 / nz);
+        int dzbin = (std::clamp(see_dz[iSeed], -30.f, 30.f) + 30) / (2 * 30 / nz);
         int isuperbin = (nz * nphi) * etabin + (nz)*phibin + dzbin;
         superbin_vec.push_back(isuperbin);
         pixelType_vec.push_back(pixtype);
@@ -195,28 +188,32 @@ namespace lst {
     }
 
     // Build the SoAs
-    int nHits = trkX.size();
-    int nPixelHits = hitIndices_vec0.size();
+    int nHitsOT = ph2_x.size();
+    int nHitsIT = trkX.size();
+    int nPixelHits = hitIndices_vec.size();
     int nPixelSeeds = ptIn_vec.size();
     if (static_cast<unsigned int>(nPixelSeeds) > n_max_pixel_segments_per_module) {
       nPixelSeeds = n_max_pixel_segments_per_module;
     }
 
-    std::array<int, 3> const soa_sizes{{nHits, nPixelHits, nPixelSeeds}};
+    std::array<int, 3> const soa_sizes{{nHitsIT + nHitsOT, nPixelHits, nPixelSeeds}};
     LSTInputHostCollection lstInputHC(soa_sizes, cms::alpakatools::host());
 
     auto hits = lstInputHC.view<InputHitsSoA>();
-    std::memcpy(hits.xs(), trkX.data(), nHits * sizeof(float));
-    std::memcpy(hits.ys(), trkY.data(), nHits * sizeof(float));
-    std::memcpy(hits.zs(), trkZ.data(), nHits * sizeof(float));
-    std::memcpy(hits.detid(), hitId.data(), nHits * sizeof(unsigned int));
-    std::memcpy(hits.idxs(), hitIdxs.data(), nHits * sizeof(unsigned int));
+    std::memcpy(hits.xs(), ph2_x.data(), nHitsOT * sizeof(float));
+    std::memcpy(hits.ys(), ph2_y.data(), nHitsOT * sizeof(float));
+    std::memcpy(hits.zs(), ph2_z.data(), nHitsOT * sizeof(float));
+    std::memcpy(hits.detid(), ph2_detId.data(), nHitsOT * sizeof(unsigned int));
+
+    std::memcpy(hits.xs() + nHitsOT, trkX.data(), nHitsIT * sizeof(float));
+    std::memcpy(hits.ys() + nHitsOT, trkY.data(), nHitsIT * sizeof(float));
+    std::memcpy(hits.zs() + nHitsOT, trkZ.data(), nHitsIT * sizeof(float));
+    std::memcpy(hits.detid() + nHitsOT, hitId.data(), nHitsIT * sizeof(unsigned int));
+
+    std::memcpy(hits.idxs(), hitIdxs.data(), (nHitsIT + nHitsOT) * sizeof(unsigned int));
 
     auto pixelHits = lstInputHC.view<InputPixelHitsSoA>();
-    std::memcpy(pixelHits.hitIndices0(), hitIndices_vec0.data(), nPixelHits * sizeof(unsigned int));
-    std::memcpy(pixelHits.hitIndices1(), hitIndices_vec1.data(), nPixelHits * sizeof(unsigned int));
-    std::memcpy(pixelHits.hitIndices2(), hitIndices_vec2.data(), nPixelHits * sizeof(unsigned int));
-    std::memcpy(pixelHits.hitIndices3(), hitIndices_vec3.data(), nPixelHits * sizeof(unsigned int));
+    std::memcpy(pixelHits.hitIndices(), hitIndices_vec.data(), nPixelHits * sizeof(Params_pLS::ArrayUxHits));
     std::memcpy(pixelHits.deltaPhi(), deltaPhi_vec.data(), nPixelHits * sizeof(float));
 
     auto pixelSeeds = lstInputHC.view<InputPixelSeedsSoA>();

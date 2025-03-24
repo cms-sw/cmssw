@@ -17,7 +17,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 #include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
-#include "RecoTracker/LSTCore/interface/LSTInput.h"
+#include "RecoTracker/LSTCore/interface/LSTPrepareInput.h"
 
 class LSTInputProducer : public edm::global::EDProducer<> {
 public:

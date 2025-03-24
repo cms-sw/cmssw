@@ -150,9 +150,6 @@ void LST::run(Queue& queue,
     printf("# of Quintuplets produced endcap layer 5: %d\n", event.getNumberOfQuintupletsByLayerEndcap(4));
   }
 
-  // event.addPixelSegmentToEventFinalize(
-  //     in_hitIndices_vec0_, in_hitIndices_vec1_, in_hitIndices_vec2_, in_hitIndices_vec3_, in_deltaPhi_vec_);
-
   event.pixelLineSegmentCleaning(no_pls_dupclean);
 
   event.createPixelQuintuplets();

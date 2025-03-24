@@ -1,5 +1,5 @@
 #include "lst.h"
-#include "LSTInput.h"
+#include "LSTPrepareInput.h"
 
 #include <typeinfo>
 
@@ -329,7 +329,7 @@ void run_lst() {
     }
   }
 
-  std::vector<std::unique_ptr<LSTInputHostCollection>> out_lstInputHC;
+  std::vector<LSTInputHostCollection> out_lstInputHC;
   std::vector<int> evt_num;
   std::vector<TString> file_name;
 
@@ -407,10 +407,10 @@ void run_lst() {
       // We need to initialize it here so that it stays in scope
       // FIXME: The queue should ideally be the same as in the event
       auto &queue = queues[evt % ana.streams];
-      LSTInputDeviceCollection lstInputDC(out_lstInputHC.at(evt)->sizes(), queue);
+      LSTInputDeviceCollection lstInputDC(out_lstInputHC.at(evt).sizes(), queue);
 
       timing_input_loading =
-          addInputsToEventPreLoad(events.at(omp_get_thread_num()), out_lstInputHC.at(evt).get(), &lstInputDC, queue);
+          addInputsToEventPreLoad(events.at(omp_get_thread_num()), &out_lstInputHC.at(evt), &lstInputDC, queue);
 
       timing_MD = runMiniDoublet(events.at(omp_get_thread_num()), evt);
       timing_LS = runSegment(events.at(omp_get_thread_num()));

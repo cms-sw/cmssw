@@ -16,10 +16,7 @@ namespace lst {
                       SOA_COLUMN(unsigned int, detid))
 
   GENERATE_SOA_LAYOUT(InputPixelHitsSoALayout,
-                      SOA_COLUMN(unsigned int, hitIndices0),
-                      SOA_COLUMN(unsigned int, hitIndices1),
-                      SOA_COLUMN(unsigned int, hitIndices2),
-                      SOA_COLUMN(unsigned int, hitIndices3),
+                      SOA_COLUMN(Params_pLS::ArrayUxHits, hitIndices),
                       SOA_COLUMN(float, deltaPhi))
 
   GENERATE_SOA_LAYOUT(InputPixelSeedsSoALayout,
