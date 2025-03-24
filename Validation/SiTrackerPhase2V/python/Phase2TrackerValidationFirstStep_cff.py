@@ -15,7 +15,6 @@ trackerphase2ValidationSource = cms.Sequence(pixDigiValid
                                              + clusterValidOT
                                              + trackingRechitValidOT
                                              + trackingParticleValidOT
-                                             + trackingParticleExtendedValidOT
                                              + stubValidOT
 )
 
