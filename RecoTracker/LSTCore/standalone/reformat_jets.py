@@ -13,14 +13,14 @@ from myjets import getLists, createJets, matchArr
 import numpy as np
 
 # Possible pT cut
-pTCut = 100
+# pTCut = 100
 
 # Load existing tree
-file = TFile("trackingNtuple.root")
+file = TFile("trackingNtuple.root") # TFile("/data2/segmentlinking/CMSSW_12_2_0_pre2/trackingNtuple_ttbar_PU200.root")
 old_tree = file["trackingNtuple"]["tree"]
 
 # Create a new ROOT file to store the new TTree
-new_file = ROOT.TFile("new_tree.root", "RECREATE")
+new_file = ROOT.TFile("new_tree_ttbar.root", "RECREATE")
 
 # Create a new subdirectory in the new file
 new_directory = new_file.mkdir("trackingNtuple")
@@ -61,8 +61,8 @@ for i in range(old_tree.GetEntries()):
     new_leaf_jet_pt.clear()
 
     # Creates the lists that will fill the leaves
-    pTList, etaList, phiList, massList = getLists(old_tree, 0)
-    jets = createJets(pTList, etaList, phiList, massList)
+    pTList, etaList, phiList, massList = getLists(old_tree)#, 0)
+    cluster, jets = createJets(pTList, etaList, phiList, massList)
     
     jetIndex = np.array([])
     eta_diffs = np.array([])
@@ -73,40 +73,56 @@ for i in range(old_tree.GetEntries()):
     jet_pt = np.array([])
 
     for jet in jets:
-        const = jet.constituents_array()
+        const = jet.constituents()
+        c_len = len(const)
+        c_pts = np.zeros(c_len)
+        c_etas = np.zeros(c_len)
+        c_phis = np.zeros(c_len)
+
+        for i in range(c_len):
+            c_pts[i] = const[i].pt()
+            c_etas[i] = const[i].eta()
+            c_phis[i] = const[i].phi()
+
         # Reorder particles within jet (jet clustering does not respect original index)
-        jetIndex = np.append(jetIndex, matchArr(const["pT"], pTList)) # order restored by matching pT
+        jetIndex = np.append(jetIndex, matchArr(c_pts, pTList)) # order restored by matching pT
         jetIndex = jetIndex.astype(int)
 
         # Compute the distance to jet
-        etaval = const["eta"]-jet.eta
-        phival = const["phi"]-jet.phi
+        etaval = c_etas-jet.eta()
+        phival = c_phis-jet.phi()
         eta_diffs = np.append(eta_diffs, etaval)
         phi_diffs = np.append(phi_diffs, phival)
 
-        rval = np.sqrt(etaval**2 + phival**2)
+        rval = np.sqrt(etaval**2 + np.arccos(np.cos(phival))**2)
         rjets = np.append(rjets, rval)
 
         # Save values of closest jet
-        jet_eta_val = np.ones(len(const["eta"]))*jet.eta
+        jet_eta_val = np.ones(c_len)*jet.eta()
         jet_eta = np.append(jet_eta, jet_eta_val)
-        jet_phi_val = np.ones(len(const["eta"]))*jet.phi
+        jet_phi_val = np.ones(c_len)*jet.phi()
         jet_phi = np.append(jet_phi, jet_phi_val)
-        jet_pt_val = np.ones(len(const["eta"]))*jet.pt
+        jet_pt_val = np.ones(c_len)*jet.pt()
         jet_pt = np.append(jet_pt, jet_pt_val)
     
-    # print(jet_pt)
+    # Reordering branches appropriately
+    length = len(pTList)
 
-    # Reorder branches appropriately
-    length = len(eta_diffs)
-    re_eta_diffs = np.zeros(length)
-    re_phi_diffs = np.zeros(length)
-    re_rjets = np.zeros(length)
-    re_jet_eta = np.zeros(length)
-    re_jet_phi = np.zeros(length)
-    re_jet_pt = np.zeros(length)
+    re_eta_diffs = np.ones(length)*(-999)
+    re_phi_diffs = np.ones(length)*(-999)
+    re_rjets = np.ones(length)*(-999)
+    re_jet_eta = np.ones(length)*(-999)
+    re_jet_phi = np.ones(length)*(-999)
+    re_jet_pt = np.ones(length)*(-999)
 
-    for i in range(length):
+    # re_eta_diffs = np.zeros(length)
+    # re_phi_diffs = np.zeros(length)
+    # re_rjets = np.zeros(length)
+    # re_jet_eta = np.zeros(length)
+    # re_jet_phi = np.zeros(length)
+    # re_jet_pt = np.zeros(length)
+
+    for i in range(len(jetIndex)):
         re_eta_diffs[jetIndex[i]] = eta_diffs[i]
         re_phi_diffs[jetIndex[i]] = phi_diffs[i]
         re_rjets[jetIndex[i]] = rjets[i]
