@@ -197,11 +197,15 @@ globalValidationHCALOnly = cms.Sequence(
     + hcalRecHitsOnlyValidationSequence
     + pfClusterCaloOnlyValidationSequence
 )
-globalPrevalidationHGCal = cms.Sequence(hgcalAssociators, barrelAssociators, ticlSimTrackstersTask)
+globalPrevalidationHGCal = cms.Sequence(hgcalAssociators, ticlSimTrackstersTask)
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
 
 globalValidationMTD = cms.Sequence()
+
+globalPrevalidationBarrel = cms.Sequence(barrelAssociators)
+
+globalValidationBarrel = cms.Sequence(barrelValidation)
 
 globalPrevalidationMuons = cms.Sequence(
       gemSimValid

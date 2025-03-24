@@ -25,7 +25,7 @@ LCToCPAssociatorByEnergyScoreImpl<HIT>::LCToCPAssociatorByEnergyScoreImpl(
   if constexpr (std::is_same_v<HIT, HGCRecHit>)
     layers_ = recHitTools_->lastLayerBH();
   else
-    layers_ = 6;
+    layers_ = 5;
 }
 
 template <typename HIT>
@@ -48,8 +48,11 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   ticl::caloParticleToLayerCluster cPOnLayer;
   cPOnLayer.resize(nCaloParticles);
   for (unsigned int i = 0; i < nCaloParticles; ++i) {
-    cPOnLayer[i].resize(layers_ * 2);
-    for (unsigned int j = 0; j < layers_ * 2; ++j) {
+    unsigned int nLayers = layers_ * 2;
+    if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
+      nLayers = layers_;
+    cPOnLayer[i].resize(nLayers);
+    for (unsigned int j = 0; j < nLayers; ++j) {
       cPOnLayer[i][j].caloParticleId = i;
       cPOnLayer[i][j].energy = 0.f;
       cPOnLayer[i][j].hits_and_fractions.clear();
@@ -414,7 +417,10 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
 
   // Compute the CaloParticle-To-LayerCluster score
   for (const auto& cpId : cPIndices) {
-    for (unsigned int layerId = 0; layerId < layers_ * 2; ++layerId) {
+    unsigned int nLayers = layers_ * 2;
+    if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
+      nLayers = layers_;
+    for (unsigned int layerId = 0; layerId < nLayers; ++layerId) {
       unsigned int CPNumberOfHits = cPOnLayer[cpId][layerId].hits_and_fractions.size();
       if (CPNumberOfHits == 0)
         continue;
