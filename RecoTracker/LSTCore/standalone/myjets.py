@@ -5,13 +5,16 @@
 #
 ###############################################
 
+import fastjet
 from pyjet import cluster
 from particle import Particle
 import numpy as np
+import awkward as ak
+import vector
 
 
 # Takes an entry from a tree and extracts lists of key parameters.
-def getLists(entry, pTcut=0):
+def getLists(entry):#, pTcut=0):
         # This applies to the entire event
         pdgidList = entry.sim_pdgId
         evLen = len(pdgidList)
@@ -25,19 +28,19 @@ def getLists(entry, pTcut=0):
         for j in range(evLen):
             # j is one particle within the event
             pdgid = pdgidList[j]
-            massList[j] = Particle.from_pdgid(pdgid).mass
+            massList[j] = (Particle.from_pdgid(pdgid).mass)/1000 # Particle gives mass in MeV, convert to GeV
 
             pTList[j] = entry.sim_pt[j]
             etaList[j] = entry.sim_eta[j]
             phiList[j] = entry.sim_phi[j]
 
         # Perform pT cut, optional
-        if(pTcut!=0):
-                maskList = pTList # eh I can probably use maskList = pTList>pTcut
-                pTList = pTList[maskList>pTcut]
-                etaList = etaList[maskList>pTcut]
-                phiList = phiList[maskList>pTcut]
-                massList = massList[maskList>pTcut]
+        # if(pTcut!=0):
+        #         maskList = pTList # eh I can probably use maskList = pTList>pTcut
+        #         pTList = pTList[maskList>pTcut]
+        #         etaList = etaList[maskList>pTcut]
+        #         phiList = phiList[maskList>pTcut]
+        #         massList = massList[maskList>pTcut]
 
         return pTList, etaList, phiList, massList
 
@@ -46,19 +49,35 @@ def getLists(entry, pTcut=0):
 # those particles to create jets, which it returns.
 def createJets(pTList, etaList, phiList, massList):
 
+        jetdef = fastjet.JetDefinition(fastjet.antikt_algorithm, 0.4)
+
         length = np.size(pTList)
-        vectors = np.array([],dtype=np.dtype([('pT', 'f8'), ('eta', 'f8'), 
-                                            ('phi', 'f8'), ('mass', 'f8')]))
+        fjs = []
 
-        for i in range(length):
-                vectors = np.append(vectors, np.array([(pTList[i], etaList[i], phiList[i], massList[i])], 
-                                                      dtype=vectors.dtype))
-        
+        for j in range(length):
+                f=fastjet.PseudoJet(pseudojet_from_pt_eta_phi_m(pTList[j], etaList[j], phiList[j], massList[j]))
+                fjs.append(f)
+
+        # Left over from pyjet implementation
+        # jetInput = np.array([],dtype=np.dtype([('pt', 'f8'), ('eta', 'f8'), 
+        #                                     ('phi', 'f8'), ('M', 'f8')]))
+        # for i in range(length):
+        #         jetInput = np.append(jetInput, np.array([(pTList[i], etaList[i], phiList[i], massList[i])], 
+        #                                               dtype=jetInput.dtype))
         # Actual jet step
-        sequence = cluster(vectors, R=0.4, p=-1) # p=-1 gives anti-kt
-        jets = sequence.inclusive_jets()  # list of PseudoJets
+        # sequence = cluster(jetInput, R=0.4, p=-1) # p=-1 gives anti-kt
+        # jets = sequence.inclusive_jets(ptmin=20)  # list of PseudoJets
+        
+        # FastJet implementation with awkward arrays-- do not use
+        # vector.register_awkward()
+        # awkJetInput = ak.Array(jetInput, with_name="Momentum4D")
+        # cluster = fastjet.ClusterSequence(awkJetInput, jetdef)
+        # jets = cluster.inclusive_jets(min_pt = 20)
 
-        return jets
+        cluster = fastjet.ClusterSequence(fjs, jetdef)
+        jets = cluster.inclusive_jets(ptmin=20)
+
+        return cluster, jets
 
 def plotOneJet(jet, name):
     const = jet.constituents_array()
@@ -81,3 +100,12 @@ def matchArr(jetArr, treeArr):
                 indexArr[i] = np.where(inttreeArr == intjetArr[i])[0][0]
 
         return indexArr
+
+def pseudojet_from_pt_eta_phi_m(pt, eta, phi, mass):
+    # Convert (pt, eta, phi, mass) to (px, py, pz, E) and create a PseudoJet.
+    px = pt * np.cos(phi)
+    py = pt * np.sin(phi)
+    pz = pt * np.sinh(eta)
+    energy = np.sqrt(px**2 + py**2 + pz**2 + mass**2)
+    
+    return fastjet.PseudoJet(px, py, pz, energy)
