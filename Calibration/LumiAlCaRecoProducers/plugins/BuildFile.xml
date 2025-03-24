@@ -11,4 +11,8 @@
 <flags EDM_PLUGIN="1"/>
 <library file="*.cc" name="CalibrationLumiAlCaRecoProducersPlugins">
   <flags EDM_PLUGIN="1"/>
+    <use name="rootcore"/>
+    <use name="rootgraphics"/>
+    <use name="rootgpad"/>
+    <use name="roothist"/>
 </library>
