@@ -1,5 +1,5 @@
-#ifndef Validation_HGCalValidation_HGVHistoProducerAlgo_h
-#define Validation_HGCalValidation_HGVHistoProducerAlgo_h
+#ifndef Validation_HGCalValidation_BarrelVHistoProducerAlgo_h
+#define Validation_HGCalValidation_BarrelVHistoProducerAlgo_h
 
 /* \author HGCal
  */
@@ -20,6 +20,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
@@ -33,28 +34,13 @@
 
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
-struct HGVHistoProducerAlgoHistograms {
-  //Info
-  //To be able to spot any issues both in -z and +z a layer id was introduced
-  //that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is:
-  //-z: 0->51
-  //+z: 52->103
-  //We will pick the numbers below from RecHitTools just to avoid future problems
-  dqm::reco::MonitorElement* lastLayerEEzm;  // last layer of EE -z
-  dqm::reco::MonitorElement* lastLayerFHzm;  // last layer of FH -z
-  dqm::reco::MonitorElement* maxlayerzm;     // last layer of BH -z
-  dqm::reco::MonitorElement* lastLayerEEzp;  // last layer of EE +z
-  dqm::reco::MonitorElement* lastLayerFHzp;  // last layer of FH +z
-  dqm::reco::MonitorElement* maxlayerzp;     // last layer of BH +z
+struct BarrelVHistoProducerAlgoHistograms {
 
+  dqm::reco::MonitorElement* lastLayerEB;
+  dqm::reco::MonitorElement* lastLayerHB;
   //1D
   std::vector<dqm::reco::MonitorElement*> h_cluster_eta;
-  std::vector<dqm::reco::MonitorElement*> h_mixedhitscluster_zminus;
-  std::vector<dqm::reco::MonitorElement*> h_mixedhitscluster_zplus;
-  std::vector<dqm::reco::MonitorElement*> h_energyclustered_zminus;
-  std::vector<dqm::reco::MonitorElement*> h_energyclustered_zplus;
-  std::vector<dqm::reco::MonitorElement*> h_longdepthbarycentre_zminus;
-  std::vector<dqm::reco::MonitorElement*> h_longdepthbarycentre_zplus;
+  std::vector<dqm::reco::MonitorElement*> h_energyclustered;
 
   std::unordered_map<int, dqm::reco::MonitorElement*> h_clusternum_perlayer;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_energyclustered_perlayer;
@@ -81,17 +67,6 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map<int, dqm::reco::MonitorElement*> h_numMerge_layercl_phi_perlayer;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_denom_layercl_phi_perlayer;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_cellAssociation_perlayer;
-  std::unordered_map<int, dqm::reco::MonitorElement*> h_clusternum_perthick;
-  std::unordered_map<int, dqm::reco::MonitorElement*> h_cellsenedens_perthick;
-
-  std::unordered_map<std::string, dqm::reco::MonitorElement*> h_cellsnum_perthickperlayer;
-  std::unordered_map<std::string, dqm::reco::MonitorElement*> h_distancetoseedcell_perthickperlayer;
-  std::unordered_map<std::string, dqm::reco::MonitorElement*> h_distancetoseedcell_perthickperlayer_eneweighted;
-  std::unordered_map<std::string, dqm::reco::MonitorElement*> h_distancetomaxcell_perthickperlayer;
-  std::unordered_map<std::string, dqm::reco::MonitorElement*> h_distancetomaxcell_perthickperlayer_eneweighted;
-  std::unordered_map<std::string, dqm::reco::MonitorElement*> h_distancebetseedandmaxcell_perthickperlayer;
-  std::unordered_map<std::string, dqm::reco::MonitorElement*>
-      h_distancebetseedandmaxcellvsclusterenergy_perthickperlayer;
 
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_eta;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_eta_Zorigin;
@@ -117,9 +92,6 @@ struct HGVHistoProducerAlgoHistograms {
 
   //For SimClusters
   std::unordered_map<int, dqm::reco::MonitorElement*> h_simclusternum_perlayer;
-  std::unordered_map<int, dqm::reco::MonitorElement*> h_simclusternum_perthick;
-  dqm::reco::MonitorElement* h_mixedhitssimcluster_zminus;
-  dqm::reco::MonitorElement* h_mixedhitssimcluster_zplus;
 
   std::vector<std::unordered_map<int, dqm::reco::MonitorElement*>> h_denom_layercl_in_simcl_eta_perlayer;
   std::vector<std::unordered_map<int, dqm::reco::MonitorElement*>> h_denom_layercl_in_simcl_phi_perlayer;
@@ -208,8 +180,6 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_multiplicity_zminus_numberOfEventsHistogram;
   std::vector<dqm::reco::MonitorElement*> h_multiplicity_zplus_numberOfEventsHistogram;
   std::vector<dqm::reco::MonitorElement*> h_multiplicityOfLCinTST_vs_layercluster;
-  std::vector<dqm::reco::MonitorElement*> h_multiplicityOfLCinTST_vs_layercluster_zminus;
-  std::vector<dqm::reco::MonitorElement*> h_multiplicityOfLCinTST_vs_layercluster_zplus;
   std::vector<dqm::reco::MonitorElement*> h_multiplicityOfLCinTST_vs_layerclusterenergy;
   std::vector<dqm::reco::MonitorElement*> h_clusternum_in_trackster_vs_layer;
   std::vector<dqm::reco::MonitorElement*> h_trackster_pt;
@@ -226,7 +196,7 @@ struct HGVHistoProducerAlgoHistograms {
 
 using Density = hgcal_clustering::Density;
 
-class HGVHistoProducerAlgo {
+class BarrelVHistoProducerAlgo {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
@@ -236,36 +206,31 @@ public:
       ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
   enum validationType { byHits_CP = 0, byLCs, byLCs_CP, byHits };
 
-  HGVHistoProducerAlgo(const edm::ParameterSet& pset);
-  ~HGVHistoProducerAlgo();
+  BarrelVHistoProducerAlgo(const edm::ParameterSet& pset);
+  ~BarrelVHistoProducerAlgo();
 
-  using Histograms = HGVHistoProducerAlgoHistograms;
+  using Histograms = BarrelVHistoProducerAlgoHistograms;
 
   void bookInfo(DQMStore::IBooker& ibook, Histograms& histograms);
   void bookCaloParticleHistos(DQMStore::IBooker& ibook, Histograms& histograms, int pdgid, unsigned int layers);
 
   void bookSimClusterHistos(DQMStore::IBooker& ibook,
                             Histograms& histograms,
-                            unsigned int layers,
-                            std::vector<int> thicknesses);
+                            unsigned int layers);
 
   void bookSimClusterAssociationHistos(DQMStore::IBooker& ibook,
                                        Histograms& histograms,
-                                       unsigned int layers,
-                                       std::vector<int> thicknesses);
+                                       unsigned int layers);
 
   void bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibook,
                                       Histograms& histograms,
-                                      unsigned int layers,
-                                      std::vector<int> thicknesses,
-                                      std::string pathtomatbudfile);
+                                      unsigned int layers);
 
   void bookClusterHistos_LCtoCP_association(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
 
   void bookClusterHistos_CellLevel(DQMStore::IBooker& ibook,
                                    Histograms& histograms,
-                                   unsigned int layers,
-                                   std::vector<int> thicknesses);
+                                   unsigned int layers);
 
   void bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
 
@@ -282,7 +247,7 @@ public:
                                       unsigned int layers,
                                       const ticl::RecoToSimCollection& recSimColl,
                                       const ticl::SimToRecoCollection& simRecColl,
-                                      MultiVectorManager<HGCRecHit> const& hits) const;
+                                      MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
   void layerClusters_to_SimClusters(const Histograms& histograms,
                                     const int count,
                                     edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -295,7 +260,7 @@ public:
                                     unsigned int layers,
                                     const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
                                     const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
-                                    MultiVectorManager<HGCRecHit> const& hits) const;
+                                    MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
 
   void tracksters_to_SimTracksters_fp(const Histograms& histograms,
                                       const int count,
@@ -314,7 +279,7 @@ public:
                                 std::vector<SimVertex> const& simVertices,
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
-                                MultiVectorManager<HGCRecHit> const& hits) const;
+                                MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
   void fill_generic_cluster_histos(const Histograms& histograms,
                                    const int count,
                                    edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -324,16 +289,13 @@ public:
                                    std::vector<size_t> const& cPIndices,
                                    std::vector<size_t> const& cPSelectedIndices,
                                    std::unordered_map<DetId, const unsigned int> const&,
-                                   std::map<double, double> cummatbudg,
                                    unsigned int layers,
-                                   std::vector<int> thicknesses,
                                    const ticl::RecoToSimCollection& recSimColl,
                                    const ticl::SimToRecoCollection& simRecColl,
-                                   MultiVectorManager<HGCRecHit> const& hits) const;
+                                   MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
   void fill_simCluster_histos(const Histograms& histograms,
                               std::vector<SimCluster> const& simClusters,
-                              unsigned int layers,
-                              std::vector<int> thicknesses) const;
+                              unsigned int layers) const;
   void fill_simClusterAssociation_histos(const Histograms& histograms,
                                          const int count,
                                          edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -342,37 +304,13 @@ public:
                                          std::vector<SimCluster> const& simClusters,
                                          std::vector<size_t> const& sCIndices,
                                          const std::vector<float>& mask,
-                                         std::unordered_map<DetId, const unsigned int> const& hitMap,
+                                         std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
                                          unsigned int layers,
                                          const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
                                          const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
-                                         MultiVectorManager<HGCRecHit> const& hits) const;
+                                         MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
-  void fill_trackster_histos(const Histograms& histograms,
-                             const int count,
-                             const ticl::TracksterCollection& tracksters,
-                             const reco::CaloClusterCollection& layerClusters,
-                             const ticl::TracksterCollection& simTSs,
-                             const ticl::TracksterCollection& simTSs_fromCP,
-                             const std::map<unsigned int, std::vector<unsigned int>>& cpToSc_SimTrackstersMap,
-                             std::vector<SimCluster> const& sC,
-                             const edm::ProductID& cPHandle_id,
-                             std::vector<CaloParticle> const& cP,
-                             std::vector<size_t> const& cPIndices,
-                             std::vector<size_t> const& cPSelectedIndices,
-                             std::unordered_map<DetId, const unsigned int> const& hitMap,
-                             unsigned int layers,
-                             MultiVectorManager<HGCRecHit> const& hits,
-                             bool mapsFound,
-                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByLCsMapH,
-                             const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByLCsMapH,
-                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByLCsMapH,
-                             const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByLCsMapH,
-                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByHitsMapH,
-                             const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByHitsMapH,
-                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByHitsMapH,
-                             const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByHitsMapH,
-                             const SimClusterToCaloParticleMap& scToCpMap) const;
+
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
@@ -380,7 +318,7 @@ public:
 
   DetId findmaxhit(const reco::CaloCluster& cluster,
                    std::unordered_map<DetId, const unsigned int> const&,
-                   MultiVectorManager<HGCRecHit> const& hits) const;
+                   MultiVectorManager<reco::PFRecHit> const& hits) const;
 
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster& o) const { return clusterId == o.clusterId; };
@@ -416,6 +354,8 @@ private:
   // Must be in sync with labels in PostProcessorHGCAL_cfi.py
   std::array<std::string, numberOfValidationTypes_> valSuffix_ = {{"_byHits_CP", "_byLCs", "_byLCs_CP", "_byHits"}};
 
+  int barrelLayersOffset_ = 5;
+
   //private data members
   double minEta_, maxEta_;
   int nintEta_;
@@ -449,26 +389,6 @@ private:
   double minTSTSharedEneFracEfficiency_;
   double minTSTSharedEneFrac_, maxTSTSharedEneFrac_;
   int nintTSTSharedEneFrac_;
-  double minTotNsimClsperthick_, maxTotNsimClsperthick_;
-  int nintTotNsimClsperthick_;
-  double minTotNClsperthick_, maxTotNClsperthick_;
-  int nintTotNClsperthick_;
-  double minTotNcellsperthickperlayer_, maxTotNcellsperthickperlayer_;
-  int nintTotNcellsperthickperlayer_;
-  double minDisToSeedperthickperlayer_, maxDisToSeedperthickperlayer_;
-  int nintDisToSeedperthickperlayer_;
-  double minDisToSeedperthickperlayerenewei_, maxDisToSeedperthickperlayerenewei_;
-  int nintDisToSeedperthickperlayerenewei_;
-  double minDisToMaxperthickperlayer_, maxDisToMaxperthickperlayer_;
-  int nintDisToMaxperthickperlayer_;
-  double minDisToMaxperthickperlayerenewei_, maxDisToMaxperthickperlayerenewei_;
-  int nintDisToMaxperthickperlayerenewei_;
-  double minDisSeedToMaxperthickperlayer_, maxDisSeedToMaxperthickperlayer_;
-  int nintDisSeedToMaxperthickperlayer_;
-  double minClEneperthickperlayer_, maxClEneperthickperlayer_;
-  int nintClEneperthickperlayer_;
-  double minCellsEneDensperthick_, maxCellsEneDensperthick_;
-  int nintCellsEneDensperthick_;
   double minTotNTSTs_, maxTotNTSTs_;
   int nintTotNTSTs_;
   double minTotNClsinTSTs_, maxTotNClsinTSTs_;
