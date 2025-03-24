@@ -371,27 +371,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   using namespace cms::alpakatools;
 
   // Move the original constants to constexpr ()
-  ALPAKA_FN_ACC constexpr uint16_t get_FED_ID_MIN() { return sistrip::FED_ID_MIN; };
-  ALPAKA_FN_ACC constexpr uint16_t get_FEDCH_PER_FED() { return sistrip::FEDCH_PER_FED; };
-  ALPAKA_FN_ACC constexpr uint16_t get_STRIPS_PER_FEDCH() { return sistrip::STRIPS_PER_FEDCH; };
-  ALPAKA_FN_ACC constexpr uint16_t get_APVS_PER_FEDCH() { return sistrip::APVS_PER_FEDCH; };
-  ALPAKA_FN_ACC constexpr uint16_t get_APVS_PER_CHAN() { return sistrip::APVS_PER_CHAN; };
-  ALPAKA_FN_ACC constexpr uint16_t get_STRIPS_PER_APV() { return sistrip::STRIPS_PER_APV; };
+  constexpr uint16_t get_FED_ID_MIN() { return sistrip::FED_ID_MIN; };
+  constexpr uint16_t get_FEDCH_PER_FED() { return sistrip::FEDCH_PER_FED; };
+  constexpr uint16_t get_STRIPS_PER_FEDCH() { return sistrip::STRIPS_PER_FEDCH; };
+  constexpr uint16_t get_APVS_PER_FEDCH() { return sistrip::APVS_PER_FEDCH; };
+  constexpr uint16_t get_APVS_PER_CHAN() { return sistrip::APVS_PER_CHAN; };
+  constexpr uint16_t get_STRIPS_PER_APV() { return sistrip::STRIPS_PER_APV; };
 
-  ALPAKA_FN_ACC constexpr uint16_t FED_ID_MIN = get_FED_ID_MIN();
-  ALPAKA_FN_ACC constexpr uint16_t FEDCH_PER_FED = get_FEDCH_PER_FED();
-  ALPAKA_FN_ACC constexpr uint16_t STRIPS_PER_FEDCH = get_STRIPS_PER_FEDCH();
-  ALPAKA_FN_ACC constexpr uint16_t APVS_PER_FEDCH = get_APVS_PER_FEDCH();
-  ALPAKA_FN_ACC constexpr uint16_t APVS_PER_CHAN = get_APVS_PER_CHAN();
-  ALPAKA_FN_ACC constexpr uint16_t STRIPS_PER_APV = get_STRIPS_PER_APV();
+  constexpr uint16_t FED_ID_MIN = get_FED_ID_MIN();
+  constexpr uint16_t FEDCH_PER_FED = get_FEDCH_PER_FED();
+  constexpr uint16_t STRIPS_PER_FEDCH = get_STRIPS_PER_FEDCH();
+  constexpr uint16_t APVS_PER_FEDCH = get_APVS_PER_FEDCH();
+  constexpr uint16_t APVS_PER_CHAN = get_APVS_PER_CHAN();
+  constexpr uint16_t STRIPS_PER_APV = get_STRIPS_PER_APV();
 
-  ALPAKA_FN_ACC constexpr uint16_t invalidStrip = std::numeric_limits<uint16_t>::max();
-  ALPAKA_FN_ACC constexpr uint16_t invalidFed = std::numeric_limits<uint16_t>::max();
+  constexpr uint16_t invalidStrip = std::numeric_limits<uint16_t>::max();
+  constexpr uint16_t invalidFed = std::numeric_limits<uint16_t>::max();
 
-  ALPAKA_FN_ACC constexpr uint16_t badBit = (1 << 15);
+  constexpr uint16_t badBit = (1 << 15);
 
-  ALPAKA_FN_ACC constexpr int kMaxSeedStrips = 200000;
-  ALPAKA_FN_ACC constexpr uint16_t stripIndexMask = 0x7FFF;
+  constexpr int32_t kMaxSeedStrips = 200000;
+  constexpr uint16_t stripIndexMask = 0x7FFF;
 
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint16_t fedIndex(uint16_t fed) { return fed - FED_ID_MIN; }
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint32_t stripIndex(uint16_t fedID, uint8_t fedCH, uint16_t strip) {
@@ -565,7 +565,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                   StripClustersAuxView clusterDataObj,
                                   sistrip::SiStripClustersView clusters) const {
       const auto nStrips = stripDataObj.metadata().size();
-      const auto nSeedStripsNC = std::min(kMaxSeedStrips, clusterDataObj.prefixSeedStripsNCMask(nStrips - 1));
+      const auto nSeedStripsNC = (kMaxSeedStrips<clusterDataObj.prefixSeedStripsNCMask(nStrips - 1)) ? kMaxSeedStrips : clusterDataObj.prefixSeedStripsNCMask(nStrips - 1);
       auto channels = stripDataObj.channel();
       auto stripId = stripDataObj.stripId();
       auto adc = stripDataObj.adc();
