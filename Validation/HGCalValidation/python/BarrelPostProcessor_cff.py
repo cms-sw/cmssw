@@ -1,0 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
+from Validation.HGCalValidation.PostProcessorBarrel_cfi import postProcessorBarrellayerclusters
+
+barrelValidatorPostProcessor = cms.Sequence(postProcessorBarrellayerclusters)
