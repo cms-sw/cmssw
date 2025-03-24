@@ -14,35 +14,398 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 // #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 
+// Generic raw unpackers
+
+namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
+  enum class StatusCode { SUCCESS = 0, BAD_CHANNEL_LENGTH, UNORDERED_DATA, BAD_PACKET_CODE, ZERO_PACKET_CODE };
+  namespace detail {
+
+    template <uint8_t num_words>
+    ALPAKA_FN_HOST_ACC uint16_t getADC_W(const uint8_t* data, uint_fast16_t offset, uint8_t bits_shift) {
+      // get ADC from one or two bytes (at most 10 bits), and shift if needed
+      return (data[offset ^ 7] + (num_words == 2 ? ((data[(offset + 1) ^ 7] & 0x03) << 8) : 0)) << bits_shift;
+    }
+
+    template <uint16_t mask>
+    ALPAKA_FN_HOST_ACC uint16_t getADC_B2(const uint8_t* data, uint_fast16_t wOffset, uint_fast8_t bOffset) {
+      // get ADC from two bytes, from wOffset until bOffset bits from the next byte (maximum decided by mask)
+      return (((data[wOffset ^ 7]) << bOffset) + (data[(wOffset + 1) ^ 7] >> (BITS_PER_BYTE - bOffset))) & mask;
+    }
+
+    template <uint16_t mask>
+    ALPAKA_FN_HOST_ACC uint16_t getADC_B1(const uint8_t* data, uint_fast16_t wOffset, uint_fast8_t bOffset) {
+      // get ADC from one byte, until bOffset into the byte at wOffset (maximum decided by mask)
+      return (data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask;
+    }
+
+    // Unpack Raw with ADCs in whole 8-bit words (8bit and 10-in-16bit)
+    template <uint8_t num_bits, typename OUT>
+    ALPAKA_FN_HOST_ACC StatusCode unpackRawW(const FEDChannel& channel, OUT&& out, uint8_t bits_shift = 0) {
+      constexpr auto num_words = num_bits / 8;
+      static_assert(((num_bits % 8) == 0) && (num_words > 0) && (num_words < 3));
+      if ((num_words > 1) && ((channel.length() - 3) % num_words)) {
+        // LogDebug("FEDBuffer") << "Channel length is invalid. Raw channels have 3 header bytes and " << num_words
+        //                       << " bytes per sample. "
+        //                       << "Channel length is " << uint16_t(channel.length()) << ".";
+        return StatusCode::BAD_CHANNEL_LENGTH;
+      }
+      const uint8_t* const data = channel.data();
+      const uint_fast16_t end = channel.offset() + channel.length();
+      for (uint_fast16_t offset = channel.offset() + 3; offset != end; offset += num_words) {
+        *out++ = SiStripRawDigi(getADC_W<num_words>(data, offset, bits_shift));
+      }
+      return StatusCode::SUCCESS;
+    }
+
+    // Unpack Raw with ADCs in whole 8-bit words (8bit and 10-in-16bit)
+    template <uint8_t num_bits>
+    ALPAKA_FN_HOST_ACC StatusCode unpackRawW(const uint8_t* channel_data,
+                                             uint16_t channel_length,
+                                             uint32_t channel_offset,
+                                             StripDigiView out,
+                                             int* idx,
+                                             uint8_t bits_shift = 0) {
+      constexpr auto num_words = num_bits / 8;
+      static_assert(((num_bits % 8) == 0) && (num_words > 0) && (num_words < 3));
+      if ((num_words > 1) && ((channel_length - 3) % num_words)) {
+        // LogDebug("FEDBuffer") << "Channel length is invalid. Raw channels have 3 header bytes and " << num_words
+        //                       << " bytes per sample. "
+        //                       << "Channel length is " << uint16_t(channel.length()) << ".";
+        return StatusCode::BAD_CHANNEL_LENGTH;
+      }
+      const uint8_t* const data = channel_data;
+      const uint_fast16_t end = channel_offset + channel_length;
+      for (uint_fast16_t offset = channel_offset + 3; offset != end; offset += num_words) {
+        out.adc((*idx)++) = getADC_W<num_words>(data, offset, bits_shift);
+      }
+      return StatusCode::SUCCESS;
+    }
+
+    // Generic implementation for non-whole words (10bit, essentially)
+    template <uint_fast8_t num_bits>
+    ALPAKA_FN_HOST_ACC StatusCode unpackRawB(int chan,
+                                             const uint8_t* channel_data,
+                                             uint16_t channel_length,
+                                             uint32_t channel_offset,
+                                             StripDigiView out,
+                                             int* idx) {
+      static_assert(num_bits <= 16, "Word length must be between 0 and 16.");
+      if (channel_length & 0xF000) {
+        // LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
+        return StatusCode::BAD_CHANNEL_LENGTH;
+      }
+      constexpr uint16_t mask = (1 << num_bits) - 1;
+      const uint8_t* const data = channel_data;
+      const uint_fast16_t chEnd = channel_offset + channel_length;
+      uint_fast16_t wOffset = channel_offset + 3;
+      uint_fast8_t bOffset = 0;
+      while (((wOffset + 1) < chEnd) || ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits)) {
+        bOffset += num_bits;
+        if ((num_bits > BITS_PER_BYTE) || (bOffset > BITS_PER_BYTE)) {
+          bOffset -= BITS_PER_BYTE;
+          out.adc(*idx) = getADC_B2<mask>(data, wOffset, bOffset);
+          ++wOffset;
+        } else {
+          out.adc(*idx) = getADC_B1<mask>(data, wOffset, bOffset);
+        }
+        out.channel(*idx) = chan;
+        (*idx)++;
+        if (bOffset == BITS_PER_BYTE) {
+          bOffset = 0;
+          ++wOffset;
+        }
+      }
+      return StatusCode::SUCCESS;
+    }
+
+    template <uint8_t num_bits>
+    ALPAKA_FN_HOST_ACC StatusCode unpackZSW(int chan,
+                                            const uint8_t* channel_data,
+                                            uint16_t channel_length,
+                                            uint32_t channel_offset,
+                                            StripDigiView out,
+                                            int* aoffIdx,
+                                            uint8_t headerLength,
+                                            uint16_t stripStart,
+                                            uint8_t bits_shift = 0) {
+      constexpr auto num_words = num_bits / 8;
+      static_assert(((num_bits % 8) == 0) && (num_words > 0) && (num_words < 3));
+      if (channel_length & 0xF000) {
+        printf("FEDBuffer | Channel length is invalid. Channel length is %i\n", channel_length);
+        return StatusCode::BAD_CHANNEL_LENGTH;
+      }
+      const uint8_t* const data = channel_data;
+      uint_fast16_t offset = channel_offset + headerLength;  // header is 2 (lite) or 7
+      uint_fast8_t firstStrip{0}, nInCluster{0}, inCluster{0};
+      const uint_fast16_t end = channel_offset + channel_length;
+      while (offset != end) {
+        if (inCluster == nInCluster) {
+          if (offset + 2 >= end) {
+            // offset should already be at end then (empty cluster)
+            printf("offset should already set");
+            break;
+          }
+          const uint_fast8_t newFirstStrip = data[(offset++) ^ 7];
+          if (newFirstStrip < (firstStrip + inCluster)) {
+            // LogDebug("FEDBuffer") << "First strip of new cluster is not greater than last strip of previous cluster. "
+            //                       << "Last strip of previous cluster is " << uint16_t(firstStrip + inCluster) << ". "
+            //                       << "First strip of new cluster is " << uint16_t(newFirstStrip) << ".";
+            printf("StatusCode::UNORDERED_DATA");
+            return StatusCode::UNORDERED_DATA;
+          }
+          firstStrip = newFirstStrip;
+          nInCluster = data[(offset++) ^ 7];
+          inCluster = 0;
+          // out.stripId(++(*aoffIdx)) = 0xFFFF; // wonder what is the reason for these offsets
+          // from my investigation, there is always a call at the begin and end of the cluster.
+          // If this is a general property, then these two rows of the out StripDigiView could be saved for each unpackZSW call
+          for (int i = 0; i < 2; ++i, ++(*aoffIdx)) {
+            out.stripId(*aoffIdx) = 0xFFFF;
+            out.adc(*aoffIdx) = 0;
+          }
+        }
+        // assert(*aoffIdx!=23);
+        out.channel(*aoffIdx) = chan;
+        out.stripId(*aoffIdx) = stripStart + firstStrip + inCluster;
+        out.adc(*aoffIdx) = getADC_W<num_words>(data, offset, bits_shift);
+        (*aoffIdx)++;
+        offset += num_words;
+        ++inCluster;
+        // printf("\t [stripID %i] [adc %i]\n", out.stripId(*idx-1), out.adc(*idx-1));
+      }
+      return StatusCode::SUCCESS;
+    }
+
+    // Generic implementation (for 10bit, essentially)
+    template <uint_fast8_t num_bits>
+    ALPAKA_FN_HOST_ACC StatusCode unpackZSB(int chan,
+                                            const uint8_t* channel_data,
+                                            uint16_t channel_length,
+                                            uint32_t channel_offset,
+                                            StripDigiView out,
+                                            int* idx,
+                                            uint8_t headerLength,
+                                            uint16_t stripStart) {
+      constexpr uint16_t mask = (1 << num_bits) - 1;
+      if (channel_length & 0xF000) {
+        // LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
+        printf("[%i] | BAD_CHANNEL_LENGTH\n", *idx);
+        return StatusCode::BAD_CHANNEL_LENGTH;
+      }
+      uint_fast16_t wOffset = channel_offset + headerLength;  // header is 2 (lite) or 7
+      uint_fast8_t bOffset{0}, firstStrip{0}, nInCluster{0}, inCluster{0};
+      const uint_fast16_t chEnd = channel_offset + channel_length;
+      while (((wOffset + 1) < chEnd) ||
+             ((inCluster != nInCluster) && ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits))) {
+        if (inCluster == nInCluster) {
+          if (wOffset + 2 >= chEnd) {
+            // offset should already be at end then (empty cluster)
+            break;
+          }
+          if (bOffset) {
+            ++wOffset;
+            bOffset = 0;
+          }
+          const uint_fast8_t newFirstStrip = channel_data[(wOffset++) ^ 7];
+          if (newFirstStrip < (firstStrip + inCluster)) {
+            // LogDebug("FEDBuffer") << "First strip of new cluster is not greater than last strip of previous cluster. "
+            //                       << "Last strip of previous cluster is " << uint16_t(firstStrip + inCluster) << ". "
+            //                       << "First strip of new cluster is " << uint16_t(newFirstStrip) << ".";
+            printf("[%i] | UNORDERED_DATA - %i\t%i\t%i\n", *idx, newFirstStrip, firstStrip, inCluster);
+            return StatusCode::UNORDERED_DATA;
+          }
+          firstStrip = newFirstStrip;
+          nInCluster = channel_data[(wOffset++) ^ 7];
+          inCluster = 0;
+          bOffset = 0;
+        }
+        bOffset += num_bits;
+        if ((num_bits > BITS_PER_BYTE) || (bOffset > BITS_PER_BYTE)) {
+          bOffset -= BITS_PER_BYTE;
+          out.adc(*idx) = getADC_B2<mask>(channel_data, wOffset, bOffset);
+          (*idx)++;
+          ++wOffset;
+        } else {
+          out.adc(*idx) = getADC_B1<mask>(channel_data, wOffset, bOffset);
+          (*idx)++;
+        }
+        out.channel(*idx) = chan;
+        out.stripId(*idx) = stripStart + firstStrip + inCluster;
+        out.channel(*idx) = stripStart + firstStrip + inCluster;
+        ++inCluster;
+        if (bOffset == BITS_PER_BYTE) {
+          bOffset = 0;
+          ++wOffset;
+        }
+      }
+      printf("[%i] | SUCCESS\n", *idx);
+      return StatusCode::SUCCESS;
+    }
+
+    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE uint16_t readoutOrder(uint16_t physical_order) {
+      return (4 * ((static_cast<uint16_t>((static_cast<float>(physical_order) / 8.0))) % 4) +
+              static_cast<uint16_t>(static_cast<float>(physical_order) / 32.0) + 16 * (physical_order % 8));
+    }
+  }  // namespace detail
+
+  namespace checks {
+    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isZeroSuppressed(
+        FEDReadoutMode mode, bool legacy = false, FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+      if (!legacy) {
+        switch (mode) {
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+          case READOUT_MODE_PREMIX_RAW:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+          case READOUT_MODE_ZERO_SUPPRESSED:
+          case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+            return true;
+            break;
+          default:
+            return false;
+        }
+      } else {
+        switch (lmode) {
+          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:
+          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:
+          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL:
+          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE:
+          case READOUT_MODE_LEGACY_PREMIX_RAW:
+            return true;
+          default:
+            return false;
+        }
+      }
+    }
+
+    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isNonLiteZS(FEDReadoutMode mode,
+                                                         bool legacy = false,
+                                                         FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+      return (!legacy) ? (mode == READOUT_MODE_ZERO_SUPPRESSED || mode == READOUT_MODE_ZERO_SUPPRESSED_FAKE)
+                       : (lmode == READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL ||
+                          lmode == READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE);
+    }
+    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isVirginRaw(FEDReadoutMode mode,
+                                                         bool legacy = false,
+                                                         FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+      return (!legacy) ? mode == READOUT_MODE_VIRGIN_RAW
+                       : (lmode == READOUT_MODE_LEGACY_VIRGIN_RAW_REAL || lmode == READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE);
+    }
+    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isProcessedRaw(FEDReadoutMode mode,
+                                                            bool legacy = false,
+                                                            FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+      return (!legacy) ? mode == READOUT_MODE_PROC_RAW
+                       : (lmode == READOUT_MODE_LEGACY_PROC_RAW_REAL || lmode == READOUT_MODE_LEGACY_PROC_RAW_FAKE);
+    }
+    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isScopeMode(FEDReadoutMode mode,
+                                                         bool legacy = false,
+                                                         FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
+      return (!legacy) ? mode == READOUT_MODE_SCOPE : lmode == READOUT_MODE_LEGACY_SCOPE;
+    }
+  }  // namespace checks
+
+  namespace unpackers {
+    ALPAKA_FN_HOST_ACC StatusCode unpackZeroSuppressed(int chanIdx,
+                                                       const uint8_t* channel_data,
+                                                       uint16_t channel_length,
+                                                       uint32_t channel_offset,
+
+                                                       StripDigiView out,
+                                                       int* aoff,
+
+                                                       uint16_t stripStart,
+                                                       bool isNonLite,
+                                                       FEDReadoutMode mode,
+                                                       bool legacy = false,
+                                                       FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID,
+                                                       uint8_t packetCode = 0) {
+      if ((isNonLite && packetCode == PACKET_CODE_ZERO_SUPPRESSED10) ||
+          ((!legacy) &&
+           (mode == READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode == READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE))) {
+        // printf("[%i] unpackZSB<10>\n", *aoff);
+        return detail::unpackZSB<10>(
+            chanIdx, channel_data, channel_length, channel_offset, out, aoff, (isNonLite ? 7 : 2), stripStart);
+      } else if ((!legacy) ? mode == READOUT_MODE_PREMIX_RAW : lmode == READOUT_MODE_LEGACY_PREMIX_RAW) {
+        // printf("[%i] unpackZSB<16>\n", *aoff);
+        return detail::unpackZSW<16>(chanIdx, channel_data, channel_length, channel_offset, out, aoff, 7, stripStart);
+      } else {  // 8bit
+        uint8_t bits_shift = 0;
+        if (isNonLite) {
+          if (packetCode == PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT)
+            bits_shift = 1;
+          else if (packetCode == PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT)
+            bits_shift = 2;
+        } else {  // lite
+          if (mode == READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT ||
+              mode == READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE)
+            bits_shift = 1;
+          else if (mode == READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT ||
+                   mode == READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE)
+            bits_shift = 2;
+        }
+        // printf("[%i] unpackZSB<8> [isNonLite %i] [packetCode %i] [mode %i] [channel_length %i] [channel_offset %i]\n", *aoff, isNonLite, packetCode, mode, channel_length, channel_offset);
+        auto st = detail::unpackZSW<8>(chanIdx,
+                                       channel_data,
+                                       channel_length,
+                                       channel_offset,
+                                       out,
+                                       aoff,
+                                       (isNonLite ? 7 : 2),
+                                       stripStart,
+                                       bits_shift);
+        if (isNonLite && packetCode == 0 && StatusCode::SUCCESS == st) {
+          // workaround for a pre-2015 bug in the packer: assume default ZS packing
+          printf("[%i] ZERO_PACKET_CODE\n", *aoff);
+          return StatusCode::ZERO_PACKET_CODE;
+        }
+        return st;
+      }
+    }
+
+  }  // namespace unpackers
+
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker
+
 // kernels and related objects
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   using namespace cms::alpakatools;
 
-  // Phase 1 geometry constants
+  // Move the original constants to constexpr ()
+  ALPAKA_FN_ACC constexpr uint16_t get_FED_ID_MIN() { return sistrip::FED_ID_MIN; };
+  ALPAKA_FN_ACC constexpr uint16_t get_FEDCH_PER_FED() { return sistrip::FEDCH_PER_FED; };
+  ALPAKA_FN_ACC constexpr uint16_t get_STRIPS_PER_FEDCH() { return sistrip::STRIPS_PER_FEDCH; };
+  ALPAKA_FN_ACC constexpr uint16_t get_APVS_PER_FEDCH() { return sistrip::APVS_PER_FEDCH; };
+  ALPAKA_FN_ACC constexpr uint16_t get_APVS_PER_CHAN() { return sistrip::APVS_PER_CHAN; };
+  ALPAKA_FN_ACC constexpr uint16_t get_STRIPS_PER_APV() { return sistrip::STRIPS_PER_APV; };
 
-  constexpr uint16_t FED_ID_MIN = sistrip::FED_ID_MIN;
-  constexpr uint16_t FEDCH_PER_FED = sistrip::FEDCH_PER_FED;
-  constexpr uint16_t STRIPS_PER_FEDCH = sistrip::STRIPS_PER_FEDCH;
-  constexpr uint16_t badBit = (1 << 15);
-  constexpr uint16_t invalidStrip = std::numeric_limits<uint16_t>::max();
-  constexpr uint16_t APVS_PER_FEDCH = sistrip::APVS_PER_FEDCH;
-  constexpr uint16_t APVS_PER_CHAN = sistrip::APVS_PER_CHAN;
-  constexpr uint16_t STRIPS_PER_APV = sistrip::STRIPS_PER_APV;
+  ALPAKA_FN_ACC constexpr uint16_t FED_ID_MIN = get_FED_ID_MIN();
+  ALPAKA_FN_ACC constexpr uint16_t FEDCH_PER_FED = get_FEDCH_PER_FED();
+  ALPAKA_FN_ACC constexpr uint16_t STRIPS_PER_FEDCH = get_STRIPS_PER_FEDCH();
+  ALPAKA_FN_ACC constexpr uint16_t APVS_PER_FEDCH = get_APVS_PER_FEDCH();
+  ALPAKA_FN_ACC constexpr uint16_t APVS_PER_CHAN = get_APVS_PER_CHAN();
+  ALPAKA_FN_ACC constexpr uint16_t STRIPS_PER_APV = get_STRIPS_PER_APV();
+
+  ALPAKA_FN_ACC constexpr uint16_t invalidStrip = std::numeric_limits<uint16_t>::max();
+  ALPAKA_FN_ACC constexpr uint16_t invalidFed = std::numeric_limits<uint16_t>::max();
+
+  ALPAKA_FN_ACC constexpr uint16_t badBit = (1 << 15);
 
   ALPAKA_FN_ACC constexpr int kMaxSeedStrips = 200000;
-  constexpr uint16_t stripIndexMask = 0x7FFF;
+  ALPAKA_FN_ACC constexpr uint16_t stripIndexMask = 0x7FFF;
 
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint16_t fedIndex(uint16_t fed) { return fed - FED_ID_MIN; }
-
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint32_t stripIndex(uint16_t fedID, uint8_t fedCH, uint16_t strip) {
     return fedIndex(fedID) * FEDCH_PER_FED * STRIPS_PER_FEDCH + fedCH * STRIPS_PER_FEDCH + (strip % STRIPS_PER_FEDCH);
   }
-
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint32_t apvIndex(uint16_t fed, uint8_t channel, uint16_t strip) {
     return fedIndex(fed) * APVS_PER_FEDCH * FEDCH_PER_FED + APVS_PER_CHAN * channel +
            (strip % STRIPS_PER_FEDCH) / STRIPS_PER_APV;
   }
-
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint32_t channelIndex(uint16_t fedID, uint8_t fedCH) {
     return fedIndex(fedID) * FEDCH_PER_FED + fedCH;
   }
@@ -50,52 +413,78 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class SiStripRawToClusterAlgoKernel_unpacker {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                  SiStripMappingConstView mapping,
-                                  SiStripClusterizerConditionsDetToFedsConstView DetToFeds,
-                                  SiStripClusterizerConditionsData_fedchConstView Data_fedch,
-                                  SiStripClusterizerConditionsData_stripConstView Data_strip,
-                                  SiStripClusterizerConditionsData_apvConstView Data_apv,
-                                  StripDigiView stripDataObj) const {
-      // // set this only once in the whole kernel grid
-      // if (once_per_grid(acc)) {
-      //   stripDataObj.adc(0) = 1;
-      // }
-      // return;
-
+    ALPAKA_FN_HOST_ACC void operator()(TAcc const& acc,
+                                       SiStripMappingConstView mapping,
+                                       //
+                                       bool legacy,
+                                       FEDLegacyReadoutMode lmode,
+                                       //
+                                       SiStripClusterizerConditionsDetToFedsConstView DetToFeds,
+                                       SiStripClusterizerConditionsData_fedchConstView Data_fedch,
+                                       SiStripClusterizerConditionsData_stripConstView Data_strip,
+                                       SiStripClusterizerConditionsData_apvConstView Data_apv,
+                                       StripDigiView stripDataObj) const {
       // make a strided loop over the kernel grid, covering up to "size" elements
       for (auto chan : uniform_elements(acc, mapping.metadata().size())) {
         const auto fedID = mapping.fedID(chan);
         const auto fedCH = mapping.fedCh(chan);
+        // const auto detID = mapping.detID(chan);
+
+        if (fedID == invalidFed)
+          continue;  // reject strips which are in the conditions but not in the fed data collection
 
         const auto ipair = Data_fedch.iPair_(channelIndex(fedID, fedCH));
-        const auto ipoff = STRIPS_PER_FEDCH * ipair;
+        int ipoff = STRIPS_PER_FEDCH * ipair;
 
-        const auto data = mapping.input(chan);
-        const auto len = mapping.length(chan);
+        const unsigned char* channel_data = mapping.input(chan);
+        const short unsigned channel_len = mapping.length(chan);
+        const long unsigned channel_offset = mapping.inoff(chan);
 
-        if (data != nullptr && len > 0) {
-          auto aoff = mapping.offset(chan);
-          auto choff = mapping.inoff(chan);
-          const auto end = choff + len;
+        FEDReadoutMode mode = mapping.readoutMode(chan);
+        const unsigned pCode = mapping.packetCode(chan);
+        bool isNonLite = fedchannelunpacker::checks::isNonLiteZS(mode, legacy, lmode);
 
-          while (choff < end) {
-            auto stripIndex = data[(choff++) ^ 7] + ipoff;
-            const auto groupLength = data[(choff++) ^ 7];
+        int aoff = mapping.offset(chan);
 
-            // initialize as invalid strip
-            for (auto i = 0; i < 2; ++i) {
-              stripDataObj.stripId(aoff) = 0xFFFF;
-              stripDataObj.adc(aoff++) = 0;
-            }
+        // unpackZeroSuppressed(const unsigned char* const&, const short unsigned int&, const long unsigned int&, sistripclusterizer::StripDigiView&, long unsigned int*, int, bool&, sistrip::FEDReadoutMode&, bool&, sistrip::FEDLegacyReadoutMode&, const unsigned char&)
+        auto retCode = fedchannelunpacker::unpackers::unpackZeroSuppressed(chan,
+                                                                           channel_data,
+                                                                           channel_len,
+                                                                           channel_offset,
+                                                                           stripDataObj,
+                                                                           &aoff,
+                                                                           ipoff,
+                                                                           isNonLite,
+                                                                           mode,
+                                                                           legacy,
+                                                                           lmode,
+                                                                           pCode);
+        if ((int)retCode != 0) {
+          printf("[%i] [fedID %i] [fedCH %i] - Returned %i\n", chan, fedID, fedCH, (int)retCode);
+        }
 
-            for (auto i = 0; i < groupLength; ++i) {
-              stripDataObj.stripId(aoff) = stripIndex++;
-              stripDataObj.channel(aoff) = chan;
-              stripDataObj.adc(aoff++) = data[(choff++) ^ 7];
-            }
-          }
-        }  // choff < end
+        // if (channel_data != nullptr && channel_len > 0) {
+        //   auto aoff = mapping.offset(chan);
+        //   auto choff = mapping.inoff(chan);
+        //   const auto end = choff + channel_len;
+
+        //   while (choff < end) {
+        //     auto stripIndex = channel_data[(choff++) ^ 7] + ipoff;
+        //     const auto groupLength = channel_data[(choff++) ^ 7];
+
+        //     // initialize as invalid strip
+        //     for (auto i = 0; i < 2; ++i) {
+        //       stripDataObj.stripId(aoff) = 0xFFFF;
+        //       stripDataObj.adc(aoff++) = 0;
+        //     }
+
+        //     for (auto i = 0; i < groupLength; ++i) {
+        //       stripDataObj.stripId(aoff) = stripIndex++;
+        //       stripDataObj.channel(aoff) = chan;
+        //       stripDataObj.adc(aoff++) = channel_data[(choff++) ^ 7];
+        //     }
+        //   }
+        // }  // choff < end
       }  // data != nullptr && len > 0
     }
   };
@@ -128,7 +517,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           clusterDataObj.seedStripsMask(chan) = (adc_i >= static_cast<uint8_t>(noise_i * seedThreshold)) ? 1 : 0;
           clusterDataObj.seedStripsNCMask(chan) = clusterDataObj.seedStripsMask(chan);
-          // clusterDataObj.seedStripsNCMask(chan) = static_cast<uint8_t>(seedThreshold);
+          // clusterDataObj.seedStripsNCMask(chan) = static_cast<uint8_t>(seedThreshold); // debugging
         }
       }
     }
@@ -385,14 +774,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }  // i < nSeedStripsNC
     }
   };
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 // kernels launchers
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   using namespace cms::alpakatools;
   using namespace sistripclusterizer;
 
-  SiStripRawToClusterAlgo::SiStripRawToClusterAlgo(const edm::ParameterSet& conf)
+  SiStripRawToClusterAlgo::SiStripRawToClusterAlgo(const edm::ParameterSet& conf, bool legacyMode)
       : channelThreshold_(conf.getParameter<double>("ChannelThreshold")),
         seedThreshold_(conf.getParameter<double>("SeedThreshold")),
         clusterThresholdSquared_(std::pow(conf.getParameter<double>("ClusterThreshold"), 2.0f)),
@@ -400,9 +789,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         maxSequentialBad_(conf.getParameter<unsigned>("MaxSequentialBad")),
         maxAdjacentBad_(conf.getParameter<unsigned>("MaxAdjacentBad")),
         maxClusterSize_(conf.getParameter<unsigned>("MaxClusterSize")),
-        minGoodCharge_(clusterChargeCut(conf)) {}
+        minGoodCharge_(clusterChargeCut(conf)),
+        legacyUnpacker_(legacyMode) {}
 
   void SiStripRawToClusterAlgo::initialize(Queue& queue, int n_strips) {
+    assert(n_strips >= 0);
     // Create unpakcedStrips on host and initialize with algo parameters
     auto sClustersAux_host = StripClusterizerHost({{n_strips, n_strips}}, queue);
     sClustersAux_host.zeroInitialise();
@@ -444,6 +835,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         workDiv,
                         SiStripRawToClusterAlgoKernel_unpacker{},
                         mapping.const_view(),
+                        //
+                        legacyUnpacker_,
+                        lmode_,
+                        //
                         conditions.const_view<SiStripClusterizerConditionsDetToFedsSoA>(),
                         conditions.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
                         conditions.const_view<SiStripClusterizerConditionsData_stripSoA>(),
@@ -454,13 +849,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto sClustersAux_host = StripClusterizerHost(clustersAux_d_->sizes(), queue);
     alpaka::memcpy(queue, sClustersAux_host.buffer(), clustersAux_d_->buffer());
     alpaka::wait(queue);
-    LogDebug("SiStripUnpkDigi") << "[SiStripRawToClusterAlgo::unpackStrips] Dumping channel_...\n"
-                                << "i\tadc\tchan\tstripId\n";
+    // LogDebug("SiStripUnpkDigi") << "[SiStripRawToClusterAlgo::unpackStrips] Dumping channel_...\n"
+    std::cout << "[SiStripRawToClusterAlgo::unpackStrips] Dumping channel_...\n"
+              << "i\tadc\tchan\tstripId\n";
     for (int i = 0; i < sClustersAux_host->metadata().size(); ++i) {
-      if (i % 100 == 0 and sClustersAux_host->stripId(i) != invalidStrip) {
-        LogDebug("SiStripUnpkDigi") << i << " : " << (int)sClustersAux_host->adc(i) << " "
-                                    << (int)sClustersAux_host->channel(i) << " " << (int)sClustersAux_host->stripId(i)
-                                    << "\n";
+      if ((i % 1000 == 0 and sClustersAux_host->stripId(i) != invalidStrip) or (i <= 100) or
+          (i > (sClustersAux_host->metadata().size() - 100))) {
+        // LogDebug("SiStripUnpkDigi") << i << "\t" << (int)sClustersAux_host->adc(i) << " "
+        std::cout << i << "\t" << (int)sClustersAux_host->adc(i) << "\t" << (int)sClustersAux_host->channel(i) << "\t"
+                  << (int)sClustersAux_host->stripId(i) << "\n";
       }
     }
 #endif
@@ -576,10 +973,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
   }
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 #ifdef EDM_ML_DEBUG  // debug functions
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   void SiStripRawToClusterAlgo::checkUnpackedStrips_(Queue& queue, StripClusterizerDevice& output) const {
     auto output_onHost = StripClusterizerHost(output.sizes(), queue);
     alpaka::memcpy(queue, output_onHost.buffer(), output.buffer());
@@ -649,5 +1046,5 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
     alpaka::wait(queue);
   }
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 #endif  // debug functions

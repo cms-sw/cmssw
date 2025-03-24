@@ -34,7 +34,7 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
         initialPars = process.hltSiStripRawToClustersFacility.parameters_()
         
         # Create the alpaka-producer and set its parameters from the original one
-        hltSiStripRawToClustersFacilityAlpaka = cms.EDProducer("SiStripRawToCluster@alpaka", **initialPars)
+        hltSiStripRawToClustersFacilityAlpaka = cms.EDProducer("sistrip::SiStripRawToCluster@alpaka", **initialPars)
         
         # Add the extra pars (if not present)
         if not hasattr(hltSiStripRawToClustersFacilityAlpaka, "ConditionsLabel"): hltSiStripRawToClustersFacilityAlpaka.ConditionsLabel = cms.string("")
@@ -51,13 +51,14 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
             if hasattr(hltSiStripRawToClustersFacilityAlpaka, par): delattr(hltSiStripRawToClustersFacilityAlpaka, par)
         
         # Create the converter bringing the alpaka-made cluster into legacy objects
-        hltSiStripClustersToLegacy = cms.EDProducer("SiStripClustersToLegacy@alpaka",
+        # hltSiStripClustersToLegacy = cms.EDProducer("SiStripClustersToLegacy@alpaka",
+        hltSiStripClustersToLegacy = cms.EDProducer("sistrip::SiStripClustersToLegacy@alpaka",
             source = cms.InputTag("hltSiStripRawToClustersFacilityAlpaka")
         )
         
         ####### Produce ES for the alpaka clusterizer #######
         # Produce the SiStripClusterizerConditionsHost object
-        hltSiStripClusterizerConditionsESProducerAlpaka = cms.ESProducer("SiStripClusterizerConditionsESProducerAlpaka@alpaka",
+        hltSiStripClusterizerConditionsESProducerAlpaka = cms.ESProducer("sistrip::SiStripClusterizerConditionsESProducerAlpaka@alpaka",
             QualityLabel = cms.string(""),
             Label = cms.string(""),
         )

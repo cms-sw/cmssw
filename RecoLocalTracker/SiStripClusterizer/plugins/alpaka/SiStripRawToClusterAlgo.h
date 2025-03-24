@@ -1,20 +1,17 @@
 #ifndef RecoLocalTracker_SiStripClusterizer_plugins_alpaka_SiStripRawToClusterAlgo_h
 #define RecoLocalTracker_SiStripClusterizer_plugins_alpaka_SiStripRawToClusterAlgo_h
 
-#include "CondFormats/SiStripObjects/interface/alpaka/SiStripClusterizerConditionsDevice.h"
-#include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
-#include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceObject.h"
+#include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClustersDevice.h"
+
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaTest/interface/alpaka/AlpakaESTestData.h"
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
-#include "CondFormats/SiStripObjects/interface/alpaka/SiStripMappingDevice.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripClusterizerConditionsDevice.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripMappingDevice.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-
-#include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClustersDevice.h"
 
 namespace edm {
   class ParameterSet;
@@ -55,7 +52,7 @@ namespace sistripclusterizer {
   using StripClusterizerHost = PortableHostCollection2<StripDigiSoA, StripClustersAuxSoA>;
 }  // namespace sistripclusterizer
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   using namespace sistripclusterizer;
 
   // PortableCollection-based model
@@ -67,14 +64,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using StripClusterizerHost = ::sistripclusterizer::StripClusterizerHost;
   using StripClusterizerDevice = PortableCollection2<StripDigiSoA, StripClustersAuxSoA>;
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 // check that the sistrip device collection for the host device is the same as the sistrip host collection
-ASSERT_DEVICE_MATCHES_HOST_COLLECTION(StripDigiDevice, sistripclusterizer::StripDigiHost);
-ASSERT_DEVICE_MATCHES_HOST_COLLECTION(StripClustersAuxDevice, sistripclusterizer::StripClustersAuxHost);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(sistrip::StripDigiDevice, sistripclusterizer::StripDigiHost);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(sistrip::StripClustersAuxDevice, sistripclusterizer::StripClustersAuxHost);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   /**
   * @brief Calculates the next integer.
   *
@@ -146,12 +143,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::map<uint16_t, size_t> validFED_offsets;
     std::vector<unsigned int> chunkStartIdx_;
   };
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
+namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   class SiStripRawToClusterAlgo {
   public:
-    SiStripRawToClusterAlgo(const edm::ParameterSet& conf);
+    SiStripRawToClusterAlgo(const edm::ParameterSet& conf, bool legacyMode);
 
     void initialize(Queue& queue, int n_strips);
     void unpackStrips(Queue& queue,
@@ -181,12 +178,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const uint32_t maxClusterSize_;
     const float minGoodCharge_;
 
-#ifdef EDM_ML_DEBUG
+    //
+    const bool legacyUnpacker_;
+    const FEDLegacyReadoutMode lmode_ = READOUT_MODE_LEGACY_INVALID;
+
+  #ifdef EDM_ML_DEBUG
     void checkUnpackedStrips_(Queue& queue, StripClusterizerDevice& output) const;
     void checkPrefixSum_(Queue& queue, StripClusterizerDevice& output) const;
     void checkClusters_(Queue& queue) const;
-#endif
+  #endif
   };
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 #endif  // RecoLocalTracker_SiStripClusterizer_plugins_alpaka_SiStripRawToClusterAlgo_h
