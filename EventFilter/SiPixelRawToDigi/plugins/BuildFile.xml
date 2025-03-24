@@ -1,7 +1,4 @@
-<use name="CUDADataFormats/SiPixelDigi"/>
 <use name="EventFilter/SiPixelRawToDigi"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="cuda"/>
 <use name="alpaka"/>
 <library file="*.cc" name="EventFilterSiPixelRawToDigiPlugins">
   <flags EDM_PLUGIN="1"/>
