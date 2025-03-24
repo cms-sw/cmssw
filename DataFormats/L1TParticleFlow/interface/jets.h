@@ -14,7 +14,7 @@ namespace l1ct {
   // all possible tag categories (can be extended for new / separate taggers)
   class JetTagClass{
   public:
-    enum JetTagClassValue {
+    enum JetTagClassValue : uint8_t {
       uds, g, b, c, tau_p, tau_n, e, mu
     };
     JetTagClass() = default;
