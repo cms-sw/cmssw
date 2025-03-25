@@ -94,8 +94,6 @@ namespace trackerDTC {
     const Setup* setup_;
     // enables analyze of TPs
     bool useMCTruth_;
-    // specifies used TT algorithm
-    bool hybrid_;
     //
     int nEvents_ = 0;
 
@@ -118,8 +116,7 @@ namespace trackerDTC {
     stringstream log_;
   };
 
-  Analyzer::Analyzer(const ParameterSet& iConfig)
-      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), hybrid_(iConfig.getParameter<bool>("UseHybrid")) {
+  Analyzer::Analyzer(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
     const auto& inputTagAccepted = iConfig.getParameter<InputTag>("InputTagAccepted");
@@ -315,7 +312,7 @@ namespace trackerDTC {
       if (frame.first.isNull())
         continue;
       sum++;
-      const GlobalPoint& pos = setup_->stubPos(hybrid_, frame, region);
+      const GlobalPoint& pos = setup_->stubPos(frame, region);
       const GlobalPoint& ttPos = setup_->stubPos(frame.first);
       const vector<double> resolutions = {
           ttPos.perp() - pos.perp(), deltaPhi(ttPos.phi() - pos.phi()), ttPos.z() - pos.z()};

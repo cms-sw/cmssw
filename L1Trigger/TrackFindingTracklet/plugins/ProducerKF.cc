@@ -38,7 +38,6 @@ namespace trklet {
     ~ProducerKF() override {}
 
   private:
-    void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
     void endStream() override {
       if (printDebug_)
@@ -72,8 +71,6 @@ namespace trklet {
     KFParamsComb* tmtt_;
     // print end job internal unused MSB
     bool printDebug_;
-    //
-    bool use5ParameterFit_;
   };
 
   ProducerKF::ProducerKF(const ParameterSet& iConfig)
@@ -123,9 +120,6 @@ namespace trklet {
     iConfig_.baseShiftC23_ = iConfig.getParameter<int>("BaseShiftC23");
     iConfig_.baseShiftC33_ = iConfig.getParameter<int>("BaseShiftC33");
     printDebug_ = iConfig.getParameter<bool>("PrintKFDebug");
-    use5ParameterFit_ = iConfig.getParameter<bool>("Use5ParameterFit");
-    if (use5ParameterFit_)
-      tmtt_ = &tmtt5_;
     const string& label = iConfig.getParameter<string>("InputLabelKF");
     const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
     const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
@@ -143,21 +137,13 @@ namespace trklet {
     esGetTokenDataFormats_ = esConsumes();
   }
 
-  void ProducerKF::beginRun(const Run& iRun, const EventSetup& iSetup) {
+  void ProducerKF::produce(Event& iEvent, const EventSetup& iSetup) {
     // helper class to store configurations
     const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     settings_.setMagneticField(setup->bField());
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
-    // provides dataformats of Kalman filter internals
     kalmanFilterFormats_.consume(dataFormats, iConfig_);
-  }
-
-  void ProducerKF::produce(Event& iEvent, const EventSetup& iSetup) {
-    // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     auto valid = [](int sum, const FrameTrack& f) { return sum + (f.first.isNull() ? 0 : 1); };
     // empty KF products
     StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
@@ -170,7 +156,8 @@ namespace trklet {
     // prep TTTracks
     TTTracks ttTracks;
     vector<TTTrackRef> ttTrackRefs;
-    if (use5ParameterFit_) {
+    if (setup->kfUse5ParameterFit()) {
+      tmtt_ = &tmtt5_;
       int nTracks(0);
       for (const StreamTrack& stream : tracks)
         nTracks += accumulate(stream.begin(), stream.end(), 0, valid);
@@ -189,7 +176,7 @@ namespace trklet {
       // fill output products
       kf.produce(streamsStub, streamsTrack, numStatesAccepted, numStatesTruncated);
     }
-    if (use5ParameterFit_) {
+    if (setup->kfUse5ParameterFit()) {
       // store ttTracks
       const OrphanHandle<TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));
       // replace ttTrackRefs in track streams

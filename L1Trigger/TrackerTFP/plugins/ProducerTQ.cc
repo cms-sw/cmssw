@@ -20,7 +20,6 @@
 using namespace std;
 using namespace edm;
 using namespace tt;
-using namespace trackerTFP;
 
 namespace trackerTFP {
 
@@ -33,7 +32,6 @@ namespace trackerTFP {
   public:
     explicit ProducerTQ(const ParameterSet&);
     ~ProducerTQ() override {}
-    void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
 
   private:
@@ -54,10 +52,6 @@ namespace trackerTFP {
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // TrackQuality token
     ESGetToken<TrackQuality, DataFormatsRcd> esGetTokenTrackQuality_;
-    // number of processing regions
-    int numRegions_;
-    // number of kf layers
-    int numLayers_;
   };
 
   ProducerTQ::ProducerTQ(const ParameterSet& iConfig) {
@@ -75,21 +69,16 @@ namespace trackerTFP {
     esGetTokenTrackQuality_ = esConsumes();
   }
 
-  void ProducerTQ::beginRun(const Run& iRun, const EventSetup& iSetup) {
+  void ProducerTQ::produce(Event& iEvent, const EventSetup& iSetup) {
     // helper class to store configurations
     const Setup* setup = &iSetup.getData(esGetTokenSetup_);
-    numRegions_ = setup->numRegions();
-    numLayers_ = setup->numLayers();
-  }
-
-  void ProducerTQ::produce(Event& iEvent, const EventSetup& iSetup) {
     // helper class to determine Track Quality
     const TrackQuality* trackQuality = &iSetup.getData(esGetTokenTrackQuality_);
     auto valid = [](int sum, const FrameTrack& frame) { return sum + (frame.first.isNull() ? 0 : 1); };
     // empty TQ product
-    StreamsTrack outputTracks(numRegions_);
-    Streams outputTracksAdd(numRegions_);
-    StreamsStub outputStubs(numRegions_ * numLayers_);
+    StreamsTrack outputTracks(setup->numRegions());
+    Streams outputTracksAdd(setup->numRegions());
+    StreamsStub outputStubs(setup->numRegions() * setup->numLayers());
     // read in KF Product and produce TQ product
     Handle<StreamsStub> handleStubs;
     iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
@@ -97,9 +86,9 @@ namespace trackerTFP {
     Handle<StreamsTrack> handleTracks;
     iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
     const StreamsTrack& streamsTracks = *handleTracks.product();
-    for (int region = 0; region < numRegions_; region++) {
+    for (int region = 0; region < setup->numRegions(); region++) {
       // calculate track quality
-      const int offsetLayer = region * numLayers_;
+      const int offsetLayer = region * setup->numLayers();
       const StreamTrack& streamTrack = streamsTracks[region];
       const int nTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, valid);
       vector<Track> tracks;
@@ -113,8 +102,8 @@ namespace trackerTFP {
           continue;
         }
         StreamStub streamStub;
-        streamStub.reserve(numLayers_);
-        for (int layer = 0; layer < numLayers_; layer++)
+        streamStub.reserve(setup->numLayers());
+        for (int layer = 0; layer < setup->numLayers(); layer++)
           streamStub.push_back(streamsStubs[offsetLayer + layer][frame]);
         tracks.emplace_back(frameTrack, streamStub, trackQuality);
         stream.push_back(&tracks.back());
@@ -122,19 +111,19 @@ namespace trackerTFP {
       // fill TQ product
       outputTracks[region].reserve(stream.size());
       outputTracksAdd[region].reserve(stream.size());
-      for (int layer = 0; layer < numLayers_; layer++)
+      for (int layer = 0; layer < setup->numLayers(); layer++)
         outputStubs[offsetLayer + layer].reserve(stream.size());
       for (Track* track : stream) {
         if (!track) {
           outputTracks[region].emplace_back(FrameTrack());
           outputTracksAdd[region].emplace_back(Frame());
-          for (int layer = 0; layer < numLayers_; layer++)
+          for (int layer = 0; layer < setup->numLayers(); layer++)
             outputStubs[offsetLayer + layer].emplace_back(FrameStub());
           continue;
         }
         outputTracks[region].emplace_back(track->frameTrack_);
         outputTracksAdd[region].emplace_back(track->frame_);
-        for (int layer = 0; layer < numLayers_; layer++)
+        for (int layer = 0; layer < setup->numLayers(); layer++)
           outputStubs[offsetLayer + layer].emplace_back(track->streamStub_[layer]);
       }
     }

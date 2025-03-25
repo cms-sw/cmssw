@@ -55,7 +55,7 @@ namespace trklet {
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // LayerEncoding token
-    ESGetToken<LayerEncoding, ChannelAssignmentRcd> esGetTokenLayerEncoding_;
+    ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
     // DataFormats token
     ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
     // ChannelAssignment token

@@ -172,7 +172,7 @@ namespace trklet {
     const double range = 4. * dPhi.range() * dPhi.range();
     const double base = S01.base();
     const int width = ceil(log2(range / base) - 1.e-11);
-    return DataFormatKF(VariableKF::v0, true, iConfig.enableIntegerEmulation_, width, base, range);
+    return DataFormatKF(VariableKF::v0, false, iConfig.enableIntegerEmulation_, width, base, range);
   }
 
   template <>
@@ -182,7 +182,7 @@ namespace trklet {
     const double range = 4. * dZ.range() * dZ.range();
     const double base = S13.base();
     const int width = ceil(log2(range / base) - 1.e-11);
-    return DataFormatKF(VariableKF::v1, true, iConfig.enableIntegerEmulation_, width, base, range);
+    return DataFormatKF(VariableKF::v1, false, iConfig.enableIntegerEmulation_, width, base, range);
   }
 
   template <>
