@@ -86,11 +86,11 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
     } else if (rhtools_.isBarrel(firstHitDetId)) {
       resultBarrel->fill(layer, lc.eta(), lc.phi(), lcId);
     } else {
-        result->fill(layer, lc.eta(), lc.phi(), lcId);
+      result->fill(layer, lc.eta(), lc.phi(), lcId);
     }
     LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
-                                      << (*result)[layer].etaBin(lc.eta()) << ", "
-                                      << (*result)[layer].phiBin(lc.phi()) << "] for layer: " << layer << std::endl;
+                                      << (*result)[layer].etaBin(lc.eta()) << ", " << (*result)[layer].phiBin(lc.phi())
+                                      << "] for layer: " << layer << std::endl;
     lcId++;
   }
   if (doNose_)
