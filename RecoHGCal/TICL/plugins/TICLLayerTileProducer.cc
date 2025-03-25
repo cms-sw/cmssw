@@ -77,22 +77,20 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
     const auto firstHitDetId = lc.hitsAndFractions()[0].first;
     int layer = rhtools_.getLayerWithOffset(firstHitDetId);
     if (!rhtools_.isBarrel(firstHitDetId)) {
-      layer += rhtools_.getLayerWithOffset(firstHitDetId) +
-               rhtools_.lastLayer(doNose_) * ((rhtools_.zside(firstHitDetId) + 1) >> 1) - 1;
+      layer += rhtools_.lastLayer(doNose_) * ((rhtools_.zside(firstHitDetId) + 1) >> 1) - 1;
     }
     assert(layer >= 0);
 
     if (doNose_) {
       resultHFNose->fill(layer, lc.eta(), lc.phi(), lcId);
+    } else if (rhtools_.isBarrel(firstHitDetId)) {
+      resultBarrel->fill(layer, lc.eta(), lc.phi(), lcId);
     } else {
-      if (rhtools_.isBarrel(firstHitDetId))
-        resultBarrel->fill(layer, lc.eta(), lc.phi(), lcId);
-      else
         result->fill(layer, lc.eta(), lc.phi(), lcId);
-      LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
-                                        << (*result)[layer].etaBin(lc.eta()) << ", "
-                                        << (*result)[layer].phiBin(lc.phi()) << "] for layer: " << layer << std::endl;
     }
+    LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
+                                      << (*result)[layer].etaBin(lc.eta()) << ", "
+                                      << (*result)[layer].phiBin(lc.phi()) << "] for layer: " << layer << std::endl;
     lcId++;
   }
   if (doNose_)

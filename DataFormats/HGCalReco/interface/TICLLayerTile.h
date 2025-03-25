@@ -38,8 +38,10 @@ public:
   std::array<int, 4> searchBoxEtaPhi(float etaMin, float etaMax, float phiMin, float phiMax) const {
     // The tile only handles one endcap at a time and does not hold mixed eta
     // values.
-    if (etaMin * etaMax < 0) {
-      return std::array<int, 4>({{0, 0, 0, 0}});
+    if (!std::is_same_v<T, ticl::TileConstantsBarrel>) {
+      if (etaMin * etaMax < 0) {
+        return std::array<int, 4>({{0, 0, 0, 0}});
+      }
     }
     if (etaMax - etaMin < 0) {
       return std::array<int, 4>({{0, 0, 0, 0}});
