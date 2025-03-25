@@ -86,10 +86,10 @@ namespace tt {
         maxD0_(iConfig.getParameter<double>("MaxD0")),
         maxVertR_(iConfig.getParameter<double>("MaxVertR")),
         maxVertZ_(iConfig.getParameter<double>("MaxVertZ")) {
-    iConfig_.minLayersGood_ = iConfig.getParameter<int>("minLayersGood");
-    iConfig_.minLayersGoodPS_ = iConfig.getParameter<int>("minLayersGoodPS");
-    iConfig_.maxLayersBad_ = iConfig.getParameter<int>("maxLayersBad");
-    iConfig_.maxLayersBadPS_ = iConfig.getParameter<int>("maxLayersBadPS");
+    iConfig_.minLayersGood_ = iConfig.getParameter<int>("MinLayersGood");
+    iConfig_.minLayersGoodPS_ = iConfig.getParameter<int>("MinLayersGoodPS");
+    iConfig_.maxLayersBad_ = iConfig.getParameter<int>("MaxLayersBad");
+    iConfig_.maxLayersBadPS_ = iConfig.getParameter<int>("MaxLayersBadPS");
     // book in- and output ed products
     getTokenTTStubDetSetVec_ = consumes<TTStubDetSetVec>(iConfig.getParameter<InputTag>("InputTagTTStubDetSetVec"));
     getTokenTTClusterAssMap_ = consumes<TTClusterAssMap>(iConfig.getParameter<InputTag>("InputTagTTClusterAssMap"));
