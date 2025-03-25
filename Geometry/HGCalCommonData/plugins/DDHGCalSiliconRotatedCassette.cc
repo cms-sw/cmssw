@@ -319,7 +319,8 @@ void DDHGCalSiliconRotatedCassette::constructLayers(const DDLogicalPart& module,
   double zi(zMinBlock_);
   int laymin(0);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Enters constructLayers with " << layers_.size() << " layers";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Enters constructLayers with " << layers_.size()
+                                << " layers";
 #endif
   for (unsigned int i = 0; i < layers_.size(); i++) {
     double zo = zi + layerThick_[i];
@@ -328,7 +329,8 @@ void DDHGCalSiliconRotatedCassette::constructLayers(const DDLogicalPart& module,
     double zz = zi;
     double thickTot(0);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Section " << i << " Layers " << laymin << ":" << laymax << " zi " << zi;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Section " << i << " Layers " << laymin << ":"
+                                  << laymax << " zi " << zi;
 #endif
     for (int ly = laymin; ly < laymax; ++ly) {
       int ii = layerType_[ly];
