@@ -638,12 +638,12 @@ namespace tt {
   }
 
   // returns bit accurate position of a stub from a given tfp region [0-8]
-  GlobalPoint Setup::stubPos(bool hybrid, const FrameStub& frame, int region) const {
+  GlobalPoint Setup::stubPos(const FrameStub& frame, int region) const {
     GlobalPoint p;
     if (frame.first.isNull())
       return p;
     TTBV bv(frame.second);
-    if (hybrid) {
+    if (useHybrid_) {
       const bool barrel = this->barrel(frame.first);
       const int layerId = this->indexLayerId(frame.first);
       const GlobalPoint gp = this->stubPos(frame.first);

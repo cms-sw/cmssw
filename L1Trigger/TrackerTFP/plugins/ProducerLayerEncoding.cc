@@ -3,7 +3,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 
 #include <memory>

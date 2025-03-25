@@ -222,7 +222,7 @@ namespace tt {
     // returns bit accurate hybrid stub radius for given TTStubRef and h/w bit word
     double stubR(const TTBV& hw, const TTStubRef& ttStubRef) const;
     // returns bit accurate position of a stub from a given tfp region [0-8]
-    GlobalPoint stubPos(bool hybrid, const tt::FrameStub& frame, int region) const;
+    GlobalPoint stubPos(const tt::FrameStub& frame, int region) const;
     // empty trackerDTC EDProduct
     TTDTC ttDTC() const { return TTDTC(numRegions_, numOverlappingRegions_, numDTCsPerRegion_); }
     // stub layer id (barrel: 1 - 6, endcap: 11 - 15)
