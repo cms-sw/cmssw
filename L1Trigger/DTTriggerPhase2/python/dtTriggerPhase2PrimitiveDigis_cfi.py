@@ -26,6 +26,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                df_extended = cms.int32(0), # DF: 0 for standard, 1 for extended, 2 for both 
                                                co_option = cms.int32(1), # coincidence w.r.t. : -1 = off, 0 = co all, 1 = co phi, 2 = co theta
                                                co_quality = cms.int32(1), # quality cut (>X) for coincidence TP: request TPs to be above this cut
+                                               co_wh2option = cms.int32(1),#0 (filter all stations in Wh2), 1(pass Wh2 St1), 2(pass Wh2 St1+2)
                                                th_option = cms.int32(1), # save 1st, 2nd,... closest Phi-Theta pair. 0 disables filtering (saves all)
                                                th_quality = cms.int32(2), # quality cut (>X) for Theta matching: Phi TPs above are not filtered
                                                max_primitives = cms.int32(999),

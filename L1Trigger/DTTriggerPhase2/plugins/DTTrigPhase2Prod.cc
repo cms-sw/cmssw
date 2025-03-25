@@ -139,6 +139,7 @@ private:
   int df_extended_;
   int co_option_;  //coincidence
   int co_quality_;
+  int co_wh2option_;
   int th_option_;  //theta matching
   int th_quality_;
   int max_index_;
@@ -214,6 +215,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   df_extended_ = pset.getParameter<int>("df_extended");
   co_option_ = pset.getParameter<int>("co_option");
   co_quality_ = pset.getParameter<int>("co_quality");
+  co_wh2option_ = pset.getParameter<int>("co_wh2option");
   th_option_ = pset.getParameter<int>("th_option");
   th_quality_ = pset.getParameter<int>("th_quality");
   max_index_ = pset.getParameter<int>("max_primitives") - 1;
@@ -831,6 +833,9 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     }
   }
 
+  //for (auto& ch_filtcorrelatedMetaPrimitives : filtCorrelatedMetaPrimitives)
+  //cout<<"filtCorrelatedMetaPrimitives: "<<filtCorrelatedMetaPrimitives[ch_filtcorrelatedMetaPrimitives.first].size()<<endl;
+
   correlatedMetaPrimitives.clear();
   filteredMetaPrimitives.clear();
 
@@ -860,6 +865,9 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     }
   }
 
+  //for (auto& ch_filtcoMetaPrimitives : coMetaPrimitives) 
+  //cout<<"coMetaPrimitives: "<<coMetaPrimitives[ch_filtcoMetaPrimitives.first].size()<<endl;
+
   allMetaPrimitives.clear();
 
   // Theta (th) matching filter
@@ -878,6 +886,9 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       }
     }
   }
+
+  for (auto& mych : coMetaPrimitives)
+  cout<<"coMetaPrimitives: "<<coMetaPrimitives[mych.first].size() <<" thMatchedMetaPrimitives: " << thMatchedMetaPrimitives[mych.first].size() <<endl;
 
   /////////////
 
@@ -1318,6 +1329,7 @@ void DTTrigPhase2Prod::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<int>("df_extended", 0);
   desc.add<int>("co_option", 0);
   desc.add<int>("co_quality", 0);
+  desc.add<int>("co_wh2option", 0);
   desc.add<int>("th_option", 0);
   desc.add<int>("th_quality", 0);
   desc.add<int>("max_primitives", 999);
