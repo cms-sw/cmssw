@@ -170,6 +170,9 @@ GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose, bool barrel) con
       const std::vector<DetId>& validDetIds = geom_->getValidDetIds(DetId::Hcal, HcalBarrel);
       auto firstValidDetId =
           std::find_if(validDetIds.begin(), validDetIds.end(), [&](auto id) { return HcalDetId(id).depth() == layer; });
+      if (firstValidDetId == validDetIds.end()) {
+        throw cms::Exception("hgcal::RecHitTools") << "validDetId not found!";
+      }
       x = getPosition(*firstValidDetId).x();
       y = getPosition(*firstValidDetId).y();
     }
