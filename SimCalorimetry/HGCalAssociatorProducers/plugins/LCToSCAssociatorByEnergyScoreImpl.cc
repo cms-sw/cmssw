@@ -18,7 +18,7 @@ LCToSCAssociatorByEnergyScoreImpl<HIT>::LCToSCAssociatorByEnergyScoreImpl(
   if constexpr (std::is_same_v<HIT, HGCRecHit>)
     layers_ = recHitTools_->lastLayerBH();
   else
-    layers_ = 5;  //EB + 4 HB
+    layers_ = recHitTools_->lastLayer(false, true) + 1;  //EB + 4 HB
 }
 
 template <typename HIT>
