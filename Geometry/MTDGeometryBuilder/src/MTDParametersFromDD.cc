@@ -60,8 +60,8 @@ bool MTDParametersFromDD::build(const DDCompactView* cvp, PMTDParameters& ptp) {
   }
 
   std::vector<std::string> etlLayout;
-  if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v5 ||
-      MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v8) {
+  if (static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(topoMode)) <=
+      static_cast<int>(MTDTopologyMode::EtlLayout::v8)) {
     etlLayout.emplace_back("StartCopyNo_Front_Left");
     etlLayout.emplace_back("StartCopyNo_Front_Right");
     etlLayout.emplace_back("StartCopyNo_Back_Left");
@@ -70,7 +70,8 @@ bool MTDParametersFromDD::build(const DDCompactView* cvp, PMTDParameters& ptp) {
     etlLayout.emplace_back("Offset_Front_Right");
     etlLayout.emplace_back("Offset_Back_Left");
     etlLayout.emplace_back("Offset_Back_Right");
-  } else if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) >= MTDTopologyMode::EtlLayout::v9) {
+  } else if (static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(topoMode)) >
+             static_cast<int>(MTDTopologyMode::EtlLayout::v8)) {
     etlLayout.emplace_back("StartCopyNo_Front_Disc_1");
     etlLayout.emplace_back("StartCopyNo_Back_Disc_1");
     etlLayout.emplace_back("StartCopyNo_Front_Disc_2");
@@ -143,8 +144,8 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
   }
 
   std::vector<std::string> etlLayout;
-  if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v5 ||
-      MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == MTDTopologyMode::EtlLayout::v8) {
+  if (static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(topoMode)) <=
+      static_cast<int>(MTDTopologyMode::EtlLayout::v8)) {
     etlLayout.emplace_back("StartCopyNo_Front_Left");
     etlLayout.emplace_back("StartCopyNo_Front_Right");
     etlLayout.emplace_back("StartCopyNo_Back_Left");
@@ -153,7 +154,8 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
     etlLayout.emplace_back("Offset_Front_Right");
     etlLayout.emplace_back("Offset_Back_Left");
     etlLayout.emplace_back("Offset_Back_Right");
-  } else if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) >= MTDTopologyMode::EtlLayout::v9) {
+  } else if (static_cast<int>(MTDTopologyMode::etlLayoutFromTopoMode(topoMode)) >
+             static_cast<int>(MTDTopologyMode::EtlLayout::v8)) {
     etlLayout.emplace_back("StartCopyNo_Front_Disc_1");
     etlLayout.emplace_back("StartCopyNo_Back_Disc_1");
     etlLayout.emplace_back("StartCopyNo_Front_Disc_2");
