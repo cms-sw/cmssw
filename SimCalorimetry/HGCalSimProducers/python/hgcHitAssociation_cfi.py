@@ -4,3 +4,8 @@ from SimCalorimetry.HGCalAssociatorProducers.hgCalLCToSCAssociatorByEnergyScoreP
 
 lcAssocByEnergyScoreProducer = _lcAssocByEnergyScoreProducer.clone(hardScatterOnly = cms.bool(True))
 scAssocByEnergyScoreProducer = _scAssocByEnergyScoreProducer.clone(hardScatterOnly = cms.bool(True))
+
+from Configuration.ProcessModifiers.enableCPfromPU_cff import enableCPfromPU
+
+enableCPfromPU.toModify(lcAssocByEnergyScoreProducer, hardScatterOnly = cms.bool(False))
+enableCPfromPU.toModify(scAssocByEnergyScoreProducer, hardScatterOnly = cms.bool(False))
