@@ -3,7 +3,7 @@
 
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+// #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerConditionsHost.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerConditionsSoA.h"
 

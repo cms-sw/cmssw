@@ -5,7 +5,6 @@
 #include "DataFormats/SiStripClusterSoA/interface/SiStripClustersHost.h"
 #include "DataFormats/SiStripClusterSoA/interface/SiStripClustersSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   // make the names from the top-level sistrip namespace visible for unqualified lookup
