@@ -95,13 +95,13 @@
   <Constant name="rMinHGCal8"            value="483.4*mm"/>
   <Constant name="rMaxHGCal0"            value="([rPosV0]+[slope1]*([zHGCal0]-[zPosV0]))"/>
   <Constant name="rMaxHGCal0S"           value="[caloBase:RmaxV0]"/>
-  <Constant name="rMaxHGCal1"            value="[rPosV0]"/>
-  <Constant name="rMaxHGCal2"            value="([rPosV0]+[slope1]*([zHGCal2]-[zPosV0]))"/>
-  <Constant name="rMaxHGCal3"            value="([rPosV0]+[slope1]*([zHGCal3]-[zPosV0]))"/>
+  <Constant name="rMaxHGCal1"            value="1540.0*mm"/>
+  <Constant name="rMaxHGCal2"            value="([rMaxHGCal1]+[slope1]*([zHGCal2]-[zPosV0]))"/>
+  <Constant name="rMaxHGCal3"            value="([rMaxHGCal1]+[slope1]*([zHGCal3]-[zPosV0]))"/>
   <Constant name="rMaxHGCal3S"           value="[caloBase:Rmax31]"/>
   <Constant name="rMaxHGCal4S"           value="[caloBase:Rmax32]"/>
-  <Constant name="rMaxHGCal5"            value="[rPosV1]"/>
-  <Constant name="rMaxHGCal6"            value="([rPosV1]+[slope3]*([zHGCal6]-[zPosV1]))"/>
+  <Constant name="rMaxHGCal5"            value="([rMaxHGCal1]+[slope1]*([zHGCal5]-[zPosV0]))"/>
+  <Constant name="rMaxHGCal6"            value="([rMaxHGCal1]+[slope1]*([zHGCal6]-[zPosV0]))"/>
   <Constant name="rMaxHGCal7"            value="([rPosV1]+[slope3]*([zHGCal7]-[zPosV1]))"/>
   <Constant name="rMaxHGCal7S"           value="[caloBase:Rmax33]"/>
   <Constant name="rMaxHGCal8"            value="([rPosV1]+[slope3]*([zHGCal8]-[zPosV1]))"/>
