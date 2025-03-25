@@ -367,7 +367,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Prepare the StripDigiDevice var. on the host, moving the variables (channelThreshold, seedThreshold, clusterThresholdSquared, maxSequentialHoles, maxSequentialBad, maxAdjacentBad, maxClusterSize, minGoodCharge, clusterSizeLimit)
     // and reserving the n_strips
     algo_.initialize(iEvent.queue(), n_strips);
-    // std::cout << "nstrips = " << n_strips << "\n";
+    std::cout << iEvent.id() << " | nstrips = " << n_strips << "\n";
     // alpaka::wait(iEvent.queue());
     // Unpack the FED raw data into SiStrip digits (adc, channel, strip) (in the unpackedStrips_d_ member of the algo_)
     algo_.unpackStrips(iEvent.queue(), chanlocs_onDevice, clusterizerConditions_onDevice);
