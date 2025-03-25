@@ -49,7 +49,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     {
       auto geoMapDetId = endcapGeometry.geoMapDetId();  // DetId's from endcap map
       auto geoMapPhi = endcapGeometry.geoMapPhi();      // Phi values from endcap map
-      unsigned int nHits = hits.metadata().size();
+      int nHits = hits.metadata().size();
+      ALPAKA_ASSERT_ACC(nHits == inputHits.metadata().size());
       for (unsigned int ihit : cms::alpakatools::uniform_elements(acc, nHits)) {
         float ihit_x = inputHits.xs()[ihit];
         float ihit_y = inputHits.ys()[ihit];

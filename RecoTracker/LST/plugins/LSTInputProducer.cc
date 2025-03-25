@@ -198,6 +198,7 @@ void LSTInputProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
                                       see_stateTrajGlbPz,
                                       see_q,
                                       see_hitIdx,
+                                      {},
                                       ph2_detId,
                                       ph2_x,
                                       ph2_y,

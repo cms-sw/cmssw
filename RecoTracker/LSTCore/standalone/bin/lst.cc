@@ -358,6 +358,7 @@ void run_lst() {
                                    trk.see_stateTrajGlbPz(),
                                    trk.see_q(),
                                    trk.see_hitIdx(),
+                                   trk.see_algo(),
                                    trk.ph2_detId(),
                                    trk.ph2_x(),
                                    trk.ph2_y(),
@@ -374,9 +375,11 @@ void run_lst() {
   full_timer.Reset();
   full_timer.Start();
   std::vector<LSTEvent *> events;
+  std::vector<ALPAKA_ACCELERATOR_NAMESPACE::Queue *> event_queues;
   for (int s = 0; s < ana.streams; s++) {
     LSTEvent *event = new LSTEvent(ana.verbose >= 2, ana.ptCut, queues[s], &deviceESData);
     events.push_back(event);
+    event_queues.push_back(&queues[s]);
   }
   float timeForEventCreation = full_timer.RealTime() * 1000;
 
@@ -405,8 +408,7 @@ void run_lst() {
       events.at(omp_get_thread_num())->initSync();
 
       // We need to initialize it here so that it stays in scope
-      // FIXME: The queue should ideally be the same as in the event
-      auto &queue = queues[evt % ana.streams];
+      auto &queue = *event_queues.at(omp_get_thread_num());
       LSTInputDeviceCollection lstInputDC(out_lstInputHC.at(evt).sizes(), queue);
 
       timing_input_loading =

@@ -35,6 +35,7 @@ namespace lst {
                                       std::vector<float> const& see_stateTrajGlbPz,
                                       std::vector<int> const& see_q,
                                       std::vector<std::vector<int>> const& see_hitIdx,
+                                      std::vector<unsigned int> const& see_algo,
                                       std::vector<unsigned int> const& ph2_detId,
                                       std::vector<float> const& ph2_x,
                                       std::vector<float> const& ph2_y,
@@ -87,6 +88,11 @@ namespace lst {
     std::iota(hitIdxs.begin(), hitIdxs.end(), 0);
 
     for (size_t iSeed = 0; iSeed < n_see; iSeed++) {
+      // Only needed for standalone
+      bool good_seed_type = see_algo.size() == 0 || see_algo[iSeed] == 4 || see_algo[iSeed] == 22;
+      if (!good_seed_type)
+        continue;
+
       ROOT::Math::XYZVector p3LH(see_stateTrajGlbPx[iSeed], see_stateTrajGlbPy[iSeed], see_stateTrajGlbPz[iSeed]);
       float ptIn = p3LH.rho();
       float eta = p3LH.eta();
@@ -155,7 +161,7 @@ namespace lst {
         py_vec.push_back(py);
         pz_vec.push_back(pz);
 
-        hitIndices_vec.push_back({hitIdx0, hitIdx1, hitIdx2, hitIdx3});
+        hitIndices_vec.push_back({{hitIdx0, hitIdx1, hitIdx2, hitIdx3}});
         ptIn_vec.push_back(ptIn);
         ptErr_vec.push_back(ptErr);
         etaErr_vec.push_back(etaErr);
