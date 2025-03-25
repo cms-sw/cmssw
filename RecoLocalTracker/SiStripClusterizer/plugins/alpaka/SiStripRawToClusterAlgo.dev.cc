@@ -565,7 +565,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                   StripClustersAuxView clusterDataObj,
                                   sistrip::SiStripClustersView clusters) const {
       const auto nStrips = stripDataObj.metadata().size();
-      const auto nSeedStripsNC = (kMaxSeedStrips<clusterDataObj.prefixSeedStripsNCMask(nStrips - 1)) ? kMaxSeedStrips : clusterDataObj.prefixSeedStripsNCMask(nStrips - 1);
+      const auto nSeedStripsNC = (kMaxSeedStrips < clusterDataObj.prefixSeedStripsNCMask(nStrips - 1))
+                                     ? kMaxSeedStrips
+                                     : clusterDataObj.prefixSeedStripsNCMask(nStrips - 1);
       auto channels = stripDataObj.channel();
       auto stripId = stripDataObj.stripId();
       auto adc = stripDataObj.adc();
