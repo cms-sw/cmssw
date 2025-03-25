@@ -145,4 +145,5 @@ process.p = cms.Path(process.Reco*process.DQMmodules)
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

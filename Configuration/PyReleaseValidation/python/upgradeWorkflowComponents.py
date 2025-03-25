@@ -856,6 +856,46 @@ upgradeWFs['ticl_v5_superclustering_mustache_pf'] = UpgradeWorkflow_ticl_v5_supe
 upgradeWFs['ticl_v5_superclustering_mustache_pf'].step3 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_pf'}
 upgradeWFs['ticl_v5_superclustering_mustache_pf'].step4 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_pf'}
 
+class UpgradeWorkflow_TICLdumper(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="TTbar_14TeV" or 'CloseByP' in fragment or 'Eta1p7_2p7' in fragment) and 'Run4' in key
+
+upgradeWFs['enableTICLdumper'] = UpgradeWorkflow_TICLdumper(
+    steps = [
+        'RecoGlobal',
+    ],
+    PU = [
+        'RecoGlobal',
+    ],
+    suffix = '_enableTICLdumper',
+    offset = 0.206,
+)
+upgradeWFs['enableTICLdumper'].step3 = {'--customise': 'RecoHGCal/TICL/customiseTICLFromReco.customiseTICLForDumper'}
+
+upgradeWFs['ticl_v5_withDumper'] = UpgradeWorkflow_ticl_v5(
+    steps = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_ticl_v5_withDumper',
+    offset = 0.207,
+)
+upgradeWFs['ticl_v5_withDumper'].step2 = {'--procModifiers': 'ticl_v5'}
+upgradeWFs['ticl_v5_withDumper'].step3 = {'--procModifiers': 'ticl_v5',
+                                          '--customise': 'RecoHGCal/TICL/customiseTICLFromReco.customiseTICLForDumper'}
+upgradeWFs['ticl_v5_withDumper'].step4 = {'--procModifiers': 'ticl_v5'}
+
 # Improved L2 seeding from L1Tk Muons and L3 Tracker Muon Inside-Out reconstruction first (Phase-2 Muon default)
 class UpgradeWorkflow_phase2L2AndL3Muons(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
