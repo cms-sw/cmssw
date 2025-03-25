@@ -11,7 +11,8 @@ public:
       : HLTFilter(cfg),
         tausToken_(consumes<l1t::TauBxCollection>(cfg.getParameter<edm::InputTag>("taus"))),
         selectedBx_(cfg.getParameter<std::vector<int>>("selectedBx")),
-        minPt_(cfg.getParameter<double>("minPt")) {}
+        minPt_(cfg.getParameter<double>("minPt")),
+        nExpected_(cfg.getParameter<int>("nExpected")) {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -20,6 +21,7 @@ public:
     desc.add<std::vector<int>>("selectedBx", std::vector<int>())
         ->setComment("bunch crossings to select, empty means all");
     desc.add<double>("minPt", 0)->setComment("select taus with pt > minPt. minPt=0 means no pt cut");
+    desc.add<int>("nExpected", 0)->setComment("minimal number of taus per event to pass the filter");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -27,6 +29,7 @@ public:
                  const edm::EventSetup& eventsetup,
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override {
     const auto& taus = event.getHandle(tausToken_);
+    int nPassed = 0;
     for (int bx_index = taus->getFirstBX(); bx_index <= taus->getLastBX(); ++bx_index) {
       if (!selectedBx_.empty() && std::find(selectedBx_.begin(), selectedBx_.end(), bx_index) == selectedBx_.end())
         continue;
@@ -37,15 +40,17 @@ public:
           continue;
         const l1t::TauRef tauRef(taus, bx_index_shift + index_in_bx);
         filterproduct.addObject(trigger::TriggerL1Tau, tauRef);
+        ++nPassed;
       }
     }
-    return true;
+    return nPassed >= nExpected_;
   }
 
 private:
   const edm::EDGetTokenT<l1t::TauBxCollection> tausToken_;
   const std::vector<int> selectedBx_;
   const double minPt_;
+  const int nExpected_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
