@@ -146,9 +146,9 @@
       477, 511, 549, 585, 625, 669, 709, 747, 781, 811, 835, 849
     </Vector>
 
-    <Vector name="StartCopyNo_Back_Disc_2" type="numeric" nEntries="27">
+    <Vector name="StartCopyNo_Back_Disc_2" type="numeric" nEntries="19">
       1, 7, 21, 41, 65, 89, 109, 129, 149, 167, 185, 205, 225, 245, 269,
-      293, 313, 327, 333, 333, 333, 333, 333, 333, 333, 333, 333
+      293, 313, 327, 333
     </Vector>
 
     <Vector name="Offset_Front_Disc_1" type="numeric" nEntries="27">
@@ -163,8 +163,8 @@
       4, 4, 0, 0, 0, 0, 0, 0, 2, 4, 8, 12, 14, 16, 14, 12, 8, 4, 0, 0, 0, 0, 0, 0, 0, 4, 0
     </Vector>
 
-    <Vector name="Offset_Back_Disc_2" type="numeric" nEntries="27">
-      0, 0, 0, 0, 4, 8, 12, 12, 16, 16, 12, 12, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0, 0 ,0
+    <Vector name="Offset_Back_Disc_2" type="numeric" nEntries="19">
+      0, 0, 0, 0, 4, 8, 12, 12, 16, 16, 12, 12, 8, 4, 0, 0, 0, 0, 0
     </Vector>
 
 

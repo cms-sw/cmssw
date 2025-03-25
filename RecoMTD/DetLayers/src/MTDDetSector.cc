@@ -1,4 +1,4 @@
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 #include "RecoMTD/DetLayers/interface/MTDDetSector.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
@@ -87,9 +87,12 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
 
   TrajectoryStateOnSurface& tsos = compat.second;
   GlobalPoint startPos = tsos.globalPosition();
+  LocalTrajectoryError startLocalErr = tsos.localError();
 
   LogTrace("MTDDetLayers") << "Starting position: " << startPos << " starting p/pT: " << tsos.globalMomentum().mag()
-                           << " / " << tsos.globalMomentum().perp();
+                           << " / " << tsos.globalMomentum().perp() << " local error x/y "
+                           << std::sqrt(startLocalErr.positionError().xx()) << " "
+                           << std::sqrt(startLocalErr.positionError().yy());
 
   // determine distance of det center from extrapolation on the surface, sort dets accordingly
 
@@ -171,10 +174,14 @@ bool MTDDetSector::add(size_t idet,
 
   if (compat.first) {
     result.push_back(DetWithState(theDets[idet], compat.second));
-    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det idetMin " << idet
+    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det idetMin " << idet + 1
                              << " detId = " << theDets[idet]->geographicalId().rawId() << " at "
                              << theDets[idet]->position()
                              << " dist = " << std::sqrt((tsos.globalPosition() - theDets[idet]->position()).mag2());
+  }
+  if (result.size() > basicComponents().size()) {
+    throw cms::Exception("MTDDetLayersFailure")
+        << "ETL compatibleDets in sector in excess of collection size: " << basicComponents().size();
   }
 
   return compat.first;
