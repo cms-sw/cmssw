@@ -15,13 +15,13 @@ using namespace edm;
 using namespace ticl;
 
 bool assignTracksterMaps(const edm::Handle<std::vector<ticl::Trackster>>& tracksterHandle,
-                          const edm::Handle<std::vector<ticl::Trackster>>& simTracksterHandle,
-                          const edm::Handle<std::vector<ticl::Trackster>>& simTracksterFromCPHandle,
-                          const std::vector<edm::Handle<TracksterToTracksterMap>>& tracksterToTracksterMapsHandles,
-                          edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersMap,
-                          edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersMap,
-                          edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsMap,
-                          edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersMap) {
+                         const edm::Handle<std::vector<ticl::Trackster>>& simTracksterHandle,
+                         const edm::Handle<std::vector<ticl::Trackster>>& simTracksterFromCPHandle,
+                         const std::vector<edm::Handle<TracksterToTracksterMap>>& tracksterToTracksterMapsHandles,
+                         edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersMap,
+                         edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersMap,
+                         edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsMap,
+                         edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersMap) {
   const auto recoTrackstersProductId = tracksterHandle.id();
   const auto simTrackstersProductId = simTracksterHandle.id();
   const auto simTrackstersFromCPsProductId = simTracksterFromCPHandle.id();
@@ -146,9 +146,9 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
 BarrelValidator::~BarrelValidator() {}
 
 void BarrelValidator::bookHistograms(DQMStore::IBooker& ibook,
-                                    edm::Run const&,
-                                    edm::EventSetup const& setup,
-                                    Histograms& histograms) const {
+                                     edm::Run const&,
+                                     edm::EventSetup const& setup,
+                                     Histograms& histograms) const {
   if (SaveGeneralInfo_) {
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + "GeneralInfo");
@@ -171,8 +171,7 @@ void BarrelValidator::bookHistograms(DQMStore::IBooker& ibook,
   if (doSimClustersPlots_) {
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + label_SimClustersPlots_.label() + "/" + label_SimClustersLevel_.label());
-    histoProducerAlgo_->bookSimClusterHistos(
-        ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
+    histoProducerAlgo_->bookSimClusterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
 
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
       ibook.cd();
@@ -196,8 +195,7 @@ void BarrelValidator::bookHistograms(DQMStore::IBooker& ibook,
 
       ibook.setCurrentFolder(dirName);
 
-      histoProducerAlgo_->bookSimClusterAssociationHistos(
-          ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
+      histoProducerAlgo_->bookSimClusterAssociationHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
     }  //end of loop over masks
   }  //if for simCluster plots
 
@@ -205,9 +203,7 @@ void BarrelValidator::bookHistograms(DQMStore::IBooker& ibook,
   if (doLayerClustersPlots_) {
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/ClusterLevel");
-    histoProducerAlgo_->bookClusterHistos_ClusterLevel(ibook,
-                                                       histograms.histoProducerAlgo,
-                                                       totallayers_to_monitor_);
+    histoProducerAlgo_->bookClusterHistos_ClusterLevel(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/" + label_LCToCPLinking_.label());
     histoProducerAlgo_->bookClusterHistos_LCtoCP_association(
@@ -215,18 +211,17 @@ void BarrelValidator::bookHistograms(DQMStore::IBooker& ibook,
 
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/CellLevel");
-    histoProducerAlgo_->bookClusterHistos_CellLevel(
-        ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
+    histoProducerAlgo_->bookClusterHistos_CellLevel(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
   }
 }
 
 void BarrelValidator::cpParametersAndSelection(const Histograms& histograms,
-                                              std::vector<CaloParticle> const& cPeff,
-                                              std::vector<SimVertex> const& simVertices,
-                                              std::vector<size_t>& selected_cPeff,
-                                              unsigned int layers,
-                                              std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
-                                              MultiVectorManager<reco::PFRecHit> const& barrelHits) const {
+                                               std::vector<CaloParticle> const& cPeff,
+                                               std::vector<SimVertex> const& simVertices,
+                                               std::vector<size_t>& selected_cPeff,
+                                               unsigned int layers,
+                                               std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
+                                               MultiVectorManager<reco::PFRecHit> const& barrelHits) const {
   selected_cPeff.reserve(cPeff.size());
 
   size_t j = 0;
@@ -236,13 +231,8 @@ void BarrelValidator::cpParametersAndSelection(const Histograms& histograms,
     if (!doCaloParticleSelection_ || (doCaloParticleSelection_ && cpSelector(caloParticle, simVertices))) {
       selected_cPeff.push_back(j);
       if (doCaloParticlePlots_) {
-        histoProducerAlgo_->fill_caloparticle_histos(histograms.histoProducerAlgo,
-                                                     id,
-                                                     caloParticle,
-                                                     simVertices,
-                                                     layers,
-                                                     barrelHitMap,
-                                                     barrelHits);
+        histoProducerAlgo_->fill_caloparticle_histos(
+            histograms.histoProducerAlgo, id, caloParticle, simVertices, layers, barrelHitMap, barrelHits);
       }
     }
     ++j;
@@ -250,16 +240,16 @@ void BarrelValidator::cpParametersAndSelection(const Histograms& histograms,
 }
 
 void BarrelValidator::dqmAnalyze(const edm::Event& event,
-                                const edm::EventSetup& setup,
-                                const Histograms& histograms) const {
+                                 const edm::EventSetup& setup,
+                                 const Histograms& histograms) const {
   using namespace reco;
 
   LogDebug("BarrelValidator") << "\n===================================================="
-                             << "\n"
-                             << "Analyzing new event"
-                             << "\n"
-                             << "====================================================\n"
-                             << "\n";
+                              << "\n"
+                              << "Analyzing new event"
+                              << "\n"
+                              << "====================================================\n"
+                              << "\n";
 
   edm::Handle<std::vector<SimVertex>> simVerticesHandle;
   event.getByToken(simVertices_, simVerticesHandle);
@@ -338,9 +328,9 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
     if (simClusters[scId].g4Tracks()[0].eventId().event() != 0 or
         simClusters[scId].g4Tracks()[0].eventId().bunchCrossing() != 0) {
       LogDebug("BarrelValidator") << "Excluding SimClusters from event: "
-                                 << simClusters[scId].g4Tracks()[0].eventId().event()
-                                 << " with BX: " << simClusters[scId].g4Tracks()[0].eventId().bunchCrossing()
-                                 << std::endl;
+                                  << simClusters[scId].g4Tracks()[0].eventId().event()
+                                  << " with BX: " << simClusters[scId].g4Tracks()[0].eventId().bunchCrossing()
+                                  << std::endl;
       continue;
     }
     sCIndices.emplace_back(scId);
@@ -350,8 +340,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   // Fill simCluster histograms
   // ##############################################
   if (doSimClustersPlots_) {
-    histoProducerAlgo_->fill_simCluster_histos(
-        histograms.histoProducerAlgo, simClusters, totallayers_to_monitor_);
+    histoProducerAlgo_->fill_simCluster_histos(histograms.histoProducerAlgo, simClusters, totallayers_to_monitor_);
 
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
       const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
@@ -383,7 +372,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
 
       //General Info on simClusters
       LogTrace("BarrelValidator") << "\n# of SimClusters: " << nSimClusters
-                                 << ", layerClusters mask label: " << label_clustersmask[ws].label() << "\n";
+                                  << ", layerClusters mask label: " << label_clustersmask[ws].label() << "\n";
     }  //end of loop overs masks
   }
 
@@ -406,13 +395,13 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
                                                     simRecColl[0],
                                                     barrelRechitManager);
 
-    for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) { 
+    for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
       histoProducerAlgo_->fill_cluster_histos(histograms.histoProducerAlgo, w, clusters[layerclusterIndex]);
     }
 
     //General Info on hgcalLayerClusters
     LogTrace("BarrelValidator") << "\n# of layer clusters with " << label_lcl.process() << ":" << label_lcl.label()
-                               << ":" << label_lcl.instance() << ": " << clusters.size() << "\n";
+                                << ":" << label_lcl.instance() << ": " << clusters.size() << "\n";
   }
 }
 
@@ -563,7 +552,7 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("label_layerClusterPlots", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("label_LCToCPLinking", edm::InputTag("LCToCP_association"));
   desc.add<edm::InputTag>("simClustersToCaloParticlesMap",
-    edm::InputTag("SimClusterToCaloParticleAssociation", "simClusterToCaloParticleMap"));
+                          edm::InputTag("SimClusterToCaloParticleAssociation", "simClusterToCaloParticleMap"));
   desc.add<edm::InputTag>("label_cp_effic", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("label_cp_fake", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("label_scl", edm::InputTag("mix", "MergedCaloTruth"));

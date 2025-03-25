@@ -1495,7 +1495,8 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
       simHits += sc->hits_and_fractions().size();
       for (auto const& h_and_f : sc->hits_and_fractions()) {
         const auto hitDetId = h_and_f.first;
-        if (recHitTools_->isBarrel(hitDetId)) continue;
+        if (recHitTools_->isBarrel(hitDetId))
+          continue;
         const int layerId =
             recHitTools_->getLayerWithOffset(hitDetId) + layers * ((recHitTools_->zside(hitDetId) + 1) >> 1) - 1;
         // set to 0 if matched RecHit not found
@@ -1770,7 +1771,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     for (const auto& simCluster : cP[cpId].simClusters()) {
       for (const auto& it_haf : simCluster->hits_and_fractions()) {
         const DetId hitid = (it_haf.first);
-        if (recHitTools_->isBarrel(hitid)) continue;
+        if (recHitTools_->isBarrel(hitid))
+          continue;
         if (hitMap.find(hitid) != hitMap.end()) {
           if (detIdToCaloParticleId_Map.find(hitid) == detIdToCaloParticleId_Map.end()) {
             detIdToCaloParticleId_Map[hitid] = std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>();
@@ -1807,7 +1809,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     // >=0 --> index of the linked CaloParticle
     std::vector<int> hitsToCaloParticleId(numberOfHitsInLC);
     const auto firstHitDetId = hits_and_fractions[0].first;
-    if (recHitTools_->isBarrel(firstHitDetId)) continue;
+    if (recHitTools_->isBarrel(firstHitDetId))
+      continue;
     int lcLayerId =
         recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
 
@@ -1865,7 +1868,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
   // restrict only to the selected caloParaticles.
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
     const auto firstHitDetId = (clusters[lcId].hitsAndFractions())[0].first;
-    if (recHitTools_->isBarrel(firstHitDetId)) continue;
+    if (recHitTools_->isBarrel(firstHitDetId))
+      continue;
     const int lcLayerId =
         recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
     histograms.h_denom_layercl_eta_perlayer.at(lcLayerId)->Fill(clusters[lcId].eta());
@@ -1942,7 +1946,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
     for (const auto& simCluster : cP[cpId].simClusters()) {
       for (const auto& it_haf : simCluster->hits_and_fractions()) {
         const DetId hitid = (it_haf.first);
-        if (recHitTools_->isBarrel(hitid)) continue;
+        if (recHitTools_->isBarrel(hitid))
+          continue;
         const auto hitLayerId =
             recHitTools_->getLayerWithOffset(hitid) + layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
         std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(hitid);
@@ -1974,7 +1979,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       };
 
       for (const auto& lcPair : lcs) {
-        if(recHitTools_->isBarrel(clusters[lcPair.first.index()].seed())) continue;
+        if (recHitTools_->isBarrel(clusters[lcPair.first.index()].seed()))
+          continue;
         if (getLCLayerId(lcPair.first.index()) != layerId)
           continue;
         histograms.h_score_caloparticle2layercl_perlayer.at(layerId)->Fill(lcPair.second.second);
@@ -2036,7 +2042,8 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
       continue;
     }
     const auto firstHitDetId = (clusters[lcId].hitsAndFractions())[0].first;
-    if (recHitTools_->isBarrel(firstHitDetId)) continue;
+    if (recHitTools_->isBarrel(firstHitDetId))
+      continue;
     const auto lcLayerId =
         recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
     //Although the ones below are already created in the LC to CP association, will
@@ -2121,7 +2128,8 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
 
     for (const auto& it_haf : sC[scId].hits_and_fractions()) {
       const DetId hitid = (it_haf.first);
-      if (recHitTools_->isBarrel(hitid)) continue;
+      if (recHitTools_->isBarrel(hitid))
+        continue;
       const auto scLayerId =
           recHitTools_->getLayerWithOffset(hitid) + layers * ((recHitTools_->zside(hitid) + 1) >> 1) - 1;
       std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(hitid);
@@ -2144,7 +2152,7 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
 
       auto getLCLayerId = [&](const unsigned int lcId) {
         const auto firstHitDetId = (clusters[lcId].hitsAndFractions())[0].first;
-        if (recHitTools_->isBarrel(firstHitDetId)) 
+        if (recHitTools_->isBarrel(firstHitDetId))
           return 9999u;
         const unsigned int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId) +
                                        layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
@@ -2269,7 +2277,8 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
   // loop through clusters of the event
   for (const auto& lcId : clusters) {
     const auto seedid = lcId.seed();
-    if (recHitTools_->isBarrel(seedid)) continue;
+    if (recHitTools_->isBarrel(seedid))
+      continue;
     const double seedx = recHitTools_->getPosition(seedid).x();
     const double seedy = recHitTools_->getPosition(seedid).y();
     DetId maxid = findmaxhit(lcId, hitMap, hits);
@@ -2764,12 +2773,14 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
     for (const auto lcId : tst.vertices()) {
       //take the hits and their fraction of the specific layer cluster.
       const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
-      if (recHitTools_->isBarrel(hits_and_fractions[0].first)) continue;
+      if (recHitTools_->isBarrel(hits_and_fractions[0].first))
+        continue;
       //For the multiplicity of the 2d layer clusters in Tracksters
       multiplicity[tstId].emplace_back(hits_and_fractions.size());
 
       const auto firstHitDetId = hits_and_fractions[0].first;
-      if (recHitTools_->isBarrel(firstHitDetId)) continue;
+      if (recHitTools_->isBarrel(firstHitDetId))
+        continue;
       //The layer that the layer cluster belongs to
       const auto layerid = recHitTools_->getLayerWithOffset(firstHitDetId) +
                            layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
@@ -2955,7 +2966,8 @@ DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster& cluster,
        it_haf != hits_and_fractions.end();
        ++it_haf) {
     const DetId rh_detid = it_haf->first;
-    if (recHitTools_->isBarrel(rh_detid)) continue;
+    if (recHitTools_->isBarrel(rh_detid))
+      continue;
     const auto hitEn = (hits[hitMap.find(rh_detid)->second]).energy();
     if (maxene < hitEn) {
       maxene = hitEn;

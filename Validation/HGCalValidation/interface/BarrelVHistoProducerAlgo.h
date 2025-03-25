@@ -35,7 +35,6 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 struct BarrelVHistoProducerAlgoHistograms {
-
   dqm::reco::MonitorElement* lastLayerEB;
   dqm::reco::MonitorElement* lastLayerHB;
   //1D
@@ -214,23 +213,15 @@ public:
   void bookInfo(DQMStore::IBooker& ibook, Histograms& histograms);
   void bookCaloParticleHistos(DQMStore::IBooker& ibook, Histograms& histograms, int pdgid, unsigned int layers);
 
-  void bookSimClusterHistos(DQMStore::IBooker& ibook,
-                            Histograms& histograms,
-                            unsigned int layers);
+  void bookSimClusterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
 
-  void bookSimClusterAssociationHistos(DQMStore::IBooker& ibook,
-                                       Histograms& histograms,
-                                       unsigned int layers);
+  void bookSimClusterAssociationHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
 
-  void bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibook,
-                                      Histograms& histograms,
-                                      unsigned int layers);
+  void bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
 
   void bookClusterHistos_LCtoCP_association(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
 
-  void bookClusterHistos_CellLevel(DQMStore::IBooker& ibook,
-                                   Histograms& histograms,
-                                   unsigned int layers);
+  void bookClusterHistos_CellLevel(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
 
   void bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
 
