@@ -47,12 +47,16 @@
 
 <bin file="alpaka/VertexFinder_t.cc alpaka/VertexFinder_t.dev.cc" name="deviceVertexFinderOneKernel_t">
   <use name="alpaka"/>
+  <!-- work around for cms-sw/cmssw#45179 -->
+  <use name="no-array-bounds-flag" for="alpaka/serial"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags CXXFLAGS="-g -DGPU_DEBUG -DONE_KERNEL"/>
 </bin>
 
 <bin file="alpaka/VertexFinder_t.cc alpaka/VertexFinder_t.dev.cc" name="deviceVertexFinderByDensity_t">
+  <!-- work around for cms-sw/cmssw#45179 -->
+  <use name="no-array-bounds-flag" for="alpaka/serial"/>
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
