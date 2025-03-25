@@ -42,6 +42,22 @@ namespace l1t {
 
     std::vector<float> getTagScores() const { return tagScores_; }
     std::vector<l1ct::JetTagClass> getTagClasses() const { return tagClasses_; }
+
+    float getTagScore(l1ct::JetTagClass tagClass) const {
+        // get the tag score for a specific tagClass
+        auto it = std::find(tagClasses_.begin(), tagClasses_.end(), tagClass);
+        if (it != tagClasses_.end()) {
+            return tagScores_[std::distance(tagClasses_.begin(), it)];
+        }
+        return -1.0f; // Return an invalid/default score if tagClass is not found
+    }
+
+    float getTagScore(const std::string& tagClassStr) const {
+        // get the tag score for a specific tagClass
+        l1ct::JetTagClass tagClass(tagClassStr);
+        return getTagScore(tagClass);
+    }
+
     float getPtCorrection() const { return ptCorrection_; }
 
     // candidate interface
