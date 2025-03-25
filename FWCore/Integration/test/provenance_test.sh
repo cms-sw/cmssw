@@ -10,3 +10,12 @@ function die { echo $1: status $2 ;  exit $2; }
 cmsRun ${SCRAM_TEST_PATH}/provenance_prod_cfg.py || die 'Failed in provenance_prod_cfg.py' $?
 cmsRun ${SCRAM_TEST_PATH}/provenance_prod_cfg.py  --consumeProd2 || die 'Failed in provenance_prod_cfg.py  --consumeProd2' $?
 cmsRun ${SCRAM_TEST_PATH}/provenance_check_cfg.py || die 'Failed test of provenance' $?
+
+cmsRun ${SCRAM_TEST_PATH}/provenance_prod_cfg.py  --consumeProd2 --diffRun || die 'Failed in provenance_prod_cfg.py  --consumeProd2 --diffRun' $?
+cmsRun ${SCRAM_TEST_PATH}/provenance_check_cfg.py || die 'Failed test of provenance with diffRun' $?
+
+cmsRun ${SCRAM_TEST_PATH}/provenance_prod_cfg.py  --consumeProd2 --diffLumi || die 'Failed in provenance_prod_cfg.py  --consumeProd2 --diffLumi' $?
+cmsRun ${SCRAM_TEST_PATH}/provenance_check_cfg.py || die 'Failed test of provenance with diffLumi' $?
+
+cmsRun ${SCRAM_TEST_PATH}/provenance_prod_cfg.py  --consumeProd2 --diffLumi --diffRun|| die 'Failed in provenance_prod_cfg.py  --consumeProd2 --diffLumi --diffRun' $?
+cmsRun ${SCRAM_TEST_PATH}/provenance_check_cfg.py || die 'Failed test of provenance with diffLumi & diffRun' $?

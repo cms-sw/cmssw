@@ -16,8 +16,5 @@ cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/Pix
 echo "TESTING CosmicTrackSplitting Analyser ..."
 cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/testSplitterValidation_cfg.py unitTest=True || die "Failure running testSplitterValidation_cfg.py" $?
 
-echo "TESTING SagittaBiasNtuplizer Analyser ..."
-cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/SagittaBiasNtuplizer_cfg.py || die "Failure running SagittaBiasNtuplizer_cfg.py" $?
-
 echo "TESTING TkAlV0sAnalyzer Analyser ..."
 cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/TkAlV0sAnalyzer_cfg.py unitTest=True || die "Failure running TkAlV0sAnalyzer_cfg.py" $?

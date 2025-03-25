@@ -7,7 +7,9 @@ Module that generates standard repack configurations
 """
 import copy
 import FWCore.ParameterSet.Config as cms
-
+import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
+import Configuration.Skimming.RAWSkims_cff as RawSkims
+from Configuration.AlCa.GlobalTag import GlobalTag
 
 def repackProcess(**args):
     """
@@ -18,6 +20,12 @@ def repackProcess(**args):
     supported options:
 
     - outputs      : defines output modules
+    - globalTag    : contains trigger paths for the selected raw skims in outputs
+
+    Additional comments:
+
+    The selectEvents parameter within the outputs option is of type list, provided by T0.
+    The paths in the list have an added ":HLT" to the string, which needs to be removed for propper use of the raw skim machinery.
 
     """
     from Configuration.EventContent.EventContent_cff import RAWEventContent
@@ -25,24 +33,24 @@ def repackProcess(**args):
     from Configuration.EventContent.EventContent_cff import L1SCOUTEventContent
     process = cms.Process("REPACK")
     process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
-    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+    
+    process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
 
     process.configurationMetadata = cms.untracked.PSet(
-        name = cms.untracked.string("repack-config"),
-        version = cms.untracked.string("none"),
-        annotation = cms.untracked.string("auto generated configuration")
-        )
+        name=cms.untracked.string("repack-config"),
+        version=cms.untracked.string("none"),
+        annotation=cms.untracked.string("auto generated configuration")
+    )
 
     process.options = cms.untracked.PSet(
-        Rethrow = cms.untracked.vstring("ProductNotFound","TooManyProducts","TooFewProducts"),
-        wantSummary = cms.untracked.bool(False)
-        )
+        Rethrow=cms.untracked.vstring("ProductNotFound", "TooManyProducts", "TooFewProducts"),
+        wantSummary=cms.untracked.bool(False)
+    )
 
     process.source = cms.Source(
         "NewEventStreamFileReader",
-        fileNames = cms.untracked.vstring()
-        )
+        fileNames=cms.untracked.vstring()
+    )
 
     defaultDataTier = "RAW"
 
@@ -58,36 +66,56 @@ def repackProcess(**args):
 
     if len(outputs) > 0:
         process.outputPath = cms.EndPath()
-
+        
+    globalTag = args.get('globalTag', None)   
+    if globalTag:
+        process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+        process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
+    
     for output in outputs:
 
+        selectEventsBase = output.get('selectEvents', None)
+        rawSkim = output.get('rawSkim', None)
+
+        if rawSkim:
+
+            selectEventsBase = [item.replace(":HLT", "") for item in selectEventsBase]
+
+            process.baseSelection = hlt.hltHighLevel.clone(
+                TriggerResultsTag = "TriggerResults::HLT",
+                HLTPaths = cms.vstring(selectEventsBase)
+            )
+            skim = getattr(RawSkims, rawSkim)
+            setattr(process, rawSkim, skim)
+            path = cms.Path(skim + process.baseSelection)
+            selectEvents = f"{rawSkim}Path"
+            setattr(process, selectEvents, path)
+
+        else:
+            selectEvents = selectEventsBase
+
         moduleLabel = output['moduleLabel']
-        selectEvents = output.get('selectEvents', None)
         maxSize = output.get('maxSize', None)
 
         outputModule = cms.OutputModule(
             "PoolOutputModule",
             compressionAlgorithm=copy.copy(eventContent.compressionAlgorithm),
             compressionLevel=copy.copy(eventContent.compressionLevel),
-            fileName = cms.untracked.string("%s.root" % moduleLabel)
-            )
+            fileName=cms.untracked.string("%s.root" % moduleLabel)
+        )
 
+        outputModule.dataset = cms.untracked.PSet(dataTier=cms.untracked.string(dataTier))
 
-        outputModule.dataset = cms.untracked.PSet(dataTier = cms.untracked.string(dataTier))
-
-        if maxSize != None:
+        if maxSize is not None:
             outputModule.maxSize = cms.untracked.int32(maxSize)
 
-        if selectEvents != None:
+        if selectEvents is not None:
             outputModule.SelectEvents = cms.untracked.PSet(
-                SelectEvents = cms.vstring(selectEvents)
-                )
+                SelectEvents=cms.vstring(selectEvents)
+            )
 
         setattr(process, moduleLabel, outputModule)
 
         process.outputPath += outputModule
 
     return process
-
-
-

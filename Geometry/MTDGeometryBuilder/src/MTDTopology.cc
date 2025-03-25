@@ -124,7 +124,7 @@ size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) c
   int sensor = start_mod.sensor();
   int module = start_mod.module();
   uint32_t modtyp = start_mod.modType();
-  uint32_t discside = start_mod.discSide();
+  uint32_t discface = start_mod.discSide() + 2 * (start_mod.nDisc() - 1);
   int geomDetIndex;
 
   // distinguish numbering in prev8 / v8 geometries
@@ -138,18 +138,18 @@ size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) c
 
   // ilayout number coincides at present with disc face, use this
 
-  size_t iHome = (modtyp == etlVals_[discside].idDetType1_) ? 0 : 1;
-  size_t iLeft = (etlVals_[discside].idDetType1_ == 1) ? 0 : 1;
+  size_t iHome = (modtyp == etlVals_[discface].idDetType1_) ? 0 : 1;
+  size_t iLeft = (etlVals_[discface].idDetType1_ == 1) ? 0 : 1;
 
   // for left type modules the position according to the default order is module - 1, for the rigth type modules the total number of left modules must be added
 
-  size_t nmodOffset = (modtyp == 1) ? 0 : etlVals_[discside].start_copy_[iLeft].back() - 1;
+  size_t nmodOffset = (modtyp == 1) ? 0 : etlVals_[discface].start_copy_[iLeft].back() - 1;
 
-  for (size_t iloop = 0; iloop < etlVals_[discside].start_copy_[iHome].size() - 1; iloop++) {
-    if (geomDetIndex >= etlVals_[discside].start_copy_[iHome][iloop] &&
-        geomDetIndex < etlVals_[discside].start_copy_[iHome][iloop + 1]) {
-      if (geomDetIndex + hsh >= etlVals_[discside].start_copy_[iHome][iloop] &&
-          geomDetIndex + hsh < etlVals_[discside].start_copy_[iHome][iloop + 1]) {
+  for (size_t iloop = 0; iloop < etlVals_[discface].start_copy_[iHome].size() - 1; iloop++) {
+    if (geomDetIndex >= etlVals_[discface].start_copy_[iHome][iloop] &&
+        geomDetIndex < etlVals_[discface].start_copy_[iHome][iloop + 1]) {
+      if (geomDetIndex + hsh >= etlVals_[discface].start_copy_[iHome][iloop] &&
+          geomDetIndex + hsh < etlVals_[discface].start_copy_[iHome][iloop + 1]) {
         return geomDetIndex + hsh - 1 + nmodOffset;
       }
       break;
@@ -173,7 +173,7 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, siz
   int sensor = start_mod.sensor();
   int module = start_mod.module();
   uint32_t modtyp = start_mod.modType();
-  uint32_t discside = start_mod.discSide();
+  uint32_t discface = start_mod.discSide() + 2 * (start_mod.nDisc() - 1);
   int geomDetIndex;
 
   // distinguish numbering in prev8 / v8 geometries
@@ -187,25 +187,25 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, siz
 
   // ilayout number coincides at present with disc face, use this
 
-  size_t iHome = (modtyp == etlVals_[discside].idDetType1_) ? 0 : 1;
+  size_t iHome = (modtyp == etlVals_[discface].idDetType1_) ? 0 : 1;
   size_t iOther = (iHome == 0) ? 1 : 0;
-  size_t iLeft = (etlVals_[discside].idDetType1_ == 1) ? 0 : 1;
+  size_t iLeft = (etlVals_[discface].idDetType1_ == 1) ? 0 : 1;
 
   // for right type modules the offset of the total number of left modules needs to be added,
   // what matters here is the other type, i.e. if the starting module is left the vertical shift moves towards a right type, and viceversa
 
-  size_t nmodOffset = (modtyp == 1) ? etlVals_[discside].start_copy_[iLeft].back() - 1 : 0;
+  size_t nmodOffset = (modtyp == 1) ? etlVals_[discface].start_copy_[iLeft].back() - 1 : 0;
 
-  size_t iBin(etlVals_[discside].start_copy_[iHome].size());  // never allowed
-  for (size_t iloop = 0; iloop < etlVals_[discside].start_copy_[iHome].size() - 1; iloop++) {
-    if (geomDetIndex >= etlVals_[discside].start_copy_[iHome][iloop] &&
-        geomDetIndex < etlVals_[discside].start_copy_[iHome][iloop + 1]) {
+  size_t iBin(etlVals_[discface].start_copy_[iHome].size());  // never allowed
+  for (size_t iloop = 0; iloop < etlVals_[discface].start_copy_[iHome].size() - 1; iloop++) {
+    if (geomDetIndex >= etlVals_[discface].start_copy_[iHome][iloop] &&
+        geomDetIndex < etlVals_[discface].start_copy_[iHome][iloop + 1]) {
       iBin = iloop;
       break;
     }
   }
 
-  if (iBin == etlVals_[discside].start_copy_[iHome].size()) {
+  if (iBin == etlVals_[discface].start_copy_[iHome].size()) {
     edm::LogWarning("MTDTopology") << "Module number not compatible with layout, abort";
     return failIndex_;
   }
@@ -219,30 +219,30 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, siz
   if (iHome == 1 && vsh > 0) {
     iBinOther = iBin + 1;
   }
-  if (iBinOther < 0 || iBinOther >= static_cast<int>(etlVals_[discside].start_copy_[iOther].size()) - 1) {
+  if (iBinOther < 0 || iBinOther >= static_cast<int>(etlVals_[discface].start_copy_[iOther].size()) - 1) {
     return failIndex_;
   }
 
   // determine the position of the other type corresponding to the same column of the home type
 
-  int vpos = etlVals_[discside].offset_[iHome][iBin] + geomDetIndex - etlVals_[discside].start_copy_[iHome][iBin] + 1;
-  if (vpos <= etlVals_[discside].offset_[iOther][iBinOther]) {
-    closest = etlVals_[discside].start_copy_[iOther][iBinOther];
-  } else if (vpos > etlVals_[discside].offset_[iOther][iBinOther] +
-                        etlVals_[discside].start_copy_[iOther][iBinOther + 1] -
-                        etlVals_[discside].start_copy_[iOther][iBinOther] ||
-             (vpos == etlVals_[discside].offset_[iOther][iBinOther] +
-                          etlVals_[discside].start_copy_[iOther][iBinOther + 1] -
-                          etlVals_[discside].start_copy_[iOther][iBinOther] &&
-              iBinOther + 1 == static_cast<int>(etlVals_[discside].start_copy_[iOther].size()))) {
-    closest = etlVals_[discside].start_copy_[iOther][iBinOther + 1] - 1;
+  int vpos = etlVals_[discface].offset_[iHome][iBin] + geomDetIndex - etlVals_[discface].start_copy_[iHome][iBin] + 1;
+  if (vpos <= etlVals_[discface].offset_[iOther][iBinOther]) {
+    closest = etlVals_[discface].start_copy_[iOther][iBinOther];
+  } else if (vpos > etlVals_[discface].offset_[iOther][iBinOther] +
+                        etlVals_[discface].start_copy_[iOther][iBinOther + 1] -
+                        etlVals_[discface].start_copy_[iOther][iBinOther] ||
+             (vpos == etlVals_[discface].offset_[iOther][iBinOther] +
+                          etlVals_[discface].start_copy_[iOther][iBinOther + 1] -
+                          etlVals_[discface].start_copy_[iOther][iBinOther] &&
+              iBinOther + 1 == static_cast<int>(etlVals_[discface].start_copy_[iOther].size()))) {
+    closest = etlVals_[discface].start_copy_[iOther][iBinOther + 1] - 1;
   }
   if (closest < failIndex_) {
     closest = closest + nmodOffset - 1;
     return failIndex_;
   } else {
     // number of module shifted by 1 wrt the position in the array (i.e. module 1 has index 0)
-    return etlVals_[discside].start_copy_[iOther][iBinOther] + vpos - 1 -
-           etlVals_[discside].offset_[iOther][iBinOther] + nmodOffset - 1;
+    return etlVals_[discface].start_copy_[iOther][iBinOther] + vpos - 1 -
+           etlVals_[discface].offset_[iOther][iBinOther] + nmodOffset - 1;
   }
 }

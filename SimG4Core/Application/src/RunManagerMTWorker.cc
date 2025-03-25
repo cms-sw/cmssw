@@ -12,7 +12,7 @@
 #include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
-#include "SimG4Core/Application/interface/CMSG4TrackInterface.h"
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
 #include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
@@ -41,6 +41,7 @@
 #include "HepMC3/Print.h"
 
 #include "SimG4Core/Physics/interface/PhysicsList.h"
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
