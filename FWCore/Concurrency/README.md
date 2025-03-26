@@ -21,20 +21,45 @@ The easiest way to create an `edm::WaitingTask` is to call `edm::make_waiting_ta
 ```
 
 ### `edm::FinalWaitingTask`
-In the case where one is doing a synchronous wait on a series of asynchronous tasks, it is useful to have a special `edm::WaitingTask` that can sit on the stack and hold onto any `std::exception_ptr` which occur during the asynchronous processing.
+In the case where one is doing a synchronous wait on a series of asynchronous tasks, it is useful to have a special `edm::WaitingTask` that can sit on the stack and hold onto a `std::exception_ptr` if an exception is thrown during the asynchronous processing.
 
 ```C++
-   edm::FinalWaitingTask finalTask;
-   
    oneapi::tbb::task_group group;
+   edm::FinalWaitingTask finalTask(group);
+
    doLotsOfWorkAsynchronously( edm::WaitingTaskHolder(group, &finalTask) );
    
-   group.wait();
-   assert(finalTask.done());
-   if(auto excptPtr = finalTask.exceptionPtr()) {
-    std::throw_exception( *excptPtr );
-   }
+   finalTask.wait();
 ```
+
+Note that the function `wait` will rethrow any exception stored in `finalTask`. There is an alternative function named `waitNoThrow` which will return the `std::exception_ptr`.
+
+WARNING: It important that the finalTask not execute before completion of the construction of all `WaitingTaskHolders` that will be constructed directly from finalTask. The following would be a bug:
+
+```C++
+   oneapi::tbb::task_group group;
+   edm::FinalWaitingTask finalTask(group);
+   
+   doLotsOfWorkAsynchronously( edm::WaitingTaskHolder(group, &finalTask) );
+   doMoreWorkAsynchronously( edm::WaitingTaskHolder(group, &finalTask) ); // BUG!!!
+
+   finalTask.wait();
+```
+
+This will not wait for the work started in `doMoreWorkAsynchronously` to complete if the work in doLotsOfWorkAsynchronously completes before the second WaitingTaskHolder is constructed. Here is the correct pattern for this case:
+
+
+```C++
+   oneapi::tbb::task_group group;
+   edm::FinalWaitingTask finalTask(group);
+   {
+     edm::WaitingTaskHolder holder(group, &finalTask);   
+     doLotsOfWorkAsynchronously(holder);
+     doMoreWorkAsynchronously(holder);
+   }
+   finalTask.wait();
+```
+
 ## `edm::WaitingTaskHolder`
 This class functions as a _smart pointer_ for an `edm::WaitingTask`. On construction it will increment the embedded reference count of the `edm::WaitingTask`. On either the destructor or the call to `doneWaiting(std::exception_ptr)` it will decrement the reference count. If the count goes to 0, the `edm::WaitingTaskHolder` will pass the `std::exception_ptr` onto the `edm::WaitingTask`, call `execute()` under the `tbb:task_group` given to the holder and finally call `recycle()`.
 
