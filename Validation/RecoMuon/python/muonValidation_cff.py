@@ -227,6 +227,30 @@ cosmic1LegMuonMultiTrackValidator = MTVcosmic.clone(
     )
 )
 
+# Check that the associators and labels are consistent
+# All MTV clones are DQMEDAnalyzers
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+# Access all the global variables
+global_items = list(globals().items())
+for _name, _obj in global_items:
+    # Find all MTV clones
+    if isinstance(_obj, DQMEDAnalyzer) and hasattr(_obj, 'label') and hasattr(_obj, 'associatormap') and hasattr(_obj, 'muonHistoParameters'):
+        # Check that the size of the associators, lables and muonHistoParameters are the same
+        if (len(_obj.label) != len(_obj.associatormap) or len(_obj.label) != len(_obj.muonHistoParameters)
+            or len(_obj.associatormap) != len(_obj.muonHistoParameters)):
+            raise RuntimeError(f"MuonTrackValidator -- {_name}: associatormap, label and muonHistoParameters must have the same length!")
+        # Check that the trackCollection used in each associator corresponds to the validator's label
+        for i in range(0, len(_obj.label)):
+            # Dynamically import the associators module to have access to procModifiers changes
+            associators_module = __import__('Validation.RecoMuon.associators_cff', globals(), locals(), ['associators'], 0)
+            _assoc = getattr(associators_module, _obj.associatormap[i].value()) if isinstance(_obj.associatormap[i], cms.InputTag) else getattr(associators_module, _obj.associatormap[i])
+            _label = _obj.label[i].value() if isinstance(_obj.label[i], cms.InputTag) else _obj.label[i]
+            _tracksTag = _assoc.tracksTag.value() if hasattr(_assoc, 'tracksTag') else _assoc.label_tr.value()
+            if _tracksTag != _label:
+                raise RuntimeError(f"MuonTrackValidator -- {_name}: associatormap and label do not match for index {i}.\n"
+                                   f"Associator's tracksTag: {_tracksTag}, collection label in the validator: {_label}.\n"
+                                   "Make sure to have the correct ordering!")
+
 ##################################################################################
 # Muon validation sequences using MuonTrackValidator
 #
