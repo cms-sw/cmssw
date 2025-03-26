@@ -21,13 +21,13 @@
 
 class UnifiedParticleTransformerAK4SonicJetTagsProducer : public TritonEDProducer<> {
 public:
-  explicit UnifiedParticleTransformerAK4SonicJetTagsProducer(const edm::ParameterSet&);
+  explicit UnifiedParticleTransformerAK4SonicJetTagsProducer(const edm::ParameterSet &);
   ~UnifiedParticleTransformerAK4SonicJetTagsProducer() override;
 
   void acquire(edm::Event const &iEvent, edm::EventSetup const &iSetup, Input &iInput) override;
 
   void produce(edm::Event &iEvent, edm::EventSetup const &iSetup, Output const &iOutput) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions&);
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
   typedef std::vector<reco::UnifiedParticleTransformerAK4TagInfo> TagInfoCollection;
@@ -41,27 +41,28 @@ private:
   bool skippedInference_ = false;
 };
 
-
-UnifiedParticleTransformerAK4SonicJetTagsProducer::UnifiedParticleTransformerAK4SonicJetTagsProducer(const edm::ParameterSet& iConfig)
+UnifiedParticleTransformerAK4SonicJetTagsProducer::UnifiedParticleTransformerAK4SonicJetTagsProducer(
+    const edm::ParameterSet &iConfig)
     : TritonEDProducer<>(iConfig),
       src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
       output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")) {
   // get output names from flav_names
-  for (const auto& flav_name : flav_names_) {
+  for (const auto &flav_name : flav_names_) {
     produces<JetTagCollection>(flav_name);
   }
 }
 
 UnifiedParticleTransformerAK4SonicJetTagsProducer::~UnifiedParticleTransformerAK4SonicJetTagsProducer() {}
 
-void UnifiedParticleTransformerAK4SonicJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void UnifiedParticleTransformerAK4SonicJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // pfUnifiedParticleTransformerAK4SonicJetTags
   edm::ParameterSetDescription desc;
   TritonClient::fillPSetDescription(desc);
   desc.add<edm::InputTag>("src", edm::InputTag("pfUnifiedParticleTransformerAK4TagInfos"));
-  desc.add<std::vector<std::string>>("input_names", {"input_1", "input_2", "input_3", "input_4", "input_5", "input_6", "input_7", "input_8"});
+  desc.add<std::vector<std::string>>(
+      "input_names", {"input_1", "input_2", "input_3", "input_4", "input_5", "input_6", "input_7", "input_8"});
   desc.add<std::vector<std::string>>("output_names", {"softmax"});
   desc.add<std::vector<std::string>>(
       "flav_names",
@@ -85,20 +86,20 @@ void UnifiedParticleTransformerAK4SonicJetTagsProducer::acquire(edm::Event const
   if (tag_infos->empty())
     return;
 
-  // Find the max n_cpf, n_npf and n_vtx among all the jets in an event. 
+  // Find the max n_cpf, n_npf and n_vtx among all the jets in an event.
   unsigned int max_n_cpf_counter = 0;
   unsigned int max_n_lt_counter = 0;
   unsigned int max_n_npf_counter = 0;
   unsigned int max_n_vtx_counter = 0;
   for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-    max_n_cpf_counter = std::max(max_n_cpf_counter,
-                         static_cast<unsigned int>(((*tag_infos)[jet_n]).features().c_pf_features.size()));
-    max_n_lt_counter = std::max(max_n_lt_counter,
-                         static_cast<unsigned int>(((*tag_infos)[jet_n]).features().lt_features.size()));
-    max_n_npf_counter = std::max(max_n_npf_counter,
-                         static_cast<unsigned int>(((*tag_infos)[jet_n]).features().n_pf_features.size()));
-    max_n_vtx_counter = std::max(max_n_vtx_counter,
-                         static_cast<unsigned int>(((*tag_infos)[jet_n]).features().sv_features.size()));
+    max_n_cpf_counter =
+        std::max(max_n_cpf_counter, static_cast<unsigned int>(((*tag_infos)[jet_n]).features().c_pf_features.size()));
+    max_n_lt_counter =
+        std::max(max_n_lt_counter, static_cast<unsigned int>(((*tag_infos)[jet_n]).features().lt_features.size()));
+    max_n_npf_counter =
+        std::max(max_n_npf_counter, static_cast<unsigned int>(((*tag_infos)[jet_n]).features().n_pf_features.size()));
+    max_n_vtx_counter =
+        std::max(max_n_vtx_counter, static_cast<unsigned int>(((*tag_infos)[jet_n]).features().sv_features.size()));
   }
 
   // If an event has no jet, or all jets has zero n_cpf, n_lt, n_npf and n_vtx, the inference is skipped.
@@ -113,25 +114,22 @@ void UnifiedParticleTransformerAK4SonicJetTagsProducer::acquire(edm::Event const
   const unsigned int target_n_lt = std::clamp(max_n_lt_counter, (unsigned int)1, (unsigned int)UparT::n_lt_accept);
   const unsigned int target_n_npf = std::clamp(max_n_npf_counter, (unsigned int)1, (unsigned int)UparT::n_npf_accept);
   const unsigned int target_n_vtx = std::clamp(max_n_vtx_counter, (unsigned int)1, (unsigned int)UparT::n_sv_accept);
-  const std::map<UparT::InputFeatures, unsigned int> target_n{
-    {UparT::kChargedCandidates,     target_n_cpf},
-    {UparT::kLostTracks,            target_n_lt},
-    {UparT::kNeutralCandidates,     target_n_npf},
-    {UparT::kVertices,              target_n_vtx},
-    {UparT::kChargedCandidates4Vec, target_n_cpf},
-    {UparT::kLostTracks4Vec,        target_n_lt},
-    {UparT::kNeutralCandidates4Vec, target_n_npf},
-    {UparT::kVertices4Vec,          target_n_vtx}
-  };
+  const std::map<UparT::InputFeatures, unsigned int> target_n{{UparT::kChargedCandidates, target_n_cpf},
+                                                              {UparT::kLostTracks, target_n_lt},
+                                                              {UparT::kNeutralCandidates, target_n_npf},
+                                                              {UparT::kVertices, target_n_vtx},
+                                                              {UparT::kChargedCandidates4Vec, target_n_cpf},
+                                                              {UparT::kLostTracks4Vec, target_n_lt},
+                                                              {UparT::kNeutralCandidates4Vec, target_n_npf},
+                                                              {UparT::kVertices4Vec, target_n_vtx}};
 
   for (UparT::InputFeatures ifeature = UparT::kBegin; ifeature != UparT::kEnd;
-       ifeature = static_cast<UparT::InputFeatures>(ifeature+1)) {
+       ifeature = static_cast<UparT::InputFeatures>(ifeature + 1)) {
     const auto &group_name = input_names_[ifeature];
     auto &input = iInput.at(group_name);
     input.setShape(0, target_n.at(ifeature));
     auto tdata = input.allocate<float>(true);
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-
       const auto &taginfo = (*tag_infos)[jet_n];
       const auto &features = taginfo.features();
       auto &vdata = (*tdata)[jet_n];
@@ -149,8 +147,8 @@ void UnifiedParticleTransformerAK4SonicJetTagsProducer::acquire(edm::Event const
   }
 }
 
-void UnifiedParticleTransformerAK4SonicJetTagsProducer::produce(edm::Event& iEvent,
-                                                                const edm::EventSetup& iSetup,
+void UnifiedParticleTransformerAK4SonicJetTagsProducer::produce(edm::Event &iEvent,
+                                                                const edm::EventSetup &iSetup,
                                                                 Output const &iOutput) {
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
