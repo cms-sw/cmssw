@@ -763,7 +763,7 @@ void CondDBESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   toGetDesc.add<unsigned long long>("refreshTime", std::numeric_limits<unsigned long long>::max());
   toGetDesc.addUntracked<std::string>("label", "");
 
-  std::vector<edm::ParameterSet> default_toGet(1);
+  std::vector<edm::ParameterSet> default_toGet;
   desc.addVPSet("toGet", toGetDesc, default_toGet);
 
   desc.addUntracked<std::string>("JsonDumpFileName", "");
