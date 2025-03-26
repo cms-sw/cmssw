@@ -59,7 +59,7 @@ namespace btagbtvdeep {
         *ptr = inputs[i];
         ++ptr;
       }
-      if (inputs.size() > 0)
+      if (!inputs.empty())
         --ptr;
       assert(start + parT::N_InputFeatures.at(ifeature) - 1 == ptr);
     }
@@ -98,7 +98,7 @@ namespace btagbtvdeep {
         *ptr = inputs[i];
         ++ptr;
       }
-      if (inputs.size() > 0)
+      if (!inputs.empty())
         --ptr;
       assert(start + UparT::N_InputFeatures.at(ifeature) - 1 == ptr);
     }
