@@ -5,8 +5,6 @@ import FWCore.ParameterSet.Config as cms
 # configures track finding s/w to behave as track finding f/w
 def fwConfig(process):
   process.l1tTTTracksFromTrackletEmulation.Fakefit = True
-  process.TrackTriggerSetup.TrackFinding.MaxEta =  2.5
-  process.TrackTriggerSetup.GeometricProcessor.ChosenRofZ = 57.76
   process.l1tTTTracksFromTrackletEmulation.RemovalType = ""
   process.l1tTTTracksFromTrackletEmulation.DoMultipleMatches = False
   process.l1tTTTracksFromTrackletEmulation.StoreTrackBuilderOutput = True

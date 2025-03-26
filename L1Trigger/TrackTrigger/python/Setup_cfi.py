@@ -17,7 +17,7 @@ TrackTrigger_params = cms.PSet (
     MinLayers    = cms.int32 (  4       ), # required number of stub layers to form a track
     MinPt        = cms.double(  2.0     ), # min track pt in GeV, also defines region overlap shape
     MinPtCand    = cms.double(  1.34    ), # min candiate pt in GeV
-    MaxEta       = cms.double(  2.4     ), # cut on stub eta
+    MaxEta       = cms.double(  2.5     ), # cut on stub eta
     MaxD0        = cms.double(  5.0     ), # in cm, constraints track reconstruction phase space
     ChosenRofPhi = cms.double( 55.      ), # critical radius defining region overlap shape in cm
   ),
@@ -142,7 +142,7 @@ TrackTrigger_params = cms.PSet (
   GeometricProcessor = cms.PSet (
     NumBinsPhiT = cms.int32 (   2    ), # number of phi sectors used in hough transform
     NumBinsZT   = cms.int32 (  32    ), # number of eta sectors used in hough transform
-    ChosenRofZ  = cms.double(  50    ), # critical radius defining r-z sector shape in cm
+    ChosenRofZ  = cms.double(  57.76 ), # critical radius defining r-z sector shape in cm
     DepthMemory = cms.int32 (  32    ), # fifo depth in stub router firmware
     WidthModule = cms.int32 (   3    ), #
     PosPS       = cms.int32 (   2    ), #
