@@ -8,6 +8,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/moveToDeviceAsync.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripClusterizerConditions.h"
 
@@ -78,12 +79,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   private:
     // inputs
     edm::EDGetTokenT<FEDRawDataCollection> fedRawDataGetToken_;
-    edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd> siStripConditionsGetToken_;
-    edm::ESGetToken<SiStripClusterizerConditionsHost, SiStripClusterizerConditionsRecord>
-        siStripCablingConditionsGetToken_;
+    edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd> siStrCondGetToken_;
+    edm::ESGetToken<SiStripClusterizerConditionsHost, SiStripClusterizerConditionsRecord> siStCabCondGetToken_;
 
     // outputs
-    device::EDPutToken<SiStripClustersDevice> siStripClustersDevicePutToken_;
+    device::EDPutToken<SiStripClustersDevice> siStrClustsPutToken_;
 
     // RAW data unpacking
     // FEDRawData locations and FEDBuffers passing the conditions
@@ -108,25 +108,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 #ifdef EDM_ML_DEBUG
     void print_SiStripClusterizerConditions_(SiStripClusterizerConditions const& conditions);
     void print_SiStripClusterizerConditionsHost_(SiStripClusterizerConditionsHost const& conditions);
-    void print_SiStripDataCompare_(Queue& queue,
-                                   SiStripMappingHost const& chanlocs,
-                                   SiStripClusterizerConditionsHost const& cablingMapData,
-                                   const int n_strips,
-                                   bool extendedPrint);
 #endif
   };
 
   SiStripRawToCluster::SiStripRawToCluster(const edm::ParameterSet& iConfig)
       : EDProducer<>(iConfig),
         fedRawDataGetToken_(consumes(iConfig.getParameter<edm::InputTag>("ProductLabel"))),
-        siStripConditionsGetToken_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("ConditionsLabel")})),
-        siStripCablingConditionsGetToken_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("CablingConditionsLabel")})),
-        siStripClustersDevicePutToken_(produces()),
+        siStrCondGetToken_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("ConditionsLabel")})),
+        siStCabCondGetToken_(
+            esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("CablingConditionsLabel")})),
+        siStrClustsPutToken_(produces()),
         raw_(sistrip::NUMBER_OF_FEDS),
         buffers_(sistrip::NUMBER_OF_FEDS),
         algo_(iConfig.getParameter<edm::ParameterSet>("Clusterizer"), iConfig.getParameter<bool>("LegacyUnpacker")) {
-          // legacy unpacking shall be supported ? (under discussion)
-        }
+    // legacy unpacking shall be supported ? (under discussion)
+  }
 
   void SiStripRawToCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     // Add some custom parameter description to the automatically-created ones by the addWithDefaultLabel methos
@@ -152,10 +148,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   void SiStripRawToCluster::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     // Get data from the tokens (raw collection and conditions)
     const auto& rawCollection = iEvent.get(fedRawDataGetToken_);
-    const auto& validFEDsConditions = iSetup.getData(siStripConditionsGetToken_);
+    const auto& validFEDsConditions = iSetup.getData(siStrCondGetToken_);
 
     // Get the cabling map
-    const auto& cablingMapData = iSetup.getData(siStripCablingConditionsGetToken_);
+    const auto& cablingMapData = iSetup.getData(siStCabCondGetToken_);
 
 #if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
     print_SiStripClusterizerConditions_(validFEDsConditions);
@@ -182,7 +178,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       if (!buff)
         continue;
 
-      if(! buff->checkReadoutMode()){
+      if (!buff->checkReadoutMode()) {
         // Could be moved into fillBuffer as well - understand how/if this could occur
         throw cms::Exception("RawToDigi", "Invalid readout mode for buffer ");
       }
@@ -323,7 +319,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // @brief    Map Detector Channels to FED Data - END
     /////////////////////////////////////////////////////////////////////////////
 
-
     /////////////////////////////////////////////////////////////////////////////
     // @brief    Run the algorithm for unpacking and clustering
     //
@@ -334,26 +329,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     alpaka::memcpy(iEvent.queue(), clusterizerConditions_onDevice.buffer(), cablingMapData.const_buffer());
 
     // Make the mapping between the unpacked FED data and strips available on the device
-    auto chanlocs_onDevice = SiStripMappingDevice(chanlocs_onHost->metadata().size(), iEvent.queue());
-    alpaka::memcpy(iEvent.queue(), chanlocs_onDevice.buffer(), chanlocs_onHost.const_buffer());
+    auto chanlocs_onDevice = cms::alpakatools::moveToDeviceAsync(iEvent.queue(), std::move(chanlocs_onHost));
 
     // override the .input() member of the chanlocs_onDevice - i.e., containing the device pointers of the FED raw data -
     auto moduleStartFirstElement = cms::alpakatools::make_device_view(
-      iEvent.queue(),
-      chanlocs_onDevice.view().input(),
-      detToFedsMap.metadata().size());
+        iEvent.queue(), chanlocs_onDevice.view().input(), detToFedsMap.metadata().size());
     alpaka::memcpy(iEvent.queue(), moduleStartFirstElement, rawPointerAddresses_onHost);
 
     // Prepare the StripDigiDevice var. on the host (with Clusterizer PSet)
     algo_.initialize(iEvent.queue(), n_strips);
-    
+
     // Unpack the FED raw data into SiStrip digits (adc, channel, strip) (in the unpackedStrips_d_ member of the algo_)
     algo_.unpackStrips(iEvent.queue(), chanlocs_onDevice, clusterizerConditions_onDevice);
-    
-#if defined(EDM_ML_DEBUG) && defined(THIS_ONLY)
-    alpaka::wait(iEvent.queue());
-    print_SiStripDataCompare_(iEvent.queue(), chanlocs_onHost, cablingMapData, n_strips, true);
-#endif
 
     // Make the seed mask for strip - to be used for clustering - according to noise and threshold.
     // Also, it flags non-contiguos strips (which are used in the clusterization) and it calculates exclusive prefix sum on NC-strips
@@ -362,7 +349,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Run the clusterization algorithm (ThreeThresholdAlgorithm)
     algo_.makeClusters(iEvent.queue(), chanlocs_onDevice, clusterizerConditions_onDevice);
 
-    iEvent.emplace(siStripClustersDevicePutToken_, algo_.getClustersDevice());
+    iEvent.emplace(siStrClustsPutToken_, algo_.getClustersDevice());
   }
 
   void SiStripRawToCluster::makeFEDbufferWithValidFEDs_(const FEDRawDataCollection& rawColl,
@@ -459,38 +446,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // alpaka::wait(queue);
 
-    LogDebug("SiStripConditions") << "From conditions, there are " << SiStripClusterizerConditionsDetToFedsSoA_view.metadata().size()
-              << " entries\n";
-              LogDebug("SiStripConditions") << "-- SiStripClusterizerConditionsDetToFedsSoA_view --\n"
-              << "i \t detid \t ipair \t fedid \t fedch\n";
+    LogDebug("SiStripConditions") << "From conditions, there are "
+                                  << SiStripClusterizerConditionsDetToFedsSoA_view.metadata().size() << " entries\n";
+    LogDebug("SiStripConditions") << "-- SiStripClusterizerConditionsDetToFedsSoA_view --\n"
+                                  << "i \t detid \t ipair \t fedid \t fedch\n";
 
     for (int i = 0; i < SiStripClusterizerConditionsDetToFedsSoA_view.metadata().size(); ++i) {
       if ((i < 1000 || i > (SiStripClusterizerConditionsDetToFedsSoA_view.metadata().size() - 1000))) {
         LogDebug("SiStripConditions") << i << "\t" << SiStripClusterizerConditionsDetToFedsSoA_view.detid_(i) << "\t"
-                  << SiStripClusterizerConditionsDetToFedsSoA_view.ipair_(i) << "\t"
-                  << SiStripClusterizerConditionsDetToFedsSoA_view.fedid_(i) << "\t"
-                  << (int)(SiStripClusterizerConditionsDetToFedsSoA_view.fedch_(i)) << "\n";
+                                      << SiStripClusterizerConditionsDetToFedsSoA_view.ipair_(i) << "\t"
+                                      << SiStripClusterizerConditionsDetToFedsSoA_view.fedid_(i) << "\t"
+                                      << (int)(SiStripClusterizerConditionsDetToFedsSoA_view.fedch_(i)) << "\n";
       }
     }
 
     LogDebug("SiStripConditions") << "----------"
-              << "\n";
+                                  << "\n";
     // return;
     LogDebug("SiStripConditions") << "-- SiStripClusterizerConditionsData_fedchSoA_view --\n"
-              << "i \t detID \t iPair \t invthick\n";
+                                  << "i \t detID \t iPair \t invthick\n";
     for (int i = 0; i < SiStripClusterizerConditionsData_fedchSoA_view.metadata().size(); ++i) {
       if ((i < 1000 || i > (SiStripClusterizerConditionsData_fedchSoA_view.metadata().size() - 1000))) {
         LogDebug("SiStripConditions") << i << "\t" << SiStripClusterizerConditionsData_fedchSoA_view.detID_(i) << "\t"
-                  << SiStripClusterizerConditionsData_fedchSoA_view.iPair_(i) << "\t"
-                  << SiStripClusterizerConditionsData_fedchSoA_view.invthick_(i) << "\n";
+                                      << SiStripClusterizerConditionsData_fedchSoA_view.iPair_(i) << "\t"
+                                      << SiStripClusterizerConditionsData_fedchSoA_view.invthick_(i) << "\n";
       }
     }
 
     LogDebug("SiStripConditions") << "----------"
-              << "\n";
+                                  << "\n";
 
     LogDebug("SiStripConditions") << "-- SiStripClusterizerConditionsData_stripSoA_view --\n"
-              << "i \t noise \n";
+                                  << "i \t noise \n";
     for (int i = 0; i < SiStripClusterizerConditionsData_stripSoA_view.metadata().size(); ++i) {
       if ((i < 1000 || i > (SiStripClusterizerConditionsData_stripSoA_view.metadata().size() - 1000))) {
         LogDebug("SiStripConditions") << i << "\t" << SiStripClusterizerConditionsData_stripSoA_view.noise_(i) << "\n";
@@ -498,107 +485,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
 
     LogDebug("SiStripConditions") << "----------"
-              << "\n";
+                                  << "\n";
 
     LogDebug("SiStripConditions") << "-- SiStripClusterizerConditionsData_apvSoA_view --\n"
-              << "i \t gain \n";
+                                  << "i \t gain \n";
     for (int i = 0; i < SiStripClusterizerConditionsData_apvSoA_view.metadata().size(); ++i) {
       if ((i < 1000 || i > (SiStripClusterizerConditionsData_apvSoA_view.metadata().size() - 1000))) {
         LogDebug("SiStripConditions") << i << "\t" << SiStripClusterizerConditionsData_apvSoA_view.gain_(i) << "\n";
-      }
-    }
-  }
-
-  void SiStripRawToCluster::print_SiStripDataCompare_(Queue& queue,
-                                                      SiStripMappingHost const& chanlocs,
-                                                      SiStripClusterizerConditionsHost const& cablingMapData,
-                                                      const int n_strips,
-                                                      bool extendedPrint) {
-    // Unpack on the host
-    auto unpackedStrips_host = StripDigiHost(n_strips, queue);
-    if (extendedPrint) {
-      LogDebug("SiStripConditions") << "chan"
-                                    << "\t"
-                                    << "fedid"
-                                    << "\t"
-                                    << "fedch"
-                                    << "\t"
-                                    << "idx"
-                                    << "\t"
-                                    << "ipair"
-                                    << "\t"
-                                    << "ipoff"
-                                    << "\t"
-                                    << "aoff"
-                                    << "\t"
-                                    << "choff"
-                                    << "\t"
-                                    << "len"
-                                    << "\t"
-                                    << "(choff++)^7"
-                                    << "\n";
-    }
-
-    int totalentries = 0;
-    for (auto chan = 0; chan < chanlocs->metadata().size(); ++chan) {
-      const auto fedID = chanlocs->fedID(chan);
-      const auto fedCH = chanlocs->fedCh(chan);
-
-      const auto idx = (fedID - sistrip::FED_ID_MIN) * sistrip::FEDCH_PER_FED + fedCH;
-      const auto ipair = cablingMapData.view<SiStripClusterizerConditionsData_fedchSoA>().iPair_(idx);
-      const auto ipoff = sistrip::STRIPS_PER_FEDCH * ipair;
-
-      const auto data = chanlocs->input(chan);
-      const auto len = chanlocs->length(chan);
-      if (extendedPrint) {
-        if (chan > 34881) {
-          LogDebug("SiStripConditions") << chan << "\t" << fedID << "\t" << (int)fedCH << "\t" << idx << "\t" << ipair
-                                        << "\t" << ipoff << "\t"
-                                        << "-"
-                                        << "\t"
-                                        << "-"
-                                        << "\t" << len << "\t"
-                                        << "-"
-                                        << "\n";
-        }
-      }
-
-      if (data != nullptr && len > 0) {
-        auto aoff = chanlocs->offset(chan);
-        auto choff = chanlocs->inoff(chan);
-        const auto end = choff + len;
-        if (extendedPrint) {
-          LogDebug("SiStripConditions") << chan << "\t" << fedID << "\t" << (int)fedCH << "\t" << idx << "\t" << ipair
-                                        << "\t" << ipoff << "\t" << aoff << "\t" << choff << "\t" << len << "\t"
-                                        << ((choff + 1) ^ 7) << "\n";
-          LogDebug("SiStripConditions") << "\t\tstripIndex\tgroupLength\taoff\n";
-        }
-        while (choff < end) {
-          auto stripIndex = data[(choff++) ^ 7] + ipoff;
-          const auto groupLength = data[(choff++) ^ 7];
-
-          if (extendedPrint)
-            LogDebug("SiStripConditions")
-                << "\t\t" << (int)stripIndex << "\t\t|" << (int)groupLength << "|\t\t" << aoff << "\t";
-
-          totalentries += (2 + groupLength);
-          // initialize as invalid strip
-          for (auto i = 0; i < 2; ++i, ++aoff) {
-            unpackedStrips_host->stripId(aoff) = 0xFFFF;
-            unpackedStrips_host->adc(aoff) = 0;
-          }
-          for (auto i = 0; i < groupLength; ++i, ++aoff) {
-            unpackedStrips_host->stripId(aoff) = stripIndex++;
-            unpackedStrips_host->channel(aoff) = chan;
-            auto dt = data[(choff++) ^ 7];
-            unpackedStrips_host->adc(aoff) = dt;
-            if (extendedPrint)
-              LogDebug("SiStripConditions")
-                  << aoff << ":" << (uint32_t)dt << ":" << (uint32_t)(unpackedStrips_host->adc(aoff)) << " ";
-          }
-          if (extendedPrint)
-            LogDebug("SiStripConditions") << "\n";
-        }
       }
     }
   }

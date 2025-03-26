@@ -8,7 +8,7 @@
 
 namespace sistrip {
   GENERATE_SOA_LAYOUT(SiStripMappingSoALayout,
-          // pointer to FEDChannel data
+                      // pointer to FEDChannel data
                       SOA_COLUMN(const uint8_t*, input),
                       // FEDChannel->offset
                       SOA_COLUMN(size_t, inoff),
