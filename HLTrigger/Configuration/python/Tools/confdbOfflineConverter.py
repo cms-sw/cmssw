@@ -36,21 +36,12 @@ class OfflineConverter:
     databases['v1']['adg']     = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',        '-d', 'cms_cond.cern.ch',      '-u', 'cms_hlt_gui_r',     '-s', 'convertMe!' )
     databases['v1']['orcoff']  = databases['v1']['adg']         # for backwards compatibility
     databases['v3'] = {}
-    databases['v3']['run2'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
-    databases['v3']['run3'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_v3_r',     '-s', 'convertMe!' )
-    databases['v3']['dev'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdrdev_r',     '-s', 'convertMe1!' )
+    databases['v3']['run2'] = ( '-t', 'oracle', '-h', 'cmsr1-v.cern.ch,cmsr2-v.cern.ch,cmsr3-v.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
+    databases['v3']['run3'] = ( '-t', 'oracle', '-h', 'cmsr1-v.cern.ch,cmsr2-v.cern.ch,cmsr3-v.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_v3_r',     '-s', 'convertMe!' )
+    databases['v3']['dev'] = ( '-t', 'oracle', '-h', 'cmsr1-v.cern.ch,cmsr2-v.cern.ch,cmsr3-v.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdrdev_r',     '-s', 'convertMe1!' )
     databases['v3']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-s.cms',          '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
-    databases['v3']['adg']     = ( '-t', 'oracle', '-h', 'cmsonr1-adg1-s.cern.ch', '-d', 'cms_orcon_adg.cern.ch', '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
+    databases['v3']['adg']     = ( '-t', 'oracle', '-h', 'cmsonr1-adg-v.cern.ch,cmsonr2-adg-v.cern.ch', '-d', 'cms_orcon_adg.cern.ch', '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
     
-    #ip addresses, there is a bug where we cant do dns over the socks server, sigh
-    ips_for_proxy = {
-        'cmsr1-s.cern.ch' : '10.116.96.89',
-        'cmsr2-s.cern.ch' : '10.116.96.139',
-        'cmsr3-s.cern.ch' : '10.116.96.105',
-        'cmsonr1-adg1-s.cern.ch' : '10.116.96.109',
-        'cmsonr1-s.cms' : '10.176.84.78'
-    }
-
     databases['v3-beta'] = dict(databases['v3'])
     databases['v3-test'] = dict(databases['v3'])
     databases['v2'] = dict(databases['v3'])
@@ -111,8 +102,6 @@ class OfflineConverter:
             self.proxy_connect_args = ('--dbproxy', '--dbproxyport', self.proxyPort, '--dbproxyhost', self.proxyHost)
             temp_connect = []
             for entry in self.connect:
-                for key,item in self.ips_for_proxy.items():
-                    entry = entry.replace(key,item)
                 temp_connect.append(entry.replace(key,item))
             self.connect  = tuple(temp_connect)
         else:
