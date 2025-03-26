@@ -9,6 +9,7 @@
   <use name="RecoTracker/PixelLowPtUtilities"/>
   <use name="CalibFormats/SiStripObjects"/>
   <use name="CalibTracker/SiStripCommon"/>
+  <use name="DataFormats/SiStripClusterSoA"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <!-- alpaka-based portable plugins -->

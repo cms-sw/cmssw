@@ -1,27 +1,26 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include <memory>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClustersDevice.h"
+#include "DataFormats/SiStripClusterSoA/interface/SiStripClustersHost.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
-  using namespace ::sistrip;
-
-  class SiStripClustersToLegacy : public stream::SynchronizingEDProducer<> {
+// using namespace ::sistrip;
+namespace sistrip {
+  class SiStripClustersToLegacy : public edm::global::EDProducer<> {
   public:
     SiStripClustersToLegacy(edm::ParameterSet const& iConfig)
-        : SynchronizingEDProducer<>(iConfig),
-          siStripClustersToken_{consumes(iConfig.getParameter<edm::InputTag>("source"))},
+        : siStripClustersToken_{consumes(iConfig.getParameter<edm::InputTag>("source"))},
           siStripClustersSetVecPutToken_{produces()} {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -30,9 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       descriptions.addWithDefaultLabel(desc);
     }
 
-    void acquire(device::Event const& iEvent, device::EventSetup const&) override {}
-
-    void produce(device::Event& iEvent, device::EventSetup const&) override {
+    void produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const override {
       auto const& clusters_onHost = iEvent.get(siStripClustersToken_);
 
       const int nSeedStripsNC = clusters_onHost->nClusters();
@@ -78,8 +75,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const edm::EDGetTokenT<SiStripClustersHost> siStripClustersToken_;
     const edm::EDPutTokenT<edmNew::DetSetVector<SiStripCluster>> siStripClustersSetVecPutToken_;
   };
+}  // namespace sistrip
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
-
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-DEFINE_FWK_ALPAKA_MODULE(sistrip::SiStripClustersToLegacy);
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(sistrip::SiStripClustersToLegacy);

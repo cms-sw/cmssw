@@ -52,7 +52,7 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
         
         # Create the converter bringing the alpaka-made cluster into legacy objects
         # hltSiStripClustersToLegacy = cms.EDProducer("SiStripClustersToLegacy@alpaka",
-        hltSiStripClustersToLegacy = cms.EDProducer("sistrip::SiStripClustersToLegacy@alpaka",
+        hltSiStripClustersToLegacy = cms.EDProducer("sistrip::SiStripClustersToLegacy",
             source = cms.InputTag("hltSiStripRawToClustersFacilityAlpaka")
         )
         
