@@ -531,6 +531,7 @@ void L1NNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eSe
 
     float idScore = -1.;
     if (!VsPuId.method().empty()) {
+      VsPuId.passID(*cl3dIt, cluster);
       idScore = cluster.egVsPUMVAOut();
     }
 
