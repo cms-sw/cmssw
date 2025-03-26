@@ -186,20 +186,23 @@ class WorkFlowRunner(Thread):
                     # Disable input for premix stage1 to allow combined stage1+stage2 workflow
                     # Disable input for premix stage2 in FastSim to allow combined stage1+stage2 workflow (in FS, stage2 does also GEN)
                     # Ugly hack but works
+                    extension = '.root'
+                    if '--rntuple_out' in cmd:
+                        extension = '.rntpl'
                     if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd):
                         steps = cmd.split("-s ")[1].split(" ")[0] ## relying on the syntax: cmsDriver -s STEPS --otherFlags
                         if "ALCA" not in steps:
-                            cmd+=' --filein  file:step%s.root '%(istep-1,)
+                            cmd+=' --filein  file:step%s%s '%(istep-1,extension)
                         elif "ALCA" in steps and "RECO" in steps:
-                            cmd+=' --filein  file:step%s.root '%(istep-1,)
+                            cmd+=' --filein  file:step%s%s '%(istep-1,extension)
                         elif self.recoOutput:
                             cmd+=' --filein %s'%(self.recoOutput)
                         else:
-                            cmd+=' --filein  file:step%s.root '%(istep-1,)
+                            cmd+=' --filein  file:step%s%s '%(istep-1,extension)
                     if not '--fileout' in com:
-                        cmd+=' --fileout file:step%s.root '%(istep,)
+                        cmd+=' --fileout file:step%s%s '%(istep,extension)
                         if "RECO" in cmd:
-                            self.recoOutput = "file:step%d.root"%(istep)
+                            self.recoOutput = "file:step%d%s"%(istep,extension)
                 if self.jobReport:
                   cmd += ' --suffix "-j JobReport%s.xml " ' % istep
                 if (self.nThreads > 1) and ('HARVESTING' not in cmd) and ('ALCAHARVEST' not in cmd):
