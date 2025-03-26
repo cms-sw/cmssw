@@ -41,6 +41,7 @@ namespace edm {
 
     void readMeta(ProductRegistry&, ProcessHistoryRegistry&, BranchIDLists& iBranchIDLists);
     std::vector<ParentageID> readParentage();
+    void readParameterSets();
 
     input::DataProductsRNTuple* runProducts() { return &runs_; }
     input::DataProductsRNTuple* luminosityBlockProducts() { return &lumis_; }
