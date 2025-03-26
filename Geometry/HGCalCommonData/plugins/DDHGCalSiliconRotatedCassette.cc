@@ -401,7 +401,7 @@ void DDHGCalSiliconRotatedCassette::constructLayers(const DDLogicalPart& module,
           unsigned int num = (-layerSense_[ly] <= waferTypes_) ? passiveAbsorb_.size() : passiveCool_.size();
           if (num > 0)
             positionPassiveNew(glog, i, -layerSense_[ly], cpv);
-//          positionPassiveNew(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
+          //          positionPassiveNew(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
         } else {
           positionPassive(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
         }
