@@ -165,7 +165,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Create pinned host and device memory
     // fedBufferBlocksRawHost_ is made of the data and a mask (fedID) telling at each array position in data to which fedID it corresponds
-    DataFedAppender fedBufferBlocksRaw_(iEvent.queue(), buffersValidSize_bytes_);
+    DataFedAppender fedBufferBlocksRaw(iEvent.queue(), buffersValidSize_bytes_);
     // fill the raw bytes with the buffers and store the index where a corresponding FED buffer starts
     // bytes_         = | bytes relative to a given FED id                                     | ... |
     // fedId_         = |< same size array filled with fedId_ for the whole bytes_[fed] size  >| ... |
@@ -186,7 +186,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       // Get the valid raw data
       const auto raw = raw_[fedi];
       auto fedID = fedi + sistrip::FED_ID_MIN;
-      fedBufferBlocksRaw_.insertFEDRawDataObj(fedID, raw);
+      fedBufferBlocksRaw.insertFEDRawDataObj(fedID, raw);
     }
 
 // debug
@@ -213,11 +213,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Copy the blocks of raw FED data on the device
     auto fedBufferBlocksRaw_onDevice = cms::alpakatools::make_device_buffer<uint8_t[]>(
-        iEvent.queue(), static_cast<unsigned int>(fedBufferBlocksRaw_.size()));
+        iEvent.queue(), static_cast<unsigned int>(fedBufferBlocksRaw.size()));
     alpaka::memcpy(iEvent.queue(),
                    fedBufferBlocksRaw_onDevice,
-                   fedBufferBlocksRaw_.getData(),
-                   static_cast<unsigned int>(fedBufferBlocksRaw_.size()));
+                   fedBufferBlocksRaw.getData(),
+                   static_cast<unsigned int>(fedBufferBlocksRaw.size()));
 
     // -- Expand the SiStripClusterizerConditionsDetToFedsSoA to mask the fed buffers according to "good" detectors
     //    preparing the data for the unpack - In summary, make the A-B map between
@@ -242,7 +242,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       const auto fedCH = detToFedsMap.fedch_(i);
       const auto fedi = fedID - sistrip::FED_ID_MIN;
 
-      if (fedBufferBlocksRaw_.isInside(fedID)) {
+      if (fedBufferBlocksRaw.isInside(fedID)) {
         const auto buffer = buffers_[fedi].get();
 
         /// extract readout mode
@@ -294,7 +294,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         chanlocs_onHost->detID(i) = detID;
 
         // ##TODO Better comments - fedBufferBlocksRaw_.getOffset(fedID) this is just an offset - same in host/dev mem
-        auto fedChOfs_inRawBuffer = fedBufferBlocksRaw_.getOffset(fedID) + (fedChannel.data() - raw_[fedi]->data());
+        auto fedChOfs_inRawBuffer = fedBufferBlocksRaw.getOffset(fedID) + (fedChannel.data() - raw_[fedi]->data());
         // this is the offset between the pointer where the channel data begins and the position of the data as a whole start (this difference is the same in host/device, and this is calculated on host - since both things are in host memory already)
 
         // For debugging on host, use fedBufferBlocksRaw_.getData().data() instead
