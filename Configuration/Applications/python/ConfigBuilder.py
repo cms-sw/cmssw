@@ -729,8 +729,7 @@ class ConfigBuilder(object):
             CppType='TimeoutPoolOutputModule'
         if streamType=='DQM' and tier=='DQMIO':
             CppType='DQMRootOutputModule'
-            if len(fileName) > 6 and fileName[-6:] == '.rntpl':
-                fileName = fileName.replace('.rntpl', '.root')
+            fileName = fileName.replace('.rntpl', '.root')
         if not ignoreNano and "NANOAOD" in streamType : CppType='NanoAODOutputModule'
         if self._options.rntuple_out and CppType == 'PoolOutputModule':
             CppType='RNTupleOutputModule'
