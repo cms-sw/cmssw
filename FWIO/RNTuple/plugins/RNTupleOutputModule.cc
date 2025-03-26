@@ -130,7 +130,7 @@ namespace edm {
             fromConfig(pset.getUntrackedParameter<std::vector<edm::ParameterSet>>("overrideDataProductStreamer"))),
         noSplitSubFields_(pset.getUntrackedParameter<std::vector<std::string>>("noSplitSubFields")),
         compressionAlgo_(convertTo(pset.getUntrackedParameter<std::string>("compressionAlgorithm"))),
-        compressionLevel_(pset.getUntrackedParameter<unsigned int>("compressionLevel")),
+        compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel")),
         approxZippedClusterSize_(pset.getUntrackedParameter<unsigned long long>("approxZippedClusterSize")),
         maxUnzippedClusterSize_(pset.getUntrackedParameter<unsigned long long>("maxUnzippedClusterSize")),
         initialUnzippedPageSize_(pset.getUntrackedParameter<unsigned long long>("initialUnzippedPageSize")),
@@ -198,6 +198,26 @@ namespace edm {
 
   void RNTupleOutputModule::writeRun(RunForOutput const& iRun) { file_->writeRun(iRun); }
 
+  namespace {
+    std::vector<edm::ParameterSet> defaultStreamerOverrides() {
+      std::vector<std::string_view> types = {"LHEEventProduct",
+                                             "recoJetIDedmValueMap",
+                                             "recoPhotons",
+                                             "recoGsfElectrons",
+                                             "recoMuons",
+                                             "recoGsfElectrons",
+                                             "TotemRPLocalTrackedmDetSetVector",
+                                             "edmTriggerResults",
+                                             "GlobalAlgBlkBXVector"};
+      std::vector<edm::ParameterSet> retValue;
+      for (auto const& t : types) {
+        edm::ParameterSet p;
+        p.addUntrackedParameter<std::string>("product", std::string(t) + "_*_*_*");
+        retValue.emplace_back(std::move(p));
+      }
+      return retValue;
+    }
+  }  // namespace
   void RNTupleOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setComment("Outputs event information into an RNTuple container.");
@@ -205,7 +225,7 @@ namespace edm {
     desc.addUntracked<std::string>("compressionAlgorithm", "ZSTD")
         ->setComment(
             "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, LZ4, and ZSTD");
-    desc.addUntracked<unsigned int>("compressionLevel", 4)->setComment("ROOT compression level of output file.");
+    desc.addUntracked<int>("compressionLevel", 4)->setComment("ROOT compression level of output file.");
     ROOT::Experimental::RNTupleWriteOptions ops;
     desc.addUntracked<unsigned long long>("approxZippedClusterSize", ops.GetApproxZippedClusterSize())
         ->setComment("Approximation of the target compressed cluster size");
@@ -249,10 +269,67 @@ namespace edm {
           "Name of data product needing a special split setting. The name can contain wildcards '*' and '?'");
       specialStreamer.addUntracked<bool>("useStreamer", true)
           ->setComment("Explicitly set if should or should not use streamer (default is to use streamer)");
-      desc.addVPSetUntracked("overrideDataProductStreamer", specialStreamer, std::vector<ParameterSet>());
+      desc.addVPSetUntracked("overrideDataProductStreamer", specialStreamer, defaultStreamerOverrides());
     }
 
     OutputModule::fillDescription(desc);
+
+    //Make compatible with PoolOutputModule. Unnecessary ones will be marked obsolete once available
+    std::string defaultString;
+    desc.addUntracked<std::string>("logicalFileName", defaultString)
+        ->setComment("Passed to job report. Otherwise unused by module.");
+    desc.addUntracked<std::string>("catalog", defaultString)
+        ->setComment("Passed to job report. Otherwise unused by module.");
+    desc.addUntracked<int>("maxSize", 0x7f000000)
+        ->setComment(
+            "Maximum output file size, in kB.\n"
+            "If over maximum, new output file will be started at next input file transition.");
+    desc.addObsoleteUntracked<int>("basketSize");
+    desc.addObsoleteUntracked<int>("eventAuxiliaryBasketSize");
+    desc.addObsoleteUntracked<int>("eventAutoFlushCompressedSize");
+    desc.addObsoleteUntracked<int>("splitLevel");
+    desc.addObsoleteUntracked<std::string>("sortBaskets");
+    desc.addObsoleteUntracked<int>("treeMaxVirtualSize");
+    desc.addUntracked<bool>("fastCloning", true)
+        ->setComment(
+            "True:  Allow fast copying, if possible.\n"
+            "False: Disable fast copying.");
+    desc.addOptionalUntracked<bool>("mergeJob");
+    desc.addObsoleteUntracked<bool>("compactEventAuxiliary");
+    desc.addObsoleteUntracked<bool>("overrideInputFileSplitLevels");
+    desc.addUntracked<bool>("writeStatusFile", false)
+        ->setComment("Write a status file. Intended for use by workflow management.");
+    desc.addUntracked<std::string>("dropMetaData", defaultString)
+        ->setComment(
+            "Determines handling of per product per event metadata.  Options are:\n"
+            "'NONE':    Keep all of it.\n"
+            "'DROPPED': Keep it for products produced in current process and all kept products. Drop it for dropped "
+            "products produced in prior processes.\n"
+            "'PRIOR':   Keep it for products produced in current process. Drop it for products produced in prior "
+            "processes.\n"
+            "'ALL':     Drop all of it.");
+    desc.addUntracked<std::string>("overrideGUID", defaultString)
+        ->setComment(
+            "Allows to override the GUID of the file. Intended to be used only in Tier0 for re-creating files.\n"
+            "The GUID needs to be of the proper format. If a new output file is started (see maxSize), the GUID of\n"
+            "the first file only is overridden, i.e. the subsequent output files have different, generated GUID.");
+    {
+      ParameterSetDescription dataSet;
+      dataSet.setAllowAnything();
+      desc.addUntracked<ParameterSetDescription>("dataset", dataSet)
+          ->setComment("PSet is only used by Data Operations and not by this module.");
+    }
+    { desc.addVPSetObsoleteUntracked("overrideBranchesSplitLevel"); }
+    {
+      /*
+      ParameterSetDescription alias;
+      alias.addUntracked<std::string>("branch")->setComment(
+          "Name of branch which will get alias. The name can contain wildcards '*' and '?'");
+      alias.addUntracked<std::string>("alias")->setComment("The alias to give to the TBranch");
+      */
+      desc.addVPSetObsoleteUntracked("branchAliases" /*, alias*/);
+    }
+
     descriptions.addDefault(desc);
   }
 }  // namespace edm

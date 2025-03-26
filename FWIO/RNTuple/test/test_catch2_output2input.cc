@@ -18,7 +18,7 @@ namespace {
 
   std::string setInputFile(std::string const& iConfig, std::string const& iFileName) {
     using namespace std::string_literals;
-    return iConfig + "\nprocess.source.fileName = 'file:"s + iFileName + "'\n";
+    return iConfig + "\nprocess.source.fileNames = ['file:"s + iFileName + "']\n";
   }
 }  // namespace
 TEST_CASE("Tests of RNTupleOuput -> RNTupleSource", s_tag) {
@@ -37,7 +37,7 @@ process.moduleToTest(process.out)
   const std::string baseSourceConfig{
       R"_(from FWCore.TestProcessor.TestSourceProcess import *
 process = TestSourceProcess()
-process.source = cms.Source("RNTupleSource", fileName = cms.untracked.string(''))
+process.source = cms.Source("RNTupleSource", fileNames = cms.untracked.vstring())
 process.add_(cms.Service("InitRootHandlers"))
 process.add_(cms.Service("SiteLocalConfigService"))
 process.add_(cms.Service("JobReportService"))
