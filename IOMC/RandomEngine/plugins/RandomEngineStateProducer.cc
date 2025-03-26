@@ -19,22 +19,20 @@ RandomEngineStateProducer::RandomEngineStateProducer(edm::ParameterSet const&) {
 RandomEngineStateProducer::~RandomEngineStateProducer() {}
 
 void RandomEngineStateProducer::produce(edm::StreamID iID, edm::Event& ev, edm::EventSetup const&) const {
-  edm::Service<edm::RandomNumberGenerator> randomService;
-  if (randomService.isAvailable()) {
+  edm::Service<edm::RandomNumberGenerator>().and_then([&ev](auto const& randomService) {
     auto states = std::make_unique<edm::RandomEngineStates>();
-    states->setRandomEngineStates(randomService->getEventCache(ev.streamID()));
+    states->setRandomEngineStates(randomService.getEventCache(ev.streamID()));
     ev.put(std::move(states));
-  }
+  });
 }
 
 void RandomEngineStateProducer::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& lb,
                                                                   edm::EventSetup const&) const {
-  edm::Service<edm::RandomNumberGenerator> randomService;
-  if (randomService.isAvailable()) {
+  edm::Service<edm::RandomNumberGenerator>().and_then([&lb](auto const& randomService) {
     auto states = std::make_unique<edm::RandomEngineStates>();
-    states->setRandomEngineStates(randomService->getLumiCache(lb.index()));
+    states->setRandomEngineStates(randomService.getLumiCache(lb.index()));
     lb.put(std::move(states), "beginLumi");
-  }
+  });
 }
 
 void RandomEngineStateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

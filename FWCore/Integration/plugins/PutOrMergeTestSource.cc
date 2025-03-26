@@ -81,7 +81,7 @@ PutOrMergeTestSource::PutOrMergeTestSource(ParameterSet const& iPS, InputSourceD
   dummyPset.registerIt();
 
   ProcessHistory history;
-  history.emplace_back("PROD", dummyPset.id(), "RELVERSION", "PASSID");
+  history.emplace_back("PROD", dummyPset.id(), "RELVERSION", HardwareResourcesDescription());
   processHistoryRegistry().registerProcessHistory(history);
   historyID_ = history.id();
 }

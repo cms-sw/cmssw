@@ -17,8 +17,9 @@ using namespace Pythia8;
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8HMC3InterfaceBase.h"
 
-#include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
+#include "ReweightUserHooks.h"
 #include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
+#include "TopRecoilHook.h"
 
 // PS matchning prototype
 //
@@ -75,6 +76,49 @@ namespace CLHEP {
 
 using namespace gen;
 
+//Insert class for use w/ PDFPtr for proton-photon flux
+//parameters hardcoded according to main70.cc in PYTHIA8 v3.10
+class Nucleus2gamma2 : public Pythia8::PDF {
+private:
+  double radius;
+  int z;
+
+public:
+  // Constructor.
+  Nucleus2gamma2(int idBeamIn, double R = -1.0, int Z = -1) : Pythia8::PDF(idBeamIn), radius(R), z(Z) {}
+
+  void xfUpdate(int, double x, double) override {
+    if (z == -1) {
+      // lead
+      if (idBeam == 1000822080)
+        z = 82;
+    }
+    if (radius == -1) {
+      // lead
+      if (idBeam == 1000822080)
+        radius = 6.636;
+    }
+
+    if (z < 0 || radius < 0)
+      throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
+          << " Invalid photon flux input parameters: beam ID= " << idBeam << " , radius= " << radius << " , z= " << z
+          << "\n";
+
+    // Minimum impact parameter (~2*radius) [fm].
+    double bmin = 2 * radius;
+
+    // Per-nucleon mass for lead.
+    double m2 = pow2(0.9314);
+    double alphaEM = 0.007297353080;
+    double hbarc = 0.197;
+    double xi = x * sqrt(m2) * bmin / hbarc;
+    double bK0 = besselK0(xi);
+    double bK1 = besselK1(xi);
+    double intB = xi * bK1 * bK0 - 0.5 * pow2(xi) * (pow2(bK1) - pow2(bK0));
+    xgamma = 2. * alphaEM * pow2(z) / M_PI * intB;
+  }
+};
+
 class Pythia8HepMC3Hadronizer : public Py8HMC3InterfaceBase {
 public:
   Pythia8HepMC3Hadronizer(const edm::ParameterSet &params);
@@ -111,6 +155,10 @@ private:
 
   double fBeam1PZ;
   double fBeam2PZ;
+
+  //PDFPtr for the photonFlux
+  //Following main70.cc example in PYTHIA8 v3.10
+  edm::ParameterSet photonFluxParams;
 
   //helper class to allow multiple user hooks simultaneously
   std::shared_ptr<UserHooksVector> fUserHooksVector;
@@ -149,6 +197,9 @@ private:
 
   //Generic customized hooks vector
   std::shared_ptr<UserHooksVector> fCustomHooksVector;
+
+  //RecoilToTop userhook
+  std::shared_ptr<TopRecoilHook> fTopRecoilHook;
 
   int EV1_nFinal;
   bool EV1_vetoOn;
@@ -212,6 +263,10 @@ Pythia8HepMC3Hadronizer::Pythia8HepMC3Hadronizer(const edm::ParameterSet &params
 
   // avoid filling weights twice (from v8.30x)
   toHepMC.set_store_weights(false);
+
+  if (params.exists("PhotonFlux")) {
+    photonFluxParams = params.getParameter<edm::ParameterSet>("PhotonFlux");
+  }
 
   // Reweight user hook
   //
@@ -364,6 +419,20 @@ bool Pythia8HepMC3Hadronizer::initializeForInternalPartons() {
     fMasterGen->settings.word("Beams:LHEF", lheFile_);
   }
 
+  if (!photonFluxParams.empty()) {
+    const auto &beamTypeA = photonFluxParams.getParameter<int>("beamTypeA");
+    const auto &beamTypeB = photonFluxParams.getParameter<int>("beamTypeB");
+    const auto &radiusA = photonFluxParams.getUntrackedParameter<double>("radiusA", -1.0);
+    const auto &radiusB = photonFluxParams.getUntrackedParameter<double>("radiusB", -1.0);
+    const auto &zA = photonFluxParams.getUntrackedParameter<int>("zA", -1);
+    const auto &zB = photonFluxParams.getUntrackedParameter<int>("zB", -1);
+    Pythia8::PDFPtr photonFluxA =
+        fMasterGen->settings.flag("PDF:beamA2gamma") ? make_shared<Nucleus2gamma2>(beamTypeA, radiusA, zA) : nullptr;
+    Pythia8::PDFPtr photonFluxB =
+        fMasterGen->settings.flag("PDF:beamB2gamma") ? make_shared<Nucleus2gamma2>(beamTypeB, radiusB, zB) : nullptr;
+    fMasterGen->setPhotonFluxPtr(photonFluxA, photonFluxB);
+  }
+
   if (!fUserHooksVector.get())
     fUserHooksVector = std::make_shared<UserHooksVector>();
   (fUserHooksVector->hooks).clear();
@@ -410,6 +479,14 @@ bool Pythia8HepMC3Hadronizer::initializeForInternalPartons() {
     if (!fPowhegHooksBB4L.get())
       fPowhegHooksBB4L = std::make_shared<PowhegHooksBB4L>();
     (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
+  }
+
+  bool TopRecoilHook1 = fMasterGen->settings.flag("TopRecoilHook:doTopRecoilIn");
+  if (TopRecoilHook1) {
+    edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
+    if (!fTopRecoilHook.get())
+      fTopRecoilHook = std::make_shared<TopRecoilHook>();
+    (fUserHooksVector->hooks).push_back(fTopRecoilHook);
   }
 
   //adapted from main89.cc in pythia8 examples
@@ -569,6 +646,14 @@ bool Pythia8HepMC3Hadronizer::initializeForExternalPartons() {
     if (!fPowhegHooksBB4L.get())
       fPowhegHooksBB4L = std::make_shared<PowhegHooksBB4L>();
     (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
+  }
+
+  bool TopRecoilHook1 = fMasterGen->settings.flag("TopRecoilHook:doTopRecoilIn");
+  if (TopRecoilHook1) {
+    edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
+    if (!fTopRecoilHook.get())
+      fTopRecoilHook = std::make_shared<TopRecoilHook>();
+    (fUserHooksVector->hooks).push_back(fTopRecoilHook);
   }
 
   //adapted from main89.cc in pythia8 examples

@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <tuple>
 #include <vector>
 
 // user include files
@@ -33,6 +34,7 @@ namespace edm::eventsetup {
 
   class ESRecordsToProductResolverIndices {
   public:
+    ESRecordsToProductResolverIndices() = default;
     ESRecordsToProductResolverIndices(std::vector<EventSetupRecordKey> iRecords);
 
     // ---------- const member functions ---------------------
@@ -40,6 +42,9 @@ namespace edm::eventsetup {
     ESResolverIndex indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
 
     ComponentDescription const* component(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
+
+    std::tuple<ComponentDescription const*, unsigned int> componentAndProduceMethodID(EventSetupRecordKey const&,
+                                                                                      ESResolverIndex) const noexcept;
 
     ///Returns ESTagGetter for all products matching the type iTT for record iRK
     ESTagGetter makeTagGetter(EventSetupRecordKey const& iRK, TypeTag const& iTT) const;
@@ -61,7 +66,8 @@ namespace edm::eventsetup {
     unsigned int dataKeysInRecord(unsigned int iRecordIndex,
                                   EventSetupRecordKey const& iRecord,
                                   std::vector<DataKey> const& iDataKeys,
-                                  std::vector<ComponentDescription const*> const& iComponents);
+                                  std::vector<ComponentDescription const*> const& iComponents,
+                                  std::vector<unsigned int> const& iProduceMethodIDs);
 
   private:
     // ---------- member data --------------------------------
@@ -73,6 +79,7 @@ namespace edm::eventsetup {
     std::vector<unsigned int> recordOffsets_;
     std::vector<DataKey> dataKeys_;
     std::vector<ComponentDescription const*> components_;
+    std::vector<unsigned int> produceMethodIDs_;
   };
 
 }  // namespace edm::eventsetup

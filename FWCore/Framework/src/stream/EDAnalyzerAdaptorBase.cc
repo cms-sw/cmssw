@@ -11,7 +11,6 @@
 //
 
 // system include files
-#include <array>
 #include <cassert>
 
 // user include files
@@ -25,6 +24,8 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesESInfo.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
@@ -84,7 +85,8 @@ void EDAnalyzerAdaptorBase::doPreallocate(PreallocationConfiguration const& iPre
   preallocLumis(iPrealloc.numberOfLuminosityBlocks());
 }
 
-void EDAnalyzerAdaptorBase::registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, SignallingProductRegistry* reg) {
+void EDAnalyzerAdaptorBase::registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*,
+                                                         SignallingProductRegistryFiller* reg) {
   for (auto mod : m_streamModules) {
     mod->registerProductsAndCallbacks(mod, reg);
   }
@@ -129,6 +131,12 @@ void EDAnalyzerAdaptorBase::updateLookup(eventsetup::ESRecordsToProductResolverI
   }
 }
 
+void EDAnalyzerAdaptorBase::releaseMemoryPostLookupSignal() {
+  for (auto mod : m_streamModules) {
+    mod->releaseMemoryPostLookupSignal();
+  }
+}
+
 const edm::EDConsumerBase* EDAnalyzerAdaptorBase::consumer() const { return m_streamModules[0]; }
 
 void EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(
@@ -142,15 +150,28 @@ void EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(
       modules, modulesInPreviousProcesses, preg, labelsToDesc, processName);
 }
 
+void EDAnalyzerAdaptorBase::esModulesWhoseProductsAreConsumed(
+    std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
+    eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->esModulesWhoseProductsAreConsumed(esModules, iPI);
+}
+
 void EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& processName) {
   for (auto mod : m_streamModules) {
     mod->convertCurrentProcessAlias(processName);
   }
 }
 
-std::vector<edm::ConsumesInfo> EDAnalyzerAdaptorBase::consumesInfo() const {
+std::vector<edm::ModuleConsumesInfo> EDAnalyzerAdaptorBase::moduleConsumesInfos() const {
   assert(not m_streamModules.empty());
-  return m_streamModules[0]->consumesInfo();
+  return m_streamModules[0]->moduleConsumesInfos();
+}
+
+std::vector<edm::ModuleConsumesESInfo> EDAnalyzerAdaptorBase::moduleConsumesESInfos(
+    eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->moduleConsumesESInfos(iPI);
 }
 
 bool EDAnalyzerAdaptorBase::doEvent(EventTransitionInfo const& info,

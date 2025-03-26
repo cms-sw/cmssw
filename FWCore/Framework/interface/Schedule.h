@@ -58,6 +58,7 @@
 */
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
@@ -81,6 +82,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include <array>
 #include <map>
@@ -97,16 +99,17 @@ namespace edm {
   namespace service {
     class TriggerNamesService;
   }
-  namespace evetnsetup {
+  namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+  }  // namespace eventsetup
 
   class BranchIDListHelper;
   class EventTransitionInfo;
   class ExceptionCollector;
   class MergeableRunProductMetadata;
   class OutputModuleCommunicator;
-  class SignallingProductRegistry;
+  class SignallingProductRegistryFiller;
   class PreallocationConfiguration;
   class StreamSchedule;
   class GlobalSchedule;
@@ -130,7 +133,7 @@ namespace edm {
 
     Schedule(ParameterSet& proc_pset,
              service::TriggerNamesService const& tns,
-             SignallingProductRegistry& pregistry,
+             SignallingProductRegistryFiller& pregistry,
              ExceptionToActionTable const& actions,
              std::shared_ptr<ActivityRegistry> areg,
              std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -139,7 +142,7 @@ namespace edm {
              ModuleTypeResolverMaker const* resolverMaker);
     void finishSetup(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
-                     SignallingProductRegistry& preg,
+                     SignallingProductRegistryFiller& preg,
                      BranchIDListHelper& branchIDListHelper,
                      ProcessBlockHelperBase& processBlockHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
@@ -254,6 +257,10 @@ namespace edm {
         std::vector<std::vector<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
         ProductRegistry const& preg) const;
 
+    void fillESModuleAndConsumesInfo(std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>,
+                                                kNumberOfEventSetupTransitions>& esModulesWhoseProductsAreConsumedBy,
+                                     eventsetup::ESRecordsToProductResolverIndices const&) const;
+
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
     /// to exceptions during processing).
@@ -285,7 +292,7 @@ namespace edm {
     /// Returns true if successful.
     bool changeModule(std::string const& iLabel,
                       ParameterSet const& iPSet,
-                      const SignallingProductRegistry& iRegistry,
+                      const SignallingProductRegistryFiller& iRegistry,
                       eventsetup::ESRecordsToProductResolverIndices const&);
 
     /// Deletes module with label iLabel
@@ -294,13 +301,15 @@ namespace edm {
     void initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly,
                                std::multimap<std::string, std::string> const& referencesToBranches,
                                std::vector<std::string> const& modulesToSkip,
-                               edm::SignallingProductRegistry const& preg);
+                               edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;
 
     /// Convert "@currentProcess" in InputTag process names to the actual current process name.
     void convertCurrentProcessAlias(std::string const& processName);
+
+    void releaseMemoryPostLookupSignal();
 
   private:
     void limitOutput(ParameterSet const& proc_pset,

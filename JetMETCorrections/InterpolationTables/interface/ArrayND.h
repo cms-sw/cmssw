@@ -4289,7 +4289,7 @@ namespace npstat {
       for (unsigned ipt = 0; ipt < npt; ++ipt)
         fit[ipt] = interpolateLoop(level + 1, coords, base + (ix + ipt) * strides_[level]);
 
-    const Numeric* const v = (level == dim_ - 1 ? base + ix : fit);
+    const Numeric* const v = (level >= dim_ - 1 ? base + ix : fit);
     switch (npt) {
       case 1:
         return v[0];

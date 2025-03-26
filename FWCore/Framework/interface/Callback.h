@@ -49,7 +49,7 @@ namespace edm {
           : Callback(iProd, std::make_shared<TProduceFunc>(std::move(iProduceFunc)), iID, iDec) {}
 
       Callback* clone() {
-        return new Callback(Base::producer(), Base::produceFunction(), Base::transitionID(), Base::decorator());
+        return new Callback(Base::producer(), Base::produceFunction(), Base::produceMethodID(), Base::decorator());
       }
 
       void prefetchAsync(WaitingTaskHolder iTask,

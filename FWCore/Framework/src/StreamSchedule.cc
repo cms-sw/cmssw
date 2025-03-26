@@ -5,7 +5,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -108,7 +109,7 @@ namespace edm {
     }
 
     void initializeBranchToReadingWorker(std::vector<std::string> const& branchesToDeleteEarly,
-                                         SignallingProductRegistry const& preg,
+                                         ProductRegistry const& preg,
                                          std::multimap<std::string, Worker*>& branchToReadingWorker) {
       auto vBranchesToDeleteEarly = branchesToDeleteEarly;
       // Remove any duplicates
@@ -155,7 +156,7 @@ namespace edm {
     Worker* getWorker(std::string const& moduleLabel,
                       ParameterSet& proc_pset,
                       WorkerManager& workerManager,
-                      SignallingProductRegistry& preg,
+                      SignallingProductRegistryFiller& preg,
                       PreallocationConfiguration const* prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration) {
       bool isTracked;
@@ -187,7 +188,7 @@ namespace edm {
         std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
         std::unordered_multimap<std::string, StreamSchedule::AliasInfo> const& aliasMap,
         std::string const& productModuleLabel,
-        ConsumesInfo const& consumesInfo) {
+        ModuleConsumesInfo const& consumesInfo) {
       std::optional<std::string> best;
       int wildcardsInBest = std::numeric_limits<int>::max();
       bool bestIsAmbiguous = false;
@@ -263,7 +264,7 @@ namespace edm {
     using AliasInfo = StreamSchedule::AliasInfo;
 
     ConditionalTaskHelper(ParameterSet& proc_pset,
-                          SignallingProductRegistry& preg,
+                          SignallingProductRegistryFiller& preg,
                           PreallocationConfiguration const* prealloc,
                           std::shared_ptr<ProcessConfiguration const> processConfiguration,
                           WorkerManager& workerManagerLumisAndEvents,
@@ -290,7 +291,7 @@ namespace edm {
       processSwitchEDAliases(proc_pset, preg, *processConfiguration, allConditionalMods);
 
       //find branches created by the conditional modules
-      for (auto const& prod : preg.productList()) {
+      for (auto const& prod : preg.registry().productList()) {
         if (allConditionalMods.find(prod.first.moduleLabel()) != allConditionalMods.end()) {
           conditionalModsBranches_.emplace(prod.first.moduleLabel(), &prod.second);
         }
@@ -341,7 +342,7 @@ namespace edm {
     }
 
     void processSwitchEDAliases(ParameterSet const& proc_pset,
-                                SignallingProductRegistry& preg,
+                                SignallingProductRegistryFiller& preg,
                                 ProcessConfiguration const& processConfiguration,
                                 std::unordered_set<std::string> const& allConditionalMods) {
       auto const& all_modules = proc_pset.getParameter<std::vector<std::string>>("@all_modules");
@@ -376,7 +377,7 @@ namespace edm {
       ParameterSet& proc_pset,
       service::TriggerNamesService const& tns,
       PreallocationConfiguration const& prealloc,
-      SignallingProductRegistry& preg,
+      SignallingProductRegistryFiller& preg,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
       std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -539,7 +540,7 @@ namespace edm {
                                              std::vector<std::string> const& branchesToDeleteEarly,
                                              std::multimap<std::string, std::string> const& referencesToBranches,
                                              std::vector<std::string> const& modulesToSkip,
-                                             edm::SignallingProductRegistry const& preg) {
+                                             edm::ProductRegistry const& preg) {
     // setup the list with those products actually registered for this job
     std::multimap<std::string, Worker*> branchToReadingWorker;
     initializeBranchToReadingWorker(branchesToDeleteEarly, preg, branchToReadingWorker);
@@ -580,7 +581,7 @@ namespace edm {
         continue;
       }
       //determine if this module could read a branch we want to delete early
-      auto consumes = w->consumesInfo();
+      auto consumes = w->moduleConsumesInfos();
       if (not consumes.empty()) {
         bool foundAtLeastOneMatchingBranch = false;
         for (auto const& product : consumes) {
@@ -754,11 +755,11 @@ namespace edm {
       std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
       std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
       ParameterSet& proc_pset,
-      SignallingProductRegistry& preg,
+      SignallingProductRegistryFiller& preg,
       PreallocationConfiguration const* prealloc,
       std::shared_ptr<ProcessConfiguration const> processConfiguration) {
     std::vector<Worker*> returnValue;
-    auto const& consumesInfo = worker->consumesInfo();
+    auto const& consumesInfo = worker->moduleConsumesInfos();
     auto moduleLabel = worker->description()->moduleLabel();
     using namespace productholderindexhelper;
     for (auto const& ci : consumesInfo) {
@@ -825,7 +826,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
-                                   SignallingProductRegistry& preg,
+                                   SignallingProductRegistryFiller& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    std::string const& pathName,
@@ -933,7 +934,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillTrigPath(ParameterSet& proc_pset,
-                                    SignallingProductRegistry& preg,
+                                    SignallingProductRegistryFiller& preg,
                                     PreallocationConfiguration const* prealloc,
                                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                     int bitpos,
@@ -967,7 +968,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillEndPath(ParameterSet& proc_pset,
-                                   SignallingProductRegistry& preg,
+                                   SignallingProductRegistryFiller& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    int bitpos,

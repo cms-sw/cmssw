@@ -60,6 +60,7 @@ HLT_L1ETM120_v*           #       CMSHLT-2860
 HLT_L1ETM150_v*           #       CMSHLT-2860
 HLT_L1EXT_HCAL_LaserMon1_v*   #       CMSHLT-2860
 HLT_L1EXT_HCAL_LaserMon4_v*   #       CMSHLT-2860
+HLT_L1MinimumBiasHF0ANDBptxAND_v*   # CMSHLT-3427
 HLT_CscCluster_Cosmic_v*      #       CMSHLT-2860
 HLT_EcalCalibration_v*        #       CMSHLT-2860
 HLT_HcalCalibration_v*        #       CMSHLT-2860
@@ -68,6 +69,7 @@ HLT_HcalPhiSym_v*             #       CMSHLT-2860
 HLT_HT60_Beamspot_v*          #       CMSHLT-2860
 HLT_HT300_Beamspot_v*         #       CMSHLT-2860
 HLT_HT300_Beamspot_PixelClusters_WP2_v*    #       CMSHLT-2860
+HLT_PixelClusters_WP2_HighRate_v*   # CMSHLT-3427
 HLT_PixelClusters_WP2_v*      #       CMSHLT-2860
 HLT_PixelClusters_WP1_v*      #       CMSHLT-2860
 HLT_IsoTrackHB_v*             #       CMSHLT-2860
@@ -109,7 +111,7 @@ AlCa_LumiPixelsCounts_ZeroBias_v*     # CMSHLT-3092
 HLT_CDC_L2cosmic_5p5_er1p0_v*	      # CMSHLT-3092
 HLT_CDC_L2cosmic_10_er1p0_v*	      # CMSHLT-3092
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsGatedOutput
@@ -135,9 +137,13 @@ EcalCalibrationOutput
 ExpressOutput
 ExpressAlignmentOutput
 ExpressCosmicsOutput
-HLTMonitorOutput		      # CMSHLT-3364
+HLTMonitorOutput		      # CMSHLT-3444
+CosmicHLTMonitorOutput		      # CMSHLT-3439
 NanoDSTOutput
 PhysicsCommissioningOutput
+
+PhysicsSpecialMinimumBias0Output      # CMSHLT-3427
+PhysicsSpecialMinimumBias1Output      # CMSHLT-3427
 
 PhysicsSpecialHLTPhysics0Output
 PhysicsSpecialHLTPhysics1Output

@@ -923,7 +923,6 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
     DipPVInfo_.push_back(h_nVtx_st->getRMSError());
     DipPVInfo_.push_back((float)MaxPVs);
     DipPVInfo_.push_back((float)countTotPV_);
-    MaxPVs = 0;
   } else {
     for (size_t i = 0; i < 7; i++) {
       if (i > 0) {
@@ -934,7 +933,6 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
     }
   }
   theBeamFitter->SetPVInfo(DipPVInfo_);
-  countEvtLastNLS_ = 0;
 
   if (onlineMode_) {  // filling LS gap
     // FIXME: need to add protection for the case if the gap is at the resetting LS!

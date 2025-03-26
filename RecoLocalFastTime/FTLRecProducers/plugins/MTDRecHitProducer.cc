@@ -106,9 +106,8 @@ void MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   }
 
   // put the collection of recunstructed hits in the event
-  // get the orphan handles so we can make refs for the tracking rechits
-  auto barrelHandle = evt.put(std::move(barrelRechits), ftlbInstance_);
-  auto endcapHandle = evt.put(std::move(endcapRechits), ftleInstance_);
+  evt.put(std::move(barrelRechits), ftlbInstance_);
+  evt.put(std::move(endcapRechits), ftleInstance_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

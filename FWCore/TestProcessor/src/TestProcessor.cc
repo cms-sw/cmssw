@@ -112,7 +112,7 @@ namespace edm {
         esp_->add(std::dynamic_pointer_cast<EventSetupRecordIntervalFinder>(esHelper_));
       }
 
-      preg_ = items.preg();
+      auto tempReg = items.preg();
       processConfiguration_ = items.processConfiguration();
 
       edm::ParameterSet emptyPSet;
@@ -120,7 +120,7 @@ namespace edm {
       auto psetid = emptyPSet.id();
 
       for (auto const& p : iConfig.extraProcesses()) {
-        processHistory_.emplace_back(p, psetid, xstr(PROJECT_VERSION), "0");
+        processHistory_.emplace_back(p, psetid, xstr(PROJECT_VERSION), HardwareResourcesDescription());
         processHistoryRegistry_.registerProcessHistory(processHistory_);
       }
 
@@ -142,7 +142,7 @@ namespace edm {
         );
         product.init();
         dataProducts_.emplace_back(product, std::unique_ptr<WrapperBase>());
-        preg_->addProduct(product);
+        tempReg->addProduct(product);
       }
 
       processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
@@ -158,7 +158,8 @@ namespace edm {
 
       principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
 
-      preg_->setFrozen();
+      tempReg->setFrozen();
+      preg_ = std::make_shared<edm::ProductRegistry>(tempReg->moveTo());
       mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
 
       for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {

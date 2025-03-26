@@ -37,7 +37,7 @@ private:
 
 void StripCPEESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName", "SimpleStripCPE");
+  desc.add<std::string>("ComponentName", "stripCPE");
 
   edm::ParameterSetDescription cpeFromTrackAngleDesc;
   StripCPEfromTrackAngle::fillPSetDescription(cpeFromTrackAngleDesc);
@@ -53,7 +53,7 @@ void StripCPEESProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
               edm::ParameterDescription<edm::ParameterSetDescription>("parameters", emptyDesc, true) or
           "FakeStripCPE" >> edm::EmptyGroupDescription());
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet& p) {

@@ -55,19 +55,8 @@ namespace trklet {
 
   class Settings {
   public:
-    Settings() {
-      //Comment out to run tracklet-only algorithm
-#ifdef CMSSW_GIT_HASH
-#ifndef CMS_DICT_IMPL  // Don't print message if genreflex being run.
-#ifndef USEHYBRID
-#pragma message "USEHYBRID is undefined, so Hybrid L1 tracking disabled."
-#endif
-#endif
-#endif
-    }
-
+    Settings() {};
     ~Settings() = default;
-
     void passSetup(const tt::Setup* setup) { setup_ = setup; }
     const tt::Setup* setup() const { return setup_; }
 

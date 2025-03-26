@@ -48,6 +48,8 @@ namespace edm {
       }
     }
 
+    unsigned int ESProductResolver::produceMethodID() const { return 0; }
+
     void ESProductResolver::invalidateTransientCache() { invalidateCache(); }
 
     namespace {

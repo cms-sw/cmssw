@@ -74,9 +74,8 @@ namespace edm {
 
     ~Principal() override;
 
-    bool adjustToNewProductRegistry(ProductRegistry const& reg);
-
-    void adjustIndexesAfterProductRegistryAddition();
+    //This should only be called when this Principal is not being actively used
+    void possiblyUpdateAfterAddition(std::shared_ptr<ProductRegistry const>);
 
     void fillPrincipal(DelayedReader* reader);
     void fillPrincipal(ProcessHistoryID const& hist, ProcessHistory const* phr, DelayedReader* reader);
@@ -215,6 +214,8 @@ namespace edm {
     }
 
   private:
+    void adjustIndexesAfterProductRegistryAddition();
+
     //called by adjustIndexesAfterProductRegistryAddition only if an index actually changed
     virtual void changedIndexes_() {}
 

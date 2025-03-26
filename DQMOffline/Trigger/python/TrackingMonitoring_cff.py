@@ -132,6 +132,31 @@ iterHighPtTripletsMonitoringHLT = iterHLTTracksMonitoringHLT.clone(
     allTrackProducer = 'hltHighPtTripletStepTrackSelectionHighPurity',
 )
 
+# LST track collections
+initialSteppTTCLSTTracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/initialStepTrackSelectionHighPuritypTTCLST',
+    TrackProducer    = 'hltInitialStepTrackSelectionHighPuritypTTCLST',
+    allTrackProducer = 'hltInitialStepTrackSelectionHighPuritypTTCLST'
+)
+
+initialSteppLSTCLSTTracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/initialStepTrackSelectionHighPuritypLSTCLST',
+    TrackProducer    = 'hltInitialStepTrackSelectionHighPuritypLSTCLST',
+    allTrackProducer = 'hltInitialStepTrackSelectionHighPuritypLSTCLST'
+)
+
+initialStepT5TCLSTTracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/initialStepTracksT5TCLST',
+    TrackProducer    = 'hltInitialStepTracksT5TCLST',
+    allTrackProducer = 'hltInitialStepTracksT5TCLST'
+)
+
+highPtTripletSteppLSTCLSTTracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/highPtTripletStepTrackSelectionHighPuritypLSTCLST',
+    TrackProducer    = 'hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST',
+    allTrackProducer = 'hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST'
+)
+
 iter3TracksMonitoringHLT = trackingMonHLT.clone(
     FolderName       = 'HLT/Tracking/iter3Merged',
     TrackProducer    = 'hltIter3Merged',
@@ -264,6 +289,11 @@ trkHLTDQMSourceExtra = cms.Sequence(
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toReplaceWith(trackingMonitorHLT, cms.Sequence(pixelTracksMonitoringHLT + iterHLTTracksMonitoringHLT + doubletRecoveryHPTracksMonitoringHLT )) # + iter0HPTracksMonitoringHLT ))
 phase2_tracker.toReplaceWith(trackingMonitorHLT, cms.Sequence(pixelTracksMonitoringHLT + iterHLTTracksMonitoringHLT + iterInitialStepMonitoringHLT + iterHighPtTripletsMonitoringHLT))
+
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+(~seedingLST & trackingLST).toReplaceWith(trackingMonitorHLT, cms.Sequence(pixelTracksMonitoringHLT + iterHLTTracksMonitoringHLT + initialSteppTTCLSTTracksMonitoringHLT + initialSteppLSTCLSTTracksMonitoringHLT + initialStepT5TCLSTTracksMonitoringHLT + iterHighPtTripletsMonitoringHLT))
+(seedingLST & trackingLST).toReplaceWith(trackingMonitorHLT, cms.Sequence(pixelTracksMonitoringHLT + iterHLTTracksMonitoringHLT + initialSteppTTCLSTTracksMonitoringHLT + initialStepT5TCLSTTracksMonitoringHLT + highPtTripletSteppLSTCLSTTracksMonitoringHLT))
 
 run3_common.toReplaceWith(trackingMonitorHLTall, cms.Sequence(pixelTracksMonitoringHLT + iter0TracksMonitoringHLT + iterHLTTracksMonitoringHLT))
 run3_common.toReplaceWith(egmTrackingMonitorHLT, cms.Sequence(gsfTracksMonitoringHLT))

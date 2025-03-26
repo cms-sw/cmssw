@@ -37,7 +37,8 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildCSCOnlyStub(const CSCDetId& 
   int eta1 = int(gp.eta() / eta1LSB_);
 
   int wheel = 0;
-  int sign = endcap == 1 ? -1 : 1;
+  // endcap: 1=forward (+Z), 2=backward(-Z) from CSCDetId
+  int sign = endcap == 2 ? -1 : 1;
 
   if (ring == 3)
     wheel = sign * 3;

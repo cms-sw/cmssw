@@ -9,8 +9,6 @@ This description also applies to every product instance on the branch.
 ----------------------------------------------------------------------*/
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
@@ -20,7 +18,8 @@ This description also applies to every product instance on the branch.
 #include <set>
 #include <string>
 
-#if !defined(DataFormats_Provenance_ProductDescription_h)
+#if (not defined __INCLUDE_LEVEL__ or __INCLUDE_LEVEL__ > 0) and \
+    not defined(DataFormats_Provenance_ProductDescription_h)
 #error The name BranchDescription is deprecated, please use ProductDescription instead.
 #endif
 /*

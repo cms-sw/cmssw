@@ -11,7 +11,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   using namespace ::lst;
 
-  ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstWarning(std::string_view warning) { edm::LogWarning("LST") << warning; }
+  ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstWarning(std::string_view warning) {
+#ifdef LST_STANDALONE
+    printf("%s\n", warning.data());
+#else
+    edm::LogWarning("LST") << warning;
+#endif
+  }
 
   // The constants below are usually used in functions like alpaka::math::min(),
   // expecting a reference (T const&) in the arguments. Hence,
@@ -49,18 +55,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       {0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.18f, 0.18f, /*10*/ 0.18f, 0.18f, 0.18f, 0.18f, 0.18f},
       {0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.18f, /*10*/ 0.18f, 0.18f, 0.18f, 0.18f, 0.18f}};
 
-  namespace t5dnn {
-    HOST_DEVICE_CONSTANT float kZ_max = 267.2349854f;
-    HOST_DEVICE_CONSTANT float kR_max = 110.1099396f;
+  namespace dnn {
+
+    // Common constants for both DNNs
     HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
     HOST_DEVICE_CONSTANT float kPhi_norm = kPi;
-    // pt, eta binned
     constexpr unsigned int kPtBins = 2;
     constexpr unsigned int kEtaBins = 10;
-    HOST_DEVICE_CONSTANT float kWp[kPtBins][kEtaBins] = {
-        {0.4493, 0.4939, 0.5715, 0.6488, 0.5709, 0.5938, 0.7164, 0.7565, 0.8103, 0.8593},
-        {0.4488, 0.4448, 0.5067, 0.5929, 0.4836, 0.4112, 0.4968, 0.4403, 0.5597, 0.5067}};
-  }  // namespace t5dnn
+
+    namespace t3dnn {
+      HOST_DEVICE_CONSTANT float kZ_max = 224.149505f;
+      HOST_DEVICE_CONSTANT float kR_max = 98.932365f;
+      HOST_DEVICE_CONSTANT float kWp_prompt[kPtBins][kEtaBins] = {
+          {0.4957, 0.5052, 0.5201, 0.5340, 0.4275, 0.4708, 0.4890, 0.4932, 0.5400, 0.5449},
+          {0.0302, 0.0415, 0.0994, 0.1791, 0.1960, 0.2467, 0.3227, 0.3242, 0.2367, 0.2187}};
+      HOST_DEVICE_CONSTANT float kWp_displaced[kPtBins][kEtaBins] = {
+          {0.0334, 0.0504, 0.0748, 0.0994, 0.1128, 0.1123, 0.1118, 0.1525, 0.1867, 0.1847},
+          {0.0091, 0.0075, 0.0350, 0.0213, 0.0435, 0.0676, 0.1957, 0.1649, 0.1080, 0.1046}};
+    }  // namespace t3dnn
+
+    namespace t5dnn {
+      HOST_DEVICE_CONSTANT float kZ_max = 267.2349854f;
+      HOST_DEVICE_CONSTANT float kR_max = 110.1099396f;
+      HOST_DEVICE_CONSTANT float kWp[kPtBins][kEtaBins] = {
+          {0.4493, 0.4939, 0.5715, 0.6488, 0.5709, 0.5938, 0.7164, 0.7565, 0.8103, 0.8593},
+          {0.4488, 0.4448, 0.5067, 0.5929, 0.4836, 0.4112, 0.4968, 0.4403, 0.5597, 0.5067}};
+    }  // namespace t5dnn
+
+  }  // namespace dnn
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 #endif

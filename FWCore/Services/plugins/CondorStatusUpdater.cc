@@ -1,9 +1,9 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
+#include "FWCore/AbstractServices/interface/TimingServiceBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/ResourceInformation.h"
-#include "FWCore/Utilities/interface/TimingServiceBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"

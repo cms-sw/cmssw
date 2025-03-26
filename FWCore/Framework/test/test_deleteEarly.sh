@@ -9,11 +9,10 @@ F2=${LOCAL_TEST_DIR}/test_simpleDeleteEarly_cfg.py
 F3=${LOCAL_TEST_DIR}/test_referencingDeleteEarly_cfg.py
 F4=${LOCAL_TEST_DIR}/test_multiPathEarlyDelete_cfg.py
 F5=${LOCAL_TEST_DIR}/test_multiPathMultiModuleEarlyDelete_cfg.py
-F6=${LOCAL_TEST_DIR}/test_subProcessDeleteEarly_cfg.py
-F7=${LOCAL_TEST_DIR}/test_consumeAfterEarlyDeleteTask_cfg.py
-F8=${LOCAL_TEST_DIR}/test_consumeAfterEarlyDeletePath_cfg.py
-F9=${LOCAL_TEST_DIR}/test_nonConsumedModuleEarlyDelete_cfg.py
-F10=${LOCAL_TEST_DIR}/test_referencingDeleteEarly_fail_cfg.py
+F6=${LOCAL_TEST_DIR}/test_consumeAfterEarlyDeleteTask_cfg.py
+F7=${LOCAL_TEST_DIR}/test_consumeAfterEarlyDeletePath_cfg.py
+F8=${LOCAL_TEST_DIR}/test_nonConsumedModuleEarlyDelete_cfg.py
+F9=${LOCAL_TEST_DIR}/test_referencingDeleteEarly_fail_cfg.py
 
 (cmsRun $F1 ) || die "Failure using $F1" $?
 (cmsRun $F2 ) || die "Failure using $F2" $?
@@ -23,6 +22,4 @@ F10=${LOCAL_TEST_DIR}/test_referencingDeleteEarly_fail_cfg.py
 (cmsRun $F6 ) || die "Failure using $F6" $?
 (cmsRun $F7 ) || die "Failure using $F7" $?
 (cmsRun $F8 ) || die "Failure using $F8" $?
-(cmsRun $F9 ) || die "Failure using $F9" $?
-!(cmsRun $F10 ) || die "Failure using $F10" $? 
-
+!(cmsRun $F9 ) || die "Failure using $F9" $?

@@ -110,11 +110,14 @@ namespace edm {
 
   void ParameterDescriptionNode::setComment(char const* value) { comment_ = value; }
 
-  void ParameterDescriptionNode::print(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {
+  void ParameterDescriptionNode::print(std::ostream& os,
+                                       Modifier modifier,
+                                       bool writeToCfi,
+                                       DocFormatHelper& dfh) const {
     if (hasNestedContent()) {
       dfh.incrementCounter();
     }
-    print_(os, optional, writeToCfi, dfh);
+    print_(os, modifier, writeToCfi, dfh);
   }
 
   void ParameterDescriptionNode::printNestedContent(std::ostream& os, bool optional, DocFormatHelper& dfh) const {

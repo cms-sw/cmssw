@@ -3,9 +3,9 @@
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Span.h"
 
 #include <cstdint>
+#include <span>
 #include <vector>
 
 template <class T>
@@ -66,14 +66,14 @@ public:
   const_iterator end() const { return data_.end(); }
 
   // iterate over elements of a bx
-  edm::Span<const_iterator> bxIterator(unsigned bx) const {
+  std::span<const T> bxIterator(unsigned bx) const {
     if (bx >= orbitBufferSize_)
       throw cms::Exception("OrbitCollection::bxIterator") << "Trying to access and object outside the orbit range. "
                                                           << " BX = " << bx;
     if (getBxSize(bx) > 0) {
-      return edm::Span(data_.begin() + bxOffsets_[bx], data_.begin() + bxOffsets_[bx + 1]);
+      return std::span<const T>(data_.begin() + bxOffsets_[bx], data_.begin() + bxOffsets_[bx + 1]);
     } else {
-      return edm::Span(end(), end());
+      return std::span<const T>();
     }
   }
 

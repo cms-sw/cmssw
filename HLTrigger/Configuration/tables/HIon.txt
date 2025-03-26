@@ -223,24 +223,13 @@ HLT_HIL1SingleMu0_Open_v*             # CMSHLT-2882
 HLT_HIL1SingleMu0_Cosmic_v*           # CMSHLT-2882
 HLT_HIL1SingleMu0_v*                  # CMSHLT-2882
 HLT_HIL2DoubleMu0_Open_v*             # CMSHLT-2882
-HLT_HIL3DoubleMu0_M0toInf_Open_v*     # CMSHLT-2882
-HLT_HIL3DoubleMu0_Quarkonia_Open_v*   # CMSHLT-2882
-HLT_HIL3DoubleMu2_Quarkonia_Open_v*   # CMSHLT-2882
 HLT_HIL2SingleMu3_Open_v*             # CMSHLT-2882
 HLT_HIL2SingleMu5_v*                  # CMSHLT-2882
 HLT_HIL2SingleMu7_v*                  # CMSHLT-2882
-HLT_HIL3SingleMu3_Open_v*             # CMSHLT-2882
-HLT_HIL3SingleMu5_v*                  # CMSHLT-2882
-HLT_HIL3SingleMu7_v*                  # CMSHLT-2882
-HLT_HIL3SingleMu12_v*                 # CMSHLT-2882
 HLT_HIL2DoubleMu0_M1p5to6_Open_v*     # CMSHLT-2882
 HLT_HIL2DoubleMu2p8_M1p5to6_Open_v*   # CMSHLT-2882
 HLT_HIL2DoubleMu0_M7to15_Open_v*      # CMSHLT-2882
 HLT_HIL2DoubleMu3_M7to15_Open_v*      # CMSHLT-2882
-HLT_HIL3DoubleMu0_M2to4p5_Open_v*     # CMSHLT-2882
-HLT_HIL3DoubleMu2_M2to4p5_Open_v*     # CMSHLT-2882
-HLT_HIL3DoubleMu0_M7to15_Open_v*      # CMSHLT-2882
-HLT_HIL3DoubleMu2_M7to15_Open_v*      # CMSHLT-2882
 HLT_HIL1SingleMuOpen_Centrality30to100_v*  # CMSHLT-3338
 HLT_HIL1SingleMu0_Centrality30to100_v*     # CMSHLT-3338
 HLT_HIL1SingleMu0_Centrality40to100_v*     # CMSHLT-3338
@@ -260,12 +249,6 @@ HLT_HIL1SingleMu5_SingleEG20Gsf_v*        # CMSHLT-2906
 HLT_HIL1SingleMu5_SingleGEDPhoton20_v*    # CMSHLT-2906
 HLT_HIL1SingleMu7_SingleEG20Gsf_v*        # CMSHLT-2906
 HLT_HIL1SingleMu7_SingleGEDPhoton20_v*    # CMSHLT-3356
-HLT_HIL3SingleMu3_SinglePuAK4CaloJet40_v* # CMSHLT-2906
-HLT_HIL3SingleMu3_SinglePuAK4CaloJet60_v* # CMSHLT-2906
-HLT_HIL3SingleMu3_SinglePuAK4CaloJet80_v* # CMSHLT-2906
-HLT_HIL3SingleMu5_SinglePuAK4CaloJet40_v* # CMSHLT-2906
-HLT_HIL3SingleMu5_SinglePuAK4CaloJet60_v* # CMSHLT-2906
-HLT_HIL3SingleMu5_SinglePuAK4CaloJet80_v* # CMSHLT-2906
 
 HLT_HIDmesonPPOnAATrackingGlobal_Dpt30_v* # CMSHLT-2905
 HLT_HIDmesonPPOnAATrackingGlobal_Dpt45_v* # CMSHLT-2905
@@ -287,7 +270,7 @@ HLT_HIUPC_HFafterglowCombined_v*           # CMSHLT-3335
 
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCAP0Output
 ALCAPHISYMOutput

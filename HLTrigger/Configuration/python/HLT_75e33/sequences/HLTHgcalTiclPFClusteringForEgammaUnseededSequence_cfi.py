@@ -67,20 +67,20 @@ hltTiclTracksterLinksSuperclusteringMustacheUnseeded = hltTiclTracksterLinks.clo
     tracksters_collections = [cms.InputTag("hltTiclTrackstersCLUE3DHigh")], # to be changed to ticlTrackstersCLUE3DEM once separate CLUE3D iterations are introduced
 )
 
-from RecoHGCal.TICL.ticlEGammaSuperClusterProducer_cfi import ticlEGammaSuperClusterProducer
-hltTiclEGammaSuperClusterProducerUnseeded = ticlEGammaSuperClusterProducer.clone()
+from RecoHGCal.TICL.ticlEGammaSuperClusterProducer_cfi import ticlEGammaSuperClusterProducer as _ticlEGammaSuperClusterProducer
+hltTiclEGammaSuperClusterProducerUnseeded = _ticlEGammaSuperClusterProducer.clone(
+    ticlSuperClusters = "hltTiclTracksterLinksSuperclusteringDNNUnseeded",
+    ticlTrackstersEM = "hltTiclTrackstersCLUE3DHigh",
+    layerClusters = "hltHgcalMergeLayerClusters"
+)
 
+# DNN
 from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
 ticl_superclustering_dnn.toReplaceWith(_SuperclusteringUnseededSequence, 
                                        cms.Sequence(
                                                     hltTiclTracksterLinksSuperclusteringDNNUnseeded
                                                     + hltTiclEGammaSuperClusterProducerUnseeded
                                        )
-)
-ticl_superclustering_dnn.toModify(hltTiclEGammaSuperClusterProducerUnseeded,  
-                                  ticlSuperClusters=cms.InputTag("hltTiclTracksterLinksSuperclusteringDNNUnseeded"),
-                                  ticlTrackstersEM=cms.InputTag("hltTiclTrackstersCLUE3DHigh"),
-                                  layerClusters=cms.InputTag("hltHgcalMergeLayerClusters")
 )
 
 # Ticl mustache

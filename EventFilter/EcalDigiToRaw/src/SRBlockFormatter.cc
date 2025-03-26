@@ -12,8 +12,8 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
   if (debug_)
     print(rawdata);
 
-  int bx = bx_;
-  int lv1 = lv1_;
+  auto const bx = bx_;
+  auto const lv1 = lv1_;
 
   int Nrows_SRP = 5;  // Both for Barrel and EndCap (without the header row)
   int SRid = (dccid - 1) / 3 + 1;

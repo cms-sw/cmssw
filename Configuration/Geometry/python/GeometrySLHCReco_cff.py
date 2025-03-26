@@ -5,7 +5,7 @@ from SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cfi import *
 # Reconstruction geometry services
 #  Tracking Geometry
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
 trackerGeometry.applyAlignment = cms.bool(False)
 
 #Tracker
@@ -13,6 +13,8 @@ from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *
 
 #Muon
+from Geometry.MuonNumbering.muonGeometryConstants_cff import *
+from Geometry.MuonNumbering.muonOffsetESProducer_cff import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 
@@ -30,6 +32,9 @@ from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
 from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *
+from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
+from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *
+from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *
 
 ## Just in case if a wrong DB record is pulled in:
 ##

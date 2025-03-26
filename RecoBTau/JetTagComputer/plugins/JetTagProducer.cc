@@ -171,16 +171,17 @@ void JetTagProducer::produce(StreamID, Event &iEvent, const EventSetup &iSetup) 
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void JetTagProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("jetTagComputer", "combinedMVAComputer");
+  desc.add<std::string>("jetTagComputer", "combinedMVAComputer")->setComment("InputTag for the jet-tag computer.");
   {
     std::vector<edm::InputTag> tagInfos;
     tagInfos.push_back(edm::InputTag("impactParameterTagInfos"));
     tagInfos.push_back(edm::InputTag("inclusiveSecondaryVertexFinderTagInfos"));
     tagInfos.push_back(edm::InputTag("softPFMuonsTagInfos"));
     tagInfos.push_back(edm::InputTag("softPFElectronsTagInfos"));
-    desc.add<std::vector<edm::InputTag> >("tagInfos", tagInfos);
+    desc.add<std::vector<edm::InputTag> >("tagInfos", tagInfos)
+        ->setComment("InputTag for the list of InputTags for the TagInfos to be used.");
   }
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // define it as plugin

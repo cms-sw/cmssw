@@ -32,7 +32,6 @@
 #include "RelationalAccess/IColumn.h"
 #include "RelationalAccess/ITableDataEditor.h"
 #include "RelationalAccess/IBulkOperation.h"
-#include "RelationalAccess/IBulkOperation.h"
 #include "RelationalAccess/SchemaException.h"
 //
 #include <tuple>
@@ -55,13 +54,13 @@
 // implementation for the column definition:
 
 // case with 3 params
-#define FIXSIZE_COLUMN(NAME, TYPE, SIZE)                                                \
-  struct NAME {                                                                         \
-    static constexpr char const* name = #NAME;                                          \
-    typedef TYPE type;                                                                  \
-    static constexpr size_t size = SIZE;                                                \
-    static std::string tableName() { return std::string(tname); }                       \
-    static std::string fullyQualifiedName() { return std::string(tname) + "." + name; } \
+#define FIXSIZE_COLUMN(NAME, TYPE, SIZE)                                                             \
+  struct NAME {                                                                                      \
+    static constexpr char const* name = #NAME;                                                       \
+    typedef TYPE type;                                                                               \
+    static constexpr size_t size = SIZE;                                                             \
+    static std::string tableName() { return std::string(tname); }                                    \
+    static std::string fullyQualifiedName() { return std::string(tname) + "." + std::string(name); } \
   };
 
 // case with 2 params

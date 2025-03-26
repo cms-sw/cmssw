@@ -55,7 +55,7 @@ namespace edm {
   class PreallocationConfiguration;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
-  class SignallingProductRegistry;
+  class SignallingProductRegistryFiller;
 
   template <typename T>
   class OutputModuleCommunicatorT;
@@ -180,8 +180,6 @@ namespace edm {
       bool wantAllEvents_;
       std::vector<detail::TriggerResultsBasedEventSelector> selectors_;
       ParameterSet selectEvents_;
-      std::vector<EDGetToken> tokensForEndPaths_;  //needed for FinalPath
-      bool onFinalPath_ = false;
       // ID of the ParameterSet that configured the event selector
       // subsystem.
       ParameterSetID selector_config_id_;
@@ -216,7 +214,7 @@ namespace edm {
       /// Tell the OutputModule that is must end the current file.
       void doCloseFile();
 
-      void registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistry*);
+      void registerProductsAndCallbacks(OutputModuleCore const*, SignallingProductRegistryFiller*);
 
       bool needToRunSelection() const noexcept;
       std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const noexcept;
