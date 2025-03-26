@@ -1,11 +1,4 @@
 <lcgdict>
-  <class name="lst::InputHitsSoA" persistent="false"/>
-  <class name="lst::InputPixelHitsSoA" persistent="false"/>
-  <class name="lst::InputPixelSeedsSoA" persistent="false"/>
-
-  <class name="lst::LSTInputHostCollection" persistent="false"/>
-  <class name="edm::Wrapper<lst::LSTInputHostCollection>" persistent="false"/>
-
   <class name="LSTOutput" persistent="false"/>
   <class name="edm::Wrapper<LSTOutput>" persistent="false"/>
 </lcgdict>

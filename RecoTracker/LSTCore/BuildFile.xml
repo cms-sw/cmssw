@@ -2,6 +2,7 @@
 <use name="boost_header"/>
 <use name="root"/>
 <use name="FWCore/MessageLogger"/>
+<use name="DataFormats/Common"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
 <flags ALPAKA_BACKENDS="1"/>
 <export>
