@@ -7,7 +7,7 @@ The multi-collection can be inspected in `RecoLocalTracker/SiStripClusterizer/in
 
 The unit-test populates the `SiStripClusterizerConditionsSoA` multicollection on host with a number of entries which are typical of the physics case, then copy on device and finally checks back on host there are no mismatches. The tests can be compiled and run with the commands:
 ```bash
-scram b runtests_SiStripClusterizerConditionsSoA runtests_SiStripClusterizerConditionsSoA_alpakaSerialSync runtests_SiStripClusterizerConditionsSoA_alpakaCudaAsync runtests_SiStripClusterizerConditionsSoA_alpakaROCmAsync
+scram b runtests_SiStripClusterizerConditionsSoA runtests_SiStripClusterizerConditionsSoASerialSync runtests_SiStripClusterizerConditionsSoACudaAsync runtests_SiStripClusterizerConditionsSoAROCmAsync
 ```
 
 ## SiStripMappingSoA
@@ -18,5 +18,5 @@ This collection is an auxiliary data structure, introduced first in the developm
 The unit-test creates an host collection, fills it, copies on device and back on host to compare it. Tests can be compiled and run with:
 
 ```bash
-scram b runtests_SiStripMappingSoA runtests_SiStripMappingSoA_alpakaSerialSync runtests_SiStripMappingSoA_alpakaCudaAsync runtests_SiStripMappingSoA_alpakaROCmAsync
+scram b runtests_SiStripMappingSoA runtests_SiStripMappingSoASerialSync runtests_SiStripMappingSoACudaAsync runtests_SiStripMappingSoAROCmAsync
 ```

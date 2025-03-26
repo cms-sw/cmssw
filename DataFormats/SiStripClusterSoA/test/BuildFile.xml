@@ -1,7 +1,7 @@
 <bin name="SiStripClustersSoA" file="TestSiStripClustersSoA.cc">
   <use name="DataFormats/SiStripClusterSoA"/>
 </bin>
-<bin name="SiStripClustersSoA_alpaka" file="alpaka/TestSiStripClustersDevice.cc, alpaka/TestSiStripClustersDevice.dev.cc">
+<bin name="SiStripClustersSoA" file="alpaka/TestSiStripClustersDevice.cc, alpaka/TestSiStripClustersDevice.dev.cc">
   <use name="alpaka"/>
   <use name="DataFormats/SiStripClusterSoA" source_only="1"/>
   <flags ALPAKA_BACKENDS="1"/>

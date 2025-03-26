@@ -6,8 +6,5 @@ The unit-test consists in populating the structure on host, copying on device an
 
 To run the tests:
 ```bash
-scram b runtests_SiStripClustersSoA
-scram b -j 16 runtests_SiStripClustersSoA_alpakaSerialSync
-scram b -j 16 runtests_SiStripClustersSoA_alpakaCudaAsync
-scram b -j 16 runtests_SiStripClustersSoA_alpakaROCmAsync
+scram b runtests_SiStripClustersSoA runtests_SiStripClustersSoASerialSync runtests_SiStripClustersSoACudaAsync runtests_SiStripClustersSoAROCmAsync
 ```
