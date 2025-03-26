@@ -10,7 +10,7 @@
 //    Federica Primavera  Bologna INFN
 //    Carlos Vico  Oviedo Spain,
 //    Daniel Estrada Acevedo Oviedo Spain.
-//    
+//
 //
 //--------------------------------------------------
 #ifndef L1Phase2MuDTShower_H
@@ -38,24 +38,23 @@ public:
   //  Constructors
   L1Phase2MuDTShower();
 
-  L1Phase2MuDTShower(int wh,  // Wheel
-                     int sc,  // Sector
-                     int st,  // Station
-                     int sl,  // Superlayer
-                     int ndigis, // Number of digis within shower
-                     int bx,  // BX estimation
-                     int min_wire, // Minimum wire
-                     int max_wire, // Maximum wire
-                     float avg_pos, // Averaged position of the shower
-                     float avg_time, // Averaged time of the shower
-                     const std::vector<int> wires_profile // Wires profile
-                    ); 
- 
+  L1Phase2MuDTShower(int wh,                               // Wheel
+                     int sc,                               // Sector
+                     int st,                               // Station
+                     int sl,                               // Superlayer
+                     int ndigis,                           // Number of digis within shower
+                     int bx,                               // BX estimation
+                     int min_wire,                         // Minimum wire
+                     int max_wire,                         // Maximum wire
+                     float avg_pos,                        // Averaged position of the shower
+                     float avg_time,                       // Averaged time of the shower
+                     const std::vector<int> wires_profile  // Wires profile
+  );
 
-  virtual ~L1Phase2MuDTShower(){};
+  virtual ~L1Phase2MuDTShower() {};
 
   // Operations
-  
+
   int whNum() const;
   int scNum() const;
   int stNum() const;
@@ -69,7 +68,6 @@ public:
   std::vector<int> wiresProfile() const;
 
 private:
-  
   int m_wheel;
   int m_sector;
   int m_station;

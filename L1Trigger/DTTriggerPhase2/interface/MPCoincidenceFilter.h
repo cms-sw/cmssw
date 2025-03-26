@@ -72,7 +72,7 @@ private:
                                            std::vector<cmsdt::metaPrimitive> allMPs,
                                            int co_option,
                                            int co_quality,
-					   int co_wh2option,
+                                           int co_wh2option,
                                            double shift_back);
 
   // Private attributes

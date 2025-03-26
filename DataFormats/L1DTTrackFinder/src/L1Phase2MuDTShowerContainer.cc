@@ -38,4 +38,6 @@ L1Phase2MuDTShowerContainer::L1Phase2MuDTShowerContainer() {}
 //--------------
 void L1Phase2MuDTShowerContainer::setContainer(const Shower_Container& inputShowers) { m_showers = inputShowers; }
 
-L1Phase2MuDTShowerContainer::Shower_Container const* L1Phase2MuDTShowerContainer::getContainer() const { return &m_showers; }
+L1Phase2MuDTShowerContainer::Shower_Container const* L1Phase2MuDTShowerContainer::getContainer() const {
+  return &m_showers;
+}

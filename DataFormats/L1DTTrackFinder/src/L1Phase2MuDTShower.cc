@@ -45,22 +45,31 @@ L1Phase2MuDTShower::L1Phase2MuDTShower()
       m_max_wire(0),
       m_avg_pos(0),
       m_avg_time(0) {
-    m_wires_profile.resize(96, 0);
-      }
+  m_wires_profile.resize(96, 0);
+}
 
-L1Phase2MuDTShower::L1Phase2MuDTShower(
-  int wh, int sc, int st, int sl, int ndigis, int bx, int min_wire, int max_wire, float avg_pos, float avg_time, const std::vector<int> wires_profile)
-  : m_wheel(wh),
-    m_sector(sc),
-    m_station(st),
-    m_superlayer(sl),
-    m_ndigis(ndigis),
-    m_bx(bx),
-    m_min_wire(min_wire),
-    m_max_wire(max_wire),
-    m_avg_pos(avg_pos),
-    m_avg_time(avg_time),
-    m_wires_profile(wires_profile) {}
+L1Phase2MuDTShower::L1Phase2MuDTShower(int wh,
+                                       int sc,
+                                       int st,
+                                       int sl,
+                                       int ndigis,
+                                       int bx,
+                                       int min_wire,
+                                       int max_wire,
+                                       float avg_pos,
+                                       float avg_time,
+                                       const std::vector<int> wires_profile)
+    : m_wheel(wh),
+      m_sector(sc),
+      m_station(st),
+      m_superlayer(sl),
+      m_ndigis(ndigis),
+      m_bx(bx),
+      m_min_wire(min_wire),
+      m_max_wire(max_wire),
+      m_avg_pos(avg_pos),
+      m_avg_time(avg_time),
+      m_wires_profile(wires_profile) {}
 
 //--------------
 // Operations --

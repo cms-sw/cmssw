@@ -79,7 +79,7 @@ void MPThetaMatching::run(edm::Event &iEvent,
   }
 }
 
-void MPThetaMatching::finish(){};
+void MPThetaMatching::finish() {};
 
 ///////////////////////////
 ///  OTHER METHODS
@@ -150,7 +150,7 @@ std::vector<metaPrimitive> MPThetaMatching::filter(std::vector<metaPrimitive> in
     }
 
     if (sector != oldSector || wheel != oldWheel || station != oldStation) {  //new chamber
-      if (deltaTimePosPhiCands.size() > 0)
+      if (!deltaTimePosPhiCands.empty())
         orderAndSave(deltaTimePosPhiCands, &outMPs, &savedThetaMPs);
 
       deltaTimePosPhiCands.clear();
@@ -197,13 +197,13 @@ std::vector<metaPrimitive> MPThetaMatching::filter(std::vector<metaPrimitive> in
       deltaTimePosPhiCands.push_back({mpTheta, mpPhi, abs(tphi - ttheta)});
     }  //loop in phis
 
-    if (deltaTimePosPhiCands.size() == 0) {
+    if (deltaTimePosPhiCands.empty()) {
       outMPs.push_back(mpTheta);  //save ThetaMP when there is no phi TPs
       savedThetaMPs.push_back(mpTheta);
     }
   }  // loop in thetas
 
-  if (deltaTimePosPhiCands.size() > 0)
+  if (!deltaTimePosPhiCands.empty())
     orderAndSave(deltaTimePosPhiCands, &outMPs, &savedThetaMPs);  //do once more for last theta TP in loop
 
   return outMPs;
@@ -272,7 +272,7 @@ std::vector<metaPrimitive> MPThetaMatching::getBestThetaMPInChamber(std::vector<
       }
       if (nTPs == 1 && !saved)
         bestThetaMPs.push_back(mp1);  //only one Theta TP in chamber and it is q=1
-    }                                 //wheel ==0
+    }  //wheel ==0
 
     else
       bestThetaMPs.push_back(mp1);

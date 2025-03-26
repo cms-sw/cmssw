@@ -865,7 +865,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     }
   }
 
-  //for (auto& ch_filtcoMetaPrimitives : coMetaPrimitives) 
+  //for (auto& ch_filtcoMetaPrimitives : coMetaPrimitives)
   //cout<<"coMetaPrimitives: "<<coMetaPrimitives[ch_filtcoMetaPrimitives.first].size()<<endl;
 
   allMetaPrimitives.clear();
@@ -888,7 +888,8 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   }
 
   for (auto& mych : coMetaPrimitives)
-  cout<<"coMetaPrimitives: "<<coMetaPrimitives[mych.first].size() <<" thMatchedMetaPrimitives: " << thMatchedMetaPrimitives[mych.first].size() <<endl;
+    cout << "coMetaPrimitives: " << coMetaPrimitives[mych.first].size()
+         << " thMatchedMetaPrimitives: " << thMatchedMetaPrimitives[mych.first].size() << endl;
 
   /////////////
 
