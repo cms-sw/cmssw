@@ -203,6 +203,7 @@ void LSTInputProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
                                       ph2_x,
                                       ph2_y,
                                       ph2_z,
+                                      ph2_hits,
                                       ptCut_);
 
   iEvent.emplace(lstInputPutToken_, std::move(lstInputHC));

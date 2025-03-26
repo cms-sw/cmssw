@@ -40,6 +40,7 @@ namespace lst {
                                       std::vector<float> const& ph2_x,
                                       std::vector<float> const& ph2_y,
                                       std::vector<float> const& ph2_z,
+                                      std::vector<TrackingRecHit const*> const& ph2_hits,
                                       float const ptCut) {
     std::vector<float> trkX;
     std::vector<float> trkY;
@@ -210,11 +211,17 @@ namespace lst {
     std::memcpy(hits.ys(), ph2_y.data(), nHitsOT * sizeof(float));
     std::memcpy(hits.zs(), ph2_z.data(), nHitsOT * sizeof(float));
     std::memcpy(hits.detid(), ph2_detId.data(), nHitsOT * sizeof(unsigned int));
+    if (ph2_hits.size()) {
+        std::memcpy(hits.hits(), ph2_hits.data(), nHitsOT * sizeof(TrackingRecHit const*));
+    } else {
+        std::memset(hits.hits(), 0, nHitsOT * sizeof(TrackingRecHit const*));
+    }
 
     std::memcpy(hits.xs() + nHitsOT, trkX.data(), nHitsIT * sizeof(float));
     std::memcpy(hits.ys() + nHitsOT, trkY.data(), nHitsIT * sizeof(float));
     std::memcpy(hits.zs() + nHitsOT, trkZ.data(), nHitsIT * sizeof(float));
     std::memcpy(hits.detid() + nHitsOT, hitId.data(), nHitsIT * sizeof(unsigned int));
+    std::memset(hits.hits() + nHitsOT, 0, nHitsIT * sizeof(TrackingRecHit const*));
 
     std::memcpy(hits.idxs(), hitIdxs.data(), (nHitsIT + nHitsOT) * sizeof(unsigned int));
 
