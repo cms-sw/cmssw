@@ -15,17 +15,15 @@ from ..modules.hltHgcalLayerClustersFromSoAProducer_cfi import *
 from ..modules.hltBarrelLayerClustersEB_cfi import *
 from ..modules.hltBarrelLayerClustersHB_cfi import *
 
-HLTHgcalLocalRecoSequence = cms.Sequence(
+HLTTICLLocalRecoSequence = cms.Sequence(
         hltHGCalUncalibRecHit+
         hltHGCalRecHit+
         hltHgcalLayerClustersEE+
         hltHgcalLayerClustersHSci+
         hltHgcalLayerClustersHSi+
-        hltBarrelLayerClustersEB+
-        hltBarrelLayerClustersHB+
-        hltHgcalMergeLayerClusters)
+        hltMergeLayerClusters)
 
-_HLTHgcalLocalRecoSequence_heterogeneous = cms.Sequence(
+_HLTTICLLocalRecoSequence_heterogeneous = cms.Sequence(
         hltHGCalUncalibRecHit+
         hltHGCalRecHit+
         hltHgcalSoARecHitsProducer+
@@ -36,7 +34,37 @@ _HLTHgcalLocalRecoSequence_heterogeneous = cms.Sequence(
         hltHgcalLayerClustersHSi+
         hltBarrelLayerClustersEB+
         hltBarrelLayerClustersHB+
-        hltHgcalMergeLayerClusters)
+        hltMergeLayerClusters)
 
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
-alpaka.toReplaceWith(HLTHgcalLocalRecoSequence, _HLTHgcalLocalRecoSequence_heterogeneous)
+alpaka.toReplaceWith(HLTTICLLocalRecoSequence, _HLTTICLLocalRecoSequence_heterogeneous)
+
+
+_HLTTICLLocalRecoSequence_withBarrel = cms.Sequence(
+        hltHGCalUncalibRecHit+
+        hltHGCalRecHit+
+        hltHgcalLayerClustersEE+
+        hltHgcalLayerClustersHSci+
+        hltHgcalLayerClustersHSi+
+        hltBarrelLayerClustersEB+
+        hltBarrelLayerClustersHB+
+        hltMergeLayerClusters
+)
+
+_HLTTICLLocalRecoSequence_heterogeneous_withBarrel = cms.Sequence(
+        hltHGCalUncalibRecHit+
+        hltHGCalRecHit+
+        hltHgcalSoARecHitsProducer+
+        hltHgcalSoARecHitsLayerClustersProducer+
+        hltHgcalSoALayerClustersProducer+
+        hltHgCalLayerClustersFromSoAProducer+
+        hltHgcalLayerClustersHSci+
+        hltHgcalLayerClustersHSi+
+        hltBarrelLayerClustersEB+
+        hltBarrelLayerClustersHB+
+        hltHgcalMergeLayerClusters
+)
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(HLTTICLLocalRecoSequence, _HLTTICLLocalRecoSequence_withBarrel)
+(ticl_barrel & alpaka).toReplaceWith(HLTTICLLocalRecoSequence, _HLTTICLLocalRecoSequence_heterogeneous_withBarrel)
