@@ -15,7 +15,7 @@ hltHgcalValidator = _hgcalValidator.clone(
     LayerClustersInputMask = cms.VInputTag("hltTiclTrackstersCLUE3DHigh", "hltTiclSimTracksters:fromCPs", "hltTiclSimTracksters"),
     label_tst = cms.VInputTag(*[cms.InputTag(label) for label in hltTiclIterLabels] + [cms.InputTag("hltTiclSimTracksters", "fromCPs"), cms.InputTag("hltTiclSimTracksters")]),
     allTracksterTracksterAssociatorsLabels = cms.VInputTag( *[cms.InputTag('hltAllTrackstersToSimTrackstersAssociationsByLCs:'+associator) for associator in hltAssociatorInstances] ),
-    allTracksterTracksterByHitsAssociatorsLabels = cms.VInputTag( *[cms.InputTag('allTrackstersToSimTrackstersAssociationsByHits:'+associator) for associator in hltAssociatorInstances] ),
+    allTracksterTracksterByHitsAssociatorsLabels = cms.VInputTag( *[cms.InputTag('hltAllTrackstersToSimTrackstersAssociationsByHits:'+associator) for associator in hltAssociatorInstances] ),
     associator = cms.untracked.InputTag("hltLayerClusterCaloParticleAssociationProducer"),
     associatorSim = cms.untracked.InputTag("hltLayerClusterSimClusterAssociationProducer"),
     dirName = cms.string('HLT/HGCAL/HGCalValidator/'),
@@ -31,4 +31,6 @@ hltHgcalValidator = _hgcalValidator.clone(
     simTiclCandidates = cms.InputTag("hltTiclSimTracksters"),
     ticlCandidates = cms.string('hltTiclCandidate'),
     ticlTrackstersMerge = cms.InputTag("hltTiclTrackstersMerge"),
+    mergeRecoToSimAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs","hltTiclTrackstersMergeTohltTiclSimTrackstersfromCPs"),
+    mergeSimToRecoAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs","hltTiclSimTrackstersfromCPsTohltTiclTrackstersMerge"),
 )
