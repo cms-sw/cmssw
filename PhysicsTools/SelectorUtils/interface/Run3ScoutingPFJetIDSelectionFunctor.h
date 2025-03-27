@@ -25,10 +25,7 @@
 
 class Run3ScoutingPFJetIDSelectionFunctor {
 public:  // interface
-  enum Version_t {
-    RUN3Scouting,
-    N_VERSIONS
-  };
+  enum Version_t { RUN3Scouting, N_VERSIONS };
   enum Quality_t { TIGHT, TIGHTLEPVETO, N_QUALITY };
 
   Run3ScoutingPFJetIDSelectionFunctor() {}
@@ -45,17 +42,19 @@ public:  // interface
     if (versionStr == "RUN3Scouting")
       version_ = RUN3Scouting;
     else {
-      std::cout <<  "JetID version not specified -- setting default to RUN3Scouting" << std::endl;
-      version_ = RUN3Scouting;    //set RUN3Scouting as default //this is extremely unsafe --> similarly it's done in PFJetIDSelectionFunctor.h
+      edm::LogWarning("BadJetIDQuality") << "JetID quality not specified -- setting default to RUN3Scouting";
+      version_ =
+          RUN3Scouting;  //set RUN3Scouting as default //this is extremely unsafe --> similarly it's done in PFJetIDSelectionFunctor.h
     }
-          
+
     if (qualityStr == "TIGHT")
       quality_ = TIGHT;
     else if (qualityStr == "TIGHTLEPVETO")
       quality_ = TIGHTLEPVETO;
     else {
-      edm::LogWarning("BadJetIDQuality") << "JetID quality not specified -- setting default to RUN3Scouting";
-      quality_ = TIGHT;       //set TIGHT as default //this is extremely unsafe --> similarly it's done in PFJetIDSelectionFunctor.h
+      edm::LogWarning("BadJetIDQuality") << "JetID quality not specified -- setting default to TIGHT";
+      quality_ =
+          TIGHT;  //set TIGHT as default //this is extremely unsafe --> similarly it's done in PFJetIDSelectionFunctor.h
     }
 
     initCuts();
@@ -72,18 +71,17 @@ public:  // interface
     edm::ParameterSetDescription desc;
 
     desc.ifValue(
-        edm::ParameterDescription<std::string>("version", "RUN3Scouting", true, edm::Comment("")), //default "version"
-        edm::allowedValues<std::string>("RUN3Scouting")); //more options about "version"
-    desc.ifValue(edm::ParameterDescription<std::string>("quality", "TIGHT", true, edm::Comment("")), //default "quality"
-                 edm::allowedValues<std::string>("TIGHT", "TIGHTLEPVETO")); //more options about "quality"
+        edm::ParameterDescription<std::string>("version", "RUN3Scouting", true, edm::Comment("")),  //default "version"
+        edm::allowedValues<std::string>("RUN3Scouting"));  //more options about "version"
+    desc.ifValue(
+        edm::ParameterDescription<std::string>("quality", "TIGHT", true, edm::Comment("")),  //default "quality"
+        edm::allowedValues<std::string>("TIGHT", "TIGHTLEPVETO"));  //more options about "quality"
     desc.addOptional<std::vector<std::string>>("cutsToIgnore")->setComment("");
 
     return desc;
   }
 
- 
   bool operator()(const Run3ScoutingPFJet &jet) {
-
     // cache some variables
     //float pt = 0.0;
     float eta = 0.0;
@@ -107,8 +105,8 @@ public:  // interface
       eta = scoutingpfjet->eta();
       //phi = scoutingpfjet->phi();
       double jetEnergyUncorrected = scoutingpfjet->chargedHadronEnergy() + scoutingpfjet->neutralHadronEnergy() +
-                                    scoutingpfjet->photonEnergy() + scoutingpfjet->electronEnergy() + scoutingpfjet->muonEnergy() +
-                                    scoutingpfjet->HFEMEnergy();
+                                    scoutingpfjet->photonEnergy() + scoutingpfjet->electronEnergy() +
+                                    scoutingpfjet->muonEnergy() + scoutingpfjet->HFEMEnergy();
       if (jetEnergyUncorrected > 0.) {
         chf = scoutingpfjet->chargedHadronEnergy() / jetEnergyUncorrected;
         nhf = scoutingpfjet->neutralHadronEnergy() / jetEnergyUncorrected;
@@ -116,9 +114,11 @@ public:  // interface
         nef = (scoutingpfjet->photonEnergy() + scoutingpfjet->HFEMEnergy()) / jetEnergyUncorrected;
         muf = scoutingpfjet->muonEnergy() / jetEnergyUncorrected;
       }
-      
+
       nch = scoutingpfjet->chargedHadronMultiplicity() + scoutingpfjet->electronMultiplicity();
-      nconstituents = scoutingpfjet->chargedHadronMultiplicity() + scoutingpfjet->electronMultiplicity() + scoutingpfjet->neutralHadronMultiplicity() + scoutingpfjet->photonMultiplicity() + scoutingpfjet->HFEMMultiplicity();
+      nconstituents = scoutingpfjet->chargedHadronMultiplicity() + scoutingpfjet->electronMultiplicity() +
+                      scoutingpfjet->neutralHadronMultiplicity() + scoutingpfjet->photonMultiplicity() +
+                      scoutingpfjet->HFEMMultiplicity();
       //nneutrals = scoutingpfjet->neutralHadronMultiplicity() + scoutingpfjet->photonMultiplicity() + scoutingpfjet->HFEMMultiplicity();
     }
 
@@ -159,7 +159,6 @@ public:  // interface
   }
 
 private:  // member variables
-
   int nConstituents_ = 0;
   double CHF_ = 0.0;
   double NHF_ = 0.0;
@@ -170,7 +169,7 @@ private:  // member variables
   double MUF_TR_ = 0.0;
   double NEF_EC_ = 0.0;
   double NEF_FW_ = 0.0;
-  
+
   void initCuts() {
     if (quality_ == TIGHT) {
       if (version_ == RUN3Scouting) {
@@ -200,10 +199,8 @@ private:  // member variables
     }
   }
 
-
   Version_t version_;
   Quality_t quality_;
-
 };
 
 #endif

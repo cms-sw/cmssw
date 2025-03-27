@@ -210,8 +210,9 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
       if (verbose_)
         std::cout << "no Valid scouting Run3ScoutinPF JetID quality given" << std::endl;
     }
-    run3scoutingpfjetIDFunctor = Run3ScoutingPFJetIDSelectionFunctor(run3scoutingpfjetidversion, run3scoutingpfjetidquality);
-    }
+    run3scoutingpfjetIDFunctor =
+        Run3ScoutingPFJetIDSelectionFunctor(run3scoutingpfjetidversion, run3scoutingpfjetidquality);
+  }
 
   //check later if some of those are also needed for PFJets
   leadJetFlag_ = 0;
@@ -2927,8 +2928,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (!scoutingJets.isValid())
       return;
   } else {
-  if (jetCleaningFlag_ && (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision))  // why "jetCleaningFlag_ &&" ???
-    return;
+    if (jetCleaningFlag_ &&
+        (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision))  // why "jetCleaningFlag_ &&" ???
+      return;
   }
 
   unsigned int collSize = -1;
