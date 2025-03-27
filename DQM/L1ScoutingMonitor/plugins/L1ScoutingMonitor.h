@@ -24,7 +24,7 @@
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-// L1 Scouting 
+// L1 Scouting
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
@@ -70,4 +70,3 @@ private:
 };
 
 #endif
-
