@@ -83,19 +83,10 @@ class ProcessAcceleratorAlpaka(cms.ProcessAccelerator):
         if not hasattr(process.MessageLogger, "AlpakaService"):
             process.MessageLogger.AlpakaService = cms.untracked.PSet()
 
-        # Check if the CPU backend is available
-        try:
-            if not "cpu" in accelerators:
-                raise False
+        # The CPU backend is effectively always available, ensure the AlpakaServiceSerialSync is loaded
+        if not hasattr(process, "AlpakaServiceSerialSync"):
             from HeterogeneousCore.AlpakaServices.AlpakaServiceSerialSync_cfi import AlpakaServiceSerialSync
-        except:
-            # the CPU backend is not available, do not load the AlpakaServiceSerialSync
-            if hasattr(process, "AlpakaServiceSerialSync"):
-                del process.AlpakaServiceSerialSync
-        else:
-            # the CPU backend is available, ensure the AlpakaServiceSerialSync is loaded
-            if not hasattr(process, "AlpakaServiceSerialSync"):
-                process.add_(AlpakaServiceSerialSync)
+            process.add_(AlpakaServiceSerialSync)
 
         # Check if CUDA is available, and if the system has at least one usable NVIDIA GPU
         try:
