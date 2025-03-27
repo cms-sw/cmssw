@@ -116,16 +116,20 @@ int main(int iArgc, char const* iArgv[]) {
 
   auto file = TFile::Open(vm["file"].as<std::string>().c_str(), "r");
   if (not file) {
-    std::cout <<"failed to open "<<vm["file"].as<std::string>()<<std::endl;
+    std::cout << "failed to open " << vm["file"].as<std::string>() << std::endl;
     return 1;
   }
-  
-  auto events = std::unique_ptr<ROOT::RNTuple>(file->Get<ROOT::RNTuple>("Events"));
-  if(not events) {
-    std::cout <<"failed to get 'Events' as an RNTuple"<<std::endl;
+  std::string tupleToRead = "Events";
+  if (vm.count("rntuple")) {
+    tupleToRead = vm["rntuple"].as<std::string>();
+  }
+
+  auto ntpl = std::unique_ptr<ROOT::RNTuple>(file->Get<ROOT::RNTuple>(tupleToRead.c_str()));
+  if (not ntpl) {
+    std::cout << "failed to get '" << tupleToRead << "' as an RNTuple" << std::endl;
     return 1;
   }
-  auto ntuple = RNTupleReader::Open(*events);
+  auto ntuple = RNTupleReader::Open(*ntpl);
 
   if (vm.count("printProductDetails")) {
     ntuple->PrintInfo(ENTupleInfo::kStorageDetails, std::cout);
