@@ -21,12 +21,12 @@ class OfflineConverter:
     #   CMSRAC11-V.cms, CMSRAC12-V.cms, CMSRAC21-V.cms
 
     # the possible machines and interfaces for the *offline* database are
-    #   cmsr1-s.cms, cmsr2-s.cms, cmsr3-s.cms
-    #   cmsr1-v.cms, cmsr2-v.cms, cmsr3-v.cms
+    #   cmsr1-s.cern.ch, cmsr2-s.cern.ch, cmsr3-s.cern.ch
+    #   cmsr1-v.cern.ch, cmsr2-v.cern.ch, cmsr3-v.cern.ch
     # but the -s and -v interfaces resolve to the same hosts
     # The actual machines and interfaces are
-    #   itrac50011-s.cern.ch, itrac50063-s.cern.ch, itrac50078-s.cern.ch
-    #   itrac50011-v.cern.ch, itrac50063-v.cern.ch, itrac50078-v.cern.ch
+    #   itrac5404-s.cern.ch, itrac5413-s.cern.ch, itrac5433-s.cern.ch
+    #   itrac5404-v.cern.ch, itrac5413-v.cern.ch, itrac5433-v.cern.ch
 
     databases = {}
     databases['v1'] = {}
