@@ -9,21 +9,16 @@
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/global/EDProducer.h"
-
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
-
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 
 //
 // class decleration
@@ -32,7 +27,9 @@
 class LCToSCAssociatorEDProducer : public edm::global::EDProducer<> {
 public:
   explicit LCToSCAssociatorEDProducer(const edm::ParameterSet &);
-  ~LCToSCAssociatorEDProducer() override;
+  ~LCToSCAssociatorEDProducer() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
@@ -50,8 +47,6 @@ LCToSCAssociatorEDProducer::LCToSCAssociatorEDProducer(const edm::ParameterSet &
   LCCollectionToken_ = consumes<reco::CaloClusterCollection>(pset.getParameter<edm::InputTag>("label_lcl"));
   associatorToken_ = consumes<ticl::LayerClusterToSimClusterAssociator>(pset.getParameter<edm::InputTag>("associator"));
 }
-
-LCToSCAssociatorEDProducer::~LCToSCAssociatorEDProducer() {}
 
 //
 // member functions
@@ -82,6 +77,14 @@ void LCToSCAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, cons
 
   iEvent.put(std::move(rts));
   iEvent.put(std::move(str));
+}
+
+void LCToSCAssociatorEDProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("label_scl", edm::InputTag("scAssocByEnergyScoreProducer"));
+  desc.add<edm::InputTag>("label_lcl", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("associator", edm::InputTag("hgcalMergeLayerClusters"));
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // define this as a plug-in
