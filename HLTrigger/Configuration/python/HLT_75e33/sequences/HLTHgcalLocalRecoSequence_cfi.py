@@ -21,8 +21,6 @@ HLTHgcalLocalRecoSequence = cms.Sequence(
         hltHgcalLayerClustersEE+
         hltHgcalLayerClustersHSci+
         hltHgcalLayerClustersHSi+
-        hltBarrelLayerClustersEB+
-        hltBarrelLayerClustersHB+
         hltHgcalMergeLayerClusters)
 
 _HLTHgcalLocalRecoSequence_heterogeneous = cms.Sequence(
@@ -43,3 +41,33 @@ alpaka.toReplaceWith(HLTHgcalLocalRecoSequence, _HLTHgcalLocalRecoSequence_heter
 alpaka.toModify(hltHgcalMergeLayerClusters,
         layerClustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer"),
         time_layerclustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer", "timeLayerCluster"))
+
+
+_HLTHgcalLocalRecoSequence_withBarrel = cms.Sequence(
+        hltHGCalUncalibRecHit+
+        hltHGCalRecHit+
+        hltHgcalLayerClustersEE+
+        hltHgcalLayerClustersHSci+
+        hltHgcalLayerClustersHSi+
+        hltBarrelLayerClustersEB+
+        hltBarrelLayerClustersHB+
+        hltHgcalMergeLayerClusters
+)
+
+_HLTHgcalLocalRecoSequence_heterogeneous_withBarrel = cms.Sequence(
+        hltHGCalUncalibRecHit+
+        hltHGCalRecHit+
+        hltHgcalSoARecHitsProducer+
+        hltHgcalSoARecHitsLayerClustersProducer+
+        hltHgcalSoALayerClustersProducer+
+        hltHgCalLayerClustersFromSoAProducer+
+        hltHgcalLayerClustersHSci+
+        hltHgcalLayerClustersHSi+
+        hltBarrelLayerClustersEB+
+        hltBarrelLayerClustersHB+
+        hltHgcalMergeLayerClusters
+)
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(HLTHgcalLocalRecoSequence, _HLTHgcalLocalRecoSequence_withBarrel)
+(ticl_barrel & alpaka).toReplaceWith(HLTHgcalLocalRecoSequence, _HLTHgcalLocalRecoSequence_heterogeneous_withBarrel)
