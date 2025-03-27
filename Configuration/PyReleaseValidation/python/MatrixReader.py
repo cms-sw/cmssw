@@ -209,6 +209,9 @@ With --checkInputs option this throws an error.
             wfName = wfInfo[0]
             stepList = wfInfo[1]
             stepOverrides=wfInfo.overrides
+            #force use of RNTuple
+            stepOverrides['--rntuple_out']=''
+
             # upgrade case: workflow has basic name, key[, suffix (only special workflows)]
             wfKey = ""
             wfSuffix = ""
