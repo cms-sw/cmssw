@@ -10,9 +10,9 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights {
 
   void phase2Weights(EcalDigiPhase2DeviceCollection const &digis,
-                         EcalUncalibratedRecHitDeviceCollection &uncalibratedRecHits,
-                         EcalUncalibRecHitPhase2Weights const* weightsObj,
-			 Queue &queue);
+                     EcalUncalibratedRecHitDeviceCollection &uncalibratedRecHits,
+                     EcalUncalibRecHitPhase2Weights const *weightsObj,
+                     Queue &queue);
 
 }  //namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights
 

@@ -17,7 +17,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~EcalPhase2DigiToPortableProducer() override = default;
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-    void produce(edm::StreamID sid,device::Event &event, device::EventSetup const &setup) const  override;  //no const before override in the example from  andrea, removal crashes the compilation
+    void produce(edm::StreamID sid, device::Event &event, device::EventSetup const &setup) const override;
 
   private:
     const edm::EDGetTokenT<EBDigiCollectionPh2> inputDigiToken_;
@@ -36,9 +36,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   EcalPhase2DigiToPortableProducer::EcalPhase2DigiToPortableProducer(edm::ParameterSet const &ps)
       : EDProducer(ps),
         inputDigiToken_{consumes(ps.getParameter<edm::InputTag>("BarrelDigis"))},
-	outputDigiHostToken_{produces(ps.getParameter<std::string>("digisLabelEB"))} {}
+        outputDigiHostToken_{produces(ps.getParameter<std::string>("digisLabelEB"))} {}
 
-  void EcalPhase2DigiToPortableProducer::produce(edm::StreamID sid,device::Event &event, device::EventSetup const &setup) const { //again the produce function is not constant 
+  void EcalPhase2DigiToPortableProducer::produce(edm::StreamID sid,
+                                                 device::Event &event,
+                                                 device::EventSetup const &setup) const {
     //input data from event
     const auto &inputDigis = event.get(inputDigiToken_);
 
@@ -64,7 +66,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ++i;
     }
     digisHostCollView.size() = i;
-
 
     //emplace device collection in the event
     event.emplace(outputDigiHostToken_, std::move(digisHostColl));
