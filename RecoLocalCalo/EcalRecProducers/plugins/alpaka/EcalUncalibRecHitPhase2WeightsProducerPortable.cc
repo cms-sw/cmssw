@@ -1,3 +1,4 @@
+#include <array>
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -11,6 +12,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
+#include "HeterogeneousCore/AlpakaCore/interface/MoveToDeviceCache.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
@@ -18,8 +20,11 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiPhase2HostCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHitHostCollection.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalUncalibratedRecHitDeviceCollection.h"
+#include "DataFormats/Portable/interface/PortableObject.h"
 
 #include "EcalUncalibRecHitPhase2WeightsAlgoPortable.h"
+#include "EcalUncalibRecHitPhase2WeightsStruct.h"
+
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class EcalUncalibRecHitPhase2WeightsProducerPortable : public global::EDProducer<> {
@@ -31,38 +36,45 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(edm::StreamID sid, device::Event &, device::EventSetup const &) const override;
 
   private:
-    cms::alpakatools::host_buffer<double[]> weights_;
-    cms::alpakatools::host_buffer<double[]> timeWeights_;
+    // define a struct for the data
+//    struct EcalUncalibRecHitPhase2Weights {
+//	    std::array<double, ecalPh2::sampleSize> weights;
+//	    std::array<double, ecalPh2::sampleSize> timeWeights;
+//    };
 
     using InputProduct = EcalDigiPhase2DeviceCollection;
     const device::EDGetToken<InputProduct> digisToken_;  //both tokens stored on the device
     using OutputProduct = EcalUncalibratedRecHitDeviceCollection;
     const device::EDPutToken<OutputProduct> uncalibratedRecHitsToken_;
+
+    // class data member
+    cms::alpakatools::MoveToDeviceCache<Device, PortableHostObject<EcalUncalibRecHitPhase2Weights>> weightsCache_;
   };
 
   // constructor with initialisation of elements
   EcalUncalibRecHitPhase2WeightsProducerPortable::EcalUncalibRecHitPhase2WeightsProducerPortable(
       const edm::ParameterSet &ps)
-      : weights_{cms::alpakatools::make_host_buffer<double[]>(ecalPh2::sampleSize)},
-        timeWeights_{cms::alpakatools::make_host_buffer<double[]>(ecalPh2::sampleSize)},
-        digisToken_{consumes(ps.getParameter<edm::InputTag>("digisLabelEB"))},
-        uncalibratedRecHitsToken_{produces(ps.getParameter<std::string>("uncalibratedRecHitsLabelEB"))} {
-    //extracting the weights, for-loop to save them to the buffer even if the size is different than standard
-    const auto weights = ps.getParameter<std::vector<double>>("weights");
-    const auto timeWeights = ps.getParameter<std::vector<double>>("timeWeights");
-    for (unsigned int i = 0; i < ecalPh2::sampleSize; ++i) {
-      if (i < weights.size()) {
-        weights_[i] = weights[i];
-      } else {
-        weights_[i] = 0;
-      }
-      if (i < timeWeights.size()) {
-        timeWeights_[i] = timeWeights[i];
-      } else {
-        timeWeights_[i] = 0;
-      }
-    }
-  }
+      : EDProducer(ps),
+	digisToken_{consumes(ps.getParameter<edm::InputTag>("digisLabelEB"))},
+        uncalibratedRecHitsToken_{produces(ps.getParameter<std::string>("uncalibratedRecHitsLabelEB"))},
+        weightsCache_(PortableHostObject<EcalUncalibRecHitPhase2Weights>(cms::alpakatools::host(), [](const edm::ParameterSet& ps) {
+          EcalUncalibRecHitPhase2Weights weights;
+          const auto amp_weights =ps.getParameter<std::vector<double>>("weights");
+          const auto timeWeights = ps.getParameter<std::vector<double>>("timeWeights");
+          for (unsigned int i = 0; i < ecalPh2::sampleSize; ++i) {
+            if (i < amp_weights.size()) {
+              weights.weights[i] = static_cast<float>(amp_weights[i]);
+            } else {
+              weights.weights[i] = 0;
+            }
+            if (i < timeWeights.size()) {
+              weights.timeWeights[i] = static_cast<float>(timeWeights[i]);
+            } else {
+              weights.timeWeights[i] = 0;
+            }
+          }
+          return weights;
+        }(ps))){}
 
   void EcalUncalibRecHitPhase2WeightsProducerPortable::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
     edm::ParameterSetDescription desc;
@@ -123,8 +135,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     //do not run the algo if there are no digis
     if (size > 0) {
+      auto const& weightsObj = weightsCache_.get(event.queue());
       //launch the asynchronous work
-      ecal::weights::phase2Weights(digis, uncalibratedRecHits, weights_, timeWeights_, event.queue());
+      ecal::weights::phase2Weights(digis, uncalibratedRecHits, weightsObj.const_data(), event.queue());
     }
     //put the output collection into the event
     event.emplace(uncalibratedRecHitsToken_, std::move(uncalibratedRecHits));

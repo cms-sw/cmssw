@@ -1,2 +1,0 @@
-import  RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2WeightsProducerPortable_cfi as _mod
-ecalUncalibRecHitPhase2Portable = _mod.ecalUncalibRecHitPhase2WeightsProducerPortable.clone()

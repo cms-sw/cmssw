@@ -2,26 +2,26 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiPhase2HostCollection.h"
 #include "DataFormats/EcalDigi/interface/alpaka/EcalDigiPhase2DeviceCollection.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class EcalPhase2DigiToPortableProducer : public stream::EDProducer<> {
+  class EcalPhase2DigiToPortableProducer : public global::EDProducer<> {
   public:
     explicit EcalPhase2DigiToPortableProducer(edm::ParameterSet const &ps);
     ~EcalPhase2DigiToPortableProducer() override = default;
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-    void produce(device::Event &event, device::EventSetup const &setup) override;
+    void produce(edm::StreamID sid,device::Event &event, device::EventSetup const &setup) const  override;  //no const before override in the example from  andrea, removal crashes the compilation
 
   private:
     const edm::EDGetTokenT<EBDigiCollectionPh2> inputDigiToken_;
-    const device::EDPutToken<EcalDigiPhase2DeviceCollection> outputDigiDevToken_;
+    const edm::EDPutTokenT<EcalDigiPhase2HostCollection> outputDigiHostToken_;
   };
 
   void EcalPhase2DigiToPortableProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -34,17 +34,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   EcalPhase2DigiToPortableProducer::EcalPhase2DigiToPortableProducer(edm::ParameterSet const &ps)
-      : inputDigiToken_(consumes<EBDigiCollectionPh2>(ps.getParameter<edm::InputTag>("BarrelDigis"))),
-        outputDigiDevToken_(produces(ps.getParameter<std::string>("digisLabelEB"))) {}
+      : EDProducer(ps),
+        inputDigiToken_{consumes(ps.getParameter<edm::InputTag>("BarrelDigis"))},
+	outputDigiHostToken_{produces(ps.getParameter<std::string>("digisLabelEB"))} {}
 
-  void EcalPhase2DigiToPortableProducer::produce(device::Event &event, device::EventSetup const &setup) {
+  void EcalPhase2DigiToPortableProducer::produce(edm::StreamID sid,device::Event &event, device::EventSetup const &setup) const { //again the produce function is not constant 
     //input data from event
     const auto &inputDigis = event.get(inputDigiToken_);
 
     const uint32_t size = inputDigis.size();
 
     //create host and device Digi collections of required size
-    EcalDigiPhase2DeviceCollection digisDevColl{static_cast<int32_t>(size), event.queue()};
     EcalDigiPhase2HostCollection digisHostColl{static_cast<int32_t>(size), event.queue()};
     auto digisHostCollView = digisHostColl.view();
 
@@ -65,11 +65,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
     digisHostCollView.size() = i;
 
-    //copy collection from host to device
-    alpaka::memcpy(event.queue(), digisDevColl.buffer(), digisHostColl.buffer());
 
     //emplace device collection in the event
-    event.emplace(outputDigiDevToken_, std::move(digisDevColl));
+    event.emplace(outputDigiHostToken_, std::move(digisHostColl));
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

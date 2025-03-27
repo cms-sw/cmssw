@@ -4,18 +4,16 @@
 #include "DataFormats/EcalDigi/interface/alpaka/EcalDigiPhase2DeviceCollection.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalUncalibratedRecHitDeviceCollection.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  namespace ecal {
-    namespace weights {
+#include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
+#include "EcalUncalibRecHitPhase2WeightsStruct.h"
 
-      void phase2Weights(EcalDigiPhase2DeviceCollection const &digis,
+namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights {
+
+  void phase2Weights(EcalDigiPhase2DeviceCollection const &digis,
                          EcalUncalibratedRecHitDeviceCollection &uncalibratedRecHits,
-                         const cms::alpakatools::host_buffer<double[]> &weights,
-                         const cms::alpakatools::host_buffer<double[]> &timeWeights,
-                         Queue &queue);
+                         EcalUncalibRecHitPhase2Weights const* weightsObj,
+			 Queue &queue);
 
-    }  // namespace weights
-  }  // namespace ecal
-}  //namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  //namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights
 
 #endif  // RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitPhase2WeightsAlgoPortable_h

@@ -24,7 +24,7 @@ from RecoLocalCalo.EcalRecProducers.ecalPhase2DigiToPortableProducer_cfi import 
 ecalPhase2DigiToPortableProducer = _ecalPhase2DigiToPortableProducer.clone()
 
 # ECAL Phase 2 weights portable running
-from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2Portable_cfi import ecalUncalibRecHitPhase2Portable as _ecalUncalibRecHitPhase2Portable
+from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2WeightsProducerPortable_cfi import ecalUncalibRecHitPhase2WeightsProducerPortable as _ecalUncalibRecHitPhase2Portable
 ecalUncalibRecHitPhase2Portable = _ecalUncalibRecHitPhase2Portable.clone(
         digisLabelEB = 'ecalPhase2DigiToPortableProducer:ebDigis'
 )

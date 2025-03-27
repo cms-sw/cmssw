@@ -1,111 +1,85 @@
-#include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
-#include "EcalUncalibRecHitPhase2WeightsAlgoPortable.h"
+#include <alpaka/alpaka.hpp>
 
 #include "DataFormats/EcalDigi/interface/alpaka/EcalDigiPhase2DeviceCollection.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalUncalibratedRecHitDeviceCollection.h"
-#include <alpaka/alpaka.hpp>
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "EcalUncalibRecHitPhase2WeightsAlgoPortable.h"
+#include "EcalUncalibRecHitPhase2WeightsStruct.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  namespace ecal {
-    namespace weights {
 
-      using namespace cms::alpakatools;
+namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights {
+  using namespace cms::alpakatools;
 
-      class Phase2WeightsKernel {
-      public:
-        template <typename TAcc>
-        ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                      double const *weightsdata,
-                                      double const *timeWeightsdata,
-                                      EcalDigiPhase2DeviceCollection::ConstView digisDev,
-                                      EcalUncalibratedRecHitDeviceCollection::View uncalibratedRecHitsDev) const;
-      };
+  class Phase2WeightsKernel {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  EcalUncalibRecHitPhase2Weights const* weightsObj,
+                                  EcalDigiPhase2DeviceCollection::ConstView digisDev,
+                                  EcalUncalibratedRecHitDeviceCollection::View uncalibratedRecHitsDev) const {
+    constexpr int nsamples = ecalPh2::sampleSize;
+    auto const nchannels = digisDev.size();
+    // one thread sets the output collection size scalar
+    if (once_per_grid(acc)) {
+      uncalibratedRecHitsDev.size() = digisDev.size();
+    }
 
-      template <typename TAcc>
-      ALPAKA_FN_ACC void Phase2WeightsKernel::operator()(
-          TAcc const &acc,
-          double const *weightsData,
-          double const *timeWeightsdata,
-          EcalDigiPhase2DeviceCollection::ConstView digisDev,
-          EcalUncalibratedRecHitDeviceCollection::View uncalibratedRecHitsDev) const {
-        constexpr int nsamples = EcalDataFrame_Ph2::MAXSAMPLES;
-        auto const nchannels = digisDev.size();
-        // one thread sets the output collection size scalar
-        if (alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u] == 0) {
-          uncalibratedRecHitsDev.size() = digisDev.size();
-        }
-
-        auto *amplitude = uncalibratedRecHitsDev.amplitude();
-        auto *jitter = uncalibratedRecHitsDev.jitter();
-        const auto *digis = digisDev.data();
-        //calculate the first and the stride
-        const auto first = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u] +
-                           alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u] *
-                               alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
-        const auto stride = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u] *
-                            alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
-
-        for (auto tx = first; tx < nchannels; tx += stride) {
-          bool g1 = false;
-          auto const did = DetId{digisDev.id()[tx]};
-          amplitude[tx] = 0;
-          jitter[tx] = 0;
-          for (int sample = 0; sample < nsamples; ++sample) {
-            const auto digi = digis[tx][sample];
-            const auto trace = (static_cast<float>(ecalLiteDTU::adc(digi))) * ecalPh2::gains[ecalLiteDTU::gainId(digi)];
-            amplitude[tx] += (trace * *(weightsData + sample));
-            jitter[tx] += (trace * *(timeWeightsdata + sample));
-            if (ecalLiteDTU::gainId(digi) == 1)
-              g1 = true;
-            uncalibratedRecHitsDev.outOfTimeAmplitudes()[tx][sample] = 0.;
-          }
-          uncalibratedRecHitsDev.amplitudeError()[tx] = 1.0f;
-          uncalibratedRecHitsDev.id()[tx] = did.rawId();
-          uncalibratedRecHitsDev.flags()[tx] = 0;
-          uncalibratedRecHitsDev.pedestal()[tx] = 0.;
-          uncalibratedRecHitsDev.jitterError()[tx] = 0.;
-          uncalibratedRecHitsDev.chi2()[tx] = 0.;
-          uncalibratedRecHitsDev.aux()[tx] = 0;
-          if (g1) {
-            uncalibratedRecHitsDev.flags()[tx] = 0x1 << EcalUncalibratedRecHit::kHasSwitchToGain1;
-          }
-        }  //if within nchannels
-      }  //kernel}
-
-      void phase2Weights(EcalDigiPhase2DeviceCollection const &digis,
-                         EcalUncalibratedRecHitDeviceCollection &uncalibratedRecHits,
-                         const cms::alpakatools::host_buffer<double[]> &weights,
-                         const cms::alpakatools::host_buffer<double[]> &timeWeights,
-                         Queue &queue) {
-        //create device buffers for the weights and copy the data from host to the device
-        auto weightsDev = make_device_buffer<double[]>(queue, ecalPh2::sampleSize);
-        auto timeWeightsDev = make_device_buffer<double[]>(queue, ecalPh2::sampleSize);
-        alpaka::memcpy(queue, weightsDev, weights);
-        alpaka::memcpy(queue, timeWeightsDev, timeWeights);
-
-        // use 64 items per group (arbitrary value, a reasonable starting point)
-        uint32_t items = 64;
-        // use as many groups as needed to cover the whole problem
-        uint32_t groups = divide_up_by(digis->metadata().size(), items);
-        //create the work division
-        auto workDiv = make_workdiv<Acc1D>(groups, items);
-        //launch the kernel
-        alpaka::exec<Acc1D>(queue,
-                            workDiv,
-                            Phase2WeightsKernel{},
-                            weightsDev.data(),
-                            timeWeightsDev.data(),
-                            digis.const_view(),
-                            uncalibratedRecHits.view());
+    auto const* weightsdata = weightsObj->weights.data();
+    auto const* timeWeightsdata = weightsObj->timeWeights.data();
+    //divide the grid into uniform elements
+    for (auto tx : uniform_elements(acc, nchannels)) {
+      bool g1 = false;
+      const auto digi = digisDev[tx].data();
+      auto recHit = uncalibratedRecHitsDev[tx];
+      recHit.amplitude() = 0;
+      recHit.jitter() = 0;
+      for (int s = 0; s < nsamples; ++s) {
+        const auto sample = digi[s];
+        const auto trace = (static_cast<float>(ecalLiteDTU::adc(sample))) * ecalPh2::gains[ecalLiteDTU::gainId(sample)];
+        recHit.amplitude() += (trace * weightsdata[s]);
+        recHit.jitter() += (trace * timeWeightsdata[s]);
+        if (ecalLiteDTU::gainId(sample) == 1)
+          g1 = true;
+        recHit.outOfTimeAmplitudes()[s] = 0.;
       }
+      recHit.amplitudeError() = 1.0f;
+      recHit.id() = digisDev.id()[tx];
+      recHit.flags() = 0;
+      recHit.pedestal() = 0.;
+      recHit.jitterError() = 0.;
+      recHit.chi2() = 0.;
+      recHit.aux() = 0;
+      if (g1) {
+        recHit.flags() = 0x1 << EcalUncalibratedRecHit::kHasSwitchToGain1;
+      }
+    }  //if within nchannels
+  }  //kernel}
+  };
 
-    }  // namespace weights
-  }  // namespace ecal
+  void phase2Weights(EcalDigiPhase2DeviceCollection const &digis,
+                     EcalUncalibratedRecHitDeviceCollection &uncalibratedRecHits,
+		     EcalUncalibRecHitPhase2Weights const* weightsObj,
+		     Queue &queue) {
+
+    // use 64 items per group (arbitrary value, a reasonable starting point)
+    uint32_t items = 64;
+    // use as many groups as needed to cover the whole problem
+    uint32_t groups = divide_up_by(digis->metadata().size(), items);
+    //create the work division
+    auto workDiv = make_workdiv<Acc1D>(groups, items);
+    //launch the kernel
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        Phase2WeightsKernel{},
+			weightsObj,
+                        digis.const_view(),
+                        uncalibratedRecHits.view());
+  }
+
 }  //namespace ALPAKA_ACCELERATOR_NAMESPACE
