@@ -83,7 +83,7 @@ namespace edm {
               type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
             auto demangled = typeDemangle(typeid(T).name());
             Exception::throwThis(errors::NotFound,
-                                 "Service Request unable to find requested service with compiler type name '",
+                                 "Service Request unable to find requested service with C++ type '",
                                  demangled.c_str(),
                                  "'.\n");
           } else {
