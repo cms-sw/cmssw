@@ -1,10 +1,12 @@
 #include "SimDataFormats/TrackingAnalysis/interface/SimDoublets.h"
+#include <cstddef>
 #include <cstdint>
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+// #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 namespace simdoublets {
 
@@ -12,6 +14,58 @@ namespace simdoublets {
   GlobalPoint getGlobalHitPosition(SiPixelRecHitRef const& recHit, GlobalVector const& referencePosition) {
     return (recHit->globalPosition() - referencePosition);
   }
+
+  // // Function to get the cluster size in local y-direction as it is defined in the Patatrack reconstruction.
+  // // Optionally, you can provide the max number of columns in the module. If you do so, it is checked if
+  // // the cluster lies at the y-edge of the module. If it does, the returned cluster size is -1.
+  // int getClusterYSize(SiPixelRecHitRef const& recHit, int const nColsModule = -1) {
+  //   // get cluster of the RecHit
+  //   OmniClusterRef::ClusterPixelRef cluster = recHit->cluster();
+
+  //   // check first if nColsModule is provided
+  //   if (nColsModule > 0) {
+  //     // if so, check if the cluster lies at the y-edge
+  //     if (cluster->minPixelCol() == 0 || cluster->maxPixelCol() == nColsModule - 1) {
+  //       return -1;
+  //     }
+  //   }
+
+  //   // column span (span of cluster in y direction)
+  //   int span = cluster->colSpan();
+  //   // std::cout << "RecHit at z=" << recHit->globalPosition().z() << " has span=" << span << std::endl;
+
+  //   // total charge of the first and last column of digis respectively
+  //   int q_firstCol = 0;
+  //   int q_lastCol = 0;
+
+  //   // loop over the pixels/digis of the cluster and update the charges of first and last column
+  //   int minY = cluster->minPixelCol();
+  //   int minX = cluster->minPixelRow();
+
+  //   int offset;
+  //   for (int i{0}; i < cluster->size(); i++) {
+  //     offset = cluster->pixelOffset()[2 * i + 1];
+  //     int x = cluster->pixelOffset()[2 * i] + minX;
+  //     std::cout << "    > pixel at x=" << x << ", y=" << (offset + minY) << " has ADC=" << cluster->pixelADC()[i]
+  //               << std::endl;
+
+  //     // check if pixel is in first column and eventually update the charge
+  //     if (offset == 0) {
+  //       q_firstCol += cluster->pixelADC()[i];
+  //     }
+  //     // check if pixel is in last column and eventually update the charge
+  //     if (offset == span) {
+  //       q_lastCol += cluster->pixelADC()[i];
+  //     }
+  //   }
+
+  //   // calculate the unbalance term
+  //   int unbalance = 8. * std::abs(float(q_firstCol - q_lastCol)) / float(q_firstCol + q_lastCol);
+
+  //   // calculate the cluster size
+  //   int clusterYSize = 8 * (span + 1) - unbalance;
+  //   return clusterYSize;
+  // }
 
   // Function that determines the number of skipped layers for a given pair of RecHits.
   int getNumSkippedLayers(std::pair<uint8_t, uint8_t> const& layerIds,
@@ -203,13 +257,16 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
                                    size_t const lastLayerId,
                                    uint8_t status,
                                    size_t const minNumDoubletsToPass) const {
+  // update the number of SimDoublets once before looping over the actual neighbors to be added
+  numSimDoublets++;
+
   // loop over the inner neighboring doublets of the current doublet
   for (auto const& neighbor : doublet.innerNeighborsView()) {
     // get the inner neighboring doublet and the status of this connection
     auto const& neighborDoublet = doublets_.at(neighbor.index());
 
     // update the status of the current SimNtuplet by adding the information from the new doublet
-    SimDoublets::Ntuplet::updateStatus(
+    uint8_t updatedStatus = SimDoublets::Ntuplet::updateStatus(
         status,                                        // current status
         neighborDoublet.isUndef(),                     // doublet has undefined cuts
         neighborDoublet.isKilledByMissingLayerPair(),  // doublet is not built due to missing layer pair
@@ -218,10 +275,9 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
         neighbor.isKilled()                            // connection is killed by cuts
     );
 
-    numSimDoublets++;
-
     // add the current state as a new SimNtuplet to the collection
-    ntuplets_.emplace_back(SimDoublets::Ntuplet(numSimDoublets, status, neighborDoublet.innerLayerId(), lastLayerId));
+    ntuplets_.emplace_back(
+        SimDoublets::Ntuplet(numSimDoublets, updatedStatus, neighborDoublet.innerLayerId(), lastLayerId));
 
     // change the status "TooShort" of the newly created SimNtuplet if it is indeed to short
     if (numSimDoublets < minNumDoubletsToPass) {
@@ -241,10 +297,9 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
     if ((longestNtupletIndex_ == -1) || (numSimDoublets > ntuplets_.at(longestNtupletIndex_).numDoublets())) {
       // case A)
       longestNtupletIndex_ = ntuplets_.size() - 1;
-    }
-    else if ((numSimDoublets == ntuplets_.at(longestNtupletIndex_).numDoublets()) &&  // is at least as long
-          ntuplets_.back().getsFartherInRecoChainThanReference(
-              ntuplets_.at(longestNtupletIndex_))) {  // get farther in reconstruction
+    } else if ((numSimDoublets == ntuplets_.at(longestNtupletIndex_).numDoublets()) &&  // is at least as long
+               ntuplets_.back().getsFartherInRecoChainThanReference(
+                   ntuplets_.at(longestNtupletIndex_))) {  // get farther in reconstruction
       // case B)
       longestNtupletIndex_ = ntuplets_.size() - 1;
     }
@@ -262,7 +317,7 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
 
     // call this function recursively
     // this will get the further neighboring doublets and build the next Ntuplet
-    buildSimNtuplets(neighborDoublet, numSimDoublets, lastLayerId, status, minNumDoubletsToPass);
+    buildSimNtuplets(neighborDoublet, numSimDoublets, lastLayerId, updatedStatus, minNumDoubletsToPass);
   }
 }
 
@@ -281,11 +336,9 @@ void SimDoublets::buildSimNtuplets(size_t const minNumDoubletsToPass) const {
 
   // loop over all SimDoublets, using them as starting points for building Ntuplets
   for (auto const& doublet : doublets_) {
-    // intialize status to no cuts no undefined
-    uint8_t status{0};
-    // update the status according to the doublet properties
-    SimDoublets::Ntuplet::updateStatus(
-        status,                                // current status to be updated
+    // intialize status according to the doublet properties
+    uint8_t status = SimDoublets::Ntuplet::updateStatus(
+        0,                                     // current status to be updated
         doublet.isUndef(),                     // doublet has undefined cuts
         doublet.isKilledByMissingLayerPair(),  // doublet is not built due to missing layer pair
         doublet.isKilledByCuts(),              // doublet is killed by cuts

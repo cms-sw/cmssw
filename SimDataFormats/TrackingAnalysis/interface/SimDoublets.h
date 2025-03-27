@@ -165,19 +165,19 @@ public:
     uint8_t lastLayerId() const { return lastLayerId_; }
 
     // method to update an external status
-    static void updateStatus(uint8_t& status,
-                             bool const hasUndefDoubletCuts,
-                             bool const hasMissingLayerPair,
-                             bool const hasKilledDoublets,
-                             bool const hasUndefDoubletConnectionCuts,
-                             bool const hasKilledConnections,
-                             bool const isTooShort = false) {
-      status |= (uint8_t(hasUndefDoubletCuts) * uint8_t(StatusBit::hasUndefDoubletCuts) +
-                 uint8_t(hasMissingLayerPair) * uint8_t(StatusBit::hasMissingLayerPair) +
-                 uint8_t(hasKilledDoublets) * uint8_t(StatusBit::hasKilledDoublets) +
-                 uint8_t(hasUndefDoubletConnectionCuts) * uint8_t(StatusBit::hasUndefDoubletConnectionCuts) +
-                 uint8_t(hasKilledConnections) * uint8_t(StatusBit::hasKilledConnections) +
-                 uint8_t(isTooShort) * uint8_t(StatusBit::isTooShort));
+    static uint8_t updateStatus(uint8_t status,
+                                bool const hasUndefDoubletCuts,
+                                bool const hasMissingLayerPair,
+                                bool const hasKilledDoublets,
+                                bool const hasUndefDoubletConnectionCuts,
+                                bool const hasKilledConnections,
+                                bool const isTooShort = false) {
+      return status | (uint8_t(hasUndefDoubletCuts) * uint8_t(StatusBit::hasUndefDoubletCuts) +
+                       uint8_t(hasMissingLayerPair) * uint8_t(StatusBit::hasMissingLayerPair) +
+                       uint8_t(hasKilledDoublets) * uint8_t(StatusBit::hasKilledDoublets) +
+                       uint8_t(hasUndefDoubletConnectionCuts) * uint8_t(StatusBit::hasUndefDoubletConnectionCuts) +
+                       uint8_t(hasKilledConnections) * uint8_t(StatusBit::hasKilledConnections) +
+                       uint8_t(isTooShort) * uint8_t(StatusBit::isTooShort));
     }
 
     // methods to set status to alive, undef or killed
@@ -243,13 +243,13 @@ public:
   SiPixelRecHitRefVector recHits() const { return recHitRefVector_; }
 
   // method to get a reference to the RecHit at index i
-  SiPixelRecHitRef recHits(size_t i) const { return recHitRefVector_[i]; }
+  SiPixelRecHitRef recHits(size_t const i) const { return recHitRefVector_[i]; }
 
   // method to get the layer id vector
   std::vector<uint8_t> layerIds() const { return layerIdVector_; }
 
   // method to get the layer id at index i
-  uint8_t layerIds(size_t i) const { return layerIdVector_[i]; }
+  uint8_t layerIds(size_t const i) const { return layerIdVector_[i]; }
 
   // method to get the beam spot position
   GlobalVector beamSpotPosition() const { return beamSpotPosition_; }
