@@ -373,7 +373,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         AllMuonsPersistent = cms.bool(True),
         UseDemoHitRPC = cms.bool(True),
         UseDemoHitGEM = cms.bool(True),
-        HaveDemoChambers = cms.bool(True)
+        HaveDemoChambers = cms.bool(True),
+        RemoveGEMHits = cms.vint32()
     ),
     CaloSD = cms.PSet(
         common_heavy_suppression,

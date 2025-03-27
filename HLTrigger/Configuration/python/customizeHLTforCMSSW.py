@@ -17,8 +17,6 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-
-
 def customiseForOffline(process):
     # For running HLT offline and relieve the strain on Frontier so it will no longer inject a
     # transaction id which tells Frontier to add a unique "&freshkey" to many query URLs.
@@ -39,17 +37,24 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTfor47378(process):
-    """Needed following the migration of the online beam spot arbitration to the edproducer"""
-    import copy
-    for esprod in list(esproducers_by_type(process, "OnlineBeamSpotESProducer")):
-        delattr(process, esprod.label())
+def customizeHLTfor47630(process):
+    attributes_to_remove = [
+        'connectionRetrialPeriod',
+        'connectionRetrialTimeOut',
+        'connectionTimeOut',
+        'enableConnectionSharing',
+        'enablePoolAutomaticCleanUp',
+        'enableReadOnlySessionOnUpdateConnection',
+        'idleConnectionCleanupPeriod'
+    ]
 
-    for edprod in producers_by_type(process, "BeamSpotOnlineProducer"):
-        if hasattr(edprod, 'useTransientRecord'):
-            setattr(edprod, 'useBSOnlineRecords', copy.deepcopy(getattr(edprod, 'useTransientRecord')))
-            delattr(edprod, 'useTransientRecord')
-    
+    for mod in modules_by_type(process, "PoolDBESSource"):
+        if hasattr(mod, 'DBParameters'):
+            pset = getattr(mod,'DBParameters')
+            for attr in attributes_to_remove:
+                if hasattr(pset, attr):
+                    delattr(mod.DBParameters, attr)
+
     return process
 
 # CMSSW version specific customizations
@@ -59,6 +64,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customizeHLTfor47378(process)
+    process = customizeHLTfor47630(process)
     
     return process

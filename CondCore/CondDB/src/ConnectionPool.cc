@@ -49,7 +49,7 @@ namespace cond {
       setFrontierSecurity(connectionPset.getUntrackedParameter<std::string>("security", m_frontierSecurity));
       int messageLevel =
           connectionPset.getUntrackedParameter<int>("messageLevel", 0);  //0 corresponds to Error level, current default
-      coral::MsgLevel level = m_messageLevel;
+      coral::MsgLevel level;
       switch (messageLevel) {
         case 0:
           level = coral::Error;

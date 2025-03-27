@@ -535,6 +535,15 @@ namespace edm {
       processConfiguration_ = items.processConfiguration();
       processContext_.setProcessConfiguration(processConfiguration_.get());
 
+      {
+        edm::Service<edm::JobReport> jr;
+        if (jr.isAvailable()) {
+          ProcessConfiguration reduced = *processConfiguration_;
+          reduced.reduce();
+          jr->reportProcess(reduced.processName(), reduced.id(), reduced.parameterSetID());
+        }
+      }
+
       FDEBUG(2) << parameterSet << std::endl;
 
       principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
@@ -1023,22 +1032,19 @@ namespace edm {
     SendSourceTerminationSignalIfException sentry(actReg_.get());
 
     if (streamRunActive_ > 0) {
+      //deals with data structures that allows merged Run products to be split on Lumi boundaries then
+      // in later processes reintegrated.
       streamRunStatus_[0]->runPrincipal()->preReadFile();
-      streamRunStatus_[0]->runPrincipal()->adjustIndexesAfterProductRegistryAddition();
     }
 
-    if (streamLumiActive_ > 0) {
-      streamLumiStatus_[0]->lumiPrincipal()->adjustIndexesAfterProductRegistryAddition();
-    }
-
+    auto oldCacheID = input_->productRegistry().cacheIdentifier();
     fb_ = input_->readFile();
     //incase the input's registry changed
-    const size_t size = preg_->size();
-    preg_->merge(input_->productRegistry(), fb_ ? fb_->fileName() : std::string());
-    if (size < preg_->size()) {
-      principalCache_.adjustIndexesAfterProductRegistryAddition();
+    if (input_->productRegistry().cacheIdentifier() != oldCacheID) {
+      auto temp = std::make_shared<edm::ProductRegistry>(*preg_);
+      temp->merge(input_->productRegistry(), fb_ ? fb_->fileName() : std::string());
+      preg_ = std::move(temp);
     }
-    principalCache_.adjustEventsToNewProductRegistry(preg());
     if (preallocations_.numberOfStreams() > 1 and preallocations_.numberOfThreads() > 1) {
       fb_->setNotFastClonable(FileBlock::ParallelProcesses);
     }
@@ -2022,6 +2028,8 @@ namespace edm {
 
   std::shared_ptr<RunPrincipal> EventProcessor::readRun() {
     auto rp = principalCache_.getAvailableRunPrincipalPtr();
+    //a new file may have been opened since the last use of this Run
+    rp->possiblyUpdateAfterAddition(preg());
     assert(rp);
     rp->setAux(*input_->runAuxiliary());
     {
@@ -2035,6 +2043,9 @@ namespace edm {
 
   void EventProcessor::readAndMergeRun(RunProcessingStatus& iStatus) {
     RunPrincipal& runPrincipal = *iStatus.runPrincipal();
+    //If a file open happened and we are continuing the Run we may need
+    // to do the update
+    runPrincipal.possiblyUpdateAfterAddition(preg());
 
     runPrincipal.mergeAuxiliary(*input_->runAuxiliary());
     {
@@ -2046,6 +2057,8 @@ namespace edm {
 
   std::shared_ptr<LuminosityBlockPrincipal> EventProcessor::readLuminosityBlock(std::shared_ptr<RunPrincipal> rp) {
     auto lbp = principalCache_.getAvailableLumiPrincipalPtr();
+    //A new file may have been opened since the last use of the LuminosityBlock
+    lbp->possiblyUpdateAfterAddition(preg());
     assert(lbp);
     lbp->setAux(*input_->luminosityBlockAuxiliary());
     {
@@ -2063,6 +2076,9 @@ namespace edm {
            input_->processHistoryRegistry().reducedProcessHistoryID(lumiPrincipal.aux().processHistoryID()) ==
                input_->processHistoryRegistry().reducedProcessHistoryID(
                    input_->luminosityBlockAuxiliary()->processHistoryID()));
+    //If a file was opened and the LuminosityBlock is continuing
+    // we may need to do the update
+    lumiPrincipal.possiblyUpdateAfterAddition(preg());
     lumiPrincipal.mergeAuxiliary(*input_->luminosityBlockAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -2368,6 +2384,8 @@ namespace edm {
     //TODO this will have to become per stream
     auto& event = principalCache_.eventPrincipal(iStreamIndex);
     StreamContext streamContext(event.streamID(), &processContext_);
+    // a new file may have been read since the last time this event was used
+    event.possiblyUpdateAfterAddition(preg());
 
     SendSourceTerminationSignalIfException sentry(actReg_.get());
     input_->readEvent(event, streamContext);

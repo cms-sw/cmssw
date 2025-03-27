@@ -92,25 +92,25 @@ namespace l1t {
               "minInvMassOverDR",
               config,
               [&](double value) {
-                return std::floor(scales.to_hw_InvMassSqrDiv2(value) * coshEtaLUT_.output_scale());
+                return std::floor(scales.to_hw_InvMassSqrOver2DR(value) * coshEtaLUT_.output_scale());
               })),
           maxInvMassSqrOver2DRSqr_scale1_(getOptionalParam<double, double>(
               "maxInvMassOverDR",
               config,
               [&](double value) {
-                return std::ceil(scales.to_hw_InvMassSqrDiv2(value) * coshEtaLUT_.output_scale());
+                return std::ceil(scales.to_hw_InvMassSqrOver2DR(value) * coshEtaLUT_.output_scale());
               })),
           minInvMassSqrOver2DRSqr_scale2_(getOptionalParam<double, double>(
               "minInvMassOverDR",
               config,
               [&](double value) {
-                return std::floor(scales.to_hw_InvMassSqrDiv2(value) * coshEtaLUT2_.output_scale());
+                return std::floor(scales.to_hw_InvMassSqrOver2DR(value) * coshEtaLUT2_.output_scale());
               })),
           maxInvMassSqrOver2DRSqr_scale2_(getOptionalParam<double, double>(
               "maxInvMassOverDR",
               config,
               [&](double value) {
-                return std::ceil(scales.to_hw_InvMassSqrDiv2(value) * coshEtaLUT2_.output_scale());
+                return std::ceil(scales.to_hw_InvMassSqrOver2DR(value) * coshEtaLUT2_.output_scale());
               })),
           os_(config.getParameter<bool>("os")),
           ss_(config.getParameter<bool>("ss")),

@@ -29,7 +29,4 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   #note having all be the second file does not work as PoolSource enforces that subsequent files must have a strict subset
   # of the branches in the first file read
 
-  echo ${test}test------------------------------------------------------------
-  cmsRun ${LOCAL_TEST_DIR}/${test}subprocess_cfg.py || die "cmsRun ${test}subprocess_cfg.py" $?
-
 exit 0

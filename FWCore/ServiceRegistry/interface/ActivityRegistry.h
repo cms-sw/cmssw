@@ -14,11 +14,7 @@
 
 There are unit tests for the signals that use the Tracer
 to print out the transitions as they occur and then
-compare to a reference file. One test does this for
-a SubProcess test and the other for a test using
-unscheduled execution. The tests are in FWCore/Integration/test:
-  run_SubProcess.sh
-  testSubProcess_cfg.py
+compare to a reference file. The tests are in FWCore/Integration/test:
   run_TestGetBy.sh
   testGetBy1_cfg.py
   testGetBy2_cfg.py

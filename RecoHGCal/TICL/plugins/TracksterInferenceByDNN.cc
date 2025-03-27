@@ -13,13 +13,13 @@ namespace ticl {
   // Constructor for TracksterInferenceByDNN
   TracksterInferenceByDNN::TracksterInferenceByDNN(const edm::ParameterSet& conf)
       : TracksterInferenceAlgoBase(conf),
-        id_modelPath_(
-            conf.getParameter<edm::FileInPath>("onnxPIDModelPath").fullPath()),  // Path to the PID model CLU3D
-        en_modelPath_(
-            conf.getParameter<edm::FileInPath>("onnxEnergyModelPath").fullPath()),  // Path to the Energy model CLU3D
-        inputNames_(conf.getParameter<std::vector<std::string>>("inputNames")),     // Define input names for inference
-        output_en_(conf.getParameter<std::vector<std::string>>("output_en")),  // Define output energy for inference
-        output_id_(conf.getParameter<std::vector<std::string>>("output_id")),  // Define output PID for inference
+        onnxPIDRuntimeInstance_(std::make_unique<cms::Ort::ONNXRuntime>(
+            conf.getParameter<edm::FileInPath>("onnxPIDModelPath").fullPath().c_str())),
+        onnxEnergyRuntimeInstance_(std::make_unique<cms::Ort::ONNXRuntime>(
+            conf.getParameter<edm::FileInPath>("onnxEnergyModelPath").fullPath().c_str())),
+        inputNames_(conf.getParameter<std::vector<std::string>>("inputNames")),  // Define input names for inference
+        output_en_(conf.getParameter<std::vector<std::string>>("output_en")),    // Define output energy for inference
+        output_id_(conf.getParameter<std::vector<std::string>>("output_id")),    // Define output PID for inference
         eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),  // Minimum cluster energy
         eidNLayers_(conf.getParameter<int>("eid_n_layers")),                        // Number of layers
         eidNClusters_(conf.getParameter<int>("eid_n_clusters")),                    // Number of clusters
@@ -27,12 +27,8 @@ namespace ticl {
         doRegression_(conf.getParameter<int>("doRegression"))                       // Number of clusters
   {
     // Initialize ONNX Runtime sessions for PID and Energy models
-    static std::unique_ptr<cms::Ort::ONNXRuntime> onnxPIDRuntimeInstance =
-        std::make_unique<cms::Ort::ONNXRuntime>(id_modelPath_.c_str());
-    onnxPIDSession_ = onnxPIDRuntimeInstance.get();
-    static std::unique_ptr<cms::Ort::ONNXRuntime> onnxEnergyRuntimeInstance =
-        std::make_unique<cms::Ort::ONNXRuntime>(en_modelPath_.c_str());
-    onnxEnergySession_ = onnxEnergyRuntimeInstance.get();
+    onnxPIDSession_ = onnxPIDRuntimeInstance_.get();
+    onnxEnergySession_ = onnxEnergyRuntimeInstance_.get();
   }
 
   // Method to process input data and prepare it for inference
@@ -128,13 +124,14 @@ namespace ticl {
   void TracksterInferenceByDNN::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     iDesc.add<int>("algo_verbosity", 0);
     iDesc
-        .add<edm::FileInPath>("onnxPIDModelPath",
-                              edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/patternrecognition/id_v0.onnx"))
+        .add<edm::FileInPath>(
+            "onnxPIDModelPath",
+            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/id_v0.onnx"))
         ->setComment("Path to ONNX PID model CLU3D");
     iDesc
         .add<edm::FileInPath>(
             "onnxEnergyModelPath",
-            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/patternrecognition/energy_v0.onnx"))
+            edm::FileInPath("RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/energy_v0.onnx"))
         ->setComment("Path to ONNX Energy model CLU3D");
     iDesc.add<std::vector<std::string>>("inputNames", {"input"});
     iDesc.add<std::vector<std::string>>("output_en", {"enreg_output"});

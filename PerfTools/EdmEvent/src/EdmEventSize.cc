@@ -319,7 +319,7 @@ namespace perftools {
     co << "\"total\": {\n";
     co << "\"events\": " << m_nEvents << ",\n";
     auto [total_uncompressed, total_compressed] = std::accumulate(
-        m_records.begin(), m_records.end(), std::make_pair<size_t>(0, 0), [](auto sum, Record const& leaf) {
+        m_records.begin(), m_records.end(), std::make_pair<size_t, size_t>(0, 0), [](auto sum, Record const& leaf) {
           return std::make_pair(sum.first + leaf.uncompr_size, sum.second + leaf.compr_size);
         });
     co << "\"size_uncompressed\": " << total_uncompressed << ",\n";

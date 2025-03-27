@@ -47,12 +47,14 @@ namespace edm {
     wildcardTypes.insert(wildcardTypesLeft.begin(), wildcardTypesLeft.end());
   }
 
-  void XORGroupDescription::validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const {
+  void XORGroupDescription::validate_(ParameterSet& pset,
+                                      std::set<std::string>& validatedLabels,
+                                      Modifier modifier) const {
     int nExistLeft = node_left_->howManyXORSubNodesExist(pset);
     int nExistRight = node_right_->howManyXORSubNodesExist(pset);
     int nTotal = nExistLeft + nExistRight;
 
-    if (nTotal == 0 && optional)
+    if (nTotal == 0 && modifier != Modifier::kNone)
       return;
 
     if (nTotal > 1) {
@@ -60,11 +62,11 @@ namespace edm {
     }
 
     if (nExistLeft == 1) {
-      node_left_->validate(pset, validatedLabels, false);
+      node_left_->validate(pset, validatedLabels, Modifier::kNone);
     } else if (nExistRight == 1) {
-      node_right_->validate(pset, validatedLabels, false);
+      node_right_->validate(pset, validatedLabels, Modifier::kNone);
     } else if (nTotal == 0) {
-      node_left_->validate(pset, validatedLabels, false);
+      node_left_->validate(pset, validatedLabels, Modifier::kNone);
 
       // When missing parameters get inserted, both nodes could
       // be affected so we have to recheck both nodes.
@@ -79,19 +81,19 @@ namespace edm {
   }
 
   void XORGroupDescription::writeCfi_(std::ostream& os,
-                                      bool optional,
+                                      Modifier modifier,
                                       bool& startWithComma,
                                       int indentation,
                                       CfiOptions& options,
                                       bool& wroteSomething) const {
-    node_left_->writeCfi(os, optional, startWithComma, indentation, options, wroteSomething);
+    node_left_->writeCfi(os, modifier, startWithComma, indentation, options, wroteSomething);
   }
 
-  void XORGroupDescription::print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {
+  void XORGroupDescription::print_(std::ostream& os, Modifier modifier, bool writeToCfi, DocFormatHelper& dfh) const {
     if (dfh.parent() == DocFormatHelper::XOR) {
       dfh.decrementCounter();
-      node_left_->print(os, false, true, dfh);
-      node_right_->print(os, false, true, dfh);
+      node_left_->print(os, Modifier::kNone, true, dfh);
+      node_right_->print(os, Modifier::kNone, true, dfh);
       return;
     }
 
@@ -99,10 +101,15 @@ namespace edm {
       dfh.indent(os);
       os << "XOR group:";
 
+      const bool optional = (modifier == Modifier::kOptional);
+      const bool obsolete = (modifier == Modifier::kObsolete);
       if (dfh.brief()) {
-        if (optional)
+        if (optional) {
           os << " optional";
-
+        }
+        if (obsolete) {
+          os << " obsolete";
+        }
         if (!writeToCfi)
           os << " (do not write to cfi)";
 
@@ -113,8 +120,12 @@ namespace edm {
         os << "\n";
         dfh.indent2(os);
 
-        if (optional)
+        if (optional) {
           os << "optional";
+        }
+        if (obsolete) {
+          os << " obsolete";
+        }
         if (!writeToCfi)
           os << " (do not write to cfi)";
         if (optional || !writeToCfi) {
@@ -166,14 +177,14 @@ namespace edm {
     new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
     new_dfh.setParent(DocFormatHelper::XOR);
 
-    node_left_->print(os, false, true, new_dfh);
-    node_right_->print(os, false, true, new_dfh);
+    node_left_->print(os, Modifier::kNone, true, new_dfh);
+    node_right_->print(os, Modifier::kNone, true, new_dfh);
 
     new_dfh.setPass(1);
     new_dfh.setCounter(0);
 
-    node_left_->print(os, false, true, new_dfh);
-    node_right_->print(os, false, true, new_dfh);
+    node_left_->print(os, Modifier::kNone, true, new_dfh);
+    node_right_->print(os, Modifier::kNone, true, new_dfh);
 
     new_dfh.setPass(2);
     new_dfh.setCounter(0);
