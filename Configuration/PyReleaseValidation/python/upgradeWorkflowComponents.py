@@ -900,6 +900,37 @@ upgradeWFs['ticl_v5_withDumper'].step3 = {'--procModifiers': 'ticl_v5',
                                           '--customise': 'RecoHGCal/TICL/customiseTICLFromReco.customiseTICLForDumper'}
 upgradeWFs['ticl_v5_withDumper'].step4 = {'--procModifiers': 'ticl_v5'}
 
+class UpgradeWorkflow_ticl_barrel(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):      
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return ('CloseByP' in fragment) and 'Run4' in key
+
+upgradeWFs['ticl_barrel'] = UpgradeWorkflow_ticl_barrel(
+    steps = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ], 
+    suffix = '_ticl_barrel',
+    offset = 0.206,
+)
+upgradeWFs['ticl_barrel'].step2 = {'--procModifiers': 'ticl_v5,ticl_barrel'}
+upgradeWFs['ticl_barrel'].step3 = {'--procModifiers': 'ticl_v5,ticl_barrel'}
+upgradeWFs['ticl_barrel'].step4 = {'--procModifiers': 'ticl_v5,ticl_barrel'}
+                                                  
 class UpgradeWorkflow_CPfromPU(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):
@@ -926,7 +957,6 @@ upgradeWFs['CPfromPU'] = UpgradeWorkflow_CPfromPU(
     ],
     suffix = '_withCPfromPU',
     offset = 0.208,
-)
 
 upgradeWFs['CPfromPU'].step2 = {'--procModifiers': 'enableCPfromPU'}
 upgradeWFs['CPfromPU'].step3 = {'--procModifiers': 'enableCPfromPU'}
