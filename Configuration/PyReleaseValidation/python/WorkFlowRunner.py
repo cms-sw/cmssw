@@ -186,6 +186,9 @@ class WorkFlowRunner(Thread):
                     # Disable input for premix stage1 to allow combined stage1+stage2 workflow
                     # Disable input for premix stage2 in FastSim to allow combined stage1+stage2 workflow (in FS, stage2 does also GEN)
                     # Ugly hack but works
+                    if '--rntuple_out' in cmd and 'premix_stage1' in cmd:
+                        #rntuple can't be used by the mixing module yet
+                        cmd = cmd.replace('--rntuple_out', '')
                     extension = '.root'
                     if '--rntuple_out' in cmd:
                         extension = '.rntpl'
@@ -199,6 +202,9 @@ class WorkFlowRunner(Thread):
                             cmd+=' --filein %s'%(self.recoOutput)
                         else:
                             cmd+=' --filein  file:step%s%s '%(istep-1,extension)
+                    elif '--filein file:step1.root' in cmd and '--pileup_input' in cmd and '--rntuple_out' in cmd:
+                        #need to override file extension used for stage1 file name
+                        cmd = cmd.replace('step1.root', 'step1.rntpl')
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s%s '%(istep,extension)
                         if "RECO" in cmd:
