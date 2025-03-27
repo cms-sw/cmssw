@@ -214,5 +214,6 @@ process.schedule = cms.Schedule(process.ecalLaserLedPath,process.ecalTestPulsePa
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
-print("Final Source settings:", process.source)
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
+print("Final Source settings:", process.source)
