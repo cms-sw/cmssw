@@ -4,5 +4,6 @@ from ..modules.hltParticleFlowClusterECALUncorrectedUnseeded_cfi import *
 from ..modules.hltParticleFlowClusterECALUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitECALUnseeded_cfi import *
 from ..modules.hltParticleFlowSuperClusterECALUnseeded_cfi import *
+from ..modules.hltParticleFlowRecHitHBHE_cfi import *
 
-HLTPFClusteringForEgammaUnseededSequence = cms.Sequence(hltParticleFlowRecHitECALUnseeded+hltParticleFlowClusterECALUncorrectedUnseeded+hltParticleFlowClusterECALUnseeded+hltParticleFlowSuperClusterECALUnseeded)
+HLTPFClusteringForEgammaUnseededSequence = cms.Sequence(hltParticleFlowRecHitECALUnseeded+hltParticleFlowRecHitHBHE+hltParticleFlowClusterECALUncorrectedUnseeded+hltParticleFlowClusterECALUnseeded+hltParticleFlowSuperClusterECALUnseeded)

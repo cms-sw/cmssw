@@ -43,6 +43,7 @@ from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_sourceV_cff import 
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.Configuration.hgcalSimValid_cff import *
+from Validation.Configuration.barrelSimValid_cff import *
 from Validation.Configuration.mtdSimValid_cff import *
 from Validation.Configuration.ecalSimValid_cff import *
 from Validation.Configuration.barrelSimValid_cff import *
@@ -201,11 +202,17 @@ globalPrevalidationHGCal = cms.Sequence(hgcalAssociators, ticlSimTrackstersTask)
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
 
+_ticlBarrel_globalPrevalidation = globalPrevalidationHGCal.copy()
+_ticlBarrel_globalPrevalidation += cms.Sequence(barrelAssociators)
+
+_ticlBarrel_globalValidation = globalValidationHGCal.copy()
+_ticlBarrel_globalValidation += barrelValidation
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(globalPrevalidationHGCal, _ticlBarrel_globalPrevalidation)
+ticl_barrel.toReplaceWith(globalValidationHGCal, _ticlBarrel_globalValidation)
+
 globalValidationMTD = cms.Sequence()
-
-globalPrevalidationBarrel = cms.Sequence(barrelAssociators)
-
-globalValidationBarrel = cms.Sequence(barrelValidation)
 
 globalPrevalidationMuons = cms.Sequence(
       gemSimValid
