@@ -833,7 +833,6 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     }
   }
 
-
   correlatedMetaPrimitives.clear();
   filteredMetaPrimitives.clear();
 
@@ -863,7 +862,6 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     }
   }
 
-
   allMetaPrimitives.clear();
 
   // Theta (th) matching filter
@@ -882,7 +880,6 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       }
     }
   }
-
 
   /////////////
 
