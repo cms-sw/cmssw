@@ -78,15 +78,35 @@ process.rawPCCProd = cms.EDProducer("RawPCCProducer",
 process.dynamicVetoProd = cms.EDProducer("DynamicVetoProducer",
     DynamicVetoProducerParameters = cms.PSet(
         inputPccLabel = cms.string("alcaPCCIntegrator"),
+        prodInst = cms.string(""),
+        outputProductName = cms.untracked.string("alcaPccVetoList"),
         BaseVeto=cms.vint32(),
+        SaveBaseVeto=cms.bool(False),
+        FractionalResponse_modID=cms.vint32(),
+        FractionalResponse_value=cms.vdouble(),
         ModuleListRing1=cms.untracked.vint32(),
         MinimumLSCount=cms.untracked.int32(200),
         StdMultiplyier1=cms.double(3.0),
         StdMultiplyier2=cms.double(3.0),
+        FractionThreshold2=cms.double(0.02),
+        StdMultiplyier3=cms.double(3.0),
+        SavePlots=cms.untracked.bool(True),
         SaveCSVFile=cms.untracked.bool(True),
         CsvFileName=cms.untracked.string("dynamicVetoProducer.csv"),
     )
 )
+
+with open("minimal_veto-2024.txt") as f: 
+    process.dynamicVetoProd.DynamicVetoProducerParameters.BaseVeto.extend([ int(v) for v in f.readlines()])
+
+with open("minimal_veto_frac_response-2024.csv") as f: 
+    tmp = [ v.split(",") for v in f.readlines()]
+    moduleID          = [ int(l[0]) for l in tmp[1:]]
+    ractionalResponse = [ float(l[1]) for l in tmp[1:]]
+    process.dynamicVetoProd.DynamicVetoProducerParameters.FractionalResponse_modID.extend(moduleID)
+    process.dynamicVetoProd.DynamicVetoProducerParameters.FractionalResponse_value.extend(ractionalResponse)
+
+
 
 process.dynamicVetoProd.DynamicVetoProducerParameters.ModuleListRing1.extend([
   344282116, 344283140, 344286212, 344941572, 352588804, 352589828, 352592900, 353215492, 344724484, 344725508, 344728580, 344729604, 344732676, 344733700, 344736772, 344737796, 

@@ -30,12 +30,15 @@ public:
   double responseFraction = 1.0;
   void generateResponseFraction(const std::map<int, float>& fractionalResponses, const std::vector<int>& baseVeto = std::vector<int>()){
     usingBaseVeto = ! baseVeto.empty();
+    double responseTotal = 0;
     responseFraction = 0;
     for (const auto& [modID, frac] : fractionalResponses) {
+      responseTotal += frac;
       if (this->isBad(modID)) continue;
       if (std::find(baseVeto.begin(), baseVeto.end(), modID) != baseVeto.end()) continue;
       responseFraction += frac;
     }
+    responseFraction /= responseTotal;
   }
 
 private:

@@ -124,15 +124,15 @@ void RawPCCProducerDynVeto::globalEndLuminosityBlockProduce(edm::LuminosityBlock
   ///Apply the module veto
   ///////////////////////////
   std::vector<int> goodMods;
+  double dynamicVetoScaleFactor = 1.0;
   if (useDynamicModVeto_){
     const auto dynamicVeto = &iSetup.getData(dinamicVetoToken_);
     for (unsigned int i = 0; i < modID.size(); i++) {
-      if (dynamicVeto->isGood(modID.at(i))) {
-        goodMods.push_back(i);
-      }
+      if (dynamicVeto->isBad(modID.at(i))) continue;
+      if ((! dynamicVeto->usingBaseVeto) && (std::find(modVeto_.begin(), modVeto_.end(), modID.at(i)) == modVeto_.end()) ) continue;
+      goodMods.push_back(i);
+      dynamicVetoScaleFactor = 1.0 / dynamicVeto->responseFraction; // TODO: apply fraction
     }
-    // TODO: if there is no DynVeto list for this Run specifically, should we apply the previous or fall back to the fixed veto list?
-    // TODO: shoud we do the normalization here according to which modules are vetoed?
   }
   else{
     for (unsigned int i = 0; i < modID.size(); i++) {
@@ -194,7 +194,7 @@ void RawPCCProducerDynVeto::globalEndLuminosityBlockProduce(edm::LuminosityBlock
       statErrOnLumi = 1 / sqrt(statErrOnLumi) * totalLumi;
     }
   }
-
+  
   ///////////////////////////////////////////////////////
   ///Lumi saved in the LuminosityBlocks
   LumiInfo outputLumiInfo;

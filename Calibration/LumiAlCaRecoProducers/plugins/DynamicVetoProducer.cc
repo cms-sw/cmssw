@@ -178,7 +178,10 @@ DynamicVetoProducer::DynamicVetoProducer(const edm::ParameterSet& iConfig)
 {
   auto pset = iConfig.getParameter<edm::ParameterSet>("DynamicVetoProducerParameters");
 
-  pccToken_ = consumes<reco::PixelClusterCounts, edm::InLumi>(edm::InputTag(pset.getParameter<std::string>("inputPccLabel"))));
+  pccToken_ = consumes<reco::PixelClusterCounts, edm::InLumi>(edm::InputTag(
+    pset.getParameter<std::string>("inputPccLabel"),
+    pset.getParameter<std::string>("prodInst"),
+  ));
   putToken_ = produces<PccVetoList, edm::Transition::EndRun>(pset.getUntrackedParameter<std::string>("outputProductName", "alcaPccVetoList")));
 
   baseVeto_                 = pset.getParameter<std::vector<int> >("BaseVeto");
