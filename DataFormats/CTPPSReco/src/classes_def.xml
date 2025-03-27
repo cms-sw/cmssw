@@ -218,25 +218,25 @@
   <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float y_unc" target="y_unc_">
   <![CDATA[y_unc_ = onfile.y_unc;]]>
   </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float tx" target="tx_">
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="float tx" target="tx_">
   <![CDATA[tx_ = onfile.tx;]]>
   </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float tx_unc" target="tx_unc_">
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="float tx_unc" target="tx_unc_">
   <![CDATA[tx_unc_ = onfile.tx_unc;]]>
   </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float ty" target="ty_">
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="float ty" target="ty_">
   <![CDATA[ty_ = onfile.ty;]]>
   </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float ty_unc" target="ty_unc_">
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="float ty_unc" target="ty_unc_">
   <![CDATA[ty_unc_ = onfile.ty_unc;]]>
   </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float chiSquaredOverNDF" target="chi2_norm_">
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="float chiSquaredOverNDF" target="chi2_norm_">
   <![CDATA[chi2_norm_ = onfile.chiSquaredOverNDF;]]>
   </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="CTPPSpixelLocalTrackReconstructionInfo pixelTrack_reco_info" target="pixel_track_reco_info_">
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="CTPPSpixelLocalTrackReconstructionInfo pixelTrack_reco_info" target="pixel_track_reco_info_">
   <![CDATA[pixel_track_reco_info_ = onfile.pixelTrack_reco_info;]]>
   </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="unsigned short numberOfPointsUsedForFit" target="num_points_fit_">
+  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="unsigned short numberOfPointsUsedForFit" target="num_points_fit_">
   <![CDATA[num_points_fit_ = onfile.numberOfPointsUsedForFit;]]>
   </ioread>
   <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float time" target="time_">

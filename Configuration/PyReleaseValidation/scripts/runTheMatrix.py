@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import sys, os
 
+from itertools import cycle
+
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
 from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector,performInjectionOptionTest
-
+from Configuration.PyReleaseValidation.MatrixUtil import cleanComputeCapabilities
 # ================================================================================
 
 def showRaw(opt):
@@ -28,15 +30,14 @@ def runSelected(opt):
         testSet = set(opt.testList)
         undefSet = testSet - definedSet
         if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
-        duplicates = [wf for wf in testSet if definedWf.count(wf)>1 ]
-        if len(duplicates)>0: raise ValueError('Duplicated workflows: '+', '.join(map(str,list(duplicates))))
-
+        if not opt.allowDuplicates:
+            testList = testSet
     ret = 0
     if opt.show:
         mrd.show(opt.testList, opt.extended, opt.cafVeto)
         if opt.testList : print('selected items:', opt.testList)
     else:
-        mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads)
+        mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads, opt.selected_gpus)
         ret = mRunnerHi.runTests(opt)
 
     if opt.wmcontrol:
@@ -96,7 +97,6 @@ if __name__ == '__main__':
             12834.0,    # RelValTTbar_14TeV             2024
             12846.0,    # RelValZEE_13                  2024
             13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
-            12834.7,    # RelValTTbar_14TeV             2024 mkFit
             16834.0,    # RelValTTbar_14TeV             2025
             17034.0,    # RelValTTbar_14TeV		2025 PU = Run3_Flat55To75_PoissonOOTPU
             14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim
@@ -174,6 +174,25 @@ if __name__ == '__main__':
                         dest='memoryOffset',
                         type=int,
                         default=3000)
+    
+    parser.add_argument('--startFrom',
+                        help='Start from a specific step (e.g. GEN,SIM,DIGI,RECO)',
+                        dest='startFrom',
+                        type=str,
+                        default=None)
+
+    parser.add_argument('--recycle',
+                        help='Input file to recycle. To be used if the first step is an input step or togehter with --startFrom. '
+                        'N.B.: runTheMatrix.py will create its own workdirectory so if yo use a relative path, be careful.',
+                        dest='recycle',
+                        type=str,
+                        default=None)
+
+    parser.add_argument('--allowDuplicates',
+                        help='Allow to have duplicate workflow numbers in the list',
+                        dest='allowDuplicates',
+                        default=False,
+                        action='store_true')
 
     parser.add_argument('--addMemPerCore',
                         help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
@@ -217,6 +236,12 @@ if __name__ == '__main__':
                         default=False,
                         action='store_true')
 
+    parser.add_argument('-c','--checkInputs',
+                        help='Check if the default inputs are well defined. To be used with --show',
+                        dest='checkInputs',
+                        default=False,
+                        action='store_true')
+    
     parser.add_argument('-e','--extended',
                         help='Show details of workflows, used with --show',
                         dest='extended',
@@ -403,7 +428,7 @@ if __name__ == '__main__':
                           help='Specify a comma-separated list of CUDA "compute capabilities", or GPU hardware architectures, that the job can use.',
                           dest='CUDACapabilities',
                           type=lambda x: x.split(','),
-                          default='6.0,6.1,6.2,7.0,7.2,7.5,8.0,8.6')
+                          default='6.0,6.1,6.2,7.0,7.2,7.5,8.0,8.6,8.7,8.9,9.0,12.0')
 
     # read the CUDA runtime version included in CMSSW
     cudart_version = None
@@ -432,6 +457,48 @@ if __name__ == '__main__':
                           default='')
 
     opt = parser.parse_args()
+    opt.selected_gpus = None
+    
+    if not opt.wmcontrol and opt.gpu != 'forbidden':
+
+        print(">> Running with --gpu option. Checking the available and supported GPUs.")
+        gpus = cleanComputeCapabilities("cuda")
+        gpus = gpus + cleanComputeCapabilities("rocm", len(gpus))
+        available_gpus = gpus
+
+        if len(available_gpus) == 0:
+            if opt.gpu == 'required':
+                raise Exception('Launched with --gpu required and no GPU available!')
+            print(">> No GPU available!")
+        else:
+            print(">> GPUs available:")
+            [print(f) for f in available_gpus]
+
+            # Filtering ONLY CUDA GPUs on capability
+            gpus = [g for g in gpus if not g.isCUDA() or (g.isCUDA() and g.capability in opt.CUDACapabilities)]
+
+            # Filtering by name (if parsed)
+            if len(opt.GPUName) > 0:
+                gpus = [g for g in gpus if g.name == opt.GPUName]
+
+            if available_gpus != gpus:
+                if len(gpus) > 0:
+                    print(">> GPUs selected:")   
+                    [print(f) for f in gpus]
+                else:
+                    if opt.gpu == 'required':
+                        raise Exception('Launched with --gpu required and no GPU selected (among those available)!')
+                    print(">> No GPU selected!")
+            else:
+                print(">> All selected!")
+
+            if len(gpus) > 0:
+                opt.selected_gpus = cycle(gpus)
+            else:
+                error_str = 'No GPU selected'
+                if opt.gpu == 'required':
+                    raise Exception('Launched with --gpu required and no GPU available (among those available)!')
+    
     if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.failed_from:
@@ -479,7 +546,7 @@ if __name__ == '__main__':
                 except:
                     print(entry,'is not a possible selected entry')
 
-        opt.testList = list(set(testList))
+        opt.testList = list(testList)
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
@@ -503,11 +570,12 @@ if __name__ == '__main__':
                 tmp = MatrixReader(self.opt_)
                 self.processes_ = dict()
                 for what in tmp.files:
-                    what = what.replace('relval_','')
+                    what = what.replace("relval_", "")
                     self.opt_.what = what
                     self.matrices_[what] = MatrixReader(self.opt_)
-                    self.matrices_[what].prepare(self.opt_.useInput, self.opt_.refRel,
-                                                self.opt_.fromScratch)
+                    self.matrices_[what].prepare(
+                        self.opt_.useInput, self.opt_.refRel, self.opt_.fromScratch
+                    )
                 os.system("clear")
 
             def do_clear(self, arg):
@@ -519,19 +587,25 @@ if __name__ == '__main__':
                 return True
 
             def default(self, inp):
-                if inp == 'x' or inp == 'q':
+                if inp == "x" or inp == "q":
                     return self.do_exit(inp)
                 else:
                     is_pipe = not isatty(sys.stdin.fileno())
                     print(Fore.RED + "Error: " + Fore.RESET + "unrecognized command.")
                     # Quit only if given a piped command.
                     if is_pipe:
-                      sys.exit(1)
+                        sys.exit(1)
 
             def help_predefined(self):
-                print("\n".join(["predefined [predef1 [...]]\n",
-                "Run w/o argument, it will print the list of known predefined workflows.",
-                "Run with space-separated predefined workflows, it will print the workflow-ids registered to them"]))
+                print(
+                    "\n".join(
+                        [
+                            "predefined [predef1 [...]]\n",
+                            "Run w/o argument, it will print the list of known predefined workflows.",
+                            "Run with space-separated predefined workflows, it will print the workflow-ids registered to them",
+                        ]
+                    )
+                )
 
             def complete_predefined(self, text, line, start_idx, end_idx):
                 if text and len(text) > 0:
@@ -550,12 +624,24 @@ if __name__ == '__main__':
                         else:
                             print("Unknown Set: %s" % w)
                 else:
-                    print("[ " + Fore.RED + ", ".join([str(k) for k in predefinedSet.keys()]) + Fore.RESET + " ]")
+                    print(
+                        "[ "
+                        + Fore.RED
+                        + ", ".join([str(k) for k in predefinedSet.keys()])
+                        + Fore.RESET
+                        + " ]"
+                    )
 
             def help_showWorkflow(self):
-                print("\n".join(["showWorkflow [workflow1 [...]]\n",
-                    "Run w/o arguments, it will print the list of registered macro-workflows.",
-                    "Run with space-separated workflows, it will print the full list of workflow-ids registered to them"]))
+                print(
+                    "\n".join(
+                        [
+                            "showWorkflow [workflow1 [...]]\n",
+                            "Run w/o arguments, it will print the list of registered macro-workflows.",
+                            "Run with space-separated workflows, it will print the full list of workflow-ids registered to them",
+                        ]
+                    )
+                )
 
             def complete_showWorkflow(self, text, line, start_idx, end_idx):
                 if text and len(text) > 0:
@@ -564,7 +650,7 @@ if __name__ == '__main__':
                     return self.matrices_.keys()
 
             def do_showWorkflow(self, arg):
-                if arg == '':
+                if arg == "":
                     print("Available workflows:")
                     for k in self.matrices_.keys():
                         print(Fore.RED + Style.BRIGHT + k)
@@ -576,9 +662,20 @@ if __name__ == '__main__':
                             print("Unknown workflow %s: skipping" % k)
                         else:
                             for wfl in self.matrices_[k].workFlows:
-                                print("%s %s" % (Fore.BLUE + str(wfl.numId) + Fore.RESET,
-                                                              Fore.GREEN + wfl.nameId + Fore.RESET))
-                            print("%s contains %d workflows" % (Fore.RED + k + Fore.RESET, len(self.matrices_[k].workFlows)))
+                                print(
+                                    "%s %s"
+                                    % (
+                                        Fore.BLUE + str(wfl.numId) + Fore.RESET,
+                                        Fore.GREEN + wfl.nameId + Fore.RESET,
+                                    )
+                                )
+                            print(
+                                "%s contains %d workflows"
+                                % (
+                                    Fore.RED + k + Fore.RESET,
+                                    len(self.matrices_[k].workFlows),
+                                )
+                            )
 
             def do_runWorkflow(self, arg):
                 # Split the input arguments into a list
@@ -591,22 +688,42 @@ if __name__ == '__main__':
                 workflow_id = args[1]
                 passed_down_args = list()
                 if len(args) > 2:
-                  passed_down_args = args[2:]
-                print(Fore.YELLOW + Style.BRIGHT + "Running with the following options:\n")
-                print(Fore.GREEN + Style.BRIGHT + "Workflow class: {}".format(workflow_class))
-                print(Fore.GREEN + Style.BRIGHT + "Workflow ID:    {}".format(workflow_id))
-                print(Fore.GREEN + Style.BRIGHT + "Additional runTheMatrix options: {}".format(passed_down_args))
+                    passed_down_args = args[2:]
+                print(
+                    Fore.YELLOW + Style.BRIGHT + "Running with the following options:\n"
+                )
+                print(
+                    Fore.GREEN
+                    + Style.BRIGHT
+                    + "Workflow class: {}".format(workflow_class)
+                )
+                print(
+                    Fore.GREEN + Style.BRIGHT + "Workflow ID:    {}".format(workflow_id)
+                )
+                print(
+                    Fore.GREEN
+                    + Style.BRIGHT
+                    + "Additional runTheMatrix options: {}".format(passed_down_args)
+                )
                 print(Style.RESET_ALL)
                 if workflow_class not in self.matrices_.keys():
-                    print(Fore.RED + Style.BRIGHT + "Unknown workflow selected: {}".format(workflow_class))
+                    print(
+                        Fore.RED
+                        + Style.BRIGHT
+                        + "Unknown workflow selected: {}".format(workflow_class)
+                    )
                     print("Available workflows:")
                     for k in self.matrices_.keys():
-                         print(Fore.RED + Style.BRIGHT + k)
+                        print(Fore.RED + Style.BRIGHT + k)
                     print(Style.RESET_ALL)
                     return
                 wflnums = [x.numId for x in self.matrices_[workflow_class].workFlows]
                 if float(workflow_id) not in wflnums:
-                    print(Fore.RED + Style.BRIGHT + "Unknown workflow {}".format(workflow_id))
+                    print(
+                        Fore.RED
+                        + Style.BRIGHT
+                        + "Unknown workflow {}".format(workflow_id)
+                    )
                     print(Fore.GREEN + Style.BRIGHT)
                     print(wflnums)
                     print(Style.RESET_ALL)
@@ -614,24 +731,28 @@ if __name__ == '__main__':
                 if workflow_id in self.processes_.keys():
                     # Check if the process is still active
                     if self.processes_[workflow_id][0].poll() is None:
-                        print(Fore.RED + Style.BRIGHT + "Workflow {} already running!".format(workflow_id))
+                        print(
+                            Fore.RED
+                            + Style.BRIGHT
+                            + "Workflow {} already running!".format(workflow_id)
+                        )
                         print(Style.RESET_ALL)
                         return
                 # If it was there but it's gone, proceeed and update the value for the same key
                 # run a job, redirecting standard output and error to files
-                lognames = ['stdout', 'stderr']
-                logfiles = tuple('%s_%s_%s.log' % (workflow_class, workflow_id, name) for name in lognames)
-                stdout = open(logfiles[0], 'w')
-                stderr = open(logfiles[1], 'w')
-                command = ('runTheMatrix.py', '-w', workflow_class, '-l', workflow_id)
+                lognames = ["stdout", "stderr"]
+                logfiles = tuple(
+                    "%s_%s_%s.log" % (workflow_class, workflow_id, name)
+                    for name in lognames
+                )
+                stdout = open(logfiles[0], "w")
+                stderr = open(logfiles[1], "w")
+                command = ("runTheMatrix.py", "-w", workflow_class, "-l", workflow_id)
                 if len(passed_down_args) > 0:
-                  command += tuple(passed_down_args)
+                    command += tuple(passed_down_args)
                 print(command)
-                p = subprocess.Popen(command,
-                    stdout = stdout,
-                    stderr = stderr)
+                p = subprocess.Popen(command, stdout=stdout, stderr=stderr)
                 self.processes_[workflow_id] = (p, time.time())
-
 
             def complete_runWorkflow(self, text, line, start_idx, end_idx):
                 if text and len(text) > 0:
@@ -640,42 +761,141 @@ if __name__ == '__main__':
                     return self.matrices_.keys()
 
             def help_runWorkflow(self):
-              print("\n".join(["runWorkflow workflow_class workflow_id\n",
-                "This command will launch a new and independent process that invokes",
-                "the command:\n",
-                "runTheMatrix.py -w workflow_class -l workflow_id [runTheMatrix.py options]",
-                "\nYou can specify just one workflow_class and workflow_id per invocation.",
-                "The job will continue even after quitting the interactive session.",
-                "stdout and stderr of the new process will be automatically",
-                "redirected to 2 logfiles whose names contain the workflow_class",
-                "and workflow_id. Mutiple command can be issued one after the other.",
-                "The working directory of the new process will be the directory",
-                "from which the interactive session has started.",
-                "Autocompletion is available for workflow_class, but",
-                "not for workflow_id. Supplying a wrong workflow_class or",
-                "a non-existing workflow_id for a valid workflow_class",
-                "will trigger an error and no process will be invoked.",
-                "The interactive shell will keep track of all active processes",
-                "and will prevent the accidental resubmission of an already",
-                "active jobs."]))
+                print(
+                    "\n".join(
+                        [
+                            "runWorkflow workflow_class workflow_id\n",
+                            "This command will launch a new and independent process that invokes",
+                            "the command:\n",
+                            "runTheMatrix.py -w workflow_class -l workflow_id [runTheMatrix.py options]",
+                            "\nYou can specify just one workflow_class and workflow_id per invocation.",
+                            "The job will continue even after quitting the interactive session.",
+                            "stdout and stderr of the new process will be automatically",
+                            "redirected to 2 logfiles whose names contain the workflow_class",
+                            "and workflow_id. Mutiple command can be issued one after the other.",
+                            "The working directory of the new process will be the directory",
+                            "from which the interactive session has started.",
+                            "Autocompletion is available for workflow_class, but",
+                            "not for workflow_id. Supplying a wrong workflow_class or",
+                            "a non-existing workflow_id for a valid workflow_class",
+                            "will trigger an error and no process will be invoked.",
+                            "The interactive shell will keep track of all active processes",
+                            "and will prevent the accidental resubmission of an already",
+                            "active jobs.",
+                        ]
+                    )
+                )
 
             def do_jobs(self, args):
                 print(Fore.GREEN + Style.BRIGHT + "List of jobs:")
                 for w in self.processes_.keys():
                     if self.processes_[w][0].poll() is None:
-                      print(Fore.YELLOW + Style.BRIGHT + "Active job: {} since {:.2f} seconds.".format(w, time.time() - self.processes_[w][1]))
+                        print(
+                            Fore.YELLOW
+                            + Style.BRIGHT
+                            + "Active job: {} since {:.2f} seconds.".format(
+                                w, time.time() - self.processes_[w][1]
+                            )
+                        )
                     else:
                         print(Fore.RED + Style.BRIGHT + "Done job: {}".format(w))
                 print(Style.RESET_ALL)
 
             def help_jobs(self):
-              print("\n".join(["Print a full list of active and done jobs submitted",
-                "in the ongoing interactive session"]))
+                print(
+                    "\n".join(
+                        [
+                            "Print a full list of active and done jobs submitted",
+                            "in the ongoing interactive session",
+                        ]
+                    )
+                )
+
+            def do_searchInCommands(self, arg):
+                args = arg.split()
+                if len(args) < 3:
+                    print("searchInCommands name regexp regexp")
+                    return
+                if args[0] not in self.matrices_.keys():
+                    print("Unknown workflow")
+                    return
+                import re
+
+                pattern_dataset = None
+                pattern_command = None
+                try:
+                    pattern_dataset = re.compile(args[1])
+                    pattern_command = re.compile(args[2])
+                except:
+                    print("Failed to compile regexp %s" % args[1])
+                    return
+                counter = 0
+                cached = []
+                cached_steps = {}
+                for wfl in self.matrices_[args[0]].workFlows:
+                    if re.match(pattern_dataset, wfl.nameId):
+                        for step, command in enumerate(wfl.cmds):
+                            if re.match(pattern_command, command):
+                                if wfl.numId not in cached:
+                                    cached.append(wfl.numId)
+                                    cached_steps[wfl.nameId] = {
+                                        "steps": [],
+                                        "numId": wfl.numId,
+                                    }
+                                    cached_steps[wfl.nameId]["steps"].append(step)
+                                else:
+                                    cached_steps[wfl.nameId]["steps"].append(step)
+                                counter += 1
+                for wfl in cached_steps:
+                    print(
+                        "%s %s [%s]"
+                        % (
+                            Fore.BLUE + str(cached_steps[wfl]["numId"]) + Fore.RESET,
+                            Fore.GREEN + wfl + Fore.RESET,
+                            Fore.YELLOW
+                            + " ".join(
+                                [str(command) for command in cached_steps[wfl]["steps"]]
+                            )
+                            + Fore.RESET,
+                        )
+                    )
+                print(
+                    "Found %s compatible commands inside %s workflows inside %s."
+                    % (
+                        Fore.RED + str(counter) + Fore.RESET,
+                        Fore.BLUE + str(len(cached_steps.keys())),
+                        Fore.YELLOW + str(args[0]),
+                    )
+                    + Fore.RESET
+                )
+
+            def help_searchInCommands(self):
+                print(
+                    "\n".join(
+                        [
+                            "searchInCommands wfl_name dataset_search_regexp command_search_regexp\n",
+                            "This command will search for a match within all workflows registered to wfl_name.",
+                            "The search is done on both the workflow name, via the dataset_search_regexp, and the actual cmsDriver steps registered to it, via command_search_regexp.",
+                        ]
+                    )
+                )
+
+            def complete_searchInCommands(self, text, line, start_idx, end_idx):
+                if text and len(text) > 0:
+                    return [t for t in self.matrices_.keys() if t.startswith(text)]
+                else:
+                    return self.matrices_.keys()
 
             def help_searchInWorkflow(self):
-                print("\n".join(["searchInWorkflow wfl_name search_regexp\n",
-                    "This command will search for a match within all workflows registered to wfl_name.",
-                    "The search is done on both the workflow name and the names of steps registered to it."]))
+                print(
+                    "\n".join(
+                        [
+                            "searchInWorkflow wfl_name search_regexp\n",
+                            "This command will search for a match within all workflows registered to wfl_name.",
+                            "The search is done on both the workflow name and the names of steps registered to it.",
+                        ]
+                    )
+                )
 
             def complete_searchInWorkflow(self, text, line, start_idx, end_idx):
                 if text and len(text) > 0:
@@ -692,6 +912,7 @@ if __name__ == '__main__':
                     print("Unknown workflow")
                     return
                 import re
+
                 pattern = None
                 try:
                     pattern = re.compile(args[1])
@@ -701,16 +922,30 @@ if __name__ == '__main__':
                 counter = 0
                 for wfl in self.matrices_[args[0]].workFlows:
                     if re.match(pattern, wfl.nameId):
-                      print("%s %s" % (Fore.BLUE + str(wfl.numId) + Fore.RESET,
-                                       Fore.GREEN + wfl.nameId + Fore.RESET))
-                      counter +=1
-                print("Found %s compatible workflows inside %s" % (Fore.RED + str(counter) + Fore.RESET,
-                                                                   Fore.YELLOW + str(args[0])) + Fore.RESET)
+                        print(
+                            "%s %s"
+                            % (
+                                Fore.BLUE + str(wfl.numId) + Fore.RESET,
+                                Fore.GREEN + wfl.nameId + Fore.RESET,
+                            )
+                        )
+                        counter += 1
+                print(
+                    "Found %s compatible workflows inside %s"
+                    % (Fore.RED + str(counter) + Fore.RESET, Fore.YELLOW + str(args[0]))
+                    + Fore.RESET
+                )
 
             def help_search(self):
-                print("\n".join(["search search_regexp\n",
-                    "This command will search for a match within all workflows registered.",
-                    "The search is done on both the workflow name and the names of steps registered to it."]))
+                print(
+                    "\n".join(
+                        [
+                            "search search_regexp\n",
+                            "This command will search for a match within all workflows registered.",
+                            "The search is done on both the workflow name and the names of steps registered to it.",
+                        ]
+                    )
+                )
 
             def do_search(self, arg):
                 args = arg.split()
@@ -718,11 +953,17 @@ if __name__ == '__main__':
                     print("search regexp")
                     return
                 for wfl in self.matrices_.keys():
-                    self.do_searchInWorkflow(' '.join([wfl, args[0]]))
+                    self.do_searchInWorkflow(" ".join([wfl, args[0]]))
 
             def help_dumpWorkflowId(self):
-                print("\n".join(["dumpWorkflowId [wfl-id1 [...]]\n",
-                    "Dumps the details (cmsDriver commands for all steps) of the space-separated workflow-ids in input."]))
+                print(
+                    "\n".join(
+                        [
+                            "dumpWorkflowId [wfl-id1 [...]]\n",
+                            "Dumps the details (cmsDriver commands for all steps) of the space-separated workflow-ids in input.",
+                        ]
+                    )
+                )
 
             def do_dumpWorkflowId(self, arg):
                 wflids = arg.split()
@@ -730,7 +971,7 @@ if __name__ == '__main__':
                     print("dumpWorkflowId [wfl-id1 [...]]")
                     return
 
-                fmt   = "[%s]: %s\n"
+                fmt = "[%s]: %s\n"
                 maxLen = 100
                 for wflid in wflids:
                     dump = True
@@ -739,10 +980,23 @@ if __name__ == '__main__':
                             if wfl.numId == float(wflid):
                                 if dump:
                                     dump = False
-                                    print(Fore.GREEN + str(wfl.numId) + Fore.RESET + " " + Fore.YELLOW + wfl.nameId + Fore.RESET)
-                                    for i,s in enumerate(wfl.cmds):
-                                        print(fmt % (Fore.RED + str(i+1) + Fore.RESET,
-                                          (str(s)+' ')))
+                                    print(
+                                        Fore.GREEN
+                                        + str(wfl.numId)
+                                        + Fore.RESET
+                                        + " "
+                                        + Fore.YELLOW
+                                        + wfl.nameId
+                                        + Fore.RESET
+                                    )
+                                    for i, s in enumerate(wfl.cmds):
+                                        print(
+                                            fmt
+                                            % (
+                                                Fore.RED + str(i + 1) + Fore.RESET,
+                                                (str(s) + " "),
+                                            )
+                                        )
                                     print("\nWorkflow found in %s." % key)
                                 else:
                                     print("Workflow also found in %s." % key)

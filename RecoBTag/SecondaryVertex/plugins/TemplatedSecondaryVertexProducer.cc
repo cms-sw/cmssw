@@ -1215,8 +1215,10 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::matchSubjets(const edm::Handle
 template <class IPTI, class VTX>
 void TemplatedSecondaryVertexProducer<IPTI, VTX>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<double>("extSVDeltaRToJet", 0.3);
-  desc.add<edm::InputTag>("beamSpotTag", edm::InputTag("offlineBeamSpot"));
+  desc.add<double>("extSVDeltaRToJet", 0.3)
+      ->setComment("Minimum distance between jets and external secondary vertex collection, if provided.");
+  desc.add<edm::InputTag>("beamSpotTag", edm::InputTag("offlineBeamSpot"))
+      ->setComment("InputTag for the beamspot collection.");
   {
     edm::ParameterSetDescription vertexReco;
     vertexReco.add<double>("primcut", 1.8);
@@ -1231,15 +1233,21 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::fillDescriptions(edm::Configur
             edm::ParameterDescription<double>("mergeThreshold", 3.0, true) and
             edm::ParameterDescription<std::string>("fitType", "RefitGhostTrackWithVertices", true),
         true);
-    desc.add<edm::ParameterSetDescription>("vertexReco", vertexReco);
+    desc.add<edm::ParameterSetDescription>("vertexReco", vertexReco)
+        ->setComment("ParameterSet to steer the secondary vertex reconstruction parameters.");
   }
   {
     edm::ParameterSetDescription vertexSelection;
     vertexSelection.add<std::string>("sortCriterium", "dist3dError");
-    desc.add<edm::ParameterSetDescription>("vertexSelection", vertexSelection);
+    desc.add<edm::ParameterSetDescription>("vertexSelection", vertexSelection)
+        ->setComment("ParameterSet steering the secondary vertex sorting.");
   }
-  desc.add<std::string>("constraint", "BeamSpot");
-  desc.add<edm::InputTag>("trackIPTagInfos", edm::InputTag("impactParameterTagInfos"));
+  desc.add<std::string>("constraint", "BeamSpot")
+      ->setComment(
+          "Option to set any constraint for the SV fit. Options are 'None', 'BeamSpot' (default), "
+          "'BeamSpot+PVPosition', 'BeamSpotZ+PVErrorScaledXY', 'PVErrorScaled', and 'BeamSpot+PVTracksInFit'.");
+  desc.add<edm::InputTag>("trackIPTagInfos", edm::InputTag("impactParameterTagInfos"))
+      ->setComment("InputTag for the track impact parameter information collection.");
   {
     edm::ParameterSetDescription vertexCuts;
     vertexCuts.add<double>("distSig3dMax", 99999.9);
@@ -1261,11 +1269,13 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::fillDescriptions(edm::Configur
     vertexCuts.add<double>("distVal3dMin", -99999.9);
     vertexCuts.add<double>("massMax", 6.5);
     vertexCuts.add<double>("distSig3dMin", -99999.9);
-    desc.add<edm::ParameterSetDescription>("vertexCuts", vertexCuts);
+    desc.add<edm::ParameterSetDescription>("vertexCuts", vertexCuts)
+        ->setComment("ParameterSet steering the secondary vertex selection.");
   }
-  desc.add<bool>("useExternalSV", false);
-  desc.add<double>("minimumTrackWeight", 0.5);
-  desc.add<bool>("usePVError", true);
+  desc.add<bool>("useExternalSV", false)
+      ->setComment("Flag to consider an external secondary vertex collection as input.");
+  desc.add<double>("minimumTrackWeight", 0.5)->setComment("Setting a lower threshold for the track weight.");
+  desc.add<bool>("usePVError", true)->setComment("Flag to consider the error on the PV.");
   {
     edm::ParameterSetDescription trackSelection;
     trackSelection.add<double>("b_pT", 0.3684);
@@ -1294,21 +1304,35 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::fillDescriptions(edm::Configur
     trackSelection.add<double>("sip3dSigMax", 99999.9);
     trackSelection.add<double>("sip2dSigMin", -99999.9);
     trackSelection.add<double>("b_dR", 0.6263);
-    desc.add<edm::ParameterSetDescription>("trackSelection", trackSelection);
+    desc.add<edm::ParameterSetDescription>("trackSelection", trackSelection)
+        ->setComment("ParameterSet steering the track selection.");
   }
-  desc.add<std::string>("trackSort", "sip3dSig");
-  desc.add<edm::InputTag>("extSVCollection", edm::InputTag("secondaryVertices"));
+  desc.add<std::string>("trackSort", "sip3dSig")->setComment("Set the sorting of the tracks, default is 'sip3dSig'.");
+  desc.add<edm::InputTag>("extSVCollection", edm::InputTag("secondaryVertices"))
+      ->setComment("InputTag for an (optional) external secondary vertex collection.");
   desc.addOptionalNode(edm::ParameterDescription<bool>("useSVClustering", false, true) and
-                           edm::ParameterDescription<std::string>("jetAlgorithm", true) and
-                           edm::ParameterDescription<double>("rParam", true),
-                       true);
-  desc.addOptional<bool>("useSVMomentum", false);
-  desc.addOptional<double>("ghostRescaling", 1e-18);
-  desc.addOptional<double>("relPtTolerance", 1e-03);
-  desc.addOptional<edm::InputTag>("fatJets");
-  desc.addOptional<edm::InputTag>("groomedFatJets");
-  desc.add<edm::InputTag>("weights", edm::InputTag(""));
-  descriptions.addDefault(desc);
+                           edm::ParameterDescription<std::string>("jetAlgorithm", "", true) and
+                           edm::ParameterDescription<double>("rParam", 1.0, true),
+                       true)
+      ->setComment("Optional ParameterSet to steer any secondary vertex reclustering.");
+  desc.addOptional<bool>("useSVMomentum", false)
+      ->setComment(
+          "Flag to consider the secondary vertex momentum instead of the direction only for the ghost clustering.");
+  desc.addOptional<double>("ghostRescaling", 1e-18)
+      ->setComment("Parameter to scale down the secondary vertex momentum for the ghost clustering.");
+  desc.addOptional<double>("relPtTolerance", 1e-03)
+      ->setComment("Tolerance for relative difference in transverse momentum for the ghost clustering.");
+  desc.addOptional<double>("pvErrorScaling", 1.0)
+      ->setComment(
+          "Scaling of the primary vertex error if 'PVErrorScaled' or 'BeamSpotZ+PVErrorScaledXY' is set for the "
+          "constraint.");
+  desc.addOptional<edm::InputTag>("fatJets")->setComment(
+      "InputTag for any fatjet collection to cluster secondary vertices.");
+  desc.addOptional<edm::InputTag>("groomedFatJets")
+      ->setComment("InputTag for any groomed fatjet collection to cluster secondary vertices.");
+  desc.add<edm::InputTag>("weights", edm::InputTag(""))
+      ->setComment("InputTag for any weight collection, e.g., from PUPPI.");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

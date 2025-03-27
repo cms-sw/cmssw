@@ -101,6 +101,12 @@ namespace edm {
                                                  s.getUntrackedParameter<int>("splitLevel"));
     }
 
+    auto const& branchAliases{pset.getUntrackedParameterSetVector("branchAliases")};
+    aliasForBranches_.reserve(branchAliases.size());
+    for (auto const& a : branchAliases) {
+      aliasForBranches_.emplace_back(a.getUntrackedParameter<std::string>("branch"),
+                                     a.getUntrackedParameter<std::string>("alias"));
+    }
     // We don't use this next parameter, but we read it anyway because it is part
     // of the configuration of this module.  An external parser creates the
     // configuration by reading this source code.
@@ -155,15 +161,29 @@ namespace edm {
     return lh < rh;
   }
 
+  namespace {
+    std::regex convertBranchExpression(std::string const& iGlobBranchExpression) {
+      std::string tmp(iGlobBranchExpression);
+      boost::replace_all(tmp, "*", ".*");
+      boost::replace_all(tmp, "?", ".");
+      return std::regex(tmp);
+    }
+  }  // namespace
+
   inline bool PoolOutputModule::SpecialSplitLevelForBranch::match(std::string const& iBranchName) const {
     return std::regex_match(iBranchName, branch_);
   }
 
   std::regex PoolOutputModule::SpecialSplitLevelForBranch::convert(std::string const& iGlobBranchExpression) const {
-    std::string tmp(iGlobBranchExpression);
-    boost::replace_all(tmp, "*", ".*");
-    boost::replace_all(tmp, "?", ".");
-    return std::regex(tmp);
+    return convertBranchExpression(iGlobBranchExpression);
+  }
+
+  bool PoolOutputModule::AliasForBranch::match(std::string const& iBranchName) const {
+    return std::regex_match(iBranchName, branch_);
+  }
+
+  std::regex PoolOutputModule::AliasForBranch::convert(std::string const& iGlobBranchExpression) const {
+    return convertBranchExpression(iGlobBranchExpression);
   }
 
   void PoolOutputModule::fillSelectedItemList(BranchType branchType,
@@ -559,6 +579,13 @@ namespace edm {
           "Name of branch needing a special split level. The name can contain wildcards '*' and '?'");
       specialSplit.addUntracked<int>("splitLevel")->setComment("The special split level for the branch");
       desc.addVPSetUntracked("overrideBranchesSplitLevel", specialSplit, std::vector<ParameterSet>());
+    }
+    {
+      ParameterSetDescription alias;
+      alias.addUntracked<std::string>("branch")->setComment(
+          "Name of branch which will get alias. The name can contain wildcards '*' and '?'");
+      alias.addUntracked<std::string>("alias")->setComment("The alias to give to the TBranch");
+      desc.addVPSetUntracked("branchAliases", alias, std::vector<ParameterSet>());
     }
     OutputModule::fillDescription(desc);
   }

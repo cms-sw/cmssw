@@ -72,6 +72,7 @@ Example: two algorithms each creating only one objects
 #include <memory>
 #include <string>
 #include <optional>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
@@ -87,11 +88,14 @@ Example: two algorithms each creating only one objects
 #include "FWCore/Framework/interface/es_Label.h"
 
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 
 // forward declarations
 namespace edm {
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
+
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
     //  the argument as the decorator itself
@@ -153,6 +157,12 @@ namespace edm {
     }
 
     SerialTaskQueueChain& queue() { return acquirer_.serialQueueChain(); }
+
+    void esModulesWhoseProductsAreConsumed(std::vector<eventsetup::ComponentDescription const*>& esModules,
+                                           eventsetup::ESRecordsToProductResolverIndices const&) const;
+
+    std::vector<std::vector<ESModuleConsumesInfo>> esModuleConsumesInfos(
+        eventsetup::ESRecordsToProductResolverIndices const&) const;
 
   protected:
     /** Specify the names of the shared resources used by this ESProducer */
@@ -226,18 +236,19 @@ namespace edm {
 
     template <typename TReturn, typename TRecord, typename TFunc, typename TDecorator>
     ESConsumesCollectorT<TRecord> setWhatProduced(TFunc&& func, TDecorator&& iDec, const es::Label& iLabel = {}) {
-      const auto id = consumesInfoSize();
+      const auto produceMethodID = consumesInfoSize();
       using DecoratorType = std::decay_t<TDecorator>;
       using CallbackType = eventsetup::Callback<ESProducer, TFunc, TReturn, TRecord, DecoratorType>;
       unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
-      auto temp = std::make_shared<CallbackType>(this, std::forward<TFunc>(func), id, std::forward<TDecorator>(iDec));
+      auto temp = std::make_shared<CallbackType>(
+          this, std::forward<TFunc>(func), produceMethodID, std::forward<TDecorator>(iDec));
       auto callback =
           std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
       registerProducts(std::move(callback),
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type*>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      return ESConsumesCollectorT<TRecord>(consumesInfoPushBackNew(), id);
+      return ESConsumesCollectorT<TRecord>(consumesInfoPushBackNew(), produceMethodID);
     }
 
     // These next four functions are intended for use in this class and

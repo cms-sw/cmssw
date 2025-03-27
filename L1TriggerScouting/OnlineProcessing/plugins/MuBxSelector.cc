@@ -10,7 +10,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/Span.h"
 
 // L1 scouting
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
@@ -76,7 +75,7 @@ void MuBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
     const auto& muons = muonsCollection->bxIterator(bx);
 
     // we have at least a muon
-    if (muons.size() < minNMu_)
+    if (std::ssize(muons) < minNMu_)
       continue;
 
     // it must be in a certain eta region with an pT and quality threshold

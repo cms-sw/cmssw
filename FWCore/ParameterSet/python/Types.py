@@ -77,6 +77,13 @@ class _ProxyParameter(_ParameterTypeBase):
                  raise AttributeError("%r object has no attribute %r" % (self.__class__.__name__, name))
             return object.__setattr__(self, name, value)
     #support container like behavior
+    def __len__(self):
+        v =self.__dict__.get('_ProxyParameter__value', None)
+        if v is not None:
+            return v.__len__()
+        else:
+            raise TypeError("'_ProxyParameter' object has no len()")
+
     def __iter__(self):
         v =self.__dict__.get('_ProxyParameter__value', None)
         if v is not None:
@@ -190,6 +197,8 @@ class _PSetTemplate(object):
     def __call__(self, value):
         self.__dict__
         return self._pset.clone(**value)
+    def _isEmpty(self) -> bool:
+        return self._pset.hasNoParameters()
     def _isValid(self, value) -> bool:
         return isinstance(value,dict) or isinstance(value, PSet)
     def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
@@ -200,6 +209,37 @@ class _PSetTemplate(object):
         return valueWithType
 
 PSetTemplate = _PSetTemplate
+
+class _VPSetTemplate(object):
+    def __init__(self, template:_PSetTemplate=None):
+        self._template = template
+    def __call__(self, *value):
+        self.__dict__
+        if self._template:
+            return VPSet(template = self._template, *value)
+        return VPSet(*value)
+    def _isValid(self, value) -> bool:
+        if isinstance(value,list) or isinstance(value, VPSet):
+            return True
+        try:
+            iter(value)
+        except TypeError:
+            return False
+        return True
+    def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
+        if self._template:
+            options.indent()
+            ret = "VPSetTemplate(\n"+options.indentation()+self._template.dumpPython(options)+'\n'
+            options.unindent()
+            ret += options.indentation()+")"
+            return ret
+        return "VPSetTemplate()"
+    def _setValueWithType(self, valueWithType):
+        if not isinstance(valueWithType, VPSet):
+            raise TypeError("type {bad} is not a VPSet".format(bas=str(type(valueWithType))))
+        return valueWithType
+
+VPSetTemplate = _VPSetTemplate
 
 class _ProxyParameterFactory(object):
     """Class type for ProxyParameter types to allow nice syntax"""
@@ -232,6 +272,16 @@ class _ProxyParameterFactory(object):
                         return untracked(self.type(_PSetTemplate(*args,**kargs)))
                     return self.type(_PSetTemplate(*args,**kargs))
             return _PSetTemplateWrapper(self.__isUntracked, self.__type)
+        if name == 'VPSetTemplate':
+            class _VPSetTemplateWrapper(object):
+                def __init__(self, untracked, type):
+                    self.untracked = untracked
+                    self.type = type
+                def __call__(self,*args,**kargs):
+                    if self.untracked:
+                        return untracked(self.type(_VPSetTemplate(*args,**kargs)))
+                    return self.type(_VPSetTemplate(*args,**kargs))
+            return _VPSetTemplateWrapper(self.__isUntracked, self.__type)
 
         type = globals()[name]
         if not issubclass(type, _ParameterTypeBase):
@@ -1371,18 +1421,50 @@ class VEventRange(_ValidatingParameterListBase):
 
 
 class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
-    def __init__(self,*arg,**args):
-        super(VPSet,self).__init__(*arg,**args)
+    def __init__(self,*arg, **args):
+        """Takes a group of PSets plus an optional named argument `template` of type PSetTemplate.
+     `template` is used to convert a `dict` passed to the VPSet to a `PSet` via the PSetTemplate."""
+        _template = None
+        if "template" in args:
+            _template = args["template"]
+            del args["template"]
+            if not isinstance(_template, _PSetTemplate):
+                raise TypeError("type of template is not PSetTemplate")
+        self._template = _template
         self._nPerLine = 1
+        if _template:
+            #if the positional argument is a container, we need to process it
+            if len(arg) == 1 and not isinstance(arg[0], dict):
+                try:
+                    arg = iter(arg[0])
+                except TypeError:
+                    pass
+            super(VPSet,self).__init__((self._itemFromArgument(x) for x in arg), **args)
+        else:
+            super(VPSet,self).__init__(*arg, **args)
     @classmethod
     def _itemIsValid(cls,item) -> builtins.bool:
-        return isinstance(item, PSet) and PSet._isValid(item)
+        return (isinstance(item, PSet) and PSet._isValid(item)) or (isinstance(item,dict))
+    def _itemFromArgument(self, x):
+        #for some reason, unpickling a VPSet can lead to calling _itemFromArgument without
+        # running the VPSet.__init__ routine so self._template is not yet available
+        if not isinstance(x, PSet) and hasattr(self, "_template") and self._template is not None:
+            return self._template(x)
+        else:
+            return super()._itemFromArgument(x)
     def configValueForItem(self,item, options:PrintOptions) -> str:
         return PSet.configValue(item, options)
     def pythonValueForItem(self,item, options:PrintOptions) -> str:
         return PSet.dumpPython(item,options)
+    def template(self):
+        return self._template
     def copy(self):
         return copy.copy(self)
+    def _additionalInitArguments(self, options):
+        if self._template and not self._template._isEmpty():
+            #NOTE: PSetTemplate.dumpPython does not include the 'cms.' part
+            return 'template = cms.'+self._template.dumpPython(options)
+        return None
     def _place(self,name:str,proc):
         proc._placeVPSet(name,self)
     def insertInto(self, parameterSet, myname:str):
@@ -2092,6 +2174,26 @@ if __name__ == "__main__":
             self.assertEqual(p1.foo.a.value(), 5)
             p1 = PSet(anInt = required.int32)
             self.assertRaises(TypeError, setattr, p1,'anInt', uint32(2))
+            p1 = PSet(aVPSet = required.VPSetTemplate())
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aVPSet = cms.required.VPSetTemplate()\n)')
+            p1.aVPSet =[PSet()]
+            self.assertEqual(len(p1.aVPSet), 1)
+            p1 = PSet(aVPSet = required.VPSetTemplate(PSetTemplate(a=required.int32)))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aVPSet = cms.required.VPSetTemplate(\n        PSetTemplate(\n            a = cms.required.int32\n        )\n    )\n)')
+            p1.aVPSet = [dict(a=3)]
+            self.assertEqual(len(p1.aVPSet), 1)
+            self.assertEqual(p1.aVPSet[0].a.value(),3)
+            p1 = PSet(aVPSet = required.VPSetTemplate())
+            p1.aVPSet = VPSet()
+            self.assertEqual(len(p1.aVPSet),0)
+            p1.aVPSet.append(PSet())
+            self.assertEqual(len(p1.aVPSet),1)
+            p1 = PSet(aVPSet = required.VPSetTemplate())
+            p1.aVPSet = (PSet(),)
+            self.assertEqual(len(p1.aVPSet), 1)
+            p1 = PSet(aVPSet = required.VPSetTemplate(PSetTemplate(a=required.int32)))
+            p1.aVPSet = (dict(a=i) for i in range(0,5))
+            self.assertEqual(len(p1.aVPSet), 5)
 
         def testOptional(self):
             p1 = PSet(anInt = optional.int32)
@@ -2146,7 +2248,15 @@ if __name__ == "__main__":
             #check wrong type failure
             p1 = PSet(anInt = optional.int32)
             self.assertRaises(TypeError, lambda : setattr(p1,'anInt', uint32(2)))
-
+            p1 = PSet(aVPSet = optional.VPSetTemplate())
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aVPSet = cms.optional.VPSetTemplate()\n)')
+            p1.aVPSet =[PSet()]
+            self.assertEqual(len(p1.aVPSet), 1)
+            p1 = PSet(aVPSet = optional.VPSetTemplate(PSetTemplate(a=required.int32)))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aVPSet = cms.optional.VPSetTemplate(\n        PSetTemplate(\n            a = cms.required.int32\n        )\n    )\n)')
+            p1.aVPSet = [dict(a=3)]
+            self.assertEqual(len(p1.aVPSet), 1)
+            self.assertEqual(p1.aVPSet[0].a.value(),3)
 
         def testAllowed(self):
             p1 = PSet(aValue = required.allowed(int32, string))
@@ -2268,6 +2378,68 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, lambda : VPSet(3))
             self.assertRaises(TypeError, lambda : VPSet(int32(3)))
             self.assertRaises(SyntaxError, lambda : VPSet(foo=PSet()))
+            p2 = VPSet([PSet(anInt = int32(1)), PSet(anInt=int32(2))])
+            self.assertEqual(len(p2),2)
+            self.assertEqual(p2[0].anInt.value(), 1)
+            self.assertEqual(p2[1].anInt.value(), 2)
+
+        def testVPSetWithTemplate(self):
+            p1 = VPSet(template=PSetTemplate(a=required.int32))
+            self.assertEqual(len(p1),0)
+            p1.append(dict(a=1))
+            self.assertEqual(len(p1),1)
+            self.assertEqual(p1[0].a.value(), 1)
+            p1.append(PSet(foo= untracked.bool(True)))
+            self.assertEqual(len(p1), 2)
+            self.assertTrue(p1[1].foo.value())
+            self.assertEqual(p1.dumpPython(), '''cms.VPSet(
+    cms.PSet(
+        a = cms.int32(1)
+    ),
+    cms.PSet(
+        foo = cms.untracked.bool(True)
+    ), 
+    template = cms.PSetTemplate(
+        a = cms.required.int32
+    )
+)''')
+            self.assertRaises(TypeError, lambda : p1.append(dict(b=3)) )
+            p2 = VPSet(dict(a=3), dict(a=1), template = PSetTemplate(a=required.int32))
+            self.assertEqual(len(p2), 2)
+            self.assertEqual(p2[0].a.value(), 3)
+            self.assertEqual(p2[1].a.value(), 1)
+            p3 = VPSet([dict(a=3), dict(a=1)], template = PSetTemplate(a=required.int32))
+            self.assertEqual(len(p3), 2)
+            self.assertEqual(p3[0].a.value(), 3)
+            self.assertEqual(p3[1].a.value(), 1)
+            p4 = VPSet(dict(a=3), template = PSetTemplate(a=required.int32))
+            self.assertEqual(len(p4), 1)
+            self.assertEqual(p4[0].a.value(), 3)
+            p5 = VPSet(PSet(a=int32(3)), template = PSetTemplate(a=required.int32))
+            self.assertEqual(len(p5), 1)
+            self.assertEqual(p5[0].a.value(), 3)
+            self.assertRaises(TypeError, lambda : VPSet(dict(b=3), template = PSetTemplate(a=required.int32)) )
+            ptest = VPSet(PSet(b=int32(3)), template = PSetTemplate(a=required.int32))
+            self.assertEqual(len(ptest), 1)
+            self.assertEqual(ptest[0].b.value(), 3)
+            self.assertEqual(ptest.dumpPython(),"cms.VPSet(cms.PSet(\n    b = cms.int32(3)\n), \ntemplate = cms.PSetTemplate(\n    a = cms.required.int32\n))"
+                             )
+            ptest = VPSet(template=PSetTemplate())
+            self.assertEqual(ptest.dumpPython(),"cms.VPSet()")
+            #will inject `a=required.int32` into the PSet when starting from a dict()
+            ptest = VPSet(dict(), template = PSetTemplate(a=required.int32))
+            self.assertEqual(len(ptest), 1)
+            self.assertTrue(hasattr(ptest[0], "a"))
+            ptest[0].a = 4
+            self.assertEqual(ptest[0].a.value(), 4)
+            #Specifying an explicit PSet overrides the template for that item
+            ptest = VPSet(PSet(), template = PSetTemplate(a=required.int32))
+            self.assertEqual(len(ptest), 1)
+            self.assertTrue(not hasattr(ptest[0], "a"))
+            #can only use a dict if specify `template`
+            self.assertRaises(TypeError, lambda: VPSet(dict(a=3)))
+
+
         def testEDAlias(self):
             aliasfoo2 = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
             self.assertTrue(hasattr(aliasfoo2,"foo2"))

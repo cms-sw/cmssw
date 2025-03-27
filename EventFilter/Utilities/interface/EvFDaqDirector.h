@@ -306,10 +306,9 @@ namespace evf {
     //json parser
     jsoncollector::DataPointDefinition* dpd_;
 
-    boost::asio::io_service io_service_;
+    boost::asio::io_context io_service_;
     std::unique_ptr<boost::asio::ip::tcp::resolver> resolver_;
-    std::unique_ptr<boost::asio::ip::tcp::resolver::query> query_;
-    std::unique_ptr<boost::asio::ip::tcp::resolver::iterator> endpoint_iterator_;
+    std::unique_ptr<boost::asio::ip::tcp::resolver::results_type> endpoint_iterator_;
     std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
 
     std::string input_throttled_file_;

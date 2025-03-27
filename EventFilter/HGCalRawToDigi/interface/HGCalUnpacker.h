@@ -18,6 +18,7 @@
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "EventFilter/HGCalRawToDigi/interface/UnpackerTools.h"
 
 #include <cstdint>
 #include <functional>
@@ -31,13 +32,13 @@ public:
   // define what is needed as `config`
   // HGCalUnpacker(HGCalUnpackerConfig config);
 
-  uint8_t parseFEDData(unsigned fedId,
-                       const FEDRawData& fed_data,
-                       const HGCalMappingModuleIndexer& moduleIndexer,
-                       const HGCalConfiguration& config,
-                       hgcaldigi::HGCalDigiHost& digis,
-                       hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
-                       bool headerOnlyMode = false);
+  uint16_t parseFEDData(unsigned fedId,
+                        const FEDRawData& fed_data,
+                        const HGCalMappingModuleIndexer& moduleIndexer,
+                        const HGCalConfiguration& config,
+                        hgcaldigi::HGCalDigiHost& digis,
+                        hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
+                        bool headerOnlyMode = false);
 
 private:
   constexpr static uint8_t tctp_[16] = {

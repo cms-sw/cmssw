@@ -107,6 +107,7 @@ private:
              Tokens<TH2S>,
              Tokens<TH2D>,
              Tokens<TH2I>,
+             Tokens<TH2Poly>,
              Tokens<TH3F>,
              Tokens<TProfile>,
              Tokens<TProfile2D>,
@@ -232,6 +233,14 @@ namespace {
     template <typename... Args>
     static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book2I(std::forward<Args>(args)...);
+    }
+  };
+  template <>
+  struct HistoTraits<TH2Poly> {
+    static TH2Poly *get(MonitorElement *me) { return me->getTH2Poly(); }
+    template <typename... Args>
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
+      return iBooker.book2DPoly(std::forward<Args>(args)...);
     }
   };
   template <>

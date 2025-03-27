@@ -19,18 +19,16 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.Timing = cms.Service("Timing")
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-    DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(2),
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-    ),
-    timetype = cms.string('runnumber'),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiStripBadStripRcd'),
-        tag = cms.string('SiStripBadChannel_v1')
-    )),
-    connect = cms.string('sqlite_file:SiStripConditionsDBFile.db')
-)
+                                      DBParameters = cms.PSet(
+                                          messageLevel = cms.untracked.int32(2),
+                                          authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+                                      ),
+                                      toGet = cms.VPSet(cms.PSet(
+                                          record = cms.string('SiStripBadStripRcd'),
+                                          tag = cms.string('SiStripBadChannel_v1')
+                                      )),
+                                      connect = cms.string('sqlite_file:SiStripConditionsDBFile.db')
+                                      )
 
 process.prod = cms.EDAnalyzer("SiStripBadStripReader",
     printDebug = cms.untracked.bool(True)

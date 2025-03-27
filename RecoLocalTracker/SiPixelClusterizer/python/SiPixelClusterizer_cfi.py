@@ -27,6 +27,12 @@ run3_common.toModify(siPixelClusters,
   ClusterThreshold_L1     = 4000
 )
 
+# lowered L1 cluster charge threshold to cope with reduced charge collection efficiency in the sensor caused by radiation damage
+from Configuration.Eras.Modifier_run3_SiPixel_2025_cff import run3_SiPixel_2025
+run3_SiPixel_2025.toModify(siPixelClusters,
+  ClusterThreshold_L1 = 2000
+)
+
 # Need these until phase2 pixel templates are used
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import PixelDigitizerAlgorithmCommon

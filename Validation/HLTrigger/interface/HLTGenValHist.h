@@ -23,7 +23,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
-
+#include <TProfile.h>
 // base histogram class, with specific implementations following below
 class HLTGenValHist {
 public:
@@ -46,7 +46,7 @@ public:
       : var_(std::move(func)), varName_(std::move(varName)), rangeCuts_(std::move(rangeCuts)), hist_(hist) {}
 
   void fill(const HLTGenValObject& obj) override {
-    if (rangeCuts_(obj))
+    if (rangeCuts_(obj, varName_))
       hist_->Fill(var_(obj));
   }
 
@@ -67,21 +67,47 @@ public:
                   std::string varNameX,
                   std::string varNameY,
                   std::function<float(const HLTGenValObject&)> funcX,
-                  std::function<float(const HLTGenValObject&)> funcY)
+                  std::function<float(const HLTGenValObject&)> funcY,
+                  VarRangeCutColl<HLTGenValObject> rangeCuts = VarRangeCutColl<HLTGenValObject>())
       : varX_(std::move(funcX)),
         varY_(std::move(funcY)),
         varNameX_(std::move(varNameX)),
         varNameY_(std::move(varNameY)),
-        hist_(hist) {}
+        rangeCuts_(rangeCuts),
+        hist_(hist),
+        histProf_(nullptr) {}
 
-  void fill(const HLTGenValObject& obj) override { hist_->Fill(varX_(obj), varY_(obj)); }
+  HLTGenValHist2D(TH2* hist,
+                  TProfile* histProf,
+                  std::string varNameX,
+                  std::string varNameY,
+                  std::function<float(const HLTGenValObject&)> funcX,
+                  std::function<float(const HLTGenValObject&)> funcY,
+                  VarRangeCutColl<HLTGenValObject> rangeCuts = VarRangeCutColl<HLTGenValObject>())
+      : varX_(std::move(funcX)),
+        varY_(std::move(funcY)),
+        varNameX_(std::move(varNameX)),
+        varNameY_(std::move(varNameY)),
+        rangeCuts_(rangeCuts),
+        hist_(hist),
+        histProf_(histProf) {}
+
+  void fill(const HLTGenValObject& obj) override {
+    if (rangeCuts_(obj, {varNameX_, varNameY_})) {
+      hist_->Fill(varX_(obj), varY_(obj));
+      if (histProf_)
+        histProf_->Fill(varX_(obj), varY_(obj));
+    }
+  }
 
 private:
   std::function<float(const HLTGenValObject&)> varX_;
   std::function<float(const HLTGenValObject&)> varY_;
   std::string varNameX_;
   std::string varNameY_;
-  TH2* hist_;  //we do not own this
+  VarRangeCutColl<HLTGenValObject> rangeCuts_;
+  TH2* hist_;           //we do not own this
+  TProfile* histProf_;  //we do not own this
 };
 
 #endif

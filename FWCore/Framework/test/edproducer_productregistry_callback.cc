@@ -9,10 +9,8 @@
 #include <iostream>
 #include "cppunit/extensions/HelperMacros.h"
 #include <memory>
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -26,6 +24,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Utilities/interface/TypeID.h"
+
+#include "makeDummyProcessConfiguration.h"
 
 class testEDProducerProductRegistryCallback : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEDProducerProductRegistryCallback);
@@ -111,7 +111,7 @@ namespace {
 void testEDProducerProductRegistryCallback::testCircularRef() {
   using namespace edm;
 
-  SignallingProductRegistry preg;
+  SignallingProductRegistryFiller preg;
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
@@ -132,8 +132,7 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD", dummyProcessPset.id());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
@@ -177,13 +176,13 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
   //    1 from 'l2' in response to 't2'
   //       1 from 'l1' in response to 'l2'
   //std::cout <<"# products "<<preg.size()<<std::endl;
-  CPPUNIT_ASSERT(10 == preg.size());
+  CPPUNIT_ASSERT(10 == preg.registry().size());
 }
 
 void testEDProducerProductRegistryCallback::testCircularRef2() {
   using namespace edm;
 
-  SignallingProductRegistry preg;
+  SignallingProductRegistryFiller preg;
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
@@ -204,8 +203,7 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD", dummyProcessPset.id());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
@@ -248,13 +246,13 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
   //    1 from 'l2' in response to 't2'
   //       1 from 'l1' in response to 'l2'
   //std::cout <<"# products "<<preg.size()<<std::endl;
-  CPPUNIT_ASSERT(10 == preg.size());
+  CPPUNIT_ASSERT(10 == preg.registry().size());
 }
 
 void testEDProducerProductRegistryCallback::testTwoListeners() {
   using namespace edm;
 
-  SignallingProductRegistry preg;
+  SignallingProductRegistryFiller preg;
 
   std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
@@ -275,8 +273,7 @@ void testEDProducerProductRegistryCallback::testTwoListeners() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD", dummyProcessPset.id());
 
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
@@ -318,5 +315,5 @@ void testEDProducerProductRegistryCallback::testTwoListeners() {
   //       1 from 'l2' in response to 'l1'
   //    1 from 'l2' in response to 't2'
   //std::cout <<"# products "<<preg.size()<<std::endl;
-  CPPUNIT_ASSERT(8 == preg.size());
+  CPPUNIT_ASSERT(8 == preg.registry().size());
 }

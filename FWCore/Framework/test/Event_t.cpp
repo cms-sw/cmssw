@@ -30,17 +30,16 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
 #include "cppunit/extensions/HelperMacros.h"
@@ -54,6 +53,8 @@ Test program for edm::Event.
 #include <string>
 #include <typeinfo>
 #include <vector>
+
+#include "makeDummyProcessConfiguration.h"
 
 using namespace edm;
 
@@ -168,7 +169,7 @@ private:
                                                std::string const& productInstanceLabel,
                                                bool doCommit = true);
 
-  std::shared_ptr<ProductRegistry> availableProducts_;
+  std::shared_ptr<SignallingProductRegistryFiller> availableProducts_;
   std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
   std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
@@ -197,7 +198,7 @@ void testEvent::registerProduct(std::string const& tag,
                                 std::string const& processName,
                                 std::string const& productInstanceName) {
   if (!availableProducts_)
-    availableProducts_.reset(new ProductRegistry());
+    availableProducts_.reset(new SignallingProductRegistryFiller());
 
   ParameterSet moduleParams;
   moduleParams.template addParameter<std::string>("@module_type", moduleClassName);
@@ -209,7 +210,7 @@ void testEvent::registerProduct(std::string const& tag,
   processParams.template addParameter<ParameterSet>(moduleLabel, moduleParams);
   processParams.registerIt();
 
-  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
+  auto process = edmtest::makeDummyProcessConfiguration(processName, processParams.id());
 
   auto processX = std::make_shared<ProcessConfiguration>(process);
   processConfigurations_.push_back(processX);
@@ -317,7 +318,7 @@ std::unique_ptr<ProducerBase> testEvent::emplaceProduct(T product,
 }
 
 testEvent::testEvent()
-    : availableProducts_(new ProductRegistry()),
+    : availableProducts_(new SignallingProductRegistryFiller()),
       branchIDListHelper_(new BranchIDListHelper()),
       thinnedAssociationsHelper_(new ThinnedAssociationsHelper()),
       principal_(),
@@ -352,7 +353,7 @@ testEvent::testEvent()
   processParams.addParameter(moduleLabel, moduleParams);
   processParams.registerIt();
 
-  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
+  auto process = edmtest::makeDummyProcessConfiguration(processName, processParams.id());
 
   TypeWithDict product_type(typeid(prod_t));
 
@@ -375,7 +376,7 @@ testEvent::testEvent()
 
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
-  branchIDListHelper_->updateFromRegistry(*availableProducts_);
+  branchIDListHelper_->updateFromRegistry(availableProducts_->registry());
 }
 
 testEvent::~testEvent() {}
@@ -398,7 +399,7 @@ void testEvent::setUp() {
   processParamsEarly.addParameter(moduleLabelEarly, moduleParamsEarly);
   processParamsEarly.registerIt();
 
-  ProcessConfiguration processEarly("EARLY", processParamsEarly.id(), getReleaseVersion(), getPassID());
+  auto processEarly = edmtest::makeDummyProcessConfiguration("EARLY", processParamsEarly.id());
 
   ParameterSet moduleParamsLate;
   std::string moduleLabelLate("currentModule");
@@ -413,7 +414,7 @@ void testEvent::setUp() {
   processParamsLate.addParameter(moduleLabelLate, moduleParamsLate);
   processParamsLate.registerIt();
 
-  ProcessConfiguration processLate("LATE", processParamsLate.id(), getReleaseVersion(), getPassID());
+  auto processLate = edmtest::makeDummyProcessConfiguration("LATE", processParamsLate.id());
 
   auto processHistory = std::make_unique<ProcessHistory>();
   ProcessHistory& ph = *processHistory;
@@ -439,7 +440,7 @@ void testEvent::setUp() {
   // and that is used to create the product holder in the principal used to
   // look up the object.
 
-  std::shared_ptr<ProductRegistry const> preg(availableProducts_);
+  std::shared_ptr<ProductRegistry const> preg(std::make_shared<ProductRegistry>(availableProducts_->registry()));
   std::string uuid = createGlobalIdentifier();
   Timestamp time = make_timestamp();
   EventID id = make_id();

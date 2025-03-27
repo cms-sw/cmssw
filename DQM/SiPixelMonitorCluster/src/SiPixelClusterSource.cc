@@ -344,32 +344,9 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup &iSetup) {
           thePixelStructure.insert(pair<uint32_t, SiPixelClusterModule *>(id, theModule));
         } else if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
           LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
-          PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
           int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
           if (disk > noOfDisks)
             noOfDisks = disk;
-          int blade = PixelEndcapName(DetId(id), pTT, isUpgrade).bladeName();
-          int panel = PixelEndcapName(DetId(id), pTT, isUpgrade).pannelName();
-          int module = PixelEndcapName(DetId(id), pTT, isUpgrade).plaquetteName();
-          char sside[80];
-          sprintf(sside, "HalfCylinder_%i", side);
-          char sdisk[80];
-          sprintf(sdisk, "Disk_%i", disk);
-          char sblade[80];
-          sprintf(sblade, "Blade_%02i", blade);
-          char spanel[80];
-          sprintf(spanel, "Panel_%i", panel);
-          char smodule[80];
-          sprintf(smodule, "Module_%i", module);
-          std::string side_str = sside;
-          std::string disk_str = sdisk;
-          bool mask = side_str.find("HalfCylinder_1") != string::npos ||
-                      side_str.find("HalfCylinder_2") != string::npos ||
-                      side_str.find("HalfCylinder_4") != string::npos || disk_str.find("Disk_2") != string::npos;
-          // clutch to take all of FPIX, but no BPIX:
-          mask = false;
-          if (isPIB && mask)
-            continue;
           SiPixelClusterModule *theModule = new SiPixelClusterModule(id, ncols, nrows);
           thePixelStructure.insert(pair<uint32_t, SiPixelClusterModule *>(id, theModule));
         }

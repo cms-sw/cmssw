@@ -47,12 +47,18 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 # JetMET
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 
+# Tracks
+from DQMOffline.Trigger.TrackToTrackMonitoringCosmics_cff import *
+from DQMOffline.Trigger.TrackingMonitoringCosmics_cff import *
+
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone(
     subSystemFolder = 'HLT'
 )
 
 offlineHLTSource = cms.Sequence(
+    cosmicTrackingMonitorHLT *
+    hltToOfflineCosmicsTrackValidatorSequence *
     dqmHLTFiltersDQMonitor *
     egHLTOffDQMSource *
     hltMuonOfflineAnalyzers *
@@ -63,3 +69,9 @@ offlineHLTSource = cms.Sequence(
 
 #triggerCosmicOfflineDQMSource = cms.Sequence(onlineHLTSource*offlineHLTSource)
 triggerCosmicOfflineDQMSource = cms.Sequence(offlineHLTSource)
+
+# sequences run @tier0 on CosmicHLTMonitor PD
+OfflineHLTMonitoring = cms.Sequence(
+    cosmicTrackingMonitorHLT *
+    hltToOfflineCosmicsTrackValidatorSequence
+)

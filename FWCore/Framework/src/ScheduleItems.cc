@@ -6,20 +6,19 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/Common/interface/SubProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/CommonParams.h"
 #include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/BranchType.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <memory>
@@ -31,7 +30,7 @@
 namespace edm {
   ScheduleItems::ScheduleItems()
       : actReg_(std::make_shared<ActivityRegistry>()),
-        preg_(std::make_shared<SignallingProductRegistry>()),
+        preg_(std::make_shared<SignallingProductRegistryFiller>()),
         branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
         thinnedAssociationsHelper_(std::make_shared<ThinnedAssociationsHelper>()),
         subProcessParentageHelper_(),
@@ -43,7 +42,8 @@ namespace edm {
                                SubProcessBlockHelper& subProcessBlockHelper,
                                ProcessBlockHelperBase const& parentProcessBlockHelper)
       : actReg_(std::make_shared<ActivityRegistry>()),
-        preg_(std::make_shared<SignallingProductRegistry>(preg)),
+        preg_(std::make_shared<SignallingProductRegistryFiller>(preg.productList(),
+                                                                SignallingProductRegistryFiller::FromEarlierProcess())),
         branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
         thinnedAssociationsHelper_(std::make_shared<ThinnedAssociationsHelper>()),
         subProcessParentageHelper_(std::make_shared<SubProcessParentageHelper>()),
@@ -83,7 +83,7 @@ namespace edm {
         prod.setDropped(true);
       }
     }
-    subProcessBlockHelper.updateFromParentProcess(parentProcessBlockHelper, *preg_);
+    subProcessBlockHelper.updateFromParentProcess(parentProcessBlockHelper, preg_->registry());
   }
 
   ServiceToken ScheduleItems::initServices(std::vector<ParameterSet>& pServiceSets,
@@ -120,10 +120,14 @@ namespace edm {
 
   std::shared_ptr<CommonParams> ScheduleItems::initMisc(ParameterSet& parameterSet) {
     edm::Service<edm::ResourceInformation> resourceInformationService;
+    edm::HardwareResourcesDescription hwResources;
     if (resourceInformationService.isAvailable()) {
       auto const& selectedAccelerators =
           parameterSet.getUntrackedParameter<std::vector<std::string>>("@selected_accelerators");
-      resourceInformationService->initializeAcceleratorTypes(selectedAccelerators);
+      resourceInformationService->setSelectedAccelerators(selectedAccelerators);
+      // HardwareResourcesDescription is optional here in order to not
+      // require ResourceInformationService in TestProcessor
+      hwResources = resourceInformationService->hardwareResourcesDescription();
     }
 
     act_table_ = std::make_unique<ExceptionToActionTable>(parameterSet);
@@ -136,7 +140,7 @@ namespace edm {
       releaseVersion = getReleaseVersion();
     }
     // propagate_const<T> has no reset() function
-    processConfiguration_ = std::make_shared<ProcessConfiguration>(processName, releaseVersion, getPassID());
+    processConfiguration_ = std::make_shared<ProcessConfiguration>(processName, releaseVersion, hwResources);
     auto common = std::make_shared<CommonParams>(
         parameterSet.getUntrackedParameterSet("maxEvents").getUntrackedParameter<int>("input"),
         parameterSet.getUntrackedParameterSet("maxLuminosityBlocks").getUntrackedParameter<int>("input"),

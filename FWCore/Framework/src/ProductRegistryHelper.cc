@@ -4,7 +4,7 @@
 
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "DataFormats/Common/interface/setIsMergeable.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Reflection/interface/DictionaryTools.h"
@@ -34,7 +34,7 @@ namespace edm {
   void ProductRegistryHelper::addToRegistry(TypeLabelList::const_iterator const& iBegin,
                                             TypeLabelList::const_iterator const& iEnd,
                                             ModuleDescription const& iDesc,
-                                            ProductRegistry& iReg,
+                                            SignallingProductRegistryFiller& iReg,
                                             ProductRegistryHelper* iProd,
                                             bool iIsListener) {
     std::vector<std::string> missingDictionaries;

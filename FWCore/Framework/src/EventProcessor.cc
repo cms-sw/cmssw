@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/ModuleChanger.h"
 #include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -54,6 +55,8 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 
+#include "FWCore/AbstractServices/interface/RootHandlers.h"
+
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
@@ -73,7 +76,6 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/RootHandlers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -526,12 +528,21 @@ namespace edm {
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
-      preg_ = items.preg();
+      preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
       mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
       branchIDListHelper_ = items.branchIDListHelper();
       thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
       processConfiguration_ = items.processConfiguration();
       processContext_.setProcessConfiguration(processConfiguration_.get());
+
+      {
+        edm::Service<edm::JobReport> jr;
+        if (jr.isAvailable()) {
+          ProcessConfiguration reduced = *processConfiguration_;
+          reduced.reduce();
+          jr->reportProcess(reduced.processName(), reduced.id(), reduced.parameterSetID());
+        }
+      }
 
       FDEBUG(2) << parameterSet << std::endl;
 
@@ -645,7 +656,9 @@ namespace edm {
                                  preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
-    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
+
+    PathsAndConsumesOfModules pathsAndConsumesOfModules;
+    pathsAndConsumesOfModules.initialize(schedule_.get(), preg());
 
     std::vector<ModuleProcessName> consumedBySubProcesses;
     for_all(subProcesses_,
@@ -666,11 +679,11 @@ namespace edm {
             });
 
     // Note: all these may throw
-    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, printDependencies_);
+    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, printDependencies_);
     if (deleteNonConsumedUnscheduledModules_) {
-      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedBySubProcesses);
+      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules, consumedBySubProcesses);
           not unusedModules.empty()) {
-        pathsAndConsumesOfModules_.removeModules(unusedModules);
+        pathsAndConsumesOfModules.removeModules(unusedModules);
 
         edm::LogInfo("DeleteModules").log([&unusedModules](auto& l) {
           l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, "
@@ -717,7 +730,10 @@ namespace edm {
     //   looper_->beginOfJob(es);
     //}
     espController_->finishConfiguration();
-    actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
+
+    eventsetup::ESRecordsToProductResolverIndices esRecordsToProductResolverIndices = esp_->recordsToResolverIndices();
+
+    actReg_->eventSetupConfigurationSignal_(esRecordsToProductResolverIndices, processContext_);
     try {
       convertException::wrap([&]() { input_->doBeginJob(*preg_); });
     } catch (cms::Exception& ex) {
@@ -733,7 +749,7 @@ namespace edm {
     std::exception_ptr firstException;
     CMS_SA_ALLOW try {
       schedule_->beginJob(
-          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, pathsAndConsumesOfModules_, processContext_);
+          *preg_, esRecordsToProductResolverIndices, *processBlockHelper_, pathsAndConsumesOfModules, processContext_);
     } catch (...) {
       firstException = std::current_exception();
     }
@@ -748,7 +764,7 @@ namespace edm {
         looper_->updateLookup(InRun, *runLookup, mustPrefetchMayGet);
         looper_->updateLookup(InLumi, *lumiLookup, mustPrefetchMayGet);
         looper_->updateLookup(InEvent, *eventLookup, mustPrefetchMayGet);
-        looper_->updateLookup(esp_->recordsToResolverIndices());
+        looper_->updateLookup(esRecordsToProductResolverIndices);
       } catch (...) {
         firstException = std::current_exception();
       }
@@ -762,6 +778,12 @@ namespace edm {
     }
     if (firstException) {
       std::rethrow_exception(firstException);
+    }
+    pathsAndConsumesOfModules.initializeForEventSetup(std::move(esRecordsToProductResolverIndices), *esp_);
+    actReg_->lookupInitializationCompleteSignal_(pathsAndConsumesOfModules, processContext_);
+    schedule_->releaseMemoryPostLookupSignal();
+    for (auto& subProcess : subProcesses_) {
+      subProcess.initializePathsAndConsumes();
     }
 
     beginJobSucceeded_ = true;
@@ -1010,22 +1032,19 @@ namespace edm {
     SendSourceTerminationSignalIfException sentry(actReg_.get());
 
     if (streamRunActive_ > 0) {
+      //deals with data structures that allows merged Run products to be split on Lumi boundaries then
+      // in later processes reintegrated.
       streamRunStatus_[0]->runPrincipal()->preReadFile();
-      streamRunStatus_[0]->runPrincipal()->adjustIndexesAfterProductRegistryAddition();
     }
 
-    if (streamLumiActive_ > 0) {
-      streamLumiStatus_[0]->lumiPrincipal()->adjustIndexesAfterProductRegistryAddition();
-    }
-
+    auto oldCacheID = input_->productRegistry().cacheIdentifier();
     fb_ = input_->readFile();
     //incase the input's registry changed
-    const size_t size = preg_->size();
-    preg_->merge(input_->productRegistry(), fb_ ? fb_->fileName() : std::string());
-    if (size < preg_->size()) {
-      principalCache_.adjustIndexesAfterProductRegistryAddition();
+    if (input_->productRegistry().cacheIdentifier() != oldCacheID) {
+      auto temp = std::make_shared<edm::ProductRegistry>(*preg_);
+      temp->merge(input_->productRegistry(), fb_ ? fb_->fileName() : std::string());
+      preg_ = std::move(temp);
     }
-    principalCache_.adjustEventsToNewProductRegistry(preg());
     if (preallocations_.numberOfStreams() > 1 and preallocations_.numberOfThreads() > 1) {
       fb_->setNotFastClonable(FileBlock::ParallelProcesses);
     }
@@ -1086,7 +1105,8 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if (looper_) {
-      ModuleChanger changer(schedule_.get(), preg_.get(), esp_->recordsToResolverIndices());
+      SignallingProductRegistryFiller sReg(*preg());
+      ModuleChanger changer(schedule_.get(), &sReg, esp_->recordsToResolverIndices());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetupImpl());
       looper_->setModuleChanger(nullptr);
@@ -2008,6 +2028,8 @@ namespace edm {
 
   std::shared_ptr<RunPrincipal> EventProcessor::readRun() {
     auto rp = principalCache_.getAvailableRunPrincipalPtr();
+    //a new file may have been opened since the last use of this Run
+    rp->possiblyUpdateAfterAddition(preg());
     assert(rp);
     rp->setAux(*input_->runAuxiliary());
     {
@@ -2021,9 +2043,10 @@ namespace edm {
 
   void EventProcessor::readAndMergeRun(RunProcessingStatus& iStatus) {
     RunPrincipal& runPrincipal = *iStatus.runPrincipal();
+    //If a file open happened and we are continuing the Run we may need
+    // to do the update
+    runPrincipal.possiblyUpdateAfterAddition(preg());
 
-    bool runOK = runPrincipal.adjustToNewProductRegistry(*preg_);
-    assert(runOK);
     runPrincipal.mergeAuxiliary(*input_->runAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -2034,6 +2057,8 @@ namespace edm {
 
   std::shared_ptr<LuminosityBlockPrincipal> EventProcessor::readLuminosityBlock(std::shared_ptr<RunPrincipal> rp) {
     auto lbp = principalCache_.getAvailableLumiPrincipalPtr();
+    //A new file may have been opened since the last use of the LuminosityBlock
+    lbp->possiblyUpdateAfterAddition(preg());
     assert(lbp);
     lbp->setAux(*input_->luminosityBlockAuxiliary());
     {
@@ -2051,8 +2076,9 @@ namespace edm {
            input_->processHistoryRegistry().reducedProcessHistoryID(lumiPrincipal.aux().processHistoryID()) ==
                input_->processHistoryRegistry().reducedProcessHistoryID(
                    input_->luminosityBlockAuxiliary()->processHistoryID()));
-    bool lumiOK = lumiPrincipal.adjustToNewProductRegistry(*preg());
-    assert(lumiOK);
+    //If a file was opened and the LuminosityBlock is continuing
+    // we may need to do the update
+    lumiPrincipal.possiblyUpdateAfterAddition(preg());
     lumiPrincipal.mergeAuxiliary(*input_->luminosityBlockAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -2358,6 +2384,8 @@ namespace edm {
     //TODO this will have to become per stream
     auto& event = principalCache_.eventPrincipal(iStreamIndex);
     StreamContext streamContext(event.streamID(), &processContext_);
+    // a new file may have been read since the last time this event was used
+    event.possiblyUpdateAfterAddition(preg());
 
     SendSourceTerminationSignalIfException sentry(actReg_.get());
     input_->readEvent(event, streamContext);
