@@ -17,4 +17,5 @@ GlobalTag = cms.ESSource( "PoolDBESSource",
                           RefreshOpenIOVs  = cms.untracked.bool( False ),
                           pfnPostfix       = cms.untracked.string( '' ),
                           pfnPrefix        = cms.untracked.string( '' ),
+                          recordsToDebug   = cms.untracked.vstring( '' ),
                           )
