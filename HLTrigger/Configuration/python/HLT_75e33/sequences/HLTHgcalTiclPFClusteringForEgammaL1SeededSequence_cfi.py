@@ -20,7 +20,7 @@ from ..modules.hltTiclTrackstersCLUE3DHighL1Seeded_cfi import *
 from ..modules.hltTiclTracksterLinksL1Seeded_cfi import *
 from ..modules.hltBarrelLayerClustersEBL1Seeded_cfi import *
 
-_HgcalLocalRecoL1SeededSequence = cms.Sequence(hltHgcalDigis+hltL1TEGammaHGCFilteredCollectionProducer+hltHgcalDigisL1Seeded+hltHGCalUncalibRecHitL1Seeded+hltHGCalRecHitL1Seeded+hltParticleFlowRecHitHGCL1Seeded+hltRechitInRegionsHGCAL+hltHgcalLayerClustersEEL1Seeded+hltHgcalLayerClustersHSciL1Seeded+hltHgcalLayerClustersHSiL1Seeded+hltBarrelLayerClustersEBL1Seeded+hltHgcalMergeLayerClustersL1Seeded)
+_HgcalLocalRecoL1SeededSequence = cms.Sequence(hltHgcalDigis+hltL1TEGammaHGCFilteredCollectionProducer+hltHgcalDigisL1Seeded+hltHGCalUncalibRecHitL1Seeded+hltHGCalRecHitL1Seeded+hltParticleFlowRecHitHGCL1Seeded+hltRechitInRegionsHGCAL+hltHgcalLayerClustersEEL1Seeded+hltHgcalLayerClustersHSciL1Seeded+hltHgcalLayerClustersHSiL1Seeded+hltHgcalMergeLayerClustersL1Seeded)
 _HgcalTICLPatternRecognitionL1SeededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHighL1Seeded+hltTiclSeedingL1+hltTiclLayerTileProducerL1Seeded+hltTiclTrackstersCLUE3DHighL1Seeded)
 _SuperclusteringL1SeededSequence = cms.Sequence(hltParticleFlowClusterHGCalFromTICLL1Seeded+hltParticleFlowSuperClusterHGCalFromTICLL1Seeded)
 
@@ -76,3 +76,20 @@ ticl_superclustering_mustache_ticl.toModify(hltTiclEGammaSuperClusterProducerL1S
                                             layerClusters=cms.InputTag("hltHgcalMergeLayerClustersL1Seeded"),
                                             enableRegression=cms.bool(False)
 )
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+_HgcalLocalRecoL1SeededSequence_barrel = cms.Sequence(
+    hltHgcalDigis+
+    hltL1TEGammaHGCFilteredCollectionProducer+
+    hltHgcalDigisL1Seeded+
+    hltHGCalUncalibRecHitL1Seeded+
+    hltHGCalRecHitL1Seeded+
+    hltParticleFlowRecHitHGCL1Seeded+
+    hltRechitInRegionsHGCAL+
+    hltHgcalLayerClustersEEL1Seeded+
+    hltHgcalLayerClustersHSciL1Seeded+
+    hltHgcalLayerClustersHSiL1Seeded+
+    hltBarrelLayerClustersEBL1Seeded+
+    hltHgcalMergeLayerClustersL1Seeded
+) 
+ticl_barrel.toReplaceWith(_HgcalLocalRecoL1SeededSequence, _HgcalLocalRecoL1SeededSequence_barrel)

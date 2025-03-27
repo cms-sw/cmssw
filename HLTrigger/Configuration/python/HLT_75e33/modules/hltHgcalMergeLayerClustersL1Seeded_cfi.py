@@ -1,16 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 hltHgcalMergeLayerClustersL1Seeded = cms.EDProducer("MergeClusterProducer",
-    layerClustersEE = cms.InputTag("hltHgcalLayerClustersEEL1Seeded"),
-    layerClustersHSci = cms.InputTag("hltHgcalLayerClustersHSciL1Seeded"),
-    layerClustersHSi = cms.InputTag("hltHgcalLayerClustersHSiL1Seeded"),
-    layerClustersEB = cms.InputTag("hltBarrelLayerClustersEBL1Seeded"),
-    layerClustersHB = cms.InputTag("hltBarrelLayerClustersEBL1Seeded"),
+    layerClusters = cms.VInputTag("hltHgcalLayerClustersEEL1Seeded", "hltHgcalLayerClustersHSciL1Seeded", "hltHgcalLayerClustersHSiL1Seeded"),
     mightGet = cms.optional.untracked.vstring,
-    timeClname = cms.string('timeLayerCluster'),
-    time_layerclustersEE = cms.InputTag("hltHgcalLayerClustersEEL1Seeded","timeLayerCluster"),
-    time_layerclustersHSci = cms.InputTag("hltHgcalLayerClustersHSciL1Seeded","timeLayerCluster"),
-    time_layerclustersHSi = cms.InputTag("hltHgcalLayerClustersHSiL1Seeded","timeLayerCluster"),
-    time_layerclustersEB = cms.InputTag("hltBarrelLayerClustersEBL1Seeded","timeLayerCluster"),
-    time_layerclustersHB = cms.InputTag("hltBarrelLayerClustersEBL1Seeded","timeLayerCluster"),
+    time_layerclusters = cms.VInputTag("hltHgcalLayerClustersEEL1Seeded:timeLayerCluster","hltHgcalLayerClustersHSciL1Seeded:timeLayerCluster","hltHgcalLayerClustersHSiL1Seeded:timeLayerCluster")
 )
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+layerClusters = cms.VInputTag("hltHgcalLayerClustersEEL1Seeded", "hltHgcalLayerClustersHSciL1Seeded", "hltHgcalLayerClustersHSiL1Seeded", "hltBarrelLayerClustersEBL1Seeded")
+time_layerclusters = cms.VInputTag("hltHgcalLayerClustersEEL1Seeded:timeLayerCluster", "hltHgcalLayerClustersHSciL1Seeded:timeLayerCluster", "hltHgcalLayerClustersHSiL1Seeded:timeLayerCluster", "hltBarrelLayerClustersEBL1Seeded:timeLayerCluster")
+ticl_barrel.toModify(hltHgcalMergeLayerClustersL1Seeded, layerClusters = layerClusters, time_layerclusters = time_layerclusters)
