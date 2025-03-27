@@ -35,7 +35,6 @@ process.CondDB.connect='frontier://FrontierProd/CMS_CONDITIONS'
 
 process.poolDBESSource = cms.ESSource('PoolDBESSource',
                                       process.CondDB,
-                                      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                       toGet = cms.VPSet( cms.PSet(record = cms.string('SiStripFedCablingRcd'),
                                                                   tag    = cms.string('SiStripFedCabling_GR10_v1_hlt')
                                                                   )
@@ -49,11 +48,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripApvGainRcd'),

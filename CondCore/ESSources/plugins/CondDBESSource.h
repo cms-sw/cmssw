@@ -75,6 +75,7 @@
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edm {
   class ParameterSet;
@@ -98,6 +99,8 @@ public:
   explicit CondDBESSource(const edm::ParameterSet&);
   ~CondDBESSource() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 protected:
   void setIntervalFor(const EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
@@ -112,6 +115,7 @@ private:
 
   cond::persistency::ConnectionPool m_connection;
   std::string m_connectionString;
+  std::string m_globalTag;
   std::string m_frontierKey;
 
   // Container of ProductResolver, implemented as multi-map keyed by records
