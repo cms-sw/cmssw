@@ -39,7 +39,7 @@ class OfflineConverter:
     databases['v3']['run2'] = ( '-t', 'oracle', '-h', 'cmsr1-v.cern.ch,cmsr2-v.cern.ch,cmsr3-v.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
     databases['v3']['run3'] = ( '-t', 'oracle', '-h', 'cmsr1-v.cern.ch,cmsr2-v.cern.ch,cmsr3-v.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_v3_r',     '-s', 'convertMe!' )
     databases['v3']['dev'] = ( '-t', 'oracle', '-h', 'cmsr1-v.cern.ch,cmsr2-v.cern.ch,cmsr3-v.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdrdev_r',     '-s', 'convertMe1!' )
-    databases['v3']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-s.cms',          '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
+    databases['v3']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-v.cms',          '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
     databases['v3']['adg']     = ( '-t', 'oracle', '-h', 'cmsonr1-adg-v.cern.ch,cmsonr2-adg-v.cern.ch', '-d', 'cms_orcon_adg.cern.ch', '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
     
     databases['v3-beta'] = dict(databases['v3'])
