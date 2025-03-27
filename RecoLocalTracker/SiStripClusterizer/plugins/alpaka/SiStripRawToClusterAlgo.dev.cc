@@ -787,7 +787,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         maxAdjacentBad_(conf.getParameter<unsigned>("MaxAdjacentBad")),
         maxClusterSize_(conf.getParameter<unsigned>("MaxClusterSize")),
         minGoodCharge_(clusterChargeCut(conf)),
-        legacyUnpacker_(legacyMode) {}
+        legacyUnpacker_(legacyMode) {
+    if (maxClusterSize_ > 32) {
+      throw cms::Exception("SiStripRawToClstAlg", "MaxClusterSize must be <= 32");
+    }
+  }
 
   void SiStripRawToClusterAlgo::initialize(Queue& queue, int n_strips) {
     assert(n_strips >= 0);

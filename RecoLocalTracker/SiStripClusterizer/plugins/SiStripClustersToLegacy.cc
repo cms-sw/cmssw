@@ -1,15 +1,14 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
