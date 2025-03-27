@@ -54,7 +54,7 @@ public:  // interface
     else if (qualityStr == "TIGHTLEPVETO")
       quality_ = TIGHTLEPVETO;
     else {
-      std::cout <<  "JetID quality not specified -- setting default to RUN3Scouting" << std::endl;
+      edm::LogWarning("BadJetIDQuality") << "JetID quality not specified -- setting default to RUN3Scouting";
       quality_ = TIGHT;       //set TIGHT as default //this is extremely unsafe --> similarly it's done in PFJetIDSelectionFunctor.h
     }
 
