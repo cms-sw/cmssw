@@ -74,7 +74,7 @@ void LST::run(Queue& queue,
               bool verbose,
               float const ptCut,
               LSTESData<Device> const* deviceESData,
-              LSTInputDeviceCollection const* lstInputDC,
+              LSTInputCollection const* lstInputDC,
               bool no_pls_dupclean,
               bool tc_pls_triplets) {
   auto event = LSTEvent(verbose, ptCut, queue, deviceESData);

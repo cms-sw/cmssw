@@ -79,7 +79,7 @@ void LSTEvent::resetEventSync() {
   modulesHC_.reset();
 }
 
-void LSTEvent::addInputToEvent(LSTInputDeviceCollection const* lstInputDC) {
+void LSTEvent::addInputToEvent(LSTInputCollection const* lstInputDC) {
   lstInputDC_ = lstInputDC;
 
   pixelSize_ = lstInputDC_->sizes()[2];

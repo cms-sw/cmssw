@@ -66,7 +66,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    edm::EDGetTokenT<lst::LSTInputDeviceCollection> lstInputToken_;
+    edm::EDGetTokenT<lst::LSTInputCollection> lstInputToken_;
     device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
     const bool verbose_;
     const double ptCut_;

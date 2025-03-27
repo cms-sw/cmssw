@@ -17,7 +17,7 @@
 #include "RecoTracker/LSTCore/interface/ModulesHostCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/alpaka/LST.h"
-#include "RecoTracker/LSTCore/interface/alpaka/LSTInputDeviceCollection.h"
+#include "RecoTracker/LSTCore/interface/alpaka/LSTInputCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/HitsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/MiniDoubletsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/PixelQuintupletsDeviceCollection.h"
@@ -53,7 +53,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     uint16_t pixelModuleIndex_;
 
     //Device stuff
-    LSTInputDeviceCollection const* lstInputDC_;  // not owned
+    LSTInputCollection const* lstInputDC_;  // not owned
     std::optional<ObjectRangesDeviceCollection> rangesDC_;
     std::optional<HitsDeviceCollection> hitsDC_;
     std::optional<MiniDoubletsDeviceCollection> miniDoubletsDC_;
@@ -110,7 +110,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     void resetEventSync();  // synchronizes, for standalone usage
     void wait() const { alpaka::wait(queue_); }
 
-    void addInputToEvent(LSTInputDeviceCollection const* lstInputDC);
+    void addInputToEvent(LSTInputCollection const* lstInputDC);
     // Calls the appropriate hit function, then increments the counter
     void addHitToEvent();
     void addPixelSegmentToEventStart();

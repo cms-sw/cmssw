@@ -212,9 +212,9 @@ namespace lst {
     std::memcpy(hits.zs(), ph2_z.data(), nHitsOT * sizeof(float));
     std::memcpy(hits.detid(), ph2_detId.data(), nHitsOT * sizeof(unsigned int));
     if (ph2_hits.size()) {
-        std::memcpy(hits.hits(), ph2_hits.data(), nHitsOT * sizeof(TrackingRecHit const*));
+      std::memcpy(hits.hits(), ph2_hits.data(), nHitsOT * sizeof(TrackingRecHit const*));
     } else {
-        std::memset(hits.hits(), 0, nHitsOT * sizeof(TrackingRecHit const*));
+      std::memset(hits.hits(), 0, nHitsOT * sizeof(TrackingRecHit const*));
     }
 
     std::memcpy(hits.xs() + nHitsOT, trkX.data(), nHitsIT * sizeof(float));
