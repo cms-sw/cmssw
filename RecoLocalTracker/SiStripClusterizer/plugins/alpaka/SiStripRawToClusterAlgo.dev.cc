@@ -418,7 +418,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                        SiStripClusterizerConditionsData_stripConstView Data_strip,
                                        SiStripClusterizerConditionsData_apvConstView Data_apv,
                                        StripDigiView stripDataObj) const {
-      // make a strided loop over the kernel grid, covering up to "size" elements
+      // Loop over the FEDChannel collection to be digitized
       for (auto chan : uniform_elements(acc, mapping.metadata().size())) {
         const auto fedID = mapping.fedID(chan);
         const auto fedCH = mapping.fedCh(chan);
@@ -491,7 +491,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                   SiStripClusterizerConditionsData_stripConstView Data_strip,
                                   StripDigiConstView stripDataObj,
                                   StripClustersAuxView clusterDataObj) const {
-      // make a strided loop over the kernel grid, covering up to "size" elements
       auto nStrips = stripDataObj.metadata().size();
       const float seedThreshold = clusterDataObj.seedThreshold();
       for (auto chan : uniform_elements(acc, nStrips)) {
@@ -525,7 +524,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                   StripDigiConstView stripDataObj,
                                   StripClustersAuxView clusterDataObj) const {
       auto channels = stripDataObj.channel();
-      // make a strided loop over the kernel grid, covering up to "size" elements
+      // Loop over the strips
       for (auto stripIdx : uniform_elements(acc, 1, stripDataObj.metadata().size())) {
         const auto detid = mapping.detID(channels[stripIdx]);
         const auto detid1 = mapping.detID(channels[stripIdx - 1]);
@@ -544,7 +543,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   StripDigiConstView stripDataObj,
                                   StripClustersAuxView clusterDataObj) const {
-      // make a strided loop over the kernel grid, covering up to "size" elements
+      // Loop over the strips
       for (auto stripIdx : uniform_elements(acc, stripDataObj.metadata().size())) {
         if (clusterDataObj.seedStripsNCMask(stripIdx) == 1) {
           const int index = (clusterDataObj.prefixSeedStripsNCMask(stripIdx) - 1);
@@ -575,7 +574,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       int clusterSizeLimit = clusterDataObj.clusterSizeLimit();
       const auto clusterThresholdSquared = clusterDataObj.clusterThresholdSquared();
 
-      // make a strided loop over the kernel grid, covering up to "size" elements
+      // Loop over only the non-contiguous strips (flagged in setStripIndex)
       for (auto i : uniform_elements(acc, nSeedStripsNC)) {
         const auto index = clusterDataObj.seedStripsNCIndex(i);
         const auto chan = channels[index];
@@ -701,7 +700,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                   StripDigiConstView stripDataObj,
                                   StripClustersAuxView clusterDataObj,
                                   sistrip::SiStripClustersView clusters) const {
-      const auto nSeedStripsNC = clusters.nClusters();
+      const auto nClusters = clusters.nClusters();
       auto trueCluster = clusters.trueCluster();
       auto clusterIndexLeft = clusters.clusterIndex();
       auto clusterSize = clusters.clusterSize();
@@ -717,8 +716,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       constexpr int charge_low_saturation = 253;
       constexpr int charge_high_saturation = 1022;
 
-      // make a strided loop over the kernel grid, covering up to "size" elements
-      for (auto i : uniform_elements(acc, nSeedStripsNC)) {
+      for (auto i : uniform_elements(acc, nClusters)) {
         if (trueCluster[i]) {
           unsigned int left = clusterIndexLeft[i];
           unsigned int size = clusterSize[i];
