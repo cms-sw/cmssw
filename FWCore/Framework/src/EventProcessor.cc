@@ -2012,8 +2012,11 @@ namespace edm {
         assert(streamLumiActive_ == preallocations_.numberOfStreams());
         streamLumiStatus_[0]->noMoreEventsInLumi();
         streamLumiStatus_[0]->setCleaningUpAfterException(cleaningUpAfterException);
-        for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
-          streamEndLumiAsync(WaitingTaskHolder{taskGroup_, &globalWaitTask}, i);
+        {
+          WaitingTaskHolder holder{taskGroup_, &globalWaitTask};
+          for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+            streamEndLumiAsync(holder, i);
+          }
         }
         globalWaitTask.wait();
       }

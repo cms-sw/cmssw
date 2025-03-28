@@ -130,6 +130,7 @@ Calorimeters:
 * C23: HGCal (same as the v18 version which is in C22 but without internal cells in the Geant4 geometry defintiion) + Phase2 HCAL and EB (used in Run4D106)
 * C24: HGCal (v18 version of HGCal geometry as in C122 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in Run4D109)
 * C25: sane as C18 but changing ebalgo.xml to make it more conformant with standard
+* C26: HGCal (v19 version of HGCal geometry with calibration cells, nonzero cssette retraction, correct mousebite, guard ring, proper cell size) + Phase2 HCAL and EB (used in Run4D120)
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -200,3 +201,4 @@ Several detector combinations have been generated:
 * D117 = T35+C25+M15+I18+O10+F9
 * D118 = T35+C25+M15+I19+O10+F9
 * D119 = T35+C25+M15+I20+O10+F9
+* D120 = T35+C26+M15+I20+O10+F9
