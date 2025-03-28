@@ -354,8 +354,9 @@ private:
     return true;
   }
 
-  void dumpEventFilteringParameterSets_(TFile* file);
-  void dumpEventFilteringParameterSets(edm::EventSelectionIDVector const& ids);
+  void dumpEventFilteringParameterSets_(TFile* file, ProcessSimpleIDsType const& processSimpleIDs);
+  void dumpEventFilteringParameterSets(edm::EventSelectionIDVector const& ids,
+                                       ProcessSimpleIDsType const& processSimpleIDs);
   void dumpParameterSetForID_(edm::ParameterSetID const& id);
   std::optional<std::tuple<edm::BranchIDListHelper, std::vector<edm::ProcessIndex>>> makeBranchIDListHelper();
 };
@@ -399,22 +400,30 @@ void ProvenanceDumper::printErrors(std::ostream& os) {
 
 int ProvenanceDumper::exitCode() const { return exitCode_; }
 
-void ProvenanceDumper::dumpEventFilteringParameterSets(edm::EventSelectionIDVector const& ids) {
+void ProvenanceDumper::dumpEventFilteringParameterSets(edm::EventSelectionIDVector const& ids,
+                                                       ProcessSimpleIDsType const& processSimpleIDs) {
   edm::EventSelectionIDVector::size_type num_ids = ids.size();
   if (num_ids == 0) {
     std::cout << "No event filtering information is available.\n";
-    std::cout << "------------------------------\n";
   } else {
     std::cout << "Event filtering information for " << num_ids << " processing steps is available.\n"
-              << "The ParameterSets will be printed out, "
-              << "with the oldest printed first.\n";
+              << "The ParameterSets are printed out with the oldest process first.\n";
+    std::string const indent = "  ";
     for (edm::EventSelectionIDVector::size_type i = 0; i != num_ids; ++i) {
-      dumpParameterSetForID_(ids[i]);
+      auto found = psm_.find(ids[i]);
+      if (found == psm_.end()) {
+        std::cout << "PSet id " << ids[i] << " not found" << std::endl;
+        continue;
+      }
+      std::cout << "Event filtering:\n" << indent << "PSet id: " << ids[i] << "\n" << indent << "parameters: ";
+      edm::ParameterSet ps(found->second.pset());
+      prettyPrint(std::cout, ps, indent, indent);
+      std::cout << std::endl;
     }
   }
 }
 
-void ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
+void ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file, ProcessSimpleIDsType const& processSimpleIDs) {
   TTree* history = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventHistoryTreeName().c_str()));
   if (history != nullptr) {
     edm::History h;
@@ -424,7 +433,7 @@ void ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
     if (history->GetEntry(0) <= 0) {
       std::cout << "No event filtering information is available; the event history tree has no entries\n";
     } else {
-      dumpEventFilteringParameterSets(h.eventSelectionIDs());
+      dumpEventFilteringParameterSets(h.eventSelectionIDs(), processSimpleIDs);
     }
   } else {
     TTree* events = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventTreeName().c_str()));
@@ -438,7 +447,7 @@ void ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
     if (eventSelectionsBranch->GetEntry(0) <= 0) {
       std::cout << "No event filtering information is available; the event selections branch has no entries\n";
     } else {
-      dumpEventFilteringParameterSets(ids);
+      dumpEventFilteringParameterSets(ids, processSimpleIDs);
     }
   }
 }
@@ -904,9 +913,10 @@ void ProvenanceDumper::work_() {
     }
   }
 
-  dumpEventFilteringParameterSets_(inputFile_.get());
-
   ProcessSimpleIDsType const& processSimpleIDs = dumpProcessHistory_();
+
+  std::cout << formatHeader("Event filtering") << std::endl;
+  dumpEventFilteringParameterSets_(inputFile_.get(), processSimpleIDs);
 
   if (productRegistryPresent_) {
     std::cout << formatHeader("Producers with data in file") << std::endl;
