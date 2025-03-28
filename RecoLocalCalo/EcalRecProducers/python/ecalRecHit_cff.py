@@ -102,3 +102,13 @@ from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValida
 alpakaValidationEcal.toModify(ecalRecHit, cpu = ecalRecHitCPU)
 alpakaValidationEcal.toModify(ecalRecHit, cuda = _ecalRecHitSoAToLegacy.clone())
 
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toModify(ecalRecHitPortable, isPhase2=True)
+phase2_ecal_devel.toModify(ecalRecHitPortable, uncalibrecHitsInLabelEB = 'ecalUncalibRecHitPhase2Portable:EcalUncalibRecHitsEB')
+phase2_ecal_devel.toModify(ecalRecHitPortable, EELaserMAX= None)
+phase2_ecal_devel.toModify(ecalRecHitPortable, EELaserMIN= None)
+phase2_ecal_devel.toModify(ecalRecHitPortable, recHitsLabelEE= None)
+phase2_ecal_devel.toModify(ecalRecHitPortable, recoverEEFE= None)
+phase2_ecal_devel.toModify(ecalRecHitPortable, recoverEEIsolatedChannels= None)
+phase2_ecal_devel.toModify(ecalRecHitPortable, recoverEEVFE= None)
+phase2_ecal_devel.toModify(ecalRecHitPortable, uncalibrecHitsInLabelEE= None)
