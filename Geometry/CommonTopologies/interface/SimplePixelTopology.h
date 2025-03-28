@@ -13,7 +13,7 @@ namespace pixelTopology {
   constexpr uint8_t maxPairs = 64;
 
   // TODO
-  // Once CUDA is dropped this could be wrapped in #ifdef CA_TRIPLETS_HOLE
+  // Once CUDA is dropped this could be wrapped in #ifdef ONLY_TRIPLETS_IN_HOLE
   // see DataFormats/TrackingRecHitSoa/interface/TrackingRecHitSoA.h
 
   template <typename TrackerTraits>
