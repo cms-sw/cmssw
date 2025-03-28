@@ -583,7 +583,7 @@ def miniAOD_customizeCommon(process):
     pp_on_AA.toModify(_uTagToTaus_switches, storePNetCHSjets=False, storeUParTPUPPIjets=False)
     _addUTagToTaus(process, task,
                    storePNetCHSjets = _uTagToTaus_switches.storePNetCHSjets.value(),
-                   storeUParTPUPPIjets = _uTagToTaus_switches.storePNetCHSjets.value(),
+                   storeUParTPUPPIjets = _uTagToTaus_switches.storeUParTPUPPIjets.value(),
                    addGenJet = _uTagToTaus_switches.addGenJet.value()
     )
 

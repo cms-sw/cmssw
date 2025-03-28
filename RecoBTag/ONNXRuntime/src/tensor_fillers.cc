@@ -215,4 +215,119 @@ namespace btagbtvdeep {
     return inputs;
   }
 
+  std::vector<float> inputs_UparT(const btagbtvdeep::ChargedCandidateFeatures& c_pf_features,
+                                  UparT::InputFeatures ifeature) {
+    std::vector<float> inputs;
+    if (ifeature == UparT::kChargedCandidates) {
+      inputs.push_back(c_pf_features.btagPf_trackEtaRel);
+      inputs.push_back(c_pf_features.btagPf_trackPtRel);
+      inputs.push_back(c_pf_features.btagPf_trackPPar);
+      inputs.push_back(c_pf_features.btagPf_trackDeltaR);
+      inputs.push_back(c_pf_features.btagPf_trackPParRatio);
+      inputs.push_back(c_pf_features.btagPf_trackSip2dVal);
+      inputs.push_back(c_pf_features.btagPf_trackSip2dSig);
+      inputs.push_back(c_pf_features.btagPf_trackSip3dVal);
+      inputs.push_back(c_pf_features.btagPf_trackSip3dSig);
+      inputs.push_back(c_pf_features.btagPf_trackJetDistVal);
+      inputs.push_back(c_pf_features.ptrel);
+      inputs.push_back(c_pf_features.drminsv);
+      inputs.push_back(c_pf_features.vtx_ass);
+      inputs.push_back(c_pf_features.puppiw);
+      inputs.push_back(c_pf_features.chi2);
+      inputs.push_back(c_pf_features.quality);
+      inputs.push_back(c_pf_features.charge);
+      inputs.push_back(c_pf_features.dz);
+      inputs.push_back(c_pf_features.btagPf_trackDecayLen);
+      inputs.push_back(c_pf_features.HadFrac);
+      inputs.push_back(c_pf_features.CaloFrac);
+      inputs.push_back(c_pf_features.pdgID);
+      inputs.push_back(c_pf_features.lostInnerHits);
+      inputs.push_back(c_pf_features.numberOfPixelHits);
+      inputs.push_back(c_pf_features.numberOfStripHits);
+    } else if (ifeature == UparT::kChargedCandidates4Vec) {
+      inputs.push_back(c_pf_features.px);
+      inputs.push_back(c_pf_features.py);
+      inputs.push_back(c_pf_features.pz);
+      inputs.push_back(c_pf_features.e);
+    }
+    return inputs;
+  }
+
+  std::vector<float> inputs_UparT(const btagbtvdeep::LostTracksFeatures& lt_features, UparT::InputFeatures ifeature) {
+    std::vector<float> inputs;
+    if (ifeature == UparT::kLostTracks) {
+      inputs.push_back(lt_features.btagPf_trackEtaRel);
+      inputs.push_back(lt_features.btagPf_trackPtRel);
+      inputs.push_back(lt_features.btagPf_trackPPar);
+      inputs.push_back(lt_features.btagPf_trackDeltaR);
+      inputs.push_back(lt_features.btagPf_trackPParRatio);
+      inputs.push_back(lt_features.btagPf_trackSip2dVal);
+      inputs.push_back(lt_features.btagPf_trackSip2dSig);
+      inputs.push_back(lt_features.btagPf_trackSip3dVal);
+      inputs.push_back(lt_features.btagPf_trackSip3dSig);
+      inputs.push_back(lt_features.btagPf_trackJetDistVal);
+      inputs.push_back(lt_features.drminsv);
+      inputs.push_back(lt_features.charge);
+      inputs.push_back(lt_features.puppiw);
+      inputs.push_back(lt_features.chi2);
+      inputs.push_back(lt_features.quality);
+      inputs.push_back(lt_features.lostInnerHits);
+      inputs.push_back(lt_features.numberOfPixelHits);
+      inputs.push_back(lt_features.numberOfStripHits);
+    } else if (ifeature == UparT::kLostTracks4Vec) {
+      inputs.push_back(lt_features.pt);
+      inputs.push_back(lt_features.eta);
+      inputs.push_back(lt_features.phi);
+      inputs.push_back(lt_features.e);
+    }
+    return inputs;
+  }
+
+  std::vector<float> inputs_UparT(const btagbtvdeep::NeutralCandidateFeatures& n_pf_features,
+                                  UparT::InputFeatures ifeature) {
+    std::vector<float> inputs;
+    if (ifeature == UparT::kNeutralCandidates) {
+      inputs.push_back(n_pf_features.ptrel);
+      inputs.push_back(n_pf_features.etarel);
+      inputs.push_back(n_pf_features.phirel);
+      inputs.push_back(n_pf_features.deltaR);
+      inputs.push_back(n_pf_features.isGamma);
+      inputs.push_back(n_pf_features.hadFrac);
+      inputs.push_back(n_pf_features.drminsv);
+      inputs.push_back(n_pf_features.puppiw);
+    } else if (ifeature == UparT::kNeutralCandidates4Vec) {
+      inputs.push_back(n_pf_features.px);
+      inputs.push_back(n_pf_features.py);
+      inputs.push_back(n_pf_features.pz);
+      inputs.push_back(n_pf_features.e);
+    }
+    return inputs;
+  }
+
+  std::vector<float> inputs_UparT(const btagbtvdeep::SecondaryVertexFeatures& sv_features,
+                                  UparT::InputFeatures ifeature) {
+    std::vector<float> inputs;
+    if (ifeature == UparT::kVertices) {
+      inputs.push_back(sv_features.pt);
+      inputs.push_back(sv_features.deltaR);
+      inputs.push_back(sv_features.mass);
+      inputs.push_back(sv_features.etarel);
+      inputs.push_back(sv_features.phirel);
+      inputs.push_back(sv_features.ntracks);
+      inputs.push_back(sv_features.chi2);
+      inputs.push_back(sv_features.normchi2);
+      inputs.push_back(sv_features.dxy);
+      inputs.push_back(sv_features.dxysig);
+      inputs.push_back(sv_features.d3d);
+      inputs.push_back(sv_features.d3dsig);
+      inputs.push_back(sv_features.costhetasvpv);
+      inputs.push_back(sv_features.enratio);
+    } else if (ifeature == UparT::kVertices4Vec) {
+      inputs.push_back(sv_features.px);
+      inputs.push_back(sv_features.py);
+      inputs.push_back(sv_features.pz);
+      inputs.push_back(sv_features.e);
+    }
+    return inputs;
+  }
 }  // namespace btagbtvdeep
