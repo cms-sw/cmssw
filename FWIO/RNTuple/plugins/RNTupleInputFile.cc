@@ -12,6 +12,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "ROOT/RNTupleReadOptions.hxx"
 
 #include <cassert>
@@ -53,6 +55,24 @@ namespace edm {
     }
 
     return retValue;
+  }
+
+  void RNTupleInputFile::readParameterSets() {
+    auto psets = RNTupleReader::Open(*file_->Get<ROOT::RNTuple>("ParameterSets"));
+    assert(psets.get());
+    auto entry = psets->GetModel().CreateBareEntry();
+
+    std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
+    entry->BindRawPtr("IdToParameterSetsBlobs", &idToBlob);
+
+    // Merge into the parameter set registry.
+    pset::Registry& psetRegistry = *pset::Registry::instance();
+    for (ROOT::Experimental::NTupleSize_t i = 0; i < psets->GetNEntries(); ++i) {
+      psets->LoadEntry(i, *entry);
+      ParameterSet pset(idToBlob.second.pset());
+      pset.setID(idToBlob.first);
+      psetRegistry.insertMapped(pset);
+    }
   }
 
   void RNTupleInputFile::readMeta(edm::ProductRegistry& iReg,
