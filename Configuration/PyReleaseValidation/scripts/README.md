@@ -299,21 +299,22 @@ MC workflows for pp collisions:
 |---	|---	|---	|---	|---	|	
 | |  	|  	|  	|  	|  	
 | **Run1** 	|  	|  	|  	|  	|  	
-| |  	|  	|  	|  	|  	
-| 5.1 	|  	TTbar_8TeV_TuneCUETP8M1 | run1_mc 	|  	| *FastSim* 	|  	
-| 8 	| RelValBeamHalo 	| run1_mc 	|  	| Cosmics 	|  	
-| 9.0 	| RelValHiggs200ChargedTaus 	| run1_mc 	|  	|  	|  	
-| 25 	| RelValTTbar 	| run1_mc 	|  	|  	|  	
+| |  		|  	|  	|  	|  	
+| 5.1 		| TTbar_8TeV_TuneCUETP8M1 | run1_mc 	|  	| *FastSim* 	|  	
+| 8 		| RelValBeamHalo 	| run1_mc 	|  	| Cosmics 	|  	
+| 9.0 		| RelValHiggs200ChargedTaus 	| run1_mc 	|  	|  	|  	
+| 25 		| RelValTTbar 	| run1_mc 	|  	|  	|  	
 | 101.0 	| SingleElectronE120EHCAL 	| run1_mc 	|  	| + ECALHCAL.customise + fullMixCustomize_cff.setCrossingFrameOn 	|  	
 | |  	|  	|  	|  	|  	
 | **Run2** 	|  	|  	|  	|  	|  	
 | |  	|  	|  	|  	|  	
-| 7.3 	| UndergroundCosmicSPLooseMu 	| run2_2018 	|  	|  	|  	
+| 7.3 		| UndergroundCosmicSPLooseMu 	| run2_2018 	|  	|  	|  	
 | 1306.0 	| RelValSingleMuPt1_UP15 	| run2_mc 	| Run2_2016 	| with miniAOD 	|  	
-| 1330 	| RelValZMM_13 	| run2_mc 	| Run2_2016 	|  	|  	
+| 1330 		| RelValZMM_13 	| run2_mc 	| Run2_2016 	|  	|  	
 | 135.4 	| ZEE_13TeV_TuneCUETP8M1 	| run2_mc 	| Run2_2016 	| *FastSim* 	|  	
 | 25202.0 	| RelValTTbar_13 	| run2_mc 	| Run2_2016 	|  AVE_35_BX_25ns 	|  	
-| 250202.181 | RelValTTbar_13 (PREMIX) 	| phase1_2018_realistic 	| Run2_2018 	|  	|  	|  
+| 250202.181 	| RelValTTbar_13 (PREMIX) 	| phase1_2018_realistic 	| Run2_2018 	|  	|  	|  
+| 10224.0       | RelValTTbar_13        | phase1_2017_realistic       | Run2_2017     |  AVE_35_BX_25ns       |
 | |  	|  	|  	|  	|  	
 | **Run3** 	|  	|  	|  	|  	|  	
 | |  	|  	|  	|  	|  	
