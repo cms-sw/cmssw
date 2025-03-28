@@ -51,7 +51,7 @@ int main() {
       for (uint32_t j = 0; j < testSiStripClusterSoA::kMaxSeedStrips; ++j) {
         assert(clusters_h->clusterIndex(j) == j);
         assert(clusters_h->clusterSize(j) == j * 2);
-        for (int k = 0; k < 768; ++k) {
+        for (int k = 0; k < ALPAKA_ACCELERATOR_NAMESPACE::sistrip::maxStripsPerCluster; ++k) {
           assert(clusters_h->clusterADCs(j)[k] == (uint8_t)((j + k) % 255));
         }
         assert(clusters_h->clusterDetId(j) == j + 12);
