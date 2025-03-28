@@ -83,12 +83,7 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
   mapCLSPerCh_ = MEMap4Inf(
       this, "cls", "Cluster size of RecHits", nCLSMax_, 0.5, nCLSMax_ + 0.5, 1, 0.5, 1.5, "Cluster size", "iEta");
-   /*
-  if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE) {
-    mapCLSOver5_.TurnOff();
-    mapCLSPerCh_.TurnOff();
-  }
-  */
+  
   if (nRunType_ == GEMDQM_RUNTYPE_RELVAL) {
     mapRecHitXY_layer_.TurnOff();
     mapCLSAverage_.TurnOff();
