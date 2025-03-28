@@ -12,7 +12,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
-#include "TMath.h"
 #include <iostream>
 #include <map>
 #include <set>
@@ -42,9 +41,9 @@ public:
   float bendchi2;
   float MVA1;
 
-  float z(float x, float y) {
-    float t = std::sinh(eta);
-    float r = TMath::Sqrt(pow(x, 2) + pow(y, 2));
+  float trackZAtVertex(float x, float y) {
+    float t = sinh(eta);
+    float r = sqrt(pow(x, 2) + pow(y, 2));
     return (z0 +
             (t * r *
              (1 + (pow(d0, 2) / pow(r, 2)) +
@@ -55,13 +54,13 @@ public:
                    float z0_in,
                    float eta_in,
                    float phi_in,
-                   float rho_in = 0,
-                   int index_in = -1,
-                   int nstubs_in = 0,
-                   float chi2rphi_in = 0,
-                   float chi2rz_in = 0,
-                   float bendchi2_in = 0,
-                   float MVA1_in = 0) {
+                   float rho_in,
+                   int index_in,
+                   int nstubs_in,
+                   float chi2rphi_in,
+                   float chi2rz_in,
+                   float bendchi2_in,
+                   float MVA1_in) {
     pt = pt_in;
     d0 = d0_in;
     z0 = z0_in;
@@ -76,8 +75,8 @@ public:
     }
     index = index_in;
     rho = fabs(rho_in);
-    x0 = (rho + charge * d0) * TMath::Cos(phi - (charge * TMath::Pi() / 2));
-    y0 = (rho + charge * d0) * TMath::Sin(phi - (charge * TMath::Pi() / 2));
+    x0 = (rho + charge * d0) * cos(phi - (charge * numbers::pi / 2));
+    y0 = (rho + charge * d0) * sin(phi - (charge * numbers::pi / 2));
     nstubs = nstubs_in;
     chi2rphi = chi2rphi_in;
     chi2rz = chi2rz_in;
@@ -95,7 +94,7 @@ inline std::valarray<float> calcPVec(Track_Parameters a, double_t v_x, double_t 
     p_vec *= -1;
   }
   if ((p_vec[0] != 0.0) || (p_vec[1] != 0.0)) {
-    p_vec /= TMath::Sqrt(pow(p_vec[0], 2) + pow(p_vec[1], 2));
+    p_vec /= sqrt(pow(p_vec[0], 2) + pow(p_vec[1], 2));
   }
   p_vec *= a.pt;
   return p_vec;
@@ -127,20 +126,19 @@ public:
     std::valarray<float> p_trk_1 = calcPVec(a_in, x_dv_in, y_dv_in);
     std::valarray<float> p_trk_2 = calcPVec(b_in, x_dv_in, y_dv_in);
     std::valarray<float> p_tot = p_trk_1 + p_trk_2;
-    p_mag = TMath::Sqrt(pow(p_tot[0], 2) + pow(p_tot[1], 2));
+    p_mag = sqrt(pow(p_tot[0], 2) + pow(p_tot[1], 2));
     if (((p_trk_1[0] != 0.0) || (p_trk_2[1] != 0.0)) && ((p_trk_2[0] != 0.0) || (p_trk_2[1] != 0.0))) {
-      openingAngle =
-          (p_trk_1[0] * p_trk_2[0] + p_trk_1[1] * p_trk_2[1]) /
-          (TMath::Sqrt(pow(p_trk_1[0], 2) + pow(p_trk_1[1], 2)) * TMath::Sqrt(pow(p_trk_2[0], 2) + pow(p_trk_2[1], 2)));
+      openingAngle = (p_trk_1[0] * p_trk_2[0] + p_trk_1[1] * p_trk_2[1]) /
+                     (sqrt(pow(p_trk_1[0], 2) + pow(p_trk_1[1], 2)) * sqrt(pow(p_trk_2[0], 2) + pow(p_trk_2[1], 2)));
     }
-    R_T = TMath::Sqrt(pow(x_dv_in, 2) + pow(y_dv_in, 2));
+    R_T = sqrt(pow(x_dv_in, 2) + pow(y_dv_in, 2));
     if ((R_T != 0.0) && ((p_tot[0] != 0.0) || (p_tot[1] != 0.0))) {
-      cos_T = (p_tot[0] * x_dv_in + p_tot[1] * y_dv_in) / (R_T * TMath::Sqrt(pow(p_tot[0], 2) + pow(p_tot[1], 2)));
+      cos_T = (p_tot[0] * x_dv_in + p_tot[1] * y_dv_in) / (R_T * sqrt(pow(p_tot[0], 2) + pow(p_tot[1], 2)));
     }
     phi = atan2(p_tot[1], p_tot[0]);
     d_T = fabs(cos(phi) * y_dv_in - sin(phi) * x_dv_in);
     p2_mag = pow(a_in.pt, 2) + pow(b_in.pt, 2);
-    delta_z = fabs(a_in.z(x_dv_in, y_dv_in) - b_in.z(x_dv_in, y_dv_in));
+    delta_z = fabs(a_in.trackZAtVertex(x_dv_in, y_dv_in) - b_in.trackZAtVertex(x_dv_in, y_dv_in));
   }
 
   Vertex_Parameters() {};

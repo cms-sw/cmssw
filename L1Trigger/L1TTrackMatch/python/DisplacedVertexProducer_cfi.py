@@ -29,4 +29,7 @@ DisplacedVertexProducer = cms.EDProducer('DisplacedVertexProducer',
 Features for displaced vertex BDT: ['trkExt_pt_firstTrk', 'trkExt_pt', 'trkExt_eta_firstTrk', 'trkExt_eta', 'trkExt_phi_firstTrk', 'trkExt_phi', 'trkExt_d0_firstTrk', 'trkExt_d0', 'trkExt_z0_firstTrk', 'trkExt_z0', 'trkExt_chi2rz_firstTrk', 'trkExt_chi2rz', 'trkExt_bendchi2_firstTrk', 'trkExt_bendchi2', 'trkExt_MVA_firstTrk', 'trkExt_MVA', 'dv_d_T', 'dv_R_T', 'dv_cos_T', 'dv_del_Z'])
 
 dv inputs are vertex quantities and trkExt is a displaced track property. The firstTrk suffix means the track quantity comes from the higher pt track associated to a vertex. If there's no firstTrk suffix, then the track property is from the lower pt track associated to a vertex.
+
+Note: TrackQuality parameter in L1Trigger/TrackFindingTracklet/python/l1tTTTracksFromTrackletEmulation_cfi.py needs to be set to True to get MVA values needed for BDT
+
 '''

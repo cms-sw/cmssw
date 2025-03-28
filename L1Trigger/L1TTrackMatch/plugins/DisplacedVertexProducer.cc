@@ -65,7 +65,7 @@ bool ComparePtTrack(std::pair<Track_Parameters, edm::Ptr<TrackingParticle>> a,
 }
 
 Double_t dist(Double_t x1, Double_t y1, Double_t x2 = 0, Double_t y2 = 0) {  // Distance between 2 points
-  return (TMath::Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+  return (sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
 }
 
 Double_t dist_TPs(Track_Parameters a, Track_Parameters b) {
@@ -99,16 +99,16 @@ Int_t calcVertex(Track_Parameters a, Track_Parameters b, Double_t& x_vtx, Double
   float radicand = (2 / pow(R, 2)) * (pow(R1, 2) + pow(R2, 2)) - (pow(pow(R1, 2) - pow(R2, 2), 2) / pow(R, 4)) - 1;
   float co2 = 0;
   if (radicand > 0)
-    co2 = 0.5 * TMath::Sqrt(radicand);
+    co2 = 0.5 * sqrt(radicand);
   float ix1_x = 0.5 * (x1 + x2) + co1 * (x2 - x1) + co2 * (y2 - y1);
   float ix2_x = 0.5 * (x1 + x2) + co1 * (x2 - x1) - co2 * (y2 - y1);
   float ix1_y = 0.5 * (y1 + y2) + co1 * (y2 - y1) + co2 * (x1 - x2);
   float ix2_y = 0.5 * (y1 + y2) + co1 * (y2 - y1) - co2 * (x1 - x2);
-  float ix1_z1 = a.z(ix1_x, ix1_y);
-  float ix1_z2 = b.z(ix1_x, ix1_y);
+  float ix1_z1 = a.trackZAtVertex(ix1_x, ix1_y);
+  float ix1_z2 = b.trackZAtVertex(ix1_x, ix1_y);
   float ix1_delz = fabs(ix1_z1 - ix1_z2);
-  float ix2_z1 = a.z(ix2_x, ix2_y);
-  float ix2_z2 = b.z(ix2_x, ix2_y);
+  float ix2_z1 = a.trackZAtVertex(ix2_x, ix2_y);
+  float ix2_z2 = b.trackZAtVertex(ix2_x, ix2_y);
   float ix2_delz = fabs(ix2_z1 - ix2_z2);
   float trk1_POCA[2] = {a.d0 * sin(a.phi), -1 * a.d0 * cos(a.phi)};
   float trk2_POCA[2] = {b.d0 * sin(b.phi), -1 * b.d0 * cos(b.phi)};

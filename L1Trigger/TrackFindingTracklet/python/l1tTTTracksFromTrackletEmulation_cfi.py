@@ -20,7 +20,7 @@ l1tTTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                processingModulesFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/processingmodules_hourglassExtendedAllCombined.dat'),
                                                wiresFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/wires_hourglassExtendedAllCombined.dat'),
                                                # Quality Flag and Quality params
-                                               TrackQuality = cms.bool(True),
+                                               TrackQuality = cms.bool(False),
                                                TrackQualityPSet = cms.PSet(TrackQualityParams),
                                                Fakefit = cms.bool(False), # True causes Tracklet reco to output TTTracks before DR & KF
                                                StoreTrackBuilderOutput = cms.bool(False), # if True EDProducts for TrackBuilder tracks and stubs will be filled
