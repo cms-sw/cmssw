@@ -4,6 +4,7 @@
 <use name="CondCore/CondDB"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/GeometrySurface"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>

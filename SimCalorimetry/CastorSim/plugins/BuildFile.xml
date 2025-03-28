@@ -2,6 +2,7 @@
   <flags EDM_PLUGIN="1"/>
   <use name="SimCalorimetry/CastorSim"/>
   <use name="DataFormats/HcalDetId"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/Utilities"/>
   <use name="FWCore/MessageLogger"/>

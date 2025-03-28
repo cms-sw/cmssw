@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 
 namespace edm {
 

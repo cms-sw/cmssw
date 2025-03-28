@@ -11,7 +11,7 @@
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 
 //Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"

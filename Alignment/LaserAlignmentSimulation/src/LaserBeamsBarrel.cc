@@ -8,9 +8,9 @@
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsBarrel.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include <CLHEP/Random/RandGaussQ.h>
 #include "G4ParticleDefinition.hh"

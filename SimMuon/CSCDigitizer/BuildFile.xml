@@ -3,6 +3,7 @@
 <use name="DataFormats/CSCDigi"/>
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/MuonDetId"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>

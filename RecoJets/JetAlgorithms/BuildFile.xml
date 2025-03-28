@@ -4,6 +4,7 @@
 <use name="DataFormats/BTauReco"/>
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/Candidate"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/ServiceRegistry"/>

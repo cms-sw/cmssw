@@ -7,9 +7,9 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 class CSCNoiseMatrixTest : public edm::one::EDAnalyzer<> {
 public:

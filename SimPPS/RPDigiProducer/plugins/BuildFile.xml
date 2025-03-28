@@ -2,6 +2,7 @@
 <use name="DataFormats/CTPPSDetId"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/PPSObjects"/>
+<use name="FWCore/AbstractServices"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="Geometry/VeryForwardRPTopology"/>
 <library name="SimPPSRPDigiProducerPlugins" file="*.cc">

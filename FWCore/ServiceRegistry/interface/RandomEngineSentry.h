@@ -10,9 +10,9 @@ Description:
 // Original Author: W. David Dagenhart
 //         Created: 11/26/2013
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace CLHEP {

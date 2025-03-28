@@ -14,7 +14,8 @@
 </library>
 
   <library file="SiPMNonlinearityAnalyzer.cc" name="SiPMNonlinearityAnalyzer">
-</library>
+    <use name="FWCore/AbstractServices"/>
+  </library>
 
   <library file="CaloSamplesAnalyzer.cc" name="CaloSamplesAnalyzer">
 </library>

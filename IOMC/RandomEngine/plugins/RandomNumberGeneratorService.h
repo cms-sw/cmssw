@@ -11,8 +11,8 @@
   (originally in FWCore/Services)
 */
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 

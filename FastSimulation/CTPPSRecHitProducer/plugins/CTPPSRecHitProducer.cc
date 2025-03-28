@@ -32,7 +32,7 @@ Implementation:
 #include <cmath>
 
 #include <CLHEP/Random/RandGauss.h>
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 

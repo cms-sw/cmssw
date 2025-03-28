@@ -53,7 +53,7 @@
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 // Random Number
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace cms {

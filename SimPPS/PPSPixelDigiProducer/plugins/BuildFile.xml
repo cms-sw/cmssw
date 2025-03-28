@@ -1,6 +1,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondFormats/DataRecord"/>
 <use name="SimPPS/PPSPixelDigiProducer"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/ServiceRegistry"/>
 <library name="SimPPSPixelDigiProducerPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
