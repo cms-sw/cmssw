@@ -1,28 +1,17 @@
 <lcgdict>
-  <class name="reco::TrackSoA<pixelTopology::Phase1>"/>
-  <class name="reco::TrackSoA<pixelTopology::Phase1>::Layout<>"/>
-  <class name="reco::TrackLayout<pixelTopology::Phase1>"/>
-  <class name="reco::TrackSoAView<pixelTopology::Phase1>"/>
 
-  <class name="PortableHostCollection<reco::TrackLayout<pixelTopology::Phase1>>"/>
-  <class name="pixelTrack::TracksHostPhase1"/>
-  <class name="edm::Wrapper<pixelTrack::TracksHostPhase1>" splitLevel="0"/>
+  <class name="reco::TrackLayout<128, false>"/>
+  <class name="reco::TrackHitsLayout<128, false>"/>
 
-  <class name="reco::TrackSoA<pixelTopology::Phase2>"/>
-  <class name="reco::TrackSoA<pixelTopology::Phase2>::Layout<>"/>
-  <class name="reco::TrackLayout<pixelTopology::Phase2>"/>
-  <class name="reco::TrackSoAView<pixelTopology::Phase2>"/>
+  <class name="reco::TracksHost"/>
+  <class name="edm::Wrapper<reco::TracksHost>" splitLevel="0"/>
 
-  <class name="PortableHostCollection<reco::TrackLayout<pixelTopology::Phase2>>"/>
-  <class name="pixelTrack::TracksHostPhase2"/>
-  <class name="edm::Wrapper<pixelTrack::TracksHostPhase2>" splitLevel="0"/>
+  <!-- Recursive templates (with no data) ensuring we have one CollectionLeaf<index, type> for each layout in the collection -->
+  <class name="portablecollection::CollectionImpl<0, reco::TrackLayout<128, false>, reco::TrackHitsLayout<128, false>>"/>
+  <class name="portablecollection::CollectionImpl<1, reco::TrackHitsLayout<128, false>>"/>
 
-  <class name="reco::TrackSoA<pixelTopology::HIonPhase1>"/>
-  <class name="reco::TrackSoA<pixelTopology::HIonPhase1>::Layout<>"/>
-  <class name="reco::TrackLayout<pixelTopology::HIonPhase1>"/>
-  <class name="reco::TrackSoAView<pixelTopology::HIonPhase1>"/>
+  <!-- Recursive templates implementing the association of indices and layouts, and containing the data -->
+  <class name="portablecollection::CollectionLeaf<0, reco::TrackLayout<128, false>>"/>
+  <class name="portablecollection::CollectionLeaf<1, reco::TrackHitsLayout<128, false>>"/>
 
-  <class name="PortableHostCollection<reco::TrackLayout<pixelTopology::HIonPhase1>>"/>
-  <class name="pixelTrack::TracksHostHIonPhase1"/>
-  <class name="edm::Wrapper<pixelTrack::TracksHostHIonPhase1>" splitLevel="0"/>
 </lcgdict>
