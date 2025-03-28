@@ -821,16 +821,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // The hw number of threads in nvidia devices is max 1024. The number of strips is up to
     // (sistrip::STRIPS_PER_FED = 24576) * (sistrip::NUMBER_OF_FEDS = ) => 24576*440 = 10813440
     // Assume conditions cut this to 80%, then 10813440*0.8 = 8650752
-    uint32_t threads =
-        512;  // I wonder if there is an helper function which automatically optimize this based on the accelerator properties
+    // I wonder if there is an helper function which automatically optimize this based on the accelerator properties
+    uint32_t divider = 128;
     // use as many groups as needed to cover the whole problem
     auto nStrips = mapping->metadata().size();
-    uint32_t groups = divide_up_by(nStrips, threads);
+    uint32_t groups = divide_up_by(nStrips, divider);
 
     // map items to
     //   - threads with a single element per thread on a GPU backend
     //   - elements within a single thread on a CPU backend
-    auto workDiv = make_workdiv<Acc1D>(groups, threads);
+    auto workDiv = make_workdiv<Acc1D>(groups, divider);
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
@@ -870,11 +870,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // In HeterogeneousCore/AlpakaTest, typical sizes are power of 2 like 32 and 64.
     // I wonder if there is an helper function which automatically optimize this based on the accelerator properties.
     // Most likely I could retrieve the device attached to the queue (alpaka::getDev(queue)) and then depending on its properties set the optimal threads
-    uint32_t threads = 512;
+    uint32_t divider = 128;
     auto nStrips = mapping->metadata().size();
-    uint32_t groups = divide_up_by(nStrips, threads);
+    uint32_t groups = divide_up_by(nStrips, divider);
 
-    auto workDiv = make_workdiv<Acc1D>(groups, threads);
+    auto workDiv = make_workdiv<Acc1D>(groups, divider);
 
     // Set the seeds according to noise and seedThreshold
     alpaka::exec<Acc1D>(queue,
@@ -899,6 +899,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         clustersAux_d_->view<StripClustersAuxSoA>());
 
     // Calculate the prefix for the non-contiguous flagged strips and store in prefixSeedStripsNCMask
+    // From example in HeterogeneousCore/AlpakaInterface/test/alpaka/testPrefixScan.dev.cc
     uint32_t num_items = clustersAux_d_->view().metadata().size();
     const auto nThreads = 1024;
     int32_t nBlocks = divide_up_by(num_items, nThreads);
@@ -942,11 +943,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const auto nStrips = clustersAux_d_->view().metadata().size();
     const int nSeeds = std::min(kMaxSeedStrips, nStrips);
 
-    // Create a work division with not-so large thread number, as the clustering runs over chunks of memory and typical cluster size is limited to about 16
-    uint32_t threads = 512;
+    uint32_t divider = 128;
     // use as many groups as needed to cover the whole problem
-    uint32_t groups = divide_up_by(nSeeds, threads);
-    auto workDiv = make_workdiv<Acc1D>(groups, threads);
+    uint32_t groups = divide_up_by(nSeeds, divider);
+    auto workDiv = make_workdiv<Acc1D>(groups, divider);
 
     // Three-threshold clusterization algo
     alpaka::exec<Acc1D>(queue,
