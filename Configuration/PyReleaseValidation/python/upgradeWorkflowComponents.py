@@ -103,6 +103,8 @@ upgradeKeys['Run4'] = [
     'Run4D118PU',
     'Run4D119',
     'Run4D119PU',
+    'Run4D120',
+    'Run4D120PU',
 ]
 
 # pre-generation of WF numbers
@@ -3389,28 +3391,35 @@ upgradeProperties['Run4'] = {
         'Geom' : 'ExtendedRun4D116',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C17I13M9',
+        'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D117' : {
         'Geom' : 'ExtendedRun4D117',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C17I13M9',
+        'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D118' : {
         'Geom' : 'ExtendedRun4D118',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C17I13M9',
+        'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D119' : {
         'Geom' : 'ExtendedRun4D119',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C17I13M9',
+        'Era' : 'Phase2C22I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    'Run4D120' : {
+        'Geom' : 'ExtendedRun4D120',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
 }
