@@ -15,7 +15,6 @@
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
-#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
@@ -463,12 +462,6 @@ namespace edm {
     }
     for (auto const& bid : producedBranches_) {
       updateBranchParentsForOneBranch(provRetriever, bid);
-    }
-    SubProcessParentageHelper const* helper = subProcessParentageHelper();
-    if (helper) {
-      for (auto const& bid : subProcessParentageHelper()->producedProducts()) {
-        updateBranchParentsForOneBranch(provRetriever, bid);
-      }
     }
   }
 
