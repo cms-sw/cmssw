@@ -127,7 +127,7 @@ public:
     std::valarray<float> p_trk_2 = calcPVec(b_in, x_dv_in, y_dv_in);
     std::valarray<float> p_tot = p_trk_1 + p_trk_2;
     p_mag = sqrt(pow(p_tot[0], 2) + pow(p_tot[1], 2));
-    if (((p_trk_1[0] != 0.0) || (p_trk_2[1] != 0.0)) && ((p_trk_2[0] != 0.0) || (p_trk_2[1] != 0.0))) {
+    if (((p_trk_1[0] != 0.0) || (p_trk_1[1] != 0.0)) && ((p_trk_2[0] != 0.0) || (p_trk_2[1] != 0.0))) {
       openingAngle = (p_trk_1[0] * p_trk_2[0] + p_trk_1[1] * p_trk_2[1]) /
                      (sqrt(pow(p_trk_1[0], 2) + pow(p_trk_1[1], 2)) * sqrt(pow(p_trk_2[0], 2) + pow(p_trk_2[1], 2)));
     }
