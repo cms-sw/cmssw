@@ -10,7 +10,10 @@ defaultMuonHistoParameters = cms.PSet(
     maxFTracks = cms.int32(20),                                                                                                    
     nintFTracks = cms.int32(20),    
     #
-    useFabsEta = cms.bool(False),
+    nintdR = cms.int32(200),
+    mindR = cms.double(0.),
+    maxdR = cms.double(10.),
+    #
     minEta = cms.double(-2.5),
     maxEta = cms.double(2.5),
     nintEta = cms.int32(50),
@@ -19,7 +22,6 @@ defaultMuonHistoParameters = cms.PSet(
     maxPt = cms.double(2000.),
     nintPt = cms.int32(50),
     useLogPt=cms.untracked.bool(True),
-    useInvPt = cms.bool(False),
     #
     minPhi = cms.double(-3.1416),
     maxPhi = cms.double(3.1416),
@@ -395,12 +397,12 @@ glbCosmic1LegMuonHistoParameters = glbCosmicMuonHistoParameters.clone(
 
 ## Customize ranges for phase 2 samples 
 # TRK tracks                                                                                                                     
-trkMuonHistoParameters_phase2 = trkMuonHistoParameters.clone(
+_trkMuonHistoParameters_phase2 = trkMuonHistoParameters.clone(
     minPU = 150,
     maxPU = 250
 )
 # GEMmuon tracks                                                                                                                 
-gemMuonHistoParameters_phase2 = gemMuonHistoParameters.clone(       
+_gemMuonHistoParameters_phase2 = gemMuonHistoParameters.clone(       
     minPU = 150,
     maxPU = 250,
     maxNTracks = 150,
@@ -409,27 +411,27 @@ gemMuonHistoParameters_phase2 = gemMuonHistoParameters.clone(
     nintFTracks = 50
 )
 # STA tracks                                                                                                                      
-staMuonHistoParameters_phase2 = staMuonHistoParameters.clone(
+_staMuonHistoParameters_phase2 = staMuonHistoParameters.clone(
     minPU = 150,
     maxPU = 250
 )
 # STA seeds (here hits are counting DT,CSC segments rather than individual hit layers)                                            
-staSeedMuonHistoParameters_phase2 = staSeedMuonHistoParameters.clone(
+_staSeedMuonHistoParameters_phase2 = staSeedMuonHistoParameters.clone(
     minPU = 150,
     maxPU = 250
 )
 # STA Upd tracks                                                                                                                  
-staUpdMuonHistoParameters_phase2 = staUpdMuonHistoParameters.clone(
+_staUpdMuonHistoParameters_phase2 = staUpdMuonHistoParameters.clone(
     minPU = 150, 
     maxPU = 250
 )
 # GLB tracks                                                                                                                      
-glbMuonHistoParameters_phase2 = glbMuonHistoParameters.clone(
+_glbMuonHistoParameters_phase2 = glbMuonHistoParameters.clone(
     minPU = 150,
     maxPU = 250
 )
 #RecoMuon tracks
-recoMuonHistoParameters_phase2 = recoMuonHistoParameters.clone(
+_recoMuonHistoParameters_phase2 = recoMuonHistoParameters.clone(
     minPU = 150,
     maxPU = 250,
     maxNTracks = 150,
@@ -438,17 +440,29 @@ recoMuonHistoParameters_phase2 = recoMuonHistoParameters.clone(
     nintFTracks = 50
 )
 # Displaced TRK tracks  
-displacedTrkMuonHistoParameters_phase2 = displacedTrkMuonHistoParameters.clone(
+_displacedTrkMuonHistoParameters_phase2 = displacedTrkMuonHistoParameters.clone(
     minPU = 150,
     maxPU = 250
 )
 # Displaced muons: STA tracks                                                                                                    
-displacedStaMuonHistoParameters_phase2 = displacedStaMuonHistoParameters.clone(
+_displacedStaMuonHistoParameters_phase2 = displacedStaMuonHistoParameters.clone(
     minPU = 150,
     maxPU = 250
 )
 # Displaced muons: GLB tracks                                                                                                     
-displacedGlbMuonHistoParameters_phase2 = displacedGlbMuonHistoParameters.clone(
+_displacedGlbMuonHistoParameters_phase2 = displacedGlbMuonHistoParameters.clone(
     minPU = 150,
     maxPU = 250
 )
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith(trkMuonHistoParameters, _trkMuonHistoParameters_phase2)
+phase2_muon.toReplaceWith(gemMuonHistoParameters, _gemMuonHistoParameters_phase2)
+phase2_muon.toReplaceWith(staMuonHistoParameters, _staMuonHistoParameters_phase2)
+phase2_muon.toReplaceWith(staSeedMuonHistoParameters, _staSeedMuonHistoParameters_phase2)
+phase2_muon.toReplaceWith(staUpdMuonHistoParameters, _staUpdMuonHistoParameters_phase2)
+phase2_muon.toReplaceWith(glbMuonHistoParameters, _glbMuonHistoParameters_phase2)
+phase2_muon.toReplaceWith(recoMuonHistoParameters, _recoMuonHistoParameters_phase2)
+phase2_muon.toReplaceWith(displacedTrkMuonHistoParameters, _displacedTrkMuonHistoParameters_phase2)
+phase2_muon.toReplaceWith(displacedStaMuonHistoParameters, _displacedStaMuonHistoParameters_phase2)
+phase2_muon.toReplaceWith(displacedGlbMuonHistoParameters, _displacedGlbMuonHistoParameters_phase2)

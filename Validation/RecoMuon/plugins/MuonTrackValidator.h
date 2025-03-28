@@ -26,7 +26,7 @@ public:
   /// Constructor
   MuonTrackValidator(const edm::ParameterSet& pset) : MuonTrackValidatorBase(pset) {
     dirName_ = pset.getParameter<std::string>("dirName");
-    associatormap = pset.getParameter<edm::InputTag>("associatormap");
+    associatormap = pset.getParameter<std::vector<edm::InputTag>>("associatormap");
     UseAssociators = pset.getParameter<bool>("UseAssociators");
     useGEMs_ = pset.getParameter<bool>("useGEMs");
     useME0_ = pset.getParameter<bool>("useME0");
@@ -42,7 +42,7 @@ public:
                                           tpset.getParameter<bool>("intimeOnly"),
                                           tpset.getParameter<bool>("chargedOnly"),
                                           tpset.getParameter<bool>("stableOnly"),
-                                          tpset.getParameter<std::vector<int> >("pdgId"));
+                                          tpset.getParameter<std::vector<int>>("pdgId"));
 
     cosmictpSelector = CosmicTrackingParticleSelector(tpset.getParameter<double>("ptMin"),
                                                       tpset.getParameter<double>("minRapidity"),
@@ -51,9 +51,10 @@ public:
                                                       tpset.getParameter<double>("lip"),
                                                       tpset.getParameter<int>("minHit"),
                                                       tpset.getParameter<bool>("chargedOnly"),
-                                                      tpset.getParameter<std::vector<int> >("pdgId"));
+                                                      tpset.getParameter<std::vector<int>>("pdgId"));
 
     BiDirectional_RecoToSim_association = pset.getParameter<bool>("BiDirectional_RecoToSim_association");
+    doSummaryPlots_ = pset.getParameter<bool>("doSummaryPlots");
 
     // dump cfg parameters
     edm::LogVerbatim("MuonTrackValidator") << "constructing MuonTrackValidator: " << pset.dump();
@@ -64,12 +65,36 @@ public:
       tp_refvector_Token = consumes<TrackingParticleRefVector>(label_tp);
     else
       tp_Token = consumes<TrackingParticleCollection>(label_tp);
-    pileupinfo_Token = consumes<std::vector<PileupSummaryInfo> >(label_pileupinfo);
-    for (unsigned int www = 0; www < label.size(); www++) {
-      track_Collection_Token.push_back(consumes<edm::View<reco::Track> >(label[www]));
+    pileupinfo_Token = consumes<std::vector<PileupSummaryInfo>>(label_pileupinfo);
+
+    if (!UseAssociators && label.size() != associatormap.size()) {
+      throw cms::Exception("Configuration")
+          << "Different number of labels and associators provided!" << '\n'
+          << "Please, make sure to configure the muonValidator with the same number and ordering "
+             "of labels and associators!";
     }
-    simToRecoCollection_Token = consumes<reco::SimToRecoCollection>(associatormap);
-    recoToSimCollection_Token = consumes<reco::RecoToSimCollection>(associatormap);
+
+    if (label.size() == 1 && doSummaryPlots_) {
+      edm::LogWarning("MuonTrackValidator")
+          << "Cannot produce summary plots for a single collection label, disabling summary plots creation!" << '\n';
+      doSummaryPlots_ = false;
+    }
+
+    if (label.size() != histoParameters.size()) {
+      throw cms::Exception("Configuration")
+          << "Different number of labels and histoParameters provided!" << '\n'
+          << "Please, make sure to configure the muonValidator with the same number and ordering "
+             "of labels and histoParameters!";
+    }
+
+    track_Collection_Token.reserve(label.size());
+    simToRecoCollection_Token.reserve(label.size());
+    recoToSimCollection_Token.reserve(label.size());
+    for (unsigned int www = 0; www < label.size(); www++) {
+      track_Collection_Token.push_back(consumes<edm::View<reco::Track>>(label[www]));
+      simToRecoCollection_Token.push_back(consumes<reco::SimToRecoCollection>(associatormap[www]));
+      recoToSimCollection_Token.push_back(consumes<reco::RecoToSimCollection>(associatormap[www]));
+    }
 
     if (parametersDefiner == "LhcParametersDefinerForTP") {
       lhcParametersDefinerTP_ = std::make_unique<ParametersDefinerForTP>(bsSrc, consumesCollector());
@@ -89,26 +114,29 @@ public:
         MABH = true;
       // reset string associators to the map label
       associators.clear();
-      associators.push_back(associatormap.label());
-      edm::LogVerbatim("MuonTrackValidator") << "--> associators reset to: " << associators[0];
+      associators.reserve(associatormap.size());
+      std::transform(
+          associatormap.begin(), associatormap.end(), std::back_inserter(associators), [](const edm::InputTag& tag) {
+            return tag.label();
+          });
     } else {
       for (auto const& associator : associators) {
         consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(associator));
       }
     }
 
-    // inform on which SimHits will be counted
-    if (usetracker)
-      edm::LogVerbatim("MuonTrackValidator") << "\n usetracker = TRUE : Tracker SimHits WILL be counted";
-    else
-      edm::LogVerbatim("MuonTrackValidator") << "\n usetracker = FALSE : Tracker SimHits WILL NOT be counted";
-    if (usemuon)
-      edm::LogVerbatim("MuonTrackValidator") << " usemuon = TRUE : Muon SimHits WILL be counted";
-    else
-      edm::LogVerbatim("MuonTrackValidator") << " usemuon = FALSE : Muon SimHits WILL NOT be counted" << std::endl;
-
     // loop over the reco::Track collections to validate: check for inconsistent input settings
     for (unsigned int www = 0; www < label.size(); www++) {
+      // inform on which SimHits will be counted
+      if (histoParameters[www].usetracker)
+        edm::LogVerbatim("MuonTrackValidator") << "\n usetracker = TRUE : Tracker SimHits WILL be counted";
+      else
+        edm::LogVerbatim("MuonTrackValidator") << "\n usetracker = FALSE : Tracker SimHits WILL NOT be counted";
+      if (histoParameters[www].usemuon)
+        edm::LogVerbatim("MuonTrackValidator") << " usemuon = TRUE : Muon SimHits WILL be counted";
+      else
+        edm::LogVerbatim("MuonTrackValidator") << " usemuon = FALSE : Muon SimHits WILL NOT be counted" << std::endl;
+
       std::string recoTracksLabel = label[www].label();
       std::string recoTracksInstance = label[www].instance();
 
@@ -119,17 +147,17 @@ public:
           recoTracksLabel == "ctfWithMaterialTracksP5" ||
           recoTracksLabel == "hltIterL3OIMuonTrackSelectionHighPurity" || recoTracksLabel == "hltIterL3MuonMerged" ||
           recoTracksLabel == "hltIterL3MuonAndMuonFromL1Merged") {
-        if (usemuon) {
+        if (histoParameters[www].usemuon) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usemuon == true"
               << "\n ---> resetting to usemuon == false ";
-          usemuon = false;
+          histoParameters[www].usemuon = false;
         }
-        if (!usetracker) {
+        if (!histoParameters[www].usetracker) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usetracker == false"
               << "\n ---> resetting to usetracker == true ";
-          usetracker = true;
+          histoParameters[www].usetracker = true;
         }
       }
 
@@ -138,17 +166,17 @@ public:
                recoTracksLabel == "seedsOfDisplacedSTAmuons" || recoTracksLabel == "displacedStandAloneMuons" ||
                recoTracksLabel == "refittedStandAloneMuons" || recoTracksLabel == "cosmicMuons" ||
                recoTracksLabel == "cosmicMuons1Leg" || recoTracksLabel == "hltL2Muons") {
-        if (usetracker) {
+        if (histoParameters[www].usetracker) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usetracker == true"
               << "\n ---> resetting to usetracker == false ";
-          usetracker = false;
+          histoParameters[www].usetracker = false;
         }
-        if (!usemuon) {
+        if (!histoParameters[www].usemuon) {
           edm::LogWarning("MuonTrackValidator")
               << "\n*** WARNING : inconsistent input tracksTag = " << label[www] << "\n with usemuon == false"
               << "\n ---> resetting to usemuon == true ";
-          usemuon = true;
+          histoParameters[www].usemuon = true;
         }
       }
 
@@ -163,9 +191,9 @@ public:
 
 private:
   std::string dirName_;
-  edm::InputTag associatormap;
-  edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoCollection_Token;
-  edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimCollection_Token;
+  std::vector<edm::InputTag> associatormap;
+  std::vector<edm::EDGetTokenT<reco::SimToRecoCollection>> simToRecoCollection_Token;
+  std::vector<edm::EDGetTokenT<reco::RecoToSimCollection>> recoToSimCollection_Token;
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
 
   std::unique_ptr<ParametersDefinerForTP> lhcParametersDefinerTP_;
@@ -184,6 +212,7 @@ private:
   bool BiDirectional_RecoToSim_association;
   // flag MuonAssociatorByHits
   bool MABH;
+  bool doSummaryPlots_;
 };
 
 #endif
