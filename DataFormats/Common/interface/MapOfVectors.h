@@ -76,7 +76,7 @@ namespace edm {
       m_keys.reserve(it.size());
       m_offsets.reserve(it.size() + 1);
       m_offsets.push_back(0);
-      size_type tot = 0;
+      size_t tot = 0;
       for (typename TheMap::const_iterator p = it.begin(); p != it.end(); ++p)
         tot += (*p).second.size();
       m_data.reserve(tot);
@@ -88,10 +88,10 @@ namespace edm {
       m_keys.push_back(k);
       m_data.resize(m_offsets.back() + v.size());
       std::copy(v.begin(), v.end(), m_data.begin() + m_offsets.back());
-      m_offsets.push_back(m_data.size());
+      m_offsets.push_back(static_cast<unsigned int>(m_data.size()));
     }
 
-    size_type size() const { return m_keys.size(); }
+    size_type size() const { return static_cast<size_type>(m_keys.size()); }
 
     bool empty() const { return m_keys.empty(); }
 
@@ -111,7 +111,7 @@ namespace edm {
       key_iterator p = findKey(k);
       if (p == m_keys.end())
         return emptyRange();
-      size_type loc = p - m_keys.begin();
+      auto loc = p - m_keys.begin();
       data_iterator b = m_data.begin() + m_offsets[loc];
       data_iterator e = m_data.begin() + m_offsets[loc + 1];
       return range(b, e);

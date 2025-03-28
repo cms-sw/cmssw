@@ -31,7 +31,7 @@ namespace edm {
     /**Given a leading memory size, iSizeSoFar, and an alignment boundary requirement of iBoundary, returns how much additional memory padding is needed.
      This function assumes that when iSizeSoFar==0 that we are already properly aligned.*/
     constexpr unsigned int padding_needed(size_t iSizeSoFar, unsigned int iBoundary) {
-      return (iBoundary - iSizeSoFar % iBoundary) % iBoundary;
+      return static_cast<unsigned int>((iBoundary - iSizeSoFar % iBoundary) % iBoundary);
     }
 
     /**
@@ -99,7 +99,7 @@ namespace edm {
       // ---------- static member functions --------------------
       static size_t moveToNew(char* iNewMemory, size_t iSize, size_t iReserve, void** oToSet);
       static size_t copyToNew(char* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet);
-      static size_t spaceNeededFor(unsigned int iNElements);
+      static size_t spaceNeededFor(size_t iNElements);
       static void push_back(void** iToSet, size_t iSize, std::tuple<Args...> const& iValues);
       template <typename... FArgs>
       static void emplace_back(void** iToSet, size_t iSize, FArgs... iValues);
@@ -122,7 +122,7 @@ namespace edm {
       template <typename... FArgs>
       static void emplace_back(void** iToSet, size_t iSize, FArgs... iValues) {}
 
-      static size_t spaceNeededFor(unsigned int /*iNElements*/) { return 0; }
+      static size_t spaceNeededFor(size_t /*iNElements*/) { return 0; }
 
       static size_t moveToNew(char* /*iNewMemory*/, size_t /*iSize*/, size_t /*iReserve*/, void** /*oToSet*/) {
         return 0;
@@ -156,7 +156,7 @@ namespace edm {
         }
       }
       *oldStart = newStart;
-      unsigned int additionalSize = padding_needed(usedSoFar, boundary) + iReserve * sizeof(Type);
+      auto additionalSize = padding_needed(usedSoFar, boundary) + iReserve * sizeof(Type);
       return usedSoFar + additionalSize;
     }
 
@@ -180,15 +180,15 @@ namespace edm {
         }
       }
       *(oToSet + I - 1) = newStart;
-      unsigned int additionalSize = padding_needed(usedSoFar, boundary) + iReserve * sizeof(Type);
+      auto additionalSize = padding_needed(usedSoFar, boundary) + iReserve * sizeof(Type);
       return usedSoFar + additionalSize;
     }
 
     template <unsigned int I, typename... Args>
-    size_t SoATupleHelper<I, Args...>::spaceNeededFor(unsigned int iNElements) {
+    size_t SoATupleHelper<I, Args...>::spaceNeededFor(size_t iNElements) {
       size_t usedSoFar = NextHelper::spaceNeededFor(iNElements);
       const unsigned int boundary = AlignmentInfo::kAlignment;
-      unsigned int additionalSize = padding_needed(usedSoFar, boundary) + iNElements * sizeof(Type);
+      auto additionalSize = padding_needed(usedSoFar, boundary) + iNElements * sizeof(Type);
       return usedSoFar + additionalSize;
     }
 
