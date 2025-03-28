@@ -386,8 +386,6 @@ DTBtiChip* DTBtiCard::activeGetBTI(int sl, int n) {
       std::cout << " not in range [1," << geom()->nCell(sl) << "]";
       std::cout << " dummy BTI returned!" << std::endl;
     }
-    sl = 1;
-    n = 999;
     return bti;
   }
 
@@ -409,8 +407,6 @@ DTBtiChip* DTBtiCard::activeGetBTI(int sl, int n) {
       std::cout << " invalid superlayer number: " << sl;
       std::cout << " dummy BTI returned!" << std::endl;
     }
-    sl = 1;
-    n = 999;
     return bti;
   }
 

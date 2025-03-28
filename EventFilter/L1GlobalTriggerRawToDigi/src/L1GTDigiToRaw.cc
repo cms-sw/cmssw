@@ -656,10 +656,9 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
 
   std::vector<L1MuRegionalCand> vrc;
   std::vector<L1MuRegionalCand>::const_iterator irc;
-  unsigned* pp = p;
 
   vrc = gmtrr.getDTBXCands();
-  pp = p;
+  unsigned* pp = p;
   for (irc = vrc.begin(); irc != vrc.end(); irc++) {
     *pp++ = (*irc).getDataWord();
   }
