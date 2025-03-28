@@ -176,7 +176,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(eq.curvature());
     }
 
-#ifdef CA_TRIPLET_HOLES
+#ifdef ONLY_TRIPLETS_IN_HOLE
 
     // These functions have never been used in production
     // They need an AverageGeometry to be filled

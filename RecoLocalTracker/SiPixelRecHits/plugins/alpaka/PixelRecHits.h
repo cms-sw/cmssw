@@ -22,7 +22,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 
 //#define GPU_DEBUG
-//#define CA_TRIPLETS_HOLE
+//#define ONLY_TRIPLETS_IN_HOLE
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace pixelRecHits {
 
@@ -41,7 +41,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         // outer loop: one block per module
         for (uint32_t module : cms::alpakatools::independent_groups(acc, nonEmptyModules)) {
-#ifdef CA_TRIPLETS_HOLE
+#ifdef ONLY_TRIPLETS_IN_HOLE
           // This is necessary only once - consider moving it somewhere else.
           // Copy the average geometry corrected by the beamspot.
           if (0 == module) {
@@ -63,7 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               agc.endCapZ[1] = ag.endCapZ[1] - bs->z;
             }
           }
-#endif  // CA_TRIPLETS_HOLE
+#endif  // ONLY_TRIPLETS_IN_HOLE
 
           // to be moved in common namespace...
           using pixelClustering::invalidModuleId;

@@ -14,7 +14,7 @@
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
-// #define CA_TRIPLET_HOLES
+// #define ONLY_TRIPLETS_IN_HOLE
 
 namespace pixelCPEforDevice {
 
@@ -411,13 +411,13 @@ namespace pixelCPEforDevice {
     CommonParams& commonParams() { return m_commonParams; }
     DetParams& detParams(int i) { return m_detParams[i]; }
 
-#ifdef CA_TRIPLET_HOLES
+#ifdef ONLY_TRIPLETS_IN_HOLE
     using AverageGeometry = pixelTopology::AverageGeometryT<TrackerTopology>;
 
     AverageGeometry m_averageGeometry;
     constexpr AverageGeometry const& __restrict__ averageGeometry() const { return m_averageGeometry; }
     AverageGeometry& averageGeometry() { return m_averageGeometry; }
-#endif  // CA_TRIPLETS_HOLE
+#endif  // ONLY_TRIPLETS_IN_HOLE
   };
 
 }  // namespace pixelCPEforDevice

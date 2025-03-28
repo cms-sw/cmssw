@@ -45,11 +45,11 @@ namespace reco {
   // cannot be used in a constant expression
 
   // move to use the layer gaps defined in CAGeometry
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static int nLayers(const TrackSoAConstView &tracks,
-                                                         const TrackHitSoAConstView &hits,
-                                                         uint16_t maxLayers,
-                                                         uint32_t const *__restrict__ layerStarts,
-                                                         int32_t i) {
+  ALPAKA_FN_HOST_ACC inline int nLayers(const TrackSoAConstView &tracks,
+                                        const TrackHitSoAConstView &hits,
+                                        uint16_t maxLayers,
+                                        uint32_t const *__restrict__ layerStarts,
+                                        int32_t i) {
     auto start = (i == 0) ? 0 : tracks[i - 1].hitOffsets();
     auto end = tracks[i].hitOffsets();
     auto hitId = hits[start].id();
@@ -70,29 +70,23 @@ namespace reco {
     return nl;
   }
 
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float charge(const TrackSoAConstView &tracks, int32_t i) {
+  ALPAKA_FN_HOST_ACC inline float charge(const TrackSoAConstView &tracks, int32_t i) {
     //was: std::copysign(1.f, tracks[i].state()(2)). Will be constexpr with C++23
     float v = tracks[i].state()(2);
     return float((0.0f < v) - (v < 0.0f));
   }
 
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float phi(const TrackSoAConstView &tracks, int32_t i) {
-    return tracks[i].state()(0);
-  }
+  ALPAKA_FN_HOST_ACC inline float phi(const TrackSoAConstView &tracks, int32_t i) { return tracks[i].state()(0); }
 
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float tip(const TrackSoAConstView &tracks, int32_t i) {
-    return tracks[i].state()(1);
-  }
+  ALPAKA_FN_HOST_ACC inline float tip(const TrackSoAConstView &tracks, int32_t i) { return tracks[i].state()(1); }
 
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float zip(const TrackSoAConstView &tracks, int32_t i) {
-    return tracks[i].state()(4);
-  }
+  ALPAKA_FN_HOST_ACC inline float zip(const TrackSoAConstView &tracks, int32_t i) { return tracks[i].state()(4); }
 
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isTriplet(const TrackSoAConstView &tracks, int32_t i) {
+  ALPAKA_FN_HOST_ACC inline bool isTriplet(const TrackSoAConstView &tracks, int32_t i) {
     return tracks[i].nLayers() == 3;
   }
 
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static int nHits(const TrackSoAConstView &tracks, int i) {
+  ALPAKA_FN_HOST_ACC inline int nHits(const TrackSoAConstView &tracks, int i) {
     auto start = (i == 0) ? 0 : tracks[i - 1].hitOffsets();
     return tracks[i].hitOffsets() - start;
   }
@@ -103,7 +97,7 @@ namespace reco {
   // (aka 'Map<Eigen::Matrix<float, 15, 1, 0, 15, 1>, 0, Eigen::InnerStride<Eigen::Dynamic>>')
   // cannot be defined in a function before C++2b
   template <typename V3, typename M3, typename V2, typename M2>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static void copyFromCircle(
+  ALPAKA_FN_HOST_ACC inline void copyFromCircle(
       TrackSoAView &tracks, V3 const &cp, M3 const &ccov, V2 const &lp, M2 const &lcov, float b, int32_t i) {
     tracks[i].state() << cp.template cast<float>(), lp.template cast<float>();
 
@@ -124,10 +118,7 @@ namespace reco {
   }
 
   template <typename V5, typename M5>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static void copyFromDense(TrackSoAView &tracks,
-                                                                V5 const &v,
-                                                                M5 const &cov,
-                                                                int32_t i) {
+  ALPAKA_FN_HOST_ACC inline void copyFromDense(TrackSoAView &tracks, V5 const &v, M5 const &cov, int32_t i) {
     tracks[i].state() = v.template cast<float>();
     for (int j = 0, ind = 0; j < 5; ++j)
       for (auto k = j; k < 5; ++k)
@@ -135,10 +126,7 @@ namespace reco {
   }
 
   template <typename V5, typename M5>
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static void copyToDense(const TrackSoAConstView &tracks,
-                                                              V5 &v,
-                                                              M5 &cov,
-                                                              int32_t i) {
+  ALPAKA_FN_HOST_ACC inline void copyToDense(const TrackSoAConstView &tracks, V5 &v, M5 &cov, int32_t i) {
     v = tracks[i].state().template cast<typename V5::Scalar>();
     for (int j = 0, ind = 0; j < 5; ++j) {
       cov(j, j) = tracks[i].covariance()(ind++);

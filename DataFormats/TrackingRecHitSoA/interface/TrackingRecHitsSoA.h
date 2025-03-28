@@ -28,7 +28,7 @@ namespace reco {
 
   GENERATE_SOA_LAYOUT(HitModulesLayout, SOA_COLUMN(uint32_t, moduleStart));
 
-#ifdef CA_TRIPLETS_HOLE
+#ifdef ONLY_TRIPLETS_IN_HOLE
   GENERATE_SOA_LAYOUT(AverageGeometryLayout,
                       SOA_COLUMN(float, ladderZ),
                       SOA_COLUMN(float, ladderX),
@@ -48,7 +48,7 @@ namespace reco {
   using HitModuleSoAView = HitModuleSoA::View;
   using HitModuleSoAConstView = HitModuleSoA::ConstView;
 
-#ifdef CA_TRIPLETS_HOLE
+#ifdef ONLY_TRIPLETS_IN_HOLE
   using AverageGeometrySoA = AverageGeometryLayout<>;
   using AverageGeometryView = AverageGeometrySoA::View;
   using AverageGeometryConstView = AverageGeometrySoA::ConstView;

@@ -10,7 +10,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFastParamsHost.h"
 
-// #define CA_TRIPLETS_HOLE
+// #define ONLY_TRIPLETS_IN_HOLE
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   LogDebug("PixelCPEFastParamsHost") << "thickness " << buffer_->commonParams().theThicknessB << ' '
                                      << buffer_->commonParams().theThicknessE;
 
-#ifdef CA_TRIPLETS_HOLE
+#ifdef ONLY_TRIPLETS_IN_HOLE
   // zero average geometry
   memset(&buffer_->averageGeometry(), 0, sizeof(pixelTopology::AverageGeometryT<TrackerTraits>));
 #endif
@@ -253,7 +253,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     }
   }  // loop over det
 
-#ifdef CA_TRIPLETS_HOLE
+#ifdef ONLY_TRIPLETS_IN_HOLE
   // compute ladder baricenter (only in global z) for the barrel
   //
 
@@ -312,7 +312,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   }
   LogDebug("PixelCPEFastParamsHost") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
 #endif  // EDM_ML_DEBUG
-#endif  //CA_TRIPLETS_HOLE
+#endif  //ONLY_TRIPLETS_IN_HOLE
 }
 
 template <typename TrackerTraits>
