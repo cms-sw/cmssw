@@ -13,8 +13,7 @@ using namespace tt;
 
 namespace trackerDTC {
 
-  LayerEncoding::LayerEncoding(const ParameterSet& iConfig, const Setup* setup)
-      : setup_(setup), numDTCsPerRegion_(setup->numDTCsPerRegion()) {
+  LayerEncoding::LayerEncoding(const Setup* setup) : setup_(setup), numDTCsPerRegion_(setup->numDTCsPerRegion()) {
     encodingsLayerId_.reserve(numDTCsPerRegion_);
     for (int dtcInRegion = 0; dtcInRegion < setup->numDTCsPerRegion(); dtcInRegion++) {
       set<int> encodingLayerId;
@@ -36,7 +35,7 @@ namespace trackerDTC {
   }
 
   // decode layer id for given sensor module
-  int LayerEncoding::decode(SensorModule* sm) const {
+  int LayerEncoding::decode(const SensorModule* sm) const {
     const vector<int>& encoding = encodingsLayerId_.at(sm->dtcId() % setup_->numDTCsPerRegion());
     const auto pos = find(encoding.begin(), encoding.end(), sm->layerId());
     return distance(encoding.begin(), pos);
