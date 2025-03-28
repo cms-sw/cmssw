@@ -383,10 +383,18 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
   edm::Handle<ticl::TracksterCollection> simTracksterHandle;
   event.getByToken(simTracksters_, simTracksterHandle);
+  if (!simTracksterHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Missing SimTrackster collection";
+    return;
+  }
   ticl::TracksterCollection const& simTracksters = *simTracksterHandle;
 
   edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
   event.getByToken(simTracksters_fromCPs_, simTracksterFromCPHandle);
+  if (!simTracksterFromCPHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Missing SimTrackster collection from CP";
+    return;
+  }
   ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
 
   edm::Handle<std::map<uint, std::vector<uint>>> simTrackstersMapHandle;

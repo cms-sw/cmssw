@@ -90,8 +90,28 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
                                                                  const edm::EventSetup&) const {
   using namespace edm;
 
-  Handle<std::vector<reco::CaloCluster>> layerClustersHandle;
-  iEvent.getByToken(layerClustersToken_, layerClustersHandle);
+  // Retrieve layer clusters with protection
+  const auto& layerClustersHandle = iEvent.getHandle(layerClustersToken_);
+
+  // If layer clusters are missing, produce empty maps and return
+  if (!layerClustersHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Layer clusters collection not found. Producing empty maps.";
+    for (const auto& tracksterToken : tracksterCollectionTokens_) {
+      for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   tracksterToken.first + "To" + simTracksterToken.first);
+
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   simTracksterToken.first + "To" + tracksterToken.first);
+      }
+    }
+    return;
+  }
+
   const auto& layerClusters = *layerClustersHandle;
 
   for (const auto& tracksterToken : tracksterCollectionTokens_) {
