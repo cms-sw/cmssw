@@ -65,6 +65,20 @@ void LCToSCAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, cons
   Handle<reco::CaloClusterCollection> LCCollection;
   iEvent.getByToken(LCCollectionToken_, LCCollection);
 
+  // Protection against missing CaloCluster collection
+  if (!LCCollection.isValid()) {
+    edm::LogWarning("LCToSCAssociatorEDProducer")
+        << "CaloCluster collection is unavailable. Producing empty associations.";
+
+    // Return empty collections
+    auto emptyRecSimColl = std::make_unique<ticl::RecoToSimCollectionWithSimClusters>();
+    auto emptySimRecColl = std::make_unique<ticl::SimToRecoCollectionWithSimClusters>();
+
+    iEvent.put(std::move(emptyRecSimColl));
+    iEvent.put(std::move(emptySimRecColl));
+    return;
+  }
+
   // associate LC and SC
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
   ticl::RecoToSimCollectionWithSimClusters recSimColl = theAssociator->associateRecoToSim(LCCollection, SCCollection);
