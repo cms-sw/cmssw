@@ -232,7 +232,7 @@ namespace timestudy {
         return true;
       }
       //every running stream is now waiting
-      return waitingStreams_.size() > 0 and waitingStreams_.size() == activeStreams_;
+      return !waitingStreams_.empty() and waitingStreams_.size() == activeStreams_;
     }
 
     void threadWork() {
