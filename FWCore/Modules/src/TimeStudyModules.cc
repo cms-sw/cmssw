@@ -227,12 +227,13 @@ namespace timestudy {
         return true;
       }
       //every running stream is now waiting
-      return waitingStreams_.size() == activeStreams_;
+      return waitingStreams_.size() > 0 and waitingStreams_.size() == activeStreams_;
     }
 
     void threadWork() {
       while (not stopProcessing_.load()) {
         std::vector<int> streamsToProcess;
+        streamsToProcess.reserve(waitingStreams_.capacity());
         {
           std::unique_lock<std::mutex> lk(mutex_);
           condition_.wait(lk, [this]() { return readyToDoSomething(); });
@@ -261,6 +262,7 @@ namespace timestudy {
         }
       }
       waitingTaskPerStream_.clear();
+      waitingTaskPerStream_.resize(waitingTaskPerStream_.capacity());
     }
     const unsigned int nWaitingEvents_;
     std::unique_ptr<std::thread> serverThread_;
