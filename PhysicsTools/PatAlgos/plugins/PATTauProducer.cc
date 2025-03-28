@@ -287,9 +287,7 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // Get the collection of taus from the event
   edm::Handle<edm::View<reco::BaseTau>> anyTaus;
-  try {
-    iEvent.getByToken(baseTauToken_, anyTaus);
-  } catch (const edm::Exception& e) {
+  if (!iEvent.getByToken(baseTauToken_, anyTaus)) {
     edm::LogWarning("DataSource") << "WARNING! No Tau collection found. This missing input will not block the job. "
                                      "Instead, an empty tau collection is being be produced.";
     auto patTaus = std::make_unique<std::vector<Tau>>();
