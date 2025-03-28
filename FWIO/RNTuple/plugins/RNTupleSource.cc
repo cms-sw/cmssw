@@ -183,6 +183,9 @@ namespace edm {
     if (files.empty()) {
       throw cms::Exception("NoInputFiles");
     }
+    if (files.size() > 1) {
+      throw edm::Exception(edm::errors::Configuration)<<"RNTupleSource presently only support reading 1 file";
+    }
     file_ = std::make_unique<RNTupleInputFile>(files[0], ops);
 
     BranchIDLists branchIDLists;
@@ -236,8 +239,7 @@ namespace edm {
     desc.addUntracked<bool>("enableMetrics", false);
     desc.addUntracked<bool>("useClusterCache", true);
 
-    //make interface compatible with PoolSource. Some will be marked obsolete once available
-
+    //make interface compatible with PoolSource.
     desc.addOptionalUntracked<std::vector<std::string>>("secondaryFileNames");
     desc.addOptionalUntracked<bool>("needSecondaryFileNames");
     desc.addOptionalUntracked<std::string>("overrideCatalog");
@@ -328,6 +330,8 @@ namespace edm {
     auto& reader = runReaders_[runPrincipal.index()];
     reader.setEntry(entry);
     runPrincipal.fillRunPrincipal(processHistoryRegistry(), &reader);
+    //In the future, when this code can skip runs we will need to
+    // set this value.
     //runPrincipal.setShouldWriteRun(RunPrincipal::kNo);
   }
 
