@@ -1,45 +1,3 @@
-Event filtering information for 5 processing steps is available.
-The ParameterSets will be printed out, with the oldest printed first.
-ParameterSetID: bddf733236a388bb9b184c2c3a457281
-{
-  EndPathPositions: vint32 tracked  = {+0}
-  EndPaths: vstring tracked  = {'e'}
-  InProcessHistory: bool tracked  = true
-  SelectEvents: vstring tracked  = {}
- }
-     -------------------------
-ParameterSetID: ac8cc72f91415b13ee6206f72fdf173d
-{
-  EndPathPositions: vint32 tracked  = {+0}
-  EndPaths: vstring tracked  = {'ep'}
-  InProcessHistory: bool tracked  = true
-  SelectEvents: vstring tracked  = {}
- }
-     -------------------------
-ParameterSetID: ac8cc72f91415b13ee6206f72fdf173d
-{
-  EndPathPositions: vint32 tracked  = {+0}
-  EndPaths: vstring tracked  = {'ep'}
-  InProcessHistory: bool tracked  = true
-  SelectEvents: vstring tracked  = {}
- }
-     -------------------------
-ParameterSetID: c40c73000237bae02adb5a32f23e7e47
-{
-  EndPathPositions: vint32 tracked  = {+0}
-  EndPaths: vstring tracked  = {'endp'}
-  InProcessHistory: bool tracked  = true
-  SelectEvents: vstring tracked  = {}
- }
-     -------------------------
-ParameterSetID: ac8cc72f91415b13ee6206f72fdf173d
-{
-  EndPathPositions: vint32 tracked  = {+0}
-  EndPaths: vstring tracked  = {'ep'}
-  InProcessHistory: bool tracked  = true
-  SelectEvents: vstring tracked  = {}
- }
-     -------------------------
 ---------Processing histories---------
 History: {
   PROD1 [1]
@@ -106,6 +64,49 @@ Process: FINAL [1]
   PSet id: 278c38da7c4ab32a2dca20f2d8e2a001
   accelerators: cpu
 
+---------Event filtering---------
+Event filtering information for 5 processing steps is available.
+The ParameterSets are printed out with the oldest process first.
+Event filtering:
+  PSet id: bddf733236a388bb9b184c2c3a457281
+  parameters: {
+    EndPathPositions: vint32 tracked  = {+0}
+    EndPaths: vstring tracked  = {'e'}
+    InProcessHistory: bool tracked  = true
+    SelectEvents: vstring tracked  = {}
+  }
+Event filtering:
+  PSet id: ac8cc72f91415b13ee6206f72fdf173d
+  parameters: {
+    EndPathPositions: vint32 tracked  = {+0}
+    EndPaths: vstring tracked  = {'ep'}
+    InProcessHistory: bool tracked  = true
+    SelectEvents: vstring tracked  = {}
+  }
+Event filtering:
+  PSet id: ac8cc72f91415b13ee6206f72fdf173d
+  parameters: {
+    EndPathPositions: vint32 tracked  = {+0}
+    EndPaths: vstring tracked  = {'ep'}
+    InProcessHistory: bool tracked  = true
+    SelectEvents: vstring tracked  = {}
+  }
+Event filtering:
+  PSet id: c40c73000237bae02adb5a32f23e7e47
+  parameters: {
+    EndPathPositions: vint32 tracked  = {+0}
+    EndPaths: vstring tracked  = {'endp'}
+    InProcessHistory: bool tracked  = true
+    SelectEvents: vstring tracked  = {}
+  }
+Event filtering:
+  PSet id: ac8cc72f91415b13ee6206f72fdf173d
+  parameters: {
+    EndPathPositions: vint32 tracked  = {+0}
+    EndPaths: vstring tracked  = {'ep'}
+    InProcessHistory: bool tracked  = true
+    SelectEvents: vstring tracked  = {}
+  }
 ---------Producers with data in file---------
 Module: TriggerResults FINAL
  Process: FINAL [1]

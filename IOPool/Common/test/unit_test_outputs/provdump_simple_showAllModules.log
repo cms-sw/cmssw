@@ -1,13 +1,3 @@
-Event filtering information for 1 processing steps is available.
-The ParameterSets will be printed out, with the oldest printed first.
-ParameterSetID: bddf733236a388bb9b184c2c3a457281
-{
-  EndPathPositions: vint32 tracked  = {+0}
-  EndPaths: vstring tracked  = {'e'}
-  InProcessHistory: bool tracked  = true
-  SelectEvents: vstring tracked  = {}
- }
-     -------------------------
 ---------Processing histories---------
 History: {
   PROD1 [1]
@@ -17,6 +7,17 @@ Process: PROD1 [1]
   PSet id: b6a0b924ba604501a5436d5102a43418
   accelerators: cpu
 
+---------Event filtering---------
+Event filtering information for 1 processing steps is available.
+The ParameterSets are printed out with the oldest process first.
+Event filtering:
+  PSet id: bddf733236a388bb9b184c2c3a457281
+  parameters: {
+    EndPathPositions: vint32 tracked  = {+0}
+    EndPaths: vstring tracked  = {'e'}
+    InProcessHistory: bool tracked  = true
+    SelectEvents: vstring tracked  = {}
+  }
 ---------Producers with data in file---------
 Module: TriggerResults PROD1
  Process: PROD1 [1]
