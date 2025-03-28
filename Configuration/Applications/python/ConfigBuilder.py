@@ -619,7 +619,7 @@ class ConfigBuilder(object):
                 defaultFileName=self._options.outfile_name
             else:
                 defaultFileName=self._options.outfile_name.replace('.root','_in'+theTier+'.root')
-                defaultFileName=self._options.outfile_name.replace('.rntpl','_in'+theTier+'.rntpl')
+                defaultFileName=defaultFileName.replace('.rntpl','_in'+theTier+'.rntpl')
 
             theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,defaultFileName)
             if not theFileName.endswith('.root'):
@@ -699,7 +699,7 @@ class ConfigBuilder(object):
                 theFileName=self._options.outfile_name
             else:
                 theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
-                theFileName=self._options.outfile_name.replace('.rntpl','_in'+streamType+'.rntpl')
+                theFileName=theFileName.replace('.rntpl','_in'+streamType+'.rntpl')
             theFilterName=self._options.filtername
             if streamType=='ALCARECO':
                 theFilterName = 'StreamALCACombined'
