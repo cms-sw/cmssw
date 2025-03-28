@@ -12,6 +12,7 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripClusterizerConditions.h"
 
+#include "DataFormats/SiStripCommon/interface/ConstantsForLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClustersDevice.h"
 
@@ -26,6 +27,7 @@
 #include "RecoLocalTracker/Records/interface/SiStripClusterizerConditionsRcd.h"
 
 #include "SiStripRawToClusterAlgo.h"
+#include "SiStripRawToClusterHelpers.h"
 
 // Alpaka includes
 #include <alpaka/alpaka.hpp>
@@ -33,96 +35,61 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   using namespace ::sistrip;
 
-  namespace {
-    // Set a FEDBuffer pointer starting from the FEDRawData, pre-checking the data is valid. If not, nullptr is returned
-    // note: this is the original implementation of fillBuffer. std::optional could be used instead of nullptr.
-    //       I would have some doubts on the performance improvement from UNLIKELY/LIKELY macro, which I leave to be addressed in the PR.
-    std::unique_ptr<sistrip::FEDBuffer> fillBuffer(int fedId, const FEDRawData& rawData) {
-      std::unique_ptr<sistrip::FEDBuffer> buffer;
-
-      // Check on FEDRawData pointer
-      const auto st_buffer = sistrip::preconstructCheckFEDBuffer(rawData);
-      if UNLIKELY (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
-        LogDebug(sistrip::mlRawToCluster_)
-            << "[ClustersFromRawProducer::" << __func__ << "]" << st_buffer << " for FED ID " << fedId;
-        return buffer;
-      }
-
-      buffer = std::make_unique<sistrip::FEDBuffer>(rawData);
-      const auto st_chan = buffer->findChannels();
-
-      if UNLIKELY (sistrip::FEDBufferStatusCode::SUCCESS != st_chan) {
-        LogDebug(sistrip::mlRawToCluster_)
-            << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << st_chan;
-        buffer.reset();
-        return buffer;
-      }
-
-      if UNLIKELY (!buffer->doChecks(false)) {
-        LogDebug(sistrip::mlRawToCluster_)
-            << "Exception caught when creating FEDBuffer object for FED " << fedId << ": FED Buffer check fails";
-        buffer.reset();
-        return buffer;
-      }
-
-      return buffer;
-    }
-  }  // namespace
-
   class SiStripRawToCluster : public stream::EDProducer<> {
   public:
     SiStripRawToCluster(edm::ParameterSet const& iConfig);
-
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override;
 
+// Debug functions
+#ifdef EDM_ML_DEBUG
+    void dumpConditions(SiStripClusterizerConditions const& conditions);
+#endif
+
   private:
-    // inputs
-    edm::EDGetTokenT<FEDRawDataCollection> fedRawDataGetToken_;
-    edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd> siStrCondGetToken_;
-    edm::ESGetToken<SiStripClusterizerConditionsHost, SiStripClusterizerConditionsRecord> siStCabCondGetToken_;
-
-    // outputs
-    device::EDPutToken<SiStripClustersDevice> siStrClustsPutToken_;
-
-    // RAW data unpacking
-    // FEDRawData locations and FEDBuffers passing the conditions
+    // Containers for the condition-passing raw data
     std::vector<const FEDRawData*> raw_;
-    std::vector<std::unique_ptr<sistrip::FEDBuffer>> buffers_;
-    // Total size in bytes to be copied on device (conditions applied)
-    size_t buffersValidSize_bytes_{0};
-    // It populates the raw_, buffers_ members with valid (connected detectors with non-null fed buffers) FED data
+    std::vector<std::unique_ptr<FEDBuffer>> buffers_;
+    // Size in bytes of the condition-passing mem. buffer for FED raw
+    size_t buffersValidSize_bytes_ = 0;
+    // RAW unpacking mode (legacy or not)
+    const bool legacyUnpacker_;
+    const bool unpackBadChannels_;
+    const bool doFullCorruptBufferChecks_;
+    // RAW unpacking and clustering algorithm
+    SiStripRawToClusterAlgo algo_;
+
+    // Input/output tokens
+    edm::EDGetTokenT<FEDRawDataCollection> fedRawGetToken_;
+    edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd> stripCondGetToken_;
+    edm::ESGetToken<SiStripClusterizerConditionsHost, SiStripClusterizerConditionsRecord> stripCablCondGetToken_;
+    device::EDPutToken<SiStripClustersDevice> stripClustPutToken_;
+
+    // Helper functions to fill valid, condition-passing raw/buffers
+    WarningSummary warnings_ = WarningSummary("", "", false);
+    std::unique_ptr<FEDBuffer> fillBuffer(int fedId, const FEDRawData& input);
     void makeFEDbufferWithValidFEDs_(const FEDRawDataCollection& rawColl,
                                      const SiStripClusterizerConditions& conditions);
-    // It populates the raw_, buffers_ members with idet data masking valid FED data (connected detectors with non-null fed buffers)
     void makeFEDbufferWithValidFEDs_4det_(uint32_t idet,
                                           const FEDRawDataCollection& rawColl,
                                           const SiStripClusterizerConditions& conditions);
-
-    // FED unpacker and clusterizer algorithms
-    SiStripRawToClusterAlgo algo_;
-
-    bool legacy_ = false;  // legacy unpacking mode, for the future
-
-// Debug functions
-#ifdef EDM_ML_DEBUG
-    void print_SiStripClusterizerConditions_(SiStripClusterizerConditions const& conditions);
-    void print_SiStripClusterizerConditionsHost_(SiStripClusterizerConditionsHost const& conditions);
-#endif
   };
 
   SiStripRawToCluster::SiStripRawToCluster(const edm::ParameterSet& iConfig)
       : EDProducer<>(iConfig),
-        fedRawDataGetToken_(consumes(iConfig.getParameter<edm::InputTag>("ProductLabel"))),
-        siStrCondGetToken_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("ConditionsLabel")})),
-        siStCabCondGetToken_(
-            esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("CablingConditionsLabel")})),
-        siStrClustsPutToken_(produces()),
         raw_(sistrip::NUMBER_OF_FEDS),
         buffers_(sistrip::NUMBER_OF_FEDS),
-        algo_(iConfig.getParameter<edm::ParameterSet>("Clusterizer"), iConfig.getParameter<bool>("LegacyUnpacker")) {
-    // legacy unpacking shall be supported ? (under discussion)
-  }
+        legacyUnpacker_(iConfig.getParameter<edm::ParameterSet>("Unpacker").getParameter<bool>("LegacyUnpacker")),
+        unpackBadChannels_(iConfig.getParameter<edm::ParameterSet>("Unpacker").getParameter<bool>("UnpackBadChannels")),
+        doFullCorruptBufferChecks_(
+            iConfig.getParameter<edm::ParameterSet>("Unpacker").getParameter<bool>("DoAllCorruptBufferChecks")),
+        algo_(iConfig.getParameter<edm::ParameterSet>("Unpacker"),
+              iConfig.getParameter<edm::ParameterSet>("Clusterizer")),
+        fedRawGetToken_(consumes(iConfig.getParameter<edm::InputTag>("ProductLabel"))),
+        stripCondGetToken_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("ConditionsLabel")})),
+        stripCablCondGetToken_(
+            esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("CablingConditionsLabel")})),
+        stripClustPutToken_(produces()) {}
 
   void SiStripRawToCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     // Add some custom parameter description to the automatically-created ones by the addWithDefaultLabel methos
@@ -131,13 +98,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     desc.add<std::string>("ConditionsLabel", "");
     desc.add<std::string>("CablingConditionsLabel", "");
 
-    // Raw algorithms
-    // edm::ParameterSetDescription rawAlgoDescr;
-    // rawAlgoDescr.add<bool>("LegacyUnpacker", false);
-    // rawAlgoDescr.add<bool>("Use10bitsTruncation", false);
-    desc.add<bool>("LegacyUnpacker", false);
+    // Unpacking parameters (from EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.cc)
+    // (all optional entries are to be discussed)
+    edm::ParameterSetDescription unpacker;
+    unpacker.addOptional<int>("AppendedBytes", 0);
+    unpacker.addOptional<int>("TriggerFedId", 0);
+    unpacker.add<bool>("LegacyUnpacker", false);
+    unpacker.addOptional<bool>("UseDaqRegister", false);
+    unpacker.addOptional<bool>("UseFedKey", false);
+    unpacker.addOptional<bool>("UnpackBadChannels", false);
+    unpacker.addOptional<bool>("MarkModulesOnMissingFeds", true);
+    unpacker.addOptionalUntracked<int>("FedBufferDumpFreq", 0);
+    unpacker.addOptionalUntracked<int>("FedEventDumpFreq", 0);
+    unpacker.addOptionalUntracked<bool>("Quiet", true);
+    unpacker.addOptional<bool>("UnpackCommonModeValues", false);
+    unpacker.addOptional<bool>("DoAllCorruptBufferChecks", false);
+    unpacker.addOptional<bool>("DoAPVEmulatorCheck", false);
+    unpacker.addOptional<unsigned int>("ErrorThreshold", 7174);
+    desc.add("Unpacker", unpacker);
 
     // Inherit all the parameters from the clusterizers (all var.s from the Clusterizer PSet)
+    // 1:Algorithm, ConditionsLabel, ChannelThreshold, SeedThreshold, ClusterThreshold,
+    // MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad, MaxClusterSize, RemoveApvShots,
+    // setDetId, 12:clusterChargeCut
     edm::ParameterSetDescription clusterizer;
     StripClusterizerAlgorithmFactory::fillDescriptions(clusterizer);
     desc.add("Clusterizer", clusterizer);
@@ -147,15 +130,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
   void SiStripRawToCluster::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     // Get data from the tokens (raw collection and conditions)
-    const auto& rawCollection = iEvent.get(fedRawDataGetToken_);
-    const auto& validFEDsConditions = iSetup.getData(siStrCondGetToken_);
-
-    // Get the cabling map
-    const auto& cablingMapData = iSetup.getData(siStCabCondGetToken_);
-
+    const auto& rawCollection = iEvent.get(fedRawGetToken_);
+    const auto& validFEDsConditions = iSetup.getData(stripCondGetToken_);
 #if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
-    print_SiStripClusterizerConditions_(validFEDsConditions);
-    print_SiStripClusterizerConditionsHost_(cablingMapData);
+    dumpConditions(validFEDsConditions);
 #endif
 
     // Fill the raw_, buffers_ class members (i.e. from the connected FED, the FEDBuffers and raw pointers are set)
@@ -178,15 +156,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       if (!buff)
         continue;
 
-      if (!buff->checkReadoutMode()) {
+      if (buff->checkReadoutMode()) [[likely]] {
+        // Get the valid raw data
+        const auto raw = raw_[fedi];
+        auto fedID = fedi + sistrip::FED_ID_MIN;
+        fedBufferBlocksRaw.insertFEDRawDataObj(fedID, raw);
+      } else {
         // Could be moved into fillBuffer as well - understand how/if this could occur
         throw cms::Exception("RawToDigi", "Invalid readout mode for buffer ");
       }
-
-      // Get the valid raw data
-      const auto raw = raw_[fedi];
-      auto fedID = fedi + sistrip::FED_ID_MIN;
-      fedBufferBlocksRaw.insertFEDRawDataObj(fedID, raw);
     }
 
 // debug
@@ -199,6 +177,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     //           iterate over the detector in DetID/APVPair order
     //           mapping out where the data are
 
+    // Get the cabling map
+    const auto& cablingMapData = iSetup.getData(stripCablCondGetToken_);
+#if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
+    print_SiStripClusterizerConditionsHost_(cablingMapData);
+#endif
     // Prepare the external conditions (cablingMap) to be mapped onto the FEDRaw data
     auto detToFedsMap = cablingMapData.view<SiStripClusterizerConditionsDetToFedsSoA>();
 
@@ -231,8 +214,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     uint32_t offset = 0;
     int n_strips = 0;
 
-    // Loop over the allowed detID/fedID/fedCH from the conditions
-#if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
+// Loop over the allowed detID/fedID/fedCH from the conditions
+#ifdef SUPERDETAILS
     LogDebug("SiStripPrtArit") << "i\tfedId\tfedCh\tfedi\tlen\toff\tmy_offset\toffset\n";
 #endif
 
@@ -240,34 +223,39 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       const auto detID = detToFedsMap.detid_(i);
       const auto fedID = detToFedsMap.fedid_(i);
       const auto fedCH = detToFedsMap.fedch_(i);
-      const auto fedi = fedID - sistrip::FED_ID_MIN;
+      const auto fedi = fedID - FED_ID_MIN;
+
+      // Runtime check for the fedID (i.e., badly generated conditions passed though)
+      // unlikely used in https://github.com/cms-sw/cmssw/blob/7035c70e3a533533a7f8d600ff29f23579ca6add/RecoTracker/PixelTrackFitting/interface/RZLine.h#L101
+      if (fedID < sistrip::FED_ID_MIN || fedID > sistrip::FED_ID_MAX) [[unlikely]] {
+        // To understand whether this should stop execution or continue, skipping the ith
+        throw cms::Exception("RawToDigi")
+            << "Invalid fedID: " << fedID << " for detID: " << detID << " at record: " << i;
+      }
 
       if (fedBufferBlocksRaw.isInside(fedID)) {
         const auto buffer = buffers_[fedi].get();
 
-        /// extract readout mode
-        const sistrip::FEDReadoutMode bufferReadoutMode = buffer->readoutMode();
-        const sistrip::FEDLegacyReadoutMode lmode =
-            (legacy_) ? buffer->legacyReadoutMode() : sistrip::READOUT_MODE_LEGACY_INVALID;
-        const bool isNonLite = fedchannelunpacker::isNonLiteZS(bufferReadoutMode, legacy_, lmode);
-        const uint8_t pCode = (isNonLite ? buffer->packetCode(legacy_, fedCH) : 0);
+        // Extract buffer properties
+        const FEDReadoutMode buffROMode = buffer->readoutMode();
+        const FEDLegacyReadoutMode buffROModeLegacy =
+            (legacyUnpacker_) ? buffer->legacyReadoutMode() : READOUT_MODE_LEGACY_INVALID;
+        const bool isNonLite = fedchannelunpacker::isNonLiteZS(buffROMode, legacyUnpacker_, buffROModeLegacy);
+        const uint8_t pCode = (isNonLite ? buffer->packetCode(legacyUnpacker_, fedCH) : 0);
 
-        // #ifdef EDM_ML_DEBUG
-        // if (isNonLite) {
-        //   LogDebug("SiStripRawToDigi") << "Non-lite zero-suppressed mode. Packet code=0x" << std::hex << uint16_t(pCode) << std::dec;
-        // }
-        // #endif
+        // LogDebug("SiStripRawToDigi") << "Non-lite zero-suppressed mode. Packet code=0x" << std::hex << uint16_t(pCode) << std::dec;
 
-        if (!(bufferReadoutMode >= READOUT_MODE_ZERO_SUPPRESSED_LITE10 &&
-              bufferReadoutMode <= READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE &&
-              bufferReadoutMode != READOUT_MODE_PROC_RAW)) {
-          throw cms::Exception("RawToDigi") << "Unsupported readout mode: " << bufferReadoutMode
-                                            << " from condition FEDID=" << fedID << " FEDCH=" << fedCH;
+        if (!(buffROMode >= READOUT_MODE_ZERO_SUPPRESSED_LITE10 &&
+              buffROMode <= READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE &&
+              buffROMode != READOUT_MODE_PROC_RAW)) {
+          throw cms::Exception("RawToDigi")
+              << "Unsupported readout mode: " << buffROMode << " from condition FEDID=" << fedID << " FEDCH=" << fedCH;
         }
 
         // preparing ground for legacy unpacking...
         int headerlen = (isNonLite ? 7 : 2);
-        if ((!legacy_) ? bufferReadoutMode == READOUT_MODE_PREMIX_RAW : lmode == READOUT_MODE_LEGACY_PREMIX_RAW) {
+        if ((!legacyUnpacker_) ? buffROMode == READOUT_MODE_PREMIX_RAW
+                               : buffROModeLegacy == READOUT_MODE_LEGACY_PREMIX_RAW) {
           headerlen = 7;
         }
 
@@ -287,7 +275,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         // global offset for the FEDChannel in the rawFEDBuffer copied on the device
         chanlocs_onHost->offset(i) = offset;
         // buffer-related properties (to generalize to arbitrary unpackers)
-        chanlocs_onHost->readoutMode(i) = bufferReadoutMode;
+        chanlocs_onHost->readoutMode(i) = buffROMode;
         chanlocs_onHost->packetCode(i) = pCode;
         chanlocs_onHost->fedID(i) = fedID;
         chanlocs_onHost->fedCh(i) = fedCH;
@@ -349,7 +337,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Run the clusterization algorithm (ThreeThresholdAlgorithm)
     algo_.makeClusters(iEvent.queue(), chanlocs_onDevice, clusterizerConditions_onDevice);
 
-    iEvent.emplace(siStrClustsPutToken_, algo_.getClustersDevice());
+    iEvent.emplace(stripClustPutToken_, algo_.getClustersDevice());
   }
 
   void SiStripRawToCluster::makeFEDbufferWithValidFEDs_(const FEDRawDataCollection& rawColl,
@@ -402,100 +390,93 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   }
 
+  // Set a FEDBuffer pointer starting from the FEDRawData, pre-checking the data is valid. If not, nullptr is returned
+  // note: this is the original implementation of fillBuffer. std::optional / stack cannot be used because of missing move in FEDBuffer
+  //       I would have some doubts on the performance improvement from UNLIKELY/LIKELY macro, which I leave to be addressed in the PR.
+  std::unique_ptr<FEDBuffer> SiStripRawToCluster::fillBuffer(int fedId, const FEDRawData& input) {
+    // check FEDRawData pointer, size, and more
+    const FEDBufferStatusCode st_buffer = preconstructCheckFEDBuffer(input);
+    if (FEDBufferStatusCode::SUCCESS != st_buffer) [[unlikely]] {
+      if (FEDBufferStatusCode::BUFFER_NULL == st_buffer) {
+        warnings_.add("NULL pointer to FEDRawData for FED", fmt::format("id {0}", fedId));
+        return nullptr;
+      } else if (!input.size()) {
+        warnings_.add("FEDRawData has zero size for FED", fmt::format("id {0}", fedId));
+        return nullptr;
+      } else {
+        warnings_.add("Exception caught when creating FEDBuffer object for FED",
+                      fmt::format("id {0}: {1}", fedId, static_cast<int>(st_buffer)));
+        return nullptr;
+      }
+    }
+
+    std::unique_ptr<FEDBuffer> buffer = std::make_unique<FEDBuffer>(input);
+    const FEDBufferStatusCode st_chan = buffer->findChannels();
+
+    if (FEDBufferStatusCode::SUCCESS != st_chan) [[unlikely]] {
+      warnings_.add("Exception caught when creating FEDBuffer object for FED",
+                    fmt::format("id {0}: {1}", fedId, static_cast<int>(st_chan)));
+      return nullptr;
+    }
+
+    buffer->setLegacyMode(legacyUnpacker_);
+
+    if ((!buffer->doChecks(true)) && (!unpackBadChannels_ || !buffer->checkNoFEOverflows())) [[unlikely]] {
+      warnings_.add("Exception caught when creating FEDBuffer object for FED",
+                    fmt::format("id {0}: FED Buffer check fails for FED ID {0}.", fedId));
+      return nullptr;
+    }
+    if (doFullCorruptBufferChecks_ && !buffer->doCorruptBufferChecks()) [[unlikely]] {
+      warnings_.add("Exception caught when creating FEDBuffer object for FED",
+                    fmt::format("id {0}: FED corrupt buffer check fails for FED ID {0}.", fedId));
+      return nullptr;
+    }
+
+    return buffer;
+  }
+
 // Debug functions
 #ifdef EDM_ML_DEBUG
-  void SiStripRawToCluster::print_SiStripClusterizerConditions_(SiStripClusterizerConditions const& conditions) {
+  void SiStripRawToCluster::dumpConditions(SiStripClusterizerConditions const& conditions) {
     std::vector<unsigned int> detectors;
     std::vector<unsigned int> fedIds;
+
+    unsigned int invalidDet = 0;
+    unsigned int unconnectedFed = 0;
     // loop over good det in cabling
     for (auto idet : conditions.allDetIds()) {
       auto const& det = conditions.findDetId(idet);
-      if (!det.valid())
-        return;
+      if (!det.valid()) {
+        ++invalidDet;
+        continue;
+      }
 
       detectors.emplace_back(idet);
-
       for (auto const conn : conditions.currentConnection(det)) {
         const uint16_t fedId = conn->fedId();
-        if UNLIKELY (!fedId || !conn->isConnected())
+        if UNLIKELY (!fedId || !conn->isConnected()) {
+          ++unconnectedFed;
           continue;
-
+        }
         fedIds.emplace_back(fedId);
       }
     }  // end loop over dets
 
-    LogDebug("SiStripConditions") << "There are " << detectors.size() << " detectors ID which are valid.\n";
-    for (size_t i = 0; i < detectors.size(); ++i) {
-      if (i % 100 == 0)
-        LogDebug("SiStripConditions") << "  " << i << ":" << detectors[i];
-    }
-    LogDebug("SiStripConditions") << "There are " << fedIds.size()
-                                  << " fedIDs which are attached to connected FEDs. These are:\n\t";
-    for (size_t i = 0; i < fedIds.size(); ++i) {
-      if (i % 100 == 0)
-        LogDebug("SiStripConditions") << "  " << i << ":" << fedIds[i];
-    }
-    LogDebug("SiStripConditions") << "\n";
-  }
+    std::string dMsg = (invalidDet) ? ("Invalid det     " + std::to_string(invalidDet) + " ") : "";
+    std::string fMsg = (invalidDet) ? ("Unconnected fed " + std::to_string(unconnectedFed) + " ") : "";
+    LogDebug(sistrip::mlRawToCluster_) << "[" << __func__ << "]"
+                                       << " " << dMsg << fMsg << "\n";
 
-  void SiStripRawToCluster::print_SiStripClusterizerConditionsHost_(SiStripClusterizerConditionsHost const& conditions) {
-    auto SiStripClusterizerConditionsDetToFedsSoA_view = conditions.view<SiStripClusterizerConditionsDetToFedsSoA>();
-    auto SiStripClusterizerConditionsData_fedchSoA_view = conditions.view<SiStripClusterizerConditionsData_fedchSoA>();
-    auto SiStripClusterizerConditionsData_stripSoA_view = conditions.view<SiStripClusterizerConditionsData_stripSoA>();
-    auto SiStripClusterizerConditionsData_apvSoA_view = conditions.view<SiStripClusterizerConditionsData_apvSoA>();
+    LogDebug(sistrip::mlRawToCluster_) << "[" << __func__ << "]"
+                                       << " Valid detID: " << detectors.size() << "\n"
+                                       << prettyPrintVector(detectors, 10, 10, 10, 10) << "\n";
 
-    // alpaka::wait(queue);
-
-    LogDebug("SiStripConditions") << "From conditions, there are "
-                                  << SiStripClusterizerConditionsDetToFedsSoA_view.metadata().size() << " entries\n";
-    LogDebug("SiStripConditions") << "-- SiStripClusterizerConditionsDetToFedsSoA_view --\n"
-                                  << "i \t detid \t ipair \t fedid \t fedch\n";
-
-    for (int i = 0; i < SiStripClusterizerConditionsDetToFedsSoA_view.metadata().size(); ++i) {
-      if ((i < 1000 || i > (SiStripClusterizerConditionsDetToFedsSoA_view.metadata().size() - 1000))) {
-        LogDebug("SiStripConditions") << i << "\t" << SiStripClusterizerConditionsDetToFedsSoA_view.detid_(i) << "\t"
-                                      << SiStripClusterizerConditionsDetToFedsSoA_view.ipair_(i) << "\t"
-                                      << SiStripClusterizerConditionsDetToFedsSoA_view.fedid_(i) << "\t"
-                                      << (int)(SiStripClusterizerConditionsDetToFedsSoA_view.fedch_(i)) << "\n";
-      }
-    }
-
-    LogDebug("SiStripConditions") << "----------"
-                                  << "\n";
-    // return;
-    LogDebug("SiStripConditions") << "-- SiStripClusterizerConditionsData_fedchSoA_view --\n"
-                                  << "i \t detID \t iPair \t invthick\n";
-    for (int i = 0; i < SiStripClusterizerConditionsData_fedchSoA_view.metadata().size(); ++i) {
-      if ((i < 1000 || i > (SiStripClusterizerConditionsData_fedchSoA_view.metadata().size() - 1000))) {
-        LogDebug("SiStripConditions") << i << "\t" << SiStripClusterizerConditionsData_fedchSoA_view.detID_(i) << "\t"
-                                      << SiStripClusterizerConditionsData_fedchSoA_view.iPair_(i) << "\t"
-                                      << SiStripClusterizerConditionsData_fedchSoA_view.invthick_(i) << "\n";
-      }
-    }
-
-    LogDebug("SiStripConditions") << "----------"
-                                  << "\n";
-
-    LogDebug("SiStripConditions") << "-- SiStripClusterizerConditionsData_stripSoA_view --\n"
-                                  << "i \t noise \n";
-    for (int i = 0; i < SiStripClusterizerConditionsData_stripSoA_view.metadata().size(); ++i) {
-      if ((i < 1000 || i > (SiStripClusterizerConditionsData_stripSoA_view.metadata().size() - 1000))) {
-        LogDebug("SiStripConditions") << i << "\t" << SiStripClusterizerConditionsData_stripSoA_view.noise_(i) << "\n";
-      }
-    }
-
-    LogDebug("SiStripConditions") << "----------"
-                                  << "\n";
-
-    LogDebug("SiStripConditions") << "-- SiStripClusterizerConditionsData_apvSoA_view --\n"
-                                  << "i \t gain \n";
-    for (int i = 0; i < SiStripClusterizerConditionsData_apvSoA_view.metadata().size(); ++i) {
-      if ((i < 1000 || i > (SiStripClusterizerConditionsData_apvSoA_view.metadata().size() - 1000))) {
-        LogDebug("SiStripConditions") << i << "\t" << SiStripClusterizerConditionsData_apvSoA_view.gain_(i) << "\n";
-      }
-    }
+    LogDebug(sistrip::mlRawToCluster_) << "[" << __func__ << "]"
+                                       << " Valid fedID: " << fedIds.size() << "\n"
+                                       << prettyPrintVector(fedIds, 10, 10, 10, 10) << "\n";
   }
 #endif
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"

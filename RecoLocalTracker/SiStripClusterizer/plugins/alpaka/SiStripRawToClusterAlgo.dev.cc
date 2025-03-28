@@ -4,10 +4,10 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 
-#include "SiStripRawToClusterAlgo.h"
-
 #include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 // #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
+
+#include "SiStripRawToClusterAlgo.h"
 
 // Generic raw unpackers
 
@@ -409,11 +409,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC void operator()(TAcc const& acc,
-                                       SiStripMappingConstView mapping,
-                                       //
                                        bool legacy,
                                        FEDLegacyReadoutMode lmode,
                                        //
+                                       SiStripMappingConstView mapping,
                                        SiStripClusterizerConditionsDetToFedsConstView DetToFeds,
                                        SiStripClusterizerConditionsData_fedchConstView Data_fedch,
                                        SiStripClusterizerConditionsData_stripConstView Data_strip,
@@ -778,18 +777,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   using namespace cms::alpakatools;
   using namespace sistripclusterizer;
 
-  SiStripRawToClusterAlgo::SiStripRawToClusterAlgo(const edm::ParameterSet& conf, bool legacyMode)
-      : channelThreshold_(conf.getParameter<double>("ChannelThreshold")),
-        seedThreshold_(conf.getParameter<double>("SeedThreshold")),
-        clusterThresholdSquared_(std::pow(conf.getParameter<double>("ClusterThreshold"), 2.0f)),
-        maxSequentialHoles_(conf.getParameter<unsigned>("MaxSequentialHoles")),
-        maxSequentialBad_(conf.getParameter<unsigned>("MaxSequentialBad")),
-        maxAdjacentBad_(conf.getParameter<unsigned>("MaxAdjacentBad")),
-        maxClusterSize_(conf.getParameter<unsigned>("MaxClusterSize")),
-        minGoodCharge_(clusterChargeCut(conf)),
-        legacyUnpacker_(legacyMode) {
+  SiStripRawToClusterAlgo::SiStripRawToClusterAlgo(const edm::ParameterSet& unpackPar,
+                                                   const edm::ParameterSet& clustPar)
+      : isLegacyUnpacker_(unpackPar.getParameter<bool>("LegacyUnpacker")),
+        channelThreshold_(clustPar.getParameter<double>("ChannelThreshold")),
+        seedThreshold_(clustPar.getParameter<double>("SeedThreshold")),
+        clusterThresholdSquared_(std::pow(clustPar.getParameter<double>("ClusterThreshold"), 2.0f)),
+        maxSequentialHoles_(clustPar.getParameter<unsigned>("MaxSequentialHoles")),
+        maxSequentialBad_(clustPar.getParameter<unsigned>("MaxSequentialBad")),
+        maxAdjacentBad_(clustPar.getParameter<unsigned>("MaxAdjacentBad")),
+        maxClusterSize_(clustPar.getParameter<unsigned>("MaxClusterSize")),
+        minGoodCharge_(clusterChargeCut(clustPar)) {
+    // Make sure the module does not start with features not implemented yet
     if (maxClusterSize_ > 32) {
       throw cms::Exception("SiStripRawToClstAlg", "MaxClusterSize must be <= 32");
+    }
+    if (isLegacyUnpacker_) {
+      throw cms::Exception("SiStripRawToClstAlg", "Legacy unpacking not supported yet");
     }
   }
 
@@ -835,11 +839,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     alpaka::exec<Acc1D>(queue,
                         workDiv,
                         SiStripRawToClusterAlgoKernel_unpacker{},
+                        isLegacyUnpacker_,
+                        legacyUnpackerROmode_,
+                        //
                         mapping.const_view(),
-                        //
-                        legacyUnpacker_,
-                        lmode_,
-                        //
                         conditions.const_view<SiStripClusterizerConditionsDetToFedsSoA>(),
                         conditions.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
                         conditions.const_view<SiStripClusterizerConditionsData_stripSoA>(),
@@ -850,15 +853,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     auto sClustersAux_host = StripClusterizerHost(clustersAux_d_->sizes(), queue);
     alpaka::memcpy(queue, sClustersAux_host.buffer(), clustersAux_d_->buffer());
     alpaka::wait(queue);
-    // LogDebug("SiStripUnpkDigi") << "[SiStripRawToClusterAlgo::unpackStrips] Dumping channel_...\n"
-    std::cout << "[SiStripRawToClusterAlgo::unpackStrips] Dumping channel_...\n"
-              << "i\tadc\tchan\tstripId\n";
+    LogDebug("SiStripUnpkDigi") << "[SiStripRawToClusterAlgo::unpackStrips] Dumping channel_...\n"
+                                // std::cout << "[SiStripRawToClusterAlgo::unpackStrips] Dumping channel_...\n"
+                                << "i\tadc\tchan\tstripId\n";
     for (int i = 0; i < sClustersAux_host->metadata().size(); ++i) {
       if ((i % 1000 == 0 and sClustersAux_host->stripId(i) != invalidStrip) or (i <= 100) or
           (i > (sClustersAux_host->metadata().size() - 100))) {
-        // LogDebug("SiStripUnpkDigi") << i << "\t" << (int)sClustersAux_host->adc(i) << " "
-        std::cout << i << "\t" << (int)sClustersAux_host->adc(i) << "\t" << (int)sClustersAux_host->channel(i) << "\t"
-                  << (int)sClustersAux_host->stripId(i) << "\n";
+        LogDebug("SiStripUnpkDigi")
+            << i << "\t" << (int)sClustersAux_host->adc(i)
+            << " "
+            // std::cout << i << "\t" << (int)sClustersAux_host->adc(i) << "\t" << (int)sClustersAux_host->channel(i) << "\t"
+            << (int)sClustersAux_host->stripId(i) << "\n";
       }
     }
 #endif

@@ -84,15 +84,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   public:
     DataFedAppender(Queue& queue, unsigned int bufferSize_bytes)
         : bytes_{cms::alpakatools::make_host_buffer<uint8_t[]>(queue, bufferSize_bytes)},
-          // fedID_{cms::alpakatools::make_host_buffer<uint16_t[]>(queue, bufferSize_bytes)},
           fedIDinSet_(sistrip::NUMBER_OF_FEDS, false),
           size_(bufferSize_bytes / sizeof(uint8_t)),
           offset_(0) {};
 
     void insertFEDRawDataObj(uint16_t fedID, const FEDRawData* rawFEDData) {
-      // assert((offset_+rawFEDData->size()) < size_);
       std::memcpy(bytes_.data() + offset_, rawFEDData->data(), rawFEDData->size());
-      // std::memset(fedID_.data() + offset_, fedID, rawFEDData->size() * sizeof(uint16_t));
 
       validFED_offsets[fedID] = offset_;
       chunkStartIdx_.emplace_back(offset_);
@@ -102,23 +99,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
 
     auto getData() const { return bytes_; }
-    inline auto getSize() const { return size_; }
-    inline auto getOffset() const { return offset_; }
-    // inline auto getFEDIdMask() const { return fedID_; }
-    inline auto chunkStartIdx() const { return chunkStartIdx_; }
+    inline size_t getOffset(uint16_t fedID) { return validFED_offsets[fedID]; }
+    inline auto size() { return size_; }
 
+    // Is the fedID in the set?
     bool isInside(uint16_t fedID) const {
       uint16_t fedi = fedID - sistrip::FED_ID_MIN;
-      if (fedi >= fedIDinSet_.size()) {
-        return false;
-      } else {
+      if (fedi < fedIDinSet_.size())
         return fedIDinSet_[fedi];
-      }
+      return false;
     }
-
-    inline size_t getOffset(uint16_t fedID) { return validFED_offsets[fedID]; }
-
-    inline auto size() { return size_; }
 
 #ifdef EDM_ML_DEBUG
     void print_Info() {
@@ -135,7 +125,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
   private:
     cms::alpakatools::host_buffer<uint8_t[]> bytes_;
-    // cms::alpakatools::host_buffer<uint16_t[]> fedID_;
     std::vector<bool> fedIDinSet_;
     const size_t size_;
     size_t offset_;
@@ -148,7 +137,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   class SiStripRawToClusterAlgo {
   public:
-    SiStripRawToClusterAlgo(const edm::ParameterSet& conf, bool legacyMode);
+    SiStripRawToClusterAlgo(const edm::ParameterSet& unpackPar, const edm::ParameterSet& clustPar);
 
     void initialize(Queue& queue, int n_strips);
     void unpackStrips(Queue& queue,
@@ -164,6 +153,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     inline auto getClustersDevice() { return std::move(clusters_d_.value()); };
 
   private:
+    // Use the legacy unpacker for the raw FED
+    const bool isLegacyUnpacker_;
+    // Readout mode of the legacy unpacker
+    const FEDLegacyReadoutMode legacyUnpackerROmode_ = READOUT_MODE_LEGACY_INVALID;
+
+    const float channelThreshold_, seedThreshold_, clusterThresholdSquared_;
+    const uint8_t maxSequentialHoles_, maxSequentialBad_, maxAdjacentBad_;
+    const uint32_t maxClusterSize_;
+    const float minGoodCharge_;
+
     // inputs for the unpacking and clustering
     std::optional<SiStripMappingDevice> chanlocs_d_;
     std::optional<SiStripClusterizerConditionsDevice> clusterizerConditions_d_;
@@ -172,15 +171,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     std::optional<StripClusterizerDevice> clustersAux_d_;
     // portable collection for the clusters
     std::optional<sistrip::SiStripClustersDevice> clusters_d_;
-
-    const float channelThreshold_, seedThreshold_, clusterThresholdSquared_;
-    const uint8_t maxSequentialHoles_, maxSequentialBad_, maxAdjacentBad_;
-    const uint32_t maxClusterSize_;
-    const float minGoodCharge_;
-
-    //
-    const bool legacyUnpacker_;
-    const FEDLegacyReadoutMode lmode_ = READOUT_MODE_LEGACY_INVALID;
 
 #ifdef EDM_ML_DEBUG
     void checkUnpackedStrips_(Queue& queue, StripClusterizerDevice& output) const;
