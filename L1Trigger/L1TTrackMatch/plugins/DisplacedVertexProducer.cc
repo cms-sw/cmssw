@@ -319,10 +319,13 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
                                                                          vertex.p_mag,
                                                                          isReal);
 
+      //Rescaling input features so they all fall within [-20,20]. This reduces bits needed in emulation by 2. See this presentation for more information: https://indico.cern.ch/event/1476881/contributions/6219913/attachments/2964052/5214060/GTT%20Displaced%20Vertexing%20November%208%202024.pdf
+      float ptRescaling = 0.25;
+      float deltaZRescaling = 0.125;
       if (runEmulation_) {
         std::vector<ap_fixed<13, 8, AP_RND_CONV, AP_SAT>> Transformed_features = {
-            selectedTracksWithTruth[i].first.pt * 0.25,
-            selectedTracksWithTruth[j].first.pt * 0.25,
+            selectedTracksWithTruth[i].first.pt * ptRescaling,
+            selectedTracksWithTruth[j].first.pt * ptRescaling,
             selectedTracksWithTruth[i].first.eta,
             selectedTracksWithTruth[j].first.eta,
             selectedTracksWithTruth[i].first.phi,
@@ -331,23 +334,23 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
             selectedTracksWithTruth[j].first.d0,
             selectedTracksWithTruth[i].first.z0,
             selectedTracksWithTruth[j].first.z0,
-            selectedTracksWithTruth[i].first.chi2rz + 0.07,
-            selectedTracksWithTruth[j].first.chi2rz + 0.07,
-            selectedTracksWithTruth[i].first.bendchi2 + 0.07,
-            selectedTracksWithTruth[j].first.bendchi2 + 0.07,
-            selectedTracksWithTruth[i].first.MVA1 + 0.07,
-            selectedTracksWithTruth[j].first.MVA1 + 0.07,
+            selectedTracksWithTruth[i].first.chi2rz,
+            selectedTracksWithTruth[j].first.chi2rz,
+            selectedTracksWithTruth[i].first.bendchi2,
+            selectedTracksWithTruth[j].first.bendchi2,
+            selectedTracksWithTruth[i].first.MVA1,
+            selectedTracksWithTruth[j].first.MVA1,
             vertex.d_T,
             vertex.R_T,
             vertex.cos_T,
-            vertex.delta_z * 0.125};
+            vertex.delta_z * deltaZRescaling};
         conifer::BDT<ap_fixed<13, 8, AP_RND_CONV, AP_SAT>, ap_fixed<13, 8, AP_RND_CONV, AP_SAT>> bdt(
             this->model_.fullPath());
         std::vector<ap_fixed<13, 8, AP_RND_CONV, AP_SAT>> output = bdt.decision_function(Transformed_features);
         outputVertex.setScore(output.at(0).to_float());
       } else {
-        std::vector<float> Transformed_features = {float(selectedTracksWithTruth[i].first.pt * 0.25),
-                                                   float(selectedTracksWithTruth[j].first.pt * 0.25),
+        std::vector<float> Transformed_features = {float(selectedTracksWithTruth[i].first.pt * ptRescaling),
+                                                   float(selectedTracksWithTruth[j].first.pt * ptRescaling),
                                                    selectedTracksWithTruth[i].first.eta,
                                                    selectedTracksWithTruth[j].first.eta,
                                                    selectedTracksWithTruth[i].first.phi,
@@ -356,16 +359,16 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
                                                    selectedTracksWithTruth[j].first.d0,
                                                    selectedTracksWithTruth[i].first.z0,
                                                    selectedTracksWithTruth[j].first.z0,
-                                                   float(selectedTracksWithTruth[i].first.chi2rz + 0.07),
-                                                   float(selectedTracksWithTruth[j].first.chi2rz + 0.07),
-                                                   float(selectedTracksWithTruth[i].first.bendchi2 + 0.07),
-                                                   float(selectedTracksWithTruth[j].first.bendchi2 + 0.07),
-                                                   float(selectedTracksWithTruth[i].first.MVA1 + 0.07),
-                                                   float(selectedTracksWithTruth[j].first.MVA1 + 0.07),
+                                                   float(selectedTracksWithTruth[i].first.chi2rz),
+                                                   float(selectedTracksWithTruth[j].first.chi2rz),
+                                                   float(selectedTracksWithTruth[i].first.bendchi2),
+                                                   float(selectedTracksWithTruth[j].first.bendchi2),
+                                                   float(selectedTracksWithTruth[i].first.MVA1),
+                                                   float(selectedTracksWithTruth[j].first.MVA1),
                                                    vertex.d_T,
                                                    vertex.R_T,
                                                    vertex.cos_T,
-                                                   float(vertex.delta_z * 0.125)};
+                                                   float(vertex.delta_z * deltaZRescaling)};
         conifer::BDT<float, float> bdt(this->model_.fullPath());
         std::vector<float> output = bdt.decision_function(Transformed_features);
         outputVertex.setScore(output.at(0));

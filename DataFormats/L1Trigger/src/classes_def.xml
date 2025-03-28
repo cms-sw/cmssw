@@ -335,7 +335,8 @@
   <class name="edm::Wrapper<l1t::VertexWordCollection>"/>
   <class name="edm::Ref<l1t::VertexWordCollection>" />
 
-  <class name="l1t::DisplacedTrackVertex">
+  <class name="l1t::DisplacedTrackVertex" ClassVersion="11">
+    <version ClassVersion="11" checksum="698293252"/>
   </class>
   <class name="std::vector<l1t::DisplacedTrackVertex>"/>
   <class name="edm::Wrapper<std::vector<l1t::DisplacedTrackVertex> >"/>
