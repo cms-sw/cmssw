@@ -208,7 +208,8 @@ namespace edm {
                                              "recoGsfElectrons",
                                              "TotemRPLocalTrackedmDetSetVector",
                                              "edmTriggerResults",
-                                             "GlobalAlgBlkBXVector"};
+                                             "GlobalAlgBlkBXVector",
+                                             "SimTrackToTPMap"};
       std::vector<edm::ParameterSet> retValue;
       for (auto const& t : types) {
         edm::ParameterSet p;
