@@ -41,9 +41,9 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
 
     # Calibration options
     jetCalibrationType         = "LUT",
-    jetCompressPtLUTFile       = "L1Trigger/L1TCalorimeter/data/lut_pt_compress_2017v1.txt",
-    jetCompressEtaLUTFile      = "L1Trigger/L1TCalorimeter/data/lut_eta_compress_2017v1.txt",
-    jetCalibrationLUTFile      = "L1Trigger/L1TCalorimeter/data/lut_calib_2023v0_ECALZS_PhiRing.txt",
+    jetCompressPtLUTFile       = "L1Trigger/L1TCalorimeter/data/lut_pt_compress_2025v0.txt",
+    jetCompressEtaLUTFile      = "L1Trigger/L1TCalorimeter/data/lut_eta_compress_2025v0.txt",
+    jetCalibrationLUTFile      = "L1Trigger/L1TCalorimeter/data/lut_calib_2025v0_HCALcMar_ConservativeZS_L1NanoPUS.txt",
 
 
     # sums: 0=ET, 1=HT, 2=MET, 3=MHT
