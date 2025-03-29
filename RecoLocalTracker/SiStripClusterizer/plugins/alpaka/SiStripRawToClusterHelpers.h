@@ -58,10 +58,14 @@ public:
     const auto wIt = m_warnings.find(message);
     if (wIt == m_warnings.end()) {
       m_warnings.emplace(message, 1);
-      edm::LogWarning(m_category) << message << ": " << details
-                                  << (m_debug ? ""
-                                              : "\nNote: further warnings of this type will be suppressed (this can be "
-                                                "changed by enabling debugging printout)");
+      if (m_debug) {
+        // Removed warning at first err, as requested and accordingly to RecoLocalTracker/SiStripClusterizer/plugins/ClustersFromRawProducer.cc
+        edm::LogWarning(m_category) << message << ": " << details
+                                    << (m_debug
+                                            ? ""
+                                            : "\nNote: further warnings of this type will be suppressed (this can be "
+                                              "changed by enabling debugging printout)");
+      }
     } else {
       ++(wIt->second);
       if (m_debug) {
