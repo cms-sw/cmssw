@@ -61,7 +61,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
-process.hbheprereco.cpu.saveInfos    = cms.bool(True)
+process.hbheprereco.saveInfos = cms.bool(True)
 
 process.load("RecoLocalCalo.HcalRecAlgos.test.mahiDebugger_cfi")
 
