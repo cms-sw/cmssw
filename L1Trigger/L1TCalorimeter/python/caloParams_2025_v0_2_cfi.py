@@ -16,14 +16,14 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
     egShapeIdLUTFile           = "L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt", #Not used any more in the current emulator version, merged with calibration LUT
 
     egIsolationType            = "compressed",
-    egIsoLUTFile               = "L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_Tight_1290_20p0_0p7_40p0_v0_MAR2025.txt",
-    egIsoLUTFile2              = "L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_Loose_582_10p0_0p7_40p0_v0_MAR2025.txt",
+    egIsoLUTFile               = "L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_Tight_1290_20p0_0p7_40p0_v2_MAR2025.txt",
+    egIsoLUTFile2              = "L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_Loose_582_10p0_0p7_40p0_v2_MAR2025.txt",
 
     egIsoVetoNrTowersPhi       = 2,
     egPUSParams                = cms.vdouble(1,4,32), #Isolation window in firmware goes up to abs(ieta)=32 for now
     egCalibrationType          = "compressed",
     egCalibrationVersion       = 0,
-    egCalibrationLUTFile       = "L1Trigger/L1TCalorimeter/data/EG_Calibration_LUT_v1_APR2024.txt",
+    egCalibrationLUTFile       = "L1Trigger/L1TCalorimeter/data/EG_Calibration_LUT_v1_MAR2025.txt",
 
     # Tau
     isoTauEtaMax               = 25,
