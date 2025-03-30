@@ -168,11 +168,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // portablecollection2 with auxiliary data used by the clusterizer
     std::optional<StripClusterizerDevice> clustersAux_d_;
 
-    // #ifdef EDM_ML_DEBUG
+    #ifdef EDM_ML_DEBUG
     void checkUnpackedStrips_(Queue& queue, StripClusterizerDevice& output) const;
     void checkPrefixSum_(Queue& queue, StripClusterizerDevice& output) const;
     void checkClusters(Queue& queue, SiStripClustersDevice* clusters_d) const;
-    // #endif
+    #endif
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 

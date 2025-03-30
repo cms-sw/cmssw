@@ -889,7 +889,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         clustersAux_d_->view<StripClustersAuxSoA>());
 
 #if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
-    alpaka::wait(queue);
     checkUnpackedStrips_(queue, clustersAux_d_.value());
 #endif
 
