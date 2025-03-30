@@ -146,11 +146,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void setSeedsAndMakeIndexes(Queue& queue,
                                 SiStripMappingDevice const& mapping,
                                 SiStripClusterizerConditionsDevice const& conditions);
-    void makeClusters(Queue& queue,
-                      SiStripMappingDevice const& mapping,
-                      SiStripClusterizerConditionsDevice const& conditions);
-
-    inline auto getClustersDevice() { return std::move(clusters_d_.value()); };
+    std::unique_ptr<SiStripClustersDevice> makeClusters(Queue& queue,
+                                                        SiStripMappingDevice const& mapping,
+                                                        SiStripClusterizerConditionsDevice const& conditions);
 
   private:
     // Use the legacy unpacker for the raw FED
@@ -169,14 +167,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // portablecollection2 with auxiliary data used by the clusterizer
     std::optional<StripClusterizerDevice> clustersAux_d_;
-    // portable collection for the clusters
-    std::optional<sistrip::SiStripClustersDevice> clusters_d_;
 
-#ifdef EDM_ML_DEBUG
+    // #ifdef EDM_ML_DEBUG
     void checkUnpackedStrips_(Queue& queue, StripClusterizerDevice& output) const;
     void checkPrefixSum_(Queue& queue, StripClusterizerDevice& output) const;
-    void checkClusters_(Queue& queue) const;
-#endif
+    void checkClusters(Queue& queue, SiStripClustersDevice* clusters_d) const;
+    // #endif
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 

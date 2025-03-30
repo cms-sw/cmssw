@@ -937,11 +937,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 #endif
   }
 
-  void SiStripRawToClusterAlgo::makeClusters(Queue& queue,
-                                             SiStripMappingDevice const& mapping,
-                                             SiStripClusterizerConditionsDevice const& conditions) {
+  std::unique_ptr<SiStripClustersDevice> SiStripRawToClusterAlgo::makeClusters(
+      Queue& queue, SiStripMappingDevice const& mapping, SiStripClusterizerConditionsDevice const& conditions) {
     // The maximum number of clusters is set to kMaxSeedStrips
-    clusters_d_ = sistrip::SiStripClustersDevice(kMaxSeedStrips, queue);
+    auto clusters_d = std::make_unique<SiStripClustersDevice>(kMaxSeedStrips, queue);
     // The number of seed over which to loop for clusters is the min between the number of strips and the kMaxSeeds
     const auto nStrips = clustersAux_d_->view().metadata().size();
     const int nSeeds = std::min(kMaxSeedStrips, nStrips);
@@ -959,7 +958,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         conditions.const_view<SiStripClusterizerConditionsData_stripSoA>(),
                         clustersAux_d_->const_view(),
                         clustersAux_d_->view<StripClustersAuxSoA>(),
-                        clusters_d_->view());
+                        clusters_d->view());
 
     // Apply the conditions
     alpaka::exec<Acc1D>(queue,
@@ -970,11 +969,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         conditions.const_view<SiStripClusterizerConditionsData_apvSoA>(),
                         clustersAux_d_->const_view(),
                         clustersAux_d_->view<StripClustersAuxSoA>(),
-                        clusters_d_->view());
+                        clusters_d->view());
 
 #if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
-    checkClusters_(queue);
+    checkClusters(queue, clusters_d.get());
 #endif
+
+    return clusters_d;
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
@@ -1021,34 +1022,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   }
 
-  void SiStripRawToClusterAlgo::checkClusters_(Queue& queue) const {
-    // auto clusters_device = sistrip::SiStripClustersDevice(clusters->metadata().size(), queue);
-    // fill(queue, clusters_device, 2.3);
-
+  void SiStripRawToClusterAlgo::checkClusters(Queue& queue, SiStripClustersDevice* clusters_d) const {
     // Copy the clusted on the host
-    auto clusters_host = sistrip::SiStripClustersHost(clusters_d_->view().metadata().size(), queue);
-    alpaka::memcpy(queue, clusters_host.buffer(), clusters_d_->buffer());
+    SiStripClustersHost clusters_h = SiStripClustersHost(clusters_d->view().metadata().size(), queue);
+    alpaka::memcpy(queue, clusters_h.buffer(), clusters_d->buffer());
     alpaka::wait(queue);
 
-    LogDebug("SiStripClusChk") << "clusters->metadata().size() = " << clusters_d_->view().metadata().size() << "\n";
-    LogDebug("SiStripClusChk") << "nClusters\tmaxClusterSize\n";
-    LogDebug("SiStripClusChk") << clusters_host->nClusters() << "\t" << clusters_host->maxClusterSize() << "\n";
-    LogDebug("SiStripClusChk") << "   -----  ---------- -----   \n";
+    const int clustersPrealloc = clusters_d->view().metadata().size();
+    const int clustersN = clusters_h->nClusters();
+    LogDebug("SiStripClusChk") << "Clusters report\n"
+                               << "Pre-allocated:\t" << clustersPrealloc << "\tProduced:\t" << clustersN << "\n";
+
+    LogDebug("SiStripClusChk") << "   -----  Small cluster dump BEGIN -----   \n";
     LogDebug("SiStripClusChk") << "i\tcIdx\tcSz\tcDetId\t1Strip\ttrueC\tbary\tchg\t - clusterADCs\n";
     // Print the result
-    for (int i = 0; i < (int)clusters_host->nClusters(); ++i) {
-      if (i > 100 && i < ((int)clusters_host->nClusters() - 1000))
+    for (int i = 0; i < clustersN; ++i) {
+      if (i > 100 && i < (clustersN - 1000)) {
         continue;
-      LogDebug("SiStripClusChk") << i << "\t" << clusters_host->clusterIndex(i) << "\t" << clusters_host->clusterSize(i)
-                                 << "\t" << clusters_host->clusterDetId(i) << "\t" << clusters_host->charge(i) << "\t"
-                                 << clusters_host->firstStrip(i) << "\t" << clusters_host->trueCluster(i) << "\t"
-                                 << clusters_host->barycenter(i) << "\t - ";
-      for (unsigned int j = 0; j < clusters_host->clusterSize(i); ++j) {
-        LogDebug("") << j << ":" << (int)(clusters_host->clusterADCs(i)[j]) << "  ";
+      } else {
+        LogDebug("SiStripClusChk") << i << "\t" << clusters_h->clusterIndex(i) << "\t" << clusters_h->clusterSize(i)
+                                   << "\t" << clusters_h->clusterDetId(i) << "\t" << clusters_h->charge(i) << "\t"
+                                   << clusters_h->firstStrip(i) << "\t" << clusters_h->trueCluster(i) << "\t"
+                                   << clusters_h->barycenter(i) << "\t - ";
+        for (unsigned int j = 0; j < clusters_h->clusterSize(i); ++j) {
+          LogDebug("") << j << ":" << (int)(clusters_h->clusterADCs(i)[j]) << "  ";
+        }
       }
       LogDebug("") << "\n";
     }
-    alpaka::wait(queue);
+    LogDebug("SiStripClusChk") << "   -----  Small cluster dump END   -----   \n";
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 #endif  // debug functions

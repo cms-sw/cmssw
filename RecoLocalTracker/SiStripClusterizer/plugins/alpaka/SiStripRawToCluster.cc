@@ -335,9 +335,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     algo_.setSeedsAndMakeIndexes(iEvent.queue(), chanlocs_onDevice, clusterizerConditions_onDevice);
 
     // Run the clusterization algorithm (ThreeThresholdAlgorithm)
-    algo_.makeClusters(iEvent.queue(), chanlocs_onDevice, clusterizerConditions_onDevice);
+    auto cluster_d = algo_.makeClusters(iEvent.queue(), chanlocs_onDevice, clusterizerConditions_onDevice);
 
-    iEvent.emplace(stripClustPutToken_, algo_.getClustersDevice());
+    iEvent.put(stripClustPutToken_, std::move(cluster_d));
   }
 
   void SiStripRawToCluster::makeFEDbufferWithValidFEDs_(const FEDRawDataCollection& rawColl,
