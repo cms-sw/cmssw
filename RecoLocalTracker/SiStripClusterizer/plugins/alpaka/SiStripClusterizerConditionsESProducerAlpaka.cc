@@ -46,13 +46,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
   class SiStripClusterizerConditionsESProducerAlpaka : public ESProducer {
   public:
-    SiStripClusterizerConditionsESProducerAlpaka(edm::ParameterSet const& iConfig)
-        : ESProducer(iConfig),
-          invthick_(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED),
-          detID_(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED),
-          iPair_(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED),
-          noise_(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH),
-          gain_(sistrip::NUMBER_OF_FEDS * sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED) {
+    SiStripClusterizerConditionsESProducerAlpaka(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
       auto cc = setWhatProduced(this);
       gainsToken_ = cc.consumes();
       noisesToken_ = cc.consumes();
@@ -76,22 +70,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       //       Some thinking should go into understanding how to optimize the move of gain/noise/quality and how to define a alpaka-kernel doing the
       //       preparation for the conditions.
       //       (same algo from RecoLocalTracker/SiStripClusterizer/plugins/SiStripClusterizerConditionsESProducer.cc)
-      SiStripClusterizerConditionsOnHost_(quality, gains.product(), noises);
-      LogDebug("StripCondsESProd") << "Produced a SiStripClusterizerConditions object for " << detToFeds_.size()
+
+      std::vector<DetToFed> detToFeds;  // detid_, ipair_, fedid_, fedch_
+
+      std::vector<float> invthick(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED);
+      std::vector<uint32_t> detID(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED);
+      std::vector<uint16_t> iPair(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED);
+      std::vector<uint16_t> noise(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH);
+      std::vector<float> gain(sistrip::NUMBER_OF_FEDS * sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED);
+
+      fillSiStripClusterizerConditions_(
+          quality, gains.product(), noises, detToFeds, invthick, detID, iPair, noise, gain);
+
+      LogDebug("StripCondsESProd") << "Produced a SiStripClusterizerConditions object for " << detToFeds.size()
                                    << " modules";
 
       // Prepare the product & Fill the product
-      const int DetToFeds_size = detToFeds_.size();
-      const int Data_fedch_size = detID_.size();
-      const int Data_strip_size = noise_.size();
-      const int Data_apv_size = gain_.size();
+      const int DetToFeds_size = detToFeds.size();
+      const int Data_fedch_size = detID.size();
+      const int Data_strip_size = noise.size();
+      const int Data_apv_size = gain.size();
       //// Typical sizes for these collections (from MC run)
       //// constexpr const unsigned int DetToFeds_size= 34813;
       //// constexpr const unsigned int Data_fedch_size= 42240;
       //// constexpr const unsigned int Data_strip_size= 10813440;
       //// constexpr const unsigned int Data_apv_size= 84480;
 
-      assert(detID_.size() == iPair_.size() && iPair_.size() == invthick_.size());
+      assert(detID.size() == iPair.size() && iPair.size() == invthick.size());
 
       // PortableHostMultiCollection(const std::array<int32_t, members_>& sizes, alpaka_common::DevHost const& host)
       auto product = std::make_unique<SiStripClusterizerConditionsHost>(
@@ -104,22 +109,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       auto Data_apv_View = product->view<SiStripClusterizerConditionsData_apvSoA>();
 
       for (int j = 0; j < DetToFeds_size; ++j) {
-        auto entry = detToFeds_[j];
-        DetToFeds_View[j].detid_() = entry.detID();
-        DetToFeds_View[j].fedch_() = entry.fedCh();
-        DetToFeds_View[j].fedid_() = entry.fedID();
-        DetToFeds_View[j].ipair_() = entry.pair();
+        auto entry = detToFeds[j];
+        DetToFeds_View.detid_(j) = entry.detID();
+        DetToFeds_View.fedch_(j) = entry.fedCh();
+        DetToFeds_View.fedid_(j) = entry.fedID();
+        DetToFeds_View.ipair_(j) = entry.pair();
       }
       for (int j = 0; j < Data_fedch_size; ++j) {
-        Data_fedch_View[j].detID_() = detID_[j];
-        Data_fedch_View[j].iPair_() = iPair_[j];
-        Data_fedch_View[j].invthick_() = invthick_[j];
+        Data_fedch_View.detID_(j) = detID[j];
+        Data_fedch_View.iPair_(j) = iPair[j];
+        Data_fedch_View.invthick_(j) = invthick[j];
       }
       for (int j = 0; j < Data_strip_size; ++j) {
-        Data_strip_View[j].noise_() = noise_[j];
+        Data_strip_View.noise_(j) = noise[j];
       }
       for (int j = 0; j < Data_apv_size; ++j) {
-        Data_apv_View[j].gain_() = gain_[j];
+        Data_apv_View.gain_(j) = gain[j];
       }
 
       return product;
@@ -137,33 +142,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
               (strip % STRIPS_PER_FEDCH) / STRIPS_PER_APV);
     };
     inline uint32_t channelIndex(uint16_t fed, uint8_t channel) { return (fedIndex(fed) * FEDCH_PER_FED + channel); };
-    inline void setInvThickness(uint16_t fed, uint8_t channel, float invthick) {
-      invthick_[channelIndex(fed, channel)] = invthick;
-    };
 
   private:
-    std::vector<float> invthick_;
-    std::vector<uint32_t> detID_;
-    std::vector<uint16_t> iPair_;
-    std::vector<uint16_t> noise_;
-    std::vector<float> gain_;
-
     edm::ESGetToken<SiStripGain, SiStripGainRcd> gainsToken_;
     edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noisesToken_;
     edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
 
-    std::vector<DetToFed> detToFeds_;  // detid_, ipair_, fedid_, fedch_
-
     // Make conditions as in the RecoLocalTracker/SiStripClusterizer/plugins/ClustersFromRawProducer.cc module
-    void SiStripClusterizerConditionsOnHost_(const SiStripQuality& quality,
-                                             const SiStripGain* gains,
-                                             const SiStripNoises& noises);
-    void setStrip_(uint16_t fed, uint8_t channel, uint16_t strip, uint16_t noise, float gain, bool bad);
+    void fillSiStripClusterizerConditions_(const SiStripQuality& quality,
+                                           const SiStripGain* gains,
+                                           const SiStripNoises& noises,
+                                           std::vector<DetToFed>& detToFeds,
+                                           std::vector<float>& invthick,
+                                           std::vector<uint32_t>& detID,
+                                           std::vector<uint16_t>& iPair,
+                                           std::vector<uint16_t>& noise,
+                                           std::vector<float>& gain);
   };
 
-  void SiStripClusterizerConditionsESProducerAlpaka::SiStripClusterizerConditionsOnHost_(const SiStripQuality& quality,
-                                                                                         const SiStripGain* gains,
-                                                                                         const SiStripNoises& noises) {
+  void SiStripClusterizerConditionsESProducerAlpaka::fillSiStripClusterizerConditions_(const SiStripQuality& quality,
+                                                                                       const SiStripGain* gains,
+                                                                                       const SiStripNoises& noises,
+                                                                                       std::vector<DetToFed>& detToFeds,
+                                                                                       std::vector<float>& invthick,
+                                                                                       std::vector<uint32_t>& detID,
+                                                                                       std::vector<uint16_t>& iPair,
+                                                                                       std::vector<uint16_t>& noise,
+                                                                                       std::vector<float>& gain) {
+    // Lambda to lookup channel index and set the invThickness array
+    auto setInvThickness = [&](uint16_t fed, uint8_t channel, float val) {
+      invthick[channelIndex(fed, channel)] = val;
+    };
+
     // connected: map<DetID, std::vector<int>>
     // map of KEY=detid DATA=vector of apvs, maximum 6 APVs per detector module :
     const auto& connected = quality.cabling()->connected();
@@ -179,29 +189,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         if (detCabling.end() != detConn_it) {
           for (const auto& chan : (*detConn_it).second) {
             if (chan && chan->fedId() && chan->isConnected()) {
-              const auto detID = chan->detId();
-              const auto fedID = chan->fedId();
-              const auto fedCh = chan->fedCh();
-              const auto iPair = chan->apvPairNumber();
+              const auto chan_detID = chan->detId();
+              const auto chan_fedID = chan->fedId();
+              const auto chan_fedCh = chan->fedCh();
+              const auto chan_apvPairNumber = chan->apvPairNumber();
 
-              detToFeds_.emplace_back(detID, iPair, fedID, fedCh);
+              detToFeds.emplace_back(chan_detID, chan_apvPairNumber, chan_fedID, chan_fedCh);
+              // Fill the data structures
+              // Note: the channelIndex is used to access the data structures
+              detID[channelIndex(chan_fedID, chan_fedCh)] = chan_detID;
+              iPair[channelIndex(chan_fedID, chan_fedCh)] = chan_apvPairNumber;
+              setInvThickness(chan_fedID, chan_fedCh, siStripClusterTools::sensorThicknessInverse(chan_detID));
 
-              detID_[channelIndex(fedID, fedCh)] = detID;
-              iPair_[channelIndex(fedID, fedCh)] = iPair;
-              setInvThickness(fedID, fedCh, siStripClusterTools::sensorThicknessInverse(detID));
-
-              auto offset = STRIPS_PER_FEDCH * iPair;
+              auto offset = STRIPS_PER_FEDCH * chan_apvPairNumber;
 
               for (auto strip = 0; strip < STRIPS_PER_FEDCH; ++strip) {
                 const auto gainRange = gains->getRange(det);
 
                 const auto detstrip = strip + offset;
-                const uint16_t noise = SiStripNoises::getRawNoise(detstrip, noises.getRange(det));
-                const auto gain = SiStripGain::getStripGain(detstrip, gainRange);
+                const uint16_t strip_noise = SiStripNoises::getRawNoise(detstrip, noises.getRange(det));
+                const auto strip_gain = SiStripGain::getStripGain(detstrip, gainRange);
                 const auto bad = quality.IsStripBad(quality.getRange(det), detstrip);
 
                 // gain is actually stored per-APV, not per-strip
-                setStrip_(fedID, fedCh, detstrip, noise, gain, bad);
+                // setStrip_(chan_fedID, chan_fedCh, detstrip, noise, gain, bad);
+                gain[apvIndex(chan_fedID, chan_fedCh, detstrip)] = strip_gain;
+                if (bad) [[unlikely]] {
+                  noise[stripIndex(chan_fedID, chan_fedCh, detstrip)] |= badBit;
+                } else {
+                  noise[stripIndex(chan_fedID, chan_fedCh, detstrip)] = strip_noise;
+                }
               }
             }
           }
@@ -209,17 +226,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       }
     }
 
-    std::sort(detToFeds_.begin(), detToFeds_.end(), [](const DetToFed& a, const DetToFed& b) {
+    std::sort(detToFeds.begin(), detToFeds.end(), [](const DetToFed& a, const DetToFed& b) {
       return a.detID() < b.detID() || (a.detID() == b.detID() && a.pair() < b.pair());
     });
-  }
-
-  void SiStripClusterizerConditionsESProducerAlpaka::setStrip_(
-      uint16_t fed, uint8_t channel, uint16_t strip, uint16_t noise, float gain, bool bad) {
-    gain_[apvIndex(fed, channel, strip)] = gain;
-    noise_[stripIndex(fed, channel, strip)] = noise;
-    if (bad)
-      noise_[stripIndex(fed, channel, strip)] |= badBit;
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
