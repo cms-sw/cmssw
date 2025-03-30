@@ -958,9 +958,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     for (int i = 0; i < digisSize; ++i) {
       if (i < 50 || i > (digisSize - 50) || i % 10000 == 0) {
         if (digis_h->stripId(i) != invalidStrip) {
-          dumpMsg << i << "\t" << (int)(digis_h->adc(i)) << "\t" << digis_h->channel(i) << "\t\t\t\t" << digis_h->stripId(i)
-                  << "\t\t\t" << sClustersAux_h->seedStripsMask(i) << "\t\t\t" << sClustersAux_h->seedStripsNCMask(i) << "\t\t\t\t"
-                  << sClustersAux_h->prefixSeedStripsNCMask(i) << "\t\t\t\t\t" << sClustersAux_h->seedStripsNCIndex(i) << "\n";
+          dumpMsg << i << "\t" << (int)(digis_h->adc(i)) << "\t" << digis_h->channel(i) << "\t\t\t\t"
+                  << digis_h->stripId(i) << "\t\t\t" << sClustersAux_h->seedStripsMask(i) << "\t\t\t"
+                  << sClustersAux_h->seedStripsNCMask(i) << "\t\t\t\t" << sClustersAux_h->prefixSeedStripsNCMask(i)
+                  << "\t\t\t\t\t" << sClustersAux_h->seedStripsNCIndex(i) << "\n";
         }
       }
     }

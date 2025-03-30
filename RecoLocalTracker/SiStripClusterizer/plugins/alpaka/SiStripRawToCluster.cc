@@ -196,11 +196,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Copy the blocks of raw FED data on the device
     auto fedBufferBlocksRaw_onDevice = cms::alpakatools::make_device_buffer<uint8_t[]>(
-        iEvent.queue(), static_cast<unsigned int>(fedBufferBlocksRaw.size()));
+        iEvent.queue(), static_cast<unsigned int>(fedBufferBlocksRaw.getPreallocSize()));
     alpaka::memcpy(iEvent.queue(),
                    fedBufferBlocksRaw_onDevice,
-                   fedBufferBlocksRaw.getData(),
-                   static_cast<unsigned int>(fedBufferBlocksRaw.size()));
+                   fedBufferBlocksRaw.getBuffer(),
+                   static_cast<unsigned int>(fedBufferBlocksRaw.getPreallocSize()));
 
     // -- Expand the SiStripClusterizerConditionsDetToFedsSoA to mask the fed buffers according to "good" detectors
     //    preparing the data for the unpack - In summary, make the A-B map between
@@ -212,20 +212,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // To check. By dumping the unpacked digi, it seems that an header/trailer is present at the beginning
     //           of each channel data. If this is the case, there is room for optimization in the unpacking.
     uint32_t offset = 0;
-    int n_strips = 0;
+    uint32_t n_strips = 0;
+    uint32_t skippedBytes = 0;
 
 // Loop over the allowed detID/fedID/fedCH from the conditions
-#ifdef SUPERDETAILS
-    LogDebug("SiStripPrtArit") << "i\tfedId\tfedCh\tfedi\tlen\toff\tmy_offset\toffset\n";
+#ifdef EDM_ML_DEBUG
+    std::ostringstream dumpMsg("[SiStripRawToClusterAlgo::produce] Preparing strip data on host...\n");
+    dumpMsg << "Pre-allocated " << detToFedsMap.metadata().size() << " elements for SiStripMappingHost\n";
+    dumpMsg << " ------------ ------ Dumping loop     ------ ------------\n";
+    dumpMsg << "i\tfedId\tfedCh\tlen\toff\tmy_offset\toffset\n";
 #endif
 
     for (int i = 0; i < detToFedsMap.metadata().size(); ++i) {
       const auto detID = detToFedsMap.detid_(i);
       const auto fedID = detToFedsMap.fedid_(i);
       const auto fedCH = detToFedsMap.fedch_(i);
+
       const auto fedi = fedID - FED_ID_MIN;
 
-      // Runtime check for the fedID (i.e., badly generated conditions passed though)
+      // Runtime check for the fedID (i.e., badly generated conditions ended up here)
       // unlikely used in https://github.com/cms-sw/cmssw/blob/7035c70e3a533533a7f8d600ff29f23579ca6add/RecoTracker/PixelTrackFitting/interface/RZLine.h#L101
       if (fedID < sistrip::FED_ID_MIN || fedID > sistrip::FED_ID_MAX) [[unlikely]] {
         // To understand whether this should stop execution or continue, skipping the ith
@@ -233,18 +238,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
             << "Invalid fedID: " << fedID << " for detID: " << detID << " at record: " << i;
       }
 
-      if (fedBufferBlocksRaw.isInside(fedID)) {
+      // This fedID from conditions (detToFedsMap) is within the FED raw data from collection?
+      if (!fedBufferBlocksRaw.isInside(fedID)) {
+        chanlocs_onHost.view()[i] = {nullptr, 0, 0, 0, READOUT_MODE_INVALID, 0, invalidFed, 0, invalidDet};
+        rawPointerAddresses_onHost[i] = nullptr;
+      } else {
+        // Get the FEDBuffer object for the current fedID
         const auto buffer = buffers_[fedi].get();
 
-        // Extract buffer properties
+        // Get readout mode
         const FEDReadoutMode buffROMode = buffer->readoutMode();
         const FEDLegacyReadoutMode buffROModeLegacy =
             (legacyUnpacker_) ? buffer->legacyReadoutMode() : READOUT_MODE_LEGACY_INVALID;
-        const bool isNonLite = fedchannelunpacker::isNonLiteZS(buffROMode, legacyUnpacker_, buffROModeLegacy);
-        const uint8_t pCode = (isNonLite ? buffer->packetCode(legacyUnpacker_, fedCH) : 0);
-
-        // LogDebug("SiStripRawToDigi") << "Non-lite zero-suppressed mode. Packet code=0x" << std::hex << uint16_t(pCode) << std::dec;
-
+        // Make sure EACH buffer has a readout mode supported by the module
         if (!(buffROMode >= READOUT_MODE_ZERO_SUPPRESSED_LITE10 &&
               buffROMode <= READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE &&
               buffROMode != READOUT_MODE_PROC_RAW)) {
@@ -252,22 +258,49 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
               << "Unsupported readout mode: " << buffROMode << " from condition FEDID=" << fedID << " FEDCH=" << fedCH;
         }
 
-        // preparing ground for legacy unpacking...
-        int headerlen = (isNonLite ? 7 : 2);
-        if ((!legacyUnpacker_) ? buffROMode == READOUT_MODE_PREMIX_RAW
-                               : buffROModeLegacy == READOUT_MODE_LEGACY_PREMIX_RAW) {
-          headerlen = 7;
-        }
+        // ------------------------------------------------------------------------------------
+        // -> at this point, the readout mode is ZERO_SUPPRESSED for SURE ->
 
+        // Determine if the ZS is non-lite, retrieve the packet code, get the header len
+        const bool isNonLite = fedchannelunpacker::isNonLiteZS(buffROMode, legacyUnpacker_, buffROModeLegacy);
+        const uint8_t pCode = (isNonLite ? buffer->packetCode(legacyUnpacker_, fedCH) : 0);
+        // The header len determines how many bytes to shift with respect to fedChannel.data(),
+        // to start reading actual strip data. There is another header within the fedChannel, telling
+        // the number of strips in the payload of the channel
+        const int headerlen = (isNonLite ? 7 : 2);
+
+        // Get the FEDChannel data from the buffer
         const auto& fedChannel = buffer->channel(fedCH);
         auto data = fedChannel.data();
-        auto len = fedChannel.length();
         auto off = fedChannel.offset();
+        // The length is extracted from the first 2 bytes (assuming normal FED channel) starting from .data()
+        // The len MUST be different from 0, otherwise the channel data has malformed data
+        auto len = fedChannel.length();
 
-        // What about len==0 case?
-        assert(len >= headerlen);
+        // To unpack data, the .data is shifted by headerLen
+        // and scanned from channel.offset() + headerLength to
+        // channel.offset() + channel.length(). Then headerLength < channel.length()
+        if (!(headerlen <= len)) {
+          // This channel data is malformed. It must be skipped
+          if (edm::isDebugEnabled()) {
+            edm::LogWarning("BuffCkh") << "Malformed channel data for fedID: " << fedID;
+          }
+          skippedBytes += len;
+          // continue;
+        }
 
-        // the input will be overridden with pointers to device memory after the memcpy to the device
+        // Retrieve the position of this fedID in the pinned buffer
+        auto fedOffsetInBuffer = fedBufferBlocksRaw.getOffset4FEDID(fedID);
+        if (!fedOffsetInBuffer) [[unlikely]] {
+          // Very bad condition, where the fedID is supposed in the buffer (isInside=true),
+          // but there is no association in the map.
+          if (edm::isDebugEnabled()) {
+            throw cms::Exception("RawToDigi")
+                << "Invalid fedID: " << fedID << " for detID: " << detID << " at record: " << i;
+          }
+        }
+
+        // Note: the input will be overridden with pointers to device memory after the memcpy to the device
         chanlocs_onHost->input(i) = data;
         chanlocs_onHost->inoff(i) = off;
         chanlocs_onHost->length(i) = len;
@@ -281,26 +314,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         chanlocs_onHost->fedCh(i) = fedCH;
         chanlocs_onHost->detID(i) = detID;
 
-        // ##TODO Better comments - fedBufferBlocksRaw_.getOffset(fedID) this is just an offset - same in host/dev mem
-        auto fedChOfs_inRawBuffer = fedBufferBlocksRaw.getOffset(fedID) + (fedChannel.data() - raw_[fedi]->data());
-        // this is the offset between the pointer where the channel data begins and the position of the data as a whole start (this difference is the same in host/device, and this is calculated on host - since both things are in host memory already)
-
-        // For debugging on host, use fedBufferBlocksRaw_.getData().data() instead
+        // Offset of this FEDChannel data in the pinned buffer
+        auto fedChOfs_inRawBuffer = (*fedOffsetInBuffer) + (fedChannel.data() - raw_[fedi]->data());
         rawPointerAddresses_onHost[i] = fedBufferBlocksRaw_onDevice.data() + fedChOfs_inRawBuffer;
 
         // n.b.: see comment above about the headerlen
         offset += (len - headerlen);
         n_strips += (len - headerlen);
 
-#if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
-        if (i % 100 == 0)
-          LogDebug("SiStripPrtArit") << i << "\t" << fedID << "\t" << (int)fedCH << fedi << "\t" << len << "\t" << off
-                                     << "\t" << my_offset << "\t" << offset << "\n";
+#ifdef EDM_ML_DEBUG
+        if (i % 100 == 0) {
+          dumpMsg << i << "\t" << fedID << "\t" << (int)fedCH << fedi << "\t" << len << "\t" << off << "\t" << n_strips
+                  << "\t" << offset << "\n";
+        }
 #endif
-      } else {
-        chanlocs_onHost.view()[i] = {nullptr, 0, 0, 0, READOUT_MODE_INVALID, 0, invalidFed, 0, invalidDet};
-        rawPointerAddresses_onHost[i] = nullptr;
       }
+    }
+
+#ifdef EDM_ML_DEBUG
+    dumpMsg << " ------------ ------ Dumping loop END ------ ------------\n";
+    dumpMsg << "Skipped bytes in the unpacking: " << skippedBytes << "\n";
+    LogDebug(sistrip::mlRawToCluster_) << dumpMsg.str();
+#endif
+
+    if (edm::isDebugEnabled() && skippedBytes) {
+      edm::LogWarning("BuffCkh") << "Skipped bytes in the unpacking: " << skippedBytes;
     }
     //
     //
