@@ -405,7 +405,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     return fedIndex(fedID) * FEDCH_PER_FED + fedCH;
   }
 
-  class SiStripRawToClusterAlgoKernel_unpacker {
+  class siStripKer_unpackZS {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC void operator()(TAcc const& acc,
@@ -483,7 +483,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class SiStripRawToClusterAlgoKernel_setSeedStripsGPU {
+  class siStripKer_setSeedStrips {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -516,7 +516,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class SiStripRawToClusterAlgoKernel_setNCSeedStripsGPU {
+  class siStripKer_setNCSeedStrips {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -537,7 +537,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class SiStripRawToClusterAlgoKernel_setStripIndex {
+  class siStripKer_setStripIndex {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -553,7 +553,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class SiStripRawToClusterAlgoKernel_findLeftRightBoundaryGPU {
+  class siStripKer_findLeftRightBounds {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -690,7 +690,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class SiStripRawToClusterAlgoKernel_checkClusterConditionGPU {
+  class siStripKer_chkClustCond {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -836,7 +836,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        SiStripRawToClusterAlgoKernel_unpacker{},
+                        siStripKer_unpackZS{},
                         isLegacyUnpacker_,
                         legacyUnpackerROmode_,
                         //
@@ -882,7 +882,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Set the seeds according to noise and seedThreshold
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        SiStripRawToClusterAlgoKernel_setSeedStripsGPU{},
+                        siStripKer_setSeedStrips{},
                         mapping.const_view(),
                         conditions.const_view<SiStripClusterizerConditionsData_stripSoA>(),
                         clustersAux_d_->const_view(),
@@ -896,7 +896,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Flag the non-contiguous strips (in the same detector) with 0
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        SiStripRawToClusterAlgoKernel_setNCSeedStripsGPU{},
+                        siStripKer_setNCSeedStrips{},
                         mapping.const_view(),
                         clustersAux_d_->const_view(),
                         clustersAux_d_->view<StripClustersAuxSoA>());
@@ -928,7 +928,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Attach to the index according to the *exclusive* prefix sum when contiguous strips are found
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        SiStripRawToClusterAlgoKernel_setStripIndex{},
+                        siStripKer_setStripIndex{},
                         clustersAux_d_->const_view(),
                         clustersAux_d_->view<StripClustersAuxSoA>());
 
@@ -953,7 +953,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Three-threshold clusterization algo
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        SiStripRawToClusterAlgoKernel_findLeftRightBoundaryGPU{},
+                        siStripKer_findLeftRightBounds{},
                         mapping.const_view(),
                         conditions.const_view<SiStripClusterizerConditionsData_stripSoA>(),
                         clustersAux_d_->const_view(),
@@ -963,7 +963,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Apply the conditions
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        SiStripRawToClusterAlgoKernel_checkClusterConditionGPU{},
+                        siStripKer_chkClustCond{},
                         mapping.const_view(),
                         conditions.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
                         conditions.const_view<SiStripClusterizerConditionsData_apvSoA>(),
