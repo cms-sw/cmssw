@@ -76,7 +76,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   };
 
   SiStripRawToCluster::SiStripRawToCluster(const edm::ParameterSet& iConfig)
-      : EDProducer<>(iConfig),
+      : stream::EDProducer<>(iConfig),
         raw_(sistrip::NUMBER_OF_FEDS),
         buffers_(sistrip::NUMBER_OF_FEDS),
         legacyUnpacker_(iConfig.getParameter<edm::ParameterSet>("Unpacker").getParameter<bool>("LegacyUnpacker")),

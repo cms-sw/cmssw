@@ -915,8 +915,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         conditions.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
                         conditions.const_view<SiStripClusterizerConditionsData_apvSoA>());
 
-#if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
-    checkClusters(queue, clusters_d.get());
+#ifdef EDM_ML_DEBUG
+    dumpClusters(queue, clusters_d.get());
 #endif
 
     return clusters_d;
@@ -925,10 +925,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
-  void SiStripRawToClusterAlgo::dumpUnpackedStrips(Queue& queue, StripDigiDevice* digis_d_) {
-    const int digisSize = digis_d_->const_view().metadata().size();
+  void SiStripRawToClusterAlgo::dumpUnpackedStrips(Queue& queue, StripDigiDevice* digis_d) {
+    const int digisSize = digis_d->const_view().metadata().size();
     auto digis_h = StripDigiHost(digisSize, queue);
-    alpaka::memcpy(queue, digis_h.buffer(), digis_d_->const_buffer());
+    alpaka::memcpy(queue, digis_h.buffer(), digis_d->const_buffer());
     alpaka::wait(queue);
     std::ostringstream dumpMsg("[SiStripRawToClusterAlgo::unpackStrips] Dumping unpacked strips\n");
     dumpMsg << "Allocated " << digisSize << " strips\n";
@@ -942,15 +942,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   }
 
   void SiStripRawToClusterAlgo::dumpSeeds(Queue& queue,
-                                          StripDigiDevice* digis_d_,
-                                          StripClustersAuxDevice* sClustersAux_d_) {
+                                          StripDigiDevice* digis_d,
+                                          StripClustersAuxDevice* sClustersAux_d) {
     // Store the size of the digi to avoid repetitions
-    const int digisSize = digis_d_->const_view().metadata().size();
+    const int digisSize = digis_d->const_view().metadata().size();
     auto digis_h = StripDigiHost(digisSize, queue);
-    alpaka::memcpy(queue, digis_h.buffer(), digis_d_->const_buffer());
+    alpaka::memcpy(queue, digis_h.buffer(), digis_d->const_buffer());
     // Seed table and digis have the same size
     auto sClustersAux_h = StripClustersAuxHost(digisSize, queue);
-    alpaka::memcpy(queue, sClustersAux_h.buffer(), sClustersAux_d_->const_buffer());
+    alpaka::memcpy(queue, sClustersAux_h.buffer(), sClustersAux_d->const_buffer());
     alpaka::wait(queue);
 
     std::ostringstream dumpMsg("[SiStripRawToClusterAlgo::setSeedsAndMakeIndexes] Dumping seeds table\n");
@@ -958,13 +958,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     for (int i = 0; i < digisSize; ++i) {
       if (i < 50 || i > (digisSize - 50) || i % 10000 == 0) {
         if (digis_h->stripId(i) != invalidStrip) {
-          dumpMsg << i << "\t" << (int)(digis_h->adc(i)) << "\t" << digis_h->channel(i) << "\t" << digis_h->stripId(i)
-                  << "\t" << sClustersAux_h->seedStripsMask(i) << "\t" << sClustersAux_h->seedStripsNCMask(i) << "\t"
-                  << sClustersAux_h->prefixSeedStripsNCMask(i) << "\t" << sClustersAux_h->seedStripsNCIndex(i) << "\n";
+          dumpMsg << i << "\t" << (int)(digis_h->adc(i)) << "\t" << digis_h->channel(i) << "\t\t\t\t" << digis_h->stripId(i)
+                  << "\t\t\t" << sClustersAux_h->seedStripsMask(i) << "\t\t\t" << sClustersAux_h->seedStripsNCMask(i) << "\t\t\t\t"
+                  << sClustersAux_h->prefixSeedStripsNCMask(i) << "\t\t\t\t\t" << sClustersAux_h->seedStripsNCIndex(i) << "\n";
         }
       }
     }
     LogDebug("dumpSeeds") << dumpMsg.str();
   }
 
+  void SiStripRawToClusterAlgo::dumpClusters(Queue& queue, SiStripClustersDevice* clusters_d) {
+    // Store the size of the digi to avoid repetitions
+    const int clustersPrealloc = clusters_d->view().metadata().size();
+    auto clusters_h = SiStripClustersHost(clustersPrealloc, queue);
+    alpaka::memcpy(queue, clusters_h.buffer(), clusters_d->const_buffer());
+    alpaka::wait(queue);
+
+    const int clustersN = clusters_h->nClusters();
+
+    std::ostringstream dumpMsg("[SiStripRawToClusterAlgo::makeClusters] Clusters report\n");
+    dumpMsg << "Pre-allocated:\t" << clustersPrealloc << "\tProduced:\t" << clustersN << "\n";
+    dumpMsg << "   -----  Small cluster dump BEGIN -----   \n";
+    dumpMsg << "i\tcIdx\tcSz\tcDetId\tchg\t1st\ttCl\tbary\t - clusterADCs\n";
+
+    for (int i = 0; i < clustersPrealloc; ++i) {
+      if (i < 50 || i > (clustersPrealloc - 50) || i % 10000 == 0) {
+        dumpMsg << i << "\t" << clusters_h->clusterIndex(i) << "\t" << clusters_h->clusterSize(i) << "\t"
+                << clusters_h->clusterDetId(i) << "\t" << clusters_h->charge(i) << "\t" << clusters_h->firstStrip(i)
+                << "\t" << clusters_h->trueCluster(i) << "\t" << clusters_h->barycenter(i) << "\t - ";
+        for (unsigned int j = 0; j < clusters_h->clusterSize(i); ++j) {
+          dumpMsg << j << ":" << (int)(clusters_h->clusterADCs(i)[j]) << "  ";
+        }
+        dumpMsg << "\n";
+      }
+    }
+    dumpMsg << "   -----  Small cluster dump END   -----   \n";
+    LogDebug("dumpClusters") << dumpMsg.str();
+  }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip

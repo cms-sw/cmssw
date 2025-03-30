@@ -166,8 +166,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     std::unique_ptr<StripDigiDevice> digis_d_;
     std::unique_ptr<StripClustersAuxDevice> sClustersAux_d_;
 
-    void dumpUnpackedStrips(Queue& queue, StripDigiDevice* digis_d_);
-    void dumpSeeds(Queue& queue, StripDigiDevice* digis_d_, StripClustersAuxDevice* sClustersAux_d_);
+    void dumpUnpackedStrips(Queue& queue, StripDigiDevice* digis_d);
+    void dumpSeeds(Queue& queue, StripDigiDevice* digis_d, StripClustersAuxDevice* sClustersAux_d);
+    void dumpClusters(Queue& queue, SiStripClustersDevice* clusters_d);
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
