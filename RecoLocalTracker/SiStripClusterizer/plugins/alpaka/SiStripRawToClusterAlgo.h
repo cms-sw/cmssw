@@ -4,14 +4,13 @@
 #include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClustersDevice.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripClusterizerConditionsDevice.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripMappingDevice.h"
-
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 namespace edm {
   class ParameterSet;
@@ -140,9 +139,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     SiStripRawToClusterAlgo(const edm::ParameterSet& unpackPar, const edm::ParameterSet& clustPar);
 
     void initialize(Queue& queue, int n_strips);
+
     void unpackStrips(Queue& queue,
                       SiStripMappingDevice const& mapping,
                       SiStripClusterizerConditionsDevice const& conditions);
+
     void setSeedsAndMakeIndexes(Queue& queue,
                                 SiStripMappingDevice const& mapping,
                                 SiStripClusterizerConditionsDevice const& conditions);
@@ -151,28 +152,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                                         SiStripClusterizerConditionsDevice const& conditions);
 
   private:
-    // Use the legacy unpacker for the raw FED
+    // Unpacker parameters
     const bool isLegacyUnpacker_;
-    // Readout mode of the legacy unpacker
     const FEDLegacyReadoutMode legacyUnpackerROmode_ = READOUT_MODE_LEGACY_INVALID;
 
+    // Clusterizer parameters
     const float channelThreshold_, seedThreshold_, clusterThresholdSquared_;
     const uint8_t maxSequentialHoles_, maxSequentialBad_, maxAdjacentBad_;
     const uint32_t maxClusterSize_;
     const float minGoodCharge_;
 
-    // inputs for the unpacking and clustering
-    std::optional<SiStripMappingDevice> chanlocs_d_;
-    std::optional<SiStripClusterizerConditionsDevice> clusterizerConditions_d_;
+    int nStripsBytes_ = 0;
+    std::unique_ptr<StripDigiDevice> digis_d_;
+    std::unique_ptr<StripClustersAuxDevice> sClustersAux_d_;
 
-    // portablecollection2 with auxiliary data used by the clusterizer
-    std::optional<StripClusterizerDevice> clustersAux_d_;
-
-    #ifdef EDM_ML_DEBUG
-    void checkUnpackedStrips_(Queue& queue, StripClusterizerDevice& output) const;
-    void checkPrefixSum_(Queue& queue, StripClusterizerDevice& output) const;
-    void checkClusters(Queue& queue, SiStripClustersDevice* clusters_d) const;
-    #endif
+    void dumpUnpackedStrips(Queue& queue, StripDigiDevice* digis_d_);
+    void dumpSeeds(Queue& queue, StripDigiDevice* digis_d_, StripClustersAuxDevice* sClustersAux_d_);
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 

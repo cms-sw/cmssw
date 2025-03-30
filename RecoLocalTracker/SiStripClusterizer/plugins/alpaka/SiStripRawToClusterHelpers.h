@@ -6,6 +6,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+
 template <typename T>
 std::string prettyPrintVector(const std::vector<T>& data,
                               size_t head = 10,
@@ -91,5 +97,58 @@ private:
   std::string m_name;
   std::map<std::string, std::size_t> m_warnings;
 };
+
+namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
+  using namespace ::sistrip;
+  class DataFedAppender_new {
+  public:
+    DataFedAppender_new(Queue& queue, unsigned int bufferSize)
+        : bufferSize_byte_(bufferSize / sizeof(uint8_t)),
+          fedIDinSet_(sistrip::NUMBER_OF_FEDS, false),
+          bufferData_(cms::alpakatools::make_host_buffer<uint8_t[]>(queue, bufferSize_byte_)),
+          offset_(0) {};
+
+    void insertData(uint16_t fedID, const FEDRawData* rawFEDData) {
+      if (rawFEDData->data() == nullptr) {
+        edm::LogWarning("DataFedAppender_new") << "FED " << fedID << " has no data";
+        return;
+      } else if (rawFEDData->size() == 0) {
+        edm::LogWarning("DataFedAppender_new") << "FED " << fedID << " has empty data";
+        return;
+      } else {
+        // Copy the data into pinned memory
+        std::memcpy(bufferData_.data() + offset_, rawFEDData->data(), rawFEDData->size());
+        offset_ += rawFEDData->size();
+        fedIDinSet_[fedID - sistrip::FED_ID_MIN] = true;
+
+        validFED_offsets[fedID] = offset_;
+        chunkStartIdx_.emplace_back(offset_);
+      }
+    }
+
+    auto getData() const { return bufferData_; }
+    inline size_t getOffset(uint16_t fedID) { return validFED_offsets[fedID]; }
+    inline auto bufferSize_byte() { return bufferSize_byte_; }
+
+    // Is the fedID in the set?
+    bool isInside(uint16_t fedID) const {
+      uint16_t fedi = fedID - sistrip::FED_ID_MIN;
+      if (fedi < fedIDinSet_.size())
+        return fedIDinSet_[fedi];
+      return false;
+    }
+
+  private:
+    const unsigned int bufferSize_byte_;
+    std::vector<bool> fedIDinSet_;
+
+    cms::alpakatools::host_buffer<uint8_t[]> bufferData_;
+    unsigned int offset_;
+
+    std::map<uint16_t, size_t> validFED_offsets;
+    std::vector<unsigned int> chunkStartIdx_;
+  };
+
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 #endif
