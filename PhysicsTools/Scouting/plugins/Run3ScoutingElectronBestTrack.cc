@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    ScoutingAnalysis/EGammaTools
+// Package:    PhysicsTools/Scouting
 // Class:      Run3ScoutingElectronBestTrackProducer
 //
 /**
