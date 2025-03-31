@@ -41,7 +41,8 @@ def customizeHLTfor47611(process):
     """ This customizer
         - adds the CAGeometry ESProducer;
         - cleanup the CANtupletAlpaka producers paramters;
-        - add the average sizes paramters to the CANtupletAlpaka producers.
+        - add the average sizes paramters to the CANtupletAlpaka producers;
+        - for pp and HIN hlt setups.
     """
  
     ca_producers_pp = ['CAHitNtupletAlpakaPhase1@alpaka','alpaka_serial_sync::CAHitNtupletAlpakaPhase1']
@@ -61,9 +62,6 @@ def customizeHLTfor47611(process):
             for par in ca_parameters:
                 if hasattr(prod, par):
                     delattr(prod,par)
-            
-            if not hasattr(prod, 'caGeometry'):
-                setattr(prod, 'caGeometry', cms.string('hltCAGeometry'))
             
             for par in ['minYsizeB2','minYsizeB1']:
                 if hasattr(prod, par):
@@ -90,6 +88,9 @@ def customizeHLTfor47611(process):
 
             has_pp_producers = True
 
+            if not hasattr(prod, 'caGeometry'):
+                setattr(prod, 'caGeometry', cms.string('hltCAGeometry'))
+
             if not hasattr(prod, 'maxNumberOfTuples'):
                 setattr(prod,'maxNumberOfTuples',cms.string(str(32*1024)))
                 
@@ -107,10 +108,11 @@ def customizeHLTfor47611(process):
 
     for ca_producer in ca_producers_hi:
         for prod in producers_by_type(process, ca_producer):
-
-            if has_pp_producers:
-                raise Exception("CAHitNtupletAlpaka producers found in the menu for both HIonPhase1 and Phase1. This is not expected!")
+            
             has_hi_producers = True
+            
+            if not hasattr(prod, 'caGeometry'):
+                setattr(prod, 'caGeometry', cms.string('hltCAGeometryHIon'))
             
             if not hasattr(prod, 'maxNumberOfTuples'):
                 setattr(prod,'maxNumberOfTuples',cms.string(str(256 * 1024))) # way too much, could be ~20k
@@ -168,14 +170,14 @@ def customizeHLTfor47611(process):
             )
         )
     
-    elif has_hi_producers:
+    if has_hi_producers:
 
         process.hltCAGeometryESProducer = cms.ESProducer("CAGeometryESProducer@alpaka",
                 alpaka = cms.untracked.PSet(
                     backend = cms.untracked.string(''),
                     synchronize = cms.optional.untracked.bool
                 ),
-                appendToDataLabel = cms.string('hltCAGeometry'),
+                appendToDataLabel = cms.string('hltCAGeometryHIon'),
                 caDCACuts = cms.vdouble(
                     0.05, 0.1, 0.1, 0.1, 0.1,
                     0.1, 0.1, 0.1, 0.1, 0.1
@@ -220,4 +222,3 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customizeHLTfor47611(process)
 
     return process
-
