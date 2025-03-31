@@ -1047,16 +1047,15 @@ void BTVMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   std::vector<pat::Muon> muons;
   if (nmuons_ > 0) {
-
     if (!muoHandle.isValid()) {
-    	edm::LogWarning("BTVMonitor") << "Muon handle not valid \n";
-    	return;
+      edm::LogWarning("BTVMonitor") << "Muon handle not valid \n";
+      return;
     }
-    
+
     if (muoHandle->size() < nmuons_) {
-    	return;
+      return;
     }
-    
+
     for (auto const& m : *muoHandle) {
       if (muoSelection_(m)) {
         muons.push_back(m);
