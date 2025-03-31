@@ -103,7 +103,18 @@ postProcessorMuonTrackComp = DQMEDHarvester("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
+postProcessorMuonTrackSummary = DQMEDHarvester("DQMGenericClient",
+    subDirs=cms.untracked.vstring("Muons/RecoMuonV/MuonTrack/"),
+    efficiency = cms.vstring(
+    "effic_vs_coll 'Efficiency vs Muon collection' num_asso_SimToReco_coll num_simul_coll",
+    "fakerate_vs_coll 'Fake rate vs Muon collection' num_asso_RecoToSim_coll num_reco_coll fake",
+    ),
+    resolution = cms.vstring(),
+    outputFileName = cms.untracked.string("")
+)
+
 recoMuonPostProcessors = cms.Sequence( postProcessorMuonTrack 
                                           * postProcessorMuonTrackComp 
+                                          * postProcessorMuonTrackSummary
                                           * postProcessorsRecoMuonValidator_seq
                                           * postProcessorsRecoDisplacedMuonValidator_seq )
