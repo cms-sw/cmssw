@@ -857,7 +857,8 @@ void CaloSD::clearHits() {
     edm::LogVerbatim("CaloSim") << "CaloSD: Clears hit vector for " << GetName()
                                 << " and initialise slave: " << slave[k].get()->name();
 #endif
-    slave[k].get()->Initialize();
+    if (nullptr != slave[k].get())
+      slave[k].get()->Initialize();
   }
 }
 
