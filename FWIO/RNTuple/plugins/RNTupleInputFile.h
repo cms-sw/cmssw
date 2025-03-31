@@ -49,6 +49,9 @@ namespace edm {
 
     void printInfoForEvent(std::ostream& iOStream) { events_.printInfo(iOStream); }
 
+    //returns actual number skipped
+    int skipEvents(int);
+
   private:
     std::unique_ptr<TFile> file_;
 
