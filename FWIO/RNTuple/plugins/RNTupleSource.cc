@@ -133,6 +133,8 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
+    void skip(int offset) override;
+
     ItemTypeInfo getNextItemType() override;
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
@@ -184,7 +186,7 @@ namespace edm {
       throw cms::Exception("NoInputFiles");
     }
     if (files.size() > 1) {
-      throw edm::Exception(edm::errors::Configuration)<<"RNTupleSource presently only support reading 1 file";
+      throw edm::Exception(edm::errors::Configuration) << "RNTupleSource presently only support reading 1 file";
     }
     file_ = std::make_unique<RNTupleInputFile>(files[0], ops);
 
@@ -256,6 +258,8 @@ namespace edm {
 
     descriptions.addDefault(desc);
   }
+
+  void RNTupleSource::skip(int offset) { file_->skipEvents(offset); }
 
   InputSource::ItemTypeInfo RNTupleSource::getNextItemType() {
     if (not startedFirstFile_) {
