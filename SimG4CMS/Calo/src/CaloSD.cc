@@ -432,7 +432,9 @@ void CaloSD::DrawAll() {}
 
 void CaloSD::PrintAll() {
   for (int k = 0; k < nHC_; ++k) {
-    if (nullptr == theHC[k]) { continue; } 
+    if (nullptr == theHC[k]) {
+      continue;
+    }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CaloSim") << "CaloSD: Collection " << k << " " << theHC[k]->GetName();
 #endif
@@ -784,7 +786,9 @@ void CaloSD::update(const EndOfTrack* trk) {
 void CaloSD::update(const ::EndOfEvent*) {
   endEvent();
   for (int k = 0; k < nHC_; ++k) {
-    if (nullptr == slave[k].get()) { continue; } 
+    if (nullptr == slave[k].get()) {
+      continue;
+    }
     slave[k].get()->ReserveMemory(theHC[k]->entries());
 
     int count(0);
@@ -1045,12 +1049,13 @@ void CaloSD::update(const BeginOfTrack* trk) {
 
 void CaloSD::cleanHitCollection() {
   for (int k = 0; k < nHC_; ++k) {
-    if (nullptr == theHC[k]) { continue; }
+    if (nullptr == theHC[k]) {
+      continue;
+    }
     std::vector<CaloG4Hit*>* theCollection = theHC[k]->GetVector();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim")
-      << "CaloSD: collection " << k << " before merging, size = " << theHC[k]->entries();
+    edm::LogVerbatim("CaloSim") << "CaloSD: collection " << k << " before merging, size = " << theHC[k]->entries();
 #endif
     if (reusehit[k].empty())
       reusehit[k].reserve(theHC[k]->entries() - cleanIndex[k]);
@@ -1063,21 +1068,21 @@ void CaloSD::cleanHitCollection() {
       sort((hitvec.begin() + cleanIndex[k]), hitvec.end(), CaloG4HitLess());
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("CaloSim") << "CaloSD::cleanHitCollection: sort hits in buffer starting from "
-				  << "element = " << cleanIndex[k];
+                                  << "element = " << cleanIndex[k];
       for (unsigned int i = 0; i < hitvec.size(); ++i) {
-	if (hitvec[i] == nullptr)
-	  edm::LogVerbatim("CaloSim") << i << " has a null pointer";
-	else
-	  edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
+        if (hitvec[i] == nullptr)
+          edm::LogVerbatim("CaloSim") << i << " has a null pointer";
+        else
+          edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
       }
 #endif
       CaloG4HitEqual equal;
       for (unsigned int i = cleanIndex[k]; i < hitvec.size(); ++i) {
-	int jump = 0;
-	for (unsigned int j = i + 1; j < hitvec.size() && equal(hitvec[i], hitvec[j]); ++j) {
-	  ++jump;
-	  // merge j to i
-	  (*hitvec[i]).addEnergyDeposit(*hitvec[j]);
+        int jump = 0;
+        for (unsigned int j = i + 1; j < hitvec.size() && equal(hitvec[i], hitvec[j]); ++j) {
+          ++jump;
+          // merge j to i
+          (*hitvec[i]).addEnergyDeposit(*hitvec[j]);
           (*hitvec[j]).setEM(0.);
           (*hitvec[j]).setHadr(0.);
           reusehit[k].emplace_back(hitvec[j]);
