@@ -87,27 +87,27 @@ bool HLTEgammaDoubleXGBoostCombFilter::hltFilter(edm::Event& event,
   for (size_t i = 0; i < recCollection->size(); i++) {
     edm::Ref<reco::RecoEcalCandidateCollection> refi(recCollection, i);
     float EtaSCi = refi->eta();
-    int eta1 = (std::abs(EtaSCi) < 1.5) ? 0 : 1;
+    int etai = (std::abs(EtaSCi) < 1.5) ? 0 : 1;
     float mvaScorei = (*mvaMap).find(refi)->val;
     math::XYZTLorentzVector p4i = refi->p4();
     for (size_t j = i + 1; j < recCollection->size(); j++) {
       edm::Ref<reco::RecoEcalCandidateCollection> refj(recCollection, j);
       float EtaSCj = refj->eta();
-      int eta2 = (std::abs(EtaSCj) < 1.5) ? 0 : 1;
+      int etaj = (std::abs(EtaSCj) < 1.5) ? 0 : 1;
       float mvaScorej = (*mvaMap).find(refj)->val;
       math::XYZTLorentzVector p4j = refj->p4();
       math::XYZTLorentzVector pairP4 = p4i + p4j;
       double mass = pairP4.M();
       if (mass >= highMassCut_) {
-        if (mvaScorei >= mvaScorej && ((mvaScorei > leadCutHighMass1_[eta1] && mvaScorej > subCutHighMass1_[eta2]) ||
-                                       (mvaScorei > leadCutHighMass2_[eta1] && mvaScorej > subCutHighMass2_[eta2]) ||
-                                       (mvaScorei > leadCutHighMass3_[eta1] && mvaScorej > subCutHighMass3_[eta2]))) {
+        if (mvaScorei >= mvaScorej && ((mvaScorei > leadCutHighMass1_[etai] && mvaScorej > subCutHighMass1_[etaj]) ||
+                                       (mvaScorei > leadCutHighMass2_[etai] && mvaScorej > subCutHighMass2_[etaj]) ||
+                                       (mvaScorei > leadCutHighMass3_[etai] && mvaScorej > subCutHighMass3_[etaj]))) {
           accept = true;
         }  //if scoreI > scoreJ
         else if (mvaScorej > mvaScorei &&
-                 ((mvaScorej > leadCutHighMass1_[eta1] && mvaScorei > subCutHighMass1_[eta2]) ||
-                  (mvaScorej > leadCutHighMass2_[eta1] && mvaScorei > subCutHighMass2_[eta2]) ||
-                  (mvaScorej > leadCutHighMass3_[eta1] && mvaScorei > subCutHighMass3_[eta2]))) {
+                 ((mvaScorej > leadCutHighMass1_[etaj] && mvaScorei > subCutHighMass1_[etai]) ||
+                  (mvaScorej > leadCutHighMass2_[etaj] && mvaScorei > subCutHighMass2_[etai]) ||
+                  (mvaScorej > leadCutHighMass3_[etaj] && mvaScorei > subCutHighMass3_[etai]))) {
           accept = true;
         }  // if scoreJ > scoreI
       }  //If high mass
