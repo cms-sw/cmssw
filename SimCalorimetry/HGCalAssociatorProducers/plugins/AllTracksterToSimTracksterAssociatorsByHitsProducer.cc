@@ -27,7 +27,6 @@ private:
 
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<ticl::Trackster>>>> tracksterCollectionTokens_;
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<ticl::Trackster>>>> simTracksterCollectionTokens_;
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> layerClustersToken_;
   std::vector<std::pair<std::string, edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>>>>
       hitToTracksterMapTokens_;
   std::vector<std::pair<std::string, edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>>>>
