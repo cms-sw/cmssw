@@ -5,7 +5,6 @@
 //--------------------------------------------
 
 #include "Mixing/Base/interface/BMixingModule.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
