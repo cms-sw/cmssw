@@ -444,9 +444,12 @@ void CaloSD::PrintAll() {
 
 void CaloSD::fillHits(edm::PCaloHitContainer& cc, const std::string& hname) {
   for (int k = 0; k < nHC_; ++k) {
+    if (nullptr == slave[k].get()) {
+      continue;
+    }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloSD: Tries to transfer " << slave[k].get()->hits().size() << " hits for "
-                                << slave[k].get()->name() << "   " << hname;
+    edm::LogVerbatim("CaloSim") << "CaloSD: " << k << ". Tries to transfer " << slave[k].get()->hits().size()
+                                << " hits for " << slave[k].get()->name() << "   " << hname;
 #endif
     if (slave[k].get()->name() == hname) {
       cc = slave[k].get()->hits();
