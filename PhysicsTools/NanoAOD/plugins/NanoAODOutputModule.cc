@@ -250,7 +250,7 @@ NanoAODOutputModule::writeRun(edm::RunForOutput const& iRun) {
         if (hstring->str() != tos->GetString()) throw cms::Exception("LogicError", "Inconsistent nanoMetadata " + p.first + " (" + hstring->str() +")");
     } else {
         auto ostr = std::make_unique<TObjString>(hstring->str().c_str());
-        m_file->WriteTObject(ostr.release(), p.first.c_str()); 
+        m_file->WriteTObject(ostr.get(), p.first.c_str());
     }
   }
 
