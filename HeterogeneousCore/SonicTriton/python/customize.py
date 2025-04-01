@@ -94,17 +94,17 @@ def applyOptions(process, options, applyToModules=False):
 
 def getClientOptions(options):
     return dict(
-        compression = options.compression,
-        useSharedMemory = not options.noShm,
-        timeout = options.timeout,
-        timeoutUnit = options.timeoutUnit,
-        allowedTries = options.tries,
+        compression = cms.untracked.string(options.compression),
+        useSharedMemory = cms.untracked.bool(not options.noShm),
+        timeout = cms.untracked.uint32(options.timeout),
+        timeoutUnit = cms.untracked.string(options.timeoutUnit),
+        allowedTries = cms.untracked.uint32(options.tries),
     )
 
 def applyClientOptions(client, options):
     return configureClient(client, **getClientOptions(options))
 
-def configureModules(process, modules=None, **kwargs):
+def configureModules(process, modules=None, returnConfigured=False, **kwargs):
     if modules is None:
         modules = {}
         modules.update(process._Process__producers)
@@ -115,7 +115,10 @@ def configureModules(process, modules=None, **kwargs):
         if hasattr(producer,'Client'):
             producer.Client = configureClient(producer.Client, **kwargs)
             configured.append(pname)
-    return process, configured
+    if returnConfigured:
+        return process, configured
+    else:
+        return process
 
 def configureClient(client, **kwargs):
     client.update_(kwargs)
@@ -137,7 +140,7 @@ def configureLogging(process, client=False, server=False, service=False, discove
         process.TritonService.verbose = service or discovery
         process.TritonService.fallback.verbose = server
     if client:
-        process, configured = configureModules(process, verbose = True)
+        process, configured = configureModules(process, returnConfigured=True, verbose = True)
         for module in configured:
             keepMsgs.extend([module, module+':TritonClient'])
 
