@@ -495,7 +495,14 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
         histograms.histoProducerAlgo, simClusters, totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
-      const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
+      const auto& inputClusterMaskHandle = event.getHandle(clustersMaskTokens_[ws]);
+
+      if (!inputClusterMaskHandle.isValid()) {
+        edm::LogError("ClusterMaskError") << "Failed to retrieve clusters mask for ws index: " << ws;
+        continue;  // Or handle the error appropriately
+      }
+
+      const auto& inputClusterMask = *inputClusterMaskHandle;
 
       edm::Handle<ticl::SimToRecoCollectionWithSimClusters> simtorecoCollectionH;
       event.getByToken(associatorMapSimtR, simtorecoCollectionH);
@@ -561,6 +568,12 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
     if (doTrackstersPlots_) {
       edm::Handle<ticl::TracksterCollection> tracksterHandle;
       event.getByToken(label_tstTokens[wml], tracksterHandle);
+
+      if (!tracksterHandle.isValid()) {
+        edm::LogWarning("MissinInput") << "Failed to retrieve tracksters for wml index: " << wml;
+        continue;  // Or handle the error as needed
+      }
+
       const ticl::TracksterCollection& tracksters = *tracksterHandle;
       edm::Handle<TracksterToTracksterMap> trackstersToSimTrackstersMapH, simTrackstersToTrackstersMapH,
           trackstersToSimTrackstersFromCPsMapH, simTrackstersFromCPsToTrackstersMapH,

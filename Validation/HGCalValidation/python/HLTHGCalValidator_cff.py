@@ -2,7 +2,23 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.HGCalValidation.hgcalValidator_cfi import hgcalValidator as _hgcalValidator
 
+#hltTiclIterLabels = ["hltTiclTrackstersCLUE3DHigh", "hltTiclTrackstersCLUE3DHighL1Seeded", "hltTiclTrackstersMerge"]
 hltTiclIterLabels = ["hltTiclTrackstersCLUE3DHigh", "hltTiclTrackstersMerge"]
+
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(
+    globals(),
+    lambda g: g.update({
+        "hltTiclIterLabels": [
+            "hltTiclTrackstersCLUE3DHigh",
+            #"hltTiclTrackstersCLUE3DHighL1Seeded",
+            "hltTiclTracksterLinks",
+            #"hltTiclTracksterLinksSuperclusteringDNNUnseeded",
+            #"hltTiclTracksterLinksSuperclusteringDNNL1Seeded",
+            "hltTiclCandidate"
+        ]
+    })
+)
 
 hltAssociatorInstances = []
 
@@ -34,3 +50,14 @@ hltHgcalValidator = _hgcalValidator.clone(
     mergeRecoToSimAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs","hltTiclTrackstersMergeTohltTiclSimTrackstersfromCPs"),
     mergeSimToRecoAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs","hltTiclSimTrackstersfromCPsTohltTiclTrackstersMerge"),
 )
+
+lcInputMask_v5  = ["hltTiclTrackstersCLUE3DHigh"]
+lcInputMask_v5.extend([cms.InputTag("hltTiclSimTracksters", "fromCPs"), cms.InputTag("hltTiclSimTracksters")])
+
+ticl_v5.toModify(hltHgcalValidator,
+                 LayerClustersInputMask = cms.VInputTag(lcInputMask_v5),
+                 ticlTrackstersMerge = cms.InputTag("hltTiclCandidate"),
+                 isticlv5 = cms.untracked.bool(True),
+                 mergeSimToRecoAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs:hltTiclSimTrackstersfromCPsTohltTiclCandidate"),
+                 mergeRecoToSimAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs:hltTiclCandidateTohltTiclSimTrackstersfromCPs"),
+                 )

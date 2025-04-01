@@ -157,6 +157,26 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
   for (const auto& tracksterToken : tracksterCollectionTokens_) {
     Handle<std::vector<ticl::Trackster>> recoTrackstersHandle;
     iEvent.getByToken(tracksterToken.second, recoTrackstersHandle);
+
+    if (!recoTrackstersHandle.isValid()) {
+      edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
+          << "No valid Trackster collection found. Association maps will be empty.";
+      for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
+        Handle<std::vector<ticl::Trackster>> simTrackstersHandle;
+        iEvent.getByToken(simTracksterToken.second, simTrackstersHandle);
+
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   tracksterToken.first + "To" + simTracksterToken.first);
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   simTracksterToken.first + "To" + tracksterToken.first);
+      }
+      return;
+    }
+
     const auto& recoTracksters = *recoTrackstersHandle;
 
     // Retrieve the correct HitToTracksterMap for the current trackster collection

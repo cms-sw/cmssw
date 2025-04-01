@@ -15,7 +15,6 @@ from Validation.RecoVertex.HLTpostProcessorVertex_cfi import *
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
 from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
-from HLTriggerOffline.Muon.HLTpostProcessorMuonTrack_cfi import *
 from HLTriggerOffline.HGCal.HLTHGCalPostProcessor_cff import *
 
 hltpostvalidation = cms.Sequence( 
