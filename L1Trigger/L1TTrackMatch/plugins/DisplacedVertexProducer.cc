@@ -40,16 +40,6 @@ double DisplacedVertexProducer::FloatPhiFromBits(const L1TTTrackType& track) con
       digiphi, TTTrack_TrackWord::TrackBitWidths::kPhiSize + kExtraGlobalPhiBit, TTTrack_TrackWord::stepPhi0);
 }
 
-double DisplacedVertexProducer::FloatZ0FromBits(const L1TTTrackType& track) const {
-  z0_intern trkZ = track.getZ0Word();
-  return BitToDouble(trkZ, TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0);
-}
-
-double DisplacedVertexProducer::FloatD0FromBits(const L1TTTrackType& track) const {
-  d0_intern trkD0 = track.getD0Word();
-  return BitToDouble(trkD0, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0);
-}
-
 int DisplacedVertexProducer::ChargeFromBits(const L1TTTrackType& track) const {
   ap_uint<1> chargeBit = track.getTrackWord()[TTTrack_TrackWord::TrackBitLocations::kRinvMSB];
   return 1 - (2 * chargeBit.to_uint());
@@ -65,7 +55,7 @@ bool ComparePtTrack(std::pair<Track_Parameters, edm::Ptr<TrackingParticle>> a,
 }
 
 Double_t dist(Double_t x1, Double_t y1, Double_t x2 = 0, Double_t y2 = 0) {  // Distance between 2 points
-  return (sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+  return (std::sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
 }
 
 Double_t dist_TPs(Track_Parameters a, Track_Parameters b) {
@@ -99,7 +89,7 @@ Int_t calcVertex(Track_Parameters a, Track_Parameters b, Double_t& x_vtx, Double
   float radicand = (2 / pow(R, 2)) * (pow(R1, 2) + pow(R2, 2)) - (pow(pow(R1, 2) - pow(R2, 2), 2) / pow(R, 4)) - 1;
   float co2 = 0;
   if (radicand > 0)
-    co2 = 0.5 * sqrt(radicand);
+    co2 = 0.5 * std::sqrt(radicand);
   float ix1_x = 0.5 * (x1 + x2) + co1 * (x2 - x1) + co2 * (y2 - y1);
   float ix2_x = 0.5 * (x1 + x2) + co1 * (x2 - x1) - co2 * (y2 - y1);
   float ix1_y = 0.5 * (y1 + y2) + co1 * (y2 - y1) + co2 * (x1 - x2);
@@ -110,14 +100,14 @@ Int_t calcVertex(Track_Parameters a, Track_Parameters b, Double_t& x_vtx, Double
   float ix2_z1 = a.trackZAtVertex(ix2_x, ix2_y);
   float ix2_z2 = b.trackZAtVertex(ix2_x, ix2_y);
   float ix2_delz = fabs(ix2_z1 - ix2_z2);
-  float trk1_POCA[2] = {a.d0 * sin(a.phi), -1 * a.d0 * cos(a.phi)};
-  float trk2_POCA[2] = {b.d0 * sin(b.phi), -1 * b.d0 * cos(b.phi)};
+  float trk1_POCA[2] = {a.d0 * std::sin(a.phi), -1 * a.d0 * std::cos(a.phi)};
+  float trk2_POCA[2] = {b.d0 * std::sin(b.phi), -1 * b.d0 * std::cos(b.phi)};
   float trk1_ix1_delxy[2] = {ix1_x - trk1_POCA[0], ix1_y - trk1_POCA[1]};
   float trk1_ix2_delxy[2] = {ix2_x - trk1_POCA[0], ix2_y - trk1_POCA[1]};
   float trk2_ix1_delxy[2] = {ix1_x - trk2_POCA[0], ix1_y - trk2_POCA[1]};
   float trk2_ix2_delxy[2] = {ix2_x - trk2_POCA[0], ix2_y - trk2_POCA[1]};
-  float trk1_traj[2] = {cos(a.phi), sin(a.phi)};
-  float trk2_traj[2] = {cos(b.phi), sin(b.phi)};
+  float trk1_traj[2] = {std::cos(a.phi), std::sin(a.phi)};
+  float trk2_traj[2] = {std::cos(b.phi), std::sin(b.phi)};
   bool trk1_ix1_inTraj = ((trk1_ix1_delxy[0] * trk1_traj[0] + trk1_ix1_delxy[1] * trk1_traj[1]) > 0) ? true : false;
   bool trk1_ix2_inTraj = ((trk1_ix2_delxy[0] * trk1_traj[0] + trk1_ix2_delxy[1] * trk1_traj[1]) > 0) ? true : false;
   bool trk2_ix1_inTraj = ((trk2_ix1_delxy[0] * trk2_traj[0] + trk2_ix1_delxy[1] * trk2_traj[1]) > 0) ? true : false;
@@ -231,7 +221,7 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       z0 = l1track_ptr->z0();  //cm
       float x0 = l1track_ptr->POCA().x();
       float y0 = l1track_ptr->POCA().y();
-      d0 = x0 * sin(phi) - y0 * cos(phi);
+      d0 = x0 * std::sin(phi) - y0 * std::cos(phi);
       rho = 1 / l1track_ptr->rInv();
       chi2rphi = l1track_ptr->chi2XYRed();
       chi2rz = l1track_ptr->chi2ZRed();

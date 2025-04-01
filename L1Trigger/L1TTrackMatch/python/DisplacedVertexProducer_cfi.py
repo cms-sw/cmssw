@@ -30,6 +30,6 @@ Features for displaced vertex BDT: ['trkExt_pt_firstTrk', 'trkExt_pt', 'trkExt_e
 
 dv inputs are vertex quantities and trkExt is a displaced track property. The firstTrk suffix means the track quantity comes from the higher pt track associated to a vertex. If there's no firstTrk suffix, then the track property is from the lower pt track associated to a vertex.
 
-Note: TrackQuality parameter in L1Trigger/TrackFindingTracklet/python/l1tTTTracksFromTrackletEmulation_cfi.py needs to be set to True to get MVA values needed for BDT
+Note: TrackQuality parameter for l1tTTTracksFromExtendedTrackletEmulation in L1Trigger/TrackFindingTracklet/python/l1tTTTracksFromTrackletEmulation_cfi.py needs to be set to True to get MVA values needed for BDT
 
 '''

@@ -21,8 +21,6 @@
 #include <ap_int.h>
 #include "conifer.h"
 
-using namespace std;
-
 class Track_Parameters {
 public:
   float pt;
@@ -42,8 +40,8 @@ public:
   float MVA1;
 
   float trackZAtVertex(float x, float y) {
-    float t = sinh(eta);
-    float r = sqrt(pow(x, 2) + pow(y, 2));
+    float t = std::sinh(eta);
+    float r = std::sqrt(pow(x, 2) + pow(y, 2));
     return (z0 +
             (t * r *
              (1 + (pow(d0, 2) / pow(r, 2)) +
@@ -75,8 +73,8 @@ public:
     }
     index = index_in;
     rho = fabs(rho_in);
-    x0 = (rho + charge * d0) * cos(phi - (charge * numbers::pi / 2));
-    y0 = (rho + charge * d0) * sin(phi - (charge * numbers::pi / 2));
+    x0 = (rho + charge * d0) * std::cos(phi - (charge * std::numbers::pi / 2));
+    y0 = (rho + charge * d0) * std::sin(phi - (charge * std::numbers::pi / 2));
     nstubs = nstubs_in;
     chi2rphi = chi2rphi_in;
     chi2rz = chi2rz_in;
@@ -94,7 +92,7 @@ inline std::valarray<float> calcPVec(Track_Parameters a, double_t v_x, double_t 
     p_vec *= -1;
   }
   if ((p_vec[0] != 0.0) || (p_vec[1] != 0.0)) {
-    p_vec /= sqrt(pow(p_vec[0], 2) + pow(p_vec[1], 2));
+    p_vec /= std::sqrt(pow(p_vec[0], 2) + pow(p_vec[1], 2));
   }
   p_vec *= a.pt;
   return p_vec;
@@ -126,17 +124,18 @@ public:
     std::valarray<float> p_trk_1 = calcPVec(a_in, x_dv_in, y_dv_in);
     std::valarray<float> p_trk_2 = calcPVec(b_in, x_dv_in, y_dv_in);
     std::valarray<float> p_tot = p_trk_1 + p_trk_2;
-    p_mag = sqrt(pow(p_tot[0], 2) + pow(p_tot[1], 2));
+    p_mag = std::sqrt(pow(p_tot[0], 2) + pow(p_tot[1], 2));
     if (((p_trk_1[0] != 0.0) || (p_trk_1[1] != 0.0)) && ((p_trk_2[0] != 0.0) || (p_trk_2[1] != 0.0))) {
-      openingAngle = (p_trk_1[0] * p_trk_2[0] + p_trk_1[1] * p_trk_2[1]) /
-                     (sqrt(pow(p_trk_1[0], 2) + pow(p_trk_1[1], 2)) * sqrt(pow(p_trk_2[0], 2) + pow(p_trk_2[1], 2)));
+      openingAngle =
+          (p_trk_1[0] * p_trk_2[0] + p_trk_1[1] * p_trk_2[1]) /
+          (std::sqrt(pow(p_trk_1[0], 2) + pow(p_trk_1[1], 2)) * std::sqrt(pow(p_trk_2[0], 2) + pow(p_trk_2[1], 2)));
     }
-    R_T = sqrt(pow(x_dv_in, 2) + pow(y_dv_in, 2));
+    R_T = std::sqrt(pow(x_dv_in, 2) + pow(y_dv_in, 2));
     if ((R_T != 0.0) && ((p_tot[0] != 0.0) || (p_tot[1] != 0.0))) {
-      cos_T = (p_tot[0] * x_dv_in + p_tot[1] * y_dv_in) / (R_T * sqrt(pow(p_tot[0], 2) + pow(p_tot[1], 2)));
+      cos_T = (p_tot[0] * x_dv_in + p_tot[1] * y_dv_in) / (R_T * std::sqrt(pow(p_tot[0], 2) + pow(p_tot[1], 2)));
     }
     phi = atan2(p_tot[1], p_tot[0]);
-    d_T = fabs(cos(phi) * y_dv_in - sin(phi) * x_dv_in);
+    d_T = fabs(std::cos(phi) * y_dv_in - std::sin(phi) * x_dv_in);
     p2_mag = pow(a_in.pt, 2) + pow(b_in.pt, 2);
     delta_z = fabs(a_in.trackZAtVertex(x_dv_in, y_dv_in) - b_in.trackZAtVertex(x_dv_in, y_dv_in));
   }
