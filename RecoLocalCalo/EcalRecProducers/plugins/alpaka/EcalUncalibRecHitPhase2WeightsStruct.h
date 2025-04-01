@@ -7,8 +7,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // define a struct for the data
   struct EcalUncalibRecHitPhase2Weights {
-    std::array<double, ecalPh2::sampleSize> weights;
-    std::array<double, ecalPh2::sampleSize> timeWeights;
+    std::array<float, ecalPh2::sampleSize> weights;
+    std::array<float, ecalPh2::sampleSize> timeWeights;
   };
 }  //namespace ALPAKA_ACCELERATOR_NAMESPACE
 

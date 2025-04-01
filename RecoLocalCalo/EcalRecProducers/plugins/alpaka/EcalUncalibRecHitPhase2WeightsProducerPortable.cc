@@ -35,12 +35,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(edm::StreamID sid, device::Event &, device::EventSetup const &) const override;
 
   private:
-    // define a struct for the data
-    //    struct EcalUncalibRecHitPhase2Weights {
-    //	    std::array<double, ecalPh2::sampleSize> weights;
-    //	    std::array<double, ecalPh2::sampleSize> timeWeights;
-    //    };
-
     using InputProduct = EcalDigiPhase2DeviceCollection;
     const device::EDGetToken<InputProduct> digisToken_;  //both tokens stored on the device
     using OutputProduct = EcalUncalibratedRecHitDeviceCollection;
