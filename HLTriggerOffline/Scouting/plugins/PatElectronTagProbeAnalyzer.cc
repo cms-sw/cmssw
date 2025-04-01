@@ -17,18 +17,40 @@
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+
 
 #include "ScoutingDQMUtils.h"
 
 /////////////////////////
 //  Class declaration  //
 /////////////////////////
+
+struct kProbeFilterHistos{
+  dqm::reco::MonitorElement* hPt_Barrel_passBaseDST;
+  dqm::reco::MonitorElement* hPt_Endcap_passBaseDST;
+  dqm::reco::MonitorElement* hEta_passBaseDST;
+  std::vector<dqm::reco::MonitorElement*> hPt_Barrel_passDST;
+  std::vector<dqm::reco::MonitorElement*> hPt_Endcap_passDST;
+  std::vector<dqm::reco::MonitorElement*> hEta_passDST;
+  std::vector<dqm::reco::MonitorElement*> hPt_Barrel_fireTrigObj;
+  std::vector<dqm::reco::MonitorElement*> hPt_Endcap_fireTrigObj;
+  std::vector<dqm::reco::MonitorElement*> hEta_fireTrigObj;
+  std::vector<dqm::reco::MonitorElement*> hPt_Barrel_fireL1;
+  std::vector<dqm::reco::MonitorElement*> hPt_Endcap_fireL1;
+  std::vector<dqm::reco::MonitorElement*> hEta_fireL1;
+};
 
 struct kProbeKinematicHistos {
   dqm::reco::MonitorElement* hPt_Barrel;
@@ -70,53 +92,22 @@ struct kProbeKinematicHistos {
   dqm::reco::MonitorElement* hPtvsInvMass_Endcap;
   dqm::reco::MonitorElement* hEtavsInvMass;
   dqm::reco::MonitorElement* hInvMass;
+  kProbeFilterHistos leading_electron;
+  kProbeFilterHistos subleading_electron;
 };
 
+struct kTagProbeResonance {
+  kProbeKinematicHistos resonanceZ;
+  kProbeKinematicHistos resonanceJ;
+  kProbeKinematicHistos resonanceY;
+  kProbeKinematicHistos resonanceAll;
+
+};
+
+
 struct kTagProbeHistos {
-  kProbeKinematicHistos resonanceZ_patElectron;
-  kProbeKinematicHistos resonanceJ_patElectron;
-  kProbeKinematicHistos resonanceY_patElectron;
-  kProbeKinematicHistos resonanceAll_patElectron;
-  kProbeKinematicHistos resonanceZ_sctElectron;
-  kProbeKinematicHistos resonanceJ_sctElectron;
-  kProbeKinematicHistos resonanceY_sctElectron;
-  kProbeKinematicHistos resonanceAll_sctElectron;
-
-  kProbeKinematicHistos resonanceZ_patElectron_passDoubleEG_DST;
-  kProbeKinematicHistos resonanceJ_patElectron_passDoubleEG_DST;
-  kProbeKinematicHistos resonanceY_patElectron_passDoubleEG_DST;
-  kProbeKinematicHistos resonanceAll_patElectron_passDoubleEG_DST;
-  kProbeKinematicHistos resonanceZ_sctElectron_passDoubleEG_DST;
-  kProbeKinematicHistos resonanceJ_sctElectron_passDoubleEG_DST;
-  kProbeKinematicHistos resonanceY_sctElectron_passDoubleEG_DST;
-  kProbeKinematicHistos resonanceAll_sctElectron_passDoubleEG_DST;
-
-  kProbeKinematicHistos resonanceZ_patElectron_passDoubleEG_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceJ_patElectron_passDoubleEG_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceY_patElectron_passDoubleEG_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceAll_patElectron_passDoubleEG_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceZ_sctElectron_passDoubleEG_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceJ_sctElectron_passDoubleEG_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceY_sctElectron_passDoubleEG_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceAll_sctElectron_passDoubleEG_DST_fireTrigObj;
-
-  kProbeKinematicHistos resonanceZ_patElectron_passSinglePhoton_DST;
-  kProbeKinematicHistos resonanceJ_patElectron_passSinglePhoton_DST;
-  kProbeKinematicHistos resonanceY_patElectron_passSinglePhoton_DST;
-  kProbeKinematicHistos resonanceAll_patElectron_passSinglePhoton_DST;
-  kProbeKinematicHistos resonanceZ_sctElectron_passSinglePhoton_DST;
-  kProbeKinematicHistos resonanceJ_sctElectron_passSinglePhoton_DST;
-  kProbeKinematicHistos resonanceY_sctElectron_passSinglePhoton_DST;
-  kProbeKinematicHistos resonanceAll_sctElectron_passSinglePhoton_DST;
-
-  kProbeKinematicHistos resonanceZ_patElectron_passSinglePhoton_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceJ_patElectron_passSinglePhoton_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceY_patElectron_passSinglePhoton_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceAll_patElectron_passSinglePhoton_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceZ_sctElectron_passSinglePhoton_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceJ_sctElectron_passSinglePhoton_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceY_sctElectron_passSinglePhoton_DST_fireTrigObj;
-  kProbeKinematicHistos resonanceAll_sctElectron_passSinglePhoton_DST_fireTrigObj;
+  kTagProbeResonance patElectron;
+  kTagProbeResonance sctElectron;
 };
 
 class PatElectronTagProbeAnalyzer : public DQMGlobalEDAnalyzer<kTagProbeHistos> {
@@ -143,11 +134,22 @@ private:
 
   void fillHistograms_resonance(const kProbeKinematicHistos& histos,
                                 const pat::Electron& el,
-                                const float inv_mass) const;
+                                const std::vector<bool> trigger_result,
+                                const trigger::TriggerObjectCollection* legObjects,
+                                const std::vector<bool> l1_result,
+                                const bool pass_baseDST,
+                                const float inv_mass,
+                                const int pt_order) const;
 
   void fillHistograms_resonance_sct(const kProbeKinematicHistos& histos,
                                     const Run3ScoutingElectron& el,
-                                    const float inv_mass) const;
+                                    const int gsfTrackIndex,
+                                    const std::vector<bool> trigger_result,
+                                    const trigger::TriggerObjectCollection* legObjects,
+                                    const std::vector<bool> l1_result,
+                                    const bool pass_baseDST,
+                                    const float inv_mass,
+                                    const int pt_order) const;
 
   bool scoutingElectron_passHLT(const float el_eta,
                                 const float el_phi,
@@ -157,6 +159,16 @@ private:
 
   // --------------------- member data  ----------------------
   const std::string outputInternalPath_;
+
+  const std::vector<std::string> vBaseTriggerSelection_;
+  const std::vector<std::string> vtriggerSelection_;
+  const std::vector<std::string> filterToMatch_;
+
+  edm::EDGetToken algToken_;
+  std::shared_ptr<l1t::L1TGlobalUtil> l1GtUtils_;
+  std::vector<std::string> l1Seeds_;
+  edm::EDGetTokenT<BXVector<l1t::EGamma>> l1EGToken_;
+
   const edm::EDGetToken triggerResultsToken_;
   const edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
   const edm::EDGetTokenT<edm::View<pat::Electron>> electronCollection_;
@@ -168,18 +180,31 @@ using namespace ROOT;
 
 PatElectronTagProbeAnalyzer::PatElectronTagProbeAnalyzer(const edm::ParameterSet& iConfig)
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
-      triggerResultsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("TriggerResultTag"))),
+      vBaseTriggerSelection_{iConfig.getParameter<vector<string>>("BaseTriggerSelection")},
+      vtriggerSelection_{iConfig.getParameter<vector<string>>("triggerSelection")},
+      filterToMatch_{iConfig.getParameter<vector<string>>("finalfilterSelection")},
+      algToken_{consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<edm::InputTag>("AlgInputTag"))},
+      l1EGToken_{consumes<BXVector<l1t::EGamma>>(iConfig.getParameter<edm::InputTag>("L1ElectronCollection"))},
+      triggerResultsToken_(
+          consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("TriggerResultTag"))),
       triggerObjects_(
           consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("TriggerObjects"))),
       electronCollection_(
           consumes<edm::View<pat::Electron>>(iConfig.getParameter<edm::InputTag>("ElectronCollection"))),
       scoutingElectronCollection_(consumes<std::vector<Run3ScoutingElectron>>(
           iConfig.getParameter<edm::InputTag>("ScoutingElectronCollection"))),
-      eleIdMapTightToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("eleIdMapTight"))) {}
+      eleIdMapTightToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("eleIdMapTight"))) {
+
+          l1GtUtils_ = std::make_shared<l1t::L1TGlobalUtil>(iConfig, consumesCollector(), l1t::UseEventSetupIn::RunAndEvent);
+          l1Seeds_   = iConfig.getParameter<std::vector<std::string>>("L1Seeds");
+
+}
 
 void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
                                              edm::EventSetup const& iSetup,
                                              kTagProbeHistos const& histos) const {
+
+  // Check if pat electron collection exist.
   edm::Handle<edm::View<pat::Electron>> patEls;
   iEvent.getByToken(electronCollection_, patEls);
   if (patEls.failedToGet()) {
@@ -187,13 +212,19 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     return;
   }
 
+  // Check if scouting electron collection exist.
   edm::Handle<std::vector<Run3ScoutingElectron>> sctEls;
   iEvent.getByToken(scoutingElectronCollection_, sctEls);
   if (sctEls.failedToGet()) {
     edm::LogWarning("ScoutingMonitoring") << "Run3ScoutingElectron collection not found.";
     return;
   }
+ 
 
+  edm::Handle<BXVector<l1t::EGamma>> l1EGammaCollection;
+  iEvent.getByToken(l1EGToken_, l1EGammaCollection);
+
+  // Load pat Electron ID.
   edm::Handle<edm::ValueMap<bool>> tight_ele_id_decisions;
   iEvent.getByToken(eleIdMapTightToken_, tight_ele_id_decisions);
 
@@ -203,19 +234,43 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   // Trigger
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(triggerResultsToken_, triggerResults);
-  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
-  bool fire_singlePhoton_DST = scoutingDQMUtils::hasPatternInHLTPath(triggerNames, "DST_PFScouting_SinglePhotonEB");
-  bool fire_doubleEG_DST = scoutingDQMUtils::hasPatternInHLTPath(triggerNames, "DST_PFScouting_DoubleEG");
 
   // Trigger Object
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
   iEvent.getByToken(triggerObjects_, triggerObjects);
 
-  std::vector<std::string> filterToMatch = {"hltDoubleEG11CaloIdLHEFilter", "hltEG30EBTightIDTightIsoTrackIsoFilter"};
-  size_t numberOfFilters = filterToMatch.size();
+
+  // Trigger result
+  if (triggerResults.failedToGet()){
+    edm::LogWarning("ScoutingEGammaCollectionMonitoring") << "Trgger Results not found.";
+    return;
+  }
+  int nTriggers = triggerResults->size();
+  std::vector<bool> vtrigger_result(vtriggerSelection_.size(), false);
+  bool passBaseDST = false;
+  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
+  for (int i_Trig = 0; i_Trig < nTriggers; i_Trig++){
+    if (triggerResults.product()->accept(i_Trig)){
+        TString TrigPath = triggerNames.triggerName(i_Trig);
+        for(unsigned int i_selectTrig = 0; i_selectTrig < vtriggerSelection_.size(); i_selectTrig++){
+            if(TrigPath.Index(vtriggerSelection_.at(i_selectTrig)) >=0){
+              vtrigger_result[i_selectTrig] = true;
+            }
+        }
+
+        for (unsigned int i_BaseTrig = 0; i_BaseTrig < vBaseTriggerSelection_.size(); i_BaseTrig++){
+           if(TrigPath.Index(vBaseTriggerSelection_.at(i_BaseTrig)) >=0){
+             passBaseDST = true;
+           }
+        }
+    }
+  }
+
+  // Trigger Object Matching
+  size_t numberOfFilters = filterToMatch_.size();
   trigger::TriggerObjectCollection* legObjects = new trigger::TriggerObjectCollection[numberOfFilters];
-  for (size_t iteFilter = 0; iteFilter < filterToMatch.size(); iteFilter++) {
-    std::string filterTag = filterToMatch.at(iteFilter);
+  for (size_t iteFilter = 0; iteFilter < filterToMatch_.size(); iteFilter++) {
+    std::string filterTag = filterToMatch_.at(iteFilter);
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
       obj.unpackNamesAndLabels(iEvent, *triggerResults);
       if (obj.hasFilterLabel(filterTag)) {
@@ -224,6 +279,19 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     }
   }
 
+  // L1Seeds
+  l1GtUtils_->retrieveL1(iEvent, iSetup, algToken_);
+  std::vector<bool> l1_result(l1Seeds_.size(), false);
+  for (unsigned int i_l1seed = 0; i_l1seed < l1Seeds_.size(); i_l1seed++){
+      const auto& l1seed(l1Seeds_.at(i_l1seed));
+      bool l1htbit = false;
+      double prescale = -1;
+      l1GtUtils_->getFinalDecisionByName(l1seed, l1htbit);
+      l1GtUtils_->getPrescaleByName(l1seed, prescale);
+      if (l1htbit == 1) l1_result[i_l1seed] = true;
+  }
+
+  // sct electron gsfTrack finding
   std::vector<int> sctElectron_gsfTrackIndex;
   for (const auto& sct_el : *sctEls) {
     size_t gsfTrkIdx = 9999;
@@ -234,128 +302,89 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       sctElectron_gsfTrackIndex.push_back(-1);
   }
 
-  // for (const auto& pat_el : *patEls){
-  for (size_t i = 0; i < patEls->size(); ++i) {
-    const auto pat_el = patEls->ptrAt(i);
-    if (!((*tight_ele_id_decisions)[pat_el]))
-      continue;
+  // Pt ordered pat electron and sct electron collection
 
-    ROOT::Math::PtEtaPhiMVector tag_pat_el(pat_el->pt(), pat_el->eta(), pat_el->phi(), pat_el->mass());
-    for (size_t j = 0; j < patEls->size(); ++j) {
-      //    for (const auto& pat_el_second : *patEls){
-      const auto pat_el_second = patEls->ptrAt(j);
-      if (i == j)
+  std::vector<std::pair<size_t, pat::Electron>> indexed_patElectrons;
+  for (size_t i = 0; i < patEls->size(); i++){
+    indexed_patElectrons.emplace_back(i, (*patEls)[i]);
+  }
+
+  std::sort(indexed_patElectrons.begin(), indexed_patElectrons.end(),
+       [](const auto& a, const auto& b){
+           return a.second.pt() > b.second.pt();
+       });
+
+  std::vector<std::pair<size_t, Run3ScoutingElectron>> indexed_sctElectrons;
+  for (size_t i = 0; i < sctEls->size(); i++){
+    indexed_sctElectrons.emplace_back(i, (*sctEls)[i]);
+  }
+  std::sort(indexed_sctElectrons.begin(), indexed_sctElectrons.end(),
+       [](const auto& a, const auto& b){
+           return a.second.pt() > b.second.pt();
+       });
+
+
+  // Tag electron: pat ele collection
+
+  for (size_t pat_local_index=0; pat_local_index < indexed_patElectrons.size(); pat_local_index++) {
+    const auto pat_index = indexed_patElectrons[pat_local_index].first; 
+    const auto pat_el    = indexed_patElectrons[pat_local_index].second;
+
+    edm::Ref<edm::View<pat::Electron>> electronRef(patEls, pat_index);
+    if (!((*tight_ele_id_decisions)[electronRef]))
+      continue;
+    ROOT::Math::PtEtaPhiMVector tag_pat_el(pat_el.pt(), pat_el.eta(), pat_el.phi(), pat_el.mass());
+
+    // Probe electron: from pat electron
+    int second_pat_pt_order = -1;
+    for (size_t second_pat_local_index=0; second_pat_local_index < indexed_patElectrons.size(); second_pat_local_index++) {
+      const auto second_pat_index = indexed_patElectrons[second_pat_local_index].first;
+      const auto pat_el_second    = indexed_patElectrons[second_pat_local_index].second;
+      edm::Ref<edm::View<pat::Electron>> second_electronRef(patEls, second_pat_index);
+      if (!((*tight_ele_id_decisions)[second_electronRef]))
         continue;
-      if (!((*tight_ele_id_decisions)[pat_el_second]))
+      second_pat_pt_order += 1;
+      if (pat_index == second_pat_index)
         continue;
       ROOT::Math::PtEtaPhiMVector probe_pat_el(
-          pat_el_second->pt(), pat_el_second->eta(), pat_el_second->phi(), pat_el_second->mass());
+          pat_el_second.pt(), pat_el_second.eta(), pat_el_second.phi(), pat_el_second.mass());
       float invMass = (tag_pat_el + probe_pat_el).mass();
+
+      // Z mass windows
       if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-        fillHistograms_resonance(histos.resonanceZ_patElectron, *pat_el_second, invMass);
-        fillHistograms_resonance(histos.resonanceAll_patElectron, *pat_el_second, invMass);
+        fillHistograms_resonance(histos.patElectron.resonanceZ, pat_el_second, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
+        fillHistograms_resonance(histos.patElectron.resonanceAll, pat_el_second, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
       }
+
+      // jpsi mass windows
       if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
-        fillHistograms_resonance(histos.resonanceJ_patElectron,
-                                 *pat_el_second,
-                                 invMass);  // J/Psi mass: 3.3 +/- 0.2 GeV
-        fillHistograms_resonance(histos.resonanceAll_patElectron, *pat_el_second, invMass);
+        fillHistograms_resonance(histos.patElectron.resonanceJ,
+                                 pat_el_second,
+                                 vtrigger_result, legObjects, l1_result,
+                                 passBaseDST,
+                                 invMass,
+                                 second_pat_pt_order);  // J/Psi mass: 3.3 +/- 0.2 GeV
+        fillHistograms_resonance(histos.patElectron.resonanceAll, pat_el_second, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
       }
+
+      // ups mass windows
       if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
-        fillHistograms_resonance(histos.resonanceY_patElectron,
-                                 *pat_el_second,
-                                 invMass);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-        fillHistograms_resonance(histos.resonanceAll_patElectron, *pat_el_second, invMass);
+        fillHistograms_resonance(histos.patElectron.resonanceY,
+                                 pat_el_second,
+                                 vtrigger_result, legObjects, l1_result,
+                                 passBaseDST,
+                                 invMass,
+                                 second_pat_pt_order);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
+        fillHistograms_resonance(histos.patElectron.resonanceAll, pat_el_second, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
       }
 
-      if (fire_singlePhoton_DST) {
-        if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-          fillHistograms_resonance(histos.resonanceZ_patElectron_passSinglePhoton_DST, *pat_el_second, invMass);
-          fillHistograms_resonance(histos.resonanceAll_patElectron_passSinglePhoton_DST, *pat_el_second, invMass);
-        }
-        if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
-          fillHistograms_resonance(histos.resonanceJ_patElectron_passSinglePhoton_DST,
-                                   *pat_el_second,
-                                   invMass);  // J/Psi mass: 3.3 +/- 0.2 GeV
-          fillHistograms_resonance(histos.resonanceAll_patElectron_passSinglePhoton_DST, *pat_el_second, invMass);
-        }
-        if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
-          fillHistograms_resonance(histos.resonanceY_patElectron_passSinglePhoton_DST,
-                                   *pat_el_second,
-                                   invMass);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-          fillHistograms_resonance(histos.resonanceAll_patElectron_passSinglePhoton_DST, *pat_el_second, invMass);
-        }
-      }
-
-      if (patElectron_passHLT(*pat_el_second, legObjects[1])) {
-        if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-          fillHistograms_resonance(
-              histos.resonanceZ_patElectron_passSinglePhoton_DST_fireTrigObj, *pat_el_second, invMass);
-          fillHistograms_resonance(
-              histos.resonanceAll_patElectron_passSinglePhoton_DST_fireTrigObj, *pat_el_second, invMass);
-        }
-        if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
-          fillHistograms_resonance(histos.resonanceJ_patElectron_passSinglePhoton_DST_fireTrigObj,
-                                   *pat_el_second,
-                                   invMass);  // J/Psi mass: 3.3 +/- 0.2 GeV
-          fillHistograms_resonance(
-              histos.resonanceAll_patElectron_passSinglePhoton_DST_fireTrigObj, *pat_el_second, invMass);
-        }
-        if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
-          fillHistograms_resonance(histos.resonanceY_patElectron_passSinglePhoton_DST_fireTrigObj,
-                                   *pat_el_second,
-                                   invMass);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-          fillHistograms_resonance(
-              histos.resonanceAll_patElectron_passSinglePhoton_DST_fireTrigObj, *pat_el_second, invMass);
-        }
-      }
-
-      if (fire_doubleEG_DST) {
-        if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-          fillHistograms_resonance(histos.resonanceZ_patElectron_passDoubleEG_DST, *pat_el_second, invMass);
-          fillHistograms_resonance(histos.resonanceAll_patElectron_passDoubleEG_DST, *pat_el_second, invMass);
-        }
-        if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
-          fillHistograms_resonance(histos.resonanceJ_patElectron_passDoubleEG_DST,
-                                   *pat_el_second,
-                                   invMass);  // J/Psi mass: 3.3 +/- 0.2 GeV
-          fillHistograms_resonance(histos.resonanceAll_patElectron_passDoubleEG_DST, *pat_el_second, invMass);
-        }
-        if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
-          fillHistograms_resonance(histos.resonanceY_patElectron_passDoubleEG_DST,
-                                   *pat_el_second,
-                                   invMass);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-          fillHistograms_resonance(histos.resonanceAll_patElectron_passDoubleEG_DST, *pat_el_second, invMass);
-        }
-      }
-
-      if (patElectron_passHLT(*pat_el_second, legObjects[0])) {
-        if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-          fillHistograms_resonance(histos.resonanceZ_patElectron_passDoubleEG_DST_fireTrigObj, *pat_el_second, invMass);
-          fillHistograms_resonance(
-              histos.resonanceAll_patElectron_passDoubleEG_DST_fireTrigObj, *pat_el_second, invMass);
-        }
-        if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
-          fillHistograms_resonance(histos.resonanceJ_patElectron_passDoubleEG_DST_fireTrigObj,
-                                   *pat_el_second,
-                                   invMass);  // J/Psi mass: 3.3 +/- 0.2 GeV
-          fillHistograms_resonance(
-              histos.resonanceAll_patElectron_passDoubleEG_DST_fireTrigObj, *pat_el_second, invMass);
-        }
-        if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
-          fillHistograms_resonance(histos.resonanceY_patElectron_passDoubleEG_DST_fireTrigObj,
-                                   *pat_el_second,
-                                   invMass);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-          fillHistograms_resonance(
-              histos.resonanceAll_patElectron_passDoubleEG_DST_fireTrigObj, *pat_el_second, invMass);
-        }
-      }
     }
 
-    int sct_el_index = 0;
-    for (const auto& sct_el_second : *sctEls) {
+    int sct_pt_order = -1;
+    for (size_t sct_local_index = 0; sct_local_index < indexed_sctElectrons.size(); ++sct_local_index){
+      const auto sct_el_index = indexed_sctElectrons[sct_local_index].first;
+      const auto sct_el_second = indexed_sctElectrons[sct_local_index].second;
       int gsfTrackIndex = sctElectron_gsfTrackIndex[sct_el_index];
-      sct_el_index += 1;
       if (gsfTrackIndex < 0)
         continue;
 
@@ -367,113 +396,38 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
                                                sct_el_second.trkphiMode()[gsfTrackIndex],
                                                0.0005);
 
-      if (ROOT::Math::VectorUtil::DeltaR(probe_sct_el, tag_pat_el) < 0.1)
-        continue;
       if (!scoutingDQMUtils::scoutingElectronID(sct_el_second))
         continue;
+      sct_pt_order += 1;
+
+      if (ROOT::Math::VectorUtil::DeltaR(probe_sct_el, tag_pat_el) < 0.1)
+        continue;
+
 
       float invMass = (tag_pat_el + probe_sct_el).mass();
       if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-        fillHistograms_resonance_sct(histos.resonanceZ_sctElectron, sct_el_second, invMass);
-        fillHistograms_resonance_sct(histos.resonanceAll_sctElectron, sct_el_second, invMass);
+        fillHistograms_resonance_sct(histos.sctElectron.resonanceZ, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
+        fillHistograms_resonance_sct(histos.sctElectron.resonanceAll, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
       }
       if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
-        fillHistograms_resonance_sct(histos.resonanceJ_sctElectron,
+        fillHistograms_resonance_sct(histos.sctElectron.resonanceJ,
                                      sct_el_second,
-                                     invMass);  // J/Psi mass: 3.3 +/- 0.2 GeV
-        fillHistograms_resonance_sct(histos.resonanceAll_sctElectron, sct_el_second, invMass);
+                                     gsfTrackIndex, 
+                                     vtrigger_result, legObjects, l1_result,
+                                     passBaseDST,
+                                     invMass,
+                                     sct_pt_order);  // J/Psi mass: 3.3 +/- 0.2 GeV
+        fillHistograms_resonance_sct(histos.sctElectron.resonanceAll, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
       }
       if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
-        fillHistograms_resonance_sct(histos.resonanceY_sctElectron,
+        fillHistograms_resonance_sct(histos.sctElectron.resonanceY,
                                      sct_el_second,
-                                     invMass);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-        fillHistograms_resonance_sct(histos.resonanceAll_sctElectron, sct_el_second, invMass);
-      }
-
-      if (fire_singlePhoton_DST) {
-        if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-          fillHistograms_resonance_sct(histos.resonanceZ_sctElectron_passSinglePhoton_DST, sct_el_second, invMass);
-          fillHistograms_resonance_sct(histos.resonanceAll_sctElectron_passSinglePhoton_DST, sct_el_second, invMass);
-        }
-        if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
-          fillHistograms_resonance_sct(histos.resonanceJ_sctElectron_passSinglePhoton_DST,
-                                       sct_el_second,
-                                       invMass);  // J/Psi mass: 3.3 +/- 0.2 GeV
-          fillHistograms_resonance_sct(histos.resonanceAll_sctElectron_passSinglePhoton_DST, sct_el_second, invMass);
-        }
-        if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
-          fillHistograms_resonance_sct(histos.resonanceY_sctElectron_passSinglePhoton_DST,
-                                       sct_el_second,
-                                       invMass);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-          fillHistograms_resonance_sct(histos.resonanceAll_sctElectron_passSinglePhoton_DST, sct_el_second, invMass);
-        }
-      }
-
-      if (scoutingElectron_passHLT(
-              sct_el_second.trketaMode()[gsfTrackIndex], sct_el_second.trkphiMode()[gsfTrackIndex], legObjects[1])) {
-        if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-          fillHistograms_resonance_sct(
-              histos.resonanceZ_sctElectron_passSinglePhoton_DST_fireTrigObj, sct_el_second, invMass);
-          fillHistograms_resonance_sct(
-              histos.resonanceAll_sctElectron_passSinglePhoton_DST_fireTrigObj, sct_el_second, invMass);
-        }
-        if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
-          fillHistograms_resonance_sct(histos.resonanceJ_sctElectron_passSinglePhoton_DST_fireTrigObj,
-                                       sct_el_second,
-                                       invMass);  // J/Psi mass: 3.3 +/- 0.2 GeV
-          fillHistograms_resonance_sct(
-              histos.resonanceAll_sctElectron_passSinglePhoton_DST_fireTrigObj, sct_el_second, invMass);
-        }
-        if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
-          fillHistograms_resonance_sct(histos.resonanceY_sctElectron_passSinglePhoton_DST_fireTrigObj,
-                                       sct_el_second,
-                                       invMass);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-          fillHistograms_resonance_sct(
-              histos.resonanceAll_sctElectron_passSinglePhoton_DST_fireTrigObj, sct_el_second, invMass);
-        }
-      }
-
-      if (fire_doubleEG_DST) {
-        if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-          fillHistograms_resonance_sct(histos.resonanceZ_sctElectron_passDoubleEG_DST, sct_el_second, invMass);
-          fillHistograms_resonance_sct(histos.resonanceAll_sctElectron_passDoubleEG_DST, sct_el_second, invMass);
-        }
-        if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
-          fillHistograms_resonance_sct(histos.resonanceJ_sctElectron_passDoubleEG_DST,
-                                       sct_el_second,
-                                       invMass);  // J/Psi mass: 3.3 +/- 0.2 GeV
-          fillHistograms_resonance_sct(histos.resonanceAll_sctElectron_passDoubleEG_DST, sct_el_second, invMass);
-        }
-        if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
-          fillHistograms_resonance_sct(histos.resonanceY_sctElectron_passDoubleEG_DST,
-                                       sct_el_second,
-                                       invMass);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-          fillHistograms_resonance_sct(histos.resonanceAll_sctElectron_passDoubleEG_DST, sct_el_second, invMass);
-        }
-      }
-
-      if (scoutingElectron_passHLT(
-              sct_el_second.trketaMode()[gsfTrackIndex], sct_el_second.trkphiMode()[gsfTrackIndex], legObjects[0])) {
-        if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-          fillHistograms_resonance_sct(
-              histos.resonanceZ_sctElectron_passDoubleEG_DST_fireTrigObj, sct_el_second, invMass);
-          fillHistograms_resonance_sct(
-              histos.resonanceAll_sctElectron_passDoubleEG_DST_fireTrigObj, sct_el_second, invMass);
-        }
-        if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
-          fillHistograms_resonance_sct(histos.resonanceJ_sctElectron_passDoubleEG_DST_fireTrigObj,
-                                       sct_el_second,
-                                       invMass);  // J/Psi mass: 3.3 +/- 0.2 GeV
-          fillHistograms_resonance_sct(
-              histos.resonanceAll_sctElectron_passDoubleEG_DST_fireTrigObj, sct_el_second, invMass);
-        }
-        if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
-          fillHistograms_resonance_sct(histos.resonanceY_sctElectron_passDoubleEG_DST_fireTrigObj,
-                                       sct_el_second,
-                                       invMass);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-          fillHistograms_resonance_sct(
-              histos.resonanceAll_sctElectron_passDoubleEG_DST_fireTrigObj, sct_el_second, invMass);
-        }
+                                     gsfTrackIndex, 
+                                     vtrigger_result, legObjects, l1_result,
+                                     passBaseDST,
+                                     invMass,
+                                     sct_pt_order);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
+        fillHistograms_resonance_sct(histos.sctElectron.resonanceAll, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
       }
     }
   }
@@ -481,7 +435,12 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
 
 void PatElectronTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematicHistos& histos,
                                                            const pat::Electron& el,
-                                                           const float inv_mass) const {
+                                                           const std::vector<bool> trigger_result,
+                                                           const trigger::TriggerObjectCollection* legObjects,
+                                                           const std::vector<bool> l1_result,
+                                                           const bool pass_baseDST,
+                                                           const float inv_mass,
+                                                           const int pt_order) const {
   histos.hEta->Fill(el.eta());
   histos.hPhi->Fill(el.phi());
   histos.hInvMass->Fill(inv_mass);
@@ -501,6 +460,52 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematic
     histos.hRelHcalIsolation_Barrel->Fill(el.hcalIso() / el.pt());
     histos.hRelTrackIsolation_Barrel->Fill(el.trackIso() / el.pt());
     histos.hPtvsInvMass_Barrel->Fill(el.pt(), inv_mass);
+
+    if(pass_baseDST){
+
+      if (pt_order == 0){
+        histos.leading_electron.hPt_Barrel_passBaseDST->Fill(el.pt());
+        histos.leading_electron.hEta_passBaseDST->Fill(el.eta());
+        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
+            if(trigger_result[iTrig]){
+               histos.leading_electron.hPt_Barrel_passDST[iTrig]->Fill(el.pt());
+               histos.leading_electron.hEta_passDST[iTrig]->Fill(el.eta());
+            }
+            if(patElectron_passHLT(el, legObjects[iTrig])){
+               histos.leading_electron.hPt_Barrel_fireTrigObj[iTrig]->Fill(el.pt());
+               histos.leading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+            }
+        }
+
+        for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
+            if(l1_result[il1seed]){
+               histos.leading_electron.hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
+               histos.leading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
+            }
+        }
+      }
+      else if (pt_order == 1){
+        histos.subleading_electron.hPt_Barrel_passBaseDST->Fill(el.pt());
+        histos.subleading_electron.hEta_passBaseDST->Fill(el.eta());
+        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
+            if(trigger_result[iTrig]){
+               histos.subleading_electron.hPt_Barrel_passDST[iTrig]->Fill(el.pt());
+               histos.subleading_electron.hEta_passDST[iTrig]->Fill(el.eta());
+            }
+            if(patElectron_passHLT(el, legObjects[iTrig])){
+               histos.subleading_electron.hPt_Barrel_fireTrigObj[iTrig]->Fill(el.pt());
+               histos.subleading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+            }
+        }
+
+        for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
+            if(l1_result[il1seed]){
+               histos.subleading_electron.hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
+               histos.subleading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
+            }
+        }
+      }
+    }
   } else {
     histos.hPt_Endcap->Fill(el.pt());
     histos.hHoverE_Endcap->Fill(el.hadronicOverEm());
@@ -515,12 +520,63 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematic
     histos.hRelHcalIsolation_Endcap->Fill(el.hcalIso() / el.pt());
     histos.hRelTrackIsolation_Endcap->Fill(el.trackIso() / el.pt());
     histos.hPtvsInvMass_Endcap->Fill(el.pt(), inv_mass);
+
+    if(pass_baseDST){
+      if (pt_order == 0){
+        histos.leading_electron.hPt_Endcap_passBaseDST->Fill(el.pt());
+        histos.leading_electron.hEta_passBaseDST->Fill(el.eta());
+        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
+            if(trigger_result[iTrig]){
+               histos.leading_electron.hPt_Endcap_passDST[iTrig]->Fill(el.pt());
+               histos.leading_electron.hEta_passDST[iTrig]->Fill(el.eta());
+            }
+            if(patElectron_passHLT(el, legObjects[iTrig])){
+               histos.leading_electron.hPt_Endcap_fireTrigObj[iTrig]->Fill(el.pt());
+               histos.leading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+            }
+        }
+
+        for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
+            if(l1_result[il1seed]){
+               histos.leading_electron.hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
+               histos.leading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
+            }
+        }
+      }
+      else if (pt_order == 1){
+        histos.subleading_electron.hPt_Endcap_passBaseDST->Fill(el.pt());
+        histos.subleading_electron.hEta_passBaseDST->Fill(el.eta());
+        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
+            if(trigger_result[iTrig]){
+               histos.subleading_electron.hPt_Endcap_passDST[iTrig]->Fill(el.pt());
+               histos.subleading_electron.hEta_passDST[iTrig]->Fill(el.eta());
+            }
+            if(patElectron_passHLT(el, legObjects[iTrig])){
+               histos.subleading_electron.hPt_Endcap_fireTrigObj[iTrig]->Fill(el.pt());
+               histos.subleading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+            }
+        }
+
+        for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
+            if(l1_result[il1seed]){
+               histos.subleading_electron.hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
+               histos.subleading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
+            }
+        }
+      }
+    }
   }
 }
 
 void PatElectronTagProbeAnalyzer::fillHistograms_resonance_sct(const kProbeKinematicHistos& histos,
                                                                const Run3ScoutingElectron& el,
-                                                               const float inv_mass) const {
+                                                               const int gsfTrackIndex,
+                                                               const std::vector<bool> trigger_result,
+                                                               const trigger::TriggerObjectCollection* legObjects,
+                                                               const std::vector<bool> l1_result,
+                                                               const bool pass_baseDST,
+                                                               const float inv_mass,
+                                                               const int pt_order) const {
   histos.hEta->Fill(el.eta());
   histos.hPhi->Fill(el.phi());
   histos.hInvMass->Fill(inv_mass);
@@ -554,6 +610,55 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance_sct(const kProbeKinem
     for (const auto& trk : el.trkqoverpModeError()) {
       histos.hTrack_qoverpModeError_Barrel->Fill(trk);
     }
+
+    if(pass_baseDST){
+
+      if (pt_order == 0){
+        histos.leading_electron.hPt_Barrel_passBaseDST->Fill(el.pt());
+        histos.leading_electron.hEta_passBaseDST->Fill(el.eta());
+
+        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
+          if(trigger_result[iTrig]){
+             histos.leading_electron.hPt_Barrel_passDST[iTrig]->Fill(el.pt());
+             histos.leading_electron.hEta_passDST[iTrig]->Fill(el.eta());
+          }
+          if(scoutingElectron_passHLT(el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], legObjects[iTrig])){
+             histos.leading_electron.hPt_Barrel_fireTrigObj[iTrig]->Fill(el.pt());
+             histos.leading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+          }
+        }
+
+        for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
+          if(l1_result[il1seed]){
+             histos.leading_electron.hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
+             histos.leading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
+          }
+        }
+      }
+      else if (pt_order == 1){
+        histos.subleading_electron.hPt_Barrel_passBaseDST->Fill(el.pt());
+        histos.subleading_electron.hEta_passBaseDST->Fill(el.eta());
+
+        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
+          if(trigger_result[iTrig]){
+             histos.subleading_electron.hPt_Barrel_passDST[iTrig]->Fill(el.pt());
+             histos.subleading_electron.hEta_passDST[iTrig]->Fill(el.eta());
+          }
+          if(scoutingElectron_passHLT(el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], legObjects[iTrig])){
+             histos.subleading_electron.hPt_Barrel_fireTrigObj[iTrig]->Fill(el.pt());
+             histos.subleading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+          }
+        }
+
+        for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
+          if(l1_result[il1seed]){
+             histos.subleading_electron.hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
+             histos.subleading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
+          }
+        }
+      }
+
+    }
   } else {
     histos.hPt_Endcap->Fill(el.pt());
     histos.hHoverE_Endcap->Fill(el.hOverE());
@@ -582,6 +687,54 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance_sct(const kProbeKinem
     for (const auto& trk : el.trkqoverpModeError()) {
       histos.hTrack_qoverpModeError_Endcap->Fill(trk);
     }
+
+    if(pass_baseDST){
+
+      if (pt_order == 0){
+        histos.leading_electron.hPt_Endcap_passBaseDST->Fill(el.pt());
+        histos.leading_electron.hEta_passBaseDST->Fill(el.eta());
+
+        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
+          if(trigger_result[iTrig]){
+             histos.leading_electron.hPt_Endcap_passDST[iTrig]->Fill(el.pt());
+             histos.leading_electron.hEta_passDST[iTrig]->Fill(el.eta());
+          }
+          if(scoutingElectron_passHLT(el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], legObjects[iTrig])){
+             histos.leading_electron.hPt_Endcap_fireTrigObj[iTrig]->Fill(el.pt());
+             histos.leading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+          }
+        }
+
+        for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
+          if(l1_result[il1seed]){
+             histos.leading_electron.hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
+             histos.leading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
+          }
+        }
+      }
+      else if (pt_order == 1){
+        histos.subleading_electron.hPt_Endcap_passBaseDST->Fill(el.pt());
+        histos.subleading_electron.hEta_passBaseDST->Fill(el.eta());
+
+        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
+          if(trigger_result[iTrig]){
+             histos.subleading_electron.hPt_Endcap_passDST[iTrig]->Fill(el.pt());
+             histos.subleading_electron.hEta_passDST[iTrig]->Fill(el.eta());
+          }
+          if(scoutingElectron_passHLT(el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], legObjects[iTrig])){
+             histos.subleading_electron.hPt_Endcap_fireTrigObj[iTrig]->Fill(el.pt());
+             histos.subleading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+          }
+        }
+
+        for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
+          if(l1_result[il1seed]){
+             histos.subleading_electron.hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
+             histos.subleading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
+          }
+        }
+      }
+    }
   }
 }
 void PatElectronTagProbeAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
@@ -590,187 +743,15 @@ void PatElectronTagProbeAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
                                                  kTagProbeHistos& histos) const {
   ibook.setCurrentFolder(outputInternalPath_);
 
-  bookHistograms_resonance(ibook, run, iSetup, histos.resonanceZ_patElectron, "resonanceZ_Tag_pat_Probe_patElectron");
-  bookHistograms_resonance(ibook, run, iSetup, histos.resonanceJ_patElectron, "resonanceJ_Tag_pat_Probe_patElectron");
-  bookHistograms_resonance(ibook, run, iSetup, histos.resonanceY_patElectron, "resonanceY_Tag_pat_Probe_patElectron");
-  bookHistograms_resonance(
-      ibook, run, iSetup, histos.resonanceAll_patElectron, "resonanceAll_Tag_pat_Probe_patElectron");
+  bookHistograms_resonance(ibook, run, iSetup, histos.patElectron.resonanceZ, "resonanceZ_Tag_pat_Probe_patElectron");
+  bookHistograms_resonance(ibook, run, iSetup, histos.patElectron.resonanceJ, "resonanceJ_Tag_pat_Probe_patElectron");
+  bookHistograms_resonance(ibook, run, iSetup, histos.patElectron.resonanceY, "resonanceY_Tag_pat_Probe_patElectron");
+  bookHistograms_resonance(ibook, run, iSetup, histos.patElectron.resonanceAll, "resonanceAll_Tag_pat_Probe_patElectron");
 
-  bookHistograms_resonance(ibook, run, iSetup, histos.resonanceZ_sctElectron, "resonanceZ_Tag_pat_Probe_sctElectron");
-  bookHistograms_resonance(ibook, run, iSetup, histos.resonanceJ_sctElectron, "resonanceJ_Tag_pat_Probe_sctElectron");
-  bookHistograms_resonance(ibook, run, iSetup, histos.resonanceY_sctElectron, "resonanceY_Tag_pat_Probe_sctElectron");
-  bookHistograms_resonance(
-      ibook, run, iSetup, histos.resonanceAll_sctElectron, "resonanceAll_Tag_pat_Probe_sctElectron");
-
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceZ_patElectron_passSinglePhoton_DST,
-                           "resonanceZ_Tag_pat_Probe_patElectron_passSinglePhoton_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceJ_patElectron_passSinglePhoton_DST,
-                           "resonanceJ_Tag_pat_Probe_patElectron_passSinglePhoton_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceY_patElectron_passSinglePhoton_DST,
-                           "resonanceY_Tag_pat_Probe_patElectron_passSinglePhoton_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceAll_patElectron_passSinglePhoton_DST,
-                           "resonanceAll_Tag_pat_Probe_patElectron_passSinglePhoton_DST");
-
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceZ_sctElectron_passSinglePhoton_DST,
-                           "resonanceZ_Tag_pat_Probe_sctElectron_passSinglePhoton_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceJ_sctElectron_passSinglePhoton_DST,
-                           "resonanceJ_Tag_pat_Probe_sctElectron_passSinglePhoton_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceY_sctElectron_passSinglePhoton_DST,
-                           "resonanceY_Tag_pat_Probe_sctElectron_passSinglePhoton_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceAll_sctElectron_passSinglePhoton_DST,
-                           "resonanceAll_Tag_pat_Probe_sctElectron_passSinglePhoton_DST");
-
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceZ_patElectron_passSinglePhoton_DST_fireTrigObj,
-                           "resonanceZ_Tag_pat_Probe_patElectron_passSinglePhoton_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceJ_patElectron_passSinglePhoton_DST_fireTrigObj,
-                           "resonanceJ_Tag_pat_Probe_patElectron_passSinglePhoton_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceY_patElectron_passSinglePhoton_DST_fireTrigObj,
-                           "resonanceY_Tag_pat_Probe_patElectron_passSinglePhoton_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceAll_patElectron_passSinglePhoton_DST_fireTrigObj,
-                           "resonanceAll_Tag_pat_Probe_patElectron_passSinglePhoton_DST_"
-                           "fireTrigObj");
-
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceZ_sctElectron_passSinglePhoton_DST_fireTrigObj,
-                           "resonanceZ_Tag_pat_Probe_sctElectron_passSinglePhoton_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceJ_sctElectron_passSinglePhoton_DST_fireTrigObj,
-                           "resonanceJ_Tag_pat_Probe_sctElectron_passSinglePhoton_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceY_sctElectron_passSinglePhoton_DST_fireTrigObj,
-                           "resonanceY_Tag_pat_Probe_sctElectron_passSinglePhoton_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceAll_sctElectron_passSinglePhoton_DST_fireTrigObj,
-                           "resonanceAll_Tag_pat_Probe_sctElectron_passSinglePhoton_DST_"
-                           "fireTrigObj");
-
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceZ_patElectron_passDoubleEG_DST,
-                           "resonanceZ_Tag_pat_Probe_patElectron_passDoubleEG_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceJ_patElectron_passDoubleEG_DST,
-                           "resonanceJ_Tag_pat_Probe_patElectron_passDoubleEG_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceY_patElectron_passDoubleEG_DST,
-                           "resonanceY_Tag_pat_Probe_patElectron_passDoubleEG_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceAll_patElectron_passDoubleEG_DST,
-                           "resonanceAll_Tag_pat_Probe_patElectron_passDoubleEG_DST");
-
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceZ_sctElectron_passDoubleEG_DST,
-                           "resonanceZ_Tag_pat_Probe_sctElectron_passDoubleEG_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceJ_sctElectron_passDoubleEG_DST,
-                           "resonanceJ_Tag_pat_Probe_sctElectron_passDoubleEG_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceY_sctElectron_passDoubleEG_DST,
-                           "resonanceY_Tag_pat_Probe_sctElectron_passDoubleEG_DST");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceAll_sctElectron_passDoubleEG_DST,
-                           "resonanceAll_Tag_pat_Probe_sctElectron_passDoubleEG_DST");
-
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceZ_patElectron_passDoubleEG_DST_fireTrigObj,
-                           "resonanceZ_Tag_pat_Probe_patElectron_passDoubleEG_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceJ_patElectron_passDoubleEG_DST_fireTrigObj,
-                           "resonanceJ_Tag_pat_Probe_patElectron_passDoubleEG_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceY_patElectron_passDoubleEG_DST_fireTrigObj,
-                           "resonanceY_Tag_pat_Probe_patElectron_passDoubleEG_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceAll_patElectron_passDoubleEG_DST_fireTrigObj,
-                           "resonanceAll_Tag_pat_Probe_patElectron_passDoubleEG_DST_fireTrigObj");
-
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceZ_sctElectron_passDoubleEG_DST_fireTrigObj,
-                           "resonanceZ_Tag_pat_Probe_sctElectron_passDoubleEG_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceJ_sctElectron_passDoubleEG_DST_fireTrigObj,
-                           "resonanceJ_Tag_pat_Probe_sctElectron_passDoubleEG_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceY_sctElectron_passDoubleEG_DST_fireTrigObj,
-                           "resonanceY_Tag_pat_Probe_sctElectron_passDoubleEG_DST_fireTrigObj");
-  bookHistograms_resonance(ibook,
-                           run,
-                           iSetup,
-                           histos.resonanceAll_sctElectron_passDoubleEG_DST_fireTrigObj,
-                           "resonanceAll_Tag_pat_Probe_sctElectron_passDoubleEG_DST_fireTrigObj");
+  bookHistograms_resonance(ibook, run, iSetup, histos.sctElectron.resonanceZ, "resonanceZ_Tag_pat_Probe_sctElectron");
+  bookHistograms_resonance(ibook, run, iSetup, histos.sctElectron.resonanceJ, "resonanceJ_Tag_pat_Probe_sctElectron");
+  bookHistograms_resonance(ibook, run, iSetup, histos.sctElectron.resonanceY, "resonanceY_Tag_pat_Probe_sctElectron");
+  bookHistograms_resonance(ibook, run, iSetup, histos.sctElectron.resonanceAll, "resonanceAll_Tag_pat_Probe_sctElectron");
 }
 
 void PatElectronTagProbeAnalyzer::bookHistograms_resonance(DQMStore::IBooker& ibook,
@@ -853,11 +834,116 @@ void PatElectronTagProbeAnalyzer::bookHistograms_resonance(DQMStore::IBooker& ib
       ibook.book2D(name + "_EtavsInvMass", name + "_EtavsInvMass", 10, -2.5, 2.5, 10, TandP_Z_minMass, TandP_Z_maxMass);
 
   histos.hInvMass = ibook.book1D(name + "_Invariant_Mass", name + "_Invariant_Mass", 800, 0, 200);
+
+
+  // Leading Electron
+  histos.leading_electron.hPt_Barrel_passBaseDST =
+      ibook.book1D(name + "_leading_Pt_Barrel_passBaseDST", name + "_leading_Pt_Barrel_passBaseDST",  40, 0, 200);
+  histos.leading_electron.hPt_Endcap_passBaseDST = 
+      ibook.book1D(name + "_leading_Pt_Endcap_passBaseDST", name + "_leading_Pt_Endcap_passBaseDST",  40, 0, 200);
+  histos.leading_electron.hEta_passBaseDST = 
+      ibook.book1D(name + "_leading_Eta_passBaseDST", name + "_leading_Eta_passBaseDST",  20, -5.0, 5.0);
+
+  // Sub-Leading Electron
+  histos.subleading_electron.hPt_Barrel_passBaseDST =
+      ibook.book1D(name + "_subleading_Pt_Barrel_passBaseDST", name + "_subleading_Pt_Barrel_passBaseDST",  40, 0, 200);
+  histos.subleading_electron.hPt_Endcap_passBaseDST = 
+      ibook.book1D(name + "_subleading_Pt_Endcap_passBaseDST", name + "_subleading_Pt_Endcap_passBaseDST",  40, 0, 200);
+  histos.subleading_electron.hEta_passBaseDST = 
+      ibook.book1D(name + "_subleading_Eta_passBaseDST", name + "_subleading_Eta_passBaseDST",  20, -5.0, 5.0);
+
+
+
+
+  for (auto const &vt : vtriggerSelection_){
+      std::string cleaned_vt = vt;
+      cleaned_vt.erase(std::remove(cleaned_vt.begin(), cleaned_vt.end(), '*'), cleaned_vt.end());
+
+      // Leading Electron
+      histos.leading_electron.hPt_Barrel_passDST.push_back(
+          ibook.book1D(name + "_leading_Pt_Barrel_pass" + cleaned_vt, name + "_leading_Pt_Barrel_pass" + cleaned_vt,  40, 0, 200)
+      );
+      histos.leading_electron.hPt_Endcap_passDST.push_back(
+          ibook.book1D(name + "_leading_Pt_Endcap_pass" + cleaned_vt, name + "_leading_Pt_Endcap_pass" + cleaned_vt,  40, 0, 200)
+      );
+      histos.leading_electron.hEta_passDST.push_back(
+          ibook.book1D(name + "_leading_Eta_pass" + cleaned_vt, name + "_leading_Eta_pass" + cleaned_vt,  20, -5.0, 5.0)
+      );
+
+      histos.leading_electron.hPt_Barrel_fireTrigObj.push_back(
+          ibook.book1D(name + "_leading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj", name + "_leading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj",  40, 0, 200)
+      );
+      histos.leading_electron.hPt_Endcap_fireTrigObj.push_back(
+          ibook.book1D(name + "_leading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj", name + "_leading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj",  40, 0, 200)
+      );
+      histos.leading_electron.hEta_fireTrigObj.push_back(
+          ibook.book1D(name + "_leading_Eta_pass" + cleaned_vt + "_fireTrigObj", name + "_leading_Eta_pass" + cleaned_vt + "_fireTrigObj",  20, -5.0, 5.0)
+      );
+
+      // SubLeading Electron
+      histos.subleading_electron.hPt_Barrel_passDST.push_back(
+          ibook.book1D(name + "_subleading_Pt_Barrel_pass" + cleaned_vt, name + "_subleading_Pt_Barrel_pass" + cleaned_vt,  40, 0, 200)
+      );
+      histos.subleading_electron.hPt_Endcap_passDST.push_back(
+          ibook.book1D(name + "_subleading_Pt_Endcap_pass" + cleaned_vt, name + "_subleading_Pt_Endcap_pass" + cleaned_vt,  40, 0, 200)
+      );
+      histos.subleading_electron.hEta_passDST.push_back(
+          ibook.book1D(name + "_subleading_Eta_pass" + cleaned_vt, name + "_subleading_Eta_pass" + cleaned_vt,  20, -5.0, 5.0)
+      );
+
+      histos.subleading_electron.hPt_Barrel_fireTrigObj.push_back(
+          ibook.book1D(name + "_subleading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj", name + "_subleading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj",  40, 0, 200)
+      );
+      histos.subleading_electron.hPt_Endcap_fireTrigObj.push_back(
+          ibook.book1D(name + "_subleading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj", name + "_subleading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj",  40, 0, 200)
+      );
+      histos.subleading_electron.hEta_fireTrigObj.push_back(
+          ibook.book1D(name + "_subleading_Eta_pass" + cleaned_vt + "_fireTrigObj", name + "_subleading_Eta_pass" + cleaned_vt + "_fireTrigObj",  20, -5.0, 5.0)
+      );
+
+  }
+
+  for (auto const &l1seed : l1Seeds_){
+
+     // leading Electron
+     histos.leading_electron.hPt_Barrel_fireL1.push_back(
+          ibook.book1D(name + "_leading_Pt_Barrel_pass" + l1seed, name + "_leading_Pt_Barrel_pass" + l1seed,  40, 0, 200)
+      );
+      histos.leading_electron.hPt_Endcap_fireL1.push_back(
+          ibook.book1D(name + "_leading_Pt_Endcap_pass" + l1seed, name + "_leading_Pt_Endcap_pass" + l1seed,  40, 0, 200)
+      );
+      histos.leading_electron.hEta_fireL1.push_back(
+          ibook.book1D(name + "_leading_Eta_pass" + l1seed, name + "_leading_Eta_pass" + l1seed,  20, -5.0, 5.0)
+      );
+
+      // Subleading Electron
+      histos.subleading_electron.hPt_Barrel_fireL1.push_back(
+
+          ibook.book1D(name + "_subleading_Pt_Barrel_pass" + l1seed, name + "_subleading_Pt_Barrel_pass" + l1seed,  40, 0, 200)
+      );
+      histos.subleading_electron.hPt_Endcap_fireL1.push_back(
+          ibook.book1D(name + "_subleading_Pt_Endcap_pass" + l1seed, name + "_subleading_Pt_Endcap_pass" + l1seed,  40, 0, 200)
+      );
+      histos.subleading_electron.hEta_fireL1.push_back(
+          ibook.book1D(name + "_subleading_Eta_pass" + l1seed, name + "_subleading_Eta_pass" + l1seed,  20, -5.0, 5.0)
+      );
+
+  }
+
 }
 
 void PatElectronTagProbeAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
+  desc.add<vector<string>>("BaseTriggerSelection", {});
+  desc.add<vector<string>>("triggerSelection", {});
+  desc.add<vector<string>>("finalfilterSelection", {});
+  desc.add<edm::InputTag>("AlgInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<edm::InputTag>("L1ElectronCollection", edm::InputTag("gtStage2Digis", "EGamma"));
+  desc.add<std::vector<std::string>>("L1Seeds", {});
+  desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<bool>("ReadPrescalesFromFile", false);
   desc.add<edm::InputTag>("TriggerResultTag", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("TriggerObjects", edm::InputTag("slimmedPatTrigger"));
   desc.add<edm::InputTag>("ElectronCollection", edm::InputTag("slimmedElectrons"));
