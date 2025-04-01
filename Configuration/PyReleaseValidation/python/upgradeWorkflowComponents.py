@@ -938,7 +938,7 @@ class UpgradeWorkflow_ticl_barrel(UpgradeWorkflow):
         if 'HARVESTGlobal' in step:
             stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('CloseByP' in fragment) and 'Run4' in key
+        return ('CloseByPGun_Barrel') in fragment and ('Run4' in key)
 
 upgradeWFs['ticl_barrel'] = UpgradeWorkflow_ticl_barrel(
     steps = [
@@ -3722,4 +3722,5 @@ upgradeFragments = OrderedDict([
     ('Hydjet_Quenched_MinBias_5362GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5362GeV')),
     ('Hydjet_Quenched_MinBias_5519GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5519GeV')),
     ('SingleMuPt15Eta0_0p4_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta0p_0p4')),
+    ('CloseByPGun_Barrel_Front_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_Barrel_Front')),
 ])
