@@ -856,17 +856,39 @@ void RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c
   m_disabledSources.insert(source_ptr);
 
   std::unique_lock<std::recursive_mutex> sentry(m_source_mutex);
-  if ((!m_activeSources.empty()) && (m_activeSources[0].get() == source_ptr.get())) {
+  // Remove the failed source from the container of active sources
+  if (auto found = std::ranges::find_if(
+          m_activeSources, [&source_ptr](const std::shared_ptr<Source> &src) { return src.get() == source_ptr.get(); });
+      found != m_activeSources.end()) {
     auto oldSources = m_activeSources;
-    m_activeSources.erase(m_activeSources.begin());
-    reportSiteChange(oldSources, m_activeSources);
-  } else if ((m_activeSources.size() > 1) && (m_activeSources[1].get() == source_ptr.get())) {
-    auto oldSources = m_activeSources;
-    m_activeSources.erase(m_activeSources.begin() + 1);
+    m_activeSources.erase(found);
     reportSiteChange(oldSources, m_activeSources);
   }
+  // Find a new source to send the request to
+  // - First, if there is another active source, use it
+  // - Then, if there are no active sources, if there are inactive
+  //   sources, use the best inactive source
+  // - Then, if there are no active or inactice sources, try to open a
+  //   new connection for a new source
   std::shared_ptr<Source> new_source;
-  if (m_activeSources.empty()) {
+  if (not m_activeSources.empty()) {
+    new_source = m_activeSources[0];
+  } else if (not m_inactiveSources.empty()) {
+    // similar logic as in checkSourcesImpl()
+    // assume the "sort open delay" doesn't matter in case of a request failure
+    auto bestInactiveSource =
+        std::min_element(m_inactiveSources.begin(),
+                         m_inactiveSources.end(),
+                         [](const std::shared_ptr<Source> &s1, const std::shared_ptr<Source> &s2) {
+                           return s1->getQuality() < s2->getQuality();
+                         });
+    new_source = *bestInactiveSource;
+
+    auto oldSources = m_activeSources;
+    m_activeSources.push_back(*bestInactiveSource);
+    m_inactiveSources.erase(bestInactiveSource);
+    reportSiteChange(oldSources, m_activeSources);
+  } else {
     std::shared_future<std::shared_ptr<Source>> future = m_open_handler->open();
     timespec now;
     GET_CLOCK_MONOTONIC(now);
@@ -910,8 +932,6 @@ void RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c
     auto oldSources = m_activeSources;
     m_activeSources.push_back(new_source);
     reportSiteChange(oldSources, m_activeSources);
-  } else {
-    new_source = m_activeSources[0];
   }
   new_source->handle(c_ptr);
 }
