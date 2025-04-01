@@ -76,14 +76,11 @@ def applyOptions(process, options, applyToModules=False):
             process.TritonService.fallback.instanceBaseName = options.fallbackName
         if len(options.address)>0:
             process.TritonService.servers.append(
-                cms.PSet(
-                    name = cms.untracked.string(options.serverName),
-                    address = cms.untracked.string(options.address),
-                    port = cms.untracked.uint32(options.port),
-                    useSsl = cms.untracked.bool(options.ssl),
-                    rootCertificates = cms.untracked.string(""),
-                    privateKey = cms.untracked.string(""),
-                    certificateChain = cms.untracked.string(""),
+                dict(
+                    name = options.serverName,
+                    address = options.address,
+                    port = options.port,
+                    useSsl = options.ssl,
                 )
             )
 
@@ -107,9 +104,9 @@ def applyClientOptions(client, options):
 def configureModules(process, modules=None, returnConfigured=False, **kwargs):
     if modules is None:
         modules = {}
-        modules.update(process._Process__producers)
-        modules.update(process._Process__filters)
-        modules.update(process._Process__analyzers)
+        modules.update(process.producers_())
+        modules.update(process.filters_())
+        modules.update(process.analyzers_())
     configured = []
     for pname,producer in modules.items():
         if hasattr(producer,'Client'):
@@ -144,13 +141,11 @@ def configureLogging(process, client=False, server=False, service=False, discove
         for module in configured:
             keepMsgs.extend([module, module+':TritonClient'])
 
-    if not hasattr(process,'MessageLogger'):
-        process.load('FWCore/MessageService/MessageLogger_cfi')
     process.MessageLogger.cerr.FwkReport.reportEvery = 500
     for msg in keepMsgs:
         setattr(process.MessageLogger.cerr, msg,
-            cms.untracked.PSet(
-                limit = cms.untracked.int32(10000000),
+            dict(
+                limit = 10000000,
             )
         )
 
