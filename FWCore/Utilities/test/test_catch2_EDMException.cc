@@ -84,10 +84,10 @@ TEST_CASE("Test edm::Exception", "[edm::Exception]") {
     REQUIRE_THROWS_WITH(edm::Exception::throwThis(edm::errors::ProductNotFound, "a", "b", "c", "d", "e"),
                         "An exception of category 'ProductNotFound' occurred.\n"
                         "Exception Message:\n"
-                        "a bcde\n");
+                        "abcde\n");
     REQUIRE_THROWS_WITH(edm::Exception::throwThis(edm::errors::ProductNotFound, "a", 1, "b"),
                         "An exception of category 'ProductNotFound' occurred.\n"
                         "Exception Message:\n"
-                        "a 1b\n");
+                        "a1b\n");
   }
 }
