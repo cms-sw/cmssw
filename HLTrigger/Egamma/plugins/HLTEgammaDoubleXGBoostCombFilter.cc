@@ -73,48 +73,48 @@ void HLTEgammaDoubleXGBoostCombFilter::fillDescriptions(edm::ConfigurationDescri
 bool HLTEgammaDoubleXGBoostCombFilter::hltFilter(edm::Event& event,
                                                  const edm::EventSetup& setup,
                                                  trigger::TriggerFilterObjectWithRefs& filterproduct) const {
-  //producer collection (hltEgammaCandidates(Unseeded))
   const auto& recCollection = event.getHandle(candToken_);
-
-  //get hold of photon MVA association map
   const auto& mvaMap = event.getHandle(mvaToken_);
 
-  std::vector<math::XYZTLorentzVector> p4s(recCollection->size());
-  std::vector<bool> isTight(recCollection->size());
+  // Lambda to evaluate pair cuts
+  auto passesHighMassCuts = [&](float leadScore, float subScore, int leadEta, int subEta) {
+    return (leadScore > leadCutHighMass1_[leadEta] && subScore > subCutHighMass1_[subEta]) ||
+           (leadScore > leadCutHighMass2_[leadEta] && subScore > subCutHighMass2_[subEta]) ||
+           (leadScore > leadCutHighMass3_[leadEta] && subScore > subCutHighMass3_[subEta]);
+  };
 
-  bool accept = false;
-
-  for (size_t i = 0; i < recCollection->size(); i++) {
-    edm::Ref<reco::RecoEcalCandidateCollection> refi(recCollection, i);
-    float EtaSCi = refi->eta();
-    int eta1 = (std::abs(EtaSCi) < 1.5) ? 0 : 1;
+  // Lambda to evaluate a candidate pair
+  auto evaluatePair = [&](const edm::Ref<reco::RecoEcalCandidateCollection>& refi,
+                          const edm::Ref<reco::RecoEcalCandidateCollection>& refj) {
     float mvaScorei = (*mvaMap).find(refi)->val;
-    math::XYZTLorentzVector p4i = refi->p4();
-    for (size_t j = i + 1; j < recCollection->size(); j++) {
+    float mvaScorej = (*mvaMap).find(refj)->val;
+
+    int etai = (std::abs(refi->eta()) < 1.5) ? 0 : 1;
+    int etaj = (std::abs(refj->eta()) < 1.5) ? 0 : 1;
+
+    double mass = (refi->p4() + refj->p4()).M();
+    if (mass < highMassCut_)
+      return false;
+
+    if (mvaScorei >= mvaScorej) {
+      return passesHighMassCuts(mvaScorei, mvaScorej, etai, etaj);
+    } else {
+      return passesHighMassCuts(mvaScorej, mvaScorei, etaj, etai);
+    }
+  };
+
+  // Loop through candidates
+  for (size_t i = 0; i < recCollection->size(); ++i) {
+    edm::Ref<reco::RecoEcalCandidateCollection> refi(recCollection, i);
+    for (size_t j = i + 1; j < recCollection->size(); ++j) {
       edm::Ref<reco::RecoEcalCandidateCollection> refj(recCollection, j);
-      float EtaSCj = refj->eta();
-      int eta2 = (std::abs(EtaSCj) < 1.5) ? 0 : 1;
-      float mvaScorej = (*mvaMap).find(refj)->val;
-      math::XYZTLorentzVector p4j = refj->p4();
-      math::XYZTLorentzVector pairP4 = p4i + p4j;
-      double mass = pairP4.M();
-      if (mass >= highMassCut_) {
-        if (mvaScorei >= mvaScorej && ((mvaScorei > leadCutHighMass1_[eta1] && mvaScorej > subCutHighMass1_[eta2]) ||
-                                       (mvaScorei > leadCutHighMass2_[eta1] && mvaScorej > subCutHighMass2_[eta2]) ||
-                                       (mvaScorei > leadCutHighMass3_[eta1] && mvaScorej > subCutHighMass3_[eta2]))) {
-          accept = true;
-        }  //if scoreI > scoreJ
-        else if (mvaScorej > mvaScorei &&
-                 ((mvaScorej > leadCutHighMass1_[eta1] && mvaScorei > subCutHighMass1_[eta2]) ||
-                  (mvaScorej > leadCutHighMass2_[eta1] && mvaScorei > subCutHighMass2_[eta2]) ||
-                  (mvaScorej > leadCutHighMass3_[eta1] && mvaScorei > subCutHighMass3_[eta2]))) {
-          accept = true;
-        }  // if scoreJ > scoreI
-      }  //If high mass
-    }  //j loop
-  }  //i loop
-  return accept;
-}  //Definition
+      if (evaluatePair(refi, refj)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTEgammaDoubleXGBoostCombFilter);
