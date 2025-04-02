@@ -5,7 +5,7 @@ from ..modules.hltHgcalDigis_cfi import *
 from ..modules.hltHgcalLayerClustersEE_cfi import *
 from ..modules.hltHgcalLayerClustersHSci_cfi import *
 from ..modules.hltHgcalLayerClustersHSi_cfi import *
-from ..modules.hltHgcalMergeLayerClusters_cfi import *
+from ..modules.hltMergeLayerClusters_cfi import *
 from ..modules.hltHGCalRecHit_cfi import *
 from ..modules.hltHGCalUncalibRecHit_cfi import *
 from ..modules.hltParticleFlowClusterHGCalFromTICLUnseeded_cfi import *
@@ -22,7 +22,7 @@ from ..modules.hltTiclTracksterLinks_cfi import *
 # Barrel layer clusters
 from ..modules.hltBarrelLayerClustersEB_cfi import *
 from ..modules.hltBarrelLayerClustersHB_cfi import *
-_HgcalLocalRecoUnseededSequence = cms.Sequence(hltHgcalDigis+hltHGCalUncalibRecHit+hltHGCalRecHit+hltParticleFlowRecHitHGC+hltHgcalLayerClustersEE+hltHgcalLayerClustersHSci+hltHgcalLayerClustersHSi+hltHgcalMergeLayerClusters)
+_HgcalLocalRecoUnseededSequence = cms.Sequence(hltHgcalDigis+hltHGCalUncalibRecHit+hltHGCalRecHit+hltParticleFlowRecHitHGC+hltHgcalLayerClustersEE+hltHgcalLayerClustersHSci+hltHgcalLayerClustersHSi+hltMergeLayerClusters)
 _HgcalTICLPatternRecognitionUnseededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHigh+hltTiclSeedingGlobal+hltTiclLayerTileProducer+hltTiclTrackstersCLUE3DHigh)
 _SuperclusteringUnseededSequence = cms.Sequence(hltParticleFlowClusterHGCalFromTICLUnseeded+hltParticleFlowSuperClusterHGCalFromTICLUnseeded)
 
@@ -42,14 +42,12 @@ alpaka.toReplaceWith(_HgcalLocalRecoUnseededSequence,
                                   + hltHgCalLayerClustersFromSoAProducer
                                   + hltHgcalLayerClustersHSci
                                   + hltHgcalLayerClustersHSi
-                                  + hltBarrelLayerClustersEB
-                                  + hltBarrelLayerClustersHB
-                                  + hltHgcalMergeLayerClusters
+                                  + hltMergeLayerClusters
                      ) 
 )
-alpaka.toModify(hltHgcalMergeLayerClusters,
-                layerClustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer"),
-                time_layerclustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer", "timeLayerCluster")
+alpaka.toModify(hltMergeLayerClusters,
+                layerClusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducer", "hltHgcalLayerClustersHSci", "hltHgcalLayerClustersHSi"),
+                time_layerclusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducer:timeLayerClusters", "hltHgcalLayerClustersHSci:timeLayerClusters", "hltHgcalLayerClustersHSi:timeLayerClusters")
 )
 
 # Use EGammaSuperClusterProducer at HLT in ticl v5
@@ -75,7 +73,7 @@ from RecoHGCal.TICL.ticlEGammaSuperClusterProducer_cfi import ticlEGammaSuperClu
 hltTiclEGammaSuperClusterProducerUnseeded = _ticlEGammaSuperClusterProducer.clone(
     ticlSuperClusters = "hltTiclTracksterLinksSuperclusteringDNNUnseeded",
     ticlTrackstersEM = "hltTiclTrackstersCLUE3DHigh",
-    layerClusters = "hltHgcalMergeLayerClusters"
+    layerClusters = "hltMergeLayerClusters"
 )
 
 # DNN
@@ -98,7 +96,7 @@ ticl_superclustering_mustache_ticl.toReplaceWith(_SuperclusteringUnseededSequenc
 ticl_superclustering_mustache_ticl.toModify(hltTiclEGammaSuperClusterProducerUnseeded, 
                                             ticlSuperClusters=cms.InputTag("hltTiclTracksterLinksSuperclusteringMustacheUnseeded"),
                                             ticlTrackstersEM=cms.InputTag("hltTiclTrackstersCLUE3DHigh"),
-                                            layerClusters=cms.InputTag("hltHgcalMergeLayerClusters"),
+                                            layerClusters=cms.InputTag("hltMergeLayerClusters"),
                                             enableRegression=cms.bool(False)
 )
 
@@ -107,3 +105,9 @@ _HgcalLocalRecoUnseededSequence_barrel += hltBarrelLayerClustersEB
 _HgcalLocalRecoUnseededSequence_barrel += hltBarrelLayerClustersHB
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toReplaceWith(_HgcalLocalRecoUnseededSequence, _HgcalLocalRecoUnseededSequence_barrel)
+layerClusters = cms.VInputTag("hltHgcalLayerClustersEE", "hltHgcalLayerClustersHSci", "hltHgcalLayerClustersHSi", "hltBarrelLayerClustersEB", "hltBarrelLayerClustersHB")
+time_layerClusters = cms.VInputTag("hltHgcalLayerClustersEE:timeLayerClusters", "hltHgcalLayerClustersHSci:timeLayerClusters", "hltHgcalLayerClustersHSi:timeLayerClusters", "hltBarrelLayerClustersEB:timeLayerClusters", "hltBarrelLayerClustersHB:timeLayerClusters")
+ticl_barrel.toModify(hltMergeLayerClusters, layerClusters=layerClusters, time_layerclusters=time_layerClusters)
+layerClusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducer", "hltHgcalLayerClustersHSci", "hltHgcalLayerClustersHSi", "hltBarrelLayerClustersEB", "hltBarrelLayerClustersHB")
+time_layerClusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducer:timeLayerClusters", "hltHgcalLayerClustersHSci:timeLayerClusters", "hltHgcalLayerClustersHSi:timeLayerClusters", "hltBarrelLayerClustersEB:timeLayerClusters", "hltBarrelLayerClustersHB:timeLayerClusters")
+(ticl_barrel & alpaka).toModify(hltMergeLayerClusters, layerClusters=layerClusters, time_layerclusters=time_layerClusters)
