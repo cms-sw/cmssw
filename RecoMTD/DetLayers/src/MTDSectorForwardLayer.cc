@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 #include <RecoMTD/DetLayers/interface/MTDSectorForwardLayer.h>
 #include <RecoMTD/DetLayers/interface/MTDDetSector.h>

@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 #include <sstream>
 
 #include <CLHEP/Units/GlobalPhysicalConstants.h>

@@ -1,6 +1,3 @@
-#define EDM_ML_DEBUG
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include <cmath>
@@ -11,9 +8,6 @@ RectangularPlaneBounds::RectangularPlaneBounds(float w, float h, float t)
 RectangularPlaneBounds::~RectangularPlaneBounds() {}
 
 bool RectangularPlaneBounds::inside(const Local3DPoint& p, const LocalError& err, float scale) const {
-  LogDebug("RectangularPlaneBounds") << "pos " << p << " errors x/y " << std::sqrt(err.xx()) << " "
-                                     << std::sqrt(err.yy()) << " scale " << scale << " halfT/W/L " << halfThickness
-                                     << " " << halfWidth << " " << halfLength << " inside(p) " << inside(p);
   if ((scale >= 0) && inside(p))
     return true;
   return std::abs(p.z()) < halfThickness && (std::abs(p.x()) < halfWidth + std::sqrt(err.xx()) * scale) &&
@@ -21,9 +15,6 @@ bool RectangularPlaneBounds::inside(const Local3DPoint& p, const LocalError& err
 }
 
 bool RectangularPlaneBounds::inside(const Local2DPoint& p, const LocalError& err, float scale) const {
-  LogDebug("RectangularPlaneBounds") << "pos " << p << " errors x/y " << std::sqrt(err.xx()) << " "
-                                     << std::sqrt(err.yy()) << " scale " << scale << " halfT/W/L " << halfThickness
-                                     << " " << halfWidth << " " << halfLength << " inside(p) " << inside(p);
   if ((scale >= 0) && inside(p))
     return true;
   return (std::abs(p.x()) < halfWidth + std::sqrt(err.xx()) * scale) &&
