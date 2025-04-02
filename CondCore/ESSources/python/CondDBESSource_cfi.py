@@ -20,5 +20,6 @@ GlobalTag = _PoolDBESSource(
     RefreshEachRun   = False,
     RefreshOpenIOVs  = False,
     pfnPostfix       = '',
-    pfnPrefix        = '' ,
+    pfnPrefix        = '',
+    recordsToDebug   = [],
 )

@@ -127,6 +127,8 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
       m_connectionString(iConfig.getParameter<std::string>("connect")),
       m_globalTag(iConfig.getParameter<std::string>("globaltag")),
       m_frontierKey(iConfig.getUntrackedParameter<std::string>("frontierKey", "")),
+      m_recordsToDebug(
+          iConfig.getUntrackedParameter<std::vector<std::string>>("recordsToDebug", std::vector<std::string>())),
       m_lastRun(0),   // for the stat
       m_lastLumi(0),  // for the stat
       m_policy(NOREFRESH),
@@ -254,11 +256,20 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
    */
   std::vector<std::unique_ptr<cond::ProductResolverWrapperBase>> resolverWrappers(m_tagCollection.size());
   size_t ipb = 0;
+
   for (it = itBeg; it != itEnd; ++it) {
     size_t ind = ipb++;
     resolverWrappers[ind] = std::unique_ptr<cond::ProductResolverWrapperBase>{
         cond::ProductResolverFactory::get()->tryToCreate(buildName(it->second.recordName()))};
-    if (!resolverWrappers[ind].get()) {
+
+    if (resolverWrappers[ind].get()) {
+      // Enable debug if the record name is in m_recordsToDebug or if "*" is present, meaning debug for all records.
+      bool printDebug = std::find(m_recordsToDebug.begin(), m_recordsToDebug.end(), "*") != m_recordsToDebug.end() ||
+                        std::find(m_recordsToDebug.begin(), m_recordsToDebug.end(), it->second.recordName()) !=
+                            m_recordsToDebug.end();
+
+      resolverWrappers[ind]->setPrintDebug(printDebug);
+    } else {
       edm::LogWarning("CondDBESSource") << "Plugin for Record " << it->second.recordName() << " has not been found.";
     }
   }
@@ -774,6 +785,7 @@ void CondDBESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<bool>("RefreshOpenIOVs", false);
   desc.addUntracked<std::string>("pfnPostfix", "");
   desc.addUntracked<std::string>("pfnPrefix", "");
+  desc.addUntracked<std::vector<std::string>>("recordsToDebug", {});
 
   descriptions.add("default_CondDBESource", desc);
 }

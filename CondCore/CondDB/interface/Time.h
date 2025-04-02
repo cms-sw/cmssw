@@ -54,7 +54,14 @@ namespace cond {
 
     Time_t tillTimeForIOV(Time_t since, unsigned int iovSize, TimeType timeType);
 
-    Time_t lumiTime(unsigned int run, unsigned int lumiId);
+    // LumiNr is the number of the luminosity block (LumiSection) in a run.
+    // LumiTime also called LumiId is an unique identifier for a luminosity block,
+    // being a combination of run number and LumiNr
+    Time_t lumiTime(unsigned int run, unsigned int lumiNr);
+
+    Time_t lumiIdToRun(Time_t lumiId);
+
+    Time_t lumiIdToLumiNr(Time_t lumiId);
 
     // conversion from framework types
     edm::IOVSyncValue toIOVSyncValue(cond::Time_t time, TimeType timetype, bool startOrStop);
