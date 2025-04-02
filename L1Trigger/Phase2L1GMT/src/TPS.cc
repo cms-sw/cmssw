@@ -115,7 +115,7 @@ l1t::MuonStubRefVector TPS::associateStubsWithNonant(const l1t::MuonStubRefVecto
     ap_int<BITSSTUBCOORD> deltaPhi = phi - center;
     ap_uint<BITSSTUBCOORD - 1> absDeltaPhi =
         (deltaPhi < 0) ? ap_uint<BITSSTUBCOORD - 1>(-deltaPhi) : ap_uint<BITSSTUBCOORD - 1>(deltaPhi);
-    if (absDeltaPhi < 168)  //was 42
+    if (absDeltaPhi < 284)  //important to see pt = 3 to 4 //was 168 //was 42
       out.push_back(s);
   }
   return out;
