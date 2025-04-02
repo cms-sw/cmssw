@@ -9,7 +9,7 @@
    <version ClassVersion="12" checksum="3470347245"/>
    <version ClassVersion="11" checksum="1785575744"/>
    <version ClassVersion="10" checksum="1430205451"/>
-   <ioread sourceClass = "SimTrack" version="[-12]" targetClass="SimTrack" source="bool crossedBoundary_; int idAtBoundary_; math::XYZTLorentzVectorF positionAtBoundary_; math::XYZTLorentzVectorF momentumAtBoundary_; int igenpart" target="trackInfo_, idAtBoundary_, positionAtBoundary_, momentumAtBoundary_">
+   <ioread sourceClass = "SimTrack" version="[12]" targetClass="SimTrack" source="bool crossedBoundary_; int idAtBoundary_; math::XYZTLorentzVectorF positionAtBoundary_; math::XYZTLorentzVectorF momentumAtBoundary_; int igenpart" target="trackInfo_, idAtBoundary_, positionAtBoundary_, momentumAtBoundary_">
     <![CDATA[
         // set crossedBoundary infos
         newObj->setCrossedBoundaryVars(onfile.crossedBoundary_, onfile.idAtBoundary_, onfile.positionAtBoundary_, onfile.momentumAtBoundary_);
@@ -17,6 +17,14 @@
         if (onfile.igenpart != -1)
           newObj->setIsPrimary();
         // it's not possible to set the isFromBackScattering info for old simTracks
+    ]]>
+   </ioread>
+   <ioread sourceClass = "SimTrack" version="[-11]" targetClass="SimTrack" source="int igenpart" target="trackInfo_">
+    <![CDATA[
+        // set isPrimary info of trackInfo_
+        if (onfile.igenpart != -1)
+          newObj->setIsPrimary();
+        // it's not possible to set the isFromBackScattering and crossedBoundary info for old simTracks
     ]]>
    </ioread>
   </class>
