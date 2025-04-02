@@ -165,6 +165,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void setSeedsAndMakeIndexes(Queue& queue,
                                 SiStripMappingDevice const& mapping,
                                 SiStripClusterizerConditionsDevice const& conditions);
+
+    void prefixScan(Queue& queue);
+    void prefixScan_new(Queue& queue);
+
     std::unique_ptr<SiStripClustersDevice> makeClusters(Queue& queue,
                                                         SiStripMappingDevice const& mapping,
                                                         SiStripClusterizerConditionsDevice const& conditions);

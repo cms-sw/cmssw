@@ -2,6 +2,7 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/moveToDeviceAsync.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 
@@ -466,6 +467,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       for (auto chan : uniform_elements(acc, nStrips)) {
         clusterDataObj.seedStripsMask(chan) = 0;
         clusterDataObj.seedStripsNCMask(chan) = 0;
+        clusterDataObj.prefixSeedStripsNCMask(chan) = 0;
         const auto stripID = stripDataObj.stripId(chan);
         if (stripID != invalidStrip) {
           const auto chan_ = stripDataObj.channel(chan);
@@ -736,6 +738,60 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       }  // i < nSeedStripsNC
     }
   };
+
+  class siStripKer_blkPfxScan {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, StripClustersAuxView clusterDataObj) const {
+      //
+      // This kernel must run with a single block
+      [[maybe_unused]] const uint32_t blockIdxLocal(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
+      ALPAKA_ASSERT_ACC(0 == blockIdxLocal);
+      [[maybe_unused]] const uint32_t gridDimension(alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
+      ALPAKA_ASSERT_ACC(1 == gridDimension);
+      // auto thIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
+
+      // For the prefix scan algorithm
+      constexpr int warpSize = cms::alpakatools::warpSize;
+      constexpr int blockSize = warpSize * warpSize;  // assume 32*32 = 1024
+
+      // For Phase1 there are 1856 pixel modules
+      // For Phase2 there are up to 4000 pixel modules
+      const int numberOfModules = clusterDataObj.metadata().size();
+      const int prefixScanUpperLimit = ((numberOfModules / blockSize) + 1) * blockSize;
+      ALPAKA_ASSERT_ACC(numberOfModules < prefixScanUpperLimit);
+
+      // Use N single-block prefix scan, then update all blocks after the first one.
+      auto& ws = alpaka::declareSharedVar<int[warpSize], __COUNTER__>(acc);
+      int* clusModuleStart = clusterDataObj.seedStripsNCMask();
+      int* prefix = clusterDataObj.prefixSeedStripsNCMask();
+      int leftModules = numberOfModules;
+      // First pass
+      while (leftModules > blockSize) {
+        // if (thIdx == 0){
+        //   printf("[%i] | numberOfModules %i | leftModules %i\n", thIdx, numberOfModules, leftModules);
+        // }
+        cms::alpakatools::blockPrefixScan(acc, clusModuleStart, prefix, blockSize, ws);
+        clusModuleStart += blockSize;
+        prefix += blockSize;
+        leftModules -= blockSize;
+      }
+      cms::alpakatools::blockPrefixScan(acc, clusModuleStart, prefix, leftModules, ws);
+
+      // Second pass
+      // The first blockSize modules are properly accounted by the blockPrefixScan.
+      // The additional modules need to be corrected adding the cuulative value from the last module of the previous block.
+      for (int doneModules = blockSize; doneModules < numberOfModules; doneModules += blockSize) {
+        int first = doneModules;
+        int last = (doneModules + blockSize) < numberOfModules ? (doneModules + blockSize) : numberOfModules;
+        for (int i : cms::alpakatools::independent_group_elements(acc, first, last)) {
+          clusterDataObj.prefixSeedStripsNCMask(i) += clusterDataObj.prefixSeedStripsNCMask(first - 1);
+          // printf("[%i] - prefixSeedStripsNCMask(%i) = %i\n", thIdx, i, clusterDataObj.prefixSeedStripsNCMask(i));
+        }
+        alpaka::syncBlockThreads(acc);
+      }
+    }
+  };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 // kernels launchers
@@ -770,7 +826,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Setup the clusterizer aux parameters from the configuration
     StripClustersAuxHost sClustersAux_h = StripClustersAuxHost(n_strips, queue);
-    // sClustersAux_h.zeroInitialise();
+    // sClustersAux_h->prefixSeedStripsNCMask(0) = 0;
+    sClustersAux_h.zeroInitialise();
+
     // Initialize the members of the clusterizer
     sClustersAux_h->channelThreshold() = channelThreshold_;
     sClustersAux_h->seedThreshold() = seedThreshold_;
@@ -827,6 +885,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 #endif
   }
 
+  void SiStripRawToClusterAlgo::prefixScan(Queue& queue) {
+    // Calculate the prefix for the non-contiguous flagged strips and store in prefixSeedStripsNCMask
+    // From example in HeterogeneousCore/AlpakaInterface/test/alpaka/testPrefixScan.dev.cc
+    uint32_t num_items = sClustersAux_d_->view().metadata().size();
+    const auto nThreads = 1024;
+    int32_t nBlocks = divide_up_by(num_items, nThreads);
+    auto workDivMultiBlock = make_workdiv<Acc1D>(nBlocks, nThreads);
+    auto blockCounter_d = make_device_buffer<int32_t>(queue);
+    alpaka::memset(queue, blockCounter_d, 0);
+    alpaka::enqueue(queue,
+                    alpaka::createTaskKernel<Acc1D>(workDivMultiBlock,
+                                                    multiBlockPrefixScan<int>(),
+                                                    sClustersAux_d_->view().seedStripsNCMask(),
+                                                    sClustersAux_d_->view().prefixSeedStripsNCMask(),
+                                                    num_items,
+                                                    nBlocks,
+                                                    blockCounter_d.data(),
+                                                    alpaka::getPreferredWarpSize(alpaka::getDev(queue))));
+  }
+
+  void SiStripRawToClusterAlgo::prefixScan_new(Queue& queue) {
+    // Calculate the prefix for the non-contiguous flagged strips and store in prefixSeedStripsNCMask
+    // From example in HeterogeneousCore/AlpakaInterface/test/alpaka/testPrefixScan.dev.cc
+    auto singleBlockWorkDiv = make_workdiv<Acc1D>(1, 1024u);
+
+    // Set clusterDataObj.prefixSeedStripsNCMask(0) = 0;
+    // alpaka::memset(queue, sClustersAux_d_->view(), 0u);
+
+    // Run the prefix sum
+    alpaka::exec<Acc1D>(queue, singleBlockWorkDiv, siStripKer_blkPfxScan{}, sClustersAux_d_->view());
+  }
+
   void SiStripRawToClusterAlgo::setSeedsAndMakeIndexes(Queue& queue,
                                                        SiStripMappingDevice const& mapping,
                                                        SiStripClusterizerConditionsDevice const& conditions) {
@@ -855,23 +945,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         sClustersAux_d_->view(),
                         mapping.const_view());
 
-    // Calculate the prefix for the non-contiguous flagged strips and store in prefixSeedStripsNCMask
-    // From example in HeterogeneousCore/AlpakaInterface/test/alpaka/testPrefixScan.dev.cc
-    uint32_t num_items = sClustersAux_d_->view().metadata().size();
-    const auto nThreads = 1024;
-    int32_t nBlocks = divide_up_by(num_items, nThreads);
-    auto workDivMultiBlock = make_workdiv<Acc1D>(nBlocks, nThreads);
-    auto blockCounter_d = make_device_buffer<int32_t>(queue);
-    alpaka::memset(queue, blockCounter_d, 0);
-    alpaka::enqueue(queue,
-                    alpaka::createTaskKernel<Acc1D>(workDivMultiBlock,
-                                                    multiBlockPrefixScan<int>(),
-                                                    sClustersAux_d_->view().seedStripsNCMask(),
-                                                    sClustersAux_d_->view().prefixSeedStripsNCMask(),
-                                                    num_items,
-                                                    nBlocks,
-                                                    blockCounter_d.data(),
-                                                    alpaka::getPreferredWarpSize(alpaka::getDev(queue))));
+    // Calculate the discrete integral (prefix sum) of seedStripsNCMask.
+    // prefixScan(queue);
+    prefixScan_new(queue);
+    // When the integral increase AND I am at a non-contigous strip, the beginning of new cluster is marked.
 
     // Attach to the index according to the *exclusive* prefix sum when contiguous strips are found
     alpaka::exec<Acc1D>(queue, workDiv, siStripKer_setStripIndex{}, sClustersAux_d_->view());
