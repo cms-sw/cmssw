@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTAK4PFPuppiJetsReconstruction_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTBtagDeepCSVSequencePFPuppi_cfi import *
@@ -14,8 +14,8 @@ from ..sequences.HLTRawToDigiSequence_cfi import *
 MC_BTV = cms.Path(
     HLTBeginSequence
     + HLTRawToDigiSequence
-    + HLTHgcalLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

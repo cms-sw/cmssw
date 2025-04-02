@@ -23,6 +23,7 @@ from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 
 HLTPhoton108EBTightIDTightIsoUnseededSequence = cms.Sequence(hltEGL1SeedsForSinglePhotonIsolatedFilter
                                                              +HLTDoFullUnpackingEgammaEcalSequence
+                                                             +HLTEGammaDoLocalHcalSequence 
                                                              +HLTPFClusteringForEgammaUnseededSequence
                                                              +HLTHgcalTiclPFClusteringForEgammaUnseededSequence
                                                              +hltEgammaCandidatesUnseeded
@@ -30,7 +31,6 @@ HLTPhoton108EBTightIDTightIsoUnseededSequence = cms.Sequence(hltEGL1SeedsForSing
                                                              +hltEG108EtUnseededFilter
                                                              +hltEgammaClusterShapeUnseeded
                                                              +hltPhoton108EBTightIDTightIsoClusterShapeUnseededFilter
-                                                             +HLTEGammaDoLocalHcalSequence 
                                                              +HLTFastJetForEgammaSequence
                                                              +hltEgammaHoverEUnseeded
                                                              +hltPhoton108EBTightIDTightIsoHEUnseededFilter
