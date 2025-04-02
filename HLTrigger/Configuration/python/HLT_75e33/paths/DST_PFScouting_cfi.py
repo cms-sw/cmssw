@@ -22,8 +22,8 @@ from ..sequences.HLTBtagDeepCSVSequencePFPuppi_cfi import *
 from ..sequences.HLTBtagDeepFlavourSequencePFPuppi_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 from ..sequences.HLTHPSDeepTauPFTauSequence_cfi import *
-from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
-from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
+from ..sequences.HLTHgcalTiclPFClusteringForEgamma_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
 from ..sequences.HLTPFPuppiMETReconstruction_cfi import *
@@ -41,7 +41,7 @@ DST_PFScouting = cms.Path(
     HLTBeginSequence
     + hltL1GTAcceptFilter
     + HLTRawToDigiSequence
-    + HLTHgcalLocalRecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTLocalrecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
