@@ -700,7 +700,9 @@ phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                            'keep *_hltHGCalRecHit_*_*',
-                           'keep *_hltHgcalMergeLayerClusters_*_*',
+                           'keep *_hltMergeLayerClusters_*_*',
+                           #'keep *_hltHgcalMergeLayerClusters_*_*',
+                           'keep *_hltParticleFlowRecHit*_*_*',
                            'keep *_hltEgammaGsfTracksL1Seeded_*_*',
                        ])
 

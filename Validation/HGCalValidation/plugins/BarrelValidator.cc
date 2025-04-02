@@ -471,10 +471,10 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd1.add<double>("maxTotNsimClsperlay", 50.0);
     psd1.add<int>("nintTotNsimClsperlay", 50);
     psd1.add<double>("minTotNClsperlay", 0.0);
-    psd1.add<double>("maxTotNClsperlay", 100.0);
+    psd1.add<double>("maxTotNClsperlay", 1000.0);
     psd1.add<int>("nintTotNClsperlay", 50);
     psd1.add<double>("minEneClperlay", 0.0);
-    psd1.add<double>("maxEneClperlay", 110.0);
+    psd1.add<double>("maxEneClperlay", 1000.0);
     psd1.add<int>("nintEneClperlay", 110);
     psd1.add<double>("minScore", 0.0);
     psd1.add<double>("maxScore", 1.02);
