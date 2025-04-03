@@ -136,6 +136,7 @@ private:
                                 const pat::Electron& el,
                                 const std::vector<bool> trigger_result,
                                 const trigger::TriggerObjectCollection* legObjects,
+                                const trigger::TriggerObjectCollection* l1_legObjects,
                                 const std::vector<bool> l1_result,
                                 const bool pass_baseDST,
                                 const float inv_mass,
@@ -146,6 +147,7 @@ private:
                                     const int gsfTrackIndex,
                                     const std::vector<bool> trigger_result,
                                     const trigger::TriggerObjectCollection* legObjects,
+                                    const trigger::TriggerObjectCollection* l1_legObjects,
                                     const std::vector<bool> l1_result,
                                     const bool pass_baseDST,
                                     const float inv_mass,
@@ -163,6 +165,8 @@ private:
   const std::vector<std::string> vBaseTriggerSelection_;
   const std::vector<std::string> vtriggerSelection_;
   const std::vector<std::string> filterToMatch_;
+  const std::vector<std::string> l1filterToMatch_;
+  const std::vector<unsigned int> l1filterIndex_;
 
   edm::EDGetToken algToken_;
   std::shared_ptr<l1t::L1TGlobalUtil> l1GtUtils_;
@@ -180,9 +184,11 @@ using namespace ROOT;
 
 PatElectronTagProbeAnalyzer::PatElectronTagProbeAnalyzer(const edm::ParameterSet& iConfig)
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
-      vBaseTriggerSelection_{iConfig.getParameter<vector<string>>("BaseTriggerSelection")},
-      vtriggerSelection_{iConfig.getParameter<vector<string>>("triggerSelection")},
-      filterToMatch_{iConfig.getParameter<vector<string>>("finalfilterSelection")},
+      vBaseTriggerSelection_{iConfig.getParameter<std::vector<std::string>>("BaseTriggerSelection")},
+      vtriggerSelection_{iConfig.getParameter<std::vector<std::string>>("triggerSelection")},
+      filterToMatch_{iConfig.getParameter<std::vector<std::string>>("finalfilterSelection")},
+      l1filterToMatch_{iConfig.getParameter<std::vector<std::string>>("l1filterSelection")},
+      l1filterIndex_{iConfig.getParameter<std::vector<unsigned int>>("l1filterSelectionIndex")},
       algToken_{consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<edm::InputTag>("AlgInputTag"))},
       l1EGToken_{consumes<BXVector<l1t::EGamma>>(iConfig.getParameter<edm::InputTag>("L1ElectronCollection"))},
       triggerResultsToken_(
@@ -197,7 +203,6 @@ PatElectronTagProbeAnalyzer::PatElectronTagProbeAnalyzer(const edm::ParameterSet
 
           l1GtUtils_ = std::make_shared<l1t::L1TGlobalUtil>(iConfig, consumesCollector(), l1t::UseEventSetupIn::RunAndEvent);
           l1Seeds_   = iConfig.getParameter<std::vector<std::string>>("L1Seeds");
-
 }
 
 void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
@@ -221,8 +226,8 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   }
  
 
-  edm::Handle<BXVector<l1t::EGamma>> l1EGammaCollection;
-  iEvent.getByToken(l1EGToken_, l1EGammaCollection);
+  edm::Handle<BXVector<l1t::EGamma>> l1EGammaCollection; // TODO
+  iEvent.getByToken(l1EGToken_, l1EGammaCollection);  // TODO
 
   // Load pat Electron ID.
   edm::Handle<edm::ValueMap<bool>> tight_ele_id_decisions;
@@ -278,6 +283,20 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       }
     }
   }
+
+  // L1 Object Matching
+  size_t numberOfl1Filters = l1filterToMatch_.size();
+  trigger::TriggerObjectCollection* l1_legObjects = new trigger::TriggerObjectCollection[numberOfl1Filters];
+  for (size_t iteFilter = 0; iteFilter < l1filterToMatch_.size(); iteFilter++) {
+    std::string l1filterTag = l1filterToMatch_.at(iteFilter);
+    for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
+      obj.unpackNamesAndLabels(iEvent, *triggerResults);
+      if (obj.hasFilterLabel(l1filterTag)) {
+        l1_legObjects[iteFilter].push_back(obj);
+      }
+    }
+  }
+
 
   // L1Seeds
   l1GtUtils_->retrieveL1(iEvent, iSetup, algToken_);
@@ -352,30 +371,30 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
 
       // Z mass windows
       if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-        fillHistograms_resonance(histos.patElectron.resonanceZ, pat_el_second, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
-        fillHistograms_resonance(histos.patElectron.resonanceAll, pat_el_second, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
+        fillHistograms_resonance(histos.patElectron.resonanceZ, pat_el_second, vtrigger_result, legObjects, l1_legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
+        fillHistograms_resonance(histos.patElectron.resonanceAll, pat_el_second, vtrigger_result, legObjects, l1_legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
       }
 
       // jpsi mass windows
       if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
         fillHistograms_resonance(histos.patElectron.resonanceJ,
                                  pat_el_second,
-                                 vtrigger_result, legObjects, l1_result,
+                                 vtrigger_result, legObjects,l1_legObjects, l1_result,
                                  passBaseDST,
                                  invMass,
                                  second_pat_pt_order);  // J/Psi mass: 3.3 +/- 0.2 GeV
-        fillHistograms_resonance(histos.patElectron.resonanceAll, pat_el_second, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
+        fillHistograms_resonance(histos.patElectron.resonanceAll, pat_el_second, vtrigger_result, legObjects, l1_legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
       }
 
       // ups mass windows
       if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
         fillHistograms_resonance(histos.patElectron.resonanceY,
                                  pat_el_second,
-                                 vtrigger_result, legObjects, l1_result,
+                                 vtrigger_result, legObjects,l1_legObjects, l1_result,
                                  passBaseDST,
                                  invMass,
                                  second_pat_pt_order);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-        fillHistograms_resonance(histos.patElectron.resonanceAll, pat_el_second, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
+        fillHistograms_resonance(histos.patElectron.resonanceAll, pat_el_second, vtrigger_result, legObjects,l1_legObjects, l1_result, passBaseDST, invMass, second_pat_pt_order);
       }
 
     }
@@ -406,28 +425,28 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
 
       float invMass = (tag_pat_el + probe_sct_el).mass();
       if ((TandP_Z_minMass < invMass) && (invMass < TandP_Z_maxMass)) {
-        fillHistograms_resonance_sct(histos.sctElectron.resonanceZ, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
-        fillHistograms_resonance_sct(histos.sctElectron.resonanceAll, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
+        fillHistograms_resonance_sct(histos.sctElectron.resonanceZ, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
+        fillHistograms_resonance_sct(histos.sctElectron.resonanceAll, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
       }
       if ((TandP_jpsi_minMass < invMass) && (invMass < TandP_jpsi_maxMass)) {
         fillHistograms_resonance_sct(histos.sctElectron.resonanceJ,
                                      sct_el_second,
                                      gsfTrackIndex, 
-                                     vtrigger_result, legObjects, l1_result,
+                                     vtrigger_result, legObjects, l1_legObjects, l1_result,
                                      passBaseDST,
                                      invMass,
                                      sct_pt_order);  // J/Psi mass: 3.3 +/- 0.2 GeV
-        fillHistograms_resonance_sct(histos.sctElectron.resonanceAll, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
+        fillHistograms_resonance_sct(histos.sctElectron.resonanceAll, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
       }
       if ((TandP_ups_minMass < invMass) && (invMass < TandP_ups_maxMass)) {
         fillHistograms_resonance_sct(histos.sctElectron.resonanceY,
                                      sct_el_second,
                                      gsfTrackIndex, 
-                                     vtrigger_result, legObjects, l1_result,
+                                     vtrigger_result, legObjects, l1_legObjects, l1_result,
                                      passBaseDST,
                                      invMass,
                                      sct_pt_order);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-        fillHistograms_resonance_sct(histos.sctElectron.resonanceAll, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
+        fillHistograms_resonance_sct(histos.sctElectron.resonanceAll, sct_el_second, gsfTrackIndex, vtrigger_result, legObjects,l1_legObjects, l1_result, passBaseDST, invMass, sct_pt_order);
       }
     }
   }
@@ -437,6 +456,7 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematic
                                                            const pat::Electron& el,
                                                            const std::vector<bool> trigger_result,
                                                            const trigger::TriggerObjectCollection* legObjects,
+                                                           const trigger::TriggerObjectCollection* l1_legObjects,
                                                            const std::vector<bool> l1_result,
                                                            const bool pass_baseDST,
                                                            const float inv_mass,
@@ -479,6 +499,10 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematic
 
         for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
             if(l1_result[il1seed]){
+               unsigned int ifilter = 0;
+               while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter])) ifilter++;
+               if(!(patElectron_passHLT(el, l1_legObjects[ifilter]))) continue;
+               // check if electron fire the l1 seed leg
                histos.leading_electron.hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
                histos.leading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
             }
@@ -500,6 +524,9 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematic
 
         for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
             if(l1_result[il1seed]){
+               unsigned int ifilter = 0;
+               while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter])) ifilter++;
+               if(!(patElectron_passHLT(el, l1_legObjects[ifilter]))) continue;
                histos.subleading_electron.hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
                histos.subleading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
             }
@@ -538,6 +565,9 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematic
 
         for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
             if(l1_result[il1seed]){
+               unsigned int ifilter = 0;
+               while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter])) ifilter++;
+               if(!(patElectron_passHLT(el, l1_legObjects[ifilter]))) continue;
                histos.leading_electron.hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
                histos.leading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
             }
@@ -559,6 +589,9 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance(const kProbeKinematic
 
         for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
             if(l1_result[il1seed]){
+               unsigned int ifilter = 0;
+               while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter])) ifilter++;
+               if(!(patElectron_passHLT(el, l1_legObjects[ifilter]))) continue;
                histos.subleading_electron.hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
                histos.subleading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
             }
@@ -573,6 +606,7 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance_sct(const kProbeKinem
                                                                const int gsfTrackIndex,
                                                                const std::vector<bool> trigger_result,
                                                                const trigger::TriggerObjectCollection* legObjects,
+                                                               const trigger::TriggerObjectCollection* l1_legObjects,
                                                                const std::vector<bool> l1_result,
                                                                const bool pass_baseDST,
                                                                const float inv_mass,
@@ -630,6 +664,10 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance_sct(const kProbeKinem
 
         for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
           if(l1_result[il1seed]){
+             unsigned int ifilter = 0;
+             while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter])) ifilter++;
+             if(!(scoutingElectron_passHLT(el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], l1_legObjects[ifilter]))) continue;
+
              histos.leading_electron.hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
              histos.leading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
           }
@@ -652,6 +690,10 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance_sct(const kProbeKinem
 
         for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
           if(l1_result[il1seed]){
+             unsigned int ifilter = 0;
+             while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter])) ifilter++;
+             if(!(scoutingElectron_passHLT(el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], l1_legObjects[ifilter]))) continue;
+
              histos.subleading_electron.hPt_Barrel_fireL1[il1seed]->Fill(el.pt());
              histos.subleading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
           }
@@ -707,6 +749,10 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance_sct(const kProbeKinem
 
         for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
           if(l1_result[il1seed]){
+             unsigned int ifilter = 0;
+             while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter])) ifilter++;
+             if(!(scoutingElectron_passHLT(el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], l1_legObjects[ifilter]))) continue;
+
              histos.leading_electron.hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
              histos.leading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
           }
@@ -729,6 +775,10 @@ void PatElectronTagProbeAnalyzer::fillHistograms_resonance_sct(const kProbeKinem
 
         for(unsigned int il1seed = 0; il1seed < l1Seeds_.size(); il1seed++){
           if(l1_result[il1seed]){
+             unsigned int ifilter = 0;
+             while ((ifilter < l1filterIndex_.size()) && (il1seed >= l1filterIndex_[ifilter])) ifilter++;
+             if(!(scoutingElectron_passHLT(el.trketaMode()[gsfTrackIndex], el.trkphiMode()[gsfTrackIndex], l1_legObjects[ifilter]))) continue;
+
              histos.subleading_electron.hPt_Endcap_fireL1[il1seed]->Fill(el.pt());
              histos.subleading_electron.hEta_fireL1[il1seed]->Fill(el.eta());
           }
@@ -935,9 +985,11 @@ void PatElectronTagProbeAnalyzer::bookHistograms_resonance(DQMStore::IBooker& ib
 void PatElectronTagProbeAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
-  desc.add<vector<string>>("BaseTriggerSelection", {});
-  desc.add<vector<string>>("triggerSelection", {});
-  desc.add<vector<string>>("finalfilterSelection", {});
+  desc.add<std::vector<std::string>>("BaseTriggerSelection", {});
+  desc.add<std::vector<std::string>>("triggerSelection", {});
+  desc.add<std::vector<std::string>>("finalfilterSelection", {});
+  desc.add<std::vector<std::string>>("l1filterSelection", {});
+  desc.add<std::vector<unsigned int>>("l1filterSelectionIndex", {});
   desc.add<edm::InputTag>("AlgInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<edm::InputTag>("L1ElectronCollection", edm::InputTag("gtStage2Digis", "EGamma"));
   desc.add<std::vector<std::string>>("L1Seeds", {});
