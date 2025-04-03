@@ -2394,12 +2394,12 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     unsigned int k1(0), k2(0);
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
       if (!php.tileRingFineRange_.empty()) {
-	php.iradMinBHFine_.emplace_back(1 + php.tileRingFineRange_[k1].first);
-	php.iradMaxBHFine_.emplace_back(1 + php.tileRingFineRange_[k1].second);
+        php.iradMinBHFine_.emplace_back(1 + php.tileRingFineRange_[k1].first);
+        php.iradMaxBHFine_.emplace_back(1 + php.tileRingFineRange_[k1].second);
       }
       if (!php.tileRingRange_.empty()) {
-	php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k2].first);
-	php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k2].second);
+        php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k2].first);
+        php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k2].second);
       }
       if (php.nPhiLayer_[k] > 288) {
         ++k1;
