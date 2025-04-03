@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_RandomNumberGenerator_h
-#define FWCore_Utilities_RandomNumberGenerator_h
+#ifndef FWCore_AbstractServices_RandomNumberGenerator_h
+#define FWCore_AbstractServices_RandomNumberGenerator_h
 
 /** \class edm::RandomNumberGenerator
 
@@ -146,9 +146,11 @@ namespace edm {
 
   class RandomNumberGenerator {
   public:
-    RandomNumberGenerator() {}
+    RandomNumberGenerator() = default;
     RandomNumberGenerator(RandomNumberGenerator const&) = delete;
-    RandomNumberGenerator const& operator=(RandomNumberGenerator const&) = delete;
+    RandomNumberGenerator& operator=(RandomNumberGenerator const&) = delete;
+    RandomNumberGenerator(RandomNumberGenerator&&) = delete;
+    RandomNumberGenerator& operator=(RandomNumberGenerator&&) = delete;
     virtual ~RandomNumberGenerator();
 
     /// Use the next 2 functions to get the random number engine.
