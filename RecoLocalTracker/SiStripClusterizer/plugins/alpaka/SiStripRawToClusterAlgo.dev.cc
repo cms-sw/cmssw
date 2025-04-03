@@ -826,8 +826,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Setup the clusterizer aux parameters from the configuration
     StripClustersAuxHost sClustersAux_h = StripClustersAuxHost(n_strips, queue);
-    // sClustersAux_h->prefixSeedStripsNCMask(0) = 0;
-    sClustersAux_h.zeroInitialise();
 
     // Initialize the members of the clusterizer
     sClustersAux_h->channelThreshold() = channelThreshold_;
@@ -908,7 +906,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   void SiStripRawToClusterAlgo::prefixScan_new(Queue& queue) {
     // Calculate the prefix for the non-contiguous flagged strips and store in prefixSeedStripsNCMask
     // From example in HeterogeneousCore/AlpakaInterface/test/alpaka/testPrefixScan.dev.cc
-    auto singleBlockWorkDiv = make_workdiv<Acc1D>(1, 1024u);
+    auto singleBlockWorkDiv = make_workdiv<Acc1D>(1u, 1024u);
 
     // Set clusterDataObj.prefixSeedStripsNCMask(0) = 0;
     // alpaka::memset(queue, sClustersAux_d_->view(), 0u);

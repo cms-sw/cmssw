@@ -12,7 +12,6 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripClusterizerConditions.h"
 
-#include "DataFormats/SiStripCommon/interface/ConstantsForLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClustersDevice.h"
 
@@ -180,7 +179,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Get the cabling map
     const auto& cablingMapData = iSetup.getData(stripCablCondGetToken_);
-    LogDebug("fedBufferBlocksRaw") << "Size of cablingMapData: "
+    LogDebug("fedBufferBlocksRaw") << "Size of cablingMapData (bytes): "
                                    << alpaka::getExtentProduct(cablingMapData.buffer()) * sizeof(std::byte);
 
 #if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
@@ -193,13 +192,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // 1. the raw memory location (*input, inoff, offset)
     // 2. the size (length) in the FED raw data buffer (along the fedBufferBlocksRaw_.bytes_)
     auto chanlocs_onHost = SiStripMappingHost(detToFedsMap.metadata().size(), iEvent.queue());
-    LogDebug("fedBufferBlocksRaw") << "Size of chanlocs_onHost: "
+    LogDebug("fedBufferBlocksRaw") << "Size of chanlocs_onHost (bytes): "
                                    << alpaka::getExtentProduct(chanlocs_onHost.buffer()) * sizeof(std::byte);
 
     // This object contains the addresses of the input raw data for channel
     auto rawPointerAddresses_onHost =
         cms::alpakatools::make_host_buffer<const uint8_t*[]>(iEvent.queue(), detToFedsMap.metadata().size());
-    LogDebug("fedBufferBlocksRaw") << "Size of rawPointerAddresses_onHost: " << detToFedsMap.metadata().size();
+    LogDebug("fedBufferBlocksRaw") << "Size of rawPointerAddresses_onHost (bytes): " << detToFedsMap.metadata().size();
 
     // Copy the blocks of raw FED data on the device
     auto fedBufferBlocksRaw_onDevice = cms::alpakatools::make_device_buffer<uint8_t[]>(
@@ -208,7 +207,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                    fedBufferBlocksRaw_onDevice,
                    fedBufferBlocksRaw.getBuffer(),
                    static_cast<unsigned int>(fedBufferBlocksRaw.getPreallocSize()));
-    LogDebug("fedBufferBlocksRaw") << "Size of fedBufferBlocksRaw: " << fedBufferBlocksRaw.getPreallocSize();
+
     // -- Expand the SiStripClusterizerConditionsDetToFedsSoA to mask the fed buffers according to "good" detectors
     //    preparing the data for the unpack - In summary, make the A-B map between
     //    A - the raw FED data (a bug chunk of bytes which were copied to the device in the previous line)
