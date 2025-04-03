@@ -1278,34 +1278,47 @@ int LSTEvent::getNumberOfT5TrackCandidates() {
 }
 
 template <typename TSoA, typename TDev>
-typename TSoA::ConstView LSTEvent::getInput(bool inCMSSW, bool sync) {
+typename TSoA::ConstView LSTEvent::getInput(bool sync) {
   if constexpr (std::is_same_v<TDev, DevHost>) {
     return lstInputDC_->const_view<TSoA>();
   } else {
-    if (!lstInputHC_) {
-      if (inCMSSW) {
-        auto hits_d = lstInputDC_->view<InputHitsSoA>();
-        int nHits = hits_d.metadata().size();
-        std::array<int, 3> const hits_sizes{{nHits, 0, 0}};
-        lstInputHC_.emplace(hits_sizes, queue_);
-        auto hits_h = lstInputHC_->view<InputHitsSoA>();
-        auto idxs_h = cms::alpakatools::make_host_view(hits_h.idxs(), nHits);
-        auto idxs_d = cms::alpakatools::make_device_view(queue_, hits_d.idxs(), nHits);
-        alpaka::memcpy(queue_, idxs_h, idxs_d);
-      } else {
-        lstInputHC_.emplace(cms::alpakatools::CopyToHost<
-                            PortableMultiCollection<TDev, InputHitsSoA, InputPixelHitsSoA, InputPixelSeedsSoA>>::
-                                copyAsync(queue_, *lstInputDC_));
-      }
+    // In case getTrimmedInput was called first
+    if (!lstInputHC_ || lstInputHC_->sizes()[1] == 0) {
+      lstInputHC_.emplace(
+          cms::alpakatools::
+              CopyToHost<PortableMultiCollection<TDev, InputHitsSoA, InputPixelHitsSoA, InputPixelSeedsSoA>>::copyAsync(
+                  queue_, *lstInputDC_));
       if (sync)
         alpaka::wait(queue_);  // host consumers expect filled data
     }
     return lstInputHC_->const_view<TSoA>();
   }
 }
-template InputHitsConst LSTEvent::getInput<InputHitsSoA>(bool, bool);
-template InputPixelHitsConst LSTEvent::getInput<InputPixelHitsSoA>(bool, bool);
-template InputPixelSeedsConst LSTEvent::getInput<InputPixelSeedsSoA>(bool, bool);
+template InputHitsConst LSTEvent::getInput<InputHitsSoA>(bool);
+template InputPixelHitsConst LSTEvent::getInput<InputPixelHitsSoA>(bool);
+template InputPixelSeedsConst LSTEvent::getInput<InputPixelSeedsSoA>(bool);
+
+template <typename TDev>
+InputHitsConst LSTEvent::getTrimmedInputHits(bool sync) {
+  if constexpr (std::is_same_v<TDev, DevHost>) {
+    return lstInputDC_->const_view<InputHitsSoA>();
+  } else {
+    if (!lstInputHC_) {
+      auto hits_d = lstInputDC_->view<InputHitsSoA>();
+      int nHits = hits_d.metadata().size();
+      std::array<int, 3> const hits_sizes{{nHits, 0, 0}};
+      lstInputHC_.emplace(hits_sizes, queue_);
+      auto hits_h = lstInputHC_->view<InputHitsSoA>();
+      auto idxs_h = cms::alpakatools::make_host_view(hits_h.idxs(), nHits);
+      auto idxs_d = cms::alpakatools::make_device_view(queue_, hits_d.idxs(), nHits);
+      alpaka::memcpy(queue_, idxs_h, idxs_d);
+      if (sync)
+        alpaka::wait(queue_);  // host consumers expect filled data
+    }
+    return lstInputHC_->const_view<InputHitsSoA>();
+  }
+}
+template InputHitsConst LSTEvent::getTrimmedInputHits(bool);
 
 template <typename TSoA, typename TDev>
 typename TSoA::ConstView LSTEvent::getHits(bool sync) {

@@ -8,7 +8,8 @@
 
 namespace lst {
   template <typename TDev>
-  using LSTInputDeviceCollection = PortableDeviceMultiCollection<TDev, InputHitsSoA, InputPixelHitsSoA, InputPixelSeedsSoA>;
+  using LSTInputDeviceCollection =
+      PortableDeviceMultiCollection<TDev, InputHitsSoA, InputPixelHitsSoA, InputPixelSeedsSoA>;
 }  // namespace lst
 
 #endif

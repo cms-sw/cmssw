@@ -602,7 +602,7 @@ TVector3 calculateR3FromPCA(const TVector3 &p3, const float dxy, const float dz)
 //___________________________________________________________________________________________________________________________________________________________________________________________
 float addInputsToEventPreLoad(LSTEvent *event,
                               lst::LSTInputHostCollection *lstInputHC,
-                              LSTInputDeviceCollection *lstInputDC,
+                              LSTInputDeviceCol *lstInputDC,
                               ALPAKA_ACCELERATOR_NAMESPACE::Queue &queue) {
   TStopwatch my_timer;
 

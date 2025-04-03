@@ -11,7 +11,9 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  using LSTInputCollection = std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, ::lst::LSTInputHostCollection, ::lst::LSTInputDeviceCollection<Device>>;
-}  // namespace lst
+  using LSTInputCollection = std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>,
+                                                ::lst::LSTInputHostCollection,
+                                                ::lst::LSTInputDeviceCollection<Device>>;
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 
 #endif
