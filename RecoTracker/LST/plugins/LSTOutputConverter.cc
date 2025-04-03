@@ -90,7 +90,7 @@ void LSTOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descri
 
   desc.add<edm::InputTag>("lstOutput", edm::InputTag("lstProducer"));
   desc.add<edm::InputTag>("lstInput", edm::InputTag("lstInputProducer"));
-  desc.add<edm::InputTag>("lstPixelSeeds", edm::InputTag("lstPixelSeedInputProducer"));
+  desc.add<edm::InputTag>("lstPixelSeeds", edm::InputTag("lstInputProducer"));
   desc.add<bool>("includeT5s", true);
   desc.add<bool>("includeNonpLSTSs", false);
   desc.add("propagatorAlong", edm::ESInputTag{"", "PropagatorWithMaterial"});

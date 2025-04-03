@@ -159,7 +159,7 @@ void LSTInputProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
           const auto clusterKey = clusterRef.cluster_pixel().key();
           hitIdx.push_back(clusterKey);
         } else {
-          throw cms::Exception("LSTPixelSeedInputProducer") << "Not pixel hits found!";
+          throw cms::Exception("LSTInputProducer") << "Not pixel hits found!";
         }
       }
 
