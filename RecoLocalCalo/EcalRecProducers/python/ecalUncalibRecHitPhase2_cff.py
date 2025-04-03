@@ -21,19 +21,19 @@ from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
 #ECAL Phase 2 Digis Producer running on the accelerator
 from RecoLocalCalo.EcalRecProducers.ecalPhase2DigiToPortableProducer_cfi import ecalPhase2DigiToPortableProducer as _ecalPhase2DigiToPortableProducer
-ecalPhase2DigiToPortableProducer = _ecalPhase2DigiToPortableProducer.clone()
+ecalPhase2DigisSoA = _ecalPhase2DigiToPortableProducer.clone()
 
 # ECAL Phase 2 weights portable running
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2WeightsProducerPortable_cfi import ecalUncalibRecHitPhase2WeightsProducerPortable as _ecalUncalibRecHitPhase2Portable
-ecalUncalibRecHitPhase2Portable = _ecalUncalibRecHitPhase2Portable.clone(
-        digisLabelEB = 'ecalPhase2DigiToPortableProducer:ebDigis'
+ecalUncalibRecHitPhase2SoA = _ecalUncalibRecHitPhase2Portable.clone(
+        digisLabelEB = 'ecalPhase2DigisSoA:ebDigis'
 )
 
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitSoAToLegacy_cfi import ecalUncalibRecHitSoAToLegacy as _ecalUncalibRecHitSoAToLegacy
 alpaka.toModify(ecalUncalibRecHitPhase2,
     cpu = _ecalUncalibRecHitSoAToLegacy.clone(
     isPhase2 = True,
-    inputCollectionEB = 'ecalUncalibRecHitPhase2Portable:EcalUncalibRecHitsEB',
+    inputCollectionEB = 'ecalUncalibRecHitPhase2SoA:EcalUncalibRecHitsEB',
     inputCollectionEE = None,
     outputLabelEE = None
     )
@@ -42,9 +42,9 @@ alpaka.toModify(ecalUncalibRecHitPhase2,
 
 alpaka.toReplaceWith(ecalUncalibRecHitPhase2Task, cms.Task(
   # convert phase2 digis to Portable Collection
-  ecalPhase2DigiToPortableProducer, 
-  # ECAL weights running on Portable
-  ecalUncalibRecHitPhase2Portable,
+  ecalPhase2DigisSoA, 
+  # ECAL weights running on Device
+  ecalUncalibRecHitPhase2SoA,
   # Convert the uncalibrated rechits from Portable Collection to legacy format
   ecalUncalibRecHitPhase2
 ))

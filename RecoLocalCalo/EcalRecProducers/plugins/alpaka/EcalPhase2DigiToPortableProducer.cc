@@ -53,15 +53,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //iterate over digis
     uint32_t i = 0;
     for (const auto &inputDigi : inputDigis) {
-      const int nSamples = inputDigi.size();
+      const uint nSamples = inputDigi.size();
       //assign id to host collection
       digisHostCollView.id()[i] = inputDigi.id();
-      //iterate over sample in digi
-      for (int sample = 0; sample < nSamples; ++sample) {
-        //get samples from input digi
-        EcalLiteDTUSample thisSample = inputDigi[sample];
-        //assign adc data to host collection
-        digisHostCollView.data()[i][sample] = thisSample.raw();
+      //iterate over sample in digi, make sure the size of the input is not larger than the max sample size in Phase 2, if smaller set to 0
+      for (uint sample = 0; sample < ecalPh2::sampleSize; ++sample) {
+	if (sample < nSamples) {
+      	  //get samples from input digi
+          EcalLiteDTUSample thisSample = inputDigi[sample];
+          //assign adc data to host collection
+          digisHostCollView.data()[i][sample] = thisSample.raw();
+        } else {
+	  digisHostCollView.data()[i][sample] = 0;
+	}
       }
       ++i;
     }

@@ -74,7 +74,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
 
     desc.add<std::string>("uncalibratedRecHitsLabelEB", "EcalUncalibRecHitsEB");
-    //The below weights values should be kept up to date with those on the CPU version of this module
+    //The weights values below should be kept up to date with those on the CPU version of this module
+    //stored in RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitPhase2WeightsProducer.cc
     desc.add<std::vector<double>>("weights",
                                   {-0.121016,
                                    -0.119899,
@@ -110,7 +111,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    0.434207,
                                    0.422775});
 
-    desc.add<edm::InputTag>("digisLabelEB", edm::InputTag("simEcalUnsuppressedDigis", ""));
+    desc.add<edm::InputTag>("digisLabelEB", edm::InputTag("ecalPhase2DigiToPortableProducer", "ebDigis"));
 
     descriptions.addWithDefaultLabel(desc);
   }
