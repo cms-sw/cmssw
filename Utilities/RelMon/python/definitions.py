@@ -23,7 +23,7 @@ test_codes={"EMPTY":-101,
             "NO_HIST":-105,
             "FEW_BINS":-105}
 #-------------------------------------------------------------------------------  
-relmon_mainpage="https://cms-pdmv.cern.ch/relmon"
+relmon_mainpage="https://cms-pdmv-prod.web.cern.ch/relmon"
 
 #-------------------------------------------------------------------------------  
 

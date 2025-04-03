@@ -430,6 +430,7 @@ namespace edm {
     void temporarilyCloseXML();
     edm::propagate_const<std::unique_ptr<JobReportImpl>> impl_;
     std::mutex write_mutex;
+    bool errorLogged_ = false;
   };
 
   std::ostream& operator<<(std::ostream& os, JobReport::InputFile const& f);

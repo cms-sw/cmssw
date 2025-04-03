@@ -35,8 +35,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
 #include <vector>
 #include "TFile.h"
 #include "TNtuple.h"
@@ -83,18 +81,9 @@ private:
   // Internal Methods
   void book1D(DQMStore::IBooker &, std::string, const std::string &, std::string);
   void book2D(DQMStore::IBooker &, const std::string &, const std::string &, const std::string &, const std::string &);
-  reco::MuonCollection selectedMuons(const reco::MuonCollection &,
-                                     const reco::BeamSpot &,
-                                     bool,
-                                     const StringCutObjectSelector<reco::Muon> &,
-                                     double,
-                                     double);
-
-  trigger::TriggerObjectCollection selectedTriggerObjects(
-      const trigger::TriggerObjectCollection &,
-      const trigger::TriggerEvent &,
-      bool hasTriggerCuts,
-      const StringCutObjectSelector<trigger::TriggerObject> &triggerSelector);
+  reco::MuonCollection selectedMuons(const reco::MuonCollection &, const reco::BeamSpot &, bool);
+  trigger::TriggerObjectCollection selectedTriggerObjects(const trigger::TriggerObjectCollection &,
+                                                          const trigger::TriggerEvent &);
 
   // Input from Configuration File
   std::string hltProcessName_;
@@ -113,21 +102,20 @@ private:
   bool isLastFilter_;
   std::map<std::string, MonitorElement *> hists_;
 
-  // Selectors
-  bool hasTargetRecoCuts;
-  bool hasProbeRecoCuts;
-
-  StringCutObjectSelector<reco::Muon> targetMuonSelector_;
+  double targetMuonEtaMax_;
+  double targetMuonEtaMin_;
+  bool targetIsMuonGlb_;
   double targetZ0Cut_;
   double targetD0Cut_;
   double targetptCutZ_;
   double targetptCutJpsi_;
-  StringCutObjectSelector<reco::Muon> probeMuonSelector_;
+  double probeMuonEtaMax_;
+  double probeMuonEtaMin_;
+  bool probeIsMuonGlb_;
   double probeZ0Cut_;
   double probeD0Cut_;
-
-  StringCutObjectSelector<trigger::TriggerObject> triggerSelector_;
-  bool hasTriggerCuts_;
+  double triggerEtaMaxCut_;
+  double triggerEtaMinCut_;
 };
 
 #endif

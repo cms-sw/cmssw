@@ -72,6 +72,8 @@ namespace edm {
 
       EventGenerationFailure = 8501,
 
+      UnexpectedJobTermination = 8901,
+
       CaughtSignal = 9000
     };
 

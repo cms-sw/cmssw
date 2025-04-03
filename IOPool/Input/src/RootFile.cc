@@ -414,12 +414,23 @@ namespace edm {
     } else {
       // Merge into the parameter set registry.
       pset::Registry& psetRegistry = *pset::Registry::instance();
-      for (auto const& psetEntry : psetMap) {
-        ParameterSet pset(psetEntry.second.pset());
-        pset.setID(psetEntry.first);
-        // For thread safety, don't update global registries when a secondary source opens a file.
-        if (inputType != InputType::SecondarySource) {
-          psetRegistry.insertMapped(pset);
+      try {
+        for (auto const& psetEntry : psetMap) {
+          ParameterSet pset(psetEntry.second.pset());
+          pset.setID(psetEntry.first);
+          // For thread safety, don't update global registries when a secondary source opens a file.
+          if (inputType != InputType::SecondarySource) {
+            psetRegistry.insertMapped(pset);
+          }
+        }
+      } catch (edm::Exception const& iExcept) {
+        if (iExcept.categoryCode() == edm::errors::Configuration) {
+          edm::Exception exception(edm::errors::FormatIncompatibility);
+          exception << iExcept.message();
+          exception.addContext("Creating ParameterSets from file");
+          throw exception;
+        } else {
+          throw;
         }
       }
     }

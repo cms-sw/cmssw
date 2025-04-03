@@ -52,6 +52,7 @@ Implementation:
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelFramePosition.h"
+#include "EventFilter/CTPPSRawToDigi/interface/CTPPSPixelErrorSummary.h"
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -82,6 +83,7 @@ private:
   edm::ESGetToken<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd> tCTPPSPixelDAQMapping_;
   std::vector<CTPPSPixelDataFormatter::PPSPixelIndex> v_iDdet2fed_;
   CTPPSPixelFramePosition fPos_;
+  CTPPSPixelErrorSummary eSummary_;
   bool isRun3_;
 };
 
@@ -101,7 +103,8 @@ CTPPSPixelDigiToRaw::CTPPSPixelDigiToRaw(const edm::ParameterSet& iConfig)
       allDigiCounter_(0),
       allWordCounter_(0),
       debug_(false),
-      mappingLabel_(iConfig.getParameter<std::string>("mappingLabel")) {
+      mappingLabel_(iConfig.getParameter<std::string>("mappingLabel")),
+      eSummary_("CTPPSPixelDataFormatter", "[ctppsPixelRawToDigi]", false) {
   //register your products
   tCTPPSPixelDigi_ = consumes<edm::DetSetVector<CTPPSPixelDigi>>(iConfig.getParameter<edm::InputTag>("InputLabel"));
   tCTPPSPixelDAQMapping_ = esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>();
@@ -145,7 +148,7 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx()});
   fedIds_ = mapping->fedIds();
 
-  CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
+  CTPPSPixelDataFormatter formatter(mapping->ROCMapping, eSummary_);
 
   // create product (raw data)
   auto buffers = std::make_unique<FEDRawDataCollection>();

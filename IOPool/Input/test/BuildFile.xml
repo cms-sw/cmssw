@@ -12,4 +12,5 @@
  
  <test name="TestIOPoolInputRepeating" command="testRepeatingCachedRootSource.sh"/>
  <test name="TestIOPoolInputNoParentDictionary" command="testNoParentDictionary.sh"/>
+ <test name="TestFileOpenErrorExitCode" command="testFileOpenErrorExitCode.sh"/>
 </environment>

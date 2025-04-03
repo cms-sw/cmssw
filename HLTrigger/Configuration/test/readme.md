@@ -32,14 +32,36 @@ scram b runtests_testAccessToEDMInputsOfHLTTests
 ```
 To run the unit test locally, execute
 ```bash
-LOCALTOP="${CMSSW_BASE}" "${CMSSW_BASE}"/src/HLTrigger/Configuration/test/testAccessToEDMInputsOfHLTTests.sh
+cd "${CMSSW_BASE}"/src/HLTrigger/Configuration/test && \
+ SCRAM_TEST_PATH=. ./testAccessToEDMInputsOfHLTTests.sh
 ```
 
 The unit test does not modify the content of the file `testAccessToEDMInputsOfHLTTests_filelist.txt`.
 The latter can be updated by manually executing the script `testAccessToEDMInputsOfHLTTests_update_filelist.sh`.
-The file `testAccessToEDMInputsOfHLTTests_filelist.txt` lists
-the Logical File Name (LFN) of the EDM files used in HLT tests
-for the main CMSSW development branches (name format: `CMSSW_[0-9]*_[0-9]*_X`).
-The list includes only EDM files which are either
-(1) cached in the IB-EOS area at the CERN T2, or
-(2) accessible remotely via the redirector `cms-xrd-global.cern.ch`.
+
+ - The file `testAccessToEDMInputsOfHLTTests_filelist.txt` lists
+   the Logical File Name (LFN) of the EDM files used in HLT tests for
+   (1) the main CMSSW development branches (name format: `CMSSW_[0-9]*_[0-9]*_X`), and
+   (2) the HEAD of local CMSSW in use.
+
+ - The script `testAccessToEDMInputsOfHLTTests_update_filelist.sh` ignores other branches,
+   as well as local modifications which have not been committed yet.
+
+ - The file `testAccessToEDMInputsOfHLTTests_filelist.txt` lists only EDM files which are either
+   (1) cached in the IB-EOS area at the CERN T2, or
+   (2) accessible remotely via the redirector `cms-xrd-global.cern.ch`.
+
+Here are the steps one normally executes to update the
+EDM input files and the unit test `testAccessToEDMInputsOfHLTTests`.
+
+ - Update the input EDM files where needed,
+   e.g. `addOnTestsHLT.py` and/or `cmsDriver.csh`.
+
+ - Test, and commit the changes.
+
+ - Run `testAccessToEDMInputsOfHLTTests_update_filelist.sh`
+   (this will update `testAccessToEDMInputsOfHLTTests_filelist.txt`, if needed).
+
+ - Run the unit test (e.g. `scram b runtests_testAccessToEDMInputsOfHLTTests`).
+
+ - Commit the changes to `testAccessToEDMInputsOfHLTTests_filelist.txt`, if any.

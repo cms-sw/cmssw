@@ -7,7 +7,7 @@ from Configuration.Generator.Herwig7Settings.Herwig7LHECommonSettings_cfi import
 from Configuration.Generator.Herwig7Settings.Herwig7LHEPowhegSettings_cfi import *
 
 
-generator = cms.EDFilter("Herwig7GeneratorFilter",
+generator = cms.EDFilter("Herwig7HadronizerFilter",
     herwig7CH3SettingsBlock,
     herwig7StableParticlesForDetectorBlock,
     herwig7LHECommonSettingsBlock,

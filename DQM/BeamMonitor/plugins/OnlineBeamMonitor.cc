@@ -116,7 +116,7 @@ void OnlineBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(monitorName_ + "Validation");
   //Book histograms
   bsChoice_ = ibooker.bookProfile("bsChoice",
-                                  "BS Choice (+1): HLT - (-1): Legacy - (-10): Fake BS - (0): No Transient ",
+                                  "BS Choice: +1=HLT / -1=Legacy / -10=Fake (fallback to PCL) / 0=No Transient ",
                                   lastLumi - firstLumi + 1,
                                   firstLumi - 0.5,
                                   lastLumi + 0.5,

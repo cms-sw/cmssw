@@ -12,6 +12,7 @@
   <class pattern="ROOT::Math::SVector<*>" />
   <class pattern="std::vector<ROOT::Math::SMatrix<*>>" />
   <class pattern="std::vector<std::pair<ROOT::Math::PositionVector3D<*>,float> >"/>
+  <class name="MiniFloatConverter::ReduceMantissaToNbitsRounding"/>
 </selection>
 <exclusion>
   <!-- Excluded to avoid duplicate warnings because these dictionaries are defined in ROOT -->

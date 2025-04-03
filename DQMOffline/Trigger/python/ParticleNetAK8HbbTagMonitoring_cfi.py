@@ -31,8 +31,8 @@ particleNetAK8HbbTagMonitoring = _particleNetJetTagMonitor.clone(
     ## Electron selection
     tagElectronSelection = "pt > 60 && abs(eta) < 2.5",
     vetoElectronSelection = "pt > 15 && abs(eta) < 2.5",
-    tagElectronID = "egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight",
-    vetoElectronID = "egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-loose",
+    tagElectronID = "egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight",
+    vetoElectronID = "egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-loose",
     ntagelectrons = -1,
     nvetoelectrons = -1,
     ## Lepton counting

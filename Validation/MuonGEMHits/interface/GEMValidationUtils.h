@@ -18,11 +18,14 @@ class TProfile;
 typedef std::tuple<Int_t, Int_t> ME2IdsKey;
 typedef std::tuple<Int_t, Int_t, Int_t> ME3IdsKey;
 typedef std::tuple<Int_t, Int_t, Int_t, Int_t> ME4IdsKey;
+typedef std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t>
+    ME5IdsKey;  // 0: region, 1: station, 2: later, 3: module, 4: chamber or iEta
 
 typedef std::map<Int_t, dqm::impl::MonitorElement*> MEMap1Ids;
 typedef std::map<ME2IdsKey, dqm::impl::MonitorElement*> MEMap2Ids;
 typedef std::map<ME3IdsKey, dqm::impl::MonitorElement*> MEMap3Ids;
 typedef std::map<ME4IdsKey, dqm::impl::MonitorElement*> MEMap4Ids;
+typedef std::map<ME5IdsKey, dqm::impl::MonitorElement*> MEMap5Ids;
 
 namespace GEMUtils {
   TString getSuffixName(Int_t region_id);

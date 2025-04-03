@@ -25,7 +25,7 @@ std::pair<uint8_t, Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(cons
     }
     ++closest;
   }
-  auto globalPosition = recHit->surface()->toGlobal(trajParams[0].position());
+  auto globalPosition = recHit->surface()->toGlobal(trajParams[closest].position());
   auto distance2 = (vtxPos - globalPosition).mag2();
   int nhits = 1;
   for (unsigned int h = closest + 1; h < track.recHitsSize(); ++h) {

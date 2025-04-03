@@ -6,10 +6,14 @@ function die {
   exit $2
 }
 
-# run test job
-TESTDIR="${LOCALTOP}"/src/HLTrigger/Configuration/test
+if [ -z "${SCRAM_TEST_PATH}" ]; then
+  printf "\n%s\n" "ERROR -- environment variable SCRAM_TEST_PATH not defined"
+  printf "%s\n"   "         (hint: see readme file in the directory of this script)"
+  exit 1
+fi
 
-inputFileList="${TESTDIR}"/testAccessToEDMInputsOfHLTTests_filelist.txt
+# run test job
+inputFileList="${SCRAM_TEST_PATH}"/testAccessToEDMInputsOfHLTTests_filelist.txt
 
 if [ ! -f "${inputFileList}" ]; then
   printf "\n%s\n" "ERROR -- invalid path to file listing EDM input files:"
@@ -18,7 +22,7 @@ if [ ! -f "${inputFileList}" ]; then
 fi
 
 for inputFile in $(cat "${inputFileList}"); do
-  cmsRun "${TESTDIR}"/testAccessToEDMInputsOfHLTTests_cfg.py inputFiles="${inputFile}" \
+  cmsRun "${SCRAM_TEST_PATH}"/testAccessToEDMInputsOfHLTTests_cfg.py inputFiles="${inputFile}" \
     || die "Failure running testAccessToEDMInputsOfHLTTests_cfg.py" $?
 done
 unset inputFile

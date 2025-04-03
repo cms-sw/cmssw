@@ -8,6 +8,7 @@
   <use name="Geometry/Records"/>
   <use name="RecoMuon/TrackingTools"/>
   <use name="RecoMuon/GlobalTrackingTools"/>
+  <use name="RecoVertex/KalmanVertexFit"/>
   <use name="boost_regex"/>
   <flags EDM_PLUGIN="1"/>
 </library>

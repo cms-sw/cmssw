@@ -1,0 +1,7 @@
+<use name="FWCore/Framework"/>
+<use name="GeneratorInterface/Core"/>
+<use name="GeneratorInterface/CepGenInterface"/>
+<use name="GeneratorInterface/ExternalDecays"/>
+<library file="CepGenGeneratorFilter.cc" name="GeneratorInterfaceCepGenGenerator">
+  <flags EDM_PLUGIN="1"/>
+</library>

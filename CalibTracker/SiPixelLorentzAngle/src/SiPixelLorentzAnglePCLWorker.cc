@@ -128,7 +128,7 @@ private:
   // template stuff
   edm::ESWatcher<SiPixelTemplateDBObjectESProducerRcd> watchSiPixelTemplateRcd_;
   const SiPixelTemplateDBObject* templateDBobject_;
-  std::vector<SiPixelTemplateStore> thePixelTemp_;
+  const std::vector<SiPixelTemplateStore>* thePixelTemp_ = nullptr;
 
   LorentzAngleAnalysisTypeEnum analysisType_;
   std::string folder_;
@@ -195,6 +195,7 @@ private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomEsToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoEsToken_;
   edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> siPixelTemplateEsToken_;
+  edm::ESGetToken<std::vector<SiPixelTemplateStore>, SiPixelTemplateDBObjectESProducerRcd> siPixelTemplateStoreEsToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoPerEventEsToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomPerEventEsToken_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
@@ -223,6 +224,7 @@ SiPixelLorentzAnglePCLWorker::SiPixelLorentzAnglePCLWorker(const edm::ParameterS
       geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
       topoEsToken_(esConsumes<edm::Transition::BeginRun>()),
       siPixelTemplateEsToken_(esConsumes<edm::Transition::BeginRun>()),
+      siPixelTemplateStoreEsToken_(esConsumes<edm::Transition::BeginRun>()),
       topoPerEventEsToken_(esConsumes()),
       geomPerEventEsToken_(esConsumes()),
       magneticFieldToken_(esConsumes()) {
@@ -467,7 +469,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
 
           if (notInPCL_) {
             // fill the template from the store (from dqmBeginRun)
-            SiPixelTemplate theTemplate(thePixelTemp_);
+            SiPixelTemplate theTemplate(*thePixelTemp_);
 
             float locBx = (cotbeta < 0.) ? -1 : 1.;
             float locBz = (cotalpha < 0.) ? -locBx : locBx;
@@ -639,7 +641,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
 
           if (notInPCL_) {
             // fill the template from the store (from dqmBeginRun)
-            SiPixelTemplate theTemplate(thePixelTemp_);
+            SiPixelTemplate theTemplate(*thePixelTemp_);
 
             float locBx = (cotbeta < 0.) ? -1 : 1.;
             float locBz = (cotalpha < 0.) ? -locBx : locBx;
@@ -730,11 +732,7 @@ void SiPixelLorentzAnglePCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSe
     // Initialize 1D templates
     if (watchSiPixelTemplateRcd_.check(iSetup)) {
       templateDBobject_ = &iSetup.getData(siPixelTemplateEsToken_);
-      if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
-        edm::LogError("SiPixelLorentzAnglePCLWorker")
-            << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-            << (*templateDBobject_).version();
-      }
+      thePixelTemp_ = &iSetup.getData(siPixelTemplateStoreEsToken_);
     }
   }
 

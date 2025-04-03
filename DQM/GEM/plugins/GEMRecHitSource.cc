@@ -184,7 +184,7 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   return 0;
 }
 
-int GEMRecHitSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) {
+int GEMRecHitSource::ProcessWithMEMap4WithChamber(BookingHelper& bh, ME4IdsKey key) {
   ME3IdsKey key3 = key4Tokey3(key);
   MEStationInfo& stationInfo = mapStationInfo_[key3];
 

@@ -63,7 +63,7 @@ ALCARECOCalibrationTracksRefitAAG = TrackRefitter.clone(src = cms.InputTag("ALCA
                                                      )
 
 # refit and BS can be dropped if done together with RECO.
-# track filter can be moved in acalreco if no otehr users
+# track filter can be moved in acalreco if no other users
 ALCARECOTrackFilterRefitAAG = cms.Sequence(ALCARECOCalibrationTracksAAG +
                                            offlineBeamSpot +
                                            ALCARECOCalibrationTracksRefitAAG )

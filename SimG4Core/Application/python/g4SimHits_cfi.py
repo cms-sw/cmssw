@@ -334,6 +334,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
+        CMStoZDCtransport       = cms.bool(False),                 
         MaxNumberOfSteps        = cms.int32(20000),
         EkinNames               = cms.vstring(),
         EkinThresholds          = cms.vdouble(),
@@ -664,7 +665,9 @@ run3_common.toModify( g4SimHits, LHCTransport = True )
 ## Disable PPS from Run 3 PbPb runs
 ##
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-pp_on_PbPb_run3.toModify( g4SimHits, LHCTransport = False )
+pp_on_PbPb_run3.toModify(g4SimHits, LHCTransport = False, 
+                         SteppingAction = dict(
+                             CMStoZDCtransport = cms.bool(True) ) )
 
 ##
 ## Change ECAL time slices

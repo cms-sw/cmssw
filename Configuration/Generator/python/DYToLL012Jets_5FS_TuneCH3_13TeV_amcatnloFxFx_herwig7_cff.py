@@ -5,7 +5,7 @@ from Configuration.Generator.Herwig7Settings.Herwig7StableParticlesForDetector_c
 from Configuration.Generator.Herwig7Settings.Herwig7MGMergingSettings_cfi import *
 
 
-generator = cms.EDFilter("Herwig7GeneratorFilter",
+generator = cms.EDFilter("Herwig7HadronizerFilter",
     herwig7CH3SettingsBlock,
     herwig7StableParticlesForDetectorBlock,
     herwig7MGMergingSettingsBlock,
@@ -40,7 +40,7 @@ externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
     outputFile = cms.string('cmsgrid_final.lhe'),
     scriptName = cms.FileInPath('GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh'),
     generateConcurrently = cms.untracked.bool(True),
-    postGenerationCommand = cms.untracked.vstring('mergeLHE.py', '-i', 'thread*/cmsgrid_final.lhe', '-o', 'cmsgrid_final.lhe')
+    postGenerationCommand = cms.untracked.vstring('mergeLHE.py', '-n', '-i', 'thread*/cmsgrid_final.lhe', '-o', 'cmsgrid_final.lhe')
 )
 
 

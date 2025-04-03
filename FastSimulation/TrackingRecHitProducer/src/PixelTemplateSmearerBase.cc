@@ -136,14 +136,14 @@ PixelTemplateSmearerBase::~PixelTemplateSmearerBase() {}
 void PixelTemplateSmearerBase::beginRun(edm::Run const& run,
                                         const edm::EventSetup& eventSetup,
                                         const SiPixelTemplateDBObject* pixelTemplateDBObjectPtr,
-                                        std::vector<SiPixelTemplateStore>& tempStoreRef) {
+                                        const std::vector<SiPixelTemplateStore>& tempStoreRef) {
   //--- Check if we need to use the template from the DB (namely if
   //    id == -1).  Otherwise the template has already been loaded from
   //    the ascii file in constructor, and thePixelTempRef wakes up
   //    pointing to thePixelTemp_, so then we use our own store.
   //
   if (templateId == -1) {
-    thePixelTempRef = tempStoreRef;                     // we use the store from TrackingRecHitProducer
+    thePixelTempRef = &tempStoreRef;                    // we use the store from TrackingRecHitProducer
     pixelTemplateDBObject_ = pixelTemplateDBObjectPtr;  // needed for template<-->DetId map.
   }
 
@@ -392,7 +392,7 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(const PSimHit& simHit
   }
 
   //--- Make the template object
-  SiPixelTemplate templ(thePixelTempRef);
+  SiPixelTemplate templ(*thePixelTempRef);
 
   //--- Produce the template that corresponds to our local angles.
   templ.interpolate(ID, cotalpha, cotbeta);
@@ -778,7 +778,7 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearMergeGroup(MergeGroup* mg
   }
 
   //--- Make the template object
-  SiPixelTemplate templ(thePixelTempRef);
+  SiPixelTemplate templ(*thePixelTempRef);
 
   //--- Produce the template that corresponds to our local angles.
   templ.interpolate(ID, cotalpha, cotbeta);

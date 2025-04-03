@@ -4,7 +4,7 @@ from DQM.EcalMonitorTasks.TrigPrimTask_cfi import ecalTrigPrimTask
 from DQM.EcalMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
 
 minEntries = 3
-errorFractionThreshold = 0.1
+errorFractionThreshold = 0.2
 TTF4MaskingAlarmThreshold = 0.1
 
 ecalTrigPrimClient = cms.untracked.PSet(

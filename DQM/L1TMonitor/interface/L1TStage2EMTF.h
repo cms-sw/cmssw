@@ -52,17 +52,24 @@ private:
   MonitorElement* emtfTrackBXVsCSCLCT[3];
   MonitorElement* emtfTrackBXVsRPCHit[3];
   MonitorElement* emtfTrackPt;
-  MonitorElement* emtfTrackPtHighQuality;  //Chad Freer May 8 2018
+  MonitorElement* emtfTrackUnconstrainedPt;
+  MonitorElement* emtfTrackDxy;
+  MonitorElement* emtfTrackPtHighQuality;               //Chad Freer May 8 2018
+  MonitorElement* emtfTrackUnconstrainedPtHighQuality;
   MonitorElement* emtfTrackPtHighQualityHighPT;
+  MonitorElement* emtfTrackUnconstrainedPtHighQualityHighUPT;
   MonitorElement* emtfTrackEta;
   MonitorElement* emtfTrackEtaHighQuality;  //Chad Freer May 8 2018
   MonitorElement* emtfTrackEtaHighQualityHighPT;
+  MonitorElement* emtfTrackEtaHighQualityHighUPT;
   MonitorElement* emtfTrackPhi;
   MonitorElement* emtfTrackPhiHighQuality;
   MonitorElement* emtfTrackPhiHighQualityHighPT;
+  MonitorElement* emtfTrackPhiHighQualityHighUPT;
   MonitorElement* emtfTrackOccupancy;
   MonitorElement* emtfTrackOccupancyHighQuality;  //Chad Freer May 8 2018
   MonitorElement* emtfTrackOccupancyHighQualityHighPT;
+  MonitorElement* emtfTrackOccupancyHighQualityHighUPT;
   MonitorElement* emtfTrackMode;
   MonitorElement* emtfTrackQuality;
   MonitorElement* emtfTrackQualityVsMode;
@@ -70,6 +77,8 @@ private:
 
   MonitorElement* emtfMuonBX;
   MonitorElement* emtfMuonhwPt;
+  MonitorElement* emtfMuonhwPtUnconstrained;
+  MonitorElement* emtfMuonhwDxy;
   MonitorElement* emtfMuonhwEta;
   MonitorElement* emtfMuonhwPhi;
   MonitorElement* emtfMuonhwQual;

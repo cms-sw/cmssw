@@ -38,8 +38,8 @@ hcalPhi17Cut = cms.PSet(
 tagAndProbeConfigEle50CaloIdVTGsfTrkIdT = cms.PSet(
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
 
-    tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
-    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
+    tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"),
+    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"),
     sampleTrigRequirements = cms.PSet(
         hltInputTag = cms.InputTag("TriggerResults","","HLT"),
         hltPaths = cms.vstring("HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v*")
@@ -141,7 +141,7 @@ B2GegmGsfElectronIDsForDQM = egmGsfElectronIDs.clone(
 #note: be careful here to when selecting new ids that the vid tools doesnt do extra setup for them
 #for example the HEEP cuts need an extra producer which vid tools automatically handles
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff']
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Winter22_122X_V1_cff']
 for id_module_name in my_id_modules: 
     idmod= __import__(id_module_name, globals(), locals(), ['idName','cutFlow'])
     for name in dir(idmod):

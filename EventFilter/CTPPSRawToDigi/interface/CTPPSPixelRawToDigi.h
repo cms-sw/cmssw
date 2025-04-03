@@ -15,6 +15,7 @@
 
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
 #include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
+#include "EventFilter/CTPPSRawToDigi/interface/CTPPSPixelErrorSummary.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -30,6 +31,8 @@ public:
   /// get data, convert to digis attach againe to Event
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  void endStream() override;
+
 private:
   edm::ParameterSet config_;
 
@@ -42,6 +45,8 @@ private:
   edm::InputTag label_;
 
   std::string mappingLabel_;
+
+  CTPPSPixelErrorSummary eSummary_;
 
   bool includeErrors_;
   bool isRun3_;

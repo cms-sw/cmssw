@@ -49,9 +49,9 @@ protected:
   bool mergeHitsOn = false;  // if true then see if neighboring hits might merge
 
   //--- Template DB Object(s)
-  const SiPixelTemplateDBObject* pixelTemplateDBObject_ = nullptr;     // needed for template<-->DetId map.
-  std::vector<SiPixelTemplateStore> thePixelTemp_;                     // our own template storage
-  std::vector<SiPixelTemplateStore>& thePixelTempRef = thePixelTemp_;  // points to the one we will use.
+  const SiPixelTemplateDBObject* pixelTemplateDBObject_ = nullptr;            // needed for template<-->DetId map.
+  std::vector<SiPixelTemplateStore> thePixelTemp_;                            // our own template storage
+  const std::vector<SiPixelTemplateStore>* thePixelTempRef = &thePixelTemp_;  // points to the one we will use.
   int templateId = -1;
 
   //--- Flag to tell us whether we are in barrel or in forward.
@@ -92,7 +92,7 @@ public:
   void beginRun(edm::Run const& run,
                 const edm::EventSetup& eventSetup,
                 const SiPixelTemplateDBObject* pixelTemplateDBObjectPtr,
-                std::vector<SiPixelTemplateStore>& tempStoreRef) override;
+                const std::vector<SiPixelTemplateStore>& tempStoreRef) override;
   // void endEvent(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   //--- Process all unmerged hits. Calls smearHit() for each.

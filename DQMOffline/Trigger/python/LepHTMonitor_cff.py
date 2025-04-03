@@ -7,7 +7,7 @@ from copy import deepcopy
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 DQMOffline_Ele15_HT600 = DQMEDAnalyzer('LepHTMonitor',
                                               electronCollection = cms.InputTag('gedGsfElectrons'),
-                                              electronVID = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-medium"),
+                                              electronVID = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-medium"),
                                               muonCollection = cms.InputTag(''),
                                               muonIDlevel = cms.untracked.int32(2), ## 1: loose, 2: medium, 3: tight
                                               pfMetCollection = cms.InputTag('pfMet'),

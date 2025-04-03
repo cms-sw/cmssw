@@ -416,6 +416,20 @@ SKIMStreamIsoPhotonEB = cms.FilteredStream(
 
 #####################
 
+from DPGAnalysis.Skims.TeVJetSkim_cff import *
+teVJetPath = cms.Path( teVJetSequence )
+
+SKIMStreamTeVJet = cms.FilteredStream(
+    responsible = 'L1 DPG/JME POG',
+    name = 'TeVJet',
+    paths = ( teVJetPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+#####################
+
 from DPGAnalysis.Skims.HighMETSkim_cff import *
 condPath = cms.Path(CondMETSelSeq)
 #pfPath = cms.Path(pfMETSelSeq)
