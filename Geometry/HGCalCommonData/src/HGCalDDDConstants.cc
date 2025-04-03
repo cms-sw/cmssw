@@ -25,7 +25,9 @@ using namespace geant_units::operators;
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::string& name)
     : hgpar_(hp), sqrt3_(std::sqrt(3.0)), mode_(hgpar_->mode_), fullAndPart_(waferHexagon8File()) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Mode " << mode_ << " FullAndPart " << fullAndPart_ << " waferHex6:waverHex8 " << waferHexagon6() << ":" <<  waferHexagon8() << " cassettte " << cassetteMode();
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Mode " << mode_ << " FullAndPart " << fullAndPart_
+                                << " waferHex6:waverHex8 " << waferHexagon6() << ":" << waferHexagon8() << " cassettte "
+                                << cassetteMode();
 #endif
   if (waferHexagon6() || waferHexagon8()) {
     rmax_ = (HGCalParameters::k_ScaleFromDDD * (hgpar_->waferR_) * std::cos(30._deg));
@@ -231,7 +233,9 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   double r = std::sqrt(xx * xx + yy * yy);
   auto ir = std::lower_bound(hgpar_->radiusLayer_[type].begin(), hgpar_->radiusLayer_[type].end(), r);
   irad = static_cast<int>(ir - hgpar_->radiusLayer_[type].begin());
-  irad = hgpar_->scintFine(indx.first) ? (std::clamp(irad, hgpar_->iradMinBHFine_[indx.first], hgpar_->iradMaxBHFine_[indx.first])) : (std::clamp(irad, hgpar_->iradMinBH_[indx.first], hgpar_->iradMaxBH_[indx.first]));
+  irad = hgpar_->scintFine(indx.first)
+             ? (std::clamp(irad, hgpar_->iradMinBHFine_[indx.first], hgpar_->iradMaxBHFine_[indx.first]))
+             : (std::clamp(irad, hgpar_->iradMinBH_[indx.first], hgpar_->iradMaxBH_[indx.first]));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeomT") << "assignCellTrap Input " << x << ":" << y << ":" << z << ":" << layer << ":" << reco
                                  << " x|y|r " << xx << ":" << yy << ":" << r << " phi " << phi << ":"
@@ -241,34 +245,34 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
     if (tileRingEdge(r, layer, irad)) {
       if (std::abs(r - hgpar_->radiusLayer_[type][irad - 1]) < tol_) {
         --irad;
-	if (hgpar_->scintFine(indx.first)) {
-	  if (irad <= hgpar_->iradMinBHFine_[indx.first])
-	    irad = hgpar_->iradMinBHFine_[indx.first];
-	} else {
-	  if (irad <= hgpar_->iradMinBH_[indx.first])
-	    irad = hgpar_->iradMinBH_[indx.first];
-	}
+        if (hgpar_->scintFine(indx.first)) {
+          if (irad <= hgpar_->iradMinBHFine_[indx.first])
+            irad = hgpar_->iradMinBHFine_[indx.first];
+        } else {
+          if (irad <= hgpar_->iradMinBH_[indx.first])
+            irad = hgpar_->iradMinBH_[indx.first];
+        }
       } else {
         ++irad;
-	if (hgpar_->scintFine(indx.first)) {
-	  if (irad > hgpar_->iradMaxBHFine_[indx.first])
-	    irad = hgpar_->iradMaxBHFine_[indx.first];
-	} else {
-	  if (irad > hgpar_->iradMaxBH_[indx.first])
-	    irad = hgpar_->iradMaxBH_[indx.first];
-	}
+        if (hgpar_->scintFine(indx.first)) {
+          if (irad > hgpar_->iradMaxBHFine_[indx.first])
+            irad = hgpar_->iradMaxBHFine_[indx.first];
+        } else {
+          if (irad > hgpar_->iradMaxBH_[indx.first])
+            irad = hgpar_->iradMaxBH_[indx.first];
+        }
       }
 #ifdef EDM_ML_DEBUG
       std::ostringstream st1;
       st1 << "assignCellTrap: ring # in ring type " << hgpar_->scintFine(indx.first) << "modified to " << irad;
       if (irad > hgpar_->iradMaxBHFine_[indx.first])
-	st1 << ":" << hgpar_->iradMinBHFine_[indx.first] << ":" << hgpar_->iradMaxBHFine_[indx.first];
+        st1 << ":" << hgpar_->iradMinBHFine_[indx.first] << ":" << hgpar_->iradMaxBHFine_[indx.first];
       else
-	st1 << ":" << hgpar_->iradMinBH_[indx.first] << ":" << hgpar_->iradMaxBH_[indx.first];
+        st1 << ":" << hgpar_->iradMinBH_[indx.first] << ":" << hgpar_->iradMaxBH_[indx.first];
       edm::LogVerbatim("HGCalGeomT") << st1.str();
 #endif
     } else if (tilePhiEdge(phi, layer, iphi)) {
-  if (std::abs(phi - hgpar_->scintCellSize(layer) * (iphi - 1)) < tol_) {
+      if (std::abs(phi - hgpar_->scintCellSize(layer) * (iphi - 1)) < tol_) {
         --iphi;
         if (iphi <= 0)
           iphi = 1;
@@ -538,15 +542,15 @@ std::pair<int, int> HGCalDDDConstants::getREtaRange(int lay) const {
     int indx = layerIndex(lay, false);
     if (indx >= 0) {
       if (hgpar_->scintFine(indx)) {
-	if (indx < static_cast<int>(hgpar_->iradMinBHFine_.size())) {
-	  irmin = hgpar_->iradMinBHFine_[indx];
-	  irmax = hgpar_->iradMaxBHFine_[indx];
-	}
+        if (indx < static_cast<int>(hgpar_->iradMinBHFine_.size())) {
+          irmin = hgpar_->iradMinBHFine_[indx];
+          irmax = hgpar_->iradMaxBHFine_[indx];
+        }
       } else {
-	if (indx < static_cast<int>(hgpar_->iradMinBH_.size())) {
-	  irmin = hgpar_->iradMinBH_[indx];
-	  irmax = hgpar_->iradMaxBH_[indx];
-	}
+        if (indx < static_cast<int>(hgpar_->iradMinBH_.size())) {
+          irmin = hgpar_->iradMinBH_[indx];
+          irmax = hgpar_->iradMaxBH_[indx];
+        }
       }
     }
   }
@@ -778,7 +782,10 @@ bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) co
   bool valid = ((ok && trapezoidFile()) ? tileExist(zside, layer, irad, iphi) : ok);
 #ifdef EDM_ML_DEBUG
   bool tileEx = trapezoidFile() ? tileExist(zside, layer, irad, iphi) : true;
-  edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":" << irad << ":" << iphi << " Range on Ring " << hgpar_->scintValidRing(indx.first, irad) << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
+  edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":" << irad
+                                 << ":" << iphi << " Range on Ring " << hgpar_->scintValidRing(indx.first, irad)
+                                 << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
+                                 << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
 #endif
   return valid;
 }
@@ -1001,7 +1008,8 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     int zside, int lay, int irad, int iphi, bool reco, bool debug) const {
   float x(0), y(0);
   const auto& indx = getIndex(lay, reco);
-  edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << zside << ":" << reco << ":" << indx.first;
+  edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << zside << ":"
+                                << reco << ":" << indx.first;
   debug = true;
   if (indx.first >= 0) {
     int ir = std::abs(irad);
@@ -1012,12 +1020,16 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     std::pair<double, double> range = rangeR(z, true);
     if (debug) {
       std::ostringstream st1;
-      st1 << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << reco << " indx " << indx.first << " IR " << ir << ":";
+      st1 << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << reco << " indx " << indx.first
+          << " IR " << ir << ":";
       if (hgpar_->scintFine(indx.first))
-	st1 << hgpar_->iradMinBHFine_[indx.first] << ":" << hgpar_->iradMaxBHFine_[indx.first];
+        st1 << hgpar_->iradMinBHFine_[indx.first] << ":" << hgpar_->iradMaxBHFine_[indx.first];
       else
-	st1 << hgpar_->iradMinBH_[indx.first] << ":" << hgpar_->iradMaxBH_[indx.first];
-      edm::LogVerbatim("HGCalGeom") << st1.str() << " Type " << type << " Z " << indx.first << ":" << z << " phi " << phi << ":" << convertRadToDeg(phi) << " R " << r << ":" << range.first << ":" << range.second << " file " << (!trapezoidFile()) << " CassetteMode " << cassetteMode();
+        st1 << hgpar_->iradMinBH_[indx.first] << ":" << hgpar_->iradMaxBH_[indx.first];
+      edm::LogVerbatim("HGCalGeom") << st1.str() << " Type " << type << " Z " << indx.first << ":" << z << " phi "
+                                    << phi << ":" << convertRadToDeg(phi) << " R " << r << ":" << range.first << ":"
+                                    << range.second << " file " << (!trapezoidFile()) << " CassetteMode "
+                                    << cassetteMode();
     }
     if (!trapezoidFile())
       r = std::max(range.first, std::min(r, range.second));

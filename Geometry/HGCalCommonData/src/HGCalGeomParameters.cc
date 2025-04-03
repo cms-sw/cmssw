@@ -2405,11 +2405,11 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #ifdef EDM_ML_DEBUG
       int kk = php.scintType(php.firstLayer_ + static_cast<int>(k));
       if (php.nPhiLayer_[k] > 288)
-	edm::LogVerbatim("HGCalGeom") << "New Layer " << k << " Type " << kk << " Low edge " << php.iradMinBHFine_.back()
-				      << " Top edge " << php.iradMaxBHFine_.back();
+        edm::LogVerbatim("HGCalGeom") << "New Layer " << k << " Type " << kk << " Low edge "
+                                      << php.iradMinBHFine_.back() << " Top edge " << php.iradMaxBHFine_.back();
       else
-	edm::LogVerbatim("HGCalGeom") << "New Layer " << k << " Type " << kk << " Low edge " << php.iradMinBH_.back()
-				      << " Top edge " << php.iradMaxBH_.back();
+        edm::LogVerbatim("HGCalGeom") << "New Layer " << k << " Type " << kk << " Low edge " << php.iradMinBH_.back()
+                                      << " Top edge " << php.iradMaxBH_.back();
 #endif
     }
   } else {
@@ -2480,11 +2480,11 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #endif
       }
       if (php.nPhiLayer_[k] > 288) {
-	php.iradMinBHFine_.emplace_back(irlow);
-	php.iradMaxBHFine_.emplace_back(irhigh);
+        php.iradMinBHFine_.emplace_back(irlow);
+        php.iradMaxBHFine_.emplace_back(irhigh);
       } else {
-	php.iradMinBH_.emplace_back(irlow);
-	php.iradMaxBH_.emplace_back(irhigh);
+        php.iradMinBH_.emplace_back(irlow);
+        php.iradMaxBH_.emplace_back(irhigh);
       }
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Old Layer " << k << " Type " << kk << " Low edge " << irlow << ":" << drlow
@@ -2508,10 +2508,10 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
   for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
     if (php.nPhiLayer_[k] > 288) {
       if (php.iradMaxBHFine_[k] > php.tileUVMaxFine_)
-	php.tileUVMaxFine_ = php.iradMaxBHFine_[k];
+        php.tileUVMaxFine_ = php.iradMaxBHFine_[k];
     } else {
       if (php.iradMaxBH_[k] > php.tileUVMax_)
-	php.tileUVMax_ = php.iradMaxBH_[k];
+        php.tileUVMax_ = php.iradMaxBH_[k];
     }
     int kk = (php.nPhiLayer_[k] > 288) ? 0 : 1;
     int irm = php.radiusLayer_[kk].size() - 1;
@@ -2520,8 +2520,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #ifdef EDM_ML_DEBUG
     double rmin = php.radiusLayer_[kk][std::max((irmin - 1), 0)];
     double rmax = php.radiusLayer_[kk][std::min(irmax, irm)];
-    edm::LogVerbatim("HGCalGeom") << "Layer " << php.firstLayer_ + k << ":" << kk << " Radius range "
-                                  << irmin << ":" << irmax << ":" << rmin << ":" << rmax;
+    edm::LogVerbatim("HGCalGeom") << "Layer " << php.firstLayer_ + k << ":" << kk << " Radius range " << irmin << ":"
+                                  << irmax << ":" << rmin << ":" << rmax;
 #endif
     mytr.lay = php.firstLayer_ + k;
     for (int irad = irmin; irad <= irmax; ++irad) {
@@ -2540,10 +2540,10 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
       mytr.cellSize *= HGCalParameters::k_ScaleFromDDD;
       php.fillModule(mytr, false);
       if (irad == irmin)
-	php.firstModule_.emplace_back(im);
+        php.firstModule_.emplace_back(im);
       ++im;
       if (irad == irmax)
-	php.lastModule_.emplace_back(im);
+        php.lastModule_.emplace_back(im);
     }
   }
   php.nSectors_ = std::max(php.tileUVMax_, php.tileUVMaxFine_);
@@ -2551,7 +2551,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
   edm::LogVerbatim("HGCalGeom") << "Maximum radius index " << php.tileUVMax_ << ":" << php.tileUVMaxFine_;
   for (unsigned int k = 0; k < php.firstModule_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "Layer " << k + php.firstLayer_ << " Modules " << php.firstModule_[k] << ":"
-				  << php.lastModule_[k];
+                                  << php.lastModule_[k];
 
 #endif
 }
