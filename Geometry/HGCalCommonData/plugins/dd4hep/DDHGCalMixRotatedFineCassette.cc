@@ -121,6 +121,10 @@ struct HGCalMixRotatedFineCassette {
 #endif
     passiveFull_ = args.value<std::vector<std::string>>("PassiveNamesFull");
     passivePart_ = args.value<std::vector<std::string>>("PassiveNamesPartial");
+    if (passiveFull_.size() <= 1)
+      passiveFull_.clear();
+    if (passivePart_.size() <= 1)
+      passivePart_.clear();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: " << passiveFull_.size() << " full and "
                                   << passivePart_.size() << " partial passive modules";
@@ -334,7 +338,7 @@ struct HGCalMixRotatedFineCassette {
 #endif
         dd4hep::Material matter = ns.material(materials_[ii]);
         dd4hep::Volume glog;
-        if (layerSense_[ly] == 0) {
+        if (layerSense_[ly] <= 0) {
           std::vector<double> pgonZ, pgonRin, pgonRout;
           double rmax =
               (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1;
@@ -369,10 +373,18 @@ struct HGCalMixRotatedFineCassette {
             edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << cms::convert2mm(pgonZ[k]) << " R "
                                           << cms::convert2mm(pgonRin[k]) << ":" << cms::convert2mm(pgonRout[k]);
 #endif
-        } else {
-          int mode = (layerSense_[ly] > 0) ? sensitiveMode_ : absorbMode_;
-          double rins = (mode < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
-          double routs = (mode < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
+	  if (layerSense_[ly] < 0) {
+	    int absType = -layerSense_[ly];
+	    unsigned int num = (absType <= waferTypes_) ? passiveFull_.size() : passivePart_.size();
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HGCalGeom") << "Abstype " << absType << " num " << num;
+#endif
+          if (num > 1)
+            positionMix(ctxt, e, glog, name, copy, thick_[ii], matter, absType, fine);
+	  }
+	} else {
+          double rins = (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
+          double routs = (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
           dd4hep::Solid solid = dd4hep::Tube(rins, routs, hthick, 0.0, 2._pi);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
