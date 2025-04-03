@@ -58,14 +58,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       digisHostCollView.id()[i] = inputDigi.id();
       //iterate over sample in digi, make sure the size of the input is not larger than the max sample size in Phase 2, if smaller set to 0
       for (uint sample = 0; sample < ecalPh2::sampleSize; ++sample) {
-	if (sample < nSamples) {
-      	  //get samples from input digi
+        if (sample < nSamples) {
+          //get samples from input digi
           EcalLiteDTUSample thisSample = inputDigi[sample];
           //assign adc data to host collection
           digisHostCollView.data()[i][sample] = thisSample.raw();
         } else {
-	  digisHostCollView.data()[i][sample] = 0;
-	}
+          digisHostCollView.data()[i][sample] = 0;
+        }
       }
       ++i;
     }
