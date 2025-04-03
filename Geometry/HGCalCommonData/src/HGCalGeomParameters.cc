@@ -2393,10 +2393,14 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #endif
     unsigned int k1(0), k2(0);
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
-      php.iradMinBHFine_.emplace_back(1 + php.tileRingFineRange_[k1].first);
-      php.iradMaxBHFine_.emplace_back(1 + php.tileRingFineRange_[k1].second);
-      php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k2].first);
-      php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k2].second);
+      if (!php.tileRingFineRange_.empty()) {
+	php.iradMinBHFine_.emplace_back(1 + php.tileRingFineRange_[k1].first);
+	php.iradMaxBHFine_.emplace_back(1 + php.tileRingFineRange_[k1].second);
+      }
+      if (!php.tileRingRange_.empty()) {
+	php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k2].first);
+	php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k2].second);
+      }
       if (php.nPhiLayer_[k] > 288) {
         ++k1;
       } else {
@@ -2479,13 +2483,10 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
         edm::LogVerbatim("HGCalGeom") << "Modified irhigh " << irhigh << " dr " << drhigh;
 #endif
       }
-      if (php.nPhiLayer_[k] > 288) {
-        php.iradMinBHFine_.emplace_back(irlow);
-        php.iradMaxBHFine_.emplace_back(irhigh);
-      } else {
-        php.iradMinBH_.emplace_back(irlow);
-        php.iradMaxBH_.emplace_back(irhigh);
-      }
+      php.iradMinBHFine_.emplace_back(irlow);
+      php.iradMaxBHFine_.emplace_back(irhigh);
+      php.iradMinBH_.emplace_back(irlow);
+      php.iradMaxBH_.emplace_back(irhigh);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Old Layer " << k << " Type " << kk << " Low edge " << irlow << ":" << drlow
                                     << " Top edge " << irhigh << ":" << drhigh;
