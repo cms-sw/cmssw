@@ -131,9 +131,9 @@
 
     <!-- Vector section -->
 
-   <Vector name="StartCopyNo_Front_Disc_1" type="numeric" nEntries="27">
+    <Vector name="StartCopyNo_Front_Disc_1" type="numeric" nEntries="27">
       1, 7, 21, 47, 79, 115, 153, 195, 237, 275, 309, 343, 377, 409, 439,
-      471, 505, 541, 289, 578, 617, 701, 739, 773, 803, 827, 841
+      471, 505, 541, 577, 617, 661, 701, 739, 773, 803, 827, 841
     </Vector>
 
     <Vector name="StartCopyNo_Back_Disc_1" type="numeric" nEntries="27">

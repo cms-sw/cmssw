@@ -119,9 +119,12 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
       bool isCompatible(true);
       size_t idetNew(idetMin);
       size_t closest = theDets.size();
+      LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, maximum size available " << closest;
 
       while (isCompatible) {
         idetNew = vshift(theDets[idetNew]->geographicalId().rawId(), iside, closest);
+        LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, vshift iside " << iside << " idetNew " << idetNew
+                                 << " closest " << closest;
         if (idetNew >= theDets.size()) {
           if (closest < theDets.size()) {
             idetNew = closest;
@@ -134,6 +137,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
           compatibleDetsLine(idetNew, result, tsos, prop, est);
         }
       }
+      LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, exiting loop on vshift iside " << iside;
     }
   }
 
