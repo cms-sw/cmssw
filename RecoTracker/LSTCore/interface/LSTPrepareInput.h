@@ -10,7 +10,7 @@
 
 namespace lst {
 
-  ROOT::Math::XYZVector calculateR3FromPCA(const ROOT::Math::XYZVector& p3, float dxy, float dz) {
+  inline ROOT::Math::XYZVector calculateR3FromPCA(const ROOT::Math::XYZVector& p3, float dxy, float dz) {
     const float pt = p3.rho();
     const float p = p3.r();
     const float vz = dz * pt * pt / p / p;
@@ -20,30 +20,30 @@ namespace lst {
     return {vx, vy, vz};
   }
 
-  LSTInputHostCollection prepareInput(std::vector<float> const& see_px,
-                                      std::vector<float> const& see_py,
-                                      std::vector<float> const& see_pz,
-                                      std::vector<float> const& see_dxy,
-                                      std::vector<float> const& see_dz,
-                                      std::vector<float> const& see_ptErr,
-                                      std::vector<float> const& see_etaErr,
-                                      std::vector<float> const& see_stateTrajGlbX,
-                                      std::vector<float> const& see_stateTrajGlbY,
-                                      std::vector<float> const& see_stateTrajGlbZ,
-                                      std::vector<float> const& see_stateTrajGlbPx,
-                                      std::vector<float> const& see_stateTrajGlbPy,
-                                      std::vector<float> const& see_stateTrajGlbPz,
-                                      std::vector<int> const& see_q,
-                                      std::vector<std::vector<int>> const& see_hitIdx,
-                                      std::vector<unsigned int> const& see_algo,
-                                      std::vector<unsigned int> const& ph2_detId,
-                                      std::vector<float> const& ph2_x,
-                                      std::vector<float> const& ph2_y,
-                                      std::vector<float> const& ph2_z,
+  inline LSTInputHostCollection prepareInput(std::vector<float> const& see_px,
+                                             std::vector<float> const& see_py,
+                                             std::vector<float> const& see_pz,
+                                             std::vector<float> const& see_dxy,
+                                             std::vector<float> const& see_dz,
+                                             std::vector<float> const& see_ptErr,
+                                             std::vector<float> const& see_etaErr,
+                                             std::vector<float> const& see_stateTrajGlbX,
+                                             std::vector<float> const& see_stateTrajGlbY,
+                                             std::vector<float> const& see_stateTrajGlbZ,
+                                             std::vector<float> const& see_stateTrajGlbPx,
+                                             std::vector<float> const& see_stateTrajGlbPy,
+                                             std::vector<float> const& see_stateTrajGlbPz,
+                                             std::vector<int> const& see_q,
+                                             std::vector<std::vector<int>> const& see_hitIdx,
+                                             std::vector<unsigned int> const& see_algo,
+                                             std::vector<unsigned int> const& ph2_detId,
+                                             std::vector<float> const& ph2_x,
+                                             std::vector<float> const& ph2_y,
+                                             std::vector<float> const& ph2_z,
 #ifndef LST_STANDALONE
-                                      std::vector<TrackingRecHit const*> const& ph2_hits,
+                                             std::vector<TrackingRecHit const*> const& ph2_hits,
 #endif
-                                      float const ptCut) {
+                                             float const ptCut) {
     std::vector<float> trkX;
     std::vector<float> trkY;
     std::vector<float> trkZ;
@@ -92,7 +92,7 @@ namespace lst {
 
     for (size_t iSeed = 0; iSeed < n_see; iSeed++) {
       // Only needed for standalone
-      bool good_seed_type = see_algo.size() == 0 || see_algo[iSeed] == 4 || see_algo[iSeed] == 22;
+      bool good_seed_type = see_algo.empty() || see_algo[iSeed] == 4 || see_algo[iSeed] == 22;
       if (!good_seed_type)
         continue;
 
