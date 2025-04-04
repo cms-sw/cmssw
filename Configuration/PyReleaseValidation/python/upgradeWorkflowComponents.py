@@ -1828,10 +1828,13 @@ upgradeWFs['ecalDevel'] = UpgradeWorkflow_ecalDevel(
     offset = 0.61,
 )
 
-# ECAL Phase 2 workflow running on CPU or GPU (if available)
-upgradeWFs['ecalDevelGPU'] = UpgradeWorkflow_ecalDevel(
-    reco = {'--procModifiers': 'gpu'},
-    suffix = '_ecalDevelGPU',
+# ECAL Phase 2 workflow running on CPU or GPU with Alpaka code
+upgradeWFs['ecalDevelAlpaka'] = UpgradeWorkflow_ecalDevel(
+    reco = {
+        '--procModifiers': 'alpaka',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
+    },
+    suffix = '_ecalDevelAlpaka',
     offset = 0.612,
 )
 
