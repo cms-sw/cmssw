@@ -4,6 +4,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/moveToDeviceAsync.h"
 
 #include "FWCore/Utilities/interface/stringize.h"
 
@@ -35,39 +36,48 @@ int main() {
       constexpr const unsigned int Data_fedch_size = 42240;
       constexpr const unsigned int Data_strip_size = 10813440;
       constexpr const unsigned int Data_apv_size = 84480;
-      SiStripClusterizerConditionsDevice conditions_d(
-          {{DetToFeds_size, Data_fedch_size, Data_strip_size, Data_apv_size}},
+      SiStripClusterizerConditionsDetToFedsDevice sStripCond_DetToFeds_d(
+          DetToFeds_size,
+          queue);  // (the namespace specification is to avoid confusion with the non-alpaka sistrip namespace)
+      SiStripClusterizerConditionsDataDevice sStripCond_Data_d(
+          {{Data_fedch_size, Data_strip_size, Data_apv_size}},
           queue);  // (the namespace specification is to avoid confusion with the non-alpaka sistrip namespace)
 
-      testConditionsSoA::runKernels(conditions_d.view(),
-                                    conditions_d.view<SiStripClusterizerConditionsData_fedchSoA>(),
-                                    conditions_d.view<SiStripClusterizerConditionsData_stripSoA>(),
-                                    conditions_d.view<SiStripClusterizerConditionsData_apvSoA>(),
+      testConditionsSoA::runKernels(sStripCond_DetToFeds_d.view(),
+                                    sStripCond_Data_d.view<SiStripClusterizerConditionsData_fedchSoA>(),
+                                    sStripCond_Data_d.view<SiStripClusterizerConditionsData_stripSoA>(),
+                                    sStripCond_Data_d.view<SiStripClusterizerConditionsData_apvSoA>(),
                                     queue);
 
-      SiStripClusterizerConditionsHost conditions_h(conditions_d.sizes(), queue);
-      alpaka::memcpy(queue, conditions_h.buffer(), conditions_d.const_buffer());
+      SiStripClusterizerConditionsDetToFedsHost sStripCond_DetToFeds_h(
+          DetToFeds_size,
+          queue);  // (the namespace specification is to avoid confusion with the non-alpaka sistrip namespace)
+      SiStripClusterizerConditionsDataHost sStripCond_Data_h(
+          {{Data_fedch_size, Data_strip_size, Data_apv_size}},
+          queue);  // (the namespace specification is to avoid confusion with the non-alpaka sistrip namespace)
+      alpaka::memcpy(queue, sStripCond_DetToFeds_h.buffer(), sStripCond_DetToFeds_d.const_buffer());
+      alpaka::memcpy(queue, sStripCond_Data_h.buffer(), sStripCond_Data_d.const_buffer());
       alpaka::wait(queue);
 
-      for (uint32_t j = 0; j < (uint32_t)conditions_d.sizes()[0]; ++j) {
-        assert(conditions_h->detid_(j) == j * 2);
-        assert(conditions_h->ipair_(j) == (uint16_t)((j) % 65536));
-        assert(conditions_h->fedid_(j) == (uint16_t)((j + 1) % 65536));
-        assert(conditions_h->fedch_(j) == (uint8_t)(j % 256));
+      for (uint32_t j = 0; j < (uint32_t)sStripCond_DetToFeds_h->metadata().size(); ++j) {
+        assert(sStripCond_DetToFeds_h->detid_(j) == j * 2);
+        assert(sStripCond_DetToFeds_h->ipair_(j) == (uint16_t)((j) % 65536));
+        assert(sStripCond_DetToFeds_h->fedid_(j) == (uint16_t)((j + 1) % 65536));
+        assert(sStripCond_DetToFeds_h->fedch_(j) == (uint8_t)(j % 256));
       }
 
-      for (uint32_t j = 0; j < (uint32_t)conditions_d.sizes()[1]; ++j) {
-        assert(conditions_h.view<SiStripClusterizerConditionsData_fedchSoA>().detID_(j) == (uint32_t)(j));
-        assert(conditions_h.view<SiStripClusterizerConditionsData_fedchSoA>().iPair_(j) == (uint16_t)(j % 65536));
-        assert(conditions_h.view<SiStripClusterizerConditionsData_fedchSoA>().invthick_(j) == (float)(j * 1.0));
+      for (uint32_t j = 0; j < (uint32_t)sStripCond_Data_h.sizes()[0]; ++j) {
+        assert(sStripCond_Data_h.view<SiStripClusterizerConditionsData_fedchSoA>().detID_(j) == (uint32_t)(j));
+        assert(sStripCond_Data_h.view<SiStripClusterizerConditionsData_fedchSoA>().iPair_(j) == (uint16_t)(j % 65536));
+        assert(sStripCond_Data_h.view<SiStripClusterizerConditionsData_fedchSoA>().invthick_(j) == (float)(j * 1.0));
       }
 
-      for (uint32_t j = 0; j < (uint32_t)conditions_d.sizes()[2]; ++j) {
-        assert(conditions_h.view<SiStripClusterizerConditionsData_stripSoA>().noise_(j) == (uint16_t)(j % 65536));
+      for (uint32_t j = 0; j < (uint32_t)sStripCond_Data_h.sizes()[1]; ++j) {
+        assert(sStripCond_Data_h.view<SiStripClusterizerConditionsData_stripSoA>().noise_(j) == (uint16_t)(j % 65536));
       }
 
-      for (uint32_t j = 0; j < (uint32_t)conditions_d.sizes()[3]; ++j) {
-        assert(conditions_h.view<SiStripClusterizerConditionsData_apvSoA>().gain_(j) == (float)(j * -1.0f));
+      for (uint32_t j = 0; j < (uint32_t)sStripCond_Data_h.sizes()[2]; ++j) {
+        assert(sStripCond_Data_h.view<SiStripClusterizerConditionsData_apvSoA>().gain_(j) == (float)(j * -1.0f));
       }
     }
   }
