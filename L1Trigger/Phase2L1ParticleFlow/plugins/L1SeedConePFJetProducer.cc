@@ -228,7 +228,7 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM(
     l1t::PFJet edmJet(l1gt::Scales::floatPt(gtJet.v3.pt),
                       l1gt::Scales::floatEta(gtJet.v3.eta),
                       l1gt::Scales::floatPhi(gtJet.v3.phi),
-                      0,    // dont set the mass by default
+                      0,  // dont set the mass by default
                       gtJet.v3.pt.V,
                       gtJet.v3.eta.V,
                       gtJet.v3.phi.V);
