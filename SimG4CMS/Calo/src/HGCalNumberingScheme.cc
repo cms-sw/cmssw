@@ -29,7 +29,7 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
                              << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Hexagon8Module << ":"
                              << ":" << HGCalGeometryMode::Hexagon8Cassette << ":" << HGCalGeometryMode::Trapezoid << ":"
                              << HGCalGeometryMode::TrapezoidFile << ":" << HGCalGeometryMode::TrapezoidModule << ":"
-                             << HGCalGeometryMode::TrapezoidCassette;
+                             << HGCalGeometryMode::TrapezoidCassette << ":" << HGCalGeometryMode::TrapezoidFineCell;
 #endif
   firstLayer_ = hgcons_.getLayerOffset();
   if (!fileName.empty()) {
