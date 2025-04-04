@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -58,11 +59,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // RAW unpacking and clustering algorithm
     SiStripRawToClusterAlgo algo_;
 
-    // Input/output tokens
     edm::EDGetTokenT<FEDRawDataCollection> fedRawGetToken_;
     edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd> stripCondGetToken_;
-    edm::ESGetToken<SiStripClusterizerConditionsHost, SiStripClusterizerConditionsRecord> stripCablCondGetToken_;
+    edm::ESGetToken<SiStripClusterizerConditionsDetToFedsHost, SiStripClusterizerConditionsDetToFedsRecord>
+        stripCablCondGetToken_;
+    device::ESGetToken<SiStripClusterizerConditionsDataDevice, SiStripClusterizerConditionsDataRecord>
+        stripDataCondGetToken_;
     device::EDPutToken<SiStripClustersDevice> stripClustPutToken_;
+
+    // The unpacker and clusterizer conditions
+    const SiStripClusterizerConditions* stripCond_ = nullptr;
+    const SiStripClusterizerConditionsDetToFedsHost* stripCablCond_ = nullptr;
+    const SiStripClusterizerConditionsDataDevice* stripDataCond_ = nullptr;
+
+    edm::ESWatcher<SiStripClusterizerConditionsRcd> stripCondWatcher_;
+    edm::ESWatcher<SiStripClusterizerConditionsDetToFedsRecord> stripCablCondWatcher_;
+    edm::ESWatcher<SiStripClusterizerConditionsDataRecord> stripDataCondWatcher_;
 
     // Helper functions to fill valid, condition-passing raw/buffers
     WarningSummary warnings_ = WarningSummary("", "", false);
@@ -88,6 +100,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         stripCondGetToken_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("ConditionsLabel")})),
         stripCablCondGetToken_(
             esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("CablingConditionsLabel")})),
+        stripDataCondGetToken_(esConsumes()),
         stripClustPutToken_(produces()) {}
 
   void SiStripRawToCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -128,15 +141,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   }
 
   void SiStripRawToCluster::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
+    // If this is the first time the module is called or the record signalled a change in conditions,
+    // then load the conditions and set the cabling map
+
+    if (stripCondWatcher_.check(iSetup)) {
+      // Get the cpu con
+      stripCond_ = &iSetup.getData(stripCondGetToken_);
+#if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
+      change this dumpConditions(validFEDsConditions);
+#endif
+    }
+    if (stripCablCondWatcher_.check(iSetup)) {
+      // Get the cabling map
+      stripCablCond_ = &iSetup.getData(stripCablCondGetToken_);
+      LogDebug("fedBufferBlocksRaw") << "Size of cablingMapData (bytes): "
+                                     << alpaka::getExtentProduct(stripCablCond_->buffer()) * sizeof(std::byte);
+    }
+    if (stripDataCondWatcher_.check(iSetup)) {
+      // Make the cabling and clusterizer conditions available on device
+      // TO DO: automatical copy from the framework!
+      stripDataCond_ = &iSetup.getData(stripDataCondGetToken_);
+    }
+
     // Get data from the tokens (raw collection and conditions)
     const auto& rawCollection = iEvent.get(fedRawGetToken_);
-    const auto& validFEDsConditions = iSetup.getData(stripCondGetToken_);
-#if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
-    dumpConditions(validFEDsConditions);
-#endif
 
     // Fill the raw_, buffers_ class members (i.e. from the connected FED, the FEDBuffers and raw pointers are set)
-    makeFEDbufferWithValidFEDs_(rawCollection, validFEDsConditions);
+    makeFEDbufferWithValidFEDs_(rawCollection, *stripCond_);
     // raw_, buffers_ arrays are set. They are indexed by fedi := (fedID - sistrip::FED_ID_MIN)
     //  buffersValidSize_bytes_ tells the number of bytes needed to allocate
 
@@ -177,16 +208,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     //           iterate over the detector in DetID/APVPair order
     //           mapping out where the data are
 
-    // Get the cabling map
-    const auto& cablingMapData = iSetup.getData(stripCablCondGetToken_);
-    LogDebug("fedBufferBlocksRaw") << "Size of cablingMapData (bytes): "
-                                   << alpaka::getExtentProduct(cablingMapData.buffer()) * sizeof(std::byte);
-
 #if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
     print_SiStripClusterizerConditionsHost_(cablingMapData);
 #endif
     // Prepare the external conditions (cablingMap) to be mapped onto the FEDRaw data
-    auto detToFedsMap = cablingMapData.view<SiStripClusterizerConditionsDetToFedsSoA>();
+    auto detToFedsMap = stripCablCond_->view();
 
     // It contains the map between each (fedID ,fedCh, detID) and
     // 1. the raw memory location (*input, inoff, offset)
@@ -355,10 +381,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // @brief    Run the algorithm for unpacking and clustering
     //
     //
-    // Make the cabling and clusterizer conditions available on device
-    // TO DO: automatical copy from the framework!
-    auto clusterizerConditions_onDevice = SiStripClusterizerConditionsDevice(cablingMapData.sizes(), iEvent.queue());
-    alpaka::memcpy(iEvent.queue(), clusterizerConditions_onDevice.buffer(), cablingMapData.const_buffer());
 
     // Make the mapping between the unpacked FED data and strips available on the device
     auto chanlocs_onDevice = cms::alpakatools::moveToDeviceAsync(iEvent.queue(), std::move(chanlocs_onHost));
@@ -372,14 +394,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     algo_.initialize(iEvent.queue(), n_strips);
 
     // Unpack the FED raw data into SiStrip digits (adc, channel, strip) (in the unpackedStrips_d_ member of the algo_)
-    algo_.unpackStrips(iEvent.queue(), chanlocs_onDevice, clusterizerConditions_onDevice);
+    algo_.unpackStrips(iEvent.queue(), chanlocs_onDevice, *stripDataCond_);
 
     // Make the seed mask for strip - to be used for clustering - according to noise and threshold.
     // Also, it flags non-contiguos strips (which are used in the clusterization) and it calculates exclusive prefix sum on NC-strips
-    algo_.setSeedsAndMakeIndexes(iEvent.queue(), chanlocs_onDevice, clusterizerConditions_onDevice);
+    algo_.setSeedsAndMakeIndexes(iEvent.queue(), chanlocs_onDevice, *stripDataCond_);
 
     // Run the clusterization algorithm (ThreeThresholdAlgorithm)
-    auto cluster_d = algo_.makeClusters(iEvent.queue(), chanlocs_onDevice, clusterizerConditions_onDevice);
+    auto cluster_d = algo_.makeClusters(iEvent.queue(), chanlocs_onDevice, *stripDataCond_);
 
     iEvent.put(stripClustPutToken_, std::move(cluster_d));
   }

@@ -6,9 +6,13 @@
 #include "FWCore/Utilities/interface/mplVector.h"
 
 namespace sistrip {
-  class SiStripClusterizerConditionsRecord
+  class SiStripClusterizerConditionsDetToFedsRecord
+      : public edm::eventsetup::DependentRecordImplementation<SiStripClusterizerConditionsDetToFedsRecord,
+                                                              edm::mpl::Vector<SiStripQualityRcd>> {};
+
+  class SiStripClusterizerConditionsDataRecord
       : public edm::eventsetup::DependentRecordImplementation<
-            SiStripClusterizerConditionsRecord,
+            SiStripClusterizerConditionsDataRecord,
             edm::mpl::Vector<SiStripGainRcd, SiStripNoisesRcd, SiStripQualityRcd>> {};
 }  // namespace sistrip
 

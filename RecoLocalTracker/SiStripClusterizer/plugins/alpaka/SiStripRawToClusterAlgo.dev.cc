@@ -407,7 +407,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                        StripDigiView stripDigis,
                                        //
                                        SiStripMappingConstView mapping,
-                                       SiStripClusterizerConditionsDetToFedsConstView DetToFeds,
                                        SiStripClusterizerConditionsData_fedchConstView Data_fedch,
                                        SiStripClusterizerConditionsData_stripConstView Data_strip,
                                        SiStripClusterizerConditionsData_apvConstView Data_apv) const {
@@ -849,7 +848,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
   void SiStripRawToClusterAlgo::unpackStrips(Queue& queue,
                                              SiStripMappingDevice const& mapping,
-                                             SiStripClusterizerConditionsDevice const& conditions) {
+                                             SiStripClusterizerConditionsDataDevice const& conditions) {
     // In HeterogeneousCore/AlpakaTest, typical sizes are power of 2 like 32 and 64.
     // The hw number of threads in nvidia devices is max 1024. The number of strips is up to
     // (sistrip::STRIPS_PER_FED = 24576) * (sistrip::NUMBER_OF_FEDS = ) => 24576*440 = 10813440
@@ -873,7 +872,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         digis_d_->view(),
                         //
                         mapping.const_view(),
-                        conditions.const_view<SiStripClusterizerConditionsDetToFedsSoA>(),
                         conditions.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
                         conditions.const_view<SiStripClusterizerConditionsData_stripSoA>(),
                         conditions.const_view<SiStripClusterizerConditionsData_apvSoA>());
@@ -917,7 +915,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
   void SiStripRawToClusterAlgo::setSeedsAndMakeIndexes(Queue& queue,
                                                        SiStripMappingDevice const& mapping,
-                                                       SiStripClusterizerConditionsDevice const& conditions) {
+                                                       SiStripClusterizerConditionsDataDevice const& conditions) {
     // In HeterogeneousCore/AlpakaTest, typical sizes are power of 2 like 32 and 64.
     // I wonder if there is an helper function which automatically optimize this based on the accelerator properties.
     // Most likely I could retrieve the device attached to the queue (alpaka::getDev(queue)) and then depending on its properties set the optimal threads
@@ -957,7 +955,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   }
 
   std::unique_ptr<SiStripClustersDevice> SiStripRawToClusterAlgo::makeClusters(
-      Queue& queue, SiStripMappingDevice const& mapping, SiStripClusterizerConditionsDevice const& conditions) {
+      Queue& queue, SiStripMappingDevice const& mapping, SiStripClusterizerConditionsDataDevice const& conditions) {
     // The maximum number of clusters is set to kMaxSeedStrips
     auto clusters_d = std::make_unique<SiStripClustersDevice>(kMaxSeedStrips, queue);
     // The number of seed over which to loop for clusters is the min between the number of strips and the kMaxSeeds
