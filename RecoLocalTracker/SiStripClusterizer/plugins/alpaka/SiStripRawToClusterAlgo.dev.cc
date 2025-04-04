@@ -841,6 +841,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Initialize the digi with all the pre-allocated required number of bytes
     digis_d_ = std::make_unique<StripDigiDevice>(n_strips, queue);
+    LogDebug("digis_d_") << "Size of StripDigiDevice (bytes): "
+      << alpaka::getExtentProduct(digis_d_->buffer()) * sizeof(std::byte);
     digis_d_->zeroInitialise(queue);
     // Note: the zeroInitialise is not needed for ZS/ZSlite8 - as all elements are initialized in the unpacking
     // I am not sure however in Legacy-ZS or ZS 10-bit.
