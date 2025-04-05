@@ -14,7 +14,7 @@ namespace l1t {
     typedef std::vector<edm::Ptr<l1t::PFCandidate>> Constituents;
 
     PFJet() {}
-    PFJet(float pt, float eta, float phi, float mass = 0, int hwpt = 0, int hweta = 0, int hwphi = 0)
+    PFJet(float pt, float eta, float phi, float mass, int hwpt = 0, int hweta = 0, int hwphi = 0)
         : L1Candidate(PolarLorentzVector(pt, eta, phi, mass), hwpt, hweta, hwphi, /*hwQuality=*/0), rawPt_(pt) {}
 
     PFJet(const LorentzVector& p4, int hwpt = 0, int hweta = 0, int hwphi = 0)
