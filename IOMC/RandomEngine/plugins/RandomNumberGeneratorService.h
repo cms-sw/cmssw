@@ -93,7 +93,7 @@ namespace edm {
       void setLumiCache(LuminosityBlockIndex, std::vector<RandomEngineState> const& iStates) override;
       void setEventCache(StreamID, std::vector<RandomEngineState> const& iStates) override;
 
-      void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
+      void preBeginJob(ProcessContext const&);
       void postBeginJob();
       void preEndJob();
       void postEndJob();
