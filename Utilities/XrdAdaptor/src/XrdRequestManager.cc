@@ -13,7 +13,10 @@
 #include "XrdCl/XrdClDefaultEnv.hh"
 #include "XrdCl/XrdClFileSystem.hh"
 
+//#define CPUTIME_IN_XRD
+#if defined(CPUTIME_IN_XRD)
 #include "FWCore/Utilities/interface/CPUTimer.h"
+#endif
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -751,8 +754,10 @@ std::future<IOSize> XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vect
   timespec now;
   GET_CLOCK_MONOTONIC(now);
 
+#if defined(CPUTIME_IN_XRD)
   edm::CPUTimer timer;
   timer.start();
+#endif
 
   if (activeSources.size() == 1) {
     auto c_ptr = std::make_shared<XrdAdaptor::ClientRequest>(*this, iolist);
@@ -816,8 +821,11 @@ std::future<IOSize> XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vect
         },
         std::move(future1),
         std::move(future2));
+#if defined(CPUTIME_IN_XRD)
     timer.stop();
-    //edm::LogVerbatim("XrdAdaptorInternal") << "Total time to create requests " << static_cast<int>(1000*timer.realTime()) << std::endl;
+    edm::LogVerbatim("XrdAdaptorInternal")
+        << "Total time to create requests " << static_cast<int>(1000 * timer.realTime()) << std::endl;
+#endif
     return task;
   } else if (!req1->empty()) {
     return future1;
