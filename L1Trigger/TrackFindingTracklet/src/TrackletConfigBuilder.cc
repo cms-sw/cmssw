@@ -1069,10 +1069,16 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
 
               if (max - min >= 2) {
                 ext = "M";
-                if (iReg == min)
+                if (iReg == min) {
+                  if (iReg % 2 == 0)
+                    continue;
                   ext = "R";
-                if (iReg == max)
+                }
+                if (iReg == max) {
+                  if (iReg % 2 == 1)
+                    continue;
                   ext = "L";
+                }
               }
 
               if (max - min == 1) {
