@@ -16,6 +16,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addMDToMemory(TAcc const& acc,
                                                     MiniDoublets mds,
+                                                    InputHitsConst inputHits,
                                                     HitsConst hits,
                                                     ModulesConst modules,
                                                     unsigned int lowerHitIdx,
@@ -60,9 +61,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.noShiftedDphis()[idx] = noShiftedDphi;
     mds.noShiftedDphiChanges()[idx] = noShiftedDPhiChange;
 
-    mds.anchorX()[idx] = hits.xs()[anchorHitIndex];
-    mds.anchorY()[idx] = hits.ys()[anchorHitIndex];
-    mds.anchorZ()[idx] = hits.zs()[anchorHitIndex];
+    mds.anchorX()[idx] = inputHits.xs()[anchorHitIndex];
+    mds.anchorY()[idx] = inputHits.ys()[anchorHitIndex];
+    mds.anchorZ()[idx] = inputHits.zs()[anchorHitIndex];
     mds.anchorRt()[idx] = hits.rts()[anchorHitIndex];
     mds.anchorPhi()[idx] = hits.phis()[anchorHitIndex];
     mds.anchorEta()[idx] = hits.etas()[anchorHitIndex];
@@ -73,9 +74,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.anchorHighEdgePhi()[idx] = alpaka::math::atan2(acc, mds.anchorHighEdgeY()[idx], mds.anchorHighEdgeX()[idx]);
     mds.anchorLowEdgePhi()[idx] = alpaka::math::atan2(acc, mds.anchorLowEdgeY()[idx], mds.anchorLowEdgeX()[idx]);
 
-    mds.outerX()[idx] = hits.xs()[outerHitIndex];
-    mds.outerY()[idx] = hits.ys()[outerHitIndex];
-    mds.outerZ()[idx] = hits.zs()[outerHitIndex];
+    mds.outerX()[idx] = inputHits.xs()[outerHitIndex];
+    mds.outerY()[idx] = inputHits.ys()[outerHitIndex];
+    mds.outerZ()[idx] = inputHits.zs()[outerHitIndex];
     mds.outerRt()[idx] = hits.rts()[outerHitIndex];
     mds.outerPhi()[idx] = hits.phis()[outerHitIndex];
     mds.outerEta()[idx] = hits.etas()[outerHitIndex];
@@ -676,6 +677,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   struct CreateMiniDoublets {
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
+                                  InputHitsConst inputHits,
                                   HitsConst hits,
                                   HitsRangesConst hitsRanges,
                                   MiniDoublets mds,
@@ -700,14 +702,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           if (lowerHitIndex >= nLowerHits)
             continue;
           unsigned int lowerHitArrayIndex = loHitArrayIndex + lowerHitIndex;
-          float xLower = hits.xs()[lowerHitArrayIndex];
-          float yLower = hits.ys()[lowerHitArrayIndex];
-          float zLower = hits.zs()[lowerHitArrayIndex];
+          float xLower = inputHits.xs()[lowerHitArrayIndex];
+          float yLower = inputHits.ys()[lowerHitArrayIndex];
+          float zLower = inputHits.zs()[lowerHitArrayIndex];
           float rtLower = hits.rts()[lowerHitArrayIndex];
           unsigned int upperHitArrayIndex = upHitArrayIndex + upperHitIndex;
-          float xUpper = hits.xs()[upperHitArrayIndex];
-          float yUpper = hits.ys()[upperHitArrayIndex];
-          float zUpper = hits.zs()[upperHitArrayIndex];
+          float xUpper = inputHits.xs()[upperHitArrayIndex];
+          float yUpper = inputHits.ys()[upperHitArrayIndex];
+          float zUpper = inputHits.zs()[upperHitArrayIndex];
           float rtUpper = hits.rts()[upperHitArrayIndex];
 
           float dz, dphi, dphichange, shiftedX, shiftedY, shiftedZ, noShiftedDphi, noShiftedDphiChange;
@@ -749,6 +751,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
               addMDToMemory(acc,
                             mds,
+                            inputHits,
                             hits,
                             modules,
                             lowerHitArrayIndex,

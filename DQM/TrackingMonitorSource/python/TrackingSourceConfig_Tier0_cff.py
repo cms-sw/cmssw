@@ -397,7 +397,7 @@ seedingDeepCore.toReplaceWith(TrackSeedMonSequence,_seedingDeepCore_TrackSeedMon
 
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 trackingLST.toModify(locals()["TrackSeedMonhighPtTripletStep"],
-    SeedProducer = "lstPixelSeedInputProducer"
+    SeedProducer = "lstInputProducer"
 )
 
 TrackingDQMSourceTier0 += TrackSeedMonSequence

@@ -9,12 +9,7 @@
 namespace lst {
 
   GENERATE_SOA_LAYOUT(HitsSoALayout,
-                      SOA_COLUMN(float, xs),
-                      SOA_COLUMN(float, ys),
-                      SOA_COLUMN(float, zs),
                       SOA_COLUMN(uint16_t, moduleIndices),
-                      SOA_COLUMN(unsigned int, idxs),
-                      SOA_COLUMN(unsigned int, detid),
                       SOA_COLUMN(float, rts),
                       SOA_COLUMN(float, phis),
                       SOA_COLUMN(float, etas),
