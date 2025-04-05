@@ -9,5 +9,26 @@
   <use name="RecoTracker/PixelLowPtUtilities"/>
   <use name="CalibFormats/SiStripObjects"/>
   <use name="CalibTracker/SiStripCommon"/>
+  <use name="DataFormats/SiStripClusterSoA"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<!-- alpaka-based portable plugins -->
+<library file="alpaka/*.cc" name="RecoLocalTrackerSiStripClusterizerPluginsPortable">
+  <use name="alpaka"/>
+  <use name="CalibTracker/SiStripCommon"/>
+  <use name="CalibFormats/SiStripObjects"/>
+  <use name="CondFormats/SiStripObjects"/>
+  <use name="DataFormats/SiStripClusterSoA"/>
+  <use name="DataFormats/Portable"/>
+  <use name="EventFilter/SiStripRawToDigi"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoLocalTracker/Records"/>
+  <use name="RecoLocalTracker/SiStripClusterizer"/>
+  <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

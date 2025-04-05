@@ -7,3 +7,27 @@
   <use name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin name="SiStripMappingSoA" file="SiStripRawToCluster/TestSiStripMappingSoA.cc">
+  <use name="alpaka"/>
+  <use name="FWCore/Framework"/>
+</bin>
+
+<bin name="SiStripClusterizerConditionsSoA" file="SiStripRawToCluster/TestSiStripClusterizerConditionsSoA.cc">
+  <use name="alpaka"/>
+  <use name="FWCore/Framework"/>
+</bin>
+
+<bin name="SiStripMappingSoA" file="SiStripRawToCluster/alpaka/TestSiStripMappingDevice.cc, SiStripRawToCluster/alpaka/TestSiStripMappingDevice.dev.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="CondFormats/SiStripObjects" source_only="1"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin name="SiStripClusterizerConditionsSoA" file="SiStripRawToCluster/alpaka/TestSiStripClusterizerConditionsDevice.cc, SiStripRawToCluster/alpaka/TestSiStripClusterizerConditionsDevice.dev.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="CondFormats/SiStripObjects" source_only="1"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
