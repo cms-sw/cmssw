@@ -15,7 +15,7 @@
 namespace edm {
 
   TRandomAdaptor::TRandomAdaptor() : trand_(new TRandom3()) { theSeed = trand_->GetSeed(); }
-  TRandomAdaptor::TRandomAdaptor(long seed) : trand_(new TRandom3(seed)) { theSeed = trand_->GetSeed(); }
+  TRandomAdaptor::TRandomAdaptor(unsigned int seed) : trand_(new TRandom3(seed)) { theSeed = trand_->GetSeed(); }
   TRandomAdaptor::TRandomAdaptor(int rowIndex, int colIndex) : trand_(new TRandom3(rowIndex * colIndex - 1)) {
     theSeed = trand_->GetSeed();
   }
@@ -96,12 +96,12 @@ namespace edm {
       return false;
     if (v[0] != CLHEP::engineIDulong<TRandomAdaptor>())
       return false;
-    int32_t numItems = v.size() - 1;
+    auto numItems = v.size() - 1;
 
     int32_t itemSize = sizeof(uint32_t);
-    TBufferFile buffer(TBuffer::kRead, numItems * itemSize + 1024);
+    TBufferFile buffer(TBuffer::kRead, static_cast<Int_t>(numItems * itemSize + 1024));
     char* bufferPtr = buffer.Buffer();
-    for (int32_t i = 0; i < numItems; ++i) {
+    for (decltype(numItems) i = 0; i < numItems; ++i) {
       *reinterpret_cast<uint32_t*>(bufferPtr + i * itemSize) = static_cast<uint32_t>(v[i + 1] & 0xffffffff);
     }
 

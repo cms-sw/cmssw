@@ -39,7 +39,7 @@ namespace edm {
       const VString_t& getLvl1Labels() const { return lvl1Labels_; }
       const PrescaleTable_t& getPrescaleTable() const { return prescaleTable_; }
 
-      static unsigned int findDefaultIndex(std::string const& label, std::vector<std::string> const& labels);
+      static size_t findDefaultIndex(std::string const& label, std::vector<std::string> const& labels);
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
@@ -54,7 +54,7 @@ namespace edm {
       //
       const bool forceDefault_;
       const VString_t lvl1Labels_;
-      const unsigned int lvl1Default_;
+      const size_t lvl1Default_;
       const std::vector<ParameterSet> vpsetPrescales_;
       PrescaleTable_t prescaleTable_;
       ParameterSetID processParameterSetID_;

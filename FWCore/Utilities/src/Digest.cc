@@ -11,7 +11,7 @@ namespace cms {
       return val;
     }
 
-    char unhexify(char hexed) {
+    unsigned char unhexify(char hexed) {
       switch (hexed) {
         case '0':
         case '1':
@@ -23,21 +23,21 @@ namespace cms {
         case '7':
         case '8':
         case '9':
-          return hexed - '0';
+          return static_cast<unsigned char>(hexed - '0');
         case 'a':
         case 'b':
         case 'c':
         case 'd':
         case 'e':
         case 'f':
-          return hexed - 'a' + 10;
+          return static_cast<unsigned char>(hexed - 'a' + 10);
         case 'A':
         case 'B':
         case 'C':
         case 'D':
         case 'E':
         case 'F':
-          return hexed - 'A' + 10;
+          return static_cast<unsigned char>(hexed - 'A' + 10);
         default:
           throw edm::Exception(edm::errors::LogicError) << "Non-hex character in Hash "
                                                         << "Please report this to the core framework developers";
@@ -74,7 +74,7 @@ namespace cms {
 
   MD5Result::MD5Result() { set_to_default(*this); }
 
-  static const char* s_hexValues =
+  static constexpr const char* s_hexValues =
       "000102030405060708090a0b0c0d0e0f"
       "101112131415161718191a1b1c1d1e1f"
       "202122232425262728292a2b2c2d2e2f"
@@ -123,9 +123,9 @@ namespace cms {
         auto it = hexy.cbegin();
         for (size_t i = 0; i != 16; ++i) {
           // first nybble
-          bytes[i] = (unhexify(*it++) << 4);
+          bytes[i] = unhexify(*it++) << 4;
           // second nybble
-          bytes[i] += (unhexify(*it++));
+          bytes[i] += unhexify(*it++);
         }
       } break;
       default: {
@@ -170,17 +170,17 @@ namespace cms {
 
   void Digest::append(std::string const& s) {
     const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(s.data());
-    md5_append(&state_, const_cast<md5_byte_t*>(data), s.size());
+    md5_append(&state_, const_cast<md5_byte_t*>(data), static_cast<int>(s.size()));
   }
 
   void Digest::append(std::string_view v) {
     const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(v.data());
-    md5_append(&state_, const_cast<md5_byte_t*>(data), v.size());
+    md5_append(&state_, const_cast<md5_byte_t*>(data), static_cast<int>(v.size()));
   }
 
   void Digest::append(const char* s, size_t size) {
     const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(s);
-    md5_append(&state_, const_cast<md5_byte_t*>(data), size);
+    md5_append(&state_, const_cast<md5_byte_t*>(data), static_cast<int>(size));
   }
 
   MD5Result Digest::digest() {

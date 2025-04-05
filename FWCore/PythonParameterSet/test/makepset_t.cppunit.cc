@@ -380,7 +380,7 @@ void testmakepset::typesTest() {
   CPPUNIT_ASSERT("" == test.getParameter<std::string>("sb2"));
   CPPUNIT_ASSERT(4 == test.getParameter<std::string>("sb3").size());
   std::vector<std::string> vs = test.getParameter<std::vector<std::string> >("vs");
-  int vssize = vs.size();
+  auto vssize = vs.size();
   //FIXME doesn't do spaces right
   edm::Entry e(test.retrieve("vs"));
   CPPUNIT_ASSERT(5 == vssize);

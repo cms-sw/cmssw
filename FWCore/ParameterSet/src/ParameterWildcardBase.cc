@@ -66,13 +66,13 @@ namespace edm {
                                      bool /*writeToCfi*/,
                                      DocFormatHelper& dfh) const {
     if (dfh.pass() == 0) {
-      dfh.setAtLeast1(11U);
+      dfh.setAtLeast1(11);
       if (isTracked()) {
         dfh.setAtLeast2(parameterTypeEnumToString(type()).size());
       } else {
         dfh.setAtLeast2(parameterTypeEnumToString(type()).size() + 10U);
       }
-      dfh.setAtLeast3(8U);
+      dfh.setAtLeast3(8);
     } else {
       const bool optional = (Modifier::kOptional == modifier);
       const bool obsolete = (Modifier::kObsolete == modifier);

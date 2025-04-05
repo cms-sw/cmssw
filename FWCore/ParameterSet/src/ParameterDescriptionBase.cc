@@ -254,7 +254,7 @@ namespace edm {
         dfh.setAtLeast2(parameterTypeEnumToString(type()).size() + 10U);
       }
       if (optional) {
-        dfh.setAtLeast3(8U);
+        dfh.setAtLeast3(8);
       }
     } else {
       if (dfh.brief()) {

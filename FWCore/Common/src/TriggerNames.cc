@@ -47,9 +47,9 @@ namespace edm {
 
   TriggerNames::Strings const& TriggerNames::triggerNames() const { return triggerNames_; }
 
-  std::string const& TriggerNames::triggerName(unsigned int index) const { return triggerNames_.at(index); }
+  std::string const& TriggerNames::triggerName(std::size_t index) const { return triggerNames_.at(index); }
 
-  unsigned int TriggerNames::triggerIndex(std::string_view name) const {
+  std::size_t TriggerNames::triggerIndex(std::string_view name) const {
     auto found = std::equal_range(indexMap_.begin(), indexMap_.end(), name, PairSort());
     if (found.first == found.second)
       return indexMap_.size();

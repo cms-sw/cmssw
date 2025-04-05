@@ -13,7 +13,7 @@ namespace edm::service::monitor_file_utilities {
                        char moduleIdSymbol,
                        std::string const& iIDHeader,
                        std::string const& iLabelHeader) {
-    std::size_t const width{std::to_string(iModuleLabels.size()).size()};
+    int const width{static_cast<int>(std::to_string(iModuleLabels.size()).size())};
     OStreamColumn col0{iIDHeader, width};
     std::string const& lastCol = iLabelHeader;
 
