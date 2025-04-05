@@ -77,6 +77,8 @@ CalibratedDigis.dtDigiTag = "simMuonDTDigis"
 _phase2_siml1emulator.add(CalibratedDigis)
 from L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi import *
 _phase2_siml1emulator.add(dtTriggerPhase2PrimitiveDigis)
+from L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi import *
+_phase2_siml1emulator.add(dtTriggerPhase2Shower)
 
 # HGCAL TP 
 # ########################################################################
