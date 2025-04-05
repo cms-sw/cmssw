@@ -33,9 +33,7 @@ namespace {
 
   // Does the same thing as the previous function in a different
   // way. The previous function goes through the links in the
-  // ProductsResolver which for SubProcesses could lead to a different
-  // retriever. In SubProcesses, the following function follows the
-  // links in the retrievers themselves. Both should give the same answer.
+  // ProductsResolver. Both should give the same answer.
   void getAncestorsFromRetriever(edm::ProductProvenanceLookup const* retriever,
                                  edm::BranchID const& branchID,
                                  std::set<edm::BranchID>& ancestors) {
@@ -100,9 +98,6 @@ namespace edmtest {
 
     std::set<std::string> expectedAncestors(expectedAncestors_.begin(), expectedAncestors_.end());
 
-    // Currently we need to turn off this part of the test of when calling
-    // from a SubProcess and the parentage includes a product not kept
-    // in the SubProcess. This might get fixed someday ...
     auto toException = [](auto& ex, auto const& ancestors) {
       for (auto const& a : ancestors) {
         ex << a << ", ";
