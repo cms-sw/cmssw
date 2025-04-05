@@ -1,0 +1,23 @@
+<library file="*.cc" name="DQML1ScoutingMonitorPlugins">
+    <use name="CondFormats/L1TObjects"/>
+    <use name="DQMServices/Core"/>
+    <use name="HLTrigger/HLTcore"/>
+    <use name="EventFilter/Utilities"/>
+    <use name="Geometry/Records"/>
+    <use name="DataFormats/Common"/>
+    <use name="DataFormats/Math"/>
+    <use name="DataFormats/Histograms"/>
+    <use name="DataFormats/L1Trigger"/>
+    <use name="DataFormats/L1Scouting"/>
+    <use name="L1TriggerScouting/Utilities"/>
+    <use name="DataFormats/L1TGlobal"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/MessageLogger"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="rootcore"/>
+    <flags EDM_PLUGIN="1"/>
+</library>
+
+
