@@ -2928,7 +2928,7 @@ class UpgradeWorkflow_SonicTriton(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         stepDict[stepName][k] = merge([{'--procModifiers': 'allSonicTriton'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ((fragment=='TTbar_13' or fragment=='TTbar_14TeV') and '2022' in key) \
+        return ((fragment=='TTbar_13' or fragment=='TTbar_14TeV') and key.startswith('202')) \
             or (fragment=='TTbar_14TeV' and 'Run4' in key)
 upgradeWFs['SonicTriton'] = UpgradeWorkflow_SonicTriton(
     steps = [
