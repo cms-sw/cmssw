@@ -53,6 +53,7 @@ private:
   OpticalAlignInfo GetOptAlignInfoFromOptO(OpticalObject* opto);
 
   std::pair<std::unique_ptr<Alignments>, std::unique_ptr<AlignmentErrorsExtended> > BuildAlignments(bool bDT);
+  [[deprecated]]
   AlignTransform* GetAlignInfoFromOptO(OpticalObject* opto);
   AlignTransformErrorExtended* GetAlignInfoErrorFromOptO(OpticalObject* opto);
 
