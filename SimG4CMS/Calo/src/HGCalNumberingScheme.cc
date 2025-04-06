@@ -168,7 +168,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
         detId.setSiPM(typm.second);
       }
       index = detId.rawId();
-      bool debug(fallse);
+      bool debug(false);
       if (!indices_.empty()) {
         int indx = HGCalTileIndex::tileIndex(layer, id[0], id[1]);
         if (std::find(indices_.begin(), indices_.end(), indx) != indices_.end())
