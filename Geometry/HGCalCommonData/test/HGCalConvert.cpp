@@ -1774,7 +1774,8 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
         }
       }
       if (((debug / 100) % 10) > 0)
-        std::cout << "Layer Phi Ring " << layer << ":" << phi << ":" << irmin << ":" << irmax << " nphi " << nphis << std::endl;
+        std::cout << "Layer Phi Ring " << layer << ":" << phi << ":" << irmin << ":" << irmax << " nphi " << nphis
+                  << std::endl;
       if (phi == 1) {
         tile0.layer = layer;
         tile0.rmin = irmin;
@@ -1788,8 +1789,10 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
             do {
               int phimax = tile0.phimax;
               tile0.phimax = tile0.cassette * tilePhisWord;
-	      if (((debug / 1000) % 10) > 0)
-		std::cout << "1Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett " << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word " << tilePhisWord << ":" << tile0.phimax << std::endl;
+              if (((debug / 1000) % 10) > 0)
+                std::cout << "1Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett "
+                          << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word "
+                          << tilePhisWord << ":" << tile0.phimax << std::endl;
               zones.push_back(tile0);
               tile0.phimin = tile0.phimax + 1;
               tile0.phimax = phimax;
@@ -1797,8 +1800,10 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
             } while (tile0.cassette * tilePhisWord <= tile0.phimax);
           }
         }
-	if (((debug / 1000) % 10) > 0)
-	  std::cout << "2Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett " << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word " << tilePhisWord << ":" << tile0.phimax << std::endl;
+        if (((debug / 1000) % 10) > 0)
+          std::cout << "2Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett "
+                    << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word " << tilePhisWord
+                    << ":" << tile0.phimax << std::endl;
         zones.push_back(tile0);
         int cassette = (cassette_ == 0) ? 0 : (1 + ((phi - 1) / tilePhisWord));
         tile0.layer = layer;
@@ -1808,17 +1813,21 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
         tile0.phimax = phi;
         tile0.cassette = cassette;
         if (phi == nphis) {
-	  if (((debug / 1000) % 10) > 0)
-	    std::cout << "3Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett " << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word " << tilePhisWord << ":" << tile0.phimax << std::endl;
+          if (((debug / 1000) % 10) > 0)
+            std::cout << "3Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett "
+                      << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word " << tilePhisWord
+                      << ":" << tile0.phimax << std::endl;
           zones.push_back(tile0);
-	}
+        }
       } else {
         tile0.phimax = phi;
         if (phi == nphis) {
-	  if (((debug / 1000) % 10) > 0)
-	    std::cout << "4Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett " << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word " << tilePhisWord << ":" << tile0.phimax << std::endl;
+          if (((debug / 1000) % 10) > 0)
+            std::cout << "4Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett "
+                      << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word " << tilePhisWord
+                      << ":" << tile0.phimax << std::endl;
           zones.push_back(tile0);
-	}
+        }
       }
     }
   }
@@ -1839,17 +1848,17 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
          << " nEntries=" << apost << ringR.size() << apost << ">";
     if ((debug % 10) > 0)
       std::cout << "  <Vector name=" << apost << head << "RMin" << apost << " type=" << apost << "numeric" << apost
-		<< " nEntries=" << apost << ringR.size() << apost << ">";
+                << " nEntries=" << apost << ringR.size() << apost << ">";
     for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
       std::string last = ((l1 + 1) == ringR.size()) ? " " : ",";
       if (l1 % 6 == 0) {
         fout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
-	if ((debug % 10) > 0)
-	  std::cout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+        if ((debug % 10) > 0)
+          std::cout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
       } else {
         fout << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
-	if ((debug % 10) > 0)
-	  std::cout << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+        if ((debug % 10) > 0)
+          std::cout << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
       }
       ++l1;
     }
@@ -1859,18 +1868,18 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
     if ((debug % 10) > 0) {
       std::cout << "\n  </Vector>\n";
       std::cout << "  <Vector name=" << apost << head << "RMax" << apost << " type=" << apost << "numeric" << apost
-		<< " nEntries=" << apost << ringR.size() << apost << ">";
+                << " nEntries=" << apost << ringR.size() << apost << ">";
     }
     for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
       std::string last = ((l2 + 1) == ringR.size()) ? " " : ",";
       if (l2 % 6 == 0) {
         fout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
-	if ((debug % 10) > 0) 
-	  std::cout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+        if ((debug % 10) > 0)
+          std::cout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
       } else {
         fout << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
-	if ((debug % 10) > 0) 
-	  std::cout << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+        if ((debug % 10) > 0)
+          std::cout << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
       }
       ++l2;
     }
@@ -1948,7 +1957,6 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
   }
   if ((debug & 10) > 0)
     std::cout << "\n\n";
- 
 }
 
 ConvertNoseV0::ConvertNoseV0(unsigned int layMax1, unsigned int layMax2) : layMax1_(layMax1), layMax2_(layMax2) {

@@ -158,7 +158,8 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
   } else if (hgcons_.tileTrapezoid()) {
     std::array<int, 3> id = hgcons_.assignCellTrap(pos.x(), pos.y(), pos.z(), layer, false);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "Trapezoid Position Layer " << layer << " Position " << pos.x() << ":" << pos.y() << ":" << pos.z() << " ID " << id[0] << ":" << id[1] << ":" << id[2];
+    edm::LogVerbatim("HGCSim") << "Trapezoid Position Layer " << layer << " Position " << pos.x() << ":" << pos.y()
+                               << ":" << pos.z() << " ID " << id[0] << ":" << id[1] << ":" << id[2];
 #endif
     if (id[2] >= 0) {
       std::pair<int, int> typm = hgcons_.tileType(layer, id[0], 0);
