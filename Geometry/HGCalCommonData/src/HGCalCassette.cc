@@ -1,4 +1,3 @@
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCassette.h"
 #include <algorithm>
@@ -40,7 +39,7 @@ void HGCalCassette::setParameter(int cassette, const std::vector<double>& shifts
 }
 
 void HGCalCassette::setParameterScint(const std::vector<double>& shifts) {
-  shifts_.insert(shifts_.end(), shifts.begin(), shifts.end());
+  //  shifts_.insert(shifts_.end(), shifts.begin(), shifts.end());
   shiftsScnt_.insert(shiftsScnt_.end(), shifts.begin(), shifts.end());
 #ifdef EDM_ML_DEBUG
   for (uint32_t j1 = 0; j1 < shifts.size(); j1 += 12) {
@@ -66,8 +65,8 @@ std::pair<double, double> HGCalCassette::getShift(int layer, int zside, int cass
                                 << cassette << ":" << scnt << " loc " << locc << ":" << loc << " size "
                                 << shiftsScnt_.size() << ":" << shifts_.size();
 #endif
-  std::pair<double, double> xy = (typeHE_ && scnt) ? (std::make_pair(-zside * shiftsScnt_[loc], shiftsScnt_[loc + 1]))
-                                                   : (std::make_pair(-zside * shifts_[loc], shifts_[loc + 1]));
+  std::pair<double, double> xy = (typeHE_ && scnt) ? (std::make_pair(shiftsScnt_[loc], shiftsScnt_[loc + 1]))
+                                                   : (std::make_pair(shifts_[loc], shifts_[loc + 1]));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalCassette::getShift: Layer " << layer << " zside " << zside << " type "
                                 << typeHE_ << " cassette " << cassette << " Loc " << locc << ":" << loc << " shift "

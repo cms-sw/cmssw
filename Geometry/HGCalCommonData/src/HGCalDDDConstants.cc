@@ -199,6 +199,9 @@ std::array<int, 5> HGCalDDDConstants::assignCellHex(
 std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, int layer, bool reco) const {
   int irad(-1), iphi(-1), type(-1);
   const auto& indx = getIndex(layer, reco);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "assignCellTrap: Layer " << layer << ":" << reco << " indx " << indx.first << ":" << indx.second;
+#endif
   if (indx.first < 0)
     return std::array<int, 3>{{irad, iphi, type}};
   int zside = (z > 0) ? 1 : -1;
@@ -1008,8 +1011,10 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     int zside, int lay, int irad, int iphi, bool reco, bool debug) const {
   float x(0), y(0);
   const auto& indx = getIndex(lay, reco);
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << zside << ":"
                                 << reco << ":" << indx.first;
+#endif
   debug = true;
   if (indx.first >= 0) {
     int ir = std::abs(irad);
@@ -1499,6 +1504,9 @@ std::pair<int, int> HGCalDDDConstants::tileType(int layer, int ring, int phi) co
     type = 1 + (itr->second).type;
     sipm = ((itr->second).sipm == HGCalTypes::SiPMLarge) ? 0 : 1;
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "tileType::Input layet:ring:phi " << layer << ":" << ring << ":" << phi << " Output Type:SiPM " << type << ":" << sipm;
+#endif
   return std::make_pair(type, sipm);
 }
 
