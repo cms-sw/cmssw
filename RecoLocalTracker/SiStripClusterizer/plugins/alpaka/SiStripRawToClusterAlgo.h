@@ -140,6 +140,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Get the current position of the offset
     inline auto getCurrentOffset() { return offsetInBuffer_; }
 
+    // Get a pointer to the fedIDset array
+    inline auto getFedIDset() const { return &fedIDset_; }
+
   private:
     const size_t bufferSize_byte_;
     std::vector<bool> fedIDset_;

@@ -825,6 +825,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Setup the clusterizer aux parameters from the configuration
     StripClustersAuxHost sClustersAux_h = StripClustersAuxHost(n_strips, queue);
+    LogDebug("sClustersAux") << "Size of StripClustersAuxHost (bytes): "
+                             << alpaka::getExtentProduct(sClustersAux_h.buffer()) * sizeof(std::byte);
 
     // Initialize the members of the clusterizer
     sClustersAux_h->channelThreshold() = channelThreshold_;
@@ -841,8 +843,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Initialize the digi with all the pre-allocated required number of bytes
     digis_d_ = std::make_unique<StripDigiDevice>(n_strips, queue);
-    LogDebug("digis_d_") << "Size of StripDigiDevice (bytes): "
-      << alpaka::getExtentProduct(digis_d_->buffer()) * sizeof(std::byte);
+    LogDebug("digis") << "Size of StripDigiDevice (bytes): "
+                      << alpaka::getExtentProduct(digis_d_->buffer()) * sizeof(std::byte);
     digis_d_->zeroInitialise(queue);
     // Note: the zeroInitialise is not needed for ZS/ZSlite8 - as all elements are initialized in the unpacking
     // I am not sure however in Legacy-ZS or ZS 10-bit.
@@ -1058,7 +1060,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     dumpMsg << "i\tcIdx\tcSz\tcDetId\tchg\t1st\ttCl\tbary\t - clusterADCs\n";
 
     for (int i = 0; i < clustersPrealloc; ++i) {
-      if (i < 50 || i > (clustersPrealloc - 50) || i % 10000 == 0) {
+      if (true || i < 50 || i > (clustersPrealloc - 50) || i % 10000 == 0) {
         dumpMsg << i << "\t" << clusters_h->clusterIndex(i) << "\t" << clusters_h->clusterSize(i) << "\t"
                 << clusters_h->clusterDetId(i) << "\t" << clusters_h->charge(i) << "\t" << clusters_h->firstStrip(i)
                 << "\t" << clusters_h->trueCluster(i) << "\t" << clusters_h->barycenter(i) << "\t - ";

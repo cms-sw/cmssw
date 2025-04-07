@@ -372,6 +372,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     if (edm::isDebugEnabled() && skippedBytes) {
       edm::LogWarning("BuffCkh") << "Skipped bytes in the unpacking: " << skippedBytes;
     }
+
+    auto fedsInRaw =
+        std::count(fedBufferBlocksRaw.getFedIDset()->begin(), fedBufferBlocksRaw.getFedIDset()->end(), true);
+    auto actualStrips = n_strips / fedsInRaw - 2;
+    LogDebug("actual strips: ") << actualStrips << " number of feds in raw: " << fedsInRaw;
+
     //
     //
     // @brief    Map Detector Channels to FED Data - END
