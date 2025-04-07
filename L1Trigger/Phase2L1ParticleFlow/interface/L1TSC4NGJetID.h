@@ -15,18 +15,17 @@
 
 class L1TSC4NGJetID {
 public:
-  L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model,
-             int iNParticles);
+  L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model, int iNParticles);
   ~L1TSC4NGJetID() = default;
 
-  typedef ap_fixed<24,12,AP_RND,AP_SAT,0> inputtype;
-  typedef std::array<ap_ufixed<24,12,AP_RND,AP_SAT,0>, 8> classtype; 
-  typedef std::array<ap_fixed<16,6>,1> regressiontype;
-  typedef std::pair<regressiontype,classtype> pairtype;
+  typedef ap_fixed<24, 12, AP_RND, AP_SAT, 0> inputtype;
+  typedef std::array<ap_ufixed<24, 12, AP_RND, AP_SAT, 0>, 8> classtype;
+  typedef std::array<ap_fixed<16, 6>, 1> regressiontype;
+  typedef std::pair<regressiontype, classtype> pairtype;
 
   void setNNVectorVar();
   std::vector<float> EvaluateNNFixed();
-  std::vector<float>  computeFixed(const l1t::PFJet &iJet, bool useRawPt);
+  std::vector<float> computeFixed(const l1t::PFJet &iJet, bool useRawPt);
 
 private:
   std::vector<inputtype> NNvectorVar_;

@@ -54,7 +54,7 @@ L1TSC4NGJetProducer::L1TSC4NGJetProducer(const edm::ParameterSet& cfg)
       fNParticles_(cfg.getParameter<int>("nParticles")),
       loader(hls4mlEmulator::ModelLoader(cfg.getParameter<string>("l1tSC4NGJetModelPath"))) {
   std::vector<std::string> classes = cfg.getParameter<std::vector<std::string>>("classes");
-  for(unsigned i = 0; i < classes.size(); i++){
+  for (unsigned i = 0; i < classes.size(); i++) {
     classes_.push_back(l1ct::JetTagClass(classes[i]));
   }
   model = loader.load_model();
@@ -75,16 +75,20 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       continue;
     }
     std::vector<float> JetScore_float = fJetId_->computeFixed(srcjet, fUseRawPt_);
-    for(unsigned i = 0; i < classes_.size(); i++){
+    for (unsigned i = 0; i < classes_.size(); i++) {
       ctHWTaggedJet.hwTagScores[i] = JetScore_float[i];
     }
-    float PtCorrection_ = JetScore_float[classes_.size()];    
+    float PtCorrection_ = JetScore_float[classes_.size()];
     ctHWTaggedJet.hwPt = (l1ct::pt_t)((float)ctHWTaggedJet.hwPt * PtCorrection_);
     l1gt::Jet gtHWTaggedJet = ctHWTaggedJet.toGT();
     // TODO set the regressed pT instead of the srcjet pt
-    l1t::PFJet edmTaggedJet(srcjet.pt() , srcjet.eta(), srcjet.phi(), srcjet.mass(),
-                            gtHWTaggedJet.v3.pt.V, gtHWTaggedJet.v3.eta.V, gtHWTaggedJet.v3.phi.V
-                           );
+    l1t::PFJet edmTaggedJet(srcjet.pt(),
+                            srcjet.eta(),
+                            srcjet.phi(),
+                            srcjet.mass(),
+                            gtHWTaggedJet.v3.pt.V,
+                            gtHWTaggedJet.v3.eta.V,
+                            gtHWTaggedJet.v3.phi.V);
     edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::CT, ctHWTaggedJet.pack());
     edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::GT, gtHWTaggedJet.pack());
 
@@ -92,10 +96,10 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     std::for_each(srcjet.constituents().begin(), srcjet.constituents().end(), [&](auto constituent) {
       edmTaggedJet.addConstituent(constituent);
     });
-    edmTaggedJet.addTagScores(JetScore_float,classes_,PtCorrection_);
+    edmTaggedJet.addTagScores(JetScore_float, classes_, PtCorrection_);
     taggedJets.push_back(edmTaggedJet);
   }
-  std::sort(taggedJets.begin(), taggedJets.end(), [](l1t::PFJet a, l1t::PFJet b){ return (a.pt() > b.pt()); });
+  std::sort(taggedJets.begin(), taggedJets.end(), [](l1t::PFJet a, l1t::PFJet b) { return (a.pt() > b.pt()); });
 
   std::unique_ptr<l1t::PFJetCollection> taggedJetsCollection(new l1t::PFJetCollection);
   taggedJetsCollection->swap(taggedJets);

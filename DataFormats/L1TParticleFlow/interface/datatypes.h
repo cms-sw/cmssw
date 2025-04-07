@@ -19,7 +19,7 @@ namespace l1ct {
   typedef ap_int<11> glbphi_t;
   typedef ap_int<5> vtx_t;
   typedef ap_int<10> z0_t;         // 40cm / 0.1
-  typedef ap_uint<8> dxy_t;         // tbd
+  typedef ap_uint<8> dxy_t;        // tbd
   typedef ap_uint<3> tkquality_t;  // tbd
   typedef ap_ufixed<9, 1, AP_RND_CONV, AP_WRAP> puppiWgt_t;
   typedef ap_uint<6> emid_t;
@@ -34,7 +34,7 @@ namespace l1ct {
   typedef ap_ufixed<10, 5, AP_TRN, AP_SAT> hoe_t;
   typedef ap_uint<4> redChi2Bin_t;
   typedef ap_fixed<10, 1, AP_RND_CONV, AP_SAT> id_score_t;  // ID score to be between -1 (background) and 1 (signal)
-  typedef ap_ufixed<8, 1, AP_RND_CONV, AP_SAT> jet_tag_score_t; // 8 bit jet jet probability from 0 to 1
+  typedef ap_ufixed<8, 1, AP_RND_CONV, AP_SAT> jet_tag_score_t;  // 8 bit jet jet probability from 0 to 1
 
   // FIXME: adjust range 10-11bits -> 1/4 - 1/2TeV is probably more than enough for all reasonable use cases
   typedef ap_ufixed<11, 9, AP_TRN, AP_SAT> iso_t;

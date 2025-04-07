@@ -12,35 +12,30 @@
 namespace l1ct {
 
   // all possible tag categories (can be extended for new / separate taggers)
-  class JetTagClass{
+  class JetTagClass {
   public:
-    enum JetTagClassValue : uint8_t {
-      uds, g, b, c, tau_p, tau_n, e, mu
-    };
+    enum JetTagClassValue : uint8_t { uds, g, b, c, tau_p, tau_n, e, mu };
     JetTagClass() = default;
-    JetTagClass(JetTagClassValue aJetTagClassValue) : value_(aJetTagClassValue) { }
+    JetTagClass(JetTagClassValue aJetTagClassValue) : value_(aJetTagClassValue) {}
     JetTagClass(std::string aJetTagClassValueString) {
       auto it = labels_.find(aJetTagClassValueString);
-      if(it != labels_.end()){
+      if (it != labels_.end()) {
         value_ = it->second;
-      }else{
+      } else {
         // TODO throw an error
         value_ = JetTagClass::JetTagClassValue::uds;
       }
     }
 
-    inline bool operator==(const JetTagClass &other) const {
-      return value_ == other.value_; 
-    }
+    inline bool operator==(const JetTagClass &other) const { return value_ == other.value_; }
 
   private:
     JetTagClassValue value_;
-    static const std::unordered_map<std::string,JetTagClassValue> labels_;
+    static const std::unordered_map<std::string, JetTagClassValue> labels_;
 
-  }; // JetTagClass
+  };  // JetTagClass
 
   struct Jet {
-
     pt_t hwPt;
     glbeta_t hwEta;
     glbphi_t hwPhi;
@@ -54,14 +49,14 @@ namespace l1ct {
 
     Jet() {
       // Copy the default values to the array
-      for(unsigned i = 0; i < NTagFields; i++) {
+      for (unsigned i = 0; i < NTagFields; i++) {
         tagClassesArray[i] = tagClassesDefault_[i];
       }
     }
 
     inline bool operator==(const Jet &other) const {
-      bool eq = hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwZ0 == other.hwZ0;  
-      for(unsigned i = 0; i < NTagFields; i++){
+      bool eq = hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwZ0 == other.hwZ0;
+      for (unsigned i = 0; i < NTagFields; i++) {
         eq = eq && hwTagScores[i] == other.hwTagScores[i];
       }
       return eq;
@@ -75,7 +70,7 @@ namespace l1ct {
       hwEta = 0;
       hwPhi = 0;
       hwZ0 = 0;
-      for(unsigned i = 0; i < NTagFields; i++){
+      for (unsigned i = 0; i < NTagFields; i++) {
         hwTagScores[i] = 0;
       }
     }
@@ -89,13 +84,14 @@ namespace l1ct {
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
     std::vector<float> floatIDScores() const {
       std::vector<float> scores(NTagFields);
-      for(unsigned i = 0; i < NTagFields; i++){
-        scores[i] = (float) hwTagScores[i];
-      }    
+      for (unsigned i = 0; i < NTagFields; i++) {
+        scores[i] = (float)hwTagScores[i];
+      }
       return scores;
     }
 
-    static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + NTagFields * id_score_t::width;
+    static const int BITWIDTH =
+        pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + NTagFields * id_score_t::width;
     inline ap_uint<BITWIDTH> pack_ap() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -103,7 +99,7 @@ namespace l1ct {
       pack_into_bits(ret, start, hwEta);
       pack_into_bits(ret, start, hwPhi);
       pack_into_bits(ret, start, hwZ0);
-      for(unsigned i = 0; i < NTagFields; i++){
+      for (unsigned i = 0; i < NTagFields; i++) {
         pack_into_bits(ret, start, hwTagScores[i]);
       }
       return ret;
@@ -112,8 +108,8 @@ namespace l1ct {
     inline std::array<uint64_t, 2> pack() const {
       std::array<uint64_t, 2> packed = {{0, 0}};
       ap_uint<BITWIDTH> bits = this->pack_ap();
-      packed[0] = bits(63,0);
-      packed[1] = bits(BITWIDTH -1 ,64); // for when there are more than 64 bits in the word
+      packed[0] = bits(63, 0);
+      packed[1] = bits(BITWIDTH - 1, 64);  // for when there are more than 64 bits in the word
       return packed;
     }
 
@@ -129,7 +125,7 @@ namespace l1ct {
       unpack_from_bits(src, start, hwEta);
       unpack_from_bits(src, start, hwPhi);
       unpack_from_bits(src, start, hwZ0);
-      for(unsigned i = 0; i < NTagFields; i++){
+      for (unsigned i = 0; i < NTagFields; i++) {
         unpack_from_bits(src, start, hwTagScores[i]);
       }
     }
@@ -137,8 +133,8 @@ namespace l1ct {
     inline static Jet unpack(const std::array<uint64_t, 2> &src) {
       // just one set while the word has fewer than 64 bits
       ap_uint<BITWIDTH> bits;
-      bits(63,0) = src[0] ;
-      bits(BITWIDTH - 1,64) = src[1];
+      bits(63, 0) = src[0];
+      bits(BITWIDTH - 1, 64) = src[1];
       return unpack_ap(bits);
     }
 
@@ -155,7 +151,7 @@ namespace l1ct {
       j.v3.phi = CTtoGT_phi(hwPhi);
       j.v3.eta = CTtoGT_eta(hwEta);
       j.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
-      for(unsigned i = 0; i < NTagFields; i++){
+      for (unsigned i = 0; i < NTagFields; i++) {
         j.hwTagScores[i] = hwTagScores[i];
       }
       return j;

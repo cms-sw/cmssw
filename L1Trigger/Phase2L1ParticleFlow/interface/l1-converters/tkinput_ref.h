@@ -69,7 +69,7 @@ namespace l1ct {
 
     /// convert track-word int z0 into float z0 in cm (exact)
     float floatZ0(ap_int<12> z0) const;
-    
+
     /// convert track-word int dxy into float dxy in cm (exact)
     float floatDxy(ap_int<13> dxy) const;
 
@@ -89,7 +89,7 @@ namespace l1ct {
     l1ct::phi_t convPhi(ap_int<12> phi) const;
 
     l1ct::z0_t convZ0(ap_int<12> z0) const;
-    
+
     l1ct::dxy_t convDxy(ap_int<13> dxy) const;
 
     //=== Configuration for bitwise accurate conversions ===
@@ -100,7 +100,7 @@ namespace l1ct {
     void configPhi(int bits);
 
     void configZ0(int bits);
-    
+
     void configDxy(int bits);
 
     //=== Track propagation to calo (float parametrization, no rounding) ===
@@ -225,7 +225,7 @@ namespace l1ct {
 
     // z0 conversion parameters
     int z0Mult_, z0OffsPos_, z0OffsNeg_, z0BitShift_;
-    
+
     // dxy conversion parameters
     int dxyMult_, dxyOffsPos_, dxyOffsNeg_, dxyBitShift_;
 
