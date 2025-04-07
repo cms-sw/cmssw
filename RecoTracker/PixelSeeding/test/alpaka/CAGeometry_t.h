@@ -11,3 +11,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testParamsSoA {
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::testParamsSoA
 
 #endif  // RecoTracker_PixelSeeding_test_alpaka_CAGeometrySoA_test_h
+

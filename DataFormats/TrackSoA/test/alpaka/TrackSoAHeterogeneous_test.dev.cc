@@ -58,7 +58,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     };
 
     // Host function which invokes the two kernels above
-    template <typename TrackerTraits>
     void runKernels(TrackSoAView tracks_view, Queue& queue) {
       int32_t tracks = 420;
       uint32_t items = 64;

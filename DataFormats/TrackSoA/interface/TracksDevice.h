@@ -1,5 +1,5 @@
-#ifndef DataFormats_Track_interface_TracksDevice_h
-#define DataFormats_Track_interface_TracksDevice_h
+#ifndef DataFormats_TrackSoA_interface_TracksDevice_h
+#define DataFormats_TrackSoA_interface_TracksDevice_h
 
 #include <cstdint>
 

@@ -19,13 +19,10 @@ namespace edmtest {
   public:
     TestReadHostTrackSoA(edm::ParameterSet const&);
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
-    void throwWithMessage(const char*) const;
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-    using TracksOnHost = ::reco::TracksHost;
-
   private:
-    edm::EDGetTokenT<TracksOnHost> getToken_;
+    edm::EDGetTokenT<::reco::TracksHost> getToken_;
   };
 
   TestReadHostTrackSoA::TestReadHostTrackSoA(edm::ParameterSet const& iPSet)

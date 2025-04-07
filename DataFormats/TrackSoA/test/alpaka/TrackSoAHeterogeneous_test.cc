@@ -4,7 +4,7 @@
 
    Creates an instance of the class (automatically allocates
    memory on device), passes the view of the SoA data to
-   the CUDA kernels which:
+   the kernels which:
    - Fill the SoA with data.
    - Verify that the data written is correct.
 
@@ -41,7 +41,7 @@ int main() {
       "the test will be skipped.\n";
     exit(EXIT_FAILURE);
   }
-  /*
+  
   // Run the test on each device
   for (const auto& device : devices) {
     Queue queue(device);
@@ -60,7 +60,7 @@ int main() {
       // copied to from device.
       ::reco::TracksHost tracks_h({{nTracks,nHits}},queue);
 
-      std::cout << tracks_h.view().metadata().size() << std::endl;
+      std::cout << "no. of tracks = " << tracks_h.view().metadata().size() << std::endl;
       alpaka::memcpy(queue, tracks_h.buffer(), tracks_d.const_buffer());
       alpaka::wait(queue);
 
@@ -84,6 +84,6 @@ int main() {
       }
     }
   }
-*/
+
   return EXIT_SUCCESS;
 }
