@@ -60,6 +60,7 @@ private:
   HGCalGeomTools geomTools_;
   HGCalCassette cassette_;
 
+  static constexpr double tol0_ = 0.0001;
   static constexpr double tol1_ = 0.01;
   static constexpr double tol2_ = 0.00001;
 
@@ -391,7 +392,7 @@ void DDHGCalMixRotatedFineCassette::initialize(const DDNumericArguments& nArgs,
     unsigned int j2 = std::min((j1 + 6), j2max);
     for (unsigned int j = j1; j < j2; ++j)
       st1 << " [" << j << "] " << std::setw(9) << cassetteShiftScnt_[j];
-    edm::LogVerbatim("HGCalGeom") << st1.str();
+    edm::LogVerbatim("HGCalGeom") << "Scintillator Cassette shiftt " << convertRadToDeg(dphi) << " " << st1.str();
   }
 #endif
   nameSpace_ = DDCurrentNamespace::ns();
@@ -607,7 +608,7 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
                                       << fimin << ":" << fimax;
 #endif
         double phi1 = dphi * (fimin - 1);
-        double phi2 = dphi * (fimax - fimin + 1);
+        double phi2 = dphi * (fimax - fimin + 1) - tol0_;
         auto cshift = cassette_.getShift(layer + 1, 1, cassette, true);
 #ifdef EDM_ML_DEBUG
         int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
