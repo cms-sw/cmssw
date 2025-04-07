@@ -14,7 +14,6 @@ namespace l1t {
     /// constituent information. note that this is not going to be available in the hardware!
     typedef std::vector<edm::Ptr<l1t::PFCandidate>> Constituents;
 
-
     PFJet() {}
     PFJet(float pt, float eta, float phi, float mass = 0, int hwpt = 0, int hweta = 0, int hwphi = 0)
         : L1Candidate(PolarLorentzVector(pt, eta, phi, mass), hwpt, hweta, hwphi, /*hwQuality=*/0), rawPt_(pt) {}

@@ -990,7 +990,7 @@ std::unique_ptr<std::vector<l1t::PFTrack>> L1TCorrelatorLayer1Producer::fetchDec
   for (const auto &r : event_.decoded.track) {
     const auto &reg = r.region;
     for (const auto &p : r.obj) {
-      if (p.hwPt == 0)
+      if (p.hwPt == 0 || !reg.isFiducial(p))
         continue;
       reco::Particle::PolarLorentzVector p4(
           p.floatPt(), reg.floatGlbEta(p.hwVtxEta()), reg.floatGlbPhi(p.hwVtxPhi()), 0);
