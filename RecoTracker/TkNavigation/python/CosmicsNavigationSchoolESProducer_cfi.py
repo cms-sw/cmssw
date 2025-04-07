@@ -5,16 +5,17 @@ import FWCore.ParameterSet.Config as cms
 #    ComponentName = cms.string('CosmicNavigationSchool')
 #)
 
-cosmicsNavigationSchoolESProducer = cms.ESProducer("SkippingLayerCosmicNavigationSchoolESProducer",
-                                                   ComponentName = cms.string('CosmicNavigationSchool'),
-                                                   noPXB = cms.bool(False),
-                                                   noPXF = cms.bool(False),
-                                                   noTIB = cms.bool(False),
-                                                   noTID = cms.bool(False),
-                                                   noTOB = cms.bool(False),
-                                                   noTEC = cms.bool(False),
-                                                   selfSearch = cms.bool(True),
-                                                   allSelf = cms.bool(True)
-                                                   )
+from RecoTracker.TkNavigation.skippingLayerCosmicNavigationSchoolESProducer_cfi import skippingLayerCosmicNavigationSchoolESProducer as _skippingLayerCosmicNavigationSchoolESProducer
+cosmicsNavigationSchoolESProducer = _skippingLayerCosmicNavigationSchoolESProducer.clone(
+    ComponentName = 'CosmicNavigationSchool',
+    noPXB = False,
+    noPXF = False,
+    noTIB = False,
+    noTID = False,
+    noTOB = False,
+    noTEC = False,
+    selfSearch = True,
+    allSelf = True
+)
 
 
