@@ -643,6 +643,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
             }
           }  // while loop
         }  // testIndex < nStrips
+
         clusters.clusterIndex(i) = indexLeft;
         clusters.clusterSize(i) = indexRight - indexLeft + 1;
         clusters.clusterDetId(i) = det;
@@ -669,29 +670,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                   SiStripMappingConstView mapping,
                                   SiStripClusterizerConditionsData_fedchConstView Data_fedch,
                                   SiStripClusterizerConditionsData_apvConstView Data_apv) const {
-      const auto nClusters = clusters.nClusters();
-      auto trueCluster = clusters.trueCluster();
-      auto clusterIndexLeft = clusters.clusterIndex();
-      auto clusterSize = clusters.clusterSize();
-      auto clusterADCs = clusters.clusterADCs();
-      auto adc = stripDataObj.adc();
-      auto charge = clusters.charge();
-      auto barycenter = clusters.barycenter();
-      auto channels = stripDataObj.channel();
-      auto stripId = stripDataObj.stripId();
-      auto minGoodCharge = clusterDataObj.minGoodCharge();
+      //
       constexpr uint8_t adc_low_saturation = 254;
       constexpr uint8_t adc_high_saturation = 255;
       constexpr int charge_low_saturation = 253;
       constexpr int charge_high_saturation = 1022;
+      //
+      auto clusterIndexLeft = clusters.clusterIndex();
 
-      for (auto i : uniform_elements(acc, nClusters)) {
-        if (trueCluster[i]) {
+      for (auto i : uniform_elements(acc, clusters.nClusters())) {
+        if (clusters.trueCluster(i)) {
           unsigned int left = clusterIndexLeft[i];
-          unsigned int size = clusterSize[i];
+          unsigned int size = clusters.clusterSize(i);
 
           if (i > 0 && clusterIndexLeft[i - 1] == left) {
-            trueCluster[i] = 0;  // ignore duplicates
+            clusters.trueCluster(i) = 0;  // ignore duplicates
           } else {
             float adcSum = 0.0f;
             int sumx = 0;
@@ -700,15 +693,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
             int j = 0;
             for (unsigned int k = 0; k < size; k++) {
               auto index = left + k;
-              auto chan = channels[index];
+              auto chan = stripDataObj.channel(index);
               auto fed = mapping.fedID(chan);
               auto channel = mapping.fedCh(chan);
-              auto strip = stripId[index];
+              auto strip = stripDataObj.stripId(index);
 
               if (strip != invalidStrip) {
                 float gain_j = Data_apv.gain_(apvIndex(fed, channel, strip));
 
-                uint8_t adc_j = adc[index];
+                uint8_t adc_j = stripDataObj.adc(index);
                 const int charge = static_cast<int>(static_cast<float>(adc_j) / gain_j + 0.5f);
 
                 if (adc_j < adc_low_saturation) {
@@ -716,7 +709,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                ? adc_high_saturation
                                : (charge > charge_low_saturation ? adc_low_saturation : charge));
                 }
-                clusterADCs[i][j] = adc_j;
+                clusters.clusterADCs(i)[j] = adc_j;
 
                 adcSum += static_cast<float>(adc_j);
                 sumx += j * adc_j;
@@ -724,16 +717,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                 j++;
               }
             }  // loop over cluster strips
-            charge[i] = adcSum;
-            auto chan = channels[left];
+            clusters.charge(i) = adcSum;
+            auto chan = stripDataObj.channel(left);
             auto fed = mapping.fedID(chan);
             auto channel = mapping.fedCh(chan);
-            trueCluster[i] = (adcSum * Data_fedch.invthick_(channelIndex(fed, channel))) > minGoodCharge;
+            clusters.trueCluster(i) =
+                (adcSum * Data_fedch.invthick_(channelIndex(fed, channel))) > clusterDataObj.minGoodCharge();
             auto bary_i = static_cast<float>(sumx) / static_cast<float>(suma);
-            barycenter[i] = static_cast<float>(stripId[left] & stripIndexMask) + bary_i + 0.5f;
-            clusterSize[i] = j;
+            clusters.barycenter(i) = static_cast<float>(stripDataObj.stripId(left) & stripIndexMask) + bary_i + 0.5f;
+            clusters.clusterSize(i) = j;
           }  // not a duplicate cluster
-        }  // trueCluster[i] is true
+        }  // clusters.trueCluster(i) is true
       }  // i < nSeedStripsNC
     }
   };
