@@ -54,15 +54,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           ->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Barrel-forward cells.");
 
       // Container sizes
-      desc.add<std::string>("maxNumberOfDoublets", std::to_string(pixelTopology::Phase1::maxNumberOfDoublets));
-      desc.add<std::string>("maxNumberOfTuples", std::to_string(pixelTopology::Phase1::maxNumberOfTuples));
-      desc.add<double>("avgHitsPerTrack", 5.0f);
-      desc.add<double>("avgCellsPerHit", 25.0f);
-      desc.add<double>("avgCellsPerCell", 2.0f);
-      desc.add<double>("avgTracksPerCell", 1.0f);
+      //
+      // maxNumberOfDoublets and maxNumberOfTuples may be defined at runtime depending on the number of hits.
+      // This is done via a TFormula expecting 'x' as nHits.
+      // e.g. : maxNumberOfDoublets = cms.string( '0.00022*pow(x,2)  + 0.53*x + 10000' )
+      // will compute maxNumberOfDoublets for each event as
+      //
+      //  	maxNumberOfDoublets = 2.2e-4 * nHits^2 + 0.53 * nHits + 10000
+      //
+      // this may also be simply a constant (as for the default parameters)
+      //
+      // 	 maxNumberOfDoublets = cms.string(str(512*1024))
+      //
+
+      desc.add<std::string>("maxNumberOfDoublets", std::to_string(pixelTopology::Phase1::maxNumberOfDoublets))
+          ->setComment(
+              "Max nummber of doublets (cells) as a string. The string will be parsed to a TFormula, depending on "
+              "nHits (labeled 'x'), \n and evaluated for each event. May also be a constant.");
+      desc.add<std::string>("maxNumberOfTuples", std::to_string(pixelTopology::Phase1::maxNumberOfTuples))
+          ->setComment("Max nummber of tuples as a string. Same behavior as maxNumberOfDoublets.");
+      desc.add<double>("avgHitsPerTrack", 5.0f)->setComment("Number of hits per track. Average per track.");
+      desc.add<double>("avgCellsPerHit", 25.0f)
+          ->setComment("Number of cells for which an hit is the outer hit. Average per hit.");
+      desc.add<double>("avgCellsPerCell", 2.0f)
+          ->setComment("Number of cells connected to another cell. Average per cell.");
+      desc.add<double>("avgTracksPerCell", 1.0f)
+          ->setComment("Number of tracks to which a cell belongs. Average per cell.");
 
       // nTuplet Cuts and Params
       desc.add<double>("ptmin", 0.9f)->setComment("Cut on minimum pt");
+      //// p [GeV/c] = B [T] * R [m] * 0.3 (factor from conversion from J to GeV and q = e = 1.6 * 10e-19 C)
       //// 87 cm/GeV = 1/(3.8T * 0.3)
       //// take less than radius given by the hardPtCut and reject everything below
       desc.add<double>("hardCurvCut", 1.f / (0.35 * 87.f))

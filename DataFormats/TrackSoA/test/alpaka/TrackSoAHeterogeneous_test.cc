@@ -41,7 +41,7 @@ int main() {
       "the test will be skipped.\n";
     exit(EXIT_FAILURE);
   }
-  
+
   // Run the test on each device
   for (const auto& device : devices) {
     Queue queue(device);
@@ -51,14 +51,14 @@ int main() {
       // Instantiate tracks on device. PortableDeviceCollection allocates
       // SoA on device automatically.
       constexpr auto nTracks = 1000;
-      constexpr auto nHits = nTracks *  5;
+      constexpr auto nHits = nTracks * 5;
 
-      TracksSoACollection tracks_d({{nTracks,nHits}},queue);
+      TracksSoACollection tracks_d({{nTracks, nHits}}, queue);
       testTrackSoA::runKernels(tracks_d.view(), queue);
 
       // Instantate tracks on host. This is where the data will be
       // copied to from device.
-      ::reco::TracksHost tracks_h({{nTracks,nHits}},queue);
+      ::reco::TracksHost tracks_h({{nTracks, nHits}}, queue);
 
       std::cout << "no. of tracks = " << tracks_h.view().metadata().size() << std::endl;
       alpaka::memcpy(queue, tracks_h.buffer(), tracks_d.const_buffer());

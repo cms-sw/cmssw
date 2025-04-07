@@ -188,13 +188,13 @@ namespace cms::alpakatools {
         psum[i] = (j < size) ? co[j] : T(0);
       }
       alpaka::syncBlockThreads(acc);
-      if (blocksPerGrid <= 1024)
+      if (blocksPerGrid <= warpSize * warpSize)
         blockPrefixScan(acc, psum, psum, blocksPerGrid, ws);
       else {
         auto off = 0u;
-        while (off + 1024 < blocksPerGrid) {
-          blockPrefixScan(acc, psum + off, psum + off, 1024, ws);
-          off = off + 1024 - 1;
+        while (off + warpSize * warpSize < blocksPerGrid) {
+          blockPrefixScan(acc, psum + off, warpSize * warpSize, ws);
+          off = off + warpSize * warpSize - 1;
           alpaka::syncBlockThreads(acc);
         }
         blockPrefixScan(acc, psum + off, psum + off, blocksPerGrid - off, ws);
