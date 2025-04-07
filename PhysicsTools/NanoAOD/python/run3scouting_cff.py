@@ -584,7 +584,7 @@ scoutingFatPFJetReclusterGlobalParticleTransformerJetTags = cms.EDProducer("Boos
     flav_names = cms.vstring([
              "probQCD", "probXbb", "probXcc", "probXss", "probXqq", "probXbs", "probXgg", "probXee", "probXmm", "probXtauhtaue", "probXtauhtaum", "probXtauhtauh", "probXbc", "probXcs", "probXud", "massCorrGeneric", "massCorrGenericX2p", "massCorrGenericW2p", "massCorrResonance"
      ]),
-    debugMode = cms.untracked.bool(True),
+    debugMode = cms.untracked.bool(False),
 )
 
 # AK8 jet softdrop mass
