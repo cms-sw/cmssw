@@ -1181,5 +1181,5 @@ void CaloSD::printDetectorLevels(const G4VTouchable* touch) const {
       st1 << " " << name << ":" << touch->GetReplicaNumber(i);
     }
   }
-  edm::LogVerbatim("CaloSim") << st1.str();
+  edm::LogVerbatim("CaloSim") << "DetectorLeves: " << st1.str();
 }
