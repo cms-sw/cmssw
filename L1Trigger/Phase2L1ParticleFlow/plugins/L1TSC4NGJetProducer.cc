@@ -108,15 +108,14 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
 void L1TSC4NGJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("jets", edm::InputTag("scPFL1Puppi"));
+  desc.add<edm::InputTag>("jets", edm::InputTag("l1tSC4PFL1PuppiExtendedEmulator"));
   desc.add<bool>("useRawPt", true);
-  desc.add<std::string>("l1tSC4NGJetModelPath", std::string("/src/L1TSC4NGJetModel/L1TNGJetModel"));
+  desc.add<std::string>("l1tSC4NGJetModelPath", std::string("L1TSC4NGJetModel_v0"));
   desc.add<int>("maxJets", 16);
   desc.add<int>("nParticles", 16);
-  desc.add<double>("minPt", 20);
+  desc.add<double>("minPt", 10);
   desc.add<double>("maxEta", 2.4);
-  desc.add<edm::InputTag>("vtx", edm::InputTag("L1VertexFinderEmulator", "L1VerticesEmulation"));
-  desc.add<std::vector<std::string>>("classes", {"b", "c", "uds", "g", "c", "tau_p", "tau_n", "e", "mu"});
+  desc.add<std::vector<std::string>>("classes", {"uds", "g", "b", "c", "tau_p", "tau_n", "e", "mu"});
   descriptions.add("l1tSC4NGJetProducer", desc);
 }
 

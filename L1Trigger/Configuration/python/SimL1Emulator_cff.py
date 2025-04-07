@@ -265,8 +265,8 @@ _phase2_siml1emulator.add(l1tNNTauProducerPuppi)
 
 # SC4NGJets
 # ########################################################################
-from L1Trigger.Phase2L1ParticleFlow.l1tSC4NGJetProducer_cff import *
-_phase2_siml1emulator.add(l1tSC4NGJetTask)
+from L1Trigger.Phase2L1ParticleFlow.l1tSC4NGJetProducer_cfi import *
+_phase2_siml1emulator.add(l1tSC4NGJetProducer)
 
 # BJets
 # ########################################################################
