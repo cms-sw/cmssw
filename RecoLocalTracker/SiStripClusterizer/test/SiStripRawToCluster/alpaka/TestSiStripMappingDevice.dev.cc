@@ -14,15 +14,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::testMappingSoA {
   public:
     template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, SiStripMappingView view) const {
-      const uint8_t arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
       for (int32_t j : cms::alpakatools::uniform_elements(acc, view.metadata().size())) {
-        view[j].input() = &arr[j % 10];
-        view[j].inoff() = (size_t)j;
-        view[j].offset() = (size_t)j;
-        view[j].length() = (uint16_t)(j % 65536);
-        view[j].fedID() = (uint16_t)(j % 65536);
-        view[j].fedCh() = (uint8_t)(j % 256);
-        view[j].detID() = 3 * j;
+        view.detID(j) = 3 * j;
+        view.fedID(j) = (uint16_t)(j % 65536);
+        view.fedCh(j) = (uint16_t)(j % 256);
+        //
+        view.fedChOff(j) = j;
+        view.inoff(j) = (size_t)j;
+        view.offset(j) = (size_t)j;
+        view.length(j) = (uint16_t)(j % 65536);
+        //
+        view.readoutMode(j) = FEDReadoutMode(j % 15);
+        view.packetCode(j) = (uint8_t)(j % 255);
       }
     }
   };
@@ -31,15 +34,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::testMappingSoA {
   public:
     template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, SiStripMappingConstView view) const {
-      const uint8_t arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, view.metadata().size())) {
-        ALPAKA_ASSERT_ACC(view[j].input() - arr == j % 10);
-        ALPAKA_ASSERT_ACC(view[j].inoff() == (size_t)j);
-        ALPAKA_ASSERT_ACC(view[j].offset() == (size_t)j);
-        ALPAKA_ASSERT_ACC(view[j].length() == (uint16_t)(j % 65536));
-        ALPAKA_ASSERT_ACC(view[j].fedID() == (uint16_t)(j % 65536));
-        ALPAKA_ASSERT_ACC(view[j].fedCh() == (uint8_t)(j % 256));
-        ALPAKA_ASSERT_ACC(view[j].detID() == 3 * j);
+        ALPAKA_ASSERT_ACC(view.detID(j) == 3 * j);
+        ALPAKA_ASSERT_ACC(view.fedID(j) == (uint16_t)(j % 65536));
+        ALPAKA_ASSERT_ACC(view.fedCh(j) == (uint16_t)(j % 256));
+        //
+        ALPAKA_ASSERT_ACC(view.fedChOff(j) == j);
+        ALPAKA_ASSERT_ACC(view.inoff(j) == (size_t)j);
+        ALPAKA_ASSERT_ACC(view.offset(j) == (size_t)j);
+        ALPAKA_ASSERT_ACC(view.length(j) == (uint16_t)(j % 65536));
+        //
+        ALPAKA_ASSERT_ACC(view.readoutMode(j) == FEDReadoutMode(j % 15));
+        ALPAKA_ASSERT_ACC(view.packetCode(j) == (uint8_t)(j % 255));
       }
     }
   };

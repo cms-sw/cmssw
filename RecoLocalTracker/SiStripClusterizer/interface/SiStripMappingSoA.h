@@ -8,22 +8,24 @@
 
 namespace sistrip {
   GENERATE_SOA_LAYOUT(SiStripMappingSoALayout,
-                      // pointer to FEDChannel data
-                      SOA_COLUMN(const uint8_t*, input),
-                      // FEDChannel->offset
+                      // Detector ID, FED ID and FED channel for indexing
+                      SOA_COLUMN(uint32_t, detID),
+                      SOA_COLUMN(uint16_t, fedID),
+                      SOA_COLUMN(uint16_t, fedCh),
+                      // Coordinates for the FEDChannel data in the device buffer
+                      //// offset in the (condition-passing filled) buffer for the corresponding FEDChannel
+                      SOA_COLUMN(uint64_t, fedChOff),
+                      //// FEDChannel->offset
                       SOA_COLUMN(size_t, inoff),
                       // global offset for the FEDChannel in the rawFEDBuffer
                       SOA_COLUMN(size_t, offset),
                       // FEDChannel->length
                       SOA_COLUMN(uint16_t, length),
+                      //
                       // readout mode of the buffer the FED channels are taken
                       SOA_COLUMN(FEDReadoutMode, readoutMode),
                       // packet code of the buffer the FED channels are taken
-                      SOA_COLUMN(uint8_t, packetCode),
-                      //
-                      SOA_COLUMN(uint16_t, fedID),
-                      SOA_COLUMN(uint8_t, fedCh),
-                      SOA_COLUMN(uint32_t, detID))
+                      SOA_COLUMN(uint8_t, packetCode))
 
   using SiStripMappingSoA = SiStripMappingSoALayout<>;
   using SiStripMappingView = SiStripMappingSoA::View;

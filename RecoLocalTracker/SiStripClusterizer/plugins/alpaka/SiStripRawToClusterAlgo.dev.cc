@@ -405,6 +405,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                        bool legacy,
                                        FEDLegacyReadoutMode lmode,
                                        StripDigiView stripDigis,
+                                       const uint8_t* rawData,
                                        //
                                        SiStripMappingConstView mapping,
                                        SiStripClusterizerConditionsData_fedchConstView Data_fedch,
@@ -422,7 +423,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         const auto ipair = Data_fedch.iPair_(channelIndex(fedID, fedCH));
         int ipoff = STRIPS_PER_FEDCH * ipair;
 
-        const unsigned char* channel_data = mapping.input(chan);
+        const unsigned char* channel_data = rawData + mapping.fedChOff(chan);
         const short unsigned channel_len = mapping.length(chan);
         const long unsigned channel_offset = mapping.inoff(chan);
 
@@ -845,6 +846,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   }
 
   void SiStripRawToClusterAlgo::unpackStrips(Queue& queue,
+                                             const uint8_t* rawDataView,
                                              SiStripMappingDevice const& mapping,
                                              SiStripClusterizerConditionsDataDevice const& conditions) {
     // In HeterogeneousCore/AlpakaTest, typical sizes are power of 2 like 32 and 64.
@@ -868,6 +870,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         isLegacyUnpacker_,
                         legacyUnpackerROmode_,
                         digis_d_->view(),
+                        rawDataView,
                         //
                         mapping.const_view(),
                         conditions.const_view<SiStripClusterizerConditionsData_fedchSoA>(),

@@ -46,12 +46,16 @@ int main() {
       // Check on host that all verified on the device also passes assertions here
       for (uint32_t j = 0; j < nStrips; ++j) {
         // assert(conditions_h->input(j) - arr == j % 10); this is supposed to be a pointer on the device memory space
-        assert(conditions_h->inoff(j) == (size_t)j);
+        assert(conditions_h->fedID(j) == (uint16_t)(j % 65536));
+        assert(conditions_h->fedCh(j) == (uint16_t)(j % 256));
+        assert(conditions_h->detID(j) == 3 * j);
+        //
+        assert(conditions_h->fedChOff(j) == (size_t)j);
         assert(conditions_h->offset(j) == (size_t)j);
         assert(conditions_h->length(j) == (uint16_t)(j % 65536));
-        assert(conditions_h->fedID(j) == (uint16_t)(j % 65536));
-        assert(conditions_h->fedCh(j) == (uint8_t)(j % 256));
-        assert(conditions_h->detID(j) == 3 * j);
+        //
+        assert(conditions_h->readoutMode(j) == FEDReadoutMode(j % 15));
+        assert(conditions_h->packetCode(j) == (uint8_t)(j % 255));
       }
     }
   }

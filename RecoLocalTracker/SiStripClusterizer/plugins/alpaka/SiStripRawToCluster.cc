@@ -41,11 +41,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override;
 
-// Debug functions
-#ifdef EDM_ML_DEBUG
-    void dumpConditions(SiStripClusterizerConditions const& conditions);
-#endif
-
   private:
     // Containers for the condition-passing raw data
     std::vector<const FEDRawData*> raw_;
@@ -147,16 +142,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     if (stripCondWatcher_.check(iSetup)) {
       // Get the cpu con
       stripCond_ = &iSetup.getData(stripCondGetToken_);
-#if defined(EDM_ML_DEBUG) && defined(SUPERDETAILS)
-      change this dumpConditions(validFEDsConditions);
-#endif
     }
+
     if (stripCablCondWatcher_.check(iSetup)) {
       // Get the cabling map
       stripCablCond_ = &iSetup.getData(stripCablCondGetToken_);
       LogDebug("fedBufferBlocksRaw") << "Size of cablingMapData (bytes): "
                                      << alpaka::getExtentProduct(stripCablCond_->buffer()) * sizeof(std::byte);
     }
+
     if (stripDataCondWatcher_.check(iSetup)) {
       // Make the cabling and clusterizer conditions available on device
       // TO DO: automatical copy from the framework!
@@ -221,11 +215,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     LogDebug("fedBufferBlocksRaw") << "Size of chanlocs_onHost (bytes): "
                                    << alpaka::getExtentProduct(chanlocs_onHost.buffer()) * sizeof(std::byte);
 
-    // This object contains the addresses of the input raw data for channel
-    auto rawPointerAddresses_onHost =
-        cms::alpakatools::make_host_buffer<const uint8_t*[]>(iEvent.queue(), detToFedsMap.metadata().size());
-    LogDebug("fedBufferBlocksRaw") << "Size of rawPointerAddresses_onHost (bytes): " << detToFedsMap.metadata().size();
-
     // Copy the blocks of raw FED data on the device
     auto fedBufferBlocksRaw_onDevice = cms::alpakatools::make_device_buffer<uint8_t[]>(
         iEvent.queue(), static_cast<unsigned int>(fedBufferBlocksRaw.getPreallocSize()));
@@ -272,8 +261,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
       // This fedID from conditions (detToFedsMap) is within the FED raw data from collection?
       if (!fedBufferBlocksRaw.isInside(fedID)) {
-        chanlocs_onHost.view()[i] = {nullptr, 0, 0, 0, READOUT_MODE_INVALID, 0, invalidFed, 0, invalidDet};
-        rawPointerAddresses_onHost[i] = nullptr;
+        // chanlocs_onHost.view()[i] = {nullptr, 0, 0, 0, READOUT_MODE_INVALID, 0, invalidFed, 0, invalidDet};
+        chanlocs_onHost.view()[i] = {invalidDet, invalidFed, invalidFed, 0, 0, 0, 0, READOUT_MODE_INVALID, 0};
       } else {
         // Get the FEDBuffer object for the current fedID
         const auto buffer = buffers_[fedi].get();
@@ -291,7 +280,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         }
 
         // ------------------------------------------------------------------------------------
-        // -> at this point, the readout mode is ZERO_SUPPRESSED for SURE ->
+        // -> at this point, the readout mode is ZERO_SUPPRESSED_* for SURE ->
 
         // Determine if the ZS is non-lite, retrieve the packet code, get the header len
         const bool isNonLite = fedchannelunpacker::isNonLiteZS(buffROMode, legacyUnpacker_, buffROModeLegacy);
@@ -303,7 +292,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
         // Get the FEDChannel data from the buffer
         const auto& fedChannel = buffer->channel(fedCH);
-        auto data = fedChannel.data();
+        // auto data = fedChannel.data();
         auto off = fedChannel.offset();
         // The length is extracted from the first 2 bytes (assuming normal FED channel) starting from .data()
         // The len MUST be different from 0, otherwise the channel data has malformed data
@@ -332,23 +321,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
           }
         }
 
-        // Note: the input will be overridden with pointers to device memory after the memcpy to the device
-        chanlocs_onHost->input(i) = data;
+        // Coordinates for this data...
+        chanlocs_onHost->detID(i) = detID;
+        chanlocs_onHost->fedID(i) = fedID;
+        chanlocs_onHost->fedCh(i) = fedCH;
+        //
+        // where this FEDChannel object is located in the pinned buffer
+        auto fedChOfs_inRawBuffer = (*fedOffsetInBuffer) + (fedChannel.data() - raw_[fedi]->data());
+        chanlocs_onHost->fedChOff(i) = fedChOfs_inRawBuffer;
+        // -- fedchannel properties --
         chanlocs_onHost->inoff(i) = off;
         chanlocs_onHost->length(i) = len;
-        // -- fedchannel properties --
-        // global offset for the FEDChannel in the rawFEDBuffer copied on the device
         chanlocs_onHost->offset(i) = offset;
+        //
         // buffer-related properties (to generalize to arbitrary unpackers)
         chanlocs_onHost->readoutMode(i) = buffROMode;
         chanlocs_onHost->packetCode(i) = pCode;
-        chanlocs_onHost->fedID(i) = fedID;
-        chanlocs_onHost->fedCh(i) = fedCH;
-        chanlocs_onHost->detID(i) = detID;
-
-        // Offset of this FEDChannel data in the pinned buffer
-        auto fedChOfs_inRawBuffer = (*fedOffsetInBuffer) + (fedChannel.data() - raw_[fedi]->data());
-        rawPointerAddresses_onHost[i] = fedBufferBlocksRaw_onDevice.data() + fedChOfs_inRawBuffer;
 
         // n.b.: see comment above about the headerlen
         offset += (len - headerlen);
@@ -369,15 +357,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     LogDebug(sistrip::mlRawToCluster_) << dumpMsg.str();
 #endif
 
-    if (edm::isDebugEnabled() && skippedBytes) {
-      edm::LogWarning("BuffCkh") << "Skipped bytes in the unpacking: " << skippedBytes;
+    if (edm::isDebugEnabled()) {
+      if (skippedBytes) {
+        edm::LogWarning("BuffCkh") << "Skipped bytes in the unpacking: " << skippedBytes;
+      }
+
+      auto fedsInRaw =
+          std::count(fedBufferBlocksRaw.getFedIDset()->begin(), fedBufferBlocksRaw.getFedIDset()->end(), true);
+      auto actualStrips = n_strips / fedsInRaw - 2;
+      LogDebug("actual strips: ") << actualStrips << " number of feds in raw: " << fedsInRaw;
     }
-
-    auto fedsInRaw =
-        std::count(fedBufferBlocksRaw.getFedIDset()->begin(), fedBufferBlocksRaw.getFedIDset()->end(), true);
-    auto actualStrips = n_strips / fedsInRaw - 2;
-    LogDebug("actual strips: ") << actualStrips << " number of feds in raw: " << fedsInRaw;
-
     //
     //
     // @brief    Map Detector Channels to FED Data - END
@@ -391,16 +380,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Make the mapping between the unpacked FED data and strips available on the device
     auto chanlocs_onDevice = cms::alpakatools::moveToDeviceAsync(iEvent.queue(), std::move(chanlocs_onHost));
 
-    // override the .input() member of the chanlocs_onDevice - i.e., containing the device pointers of the FED raw data -
-    auto moduleStartFirstElement = cms::alpakatools::make_device_view(
-        iEvent.queue(), chanlocs_onDevice.view().input(), detToFedsMap.metadata().size());
-    alpaka::memcpy(iEvent.queue(), moduleStartFirstElement, rawPointerAddresses_onHost);
-
     // Prepare the StripDigiDevice var. on the host (with Clusterizer PSet)
     algo_.initialize(iEvent.queue(), n_strips);
 
     // Unpack the FED raw data into SiStrip digits (adc, channel, strip) (in the unpackedStrips_d_ member of the algo_)
-    algo_.unpackStrips(iEvent.queue(), chanlocs_onDevice, *stripDataCond_);
+    algo_.unpackStrips(iEvent.queue(), fedBufferBlocksRaw_onDevice.data(), chanlocs_onDevice, *stripDataCond_);
 
     // Make the seed mask for strip - to be used for clustering - according to noise and threshold.
     // Also, it flags non-contiguos strips (which are used in the clusterization) and it calculates exclusive prefix sum on NC-strips
@@ -506,49 +490,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     return buffer;
   }
-
-// Debug functions
-#ifdef EDM_ML_DEBUG
-  void SiStripRawToCluster::dumpConditions(SiStripClusterizerConditions const& conditions) {
-    std::vector<unsigned int> detectors;
-    std::vector<unsigned int> fedIds;
-
-    unsigned int invalidDet = 0;
-    unsigned int unconnectedFed = 0;
-    // loop over good det in cabling
-    for (auto idet : conditions.allDetIds()) {
-      auto const& det = conditions.findDetId(idet);
-      if (!det.valid()) {
-        ++invalidDet;
-        continue;
-      }
-
-      detectors.emplace_back(idet);
-      for (auto const conn : conditions.currentConnection(det)) {
-        const uint16_t fedId = conn->fedId();
-        if UNLIKELY (!fedId || !conn->isConnected()) {
-          ++unconnectedFed;
-          continue;
-        }
-        fedIds.emplace_back(fedId);
-      }
-    }  // end loop over dets
-
-    std::string dMsg = (invalidDet) ? ("Invalid det     " + std::to_string(invalidDet) + " ") : "";
-    std::string fMsg = (invalidDet) ? ("Unconnected fed " + std::to_string(unconnectedFed) + " ") : "";
-    LogDebug(sistrip::mlRawToCluster_) << "[" << __func__ << "]"
-                                       << " " << dMsg << fMsg << "\n";
-
-    LogDebug(sistrip::mlRawToCluster_) << "[" << __func__ << "]"
-                                       << " Valid detID: " << detectors.size() << "\n"
-                                       << prettyPrintVector(detectors, 10, 10, 10, 10) << "\n";
-
-    LogDebug(sistrip::mlRawToCluster_) << "[" << __func__ << "]"
-                                       << " Valid fedID: " << fedIds.size() << "\n"
-                                       << prettyPrintVector(fedIds, 10, 10, 10, 10) << "\n";
-  }
-#endif
-
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"

@@ -162,6 +162,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void initialize(Queue& queue, int n_strips);
 
     void unpackStrips(Queue& queue,
+                      const uint8_t* rawDataView,
                       SiStripMappingDevice const& mapping,
                       SiStripClusterizerConditionsDataDevice const& conditions);
 
