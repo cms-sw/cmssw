@@ -170,6 +170,7 @@ const std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_features_
                                                                                      "pfcand_mask"};
 
 const std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_features_scouting_{
+    "pfcand_px",            "pfcand_py",      "pfcand_pz",             "pfcand_energy",
     "pfcand_quality",       "pfcand_charge",  "pfcand_isEl",           "pfcand_isMu",
     "pfcand_isChargedHad",  "pfcand_isGamma", "pfcand_isNeutralHad",   "pfcand_phirel",
     "pfcand_etarel",        "pfcand_deltaR",  "pfcand_abseta",         "pfcand_ptrel_log",
@@ -616,6 +617,10 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
     auto candP3 = use_puppiP4_ ? puppi_wgt_cache.at(cand.key()) * cand->momentum() : cand->momentum();
 
     if (use_scouting_features_) {
+      fts.fill("pfcand_px", candP4.px());
+      fts.fill("pfcand_py", candP4.py());
+      fts.fill("pfcand_pz", candP4.pz());
+      fts.fill("pfcand_energy", candP4.energy());
       fts.fill("pfcand_charge", reco_cand->charge());
       fts.fill("pfcand_isEl", std::abs(reco_cand->pdgId()) == 11);
       fts.fill("pfcand_isMu", std::abs(reco_cand->pdgId()) == 13);
