@@ -65,8 +65,8 @@ int main() {
       // exercise the memset of a colum (on device)
       auto hitYD = cms::alpakatools::make_device_view<float>(queue, tkhit.view().yGlobal(), nHits);
       constexpr float constYG = -14.0458;
-      std::vector<float> constXV(nHits, constYG);
-      auto constYGV_v = cms::alpakatools::make_host_view<float>(constXV.data(), nHits);
+      std::vector<float> constYV(nHits, constYG);
+      auto constYGV_v = cms::alpakatools::make_host_view<float>(constYV.data(), nHits);
       alpaka::memcpy(queue, hitYD, constYGV_v);
 
       testTrackingRecHitSoA::runKernels(tkhit.view(), tkhit.view<::reco::HitModuleSoA>(), queue);

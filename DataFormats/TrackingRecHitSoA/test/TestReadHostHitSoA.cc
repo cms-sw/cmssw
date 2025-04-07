@@ -21,7 +21,6 @@ namespace edmtest {
   public:
     TestReadHostHitSoA(edm::ParameterSet const&);
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
-    void throwWithMessage(const char*) const;
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
     using HitsOnHost = ::reco::TrackingRecHitHost;

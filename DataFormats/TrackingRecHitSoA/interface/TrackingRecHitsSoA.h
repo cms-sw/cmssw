@@ -28,7 +28,12 @@ namespace reco {
 
   GENERATE_SOA_LAYOUT(HitModulesLayout, SOA_COLUMN(uint32_t, moduleStart));
 
-#ifdef ONLY_TRIPLETS_IN_HOLE
+// N.B. this layout is not really included by default in the hits SoA
+// This holds the needed parameters to activate (via ONLY_TRIPLETS_IN_HOLE) the 
+// calculations to check if a triplet points to the disk hole 
+// and then retain only those that fulfil this requirement.
+// At the moment this feature is not fully (re)implemented.  
+
   GENERATE_SOA_LAYOUT(AverageGeometryLayout,
                       SOA_COLUMN(float, ladderZ),
                       SOA_COLUMN(float, ladderX),
@@ -38,7 +43,6 @@ namespace reco {
                       SOA_COLUMN(float, ladderMaxZ),
                       SOA_SCALAR(int32_t, endCapZPos),
                       SOA_SCALAR(int32_t, endCapZNeg))
-#endif
 
   using TrackingRecHitSoA = TrackingHitsLayout<>;
   using TrackingRecHitView = TrackingRecHitSoA::View;
@@ -48,11 +52,9 @@ namespace reco {
   using HitModuleSoAView = HitModuleSoA::View;
   using HitModuleSoAConstView = HitModuleSoA::ConstView;
 
-#ifdef ONLY_TRIPLETS_IN_HOLE
   using AverageGeometrySoA = AverageGeometryLayout<>;
   using AverageGeometryView = AverageGeometrySoA::View;
   using AverageGeometryConstView = AverageGeometrySoA::ConstView;
-#endif
 
 };  // namespace reco
 
