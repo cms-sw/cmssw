@@ -61,9 +61,9 @@ int main() {
 
       for (uint32_t j = 0; j < (uint32_t)sStripCond_DetToFeds_h->metadata().size(); ++j) {
         assert(sStripCond_DetToFeds_h->detid_(j) == j * 2);
-        assert(sStripCond_DetToFeds_h->ipair_(j) == (uint16_t)((j) % 65536));
         assert(sStripCond_DetToFeds_h->fedid_(j) == (uint16_t)((j + 1) % 65536));
-        assert(sStripCond_DetToFeds_h->fedch_(j) == (uint8_t)(j % 256));
+        assert(sStripCond_DetToFeds_h->fedch_(j) == (uint16_t)(j % 65536));
+        assert(sStripCond_DetToFeds_h->ipair_(j) == (uint16_t)((j) % 65536));
       }
 
       for (uint32_t j = 0; j < (uint32_t)sStripCond_Data_h.sizes()[0]; ++j) {

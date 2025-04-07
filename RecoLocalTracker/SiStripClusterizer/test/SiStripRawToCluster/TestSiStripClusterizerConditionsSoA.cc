@@ -14,6 +14,7 @@ int main() {
   constexpr const unsigned int Data_fedch_size = 42240;
   constexpr const unsigned int Data_strip_size = 10813440;
   constexpr const unsigned int Data_apv_size = 84480;
+
   SiStripClusterizerConditionsDetToFedsHost sStripCond_DetToFeds(DetToFeds_size, cms::alpakatools::host());
   SiStripClusterizerConditionsDataHost sStripCond_Data({{Data_fedch_size, Data_strip_size, Data_apv_size}},
                                                        cms::alpakatools::host());
@@ -24,9 +25,9 @@ int main() {
 
   for (uint32_t j = 0; j < DetToFeds_size; j++) {
     sStripCond_DetToFeds->detid_(j) = j * 2;
-    sStripCond_DetToFeds->ipair_(j) = (uint16_t)((j) % 65536);
     sStripCond_DetToFeds->fedid_(j) = (uint16_t)((j + 1) % 65536);
-    sStripCond_DetToFeds->fedch_(j) = (uint8_t)(j % 256);
+    sStripCond_DetToFeds->fedch_(j) = (uint16_t)(j % 65536);
+    sStripCond_DetToFeds->ipair_(j) = (uint16_t)((j) % 65536);
   }
 
   for (uint32_t j = 0; j < Data_fedch_size; j++) {
@@ -46,9 +47,9 @@ int main() {
   // Assert
   for (uint32_t j = 0; j < DetToFeds_size; j++) {
     assert(sStripCond_DetToFeds->detid_(j) == j * 2);
-    assert(sStripCond_DetToFeds->ipair_(j) == (uint16_t)((j) % 65536));
     assert(sStripCond_DetToFeds->fedid_(j) == (uint16_t)((j + 1) % 65536));
-    assert(sStripCond_DetToFeds->fedch_(j) == (uint8_t)(j % 256));
+    assert(sStripCond_DetToFeds->fedch_(j) == (uint16_t)(j % 65536));
+    assert(sStripCond_DetToFeds->ipair_(j) == (uint16_t)((j) % 65536));
   }
 
   for (uint32_t j = 0; j < Data_fedch_size; j++) {

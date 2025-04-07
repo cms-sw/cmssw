@@ -30,18 +30,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
   class DetToFed {
   public:
-    DetToFed(uint32_t detid, uint16_t ipair, uint16_t fedid, uint8_t fedch)
-        : detid_(detid), ipair_(ipair), fedid_(fedid), fedch_(fedch) {}
+    DetToFed(uint32_t detid, uint16_t fedid, uint16_t fedch, uint16_t ipair)
+        : detid_(detid), fedid_(fedid), fedch_(fedch), ipair_(ipair) {}
+
     inline uint32_t detID() const { return detid_; }
-    inline uint16_t pair() const { return ipair_; }
     inline uint16_t fedID() const { return fedid_; }
-    inline uint8_t fedCh() const { return fedch_; }
+    inline uint16_t fedCh() const { return fedch_; }
+    inline uint16_t pair() const { return ipair_; }
 
   private:
     uint32_t detid_;
-    uint16_t ipair_;
     uint16_t fedid_;
-    uint8_t fedch_;
+    uint16_t fedch_;
+    uint16_t ipair_;
   };
 
   class SiStripClusterizerConditionsESProducerAlpaka : public ESProducer {
@@ -69,7 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         SiStripClusterizerConditionsDetToFedsRecord const& iRecord) {
       const auto& quality = iRecord.get(qualityTokenA_);
 
-      std::vector<DetToFed> detToFeds;  // detid_, ipair_, fedid_, fedch_
+      std::vector<DetToFed> detToFeds;  // detid_, fedid_, fedch_, ipair_
 
       // connected: map<DetID, std::vector<int>>
       // map of KEY=detid DATA=vector of apvs, maximum 6 APVs per detector module :
@@ -91,7 +92,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                 const auto chan_fedCh = chan->fedCh();
                 const auto chan_apvPairNumber = chan->apvPairNumber();
 
-                detToFeds.emplace_back(chan_detID, chan_apvPairNumber, chan_fedID, chan_fedCh);
+                detToFeds.emplace_back(chan_detID, chan_fedID, chan_fedCh, chan_apvPairNumber);
               }
             }
           }

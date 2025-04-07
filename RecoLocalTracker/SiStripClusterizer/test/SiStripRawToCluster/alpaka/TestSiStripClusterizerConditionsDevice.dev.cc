@@ -21,9 +21,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::testConditionsSoA {
                                   SiStripClusterizerConditionsData_apvView Data_apvSoA_view) const {
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, DetToFeds_view.metadata().size())) {
         DetToFeds_view.detid_(j) = j * 2;
-        DetToFeds_view.ipair_(j) = (uint16_t)((j) % 65536);
         DetToFeds_view.fedid_(j) = (uint16_t)((j + 1) % 65536);
-        DetToFeds_view.fedch_(j) = (uint8_t)(j % 256);
+        DetToFeds_view.fedch_(j) = (uint16_t)(j % 65536);
+        DetToFeds_view.ipair_(j) = (uint16_t)((j) % 65536);
       }
 
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, Data_fedchSoA_view.metadata().size())) {
@@ -52,9 +52,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::testConditionsSoA {
                                   SiStripClusterizerConditionsData_apvView Data_apvSoA_view) const {
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, DetToFeds_view.metadata().size())) {
         ALPAKA_ASSERT_ACC(DetToFeds_view.detid_(j) == j * 2);
-        ALPAKA_ASSERT_ACC(DetToFeds_view.ipair_(j) == (uint16_t)((j) % 65536));
         ALPAKA_ASSERT_ACC(DetToFeds_view.fedid_(j) == (uint16_t)((j + 1) % 65536));
-        ALPAKA_ASSERT_ACC(DetToFeds_view.fedch_(j) == (uint8_t)(j % 256));
+        ALPAKA_ASSERT_ACC(DetToFeds_view.fedch_(j) == (uint16_t)(j % 65536));
+        ALPAKA_ASSERT_ACC(DetToFeds_view.ipair_(j) == (uint16_t)((j) % 65536));
       }
 
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, Data_fedchSoA_view.metadata().size())) {
