@@ -195,3 +195,4 @@ DEFINE_FWK_MODULE(SiPixelMonitorRecHitsSoAAlpaka);
 DEFINE_FWK_MODULE(SiPixelPhase1MonitorRecHitsSoAAlpaka);
 DEFINE_FWK_MODULE(SiPixelPhase2MonitorRecHitsSoAAlpaka);
 DEFINE_FWK_MODULE(SiPixelHIonPhase1MonitorRecHitsSoAAlpaka);
+

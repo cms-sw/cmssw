@@ -21,3 +21,4 @@
 </library>
 
 <test name="testWriteAndReadTrackSoA" command="testWriteAndReadTrackSoA.sh" />
+

@@ -60,13 +60,11 @@ namespace cms::alpakatools {
     static auto copyAsync(TQueue& queue, reco::TrackingRecHitHost const& hostData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
 
-      auto hostHitView = hostData.template view<reco::TrackingRecHitSoA>();
-      auto moduleHitsView = hostData.template view<reco::HitModuleSoA>();
+      auto nHits = hostData.nHits();
 
-      reco::TrackingRecHitDevice<TDevice> deviceData(
-          queue, hostHitView.metadata().size(), moduleHitsView.metadata().size());
+      reco::TrackingRecHitDevice<TDevice> deviceData(queue, nHits, hostData.nModules());
 
-      if (hostHitView.metadata().size() == 0) {
+      if (nHits == 0) {
         std::memset(
             deviceData.buffer().data(),
             0,

@@ -28,11 +28,11 @@ namespace reco {
 
   GENERATE_SOA_LAYOUT(HitModulesLayout, SOA_COLUMN(uint32_t, moduleStart));
 
-// N.B. this layout is not really included by default in the hits SoA
-// This holds the needed parameters to activate (via ONLY_TRIPLETS_IN_HOLE) the 
-// calculations to check if a triplet points to the disk hole 
-// and then retain only those that fulfil this requirement.
-// At the moment this feature is not fully (re)implemented.  
+  // N.B. this layout is not really included by default in the hits SoA
+  // This holds the needed parameters to activate (via ONLY_TRIPLETS_IN_HOLE) the
+  // calculations to check if a triplet points to the disk hole
+  // and then retain only those that fulfil this requirement.
+  // At the moment this feature is not fully (re)implemented.
 
   GENERATE_SOA_LAYOUT(AverageGeometryLayout,
                       SOA_COLUMN(float, ladderZ),

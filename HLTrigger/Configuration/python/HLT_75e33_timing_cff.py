@@ -350,3 +350,4 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLTriggerFinalPath,
     fragment.HLTAnalyzerEndpath,
 ])
+

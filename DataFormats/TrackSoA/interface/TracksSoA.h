@@ -54,13 +54,13 @@ namespace reco {
     auto end = tracks[i].hitOffsets();
     auto hitId = hits[start].id();
     int nl = 1;
-    auto ol = 0;
+    int ol = 0;
     while (hitId >= layerStarts[ol + 1] and ol < maxLayers)
       ++ol;
     ++start;
     for (; start < end; ++start) {
       hitId = hits[start].id();
-      auto il = 0;
+      int il = 0;
       while (hitId >= layerStarts[il + 1] and il < maxLayers)
         ++il;
       if (il != ol)

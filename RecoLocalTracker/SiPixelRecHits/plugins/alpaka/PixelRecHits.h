@@ -45,7 +45,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // This is necessary only once - consider moving it somewhere else.
           // Copy the average geometry corrected by the beamspot.
           if (0 == module) {
-            // auto& agc = hits.averageGeometry();
             auto const& ag = cpeParams->averageGeometry();
             auto nLadders = TrackerTraits::numberOfLaddersInBarrel;
 

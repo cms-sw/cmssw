@@ -255,16 +255,15 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
 
 #ifdef ONLY_TRIPLETS_IN_HOLE
   // compute ladder baricenter (only in global z) for the barrel
-  //
 
   constexpr int numberOfModulesInLadder = TrackerTraits::numberOfModulesInLadder;
   constexpr int numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
   constexpr int numberOfModulesInBarrel = TrackerTraits::numberOfModulesInBarrel;
 
+  constexpr float ladderFactor = 1.f / float(numberOfModulesInLadder);
+
   constexpr int firstEndcapPos = TrackerTraits::firstEndcapPos;
   constexpr int firstEndcapNeg = TrackerTraits::firstEndcapNeg;
-
-  constexpr float ladderFactor = 1.f / float(numberOfModulesInLadder);
 
   auto& aveGeom = buffer_->averageGeometry();
   int il = 0;

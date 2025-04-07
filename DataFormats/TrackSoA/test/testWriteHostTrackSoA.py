@@ -19,3 +19,4 @@ process.path = cms.Path(process.trackSoA)
 process.endPath = cms.EndPath(process.out)
 
 'testTrackSoAWriter.root'
+

@@ -53,7 +53,7 @@ namespace reco {
     }
 
     uint32_t nHits() const { return this->template view<TrackingRecHitSoA>().metadata().size(); }
-    uint32_t nModules() const { return this->template view<HitModuleSoA>().metadata().size(); }
+    uint32_t nModules() const { return this->template view<HitModuleSoA>().metadata().size() - 1; }
 
     int32_t offsetBPIX2() const { return offsetBPIX2_; }
 
