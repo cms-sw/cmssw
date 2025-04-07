@@ -31,18 +31,24 @@ namespace sistrip {
     void produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const override {
       auto const& clusters_onHost = iEvent.get(siStripClustersToken_);
 
-      const int nSeedStripsNC = clusters_onHost->nClusters();
       const auto clusterSize = clusters_onHost->clusterSize();
       const auto clusterADCs = clusters_onHost->clusterADCs();
       const auto detIDs = clusters_onHost->clusterDetId();
       const auto stripIDs = clusters_onHost->firstStrip();
       const auto trueCluster = clusters_onHost->trueCluster();
 
-      const unsigned int initSeedStripsSize = 15000;
+      // Educated guess for the total number of detector IDs,
+      // based on Run: 386593 Event: 536278171 with 13883 detectors.
+      const unsigned int kInitSeedStripsSize = 15000;
+      // The number of clusters from x->nClusters() is an upper limit,
+      // the flag trueCluster then mask the real clusters.
+      // From Run: 386593 Event: 536278171 there are nClusters=112735 with
+      // 99863 real clusters (so 112735-99863 = 12872 clusters are masked out )
+      const int nSeedStripsNC = clusters_onHost->nClusters();
 
       using out_t = edmNew::DetSetVector<SiStripCluster>;
-      auto output{std::make_unique<out_t>(edmNew::DetSetVector<SiStripCluster>())};
-      output->reserve(initSeedStripsSize, nSeedStripsNC);
+      auto output = std::make_unique<out_t>(edmNew::DetSetVector<SiStripCluster>());
+      output->reserve(kInitSeedStripsSize, nSeedStripsNC);
 
       std::vector<uint8_t> adcs;
       for (int i = 0; i < nSeedStripsNC;) {
@@ -67,13 +73,57 @@ namespace sistrip {
       }
 
       output->shrink_to_fit();
+      if (edm::isDebugEnabled()) {
+        dumpClusters(output.get(), nSeedStripsNC);
+      }
       iEvent.put(siStripClustersSetVecPutToken_, std::move(output));
     }
+
+    void dumpClusters(edmNew::DetSetVector<SiStripCluster>* detSetClusters, int clustersPrealloc) const;
 
   private:
     const edm::EDGetTokenT<SiStripClustersHost> siStripClustersToken_;
     const edm::EDPutTokenT<edmNew::DetSetVector<SiStripCluster>> siStripClustersSetVecPutToken_;
   };
+
+  void SiStripClustersToLegacy::dumpClusters(edmNew::DetSetVector<SiStripCluster>* detSetClusters,
+                                             int clustersPrealloc) const {
+    int clustersAlloc = detSetClusters->dataSize();
+
+    std::ostringstream dumpMsg("[SiStripClustersToLegacy::dumpClusters] Clusters report\n");
+    dumpMsg << "Pre-allocated:\t" << clustersPrealloc << "\tProduced:\t" << clustersAlloc << "\n";
+    dumpMsg << "   -----  Small cluster dump BEGIN -----   \n";
+    dumpMsg << "i\tcIdx\tcSz\tcDetId\tchg\t1st\ttCl\tbary\t - clusterADCs\n";
+
+    int clusterIndex = 0;
+    int i = 0;
+    for (auto it = detSetClusters->begin(); it != detSetClusters->end(); ++i, it++) {
+      if (true || clusterIndex < 50 || clusterIndex > (clustersAlloc - 50) || clusterIndex % 10000 == 0) {
+        auto detSet = *it;
+        auto cDetId = detSet.detId();
+        int clNum = detSet.size();
+        for (auto j = detSet.begin(); j != detSet.end(); ++j, ++clusterIndex) {
+          auto cluster = *j;
+          //
+          auto cSz = cluster.size();
+          auto chg = cluster.charge();
+          auto firstStrip = cluster.firstStrip();
+          int trueCluster = 1;
+          auto bary = cluster.barycenter();
+          dumpMsg << clusterIndex << "\t" << i << "\t" << cSz << "\t" << cDetId << "\t" << chg << "\t" << firstStrip
+                  << "\t" << trueCluster << "\t" << bary << "\t - ";
+          for (int k = 0; k < (int)cluster.amplitudes().size(); ++k) {
+            auto adc = cluster.amplitudes()[k];
+            dumpMsg << k << ":" << (int)(adc) << "  ";
+          }
+          dumpMsg << "\n";
+        }
+      }
+    }
+    dumpMsg << "   -----  Small cluster dump END   -----   \n";
+    LogDebug("dumpClusters") << dumpMsg.str();
+  }
+
 }  // namespace sistrip
 
 #include "FWCore/Framework/interface/MakerMacros.h"
