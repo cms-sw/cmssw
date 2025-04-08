@@ -2,4 +2,5 @@
   <use name="DataFormats/Portable"/>
   <use name="DataFormats/SoATemplate"/>
   <use name="catch2"/>
+  <use name="eigen"/>
 </bin>

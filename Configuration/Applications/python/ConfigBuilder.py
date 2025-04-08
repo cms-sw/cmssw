@@ -619,6 +619,7 @@ class ConfigBuilder(object):
                 defaultFileName=self._options.outfile_name
             else:
                 defaultFileName=self._options.outfile_name.replace('.root','_in'+theTier+'.root')
+                defaultFileName=defaultFileName.replace('.rntpl','_in'+theTier+'.rntpl')
 
             theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,defaultFileName)
             if not theFileName.endswith('.root'):
@@ -698,6 +699,7 @@ class ConfigBuilder(object):
                 theFileName=self._options.outfile_name
             else:
                 theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
+                theFileName=theFileName.replace('.rntpl','_in'+streamType+'.rntpl')
             theFilterName=self._options.filtername
             if streamType=='ALCARECO':
                 theFilterName = 'StreamALCACombined'
@@ -725,7 +727,9 @@ class ConfigBuilder(object):
         CppType='PoolOutputModule'
         if self._options.timeoutOutput:
             CppType='TimeoutPoolOutputModule'
-        if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
+        if streamType=='DQM' and tier=='DQMIO':
+            CppType='DQMRootOutputModule'
+            fileName = fileName.replace('.rntpl', '.root')
         if not ignoreNano and "NANOAOD" in streamType : CppType='NanoAODOutputModule'
         if self._options.rntuple_out and CppType == 'PoolOutputModule':
             CppType='RNTupleOutputModule'
@@ -821,6 +825,8 @@ class ConfigBuilder(object):
         try:
             if len(self.stepMap):
                 self.loadAndRemember(self.GeometryCFF)
+                if (self.GeometryCFF == 'Configuration/StandardSequences/GeometryRecoDB_cff' and not self.geometryDBLabel):
+                    print("Warning: The default GeometryRecoDB_cff is being used; however, the DB geometry is not applied. You may need to verify your cmsDriver.")
                 if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
                     self.loadAndRemember(self.SimGeometryCFF)
                     if self.geometryDBLabel:
@@ -1159,7 +1165,10 @@ class ConfigBuilder(object):
                 if opt in GeometryConf:
                     return GeometryConf[opt]
                 else:
-                    return opt
+                    if (opt=='SimDB' or opt.startswith('DB:')):
+                        return opt
+                    else:
+                        raise Exception("Geometry "+opt+" does not exist!")
 
             geoms=self._options.geometry.split(',')
             if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')

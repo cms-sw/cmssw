@@ -1,7 +1,7 @@
 #include "RecoEgamma/EgammaTools/interface/PhotonEnergyCalibrator.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include <CLHEP/Random/RandGaussQ.h>

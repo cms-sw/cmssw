@@ -8,6 +8,10 @@
 void HGCalCassette::setParameter(int cassette, const std::vector<double>& shifts, bool both) {
   cassette_ = cassette;
   typeHE_ = (cassette_ >= 12);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::setParameter Cassette" << cassette << " Both " << both << " Size "
+                                << shifts.size();
+#endif
   shifts_.insert(shifts_.end(), shifts.begin(), shifts.end());
   if (both)
     shiftsScnt_.insert(shiftsScnt_.end(), shifts.begin(), shifts.end());
@@ -35,6 +39,7 @@ void HGCalCassette::setParameter(int cassette, const std::vector<double>& shifts
 }
 
 void HGCalCassette::setParameterScint(const std::vector<double>& shifts) {
+  //  shifts_.insert(shifts_.end(), shifts.begin(), shifts.end());
   shiftsScnt_.insert(shiftsScnt_.end(), shifts.begin(), shifts.end());
 #ifdef EDM_ML_DEBUG
   for (uint32_t j1 = 0; j1 < shifts.size(); j1 += 12) {
@@ -55,8 +60,13 @@ void HGCalCassette::setParameterScint(const std::vector<double>& shifts) {
 std::pair<double, double> HGCalCassette::getShift(int layer, int zside, int cassette, bool scnt) const {
   int locc = (zside < 0) ? (cassette - 1) : (typeHE_ ? positHE_[cassette - 1] : positEE_[cassette - 1]);
   int loc = 2 * (cassette_ * (layer - 1) + locc);
-  std::pair<double, double> xy = (typeHE_ && scnt) ? (std::make_pair(-zside * shiftsScnt_[loc], shiftsScnt_[loc + 1]))
-                                                   : (std::make_pair(-zside * shifts_[loc], shifts_[loc + 1]));
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::getShift: layer|zside|cassett|scnt " << layer << ":" << zside << ":"
+                                << cassette << ":" << scnt << " loc " << locc << ":" << loc << " size "
+                                << shiftsScnt_.size() << ":" << shifts_.size();
+#endif
+  std::pair<double, double> xy = (typeHE_ && scnt) ? (std::make_pair(shiftsScnt_[loc], shiftsScnt_[loc + 1]))
+                                                   : (std::make_pair(shifts_[loc], shifts_[loc + 1]));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalCassette::getShift: Layer " << layer << " zside " << zside << " type "
                                 << typeHE_ << " cassette " << cassette << " Loc " << locc << ":" << loc << " shift "

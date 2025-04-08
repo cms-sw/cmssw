@@ -7,26 +7,27 @@ hitCollectorForOutInMuonSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEsti
     nSigma        = 4.,    ## was 3  ## TO BE TUNED 
 )
 
-outInSeedsFromStandaloneMuons = cms.EDProducer('OutsideInMuonSeeder',
+from RecoTracker.SpecialSeedGenerators.outsideInMuonSeeder_cfi import outsideInMuonSeeder
+outInSeedsFromStandaloneMuons = outsideInMuonSeeder.clone(
     ## Input collection of muons, and selection. outerTrack.isNonnull is implicit.
-    src = cms.InputTag('muons'),
-    cut = cms.string('pt > 10 && outerTrack.hitPattern.muonStationsWithValidHits >= 2'),
-    layersToTry = cms.int32(3), # try up to 3 layers where at least one seed is found
-    hitsToTry = cms.int32(3),   # use at most 3 hits from the same layer
+    src = 'muons',
+    cut = 'pt > 10 && outerTrack.hitPattern.muonStationsWithValidHits >= 2',
+    layersToTry = 3, # try up to 3 layers where at least one seed is found
+    hitsToTry = 3,   # use at most 3 hits from the same layer
     ## Use as state the muon updated ad vertex (True) or the innermost state of the standalone track (False)
-    fromVertex = cms.bool(True),
+    fromVertex = True,
     ## Propagator to go from muon state to TOB/TEC.
-    muonPropagator = cms.string('SteppingHelixPropagatorAlong'),
+    muonPropagator = 'SteppingHelixPropagatorAlong',
     ## Propagator used searching for hits..
-    trackerPropagator  = cms.string('PropagatorWithMaterial'),
+    trackerPropagator  = 'PropagatorWithMaterial',
     ## How much to rescale the standalone muon uncertainties beforehand
-    errorRescaleFactor = cms.double(2.0),
+    errorRescaleFactor = 2.0,
     ## Chi2MeasurementEstimator used to select hits
-    hitCollector = cms.string('hitCollectorForOutInMuonSeeds'),
+    hitCollector = 'hitCollectorForOutInMuonSeeds',
     ## Eta ranges to search for TOB and TEC
-    maxEtaForTOB = cms.double(1.8),
-    minEtaForTEC = cms.double(0.7),
+    maxEtaForTOB = 1.8,
+    minEtaForTEC = 0.7,
     #### Turn on verbose debugging (to be removed at the end)
-    debug = cms.untracked.bool(False),
+    debug = False
 )
 

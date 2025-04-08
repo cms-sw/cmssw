@@ -44,6 +44,9 @@ provided: `ViewTemplate`, `ViewViewTemplateFreeParams` and respectively `ConstVi
 `ConstViewTemplateFreeParams`. The parametrization of those templates is explained in the [Template
 parameters section](#template-parameters).
 
+It is also possible to build a generic `View` or `ConstView` passing from the [Metarecords sublass](#metarecords-subclass). This
+view can point to data belonging to different SoAs and thus not contiguous in memory.
+
 ## Metadata subclass
 
 In order to no clutter the namespace of the generated class, a subclass name `Metadata` is generated. It is
@@ -51,6 +54,13 @@ instanciated with the `metadata()` member function and contains various utility 
 of elements in the SoA), `byteSize()`, `byteAlignment()`, `data()` (a pointer to the buffer). A `nextByte()`
 function computes the first byte of a structure right after a layout, allowing using a single buffer for multiple
 layouts.
+
+## Metarecords subclass
+
+The nested type `Metarecords` describes the elements of the SoA. It can be instantiated by the `records()` member 
+function of a `View` or `ConstView`. Every object contains the address of the first element of the column, the number
+of elements per column, and the stride for the Eigen columns. These are used to validate the columns size at run time 
+and to build a generic `View` as described in [View](#view).
 
 ## ROOT serialization and de-serialization
 
