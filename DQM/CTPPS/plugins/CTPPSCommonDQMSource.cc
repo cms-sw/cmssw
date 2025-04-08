@@ -43,7 +43,6 @@ protected:
 
 private:
   const unsigned int verbosity;
-  constexpr static int MAX_LUMIS = 6000;
   constexpr static int MAX_VBINS = 20;
 
   const edm::EDGetTokenT<CTPPSRecord> ctppsRecordToken;
@@ -105,7 +104,6 @@ private:
 using namespace std;
 using namespace edm;
 
-const int CTPPSCommonDQMSource::MAX_LUMIS;
 const int CTPPSCommonDQMSource::MAX_VBINS;
 
 //----------------------------------------------------------------------------------------------------
@@ -125,9 +123,9 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker) {
   */
   RPState = ibooker.book2D("rpstate per LS",
                            "RP State per Lumisection;Luminosity Section;",
-                           MAX_LUMIS,
+                           1000,
                            0,
-                           MAX_LUMIS,
+                           1000,
                            MAX_VBINS,
                            0.,
                            MAX_VBINS);
