@@ -56,7 +56,7 @@ namespace l1t {
   private:
     float rawPt_;
     Constituents constituents_;
-    std::array<PackedJet, 3> encodedJet_ = {{ {{0, 0}}, {{0, 0}}, {{0, 0}} }};
+    std::array<PackedJet, 3> encodedJet_ = {{{{0, 0}}, {{0, 0}}, {{0, 0}}}};
   };
 
   typedef std::vector<l1t::PFJet> PFJetCollection;
