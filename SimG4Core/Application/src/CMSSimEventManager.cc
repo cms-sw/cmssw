@@ -1,8 +1,5 @@
 #include "SimG4Core/Application/interface/CMSSimEventManager.h"
 #include "SimG4Core/Application/interface/RunAction.h"
-#include "SimG4Core/Application/interface/EventAction.h"
-#include "SimG4Core/Application/interface/StackingAction.h"
-#include "SimG4Core/Application/interface/TrackingAction.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,7 +10,10 @@
 #include "G4PrimaryTransformer.hh"
 #include "G4TrackingManager.hh"
 #include "G4TrackStatus.hh"
+#include "G4UserEventAction.hh"
+#include "G4UserTrackingAction.hh"
 #include "G4UserSteppingAction.hh"
+#include "G4UserStackingAction.hh"
 
 #include "G4SDManager.hh"
 #include "G4StateManager.hh"
@@ -98,13 +98,13 @@ void CMSSimEventManager::StackTracks(G4TrackVector* trackVector, bool IDisSet) {
   trackVector->clear();
 }
 
-void CMSSimEventManager::SetUserAction(EventAction* ptr) { m_eventAction = ptr; }
+void CMSSimEventManager::SetUserAction(G4UserEventAction* ptr) { m_eventAction = ptr; }
 
-void CMSSimEventManager::SetUserAction(StackingAction* ptr) { m_stackingAction = ptr; }
+void CMSSimEventManager::SetUserAction(G4UserStackingAction* ptr) { m_stackingAction = ptr; }
 
-void CMSSimEventManager::SetUserAction(TrackingAction* ptr) {
+void CMSSimEventManager::SetUserAction(G4UserTrackingAction* ptr) {
   m_trackingAction = ptr;
-  m_defTrackManager->SetUserAction((G4UserTrackingAction*)ptr);
+  m_defTrackManager->SetUserAction(ptr);
 }
 
 void CMSSimEventManager::SetUserAction(G4UserSteppingAction* ptr) { m_defTrackManager->SetUserAction(ptr); }
