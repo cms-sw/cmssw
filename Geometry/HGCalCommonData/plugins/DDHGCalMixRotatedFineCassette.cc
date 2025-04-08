@@ -618,7 +618,8 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
         double phi2 = dphi * (fimax - fimin + 1) - tol0_;
         auto cshift = cassette_.getShift(layer + 1, 1, cassette, true);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << "1Layer " << ly << ":" << ii << ":" << copy << ":" << layer << " Cassette " << cassette << " shift " << cshift.first << ":" << cshift.second;
+        edm::LogVerbatim("HGCalGeom") << "1Layer " << ly << ":" << ii << ":" << copy << ":" << layer << " Cassette "
+                                      << cassette << " shift " << cshift.first << ":" << cshift.second;
         int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
         int ir1 = (fine) ? std::get<1>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                          : std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
@@ -710,7 +711,8 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
       double phi2 = dphi * (fimax - fimin + 1);
       auto cshift = cassette_.getShift(layer + 1, 1, cassette, true);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "2Layer " << ii << ":" << copy << ":" << layer << " Cassette " << cassette << " shift " << cshift.first << ":" << cshift.second;
+      edm::LogVerbatim("HGCalGeom") << "2Layer " << ii << ":" << copy << ":" << layer << " Cassette " << cassette
+                                    << " shift " << cshift.first << ":" << cshift.second;
       int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
       int ir1 = (fine) ? std::get<1>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                        : std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
@@ -755,7 +757,8 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
       int cassette = k + 1;
       auto cshift = cassette_.getShift(layer + 1, 1, cassette);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "3Layer " << layer << " Cassette " << cassette << " shift " << cshift.first << ":" << cshift.second;
+      edm::LogVerbatim("HGCalGeom") << "3Layer " << layer << " Cassette " << cassette << " shift " << cshift.first
+                                    << ":" << cshift.second;
 #endif
       double xpos = -cshift.first;
       double ypos = cshift.second;
@@ -826,7 +829,8 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
 #endif
       auto cshift = cassette_.getShift(layer + 1, 1, cassette, false);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " Cassette " << cassette << " shift " << cshift.first << ":" << cshift.second;
+      edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " Cassette " << cassette << " shift " << cshift.first << ":"
+                                    << cshift.second;
 #endif
       double xpos = xyoff.first - cshift.first + nc * delx;
       double ypos = xyoff.second + cshift.second + nr * dy;
@@ -900,9 +904,11 @@ void DDHGCalMixRotatedFineCassette::testCassetteShift() {
       int cassette = l + 1;
       auto cf1 = cassette_.getShift(layer, 1, cassette, false);
       auto cf2 = cassette_.getShift(layer, 1, cassette, true);
-      auto cf3 = cassette_.getShift(layer,-1, cassette, false);
-      auto cf4 = cassette_.getShift(layer,-1, cassette, true);
-      edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " Cassette " << cassette << " x for z+ " << cf1.first << ":" << cf2.first << " y for z+ " << cf1.second << ":" << cf2.second  << " x for z- " << cf3.first << ":" << cf4.first << " y for z- " << cf3.second << ":" << cf4.second;
+      auto cf3 = cassette_.getShift(layer, -1, cassette, false);
+      auto cf4 = cassette_.getShift(layer, -1, cassette, true);
+      edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " Cassette " << cassette << " x for z+ " << cf1.first << ":"
+                                    << cf2.first << " y for z+ " << cf1.second << ":" << cf2.second << " x for z- "
+                                    << cf3.first << ":" << cf4.first << " y for z- " << cf3.second << ":" << cf4.second;
     }
   }
 }
