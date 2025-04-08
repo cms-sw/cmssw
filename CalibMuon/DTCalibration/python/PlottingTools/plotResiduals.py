@@ -1,10 +1,10 @@
 from __future__ import print_function
 from __future__ import absolute_import
 import ROOT
-from .fitResidual import fitResidual
-from .drawHistoAllChambers import drawHisto
+from fitResidual import fitResidual
+from drawHistoAllChambers import drawHisto
 
-def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option="HISTOPE1",draw=True):
+def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option="HISTOPE1",mode="None",draw=True):
 
     mean_ymin = -0.02
     mean_ymax =  0.02
@@ -39,7 +39,8 @@ def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option
             for sec in range(1,nSectors+1):
                 if verbose: print("Sector",sec)
                 # Get histogram
-                histoName = "%s/Wheel%d/Station%d/Sector%d/hResDist_STEP3_W%d_St%d_Sec%d_%s" % (dir,wh,st,sec,wh,st,sec,slStr) 
+                histoName = "%s/Wheel%d/Station%d/Sector%d/hResDist_STEP3_W%d_St%d_Sec%d_%s" % (dir,wh,st,sec,wh,st,sec,slStr)
+    
                 print("Accessing",histoName)
                 histo = file.Get(histoName)
                 (histo,fitFunc) = fitResidual(histo,nSigmas,verbose)
@@ -63,7 +64,30 @@ def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option
 
     objectsMean = drawHisto(histoMean,title="Mean of residuals (cm)",
                                       ymin=mean_ymin,ymax=mean_ymax,option=option,draw=draw)
-    objectsSigma = drawHisto(histoSigma,title="Sigma of residuals (cm)",
-                                        ymin=sig_ymin,ymax=sig_ymax,option=option,draw=draw)
+    objectsSigma = drawHisto(histoSigma,title="Sigma of residuals (cm)",ymin=sig_ymin,ymax=sig_ymax,option=option,draw=draw)
 
+
+    objectsMean[0].cd()
+    objectsMean[0].SaveAs("plot_"+mode+"_Mean.png")
+
+
+    objectsSigma[0].cd()
+    objectsSigma[0].SaveAs("plot_"+mode+"_Sigma.png")
+    
     return (objectsMean,objectsSigma)
+
+
+
+if __name__ == "__main__":
+
+    fileName = "./Run379617-PPtest_v1/Residuals/results/residuals.root"
+    directory = "DTResiduals"
+    mode = "Test"
+
+    #fileName = "./Run379617-ValTest_v1/TtrigValidation/results/DQM_V0001_R000000001__ExpressPhysics__Run2024C-Express-v1__FEVT.root"
+    #directory = "DQMData/Run 1/DT/Run summary/DTCalibValidation"
+    #mode = "Val"
+    sl = 2
+    re = plot(fileName, sl, dir=directory, mode=mode)[0]
+
+    print(re)
