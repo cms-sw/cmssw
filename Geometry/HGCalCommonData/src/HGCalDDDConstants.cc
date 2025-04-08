@@ -1458,6 +1458,16 @@ int HGCalDDDConstants::tileCount(int layer, int ring) const {
 bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const {
   int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
   auto itr = hgpar_->tileInfoMap_.find(indx);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end());
+#endif
+  if (itr == hgpar_->tileInfoMap_.end()) {
+    indx = HGCalTileIndex::tileIndex(layer, ring, 1);
+    itr = hgpar_->tileInfoMap_.find(indx);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeomT") << "Tile Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end());
+#endif
+  }
   bool ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
   return ok;
 }
@@ -1569,8 +1579,7 @@ void HGCalDDDConstants::waferFromPosition(const double x, const double y, int& w
   } else {
     wafer = -1;
 #ifdef EDM_ML_DEBUG
-    edm::LogWarning("HGCalGeom") << "Cannot get wafer type corresponding to " << x << ":" << y << "    " << xx << ":"
-                                 << yy;
+    edm::LogVerbatim("HGCalGeom") << "Cannot get wafer type corresponding to " << x << ":" << y << "    " << xx << ":" << yy;
 #endif
   }
 #ifdef EDM_ML_DEBUG
