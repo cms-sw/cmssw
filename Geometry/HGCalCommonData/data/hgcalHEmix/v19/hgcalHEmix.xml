@@ -23,6 +23,7 @@
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
     <Numeric name="Sectors"          value="36"/>
     <Numeric name="Cassettes"        value="12"/>
+    <Numeric name="TestCassetteShift" value="0"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="4">
       0, 0, 0, 0</Vector>
     <Vector name="ZFrontBottom" type="numeric" nEntries="4">

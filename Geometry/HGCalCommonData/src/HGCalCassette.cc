@@ -9,7 +9,7 @@ void HGCalCassette::setParameter(int cassette, const std::vector<double>& shifts
   cassette_ = cassette;
   typeHE_ = (cassette_ >= 12);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::setParameter Cassette" << cassette << " Both " << both << " Size "
+  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::setParameter Cassette " << cassette << " Both " << both << " Size "
                                 << shifts.size();
 #endif
   shifts_.insert(shifts_.end(), shifts.begin(), shifts.end());
@@ -26,7 +26,7 @@ void HGCalCassette::setParameter(int cassette, const std::vector<double>& shifts
         st1 << " Shifts:";
     } else {
       if (both)
-        st1 << "                  ";
+        st1 << "                   ";
       else
         st1 << "        ";
     }
@@ -42,6 +42,7 @@ void HGCalCassette::setParameterScint(const std::vector<double>& shifts) {
   //  shifts_.insert(shifts_.end(), shifts.begin(), shifts.end());
   shiftsScnt_.insert(shiftsScnt_.end(), shifts.begin(), shifts.end());
 #ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::setParameterScint with Size " << shifts.size();
   for (uint32_t j1 = 0; j1 < shifts.size(); j1 += 12) {
     std::ostringstream st1;
     if (j1 == 0) {
