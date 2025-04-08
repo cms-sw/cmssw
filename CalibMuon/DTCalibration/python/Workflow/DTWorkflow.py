@@ -211,12 +211,12 @@ class DTWorkflow(CLIHelper, CrabHelper):
     def prepare_common_write(self, do_hadd=True):
         """ Common operations used in most prepare_[workflow_mode]_erite functions"""
         self.load_options_command("submit")
-        output_path = os.path.join( self.local_path, "unmerged_results" )
+        #output_path = os.path.join( self.local_path, "unmerged_results" )
         merged_file = os.path.join(self.result_path, self.output_file)
         crabtask = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
                                                initUpdate = False)
         if not (self.options.skip_stageout or self.files_reveived or self.options.no_exec):
-            output_files =  self.get_output_files(crabtask, output_path)
+            output_files =  self.get_output_files(crabtask)
             if "xrootd" not in output_files.keys():
                 raise RuntimeError("Could not get output files. No xrootd key found.")
             if len(output_files["xrootd"]) == 0:
@@ -270,12 +270,13 @@ class DTWorkflow(CLIHelper, CrabHelper):
                                                                 moduleName)
                                                                 )
 
-    def get_output_files(self, crabtask, output_path):
-        res = self.crab.callCrabCommand( ["getoutput",
-                                    "--dump",
-                                    "--xrootd",
-                                    crabtask.crabFolder ] )
-        
+    def get_output_files(self, crabtask):
+        print("\t Will run getoutput!")
+        print("crabtask:", crabtask)
+        print("crabtask.crabFolder:", crabtask.crabFolder)
+        res = self.crab.callCrabCommand( ("getoutput", crabtask.crabFolder ) )
+
+        print("Is it a success?", res)
         return res
 
     def runCMSSWtask(self, pset_path=""):

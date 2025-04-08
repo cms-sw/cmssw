@@ -34,6 +34,7 @@ class CrabController():
     # @param self: A previously defined logger. Crab log messages will use this logger as their parent logger.
     def __init__(self, debug=0, logger = None , workingArea = None, voGroup = None, username = None):
 
+        print("Initializing CrabController()")
         setConsoleLogLevel(LOGLEVEL_MUTE)
         self.debug = debug
         if workingArea is not None:
@@ -186,10 +187,13 @@ class CrabController():
     # @param crabArgs A list of arguments for crab beginning with the command
     def callCrabCommand( self, crabArgs ):
         crabCommandProcessArgs = (self.crab_q, crabArgs)
+        print("Will run the callCrabCommand:", crabArgs)
         p = Process(target=crabCommandProcess, args=(crabCommandProcessArgs))
         p.start()
+        print("The (multi)Process() started")
         res = self.crab_q.get()
         p.join()
+        print("The Process with Crab command finished.")
         return res
 
     ## Call crab getlog
@@ -340,12 +344,13 @@ def crabCommandProcess(q,crabCommandArgs):
 
 class CertInfo:
     def __init__( self ):
+        print("Running CertInfo() init")
         p = subprocess.Popen("voms-proxy-info  --fqan",
                               stdout = subprocess.PIPE,
                               stderr = subprocess.PIPE,
                               shell=True)
         stdout, stderr = p.communicate()
-        print(stdout)
+        print("Grid Certificate:", stdout)
         if p.returncode != 0:
             self.vo = ""
             self.voGroup = ""
@@ -364,8 +369,7 @@ class CertInfo:
             except:
                 self.voRole = ""
 
-## Class for a single CrabRequest
-#e
+
 # This class represents one crab3 task/request
 class CrabTask:
 
