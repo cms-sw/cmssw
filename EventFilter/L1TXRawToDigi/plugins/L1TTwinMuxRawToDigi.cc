@@ -223,7 +223,7 @@ void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
   int newCRC = 0xFFFF;
 
   ///--> Header - line 1 [must start with 0x5]
-  readline(lineFED, nline, dataWord);
+  lineFED = readline(lineFED, nline, dataWord);
   dt_crc::calcCRC(dataWord, newCRC);
 
   int TM7fedId = (dataWord >> 8) & 0xFFF;  // positions 8 -> 19
@@ -244,7 +244,7 @@ void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
   }
 
   ///--> Header - line 2
-  readline(lineFED, nline, dataWord);
+  lineFED = readline(lineFED, nline, dataWord);
   dt_crc::calcCRC(dataWord, newCRC);
 
   std::map<int, int> AMCsizes;
@@ -259,7 +259,7 @@ void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
 
   ///--> AMC - line 3 to 3+nAMC
   for (int j = 0; j < nAMC; ++j) {
-    readline(lineFED, nline, dataWord);
+    lineFED = readline(lineFED, nline, dataWord);
     dt_crc::calcCRC(dataWord, newCRC);
 
     int AMCno = (dataWord >> 16) & 0xF;  // positions 16 -> 19
@@ -284,7 +284,7 @@ void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
   std::map<int, int>::iterator AMCitend = AMCsizes.end();
   for (; AMCiterator != AMCitend; ++AMCiterator) {
     for (int k = 0; k < AMCiterator->second; ++k) {
-      readline(lineFED, nline, dataWord);
+      lineFED = readline(lineFED, nline, dataWord);
       dt_crc::calcCRC(dataWord, newCRC);
 
       DTTM7WordContainer.push_back(dataWord);
@@ -292,7 +292,7 @@ void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
   }
 
   ///--> Trailer - line 1
-  readline(lineFED, nline, dataWord);
+  lineFED = readline(lineFED, nline, dataWord);
   dt_crc::calcCRC(dataWord, newCRC);
 
   ///--> Trailer - line 2 [must start with 0xA]
