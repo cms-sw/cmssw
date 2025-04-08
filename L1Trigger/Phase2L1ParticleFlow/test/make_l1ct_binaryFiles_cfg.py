@@ -43,8 +43,8 @@ process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
 )
 
-process.load('Configuration.Geometry.GeometryExtended2026D95Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D95_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff') # needed to read HCal TPs
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
