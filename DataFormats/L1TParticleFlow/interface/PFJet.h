@@ -39,7 +39,7 @@ namespace l1t {
 
     // Get and set the encodedJet_ bits. The Jet is encoded in 128 bits as a 2-element array of uint64_t
     // We store encodings both for Correlator internal usage and for Global Trigger
-    enum class HWEncoding { CT, GT };
+    enum class HWEncoding { CT, GT, GTWide };
     typedef std::array<uint64_t, 2> PackedJet;
     const PackedJet& encodedJet(const HWEncoding encoding = HWEncoding::GT) const {
       return encodedJet_[static_cast<int>(encoding)];
@@ -50,12 +50,13 @@ namespace l1t {
 
     // Accessors to HW objects with ap_* types from encoded words
     const PackedJet& getHWJetGT() const { return encodedJet(HWEncoding::GT); }
+    const PackedJet& getHWJetGTWide() const { return encodedJet(HWEncoding::GTWide); }
     const PackedJet& getHWJetCT() const { return encodedJet(HWEncoding::CT); }
 
   private:
     float rawPt_;
     Constituents constituents_;
-    std::array<PackedJet, 2> encodedJet_ = {{{{0, 0}}, {{0, 0}}}};
+    std::array<PackedJet, 3> encodedJet_ = {{ {{0, 0}}, {{0, 0}}, {{0, 0}} }};
   };
 
   typedef std::vector<l1t::PFJet> PFJetCollection;

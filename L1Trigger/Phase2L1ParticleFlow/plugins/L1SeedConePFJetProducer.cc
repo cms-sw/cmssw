@@ -235,7 +235,7 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM(
     edmJet.setEncodedJet(l1t::PFJet::HWEncoding::CT, jet.pack());
 
     if (wideConeJet) {
-      edmJet.setEncodedJet(l1t::PFJet::HWEncoding::GT, jet.toGTWide().pack());
+      edmJet.setEncodedJet(l1t::PFJet::HWEncoding::GTWide, jet.toGTWide().pack());
       edmJet.setMass(std::sqrt(l1gt::Scales::floatMassSq(jet.toGTWide().hwMassSq)));
     } else {
       edmJet.setEncodedJet(l1t::PFJet::HWEncoding::GT, jet.toGT().pack());
