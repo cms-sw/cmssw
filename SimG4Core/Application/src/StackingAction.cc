@@ -19,8 +19,7 @@
 #include "G4GammaGeneralProcess.hh"
 #include "G4LossTableManager.hh"
 
-StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
-    : steppingVerbose(sv) {
+StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv) : steppingVerbose(sv) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   killHeavy = p.getParameter<bool>("KillHeavy");
   killGamma = p.getParameter<bool>("KillGamma");

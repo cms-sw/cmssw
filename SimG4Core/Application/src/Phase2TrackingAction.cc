@@ -16,8 +16,7 @@
 
 //#define EDM_ML_DEBUG
 
-Phase2TrackingAction::Phase2TrackingAction(SimTrackManager* stm,
-					   CMSSteppingVerbose* sv, const edm::ParameterSet& p)
+Phase2TrackingAction::Phase2TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, const edm::ParameterSet& p)
     : trackManager_(stm),
       steppingVerbose_(sv),
       endPrintTrackID_(p.getParameter<int>("EndPrintTrackID")),
@@ -31,9 +30,8 @@ Phase2TrackingAction::Phase2TrackingAction(SimTrackManager* stm,
   if (doFineCalo_ && eth < ekinMin_) {
     ekinMin_ = eth;
   }
-  edm::LogVerbatim("SimG4CoreApplication")
-      << "Phase2TrackingAction: boundary: " << saveCaloBoundaryInformation_
-      << "; DoFineCalo: " << doFineCalo_ << "; ekinMin(MeV)=" << ekinMin_;
+  edm::LogVerbatim("SimG4CoreApplication") << "Phase2TrackingAction: boundary: " << saveCaloBoundaryInformation_
+                                           << "; DoFineCalo: " << doFineCalo_ << "; ekinMin(MeV)=" << ekinMin_;
   if (!ekinMinRegion_.empty()) {
     ptrRegion_.resize(ekinMinRegion_.size(), nullptr);
   }
@@ -84,8 +82,7 @@ void Phase2TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
   int id = aTrack->GetTrackID();
   bool ok = (trkInfo_->storeTrack() || currentTrack_->saved());
   if (trkInfo_->crossedBoundary()) {
-    currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(),
-					    trkInfo_->getMomentumAtBoundary());
+    currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
     ok = (ok || saveCaloBoundaryInformation_ || doFineCalo_);
   }
   if (ok) {
@@ -99,9 +96,8 @@ void Phase2TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Phase2TrackingAction")
-      << "Phase2TrackingAction end track=" << id << "  "
-      << aTrack->GetDefinition()->GetParticleName() << " proposed to be saved= " << ok
-      << " end point " << aTrack->GetPosition();
+      << "Phase2TrackingAction end track=" << id << "  " << aTrack->GetDefinition()->GetParticleName()
+      << " proposed to be saved= " << ok << " end point " << aTrack->GetPosition();
 #endif
 
   if (!isInHistory) {

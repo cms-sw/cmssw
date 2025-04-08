@@ -4,7 +4,7 @@
 // Package:     Application
 // Class  :     Phase2TrackingAction
 //
-// Description: Manage tracks 
+// Description: Manage tracks
 // Created:     08.04.2025 V.Ivantchenko
 //
 

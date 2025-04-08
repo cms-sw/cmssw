@@ -4,7 +4,7 @@
 // Package:     Application
 // Class  :     Phase2EventAction
 //
-// Description: Manage MC truth 
+// Description: Manage MC truth
 // Created:     08.04.2025 V.Ivantchenko
 //
 
@@ -44,7 +44,7 @@ public:
 
   Phase2EventAction(const Phase2EventAction&) = delete;
   const Phase2EventAction& operator=(const Phase2EventAction&) = delete;
-  
+
 private:
   SimRunInterface* m_runInterface;
   SimTrackManager* m_trackManager;

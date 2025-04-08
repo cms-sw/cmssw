@@ -439,15 +439,14 @@ void RunManagerMTWorker::initializeUserActions() {
   // different event actions for Run2,3 and Phase2
   G4UserEventAction* userEventAction;
   if (m_isPhase2) {
-    auto ptr = new Phase2EventAction(m_pEventAction, m_tls->runInterface.get(),
-				     m_tls->trackManager.get(), m_sVerbose.get());
+    auto ptr =
+        new Phase2EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
     Connect(ptr);
-    userEventAction = (G4UserEventAction*)ptr; 
+    userEventAction = (G4UserEventAction*)ptr;
   } else {
-    auto ptr = new EventAction(m_pEventAction, m_tls->runInterface.get(),
-			       m_tls->trackManager.get(), m_sVerbose.get());
+    auto ptr = new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
     Connect(ptr);
-    userEventAction = (G4UserEventAction*)ptr; 
+    userEventAction = (G4UserEventAction*)ptr;
   }
 
   // different tracking actions for Run2,3 and Phase2
@@ -455,11 +454,11 @@ void RunManagerMTWorker::initializeUserActions() {
   if (m_isPhase2) {
     auto ptr = new Phase2TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
     Connect(ptr);
-    userTrackingAction = (G4UserTrackingAction*)ptr; 
+    userTrackingAction = (G4UserTrackingAction*)ptr;
   } else {
     auto ptr = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
     Connect(ptr);
-    userTrackingAction = (G4UserTrackingAction*)ptr; 
+    userTrackingAction = (G4UserTrackingAction*)ptr;
   }
 
   // different stepping actions for Run2,3 and Phase2
