@@ -4,6 +4,7 @@
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -18,8 +19,8 @@
 #include "G4GammaGeneralProcess.hh"
 #include "G4LossTableManager.hh"
 
-StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
-    : trackAction(trka), steppingVerbose(sv) {
+StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
+    : steppingVerbose(sv) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   killHeavy = p.getParameter<bool>("KillHeavy");
   killGamma = p.getParameter<bool>("KillGamma");
@@ -80,6 +81,7 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
         << " *** Kill secondaries in Calorimetetrs volume = " << killInCalo << "\n"
         << " *** Kill electromagnetic secondaries from hadrons in Calorimeters volume= " << killInCaloEfH;
   }
+  m_trackInterface = CMSG4TrackInterface::instance();
 
   initPointer();
 
@@ -209,7 +211,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
       if (time > maxTrackTimeForward) {
         classification = fKill;
       } else {
-        const G4Track* mother = trackAction->geant4Track();
+        const G4Track* mother = m_trackInterface->getCurrentTrack();
         MCTruthUtil::secondary(track, *mother, 0);
       }
 
@@ -258,7 +260,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             classification = fKill;
           }
           if (killInCaloEfH && classification != fKill) {
-            int pdgMother = std::abs(trackAction->geant4Track()->GetDefinition()->GetPDGEncoding());
+            int pdgMother = std::abs(m_trackInterface->getCurrentTrack()->GetDefinition()->GetPDGEncoding());
             if ((pdg == 22 || abspdg == 11) && pdgMother != 11 && pdgMother != 22 && isThisRegion(reg, caloRegions)) {
               classification = fKill;
             }
@@ -267,7 +269,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
 
         // Russian roulette && MC truth
         if (classification != fKill) {
-          const G4Track* mother = trackAction->geant4Track();
+          const G4Track* mother = m_trackInterface->getCurrentTrack();
           int flag = 0;
           if (savePDandCinAll) {
             flag = isItPrimaryDecayProductOrConversion(subType, *mother);

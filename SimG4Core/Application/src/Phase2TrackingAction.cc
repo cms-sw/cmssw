@@ -1,4 +1,4 @@
-#include "SimG4Core/Application/interface/TrackingAction.h"
+#include "SimG4Core/Application/interface/Phase2TrackingAction.h"
 #include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
@@ -16,7 +16,8 @@
 
 //#define EDM_ML_DEBUG
 
-TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, const edm::ParameterSet& p)
+Phase2TrackingAction::Phase2TrackingAction(SimTrackManager* stm,
+					   CMSSteppingVerbose* sv, const edm::ParameterSet& p)
     : trackManager_(stm),
       steppingVerbose_(sv),
       endPrintTrackID_(p.getParameter<int>("EndPrintTrackID")),
@@ -25,22 +26,23 @@ TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, con
       saveCaloBoundaryInformation_(p.getParameter<bool>("SaveCaloBoundaryInformation")),
       ekinMin_(p.getParameter<double>("PersistencyEmin") * CLHEP::GeV),
       ekinMinRegion_(p.getParameter<std::vector<double>>("RegionEmin")) {
-  interface_ = CMSG4TrackInterface::instance();
+  trackInterface_ = CMSG4TrackInterface::instance();
   double eth = p.getParameter<double>("EminFineTrack") * CLHEP::MeV;
   if (doFineCalo_ && eth < ekinMin_) {
     ekinMin_ = eth;
   }
-  edm::LogVerbatim("SimG4CoreApplication") << "TrackingAction: boundary: " << saveCaloBoundaryInformation_
-                                           << "; DoFineCalo: " << doFineCalo_ << "; ekinMin(MeV)=" << ekinMin_;
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "Phase2TrackingAction: boundary: " << saveCaloBoundaryInformation_
+      << "; DoFineCalo: " << doFineCalo_ << "; ekinMin(MeV)=" << ekinMin_;
   if (!ekinMinRegion_.empty()) {
     ptrRegion_.resize(ekinMinRegion_.size(), nullptr);
   }
 }
 
-void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
+void Phase2TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   g4Track_ = aTrack;
   currentTrack_ = new TrackWithHistory(aTrack, aTrack->GetParentID());
-  interface_->setCurrentTrack(aTrack);
+  trackInterface_->setCurrentTrack(aTrack);
 
   BeginOfTrack bt(aTrack);
   m_beginOfTrackSignal(&bt);
@@ -62,7 +64,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   double ekin = aTrack->GetKineticEnergy();
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DoFineCalo") << "PreUserTrackingAction: Start processing track " << aTrack->GetTrackID()
+  edm::LogVerbatim("DoFineCalo") << "PreUserPhase2TrackingAction: Start processing track " << aTrack->GetTrackID()
                                  << " pdgid=" << aTrack->GetDefinition()->GetPDGEncoding()
                                  << " ekin[GeV]=" << ekin / CLHEP::GeV << " vertex[cm]=("
                                  << aTrack->GetVertexPosition().x() / CLHEP::cm << ","
@@ -76,13 +78,14 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   }
 }
 
-void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
+void Phase2TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
   // Tracks in history may be upgraded to stored secondary tracks,
   // which cross the boundary between Tracker and Calo
   int id = aTrack->GetTrackID();
   bool ok = (trkInfo_->storeTrack() || currentTrack_->saved());
   if (trkInfo_->crossedBoundary()) {
-    currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
+    currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(),
+					    trkInfo_->getMomentumAtBoundary());
     ok = (ok || saveCaloBoundaryInformation_ || doFineCalo_);
   }
   if (ok) {
@@ -95,9 +98,10 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
   trackManager_->addTrack(currentTrack_, aTrack, isInHistory, withAncestor);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("TrackingAction") << "TrackingAction end track=" << id << "  "
-                                     << aTrack->GetDefinition()->GetParticleName() << " proposed to be saved= " << ok
-                                     << " end point " << aTrack->GetPosition();
+  edm::LogVerbatim("Phase2TrackingAction")
+      << "Phase2TrackingAction end track=" << id << "  "
+      << aTrack->GetDefinition()->GetParticleName() << " proposed to be saved= " << ok
+      << " end point " << aTrack->GetPosition();
 #endif
 
   if (!isInHistory) {
