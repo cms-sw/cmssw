@@ -81,4 +81,7 @@ _hltGeneralTracksLSTSeeding = hltGeneralTracks.clone(
 
 (~singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksLSTSeeding)
 
+(singleIterPatatrack & trackingLST & seedingLST).toModify(_hltGeneralTracksSingleIterPatatrack,
+                                                          TrackProducers = ["hltInitialStepTracks"],
+                                                          selectedTrackQuals = ["hltInitialStepTracks"])
 (singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrack)
