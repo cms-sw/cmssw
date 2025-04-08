@@ -65,7 +65,7 @@ private:
   static constexpr int ADCMax = 256;
   static constexpr int StationIDMAX = 4;  // possible range of ID
   static constexpr int RPotsIDMAX = 8;    // possible range of ID
-  static constexpr int NLocalTracksMAX = 20;
+  static constexpr int NLocalTracksMAX = 10;
   static constexpr int hitMultMAX = 50;   // tuned
   static constexpr int ClusMultMAX = 10;  // tuned
   static constexpr int ClusterSizeMax = 9;
@@ -471,12 +471,18 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
 
         ibooker.setCurrentFolder(rpd);
 
-        const float x0Maximum = 70.;
-        const float y0Maximum = 15.;
+        const float x0Minimum = -5.;
+        const float y0Minimum = -10.;
+        const float x0Maximum = 25.;
+        const float y0Maximum = 22.;
+        const float xBins_per_mm = 3; // number of x bins per mm
+        const float yBins_per_mm = 3; // number of y bins per mm
+
         string st = "track intercept point";
         string st2 = ": " + stnTitle;
         h2trackXY0[indexP] = ibooker.book2D(
-            st, st + st2 + ";x0;y0", int(x0Maximum) * 2, 0., x0Maximum, int(y0Maximum) * 4, -y0Maximum, y0Maximum);
+            st, st + st2 + ";x0;y0", int(x0Maximum - x0Minimum) * xBins_per_mm, x0Minimum, x0Maximum, 
+            int(y0Maximum-y0Minimum) * yBins_per_mm, y0Minimum, y0Maximum);
         h2trackXY0[indexP]->getTH2F()->SetOption("colz");
         st = "Error Code";
         h2ErrorCodeRP[indexP] = ibooker.book2D(st,
