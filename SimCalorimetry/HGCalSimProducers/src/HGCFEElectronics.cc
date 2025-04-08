@@ -6,7 +6,6 @@
 #include "vdt/vdtMath.h"
 
 using namespace hgc_digi;
-#define EDM_ML_DEBUG
 
 //
 template <class DFr>
