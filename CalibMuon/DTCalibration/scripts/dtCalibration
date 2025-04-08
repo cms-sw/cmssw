@@ -34,7 +34,7 @@ def main():
     print(f"Job dir is {local_path}")
     print(f"Log file is {log_file_name}")
     # move the log file to the working directory to avoid cluttering up the base directory
-    os.rename(log_file_name,local_path+'/'+log_file_name)
+    os.rename(log_file_name, local_path+'/'+log_file_name)
 
     #sys.stdout = stdout_original
     stop = time.time()

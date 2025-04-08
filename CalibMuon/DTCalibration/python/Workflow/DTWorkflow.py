@@ -209,12 +209,14 @@ class DTWorkflow(CLIHelper, CrabHelper):
             self.add_preselection()
 
     def prepare_common_write(self, do_hadd=True):
-        """ Common operations used in most prepare_[workflow_mode]_erite functions"""
+        """ Common operations used in most prepare_[workflow_mode]_write functions"""
         self.load_options_command("submit")
-        #output_path = os.path.join( self.local_path, "unmerged_results" )
+        print("Result path = ", self.result_path, self.output_file)
         merged_file = os.path.join(self.result_path, self.output_file)
+        
         crabtask = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
                                                initUpdate = False)
+        print("crabFolder:", crabtask.crabFolder)
         if not (self.options.skip_stageout or self.files_reveived or self.options.no_exec):
             output_files =  self.get_output_files(crabtask)
             if "xrootd" not in output_files.keys():
@@ -227,7 +229,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
             returncode = tools.haddLocal(output_files["xrootd"], merged_file)
             if returncode != 0:
                 raise RuntimeError("Failed to merge files with hadd")
-        return crabtask.crabConfig.Data.outputDatasetTag
+        return (crabtask.crabConfig.Data.outputDatasetTag, crabtask.crabFolder)
 
     def prepare_common_dump(self, db_path):
         self.process = tools.loadCmsProcess(self.pset_template)

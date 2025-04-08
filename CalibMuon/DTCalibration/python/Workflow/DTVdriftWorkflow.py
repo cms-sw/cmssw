@@ -73,7 +73,7 @@ class DTvdriftWorkflow( DTWorkflow ):
     def prepare_segment_write(self):
         self.pset_name = 'dtVDriftSegmentWriter_cfg.py'
         self.pset_template = 'CalibMuon.DTCalibration.dtVDriftSegmentWriter_cfg'
-        tag = self.prepare_common_write()
+        (tag, folder) = self.prepare_common_write()
         merged_file = os.path.join(self.result_path, self.output_file)
         self.process = tools.loadCmsProcess(self.pset_template)
 
@@ -150,7 +150,7 @@ class DTvdriftWorkflow( DTWorkflow ):
     def prepare_meantimer_write(self):
         self.pset_name = 'dtVDriftMeanTimerWriter_cfg.py'
         self.pset_template = 'CalibMuon.DTCalibration.dtVDriftMeanTimerWriter_cfg'
-        tag = self.prepare_common_write()
+        (tag, folder) = self.prepare_common_write()
         merged_file = os.path.join(self.result_path, self.output_file)
         self.process = tools.loadCmsProcess(self.pset_template)
 

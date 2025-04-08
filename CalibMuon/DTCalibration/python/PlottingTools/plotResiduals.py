@@ -4,10 +4,17 @@ from drawHistoAllChambers import drawHisto
 
 def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option="HISTOPE1",mode="None",draw=True):
 
-    mean_ymin = -0.02
-    mean_ymax =  0.02
+    #mean_ymin = -0.02
+    #mean_ymax =  0.02
+    #sig_ymin = 0.
+    #sig_ymax = 0.07
+
+    # For cosmics
+    mean_ymin = -0.15
+    mean_ymax =  0.15
     sig_ymin = 0.
-    sig_ymax = 0.07
+    sig_ymax = 0.15
+
 
     slType = sl
     slStr = "SL%d" % slType
@@ -85,6 +92,11 @@ if __name__ == "__main__":
     #fileName = "./Run379617-ValTest_v1/TtrigValidation/results/DQM_V0001_R000000001__ExpressPhysics__Run2024C-Express-v1__FEVT.root"
     #directory = "DQMData/Run 1/DT/Run summary/DTCalibValidation"
     #mode = "Val"
+
+    fileName = "./Run390170-Cosmic25_v3/Residuals/results/residuals.root"
+    directory = "DTResiduals"
+    mode = "Test"
+    
     sl = 2
     re = plot(fileName, sl, dir=directory, mode=mode)[0]
 

@@ -171,7 +171,7 @@ class DTttrigWorkflow( DTWorkflow ):
         self.process.source.firstRun = cms.untracked.uint32(self.options.run)
         self.process.GlobalTag.globaltag = cms.string(str(self.options.globaltag))
 
-        tag = self.prepare_common_write()
+        self.prepare_common_write()
         if self.options.inputT0DB:
             log.warning("Option inputT0DB not supported for residual corrections")
 
@@ -240,14 +240,16 @@ class DTttrigWorkflow( DTWorkflow ):
         self.pset_name = 'dtDQMClient_cfg.py'
         self.pset_template = 'CalibMuon.DTCalibration.dtDQMClient_cfg'
         self.process = tools.loadCmsProcess(self.pset_template)
-        self.prepare_common_write(do_hadd = False)
-        dqm_files = glob.glob(os.path.join( self.local_path,
-                                            "unmerged_results",
-                                            "DQM_*.root"))
+        (crab_tag, crab_folder) = self.prepare_common_write(do_hadd = False)
+        print("local path:", self.local_path)
+        print("crab tag; Folder:", crab_tag, crab_folder)
+        
+        dqm_files = glob.glob(os.path.join( crab_folder, 'results', "DQM_*.root"))
         dqm_files[:] = ["file://"+txt for txt in dqm_files]
+
         self.process.source.fileNames =  dqm_files
         self.process.dqmSaver.dirName = os.path.abspath(self.result_path)
-        self.process.dqmSaver.workflow = str(self.options.datasetpath)
+        self.process.dqmSaver.workflow = "DT_TTrig_Validation"
         #if self.process.DQMStore.collateHistograms == True:
         #self.process.dqmSaver.forceRunNumber = self.options.run
         self.write_pset_file()
