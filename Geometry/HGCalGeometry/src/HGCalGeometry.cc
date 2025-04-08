@@ -21,8 +21,6 @@
 typedef CaloCellGeometry::Tr3D Tr3D;
 typedef std::vector<float> ParmVec;
 
-#define EDM_ML_DEBUG
-
 const bool debugLocate = false;
 
 HGCalGeometry::HGCalGeometry(const HGCalTopology& topology_)
