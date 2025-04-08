@@ -624,8 +624,8 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
 #endif
         double phi1 = dphi * (fimin - 1);
         double phi2 = dphi * (fimax - fimin + 1);
-	r1 += retract_[layer0 - 1];
-	r2 += retract_[layer0 - 1];
+        r1 += retract_[layer0 - 1];
+        r2 += retract_[layer0 - 1];
 #ifdef EDM_ML_DEBUG
         double phi = phi1 + 0.5 * phi2;
         edm::LogVerbatim("HGCalGeom") << "1Layer " << ly << ":" << ii << ":" << copy << ":" << layer0 << " phi " << phi
