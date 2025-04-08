@@ -98,11 +98,13 @@ std::pair<double, double> HGCalCassette::getShiftScnt(int layer, int zside, doub
   int loc = (layer - 1);
   double fac = (zside < 0) ? 1.0 : -1.0;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::getShiftScnt: layer|zside|phi " << layer << ":" << zside << ":" << phi << " loc " << loc << " size " << retractScnt_.size();
+  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::getShiftScnt: layer|zside|phi " << layer << ":" << zside << ":"
+                                << phi << " loc " << loc << " size " << retractScnt_.size();
 #endif
   std::pair<double, double> xy = std::make_pair(fac * retractScnt_[loc] * cos(phi), retractScnt_[loc] * sin(phi));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::getShiftScnt: Layer " << layer << " zside " << zside << " Loc " << loc << " fac " << fac << " shift " << xy.first << ":" << xy.second;
+  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::getShiftScnt: Layer " << layer << " zside " << zside << " Loc "
+                                << loc << " fac " << fac << " shift " << xy.first << ":" << xy.second;
 #endif
   return xy;
 }
