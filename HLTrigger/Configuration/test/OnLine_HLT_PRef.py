@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_15_0_0/PRef/V22 (CMSSW_15_0_2)
+# /dev/CMSSW_15_0_0/PRef/V44 (CMSSW_15_0_2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTPRef" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/PRef/V22")
+  tableName = cms.string("/dev/CMSSW_15_0_0/PRef/V44")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -16350,7 +16350,7 @@ process.hltDatasetExpressPhysics = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Physics_v14 / 2',
       'HLT_Random_v3',
       'HLT_ZeroBias_FirstCollisionAfterAbortGap_v12',
-      'HLT_ZeroBias_v13 / 2' )
+      'HLT_ZeroBias_v13 / 6' )
 )
 process.hltPreDatasetExpressPhysics = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
