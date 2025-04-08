@@ -43,7 +43,8 @@ namespace l1ct {
 
     static const unsigned NTagFields = 8;
     jet_tag_score_t hwTagScores[NTagFields];
-
+    
+    #ifndef __SYNTHESIS__
     static const JetTagClass tagClassesDefault_[NTagFields];
     JetTagClass tagClassesArray[NTagFields];
 
@@ -53,6 +54,7 @@ namespace l1ct {
         tagClassesArray[i] = tagClassesDefault_[i];
       }
     }
+    #endif
 
     inline bool operator==(const Jet &other) const {
       bool eq = hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwZ0 == other.hwZ0;
