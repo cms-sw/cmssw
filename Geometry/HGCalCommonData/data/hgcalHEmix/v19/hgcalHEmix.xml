@@ -958,7 +958,7 @@
        288,   288,   288,   288 
   </Vector>
   <Vector name="ScintRetract" type="numeric" nEntries="14">
-           4*mm,       4*mm,       4*mm,       4*mm,       8*mm,       8*mm,
+           8*mm,       8*mm,       8*mm,       8*mm,       8*mm,       8*mm,
            8*mm,       8*mm,       8*mm,       8*mm,       8*mm,       8*mm,
            8*mm,       8*mm 
   </Vector>
