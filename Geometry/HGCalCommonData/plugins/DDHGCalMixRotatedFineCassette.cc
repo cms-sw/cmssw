@@ -404,6 +404,7 @@ void DDHGCalMixRotatedFineCassette::initialize(const DDNumericArguments& nArgs,
 #endif
   cassette_.setParameter(cassettes_, cassetteShift_, false);
   cassette_.setParameterScint(cassetteShiftScnt_);
+  cassette_.setParameterRetract(retract);
 
   int testCassette = static_cast<int>(nArgs["TestCassetteShift"]);
   if (testCassette != 0)
@@ -589,10 +590,11 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
                                     << layer0 << " Copy " << copy << " Tiles " << firstTile << ":" << lastTile
                                     << " Size " << tileFineIndex_.size() << ":" << tileCoarseIndex_.size() << " Fine "
                                     << fine << " absType " << absType;
+      int cassette;
 #endif
       for (int ti = firstTile; ti < lastTile; ++ti) {
         double r1, r2;
-        int cassette, fimin, fimax;
+        int fimin, fimax;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: ti " << ti << ":" << fine << " index "
                                       << tileFineIndex_.size() << ":" << tileCoarseIndex_.size() << " Phis "
@@ -601,13 +603,17 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
         if (fine) {
           r1 = tileFineRMin_[std::get<1>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti])) - 1];
           r2 = tileFineRMax_[std::get<2>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti])) - 1];
+#ifdef EDM_ML_DEBUG
           cassette = std::get<0>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
+#endif
           fimin = std::get<1>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
           fimax = std::get<2>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
         } else {
           r1 = tileCoarseRMin_[std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti])) - 1];
           r2 = tileCoarseRMax_[std::get<2>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti])) - 1];
+#ifdef EDM_ML_DEBUG
           cassette = std::get<0>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
+#endif
           fimin = std::get<1>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
           fimax = std::get<2>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
         }
@@ -615,12 +621,13 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Casstee|Fimin|Fimax " << cassette << ":"
                                       << fimin << ":" << fimax;
 #endif
-        double phi1 = dphi * (fimin - 1);
+        double phi1 = dphi * (fimin - 1) + 0.5 * tol0_;
         double phi2 = dphi * (fimax - fimin + 1) - tol0_;
-        auto cshift = cassette_.getShift(layer0, -1, cassette, true);
+	double phi = phi1 + 0.5 * phi2;
+        auto cshift = cassette_.getShiftScnt(layer0, -1, phi);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "1Layer " << ly << ":" << ii << ":" << copy << ":" << layer0 << " Cassette "
-                                      << cassette << " shift " << cshift.first << ":" << cshift.second;
+        edm::LogVerbatim("HGCalGeom") << "1Layer " << ly << ":" << ii << ":" << copy << ":" << layer0 << " phi "
+                                      << phi << " shift " << cshift.first << ":" << cshift.second;
         int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
         int ir1 = (fine) ? std::get<1>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                          : std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
@@ -686,22 +693,27 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
 #endif
     for (int ti = firstTile; ti < lastTile; ++ti) {
       double r1, r2;
-      int cassette, fimin, fimax;
+      int fimin, fimax;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: ti " << ti << ":" << fine << " index "
                                     << tileFineIndex_.size() << ":" << tileCoarseIndex_.size() << " Phis "
                                     << tileFinePhis_.size() << ":" << tileCoarsePhis_.size();
+      int cassette;
 #endif
       if (fine) {
         r1 = tileFineRMin_[std::get<1>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti])) - 1];
         r2 = tileFineRMax_[std::get<2>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti])) - 1];
+#ifdef EDM_ML_DEBUG
         cassette = std::get<0>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
+#endif
         fimin = std::get<1>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
         fimax = std::get<2>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
       } else {
         r1 = tileCoarseRMin_[std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti])) - 1];
         r2 = tileCoarseRMax_[std::get<2>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti])) - 1];
+#ifdef EDM_ML_DEBUG
         cassette = std::get<0>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
+#endif
         fimin = std::get<1>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
         fimax = std::get<2>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
       }
@@ -709,12 +721,13 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
       edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Casstee|Fimin|Fimax " << cassette << ":" << fimin
                                     << ":" << fimax;
 #endif
-      double phi1 = dphi * (fimin - 1);
-      double phi2 = dphi * (fimax - fimin + 1);
-      auto cshift = cassette_.getShift(layer0, -1, cassette, true);
+      double phi1 = dphi * (fimin - 1) + 0.5 * tol0_;
+      double phi2 = dphi * (fimax - fimin + 1) - tol0_;
+      double phi = phi1 + 0.5 * phi2;
+      auto cshift = cassette_.getShiftScnt(layer0, -1, phi);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "2Layer " << ii << ":" << copy << ":" << layer << ":" << layer0 << " Cassette "
-                                    << cassette << " shift " << cshift.first << ":" << cshift.second;
+      edm::LogVerbatim("HGCalGeom") << "2Layer " << ii << ":" << copy << ":" << layer << ":" << layer0 << " phi "
+                                    << phi << " shift " << cshift.first << ":" << cshift.second;
       int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
       int ir1 = (fine) ? std::get<1>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                        : std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
@@ -758,7 +771,7 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
 #endif
     for (int k = 0; k < cassettes_; ++k) {
       int cassette = k + 1;
-      auto cshift = cassette_.getShift(layer0, -1, cassette);
+      auto cshift = cassette_.getShift(layer0, -1, cassette, false);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "3Layer " << layer << ":" << layer0 << " Cassette " << cassette << " shift "
                                     << cshift.first << ":" << cshift.second;
