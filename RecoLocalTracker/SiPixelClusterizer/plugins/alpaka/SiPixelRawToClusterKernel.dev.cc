@@ -29,6 +29,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelImageSoA.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelImageDevice.h"
 
 // local includes
 #include "CalibPixel.h"
@@ -501,6 +503,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void SiPixelRawToClusterKernel<TrackerTraits>::makePhase1ClustersAsync(
         Queue &queue,
         const SiPixelClusterThresholds clusterThresholds,
+	SiPixelImageSoAView images_,
         const SiPixelMappingSoAConstView &cablingMap,
         const unsigned char *modToUnp,
         const SiPixelGainCalibrationForHLTSoAConstView &gains,
@@ -629,7 +632,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   << " threadsPerBlockOrElementsPerThread\n";
 #endif
         alpaka::exec<Acc1D>(
-            queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_d->view(), clusters_d->view(), wordCounter);
+            queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_d->view(),images_, clusters_d->view(), wordCounter);
+        //alpaka::exec<Acc1D>(
+         //   queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_d->view(), clusters_d->view(), wordCounter);
 #ifdef GPU_DEBUG
         alpaka::wait(queue);
 #endif
@@ -717,8 +722,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
                 << " threadsPerBlockOrElementsPerThread\n";
 #endif
-      alpaka::exec<Acc1D>(
-          queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_view, clusters_d->view(), numDigis);
+      //alpaka::exec<Acc1D>(
+       //   queue, workDivMaxNumModules, SparseToDense<TrackerTraits>{}, digis_view, clusters_d->view(), numDigis);
+      //alpaka::exec<Acc1D>(
+       //   queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_view, clusters_d->view(), numDigis);
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
 #endif

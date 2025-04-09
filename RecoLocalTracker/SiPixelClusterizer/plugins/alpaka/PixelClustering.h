@@ -16,6 +16,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelImageSoA.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelImageDevice.h"
 
 //#define GPU_DEBUG
 
@@ -29,6 +31,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
     // Phase-1 pixel modules
     constexpr uint32_t pixelSizeX = pixelTopology::Phase1::numRowsInModule;
     constexpr uint32_t pixelSizeY = pixelTopology::Phase1::numColsInModule;
+    constexpr int32_t empVal = std::numeric_limits<int32_t>::max() - 2; //TODO: Move this to DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h
 
     // Use 0x00, 0x01, 0x03 so each can be OR'ed on top of the previous ones
     enum Status : uint32_t { kEmpty = 0x00, kFound = 0x01, kDuplicate = 0x03 };
@@ -128,6 +131,52 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
     }
   };
 
+/**
+  template <typename TrackerTraits>
+  struct SparseToDense {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  SiPixelDigisSoAView digi_view,
+                                  SiPixelClustersSoAView clus_view,
+                                  const unsigned int numElements) const {
+      // Make sure the atomicInc below does not overflow
+      static_assert(TrackerTraits::numberOfModules < ::pixelClustering::maxNumModules);
+      auto& lastPixel = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
+
+      const uint32_t lastModule = clus_view[0].moduleStart();
+      for (uint32_t module : cms::alpakatools::independent_groups(acc, lastModule)) {
+        auto firstPixel = clus_view[1 + module].moduleStart();
+        uint32_t thisModuleId = digi_view[firstPixel].moduleId();
+        ALPAKA_ASSERT_ACC(thisModuleId < TrackerTraits::numberOfModules);
+        lastPixel = numElements;
+        alpaka::syncBlockThreads(acc);
+
+        // skip threads not associated to an existing pixel
+        for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, numElements)) {
+          auto id = digi_view[i].moduleId();
+          // skip invalid pixels
+          if (id == ::pixelClustering::invalidModuleId)
+            continue;
+          // find the first pixel in a different module
+          if (id != thisModuleId) {
+            alpaka::atomicMin(acc, &lastPixel, i, alpaka::hierarchy::Threads{});
+            break;
+          }
+        }
+	const unsigned int lp = *lastPixel;
+        if (cms::alpakatools::once_per_block(acc)){
+		printf("FirstPixel %u",firstPixel);
+		printf("LastPixel %u",lp);
+		for(auto i = firstPixel ; i<lastPixel ; i++)
+		{
+			printf("Pixel (%u,%u) in module %u",digi_view[i].xx(),digi_view[i].yy(),thisModuleId);
+		}
+	}
+
+}}
+};
+**/
+
+
   template <typename TrackerTraits>
   struct FindClus {
     // assume that we can cover the whole module with up to 16 blockDimension-wide iterations
@@ -139,6 +188,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   SiPixelDigisSoAView digi_view,
+		    		  SiPixelImageSoAView images,
                                   SiPixelClustersSoAView clus_view,
                                   const unsigned int numElements) const {
       static_assert(TrackerTraits::numberOfModules < ::pixelClustering::maxNumModules);
@@ -317,6 +367,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         for (uint32_t k = 0; k < maxIter; ++k) {
           nnn[k] = 0;
         }
+	uint32_t pixsize = pixelStatus::pixelSizeX * pixelStatus::pixelSizeY;
+        for (uint32_t j : cms::alpakatools::independent_group_elements(acc, pixsize))
+	{
+		uint16_t row = j/pixelStatus::pixelSizeY;
+		uint16_t col = j%pixelStatus::pixelSizeY;
+		images[module].clus()[row][col] = pixelStatus::empVal;
+	}
 
         alpaka::syncBlockThreads(acc);  // for hit filling!
 
@@ -326,6 +383,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           ALPAKA_ASSERT_ACC(k < maxIter);
           auto p = hist.begin() + j;
           auto i = *p + firstPixel;
+	  //image[digi_view[i].xx()][digi_view[i].yy()] = -69
+	  //printf("Pixel For module %u at %u,%u filled",thisModuleId, digi_view[i].xx(),digi_view[i].yy())
+	 int fpX = digi_view[i].xx();
+	 int fpY = digi_view[i].yy();
+	 images[module].clus()[fpX][fpY] = digi_view[i].clus();
+	 //printf("ClusterId of (%u,%u) pixel of Module %u is %u \n",fpX,fpY,thisModuleId, (images[module].clus())[fpX][fpY]);
           ALPAKA_ASSERT_ACC(digi_view[i].moduleId() != ::pixelClustering::invalidModuleId);
           ALPAKA_ASSERT_ACC(digi_view[i].moduleId() == thisModuleId);  // same module
           auto bin = Hist::bin(digi_view[i].yy() + 1);
@@ -345,6 +408,39 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           }
           ++k;
         }
+	
+	alpaka::syncBlockThreads(acc);
+	if(module == 100)
+	{
+		uint32_t pixsize = pixelStatus::pixelSizeX * pixelStatus::pixelSizeY;
+		for (uint32_t j : cms::alpakatools::independent_group_elements(acc, pixsize))
+		{
+			uint16_t row = j/pixelStatus::pixelSizeY;
+			uint16_t col = j%pixelStatus::pixelSizeY;
+			if(row<80 && col<52)
+			{
+				printf("(%u,%u)/(%u,%u) : %u \n",row,col,pixelStatus::pixelSizeX,pixelStatus::pixelSizeY,images[module].clus()[row][col]);
+			}
+		}
+	}
+
+	/**CHIRAYU: Print neighbours for each pix in the iter
+    if (thisModuleId == 100){
+	  if (cms::alpakatools::once_per_block(acc)){
+		//int k = 0;
+		//int jj = 0;
+	//	printf("Module begin %u ",*hist.begin());
+		for (unsigned int k = 0 ; k<maxIter;k++) {
+			auto i = *(hist.begin()+k)+firstPixel;
+			//printf("Pixel %u at (%u, %u) has %u neighbors:\n", k, int(digi_view[i].xx()), int(digi_view[i].yy()), nnn[k]);
+		    for (unsigned int j = 0; j < nnn[k]; ++j) {
+			auto neighborIdx = nn[k][j] + firstPixel;
+		//	printf("  Neighbor %u -> (%u, %u)\n", j, int(digi_view[neighborIdx].xx()), int(digi_view[neighborIdx].yy()));
+		      }
+		  //k++;
+	}
+      }}
+	END **/
 
         // for each pixel, look at all the pixels until the end of the module;
         // when two valid pixels within +/- 1 in x or y are found, set their id to the minimum;
