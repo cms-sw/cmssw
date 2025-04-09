@@ -245,7 +245,7 @@
     <Include ref='Geometry/MuonCommonData/data/mf/2021/v3/mf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/rpcf/2025/v5/rpcf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/gem11/2025/v2/gem11.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem21/2025/v2/gem21.xml'/>
     <Include ref='Geometry/MuonCommonData/data/csc/2021/v3/csc.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mfshield/2023/v3/mfshield.xml'/>

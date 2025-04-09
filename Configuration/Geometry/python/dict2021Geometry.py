@@ -2304,7 +2304,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/mf/2021/v3/mf.xml',
             'Geometry/MuonCommonData/data/rpcf/2025/v5/rpcf.xml',
             'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
-            'Geometry/MuonCommonData/data/gem11/2025/v1/gem11.xml',
+            'Geometry/MuonCommonData/data/gem11/2025/v2/gem11.xml',
             'Geometry/MuonCommonData/data/gem21/2025/v2/gem21.xml',
             'Geometry/MuonCommonData/data/csc/2021/v3/csc.xml',
             'Geometry/MuonCommonData/data/mfshield/2023/v3/mfshield.xml',
@@ -2667,12 +2667,12 @@ detectorVersionDict = {
     ("O5","T6","C2","M11","F2","P7") : "2024FlatMinus10Percent",
     ("O5","T7","C2","M11","F2","P7") : "2024FlatPlus05Percent",
     ("O5","T8","C2","M11","F2","P7") : "2024FlatPlus10Percent",
-    ("O7","T3","C2","M12","F3","P7") : "2025",
-    ("O8","T4","C2","M12","F3","P7") : "2025ZeroMaterial",
-    ("O9","T5","C2","M12","F3","P7") : "2025FlatMinus05Percent",
-    ("O9","T6","C2","M12","F3","P7") : "2025FlatMinus10Percent",
-    ("O9","T7","C2","M12","F3","P7") : "2025FlatPlus05Percent",
-    ("O9","T8","C2","M12","F3","P7") : "2025FlatPlus10Percent",
+    ("O7","T3","C2","M16","F3","P8") : "2025",
+    ("O8","T4","C2","M12","F3","P8") : "2025ZeroMaterial",
+    ("O9","T5","C2","M12","F3","P8") : "2025FlatMinus05Percent",
+    ("O9","T6","C2","M12","F3","P8") : "2025FlatMinus10Percent",
+    ("O9","T7","C2","M12","F3","P8") : "2025FlatPlus05Percent",
+    ("O9","T8","C2","M12","F3","P8") : "2025FlatPlus10Percent",
  }
 
 deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "O3", "M1" "M2", "M3", "M4", "M5"
