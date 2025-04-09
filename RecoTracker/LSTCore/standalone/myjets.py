@@ -14,25 +14,39 @@ import vector
 
 
 # Takes an entry from a tree and extracts lists of key parameters.
-def getLists(entry):#, pTcut=0):
+def getLists(entry, hardSc = False): #, pTcut=0):
         # This applies to the entire event
         pdgidList = entry.sim_pdgId
         evLen = len(pdgidList)
 
-        pTList = np.zeros(evLen, dtype=np.float64)
-        etaList = np.zeros(evLen, dtype=np.float64)
-        phiList = np.zeros(evLen, dtype=np.float64)
-        massList = np.zeros(evLen, dtype=np.float64)
+        # pTList = np.zeros(evLen, dtype=np.float64)
+        # etaList = np.zeros(evLen, dtype=np.float64)
+        # phiList = np.zeros(evLen, dtype=np.float64)
+        # massList = np.zeros(evLen, dtype=np.float64)
+
+        pTList = np.ones(evLen, dtype=np.float64)*-999
+        etaList = np.ones(evLen, dtype=np.float64)*-999
+        phiList = np.ones(evLen, dtype=np.float64)*-999
+        massList = np.ones(evLen, dtype=np.float64)*-999
 
         # Putting the data in the right format
-        for j in range(evLen):
-            # j is one particle within the event
-            pdgid = pdgidList[j]
-            massList[j] = (Particle.from_pdgid(pdgid).mass)/1000 # Particle gives mass in MeV, convert to GeV
+        for j in range(evLen):#range(len(simEvnp)):
+                if (hardSc and entry.sim_event[j] !=0 ): 
+                        # print(f"event != 0 {entry.sim_event[j]}")
+                        continue
+                if(entry.sim_q[j] != 0 and entry.sim_pt[j] < 0.75 ):
+                        continue
+                pdgid = pdgidList[j]
+                massList[j] = Particle.from_pdgid(pdgid).mass/1000.
 
-            pTList[j] = entry.sim_pt[j]
-            etaList[j] = entry.sim_eta[j]
-            phiList[j] = entry.sim_phi[j]
+                pTList[j] = entry.sim_pt[j]
+                etaList[j] = entry.sim_eta[j]
+                phiList[j] = entry.sim_phi[j]
+
+        massList = massList[massList != -999]
+        pTList = pTList[pTList != -999]
+        etaList = etaList[etaList != -999]
+        phiList = phiList[phiList != -999]
 
         # Perform pT cut, optional
         # if(pTcut!=0):

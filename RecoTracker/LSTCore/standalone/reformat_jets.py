@@ -16,11 +16,11 @@ import numpy as np
 # pTCut = 100
 
 # Load existing tree
-file = TFile("trackingNtuple.root") # TFile("/data2/segmentlinking/CMSSW_12_2_0_pre2/trackingNtuple_ttbar_PU200.root")
+file =  TFile("/data2/segmentlinking/CMSSW_12_2_0_pre2/trackingNtuple_ttbar_PU200.root")
 old_tree = file["trackingNtuple"]["tree"]
 
 # Create a new ROOT file to store the new TTree
-new_file = ROOT.TFile("new_tree_ttbar.root", "RECREATE")
+new_file = ROOT.TFile("new_tree_ttbar_cut.root", "RECREATE")
 
 # Create a new subdirectory in the new file
 new_directory = new_file.mkdir("trackingNtuple")
@@ -30,6 +30,9 @@ new_directory.cd()
 
 # Create a new TTree with the same structure as the old one but empty
 new_tree = old_tree.CloneTree(0)  
+
+# Account for bug in 12_2_X branch
+new_tree.SetBranchStatus("ph2_bbxi", False) 
 
 # Create a variable to hold the new leaves' data (a list of floats)
 new_leaf_etadiffs = ROOT.std.vector('float')()
