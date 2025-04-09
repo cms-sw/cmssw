@@ -115,7 +115,7 @@ void L1TSC4NGJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<int>("nParticles", 16);
   desc.add<double>("minPt", 10);
   desc.add<double>("maxEta", 2.4);
-  desc.add<std::vector<std::string>>("classes", {"uds", "g", "b", "c", "tau_p", "tau_n", "e", "mu"});
+  desc.add<std::vector<std::string>>("classes", {"b", "c", "uds", "g", "tau_p", "tau_n", "mu", "e"});
   descriptions.add("l1tSC4NGJetProducer", desc);
 }
 

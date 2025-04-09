@@ -14,7 +14,7 @@ namespace l1ct {
   // all possible tag categories (can be extended for new / separate taggers)
   class JetTagClass {
   public:
-    enum JetTagClassValue : uint8_t { uds, g, b, c, tau_p, tau_n, e, mu };
+    enum JetTagClassValue : uint8_t { b, c, uds, g, tau_p, tau_n, mu, e };
     JetTagClass() = default;
     JetTagClass(JetTagClassValue aJetTagClassValue) : value_(aJetTagClassValue) {}
     JetTagClass(std::string aJetTagClassValueString) {
@@ -39,9 +39,9 @@ namespace l1ct {
   struct JetTagClassHandler {
     static const unsigned NTagFields = 8;
     static const JetTagClass tagClassesDefault_[NTagFields];
-    
+
     JetTagClass tagClassesArray[NTagFields];
-    
+
     JetTagClassHandler() {
       // Copy the default values to the array
       for (unsigned i = 0; i < NTagFields; i++) {
