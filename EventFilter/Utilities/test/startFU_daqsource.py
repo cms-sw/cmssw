@@ -22,6 +22,12 @@ options.register ('buBaseDir',
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "BU base directory")
 
+options.register ('numRamdisks',
+                  0, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,            # string, int, or float
+                  "Is data split into subdirectories")
+
 options.register ('fuBaseDir',
                   'data', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -76,9 +82,10 @@ process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     fileBrokerHost = cms.untracked.string("htcp40.cern.ch"),
     runNumber = cms.untracked.uint32(options.runNumber),
     baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.fuBaseDir),
-    buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
+    #buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
+    buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir + ("1" if options.numRamdisks > 0 else "")),
+    buBaseDirsAll = cms.untracked.vstring(tuple([(options.fffBaseDir+"/"+options.buBaseDir + str(i)) for i in range(1, options.numRamdisks + 1)])),
     directorIsBU = cms.untracked.bool(False),
-    #buBaseDirsAll = cms.untracked.vstring(options.fffBaseDir+"/"+options.buBaseDir),
     #buBaseDirsNumStreams = cms.untracked.vint32(1),
     #buBaseDirsStreamIDs = cms.untracked.vint32(1),
     #sourceIdentifier = cms.untracked.string("source")

@@ -161,24 +161,13 @@ ${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR
 #no failures, clean up everything including logs if there are no errors
 rm -rf $OUTDIR/{ramdisk,data,*.log}
 
-echo "running DAQSource test with full event FRD"
-CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2"
-CMDLINE_STARTFU="cmsRun startFU_daqsource.py daqSourceMode=FRDStriped runNumber=${runnumber} fffBaseDir=${OUTDIR}"
+echo "running DAQSource test with striped event FRD"
+CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2 buBaseDir=ramdisk1 subsystems=TCDS,SiPixel,ECAL,RPC"
+${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
+CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2 buBaseDir=ramdisk2 subsystems=SiStrip,HCAL,DT,CSC"
 ${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
 #run reader
-${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR out_2_fu.log
-rm -rf $OUTDIR/{ramdisk,data,*.log}
-
-echo "running DAQSource test with striped FRD"
-CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2"
-CMDLINE_STARTFU="cmsRun unittest_FU_daqsource.py daqSourceMode=FRDStriped runNumber=${runnumber} fffBaseDir=${OUTDIR}"
-${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
-#duplicate files
-cp ramdisk/run${runnumber}/run${runnumber}_ls0001_index000000.raw ramdisk/run${runnumber}/run${runnumber}_ls0001_index000000.raw_1
-cp ramdisk/run${runnumber}/run${runnumber}_ls0001_index000001.raw ramdisk/run${runnumber}/run${runnumber}_ls0001_index000001.raw_1
-cp ramdisk/run${runnumber}/run${runnumber}_ls0002_index000000.raw ramdisk/run${runnumber}/run${runnumber}_ls0002_index000000.raw_1
-cp ramdisk/run${runnumber}/run${runnumber}_ls0002_index000001.raw ramdisk/run${runnumber}/run${runnumber}_ls0002_index000001.raw_1
-#run reader
+CMDLINE_STARTFU="cmsRun startFU_daqsource.py daqSourceMode=FRDStriped runNumber=${runnumber} fffBaseDir=${OUTDIR} numRamdisks=2"
 ${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR out_2_fu.log
 rm -rf $OUTDIR/{ramdisk,data,*.log}
 

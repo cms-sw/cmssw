@@ -104,6 +104,7 @@ private:
   // get LS from filename instead of event header
   const bool alwaysStartFromFirstLS_;
   const bool verifyChecksum_;
+  const bool inputConsistencyChecks_;
   const bool useL1EventID_;
   const std::vector<unsigned int> testTCDSFEDRange_;
   std::vector<std::string> listFileNames_;
