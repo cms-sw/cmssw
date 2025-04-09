@@ -354,15 +354,15 @@ void bookEfficiencySet(SimTrackSetDefinition& effset) {
 
     // Lines for rjet
     ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_rjet");
-    ana.histograms.addVecHistogram(category_name + "_ef_denom_rjet", 180 , -4.5  , 4.5  , [&, category_name]() 
+    ana.histograms.addVecHistogram(category_name + "_ef_denom_rjet", 50 , 0  , 0.1  , [&, category_name]() 
     {return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_rjet");} );
 
     ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_rjet");
-    ana.histograms.addVecHistogram(category_name + "_ef_numer_rjet", 180 , -4.5  , 4.5  , [&, category_name]() 
+    ana.histograms.addVecHistogram(category_name + "_ef_numer_rjet", 50 , 0  , 0.1  , [&, category_name]() 
     {return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_rjet");} );
 
     ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_rjet");
-    ana.histograms.addVecHistogram(category_name + "_ie_numer_rjet", 180 , -4.5  , 4.5  , [&, category_name]() 
+    ana.histograms.addVecHistogram(category_name + "_ie_numer_rjet", 50 , 0  , 0.1  , [&, category_name]() 
     {return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_rjet");} );
 
     // Lines for jet_eta
@@ -393,21 +393,35 @@ void bookEfficiencySet(SimTrackSetDefinition& effset) {
 
     // Lines for jet_pt
     ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_jet_pt");
-    ana.histograms.addVecHistogram(category_name + "_ef_denom_jet_pt", 180 , -4.5  , 4.5  , [&, category_name]() 
+    ana.histograms.addVecHistogram(category_name + "_ef_denom_jet_pt", 50 , 50  , 1000  , [&, category_name]() 
     {return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_jet_pt");} );
 
     ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_jet_pt");
-    ana.histograms.addVecHistogram(category_name + "_ef_numer_jet_pt", 180 , -4.5  , 4.5  , [&, category_name]() 
+    ana.histograms.addVecHistogram(category_name + "_ef_numer_jet_pt", 50 , 50  , 1000  , [&, category_name]() 
     {return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_jet_pt");} );
 
     ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_jet_pt");
-    ana.histograms.addVecHistogram(category_name + "_ie_numer_jet_pt", 180 , -4.5  , 4.5  , [&, category_name]() 
+    ana.histograms.addVecHistogram(category_name + "_ie_numer_jet_pt", 50 , 50  , 1000  , [&, category_name]() 
     {return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_jet_pt");} );
 
+    // Moving the standard pT code up here for convenience
+    ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_pt");
+    ana.histograms.addVecHistogram(category_name + "_ef_denom_pt", 40 , 0.9  , 2000  , [&, category_name]() { // getPtBounds(0), [&, category_name]() {
+      return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_pt");
+    });
+
+    ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_pt");
+    ana.histograms.addVecHistogram(category_name + "_ef_numer_pt", 40 , 0.9  , 2000  , [&, category_name]() { //
+      return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_pt");
+    });
+
+    ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_pt");
+    ana.histograms.addVecHistogram(category_name + "_ie_numer_pt", 40 , 0.9  , 2000  , [&, category_name]() { //
+      return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_pt");
+    });
     // --------------------------------------------------------------------------------------------------------
 
   // Denominator tracks' quantities
-  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_pt");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_eta");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_dxy");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_vxy");
@@ -415,7 +429,6 @@ void bookEfficiencySet(SimTrackSetDefinition& effset) {
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_denom_phi");
 
   // Numerator tracks' quantities
-  ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_pt");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_eta");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_dxy");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_vxy");
@@ -423,16 +436,13 @@ void bookEfficiencySet(SimTrackSetDefinition& effset) {
   ana.tx.createBranch<std::vector<float>>(category_name + "_ef_numer_phi");
 
   // Inefficiencies
-  ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_pt");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_eta");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_dxy");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_vxy");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_dz");
   ana.tx.createBranch<std::vector<float>>(category_name + "_ie_numer_phi");
 
-  ana.histograms.addVecHistogram(category_name + "_ef_denom_pt", getPtBounds(0), [&, category_name]() {
-    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_pt");
-  });
+
   ana.histograms.addVecHistogram(category_name + "_ef_denom_ptlow", getPtBounds(4), [&, category_name]() {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_pt");
   });
@@ -458,9 +468,6 @@ void bookEfficiencySet(SimTrackSetDefinition& effset) {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_denom_phi");
   });
 
-  ana.histograms.addVecHistogram(category_name + "_ef_numer_pt", getPtBounds(0), [&, category_name]() {
-    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_pt");
-  });
   ana.histograms.addVecHistogram(category_name + "_ef_numer_ptlow", getPtBounds(4), [&, category_name]() {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_pt");
   });
@@ -486,9 +493,6 @@ void bookEfficiencySet(SimTrackSetDefinition& effset) {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ef_numer_phi");
   });
 
-  ana.histograms.addVecHistogram(category_name + "_ie_numer_pt", getPtBounds(0), [&, category_name]() {
-    return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_pt");
-  });
   ana.histograms.addVecHistogram(category_name + "_ie_numer_ptlow", getPtBounds(4), [&, category_name]() {
     return ana.tx.getBranchLazy<std::vector<float>>(category_name + "_ie_numer_pt");
   });
@@ -694,10 +698,11 @@ void fillEfficiencySet(int isimtrk, SimTrackSetDefinition& effset) {
   // https://github.com/cms-sw/cmssw/blob/7cbdb18ec6d11d5fd17ca66c1153f0f4e869b6b0/SimTracker/Common/python/trackingParticleSelector_cfi.py
   // https://github.com/cms-sw/cmssw/blob/7cbdb18ec6d11d5fd17ca66c1153f0f4e869b6b0/SimTracker/Common/interface/TrackingParticleSelector.h#L122-L124
   const float vtx_z_thresh = 30;
-  const float vtx_perp_thresh = 2.5;
+  const float vtx_perp_thresh = 10;
 
   // jet cuts added by Kasia
-  if(jet_pt > 50 && jet_eta<1.2 && jet_eta>-1.2 && rjet<1){
+  // && (sqrt(pow(vtx_x,2) + pow(vtx_y,2)) < 100)
+  if(pt>0 && jet_eta<140 && jet_eta>-140 && (jet_eta>-999 && etadiffs>-999)){
     // N minus eta cut
     if (pt > ana.pt_cut and abs(vtx_z) < vtx_z_thresh and abs(vtx_perp) < vtx_perp_thresh) {
       // vs. eta plot

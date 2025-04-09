@@ -9,7 +9,7 @@ from math import sqrt
 
 sel_choices = ["base", "loweta", "xtr", "vtr", "none"]
 metric_choices = ["eff", "fakerate", "duplrate"]
-variable_choices = ["pt", "ptmtv", "ptlow", "eta", "phi", "dxy", "dz", "vxy", "etadiffs", "phidiffs", "rjet"] # Last three added by Kasia
+variable_choices = ["pt", "ptmtv", "ptlow", "eta", "phi", "dxy", "dz", "vxy", "etadiffs", "phidiffs", "rjet", "jet_eta", "jet_phi", "jet_pt"] # Last six added by Kasia
 objecttype_choices = ["TC", "pT5", "T5", "pT3", "pLS", "pT5_lower", "pT3_lower", "T5_lower"]
 #lowerObjectType = ["pT5_lower", "pT3_lower", "T5_lower"]
 
@@ -419,6 +419,12 @@ def set_label(eff, output_name, raw_number):
         title = "#phi diffs"
     elif "_rjet" in output_name: # Added by Kasia
         title = "r_jet"
+    elif "_jet_eta" in output_name: # Added by Kasia
+        title = "jet #eta"
+    elif "_jet_phi" in output_name: # Added by Kasia
+        title = "jet #phi"
+    elif "_jet_pt" in output_name: # Added by Kasia
+        title = "jet pT"
     elif "_dz" in output_name:
         title = "z [cm]"
     elif "_dxy" in output_name:
@@ -486,17 +492,17 @@ def draw_label(params):
         etacutstr = "not x-reg"
     if "eff" in output_name:
         if "_pt" in output_name:
-            fiducial_label = "{etacutstr}, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 2.5 cm".format(etacutstr=etacutstr)
+            fiducial_label = "{etacutstr}, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 10 cm".format(etacutstr=etacutstr)
         elif "_eta" in output_name:
-            fiducial_label = "p_{{T}} > {pt} GeV, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 2.5 cm".format(pt=ptcut)
+            fiducial_label = "p_{{T}} > {pt} GeV, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 10 cm".format(pt=ptcut)
         elif "_dz" in output_name:
-            fiducial_label = "{etacutstr}, p_{{T}} > {pt} GeV, |Vtx_{{xy}}| < 2.5 cm".format(pt=ptcut, etacutstr=etacutstr)
+            fiducial_label = "{etacutstr}, p_{{T}} > {pt} GeV, |Vtx_{{xy}}| < 10 cm".format(pt=ptcut, etacutstr=etacutstr)
         elif "_dxy" in output_name:
             fiducial_label = "{etacutstr}, p_{{T}} > {pt} GeV, |Vtx_{{z}}| < 30 cm".format(pt=ptcut, etacutstr=etacutstr)
         elif "_vxy" in output_name:
             fiducial_label = "{etacutstr}, p_{{T}} > {pt} GeV, |Vtx_{{z}}| < 30 cm".format(pt=ptcut, etacutstr=etacutstr)
         else:
-            fiducial_label = "{etacutstr}, p_{{T}} > {pt} GeV, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 2.5 cm".format(pt=ptcut, etacutstr=etacutstr)
+            fiducial_label = "{etacutstr}, p_{{T}} > {pt} GeV, |Vtx_{{z}}| < 30 cm, |Vtx_{{xy}}| < 10 cm".format(pt=ptcut, etacutstr=etacutstr)
         particleselection = ((", Particle:" + pdgidstr) if pdgidstr else "" ) + ((", Charge:" + chargestr) if chargestr else "" )
         fiducial_label += particleselection
     # If fake rate or duplicate rate plot follow the following fiducial label rule
@@ -536,6 +542,9 @@ def draw_plot(effs, nums, dens, params):
     # Set logx
     if "_pt" in output_name:
         c1.SetLogx()
+    
+    # if "_rjet" in output_name: # Added by Kasia
+    #     c1.SetLogx()
 
     # Set title
     # print(output_name)
@@ -651,7 +660,7 @@ def plot_standard_performance_plots(args):
     metrics = metric_choices
     yzooms = [False, True]
     variables = {
-            "eff": ["pt", "ptlow", "ptmtv", "eta", "phi", "dxy", "dz", "vxy", "etadiffs", "phidiffs", "rjet"], # Last three added by Kasia,
+            "eff": ["pt", "ptlow", "ptmtv", "eta", "phi", "dxy", "dz", "vxy", "etadiffs", "phidiffs", "rjet", "jet_eta", "jet_phi", "jet_pt"], # Last six added by Kasia,
             "fakerate": ["pt", "ptlow", "ptmtv", "eta", "phi"],
             "duplrate": ["pt", "ptlow", "ptmtv", "eta", "phi"],
             }
@@ -671,7 +680,10 @@ def plot_standard_performance_plots(args):
             "dz": [False, True],
             "etadiffs": [False, True], # Added by Kasia
             "phidiffs": [False, True],  # Added by Kasia
-            "rjet": [False, True]  # Added by Kasia
+            "rjet": [False, True],  # Added by Kasia
+            "jet_eta": [False, True], # Added by Kasia
+            "jet_phi": [False, True],  # Added by Kasia
+            "jet_pt": [False, True]  # Added by Kasia
             }
     types = objecttype_choices
     breakdowns = {
