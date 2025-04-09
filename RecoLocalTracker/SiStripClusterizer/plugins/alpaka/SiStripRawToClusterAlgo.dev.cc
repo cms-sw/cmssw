@@ -943,8 +943,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         mapping.const_view());
 
     // Calculate the discrete integral (prefix sum) of seedStripsNCMask.
-    // prefixScan(queue);
-    prefixScan_new(queue);
+    prefixScan(queue);
+    // prefixScan_new(queue);
     // When the integral increase AND I am at a non-contigous strip, the beginning of new cluster is marked.
 
     // Attach to the index according to the *exclusive* prefix sum when contiguous strips are found
