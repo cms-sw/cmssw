@@ -10,8 +10,8 @@ eff_layers = ["effic_eta_layer_barrel{} 'LayerCluster Efficiency vs #eta Layer{}
 eff_layers.extend(["effic_phi_layer_barrel{} 'LayerCluster Efficiency vs #phi Layer{}' Num_CaloParticle_Phi_perlayer_barrel{} Denom_CaloParticle_Phi_perlayer_barrel{}".format(i, i, i, i) for i in range(maxlayer)])
 eff_layers.extend(["duplicate_eta_layer_barrel{} 'LayerCluster Duplicate(Split) Rate vs #eta Layer{}' NumDup_CaloParticle_Eta_perlayer_barrel{} Denom_CaloParticle_Eta_perlayer_barrel{}".format(i, i, i, i) for i in range(maxlayer)])
 eff_layers.extend(["duplicate_phi_layer_barrel{} 'LayerCluster Duplicate(Split) Rate vs #phi Layer{}' NumDup_CaloParticle_Phi_perlayer_barrel{} Denom_CaloParticle_Phi_perlayer_barrel{}".format(i, i, i, i) for i in range(maxlayer)])
-eff_layers.extend(["fake_eta_layer_barrel{} 'LayerCluster Fake Rate vs #eta Layer{}' Num_LayerCluster_Eta_perlayer_barrel{} Denom_LayerCluster_Eta_perlayer_barrel{}".format(i, i, i, i) for i in range(maxlayer)])
-eff_layers.extend(["fake_phi_layer_barrel{} 'LayerCluster Fake Rate vs #phi Layer{}' Num_LayerCluster_Phi_perlayer_barrel{} Denom_LayerCluster_Phi_perlayer_barrel{}".format(i, i, i, i) for i in range(maxlayer)])
+eff_layers.extend(["fake_eta_layer_barrel{} 'LayerCluster Fake Rate vs #eta Layer{}' Num_LayerCluster_Eta_perlayer_barrel{} Denom_LayerCluster_Eta_perlayer_barrel{} fake".format(i, i, i, i) for i in range(maxlayer)])
+eff_layers.extend(["fake_phi_layer_barrel{} 'LayerCluster Fake Rate vs #phi Layer{}' Num_LayerCluster_Phi_perlayer_barrel{} Denom_LayerCluster_Phi_perlayer_barrel{} fake".format(i, i, i, i) for i in range(maxlayer)])
 eff_layers.extend(["merge_eta_layer_barrel{} 'LayerCluster Merge Rate vs #eta Layer{}' NumMerge_LayerCluster_Eta_perlayer_barrel{} Denom_LayerCluster_Eta_perlayer_barrel{}".format(i, i, i, i) for i in range(maxlayer)])
 eff_layers.extend(["merge_phi_layer_barrel{} 'LayerCluster Merge Rate vs #phi Layer{}' NumMerge_LayerCluster_Phi_perlayer_barrel{} Denom_LayerCluster_Phi_perlayer_barrel{}".format(i, i, i, i) for i in range(maxlayer)])
 
