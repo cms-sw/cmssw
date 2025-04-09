@@ -14,7 +14,7 @@ namespace l1ct {
   // all possible tag categories (can be extended for new / separate taggers)
   class JetTagClass {
   public:
-    enum JetTagClassValue : uint8_t { uds, g, b, c, tau_p, tau_n, e, mu };
+    enum JetTagClassValue : uint8_t { b, c, uds, g, tau_p, tau_n, mu, e };
     JetTagClass() = default;
     JetTagClass(JetTagClassValue aJetTagClassValue) : value_(aJetTagClassValue) {}
     JetTagClass(std::string aJetTagClassValueString) {
@@ -35,6 +35,21 @@ namespace l1ct {
 
   };  // JetTagClass
 
+  // Define a separate class/struct for jet tag handling
+  struct JetTagClassHandler {
+    static const unsigned NTagFields = 8;
+    static const JetTagClass tagClassesDefault_[NTagFields];
+
+    JetTagClass tagClassesArray[NTagFields];
+
+    JetTagClassHandler() {
+      // Copy the default values to the array
+      for (unsigned i = 0; i < NTagFields; i++) {
+        tagClassesArray[i] = tagClassesDefault_[i];
+      }
+    }
+  };
+
   struct Jet {
     pt_t hwPt;
     glbeta_t hwEta;
@@ -43,16 +58,6 @@ namespace l1ct {
 
     static const unsigned NTagFields = 8;
     jet_tag_score_t hwTagScores[NTagFields];
-
-    static const JetTagClass tagClassesDefault_[NTagFields];
-    JetTagClass tagClassesArray[NTagFields];
-
-    Jet() {
-      // Copy the default values to the array
-      for (unsigned i = 0; i < NTagFields; i++) {
-        tagClassesArray[i] = tagClassesDefault_[i];
-      }
-    }
 
     inline bool operator==(const Jet &other) const {
       bool eq = hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwZ0 == other.hwZ0;
