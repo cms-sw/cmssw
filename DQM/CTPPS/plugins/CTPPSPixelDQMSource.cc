@@ -475,14 +475,19 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
         const float y0Minimum = -10.;
         const float x0Maximum = 25.;
         const float y0Maximum = 22.;
-        const float xBins_per_mm = 3; // number of x bins per mm
-        const float yBins_per_mm = 3; // number of y bins per mm
+        const float xBins_per_mm = 3;  // number of x bins per mm
+        const float yBins_per_mm = 3;  // number of y bins per mm
 
         string st = "track intercept point";
         string st2 = ": " + stnTitle;
-        h2trackXY0[indexP] = ibooker.book2D(
-            st, st + st2 + ";x0;y0", int(x0Maximum - x0Minimum) * xBins_per_mm, x0Minimum, x0Maximum, 
-            int(y0Maximum-y0Minimum) * yBins_per_mm, y0Minimum, y0Maximum);
+        h2trackXY0[indexP] = ibooker.book2D(st,
+                                            st + st2 + ";x0;y0",
+                                            int(x0Maximum - x0Minimum) * xBins_per_mm,
+                                            x0Minimum,
+                                            x0Maximum,
+                                            int(y0Maximum - y0Minimum) * yBins_per_mm,
+                                            y0Minimum,
+                                            y0Maximum);
         h2trackXY0[indexP]->getTH2F()->SetOption("colz");
         st = "Error Code";
         h2ErrorCodeRP[indexP] = ibooker.book2D(st,
