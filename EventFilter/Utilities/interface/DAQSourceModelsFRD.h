@@ -11,6 +11,7 @@ class FEDRawDataCollection;
 
 class DataModeFRD : public DataMode {
 public:
+  DataModeFRD(DAQSource* daqSource, bool verifyFEDs) : DataMode(daqSource), verifyFEDs_(verifyFEDs) {}
   DataModeFRD(DAQSource* daqSource) : DataMode(daqSource) {}
   ~DataModeFRD() override {}
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
@@ -82,6 +83,10 @@ private:
   uint16_t MINTCDSuTCAFEDID_ = FEDNumbering::MINTCDSuTCAFEDID;
   uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
   bool eventCached_ = false;
+  std::unordered_set<unsigned short> fedIdSet_;
+  unsigned int expectedFedsInEvent_ = 0;
+  bool verifyFEDs_ = true;
+
 };
 
 /*
@@ -90,7 +95,7 @@ private:
 
 class DataModeFRDPreUnpack : public DataMode {
 public:
-  DataModeFRDPreUnpack(DAQSource* daqSource) : DataMode(daqSource) {}
+  DataModeFRDPreUnpack(DAQSource* daqSource, bool verifyFEDs) : DataMode(daqSource), verifyFEDs_(verifyFEDs) {}
   ~DataModeFRDPreUnpack() override {};
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
@@ -164,6 +169,9 @@ private:
   uint16_t MINTCDSuTCAFEDID_ = FEDNumbering::MINTCDSuTCAFEDID;
   uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
   bool eventCached_ = false;
+  std::unordered_set<unsigned short> fedIdSet_;
+  unsigned int expectedFedsInEvent_ = 0;
+  bool verifyFEDs_ = true;
 };
 
 /* 
@@ -173,7 +181,7 @@ private:
 
 class DataModeFRDStriped : public DataMode {
 public:
-  DataModeFRDStriped(DAQSource* daqSource) : DataMode(daqSource) {}
+  DataModeFRDStriped(DAQSource* daqSource, bool verifyFEDs) : DataMode(daqSource), verifyFEDs_(verifyFEDs) {}
   ~DataModeFRDStriped() override {}
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
@@ -258,6 +266,9 @@ private:
   uint16_t MINTCDSuTCAFEDID_ = FEDNumbering::MINTCDSuTCAFEDID;
   uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
   std::vector<std::filesystem::path> buPaths_;
+  std::unordered_set<unsigned short> fedIdSet_;
+  unsigned int expectedFedsInEvent_ = 0;
+  bool verifyFEDs_ = true;
 };
 
 #endif  // EventFilter_Utilities_DAQSourceModelsFRD_h
