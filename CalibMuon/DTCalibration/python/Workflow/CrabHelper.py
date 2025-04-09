@@ -58,8 +58,10 @@ class CrabHelper(object):
             task.update()
             if task.state in ( "COMPLETED"):
                 print("Crab task complete. Getting output locally")
-                output_path = os.path.join( self.local_path, "unmerged_results" )
-                self.get_output_files(task, output_path)
+                #output_path = os.path.join( self.local_path, "unmerged_results" )
+                #self.get_output_files(task, output_path)
+                self.get_output_files(task)
+                print("Finished with get_output_files()")
                 return True
             if task.state in ("SUBMITFAILED", "FAILED"):
                 print("Crab task failed")
@@ -93,9 +95,14 @@ class CrabHelper(object):
         return False
 
     def voms_proxy_time_left(self):
-        process = subprocess.Popen(['voms-proxy-info', '-timeleft'],
-                                   stdout=subprocess.PIPE)
+        print("Checking voms_proxy time left")
+        process = subprocess.Popen('voms-proxy-info -timeleft',
+                                   stdout = subprocess.PIPE,
+                                   stderr = subprocess.PIPE,
+                                   shell=True
+                                   )
         stdout = process.communicate()[0]
+        
         if process.returncode != 0:
             return 0
         else:
@@ -201,7 +208,7 @@ class CrabHelper(object):
     @property
     def crab(self):
         """ Retuns a CrabController instance from cache or creates new
-           on on first call """
+           if it is a first call """
         if self._crab is None:
             if self.cert_info.voGroup:
                 self._crab = self.crabFunctions.CrabController(voGroup = self.cert_info.voGroup)
@@ -212,11 +219,14 @@ class CrabHelper(object):
     @property
     def cert_info(self):
         if not self._cert_info:
+            print("No cert info yet. Will try to get it.")
             if not self.voms_proxy_time_left() > 0:
                 warn_msg = "No valid proxy, a default proxy without a specific"
                 warn_msg = "VOGroup will be used"
+                print("Try to create voms_proxy")
                 self.voms_proxy_create()
-                log.warning(warn_msg)
+                print("... voms_proxy is created")
+                log.warning(warn_msg)                
             self._cert_info = self.crabFunctions.CertInfo()
         return self._cert_info
 
