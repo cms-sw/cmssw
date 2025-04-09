@@ -398,6 +398,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     return fedIndex(fedID) * FEDCH_PER_FED + fedCH;
   }
 
+  class siStripKer_init {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_HOST_ACC void operator()(TAcc const& acc,
+                                       const float r_channelThreshold,
+                                       const float r_seedThreshold,
+                                       const float r_clusterThresholdSquared,
+                                       const uint8_t r_maxSequentialHoles,
+                                       const uint8_t r_maxSequentialBad,
+                                       const uint8_t r_maxAdjacentBad,
+                                       const float r_minGoodCharge,
+                                       const uint32_t r_clusterSizeLimit,
+                                       StripClustersAuxView clusterDataObj) const {
+      if (once_per_grid(acc)) {
+        // Initialize the members of the clusterizer
+        clusterDataObj.channelThreshold() = r_channelThreshold;
+        clusterDataObj.seedThreshold() = r_seedThreshold;
+        clusterDataObj.clusterThresholdSquared() = r_clusterThresholdSquared;
+        clusterDataObj.maxSequentialHoles() = r_maxSequentialHoles;
+        clusterDataObj.maxSequentialBad() = r_maxSequentialBad;
+        clusterDataObj.maxAdjacentBad() = r_maxAdjacentBad;
+        clusterDataObj.minGoodCharge() = r_minGoodCharge;
+        clusterDataObj.clusterSizeLimit() = r_clusterSizeLimit;
+      }
+    }
+  };
+
   class siStripKer_unpackZS {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
@@ -819,22 +846,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     assert(n_strips >= 0);
 
     // Setup the clusterizer aux parameters from the configuration
-    StripClustersAuxHost sClustersAux_h = StripClustersAuxHost(n_strips, queue);
-    LogDebug("sClustersAux") << "Size of StripClustersAuxHost (bytes): "
-                             << alpaka::getExtentProduct(sClustersAux_h.buffer()) * sizeof(std::byte);
+    sClustersAux_d_ = std::make_unique<StripClustersAuxDevice>(n_strips, queue);
+    LogDebug("sClustersAux") << "Size of StripClustersAuxDevice (bytes): "
+                             << alpaka::getExtentProduct(sClustersAux_d_->buffer()) * sizeof(std::byte);
 
     // Initialize the members of the clusterizer
-    sClustersAux_h->channelThreshold() = channelThreshold_;
-    sClustersAux_h->seedThreshold() = seedThreshold_;
-    sClustersAux_h->clusterThresholdSquared() = clusterThresholdSquared_;
-    sClustersAux_h->maxSequentialHoles() = maxSequentialHoles_;
-    sClustersAux_h->maxSequentialBad() = maxSequentialBad_;
-    sClustersAux_h->maxAdjacentBad() = maxAdjacentBad_;
-    sClustersAux_h->minGoodCharge() = minGoodCharge_;
-    sClustersAux_h->clusterSizeLimit() = maxClusterSize_;
-    // Move to the device
-    sClustersAux_d_ =
-        std::make_unique<StripClustersAuxDevice>(cms::alpakatools::moveToDeviceAsync(queue, std::move(sClustersAux_h)));
+    auto workDiv = make_workdiv<Acc1D>(1u, 1u);
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        siStripKer_init{},
+                        channelThreshold_,
+                        seedThreshold_,
+                        clusterThresholdSquared_,
+                        maxSequentialHoles_,
+                        maxSequentialBad_,
+                        maxAdjacentBad_,
+                        minGoodCharge_,
+                        maxClusterSize_,
+                        sClustersAux_d_->view());
 
     // Initialize the digi with all the pre-allocated required number of bytes
     digis_d_ = std::make_unique<StripDigiDevice>(n_strips, queue);
