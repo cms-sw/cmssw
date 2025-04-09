@@ -546,7 +546,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
       // Loop over only the non-contiguous strips (flagged in setStripIndex)
       for (auto i : uniform_elements(acc, nSeedStripsNC)) {
-        const auto index = clusterDataObj.seedStripsNCIndex(i);
+        const int index = clusterDataObj.seedStripsNCIndex(i);
         const auto chan = channels[index];
         const auto fed = mapping.fedID(chan);
         const auto channel = mapping.fedCh(chan);
@@ -756,9 +756,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       ALPAKA_ASSERT_ACC(numberOfModules < prefixScanUpperLimit);
 
       // Use N single-block prefix scan, then update all blocks after the first one.
-      auto& ws = alpaka::declareSharedVar<int[warpSize], __COUNTER__>(acc);
-      int* clusModuleStart = clusterDataObj.seedStripsNCMask();
-      int* prefix = clusterDataObj.prefixSeedStripsNCMask();
+      auto& ws = alpaka::declareSharedVar<uint32_t[warpSize], __COUNTER__>(acc);
+      uint32_t* clusModuleStart = clusterDataObj.seedStripsNCMask();
+      uint32_t* prefix = clusterDataObj.prefixSeedStripsNCMask();
       int leftModules = numberOfModules;
       // First pass
       while (leftModules > blockSize) {
@@ -886,15 +886,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Calculate the prefix for the non-contiguous flagged strips and store in prefixSeedStripsNCMask
     // From example in HeterogeneousCore/AlpakaInterface/test/alpaka/testPrefixScan.dev.cc
     uint32_t num_items = sClustersAux_d_->view().metadata().size();
-    const auto nThreads = 1024;
+    int32_t nThreads = 1024;
     int32_t nBlocks = divide_up_by(num_items, nThreads);
-    auto workDivMultiBlock = make_workdiv<Acc1D>(nBlocks, nThreads);
+    const auto workDivMultiBlock = make_workdiv<Acc1D>(nBlocks, nThreads);
     auto blockCounter_d = make_device_buffer<int32_t>(queue);
     alpaka::memset(queue, blockCounter_d, 0);
     alpaka::enqueue(queue,
                     alpaka::createTaskKernel<Acc1D>(workDivMultiBlock,
-                                                    multiBlockPrefixScan<int>(),
-                                                    sClustersAux_d_->view().seedStripsNCMask(),
+                                                    multiBlockPrefixScan<uint32_t>(),
+                                                    sClustersAux_d_->const_view().seedStripsNCMask(),
                                                     sClustersAux_d_->view().prefixSeedStripsNCMask(),
                                                     num_items,
                                                     nBlocks,
@@ -1007,9 +1007,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     std::ostringstream dumpMsg("[SiStripRawToClusterAlgo::unpackStrips] Dumping unpacked strips\n");
     dumpMsg << "Allocated " << digisSize << " strips\n";
     dumpMsg << "i\tadc\tchan\tstripId\n";
+
     for (int i = 0; i < digisSize; ++i) {
-      if (i < 50 || i > (digisSize - 50) || i % 10000 == 0) {
-        dumpMsg << i << "\t" << (int)digis_h->adc(i) << " " << (int)(digis_h->stripId(i)) << "\n";
+      if (true || i < 50 || i > (digisSize - 50) || i % 10000 == 0) {
+        dumpMsg << i << "\t" << (int)digis_h->adc(i) << " " << (int)(digis_h->channel(i)) << " "
+                << (int)(digis_h->stripId(i)) << "\n";
       }
     }
     LogDebug("unpackStrips") << dumpMsg.str();
