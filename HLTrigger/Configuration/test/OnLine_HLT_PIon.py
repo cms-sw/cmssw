@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_15_0_0/PIon/V45 (CMSSW_15_0_4)
+# /dev/CMSSW_15_0_0/PIon/V62 (CMSSW_15_0_4)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTPIon" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/PIon/V45")
+  tableName = cms.string("/dev/CMSSW_15_0_0/PIon/V62")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -1234,12 +1234,12 @@ process.streams = cms.PSet(
     'ZeroBias' )
 )
 process.datasets = cms.PSet( 
-  HLTPhysics = cms.vstring( 'HLT_Physics_v14' ),
-  OnlineMonitor = cms.vstring( 'HLT_Physics_v14',
+  HLTPhysics = cms.vstring( 'HLT_Physics_v15' ),
+  OnlineMonitor = cms.vstring( 'HLT_Physics_v15',
     'HLT_Random_v3',
-    'HLT_ZeroBias_v13' ),
+    'HLT_ZeroBias_v14' ),
   ZeroBias = cms.vstring( 'HLT_Random_v3',
-    'HLT_ZeroBias_v13' )
+    'HLT_ZeroBias_v14' )
 )
 
 process.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
@@ -1400,6 +1400,16 @@ process.ppsPixelTopologyESSource = cms.ESSource( "PPSPixelTopologyESSource",
     appendToDataLabel = cms.string( "" )
 )
 
+process.mkFitGeometryESProducer = cms.ESProducer( "MkFitGeometryESProducer",
+  appendToDataLabel = cms.string( "" )
+)
+process.hltESPIter0PFlowTrackCandidatesMkFitConfig = cms.ESProducer( "MkFitIterationConfigESProducer",
+  ComponentName = cms.string( "hltESPIter0PFlowTrackCandidatesMkFitConfig" ),
+  config = cms.FileInPath( "RecoTracker/MkFit/data/mkfit-phase1-hltiter0.json" ),
+  minPt = cms.double( 0.0 ),
+  maxClusterSize = cms.uint32( 8 ),
+  appendToDataLabel = cms.string( "" )
+)
 process.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   SimpleMagneticField = cms.string( "" ),
@@ -3740,7 +3750,7 @@ process.hltDatasetHLTPhysics = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "" ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True ),
-    triggerConditions = cms.vstring( 'HLT_Physics_v14' )
+    triggerConditions = cms.vstring( 'HLT_Physics_v15' )
 )
 process.hltPreDatasetHLTPhysics = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -3752,9 +3762,9 @@ process.hltDatasetOnlineMonitor = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "" ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True ),
-    triggerConditions = cms.vstring( 'HLT_Physics_v14',
+    triggerConditions = cms.vstring( 'HLT_Physics_v15',
       'HLT_Random_v3',
-      'HLT_ZeroBias_v13' )
+      'HLT_ZeroBias_v14' )
 )
 process.hltPreDatasetOnlineMonitor = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -3767,7 +3777,7 @@ process.hltDatasetZeroBias = cms.EDFilter( "TriggerResultsFilter",
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True ),
     triggerConditions = cms.vstring( 'HLT_Random_v3',
-      'HLT_ZeroBias_v13' )
+      'HLT_ZeroBias_v14' )
 )
 process.hltPreDatasetZeroBias = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -3840,8 +3850,8 @@ process.HLTriggerFirstPath = cms.Path( process.hltGetRaw + process.hltPSetMap + 
 process.Status_OnCPU = cms.Path( process.hltBackend + ~process.hltStatusOnGPUFilter )
 process.Status_OnGPU = cms.Path( process.hltBackend + process.hltStatusOnGPUFilter )
 process.HLT_Random_v3 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
-process.HLT_Physics_v14 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
-process.HLT_ZeroBias_v13 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
+process.HLT_Physics_v15 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
+process.HLT_ZeroBias_v14 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.Dataset_HLTPhysics = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetHLTPhysics + process.hltPreDatasetHLTPhysics )
@@ -3858,7 +3868,7 @@ process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltOutputDQM )
 process.PhysicsCommissioningOutput = cms.EndPath( process.hltOutputPhysicsCommissioning )
 
 
-process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.HLT_Random_v3, process.HLT_Physics_v14, process.HLT_ZeroBias_v13, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.Dataset_HLTPhysics, process.Dataset_OnlineMonitor, process.Dataset_ZeroBias, process.DQMOutput, process.PhysicsCommissioningOutput, ))
+process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.HLT_Random_v3, process.HLT_Physics_v15, process.HLT_ZeroBias_v14, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.Dataset_HLTPhysics, process.Dataset_OnlineMonitor, process.Dataset_ZeroBias, process.DQMOutput, process.PhysicsCommissioningOutput, ))
 
 
 # source module (EDM inputs)
