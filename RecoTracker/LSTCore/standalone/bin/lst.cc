@@ -89,6 +89,13 @@ int main(int argc, char **argv) {
 
   // A default value one
   TString TrackingNtupleDir = gSystem->Getenv("TRACKINGNTUPLEDIR");
+
+  // Added by Kasia
+  // std::cout << "\n\n\n\n" << std::endl;
+  // std::cout << TrackingNtupleDir.Data() << std::endl;
+  // std::cout << "\n\n\n\n" << std::endl;
+
+
   if (ana.input_raw_string.EqualTo("muonGun"))
     ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_10mu_pt_0p5_2.root", TrackingNtupleDir.Data());
   else if (ana.input_raw_string.EqualTo("muonGun_highPt"))
@@ -97,7 +104,7 @@ int main(int argc, char **argv) {
     ana.input_file_list_tstring =
         TString::Format("%s/trackingNtuple_6pion_1k_pt_0p5_50.root", TrackingNtupleDir.Data());
   else if (ana.input_raw_string.EqualTo("PU200"))
-    ana.input_file_list_tstring = "new_tree.root"; // ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_ttbar_PU200.root", TrackingNtupleDir.Data()); // Added by Kasia
+    ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_ttbar_PU200.root", TrackingNtupleDir.Data()); 
   else if (ana.input_raw_string.EqualTo("PU200RelVal"))
     ana.input_file_list_tstring = TString::Format(
         "%s/RelValTTbar_14TeV_CMSSW_12_5_0_pre3/",
@@ -116,7 +123,7 @@ int main(int argc, char **argv) {
     ana.input_file_list_tstring =
         TString::Format("%s/trackingNtuple_10mu_10k_pt_0p5_50_50cm_cube.root", TrackingNtupleDir.Data());
   else {
-    ana.input_file_list_tstring = ana.input_raw_string;
+    ana.input_file_list_tstring = "new_tree.root"; // ana.input_raw_string; // Added by Kasia
   }
 
   //_______________________________________________________________________________
