@@ -89,7 +89,7 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-process.generator = cms.EDFilter("Herwig7GeneratorFilter",
+process.generator = cms.EDFilter("Herwig7HepMC3GeneratorFilter",
     configFiles = cms.vstring(),
     eventsToPrint = cms.untracked.uint32(1),
     crossSection = cms.untracked.double(-1),
