@@ -1197,7 +1197,7 @@
       HGCalHESiliconSensitive, HGCalHEBasePlate, HGCalHEAirGap0</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="7">
       hgcalMaterial:HGC_HEServices, hgcalMaterial:HGC_Hexaboard, materials:Epoxy,
-      hgcalMaterial:HGC_Kapton, materials:Silicon, hgcalMaterial:HGC_G10-FR4,
+      hgcalMaterial:HGC_Kapton, materials:Silicon, materials:Titanium,
       materials:Air</Vector>
     <Vector name="LayerThickness" type="numeric" nEntries="7">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.05*mm,
@@ -1235,7 +1235,7 @@
       HGCalHESiliconSensitive, HGCalHEBasePlate, HGCalHEAirGap0</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="7">
       hgcalMaterial:HGC_HEServices, hgcalMaterial:HGC_Hexaboard, materials:Epoxy,
-      hgcalMaterial:HGC_Kapton, materials:Silicon, hgcalMaterial:HGC_G10-FR4,
+      hgcalMaterial:HGC_Kapton, materials:Silicon, materials:Titanium,
       materials:Air</Vector>
     <Vector name="LayerThickness" type="numeric" nEntries="7">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.05*mm,
