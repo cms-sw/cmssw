@@ -2,6 +2,7 @@ from threading import Thread
 from Configuration.PyReleaseValidation import WorkFlow
 import os,time
 import shutil
+import re
 from subprocess import Popen 
 from os.path import exists, basename, join
 from datetime import datetime
@@ -91,6 +92,7 @@ class WorkFlowRunner(Thread):
         inFile=None
         lumiRangeFile=None
         aborted=False
+        outputExtensionForStep = {}
         for (istepmone,com) in enumerate(self.wf.cmds):
             # isInputOk is used to keep track of the das result. In case this
             # is False we use a different error message to indicate the failed
@@ -98,6 +100,7 @@ class WorkFlowRunner(Thread):
             isInputOk=True
             istep=istepmone+1
             cmd = preamble
+            outputExtensionForStep[istep]=''
             if aborted:
                 self.npass.append(0)
                 self.nfail.append(0)
@@ -182,6 +185,7 @@ class WorkFlowRunner(Thread):
                 # 134 is an existing workflow where harvesting has to operate on AlcaReco and NOT on DQM; hard-coded..    
                 if 'HARVESTING' in cmd and not 134==self.wf.numId and not '--filein' in cmd:
                     cmd+=' --filein file:step%d_inDQM.root --fileout file:step%d.root '%(istep-1,istep)
+                    outputExtensionForStep[istep] = '.root'
                 else:
                     # Disable input for premix stage1 to allow combined stage1+stage2 workflow
                     # Disable input for premix stage2 in FastSim to allow combined stage1+stage2 workflow (in FS, stage2 does also GEN)
@@ -189,6 +193,7 @@ class WorkFlowRunner(Thread):
                     extension = '.root'
                     if '--rntuple_out' in cmd:
                         extension = '.rntpl'
+                    outputExtensionForStep[istep] = extension
                     if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd):
                         steps = cmd.split("-s ")[1].split(" ")[0] ## relying on the syntax: cmsDriver -s STEPS --otherFlags
                         if "ALCA" not in steps:
@@ -199,6 +204,19 @@ class WorkFlowRunner(Thread):
                             cmd+=' --filein %s'%(self.recoOutput)
                         else:
                             cmd+=' --filein  file:step%s%s '%(istep-1,extension)
+                    elif istep!=1 and '--filein' in cmd and '--filetype' not in cmd:
+                        #make sure correct extension is being used
+                        #find the previous state index
+                        expression = '--filein\s+file:step([1-9])(_[a-zA-Z]+)*\.[a-z]+'
+                        m = re.search(expression, cmd)
+                        if m:
+                            cmd = re.sub(expression,r'--filein file:step\1\2'+outputExtensionForStep[int(m.group(1))],cmd)
+                        elif extension == '.rntpl':
+                            #some ALCA steps use special file names without step_ prefix and these are also force to use RNTuple
+                            expression = '--filein\s+file:([a-zA-Z0-9_]+)*\.[a-z]+'
+                            m = re.search(expression, cmd)
+                            if m:
+                                cmd = re.sub(expression,r'--filein file:\1.rntpl',cmd)
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s%s '%(istep,extension)
                         if "RECO" in cmd:
