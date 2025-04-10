@@ -72,7 +72,6 @@ namespace sistrip {
         }
       }
 
-      output->shrink_to_fit();
       if (edm::isDebugEnabled()) {
         dumpClusters(output.get(), nSeedStripsNC);
       }
