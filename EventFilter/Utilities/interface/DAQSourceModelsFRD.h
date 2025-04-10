@@ -102,7 +102,7 @@ public:
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
 
   //non-virtual
-  void unpackEvent(edm::streamer::FRDEventMsgView* eview, UnpackedRawEventWrapper* ec);
+  void unpackEvent(edm::streamer::FRDEventMsgView* eview, UnpackedRawEventWrapper* ec, unsigned int ls);
   void unpackFile(RawInputFile*) override;
   edm::Timestamp fillFEDRawDataCollection(edm::streamer::FRDEventMsgView* eview,
                                           FEDRawDataCollection& rawData,

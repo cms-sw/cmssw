@@ -161,7 +161,7 @@ ${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR
 #no failures, clean up everything including logs if there are no errors
 rm -rf $OUTDIR/{ramdisk,data,*.log}
 
-echo "running DAQSource test with striped event FRD"
+echo "running DAQSource test with striped event FRD (SFB)"
 CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2 buBaseDir=ramdisk1 subsystems=TCDS,SiPixel,ECAL,RPC"
 ${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
 CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2 buBaseDir=ramdisk2 subsystems=SiStrip,HCAL,DT,CSC"
@@ -171,7 +171,7 @@ CMDLINE_STARTFU="cmsRun startFU_daqsource.py daqSourceMode=FRDStriped runNumber=
 ${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR out_2_fu.log
 rm -rf $OUTDIR/{ramdisk,data,*.log}
 
-echo "running DAQSource test with unpacking in reader threads"
+echo "running DAQSource test with unpacking in reader threads (FRDPreUnpack)"
 CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=1"
 CMDLINE_STARTFU="cmsRun startFU_daqsource.py daqSourceMode=FRDPreUnpack runNumber=${runnumber} fffBaseDir=${OUTDIR}"
 ${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
