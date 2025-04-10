@@ -477,7 +477,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     buffer->setLegacyMode(legacyUnpacker_);
 
-    if ((!buffer->doChecks(true)) && (!unpackBadChannels_ || !buffer->checkNoFEOverflows())) [[unlikely]] {
+    if ((!buffer->doChecks(false)) && (!unpackBadChannels_ || !buffer->checkNoFEOverflows())) [[unlikely]] {
       warnings_.add("Exception caught when creating FEDBuffer object for FED",
                     fmt::format("id {0}: FED Buffer check fails for FED ID {0}.", fedId));
       return nullptr;
