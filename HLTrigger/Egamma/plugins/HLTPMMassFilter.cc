@@ -42,7 +42,7 @@ void HLTPMMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOfflineBeamSpot"));
   desc.add<double>("lowerMassCut", 8.0);
   desc.add<double>("upperMassCut", 11.0);
-  desc.add<double>("lowerdRCut", -1.0);
+  desc.add<double>("lowerdRCut", 0.0);
   desc.add<double>("upperdRCut", 9999.0);
   desc.add<int>("nZcandcut", 1);
   desc.addUntracked<bool>("reqOppCharge", true);
