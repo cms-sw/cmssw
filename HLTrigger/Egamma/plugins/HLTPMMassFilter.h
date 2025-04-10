@@ -52,6 +52,8 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   double lowerMassCut_;
   double upperMassCut_;
+  double lowerdRCut_;
+  double upperdRCut_;
   int nZcandcut_;  // number of Z candidates required
   bool reqOppCharge_;
 
