@@ -185,7 +185,7 @@ private:
 
   std::map<unsigned int, unsigned int> sourceEventsReport_;
   std::mutex monlock_;
-  expectedFedsInEvent_ = 0;
+  unsigned int expectedFedsInEvent_ = 0;
 };
 
 #endif  // EventFilter_Utilities_FedRawDataInputSource_h
