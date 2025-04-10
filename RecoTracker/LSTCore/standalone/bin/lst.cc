@@ -4,7 +4,7 @@
 #include <typeinfo>
 
 using LSTEvent = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTEvent;
-using LSTInputDeviceCol = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTInputCollection;
+using LSTInputDeviceCollection = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTInputDeviceCollection;
 using namespace ::lst;
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
@@ -409,7 +409,7 @@ void run_lst() {
 
       // We need to initialize it here so that it stays in scope
       auto &queue = *event_queues.at(omp_get_thread_num());
-      LSTInputDeviceCol lstInputDC(out_lstInputHC.at(evt).sizes(), queue);
+      LSTInputDeviceCollection lstInputDC(out_lstInputHC.at(evt).sizes(), queue);
 
       timing_input_loading =
           addInputsToEventPreLoad(events.at(omp_get_thread_num()), &out_lstInputHC.at(evt), &lstInputDC, queue);

@@ -35,6 +35,8 @@
   <use name="RecoTracker/LST"/>
   <use name="RecoTracker/LSTCore"/>
   <use name="RecoTracker/Record"/>
+  <use name="DataFormats/L1TrackTrigger"/>
+  <use name="Validation/RecoTrack"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

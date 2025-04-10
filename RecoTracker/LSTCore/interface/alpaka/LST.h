@@ -3,7 +3,7 @@
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/LSTESData.h"
-#include "RecoTracker/LSTCore/interface/alpaka/LSTInputCollection.h"
+#include "RecoTracker/LSTCore/interface/alpaka/LSTInputDeviceCollection.h"
 
 #include <cstdlib>
 #include <numeric>
@@ -20,7 +20,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
              bool verbose,
              const float ptCut,
              LSTESData<Device> const* deviceESData,
-             LSTInputCollection const* lstInputDC,
+             LSTInputDeviceCollection const* lstInputDC,
              bool no_pls_dupclean,
              bool tc_pls_triplets);
     std::vector<std::vector<unsigned int>> const& hits() const { return out_tc_hitIdxs_; }
