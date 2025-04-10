@@ -129,22 +129,22 @@ namespace ThePEG {
      * Return the energy unit used in the installed version of HepMC.
      */
     static Energy defaultEnergyUnit() {
-//#ifndef HEPMC_HAS_UNITS
+      //#ifndef HEPMC_HAS_UNITS
       return GeV;
-//#else
-//      return HepMC3::Units::default_momentum_unit() == HepMC3::Units::GEV ? GeV : MeV;
-//#endif
+      //#else
+      //      return HepMC3::Units::default_momentum_unit() == HepMC3::Units::GEV ? GeV : MeV;
+      //#endif
     }
 
     /**
      * Return the length unit used in the installed version of HepMC.
      */
     static Length defaultLengthUnit() {
-//#ifndef HEPMC_HAS_UNITS
+      //#ifndef HEPMC_HAS_UNITS
       return millimeter;
-//#else
-//      return HepMC3::Units::default_length_unit() == HepMC3::Units::MM ? millimeter : 10.0 * millimeter;
-//#endif
+      //#else
+      //      return HepMC3::Units::default_length_unit() == HepMC3::Units::MM ? millimeter : 10.0 * millimeter;
+      //#endif
     }
 
     /**
