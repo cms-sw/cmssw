@@ -658,7 +658,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
   tcds_pointer_ = nullptr;
   tcdsInRange = false;
   uint16_t selectedTCDSFed = 0;
-  fedsInEvent = 0;
+  unsigned int fedsInEvent = 0;
   while (eventSize > 0) {
     assert(eventSize >= FEDTrailer::length);
     eventSize -= FEDTrailer::length;
@@ -706,7 +706,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
 
   if (fedsInEvent != expectedFedsInEvent_ && expectedFedsInEvent_)
     edm::LogWarning("DataModeFRDStriped:::fillFRDCollection")
-        << "Event " << events_.at(0)->event() << " does not contain same number of FEDs as previous: "
+        << "Event " << event_->event() << " does not contain same number of FEDs as previous: "
         << fedsInEvent << "/" << expectedFedsInEvent_;
 
   return tstamp;

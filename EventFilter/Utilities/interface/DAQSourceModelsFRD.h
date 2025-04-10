@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <queue>
+#include "oneapi/tbb/concurrent_unordered_set.h"
 
 #include "EventFilter/Utilities/interface/DAQSourceModels.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -169,8 +170,8 @@ private:
   uint16_t MINTCDSuTCAFEDID_ = FEDNumbering::MINTCDSuTCAFEDID;
   uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
   bool eventCached_ = false;
-  std::unordered_set<unsigned short> fedIdSet_;
-  unsigned int expectedFedsInEvent_ = 0;
+  oneapi::tbb::concurrent_unordered_set<unsigned short> fedIdSet_;
+  std::atomic<unsigned int> expectedFedsInEvent_ = 0;
   bool verifyFEDs_ = true;
 };
 
