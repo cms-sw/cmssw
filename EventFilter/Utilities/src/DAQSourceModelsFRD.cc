@@ -204,7 +204,7 @@ void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview, Un
     ec->setError(errmsg);
   } else if (daqSource_->useL1EventID()) {
     //filelist mode run override not available with this model currently (source sets it too late)
-    edm::EventID eventID = edm::EventID(ec->run(), ls, L1EventID);
+    edm::EventID eventID = edm::EventID(eview->run(), ls, L1EventID);
     ec->setAux(new edm::EventAuxiliary(
         eventID, daqSource_->processGUID(), tstamp, eview->isRealData(), edm::EventAuxiliary::PhysicsTrigger));
     ec->aux()->setProcessHistoryID(daqSource_->processHistoryID());
@@ -217,7 +217,7 @@ void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview, Un
     tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(tcds_pointer + FEDHeader::length);
     edm::EventAuxiliary* aux = new edm::EventAuxiliary();  //allocate empty aux
     *aux = evf::evtn::makeEventAuxiliary(tcds,
-                                         ec->run(),
+                                         eview->run(),
                                          ls,
                                          eview->isRealData(),
                                          static_cast<edm::EventAuxiliary::ExperimentType>(fedHeader.triggerType()),
