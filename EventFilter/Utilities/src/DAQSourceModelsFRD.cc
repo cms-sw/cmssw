@@ -189,7 +189,7 @@ std::string DataModeFRD::getChecksumError() const {
  * FRD preRead
  */
 
-void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview, UnpackedRawEventWrapper* ec) {
+void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview, UnpackedRawEventWrapper* ec, unsigned int ls) {
   //TODO: also walk the file and build checksum
   FEDRawDataCollection* rawData = new FEDRawDataCollection;
   bool tcdsInRange;
@@ -203,7 +203,8 @@ void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview, Un
   if (err) {
     ec->setError(errmsg);
   } else if (daqSource_->useL1EventID()) {
-    edm::EventID eventID = edm::EventID(daqSource_->eventRunNumber(), daqSource_->currentLumiSection(), L1EventID);
+    //filelist mode run override not available with this model currently (source sets it too late)
+    edm::EventID eventID = edm::EventID(ec->run(), ls, L1EventID);
     ec->setAux(new edm::EventAuxiliary(
         eventID, daqSource_->processGUID(), tstamp, eview->isRealData(), edm::EventAuxiliary::PhysicsTrigger));
     ec->aux()->setProcessHistoryID(daqSource_->processHistoryID());
@@ -216,8 +217,8 @@ void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview, Un
     tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(tcds_pointer + FEDHeader::length);
     edm::EventAuxiliary* aux = new edm::EventAuxiliary();  //allocate empty aux
     *aux = evf::evtn::makeEventAuxiliary(tcds,
-                                         daqSource_->eventRunNumber(),
-                                         daqSource_->currentLumiSection(),
+                                         ec->run(),
+                                         ls,
                                          eview->isRealData(),
                                          static_cast<edm::EventAuxiliary::ExperimentType>(fedHeader.triggerType()),
                                          daqSource_->processGUID(),
@@ -279,7 +280,7 @@ void DataModeFRDPreUnpack::unpackFile(RawInputFile* currentFile) {
       ec->setChecksumError(ss.str());
       //unpackEvent(eview.get(), ec);
     } else
-      unpackEvent(eview.get(), ec);
+      unpackEvent(eview.get(), ec, currentFile->lumi_);
     currentFile->queue(ec);
   }
 }
@@ -327,7 +328,7 @@ edm::Timestamp DataModeFRDPreUnpack::fillFEDRawDataCollection(edm::streamer::FRD
           throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection")
             << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
       }
-    //take event ID from GTPE FED
+      //take event ID from GTPE FED
       FEDRawData& fedData = rawData.FEDData(fedId);
       fedData.resize(fedSize);
       memcpy(fedData.data(), event + eventSize, fedSize);
@@ -360,8 +361,6 @@ edm::Timestamp DataModeFRDPreUnpack::fillFEDRawDataCollection(edm::streamer::FRD
   } catch (cms::Exception &e) {
     err = true;
     errmsg = e.what();
-    //std::cout << " DEBUG: " << errmsg << std::endl << std::flush;
-    //assert(0);
   }
   return tstamp;
 }
