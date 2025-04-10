@@ -22,6 +22,8 @@ HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(i
   upperMassCut_ = iConfig.getParameter<double>("upperMassCut");
   lowerdRCut_ = iConfig.getParameter<double>("lowerdRCut");
   upperdRCut_ = iConfig.getParameter<double>("upperdRCut");
+  lowerdR2Cut_ = lowerdRCut_ * lowerdRCut_;
+  upperdR2Cut_ = upperdRCut_ * upperdRCut_;
   nZcandcut_ = iConfig.getParameter<int>("nZcandcut");
   reqOppCharge_ = iConfig.getUntrackedParameter<bool>("reqOppCharge", false);
   isElectron1_ = iConfig.getUntrackedParameter<bool>("isElectron1", true);
@@ -161,9 +163,9 @@ bool HLTPMMassFilter::isGoodPair(TLorentzVector const& v1, TLorentzVector const&
     return false;
 
   auto const mass = (v1 + v2).M();
-  auto const dr = v1.DeltaR(v2);
+  auto const dr2 = reco::deltaR2(v1.Eta(), v1.Phi(), v2.Eta(), v2.Phi());
 
-  return (mass >= lowerMassCut_ and mass <= upperMassCut_ and dr >= lowerdRCut_ and dr <= upperdRCut_);
+  return (mass >= lowerMassCut_ and mass <= upperMassCut_ and dr2 >= lowerdR2Cut_ and dr2 <= upperdR2Cut_);
 }
 
 TLorentzVector HLTPMMassFilter::approxMomAtVtx(const MagneticField& magField,
