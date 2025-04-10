@@ -9,7 +9,7 @@
 //
 // This is a helper header to implement HepMC conversions
 //
-#include "ThePEG/Vectors/HepMCTraits.h"
+#include "GeneratorInterface/Herwig7Interface/interface/HepMC3Traits.h"
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenVertex.h"
 #include "HepMC3/GenParticle.h"
@@ -23,6 +23,7 @@
 #ifdef HAVE_HEPMC3_WRITERROOTTREE_H
 #include "HepMC3/WriterRootTree.h"
 #endif
+#include <string>
 namespace HepMC3 {
   using Polarization = std::pair<double, double>;
 }

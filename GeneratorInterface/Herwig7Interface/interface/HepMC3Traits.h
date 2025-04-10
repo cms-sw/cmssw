@@ -6,8 +6,8 @@
 // ThePEG is licenced under version 3 of the GPL, see COPYING for details.
 // Please respect the MCnet academic guidelines, see GUIDELINES for details.
 //
-#ifndef ThePEG_HepMCTraits_H
-#define ThePEG_HepMCTraits_H
+#ifndef ThePEG_HepMC3Traits_H
+#define ThePEG_HepMC3Traits_H
 
 #include "HepMC3/GenEvent.h"
 namespace HepMC3 {
@@ -129,22 +129,22 @@ namespace ThePEG {
      * Return the energy unit used in the installed version of HepMC.
      */
     static Energy defaultEnergyUnit() {
-#ifndef HEPMC_HAS_UNITS
+//#ifndef HEPMC_HAS_UNITS
       return GeV;
-#else
-      return HepMC3::Units::default_momentum_unit() == HepMC3::Units::GEV ? GeV : MeV;
-#endif
+//#else
+//      return HepMC3::Units::default_momentum_unit() == HepMC3::Units::GEV ? GeV : MeV;
+//#endif
     }
 
     /**
      * Return the length unit used in the installed version of HepMC.
      */
     static Length defaultLengthUnit() {
-#ifndef HEPMC_HAS_UNITS
+//#ifndef HEPMC_HAS_UNITS
       return millimeter;
-#else
-      return HepMC3::Units::default_length_unit() == HepMC3::Units::MM ? millimeter : 10.0 * millimeter;
-#endif
+//#else
+//      return HepMC3::Units::default_length_unit() == HepMC3::Units::MM ? millimeter : 10.0 * millimeter;
+//#endif
     }
 
     /**
@@ -248,7 +248,7 @@ namespace ThePEG {
     /** Set the PDF info for the event. */
 #ifdef HEPMC_HAS_PDF_INFO
     static void setPdfInfo(EventT& e, int id1, int id2, double x1, double x2, double scale, double xf1, double xf2) {
-      HepMC::GenPdfInfoPtr pdfinfo = std::make_shared<HepMC::GenPdfInfo>();
+      HepMC3::GenPdfInfoPtr pdfinfo = std::make_shared<HepMC3::GenPdfInfo>();
       pdfinfo->set(id1, id2, x1, x2, scale, xf1, xf2);
       e.set_pdf_info(pdfinfo);
     }
@@ -259,7 +259,7 @@ namespace ThePEG {
     /** Set the cross section info for the event. */
 #ifdef HEPMC_HAS_CROSS_SECTION
     static void setCrossSection(EventT& ev, double xs, double xserr) {
-      std::shared_ptr<HepMC::GenCrossSection> x = std::make_shared<HepMC::GenCrossSection>();
+      std::shared_ptr<HepMC3::GenCrossSection> x = std::make_shared<HepMC3::GenCrossSection>();
       x->set_cross_section(xs, xserr);
       ev.set_cross_section(x);
     }

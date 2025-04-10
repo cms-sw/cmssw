@@ -6,8 +6,8 @@
 // ThePEG is licenced under version 3 of the GPL, see COPYING for details.
 // Please respect the MCnet academic guidelines, see GUIDELINES for details.
 //
-#ifndef ThePEG_HepMCConverter_H
-#define ThePEG_HepMCConverter_H
+#ifndef ThePEG_HepMC3Converter_H
+#define ThePEG_HepMC3Converter_H
 // This is the declaration of the HepMCConverter class.
 
 #include "ThePEG/Config/ThePEG.h"
