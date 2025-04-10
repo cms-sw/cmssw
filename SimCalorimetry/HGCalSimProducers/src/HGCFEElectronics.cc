@@ -6,7 +6,7 @@
 #include "vdt/vdtMath.h"
 
 using namespace hgc_digi;
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 //
 template <class DFr>
@@ -29,7 +29,9 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
       eventTimeOffset_ns_{{0.02, 0.02, 0.02}},
       noise_fC_{},
       toaMode_(WEIGHTEDBYE) {
-  edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] running with version " << fwVersion_ << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] running with version " << fwVersion_;
+#endif
   if (ps.exists("adcPulse")) {
     auto temp = ps.getParameter<std::vector<double> >("adcPulse");
     for (unsigned i = 0; i < temp.size(); ++i) {
@@ -48,17 +50,20 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
     uint32_t adcNbits = ps.getParameter<uint32_t>("adcNbits");
     adcSaturation_fC_ = ps.getParameter<double>("adcSaturation_fC");
     adcLSB_fC_ = adcSaturation_fC_ / pow(2., adcNbits);
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] " << adcNbits << " bit ADC defined"
-                              << " with LSB=" << adcLSB_fC_ << " saturation to occur @ " << adcSaturation_fC_
-                              << std::endl;
+                              << " with LSB=" << adcLSB_fC_ << " saturation to occur @ " << adcSaturation_fC_;
+#endif
   }
 
   if (ps.exists("tdcNbits")) {
     tdcNbits_ = ps.getParameter<uint32_t>("tdcNbits");
     setTDCfsc(ps.getParameter<double>("tdcSaturation_fC"));
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] " << tdcNbits_ << " bit TDC defined with LSB=" << tdcLSB_fC_
                               << " saturation to occur @ " << tdcSaturation_fC_
-                              << " (NB lowered by 1 part in a million)" << std::endl;
+                              << " (NB lowered by 1 part in a million)";
+#endif
   }
   if (ps.exists("targetMIPvalue_ADC"))
     targetMIPvalue_ADC_ = ps.getParameter<uint32_t>("targetMIPvalue_ADC");
@@ -116,7 +121,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(
 #endif
 
   if (debug)
-    edm::LogVerbatim("HGCFE") << "[runTrivialShaper]" << std::endl;
+    edm::LogVerbatim("HGCFE") << "[runTrivialShaper]";
 
   if (lsbADC < 0)
     lsbADC = adcLSB_fC_;
@@ -139,7 +144,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(
   if (debug) {
     std::ostringstream msg;
     dataFrame.print(msg);
-    edm::LogVerbatim("HGCFE") << msg.str() << std::endl;
+    edm::LogVerbatim("HGCFE") << msg.str();
   }
 }
 
@@ -197,7 +202,7 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr& dataFrame,
   if (debug) {
     std::ostringstream msg;
     dataFrame.print(msg);
-    edm::LogVerbatim("HGCFE") << msg.str() << std::endl;
+    edm::LogVerbatim("HGCFE") << msg.str();
   }
 }
 
@@ -264,7 +269,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
 
   //now look at charge
   //first identify bunches which will trigger ToT
-  //if(debug_state) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << std::endl;
+  //if(debug_state) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]";
   for (int it = 0; it < (int)(chargeColl.size()); ++it) {
     debug = debug_state;
     //if already flagged as busy it can't be re-used to trigger the ToT
@@ -287,8 +292,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     totFlags[it] = true;
 
     if (debug)
-      edm::LogVerbatim("HGCFE") << "\t q=" << charge << " fC with <toa>=" << toa << " ns, triggers ToT @ " << it
-                                << std::endl;
+      edm::LogVerbatim("HGCFE") << "\t q=" << charge << " fC with <toa>=" << toa << " ns, triggers ToT @ " << it;
 
     //compute total charge to be integrated and integration time
     //needs a loop as ToT will last as long as there is charge to dissipate
@@ -328,11 +332,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       //update charge integrated during ToT
       if (debug) {
         if (busyBxs == 0)
-          edm::LogVerbatim("HGCFE") << "\t Intial busy estimate=" << integTime << " ns = " << newBusyBxs << " bxs"
-                                    << std::endl;
+          edm::LogVerbatim("HGCFE") << "\t Intial busy estimate=" << integTime << " ns = " << newBusyBxs << " bxs";
         else
-          edm::LogVerbatim("HGCFE") << "\t ...integrated charge overflows initial busy estimate, interating again"
-                                    << std::endl;
+          edm::LogVerbatim("HGCFE") << "\t ...integrated charge overflows initial busy estimate, interating again";
       }
 
       //update number of busy bunches
@@ -356,7 +358,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
 
         if (debug)
           edm::LogVerbatim("HGCFE") << "\t\t leaking " << chargeColl[jt] << " fC @ deltaT=-" << deltaT << " -> +"
-                                    << leakCharge << " with avgT=" << pulseAvgT_[deltaT + 2] << std::endl;
+                                    << leakCharge << " with avgT=" << pulseAvgT_[deltaT + 2];
       }
 
       //add contamination from posterior bunches
@@ -369,7 +371,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
         if (extraCharge == 0.f)
           continue;
         if (debug)
-          edm::LogVerbatim("HGCFE") << "\t\t adding " << extraCharge << " fC @ deltaT=+" << (jt - it) << std::endl;
+          edm::LogVerbatim("HGCFE") << "\t\t adding " << extraCharge << " fC @ deltaT=+" << (jt - it);
 
         totalCharge += extraCharge;
         if (toaMode_ == WEIGHTEDBYE)
@@ -386,7 +388,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     if (debug)
       edm::LogVerbatim("HGCFE") << "\t Final busy estimate=" << integTime << " ns = " << busyBxs << " bxs" << std::endl
                                 << "\t Total integrated=" << totalCharge << " fC <toa>=" << toaFromToT[it]
-                                << " (raw=" << finalToA << ") ns " << std::endl;
+                                << " (raw=" << finalToA << ") ns ";
 
     //last fC (tdcOnset) are dissipated trough pulse
     if (it + busyBxs < (int)(newCharge.size())) {
@@ -396,7 +398,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
         edm::LogVerbatim("HGCFE") << "\t Leaking remainder of TDC onset " << tdcOnset << " fC, to be dissipated in "
                                   << deltaT2nextBx << " DeltaT/tau=" << deltaT2nextBx << " / "
                                   << tdcChargeDrainParameterisation_[11] << " ns, adds " << tdcOnsetLeakage << " fC @ "
-                                  << it + busyBxs << " bx (first free bx)" << std::endl;
+                                  << it + busyBxs << " bx (first free bx)";
       newCharge[it + busyBxs] += tdcOnsetLeakage;
     }
   }
@@ -479,7 +481,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   if (debug) {
     std::ostringstream msg;
     dataFrame.print(msg);
-    edm::LogVerbatim("HGCFE") << msg.str() << std::endl;
+    edm::LogVerbatim("HGCFE") << msg.str();
   }
 }
 
