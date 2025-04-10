@@ -22,8 +22,8 @@ HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(i
   upperMassCut_ = iConfig.getParameter<double>("upperMassCut");
   lowerdRCut_ = iConfig.getParameter<double>("lowerdRCut");
   upperdRCut_ = iConfig.getParameter<double>("upperdRCut");
-  lowerdR2Cut_ = lowerdRCut_ * lowerdRCut_;
-  upperdR2Cut_ = upperdRCut_ * upperdRCut_;
+  lowerdR2Cut_ = lowerdRCut_ >= 0 ? lowerdRCut_ * lowerdRCut_ : 0;
+  upperdR2Cut_ = upperdRCut_ >= 0 ? upperdRCut_ * upperdRCut_ : 99999;
   nZcandcut_ = iConfig.getParameter<int>("nZcandcut");
   reqOppCharge_ = iConfig.getUntrackedParameter<bool>("reqOppCharge", false);
   isElectron1_ = iConfig.getUntrackedParameter<bool>("isElectron1", true);
