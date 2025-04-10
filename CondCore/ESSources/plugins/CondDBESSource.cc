@@ -759,6 +759,10 @@ void CondDBESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   dbParams.addUntracked<std::string>("security", "");
   dbParams.addUntracked<int>("messageLevel", 0);
   dbParams.addUntracked<int>("connectionTimeout", 0);
+  dbParams.addObsoleteUntracked<std::string>("transactionId")
+      ->setComment(
+          "This parameter is not strictly needed by PoolDBESSource, but the WMCore infrastructure requires it. "
+          "Candidate for deletion");
   desc.add("DBParameters", dbParams);
 
   desc.add<std::string>("connect", std::string("frontier://FrontierProd/CMS_CONDITIONS"));
