@@ -1,6 +1,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiPhase2HostCollection.h"
 #include "DataFormats/EcalDigi/interface/alpaka/EcalDigiPhase2DeviceCollection.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
@@ -53,11 +54,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //iterate over digis
     uint32_t i = 0;
     for (const auto &inputDigi : inputDigis) {
-      const uint nSamples = inputDigi.size();
+      const unsigned int nSamples = inputDigi.size();
       //assign id to host collection
       digisHostCollView.id()[i] = inputDigi.id();
+      if (nSamples > ecalPh2::sampleSize) {
+        edm::LogError("size_mismatch") << "Number of input samples (" << nSamples
+                                       << ") larger than the maximum sample size (" << ecalPh2::sampleSize
+                                       << "). Ignoring the excess samples.";
+      }
       //iterate over sample in digi, make sure the size of the input is not larger than the max sample size in Phase 2, if smaller set to 0
-      for (uint sample = 0; sample < ecalPh2::sampleSize; ++sample) {
+      for (unsigned int sample = 0; sample < ecalPh2::sampleSize; ++sample) {
         if (sample < nSamples) {
           //get samples from input digi
           EcalLiteDTUSample thisSample = inputDigi[sample];
