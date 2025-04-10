@@ -1,6 +1,14 @@
 #ifndef EventFilter_Utilities_DAQSourceModelsFRD_h
 #define EventFilter_Utilities_DAQSourceModelsFRD_h
 
+/*
+* DAQSource data model classes for reading Run3 FRD format and unpacking into the FedRawDataCollection
+* FRD: standard readout of input from the event builder
+* FRDPreUNpack: variant unpacking events tns nto FedRawDataCollection class in reader threads
+* FRSStiped: more generic version able to read from multiple source
+* directories (Super-Fragmeng Builder DAQ)
+* */
+
 #include <filesystem>
 #include <queue>
 #include "oneapi/tbb/concurrent_unordered_set.h"
@@ -9,6 +17,10 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 class FEDRawDataCollection;
+
+/*
+ * FRD unpacker equivalent to the FedRawDataInputSource
+ */
 
 class DataModeFRD : public DataMode {
 public:
@@ -91,7 +103,7 @@ private:
 };
 
 /*
- * FRD source prebuffering in reader thread
+ * FRD source prebuffering in the reader thread
  */
 
 class DataModeFRDPreUnpack : public DataMode {
@@ -176,7 +188,7 @@ private:
 };
 
 /* 
- * FRD source reading files from multiple striped destinations
+ * FRD source reading files from multiple striped destinations (Super-Fragment Builder DAQ)
  *
  * */
 
