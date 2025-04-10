@@ -21,7 +21,7 @@
 typedef CaloCellGeometry::Tr3D Tr3D;
 typedef std::vector<float> ParmVec;
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 const bool debugLocate = false;
 
@@ -117,12 +117,12 @@ void HGCalGeometry::newCell(
       m_validIds.emplace_back(idc);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Valid Id [0] " << HGCScintillatorDetId(idc);
-#endif
     } else {
-      edm::LogWarning("HGCalGeom") << "Check " << HGCScintillatorDetId(idc) << " from " << HGCScintillatorDetId(detId)
-                                   << " Mode " << m_topology.dddConstants().geomMode() << ":" << m_topology.geomMode()
-                                   << " Valid " << m_topology.tileTrapezoid() << ":" << m_topology.valid(idc)
-                                   << " ERROR ???";
+      edm::LogVerbatim("HGCalGeom") << "Check " << HGCScintillatorDetId(idc) << " from " << HGCScintillatorDetId(detId)
+                                    << " Mode " << m_topology.dddConstants().geomMode() << ":" << m_topology.geomMode()
+                                    << " Valid " << m_topology.tileTrapezoid() << ":" << m_topology.valid(idc)
+                                    << " ERROR ???";
+#endif
     }
   } else {
 #ifdef EDM_ML_DEBUG
