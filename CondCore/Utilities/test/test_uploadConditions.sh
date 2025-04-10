@@ -32,7 +32,7 @@ cat <<EOF >> BasicPayload_v0_ref.txt
 }
 EOF
 
-echo "Content of the directory is:" `ls -lh . | grep db`
+#echo "Content of the directory is:" `ls -lh . | grep db`
 echo -ne '\n\n'
 
 if test -f "BasicPayload_v0.txt"; then
