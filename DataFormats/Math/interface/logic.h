@@ -7,7 +7,7 @@ namespace reco {
   // and applying && to two bools avoids branching (jump instruction)
   // whereas applying && to the two original expressions may cause branching
   // this is an alternative to using the bitwise and operator (&), which never short-circuits
-  bool branchless_and(bool a, bool b) { return a && b; }
+  inline bool branchless_and(bool a, bool b) { return a && b; }
 }  // namespace reco
 
 #endif
