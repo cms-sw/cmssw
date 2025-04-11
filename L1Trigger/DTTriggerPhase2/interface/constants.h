@@ -374,7 +374,6 @@ namespace cmsdt {
   constexpr float zFE[5] = {-658.9, -393.3, 126.4, 393.3, 658.9};  // Front-End z positions in cm
   constexpr float xFE[3] = {218 / 2., 266.8 / 2., 315 / 2.};       // Front-End x positions in cm
 
-  
   /*
  * Size of pre-mixer buffers for DTPrimitives
  *

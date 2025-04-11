@@ -130,10 +130,10 @@ public:
   // Main methods
   void initialise(const edm::EventSetup& iEventSetup);
   void run(edm::Event& iEvent,
-                   const edm::EventSetup& iEventSetup,
-                   const DTDigiCollection& digis,
-                   ShowerCandidatePtr& showerCandidate_SL1,
-                   ShowerCandidatePtr& showerCandidate_SL3);
+           const edm::EventSetup& iEventSetup,
+           const DTDigiCollection& digis,
+           ShowerCandidatePtr& showerCandidate_SL1,
+           ShowerCandidatePtr& showerCandidate_SL3);
 
 private:
   // Private auxiliary methods
