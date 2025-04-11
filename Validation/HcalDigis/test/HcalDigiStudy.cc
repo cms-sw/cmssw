@@ -35,7 +35,6 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
-
 /*TP Code*/
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
@@ -58,7 +57,7 @@
 
 class HcalDigiStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
-  explicit HcalDigiStudy(const edm::ParameterSet &);
+  explicit HcalDigiStudy(const edm::ParameterSet&);
   ~HcalDigiStudy() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -83,10 +82,11 @@ private:
   std::map<std::string, TProfile*> histP_;
 
   void book1D(edm::Service<TFileService>& fs, std::string name, int n, double min, double max);
-  void book1D(edm::Service<TFileService>& fs, std::string name, const HistLim &limX);
-  void book2D(edm::Service<TFileService>& fs, std::string name, const HistLim &limX, const HistLim &limY);
-  void bookPf(edm::Service<TFileService>& fs, std::string name, const HistLim &limX, const HistLim &limY);
-  void bookPf(edm::Service<TFileService>& fs, std::string name, const HistLim &limX, const HistLim &limY, const char *option);
+  void book1D(edm::Service<TFileService>& fs, std::string name, const HistLim& limX);
+  void book2D(edm::Service<TFileService>& fs, std::string name, const HistLim& limX, const HistLim& limY);
+  void bookPf(edm::Service<TFileService>& fs, std::string name, const HistLim& limX, const HistLim& limY);
+  void bookPf(
+      edm::Service<TFileService>& fs, std::string name, const HistLim& limX, const HistLim& limY, const char* option);
   void booking(edm::Service<TFileService>& fs, std::string subdetopt, int bnoise, int bmc);
 
   void fill1D(std::string name, double X, double weight = 1);
@@ -96,13 +96,13 @@ private:
   std::string str(int x);
 
   template <class Digi>
-  void reco(const edm::Event &iEvent,
-            const edm::EventSetup &iSetup,
-            const edm::EDGetTokenT<edm::SortedCollection<Digi> > &tok);
+  void reco(const edm::Event& iEvent,
+            const edm::EventSetup& iSetup,
+            const edm::EDGetTokenT<edm::SortedCollection<Digi> >& tok);
   template <class dataFrameType>
-  void reco(const edm::Event &iEvent,
-            const edm::EventSetup &iSetup,
-            const edm::EDGetTokenT<HcalDataFrameContainer<dataFrameType> > &tok);
+  void reco(const edm::Event& iEvent,
+            const edm::EventSetup& iSetup,
+            const edm::EDGetTokenT<HcalDataFrameContainer<dataFrameType> >& tok);
 
   std::string outputFile_;
   std::string subdet_;
@@ -139,9 +139,9 @@ private:
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_Topo_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> tok_Cond_;
 
-  const HcalDbService *conditions_;
-  const HcalDDDRecConstants *hcons_;
-  const HcalTopology *htopo_;
+  const HcalDbService* conditions_;
+  const HcalDDDRecConstants* hcons_;
+  const HcalTopology* htopo_;
 
   int nevent1;
   int nevent2;
@@ -215,13 +215,13 @@ void HcalDigiStudy::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<std::string>("mode", "multi");
   desc.addUntracked<std::string>("hcalselector", "all");
   desc.addUntracked<std::string>("mc", "yes");
-  desc.addUntracked<edm::InputTag>("simHits", edm::InputTag("g4SimHits","HcalHits"));
+  desc.addUntracked<edm::InputTag>("simHits", edm::InputTag("g4SimHits", "HcalHits"));
   desc.add<edm::InputTag>("emulTPs", edm::InputTag("emulDigis"));
   desc.add<edm::InputTag>("dataTPs", edm::InputTag(""));
-  desc.add<bool>("TestNumber",  false);
-  desc.add<bool>("hep17",       false);
-  desc.add<bool>("HEPhase1",    false);
-  desc.add<bool>("HBPhase1",    false);
+  desc.add<bool>("TestNumber", false);
+  desc.add<bool>("hep17", false);
+  desc.add<bool>("HEPhase1", false);
+  desc.add<bool>("HBPhase1", false);
   desc.add<bool>("Plot_TP_ver", false);
   descriptions.add("hcalDigiStudy", desc);
 }
@@ -746,8 +746,8 @@ void HcalDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 template <class Digi>
 void HcalDigiStudy::reco(const edm::Event& iEvent,
-                               const edm::EventSetup& iSetup,
-                               const edm::EDGetTokenT<edm::SortedCollection<Digi> >& tok) {
+                         const edm::EventSetup& iSetup,
+                         const edm::EDGetTokenT<edm::SortedCollection<Digi> >& tok) {
   // HistLim =============================================================
 
   std::string strtmp;
@@ -1061,8 +1061,8 @@ void HcalDigiStudy::reco(const edm::Event& iEvent,
 }
 template <class dataFrameType>
 void HcalDigiStudy::reco(const edm::Event& iEvent,
-                               const edm::EventSetup& iSetup,
-                               const edm::EDGetTokenT<HcalDataFrameContainer<dataFrameType> >& tok) {
+                         const edm::EventSetup& iSetup,
+                         const edm::EDGetTokenT<HcalDataFrameContainer<dataFrameType> >& tok) {
   // HistLim =============================================================
 
   std::string strtmp;
@@ -1456,9 +1456,11 @@ void HcalDigiStudy::bookPf(edm::Service<TFileService>& fs, std::string name, con
     histP_[name] = fs->make<TProfile>(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.min, limY.max);
 }
 
-void HcalDigiStudy::bookPf(edm::Service<TFileService>& fs, std::string name, const HistLim& limX, const HistLim& limY, const char* option) {
+void HcalDigiStudy::bookPf(
+    edm::Service<TFileService>& fs, std::string name, const HistLim& limX, const HistLim& limY, const char* option) {
   if (histP_.find(name) == histP_.end())
-    histP_[name] = fs->make<TProfile>(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.min, limY.max, option);
+    histP_[name] =
+        fs->make<TProfile>(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.min, limY.max, option);
 }
 
 void HcalDigiStudy::fill1D(std::string name, double X, double weight) {
@@ -1471,7 +1473,7 @@ void HcalDigiStudy::fill2D(std::string name, double X, double Y, double weight) 
     hist2_[name]->Fill(X, Y, weight);
 }
 
-void HcalDigiStudy::fillPf(std::string name, double X, double Y) { 
+void HcalDigiStudy::fillPf(std::string name, double X, double Y) {
   if (histP_.find(name) != histP_.end())
     histP_[name]->Fill(X, Y);
 }
