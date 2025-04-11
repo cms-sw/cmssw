@@ -1,6 +1,7 @@
 <use name="GeneratorInterface/Core"/>
 <use name="boost"/>
 <use name="hepmc"/>
+<use name="hepmc3"/>
 <use name="thepeg"/>
 <use name="herwig7"/>
 <export>

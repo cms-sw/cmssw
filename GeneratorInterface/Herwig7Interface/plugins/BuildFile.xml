@@ -8,3 +8,11 @@
   <use name="thepeg"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library name="GeneratorInterfaceHerwig7HepMC3HadronizerPlugins" file="Herwig7HepMC3Hadronizer.cc">
+  <use name="GeneratorInterface/Core"/>
+  <use name="GeneratorInterface/ExternalDecays"/>
+  <use name="boost"/>
+  <use name="thepeg"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
