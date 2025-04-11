@@ -11,13 +11,19 @@
 
 #include <string>
 #include <map>
+#include <memory>
+
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/Units.h"
+#include <HepMC3/GenParticle.h>
+#include <HepMC3/GenPdfInfo.h>
+
 #include "ThePEG/Config/ThePEG.h"
+#include <ThePEG/Repository/EventGenerator.h>
+#include <ThePEG/EventRecord/Event.h>
+
 namespace HepMC3 {
-  class GenParticle;
   class GenVertex;
-  class GenPdfInfo;
 }  // namespace HepMC3
 
 namespace ThePEG {
