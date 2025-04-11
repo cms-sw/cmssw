@@ -17,8 +17,11 @@
 #include "FWCore/TestProcessor/interface/EventSetupTestHelper.h"
 
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
@@ -27,8 +30,6 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
-#include "FWCore/Framework/interface/globalTransitionAsync.h"
-#include "FWCore/Framework/interface/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
@@ -46,8 +47,6 @@
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-
-#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include "oneTimeInitialization.h"
 
@@ -148,7 +147,7 @@ namespace edm {
       processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
 
       schedule_ = items.initSchedule(
-          *psetPtr, false, preallocations_, &processContext_, moduleTypeResolverMaker_.get(), *processBlockHelper_);
+          *psetPtr, preallocations_, &processContext_, moduleTypeResolverMaker_.get(), *processBlockHelper_);
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
@@ -454,15 +453,10 @@ namespace edm {
       ProcessBlockPrincipal& processBlockPrincipal = principalCache_.processBlockPrincipal();
       processBlockPrincipal.fillProcessBlockPrincipal(processConfiguration_->processName());
 
-      std::vector<edm::SubProcess> emptyList;
-      {
-        ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-        using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
-        FinalWaitingTask globalWaitTask{taskGroup_};
-        beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
-        globalWaitTask.wait();
-      }
+      ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
+      using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
+      processGlobalTransition<Traits>(transitionInfo);
+
       beginProcessBlockCalled_ = true;
     }
 
@@ -520,27 +514,13 @@ namespace edm {
       auto const& es = esp_->eventSetupImpl();
 
       RunTransitionInfo transitionInfo(*runPrincipal_, es, nullptr);
-
-      std::vector<edm::SubProcess> emptyList;
       {
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
-        FinalWaitingTask globalWaitTask{taskGroup_};
-        beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
-        globalWaitTask.wait();
+        processGlobalTransition<Traits>(transitionInfo);
       }
       {
-        //To wait, the ref count has to be 1+#streams
-        FinalWaitingTask streamLoopWaitTask{taskGroup_};
-
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
-        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
-                                            *schedule_,
-                                            preallocations_.numberOfStreams(),
-                                            transitionInfo,
-                                            serviceToken_,
-                                            emptyList);
-        streamLoopWaitTask.wait();
+        processTransitionForAllStreams<Traits>(transitionInfo);
       }
       beginRunCalled_ = true;
     }
@@ -563,28 +543,13 @@ namespace edm {
 
       LumiTransitionInfo transitionInfo(*lumiPrincipal_, es, nullptr);
 
-      std::vector<edm::SubProcess> emptyList;
       {
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
-        FinalWaitingTask globalWaitTask{taskGroup_};
-        beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
-        globalWaitTask.wait();
+        processGlobalTransition<Traits>(transitionInfo);
       }
       {
-        //To wait, the ref count has to be 1+#streams
-        FinalWaitingTask streamLoopWaitTask{taskGroup_};
-
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
-
-        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
-                                            *schedule_,
-                                            preallocations_.numberOfStreams(),
-                                            transitionInfo,
-                                            serviceToken_,
-                                            emptyList);
-
-        streamLoopWaitTask.wait();
+        processTransitionForAllStreams<Traits>(transitionInfo);
       }
       beginLumiCalled_ = true;
     }
@@ -638,35 +603,13 @@ namespace edm {
 
         LumiTransitionInfo transitionInfo(*lumiPrincipal, es, nullptr);
 
-        std::vector<edm::SubProcess> emptyList;
-
-        //To wait, the ref count has to be 1+#streams
         {
-          FinalWaitingTask streamLoopWaitTask{taskGroup_};
-
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
-
-          endStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
-                                            *schedule_,
-                                            preallocations_.numberOfStreams(),
-                                            transitionInfo,
-                                            serviceToken_,
-                                            emptyList,
-                                            false);
-
-          streamLoopWaitTask.wait();
+          processTransitionForAllStreams<Traits>(transitionInfo);
         }
         {
-          FinalWaitingTask globalWaitTask{taskGroup_};
-
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
-          endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
-                                           *schedule_,
-                                           transitionInfo,
-                                           serviceToken_,
-                                           emptyList,
-                                           false);
-          globalWaitTask.wait();
+          processGlobalTransition<Traits>(transitionInfo);
         }
         {
           FinalWaitingTask globalWaitTask{taskGroup_};
@@ -697,35 +640,13 @@ namespace edm {
 
         RunTransitionInfo transitionInfo(*runPrincipal, es);
 
-        std::vector<edm::SubProcess> emptyList;
-
-        //To wait, the ref count has to be 1+#streams
         {
-          FinalWaitingTask streamLoopWaitTask{taskGroup_};
-
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
-
-          endStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
-                                            *schedule_,
-                                            preallocations_.numberOfStreams(),
-                                            transitionInfo,
-                                            serviceToken_,
-                                            emptyList,
-                                            false);
-
-          streamLoopWaitTask.wait();
+          processTransitionForAllStreams<Traits>(transitionInfo);
         }
         {
-          FinalWaitingTask globalWaitTask{taskGroup_};
-
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
-          endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
-                                           *schedule_,
-                                           transitionInfo,
-                                           serviceToken_,
-                                           emptyList,
-                                           false);
-          globalWaitTask.wait();
+          processGlobalTransition<Traits>(transitionInfo);
         }
         {
           FinalWaitingTask globalWaitTask{taskGroup_};
@@ -745,20 +666,9 @@ namespace edm {
       if (beginProcessBlockCalled_) {
         beginProcessBlockCalled_ = false;
 
-        std::vector<edm::SubProcess> emptyList;
-        {
-          FinalWaitingTask globalWaitTask{taskGroup_};
-
-          ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-          using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
-          endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
-                                           *schedule_,
-                                           transitionInfo,
-                                           serviceToken_,
-                                           emptyList,
-                                           false);
-          globalWaitTask.wait();
-        }
+        ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
+        using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
+        processGlobalTransition<Traits>(transitionInfo);
       }
       return &processBlockPrincipal;
     }
@@ -803,6 +713,27 @@ namespace edm {
     }
 
     void TestProcessor::setEventNumber(edm::EventNumber_t iEv) { eventNumber_ = iEv; }
+
+    template <typename Traits>
+    void TestProcessor::processTransitionForAllStreams(typename Traits::TransitionInfoType& transitionInfo) {
+      FinalWaitingTask finalWaitTask{taskGroup_};
+      {
+        WaitingTaskHolder holder(taskGroup_, &finalWaitTask);
+        // Currently numberOfStreams is always one in TestProcessor and this for loop is unnecessary...
+        for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+          schedule_->processOneStreamAsync<Traits>(holder, i, transitionInfo, serviceToken_);
+        }
+      }
+      finalWaitTask.wait();
+    }
+
+    template <typename Traits>
+    void TestProcessor::processGlobalTransition(typename Traits::TransitionInfoType& transitionInfo) {
+      FinalWaitingTask finalWaitTask{taskGroup_};
+      schedule_->processOneGlobalAsync<Traits>(
+          WaitingTaskHolder(taskGroup_, &finalWaitTask), transitionInfo, serviceToken_);
+      finalWaitTask.wait();
+    }
 
   }  // namespace test
 }  // namespace edm

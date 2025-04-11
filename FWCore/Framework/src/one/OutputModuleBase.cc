@@ -46,10 +46,7 @@ namespace edm {
     // -------------------------------------------------------
     OutputModuleBase::OutputModuleBase(ParameterSet const& pset) : core::OutputModuleCore(pset) {}
 
-    void OutputModuleBase::configure(OutputModuleDescription const& desc) {
-      core::OutputModuleCore::configure(desc);
-      subProcessParentageHelper_ = desc.subProcessParentageHelper_;
-    }
+    void OutputModuleBase::configure(OutputModuleDescription const& desc) { core::OutputModuleCore::configure(desc); }
 
     SharedResourcesAcquirer OutputModuleBase::createAcquirer() {
       return SharedResourcesAcquirer{
