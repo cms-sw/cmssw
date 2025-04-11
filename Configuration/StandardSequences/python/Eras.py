@@ -56,6 +56,7 @@ class Eras (object):
                  'Run3_2024_UPC',
                  'Run3_2025_UPC',
                  'Run3_2025_OXY',
+                 'Run3_2025_UPC_OXY',
                  'Phase2',
                  'Phase2_noMkFit',
                  'Phase2C9',
