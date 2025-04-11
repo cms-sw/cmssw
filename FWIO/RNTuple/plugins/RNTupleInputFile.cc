@@ -12,6 +12,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "ROOT/RNTupleReadOptions.hxx"
 
 #include <cassert>
@@ -53,6 +55,24 @@ namespace edm {
     }
 
     return retValue;
+  }
+
+  void RNTupleInputFile::readParameterSets() {
+    auto psets = RNTupleReader::Open(*file_->Get<ROOT::RNTuple>("ParameterSets"));
+    assert(psets.get());
+    auto entry = psets->GetModel().CreateBareEntry();
+
+    std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
+    entry->BindRawPtr("IdToParameterSetsBlobs", &idToBlob);
+
+    // Merge into the parameter set registry.
+    pset::Registry& psetRegistry = *pset::Registry::instance();
+    for (ROOT::Experimental::NTupleSize_t i = 0; i < psets->GetNEntries(); ++i) {
+      psets->LoadEntry(i, *entry);
+      ParameterSet pset(idToBlob.second.pset());
+      pset.setID(idToBlob.first);
+      psetRegistry.insertMapped(pset);
+    }
   }
 
   void RNTupleInputFile::readMeta(edm::ProductRegistry& iReg,
@@ -130,6 +150,65 @@ namespace edm {
       return IndexIntoFile::kEnd;
     }
     return iter_->getEntryType();
+  }
+
+  int RNTupleInputFile::skipEvents(int offset) {
+    while (offset > 0 && *iter_ != iterEnd_) {
+      int phIndexOfSkippedEvent = IndexIntoFile::invalidIndex;
+      RunNumber_t runOfSkippedEvent = IndexIntoFile::invalidRun;
+      LuminosityBlockNumber_t lumiOfSkippedEvent = IndexIntoFile::invalidLumi;
+      IndexIntoFile::EntryNumber_t skippedEventEntry = IndexIntoFile::invalidEntry;
+
+      iter_->skipEventForward(phIndexOfSkippedEvent, runOfSkippedEvent, lumiOfSkippedEvent, skippedEventEntry);
+
+      // At the end of the file and there were no more events to skip
+      if (skippedEventEntry == IndexIntoFile::invalidEntry)
+        break;
+      /* once we add this feature we will need this code
+      if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
+        auto const evtAux = fillEventAuxiliary(skippedEventEntry);
+        if (eventSkipperByID_->skipIt(runOfSkippedEvent, lumiOfSkippedEvent, evtAux.id().event())) {
+          continue;
+        }
+      }
+      if (duplicateChecker_ && !duplicateChecker_->checkDisabled() && !duplicateChecker_->noDuplicatesInFile()) {
+        auto const evtAux = fillEventAuxiliary(skippedEventEntry);
+        if (duplicateChecker_->isDuplicateAndCheckActive(
+                phIndexOfSkippedEvent, runOfSkippedEvent, lumiOfSkippedEvent, evtAux.id().event(), file_)) {
+          continue;
+        }
+      }
+      */
+      --offset;
+    }
+    while (offset < 0) {
+      /*
+      if (duplicateChecker_) {
+        duplicateChecker_->disable();
+      }
+      */
+
+      int phIndexOfEvent = IndexIntoFile::invalidIndex;
+      RunNumber_t runOfEvent = IndexIntoFile::invalidRun;
+      LuminosityBlockNumber_t lumiOfEvent = IndexIntoFile::invalidLumi;
+      IndexIntoFile::EntryNumber_t eventEntry = IndexIntoFile::invalidEntry;
+
+      iter_->skipEventBackward(phIndexOfEvent, runOfEvent, lumiOfEvent, eventEntry);
+
+      if (eventEntry == IndexIntoFile::invalidEntry)
+        break;
+      /* once we add this feature we will need this code
+      if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
+        auto const evtAux = fillEventAuxiliary(eventEntry);
+        if (eventSkipperByID_->skipIt(runOfEvent, lumiOfEvent, evtAux.id().event())) {
+          continue;
+        }
+      }
+      */
+      ++offset;
+    }
+
+    return offset;
   }
 
   IndexIntoFile::EntryNumber_t RNTupleInputFile::readLuminosityBlock() {

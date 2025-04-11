@@ -41,12 +41,16 @@ namespace edm {
 
     void readMeta(ProductRegistry&, ProcessHistoryRegistry&, BranchIDLists& iBranchIDLists);
     std::vector<ParentageID> readParentage();
+    void readParameterSets();
 
     input::DataProductsRNTuple* runProducts() { return &runs_; }
     input::DataProductsRNTuple* luminosityBlockProducts() { return &lumis_; }
     input::DataProductsRNTuple* eventProducts() { return &events_; }
 
     void printInfoForEvent(std::ostream& iOStream) { events_.printInfo(iOStream); }
+
+    //returns actual number skipped
+    int skipEvents(int);
 
   private:
     std::unique_ptr<TFile> file_;

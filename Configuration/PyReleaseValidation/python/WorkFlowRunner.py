@@ -190,6 +190,9 @@ class WorkFlowRunner(Thread):
                     # Disable input for premix stage1 to allow combined stage1+stage2 workflow
                     # Disable input for premix stage2 in FastSim to allow combined stage1+stage2 workflow (in FS, stage2 does also GEN)
                     # Ugly hack but works
+                    if '--rntuple_out' in cmd and 'premix_stage1' in cmd:
+                        #rntuple can't be used by the mixing module yet
+                        cmd = cmd.replace('--rntuple_out', '')
                     extension = '.root'
                     if '--rntuple_out' in cmd:
                         extension = '.rntpl'
