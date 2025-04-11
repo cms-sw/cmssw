@@ -64,30 +64,30 @@ The script also handles the common and forward elements of the geometry:
 * F3: same as F2 with added simulti geometry for RPD
 
 Several detector combinations have been generated:
-* 2021 = T3+C3+M9+P7+O6+F1
+* 2021 = T3+C3+M13+P7+O7+F1
 * 2021ZeroMaterial = T4+C1+M9+P7+O4+F1
 * 2021FlatMinus05Percent = T5+C1+M9+P7+O5+F1
 * 2021FlatMinus10Percent = T6+C1+M9+P7+O5+F1
 * 2021FlatPlus05Percent = T7+C1+M9+P7+O5+F1
 * 2021FlatPlus10Percent = T8+C1+M9+P7+O5+F1
-* 2023 = T3+C2+M10+P7+O6+F3
+* 2023 = T3+C2+M14+P7+O7+F3
 * 2023ZeroMaterial = T4+C1+M10+P7+O4+F2
 * 2023FlatMinus05Percent = T5+C1+M10+P7+O5+F2
 * 2023FlatMinus10Percent = T6+C1+M10+P7+O5+F2
 * 2023FlatPlus05Percent = T7+C1+M10+P7+O5+F2
 * 2023FlatPlus10Percent = T8+C1+M10+P7+O5+F2
-* 2024 = T3+C2+M11+P7+O6+F3
+* 2024 = T3+C2+M15+P7+O7+F3
 * 2024ZeroMaterial = T4+C2+M11+P7+O4+F2
 * 2024FlatMinus05Percent = T5+C2+M11+P7+O5+F2
 * 2024FlatMinus10Percent = T6+C2+M11+P7+O5+F2
 * 2024FlatPlus05Percent = T7+C2+M11+P7+O5+F2
 * 2024FlatPlus10Percent = T8+C2+M11+P7+O5+F2
-* 2025 = T3+C2+M12+P7+O7+F3
-* 2025ZeroMaterial = T4+C2+M12+P7+O8+F3
-* 2025FlatMinus05Percent = T5+C2+M12+P7+O9+F3
-* 2025FlatMinus10Percent = T6+C2+M12+P7+O9+F3
-* 2025FlatPlus05Percent = T7+C2+M12+P7+O9+F3
-* 2025FlatPlus10Percent = T8+C2+M12+P7+O9+F3
+* 2025 = T3+C2+M16+P8+O7+F3
+* 2025ZeroMaterial = T4+C2+M12+P8+O8+F3
+* 2025FlatMinus05Percent = T5+C2+M12+P8+O9+F3
+* 2025FlatMinus10Percent = T6+C2+M12+P8+O9+F3
+* 2025FlatPlus05Percent = T7+C2+M12+P8+O9+F3
+* 2025FlatPlus10Percent = T8+C2+M12+P8+O9+F3
 
 # Phase 2 Geometries
 
