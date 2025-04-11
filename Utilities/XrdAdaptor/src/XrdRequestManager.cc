@@ -406,13 +406,13 @@ bool RequestManager::compareSources(const timespec &now,
     std::string hostname_a;
     Source::getHostname(activeSources[a]->ID(), hostname_a);
     if (quality_a > 5130) {
-      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
+      edm::LogFwkInfo("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
                                         << quality_a << ") is above 5130 and it is not the only active server";
     }
     if ((quality_a > 260) && (quality_b * 4 < quality_a)) {
       std::string hostname_b;
       Source::getHostname(activeSources[b]->ID(), hostname_b);
-      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
+      edm::LogFwkInfo("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
                                         << quality_a
                                         << ") is higher than 260 and 4 times larger than the other active server "
                                         << hostname_b << " (" << quality_b << ") ";
