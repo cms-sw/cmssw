@@ -48,7 +48,7 @@ clctPhase2 = clctPhase1.clone(
 
     # Pretrigger HS +- clctPretriggerTriggerZone sets the trigger matching zone
     # which defines how far from pretrigger HS the TMB may look for a trigger HS
-    clctPretriggerTriggerZone = cms.uint32(5),
+    clctPretriggerTriggerZone = cms.uint32(224),
 )
 
 # CLCT threshold still set to 4 for now
