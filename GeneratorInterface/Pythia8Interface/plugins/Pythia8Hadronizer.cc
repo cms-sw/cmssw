@@ -41,6 +41,7 @@ using namespace Pythia8;
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
+#include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterCounter.h"
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/PTFilterHook.h"
@@ -531,6 +532,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
+  ResonanceDecayFilterCounter::getInstance().setFilterBool(resonanceDecayFilter);
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook = std::make_shared<ResonanceDecayFilterHook>();
     (fUserHooksVector->hooks).push_back(fResonanceDecayFilterHook);
@@ -698,6 +700,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
+  ResonanceDecayFilterCounter::getInstance().setFilterBool(resonanceDecayFilter);
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook = std::make_shared<ResonanceDecayFilterHook>();
     (fUserHooksVector->hooks).push_back(fResonanceDecayFilterHook);
@@ -969,6 +972,12 @@ bool Pythia8Hadronizer::hadronize() {
       double wgt = fMasterGen->info.weight(i);
       event()->weights().push_back(wgt);
     }
+  }
+
+  if (fMasterGen->settings.flag("ResonanceDecayFilter:filter")) {
+    int eventCounterValue = fResonanceDecayFilterHook->returnEventCounter();
+    ResonanceDecayFilterCounter::getInstance().setEventCounter(eventCounterValue);
+    fResonanceDecayFilterHook->resetEventCounter();
   }
 
   return true;
