@@ -1,6 +1,8 @@
 #ifndef L1Trigger_Phase2L1ParticleFlow_L1SeedConePFJetEmulator_h
 #define L1Trigger_Phase2L1ParticleFlow_L1SeedConePFJetEmulator_h
 
+#define NCONSTITSFW 32
+
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/jets.h"
 
@@ -21,6 +23,18 @@ public:
   typedef ap_int<13> detaphi_t;          // Type for deta & dphi
   typedef ap_fixed<18, 23> detaphi2_t;   // Type for deta^2 & dphi^2
   typedef ap_fixed<22, 22> pt_etaphi_t;  // Type for product of pt with deta & dphi
+
+  typedef ap_ufixed<13, 1, AP_RND, AP_SAT>
+      eventrig_t;  // stores values between 0 and 2, - 0 bit for sign, - 1 bit for integer, leaves 12 for frac
+  typedef ap_fixed<13, 1, AP_RND, AP_SAT>
+      oddtrig_t;  // stores values between -1 and 1, 13 - 1 bit for sign, - 0 bits for integer, leaves 12 for frac
+
+  // typedef l1ct::mass_t mass_t;  // stores values up to ~1 TeV, 18 bits - 0 for sign, - 10 for integer, 14 total bits improves performance
+  typedef l1ct::mass2_t mass2_t;
+
+  typedef ap_ufixed<20, 12, AP_TRN, AP_SAT> ppt_t;  // stores values between -1 and 1
+  typedef ap_fixed<22, 14, AP_TRN, AP_SAT> npt_t;   // stores values between -1 and 1        JUST REDUCED BY 2
+
   typedef l1ct::PuppiObjEmu Particle;
 
   class Jet : public l1ct::Jet {
@@ -43,6 +57,7 @@ private:
   typedef ap_ufixed<18, -2> inv_pt_t;
   static constexpr int N_table_inv_pt = 1024;
   inv_pt_t inv_pt_table_[N_table_inv_pt];
+  static constexpr int hwEtaPhi_steps = 185;  // corresponds to eta/phi range of 0 to 0.8
 
   static constexpr int ceillog2(int x) { return (x <= 2) ? 1 : 1 + ceillog2((x + 1) / 2); }
 
@@ -142,10 +157,20 @@ private:
     return out;
   }
 
+  template <typename lut_T, int N>
+  static std::array<lut_T, N> init_trig_lut(lut_T (*func)(float)) {
+    std::array<lut_T, N> lut;
+    for (int hwEtaPhi = 0; hwEtaPhi < N; hwEtaPhi++) {
+      lut[hwEtaPhi] = func(hwEtaPhi * l1ct::Scales::ETAPHI_LSB);
+    }
+    return lut;
+  }
+
   static detaphi_t deltaPhi(Particle a, Particle b);
   bool inCone(Particle seed, Particle part) const;
-  Jet makeJet_HW(const std::vector<Particle>& parts) const;
-
+  std::vector<Particle> sortConstituents(const std::vector<Particle>& parts, const Particle seed) const;
+  mass2_t jetMass_HW(const std::vector<Particle>& parts) const;
+  Jet makeJet_HW(const std::vector<Particle>& parts, const Particle seed) const;
 };  // class L1SCJetEmu
 
 #endif
