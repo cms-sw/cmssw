@@ -40,11 +40,6 @@ public:
 
   // Public attributes
 
-  float vwire = 24.4;                                    // cm/ns
-  float zFE[5] = {-658.9, -393.3, 126.4, 393.3, 658.9};  //cm
-  float xFE[3] = {218 / 2., 266.8 / 2., 315 / 2.};       //cm
-  float ZRES_CONV = 65536. / 1500;
-
 private:
   // Private methods
   std::vector<cmsdt::metaPrimitive> filter(std::vector<cmsdt::metaPrimitive> inMPs, double shift_back);
