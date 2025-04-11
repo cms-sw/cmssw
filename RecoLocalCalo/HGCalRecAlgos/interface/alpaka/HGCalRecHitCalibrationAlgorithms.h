@@ -16,11 +16,14 @@
 #include "DataFormats/HGCalRecHit/interface/alpaka/HGCalRecHitDevice.h"
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
+#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace hgcaldigi;
   using namespace hgcalrechit;
+  using namespace hgcal;
 
   class HGCalRecHitCalibrationAlgorithms {
   public:
@@ -29,7 +32,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     HGCalRecHitDevice calibrate(Queue& queue,
                                 HGCalDigiHost const& host_digis,
                                 HGCalCalibParamDevice const& device_calib,
-                                HGCalConfigParamDevice const& device_config) const;
+                                HGCalConfigParamDevice const& device_config,
+                                HGCalMappingCellParamDevice const& device_mapping,
+                                HGCalDenseIndexInfoDevice const& device_index) const;
 
   private:
     void print(HGCalDigiHost const& digis, int max = -1) const;
