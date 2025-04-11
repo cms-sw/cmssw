@@ -35,7 +35,6 @@
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
-#include "HLTrigger/Timer/interface/ProcessCallGraph.h"
 
 using namespace std::string_literals;
 
@@ -125,8 +124,10 @@ public:
   void preallocate(edm::service::SystemBounds const&);
 
   // these signal pair are NOT guaranteed to be called by the same thread
-  void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
+  void preBeginJob(edm::ProcessContext const&);
   void postBeginJob();
+
+  void lookupInitializationComplete(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
 
   // there is no preEndJob() signal
   void postEndJob();
@@ -282,9 +283,6 @@ private:
     return highlight(label) ? nvtxLightAmber : nvtxLightGreen;
   }
 
-  // build a complete representation of the modules in the whole job
-  ProcessCallGraph callgraph_;
-
   std::vector<std::string> highlightModules_;
   const bool showModulePrefetching_;
   const bool skipFirstEvent_;
@@ -324,6 +322,8 @@ NVProfilerService::NVProfilerService(edm::ParameterSet const& config, edm::Activ
   // these signal pair are NOT guaranteed to be called by the same thread
   registry.watchPreBeginJob(this, &NVProfilerService::preBeginJob);
   registry.watchPostBeginJob(this, &NVProfilerService::postBeginJob);
+
+  registry.watchLookupInitializationComplete(this, &NVProfilerService::lookupInitializationComplete);
 
   // there is no preEndJob() signal
   registry.watchPostEndJob(this, &NVProfilerService::postEndJob);
@@ -514,6 +514,10 @@ void NVProfilerService::preallocate(edm::service::SystemBounds const& bounds) {
 
   event_.resize(concurrentStreams);
   stream_modules_.resize(concurrentStreams);
+  for (auto& modulesForOneStream : stream_modules_) {
+    modulesForOneStream.resize(global_modules_.size(), nvtxInvalidRangeId);
+  }
+
   if (skipFirstEvent_) {
     globalFirstEventDone_ = false;
     std::vector<std::atomic<bool>> tmp(concurrentStreams);
@@ -523,24 +527,19 @@ void NVProfilerService::preallocate(edm::service::SystemBounds const& bounds) {
   }
 }
 
-void NVProfilerService::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes,
-                                    edm::ProcessContext const& context) {
-  callgraph_.preBeginJob(pathsAndConsumes, context);
+void NVProfilerService::preBeginJob(edm::ProcessContext const& context) {
   nvtxDomainMark(global_domain_, "preBeginJob");
-
-  // this assumes that preBeginJob is not called concurrently with the modules' beginJob method
-  // or the preBeginJob for a subprocess
-  unsigned int modules = callgraph_.size();
-  global_modules_.resize(modules, nvtxInvalidRangeId);
-  for (unsigned int sid = 0; sid < stream_modules_.size(); ++sid) {
-    stream_modules_[sid].resize(modules, nvtxInvalidRangeId);
-  }
 }
 
 void NVProfilerService::postBeginJob() {
   if (not skipFirstEvent_ or globalFirstEventDone_) {
     nvtxDomainMark(global_domain_, "postBeginJob");
   }
+}
+
+void NVProfilerService::lookupInitializationComplete(edm::PathsAndConsumesOfModulesBase const&,
+                                                     edm::ProcessContext const&) {
+  nvtxDomainMark(global_domain_, "lookupInitializationComplete");
 }
 
 void NVProfilerService::postEndJob() {
@@ -811,9 +810,18 @@ void NVProfilerService::postModuleEventPrefetching(edm::StreamContext const& sc,
 }
 
 void NVProfilerService::preModuleConstruction(edm::ModuleDescription const& desc) {
+  auto mid = desc.id();
+  global_modules_.grow_to_at_least(mid + 1);
+
+  // This normally does nothing because stream_modules_ is empty when
+  // called. But there is a rare case when a looper is used that replacement
+  // modules can be constructed at end of loop. I'm not sure if that feature
+  // is ever actually used but just to be safe...
+  for (auto& modulesForOneStream : stream_modules_) {
+    modulesForOneStream.resize(global_modules_.size(), nvtxInvalidRangeId);
+  }
+
   if (not skipFirstEvent_) {
-    auto mid = desc.id();
-    global_modules_.grow_to_at_least(mid + 1);
     auto const& label = desc.moduleLabel();
     auto const& msg = label + " construction";
     global_modules_[mid] = nvtxDomainRangeStartColor(global_domain_, msg.c_str(), labelColor(label));
@@ -831,7 +839,6 @@ void NVProfilerService::postModuleConstruction(edm::ModuleDescription const& des
 void NVProfilerService::preModuleDestruction(edm::ModuleDescription const& desc) {
   if (not skipFirstEvent_) {
     auto mid = desc.id();
-    global_modules_.grow_to_at_least(mid + 1);
     auto const& label = desc.moduleLabel();
     auto const& msg = label + " destruction";
     global_modules_[mid] = nvtxDomainRangeStartColor(global_domain_, msg.c_str(), labelColor(label));
@@ -1116,11 +1123,10 @@ void NVProfilerService::postModuleGlobalEndLumi(edm::GlobalContext const& gc, ed
 }
 
 void NVProfilerService::preSourceConstruction(edm::ModuleDescription const& desc) {
-  callgraph_.preSourceConstruction(desc);
+  auto mid = desc.id();
+  global_modules_.grow_to_at_least(mid + 1);
 
   if (not skipFirstEvent_) {
-    auto mid = desc.id();
-    global_modules_.grow_to_at_least(mid + 1);
     auto const& label = desc.moduleLabel();
     auto const& msg = label + " construction";
     global_modules_[mid] = nvtxDomainRangeStartColor(global_domain_, msg.c_str(), labelColor(label));
