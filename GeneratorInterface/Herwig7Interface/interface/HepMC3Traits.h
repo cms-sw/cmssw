@@ -9,7 +9,11 @@
 #ifndef ThePEG_HepMC3Traits_H
 #define ThePEG_HepMC3Traits_H
 
+#include <string>
+#include <map>
 #include "HepMC3/GenEvent.h"
+#include "HepMC3/Units.h"
+#include "ThePEG/Config/ThePEG.h"
 namespace HepMC3 {
   class GenParticle;
   class GenVertex;
