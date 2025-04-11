@@ -13,10 +13,15 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
+#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "L1Trigger/TrackerTFP/interface/HoughTransform.h"
 
 #include <string>
+#include <vector>
+#include <deque>
 #include <numeric>
+#include <algorithm>
+#include <iterator>
 
 using namespace std;
 using namespace edm;
@@ -37,72 +42,106 @@ namespace trackerTFP {
   private:
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
-    virtual void endJob() {}
-
     // ED input token of gp stubs
     EDGetTokenT<StreamsStub> edGetToken_;
     // ED output token for accepted stubs
-    EDPutTokenT<StreamsStub> edPutTokenAccepted_;
-    // ED output token for lost stubs
-    EDPutTokenT<StreamsStub> edPutTokenLost_;
+    EDPutTokenT<StreamsStub> edPutToken_;
     // Setup token
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
-    // configuration
-    ParameterSet iConfig_;
-    // helper class to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
+    // LayerEncoding token
+    ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
+    // number of input channel
+    int numChannelIn_;
+    // number of output channel
+    int numChannelOut_;
+    // number of processing regions
+    int numRegions_;
   };
 
-  ProducerHT::ProducerHT(const ParameterSet& iConfig) : iConfig_(iConfig) {
-    const string& label = iConfig.getParameter<string>("LabelGP");
-    const string& branchAccepted = iConfig.getParameter<string>("BranchAcceptedStubs");
-    const string& branchLost = iConfig.getParameter<string>("BranchLostStubs");
+  ProducerHT::ProducerHT(const ParameterSet& iConfig) {
+    const string& label = iConfig.getParameter<string>("InputLabelHT");
+    const string& branch = iConfig.getParameter<string>("BranchStubs");
     // book in- and output ED products
-    edGetToken_ = consumes<StreamsStub>(InputTag(label, branchAccepted));
-    edPutTokenAccepted_ = produces<StreamsStub>(branchAccepted);
-    edPutTokenLost_ = produces<StreamsStub>(branchLost);
+    edGetToken_ = consumes<StreamsStub>(InputTag(label, branch));
+    edPutToken_ = produces<StreamsStub>(branch);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes();
+    esGetTokenDataFormats_ = esConsumes();
+    esGetTokenLayerEncoding_ = esConsumes();
   }
 
   void ProducerHT::beginRun(const Run& iRun, const EventSetup& iSetup) {
     // helper class to store configurations
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-    if (!setup_->configurationSupported())
-      return;
-    // check process history if desired
-    if (iConfig_.getParameter<bool>("CheckHistory"))
-      setup_->checkHistory(iRun.processHistory());
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    numRegions_ = setup->numRegions();
     // helper class to extract structured data from tt::Frames
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    numChannelIn_ = dataFormats->numChannel(Process::gp);
+    numChannelOut_ = dataFormats->numChannel(Process::ht);
   }
 
   void ProducerHT::produce(Event& iEvent, const EventSetup& iSetup) {
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty HT products
-    StreamsStub accepted(dataFormats_->numStreams(Process::ht));
-    StreamsStub lost(dataFormats_->numStreams(Process::ht));
+    StreamsStub accepted(numRegions_ * numChannelOut_);
     // read in DTC Product and produce TFP product
-    if (setup_->configurationSupported()) {
-      Handle<StreamsStub> handle;
-      iEvent.getByToken<StreamsStub>(edGetToken_, handle);
-      const StreamsStub& streams = *handle.product();
-      for (int region = 0; region < setup_->numRegions(); region++) {
-        // object to find initial rough candidates in r-phi in a region
-        HoughTransform ht(iConfig_, setup_, dataFormats_, region);
-        // read in and organize input product
-        ht.consume(streams);
-        // fill output products
-        ht.produce(accepted, lost);
+    Handle<StreamsStub> handle;
+    iEvent.getByToken<StreamsStub>(edGetToken_, handle);
+    const StreamsStub& streamsStub = *handle.product();
+    // helper
+    auto validFrame = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
+    auto toFrame = [](StubHT* object) { return object ? object->frame() : FrameStub(); };
+    // produce HT output per region
+    for (int region = 0; region < numRegions_; region++) {
+      const int offsetIn = region * numChannelIn_;
+      const int offsetOut = region * numChannelOut_;
+      // count input objects
+      int nStubsGP(0);
+      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
+        const StreamStub& stream = streamsStub[offsetIn + channelIn];
+        nStubsGP += accumulate(stream.begin(), stream.end(), 0, validFrame);
+      }
+      // storage of input data
+      vector<StubGP> stubsGP;
+      stubsGP.reserve(nStubsGP);
+      // h/w liked organized pointer to input data
+      vector<vector<StubGP*>> streamsIn(numChannelIn_);
+      // read input data
+      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
+        const StreamStub& streamStub = streamsStub[offsetIn + channelIn];
+        vector<StubGP*>& stream = streamsIn[channelIn];
+        stream.reserve(streamStub.size());
+        for (const FrameStub& frame : streamStub) {
+          StubGP* stub = nullptr;
+          if (frame.first.isNonnull()) {
+            stubsGP.emplace_back(frame, dataFormats);
+            stub = &stubsGP.back();
+          }
+          stream.push_back(stub);
+        }
+      }
+      // container for output stubs
+      vector<StubHT> stubsHT;
+      // object to find initial rough candidates in r-phi in a region
+      HoughTransform ht(setup, dataFormats, layerEncoding, stubsHT);
+      // empty h/w liked organized pointer to output data
+      vector<deque<StubHT*>> streamsOut(numChannelOut_);
+      // fill output data
+      ht.produce(streamsIn, streamsOut);
+      // convert data to ed products
+      for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
+        const deque<StubHT*>& objects = streamsOut[channelOut];
+        StreamStub& stream = accepted[offsetOut + channelOut];
+        stream.reserve(objects.size());
+        transform(objects.begin(), objects.end(), back_inserter(stream), toFrame);
       }
     }
     // store products
-    iEvent.emplace(edPutTokenAccepted_, std::move(accepted));
-    iEvent.emplace(edPutTokenLost_, std::move(lost));
+    iEvent.emplace(edPutToken_, std::move(accepted));
   }
 
 }  // namespace trackerTFP
