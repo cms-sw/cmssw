@@ -3,7 +3,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 using namespace edm;
-using namespace std;
 using namespace cmsdt;
 
 // ============================================================================
@@ -38,8 +37,8 @@ void ShowerBuilder::run(Event &iEvent,
   setInChannels(&digis);
 
   std::map<int, ShowerCandidatePtr> aux_showerCands{// defined as a map to easy acces with SL number
-                                                    {1, make_shared<ShowerCandidate>()},
-                                                    {3, make_shared<ShowerCandidate>()}};
+                                                    {1, std::make_shared<ShowerCandidate>()},
+                                                    {3, std::make_shared<ShowerCandidate>()}};
 
   int nHits = all_hits.size();
   if (nHits != 0) {
@@ -61,8 +60,6 @@ void ShowerBuilder::run(Event &iEvent,
   showerCandidate_SL1 = std::move(aux_showerCands[1]);
   showerCandidate_SL3 = std::move(aux_showerCands[3]);
 }
-
-void ShowerBuilder::finish() {};
 
 // ============================================================================
 // Auxiliary methods
@@ -230,13 +227,15 @@ void ShowerBuilder::set_shower_properties(ShowerCandidatePtr &showerCand,
 }
 
 void ShowerBuilder::groupHits_byBx() {
-  double shift_back = 0;
-  if (scenario_ == MC)  //scope for MC
-    shift_back = 400;
+  double temp_shift = 0;
+  if (scenario_ == MC)         //scope for MC
+    temp_shift = 400;          // value used in standard CMSSW simulation
   else if (scenario_ == DATA)  //scope for data
-    shift_back = 0;
+    temp_shift = 0;
   else if (scenario_ == SLICE_TEST)  //scope for slice test
-    shift_back = 400;
+    temp_shift = 400;                // slice test to mimic simulation
+
+  static const double shift_back = temp_shift;
 
   all_hits_perBx.clear();
   // Group hits by BX

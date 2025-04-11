@@ -1,13 +1,12 @@
 //-------------------------------------------------
 //
-//   Class L1MuDTChambPhDigi
+//   Class L1Phase2MuDTShower
 //
-//   Description: trigger primtive data for the
-//                muon barrel Phase2 trigger
+//   Description: trigger primitive data for the
+//                muon barrel Phase2 trigger showers
 //
 //
 //   Author List:
-//    Federica Primavera  Bologna INFN
 //    Carlos Vico  Oviedo Spain,
 //    Daniel Estrada Acevedo Oviedo Spain.
 //
@@ -18,18 +17,6 @@
 // This Class's Header --
 //-----------------------
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTShower.h"
-
-//-------------------------------
-// Collaborating Class Headers --
-//-------------------------------
-
-//---------------
-// C++ Headers --
-//---------------
-
-//-------------------
-// Initializations --
-//-------------------
 
 //----------------
 // Constructors --

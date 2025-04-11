@@ -3,7 +3,6 @@
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 
 using namespace edm;
-using namespace std;
 using namespace cmsdt;
 
 namespace {
@@ -47,6 +46,7 @@ MPThetaMatching::MPThetaMatching(const ParameterSet &pset)
       scenario_(pset.getParameter<int>("scenario")) {}
 
 MPThetaMatching::~MPThetaMatching() { finish(); }
+
 // ============================================================================
 // Main methods (initialise, run, finish)
 // ============================================================================
@@ -59,13 +59,16 @@ void MPThetaMatching::run(edm::Event &iEvent,
   if (debug_)
     LogDebug("MPThetaMatching") << "MPThetaMatching: run";
 
-  double shift_back = 0;  // Needed for t0 (TDC) calculation, taken from main algo
+  //static const double shift_back;  // Needed for t0 (TDC) calculation, taken from main algo
+  double temp_shift = 0;
   if (scenario_ == MC)
-    shift_back = 400;
+    temp_shift = 400;  // value used in standard CMSSW simulation
   else if (scenario_ == DATA)
-    shift_back = 0;
+    temp_shift = 0;
   else if (scenario_ == SLICE_TEST)
-    shift_back = 400;
+    temp_shift = 400;  // slice test mimics simulation
+
+  static const double shift_back = temp_shift;  // Needed for t0 (TDC) calculation, taken from main algo
 
   if (th_option_ > 0) {
     auto filteredMPs = filter(inMPaths, shift_back);
@@ -74,7 +77,8 @@ void MPThetaMatching::run(edm::Event &iEvent,
   } else {
     if (th_option_ < 0)
       LogDebug("MPThetaMatching")
-          << "MPThetaMatching: th_option can NOT be negative!!! Check settings. Saving all MPs for the moment" << endl;
+          << "MPThetaMatching: th_option can NOT be negative!!! Check settings. Saving all MPs for the moment"
+          << std::endl;
     outMPaths = inMPaths;  //no filter at all
   }
 }
@@ -159,7 +163,6 @@ std::vector<metaPrimitive> MPThetaMatching::filter(std::vector<metaPrimitive> in
       oldStation = station;
     }
 
-    //    float t0 = (mpTheta.t0 - shift_back * LHC_CLK_FREQ) * ((float) TIME_TO_TDC_COUNTS / (float) LHC_CLK_FREQ);
     float t0 = ((int)round(mpTheta.t0 / (float)LHC_CLK_FREQ)) - shift_back;
     float posRefZ = zFE[wheel + 2];
 

@@ -9,10 +9,7 @@
 class ShowerCandidate {
 public:
   ShowerCandidate();
-
   ShowerCandidate& operator=(const ShowerCandidate& other);
-
-  virtual ~ShowerCandidate() {}
 
   // setter methods
   void rawId(int rawId) { rawId_ = rawId; }

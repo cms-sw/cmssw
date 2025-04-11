@@ -135,7 +135,6 @@ public:
                    const DTDigiCollection& digis,
                    ShowerCandidatePtr& showerCandidate_SL1,
                    ShowerCandidatePtr& showerCandidate_SL3);
-  virtual void finish();
 
 private:
   // Private auxiliary methods

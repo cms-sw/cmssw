@@ -1,12 +1,12 @@
 //-------------------------------------------------
 //
-//   Class L1Phase2MuDTPhContainer
+//   Class L1Phase2MuDTShowerContainer
 //
 //   Description: trigger primtive data for the
-//                muon barrel Phase2 trigger
+//                muon barrel Phase2 trigger shower
 //
 //
-//   Author List: Federica Primavera  Bologna INFN
+//   Author List: Daniel Estrada Acevedo Oviedo Spain
 //
 //
 //--------------------------------------------------
@@ -22,10 +22,6 @@
 // Base Class Headers --
 //----------------------
 #include <vector>
-
-//---------------
-// C++ Headers --
-//---------------
 
 //              ---------------------
 //              -- Class Interface --

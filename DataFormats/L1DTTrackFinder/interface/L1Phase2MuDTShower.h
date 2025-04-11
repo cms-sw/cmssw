@@ -16,14 +16,6 @@
 #ifndef L1Phase2MuDTShower_H
 #define L1Phase2MuDTShower_H
 
-//------------------------------------
-// Collaborating Class Declarations --
-//------------------------------------
-
-//----------------------
-// Base Class Headers --
-//----------------------
-
 //---------------
 // C++ Headers --
 //---------------
@@ -36,6 +28,7 @@
 class L1Phase2MuDTShower {
 public:
   //  Constructors
+
   L1Phase2MuDTShower();
 
   L1Phase2MuDTShower(int wh,                               // Wheel
@@ -50,8 +43,6 @@ public:
                      float avg_time,                       // Averaged time of the shower
                      const std::vector<int> wires_profile  // Wires profile
   );
-
-  virtual ~L1Phase2MuDTShower() {};
 
   // Operations
 
