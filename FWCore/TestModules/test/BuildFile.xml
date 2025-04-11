@@ -1,1 +1,2 @@
 <test name="TestFWCoreModulesEventIDValidator" command="cmsRun ${LOCALTOP}/src/FWCore/TestModules/test/testEventIDValidator_cfg.py"/>
+<test name="TestFWCoreModulesCheckClassInfo" command="cmsRun ${LOCALTOP}/src/FWCore/TestModules/test/testCheckClassInfo_cfg.py"/>
