@@ -43,17 +43,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   unsigned int nEndCapMap,  // Number of elements in endcap map
                                   EndcapGeometryDevConst endcapGeometry,
                                   ModulesConst modules,
+                                  InputHitsConst inputHits,
                                   Hits hits,
-                                  HitsRanges hitsRanges,
-                                  unsigned int nHits) const  // Total number of hits in event
+                                  HitsRanges hitsRanges) const  // Total number of hits in event
     {
       auto geoMapDetId = endcapGeometry.geoMapDetId();  // DetId's from endcap map
       auto geoMapPhi = endcapGeometry.geoMapPhi();      // Phi values from endcap map
+      int nHits = hits.metadata().size();
+      ALPAKA_ASSERT_ACC(nHits == inputHits.metadata().size());
       for (unsigned int ihit : cms::alpakatools::uniform_elements(acc, nHits)) {
-        float ihit_x = hits.xs()[ihit];
-        float ihit_y = hits.ys()[ihit];
-        float ihit_z = hits.zs()[ihit];
-        int iDetId = hits.detid()[ihit];
+        float ihit_x = inputHits.xs()[ihit];
+        float ihit_y = inputHits.ys()[ihit];
+        float ihit_z = inputHits.zs()[ihit];
+        int iDetId = inputHits.detid()[ihit];
 
         hits.rts()[ihit] = alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y);
         hits.phis()[ihit] = cms::alpakatools::phi(acc, ihit_x, ihit_y);
