@@ -32,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   template <typename TrackerTraits>
   class Producer {
-    using TkSoAConstView = reco::TrackSoAConstView<TrackerTraits>;
+    using TkSoAConstView = ::reco::TrackSoAConstView;
 
   public:
     Producer(bool oneKernel,

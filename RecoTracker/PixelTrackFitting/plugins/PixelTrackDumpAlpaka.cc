@@ -16,7 +16,7 @@
 template <typename TrackerTraits>
 class PixelTrackDumpAlpakaT : public edm::global::EDAnalyzer<> {
 public:
-  using TkSoAHost = TracksHost<TrackerTraits>;
+  using TkSoAHost = reco::TracksHost;
   using VertexSoAHost = ZVertexHost;
 
   explicit PixelTrackDumpAlpakaT(const edm::ParameterSet& iConfig);

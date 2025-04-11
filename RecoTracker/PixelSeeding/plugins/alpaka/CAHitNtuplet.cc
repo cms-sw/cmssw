@@ -1,5 +1,7 @@
 #include <alpaka/alpaka.hpp>
 
+#include <TFormula.h>
+
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "DataFormats/TrackSoA/interface/TracksDevice.h"
@@ -20,20 +22,20 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "RecoLocalTracker/Records/interface/PixelCPEFastParamsRecord.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/alpaka/PixelCPEFastParamsCollection.h"
 
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/Record/interface/alpaka/CAGeometrySoACollection.h"
 #include "CAHitNtupletGenerator.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class CAHitNtupletAlpaka : public stream::EDProducer<> {
-    using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
-    using HitsOnDevice = TrackingRecHitsSoACollection<TrackerTraits>;
-    using HitsOnHost = TrackingRecHitHost<TrackerTraits>;
+    using HitsConstView = ::reco::TrackingRecHitConstView;
+    using HitsOnDevice = reco::TrackingRecHitsSoACollection;
+    using HitsOnHost = ::reco::TrackingRecHitHost;
 
-    using TkSoAHost = TracksHost<TrackerTraits>;
-    using TkSoADevice = TracksSoACollection<TrackerTraits>;
+    using TkSoAHost = ::reco::TracksHost;
+    using TkSoADevice = reco::TracksSoACollection;
 
     using Algo = CAHitNtupletGenerator<TrackerTraits>;
 
@@ -45,10 +47,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
-    const device::ESGetToken<PixelCPEFastParams<TrackerTraits>, PixelCPEFastParamsRecord> cpeToken_;
+    const device::ESGetToken<reco::CAGeometrySoACollection, TrackerRecoGeometryRecord> geometrySoA_;
     const device::EDGetToken<HitsOnDevice> tokenHit_;
     const device::EDPutToken<TkSoADevice> tokenTrack_;
 
+    const TFormula maxNumberOfDoublets_;
+    const TFormula maxNumberOfTuples_;
     Algo deviceAlgo_;
   };
 
@@ -56,9 +60,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   CAHitNtupletAlpaka<TrackerTraits>::CAHitNtupletAlpaka(const edm::ParameterSet& iConfig)
       : EDProducer(iConfig),
         tokenField_(esConsumes()),
-        cpeToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CPE")))),
+        geometrySoA_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("caGeometry")))),
         tokenHit_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
         tokenTrack_(produces()),
+        maxNumberOfDoublets_(
+            TFormula("doubletsHitsDependecy", iConfig.getParameter<std::string>("maxNumberOfDoublets").data())),
+        maxNumberOfTuples_(
+            TFormula("tracksHitsDependency", iConfig.getParameter<std::string>("maxNumberOfTuples").data())),
         deviceAlgo_(iConfig) {}
 
   template <typename TrackerTraits>
@@ -66,10 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
 
     desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
-
-    std::string cpe = "PixelCPEFastParams";
-    cpe += TrackerTraits::nameModifier;
-    desc.add<std::string>("CPE", cpe);
+    desc.add<std::string>("caGeometry", std::string("caGeometry"));
 
     Algo::fillPSetDescription(desc);
     descriptions.addWithDefaultLabel(desc);
@@ -79,11 +84,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void CAHitNtupletAlpaka<TrackerTraits>::produce(device::Event& iEvent, const device::EventSetup& es) {
     auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
 
-    auto& fcpe = es.getData(cpeToken_);
+    auto const& geometry = es.getData(geometrySoA_);
 
     auto const& hits = iEvent.get(tokenHit_);
 
-    iEvent.emplace(tokenTrack_, deviceAlgo_.makeTuplesAsync(hits, fcpe.const_buffer().data(), bf, iEvent.queue()));
+    uint32_t const maxTuples = maxNumberOfTuples_.Eval(hits.nHits());
+    uint32_t const maxDoublets = maxNumberOfDoublets_.Eval(hits.nHits());
+    // std::cout << "maxDoublets " << maxDoublets << std::endl;
+    iEvent.emplace(tokenTrack_,
+                   deviceAlgo_.makeTuplesAsync(hits, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
   }
 
   using CAHitNtupletAlpakaPhase1 = CAHitNtupletAlpaka<pixelTopology::Phase1>;
