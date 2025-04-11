@@ -42,7 +42,8 @@ os.system(run_cmd)
 os.system('cp step2_L1REPACK_HLT_rawp.py step2_L1REPACK_HLT_rawp_copy.py')
 if not options.strip_charge_cut:
   replace_line('step2_L1REPACK_HLT_rawp_copy.py',
-              [  ('process.HLTSiStripClusterChargeCutTight', 'process.HLTSiStripClusterChargeCutNone')
+              [  ("process.hltSiStripClusterizerForRawPrime.Clusterizer.clusterChargeCut.refToPSet_='HLTSiStripClusterChargeCutTight'", "process.hltSiStripClusterizerForRawPrime.Clusterizer.clusterChargeCut.refToPSet_='HLTSiStripClusterChargeCutNone'"),
+                  ("process.ClusterShapeHitFilterESProducer.clusterChargeCut.refToPSet_='HLTSiStripClusterChargeCutTight'", "process.ClusterShapeHitFilterESProducer.clusterChargeCut.refToPSet_='HLTSiStripClusterChargeCutNone'")
               ]) 
 replace_line('step2_L1REPACK_HLT_rawp_copy.py',
               [
