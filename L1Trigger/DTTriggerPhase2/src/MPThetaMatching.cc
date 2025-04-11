@@ -2,7 +2,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 
-using namespace edm;
 using namespace cmsdt;
 
 namespace {
@@ -38,7 +37,7 @@ namespace {
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MPThetaMatching::MPThetaMatching(const ParameterSet &pset)
+MPThetaMatching::MPThetaMatching(const edm::ParameterSet &pset)
     : MPFilter(pset),
       debug_(pset.getUntrackedParameter<bool>("debug")),
       th_option_(pset.getParameter<int>("th_option")),

@@ -126,11 +126,10 @@ class ShowerBuilder {
 public:
   // Constructors and destructor
   ShowerBuilder(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
-  virtual ~ShowerBuilder();
 
   // Main methods
-  virtual void initialise(const edm::EventSetup& iEventSetup);
-  virtual void run(edm::Event& iEvent,
+  void initialise(const edm::EventSetup& iEventSetup);
+  void run(edm::Event& iEvent,
                    const edm::EventSetup& iEventSetup,
                    const DTDigiCollection& digis,
                    ShowerCandidatePtr& showerCandidate_SL1,

@@ -2,13 +2,12 @@
 #include "L1Trigger/DTTriggerPhase2/interface/ShowerBuilder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-using namespace edm;
 using namespace cmsdt;
 
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-ShowerBuilder::ShowerBuilder(const ParameterSet &pset, edm::ConsumesCollector &iC)
+ShowerBuilder::ShowerBuilder(const edm::ParameterSet &pset, edm::ConsumesCollector &iC)
     :  // Unpack information from pset
       showerTaggingAlgo_(pset.getParameter<int>("showerTaggingAlgo")),
       threshold_for_shower_(pset.getParameter<int>("threshold_for_shower")),
@@ -19,15 +18,13 @@ ShowerBuilder::ShowerBuilder(const ParameterSet &pset, edm::ConsumesCollector &i
       debug_(pset.getUntrackedParameter<bool>("debug")),
       scenario_(pset.getParameter<int>("scenario")) {}
 
-ShowerBuilder::~ShowerBuilder() {}
-
 // ============================================================================
 // Main methods (initialise, run, finish)
 // ============================================================================
 void ShowerBuilder::initialise(const edm::EventSetup &iEventSetup) {}
 
-void ShowerBuilder::run(Event &iEvent,
-                        const EventSetup &iEventSetup,
+void ShowerBuilder::run(edm::Event &iEvent,
+                        const edm::EventSetup &iEventSetup,
                         const DTDigiCollection &digis,
                         ShowerCandidatePtr &showerCandidate_SL1,
                         ShowerCandidatePtr &showerCandidate_SL3) {
