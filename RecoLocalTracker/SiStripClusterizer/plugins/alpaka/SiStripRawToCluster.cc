@@ -241,7 +241,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     std::ostringstream dumpMsg("[SiStripRawToClusterAlgo::produce] Preparing strip data on host...\n");
     dumpMsg << "Pre-allocated " << detToFedsMap.metadata().size() << " elements for SiStripMappingHost\n";
     dumpMsg << " ------------ ------ Dumping loop     ------ ------------\n";
-    dumpMsg << "i\tfedId\tfedCh\tlen\toff\tmy_offset\toffset\n";
+    dumpMsg << "i\tfedID\tfedCH\tlen\toff\tmy_offset\toffset\n";
 #endif
 
     for (int i = 0; i < detToFedsMap.metadata().size(); ++i) {
@@ -343,10 +343,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         n_strips += (len - headerlen);
 
 #ifdef EDM_ML_DEBUG
-        if (i % 100 == 0) {
-          dumpMsg << i << "\t" << fedID << "\t" << (int)fedCH << fedi << "\t" << len << "\t" << off << "\t" << n_strips
-                  << "\t" << offset << "\n";
-        }
+        dumpMsg << i << "\t" << fedID << "\t" << (int)fedCH << "\t" << len << "\t" << off << "\t" << offset << "\t"
+                << n_strips << "\n";
+        // if (i % 100 == 0) {
+        // }
 #endif
       }
     }
@@ -356,7 +356,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     dumpMsg << "Skipped bytes in the unpacking: " << skippedBytes << "\n";
     LogDebug(sistrip::mlRawToCluster_) << dumpMsg.str();
 #endif
-
+    bool var = true;
+    if (var) {
+    }
     if (edm::isDebugEnabled()) {
       if (skippedBytes) {
         edm::LogWarning("BuffCkh") << "Skipped bytes in the unpacking: " << skippedBytes;
@@ -432,8 +434,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       auto fedidx = fedId - sistrip::FED_ID_MIN;  // this is a number going from 0 to sistrip::NUMBER_OF_FEDS-1
       sistrip::FEDBuffer* buffer = buffers_[fedidx].get();
       if (!buffer) {
-        const FEDRawData& rawData = rawColl.FEDData(
-            fedId);  // the indexing of the data in the collection makes uses of the actual fedID (not fedID-1 !)
+        // the indexing of the data in the collection makes uses of the actual fedID (not fedID-1 !)
+        const FEDRawData& rawData = rawColl.FEDData(fedId);
         raw_[fedidx] = &rawData;
         // the fillBuffer function checks for header/trailer and validate the data packet,
         // if the data is invalid, a nullptr is returned

@@ -14,11 +14,11 @@ namespace sistrip {
                       SOA_COLUMN(uint16_t, fedCh),
                       // Coordinates for the FEDChannel data in the device buffer
                       //// offset in the (condition-passing filled) buffer for the corresponding FEDChannel
-                      SOA_COLUMN(uint64_t, fedChOff),
+                      SOA_COLUMN(uint32_t, fedChOff),
                       //// FEDChannel->offset
-                      SOA_COLUMN(size_t, inoff),
+                      SOA_COLUMN(uint32_t, inoff),
                       // global offset for the FEDChannel in the rawFEDBuffer
-                      SOA_COLUMN(size_t, offset),
+                      SOA_COLUMN(uint32_t, offset),
                       // FEDChannel->length
                       SOA_COLUMN(uint16_t, length),
                       //
