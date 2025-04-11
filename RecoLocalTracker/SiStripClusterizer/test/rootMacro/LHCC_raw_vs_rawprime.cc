@@ -131,7 +131,6 @@ void event_loop( map< int, map< int, map<int, bool> > >& evtMatchedMap,
 		treereader.tree->GetEntry(idx);
 
 		if ( !evtMatchedMap[treereader.run][treereader.lumi][treereader.event]) continue;
-                std::cout << treereader.run << "\t" << treereader.lumi << "\t" << treereader.event << std::endl;
 
 		for (int trkIdx = 0; trkIdx < treereader.nTrk; ++trkIdx)
                 {
