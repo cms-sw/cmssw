@@ -198,27 +198,6 @@ namespace edm {
 
   void RNTupleOutputModule::writeRun(RunForOutput const& iRun) { file_->writeRun(iRun); }
 
-  namespace {
-    std::vector<edm::ParameterSet> defaultStreamerOverrides() {
-      std::vector<std::string_view> types = {"LHEEventProduct",
-                                             "recoJetIDedmValueMap",
-                                             "recoPhotons",
-                                             "recoGsfElectrons",
-                                             "recoMuons",
-                                             "recoGsfElectrons",
-                                             "TotemRPLocalTrackedmDetSetVector",
-                                             "edmTriggerResults",
-                                             "GlobalAlgBlkBXVector",
-                                             "SimTrackToTPMap"};
-      std::vector<edm::ParameterSet> retValue;
-      for (auto const& t : types) {
-        edm::ParameterSet p;
-        p.addUntrackedParameter<std::string>("product", std::string(t) + "_*_*_*");
-        retValue.emplace_back(std::move(p));
-      }
-      return retValue;
-    }
-  }  // namespace
   void RNTupleOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setComment("Outputs event information into an RNTuple container.");
@@ -270,7 +249,7 @@ namespace edm {
           "Name of data product needing a special split setting. The name can contain wildcards '*' and '?'");
       specialStreamer.addUntracked<bool>("useStreamer", true)
           ->setComment("Explicitly set if should or should not use streamer (default is to use streamer)");
-      desc.addVPSetUntracked("overrideDataProductStreamer", specialStreamer, defaultStreamerOverrides());
+      desc.addVPSetUntracked("overrideDataProductStreamer", specialStreamer, {});
     }
 
     OutputModule::fillDescription(desc);
