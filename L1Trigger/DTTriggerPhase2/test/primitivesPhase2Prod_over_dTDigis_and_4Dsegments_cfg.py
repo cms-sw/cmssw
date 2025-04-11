@@ -7,6 +7,7 @@ process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 #process.GlobalTag.globaltag = "90X_dataRun2_Express_v2"
@@ -22,6 +23,12 @@ process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 #process.dtTriggerPhase2PrimitiveDigis.p2_df = 0 //0 is phase1, 1 is slice test, 2 is phase2(carlo-federica)
 
 process.dtTriggerPhase2PrimitiveDigis.scenario = 1 #0 is mc, 1 is data, 2 is slice test
+
+#DTTriggerPhase2Showers
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
+process.dtTriggerPhase2Shower.showerTaggingAlgo = 1
+process.dtTriggerPhase2Shower.debug = False
+process.dtTriggerPhase2Shower.scenario = 0 # 0 for mc, 1 for data, 2 for slice test
 
 
 process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(
