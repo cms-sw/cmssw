@@ -48,8 +48,12 @@
   </bin>
   <test name="DiMuonVertex" command="testingScripts/test_unitDiMuonVertex.sh"/>
   <test name="DiElectronVertex" command="testingScripts/test_unitDiElectronVertex.sh"/>
-  <test name="SubmitPVrbr" command="testingScripts/test_unitSubmitPVrbr.sh"/>
-  <test name="SubmitPVsplit" command="testingScripts/test_unitSubmitPVsplit.sh"/>
+  <test name="SubmitPVrbr" command="testingScripts/test_unitSubmitPVrbr.sh">
+    <flags NO_TEST_PREFIX="1"/>
+  </test>
+  <test name="SubmitPVsplit" command="testingScripts/test_unitSubmitPVsplit.sh">
+    <flags NO_TEST_PREFIX="1"/>
+  </test>
   <test name="EoP" command="testingScripts/test_unitEoP.sh"/>
   <bin file="testEoPPlotting.cpp" name="testEoPPlotting">
     <flags PRE_TEST="EoP"/>
