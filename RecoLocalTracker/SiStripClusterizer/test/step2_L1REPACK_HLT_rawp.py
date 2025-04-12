@@ -79,6 +79,8 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     fileName = cms.untracked.string('step2_L1REPACK_HLT.root'),
+    compressionAlgorithm = cms.untracked.string( "LZMA" ),
+    compressionLevel = cms.untracked.int32( 4 ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_HIPhysicsRawPrime4' ) ),
     outputCommands =  cms.untracked.vstring('drop *',
       'keep *_hltSiStripClusters*_*_*',
