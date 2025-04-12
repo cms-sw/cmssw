@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from CondCore.DBCommon.CondDBCommon_cfi import *
 trackProbabilityFakeCond = cms.ESSource("PoolDBESSource",
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('.'),
         connectionRetrialPeriod = cms.untracked.int32(30),
@@ -14,7 +13,6 @@ trackProbabilityFakeCond = cms.ESSource("PoolDBESSource",
         connectionTimeOut = cms.untracked.int32(600),
         enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False)
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('BTagTrackProbability2DRcd'),
         tag = cms.string('probBTagPDF2D_tag_mc')

@@ -6,8 +6,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    loadAll = cms.bool(True),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCDBGasGainCorrectionRcd'),
         tag = cms.string('CSCDBGasGainCorrection_new_popcon')

@@ -116,7 +116,6 @@ if loadConfigFrom_sqlite_file :
                           tag = cms.string('params') #check the tag name int the DB: sqlite3 l1config.db  ; select * from TAG;
                           )
        ),
-      verbose = cms.untracked.bool(False)
     )
     
     process.es_prefer_EcalTBWeights = cms.ESPrefer("PoolDBESSource", "PoolDBESSourceSqlite")

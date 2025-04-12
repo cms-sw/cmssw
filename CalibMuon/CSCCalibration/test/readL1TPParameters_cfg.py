@@ -9,10 +9,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    loadAll = cms.bool(True),
     #read from sqlite_file
     #string connect = "sqlite_file:DBL1TPParameters.db"
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCL1TPParametersRcd'),
         tag = cms.string('CSCL1TPParameters')

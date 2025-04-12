@@ -6,10 +6,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    loadAll = cms.bool(True),
     #read from database
     #string connect = "frontier://FrontierDev/CMS_COND_CSC"
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCDBNoiseMatrixRcd'),
         tag = cms.string('CSCDBNoiseMatrix_express')

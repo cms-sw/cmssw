@@ -7,7 +7,6 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationMethod = cms.untracked.uint32(1)
     ),
     #bool loadAll = true
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCDDUMapRcd'),
         tag = cms.string('CSCDDUMap')

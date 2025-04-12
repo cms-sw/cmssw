@@ -13,7 +13,6 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationMethod = cms.untracked.uint32(1)
     ),
 #    loadAll = cms.bool(True),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCChamberTimeCorrectionsRcd'),
         tag = cms.string('CSCChamberTimeCorrections_testanode')

@@ -104,7 +104,6 @@ else:
      from CondCore.DBCommon.CondDBSetup_cfi import *
      process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
                                              connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                             timetype = cms.string("runnumber"),
                                              toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
                                                                         tag = cms.string('TrackerAlignment_Upgrade2017_design_v4')
                                                                         )
@@ -117,7 +116,6 @@ else:
      ####################################################################
      process.setAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
                                    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                   timetype = cms.string("runnumber"),
                                    toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
                                                               tag = cms.string('TrackerAlignmentErrorsExtended_Upgrade2017_design_v0')
                                                               )
