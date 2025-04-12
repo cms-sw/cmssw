@@ -4,14 +4,7 @@ from CondCore.DBCommon.CondDBCommon_cfi import *
 trackProbabilityFakeCond = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('.'),
-        connectionRetrialPeriod = cms.untracked.int32(30),
-        loadBlobStreamer = cms.untracked.bool(False),
         messageLevel = cms.untracked.int32(0),
-        enablePoolAutomaticCleanUp = cms.untracked.bool(True),
-        enableConnectionSharing = cms.untracked.bool(False),
-        connectionRetrialTimeOut = cms.untracked.int32(180),
-        connectionTimeOut = cms.untracked.int32(600),
-        enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False)
     ),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('BTagTrackProbability2DRcd'),

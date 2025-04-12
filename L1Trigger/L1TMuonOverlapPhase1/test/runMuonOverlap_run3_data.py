@@ -96,7 +96,6 @@ if loadConfigFrom_fakeOmtfParams :
           cms.PSet(record = cms.string('L1TMuonOverlapParamsRcd'),
                    data = cms.vstring('L1TMuonOverlapParams'))
                        ),
-       verbose = cms.untracked.bool(False)
     )
 
 

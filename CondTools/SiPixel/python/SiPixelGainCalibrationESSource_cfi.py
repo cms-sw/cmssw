@@ -9,7 +9,6 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(1),
         authenticationPath = cms.untracked.string('./'),
-        loadBlobStreamer = cms.untracked.bool(True)
     )
 )
 

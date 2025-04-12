@@ -17,7 +17,6 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     #string connect = "oracle://cms_orcoff_int2r/CMS_COND_CSC"
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
-        authenticationMethod = cms.untracked.uint32(1)
     )
 )
 

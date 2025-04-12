@@ -7,7 +7,6 @@ process = cms.Process("TEST")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
-        authenticationMethod = cms.untracked.uint32(1)
     ),
     # For testing, sqlite database file expected to be in local directory 
     toGet = cms.VPSet(cms.PSet(

@@ -10,7 +10,6 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
-        authenticationMethod = cms.untracked.uint32(1)
     ),
     #bool loadAll = true
     toGet = cms.VPSet(cms.PSet(

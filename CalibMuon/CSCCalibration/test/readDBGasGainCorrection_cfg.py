@@ -16,7 +16,6 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     #string connect="frontier://FrontierDev/CMS_COND_CSC"
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
-        authenticationMethod = cms.untracked.uint32(1)
     )
 )
 

@@ -16,7 +16,6 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     connect=cms.string("oracle://cms_orcon_prod/CMS_COND_31X_CSC"),
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/nfshome0/popcondev/conddb/'),
-        authenticationMethod = cms.untracked.uint32(1)
     )
 )
 
