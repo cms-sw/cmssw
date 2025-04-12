@@ -104,12 +104,12 @@ def build_array(obj, rawtype):
     update_list('HI_wchargecut_v2', 15, 4, rawtype, sizes, yvals, texts, 'v2')
     #update_list('HI_wchargecut_v2', 15, 7, rawtype, sizes, yvals, texts, 'v2')
     update_list('HI_wchargecut_v2', 15, 6, rawtype, sizes, yvals, texts, 'v2')
-    '''update_list('HI_wchargecut_v2', 14, 5, rawtype, sizes, yvals, texts, 'v2')
-    update_list('HI_wchargecut_v2', 14, 4, rawtype, sizes, yvals, texts, 'v2')
+    #update_list('HI_wchargecut_v2', 14, 5, rawtype, sizes, yvals, texts, 'v2')
+    #update_list('HI_wchargecut_v2', 14, 4, rawtype, sizes, yvals, texts, 'v2')
     update_list('HI_wchargecut_v2', 14, 8, rawtype, sizes, yvals, texts, 'v2')
-    update_list('HI_wchargecut_v2', 14, 7, rawtype, sizes, yvals, texts, 'v2')
+    #update_list('HI_wchargecut_v2', 14, 7, rawtype, sizes, yvals, texts, 'v2')
     update_list('HI_wchargecut_v2', 14, 6, rawtype, sizes, yvals, texts, 'v2')
-    update_list('HI_wchargecut_v2', 13, 8, rawtype, sizes, yvals, texts, 'v2')'''
+    #update_list('HI_wchargecut_v2', 13, 8, rawtype, sizes, yvals, texts, 'v2')'''
   elif options.version == 'v1':
     texts['v1'] = []
     yvals['v1'] = []
