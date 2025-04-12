@@ -50,7 +50,6 @@ namespace edm {
 
       void preallocate(service::SystemBounds const&);
 
-      void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
       void postEndJob();
 
       void preOpenFile(std::string const&);
