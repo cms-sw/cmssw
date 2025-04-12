@@ -1191,9 +1191,8 @@ namespace edm {
   void Schedule::beginJob(ProductRegistry const& iRegistry,
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
-                          PathsAndConsumesOfModulesBase const& pathsAndConsumesOfModules,
                           ProcessContext const& processContext) {
-    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase, pathsAndConsumesOfModules, processContext);
+    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase, processContext);
   }
 
   void Schedule::beginStream(unsigned int streamID) {
