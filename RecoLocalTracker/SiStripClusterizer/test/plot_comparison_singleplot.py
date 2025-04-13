@@ -52,7 +52,7 @@ def update_list(dirname, bary_bit, chrg_bit, rawtype, sizes, yvals, texts, ver, 
             yvals[ver].append(val)
   else:
     f = TFile(input_file, 'r')
-    yvals[ver].append(f.Get(f'{rawtype}_trk_cutflow_z4').GetBinContent(1,1))
+    yvals[ver].append(f.Get(f'{rawtype}_trk_cutflow').GetBinContent(1,1))
 
   #print(sizes)
   #print(yvals)
@@ -144,19 +144,19 @@ else:
   sizes = {}
   yvals = {}
 
-  texts['wchargecut_rawp'] = []
-  yvals['wchargecut_rawp'] = []
-  sizes['wchargecut_rawp'] = []
-
-  update_list('test_compression_LZMA', 16, 8, 'rawp', sizes, yvals, texts, 'wchargecut_rawp', options.events)
-
-  texts['wochargecut_rawp'] = []
-  yvals['wochargecut_rawp'] = []
-  sizes['wochargecut_rawp'] = []
-
-  update_list('test_wochargecut_compression_LZMA', 16, 8, 'rawp', sizes, yvals, texts, 'wochargecut_rawp', options.events)
-
   texts['wchargecut_HI_rawp'] = []
+  yvals['wchargecut_HI_rawp'] = []
+  sizes['wchargecut_HI_rawp'] = []
+
+  update_list('HI_wchargecut', 16, 8, 'rawp', sizes, yvals, texts, 'wchargecut_HI_rawp', options.events)
+
+  texts['wochargecut_HI_rawp'] = []
+  yvals['wochargecut_HI_rawp'] = []
+  sizes['wochargecut_HI_rawp'] = []
+
+  update_list('HI_wochargecut', 16, 8, 'rawp', sizes, yvals, texts, 'wochargecut_HI_rawp', options.events)
+
+  '''texts['wchargecut_HI_rawp'] = []
   yvals['wchargecut_HI_rawp'] = []
   sizes['wchargecut_HI_rawp'] = []
 
@@ -167,5 +167,5 @@ else:
   sizes['wochargecut_HI_rawp'] = []
 
   update_list('default_10_wochargcut_compression_LZMA', 16, 8, 'rawp', sizes, yvals, texts, 'wochargecut_HI_rawp', options.events)
-
+  '''
   draw(sizes, yvals, texts, '# of tracks', 'tracks', 'rawp', 'chargecut')
