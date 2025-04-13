@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.ProcessModifiers.tau_embedding_mu_to_mu_cff import tau_embedding_mu_to_mu
+from Configuration.ProcessModifiers.tau_embedding_mu_to_e_cff import tau_embedding_mu_to_e
 
 
 externalLHEProducer = cms.EDProducer("EmbeddingLHEProducer",
@@ -10,5 +12,9 @@ externalLHEProducer = cms.EDProducer("EmbeddingLHEProducer",
     InitialRecoCorrection = cms.bool(False),
     studyFSRmode = cms.untracked.string("reco")
 )
+# if running mu->mu embedding simulate muon (pid=13) instead of a tau (pid=15)
+tau_embedding_mu_to_mu.toModify(externalLHEProducer, particleToEmbed = cms.int32(13))
+# if running mu->e embedding simulate muon (pid=11) instead of a tau (pid=15)
+tau_embedding_mu_to_e.toModify(externalLHEProducer, particleToEmbed = cms.int32(11))
 
-makeexternalLHEProducer = cms.Sequence( externalLHEProducer)
+makeexternalLHEProducer = cms.Sequence(externalLHEProducer)

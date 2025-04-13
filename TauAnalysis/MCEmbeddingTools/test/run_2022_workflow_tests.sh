@@ -55,7 +55,7 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.
     --datatier RAWSIM \
     --customise \
     TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_preHLT \
-    --customise_commands 'process.generator.HepMCFilter.filterParameters.MuMuCut = cms.string("(Mu.Pt > 18 && Had.Pt > 18 && Mu.Eta < 2.2 && Had.Eta < 2.4)");process.generator.HepMCFilter.filterParameters.Final_States = cms.vstring("MuHad");process.generator.nAttempts = cms.uint32(1000);' \
+    --procModifiers tau_embedding_mutauh \
     --filein file:lhe_and_cleaned.root \
     --fileout file:simulated_and_cleaned_prehlt.root \
     -n -1 \
