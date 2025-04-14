@@ -30,7 +30,7 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
     tauSeedThreshold           = 0.,
     tauIsoLUTFile              = "L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_2025_HCALcFeb_ConservativeZS_MC25W_progression_effMin0p9_eMin22_eMax37.txt",
     tauIsoLUTFile2             = "L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_2025_HCALcFeb_ConservativeZS_MC25W_progression_effMin0p9_eMin22_eMax37.txt",
-    tauCalibrationLUTFile      = "L1Trigger/L1TCalorimeter/data/Tau_Cal_LUT_2025_HCALcFeb_ConservativeZS_MC25W.txt",
+    tauCalibrationLUTFile      = "L1Trigger/L1TCalorimeter/data/Tau_Cal_LUT_2025_HCALcFeb_ConservativeZS_MC25W_v2.txt",
     tauCompressLUTFile         = "L1Trigger/L1TCalorimeter/data/tauCompressAllLUT_12bit_v3.txt",
     tauPUSParams               = [1,4,32],
 
@@ -43,7 +43,7 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
     jetCalibrationType         = "LUT",
     jetCompressPtLUTFile       = "L1Trigger/L1TCalorimeter/data/lut_pt_compress_2025v0.txt",
     jetCompressEtaLUTFile      = "L1Trigger/L1TCalorimeter/data/lut_eta_compress_2025v0.txt",
-    jetCalibrationLUTFile      = "L1Trigger/L1TCalorimeter/data/lut_calib_2025v0_HCALcMarchForiEtaleq28_ConservativeZS_L1NanoPUS.txt",
+    jetCalibrationLUTFile      = "L1Trigger/L1TCalorimeter/data/lut_calib_2025v0_HCALcMarchForiEtaleq28_ConservativeZS_L1NanoPUS_v2.txt",
 
 
     # sums: 0=ET, 1=HT, 2=MET, 3=MHT
