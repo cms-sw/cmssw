@@ -581,12 +581,28 @@ offset_pd = 0.001 # less than 100 pds per year
 
 for e_n,era in enumerate(era_mask_2024):
     for p_n,pd in enumerate(pds_2024):
+        
+        # JetMET1 PD is used to run the TeVJet skims
+        # we don't really need it here
+        # (also as is the numbering conflicts with 
+        # the scouting wf below, so if we really want to
+        # extend the pds for standar relvals for 2024 data
+        # one needs to change the 145.415 below)
+        if pd == 'JetMET1':
+            continue
+
         wf_number = round(base_wf + offset_era * e_n + offset_pd * p_n,3)
         dataset = '/' + pd + '/' + era + '-v1/RAW'
-        step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1]
+
+        ## ZeroBias have their own HARVESTING
         suff = 'ZB_' if 'ZeroBias' in step_name else ''
+
+        # Running C,D,E with the offline GT.
+        # Could be removed once 2025 wfs are in and we'll test the online GT with them
         recosetup = 'RECONANORUN3_' + suff + 'reHLT_2024' 
         recosetup = recosetup if era[-1] > 'E' else recosetup + '_Offline'
+
+        step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1]
         workflows[wf_number] = ['',[step_name,'HLTDR3_2024',recosetup,'HARVESTRUN3_' + suff + '2024']]
 
 ## special HLT scouting workflow (with hardcoded private input file from ScoutingPFMonitor skimmed to remove all events without scouting)
