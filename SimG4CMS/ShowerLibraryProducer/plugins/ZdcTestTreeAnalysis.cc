@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: ZdcTestTreeAnalysis.cc
 // Date: 04.25 Lev Kheyn
-// Description: simulation analysis code to make a tree needed for making 
+// Description: simulation analysis code to make a tree needed for making
 //              shower library for ZDC
 ///////////////////////////////////////////////////////////////////////////////
 #include "DataFormats/Math/interface/Point3D.h"
@@ -49,12 +49,12 @@
 #include <vector>
 
 class ZdcTestTreeAnalysis : public SimWatcher,
-			    public Observer<const BeginOfJob*>,
-			    public Observer<const BeginOfRun*>,
-			    public Observer<const EndOfRun*>,
-			    public Observer<const BeginOfEvent*>,
-			    public Observer<const EndOfEvent*>,
-			    public Observer<const G4Step*> {
+                            public Observer<const BeginOfJob*>,
+                            public Observer<const BeginOfRun*>,
+                            public Observer<const EndOfRun*>,
+                            public Observer<const BeginOfEvent*>,
+                            public Observer<const EndOfEvent*>,
+                            public Observer<const G4Step*> {
 public:
   ZdcTestTreeAnalysis(const edm::ParameterSet& p);
   ~ZdcTestTreeAnalysis() override;
@@ -71,8 +71,7 @@ private:
   int verbosity_;
   TTree* theTree;
   int eventIndex, nhits;
-  int fiberID[2000], npeem[2000],  npehad[2000], time[2000];
-
+  int fiberID[2000], npeem[2000], npehad[2000], time[2000];
 };
 
 ZdcTestTreeAnalysis::ZdcTestTreeAnalysis(const edm::ParameterSet& p) {
@@ -102,7 +101,7 @@ void ZdcTestTreeAnalysis::update(const BeginOfRun* run) {
 
   if (verbosity_ > 0)
     edm::LogVerbatim("ZdcTestTreeAnalysis") << "\nZdcTestTreeAnalysis: Begining of Run";
-  
+
   eventIndex = 0;
 }
 
@@ -117,7 +116,6 @@ void ZdcTestTreeAnalysis::update(const G4Step* aStep) {}
 
 //================================================================================================
 void ZdcTestTreeAnalysis::update(const EndOfEvent* evt) {
-
   // access to the G4 hit collections
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
   if (verbosity_ > 0)
@@ -135,23 +133,22 @@ void ZdcTestTreeAnalysis::update(const EndOfEvent* evt) {
   if (verbosity_ > 0)
     edm::LogVerbatim("ZdcTestTreeAnalysis") << "  theZDCHC has " << nentries << " entries";
 
-   if (nentries > 0) {
+  if (nentries > 0) {
+    for (int ihit = 0; ihit < nentries; ihit++) {
+      CaloG4Hit* aHit = (*theZDCHC)[ihit];
+      fiberID[ihit] = aHit->getUnitID();
+      npeem[ihit] = aHit->getEM();
+      npehad[ihit] = aHit->getHadr();
+      time[ihit] = aHit->getTimeSliceID();
 
-     for (int ihit = 0; ihit < nentries; ihit++) {
-       CaloG4Hit* aHit = (*theZDCHC)[ihit];
-       fiberID[ihit] = aHit->getUnitID();
-       npeem[ihit] = aHit->getEM();
-       npehad[ihit] = aHit->getHadr();
-       time[ihit] = aHit->getTimeSliceID();
-
-       if (verbosity_ > 1)
-	 edm::LogVerbatim("ZdcTestTreeAnalysis") << " entry #" << ihit << ": fiaberID=0x" << std::hex << fiberID[ihit] << std::dec << "; npeem=" << npeem[ihit] << "; npehad[ihit]=" << npehad << " time=" << time[ihit];
-
-     }
-
-   }
-   nhits = nentries; 
-   theTree->Fill();
+      if (verbosity_ > 1)
+        edm::LogVerbatim("ZdcTestTreeAnalysis")
+            << " entry #" << ihit << ": fiaberID=0x" << std::hex << fiberID[ihit] << std::dec
+            << "; npeem=" << npeem[ihit] << "; npehad[ihit]=" << npehad << " time=" << time[ihit];
+    }
+  }
+  nhits = nentries;
+  theTree->Fill();
 }
 
 void ZdcTestTreeAnalysis::update(const EndOfRun* run) {}
