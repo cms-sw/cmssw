@@ -70,13 +70,11 @@ tracksBPHMCMatch = cms.EDProducer("MCMatcher",              # cut on deltaR, del
 
 
 tracksBPHMCTable = cms.EDProducer("CandMCMatchTableProducer",
-    recoObjects   = tracksBPHMCMatch.src,
-    genParts      = cms.InputTag("finalGenParticlesBPH"),
+    src   = tracksBPHMCMatch.src,
     mcMap         = cms.InputTag("tracksBPHMCMatch"),
     objName       = trackBPHTable.name,
     objType       = trackBPHTable.name,
-    objBranchName = cms.string("genPart"),
-    genBranchName = cms.string("track"),
+    branchName = cms.string("genPart"),
     docString     = cms.string("MC matching to status==1 kaons or pions"),
 )
 

@@ -117,25 +117,21 @@ LambdaProtonPiBPHMCMatch = cms.EDProducer("MCMatcher",        # cut on deltaR, d
 
 
 KshortPiPiBPHMCTable = cms.EDProducer("CandMCMatchTableProducer",
-    recoObjects = KshortToPiPiTable.src,
-    genParts = cms.InputTag("finalGenParticlesBPH"),
+    src = KshortToPiPiTable.src,
     mcMap = cms.InputTag("KshortPiPiBPHMCMatch"),
     objName = KshortToPiPiTable.name,
     objType = cms.string("Other"),
-    objBranchName = cms.string("genPart"),
-    genBranchName = cms.string("kshort"),
+    branchName = cms.string("genPart"),
     docString = cms.string("MC matching to status==1 muons"),
 )
 
 
 LambdaProtonPiBPHMCTable = cms.EDProducer("CandMCMatchTableProducer",
-    recoObjects = LambdaToProtonPiTable.src,
-    genParts = cms.InputTag("finalGenParticlesBPH"),
+    src = LambdaToProtonPiTable.src,
     mcMap = cms.InputTag("LambdaProtonPiBPHMCMatch"),
     objName = LambdaToProtonPiTable.name,
     objType = cms.string("Other"),
-    objBranchName = cms.string("genPart"),
-    genBranchName = cms.string("lambda"),
+    branchName = cms.string("genPart"),
     docString = cms.string("MC matching to status==1 muons"),
 )
 
