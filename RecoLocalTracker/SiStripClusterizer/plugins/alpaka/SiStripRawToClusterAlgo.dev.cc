@@ -165,6 +165,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
         out.channel(*aoffIdx) = chan;
         out.stripId(*aoffIdx) = stripStart + firstStrip + inCluster;
         out.adc(*aoffIdx) = getADC_W<num_words>(data, offset, bits_shift);
+        // printf("unpackZSW [%i] | chan %i stripId %i adc %i\n", *aoffIdx, chan, out.stripId(*aoffIdx), out.adc(*aoffIdx));
         (*aoffIdx)++;
         offset += num_words;
         ++inCluster;
@@ -228,14 +229,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
         }
         out.channel(*idx) = chan;
         out.stripId(*idx) = stripStart + firstStrip + inCluster;
-        out.channel(*idx) = stripStart + firstStrip + inCluster;
+        // printf("unpackZSB [%i] | chan %i stripId %i adc %i\n", *idx, chan, out.stripId(*idx), out.adc(*idx));
         ++inCluster;
         if (bOffset == BITS_PER_BYTE) {
           bOffset = 0;
           ++wOffset;
         }
       }
-      printf("[%i] | SUCCESS\n", *idx);
+      // printf("[%i] | SUCCESS\n", *idx);
       return StatusCode::SUCCESS;
     }
 
