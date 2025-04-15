@@ -145,13 +145,11 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> GenRecTrackToken_;
   edm::EDGetTokenT<reco::TrackCollection> RecTrackToken_;
 
-  //edm::EDGetTokenT<MtdSimLayerClusterCollection> simClustersToken_; //simClus
-
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
   edm::EDGetTokenT<reco::TPToSimCollectionMtd> tp2SimAssociationMapToken_;
-  edm::EDGetTokenT<reco::SimToTPCollectionMtd> Sim2tpAssociationMapToken_;//F
+  edm::EDGetTokenT<reco::SimToTPCollectionMtd> Sim2tpAssociationMapToken_;
   edm::EDGetTokenT<MtdRecoClusterToSimLayerClusterAssociationMap> r2sAssociationMapToken_;
 
   edm::EDGetTokenT<FTLRecHitCollection> btlRecHitsToken_;
@@ -161,6 +159,10 @@ private:
 
   edm::EDGetTokenT<edm::ValueMap<int>> trackAssocToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> pathLengthToken_;
+  
+  edm::EDGetTokenT<edm::ValueMap<float>> btlMatchTimeChi2Token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> etlMatchTimeChi2Token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> btlMatchChi2Token_;
 
   edm::EDGetTokenT<edm::ValueMap<float>> tmtdToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> SigmatmtdToken_;
@@ -291,17 +293,26 @@ private:
   MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocTimePull_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocTrackOutermostHitR_; 
   MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocTrackChi2_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocTimeChi2_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocTimeChi2vsMVAQual_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocSpaceChi2_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocTrackNdf_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocSimClusSize_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocRecoClusSize_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocTrackPathLenghtvsEta_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectCorrectAssocTrackPathLenght_;
 
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocEta_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocPt_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocMVAQual_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimeRes_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimePull_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi2_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT_; 
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZ_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackIdOff_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackOutermostHitR_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackChi2_;
@@ -309,6 +320,8 @@ private:
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocSimClusSize_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocRecoClusSize_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght_;
   
   // wrong association with reco from same TP direct hit
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocEta1_;
@@ -318,11 +331,17 @@ private:
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimePull1_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT1_; 
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZ1_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi1_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackIdOff1_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackOutermostHitR1_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackChi21_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi21_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual1_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi21_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf1_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR1_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta1_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght1_;
 
   // wrong association with reco from same TP other hit
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocEta2_;
@@ -332,11 +351,17 @@ private:
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimePull2_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT2_; 
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZ2_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi2_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackIdOff2_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackOutermostHitR2_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackChi22_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi22_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual2_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi22_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf2_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR2_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta2_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght2_;
 
   // wrong association to reco from another TP
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocEta3_;
@@ -346,12 +371,17 @@ private:
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimePull3_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT3_; 
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZ3_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi3_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackIdOff3_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackOutermostHitR3_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackChi23_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi23_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual3_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi23_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf3_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR3_;
-
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta3_;
+  MonitorElement* meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght3_;
 
   MonitorElement* meBTLTrackMatchedTPmtdDirectNoAssocEta_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectNoAssocPt_;
@@ -360,7 +390,6 @@ private:
   MonitorElement* meBTLTrackMatchedTPmtdDirectNoAssocTrackNdf_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectNoAssocSimClusSize_;
   MonitorElement* meBTLTrackMatchedTPmtdDirectNoAssocRecoClusSize_;
-
 
 
   // - BTL TPmtd "other" hits: correct, wrong, missing association in MTD
@@ -407,12 +436,16 @@ private:
   MonitorElement* meETLTrackMatchedTPmtd1CorrectAssocMVAQual_;
   MonitorElement* meETLTrackMatchedTPmtd1CorrectAssocTimeRes_;
   MonitorElement* meETLTrackMatchedTPmtd1CorrectAssocTimePull_;
+  MonitorElement* meETLTrackMatchedTPmtd1CorrectAssocTimeChi2_;
+  MonitorElement* meETLTrackMatchedTPmtd1CorrectAssocTimeChi2vsMVAQual_;
 
   MonitorElement* meETLTrackMatchedTPmtd1WrongAssocEta_;
   MonitorElement* meETLTrackMatchedTPmtd1WrongAssocPt_;
   MonitorElement* meETLTrackMatchedTPmtd1WrongAssocMVAQual_;
   MonitorElement* meETLTrackMatchedTPmtd1WrongAssocTimeRes_;
   MonitorElement* meETLTrackMatchedTPmtd1WrongAssocTimePull_;
+  MonitorElement* meETLTrackMatchedTPmtd1WrongAssocTimeChi2_;
+  MonitorElement* meETLTrackMatchedTPmtd1WrongAssocTimeChi2vsMVAQual_;
 
   MonitorElement* meETLTrackMatchedTPmtd1NoAssocEta_;
   MonitorElement* meETLTrackMatchedTPmtd1NoAssocPt_;
@@ -426,12 +459,16 @@ private:
   MonitorElement* meETLTrackMatchedTPmtd2CorrectAssocMVAQual_;
   MonitorElement* meETLTrackMatchedTPmtd2CorrectAssocTimeRes_;
   MonitorElement* meETLTrackMatchedTPmtd2CorrectAssocTimePull_;
+  MonitorElement* meETLTrackMatchedTPmtd2CorrectAssocTimeChi2_;
+  MonitorElement* meETLTrackMatchedTPmtd2CorrectAssocTimeChi2vsMVAQual_;
 
   MonitorElement* meETLTrackMatchedTPmtd2WrongAssocEta_;
   MonitorElement* meETLTrackMatchedTPmtd2WrongAssocPt_;
   MonitorElement* meETLTrackMatchedTPmtd2WrongAssocMVAQual_;
   MonitorElement* meETLTrackMatchedTPmtd2WrongAssocTimeRes_;
   MonitorElement* meETLTrackMatchedTPmtd2WrongAssocTimePull_;
+  MonitorElement* meETLTrackMatchedTPmtd2WrongAssocTimeChi2_;
+  MonitorElement* meETLTrackMatchedTPmtd2WrongAssocTimeChi2vsMVAQual_;
 
   MonitorElement* meETLTrackMatchedTPmtd2NoAssocEta_;
   MonitorElement* meETLTrackMatchedTPmtd2NoAssocPt_;
@@ -457,7 +494,6 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
       trackMaxEtlEta_(iConfig.getParameter<double>("trackMaximumEtlEta")) {
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
-  //simClustersToken_ = consumes<
 
   trackingParticleCollectionToken_ =
       consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
@@ -468,7 +504,7 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   tp2SimAssociationMapToken_ =
       consumes<reco::TPToSimCollectionMtd>(iConfig.getParameter<edm::InputTag>("tp2SimAssociationMapTag"));
   Sim2tpAssociationMapToken_ =
-      consumes<reco::SimToTPCollectionMtd>(iConfig.getParameter<edm::InputTag>("Sim2tpAssociationMapTag"));//F
+      consumes<reco::SimToTPCollectionMtd>(iConfig.getParameter<edm::InputTag>("Sim2tpAssociationMapTag"));
   r2sAssociationMapToken_ = consumes<MtdRecoClusterToSimLayerClusterAssociationMap>(
       iConfig.getParameter<edm::InputTag>("r2sAssociationMapTag"));
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("btlRecHits"));
@@ -477,6 +513,9 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   etlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagETL"));
   trackAssocToken_ = consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("trackAssocSrc"));
   pathLengthToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"));
+  btlMatchTimeChi2Token_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("btlMatchTimeChi2"));
+  etlMatchTimeChi2Token_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("etlMatchTimeChi2"));
+  btlMatchChi2Token_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("btlMatchChi2"));
   tmtdToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("tmtd"));
   SigmatmtdToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmatmtd"));
   t0SrcToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0Src"));
@@ -533,11 +572,14 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   const auto& mtdQualMVA = iEvent.get(trackMVAQualToken_);
   const auto& trackAssoc = iEvent.get(trackAssocToken_);
   const auto& pathLength = iEvent.get(pathLengthToken_);
+  const auto& btlMatchTimeChi2 = iEvent.get(btlMatchTimeChi2Token_);
+  const auto& etlMatchTimeChi2 = iEvent.get(etlMatchTimeChi2Token_);
+  const auto& btlMatchChi2 = iEvent.get(btlMatchChi2Token_);
   const auto& outermostHitPosition = iEvent.get(outermostHitPositionToken_);
 
   auto recoToSimH = makeValid(iEvent.getHandle(recoToSimAssociationToken_));
   r2s_ = recoToSimH.product();
-  auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_); // F
+  auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_); 
   const MTDGeometry* geom = geometryHandle.product();
   auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology *topology = topologyHandle.product();
@@ -810,6 +852,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         // ==  MC truth matching
         double simClusterRef_RecoMatch_trackIdOff(-9999.); 
         double simClusterRef_RecoMatch_DeltaZ(-9999.);
+        double simClusterRef_RecoMatch_DeltaPhi(-9999.);
         double simClusterRef_RecoMatch_DeltaT(-9999.);
         int simClusSize(-9999);
         int recoClusSize(-9999);
@@ -849,10 +892,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             });
             // Check if TP has direct or other sim cluster for BTL
             for (const auto& simClusterRef : simClustersRefs) {
-	      //MTDDetId mtddetid = simClusterRef->detIds_and_rows().front().first;	    
               if (directSimClusIt != simClustersRefs.end() && simClusterRef == *directSimClusIt) {
                 isTPmtdDirectBTL = true;
-              //} else if (simClusterRef->trackIdOffset() != 0 && mtddetid.mtdSubDetector() == 1 ) {
               } else if (simClusterRef->trackIdOffset() != 0) {
                 isTPmtdOtherBTL = true;
               }
@@ -870,13 +911,14 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 		
                 BTLDetId RecoDetId((*recClusterRef).id());
 	        simClusSize = simClustersRefs_RecoMatch.size();
-
+	
                 for (const auto& simClusterRef_RecoMatch : simClustersRefs_RecoMatch) {
 		  	
                   // Check if simClusterRef_RecoMatch  exists in SimClusters
                   auto simClusterIt =
                       std::find(simClustersRefs.begin(), simClustersRefs.end(), simClusterRef_RecoMatch);
 	          if (optionalPlots_ && isTPmtdDirectBTL){
+	  
                       // simCluster matched to TP 
 		      // NB we are taking the position and id of the first hit in the cluster.
 		      auto directSimClus = *directSimClusIt;
@@ -884,7 +926,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                       BTLDetId detid(mtddetid.rawId());
 	              LocalPoint simClusLocalPos = directSimClus->hits_and_positions().front().second;
                       GlobalPoint simClusGlobalPos = geomUtil.globalPosition(detid, simClusLocalPos);
-
+       
 		      // simClusterRef_RecoMatch infos
   	              MTDDetId mtddetidRecoMatch = simClusterRef_RecoMatch->detIds_and_rows().front().first;
                       BTLDetId detidRecoMatch(mtddetidRecoMatch.rawId());
@@ -893,9 +935,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 		      simClusterRef_RecoMatch_trackIdOff = simClusterRef_RecoMatch->trackIdOffset();
                       simClusterRef_RecoMatch_DeltaZ = simClusRecoMatchGlobalPos.z() - simClusGlobalPos.z();
+                      simClusterRef_RecoMatch_DeltaPhi = simClusRecoMatchGlobalPos.phi() - simClusGlobalPos.phi();
                       simClusterRef_RecoMatch_DeltaT = simClusterRef_RecoMatch->simLCTime() - directSimClus->simLCTime();
-
-
+      
 		    }
 
 
@@ -938,13 +980,19 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               if (isTPmtdDirectBTL) {
                 // -- Track matched to TP with sim hit (direct), correctly associated reco cluster
                 if (isTPmtdDirectCorrectBTL) {
-		  
+	          
                   if (optionalPlots_) {
 		    meBTLTrackMatchedTPmtdDirectCorrectAssocSimClusSize_->Fill(simClusSize);
                     meBTLTrackMatchedTPmtdDirectCorrectAssocRecoClusSize_->Fill(recoClusSize);
       	            meBTLTrackMatchedTPmtdDirectCorrectAssocTrackOutermostHitR_->Fill(outermostHitPosition[trackref]);
 	            meBTLTrackMatchedTPmtdDirectCorrectAssocTrackNdf_->Fill(trackGen.ndof());
 	            meBTLTrackMatchedTPmtdDirectCorrectAssocTrackChi2_->Fill(trackGen.chi2());
+                    meBTLTrackMatchedTPmtdDirectCorrectAssocTimeChi2_->Fill(btlMatchTimeChi2[trackref]);
+                    meBTLTrackMatchedTPmtdDirectCorrectAssocTimeChi2vsMVAQual_->Fill(btlMatchTimeChi2[trackref],  mtdQualMVA[trackref]);
+                    meBTLTrackMatchedTPmtdDirectCorrectAssocSpaceChi2_->Fill(btlMatchChi2[trackref]);
+                    meBTLTrackMatchedTPmtdDirectCorrectAssocTrackPathLenghtvsEta_->Fill(std::abs(trackGen.eta()), pathLength[trackref]);
+                    meBTLTrackMatchedTPmtdDirectCorrectAssocTrackPathLenght_->Fill(pathLength[trackref]);
+
 		  }
                   fillTrackClusterMatchingHistograms(meBTLTrackMatchedTPmtdDirectCorrectAssocEta_,
                                                      meBTLTrackMatchedTPmtdDirectCorrectAssocPt_,
@@ -964,17 +1012,24 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 		    meBTLTrackMatchedTPmtdDirectWrongAssocSimClusSize_->Fill(simClusSize);
                     meBTLTrackMatchedTPmtdDirectWrongAssocRecoClusSize_->Fill(recoClusSize);
 		    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT_->Fill(simClusterRef_RecoMatch_DeltaT);
+		    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi_->Fill(simClusterRef_RecoMatch_DeltaPhi);
 		    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZ_->Fill(simClusterRef_RecoMatch_DeltaZ);
 		    meBTLTrackMatchedTPmtdDirectWrongAssocTrackIdOff_->Fill(simClusterRef_RecoMatch_trackIdOff);
 		    meBTLTrackMatchedTPmtdDirectWrongAssocTrackOutermostHitR_->Fill(outermostHitPosition[trackref]);
                     meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf_->Fill(trackGen.ndof());
                     meBTLTrackMatchedTPmtdDirectWrongAssocTrackChi2_->Fill(trackGen.chi2());
                     meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR_->Fill(outermostHitPosition[trackref], simClusterRef_RecoMatch_DeltaZ);
+                    meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2_->Fill(btlMatchTimeChi2[trackref]);
+                    meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual_->Fill(btlMatchTimeChi2[trackref],  mtdQualMVA[trackref]);
+                    meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi2_->Fill(btlMatchChi2[trackref]);
+                    meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta_->Fill(std::abs(trackGen.eta()), pathLength[trackref]);
+                    meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght_->Fill(pathLength[trackref]);
 
 
 
                     if (simClusterRef_RecoMatch_trackIdOff == 0 && isFromSameTP){
-		      fillTrackClusterMatchingHistograms(meBTLTrackMatchedTPmtdDirectWrongAssocEta1_,
+
+      			    fillTrackClusterMatchingHistograms(meBTLTrackMatchedTPmtdDirectWrongAssocEta1_,
                                      meBTLTrackMatchedTPmtdDirectWrongAssocPt1_,
                                      meBTLTrackMatchedTPmtdDirectWrongAssocMVAQual1_,
                                      meBTLTrackMatchedTPmtdDirectWrongAssocTimeRes1_,
@@ -987,17 +1042,23 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                                      hasTime);
         	    
 		      meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT1_->Fill(simClusterRef_RecoMatch_DeltaT);
+		      meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi1_->Fill(simClusterRef_RecoMatch_DeltaPhi);
 		      meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZ1_->Fill(simClusterRef_RecoMatch_DeltaZ);
 		      meBTLTrackMatchedTPmtdDirectWrongAssocTrackIdOff1_->Fill(simClusterRef_RecoMatch_trackIdOff);
 		      meBTLTrackMatchedTPmtdDirectWrongAssocTrackOutermostHitR1_->Fill(outermostHitPosition[trackref]);
                       meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf1_->Fill(trackGen.ndof());
                       meBTLTrackMatchedTPmtdDirectWrongAssocTrackChi21_->Fill(trackGen.chi2());
                       meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR1_->Fill(outermostHitPosition[trackref], simClusterRef_RecoMatch_DeltaZ);
-
-
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi21_->Fill(btlMatchTimeChi2[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual1_->Fill(btlMatchTimeChi2[trackref],  mtdQualMVA[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi21_->Fill(btlMatchChi2[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta1_->Fill(std::abs(trackGen.eta()), pathLength[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght1_->Fill(pathLength[trackref]);
 
                     } else if (simClusterRef_RecoMatch_trackIdOff > 0 && isFromSameTP){
-	            		      fillTrackClusterMatchingHistograms(meBTLTrackMatchedTPmtdDirectWrongAssocEta2_,
+
+
+	            		     fillTrackClusterMatchingHistograms(meBTLTrackMatchedTPmtdDirectWrongAssocEta2_,
                                      meBTLTrackMatchedTPmtdDirectWrongAssocPt2_,
                                      meBTLTrackMatchedTPmtdDirectWrongAssocMVAQual2_,
                                      meBTLTrackMatchedTPmtdDirectWrongAssocTimeRes2_,
@@ -1010,16 +1071,23 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                                      hasTime);
         	    
 		      meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT2_->Fill(simClusterRef_RecoMatch_DeltaT);
+		      meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi2_->Fill(simClusterRef_RecoMatch_DeltaPhi);
 		      meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZ2_->Fill(simClusterRef_RecoMatch_DeltaZ);
 		      meBTLTrackMatchedTPmtdDirectWrongAssocTrackIdOff2_->Fill(simClusterRef_RecoMatch_trackIdOff);
 		      meBTLTrackMatchedTPmtdDirectWrongAssocTrackOutermostHitR2_->Fill(outermostHitPosition[trackref]);
                       meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf2_->Fill(trackGen.ndof());
                       meBTLTrackMatchedTPmtdDirectWrongAssocTrackChi22_->Fill(trackGen.chi2());
                       meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR2_->Fill(outermostHitPosition[trackref], simClusterRef_RecoMatch_DeltaZ);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi22_->Fill(btlMatchTimeChi2[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual2_->Fill(btlMatchTimeChi2[trackref],  mtdQualMVA[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi22_->Fill(btlMatchChi2[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta2_->Fill(std::abs(trackGen.eta()), pathLength[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght2_->Fill(pathLength[trackref]);
 
 
 
                     } else if (!isFromSameTP){
+
 	            		     fillTrackClusterMatchingHistograms(meBTLTrackMatchedTPmtdDirectWrongAssocEta3_,
                                      meBTLTrackMatchedTPmtdDirectWrongAssocPt3_,
                                      meBTLTrackMatchedTPmtdDirectWrongAssocMVAQual3_,
@@ -1033,13 +1101,18 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                                      hasTime);
         	    
 		      meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT3_->Fill(simClusterRef_RecoMatch_DeltaT);
+		      meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi3_->Fill(simClusterRef_RecoMatch_DeltaPhi);
 		      meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZ3_->Fill(simClusterRef_RecoMatch_DeltaZ);
 		      meBTLTrackMatchedTPmtdDirectWrongAssocTrackIdOff3_->Fill(simClusterRef_RecoMatch_trackIdOff);
 		      meBTLTrackMatchedTPmtdDirectWrongAssocTrackOutermostHitR3_->Fill(outermostHitPosition[trackref]);
                       meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf3_->Fill(trackGen.ndof());
                       meBTLTrackMatchedTPmtdDirectWrongAssocTrackChi23_->Fill(trackGen.chi2());
                       meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR3_->Fill(outermostHitPosition[trackref], simClusterRef_RecoMatch_DeltaZ);
-
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi23_->Fill(btlMatchTimeChi2[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual3_->Fill(btlMatchTimeChi2[trackref],  mtdQualMVA[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi23_->Fill(btlMatchChi2[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta3_->Fill(std::abs(trackGen.eta()), pathLength[trackref]);
+                      meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght3_->Fill(pathLength[trackref]);
 		    }
 
                   }
@@ -1099,7 +1172,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	          meBTLTrackMatchedTPmtdDirectNoAssocTrackOutermostHitR_->Fill(outermostHitPosition[trackref]);
                   meBTLTrackMatchedTPmtdDirectNoAssocTrackNdf_->Fill(trackGen.ndof());
                   meBTLTrackMatchedTPmtdDirectNoAssocTrackChi2_->Fill(trackGen.chi2());
-		}
+	        }
+
                 meBTLTrackMatchedTPmtdDirectNoAssocEta_->Fill(std::abs(trackGen.eta()));
                 meBTLTrackMatchedTPmtdDirectNoAssocPt_->Fill(trackGen.pt());
               } else if (isTPmtdOtherBTL) {
@@ -1133,6 +1207,10 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                     (isTPmtdETLD2 && !isTPmtdETLD1 && ETLdisc2 && isTPmtdCorrectETLD2) ||
                     (isTPmtdETLD1 && isTPmtdETLD2 && ETLdisc1 && ETLdisc2 && isTPmtdCorrectETLD1 &&
                      isTPmtdCorrectETLD2)) {
+	          if (optionalPlots_){
+			  meETLTrackMatchedTPmtd1CorrectAssocTimeChi2_->Fill(etlMatchTimeChi2[trackref]);		
+			  meETLTrackMatchedTPmtd1CorrectAssocTimeChi2vsMVAQual_->Fill(etlMatchTimeChi2[trackref], mtdQualMVA[trackref]);
+		  }	  
                   fillTrackClusterMatchingHistograms(meETLTrackMatchedTPmtd1CorrectAssocEta_,
                                                      meETLTrackMatchedTPmtd1CorrectAssocPt_,
                                                      meETLTrackMatchedTPmtd1CorrectAssocMVAQual_,
@@ -1147,6 +1225,12 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                 }
                 // - at least one reco hit is incorrectly associated or, if two sim hits, one reco hit is missing
                 else if ((isTPmtdETLD1 && !isTPmtdCorrectETLD1) || (isTPmtdETLD2 && !isTPmtdCorrectETLD2)) {
+		  	
+	          if (optionalPlots_) {
+			  meETLTrackMatchedTPmtd1WrongAssocTimeChi2_->Fill(etlMatchTimeChi2[trackref]);		
+			  meETLTrackMatchedTPmtd1WrongAssocTimeChi2vsMVAQual_->Fill(etlMatchTimeChi2[trackref], mtdQualMVA[trackref]);
+		  }	  
+
                   fillTrackClusterMatchingHistograms(meETLTrackMatchedTPmtd1WrongAssocEta_,
                                                      meETLTrackMatchedTPmtd1WrongAssocPt_,
                                                      meETLTrackMatchedTPmtd1WrongAssocMVAQual_,
@@ -1164,7 +1248,11 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               if (isTPmtdETLD1 && isTPmtdETLD2) {
                 // - each hit correctly associated to the track
                 if (ETLdisc1 && ETLdisc2 && isTPmtdCorrectETLD1 && isTPmtdCorrectETLD2) {
-                  fillTrackClusterMatchingHistograms(meETLTrackMatchedTPmtd2CorrectAssocEta_,
+	          if (optionalPlots_){
+			  meETLTrackMatchedTPmtd2CorrectAssocTimeChi2_->Fill(etlMatchTimeChi2[trackref]);		
+			  meETLTrackMatchedTPmtd2CorrectAssocTimeChi2vsMVAQual_->Fill(etlMatchTimeChi2[trackref], mtdQualMVA[trackref]);
+		  }
+		  fillTrackClusterMatchingHistograms(meETLTrackMatchedTPmtd2CorrectAssocEta_,
                                                      meETLTrackMatchedTPmtd2CorrectAssocPt_,
                                                      meETLTrackMatchedTPmtd2CorrectAssocMVAQual_,
                                                      meETLTrackMatchedTPmtd2CorrectAssocTimeRes_,
@@ -1178,6 +1266,10 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                 }
                 // - at least one reco hit incorrectly associated or one hit missing
                 else if ((ETLdisc1 || ETLdisc2) && (!isTPmtdCorrectETLD1 || !isTPmtdCorrectETLD2)) {
+	          if (optionalPlots_){ 
+			  meETLTrackMatchedTPmtd2WrongAssocTimeChi2_->Fill(etlMatchTimeChi2[trackref]);		
+			  meETLTrackMatchedTPmtd2WrongAssocTimeChi2vsMVAQual_->Fill(etlMatchTimeChi2[trackref], mtdQualMVA[trackref]);	
+		  }	  
                   fillTrackClusterMatchingHistograms(meETLTrackMatchedTPmtd2WrongAssocEta_,
                                                      meETLTrackMatchedTPmtd2WrongAssocPt_,
                                                      meETLTrackMatchedTPmtd2WrongAssocMVAQual_,
@@ -1878,6 +1970,27 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
          10,
          -5.,
          5.);
+    meBTLTrackMatchedTPmtdDirectCorrectAssocTimeChi2_ = ibook.book1D(
+       "BTLTrackMatchedTPmtdDirectCorrectAssocTimeChi2",
+       "Time chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2 ",
+       200,
+       0.,
+       100);
+     meBTLTrackMatchedTPmtdDirectCorrectAssocTimeChi2vsMVAQual_ = ibook.book2D(
+       "BTLTrackMatchedTPmtdDirectCorrectAssocTimeChi2vsMVAQual", "Time chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2; MVAQual ",
+       200, 0., 100, 100, -1, 1);
+   
+    meBTLTrackMatchedTPmtdDirectCorrectAssocSpaceChi2_ = ibook.book1D(
+       "BTLTrackMatchedTPmtdDirectCorrectAssocSpaceChi2",
+       "Space chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2 ",
+       250,
+       0.,
+       250.);
+    meBTLTrackMatchedTPmtdDirectCorrectAssocTrackPathLenghtvsEta_ = ibook.book2D(
+      "BTLTrackMatchedTPmtdDirectCorrectAssocTrackPathLenghtvsEta", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 30, 0, 1.5, 350, 0.0, 350.0);
+    meBTLTrackMatchedTPmtdDirectCorrectAssocTrackPathLenght_ = ibook.book1D(
+      "BTLTrackMatchedTPmtdDirectCorrectAssocTrackPathLenght", "MTD Track pathlength ; ;Pathlength", 400, 0, 400);
+
 
     meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf1_ = ibook.book1D(
        "BTLTrackMatchedTPmtdDirectWrongAssocTrackNdf1",
@@ -1909,6 +2022,12 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
          1000,
          -50.,
          50.);
+     meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi1_ = ibook.book1D(
+         "BTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi1",
+         "Phi of sim matched wrong cluster - Z of true sim cluster - wrong track-MTD association; DeltaPhi (wrong - true) ",
+         500,
+         -0.1,
+         0.1);
     meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT1_ = ibook.book1D(
          "BTLTrackMatchedTPmtdDirectWrongAssocDeltaT1",
          "Time of sim matched wrong cluster - time of true sim cluster (direct) - wrong track-MTD association; DeltaT (wrong - true) [ns]",
@@ -1947,15 +2066,14 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                     50,
                     -5.,
                     5.);
-    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR1_ = ibook.bookProfile(
-       "BTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR1",
-       "; Outer R [cm]; DeltaZ [cm]",
-       100,
-       -0.,
-       120.,
-       -40.,
-       40,
-       "s");
+    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR1_ = ibook.book2D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR1", "; Outer R [cm]; DeltaZ [cm]", 120, 0., 120., 1000, -40., 40);
+    meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta1_ = ibook.book2D(
+      "BTLTrackMatchedTPmtdDirectCorrectAssocTrackPathLenghtvsEta1", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 30, 0, 1.5, 350, 0.0, 350.0);
+    meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght1_ = ibook.book1D(
+      "BTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght1", "MTD Track pathlength ; ;Pathlength", 400, 0, 400);
+
+
 
     meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf2_ = ibook.book1D(
         "BTLTrackMatchedTPmtdDirectWrongAssocTrackNdf2",
@@ -1969,6 +2087,21 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         80,
         0.,
         220);
+    meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi21_ = ibook.book1D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocTimeChi21",
+       "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; Chi2 ",
+       200,
+       0.,
+       100);
+     meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual1_ = ibook.book2D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual1", "Time chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2; MVAQual ",
+       200, 0., 100, 100, -1, 1);
+    meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi21_ = ibook.book1D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocSpaceChi21",
+       "Space chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2 ",
+       250,
+       0.,
+       250.);
     meBTLTrackMatchedTPmtdDirectWrongAssocTrackOutermostHitR2_ = ibook.book1D(
         "BTLTrackMatchedTPmtdDirectWrongAssocTrackOutermostHitR2",
         "Outermost hit position R of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; R [cm]",
@@ -1987,6 +2120,12 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
          1000,
          -50.,
          50.);
+    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi2_ = ibook.book1D(
+         "BTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi2",
+         "Phi of sim matched wrong cluster - Z of true sim cluster - wrong track-MTD association; DeltaPhi (wrong - true) ",
+         500,
+         -0.1,
+         0.1);
     meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT2_ = ibook.book1D(
          "BTLTrackMatchedTPmtdDirectWrongAssocDeltaT2",
          "Time of sim matched wrong cluster - time of true sim cluster (direct) - wrong track-MTD association; DeltaT (wrong - true) [ns]",
@@ -2025,16 +2164,31 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    50,
                    -5.,
                    5.);
-    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR2_ = ibook.bookProfile(
-      "BTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR2",
-      "; Outer R [cm]; DeltaZ [cm]",
-      100,
-      -0.,
-      120.,
-      -40.,
-      40,
-      "s");
-    
+    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR2_ = ibook.book2D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR2", "; Outer R [cm]; DeltaZ [cm]", 120, 0., 120., 1000, -40., 40);
+
+     meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi22_ = ibook.book1D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocTimeChi22",
+       "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; Chi2 ",
+       200,
+       0.,
+       100);
+     meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual2_ = ibook.book2D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual2", "Time chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2; MVAQual ",
+       200, 0., 100, 100, -1, 1);
+     meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi22_ = ibook.book1D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocSpaceChi22",
+       "Space chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2 ",
+       250,
+       0.,
+       250.);
+      meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta2_ = ibook.book2D(
+      "BTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta2", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 30, 0, 1.5,350, 0.0, 350.0);
+     meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght2_ = ibook.book1D(
+      "BTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght2", "MTD Track pathlength ; ;Pathlength", 400, 0, 400);
+
+
+
     meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf3_ = ibook.book1D(
        "BTLTrackMatchedTPmtdDirectWrongAssocTrackNdf3",
        "Chi2 of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; Ndof ",
@@ -2064,7 +2218,13 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
          "Z of sim matched wrong cluster - Z of true sim cluster (direct) - wrong track-MTD association; DeltaZ (wrong - true) [cm]",
          1000,
          -50.,
-         50.);
+	 50.);
+    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi3_ = ibook.book1D(
+         "BTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi3",
+         "Phi of sim matched wrong cluster - Z of true sim cluster - wrong track-MTD association; DeltaPhi (wrong - true) ",
+         500,
+         -0.1,
+         0.1);
     meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT3_ = ibook.book1D(
          "BTLTrackMatchedTPmtdDirectWrongAssocDeltaT3",
          "Time of sim matched wrong cluster - time of true sim cluster (direct) - wrong track-MTD association; DeltaT (wrong - true) [ns]",
@@ -2103,16 +2263,33 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    50,
                    -5.,
                    5.);
-    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR3_ = ibook.bookProfile(
-      "BTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR3",
-      "; Outer R [cm]; DeltaZ [cm]",
-      100,
-      0.,
-      120.,
-      -40.,
-      40,
-      "s");
+    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR3_ = ibook.book2D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR3", "; Outer R [cm]; DeltaZ [cm]", 120, 0., 120., 1000, -40., 40);
+    meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi23_ = ibook.book1D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocTimeChi23",
+       "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; Chi2 ",
+       200,
+       0.,
+       100);
+      meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual3_ = ibook.book2D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual3", "Time chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2; MVAQual ",
+       200, 0., 100, 100, -1, 1);
+   
 
+    meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi23_ = ibook.book1D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocSpaceChi23",
+       "Space chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2 ",
+       250,
+       0.,
+       250.);
+    meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta3_ = ibook.book2D(
+      "BTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta3", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 30, 0, 1.5,350, 0.0, 350.0);
+    meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght3_ = ibook.book1D(
+      "BTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght3", "MTD Track pathlength ; ;Pathlength", 400, 0, 400);
+
+
+
+ 
     meBTLTrackMatchedTPmtdDirectWrongAssocTrackNdf_ = ibook.book1D(
        "BTLTrackMatchedTPmtdDirectWrongAssocTrackNdf",
        "Chi2 of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; Ndof ",
@@ -2143,6 +2320,12 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
          1000,
          -50.,
          50.);
+   meBTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi_ = ibook.book1D(
+        "BTLTrackMatchedTPmtdDirectWrongAssocDeltaPhi",
+        "Phi of sim matched wrong cluster - Z of true sim cluster - wrong track-MTD association; DeltaPhi (wrong - true) ",
+        500,
+        -0.1,
+        0.1);
     meBTLTrackMatchedTPmtdDirectWrongAssocDeltaT_ = ibook.book1D(
          "BTLTrackMatchedTPmtdDirectWrongAssocDeltaT",
          "Time of sim matched wrong cluster - time of true sim cluster (direct) - wrong track-MTD association; DeltaT (wrong - true) [ns]",
@@ -2161,15 +2344,30 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         10,
         -5.,
         5.);
-    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR_ = ibook.bookProfile(
-       "BTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR",
-       "; Outer R [cm]; DeltaZ [cm]",
-       100,
-       -0.,
-       120.,
-       -40.,
-       40,
-       "s");
+    meBTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR_ = ibook.book2D(
+        "BTLTrackMatchedTPmtdDirectWrongAssocDeltaZOutR", "; Outer R [cm]; DeltaZ [cm]", 120, 0., 120., 1000, -40., 40);
+    meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2_ = ibook.book1D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocTimeChi2",
+       "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; Chi2 ",
+       200,
+       0.,
+       100);
+     meBTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual_ = ibook.book2D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocTimeChi2vsMVAQual", "Time chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2; MVAQual ",
+       200, 0., 100, 100, -1, 1);
+
+    meBTLTrackMatchedTPmtdDirectWrongAssocSpaceChi2_ = ibook.book1D(
+       "BTLTrackMatchedTPmtdDirectWrongAssocSpaceChi2",
+       "Space chi2 of tracks matched to TP with sim hit in MTD (direct), correct track-MTD association; Chi2 ",
+       250,
+       0.,
+       250.);
+    meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta_ = ibook.book2D(
+      "BTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenghtvsEta", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 30, 0, 1.5,350,  0.0, 350.0);
+    meBTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght_ = ibook.book1D(
+      "BTLTrackMatchedTPmtdDirectWrongAssocTrackPathLenght", "MTD Track pathlength ; ;Pathlength", 400, 0, 400);
+
+
 
     meBTLTrackMatchedTPmtdDirectNoAssocTrackNdf_ = ibook.book1D(
         "BTLTrackMatchedTPmtdDirectNoAssocTrackNdf",
@@ -2202,6 +2400,7 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
            -5.,
            5.);
 
+
     meBTLTrackMatchedTPnomtdAssocTrackChi2_ = ibook.book1D(
        "BTLTrackMatchedTPnomtdAssocTrackChi2", "Chi2 of tracks matched to TP w/o sim hit in MTD; Chi2", 80, 0., 220);
     meBTLTrackMatchedTPnomtdAssocTrackOutermostHitR_ = ibook.book1D(
@@ -2228,6 +2427,51 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
  	  5,
          -1., 
  	  4.);
+
+    meETLTrackMatchedTPmtd1CorrectAssocTimeChi2_ = ibook.book1D(
+       "ETLTrackMatchedTPmtd1CorrectAssocTimeChi2",
+       "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - correct track-MTD association; Chi2 ",
+       200,
+       0.,
+       100);
+     meETLTrackMatchedTPmtd1CorrectAssocTimeChi2vsMVAQual_ = ibook.book2D(
+       "ETLTrackMatchedTPmtd1CorrectAssocTimeChi2vsMVAQual", "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - correct track-MTD association; Chi2; MVAQual ",
+       200, 0., 100, 100, -1, 1);
+
+    meETLTrackMatchedTPmtd1WrongAssocTimeChi2_ = ibook.book1D(
+       "ETLTrackMatchedTPmtd1WrongAssocTimeChi2",
+       "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; Chi2 ",
+       200,
+       0.,
+       100);
+     meETLTrackMatchedTPmtd1WrongAssocTimeChi2vsMVAQual_ = ibook.book2D(
+       "ETLTrackMatchedTPmtd1WrongAssocTimeChi2vsMVAQual", "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; Chi2; MVAQual ",
+       200, 0., 100, 100, -1, 1);
+
+
+
+    meETLTrackMatchedTPmtd2CorrectAssocTimeChi2_ = ibook.book1D(
+       "ETLTrackMatchedTPmtd2CorrectAssocTimeChi2",
+       "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - correct track-MTD association; Chi2 ",
+       200,
+       0.,
+       100);
+     meETLTrackMatchedTPmtd2CorrectAssocTimeChi2vsMVAQual_ = ibook.book2D(
+       "ETLTrackMatchedTPmtd2CorrectAssocTimeChi2vsMVAQual", "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - correct track-MTD association; Chi2; MVAQual ",
+       200, 0., 100, 100, -1, 1);
+
+
+    meETLTrackMatchedTPmtd2WrongAssocTimeChi2_ = ibook.book1D(
+       "ETLTrackMatchedTPmtd2WrongAssocTimeChi2",
+       "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; Chi2 ",
+       200,
+       0.,
+       100);
+     meETLTrackMatchedTPmtd2WrongAssocTimeChi2vsMVAQual_ = ibook.book2D(
+       "ETLTrackMatchedTPmtd2WrongAssocTimeChi2vsMVAQual", "Time chi2 of tracks matched to TP with sim hit in MTD (direct) - wrong track-MTD association; Chi2; MVAQual ",
+       200, 0., 100, 100, -1, 1);
+
+
   }  // end optional plots
 
   meTrackResTot_ = ibook.book1D(
@@ -2724,8 +2968,6 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("inputTagH", edm::InputTag("generatorSmeared"));
   desc.add<edm::InputTag>("SimTag", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("TPtoRecoTrackAssoc", edm::InputTag("trackingParticleRecoTrackAsssociation"));
-  //desc.add<edm::InputTag>("tp2SimAssociationMapTag", edm::InputTag("mtdSimLayerClusterToTPAssociation","","mtdValidation"));
-  //desc.add<edm::InputTag>("r2sAssociationMapTag", edm::InputTag("mtdRecoClusterToSimLayerClusterAssociation","","mtdValidation"));
   desc.add<edm::InputTag>("tp2SimAssociationMapTag", edm::InputTag("mtdSimLayerClusterToTPAssociation"));
   desc.add<edm::InputTag>("Sim2tpAssociationMapTag", edm::InputTag("mtdSimLayerClusterToTPAssociation"));
   desc.add<edm::InputTag>("r2sAssociationMapTag", edm::InputTag("mtdRecoClusterToSimLayerClusterAssociation"));
@@ -2740,6 +2982,9 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("trackAssocSrc", edm::InputTag("trackExtenderWithMTD:generalTrackassoc"))
       ->setComment("Association between General and MTD Extended tracks");
   desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD:generalTrackPathLength"));
+  desc.add<edm::InputTag>("btlMatchTimeChi2", edm::InputTag("trackExtenderWithMTD:btlMatchTimeChi2"));
+  desc.add<edm::InputTag>("etlMatchTimeChi2", edm::InputTag("trackExtenderWithMTD:etlMatchTimeChi2"));
+  desc.add<edm::InputTag>("btlMatchChi2", edm::InputTag("trackExtenderWithMTD:btlMatchChi2"));
   desc.add<edm::InputTag>("t0SafePID", edm::InputTag("tofPID:t0safe"));
   desc.add<edm::InputTag>("sigmat0SafePID", edm::InputTag("tofPID:sigmat0safe"));
   desc.add<edm::InputTag>("sigmat0PID", edm::InputTag("tofPID:sigmat0"));
