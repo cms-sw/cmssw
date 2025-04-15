@@ -639,7 +639,7 @@
   <class name="std::vector< std::vector<edm::Ptr<pat::Jet> > >" />
   <class name="edm::Wrapper< std::vector<edm::Ptr<pat::Jet> > >" />
   <class name="edm::Wrapper< std::vector< std::vector<edm::Ptr<pat::Jet> > > >" />
- 
+
   <!--  Association for Jet, and AssociationMap Jet-PackedCandidate -->
   <class name="edm::Association<std::vector<pat::Jet> >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<pat::Jet> > >"/>
