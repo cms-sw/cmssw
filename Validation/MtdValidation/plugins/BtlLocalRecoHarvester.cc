@@ -39,7 +39,7 @@ private:
   // --- Histograms
   MonitorElement* meHitOccupancyLog_;
   MonitorElement* meHitOccupancy_;
-  static constexpr int nRU_ = 6;
+  static constexpr int nRU_ = BTLDetId::kRUPerRod;
   MonitorElement* meHitOccupancyRUSlice_[nRU_];
 };
 

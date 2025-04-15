@@ -40,7 +40,7 @@ private:
   MonitorElement* meHitOccupancy_;
   MonitorElement* meHitOccupancyCell_;
   MonitorElement* meHitOccupancySM_;
-  static constexpr int nRU_ = 6;
+  static constexpr int nRU_ = BTLDetId::kRUPerRod;
   MonitorElement* meHitOccupancyRUSlice_[nRU_];
   MonitorElement* meHitOccupancyCellRUSlice_[nRU_];
   MonitorElement* meHitOccupancySMRUSlice_[nRU_];
@@ -118,7 +118,7 @@ void BtlSimHitsHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter&
                                                     meBtlHitMultCellRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmin(),
                                                     meBtlHitMultCellRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmax());
     std::string name_SM = "BtlHitOccupancySMRUSlice" + std::to_string(ihistoRU);
-    std::string title_SM = "BTL SM occupancy vs energy threshold(RU " + std::to_string(ihistoRU) + ");log_{10}(E_{th} [MeV]); Occupancy per event";
+    std::string title_SM = "BTL SM occupancy vs energy threshold (RU " + std::to_string(ihistoRU) + ");log_{10}(E_{th} [MeV]); Occupancy per event";
     meHitOccupancySMRUSlice_[ihistoRU] = ibook.book1D(name_SM,
                                                       title_SM,
                                                       meBtlHitMultSMRUSlice[ihistoRU]->getNbinsX(),

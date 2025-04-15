@@ -74,10 +74,10 @@ private:
 
   MonitorElement* meHitEnergy_;
 
-  static constexpr int nRU_ = 6;
+  static constexpr int nRU_ = BTLDetId::kRUPerRod;
   static constexpr double logE_min = -2;
   static constexpr double logE_max = 2;
-  static constexpr double n_bin_logE = 100;
+  static constexpr double n_bin_logE = 50;
 
   MonitorElement* meHitLogEnergy_;
   MonitorElement* meHitLogEnergyRUSlice_[nRU_];
@@ -228,7 +228,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     uint64_t globalSMId = ((uint64_t)SMIndex.first << 32) | SMIndex.second;
     modules[globalSMId].push_back(cell);
 
-    meHitLogEnergyRUSlice_[detId.globalRunit()-1]->Fill(log10(ene_tot_cell));
+    meHitLogEnergyRUSlice_[detId.runit()-1]->Fill(log10(ene_tot_cell));
 
     // --- Skip cells with a total anergy less than hitMinEnergy_
     if (ene_tot_cell < hitMinEnergy_) {
@@ -388,7 +388,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
           ene_tot_cell += hit.second.energy;
         }
         BTLDetId detId(cell.first);
-        SM_globalRunit = detId.globalRunit()-1;
+        SM_globalRunit = detId.runit()-1;
         if (log10(ene_tot_cell) > th_logE) {
           SM_bool = true;
           crystal_count++;

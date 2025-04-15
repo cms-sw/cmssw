@@ -88,7 +88,7 @@ private:
 
   MonitorElement* meNhits_;
 
-  static constexpr int nRU_ = 6;
+  static constexpr int nRU_ = BTLDetId::kRUPerRod;
 
   MonitorElement* meHitEnergy_;
   MonitorElement* meHitEnergyRUSlice_[nRU_];
@@ -399,7 +399,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     const auto& global_point = thedet->toGlobal(local_point);
 
     meHitEnergy_->Fill(recHit.energy());
-    meHitEnergyRUSlice_[detId.globalRunit()-1]->Fill(recHit.energy());
+    meHitEnergyRUSlice_[detId.runit()-1]->Fill(recHit.energy());
     meHitLogEnergy_->Fill(log10(recHit.energy()));
     meHitTime_->Fill(recHit.time());
     meHitTimeError_->Fill(recHit.timeError());
