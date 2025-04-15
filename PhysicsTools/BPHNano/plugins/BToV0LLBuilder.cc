@@ -66,8 +66,6 @@ class BToV0LLBuilder : public edm::global::EDProducer<> {
   void produce(edm::StreamID, edm::Event &,
                const edm::EventSetup &) const override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {}
-
  private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
 
@@ -133,7 +131,7 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt,
       cand.addUserInt("ll_idx", ll_idx);
       cand.addUserInt("v0_idx", v0_idx);
 
-      auto dr_info = min_max_dr({l1_ptr, l2_ptr, v0_ptr});
+      auto dr_info = bph::min_max_dr({l1_ptr, l2_ptr, v0_ptr});
       cand.addUserFloat("min_dr", dr_info.first);
       cand.addUserFloat("max_dr", dr_info.second);
 
@@ -143,7 +141,7 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt,
       KinVtxFitter fitter({leptons_ttracks->at(l1_idx),
                            leptons_ttracks->at(l2_idx), v0_ttracks->at(v0_idx)},
                           {l1_ptr->mass(), l2_ptr->mass(), v0_ptr->mass()},
-                          {LEP_SIGMA, LEP_SIGMA, v0_ptr->userFloat("massErr")});
+                          {bph::LEP_SIGMA, bph::LEP_SIGMA, v0_ptr->userFloat("massErr")});
 
       if (!fitter.success()) continue;
 
@@ -168,17 +166,17 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt,
           sqrt(fitter.fitted_candidate().kinematicParametersError().matrix()(
               6, 6)));
       cand.addUserFloat("cos_theta_2D",
-                        cos_theta_2D(fitter, *beamspot, cand.p4()));
+                        bph::cos_theta_2D(fitter, *beamspot, cand.p4()));
       cand.addUserFloat("fitted_cos_theta_2D",
-                        cos_theta_2D(fitter, *beamspot, fit_p4));
+                        bph::cos_theta_2D(fitter, *beamspot, fit_p4));
 
-      auto lxy = l_xy(fitter, *beamspot);
+      auto lxy = bph::l_xy(fitter, *beamspot);
       cand.addUserFloat("l_xy", lxy.value());
       cand.addUserFloat("l_xy_unc", lxy.error());
 
       TrajectoryStateOnSurface tsos = extrapolator.extrapolate(
           v0_ttracks->at(v0_idx).impactPointState(), fitter.fitted_vtx());
-      std::pair<bool, Measurement1D> cur2DIP = signedTransverseImpactParameter(
+      std::pair<bool, Measurement1D> cur2DIP = bph::signedTransverseImpactParameter(
           tsos, fitter.fitted_refvtx(), *beamspot);
       cand.addUserFloat("v0_svip2d", cur2DIP.second.value());
       cand.addUserFloat("v0_svip2d_err", cur2DIP.second.error());
@@ -209,7 +207,7 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt,
       }
 
       // compute isolation
-      std::vector<float> isos = TrackerIsolation(pu_tracks, cand, dnames);
+      std::vector<float> isos = bph::TrackerIsolation(pu_tracks, cand, dnames);
       for (size_t idaughter = 0; idaughter < dnames.size(); idaughter++) {
         cand.addUserFloat(dnames[idaughter] + "_iso04", isos[idaughter]);
       }
@@ -241,7 +239,7 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt,
             {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
              v0_ttracks->at(v0_idx)},
             {l1_ptr->mass(), l2_ptr->mass(), v0_ptr->mass()},
-            {LEP_SIGMA, LEP_SIGMA, v0_ptr->userFloat("massErr")},
+            {bph::LEP_SIGMA, bph::LEP_SIGMA, v0_ptr->userFloat("massErr")},
             mass_constraint);
         if (constraint_fitter.success()) {
           auto constraint_p4 = constraint_fitter.fitted_p4();

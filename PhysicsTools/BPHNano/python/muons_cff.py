@@ -66,7 +66,7 @@ muonBPHTable = simplePATMuonFlatTableProducer.clone(
         isTriggering    = Var("userInt('isTriggering')", int, doc="flag the reco muon is also triggering"),
         matched_dr      = Var("userFloat('trgDR')", float, doc="dr with the matched triggering muon"),
         matched_dpt     = Var("userFloat('trgDPT')", float, doc="dpt/pt with the matched triggering muon"),        #comma
-#        fired_HLT_DoubleMu4_3_LowMass = Var("userInt('HLT_DoubleMu4_3_LowMass')", int, doc="reco muon fired this trigger"),
+        fired_HLT_DoubleMu4_3_LowMass = Var("userInt('HLT_DoubleMu4_3_LowMass')", int, doc="reco muon fired this trigger"),
  #       fired_HLT_DoubleMu4_LowMass_Displaced = Var("userInt('HLT_DoubleMu4_LowMass_Displaced')", int, doc="reco muon fired this trigger")
     ),
 )

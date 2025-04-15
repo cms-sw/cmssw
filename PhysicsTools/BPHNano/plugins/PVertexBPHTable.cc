@@ -45,8 +45,6 @@ class PVertexBPHTable : public edm::stream::EDProducer<> {
   explicit PVertexBPHTable(const edm::ParameterSet&);
   ~PVertexBPHTable() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
  private:
   void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -104,7 +102,6 @@ void PVertexBPHTable::produce(edm::Event& iEvent,
       i++;
       continue;
     }
-    int sum_charge = 0;
     pvscore.push_back(pvsScoreProd.get(pvsCol.id(), i));
     ntracks.push_back(pv.tracksSize());
     chi2.push_back(pv.chi2());
@@ -154,23 +151,6 @@ void PVertexBPHTable::beginStream(edm::StreamID) {}
 // ------------ method called once each stream after processing all runs, lumis
 // and events  ------------
 void PVertexBPHTable::endStream() {}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the
-// module  ------------
-void PVertexBPHTable::fillDescriptions(
-    edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-
-  desc.add<edm::InputTag>("pvSrc")->setComment(
-      "std::vector<reco::Vertex> and ValueMap<float> primary vertex input "
-      "collections");
-  desc.add<std::string>("goodPvCut")
-      ->setComment("selection on the primary vertex");
-
-  desc.add<std::string>("pvName")->setComment("name of the flat table ouput");
-
-  descriptions.addWithDefaultLabel(desc);
-}
 
 // define this as a plug-in
 DEFINE_FWK_MODULE(PVertexBPHTable);

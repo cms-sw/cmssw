@@ -1,4 +1,4 @@
-/////////////////////////// TrackMerger ////////////////////////////////
+/////////////////////////// BPHTrackMerger ////////////////////////////////
 /// original authors: G Karathanasis (CERN),  G Melachroinos (NKUA)
 // Takes Lost tracks and packed candidates filters them removes overlap and
 // appl// -ies dz cut wrt to a dilepton vertex. Also applies selection cuts
@@ -24,10 +24,10 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "helper.h"
 
-class TrackMerger : public edm::global::EDProducer<> {
+class BPHTrackMerger : public edm::global::EDProducer<> {
  public:
   // would it be useful to give this a bit more standard structure?
-  explicit TrackMerger(const edm::ParameterSet &cfg)
+  explicit BPHTrackMerger(const edm::ParameterSet &cfg)
       : bFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
         beamSpotSrc_(consumes<reco::BeamSpot>(
             cfg.getParameter<edm::InputTag>("beamSpot"))),
@@ -50,12 +50,10 @@ class TrackMerger : public edm::global::EDProducer<> {
         "SelectedTracks");
   }
 
-  ~TrackMerger() override {}
+  ~BPHTrackMerger() override {}
 
   void produce(edm::StreamID, edm::Event &,
                const edm::EventSetup &) const override;
-
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {}
 
  private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
@@ -72,7 +70,7 @@ class TrackMerger : public edm::global::EDProducer<> {
   const StringCutObjectSelector<pat::PackedCandidate> track_selection_;
 };
 
-void TrackMerger::produce(edm::StreamID, edm::Event &evt,
+void BPHTrackMerger::produce(edm::StreamID, edm::Event &evt,
                           edm::EventSetup const &stp) const {
   // input
   edm::Handle<reco::BeamSpot> beamSpotHandle;
@@ -143,7 +141,7 @@ void TrackMerger::produce(edm::StreamID, edm::Event &evt,
     const reco::TransientTrack trackTT((*trk.bestTrack()), &bField);
 
     // distance closest approach in x,y wrt beam spot
-    std::pair<double, double> DCA = computeDCA(trackTT, beamSpot);
+    std::pair<double, double> DCA = bph::computeDCA(trackTT, beamSpot);
     float DCABS = DCA.first;
     float DCABSErr = DCA.second;
     float DCASig = (DCABSErr != 0 && float(DCABSErr) == DCABSErr)
@@ -289,4 +287,4 @@ void TrackMerger::produce(edm::StreamID, edm::Event &evt,
 }
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(TrackMerger);
+DEFINE_FWK_MODULE(BPHTrackMerger);

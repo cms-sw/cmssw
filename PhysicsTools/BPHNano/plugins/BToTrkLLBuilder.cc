@@ -61,8 +61,6 @@ class BToTrkLLBuilder : public edm::global::EDProducer<> {
   void produce(edm::StreamID, edm::Event &,
                const edm::EventSetup &) const override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {}
-
  private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
 
@@ -112,7 +110,7 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
     edm::Ptr<pat::CompositeCandidate> k_ptr(kaons, k_idx);
 
     math::PtEtaPhiMLorentzVector k_p4(k_ptr->pt(), k_ptr->eta(), k_ptr->phi(),
-                                      K_MASS);
+                                      bph::K_MASS);
 
     for (size_t ll_idx = 0; ll_idx < dileptons->size(); ++ll_idx) {
       edm::Ptr<pat::CompositeCandidate> ll_prt(dileptons, ll_idx);
@@ -135,7 +133,7 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
       cand.addUserInt("l2_idx", l2_idx);
       cand.addUserInt("trk_idx", k_idx);
 
-      auto dr_info = min_max_dr({l1_ptr, l2_ptr, k_ptr});
+      auto dr_info = bph::min_max_dr({l1_ptr, l2_ptr, k_ptr});
       cand.addUserFloat("min_dr", dr_info.first);
       cand.addUserFloat("max_dr", dr_info.second);
 
@@ -144,8 +142,8 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
       KinVtxFitter fitter(
           {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
            kaons_ttracks->at(k_idx)},
-          {l1_ptr->mass(), l2_ptr->mass(), K_MASS},
-          {LEP_SIGMA, LEP_SIGMA, K_SIGMA}
+          {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS},
+          {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA}
           // some small sigma for the lepton mass
       );
 
@@ -170,17 +168,17 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
               6, 6)));
 
       cand.addUserFloat("cos_theta_2D",
-                        cos_theta_2D(fitter, *beamspot, cand.p4()));
+                        bph::cos_theta_2D(fitter, *beamspot, cand.p4()));
       cand.addUserFloat("fitted_cos_theta_2D",
-                        cos_theta_2D(fitter, *beamspot, fit_p4));
+                        bph::cos_theta_2D(fitter, *beamspot, fit_p4));
 
-      auto lxy = l_xy(fitter, *beamspot);
+      auto lxy = bph::l_xy(fitter, *beamspot);
       cand.addUserFloat("l_xy", lxy.value());
       cand.addUserFloat("l_xy_unc", lxy.error());
       // track impact parameter from SV
       TrajectoryStateOnSurface tsos = extrapolator.extrapolate(
           kaons_ttracks->at(k_idx).impactPointState(), fitter.fitted_vtx());
-      std::pair<bool, Measurement1D> cur2DIP = signedTransverseImpactParameter(
+      std::pair<bool, Measurement1D> cur2DIP = bph::signedTransverseImpactParameter(
           tsos, fitter.fitted_refvtx(), *beamspot);
       cand.addUserFloat("k_svip2d", cur2DIP.second.value());
       cand.addUserFloat("k_svip2d_err", cur2DIP.second.error());
@@ -214,7 +212,7 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
       }
 
       // compute isolation
-      std::vector<float> isos = TrackerIsolation(pu_tracks, cand, dnames);
+      std::vector<float> isos = bph::TrackerIsolation(pu_tracks, cand, dnames);
       for (size_t idaughter = 0; idaughter < dnames.size(); idaughter++) {
         cand.addUserFloat(dnames[idaughter] + "_iso04", isos[idaughter]);
       }
@@ -245,8 +243,8 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
         KinVtxFitter constraint_fitter(
             {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
              kaons_ttracks->at(k_idx)},
-            {l1_ptr->mass(), l2_ptr->mass(), K_MASS},
-            {LEP_SIGMA, LEP_SIGMA, K_SIGMA}, mass_constraint);
+            {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS},
+            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA}, mass_constraint);
         if (constraint_fitter.success()) {
           auto constraint_p4 = constraint_fitter.fitted_p4();
           cand.addUserFloat("constraint_sv_prob", constraint_fitter.prob());

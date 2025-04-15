@@ -35,8 +35,6 @@ class MatchEmbedder : public edm::global::EDProducer<> {
   void produce(edm::StreamID, edm::Event &,
                const edm::EventSetup &) const override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {}
-
  private:
   typedef std::vector<PATOBJ> PATOBJCollection;
   const edm::EDGetTokenT<PATOBJCollection> src_;

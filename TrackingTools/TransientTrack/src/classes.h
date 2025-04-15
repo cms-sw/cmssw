@@ -1,11 +1,9 @@
-#ifndef BPHNANO_CLASSES_H
-#define BPHNANO_CLASSES_H
+#ifndef TrackingTools_TransientTrack_src_classes_h
+#define TrackingTools_TransientTrack_src_classes_h
 
 #include <vector>
 
-#include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #endif

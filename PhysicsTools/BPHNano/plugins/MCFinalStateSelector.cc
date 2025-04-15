@@ -43,7 +43,6 @@ class MCFinalStateSelector : public edm::global::EDProducer<> {
       throw cms::Exception("Configuration",
                            "Unsupported objType '" + type + "'\n");
 
-    std::cout << "type = " << type << std::endl;
     switch (type_) {
       case MMuon:
         flavDoc_ =
@@ -200,32 +199,6 @@ class MCFinalStateSelector : public edm::global::EDProducer<> {
       return id;
     }
     return 0;
-  }
-
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    edm::ParameterSetDescription desc;
-    desc.add<std::string>("objName")->setComment(
-        "name of the nanoaod::FlatTable to extend with this table");
-    desc.add<std::string>("branchName")
-        ->setComment(
-            "name of the column to write (the final branch in the nanoaod will "
-            "be <objName>_<branchName>Idx and <objName>_<branchName>Flav");
-    desc.add<std::string>("docString")
-        ->setComment("documentation to forward to the output");
-    desc.add<edm::InputTag>("src")->setComment(
-        "physics object collection for the reconstructed objects (e.g. "
-        "leptons)");
-    desc.add<edm::InputTag>("mcMap")->setComment(
-        "tag to an edm::Association<GenParticleCollection> mapping src to gen, "
-        "such as the one produced by MCMatcher");
-    desc.add<std::string>("objType")->setComment(
-        "type of object to match (Muon, Electron, Tau, Photon, Track, Other), "
-        "taylors what's in t Flav branch");
-    desc.addOptional<edm::InputTag>("mcMapVisTau")
-        ->setComment(
-            "as mcMap, but pointing to the visible gen taus (only if objType "
-            "== Tau)");
-    descriptions.add("mcFinalStatesTable", desc);
   }
 
  protected:
