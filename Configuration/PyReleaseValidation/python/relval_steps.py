@@ -655,14 +655,22 @@ steps['RunHLTMonitor2024I']={'INPUT':InputInfo(dataSet='/HLTMonitor/Run2024I-Exp
 # the files used as input
 
 ###2024 
-
-pds_2024  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias']
+## N.B. here we use JetMet0 as "starndard" PD and JetMET1 for the TeVJet skims 
+pds_2024  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias','JetMET1']
 eras_2024 = ['Run2024B', 'Run2024C', 'Run2024D', 'Run2024E', 'Run2024F','Run2024G','Run2024H','Run2024I']
 for era in eras_2024:
     for pd in pds_2024:
-        dataset = "/" + pd + "/" + era + "-v1/RAW"
+        dataset = "/" + pd + "/" + era
+        skim = ''
+        
+        if pd == 'JetMET1':
+            dataset = dataset + '-TeVJet-PromptReco-v1/RAW-RECO'
+            skim = 'TeVJet'
+        else:
+            dataset = dataset + '-v1/RAW' 
+        
         for e_key,evs in event_steps_dict.items():
-            step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_" + e_key
+            step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + skim + "_" + e_key 
             steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
 
 ###2023 
@@ -710,10 +718,16 @@ era_mask_2024  = dict(zip(eras_2024,lumi_mask_2024))
 
 for era in era_mask_2024:
     for pd in pds_2024:
-        dataset = "/" + pd + "/" + era + "-v1/RAW"
+        dataset = '/' + pd + '/' + era
         lm = era_mask_2024[era]
-        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1]
-        steps[step_name]={'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=100000,location='STD', ls=lm)}
+
+        ## Here we use JetMET1 PD to run the TeVJet skims
+        dataset = dataset + '-TeVJet-PromptReco-v1/RAW-RECO' if pd == 'JetMET1' else dataset + '-v1/RAW' 
+        skim = 'TeVJet' if pd == 'JetMET1' else ''
+
+        step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1] + skim
+
+        steps[step_name]={'INPUT':InputInfo(dataSet=dataset,label=era.split('Run')[1],events=100000,location='STD', ls=lm)}
 
 
 ##################################################################
