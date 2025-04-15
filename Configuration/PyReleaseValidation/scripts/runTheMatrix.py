@@ -73,8 +73,9 @@ if __name__ == '__main__':
             1306.0,     # RelValSingleMuPt1_UP15
             1330,       # RelValZMM_13
             135.4,      # ZEE_13TeV_TuneCUETP8M1
-            25202.0,    # RelValTTbar_13                PU = AVE_35_BX_25ns
-            250202.181, # RelValTTbar_13                PREMIX
+            25202.0,    # RelValTTbar_13                2016 PU = AVE_35_BX_25ns
+            250202.181, # RelValTTbar_13                2016 PREMIX
+            10224.0,    # RelValTTbar_13                2017 PU = AVE_35_BX_25ns
 
             ###### pp Data
             ## Run1
