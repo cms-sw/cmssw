@@ -607,7 +607,20 @@ for e_n,era in enumerate(era_mask_2024):
 
 ## special HLT scouting workflow (with hardcoded private input file from ScoutingPFMonitor skimmed to remove all events without scouting)
 workflows[145.415] = ['',['HLTDR3_ScoutingPFMonitor_2024','RECONANORUN3_ScoutingPFMonitor_reHLT_2024','HARVESTRUN3_ScoutingPFMonitor_2024']]
+
 ##################################################################
+### run3 (2024) skims - Era F ###
+workflows[146.101] = ['',['RunZeroBias2024F','HLTDR3_2024','SKIMZEROBIASRUN3_reHLT_2024','HARVESTRUN3_ZB_2024']]
+workflows[146.102] = ['',['RunBTagMu2024F','HLTDR3_2024','SKIMBTAGMURUN3_reHLT_2024','HARVESTRUN3_2024']]
+workflows[146.103] = ['',['RunJetMET02024F','HLTDR3_2024','SKIMJETMET0RUN3_reHLT_2024','HARVESTRUN3_2024']]
+workflows[146.104] = ['',['RunDisplacedJet2024F','HLTDR3_2024','SKIMDISPLACEDJETRUN3_reHLT_2024','HARVESTRUN3_2024']]
+workflows[146.105] = ['',['RunEGamma02024F','HLTDR3_2024','SKIMEGAMMA0RUN3_reHLT_2024','HARVESTRUN3_2024']]
+workflows[146.106] = ['',['RunTau2024F','HLTDR3_2024','SKIMTAURUN3_reHLT_2024','HARVESTRUN3_2024']]
+workflows[146.107] = ['',['RunMuon02024F','HLTDR3_2024','SKIMMUON0RUN3_reHLT_2024','HARVESTRUN3_2024']]
+workflows[146.108] = ['',['RunMuonEG2024F','HLTDR3_2024','SKIMMUONEGRUN3_reHLT_2024','HARVESTRUN3_2024']]
+workflows[146.109] = ['',['RunNoBPTX2024F','HLTDR3_2024','SKIMNOBPTXRUN3_reHLT_2024','HARVESTRUN3_2024']]
+workflows[146.110] = ['',['RunHcalNZS2024F','HLTDR3_2024','SKIMHCALNZSRUN3_reHLT_2024','HARVESTRUN3_2024']]
+workflows[146.111] = ['',['RunPark2MuonLowMass02024F','HLTDR3_2024','SKIMPARKINGDOUBLEMUONLOWMASS0RUN3_reHLT_2024','HARVESTRUN3_2024']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbarFS', ['TTbarFS','HARVESTFS']]
