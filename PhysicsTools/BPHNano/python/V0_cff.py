@@ -116,7 +116,7 @@ LambdaProtonPiBPHMCMatch = cms.EDProducer("MCMatcher",        # cut on deltaR, d
 )
 
 
-KshortPiPiBPHMCTable = cms.EDProducer("CandMCMatchTableProducerBPH",
+KshortPiPiBPHMCTable = cms.EDProducer("CandMCMatchTableProducer",
     recoObjects = KshortToPiPiTable.src,
     genParts = cms.InputTag("finalGenParticlesBPH"),
     mcMap = cms.InputTag("KshortPiPiBPHMCMatch"),
@@ -128,7 +128,7 @@ KshortPiPiBPHMCTable = cms.EDProducer("CandMCMatchTableProducerBPH",
 )
 
 
-LambdaProtonPiBPHMCTable = cms.EDProducer("CandMCMatchTableProducerBPH",
+LambdaProtonPiBPHMCTable = cms.EDProducer("CandMCMatchTableProducer",
     recoObjects = LambdaToProtonPiTable.src,
     genParts = cms.InputTag("finalGenParticlesBPH"),
     mcMap = cms.InputTag("LambdaProtonPiBPHMCMatch"),

@@ -69,7 +69,7 @@ tracksBPHMCMatch = cms.EDProducer("MCMatcher",              # cut on deltaR, del
 )
 
 
-tracksBPHMCTable = cms.EDProducer("CandMCMatchTableProducerBPH",
+tracksBPHMCTable = cms.EDProducer("CandMCMatchTableProducer",
     recoObjects   = tracksBPHMCMatch.src,
     genParts      = cms.InputTag("finalGenParticlesBPH"),
     mcMap         = cms.InputTag("tracksBPHMCMatch"),

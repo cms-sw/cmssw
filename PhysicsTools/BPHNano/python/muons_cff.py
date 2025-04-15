@@ -83,7 +83,7 @@ muonBPHMCMatch = cms.EDProducer("MCMatcher",                  # cut on deltaR, d
     resolveByMatchQuality = cms.bool(True),                   # False = just match input in order; True = pick lowest deltaR pair first
 )
 
-muonBPHMCTable = cms.EDProducer("CandMCMatchTableProducerBPH",
+muonBPHMCTable = cms.EDProducer("CandMCMatchTableProducer",
     recoObjects = muonBPHTable.src,
     genParts    = cms.InputTag("finalGenParticlesBPH"),
     mcMap       = cms.InputTag("muonBPHMCMatch"),
