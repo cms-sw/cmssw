@@ -6,32 +6,32 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
 
     # EG
     egHcalThreshold            = 0.,
-    egTrimmingLUTFile          = "L1Trigger/L1TCalorimeter/data/egTrimmingLUT_10_v16.01.19.txt",
+    egTrimmingLUTFile          = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egTrimmingLUT_10_v16.01.19.txt"),
     egHOverEcutBarrel          = 3,
     egHOverEcutEndcap          = 4,
     egBypassExtHOverE          = 0,
-    egMaxHOverELUTFile         = "L1Trigger/L1TCalorimeter/data/HoverEIdentification_0.995_v15.12.23.txt",
-    egCompressShapesLUTFile    = "L1Trigger/L1TCalorimeter/data/egCompressLUT_v4.txt",
+    egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/HoverEIdentification_0.995_v15.12.23.txt"),
+    egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressLUT_v4.txt"),
     egShapeIdType              = "compressed",
-    egShapeIdLUTFile           = "L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt", #Not used any more in the current emulator version, merged with calibration LUT
+    egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt"), #Not used any more in the current emulator version, merged with calibration LUT
 
     egIsolationType            = "compressed",
-    egIsoLUTFile               = "L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_Tight_1290_20p0_0p7_40p0_v2_MAR2025.txt",
-    egIsoLUTFile2              = "L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_Loose_582_10p0_0p7_40p0_v2_MAR2025.txt",
+    egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_Tight_1290_20p0_0p7_40p0_v2_MAR2025.txt"),
+    egIsoLUTFile2              = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_Loose_582_10p0_0p7_40p0_v2_MAR2025.txt"),
 
     egIsoVetoNrTowersPhi       = 2,
     egPUSParams                = cms.vdouble(1,4,32), #Isolation window in firmware goes up to abs(ieta)=32 for now
     egCalibrationType          = "compressed",
     egCalibrationVersion       = 0,
-    egCalibrationLUTFile       = "L1Trigger/L1TCalorimeter/data/EG_Calibration_LUT_v1_MAR2025.txt",
+    egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Calibration_LUT_v1_MAR2025.txt"),
 
     # Tau
     isoTauEtaMax               = 25,
     tauSeedThreshold           = 0.,
-    tauIsoLUTFile              = "L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_2025_HCALcFeb_ConservativeZS_MC25W_progression_effMin0p9_eMin22_eMax37.txt",
-    tauIsoLUTFile2             = "L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_2025_HCALcFeb_ConservativeZS_MC25W_progression_effMin0p9_eMin22_eMax37.txt",
-    tauCalibrationLUTFile      = "L1Trigger/L1TCalorimeter/data/Tau_Cal_LUT_2025_HCALcFeb_ConservativeZS_MC25W_v2.txt",
-    tauCompressLUTFile         = "L1Trigger/L1TCalorimeter/data/tauCompressAllLUT_12bit_v3.txt",
+    tauIsoLUTFile              = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_2025_HCALcFeb_ConservativeZS_MC25W_progression_effMin0p9_eMin22_eMax37.txt"),
+    tauIsoLUTFile2             = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_2025_HCALcFeb_ConservativeZS_MC25W_progression_effMin0p9_eMin22_eMax37.txt"),
+    tauCalibrationLUTFile      = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Cal_LUT_2025_HCALcFeb_ConservativeZS_MC25W_v2.txt"),
+    tauCompressLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCompressAllLUT_12bit_v3.txt"),
     tauPUSParams               = [1,4,32],
 
     # jets
@@ -41,9 +41,9 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
 
     # Calibration options
     jetCalibrationType         = "LUT",
-    jetCompressPtLUTFile       = "L1Trigger/L1TCalorimeter/data/lut_pt_compress_2025v0.txt",
-    jetCompressEtaLUTFile      = "L1Trigger/L1TCalorimeter/data/lut_eta_compress_2025v0.txt",
-    jetCalibrationLUTFile      = "L1Trigger/L1TCalorimeter/data/lut_calib_2025v0_HCALcMarchForiEtaleq28_ConservativeZS_L1NanoPUS_v2.txt",
+    jetCompressPtLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress_2025v0.txt"),
+    jetCompressEtaLUTFile      = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress_2025v0.txt"),
+    jetCalibrationLUTFile      = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_calib_2025v0_HCALcMarchForiEtaleq28_ConservativeZS_L1NanoPUS_v2.txt"),
 
 
     # sums: 0=ET, 1=HT, 2=MET, 3=MHT
@@ -54,7 +54,7 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
     etSumBypassEttPUS       = 1,
     etSumBypassEcalSumPUS   = 1,
 
-    etSumMetPUSLUTFile      = "L1Trigger/L1TCalorimeter/data/metPumLUT_2023v0_puppiMet_fit.txt",
+    etSumMetPUSLUTFile      = cms.FileInPath("L1Trigger/L1TCalorimeter/data/metPumLUT_2023v0_puppiMet_fit.txt"),
 
 
     # Layer 1 SF
