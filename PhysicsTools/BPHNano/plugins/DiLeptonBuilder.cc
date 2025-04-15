@@ -44,8 +44,6 @@ class DiLeptonBuilder : public edm::global::EDProducer<> {
   void produce(edm::StreamID, edm::Event &,
                const edm::EventSetup &) const override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {}
-
  private:
   const StringCutObjectSelector<Lepton> l1_selection_;  // cut on leading lepton
   const StringCutObjectSelector<Lepton>
@@ -98,7 +96,7 @@ void DiLeptonBuilder<Lepton>::produce(edm::StreamID, edm::Event &evt,
       KinVtxFitter fitter(
           {ttracks->at(l1_idx), ttracks->at(l2_idx)},
           {l1_ptr->mass(), l2_ptr->mass()},
-          {LEP_SIGMA, LEP_SIGMA}  // some small sigma for the particle mass
+          {bph::LEP_SIGMA, bph::LEP_SIGMA}  // some small sigma for the particle mass
       );
       if (!fitter.success()) continue;
       lepton_pair.setVertex(reco::Candidate::Point(fitter.fitted_vtx().x(),

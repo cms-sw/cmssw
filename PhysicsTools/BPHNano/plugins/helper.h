@@ -26,6 +26,8 @@
 
 typedef std::vector<reco::TransientTrack> TransientTrackCollection;
 
+namespace bph{
+
 constexpr float PROT_MASS = 0.938272;
 constexpr float K_MASS = 0.493677;
 constexpr float PI_MASS = 0.139571;
@@ -222,4 +224,5 @@ inline std::vector<float> TrackerIsolation(
   return iso;
 }
 
+}
 #endif

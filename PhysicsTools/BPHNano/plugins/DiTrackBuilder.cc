@@ -51,8 +51,6 @@ class DiTrackBuilder : public edm::global::EDProducer<> {
   void produce(edm::StreamID, edm::Event &,
                const edm::EventSetup &) const override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {}
-
  private:
   const StringCutObjectSelector<pat::CompositeCandidate>
       trk1_selection_;  // cuts on leading cand
@@ -99,8 +97,8 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt,
       pat::CompositeCandidate ditrack_cand;
       auto trk1_p4 = trk1_ptr->polarP4();
       auto trk2_p4 = trk2_ptr->polarP4();
-      trk1_p4.SetM(K_MASS);
-      trk2_p4.SetM(K_MASS);
+      trk1_p4.SetM(bph::K_MASS);
+      trk2_p4.SetM(bph::K_MASS);
       ditrack_cand.setP4(trk1_p4 + trk2_p4);
       ditrack_cand.setCharge(trk1_ptr->charge() + trk2_ptr->charge());
       ditrack_cand.addUserFloat("trk_deltaR",
@@ -114,20 +112,20 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt,
 
       ditrack_cand.addUserFloat("trk_dz", trk1_ptr->vz() - trk2_ptr->vz());
       ditrack_cand.addUserFloat("unfitted_mass_KK", (trk1_p4 + trk2_p4).M());
-      trk1_p4.SetM(K_MASS);
-      trk2_p4.SetM(PI_MASS);
+      trk1_p4.SetM(bph::K_MASS);
+      trk2_p4.SetM(bph::PI_MASS);
       ditrack_cand.addUserFloat("unfitted_mass_Kpi", (trk1_p4 + trk2_p4).M());
-      trk2_p4.SetM(K_MASS);
-      trk1_p4.SetM(PI_MASS);
+      trk2_p4.SetM(bph::K_MASS);
+      trk1_p4.SetM(bph::PI_MASS);
       ditrack_cand.addUserFloat("unfitted_mass_piK", (trk1_p4 + trk2_p4).M());
-      trk2_p4.SetM(K_MASS);
-      trk1_p4.SetM(K_MASS);
+      trk2_p4.SetM(bph::K_MASS);
+      trk1_p4.SetM(bph::K_MASS);
 
       if (!pre_vtx_selection_(ditrack_cand)) continue;
 
       KinVtxFitter fitter({ttracks->at(trk1_idx), ttracks->at(trk2_idx)},
-                          {K_MASS, K_MASS},
-                          {K_SIGMA, K_SIGMA}  // K and PI sigma equal...
+                          {bph::K_MASS, bph::K_MASS},
+                          {bph::K_SIGMA, bph::K_SIGMA}  // K and PI sigma equal...
       );
       if (!fitter.success()) continue;
       ditrack_cand.addUserFloat("fitted_mass_KK",
@@ -139,8 +137,8 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt,
       // fits required in order to calculate the error of the mass for each mass
       // hypothesis.
       KinVtxFitter fitter_Kpi({ttracks->at(trk1_idx), ttracks->at(trk2_idx)},
-                              {K_MASS, PI_MASS},
-                              {K_SIGMA, K_SIGMA}  // K and PI sigma equal...
+                              {bph::K_MASS, bph::PI_MASS},
+                              {bph::K_SIGMA, bph::K_SIGMA}  // K and PI sigma equal...
       );
       if (!fitter_Kpi.success()) continue;
       ditrack_cand.addUserFloat("fitted_mass_Kpi",
@@ -151,8 +149,8 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt,
               fitter_Kpi.fitted_candidate().kinematicParametersError().matrix()(
                   6, 6)));
       KinVtxFitter fitter_piK({ttracks->at(trk1_idx), ttracks->at(trk2_idx)},
-                              {PI_MASS, K_MASS},
-                              {K_SIGMA, K_SIGMA}  // K and PI sigma equal...
+                              {bph::PI_MASS, bph::K_MASS},
+                              {bph::K_SIGMA, bph::K_SIGMA}  // K and PI sigma equal...
       );
       if (!fitter_piK.success()) continue;
       ditrack_cand.addUserFloat("fitted_mass_piK",
@@ -167,13 +165,13 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt,
                                                     fitter.fitted_vtx().y(),
                                                     fitter.fitted_vtx().z()));
       // save quantities after fit
-      auto lxy = l_xy(fitter, *beamspot);
+      auto lxy = bph::l_xy(fitter, *beamspot);
       ditrack_cand.addUserFloat("l_xy", lxy.value());
       ditrack_cand.addUserFloat("l_xy_unc", lxy.error());
       ditrack_cand.addUserInt("sv_ok", fitter.success() ? 1 : 0);
       auto fit_p4 = fitter.fitted_p4();
       ditrack_cand.addUserFloat("fitted_cos_theta_2D",
-                                cos_theta_2D(fitter, *beamspot, fit_p4));
+                                bph::cos_theta_2D(fitter, *beamspot, fit_p4));
       // The following quantities do not independent on the mass hypothesis
       ditrack_cand.addUserFloat("sv_chi2", fitter.chi2());
       ditrack_cand.addUserFloat("sv_ndof", fitter.dof());

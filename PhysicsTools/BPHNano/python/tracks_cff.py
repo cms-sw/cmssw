@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
 tracksBPH = cms.EDProducer(
-    "TrackMerger",
+    "BPHTrackMerger",
     beamSpot        = cms.InputTag("offlineBeamSpot"),
     dileptons       = cms.InputTag("MuMu:SelectedDiLeptons"),
     tracks          = cms.InputTag("packedPFCandidates"),
@@ -28,7 +28,7 @@ trackBPHTable = cms.EDProducer(
         vx = Var("vx()", float, doc="x coordinate of vtx position [cm]"),
         vy = Var("vy()", float, doc="y coordinate of vtx position [cm]"),
         vz = Var("vz()", float, doc="z coordinate of vtx position [cm]"),
-        # User variables defined in plugins/TrackMerger.cc
+        # User variables defined in plugins/BPHTrackMerger.cc
         isPacked  = Var("userInt('isPacked')", bool, doc="track from packedCandidate collection"),
         isLostTrk = Var("userInt('isLostTrk')", bool, doc="track from lostTrack collection"),
         dz      = Var("userFloat('dz')", float, doc="dz signed wrt first PV [cm]"),

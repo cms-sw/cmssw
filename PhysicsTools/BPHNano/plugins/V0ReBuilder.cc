@@ -63,8 +63,6 @@ class V0ReBuilder : public edm::global::EDProducer<> {
   void produce(edm::StreamID, edm::Event &,
                const edm::EventSetup &) const override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {}
-
  private:
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theB_;
   const StringCutObjectSelector<pat::PackedCandidate> trk_selection_;
@@ -138,10 +136,10 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt,
       v0daughter2_ttrack = theB->build(v0daughter1.bestTrack());
     }
 
-    float Track1_mass = (isLambda_) ? PROT_MASS : PI_MASS;
-    float Track1_sigma = PI_SIGMA;
-    float Track2_mass = PI_MASS;
-    float Track2_sigma = PI_SIGMA;
+    float Track1_mass = (isLambda_) ? bph::PROT_MASS : bph::PI_MASS;
+    float Track1_sigma = bph::PI_SIGMA;
+    float Track2_mass = bph::PI_MASS;
+    float Track2_sigma = bph::PI_SIGMA;
     // create V0 vertex
     KinVtxFitter fitter({v0daughter1_ttrack, v0daughter2_ttrack},
                         {Track1_mass, Track2_mass},
@@ -165,10 +163,10 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt,
         sqrt(fitter.fitted_candidate().kinematicParametersError().matrix()(6,
                                                                            6)));
     cand.addUserFloat("cos_theta_2D",
-                      cos_theta_2D(fitter, *beamspot, cand.p4()));
+                      bph::cos_theta_2D(fitter, *beamspot, cand.p4()));
     cand.addUserFloat("fitted_cos_theta_2D",
-                      cos_theta_2D(fitter, *beamspot, fit_p4));
-    auto lxy = l_xy(fitter, *beamspot);
+                      bph::cos_theta_2D(fitter, *beamspot, fit_p4));
+    auto lxy = bph::l_xy(fitter, *beamspot);
     cand.addUserFloat("l_xy", lxy.value());
     cand.addUserFloat("l_xy_unc", lxy.error());
 

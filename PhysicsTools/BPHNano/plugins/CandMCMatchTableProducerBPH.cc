@@ -205,41 +205,6 @@ class CandMCMatchTableProducerBPH : public edm::global::EDProducer<> {
     return 0;
   }
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    edm::ParameterSetDescription desc;
-    desc.add<std::string>("objName")->setComment(
-        "name of the nanoaod::FlatTable to extend with this table");
-    desc.add<std::string>("objBranchName")
-        ->setComment(
-            "name of the column to write (the final branch in the nanoaod will "
-            "be <objName>_<branchName>Idx and <objName>_<branchName>Flav");
-    desc.add<std::string>("genBranchName")
-        ->setComment(
-            "name of the column to write (the final branch in the nanoaod will "
-            "be <objName>_<branchName>Idx and <objName>_<branchName>Flav");
-    desc.add<std::string>("docString")
-        ->setComment("documentation to forward to the output");
-    desc.add<edm::InputTag>("recoObjects")
-        ->setComment(
-            "physics object collection for the reconstructed objects (e.g. "
-            "leptons)");
-    desc.add<edm::InputTag>("genParts")
-        ->setComment(
-            "physics object collection for the reconstructed objects (e.g. "
-            "leptons)");
-    desc.add<edm::InputTag>("mcMap")->setComment(
-        "tag to an edm::Association<GenParticleCollection> mapping src to gen, "
-        "such as the one produced by MCMatcher");
-    desc.add<std::string>("objType")->setComment(
-        "type of object to match (Muon, Electron, Tau, Photon, Track, Other), "
-        "taylors what's in t Flav branch");
-    desc.addOptional<edm::InputTag>("mcMapVisTau")
-        ->setComment(
-            "as mcMap, but pointing to the visible gen taus (only if objType "
-            "== Tau)");
-    descriptions.add("candMcMatchTable", desc);
-  }
-
  protected:
   const std::string objName_, objBranchName_, genBranchName_, doc_;
   const edm::EDGetTokenT<reco::CandidateView> recoObjects_;
