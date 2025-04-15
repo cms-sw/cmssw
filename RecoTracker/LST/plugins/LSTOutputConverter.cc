@@ -13,7 +13,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoTracker/LST/interface/LSTPhase2OTHitsInput.h"
+#include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
 #include "RecoTracker/LST/interface/LSTOutput.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
@@ -36,7 +36,7 @@ private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   const edm::EDGetTokenT<LSTOutput> lstOutputToken_;
-  const edm::EDGetTokenT<LSTPhase2OTHitsInput> lstPhase2OTHitsInputToken_;
+  const edm::EDGetTokenT<lst::LSTInputHostCollection> lstInputToken_;
   const edm::EDGetTokenT<TrajectorySeedCollection> lstPixelSeedToken_;
   const bool includeT5s_;
   const bool includeNonpLSTSs_;
@@ -58,7 +58,7 @@ private:
 
 LSTOutputConverter::LSTOutputConverter(edm::ParameterSet const& iConfig)
     : lstOutputToken_(consumes(iConfig.getParameter<edm::InputTag>("lstOutput"))),
-      lstPhase2OTHitsInputToken_{consumes(iConfig.getParameter<edm::InputTag>("phase2OTHits"))},
+      lstInputToken_{consumes(iConfig.getParameter<edm::InputTag>("lstInput"))},
       lstPixelSeedToken_{consumes(iConfig.getParameter<edm::InputTag>("lstPixelSeeds"))},
       includeT5s_(iConfig.getParameter<bool>("includeT5s")),
       includeNonpLSTSs_(iConfig.getParameter<bool>("includeNonpLSTSs")),
@@ -89,8 +89,8 @@ void LSTOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("lstOutput", edm::InputTag("lstProducer"));
-  desc.add<edm::InputTag>("phase2OTHits", edm::InputTag("lstPhase2OTHitsInputProducer"));
-  desc.add<edm::InputTag>("lstPixelSeeds", edm::InputTag("lstPixelSeedInputProducer"));
+  desc.add<edm::InputTag>("lstInput", edm::InputTag("lstInputProducer"));
+  desc.add<edm::InputTag>("lstPixelSeeds", edm::InputTag("lstInputProducer"));
   desc.add<bool>("includeT5s", true);
   desc.add<bool>("includeNonpLSTSs", false);
   desc.add("propagatorAlong", edm::ESInputTag{"", "PropagatorWithMaterial"});
@@ -113,7 +113,7 @@ void LSTOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descri
 void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Setup
   auto const& lstOutput = iEvent.get(lstOutputToken_);
-  auto const& phase2OTRecHits = iEvent.get(lstPhase2OTHitsInputToken_);
+  auto const& lstInputHC = iEvent.get(lstInputToken_);
   auto const& pixelSeeds = iEvent.get(lstPixelSeedToken_);
   auto const& mf = iSetup.getData(mfToken_);
   auto const& propAlo = iSetup.getData(propagatorAlongToken_);
@@ -137,7 +137,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   outputpTTC.reserve(lstTC_len.size());
   outputpLSTC.reserve(lstTC_len.size());
 
-  auto const& OTHits = phase2OTRecHits.hits();
+  auto OTHits = lstInputHC.const_view<lst::InputHitsSoA>().hits();
 
   LogDebug("LSTOutputConverter") << "lstTC size " << lstTC_len.size();
   for (unsigned int i = 0; i < lstTC_len.size(); i++) {

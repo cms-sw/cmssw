@@ -1,0 +1,18 @@
+<lcgdict>
+  <class name="lst::Params_pLS::ArrayUxHits"/>
+
+  <class name="lst::InputHitsSoALayout<128,false>"/>
+  <class name="lst::InputPixelHitsSoALayout<128,false>"/>
+  <class name="lst::InputPixelSeedsSoALayout<128,false>"/>
+
+  <class name="portablecollection::CollectionImpl<0,lst::InputHitsSoALayout<128,false>,lst::InputPixelHitsSoALayout<128,false>,lst::InputPixelSeedsSoALayout<128,false> >"/>
+  <class name="portablecollection::CollectionImpl<1,lst::InputPixelHitsSoALayout<128,false>,lst::InputPixelSeedsSoALayout<128,false> >"/>
+  <class name="portablecollection::CollectionImpl<2,lst::InputPixelSeedsSoALayout<128,false> >"/>
+
+  <class name="portablecollection::CollectionLeaf<0,lst::InputHitsSoALayout<128,false> >"/>
+  <class name="portablecollection::CollectionLeaf<1,lst::InputPixelHitsSoALayout<128,false> >"/>
+  <class name="portablecollection::CollectionLeaf<2,lst::InputPixelSeedsSoALayout<128,false> >"/>
+
+  <class name="lst::LSTInputHostCollection"/>
+  <class name="edm::Wrapper<lst::LSTInputHostCollection>" splitLevel="0"/>
+</lcgdict>

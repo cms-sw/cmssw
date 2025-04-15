@@ -447,7 +447,7 @@ void setPixelQuintupletOutputBranches(LSTEvent* event) {
   // ============ pT5 =============
   auto const pixelQuintuplets = event->getPixelQuintuplets();
   auto const quintuplets = event->getQuintuplets<QuintupletsSoA>();
-  auto const pixelSegments = event->getPixelSegments();
+  auto const inputPixelSeeds = event->getInput<InputPixelSeedsSoA>();
   auto modules = event->getModules<ModulesSoA>();
   int n_accepted_simtrk = ana.tx->getBranch<std::vector<int>>("sim_TC_matched").size();
 
@@ -458,9 +458,9 @@ void setPixelQuintupletOutputBranches(LSTEvent* event) {
   for (unsigned int pT5 = 0; pT5 < nPixelQuintuplets; pT5++) {
     unsigned int T5Index = getT5FrompT5(event, pT5);
     unsigned int pLSIndex = getPixelLSFrompT5(event, pT5);
-    float pt = (__H2F(quintuplets.innerRadius()[T5Index]) * k2Rinv1GeVf * 2 + pixelSegments.ptIn()[pLSIndex]) / 2;
-    float eta = pixelSegments.eta()[pLSIndex];
-    float phi = pixelSegments.phi()[pLSIndex];
+    float pt = (__H2F(quintuplets.innerRadius()[T5Index]) * k2Rinv1GeVf * 2 + inputPixelSeeds.ptIn()[pLSIndex]) / 2;
+    float eta = inputPixelSeeds.eta()[pLSIndex];
+    float phi = inputPixelSeeds.phi()[pLSIndex];
 
     std::vector<unsigned int> hit_idx = getHitIdxsFrompT5(event, pT5);
     std::vector<unsigned int> module_idx = getModuleIdxsFrompT5(event, pT5);
@@ -614,7 +614,7 @@ void setQuintupletOutputBranches(LSTEvent* event) {
 void setPixelTripletOutputBranches(LSTEvent* event) {
   auto const pixelTriplets = event->getPixelTriplets();
   auto modules = event->getModules<ModulesSoA>();
-  PixelSegmentsConst pixelSegments = event->getPixelSegments();
+  InputPixelSeedsConst inputPixelSeeds = event->getInput<InputPixelSeedsSoA>();
   int n_accepted_simtrk = ana.tx->getBranch<std::vector<int>>("sim_TC_matched").size();
 
   unsigned int nPixelTriplets = pixelTriplets.nPixelTriplets();
@@ -624,10 +624,10 @@ void setPixelTripletOutputBranches(LSTEvent* event) {
   for (unsigned int pT3 = 0; pT3 < nPixelTriplets; pT3++) {
     unsigned int T3Index = getT3FrompT3(event, pT3);
     unsigned int pLSIndex = getPixelLSFrompT3(event, pT3);
-    const float pt = pixelSegments.ptIn()[pLSIndex];
+    const float pt = inputPixelSeeds.ptIn()[pLSIndex];
 
-    float eta = pixelSegments.eta()[pLSIndex];
-    float phi = pixelSegments.phi()[pLSIndex];
+    float eta = inputPixelSeeds.eta()[pLSIndex];
+    float phi = inputPixelSeeds.phi()[pLSIndex];
     std::vector<unsigned int> hit_idx = getHitIdxsFrompT3(event, pT3);
     std::vector<unsigned int> hit_type = getHitTypesFrompT3(event, pT3);
 
@@ -675,6 +675,7 @@ void setPixelTripletOutputBranches(LSTEvent* event) {
 
 //________________________________________________________________________________________________________________________________
 void fillT3DNNBranches(LSTEvent* event, unsigned int iT3) {
+  auto inputHits = event->getInput<InputHitsSoA>();
   auto hits = event->getHits<HitsSoA>();
   auto modules = event->getModules<ModulesSoA>();
 
@@ -683,9 +684,9 @@ void fillT3DNNBranches(LSTEvent* event, unsigned int iT3) {
 
   for (int i = 0; i < hitIdx.size(); ++i) {
     unsigned int hit = hitIdx[i];
-    float x = hits.xs()[hit];
-    float y = hits.ys()[hit];
-    float z = hits.zs()[hit];
+    float x = inputHits.xs()[hit];
+    float y = inputHits.ys()[hit];
+    float z = inputHits.zs()[hit];
     lst_math::Hit hitObj(x, y, z);
     hitObjects.push_back(hitObj);
 
@@ -697,10 +698,10 @@ void fillT3DNNBranches(LSTEvent* event, unsigned int iT3) {
     ana.tx->pushbackToBranch<float>("t3_hit_" + idx + "_eta", hitObj.eta());
     ana.tx->pushbackToBranch<float>("t3_hit_" + idx + "_phi", hitObj.phi());
 
-    int subdet = trk.ph2_subdet()[hits.idxs()[hit]];
+    int subdet = trk.ph2_subdet()[inputHits.idxs()[hit]];
     int is_endcap = subdet == 4;
-    int layer = trk.ph2_layer()[hits.idxs()[hit]] + 6 * is_endcap;
-    int detId = trk.ph2_detId()[hits.idxs()[hit]];
+    int layer = trk.ph2_layer()[inputHits.idxs()[hit]] + 6 * is_endcap;
+    int detId = trk.ph2_detId()[inputHits.idxs()[hit]];
     unsigned int module = hits.moduleIndices()[hit];
 
     ana.tx->pushbackToBranch<int>("t3_hit_" + idx + "_detId", detId);
@@ -711,6 +712,7 @@ void fillT3DNNBranches(LSTEvent* event, unsigned int iT3) {
 
 //________________________________________________________________________________________________________________________________
 void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
+  auto inputHits = event->getInput<InputHitsSoA>();
   auto hits = event->getHits<HitsSoA>();
   auto modules = event->getModules<ModulesSoA>();
 
@@ -719,9 +721,9 @@ void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
 
   for (int i = 0; i < hitIdx.size(); ++i) {
     unsigned int hit = hitIdx[i];
-    float x = hits.xs()[hit];
-    float y = hits.ys()[hit];
-    float z = hits.zs()[hit];
+    float x = inputHits.xs()[hit];
+    float y = inputHits.ys()[hit];
+    float z = inputHits.zs()[hit];
     hitObjects[i] = lst_math::Hit(x, y, z);
 
     std::string idx = std::to_string(i);
@@ -732,10 +734,10 @@ void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
     ana.tx->pushbackToBranch<float>("t5_t3_" + idx + "_eta", hitObjects[i].eta());
     ana.tx->pushbackToBranch<float>("t5_t3_" + idx + "_phi", hitObjects[i].phi());
 
-    int subdet = trk.ph2_subdet()[hits.idxs()[hit]];
+    int subdet = trk.ph2_subdet()[inputHits.idxs()[hit]];
     int is_endcap = subdet == 4;
-    int layer = trk.ph2_layer()[hits.idxs()[hit]] + 6 * is_endcap;
-    int detId = trk.ph2_detId()[hits.idxs()[hit]];
+    int layer = trk.ph2_layer()[inputHits.idxs()[hit]] + 6 * is_endcap;
+    int detId = trk.ph2_detId()[inputHits.idxs()[hit]];
     unsigned int module = hits.moduleIndices()[hit];
 
     ana.tx->pushbackToBranch<int>("t5_t3_" + idx + "_detId", detId);
@@ -878,7 +880,7 @@ void setGnnNtupleBranches(LSTEvent* event) {
   // Get relevant information
   SegmentsOccupancyConst segmentsOccupancy = event->getSegments<SegmentsOccupancySoA>();
   MiniDoubletsOccupancyConst miniDoublets = event->getMiniDoublets<MiniDoubletsOccupancySoA>();
-  auto hitsEvt = event->getHits<HitsSoA>();
+  auto inputHits = event->getInput<InputHitsSoA>();
   auto modules = event->getModules<ModulesSoA>();
   auto ranges = event->getRanges();
   auto const& trackCandidates = event->getTrackCandidates();
@@ -957,8 +959,8 @@ void setGnnNtupleBranches(LSTEvent* event) {
 
       // Computing line segment pt estimate (assuming beam spot is at zero)
       lst_math::Hit hitA(0, 0, 0);
-      lst_math::Hit hitB(hitsEvt.xs()[hits[0]], hitsEvt.ys()[hits[0]], hitsEvt.zs()[hits[0]]);
-      lst_math::Hit hitC(hitsEvt.xs()[hits[2]], hitsEvt.ys()[hits[2]], hitsEvt.zs()[hits[2]]);
+      lst_math::Hit hitB(inputHits.xs()[hits[0]], inputHits.ys()[hits[0]], inputHits.zs()[hits[0]]);
+      lst_math::Hit hitC(inputHits.xs()[hits[2]], inputHits.ys()[hits[2]], inputHits.zs()[hits[2]]);
       lst_math::Hit center = lst_math::getCenterFromThreePoints(hitA, hitB, hitC);
       float pt = lst_math::ptEstimateFromRadius(center.rt());
       float eta = hitC.eta();
@@ -1018,24 +1020,24 @@ void setGnnNtupleBranches(LSTEvent* event) {
 void setGnnNtupleMiniDoublet(LSTEvent* event, unsigned int MD) {
   // Get relevant information
   MiniDoubletsConst miniDoublets = event->getMiniDoublets<MiniDoubletsSoA>();
-  auto hitsEvt = event->getHits<HitsSoA>();
+  auto inputHits = event->getInput<InputHitsSoA>();
 
   // Get the hit indices
   unsigned int hit0 = miniDoublets.anchorHitIndices()[MD];
   unsigned int hit1 = miniDoublets.outerHitIndices()[MD];
 
   // Get the hit infos
-  const float hit0_x = hitsEvt.xs()[hit0];
-  const float hit0_y = hitsEvt.ys()[hit0];
-  const float hit0_z = hitsEvt.zs()[hit0];
+  const float hit0_x = inputHits.xs()[hit0];
+  const float hit0_y = inputHits.ys()[hit0];
+  const float hit0_z = inputHits.zs()[hit0];
   const float hit0_r = sqrt(hit0_x * hit0_x + hit0_y * hit0_y);
-  const float hit1_x = hitsEvt.xs()[hit1];
-  const float hit1_y = hitsEvt.ys()[hit1];
-  const float hit1_z = hitsEvt.zs()[hit1];
+  const float hit1_x = inputHits.xs()[hit1];
+  const float hit1_y = inputHits.ys()[hit1];
+  const float hit1_z = inputHits.zs()[hit1];
   const float hit1_r = sqrt(hit1_x * hit1_x + hit1_y * hit1_y);
 
   // Do sim matching
-  std::vector<unsigned int> hit_idx = {hitsEvt.idxs()[hit0], hitsEvt.idxs()[hit1]};
+  std::vector<unsigned int> hit_idx = {inputHits.idxs()[hit0], inputHits.idxs()[hit1]};
   std::vector<unsigned int> hit_type = {4, 4};
   std::vector<int> simidxs = matchedSimTrkIdxs(hit_idx, hit_type);
 
@@ -1043,8 +1045,8 @@ void setGnnNtupleMiniDoublet(LSTEvent* event, unsigned int MD) {
   int tp_type = getDenomSimTrkType(simidxs);
 
   // Obtain where the actual hit is located in terms of their layer, module, rod, and ring number
-  unsigned int anchitidx = hitsEvt.idxs()[hit0];
-  int subdet = trk.ph2_subdet()[hitsEvt.idxs()[anchitidx]];
+  unsigned int anchitidx = inputHits.idxs()[hit0];
+  int subdet = trk.ph2_subdet()[inputHits.idxs()[anchitidx]];
   int is_endcap = subdet == 4;
   int layer =
       trk.ph2_layer()[anchitidx] +
@@ -1119,7 +1121,7 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   // Get relevant information
   auto const trackCandidates = event->getTrackCandidates();
   auto const quintuplets = event->getQuintuplets<QuintupletsSoA>();
-  auto const pixelSegments = event->getPixelSegments();
+  auto const inputPixelSeeds = event->getInput<InputPixelSeedsSoA>();
 
   //
   // pictorial representation of a pT5
@@ -1212,9 +1214,9 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   // And from there we estimate the pt's and we compute pt_T5.
 
   // pixel pt
-  const float pt_pLS = pixelSegments.ptIn()[pLS];
-  const float eta_pLS = pixelSegments.eta()[pLS];
-  const float phi_pLS = pixelSegments.phi()[pLS];
+  const float pt_pLS = inputPixelSeeds.ptIn()[pLS];
+  const float eta_pLS = inputPixelSeeds.eta()[pLS];
+  const float phi_pLS = inputPixelSeeds.phi()[pLS];
   float pt_T5 = __H2F(quintuplets.innerRadius()[T5Index]) * 2 * k2Rinv1GeVf;
   const float pt = (pt_T5 + pt_pLS) / 2;
 
@@ -1231,7 +1233,7 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   // Get relevant information
   auto const trackCandidates = event->getTrackCandidates();
   auto const triplets = event->getTriplets<TripletsSoA>();
-  auto const pixelSegments = event->getPixelSegments();
+  auto const inputPixelSeeds = event->getInput<InputPixelSeedsSoA>();
 
   //
   // pictorial representation of a pT3
@@ -1245,9 +1247,9 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   unsigned int T3 = getT3FrompT3(event, pT3);
 
   // pixel pt
-  const float pt_pLS = pixelSegments.ptIn()[pLS];
-  const float eta_pLS = pixelSegments.eta()[pLS];
-  const float phi_pLS = pixelSegments.phi()[pLS];
+  const float pt_pLS = inputPixelSeeds.ptIn()[pLS];
+  const float eta_pLS = inputPixelSeeds.eta()[pLS];
+  const float phi_pLS = inputPixelSeeds.phi()[pLS];
   float pt_T3 = triplets.radius()[T3] * 2 * k2Rinv1GeVf;
 
   // average pt
@@ -1298,15 +1300,15 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
 std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parsepLS(LSTEvent* event,
                                                                                                unsigned int idx) {
   auto const& trackCandidates = event->getTrackCandidates();
-  PixelSegmentsConst pixelSegments = event->getPixelSegments();
+  auto inputPixelSeeds = event->getInput<InputPixelSeedsSoA>();
 
   // Getting pLS index
   unsigned int pLS = trackCandidates.directObjectIndices()[idx];
 
   // Getting pt eta and phi
-  float pt = pixelSegments.ptIn()[pLS];
-  float eta = pixelSegments.eta()[pLS];
-  float phi = pixelSegments.phi()[pLS];
+  float pt = inputPixelSeeds.ptIn()[pLS];
+  float eta = inputPixelSeeds.eta()[pLS];
+  float phi = inputPixelSeeds.phi()[pLS];
 
   // Getting hit indices and types
   std::vector<unsigned int> hit_idx = getPixelHitIdxsFrompLS(event, pLS);
@@ -1361,7 +1363,7 @@ void printAllObjects(LSTEvent* event) {
 void printMDs(LSTEvent* event) {
   MiniDoubletsConst miniDoublets = event->getMiniDoublets<MiniDoubletsSoA>();
   MiniDoubletsOccupancyConst miniDoubletsOccupancy = event->getMiniDoublets<MiniDoubletsOccupancySoA>();
-  auto hitsEvt = event->getHits<HitsSoA>();
+  auto inputHits = event->getInput<InputHitsSoA>();
   auto modules = event->getModules<ModulesSoA>();
   auto ranges = event->getRanges();
 
@@ -1371,8 +1373,8 @@ void printMDs(LSTEvent* event) {
       unsigned int mdIdx = ranges.miniDoubletModuleIndices()[idx] + iMD;
       unsigned int LowerHitIndex = miniDoublets.anchorHitIndices()[mdIdx];
       unsigned int UpperHitIndex = miniDoublets.outerHitIndices()[mdIdx];
-      unsigned int hit0 = hitsEvt.idxs()[LowerHitIndex];
-      unsigned int hit1 = hitsEvt.idxs()[UpperHitIndex];
+      unsigned int hit0 = inputHits.idxs()[LowerHitIndex];
+      unsigned int hit1 = inputHits.idxs()[UpperHitIndex];
       std::cout << "VALIDATION 'MD': "
                 << "MD"
                 << " hit0: " << hit0 << " hit1: " << hit1 << std::endl;
@@ -1385,7 +1387,7 @@ void printLSs(LSTEvent* event) {
   SegmentsConst segments = event->getSegments<SegmentsSoA>();
   SegmentsOccupancyConst segmentsOccupancy = event->getSegments<SegmentsOccupancySoA>();
   MiniDoubletsConst miniDoublets = event->getMiniDoublets<MiniDoubletsSoA>();
-  auto hitsEvt = event->getHits<HitsSoA>();
+  auto inputHits = event->getInput<InputHitsSoA>();
   auto modules = event->getModules<ModulesSoA>();
   auto ranges = event->getRanges();
 
@@ -1401,10 +1403,10 @@ void printLSs(LSTEvent* event) {
       unsigned int InnerMiniDoubletUpperHitIndex = miniDoublets.outerHitIndices()[InnerMiniDoubletIndex];
       unsigned int OuterMiniDoubletLowerHitIndex = miniDoublets.anchorHitIndices()[OuterMiniDoubletIndex];
       unsigned int OuterMiniDoubletUpperHitIndex = miniDoublets.outerHitIndices()[OuterMiniDoubletIndex];
-      unsigned int hit0 = hitsEvt.idxs()[InnerMiniDoubletLowerHitIndex];
-      unsigned int hit1 = hitsEvt.idxs()[InnerMiniDoubletUpperHitIndex];
-      unsigned int hit2 = hitsEvt.idxs()[OuterMiniDoubletLowerHitIndex];
-      unsigned int hit3 = hitsEvt.idxs()[OuterMiniDoubletUpperHitIndex];
+      unsigned int hit0 = inputHits.idxs()[InnerMiniDoubletLowerHitIndex];
+      unsigned int hit1 = inputHits.idxs()[InnerMiniDoubletUpperHitIndex];
+      unsigned int hit2 = inputHits.idxs()[OuterMiniDoubletLowerHitIndex];
+      unsigned int hit3 = inputHits.idxs()[OuterMiniDoubletUpperHitIndex];
       std::cout << "VALIDATION 'LS': "
                 << "LS"
                 << " hit0: " << hit0 << " hit1: " << hit1 << " hit2: " << hit2 << " hit3: " << hit3 << std::endl;
@@ -1418,7 +1420,7 @@ void printpLSs(LSTEvent* event) {
   SegmentsConst segments = event->getSegments<SegmentsSoA>();
   SegmentsOccupancyConst segmentsOccupancy = event->getSegments<SegmentsOccupancySoA>();
   MiniDoubletsConst miniDoublets = event->getMiniDoublets<MiniDoubletsSoA>();
-  auto hitsEvt = event->getHits<HitsSoA>();
+  auto inputHits = event->getInput<InputHitsSoA>();
   auto modules = event->getModules<ModulesSoA>();
   auto ranges = event->getRanges();
 
@@ -1433,10 +1435,10 @@ void printpLSs(LSTEvent* event) {
     unsigned int InnerMiniDoubletUpperHitIndex = miniDoublets.outerHitIndices()[InnerMiniDoubletIndex];
     unsigned int OuterMiniDoubletLowerHitIndex = miniDoublets.anchorHitIndices()[OuterMiniDoubletIndex];
     unsigned int OuterMiniDoubletUpperHitIndex = miniDoublets.outerHitIndices()[OuterMiniDoubletIndex];
-    unsigned int hit0 = hitsEvt.idxs()[InnerMiniDoubletLowerHitIndex];
-    unsigned int hit1 = hitsEvt.idxs()[InnerMiniDoubletUpperHitIndex];
-    unsigned int hit2 = hitsEvt.idxs()[OuterMiniDoubletLowerHitIndex];
-    unsigned int hit3 = hitsEvt.idxs()[OuterMiniDoubletUpperHitIndex];
+    unsigned int hit0 = inputHits.idxs()[InnerMiniDoubletLowerHitIndex];
+    unsigned int hit1 = inputHits.idxs()[InnerMiniDoubletUpperHitIndex];
+    unsigned int hit2 = inputHits.idxs()[OuterMiniDoubletLowerHitIndex];
+    unsigned int hit3 = inputHits.idxs()[OuterMiniDoubletUpperHitIndex];
     std::cout << "VALIDATION 'pLS': "
               << "pLS"
               << " hit0: " << hit0 << " hit1: " << hit1 << " hit2: " << hit2 << " hit3: " << hit3 << std::endl;
@@ -1450,7 +1452,7 @@ void printT3s(LSTEvent* event) {
   auto const tripletsOccupancy = event->getTriplets<TripletsOccupancySoA>();
   SegmentsConst segments = event->getSegments<SegmentsSoA>();
   MiniDoubletsConst miniDoublets = event->getMiniDoublets<MiniDoubletsSoA>();
-  auto hitsEvt = event->getHits<HitsSoA>();
+  auto inputHits = event->getInput<InputHitsSoA>();
   auto modules = event->getModules<ModulesSoA>();
   int nTriplets = 0;
   for (unsigned int i = 0; i < modules.nLowerModules(); ++i) {
@@ -1472,12 +1474,12 @@ void printT3s(LSTEvent* event) {
       unsigned int hit_idx4 = miniDoublets.anchorHitIndices()[OuterSegmentOuterMiniDoubletIndex];
       unsigned int hit_idx5 = miniDoublets.outerHitIndices()[OuterSegmentOuterMiniDoubletIndex];
 
-      unsigned int hit0 = hitsEvt.idxs()[hit_idx0];
-      unsigned int hit1 = hitsEvt.idxs()[hit_idx1];
-      unsigned int hit2 = hitsEvt.idxs()[hit_idx2];
-      unsigned int hit3 = hitsEvt.idxs()[hit_idx3];
-      unsigned int hit4 = hitsEvt.idxs()[hit_idx4];
-      unsigned int hit5 = hitsEvt.idxs()[hit_idx5];
+      unsigned int hit0 = inputHits.idxs()[hit_idx0];
+      unsigned int hit1 = inputHits.idxs()[hit_idx1];
+      unsigned int hit2 = inputHits.idxs()[hit_idx2];
+      unsigned int hit3 = inputHits.idxs()[hit_idx3];
+      unsigned int hit4 = inputHits.idxs()[hit_idx4];
+      unsigned int hit5 = inputHits.idxs()[hit_idx5];
       std::cout << "VALIDATION 'T3': "
                 << "T3"
                 << " hit0: " << hit0 << " hit1: " << hit1 << " hit2: " << hit2 << " hit3: " << hit3 << " hit4: " << hit4
