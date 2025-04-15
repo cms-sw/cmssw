@@ -209,6 +209,19 @@ With --checkInputs option this throws an error.
             wfName = wfInfo[0]
             stepList = wfInfo[1]
             stepOverrides=wfInfo.overrides
+            #force use of RNTuple
+            #check to see if secondfilein is begin requested, if so RNTuple doesn't
+            # support that yet so do not attempt to use rntuple for this workflow
+            use_rntuple_out = True
+            for step in stepList:
+                if self.relvalModule.steps[step] is None:
+                    continue
+                if '--secondfilein' in self.relvalModule.steps[step]:
+                    use_rntuple_out = False
+                    break
+            if use_rntuple_out:
+                stepOverrides['--rntuple_out']=''
+
             # upgrade case: workflow has basic name, key[, suffix (only special workflows)]
             wfKey = ""
             wfSuffix = ""

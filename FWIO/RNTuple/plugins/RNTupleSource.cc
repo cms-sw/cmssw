@@ -133,6 +133,8 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
+    void skip(int offset) override;
+
     ItemTypeInfo getNextItemType() override;
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
@@ -179,11 +181,19 @@ namespace edm {
     RNTupleInputFile::Options ops;
     ops.enableMetrics_ = enableMetrics_;
     ops.useClusterCache_ = useClusterCache_;
-    file_ = std::make_unique<RNTupleInputFile>(pset.getUntrackedParameter<std::string>("fileName"), ops);
+    auto files = pset.getUntrackedParameter<std::vector<std::string>>("fileNames");
+    if (files.empty()) {
+      throw cms::Exception("NoInputFiles");
+    }
+    if (files.size() > 1) {
+      throw edm::Exception(edm::errors::Configuration) << "RNTupleSource presently only support reading 1 file";
+    }
+    file_ = std::make_unique<RNTupleInputFile>(files[0], ops);
 
     BranchIDLists branchIDLists;
     file_->readMeta(productRegistryUpdate(), processHistoryRegistryForUpdate(), branchIDLists);
     branchIDListHelper()->updateFromInput(branchIDLists);
+    file_->readParameterSets();
 
     runReaders_.reserve(desc.allocations_->numberOfRuns());
     for (unsigned int i = 0; i < desc.allocations_->numberOfRuns(); ++i) {
@@ -227,12 +237,29 @@ namespace edm {
 
   void RNTupleSource::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
-    desc.addUntracked<std::string>("fileName");
+    desc.addUntracked<std::vector<std::string>>("fileNames")->setComment("only the first file will be used for now");
     desc.addUntracked<bool>("enableMetrics", false);
     desc.addUntracked<bool>("useClusterCache", true);
 
+    //make interface compatible with PoolSource.
+    desc.addOptionalUntracked<std::vector<std::string>>("secondaryFileNames");
+    desc.addOptionalUntracked<bool>("needSecondaryFileNames");
+    desc.addOptionalUntracked<std::string>("overrideCatalog");
+    desc.addOptionalUntracked<bool>("skipBadFiles");
+    desc.addOptionalUntracked<bool>("bypassVersionCheck");
+    desc.addObsoleteUntracked<int>("treeMaxVirtualSize");
+    desc.addOptionalUntracked<bool>("dropDescendantsOfDroppedBranches");
+    desc.addOptionalUntracked<bool>("labelRawDataLikeMC");
+    desc.addOptionalUntracked<bool>("delayReadingEventProducts");
+    ProductSelectorRules::fillDescription(desc, "inputCommands");
+    InputSource::fillDescription(desc);
+    //RootPrimaryFileSequence::fillDescription(desc);
+    //RunHelperBase::fillDescription(desc);
+
     descriptions.addDefault(desc);
   }
+
+  void RNTupleSource::skip(int offset) { file_->skipEvents(offset); }
 
   InputSource::ItemTypeInfo RNTupleSource::getNextItemType() {
     if (not startedFirstFile_) {
@@ -261,6 +288,9 @@ namespace edm {
     auto& reader = lumiReaders_[lumiPrincipal.index()];
     reader.setEntry(entry);
     lumiPrincipal.fillLuminosityBlockPrincipal(history, &reader);
+    // Read in all the products now.
+    lumiPrincipal.readAllFromSourceAndMergeImmediately();
+    lumiPrincipal.setShouldWriteLumi(LuminosityBlockPrincipal::kYes);
   }
   std::shared_ptr<LuminosityBlockAuxiliary> RNTupleSource::readLuminosityBlockAuxiliary_() {
     return file_->readLuminosityBlockAuxiliary();
@@ -304,7 +334,9 @@ namespace edm {
     auto& reader = runReaders_[runPrincipal.index()];
     reader.setEntry(entry);
     runPrincipal.fillRunPrincipal(processHistoryRegistry(), &reader);
-    runPrincipal.setShouldWriteRun(RunPrincipal::kNo);
+    //In the future, when this code can skip runs we will need to
+    // set this value.
+    //runPrincipal.setShouldWriteRun(RunPrincipal::kNo);
   }
 
   std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> RNTupleSource::resourceSharedWithDelayedReader_() {

@@ -558,8 +558,9 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
   void RNTupleOutputFile::writeLuminosityBlock(LuminosityBlockForOutput const& iLumi) {
     {
       auto rentry = lumis_->CreateEntry();
-      rentry->BindRawPtr(*lumiAuxField_,
-                         const_cast<void*>(static_cast<void const*>(&(iLumi.luminosityBlockAuxiliary()))));
+      auto lumiAux = iLumi.luminosityBlockAuxiliary();
+      lumiAux.setProcessHistoryID(iLumi.processHistoryID());
+      rentry->BindRawPtr(*lumiAuxField_, static_cast<void*>(&lumiAux));
       auto dummies = writeDataProducts(products_[InLumi], iLumi, *rentry);
       lumis_->Fill(*rentry);
     }
@@ -567,14 +568,17 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
     // Store the reduced ID in the IndexIntoFile
     ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(iLumi.processHistoryID());
     // Add lumi to index.
-    indexIntoFile_.addEntry(reducedPHID, iLumi.run(), iLumi.luminosityBlock(), 0U, lumiEntryNumber_);
+    indexIntoFile_.addEntry(
+        reducedPHID, iLumi.run(), iLumi.luminosityBlock(), IndexIntoFile::invalidEvent, lumiEntryNumber_);
     ++lumiEntryNumber_;
   }
 
   void RNTupleOutputFile::writeRun(RunForOutput const& iRun) {
     {
       auto rentry = runs_->CreateEntry();
-      rentry->BindRawPtr(*runAuxField_, const_cast<void*>(static_cast<void const*>(&(iRun.runAuxiliary()))));
+      auto runAux = iRun.runAuxiliary();
+      runAux.setProcessHistoryID(iRun.processHistoryID());
+      rentry->BindRawPtr(*runAuxField_, static_cast<void*>(&runAux));
       auto dummies = writeDataProducts(products_[InRun], iRun, *rentry);
       runs_->Fill(*rentry);
     }
@@ -582,7 +586,8 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
     // Store the reduced ID in the IndexIntoFile
     ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(iRun.processHistoryID());
     // Add run to index.
-    indexIntoFile_.addEntry(reducedPHID, iRun.run(), 0U, 0U, runEntryNumber_);
+    indexIntoFile_.addEntry(
+        reducedPHID, iRun.run(), IndexIntoFile::invalidLumi, IndexIntoFile::invalidEvent, runEntryNumber_);
     ++runEntryNumber_;
   }
 
