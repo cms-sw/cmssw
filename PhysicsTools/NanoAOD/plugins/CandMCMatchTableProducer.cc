@@ -31,6 +31,8 @@ public:
       type_ = MTau;
     else if (type == "Photon")
       type_ = MPhoton;
+    else if (type == "Track")
+      type_ = MTrack;    
     else if (type == "Other")
       type_ = MOther;
     else
@@ -55,6 +57,11 @@ public:
         flavDoc_ =
             "1 = prompt electron, 2 = prompt muon, 3 = tau->e decay, 4 = tau->mu decay, 5 = hadronic tau decay, 0 = "
             "unknown or unmatched";
+        break;
+      case MTrack:
+        flavDoc_ =
+            "1 = prompt, 511 = from B0, 521 = from B+/-, 0 = unknown or "
+            "unmatched";
         break;
       case MOther:
         flavDoc_ = "1 = from hard scatter, 0 = unknown or unmatched";
@@ -188,6 +195,12 @@ public:
           else if (matchVisTau.isNonnull())
             flav[i] = 5;
           break;
+        case MTrack:
+          if (match->isPromptFinalState())
+            flav[i] = 1;  // prompt
+          else
+            flav[i] = getParentHadronFlag(match);  // pdgId of mother
+          break;	  
         default:
           flav[i] = match->statusFlags().fromHardProcess();
       };
@@ -256,7 +269,7 @@ protected:
   edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> candMapDressedLep_;
   edm::EDGetTokenT<edm::ValueMap<bool>> mapTauAnc_;
   edm::EDGetTokenT<reco::GenParticleCollection> genPartsToken_;
-  enum MatchType { MMuon, MElectron, MTau, MPhoton, MOther } type_;
+  enum MatchType { MMuon, MElectron, MTau, MPhoton, MTrack, MOther } type_;
   std::string flavDoc_;
 };
 

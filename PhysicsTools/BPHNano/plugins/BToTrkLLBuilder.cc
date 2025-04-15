@@ -217,13 +217,13 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
         cand.addUserFloat(dnames[idaughter] + "_iso04", isos[idaughter]);
       }
 
-      cand.addUserFloat("constraint_sv_prob", -99);
-      cand.addUserFloat("constraint_pt", -99);
-      cand.addUserFloat("constraint_eta", -99);
-      cand.addUserFloat("constraint_phi", -99);
-      cand.addUserFloat("constraint_mass", -99);
-      cand.addUserFloat("constraint_massErr", -99);
-      cand.addUserFloat("constraint_mll", -99);
+      float constraint_sv_prob=-9;
+      float constraint_pt=-9;
+      float constraint_eta=-9;
+      float constraint_phi=-9;
+      float constraint_mass=-9;
+      float constraint_massErr=-9;
+      float constraint_mll=-9;
 
       const double dilepton_mass = ll_prt->userFloat("fitted_mass");
       const double jpsi_bin[2] = {2.8, 3.35};
@@ -247,22 +247,22 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
             {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA}, mass_constraint);
         if (constraint_fitter.success()) {
           auto constraint_p4 = constraint_fitter.fitted_p4();
-          cand.addUserFloat("constraint_sv_prob", constraint_fitter.prob());
-          cand.addUserFloat("constraint_pt", constraint_p4.pt());
-          cand.addUserFloat("constraint_eta", constraint_p4.eta());
-          cand.addUserFloat("constraint_phi", constraint_p4.phi());
-          cand.addUserFloat("constraint_mass",
-                            constraint_fitter.fitted_candidate().mass());
-          cand.addUserFloat("constraint_massErr",
-                            sqrt(constraint_fitter.fitted_candidate()
-                                     .kinematicParametersError()
-                                     .matrix()(6, 6)));
-          cand.addUserFloat("constraint_mll",
-                            (constraint_fitter.daughter_p4(0) +
-                             constraint_fitter.daughter_p4(1))
-                                .mass());
+          constraint_sv_prob=constraint_fitter.prob();
+          constraint_pt=constraint_p4.pt();
+          constraint_eta=constraint_p4.eta();
+          constraint_phi=constraint_p4.phi();
+          constraint_mass=constraint_fitter.fitted_candidate().mass();
+          constraint_massErr=sqrt(constraint_fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6));
+          constraint_mll=(constraint_fitter.daughter_p4(0) + constraint_fitter.daughter_p4(1)).mass();
         }
       }
+      cand.addUserFloat("constraint_sv_prob", constraint_sv_prob);
+      cand.addUserFloat("constraint_pt", constraint_pt);
+      cand.addUserFloat("constraint_eta", constraint_eta);
+      cand.addUserFloat("constraint_phi", constraint_phi);
+      cand.addUserFloat("constraint_mass", constraint_mass);
+      cand.addUserFloat("constraint_massErr", constraint_massErr);
+      cand.addUserFloat("constraint_mll", constraint_mll);
 
       ret_val->push_back(cand);
     }  // for(size_t ll_idx = 0; ll_idx < dileptons->size(); ++ll_idx) {

@@ -62,6 +62,9 @@ typedef SimpleFlatTableProducer<L2MuonTrajectorySeed> SimpleL2MuonTrajectorySeed
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 typedef SimpleFlatTableProducer<reco::Track> SimpleTriggerTrackFlatTableProducer;
 
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+typedef SimpleFlatTableProducer<reco::GsfTrack> SimpleGsfTrackFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCandidateCollectionFlatTableProducer);
@@ -84,3 +87,5 @@ DEFINE_FWK_MODULE(SimpleBeamspotFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTrajectorySeedFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleL2MuonTrajectorySeedFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerTrackFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleGsfTrackFlatTableProducer);
+
