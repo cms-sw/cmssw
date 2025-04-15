@@ -298,17 +298,17 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
         cand.addUserFloat(dnames[idaughter] + "_iso04", isos[idaughter]);
       }
 
-      cand.addUserFloat("constraint_sv_prob", -99);
-      cand.addUserFloat("constraint_pt", -99);
-      cand.addUserFloat("constraint_eta", -99);
-      cand.addUserFloat("constraint_phi", -99);
-      cand.addUserFloat("constraint_mass_KK", -99);
-      cand.addUserFloat("constraint_mass_Kpi", -99);
-      cand.addUserFloat("constraint_mass_piK", -99);
-      cand.addUserFloat("constraint_massErr_KK", -99);
-      cand.addUserFloat("constraint_massErr_Kpi", -99);
-      cand.addUserFloat("constraint_massErr_piK", -99);
-      cand.addUserFloat("constraint_mll", -99);
+      float constraint_sv_prob=-9;
+      float constraint_pt=-9;
+      float constraint_eta=-9;
+      float constraint_phi=-9;
+      float constraint_mass_KK=-9;
+      float constraint_mass_Kpi=-9;
+      float constraint_mass_piK=-9;
+      float constraint_massErr_KK=-9;
+      float constraint_massErr_Kpi=-9;
+      float constraint_massErr_piK=-9;
+      float constraint_mll=-9;
 
       const double dilepton_mass = ll_ptr->userFloat("fitted_mass");
       const double jpsi_bin[2] = {2.8, 3.35};
@@ -347,34 +347,30 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
 
         if (constraint_fitter_KK.success()) {
           auto constraint_p4 = constraint_fitter_KK.fitted_p4();
-          cand.addUserFloat("constraint_sv_prob", constraint_fitter_KK.prob());
-          cand.addUserFloat("constraint_pt", constraint_p4.pt());
-          cand.addUserFloat("constraint_eta", constraint_p4.eta());
-          cand.addUserFloat("constraint_phi", constraint_p4.phi());
-          cand.addUserFloat("constraint_mass_KK",
-                            constraint_fitter_KK.fitted_candidate().mass());
-          cand.addUserFloat("constraint_massErr_KK",
-                            sqrt(constraint_fitter_KK.fitted_candidate()
-                                     .kinematicParametersError()
-                                     .matrix()(6, 6)));
-          cand.addUserFloat("constraint_mass_Kpi",
-                            constraint_fitter_Kpi.fitted_candidate().mass());
-          cand.addUserFloat("constraint_massErr_Kpi",
-                            sqrt(constraint_fitter_Kpi.fitted_candidate()
-                                     .kinematicParametersError()
-                                     .matrix()(6, 6)));
-          cand.addUserFloat("constraint_mass_piK",
-                            constraint_fitter_piK.fitted_candidate().mass());
-          cand.addUserFloat("constraint_massErr_piK",
-                            sqrt(constraint_fitter_piK.fitted_candidate()
-                                     .kinematicParametersError()
-                                     .matrix()(6, 6)));
-          cand.addUserFloat("constraint_mll",
-                            (constraint_fitter_KK.daughter_p4(0) +
-                             constraint_fitter_KK.daughter_p4(1))
-                                .mass());
+          constraint_sv_prob=constraint_fitter_KK.prob();
+          constraint_pt=constraint_p4.pt();
+          constraint_eta=constraint_p4.eta();
+          constraint_phi=constraint_p4.phi();
+          constraint_mass_KK=constraint_fitter_KK.fitted_candidate().mass();
+          constraint_massErr_KK=sqrt(constraint_fitter_KK.fitted_candidate().kinematicParametersError().matrix()(6, 6));
+          constraint_mass_Kpi= constraint_fitter_Kpi.fitted_candidate().mass();
+          constraint_massErr_Kpi=sqrt(constraint_fitter_Kpi.fitted_candidate().kinematicParametersError().matrix()(6, 6));
+          constraint_mass_piK=constraint_fitter_piK.fitted_candidate().mass();
+	  constraint_massErr_piK=sqrt(constraint_fitter_piK.fitted_candidate().kinematicParametersError().matrix()(6, 6));
+          constraint_mll=(constraint_fitter_KK.daughter_p4(0) + constraint_fitter_KK.daughter_p4(1)).mass();
         }
       }
+      cand.addUserFloat("constraint_sv_prob", constraint_sv_prob);
+      cand.addUserFloat("constraint_pt", constraint_pt);
+      cand.addUserFloat("constraint_eta", constraint_eta);
+      cand.addUserFloat("constraint_phi", constraint_phi);
+      cand.addUserFloat("constraint_mass_KK", constraint_mass_KK);
+      cand.addUserFloat("constraint_mass_Kpi", constraint_mass_Kpi);
+      cand.addUserFloat("constraint_mass_piK", constraint_mass_piK);
+      cand.addUserFloat("constraint_massErr_KK", constraint_massErr_KK);
+      cand.addUserFloat("constraint_massErr_Kpi", constraint_massErr_Kpi);
+      cand.addUserFloat("constraint_massErr_piK", constraint_massErr_piK);
+      cand.addUserFloat("constraint_mll", constraint_mll);
 
       ret_val->push_back(cand);
 
