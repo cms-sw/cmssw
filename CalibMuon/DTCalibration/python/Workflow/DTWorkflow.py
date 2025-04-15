@@ -211,22 +211,26 @@ class DTWorkflow(CLIHelper, CrabHelper):
     def prepare_common_write(self, do_hadd=True):
         """ Common operations used in most prepare_[workflow_mode]_write functions"""
         self.load_options_command("submit")
-        print("Result path = ", self.result_path, self.output_file)
-        merged_file = os.path.join(self.result_path, self.output_file)
-        
         crabtask = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
                                                initUpdate = False)
         print("crabFolder:", crabtask.crabFolder)
         if not (self.options.skip_stageout or self.files_reveived or self.options.no_exec):
-            output_files =  self.get_output_files(crabtask)
-            if "xrootd" not in output_files.keys():
-                raise RuntimeError("Could not get output files. No xrootd key found.")
-            if len(output_files["xrootd"]) == 0:
-                raise RuntimeError("Could not get output files. Output file list is empty.")
-            log.info("Received files from storage element")
-            log.info("Using hadd to merge output files")
+            res =  self.get_output_files(crabtask)
+            print(res)
+            if res['commandStatus'] != "SUCCESS":
+                raise RuntimeError("Could not get output files.")
+            #if len(output_files["xrootd"]) == 0:
+            #    raise RuntimeError("Could not get output files. Output file list is empty.")
+            #log.info("Received files from storage element")
+            #log.info("Using hadd to merge output files")
         if not self.options.no_exec and do_hadd:
-            returncode = tools.haddLocal(output_files["xrootd"], merged_file)
+
+            output_files = glob.glob(os.path.join( crabtask.crabFolder, 'results', "*.root"))
+
+            merged_file = os.path.join(self.result_path, "Run"+str(self.options.run)+"_"+self.output_file)
+            print("\t The Merged result will be at:\n", merged_file)
+            
+            returncode = tools.haddLocal(output_files, merged_file)
             if returncode != 0:
                 raise RuntimeError("Failed to merge files with hadd")
         return (crabtask.crabConfig.Data.outputDatasetTag, crabtask.crabFolder)
@@ -256,12 +260,12 @@ class DTWorkflow(CLIHelper, CrabHelper):
 
         calibDB = cms.ESSource("PoolDBESSource",
                                CondDB,
-                               timetype = cms.string('runnumber'),
+                               #timetype = cms.string('runnumber'),
                                toGet = cms.VPSet(cms.PSet(
                                    record = cms.string(record),
                                    tag = cms.string(tag),
-                                   label = cms.untracked.string(label)
-                                    )),
+                                   label = cms.untracked.string(label))
+                                                 ),
                                )
         calibDB.connect = cms.string( str(connect) )
         #if authPath: calibDB.DBParameters.authenticationPath = authPath
@@ -273,12 +277,12 @@ class DTWorkflow(CLIHelper, CrabHelper):
                                                                 )
 
     def get_output_files(self, crabtask):
-        print("\t Will run getoutput!")
-        print("crabtask:", crabtask)
+        log.info("Running get_output_files()")
+        #print("crabtask:", crabtask)
         print("crabtask.crabFolder:", crabtask.crabFolder)
         res = self.crab.callCrabCommand( ("getoutput", crabtask.crabFolder ) )
-
-        print("Is it a success?", res)
+        log.debug(res)
+        
         return res
 
     def runCMSSWtask(self, pset_path=""):

@@ -34,7 +34,7 @@ class CrabController():
     # @param self: A previously defined logger. Crab log messages will use this logger as their parent logger.
     def __init__(self, debug=0, logger = None , workingArea = None, voGroup = None, username = None):
 
-        print("Initializing CrabController()")
+        #print("Initializing CrabController()")
         setConsoleLogLevel(LOGLEVEL_MUTE)
         self.debug = debug
         if workingArea is not None:
@@ -190,10 +190,10 @@ class CrabController():
         print("Will run the callCrabCommand:", crabArgs)
         p = Process(target=crabCommandProcess, args=(crabCommandProcessArgs))
         p.start()
-        print("The (multi)Process() started")
+        #print("The (multi)Process() started")
         res = self.crab_q.get()
         p.join()
-        print("The Process with Crab command finished.")
+        print("The Crab command Process has finished.")
         return res
 
     ## Call crab getlog
@@ -344,7 +344,7 @@ def crabCommandProcess(q,crabCommandArgs):
 
 class CertInfo:
     def __init__( self ):
-        print("Running CertInfo() init")
+        # print("Running CertInfo() init")
         p = subprocess.Popen("voms-proxy-info  --fqan",
                               stdout = subprocess.PIPE,
                               stderr = subprocess.PIPE,

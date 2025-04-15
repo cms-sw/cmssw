@@ -188,8 +188,7 @@ class DTttrigWorkflow( DTWorkflow ):
         ttrig_ResidCorr_db = os.path.abspath( os.path.join(self.result_path,
                                               self.get_output_db("residuals", "write")))
         self.process.PoolDBOutputService.connect = 'sqlite_file:%s' % ttrig_ResidCorr_db
-        rootfile_path = os.path.abspath( os.path.join(self.result_path, self.output_file))
-        merged_file = os.path.join(self.result_path, self.output_file)
+        merged_file = os.path.join(self.result_path, "Run"+str(self.options.run)+"_"+self.output_file)
         self.process.dtTTrigResidualCorrection.correctionAlgoConfig.residualsRootFile = merged_file
         self.write_pset_file()
 
@@ -241,17 +240,18 @@ class DTttrigWorkflow( DTWorkflow ):
         self.pset_template = 'CalibMuon.DTCalibration.dtDQMClient_cfg'
         self.process = tools.loadCmsProcess(self.pset_template)
         (crab_tag, crab_folder) = self.prepare_common_write(do_hadd = False)
-        print("local path:", self.local_path)
-        print("crab tag; Folder:", crab_tag, crab_folder)
-        
+        print("Crab Folder:",  crab_folder)
+        print("Crab Tag:", crab_tag, "\t Run number =", self.options.run)
+        #print("local path:", self.local_path)
         dqm_files = glob.glob(os.path.join( crab_folder, 'results', "DQM_*.root"))
         dqm_files[:] = ["file://"+txt for txt in dqm_files]
 
         self.process.source.fileNames =  dqm_files
         self.process.dqmSaver.dirName = os.path.abspath(self.result_path)
-        self.process.dqmSaver.workflow = "DT_TTrig_Validation"
+        # This parameter does not matter, but it has to be in the format /A/B/C:
+        self.process.dqmSaver.workflow = "/DT/Calib/Validation"
         #if self.process.DQMStore.collateHistograms == True:
-        #self.process.dqmSaver.forceRunNumber = self.options.run
+        self.process.dqmSaver.forceRunNumber = self.options.run
         self.write_pset_file()
 
     def summary(self):

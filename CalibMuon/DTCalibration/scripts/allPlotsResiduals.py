@@ -7,6 +7,7 @@ import os
 def main():
     parser = optparse.OptionParser()
     (options, args) = parser.parse_args()
+    
     ROOT.gROOT.SetBatch(True)
     for filename in args:
         if "vDrift_segment_" in filename:
@@ -26,7 +27,7 @@ def main():
             name="vdrift"
             runvdrift(name, run, "dtVDriftAnalyzer_dtVDriftCalibration"+run+".root")
 
-        if "vDrift_meantimer_" in filename:
+        elif "vDrift_meantimer_" in filename:
             #name="DQM"
             m=re.search("vDrift_meantimer_(\d*)",filename)
             run=m.group(1)
@@ -52,33 +53,36 @@ def main():
         elif "TestPulses" in filename:
             name="T0"
             runt0(name,filename,123456)
-        else:
+        elif "residuals" in filename:
             name="DTRV"
-            m=re.search("DTResidualValidation_(\d*)\.root",filename)
+            m=re.search("Run(\d*)\_residuals.root",filename)
             run=m.group(1)
             path="DTResiduals"
             runttrig(name, filename, path, run)
+        else:
+            print("filename = ", filename)
+            print("The file name pattern is not recognized! So we do nothing.")            
 
 def runttrig(name, filename, path, run):
-    from CalibMuon.DTCalibration.PlottingTools.plotResiduals import *
+    from CalibMuon.DTCalibration.PlottingTools.plotResiduals import plot
     for SL in [1,2,3]:
-        mean,sigma = plot(filename, SL,dir=path)
-        mean[0].Print(name+run+"-SL"+str(SL)+"-mean.pdf")
-        mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
-        sigma[0].Print(name+run+"-SL"+str(SL)+"-sigma.pdf")
-        sigma[0].SaveAs(name+run+"-SL"+str(SL)+"-sigma.root")
+        print(filename, SL, path, run)
+        mean,sigma = plot(filename, SL, dir=path, run=run)
+        mean[0].Print(name+run+"-SL"+str(SL)+"-mean.png")
+        #mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
+        sigma[0].Print(name+run+"-SL"+str(SL)+"-sigma.png")
+        #sigma[0].SaveAs(name+run+"-SL"+str(SL)+"-sigma.root")
+
 def runvdrift(name, run, filename):
-    from CalibMuon.DTCalibration.PlottingTools.plotVDriftFromHistos import *
+    from CalibMuon.DTCalibration.PlottingTools.plotVDriftFromHistos import plot
     for SL in [1,2,3]:
         mean = plot(filename, SL)
         mean[0].Print(name+run+"-SL"+str(SL)+"-mean.pdf")
-        mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
+        #mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
         #sigma[0].Print(name+run+"-SL"+str(SL)+"-sigma.pdf")
         
-    #plot("DTResidualValidation_210614.root", 1,dir="DTResiduals")
-    #plot("DQM_V0001_R000210634__StreamExpress__HIRun2013-DtCalib-Express-v1-dtTtrigCalibrationFromResiduals-NEW-usedb-rev1__ALCARECO.root", 1,dir="DQMData/Run 210634/DT/Run summary/DTCalibValidation")
 def runt0(name,filename,run):
-    from CalibMuon.DTCalibration.PlottingTools.plotT0FromHistos import *
+    from CalibMuon.DTCalibration.PlottingTools.plotT0FromHistos import plot
     for SL in [1,2,3]:
         mean = plot(filename, SL ,run)
         mean[0].Print(name+run+"-SL"+str(SL)+"-mean.pdf")
@@ -86,3 +90,5 @@ def runt0(name,filename,run):
 
 if __name__=="__main__":
     main()
+
+    #plot("DTResidualValidation_210614.root", 1,dir="DTResiduals")
