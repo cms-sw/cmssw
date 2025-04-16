@@ -138,17 +138,17 @@ namespace gen {
     beam/target atomic mass number.
  */
   double HydjetHadronizer::nuclear_radius() const {
-    if (abs(abeamtarget_ - 208.0) < 0.0001)
+    if (abs((double)abeamtarget_ - 208.0) < 0.0001)
       return 6.624;
-    else if (abs(abeamtarget_ - 197.0) < 0.0001)
+    else if (abs((double)abeamtarget_ - 197.0) < 0.0001)
       return 6.38;
-    else if (abs(abeamtarget_ - 129.0) < 0.0001)
+    else if (abs((double)abeamtarget_ - 129.0) < 0.0001)
       return 5.36;
-    else if (abs(abeamtarget_ - 63.0) < 0.0001)
+    else if (abs((double)abeamtarget_ - 63.0) < 0.0001)
       return 4.20;
-    else if (abs(abeamtarget_ - 20.0) < 0.0001)
+    else if (abs((double)abeamtarget_ - 20.0) < 0.0001)
       return 2.992;
-    else if (abs(abeamtarget_ - 16.0) < 0.0001)
+    else if (abs((double)abeamtarget_ - 16.0) < 0.0001)
       return 2.608;
     else
       return 1.15 * pow((double)abeamtarget_, 1. / 3.);
