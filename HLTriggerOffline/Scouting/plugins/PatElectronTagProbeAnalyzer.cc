@@ -17,18 +17,13 @@
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
-#include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
-#include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
-#include "DataFormats/L1Trigger/interface/EGamma.h"
 
 
 #include "ScoutingDQMUtils.h"
