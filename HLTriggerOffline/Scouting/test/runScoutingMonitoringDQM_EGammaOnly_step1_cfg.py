@@ -34,8 +34,8 @@ process.source = cms.Source("PoolSource",
 )
 
 
-process.load("EventFilter.L1TRawToDigi.gtStage2Digis_cfi")
-process.gtStage2Digis.InputLabel = cms.InputTag( "hltFEDSelectorL1" )
+# process.load("EventFilter.L1TRawToDigi.gtStage2Digis_cfi")
+# process.gtStage2Digis.InputLabel = cms.InputTag( "hltFEDSelectorL1" )
 
 process.DQMStore = cms.Service("DQMStore")
 
@@ -45,7 +45,6 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 
 #process.load("DQMServices.FileIO.DQMFileSaverPB_cfi")
 process.dqmSaver.tag = 'SCOUTING'
-process.dqmSaver.runNumber = 333334
 process.load("HLTriggerOffline.Scouting.HLTScoutingEGammaDqmOffline_cff")
 
 process.p = cms.Path(process.hltScoutingEGammaDqmOffline + process.dqmSaver)
