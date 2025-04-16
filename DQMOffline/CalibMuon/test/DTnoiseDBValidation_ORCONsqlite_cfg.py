@@ -34,7 +34,6 @@ process.noiseRef = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTStatusFlagRcd'),
         tag = cms.string('noise_CRAFT_V01_offline'),
@@ -47,7 +46,6 @@ process.noiseRef = cms.ESSource("PoolDBESSource",
             label = cms.untracked.string('noiseToValidate')
         )),
     connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_30X_DT'),
-    siteLocalConfig = cms.untracked.bool(False)                           
 )
 
 process.MessageLogger = cms.Service("MessageLogger",

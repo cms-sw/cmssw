@@ -47,10 +47,8 @@ process.load("Configuration.Generator.QCD_Pt_15_20_cfi")
 
 process.es_pool = cms.ESSource( "PoolDBESSource",
      process.CondDBSetup,
-     timetype = cms.string('runnumber'),
 #   connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierPrep/CMS_COND_30X_HCAL'),
     connect = cms.string('sqlite_file:testExample.db'),
-     authenticationMethod = cms.untracked.uint32(0),
      toGet = cms.VPSet(
          cms.PSet(
              record = cms.string('CastorPedestalsRcd'),

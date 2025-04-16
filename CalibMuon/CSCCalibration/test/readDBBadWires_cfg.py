@@ -6,8 +6,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    loadAll = cms.bool(True),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCBadWiresRcd'),
         tag = cms.string('CSCBadWires_2009_mc')
@@ -20,7 +18,6 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     #string connect = "oracle://cms_orcoff_int2r/CMS_COND_CSC"
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
-        authenticationMethod = cms.untracked.uint32(1)
     )
 )
 

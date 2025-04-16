@@ -101,7 +101,6 @@ def getJECFromSQLite(process):
         DBParameters = cms.PSet(
             messageLevel = cms.untracked.int32(0)
             ),
-        timetype = cms.string('runnumber'),
         toGet = cms.VPSet(
             cms.PSet(
                 record = cms.string('JetCorrectionsRecord'),

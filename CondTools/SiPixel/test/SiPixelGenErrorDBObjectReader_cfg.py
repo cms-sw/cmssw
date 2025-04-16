@@ -44,7 +44,6 @@ else:
 #            tag = cms.string('SiPixelGenErrorDBObject38TV10')
             tag = cms.string('SiPixelGenErrorDBObject38Tv1')
           )),
-        timetype = cms.string('runnumber'),
         #connect = cms.string('sqlite_file:../../../../../DB/siPixelGenErrors38T_v1_mc.db')
         #connect = cms.string('sqlite_file:../../../../../DB/siPixelGenErrors38T_2012_IOV7_v1.db')
         connect = cms.string('sqlite_file:siPixelGenErrors38Tv1.db')
