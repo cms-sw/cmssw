@@ -93,10 +93,10 @@ void DiLeptonBuilder<Lepton>::produce(edm::StreamID, edm::Event &evt,
       if (!pre_vtx_selection_(lepton_pair))
         continue;  // before making the SV, cut on the info we have
 
-      KinVtxFitter fitter(
-          {ttracks->at(l1_idx), ttracks->at(l2_idx)},
-          {l1_ptr->mass(), l2_ptr->mass()},
-          {bph::LEP_SIGMA, bph::LEP_SIGMA}  // some small sigma for the particle mass
+      KinVtxFitter fitter({ttracks->at(l1_idx), ttracks->at(l2_idx)},
+                          {l1_ptr->mass(), l2_ptr->mass()},
+                          {bph::LEP_SIGMA, bph::LEP_SIGMA}
+                          // some small sigma for the particle mass
       );
       if (!fitter.success()) continue;
       lepton_pair.setVertex(reco::Candidate::Point(fitter.fitted_vtx().x(),

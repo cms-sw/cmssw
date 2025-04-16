@@ -123,9 +123,10 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt,
 
       if (!pre_vtx_selection_(ditrack_cand)) continue;
 
-      KinVtxFitter fitter({ttracks->at(trk1_idx), ttracks->at(trk2_idx)},
-                          {bph::K_MASS, bph::K_MASS},
-                          {bph::K_SIGMA, bph::K_SIGMA}  // K and PI sigma equal...
+      KinVtxFitter fitter(
+          {ttracks->at(trk1_idx), ttracks->at(trk2_idx)},
+          {bph::K_MASS, bph::K_MASS},
+          {bph::K_SIGMA, bph::K_SIGMA}  // K and PI sigma equal...
       );
       if (!fitter.success()) continue;
       ditrack_cand.addUserFloat("fitted_mass_KK",
@@ -136,9 +137,10 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt,
               6, 6)));
       // fits required in order to calculate the error of the mass for each mass
       // hypothesis.
-      KinVtxFitter fitter_Kpi({ttracks->at(trk1_idx), ttracks->at(trk2_idx)},
-                              {bph::K_MASS, bph::PI_MASS},
-                              {bph::K_SIGMA, bph::K_SIGMA}  // K and PI sigma equal...
+      KinVtxFitter fitter_Kpi(
+          {ttracks->at(trk1_idx), ttracks->at(trk2_idx)},
+          {bph::K_MASS, bph::PI_MASS},
+          {bph::K_SIGMA, bph::K_SIGMA}  // K and PI sigma equal...
       );
       if (!fitter_Kpi.success()) continue;
       ditrack_cand.addUserFloat("fitted_mass_Kpi",
@@ -148,9 +150,10 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt,
           sqrt(
               fitter_Kpi.fitted_candidate().kinematicParametersError().matrix()(
                   6, 6)));
-      KinVtxFitter fitter_piK({ttracks->at(trk1_idx), ttracks->at(trk2_idx)},
-                              {bph::PI_MASS, bph::K_MASS},
-                              {bph::K_SIGMA, bph::K_SIGMA}  // K and PI sigma equal...
+      KinVtxFitter fitter_piK(
+          {ttracks->at(trk1_idx), ttracks->at(trk2_idx)},
+          {bph::PI_MASS, bph::K_MASS},
+          {bph::K_SIGMA, bph::K_SIGMA}  // K and PI sigma equal...
       );
       if (!fitter_piK.success()) continue;
       ditrack_cand.addUserFloat("fitted_mass_piK",

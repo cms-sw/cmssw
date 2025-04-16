@@ -178,8 +178,9 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
       // track impact parameter from SV
       TrajectoryStateOnSurface tsos = extrapolator.extrapolate(
           kaons_ttracks->at(k_idx).impactPointState(), fitter.fitted_vtx());
-      std::pair<bool, Measurement1D> cur2DIP = bph::signedTransverseImpactParameter(
-          tsos, fitter.fitted_refvtx(), *beamspot);
+      std::pair<bool, Measurement1D> cur2DIP =
+          bph::signedTransverseImpactParameter(tsos, fitter.fitted_refvtx(),
+                                               *beamspot);
       cand.addUserFloat("k_svip2d", cur2DIP.second.value());
       cand.addUserFloat("k_svip2d_err", cur2DIP.second.error());
 
@@ -217,13 +218,13 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
         cand.addUserFloat(dnames[idaughter] + "_iso04", isos[idaughter]);
       }
 
-      float constraint_sv_prob=-9;
-      float constraint_pt=-9;
-      float constraint_eta=-9;
-      float constraint_phi=-9;
-      float constraint_mass=-9;
-      float constraint_massErr=-9;
-      float constraint_mll=-9;
+      float constraint_sv_prob = -9;
+      float constraint_pt = -9;
+      float constraint_eta = -9;
+      float constraint_phi = -9;
+      float constraint_mass = -9;
+      float constraint_massErr = -9;
+      float constraint_mll = -9;
 
       const double dilepton_mass = ll_prt->userFloat("fitted_mass");
       const double jpsi_bin[2] = {2.8, 3.35};
@@ -247,13 +248,17 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
             {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA}, mass_constraint);
         if (constraint_fitter.success()) {
           auto constraint_p4 = constraint_fitter.fitted_p4();
-          constraint_sv_prob=constraint_fitter.prob();
-          constraint_pt=constraint_p4.pt();
-          constraint_eta=constraint_p4.eta();
-          constraint_phi=constraint_p4.phi();
-          constraint_mass=constraint_fitter.fitted_candidate().mass();
-          constraint_massErr=sqrt(constraint_fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6));
-          constraint_mll=(constraint_fitter.daughter_p4(0) + constraint_fitter.daughter_p4(1)).mass();
+          constraint_sv_prob = constraint_fitter.prob();
+          constraint_pt = constraint_p4.pt();
+          constraint_eta = constraint_p4.eta();
+          constraint_phi = constraint_p4.phi();
+          constraint_mass = constraint_fitter.fitted_candidate().mass();
+          constraint_massErr = sqrt(constraint_fitter.fitted_candidate()
+                                        .kinematicParametersError()
+                                        .matrix()(6, 6));
+          constraint_mll = (constraint_fitter.daughter_p4(0) +
+                            constraint_fitter.daughter_p4(1))
+                               .mass();
         }
       }
       cand.addUserFloat("constraint_sv_prob", constraint_sv_prob);
