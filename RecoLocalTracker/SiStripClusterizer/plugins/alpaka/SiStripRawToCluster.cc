@@ -74,6 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Helper functions to fill valid, condition-passing raw/buffers
     WarningSummary warnings_ = WarningSummary("", "", false);
     std::unique_ptr<FEDBuffer> fillBuffer(int fedId, const FEDRawData& input);
+    std::unique_ptr<FEDBuffer> fillBuffer_dbg(int fedId, const FEDRawData& input);
     void makeFEDbufferWithValidFEDs_(const FEDRawDataCollection& rawColl,
                                      const SiStripClusterizerConditions& conditions);
     void makeFEDbufferWithValidFEDs_4det_(uint32_t idet,
@@ -449,9 +450,40 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   }
 
   // Set a FEDBuffer pointer starting from the FEDRawData, pre-checking the data is valid. If not, nullptr is returned
-  // note: this is the original implementation of fillBuffer. std::optional / stack cannot be used because of missing move in FEDBuffer
-  //       I would have some doubts on the performance improvement from UNLIKELY/LIKELY macro, which I leave to be addressed in the PR.
+  // This implementation is copy-paste from RecoLocalTracker/SiStripClusterizer/plugins/ClustersFromRawProducer.cc
   std::unique_ptr<FEDBuffer> SiStripRawToCluster::fillBuffer(int fedId, const FEDRawData& input) {
+    // check FEDRawData pointer, size, and more
+    const FEDBufferStatusCode st_buffer = preconstructCheckFEDBuffer(input);
+    if (FEDBufferStatusCode::SUCCESS != st_buffer) [[unlikely]] {
+      if (edm::isDebugEnabled()) {
+        edm::LogWarning(sistrip::mlRawToCluster_)
+            << "[ClustersFromRawProducer::" << __func__ << "]" << st_buffer << " for FED ID " << fedId;
+      }
+      return nullptr;
+    }
+    std::unique_ptr<FEDBuffer> buffer = std::make_unique<FEDBuffer>(input);
+    const FEDBufferStatusCode st_chan = buffer->findChannels();
+    if (FEDBufferStatusCode::SUCCESS != st_chan) [[unlikely]] {
+      if (edm::isDebugEnabled()) {
+        edm::LogWarning(sistrip::mlRawToCluster_)
+            << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << st_chan;
+      }
+      return nullptr;
+    }
+    if ((!buffer->doChecks(false))) [[unlikely]] {
+      if (edm::isDebugEnabled()) {
+        edm::LogWarning(sistrip::mlRawToCluster_)
+            << "Exception caught when creating FEDBuffer object for FED " << fedId << ": FED Buffer check fails";
+      }
+      return nullptr;
+    }
+    return buffer;
+  }
+
+  // Set a FEDBuffer pointer starting from the FEDRawData, pre-checking the data is valid. If not, nullptr is returned
+  // This implementation is from EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiUnpacker.cc
+  // It is used for debugging purposes.
+  std::unique_ptr<FEDBuffer> SiStripRawToCluster::fillBuffer_dbg(int fedId, const FEDRawData& input) {
     // check FEDRawData pointer, size, and more
     const FEDBufferStatusCode st_buffer = preconstructCheckFEDBuffer(input);
     if (FEDBufferStatusCode::SUCCESS != st_buffer) [[unlikely]] {
