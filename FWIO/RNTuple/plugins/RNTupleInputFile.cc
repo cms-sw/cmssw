@@ -14,10 +14,16 @@
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "FWCore/Utilities/interface/ExceptionPropagate.h"
+
 #include "ROOT/RNTupleReadOptions.hxx"
 
 #include <cassert>
 #include <iostream>
+#include <iomanip>
+
 using namespace ROOT::Experimental;
 namespace {
   ROOT::Experimental::RNTupleReadOptions options(edm::RNTupleInputFile::Options const& iOpt) {
@@ -27,11 +33,45 @@ namespace {
                                               : RNTupleReadOptions::EClusterCache::kOff);
     return opt;
   }
+
+  void logFileAction(std::string_view msg, std::string_view fileName) {
+    edm::LogAbsolute("fileAction") << std::setprecision(0) << edm::TimeOfDay() << msg << fileName;
+    edm::FlushMessageLog();
+  }
+
+  std::unique_ptr<TFile> open(std::string const& fileName) {
+    logFileAction("  Initiating request to open ", fileName);
+    std::unique_ptr<TFile> file;
+    {
+      // ROOT's context management implicitly assumes that a file is opened and
+      // closed on the same thread.  To avoid the problem, we declare a local
+      // TContext object; when it goes out of scope, its destructor unregisters
+      // the context, guaranteeing the context is unregistered in the same thread
+      // it was registered in.  Fixes issue #15524.
+      TDirectory::TContext contextEraser;
+
+      file = std::unique_ptr<TFile>(TFile::Open(fileName.c_str()));
+    }
+    std::exception_ptr e = edm::threadLocalException::getException();
+    if (e != std::exception_ptr()) {
+      edm::threadLocalException::setException(std::exception_ptr());
+      std::rethrow_exception(e);
+    }
+    if (!file) {
+      throw edm::Exception(edm::errors::FileOpenError) << "TFile::Open failed.";
+    }
+    if (file->IsZombie()) {
+      throw edm::Exception(edm::errors::FileOpenError) << "TFile::Open returned zombie.";
+    }
+
+    logFileAction("  Successfully opened file ", fileName);
+    return file;
+  }
 }  // namespace
 namespace edm {
 
   RNTupleInputFile::RNTupleInputFile(std::string const& iName, Options const& iOpt)
-      : file_(TFile::Open(iName.c_str())),
+      : file_(open(iName)),
         runs_(file_.get(), "Runs", "RunAuxiliary", {}),
         lumis_(file_.get(), "LuminosityBlocks", "LuminosityBlockAuxiliary", {}),
         events_(file_.get(), "Events", "EventAuxiliary", options(iOpt)) {}
