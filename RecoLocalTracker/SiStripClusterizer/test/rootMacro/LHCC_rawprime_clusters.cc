@@ -294,7 +294,7 @@ int main(int argc, char const *argv[])
 	                                    88, 0., 704. );
 	TH1F * h_barycenter_tot_sc = new TH1F( "RAW_offline_barrycenter", "(offline) raw cluster barycenter; yield",  
 	                                    950, 0., 950. );
-        TH1F* h_falling_barycenter_tot_ac = new TH1F("falling_barycenter", ";barycenter;yield", 77, 0, 7680.); 
+        TH1F* h_falling_barycenter_tot_ac = new TH1F("falling_barycenter", ";barycenter;yield", 77, 0, 7700.); 
 
 	TH1F * h_size_tot_ac      = new TH1F( "RAW'_online_size", "(online) raw' cluster; size; yield",  
 	                                    50, 0., 50. );
