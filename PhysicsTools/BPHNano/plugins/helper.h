@@ -89,7 +89,7 @@ inline float CosA(
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>& Bp4) {
   math::XYZVector vperp(dist.x(), dist.y(), 0);
   math::XYZVector pperp(Bp4.Px(), Bp4.Py(), 0);
-  return std::move(vperp.Dot(pperp) / (vperp.R() * pperp.R()));
+  return vperp.Dot(pperp) / (vperp.R() * pperp.R());
 }
 
 inline std::pair<double, double> computeDCA(const reco::TransientTrack& trackTT,
