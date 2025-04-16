@@ -148,6 +148,7 @@ int main(int argc, char const *argv[])
 	uint16_t    rp_firstStrip;
 	uint16_t    rp_endStrip;
 	float       rp_barycenter;
+        UShort_t    rp_falling_barycenter; 
 	uint16_t    rp_size;
 	int         rp_charge;
         UChar_t        rp_low_pt_trk_cluster;
@@ -217,6 +218,7 @@ int main(int argc, char const *argv[])
 	onlineClusterTree->SetBranchAddress("firstStrip", &rp_firstStrip);
 	onlineClusterTree->SetBranchAddress("endStrip", &rp_endStrip);
 	onlineClusterTree->SetBranchAddress("barycenter", &rp_barycenter);
+        onlineClusterTree->SetBranchAddress("falling_barycenter", &rp_falling_barycenter);
 	onlineClusterTree->SetBranchAddress("size", &rp_size);
 	onlineClusterTree->SetBranchAddress("charge", &rp_charge);
         onlineClusterTree->SetBranchAddress("low_pt_trk_cluster", &rp_low_pt_trk_cluster);
@@ -410,7 +412,7 @@ int main(int argc, char const *argv[])
 		h_size_tot_ac->Fill( rp_size );
 		h_charge_tot_ac->Fill( rp_charge );
 		h_barycenter_tot_ac->Fill( rp_barycenter );
-                h_falling_barycenter_tot_ac->Fill( rp_barycenter*10 );
+                h_falling_barycenter_tot_ac->Fill( rp_falling_barycenter );
                 if((rp_barycenter*10) > 7680.) std::cout << "found " << std::endl;
 	}
 
