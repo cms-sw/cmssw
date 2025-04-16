@@ -71,19 +71,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE int checkPixelHits(
-      unsigned int ix, unsigned int jx, MiniDoubletsConst mds, SegmentsConst segments, InputHitsConst inputHits) {
+      unsigned int ix, unsigned int jx, MiniDoubletsConst mds, SegmentsConst segments, HitsBaseConst hitsBase) {
     int phits1[Params_pLS::kHits];
     int phits2[Params_pLS::kHits];
 
-    phits1[0] = inputHits.idxs()[mds.anchorHitIndices()[segments.mdIndices()[ix][0]]];
-    phits1[1] = inputHits.idxs()[mds.anchorHitIndices()[segments.mdIndices()[ix][1]]];
-    phits1[2] = inputHits.idxs()[mds.outerHitIndices()[segments.mdIndices()[ix][0]]];
-    phits1[3] = inputHits.idxs()[mds.outerHitIndices()[segments.mdIndices()[ix][1]]];
+    phits1[0] = hitsBase.idxs()[mds.anchorHitIndices()[segments.mdIndices()[ix][0]]];
+    phits1[1] = hitsBase.idxs()[mds.anchorHitIndices()[segments.mdIndices()[ix][1]]];
+    phits1[2] = hitsBase.idxs()[mds.outerHitIndices()[segments.mdIndices()[ix][0]]];
+    phits1[3] = hitsBase.idxs()[mds.outerHitIndices()[segments.mdIndices()[ix][1]]];
 
-    phits2[0] = inputHits.idxs()[mds.anchorHitIndices()[segments.mdIndices()[jx][0]]];
-    phits2[1] = inputHits.idxs()[mds.anchorHitIndices()[segments.mdIndices()[jx][1]]];
-    phits2[2] = inputHits.idxs()[mds.outerHitIndices()[segments.mdIndices()[jx][0]]];
-    phits2[3] = inputHits.idxs()[mds.outerHitIndices()[segments.mdIndices()[jx][1]]];
+    phits2[0] = hitsBase.idxs()[mds.anchorHitIndices()[segments.mdIndices()[jx][0]]];
+    phits2[1] = hitsBase.idxs()[mds.anchorHitIndices()[segments.mdIndices()[jx][1]]];
+    phits2[2] = hitsBase.idxs()[mds.outerHitIndices()[segments.mdIndices()[jx][0]]];
+    phits2[3] = hitsBase.idxs()[mds.outerHitIndices()[segments.mdIndices()[jx][1]]];
 
     int npMatched = 0;
 
@@ -112,7 +112,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   ModulesConst modules,
                                   ObjectRangesConst ranges,
                                   PixelTriplets pixelTriplets,
-                                  InputPixelSeedsConst inputPixelSeeds,
+                                  PixelSeedsConst pixelSeeds,
                                   PixelQuintupletsConst pixelQuintuplets) const {
       unsigned int nPixelTriplets = pixelTriplets.nPixelTriplets();
       for (unsigned int pixelTripletIndex : cms::alpakatools::uniform_elements_y(acc, nPixelTriplets)) {
@@ -129,8 +129,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         unsigned int nPixelQuintuplets = pixelQuintuplets.nPixelQuintuplets();
         for (unsigned int pixelQuintupletIndex : cms::alpakatools::uniform_elements_x(acc, nPixelQuintuplets)) {
           unsigned int pLS_jx = pixelQuintuplets.pixelSegmentIndices()[pixelQuintupletIndex];
-          float eta2 = inputPixelSeeds.eta()[pLS_jx - prefix];
-          float phi2 = inputPixelSeeds.phi()[pLS_jx - prefix];
+          float eta2 = pixelSeeds.eta()[pLS_jx - prefix];
+          float phi2 = pixelSeeds.phi()[pLS_jx - prefix];
           float dEta = alpaka::math::abs(acc, (eta1 - eta2));
           float dPhi = cms::alpakatools::deltaPhi(acc, phi1, phi2);
 
@@ -198,19 +198,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   TrackCandidates cands,
                                   SegmentsConst segments,
                                   SegmentsOccupancyConst segmentsOccupancy,
-                                  InputPixelSeedsConst inputPixelSeeds,
+                                  PixelSeedsConst pixelSeeds,
                                   PixelSegments pixelSegments,
                                   MiniDoubletsConst mds,
-                                  InputHitsConst inputHits,
+                                  HitsBaseConst hitsBase,
                                   QuintupletsConst quintuplets) const {
       int pixelModuleIndex = modules.nLowerModules();
       unsigned int nPixels = segmentsOccupancy.nSegments()[pixelModuleIndex];
       for (unsigned int pixelArrayIndex : cms::alpakatools::uniform_elements_y(acc, nPixels)) {
-        if (!inputPixelSeeds.isQuad()[pixelArrayIndex] || pixelSegments.isDup()[pixelArrayIndex])
+        if (!pixelSeeds.isQuad()[pixelArrayIndex] || pixelSegments.isDup()[pixelArrayIndex])
           continue;
 
-        float eta1 = inputPixelSeeds.eta()[pixelArrayIndex];
-        float phi1 = inputPixelSeeds.phi()[pixelArrayIndex];
+        float eta1 = pixelSeeds.eta()[pixelArrayIndex];
+        float phi1 = pixelSeeds.phi()[pixelArrayIndex];
         unsigned int prefix = ranges.segmentModuleIndices()[pixelModuleIndex];
 
         unsigned int nTrackCandidates = cands.nTrackCandidates();
@@ -230,7 +230,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           }
           if (type == LSTObjType::pT3) {
             int pLSIndex = pixelTriplets.pixelSegmentIndices()[innerTrackletIdx];
-            int npMatched = checkPixelHits(prefix + pixelArrayIndex, pLSIndex, mds, segments, inputHits);
+            int npMatched = checkPixelHits(prefix + pixelArrayIndex, pLSIndex, mds, segments, hitsBase);
             if (npMatched > 0)
               pixelSegments.isDup()[pixelArrayIndex] = true;
 
@@ -246,13 +246,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           }
           if (type == LSTObjType::pT5) {
             unsigned int pLSIndex = innerTrackletIdx;
-            int npMatched = checkPixelHits(prefix + pixelArrayIndex, pLSIndex, mds, segments, inputHits);
+            int npMatched = checkPixelHits(prefix + pixelArrayIndex, pLSIndex, mds, segments, hitsBase);
             if (npMatched > 0) {
               pixelSegments.isDup()[pixelArrayIndex] = true;
             }
 
-            float eta2 = inputPixelSeeds.eta()[pLSIndex - prefix];
-            float phi2 = inputPixelSeeds.phi()[pLSIndex - prefix];
+            float eta2 = pixelSeeds.eta()[pLSIndex - prefix];
+            float phi2 = pixelSeeds.phi()[pLSIndex - prefix];
             float dEta = alpaka::math::abs(acc, eta1 - eta2);
             float dPhi = cms::alpakatools::deltaPhi(acc, phi1, phi2);
 
@@ -270,7 +270,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   uint16_t nLowerModules,
                                   PixelTripletsConst pixelTriplets,
                                   TrackCandidates cands,
-                                  InputPixelSeedsConst inputPixelSeeds,
+                                  PixelSeedsConst pixelSeeds,
                                   ObjectRangesConst ranges) const {
       // implementation is 1D with a single block
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
@@ -304,7 +304,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                     pixelTriplets.logicalLayers()[pixelTripletIndex].data(),
                                     pixelTriplets.lowerModuleIndices()[pixelTripletIndex].data(),
                                     pixelTriplets.hitIndices()[pixelTripletIndex].data(),
-                                    inputPixelSeeds.seedIdx()[pT3PixelIndex - pLS_offset],
+                                    pixelSeeds.seedIdx()[pT3PixelIndex - pLS_offset],
                                     __H2F(pixelTriplets.centerX()[pixelTripletIndex]),
                                     __H2F(pixelTriplets.centerY()[pixelTripletIndex]),
                                     radius,
@@ -370,13 +370,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   uint16_t nLowerModules,
                                   TrackCandidates cands,
                                   SegmentsOccupancyConst segmentsOccupancy,
-                                  InputPixelSeedsConst inputPixelSeeds,
+                                  PixelSeedsConst pixelSeeds,
                                   PixelSegmentsConst pixelSegments,
                                   bool tc_pls_triplets) const {
       unsigned int nPixels = segmentsOccupancy.nSegments()[nLowerModules];
       for (unsigned int pixelArrayIndex : cms::alpakatools::uniform_elements(acc, nPixels)) {
-        if ((tc_pls_triplets ? 0 : !inputPixelSeeds.isQuad()[pixelArrayIndex]) ||
-            (pixelSegments.isDup()[pixelArrayIndex]))
+        if ((tc_pls_triplets ? 0 : !pixelSeeds.isQuad()[pixelArrayIndex]) || (pixelSegments.isDup()[pixelArrayIndex]))
           continue;
 
         unsigned int trackCandidateIdx =
@@ -396,7 +395,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        pixelArrayIndex,
                                        trackCandidateIdx,
                                        pixelSegments.pLSHitsIdxs()[pixelArrayIndex],
-                                       inputPixelSeeds.seedIdx()[pixelArrayIndex]);
+                                       pixelSeeds.seedIdx()[pixelArrayIndex]);
         }
       }
     }
@@ -407,7 +406,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   uint16_t nLowerModules,
                                   PixelQuintupletsConst pixelQuintuplets,
                                   TrackCandidates cands,
-                                  InputPixelSeedsConst inputPixelSeeds,
+                                  PixelSeedsConst pixelSeeds,
                                   ObjectRangesConst ranges) const {
       // implementation is 1D with a single block
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
@@ -441,7 +440,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                     pixelQuintuplets.logicalLayers()[pixelQuintupletIndex].data(),
                                     pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex].data(),
                                     pixelQuintuplets.hitIndices()[pixelQuintupletIndex].data(),
-                                    inputPixelSeeds.seedIdx()[pT5PixelIndex - pLS_offset],
+                                    pixelSeeds.seedIdx()[pT5PixelIndex - pLS_offset],
                                     __H2F(pixelQuintuplets.centerX()[pixelQuintupletIndex]),
                                     __H2F(pixelQuintuplets.centerY()[pixelQuintupletIndex]),
                                     radius,

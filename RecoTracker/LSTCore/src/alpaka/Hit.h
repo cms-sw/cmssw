@@ -43,32 +43,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   unsigned int nEndCapMap,  // Number of elements in endcap map
                                   EndcapGeometryDevConst endcapGeometry,
                                   ModulesConst modules,
-                                  InputHitsConst inputHits,
-                                  Hits hits,
+                                  HitsBaseConst hitsBase,
+                                  HitsExtended hitsExtended,
                                   HitsRanges hitsRanges) const  // Total number of hits in event
     {
       auto geoMapDetId = endcapGeometry.geoMapDetId();  // DetId's from endcap map
       auto geoMapPhi = endcapGeometry.geoMapPhi();      // Phi values from endcap map
-      int nHits = hits.metadata().size();
-      ALPAKA_ASSERT_ACC(nHits == inputHits.metadata().size());
+      int nHits = hitsExtended.metadata().size();
+      ALPAKA_ASSERT_ACC(nHits == hitsBase.metadata().size());
       for (unsigned int ihit : cms::alpakatools::uniform_elements(acc, nHits)) {
-        float ihit_x = inputHits.xs()[ihit];
-        float ihit_y = inputHits.ys()[ihit];
-        float ihit_z = inputHits.zs()[ihit];
-        int iDetId = inputHits.detid()[ihit];
+        float ihit_x = hitsBase.xs()[ihit];
+        float ihit_y = hitsBase.ys()[ihit];
+        float ihit_z = hitsBase.zs()[ihit];
+        int iDetId = hitsBase.detid()[ihit];
 
-        hits.rts()[ihit] = alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y);
-        hits.phis()[ihit] = cms::alpakatools::phi(acc, ihit_x, ihit_y);
-        hits.etas()[ihit] =
+        hitsExtended.rts()[ihit] = alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y);
+        hitsExtended.phis()[ihit] = cms::alpakatools::phi(acc, ihit_x, ihit_y);
+        hitsExtended.etas()[ihit] =
             ((ihit_z > 0) - (ihit_z < 0)) *
-            alpaka::math::acosh(
-                acc, alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y + ihit_z * ihit_z) / hits.rts()[ihit]);
+            alpaka::math::acosh(acc,
+                                alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y + ihit_z * ihit_z) /
+                                    hitsExtended.rts()[ihit]);
         auto found_pointer = alpaka_std::lower_bound(modules.mapdetId(), modules.mapdetId() + nModules, iDetId);
         ALPAKA_ASSERT_ACC(found_pointer != modules.mapdetId() + nModules);
         int found_index = std::distance(modules.mapdetId(), found_pointer);
         uint16_t lastModuleIndex = modules.mapIdx()[found_index];
 
-        hits.moduleIndices()[ihit] = lastModuleIndex;
+        hitsExtended.moduleIndices()[ihit] = lastModuleIndex;
 
         if (modules.subdets()[lastModuleIndex] == Endcap && modules.moduleType()[lastModuleIndex] == TwoS) {
           found_pointer = alpaka_std::lower_bound(geoMapDetId, geoMapDetId + nEndCapMap, iDetId);
@@ -76,11 +77,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           found_index = std::distance(geoMapDetId, found_pointer);
           float phi = geoMapPhi[found_index];
           float cos_phi = alpaka::math::cos(acc, phi);
-          hits.highEdgeXs()[ihit] = ihit_x + 2.5f * cos_phi;
-          hits.lowEdgeXs()[ihit] = ihit_x - 2.5f * cos_phi;
+          hitsExtended.highEdgeXs()[ihit] = ihit_x + 2.5f * cos_phi;
+          hitsExtended.lowEdgeXs()[ihit] = ihit_x - 2.5f * cos_phi;
           float sin_phi = alpaka::math::sin(acc, phi);
-          hits.highEdgeYs()[ihit] = ihit_y + 2.5f * sin_phi;
-          hits.lowEdgeYs()[ihit] = ihit_y - 2.5f * sin_phi;
+          hitsExtended.highEdgeYs()[ihit] = ihit_y + 2.5f * sin_phi;
+          hitsExtended.lowEdgeYs()[ihit] = ihit_y - 2.5f * sin_phi;
         }
         // Need to set initial value if index hasn't been seen before.
         int old = alpaka::atomicCas(acc,

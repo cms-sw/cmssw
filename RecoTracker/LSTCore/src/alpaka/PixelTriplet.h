@@ -21,7 +21,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 ObjectRangesConst ranges,
                                                                 MiniDoubletsConst mds,
                                                                 SegmentsConst segments,
-                                                                InputPixelSeedsConst inputPixelSeeds,
+                                                                PixelSeedsConst pixelSeeds,
                                                                 uint16_t pixelModuleIndex,
                                                                 uint16_t outerInnerLowerModuleIndex,
                                                                 uint16_t outerOuterLowerModuleIndex,
@@ -38,7 +38,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 ObjectRangesConst ranges,
                                                                 MiniDoubletsConst mds,
                                                                 SegmentsConst segments,
-                                                                InputPixelSeedsConst inputPixelSeeds,
+                                                                PixelSeedsConst pixelSeeds,
                                                                 uint16_t pixelModuleIndex,
                                                                 uint16_t outerInnerLowerModuleIndex,
                                                                 uint16_t outerOuterLowerModuleIndex,
@@ -121,7 +121,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                      ObjectRangesConst ranges,
                                                                      MiniDoubletsConst mds,
                                                                      SegmentsConst segments,
-                                                                     InputPixelSeedsConst inputPixelSeeds,
+                                                                     PixelSeedsConst pixelSeeds,
                                                                      uint16_t pixelLowerModuleIndex,
                                                                      uint16_t outerInnerLowerModuleIndex,
                                                                      uint16_t outerOuterLowerModuleIndex,
@@ -144,7 +144,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        ranges,
                                        mds,
                                        segments,
-                                       inputPixelSeeds,
+                                       pixelSeeds,
                                        pixelLowerModuleIndex,
                                        outerInnerLowerModuleIndex,
                                        outerOuterLowerModuleIndex,
@@ -161,7 +161,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        ranges,
                                        mds,
                                        segments,
-                                       inputPixelSeeds,
+                                       pixelSeeds,
                                        pixelLowerModuleIndex,
                                        outerInnerLowerModuleIndex,
                                        outerOuterLowerModuleIndex,
@@ -634,7 +634,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                  ObjectRangesConst ranges,
                                                                  MiniDoubletsConst mds,
                                                                  SegmentsConst segments,
-                                                                 InputPixelSeedsConst inputPixelSeeds,
+                                                                 PixelSeedsConst pixelSeeds,
                                                                  PixelSegmentsConst pixelSegments,
                                                                  TripletsConst triplets,
                                                                  unsigned int pixelSegmentIndex,
@@ -662,7 +662,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              ranges,
                                              mds,
                                              segments,
-                                             inputPixelSeeds,
+                                             pixelSeeds,
                                              pixelModuleIndex,
                                              lowerModuleIndex,
                                              middleModuleIndex,
@@ -677,7 +677,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              ranges,
                                              mds,
                                              segments,
-                                             inputPixelSeeds,
+                                             pixelSeeds,
                                              pixelModuleIndex,
                                              middleModuleIndex,
                                              upperModuleIndex,
@@ -689,12 +689,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     //pt matching between the pixel ptin and the triplet circle pt
     unsigned int pixelSegmentArrayIndex = pixelSegmentIndex - ranges.segmentModuleIndices()[pixelModuleIndex];
-    float pixelSegmentPt = inputPixelSeeds.ptIn()[pixelSegmentArrayIndex];
-    float pixelSegmentPtError = inputPixelSeeds.ptErr()[pixelSegmentArrayIndex];
-    float pixelSegmentPx = inputPixelSeeds.px()[pixelSegmentArrayIndex];
-    float pixelSegmentPy = inputPixelSeeds.py()[pixelSegmentArrayIndex];
-    float pixelSegmentPz = inputPixelSeeds.pz()[pixelSegmentArrayIndex];
-    int pixelSegmentCharge = inputPixelSeeds.charge()[pixelSegmentArrayIndex];
+    float pixelSegmentPt = pixelSeeds.ptIn()[pixelSegmentArrayIndex];
+    float pixelSegmentPtError = pixelSeeds.ptErr()[pixelSegmentArrayIndex];
+    float pixelSegmentPx = pixelSeeds.px()[pixelSegmentArrayIndex];
+    float pixelSegmentPy = pixelSeeds.py()[pixelSegmentArrayIndex];
+    float pixelSegmentPz = pixelSeeds.pz()[pixelSegmentArrayIndex];
+    int pixelSegmentCharge = pixelSeeds.charge()[pixelSegmentArrayIndex];
 
     float pixelG = pixelSegments.circleCenterX()[pixelSegmentArrayIndex];
     float pixelF = pixelSegments.circleCenterY()[pixelSegmentArrayIndex];
@@ -794,7 +794,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   ObjectRangesConst ranges,
                                   MiniDoubletsConst mds,
                                   SegmentsConst segments,
-                                  InputPixelSeedsConst inputPixelSeeds,
+                                  PixelSeedsConst pixelSeeds,
                                   PixelSegmentsConst pixelSegments,
                                   Triplets triplets,
                                   TripletsOccupancyConst tripletsOccupancy,
@@ -862,7 +862,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                       ranges,
                                                       mds,
                                                       segments,
-                                                      inputPixelSeeds,
+                                                      pixelSeeds,
                                                       pixelSegments,
                                                       triplets,
                                                       pixelSegmentIndex,
@@ -883,9 +883,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               float eta =
                   mds.anchorEta()[segments
                                       .mdIndices()[triplets.segmentIndices()[outerTripletIndex][0]][layer2_adjustment]];
-              float eta_pix = inputPixelSeeds.eta()[i_pLS];
-              float phi_pix = inputPixelSeeds.phi()[i_pLS];
-              float pt = inputPixelSeeds.ptIn()[i_pLS];
+              float eta_pix = pixelSeeds.eta()[i_pLS];
+              float phi_pix = pixelSeeds.phi()[i_pLS];
+              float pt = pixelSeeds.ptIn()[i_pLS];
               float score = rPhiChiSquared + rPhiChiSquaredInwards;
               unsigned int totOccupancyPixelTriplets =
                   alpaka::atomicAdd(acc, &pixelTriplets.totOccupancyPixelTriplets(), 1u, alpaka::hierarchy::Threads{});
@@ -931,7 +931,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 ObjectRangesConst ranges,
                                                                 MiniDoubletsConst mds,
                                                                 SegmentsConst segments,
-                                                                InputPixelSeedsConst inputPixelSeeds,
+                                                                PixelSeedsConst pixelSeeds,
                                                                 uint16_t pixelModuleIndex,
                                                                 uint16_t outerInnerLowerModuleIndex,
                                                                 uint16_t outerOuterLowerModuleIndex,
@@ -970,13 +970,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       return false;
 
     unsigned int pixelSegmentArrayIndex = innerSegmentIndex - ranges.segmentModuleIndices()[pixelModuleIndex];
-    float ptIn = inputPixelSeeds.ptIn()[pixelSegmentArrayIndex];
+    float ptIn = pixelSeeds.ptIn()[pixelSegmentArrayIndex];
     float ptSLo = ptIn;
-    float px = inputPixelSeeds.px()[pixelSegmentArrayIndex];
-    float py = inputPixelSeeds.py()[pixelSegmentArrayIndex];
-    float pz = inputPixelSeeds.pz()[pixelSegmentArrayIndex];
-    float ptErr = inputPixelSeeds.ptErr()[pixelSegmentArrayIndex];
-    float etaErr = inputPixelSeeds.etaErr()[pixelSegmentArrayIndex];
+    float px = pixelSeeds.px()[pixelSegmentArrayIndex];
+    float py = pixelSeeds.py()[pixelSegmentArrayIndex];
+    float pz = pixelSeeds.pz()[pixelSegmentArrayIndex];
+    float ptErr = pixelSeeds.ptErr()[pixelSegmentArrayIndex];
+    float etaErr = pixelSeeds.etaErr()[pixelSegmentArrayIndex];
     ptSLo = alpaka::math::max(acc, ptCut, ptSLo - 10.0f * alpaka::math::max(acc, ptErr, 0.005f * ptSLo));
     ptSLo = alpaka::math::min(acc, 10.0f, ptSLo);
 
@@ -1190,7 +1190,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 ObjectRangesConst ranges,
                                                                 MiniDoubletsConst mds,
                                                                 SegmentsConst segments,
-                                                                InputPixelSeedsConst inputPixelSeeds,
+                                                                PixelSeedsConst pixelSeeds,
                                                                 uint16_t pixelModuleIndex,
                                                                 uint16_t outerInnerLowerModuleIndex,
                                                                 uint16_t outerOuterLowerModuleIndex,
@@ -1228,13 +1228,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     unsigned int pixelSegmentArrayIndex = innerSegmentIndex - ranges.segmentModuleIndices()[pixelModuleIndex];
 
-    float ptIn = inputPixelSeeds.ptIn()[pixelSegmentArrayIndex];
+    float ptIn = pixelSeeds.ptIn()[pixelSegmentArrayIndex];
     float ptSLo = ptIn;
-    float px = inputPixelSeeds.px()[pixelSegmentArrayIndex];
-    float py = inputPixelSeeds.py()[pixelSegmentArrayIndex];
-    float pz = inputPixelSeeds.pz()[pixelSegmentArrayIndex];
-    float ptErr = inputPixelSeeds.ptErr()[pixelSegmentArrayIndex];
-    float etaErr = inputPixelSeeds.etaErr()[pixelSegmentArrayIndex];
+    float px = pixelSeeds.px()[pixelSegmentArrayIndex];
+    float py = pixelSeeds.py()[pixelSegmentArrayIndex];
+    float pz = pixelSeeds.pz()[pixelSegmentArrayIndex];
+    float ptErr = pixelSeeds.ptErr()[pixelSegmentArrayIndex];
+    float etaErr = pixelSeeds.etaErr()[pixelSegmentArrayIndex];
 
     ptSLo = alpaka::math::max(acc, ptCut, ptSLo - 10.0f * alpaka::math::max(acc, ptErr, 0.005f * ptSLo));
     ptSLo = alpaka::math::min(acc, 10.0f, ptSLo);

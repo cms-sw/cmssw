@@ -53,7 +53,7 @@ void LST::getOutput(LSTEvent& event) {
   out_tc_seedIdx_.clear();
   out_tc_trackCandidateType_.clear();
 
-  auto const inputHits = event.getTrimmedInputHits(false);  // sync on next line
+  auto const hitsBase = event.getTrimmedHitsBase(false);  // sync on next line
   auto const& trackCandidates = event.getTrackCandidates(/*inCMSSW*/ true, /*sync*/ true);
 
   unsigned int nTrackCandidates = trackCandidates.nTrackCandidates();
@@ -61,7 +61,7 @@ void LST::getOutput(LSTEvent& event) {
   for (unsigned int idx = 0; idx < nTrackCandidates; idx++) {
     short trackCandidateType = trackCandidates.trackCandidateType()[idx];
     std::vector<unsigned int> hit_idx =
-        getHitIdxs(trackCandidateType, trackCandidates.hitIndices()[idx], inputHits.idxs());
+        getHitIdxs(trackCandidateType, trackCandidates.hitIndices()[idx], hitsBase.idxs());
 
     out_tc_hitIdxs_.push_back(hit_idx);
     out_tc_len_.push_back(hit_idx.size());
@@ -149,6 +149,8 @@ void LST::run(Queue& queue,
     printf("# of Quintuplets produced endcap layer 4: %d\n", event.getNumberOfQuintupletsByLayerEndcap(3));
     printf("# of Quintuplets produced endcap layer 5: %d\n", event.getNumberOfQuintupletsByLayerEndcap(4));
   }
+
+  event.addPixelSegmentToEventFinalize();
 
   event.pixelLineSegmentCleaning(no_pls_dupclean);
 

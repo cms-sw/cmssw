@@ -363,7 +363,8 @@ void run_lst() {
                                    trk.ph2_x(),
                                    trk.ph2_y(),
                                    trk.ph2_z(),
-                                   ana.ptCut);
+                                   ana.ptCut,
+                                   queues[0]);
 
     out_lstInputHC.push_back(std::move(lstInputHC));
 

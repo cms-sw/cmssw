@@ -16,7 +16,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
+#include "DataFormats/TrackReco/interface/trackFromSeedFitFailed.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -42,7 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
     const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-    std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> seedTokens_;
+    const std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> seedTokens_;
     const edm::EDPutTokenT<TrajectorySeedCollection> lstPixelSeedsPutToken_;
 
     const edm::EDPutTokenT<lst::LSTInputHostCollection> lstInputPutToken_;
@@ -54,12 +54,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         phase2OTRecHitToken_(consumes(iConfig.getParameter<edm::InputTag>("phase2OTRecHits"))),
         mfToken_(esConsumes()),
         beamSpotToken_(consumes(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+        seedTokens_(
+            edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("seedTracks"),
+                                  [&](const edm::InputTag& tag) { return consumes<edm::View<reco::Track>>(tag); })),
         lstPixelSeedsPutToken_(produces()),
-        lstInputPutToken_(produces()) {
-    seedTokens_ =
-        edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("seedTracks"),
-                              [&](const edm::InputTag& tag) { return consumes<edm::View<reco::Track>>(tag); });
-  }
+        lstInputPutToken_(produces()) {}
 
   void LSTInputProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -124,9 +123,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::vector<std::vector<int>> see_hitIdx;
     TrajectorySeedCollection see_seeds;
 
-    for (size_t iColl = 0; iColl < seedTokens_.size(); ++iColl) {
-      // Get seed tokens
-      auto const& seedToken = seedTokens_[iColl];
+    for (auto const& seedToken : seedTokens_) {
       auto const& seedTracks = iEvent.get(seedToken);
 
       if (seedTracks.empty())
@@ -187,7 +184,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         see_stateTrajGlbPy.push_back(stateGlobal.momentum().y());
         see_stateTrajGlbPz.push_back(stateGlobal.momentum().z());
         see_q.push_back(seedTrack.charge());
-        see_hitIdx.push_back(hitIdx);
+        see_hitIdx.emplace_back(std::move(hitIdx));
         see_seeds.push_back(seed);
       }
     }
@@ -213,7 +210,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                         ph2_y,
                                         ph2_z,
                                         ph2_hits,
-                                        ptCut_);
+                                        ptCut_,
+                                        iEvent.queue());
 
     iEvent.emplace(lstInputPutToken_, std::move(lstInputHC));
     iEvent.emplace(lstPixelSeedsPutToken_, std::move(see_seeds));

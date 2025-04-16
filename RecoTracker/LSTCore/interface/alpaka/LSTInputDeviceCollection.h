@@ -7,7 +7,7 @@
 #include "RecoTracker/LSTCore/interface/LSTInputSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  using LSTInputDeviceCollection = PortableCollection3<InputHitsSoA, InputPixelHitsSoA, InputPixelSeedsSoA>;
+  using LSTInputDeviceCollection = PortableCollection2<HitsBaseSoA, PixelSeedsSoA>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 
 #endif

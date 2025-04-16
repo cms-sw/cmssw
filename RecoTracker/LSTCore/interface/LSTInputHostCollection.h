@@ -6,8 +6,7 @@
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 
 namespace lst {
-  // This needs to be PortableHostCollection3 instead of PortableHostMultiCollection for it to work
-  using LSTInputHostCollection = PortableHostCollection3<InputHitsSoA, InputPixelHitsSoA, InputPixelSeedsSoA>;
+  using LSTInputHostCollection = PortableHostMultiCollection<HitsBaseSoA, PixelSeedsSoA>;
 }  // namespace lst
 
 #endif

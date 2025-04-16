@@ -20,13 +20,14 @@
   <use name="TrackingTools/Records"/>
   <use name="TrackingTools/TrajectoryState"/>
   <use name="TrackingTools/TransientTrackingRecHit"/>
-  <use name="Validation/RecoTrack"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <!-- alpaka-based portable plugins -->
 <library file="alpaka/*.cc" name="RecoTrackerLSTPluginsPortable">
   <use name="alpaka"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="TrackingTools/TrajectoryState"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
@@ -35,8 +36,6 @@
   <use name="RecoTracker/LST"/>
   <use name="RecoTracker/LSTCore"/>
   <use name="RecoTracker/Record"/>
-  <use name="DataFormats/L1TrackTrigger"/>
-  <use name="Validation/RecoTrack"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

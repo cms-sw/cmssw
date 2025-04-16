@@ -1,8 +1,8 @@
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgoForTracker.h"
-#include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/TrackReco/interface/trackFromSeedFitFailed.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

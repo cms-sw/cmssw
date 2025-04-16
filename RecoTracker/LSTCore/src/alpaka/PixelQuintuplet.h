@@ -470,7 +470,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                     ObjectRangesConst ranges,
                                                                     MiniDoubletsConst mds,
                                                                     SegmentsConst segments,
-                                                                    InputPixelSeedsConst inputPixelSeeds,
+                                                                    PixelSeedsConst pixelSeeds,
                                                                     PixelSegmentsConst pixelSegments,
                                                                     TripletsConst triplets,
                                                                     QuintupletsConst quintuplets,
@@ -496,7 +496,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        ranges,
                                        mds,
                                        segments,
-                                       inputPixelSeeds,
+                                       pixelSeeds,
                                        pixelSegments,
                                        triplets,
                                        pixelSegmentIndex,
@@ -549,11 +549,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                      mds.anchorRt()[fourthMDIndex],
                                      mds.anchorRt()[fifthMDIndex]};
 
-    float pixelSegmentPt = inputPixelSeeds.ptIn()[pixelSegmentArrayIndex];
-    float pixelSegmentPx = inputPixelSeeds.px()[pixelSegmentArrayIndex];
-    float pixelSegmentPy = inputPixelSeeds.py()[pixelSegmentArrayIndex];
-    float pixelSegmentPz = inputPixelSeeds.pz()[pixelSegmentArrayIndex];
-    int pixelSegmentCharge = inputPixelSeeds.charge()[pixelSegmentArrayIndex];
+    float pixelSegmentPt = pixelSeeds.ptIn()[pixelSegmentArrayIndex];
+    float pixelSegmentPx = pixelSeeds.px()[pixelSegmentArrayIndex];
+    float pixelSegmentPy = pixelSeeds.py()[pixelSegmentArrayIndex];
+    float pixelSegmentPz = pixelSeeds.pz()[pixelSegmentArrayIndex];
+    int pixelSegmentCharge = pixelSeeds.charge()[pixelSegmentArrayIndex];
 
     rzChiSquared = 0;
 
@@ -643,7 +643,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   ModulesPixelConst modulesPixel,
                                   MiniDoubletsConst mds,
                                   SegmentsConst segments,
-                                  InputPixelSeedsConst inputPixelSeeds,
+                                  PixelSeedsConst pixelSeeds,
                                   PixelSegments pixelSegments,
                                   Triplets triplets,
                                   Quintuplets quintuplets,
@@ -689,7 +689,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          ranges,
                                                          mds,
                                                          segments,
-                                                         inputPixelSeeds,
+                                                         pixelSeeds,
                                                          pixelSegments,
                                                          triplets,
                                                          quintuplets,

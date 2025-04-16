@@ -322,7 +322,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
                                   SegmentsOccupancyConst segmentsOccupancy,
-                                  InputPixelSeedsConst inputPixelSeeds,
+                                  PixelSeedsConst pixelSeeds,
                                   PixelSegments pixelSegments,
                                   bool secondpass) const {
       int pixelModuleIndex = modules.nLowerModules();
@@ -332,7 +332,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         nPixelSegments = n_max_pixel_segments_per_module;
 
       for (unsigned int ix : cms::alpakatools::uniform_elements_y(acc, nPixelSegments)) {
-        if (secondpass && (!inputPixelSeeds.isQuad()[ix] || (pixelSegments.isDup()[ix] & 1)))
+        if (secondpass && (!pixelSeeds.isQuad()[ix] || (pixelSegments.isDup()[ix] & 1)))
           continue;
 
         unsigned int phits1[Params_pLS::kHits];
@@ -340,20 +340,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         phits1[1] = pixelSegments.pLSHitsIdxs()[ix].y;
         phits1[2] = pixelSegments.pLSHitsIdxs()[ix].z;
         phits1[3] = pixelSegments.pLSHitsIdxs()[ix].w;
-        float eta_pix1 = inputPixelSeeds.eta()[ix];
-        float phi_pix1 = inputPixelSeeds.phi()[ix];
+        float eta_pix1 = pixelSeeds.eta()[ix];
+        float phi_pix1 = pixelSeeds.phi()[ix];
 
         for (unsigned int jx : cms::alpakatools::uniform_elements_x(acc, ix + 1, nPixelSegments)) {
-          float eta_pix2 = inputPixelSeeds.eta()[jx];
-          float phi_pix2 = inputPixelSeeds.phi()[jx];
+          float eta_pix2 = pixelSeeds.eta()[jx];
+          float phi_pix2 = pixelSeeds.phi()[jx];
 
           if (alpaka::math::abs(acc, eta_pix2 - eta_pix1) > 0.1f)
             continue;
 
-          if (secondpass && (!inputPixelSeeds.isQuad()[jx] || (pixelSegments.isDup()[jx] & 1)))
+          if (secondpass && (!pixelSeeds.isQuad()[jx] || (pixelSegments.isDup()[jx] & 1)))
             continue;
 
-          int8_t quad_diff = inputPixelSeeds.isQuad()[ix] - inputPixelSeeds.isQuad()[jx];
+          int8_t quad_diff = pixelSeeds.isQuad()[ix] - pixelSeeds.isQuad()[jx];
           float score_diff = pixelSegments.score()[ix] - pixelSegments.score()[jx];
           // Always keep quads over trips. If they are the same, we want the object with better score
           int idxToRemove;

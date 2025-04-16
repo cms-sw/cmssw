@@ -137,7 +137,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   outputpTTC.reserve(lstTC_len.size());
   outputpLSTC.reserve(lstTC_len.size());
 
-  auto OTHits = lstInputHC.const_view<lst::InputHitsSoA>().hits();
+  auto OTHits = lstInputHC.const_view<lst::HitsBaseSoA>().hits();
 
   LogDebug("LSTOutputConverter") << "lstTC size " << lstTC_len.size();
   for (unsigned int i = 0; i < lstTC_len.size(); i++) {

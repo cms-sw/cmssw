@@ -12,7 +12,7 @@
 
 namespace lst {
 
-  GENERATE_SOA_LAYOUT(InputHitsSoALayout,
+  GENERATE_SOA_LAYOUT(HitsBaseSoALayout,
                       SOA_COLUMN(float, xs),
                       SOA_COLUMN(float, ys),
                       SOA_COLUMN(float, zs),
@@ -24,11 +24,9 @@ namespace lst {
 #endif
   )
 
-  GENERATE_SOA_LAYOUT(InputPixelHitsSoALayout,
+  GENERATE_SOA_LAYOUT(PixelSeedsSoALayout,
                       SOA_COLUMN(Params_pLS::ArrayUxHits, hitIndices),
-                      SOA_COLUMN(float, deltaPhi))
-
-  GENERATE_SOA_LAYOUT(InputPixelSeedsSoALayout,
+                      SOA_COLUMN(float, deltaPhi),
                       SOA_COLUMN(unsigned int, seedIdx),
                       SOA_COLUMN(int, charge),
                       SOA_COLUMN(int, superbin),
@@ -43,16 +41,13 @@ namespace lst {
                       SOA_COLUMN(float, eta),
                       SOA_COLUMN(float, phi))
 
-  using InputHitsSoA = InputHitsSoALayout<>;
-  using InputPixelHitsSoA = InputPixelHitsSoALayout<>;
-  using InputPixelSeedsSoA = InputPixelSeedsSoALayout<>;
+  using HitsBaseSoA = HitsBaseSoALayout<>;
+  using PixelSeedsSoA = PixelSeedsSoALayout<>;
 
-  using InputHits = InputHitsSoA::View;
-  using InputHitsConst = InputHitsSoA::ConstView;
-  using InputPixelHits = InputPixelHitsSoA::View;
-  using InputPixelHitsConst = InputPixelHitsSoA::ConstView;
-  using InputPixelSeeds = InputPixelSeedsSoA::View;
-  using InputPixelSeedsConst = InputPixelSeedsSoA::ConstView;
+  using HitsBase = HitsBaseSoA::View;
+  using HitsBaseConst = HitsBaseSoA::ConstView;
+  using PixelSeeds = PixelSeedsSoA::View;
+  using PixelSeedsConst = PixelSeedsSoA::ConstView;
 
 }  // namespace lst
 

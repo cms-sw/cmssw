@@ -16,8 +16,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addMDToMemory(TAcc const& acc,
                                                     MiniDoublets mds,
-                                                    InputHitsConst inputHits,
-                                                    HitsConst hits,
+                                                    HitsBaseConst hitsBase,
+                                                    HitsExtendedConst hitsExtended,
                                                     ModulesConst modules,
                                                     unsigned int lowerHitIdx,
                                                     unsigned int upperHitIdx,
@@ -61,29 +61,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.noShiftedDphis()[idx] = noShiftedDphi;
     mds.noShiftedDphiChanges()[idx] = noShiftedDPhiChange;
 
-    mds.anchorX()[idx] = inputHits.xs()[anchorHitIndex];
-    mds.anchorY()[idx] = inputHits.ys()[anchorHitIndex];
-    mds.anchorZ()[idx] = inputHits.zs()[anchorHitIndex];
-    mds.anchorRt()[idx] = hits.rts()[anchorHitIndex];
-    mds.anchorPhi()[idx] = hits.phis()[anchorHitIndex];
-    mds.anchorEta()[idx] = hits.etas()[anchorHitIndex];
-    mds.anchorHighEdgeX()[idx] = hits.highEdgeXs()[anchorHitIndex];
-    mds.anchorHighEdgeY()[idx] = hits.highEdgeYs()[anchorHitIndex];
-    mds.anchorLowEdgeX()[idx] = hits.lowEdgeXs()[anchorHitIndex];
-    mds.anchorLowEdgeY()[idx] = hits.lowEdgeYs()[anchorHitIndex];
+    mds.anchorX()[idx] = hitsBase.xs()[anchorHitIndex];
+    mds.anchorY()[idx] = hitsBase.ys()[anchorHitIndex];
+    mds.anchorZ()[idx] = hitsBase.zs()[anchorHitIndex];
+    mds.anchorRt()[idx] = hitsExtended.rts()[anchorHitIndex];
+    mds.anchorPhi()[idx] = hitsExtended.phis()[anchorHitIndex];
+    mds.anchorEta()[idx] = hitsExtended.etas()[anchorHitIndex];
+    mds.anchorHighEdgeX()[idx] = hitsExtended.highEdgeXs()[anchorHitIndex];
+    mds.anchorHighEdgeY()[idx] = hitsExtended.highEdgeYs()[anchorHitIndex];
+    mds.anchorLowEdgeX()[idx] = hitsExtended.lowEdgeXs()[anchorHitIndex];
+    mds.anchorLowEdgeY()[idx] = hitsExtended.lowEdgeYs()[anchorHitIndex];
     mds.anchorHighEdgePhi()[idx] = alpaka::math::atan2(acc, mds.anchorHighEdgeY()[idx], mds.anchorHighEdgeX()[idx]);
     mds.anchorLowEdgePhi()[idx] = alpaka::math::atan2(acc, mds.anchorLowEdgeY()[idx], mds.anchorLowEdgeX()[idx]);
 
-    mds.outerX()[idx] = inputHits.xs()[outerHitIndex];
-    mds.outerY()[idx] = inputHits.ys()[outerHitIndex];
-    mds.outerZ()[idx] = inputHits.zs()[outerHitIndex];
-    mds.outerRt()[idx] = hits.rts()[outerHitIndex];
-    mds.outerPhi()[idx] = hits.phis()[outerHitIndex];
-    mds.outerEta()[idx] = hits.etas()[outerHitIndex];
-    mds.outerHighEdgeX()[idx] = hits.highEdgeXs()[outerHitIndex];
-    mds.outerHighEdgeY()[idx] = hits.highEdgeYs()[outerHitIndex];
-    mds.outerLowEdgeX()[idx] = hits.lowEdgeXs()[outerHitIndex];
-    mds.outerLowEdgeY()[idx] = hits.lowEdgeYs()[outerHitIndex];
+    mds.outerX()[idx] = hitsBase.xs()[outerHitIndex];
+    mds.outerY()[idx] = hitsBase.ys()[outerHitIndex];
+    mds.outerZ()[idx] = hitsBase.zs()[outerHitIndex];
+    mds.outerRt()[idx] = hitsExtended.rts()[outerHitIndex];
+    mds.outerPhi()[idx] = hitsExtended.phis()[outerHitIndex];
+    mds.outerEta()[idx] = hitsExtended.etas()[outerHitIndex];
+    mds.outerHighEdgeX()[idx] = hitsExtended.highEdgeXs()[outerHitIndex];
+    mds.outerHighEdgeY()[idx] = hitsExtended.highEdgeYs()[outerHitIndex];
+    mds.outerLowEdgeX()[idx] = hitsExtended.lowEdgeXs()[outerHitIndex];
+    mds.outerLowEdgeY()[idx] = hitsExtended.lowEdgeYs()[outerHitIndex];
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isTighterTiltedModules(ModulesConst modules, uint16_t moduleIndex) {
@@ -677,8 +677,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   struct CreateMiniDoublets {
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
-                                  InputHitsConst inputHits,
-                                  HitsConst hits,
+                                  HitsBaseConst hitsBase,
+                                  HitsExtendedConst hitsExtended,
                                   HitsRangesConst hitsRanges,
                                   MiniDoublets mds,
                                   MiniDoubletsOccupancy mdsOccupancy,
@@ -702,15 +702,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           if (lowerHitIndex >= nLowerHits)
             continue;
           unsigned int lowerHitArrayIndex = loHitArrayIndex + lowerHitIndex;
-          float xLower = inputHits.xs()[lowerHitArrayIndex];
-          float yLower = inputHits.ys()[lowerHitArrayIndex];
-          float zLower = inputHits.zs()[lowerHitArrayIndex];
-          float rtLower = hits.rts()[lowerHitArrayIndex];
+          float xLower = hitsBase.xs()[lowerHitArrayIndex];
+          float yLower = hitsBase.ys()[lowerHitArrayIndex];
+          float zLower = hitsBase.zs()[lowerHitArrayIndex];
+          float rtLower = hitsExtended.rts()[lowerHitArrayIndex];
           unsigned int upperHitArrayIndex = upHitArrayIndex + upperHitIndex;
-          float xUpper = inputHits.xs()[upperHitArrayIndex];
-          float yUpper = inputHits.ys()[upperHitArrayIndex];
-          float zUpper = inputHits.zs()[upperHitArrayIndex];
-          float rtUpper = hits.rts()[upperHitArrayIndex];
+          float xUpper = hitsBase.xs()[upperHitArrayIndex];
+          float yUpper = hitsBase.ys()[upperHitArrayIndex];
+          float zUpper = hitsBase.zs()[upperHitArrayIndex];
+          float rtUpper = hitsExtended.rts()[upperHitArrayIndex];
 
           float dz, dphi, dphichange, shiftedX, shiftedY, shiftedZ, noShiftedDphi, noShiftedDphiChange;
           bool success = runMiniDoubletDefaultAlgo(acc,
@@ -751,8 +751,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
               addMDToMemory(acc,
                             mds,
-                            inputHits,
-                            hits,
+                            hitsBase,
+                            hitsExtended,
                             modules,
                             lowerHitArrayIndex,
                             upperHitArrayIndex,
