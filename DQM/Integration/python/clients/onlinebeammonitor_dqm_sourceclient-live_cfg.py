@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 
 import sys
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("OnlineBeamMonitor", Run3)
+from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+process = cms.Process("OnlineBeamMonitor", Run3_2025)
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
