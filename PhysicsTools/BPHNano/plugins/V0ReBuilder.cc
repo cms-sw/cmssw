@@ -104,9 +104,9 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
     if (!v0daughter2.hasTrackDetails())
       continue;
 
-    if (fabs(v0daughter1.pdgId()) != 211)
+    if (abs(v0daughter1.pdgId()) != 211)
       continue;  // This cut do not affect the Lambda->proton pion candidates
-    if (fabs(v0daughter2.pdgId()) != 211)
+    if (abs(v0daughter2.pdgId()) != 211)
       continue;  // This cut do not affect the Lambda->proton pion candidates
 
     if (!trk_selection_(v0daughter1) || !trk_selection_(v0daughter2))
