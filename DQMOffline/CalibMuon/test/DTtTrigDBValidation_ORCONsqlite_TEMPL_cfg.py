@@ -23,7 +23,6 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTTtrigRcd'),
         tag = cms.string('REFTTRIGTEMPLATE'),
@@ -36,7 +35,6 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
             label = cms.untracked.string('ttrigToValidate')
         )),
     connect = cms.string('CMSCONDVSTEMPLATE'),
-    siteLocalConfig = cms.untracked.bool(False)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",

@@ -33,7 +33,6 @@ process.GlobalTag.globaltag = 'IDEAL_V12::All'
 ## get the tracker alignment records from this file
 process.trackerAlignment = cms.ESSource( "PoolDBESSource",
   process.CondDBSetup,
-  timetype = cms.string( 'runnumber' ),
   toGet = cms.VPSet(
     cms.PSet(
       record = cms.string( 'TrackerAlignmentRcd' ),

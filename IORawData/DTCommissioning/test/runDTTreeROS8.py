@@ -48,7 +48,6 @@ from  CondCore.CondDB.CondDB_cfi import *
 ###### tTrig  #########################################################################
 process.ttrigsource = cms.ESSource("PoolDBESSource", 
     CondDBSetup,
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(record = cms.string('DTTtrigRcd'),
                                label = cms.untracked.string('cosmics'),  ## ONLY if using cosmic reconstruction  
                                tag = cms.string('ttrig')
@@ -59,7 +58,6 @@ process.ttrigsource = cms.ESSource("PoolDBESSource",
     ## connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DT/OfflineCode/GIF2015/LocalDataBases/ttrig_ROS8_1_p520.db'),
     ## connect = cms.string('sqlite_file:ttrig_ROS8_1_p530.db'),
     connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DT/OfflineCode/GIF2015/LocalDataBases/ttrig_ROS8_Tbox410.db'),
-    authenticationMethod = cms.untracked.uint32(0)
     )
 
 process.es_prefer_ttrigsource = cms.ESPrefer('PoolDBESSource','ttrigsource')

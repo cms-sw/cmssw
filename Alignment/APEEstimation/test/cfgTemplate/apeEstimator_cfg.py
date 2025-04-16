@@ -184,7 +184,6 @@ if options.iterNumber!=0:
     CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/'+options.measurementName+'/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'))
     process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
         CondDBAlignmentError,
-        timetype = cms.string("runnumber"),
         toGet = cms.VPSet(
             cms.PSet(
                 record = cms.string('TrackerAlignmentErrorExtendedRcd'),
