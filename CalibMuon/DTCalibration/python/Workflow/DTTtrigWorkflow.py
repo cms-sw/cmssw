@@ -84,7 +84,7 @@ class DTttrigWorkflow( DTWorkflow ):
         if isinstance(self.output_db_dict[self.options.workflow_mode], dict):
             self.output_db_file = self.output_db_file[self.options.command]
         self.prepare_common_write()
-        merged_file = os.path.join(self.result_path, self.output_file)
+        merged_file = os.path.join(self.result_path, "Run"+str(self.options.run)+"_"+self.output_file)
         ttrig_uncorrected_db = os.path.join(self.result_path,
                                             self.get_output_db("timeboxes", "write"))
         self.pset_name = 'dtTTrigWriter_cfg.py'
@@ -135,8 +135,7 @@ class DTttrigWorkflow( DTWorkflow ):
         self.write_pset_file()
 
     def prepare_timeboxes_all(self):
-        # individual prepare functions for all tasks will be called in
-        # main implementation of all
+        # prepare functions for all tasks that will be called in the main implementation of 'all'
         self.all_commands=["submit", "check", "write", "correction", "dump"]
 
     ####################################################################
@@ -148,7 +147,6 @@ class DTttrigWorkflow( DTWorkflow ):
         if self.options.datasettype == "Cosmics":
             self.pset_template = 'CalibMuon.DTCalibration.dtResidualCalibration_cosmics_cfg'
         self.process = tools.loadCmsProcess(self.pset_template)
-        #~ self.process.GlobalTag.globaltag = cms.string(self.options.globaltag)
         self.process.GlobalTag.globaltag = cms.string(str(self.options.globaltag))
         self.process.dtResidualCalibration.rootFileName = self.output_file
         self.prepare_common_submit()

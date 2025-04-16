@@ -350,7 +350,7 @@ class CertInfo:
                               stderr = subprocess.PIPE,
                               shell=True)
         stdout, stderr = p.communicate()
-        print("Grid Certificate:", stdout)
+        # print("Grid Certificate:", stdout)
         if p.returncode != 0:
             self.vo = ""
             self.voGroup = ""
@@ -402,6 +402,7 @@ class CrabTask:
                 raise IOError("File %s not found" % crab_config )
             self.name = crab_config
             self.name = self.crabConfig.General.requestName
+            
         self.uuid = uuid.uuid4()
         #~ self.lock = multiprocessing.Lock()
         #setup logging

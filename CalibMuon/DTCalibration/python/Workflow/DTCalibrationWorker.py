@@ -36,12 +36,12 @@ class DTCalibrationWorker(object):
         return True
 
     def setup_crab_env(self):
+        log.info('Setting up crab environment')
         # following
-        #http://stackoverflow.com/questions/3503719/emulating-bash-source-in-python
+        # http://stackoverflow.com/questions/3503719/emulating-bash-source-in-python
         command = ['bash', '-c', 'unset module;source /cvmfs/cms.cern.ch/crab3/crab.sh && env']
         proc = subprocess.Popen(command, executable = '/bin/bash', stdout = subprocess.PIPE)
 
-        print('setting up crab')
         for line in proc.stdout:
           (key, _, value) = line.partition(b"=")
           os.environ[key.decode()] = value.decode().replace("\n","")
