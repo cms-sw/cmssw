@@ -384,7 +384,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   constexpr uint16_t invalidStrip = std::numeric_limits<uint16_t>::max();
   constexpr uint16_t invalidFed = std::numeric_limits<uint16_t>::max();
   constexpr uint16_t badBit = (1 << 15);
-  constexpr int32_t kMaxSeedStrips = 200000;
+  constexpr int32_t kMaxSeedStrips = 150000;
   constexpr uint16_t stripIndexMask = 0x7FFF;
 
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint16_t fedIndex(uint16_t fed) { return fed - FED_ID_MIN; }
@@ -564,6 +564,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       const auto nSeedStripsNC = (kMaxSeedStrips < clusterDataObj.prefixSeedStripsNCMask(nStrips - 1))
                                      ? kMaxSeedStrips
                                      : clusterDataObj.prefixSeedStripsNCMask(nStrips - 1);
+      //
+      // if(once_per_grid(acc)) {
+      //   printf("clusterDataObj.prefixSeedStripsNCMask(%i)=%i\n", nStrips - 1, clusterDataObj.prefixSeedStripsNCMask(nStrips - 1));
+      // }
       auto channels = stripDataObj.channel();
       auto stripId = stripDataObj.stripId();
       auto adc = stripDataObj.adc();
