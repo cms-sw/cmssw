@@ -5,46 +5,78 @@ from Validation.HGCalValidation.PostProcessorHGCAL_cfi import postProcessorHGCAL
 from Validation.HGCalValidation.PostProcessorHGCAL_cfi import postProcessorHGCALTracksters as _postProcessorHGCALTracksters
 from Validation.HGCalValidation.PostProcessorHGCAL_cfi import postProcessorHGCALCandidates as _postProcessorHGCALCandidates 
 
+from Validation.HGCalValidation.HLTHGCalValidator_cff import hltTiclIterLabels as _hltTiclIterLabels
+from Validation.HGCalValidation.HLTHGCalValidator_cff import hltHgcalValidator as _hltHgcalValidator
+
+hltPrefix = 'HLT/HGCAL/HGCalValidator/'
+hltTracksterLabels = _hltTiclIterLabels.copy()
+hltTracksterLabels.extend(['hltTiclSimTracksters', 'hltTiclSimTracksters_fromCPs'])
+
+hltLcToCP_linking = _hltHgcalValidator.label_LCToCPLinking._InputTag__moduleLabel
 hltPostProcessorHGCALlayerclusters = _postProcessorHGCALlayerclusters.clone(
-    subDirs = cms.untracked.vstring('HLT/HGCAL/HGCalValidator/hgcalMergeLayerClusters/LCToCP_association')
-)
-hltPostProcessorHGCALsimclusters = _postProcessorHGCALsimclusters.clone(
-    subDirs = cms.untracked.vstring(
-        'HLT/HGCAL/HGCalValidator/SimClusters/hltTiclTrackstersCLUE3DHigh/',
-        'HLT/HGCAL/HGCalValidator/SimClusters/hltTiclSimTracksters/',
-        'HLT/HGCAL/HGCalValidator/SimClusters/hltTiclSimTracksters_fromCPs/'
-    )
+    subDirs = cms.untracked.vstring(hltPrefix + _hltHgcalValidator.label_layerClusterPlots._InputTag__moduleLabel + '/' + hltLcToCP_linking),
+    #subDirs = cms.untracked.vstring('HLT/HGCAL/HGCalValidator/hgcalMergeLayerClusters/LCToCP_association')
 )
 
-hltPostProcessorHGCALTracksters = _postProcessorHGCALTracksters.clone(
-    subDirs = cms.untracked.vstring(
-        'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters/TSbyHits',
-        'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters/TSbyHits_CP',
-        'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters/TSbyLCs',
-        'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters/TSbyLCs_CP',
-        'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters_fromCPs/TSbyHits'
-        'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters_fromCPs/TSbyHits_CP',
-        'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters_fromCPs/TSbyLCs',
-        'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters_fromCPs/TSbyLCs_CP',
-        'HLT/HGCAL/HGCalValidator/hltTiclTrackstersCLUE3DHigh/TSbyHits',
-        'HLT/HGCAL/HGCalValidator/hltTiclTrackstersCLUE3DHigh/TSbyLCs',
-        'HLT/HGCAL/HGCalValidator/hltTiclTrackstersCLUE3DHigh/TSbyLCs_CP',
-        'HLT/HGCAL/HGCalValidator/hltTiclTrackstersCLUE3DHigh/TSbyHits_CP',
-        'HLT/HGCAL/HGCalValidator/hltTiclTrackstersMerge/TSbyHits',
-        'HLT/HGCAL/HGCalValidator/hltTiclTrackstersMerge/TSbyHits_CP',
-        'HLT/HGCAL/HGCalValidator/hltTiclTrackstersMerge/TSbyLCs',
-        'HLT/HGCAL/HGCalValidator/hltTiclTrackstersMerge/TSbyLCs_CP',
-    ),
+hltSubdirsSim = [hltPrefix + _hltHgcalValidator.label_SimClusters._InputTag__moduleLabel + '/'+iteration+'/' for iteration in hltTracksterLabels]
+hltPostProcessorHGCALsimclusters = _postProcessorHGCALsimclusters.clone(
+    subDirs = cms.untracked.vstring(hltSubdirsSim),
+    # subDirs = cms.untracked.vstring(
+    #     'HLT/HGCAL/HGCalValidator/SimClusters/hltTiclTrackstersCLUE3DHigh/',
+    #     'HLT/HGCAL/HGCalValidator/SimClusters/hltTiclSimTracksters/',
+    #     'HLT/HGCAL/HGCalValidator/SimClusters/hltTiclSimTracksters_fromCPs/'
+    # )
 )
+
+hltTSbyHits_CP = _hltHgcalValidator.label_TSbyHitsCP.value()
+hltSubdirsTracksters = [hltPrefix+iteration+'/'+hltTSbyHits_CP for iteration in hltTracksterLabels]
+
+hltTSbyLCs = _hltHgcalValidator.label_TSbyLCs.value()
+hltSubdirsTracksters.extend(hltPrefix+iteration+'/'+hltTSbyLCs for iteration in hltTracksterLabels)
+
+hltTSbyLCs_CP = _hltHgcalValidator.label_TSbyLCsCP.value()
+hltSubdirsTracksters.extend(hltPrefix+iteration+'/'+hltTSbyLCs_CP for iteration in hltTracksterLabels)
+
+hltTSbyHits = _hltHgcalValidator.label_TSbyHits.value()
+hltSubdirsTracksters.extend(hltPrefix+iteration+'/'+hltTSbyHits for iteration in hltTracksterLabels)
+
+hltPostProcessorHGCALTracksters = _postProcessorHGCALTracksters.clone(
+    subDirs = cms.untracked.vstring(hltSubdirsTracksters),
+    # subDirs = cms.untracked.vstring(
+    #     'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters/TSbyHits',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters/TSbyHits_CP',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters/TSbyLCs',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters/TSbyLCs_CP',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters_fromCPs/TSbyHits'
+    #     'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters_fromCPs/TSbyHits_CP',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters_fromCPs/TSbyLCs',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclSimTracksters_fromCPs/TSbyLCs_CP',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclTrackstersCLUE3DHigh/TSbyHits',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclTrackstersCLUE3DHigh/TSbyLCs',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclTrackstersCLUE3DHigh/TSbyLCs_CP',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclTrackstersCLUE3DHigh/TSbyHits_CP',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclTrackstersMerge/TSbyHits',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclTrackstersMerge/TSbyHits_CP',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclTrackstersMerge/TSbyLCs',
+    #     'HLT/HGCAL/HGCalValidator/hltTiclTrackstersMerge/TSbyLCs_CP',
+    # ),
+)
+
+
+hltNeutrals = ["photons", "neutral_pions", "neutral_hadrons"]
+hltCharged = ["electrons", "muons", "charged_hadrons"]
+hltSubDirsCandidates = [hltPrefix + _hltHgcalValidator.ticlCandidates.value() + "/" + c for cands in (hltNeutrals, hltCharged) for c in cands]
+
 hltPostProcessorHGCALCandidates = _postProcessorHGCALCandidates.clone(
-    subDirs = cms.untracked.vstring(
-        'HLT/HGCAL/HGCalValidator/ticlCandidates/photons',
-        'HLT/HGCAL/HGCalValidator/ticlCandidates/neutral_pions',
-        'HLT/HGCAL/HGCalValidator/ticlCandidates/neutral_hadrons',
-        'HLT/HGCAL/HGCalValidator/ticlCandidates/electrons',
-        'HLT/HGCAL/HGCalValidator/ticlCandidates/muons',
-        'HLT/HGCAL/HGCalValidator/ticlCandidates/charged_hadrons'
-    )
+    subDirs = cms.untracked.vstring(hltSubDirsCandidates),
+    # subDirs = cms.untracked.vstring(
+    #     'HLT/HGCAL/HGCalValidator/ticlCandidates/photons',
+    #     'HLT/HGCAL/HGCalValidator/ticlCandidates/neutral_pions',
+    #     'HLT/HGCAL/HGCalValidator/ticlCandidates/neutral_hadrons',
+    #     'HLT/HGCAL/HGCalValidator/ticlCandidates/electrons',
+    #     'HLT/HGCAL/HGCalValidator/ticlCandidates/muons',
+    #     'HLT/HGCAL/HGCalValidator/ticlCandidates/charged_hadrons'
+    # )
 )
 
 hltHcalValidatorPostProcessor = cms.Sequence(
