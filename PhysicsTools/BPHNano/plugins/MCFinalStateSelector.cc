@@ -14,15 +14,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class MCFinalStateSelector : public edm::global::EDProducer<> {
- public:
+public:
   MCFinalStateSelector(edm::ParameterSet const& params)
       : objName_(params.getParameter<std::string>("objName")),
         branchName_(params.getParameter<std::string>("branchName")),
         doc_(params.getParameter<std::string>("docString")),
-        src_(consumes<reco::CandidateView>(
-            params.getParameter<edm::InputTag>("src"))),
-        candMap_(consumes<edm::Association<reco::GenParticleCollection>>(
-            params.getParameter<edm::InputTag>("mcMap"))) {
+        src_(consumes<reco::CandidateView>(params.getParameter<edm::InputTag>("src"))),
+        candMap_(consumes<edm::Association<reco::GenParticleCollection>>(params.getParameter<edm::InputTag>("mcMap"))) {
     produces<nanoaod::FlatTable>();
     const std::string& type = params.getParameter<std::string>("objType");
     if (type == "Muon")
@@ -40,8 +38,7 @@ class MCFinalStateSelector : public edm::global::EDProducer<> {
     else if (type == "Other")
       type_ = MOther;
     else
-      throw cms::Exception("Configuration",
-                           "Unsupported objType '" + type + "'\n");
+      throw cms::Exception("Configuration", "Unsupported objType '" + type + "'\n");
 
     switch (type_) {
       case MMuon:
@@ -59,8 +56,7 @@ class MCFinalStateSelector : public edm::global::EDProducer<> {
             "511 = from B0, 521 = from B+/-, 0 = unknown or unmatched";
         break;
       case MPhoton:
-        flavDoc_ =
-            "1 = prompt photon, 13 = prompt electron, 0 = unknown or unmatched";
+        flavDoc_ = "1 = prompt photon, 13 = prompt electron, 0 = unknown or unmatched";
         break;
       case MTau:
         flavDoc_ =
@@ -82,21 +78,19 @@ class MCFinalStateSelector : public edm::global::EDProducer<> {
     }
 
     if (type_ == MTau) {
-      candMapVisTau_ = consumes<edm::Association<reco::GenParticleCollection>>(
-          params.getParameter<edm::InputTag>("mcMapVisTau"));
+      candMapVisTau_ =
+          consumes<edm::Association<reco::GenParticleCollection>>(params.getParameter<edm::InputTag>("mcMapVisTau"));
     }
   }
 
   ~MCFinalStateSelector() override {}
 
-  void produce(edm::StreamID id, edm::Event& iEvent,
-               const edm::EventSetup& iSetup) const override {
+  void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
     edm::Handle<reco::CandidateView> cands;
     iEvent.getByToken(src_, cands);
     unsigned int ncand = cands->size();
 
-    auto tab =
-        std::make_unique<nanoaod::FlatTable>(ncand, objName_, false, true);
+    auto tab = std::make_unique<nanoaod::FlatTable>(ncand, objName_, false, true);
 
     edm::Handle<edm::Association<reco::GenParticleCollection>> map;
     iEvent.getByToken(candMap_, map);
@@ -131,32 +125,24 @@ class MCFinalStateSelector : public edm::global::EDProducer<> {
           break;
         case MElectron:
           if (match->isPromptFinalState())
-            flav[i] =
-                (match->pdgId() == 22 ? 22 : 1);  // prompt electron or photon
+            flav[i] = (match->pdgId() == 22 ? 22 : 1);  // prompt electron or photon
           else
             flav[i] = getParentHadronFlag(match);  // pdgId of mother
           break;
         case MPhoton:
           if (match->isPromptFinalState())
-            flav[i] =
-                (match->pdgId() == 22 ? 1 : 13);  // prompt electron or photon
+            flav[i] = (match->pdgId() == 22 ? 1 : 13);  // prompt electron or photon
           break;
         case MTau:
           // CV: assignment of status codes according to
           // https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
-          if (match.isNonnull() && match->statusFlags().isPrompt() &&
-              abs(match->pdgId()) == 11)
+          if (match.isNonnull() && match->statusFlags().isPrompt() && abs(match->pdgId()) == 11)
             flav[i] = 1;
-          else if (match.isNonnull() && match->statusFlags().isPrompt() &&
-                   abs(match->pdgId()) == 13)
+          else if (match.isNonnull() && match->statusFlags().isPrompt() && abs(match->pdgId()) == 13)
             flav[i] = 2;
-          else if (match.isNonnull() &&
-                   match->isDirectPromptTauDecayProductFinalState() &&
-                   abs(match->pdgId()) == 11)
+          else if (match.isNonnull() && match->isDirectPromptTauDecayProductFinalState() && abs(match->pdgId()) == 11)
             flav[i] = 3;
-          else if (match.isNonnull() &&
-                   match->isDirectPromptTauDecayProductFinalState() &&
-                   abs(match->pdgId()) == 13)
+          else if (match.isNonnull() && match->isDirectPromptTauDecayProductFinalState() && abs(match->pdgId()) == 13)
             flav[i] = 4;
           else if (matchVisTau.isNonnull())
             flav[i] = 5;
@@ -178,14 +164,12 @@ class MCFinalStateSelector : public edm::global::EDProducer<> {
       };
     }
 
-    tab->addColumn<int>(branchName_ + "Idx", key,
-                        "Index into genParticle list for " + doc_);
+    tab->addColumn<int>(branchName_ + "Idx", key, "Index into genParticle list for " + doc_);
     // for(auto ij : flav) std::cout << " flav = " << ij << " " << (uint8_t)ij
     // << std::endl; tab->addColumn<uint8_t>(branchName_+"Flav", flav, "Flavour
     // of genParticle for "+doc_+": "+flavDoc_,
     // nanoaod::FlatTable::UInt8Column);
-    tab->addColumn<int>(branchName_ + "Flav", flav,
-                        "Flavour of genParticle for " + doc_ + ": " + flavDoc_);
+    tab->addColumn<int>(branchName_ + "Flav", flav, "Flavour of genParticle for " + doc_ + ": " + flavDoc_);
 
     iEvent.put(std::move(tab));
   }
@@ -194,29 +178,20 @@ class MCFinalStateSelector : public edm::global::EDProducer<> {
     for (unsigned int im = 0, nm = match->numberOfMothers(); im < nm; ++im) {
       reco::GenParticleRef mom = match->motherRef(im);
       assert(mom.isNonnull() && mom.isAvailable());  // sanity
-      if (mom.key() >= match.key()) continue;        // prevent circular refs
+      if (mom.key() >= match.key())
+        continue;  // prevent circular refs
       int id = std::abs(mom->pdgId());
       return id;
     }
     return 0;
   }
 
- protected:
+protected:
   const std::string objName_, branchName_, doc_;
   const edm::EDGetTokenT<reco::CandidateView> src_;
-  const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>>
-      candMap_;
-  edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>>
-      candMapVisTau_;
-  enum MatchType {
-    MMuon,
-    MElectron,
-    MTau,
-    MPhoton,
-    MTrack,
-    MOther,
-    MKshort
-  } type_;
+  const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>> candMap_;
+  edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>> candMapVisTau_;
+  enum MatchType { MMuon, MElectron, MTau, MPhoton, MTrack, MOther, MKshort } type_;
   std::string flavDoc_;
 };
 
