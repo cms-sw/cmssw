@@ -16,7 +16,6 @@
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDoubletsAnalyzer.h"
 
 #include <cstddef>
 
@@ -57,11 +56,16 @@ namespace simdoublets {
       pT_ = curvature_ / 87.78f;
 
       // cluster size variables
-      Ysize_ = doublet.innerRecHit()->cluster()->sizeY();
-      DYsize_ = std::abs(Ysize_ - doublet.outerRecHit()->cluster()->sizeY());
+      Ysize_ = doublet.innerClusterYSize();
+      DYsize_ = std::abs(Ysize_ - doublet.outerClusterYSize());
       DYPred_ = std::abs(Ysize_ - int(std::abs(dz_ / dr_) * pixelTopology::Phase2::dzdrFact + 0.5f));
 
       // cuts on doublet connections (loop over all inner neighboring doublets)
+      // reset them first
+      CAThetaCut_.clear();
+      dcaCut_.clear();
+      hardCurvCut_.clear();
+      // then, refill
       for (auto const& neighbor : doublet.innerNeighborsView()) {
         // get the inner RecHit of the inner neighbor
         GlobalPoint neighbor_globalPosition = simDoublets.getSimDoublet(neighbor.index()).innerGlobalPos();
@@ -140,6 +144,12 @@ namespace simdoublets {
 
     // function that determines for a given doublet which cuts should be applied
     void setSubjectsToCuts(SimDoublets::Doublet const& doublet) {
+      // first check if the inner cluster size is even positive
+      // because if not (cluster at module edge), no cut will be applied no matter what
+      if (doublet.innerClusterYSize() < 0) {
+        return;
+      }
+
       // determine the moduleId
       const GeomDetUnit* geomDetUnit = doublet.innerRecHit()->det();
       const uint32_t moduleId = geomDetUnit->index();
@@ -165,10 +175,13 @@ namespace simdoublets {
       // DYsize, DYsizeB12 & DYPred cuts
       if ((!(innerInB1) || isOuterLadder) && (innerInBarrel || onlyBarrel)) {
         if (onlyBarrel) {  // onlyBarrel
-          if (innerInB1) {
-            setSubjectToDYsize12();
-          } else {
-            setSubjectToDYsize();
+          // also check if the outer cluster size is positive
+          if (doublet.outerClusterYSize() > 0) {
+            if (innerInB1) {
+              setSubjectToDYsize12();
+            } else {
+              setSubjectToDYsize();
+            }
           }
         } else {  // innerInBarrel but not onlyBarrel
           setSubjectToDYPred();
@@ -1002,8 +1015,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                         "Curvature [1/cm]",
                         "Number of SimDoublet connections",
                         51,
-                        -0.004,
-                        0.004);
+                        -0.04,
+                        0.04);
   h_dcaCutInnerTriplet_.book1DLogX(ibook,
                                    "dcaInner",
                                    "Closest transverse distance to beamspot based on the 3 RecHits of a pair of "
@@ -1080,15 +1093,15 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                         0,
                         1,
                         " ");
-  h_aliveNtuplet_firstLayerVsEta_ =
-      ibook.book2D("alive_firstLayerVsEta",
-                   "First layer of longest alive SimNtuplet per TrackingParticle;True pseudorapidity #eta;First layer ID",
-                   etaNBins,
-                   etamin,
-                   etamax,
-                   TrackerTraits::numberOfLayers,
-                   -0.5,
-                   -0.5 + TrackerTraits::numberOfLayers);
+  h_aliveNtuplet_firstLayerVsEta_ = ibook.book2D(
+      "alive_firstLayerVsEta",
+      "First layer of longest alive SimNtuplet per TrackingParticle;True pseudorapidity #eta;First layer ID",
+      etaNBins,
+      etamin,
+      etamax,
+      TrackerTraits::numberOfLayers,
+      -0.5,
+      -0.5 + TrackerTraits::numberOfLayers);
   h_aliveNtuplet_lastLayerVsEta_ =
       ibook.book2D("alive_lastLayerVsEta",
                    "Last layer of longest alive SimNtuplet per TrackingParticle;True pseudorapidity #eta;Last layer ID",
