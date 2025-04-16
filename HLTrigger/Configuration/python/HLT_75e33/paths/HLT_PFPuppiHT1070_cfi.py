@@ -17,8 +17,8 @@ HLT_PFPuppiHT1070 = cms.Path(
     HLTBeginSequence
     + hltL1SeedsForPuppiHTFilter
     + HLTRawToDigiSequence
-    + HLTTICLLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

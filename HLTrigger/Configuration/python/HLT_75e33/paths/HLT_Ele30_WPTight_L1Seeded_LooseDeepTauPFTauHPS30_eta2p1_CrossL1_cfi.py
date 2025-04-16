@@ -56,8 +56,8 @@ HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1 = cms.Path(
     HLTBeginSequence +
     hltPuppiTauTkIsoEle45_22L1TkFilter +
     HLTRawToDigiSequence +
-    HLTTICLLocalRecoSequence +
     HLTLocalrecoSequence +
+    HLTTICLLocalRecoSequence +
     HLTDoFullUnpackingEgammaEcalL1SeededSequence +
     HLTPFClusteringForEgammaL1SeededSequence +
     HLTHgcalTiclPFClusteringForEgammaL1SeededSequence +

@@ -16,8 +16,8 @@ HLT_AK4PFPuppiJet520 = cms.Path(
     HLTBeginSequence
     + hltL1SeedsForPuppiJetFilter
     + HLTRawToDigiSequence
-    + HLTTICLLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence
