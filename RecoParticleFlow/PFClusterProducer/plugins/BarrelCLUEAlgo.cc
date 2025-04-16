@@ -313,12 +313,6 @@ int BarrelCLUEAlgoT<T>::findAndAssignClusters(const unsigned int layerId, float 
   unsigned int numberOfCells = cellsOnLayer.detid.size();
   std::vector<int> localStack;
   for (unsigned int i = 0; i < numberOfCells; ++i) {
-    int depth = 0;
-    if constexpr (!std::is_same_v<T, EBLayerTiles>) {
-      HcalDetId hid(cellsOnLayer.detid[i]);
-      depth = hid.depth();
-    }
-
     float rho_c = kappa_ * cellsOnLayer.sigmaNoise[i];
     float delta = delta_c;
 
