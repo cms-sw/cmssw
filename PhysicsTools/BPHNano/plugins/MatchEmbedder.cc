@@ -21,30 +21,26 @@ template <typename PATOBJ>
 class MatchEmbedder : public edm::global::EDProducer<> {
   // perhaps we need better structure here (begin run etc)
 
- public:
+public:
   explicit MatchEmbedder(const edm::ParameterSet &cfg)
-      : src_{consumes<PATOBJCollection>(
-            cfg.getParameter<edm::InputTag>("src"))},
-        matching_{consumes<edm::Association<reco::GenParticleCollection> >(
-            cfg.getParameter<edm::InputTag>("matching"))} {
+      : src_{consumes<PATOBJCollection>(cfg.getParameter<edm::InputTag>("src"))},
+        matching_{
+            consumes<edm::Association<reco::GenParticleCollection> >(cfg.getParameter<edm::InputTag>("matching"))} {
     produces<PATOBJCollection>();
   }
 
   ~MatchEmbedder() override {}
 
-  void produce(edm::StreamID, edm::Event &,
-               const edm::EventSetup &) const override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
- private:
+private:
   typedef std::vector<PATOBJ> PATOBJCollection;
   const edm::EDGetTokenT<PATOBJCollection> src_;
-  const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >
-      matching_;
+  const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > matching_;
 };
 
 template <typename PATOBJ>
-void MatchEmbedder<PATOBJ>::produce(edm::StreamID, edm::Event &evt,
-                                    edm::EventSetup const &iSetup) const {
+void MatchEmbedder<PATOBJ>::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const &iSetup) const {
   // input
   edm::Handle<PATOBJCollection> src;
   evt.getByToken(src_, src);

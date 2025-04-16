@@ -41,11 +41,11 @@
 //
 
 class PVertexBPHTable : public edm::stream::EDProducer<> {
- public:
+public:
   explicit PVertexBPHTable(const edm::ParameterSet&);
   ~PVertexBPHTable() override;
 
- private:
+private:
   void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
@@ -62,10 +62,8 @@ class PVertexBPHTable : public edm::stream::EDProducer<> {
 // constructors and destructor
 //
 PVertexBPHTable::PVertexBPHTable(const edm::ParameterSet& params)
-    : pvs_(consumes<std::vector<reco::Vertex>>(
-          params.getParameter<edm::InputTag>("pvSrc"))),
-      pvsScore_(consumes<edm::ValueMap<float>>(
-          params.getParameter<edm::InputTag>("pvSrc"))),
+    : pvs_(consumes<std::vector<reco::Vertex>>(params.getParameter<edm::InputTag>("pvSrc"))),
+      pvsScore_(consumes<edm::ValueMap<float>>(params.getParameter<edm::InputTag>("pvSrc"))),
       goodPvCut_(params.getParameter<std::string>("goodPvCut"), true),
       pvName_(params.getParameter<std::string>("pvName"))
 
@@ -85,15 +83,13 @@ PVertexBPHTable::~PVertexBPHTable() {
 
 // ------------ method called to produce the data  ------------
 
-void PVertexBPHTable::produce(edm::Event& iEvent,
-                              const edm::EventSetup& iSetup) {
+void PVertexBPHTable::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   const auto& pvsScoreProd = iEvent.get(pvsScore_);
   auto pvsCol = iEvent.getHandle(pvs_);
 
   auto selCandPv = std::make_unique<PtrVector<reco::Candidate>>();
-  std::vector<float> pvscore, chi2, covXX, covYY, covZZ, covXY, covXZ, covYZ,
-      vx, vy, vz, pt, eta, phi, mass, ndof;
+  std::vector<float> pvscore, chi2, covXX, covYY, covZZ, covXY, covXZ, covYZ, vx, vy, vz, pt, eta, phi, mass, ndof;
   std::vector<int> charge, ntracks;
 
   size_t i = 0;
@@ -121,8 +117,7 @@ void PVertexBPHTable::produce(edm::Event& iEvent,
     ndof.push_back(pv.ndof());
     i++;
   }
-  auto table = std::make_unique<nanoaod::FlatTable>(pvscore.size(), pvName_,
-                                                    false, false);
+  auto table = std::make_unique<nanoaod::FlatTable>(pvscore.size(), pvName_, false, false);
   table->addColumn<float>("score", pvscore, "", 10);
   table->addColumn<float>("vx", vx, "", 10);
   table->addColumn<float>("vy", vy, "", 10);

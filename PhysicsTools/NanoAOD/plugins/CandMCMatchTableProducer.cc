@@ -15,15 +15,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CandMCMatchTableProducer : public edm::global::EDProducer<> {
- public:
+public:
   CandMCMatchTableProducer(edm::ParameterSet const& params)
       : objName_(params.getParameter<std::string>("objName")),
         branchName_(params.getParameter<std::string>("branchName")),
         doc_(params.getParameter<std::string>("docString")),
-        src_(consumes<reco::CandidateView>(
-            params.getParameter<edm::InputTag>("src"))),
-        candMap_(consumes<edm::Association<reco::GenParticleCollection>>(
-            params.getParameter<edm::InputTag>("mcMap"))) {
+        src_(consumes<reco::CandidateView>(params.getParameter<edm::InputTag>("src"))),
+        candMap_(consumes<edm::Association<reco::GenParticleCollection>>(params.getParameter<edm::InputTag>("mcMap"))) {
     produces<nanoaod::FlatTable>();
     const std::string& type = params.getParameter<std::string>("objType");
     if (type == "Muon")
@@ -39,8 +37,7 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
     else if (type == "Other")
       type_ = MOther;
     else
-      throw cms::Exception("Configuration",
-                           "Unsupported objType '" + type + "'\n");
+      throw cms::Exception("Configuration", "Unsupported objType '" + type + "'\n");
 
     switch (type_) {
       case MMuon:
@@ -59,8 +56,7 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
             "or unknown, 0 = unmatched";
         break;
       case MPhoton:
-        flavDoc_ =
-            "1 = prompt photon, 11 = prompt electron, 0 = unknown or unmatched";
+        flavDoc_ = "1 = prompt photon, 11 = prompt electron, 0 = unknown or unmatched";
         break;
       case MTau:
         flavDoc_ =
@@ -79,29 +75,25 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
     }
 
     if (type_ == MTau) {
-      candMapVisTau_ = consumes<edm::Association<reco::GenParticleCollection>>(
-          params.getParameter<edm::InputTag>("mcMapVisTau"));
+      candMapVisTau_ =
+          consumes<edm::Association<reco::GenParticleCollection>>(params.getParameter<edm::InputTag>("mcMapVisTau"));
     }
 
     if (type_ == MElectron) {
-      candMapDressedLep_ = consumes<edm::Association<reco::GenJetCollection>>(
-          params.getParameter<edm::InputTag>("mcMapDressedLep"));
-      mapTauAnc_ = consumes<edm::ValueMap<bool>>(
-          params.getParameter<edm::InputTag>("mapTauAnc"));
-      genPartsToken_ = consumes<reco::GenParticleCollection>(
-          params.getParameter<edm::InputTag>("genparticles"));
+      candMapDressedLep_ =
+          consumes<edm::Association<reco::GenJetCollection>>(params.getParameter<edm::InputTag>("mcMapDressedLep"));
+      mapTauAnc_ = consumes<edm::ValueMap<bool>>(params.getParameter<edm::InputTag>("mapTauAnc"));
+      genPartsToken_ = consumes<reco::GenParticleCollection>(params.getParameter<edm::InputTag>("genparticles"));
     }
   }
 
   ~CandMCMatchTableProducer() override {}
 
-  void produce(edm::StreamID id, edm::Event& iEvent,
-               const edm::EventSetup& iSetup) const override {
+  void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
     const auto& candProd = iEvent.get(src_);
     auto ncand = candProd.size();
 
-    auto tab =
-        std::make_unique<nanoaod::FlatTable>(ncand, objName_, false, true);
+    auto tab = std::make_unique<nanoaod::FlatTable>(ncand, objName_, false, true);
 
     const auto& mapProd = iEvent.get(candMap_);
 
@@ -154,8 +146,7 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
           else if (match->isDirectPromptTauDecayProductFinalState())
             flav[i] = 15;  // tau
           else
-            flav[i] =
-                getParentHadronFlag(match);  // 3 = light, 4 = charm, 5 = b
+            flav[i] = getParentHadronFlag(match);  // 3 = light, 4 = charm, 5 = b
           break;
         case MElectron:
           if (matchDressedLep.isNonnull()) {
@@ -167,20 +158,18 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
             float minpt = 0;
             const reco::GenParticle* highestPtConstituent = nullptr;
             for (auto& consti : matchDressedLep->getGenConstituents()) {
-              if (abs(consti->pdgId()) != 11) continue;
-              if (consti->pt() < minpt) continue;
+              if (abs(consti->pdgId()) != 11)
+                continue;
+              if (consti->pt() < minpt)
+                continue;
               minpt = consti->pt();
               highestPtConstituent = consti;
             }
             if (highestPtConstituent) {
-              auto iter = std::find_if(
-                  genParts->begin(), genParts->end(),
-                  [highestPtConstituent](reco::GenParticle genp) {
-                    return (abs(genp.pdgId()) == 11) &&
-                           (deltaR(genp, *highestPtConstituent) < 0.01) &&
-                           (abs(genp.pt() - highestPtConstituent->pt()) /
-                                highestPtConstituent->pt() <
-                            0.01);
+              auto iter =
+                  std::find_if(genParts->begin(), genParts->end(), [highestPtConstituent](reco::GenParticle genp) {
+                    return (abs(genp.pdgId()) == 11) && (deltaR(genp, *highestPtConstituent) < 0.01) &&
+                           (abs(genp.pt() - highestPtConstituent->pt()) / highestPtConstituent->pt() < 0.01);
                   });
               if (iter != genParts->end()) {
                 key[i] = iter - genParts->begin();
@@ -189,38 +178,29 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
           } else if (!match.isNonnull())
             flav[i] = 0;
           else if (match->isPromptFinalState())
-            flav[i] =
-                (match->pdgId() == 22 ? 22 : 1);  // prompt electron or photon
+            flav[i] = (match->pdgId() == 22 ? 22 : 1);  // prompt electron or photon
           else if (match->isDirectPromptTauDecayProductFinalState())
             flav[i] = 15;  // tau
           else
-            flav[i] =
-                getParentHadronFlag(match);  // 3 = light, 4 = charm, 5 = b
+            flav[i] = getParentHadronFlag(match);  // 3 = light, 4 = charm, 5 = b
           break;
         case MPhoton:
           if (match->isPromptFinalState() && match->pdgId() == 22)
             flav[i] = 1;  // prompt photon
-          else if ((match->isPromptFinalState() ||
-                    match->isDirectPromptTauDecayProductFinalState()) &&
+          else if ((match->isPromptFinalState() || match->isDirectPromptTauDecayProductFinalState()) &&
                    abs(match->pdgId()) == 11)
             flav[i] = 11;  // prompt electron
           break;
         case MTau:
           // CV: assignment of status codes according to
           // https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
-          if (match.isNonnull() && match->statusFlags().isPrompt() &&
-              abs(match->pdgId()) == 11)
+          if (match.isNonnull() && match->statusFlags().isPrompt() && abs(match->pdgId()) == 11)
             flav[i] = 1;
-          else if (match.isNonnull() && match->statusFlags().isPrompt() &&
-                   abs(match->pdgId()) == 13)
+          else if (match.isNonnull() && match->statusFlags().isPrompt() && abs(match->pdgId()) == 13)
             flav[i] = 2;
-          else if (match.isNonnull() &&
-                   match->isDirectPromptTauDecayProductFinalState() &&
-                   abs(match->pdgId()) == 11)
+          else if (match.isNonnull() && match->isDirectPromptTauDecayProductFinalState() && abs(match->pdgId()) == 11)
             flav[i] = 3;
-          else if (match.isNonnull() &&
-                   match->isDirectPromptTauDecayProductFinalState() &&
-                   abs(match->pdgId()) == 13)
+          else if (match.isNonnull() && match->isDirectPromptTauDecayProductFinalState() && abs(match->pdgId()) == 13)
             flav[i] = 4;
           else if (matchVisTau.isNonnull())
             flav[i] = 5;
@@ -236,12 +216,10 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
       };
     }
 
-    tab->addColumn<int16_t>(branchName_ + "Idx", key,
-                            "Index into genParticle list for " + doc_);
-    tab->addColumn<uint8_t>(
-        branchName_ + "Flav", flav,
-        "Flavour of genParticle (DressedLeptons for electrons) for " + doc_ +
-            ": " + flavDoc_);
+    tab->addColumn<int16_t>(branchName_ + "Idx", key, "Index into genParticle list for " + doc_);
+    tab->addColumn<uint8_t>(branchName_ + "Flav",
+                            flav,
+                            "Flavour of genParticle (DressedLeptons for electrons) for " + doc_ + ": " + flavDoc_);
 
     iEvent.put(std::move(tab));
   }
@@ -251,10 +229,13 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
     for (unsigned int im = 0, nm = match->numberOfMothers(); im < nm; ++im) {
       reco::GenParticleRef mom = match->motherRef(im);
       assert(mom.isNonnull() && mom.isAvailable());  // sanity
-      if (mom.key() >= match.key()) continue;        // prevent circular refs
+      if (mom.key() >= match.key())
+        continue;  // prevent circular refs
       int id = std::abs(mom->pdgId());
-      if (id / 1000 == 5 || id / 100 == 5 || id == 5) return 5;
-      if (id / 1000 == 4 || id / 100 == 4 || id == 4) has4 = true;
+      if (id / 1000 == 5 || id / 100 == 5 || id == 5)
+        return 5;
+      if (id / 1000 == 4 || id / 100 == 4 || id == 4)
+        has4 = true;
       if (mom->status() == 2) {
         id = getParentHadronFlag(mom);
         if (id == 5)
@@ -268,15 +249,13 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("objName")->setComment(
-        "name of the nanoaod::FlatTable to extend with this table");
+    desc.add<std::string>("objName")->setComment("name of the nanoaod::FlatTable to extend with this table");
     desc.add<std::string>("branchName")
         ->setComment(
             "name of the column to write (the final branch in the nanoaod will "
             "be <objName>_<branchName>Idx and "
             "<objName>_<branchName>Flav");
-    desc.add<std::string>("docString")
-        ->setComment("documentation to forward to the output");
+    desc.add<std::string>("docString")->setComment("documentation to forward to the output");
     desc.add<edm::InputTag>("src")->setComment(
         "physics object collection for the reconstructed objects (e.g. "
         "leptons)");
@@ -298,18 +277,15 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
         ->setComment(
             "Value map of matched gen electrons containing info on the tau "
             "ancestry");
-    desc.addOptional<edm::InputTag>("genparticles")
-        ->setComment("Collection of genParticles to be stored.");
+    desc.addOptional<edm::InputTag>("genparticles")->setComment("Collection of genParticles to be stored.");
     descriptions.add("candMcMatchTable", desc);
   }
 
- protected:
+protected:
   const std::string objName_, branchName_, doc_;
   const edm::EDGetTokenT<reco::CandidateView> src_;
-  const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>>
-      candMap_;
-  edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>>
-      candMapVisTau_;
+  const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>> candMap_;
+  edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>> candMapVisTau_;
   edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> candMapDressedLep_;
   edm::EDGetTokenT<edm::ValueMap<bool>> mapTauAnc_;
   edm::EDGetTokenT<reco::GenParticleCollection> genPartsToken_;

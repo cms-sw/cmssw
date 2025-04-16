@@ -31,7 +31,7 @@
 
 class BToTrkTrkLLBuilder : public edm::global::EDProducer<> {
   // perhaps we need better structure here (begin run etc)
- public:
+public:
   typedef std::vector<reco::TransientTrack> TransientTrackCollection;
 
   explicit BToTrkTrkLLBuilder(const edm::ParameterSet &cfg)
@@ -40,18 +40,12 @@ class BToTrkTrkLLBuilder : public edm::global::EDProducer<> {
         pre_vtx_selection_{cfg.getParameter<std::string>("preVtxSelection")},
         post_vtx_selection_{cfg.getParameter<std::string>("postVtxSelection")},
         // inputs
-        dileptons_{consumes<pat::CompositeCandidateCollection>(
-            cfg.getParameter<edm::InputTag>("dileptons"))},
-        ditracks_{consumes<pat::CompositeCandidateCollection>(
-            cfg.getParameter<edm::InputTag>("ditracks"))},
-        leptons_ttracks_{consumes<TransientTrackCollection>(
-            cfg.getParameter<edm::InputTag>("leptonTransientTracks"))},
-        ditracks_ttracks_{consumes<TransientTrackCollection>(
-            cfg.getParameter<edm::InputTag>("transientTracks"))},
-        pu_tracks_(consumes<pat::CompositeCandidateCollection>(
-            cfg.getParameter<edm::InputTag>("PUtracks"))),
-        beamspot_{consumes<reco::BeamSpot>(
-            cfg.getParameter<edm::InputTag>("beamSpot"))},
+        dileptons_{consumes<pat::CompositeCandidateCollection>(cfg.getParameter<edm::InputTag>("dileptons"))},
+        ditracks_{consumes<pat::CompositeCandidateCollection>(cfg.getParameter<edm::InputTag>("ditracks"))},
+        leptons_ttracks_{consumes<TransientTrackCollection>(cfg.getParameter<edm::InputTag>("leptonTransientTracks"))},
+        ditracks_ttracks_{consumes<TransientTrackCollection>(cfg.getParameter<edm::InputTag>("transientTracks"))},
+        pu_tracks_(consumes<pat::CompositeCandidateCollection>(cfg.getParameter<edm::InputTag>("PUtracks"))),
+        beamspot_{consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpot"))},
         dilepton_constraint_{cfg.getParameter<bool>("dileptonMassContraint")} {
     // output
     produces<pat::CompositeCandidateCollection>();
@@ -59,10 +53,9 @@ class BToTrkTrkLLBuilder : public edm::global::EDProducer<> {
 
   ~BToTrkTrkLLBuilder() override {}
 
-  void produce(edm::StreamID, edm::Event &,
-               const edm::EventSetup &) const override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
- private:
+private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
 
   // selections
@@ -79,8 +72,7 @@ class BToTrkTrkLLBuilder : public edm::global::EDProducer<> {
   const bool dilepton_constraint_;
 };
 
-void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
-                                 edm::EventSetup const &iSetup) const {
+void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const &iSetup) const {
   // input
   edm::Handle<pat::CompositeCandidateCollection> dileptons;
   evt.getByToken(dileptons_, dileptons);
@@ -103,11 +95,9 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
   AnalyticalImpactPointExtrapolator extrapolator(&bField);
 
   // output
-  std::unique_ptr<pat::CompositeCandidateCollection> ret_val(
-      new pat::CompositeCandidateCollection());
+  std::unique_ptr<pat::CompositeCandidateCollection> ret_val(new pat::CompositeCandidateCollection());
 
-  for (size_t ditracks_idx = 0; ditracks_idx < ditracks->size();
-       ++ditracks_idx) {
+  for (size_t ditracks_idx = 0; ditracks_idx < ditracks->size(); ++ditracks_idx) {
     // both k*,phi and lep pair already passed cuts; no need for more
     // preselection
     edm::Ptr<pat::CompositeCandidate> ditracks_ptr(ditracks, ditracks_idx);
@@ -126,8 +116,7 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
       // B0 candidate
       pat::CompositeCandidate cand;
       cand.setP4(ll_ptr->p4() + ditracks_ptr->p4());
-      cand.setCharge(l1_ptr->charge() + l2_ptr->charge() + trk1_ptr->charge() +
-                     trk2_ptr->charge());
+      cand.setCharge(l1_ptr->charge() + l2_ptr->charge() + trk1_ptr->charge() + trk2_ptr->charge());
 
       // save daughters - unfitted
       cand.addUserCand("l1", l1_ptr);
@@ -154,47 +143,49 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
 
       trk1_p4.SetM(bph::K_MASS);
       trk2_p4.SetM(bph::K_MASS);
-      cand.addUserFloat("unfitted_B_mass_KK",
-                        (trk1_p4 + trk2_p4 + lep1_p4 + lep2_p4).M());
+      cand.addUserFloat("unfitted_B_mass_KK", (trk1_p4 + trk2_p4 + lep1_p4 + lep2_p4).M());
       trk1_p4.SetM(bph::K_MASS);
       trk2_p4.SetM(bph::PI_MASS);
-      cand.addUserFloat("unfitted_B_mass_Kpi",
-                        (trk1_p4 + trk2_p4 + lep1_p4 + lep2_p4).M());
+      cand.addUserFloat("unfitted_B_mass_Kpi", (trk1_p4 + trk2_p4 + lep1_p4 + lep2_p4).M());
       trk2_p4.SetM(bph::K_MASS);
       trk1_p4.SetM(bph::PI_MASS);
-      cand.addUserFloat("unfitted_B_mass_piK",
-                        (trk1_p4 + trk2_p4 + lep1_p4 + lep2_p4).M());
+      cand.addUserFloat("unfitted_B_mass_piK", (trk1_p4 + trk2_p4 + lep1_p4 + lep2_p4).M());
 
       auto dr_info = bph::min_max_dr({l1_ptr, l2_ptr, trk1_ptr, trk2_ptr});
       cand.addUserFloat("min_dr", dr_info.first);
       cand.addUserFloat("max_dr", dr_info.second);
 
       // check if pass pre vertex cut
-      if (!pre_vtx_selection_(cand)) continue;
+      if (!pre_vtx_selection_(cand))
+        continue;
 
-      KinVtxFitter fitter(
-          {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
-           ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
-          {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::K_MASS},
-          {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
-      if (!fitter.success()) continue;
-      KinVtxFitter fitter_Kpi(
-          {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
-           ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
-          {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::PI_MASS},
-          {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
-      if (!fitter_Kpi.success()) continue;
-      KinVtxFitter fitter_piK(
-          {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
-           ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
-          {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, bph::K_MASS},
-          {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
-      if (!fitter_piK.success()) continue;
+      KinVtxFitter fitter({leptons_ttracks->at(l1_idx),
+                           leptons_ttracks->at(l2_idx),
+                           ditracks_ttracks->at(trk1_idx),
+                           ditracks_ttracks->at(trk2_idx)},
+                          {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::K_MASS},
+                          {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
+      if (!fitter.success())
+        continue;
+      KinVtxFitter fitter_Kpi({leptons_ttracks->at(l1_idx),
+                               leptons_ttracks->at(l2_idx),
+                               ditracks_ttracks->at(trk1_idx),
+                               ditracks_ttracks->at(trk2_idx)},
+                              {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::PI_MASS},
+                              {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
+      if (!fitter_Kpi.success())
+        continue;
+      KinVtxFitter fitter_piK({leptons_ttracks->at(l1_idx),
+                               leptons_ttracks->at(l2_idx),
+                               ditracks_ttracks->at(trk1_idx),
+                               ditracks_ttracks->at(trk2_idx)},
+                              {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, bph::K_MASS},
+                              {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA});
+      if (!fitter_piK.success())
+        continue;
 
       // B0 position
-      cand.setVertex(reco::Candidate::Point(fitter.fitted_vtx().x(),
-                                            fitter.fitted_vtx().y(),
-                                            fitter.fitted_vtx().z()));
+      cand.setVertex(reco::Candidate::Point(fitter.fitted_vtx().x(), fitter.fitted_vtx().y(), fitter.fitted_vtx().z()));
 
       // vertex vars
       cand.addUserFloat("sv_chi2", fitter.chi2());
@@ -202,31 +193,16 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
       cand.addUserFloat("sv_prob", fitter.prob());
 
       // refitted kinematic vars
-      cand.addUserFloat("fitted_ditrack_mass_KK",
-                        (fitter.daughter_p4(2) + fitter.daughter_p4(3)).mass());
-      cand.addUserFloat(
-          "fitted_ditrack_mass_Kpi",
-          (fitter_Kpi.daughter_p4(2) + fitter_Kpi.daughter_p4(3)).mass());
-      cand.addUserFloat(
-          "fitted_ditrack_mass_piK",
-          (fitter_piK.daughter_p4(2) + fitter_piK.daughter_p4(3)).mass());
-      cand.addUserFloat(
-          "fitted_massErr_KK",
-          sqrt(fitter.fitted_candidate().kinematicParametersError().matrix()(
-              6, 6)));
-      cand.addUserFloat(
-          "fitted_massErr_Kpi",
-          sqrt(
-              fitter_Kpi.fitted_candidate().kinematicParametersError().matrix()(
-                  6, 6)));
-      cand.addUserFloat(
-          "fitted_massErr_piK",
-          sqrt(
-              fitter_piK.fitted_candidate().kinematicParametersError().matrix()(
-                  6, 6)));
+      cand.addUserFloat("fitted_ditrack_mass_KK", (fitter.daughter_p4(2) + fitter.daughter_p4(3)).mass());
+      cand.addUserFloat("fitted_ditrack_mass_Kpi", (fitter_Kpi.daughter_p4(2) + fitter_Kpi.daughter_p4(3)).mass());
+      cand.addUserFloat("fitted_ditrack_mass_piK", (fitter_piK.daughter_p4(2) + fitter_piK.daughter_p4(3)).mass());
+      cand.addUserFloat("fitted_massErr_KK", sqrt(fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
+      cand.addUserFloat("fitted_massErr_Kpi",
+                        sqrt(fitter_Kpi.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
+      cand.addUserFloat("fitted_massErr_piK",
+                        sqrt(fitter_piK.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
 
-      cand.addUserFloat("fitted_mll",
-                        (fitter.daughter_p4(0) + fitter.daughter_p4(1)).mass());
+      cand.addUserFloat("fitted_mll", (fitter.daughter_p4(0) + fitter.daughter_p4(1)).mass());
 
       auto fit_p4 = fitter.fitted_p4();
       cand.addUserFloat("fitted_pt", fit_p4.pt());
@@ -238,37 +214,32 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
       cand.addUserFloat("fitted_mass_piK", fitter_piK.fitted_p4().mass());
 
       // other vars
-      cand.addUserFloat("cos_theta_2D",
-                        bph::cos_theta_2D(fitter, *beamspot, cand.p4()));
+      cand.addUserFloat("cos_theta_2D", bph::cos_theta_2D(fitter, *beamspot, cand.p4()));
 
-      cand.addUserFloat("fitted_cos_theta_2D",
-                        bph::cos_theta_2D(fitter, *beamspot, fit_p4));
+      cand.addUserFloat("fitted_cos_theta_2D", bph::cos_theta_2D(fitter, *beamspot, fit_p4));
 
       auto lxy = bph::l_xy(fitter, *beamspot);
       cand.addUserFloat("l_xy", lxy.value());
       cand.addUserFloat("l_xy_unc", lxy.error());
       // track impact parameter from dilepton SV
 
-      TrajectoryStateOnSurface tsos1 = extrapolator.extrapolate(
-          ditracks_ttracks->at(trk1_idx).impactPointState(),
-          fitter.fitted_vtx());
+      TrajectoryStateOnSurface tsos1 =
+          extrapolator.extrapolate(ditracks_ttracks->at(trk1_idx).impactPointState(), fitter.fitted_vtx());
       std::pair<bool, Measurement1D> cur2DIP1 =
-          bph::signedTransverseImpactParameter(tsos1, fitter.fitted_refvtx(),
-                                               *beamspot);
+          bph::signedTransverseImpactParameter(tsos1, fitter.fitted_refvtx(), *beamspot);
       cand.addUserFloat("trk1_svip2d", cur2DIP1.second.value());
       cand.addUserFloat("trk1_svip2d_err", cur2DIP1.second.error());
 
-      TrajectoryStateOnSurface tsos2 = extrapolator.extrapolate(
-          ditracks_ttracks->at(trk2_idx).impactPointState(),
-          fitter.fitted_vtx());
+      TrajectoryStateOnSurface tsos2 =
+          extrapolator.extrapolate(ditracks_ttracks->at(trk2_idx).impactPointState(), fitter.fitted_vtx());
       std::pair<bool, Measurement1D> cur2DIP2 =
-          bph::signedTransverseImpactParameter(tsos2, fitter.fitted_refvtx(),
-                                               *beamspot);
+          bph::signedTransverseImpactParameter(tsos2, fitter.fitted_refvtx(), *beamspot);
       cand.addUserFloat("trk2_svip2d", cur2DIP2.second.value());
       cand.addUserFloat("trk2_svip2d_err", cur2DIP2.second.error());
 
       // post fit selection
-      if (!post_vtx_selection_(cand)) continue;
+      if (!post_vtx_selection_(cand))
+        continue;
 
       cand.addUserFloat("vtx_x", cand.vx());
       cand.addUserFloat("vtx_y", cand.vy());
@@ -286,12 +257,9 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
       std::vector<std::string> dnames{"l1", "l2", "trk1", "trk2"};
 
       for (size_t idaughter = 0; idaughter < dnames.size(); idaughter++) {
-        cand.addUserFloat("fitted_" + dnames[idaughter] + "_pt",
-                          fitter.daughter_p4(idaughter).pt());
-        cand.addUserFloat("fitted_" + dnames[idaughter] + "_eta",
-                          fitter.daughter_p4(idaughter).eta());
-        cand.addUserFloat("fitted_" + dnames[idaughter] + "_phi",
-                          fitter.daughter_p4(idaughter).phi());
+        cand.addUserFloat("fitted_" + dnames[idaughter] + "_pt", fitter.daughter_p4(idaughter).pt());
+        cand.addUserFloat("fitted_" + dnames[idaughter] + "_eta", fitter.daughter_p4(idaughter).eta());
+        cand.addUserFloat("fitted_" + dnames[idaughter] + "_phi", fitter.daughter_p4(idaughter).phi());
       }
 
       // compute isolation
@@ -316,39 +284,43 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
       const double jpsi_bin[2] = {2.8, 3.35};
       const double psi2s_bin[2] = {3.45, 3.85};
 
-      if (dilepton_constraint_ &&
-          ((dilepton_mass > jpsi_bin[0] && dilepton_mass < jpsi_bin[1]) ||
-           (dilepton_mass > psi2s_bin[0] && dilepton_mass < psi2s_bin[1]))) {
+      if (dilepton_constraint_ && ((dilepton_mass > jpsi_bin[0] && dilepton_mass < jpsi_bin[1]) ||
+                                   (dilepton_mass > psi2s_bin[0] && dilepton_mass < psi2s_bin[1]))) {
         ParticleMass JPsi_mass = 3.0969;   // Jpsi mass 3.096900±0.000006
         ParticleMass Psi2S_mass = 3.6861;  // Psi2S mass 3.6861093±0.0000034
-        ParticleMass mass_constraint =
-            (dilepton_mass < jpsi_bin[1]) ? JPsi_mass : Psi2S_mass;
+        ParticleMass mass_constraint = (dilepton_mass < jpsi_bin[1]) ? JPsi_mass : Psi2S_mass;
 
         // Mass constraint is applied to the first two particles in the
         // "particles" vector Make sure that the first two particles are the
         // ones you want to constrain
 
-        KinVtxFitter constraint_fitter_KK(
-            {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
-             ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
-            {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::K_MASS},
-            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
-            mass_constraint);
-        if (!constraint_fitter_KK.success()) continue;
-        KinVtxFitter constraint_fitter_Kpi(
-            {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
-             ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
-            {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::PI_MASS},
-            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
-            mass_constraint);
-        if (!constraint_fitter_Kpi.success()) continue;
-        KinVtxFitter constraint_fitter_piK(
-            {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
-             ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
-            {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, bph::K_MASS},
-            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
-            mass_constraint);
-        if (!constraint_fitter_piK.success()) continue;
+        KinVtxFitter constraint_fitter_KK({leptons_ttracks->at(l1_idx),
+                                           leptons_ttracks->at(l2_idx),
+                                           ditracks_ttracks->at(trk1_idx),
+                                           ditracks_ttracks->at(trk2_idx)},
+                                          {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::K_MASS},
+                                          {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
+                                          mass_constraint);
+        if (!constraint_fitter_KK.success())
+          continue;
+        KinVtxFitter constraint_fitter_Kpi({leptons_ttracks->at(l1_idx),
+                                            leptons_ttracks->at(l2_idx),
+                                            ditracks_ttracks->at(trk1_idx),
+                                            ditracks_ttracks->at(trk2_idx)},
+                                           {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::PI_MASS},
+                                           {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
+                                           mass_constraint);
+        if (!constraint_fitter_Kpi.success())
+          continue;
+        KinVtxFitter constraint_fitter_piK({leptons_ttracks->at(l1_idx),
+                                            leptons_ttracks->at(l2_idx),
+                                            ditracks_ttracks->at(trk1_idx),
+                                            ditracks_ttracks->at(trk2_idx)},
+                                           {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, bph::K_MASS},
+                                           {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
+                                           mass_constraint);
+        if (!constraint_fitter_piK.success())
+          continue;
 
         if (constraint_fitter_KK.success()) {
           auto constraint_p4 = constraint_fitter_KK.fitted_p4();
@@ -357,20 +329,15 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
           constraint_eta = constraint_p4.eta();
           constraint_phi = constraint_p4.phi();
           constraint_mass_KK = constraint_fitter_KK.fitted_candidate().mass();
-          constraint_massErr_KK = sqrt(constraint_fitter_KK.fitted_candidate()
-                                           .kinematicParametersError()
-                                           .matrix()(6, 6));
+          constraint_massErr_KK =
+              sqrt(constraint_fitter_KK.fitted_candidate().kinematicParametersError().matrix()(6, 6));
           constraint_mass_Kpi = constraint_fitter_Kpi.fitted_candidate().mass();
-          constraint_massErr_Kpi = sqrt(constraint_fitter_Kpi.fitted_candidate()
-                                            .kinematicParametersError()
-                                            .matrix()(6, 6));
+          constraint_massErr_Kpi =
+              sqrt(constraint_fitter_Kpi.fitted_candidate().kinematicParametersError().matrix()(6, 6));
           constraint_mass_piK = constraint_fitter_piK.fitted_candidate().mass();
-          constraint_massErr_piK = sqrt(constraint_fitter_piK.fitted_candidate()
-                                            .kinematicParametersError()
-                                            .matrix()(6, 6));
-          constraint_mll = (constraint_fitter_KK.daughter_p4(0) +
-                            constraint_fitter_KK.daughter_p4(1))
-                               .mass();
+          constraint_massErr_piK =
+              sqrt(constraint_fitter_piK.fitted_candidate().kinematicParametersError().matrix()(6, 6));
+          constraint_mll = (constraint_fitter_KK.daughter_p4(0) + constraint_fitter_KK.daughter_p4(1)).mass();
         }
       }
       cand.addUserFloat("constraint_sv_prob", constraint_sv_prob);
