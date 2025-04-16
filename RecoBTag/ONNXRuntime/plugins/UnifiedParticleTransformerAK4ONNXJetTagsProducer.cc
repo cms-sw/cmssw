@@ -93,7 +93,7 @@ void UnifiedParticleTransformerAK4ONNXJetTagsProducer::fillDescriptions(edm::Con
   desc.add<std::vector<std::string>>(
       "input_names", {"input_1", "input_2", "input_3", "input_4", "input_5", "input_6", "input_7", "input_8"});
   desc.add<edm::FileInPath>("model_path",
-                            edm::FileInPath("RecoBTag/Combined/data/UParTAK4/PUPPI/V01/UParTAK4_v2.onnx"));
+                            edm::FileInPath("RecoBTag/Combined/data/UParTAK4/PUPPI/V01/model.onnx"));
   desc.add<std::vector<std::string>>("output_names", {"softmax"});
   desc.add<std::vector<std::string>>(
       "flav_names",
