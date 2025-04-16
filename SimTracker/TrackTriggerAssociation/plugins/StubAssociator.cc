@@ -19,9 +19,6 @@
 #include <algorithm>
 #include <iterator>
 
-using namespace std;
-using namespace edm;
-
 namespace tt {
 
   /*! \class  tt::StubAssociator
@@ -33,26 +30,26 @@ namespace tt {
    *  \author Thomas Schuh
    *  \date   2020, Apr
    */
-  class StubAssociator : public stream::EDProducer<> {
+  class StubAssociator : public edm::stream::EDProducer<> {
   public:
-    explicit StubAssociator(const ParameterSet&);
+    explicit StubAssociator(const edm::ParameterSet&);
     ~StubAssociator() override {}
 
   private:
-    void beginRun(const Run&, const EventSetup&) override;
-    void produce(Event&, const EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     // helper classe to store configurations
     const Setup* setup_;
     // ED input token of TTStubs
-    EDGetTokenT<TTStubDetSetVec> getTokenTTStubDetSetVec_;
+    edm::EDGetTokenT<TTStubDetSetVec> getTokenTTStubDetSetVec_;
     // ED input token of TTClusterAssociation
-    EDGetTokenT<TTClusterAssMap> getTokenTTClusterAssMap_;
+    edm::EDGetTokenT<TTClusterAssMap> getTokenTTClusterAssMap_;
     // ED output token for recosntructable stub association
-    EDPutTokenT<StubAssociation> putTokenReconstructable_;
+    edm::EDPutTokenT<StubAssociation> putTokenReconstructable_;
     // ED output token for selected stub association
-    EDPutTokenT<StubAssociation> putTokenSelection_;
+    edm::EDPutTokenT<StubAssociation> putTokenSelection_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     //
     StubAssociation::Config iConfig_;
     // required number of associated stub layers to a TP to consider it reconstruct-able
@@ -77,7 +74,7 @@ namespace tt {
     TrackingParticleSelector tpSelector_;
   };
 
-  StubAssociator::StubAssociator(const ParameterSet& iConfig)
+  StubAssociator::StubAssociator(const edm::ParameterSet& iConfig)
       : minLayers_(iConfig.getParameter<int>("MinLayers")),
         minLayersPS_(iConfig.getParameter<int>("MinLayersPS")),
         minPt_(iConfig.getParameter<double>("MinPt")),
@@ -91,17 +88,19 @@ namespace tt {
     iConfig_.maxLayersBad_ = iConfig.getParameter<int>("MaxLayersBad");
     iConfig_.maxLayersBadPS_ = iConfig.getParameter<int>("MaxLayersBadPS");
     // book in- and output ed products
-    getTokenTTStubDetSetVec_ = consumes<TTStubDetSetVec>(iConfig.getParameter<InputTag>("InputTagTTStubDetSetVec"));
-    getTokenTTClusterAssMap_ = consumes<TTClusterAssMap>(iConfig.getParameter<InputTag>("InputTagTTClusterAssMap"));
-    putTokenReconstructable_ = produces<StubAssociation>(iConfig.getParameter<string>("BranchReconstructable"));
-    putTokenSelection_ = produces<StubAssociation>(iConfig.getParameter<string>("BranchSelection"));
+    getTokenTTStubDetSetVec_ =
+        consumes<TTStubDetSetVec>(iConfig.getParameter<edm::InputTag>("InputTagTTStubDetSetVec"));
+    getTokenTTClusterAssMap_ =
+        consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("InputTagTTClusterAssMap"));
+    putTokenReconstructable_ = produces<StubAssociation>(iConfig.getParameter<std::string>("BranchReconstructable"));
+    putTokenSelection_ = produces<StubAssociation>(iConfig.getParameter<std::string>("BranchSelection"));
     // book ES product
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, edm::Transition::BeginRun>();
   }
 
-  void StubAssociator::beginRun(const Run& iRun, const EventSetup& iSetup) {
+  void StubAssociator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     setup_ = &iSetup.getData(esGetTokenSetup_);
-    maxZT_ = sinh(maxEta0_) * setup_->chosenRofZ();
+    maxZT_ = std::sinh(maxEta0_) * setup_->chosenRofZ();
     // configure TrackingParticleSelector
     constexpr double ptMax = 9.e9;
     constexpr int minHit = 0;
@@ -109,29 +108,29 @@ namespace tt {
     constexpr bool intimeOnly = true;
     constexpr bool chargedOnly = true;
     constexpr bool stableOnly = false;
-    const double maxEta = asinh((maxZT_ + maxZ0_) / setup_->chosenRofZ());
+    const double maxEta = std::asinh((maxZT_ + maxZ0_) / setup_->chosenRofZ());
     tpSelector_ = TrackingParticleSelector(
         minPt_, ptMax, -maxEta, maxEta, maxVertR_, maxVertZ_, minHit, signalOnly, intimeOnly, chargedOnly, stableOnly);
   }
 
-  void StubAssociator::produce(Event& iEvent, const EventSetup& iSetup) {
+  void StubAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // associate TTStubs with TrackingParticles
-    Handle<TTStubDetSetVec> handleTTStubDetSetVec;
+    edm::Handle<TTStubDetSetVec> handleTTStubDetSetVec;
     iEvent.getByToken<TTStubDetSetVec>(getTokenTTStubDetSetVec_, handleTTStubDetSetVec);
-    Handle<TTClusterAssMap> handleTTClusterAssMap;
+    edm::Handle<TTClusterAssMap> handleTTClusterAssMap;
     iEvent.getByToken<TTClusterAssMap>(getTokenTTClusterAssMap_, handleTTClusterAssMap);
-    map<TPPtr, vector<TTStubRef>> mapTPPtrsTTStubRefs;
+    std::map<TPPtr, std::vector<TTStubRef>> mapTPPtrsTTStubRefs;
     auto isNonnull = [](const TPPtr& tpPtr) { return tpPtr.isNonnull(); };
     for (TTStubDetSetVec::const_iterator ttModule = handleTTStubDetSetVec->begin();
          ttModule != handleTTStubDetSetVec->end();
          ttModule++) {
       for (TTStubDetSet::const_iterator ttStub = ttModule->begin(); ttStub != ttModule->end(); ttStub++) {
         const TTStubRef ttStubRef = makeRefTo(handleTTStubDetSetVec, ttStub);
-        set<TPPtr> tpPtrs;
+        std::set<TPPtr> tpPtrs;
         for (unsigned int iClus = 0; iClus < 2; iClus++) {
-          const vector<TPPtr>& assocPtrs =
+          const std::vector<TPPtr>& assocPtrs =
               handleTTClusterAssMap->findTrackingParticlePtrs(ttStubRef->clusterRef(iClus));
-          copy_if(assocPtrs.begin(), assocPtrs.end(), inserter(tpPtrs, tpPtrs.begin()), isNonnull);
+          std::copy_if(assocPtrs.begin(), assocPtrs.end(), std::inserter(tpPtrs, tpPtrs.begin()), isNonnull);
         }
         for (const TPPtr& tpPtr : tpPtrs)
           mapTPPtrsTTStubRefs[tpPtr].push_back(ttStubRef);
@@ -142,19 +141,19 @@ namespace tt {
     StubAssociation selection(iConfig_, setup_);
     for (const auto& p : mapTPPtrsTTStubRefs) {
       // require min layers
-      set<int> hitPattern, hitPatternPS;
+      std::set<int> hitPattern, hitPatternPS;
       for (const TTStubRef& ttStubRef : p.second) {
         const int layerId = setup_->layerId(ttStubRef);
         hitPattern.insert(layerId);
         if (setup_->psModule(ttStubRef))
           hitPatternPS.insert(layerId);
       }
-      if ((int)hitPattern.size() < minLayers_ || (int)hitPatternPS.size() < minLayersPS_)
+      if (static_cast<int>(hitPattern.size()) < minLayers_ || static_cast<int>(hitPatternPS.size()) < minLayersPS_)
         continue;
       reconstructable.insert(p.first, p.second);
       // require parameter space
       const double zT = p.first->z0() + p.first->tanl() * setup_->chosenRofZ();
-      if ((abs(p.first->d0()) > maxD0_) || (abs(p.first->z0()) > maxZ0_) || (abs(zT) > maxZT_))
+      if ((std::abs(p.first->d0()) > maxD0_) || (std::abs(p.first->z0()) > maxZ0_) || (std::abs(zT) > maxZT_))
         continue;
       // require signal only and min pt
       if (tpSelector_(*p.first))

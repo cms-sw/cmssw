@@ -7,9 +7,6 @@
 
 #include <memory>
 
-using namespace std;
-using namespace edm;
-
 namespace tt {
 
   /*! \class  tt::ProducerSetup
@@ -17,27 +14,27 @@ namespace tt {
    *  \author Thomas Schuh
    *  \date   2020, Apr
    */
-  class ProducerSetup : public ESProducer {
+  class ProducerSetup : public edm::ESProducer {
   public:
-    ProducerSetup(const ParameterSet& iConfig);
+    ProducerSetup(const edm::ParameterSet& iConfig);
     ~ProducerSetup() override {}
-    unique_ptr<Setup> produce(const SetupRcd& setupRcd);
+    std::unique_ptr<Setup> produce(const SetupRcd& setupRcd);
 
   private:
     Setup::Config iConfig_;
-    ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeometry_;
-    ESGetToken<TrackerTopology, TrackerTopologyRcd> getTokenTrackerTopology_;
-    ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> getTokenCablingMap_;
-    ESGetToken<StubAlgorithm, TTStubAlgorithmRecord> getTokenTTStubAlgorithm_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeometry_;
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> getTokenTrackerTopology_;
+    edm::ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> getTokenCablingMap_;
+    edm::ESGetToken<StubAlgorithm, TTStubAlgorithmRecord> getTokenTTStubAlgorithm_;
   };
 
-  ProducerSetup::ProducerSetup(const ParameterSet& iConfig) {
+  ProducerSetup::ProducerSetup(const edm::ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     getTokenTrackerGeometry_ = cc.consumes();
     getTokenTrackerTopology_ = cc.consumes();
     getTokenCablingMap_ = cc.consumes();
     getTokenTTStubAlgorithm_ = cc.consumes();
-    const ParameterSet& pSetTF = iConfig.getParameter<ParameterSet>("TrackFinding");
+    const edm::ParameterSet& pSetTF = iConfig.getParameter<edm::ParameterSet>("TrackFinding");
     iConfig_.beamWindowZ_ = pSetTF.getParameter<double>("BeamWindowZ");
     iConfig_.minPt_ = pSetTF.getParameter<double>("MinPt");
     iConfig_.minPtCand_ = pSetTF.getParameter<double>("MinPtCand");
@@ -46,28 +43,28 @@ namespace tt {
     iConfig_.chosenRofPhi_ = pSetTF.getParameter<double>("ChosenRofPhi");
     iConfig_.numLayers_ = pSetTF.getParameter<int>("NumLayers");
     iConfig_.minLayers_ = pSetTF.getParameter<int>("MinLayers");
-    const ParameterSet& pSetTMTT = iConfig.getParameter<ParameterSet>("TMTT");
+    const edm::ParameterSet& pSetTMTT = iConfig.getParameter<edm::ParameterSet>("TMTT");
     iConfig_.tmttWidthR_ = pSetTMTT.getParameter<int>("WidthR");
     iConfig_.tmttWidthPhi_ = pSetTMTT.getParameter<int>("WidthPhi");
     iConfig_.tmttWidthZ_ = pSetTMTT.getParameter<int>("WidthZ");
-    const ParameterSet& pSetHybrid = iConfig.getParameter<ParameterSet>("Hybrid");
+    const edm::ParameterSet& pSetHybrid = iConfig.getParameter<edm::ParameterSet>("Hybrid");
     iConfig_.hybridNumLayers_ = pSetHybrid.getParameter<int>("NumLayers");
-    iConfig_.hybridNumRingsPS_ = pSetHybrid.getParameter<vector<int>>("NumRingsPS");
-    iConfig_.hybridWidthsR_ = pSetHybrid.getParameter<vector<int>>("WidthsR");
-    iConfig_.hybridWidthsZ_ = pSetHybrid.getParameter<vector<int>>("WidthsZ");
-    iConfig_.hybridWidthsPhi_ = pSetHybrid.getParameter<vector<int>>("WidthsPhi");
-    iConfig_.hybridWidthsAlpha_ = pSetHybrid.getParameter<vector<int>>("WidthsAlpha");
-    iConfig_.hybridWidthsBend_ = pSetHybrid.getParameter<vector<int>>("WidthsBend");
-    iConfig_.hybridRangesR_ = pSetHybrid.getParameter<vector<double>>("RangesR");
-    iConfig_.hybridRangesZ_ = pSetHybrid.getParameter<vector<double>>("RangesZ");
-    iConfig_.hybridRangesAlpha_ = pSetHybrid.getParameter<vector<double>>("RangesAlpha");
-    iConfig_.hybridLayerRs_ = pSetHybrid.getParameter<vector<double>>("LayerRs");
-    iConfig_.hybridDiskZs_ = pSetHybrid.getParameter<vector<double>>("DiskZs");
-    iConfig_.hybridDisk2SRsSet_ = pSetHybrid.getParameter<vector<ParameterSet>>("Disk2SRsSet");
+    iConfig_.hybridNumRingsPS_ = pSetHybrid.getParameter<std::vector<int>>("NumRingsPS");
+    iConfig_.hybridWidthsR_ = pSetHybrid.getParameter<std::vector<int>>("WidthsR");
+    iConfig_.hybridWidthsZ_ = pSetHybrid.getParameter<std::vector<int>>("WidthsZ");
+    iConfig_.hybridWidthsPhi_ = pSetHybrid.getParameter<std::vector<int>>("WidthsPhi");
+    iConfig_.hybridWidthsAlpha_ = pSetHybrid.getParameter<std::vector<int>>("WidthsAlpha");
+    iConfig_.hybridWidthsBend_ = pSetHybrid.getParameter<std::vector<int>>("WidthsBend");
+    iConfig_.hybridRangesR_ = pSetHybrid.getParameter<std::vector<double>>("RangesR");
+    iConfig_.hybridRangesZ_ = pSetHybrid.getParameter<std::vector<double>>("RangesZ");
+    iConfig_.hybridRangesAlpha_ = pSetHybrid.getParameter<std::vector<double>>("RangesAlpha");
+    iConfig_.hybridLayerRs_ = pSetHybrid.getParameter<std::vector<double>>("LayerRs");
+    iConfig_.hybridDiskZs_ = pSetHybrid.getParameter<std::vector<double>>("DiskZs");
+    iConfig_.hybridDisk2SRsSet_ = pSetHybrid.getParameter<std::vector<edm::ParameterSet>>("Disk2SRsSet");
     iConfig_.tbBarrelHalfLength_ = pSetHybrid.getParameter<double>("BarrelHalfLength");
     iConfig_.tbInnerRadius_ = pSetHybrid.getParameter<double>("InnerRadius");
-    iConfig_.tbWidthsR_ = pSetHybrid.getParameter<vector<int>>("WidthsRTB");
-    const ParameterSet& pSetFW = iConfig.getParameter<ParameterSet>("Firmware");
+    iConfig_.tbWidthsR_ = pSetHybrid.getParameter<std::vector<int>>("WidthsRTB");
+    const edm::ParameterSet& pSetFW = iConfig.getParameter<edm::ParameterSet>("Firmware");
     iConfig_.enableTruncation_ = pSetFW.getParameter<bool>("EnableTruncation");
     iConfig_.widthDSPa_ = pSetFW.getParameter<int>("WidthDSPa");
     iConfig_.widthDSPb_ = pSetFW.getParameter<int>("WidthDSPb");
@@ -81,7 +78,7 @@ namespace tt {
     iConfig_.tmpFE_ = pSetFW.getParameter<int>("TMP_FE");
     iConfig_.tmpTFP_ = pSetFW.getParameter<int>("TMP_TFP");
     iConfig_.speedOfLight_ = pSetFW.getParameter<double>("SpeedOfLight");
-    const ParameterSet& pSetOT = iConfig.getParameter<ParameterSet>("Tracker");
+    const edm::ParameterSet& pSetOT = iConfig.getParameter<edm::ParameterSet>("Tracker");
     iConfig_.bField_ = pSetOT.getParameter<double>("BField");
     iConfig_.bFieldError_ = pSetOT.getParameter<double>("BFieldError");
     iConfig_.outerRadius_ = pSetOT.getParameter<double>("OuterRadius");
@@ -96,13 +93,13 @@ namespace tt {
     iConfig_.pitchCol2S_ = pSetOT.getParameter<double>("PitchCol2S");
     iConfig_.pitchColPS_ = pSetOT.getParameter<double>("PitchColPS");
     iConfig_.limitPSBarrel_ = pSetOT.getParameter<double>("LimitPSBarrel");
-    iConfig_.limitsTiltedR_ = pSetOT.getParameter<vector<double>>("LimitsTiltedR");
-    iConfig_.limitsTiltedZ_ = pSetOT.getParameter<vector<double>>("LimitsTiltedZ");
-    iConfig_.limitsPSDiksZ_ = pSetOT.getParameter<vector<double>>("LimitsPSDiksZ");
-    iConfig_.limitsPSDiksR_ = pSetOT.getParameter<vector<double>>("LimitsPSDiksR");
-    iConfig_.tiltedLayerLimitsZ_ = pSetOT.getParameter<vector<double>>("TiltedLayerLimitsZ");
-    iConfig_.psDiskLimitsR_ = pSetOT.getParameter<vector<double>>("PSDiskLimitsR");
-    const ParameterSet& pSetFE = iConfig.getParameter<ParameterSet>("FrontEnd");
+    iConfig_.limitsTiltedR_ = pSetOT.getParameter<std::vector<double>>("LimitsTiltedR");
+    iConfig_.limitsTiltedZ_ = pSetOT.getParameter<std::vector<double>>("LimitsTiltedZ");
+    iConfig_.limitsPSDiksZ_ = pSetOT.getParameter<std::vector<double>>("LimitsPSDiksZ");
+    iConfig_.limitsPSDiksR_ = pSetOT.getParameter<std::vector<double>>("LimitsPSDiksR");
+    iConfig_.tiltedLayerLimitsZ_ = pSetOT.getParameter<std::vector<double>>("TiltedLayerLimitsZ");
+    iConfig_.psDiskLimitsR_ = pSetOT.getParameter<std::vector<double>>("PSDiskLimitsR");
+    const edm::ParameterSet& pSetFE = iConfig.getParameter<edm::ParameterSet>("FrontEnd");
     iConfig_.widthBend_ = pSetFE.getParameter<int>("WidthBend");
     iConfig_.widthCol_ = pSetFE.getParameter<int>("WidthCol");
     iConfig_.widthRow_ = pSetFE.getParameter<int>("WidthRow");
@@ -111,7 +108,7 @@ namespace tt {
     iConfig_.baseRow_ = pSetFE.getParameter<double>("BaseRow");
     iConfig_.baseWindowSize_ = pSetFE.getParameter<double>("BaseWindowSize");
     iConfig_.bendCut_ = pSetFE.getParameter<double>("BendCut");
-    const ParameterSet& pSetDTC = iConfig.getParameter<ParameterSet>("DTC");
+    const edm::ParameterSet& pSetDTC = iConfig.getParameter<edm::ParameterSet>("DTC");
     iConfig_.numRegions_ = pSetDTC.getParameter<int>("NumRegions");
     iConfig_.numOverlappingRegions_ = pSetDTC.getParameter<int>("NumOverlappingRegions");
     iConfig_.numATCASlots_ = pSetDTC.getParameter<int>("NumATCASlots");
@@ -128,13 +125,13 @@ namespace tt {
     iConfig_.numBarrelLayer_ = pSetDTC.getParameter<int>("NumBarrelLayer");
     iConfig_.slotLimitPS_ = pSetDTC.getParameter<int>("SlotLimitPS");
     iConfig_.slotLimit10gbps_ = pSetDTC.getParameter<int>("SlotLimit10gbps");
-    const ParameterSet& pSetTFP = iConfig.getParameter<ParameterSet>("TFP");
+    const edm::ParameterSet& pSetTFP = iConfig.getParameter<edm::ParameterSet>("TFP");
     iConfig_.tfpWidthPhi0_ = pSetTFP.getParameter<int>("WidthPhi0");
     iConfig_.tfpWidthInvR_ = pSetTFP.getParameter<int>("WidthInvR");
     iConfig_.tfpWidthCot_ = pSetTFP.getParameter<int>("WidthCot");
     iConfig_.tfpWidthZ0_ = pSetTFP.getParameter<int>("WidthZ0");
     iConfig_.tfpNumChannel_ = pSetTFP.getParameter<int>("NumChannel");
-    const ParameterSet& pSetGP = iConfig.getParameter<ParameterSet>("GeometricProcessor");
+    const edm::ParameterSet& pSetGP = iConfig.getParameter<edm::ParameterSet>("GeometricProcessor");
     iConfig_.gpNumBinsPhiT_ = pSetGP.getParameter<int>("NumBinsPhiT");
     iConfig_.gpNumBinsZT_ = pSetGP.getParameter<int>("NumBinsZT");
     iConfig_.chosenRofZ_ = pSetGP.getParameter<double>("ChosenRofZ");
@@ -143,12 +140,12 @@ namespace tt {
     iConfig_.gpPosPS_ = pSetGP.getParameter<int>("PosPS");
     iConfig_.gpPosBarrel_ = pSetGP.getParameter<int>("PosBarrel");
     iConfig_.gpPosTilted_ = pSetGP.getParameter<int>("PosTilted");
-    const ParameterSet& pSetHT = iConfig.getParameter<ParameterSet>("HoughTransform");
+    const edm::ParameterSet& pSetHT = iConfig.getParameter<edm::ParameterSet>("HoughTransform");
     iConfig_.htNumBinsInv2R_ = pSetHT.getParameter<int>("NumBinsInv2R");
     iConfig_.htNumBinsPhiT_ = pSetHT.getParameter<int>("NumBinsPhiT");
     iConfig_.htMinLayers_ = pSetHT.getParameter<int>("MinLayers");
     iConfig_.htDepthMemory_ = pSetHT.getParameter<int>("DepthMemory");
-    const ParameterSet& pSetCTB = iConfig.getParameter<ParameterSet>("CleanTrackBuilder");
+    const edm::ParameterSet& pSetCTB = iConfig.getParameter<edm::ParameterSet>("CleanTrackBuilder");
     iConfig_.ctbNumBinsInv2R_ = pSetCTB.getParameter<int>("NumBinsInv2R");
     iConfig_.ctbNumBinsPhiT_ = pSetCTB.getParameter<int>("NumBinsPhiT");
     iConfig_.ctbNumBinsCot_ = pSetCTB.getParameter<int>("NumBinsCot");
@@ -157,7 +154,7 @@ namespace tt {
     iConfig_.ctbMaxTracks_ = pSetCTB.getParameter<int>("MaxTracks");
     iConfig_.ctbMaxStubs_ = pSetCTB.getParameter<int>("MaxStubs");
     iConfig_.ctbDepthMemory_ = pSetCTB.getParameter<int>("DepthMemory");
-    const ParameterSet& pSetKF = iConfig.getParameter<ParameterSet>("KalmanFilter");
+    const edm::ParameterSet& pSetKF = iConfig.getParameter<edm::ParameterSet>("KalmanFilter");
     iConfig_.kfUse5ParameterFit_ = pSetKF.getParameter<bool>("Use5ParameterFit");
     iConfig_.kfUseSimmulation_ = pSetKF.getParameter<bool>("UseSimmulation");
     iConfig_.kfUseTTStubResiduals_ = pSetKF.getParameter<bool>("UseTTStubResiduals");
@@ -181,21 +178,22 @@ namespace tt {
     iConfig_.kfShiftChi21_ = pSetKF.getParameter<int>("ShiftChi21");
     iConfig_.kfCutChi2_ = pSetKF.getParameter<double>("CutChi2");
     iConfig_.kfWidthChi2_ = pSetKF.getParameter<int>("WidthChi2");
-    const ParameterSet& pSetDR = iConfig.getParameter<ParameterSet>("DuplicateRemoval");
+    const edm::ParameterSet& pSetDR = iConfig.getParameter<edm::ParameterSet>("DuplicateRemoval");
     iConfig_.drDepthMemory_ = pSetDR.getParameter<int>("DepthMemory");
-    const ParameterSet& pSetTQ = iConfig.getParameter<ParameterSet>("TrackQuality");
+    const edm::ParameterSet& pSetTQ = iConfig.getParameter<edm::ParameterSet>("TrackQuality");
     iConfig_.tqNumChannel_ = pSetTQ.getParameter<int>("NumChannel");
   }
 
-  unique_ptr<Setup> ProducerSetup::produce(const SetupRcd& setupRcd) {
+  std::unique_ptr<Setup> ProducerSetup::produce(const SetupRcd& setupRcd) {
     const TrackerGeometry& trackerGeometry = setupRcd.get(getTokenTrackerGeometry_);
     const TrackerTopology& trackerTopology = setupRcd.get(getTokenTrackerTopology_);
     const TrackerDetToDTCELinkCablingMap& cablingMap = setupRcd.get(getTokenCablingMap_);
-    const ESHandle<StubAlgorithm> handleStubAlgorithm = setupRcd.getHandle(getTokenTTStubAlgorithm_);
+    const edm::ESHandle<StubAlgorithm> handleStubAlgorithm = setupRcd.getHandle(getTokenTTStubAlgorithm_);
     const StubAlgorithmOfficial& stubAlgoritm =
         *dynamic_cast<const StubAlgorithmOfficial*>(&setupRcd.get(getTokenTTStubAlgorithm_));
-    const ParameterSet& pSetStubAlgorithm = getParameterSet(handleStubAlgorithm.description()->pid_);
-    return make_unique<Setup>(iConfig_, trackerGeometry, trackerTopology, cablingMap, stubAlgoritm, pSetStubAlgorithm);
+    const edm::ParameterSet& pSetStubAlgorithm = getParameterSet(handleStubAlgorithm.description()->pid_);
+    return std::make_unique<Setup>(
+        iConfig_, trackerGeometry, trackerTopology, cablingMap, stubAlgoritm, pSetStubAlgorithm);
   }
 }  // namespace tt
 

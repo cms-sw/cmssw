@@ -9,16 +9,12 @@
 #include <utility>
 #include <cmath>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
-  DuplicateRemoval::DuplicateRemoval(const Setup* setup,
+  DuplicateRemoval::DuplicateRemoval(const tt::Setup* setup,
                                      const DataFormats* dataFormats,
-                                     vector<TrackDR>& tracks,
-                                     vector<StubDR>& stubs)
+                                     std::vector<TrackDR>& tracks,
+                                     std::vector<StubDR>& stubs)
       : setup_(setup), dataFormats_(dataFormats), tracks_(tracks), stubs_(stubs) {
     numChannel_ = dataFormats_->numChannel(Process::kf);
     numLayers_ = setup_->numLayers();
@@ -28,28 +24,28 @@ namespace trackerTFP {
   }
 
   // fill output products
-  void DuplicateRemoval::produce(const vector<vector<TrackKF*>>& tracksIn,
-                                 const vector<vector<StubKF*>>& stubsIn,
-                                 vector<vector<TrackDR*>>& tracksOut,
-                                 vector<vector<StubDR*>>& stubsOut) {
+  void DuplicateRemoval::produce(const std::vector<std::vector<TrackKF*>>& tracksIn,
+                                 const std::vector<std::vector<StubKF*>>& stubsIn,
+                                 std::vector<std::vector<TrackDR*>>& tracksOut,
+                                 std::vector<std::vector<StubDR*>>& stubsOut) {
     int nTracks(0);
-    for (const vector<TrackKF*>& tracks : tracksIn)
-      nTracks +=
-          accumulate(tracks.begin(), tracks.end(), 0, [](int sum, TrackKF* track) { return sum + (track ? 1 : 0); });
-    vector<Track> tracks;
+    for (const std::vector<TrackKF*>& tracks : tracksIn)
+      nTracks += std::accumulate(
+          tracks.begin(), tracks.end(), 0, [](int sum, TrackKF* track) { return sum + (track ? 1 : 0); });
+    std::vector<Track> tracks;
     tracks.reserve(nTracks);
-    deque<Track*> stream;
+    std::deque<Track*> stream;
     // merge 4 channel to 1
     for (int channel = numChannel_ - 1; channel >= 0; channel--) {
       const int offset = channel * numLayers_;
-      const vector<TrackKF*>& tracksChannel = tracksIn[channel];
-      for (int frame = 0; frame < (int)tracksChannel.size(); frame++) {
+      const std::vector<TrackKF*>& tracksChannel = tracksIn[channel];
+      for (int frame = 0; frame < static_cast<int>(tracksChannel.size()); frame++) {
         TrackKF* track = tracksChannel[frame];
         if (!track) {
           stream.push_back(nullptr);
           continue;
         }
-        vector<StubKF*> stubs;
+        std::vector<StubKF*> stubs;
         stubs.reserve(numLayers_);
         for (int layer = 0; layer < numLayers_; layer++)
           stubs.push_back(stubsIn[offset + layer][frame]);
@@ -62,14 +58,14 @@ namespace trackerTFP {
       }
     }
     // truncate if desired
-    if (setup_->enableTruncation() && (int)stream.size() > setup_->numFramesHigh()) {
-      const auto limit = next(stream.begin(), setup_->numFramesHigh());
+    if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFramesHigh()) {
+      const auto limit = std::next(stream.begin(), setup_->numFramesHigh());
       stream.erase(limit, stream.end());
     }
     // remove duplicates
-    vector<Track*> killed;
+    std::vector<Track*> killed;
     killed.reserve(stream.size());
-    vector<vector<TTBV>> hits(numZT_, vector<TTBV>(numInv2R_, TTBV(0, numPhiT_)));
+    std::vector<std::vector<TTBV>> hits(numZT_, std::vector<TTBV>(numInv2R_, TTBV(0, numPhiT_)));
     for (Track*& track : stream) {
       if (!track)
         continue;
@@ -90,8 +86,8 @@ namespace trackerTFP {
       stream.push_back(track);
     }
     // truncate
-    if (setup_->enableTruncation() && (int)stream.size() > setup_->numFramesHigh()) {
-      const auto limit = next(stream.begin(), setup_->numFramesHigh());
+    if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFramesHigh()) {
+      const auto limit = std::next(stream.begin(), setup_->numFramesHigh());
       stream.erase(limit, stream.end());
     }
     // remove trailing nullptr
@@ -99,12 +95,12 @@ namespace trackerTFP {
       it = (*--it) ? stream.begin() : stream.erase(it);
     // convert and store tracks
     tracksOut[0].reserve(stream.size());
-    for (vector<StubDR*>& layer : stubsOut)
+    for (std::vector<StubDR*>& layer : stubsOut)
       layer.reserve(stream.size());
     for (Track* track : stream) {
       if (!track) {
         tracksOut[0].push_back(nullptr);
-        for (vector<StubDR*>& layer : stubsOut)
+        for (std::vector<StubDR*>& layer : stubsOut)
           layer.push_back(nullptr);
         continue;
       }
@@ -117,7 +113,7 @@ namespace trackerTFP {
       tracks_.emplace_back(*trackKF, inv2R, phiT, cot, zT);
       tracksOut[0].push_back(&tracks_.back());
       for (int layer = 0; layer < numLayers_; layer++) {
-        vector<StubDR*>& layerStubs = stubsOut[layer];
+        std::vector<StubDR*>& layerStubs = stubsOut[layer];
         StubKF* stub = track->stubs_[layer];
         if (!stub) {
           layerStubs.push_back(nullptr);

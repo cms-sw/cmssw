@@ -24,11 +24,6 @@
 #include <cmath>
 #include <numeric>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-using namespace trackerTFP;
-
 namespace trklet {
 
   /*! \class  trklet::ProducerDR
@@ -37,40 +32,40 @@ namespace trklet {
    *  \author Thomas Schuh
    *  \date   2023, Feb
    */
-  class ProducerDR : public stream::EDProducer<> {
+  class ProducerDR : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerDR(const ParameterSet&);
+    explicit ProducerDR(const edm::ParameterSet&);
     ~ProducerDR() override {}
 
   private:
-    void produce(Event&, const EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     // ED input token of Tracks
-    EDGetTokenT<StreamsTrack> edGetTokenTracks_;
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
     // ED input token of Stubs
-    EDGetTokenT<StreamsStub> edGetTokenStubs_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED output token for stubs
-    EDPutTokenT<StreamsStub> edPutTokenStubs_;
+    edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
     // ED output token for tracks
-    EDPutTokenT<StreamsTrack> edPutTokenTracks_;
+    edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // LayerEncoding token
-    ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
+    edm::ESGetToken<trackerTFP::LayerEncoding, trackerTFP::DataFormatsRcd> esGetTokenLayerEncoding_;
     // DataFormats token
-    ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
     // ChannelAssignment token
-    ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
+    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
   };
 
-  ProducerDR::ProducerDR(const ParameterSet& iConfig) {
-    const string& label = iConfig.getParameter<string>("InputLabelDR");
-    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
-    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
+  ProducerDR::ProducerDR(const edm::ParameterSet& iConfig) {
+    const std::string& label = iConfig.getParameter<std::string>("InputLabelDR");
+    const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
+    const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
     // book in- and output ED products
-    edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
-    edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
-    edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
-    edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
+    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
+    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
+    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
+    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenLayerEncoding_ = esConsumes();
@@ -78,21 +73,21 @@ namespace trklet {
     esGetTokenChannelAssignment_ = esConsumes();
   }
 
-  void ProducerDR::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerDR::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to encode layer
-    const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
+    const trackerTFP::LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // helper class to assign tracks to channel
     const ChannelAssignment* channelAssignment = &iSetup.getData(esGetTokenChannelAssignment_);
     // empty DR products
-    StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
-    StreamsTrack streamsTrack(setup->numRegions());
+    tt::StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
+    tt::StreamsTrack streamsTrack(setup->numRegions());
     // read in TBout Product and produce KFin product
-    const StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
-    const StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
+    const tt::StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
+    const tt::StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
     for (int region = 0; region < setup->numRegions(); region++) {
       // object to remove duplicated tracks in a processing region
       DuplicateRemoval dr(setup, layerEncoding, dataFormats, channelAssignment, region);

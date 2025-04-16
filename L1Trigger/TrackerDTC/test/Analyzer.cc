@@ -39,59 +39,55 @@
 #include <initializer_list>
 #include <sstream>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerDTC {
 
   // stub resolution plots helper
   enum Resolution { R, Phi, Z, NumResolution };
-  constexpr initializer_list<Resolution> AllResolution = {R, Phi, Z};
+  constexpr std::initializer_list<Resolution> AllResolution = {R, Phi, Z};
   constexpr auto NameResolution = {"R", "Phi", "Z"};
-  inline string name(Resolution r) { return string(*(NameResolution.begin() + r)); }
+  inline std::string name(Resolution r) { return std::string(*(NameResolution.begin() + r)); }
   // max tracking efficiency plots helper
   enum Efficiency { Phi0, Pt, InvPt, D0, Z0, Eta, NumEfficiency };
-  constexpr initializer_list<Efficiency> AllEfficiency = {Phi0, Pt, InvPt, D0, Z0, Eta};
+  constexpr std::initializer_list<Efficiency> AllEfficiency = {Phi0, Pt, InvPt, D0, Z0, Eta};
   constexpr auto NameEfficiency = {"Phi0", "Pt", "InvPt", "D0", "Z0", "Eta"};
-  inline string name(Efficiency e) { return string(*(NameEfficiency.begin() + e)); }
+  inline std::string name(Efficiency e) { return std::string(*(NameEfficiency.begin() + e)); }
 
   /*! \class  trackerDTC::Analyzer
    *  \brief  Class to analyze hardware like structured TTStub Collection used by Track Trigger emulators, runs DTC stub emulation, plots performance & stub occupancy
    *  \author Thomas Schuh
    *  \date   2020, Apr
    */
-  class Analyzer : public one::EDAnalyzer<one::WatchRuns, one::SharedResources> {
+  class Analyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
   public:
-    Analyzer(const ParameterSet& iConfig);
+    Analyzer(const edm::ParameterSet& iConfig);
     void beginJob() override {}
-    void beginRun(const Run& iEvent, const EventSetup& iSetup) override;
-    void analyze(const Event& iEvent, const EventSetup& iSetup) override;
-    void endRun(const Run& iEvent, const EventSetup& iSetup) override {}
+    void beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override;
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    void endRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override {}
     void endJob() override;
 
   private:
     // fills kinematic tp histograms
-    void fill(const TPPtr& tpPtr, const vector<TH1F*> th1fs) const;
+    void fill(const TPPtr& tpPtr, const std::vector<TH1F*> th1fs) const;
     // fill stub related histograms
-    void fill(const StreamStub& stream, int region, int channel, int& sum, TH2F* th2f);
+    void fill(const tt::StreamStub& stream, int region, int channel, int& sum, TH2F* th2f);
     // prints out MC summary
     void endJobMC();
     // prints out DTC summary
     void endJobDTC();
 
     // ED input token of DTC stubs
-    EDGetTokenT<TTDTC> edGetTokenTTDTCAccepted_;
+    edm::EDGetTokenT<TTDTC> edGetTokenTTDTCAccepted_;
     // ED input token of lost DTC stubs
-    EDGetTokenT<TTDTC> edGetTokenTTDTCLost_;
+    edm::EDGetTokenT<TTDTC> edGetTokenTTDTCLost_;
     // ED input token of TTStubRef to TPPtr association for tracking efficiency
-    EDGetTokenT<StubAssociation> edGetTokenSelection_;
+    edm::EDGetTokenT<tt::StubAssociation> edGetTokenSelection_;
     // ED input token of TTStubRef to recontructable TPPtr association
-    EDGetTokenT<StubAssociation> edGetTokenReconstructable_;
+    edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetToken_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetToken_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_;
+    const tt::Setup* setup_;
     // enables analyze of TPs
     bool useMCTruth_;
     //
@@ -106,41 +102,41 @@ namespace trackerDTC {
     TH2F* hisRZStubs_;
     TH2F* hisRZStubsLost_;
     TH2F* hisRZStubsEff_;
-    vector<TH1F*> hisResolution_;
-    vector<TProfile2D*> profResolution_;
-    vector<TH1F*> hisEff_;
-    vector<TH1F*> hisEffMC_;
-    vector<TEfficiency*> eff_;
+    std::vector<TH1F*> hisResolution_;
+    std::vector<TProfile2D*> profResolution_;
+    std::vector<TH1F*> hisEff_;
+    std::vector<TH1F*> hisEffMC_;
+    std::vector<TEfficiency*> eff_;
 
     // printout
-    stringstream log_;
+    std::stringstream log_;
   };
 
-  Analyzer::Analyzer(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
+  Analyzer::Analyzer(const edm::ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
-    const auto& inputTagAccepted = iConfig.getParameter<InputTag>("InputTagAccepted");
-    const auto& inputTagLost = iConfig.getParameter<InputTag>("InputTagLost");
+    const auto& inputTagAccepted = iConfig.getParameter<edm::InputTag>("InputTagAccepted");
+    const auto& inputTagLost = iConfig.getParameter<edm::InputTag>("InputTagLost");
     edGetTokenTTDTCAccepted_ = consumes<TTDTC>(inputTagAccepted);
     edGetTokenTTDTCLost_ = consumes<TTDTC>(inputTagLost);
     if (useMCTruth_) {
-      const auto& inputTagSelection = iConfig.getParameter<InputTag>("InputTagSelection");
-      const auto& inputTagReconstructable = iConfig.getParameter<InputTag>("InputTagReconstructable");
-      edGetTokenSelection_ = consumes<StubAssociation>(inputTagSelection);
-      edGetTokenReconstructable_ = consumes<StubAssociation>(inputTagReconstructable);
+      const auto& inputTagSelection = iConfig.getParameter<edm::InputTag>("InputTagSelection");
+      const auto& inputTagReconstructable = iConfig.getParameter<edm::InputTag>("InputTagReconstructable");
+      edGetTokenSelection_ = consumes<tt::StubAssociation>(inputTagSelection);
+      edGetTokenReconstructable_ = consumes<tt::StubAssociation>(inputTagReconstructable);
     }
     // book ES product
-    esGetToken_ = esConsumes<Transition::BeginRun>();
+    esGetToken_ = esConsumes<edm::Transition::BeginRun>();
     // log config
-    log_.setf(ios::fixed, ios::floatfield);
+    log_.setf(std::ios::fixed, std::ios::floatfield);
     log_.precision(4);
   }
 
-  void Analyzer::beginRun(const Run& iEvent, const EventSetup& iSetup) {
+  void Analyzer::beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetToken_);
     // book histograms
-    Service<TFileService> fs;
+    edm::Service<TFileService> fs;
     TFileDirectory dir;
     // mc
     dir = fs->mkdir("MC");
@@ -151,8 +147,8 @@ namespace trackerDTC {
     profMC_->GetXaxis()->SetBinLabel(4, "eff TPs");
     profMC_->GetXaxis()->SetBinLabel(5, "total eff TPs");
     profMC_->GetXaxis()->SetBinLabel(6, "Cluster");
-    constexpr array<int, NumEfficiency> binsEff{{9 * 8, 10, 16, 10, 30, 24}};
-    constexpr array<pair<double, double>, NumEfficiency> rangesEff{
+    constexpr std::array<int, NumEfficiency> binsEff{{9 * 8, 10, 16, 10, 30, 24}};
+    constexpr std::array<std::pair<double, double>, NumEfficiency> rangesEff{
         {{-M_PI, M_PI}, {0., 100.}, {-1. / 3., 1. / 3.}, {-5., 5.}, {-15., 15.}, {-2.4, 2.4}}};
     if (useMCTruth_) {
       hisEffMC_.reserve(NumEfficiency);
@@ -193,7 +189,7 @@ namespace trackerDTC {
     hisRZStubsEff_ = dir.make<TH2F>("RZ Stubs Eff", ";;", bins, -maxZ, maxZ, bins, 0., maxR);
     // stub parameter resolutions
     dir = fs->mkdir("DTC/Res");
-    constexpr array<double, NumResolution> ranges{{.2, .0001, .5}};
+    constexpr std::array<double, NumResolution> ranges{{.2, .0001, .5}};
     constexpr int binsHis = 100;
     hisResolution_.reserve(NumResolution);
     profResolution_.reserve(NumResolution);
@@ -204,21 +200,21 @@ namespace trackerDTC {
     }
   }
 
-  void Analyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
+  void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // read in dtc products
-    Handle<TTDTC> handleTTDTCAccepted;
+    edm::Handle<TTDTC> handleTTDTCAccepted;
     iEvent.getByToken<TTDTC>(edGetTokenTTDTCAccepted_, handleTTDTCAccepted);
-    Handle<TTDTC> handleTTDTCLost;
+    edm::Handle<TTDTC> handleTTDTCLost;
     iEvent.getByToken<TTDTC>(edGetTokenTTDTCLost_, handleTTDTCLost);
     // read in MCTruth
-    const StubAssociation* selection = nullptr;
-    const StubAssociation* reconstructable = nullptr;
+    const tt::StubAssociation* selection = nullptr;
+    const tt::StubAssociation* reconstructable = nullptr;
     if (useMCTruth_) {
-      Handle<StubAssociation> handleSelection;
-      iEvent.getByToken<StubAssociation>(edGetTokenSelection_, handleSelection);
+      edm::Handle<tt::StubAssociation> handleSelection;
+      iEvent.getByToken<tt::StubAssociation>(edGetTokenSelection_, handleSelection);
       selection = handleSelection.product();
-      Handle<StubAssociation> handleReconstructable;
-      iEvent.getByToken<StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
+      edm::Handle<tt::StubAssociation> handleReconstructable;
+      iEvent.getByToken<tt::StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
       reconstructable = handleReconstructable.product();
       profMC_->Fill(3, reconstructable->numTPs() / (double)setup_->numRegions());
       profMC_->Fill(4, selection->numTPs() / (double)setup_->numRegions());
@@ -227,27 +223,27 @@ namespace trackerDTC {
         fill(p.first, hisEffMC_);
     }
     // analyze dtc products and find still reconstrucable TrackingParticles
-    set<TPPtr> tpPtrs;
+    std::set<TPPtr> tpPtrs;
     for (int region = 0; region < setup_->numRegions(); region++) {
       int nStubs(0);
       int nLost(0);
-      map<TPPtr, vector<TTStubRef>> mapTPsTTStubs;
+      std::map<TPPtr, std::vector<TTStubRef>> mapTPsTTStubs;
       for (int channel = 0; channel < setup_->numDTCsPerTFP(); channel++) {
-        const StreamStub& accepted = handleTTDTCAccepted->stream(region, channel);
-        const StreamStub& lost = handleTTDTCLost->stream(region, channel);
+        const tt::StreamStub& accepted = handleTTDTCAccepted->stream(region, channel);
+        const tt::StreamStub& lost = handleTTDTCLost->stream(region, channel);
         hisChannel_->Fill(accepted.size());
         profChannel_->Fill(channel, accepted.size());
         fill(accepted, region, channel, nStubs, hisRZStubs_);
         fill(lost, region, channel, nLost, hisRZStubsLost_);
         if (!useMCTruth_)
           continue;
-        for (const FrameStub& frame : accepted) {
+        for (const tt::FrameStub& frame : accepted) {
           if (frame.first.isNull())
             continue;
           for (const TPPtr& tpPtr : selection->findTrackingParticlePtrs(frame.first)) {
             auto it = mapTPsTTStubs.find(tpPtr);
             if (it == mapTPsTTStubs.end()) {
-              it = mapTPsTTStubs.emplace(tpPtr, vector<TTStubRef>()).first;
+              it = mapTPsTTStubs.emplace(tpPtr, std::vector<TTStubRef>()).first;
               it->second.reserve(selection->findTTStubRefs(tpPtr).size());
             }
             it->second.push_back(frame.first);
@@ -282,40 +278,40 @@ namespace trackerDTC {
         eff_[e]->SetTotalHistogram(*hisEffMC_[e], "f");
       }
     }
-    log_ << "'Lost' below refers to truncation losses" << endl;
+    log_ << "'Lost' below refers to truncation losses" << std::endl;
     // printout MC summary
     endJobMC();
     // printout DTC summary
     endJobDTC();
     log_ << "=============================================================";
-    LogPrint(moduleDescription().moduleName()) << log_.str();
+    edm::LogPrint(moduleDescription().moduleName()) << log_.str();
   }
 
   // fills kinematic tp histograms
-  void Analyzer::fill(const TPPtr& tpPtr, const vector<TH1F*> th1fs) const {
+  void Analyzer::fill(const TPPtr& tpPtr, const std::vector<TH1F*> th1fs) const {
     const double s = sin(tpPtr->phi());
     const double c = cos(tpPtr->phi());
     const TrackingParticle::Point& v = tpPtr->vertex();
-    const vector<double> x = {tpPtr->phi(),
-                              tpPtr->pt(),
-                              tpPtr->charge() / tpPtr->pt(),
-                              v.x() * s - v.y() * c,
-                              v.z() - (v.x() * c + v.y() * s) * sinh(tpPtr->eta()),
-                              tpPtr->eta()};
+    const std::vector<double> x = {tpPtr->phi(),
+                                   tpPtr->pt(),
+                                   tpPtr->charge() / tpPtr->pt(),
+                                   v.x() * s - v.y() * c,
+                                   v.z() - (v.x() * c + v.y() * s) * sinh(tpPtr->eta()),
+                                   tpPtr->eta()};
     for (Efficiency e : AllEfficiency)
       th1fs[e]->Fill(x[e]);
   }
 
   // fill stub related histograms
-  void Analyzer::fill(const StreamStub& stream, int region, int channel, int& sum, TH2F* th2f) {
-    for (const FrameStub& frame : stream) {
+  void Analyzer::fill(const tt::StreamStub& stream, int region, int channel, int& sum, TH2F* th2f) {
+    for (const tt::FrameStub& frame : stream) {
       if (frame.first.isNull())
         continue;
       sum++;
       const GlobalPoint& pos = setup_->stubPos(frame, region);
       const GlobalPoint& ttPos = setup_->stubPos(frame.first);
-      const vector<double> resolutions = {
-          ttPos.perp() - pos.perp(), deltaPhi(ttPos.phi() - pos.phi()), ttPos.z() - pos.z()};
+      const std::vector<double> resolutions = {
+          ttPos.perp() - pos.perp(), tt::deltaPhi(ttPos.phi() - pos.phi()), ttPos.z() - pos.z()};
       for (Resolution r : AllResolution) {
         hisResolution_[r]->Fill(resolutions[r]);
         profResolution_[r]->Fill(ttPos.z(), ttPos.perp(), abs(resolutions[r]));
@@ -336,22 +332,22 @@ namespace trackerDTC {
     const double errTPsEff = profMC_->GetBinError(4);
     const double numCluster = profMC_->GetBinContent(6);
     const double errCluster = profMC_->GetBinError(6);
-    const vector<double> nums = {numStubs, numStubsMatched, numTPsReco, numTPsEff, numCluster};
-    const vector<double> errs = {errStubs, errStubsMatched, errTPsReco, errTPsEff, errCluster};
-    const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
-    const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
-    log_ << "=============================================================" << endl;
-    log_ << "                         Monte Carlo  SUMMARY                         " << endl;
-    /*log_ << "number of cluster       per TFP = " << setw(wNums) << numCluster << " +- " << setw(wErrs) << errCluster
-         << endl;
-    log_ << "number of stubs         per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs
-         << endl;
-    log_ << "number of matched stubs per TFP = " << setw(wNums) << numStubsMatched << " +- " << setw(wErrs)
-         << errStubsMatched << endl;*/
-    log_ << "number of TPs           per TFP = " << setw(wNums) << numTPsReco << " +- " << setw(wErrs) << errTPsReco
-         << endl;
-    log_ << "number of TPs for eff   per TFP = " << setw(wNums) << numTPsEff << " +- " << setw(wErrs) << errTPsEff
-         << endl;
+    const std::vector<double> nums = {numStubs, numStubsMatched, numTPsReco, numTPsEff, numCluster};
+    const std::vector<double> errs = {errStubs, errStubsMatched, errTPsReco, errTPsEff, errCluster};
+    const int wNums = std::ceil(std::log10(*std::max_element(nums.begin(), nums.end()))) + 5;
+    const int wErrs = std::ceil(std::log10(*std::max_element(errs.begin(), errs.end()))) + 5;
+    log_ << "=============================================================" << std::endl;
+    log_ << "                         Monte Carlo  SUMMARY                         " << std::endl;
+    log_ << "number of cluster       per TFP = " << std::setw(wNums) << numCluster << " +- " << std::setw(wErrs)
+         << errCluster << std::endl;
+    log_ << "number of stubs         per TFP = " << std::setw(wNums) << numStubs << " +- " << std::setw(wErrs)
+         << errStubs << std::endl;
+    log_ << "number of matched stubs per TFP = " << std::setw(wNums) << numStubsMatched << " +- " << std::setw(wErrs)
+         << errStubsMatched << std::endl;
+    log_ << "number of TPs           per TFP = " << std::setw(wNums) << numTPsReco << " +- " << std::setw(wErrs)
+         << errTPsReco << std::endl;
+    log_ << "number of TPs for eff   per TFP = " << std::setw(wNums) << numTPsEff << " +- " << std::setw(wErrs)
+         << errTPsEff << std::endl;
   }
 
   // prints out DTC summary
@@ -364,16 +360,18 @@ namespace trackerDTC {
     const double totalTPs = profMC_->GetBinContent(5);
     const double eff = numTPs / totalTPs;
     const double errEff = sqrt(eff * (1. - eff) / totalTPs / nEvents_);
-    const vector<double> nums = {numStubs, numStubsLost};
-    const vector<double> errs = {errStubs, errStubsLost};
-    const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
-    const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
-    log_ << "=============================================================" << endl;
-    log_ << "                         DTC SUMMARY                         " << endl;
-    log_ << "number of stubs      per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "number of lost stubs per TFP = " << setw(wNums) << numStubsLost << " +- " << setw(wErrs) << errStubsLost
-         << endl;
-    log_ << "     max tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
+    const std::vector<double> nums = {numStubs, numStubsLost};
+    const std::vector<double> errs = {errStubs, errStubsLost};
+    const int wNums = std::ceil(std::log10(*std::max_element(nums.begin(), nums.end()))) + 5;
+    const int wErrs = std::ceil(std::log10(*std::max_element(errs.begin(), errs.end()))) + 5;
+    log_ << "=============================================================" << std::endl;
+    log_ << "                         DTC SUMMARY                         " << std::endl;
+    log_ << "number of stubs      per TFP = " << std::setw(wNums) << numStubs << " +- " << std::setw(wErrs) << errStubs
+         << std::endl;
+    log_ << "number of lost stubs per TFP = " << std::setw(wNums) << numStubsLost << " +- " << std::setw(wErrs)
+         << errStubsLost << std::endl;
+    log_ << "     max tracking efficiency = " << std::setw(wNums) << eff << " +- " << std::setw(wErrs) << errEff
+         << std::endl;
   }
 
 }  // namespace trackerDTC

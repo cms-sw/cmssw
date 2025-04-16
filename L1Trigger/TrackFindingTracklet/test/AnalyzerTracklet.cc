@@ -28,10 +28,6 @@
 #include <numeric>
 #include <sstream>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trklet {
 
   /*! \class  trklet::AnalyzerTracklet
@@ -39,37 +35,37 @@ namespace trklet {
    *  \author Thomas Schuh
    *  \date   2020, Oct
    */
-  class AnalyzerTracklet : public one::EDAnalyzer<one::WatchRuns, one::SharedResources> {
+  class AnalyzerTracklet : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
   public:
-    AnalyzerTracklet(const ParameterSet& iConfig);
+    AnalyzerTracklet(const edm::ParameterSet& iConfig);
     void beginJob() override {}
-    void beginRun(const Run& iEvent, const EventSetup& iSetup) override;
-    void analyze(const Event& iEvent, const EventSetup& iSetup) override;
-    void endRun(const Run& iEvent, const EventSetup& iSetup) override {}
+    void beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override;
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    void endRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override {}
     void endJob() override;
 
   private:
     // gets all TPs associated too any of the tracks & number of tracks matching at least one TP
-    void associate(const vector<vector<TTStubRef>>& tracks,
-                   const StubAssociation* ass,
-                   set<TPPtr>& tps,
+    void associate(const std::vector<std::vector<TTStubRef>>& tracks,
+                   const tt::StubAssociation* ass,
+                   std::set<TPPtr>& tps,
                    int& nMatchTrk,
                    bool perfect = false) const;
 
     // ED input token of tracks
-    EDGetTokenT<TTTracks> edGetToken_;
+    edm::EDGetTokenT<tt::TTTracks> edGetToken_;
     // ED input token of TTStubRef to TPPtr association for tracking efficiency
-    EDGetTokenT<StubAssociation> edGetTokenSelection_;
+    edm::EDGetTokenT<tt::StubAssociation> edGetTokenSelection_;
     // ED input token of TTStubRef to recontructable TPPtr association
-    EDGetTokenT<StubAssociation> edGetTokenReconstructable_;
+    edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
     // ChannelAssignment token
-    ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
+    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_ = nullptr;
+    const tt::Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
     // helper class to assign tracks to channel
@@ -91,31 +87,31 @@ namespace trklet {
     TEfficiency* eff_;
 
     // printout
-    stringstream log_;
+    std::stringstream log_;
   };
 
-  AnalyzerTracklet::AnalyzerTracklet(const ParameterSet& iConfig)
+  AnalyzerTracklet::AnalyzerTracklet(const edm::ParameterSet& iConfig)
       : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
-    const InputTag& inputTag = iConfig.getParameter<InputTag>("InputTag");
-    edGetToken_ = consumes<TTTracks>(inputTag);
+    const edm::InputTag& inputTag = iConfig.getParameter<edm::InputTag>("InputTag");
+    edGetToken_ = consumes<tt::TTTracks>(inputTag);
     if (useMCTruth_) {
-      const auto& inputTagSelecttion = iConfig.getParameter<InputTag>("InputTagSelection");
-      const auto& inputTagReconstructable = iConfig.getParameter<InputTag>("InputTagReconstructable");
-      edGetTokenSelection_ = consumes<StubAssociation>(inputTagSelecttion);
-      edGetTokenReconstructable_ = consumes<StubAssociation>(inputTagReconstructable);
+      const auto& inputTagSelecttion = iConfig.getParameter<edm::InputTag>("InputTagSelection");
+      const auto& inputTagReconstructable = iConfig.getParameter<edm::InputTag>("InputTagReconstructable");
+      edGetTokenSelection_ = consumes<tt::StubAssociation>(inputTagSelecttion);
+      edGetTokenReconstructable_ = consumes<tt::StubAssociation>(inputTagReconstructable);
     }
     // book ES products
-    esGetTokenSetup_ = esConsumes<Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<Transition::BeginRun>();
-    esGetTokenChannelAssignment_ = esConsumes<Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenChannelAssignment_ = esConsumes<edm::Transition::BeginRun>();
     // log config
-    log_.setf(ios::fixed, ios::floatfield);
+    log_.setf(std::ios::fixed, std::ios::floatfield);
     log_.precision(4);
   }
 
-  void AnalyzerTracklet::beginRun(const Run& iEvent, const EventSetup& iSetup) {
+  void AnalyzerTracklet::beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
@@ -123,7 +119,7 @@ namespace trklet {
     // helper class to assign tracks to channel
     channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
     // book histograms
-    Service<TFileService> fs;
+    edm::Service<TFileService> fs;
     TFileDirectory dir;
     dir = fs->mkdir("Tracklet");
     prof_ = dir.make<TProfile>("Counts", ";", 10, 0.5, 10.5);
@@ -148,29 +144,29 @@ namespace trklet {
     eff_ = dir.make<TEfficiency>("EffEta", ";", 128, -2.5, 2.5);
   }
 
-  void AnalyzerTracklet::analyze(const Event& iEvent, const EventSetup& iSetup) {
+  void AnalyzerTracklet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     auto fill = [](const TPPtr& tpPtr, TH1F* his) { his->Fill(tpPtr->eta()); };
     // read in tracklet products
-    Handle<TTTracks> handle;
-    iEvent.getByToken<TTTracks>(edGetToken_, handle);
+    edm::Handle<tt::TTTracks> handle;
+    iEvent.getByToken<tt::TTTracks>(edGetToken_, handle);
     // read in MCTruth
-    const StubAssociation* selection = nullptr;
-    const StubAssociation* reconstructable = nullptr;
+    const tt::StubAssociation* selection = nullptr;
+    const tt::StubAssociation* reconstructable = nullptr;
     if (useMCTruth_) {
-      Handle<StubAssociation> handleSelection;
-      iEvent.getByToken<StubAssociation>(edGetTokenSelection_, handleSelection);
+      edm::Handle<tt::StubAssociation> handleSelection;
+      iEvent.getByToken<tt::StubAssociation>(edGetTokenSelection_, handleSelection);
       selection = handleSelection.product();
       prof_->Fill(9, selection->numTPs());
-      Handle<StubAssociation> handleReconstructable;
-      iEvent.getByToken<StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
+      edm::Handle<tt::StubAssociation> handleReconstructable;
+      iEvent.getByToken<tt::StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
       reconstructable = handleReconstructable.product();
       for (const auto& p : selection->getTrackingParticleToTTStubsMap())
         fill(p.first, hisEffTotal_);
     }
     //
-    const TTTracks& ttTracks = *handle.product();
-    vector<vector<TTTrackRef>> ttTrackRefsRegions(setup_->numRegions());
-    vector<int> nTTTracksRegions(setup_->numRegions(), 0);
+    const tt::TTTracks& ttTracks = *handle.product();
+    std::vector<std::vector<TTTrackRef>> ttTrackRefsRegions(setup_->numRegions());
+    std::vector<int> nTTTracksRegions(setup_->numRegions(), 0);
     for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks)
       nTTTracksRegions[ttTrack.phiSector()]++;
     for (int region = 0; region < setup_->numRegions(); region++)
@@ -179,9 +175,9 @@ namespace trklet {
     for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks)
       ttTrackRefsRegions[ttTrack.phiSector()].emplace_back(TTTrackRef(handle, i++));
     for (int region = 0; region < setup_->numRegions(); region++) {
-      const vector<TTTrackRef>& ttTrackRefs = ttTrackRefsRegions[region];
+      const std::vector<TTTrackRef>& ttTrackRefs = ttTrackRefsRegions[region];
       const int nStubs =
-          accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [](int sum, const TTTrackRef& ttTrackRef) {
+          std::accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [](int sum, const TTTrackRef& ttTrackRef) {
             return sum + ttTrackRef->getStubRefs().size();
           });
       const int nTracks = ttTrackRefs.size();
@@ -190,8 +186,8 @@ namespace trklet {
       // no access to lost tracks
       prof_->Fill(3, 0);
       for (int seedType = 0; seedType < channelAssignment_->numSeedTypes(); seedType++) {
-        const int nTracks =
-            accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [seedType](int sum, const TTTrackRef& ttTrackRef) {
+        const int nTracks = std::accumulate(
+            ttTrackRefs.begin(), ttTrackRefs.end(), 0, [seedType](int sum, const TTTrackRef& ttTrackRef) {
               return sum + (static_cast<int>(ttTrackRef->trackSeedType()) == seedType ? 1 : 0);
             });
         hisChannel_->Fill(nTracks);
@@ -199,17 +195,17 @@ namespace trklet {
       }
     }
     // analyze tracklet products and associate found tracks with reconstrucable TrackingParticles
-    set<TPPtr> tpPtrs;
-    set<TPPtr> tpPtrsSelection;
-    set<TPPtr> tpPtrsPerfect;
+    std::set<TPPtr> tpPtrs;
+    std::set<TPPtr> tpPtrsSelection;
+    std::set<TPPtr> tpPtrsPerfect;
     int nAllMatched(0);
     // convert vector of tracks to vector of vector of associated stubs
-    vector<vector<TTStubRef>> tracks;
+    std::vector<std::vector<TTStubRef>> tracks;
     tracks.reserve(ttTracks.size());
-    transform(
-        ttTracks.begin(), ttTracks.end(), back_inserter(tracks), [](const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack) {
-          return ttTrack.getStubRefs();
-        });
+    std::transform(ttTracks.begin(),
+                   ttTracks.end(),
+                   std::back_inserter(tracks),
+                   [](const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack) { return ttTrack.getStubRefs(); });
     if (useMCTruth_) {
       int tmp(0);
       associate(tracks, selection, tpPtrsSelection, tmp);
@@ -248,37 +244,40 @@ namespace trklet {
     const double fracFake = (totalTracks - numTracksMatched) / totalTracks;
     const double fracDup = (numTracksMatched - numTPsAll) / totalTracks;
     const double eff = numTPsEff / totalTPs;
-    const double errEff = sqrt(eff * (1. - eff) / totalTPs / nEvents_);
+    const double errEff = std::sqrt(eff * (1. - eff) / totalTPs / nEvents_);
     const double effPerfect = numTPsEffPerfect / totalTPs;
-    const double errEffPerfect = sqrt(effPerfect * (1. - effPerfect) / totalTPs / nEvents_);
-    const vector<double> nums = {numStubs, numTracks};
-    const vector<double> errs = {errStubs, errTracks};
-    const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
-    const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
-    log_ << "                      Tracklet  SUMMARY                      " << endl;
-    log_ << "number of stubs     per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "number of tracks    per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks << endl;
-    log_ << "current tracking efficiency = " << setw(wNums) << effPerfect << " +- " << setw(wErrs) << errEffPerfect
-         << endl;
-    log_ << "max     tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
-    log_ << "                  fake rate = " << setw(wNums) << fracFake << endl;
-    log_ << "             duplicate rate = " << setw(wNums) << fracDup << endl;
+    const double errEffPerfect = std::sqrt(effPerfect * (1. - effPerfect) / totalTPs / nEvents_);
+    const std::vector<double> nums = {numStubs, numTracks};
+    const std::vector<double> errs = {errStubs, errTracks};
+    const int wNums = std::ceil(std::log10(*std::max_element(nums.begin(), nums.end()))) + 5;
+    const int wErrs = std::ceil(std::log10(*std::max_element(errs.begin(), errs.end()))) + 5;
+    log_ << "                      Tracklet  SUMMARY                      " << std::endl;
+    log_ << "number of stubs     per TFP = " << std::setw(wNums) << numStubs << " +- " << std::setw(wErrs) << errStubs
+         << std::endl;
+    log_ << "number of tracks    per TFP = " << std::setw(wNums) << numTracks << " +- " << std::setw(wErrs) << errTracks
+         << std::endl;
+    log_ << "current tracking efficiency = " << std::setw(wNums) << effPerfect << " +- " << std::setw(wErrs)
+         << errEffPerfect << std::endl;
+    log_ << "max     tracking efficiency = " << std::setw(wNums) << eff << " +- " << std::setw(wErrs) << errEff
+         << std::endl;
+    log_ << "                  fake rate = " << std::setw(wNums) << fracFake << std::endl;
+    log_ << "             duplicate rate = " << std::setw(wNums) << fracDup << std::endl;
     log_ << "=============================================================";
-    LogPrint(moduleDescription().moduleName()) << log_.str();
+    edm::LogPrint(moduleDescription().moduleName()) << log_.str();
   }
 
   // gets all TPs associated too any of the tracks & number of tracks matching at least one TP
-  void AnalyzerTracklet::associate(const vector<vector<TTStubRef>>& tracks,
-                                   const StubAssociation* ass,
-                                   set<TPPtr>& tps,
+  void AnalyzerTracklet::associate(const std::vector<std::vector<TTStubRef>>& tracks,
+                                   const tt::StubAssociation* ass,
+                                   std::set<TPPtr>& tps,
                                    int& nMatchTrk,
                                    bool perfect) const {
-    for (const vector<TTStubRef>& ttStubRefs : tracks) {
-      const vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
+    for (const std::vector<TTStubRef>& ttStubRefs : tracks) {
+      const std::vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
       if (tpPtrs.empty())
         continue;
       nMatchTrk++;
-      copy(tpPtrs.begin(), tpPtrs.end(), inserter(tps, tps.begin()));
+      std::copy(tpPtrs.begin(), tpPtrs.end(), std::inserter(tps, tps.begin()));
     }
   }
 

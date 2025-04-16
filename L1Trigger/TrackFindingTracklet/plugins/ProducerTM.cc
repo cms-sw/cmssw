@@ -24,10 +24,6 @@
 #include <cmath>
 #include <numeric>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trklet {
 
   /*! \class  trklet::ProducerTM
@@ -36,60 +32,60 @@ namespace trklet {
    *  \author Thomas Schuh
    *  \date   2023, Jan
    */
-  class ProducerTM : public stream::EDProducer<> {
+  class ProducerTM : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerTM(const ParameterSet&);
+    explicit ProducerTM(const edm::ParameterSet&);
     ~ProducerTM() override {}
 
   private:
-    void produce(Event&, const EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // ED input token of Tracks
-    EDGetTokenT<StreamsTrack> edGetTokenTracks_;
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
     // ED input token of Stubs
-    EDGetTokenT<StreamsStub> edGetTokenStubs_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED output token for stubs
-    EDPutTokenT<StreamsStub> edPutTokenStubs_;
+    edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
     // ED output token for tracks
-    EDPutTokenT<StreamsTrack> edPutTokenTracks_;
+    edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
     // ChannelAssignment token
-    ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
+    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
     // helper class to store tracklet configurations
-    Settings settings_;
+    trklet::Settings settings_;
   };
 
-  ProducerTM::ProducerTM(const ParameterSet& iConfig) {
-    const string& label = iConfig.getParameter<string>("InputLabelTM");
-    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
-    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
+  ProducerTM::ProducerTM(const edm::ParameterSet& iConfig) {
+    const std::string& label = iConfig.getParameter<std::string>("InputLabelTM");
+    const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
+    const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
     // book in- and output ED products
-    edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
-    edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
-    edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
+    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
+    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
+    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
+    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();
     esGetTokenChannelAssignment_ = esConsumes();
   }
 
-  void ProducerTM::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerTM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // helper class to assign tracks to channel
     const ChannelAssignment* channelAssignment = &iSetup.getData(esGetTokenChannelAssignment_);
     // empty TM products
-    StreamsStub streamsStub(setup->numRegions() * channelAssignment->tmNumLayers());
-    StreamsTrack streamsTrack(setup->numRegions());
+    tt::StreamsStub streamsStub(setup->numRegions() * channelAssignment->tmNumLayers());
+    tt::StreamsTrack streamsTrack(setup->numRegions());
     // read in TBout Product and produce TM product
-    const StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
-    const StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
+    const tt::StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
+    const tt::StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
     for (int region = 0; region < setup->numRegions(); region++) {
       // object to reformat tracks from tracklet fromat to TMTT format in a processing region
       TrackMultiplexer tm(setup, dataFormats, channelAssignment, &settings_, region);

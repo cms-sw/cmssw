@@ -5,18 +5,13 @@
 #include <algorithm>
 #include <numeric>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-using namespace trackerTFP;
-
 namespace trackerDTC {
 
-  DTC::DTC(const Setup* setup,
-           const DataFormats* dataFormats,
+  DTC::DTC(const tt::Setup* setup,
+           const trackerTFP::DataFormats* dataFormats,
            const LayerEncoding* layerEncoding,
            int dtcId,
-           const vector<vector<TTStubRef>>& stubsDTC)
+           const std::vector<std::vector<TTStubRef>>& stubsDTC)
       : setup_(setup),
         dataFormats_(dataFormats),
         region_(dtcId / setup->numDTCsPerRegion()),
@@ -25,16 +20,16 @@ namespace trackerDTC {
         input_(setup->dtcNumRoutingBlocks(), Stubss(setup->dtcNumModulesPerRoutingBlock())),
         lost_(setup->numOverlappingRegions()) {
     // count number of stubs on this dtc
-    auto acc = [](int sum, const vector<TTStubRef>& stubsModule) { return sum + stubsModule.size(); };
-    const int nStubs = accumulate(stubsDTC.begin(), stubsDTC.end(), 0, acc);
+    auto acc = [](int sum, const std::vector<TTStubRef>& stubsModule) { return sum + stubsModule.size(); };
+    const int nStubs = std::accumulate(stubsDTC.begin(), stubsDTC.end(), 0, acc);
     stubs_.reserve(nStubs);
     // convert and assign Stubs to DTC routing block channel
     for (int modId = 0; modId < setup->numModulesPerDTC(); modId++) {
-      const vector<TTStubRef>& ttStubRefs = stubsDTC[modId];
+      const std::vector<TTStubRef>& ttStubRefs = stubsDTC[modId];
       if (ttStubRefs.empty())
         continue;
       // Module which produced this ttStubRefs
-      const SensorModule* module = modules_.at(modId);
+      const tt::SensorModule* module = modules_.at(modId);
       // DTC routing block id [0-1]
       const int blockId = modId / setup->dtcNumModulesPerRoutingBlock();
       // DTC routing blockc  channel id [0-35]
@@ -49,16 +44,19 @@ namespace trackerDTC {
           stubs.push_back(&stub);
       }
       // sort stubs by bend
-      sort(stubs.begin(), stubs.end(), [](Stub* lhs, Stub* rhs) { return abs(lhs->bend()) < abs(rhs->bend()); });
+      std::sort(stubs.begin(), stubs.end(), [](Stub* lhs, Stub* rhs) {
+        return std::abs(lhs->bend()) < std::abs(rhs->bend());
+      });
       // truncate stubs if desired
       if (!setup_->enableTruncation() || (int)stubs.size() <= setup->numFramesFE())
         continue;
       // begin of truncated stubs
-      const auto limit = next(stubs.begin(), setup->numFramesFE());
+      const auto limit = std::next(stubs.begin(), setup->numFramesFE());
       // copy truncated stubs into lost output channel
       for (int region = 0; region < setup->numOverlappingRegions(); region++)
-        copy_if(
-            limit, stubs.end(), back_inserter(lost_[region]), [region](Stub* stub) { return stub->inRegion(region); });
+        std::copy_if(limit, stubs.end(), std::back_inserter(lost_[region]), [region](Stub* stub) {
+          return stub->inRegion(region);
+        });
       // remove truncated stubs form input channel
       stubs.erase(limit, stubs.end());
     }
@@ -74,7 +72,7 @@ namespace trackerDTC {
     // copy lost stubs during merge into lost output channel
     for (int region = 0; region < setup_->numOverlappingRegions(); region++) {
       auto inRegion = [region](Stub* stub) { return stub->inRegion(region); };
-      copy_if(lost.begin(), lost.end(), back_inserter(lost_[region]), inRegion);
+      std::copy_if(lost.begin(), lost.end(), std::back_inserter(lost_[region]), inRegion);
     }
     // router step 2: merges stubs of all routing blocks and splits stubs into one stream per overlapping region
     Stubss regionStubs(setup_->numOverlappingRegions());
@@ -89,17 +87,17 @@ namespace trackerDTC {
     // for each input one fifo
     Stubss stacks(inputs.size());
     // clock accurate firmware emulation, each while trip describes one clock tick
-    while (!all_of(inputs.begin(), inputs.end(), [](const Stubs& channel) { return channel.empty(); }) or
-           !all_of(stacks.begin(), stacks.end(), [](const Stubs& channel) { return channel.empty(); })) {
+    while (!std::all_of(inputs.begin(), inputs.end(), [](const Stubs& channel) { return channel.empty(); }) ||
+           !std::all_of(stacks.begin(), stacks.end(), [](const Stubs& channel) { return channel.empty(); })) {
       // fill fifos
-      for (int iInput = 0; iInput < (int)inputs.size(); iInput++) {
+      for (int iInput = 0; iInput < static_cast<int>(inputs.size()); iInput++) {
         Stubs& input = inputs[iInput];
         Stubs& stack = stacks[iInput];
         if (input.empty())
           continue;
         Stub* stub = pop_front(input);
         if (stub) {
-          if (setup_->enableTruncation() && (int)stack.size() == setup_->dtcDepthMemory() - 1)
+          if (setup_->enableTruncation() && static_cast<int>(stack.size()) == setup_->dtcDepthMemory() - 1)
             // kill current first stub when fifo overflows
             lost.push_back(pop_front(stack));
           stack.push_back(stub);
@@ -122,8 +120,8 @@ namespace trackerDTC {
     }
     // truncate if desired
     if (setup_->enableTruncation() && (int)output.size() > setup_->numFramesIOHigh()) {
-      const auto limit = next(output.begin(), setup_->numFramesIOHigh());
-      copy_if(limit, output.end(), back_inserter(lost), [](Stub* stub) { return stub; });
+      const auto limit = std::next(output.begin(), setup_->numFramesIOHigh());
+      std::copy_if(limit, output.end(), std::back_inserter(lost), [](Stub* stub) { return stub; });
       output.erase(limit, output.end());
     }
     // remove all gaps between end and last stub
@@ -141,7 +139,7 @@ namespace trackerDTC {
       int i(0);
       for (Stubs& input : inputs) {
         Stubs& stream = streams[i++];
-        transform(input.begin(), input.end(), back_inserter(stream), regionMask);
+        std::transform(input.begin(), input.end(), back_inserter(stream), regionMask);
         for (auto it = stream.end(); it != stream.begin();)
           it = (*--it) ? stream.begin() : stream.erase(it);
       }
@@ -152,11 +150,11 @@ namespace trackerDTC {
   // conversion from Stubss to TTDTC
   void DTC::produce(const Stubss& stubss, TTDTC& product) {
     int channel(0);
-    auto toFrame = [&channel](Stub* stub) { return stub ? stub->frame(channel) : FrameStub(); };
+    auto toFrame = [&channel](Stub* stub) { return stub ? stub->frame(channel) : tt::FrameStub(); };
     for (const Stubs& stubs : stubss) {
-      StreamStub stream;
+      tt::StreamStub stream;
       stream.reserve(stubs.size());
-      transform(stubs.begin(), stubs.end(), back_inserter(stream), toFrame);
+      std::transform(stubs.begin(), stubs.end(), std::back_inserter(stream), toFrame);
       product.setStream(region_, board_, channel++, stream);
     }
   }

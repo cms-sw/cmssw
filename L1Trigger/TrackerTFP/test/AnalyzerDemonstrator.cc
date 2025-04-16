@@ -14,10 +14,6 @@
 
 #include <sstream>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::AnalyzerDemonstrator
@@ -26,70 +22,70 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2020, Nov
    */
-  class AnalyzerDemonstrator : public one::EDAnalyzer<one::WatchRuns> {
+  class AnalyzerDemonstrator : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   public:
-    AnalyzerDemonstrator(const ParameterSet& iConfig);
+    AnalyzerDemonstrator(const edm::ParameterSet& iConfig);
     void beginJob() override {}
-    void beginRun(const Run& iEvent, const EventSetup& iSetup) override;
-    void analyze(const Event& iEvent, const EventSetup& iSetup) override;
-    void endRun(const Run& iEvent, const EventSetup& iSetup) override {}
+    void beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override;
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    void endRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override {}
     void endJob() override {}
 
   private:
     //
-    void convert(const Event& iEvent,
-                 const EDGetTokenT<StreamsTrack>& tokenTracks,
-                 const EDGetTokenT<StreamsStub>& tokenStubs,
-                 vector<vector<Frame>>& bits) const;
+    void convert(const edm::Event& iEvent,
+                 const edm::EDGetTokenT<tt::StreamsTrack>& tokenTracks,
+                 const edm::EDGetTokenT<tt::StreamsStub>& tokenStubs,
+                 std::vector<std::vector<tt::Frame>>& bits) const;
     //
     template <typename T>
-    void convert(const T& collection, vector<vector<Frame>>& bits) const;
+    void convert(const T& collection, std::vector<std::vector<tt::Frame>>& bits) const;
     // ED input token of Tracks
-    EDGetTokenT<StreamsStub> edGetTokenStubsIn_;
-    EDGetTokenT<StreamsStub> edGetTokenStubsOut_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubsIn_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubsOut_;
     // ED input token of Stubs
-    EDGetTokenT<StreamsTrack> edGetTokenTracksIn_;
-    EDGetTokenT<StreamsTrack> edGetTokenTracksOut_;
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracksIn_;
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracksOut_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // Demonstrator token
-    ESGetToken<Demonstrator, SetupRcd> esGetTokenDemonstrator_;
+    edm::ESGetToken<Demonstrator, tt::SetupRcd> esGetTokenDemonstrator_;
     //
-    const Setup* setup_ = nullptr;
+    const tt::Setup* setup_ = nullptr;
     //
     const Demonstrator* demonstrator_ = nullptr;
   };
 
-  AnalyzerDemonstrator::AnalyzerDemonstrator(const ParameterSet& iConfig) {
+  AnalyzerDemonstrator::AnalyzerDemonstrator(const edm::ParameterSet& iConfig) {
     // book in- and output ED products
-    const string& labelIn = iConfig.getParameter<string>("LabelIn");
-    const string& labelOut = iConfig.getParameter<string>("LabelOut");
-    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
-    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
-    edGetTokenStubsIn_ = consumes<StreamsStub>(InputTag(labelIn, branchStubs));
+    const std::string& labelIn = iConfig.getParameter<std::string>("LabelIn");
+    const std::string& labelOut = iConfig.getParameter<std::string>("LabelOut");
+    const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
+    const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
+    edGetTokenStubsIn_ = consumes<tt::StreamsStub>(edm::InputTag(labelIn, branchStubs));
     if (labelOut != "ProducerTFP")
-      edGetTokenStubsOut_ = consumes<StreamsStub>(InputTag(labelOut, branchStubs));
+      edGetTokenStubsOut_ = consumes<tt::StreamsStub>(edm::InputTag(labelOut, branchStubs));
     if (labelIn == "ProducerCTB" || labelIn == "ProducerKF" || labelIn == "ProducerDR")
-      edGetTokenTracksIn_ = consumes<StreamsTrack>(InputTag(labelIn, branchTracks));
+      edGetTokenTracksIn_ = consumes<tt::StreamsTrack>(edm::InputTag(labelIn, branchTracks));
     if (labelOut == "ProducerCTB" || labelOut == "ProducerKF" || labelOut == "ProducerDR" || labelOut == "ProducerTFP")
-      edGetTokenTracksOut_ = consumes<StreamsTrack>(InputTag(labelOut, branchTracks));
+      edGetTokenTracksOut_ = consumes<tt::StreamsTrack>(edm::InputTag(labelOut, branchTracks));
     // book ES products
-    esGetTokenSetup_ = esConsumes<Transition::BeginRun>();
-    esGetTokenDemonstrator_ = esConsumes<Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenDemonstrator_ = esConsumes<edm::Transition::BeginRun>();
   }
 
-  void AnalyzerDemonstrator::beginRun(const Run& iEvent, const EventSetup& iSetup) {
+  void AnalyzerDemonstrator::beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) {
     //
     setup_ = &iSetup.getData(esGetTokenSetup_);
     //
     demonstrator_ = &iSetup.getData(esGetTokenDemonstrator_);
   }
 
-  void AnalyzerDemonstrator::analyze(const Event& iEvent, const EventSetup& iSetup) {
-    Handle<StreamsStub> handle;
-    iEvent.getByToken<StreamsStub>(edGetTokenStubsIn_, handle);
-    vector<vector<Frame>> input;
-    vector<vector<Frame>> output;
+  void AnalyzerDemonstrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    edm::Handle<tt::StreamsStub> handle;
+    iEvent.getByToken<tt::StreamsStub>(edGetTokenStubsIn_, handle);
+    std::vector<std::vector<tt::Frame>> input;
+    std::vector<std::vector<tt::Frame>> output;
     convert(iEvent, edGetTokenTracksIn_, edGetTokenStubsIn_, input);
     convert(iEvent, edGetTokenTracksOut_, edGetTokenStubsOut_, output);
     if (!demonstrator_->analyze(input, output)) {
@@ -101,22 +97,22 @@ namespace trackerTFP {
   }
 
   //
-  void AnalyzerDemonstrator::convert(const Event& iEvent,
-                                     const EDGetTokenT<StreamsTrack>& tokenTracks,
-                                     const EDGetTokenT<StreamsStub>& tokenStubs,
-                                     vector<vector<Frame>>& bits) const {
+  void AnalyzerDemonstrator::convert(const edm::Event& iEvent,
+                                     const edm::EDGetTokenT<tt::StreamsTrack>& tokenTracks,
+                                     const edm::EDGetTokenT<tt::StreamsStub>& tokenStubs,
+                                     std::vector<std::vector<tt::Frame>>& bits) const {
     const bool tracks = !tokenTracks.isUninitialized();
     const bool stubs = !tokenStubs.isUninitialized();
-    Handle<StreamsStub> handleStubs;
-    Handle<StreamsTrack> handleTracks;
+    edm::Handle<tt::StreamsStub> handleStubs;
+    edm::Handle<tt::StreamsTrack> handleTracks;
     int numChannelStubs(0);
     if (stubs) {
-      iEvent.getByToken<StreamsStub>(tokenStubs, handleStubs);
+      iEvent.getByToken<tt::StreamsStub>(tokenStubs, handleStubs);
       numChannelStubs = handleStubs->size();
     }
     int numChannelTracks(0);
     if (tracks) {
-      iEvent.getByToken<StreamsTrack>(tokenTracks, handleTracks);
+      iEvent.getByToken<tt::StreamsTrack>(tokenTracks, handleTracks);
       numChannelTracks = handleTracks->size();
     }
     numChannelTracks /= setup_->numRegions();
@@ -144,11 +140,12 @@ namespace trackerTFP {
 
   //
   template <typename T>
-  void AnalyzerDemonstrator::convert(const T& collection, vector<vector<Frame>>& bits) const {
+  void AnalyzerDemonstrator::convert(const T& collection, std::vector<std::vector<tt::Frame>>& bits) const {
     bits.emplace_back();
-    vector<Frame>& bvs = bits.back();
+    std::vector<tt::Frame>& bvs = bits.back();
     bvs.reserve(collection.size());
-    transform(collection.begin(), collection.end(), back_inserter(bvs), [](const auto& frame) { return frame.second; });
+    std::transform(
+        collection.begin(), collection.end(), std::back_inserter(bvs), [](const auto& frame) { return frame.second; });
   }
 
 }  // namespace trackerTFP

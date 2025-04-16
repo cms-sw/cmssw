@@ -21,10 +21,6 @@
 #include <vector>
 #include <utility>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerKF
@@ -32,36 +28,38 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2020, July
    */
-  class ProducerKF : public stream::EDProducer<> {
+  class ProducerKF : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerKF(const ParameterSet&);
+    explicit ProducerKF(const edm::ParameterSet&);
     ~ProducerKF() override {}
 
   private:
     typedef State::Stub Stub;
-    void beginRun(const Run&, const EventSetup&) override;
-    void produce(Event&, const EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     void endStream() override {
+      std::stringstream ss;
       if (printDebug_)
-        kalmanFilterFormats_.endJob();
+        kalmanFilterFormats_.endJob(ss);
+      edm::LogPrint(moduleDescription().moduleName()) << ss.str();
     }
     // ED input token of sf stubs and tracks
-    EDGetTokenT<StreamsStub> edGetTokenStubs_;
-    EDGetTokenT<StreamsTrack> edGetTokenTracks_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
     // ED output token for accepted stubs and tracks
-    EDPutTokenT<StreamsStub> edPutTokenStubs_;
-    EDPutTokenT<StreamsTrack> edPutTokenTracks_;
+    edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
+    edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // ED output token for number of accepted and lost States
-    EDPutTokenT<int> edPutTokenNumStatesAccepted_;
-    EDPutTokenT<int> edPutTokenNumStatesTruncated_;
+    edm::EDPutTokenT<int> edPutTokenNumStatesAccepted_;
+    edm::EDPutTokenT<int> edPutTokenNumStatesTruncated_;
     // ED output token for chi2s in r-phi and r-z plane
-    EDPutTokenT<vector<pair<double, double>>> edPutTokenChi2s_;
+    edm::EDPutTokenT<std::vector<std::pair<double, double>>> edPutTokenChi2s_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
-    ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
+    edm::ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
     // helper class to tune internal kf variables
     KalmanFilterFormats kalmanFilterFormats_;
     // KalmanFilterFormats configuraation
@@ -76,7 +74,7 @@ namespace trackerTFP {
     int numLayers_;
   };
 
-  ProducerKF::ProducerKF(const ParameterSet& iConfig) {
+  ProducerKF::ProducerKF(const edm::ParameterSet& iConfig) {
     // KalmanFilterFormats configuraation
     iConfig_.enableIntegerEmulation_ = iConfig.getParameter<bool>("EnableIntegerEmulation");
     iConfig_.widthR00_ = iConfig.getParameter<int>("WidthR00");
@@ -126,26 +124,26 @@ namespace trackerTFP {
     iConfig_.baseShiftchi20_ = iConfig.getParameter<int>("BaseShiftchi20");
     iConfig_.baseShiftchi21_ = iConfig.getParameter<int>("BaseShiftchi21");
     printDebug_ = iConfig.getParameter<bool>("PrintKFDebug");
-    const string& label = iConfig.getParameter<string>("InputLabelKF");
-    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
-    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
-    const string& branchTruncated = iConfig.getParameter<string>("BranchTruncated");
+    const std::string& label = iConfig.getParameter<std::string>("InputLabelKF");
+    const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
+    const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
+    const std::string& branchTruncated = iConfig.getParameter<std::string>("BranchTruncated");
     // book in- and output ED products
-    edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
-    edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
-    edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
+    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
+    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
+    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
+    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
     edPutTokenNumStatesAccepted_ = produces<int>(branchTracks);
     edPutTokenNumStatesTruncated_ = produces<int>(branchTruncated);
-    edPutTokenChi2s_ = produces<vector<pair<double, double>>>(branchTracks);
+    edPutTokenChi2s_ = produces<std::vector<std::pair<double, double>>>(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();
     esGetTokenLayerEncoding_ = esConsumes();
   }
 
-  void ProducerKF::beginRun(const Run& iRun, const EventSetup& iSetup) {
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+  void ProducerKF::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     numRegions_ = setup->numRegions();
     numLayers_ = setup->numLayers();
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
@@ -153,34 +151,34 @@ namespace trackerTFP {
     kalmanFilterFormats_.beginRun(dataFormats, iConfig_);
   }
 
-  void ProducerKF::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerKF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // helper class to encode layer
     const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty KF products
-    StreamsStub acceptedStubs(numRegions_ * numChannel_ * numLayers_);
-    StreamsTrack acceptedTracks(numRegions_ * numChannel_);
+    tt::StreamsStub acceptedStubs(numRegions_ * numChannel_ * numLayers_);
+    tt::StreamsTrack acceptedTracks(numRegions_ * numChannel_);
     int numStatesAccepted(0);
     int numStatesTruncated(0);
-    deque<pair<double, double>> chi2s;
+    std::deque<std::pair<double, double>> chi2s;
     // read in SF Product and produce KF product
-    const StreamsStub& allStubs = iEvent.get(edGetTokenStubs_);
-    const StreamsTrack& allTracks = iEvent.get(edGetTokenTracks_);
+    const tt::StreamsStub& allStubs = iEvent.get(edGetTokenStubs_);
+    const tt::StreamsTrack& allTracks = iEvent.get(edGetTokenTracks_);
     // helper
-    auto validFrameT = [](int sum, const FrameTrack& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
-    auto validFrameS = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
-    auto putT = [](const vector<TrackKF*>& objects, StreamTrack& stream) {
-      auto toFrame = [](TrackKF* object) { return object ? object->frame() : FrameTrack(); };
+    auto validFrameT = [](int sum, const tt::FrameTrack& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
+    auto validFrameS = [](int sum, const tt::FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
+    auto putT = [](const std::vector<TrackKF*>& objects, tt::StreamTrack& stream) {
+      auto toFrame = [](TrackKF* object) { return object ? object->frame() : tt::FrameTrack(); };
       stream.reserve(objects.size());
-      transform(objects.begin(), objects.end(), back_inserter(stream), toFrame);
+      std::transform(objects.begin(), objects.end(), std::back_inserter(stream), toFrame);
     };
-    auto putS = [](const vector<StubKF*>& objects, StreamStub& stream) {
-      auto toFrame = [](StubKF* object) { return object ? object->frame() : FrameStub(); };
+    auto putS = [](const std::vector<StubKF*>& objects, tt::StreamStub& stream) {
+      auto toFrame = [](StubKF* object) { return object ? object->frame() : tt::FrameStub(); };
       stream.reserve(objects.size());
-      transform(objects.begin(), objects.end(), back_inserter(stream), toFrame);
+      std::transform(objects.begin(), objects.end(), std::back_inserter(stream), toFrame);
     };
     for (int region = 0; region < numRegions_; region++) {
       const int offset = region * numChannel_;
@@ -190,30 +188,30 @@ namespace trackerTFP {
       for (int channel = 0; channel < numChannel_; channel++) {
         const int index = offset + channel;
         const int offsetStubs = index * numLayers_;
-        const StreamTrack& tracks = allTracks[index];
-        nTracks += accumulate(tracks.begin(), tracks.end(), 0, validFrameT);
+        const tt::StreamTrack& tracks = allTracks[index];
+        nTracks += std::accumulate(tracks.begin(), tracks.end(), 0, validFrameT);
         for (int layer = 0; layer < numLayers_; layer++) {
-          const StreamStub& stubs = allStubs[offsetStubs + layer];
-          nStubs += accumulate(stubs.begin(), stubs.end(), 0, validFrameS);
+          const tt::StreamStub& stubs = allStubs[offsetStubs + layer];
+          nStubs += std::accumulate(stubs.begin(), stubs.end(), 0, validFrameS);
         }
       }
       // storage of input data
-      vector<TrackCTB> tracksCTB;
+      std::vector<TrackCTB> tracksCTB;
       tracksCTB.reserve(nTracks);
-      vector<Stub> stubs;
+      std::vector<Stub> stubs;
       stubs.reserve(nStubs);
       // h/w liked organized pointer to input data
-      vector<vector<TrackCTB*>> regionTracks(numChannel_);
-      vector<vector<Stub*>> regionStubs(numChannel_ * numLayers_);
+      std::vector<std::vector<TrackCTB*>> regionTracks(numChannel_);
+      std::vector<std::vector<Stub*>> regionStubs(numChannel_ * numLayers_);
       // read input data
       for (int channel = 0; channel < numChannel_; channel++) {
         const int index = offset + channel;
         const int offsetAll = index * numLayers_;
         const int offsetRegion = channel * numLayers_;
-        const StreamTrack& streamTrack = allTracks[index];
-        vector<TrackCTB*>& tracks = regionTracks[channel];
+        const tt::StreamTrack& streamTrack = allTracks[index];
+        std::vector<TrackCTB*>& tracks = regionTracks[channel];
         tracks.reserve(streamTrack.size());
-        for (const FrameTrack& frame : streamTrack) {
+        for (const tt::FrameTrack& frame : streamTrack) {
           TrackCTB* track = nullptr;
           if (frame.first.isNonnull()) {
             tracksCTB.emplace_back(frame, dataFormats);
@@ -222,7 +220,7 @@ namespace trackerTFP {
           tracks.push_back(track);
         }
         for (int layer = 0; layer < numLayers_; layer++) {
-          for (const FrameStub& frame : allStubs[offsetAll + layer]) {
+          for (const tt::FrameStub& frame : allStubs[offsetAll + layer]) {
             Stub* stub = nullptr;
             if (frame.first.isNonnull()) {
               stubs.emplace_back(&kalmanFilterFormats_, frame);
@@ -233,15 +231,16 @@ namespace trackerTFP {
         }
       }
       // empty storage of output data
-      vector<TrackKF> tracksKF;
+      std::vector<TrackKF> tracksKF;
       tracksKF.reserve(nTracks);
-      vector<StubKF> stubsKF;
+      std::vector<StubKF> stubsKF;
       stubsKF.reserve(nStubs);
       // object to fit tracks in a processing region
       KalmanFilter kf(setup, dataFormats, layerEncoding, &kalmanFilterFormats_, tracksKF, stubsKF);
       // empty h/w liked organized pointer to output data
-      vector<vector<TrackKF*>> streamsTrack(numChannel_);
-      vector<vector<vector<StubKF*>>> streamsStub(numChannel_, vector<vector<StubKF*>>(numLayers_));
+      std::vector<std::vector<TrackKF*>> streamsTrack(numChannel_);
+      std::vector<std::vector<std::vector<StubKF*>>> streamsStub(numChannel_,
+                                                                 std::vector<std::vector<StubKF*>>(numLayers_));
       // fill output products
       kf.produce(regionTracks, regionStubs, streamsTrack, streamsStub, numStatesAccepted, numStatesTruncated, chi2s);
       // convert data to ed products

@@ -20,10 +20,6 @@
 #include <vector>
 #include <deque>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerDTC {
 
   /*! \class  trackerDTC::AnalyzerDAQ
@@ -31,19 +27,19 @@ namespace trackerDTC {
    *  \author Thomas Schuh
    *  \date   2020, Oct
    */
-  class AnalyzerDAQ : public one::EDAnalyzer<one::WatchRuns, one::SharedResources> {
+  class AnalyzerDAQ : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
   public:
-    AnalyzerDAQ(const ParameterSet& iConfig);
-    void beginRun(const Run& iEvent, const EventSetup& iSetup) override;
-    void analyze(const Event& iEvent, const EventSetup& iSetup) override;
-    void endRun(const Run& iEvent, const EventSetup& iSetup) override {}
+    AnalyzerDAQ(const edm::ParameterSet& iConfig);
+    void beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override;
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    void endRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override {}
     void endJob() override {}
 
   private:
     // ED input token of accepted TTClusters
-    EDGetTokenT<TTClusterDetSetVec> edGetToken_;
+    edm::EDGetTokenT<TTClusterDetSetVec> edGetToken_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
 
     // Histograms
 
@@ -54,20 +50,20 @@ namespace trackerDTC {
     TH1F* hisTracker_;
   };
 
-  AnalyzerDAQ::AnalyzerDAQ(const ParameterSet& iConfig) {
+  AnalyzerDAQ::AnalyzerDAQ(const edm::ParameterSet& iConfig) {
     usesResource("TFileService");
     // book input ED products
-    const auto& inputTag = iConfig.getParameter<InputTag>("InputTagTTClusterDetSetVec");
+    const auto& inputTag = iConfig.getParameter<edm::InputTag>("InputTagTTClusterDetSetVec");
     edGetToken_ = consumes<TTClusterDetSetVec>(inputTag);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
   }
 
-  void AnalyzerDAQ::beginRun(const Run& iEvent, const EventSetup& iSetup) {
+  void AnalyzerDAQ::beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // book histograms
-    Service<TFileService> fs;
+    edm::Service<TFileService> fs;
     TFileDirectory dir;
     dir = fs->mkdir("Modules");
     int maxOcc = 150;
@@ -84,22 +80,23 @@ namespace trackerDTC {
     hisTracker_ = dir.make<TH1F>("His Tracker Occupancy", ";", maxOcc * pow(2., -12), -.5, maxOcc - .5);
   }
 
-  void AnalyzerDAQ::analyze(const Event& iEvent, const EventSetup& iSetup) {
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+  void AnalyzerDAQ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // read in original TTCluster collection
-    Handle<TTClusterDetSetVec> handle;
+    edm::Handle<TTClusterDetSetVec> handle;
     iEvent.getByToken<TTClusterDetSetVec>(edGetToken_, handle);
     // apply cabling map, reorganise cluster collections
-    vector<vector<deque<TTClusterRef>>> dtcs(setup->numDTCs(), vector<deque<TTClusterRef>>(setup->numModulesPerDTC()));
+    std::vector<std::vector<std::deque<TTClusterRef>>> dtcs(
+        setup->numDTCs(), std::vector<std::deque<TTClusterRef>>(setup->numModulesPerDTC()));
     for (auto itModule = handle->begin(); itModule != handle->end(); itModule++) {
       // DetSetVec->detId - 1 or + 0 = tk layout det id depending from which of both sensor planes the cluster has been constructed
       const DetId& detIdModule = itModule->detId();
       const int offset = setup->trackerTopology()->isLower(detIdModule) ? 0 : setup->offsetDetIdTP();
       const DetId detId = detIdModule + offset;
       // corresponding sensor module
-      SensorModule* sm = setup->sensorModule(detId);
+      tt::SensorModule* sm = setup->sensorModule(detId);
       // empty cluster collection
-      deque<TTClusterRef>& module = dtcs[sm->dtcId()][sm->modId()];
+      std::deque<TTClusterRef>& module = dtcs[sm->dtcId()][sm->modId()];
       for (TTClusterDetSet::const_iterator itCluster = itModule->begin(); itCluster != itModule->end(); itCluster++)
         module.emplace_back(makeRefTo(handle, itCluster));
     }
@@ -107,9 +104,9 @@ namespace trackerDTC {
     int iDTC(0);
     int iModule(0);
     int nAll(0);
-    for (const vector<deque<TTClusterRef>>& dtc : dtcs) {
+    for (const std::vector<std::deque<TTClusterRef>>& dtc : dtcs) {
       int nCluster(0);
-      for (const deque<TTClusterRef>& module : dtc) {
+      for (const std::deque<TTClusterRef>& module : dtc) {
         nCluster += module.size();
         hisModules_->Fill(module.size());
         profModules_->Fill(iModule++, module.size());

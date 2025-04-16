@@ -11,10 +11,6 @@
 #include <iostream>
 #include <numeric>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trklet {
 
   // default constructor, trying to need space as proper constructed object
@@ -78,68 +74,68 @@ namespace trklet {
   DataFormat makeDataFormat<Variable::inv2R, Process::tfp>(const ChannelAssignment* ca) {
     const int width = TTTrack_TrackWord::TrackBitWidths::kRinvSize;
     const double range = -2. * TTTrack_TrackWord::minRinv;
-    const double base = range * pow(2, -width);
+    const double base = range * std::pow(2, -width);
     return DataFormat(true, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::phiT, Process::tfp>(const ChannelAssignment* ca) {
     const int width = TTTrack_TrackWord::TrackBitWidths::kPhiSize;
     const double range = -2. * TTTrack_TrackWord::minPhi0;
-    const double base = range * pow(2, -width);
+    const double base = range * std::pow(2, -width);
     return DataFormat(true, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::cot, Process::tfp>(const ChannelAssignment* ca) {
     const int width = TTTrack_TrackWord::TrackBitWidths::kTanlSize;
     const double range = -2. * TTTrack_TrackWord::minTanl;
-    const double base = range * pow(2, -width);
+    const double base = range * std::pow(2, -width);
     return DataFormat(true, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::zT, Process::tfp>(const ChannelAssignment* ca) {
     const int width = TTTrack_TrackWord::TrackBitWidths::kZ0Size;
     const double range = -2. * TTTrack_TrackWord::minZ0;
-    const double base = range * pow(2, -width);
+    const double base = range * std::pow(2, -width);
     return DataFormat(true, width, base, range);
   }
 
   template <>
   DataFormat makeDataFormat<Variable::inv2R, Process::tm>(const ChannelAssignment* ca) {
-    const Setup* s = ca->setup();
+    const tt::Setup* s = ca->setup();
     const double thight = s->htNumBinsInv2R();
     const double loose = thight + 2;
     const double range = 2. * s->invPtToDphi() / s->minPt() * loose / thight;
     const double base = range / loose;
-    const int width = ceil(log2(range / base));
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::phiT, Process::tm>(const ChannelAssignment* ca) {
-    const Setup* s = ca->setup();
+    const tt::Setup* s = ca->setup();
     const double thight = s->gpNumBinsPhiT() * s->htNumBinsPhiT();
     const double loose = thight + 2 * s->gpNumBinsPhiT();
     const double range = 2. * M_PI / s->numRegions() * loose / thight;
     const double base = range / loose;
-    const int width = ceil(log2(range / base));
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::zT, Process::tm>(const ChannelAssignment* ca) {
-    const Setup* s = ca->setup();
+    const tt::Setup* s = ca->setup();
     const double thight = s->gpNumBinsZT();
     const double loose = thight + 2;
-    const double range = 2. * sinh(s->maxEta()) * s->chosenRofZ() * loose / thight;
+    const double range = 2. * std::sinh(s->maxEta()) * s->chosenRofZ() * loose / thight;
     const double base = range / loose;
-    const int width = ceil(log2(range / base));
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::cot, Process::tm>(const ChannelAssignment* ca) {
-    const Setup* s = ca->setup();
+    const tt::Setup* s = ca->setup();
     const DataFormat zT = makeDataFormat<Variable::zT, Process::tm>(ca);
     const double range = (zT.range() + 2. * s->beamWindowZ()) / s->chosenRofZ();
     const double base = (zT.base() + 2. * s->beamWindowZ()) / s->chosenRofZ();
-    const int width = ceil(log2(range / base));
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
 
@@ -147,63 +143,63 @@ namespace trklet {
   DataFormat makeDataFormat<Variable::stubId, Process::tm>(const ChannelAssignment* ca) {
     const int width = ca->tmWidthStubId() + 1;
     const double base = 1.;
-    const double range = pow(2, width);
+    const double range = std::pow(2, width);
     return DataFormat(false, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::r, Process::tm>(const ChannelAssignment* ca) {
-    const Setup* s = ca->setup();
+    const tt::Setup* s = ca->setup();
     const DataFormat phiT = makeDataFormat<Variable::phiT, Process::tm>(ca);
     const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::tm>(ca);
     const double range = 2. * s->maxRphi();
     const double baseShifted = phiT.base() / inv2R.base();
-    const int shift = ceil(log2(range / baseShifted)) - s->tmttWidthR();
-    const double base = baseShifted * pow(2., shift);
-    const int width = ceil(log2(range / base));
+    const int shift = std::ceil(std::log2(range / baseShifted)) - s->tmttWidthR();
+    const double base = baseShifted * std::pow(2., shift);
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::phi, Process::tm>(const ChannelAssignment* ca) {
-    const Setup* s = ca->setup();
+    const tt::Setup* s = ca->setup();
     const DataFormat phiT = makeDataFormat<Variable::phiT, Process::tm>(ca);
     const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::tm>(ca);
     const double rangeMin = s->baseRegion() + s->maxRphi() * inv2R.range();
     const double range = phiT.base() + s->maxRphi() * inv2R.base();
-    const int shift = ceil(log2(rangeMin / phiT.base())) - s->tmttWidthPhi();
-    const double base = phiT.base() * pow(2., shift);
-    const int width = ceil(log2(range / base));
+    const int shift = std::ceil(std::log2(rangeMin / phiT.base())) - s->tmttWidthPhi();
+    const double base = phiT.base() * std::pow(2., shift);
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::z, Process::tm>(const ChannelAssignment* ca) {
-    const Setup* s = ca->setup();
+    const tt::Setup* s = ca->setup();
     const DataFormat zT = makeDataFormat<Variable::zT, Process::tm>(ca);
     const DataFormat cot = makeDataFormat<Variable::cot, Process::tm>(ca);
     const double rangeMin = 2. * s->halfLength();
     const double range = zT.base() + s->maxRz() * cot.base();
-    const int shift = ceil(log2(rangeMin / zT.base())) - s->tmttWidthZ();
-    const double base = zT.base() * pow(2., shift);
-    const int width = ceil(log2(range / base));
+    const int shift = std::ceil(std::log2(rangeMin / zT.base())) - s->tmttWidthZ();
+    const double base = zT.base() * std::pow(2., shift);
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::dPhi, Process::tm>(const ChannelAssignment* ca) {
-    const Setup* s = ca->setup();
+    const tt::Setup* s = ca->setup();
     const DataFormat phi = makeDataFormat<Variable::phi, Process::tm>(ca);
     const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::tm>(ca);
     const double range =
         .5 * s->pitchRowPS() / s->innerRadius() + .25 * (s->pitchCol2S() + s->scattering()) * inv2R.range();
     const double base = phi.base();
-    const int width = ceil(log2(range / base));
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(false, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<Variable::dZ, Process::tm>(const ChannelAssignment* ca) {
-    const Setup* s = ca->setup();
+    const tt::Setup* s = ca->setup();
     const DataFormat z = makeDataFormat<Variable::z, Process::tm>(ca);
-    const double range = .5 * s->pitchCol2S() * sinh(s->maxEta());
+    const double range = .5 * s->pitchCol2S() * std::sinh(s->maxEta());
     const double base = z.base();
-    const int width = ceil(log2(range / base));
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(false, width, base, range);
   }
 
@@ -212,8 +208,8 @@ namespace trklet {
     const DataFormat tfp = makeDataFormat<Variable::inv2R, Process::tfp>(ca);
     const DataFormat tm = makeDataFormat<Variable::inv2R, Process::tm>(ca);
     const double range = tm.range();
-    const double base = tm.base() * pow(2., floor(log2(.5 * tfp.base() / tm.base())));
-    const int width = ceil(log2(range / base));
+    const double base = tm.base() * std::pow(2., std::floor(std::log2(.5 * tfp.base() / tm.base())));
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
@@ -221,8 +217,8 @@ namespace trklet {
     const DataFormat tfp = makeDataFormat<Variable::phiT, Process::tfp>(ca);
     const DataFormat tm = makeDataFormat<Variable::phiT, Process::tm>(ca);
     const double range = tm.range();
-    const double base = tm.base() * pow(2., floor(log2(tfp.base() / tm.base())));
-    const int width = ceil(log2(range / base));
+    const double base = tm.base() * std::pow(2., std::floor(std::log2(tfp.base() / tm.base())));
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
@@ -232,8 +228,8 @@ namespace trklet {
     const DataFormat z = makeDataFormat<Variable::z, Process::tm>(ca);
     const DataFormat r = makeDataFormat<Variable::r, Process::tm>(ca);
     const double range = cot.range();
-    const double base = z.base() / r.base() * pow(2., floor(log2(tfp.base() / z.base() * r.base())));
-    const int width = ceil(log2(range / base));
+    const double base = z.base() / r.base() * std::pow(2., std::floor(std::log2(tfp.base() / z.base() * r.base())));
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
@@ -241,8 +237,8 @@ namespace trklet {
     const DataFormat tfp = makeDataFormat<Variable::zT, Process::tfp>(ca);
     const DataFormat tm = makeDataFormat<Variable::zT, Process::tm>(ca);
     const double range = tm.range();
-    const double base = tm.base() * pow(2., floor(log2(tfp.base() / tm.base())));
-    const int width = ceil(log2(range / base));
+    const double base = tm.base() * pow(2., std::floor(std::log2(tfp.base() / tm.base())));
+    const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
 

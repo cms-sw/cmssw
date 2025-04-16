@@ -9,9 +9,6 @@
 #include <vector>
 #include <set>
 
-using namespace std;
-using namespace edm;
-
 namespace tt {
 
   Setup::Setup(const Config& iConfig,
@@ -19,7 +16,7 @@ namespace tt {
                const TrackerTopology& trackerTopology,
                const TrackerDetToDTCELinkCablingMap& cablingMap,
                const StubAlgorithmOfficial& stubAlgorithm,
-               const ParameterSet& pSetStubAlgorithm)
+               const edm::ParameterSet& pSetStubAlgorithm)
       : trackerGeometry_(&trackerGeometry),
         trackerTopology_(&trackerTopology),
         cablingMap_(&cablingMap),
@@ -276,34 +273,34 @@ namespace tt {
   }
 
   // index = encoded bend, value = decoded bend for given window size and module type
-  const vector<double>& Setup::encodingBend(int windowSize, bool psModule) const {
-    const vector<vector<double>>& encodingsBend = psModule ? encodingsBendPS_ : encodingsBend2S_;
+  const std::vector<double>& Setup::encodingBend(int windowSize, bool psModule) const {
+    const std::vector<std::vector<double>>& encodingsBend = psModule ? encodingsBendPS_ : encodingsBend2S_;
     return encodingsBend.at(windowSize);
   }
 
   // convert configuration of TTStubAlgorithm
   void Setup::consumeStubAlgorithm() {
-    numTiltedLayerRings_ = pSetSA_->getParameter<vector<double>>("NTiltedRings");
-    windowSizeBarrelLayers_ = pSetSA_->getParameter<vector<double>>("BarrelCut");
-    const auto& pSetsTiltedLayer = pSetSA_->getParameter<vector<ParameterSet>>("TiltedBarrelCutSet");
-    const auto& pSetsEncapDisks = pSetSA_->getParameter<vector<ParameterSet>>("EndcapCutSet");
+    numTiltedLayerRings_ = pSetSA_->getParameter<std::vector<double>>("NTiltedRings");
+    windowSizeBarrelLayers_ = pSetSA_->getParameter<std::vector<double>>("BarrelCut");
+    const auto& pSetsTiltedLayer = pSetSA_->getParameter<std::vector<edm::ParameterSet>>("TiltedBarrelCutSet");
+    const auto& pSetsEncapDisks = pSetSA_->getParameter<std::vector<edm::ParameterSet>>("EndcapCutSet");
     windowSizeTiltedLayerRings_.reserve(pSetsTiltedLayer.size());
     for (const auto& pSet : pSetsTiltedLayer)
-      windowSizeTiltedLayerRings_.emplace_back(pSet.getParameter<vector<double>>("TiltedCut"));
+      windowSizeTiltedLayerRings_.emplace_back(pSet.getParameter<std::vector<double>>("TiltedCut"));
     windowSizeEndcapDisksRings_.reserve(pSetsEncapDisks.size());
     for (const auto& pSet : pSetsEncapDisks)
-      windowSizeEndcapDisksRings_.emplace_back(pSet.getParameter<vector<double>>("EndcapCut"));
+      windowSizeEndcapDisksRings_.emplace_back(pSet.getParameter<std::vector<double>>("EndcapCut"));
     maxWindowSize_ = -1;
     for (const auto& windowss : {windowSizeTiltedLayerRings_, windowSizeEndcapDisksRings_, {windowSizeBarrelLayers_}})
       for (const auto& windows : windowss)
         for (const auto& window : windows)
-          maxWindowSize_ = max(maxWindowSize_, (int)(window / baseWindowSize_));
+          maxWindowSize_ = std::max(maxWindowSize_, static_cast<int>(window / baseWindowSize_));
   }
 
   // create bend encodings
-  void Setup::encodeBend(vector<vector<double>>& encodings, bool ps) const {
+  void Setup::encodeBend(std::vector<std::vector<double>>& encodings, bool ps) const {
     for (int window = 0; window < maxWindowSize_ + 1; window++) {
-      set<double> encoding;
+      std::set<double> encoding;
       for (int bend = 0; bend < window + 1; bend++)
         encoding.insert(stubAlgorithm_->degradeBend(ps, window, bend));
       encodings.emplace_back(encoding.begin(), encoding.end());
@@ -313,8 +310,8 @@ namespace tt {
   // create sensor modules
   void Setup::produceSensorModules() {
     sensorModules_.reserve(numModules_);
-    dtcModules_ = vector<vector<SensorModule*>>(numDTCs_);
-    for (vector<SensorModule*>& dtcModules : dtcModules_)
+    dtcModules_ = std::vector<std::vector<SensorModule*>>(numDTCs_);
+    for (std::vector<SensorModule*>& dtcModules : dtcModules_)
       dtcModules.reserve(numModulesPerDTC_);
     enum SubDetId { pixelBarrel = 1, pixelDisks = 2 };
     // loop over all tracker modules
@@ -332,7 +329,7 @@ namespace tt {
       // track trigger dtc id [0-215]
       const int dtcId = Setup::dtcId(tklId);
       // collection of so far connected modules to this dtc
-      vector<SensorModule*>& dtcModules = dtcModules_[dtcId];
+      std::vector<SensorModule*>& dtcModules = dtcModules_[dtcId];
       // construct sendor module
       sensorModules_.emplace_back(this, detId, dtcId, dtcModules.size());
       SensorModule* sensorModule = &sensorModules_.back();
@@ -341,7 +338,7 @@ namespace tt {
       // store connection between dtcId and sensor module
       dtcModules.push_back(sensorModule);
     }
-    for (vector<SensorModule*>& dtcModules : dtcModules_) {
+    for (std::vector<SensorModule*>& dtcModules : dtcModules_) {
       dtcModules.shrink_to_fit();
       // check configuration
       if ((int)dtcModules.size() > numModulesPerDTC_) {
@@ -389,7 +386,7 @@ namespace tt {
   }
 
   //
-  TTBV Setup::layerMap(const vector<int>& ints) const {
+  TTBV Setup::layerMap(const std::vector<int>& ints) const {
     TTBV ttBV;
     for (int layer = numLayers_ - 1; layer >= 0; layer--) {
       const int i = ints[layer];
@@ -399,7 +396,7 @@ namespace tt {
   }
 
   //
-  TTBV Setup::layerMap(const TTBV& hitPattern, const vector<int>& ints) const {
+  TTBV Setup::layerMap(const TTBV& hitPattern, const std::vector<int>& ints) const {
     TTBV ttBV;
     for (int layer = numLayers_ - 1; layer >= 0; layer--) {
       const int i = ints[layer];
@@ -409,9 +406,9 @@ namespace tt {
   }
 
   //
-  vector<int> Setup::layerMap(const TTBV& hitPattern, const TTBV& ttBV) const {
+  std::vector<int> Setup::layerMap(const TTBV& hitPattern, const TTBV& ttBV) const {
     TTBV bv(ttBV);
-    vector<int> ints(numLayers_, 0);
+    std::vector<int> ints(numLayers_, 0);
     for (int layer = 0; layer < numLayers_; layer++) {
       const int i = bv.extract(ctbWidthLayerCount_);
       ints[layer] = i + (hitPattern[layer] ? 1 : 0);
@@ -420,9 +417,9 @@ namespace tt {
   }
 
   //
-  vector<int> Setup::layerMap(const TTBV& ttBV) const {
+  std::vector<int> Setup::layerMap(const TTBV& ttBV) const {
     TTBV bv(ttBV);
-    vector<int> ints(numLayers_, 0);
+    std::vector<int> ints(numLayers_, 0);
     for (int layer = 0; layer < numLayers_; layer++)
       ints[layer] = bv.extract(ctbWidthLayerCount_);
     return ints;
@@ -448,10 +445,10 @@ namespace tt {
     const DetId& detId = ttStubRef->getDetId();
     SensorModule* sm = sensorModule(detId + 1);
     const double r = stubPos(ttStubRef).perp();
-    const double sigma = pow(sm->pitchRow() / r, 2) / 12.;
-    const double scat = pow(scattering_ * inv2R, 2);
-    const double extra = sm->barrel() ? 0. : pow(sm->pitchCol() * inv2R, 2);
-    const double digi = pow(tmttBasePhi_ / 12., 2);
+    const double sigma = std::pow(sm->pitchRow() / r, 2) / 12.;
+    const double scat = std::pow(scattering_ * inv2R, 2);
+    const double extra = sm->barrel() ? 0. : std::pow(sm->pitchCol() * inv2R, 2);
+    const double digi = std::pow(tmttBasePhi_ / 12., 2);
     return sigma + scat + extra + digi;
   }
 
@@ -459,14 +456,14 @@ namespace tt {
   double Setup::v1(const TTStubRef& ttStubRef, double cot) const {
     const DetId& detId = ttStubRef->getDetId();
     SensorModule* sm = sensorModule(detId + 1);
-    const double sigma = pow(sm->pitchCol() * sm->tiltCorrection(cot), 2) / 12.;
-    const double digi = pow(tmttBaseZ_ / 12., 2);
+    const double sigma = std::pow(sm->pitchCol() * sm->tiltCorrection(cot), 2) / 12.;
+    const double digi = std::pow(tmttBaseZ_ / 12., 2);
     return sigma + digi;
   }
 
   // checks if stub collection is considered forming a reconstructable track
-  bool Setup::reconstructable(const vector<TTStubRef>& ttStubRefs) const {
-    set<int> hitPattern;
+  bool Setup::reconstructable(const std::vector<TTStubRef>& ttStubRefs) const {
+    std::set<int> hitPattern;
     for (const TTStubRef& ttStubRef : ttStubRefs)
       hitPattern.insert(layerId(ttStubRef));
     return (int)hitPattern.size() >= minLayers_;
@@ -485,25 +482,25 @@ namespace tt {
     bool ps(false);
     bool barrel(false);
     bool tilted(false);
-    if (abs(z) < limitPSBarrel_) {
+    if (std::abs(z) < limitPSBarrel_) {
       barrel = true;
       if (r < limitsTiltedR_[layer3])
         ps = true;
       if (r < limitsTiltedR_[layer1])
-        tilted = abs(z) > limitsTiltedZ_[layer1];
+        tilted = std::abs(z) > limitsTiltedZ_[layer1];
       else if (r < limitsTiltedR_[layer2])
-        tilted = abs(z) > limitsTiltedZ_[layer2];
+        tilted = std::abs(z) > limitsTiltedZ_[layer2];
       else if (r < limitsTiltedR_[layer3])
-        tilted = abs(z) > limitsTiltedZ_[layer3];
-    } else if (abs(z) > limitsPSDiksZ_[disk5])
+        tilted = std::abs(z) > limitsTiltedZ_[layer3];
+    } else if (std::abs(z) > limitsPSDiksZ_[disk5])
       ps = r < limitsPSDiksR_[disk5];
-    else if (abs(z) > limitsPSDiksZ_[disk4])
+    else if (std::abs(z) > limitsPSDiksZ_[disk4])
       ps = r < limitsPSDiksR_[disk4];
-    else if (abs(z) > limitsPSDiksZ_[disk3])
+    else if (std::abs(z) > limitsPSDiksZ_[disk3])
       ps = r < limitsPSDiksR_[disk3];
-    else if (abs(z) > limitsPSDiksZ_[disk2])
+    else if (std::abs(z) > limitsPSDiksZ_[disk2])
       ps = r < limitsPSDiksR_[disk2];
-    else if (abs(z) > limitsPSDiksZ_[disk1])
+    else if (std::abs(z) > limitsPSDiksZ_[disk1])
       ps = r < limitsPSDiksR_[disk1];
     TTBV module(0, gpWidthModule_);
     if (ps)
@@ -542,16 +539,16 @@ namespace tt {
     widthDSPcb_ = widthDSPc_ - 1;
     widthDSPcu_ = widthDSPcb_ - 1;
     // firmware
-    maxPitchRow_ = max(pitchRowPS_, pitchRow2S_);
-    maxPitchCol_ = max(pitchColPS_, pitchCol2S_);
+    maxPitchRow_ = std::max(pitchRowPS_, pitchRow2S_);
+    maxPitchCol_ = std::max(pitchColPS_, pitchCol2S_);
     // common track finding
     invPtToDphi_ = speedOfLight_ * bField_ / 2000.;
     baseRegion_ = 2. * M_PI / numRegions_;
-    maxCot_ = beamWindowZ_ / chosenRofZ_ + sinh(maxEta_);
+    maxCot_ = beamWindowZ_ / chosenRofZ_ + std::sinh(maxEta_);
     // gp
     baseSector_ = baseRegion_ / gpNumBinsPhiT_;
-    maxRphi_ = max(abs(outerRadius_ - chosenRofPhi_), abs(innerRadius_ - chosenRofPhi_));
-    maxRz_ = max(abs(outerRadius_ - chosenRofZ_), abs(innerRadius_ - chosenRofZ_));
+    maxRphi_ = std::max(std::abs(outerRadius_ - chosenRofPhi_), std::abs(innerRadius_ - chosenRofPhi_));
+    maxRz_ = std::max(std::abs(outerRadius_ - chosenRofZ_), std::abs(innerRadius_ - chosenRofZ_));
     numSectors_ = gpNumBinsPhiT_ * gpNumBinsZT_;
     // tmtt
     const double rangeInv2R = 2. * invPtToDphi_ / minPt_;
@@ -559,67 +556,69 @@ namespace tt {
     tmttBasePhiT_ = baseSector_ / htNumBinsPhiT_;
     const double baseRgen = tmttBasePhiT_ / tmttBaseInv2R_;
     const double rangeR = 2. * maxRphi_;
-    const int baseShiftR = ceil(log2(rangeR / baseRgen / pow(2., tmttWidthR_)));
-    tmttBaseR_ = baseRgen * pow(2., baseShiftR);
+    const int baseShiftR = std::ceil(std::log2(rangeR / baseRgen / std::pow(2., tmttWidthR_)));
+    tmttBaseR_ = baseRgen * std::pow(2., baseShiftR);
     const double rangeZ = 2. * halfLength_;
-    const int baseShiftZ = ceil(log2(rangeZ / tmttBaseR_ / pow(2., tmttWidthZ_)));
-    tmttBaseZ_ = tmttBaseR_ * pow(2., baseShiftZ);
+    const int baseShiftZ = std::ceil(std::log2(rangeZ / tmttBaseR_ / std::pow(2., tmttWidthZ_)));
+    tmttBaseZ_ = tmttBaseR_ * std::pow(2., baseShiftZ);
     const double rangePhi = baseRegion_ + rangeInv2R * rangeR / 2.;
-    const int baseShiftPhi = ceil(log2(rangePhi / tmttBasePhiT_ / pow(2., tmttWidthPhi_)));
-    tmttBasePhi_ = tmttBasePhiT_ * pow(2., baseShiftPhi);
-    tmttWidthLayer_ = ceil(log2(numLayers_));
-    tmttWidthSectorEta_ = ceil(log2(gpNumBinsZT_));
-    tmttWidthInv2R_ = ceil(log2(htNumBinsInv2R_));
+    const int baseShiftPhi = std::ceil(std::log2(rangePhi / tmttBasePhiT_ / std::pow(2., tmttWidthPhi_)));
+    tmttBasePhi_ = tmttBasePhiT_ * std::pow(2., baseShiftPhi);
+    tmttWidthLayer_ = std::ceil(std::log2(numLayers_));
+    tmttWidthSectorEta_ = std::ceil(std::log2(gpNumBinsZT_));
+    tmttWidthInv2R_ = std::ceil(std::log2(htNumBinsInv2R_));
     tmttNumUnusedBits_ = TTBV::S_ - tmttWidthLayer_ - 2 * tmttWidthSectorEta_ - tmttWidthR_ - tmttWidthPhi_ -
                          tmttWidthZ_ - 2 * tmttWidthInv2R_ - gpNumBinsPhiT_ - 1;
     // hybrid
     const double hybridRangeInv2R = 2. * invPtToDphi_ / minPt_;
-    const double hybridRangeR = 2. * max(abs(outerRadius_ - chosenRofPhi_), abs(innerRadius_ - chosenRofPhi_));
+    const double hybridRangeR =
+        2. * std::max(std::abs(outerRadius_ - chosenRofPhi_), std::abs(innerRadius_ - chosenRofPhi_));
     hybridRangePhi_ = baseRegion_ + (hybridRangeR * hybridRangeInv2R) / 2.;
-    hybridWidthLayerId_ = ceil(log2(hybridNumLayers_));
+    hybridWidthLayerId_ = std::ceil(std::log2(hybridNumLayers_));
     hybridBasesZ_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridBasesZ_.emplace_back(hybridRangesZ_.at(type) / pow(2., hybridWidthsZ_.at(type)));
+      hybridBasesZ_.emplace_back(hybridRangesZ_.at(type) / std::pow(2., hybridWidthsZ_.at(type)));
     hybridBasesR_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridBasesR_.emplace_back(hybridRangesR_.at(type) / pow(2., hybridWidthsR_.at(type)));
+      hybridBasesR_.emplace_back(hybridRangesR_.at(type) / std::pow(2., hybridWidthsR_.at(type)));
     hybridBasesR_[SensorModule::Disk2S] = 1.;
     hybridBasesPhi_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridBasesPhi_.emplace_back(hybridRangePhi_ / pow(2., hybridWidthsPhi_.at(type)));
+      hybridBasesPhi_.emplace_back(hybridRangePhi_ / std::pow(2., hybridWidthsPhi_.at(type)));
     hybridBasesAlpha_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridBasesAlpha_.emplace_back(hybridRangesAlpha_.at(type) / pow(2., hybridWidthsAlpha_.at(type)));
+      hybridBasesAlpha_.emplace_back(hybridRangesAlpha_.at(type) / std::pow(2., hybridWidthsAlpha_.at(type)));
     hybridNumsUnusedBits_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
       hybridNumsUnusedBits_.emplace_back(TTBV::S_ - hybridWidthsR_.at(type) - hybridWidthsZ_.at(type) -
                                          hybridWidthsPhi_.at(type) - hybridWidthsAlpha_.at(type) -
                                          hybridWidthsBend_.at(type) - hybridWidthLayerId_ - 1);
-    hybridBaseR_ = *min_element(hybridBasesR_.begin(), hybridBasesR_.end());
-    hybridBasePhi_ = *min_element(hybridBasesPhi_.begin(), hybridBasesPhi_.end());
-    hybridBaseZ_ = *min_element(hybridBasesZ_.begin(), hybridBasesZ_.end());
-    hybridMaxCot_ = sinh(maxEta_);
+    hybridBaseR_ = *std::min_element(hybridBasesR_.begin(), hybridBasesR_.end());
+    hybridBasePhi_ = *std::min_element(hybridBasesPhi_.begin(), hybridBasesPhi_.end());
+    hybridBaseZ_ = *std::min_element(hybridBasesZ_.begin(), hybridBasesZ_.end());
+    hybridMaxCot_ = std::sinh(maxEta_);
     disk2SRs_.reserve(hybridDisk2SRsSet_.size());
     for (const auto& pSet : hybridDisk2SRsSet_)
-      disk2SRs_.emplace_back(pSet.getParameter<vector<double>>("Disk2SRs"));
+      disk2SRs_.emplace_back(pSet.getParameter<std::vector<double>>("Disk2SRs"));
     // dtc
     numDTCs_ = numRegions_ * numDTCsPerRegion_;
     numDTCsPerTFP_ = numDTCsPerRegion_ * numOverlappingRegions_;
     numModules_ = numDTCs_ * numModulesPerDTC_;
     dtcNumModulesPerRoutingBlock_ = numModulesPerDTC_ / dtcNumRoutingBlocks_;
-    dtcNumMergedRows_ = pow(2, widthRow_ - dtcWidthRowLUT_);
-    const double maxRangeInv2R = max(rangeInv2R, hybridRangeInv2R);
-    const int baseShiftInv2R = ceil(log2(htNumBinsInv2R_)) - dtcWidthInv2R_ + ceil(log2(maxRangeInv2R / rangeInv2R));
-    dtcBaseInv2R_ = tmttBaseInv2R_ * pow(2., baseShiftInv2R);
+    dtcNumMergedRows_ = std::pow(2, widthRow_ - dtcWidthRowLUT_);
+    const double maxRangeInv2R = std::max(rangeInv2R, hybridRangeInv2R);
+    const int baseShiftInv2R =
+        std::ceil(std::log2(htNumBinsInv2R_)) - dtcWidthInv2R_ + std::ceil(std::log2(maxRangeInv2R / rangeInv2R));
+    dtcBaseInv2R_ = tmttBaseInv2R_ * std::pow(2., baseShiftInv2R);
     const int baseDiffM = dtcWidthRowLUT_ - widthRow_;
-    dtcBaseM_ = tmttBasePhi_ * pow(2., baseDiffM);
-    const double x1 = pow(2, widthRow_) * baseRow_ * maxPitchRow_ / 2.;
-    const double x0 = x1 - pow(2, dtcWidthRowLUT_) * baseRow_ * maxPitchRow_;
-    const double maxM = atan2(x1, innerRadius_) - atan2(x0, innerRadius_);
-    dtcWidthM_ = ceil(log2(maxM / dtcBaseM_));
+    dtcBaseM_ = tmttBasePhi_ * std::pow(2., baseDiffM);
+    const double x1 = std::pow(2, widthRow_) * baseRow_ * maxPitchRow_ / 2.;
+    const double x0 = x1 - std::pow(2, dtcWidthRowLUT_) * baseRow_ * maxPitchRow_;
+    const double maxM = std::atan2(x1, innerRadius_) - std::atan2(x0, innerRadius_);
+    dtcWidthM_ = std::ceil(std::log2(maxM / dtcBaseM_));
     dtcNumStreams_ = numDTCs_ * numOverlappingRegions_;
     // ctb
-    ctbWidthLayerCount_ = ceil(log2(ctbMaxStubs_));
+    ctbWidthLayerCount_ = std::ceil(std::log2(ctbMaxStubs_));
     // kf
   }
 

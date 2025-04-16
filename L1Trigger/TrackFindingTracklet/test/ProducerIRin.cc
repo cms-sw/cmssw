@@ -20,10 +20,6 @@
 #include <cmath>
 #include <numeric>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trklet {
 
   /*! \class  trklet::ProducerIRin
@@ -31,47 +27,47 @@ namespace trklet {
    *  \author Thomas Schuh
    *  \date   2021, Oct
    */
-  class ProducerIRin : public stream::EDProducer<> {
+  class ProducerIRin : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerIRin(const ParameterSet&);
+    explicit ProducerIRin(const edm::ParameterSet&);
     ~ProducerIRin() override {}
 
   private:
-    void beginRun(const Run&, const EventSetup&) override;
-    void produce(Event&, const EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() {}
     // ED input token of DTC Stubs
-    EDGetTokenT<TTDTC> edGetTokenTTDTC_;
+    edm::EDGetTokenT<TTDTC> edGetTokenTTDTC_;
     // ED output token for stubs
-    EDPutTokenT<StreamsStub> edPutTokenStubs_;
+    edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // ChannelAssignment token
-    ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
+    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
     // configuration
-    ParameterSet iConfig_;
+    edm::ParameterSet iConfig_;
     // helper class to store configurations
-    const Setup* setup_;
+    const tt::Setup* setup_;
     // helper class to assign stubs to channel
     const ChannelAssignment* channelAssignment_;
     // map of used tfp channels
-    vector<int> channelEncoding_;
+    std::vector<int> channelEncoding_;
   };
 
-  ProducerIRin::ProducerIRin(const ParameterSet& iConfig) : iConfig_(iConfig) {
-    const InputTag& inputTag = iConfig.getParameter<InputTag>("InputTagDTC");
-    const string& branchStubs = iConfig.getParameter<string>("BranchStubsAccepted");
+  ProducerIRin::ProducerIRin(const edm::ParameterSet& iConfig) : iConfig_(iConfig) {
+    const edm::InputTag& inputTag = iConfig.getParameter<edm::InputTag>("InputTagDTC");
+    const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubsAccepted");
     // book in- and output ED products
     edGetTokenTTDTC_ = consumes<TTDTC>(inputTag);
-    edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
+    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<tt::Setup, tt::SetupRcd, edm::Transition::BeginRun>();
+    esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, edm::Transition::BeginRun>();
     // initial ES products
     setup_ = nullptr;
   }
 
-  void ProducerIRin::beginRun(const Run& iRun, const EventSetup& iSetup) {
+  void ProducerIRin::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
     channelAssignment_ = const_cast<ChannelAssignment*>(&iSetup.getData(esGetTokenChannelAssignment_));
@@ -79,11 +75,11 @@ namespace trklet {
     channelEncoding_ = channelAssignment_->channelEncoding();
   }
 
-  void ProducerIRin::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerIRin::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // empty IRin product
-    StreamsStub streamStubs;
+    tt::StreamsStub streamStubs;
     // read in hybrid track finding product and produce KFin product
-    Handle<TTDTC> handleTTDTC;
+    edm::Handle<TTDTC> handleTTDTC;
     iEvent.getByToken<TTDTC>(edGetTokenTTDTC_, handleTTDTC);
     const int numChannel = channelEncoding_.size();
     streamStubs.reserve(numChannel);

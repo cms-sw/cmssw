@@ -4,11 +4,9 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "L1Trigger/TrackerTFP/interface/Demonstrator.h"
 
+#include <vector>
+#include <string>
 #include <memory>
-
-using namespace std;
-using namespace edm;
-using namespace tt;
 
 namespace trackerTFP {
 
@@ -18,29 +16,29 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2020, Nov
    */
-  class ProducerDemonstrator : public ESProducer {
+  class ProducerDemonstrator : public edm::ESProducer {
   public:
-    ProducerDemonstrator(const ParameterSet& iConfig);
+    ProducerDemonstrator(const edm::ParameterSet& iConfig);
     ~ProducerDemonstrator() override {}
-    unique_ptr<Demonstrator> produce(const SetupRcd& rcd);
+    std::unique_ptr<Demonstrator> produce(const tt::SetupRcd& rcd);
 
   private:
     Demonstrator::Config iConfig_;
-    ESGetToken<Setup, SetupRcd> esGetToken_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetToken_;
   };
 
-  ProducerDemonstrator::ProducerDemonstrator(const ParameterSet& iConfig) {
+  ProducerDemonstrator::ProducerDemonstrator(const edm::ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
-    iConfig_.dirIPBB_ = iConfig.getParameter<string>("DirIPBB");
+    iConfig_.dirIPBB_ = iConfig.getParameter<std::string>("DirIPBB");
     iConfig_.runTime_ = iConfig.getParameter<double>("RunTime");
-    iConfig_.linkMappingIn_ = iConfig.getParameter<vector<int>>("LinkMappingIn");
-    iConfig_.linkMappingOut_ = iConfig.getParameter<vector<int>>("LinkMappingOut");
+    iConfig_.linkMappingIn_ = iConfig.getParameter<std::vector<int>>("LinkMappingIn");
+    iConfig_.linkMappingOut_ = iConfig.getParameter<std::vector<int>>("LinkMappingOut");
   }
 
-  unique_ptr<Demonstrator> ProducerDemonstrator::produce(const SetupRcd& rcd) {
-    const Setup* setup = &rcd.get(esGetToken_);
-    return make_unique<Demonstrator>(iConfig_, setup);
+  std::unique_ptr<Demonstrator> ProducerDemonstrator::produce(const tt::SetupRcd& rcd) {
+    const tt::Setup* setup = &rcd.get(esGetToken_);
+    return std::make_unique<Demonstrator>(iConfig_, setup);
   }
 
 }  // namespace trackerTFP

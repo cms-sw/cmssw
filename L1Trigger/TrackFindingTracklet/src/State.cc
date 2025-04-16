@@ -6,14 +6,11 @@
 #include <algorithm>
 #include <iterator>
 
-using namespace std;
-using namespace tt;
-
 namespace trklet {
 
   //
-  State::Stub::Stub(KalmanFilterFormats* kff, const FrameStub& frame) : stubDR_(frame, kff->dataFormats()) {
-    const Setup* setup = kff->setup();
+  State::Stub::Stub(KalmanFilterFormats* kff, const tt::FrameStub& frame) : stubDR_(frame, kff->dataFormats()) {
+    const tt::Setup* setup = kff->setup();
     H12_ = kff->format(VariableKF::H12).digi(stubDR_.r() + setup->chosenRofPhi() - setup->chosenRofZ());
     H04_ = stubDR_.r() + setup->chosenRofPhi();
     v0_ = kff->format(VariableKF::v0).digi(pow(2. * stubDR_.dPhi(), 2));
@@ -21,7 +18,7 @@ namespace trklet {
   }
 
   // proto state constructor
-  State::State(KalmanFilterFormats* kff, TrackDR* track, const vector<Stub*>& stubs, int trackId)
+  State::State(KalmanFilterFormats* kff, TrackDR* track, const std::vector<Stub*>& stubs, int trackId)
       : kff_(kff),
         setup_(kff->setup()),
         track_(track),
@@ -54,7 +51,7 @@ namespace trklet {
   }
 
   // updated state constructor
-  State::State(State* state, const vector<double>& doubles) : State(state) {
+  State::State(State* state, const std::vector<double>& doubles) : State(state) {
     parent_ = state;
     // updated track parameter and uncertainties
     x0_ = doubles[0];
@@ -92,7 +89,7 @@ namespace trklet {
   }
 
   //
-  State* State::update(deque<State>& states, int layer) {
+  State* State::update(std::deque<State>& states, int layer) {
     if (!hitPattern_.test(layer) || hitPattern_.count() > setup_->kfNumSeedStubs())
       return this;
     const int nextLayer = trackPattern_.plEncode(layer + 1, setup_->numLayers());
@@ -101,7 +98,7 @@ namespace trklet {
   }
 
   //
-  State* State::combSeed(deque<State>& states, int layer) {
+  State* State::combSeed(std::deque<State>& states, int layer) {
     // handle trivial state
     if (!hitPattern_.test(layer) || hitPattern_.count() > setup_->kfNumSeedStubs())
       return nullptr;
@@ -118,7 +115,7 @@ namespace trklet {
   }
 
   //
-  State* State::comb(deque<State>& states, int layer) {
+  State* State::comb(std::deque<State>& states, int layer) {
     // handle skipping and min reached
     if (!hitPattern_.test(layer)) {
       if (!stub_ && trackPattern_[layer] && hitPattern_.count() < setup_->kfMaxLayers()) {

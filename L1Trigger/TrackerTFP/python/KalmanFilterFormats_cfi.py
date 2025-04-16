@@ -1,22 +1,23 @@
-# configuration of internal KF variable bases which can be shifted by powers of 2 w.r.t. KF output track parameter
-# TrackerTFPProducer_params.PrintKFDebug printouts unused MSB for each variable, so that one could consider decreasing the basseshift by that amount
-# numerical instabillity (negative C00, C11, C22, C33) requires smaller baseshifts of related variables (rx, Sxx, Kxx, Rxx, invRxx)
-# if a variable overflows an Exception will be thrown and the corresponding baseshift needs to be increased.
 import FWCore.ParameterSet.Config as cms
 
 TrackTriggerKalmanFilterFormats_params = cms.PSet (
 
-  EnableIntegerEmulation = cms.bool( True ),
+  EnableIntegerEmulation = cms.bool( True ), # enables emulation of integer calculations
 
-  WidthR00 = cms.int32( 20 ),
-  WidthR11 = cms.int32( 20 ),
+  WidthR00 = cms.int32( 20 ), # number of bits used to represent R00
+  WidthR11 = cms.int32( 20 ), # number of bits used to represent R11
   
-  WidthC00 = cms.int32( 20 ),
-  WidthC01 = cms.int32( 20 ),
-  WidthC11 = cms.int32( 20 ),
-  WidthC22 = cms.int32( 20 ),
-  WidthC23 = cms.int32( 20 ),
-  WidthC33 = cms.int32( 20 ),
+  WidthC00 = cms.int32( 20 ), # number of bits used to represent C00
+  WidthC01 = cms.int32( 20 ), # number of bits used to represent C01
+  WidthC11 = cms.int32( 20 ), # number of bits used to represent C11
+  WidthC22 = cms.int32( 20 ), # number of bits used to represent C22
+  WidthC23 = cms.int32( 20 ), # number of bits used to represent C23
+  WidthC33 = cms.int32( 20 ), # number of bits used to represent C33
+
+# configuration of internal KF variable bases which can be shifted by powers of 2 w.r.t. KF output track parameter
+# TrackerTFPProducer_params.PrintKFDebug printouts unused MSB for each variable, so that one could consider decreasing the basseshift by that amount
+# numerical instabillity (negative C00, C11, C22, C33) requires smaller baseshifts of related variables (rx, Sxx, Kxx, Rxx, invRxx)
+# if a variable overflows an Exception will be thrown and the corresponding baseshift needs to be increased.
 
   BaseShiftx0           = cms.int32(   0 ),
   BaseShiftx1           = cms.int32(  -7 ),

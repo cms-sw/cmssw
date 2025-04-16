@@ -25,10 +25,6 @@
 #include <numeric>
 #include <sstream>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::AnalyzerGP
@@ -36,26 +32,26 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2020, Apr
    */
-  class AnalyzerGP : public one::EDAnalyzer<one::WatchRuns, one::SharedResources> {
+  class AnalyzerGP : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
   public:
-    AnalyzerGP(const ParameterSet& iConfig);
+    AnalyzerGP(const edm::ParameterSet& iConfig);
     void beginJob() override {}
-    void beginRun(const Run& iEvent, const EventSetup& iSetup) override;
-    void analyze(const Event& iEvent, const EventSetup& iSetup) override;
-    void endRun(const Run& iEvent, const EventSetup& iSetup) override {}
+    void beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override;
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    void endRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override {}
     void endJob() override;
 
   private:
     // ED input token of stubs
-    EDGetTokenT<StreamsStub> edGetToken_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetToken_;
     // ED input token of TTStubRef to TPPtr association for tracking efficiency
-    EDGetTokenT<StubAssociation> edGetTokenAss_;
+    edm::EDGetTokenT<tt::StubAssociation> edGetTokenAss_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_ = nullptr;
+    const tt::Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
     // enables analyze of TPs
@@ -82,34 +78,34 @@ namespace trackerTFP {
     TEfficiency* effPT_;
 
     // printout
-    stringstream log_;
+    std::stringstream log_;
   };
 
-  AnalyzerGP::AnalyzerGP(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
+  AnalyzerGP::AnalyzerGP(const edm::ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")) {
     usesResource("TFileService");
     // book in- and output ED products
-    const string& label = iConfig.getParameter<string>("OutputLabelGP");
-    const string& branch = iConfig.getParameter<string>("BranchStubs");
-    edGetToken_ = consumes<StreamsStub>(InputTag(label, branch));
+    const std::string& label = iConfig.getParameter<std::string>("OutputLabelGP");
+    const std::string& branch = iConfig.getParameter<std::string>("BranchStubs");
+    edGetToken_ = consumes<tt::StreamsStub>(edm::InputTag(label, branch));
     if (useMCTruth_) {
-      const auto& inputTagAss = iConfig.getParameter<InputTag>("InputTagSelection");
-      edGetTokenAss_ = consumes<StubAssociation>(inputTagAss);
+      const auto& inputTagAss = iConfig.getParameter<edm::InputTag>("InputTagSelection");
+      edGetTokenAss_ = consumes<tt::StubAssociation>(inputTagAss);
     }
     // book ES products
-    esGetTokenSetup_ = esConsumes<Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
     // log config
-    log_.setf(ios::fixed, ios::floatfield);
+    log_.setf(std::ios::fixed, std::ios::floatfield);
     log_.precision(4);
   }
 
-  void AnalyzerGP::beginRun(const Run& iEvent, const EventSetup& iSetup) {
+  void AnalyzerGP::beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
     // book histograms
-    Service<TFileService> fs;
+    edm::Service<TFileService> fs;
     TFileDirectory dir;
     dir = fs->mkdir("GP");
     prof_ = dir.make<TProfile>("Counts", ";", 4, 0.5, 4.5);
@@ -139,7 +135,7 @@ namespace trackerTFP {
     profChannel_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
   }
 
-  void AnalyzerGP::analyze(const Event& iEvent, const EventSetup& iSetup) {
+  void AnalyzerGP::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     auto fill = [this](const TPPtr& tpPtr, TH1F* hisEta, TH1F* hisZT, TH1F* hisInv2R, TH1F* hisPT) {
       const double tpPhi0 = tpPtr->phi();
       const double tpCot = sinh(tpPtr->eta());
@@ -152,39 +148,39 @@ namespace trackerTFP {
       hisPT->Fill(tpPtr->pt());
     };
     // read in gp products
-    Handle<StreamsStub> handleStubs;
-    iEvent.getByToken<StreamsStub>(edGetToken_, handleStubs);
+    edm::Handle<tt::StreamsStub> handleStubs;
+    iEvent.getByToken<tt::StreamsStub>(edGetToken_, handleStubs);
     // read in MCTruth
-    const StubAssociation* stubAssociation = nullptr;
+    const tt::StubAssociation* stubAssociation = nullptr;
     if (useMCTruth_) {
-      Handle<StubAssociation> handleAss;
-      iEvent.getByToken<StubAssociation>(edGetTokenAss_, handleAss);
+      edm::Handle<tt::StubAssociation> handleAss;
+      iEvent.getByToken<tt::StubAssociation>(edGetTokenAss_, handleAss);
       stubAssociation = handleAss.product();
       prof_->Fill(4, stubAssociation->numTPs());
       for (const auto& p : stubAssociation->getTrackingParticleToTTStubsMap())
         fill(p.first, hisEffEtaTotal_, hisEffZTTotal_, hisEffInv2RTotal_, hisEffPTTotal_);
     }
     // analyze gp products and find still reconstrucable TrackingParticles
-    set<TPPtr> setTPPtr;
+    std::set<TPPtr> setTPPtr;
     for (int region = 0; region < setup_->numRegions(); region++) {
       int nStubs(0);
-      map<TPPtr, vector<TTStubRef>> mapTPsTTStubs;
+      std::map<TPPtr, std::vector<TTStubRef>> mapTPsTTStubs;
       for (int channel = 0; channel < setup_->numSectors(); channel++) {
         const int index = region * setup_->numSectors() + channel;
-        const StreamStub& accepted = handleStubs->at(index);
+        const tt::StreamStub& accepted = handleStubs->at(index);
         hisChannel_->Fill(accepted.size());
         profChannel_->Fill(channel, accepted.size());
-        for (const FrameStub& frame : accepted) {
+        for (const tt::FrameStub& frame : accepted) {
           if (frame.first.isNull())
             continue;
           nStubs++;
           if (!useMCTruth_)
             continue;
-          const vector<TPPtr>& tpPtrs = stubAssociation->findTrackingParticlePtrs(frame.first);
+          const std::vector<TPPtr>& tpPtrs = stubAssociation->findTrackingParticlePtrs(frame.first);
           for (const TPPtr& tpPtr : tpPtrs) {
             auto it = mapTPsTTStubs.find(tpPtr);
             if (it == mapTPsTTStubs.end()) {
-              it = mapTPsTTStubs.emplace(tpPtr, vector<TTStubRef>()).first;
+              it = mapTPsTTStubs.emplace(tpPtr, std::vector<TTStubRef>()).first;
               it->second.reserve(stubAssociation->findTTStubRefs(tpPtr).size());
             }
             it->second.push_back(frame.first);
@@ -221,15 +217,17 @@ namespace trackerTFP {
     const double totalTPs = prof_->GetBinContent(4);
     const double eff = numTPs / totalTPs;
     const double errEff = sqrt(eff * (1. - eff) / totalTPs / nEvents_);
-    const vector<double> nums = {numStubs};
-    const vector<double> errs = {errStubs};
-    const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
-    const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
-    log_ << "                         GP  SUMMARY                         " << endl;
-    log_ << "number of stubs      per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "     max tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
+    const std::vector<double> nums = {numStubs};
+    const std::vector<double> errs = {errStubs};
+    const int wNums = std::ceil(std::log10(*std::max_element(nums.begin(), nums.end()))) + 5;
+    const int wErrs = std::ceil(std::log10(*std::max_element(errs.begin(), errs.end()))) + 5;
+    log_ << "                         GP  SUMMARY                         " << std::endl;
+    log_ << "number of stubs      per TFP = " << std::setw(wNums) << numStubs << " +- " << std::setw(wErrs) << errStubs
+         << std::endl;
+    log_ << "     max tracking efficiency = " << std::setw(wNums) << eff << " +- " << std::setw(wErrs) << errEff
+         << std::endl;
     log_ << "=============================================================";
-    LogPrint(moduleDescription().moduleName()) << log_.str();
+    edm::LogPrint(moduleDescription().moduleName()) << log_.str();
   }
 
 }  // namespace trackerTFP

@@ -23,10 +23,6 @@
 #include <algorithm>
 #include <iterator>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerGP
@@ -34,24 +30,24 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2020, March
    */
-  class ProducerGP : public stream::EDProducer<> {
+  class ProducerGP : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerGP(const ParameterSet&);
+    explicit ProducerGP(const edm::ParameterSet&);
     ~ProducerGP() override {}
 
   private:
-    void beginRun(const Run&, const EventSetup&) override;
-    void produce(Event&, const EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     // ED input token of pp objects
-    EDGetTokenT<StreamsStub> edGetToken_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetToken_;
     // ED output token for accepted objects
-    EDPutTokenT<StreamsStub> edPutToken_;
+    edm::EDPutTokenT<tt::StreamsStub> edPutToken_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
-    ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
+    edm::ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
     // number of input channel
     int numChannelIn_;
     // number of output channel
@@ -60,21 +56,21 @@ namespace trackerTFP {
     int numRegions_;
   };
 
-  ProducerGP::ProducerGP(const ParameterSet& iConfig) {
-    const string& label = iConfig.getParameter<string>("InputLabelGP");
-    const string& branch = iConfig.getParameter<string>("BranchStubs");
+  ProducerGP::ProducerGP(const edm::ParameterSet& iConfig) {
+    const std::string& label = iConfig.getParameter<std::string>("InputLabelGP");
+    const std::string& branch = iConfig.getParameter<std::string>("BranchStubs");
     // book in- and output ED products
-    edGetToken_ = consumes<StreamsStub>(InputTag(label, branch));
-    edPutToken_ = produces<StreamsStub>(branch);
+    edGetToken_ = consumes<tt::StreamsStub>(edm::InputTag(label, branch));
+    edPutToken_ = produces<tt::StreamsStub>(branch);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();
     esGetTokenLayerEncoding_ = esConsumes();
   }
 
-  void ProducerGP::beginRun(const Run& iRun, const EventSetup& iSetup) {
+  void ProducerGP::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     // helper classe to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     numRegions_ = setup->numRegions();
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
@@ -82,25 +78,25 @@ namespace trackerTFP {
     numChannelOut_ = dataFormats->numChannel(Process::gp);
   }
 
-  void ProducerGP::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerGP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper classe to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // helper class to encode layer
     const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty GP products
-    StreamsStub accepted(numRegions_ * numChannelOut_);
+    tt::StreamsStub accepted(numRegions_ * numChannelOut_);
     // read in DTC Product and produce TFP product
-    const StreamsStub& streamsStub = iEvent.get(edGetToken_);
+    const tt::StreamsStub& streamsStub = iEvent.get(edGetToken_);
     // helper
-    auto validFrame = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
+    auto validFrame = [](int sum, const tt::FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     auto nSectors = [](int sum, const StubPP& object) {
       const int nPhiT = object.phiTMax() - object.phiTMin() + 1;
       const int nZT = object.zTMax() - object.zTMin() + 1;
       return sum + nPhiT * nZT;
     };
-    auto toFrame = [](StubGP* object) { return object ? object->frame() : FrameStub(); };
+    auto toFrame = [](StubGP* object) { return object ? object->frame() : tt::FrameStub(); };
     // produce GP product per region
     for (int region = 0; region < numRegions_; region++) {
       const int offsetIn = region * numChannelIn_;
@@ -108,20 +104,20 @@ namespace trackerTFP {
       // count input objects
       int nStubsPP(0);
       for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
-        const StreamStub& stream = streamsStub[offsetIn + channelIn];
-        nStubsPP += accumulate(stream.begin(), stream.end(), 0, validFrame);
+        const tt::StreamStub& stream = streamsStub[offsetIn + channelIn];
+        nStubsPP += std::accumulate(stream.begin(), stream.end(), 0, validFrame);
       }
       // storage of input data
-      vector<StubPP> stubsPP;
+      std::vector<StubPP> stubsPP;
       stubsPP.reserve(nStubsPP);
       // h/w liked organized pointer to input data
-      vector<vector<StubPP*>> streamsIn(numChannelIn_);
+      std::vector<std::vector<StubPP*>> streamsIn(numChannelIn_);
       // read input data
       for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
-        const StreamStub& streamStub = streamsStub[offsetIn + channelIn];
-        vector<StubPP*>& stream = streamsIn[channelIn];
+        const tt::StreamStub& streamStub = streamsStub[offsetIn + channelIn];
+        std::vector<StubPP*>& stream = streamsIn[channelIn];
         stream.reserve(streamStub.size());
-        for (const FrameStub& frame : streamStub) {
+        for (const tt::FrameStub& frame : streamStub) {
           StubPP* stubPP = nullptr;
           if (frame.first.isNonnull()) {
             stubsPP.emplace_back(frame, dataFormats);
@@ -131,22 +127,22 @@ namespace trackerTFP {
         }
       }
       // predict upper limit of GP stubs
-      const int nStubsGP = accumulate(stubsPP.begin(), stubsPP.end(), 0, nSectors);
+      const int nStubsGP = std::accumulate(stubsPP.begin(), stubsPP.end(), 0, nSectors);
       // container of GP stubs
-      vector<StubGP> stubsGP;
+      std::vector<StubGP> stubsGP;
       stubsGP.reserve(nStubsGP);
       // object to route Stubs of one region to one stream per sector
       GeometricProcessor gp(setup, dataFormats, layerEncoding, stubsGP);
       // empty h/w liked organized pointer to output data
-      vector<deque<StubGP*>> streamsOut(numChannelOut_);
+      std::vector<std::deque<StubGP*>> streamsOut(numChannelOut_);
       // fill output data
       gp.produce(streamsIn, streamsOut);
       // convert data to ed products
       for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
-        const deque<StubGP*>& objects = streamsOut[channelOut];
-        StreamStub& stream = accepted[offsetOut + channelOut];
+        const std::deque<StubGP*>& objects = streamsOut[channelOut];
+        tt::StreamStub& stream = accepted[offsetOut + channelOut];
         stream.reserve(objects.size());
-        transform(objects.begin(), objects.end(), back_inserter(stream), toFrame);
+        std::transform(objects.begin(), objects.end(), std::back_inserter(stream), toFrame);
       }
     }
     // store products

@@ -8,10 +8,6 @@
 
 #include <memory>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerDTC {
 
   /*! \class  trackerDTC::ProducerLayerEncoding
@@ -19,24 +15,24 @@ namespace trackerDTC {
    *  \author Thomas Schuh
    *  \date   2021, April
    */
-  class ProducerLayerEncoding : public ESProducer {
+  class ProducerLayerEncoding : public edm::ESProducer {
   public:
-    ProducerLayerEncoding(const ParameterSet& iConfig);
+    ProducerLayerEncoding(const edm::ParameterSet& iConfig);
     ~ProducerLayerEncoding() override {}
-    unique_ptr<LayerEncoding> produce(const SetupRcd& rcd);
+    std::unique_ptr<LayerEncoding> produce(const tt::SetupRcd& rcd);
 
   private:
-    ESGetToken<Setup, SetupRcd> esGetToken_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetToken_;
   };
 
-  ProducerLayerEncoding::ProducerLayerEncoding(const ParameterSet& iConfig) {
+  ProducerLayerEncoding::ProducerLayerEncoding(const edm::ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
   }
 
-  unique_ptr<LayerEncoding> ProducerLayerEncoding::produce(const SetupRcd& rcd) {
-    const Setup* setup = &rcd.get(esGetToken_);
-    return make_unique<LayerEncoding>(setup);
+  std::unique_ptr<LayerEncoding> ProducerLayerEncoding::produce(const tt::SetupRcd& rcd) {
+    const tt::Setup* setup = &rcd.get(esGetToken_);
+    return std::make_unique<LayerEncoding>(setup);
   }
 
 }  // namespace trackerDTC

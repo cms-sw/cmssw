@@ -22,10 +22,6 @@
 #include <vector>
 #include <deque>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerTFP
@@ -33,70 +29,70 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2023, June
    */
-  class ProducerTFP : public stream::EDProducer<> {
+  class ProducerTFP : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerTFP(const ParameterSet&);
+    explicit ProducerTFP(const edm::ParameterSet&);
     ~ProducerTFP() override {}
 
   private:
-    void produce(Event&, const EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     // ED input token of stubs and tracks
-    EDGetTokenT<StreamsTrack> edGetTokenTracks_;
-    EDGetTokenT<StreamsStub> edGetTokenStubs_;
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED output token for accepted stubs and tracks
-    EDPutTokenT<TTTracks> edPutTokenTTTracks_;
-    EDPutTokenT<StreamsTrack> edPutTokenTracks_;
+    edm::EDPutTokenT<tt::TTTracks> edPutTokenTTTracks_;
+    edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // TrackQuality token
-    ESGetToken<TrackQuality, DataFormatsRcd> esGetTokenTrackQuality_;
+    edm::ESGetToken<TrackQuality, DataFormatsRcd> esGetTokenTrackQuality_;
     // helper class to store configurations
-    const Setup* setup_ = nullptr;
+    const tt::Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
     // helper class to determine track quality
     const TrackQuality* trackQuality_ = nullptr;
   };
 
-  ProducerTFP::ProducerTFP(const ParameterSet& iConfig) {
-    const string& labelTracks = iConfig.getParameter<string>("InputLabelTFP");
-    const string& labelStubs = iConfig.getParameter<string>("InputLabelTQ");
-    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
-    const string& branchTTTracks = iConfig.getParameter<string>("BranchTTTracks");
-    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
+  ProducerTFP::ProducerTFP(const edm::ParameterSet& iConfig) {
+    const std::string& labelTracks = iConfig.getParameter<std::string>("InputLabelTFP");
+    const std::string& labelStubs = iConfig.getParameter<std::string>("InputLabelTQ");
+    const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
+    const std::string& branchTTTracks = iConfig.getParameter<std::string>("BranchTTTracks");
+    const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     // book in- and output ED products
-    edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(labelTracks, branchTracks));
-    edGetTokenStubs_ = consumes<StreamsStub>(InputTag(labelStubs, branchStubs));
-    edPutTokenTTTracks_ = produces<TTTracks>(branchTTTracks);
-    edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
+    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(labelTracks, branchTracks));
+    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(labelStubs, branchStubs));
+    edPutTokenTTTracks_ = produces<tt::TTTracks>(branchTTTracks);
+    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();
     esGetTokenTrackQuality_ = esConsumes();
   }
 
-  void ProducerTFP::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerTFP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // helper class to determine track quality
     const TrackQuality* trackQuality = &iSetup.getData(esGetTokenTrackQuality_);
     // empty TFP products
-    TTTracks ttTracks;
-    StreamsTrack streamsTrack(setup->numRegions() * setup->tfpNumChannel());
+    tt::TTTracks ttTracks;
+    tt::StreamsTrack streamsTrack(setup->numRegions() * setup->tfpNumChannel());
     // read in TQ Products
-    const StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
-    const StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
+    const tt::StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
+    const tt::StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
     // produce TTTracks
     TrackFindingProcessor tfp(setup, dataFormats, trackQuality);
     tfp.produce(tracks, stubs, ttTracks, streamsTrack);
     // put TTTRacks and produce TTTRackRefs
     const int nTrks = ttTracks.size();
-    const OrphanHandle<TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));
-    vector<TTTrackRef> ttTrackRefs;
+    const edm::OrphanHandle<tt::TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));
+    std::vector<TTTrackRef> ttTrackRefs;
     ttTrackRefs.reserve(nTrks);
     for (int iTrk = 0; iTrk < nTrks; iTrk++)
       ttTrackRefs.emplace_back(oh, iTrk);

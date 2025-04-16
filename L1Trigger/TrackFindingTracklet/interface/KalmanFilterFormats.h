@@ -19,6 +19,28 @@ enabling tuning of bit widths
 
 namespace trklet {
 
+  /*
+  *          All variable names & equations come from Fruhwirth KF paper
+  *          http://dx.doi.org/10.1016/0168-9002%2887%2990887-4
+  *          Summary of variables:
+  *          m = hit position (phi,z)
+  *          V = hit position 2x2 covariance matrix in (phi,z).
+  *          x = helix params
+  *          C = helix params 4x4 covariance matrix
+  *          r = residuals
+  *          H = 2x4 derivative matrix (expected stub position w.r.t. helix params)
+  *          K = KF gain 2x2 matrix
+  *          x' & C': Updated values of x & C after KF iteration
+  *          Boring: F = unit matrix; pxcov = C
+  *          Summary of equations:
+  *          S = H*C (2x4 matrix); St = Transpose S
+  *          R = V + H*C*Ht (KF paper) = V + H*St (used here at simpler): 2x2 matrix
+  *          Rinv = Inverse R
+  *          K = St * Rinv : 2x2 Kalman gain matrix * det(R)
+  *          r = m - H*x
+  *          x' = x + K*r
+  *          C' = C - K*H*C (KF paper) = C - K*S (used here as simpler)
+  */
   enum class VariableKF {
     begin,
     x0 = begin,
@@ -160,7 +182,7 @@ namespace trklet {
     const tt::Setup* setup() const { return dataFormats_->setup(); }
     const DataFormats* dataFormats() const { return dataFormats_; }
     void consume(const DataFormats* dataFormats, const ConfigKF& iConfig);
-    void endJob();
+    void endJob(std::stringstream& ss);
 
   private:
     template <VariableKF it = VariableKF::begin>

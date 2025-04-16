@@ -18,10 +18,6 @@
 #include <string>
 #include <numeric>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerDR
@@ -29,24 +25,24 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2023, Feb
    */
-  class ProducerDR : public stream::EDProducer<> {
+  class ProducerDR : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerDR(const ParameterSet&);
+    explicit ProducerDR(const edm::ParameterSet&);
     ~ProducerDR() override {}
 
   private:
-    void beginRun(const Run&, const EventSetup&) override;
-    void produce(Event&, const EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     // ED input token of sf stubs and tracks
-    EDGetTokenT<StreamsStub> edGetTokenStubs_;
-    EDGetTokenT<StreamsTrack> edGetTokenTracks_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
     // ED output token for accepted stubs and tracks
-    EDPutTokenT<StreamsStub> edPutTokenStubs_;
-    EDPutTokenT<StreamsTrack> edPutTokenTracks_;
+    edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
+    edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // number of input channel
     int numChannelIn_;
     // number of output channel
@@ -57,23 +53,23 @@ namespace trackerTFP {
     int numLayers_;
   };
 
-  ProducerDR::ProducerDR(const ParameterSet& iConfig) {
-    const string& label = iConfig.getParameter<string>("InputLabelDR");
-    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
-    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
+  ProducerDR::ProducerDR(const edm::ParameterSet& iConfig) {
+    const std::string& label = iConfig.getParameter<std::string>("InputLabelDR");
+    const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
+    const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
     // book in- and output ED products
-    edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
-    edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
-    edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
+    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
+    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
+    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
+    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();
   }
 
-  void ProducerDR::beginRun(const Run& iRun, const EventSetup& iSetup) {
+  void ProducerDR::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     numRegions_ = setup->numRegions();
     numLayers_ = setup->numLayers();
     // helper class to extract structured data from tt::Frames
@@ -82,27 +78,27 @@ namespace trackerTFP {
     numChannelOut_ = dataFormats->numChannel(Process::dr);
   }
 
-  void ProducerDR::produce(Event& iEvent, const EventSetup& iSetup) {
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+  void ProducerDR::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // empty DR products
-    StreamsStub acceptedStubs(numRegions_ * numChannelOut_ * numLayers_);
-    StreamsTrack acceptedTracks(numRegions_ * numChannelOut_);
+    tt::StreamsStub acceptedStubs(numRegions_ * numChannelOut_ * numLayers_);
+    tt::StreamsTrack acceptedTracks(numRegions_ * numChannelOut_);
     // read in KF Product and produce DR product
-    const StreamsStub& allStubs = iEvent.get(edGetTokenStubs_);
-    const StreamsTrack& allTracks = iEvent.get(edGetTokenTracks_);
+    const tt::StreamsStub& allStubs = iEvent.get(edGetTokenStubs_);
+    const tt::StreamsTrack& allTracks = iEvent.get(edGetTokenTracks_);
     // helper
-    auto validFrameT = [](int sum, const FrameTrack& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
-    auto validFrameS = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
-    auto putT = [](const vector<TrackDR*>& objects, StreamTrack& stream) {
-      auto toFrame = [](TrackDR* object) { return object ? object->frame() : FrameTrack(); };
+    auto validFrameT = [](int sum, const tt::FrameTrack& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
+    auto validFrameS = [](int sum, const tt::FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
+    auto putT = [](const std::vector<TrackDR*>& objects, tt::StreamTrack& stream) {
+      auto toFrame = [](TrackDR* object) { return object ? object->frame() : tt::FrameTrack(); };
       stream.reserve(objects.size());
-      transform(objects.begin(), objects.end(), back_inserter(stream), toFrame);
+      std::transform(objects.begin(), objects.end(), std::back_inserter(stream), toFrame);
     };
-    auto putS = [](const vector<StubDR*>& objects, StreamStub& stream) {
-      auto toFrame = [](StubDR* object) { return object ? object->frame() : FrameStub(); };
+    auto putS = [](const std::vector<StubDR*>& objects, tt::StreamStub& stream) {
+      auto toFrame = [](StubDR* object) { return object ? object->frame() : tt::FrameStub(); };
       stream.reserve(objects.size());
-      transform(objects.begin(), objects.end(), back_inserter(stream), toFrame);
+      std::transform(objects.begin(), objects.end(), std::back_inserter(stream), toFrame);
     };
     for (int region = 0; region < numRegions_; region++) {
       const int offsetIn = region * numChannelIn_;
@@ -113,30 +109,30 @@ namespace trackerTFP {
       for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
         const int index = offsetIn + channelIn;
         const int offset = index * numLayers_;
-        const StreamTrack& tracks = allTracks[index];
-        nTracks += accumulate(tracks.begin(), tracks.end(), 0, validFrameT);
+        const tt::StreamTrack& tracks = allTracks[index];
+        nTracks += std::accumulate(tracks.begin(), tracks.end(), 0, validFrameT);
         for (int layer = 0; layer < numLayers_; layer++) {
-          const StreamStub& stubs = allStubs[offset + layer];
-          nStubs += accumulate(stubs.begin(), stubs.end(), 0, validFrameS);
+          const tt::StreamStub& stubs = allStubs[offset + layer];
+          nStubs += std::accumulate(stubs.begin(), stubs.end(), 0, validFrameS);
         }
       }
       // storage of input data
-      vector<TrackKF> tracksKF;
+      std::vector<TrackKF> tracksKF;
       tracksKF.reserve(nTracks);
-      vector<StubKF> stubsKF;
+      std::vector<StubKF> stubsKF;
       stubsKF.reserve(nStubs);
       // h/w liked organized pointer to input data
-      vector<vector<TrackKF*>> regionTracks(numChannelIn_);
-      vector<vector<StubKF*>> regionStubs(numChannelIn_ * numLayers_);
+      std::vector<std::vector<TrackKF*>> regionTracks(numChannelIn_);
+      std::vector<std::vector<StubKF*>> regionStubs(numChannelIn_ * numLayers_);
       // read input data
       for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
         const int index = offsetIn + channelIn;
         const int offsetAll = index * numLayers_;
         const int offsetRegion = channelIn * numLayers_;
-        const StreamTrack& streamTrack = allTracks[index];
-        vector<TrackKF*>& tracks = regionTracks[channelIn];
+        const tt::StreamTrack& streamTrack = allTracks[index];
+        std::vector<TrackKF*>& tracks = regionTracks[channelIn];
         tracks.reserve(streamTrack.size());
-        for (const FrameTrack& frame : streamTrack) {
+        for (const tt::FrameTrack& frame : streamTrack) {
           TrackKF* track = nullptr;
           if (frame.first.isNonnull()) {
             tracksKF.emplace_back(frame, dataFormats);
@@ -145,7 +141,7 @@ namespace trackerTFP {
           tracks.push_back(track);
         }
         for (int layer = 0; layer < numLayers_; layer++) {
-          for (const FrameStub& frame : allStubs[offsetAll + layer]) {
+          for (const tt::FrameStub& frame : allStubs[offsetAll + layer]) {
             StubKF* stub = nullptr;
             if (frame.first.isNonnull()) {
               stubsKF.emplace_back(frame, dataFormats);
@@ -156,15 +152,15 @@ namespace trackerTFP {
         }
       }
       // empty storage of output data
-      vector<TrackDR> tracksDR;
+      std::vector<TrackDR> tracksDR;
       tracksDR.reserve(nTracks);
-      vector<StubDR> stubsDR;
+      std::vector<StubDR> stubsDR;
       stubsDR.reserve(nStubs);
       // object to remove duplicates in a processing region
       DuplicateRemoval dr(setup, dataFormats, tracksDR, stubsDR);
       // empty h/w liked organized pointer to output data
-      vector<vector<TrackDR*>> streamsTrack(numChannelOut_);
-      vector<vector<StubDR*>> streamsStub(numChannelOut_ * numLayers_);
+      std::vector<std::vector<TrackDR*>> streamsTrack(numChannelOut_);
+      std::vector<std::vector<StubDR*>> streamsStub(numChannelOut_ * numLayers_);
       // fill output data
       dr.produce(regionTracks, regionStubs, streamsTrack, streamsStub);
       // convert data to ed products

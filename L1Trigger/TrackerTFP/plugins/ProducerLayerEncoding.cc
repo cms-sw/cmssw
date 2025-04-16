@@ -7,9 +7,6 @@
 
 #include <memory>
 
-using namespace std;
-using namespace edm;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerLayerEncoding
@@ -17,24 +14,24 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2020, July
    */
-  class ProducerLayerEncoding : public ESProducer {
+  class ProducerLayerEncoding : public edm::ESProducer {
   public:
-    ProducerLayerEncoding(const ParameterSet& iConfig);
+    ProducerLayerEncoding(const edm::ParameterSet& iConfig);
     ~ProducerLayerEncoding() override {}
-    unique_ptr<LayerEncoding> produce(const DataFormatsRcd& rcd);
+    std::unique_ptr<LayerEncoding> produce(const DataFormatsRcd& rcd);
 
   private:
-    ESGetToken<DataFormats, DataFormatsRcd> esGetToken_;
+    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetToken_;
   };
 
-  ProducerLayerEncoding::ProducerLayerEncoding(const ParameterSet& iConfig) {
+  ProducerLayerEncoding::ProducerLayerEncoding(const edm::ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
   }
 
-  unique_ptr<LayerEncoding> ProducerLayerEncoding::produce(const DataFormatsRcd& rcd) {
+  std::unique_ptr<LayerEncoding> ProducerLayerEncoding::produce(const DataFormatsRcd& rcd) {
     const DataFormats* dataFormats = &rcd.get(esGetToken_);
-    return make_unique<LayerEncoding>(dataFormats);
+    return std::make_unique<LayerEncoding>(dataFormats);
   }
 
 }  // namespace trackerTFP

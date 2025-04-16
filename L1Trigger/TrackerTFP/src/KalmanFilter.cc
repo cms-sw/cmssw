@@ -9,18 +9,14 @@
 #include <utility>
 #include <cmath>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
-  KalmanFilter::KalmanFilter(const Setup* setup,
+  KalmanFilter::KalmanFilter(const tt::Setup* setup,
                              const DataFormats* dataFormats,
                              const LayerEncoding* layerEncoding,
                              KalmanFilterFormats* kalmanFilterFormats,
-                             vector<TrackKF>& tracks,
-                             vector<StubKF>& stubs)
+                             std::vector<TrackKF>& tracks,
+                             std::vector<StubKF>& stubs)
       : setup_(setup),
         dataFormats_(dataFormats),
         layerEncoding_(layerEncoding),
@@ -30,15 +26,15 @@ namespace trackerTFP {
         layer_(0) {}
 
   // fill output products
-  void KalmanFilter::produce(const vector<vector<TrackCTB*>>& tracksIn,
-                             const vector<vector<Stub*>>& stubsIn,
-                             vector<vector<TrackKF*>>& tracksOut,
-                             vector<vector<vector<StubKF*>>>& stubsOut,
+  void KalmanFilter::produce(const std::vector<std::vector<TrackCTB*>>& tracksIn,
+                             const std::vector<std::vector<Stub*>>& stubsIn,
+                             std::vector<std::vector<TrackKF*>>& tracksOut,
+                             std::vector<std::vector<std::vector<StubKF*>>>& stubsOut,
                              int& numAcceptedStates,
                              int& numLostStates,
-                             deque<pair<double, double>>& chi2s) {
+                             std::deque<std::pair<double, double>>& chi2s) {
     for (int channel = 0; channel < dataFormats_->numChannel(Process::kf); channel++) {
-      deque<State*> stream;
+      std::deque<State*> stream;
       // proto state creation
       createProtoStates(tracksIn, stubsIn, channel, stream);
       // seed building
@@ -53,28 +49,28 @@ namespace trackerTFP {
       const int nStates =
           accumulate(stream.begin(), stream.end(), 0, [](int sum, State* state) { return sum + (state ? 1 : 0); });
       // apply truncation
-      if (setup_->enableTruncation() && (int)stream.size() > setup_->numFramesHigh())
+      if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFramesHigh())
         stream.resize(setup_->numFramesHigh());
       // cycle event, remove gaps
-      stream.erase(remove(stream.begin(), stream.end(), nullptr), stream.end());
+      stream.erase(std::remove(stream.begin(), stream.end(), nullptr), stream.end());
       // store number of states which got taken into account
-      numAcceptedStates += (int)stream.size();
+      numAcceptedStates += stream.size();
       // store number of states which got not taken into account due to truncation
-      numLostStates += nStates - (int)stream.size();
+      numLostStates += nStates - stream.size();
       // apply final cuts
-      vector<Track> finals;
+      std::vector<Track> finals;
       finals.reserve(stream.size());
       finalize(stream, finals);
       // best track per candidate selection
-      vector<Track*> best;
+      std::vector<Track*> best;
       best.reserve(stream.size());
       accumulator(finals, best);
       // store chi2s
       for (Track* track : best)
         chi2s.emplace_back(track->chi20_, track->chi21_);
       // Transform States into Tracks
-      vector<TrackKF*>& tracks = tracksOut[channel];
-      vector<vector<StubKF*>>& stubs = stubsOut[channel];
+      std::vector<TrackKF*>& tracks = tracksOut[channel];
+      std::vector<std::vector<StubKF*>>& stubs = stubsOut[channel];
       conv(best, tracks, stubs);
     }
   }
@@ -83,26 +79,26 @@ namespace trackerTFP {
   void KalmanFilter::createProtoStates(const std::vector<std::vector<TrackCTB*>>& tracksIn,
                                        const std::vector<std::vector<Stub*>>& stubsIn,
                                        int channel,
-                                       deque<State*>& stream) {
+                                       std::deque<State*>& stream) {
     const int numLayers = setup_->numLayers();
     const int offsetL = channel * numLayers;
-    const vector<TrackCTB*>& tracksChannel = tracksIn[channel];
+    const std::vector<TrackCTB*>& tracksChannel = tracksIn[channel];
     int trackId(0);
-    for (int frame = 0; frame < (int)tracksChannel.size();) {
+    for (int frame = 0; frame < static_cast<int>(tracksChannel.size());) {
       TrackCTB* track = tracksChannel[frame];
       if (!track) {
         frame++;
         continue;
       }
-      const auto begin = next(tracksChannel.begin(), frame);
-      const auto end = find_if(begin + 1, tracksChannel.end(), [](TrackCTB* track) { return track; });
-      const int size = distance(begin, end);
-      vector<vector<Stub*>> stubs(numLayers);
-      for (vector<Stub*>& layer : stubs)
+      const auto begin = std::next(tracksChannel.begin(), frame);
+      const auto end = std::find_if(begin + 1, tracksChannel.end(), [](TrackCTB* track) { return track; });
+      const int size = std::distance(begin, end);
+      std::vector<std::vector<Stub*>> stubs(numLayers);
+      for (std::vector<Stub*>& layer : stubs)
         layer.reserve(size);
       for (int layer = 0; layer < numLayers; layer++) {
-        const vector<Stub*>& layerAll = stubsIn[layer + offsetL];
-        vector<Stub*>& layerTrack = stubs[layer];
+        const std::vector<Stub*>& layerAll = stubsIn[layer + offsetL];
+        std::vector<Stub*>& layerTrack = stubs[layer];
         for (int frameS = 0; frameS < size; frameS++) {
           Stub* stub = layerAll[frameS + frame];
           if (!stub)
@@ -119,7 +115,7 @@ namespace trackerTFP {
   }
 
   // calulcate seed parameter
-  void KalmanFilter::calcSeeds(deque<State*>& stream) {
+  void KalmanFilter::calcSeeds(std::deque<State*>& stream) {
     auto update = [this](State* s) {
       updateRangeActual(VariableKF::m0, s->m0());
       updateRangeActual(VariableKF::m1, s->m1());
@@ -183,15 +179,15 @@ namespace trackerTFP {
   }
 
   // apply final cuts
-  void KalmanFilter::finalize(const deque<State*>& stream, vector<Track>& finals) {
+  void KalmanFilter::finalize(const std::deque<State*>& stream, std::vector<Track>& finals) {
     for (State* state : stream) {
       TrackCTB* track = state->track();
       int numConsistent(0);
       int numConsistentPS(0);
       TTBV hitPattern = state->hitPattern();
-      vector<StubCTB*> stubs;
-      vector<double> phis;
-      vector<double> zs;
+      std::vector<StubCTB*> stubs;
+      std::vector<double> phis;
+      std::vector<double> zs;
       stubs.reserve(setup_->numLayers());
       phis.reserve(setup_->numLayers());
       zs.reserve(setup_->numLayers());
@@ -213,7 +209,7 @@ namespace trackerTFP {
           stubs.push_back(&stubCTB);
           phis.push_back(phi);
           zs.push_back(z);
-          if (abs(phi) <= s->dPhi() && abs(z) <= s->dZ()) {
+          if (std::abs(phi) <= s->dPhi() && std::abs(z) <= s->dZ()) {
             numConsistent++;
             if (setup_->psModule(stubCTB.frame().first))
               numConsistentPS++;
@@ -261,14 +257,16 @@ namespace trackerTFP {
   }
 
   // Transform States into Tracks
-  void KalmanFilter::conv(const vector<Track*>& best, vector<TrackKF*>& tracks, vector<vector<StubKF*>>& stubs) {
+  void KalmanFilter::conv(const std::vector<Track*>& best,
+                          std::vector<TrackKF*>& tracks,
+                          std::vector<std::vector<StubKF*>>& stubs) {
     const DataFormat& dfInv2R = dataFormats_->format(Variable::inv2R, Process::ht);
     const DataFormat& dfPhiT = dataFormats_->format(Variable::phiT, Process::ht);
     tracks.reserve(best.size());
-    for (vector<StubKF*>& layer : stubs)
+    for (std::vector<StubKF*>& layer : stubs)
       layer.reserve(best.size());
     for (Track* track : best) {
-      const vector<int> layers = track->hitPattern_.ids();
+      const std::vector<int> layers = track->hitPattern_.ids();
       for (int iStub = 0; iStub < track->hitPattern_.count(); iStub++) {
         StubCTB* s = track->stubs_[iStub];
         stubs_.emplace_back(*s, s->r(), track->phi_[iStub], track->z_[iStub], s->dPhi(), s->dZ());
@@ -284,19 +282,19 @@ namespace trackerTFP {
   }
 
   // adds a layer to states
-  void KalmanFilter::addLayer(deque<State*>& stream) {
+  void KalmanFilter::addLayer(std::deque<State*>& stream) {
     // Latency of KF Associator block firmware
     static constexpr int latency = 5;
     // dynamic state container for clock accurate emulation
-    deque<State*> streamOutput;
+    std::deque<State*> streamOutput;
     // Memory stack used to handle combinatorics
-    deque<State*> stack;
+    std::deque<State*> stack;
     // static delay container
-    deque<State*> delay(latency, nullptr);
+    std::deque<State*> delay(latency, nullptr);
     // each trip corresponds to a f/w clock tick
     // done if no states to process left, taking as much time as needed
     while (!stream.empty() || !stack.empty() ||
-           !all_of(delay.begin(), delay.end(), [](const State* state) { return state == nullptr; })) {
+           !std::all_of(delay.begin(), delay.end(), [](const State* state) { return state == nullptr; })) {
       State* state = pop_front(stream);
       // Process a combinatoric state if no (non-combinatoric?) state available
       if (!state)
@@ -318,19 +316,19 @@ namespace trackerTFP {
   }
 
   // adds a layer to states to build seeds
-  void KalmanFilter::addSeedLayer(deque<State*>& stream) {
+  void KalmanFilter::addSeedLayer(std::deque<State*>& stream) {
     // Latency of KF Associator block firmware
     static constexpr int latency = 5;
     // dynamic state container for clock accurate emulation
-    deque<State*> streamOutput;
+    std::deque<State*> streamOutput;
     // Memory stack used to handle combinatorics
-    deque<State*> stack;
+    std::deque<State*> stack;
     // static delay container
-    deque<State*> delay(latency, nullptr);
+    std::deque<State*> delay(latency, nullptr);
     // each trip corresponds to a f/w clock tick
     // done if no states to process left, taking as much time as needed
     while (!stream.empty() || !stack.empty() ||
-           !all_of(delay.begin(), delay.end(), [](const State* state) { return state == nullptr; })) {
+           !std::all_of(delay.begin(), delay.end(), [](const State* state) { return state == nullptr; })) {
       State* state = pop_front(stream);
       // Process a combinatoric state if no (non-combinatoric?) state available
       if (!state)
@@ -352,36 +350,36 @@ namespace trackerTFP {
   }
 
   // best state selection
-  void KalmanFilter::accumulator(vector<Track>& finals, vector<Track*>& best) {
+  void KalmanFilter::accumulator(std::vector<Track>& finals, std::vector<Track*>& best) {
     // create container of pointer to make sorts less CPU intense
-    transform(finals.begin(), finals.end(), back_inserter(best), [](Track& track) { return &track; });
+    std::transform(finals.begin(), finals.end(), std::back_inserter(best), [](Track& track) { return &track; });
     // prepare arrival order
-    vector<int> trackIds;
+    std::vector<int> trackIds;
     trackIds.reserve(best.size());
     for (Track* track : best) {
       const int trackId = track->trackId_;
-      if (find_if(trackIds.begin(), trackIds.end(), [trackId](int id) { return id == trackId; }) == trackIds.end())
+      if (std::find_if(trackIds.begin(), trackIds.end(), [trackId](int id) { return id == trackId; }) == trackIds.end())
         trackIds.push_back(trackId);
     }
     // sort in chi2
     auto smallerChi2 = [](Track* lhs, Track* rhs) { return lhs->chi20_ + lhs->chi21_ < rhs->chi20_ + rhs->chi21_; };
-    stable_sort(best.begin(), best.end(), smallerChi2);
+    std::stable_sort(best.begin(), best.end(), smallerChi2);
     // sort in number of consistent stubs
     auto moreConsistentLayers = [](Track* lhs, Track* rhs) { return lhs->numConsistent_ > rhs->numConsistent_; };
-    stable_sort(best.begin(), best.end(), moreConsistentLayers);
+    std::stable_sort(best.begin(), best.end(), moreConsistentLayers);
     // sort in number of consistent ps stubs
     auto moreConsistentLayersPS = [](Track* lhs, Track* rhs) { return lhs->numConsistentPS_ > rhs->numConsistentPS_; };
-    stable_sort(best.begin(), best.end(), moreConsistentLayersPS);
+    std::stable_sort(best.begin(), best.end(), moreConsistentLayersPS);
     // sort in track id as arrived
     auto order = [&trackIds](auto lhs, auto rhs) {
       const auto l = find(trackIds.begin(), trackIds.end(), lhs->trackId_);
       const auto r = find(trackIds.begin(), trackIds.end(), rhs->trackId_);
-      return distance(r, l) < 0;
+      return std::distance(r, l) < 0;
     };
-    stable_sort(best.begin(), best.end(), order);
+    std::stable_sort(best.begin(), best.end(), order);
     // keep first state (best due to previous sorts) per track id
     auto same = [](Track* lhs, Track* rhs) { return lhs->trackId_ == rhs->trackId_; };
-    best.erase(unique(best.begin(), best.end(), same), best.end());
+    best.erase(std::unique(best.begin(), best.end(), same), best.end());
   }
 
   // updates state
@@ -438,12 +436,12 @@ namespace trackerTFP {
     const double R00 = digi(VariableKF::R00, v0 + S01 + H00 * S00);
     const double R11 = digi(VariableKF::R11, v1 + S13 + H12 * S12);
     // improved dynamic cancelling
-    const int msb0 = max(0, (int)ceil(log2(R00 / base(VariableKF::R00))));
-    const int msb1 = max(0, (int)ceil(log2(R11 / base(VariableKF::R11))));
+    const int msb0 = std::max(0, static_cast<int>(std::ceil(std::log2(R00 / base(VariableKF::R00)))));
+    const int msb1 = std::max(0, static_cast<int>(std::ceil(std::log2(R11 / base(VariableKF::R11)))));
     const int shift0 = width(VariableKF::R00) - msb0;
     const int shift1 = width(VariableKF::R11) - msb1;
-    const double R00Shifted = R00 * pow(2., shift0);
-    const double R11Shifted = R11 * pow(2., shift1);
+    const double R00Shifted = R00 * std::pow(2., shift0);
+    const double R11Shifted = R11 * std::pow(2., shift1);
     const double R00Rough = digi(VariableKF::R00Rough, R00Shifted);
     const double R11Rough = digi(VariableKF::R11Rough, R11Shifted);
     const double invR00Approx = digi(VariableKF::invR00Approx, 1. / R00Rough);
@@ -454,10 +452,10 @@ namespace trackerTFP {
     const double invR11 = digi(VariableKF::invR11, invR11Approx * invR11Cor);
     // shift S to "undo" shifting of R
     auto digiShifted = [](double val, double base) { return floor(val / base * 2. + 1.e-11) * base / 2.; };
-    const double S00Shifted = digiShifted(S00 * pow(2., shift0), base(VariableKF::S00Shifted));
-    const double S01Shifted = digiShifted(S01 * pow(2., shift0), base(VariableKF::S01Shifted));
-    const double S12Shifted = digiShifted(S12 * pow(2., shift1), base(VariableKF::S12Shifted));
-    const double S13Shifted = digiShifted(S13 * pow(2., shift1), base(VariableKF::S13Shifted));
+    const double S00Shifted = digiShifted(S00 * std::pow(2., shift0), base(VariableKF::S00Shifted));
+    const double S01Shifted = digiShifted(S01 * std::pow(2., shift0), base(VariableKF::S01Shifted));
+    const double S12Shifted = digiShifted(S12 * std::pow(2., shift1), base(VariableKF::S12Shifted));
+    const double S13Shifted = digiShifted(S13 * std::pow(2., shift1), base(VariableKF::S13Shifted));
     // Kalman gain matrix K = S*R(inv)
     const double K00 = digi(VariableKF::K00, S00Shifted * invR00);
     const double K10 = digi(VariableKF::K10, S01Shifted * invR00);
@@ -475,8 +473,8 @@ namespace trackerTFP {
     C23 = digi(VariableKF::C23, C23 - S13 * K21);
     C33 = digi(VariableKF::C33, C33 - S13 * K31);
     // squared residuals
-    const double r0Shifted = digiShifted(r0 * pow(2., shift0), base(VariableKF::r0Shifted));
-    const double r1Shifted = digiShifted(r1 * pow(2., shift1), base(VariableKF::r1Shifted));
+    const double r0Shifted = digiShifted(r0 * std::pow(2., shift0), base(VariableKF::r0Shifted));
+    const double r1Shifted = digiShifted(r1 * std::pow(2., shift1), base(VariableKF::r1Shifted));
     const double r02 = digi(VariableKF::r02, r0 * r0);
     const double r12 = digi(VariableKF::r12, r1 * r1);
     chi20 = digi(VariableKF::chi20, chi20 + r02 * invR00);
@@ -542,7 +540,7 @@ namespace trackerTFP {
 
   // remove and return first element of deque, returns nullptr if empty
   template <class T>
-  T* KalmanFilter::pop_front(deque<T*>& ts) const {
+  T* KalmanFilter::pop_front(std::deque<T*>& ts) const {
     T* t = nullptr;
     if (!ts.empty()) {
       t = ts.front();

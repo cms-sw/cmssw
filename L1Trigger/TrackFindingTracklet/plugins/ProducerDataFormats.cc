@@ -9,10 +9,6 @@
 
 #include <memory>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trklet {
 
   /*! \class  trklet::ProducerDataFormats
@@ -20,24 +16,24 @@ namespace trklet {
    *  \author Thomas Schuh
    *  \date   2024, Sep
    */
-  class ProducerDataFormats : public ESProducer {
+  class ProducerDataFormats : public edm::ESProducer {
   public:
-    ProducerDataFormats(const ParameterSet& iConfig);
+    ProducerDataFormats(const edm::ParameterSet& iConfig);
     ~ProducerDataFormats() override {}
-    unique_ptr<DataFormats> produce(const ChannelAssignmentRcd& rcd);
+    std::unique_ptr<DataFormats> produce(const ChannelAssignmentRcd& rcd);
 
   private:
-    ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetToken_;
+    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetToken_;
   };
 
-  ProducerDataFormats::ProducerDataFormats(const ParameterSet& iConfig) {
+  ProducerDataFormats::ProducerDataFormats(const edm::ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
   }
 
-  unique_ptr<DataFormats> ProducerDataFormats::produce(const ChannelAssignmentRcd& rcd) {
+  std::unique_ptr<DataFormats> ProducerDataFormats::produce(const ChannelAssignmentRcd& rcd) {
     const ChannelAssignment* ca = &rcd.get(esGetToken_);
-    return make_unique<DataFormats>(ca);
+    return std::make_unique<DataFormats>(ca);
   }
 
 }  // namespace trklet

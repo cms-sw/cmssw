@@ -20,11 +20,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-using namespace tmtt;
-
 namespace trklet {
 
   /*! \class  trklet::ProducerKF
@@ -32,48 +27,50 @@ namespace trklet {
    *  \author Thomas Schuh
    *  \date   2020, July
    */
-  class ProducerKF : public stream::EDProducer<> {
+  class ProducerKF : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerKF(const ParameterSet&);
+    explicit ProducerKF(const edm::ParameterSet&);
     ~ProducerKF() override {}
 
   private:
-    void produce(Event&, const EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     void endStream() override {
+      std::stringstream ss;
       if (printDebug_)
-        kalmanFilterFormats_.endJob();
+        kalmanFilterFormats_.endJob(ss);
+      edm::LogPrint(moduleDescription().moduleName()) << ss.str();
     }
     // ED input token of sf stubs and tracks
-    EDGetTokenT<StreamsStub> edGetTokenStubs_;
-    EDGetTokenT<StreamsTrack> edGetTokenTracks_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
     // ED output token for accepted stubs and tracks
-    EDPutTokenT<TTTracks> edPutTokenTTTracks_;
-    EDPutTokenT<StreamsStub> edPutTokenStubs_;
-    EDPutTokenT<StreamsTrack> edPutTokenTracks_;
+    edm::EDPutTokenT<tt::TTTracks> edPutTokenTTTracks_;
+    edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
+    edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // ED output token for number of accepted and lost States
-    EDPutTokenT<int> edPutTokenNumStatesAccepted_;
-    EDPutTokenT<int> edPutTokenNumStatesTruncated_;
+    edm::EDPutTokenT<int> edPutTokenNumStatesAccepted_;
+    edm::EDPutTokenT<int> edPutTokenNumStatesTruncated_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
     // provides dataformats of Kalman filter internals
     KalmanFilterFormats kalmanFilterFormats_;
     //
     ConfigKF iConfig_;
     //
-    Settings settings_;
+    tmtt::Settings settings_;
     //
-    KFParamsComb tmtt4_;
+    tmtt::KFParamsComb tmtt4_;
     //
-    KFParamsComb tmtt5_;
+    tmtt::KFParamsComb tmtt5_;
     //
-    KFParamsComb* tmtt_;
+    tmtt::KFParamsComb* tmtt_;
     // print end job internal unused MSB
     bool printDebug_;
   };
 
-  ProducerKF::ProducerKF(const ParameterSet& iConfig)
+  ProducerKF::ProducerKF(const edm::ParameterSet& iConfig)
       : settings_(iConfig),
         tmtt4_(&settings_, 4, "KF5ParamsComb"),
         tmtt5_(&settings_, 5, "KF4ParamsComb"),
@@ -120,16 +117,16 @@ namespace trklet {
     iConfig_.baseShiftC23_ = iConfig.getParameter<int>("BaseShiftC23");
     iConfig_.baseShiftC33_ = iConfig.getParameter<int>("BaseShiftC33");
     printDebug_ = iConfig.getParameter<bool>("PrintKFDebug");
-    const string& label = iConfig.getParameter<string>("InputLabelKF");
-    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
-    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
-    const string& branchTruncated = iConfig.getParameter<string>("BranchTruncated");
+    const std::string& label = iConfig.getParameter<std::string>("InputLabelKF");
+    const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
+    const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
+    const std::string& branchTruncated = iConfig.getParameter<std::string>("BranchTruncated");
     // book in- and output ED products
-    edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
-    edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
-    edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
-    edPutTokenTTTracks_ = produces<TTTracks>(branchTracks);
+    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
+    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
+    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
+    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
+    edPutTokenTTTracks_ = produces<tt::TTTracks>(branchTracks);
     edPutTokenNumStatesAccepted_ = produces<int>(branchTracks);
     edPutTokenNumStatesTruncated_ = produces<int>(branchTruncated);
     // book ES products
@@ -137,34 +134,34 @@ namespace trklet {
     esGetTokenDataFormats_ = esConsumes();
   }
 
-  void ProducerKF::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerKF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     settings_.setMagneticField(setup->bField());
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     kalmanFilterFormats_.consume(dataFormats, iConfig_);
-    auto valid = [](int sum, const FrameTrack& f) { return sum + (f.first.isNull() ? 0 : 1); };
+    auto valid = [](int sum, const tt::FrameTrack& f) { return sum + (f.first.isNull() ? 0 : 1); };
     // empty KF products
-    StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
-    StreamsTrack streamsTrack(setup->numRegions());
+    tt::StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
+    tt::StreamsTrack streamsTrack(setup->numRegions());
     int numStatesAccepted(0);
     int numStatesTruncated(0);
     // read in DR Product and produce KF product
-    const StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
-    const StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
+    const tt::StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
+    const tt::StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
     // prep TTTracks
-    TTTracks ttTracks;
-    vector<TTTrackRef> ttTrackRefs;
+    tt::TTTracks ttTracks;
+    std::vector<TTTrackRef> ttTrackRefs;
     if (setup->kfUse5ParameterFit()) {
       tmtt_ = &tmtt5_;
       int nTracks(0);
-      for (const StreamTrack& stream : tracks)
-        nTracks += accumulate(stream.begin(), stream.end(), 0, valid);
+      for (const tt::StreamTrack& stream : tracks)
+        nTracks += std::accumulate(stream.begin(), stream.end(), 0, valid);
       ttTracks.reserve(nTracks);
       ttTrackRefs.reserve(nTracks);
-      for (const StreamTrack& stream : tracks)
-        for (const FrameTrack& frame : stream)
+      for (const tt::StreamTrack& stream : tracks)
+        for (const tt::FrameTrack& frame : stream)
           if (frame.first.isNonnull())
             ttTrackRefs.push_back(frame.first);
     }
@@ -178,11 +175,11 @@ namespace trklet {
     }
     if (setup->kfUse5ParameterFit()) {
       // store ttTracks
-      const OrphanHandle<TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));
+      const edm::OrphanHandle<tt::TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));
       // replace ttTrackRefs in track streams
       int iTrk(0);
-      for (StreamTrack& stream : streamsTrack)
-        for (FrameTrack& frame : stream)
+      for (tt::StreamTrack& stream : streamsTrack)
+        for (tt::FrameTrack& frame : stream)
           if (frame.first.isNonnull())
             frame.first = TTTrackRef(oh, iTrk++);
     }

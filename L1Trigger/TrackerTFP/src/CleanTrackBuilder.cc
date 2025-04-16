@@ -7,18 +7,14 @@
 #include <vector>
 #include <cmath>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
-  CleanTrackBuilder::CleanTrackBuilder(const Setup* setup,
+  CleanTrackBuilder::CleanTrackBuilder(const tt::Setup* setup,
                                        const DataFormats* dataFormats,
                                        const LayerEncoding* layerEncoding,
                                        const DataFormat& cot,
-                                       vector<StubCTB>& stubs,
-                                       vector<TrackCTB>& tracks)
+                                       std::vector<StubCTB>& stubs,
+                                       std::vector<TrackCTB>& tracks)
       : setup_(setup),
         dataFormats_(dataFormats),
         layerEncoding_(layerEncoding),
@@ -47,38 +43,36 @@ namespace trackerTFP {
   }
 
   // fill output products
-  void CleanTrackBuilder::produce(const vector<vector<StubHT*>>& streamsIn,
-                                  vector<deque<TrackCTB*>>& regionTracks,
-                                  vector<vector<deque<StubCTB*>>>& regionStubs) {
+  void CleanTrackBuilder::produce(const std::vector<std::vector<StubHT*>>& streamsIn,
+                                  std::vector<std::deque<TrackCTB*>>& regionTracks,
+                                  std::vector<std::vector<std::deque<StubCTB*>>>& regionStubs) {
     // loop over worker
     for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
       // clean input tracks
-      vector<deque<Track*>> streamsT(numChannel_);
-      vector<deque<Stub*>> streamsS(numChannel_);
+      std::vector<std::deque<Track*>> streamsT(numChannel_);
+      std::vector<std::deque<Stub*>> streamsS(numChannel_);
       for (int cin = 0; cin < numChannel_; cin++) {
-        //if (cin != 1)
-        //continue;
         const int index = numChannel_ * cin + channelOut;
         cleanStream(streamsIn[index], streamsT[cin], streamsS[cin], index);
       }
       // route
-      deque<Track*> tracks;
-      vector<deque<Stub*>> stubs(numLayers_);
+      std::deque<Track*> tracks;
+      std::vector<std::deque<Stub*>> stubs(numLayers_);
       route(streamsT, tracks);
       route(streamsS, stubs);
       // sort
       sort(tracks, stubs);
       // convert
-      deque<TrackCTB*>& channelTracks = regionTracks[channelOut];
-      vector<deque<StubCTB*>>& channelStubs = regionStubs[channelOut];
+      std::deque<TrackCTB*>& channelTracks = regionTracks[channelOut];
+      std::vector<std::deque<StubCTB*>>& channelStubs = regionStubs[channelOut];
       convert(tracks, stubs, channelTracks, channelStubs);
     }
   }
 
   //
-  void CleanTrackBuilder::cleanStream(const vector<StubHT*>& input,
-                                      deque<Track*>& tracks,
-                                      deque<Stub*>& stubs,
+  void CleanTrackBuilder::cleanStream(const std::vector<StubHT*>& input,
+                                      std::deque<Track*>& tracks,
+                                      std::deque<Stub*>& stubs,
                                       int channelId) {
     const DataFormat& dfInv2R = dataFormats_->format(Variable::inv2R, Process::ht);
     const double inv2R = dfInv2R.floating(dfInv2R.toSigned(channelId));
@@ -97,10 +91,10 @@ namespace trackerTFP {
     for (auto it = input.begin(); it != input.end();) {
       id = toTrkId(*it);
       const auto start = it;
-      const auto end = find_if(start, input.end(), different);
-      const vector<StubHT*> track(start, end);
+      const auto end = std::find_if(start, input.end(), different);
+      const std::vector<StubHT*> track(start, end);
       // restore clock accurancy
-      delta += (int)track.size() - old;
+      delta += track.size() - old;
       old = track.size();
       if (delta > 0) {
         stubs.insert(stubs.end(), delta, nullptr);
@@ -117,8 +111,12 @@ namespace trackerTFP {
   }
 
   // run single track through r-phi and r-z hough transform
-  void CleanTrackBuilder::cleanTrack(
-      const vector<StubHT*>& track, deque<Track*>& tracks, deque<Stub*>& stubs, double inv2R, int zT, int trackId) {
+  void CleanTrackBuilder::cleanTrack(const std::vector<StubHT*>& track,
+                                     std::deque<Track*>& tracks,
+                                     std::deque<Stub*>& stubs,
+                                     double inv2R,
+                                     int zT,
+                                     int trackId) {
     const TTBV& maybePattern = layerEncoding_->maybePattern(zT);
     auto noTrack = [this, &maybePattern](const TTBV& pattern) {
       // not enough seeding layer
@@ -149,7 +147,7 @@ namespace trackerTFP {
       const double pitchCol = ps ? setup_->pitchColPS() : setup_->pitchCol2S();
       const double pitchColR = barrel ? (tilt ? setup_->tiltUncertaintyR() : 0.0) : pitchCol;
       const double r = stub->r() + setup_->chosenRofPhi();
-      const double dPhi = pitchRow / r + (setup_->scattering() + pitchColR) * abs(inv2R);
+      const double dPhi = pitchRow / r + (setup_->scattering() + pitchColR) * std::abs(inv2R);
       return phi_.digi(dPhi / 2.);
     };
     auto toDZ = [this](StubHT* stub) {
@@ -160,14 +158,14 @@ namespace trackerTFP {
       const bool tilt = stub->layer()[3];
       const double pitchCol = ps ? setup_->pitchColPS() : setup_->pitchCol2S();
       const double zT = zT_.floating(stub->zT());
-      const double cot = abs(zT) / setup_->chosenRofZ();
+      const double cot = std::abs(zT) / setup_->chosenRofZ();
       const double dZ = (barrel ? (tilt ? m * cot + c : 1.) : cot) * pitchCol;
       return z_.digi(dZ / 2.);
     };
-    vector<Stub*> tStubs;
+    std::vector<Stub*> tStubs;
     tStubs.reserve(track.size());
-    vector<TTBV> hitPatternPhi(numBinsInv2R_ * numBinsPhiT_, TTBV(0, numLayers_));
-    vector<TTBV> hitPatternZ(numBinsCot_ * numBinsZT_, TTBV(0, numLayers_));
+    std::vector<TTBV> hitPatternPhi(numBinsInv2R_ * numBinsPhiT_, TTBV(0, numLayers_));
+    std::vector<TTBV> hitPatternZ(numBinsCot_ * numBinsZT_, TTBV(0, numLayers_));
     TTBV tracksPhi(0, numBinsInv2R_ * numBinsPhiT_);
     TTBV tracksZ(0, numBinsCot_ * numBinsZT_);
     // identify finer tracks each stub is consistent with
@@ -183,8 +181,10 @@ namespace trackerTFP {
         const double inv2RMin = (binInv2R - numBinsInv2R_ / 2.) * baseInv2R_;
         const double inv2RMax = inv2RMin + baseInv2R_;
         const auto phiTs = {phiT(inv2RMin, -dPhi), phiT(inv2RMax, -dPhi), phiT(inv2RMin, dPhi), phiT(inv2RMax, dPhi)};
-        const int binPhiTMin = floor(*min_element(phiTs.begin(), phiTs.end()) / basePhiT_ + 1.e-11) + numBinsPhiT_ / 2;
-        const int binPhiTMax = floor(*max_element(phiTs.begin(), phiTs.end()) / basePhiT_ + 1.e-11) + numBinsPhiT_ / 2;
+        const int binPhiTMin =
+            std::floor(*std::min_element(phiTs.begin(), phiTs.end()) / basePhiT_ + 1.e-11) + numBinsPhiT_ / 2;
+        const int binPhiTMax =
+            std::floor(*std::max_element(phiTs.begin(), phiTs.end()) / basePhiT_ + 1.e-11) + numBinsPhiT_ / 2;
         for (int binPhiT = 0; binPhiT < numBinsPhiT_; binPhiT++)
           if (binPhiT >= binPhiTMin && binPhiT <= binPhiTMax)
             hitsPhi.set(offset + binPhiT);
@@ -206,8 +206,8 @@ namespace trackerTFP {
         const double cotMin = (binCot - numBinsCot_ / 2.) * baseCot_;
         const double cotMax = cotMin + baseCot_;
         const auto zTs = {zT(cotMin, -dZ), zT(cotMax, -dZ), zT(cotMin, dZ), zT(cotMax, dZ)};
-        const int binZTMin = floor(*min_element(zTs.begin(), zTs.end()) / baseZT_ + 1.e-11) + numBinsZT_ / 2;
-        const int binZTMax = floor(*max_element(zTs.begin(), zTs.end()) / baseZT_ + 1.e-11) + numBinsZT_ / 2;
+        const int binZTMin = std::floor(*std::min_element(zTs.begin(), zTs.end()) / baseZT_ + 1.e-11) + numBinsZT_ / 2;
+        const int binZTMax = std::floor(*std::max_element(zTs.begin(), zTs.end()) / baseZT_ + 1.e-11) + numBinsZT_ / 2;
         for (int binZT = 0; binZT < numBinsZT_; binZT++)
           if (binZT >= binZTMin && binZT <= binZTMax)
             hitsZ.set(offset + binZT);
@@ -230,7 +230,7 @@ namespace trackerTFP {
   }
 
   //
-  void CleanTrackBuilder::Stub::update(const TTBV& phi, const TTBV& z, vector<int>& ids, int max) {
+  void CleanTrackBuilder::Stub::update(const TTBV& phi, const TTBV& z, std::vector<int>& ids, int max) {
     auto consistent = [](const TTBV& stub, const TTBV& track) {
       for (int id : track.ids())
         if (stub[id])
@@ -244,42 +244,42 @@ namespace trackerTFP {
   }
 
   // construct Track from Stubs
-  CleanTrackBuilder::Track::Track(const Setup* setup,
+  CleanTrackBuilder::Track::Track(const tt::Setup* setup,
                                   int trackId,
                                   const TTBV& hitsPhi,
                                   const TTBV& hitsZ,
                                   const std::vector<Stub*>& stubs,
                                   double inv2R)
       : valid_(true), stubs_(stubs), trackId_(trackId), hitsPhi_(hitsPhi), hitsZ_(hitsZ), inv2R_(inv2R) {
-    vector<int> stubIds(setup->numLayers(), 0);
+    std::vector<int> stubIds(setup->numLayers(), 0);
     for (Stub* stub : stubs_)
       stub->update(hitsPhi_, hitsZ_, stubIds, setup->ctbMaxStubs());
     const int nLayer =
-        accumulate(stubIds.begin(), stubIds.end(), 0, [](int sum, int i) { return sum + (i > 0 ? 1 : 0); });
+        std::accumulate(stubIds.begin(), stubIds.end(), 0, [](int sum, int i) { return sum + (i > 0 ? 1 : 0); });
     if (nLayer < setup->ctbMinLayers())
       valid_ = false;
-    size_ = *max_element(stubIds.begin(), stubIds.end());
+    size_ = *std::max_element(stubIds.begin(), stubIds.end());
   }
 
   //
-  void CleanTrackBuilder::route(vector<deque<Stub*>>& input, vector<deque<Stub*>>& outputs) const {
+  void CleanTrackBuilder::route(std::vector<std::deque<Stub*>>& input, std::vector<std::deque<Stub*>>& outputs) const {
     for (int channelOut = 0; channelOut < (int)outputs.size(); channelOut++) {
-      deque<Stub*>& output = outputs[channelOut];
-      vector<deque<Stub*>> inputs(input);
-      for (deque<Stub*>& stream : inputs) {
+      std::deque<Stub*>& output = outputs[channelOut];
+      std::vector<std::deque<Stub*>> inputs(input);
+      for (std::deque<Stub*>& stream : inputs) {
         for (Stub*& stub : stream)
           if (stub && (!stub->valid_ || stub->layerId_ != channelOut))
             stub = nullptr;
         for (auto it = stream.end(); it != stream.begin();)
           it = (*--it) ? stream.begin() : stream.erase(it);
       }
-      vector<deque<Stub*>> stacks(input.size());
+      std::vector<std::deque<Stub*>> stacks(input.size());
       // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
-      while (!all_of(inputs.begin(), inputs.end(), [](const deque<Stub*>& stubs) { return stubs.empty(); }) or
-             !all_of(stacks.begin(), stacks.end(), [](const deque<Stub*>& stubs) { return stubs.empty(); })) {
+      while (!std::all_of(inputs.begin(), inputs.end(), [](const std::deque<Stub*>& stubs) { return stubs.empty(); }) ||
+             !std::all_of(stacks.begin(), stacks.end(), [](const std::deque<Stub*>& stubs) { return stubs.empty(); })) {
         // fill input fifos
-        for (int channel = 0; channel < (int)input.size(); channel++) {
-          deque<Stub*>& stack = stacks[channel];
+        for (int channel = 0; channel < static_cast<int>(input.size()); channel++) {
+          std::deque<Stub*>& stack = stacks[channel];
           Stub* stub = pop_front(inputs[channel]);
           if (stub) {
             if (setup_->enableTruncation() && (int)stack.size() == setup_->ctbDepthMemory() - 1)
@@ -289,7 +289,7 @@ namespace trackerTFP {
         }
         // merge input fifos to one stream, prioritizing lower input channel over higher channel
         bool nothingToRoute(true);
-        for (int channel = 0; channel < (int)input.size(); channel++) {
+        for (int channel = 0; channel < static_cast<int>(input.size()); channel++) {
           Stub* stub = pop_front(stacks[channel]);
           if (stub) {
             nothingToRoute = false;
@@ -304,24 +304,25 @@ namespace trackerTFP {
   }
 
   //
-  void CleanTrackBuilder::route(vector<deque<Track*>>& inputs, deque<Track*>& output) const {
-    vector<deque<Track*>> stacks(inputs.size());
+  void CleanTrackBuilder::route(std::vector<std::deque<Track*>>& inputs, std::deque<Track*>& output) const {
+    std::vector<std::deque<Track*>> stacks(inputs.size());
     // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
-    while (!all_of(inputs.begin(), inputs.end(), [](const deque<Track*>& tracks) { return tracks.empty(); }) or
-           !all_of(stacks.begin(), stacks.end(), [](const deque<Track*>& tracks) { return tracks.empty(); })) {
+    while (!std::all_of(inputs.begin(), inputs.end(), [](const std::deque<Track*>& tracks) {
+      return tracks.empty();
+    }) || !std::all_of(stacks.begin(), stacks.end(), [](const std::deque<Track*>& tracks) { return tracks.empty(); })) {
       // fill input fifos
-      for (int channel = 0; channel < (int)inputs.size(); channel++) {
-        deque<Track*>& stack = stacks[channel];
+      for (int channel = 0; channel < static_cast<int>(inputs.size()); channel++) {
+        std::deque<Track*>& stack = stacks[channel];
         Track* track = pop_front(inputs[channel]);
         if (track && track->valid_) {
-          if (setup_->enableTruncation() && (int)stack.size() == setup_->ctbDepthMemory() - 1)
+          if (setup_->enableTruncation() && static_cast<int>(stack.size()) == setup_->ctbDepthMemory() - 1)
             pop_front(stack);
           stack.push_back(track);
         }
       }
       // merge input fifos to one stream, prioritizing lower input channel over higher channel
       bool nothingToRoute(true);
-      for (int channel = 0; channel < (int)inputs.size(); channel++) {
+      for (int channel = 0; channel < static_cast<int>(inputs.size()); channel++) {
         Track* track = pop_front(stacks[channel]);
         if (track) {
           nothingToRoute = false;
@@ -335,70 +336,71 @@ namespace trackerTFP {
   }
 
   // sort
-  void CleanTrackBuilder::sort(deque<Track*>& tracks, vector<deque<Stub*>>& stubs) const {
+  void CleanTrackBuilder::sort(std::deque<Track*>& tracks, std::vector<std::deque<Stub*>>& stubs) const {
     // aplly truncation
     if (setup_->enableTruncation()) {
-      if ((int)tracks.size() > setup_->numFramesHigh())
+      if (static_cast<int>(tracks.size()) > setup_->numFramesHigh())
         tracks.resize(setup_->numFramesHigh());
-      for (deque<Stub*>& stream : stubs)
-        if ((int)stream.size() > setup_->numFramesHigh())
+      for (std::deque<Stub*>& stream : stubs)
+        if (static_cast<int>(stream.size()) > setup_->numFramesHigh())
           stream.resize(setup_->numFramesHigh());
     }
     // cycle event, remove all gaps
-    tracks.erase(remove(tracks.begin(), tracks.end(), nullptr), tracks.end());
-    for (deque<Stub*>& stream : stubs)
-      stream.erase(remove(stream.begin(), stream.end(), nullptr), stream.end());
+    tracks.erase(std::remove(tracks.begin(), tracks.end(), nullptr), tracks.end());
+    for (std::deque<Stub*>& stream : stubs)
+      stream.erase(std::remove(stream.begin(), stream.end(), nullptr), stream.end());
     // prepare sort according to track id arrival order
-    vector<int> trackIds;
+    std::vector<int> trackIds;
     trackIds.reserve(tracks.size());
-    transform(tracks.begin(), tracks.end(), back_inserter(trackIds), [](Track* track) { return track->trackId_; });
+    std::transform(
+        tracks.begin(), tracks.end(), std::back_inserter(trackIds), [](Track* track) { return track->trackId_; });
     auto cleaned = [&trackIds](Stub* stub) {
-      return find(trackIds.begin(), trackIds.end(), stub->trackId_) == trackIds.end();
+      return std::find(trackIds.begin(), trackIds.end(), stub->trackId_) == trackIds.end();
     };
     auto order = [&trackIds](auto lhs, auto rhs) {
-      const auto l = find(trackIds.begin(), trackIds.end(), lhs->trackId_);
-      const auto r = find(trackIds.begin(), trackIds.end(), rhs->trackId_);
-      return distance(r, l) < 0;
+      const auto l = std::find(trackIds.begin(), trackIds.end(), lhs->trackId_);
+      const auto r = std::find(trackIds.begin(), trackIds.end(), rhs->trackId_);
+      return std::distance(r, l) < 0;
     };
-    for (deque<Stub*>& stream : stubs) {
+    for (std::deque<Stub*>& stream : stubs) {
       // remove stubs from removed tracks
-      stream.erase(remove_if(stream.begin(), stream.end(), cleaned), stream.end());
+      stream.erase(std::remove_if(stream.begin(), stream.end(), cleaned), stream.end());
       // sort according to stub id on layer
-      stable_sort(stream.begin(), stream.end(), [](Stub* lhs, Stub* rhs) { return lhs->stubId_ < rhs->stubId_; });
+      std::stable_sort(stream.begin(), stream.end(), [](Stub* lhs, Stub* rhs) { return lhs->stubId_ < rhs->stubId_; });
       // sort according to track id arrival order
-      stable_sort(stream.begin(), stream.end(), order);
+      std::stable_sort(stream.begin(), stream.end(), order);
     }
     // add all gaps
     const int size =
-        accumulate(tracks.begin(), tracks.end(), 0, [](int sum, Track* track) { return sum + track->size_; });
+        std::accumulate(tracks.begin(), tracks.end(), 0, [](int sum, Track* track) { return sum + track->size_; });
     for (int frame = 0; frame < size;) {
       const int trackId = tracks[frame]->trackId_;
       const int length = tracks[frame]->size_;
-      tracks.insert(next(tracks.begin(), frame + 1), length - 1, nullptr);
+      tracks.insert(std::next(tracks.begin(), frame + 1), length - 1, nullptr);
       for (int layer = 0; layer < numLayers_; layer++) {
-        deque<Stub*>& stream = stubs[layer];
-        if (frame >= (int)stream.size()) {
+        std::deque<Stub*>& stream = stubs[layer];
+        if (frame >= static_cast<int>(stream.size())) {
           stream.insert(stream.end(), length, nullptr);
           continue;
         }
-        const auto begin = next(stream.begin(), frame);
-        const auto end = find_if(begin, stream.end(), [trackId](Stub* stub) { return stub->trackId_ != trackId; });
-        stream.insert(end, length - distance(begin, end), nullptr);
+        const auto begin = std::next(stream.begin(), frame);
+        const auto end = std::find_if(begin, stream.end(), [trackId](Stub* stub) { return stub->trackId_ != trackId; });
+        stream.insert(end, length - std::distance(begin, end), nullptr);
       }
       frame += length;
     }
   }
 
   //
-  void CleanTrackBuilder::convert(const deque<Track*>& iTracks,
-                                  const vector<deque<Stub*>>& iStubs,
-                                  deque<TrackCTB*>& oTracks,
-                                  vector<deque<StubCTB*>>& oStubs) {
-    for (int iFrame = 0; iFrame < (int)iTracks.size();) {
+  void CleanTrackBuilder::convert(const std::deque<Track*>& iTracks,
+                                  const std::vector<std::deque<Stub*>>& iStubs,
+                                  std::deque<TrackCTB*>& oTracks,
+                                  std::vector<std::deque<StubCTB*>>& oStubs) {
+    for (int iFrame = 0; iFrame < static_cast<int>(iTracks.size());) {
       Track* track = iTracks[iFrame];
       if (!track) {
         oTracks.push_back(nullptr);
-        for (deque<StubCTB*>& stubs : oStubs)
+        for (std::deque<StubCTB*>& stubs : oStubs)
           stubs.push_back(nullptr);
         iFrame++;
         continue;
@@ -433,7 +435,7 @@ namespace trackerTFP {
 
   // remove and return first element of deque, returns nullptr if empty
   template <class T>
-  T* CleanTrackBuilder::pop_front(deque<T*>& ts) const {
+  T* CleanTrackBuilder::pop_front(std::deque<T*>& ts) const {
     T* t = nullptr;
     if (!ts.empty()) {
       t = ts.front();
@@ -443,26 +445,26 @@ namespace trackerTFP {
   }
 
   void CleanTrackBuilder::put(TrackCTB* track,
-                              const vector<vector<StubCTB*>>& stubs,
+                              const std::vector<std::vector<StubCTB*>>& stubs,
                               int region,
-                              TTTracks& ttTracks) const {
+                              tt::TTTracks& ttTracks) const {
     const double dPhi = dataFormats_->format(Variable::phiT, Process::ctb).range();
     const double invR = -track->inv2R() * 2.;
-    const double phi0 = deltaPhi(track->phiT() - track->inv2R() * setup_->chosenRofPhi() + region * dPhi);
+    const double phi0 = tt::deltaPhi(track->phiT() - track->inv2R() * setup_->chosenRofPhi() + region * dPhi);
     const double zT = track->zT();
     const double cot = zT / setup_->chosenRofZ();
     TTBV hits(0, numLayers_);
     double chi2phi(0.);
     double chi2z(0.);
     const int nStubs = accumulate(
-        stubs.begin(), stubs.end(), 0, [](int sum, const vector<StubCTB*>& layer) { return sum += layer.size(); });
-    vector<TTStubRef> ttStubRefs;
+        stubs.begin(), stubs.end(), 0, [](int sum, const std::vector<StubCTB*>& layer) { return sum += layer.size(); });
+    std::vector<TTStubRef> ttStubRefs;
     ttStubRefs.reserve(nStubs);
     for (int layer = 0; layer < numLayers_; layer++) {
       for (StubCTB* stub : stubs[layer]) {
         hits.set(layer);
-        chi2phi += pow(stub->phi(), 2) / pow(stub->dPhi(), 2);
-        chi2z += pow(stub->z(), 2) / pow(stub->dZ(), 2);
+        chi2phi += std::pow(stub->phi(), 2) / pow(stub->dPhi(), 2);
+        chi2z += std::pow(stub->z(), 2) / pow(stub->dZ(), 2);
         ttStubRefs.push_back(stub->frame().first);
       }
     }

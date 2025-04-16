@@ -1,22 +1,20 @@
 #include "L1Trigger/TrackerTFP/interface/State.h"
 
-using namespace std;
-using namespace tt;
-
 namespace trackerTFP {
 
   //
-  State::Stub::Stub(KalmanFilterFormats* formats, const FrameStub& frame) : stubCTB_(frame, formats->dataFormats()) {
-    const Setup* setup = formats->setup();
+  State::Stub::Stub(KalmanFilterFormats* formats, const tt::FrameStub& frame)
+      : stubCTB_(frame, formats->dataFormats()) {
+    const tt::Setup* setup = formats->setup();
     H12_ = formats->format(VariableKF::H12).digi(stubCTB_.r() + setup->chosenRofPhi() - setup->chosenRofZ());
-    v0_ = formats->format(VariableKF::v0).digi(pow(2. * stubCTB_.dPhi(), 2));
-    v1_ = formats->format(VariableKF::v1).digi(pow(2. * stubCTB_.dZ(), 2));
+    v0_ = formats->format(VariableKF::v0).digi(std::pow(2. * stubCTB_.dPhi(), 2));
+    v1_ = formats->format(VariableKF::v1).digi(std::pow(2. * stubCTB_.dZ(), 2));
   }
 
   // proto state constructor
   State::State(KalmanFilterFormats* formats,
                TrackCTB* track,
-               const vector<vector<Stub*>>& stubs,
+               const std::vector<std::vector<Stub*>>& stubs,
                const TTBV& maybePattern,
                int trackId)
       : formats_(formats),
@@ -27,7 +25,7 @@ namespace trackerTFP {
         trackId_(trackId),
         hitPattern_(0, setup_->numLayers()),
         trackPattern_(0, setup_->numLayers()) {
-    for (const vector<Stub*>& stubs : stubs_) {
+    for (const std::vector<Stub*>& stubs : stubs_) {
       if (!stubs.empty())
         trackPattern_.set(layer_);
       layer_++;
@@ -38,7 +36,7 @@ namespace trackerTFP {
   }
 
   // updated state constructor
-  State::State(State* state, const vector<double>& doubles) : State(state) {
+  State::State(State* state, const std::vector<double>& doubles) : State(state) {
     parent_ = state;
     // updated track parameter and uncertainties
     x0_ = doubles[0];
@@ -76,7 +74,7 @@ namespace trackerTFP {
   }
 
   //
-  State* State::update(deque<State>& states, int layer) {
+  State* State::update(std::deque<State>& states, int layer) {
     if (!hitPattern_.test(layer) || hitPattern_.count() > setup_->kfNumSeedStubs())
       return this;
     layer_ = trackPattern_.plEncode(layer_ + 1, setup_->numLayers());
@@ -85,14 +83,14 @@ namespace trackerTFP {
   }
 
   //
-  State* State::combSeed(deque<State>& states, int layer) {
+  State* State::combSeed(std::deque<State>& states, int layer) {
     // handle trivial state
     if (!hitPattern_.test(layer) || hitPattern_.count() > setup_->kfNumSeedStubs())
       return nullptr;
     // pick next stub on layer
-    const vector<Stub*>& stubs = stubs_[layer];
-    const int pos = distance(stubs.begin(), find(stubs.begin(), stubs.end(), stub_)) + 1;
-    if (pos < (int)stubs.size()) {
+    const std::vector<Stub*>& stubs = stubs_[layer];
+    const int pos = std::distance(stubs.begin(), std::find(stubs.begin(), stubs.end(), stub_)) + 1;
+    if (pos < static_cast<int>(stubs.size())) {
       states.emplace_back(this, parent_, stubs[pos], layer);
       return &states.back();
     }
@@ -106,7 +104,7 @@ namespace trackerTFP {
   }
 
   //
-  State* State::comb(deque<State>& states, int layer) {
+  State* State::comb(std::deque<State>& states, int layer) {
     // handle skipping and min reached
     if (!hitPattern_.test(layer)) {
       if (!stub_ && trackPattern_[layer] && hitPattern_.count() < setup_->kfMaxLayers()) {
@@ -119,9 +117,9 @@ namespace trackerTFP {
     if (hitPattern_.pmEncode() != layer)
       return nullptr;
     // handle multiple stubs on layer
-    const vector<Stub*>& stubs = stubs_[layer];
-    const int pos = distance(stubs.begin(), find(stubs.begin(), stubs.end(), stub_)) + 1;
-    if (pos < (int)stubs.size()) {
+    const std::vector<Stub*>& stubs = stubs_[layer];
+    const int pos = std::distance(stubs.begin(), find(stubs.begin(), stubs.end(), stub_)) + 1;
+    if (pos < static_cast<int>(stubs.size())) {
       states.emplace_back(this, parent_, stubs[pos], layer);
       return &states.back();
     }

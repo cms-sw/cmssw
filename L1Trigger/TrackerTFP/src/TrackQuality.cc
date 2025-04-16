@@ -12,10 +12,6 @@ C.Brown & C.Savard 07/2020
 #include "conifer.h"
 #include "ap_fixed.h"
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
   TrackQuality::TrackQuality(const ConfigTQ& iConfig, const DataFormats* dataFormats)
@@ -43,8 +39,8 @@ namespace trackerTFP {
   }
 
   // TQ MVA bin conversion LUT
-  constexpr array<double, numBinsMVA_> TrackQuality::mvaPreSigBins() const {
-    array<double, numBinsMVA_> lut = {};
+  constexpr std::array<double, numBinsMVA_> TrackQuality::mvaPreSigBins() const {
+    std::array<double, numBinsMVA_> lut = {};
     lut[0] = -16.;
     for (int i = 1; i < numBinsMVA_; i++)
       lut[i] = invSigmoid(TTTrack_TrackWord::tqMVABins[i]);
@@ -55,7 +51,7 @@ namespace trackerTFP {
   template <class T>
   int TrackQuality::toBin(const T& bins, double d) const {
     int bin = 0;
-    for (; bin < (int)bins.size() - 1; bin++)
+    for (; bin < static_cast<int>(bins.size()) - 1; bin++)
       if (d < bins[bin + 1])
         break;
     return bin;
@@ -63,51 +59,51 @@ namespace trackerTFP {
 
   // Helper function to convert mvaPreSig to bin
   int TrackQuality::toBinMVA(double mva) const {
-    static const array<double, numBinsMVA_> bins = mvaPreSigBins();
+    static const std::array<double, numBinsMVA_> bins = mvaPreSigBins();
     return toBin(bins, mva);
   }
 
   // Helper function to convert chi2B to bin
   int TrackQuality::toBinChi2B(double chi2B) const {
-    static const array<double, numBinsChi2B_> bins = TTTrack_TrackWord::bendChi2Bins;
+    static const std::array<double, numBinsChi2B_> bins = TTTrack_TrackWord::bendChi2Bins;
     return toBin(bins, chi2B);
   }
 
   // Helper function to convert chi2rphi to bin
   int TrackQuality::toBinchi2rphi(double chi2rphi) const {
-    static const array<double, numBinschi2rphi_> bins = TTTrack_TrackWord::chi2RPhiBins;
+    static const std::array<double, numBinschi2rphi_> bins = TTTrack_TrackWord::chi2RPhiBins;
     double chi2 = chi2rphi * chi2rphiConv_;
     return toBin(bins, chi2);
   }
 
   // Helper function to convert chi2rz to bin
   int TrackQuality::toBinchi2rz(double chi2rz) const {
-    static const array<double, numBinschi2rz_> bins = TTTrack_TrackWord::chi2RZBins;
+    static const std::array<double, numBinschi2rz_> bins = TTTrack_TrackWord::chi2RZBins;
     double chi2 = chi2rz * chi2rzConv_;
     return toBin(bins, chi2);
   }
 
-  TrackQuality::Track::Track(const FrameTrack& frameTrack, const StreamStub& streamStub, const TrackQuality* tq)
+  TrackQuality::Track::Track(const tt::FrameTrack& frameTrack, const tt::StreamStub& streamStub, const TrackQuality* tq)
       : frameTrack_(frameTrack), streamStub_(streamStub) {
     static const DataFormats* df = tq->dataFormats();
-    static const Setup* setup = df->setup();
+    static const tt::Setup* setup = df->setup();
     const TrackDR track(frameTrack, df);
     double trackchi2rphi(0.);
     double trackchi2rz(0.);
     TTBV hitPattern(0, streamStub.size());
-    vector<TTStubRef> ttStubRefs;
+    std::vector<TTStubRef> ttStubRefs;
     ttStubRefs.reserve(setup->numLayers());
     for (int layer = 0; layer < (int)streamStub.size(); layer++) {
-      const FrameStub& frameStub = streamStub[layer];
+      const tt::FrameStub& frameStub = streamStub[layer];
       if (frameStub.first.isNull())
         continue;
       const StubKF stub(frameStub, df);
       hitPattern.set(layer);
       ttStubRefs.push_back(frameStub.first);
-      const double m20 = tq->format(VariableTQ::m20).digi(pow(stub.phi(), 2));
-      const double m21 = tq->format(VariableTQ::m21).digi(pow(stub.z(), 2));
-      const double invV0 = tq->format(VariableTQ::invV0).digi(1. / pow(stub.dPhi(), 2));
-      const double invV1 = tq->format(VariableTQ::invV1).digi(1. / pow(stub.dZ(), 2));
+      const double m20 = tq->format(VariableTQ::m20).digi(std::pow(stub.phi(), 2));
+      const double m21 = tq->format(VariableTQ::m21).digi(std::pow(stub.z(), 2));
+      const double invV0 = tq->format(VariableTQ::invV0).digi(1. / std::pow(stub.dPhi(), 2));
+      const double invV1 = tq->format(VariableTQ::invV1).digi(1. / std::pow(stub.dZ(), 2));
       const double stubchi2rphi = tq->format(VariableTQ::chi2rphi).digi(m20 * invV0);
       const double stubchi2rz = tq->format(VariableTQ::chi2rz).digi(m21 * invV1);
       trackchi2rphi += stubchi2rphi;
@@ -127,7 +123,8 @@ namespace trackerTFP {
     const TTTrackRef& ttTrackRef = frameTrack.first;
     const int region = ttTrackRef->phiSector();
     const double aRinv = -.5 * track.inv2R();
-    const double aphi = deltaPhi(track.phiT() - track.inv2R() * setup->chosenRofPhi() + region * setup->baseRegion());
+    const double aphi =
+        tt::deltaPhi(track.phiT() - track.inv2R() * setup->chosenRofPhi() + region * setup->baseRegion());
     const double aTanLambda = track.cot();
     const double az0 = track.zT() - track.cot() * setup->chosenRofZ();
     const double ad0 = ttTrackRef->d0();
@@ -150,7 +147,8 @@ namespace trackerTFP {
     // load in bdt
     conifer::BDT<ap_fixed<10, 5>, ap_fixed<10, 5>> bdt(tq->model().fullPath());
     // collect features and classify using bdt
-    const vector<ap_fixed<10, 5>>& output = bdt.decision_function({cot, z0, chi2B, nstub, n_missint, chi2rphi, chi2rz});
+    const std::vector<ap_fixed<10, 5>>& output =
+        bdt.decision_function({cot, z0, chi2B, nstub, n_missint, chi2rphi, chi2rz});
     const float mva = output[0].to_float();
     // fill frame
     TTBV ttBV = hitPattern;
@@ -164,32 +162,32 @@ namespace trackerTFP {
   DataFormat makeDataFormat<VariableTQ::m20>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
     const DataFormat phi = makeDataFormat<Variable::phi, Process::kf>(dataFormats->setup());
     const int width = iConfig.widthM20_;
-    const double base = pow(phi.base(), 2) * pow(2., width - phi.width());
-    const double range = base * pow(2, width);
+    const double base = std::pow(phi.base(), 2) * pow(2., width - phi.width());
+    const double range = base * std::pow(2, width);
     return DataFormat(false, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<VariableTQ::m21>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
     const DataFormat z = makeDataFormat<Variable::z, Process::gp>(dataFormats->setup());
     const int width = iConfig.widthM21_;
-    const double base = pow(z.base(), 2) * pow(2., width - z.width());
-    const double range = base * pow(2, width);
+    const double base = std::pow(z.base(), 2) * std::pow(2., width - z.width());
+    const double range = base * std::pow(2, width);
     return DataFormat(false, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<VariableTQ::invV0>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
     const DataFormat dPhi = makeDataFormat<Variable::dPhi, Process::ctb>(dataFormats->setup());
     const int width = iConfig.widthInvV0_;
-    const double range = 4.0 / pow(dPhi.base(), 2);
-    const double base = range * pow(2, -width);
+    const double range = 4.0 / std::pow(dPhi.base(), 2);
+    const double base = range * std::pow(2, -width);
     return DataFormat(false, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<VariableTQ::invV1>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
     const DataFormat dZ = makeDataFormat<Variable::dZ, Process::ctb>(dataFormats->setup());
     const int width = iConfig.widthInvV1_;
-    const double range = 4.0 / pow(dZ.base(), 2);
-    const double base = range * pow(2, -width);
+    const double range = 4.0 / std::pow(dZ.base(), 2);
+    const double base = range * std::pow(2, -width);
     return DataFormat(false, width, base, range);
   }
   template <>
@@ -198,8 +196,8 @@ namespace trackerTFP {
     const DataFormat invV0 = makeDataFormat<VariableTQ::invV0>(dataFormats, iConfig);
     const int shift = iConfig.baseShiftchi2rphi_;
     const int width = iConfig.widthchi2rphi_;
-    const double base = pow(2., shift);
-    const double range = base * pow(2, width);
+    const double base = std::pow(2., shift);
+    const double range = base * std::pow(2, width);
     return DataFormat(false, width, base, range);
   }
   template <>
@@ -208,26 +206,26 @@ namespace trackerTFP {
     const DataFormat invV1 = makeDataFormat<VariableTQ::invV1>(dataFormats, iConfig);
     const int shift = iConfig.baseShiftchi2rz_;
     const int width = iConfig.widthchi2rz_;
-    const double base = pow(2., shift);
-    const double range = base * pow(2, width);
+    const double base = std::pow(2., shift);
+    const double range = base * std::pow(2, width);
     return DataFormat(false, width, base, range);
   }
 
   // Controls the conversion between TTTrack features and ML model training features
-  vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
-                                               vector<string> const& featureNames) const {
+  std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
+                                                    std::vector<std::string> const& featureNames) const {
     // List input features for MVA in proper order below, the current features options are
     // {"phi", "eta", "z0", "bendchi2_bin", "nstub", "nlaymiss_interior", "chi2rphi_bin",
     // "chi2rz_bin"}
     //
     // To use more features, they must be created here and added to feature_map below
-    vector<float> transformedFeatures;
+    std::vector<float> transformedFeatures;
     // Define feature map, filled as features are generated
-    map<string, float> feature_map;
+    std::map<std::string, float> feature_map;
     // -------- calculate feature variables --------
     // calculate number of missed interior layers from hitpattern
     int tmp_trk_hitpattern = aTrack.hitPattern();
-    int nbits = floor(log2(tmp_trk_hitpattern)) + 1;
+    int nbits = std::floor(std::log2(tmp_trk_hitpattern)) + 1;
     int lay_i = 0;
     int tmp_trk_nlaymiss_interior = 0;
     bool seq = false;
@@ -244,7 +242,7 @@ namespace trackerTFP {
     int tmp_trk_chi2rphi_bin = aTrack.getChi2RPhiBits();
     int tmp_trk_chi2rz_bin = aTrack.getChi2RZBits();
     // get the nstub
-    vector<TTStubRef> stubRefs = aTrack.getStubRefs();
+    std::vector<TTStubRef> stubRefs = aTrack.getStubRefs();
     int tmp_trk_nstub = stubRefs.size();
     // get other variables directly from TTTrack
     float tmp_trk_z0 = aTrack.z0();
@@ -265,7 +263,7 @@ namespace trackerTFP {
     feature_map["tanl"] = tmp_trk_tanl;
     // fill tensor with track params
     transformedFeatures.reserve(featureNames.size());
-    for (const string& feature : featureNames)
+    for (const std::string& feature : featureNames)
       transformedFeatures.push_back(feature_map[feature]);
     return transformedFeatures;
   }
@@ -275,8 +273,8 @@ namespace trackerTFP {
     // load in bdt
     conifer::BDT<float, float> bdt(this->model_.fullPath());
     // collect features and classify using bdt
-    vector<float> inputs = featureTransform(aTrack, this->featureNames_);
-    vector<float> output = bdt.decision_function(inputs);
+    std::vector<float> inputs = featureTransform(aTrack, this->featureNames_);
+    std::vector<float> output = bdt.decision_function(inputs);
     aTrack.settrkMVA1(1. / (1. + exp(-output.at(0))));
   }
 

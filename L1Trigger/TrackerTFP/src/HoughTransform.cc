@@ -7,16 +7,12 @@
 #include <vector>
 #include <cmath>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
-  HoughTransform::HoughTransform(const Setup* setup,
+  HoughTransform::HoughTransform(const tt::Setup* setup,
                                  const DataFormats* dataFormats,
                                  const LayerEncoding* layerEncoding,
-                                 vector<StubHT>& stubs)
+                                 std::vector<StubHT>& stubs)
       : setup_(setup),
         dataFormats_(dataFormats),
         layerEncoding_(layerEncoding),
@@ -33,33 +29,34 @@ namespace trackerTFP {
   }
 
   // fill output products
-  void HoughTransform::produce(const vector<vector<StubGP*>>& streamsIn, vector<deque<StubHT*>>& streamsOut) {
+  void HoughTransform::produce(const std::vector<std::vector<StubGP*>>& streamsIn,
+                               std::vector<std::deque<StubHT*>>& streamsOut) {
     // count and reserve ht stubs
     auto multiplicity = [](int sum, StubGP* s) { return sum + (s ? 1 + s->inv2RMax() - s->inv2RMin() : 0); };
     int nStubs(0);
-    for (const vector<StubGP*>& input : streamsIn)
-      nStubs += accumulate(input.begin(), input.end(), 0, multiplicity);
+    for (const std::vector<StubGP*>& input : streamsIn)
+      nStubs += std::accumulate(input.begin(), input.end(), 0, multiplicity);
     stubs_.reserve(nStubs);
     for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
       const int inv2Ru = mux_ * (channelOut % chan_) + channelOut / chan_;
       const int inv2R = inv2R_->toSigned(inv2Ru);
-      deque<StubHT*>& output = streamsOut[channelOut];
+      std::deque<StubHT*>& output = streamsOut[channelOut];
       for (int channelIn = numChannelIn_ - 1; channelIn >= 0; channelIn--) {
-        const vector<StubGP*>& input = streamsIn[channelIn];
-        vector<StubHT*> stubs;
+        const std::vector<StubGP*>& input = streamsIn[channelIn];
+        std::vector<StubHT*> stubs;
         stubs.reserve(2 * input.size());
         // associate stubs with inv2R and phiT bins
         fillIn(inv2R, channelIn, input, stubs);
         // apply truncation
-        if (setup_->enableTruncation() && (int)stubs.size() > setup_->numFramesHigh())
+        if (setup_->enableTruncation() && static_cast<int>(stubs.size()) > setup_->numFramesHigh())
           stubs.resize(setup_->numFramesHigh());
         // ht collects all stubs before readout starts -> remove all gaps
-        stubs.erase(remove(stubs.begin(), stubs.end(), nullptr), stubs.end());
+        stubs.erase(std::remove(stubs.begin(), stubs.end(), nullptr), stubs.end());
         // identify tracks
         readOut(stubs, output);
       }
       // apply truncation
-      if (setup_->enableTruncation() && (int)output.size() > setup_->numFramesHigh())
+      if (setup_->enableTruncation() && static_cast<int>(output.size()) > setup_->numFramesHigh())
         output.resize(setup_->numFramesHigh());
       // remove trailing gaps
       for (auto it = output.end(); it != output.begin();)
@@ -68,7 +65,7 @@ namespace trackerTFP {
   }
 
   // associate stubs with phiT bins in this inv2R column
-  void HoughTransform::fillIn(int inv2R, int sector, const vector<StubGP*>& input, vector<StubHT*>& output) {
+  void HoughTransform::fillIn(int inv2R, int sector, const std::vector<StubGP*>& input, std::vector<StubHT*>& output) {
     const DataFormat& gp = dataFormats_->format(Variable::phiT, Process::gp);
     auto inv2RrangeCheck = [inv2R](StubGP* stub) {
       return (stub && stub->inv2RMin() <= inv2R && stub->inv2RMax() >= inv2R) ? stub : nullptr;
@@ -88,15 +85,15 @@ namespace trackerTFP {
     // Latency of ht fifo firmware
     static constexpr int latency = 1;
     // static delay container
-    deque<StubHT*> delay(latency, nullptr);
+    std::deque<StubHT*> delay(latency, nullptr);
     // fifo, used to store stubs which belongs to a second possible track
-    deque<StubHT*> stack;
+    std::deque<StubHT*> stack;
     // stream of incroming stubs
-    deque<StubGP*> stream;
-    transform(input.begin(), input.end(), back_inserter(stream), inv2RrangeCheck);
+    std::deque<StubGP*> stream;
+    std::transform(input.begin(), input.end(), std::back_inserter(stream), inv2RrangeCheck);
     // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
     while (!stream.empty() || !stack.empty() ||
-           !all_of(delay.begin(), delay.end(), [](const StubHT* stub) { return !stub; })) {
+           !std::all_of(delay.begin(), delay.end(), [](const StubHT* stub) { return !stub; })) {
       StubHT* stubHT = nullptr;
       StubGP* stubGP = pop_front(stream);
       if (stubGP) {
@@ -127,13 +124,13 @@ namespace trackerTFP {
         }
       }
       // add nullptr to delay pipe if stub didn't fill any cell
-      if ((int)delay.size() == latency)
+      if (static_cast<int>(delay.size()) == latency)
         delay.push_back(nullptr);
       // take fifo latency into account (read before write)
       StubHT* stub = pop_front(delay);
       if (stub) {
         // buffer overflow
-        if (setup_->enableTruncation() && (int)stack.size() == setup_->htDepthMemory() - 1)
+        if (setup_->enableTruncation() && static_cast<int>(stack.size()) == setup_->htDepthMemory() - 1)
           pop_front(stack);
         // store minor stub in fifo
         stack.push_back(stub);
@@ -144,7 +141,7 @@ namespace trackerTFP {
   }
 
   // identify tracks
-  void HoughTransform::readOut(const vector<StubHT*>& input, deque<StubHT*>& output) const {
+  void HoughTransform::readOut(const std::vector<StubHT*>& input, std::deque<StubHT*>& output) const {
     auto toBinPhiT = [this](StubHT* stub) {
       const DataFormat& gp = dataFormats_->format(Variable::phiT, Process::gp);
       const double phiT = phiT_->floating(stub->phiT());
@@ -158,9 +155,9 @@ namespace trackerTFP {
     // used to recognise in which order tracks are found
     TTBV trkFoundPhiTs(0, setup_->htNumBinsPhiT());
     // hitPattern for all possible tracks, used to find tracks
-    vector<TTBV> patternHits(setup_->htNumBinsPhiT(), TTBV(0, setup_->numLayers()));
+    std::vector<TTBV> patternHits(setup_->htNumBinsPhiT(), TTBV(0, setup_->numLayers()));
     // found phiTs, ordered in time
-    vector<int> phiTs;
+    std::vector<int> phiTs;
     phiTs.reserve(setup_->htNumBinsPhiT());
     for (StubHT* stub : input) {
       const int binPhiT = toBinPhiT(stub);
@@ -177,7 +174,7 @@ namespace trackerTFP {
     for (int phiT : phiTs) {
       auto samePhiT = [phiT, toBinPhiT](StubHT* stub) { return toBinPhiT(stub) == phiT; };
       // read out stubs in reverse order to emulate f/w (backtracking linked list)
-      copy_if(input.rbegin(), input.rend(), back_inserter(output), samePhiT);
+      std::copy_if(input.rbegin(), input.rend(), std::back_inserter(output), samePhiT);
     }
   }
 
@@ -210,7 +207,7 @@ namespace trackerTFP {
 
   // remove and return first element of deque, returns nullptr if empty
   template <class T>
-  T* HoughTransform::pop_front(deque<T*>& ts) const {
+  T* HoughTransform::pop_front(std::deque<T*>& ts) const {
     T* t = nullptr;
     if (!ts.empty()) {
       t = ts.front();

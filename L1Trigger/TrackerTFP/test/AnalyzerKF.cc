@@ -29,10 +29,6 @@
 #include <sstream>
 #include <utility>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::AnalyzerKF
@@ -40,46 +36,46 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2020, Sep
    */
-  class AnalyzerKF : public one::EDAnalyzer<one::WatchRuns, one::SharedResources> {
+  class AnalyzerKF : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
   public:
-    AnalyzerKF(const ParameterSet& iConfig);
+    AnalyzerKF(const edm::ParameterSet& iConfig);
     void beginJob() override {}
-    void beginRun(const Run& iEvent, const EventSetup& iSetup) override;
-    void analyze(const Event& iEvent, const EventSetup& iSetup) override;
-    void endRun(const Run& iEvent, const EventSetup& iSetup) override {}
+    void beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override;
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    void endRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) override {}
     void endJob() override;
 
   private:
     //
-    void associate(const vector<TrackKF>& tracks,
-                   const vector<vector<StubKF*>>& stubs,
+    void associate(const std::vector<TrackKF>& tracks,
+                   const std::vector<std::vector<StubKF*>>& stubs,
                    int region,
-                   const StubAssociation* ass,
-                   set<TPPtr>& tps,
+                   const tt::StubAssociation* ass,
+                   std::set<TPPtr>& tps,
                    int& sum,
-                   const vector<TH1F*>& his,
-                   const vector<TProfile*>& prof,
+                   const std::vector<TH1F*>& his,
+                   const std::vector<TProfile*>& prof,
                    bool perfect = true) const;
     // ED input token of accepted Tracks
-    EDGetTokenT<StreamsStub> edGetTokenStubs_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED input token of accepted Stubs
-    EDGetTokenT<StreamsTrack> edGetTokenTracks_;
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
     // ED input token for number of accepted States
-    EDGetTokenT<int> edGetTokenNumStatesAccepted_;
+    edm::EDGetTokenT<int> edGetTokenNumStatesAccepted_;
     // ED input token for number of lost States
-    EDGetTokenT<int> edGetTokenNumStatesTruncated_;
+    edm::EDGetTokenT<int> edGetTokenNumStatesTruncated_;
     // ED input token for r-phi and r-z plane chi2s
-    EDGetTokenT<vector<pair<double, double>>> edGetTokenChi2s_;
+    edm::EDGetTokenT<std::vector<std::pair<double, double>>> edGetTokenChi2s_;
     // ED input token of TTStubRef to TPPtr association for tracking efficiency
-    EDGetTokenT<StubAssociation> edGetTokenSelection_;
+    edm::EDGetTokenT<tt::StubAssociation> edGetTokenSelection_;
     // ED input token of TTStubRef to recontructable TPPtr association
-    EDGetTokenT<StubAssociation> edGetTokenReconstructable_;
+    edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_ = nullptr;
+    const tt::Setup* setup_ = nullptr;
     //
     const DataFormats* dataFormats_ = nullptr;
     // enables analyze of TPs
@@ -92,8 +88,8 @@ namespace trackerTFP {
     TProfile* prof_;
     TProfile* profChannel_;
     TH1F* hisChannel_;
-    vector<TH1F*> hisRes_;
-    vector<TProfile*> profRes_;
+    std::vector<TH1F*> hisRes_;
+    std::vector<TProfile*> profRes_;
     TH1F* hisEffEta_;
     TH1F* hisEffEtaTotal_;
     TEfficiency* effEta_;
@@ -115,42 +111,42 @@ namespace trackerTFP {
     TProfile* profNumLayers_;
 
     // printout
-    stringstream log_;
+    std::stringstream log_;
   };
 
-  AnalyzerKF::AnalyzerKF(const ParameterSet& iConfig)
+  AnalyzerKF::AnalyzerKF(const edm::ParameterSet& iConfig)
       : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0), hisRes_(4), profRes_(4) {
     usesResource("TFileService");
     // book in- and output ED products
-    const string& label = iConfig.getParameter<string>("OutputLabelKF");
-    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
-    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
-    const string& branchTruncated = iConfig.getParameter<string>("BranchTruncated");
-    edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
-    edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
-    edGetTokenNumStatesAccepted_ = consumes<int>(InputTag(label, branchTracks));
-    edGetTokenNumStatesTruncated_ = consumes<int>(InputTag(label, branchTruncated));
-    edGetTokenChi2s_ = consumes<vector<pair<double, double>>>(InputTag(label, branchTracks));
+    const std::string& label = iConfig.getParameter<std::string>("OutputLabelKF");
+    const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
+    const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
+    const std::string& branchTruncated = iConfig.getParameter<std::string>("BranchTruncated");
+    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
+    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
+    edGetTokenNumStatesAccepted_ = consumes<int>(edm::InputTag(label, branchTracks));
+    edGetTokenNumStatesTruncated_ = consumes<int>(edm::InputTag(label, branchTruncated));
+    edGetTokenChi2s_ = consumes<std::vector<std::pair<double, double>>>(edm::InputTag(label, branchTracks));
     if (useMCTruth_) {
-      const auto& inputTagSelecttion = iConfig.getParameter<InputTag>("InputTagSelection");
-      const auto& inputTagReconstructable = iConfig.getParameter<InputTag>("InputTagReconstructable");
-      edGetTokenSelection_ = consumes<StubAssociation>(inputTagSelecttion);
-      edGetTokenReconstructable_ = consumes<StubAssociation>(inputTagReconstructable);
+      const auto& inputTagSelecttion = iConfig.getParameter<edm::InputTag>("InputTagSelection");
+      const auto& inputTagReconstructable = iConfig.getParameter<edm::InputTag>("InputTagReconstructable");
+      edGetTokenSelection_ = consumes<tt::StubAssociation>(inputTagSelecttion);
+      edGetTokenReconstructable_ = consumes<tt::StubAssociation>(inputTagReconstructable);
     }
     // book ES products
-    esGetTokenSetup_ = esConsumes<Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
     // log config
-    log_.setf(ios::fixed, ios::floatfield);
+    log_.setf(std::ios::fixed, std::ios::floatfield);
     log_.precision(4);
   }
 
-  void AnalyzerKF::beginRun(const Run& iEvent, const EventSetup& iSetup) {
+  void AnalyzerKF::beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
     // book histograms
-    Service<TFileService> fs;
+    edm::Service<TFileService> fs;
     TFileDirectory dir;
     dir = fs->mkdir("KF");
     prof_ = dir.make<TProfile>("Counts", ";", 12, 0.5, 12.5);
@@ -169,8 +165,8 @@ namespace trackerTFP {
     hisChannel_ = dir.make<TH1F>("His Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profChannel_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
     // resoultions
-    static const vector<string> names = {"phi0", "inv2R", "z0", "cot"};
-    static const vector<double> ranges = {.01, .004, 20., .4};
+    static const std::vector<std::string> names = {"phi0", "inv2R", "z0", "cot"};
+    static const std::vector<double> ranges = {.01, .004, 20., .4};
     for (int i = 0; i < 4; i++) {
       const double range = ranges[i];
       hisRes_[i] = dir.make<TH1F>(("HisRes" + names[i]).c_str(), ";", 100, -range, range);
@@ -203,7 +199,7 @@ namespace trackerTFP {
     profNumLayers_ = dir.make<TProfile>("Prof NumLayers", ";", 32, 0, 2.4);
   }
 
-  void AnalyzerKF::analyze(const Event& iEvent, const EventSetup& iSetup) {
+  void AnalyzerKF::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     static const int numChannel = dataFormats_->numChannel(Process::kf);
     static const int numLayers = setup_->numLayers();
     auto fill = [this](const TPPtr& tpPtr, TH1F* hisEta, TH1F* hisZT, TH1F* hisInv2R, TH1F* hisPT) {
@@ -218,42 +214,42 @@ namespace trackerTFP {
       hisPT->Fill(tpPtr->pt());
     };
     // read in kf products
-    Handle<StreamsStub> handleStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
-    const StreamsStub& allStubs = *handleStubs;
-    Handle<StreamsTrack> handleTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
-    const StreamsTrack& allTracks = *handleTracks;
-    Handle<int> handleNumStatesAccepted;
+    edm::Handle<tt::StreamsStub> handleStubs;
+    iEvent.getByToken<tt::StreamsStub>(edGetTokenStubs_, handleStubs);
+    const tt::StreamsStub& allStubs = *handleStubs;
+    edm::Handle<tt::StreamsTrack> handleTracks;
+    iEvent.getByToken<tt::StreamsTrack>(edGetTokenTracks_, handleTracks);
+    const tt::StreamsTrack& allTracks = *handleTracks;
+    edm::Handle<int> handleNumStatesAccepted;
     iEvent.getByToken<int>(edGetTokenNumStatesAccepted_, handleNumStatesAccepted);
-    Handle<int> handleNumStatesTruncated;
+    edm::Handle<int> handleNumStatesTruncated;
     iEvent.getByToken<int>(edGetTokenNumStatesTruncated_, handleNumStatesTruncated);
-    Handle<vector<pair<double, double>>> handleChi2s;
-    iEvent.getByToken<vector<pair<double, double>>>(edGetTokenChi2s_, handleChi2s);
+    edm::Handle<std::vector<std::pair<double, double>>> handleChi2s;
+    iEvent.getByToken<std::vector<std::pair<double, double>>>(edGetTokenChi2s_, handleChi2s);
     // read in MCTruth
-    const StubAssociation* selection = nullptr;
-    const StubAssociation* reconstructable = nullptr;
+    const tt::StubAssociation* selection = nullptr;
+    const tt::StubAssociation* reconstructable = nullptr;
     if (useMCTruth_) {
-      Handle<StubAssociation> handleSelection;
-      iEvent.getByToken<StubAssociation>(edGetTokenSelection_, handleSelection);
+      edm::Handle<tt::StubAssociation> handleSelection;
+      iEvent.getByToken<tt::StubAssociation>(edGetTokenSelection_, handleSelection);
       selection = handleSelection.product();
       prof_->Fill(9, selection->numTPs());
-      Handle<StubAssociation> handleReconstructable;
-      iEvent.getByToken<StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
+      edm::Handle<tt::StubAssociation> handleReconstructable;
+      iEvent.getByToken<tt::StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
       reconstructable = handleReconstructable.product();
       for (const auto& p : selection->getTrackingParticleToTTStubsMap())
         fill(p.first, hisEffEtaTotal_, hisEffZTTotal_, hisEffInv2RTotal_, hisEffPTTotal_);
     }
     // chi2s
-    for (const pair<double, double>& chi2s : *handleChi2s) {
+    for (const std::pair<double, double>& chi2s : *handleChi2s) {
       hisChi20s_->Fill(chi2s.first * 2.);
       hisChi21s_->Fill(chi2s.second * 2.);
       hisChi2s_->Fill(chi2s.first + chi2s.second);
     }
     // analyze kf products and associate found tracks with reconstrucable TrackingParticles
-    set<TPPtr> tpPtrs;
-    set<TPPtr> tpPtrsSelection;
-    set<TPPtr> tpPtrsMax;
+    std::set<TPPtr> tpPtrs;
+    std::set<TPPtr> tpPtrsSelection;
+    std::set<TPPtr> tpPtrsMax;
     int numMatched(0);
     int numTracks(0);
     for (int region = 0; region < setup_->numRegions(); region++) {
@@ -262,20 +258,20 @@ namespace trackerTFP {
       for (int channel = 0; channel < numChannel; channel++) {
         const int index = region * numChannel + channel;
         const int offset = index * numLayers;
-        const StreamTrack& channelTracks = allTracks[index];
+        const tt::StreamTrack& channelTracks = allTracks[index];
         hisChannel_->Fill(channelTracks.size());
         profChannel_->Fill(channel, channelTracks.size());
-        vector<TrackKF> tracks;
-        vector<StubKF> stubs;
-        vector<vector<StubKF*>> tracksStubs(channelTracks.size(), vector<StubKF*>(numLayers, nullptr));
+        std::vector<TrackKF> tracks;
+        std::vector<StubKF> stubs;
+        std::vector<std::vector<StubKF*>> tracksStubs(channelTracks.size(), std::vector<StubKF*>(numLayers, nullptr));
         tracks.reserve(channelTracks.size());
         stubs.reserve(channelTracks.size() * numLayers);
-        for (int frame = 0; frame < (int)channelTracks.size(); frame++) {
+        for (int frame = 0; frame < static_cast<int>(channelTracks.size()); frame++) {
           tracks.emplace_back(channelTracks[frame], dataFormats_);
           const double cot = tracks.back().zT() / setup_->chosenRofZ();
           int nLs(0);
           for (int layer = 0; layer < numLayers; layer++) {
-            const FrameStub& fs = allStubs[offset + layer][frame];
+            const tt::FrameStub& fs = allStubs[offset + layer][frame];
             if (fs.first.isNull())
               continue;
             stubs.emplace_back(fs, dataFormats_);
@@ -298,10 +294,18 @@ namespace trackerTFP {
                   reconstructable,
                   tpPtrs,
                   numMatched,
-                  vector<TH1F*>(),
-                  vector<TProfile*>(),
+                  std::vector<TH1F*>(),
+                  std::vector<TProfile*>(),
                   false);
-        associate(tracks, tracksStubs, region, selection, tpPtrsMax, tmp, vector<TH1F*>(), vector<TProfile*>(), false);
+        associate(tracks,
+                  tracksStubs,
+                  region,
+                  selection,
+                  tpPtrsMax,
+                  tmp,
+                  std::vector<TH1F*>(),
+                  std::vector<TProfile*>(),
+                  false);
       }
       numTracks += nRegionTracks;
       prof_->Fill(1, nRegionStubs);
@@ -352,39 +356,42 @@ namespace trackerTFP {
     const int numStates = prof_->GetBinContent(10);
     const int numStatesLost = prof_->GetBinContent(11);
     const double fracSatest = numStates / (double)(numStates + numStatesLost);
-    const vector<double> nums = {numStubs, numTracks};
-    const vector<double> errs = {errStubs, errTracks};
-    const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
-    const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
-    log_ << "                         KF  SUMMARY                         " << endl;
-    log_ << "number of stubs       per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks
-         << endl;
-    log_ << "          tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
-    log_ << "      max tracking efficiency = " << setw(wNums) << effMax << " +- " << setw(wErrs) << errEffMax << endl;
-    log_ << "                    fake rate = " << setw(wNums) << fracFake << endl;
-    log_ << "               duplicate rate = " << setw(wNums) << fracDup << endl;
-    log_ << "    state assessment fraction = " << setw(wNums) << fracSatest << endl;
-    log_ << "     number of states per TFP = " << setw(wNums) << (numStates + numStatesLost) / setup_->numRegions()
-         << endl;
+    const std::vector<double> nums = {numStubs, numTracks};
+    const std::vector<double> errs = {errStubs, errTracks};
+    const int wNums = std::ceil(std::log10(*std::max_element(nums.begin(), nums.end()))) + 5;
+    const int wErrs = std::ceil(std::log10(*std::max_element(errs.begin(), errs.end()))) + 5;
+    log_ << "                         KF  SUMMARY                         " << std::endl;
+    log_ << "number of stubs       per TFP = " << std::setw(wNums) << numStubs << " +- " << std::setw(wErrs) << errStubs
+         << std::endl;
+    log_ << "number of tracks      per TFP = " << std::setw(wNums) << numTracks << " +- " << std::setw(wErrs)
+         << errTracks << std::endl;
+    log_ << "          tracking efficiency = " << std::setw(wNums) << eff << " +- " << std::setw(wErrs) << errEff
+         << std::endl;
+    log_ << "      max tracking efficiency = " << std::setw(wNums) << effMax << " +- " << std::setw(wErrs) << errEffMax
+         << std::endl;
+    log_ << "                    fake rate = " << std::setw(wNums) << fracFake << std::endl;
+    log_ << "               duplicate rate = " << std::setw(wNums) << fracDup << std::endl;
+    log_ << "    state assessment fraction = " << std::setw(wNums) << fracSatest << std::endl;
+    log_ << "     number of states per TFP = " << std::setw(wNums) << (numStates + numStatesLost) / setup_->numRegions()
+         << std::endl;
     log_ << "=============================================================";
-    LogPrint(moduleDescription().moduleName()) << log_.str();
+    edm::LogPrint(moduleDescription().moduleName()) << log_.str();
   }
 
   //
-  void AnalyzerKF::associate(const vector<TrackKF>& tracks,
-                             const vector<vector<StubKF*>>& tracksStubs,
+  void AnalyzerKF::associate(const std::vector<TrackKF>& tracks,
+                             const std::vector<std::vector<StubKF*>>& tracksStubs,
                              int region,
-                             const StubAssociation* ass,
-                             set<TPPtr>& tps,
+                             const tt::StubAssociation* ass,
+                             std::set<TPPtr>& tps,
                              int& sum,
-                             const vector<TH1F*>& his,
-                             const vector<TProfile*>& prof,
+                             const std::vector<TH1F*>& his,
+                             const std::vector<TProfile*>& prof,
                              bool perfect) const {
-    for (int frame = 0; frame < (int)tracks.size(); frame++) {
+    for (int frame = 0; frame < static_cast<int>(tracks.size()); frame++) {
       const TrackKF& track = tracks[frame];
-      const vector<StubKF*>& stubs = tracksStubs[frame];
-      vector<TTStubRef> ttStubRefs;
+      const std::vector<StubKF*>& stubs = tracksStubs[frame];
+      std::vector<TTStubRef> ttStubRefs;
       ttStubRefs.reserve(stubs.size());
       TTBV hitPattern(0, setup_->numLayers());
       int layer(-1);
@@ -395,31 +402,31 @@ namespace trackerTFP {
         hitPattern.set(layer);
         ttStubRefs.push_back(stub->frame().first);
       }
-      const vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
+      const std::vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
       if (tpPtrs.empty())
         continue;
       sum++;
-      copy(tpPtrs.begin(), tpPtrs.end(), inserter(tps, tps.begin()));
+      std::copy(tpPtrs.begin(), tpPtrs.end(), std::inserter(tps, tps.begin()));
       if (his.empty())
         continue;
       const double zT = dataFormats_->format(Variable::zT, Process::gp).digi(track.zT());
       const double cot = zT / setup_->chosenRofZ() + track.cot();
       const double z0 = track.zT() - setup_->chosenRofZ() * cot;
       const double inv2R = track.inv2R();
-      const double phi0 = deltaPhi(track.phiT() - setup_->chosenRofPhi() * inv2R +
-                                   region * dataFormats_->format(Variable::phiT, Process::kf).range());
+      const double phi0 = tt::deltaPhi(track.phiT() - setup_->chosenRofPhi() * inv2R +
+                                       region * dataFormats_->format(Variable::phiT, Process::kf).range());
       for (const TPPtr& tpPtr : tpPtrs) {
         const double tpPhi0 = tpPtr->phi();
-        const double tpCot = sinh(tpPtr->eta());
+        const double tpCot = std::sinh(tpPtr->eta());
         const double tpInv2R = -setup_->invPtToDphi() * tpPtr->charge() / tpPtr->pt();
         const math::XYZPointD& v = tpPtr->vertex();
         const double tpZ0 = v.z() - tpCot * (v.x() * cos(tpPhi0) + v.y() * sin(tpPhi0));
         const double dCot = tpCot - cot;
         const double dZ0 = tpZ0 - z0;
         const double dInv2R = tpInv2R - inv2R;
-        const double dPhi0 = deltaPhi(tpPhi0 - phi0);
-        const vector<double> ds = {dPhi0, dInv2R / setup_->invPtToDphi(), dZ0, dCot};
-        for (int i = 0; i < (int)ds.size(); i++) {
+        const double dPhi0 = tt::deltaPhi(tpPhi0 - phi0);
+        const std::vector<double> ds = {dPhi0, dInv2R / setup_->invPtToDphi(), dZ0, dCot};
+        for (int i = 0; i < static_cast<int>(ds.size()); i++) {
           his[i]->Fill(ds[i]);
           prof[i]->Fill(abs(tpPtr->eta()), abs(ds[i]));
         }

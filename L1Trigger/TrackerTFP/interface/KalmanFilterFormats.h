@@ -173,7 +173,7 @@ namespace trackerTFP {
     const tt::Setup* setup() const { return dataFormats_->setup(); }
     const DataFormats* dataFormats() const { return dataFormats_; }
     DataFormatKF& format(VariableKF v) { return formats_[+v]; }
-    void endJob();
+    void endJob(std::stringstream& ss);
 
   private:
     template <VariableKF it = VariableKF::begin>

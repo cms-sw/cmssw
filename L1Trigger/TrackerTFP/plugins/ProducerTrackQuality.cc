@@ -7,9 +7,6 @@
 
 #include <memory>
 
-using namespace std;
-using namespace edm;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerTrackQuality
@@ -17,13 +14,13 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2024, July
    */
-  class ProducerTrackQuality : public ESProducer {
+  class ProducerTrackQuality : public edm::ESProducer {
   public:
-    ProducerTrackQuality(const ParameterSet& iConfig) {
+    ProducerTrackQuality(const edm::ParameterSet& iConfig) {
       auto cc = setWhatProduced(this);
       esGetToken_ = cc.consumes();
-      iConfig_.model_ = iConfig.getParameter<FileInPath>("Model");
-      iConfig_.featureNames_ = iConfig.getParameter<vector<string>>("FeatureNames");
+      iConfig_.model_ = iConfig.getParameter<edm::FileInPath>("Model");
+      iConfig_.featureNames_ = iConfig.getParameter<std::vector<std::string>>("FeatureNames");
       iConfig_.baseShiftCot_ = iConfig.getParameter<int>("BaseShiftCot");
       iConfig_.baseShiftZ0_ = iConfig.getParameter<int>("BaseShiftZ0");
       iConfig_.baseShiftAPfixed_ = iConfig.getParameter<int>("BaseShiftAPfixed");
@@ -42,14 +39,14 @@ namespace trackerTFP {
       iConfig_.baseShiftchi2rz_ = iConfig.getParameter<int>("BaseShiftchi2rz");
     }
     ~ProducerTrackQuality() override {}
-    unique_ptr<TrackQuality> produce(const DataFormatsRcd& rcd) {
+    std::unique_ptr<TrackQuality> produce(const DataFormatsRcd& rcd) {
       const DataFormats* dataFormats = &rcd.get(esGetToken_);
-      return make_unique<TrackQuality>(iConfig_, dataFormats);
+      return std::make_unique<TrackQuality>(iConfig_, dataFormats);
     }
 
   private:
     ConfigTQ iConfig_;
-    ESGetToken<DataFormats, DataFormatsRcd> esGetToken_;
+    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetToken_;
   };
 
 }  // namespace trackerTFP

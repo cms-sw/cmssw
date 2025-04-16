@@ -16,10 +16,6 @@
 
 #include <string>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerPP
@@ -27,36 +23,36 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2023, April
    */
-  class ProducerPP : public stream::EDProducer<> {
+  class ProducerPP : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerPP(const ParameterSet&);
+    explicit ProducerPP(const edm::ParameterSet&);
     ~ProducerPP() override {}
 
   private:
-    void produce(Event&, const EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     // ED input token of DTC stubs
-    EDGetTokenT<TTDTC> edGetToken_;
+    edm::EDGetTokenT<TTDTC> edGetToken_;
     // ED output token for accepted stubs
-    EDPutTokenT<StreamsStub> edPutToken_;
+    edm::EDPutTokenT<tt::StreamsStub> edPutToken_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
   };
 
-  ProducerPP::ProducerPP(const ParameterSet& iConfig) {
-    const string& label = iConfig.getParameter<string>("InputLabelPP");
-    const string& branch = iConfig.getParameter<string>("BranchStubs");
+  ProducerPP::ProducerPP(const edm::ParameterSet& iConfig) {
+    const std::string& label = iConfig.getParameter<std::string>("InputLabelPP");
+    const std::string& branch = iConfig.getParameter<std::string>("BranchStubs");
     // book in- and output ED products
-    edGetToken_ = consumes<TTDTC>(InputTag(label, branch));
-    edPutToken_ = produces<StreamsStub>(branch);
+    edGetToken_ = consumes<TTDTC>(edm::InputTag(label, branch));
+    edPutToken_ = produces<tt::StreamsStub>(branch);
     // book ES products
     esGetTokenSetup_ = esConsumes();
   }
 
-  void ProducerPP::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerPP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper classe to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // empty GP products
-    StreamsStub stubs(setup->numRegions() * setup->numDTCsPerTFP());
+    tt::StreamsStub stubs(setup->numRegions() * setup->numDTCsPerTFP());
     // read in DTC Product and produce TFP product
     const TTDTC& ttDTC = iEvent.get(edGetToken_);
     for (int region = 0; region < setup->numRegions(); region++) {

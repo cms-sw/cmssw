@@ -17,10 +17,6 @@
 #include <string>
 #include <numeric>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerTQ
@@ -28,80 +24,76 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2024, Aug
    */
-  class ProducerTQ : public stream::EDProducer<> {
+  class ProducerTQ : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerTQ(const ParameterSet&);
+    explicit ProducerTQ(const edm::ParameterSet&);
     ~ProducerTQ() override {}
-    void produce(Event&, const EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
     typedef TrackQuality::Track Track;
     // ED input token of kf stubs
-    EDGetTokenT<StreamsStub> edGetTokenStubs_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED input token of kf tracks
-    EDGetTokenT<StreamsTrack> edGetTokenTracks_;
+    edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
     // ED output token for tracks
-    EDPutTokenT<StreamsTrack> edPutTokenTracks_;
+    edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // ED output token for additional track variables
-    EDPutTokenT<Streams> edPutTokenTracksAdd_;
+    edm::EDPutTokenT<tt::Streams> edPutTokenTracksAdd_;
     // ED output token for stubs
-    EDPutTokenT<StreamsStub> edPutTokenStubs_;
+    edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // TrackQuality token
-    ESGetToken<TrackQuality, DataFormatsRcd> esGetTokenTrackQuality_;
+    edm::ESGetToken<TrackQuality, DataFormatsRcd> esGetTokenTrackQuality_;
   };
 
-  ProducerTQ::ProducerTQ(const ParameterSet& iConfig) {
-    const string& label = iConfig.getParameter<string>("InputLabelTQ");
-    const string& branchStubs = iConfig.getParameter<string>("BranchStubs");
-    const string& branchTracks = iConfig.getParameter<string>("BranchTracks");
+  ProducerTQ::ProducerTQ(const edm::ParameterSet& iConfig) {
+    const std::string& label = iConfig.getParameter<std::string>("InputLabelTQ");
+    const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
+    const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
     // book in- and output ED products
-    edGetTokenStubs_ = consumes<StreamsStub>(InputTag(label, branchStubs));
-    edGetTokenTracks_ = consumes<StreamsTrack>(InputTag(label, branchTracks));
-    edPutTokenTracks_ = produces<StreamsTrack>(branchTracks);
-    edPutTokenTracksAdd_ = produces<Streams>(branchTracks);
-    edPutTokenStubs_ = produces<StreamsStub>(branchStubs);
+    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
+    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
+    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
+    edPutTokenTracksAdd_ = produces<tt::Streams>(branchTracks);
+    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenTrackQuality_ = esConsumes();
   }
 
-  void ProducerTQ::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerTQ::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to determine Track Quality
     const TrackQuality* trackQuality = &iSetup.getData(esGetTokenTrackQuality_);
-    auto valid = [](int sum, const FrameTrack& frame) { return sum + (frame.first.isNull() ? 0 : 1); };
+    auto valid = [](int sum, const tt::FrameTrack& frame) { return sum + (frame.first.isNull() ? 0 : 1); };
     // empty TQ product
-    StreamsTrack outputTracks(setup->numRegions());
-    Streams outputTracksAdd(setup->numRegions());
-    StreamsStub outputStubs(setup->numRegions() * setup->numLayers());
+    tt::StreamsTrack outputTracks(setup->numRegions());
+    tt::Streams outputTracksAdd(setup->numRegions());
+    tt::StreamsStub outputStubs(setup->numRegions() * setup->numLayers());
     // read in KF Product and produce TQ product
-    Handle<StreamsStub> handleStubs;
-    iEvent.getByToken<StreamsStub>(edGetTokenStubs_, handleStubs);
-    const StreamsStub& streamsStubs = *handleStubs.product();
-    Handle<StreamsTrack> handleTracks;
-    iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
-    const StreamsTrack& streamsTracks = *handleTracks.product();
+    const tt::StreamsStub& streamsStubs = iEvent.get(edGetTokenStubs_);
+    const tt::StreamsTrack& streamsTracks = iEvent.get(edGetTokenTracks_);
     for (int region = 0; region < setup->numRegions(); region++) {
       // calculate track quality
       const int offsetLayer = region * setup->numLayers();
-      const StreamTrack& streamTrack = streamsTracks[region];
-      const int nTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, valid);
-      vector<Track> tracks;
+      const tt::StreamTrack& streamTrack = streamsTracks[region];
+      const int nTracks = std::accumulate(streamTrack.begin(), streamTrack.end(), 0, valid);
+      std::vector<Track> tracks;
       tracks.reserve(nTracks);
-      vector<Track*> stream;
+      std::vector<Track*> stream;
       stream.reserve(streamTrack.size());
-      for (int frame = 0; frame < (int)streamTrack.size(); frame++) {
-        const FrameTrack& frameTrack = streamTrack[frame];
+      for (int frame = 0; frame < static_cast<int>(streamTrack.size()); frame++) {
+        const tt::FrameTrack& frameTrack = streamTrack[frame];
         if (frameTrack.first.isNull()) {
           stream.push_back(nullptr);
           continue;
         }
-        StreamStub streamStub;
+        tt::StreamStub streamStub;
         streamStub.reserve(setup->numLayers());
         for (int layer = 0; layer < setup->numLayers(); layer++)
           streamStub.push_back(streamsStubs[offsetLayer + layer][frame]);
@@ -115,10 +107,10 @@ namespace trackerTFP {
         outputStubs[offsetLayer + layer].reserve(stream.size());
       for (Track* track : stream) {
         if (!track) {
-          outputTracks[region].emplace_back(FrameTrack());
-          outputTracksAdd[region].emplace_back(Frame());
+          outputTracks[region].emplace_back(tt::FrameTrack());
+          outputTracksAdd[region].emplace_back(tt::Frame());
           for (int layer = 0; layer < setup->numLayers(); layer++)
-            outputStubs[offsetLayer + layer].emplace_back(FrameStub());
+            outputStubs[offsetLayer + layer].emplace_back(tt::FrameStub());
           continue;
         }
         outputTracks[region].emplace_back(track->frameTrack_);

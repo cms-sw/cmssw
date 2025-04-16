@@ -6,13 +6,9 @@
 #include <deque>
 #include <vector>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-
 namespace trackerTFP {
 
-  GeometricProcessor::GeometricProcessor(const Setup* setup,
+  GeometricProcessor::GeometricProcessor(const tt::Setup* setup,
                                          const DataFormats* dataFormats,
                                          const LayerEncoding* layerEncoding,
                                          std::vector<StubGP>& stubs)
@@ -22,7 +18,8 @@ namespace trackerTFP {
   }
 
   // fill output products
-  void GeometricProcessor::produce(const vector<vector<StubPP*>>& streamsIn, vector<deque<StubGP*>>& streamsOut) {
+  void GeometricProcessor::produce(const std::vector<std::vector<StubPP*>>& streamsIn,
+                                   std::vector<std::deque<StubGP*>>& streamsOut) {
     for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
       // helper
       const int phiT = channelOut % setup_->gpNumBinsPhiT() - setup_->gpNumBinsPhiT() / 2;
@@ -33,27 +30,28 @@ namespace trackerTFP {
         return (phiTValid && zTValid) ? stub : nullptr;
       };
       // input streams of stubs
-      vector<deque<StubPP*>> inputs(numChannelIn_);
+      std::vector<std::deque<StubPP*>> inputs(numChannelIn_);
       for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
-        const vector<StubPP*>& streamIn = streamsIn[channelIn];
-        transform(streamIn.begin(), streamIn.end(), back_inserter(inputs[channelIn]), valid);
+        const std::vector<StubPP*>& streamIn = streamsIn[channelIn];
+        std::transform(streamIn.begin(), streamIn.end(), std::back_inserter(inputs[channelIn]), valid);
       }
       // fifo for each stream
-      vector<deque<StubGP*>> stacks(streamsIn.size());
+      std::vector<std::deque<StubGP*>> stacks(streamsIn.size());
       // output stream
-      deque<StubGP*>& output = streamsOut[channelOut];
+      std::deque<StubGP*>& output = streamsOut[channelOut];
       // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
-      while (!all_of(inputs.begin(), inputs.end(), [](const deque<StubPP*>& stubs) { return stubs.empty(); }) or
-             !all_of(stacks.begin(), stacks.end(), [](const deque<StubGP*>& stubs) { return stubs.empty(); })) {
+      while (
+          !std::all_of(inputs.begin(), inputs.end(), [](const std::deque<StubPP*>& stubs) { return stubs.empty(); }) ||
+          !std::all_of(stacks.begin(), stacks.end(), [](const std::deque<StubGP*>& stubs) { return stubs.empty(); })) {
         // fill input fifos
         for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
-          deque<StubGP*>& stack = stacks[channelIn];
+          std::deque<StubGP*>& stack = stacks[channelIn];
           StubPP* stub = pop_front(inputs[channelIn]);
           if (stub) {
             // convert stub
             StubGP* stubGP = produce(*stub, phiT, zT);
             // buffer overflow
-            if (setup_->enableTruncation() && (int)stack.size() == setup_->gpDepthMemory() - 1)
+            if (setup_->enableTruncation() && static_cast<int>(stack.size()) == setup_->gpDepthMemory() - 1)
               pop_front(stack);
             stack.push_back(stubGP);
           }
@@ -72,7 +70,7 @@ namespace trackerTFP {
           output.push_back(nullptr);
       }
       // truncate if desired
-      if (setup_->enableTruncation() && (int)output.size() > setup_->numFramesHigh())
+      if (setup_->enableTruncation() && static_cast<int>(output.size()) > setup_->numFramesHigh())
         output.resize(setup_->numFramesHigh());
       // remove all gaps between end and last stub
       for (auto it = output.end(); it != output.begin();)
@@ -89,10 +87,10 @@ namespace trackerTFP {
     const DataFormat& dfL = dataFormats_->format(Variable::layer, Process::gp);
     const double cot = dfCot.digi(dfZT.floating(zT) / setup_->chosenRofZ());
     // determine kf layer id
-    const vector<int>& le = layerEncoding_->layerEncoding(zT);
+    const std::vector<int>& le = layerEncoding_->layerEncoding(zT);
     const int layerId = setup_->layerId(stub.frame().first);
-    const auto it = find(le.begin(), le.end(), layerId);
-    const int kfLayerId = min((int)distance(le.begin(), it), setup_->numLayers() - 1);
+    const auto it = std::find(le.begin(), le.end(), layerId);
+    const int kfLayerId = std::min(static_cast<int>(std::distance(le.begin(), it)), setup_->numLayers() - 1);
     // create data fields
     const double r = stub.r();
     const double phi = stub.phi() - dfPhiT.floating(phiT);
@@ -114,7 +112,7 @@ namespace trackerTFP {
 
   // remove and return first element of deque, returns nullptr if empty
   template <class T>
-  T* GeometricProcessor::pop_front(deque<T*>& ts) const {
+  T* GeometricProcessor::pop_front(std::deque<T*>& ts) const {
     T* t = nullptr;
     if (!ts.empty()) {
       t = ts.front();

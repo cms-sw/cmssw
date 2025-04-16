@@ -7,9 +7,6 @@
 #include <iterator>
 #include <vector>
 
-using namespace std;
-using namespace edm;
-
 namespace tt {
 
   SensorModule::SensorModule(const Setup* setup, const DetId& detId, int dtcId, int modId)
@@ -50,8 +47,8 @@ namespace tt {
     // Pixel-Strip or 2Strip module
     psModule_ = trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP;
     // module tilt angle measured w.r.t. beam axis (0=barrel), tk layout measures w.r.t. radial axis
-    tilt_ = flipped_ ? atan2(pos1.z() - pos0.z(), pos0.perp() - pos1.perp())
-                     : atan2(pos0.z() - pos1.z(), pos1.perp() - pos0.perp());
+    tilt_ = flipped_ ? std::atan2(pos1.z() - pos0.z(), pos0.perp() - pos1.perp())
+                     : std::atan2(pos0.z() - pos1.z(), pos1.perp() - pos0.perp());
     // sinus of module tilt measured w.r.t. beam axis (0=barrel), tk layout measures w.r.t. radial axis
     sinTilt_ = std::sin(tilt_);
     // cosinus of module tilt measured w.r.t. beam axis (+-1=endcap), tk layout measures w.r.t. radial axis
@@ -62,7 +59,7 @@ namespace tt {
     // layer id [1-6,11-15]
     layerId_ = layer + setup->offsetLayerId() + (barrel_ ? 0 : setup->offsetLayerDisks());
     // TTStub row needs flip of sign
-    signRow_ = signbit(deltaPhi(plane.rotation().x().phi() - pos0.phi()));
+    signRow_ = std::signbit(deltaPhi(plane.rotation().x().phi() - pos0.phi()));
     // TTStub col needs flip of sign
     signCol_ = !barrel_ && !side_;
     // TTStub bend needs flip of sign
@@ -121,9 +118,9 @@ namespace tt {
     }
     // stub uncertainty
     scattering_ = setup->scattering();
-    dR_ = abs(sinTilt_) * pitchCol_;
+    dR_ = std::abs(sinTilt_) * pitchCol_;
     dPhi_ = pitchRow_ / r_;
-    dZ_ = abs(cosTilt_) * pitchCol_ + dR_ * abs(z_) / r_;
+    dZ_ = std::abs(cosTilt_) * pitchCol_ + dR_ * std::abs(z_) / r_;
   }
 
   unsigned int SensorModule::ringId(const Setup* setup) const {

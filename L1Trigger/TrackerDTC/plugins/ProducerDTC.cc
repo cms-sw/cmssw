@@ -24,11 +24,6 @@
 #include <string>
 #include <memory>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-using namespace trackerTFP;
-
 namespace trackerDTC {
 
   /*! \class  trackerDTC::ProducerDTC
@@ -36,32 +31,32 @@ namespace trackerDTC {
    *  \author Thomas Schuh
    *  \date   2020, Jan
    */
-  class ProducerDTC : public stream::EDProducer<> {
+  class ProducerDTC : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerDTC(const ParameterSet&);
+    explicit ProducerDTC(const edm::ParameterSet&);
     ~ProducerDTC() override {}
 
   private:
-    void produce(Event&, const EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     // ED input token of TTStubs
-    EDGetTokenT<TTStubDetSetVec> edGetToken_;
+    edm::EDGetTokenT<TTStubDetSetVec> edGetToken_;
     // ED output token for accepted stubs
-    EDPutTokenT<TTDTC> edPutTokenAccepted_;
+    edm::EDPutTokenT<TTDTC> edPutTokenAccepted_;
     // ED output token for lost stubs
-    EDPutTokenT<TTDTC> edPutTokenLost_;
+    edm::EDPutTokenT<TTDTC> edPutTokenLost_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<trackerTFP::DataFormats, trackerTFP::DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
-    ESGetToken<LayerEncoding, SetupRcd> esGetTokenLayerEncoding_;
+    edm::ESGetToken<LayerEncoding, tt::SetupRcd> esGetTokenLayerEncoding_;
   };
 
-  ProducerDTC::ProducerDTC(const ParameterSet& iConfig) {
+  ProducerDTC::ProducerDTC(const edm::ParameterSet& iConfig) {
     // book in- and output ED products
-    const auto& inputTag = iConfig.getParameter<InputTag>("InputTag");
-    const auto& branchAccepted = iConfig.getParameter<string>("BranchAccepted");
-    const auto& branchLost = iConfig.getParameter<string>("BranchLost");
+    const auto& inputTag = iConfig.getParameter<edm::InputTag>("InputTag");
+    const auto& branchAccepted = iConfig.getParameter<std::string>("BranchAccepted");
+    const auto& branchLost = iConfig.getParameter<std::string>("BranchLost");
     edGetToken_ = consumes<TTStubDetSetVec>(inputTag);
     edPutTokenAccepted_ = produces<TTDTC>(branchAccepted);
     edPutTokenLost_ = produces<TTDTC>(branchLost);
@@ -71,28 +66,29 @@ namespace trackerDTC {
     esGetTokenLayerEncoding_ = esConsumes();
   }
 
-  void ProducerDTC::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerDTC::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    const trackerTFP::DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // class to encode layer ids used between DTC and TFP in Hybrid
     const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty DTC products
     TTDTC productAccepted = setup->ttDTC();
     TTDTC productLost = setup->ttDTC();
     // read in stub collection
-    Handle<TTStubDetSetVec> handle;
+    edm::Handle<TTStubDetSetVec> handle;
     iEvent.getByToken(edGetToken_, handle);
     // apply cabling map, reorganise stub collections
-    vector<vector<vector<TTStubRef>>> stubsDTCs(setup->numDTCs(), vector<vector<TTStubRef>>(setup->numModulesPerDTC()));
+    std::vector<std::vector<std::vector<TTStubRef>>> stubsDTCs(
+        setup->numDTCs(), std::vector<std::vector<TTStubRef>>(setup->numModulesPerDTC()));
     for (auto module = handle->begin(); module != handle->end(); module++) {
       // DetSetVec->detId + 1 = tk layout det id
       const DetId detId = module->detId() + setup->offsetDetIdDSV();
       // corresponding sensor module
-      SensorModule* sm = setup->sensorModule(detId);
+      tt::SensorModule* sm = setup->sensorModule(detId);
       // empty stub collection
-      vector<TTStubRef>& stubsModule = stubsDTCs[sm->dtcId()][sm->modId()];
+      std::vector<TTStubRef>& stubsModule = stubsDTCs[sm->dtcId()][sm->modId()];
       stubsModule.reserve(module->size());
       for (TTStubDetSet::const_iterator ttStub = module->begin(); ttStub != module->end(); ttStub++)
         stubsModule.emplace_back(makeRefTo(handle, ttStub));

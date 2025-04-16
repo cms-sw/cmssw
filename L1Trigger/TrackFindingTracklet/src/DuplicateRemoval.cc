@@ -4,15 +4,10 @@
 #include <numeric>
 #include <algorithm>
 
-using namespace std;
-using namespace edm;
-using namespace tt;
-using namespace trackerTFP;
-
 namespace trklet {
 
-  DuplicateRemoval::DuplicateRemoval(const Setup* setup,
-                                     const LayerEncoding* layerEncoding,
+  DuplicateRemoval::DuplicateRemoval(const tt::Setup* setup,
+                                     const trackerTFP::LayerEncoding* layerEncoding,
                                      const DataFormats* dataFormats,
                                      const ChannelAssignment* channelAssignment,
                                      int region)
@@ -31,24 +26,24 @@ namespace trklet {
   }
 
   // read in and organize input tracks and stubs
-  void DuplicateRemoval::consume(const StreamsTrack& streamsTrack, const StreamsStub& streamsStub) {
-    auto nonNullTrack = [](int sum, const FrameTrack& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
-    auto nonNullStub = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
+  void DuplicateRemoval::consume(const tt::StreamsTrack& streamsTrack, const tt::StreamsStub& streamsStub) {
+    auto nonNullTrack = [](int sum, const tt::FrameTrack& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
+    auto nonNullStub = [](int sum, const tt::FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     // count tracks and stubs and reserve corresponding vectors
     int sizeStubs(0);
     const int offset = region_ * tmNumLayers_;
-    const StreamTrack& streamTrack = streamsTrack[region_];
+    const tt::StreamTrack& streamTrack = streamsTrack[region_];
     input_.reserve(streamTrack.size());
-    const int sizeTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, nonNullTrack);
+    const int sizeTracks = std::accumulate(streamTrack.begin(), streamTrack.end(), 0, nonNullTrack);
     for (int layer = 0; layer < tmNumLayers_; layer++) {
-      const StreamStub& streamStub = streamsStub[offset + layer];
-      sizeStubs += accumulate(streamStub.begin(), streamStub.end(), 0, nonNullStub);
+      const tt::StreamStub& streamStub = streamsStub[offset + layer];
+      sizeStubs += std::accumulate(streamStub.begin(), streamStub.end(), 0, nonNullStub);
     }
     tracks_.reserve(sizeTracks);
     stubs_.reserve(sizeStubs);
     // transform input data into handy structs
-    for (int frame = 0; frame < (int)streamTrack.size(); frame++) {
-      const FrameTrack& frameTrack = streamTrack[frame];
+    for (int frame = 0; frame < static_cast<int>(streamTrack.size()); frame++) {
+      const tt::FrameTrack& frameTrack = streamTrack[frame];
       if (frameTrack.first.isNull()) {
         input_.push_back(nullptr);
         continue;
@@ -58,11 +53,11 @@ namespace trklet {
       const double inv2R = abs(track.inv2R());
       const double zT = abs(track.zT());
       const double cot = zT / setup_->chosenRofZ();
-      const vector<int>& layerEncoding = layerEncoding_->layerEncoding(zT);
-      vector<Stub*> stubs(tmNumLayers_, nullptr);
+      const std::vector<int>& layerEncoding = layerEncoding_->layerEncoding(zT);
+      std::vector<Stub*> stubs(tmNumLayers_, nullptr);
       TTBV hitPattern(0, setup_->numLayers());
       for (int layer = 0; layer < tmNumLayers_; layer++) {
-        const FrameStub& frameStub = streamsStub[offset + layer][frame];
+        const tt::FrameStub& frameStub = streamsStub[offset + layer][frame];
         const TTStubRef& ttStubRef = frameStub.first;
         if (ttStubRef.isNull())
           continue;
@@ -70,8 +65,9 @@ namespace trklet {
         const int decodedLayerId =
             layer + setup_->offsetLayerId() +
             (layer < setup_->numBarrelLayer() ? 0 : setup_->offsetLayerDisks() - setup_->numBarrelLayer());
-        const auto it = find(layerEncoding.begin(), layerEncoding.end(), decodedLayerId);
-        const int encodedLayerId = min((int)distance(layerEncoding.begin(), it), setup_->numLayers() - 1);
+        const auto it = std::find(layerEncoding.begin(), layerEncoding.end(), decodedLayerId);
+        const int encodedLayerId =
+            std::min(static_cast<int>(std::distance(layerEncoding.begin(), it)), setup_->numLayers() - 1);
         // kill stub on already occupied layer
         if (hitPattern.test(encodedLayerId))
           continue;
@@ -117,10 +113,10 @@ namespace trklet {
   }
 
   // fill output products
-  void DuplicateRemoval::produce(StreamsTrack& streamsTrack, StreamsStub& streamsStub) {
+  void DuplicateRemoval::produce(tt::StreamsTrack& streamsTrack, tt::StreamsStub& streamsStub) {
     const int offset = region_ * setup_->numLayers();
     // remove duplicated tracks, no merge of stubs, one stub per layer expected
-    vector<Track*> cms(channelAssignment_->numComparisonModules(), nullptr);
+    std::vector<Track*> cms(channelAssignment_->numComparisonModules(), nullptr);
     for (Track*& track : input_) {
       if (!track)
         // gaps propagate through chain and appear in output stream
@@ -142,15 +138,15 @@ namespace trklet {
     for (auto it = input_.end(); it != input_.begin();)
       it = (*--it) ? input_.begin() : input_.erase(it);
     // store output
-    StreamTrack& streamTrack = streamsTrack[region_];
+    tt::StreamTrack& streamTrack = streamsTrack[region_];
     streamTrack.reserve(input_.size());
     for (int layer = 0; layer < setup_->numLayers(); layer++)
       streamsStub[offset + layer].reserve(input_.size());
     for (Track* track : input_) {
       if (!track) {
-        streamTrack.emplace_back(FrameTrack());
+        streamTrack.emplace_back(tt::FrameTrack());
         for (int layer = 0; layer < setup_->numLayers(); layer++)
-          streamsStub[offset + layer].emplace_back(FrameStub());
+          streamsStub[offset + layer].emplace_back(tt::FrameStub());
         continue;
       }
       streamTrack.push_back(track->frame_);
@@ -162,7 +158,7 @@ namespace trklet {
         streamsStub[offset + stub->layer_].emplace_back(stub->frame_);
       }
       for (int layer : hitPattern.ids(false))
-        streamsStub[offset + layer].emplace_back(FrameStub());
+        streamsStub[offset + layer].emplace_back(tt::FrameStub());
     }
   }
 
