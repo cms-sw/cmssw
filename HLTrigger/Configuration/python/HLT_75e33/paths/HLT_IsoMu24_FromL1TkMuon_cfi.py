@@ -36,9 +36,9 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
     + hltPhase2PixelTrackFilterByKinematics
     + HLTMuonsSequence
     + hltL3fL1TkSingleMu22L3Filtered24Q
-    + HLTTICLLocalRecoSequence
-    + HLTDoLocalHcalSequence
     + HLTDoFullUnpackingEgammaEcalSequence
+    + HLTDoLocalHcalSequence
+    + HLTTICLLocalRecoSequence
     + HLTFastJetForEgammaSequence
     + HLTPfClusteringHBHEHFSequence
     + HLTPFClusteringForEgammaUnseededSequence
