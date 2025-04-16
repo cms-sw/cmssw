@@ -120,14 +120,13 @@ private:
                                 const float inv_mass,
                                 const trigger::TriggerObjectCollection* legObjectsCollection,
                                 const bool passBaseDST,
-                                const int  pt_order) const;
+                                const int pt_order) const;
 
   bool scoutingElectron_passHLT(const Run3ScoutingElectron& el,
                                 const trigger::TriggerObjectCollection& legObjects) const;
 
   // --------------------- member data  ----------------------
   std::string outputInternalPath_;
-
 
   const std::vector<std::string> vBaseTriggerSelection_;
   const std::vector<std::string> vtriggerSelection_;
@@ -153,7 +152,6 @@ ScoutingElectronTagProbeAnalyzer::ScoutingElectronTagProbeAnalyzer(const edm::Pa
 void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
                                                   edm::EventSetup const& iSetup,
                                                   kSctTagProbeHistos const& histos) const {
-
   edm::Handle<std::vector<Run3ScoutingElectron>> sctEls;
   iEvent.getByToken(scoutingElectronCollection_, sctEls);
   if (sctEls.failedToGet()) {
@@ -167,8 +165,8 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   iEvent.getByToken(triggerResultsToken_, triggerResults);
   iEvent.getByToken(triggerObjects_, triggerObjects);
 
- // Trigger result
-  if (triggerResults.failedToGet()){
+  // Trigger result
+  if (triggerResults.failedToGet()) {
     edm::LogWarning("ScoutingEGammaCollectionMonitoring") << "Trgger Results not found.";
     return;
   }
@@ -176,20 +174,20 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   std::vector<bool> vtrigger_result(vtriggerSelection_.size(), false);
   bool passBaseDST = false;
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
-  for (int i_Trig = 0; i_Trig < nTriggers; i_Trig++){
-    if (triggerResults.product()->accept(i_Trig)){
-        TString TrigPath = triggerNames.triggerName(i_Trig);
-        for(unsigned int i_selectTrig = 0; i_selectTrig < vtriggerSelection_.size(); i_selectTrig++){
-            if(TrigPath.Index(vtriggerSelection_.at(i_selectTrig)) >=0){
-              vtrigger_result[i_selectTrig] = true;
-            }
+  for (int i_Trig = 0; i_Trig < nTriggers; i_Trig++) {
+    if (triggerResults.product()->accept(i_Trig)) {
+      TString TrigPath = triggerNames.triggerName(i_Trig);
+      for (unsigned int i_selectTrig = 0; i_selectTrig < vtriggerSelection_.size(); i_selectTrig++) {
+        if (TrigPath.Index(vtriggerSelection_.at(i_selectTrig)) >= 0) {
+          vtrigger_result[i_selectTrig] = true;
         }
+      }
 
-        for (unsigned int i_BaseTrig = 0; i_BaseTrig < vBaseTriggerSelection_.size(); i_BaseTrig++){
-           if(TrigPath.Index(vBaseTriggerSelection_.at(i_BaseTrig)) >=0){
-             passBaseDST = true;
-           }
+      for (unsigned int i_BaseTrig = 0; i_BaseTrig < vBaseTriggerSelection_.size(); i_BaseTrig++) {
+        if (TrigPath.Index(vBaseTriggerSelection_.at(i_BaseTrig)) >= 0) {
+          passBaseDST = true;
         }
+      }
     }
   }
 
@@ -206,22 +204,19 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     }
   }
 
-
   edm::LogInfo("ScoutingMonitoring") << "Process Run3ScoutingElectrons: " << sctEls->size();
-
 
   // Pt ordered sct electron collection
 
   std::vector<std::pair<size_t, Run3ScoutingElectron>> indexed_sctElectrons;
-  for (size_t i = 0; i < sctEls->size(); i++){
+  for (size_t i = 0; i < sctEls->size(); i++) {
     indexed_sctElectrons.emplace_back(i, (*sctEls)[i]);
   }
-  std::sort(indexed_sctElectrons.begin(), indexed_sctElectrons.end(),
-       [](const auto& a, const auto& b){
-           return a.second.pt() > b.second.pt();
-       });
+  std::sort(indexed_sctElectrons.begin(), indexed_sctElectrons.end(), [](const auto& a, const auto& b) {
+    return a.second.pt() > b.second.pt();
+  });
 
-  for (size_t sct_local_index=0; sct_local_index < indexed_sctElectrons.size(); sct_local_index++) {
+  for (size_t sct_local_index = 0; sct_local_index < indexed_sctElectrons.size(); sct_local_index++) {
     const auto sct_el = indexed_sctElectrons[sct_local_index].second;
 
     if (!scoutingDQMUtils::scoutingElectronID(sct_el))
@@ -230,9 +225,11 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
 
     math::PtEtaPhiMLorentzVector tag_sct_el(sct_el.pt(), sct_el.eta(), sct_el.phi(), sct_el.m());
     int second_sct_pt_order = -1;
-    for (size_t second_sct_local_index=0; second_sct_local_index < indexed_sctElectrons.size(); second_sct_local_index++) {
+    for (size_t second_sct_local_index = 0; second_sct_local_index < indexed_sctElectrons.size();
+         second_sct_local_index++) {
       const auto sct_el_second = indexed_sctElectrons[second_sct_local_index].second;
-      if (scoutingDQMUtils::scoutingElectronID(sct_el_second)) second_sct_pt_order += 1; // Only use scouting electron passing ID in HLT eff calculation.
+      if (scoutingDQMUtils::scoutingElectronID(sct_el_second))
+        second_sct_pt_order += 1;  // Only use scouting electron passing ID in HLT eff calculation.
       if (&sct_el_second == &sct_el)
         continue;
       math::PtEtaPhiMLorentzVector probe_sct_el(
@@ -240,20 +237,30 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       float invMass = (tag_sct_el + probe_sct_el).mass();
       edm::LogInfo("ScoutingMonitoring") << "Inv Mass: " << invMass;
       if ((80 < invMass) && (invMass < 100)) {
-        fillHistograms_resonance(histos.resonanceZ, sct_el_second, invMass, legObjects, passBaseDST, second_sct_pt_order);
-        fillHistograms_resonance(histos.resonanceAll, sct_el_second, invMass, legObjects, passBaseDST, second_sct_pt_order);
+        fillHistograms_resonance(
+            histos.resonanceZ, sct_el_second, invMass, legObjects, passBaseDST, second_sct_pt_order);
+        fillHistograms_resonance(
+            histos.resonanceAll, sct_el_second, invMass, legObjects, passBaseDST, second_sct_pt_order);
       }
       if ((2.8 < invMass) && (invMass < 3.8)) {
-        fillHistograms_resonance(histos.resonanceJ, sct_el_second, invMass,
-                                 legObjects, passBaseDST, second_sct_pt_order);  // J/Psi mass: 3.3 +/- 0.2 GeV
-        fillHistograms_resonance(histos.resonanceAll, sct_el_second, invMass, legObjects, passBaseDST, second_sct_pt_order);
+        fillHistograms_resonance(histos.resonanceJ,
+                                 sct_el_second,
+                                 invMass,
+                                 legObjects,
+                                 passBaseDST,
+                                 second_sct_pt_order);  // J/Psi mass: 3.3 +/- 0.2 GeV
+        fillHistograms_resonance(
+            histos.resonanceAll, sct_el_second, invMass, legObjects, passBaseDST, second_sct_pt_order);
       }
       if ((9.0 < invMass) && (invMass < 12.6)) {
         fillHistograms_resonance(histos.resonanceY,
                                  sct_el_second,
                                  invMass,
-                                 legObjects, passBaseDST, second_sct_pt_order);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
-        fillHistograms_resonance(histos.resonanceAll, sct_el_second, invMass, legObjects, passBaseDST, second_sct_pt_order);
+                                 legObjects,
+                                 passBaseDST,
+                                 second_sct_pt_order);  // Y mass: 9.8 +/- 0.4 GeV & 10.6 +/- 1 GeV
+        fillHistograms_resonance(
+            histos.resonanceAll, sct_el_second, invMass, legObjects, passBaseDST, second_sct_pt_order);
       }
     }
   }
@@ -278,7 +285,7 @@ void ScoutingElectronTagProbeAnalyzer::fillHistograms_resonance(
     const float inv_mass,
     const trigger::TriggerObjectCollection* legObjectsCollection,
     const bool passBaseDST,
-    const int  pt_order) const {
+    const int pt_order) const {
   histos.hEta->Fill(el.eta());
   histos.hPhi->Fill(el.phi());
   histos.hInvMass->Fill(inv_mass);
@@ -313,25 +320,24 @@ void ScoutingElectronTagProbeAnalyzer::fillHistograms_resonance(
       histos.hTrack_qoverpModeError_Barrel->Fill(trk);
     }
 
-    if (passBaseDST){
-      if (pt_order == 0){
+    if (passBaseDST) {
+      if (pt_order == 0) {
         histos.leading_electron.hPt_Barrel_passBaseDST->Fill(el.pt());
         histos.leading_electron.hEta_passBaseDST->Fill(el.eta());
-        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
-            if(scoutingElectron_passHLT(el, legObjectsCollection[iTrig])){
-               histos.leading_electron.hPt_Barrel_fireTrigObj[iTrig]->Fill(el.pt());
-               histos.leading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
-            }
+        for (unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++) {
+          if (scoutingElectron_passHLT(el, legObjectsCollection[iTrig])) {
+            histos.leading_electron.hPt_Barrel_fireTrigObj[iTrig]->Fill(el.pt());
+            histos.leading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+          }
         }
-      }
-      else if (pt_order == 1){
+      } else if (pt_order == 1) {
         histos.subleading_electron.hPt_Barrel_passBaseDST->Fill(el.pt());
         histos.subleading_electron.hEta_passBaseDST->Fill(el.eta());
-        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
-            if(scoutingElectron_passHLT(el, legObjectsCollection[iTrig])){
-               histos.subleading_electron.hPt_Barrel_fireTrigObj[iTrig]->Fill(el.pt());
-               histos.subleading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
-            }
+        for (unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++) {
+          if (scoutingElectron_passHLT(el, legObjectsCollection[iTrig])) {
+            histos.subleading_electron.hPt_Barrel_fireTrigObj[iTrig]->Fill(el.pt());
+            histos.subleading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+          }
         }
       }
     }
@@ -365,25 +371,24 @@ void ScoutingElectronTagProbeAnalyzer::fillHistograms_resonance(
       histos.hTrack_qoverpModeError_Endcap->Fill(trk);
     }
 
-    if (passBaseDST){
-      if (pt_order == 0){
+    if (passBaseDST) {
+      if (pt_order == 0) {
         histos.leading_electron.hPt_Endcap_passBaseDST->Fill(el.pt());
         histos.leading_electron.hEta_passBaseDST->Fill(el.eta());
-        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
-            if(scoutingElectron_passHLT(el, legObjectsCollection[iTrig])){
-               histos.leading_electron.hPt_Endcap_fireTrigObj[iTrig]->Fill(el.pt());
-               histos.leading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
-            }
+        for (unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++) {
+          if (scoutingElectron_passHLT(el, legObjectsCollection[iTrig])) {
+            histos.leading_electron.hPt_Endcap_fireTrigObj[iTrig]->Fill(el.pt());
+            histos.leading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+          }
         }
-      }
-      else if (pt_order == 1){
+      } else if (pt_order == 1) {
         histos.subleading_electron.hPt_Endcap_passBaseDST->Fill(el.pt());
         histos.subleading_electron.hEta_passBaseDST->Fill(el.eta());
-        for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
-            if(scoutingElectron_passHLT(el, legObjectsCollection[iTrig])){
-               histos.subleading_electron.hPt_Endcap_fireTrigObj[iTrig]->Fill(el.pt());
-               histos.subleading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
-            }
+        for (unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++) {
+          if (scoutingElectron_passHLT(el, legObjectsCollection[iTrig])) {
+            histos.subleading_electron.hPt_Endcap_fireTrigObj[iTrig]->Fill(el.pt());
+            histos.subleading_electron.hEta_fireTrigObj[iTrig]->Fill(el.eta());
+          }
         }
       }
     }
@@ -523,48 +528,65 @@ void ScoutingElectronTagProbeAnalyzer::bookHistograms_resonance(DQMStore::IBooke
 
   // Leading Electron
   histos.leading_electron.hPt_Barrel_passBaseDST =
-      ibook.book1D(name + "_leading_Pt_Barrel_passBaseDST", name + "_leading_Pt_Barrel_passBaseDST",  40, 0, 200);
+      ibook.book1D(name + "_leading_Pt_Barrel_passBaseDST", name + "_leading_Pt_Barrel_passBaseDST", 40, 0, 200);
   histos.leading_electron.hPt_Endcap_passBaseDST =
-      ibook.book1D(name + "_leading_Pt_Endcap_passBaseDST", name + "_leading_Pt_Endcap_passBaseDST",  40, 0, 200);
+      ibook.book1D(name + "_leading_Pt_Endcap_passBaseDST", name + "_leading_Pt_Endcap_passBaseDST", 40, 0, 200);
   histos.leading_electron.hEta_passBaseDST =
-      ibook.book1D(name + "_leading_Eta_passBaseDST", name + "_leading_Eta_passBaseDST",  20, -5.0, 5.0);
+      ibook.book1D(name + "_leading_Eta_passBaseDST", name + "_leading_Eta_passBaseDST", 20, -5.0, 5.0);
 
   // Sub-Leading Electron
   histos.subleading_electron.hPt_Barrel_passBaseDST =
-      ibook.book1D(name + "_subleading_Pt_Barrel_passBaseDST", name + "_subleading_Pt_Barrel_passBaseDST",  40, 0, 200);
+      ibook.book1D(name + "_subleading_Pt_Barrel_passBaseDST", name + "_subleading_Pt_Barrel_passBaseDST", 40, 0, 200);
   histos.subleading_electron.hPt_Endcap_passBaseDST =
-      ibook.book1D(name + "_subleading_Pt_Endcap_passBaseDST", name + "_subleading_Pt_Endcap_passBaseDST",  40, 0, 200);
+      ibook.book1D(name + "_subleading_Pt_Endcap_passBaseDST", name + "_subleading_Pt_Endcap_passBaseDST", 40, 0, 200);
   histos.subleading_electron.hEta_passBaseDST =
-      ibook.book1D(name + "_subleading_Eta_passBaseDST", name + "_subleading_Eta_passBaseDST",  20, -5.0, 5.0);
+      ibook.book1D(name + "_subleading_Eta_passBaseDST", name + "_subleading_Eta_passBaseDST", 20, -5.0, 5.0);
 
-  for (auto const &vt : vtriggerSelection_){
-      std::string cleaned_vt = vt;
-      cleaned_vt.erase(std::remove(cleaned_vt.begin(), cleaned_vt.end(), '*'), cleaned_vt.end());
+  for (auto const& vt : vtriggerSelection_) {
+    std::string cleaned_vt = vt;
+    cleaned_vt.erase(std::remove(cleaned_vt.begin(), cleaned_vt.end(), '*'), cleaned_vt.end());
 
-      // Leading Electron
+    // Leading Electron
 
-      histos.leading_electron.hPt_Barrel_fireTrigObj.push_back(
-          ibook.book1D(name + "_leading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj", name + "_leading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj",  40, 0, 200)
-      );
-      histos.leading_electron.hPt_Endcap_fireTrigObj.push_back(
-          ibook.book1D(name + "_leading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj", name + "_leading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj",  40, 0, 200)
-      );
-      histos.leading_electron.hEta_fireTrigObj.push_back(
-          ibook.book1D(name + "_leading_Eta_pass" + cleaned_vt + "_fireTrigObj", name + "_leading_Eta_pass" + cleaned_vt + "_fireTrigObj",  20, -5.0, 5.0)
-      );
+    histos.leading_electron.hPt_Barrel_fireTrigObj.push_back(
+        ibook.book1D(name + "_leading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj",
+                     name + "_leading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj",
+                     40,
+                     0,
+                     200));
+    histos.leading_electron.hPt_Endcap_fireTrigObj.push_back(
+        ibook.book1D(name + "_leading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj",
+                     name + "_leading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj",
+                     40,
+                     0,
+                     200));
+    histos.leading_electron.hEta_fireTrigObj.push_back(
+        ibook.book1D(name + "_leading_Eta_pass" + cleaned_vt + "_fireTrigObj",
+                     name + "_leading_Eta_pass" + cleaned_vt + "_fireTrigObj",
+                     20,
+                     -5.0,
+                     5.0));
 
-      // SubLeading Electron
+    // SubLeading Electron
 
-      histos.subleading_electron.hPt_Barrel_fireTrigObj.push_back(
-          ibook.book1D(name + "_subleading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj", name + "_subleading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj",  40, 0, 200)
-      );
-      histos.subleading_electron.hPt_Endcap_fireTrigObj.push_back(
-          ibook.book1D(name + "_subleading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj", name + "_subleading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj",  40, 0, 200)
-      );
-      histos.subleading_electron.hEta_fireTrigObj.push_back(
-          ibook.book1D(name + "_subleading_Eta_pass" + cleaned_vt + "_fireTrigObj", name + "_subleading_Eta_pass" + cleaned_vt + "_fireTrigObj",  20, -5.0, 5.0)
-      );
-
+    histos.subleading_electron.hPt_Barrel_fireTrigObj.push_back(
+        ibook.book1D(name + "_subleading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj",
+                     name + "_subleading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj",
+                     40,
+                     0,
+                     200));
+    histos.subleading_electron.hPt_Endcap_fireTrigObj.push_back(
+        ibook.book1D(name + "_subleading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj",
+                     name + "_subleading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj",
+                     40,
+                     0,
+                     200));
+    histos.subleading_electron.hEta_fireTrigObj.push_back(
+        ibook.book1D(name + "_subleading_Eta_pass" + cleaned_vt + "_fireTrigObj",
+                     name + "_subleading_Eta_pass" + cleaned_vt + "_fireTrigObj",
+                     20,
+                     -5.0,
+                     5.0));
   }
 }
 

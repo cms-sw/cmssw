@@ -43,15 +43,14 @@ private:
   const std::string sourceFolder_;
   const std::vector<std::string> vtriggerSelection_;
 
-  
-  std::vector<MonitorElement*> h_eff_sctel_leading_pt_EB;
-  std::vector<MonitorElement*> h_eff_sctel_leading_pt_EE;
-  std::vector<MonitorElement*> h_eff_patel_leading_pt_EB;
-  std::vector<MonitorElement*> h_eff_patel_leading_pt_EE;
-  std::vector<MonitorElement*> h_eff_sctel_subleading_pt_EB;
-  std::vector<MonitorElement*> h_eff_sctel_subleading_pt_EE;
-  std::vector<MonitorElement*> h_eff_patel_subleading_pt_EB;
-  std::vector<MonitorElement*> h_eff_patel_subleading_pt_EE;
+  std::vector<MonitorElement *> h_eff_sctel_leading_pt_EB;
+  std::vector<MonitorElement *> h_eff_sctel_leading_pt_EE;
+  std::vector<MonitorElement *> h_eff_patel_leading_pt_EB;
+  std::vector<MonitorElement *> h_eff_patel_leading_pt_EE;
+  std::vector<MonitorElement *> h_eff_sctel_subleading_pt_EB;
+  std::vector<MonitorElement *> h_eff_sctel_subleading_pt_EE;
+  std::vector<MonitorElement *> h_eff_patel_subleading_pt_EB;
+  std::vector<MonitorElement *> h_eff_patel_subleading_pt_EE;
 
   void calculateEfficiency(MonitorElement *Numerator, MonitorElement *Denominator, MonitorElement *Efficiency);
 };
@@ -85,158 +84,126 @@ void ElectronEfficiencyPlotter::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::
   ibooker.setCurrentFolder(theFolder_);
 
   int iPicture = 0;
-  for (auto const &vt : vtriggerSelection_){
-      std::string cleaned_vt = vt;
-      cleaned_vt.erase(std::remove(cleaned_vt.begin(), cleaned_vt.end(), '*'), cleaned_vt.end());
+  for (auto const &vt : vtriggerSelection_) {
+    std::string cleaned_vt = vt;
+    cleaned_vt.erase(std::remove(cleaned_vt.begin(), cleaned_vt.end(), '*'), cleaned_vt.end());
 
-      // Leading Electron
-      h_eff_sctel_leading_pt_EB.push_back(
-          ibooker.book1D("Eff_sctElectron_leading_pt_barrel_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (barrel)", ptBin_, ptMin_, ptMax_)
-      );
-      h_eff_sctel_leading_pt_EE.push_back(
-          ibooker.book1D("Eff_sctElectron_leading_pt_endcap_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (endcap)", ptBin_, ptMin_, ptMax_)
-      );
-      h_eff_patel_leading_pt_EB.push_back(
-          ibooker.book1D("Eff_patElectron_leading_pt_barrel_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (barrel)", ptBin_, ptMin_, ptMax_)
-      );
-      h_eff_patel_leading_pt_EE.push_back(
-          ibooker.book1D("Eff_patElectron_leading_pt_endcap_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (endcap)", ptBin_, ptMin_, ptMax_)
-      );
-      h_eff_sctel_subleading_pt_EB.push_back(
-          ibooker.book1D("Eff_sctElectron_subleading_pt_barrel_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (barrel)", ptBin_, ptMin_, ptMax_)
-      );
-      h_eff_sctel_subleading_pt_EE.push_back(
-          ibooker.book1D("Eff_sctElectron_subleading_pt_endcap_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (endcap)", ptBin_, ptMin_, ptMax_)
-      );
-      h_eff_patel_subleading_pt_EB.push_back(
-          ibooker.book1D("Eff_patElectron_subleading_pt_barrel_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (barrel)", ptBin_, ptMin_, ptMax_)
-      );
-      h_eff_patel_subleading_pt_EE.push_back(
-          ibooker.book1D("Eff_patElectron_subleading_pt_endcap_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (endcap)", ptBin_, ptMin_, ptMax_)
-      );
+    // Leading Electron
+    h_eff_sctel_leading_pt_EB.push_back(ibooker.book1D(
+        "Eff_sctElectron_leading_pt_barrel_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (barrel)", ptBin_, ptMin_, ptMax_));
+    h_eff_sctel_leading_pt_EE.push_back(ibooker.book1D(
+        "Eff_sctElectron_leading_pt_endcap_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (endcap)", ptBin_, ptMin_, ptMax_));
+    h_eff_patel_leading_pt_EB.push_back(ibooker.book1D(
+        "Eff_patElectron_leading_pt_barrel_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (barrel)", ptBin_, ptMin_, ptMax_));
+    h_eff_patel_leading_pt_EE.push_back(ibooker.book1D(
+        "Eff_patElectron_leading_pt_endcap_" + cleaned_vt, cleaned_vt + " Eff. vs Pt (endcap)", ptBin_, ptMin_, ptMax_));
+    h_eff_sctel_subleading_pt_EB.push_back(ibooker.book1D("Eff_sctElectron_subleading_pt_barrel_" + cleaned_vt,
+                                                          cleaned_vt + " Eff. vs Pt (barrel)",
+                                                          ptBin_,
+                                                          ptMin_,
+                                                          ptMax_));
+    h_eff_sctel_subleading_pt_EE.push_back(ibooker.book1D("Eff_sctElectron_subleading_pt_endcap_" + cleaned_vt,
+                                                          cleaned_vt + " Eff. vs Pt (endcap)",
+                                                          ptBin_,
+                                                          ptMin_,
+                                                          ptMax_));
+    h_eff_patel_subleading_pt_EB.push_back(ibooker.book1D("Eff_patElectron_subleading_pt_barrel_" + cleaned_vt,
+                                                          cleaned_vt + " Eff. vs Pt (barrel)",
+                                                          ptBin_,
+                                                          ptMin_,
+                                                          ptMax_));
+    h_eff_patel_subleading_pt_EE.push_back(ibooker.book1D("Eff_patElectron_subleading_pt_endcap_" + cleaned_vt,
+                                                          cleaned_vt + " Eff. vs Pt (endcap)",
+                                                          ptBin_,
+                                                          ptMin_,
+                                                          ptMax_));
 
+    h_eff_sctel_leading_pt_EB.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
+    h_eff_sctel_leading_pt_EE.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
+    h_eff_patel_leading_pt_EB.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
+    h_eff_patel_leading_pt_EE.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
+    h_eff_sctel_subleading_pt_EB.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
+    h_eff_sctel_subleading_pt_EE.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
+    h_eff_patel_subleading_pt_EB.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
+    h_eff_patel_subleading_pt_EE.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
 
-      h_eff_sctel_leading_pt_EB.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
-      h_eff_sctel_leading_pt_EE.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
-      h_eff_patel_leading_pt_EB.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
-      h_eff_patel_leading_pt_EE.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
-      h_eff_sctel_subleading_pt_EB.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
-      h_eff_sctel_subleading_pt_EE.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
-      h_eff_patel_subleading_pt_EB.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
-      h_eff_patel_subleading_pt_EE.at(iPicture)->setAxisTitle("p_{T} (GeV)", 1);
+    MonitorElement *Numerator_sctel_leading_pt_barrel = igetter.get(
+        sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_leading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj");
+    MonitorElement *Denominator_sctel_leading_pt_barrel =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_leading_Pt_Barrel_passBaseDST");
+    if (Numerator_sctel_leading_pt_barrel && Denominator_sctel_leading_pt_barrel)
+      calculateEfficiency(Numerator_sctel_leading_pt_barrel,
+                          Denominator_sctel_leading_pt_barrel,
+                          h_eff_sctel_leading_pt_EB.at(iPicture));
 
+    MonitorElement *Numerator_sctel_leading_pt_endcap = igetter.get(
+        sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_leading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj");
+    MonitorElement *Denominator_sctel_leading_pt_endcap =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_leading_Pt_Endcap_passBaseDST");
+    if (Numerator_sctel_leading_pt_endcap && Denominator_sctel_leading_pt_endcap)
+      calculateEfficiency(Numerator_sctel_leading_pt_endcap,
+                          Denominator_sctel_leading_pt_endcap,
+                          h_eff_sctel_leading_pt_EE.at(iPicture));
 
-      
-      MonitorElement *Numerator_sctel_leading_pt_barrel = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_sctElectron_leading_Pt_Barrel_pass" + 
-                     cleaned_vt + 
-                     "_fireTrigObj"
-                    );
-      MonitorElement *Denominator_sctel_leading_pt_barrel = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_sctElectron_leading_Pt_Barrel_passBaseDST" 
-                    );
-      if (Numerator_sctel_leading_pt_barrel && Denominator_sctel_leading_pt_barrel)
-         calculateEfficiency(Numerator_sctel_leading_pt_barrel, Denominator_sctel_leading_pt_barrel, h_eff_sctel_leading_pt_EB.at(iPicture));
+    MonitorElement *Numerator_sctel_subleading_pt_barrel =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_subleading_Pt_Barrel_pass" + cleaned_vt +
+                    "_fireTrigObj");
+    MonitorElement *Denominator_sctel_subleading_pt_barrel =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_subleading_Pt_Barrel_passBaseDST");
+    if (Numerator_sctel_subleading_pt_barrel && Denominator_sctel_subleading_pt_barrel)
+      calculateEfficiency(Numerator_sctel_subleading_pt_barrel,
+                          Denominator_sctel_subleading_pt_barrel,
+                          h_eff_sctel_subleading_pt_EB.at(iPicture));
 
+    MonitorElement *Numerator_sctel_subleading_pt_endcap =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_subleading_Pt_Endcap_pass" + cleaned_vt +
+                    "_fireTrigObj");
+    MonitorElement *Denominator_sctel_subleading_pt_endcap =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_sctElectron_subleading_Pt_Endcap_passBaseDST");
+    if (Numerator_sctel_subleading_pt_endcap && Denominator_sctel_subleading_pt_endcap)
+      calculateEfficiency(Numerator_sctel_subleading_pt_endcap,
+                          Denominator_sctel_subleading_pt_endcap,
+                          h_eff_sctel_subleading_pt_EE.at(iPicture));
 
-      MonitorElement *Numerator_sctel_leading_pt_endcap = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_sctElectron_leading_Pt_Endcap_pass" + 
-                     cleaned_vt + 
-                     "_fireTrigObj"
-                    );
-      MonitorElement *Denominator_sctel_leading_pt_endcap = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_sctElectron_leading_Pt_Endcap_passBaseDST" 
-                    );
-      if (Numerator_sctel_leading_pt_endcap && Denominator_sctel_leading_pt_endcap)
-         calculateEfficiency(Numerator_sctel_leading_pt_endcap, Denominator_sctel_leading_pt_endcap, h_eff_sctel_leading_pt_EE.at(iPicture));
+    MonitorElement *Numerator_patel_leading_pt_barrel = igetter.get(
+        sourceFolder_ + "/resonanceZ_Tag_pat_Probe_patElectron_leading_Pt_Barrel_pass" + cleaned_vt + "_fireTrigObj");
+    MonitorElement *Denominator_patel_leading_pt_barrel =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_patElectron_leading_Pt_Barrel_passBaseDST");
+    if (Numerator_patel_leading_pt_barrel && Denominator_patel_leading_pt_barrel)
+      calculateEfficiency(Numerator_patel_leading_pt_barrel,
+                          Denominator_patel_leading_pt_barrel,
+                          h_eff_patel_leading_pt_EB.at(iPicture));
 
-      MonitorElement *Numerator_sctel_subleading_pt_barrel = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_sctElectron_subleading_Pt_Barrel_pass" + 
-                     cleaned_vt + 
-                     "_fireTrigObj"
-                    );
-      MonitorElement *Denominator_sctel_subleading_pt_barrel = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_sctElectron_subleading_Pt_Barrel_passBaseDST" 
-                    );
-      if (Numerator_sctel_subleading_pt_barrel && Denominator_sctel_subleading_pt_barrel)
-         calculateEfficiency(Numerator_sctel_subleading_pt_barrel, Denominator_sctel_subleading_pt_barrel, h_eff_sctel_subleading_pt_EB.at(iPicture));
+    MonitorElement *Numerator_patel_leading_pt_endcap = igetter.get(
+        sourceFolder_ + "/resonanceZ_Tag_pat_Probe_patElectron_leading_Pt_Endcap_pass" + cleaned_vt + "_fireTrigObj");
+    MonitorElement *Denominator_patel_leading_pt_endcap =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_patElectron_leading_Pt_Endcap_passBaseDST");
+    if (Numerator_patel_leading_pt_endcap && Denominator_patel_leading_pt_endcap)
+      calculateEfficiency(Numerator_patel_leading_pt_endcap,
+                          Denominator_patel_leading_pt_endcap,
+                          h_eff_patel_leading_pt_EE.at(iPicture));
 
+    MonitorElement *Numerator_patel_subleading_pt_barrel =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_patElectron_subleading_Pt_Barrel_pass" + cleaned_vt +
+                    "_fireTrigObj");
+    MonitorElement *Denominator_patel_subleading_pt_barrel =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_patElectron_subleading_Pt_Barrel_passBaseDST");
+    if (Numerator_patel_subleading_pt_barrel && Denominator_patel_subleading_pt_barrel)
+      calculateEfficiency(Numerator_patel_subleading_pt_barrel,
+                          Denominator_patel_subleading_pt_barrel,
+                          h_eff_patel_subleading_pt_EB.at(iPicture));
 
-      MonitorElement *Numerator_sctel_subleading_pt_endcap = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_sctElectron_subleading_Pt_Endcap_pass" + 
-                     cleaned_vt + 
-                     "_fireTrigObj"
-                    );
-      MonitorElement *Denominator_sctel_subleading_pt_endcap = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_sctElectron_subleading_Pt_Endcap_passBaseDST" 
-                    );
-      if (Numerator_sctel_subleading_pt_endcap && Denominator_sctel_subleading_pt_endcap)
-         calculateEfficiency(Numerator_sctel_subleading_pt_endcap, Denominator_sctel_subleading_pt_endcap, h_eff_sctel_subleading_pt_EE.at(iPicture));
+    MonitorElement *Numerator_patel_subleading_pt_endcap =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_patElectron_subleading_Pt_Endcap_pass" + cleaned_vt +
+                    "_fireTrigObj");
+    MonitorElement *Denominator_patel_subleading_pt_endcap =
+        igetter.get(sourceFolder_ + "/resonanceZ_Tag_pat_Probe_patElectron_subleading_Pt_Endcap_passBaseDST");
+    if (Numerator_patel_subleading_pt_endcap && Denominator_patel_subleading_pt_endcap)
+      calculateEfficiency(Numerator_patel_subleading_pt_endcap,
+                          Denominator_patel_subleading_pt_endcap,
+                          h_eff_patel_subleading_pt_EE.at(iPicture));
 
-      MonitorElement *Numerator_patel_leading_pt_barrel = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_patElectron_leading_Pt_Barrel_pass" + 
-                     cleaned_vt + 
-                     "_fireTrigObj"
-                    );
-      MonitorElement *Denominator_patel_leading_pt_barrel = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_patElectron_leading_Pt_Barrel_passBaseDST" 
-                    );
-      if (Numerator_patel_leading_pt_barrel && Denominator_patel_leading_pt_barrel)
-         calculateEfficiency(Numerator_patel_leading_pt_barrel, Denominator_patel_leading_pt_barrel, h_eff_patel_leading_pt_EB.at(iPicture));
-
-
-      MonitorElement *Numerator_patel_leading_pt_endcap = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_patElectron_leading_Pt_Endcap_pass" + 
-                     cleaned_vt + 
-                     "_fireTrigObj"
-                    );
-      MonitorElement *Denominator_patel_leading_pt_endcap = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_patElectron_leading_Pt_Endcap_passBaseDST" 
-                    );
-      if (Numerator_patel_leading_pt_endcap && Denominator_patel_leading_pt_endcap)
-         calculateEfficiency(Numerator_patel_leading_pt_endcap, Denominator_patel_leading_pt_endcap, h_eff_patel_leading_pt_EE.at(iPicture));
-
-      MonitorElement *Numerator_patel_subleading_pt_barrel = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_patElectron_subleading_Pt_Barrel_pass" + 
-                     cleaned_vt + 
-                     "_fireTrigObj"
-                    );
-      MonitorElement *Denominator_patel_subleading_pt_barrel = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_patElectron_subleading_Pt_Barrel_passBaseDST" 
-                    );
-      if (Numerator_patel_subleading_pt_barrel && Denominator_patel_subleading_pt_barrel)
-         calculateEfficiency(Numerator_patel_subleading_pt_barrel, Denominator_patel_subleading_pt_barrel, h_eff_patel_subleading_pt_EB.at(iPicture));
-
-
-      MonitorElement *Numerator_patel_subleading_pt_endcap = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_patElectron_subleading_Pt_Endcap_pass" + 
-                     cleaned_vt + 
-                     "_fireTrigObj"
-                    );
-      MonitorElement *Denominator_patel_subleading_pt_endcap = 
-         igetter.get(sourceFolder_ + 
-                     "/resonanceZ_Tag_pat_Probe_patElectron_subleading_Pt_Endcap_passBaseDST" 
-                    );
-      if (Numerator_patel_subleading_pt_endcap && Denominator_patel_subleading_pt_endcap)
-         calculateEfficiency(Numerator_patel_subleading_pt_endcap, Denominator_patel_subleading_pt_endcap, h_eff_patel_subleading_pt_EE.at(iPicture));
-
-
-      iPicture += 1;
+    iPicture += 1;
   }
 }
 
