@@ -15,58 +15,6 @@ namespace simdoublets {
     return (recHit->globalPosition() - referencePosition);
   }
 
-  // // Function to get the cluster size in local y-direction as it is defined in the Patatrack reconstruction.
-  // // Optionally, you can provide the max number of columns in the module. If you do so, it is checked if
-  // // the cluster lies at the y-edge of the module. If it does, the returned cluster size is -1.
-  // int getClusterYSize(SiPixelRecHitRef const& recHit, int const nColsModule = -1) {
-  //   // get cluster of the RecHit
-  //   OmniClusterRef::ClusterPixelRef cluster = recHit->cluster();
-
-  //   // check first if nColsModule is provided
-  //   if (nColsModule > 0) {
-  //     // if so, check if the cluster lies at the y-edge
-  //     if (cluster->minPixelCol() == 0 || cluster->maxPixelCol() == nColsModule - 1) {
-  //       return -1;
-  //     }
-  //   }
-
-  //   // column span (span of cluster in y direction)
-  //   int span = cluster->colSpan();
-  //   // std::cout << "RecHit at z=" << recHit->globalPosition().z() << " has span=" << span << std::endl;
-
-  //   // total charge of the first and last column of digis respectively
-  //   int q_firstCol = 0;
-  //   int q_lastCol = 0;
-
-  //   // loop over the pixels/digis of the cluster and update the charges of first and last column
-  //   int minY = cluster->minPixelCol();
-  //   int minX = cluster->minPixelRow();
-
-  //   int offset;
-  //   for (int i{0}; i < cluster->size(); i++) {
-  //     offset = cluster->pixelOffset()[2 * i + 1];
-  //     int x = cluster->pixelOffset()[2 * i] + minX;
-  //     std::cout << "    > pixel at x=" << x << ", y=" << (offset + minY) << " has ADC=" << cluster->pixelADC()[i]
-  //               << std::endl;
-
-  //     // check if pixel is in first column and eventually update the charge
-  //     if (offset == 0) {
-  //       q_firstCol += cluster->pixelADC()[i];
-  //     }
-  //     // check if pixel is in last column and eventually update the charge
-  //     if (offset == span) {
-  //       q_lastCol += cluster->pixelADC()[i];
-  //     }
-  //   }
-
-  //   // calculate the unbalance term
-  //   int unbalance = 8. * std::abs(float(q_firstCol - q_lastCol)) / float(q_firstCol + q_lastCol);
-
-  //   // calculate the cluster size
-  //   int clusterYSize = 8 * (span + 1) - unbalance;
-  //   return clusterYSize;
-  // }
-
   // Function that determines the number of skipped layers for a given pair of RecHits.
   int getNumSkippedLayers(std::pair<uint8_t, uint8_t> const& layerIds,
                           std::pair<SiPixelRecHitRef, SiPixelRecHitRef> const& recHitRefs,
@@ -120,11 +68,11 @@ SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
                               size_t const outerIndex,
                               const TrackerTopology* trackerTopology,
                               std::vector<size_t> const& innerNeighborsIndices)
-    : status_(SimDoublets::Doublet::Status::undef), beamSpotPosition_(simDoublets.beamSpotPosition()) {
-  // fill recHits and layers
-  recHitRefs_ = std::make_pair(simDoublets.recHits(innerIndex), simDoublets.recHits(outerIndex));
-  layerIds_ = std::make_pair(simDoublets.layerIds(innerIndex), simDoublets.layerIds(outerIndex));
-
+    : recHitRefs_(std::make_pair(simDoublets.recHits(innerIndex), simDoublets.recHits(outerIndex))),
+      layerIds_(std::make_pair(simDoublets.layerIds(innerIndex), simDoublets.layerIds(outerIndex))),
+      clusterYSizes_(std::make_pair(simDoublets.clusterYSizes(innerIndex), simDoublets.clusterYSizes(outerIndex))),
+      status_(SimDoublets::Doublet::Status::undef),
+      beamSpotPosition_(simDoublets.beamSpotPosition()) {
   // determine number of skipped layers
   numSkippedLayers_ = simdoublets::getNumSkippedLayers(layerIds_, recHitRefs_, trackerTopology);
 

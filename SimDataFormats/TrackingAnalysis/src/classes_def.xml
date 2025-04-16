@@ -41,7 +41,8 @@
   <class name="SimTrackToTPMap" rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<SimTrackToTPMap>"/>
 
-  <class name="SimDoublets" ClassVersion="3">
+  <class name="SimDoublets" ClassVersion="4">
+   <version ClassVersion="4" checksum="3473859038"/>
    <version ClassVersion="3" checksum="2009082523"/>
     <field name="doublets_" transient="true" />
     <field name="ntuplets_" transient="true" />
