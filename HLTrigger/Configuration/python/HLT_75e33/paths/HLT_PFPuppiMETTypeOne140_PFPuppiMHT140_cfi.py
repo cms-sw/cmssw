@@ -21,8 +21,8 @@ HLT_PFPuppiMETTypeOne140_PFPuppiMHT140 = cms.Path(
     HLTBeginSequence
     + hltL1SeedsForPuppiMETFilter
     + HLTRawToDigiSequence
-    + HLTTICLLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

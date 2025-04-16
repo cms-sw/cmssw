@@ -35,8 +35,8 @@ HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1 = cms.Path(
     HLTBeginSequence
     + hltPuppiTauTkMuon4218L1TkFilter
     + HLTRawToDigiSequence
-    + HLTTICLLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

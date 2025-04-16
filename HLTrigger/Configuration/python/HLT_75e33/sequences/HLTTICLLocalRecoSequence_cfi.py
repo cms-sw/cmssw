@@ -12,8 +12,11 @@ from ..modules.hltHgcalSoARecHitsLayerClustersProducer_cfi import *
 from ..modules.hltHgcalSoALayerClustersProducer_cfi import *
 from ..modules.hltHgcalLayerClustersFromSoAProducer_cfi import *
 # Barrel layer clusters
+from ..modules.hltParticleFlowRecHitECALUnseeded_cfi import *
+from ..modules.hltParticleFlowRecHitHBHE_cfi import *
 from ..modules.hltBarrelLayerClustersEB_cfi import *
 from ..modules.hltBarrelLayerClustersHB_cfi import *
+from ..sequences.HLTPfRecHitUnseededSequence_cfi import *
 
 HLTTICLLocalRecoSequence = cms.Sequence(
         hltHGCalUncalibRecHit+
@@ -51,6 +54,7 @@ _HLTTICLLocalRecoSequence_withBarrel = cms.Sequence(
         hltHgcalLayerClustersEE+
         hltHgcalLayerClustersHSci+
         hltHgcalLayerClustersHSi+
+        HLTPfRecHitUnseededSequence+
         hltBarrelLayerClustersEB+
         hltBarrelLayerClustersHB+
         hltMergeLayerClusters
@@ -65,6 +69,7 @@ _HLTTICLLocalRecoSequence_heterogeneous_withBarrel = cms.Sequence(
         hltHgCalLayerClustersFromSoAProducer+
         hltHgcalLayerClustersHSci+
         hltHgcalLayerClustersHSi+
+        HLTPfRecHitUnseededSequence+
         hltBarrelLayerClustersEB+
         hltBarrelLayerClustersHB+
         hltMergeLayerClusters
