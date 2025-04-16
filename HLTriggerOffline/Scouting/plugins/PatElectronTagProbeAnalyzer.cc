@@ -171,7 +171,6 @@ private:
   edm::EDGetToken algToken_;
   std::shared_ptr<l1t::L1TGlobalUtil> l1GtUtils_;
   std::vector<std::string> l1Seeds_;
-  edm::EDGetTokenT<BXVector<l1t::EGamma>> l1EGToken_;
 
   const edm::EDGetToken triggerResultsToken_;
   const edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
@@ -190,7 +189,6 @@ PatElectronTagProbeAnalyzer::PatElectronTagProbeAnalyzer(const edm::ParameterSet
       l1filterToMatch_{iConfig.getParameter<std::vector<std::string>>("l1filterSelection")},
       l1filterIndex_{iConfig.getParameter<std::vector<unsigned int>>("l1filterSelectionIndex")},
       algToken_{consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<edm::InputTag>("AlgInputTag"))},
-      l1EGToken_{consumes<BXVector<l1t::EGamma>>(iConfig.getParameter<edm::InputTag>("L1ElectronCollection"))},
       triggerResultsToken_(
           consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("TriggerResultTag"))),
       triggerObjects_(
@@ -225,10 +223,6 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     return;
   }
  
-
-  edm::Handle<BXVector<l1t::EGamma>> l1EGammaCollection; // TODO
-  iEvent.getByToken(l1EGToken_, l1EGammaCollection);  // TODO
-
   // Load pat Electron ID.
   edm::Handle<edm::ValueMap<bool>> tight_ele_id_decisions;
   iEvent.getByToken(eleIdMapTightToken_, tight_ele_id_decisions);
@@ -991,7 +985,6 @@ void PatElectronTagProbeAnalyzer::fillDescriptions(edm::ConfigurationDescription
   desc.add<std::vector<std::string>>("l1filterSelection", {});
   desc.add<std::vector<unsigned int>>("l1filterSelectionIndex", {});
   desc.add<edm::InputTag>("AlgInputTag", edm::InputTag("gtStage2Digis"));
-  desc.add<edm::InputTag>("L1ElectronCollection", edm::InputTag("gtStage2Digis", "EGamma"));
   desc.add<std::vector<std::string>>("L1Seeds", {});
   desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));

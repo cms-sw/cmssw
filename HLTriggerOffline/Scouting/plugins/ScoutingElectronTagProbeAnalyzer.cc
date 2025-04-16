@@ -233,7 +233,7 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     int second_sct_pt_order = -1;
     for (size_t second_sct_local_index=0; second_sct_local_index < indexed_sctElectrons.size(); second_sct_local_index++) {
       const auto sct_el_second = indexed_sctElectrons[second_sct_local_index].second;
-      second_sct_pt_order += 1;
+      if (scoutingDQMUtils::scoutingElectronID(sct_el_second)) second_sct_pt_order += 1; // Only use scouting electron passing ID in HLT eff calculation.
       if (&sct_el_second == &sct_el)
         continue;
       math::PtEtaPhiMLorentzVector probe_sct_el(
@@ -326,7 +326,7 @@ void ScoutingElectronTagProbeAnalyzer::fillHistograms_resonance(
         }
       }
       else if (pt_order == 1){
-        histos.subleading_electron.hPt_Endcap_passBaseDST->Fill(el.pt());
+        histos.subleading_electron.hPt_Barrel_passBaseDST->Fill(el.pt());
         histos.subleading_electron.hEta_passBaseDST->Fill(el.eta());
         for(unsigned int iTrig = 0; iTrig < vtriggerSelection_.size(); iTrig++){
             if(scoutingElectron_passHLT(el, legObjectsCollection[iTrig])){
