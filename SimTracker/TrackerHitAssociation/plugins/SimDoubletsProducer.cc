@@ -21,6 +21,7 @@
 
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
@@ -35,8 +36,13 @@
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/SimDoublets.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFastParamsHost.h"
+#include "RecoLocalTracker/Records/interface/PixelCPEFastParamsRecord.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <utility>
 #include <vector>
 #include <memory>
@@ -73,9 +79,14 @@ public:
 
 private:
   TrackingParticleSelector trackingParticleSelector;
+  pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams_ = nullptr;
   const TrackerTopology* trackerTopology_ = nullptr;
+  const TrackerGeometry* trackerGeometry_ = nullptr;
 
+  // tokens for ClusterParameterEstimator, tracker topology, ect.
+  const edm::ESGetToken<PixelCPEFastParamsHost<TrackerTraits>, PixelCPEFastParamsRecord> cpe_getToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topology_getToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometry_getToken_;
   const edm::EDGetTokenT<ClusterTPAssociation> clusterTPAssociation_getToken_;
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_getToken_;
   const edm::EDGetTokenT<SiPixelRecHitCollection> pixelRecHits_getToken_;
@@ -110,12 +121,53 @@ namespace simdoublets {
     // return the determined Id
     return layerId;
   }
+
+  // function that determines the cluster size of a RecHit in local y direction
+  // according to the formula used in Patatrack reconstruction
+  int clusterYSize(OmniClusterRef::ClusterPixelRef const cluster, uint16_t const pixmx, int const maxCol) {
+    // check if the cluster lies at the y-edge of the module
+    if (cluster->minPixelCol() == 0 || cluster->maxPixelCol() == maxCol) {
+      // if so, return -1
+      return -1;
+    }
+
+    // column span (span of cluster in y direction)
+    int span = cluster->colSpan();
+
+    // total charge of the first and last column of digis respectively
+    int q_firstCol = 0;
+    int q_lastCol = 0;
+
+    // loop over the pixels/digis of the cluster and update the charges of first and last column
+    int offset;
+    for (int i{0}; i < cluster->size(); i++) {
+      offset = cluster->pixelOffset()[2 * i + 1];
+
+      // check if pixel is in first column and eventually update the charge
+      if (offset == 0) {
+        q_firstCol += std::min(cluster->pixelADC()[i], pixmx);
+      }
+      // check if pixel is in last column and eventually update the charge
+      if (offset == span) {
+        q_lastCol += std::min(cluster->pixelADC()[i], pixmx);
+      }
+    }
+
+    // calculate the unbalance term
+    int unbalance = 8. * std::abs(float(q_firstCol - q_lastCol)) / float(q_firstCol + q_lastCol);
+
+    // calculate the cluster size
+    int clusterYSize = 8 * (span + 1) - unbalance;
+    return clusterYSize;
+  }
 }  // namespace simdoublets
 
 // constructor
 template <typename TrackerTraits>
 SimDoubletsProducer<TrackerTraits>::SimDoubletsProducer(const edm::ParameterSet& pSet)
-    : topology_getToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+    : cpe_getToken_(esConsumes(edm::ESInputTag("", pSet.getParameter<std::string>("CPE")))),
+      topology_getToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      geometry_getToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       clusterTPAssociation_getToken_(
           consumes<ClusterTPAssociation>(pSet.getParameter<edm::InputTag>("clusterTPAssociationSrc"))),
       trackingParticles_getToken_(consumes(pSet.getParameter<edm::InputTag>("trackingParticleSrc"))),
@@ -150,6 +202,12 @@ template <>
 void SimDoubletsProducer<pixelTopology::Phase1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
+  // cluster parameter estimator
+  std::string cpe = "PixelCPEFastParams";
+  cpe += pixelTopology::Phase1::nameModifier;
+  desc.add<std::string>("CPE", cpe)
+      ->setComment("Cluster Parameter Estimator (needed for calculating the cluster size)");
+
   // sources for cluster-TrackingParticle association, TrackingParticles, RecHits and the beamspot
   desc.add<edm::InputTag>("clusterTPAssociationSrc", edm::InputTag("hltTPClusterProducer"));
   desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
@@ -182,6 +240,12 @@ void SimDoubletsProducer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
 template <>
 void SimDoubletsProducer<pixelTopology::Phase2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+
+  // cluster parameter estimator
+  std::string cpe = "PixelCPEFastParams";
+  cpe += pixelTopology::Phase2::nameModifier;
+  desc.add<std::string>("CPE", cpe)
+      ->setComment("Cluster Parameter Estimator (needed for calculating the cluster size)");
 
   // sources for cluster-TrackingParticle association, TrackingParticles, RecHits and the beamspot
   desc.add<edm::InputTag>("clusterTPAssociationSrc", edm::InputTag("hltTPClusterProducer"));
@@ -216,8 +280,13 @@ void SimDoubletsProducer<TrackerTraits>::beginRun(const edm::Run& run, const edm
 
 template <typename TrackerTraits>
 void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
-  // get TrackerTopology
+  // get TrackerTopology and TrackerGeometry
   trackerTopology_ = &eventSetup.getData(topology_getToken_);
+  trackerGeometry_ = &eventSetup.getData(geometry_getToken_);
+
+  // get cluster parameter estimate
+  auto& cpe = eventSetup.getData(cpe_getToken_);
+  cpeParams_ = cpe.data();
 
   // get cluster to TrackingParticle association
   ClusterTPAssociation const& clusterTPAssociation = event.get(clusterTPAssociation_getToken_);
@@ -268,10 +337,28 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
   // initialize a couple of counters
   int count_associatedRecHits{0}, count_RecHitsInSimDoublets{0};
 
+  // initialize a couple of variables used in the following loop
+  unsigned int detId, layerId, maxCol;
+  uint16_t pixmx;
+  int moduleId, clusterYSize;
+
   // loop over pixel RecHit collections of the different pixel modules
   for (const auto& detSet : *hits) {
-    // determine layer Id
-    unsigned int layerId = simdoublets::getLayerId<TrackerTraits>(detSet.detId(), trackerTopology_);
+    // get detector Id
+    detId = detSet.detId();
+    DetId detIdObject(detId);
+
+    // determine layer Id from detector Id
+    layerId = simdoublets::getLayerId<TrackerTraits>(detId, trackerTopology_);
+
+    // determine the module Id
+    // const GeomDetUnit* genericDet = geom_->idToDetUnit(detIdObject);
+    moduleId = trackerGeometry_->idToDetUnit(detIdObject)->index();
+    // get CPE parameters for the given module that are used when determining the cluster size:
+    // 1. maximum charge per pixel considered for calculating the inbalance term
+    pixmx = cpeParams_->detParams(moduleId).pixmx;
+    // 2. the index of the boundary column to check if a cluster lies at the module edge
+    maxCol = cpeParams_->detParams(moduleId).nCols - 1;
 
     // loop over RecHits
     for (auto const& hit : detSet) {
@@ -287,12 +374,13 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
           // if the associated TrackingParticle is among the selected ones
           if (selectedTrackingParticleKeys.has(assocTrackingParticle.key())) {
             SiPixelRecHitRef hitRef = edmNew::makeRefTo(hits, &hit);
+            clusterYSize = simdoublets::clusterYSize(hit.cluster(), pixmx, maxCol);
             count_associatedRecHits++;
             // loop over collection of SimDoublets and find the one of the associated TrackingParticle
             for (auto& simDoublets : simDoubletsCollection) {
               TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
               if (assocTrackingParticle.key() == trackingParticleRef.key()) {
-                simDoublets.addRecHit(hitRef, layerId);
+                simDoublets.addRecHit(hitRef, layerId, clusterYSize);
                 count_RecHitsInSimDoublets++;
               }
             }
