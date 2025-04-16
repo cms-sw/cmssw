@@ -252,16 +252,18 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
       TrajectoryStateOnSurface tsos1 = extrapolator.extrapolate(
           ditracks_ttracks->at(trk1_idx).impactPointState(),
           fitter.fitted_vtx());
-      std::pair<bool, Measurement1D> cur2DIP1 = bph::signedTransverseImpactParameter(
-          tsos1, fitter.fitted_refvtx(), *beamspot);
+      std::pair<bool, Measurement1D> cur2DIP1 =
+          bph::signedTransverseImpactParameter(tsos1, fitter.fitted_refvtx(),
+                                               *beamspot);
       cand.addUserFloat("trk1_svip2d", cur2DIP1.second.value());
       cand.addUserFloat("trk1_svip2d_err", cur2DIP1.second.error());
 
       TrajectoryStateOnSurface tsos2 = extrapolator.extrapolate(
           ditracks_ttracks->at(trk2_idx).impactPointState(),
           fitter.fitted_vtx());
-      std::pair<bool, Measurement1D> cur2DIP2 = bph::signedTransverseImpactParameter(
-          tsos2, fitter.fitted_refvtx(), *beamspot);
+      std::pair<bool, Measurement1D> cur2DIP2 =
+          bph::signedTransverseImpactParameter(tsos2, fitter.fitted_refvtx(),
+                                               *beamspot);
       cand.addUserFloat("trk2_svip2d", cur2DIP2.second.value());
       cand.addUserFloat("trk2_svip2d_err", cur2DIP2.second.error());
 
@@ -298,17 +300,17 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
         cand.addUserFloat(dnames[idaughter] + "_iso04", isos[idaughter]);
       }
 
-      float constraint_sv_prob=-9;
-      float constraint_pt=-9;
-      float constraint_eta=-9;
-      float constraint_phi=-9;
-      float constraint_mass_KK=-9;
-      float constraint_mass_Kpi=-9;
-      float constraint_mass_piK=-9;
-      float constraint_massErr_KK=-9;
-      float constraint_massErr_Kpi=-9;
-      float constraint_massErr_piK=-9;
-      float constraint_mll=-9;
+      float constraint_sv_prob = -9;
+      float constraint_pt = -9;
+      float constraint_eta = -9;
+      float constraint_phi = -9;
+      float constraint_mass_KK = -9;
+      float constraint_mass_Kpi = -9;
+      float constraint_mass_piK = -9;
+      float constraint_massErr_KK = -9;
+      float constraint_massErr_Kpi = -9;
+      float constraint_massErr_piK = -9;
+      float constraint_mll = -9;
 
       const double dilepton_mass = ll_ptr->userFloat("fitted_mass");
       const double jpsi_bin[2] = {2.8, 3.35};
@@ -330,34 +332,45 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt,
             {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
              ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
             {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::K_MASS},
-            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA}, mass_constraint);
+            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
+            mass_constraint);
         if (!constraint_fitter_KK.success()) continue;
         KinVtxFitter constraint_fitter_Kpi(
             {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
              ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
             {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS, bph::PI_MASS},
-            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA}, mass_constraint);
+            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
+            mass_constraint);
         if (!constraint_fitter_Kpi.success()) continue;
         KinVtxFitter constraint_fitter_piK(
             {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx),
              ditracks_ttracks->at(trk1_idx), ditracks_ttracks->at(trk2_idx)},
             {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, bph::K_MASS},
-            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA}, mass_constraint);
+            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA, bph::K_SIGMA},
+            mass_constraint);
         if (!constraint_fitter_piK.success()) continue;
 
         if (constraint_fitter_KK.success()) {
           auto constraint_p4 = constraint_fitter_KK.fitted_p4();
-          constraint_sv_prob=constraint_fitter_KK.prob();
-          constraint_pt=constraint_p4.pt();
-          constraint_eta=constraint_p4.eta();
-          constraint_phi=constraint_p4.phi();
-          constraint_mass_KK=constraint_fitter_KK.fitted_candidate().mass();
-          constraint_massErr_KK=sqrt(constraint_fitter_KK.fitted_candidate().kinematicParametersError().matrix()(6, 6));
-          constraint_mass_Kpi= constraint_fitter_Kpi.fitted_candidate().mass();
-          constraint_massErr_Kpi=sqrt(constraint_fitter_Kpi.fitted_candidate().kinematicParametersError().matrix()(6, 6));
-          constraint_mass_piK=constraint_fitter_piK.fitted_candidate().mass();
-	  constraint_massErr_piK=sqrt(constraint_fitter_piK.fitted_candidate().kinematicParametersError().matrix()(6, 6));
-          constraint_mll=(constraint_fitter_KK.daughter_p4(0) + constraint_fitter_KK.daughter_p4(1)).mass();
+          constraint_sv_prob = constraint_fitter_KK.prob();
+          constraint_pt = constraint_p4.pt();
+          constraint_eta = constraint_p4.eta();
+          constraint_phi = constraint_p4.phi();
+          constraint_mass_KK = constraint_fitter_KK.fitted_candidate().mass();
+          constraint_massErr_KK = sqrt(constraint_fitter_KK.fitted_candidate()
+                                           .kinematicParametersError()
+                                           .matrix()(6, 6));
+          constraint_mass_Kpi = constraint_fitter_Kpi.fitted_candidate().mass();
+          constraint_massErr_Kpi = sqrt(constraint_fitter_Kpi.fitted_candidate()
+                                            .kinematicParametersError()
+                                            .matrix()(6, 6));
+          constraint_mass_piK = constraint_fitter_piK.fitted_candidate().mass();
+          constraint_massErr_piK = sqrt(constraint_fitter_piK.fitted_candidate()
+                                            .kinematicParametersError()
+                                            .matrix()(6, 6));
+          constraint_mll = (constraint_fitter_KK.daughter_p4(0) +
+                            constraint_fitter_KK.daughter_p4(1))
+                               .mass();
         }
       }
       cand.addUserFloat("constraint_sv_prob", constraint_sv_prob);

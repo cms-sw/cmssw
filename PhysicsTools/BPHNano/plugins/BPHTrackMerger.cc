@@ -71,7 +71,7 @@ class BPHTrackMerger : public edm::global::EDProducer<> {
 };
 
 void BPHTrackMerger::produce(edm::StreamID, edm::Event &evt,
-                          edm::EventSetup const &stp) const {
+                             edm::EventSetup const &stp) const {
   // input
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   evt.getByToken(beamSpotSrc_, beamSpotHandle);
