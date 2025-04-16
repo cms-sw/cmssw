@@ -94,12 +94,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void bookHistograms(DQMStore::IBooker&,
-                      edm::Run const&,
-                      edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-  void analyze(edm::Event const&,
-                  edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   // ------------ member data ------------
   const std::string outputInternalPath_;
@@ -128,14 +125,13 @@ ScoutingEGammaCollectionMonitoring::ScoutingEGammaCollectionMonitoring(const edm
       scoutingElectronCollection_(consumes<std::vector<Run3ScoutingElectron>>(
           iConfig.getParameter<edm::InputTag>("ScoutingElectronCollection"))),
       eleIdMapTightToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("eleIdMapTight"))) {
-          l1GtUtils_ = std::make_shared<l1t::L1TGlobalUtil>(iConfig, consumesCollector(), l1t::UseEventSetupIn::RunAndEvent);
-          l1Seeds_   = iConfig.getParameter<std::vector<std::string>>("L1Seeds");
-      }
+  l1GtUtils_ = std::make_shared<l1t::L1TGlobalUtil>(iConfig, consumesCollector(), l1t::UseEventSetupIn::RunAndEvent);
+  l1Seeds_ = iConfig.getParameter<std::vector<std::string>>("L1Seeds");
+}
 
 // ------------ method called for each event  ------------
 
-void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent,
-                                                    edm::EventSetup const& iSetup) {
+void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   ////////////////////////////////////////
   // Get PAT / Scouting Electron Token  //
   ////////////////////////////////////////
@@ -164,7 +160,7 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent,
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(triggerResultsToken_, triggerResults);
 
-  if (triggerResults.failedToGet()){
+  if (triggerResults.failedToGet()) {
     edm::LogWarning("ScoutingEGammaCollectionMonitoring") << "Trgger Results not found.";
     return;
   }
@@ -172,14 +168,14 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent,
   int nTriggers = triggerResults->size();
   std::vector<bool> vtrigger_result(vtriggerSelection_.size(), false);
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
-  for (int i_Trig = 0; i_Trig < nTriggers; i_Trig++){
-    if (triggerResults.product()->accept(i_Trig)){
-        TString TrigPath = triggerNames.triggerName(i_Trig);
-        for(unsigned int i_selectTrig = 0; i_selectTrig < vtriggerSelection_.size(); i_selectTrig++){
-            if(TrigPath.Index(vtriggerSelection_.at(i_selectTrig)) >=0){
-              vtrigger_result[i_selectTrig] = true;
-            }
+  for (int i_Trig = 0; i_Trig < nTriggers; i_Trig++) {
+    if (triggerResults.product()->accept(i_Trig)) {
+      TString TrigPath = triggerNames.triggerName(i_Trig);
+      for (unsigned int i_selectTrig = 0; i_selectTrig < vtriggerSelection_.size(); i_selectTrig++) {
+        if (TrigPath.Index(vtriggerSelection_.at(i_selectTrig)) >= 0) {
+          vtrigger_result[i_selectTrig] = true;
         }
+      }
     }
   }
 
@@ -194,7 +190,6 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent,
           << "pat::Electron[" << i + 1 << "].pt() = " << patEls->ptrAt(i + 1)->pt();
     }
   }
-
 
   // Fill pat::Electron histograms
   histos.patElectron.h1N->Fill(patEls->size());
@@ -305,42 +300,40 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent,
     }
 
     l1GtUtils_->retrieveL1(iEvent, iSetup, algToken_);
-    for (unsigned int i_selectTrig =0; i_selectTrig < vtriggerSelection_.size(); i_selectTrig++){
-      if (vtrigger_result.at(i_selectTrig)){
-          histos.sctElectron.hInvMassID_passDST.at(i_selectTrig)[0]->Fill(invMass);
-          if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-              fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
-                 histos.sctElectron.hInvMassIDEBEB_passDST.at(i_selectTrig)[0]->Fill(invMass);
-          } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-                     fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
-                 histos.sctElectron.hInvMassIDEBEE_passDST.at(i_selectTrig)[0]->Fill(invMass);
-          } else {
-                 histos.sctElectron.hInvMassIDEEEE_passDST.at(i_selectTrig)[0]->Fill(invMass);
+    for (unsigned int i_selectTrig = 0; i_selectTrig < vtriggerSelection_.size(); i_selectTrig++) {
+      if (vtrigger_result.at(i_selectTrig)) {
+        histos.sctElectron.hInvMassID_passDST.at(i_selectTrig)[0]->Fill(invMass);
+        if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+            fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
+          histos.sctElectron.hInvMassIDEBEB_passDST.at(i_selectTrig)[0]->Fill(invMass);
+        } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                   fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
+          histos.sctElectron.hInvMassIDEBEE_passDST.at(i_selectTrig)[0]->Fill(invMass);
+        } else {
+          histos.sctElectron.hInvMassIDEEEE_passDST.at(i_selectTrig)[0]->Fill(invMass);
+        }
+
+        for (unsigned int i_l1seed = 0; i_l1seed < l1Seeds_.size(); i_l1seed++) {
+          const auto& l1seed(l1Seeds_.at(i_l1seed));
+          bool l1htbit = false;
+          double prescale = -1;
+          l1GtUtils_->getFinalDecisionByName(l1seed, l1htbit);
+          l1GtUtils_->getPrescaleByName(l1seed, prescale);
+          if (l1htbit == 1) {
+            histos.sctElectron.hInvMassID_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
+            if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
+              histos.sctElectron.hInvMassIDEBEB_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
+            } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                       fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
+              histos.sctElectron.hInvMassIDEBEE_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
+            } else {
+              histos.sctElectron.hInvMassIDEEEE_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
+            }
           }
-               
-          for (unsigned int i_l1seed = 0; i_l1seed < l1Seeds_.size(); i_l1seed++){
-                 const auto& l1seed(l1Seeds_.at(i_l1seed));
-                 bool l1htbit = false;
-                 double prescale = -1;
-                 l1GtUtils_->getFinalDecisionByName(l1seed, l1htbit);
-                 l1GtUtils_->getPrescaleByName(l1seed, prescale);
-                 if (l1htbit == 1){
-                     histos.sctElectron.hInvMassID_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
-                     if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-                         fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
-                       histos.sctElectron.hInvMassIDEBEB_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
-                     } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-                                fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
-                       histos.sctElectron.hInvMassIDEBEE_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
-                     } else {
-                     histos.sctElectron.hInvMassIDEEEE_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
-                     }
-                 }
-          }
-       }
+        }
+      }
     }
-
-
   }
 }
 
@@ -411,44 +404,52 @@ void ScoutingEGammaCollectionMonitoring::bookHistograms(DQMStore::IBooker& ibook
   histos.sctElectron.h1InvMassIDEEEE =
       ibook.book1D("sctElectron_EEEE_appliedID_invMass", "sctElectron_EEEE_appliedID_invMass", 400, 0., 200.);
 
+  for (auto const& vt : vtriggerSelection_) {
+    std::string cleaned_vt = vt;
+    cleaned_vt.erase(std::remove(cleaned_vt.begin(), cleaned_vt.end(), '*'), cleaned_vt.end());
 
-  for (auto const &vt : vtriggerSelection_){
-      std::string cleaned_vt = vt;
-      cleaned_vt.erase(std::remove(cleaned_vt.begin(), cleaned_vt.end(), '*'), cleaned_vt.end());
+    std::vector<dqm::reco::MonitorElement*> h_passDST;
+    std::vector<dqm::reco::MonitorElement*> h_EBEB_passDST;
+    std::vector<dqm::reco::MonitorElement*> h_EBEE_passDST;
+    std::vector<dqm::reco::MonitorElement*> h_EEEE_passDST;
 
-      std::vector<dqm::reco::MonitorElement*> h_passDST;
-      std::vector<dqm::reco::MonitorElement*> h_EBEB_passDST;
-      std::vector<dqm::reco::MonitorElement*> h_EBEE_passDST;
-      std::vector<dqm::reco::MonitorElement*> h_EEEE_passDST;
-   
-      h_passDST.push_back(
-              ibook.book1D("sctElectron_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
-      h_EBEB_passDST.push_back(
-              ibook.book1D("sctElectron_EBEB_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
-      h_EBEE_passDST.push_back(
-              ibook.book1D("sctElectron_EBEE_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
-      h_EEEE_passDST.push_back(
-              ibook.book1D("sctElectron_EEEE_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+    h_passDST.push_back(ibook.book1D(
+        "sctElectron_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+    h_EBEB_passDST.push_back(ibook.book1D(
+        "sctElectron_EBEB_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+    h_EBEE_passDST.push_back(ibook.book1D(
+        "sctElectron_EBEE_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+    h_EEEE_passDST.push_back(ibook.book1D(
+        "sctElectron_EEEE_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
 
+    for (auto const& l1seed : l1Seeds_) {
+      h_passDST.push_back(ibook.book1D("sctElectron_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
+                                       ";Invariant mass (GeV); Electrons",
+                                       400,
+                                       0.,
+                                       200));
+      h_EBEB_passDST.push_back(ibook.book1D("sctElectron_EBEB_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
+                                            ";Invariant mass (GeV); Electrons",
+                                            400,
+                                            0.,
+                                            200));
+      h_EBEE_passDST.push_back(ibook.book1D("sctElectron_EBEE_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
+                                            ";Invariant mass (GeV); Electrons",
+                                            400,
+                                            0.,
+                                            200));
+      h_EEEE_passDST.push_back(ibook.book1D("sctElectron_EEEE_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
+                                            ";Invariant mass (GeV); Electrons",
+                                            400,
+                                            0.,
+                                            200));
+    }
 
-      for (auto const &l1seed : l1Seeds_){
-          h_passDST.push_back(
-              ibook.book1D("sctElectron_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed, ";Invariant mass (GeV); Electrons", 400, 0., 200));
-          h_EBEB_passDST.push_back(
-              ibook.book1D("sctElectron_EBEB_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed, ";Invariant mass (GeV); Electrons", 400, 0., 200));
-          h_EBEE_passDST.push_back(
-              ibook.book1D("sctElectron_EBEE_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed, ";Invariant mass (GeV); Electrons", 400, 0., 200));
-          h_EEEE_passDST.push_back(
-              ibook.book1D("sctElectron_EEEE_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed, ";Invariant mass (GeV); Electrons", 400, 0., 200));
-
-      }
-
-      histos.sctElectron.hInvMassID_passDST.push_back(h_passDST);
-      histos.sctElectron.hInvMassIDEBEB_passDST.push_back(h_EBEB_passDST);
-      histos.sctElectron.hInvMassIDEBEE_passDST.push_back(h_EBEE_passDST);
-      histos.sctElectron.hInvMassIDEEEE_passDST.push_back(h_EEEE_passDST);
+    histos.sctElectron.hInvMassID_passDST.push_back(h_passDST);
+    histos.sctElectron.hInvMassIDEBEB_passDST.push_back(h_EBEB_passDST);
+    histos.sctElectron.hInvMassIDEBEE_passDST.push_back(h_EBEE_passDST);
+    histos.sctElectron.hInvMassIDEEEE_passDST.push_back(h_EEEE_passDST);
   }
-
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the
