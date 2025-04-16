@@ -368,7 +368,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
 		uint16_t row = j/pixelStatus::pixelSizeY;
 		uint16_t col = j%pixelStatus::pixelSizeY;
-		if( images[module].clus()[col][row] == pixelStatus::empVal  || row >= pixelStatus::pixelSizeY - 1 || col >= pixelStatus::pixelSizeX - 1 || row<=1 || col<= 1)
+		if( images[module].clus()[col][row] == pixelStatus::empVal  || row >= pixelStatus::pixelSizeX - 1 || col >= pixelStatus::pixelSizeY - 1 || row<=1 || col<= 1)
 		{
 			//more=true;
 			continue;
@@ -408,10 +408,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 		 int fpY = digi_view[i].yy();
 		 if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
 		   continue;
-		 if(images[module].clus()[fpY][fpX]!=digi_view[i].clus())
-		 {
-			 printf("SHITTTT %u , %u", digi_view[i].clus(),images[module].clus()[fpY][fpX]);
-		 }
 		 digi_view[i].clus() = images[module].clus()[fpY][fpX];
 
 		 //if(images[module].clus()[fpY][fpX]==digi_view[i].clus())
@@ -425,6 +421,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 		// }
 		 //printf("CLUSID: %d\n",images[module].clus()[fpY][fpX]);
 	}
+
 	  alpaka::syncBlockThreads(acc);
         /*
             // check that all threads in the block have executed the same number of iterations
