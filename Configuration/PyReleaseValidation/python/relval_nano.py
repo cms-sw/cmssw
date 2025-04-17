@@ -179,6 +179,9 @@ steps['TTbarMINIAOD14.0'] = {'INPUT': InputInfo(
 steps['NANO_mc14.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:phase1_2024_realistic'},
                               _NANO_mc])
 
+steps['BPHNANO_mc14.0'] = merge([{'-s': 'NANO:@BPH', '-n': '1000'},
+                                 steps['NANO_mc14.0']])
+
 steps['muPOGNANO_mc14.0'] = merge([{'-s': 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n': '1000'},
                                    steps['NANO_mc14.0']])
 
@@ -235,6 +238,9 @@ steps['NANO_data14.0'] = merge([{'--era': 'Run3_2024,run3_nanoAOD_pre142X', '--c
 
 steps['NANO_data14.0_prompt'] = merge([{'-s': 'NANO:@Prompt,DQM:@nanoAODDQM', '-n': '1000'},
                                        steps['NANO_data14.0']])
+
+steps['BPHNANO_data14.0'] = merge([{'-s': 'NANO:@BPH', '-n': '1000'},
+                                   steps['NANO_data14.0']])
 
 steps['muPOGNANO_data14.0'] = merge([{'-s': 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n': '1000'},
                                      steps['NANO_data14.0']])
@@ -359,6 +365,7 @@ workflows[_wfn()] = ['NANOdata140Xrun3', ['MuonEG2024MINIAOD14.0', 'NANO_data14.
 
 # POG/PAG custom NANOs, MC
 _wfn.subnext()
+workflows[_wfn()] = ['BPHNANOmc140X', ['TTbarMINIAOD14.0', 'BPHNANO_mc14.0']]
 workflows[_wfn()] = ['muPOGNANOmc140X', ['TTbarMINIAOD14.0', 'muPOGNANO_mc14.0']]
 workflows[_wfn()] = ['EGMNANOmc140X', ['TTbarMINIAOD14.0', 'EGMNANO_mc14.0']]
 workflows[_wfn()] = ['BTVNANOmc140X', ['TTbarMINIAOD14.0', 'BTVNANO_mc14.0']]
@@ -370,6 +377,7 @@ workflows[_wfn()] = ['ScoutingNANOwithPromptmc140X', ['TTbarMINIAOD14.0', 'scout
 
 # POG/PAG custom NANOs, data
 _wfn.subnext()
+workflows[_wfn()] = ['BPHNANOdata140Xrun3', ['MuonEG2024MINIAOD14.0', 'BPHNANO_data14.0']]
 workflows[_wfn()] = ['muPOGNANO140Xrun3', ['MuonEG2024MINIAOD14.0', 'muPOGNANO_data14.0']]
 workflows[_wfn()] = ['EGMNANOdata140Xrun3', ['MuonEG2024MINIAOD14.0', 'EGMNANO_data14.0']]
 workflows[_wfn()] = ['BTVNANOdata140Xrun3', ['MuonEG2024MINIAOD14.0', 'BTVNANO_data14.0']]
