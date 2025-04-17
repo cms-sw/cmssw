@@ -4,6 +4,7 @@
 <use name="TrackingTools/GeomPropagators"/>
 <use name="CalibFormats/SiStripObjects"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/Math"/>
 <use name="DataFormats/SiPixelCluster"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
