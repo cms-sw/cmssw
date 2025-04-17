@@ -29,7 +29,6 @@
 #include <set>
 #include <array>
 
-using namespace ROOT::Experimental;
 namespace edm {
   namespace rntuple {
     enum class CompressionAlgos { kLZMA, kZSTD, kZLIB, kLZ4 };
@@ -71,20 +70,20 @@ namespace edm {
     void openFile(FileBlock const& fb);
 
     struct Product {
-      Product(EDGetToken iGet, ProductDescription const* iDesc, REntry::RFieldToken iField)
+      Product(EDGetToken iGet, ProductDescription const* iDesc, ROOT::RFieldToken iField)
           : get_(iGet), desc_(iDesc), field_(iField) {}
 
       EDGetToken get_;
       ProductDescription const* desc_;
-      REntry::RFieldToken field_;
+      ROOT::RFieldToken field_;
     };
 
   private:
     void setupRuns(SelectedProducts const&, Config const&);
     void setupLumis(SelectedProducts const&, Config const&);
-    std::unique_ptr<RNTupleModel> setupCommonModels(SelectedProducts const&,
-                                                    std::string const& iAuxName,
-                                                    std::string const& iAuxType);
+    std::unique_ptr<ROOT::RNTupleModel> setupCommonModels(SelectedProducts const&,
+                                                          std::string const& iAuxName,
+                                                          std::string const& iAuxType);
     void setupEvents(SelectedProducts const&, Config const&, bool anyProductProduced);
     void setupPSets(Config const&);
     void setupParentage(Config const&);
@@ -99,13 +98,13 @@ namespace edm {
     void setupDataProducts(SelectedProducts const&,
                            std::vector<bool> const&,
                            std::vector<std::string> const&,
-                           RNTupleModel&);
+                           ROOT::RNTupleModel&);
     //Can't call until the model is frozen
-    std::vector<Product> associateDataProducts(SelectedProducts const&, RNTupleModel const&);
+    std::vector<Product> associateDataProducts(SelectedProducts const&, ROOT::RNTupleModel const&);
 
     std::vector<std::unique_ptr<edm::WrapperBase>> writeDataProducts(std::vector<Product> const& iProduct,
                                                                      OccurrenceForOutput const& iOccurence,
-                                                                     REntry&);
+                                                                     ROOT::REntry&);
     std::vector<StoredProductProvenance> writeDataProductProvenance(std::vector<Product> const& iProduct,
                                                                     EventForOutput const& iEvent);
     bool insertProductProvenance(ProductProvenance const& iProv, std::set<StoredProductProvenance>& oToKeep);
@@ -113,21 +112,21 @@ namespace edm {
                                    ProductProvenanceRetriever const&,
                                    std::set<StoredProductProvenance>& oToKeep);
     TFile file_;
-    std::unique_ptr<RNTupleWriter> events_;
-    std::optional<REntry::RFieldToken> eventAuxField_;
-    std::optional<REntry::RFieldToken> eventProvField_;
-    std::optional<REntry::RFieldToken> eventSelField_;
-    std::optional<REntry::RFieldToken> branchListField_;
+    std::unique_ptr<ROOT::RNTupleWriter> events_;
+    std::optional<ROOT::RFieldToken> eventAuxField_;
+    std::optional<ROOT::RFieldToken> eventProvField_;
+    std::optional<ROOT::RFieldToken> eventSelField_;
+    std::optional<ROOT::RFieldToken> branchListField_;
 
-    std::unique_ptr<RNTupleWriter> runs_;
-    std::optional<REntry::RFieldToken> runAuxField_;
+    std::unique_ptr<ROOT::RNTupleWriter> runs_;
+    std::optional<ROOT::RFieldToken> runAuxField_;
 
-    std::unique_ptr<RNTupleWriter> lumis_;
-    std::optional<REntry::RFieldToken> lumiAuxField_;
+    std::unique_ptr<ROOT::RNTupleWriter> lumis_;
+    std::optional<ROOT::RFieldToken> lumiAuxField_;
 
-    std::unique_ptr<RNTupleWriter> parameterSets_;
-    std::unique_ptr<RNTupleWriter> parentage_;
-    std::unique_ptr<RNTupleWriter> metaData_;
+    std::unique_ptr<ROOT::RNTupleWriter> parameterSets_;
+    std::unique_ptr<ROOT::RNTupleWriter> parentage_;
+    std::unique_ptr<ROOT::RNTupleWriter> metaData_;
 
     std::map<ParentageID, unsigned int> parentageIDs_;
     ProcessHistoryRegistry processHistoryRegistry_;

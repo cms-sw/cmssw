@@ -56,7 +56,7 @@ namespace edm {
       std::recursive_mutex* mutex_;
       std::vector<ParentageID> const* parentageIDLookup_;
       std::vector<int>::const_iterator entryBegin_;
-      ROOT::Experimental::DescriptorId_t descriptor_;
+      ROOT::DescriptorId_t descriptor_;
     };
 
     std::set<ProductProvenance> ProvenanceReader::readProvenance(unsigned int transitionIndex) const {
@@ -161,9 +161,9 @@ namespace edm {
 
     EventToProcessBlockIndexes processBlockIndexes_;
 
-    ROOT::Experimental::DescriptorId_t eventSelectionsID_;
-    ROOT::Experimental::DescriptorId_t eventProductProvenanceID_;
-    ROOT::Experimental::DescriptorId_t eventBranchListIndexesID_;
+    ROOT::DescriptorId_t eventSelectionsID_;
+    ROOT::DescriptorId_t eventProductProvenanceID_;
+    ROOT::DescriptorId_t eventBranchListIndexesID_;
     bool enableMetrics_ = false;
     bool useClusterCache_ = true;
     bool startedFirstFile_ = false;

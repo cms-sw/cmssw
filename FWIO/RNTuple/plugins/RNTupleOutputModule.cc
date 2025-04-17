@@ -26,7 +26,7 @@
 #include <regex>
 #include "boost/algorithm/string.hpp"
 
-using namespace ROOT::Experimental;
+using namespace ROOT;
 
 namespace {
   edm::rntuple::CompressionAlgos convertTo(std::string const& iName) {
@@ -206,7 +206,7 @@ namespace edm {
         ->setComment(
             "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, LZ4, and ZSTD");
     desc.addUntracked<int>("compressionLevel", 4)->setComment("ROOT compression level of output file.");
-    ROOT::Experimental::RNTupleWriteOptions ops;
+    ROOT::RNTupleWriteOptions ops;
     desc.addUntracked<unsigned long long>("approxZippedClusterSize", ops.GetApproxZippedClusterSize())
         ->setComment("Approximation of the target compressed cluster size");
     desc.addUntracked<unsigned long long>("maxUnzippedClusterSize", ops.GetMaxUnzippedClusterSize())
