@@ -6,6 +6,7 @@
 
 // user include files
 #include "Validation/TrackingMCTruth/plugins/SimDoubletsAnalyzer.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/Histograms/interface/MonitorElementCollection.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -151,8 +152,7 @@ namespace simdoublets {
       }
 
       // determine the moduleId
-      const GeomDetUnit* geomDetUnit = doublet.innerRecHit()->det();
-      const uint32_t moduleId = geomDetUnit->index();
+      const int moduleId = doublet.innerModuleId();
 
       // define bools needed to decide on cutting parameters
       const bool innerInB1 = (doublet.innerLayerId() == 0);
