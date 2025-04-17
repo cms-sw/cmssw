@@ -6,6 +6,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/SiStripEnums.h"
 // #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 namespace simdoublets {
@@ -27,21 +28,31 @@ namespace simdoublets {
     // determine where the RecHits are
     bool innerInBarrel = (innerDetId.subdetId() == PixelSubdetector::PixelBarrel);
     bool outerInBarrel = (outerDetId.subdetId() == PixelSubdetector::PixelBarrel);
-    bool innerInBackward = (!innerInBarrel) && (trackerTopology->pxfSide(innerDetId) == 1);
-    bool outerInBackward = (!outerInBarrel) && (trackerTopology->pxfSide(outerDetId) == 1);
-    bool innerInForward = (!innerInBarrel) && (!innerInBackward);
-    bool outerInForward = (!outerInBarrel) && (!outerInBackward);
+    bool innerInOTExtension = (innerDetId.subdetId() == SiStripSubdetector::TOB);
+    bool outerInOTExtension = (outerDetId.subdetId() == SiStripSubdetector::TOB);
+    bool innerInBackward = (!innerInBarrel) && (!innerInOTExtension) && (trackerTopology->pxfSide(innerDetId) == 1);
+    bool outerInBackward = (!outerInBarrel) && (!outerInOTExtension) && (trackerTopology->pxfSide(outerDetId) == 1);
+    bool innerInForward = (!innerInBarrel) && (!innerInOTExtension) && (trackerTopology->pxfSide(innerDetId) == 2);
+    bool outerInForward = (!outerInBarrel) && (!outerInOTExtension) && (trackerTopology->pxfSide(outerDetId) == 2);
 
-    // Possibility 1: both RecHits lie in the same detector part (barrel, forward or backward)
+    // Possibility 1: both RecHits lie in the same detector part (barrel, forward, backward, extension)
     if ((innerInBarrel && outerInBarrel) || (innerInForward && outerInForward) ||
-        (innerInBackward && outerInBackward)) {
+        (innerInBackward && outerInBackward) || (innerInOTExtension && outerInOTExtension)) {
       return (layerIds.second - layerIds.first - 1);
     }
-    // Possibility 2: the inner RecHit is in the barrel while the outer is in either forward or backward
+    // Possibility 2: the inner RecHit is in the barrel while the outer is in extension
+    else if (innerInBarrel && outerInOTExtension) {
+      return (trackerTopology->tobLayer(outerDetId) - trackerTopology->pxbLayer(innerDetId) + 3);
+    }
+    // Possibility 3: the inner RecHit is in the encaps while the outer is in extension
+    else if (outerInOTExtension) {
+      return (trackerTopology->tobLayer(outerDetId) - 1);
+    }
+    // Possibility 4: the inner RecHit is in the barrel while the outer is in either forward or backward
     else if (innerInBarrel) {
       return (trackerTopology->pxfDisk(outerDetId) - 1);
     }
-    // Possibility 3: invalid case (one is forward and the other in backward), set to -1
+    // Possibility 5: invalid case (one is forward and the other in backward), set to -1
     else {
       return -1;
     }
@@ -94,7 +105,7 @@ SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
 // ------------------------------------------------------------------------------------------------------
 
 // method to add a RecHit to the SimPixelTrack
-void SimDoublets::addRecHit(SiPixelRecHitRef const recHitRef,
+void SimDoublets::addRecHit(BaseTrackerRecHit const& recHit,
                             uint8_t const layerId,
                             int16_t const clusterYSize,
                             unsigned int const detId,
@@ -110,7 +121,7 @@ void SimDoublets::addRecHit(SiPixelRecHitRef const recHitRef,
   // add detId, the corrected hit position, layerId and clusterSize to respective vectors
   detIdVector_.push_back(detId);
   moduleIdVector_.push_back(moduleId);
-  globalPositionVector_.push_back(recHitRef->globalPosition() - beamSpotPosition_);
+  globalPositionVector_.push_back(recHit.globalPosition() - beamSpotPosition_);
   layerIdVector_.push_back(layerId);
   clusterYSizeVector_.push_back(clusterYSize);
 }

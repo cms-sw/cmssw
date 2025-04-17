@@ -222,7 +222,7 @@ public:
       : trackingParticleRef_(trackingParticleRef), beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
 
   // method to add a RecHit to the SimPixelTrack
-  void addRecHit(SiPixelRecHitRef const recHitRef,
+  void addRecHit(BaseTrackerRecHit const& recHit,
                  uint8_t const layerId,
                  int16_t const clusterYSize,
                  unsigned int const detId,
