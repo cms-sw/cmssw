@@ -8,8 +8,12 @@ from HLTrigger.NGTScouting.hltVertices_cfi import *
 from HLTrigger.NGTScouting.hltEGammaPacker_cfi import *
 from HLTrigger.NGTScouting.hltPhotons_cfi import *
 from HLTrigger.NGTScouting.hltElectrons_cfi import *
+from PhysicsTools.NanoAOD.genparticles_cff import *
 
 hltNanoProducer = cms.Sequence(
+    prunedGenParticles +
+    finalGenParticles + 
+    genParticleTable +
     hltVertexTable +
     hltEgammaPacker +
     hltPhotonTable +
