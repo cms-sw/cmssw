@@ -7,6 +7,7 @@
  */
 
 #include <cassert>
+#include <cstring>
 
 #include "FWCore/Reflection/interface/reflex.h"
 
