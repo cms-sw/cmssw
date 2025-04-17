@@ -177,6 +177,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                          deviceConfigParamProvider,
                                          deviceMappingCellParamProvider,
                                          deviceIndexingParamProvider);
+
 #endif
 
 #ifdef EDM_ML_DEBUG

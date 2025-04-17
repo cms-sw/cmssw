@@ -35,7 +35,7 @@ namespace hgcal {
                       SOA_COLUMN(bool, valid),
                       SOA_COLUMN(bool, isHD),
                       SOA_COLUMN(bool, iscalib),
-                      SOA_COLUMN(int, offset),
+                      SOA_COLUMN(int, caliboffset),
                       SOA_COLUMN(bool, isSiPM),
                       SOA_COLUMN(uint16_t, typeidx),
                       SOA_COLUMN(uint16_t, chip),

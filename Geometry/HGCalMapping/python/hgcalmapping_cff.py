@@ -20,7 +20,7 @@ def customise_hgcalmapper(process,
     process.hgCalMappingCellESProducer = cms.ESProducer('hgcal::HGCalMappingCellESProducer@alpaka',
                                                         filelist=cms.vstring(sicells, sipmcells),
                                                         cellindexer=cms.ESInputTag(''),
-                                                        offsetfile=cms.string(offsetfile))
+                                                        offsetfile=cms.FileInPath(offsetfile))
     process.hgCalMappingModuleESProducer = cms.ESProducer('hgcal::HGCalMappingModuleESProducer@alpaka',
                                                           filename=cms.FileInPath(modules),
                                                           moduleindexer=cms.ESInputTag(''))

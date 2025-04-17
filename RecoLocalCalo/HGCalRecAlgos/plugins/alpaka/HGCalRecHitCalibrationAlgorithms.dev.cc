@@ -157,7 +157,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         auto cellIndex = index[idx].cellInfoIdx();
         bool isCalibCell(maps[cellIndex].iscalib());
-        int offset = maps[cellIndex].offset();
+        int offset = maps[cellIndex].caliboffset();  //Calibration-to-surrounding cell offset
         bool is_surr_cell((offset != 0) && isAvailable && isCalibCell);
 
         //Effectively operate only on the cell that surrounds the calibration cells
