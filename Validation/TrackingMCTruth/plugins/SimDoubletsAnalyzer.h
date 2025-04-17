@@ -158,6 +158,9 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topology_getToken_;
   const edm::EDGetTokenT<SimDoubletsCollection> simDoublets_getToken_;
 
+  // number of OT layers considered for CA extension
+  int numLayersOT_;
+
   // map that takes the layerPairId as defined in the SimDoublets
   // and gives the position of the histogram in the histogram vector
   std::map<int, int> layerPairId2Index_;
