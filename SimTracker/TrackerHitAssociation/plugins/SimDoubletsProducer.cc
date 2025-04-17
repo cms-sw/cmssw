@@ -83,7 +83,7 @@ private:
   pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams_ = nullptr;
   const TrackerTopology* trackerTopology_ = nullptr;
   const TrackerGeometry* trackerGeometry_ = nullptr;
-  unsigned int numLayersOT = 2;
+  unsigned int numLayersOT_ = 2;
 
   // tokens for ClusterParameterEstimator, tracker topology, ect.
   const edm::ESGetToken<PixelCPEFastParamsHost<TrackerTraits>, PixelCPEFastParamsRecord> cpe_getToken_;
@@ -393,7 +393,7 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
             for (auto& simDoublets : simDoubletsCollection) {
               TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
               if (assocTrackingParticle.key() == trackingParticleRef.key()) {
-                simDoublets.addRecHit(hitRef, layerId, clusterYSize);
+                simDoublets.addRecHit(hitRef, layerId, clusterYSize, detId, moduleId);
                 count_RecHitsInSimDoublets++;
               }
             }
@@ -412,7 +412,7 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
     layerIdOT = trackerTopology_->getOTLayerNumber(detId);
 
     // only use the RecHits if the module is in the accepted range of layers and one of lower modules
-    if ((layerIdOT <= numLayersOT) && trackerTopology_->isLower(detId)) {
+    if ((layerIdOT <= numLayersOT_) && trackerTopology_->isLower(detId)) {
       // determine layer Id from detector Id plus the offset from the pixel layers:
       // layerId = layerId(OT) + N(pixelLayers) - 1
       // the (-1) comes from the layerId(OT) starting from 1 instead of 0
