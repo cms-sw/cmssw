@@ -77,19 +77,21 @@ void BtlLocalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGette
 
   // --- Book the cumulative histograms
   ibook.cd(folder_);
-  meHitOccupancyLog_ = ibook.book1D("BtlHitOccupancyLog",
-                                 "BTL cell occupancy vs RECO hit energy;log_{10}(E_{RECO} [MeV]); Occupancy per event",
-                                 meBtlHitLogEnergy->getNbinsX(),
-                                 meBtlHitLogEnergy->getTH1()->GetXaxis()->GetXmin(),
-                                 meBtlHitLogEnergy->getTH1()->GetXaxis()->GetXmax());
+  meHitOccupancyLog_ =
+      ibook.book1D("BtlHitOccupancyLog",
+                   "BTL cell occupancy vs RECO hit energy;log_{10}(E_{RECO} [MeV]); Occupancy per event",
+                   meBtlHitLogEnergy->getNbinsX(),
+                   meBtlHitLogEnergy->getTH1()->GetXaxis()->GetXmin(),
+                   meBtlHitLogEnergy->getTH1()->GetXaxis()->GetXmax());
   meHitOccupancy_ = ibook.book1D("BtlHitOccupancy",
                                  "BTL cell occupancy vs RECO hit energy;E_{RECO} [MeV]; Occupancy per event",
                                  meBtlHitEnergy->getNbinsX(),
                                  meBtlHitEnergy->getTH1()->GetXaxis()->GetXmin(),
                                  meBtlHitEnergy->getTH1()->GetXaxis()->GetXmax());
-  for(unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+  for (unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
     std::string name_Energy = "BtlHitOccupancyRUSlice" + std::to_string(ihistoRU);
-    std::string title_Energy = "BTL cell occupancy vs RECO hit energy (RU " + std::to_string(ihistoRU) + ");E_{RECO} [MeV]; Occupancy per event";
+    std::string title_Energy = "BTL cell occupancy vs RECO hit energy (RU " + std::to_string(ihistoRU) +
+                               ");E_{RECO} [MeV]; Occupancy per event";
     meHitOccupancyRUSlice_[ihistoRU] = ibook.book1D(name_Energy,
                                                     title_Energy,
                                                     meBtlHitEnergyRUSlice[ihistoRU]->getNbinsX(),
@@ -108,8 +110,9 @@ void BtlLocalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGette
     bin_sum += meBtlHitEnergy->getBinContent(ibin);
     meHitOccupancy_->setBinContent(ibin, scale_Crystals * bin_sum);
   }
-  for(unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
-    double bin_sum_RUSlice = meBtlHitEnergyRUSlice[ihistoRU]->getBinContent(meBtlHitEnergyRUSlice[ihistoRU]->getNbinsX() + 1);
+  for (unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+    double bin_sum_RUSlice =
+        meBtlHitEnergyRUSlice[ihistoRU]->getBinContent(meBtlHitEnergyRUSlice[ihistoRU]->getNbinsX() + 1);
     for (int ibin = meBtlHitEnergyRUSlice[ihistoRU]->getNbinsX(); ibin >= 1; --ibin) {
       bin_sum_RUSlice += meBtlHitEnergyRUSlice[ihistoRU]->getBinContent(ibin);
       meHitOccupancyRUSlice_[ihistoRU]->setBinContent(ibin, scale_Crystals_RU * bin_sum_RUSlice);

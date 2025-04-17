@@ -69,9 +69,10 @@ void BtlSimHitsHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter&
     meBtlHitMultSMRUSlice[ihistoRU] = igetter.get(folder_ + "BtlHitMultSMRUSlice" + std::to_string(ihistoRU));
     if (!meBtlHitLogEnergyRUSlice[ihistoRU] || !meBtlHitMultCellRUSlice[ihistoRU] || !meBtlHitMultSMRUSlice[ihistoRU]) {
       missing_ru_slice = true;
+      edm::LogInfo("BtlSimHitsHarvester") << "Monitoring histograms per RUSlice in optional plots!" << std::endl;
     }
   }
-  if (!meBtlHitLogEnergy || !meNevents || !meBtlHitMultCell || missing_ru_slice || !meBtlHitMultSM) {
+  if (!meBtlHitLogEnergy || !meNevents || !meBtlHitMultCell || !meBtlHitMultSM) {
     edm::LogError("BtlSimHitsHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
@@ -92,38 +93,47 @@ void BtlSimHitsHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter&
                                  meBtlHitLogEnergy->getNbinsX(),
                                  meBtlHitLogEnergy->getTH1()->GetXaxis()->GetXmin(),
                                  meBtlHitLogEnergy->getTH1()->GetXaxis()->GetXmax());
-  meHitOccupancyCell_ = ibook.book1D("BtlHitOccupancyCell",
-                                     "BTL cell occupancy vs energy threshold;log_{10}(E_{th} [MeV]); Occupancy per event",
-                                     meBtlHitMultCell->getNbinsX(),
-                                     meBtlHitMultCell->getTH1()->GetXaxis()->GetXmin(),
-                                     meBtlHitMultCell->getTH1()->GetXaxis()->GetXmax());
+  meHitOccupancyCell_ =
+      ibook.book1D("BtlHitOccupancyCell",
+                   "BTL cell occupancy vs energy threshold;log_{10}(E_{th} [MeV]); Occupancy per event",
+                   meBtlHitMultCell->getNbinsX(),
+                   meBtlHitMultCell->getTH1()->GetXaxis()->GetXmin(),
+                   meBtlHitMultCell->getTH1()->GetXaxis()->GetXmax());
   meHitOccupancySM_ = ibook.book1D("BtlHitOccupancySM",
                                    "BTL SM occupancy vs energy threshold;log_{10}(E_{th} [MeV]); Occupancy per event",
                                    meBtlHitMultSM->getNbinsX(),
                                    meBtlHitMultSM->getTH1()->GetXaxis()->GetXmin(),
                                    meBtlHitMultSM->getTH1()->GetXaxis()->GetXmax());
-  for(unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
-    std::string name_LogEnergy = "BtlHitOccupancyRUSlice" + std::to_string(ihistoRU);
-    std::string title_LogEnergy = "BTL cell occupancy vs hit energy (RU " + std::to_string(ihistoRU) + ");log_{10}(E_{SIM} [MeV]); Occupancy per event";
-    meHitOccupancyRUSlice_[ihistoRU] = ibook.book1D(name_LogEnergy,
-                                                    title_LogEnergy,
-                                                    meBtlHitLogEnergyRUSlice[ihistoRU]->getNbinsX(),
-                                                    meBtlHitLogEnergyRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmin(),
-                                                    meBtlHitLogEnergyRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmax());
-    std::string name_cell = "BtlHitOccupancyCellRUSlice" + std::to_string(ihistoRU);
-    std::string title_cell = "BTL cell occupancy vs energy threshold (RU " + std::to_string(ihistoRU) + ");log_{10}(E_{th} [MeV]); Occupancy per event";
-    meHitOccupancyCellRUSlice_[ihistoRU] = ibook.book1D(name_cell,
-                                                    title_cell,
-                                                    meBtlHitMultCellRUSlice[ihistoRU]->getNbinsX(),
-                                                    meBtlHitMultCellRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmin(),
-                                                    meBtlHitMultCellRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmax());
-    std::string name_SM = "BtlHitOccupancySMRUSlice" + std::to_string(ihistoRU);
-    std::string title_SM = "BTL SM occupancy vs energy threshold (RU " + std::to_string(ihistoRU) + ");log_{10}(E_{th} [MeV]); Occupancy per event";
-    meHitOccupancySMRUSlice_[ihistoRU] = ibook.book1D(name_SM,
-                                                      title_SM,
-                                                      meBtlHitMultSMRUSlice[ihistoRU]->getNbinsX(),
-                                                      meBtlHitMultSMRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmin(),
-                                                      meBtlHitMultSMRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmax());
+  if (!missing_ru_slice) {
+    for (unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+      std::string name_LogEnergy = "BtlHitOccupancyRUSlice" + std::to_string(ihistoRU);
+      std::string title_LogEnergy = "BTL cell occupancy vs hit energy (RU " + std::to_string(ihistoRU) +
+                                    ");log_{10}(E_{SIM} [MeV]); Occupancy per event";
+      meHitOccupancyRUSlice_[ihistoRU] =
+          ibook.book1D(name_LogEnergy,
+                       title_LogEnergy,
+                       meBtlHitLogEnergyRUSlice[ihistoRU]->getNbinsX(),
+                       meBtlHitLogEnergyRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmin(),
+                       meBtlHitLogEnergyRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmax());
+      std::string name_cell = "BtlHitOccupancyCellRUSlice" + std::to_string(ihistoRU);
+      std::string title_cell = "BTL cell occupancy vs energy threshold (RU " + std::to_string(ihistoRU) +
+                               ");log_{10}(E_{th} [MeV]); Occupancy per event";
+      meHitOccupancyCellRUSlice_[ihistoRU] =
+          ibook.book1D(name_cell,
+                       title_cell,
+                       meBtlHitMultCellRUSlice[ihistoRU]->getNbinsX(),
+                       meBtlHitMultCellRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmin(),
+                       meBtlHitMultCellRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmax());
+      std::string name_SM = "BtlHitOccupancySMRUSlice" + std::to_string(ihistoRU);
+      std::string title_SM = "BTL SM occupancy vs energy threshold (RU " + std::to_string(ihistoRU) +
+                             ");log_{10}(E_{th} [MeV]); Occupancy per event";
+      meHitOccupancySMRUSlice_[ihistoRU] =
+          ibook.book1D(name_SM,
+                       title_SM,
+                       meBtlHitMultSMRUSlice[ihistoRU]->getNbinsX(),
+                       meBtlHitMultSMRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmin(),
+                       meBtlHitMultSMRUSlice[ihistoRU]->getTH1()->GetXaxis()->GetXmax());
+    }
   }
 
   // --- Calculate the cumulative histograms
@@ -132,13 +142,17 @@ void BtlSimHitsHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter&
     bin_sum += meBtlHitLogEnergy->getBinContent(ibin);
     meHitOccupancy_->setBinContent(ibin, scale_Crystals * bin_sum);
   }
-  for(unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
-    double bin_sum_RUSlice = meBtlHitLogEnergyRUSlice[ihistoRU]->getBinContent(meBtlHitLogEnergyRUSlice[ihistoRU]->getNbinsX() + 1);
-    for (int ibin = meBtlHitLogEnergyRUSlice[ihistoRU]->getNbinsX(); ibin >= 1; --ibin) {
-      bin_sum_RUSlice += meBtlHitLogEnergyRUSlice[ihistoRU]->getBinContent(ibin);
-      meHitOccupancyRUSlice_[ihistoRU]->setBinContent(ibin, scale_Crystals_RU * bin_sum_RUSlice);
+  if (!missing_ru_slice) {
+    for (unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+      double bin_sum_RUSlice =
+          meBtlHitLogEnergyRUSlice[ihistoRU]->getBinContent(meBtlHitLogEnergyRUSlice[ihistoRU]->getNbinsX() + 1);
+      for (int ibin = meBtlHitLogEnergyRUSlice[ihistoRU]->getNbinsX(); ibin >= 1; --ibin) {
+        bin_sum_RUSlice += meBtlHitLogEnergyRUSlice[ihistoRU]->getBinContent(ibin);
+        meHitOccupancyRUSlice_[ihistoRU]->setBinContent(ibin, scale_Crystals_RU * bin_sum_RUSlice);
+      }
     }
   }
+
   // --- Calculate the occupancy histograms
   for (int ibin = 0; ibin < meBtlHitMultCell->getNbinsX(); ibin++) {
     double bin_content = meBtlHitMultCell->getBinContent(ibin);
@@ -148,14 +162,16 @@ void BtlSimHitsHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter&
     double bin_content = meBtlHitMultSM->getBinContent(ibin);
     meHitOccupancySM_->setBinContent(ibin, bin_content * scale_SMs);
   }
-  for(unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
-    for (int ibin = 0; ibin < meBtlHitMultCellRUSlice[ihistoRU]->getNbinsX(); ibin ++) {
-      double bin_content_RUSlice = meBtlHitMultCellRUSlice[ihistoRU]->getBinContent(ibin);
-      meHitOccupancyCellRUSlice_[ihistoRU]->setBinContent(ibin, bin_content_RUSlice * scale_Crystals_RU);
-    }
-    for (int ibin = 0; ibin < meBtlHitMultSMRUSlice[ihistoRU]->getNbinsX(); ibin++) {
-      double bin_content_RUSlice = meBtlHitMultSMRUSlice[ihistoRU]->getBinContent(ibin);
-      meHitOccupancySMRUSlice_[ihistoRU]->setBinContent(ibin, bin_content_RUSlice * scale_SMs_RU);
+  if (!missing_ru_slice) {
+    for (unsigned int ihistoRU = 0; ihistoRU < nRU_; ++ihistoRU) {
+      for (int ibin = 0; ibin < meBtlHitMultCellRUSlice[ihistoRU]->getNbinsX(); ibin++) {
+        double bin_content_RUSlice = meBtlHitMultCellRUSlice[ihistoRU]->getBinContent(ibin);
+        meHitOccupancyCellRUSlice_[ihistoRU]->setBinContent(ibin, bin_content_RUSlice * scale_Crystals_RU);
+      }
+      for (int ibin = 0; ibin < meBtlHitMultSMRUSlice[ihistoRU]->getNbinsX(); ibin++) {
+        double bin_content_RUSlice = meBtlHitMultSMRUSlice[ihistoRU]->getBinContent(ibin);
+        meHitOccupancySMRUSlice_[ihistoRU]->setBinContent(ibin, bin_content_RUSlice * scale_SMs_RU);
+      }
     }
   }
 }

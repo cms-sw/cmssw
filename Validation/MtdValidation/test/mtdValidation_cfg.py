@@ -56,6 +56,7 @@ process.load("Validation.MtdValidation.mtdTracksValid_cfi")
 process.load("Validation.MtdValidation.mtdEleIsoValid_cfi")
 process.load("Validation.MtdValidation.vertices4DValid_cff")
 
+# process.btlSimHitsValid.optionalPlots = True
 # process.btlDigiHitsValid.optionalPlots = True
 # process.etlDigiHitsValid.optionalPlots = True
 # process.btlLocalRecoValid.optionalPlots = True
