@@ -1788,6 +1788,9 @@ class ConfigBuilder(object):
             self._options.customise_commands = self._options.customise_commands + "process.slimmedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
             self._options.customise_commands = self._options.customise_commands + "process.patMuons.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
 
+        # cpu efficiency boost when running PAT/MINI by itself
+        if self.stepKeys[0] == 'PAT':
+            self._options.customise_commands = self._options.customise_commands + "process.source.delayReadingEventProducts = cms.untracked.bool(False)\n"
 #            self.renameHLTprocessInSequence(sequence)
 
         return
@@ -1850,7 +1853,10 @@ class ConfigBuilder(object):
             if len(self._options.customise_commands) > 1:
                 self._options.customise_commands = self._options.customise_commands + " \n"
             self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
-
+        # cpu efficiency boost when running NANO by itself
+        #if self.stepKeys[0] == 'NANO':
+        #    self._options.customise_commands = self._options.customise_commands + "process.source.delayReadingEventProducts = cms.untracked.bool(False)\n"
+            
     def prepare_SKIM(self, stepSpec = "all"):
         ''' Enrich the schedule with skimming fragments'''
         skimConfig,sequence,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.SKIMDefaultCFF)
