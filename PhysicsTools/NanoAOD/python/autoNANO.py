@@ -34,6 +34,8 @@ autoNANO = {
     # Scouting nano
     'Scout' : {'sequence': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.scoutingNanoSequence',
                'customize': 'PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNano'},
+    'ScoutMonitor' : {'sequence': '@Scout',
+                      'customize': '@Scout+PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNanoForScoutingPFMonitor'},
     'ScoutFromMini' : {'sequence': '@Scout',
                        'customize': '@Scout+PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNanoFromMini'},
     # BPH nano

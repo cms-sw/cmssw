@@ -149,7 +149,7 @@ namespace edm {
   }
 
   void Principal::possiblyUpdateAfterAddition(std::shared_ptr<ProductRegistry const> iProd) {
-    if (iProd.get() != preg_.get()) {
+    if (iProd.get() != preg_.get() || iProd->cacheIdentifier() != preg_->cacheIdentifier()) {
       preg_ = iProd;
       adjustIndexesAfterProductRegistryAddition();
     }

@@ -3,13 +3,17 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-from Validation.RecoMuon.PostProcessor_cff import postProcessorMuonTrack
+from Validation.RecoMuon.PostProcessor_cff import postProcessorMuonTrack, postProcessorMuonTrackSummary
 
 postProcessorMuonTrackHLT = postProcessorMuonTrack.clone(
     subDirs = ["HLT/Muon/MuonTrack/*"]
 )
-postProcessorMuonTrackHLTComp = DQMEDHarvester(
-    "DQMGenericClient",
+
+postProcessorMuonTrackHLTSummary = postProcessorMuonTrackSummary.clone(
+    subDirs=cms.untracked.vstring("HLT/Muon/MuonTrack/")
+)
+
+postProcessorMuonTrackHLTComp = DQMEDHarvester("DQMGenericClient",
     subDirs=cms.untracked.vstring("HLT/Muon/MuonTrack/"),
     efficiency=cms.vstring(
         "Eff_L3Tk_Eta_mabh 'Eff_{L3,TK} vs #eta' hltL3Muons/effic_vs_eta hltL3TkFromL2/effic_vs_eta",
@@ -24,7 +28,7 @@ postProcessorMuonTrackHLTComp = DQMEDHarvester(
 )
 
 recoMuonPostProcessorsHLT = cms.Sequence(
-    postProcessorMuonTrackHLT + postProcessorMuonTrackHLTComp
+    postProcessorMuonTrackHLT + postProcessorMuonTrackHLTSummary + postProcessorMuonTrackHLTComp 
 )
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon

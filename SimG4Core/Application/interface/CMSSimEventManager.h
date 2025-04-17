@@ -18,9 +18,9 @@ namespace edm {
 }
 
 class G4Event;
-class EventAction;
-class StackingAction;
-class TrackingAction;
+class G4UserEventAction;
+class G4UserStackingAction;
+class G4UserTrackingAction;
 class G4UserSteppingAction;
 class G4SDManager;
 class G4StateManager;
@@ -41,9 +41,9 @@ public:
   // This method aborts the processing of the current event.
   void AbortCurrentEvent();
 
-  void SetUserAction(EventAction* ptr);
-  void SetUserAction(StackingAction* ptr);
-  void SetUserAction(TrackingAction* ptr);
+  void SetUserAction(G4UserEventAction* ptr);
+  void SetUserAction(G4UserStackingAction* ptr);
+  void SetUserAction(G4UserTrackingAction* ptr);
   void SetUserAction(G4UserSteppingAction* ptr);
 
   CMSSimEventManager(const CMSSimEventManager& right) = delete;
@@ -58,9 +58,9 @@ private:
   G4PrimaryTransformer* m_primaryTransformer;
   G4Navigator* m_navigator;
 
-  EventAction* m_eventAction;
-  StackingAction* m_stackingAction;
-  TrackingAction* m_trackingAction;
+  G4UserEventAction* m_eventAction;
+  G4UserTrackingAction* m_trackingAction;
+  G4UserStackingAction* m_stackingAction;
 
   G4int trackID_{0};
   G4int verbose_;

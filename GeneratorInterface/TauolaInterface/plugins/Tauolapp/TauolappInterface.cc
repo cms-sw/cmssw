@@ -9,8 +9,8 @@
 #include "Tauola/Log.h"
 #include "Tauola/TauolaHepMCParticle.h"
 #include "Tauola/TauolaParticle.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

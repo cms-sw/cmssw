@@ -495,6 +495,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   }
 
   //handle RAW file header in new file
+  bool chunkReadyChecked = false;
   if (currentFile_->bufferPosition_ == 0 && currentFile_->rawHeaderSize_ > 0) {
     if (currentFile_->fileSize_ <= currentFile_->rawHeaderSize_) {
       if (currentFile_->fileSize_ < currentFile_->rawHeaderSize_)
@@ -507,6 +508,19 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
         maybeOpenNewLumiSection(currentFile_->lumi_);
       }
     }
+
+    setMonState(inWaitChunk);
+    {
+      IdleSourceSentry ids(fms_);
+      while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
+        std::unique_lock<std::mutex> lkw(mWakeup_);
+        cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
+        if (setExceptionState_)
+          threadError();
+      }
+    }
+    setMonState(inChunkReceived);
+    chunkReadyChecked = true;
 
     //advance buffer position to skip file header (chunk will be acquired later)
     //also move pointer in multi-dir setting with each file expected to have a file header
@@ -524,14 +538,16 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
 
   //multibuffer mode
   //wait for the current chunk to become added to the vector
-  setMonState(inWaitChunk);
-  {
-    IdleSourceSentry ids(fms_);
-    while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
-      std::unique_lock<std::mutex> lkw(mWakeup_);
-      cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
-      if (setExceptionState_)
-        threadError();
+  if (!chunkReadyChecked) {
+    setMonState(inWaitChunk);
+    {
+      IdleSourceSentry ids(fms_);
+      while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
+        std::unique_lock<std::mutex> lkw(mWakeup_);
+        cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
+        if (setExceptionState_)
+          threadError();
+      }
     }
   }
   setMonState(inChunkReceived);
@@ -649,7 +665,7 @@ void DAQSource::fileDeleter() {
         for (unsigned int i = 0; i < streamFileTracker_.size(); i++) {
           if (it->first == streamFileTracker_.at(i)) {
             //only skip if LS is open
-            if (fileLSOpen) {
+            if (fileLSOpen && (!fms_ || !fms_->streamIsIdle(i))) {
               fileIsBeingProcessed = true;
               break;
             }

@@ -33,7 +33,6 @@ process.CondDB.connect='frontier://FrontierProd/CMS_CONDITIONS'
 
 process.poolDBESSource = cms.ESSource('PoolDBESSource',
                                       process.CondDB,
-                                      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                       toGet = cms.VPSet( cms.PSet(record = cms.string('DeDxCalibrationRcd'),
                                                                   tag    = cms.string('DeDxCalibration_HI_2024_prompt_v2')
                                                                   )

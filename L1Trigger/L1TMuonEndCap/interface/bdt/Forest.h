@@ -3,6 +3,7 @@
 #ifndef L1Trigger_L1TMuonEndCap_emtf_Forest
 #define L1Trigger_L1TMuonEndCap_emtf_Forest
 
+#include <memory>
 #include "Tree.h"
 #include "LossFunctions.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
@@ -14,28 +15,29 @@ namespace emtf {
     // Constructor(s)/Destructor
     Forest();
     Forest(std::vector<Event*>& trainingEvents);
-    ~Forest();
+    ~Forest() = default;
 
     Forest(const Forest& forest);
     Forest& operator=(const Forest& forest);
     Forest(Forest&& forest) = default;
+    Forest& operator=(Forest&& forest) = default;
 
     // Get/Set
     void setTrainingEvents(std::vector<Event*>& trainingEvents);
     std::vector<Event*> getTrainingEvents();
 
     // Returns the number of trees in the forest.
-    unsigned int size();
+    unsigned int size() const;
 
     // Get info on variable importance.
-    void rankVariables(std::vector<int>& rank);
+    void rankVariables(std::vector<int>& rank) const;
 
     // Output the list of split values used for each variable.
-    void saveSplitValues(const char* savefilename);
+    void saveSplitValues(const char* savefilename) const;
 
     // Helpful operations
-    void listEvents(std::vector<std::vector<Event*> >& e);
-    void sortEventVectors(std::vector<std::vector<Event*> >& e);
+    void listEvents(std::vector<std::vector<Event*>>& e) const;
+    void sortEventVectors(std::vector<std::vector<Event*>>& e) const;
     void generate(int numTrainEvents, int numTestEvents, double sigma);
     void loadForestFromXML(const char* directory, unsigned int numTrees);
     void loadFromCondPayload(const L1TMuonEndCapForest::DForest& payload);
@@ -63,9 +65,9 @@ namespace emtf {
     Tree* getTree(unsigned int i);
 
   private:
-    std::vector<std::vector<Event*> > events;
-    std::vector<std::vector<Event*> > subSample;
-    std::vector<Tree*> trees;
+    std::vector<std::vector<Event*>> events;
+    std::vector<std::vector<Event*>> subSample;
+    std::vector<std::unique_ptr<Tree>> trees;
   };
 
 }  // namespace emtf

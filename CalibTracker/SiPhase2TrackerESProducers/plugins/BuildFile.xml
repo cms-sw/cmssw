@@ -3,6 +3,7 @@
 <use name="CondFormats/SiPhase2TrackerObjects"/>
 <use name="CondFormats/SiStripObjects"/>  <!-- needed for the SiStripBadStrip -->
 <use name="DataFormats/SiStripDetId"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="Geometry/CommonDetUnit" source_only="1"/>

@@ -314,12 +314,12 @@
     <Include ref='Geometry/VeryForwardData/data/RP_Device/v1/RP_Device.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Vertical_Device/2021/Simu/v2/RP_Vertical_Device.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Horizontal_Device/2021/Simu/v2/RP_Horizontal_Device.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/Stations/Simu/v3/CTPPS_220_Right_Station.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/Stations/Simu/v3/CTPPS_220_Left_Station.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/Stations/Simu/v3/CTPPS_210_Right_Station.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/Stations/Simu/v3/CTPPS_210_Left_Station.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/Stations/Simu/v3/CTPPS_Stations_Assembly.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/Cuts_Per_Region/Simu/v1/CTPPS_Cuts_Per_Region.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_2025/Stations/Simu/v1/CTPPS_220_Right_Station.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_2025/Stations/Simu/v1/CTPPS_220_Left_Station.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_2025/Stations/Simu/v1/CTPPS_210_Right_Station.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_2025/Stations/Simu/v1/CTPPS_210_Left_Station.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_2025/Stations/Simu/v1/CTPPS_Stations_Assembly.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_2025/Cuts_Per_Region/Simu/v1/CTPPS_Cuts_Per_Region.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Sensitive_Dets.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Transformations.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Parameters.xml'/>
@@ -351,7 +351,7 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_023.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_103.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_123.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/RP_Dist_Beam_Cent/Simu/v1/RP_Dist_Beam_Cent.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_2025/RP_Dist_Beam_Cent/Simu/v1/RP_Dist_Beam_Cent.xml'/>
     <Include ref='Geometry/EcalSimData/data/ecalsens.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalsens/2021/v2/hcalsenspmf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hf.xml'/>

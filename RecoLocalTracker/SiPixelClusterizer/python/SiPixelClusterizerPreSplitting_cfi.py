@@ -8,9 +8,6 @@ from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelCl
 siPixelClustersPreSplitting = _siPixelClusters.clone() 
 
 from Configuration.ProcessModifiers.siPixelDigiMorphing_cff import siPixelDigiMorphing
-siPixelDigiMorphing.toModify(
-    siPixelClustersPreSplitting,
-    cpu = dict(
-         src = 'siPixelDigisMorphed'
-    )
-)
+siPixelDigiMorphing.toModify(siPixelClustersPreSplitting,
+                             src = 'siPixelDigisMorphed'
+                             )

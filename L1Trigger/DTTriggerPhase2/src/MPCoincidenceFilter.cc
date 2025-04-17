@@ -14,6 +14,7 @@ MPCoincidenceFilter::MPCoincidenceFilter(const ParameterSet &pset)
       debug_(pset.getUntrackedParameter<bool>("debug")),
       co_option_(pset.getParameter<int>("co_option")),
       co_quality_(pset.getParameter<int>("co_quality")),
+      co_wh2option_(pset.getParameter<int>("co_wh2option")),
       scenario_(pset.getParameter<int>("scenario")) {}
 
 // ============================================================================
@@ -37,7 +38,7 @@ void MPCoincidenceFilter::run(edm::Event &iEvent,
   else if (scenario_ == SLICE_TEST)
     shift_back = 400;
 
-  auto filteredMPs = filter(inMPaths, allMPaths, co_option_, co_quality_, shift_back);
+  auto filteredMPs = filter(inMPaths, allMPaths, co_option_, co_quality_, co_wh2option_, shift_back);
   for (auto &mp : filteredMPs)
     outMPaths.push_back(mp);
 }
@@ -51,6 +52,7 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
                                                        std::vector<metaPrimitive> allMPs,
                                                        int co_option,
                                                        int co_quality,
+                                                       int co_wh2option,
                                                        double shift_back) {
   std::vector<metaPrimitive> outMPs;
 
@@ -70,7 +72,13 @@ std::vector<metaPrimitive> MPCoincidenceFilter::filter(std::vector<metaPrimitive
     if (sector == 14)
       sector = 10;
 
-    if (co_option == -1 || mp.quality > 5)
+    bool wh2pass = false;
+    if (abs(wheel) == 2 && station == 1 && co_wh2option == 1)
+      wh2pass = true;
+    if (abs(wheel) == 2 && station < 3 && co_wh2option == 2)
+      wh2pass = true;
+
+    if (co_option == -1 || mp.quality > 5 || wh2pass == 1)
       outMPs.push_back(mp);
     else {
       int sector_p1 = sector + 1;

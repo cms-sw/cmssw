@@ -78,7 +78,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_design', '')
 CondDBAlignmentError = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
 process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
     CondDBAlignmentError,
-    timetype = cms.string("runnumber"),
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('TrackerAlignmentErrorExtendedRcd'),

@@ -35,7 +35,7 @@ namespace edm {
     void throwNoCaseForSwitchValue(std::string const& message) const;
 
     void printBase(std::ostream& os,
-                   bool optional,
+                   Modifier modifier,
                    bool writeToCfi,
                    DocFormatHelper& dfh,
                    std::string const& switchLabel,

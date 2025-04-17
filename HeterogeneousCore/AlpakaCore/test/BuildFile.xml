@@ -1,3 +1,10 @@
 <test name="testAlpakaBackendFilter" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaCore/test/testAlpakaBackendFilter.py">
   <flags ALPAKA_BACKENDS="1"/>
 </test>
+
+<bin name="testAlpakaFriendlyClassNames" file="alpaka/testFriendlyClassNames.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="FWCore/Utilities"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>

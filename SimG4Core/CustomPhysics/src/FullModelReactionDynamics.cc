@@ -2281,10 +2281,9 @@ G4double FullModelReactionDynamics::GenerateNBodyEvent(const G4double totalEnerg
     wtmax = std::log(std::pow(kineticEnergy, vecLen - 2) * ffq[vecLen - 1] / totalE);
   }
   lzero = true;
-  G4double pd[50];
+  G4double pd[50] = {0.0};
   //G4double *pd = new G4double [vecLen-1];
   for (i = 0; i < vecLen - 1; ++i) {
-    pd[i] = 0.0;
     if (emm[i + 1] * emm[i + 1] > 0.0) {
       G4double arg = emm[i + 1] * emm[i + 1] +
                      (emm[i] * emm[i] - mass[i + 1] * mass[i + 1]) * (emm[i] * emm[i] - mass[i + 1] * mass[i + 1]) /

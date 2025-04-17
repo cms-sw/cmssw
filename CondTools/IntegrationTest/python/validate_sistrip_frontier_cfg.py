@@ -6,7 +6,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    siteLocalConfig = cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripPedestalsRcd'),
         tag = cms.string('SiStripPedestals_v1')
@@ -19,12 +18,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
             record = cms.string('SiStripFedCablingRcd'),
             tag = cms.string('SiStripFedCabling_v1')
         )),
-    loadBlobStreamer = cms.untracked.bool(True),
-    messagelevel = cms.untracked.uint32(0),
-    timetype = cms.string('runnumber'),
     connect = cms.string('frontier://cms_conditions_data/CMS_COND_STRIP'), ##cms_conditions_data/CMS_COND_STRIP"
 
-    authenticationMethod = cms.untracked.uint32(1)
 )
 
 process.source = cms.Source("EmptySource",

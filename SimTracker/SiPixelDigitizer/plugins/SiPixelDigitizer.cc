@@ -61,8 +61,8 @@
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 //Random Number
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
