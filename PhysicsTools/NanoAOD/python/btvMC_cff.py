@@ -11,6 +11,8 @@ def addGenCands(process, allPF = False, addAK4=False, addAK8=False):
     process.btvGenTask = cms.Task()
     process.schedule.associate(process.btvGenTask)
 
+    process.genWeightsTable.keepAllPSWeights = True
+
     process.finalGenParticles.select +=[
             "keep (4 <= abs(pdgId) <= 5) && statusFlags().isLastCopy()", # BTV: keep b/c quarks in their last copy
             "keep (abs(pdgId) == 310 || abs(pdgId) == 3122) && statusFlags().isLastCopy()", # BTV: keep K0s and Lambdas in their last copy
