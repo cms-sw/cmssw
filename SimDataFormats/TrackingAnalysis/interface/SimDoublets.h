@@ -74,34 +74,27 @@ public:
     // method to get the layer pair
     std::pair<uint8_t, uint8_t> layerIds() const { return layerIds_; }
 
-    // method to get the RecHit pair
-    std::pair<SiPixelRecHitRef, SiPixelRecHitRef> recHits() const { return recHitRefs_; }
-
     // method to get the number of skipped layers
     int8_t numSkippedLayers() const { return numSkippedLayers_; }
 
     // method to get the layer pair ID
     int16_t layerPairId() const { return layerPairId_; }
 
-    // method to get the inner layerId
+    // methods to get the inner/outer layerId
     uint8_t innerLayerId() const { return layerIds_.first; }
-    // method to get the outer layerId
     uint8_t outerLayerId() const { return layerIds_.second; }
 
-    // method to get the cluster size of the inner RecHit
+    // methods to get the cluster size of the inner/outer RecHit
     int16_t innerClusterYSize() const { return clusterYSizes_.first; }
-    // method to get the cluster size of the outer RecHit
     int16_t outerClusterYSize() const { return clusterYSizes_.second; }
 
-    // method to get a reference to the inner RecHit
-    SiPixelRecHitRef innerRecHit() const { return recHitRefs_.first; }
-    // method to get a reference to the outer RecHit
-    SiPixelRecHitRef outerRecHit() const { return recHitRefs_.second; }
+    // methods to get the module ids of the inner/outer RecHit
+    unsigned int innerModuleId() const { return moduleIds_.first; }
+    unsigned int outerModuleId() const { return moduleIds_.second; }
 
-    // method to get the global position of the inner RecHit
-    GlobalPoint innerGlobalPos() const;
-    // method to get the global position of the outer RecHit
-    GlobalPoint outerGlobalPos() const;
+    // methods to get the global position of the inner/outer RecHit
+    GlobalPoint innerGlobalPos() const { return globalPositions_.first; };
+    GlobalPoint outerGlobalPos() const { return globalPositions_.second; };
 
     // methods to set status to undef, alive or killed
     void setUndef() { status_ = Status::undef; }
@@ -116,7 +109,7 @@ public:
     bool isKilledByMissingLayerPair() const { return status_ == Status::killedByMissingLayerPair; }
     bool isKilled() const { return isKilledByCuts() || isKilledByMissingLayerPair(); }
 
-    // method to get the vector of inner neighboring doublets
+    // methods to get the vector of inner neighboring doublets
     std::vector<Neighbor>& innerNeighbors() { return innerNeighbors_; }
     std::vector<Neighbor> const& innerNeighborsView() const { return innerNeighbors_; }
     int innerNeighborIndex(int i) const { return innerNeighbors_.at(i).index(); }
@@ -126,13 +119,14 @@ public:
     uint8_t innerNeighborsInnerLayerId() const { return innerNeighborsInnerLayerId_; }
 
   private:
-    std::pair<SiPixelRecHitRef, SiPixelRecHitRef> recHitRefs_;  // reference pair to RecHits of the Doublet
-    std::pair<uint8_t, uint8_t> layerIds_;                      // pair of layer IDs corresponding to the RecHits
-    std::pair<int16_t, int16_t> clusterYSizes_;                 // pair of cluster sizes corresponding to the RecHits
-    Status status_;                                             // status of the doublet
-    int8_t numSkippedLayers_;                                   // number of layers skipped by the Doublet
-    int16_t layerPairId_;            // ID of the layer pair as defined in the reconstruction for the doublets
-    GlobalVector beamSpotPosition_;  // global position of the beam spot (needed to correct the global RecHit position)
+    std::pair<int, int> moduleIds_;                        // module Ids of the RecHits of the Doublet
+    std::pair<GlobalPoint, GlobalPoint> globalPositions_;  // global position of the RecHits of the Doublet
+                                                           // (corrected by beamspot)
+    std::pair<uint8_t, uint8_t> layerIds_;                 // pair of layer IDs corresponding to the RecHits
+    std::pair<int16_t, int16_t> clusterYSizes_;            // pair of cluster sizes corresponding to the RecHits
+    Status status_;                                        // status of the doublet
+    int8_t numSkippedLayers_;                              // number of layers skipped by the Doublet
+    int16_t layerPairId_;                     // ID of the layer pair as defined in the reconstruction for the doublets
     std::vector<Neighbor> innerNeighbors_{};  // indices of inner neighboring doublets and the status of the connection
     uint8_t innerNeighborsInnerLayerId_{99};  // layer ID of the inner RecHit of the inner neighboring doublets
   };
@@ -227,29 +221,30 @@ public:
   SimDoublets(TrackingParticleRef const trackingParticleRef, reco::BeamSpot const& beamSpot)
       : trackingParticleRef_(trackingParticleRef), beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
 
-  // method to add a RecHitRef with its layer
-  void addRecHit(SiPixelRecHitRef const recHitRef, uint8_t const layerId, int16_t const clusterYSize) {
-    recHitsAreSorted_ = false;  // set sorted-bool to false again
-
-    // check if the layerId is not present in the layerIdVector yet
-    if (std::find(layerIdVector_.begin(), layerIdVector_.end(), layerId) == layerIdVector_.end()) {
-      // if it does not exist, increment number of layers
-      numLayers_++;
-    }
-
-    // add recHit and layerId to the vectors
-    recHitRefVector_.push_back(recHitRef);
-    layerIdVector_.push_back(layerId);
-    clusterYSizeVector_.push_back(clusterYSize);
-  }
+  // method to add a RecHit to the SimPixelTrack
+  void addRecHit(SiPixelRecHitRef const recHitRef,
+                 uint8_t const layerId,
+                 int16_t const clusterYSize,
+                 unsigned int const detId,
+                 int const moduleId);
 
   // method to get the reference to the TrackingParticle
   TrackingParticleRef trackingParticle() const { return trackingParticleRef_; }
 
-  // method to get the reference vector to the RecHits
-  SiPixelRecHitRefVector recHits() const { return recHitRefVector_; }
-  // method to get a reference to the RecHit at index i
-  SiPixelRecHitRef recHits(size_t const i) const { return recHitRefVector_[i]; }
+  // method to get the detector id vector
+  std::vector<unsigned int> detIds() const { return detIdVector_; }
+  // method to get the detector id at index i
+  unsigned int detIds(size_t const i) const { return detIdVector_[i]; }
+
+  // method to get the module id vector
+  std::vector<int> moduleIds() const { return moduleIdVector_; }
+  // method to get the module id at index i
+  int moduleIds(size_t const i) const { return moduleIdVector_[i]; }
+
+  // method to get the global position vector of the RecHits
+  std::vector<GlobalPoint> globalPositions() const { return globalPositionVector_; }
+  // method to get the global position of the RecHit at index i
+  GlobalPoint globalPositions(size_t const i) const { return globalPositionVector_[i]; }
 
   // method to get the layer id vector
   std::vector<uint8_t> layerIds() const { return layerIdVector_; }
@@ -323,10 +318,14 @@ private:
                         size_t const minNumDoubletsToPass) const;
 
   // class members
-  TrackingParticleRef trackingParticleRef_;  // reference to the TrackingParticle
-  SiPixelRecHitRefVector recHitRefVector_;   // reference vector to RecHits associated to the TP (sorted after building)
-  std::vector<uint8_t> layerIdVector_;       // vector of layer IDs corresponding to the RecHits
-  std::vector<int16_t> clusterYSizeVector_;  // vector of cluster sizes (local y) corresponding to the RecHits
+  TrackingParticleRef trackingParticleRef_;        // reference to the TrackingParticle
+  std::vector<unsigned int> detIdVector_;          // vector of the detector Ids of the RecHits
+                                                   // associated to the TP
+  std::vector<int> moduleIdVector_;                // vector of the module Ids of the RecHits
+  std::vector<GlobalPoint> globalPositionVector_;  // vector of the global positions of the RecHits
+                                                   // (corrected by beamspot)
+  std::vector<uint8_t> layerIdVector_;             // vector of layer IDs corresponding to the RecHits
+  std::vector<int16_t> clusterYSizeVector_;        // vector of cluster sizes (local y) corresponding to the RecHits
   GlobalVector beamSpotPosition_;  // global position of the beam spot (needed to correct the global RecHit position)
   bool recHitsAreSorted_{false};   // true if RecHits were sorted
   int numLayers_{0};               // number of layers hit by the TrackingParticle
