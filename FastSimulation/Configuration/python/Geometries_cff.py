@@ -6,14 +6,15 @@ import FWCore.ParameterSet.Config as cms
 
 # To use the "full" CMS geometry, comment the prevous line, and uncomment the following one:
 #####from Configuration.StandardSequences.Geometry_cff import *
-from Configuration.StandardSequences.GeometryDB_cff import *
-
+#from Configuration.StandardSequences.GeometryDB_cff import *
+from Configuration.Geometry.GeometryExtendedRun4D110_cff import *
+from Configuration.Geometry.GeometryExtendedRun4D110Reco_cff import *
 
 # The tracker geometry left-over (for aligned/misaligned geometry)
 # The goemetry used for reconstruction must not be misaligned.
-trackerGeometryDB.applyAlignment = False
+trackerGeometry.applyAlignment = False
 # Create a misaligned geometry for simulation
-misalignedTrackerGeometry = Geometry.TrackerGeometryBuilder.trackerGeometryDB_cfi.trackerGeometryDB.clone()
+misalignedTrackerGeometry = Geometry.TrackerGeometryBuilder.trackerGeometry_cfi.trackerGeometry.clone()
 # The misalignment is not applied by default
 misalignedTrackerGeometry.applyAlignment = False
 # Label of the produced TrackerGeometry:
@@ -23,7 +24,7 @@ misalignedTrackerGeometry.appendToDataLabel = 'MisAligned'
 # The geometry used for reconstruction must not be misaligned.
 DTGeometryESModule.applyAlignment = False
 # Create a misaligned geometry for simulation
-misalignedDTGeometry = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()
+misalignedDTGeometry = Geometry.DTGeometryBuilder.dtGeometry_cfi.DTGeometryESModule.clone()
 # The misalignment is not applied by default
 misalignedDTGeometry.applyAlignment = False
 # Label of the produced DTGeometry:
@@ -33,7 +34,7 @@ misalignedDTGeometry.appendToDataLabel = 'MisAligned'
 # The geometry used for reconstruction must not be misaligned.
 CSCGeometryESModule.applyAlignment = False
 # Create a misaligned geometry for simulation
-misalignedCSCGeometry = Geometry.CSCGeometryBuilder.cscGeometryDB_cfi.CSCGeometryESModule.clone()
+misalignedCSCGeometry = Geometry.CSCGeometryBuilder.cscGeometry_cfi.CSCGeometryESModule.clone()
 # The misalignment is not applied by default
 misalignedCSCGeometry.applyAlignment = False
 # Label of the produced CSCGeometry:
