@@ -5,9 +5,15 @@ from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import *
 from HLTrigger.NGTScouting.hltVertices_cfi import *
+from HLTrigger.NGTScouting.hltEGammaPacker_cfi import *
+from HLTrigger.NGTScouting.hltPhotons_cfi import *
+from HLTrigger.NGTScouting.hltElectrons_cfi import *
 
 hltNanoProducer = cms.Sequence(
-    hltVertexTable
+    hltVertexTable +
+    hltEgammaPacker +
+    hltPhotonTable +
+    hltElectronTable
 )
 
 def hltNanoCustomize(process):
