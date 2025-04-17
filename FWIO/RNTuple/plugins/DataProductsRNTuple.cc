@@ -4,8 +4,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace edm::input;
-using namespace ROOT::Experimental;
-
+using namespace ROOT;
 namespace {
   std::string fixName(std::string_view iName) {
     if (not iName.empty() and iName.back() == '.') {
@@ -28,7 +27,7 @@ namespace {
 DataProductsRNTuple::DataProductsRNTuple(TFile* iFile,
                                          std::string const& iName,
                                          std::string const& iAux,
-                                         ROOT::Experimental::RNTupleReadOptions const& iOps)
+                                         ROOT::RNTupleReadOptions const& iOps)
     : reader_(RNTupleReader::Open(*get_and_check_RNTuple(iFile, iName), iOps)) {
   auxDesc_ = reader_->GetDescriptor().FindFieldId(iAux);
 }
@@ -36,7 +35,7 @@ DataProductsRNTuple::DataProductsRNTuple(TFile* iFile,
 bool DataProductsRNTuple::setupToReadProductIfAvailable(ProductDescription& iProduct) {
   auto fixedName = fixName(iProduct.branchName());
   auto desc = reader_->GetDescriptor().FindFieldId(fixedName);
-  if (desc == ROOT::Experimental::kInvalidDescriptorId) {
+  if (desc == ROOT::kInvalidDescriptorId) {
     return false;
   }
   iProduct.initFromDictionary();
