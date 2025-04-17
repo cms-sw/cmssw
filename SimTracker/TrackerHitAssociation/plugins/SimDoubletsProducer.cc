@@ -33,6 +33,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/SimDoublets.h"
@@ -82,6 +83,7 @@ private:
   pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams_ = nullptr;
   const TrackerTopology* trackerTopology_ = nullptr;
   const TrackerGeometry* trackerGeometry_ = nullptr;
+  unsigned int numLayersOT = 2;
 
   // tokens for ClusterParameterEstimator, tracker topology, ect.
   const edm::ESGetToken<PixelCPEFastParamsHost<TrackerTraits>, PixelCPEFastParamsRecord> cpe_getToken_;
@@ -90,6 +92,7 @@ private:
   const edm::EDGetTokenT<ClusterTPAssociation> clusterTPAssociation_getToken_;
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_getToken_;
   const edm::EDGetTokenT<SiPixelRecHitCollection> pixelRecHits_getToken_;
+  const edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> otRecHits_getToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpot_getToken_;
   const edm::EDPutTokenT<SimDoubletsCollection> simDoublets_putToken_;
 };
@@ -172,6 +175,7 @@ SimDoubletsProducer<TrackerTraits>::SimDoubletsProducer(const edm::ParameterSet&
           consumes<ClusterTPAssociation>(pSet.getParameter<edm::InputTag>("clusterTPAssociationSrc"))),
       trackingParticles_getToken_(consumes(pSet.getParameter<edm::InputTag>("trackingParticleSrc"))),
       pixelRecHits_getToken_(consumes(pSet.getParameter<edm::InputTag>("pixelRecHitSrc"))),
+      otRecHits_getToken_(consumes(pSet.getParameter<edm::InputTag>("outerTrackerRecHitSrc"))),
       beamSpot_getToken_(consumes(pSet.getParameter<edm::InputTag>("beamSpotSrc"))),
       simDoublets_putToken_(produces<SimDoubletsCollection>()) {
   // initialize the selector for TrackingParticles used to create SimDoublets
@@ -212,6 +216,7 @@ void SimDoubletsProducer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
   desc.add<edm::InputTag>("clusterTPAssociationSrc", edm::InputTag("hltTPClusterProducer"));
   desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("hltSiPixelRecHits"));
+  desc.add<edm::InputTag>("outerTrackerRecHitSrc", edm::InputTag("hltSiPhase2RecHits"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("hltOnlineBeamSpot"));
 
   // parameter set for the selection of TrackingParticles that will be used for SimHitDoublets
@@ -251,6 +256,7 @@ void SimDoubletsProducer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
   desc.add<edm::InputTag>("clusterTPAssociationSrc", edm::InputTag("hltTPClusterProducer"));
   desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("hltSiPixelRecHits"));
+  desc.add<edm::InputTag>("outerTrackerRecHitSrc", edm::InputTag("hltSiPhase2RecHits"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("hltOnlineBeamSpot"));
 
   // parameter set for the selection of TrackingParticles that will be used for SimHitDoublets
@@ -298,6 +304,13 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
     return;
   }
 
+  // get the Outer Tracker RecHit collection from the event
+  edm::Handle<Phase2TrackerRecHit1DCollectionNew> hitsOT;
+  event.getByToken(otRecHits_getToken_, hitsOT);
+  if (!hitsOT.isValid()) {
+    return;
+  }
+
   // get TrackingParticles from the event
   edm::Handle<TrackingParticleCollection> trackingParticles;
   event.getByToken(trackingParticles_getToken_, trackingParticles);
@@ -338,7 +351,7 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
   int count_associatedRecHits{0}, count_RecHitsInSimDoublets{0};
 
   // initialize a couple of variables used in the following loop
-  unsigned int detId, layerId, maxCol;
+  unsigned int detId, layerId, layerIdOT, maxCol;
   uint16_t pixmx;
   int moduleId, clusterYSize;
 
@@ -389,6 +402,28 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
       }
     }  // end loop over RecHits
   }  // end loop over pixel RecHit collections of the different pixel modules
+
+  // loop over Outer Tracker RecHit collections of the different modules
+  for (const auto& detSetOT : *hitsOT) {
+    // get detector Id
+    detId = detSetOT.detId();
+
+    // get layerId of the OT
+    layerIdOT = trackerTopology_->getOTLayerNumber(detId);
+
+    // only use the RecHits if the module is in the accepted range of layers and one of lower modules
+    if ((layerIdOT <= numLayersOT) && trackerTopology_->isLower(detId)) {
+      // determine layer Id from detector Id plus the offset from the pixel layers:
+      // layerId = layerId(OT) + N(pixelLayers) - 1
+      // the (-1) comes from the layerId(OT) starting from 1 instead of 0
+      layerId = layerIdOT + TrackerTraits::numberOfLayers - 1;
+
+      // loop over RecHits
+      for (auto const& hitOT : detSetOT) {
+        std::cout << "OT RecHit in layer " << layerId << ": " << hitOT.globalPosition() << std::endl;
+      }  // end loop over RecHits
+    }
+  }  // end loop over OT RecHit collections of the different modules
 
   // loop over collection of SimDoublets and sort the RecHits according to their position
   for (auto& simDoublets : simDoubletsCollection) {
