@@ -249,7 +249,7 @@ bool ShallowGainCalibration::isFarFromBorder(TrajectoryStateOnSurface* trajState
   const RectangularPlaneBounds* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
 
   double DistFromBorder = 1.0;
-  double HalfLength = it->surface().bounds().length() / 2.0;
+  double HalfLength;
 
   if (trapezoidalBounds) {
     std::array<const float, 4> const& parameters = (*trapezoidalBounds).parameters();

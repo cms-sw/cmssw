@@ -6,7 +6,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    siteLocalConfig = cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTT0Rcd'),
         tag = cms.string('MTCC_t0')
@@ -19,11 +18,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
             record = cms.string('DTReadOutMappingRcd'),
             tag = cms.string('MTCC_map')
         )),
-    messagelevel = cms.untracked.uint32(0),
-    timetype = cms.string('runnumber'),
     connect = cms.string('frontier://cms_conditions_data/CMS_COND_DT'), ##cms_conditions_data/CMS_COND_DT" 
 
-    authenticationMethod = cms.untracked.uint32(0)
 )
 
 process.source = cms.Source("EmptySource",

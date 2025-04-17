@@ -39,7 +39,6 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.ecalTPConditions = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
-    loadAll = cms.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGPedestalsRcd'),
         tag = cms.string('EcalTPGPedestals_craft')
@@ -96,12 +95,8 @@ process.ecalTPConditions = cms.ESSource("PoolDBESSource",
 	    record = cms.string('EcalTPGTowerStatusRcd'),
 	    tag = cms.string('EcalTPGTowerStatus_craft')
 	)),    
-    messagelevel = cms.untracked.uint32(3),
-    timetype = cms.string('runnumber'),
 #    connect = cms.string('oracle://ecalh4db/TEST02'),
     connect = cms.string('sqlite_file:DB_craft.db'),
-    authenticationMethod = cms.untracked.uint32(1),
-    loadBlobStreamer = cms.untracked.bool(True)
 )
         
     

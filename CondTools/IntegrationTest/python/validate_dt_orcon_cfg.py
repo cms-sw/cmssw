@@ -6,7 +6,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    loadAll = cms.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTT0Rcd'),
         tag = cms.string('MTCC_t0')
@@ -19,13 +18,9 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
             record = cms.string('DTReadOutMappingRcd'),
             tag = cms.string('MTCC_map')
         )),
-    messagelevel = cms.untracked.uint32(2),
-    catalog = cms.untracked.string('relationalcatalog_oracle://orcon/CMS_COND_GENERAL'), ##orcon/CMS_COND_GENERAL"
 
-    timetype = cms.string('runnumber'),
     connect = cms.string('oracle://orcon/CMS_COND_DT'), ##orcon/CMS_COND_DT"
 
-    authenticationMethod = cms.untracked.uint32(1)
 )
 
 process.source = cms.Source("EmptySource",

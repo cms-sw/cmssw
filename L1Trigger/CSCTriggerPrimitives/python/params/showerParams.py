@@ -94,3 +94,85 @@ showerPSet = cms.PSet(
         minLayersCentralTBin = cms.uint32(5),
     )
 )
+
+showerPSet_2025 = cms.PSet(
+    ## what kind of shower triggers the logic?
+    ## 0: cathode-only (TMB/OTMB)
+    ## 1: anode-only (from ALCT board)
+    source  = cms.vuint32(
+	# ME1/1
+	1,
+	# ME1/2
+	1,
+	# ME1/3
+	1,
+	# ME2/1
+	1,
+	# ME2/2
+	1,
+	# ME3/1
+	1,
+	# ME3/2
+	1,
+	# ME4/1
+	1,
+	# ME4/2
+	1
+	),
+
+    ## settings for cathode showers (counting CSCComparatorDigi)
+    cathodeShower = cms.PSet(
+	## 10000 means to disable cathode HMT for this chamber type
+        showerThresholds = cms.vuint32(
+            # ME1/1
+            10000, 10000, 10000,
+            # ME1/2
+            10000, 10000, 10000,
+            # ME1/3
+            10000, 10000, 10000,
+            # ME2/1
+            10000, 10000, 10000,
+            # ME2/2
+            10000, 10000, 10000,
+            # ME3/1
+            10000, 10000, 10000,
+            # ME3/2
+            10000, 10000, 10000,
+            # ME4/1
+            10000, 10000, 10000,
+            # ME4/2
+            10000, 10000, 10000
+        ),
+        showerNumTBins = cms.uint32(3),# 3BX for cathode HMT
+        minLayersCentralTBin = cms.uint32(5),
+	## peack check feature is not implemented in firmware
+	## plan to upgrade in future
+	peakCheck = cms.bool(False),
+    ),
+    ## settings for anode showers (counting CSCWireDigi)
+    anodeShower = cms.PSet(
+        ## {loose, nominal, tight} thresholds for hit counters
+        showerThresholds = cms.vuint32(
+            # ME1/1
+            1000, 1000, 1000,
+            # ME1/2
+            1000, 1000, 1000,
+            # ME1/3
+            7, 14, 18,
+            # ME2/1
+            24, 76, 84,
+            # ME2/2
+            12, 34, 37,
+            # ME3/1
+            22, 67, 77,
+            # ME3/2
+            12, 21, 21,
+            # ME4/1
+            26, 80, 92,
+            # ME4/2
+            12, 23, 23
+        ),
+        showerNumTBins = cms.uint32(1),# 1BX for anode HMT
+        minLayersCentralTBin = cms.uint32(5),
+    )
+)

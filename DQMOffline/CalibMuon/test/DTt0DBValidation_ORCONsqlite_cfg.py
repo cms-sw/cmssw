@@ -22,7 +22,6 @@ process.tzeroRef = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('DTT0Rcd'),
@@ -37,7 +36,6 @@ process.tzeroRef = cms.ESSource("PoolDBESSource",
         ) 
     ),
     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
-    siteLocalConfig = cms.untracked.bool(False)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",

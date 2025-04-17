@@ -94,6 +94,10 @@ public:
     layout.ROOTStreamerCleaner();
   }
 
+  // Copy column by column the content of the given view into this PortableHostCollection.
+  // The view must point to data in host memory.
+  void deepCopy(ConstView const& view) { layout_.deepCopy(view); }
+
 private:
   std::optional<Buffer> buffer_;  //!
   Layout layout_;                 //

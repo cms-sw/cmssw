@@ -132,4 +132,10 @@ GeometryConf={
     'DD4hepExtendedRun4D116' : 'DD4hepExtendedRun4D116,DD4hepExtendedRun4D116Reco',
     'ExtendedRun4D117' : 'ExtendedRun4D117,ExtendedRun4D117Reco',
     'DD4hepExtendedRun4D117' : 'DD4hepExtendedRun4D117,DD4hepExtendedRun4D117Reco',
+    'ExtendedRun4D118' : 'ExtendedRun4D118,ExtendedRun4D118Reco',
+    'DD4hepExtendedRun4D118' : 'DD4hepExtendedRun4D118,DD4hepExtendedRun4D118Reco',
+    'ExtendedRun4D119' : 'ExtendedRun4D119,ExtendedRun4D119Reco',
+    'DD4hepExtendedRun4D119' : 'DD4hepExtendedRun4D119,DD4hepExtendedRun4D119Reco',
+    'ExtendedRun4D120' : 'ExtendedRun4D120,ExtendedRun4D120Reco',
+    'DD4hepExtendedRun4D120' : 'DD4hepExtendedRun4D120,DD4hepExtendedRun4D120Reco',
 }

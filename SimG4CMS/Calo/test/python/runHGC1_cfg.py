@@ -1,7 +1,7 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun ttbar.py geometry=V18
-#   Options for geometry V17Shift, V18
+#   Options for geometry V17Shift, V18, V19
 # 
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -15,7 +15,7 @@ options.register('geometry',
                  "V18",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: V17Shift, V18")
+                  "geometry of operations: V17Shift, V18, V19")
 
 ### get and parse the command line arguments
  
@@ -24,12 +24,12 @@ print(options)
 
 ####################################################################
 
-if (options.geometry == "V18"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    process = cms.Process("PROD",Phase2C22I13M9)
-else:
+if (options.geometry == "V17Shift"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process("PROD",Phase2C17I13M9)
+else:
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("PROD",Phase2C22I13M9)
 
 geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
 print("Geometry file: ", geomFile)
@@ -49,6 +49,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', ''
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.G4cout = dict()
     process.MessageLogger.G4cerr = dict()
+    process.MessageLogger.HGCalGeom = dict()
     process.MessageLogger.HGCSim = dict()
     process.MessageLogger.CaloSim = dict()
 

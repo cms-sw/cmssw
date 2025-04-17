@@ -23,7 +23,6 @@
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
-#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
@@ -430,19 +429,11 @@ namespace edm {
                                    preallocations_.numberOfThreads());
       actReg_->preallocateSignal_(bounds);
       schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
-      PathsAndConsumesOfModules pathsAndConsumesOfModules;
-
-      //The code assumes only modules make data in the current process
-      // Since the test os also allowed to do so, it can lead to problems.
-      //pathsAndConsumesOfModules.initialize(schedule_.get(), preg_);
 
       espController_->finishConfiguration();
       actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
-      //NOTE: this may throw
-      //checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, false);
 
-      schedule_->beginJob(
-          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, pathsAndConsumesOfModules, processContext_);
+      schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, processContext_);
 
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
         schedule_->beginStream(i);

@@ -19,7 +19,7 @@ from RecoLocalCalo.HcalRecAlgos.hcalChannelPropertiesESProd_cfi import *
 # sequence CaloLocalReco
 #
 
-hbhereco = _hcalLocalReco_cff.hbheprereco.cpu.clone(
+hbhereco = _hcalLocalReco_cff.hbheprereco.clone(
     tsFromDB = False,
     recoParamsFromDB = False,
     algorithm = dict(

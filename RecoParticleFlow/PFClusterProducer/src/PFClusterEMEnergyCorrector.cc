@@ -12,9 +12,7 @@ namespace {
 }  // namespace
 
 PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet &conf, edm::ConsumesCollector &&cc)
-    : ecalClusterToolsESGetTokens_{std::move(cc)},
-      ecalReadoutToolsESGetTokens_{conf, std::move(cc)},
-      calibrator_(new PFEnergyCalibration) {
+    : ecalClusterToolsESGetTokens_{cc}, ecalReadoutToolsESGetTokens_{conf, cc}, calibrator_(new PFEnergyCalibration) {
   applyCrackCorrections_ = conf.getParameter<bool>("applyCrackCorrections");
   applyMVACorrections_ = conf.getParameter<bool>("applyMVACorrections");
   srfAwareCorrection_ = conf.getParameter<bool>("srfAwareCorrection");

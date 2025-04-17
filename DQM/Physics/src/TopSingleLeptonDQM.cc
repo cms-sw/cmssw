@@ -5,6 +5,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include <iostream>
 #include <memory>
 
@@ -187,7 +188,7 @@ namespace TopSingleLepton {
     // instantaneous luminosity
     // hists_["InstLumi_"] = ibooker.book1D("InstLumi", "Inst. Lumi.", 100, 0., 1.e3);
     // number of selected primary vertices
-    hists_["pvMult_"] = ibooker.book1D("PvMult", "N_{good pvs}", 50, 0., 50.);
+    hists_["pvMult_"] = ibooker.book1D("PvMult", "N_{good pvs}", 50, 0., 100.);
     // pt of the leading muon
     hists_["muonPt_"] = ibooker.book1D("MuonPt", "pt(#mu TightId, TightIso)", 40, 0., 200.);
     // muon multiplicity after  tight Id
@@ -271,10 +272,13 @@ namespace TopSingleLepton {
     hists_["muonDelZ_"] = ibooker.book1D("MuonDelZ", "d_{z}(#mu)", 50, -25., 25.);
     // dxy for muons (to suppress cosmics)
     hists_["muonDelXY_"] = ibooker.book2D("MuonDelXY", "d_{xy}(#mu)", 50, -0.1, 0.1, 50, -0.1, 0.1);
+    // dxy distribution for muons
+    hists_["muonDxy_"] = ibooker.book1D("MuonDxy", "d_{xy}(#mu)", 100, -0.05, 0.05);
 
     // set axes titles for dxy for muons
     hists_["muonDelXY_"]->setAxisTitle("x [cm]", 1);
     hists_["muonDelXY_"]->setAxisTitle("y [cm]", 2);
+    hists_["muonDxy_"]->setAxisTitle("d_{xy} [cm]", 1);
 
     if (verbosity_ == VERBOSE)
       return;
@@ -458,6 +462,12 @@ namespace TopSingleLepton {
       if (muon->isGlobalMuon()) {
         fill("muonDelZ_", muon->innerTrack()->vz());  // CB using inner track!
         fill("muonDelXY_", muon->innerTrack()->vx(), muon->innerTrack()->vy());
+
+        // d_xy distribution
+        if (muon->muonBestTrack().isNonnull()) {
+          double dxy = muon->muonBestTrack()->dxy(Pvertex.position());
+          fill("muonDxy_", dxy);
+        }
 
         // apply preselection
         if ((!muonSelect_ || (*muonSelect_)(*muon))) {
