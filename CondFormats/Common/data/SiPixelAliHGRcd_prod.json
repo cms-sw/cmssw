@@ -1,8 +1,7 @@
 {
     "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
     "destinationTags": {
-        "SiPixelAliHG_PCL_v0_hlt": {}, 
-        "TrackerAlignmentHG_PCL_byRun_v2_express": {}
+        "SiPixelAliHG_PCL_v0_hlt": {}
     }, 
     "inputTag": "SiPixelAliHG_pcl", 
     "since": null, 
