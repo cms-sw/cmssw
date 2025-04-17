@@ -49,9 +49,26 @@ if [ -e 'Phase2_L1P2GT_HLT.py' ]; then
   if [ ! -d 'patatrack-scripts' ]; then
     git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
   fi
-  patatrack-scripts/benchmark -j 4 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT.py
-  mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json > Phase2Timing_resources.json
+  patatrack-scripts/benchmark -j 8 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT.py
+  mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources.json
   if [ -e "$(dirname $0)/augmentResources.py" ]; then
     python3 $(dirname $0)/augmentResources.py
   fi
+fi
+
+cmsDriver.py NGTScouting -s L1P2GT,HLT:NGTScouting --processName=NLTX \
+  --conditions auto:phase2_realistic_T33 --geometry ExtendedRun4D110 \
+  --era Phase2C17I13M9 \
+  --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
+  --eventcontent FEVTDEBUGHLT \
+  --filein=${ALL_FILES} \
+  --mc --nThreads 4 --inputCommands='keep *, drop *_hlt*_*_HLT, drop triggerTriggerFilterObjectWithRefs_l1t*_*_HLT' \
+  -n 1000 --no_exec --output={}
+
+if [ -e 'NGTScouting_L1P2GT_HLT.py' ]; then
+  if [ ! -d 'patatrack-scripts' ]; then
+    git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
+  fi
+  patatrack-scripts/benchmark -j 8 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- NGTScouting_L1P2GT_HLT.py
+  mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources_NGT.json
 fi
