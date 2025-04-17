@@ -23,6 +23,7 @@
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
@@ -83,7 +84,7 @@ private:
   pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams_ = nullptr;
   const TrackerTopology* trackerTopology_ = nullptr;
   const TrackerGeometry* trackerGeometry_ = nullptr;
-  unsigned int numLayersOT_ = 2;
+  unsigned int numLayersOT_; // number of OT layers considered for CA extension
 
   // tokens for ClusterParameterEstimator, tracker topology, ect.
   const edm::ESGetToken<PixelCPEFastParamsHost<TrackerTraits>, PixelCPEFastParamsRecord> cpe_getToken_;
@@ -125,7 +126,7 @@ namespace simdoublets {
     return layerId;
   }
 
-  // function that determines the cluster size of a RecHit in local y direction
+  // function that determines the cluster size of a Pixel RecHit in local y direction
   // according to the formula used in Patatrack reconstruction
   int clusterYSize(OmniClusterRef::ClusterPixelRef const cluster, uint16_t const pixmx, int const maxCol) {
     // check if the cluster lies at the y-edge of the module
@@ -168,7 +169,8 @@ namespace simdoublets {
 // constructor
 template <typename TrackerTraits>
 SimDoubletsProducer<TrackerTraits>::SimDoubletsProducer(const edm::ParameterSet& pSet)
-    : cpe_getToken_(esConsumes(edm::ESInputTag("", pSet.getParameter<std::string>("CPE")))),
+    : numLayersOT_(pSet.getParameter<int>("numLayersOT")),
+      cpe_getToken_(esConsumes(edm::ESInputTag("", pSet.getParameter<std::string>("CPE")))),
       topology_getToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       geometry_getToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       clusterTPAssociation_getToken_(
@@ -219,6 +221,9 @@ void SimDoubletsProducer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
   desc.add<edm::InputTag>("outerTrackerRecHitSrc", edm::InputTag("hltSiPhase2RecHits"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("hltOnlineBeamSpot"));
 
+  // Extension settings
+  desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
+
   // parameter set for the selection of TrackingParticles that will be used for SimHitDoublets
   edm::ParameterSetDescription descTPSelector;
   descTPSelector.add<double>("ptMin", 0.9);
@@ -258,6 +263,9 @@ void SimDoubletsProducer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
   desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("hltSiPixelRecHits"));
   desc.add<edm::InputTag>("outerTrackerRecHitSrc", edm::InputTag("hltSiPhase2RecHits"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("hltOnlineBeamSpot"));
+  
+  // Extension settings
+  desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
 
   // parameter set for the selection of TrackingParticles that will be used for SimHitDoublets
   edm::ParameterSetDescription descTPSelector;
@@ -386,14 +394,14 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
 
           // if the associated TrackingParticle is among the selected ones
           if (selectedTrackingParticleKeys.has(assocTrackingParticle.key())) {
-            SiPixelRecHitRef hitRef = edmNew::makeRefTo(hits, &hit);
+            // determine the cluster size of the RecHit
             clusterYSize = simdoublets::clusterYSize(hit.cluster(), pixmx, maxCol);
             count_associatedRecHits++;
             // loop over collection of SimDoublets and find the one of the associated TrackingParticle
             for (auto& simDoublets : simDoubletsCollection) {
               TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
               if (assocTrackingParticle.key() == trackingParticleRef.key()) {
-                simDoublets.addRecHit(hitRef, layerId, clusterYSize, detId, moduleId);
+                simDoublets.addRecHit(hit, layerId, clusterYSize, detId, moduleId);
                 count_RecHitsInSimDoublets++;
               }
             }
@@ -403,24 +411,55 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
     }  // end loop over RecHits
   }  // end loop over pixel RecHit collections of the different pixel modules
 
+  // default the cluster size for the OT hits to -1 since they will not be
+  // considered at any point of the reconstruction anyway at moment
+  clusterYSize = -1;
+
   // loop over Outer Tracker RecHit collections of the different modules
   for (const auto& detSetOT : *hitsOT) {
     // get detector Id
     detId = detSetOT.detId();
+    DetId detIdObject(detId);
 
     // get layerId of the OT
     layerIdOT = trackerTopology_->getOTLayerNumber(detId);
 
-    // only use the RecHits if the module is in the accepted range of layers and one of lower modules
-    if ((layerIdOT <= numLayersOT_) && trackerTopology_->isLower(detId)) {
+    // only use the RecHits if the module is in the accepted range of layers and one of the Phase 2 PS, p-sensor
+    if ((layerIdOT <= numLayersOT_) && (trackerGeometry_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP)) {
       // determine layer Id from detector Id plus the offset from the pixel layers:
       // layerId = layerId(OT) + N(pixelLayers) - 1
       // the (-1) comes from the layerId(OT) starting from 1 instead of 0
       layerId = layerIdOT + TrackerTraits::numberOfLayers - 1;
 
+      // determine the module Id
+      moduleId = trackerGeometry_->idToDetUnit(detIdObject)->index();
+
       // loop over RecHits
       for (auto const& hitOT : detSetOT) {
-        std::cout << "OT RecHit in layer " << layerId << ": " << hitOT.globalPosition() << std::endl;
+        // std::cout << "OT RecHit in layer " << layerId << ": " << hitOT.globalPosition() << std::endl;
+
+        // find associated TrackingParticles
+        auto range = clusterTPAssociation.equal_range(OmniClusterRef(hitOT.cluster()));
+
+        // if the RecHit has associated TrackingParticles
+        if (range.first != range.second) {
+          for (auto assocTrackingParticleIter = range.first; assocTrackingParticleIter != range.second;
+               assocTrackingParticleIter++) {
+            const TrackingParticleRef assocTrackingParticle = (assocTrackingParticleIter->second);
+
+            // if the associated TrackingParticle is among the selected ones
+            if (selectedTrackingParticleKeys.has(assocTrackingParticle.key())) {
+              // loop over collection of SimDoublets and find the one of the associated TrackingParticle
+              for (auto& simDoublets : simDoubletsCollection) {
+                TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
+                if (assocTrackingParticle.key() == trackingParticleRef.key()) {
+                  // add the RecHit to the SimDoublet
+                  simDoublets.addRecHit(hitOT, layerId, clusterYSize, detId, moduleId);
+                }
+              }
+            }
+          }
+        }
       }  // end loop over RecHits
     }
   }  // end loop over OT RecHit collections of the different modules
