@@ -10,14 +10,10 @@
 
 namespace simdoublets {
 
-  // Function that gets the global position of a RecHit with respect to a reference point.
-  GlobalPoint getGlobalHitPosition(SiPixelRecHitRef const& recHit, GlobalVector const& referencePosition) {
-    return (recHit->globalPosition() - referencePosition);
-  }
-
   // Function that determines the number of skipped layers for a given pair of RecHits.
   int getNumSkippedLayers(std::pair<uint8_t, uint8_t> const& layerIds,
-                          std::pair<SiPixelRecHitRef, SiPixelRecHitRef> const& recHitRefs,
+                          unsigned int const inner_detId,
+                          unsigned int const outer_detId,
                           const TrackerTopology* trackerTopology) {
     // Possibility 0: invalid case (outer layer is not the outer one), set to -1 immediately
     if (layerIds.first >= layerIds.second) {
@@ -25,8 +21,8 @@ namespace simdoublets {
     }
 
     // get the detector Ids of the two RecHits
-    DetId innerDetId(recHitRefs.first->geographicalId());
-    DetId outerDetId(recHitRefs.second->geographicalId());
+    DetId innerDetId(inner_detId);
+    DetId outerDetId(outer_detId);
 
     // determine where the RecHits are
     bool innerInBarrel = (innerDetId.subdetId() == PixelSubdetector::PixelBarrel);
@@ -68,13 +64,15 @@ SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
                               size_t const outerIndex,
                               const TrackerTopology* trackerTopology,
                               std::vector<size_t> const& innerNeighborsIndices)
-    : recHitRefs_(std::make_pair(simDoublets.recHits(innerIndex), simDoublets.recHits(outerIndex))),
+    : moduleIds_(std::make_pair(simDoublets.moduleIds(innerIndex), simDoublets.moduleIds(outerIndex))),
+      globalPositions_(
+          std::make_pair(simDoublets.globalPositions(innerIndex), simDoublets.globalPositions(outerIndex))),
       layerIds_(std::make_pair(simDoublets.layerIds(innerIndex), simDoublets.layerIds(outerIndex))),
       clusterYSizes_(std::make_pair(simDoublets.clusterYSizes(innerIndex), simDoublets.clusterYSizes(outerIndex))),
-      status_(SimDoublets::Doublet::Status::undef),
-      beamSpotPosition_(simDoublets.beamSpotPosition()) {
+      status_(SimDoublets::Doublet::Status::undef) {
   // determine number of skipped layers
-  numSkippedLayers_ = simdoublets::getNumSkippedLayers(layerIds_, recHitRefs_, trackerTopology);
+  numSkippedLayers_ = simdoublets::getNumSkippedLayers(
+      layerIds_, simDoublets.detIds(innerIndex), simDoublets.detIds(outerIndex), trackerTopology);
 
   // determine Id of the layer pair
   layerPairId_ = simdoublets::getLayerPairId(layerIds_);
@@ -91,54 +89,80 @@ SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
   }
 }
 
-GlobalPoint SimDoublets::Doublet::innerGlobalPos() const {
-  // get the inner RecHit's global position
-  return simdoublets::getGlobalHitPosition(recHitRefs_.first, beamSpotPosition_);
-}
-
-GlobalPoint SimDoublets::Doublet::outerGlobalPos() const {
-  // get the outer RecHit's global position
-  return simdoublets::getGlobalHitPosition(recHitRefs_.second, beamSpotPosition_);
-}
-
 // ------------------------------------------------------------------------------------------------------
 // SimDoublets class member functions
 // ------------------------------------------------------------------------------------------------------
 
-// method to sort the RecHits according to the position
-void SimDoublets::sortRecHits() {
-  // get the production vertex of the TrackingParticle
-  const GlobalVector vertex(trackingParticleRef_->vx(), trackingParticleRef_->vy(), trackingParticleRef_->vz());
+// method to add a RecHit to the SimPixelTrack
+void SimDoublets::addRecHit(SiPixelRecHitRef const recHitRef,
+                            uint8_t const layerId,
+                            int16_t const clusterYSize,
+                            unsigned int const detId,
+                            int const moduleId) {
+  recHitsAreSorted_ = false;  // set sorted-bool to false again
 
-  // get the vector of squared magnitudes of the global RecHit positions
-  std::vector<double> recHitMag2;
-  recHitMag2.reserve(layerIdVector_.size());
-  for (const auto& recHit : recHitRefVector_) {
-    // global RecHit position with respect to the production vertex
-    Global3DPoint globalPosition = simdoublets::getGlobalHitPosition(recHit, vertex);
-    recHitMag2.push_back(globalPosition.mag2());
+  // check if the layerId is not present in the layerIdVector yet
+  if (std::find(layerIdVector_.begin(), layerIdVector_.end(), layerId) == layerIdVector_.end()) {
+    // if it does not exist, increment number of layers
+    numLayers_++;
   }
 
-  // find the permutation vector that sort the magnitudes
+  // add detId, the corrected hit position, layerId and clusterSize to respective vectors
+  detIdVector_.push_back(detId);
+  moduleIdVector_.push_back(moduleId);
+  globalPositionVector_.push_back(recHitRef->globalPosition() - beamSpotPosition_);
+  layerIdVector_.push_back(layerId);
+  clusterYSizeVector_.push_back(clusterYSize);
+}
+
+// method to sort the RecHits according to the position
+void SimDoublets::sortRecHits() {
+  // get the production vertex of the TrackingParticle (corrected for beamspot)
+  const GlobalVector vertex(trackingParticleRef_->vx() - beamSpotPosition_.x(),
+                            trackingParticleRef_->vy() - beamSpotPosition_.y(),
+                            trackingParticleRef_->vz() - beamSpotPosition_.z());
+
+  // get the vector of squared magnitudes of the global RecHit positions relative to vertex
+  std::vector<double> recHitMag2;
+  recHitMag2.reserve(layerIdVector_.size());
+  for (const auto& globalPosition : globalPositionVector_) {
+    // relative RecHit position with respect to the production vertex
+    Global3DPoint relativePosition = globalPosition - vertex;
+    recHitMag2.push_back(relativePosition.mag2());
+  }
+
+  // find the permutation vector that sorts the magnitudes
   std::vector<std::size_t> sortedPerm(recHitMag2.size());
   std::iota(sortedPerm.begin(), sortedPerm.end(), 0);
   std::sort(sortedPerm.begin(), sortedPerm.end(), [&](std::size_t i, std::size_t j) {
     return (recHitMag2[i] < recHitMag2[j]);
   });
 
-  // create the sorted recHitRefVector and the sorted layerIdVector accordingly
-  SiPixelRecHitRefVector sorted_recHitRefVector;
+  // create the sorted vectors
+  std::vector<unsigned int> sorted_detIdVector;
+  std::vector<int> sorted_moduleIdVector;
+  std::vector<GlobalPoint> sorted_globalPositionVector;
   std::vector<uint8_t> sorted_layerIdVector;
-  sorted_recHitRefVector.reserve(sortedPerm.size());
+  std::vector<int16_t> sorted_clusterYSizeVector;
+  sorted_detIdVector.reserve(sortedPerm.size());
+  sorted_moduleIdVector.reserve(sortedPerm.size());
+  sorted_globalPositionVector.reserve(sortedPerm.size());
   sorted_layerIdVector.reserve(sortedPerm.size());
+  sorted_clusterYSizeVector.reserve(sortedPerm.size());
   for (size_t i : sortedPerm) {
-    sorted_recHitRefVector.push_back(recHitRefVector_[i]);
+    sorted_detIdVector.push_back(detIdVector_[i]);
+    sorted_moduleIdVector.push_back(moduleIdVector_[i]);
+    sorted_globalPositionVector.push_back(globalPositionVector_[i]);
     sorted_layerIdVector.push_back(layerIdVector_[i]);
+    sorted_clusterYSizeVector.push_back(clusterYSizeVector_[i]);
   }
 
   // swap them with the class member
-  recHitRefVector_.swap(sorted_recHitRefVector);
+  detIdVector_.swap(sorted_detIdVector);
+  moduleIdVector_.swap(sorted_moduleIdVector);
+  globalPositionVector_.swap(sorted_globalPositionVector);
   layerIdVector_.swap(sorted_layerIdVector);
+  clusterYSizeVector_.swap(sorted_clusterYSizeVector);
 
   // set sorted bool to true
   recHitsAreSorted_ = true;
