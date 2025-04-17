@@ -68,6 +68,7 @@ The offsets currently in use are:
 * 0.13: MLPF algorithm
 * 0.15: JME NanoAOD
 * 0.17: Run-3 deep core seeding for JetCore iteration
+* 0.18  Run-3 SiPixel Digi Morphing
 * 0.19: ECAL SuperClustering with DeepSC algorithm
 * 0.21: Production-like sequence
 * 0.21X1 : Production-like sequence with classical mixing PU=X (X=10,20,30,40,50,60,70,80,90,100,120,140,160,180)
