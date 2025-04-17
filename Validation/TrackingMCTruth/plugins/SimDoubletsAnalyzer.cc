@@ -266,6 +266,9 @@ namespace simdoublets {
     // cut for minimum number of RecHits required for an Ntuplet
     desc.add<int>("minHitsPerNtuplet", 4)->setComment("Cut on minimum number of RecHits required for an Ntuplet");
 
+    // Extension settings
+    desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
+
     // cut parameters for connecting doublets
     desc.add<double>("CAThetaCutBarrel", 0.002)->setComment("Cut on RZ alignement for Barrel in GeV");
     desc.add<double>("CAThetaCutForward", 0.003)->setComment("Cut on RZ alignement for Forward in GeV");
@@ -295,6 +298,7 @@ template <typename TrackerTraits>
 SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet& iConfig)
     : topology_getToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       simDoublets_getToken_(consumes(iConfig.getParameter<edm::InputTag>("simDoubletsSrc"))),
+      numLayersOT_(iConfig.getParameter<int>("numLayersOT")),
       cellMinz_(iConfig.getParameter<std::vector<double>>("cellMinz")),
       cellMaxz_(iConfig.getParameter<std::vector<double>>("cellMaxz")),
       cellPhiCuts_(iConfig.getParameter<std::vector<int>>("cellPhiCuts")),
@@ -713,6 +717,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
   int etaNBins = 90;
   double etamin = -4.5;
   double etamax = 4.5;
+  int numTotalLayers = TrackerTraits::numberOfLayers + numLayersOT_;
 
   // ----------------------------------------------------------
   // booking general histograms (general folder)
@@ -746,12 +751,12 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                        "Layer pairs in SimDoublets",
                        "Inner layer ID",
                        "Outer layer ID",
-                       TrackerTraits::numberOfLayers,
+                       numTotalLayers,
                        -0.5,
-                       -0.5 + TrackerTraits::numberOfLayers,
-                       TrackerTraits::numberOfLayers,
+                       -0.5 + numTotalLayers,
+                       numTotalLayers,
                        -0.5,
-                       -0.5 + TrackerTraits::numberOfLayers);
+                       -0.5 + numTotalLayers);
   h_numSkippedLayers_.book1D(ibook,
                              "numSkippedLayers",
                              "Number of skipped layers",
@@ -1052,24 +1057,24 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
   h_aliveNtuplet_firstLayerId_ =
       ibook.book1D("alive_firstLayerId",
                    "First layer of longest alive SimNtuplet per TrackingParticle;Layer ID;Number of TrackingParticles",
-                   TrackerTraits::numberOfLayers,
+                   numTotalLayers,
                    -0.5,
-                   -0.5 + TrackerTraits::numberOfLayers);
+                   -0.5 + numTotalLayers);
   h_aliveNtuplet_lastLayerId_ =
       ibook.book1D("alive_lastLayerId",
                    "Last layer of longest alive SimNtuplet per TrackingParticle;Layer ID;Number of TrackingParticles",
-                   TrackerTraits::numberOfLayers,
+                   numTotalLayers,
                    -0.5,
-                   -0.5 + TrackerTraits::numberOfLayers);
+                   -0.5 + numTotalLayers);
   h_aliveNtuplet_layerSpan_ =
       ibook.book2D("alive_layerSpan",
                    "Layer span of  longest alive SimNtuplet per TrackingParticle;First layer ID;Last layer ID",
-                   TrackerTraits::numberOfLayers,
+                   numTotalLayers,
                    -0.5,
-                   -0.5 + TrackerTraits::numberOfLayers,
-                   TrackerTraits::numberOfLayers,
+                   -0.5 + numTotalLayers,
+                   numTotalLayers,
                    -0.5,
-                   -0.5 + TrackerTraits::numberOfLayers);
+                   -0.5 + numTotalLayers);
   h_aliveNtuplet_fracNumRecHits_pt_ =
       simdoublets::makeProfileLogX(ibook,
                                    "alive_fracNumRecHits_vs_pT",
@@ -1099,18 +1104,18 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
       etaNBins,
       etamin,
       etamax,
-      TrackerTraits::numberOfLayers,
+      numTotalLayers,
       -0.5,
-      -0.5 + TrackerTraits::numberOfLayers);
+      -0.5 + numTotalLayers);
   h_aliveNtuplet_lastLayerVsEta_ =
       ibook.book2D("alive_lastLayerVsEta",
                    "Last layer of longest alive SimNtuplet per TrackingParticle;True pseudorapidity #eta;Last layer ID",
                    etaNBins,
                    etamin,
                    etamax,
-                   TrackerTraits::numberOfLayers,
+                   numTotalLayers,
                    -0.5,
-                   -0.5 + TrackerTraits::numberOfLayers);
+                   -0.5 + numTotalLayers);
   h_longNtuplet_numRecHits_.book1D(ibook,
                                    "numRecHits",
                                    "Number of RecHits in longest SimNtuplet per TrackingParticle",
@@ -1124,28 +1129,28 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                      "First layer of longest SimNtuplet per TrackingParticle",
                                      "Layer ID",
                                      "Number of TrackingParticles",
-                                     TrackerTraits::numberOfLayers,
+                                     numTotalLayers,
                                      -0.5,
-                                     -0.5 + TrackerTraits::numberOfLayers);
+                                     -0.5 + numTotalLayers);
   h_longNtuplet_lastLayerId_.book1D(ibook,
                                     "lastLayerId",
                                     "Last layer of longest SimNtuplet per TrackingParticle",
                                     "Layer ID",
                                     "Number of TrackingParticles",
-                                    TrackerTraits::numberOfLayers,
+                                    numTotalLayers,
                                     -0.5,
-                                    -0.5 + TrackerTraits::numberOfLayers);
+                                    -0.5 + numTotalLayers);
   h_longNtuplet_layerSpan_.book2D(ibook,
                                   "layerSpan",
                                   "Layer span of longest SimNtuplet per TrackingParticle",
                                   "First layer ID",
                                   "Last layer ID",
-                                  TrackerTraits::numberOfLayers,
+                                  numTotalLayers,
                                   -0.5,
-                                  -0.5 + TrackerTraits::numberOfLayers,
-                                  TrackerTraits::numberOfLayers,
+                                  -0.5 + numTotalLayers,
+                                  numTotalLayers,
                                   -0.5,
-                                  -0.5 + TrackerTraits::numberOfLayers);
+                                  -0.5 + numTotalLayers);
   h_longNtuplet_pt_.book1DLogX(ibook,
                                "pt",
                                "Longest SimNtuplets per TrackingParticle (all, even no RecHits)",
@@ -1170,9 +1175,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                         etaNBins,
                                         etamin,
                                         etamax,
-                                        TrackerTraits::numberOfLayers,
+                                        numTotalLayers,
                                         -0.5,
-                                        -0.5 + TrackerTraits::numberOfLayers);
+                                        -0.5 + numTotalLayers);
   h_longNtuplet_lastLayerVsEta_.book2D(ibook,
                                        "lastLayerVsEta",
                                        "Last layer of longest SimNtuplet per TrackingParticle",
@@ -1181,9 +1186,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                        etaNBins,
                                        etamin,
                                        etamax,
-                                       TrackerTraits::numberOfLayers,
+                                       numTotalLayers,
                                        -0.5,
-                                       -0.5 + TrackerTraits::numberOfLayers);
+                                       -0.5 + numTotalLayers);
 
   // histograms of the longest SimNtuplets of the TrackingParticles
   h_longNtuplet_alive_pt_ = simdoublets::make1DLogX(ibook,
