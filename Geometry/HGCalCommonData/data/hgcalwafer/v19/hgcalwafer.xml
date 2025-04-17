@@ -42,7 +42,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness120], 1.40*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0</Vector>
@@ -90,7 +90,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness120], 1.40*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0</Vector>
@@ -141,7 +141,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.40*mm,
       0.100</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7"> 
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -192,7 +192,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.40*mm,
       0.100</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7"> 
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -243,7 +243,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.40*mm,
       0.100</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7"> 
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -294,7 +294,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.40*mm,
       0.100</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7"> 
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -342,7 +342,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness300], 1.40*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0</Vector>
@@ -390,7 +390,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness300], 1.40*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0</Vector>
@@ -438,7 +438,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness120], 1.050*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm </Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0 </Vector>
@@ -486,7 +486,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness120], 1.050*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm </Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0 </Vector>
@@ -536,7 +536,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.050*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7"> 
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -586,7 +586,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.050*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7"> 
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -636,7 +636,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.050*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7"> 
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -686,7 +686,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.050*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7"> 
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -734,7 +734,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness300], 1.050*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0</Vector>
@@ -782,7 +782,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness300], 1.050*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0</Vector>
@@ -833,7 +833,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness120], 1.40*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0</Vector>
@@ -869,7 +869,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness120], 1.40*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0</Vector>
@@ -907,7 +907,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.40*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7">
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -945,7 +945,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.40*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7">
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -983,7 +983,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.40*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7">
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -1021,7 +1021,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.40*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm, 0.00*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7">
       0, 0, 0, 0, 1, 0, 0</Vector>
@@ -1057,7 +1057,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness300], 1.40*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6">
       0, 0, 0, 0, 1, 0</Vector>
@@ -1093,7 +1093,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness300], 1.40*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
       [SensorSizeOffset], 0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6">
       0, 0, 0, 0, 1, 0</Vector>
@@ -1129,7 +1129,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness120], 1.05*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, [SensorSizeOffset],
       0.50*mm </Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6">
       0, 0, 0, 0, 1, 0 </Vector>
@@ -1165,7 +1165,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness120], 1.05*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, [SensorSizeOffset],
       0.50*mm </Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6">
       0, 0, 0, 0, 1, 0</Vector>
@@ -1197,13 +1197,13 @@
       HGCalHESiliconSensitive, HGCalHEBasePlate, HGCalHEAirGap0</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="7">
       hgcalMaterial:HGC_HEServices, hgcalMaterial:HGC_Hexaboard, materials:Epoxy,
-      hgcalMaterial:HGC_Kapton, materials:Silicon, hgcalMaterial:HGC_G10-FR4,
+      hgcalMaterial:HGC_Kapton, materials:Silicon, materials:Titanium,
       materials:Air</Vector>
     <Vector name="LayerThickness" type="numeric" nEntries="7">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.05*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, [SensorSizeOffset],
       0.50*mm, 0.00*mm </Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7">
       0, 0, 0, 0, 1, 0, 0 </Vector>
@@ -1235,13 +1235,13 @@
       HGCalHESiliconSensitive, HGCalHEBasePlate, HGCalHEAirGap0</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="7">
       hgcalMaterial:HGC_HEServices, hgcalMaterial:HGC_Hexaboard, materials:Epoxy,
-      hgcalMaterial:HGC_Kapton, materials:Silicon, hgcalMaterial:HGC_G10-FR4,
+      hgcalMaterial:HGC_Kapton, materials:Silicon, materials:Titanium,
       materials:Air</Vector>
     <Vector name="LayerThickness" type="numeric" nEntries="7">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.05*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, [SensorSizeOffset],
       0.50*mm, 0.00*mm </Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7">
       0, 0, 0, 0, 1, 0, 0 </Vector>
@@ -1279,7 +1279,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.05*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, [SensorSizeOffset],
       0.50*mm, 0.00*mm </Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7">
       0, 0, 0, 0, 1, 0, 0 </Vector>
@@ -1317,7 +1317,7 @@
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness200], 1.05*mm,
       0.100*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="7">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, [SensorSizeOffset],
       0.50*mm, 0.00*mm </Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="7">
       0, 0, 0, 0, 1, 0, 0 </Vector>
@@ -1353,7 +1353,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness300], 1.05*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, [SensorSizeOffset],
       0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6">
       0, 0, 0, 0, 1, 0</Vector>
@@ -1389,7 +1389,7 @@
     <Vector name="LayerThickness" type="numeric" nEntries="6">
       5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness300], 1.05*mm</Vector>
     <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
-      0.70*mm, 0.70*mm, [SensorSizeOffset], [SensorSizeOffset], [SensorSizeOffset],
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, [SensorSizeOffset],
       0.50*mm</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="6">
       0, 0, 0, 0, 1, 0</Vector>

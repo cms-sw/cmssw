@@ -153,7 +153,11 @@ process.dtTriggerPhase2PrimitiveDigis.debug = False
 process.dtTriggerPhase2PrimitiveDigis.dump = False
 process.dtTriggerPhase2PrimitiveDigis.scenario = 0
 
-
+#DTTriggerPhase2Showers
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
+process.dtTriggerPhase2Shower.showerTaggingAlgo = 1
+process.dtTriggerPhase2Shower.debug = False
+process.dtTriggerPhase2Shower.scenario = 0
 
 
 #process.schedule = cms.Schedule(process.L1TrackTrigger_step,process.pL1TMuonTPS,process.endjob_step,process.e) # Adding MuonTPS

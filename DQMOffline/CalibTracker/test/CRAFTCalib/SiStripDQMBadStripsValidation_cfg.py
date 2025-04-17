@@ -54,7 +54,6 @@ process.load( "CondCore.DBCommon.CondDBCommon_cfi" )
 process.CondDBCommon.connect = 'frontier://FrontierProd/CMS_COND_21X_STRIP'
 process.poolDBESSource = cms.ESSource("PoolDBESSource",
    process.CondDBCommon,
-   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
    toGet            = cms.VPSet(
        cms.PSet(
            record = cms.string('SiStripBadModuleRcd'),

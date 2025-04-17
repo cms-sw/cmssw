@@ -17,6 +17,7 @@
 TrackToTrackComparisonHists::TrackToTrackComparisonHists(const edm::ParameterSet& iConfig)
     : monitoredTrackInputTag_(iConfig.getParameter<edm::InputTag>("monitoredTrack")),
       referenceTrackInputTag_(iConfig.getParameter<edm::InputTag>("referenceTrack")),
+      isCosmics_(iConfig.getParameter<bool>("isCosmics")),
       topDirName_(iConfig.getParameter<std::string>("topDirName")),
       dRmin_(iConfig.getParameter<double>("dRmin")),
       pTCutForPlateau_(iConfig.getParameter<double>("pTCutForPlateau")),
@@ -119,15 +120,19 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
 
   edm::Handle<reco::VertexCollection> referencePVHandle;
   iEvent.getByToken(referencePVToken_, referencePVHandle);
-  if (!referencePVHandle.isValid()) {
-    edm::LogError("TrackToTrackComparisonHists") << "referencePVHandle not found, skipping event";
-    return;
+
+  reco::Vertex referencePV;
+  if (isCosmics_) {
+    referencePV = reco::Vertex(referenceBS.position(), referenceBS.rotatedCovariance3D(), 0., 0., 0);
+  } else {
+    if (!referencePVHandle.isValid() || referencePVHandle->empty()) {
+      edm::LogError("TrackToTrackComparisonHists")
+          << (!referencePVHandle.isValid() ? "referencePVHandle not found, skipping event"
+                                           : "referencePVHandle is empty, skipping event");
+      return;
+    }
+    referencePV = referencePVHandle->front();
   }
-  if (referencePVHandle->empty()) {
-    edm::LogInfo("TrackToTrackComparisonHists") << "referencePVHandle->size is 0 ";
-    return;
-  }
-  reco::Vertex referencePV = referencePVHandle->at(0);
 
   //
   //  Get Monitored Track Info
@@ -151,15 +156,19 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
 
   edm::Handle<reco::VertexCollection> monitoredPVHandle;
   iEvent.getByToken(monitoredPVToken_, monitoredPVHandle);
-  if (!monitoredPVHandle.isValid()) {
-    edm::LogError("TrackToTrackComparisonHists") << "monitoredPVHandle not found, skipping event";
-    return;
+
+  reco::Vertex monitoredPV;
+  if (isCosmics_) {
+    monitoredPV = reco::Vertex(monitoredBS.position(), monitoredBS.rotatedCovariance3D(), 0., 0., 0);
+  } else {
+    if (!monitoredPVHandle.isValid() || monitoredPVHandle->empty()) {
+      edm::LogError("TrackToTrackComparisonHists")
+          << (!monitoredPVHandle.isValid() ? "monitoredPVHandle not found, skipping event"
+                                           : "monitoredPVHandle is empty, skipping event");
+      return;
+    }
+    monitoredPV = monitoredPVHandle->front();
   }
-  if (monitoredPVHandle->empty()) {
-    edm::LogInfo("TrackToTrackComparisonHists") << "monitoredPVHandle->size is 0 ";
-    return;
-  }
-  reco::Vertex monitoredPV = monitoredPVHandle->at(0);
 
   edm::LogInfo("TrackToTrackComparisonHists")
       << "analyzing " << monitoredTrackInputTag_.process() << ":" << monitoredTrackInputTag_.label() << ":"
@@ -306,6 +315,7 @@ void TrackToTrackComparisonHists::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("requireValidHLTPaths", true);
+  desc.add<bool>("isCosmics", false);
 
   desc.add<edm::InputTag>("monitoredTrack", edm::InputTag("hltMergedTracks"));
   desc.add<edm::InputTag>("monitoredBeamSpot", edm::InputTag("hltOnlineBeamSpot"));

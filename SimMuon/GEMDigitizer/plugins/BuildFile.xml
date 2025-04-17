@@ -1,5 +1,6 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RecoMuonObjects"/>
+<use name="FWCore/AbstractServices"/>
 <use name="SimGeneral/PreMixingModule"/>
 <use name="SimMuon/GEMDigitizer"/>
 <use name="Geometry/Records"/>

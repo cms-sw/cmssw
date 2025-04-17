@@ -58,8 +58,8 @@ void ProcessCallGraph::preSourceConstruction(edm::ModuleDescription const& modul
 // FIXME
 //  - check that all module ids are valid (e.g. subprocesses are not being added in
 //    the wrong order)
-void ProcessCallGraph::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes,
-                                   edm::ProcessContext const& context) {
+void ProcessCallGraph::lookupInitializationComplete(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes,
+                                                    edm::ProcessContext const& context) {
   unsigned int pid = registerProcess(context);
 
   // check that the Source has already been added

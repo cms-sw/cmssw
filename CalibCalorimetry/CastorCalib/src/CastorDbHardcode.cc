@@ -368,7 +368,6 @@ void CastorDbHardcode::makeHardcodeMap(CastorElectronicsMap& emap) {
             /* three channels per fiber */
             for (ifc = 0; ifc < EMAP_NFCH; ifc++) {
               icrate = hocrate[ic];
-              idepth = 1;
               ieta = ihoetasidephi[ih][itb][ifb][ifc][0];
               iside = ihoetasidephi[ih][itb][ifb][ifc][1];
               iphi_loc = ihoetasidephi[ih][itb][ifb][ifc][2];

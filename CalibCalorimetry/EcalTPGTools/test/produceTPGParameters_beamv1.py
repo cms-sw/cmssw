@@ -26,7 +26,6 @@ process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                           process.CondDBCommon,
-                                          timetype = cms.untracked.string('runnumber'),
                                           toGet = cms.VPSet(
          cms.PSet(
             record = cms.string('EcalPedestalsRcd'),

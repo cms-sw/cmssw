@@ -6,8 +6,6 @@
  * with compile-time size and alignment, and accessors to the "rows" and "columns".
  */
 
-#include <cassert>
-
 #include "FWCore/Reflection/interface/reflex.h"
 
 #include "SoACommon.h"
@@ -112,7 +110,7 @@
         cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::scalar>::DataType<CPP_TYPE>;                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
+        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _), parent_.metadata().size());      \
       }                                                                                                                \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       CPP_TYPE* BOOST_PP_CAT(addressOf_, NAME)() {                                                                     \
@@ -123,7 +121,7 @@
          cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::column>::DataType<CPP_TYPE>;                      \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
+        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _), parent_.metadata().size());      \
       }                                                                                                                \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       CPP_TYPE const* BOOST_PP_CAT(addressOf_, NAME)() const {                                                         \
@@ -146,7 +144,8 @@
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
         return BOOST_PP_CAT(ParametersTypeOf_, NAME) (                                                                 \
           parent_.BOOST_PP_CAT(NAME, _),                                                                               \
-          parent_.BOOST_PP_CAT(NAME, Stride_));                                                                        \
+          parent_.BOOST_PP_CAT(NAME, Stride_),                                                                         \
+          parent_.metadata().size());                                                                                  \
       }                                                                                                                \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                                               \
@@ -175,9 +174,9 @@
       /* Column */                                                                                                     \
       (BOOST_PP_CAT(NAME, _)(nullptr)),                                                                                \
       /* Eigen column */                                                                                               \
+      (BOOST_PP_CAT(NAME, Stride_)(0))                                                                                 \
       (BOOST_PP_CAT(NAME, ElementsWithPadding_)(0))                                                                    \
       (BOOST_PP_CAT(NAME, _)(nullptr))                                                                                 \
-      (BOOST_PP_CAT(NAME, Stride_)(0))                                                                                 \
   )
 // clang-format on
 
@@ -192,9 +191,9 @@
       /* Column */                                                                                                     \
       (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)}),                                                  \
       /* Eigen column */                                                                                               \
+      (BOOST_PP_CAT(NAME, Stride_){_soa_impl_other.BOOST_PP_CAT(NAME, Stride_)})                                       \
       (BOOST_PP_CAT(NAME, ElementsWithPadding_){_soa_impl_other.BOOST_PP_CAT(NAME, ElementsWithPadding_)})             \
       (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)})                                                   \
-      (BOOST_PP_CAT(NAME, Stride_){_soa_impl_other.BOOST_PP_CAT(NAME, Stride_)})                                       \
   )
 // clang-format on
 
@@ -273,8 +272,8 @@
  * Freeing of the ROOT-allocated column or scalar buffer
  */
 // clang-format off
-#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                  \
-  delete[] BOOST_PP_CAT(NAME, _); \
+#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                               \
+  delete[] BOOST_PP_CAT(NAME, _);                                                                                      \
   BOOST_PP_CAT(NAME, _) = nullptr; \
   // clang-format on
 
@@ -410,13 +409,32 @@
       CPP_TYPE * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(elements_) = nullptr;                                           \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
+      byte_size_type BOOST_PP_CAT(NAME, Stride_) = 0;                                                                  \
       size_type BOOST_PP_CAT(NAME, ElementsWithPadding_) = 0; /* For ROOT serialization */                             \
       CPP_TYPE::Scalar * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(BOOST_PP_CAT(NAME, ElementsWithPadding_)) = nullptr;    \
-      byte_size_type BOOST_PP_CAT(NAME, Stride_) = 0;                                                                  \
   )
 // clang-format on
 
 #define _DECLARE_SOA_DATA_MEMBER(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_SOA_DATA_MEMBER_IMPL TYPE_NAME)
+
+#define _COPY_VIEW_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                          \
+  _SWITCH_ON_TYPE(                                                                                   \
+      VALUE_TYPE, /* Scalar */                                                                       \
+      memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)(),                                      \
+             BOOST_PP_CAT(view.metadata().addressOf_, NAME)(),                                       \
+             sizeof(CPP_TYPE));                                                                      \
+      , /* Column */                                                                                 \
+      memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)(),                                      \
+             BOOST_PP_CAT(view.metadata().addressOf_, NAME)(),                                       \
+             view.metadata().size() * sizeof(CPP_TYPE));                                             \
+      , /* Eigen column */                                                                           \
+      for (unsigned int i = 0; i < CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime; i++) { \
+        memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)() + i * BOOST_PP_CAT(NAME, Stride_),  \
+               &view[0].NAME().coeff(i),                                                             \
+               view.metadata().size() * sizeof(CPP_TYPE::Scalar));                                   \
+      })
+
+#define _COPY_VIEW_COLUMNS(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_COPY_VIEW_COLUMNS_IMPL TYPE_NAME)
 
 #ifdef DEBUG
 #define _DO_RANGECHECK true
@@ -579,6 +597,13 @@
         byteSize_ = _soa_impl_other.byteSize_;                                                                         \
         _ITERATE_ON_ALL(_DECLARE_MEMBER_ASSIGNMENT, ~, __VA_ARGS__)                                                    \
         return *this;                                                                                                  \
+    }                                                                                                                  \
+                                                                                                                       \
+    SOA_HOST_ONLY void deepCopy(ConstView const& view) {                                                               \
+      if (elements_ < view.metadata().size())                                                                          \
+        throw std::runtime_error(                                                                                      \
+            "In "#CLASS "::deepCopy method: number of elements mismatch ");                                            \
+      _ITERATE_ON_ALL(_COPY_VIEW_COLUMNS, ~, __VA_ARGS__)                                                              \
     }                                                                                                                  \
                                                                                                                        \
     /* ROOT read streamer */                                                                                           \

@@ -21,7 +21,8 @@ using namespace reco;
 using namespace std;
 ////////////////////////////////////////////////////////////////////////////////////////
 template <class Jet>
-JetPlotsExample<Jet>::JetPlotsExample(edm::ParameterSet const& cfg) {
+JetPlotsExample<Jet>::JetPlotsExample(edm::ParameterSet const& cfg)
+    : JetToken_(consumes<JetCollection>(cfg.getParameter<std::string>("JetAlgorithm"))) {
   JetAlgorithm = cfg.getParameter<std::string>("JetAlgorithm");
   HistoFileName = cfg.getParameter<std::string>("HistoFileName");
   NJets = cfg.getParameter<int>("NJets");
@@ -46,13 +47,15 @@ template <class Jet>
 void JetPlotsExample<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) {
   /////////// Get the jet collection //////////////////////
   Handle<JetCollection> jets;
-  evt.getByLabel(JetAlgorithm, jets);
+  evt.getByToken(JetToken_, jets);
+
   typename JetCollection::const_iterator i_jet;
   int index = 0;
   TString hname;
   /////////// Count the jets in the event /////////////////
   hname = "NumberOfJets";
   FillHist1D(hname, jets->size());
+
   /////////// Fill Histograms for the leading NJet jets ///
   for (i_jet = jets->begin(); i_jet != jets->end() && index < NJets; ++i_jet) {
     hname = "JetPt";

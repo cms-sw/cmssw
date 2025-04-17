@@ -254,7 +254,6 @@ class DTWorkflow(CLIHelper, CrabHelper):
 
         calibDB = cms.ESSource("PoolDBESSource",
                                CondDB,
-                               timetype = cms.string('runnumber'),
                                toGet = cms.VPSet(cms.PSet(
                                    record = cms.string(record),
                                    tag = cms.string(tag),

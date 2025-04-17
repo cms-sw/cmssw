@@ -10,8 +10,8 @@
 #include <cmath>
 
 // Random generator
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Random/RandGaussQ.h>
 

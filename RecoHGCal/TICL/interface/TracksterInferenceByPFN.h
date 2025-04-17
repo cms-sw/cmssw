@@ -15,11 +15,11 @@ namespace ticl {
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   private:
+    const std::unique_ptr<cms::Ort::ONNXRuntime> onnxPIDRuntimeInstance_;
+    const std::unique_ptr<cms::Ort::ONNXRuntime> onnxEnergyRuntimeInstance_;
     const cms::Ort::ONNXRuntime* onnxPIDSession_;
     const cms::Ort::ONNXRuntime* onnxEnergySession_;
 
-    const std::string id_modelPath_;
-    const std::string en_modelPath_;
     const std::vector<std::string> inputNames_;
     const std::vector<std::string> output_en_;
     const std::vector<std::string> output_id_;

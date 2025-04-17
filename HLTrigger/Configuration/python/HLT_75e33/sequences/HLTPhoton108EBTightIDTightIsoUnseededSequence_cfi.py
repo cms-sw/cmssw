@@ -21,8 +21,7 @@ from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 
-HLTPhoton108EBTightIDTightIsoUnseededSequence = cms.Sequence(HLTL1Sequence
-                                                             +hltEGL1SeedsForSinglePhotonIsolatedFilter
+HLTPhoton108EBTightIDTightIsoUnseededSequence = cms.Sequence(hltEGL1SeedsForSinglePhotonIsolatedFilter
                                                              +HLTDoFullUnpackingEgammaEcalSequence
                                                              +HLTPFClusteringForEgammaUnseededSequence
                                                              +HLTHgcalTiclPFClusteringForEgammaUnseededSequence
