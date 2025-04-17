@@ -151,9 +151,12 @@ int main(int argc, char* argv[]) {
 
   MPIData mpiInputs;  //greate object from structur to pass into MPI functios.
 
-  MPI_Init(&argc, &argv);                            //initialize communicator environment.
-  mpiInputs.num_procs = MPI_Comm_size(MPI_COMM_WORLD, &mpiInputs.num_procs);  //get total size of processes.
-  mpiInputs.rank = MPI_Comm_rank(MPI_COMM_WORLD, &mpiInputs.rank);       //get each process number.
+  MPI_Init(&argc, &argv); 
+  int rank, size;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);                           //initialize communicator environment.
+  mpiInputs.num_procs = size;  //get total size of processes.
+  mpiInputs.rank = rank;       //get each process number.
 
   mpiInputs.input1.resize(size);  //initialize size.
   mpiInputs.input2.resize(size);

@@ -25,7 +25,8 @@ mpirun --mca pml ob1 --mca btl vader,tcp,self \
   -np 1 numactl -N 7 env EXPERIMENT_THREADS=8 EXPERIMENT_STREAMS=8 cmsRun dummy_remote_1rec.py : \
   -np 1 numactl -N 6 env EXPERIMENT_THREADS=8 EXPERIMENT_STREAMS=8 cmsRun dummy_local_1send.py
 ```
-
+mpirun -np 1 numactl -N 7 env EXPERIMENT_THREADS=8 EXPERIMENT_STREAMS=8 cmsRun dummy_remote_1rec.py : \
+  -np 1 numactl -N 6 env EXPERIMENT_THREADS=8 EXPERIMENT_STREAMS=8 cmsRun dummy_local_1send.py
 ---
 
 ## Running Experiments via PMIx Server (multi-node or custom networking)
