@@ -47,6 +47,7 @@ scoutingFatPFJetReclusterTask = cms.Task(
     scoutingPFCandidate, # translate to reco::PFCandidate, used as input
     scoutingFatPFJetRecluster, # jet clustering
     scoutingFatPFJetReclusterParticleNetJetTagInfos, scoutingFatPFJetReclusterParticleNetJetTags, # jet tagging
+    scoutingFatPFJetReclusterGlobalParticleTransformerJetTagInfos, scoutingFatPFJetReclusterGlobalParticleTransformerJetTags, # jet tagging with Global Particle Transformer
     scoutingFatPFJetReclusterSoftDrop, scoutingFatPFJetReclusterSoftDropMass, # softdrop mass
     scoutingFatPFJetReclusterParticleNetJetTagInfos, scoutingFatPFJetReclusterParticleNetMassRegressionJetTags, # regressed mass
     scoutingFatPFJetReclusterEcfNbeta1, scoutingFatPFJetReclusterNjettiness, # substructure variables
