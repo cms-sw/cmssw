@@ -314,7 +314,7 @@ int main(int argc, char* argv[]) {
     int debug = (argc > 9) ? atoi(argv[9]) : 0;
     std::cout << "Calls ConvertScintillator for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2
               << " Laymin " << laymin << " Cassette " << cassette << " Layers " << layers << " ModePhi " << modephi
-	      <<" Debug " << debug << std::endl;
+              << " Debug " << debug << std::endl;
     ConvertScintillatorV1 c1(laymin, cassette, layers, modephi);
     c1.convert(infile, outfile1, outfile2, debug);
   } else if (mode == 5) {
@@ -1841,25 +1841,25 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
     std::vector<tileZone> zonetmp;
     for (const auto& tile : zones) {
       if (tile.phimin == tile.phimax) {
-	zonetmp.push_back(tile);
-	if (((debug / 10000) % 10) > 0)
-            std::cout << "5Layer " << tile.layer << " R " << tile.rmin << ":" << tile.rmax << " Cassette "
-                      << tile.cassette << " Phi " << tile.phimin << ":" << tile.phimax << std::endl;
+        zonetmp.push_back(tile);
+        if (((debug / 10000) % 10) > 0)
+          std::cout << "5Layer " << tile.layer << " R " << tile.rmin << ":" << tile.rmax << " Cassette "
+                    << tile.cassette << " Phi " << tile.phimin << ":" << tile.phimax << std::endl;
       } else {
-	for (auto phi = tile.phimin; phi <= tile.phimax; ++phi) {
-	  tileZone tile0(tile);
-	  tile0.phimin = tile0.phimax = phi;
-	  zonetmp.push_back(tile0);
+        for (auto phi = tile.phimin; phi <= tile.phimax; ++phi) {
+          tileZone tile0(tile);
+          tile0.phimin = tile0.phimax = phi;
+          zonetmp.push_back(tile0);
           if (((debug / 10000) % 10) > 0)
             std::cout << "5Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett "
                       << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << std::endl;
-	}
+        }
       }
     }
     zones.clear();
     zones.insert(zones.end(), zonetmp.begin(), zonetmp.end());
   }
-  
+
   int nmax = zones.size();
   if ((debug % 10) > 0) {
     std::cout << "\nA total of " << nmax << " zones " << std::endl;
