@@ -245,13 +245,11 @@ namespace edm {
                                      std::vector<ModuleDescription const*>& descriptions,
                                      unsigned int hint) const;
 
-    void fillModuleAndConsumesInfo(
-        std::vector<ModuleDescription const*>& allModuleDescriptions,
-        std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-        std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>&
-            modulesWhoseProductsAreConsumedBy,
-        std::vector<std::vector<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
-        ProductRegistry const& preg) const;
+    void fillModuleAndConsumesInfo(std::vector<ModuleDescription const*>& allModuleDescriptions,
+                                   std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
+                                   std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>&
+                                       modulesWhoseProductsAreConsumedBy,
+                                   ProductRegistry const& preg) const;
 
     void fillESModuleAndConsumesInfo(std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>,
                                                 kNumberOfEventSetupTransitions>& esModulesWhoseProductsAreConsumedBy,

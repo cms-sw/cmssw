@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/Schedule.h"
-#include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/ServiceRegistry/interface/ESModuleConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesESInfo.h"
@@ -47,11 +46,8 @@ namespace edm {
       ++i;
     }
 
-    schedule->fillModuleAndConsumesInfo(allModuleDescriptions_,
-                                        moduleIDToIndex_,
-                                        modulesWhoseProductsAreConsumedBy_,
-                                        modulesInPreviousProcessesWhoseProductsAreConsumedBy_,
-                                        *preg);
+    schedule->fillModuleAndConsumesInfo(
+        allModuleDescriptions_, moduleIDToIndex_, modulesWhoseProductsAreConsumedBy_, *preg);
   }
 
   void PathsAndConsumesOfModules::initializeForEventSetup(
@@ -121,8 +117,6 @@ namespace edm {
           modulesWhoseProductsAreConsumedBy_[iBranchType].erase(
               modulesWhoseProductsAreConsumedBy_[iBranchType].begin() + iModule);
         }
-        modulesInPreviousProcessesWhoseProductsAreConsumedBy_.erase(
-            modulesInPreviousProcessesWhoseProductsAreConsumedBy_.begin() + iModule);
         for (auto& idToIndex : moduleIDToIndex_) {
           if (idToIndex.second >= iModule) {
             idToIndex.second--;
@@ -131,11 +125,6 @@ namespace edm {
         --iModule;
       }
     }
-  }
-
-  std::vector<ModuleProcessName> const& PathsAndConsumesOfModules::modulesInPreviousProcessesWhoseProductsAreConsumedBy(
-      unsigned int moduleID) const {
-    return modulesInPreviousProcessesWhoseProductsAreConsumedBy_.at(moduleIndex(moduleID));
   }
 
   std::vector<std::string> const& PathsAndConsumesOfModules::doPaths() const { return paths_; }
@@ -267,8 +256,7 @@ namespace {
 }  // namespace
 
 namespace edm {
-  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(
-      edm::PathsAndConsumesOfModulesBase const& iPnC, std::vector<ModuleProcessName>& consumedByChildren) {
+  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(edm::PathsAndConsumesOfModulesBase const& iPnC) {
     const std::string kTriggerResults("TriggerResults");
 
     std::vector<std::string> pathNames = iPnC.paths();
@@ -300,13 +288,6 @@ namespace edm {
     for (auto const& description : allModules) {
       if (description->moduleLabel() == kTriggerResults or
           std::find(pathNames.begin(), pathNames.end(), description->moduleLabel()) != pathNames.end()) {
-        consumerModules.push_back(description);
-      } else if (std::binary_search(consumedByChildren.begin(),
-                                    consumedByChildren.end(),
-                                    ModuleProcessName{description->moduleLabel(), description->processName()}) or
-                 std::binary_search(consumedByChildren.begin(),
-                                    consumedByChildren.end(),
-                                    ModuleProcessName{description->moduleLabel(), ""})) {
         consumerModules.push_back(description);
       }
     }
