@@ -78,11 +78,13 @@ namespace hgcal {
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
 
     inline const CaloGeometry* getGeometry() const { return geom_; };
-    unsigned int lastLayerEE(bool nose = false, bool barrel = false) const;
+    unsigned int lastLayerEE(bool nose = false) const { return (nose ? HFNoseDetId::HFNoseLayerEEmax : fhOffset_); }
     unsigned int lastLayerFH() const { return fhLastLayer_; }
     unsigned int firstLayerBH() const { return bhFirstLayer_; }
     unsigned int lastLayerBH() const { return bhLastLayer_; }
-    unsigned int lastLayer(bool nose = false, bool barrel = false) const;
+    unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : bhLastLayer_); }
+    unsigned int lastLayerECAL() const { return ecalBarrelLastLayer_; }
+    unsigned int lastLayerBarrel() const { return hcalBarrelLastLayer_; }
     std::pair<uint32_t, uint32_t> firstAndLastLayer(DetId::Detector det, int subdet) const;
     unsigned int maxNumberOfWafersPerLayer(bool nose = false) const {
       return (nose ? maxNumberOfWafersNose_ : maxNumberOfWafersPerLayer_);
