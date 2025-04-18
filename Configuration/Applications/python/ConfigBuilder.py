@@ -1854,8 +1854,8 @@ class ConfigBuilder(object):
                 self._options.customise_commands = self._options.customise_commands + " \n"
             self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
         # cpu efficiency boost when running NANO by itself
-        #if self.stepKeys[0] == 'NANO':
-        #    self._options.customise_commands = self._options.customise_commands + "process.source.delayReadingEventProducts = cms.untracked.bool(False)\n"
+        if self.stepKeys[0] == 'NANO':
+            self._options.customise_commands = self._options.customise_commands + "process.source.delayReadingEventProducts = cms.untracked.bool(False)\n"
             
     def prepare_SKIM(self, stepSpec = "all"):
         ''' Enrich the schedule with skimming fragments'''
