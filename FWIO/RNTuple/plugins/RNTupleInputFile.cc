@@ -18,11 +18,11 @@
 
 #include <cassert>
 #include <iostream>
-using namespace ROOT::Experimental;
+using namespace ROOT;
 namespace {
-  ROOT::Experimental::RNTupleReadOptions options(edm::RNTupleInputFile::Options const& iOpt) {
-    ROOT::Experimental::RNTupleReadOptions opt;
-    opt.SetMetricsEnabled(iOpt.enableMetrics_);
+  ROOT::RNTupleReadOptions options(edm::RNTupleInputFile::Options const& iOpt) {
+    ROOT::RNTupleReadOptions opt;
+    opt.SetEnableMetrics(iOpt.enableMetrics_);
     opt.SetClusterCache(iOpt.useClusterCache_ ? RNTupleReadOptions::EClusterCache::kOn
                                               : RNTupleReadOptions::EClusterCache::kOff);
     return opt;
@@ -48,7 +48,7 @@ namespace edm {
 
     retValue.reserve(parentageTuple->GetNEntries());
 
-    for (ROOT::Experimental::NTupleSize_t i = 0; i < parentageTuple->GetNEntries(); ++i) {
+    for (ROOT::NTupleSize_t i = 0; i < parentageTuple->GetNEntries(); ++i) {
       parentageTuple->LoadEntry(i, *entry);
       registry.insertMapped(parentage);
       retValue.push_back(parentage.id());
@@ -67,7 +67,7 @@ namespace edm {
 
     // Merge into the parameter set registry.
     pset::Registry& psetRegistry = *pset::Registry::instance();
-    for (ROOT::Experimental::NTupleSize_t i = 0; i < psets->GetNEntries(); ++i) {
+    for (ROOT::NTupleSize_t i = 0; i < psets->GetNEntries(); ++i) {
       psets->LoadEntry(i, *entry);
       ParameterSet pset(idToBlob.second.pset());
       pset.setID(idToBlob.first);

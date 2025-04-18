@@ -18,29 +18,29 @@ namespace edm::input {
     DataProductsRNTuple(TFile*,
                         std::string const& iName,
                         std::string const& iAux,
-                        ROOT::Experimental::RNTupleReadOptions const& iOpts);
+                        ROOT::RNTupleReadOptions const& iOpts);
 
     bool setupToReadProductIfAvailable(ProductDescription&);
 
     std::shared_ptr<edm::WrapperBase> dataProduct(edm::BranchID const&, int iEntry);
 
     template <typename T>
-    ROOT::Experimental::RNTupleView<T> auxView(std::shared_ptr<T> oStorage) {
+    ROOT::RNTupleView<T> auxView(std::shared_ptr<T> oStorage) {
       return reader_->GetView(auxDesc_, std::move(oStorage));
     }
 
-    ROOT::Experimental::NTupleSize_t numberOfEntries() const { return reader_->GetNEntries(); }
+    ROOT::NTupleSize_t numberOfEntries() const { return reader_->GetNEntries(); }
 
-    ROOT::Experimental::DescriptorId_t findDescriptorID(std::string const& iFieldName) {
+    ROOT::DescriptorId_t findDescriptorID(std::string const& iFieldName) {
       return reader_->GetDescriptor().FindFieldId(iFieldName);
     }
 
     template <typename T>
-    ROOT::Experimental::RNTupleView<T> viewFor(ROOT::Experimental::DescriptorId_t iID, std::shared_ptr<T> oStorage) {
+    ROOT::RNTupleView<T> viewFor(ROOT::DescriptorId_t iID, std::shared_ptr<T> oStorage) {
       return reader_->GetView(iID, std::move(oStorage));
     }
 
-    void printInfo(std::ostream& iStream) { reader_->PrintInfo(ROOT::Experimental::ENTupleInfo::kMetrics, iStream); }
+    void printInfo(std::ostream& iStream) { reader_->PrintInfo(ROOT::ENTupleInfo::kMetrics, iStream); }
 
   private:
     struct WrapperFactory {
@@ -61,17 +61,17 @@ namespace edm::input {
     };
 
     struct ProductInfo {
-      ProductInfo(std::string const& iTypeName, ROOT::Experimental::DescriptorId_t iDesc, std::string iName)
+      ProductInfo(std::string const& iTypeName, ROOT::DescriptorId_t iDesc, std::string iName)
           : factory_(iTypeName), descriptor_(iDesc), name_(std::move(iName)) {}
       WrapperFactory factory_;
-      ROOT::Experimental::DescriptorId_t descriptor_;
+      ROOT::DescriptorId_t descriptor_;
       std::string name_;
-      std::optional<ROOT::Experimental::RNTupleView<void>> view_;
+      std::optional<ROOT::RNTupleView<void>> view_;
     };
 
-    std::unique_ptr<ROOT::Experimental::RNTupleReader> reader_;
+    std::unique_ptr<ROOT::RNTupleReader> reader_;
     std::unordered_map<edm::BranchID::value_type, ProductInfo> infos_;
-    ROOT::Experimental::DescriptorId_t auxDesc_;
+    ROOT::DescriptorId_t auxDesc_;
   };
 }  // namespace edm::input
 
