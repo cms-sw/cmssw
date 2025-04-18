@@ -932,7 +932,7 @@ int main(int argc, char const *argv[])
         h_charge_res->Scale(1/h_charge_res->Integral());
 	h_charge_res->Draw("");
 	latex.DrawLatexNDC(0.21,0.84,"CMS");
-	latex.DrawLatexNDC(0.31,0.84,"Preliminary");
+	latex.DrawLatexNDC(0.21,0.80,"Preliminary");
 	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
 	latex.SetTextFont(43);
 	latex.DrawLatexNDC(0.60,0.80,Form("Mean=%.2f", h_charge_res->GetMean()));
@@ -942,7 +942,8 @@ int main(int argc, char const *argv[])
 
         h_barycenter_res->Scale(1/h_barycenter_res->Integral());
 	h_barycenter_res->Draw("");
-	latex.DrawLatexNDC(0.31,0.84,"CMS Preliminary");
+	latex.DrawLatexNDC(0.21,0.84,"CMS");
+        latex.DrawLatexNDC(0.21,0.80,"Preliminary");
 	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
 	latex.SetTextFont(43);
 	latex.DrawLatexNDC(0.60,0.80,Form("Mean=%.2f", h_barycenter_res->GetMean()));

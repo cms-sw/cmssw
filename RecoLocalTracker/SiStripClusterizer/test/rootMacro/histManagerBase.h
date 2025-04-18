@@ -5,6 +5,7 @@
 #include "hist_auxiliary.h"
 #include "plot_auxiliary.h"
 #include "TCanvas.h"
+#include "TLatex.h"
 
 using namespace std;
 
@@ -49,16 +50,31 @@ public:
  void Plot_single(const vector<string>& histnames)
  {
 
+   TLatex latex;
+
    for (const auto histname: histnames)
    {
      auto hist = hists[histname.c_str()];
      hist->Scale(1/hist->Integral());
 
      TCanvas* canv = create_canvas(1);
-     canv->SetMargin(0.18, 0.20, 0.12, 0.07);
+     canv->GetPad(0)->SetMargin(0.18, 0.20, 0.12, 0.07);
      canv->SetLogy(true);
-
+     hist->SetStats(0);
+     PlotStyle(hist);
      hist->Draw("e");
+     latex.SetTextFont(43);
+     latex.SetTextSize(24);
+     latex.DrawLatexNDC(0.21,0.84,"CMS");
+     latex.SetTextFont(43);
+     latex.SetTextSize(24);
+     latex.DrawLatexNDC(0.21,0.80,"Preliminary");
+     latex.SetTextFont(43);
+     latex.SetTextSize(24);
+     latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+     latex.SetTextFont(43);
+     latex.DrawLatexNDC(0.60,0.80,Form("Mean=%.2f", hist->GetMean()));
+     latex.DrawLatexNDC(0.60,0.75,Form("Std Dev=%.2f", hist->GetStdDev()));
    
      canv->SaveAs(Form("%s_%s.png", base_name.c_str(), histname.c_str()));
      delete canv;
