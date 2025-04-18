@@ -542,20 +542,6 @@ float RecHitTools::getPt(const DetId& id, const float& hitEnergy, const float& v
   return pt;
 }
 
-unsigned int RecHitTools::lastLayerEE(bool nose, bool barrel) const {
-  if (barrel)
-    return ecalBarrelLastLayer_;
-  else
-    return (nose ? HFNoseDetId::HFNoseLayerEEmax : fhOffset_);
-}
-
-unsigned int RecHitTools::lastLayer(bool nose, bool barrel) const {
-  if (barrel)
-    return hcalBarrelLastLayer_;
-  else
-    return (nose ? noseLastLayer_ : bhLastLayer_);
-}
-
 std::pair<uint32_t, uint32_t> RecHitTools::firstAndLastLayer(DetId::Detector det, int subdet) const {
   if ((det == DetId::HGCalEE) || ((det == DetId::Forward) && (subdet == HGCEE))) {
     return std::make_pair(eeOffset_ + 1, fhOffset_);

@@ -653,7 +653,7 @@ void BarrelVHistoProducerAlgo::fill_info_histos(const Histograms& histograms, un
   // For now values returned for 'lastLayerFHzp': '104', 'lastLayerFHzm': '52' are not the one expected.
   // Will come back to this when there will be info in CMSSW to put in DQM file.
   histograms.lastLayerEB->Fill(0);
-  histograms.lastLayerHB->Fill(recHitTools_->lastLayer(false, true));
+  histograms.lastLayerHB->Fill(recHitTools_->lastLayerBarrel());
 }
 
 void BarrelVHistoProducerAlgo::fill_caloparticle_histos(
