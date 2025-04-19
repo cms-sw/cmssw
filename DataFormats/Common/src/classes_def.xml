@@ -207,4 +207,6 @@
 
  <class name="edm::StdArray<short, 4>"/>
  <class name="edm::StdArray<unsigned short, 11>"/>
+
+ <class name="edm::StdArray<unsigned char,32>"/>
 </lcgdict>
