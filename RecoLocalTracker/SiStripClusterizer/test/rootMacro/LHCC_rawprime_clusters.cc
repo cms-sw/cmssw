@@ -952,10 +952,10 @@ int main(int argc, char const *argv[])
 
         PlotStyle(h_falling_barycenter_tot_ac);
         h_falling_barycenter_tot_ac->GetXaxis()->SetNdivisions(606);
-        h_falling_barycenter_tot_ac->Scale(1/h_falling_barycenter_tot_ac->Integral());
         canvSingle->SetLogy(true);
         h_falling_barycenter_tot_ac->Draw("HIST");
-        latex.DrawLatexNDC(0.31,0.84,"CMS Preliminary");
+        latex.DrawLatexNDC(0.31,0.84,"CMS");
+        latex.DrawLatexNDC(0.31,0.80,"Preliminary");
         latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
         latex.SetTextFont(43);
         canvSingle->SaveAs((expTag+"falling_barycenter.png").c_str());
