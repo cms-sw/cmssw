@@ -149,7 +149,7 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
     } else {
       edm::LogVerbatim("SeedValidator") << "TrajectoryStateClosestToBeamLine not valid";
       // use magic values chi2<0, ndof<0, charge=0 to denote a case where the fit has failed
-      // If this definition is changed, change also interface/trackFromSeedFitFailed.h
+      // If this definition is changed, change also DataFormats/TrackReco/interface/trackFromSeedFitFailed.h
       tracks->emplace_back(
           -1, -1, reco::TrackBase::Point(), reco::TrackBase::Vector(), 0, reco::TrackBase::CovarianceMatrix());
       nfailed++;

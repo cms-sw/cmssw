@@ -730,15 +730,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   ObjectRangesConst ranges,
-                                  HitsConst hits,
+                                  HitsBaseConst hitsBase,
+                                  HitsExtendedConst hitsExtended,
+                                  PixelSeedsConst pixelSeeds,
                                   MiniDoublets mds,
                                   Segments segments,
                                   PixelSegments pixelSegments,
-                                  unsigned int* hitIndices0,
-                                  unsigned int* hitIndices1,
-                                  unsigned int* hitIndices2,
-                                  unsigned int* hitIndices3,
-                                  float* dPhiChange,
                                   uint16_t pixelModuleIndex,
                                   int size) const {
       for (int tid : cms::alpakatools::uniform_elements(acc, size)) {
@@ -748,10 +745,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         addMDToMemory(acc,
                       mds,
-                      hits,
+                      hitsBase,
+                      hitsExtended,
                       modules,
-                      hitIndices0[tid],
-                      hitIndices1[tid],
+                      pixelSeeds.hitIndices()[tid][0],
+                      pixelSeeds.hitIndices()[tid][1],
                       pixelModuleIndex,
                       0,
                       0,
@@ -764,10 +762,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                       innerMDIndex);
         addMDToMemory(acc,
                       mds,
-                      hits,
+                      hitsBase,
+                      hitsExtended,
                       modules,
-                      hitIndices2[tid],
-                      hitIndices3[tid],
+                      pixelSeeds.hitIndices()[tid][2],
+                      pixelSeeds.hitIndices()[tid][3],
                       pixelModuleIndex,
                       0,
                       0,
@@ -780,18 +779,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                       outerMDIndex);
 
         //in outer hits - pt, eta, phi
-        float slope = alpaka::math::sinh(acc, hits.ys()[mds.outerHitIndices()[innerMDIndex]]);
-        float intercept =
-            hits.zs()[mds.anchorHitIndices()[innerMDIndex]] - slope * hits.rts()[mds.anchorHitIndices()[innerMDIndex]];
-        float score_lsq = (hits.rts()[mds.anchorHitIndices()[outerMDIndex]] * slope + intercept) -
-                          (hits.zs()[mds.anchorHitIndices()[outerMDIndex]]);
+        float slope = alpaka::math::sinh(acc, hitsBase.ys()[mds.outerHitIndices()[innerMDIndex]]);
+        float intercept = hitsBase.zs()[mds.anchorHitIndices()[innerMDIndex]] -
+                          slope * hitsExtended.rts()[mds.anchorHitIndices()[innerMDIndex]];
+        float score_lsq = (hitsExtended.rts()[mds.anchorHitIndices()[outerMDIndex]] * slope + intercept) -
+                          (hitsBase.zs()[mds.anchorHitIndices()[outerMDIndex]]);
         score_lsq = score_lsq * score_lsq;
 
         unsigned int hits1[Params_pLS::kHits];
-        hits1[0] = hits.idxs()[mds.anchorHitIndices()[innerMDIndex]];
-        hits1[1] = hits.idxs()[mds.anchorHitIndices()[outerMDIndex]];
-        hits1[2] = hits.idxs()[mds.outerHitIndices()[innerMDIndex]];
-        hits1[3] = hits.idxs()[mds.outerHitIndices()[outerMDIndex]];
+        hits1[0] = hitsBase.idxs()[mds.anchorHitIndices()[innerMDIndex]];
+        hits1[1] = hitsBase.idxs()[mds.anchorHitIndices()[outerMDIndex]];
+        hits1[2] = hitsBase.idxs()[mds.outerHitIndices()[innerMDIndex]];
+        hits1[3] = hitsBase.idxs()[mds.outerHitIndices()[outerMDIndex]];
         addPixelSegmentToMemory(acc,
                                 segments,
                                 pixelSegments,
@@ -800,9 +799,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                 outerMDIndex,
                                 pixelModuleIndex,
                                 hits1,
-                                hitIndices0[tid],
-                                hitIndices2[tid],
-                                dPhiChange[tid],
+                                pixelSeeds.hitIndices()[tid][0],
+                                pixelSeeds.hitIndices()[tid][2],
+                                pixelSeeds.deltaPhi()[tid],
                                 pixelSegmentIndex,
                                 tid,
                                 score_lsq);
