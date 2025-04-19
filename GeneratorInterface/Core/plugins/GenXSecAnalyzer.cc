@@ -25,6 +25,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterCounter.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -332,8 +333,9 @@ void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &
   double thisGenFilterErr = 0;
 
   if (runC->filterOnlyEffRun_.sumWeights2() > 0) {
-    thisGenFilterEff = runC->filterOnlyEffRun_.filterEfficiency(hepidwtup_);
-    thisGenFilterErr = runC->filterOnlyEffRun_.filterEfficiencyError(hepidwtup_);
+    int input_genfilter_efficiency = ResonanceDecayFilterCounter::getInstance().getFilterBool() ? 1 : hepidwtup_.load();
+    thisGenFilterEff = runC->filterOnlyEffRun_.filterEfficiency(input_genfilter_efficiency);
+    thisGenFilterErr = runC->filterOnlyEffRun_.filterEfficiencyError(input_genfilter_efficiency);
     if (thisGenFilterEff < 0) {
       thisGenFilterEff = 1;
       thisGenFilterErr = 0;
