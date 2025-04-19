@@ -117,7 +117,6 @@ namespace edm {
   class ModuleRegistry;
   class ModuleTypeResolverMaker;
   class ThinnedAssociationsHelper;
-  class SubProcessParentageHelper;
   class TriggerResultInserter;
   class PathStatusInserter;
   class EndPathStatusInserter;
@@ -146,10 +145,8 @@ namespace edm {
                      BranchIDListHelper& branchIDListHelper,
                      ProcessBlockHelperBase& processBlockHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
-                     SubProcessParentageHelper const* subProcessParentageHelper,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration> processConfiguration,
-                     bool hasSubprocesses,
                      PreallocationConfiguration const& prealloc,
                      ProcessContext const* processContext);
 
@@ -311,9 +308,7 @@ namespace edm {
     void releaseMemoryPostLookupSignal();
 
   private:
-    void limitOutput(ParameterSet const& proc_pset,
-                     BranchIDLists const& branchIDLists,
-                     SubProcessParentageHelper const* subProcessParentageHelper);
+    void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
 
     std::shared_ptr<TriggerResultInserter const> resultsInserter() const {
       return get_underlying_safe(resultsInserter_);
