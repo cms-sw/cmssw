@@ -635,6 +635,7 @@ int main(int argc, char const *argv[])
 		}
 	}
         assert((unmatched_acs.size()+matched_sc2ac.size()) == rp_nEntries);
+	assert( rp_nEntries == r_nEntries );
 	for(auto& _scs_perEvt: r_dict) 
 	{
 		for (auto& _scs_perEvt_perDetId: _scs_perEvt.second) 
