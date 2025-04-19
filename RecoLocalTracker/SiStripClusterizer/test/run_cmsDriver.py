@@ -80,7 +80,7 @@ os.system(f'mv step3_RAW2DIGI_L1Reco_RECO_rawp.root {output_step_reco}')
 
 #### flat ntuple ####
 
-raw_file = options.raw_file if options.strip_charge_cut else '/scratch/nandan/inputfile_for_prehlt/HIEphemeralHLTPhysics_RAW/flatntuple_step3_RAW2DIGI_L1Reco_RECO_raw_wchargecut.root' 
+raw_file = options.raw_file if options.strip_charge_cut else '/scratch/nandan/inputfile_for_prehlt/HIEphemeralHLTPhysics_RAW/flatntuple_step3_RAW2DIGI_L1Reco_RECO_raw_wochargecut.root' 
 run_cmd = f'python3 run_flatNtuplizer.py -rp {output_step_reco} -r {raw_file} -c -n {number}' if options.cluster\
          else f'python3 run_flatNtuplizer.py -rp {output_step_reco} -r {raw_file} -n {number}'
 print(run_cmd)
