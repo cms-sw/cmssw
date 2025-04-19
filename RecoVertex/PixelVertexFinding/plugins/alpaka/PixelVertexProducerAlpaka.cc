@@ -28,7 +28,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   class PixelVertexProducerAlpaka : public global::EDProducer<> {
-    using TkSoADevice = TracksSoACollection<TrackerTraits>;
+    using TkSoADevice = reco::TracksSoACollection;
     using Algo = vertexFinder::Producer<TrackerTraits>;
 
   public:

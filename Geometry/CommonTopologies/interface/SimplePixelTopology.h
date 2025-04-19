@@ -9,7 +9,12 @@
 namespace pixelTopology {
 
   constexpr auto maxNumberOfLadders = 160;
-  constexpr uint32_t maxLayers = 28;
+  constexpr uint8_t maxLayers = 28;
+  constexpr uint8_t maxPairs = 64;
+
+  // TODO
+  // Once CUDA is dropped this could be wrapped in #ifdef ONLY_TRIPLETS_IN_HOLE
+  // see DataFormats/TrackingRecHitSoa/interface/TrackingRecHitSoA.h
 
   template <typename TrackerTraits>
   struct AverageGeometryT {
@@ -131,7 +136,7 @@ namespace phase1PixelTopology {
   using pixelTopology::phi0p06;
   using pixelTopology::phi0p07;
 
-  constexpr uint32_t numberOfLayers = 28;
+  constexpr uint32_t numberOfLayers = 10;
   constexpr int nPairs = 13 + 2 + 4;
   constexpr uint16_t numberOfModules = 1856;
 
@@ -230,35 +235,9 @@ namespace phase2PixelTopology {
       4,  6,  5,  7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12,  // POS Jump (48)
       16, 18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24,  // NEG Jump (55)
   };
-  HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {0,
-                                                                  108,
-                                                                  324,
-                                                                  504,  // Barrel
-                                                                  756,
-                                                                  864,
-                                                                  972,
-                                                                  1080,
-                                                                  1188,
-                                                                  1296,
-                                                                  1404,
-                                                                  1512,
-                                                                  1620,
-                                                                  1796,
-                                                                  1972,
-                                                                  2148,  // Fp
-                                                                  2324,
-                                                                  2432,
-                                                                  2540,
-                                                                  2648,
-                                                                  2756,
-                                                                  2864,
-                                                                  2972,
-                                                                  3080,
-                                                                  3188,
-                                                                  3364,
-                                                                  3540,
-                                                                  3716,  // Np
-                                                                  numberOfModules};
+  HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {
+      0,    216,  432,  612,  864,  972,  1080, 1188, 1296, 1404, 1512, 1620, 1728, 1904,           2080,
+      2256, 2432, 2540, 2648, 2756, 2864, 2972, 3080, 3188, 3296, 3472, 3648, 3824, numberOfModules};
 
   HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{
       phi0p05, phi0p05, phi0p05, phi0p06, phi0p07, phi0p07, phi0p06, phi0p07, phi0p07, phi0p05, phi0p05,
@@ -325,7 +304,7 @@ namespace pixelTopology {
 
     static constexpr uint32_t maxCellNeighbors = 64;
     static constexpr uint32_t maxCellTracks = 302;
-    static constexpr uint32_t maxHitsOnTrack = 15;
+    static constexpr uint32_t maxHitsOnTrack = 20;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
     static constexpr uint32_t avgHitsPerTrack = 7;
     static constexpr uint32_t maxCellsPerHit = 256;
@@ -341,7 +320,7 @@ namespace pixelTopology {
 
     static constexpr uint32_t maxSizeCluster = 2047;
 
-    static constexpr uint32_t getDoubletsFromHistoMaxBlockSize = 64;  // for both x and y
+    static constexpr uint32_t getDoubletsFromHistoMaxBlockSize = 128;  // for both x and y
     static constexpr uint32_t getDoubletsFromHistoMinBlocksPerMP = 16;
 
     static constexpr uint16_t last_bpix1_detIndex = 108;
