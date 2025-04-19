@@ -96,13 +96,13 @@ bool HGCalTileIndex::tileFineExist(const int32_t* hex, int32_t zside, int32_t ip
   bool ok = (hex[iw] & (1 << ibit));
   if (!ok)
     edm::LogWarning("HGCalGeom") << "tileFineExist::Phi " << iphi << " " << phi << " zside " << zside << " jj|iw|ibit "
-				 << jj << ":" << iw << ":" << ibit << " hex " << std::hex << hex[iw] << ":" << (1 << ibit) << std::dec
-                                << " OK " << ok;
+                                 << jj << ":" << iw << ":" << ibit << " hex " << std::hex << hex[iw] << ":"
+                                 << (1 << ibit) << std::dec << " OK " << ok;
 #ifdef EDM_ML_DEBUG
-  else 
+  else
     edm::LogVerbatim("HGCalGeom") << "tileFineExist::Phi " << iphi << " " << phi << " zside " << zside << " jj|iw|ibit "
-				 << jj << ":" << iw << ":" << ibit << " hex " << std::hex << hex[iw] << ":" << (1 << ibit) << std::dec
-                                << " OK " << ok;
+                                  << jj << ":" << iw << ":" << ibit << " hex " << std::hex << hex[iw] << ":"
+                                  << (1 << ibit) << std::dec << " OK " << ok;
 #endif
   return ok;
 }

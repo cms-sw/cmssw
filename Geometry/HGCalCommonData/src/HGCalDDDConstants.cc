@@ -787,15 +787,16 @@ bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) co
   bool tileEx = trapezoidFile() ? tileExist(zside, layer, irad, iphi) : true;
   if (!valid)
     edm::LogWarning("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":" << irad
-				  << ":" << iphi << " Range on Ring " << hgpar_->scintValidRing(indx.first, irad)
-				  << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
-				  << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
+                                  << ":" << iphi << " Range on Ring " << hgpar_->scintValidRing(indx.first, irad)
+                                  << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
+                                  << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
 #ifdef EDM_ML_DEBUG
   else
-    edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":" << irad
-				   << ":" << iphi << " Range on Ring " << hgpar_->scintValidRing(indx.first, irad)
-				   << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
-				   << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
+    edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":"
+                                   << irad << ":" << iphi << " Range on Ring "
+                                   << hgpar_->scintValidRing(indx.first, irad)
+                                   << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
+                                   << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
 #endif
   return valid;
 }
@@ -1473,14 +1474,18 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
     auto itr = hgpar_->tileInfoMap_.find(indx);
     ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi);
     if (!ok)
-      edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok " << ok;
+      edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
+                                    << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
+                                    << ok;
     return ok;
   } else {
     int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
     auto itr = hgpar_->tileInfoMap_.find(indx);
     ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
     if (!ok)
-      edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok " << ok;
+      edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
+                                    << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
+                                    << ok;
     return ok;
   }
   return ok;
@@ -1490,12 +1495,14 @@ HGCalParameters::tileInfo HGCalDDDConstants::tileInfo(int zside, int layer, int 
   const auto& index = getIndex(layer, true);
   bool fine = hgpar_->scintFine(index.first);
   HGCalParameters::tileInfo info;
-  int indx = (fine) ? HGCalTileIndex::tileIndex(layer, ring, 1) : HGCalTileIndex::tileIndex(layer, ring, 0);;
+  int indx = (fine) ? HGCalTileIndex::tileIndex(layer, ring, 1) : HGCalTileIndex::tileIndex(layer, ring, 0);
+  ;
   auto itr = hgpar_->tileInfoMap_.find(indx);
   if (itr != hgpar_->tileInfoMap_.end())
     info = itr->second;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeomT") << "TileInfo:input " << zside << ":" << layer << ":" << ring << " Fine " << fine << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end());
+  edm::LogVerbatim("HGCalGeomT") << "TileInfo:input " << zside << ":" << layer << ":" << ring << " Fine " << fine
+                                 << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end());
 #endif
   return info;
 }
