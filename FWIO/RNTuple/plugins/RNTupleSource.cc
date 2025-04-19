@@ -334,9 +334,11 @@ namespace edm {
     auto& reader = runReaders_[runPrincipal.index()];
     reader.setEntry(entry);
     runPrincipal.fillRunPrincipal(processHistoryRegistry(), &reader);
+    // Read in all the products now.
+    runPrincipal.readAllFromSourceAndMergeImmediately();
     //In the future, when this code can skip runs we will need to
     // set this value.
-    //runPrincipal.setShouldWriteRun(RunPrincipal::kNo);
+    runPrincipal.setShouldWriteRun(RunPrincipal::kYes);
   }
 
   std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> RNTupleSource::resourceSharedWithDelayedReader_() {
