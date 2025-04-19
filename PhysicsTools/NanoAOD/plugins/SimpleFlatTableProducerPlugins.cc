@@ -1,6 +1,5 @@
-#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
-
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
 typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProducer;
 
 typedef SimpleCollectionFlatTableProducer<reco::Candidate> SimpleCandidateCollectionFlatTableProducer;
@@ -53,6 +52,18 @@ typedef EventSingletonSimpleFlatTableProducer<OnlineLuminosityRecord> SimpleOnli
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 typedef EventSingletonSimpleFlatTableProducer<reco::BeamSpot> SimpleBeamspotFlatTableProducer;
 
+#include "DataFormats/TrackReco/interface/Track.h"
+typedef SimpleFlatTableProducer<TrajectorySeed> SimpleTrajectorySeedFlatTableProducer;
+
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
+typedef SimpleFlatTableProducer<L2MuonTrajectorySeed> SimpleL2MuonTrajectorySeedFlatTableProducer;
+
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+typedef SimpleFlatTableProducer<reco::Track> SimpleTriggerTrackFlatTableProducer;
+
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+typedef SimpleFlatTableProducer<reco::GsfTrack> SimpleGsfTrackFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCandidateCollectionFlatTableProducer);
@@ -72,3 +83,7 @@ DEFINE_FWK_MODULE(SimpleLocalTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleXYZPointFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleOnlineLuminosityFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleBeamspotFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleTrajectorySeedFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleL2MuonTrajectorySeedFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleTriggerTrackFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleGsfTrackFlatTableProducer);
