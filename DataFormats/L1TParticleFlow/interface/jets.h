@@ -14,10 +14,11 @@ namespace l1ct {
     glbeta_t hwEta;
     glbphi_t hwPhi;
     z0_t hwZ0;
-    b_tag_score_t hwBtagScore;
+    // b_tag_score_t hwBtagScore;
+    mass2_t hwMassSq;
 
     inline bool operator==(const Jet &other) const {
-      return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi;
+      return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwMassSq == other.hwMassSq;
     }
 
     inline bool operator>(const Jet &other) const { return hwPt > other.hwPt; }
@@ -28,7 +29,8 @@ namespace l1ct {
       hwEta = 0;
       hwPhi = 0;
       hwZ0 = 0;
-      hwBtagScore = 0;
+      // hwBtagScore = 0;
+      hwMassSq = 0;
     }
 
     int intPt() const { return Scales::intPt(hwPt); }
@@ -37,10 +39,12 @@ namespace l1ct {
     float floatPt() const { return Scales::floatPt(hwPt); }
     float floatEta() const { return Scales::floatEta(hwEta); }
     float floatPhi() const { return Scales::floatPhi(hwPhi); }
-    float floatBtagScore() const { return Scales::floatBtagScore(hwBtagScore); }
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
+    // float floatBtagScore() const { return Scales::floatBtagScore(hwBtagScore); }
+    float floatMass() const { return Scales::floatMass(hwMassSq); }
 
-    static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + b_tag_score_t::width;
+    // static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + b_tag_score_t::width + mass2_t::width;
+    static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + mass2_t::width;
     inline ap_uint<BITWIDTH> pack_ap() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -48,14 +52,15 @@ namespace l1ct {
       pack_into_bits(ret, start, hwEta);
       pack_into_bits(ret, start, hwPhi);
       pack_into_bits(ret, start, hwZ0);
-      pack_into_bits(ret, start, hwBtagScore);
+      // pack_into_bits(ret, start, hwBtagScore);
+      pack_into_bits(ret, start, hwMassSq);
       return ret;
     }
 
     inline std::array<uint64_t, 2> pack() const {
       std::array<uint64_t, 2> packed = {{0, 0}};
       ap_uint<BITWIDTH> bits = this->pack_ap();
-      packed[0] = bits;
+      packed[0] = bits(63, 0);
       //packed[1] = bits[slice]; // for when there are more than 64 bits in the word
       return packed;
     }
@@ -72,7 +77,8 @@ namespace l1ct {
       unpack_from_bits(src, start, hwEta);
       unpack_from_bits(src, start, hwPhi);
       unpack_from_bits(src, start, hwZ0);
-      unpack_from_bits(src, start, hwBtagScore);
+      // unpack_from_bits(src, start, hwBtagScore);
+      unpack_from_bits(src, start, hwMassSq);
     }
 
     inline static Jet unpack(const std::array<uint64_t, 2> &src) {
@@ -87,6 +93,14 @@ namespace l1ct {
       return unpack_ap(bits);
     }
 
+    inline static Jet unpack(const std::array<long long unsigned int, 2> &src) {
+      // unpack from two 64b ints
+      ap_uint<BITWIDTH> bits;
+      bits(63, 0) = src[0];
+      // bits(127, 64) = src[1];
+      return unpack_ap(bits);
+    }
+
     l1gt::Jet toGT() const {
       l1gt::Jet j;
       j.valid = hwPt != 0;
@@ -94,7 +108,19 @@ namespace l1ct {
       j.v3.phi = CTtoGT_phi(hwPhi);
       j.v3.eta = CTtoGT_eta(hwEta);
       j.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
-      j.hwBtagScore = hwBtagScore;
+      j.hwBtagScore = 0;
+      return j;
+    }
+
+    l1gt::WideJet toGTWide() const {
+      l1gt::WideJet j;
+      j.valid = hwPt != 0;
+      j.v3.pt = CTtoGT_pt(hwPt);
+      j.v3.phi = CTtoGT_phi(hwPhi);
+      j.v3.eta = CTtoGT_eta(hwEta);
+      j.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
+      j.hwNProngScore = 0;
+      j.hwMassSq = CTtoGT_massSq(hwMassSq);
       return j;
     }
   };
