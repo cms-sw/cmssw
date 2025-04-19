@@ -12,6 +12,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+// -- new -- [GS]
+#include "DataFormats/PatCandidates/interface/Muon.h"
+
 #include <memory>
 #include <numeric>
 #include <vector>
@@ -28,7 +31,8 @@ private:
   double max_dxy_;
   double max_dz_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> v_recoVertexToken_;
-  edm::EDGetTokenT<std::vector<reco::Muon>> v_recoMuonToken_;
+  //edm::EDGetTokenT<std::vector<reco::Muon>> v_recoMuonToken_;
+  edm::EDGetTokenT<pat::MuonCollection> v_recoMuonToken_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,8 +43,9 @@ MuonFromPVSelector::MuonFromPVSelector(edm::ParameterSet const& iConfig)
     : max_dxy_{iConfig.getParameter<double>("max_dxy")},
       max_dz_{iConfig.getParameter<double>("max_dz")},
       v_recoVertexToken_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex"))},
-      v_recoMuonToken_{consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("srcMuon"))} {
-  produces<std::vector<reco::Muon>>();
+      //v_recoMuonToken_{consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("srcMuon"))} {
+      v_recoMuonToken_{consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("srcMuon"))} {
+  produces<pat::MuonCollection>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,12 +53,14 @@ MuonFromPVSelector::MuonFromPVSelector(edm::ParameterSet const& iConfig)
 ////////////////////////////////////////////////////////////////////////////////
 
 void MuonFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
-  auto goodMuons = std::make_unique<std::vector<reco::Muon>>();
+  //auto goodMuons = std::make_unique<std::vector<reco::Muon>>();
+  auto goodMuons = std::make_unique<pat::MuonCollection>();
 
   edm::Handle<std::vector<reco::Vertex>> vertices;
   iEvent.getByToken(v_recoVertexToken_, vertices);
 
-  edm::Handle<std::vector<reco::Muon>> muons;
+  //edm::Handle<std::vector<reco::Muon>> muons;
+  edm::Handle<pat::MuonCollection> muons;
   iEvent.getByToken(v_recoMuonToken_, muons);
 
   if (!vertices->empty()) {
