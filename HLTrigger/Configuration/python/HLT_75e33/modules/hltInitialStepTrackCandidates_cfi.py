@@ -44,5 +44,11 @@ _hltInitialStepTrackCandidatesLST = cms.EDProducer('LSTOutputConverter',
     )
 )
 
+from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-trackingLST.toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesLST)
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+# All useful combinations added to make the code work as expected and for clarity
+(~singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesLST)
+(~singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesLST)
+(singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesLST)
+(singleIterPatatrack & trackingLST & seedingLST).toModify(hltInitialStepTrackCandidates, src = "hltInitialStepTrajectorySeedsLST") # All LST seeds
