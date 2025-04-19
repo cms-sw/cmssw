@@ -124,9 +124,11 @@ _photonDRN.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), patPhotonsD
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 from PhysicsTools.PatAlgos.modules import DeDxEstimatorRekeyer
 dedxEstimator = DeDxEstimatorRekeyer()
-from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
 run3_upc.toModify(dedxEstimator, dedxEstimators = ["dedxHarmonic2", "dedxPixelHarmonic2", "dedxPixelLikelihood", "dedxStripLikelihood", "dedxAllLikelihood"])
 run3_upc.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, packedPFCandidateTrackChi2, lostTrackChi2, dedxEstimator))
+
+from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
+run3_oxygen.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, hiEvtPlane, hiEvtPlaneFlat, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin, hiHFfilters))
 
 from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
 ppRef_2024.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), packedPFCandidateTrackChi2, lostTrackChi2))
