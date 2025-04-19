@@ -23,17 +23,18 @@
 class HitToSimClusterCaloParticleAssociatorProducer : public edm::global::EDProducer<> {
 public:
   explicit HitToSimClusterCaloParticleAssociatorProducer(const edm::ParameterSet &);
-  ~HitToSimClusterCaloParticleAssociatorProducer() override;
+  ~HitToSimClusterCaloParticleAssociatorProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
-  edm::EDGetTokenT<std::vector<SimCluster>> simClusterToken_;
-  edm::EDGetTokenT<std::vector<CaloParticle>> caloParticleToken_;
+  const edm::EDGetTokenT<std::vector<SimCluster>> simClusterToken_;
+  const edm::EDGetTokenT<std::vector<CaloParticle>> caloParticleToken_;
 
-  edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
+  const edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
+  const std::vector<edm::InputTag> hitsTags_;
   std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hitsTokens_;
 };
 

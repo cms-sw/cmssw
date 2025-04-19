@@ -695,11 +695,12 @@ phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
                             'keep *_hltInitialStepTracksT5TCLST_*_*',
                             'keep *_hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST_*_*',
                             'keep *_hltOfflinePrimaryVertices_*_*',
-                            'keep *_hltHGCalRecHit_*_*'
                         ])
 
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                           'keep *_hltHGCalRecHit_*_*',
+                           'keep *_hltHgcalMergeLayerClusters_*_*',
                            'keep *_hltEgammaGsfTracksL1Seeded_*_*',
                        ])
 

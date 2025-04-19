@@ -51,28 +51,48 @@ void AllLayerClusterToTracksterAssociatorsProducer::produce(edm::StreamID,
                                                             const edm::EventSetup&) const {
   using namespace edm;
 
-  Handle<std::vector<reco::CaloCluster>> layer_clusters;
-  iEvent.getByToken(layerClustersToken_, layer_clusters);
+  // Retrieve layer clusters with protection
+  const auto& layerClustersHandle = iEvent.getHandle(layerClustersToken_);
+
+  // If layer clusters are missing, produce empty maps and return
+  if (!layerClustersHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Layer clusters collection not found. Producing empty maps.";
+    for (const auto& tracksterToken : tracksterCollectionTokens_) {
+      iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergy,
+                                                       std::vector<reco::CaloCluster>,
+                                                       std::vector<ticl::Trackster>>>(),
+                 tracksterToken.first);
+    }
+    return;
+  }
 
   for (const auto& tracksterToken : tracksterCollectionTokens_) {
-    Handle<std::vector<ticl::Trackster>> tracksters;
-    iEvent.getByToken(tracksterToken.second, tracksters);
+    const auto& trackstersHandle = iEvent.getHandle(tracksterToken.second);
+    // If tracksters collection is missing, produce empty map and continue
+    if (!trackstersHandle.isValid()) {
+      edm::LogWarning("MissingInput") << "Tracksters collection '" << tracksterToken.first << "' not found.";
+      iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergy,
+                                                       std::vector<reco::CaloCluster>,
+                                                       std::vector<ticl::Trackster>>>(),
+                 tracksterToken.first);
+      continue;
+    }
 
     // Create association map
     auto lcToTracksterMap = std::make_unique<
         ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
-        layer_clusters, tracksters, iEvent);
+        layerClustersHandle, trackstersHandle, iEvent);
 
     // Loop over tracksters
-    for (unsigned int tracksterId = 0; tracksterId < tracksters->size(); ++tracksterId) {
-      const auto& trackster = (*tracksters)[tracksterId];
+    for (unsigned int tracksterId = 0; tracksterId < trackstersHandle->size(); ++tracksterId) {
+      const auto& trackster = (*trackstersHandle)[tracksterId];
       // Loop over vertices in trackster
       for (unsigned int i = 0; i < trackster.vertices().size(); ++i) {
         // Get layerCluster
-        const auto& lc = (*layer_clusters)[trackster.vertices()[i]];
+        const auto& lc = (*layerClustersHandle)[trackster.vertices()[i]];
         float sharedEnergy = lc.energy() / trackster.vertex_multiplicity()[i];
-        edm::Ref<std::vector<reco::CaloCluster>> lcRef(layer_clusters, trackster.vertices()[i]);
-        edm::Ref<std::vector<ticl::Trackster>> tracksterRef(tracksters, tracksterId);
+        edm::Ref<std::vector<reco::CaloCluster>> lcRef(layerClustersHandle, trackster.vertices()[i]);
+        edm::Ref<std::vector<ticl::Trackster>> tracksterRef(trackstersHandle, tracksterId);
         lcToTracksterMap->insert(lcRef, tracksterRef, sharedEnergy);
       }
     }
