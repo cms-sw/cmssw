@@ -274,7 +274,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
                                       << HGCalTileIndex::tilePhi(itr->first) << "] (" << (itr->second).type << ", "
                                       << (itr->second).sipm << std::hex << ", " << (itr->second).hex[0] << ", "
                                       << (itr->second).hex[1] << ", " << (itr->second).hex[2] << ", "
-                                      << (itr->second).hex[3] << ")" << std::dec;
+                                      << (itr->second).hex[3] << ", " << (itr->second).hex[4] << ", "
+                                      << (itr->second).hex[5] << ")" << std::dec;
     }
 
     myPrint("slopeTop", phgp->slopeTop_, 10);
