@@ -4,7 +4,7 @@ from ..modules.hltAK4PFJetsForTaus_cfi import *
 from ..modules.hltHpsDoublePFTau35MediumDitauWPDeepTau_cfi import *
 from ..modules.hltHpsSelectedPFTausMediumDitauWPDeepTau_cfi import *
 from ..modules.hltPreDoublePFTauHPS_cfi import *
-from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTAK4PFJetsReconstruction_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
@@ -22,8 +22,8 @@ HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1 = cms.Path(
     + hltL1SeedForDoublePuppiTau
     + hltPreDoublePFTauHPS
     + HLTRawToDigiSequence
-    + HLTHgcalLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

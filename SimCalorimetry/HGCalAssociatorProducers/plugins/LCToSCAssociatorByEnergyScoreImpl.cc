@@ -18,7 +18,7 @@ LCToSCAssociatorByEnergyScoreImpl<HIT>::LCToSCAssociatorByEnergyScoreImpl(
   if constexpr (std::is_same_v<HIT, HGCRecHit>)
     layers_ = recHitTools_->lastLayerBH();
   else
-    layers_ = 6;  //EB + 4 HB + HO
+    layers_ = recHitTools_->lastLayer(false, true) + 1;  //EB + 4 HB
 }
 
 template <typename HIT>
@@ -52,8 +52,14 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   ticl::simClusterToLayerCluster lcsInSimCluster;
   lcsInSimCluster.resize(nSimClusters);
   for (unsigned int i = 0; i < nSimClusters; ++i) {
-    lcsInSimCluster[i].resize(layers_ * 2);
-    for (unsigned int j = 0; j < layers_ * 2; ++j) {
+    unsigned int nLayers = 2 * layers_;
+    if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
+      nLayers = layers_;
+    if constexpr (std::is_same_v<HIT, HGCRecHit>)
+      lcsInSimCluster[i].resize(nLayers);
+    else
+      lcsInSimCluster[i].resize(nLayers);
+    for (unsigned int j = 0; j < nLayers; ++j) {
       lcsInSimCluster[i][j].simClusterId = i;
       lcsInSimCluster[i][j].energy = 0.f;
       lcsInSimCluster[i][j].hits_and_fractions.clear();
@@ -373,8 +379,17 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     // It is the inverse of the denominator of the LCToSC score formula. Observe that this is the sum of the squares.
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : hits_and_fractions) {
-      const HIT* hit = hits_[hitMap_->at(haf.first)];
-      invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
+      if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+        if (recHitTools_->isBarrel(haf.first))
+          continue;
+        const HIT* hit = hits_[hitMap_->at(haf.first)];
+        invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
+      } else {
+        if (!recHitTools_->isBarrel(haf.first))
+          continue;
+        const HIT* hit = hits_[hitMap_->at(haf.first)];
+        invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
+      }
     }
     invLayerClusterEnergyWeight = 1.f / invLayerClusterEnergyWeight;
     for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
@@ -383,6 +398,13 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
 
       bool hitWithSC = (detIdToSimClusterId_Map.find(rh_detid) != detIdToSimClusterId_Map.end());
 
+      if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+        if (recHitTools_->isBarrel(rh_detid))
+          continue;
+      } else {
+        if (!recHitTools_->isBarrel(rh_detid))
+          continue;
+      }
       auto itcheck = hitMap_->find(rh_detid);
       const HIT* hit = hits_[itcheck->second];
       float hitEnergyWeight = hit->energy() * hit->energy();
@@ -418,7 +440,10 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
 
   // Compute the SimCluster-To-LayerCluster score
   for (const auto& scId : sCIndices) {
-    for (unsigned int layerId = 0; layerId < layers_ * 2; ++layerId) {
+    unsigned int nLayers = layers_ * 2;
+    if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
+      nLayers = layers_;
+    for (unsigned int layerId = 0; layerId < nLayers; ++layerId) {
       unsigned int SCNumberOfHits = lcsInSimCluster[scId][layerId].hits_and_fractions.size();
       if (SCNumberOfHits == 0)
         continue;
@@ -453,6 +478,13 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       // Compute the correct normalization. Observe that this is the sum of the squares.
       float invSCEnergyWeight = 0.f;
       for (auto const& haf : lcsInSimCluster[scId][layerId].hits_and_fractions) {
+        if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+          if (recHitTools_->isBarrel(haf.first))
+            continue;
+        } else {
+          if (!recHitTools_->isBarrel(haf.first))
+            continue;
+        }
         const HIT* hit = hits_[hitMap_->at(haf.first)];
         invSCEnergyWeight += std::pow(haf.second * hit->energy(), 2);
       }

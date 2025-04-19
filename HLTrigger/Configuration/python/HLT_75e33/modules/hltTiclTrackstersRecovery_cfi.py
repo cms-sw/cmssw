@@ -4,7 +4,7 @@ hltTiclTrackstersRecovery = cms.EDProducer("TrackstersProducer",
     detector = cms.string('HGCAL'),
     filtered_mask = cms.InputTag("hltFilteredLayerClustersRecovery","Recovery"),
     itername = cms.string('Recovery'),
-    layer_clusters = cms.InputTag("hltHgcalMergeLayerClusters"),
+    layer_clusters = cms.InputTag("hltMergeLayerClusters"),
     layer_clusters_hfnose_tiles = cms.InputTag("ticlLayerTileHFNose"),
     layer_clusters_tiles = cms.InputTag("hltTiclLayerTileProducer"),
     mightGet = cms.optional.untracked.vstring,
@@ -103,5 +103,5 @@ hltTiclTrackstersRecovery = cms.EDProducer("TrackstersProducer",
     
     ),
     seeding_regions = cms.InputTag("hltTiclSeedingGlobal"),
-    time_layerclusters = cms.InputTag("hltHgcalMergeLayerClusters","timeLayerCluster")
+    time_layerclusters = cms.InputTag("hltMergeLayerClusters","timeLayerCluster")
 )
