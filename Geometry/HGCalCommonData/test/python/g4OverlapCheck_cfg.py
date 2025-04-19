@@ -1,10 +1,11 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4OverlapCheck_cfg.py type=V17 tol=0.01
+#   cmsRun g4OverlapCheck_cfg.py type=V17 tol=0.01 resol=10000
 #
-#   Options for type V16, V17, V17n, V17ng, V18, V18n, V18O, V19, Wafer,
-#                    WaferFR, WaferPR, V17Only
-#               tol 1.0, 0.1, 0.01, 0.0
+#   Options for type  V16, V17, V17n, V17ng, V18, V18n, V18O, V19, V19X,
+#                     Wafer, WaferFR, WaferPR, V17Only
+#               tol   1.0, 0.1, 0.01, 0.0
+#               resol 10000, 100000, 1000000
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -18,12 +19,17 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17n, V7ng, V17Only, V18, V18n, V18O, V19, Wafer, WaferFR, WaferPR")
+                  "type of operations: V16, V17, V17n, V7ng, V17Only, V18, V18n, V18O, V19, V19X, Wafer, WaferFR, WaferPR")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
                  "Tolerance for checking overlaps: 0.0, 0.01, 0.1, 1.0")
+options.register('resol',
+                 10000,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.float,
+                 "Resolution for checking overlaps: 10000, 100000, 1000000")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -43,9 +49,11 @@ else:
 # Use the options
 geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
 outFile = "hgcal" + options.type + str(options.tol)
+resoluton = int(options.resol)
 
 print("Geometry file: ", geomFile)
 print("Output file:   ", outFile)
+print("Resolution:    ", resoluton)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load(geomFile)
@@ -74,7 +82,7 @@ process.g4SimHits.CheckGeometry = True
 process.g4SimHits.G4CheckOverlap.OutputBaseName = outFile
 process.g4SimHits.G4CheckOverlap.OverlapFlag = True
 process.g4SimHits.G4CheckOverlap.Tolerance  = options.tol
-process.g4SimHits.G4CheckOverlap.Resolution = 10000
+process.g4SimHits.G4CheckOverlap.Resolution = int(options.resol)
 process.g4SimHits.G4CheckOverlap.Depth      = -1
 # tells if NodeName is G4Region or G4PhysicalVolume
 process.g4SimHits.G4CheckOverlap.RegionFlag = False
