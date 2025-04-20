@@ -8,8 +8,8 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "RecoTracker/Record/interface/CAGeometryHost.h"
-#include "RecoTracker/Record/interface/alpaka/CAGeometrySoACollection.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometryHost.h"
+#include "RecoTracker/PixelSeeding/interface/alpaka/CAGeometrySoACollection.h"
 #include "FWCore/Utilities/interface/stringize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"

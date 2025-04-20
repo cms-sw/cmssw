@@ -10,7 +10,7 @@
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitResult.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoTracker/Record/interface/CAGeometrySoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 
 #include "CAStructures.h"
 

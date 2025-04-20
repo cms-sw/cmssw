@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoTracker/Record/interface/alpaka/CAGeometrySoACollection.h"
+#include "RecoTracker/PixelSeeding/interface/alpaka/CAGeometrySoACollection.h"
 
 #include "CASimpleCell.h"
 #include "CAHitNtupletGeneratorKernels.h"

@@ -1,7 +1,7 @@
 #ifndef RecoTracker_PixelSeeding_test_alpaka_CAGeometrySoA_test_h
 #define RecoTracker_PixelSeeding_test_alpaka_CAGeometrySoA_test_h
 
-#include "RecoTracker/Record/interface/CAGeometrySoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::testParamsSoA {
