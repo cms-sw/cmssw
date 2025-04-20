@@ -6,9 +6,9 @@
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
-#include "RecoTracker/Record/interface/CAGeometryDevice.h"
-#include "RecoTracker/Record/interface/CAGeometryHost.h"
-#include "RecoTracker/Record/interface/CAGeometrySoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometryDevice.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometryHost.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 

@@ -16,7 +16,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "RecoTracker/Record/interface/CAGeometrySoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelSeeding/interface/alpaka/CACoupleSoACollection.h"
 
 #include "CASimpleCell.h"

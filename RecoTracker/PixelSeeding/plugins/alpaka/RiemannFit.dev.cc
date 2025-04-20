@@ -6,7 +6,7 @@
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "RecoTracker/Record/interface/CAGeometrySoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/RiemannFit.h"
 
 #include "HelixFit.h"
