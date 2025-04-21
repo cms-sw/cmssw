@@ -20,6 +20,10 @@ namespace edm::storage {
     static const StorageFactory *get(void);
     static StorageFactory *getToModify(void);
 
+    // in GB
+    static double defaultMinTempFree() { return 4.; }
+    static std::string defaultTempDir();
+
     ~StorageFactory(void);
 
     // implicit copy constructor

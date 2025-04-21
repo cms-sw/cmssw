@@ -68,32 +68,26 @@ bool TFileAdaptor::native(char const* proto) const {
 }
 
 TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry& ar)
-    : enabled_(true),
-      doStats_(true),
+    : enabled_(pset.getUntrackedParameter<bool>("enable")),
+      doStats_(pset.getUntrackedParameter<bool>("stats")),
       enablePrefetching_(false),
-      cacheHint_("auto-detect"),
-      readHint_("auto-detect"),
-      tempDir_(),
-      minFree_(0),
+      // values set in the site local config or in SiteLocalConfigService override
+      // any values set here for this service.
+      // These parameters here are needed only for backward compatibility
+      // for WMDM tools until we switch to only using the site local config for this info.
+      cacheHint_(pset.getUntrackedParameter<std::string>("cacheHint")),
+      readHint_(pset.getUntrackedParameter<std::string>("readHint")),
+      tempDir_(pset.getUntrackedParameter<std::string>("tempDir")),
+      minFree_(pset.getUntrackedParameter<double>("tempMinFree")),
+      native_(pset.getUntrackedParameter<std::vector<std::string> >("native")),
+      // end of section of values overridden by SiteLocalConfigService
       timeout_(0U),
-      debugLevel_(0U),
-      native_() {
-  if (!(enabled_ = pset.getUntrackedParameter<bool>("enable", enabled_)))
+      debugLevel_(0U) {
+  if (not enabled_)
     return;
 
   using namespace edm::storage;
   StorageFactory* f = StorageFactory::getToModify();
-  doStats_ = pset.getUntrackedParameter<bool>("stats", doStats_);
-
-  // values set in the site local config or in SiteLocalConfigService override
-  // any values set here for this service.
-  // These parameters here are needed only for backward compatibility
-  // for WMDM tools until we switch to only using the site local config for this info.
-  cacheHint_ = pset.getUntrackedParameter<std::string>("cacheHint", cacheHint_);
-  readHint_ = pset.getUntrackedParameter<std::string>("readHint", readHint_);
-  tempDir_ = pset.getUntrackedParameter<std::string>("tempDir", f->tempPath());
-  minFree_ = pset.getUntrackedParameter<double>("tempMinFree", f->tempMinFree());
-  native_ = pset.getUntrackedParameter<std::vector<std::string> >("native", native_);
 
   ar.watchPostEndJob(this, &TFileAdaptor::termination);
 
@@ -203,15 +197,36 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
 }
 
 void TFileAdaptor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  using namespace edm::storage;
   edm::ParameterSetDescription desc;
-  desc.addOptionalUntracked<bool>("enable");
-  desc.addOptionalUntracked<bool>("stats");
-  desc.addOptionalUntracked<std::string>("cacheHint");
-  desc.addOptionalUntracked<std::string>("readHint");
-  desc.addOptionalUntracked<std::string>("tempDir");
-  desc.addOptionalUntracked<double>("tempMinFree");
-  desc.addOptionalUntracked<std::vector<std::string> >("native");
+  desc.addUntracked<bool>("enable", true)->setComment("Enable or disable TFileAdaptor behavior");
+  desc.addUntracked<bool>("stats", true);
+  desc.addUntracked<std::string>("cacheHint", "auto-detect")
+      ->setComment(
+          "Hint for read caching. Possible values: 'application-only', 'storage-only', 'lazy-download', 'auto-detect'. "
+          "The value from the SiteLocalConfigService overrides the value set here. In addition, if the "
+          "SiteLocalConfigService has prefetching enabled, the default hint is 'application-only'.");
+  desc.addUntracked<std::string>("readHint", "auto-detect")
+      ->setComment(
+          "Hint for reading itself. Possible values: 'direct-unbuffered', 'read-ahead-buffered', 'auto-detect'. The "
+          "value from SiteLocalConfigService overrides the value set here.");
+  desc.addUntracked<std::string>("tempDir", StorageFactory::defaultTempDir())
+      ->setComment(
+          "Colon-separated list of directories that storage implementations downloading the full file could place the "
+          "file. The value from SiteLocalConfigService overrides the value set here.");
+  desc.addUntracked<double>("tempMinFree", StorageFactory::defaultMinTempFree())
+      ->setComment(
+          "Minimum amount of space in GB required for a temporary data directory specified in tempDir. The value from "
+          "SiteLocalConfigService overrides the value set here.");
+  desc.addUntracked<std::vector<std::string> >("native")->setComment(
+      "Set of protocols for which to use a native ROOT storage implementation instead of CMSSW's StorageFactory. Valid "
+      "values are 'file', 'http', 'ftp', 'dcache', 'dcap', 'gsidcap', 'root', or 'all' to prefer ROOT for all "
+      "protocols. The value from SiteLocalConfigService overrides the value set here.");
   descriptions.add("AdaptorConfig", desc);
+  descriptions.setComment(
+      "AdaptorConfig Service is used to configure the TFileAdaptor. If enabled, the TFileAdaptor registers "
+      "TStorageFactoryFile as a handler for various protocols. The StorageFactory facility provides custom storage "
+      "access implementations for these protocols, as well as statistics accounting.");
 }
 
 // Write current Storage statistics on a ostream

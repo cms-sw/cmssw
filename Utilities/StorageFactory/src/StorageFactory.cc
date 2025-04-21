@@ -18,8 +18,8 @@ StorageFactory::StorageFactory(void)
     : m_cacheHint(CACHE_HINT_AUTO_DETECT),
       m_readHint(READ_HINT_AUTO),
       m_accounting(false),
-      m_tempfree(4.),  // GB
-      m_temppath(".:$TMPDIR"),
+      m_tempfree(defaultMinTempFree()),
+      m_temppath(defaultTempDir()),
       m_timeout(0U),
       m_debugLevel(0U) {
   setTempDir(m_temppath, m_tempfree);
@@ -30,6 +30,8 @@ StorageFactory::~StorageFactory(void) {}
 const StorageFactory *StorageFactory::get(void) { return &s_instance; }
 
 StorageFactory *StorageFactory::getToModify(void) { return &s_instance; }
+
+std::string StorageFactory::defaultTempDir() { return ".:$TMPDIR"; }
 
 bool StorageFactory::enableAccounting(bool enabled) {
   bool old = m_accounting;
