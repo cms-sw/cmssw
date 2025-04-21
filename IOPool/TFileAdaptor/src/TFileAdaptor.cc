@@ -165,9 +165,12 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
   TPluginManager* mgr = gROOT->GetPluginManager();
 
   // Make sure ROOT parses system directories first.
+  // Then our AddHandler() calls will also remove an existing handler
+  // that was registered with the same regex
   mgr->LoadHandlersFromPluginDirs("TFile");
   mgr->LoadHandlersFromPluginDirs("TSystem");
 
+  // Note: if you add a new handler, please update the test/tfileTest.cpp as well
   if (!native("file"))
     addType(mgr, "^file:");
   if (!native("http"))

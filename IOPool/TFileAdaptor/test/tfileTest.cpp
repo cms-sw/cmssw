@@ -4,8 +4,10 @@
 #include <TPluginManager.h>
 #include <TEnv.h>
 
-#include <string>
+#include <array>
 #include <iostream>
+#include <string>
+#include <string_view>
 
 #include "boost/system/system_error.hpp"
 #include "boost/filesystem/operations.hpp"
@@ -15,10 +17,39 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 int main(int argc, char* argv[]) {
-  char const* protocols[] = {
-      "^file:", "^http:", "^ftp:", "^web:", "^gsiftp:", "^sfn:", "^dcache:", "^dcap:", "^gsidcap:"};
+  // This list should replicate the addHandler calls in TFileAdaptor
+  std::array<char const*, 14> const protocols = {{"^file:",
+                                                  "^http:",
+                                                  "^http[s]?:",
+                                                  "^ftp:",
+                                                  "^web:",
+                                                  "^gsiftp:",
+                                                  "^sfn:",
+                                                  "^dcache:",
+                                                  "^dcap:",
+                                                  "^gsidcap:",
+                                                  "^storm:",
+                                                  "^storm-lcg:",
+                                                  "^root:",
+                                                  "^[x]?root:"}};
+  std::array<char const*, 14> const uris{{"file:foo",
+                                          "http://foo",
+                                          "https://foo",
+                                          "ftp://foo",
+                                          "web://foo",
+                                          "gsiftp://foo",
+                                          "sfn://foo",
+                                          "dcache://foo",
+                                          "dcap://foo",
+                                          "gsidcap://foo",
+                                          "storm://foo",
+                                          "storm-lcg://foo",
+                                          "root://foo",
+                                          "xroot://foo"}};
 
   char const* tStorageFactoryFileFunc = "TStorageFactoryFile(char const*, Option_t*, char const*, Int_t)";
+  char const* tStorageFactoryFileFuncNet =
+      "TStorageFactoryFile(char const*, Option_t*, char const*, Int_t, Int_t, Bool_t)";
 
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
@@ -31,23 +62,58 @@ int main(int argc, char* argv[]) {
   }
 
   gEnv->SetValue("Root.Stacktrace", "0");
-  // set our own root plugin
-  typedef char const* Cp;
-  Cp* begin = protocols;
-  Cp* end = &protocols[sizeof(protocols) / sizeof(protocols[0])];
-  for (Cp* i = begin; i != end; ++i) {
-    gROOT->GetPluginManager()->AddHandler(
-        "TFile", *i, "TStorageFactoryFile", "pluginIOPoolTFileAdaptor", tStorageFactoryFileFunc);
-    gROOT->GetPluginManager()->AddHandler(
-        "TSystem", *i, "TStorageFactorySystem", "pluginIOPoolTFileAdaptor", "TStorageFactorySystem()");
-  }
 
+  // Make sure ROOT parses system directories first.
+  // Then our AddHandler() calls will also remove an existing handler
+  // that was registered with the same regex
+  gROOT->GetPluginManager()->LoadHandlersFromPluginDirs("TFile");
+  gROOT->GetPluginManager()->LoadHandlersFromPluginDirs("TSystem");
+
+  // set our own root plugin
+  for (char const* p : protocols) {
+    if (std::string_view(p).find("root:") != std::string_view::npos) {
+      // xrootd arguments
+      gROOT->GetPluginManager()->AddHandler(
+          "TFile", p, "TStorageFactoryFile", "pluginIOPoolTFileAdaptor", tStorageFactoryFileFuncNet);
+      gROOT->GetPluginManager()->AddHandler("TSystem",
+                                            p,
+                                            "TStorageFactorySystem",
+                                            "pluginIOPoolTFileAdaptor",
+                                            "TStorageFactorySystem(const char*, Bool_t)");
+    } else {
+      // regular case
+      gROOT->GetPluginManager()->AddHandler(
+          "TFile", p, "TStorageFactoryFile", "pluginIOPoolTFileAdaptor", tStorageFactoryFileFunc);
+      gROOT->GetPluginManager()->AddHandler(
+          "TSystem", p, "TStorageFactorySystem", "pluginIOPoolTFileAdaptor", "TStorageFactorySystem()");
+    }
+  }
   gROOT->GetPluginManager()->Print();  // use option="a" to see ctors
 
-  std::string fname("file:bha.root");
+  for (char const* u : uris) {
+    using namespace std::literals;
+    TPluginHandler const* handler = gROOT->GetPluginManager()->FindHandler("TFile", u);
+    if (not handler) {
+      std::cout << "No TFile handler for " << u << std::endl;
+      return 1;
+    }
+    if (handler->GetClass() != "TStorageFactoryFile"sv) {
+      std::cout << "TFile handler for " << u << " was unexpected " << handler->GetClass() << std::endl;
+      return 1;
+    }
 
-  if (argc > 1)
-    fname = argv[1];
+    handler = gROOT->GetPluginManager()->FindHandler("TSystem", u);
+    if (not handler) {
+      std::cout << "No TSystem handler for " << u << std::endl;
+      return 1;
+    }
+    if (handler->GetClass() != "TStorageFactorySystem"sv) {
+      std::cout << "TSystem handler for " << u << " was unexpected " << handler->GetClass() << std::endl;
+      return 1;
+    }
+  }
+
+  std::string fname("file:bha.root");
 
   {
     std::unique_ptr<TFile> g(TFile::Open(fname.c_str(), "recreate", "", 1));
@@ -56,19 +122,22 @@ int main(int argc, char* argv[]) {
   try {
     Bool_t result = gSystem->AccessPathName(fname.c_str(), kFileExists);
     std::cout << "file " << fname << (result ? " does not exist\n" : " exists\n");
-    char const* err = gSystem->GetErrorStr();
-    if (err != 0 && *err != '\0')
-      std::cout << "error was " << err << "\n";
-
-    if (!result) {
-      std::unique_ptr<TFile> f(TFile::Open(fname.c_str()));
-      std::cout << "file size " << f->GetSize() << std::endl;
-      f->ls();
+    if (result) {
+      char const* err = gSystem->GetErrorStr();
+      if (err != 0 && *err != '\0')
+        std::cout << "error was " << err << "\n";
+      return 1;
     }
+
+    std::unique_ptr<TFile> f(TFile::Open(fname.c_str()));
+    std::cout << "file size " << f->GetSize() << std::endl;
+    f->ls();
   } catch (cms::Exception& e) {
     std::cout << "*ERROR*: " << e.what() << std::endl;
+    return 1;
   } catch (...) {
     std::cout << "*ERROR*\n";
+    return 1;
   }
 
   return 0;
