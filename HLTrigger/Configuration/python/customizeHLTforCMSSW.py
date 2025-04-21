@@ -88,9 +88,6 @@ def customizeHLTfor47611(process):
 
             has_pp_producers = True
 
-            if not hasattr(prod, 'caGeometry'):
-                setattr(prod, 'caGeometry', cms.string('hltCAGeometry'))
-
             if not hasattr(prod, 'maxNumberOfTuples'):
                 setattr(prod,'maxNumberOfTuples',cms.string(str(32*1024)))
                 
@@ -105,14 +102,51 @@ def customizeHLTfor47611(process):
             
             if not hasattr(prod, 'avgTracksPerCell'):
                 setattr(prod, 'avgTracksPerCell', cms.double(0.127))
+            
+            if not hasattr(prod, 'geometry'):
+
+                geometryPS = cms.PSet(
+                    startingPairs = cms.vint32( [i for i in range(8)] + [13, 14, 15, 16, 17, 18, 19]),
+                    caDCACuts = cms.vdouble( 0.15, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25),
+                    caThetaCuts = cms.vdouble(0.002,0.002,0.002,0.002,0.003,0.003,0.003,0.003,0.003,0.003),
+                    pairGraph = cms.vint32( 
+                        0, 1, 0, 4, 0,
+                        7, 1, 2, 1, 4,
+                        1, 7, 4, 5, 7,
+                        8, 2, 3, 2, 4,
+                        2, 7, 5, 6, 8,
+                        9, 0, 2, 1, 3,
+                        0, 5, 0, 8, 
+                        4, 6, 7, 9 
+                    ),
+                    phiCuts = cms.vint32( 
+                        522, 730, 730, 522, 626,
+                        626, 522, 522, 626, 626,
+                        626, 522, 522, 522, 522,
+                        522, 522, 522, 522
+                    ),
+                    minZ = cms.vdouble(
+                        -20., 0., -30., -22., 10., 
+                        -30., -70., -70., -22., 15., 
+                        -30, -70., -70., -20., -22., 
+                        0, -30., -70., -70.
+                    ),
+                    maxZ = cms.vdouble( 20., 30., 0., 22., 30., 
+                        -10., 70., 70., 22., 30., 
+                        -15., 70., 70., 20., 22., 
+                        30., 0., 70., 70.),
+                    maxR = cms.vdouble(20., 9., 9., 20., 7., 
+                        7., 5., 5., 20., 6., 
+                        6., 5., 5., 20., 20., 
+                        9., 9., 9., 9.)
+                )
+                
+                setattr(prod, 'geometry', geometryPS)
 
     for ca_producer in ca_producers_hi:
         for prod in producers_by_type(process, ca_producer):
             
             has_hi_producers = True
-            
-            if not hasattr(prod, 'caGeometry'):
-                setattr(prod, 'caGeometry', cms.string('hltCAGeometryHIon'))
             
             if not hasattr(prod, 'maxNumberOfTuples'):
                 setattr(prod,'maxNumberOfTuples',cms.string(str(256 * 1024))) # way too much, could be ~20k
@@ -129,64 +163,88 @@ def customizeHLTfor47611(process):
             if not hasattr(prod, 'avgTracksPerCell'):
                 setattr(prod, 'avgTracksPerCell', cms.double(0.5))
 
-   
-    if has_pp_producers:
-        
-        process.hltCAGeometry = cms.ESProducer('CAGeometryESProducer@alpaka',
-            startingPairs = cms.vint32( [i for i in range(8)] + [13, 14, 15, 16, 17, 18, 19]),
-            pairGraph = cms.vint32( 0, 1, 0, 4, 0,
-                7, 1, 2, 1, 4,
-                1, 7, 4, 5, 7,
-                8, 2, 3, 2, 4,
-                2, 7, 5, 6, 8,
-                9, 0, 2, 1, 3,
-                0, 5, 0, 8, 
-                4, 6, 7, 9 
-            ),
-            phiCuts = cms.vint32( 
-                522, 730, 730, 522, 626,
-                626, 522, 522, 626, 626,
-                626, 522, 522, 522, 522,
-                522, 522, 522, 522
-            ),
-            minZ = cms.vdouble(
-                    -20., 0., -30., -22., 10., 
-                    -30., -70., -70., -22., 15., 
-                    -30, -70., -70., -20., -22., 
-                    0, -30., -70., -70.
-            ),
-            maxZ = cms.vdouble( 20., 30., 0., 22., 30., 
-                -10., 70., 70., 22., 30., 
-                -15., 70., 70., 20., 22., 
-                30., 0., 70., 70.),
-            maxR = cms.vdouble(20., 9., 9., 20., 7., 
-                7., 5., 5., 20., 6., 
-                6., 5., 5., 20., 20., 
-                9., 9., 9., 9.),
-            appendToDataLabel = cms.string('hltCAGeometry'),
-            alpaka = cms.untracked.PSet(
-                backend = cms.untracked.string(''),
-                synchronize = cms.optional.untracked.bool
-            )
-        )
-    
-    if has_hi_producers:
+            if not hasattr(prod, 'geometry'):
 
-        process.hltCAGeometryESProducer = cms.ESProducer("CAGeometryESProducer@alpaka",
-                alpaka = cms.untracked.PSet(
-                    backend = cms.untracked.string(''),
-                    synchronize = cms.optional.untracked.bool
-                ),
-                appendToDataLabel = cms.string('hltCAGeometryHIon'),
-                caDCACuts = cms.vdouble(
-                    0.05, 0.1, 0.1, 0.1, 0.1,
-                    0.1, 0.1, 0.1, 0.1, 0.1
-                ),
-                caThetaCuts = cms.vdouble(
-                    0.001, 0.001, 0.001, 0.001, 0.002,
-                    0.002, 0.002, 0.002, 0.002, 0.002
+                geometryPS = cms.PSet(
+                    caDCACuts = cms.vdouble(
+                        0.05, 0.1, 0.1, 0.1, 0.1,
+                        0.1, 0.1, 0.1, 0.1, 0.1
+                    ),
+                    caThetaCuts = cms.vdouble(
+                        0.001, 0.001, 0.001, 0.001, 0.002,
+                        0.002, 0.002, 0.002, 0.002, 0.002
+                    ),
+
+                    ## This are the defaults actually
+                    startingPairs = cms.vint32(0,1,2),
+                    pairGraph = cms.vint32(0, 1, 0, 4, 0, 7, 1, 2, 1, 4, 1, 7, 4, 5, 7, 8, 2, 3, 2, 4, 2, 7, 5, 6, 8, 9, 0, 2, 1, 3, 0, 5, 0, 8, 4, 6, 7, 9),
+                    phiCuts = cms.vint32(522, 730, 730, 522, 626, 626, 522, 522, 626, 626, 626, 522, 522, 522, 522, 522, 522, 522, 522),
+                    minZ = cms.vdouble(-20, 0, -30, -22, 10, -30, -70, -70, -22, 15, -30, -70, -70, -20, -22, 0, -30, -70, -70),
+                    maxZ = cms.vdouble(20, 30, 0, 22, 30, -10, 70, 70, 22, 30, -15, 70, 70, 20, 22, 30, 0, 70, 70),
+                    maxR = cms.vdouble(20, 9, 9, 20, 7, 7, 5, 5, 20, 6, 6, 5, 5, 20, 20, 9, 9, 9, 9)
                 )
-            )
+
+                setattr(prod, 'geometry', geometryPS)
+
+
+   
+    # if has_pp_producers:
+        
+    #     process.hltCAGeometry = cms.ESProducer('CAGeometryESProducer@alpaka',
+    #         startingPairs = cms.vint32( [i for i in range(8)] + [13, 14, 15, 16, 17, 18, 19]),
+    #         pairGraph = cms.vint32( 0, 1, 0, 4, 0,
+    #             7, 1, 2, 1, 4,
+    #             1, 7, 4, 5, 7,
+    #             8, 2, 3, 2, 4,
+    #             2, 7, 5, 6, 8,
+    #             9, 0, 2, 1, 3,
+    #             0, 5, 0, 8, 
+    #             4, 6, 7, 9 
+    #         ),
+    #         phiCuts = cms.vint32( 
+    #             522, 730, 730, 522, 626,
+    #             626, 522, 522, 626, 626,
+    #             626, 522, 522, 522, 522,
+    #             522, 522, 522, 522
+    #         ),
+    #         minZ = cms.vdouble(
+    #                 -20., 0., -30., -22., 10., 
+    #                 -30., -70., -70., -22., 15., 
+    #                 -30, -70., -70., -20., -22., 
+    #                 0, -30., -70., -70.
+    #         ),
+    #         maxZ = cms.vdouble( 20., 30., 0., 22., 30., 
+    #             -10., 70., 70., 22., 30., 
+    #             -15., 70., 70., 20., 22., 
+    #             30., 0., 70., 70.),
+    #         maxR = cms.vdouble(20., 9., 9., 20., 7., 
+    #             7., 5., 5., 20., 6., 
+    #             6., 5., 5., 20., 20., 
+    #             9., 9., 9., 9.),
+    #         appendToDataLabel = cms.string('hltCAGeometry'),
+    #         alpaka = cms.untracked.PSet(
+    #             backend = cms.untracked.string(''),
+    #             synchronize = cms.optional.untracked.bool
+    #         )
+    #     )
+    
+    # if has_hi_producers:
+
+    #     process.hltCAGeometryESProducer = cms.ESProducer("CAGeometryESProducer@alpaka",
+    #             alpaka = cms.untracked.PSet(
+    #                 backend = cms.untracked.string(''),
+    #                 synchronize = cms.optional.untracked.bool
+    #             ),
+    #             appendToDataLabel = cms.string('hltCAGeometryHIon'),
+    #             caDCACuts = cms.vdouble(
+    #                 0.05, 0.1, 0.1, 0.1, 0.1,
+    #                 0.1, 0.1, 0.1, 0.1, 0.1
+    #             ),
+    #             caThetaCuts = cms.vdouble(
+    #                 0.001, 0.001, 0.001, 0.001, 0.002,
+    #                 0.002, 0.002, 0.002, 0.002, 0.002
+    #             )
+    #         )
         
 
     return process
@@ -211,6 +269,18 @@ def customizeHLTfor47630(process):
 
     return process
 
+def customizeHLTfor47306Bug(process, menuType="GRun"):
+
+    vertex_producers = ['alpaka_serial_sync::PixelVertexProducerAlpakaPhase1','PixelVertexProducerAlpakaPhase1@alpaka']
+
+    for producer in vertex_producers:
+        for prod in producers_by_type(process, producer):
+
+            if hasattr(prod,'oneKernel'):
+                setattr(prod, 'oneKernel', cms.bool(False))
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -220,6 +290,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     
     process = customizeHLTfor47611(process)
+    process = customizeHLTfor47306Bug(process) ## To avoid the 47306 bug
 
     return process
 

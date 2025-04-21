@@ -12,6 +12,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     ALPAKA_ASSERT_ACC(tuples_);
     ALPAKA_ASSERT_ACC(tupleMultiplicity_);
+    ALPAKA_ASSERT_ACC(helix_fit_results.pt());
   }
 
   template <typename TrackerTraits>
