@@ -78,7 +78,6 @@ namespace edm {
           m_trivialDataCatalogs(),
           m_dataCatalogs(),
           m_frontierConnect(),
-          m_rfioType("castor"),
           m_connected(false),
           m_cacheTempDir(),
           m_cacheTempDirPtr(nullptr),
@@ -284,8 +283,6 @@ namespace edm {
       return input;
     }
 
-    std::string const SiteLocalConfigService::rfioType(void) const { return m_rfioType; }
-
     std::string const *SiteLocalConfigService::sourceCacheTempDir() const { return m_cacheTempDirPtr; }
 
     double const *SiteLocalConfigService::sourceCacheMinFree() const { return m_cacheMinFreePtr; }
@@ -351,7 +348,6 @@ namespace edm {
       //   <subsite name="FNAL_SUBSITE"/>
       //   <event-data>
       //     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
-      //     <rfiotype value="castor"/>
       //   </event-data>
       //   <calib-data>
       //     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
@@ -407,10 +403,6 @@ namespace edm {
               m_trivialDataCatalogs.push_back(safe(catalog->Attribute("url")));
               catalog = catalog->NextSiblingElement("catalog");
             }
-          }
-          auto rfiotype = eventData->FirstChildElement("rfiotype");
-          if (rfiotype) {
-            m_rfioType = safe(rfiotype->Attribute("value"));
           }
         }
 
