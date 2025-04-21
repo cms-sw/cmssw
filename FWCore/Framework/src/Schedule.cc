@@ -9,10 +9,10 @@
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
-#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
 #include "FWCore/Framework/src/TriggerTimingReport.h"
@@ -178,7 +178,7 @@ namespace edm {
           for (auto const& productIter : preg.registry().productList()) {
             BranchKey const& branchKey = productIter.first;
             // The alias-for product must be in the same process as
-            // the SwitchProducer (earlier processes or SubProcesses
+            // the SwitchProducer (earlier processes
             // may contain products with same type, module label, and
             // instance name)
             if (branchKey.processName() != processName) {
@@ -584,10 +584,8 @@ namespace edm {
                              BranchIDListHelper& branchIDListHelper,
                              ProcessBlockHelperBase& processBlockHelper,
                              ThinnedAssociationsHelper& thinnedAssociationsHelper,
-                             SubProcessParentageHelper const* subProcessParentageHelper,
                              std::shared_ptr<ActivityRegistry> areg,
                              std::shared_ptr<ProcessConfiguration> processConfiguration,
-                             bool hasSubprocesses,
                              PreallocationConfiguration const& prealloc,
                              ProcessContext const* processContext) {
     //TriggerResults is not in the top level ParameterSet so the call to
@@ -638,7 +636,7 @@ namespace edm {
       }
     });
     // Now that the output workers are filled in, set any output limits or information.
-    limitOutput(proc_pset, branchIDListHelper.branchIDLists(), subProcessParentageHelper);
+    limitOutput(proc_pset, branchIDListHelper.branchIDLists());
 
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on the WorkerManager being full.
@@ -675,10 +673,6 @@ namespace edm {
             elementTypesConsumed.emplace(consumesInfo.type());
           }
         }
-      }
-      // The SubProcess class is not a module, yet it may consume.
-      if (hasSubprocesses) {
-        productTypesConsumed.emplace(typeid(TriggerResults));
       }
       // The RandomNumberGeneratorService is not a module, yet it consumes.
       { RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed); }
@@ -727,9 +721,7 @@ namespace edm {
 
   }  // Schedule::Schedule
 
-  void Schedule::limitOutput(ParameterSet const& proc_pset,
-                             BranchIDLists const& branchIDLists,
-                             SubProcessParentageHelper const* subProcessParentageHelper) {
+  void Schedule::limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists) {
     std::string const output("output");
 
     ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents");
@@ -754,7 +746,7 @@ namespace edm {
     }
 
     for (auto& c : all_output_communicators_) {
-      OutputModuleDescription desc(branchIDLists, maxEventsOut, subProcessParentageHelper);
+      OutputModuleDescription desc(branchIDLists, maxEventsOut);
       if (vMaxEventsOut != nullptr && !vMaxEventsOut->empty()) {
         std::string const& moduleLabel = c->description().moduleLabel();
         try {
@@ -822,10 +814,6 @@ namespace edm {
       // The trigger report (pass/fail etc.):
 
       LogFwkVerbatim("FwkSummary") << "";
-      if (streamSchedules_[0]->context().processContext()->isSubProcess()) {
-        LogFwkVerbatim("FwkSummary") << "TrigReport Process: "
-                                     << streamSchedules_[0]->context().processContext()->processName();
-      }
       LogFwkVerbatim("FwkSummary") << "TrigReport "
                                    << "---------- Event  Summary ------------";
       if (!tr.trigPathSummaries.empty()) {

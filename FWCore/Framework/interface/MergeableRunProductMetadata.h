@@ -22,9 +22,6 @@ run products read from data, and puts information into the
 StoredMergeableRunProductMetadata written into the output file
 to use in later processing steps.
 
-If there are SubProcesses, they use the same object as the top
-level process because they share the same input.
-
 There is a TWIKI page on the Framework page of the Software
 Guide which explains the details about how this works. There
 are significant limitations related to what the Framework does
