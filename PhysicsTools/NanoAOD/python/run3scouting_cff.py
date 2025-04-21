@@ -546,6 +546,47 @@ scoutingFatPFJetReclusterParticleNetJetTags = cms.EDProducer("BoostedJetONNXJetT
     debugMode = cms.untracked.bool(False),
 )
 
+scoutingFatPFJetReclusterGlobalParticleTransformerJetTagInfos = cms.EDProducer("DeepBoostedJetTagInfoProducer",
+    jet_radius = cms.double(0.8),
+    min_jet_pt = cms.double(50),
+    max_jet_eta = cms.double(2.5),
+    min_pt_for_track_properties = cms.double(0.95),
+    min_pt_for_pfcandidates = cms.double(0.1),
+    use_puppiP4 = cms.bool(False),
+    include_neutrals = cms.bool(True),
+    sort_by_sip2dsig = cms.bool(False),
+    min_puppi_wgt = cms.double(-1.0),
+    flip_ip_sign = cms.bool(False),
+    sip3dSigMax = cms.double(-1.0),
+    use_hlt_features = cms.bool(False),
+    pf_candidates = cms.InputTag("scoutingPFCandidate"),
+    jets = cms.InputTag("scoutingFatPFJetRecluster"),
+    puppi_value_map = cms.InputTag(""),
+    use_scouting_features = cms.bool(True),
+    normchi2_value_map = cms.InputTag("scoutingPFCandidate", "normchi2"),
+    dz_value_map = cms.InputTag("scoutingPFCandidate", "dz"),
+    dxy_value_map = cms.InputTag("scoutingPFCandidate", "dxy"),
+    dzsig_value_map = cms.InputTag("scoutingPFCandidate", "dzsig"),
+    dxysig_value_map = cms.InputTag("scoutingPFCandidate", "dxysig"),
+    lostInnerHits_value_map = cms.InputTag("scoutingPFCandidate", "lostInnerHits"),
+    quality_value_map = cms.InputTag("scoutingPFCandidate", "quality"),
+    trkPt_value_map = cms.InputTag("scoutingPFCandidate", "trkPt"),
+    trkEta_value_map = cms.InputTag("scoutingPFCandidate", "trkEta"),
+    trkPhi_value_map = cms.InputTag("scoutingPFCandidate", "trkPhi"),
+)
+
+scoutingFatPFJetReclusterGlobalParticleTransformerJetTags = cms.EDProducer("BoostedJetONNXJetTagsProducer",
+    jets = cms.InputTag("scoutingFatPFJetRecluster"),
+    produceValueMap = cms.untracked.bool(True),
+    src = cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTagInfos"),
+    preprocess_json = cms.string("RecoBTag/Combined/data/Run3Scouting/GlobalParticleTransformerAK8/General/V00/preprocess.json"),
+    model_path = cms.FileInPath("RecoBTag/Combined/data/Run3Scouting/GlobalParticleTransformerAK8/General/V00/global-part_2024.onnx"),
+    flav_names = cms.vstring([
+             "probQCD", "probXbb", "probXcc", "probXss", "probXqq", "probXbs", "probXgg", "probXee", "probXmm", "probXtauhtaue", "probXtauhtaum", "probXtauhtauh", "probXbc", "probXcs", "probXud", "massCorrGeneric", "massCorrGenericX2p", "massCorrGenericW2p", "massCorrResonance"
+     ]),
+    debugMode = cms.untracked.bool(False),
+)
+
 # AK8 jet softdrop mass
 
 scoutingFatPFJetReclusterSoftDrop = ak4PFJets.clone(
@@ -622,10 +663,27 @@ scoutingFatPFJetReclusterTable = cms.EDProducer("SimplePFJetFlatTableProducer",
         particleNet_prob_Hbb = ExtVar(cms.InputTag("scoutingFatPFJetReclusterParticleNetJetTags:probHbb"), float, doc="ParticleNet probability of Hbb", precision=10),
         particleNet_prob_Hcc = ExtVar(cms.InputTag("scoutingFatPFJetReclusterParticleNetJetTags:probHcc"), float, doc="ParticleNet probability of Hcc", precision=10),
         particleNet_prob_Hqq = ExtVar(cms.InputTag("scoutingFatPFJetReclusterParticleNetJetTags:probHqq"), float, doc="ParticleNet probability of Hqq", precision=10),
+        scoutGlobalParT_prob_QCD = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probQCD"), float, doc="Mass-decorrelated Scouting GlobalParT QCD score", precision=10),
+        scoutGlobalParT_prob_Xbb = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXbb"), float, doc="Mass-decorrelated Scouting GlobalParT X->bb score", precision=10),
+        scoutGlobalParT_prob_Xcc = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXcc"), float, doc="Mass-decorrelated Scouting GlobalParT X->cc score", precision=10),
+        scoutGlobalParT_prob_Xss = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXss"), float, doc="Mass-decorrelated Scouting GlobalParT X->ss score", precision=10),
+        scoutGlobalParT_prob_Xqq = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXqq"), float, doc="Mass-decorrelated Scouting GlobalParT X->qq score", precision=10),
+        scoutGlobalParT_prob_Xbc = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXbc"), float, doc="Mass-decorrelated Scouting GlobalParT X->bc score", precision=10),
+        scoutGlobalParT_prob_Xbs = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXbs"), float, doc="Mass-decorrelated Scouting GlobalParT X->bs score", precision=10),
+        scoutGlobalParT_prob_Xcs = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXcs"), float, doc="Mass-decorrelated Scouting GlobalParT X->cs score", precision=10),
+        scoutGlobalParT_prob_Xud = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXud"), float, doc="Mass-decorrelated Scouting GlobalParT X->ud score", precision=10),
+        scoutGlobalParT_prob_Xgg = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXgg"), float, doc="Mass-decorrelated Scouting GlobalParT X->gg score", precision=10),
+        scoutGlobalParT_prob_Xtauhtaue = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXtauhtaue"), float, doc="Mass-decorrelated Scouting GlobalParT X->tauhtaue score", precision=10),
+        scoutGlobalParT_prob_Xtauhtaum = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXtauhtaum"), float, doc="Mass-decorrelated Scouting GlobalParT X->tauhtaum score", precision=10),
+        scoutGlobalParT_prob_Xtauhtauh = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:probXtauhtauh"), float, doc="Mass-decorrelated Scouting GlobalParT X->tauhtauh score", precision=10),
         # softdrop mass
         msoftdrop = ExtVar(cms.InputTag("scoutingFatPFJetReclusterSoftDropMass"), float, doc="Softdrop mass", precision=10),
         # regressed mass
         particleNet_mass = ExtVar(cms.InputTag("scoutingFatPFJetReclusterParticleNetMassRegressionJetTags:mass"), float, doc="ParticleNet regressed mass", precision=10),
+        scoutGlobalParT_massCorrGeneric = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:massCorrGeneric"), float, doc="Mass-decorrelated Scouting GlobalParT mass regression corrector with respect to the original jet mass, optimised for generic jet cases. Use (massCorrGeneric * mass) to get the regressed mass", precision=10),
+        scoutGlobalParT_massCorrGenericX2p = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:massCorrGenericX2p"), float, doc="Mass-decorrelated Scouting GlobalParT mass regression corrector with respect to the original jet mass, optimised for generic X2p jet cases. Use (massCorrGenericX2p * mass) to get the regressed mass", precision=10),
+        scoutGlobalParT_massCorrGenericW2p = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:massCorrGenericW2p"), float, doc="Mass-decorrelated Scouting GlobalParT mass regression corrector with respect to the original jet mass, optimised for generic W jet cases. Use (massCorrGenericW2p * mass) to get the regressed mass", precision=10),
+        scoutGlobalParT_massCorrResonance = ExtVar(cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTags:massCorrResonance"), float, doc="Scouting GlobalParT mass regression corrector with respect to the original jet mass, optimised for resonance jets. Use (massCorrResonance * mass) to get the regressed mass", precision=10),
         # substructure variables    
         n2b1 = ExtVar(cms.InputTag("scoutingFatPFJetReclusterEcfNbeta1:ecfN2"), float, doc="N2 with beta=1", precision=10),
         n3b1 = ExtVar(cms.InputTag("scoutingFatPFJetReclusterEcfNbeta1:ecfN3"), float, doc="N3 with beta=1", precision=10),
