@@ -31,31 +31,38 @@ public:
 
   enum decayModes {
     kNull = -1,
-    kOneProng0PiZero,
-    kOneProng1PiZero,
-    kOneProng2PiZero,
-    kOneProng3PiZero,
-    kOneProngNPiZero,
-    kTwoProng0PiZero,
-    kTwoProng1PiZero,
-    kTwoProng2PiZero,
-    kTwoProng3PiZero,
-    kTwoProngNPiZero,
-    kThreeProng0PiZero,
-    kThreeProng1PiZero,
-    kThreeProng2PiZero,
-    kThreeProng3PiZero,
-    kThreeProngNPiZero,
-    kRareDecayMode,
-    kElectron,
-    kMuon
+    kOneProng0PiZero,    // 0
+    kOneProng1PiZero,    // 1
+    kOneProng2PiZero,    // 2
+    kOneProng3PiZero,    // 3
+    kOneProngNPiZero,    // 4
+    kTwoProng0PiZero,    // 5
+    kTwoProng1PiZero,    // 6
+    kTwoProng2PiZero,    // 7
+    kTwoProng3PiZero,    // 8
+    kTwoProngNPiZero,    // 9
+    kThreeProng0PiZero,  // 10
+    kThreeProng1PiZero,  // 11
+    kThreeProng2PiZero,  // 12
+    kThreeProng3PiZero,  // 13
+    kThreeProngNPiZero,  // 14
+    kRareDecayMode,      // 15
+    kElectron,           // 16
+    kMuon                // 17
   };
 
   void dump(void) const {
+    LogDebug("SimTauProducer")
+        .format("Decay mode: {} ", buildDecayModes())
+        .format("Leaves: {} ", leaves.size())
+        .format("Resonances: {}", resonances.size());
     for (auto const &l : leaves) {
       LogDebug("SimTauProducer")
-          .format(
-              "L {} {} CP: {} GenP idx: {}", l.pdgId(), l.resonance_idx(), l.calo_particle_idx(), l.gen_particle_idx());
+          .format("L {} {} CP: {} GenP idx: {}",
+                  l.pdgId(),
+                  l.resonance_idx(),
+                  (int)((l.calo_particle_idx() == -1) ? -1 : calo_particle_leaves[l.calo_particle_idx()].key()),
+                  l.gen_particle_idx());
     }
     for (auto const &r : resonances) {
       LogDebug("SimTauProducer").format("R {} {}", r.first, r.second);
@@ -78,7 +85,7 @@ public:
     }
   }
 
-  int buildDecayModes() {
+  int buildDecayModes() const {
     int numElectrons = 0;
     int numMuons = 0;
     int numHadrons = 0;
