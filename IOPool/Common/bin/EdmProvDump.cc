@@ -311,7 +311,6 @@ void HistoryNode::printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
       appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_modules"));
       appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_sources"));
       appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_loopers"));
-      //appendToSet(namesToExclude,processConfig.getParameter<std::vector<std::string> >("@all_subprocesses"));//untracked
       appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_esmodules"));
       appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_essources"));
       appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_esprefers"));
