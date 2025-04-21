@@ -179,8 +179,6 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
   /* always */ addType(mgr, "^web:");
   /* always */ addType(mgr, "^gsiftp:");
   /* always */ addType(mgr, "^sfn:");
-  if (!native("rfio"))
-    addType(mgr, "^rfio:");
   if (!native("dcache"))
     addType(mgr, "^dcache:");
   if (!native("dcap"))

@@ -15,12 +15,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 int main(int argc, char* argv[]) {
-  /* TestMain tfileTest zip-member:file:bha.zip#bha
-     TestMain tfileTest rfio:suncmsc.cern.ch:/data/valid/test/vincenzo/testPool/evData/EVD0_EventData.56709894d26a11d78dd20040f45cca94.1.h300eemm.TestSignalHits
-     TestMain tfileTest zip-member:rfio:suncmsc.cern.ch:/data/valid/test/vincenzo/testZip/test1.zip#file.5 */
-
   char const* protocols[] = {
-      "^file:", "^http:", "^ftp:", "^web:", "^gsiftp:", "^sfn:", "^rfio:", "^dcache:", "^dcap:", "^gsidcap:"};
+      "^file:", "^http:", "^ftp:", "^web:", "^gsiftp:", "^sfn:", "^dcache:", "^dcap:", "^gsidcap:"};
 
   char const* tStorageFactoryFileFunc = "TStorageFactoryFile(char const*, Option_t*, char const*, Int_t)";
 
