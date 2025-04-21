@@ -1,4 +1,4 @@
-//#define GPU_DEBUG
+#define GPU_DEBUG
 //#define DUMP_GPU_TK_TUPLES
 
 #include <array>

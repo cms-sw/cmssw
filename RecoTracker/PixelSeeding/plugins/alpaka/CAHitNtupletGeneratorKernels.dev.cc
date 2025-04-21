@@ -424,7 +424,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->device_tupleMultiplicity_.data());
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
-    std::cout << "Kernel_countMultiplicity -> done!" << std::endl;
+    std::cout << "Kernel_fillMultiplicity -> done!" << std::endl;
 #endif
     // do not run the fishbone if there are hits only in BPIX1
     if (this->m_params.algoParams_.lateFishbone_ and nhits > offsetBPIX2) {
@@ -451,6 +451,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
 #ifdef GPU_DEBUG
+    std::cout << "lateFishbone -> done!" << std::endl;
     alpaka::wait(queue);
 #endif
   }
@@ -532,6 +533,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                    Queue &queue) {
     using namespace caHitNtupletGeneratorKernels;
 
+#ifdef GPU_DEBUG
+    alpaka::wait(queue);
+    std::cout << "Starting CAHitNtupletGeneratorKernels<TrackerTraits>::classifyTuples" << std::endl;
+#endif
+
     uint32_t nhits = hh.metadata().size();
 
     auto blockSize = 64;
@@ -546,6 +552,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         tracks_view,
                         this->device_hitContainer_.data(),
                         this->m_params.qualityCuts_);
+#ifdef GPU_DEBUG
+    alpaka::wait(queue);
+    std::cout << "Kernel_classifyTracks -> done!" << std::endl;
+#endif
 
     if (this->m_params.algoParams_.lateFishbone_) {
       // apply fishbone cleaning to good tracks

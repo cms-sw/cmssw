@@ -98,11 +98,11 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
-def _addCAGeometryESProducer(process):
-    process.load("RecoTracker.PixelSeeding.CAGeometryESProducer_cfi")
-    process.CAGeometryESProducer.appendToDataLabel = cms.string("caGeometry")
+# def _addCAGeometryESProducer(process):
+#     process.load("RecoTracker.PixelSeeding.CAGeometryESProducer_cfi")
+#     process.CAGeometryESProducer.appendToDataLabel = cms.string("caGeometry")
 
-modifyConfigurationForAlpakaCAGeometry_ = alpaka.makeProcessModifier(_addCAGeometryESProducer)
+# modifyConfigurationForAlpakaCAGeometry_ = alpaka.makeProcessModifier(_addCAGeometryESProducer)
 
 
 # pixel tracks SoA producer on the device

@@ -1,5 +1,6 @@
-// #define BROKENLINE_DEBUG
+#define BROKENLINE_DEBUG
 // #define BL_DUMP_HITS
+#define GPU_DEBUG
 #include <cstdint>
 
 #include <alpaka/alpaka.hpp>
@@ -50,7 +51,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ALPAKA_ASSERT_ACC(totTK >= 0);
 
 #ifdef BROKENLINE_DEBUG
-      const uint32_t threadIdx(alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u]);
       if (cms::alpakatools::once_per_grid(acc)) {
         printf("%d total Ntuple\n", tupleMultiplicity->size());
         printf("%d Ntuple of size %d/%d for %d hits to fit\n", totTK, nHitsL, nHitsH, hitsInFit);
@@ -182,12 +182,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // workaround for #47808
       debug::do_not_optimise(results_view);
 
+      printf("kernelBLFit::%d\n",__LINE__);
       ALPAKA_ASSERT_ACC(results_view.pt());
+      printf("kernelBLFit::%d\n",__LINE__);
       ALPAKA_ASSERT_ACC(results_view.eta());
+      printf("kernelBLFit::%d\n",__LINE__);
       ALPAKA_ASSERT_ACC(results_view.chi2());
+      printf("kernelBLFit::%d\n",__LINE__);
       ALPAKA_ASSERT_ACC(pfast_fit);
+      printf("kernelBLFit::%d\n",__LINE__);
       constexpr auto invalidTkId = std::numeric_limits<typename caStructures::tindex_type>::max();
-
+      printf("kernelBLFit::%d\n",__LINE__);
       // same as above...
       // look in bin for this hit multiplicity
       const auto nt = riemannFit::maxNumberOfConcurrentFits;
@@ -195,21 +200,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (invalidTkId == ptkids[local_idx])
           break;
         auto tkid = ptkids[local_idx];
-
+        printf("kernelBLFit::%d\n",__LINE__);
         ALPAKA_ASSERT_ACC(int(tkid) < tupleMultiplicity->capacity());
-
+        printf("kernelBLFit::%d\n",__LINE__);
         riemannFit::Map3xNd<N> hits(phits + local_idx);
         riemannFit::Map4d fast_fit(pfast_fit + local_idx);
         riemannFit::Map6xNf<N> hits_ge(phits_ge + local_idx);
-
+        printf("kernelBLFit::%d\n",__LINE__);
         brokenline::PreparedBrokenLineData<N> data;
-
+        printf("kernelBLFit::%d\n",__LINE__);
         brokenline::karimaki_circle_fit circle;
         riemannFit::LineFit line;
-
+        printf("kernelBLFit::%d\n",__LINE__);
         brokenline::prepareBrokenLineData(acc, hits, fast_fit, bField, data);
+        printf("kernelBLFit::prepareBrokenLineData\n");
         brokenline::lineFit(acc, hits_ge, fast_fit, bField, data, line);
+        printf("kernelBLFit::lineFit\n");
         brokenline::circleFit(acc, hits, hits_ge, fast_fit, bField, data, circle);
+        printf("kernelBLFit::circleFit\n");
 
         reco::copyFromCircle(results_view, circle.par, circle.cov, line.par, line.cov, 1.f / float(bField), tkid);
         results_view[tkid].pt() = float(bField) / float(std::abs(circle.par(2)));
@@ -240,18 +248,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-#define GENERATE_FUNCTION_CASE(N) \
-  case N:                         \
-    Kernel_BLFastFit<N>();        \
-    break;
-
   template <typename TrackerTraits>
   void HelixFit<TrackerTraits>::launchBrokenLineKernels(const ::reco::TrackingRecHitConstView &hv,
                                                         const ::reco::CAModulesConstView &cm,
                                                         uint32_t hitsInFit,
                                                         uint32_t maxNumberOfTuples,
                                                         Queue &queue) {
+
     ALPAKA_ASSERT_ACC(tuples_);
+
+#ifdef GPU_DEBUG
+    alpaka::wait(queue);
+    std::cout << "Starting HelixFit<TrackerTraits>::launchBrokenLineKernels" << std::endl;
+#endif
 
     uint32_t blockSize = 64;
     uint32_t numberOfBlocks = cms::alpakatools::divide_up_by(maxNumberOfConcurrentFits_, blockSize);
@@ -285,7 +294,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           3,
                           3,
                           offset);
-
+#ifdef GPU_DEBUG
+      alpaka::wait(queue);
+      std::cout << "Kernel_BLFastFit(3) -> done! " << std::endl;
+#endif
       alpaka::exec<Acc1D>(queue,
                           workDivTriplets,
                           Kernel_BLFit<3, TrackerTraits>{},
@@ -296,6 +308,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           hitsDevice.data(),
                           hits_geDevice.data(),
                           fast_fit_resultsDevice.data());
+#ifdef GPU_DEBUG
+      alpaka::wait(queue);
+      std::cout << "Kernel_BLFit(3) -> done! " << std::endl;
+#endif
 
       if (fitNas4_) {
         // fit all as 4
@@ -335,7 +351,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               hits_geDevice.data(),
                               fast_fit_resultsDevice.data());
         });
-
       } else {
         riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrackForFullFit, 1>([this,
                                                                                  &hv,
@@ -372,6 +387,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               hitsDevice.data(),
                               hits_geDevice.data(),
                               fast_fit_resultsDevice.data());
+#ifdef GPU_DEBUG
+          alpaka::wait(queue);
+          std::cout << "Kernel_BLFastFit("<< i <<") and Kernel_BLFit("<< i <<") -> done! " << std::endl;
+#endif
         });
 
         static_assert(TrackerTraits::maxHitsOnTrackForFullFit < TrackerTraits::maxHitsOnTrack);
