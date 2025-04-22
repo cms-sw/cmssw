@@ -20,9 +20,8 @@ hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx
                                          * scoutingMonitoringTriggerMuon                                                              
 ) 
 
-hltScoutingJetDqmOffline = cms.Sequence(jetMETDQMOfflineSourceScouting)
 
 hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)
 
-hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline + hltScoutingEGammaDqmOffline + hltScoutingJetDqmOffline + hltScoutingCollectionMonitor)
+hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline + hltScoutingEGammaDqmOffline +  hltScoutingCollectionMonitor)
 
