@@ -17,7 +17,7 @@
 //   To make plots of digitization variables from digitiasation campaigns
 //   with FullSim_Signal+FullSim_PU vs FasrSim_Signal+FastSim_PU vs
 //   FullSim_Signal+FastSim_PU
-// 
+//
 //      makeDigiStudyPlots(tag, todomin, todomax, save)
 //
 //   where (for makeHitStudyPlots)
@@ -450,46 +450,56 @@ void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
   }
 }
 
-void makeDigiStudyPlots(std::string tag = "HC", int todomin = 0, 
-			int todomax = 11, bool save = false) {
+void makeDigiStudyPlots(std::string tag = "HC", int todomin = 0, int todomax = 11, bool save = false) {
   const int nFiles = 3, ndetEC = 2, ndetHC = 3;
-  std::string files[nFiles] = {"FullSimSignalwithFullSimPU", 
-			       "FullSimSignalwithFastSimPU",
-			       "FastSimSignalwithFastSimPU"};
+  std::string files[nFiles] = {
+      "FullSimSignalwithFullSimPU", "FullSimSignalwithFastSimPU", "FastSimSignalwithFastSimPU"};
   std::string tags[nFiles] = {"Full+Full", "Ful+Fast", "Fast+Fast"};
-  int color[nFiles] = {1, 2, 4};  
+  int color[nFiles] = {1, 2, 4};
   int lstyl[nFiles] = {1, 2, 4};
   std::string detsHC[ndetHC] = {"HB", "HE", "HF"};
   std::string detsEC[ndetEC] = {"Barrel", "Endcap"};
   std::string pretagEC = "EcalDigiTask";
   std::string pretagHC = "HcalDigiTask";
   const int plots = 16;
-  std::string nameEC[plots] = {"ADC pulse 01 Gain 12", "ADC pulse 02 Gain 12",
-			       "ADC pulse 07 Gain 12", "ADC pulse 04 Gain 12",
-			       "ADC pulse 05 Gain 12", "ADC pulse 06 Gain 12",
-			       "ADC pulse 07 Gain 12", "ADC pulse 08 Gain 12",
-			       "analog pulse 01", "analog pulse 02",
-			       "analog pulse 03", "analog pulse 04",
-			       "analog pulse 05", "analog pulse 06",
-			       "analog pulse 07", "analog pulse 08"};
-  std::string nameHC[plots] = {"Ndigis", "depths", "post_SOI_frac", 
-			       "signal_amplitude",
-			       "ADCO_adc_depth1", "ADCO_adc_depth2", 
-			       "ADCO_adc_depth3", "ADCO_adc_depth4",
-			       "signal_amplitude_depth1", 
-			       "signal_amplitude_depth2",
-			       "signal_amplitude_depth3", 
-			       "signal_amplitude_depth4",
-			       "all_amplitudes_vs_bin_1D_depth1",
-			       "all_amplitudes_vs_bin_1D_depth2",
-			       "all_amplitudes_vs_bin_1D_depth3",
-			       "all_amplitudes_vs_bin_1D_depth4"};
+  std::string nameEC[plots] = {"ADC pulse 01 Gain 12",
+                               "ADC pulse 02 Gain 12",
+                               "ADC pulse 07 Gain 12",
+                               "ADC pulse 04 Gain 12",
+                               "ADC pulse 05 Gain 12",
+                               "ADC pulse 06 Gain 12",
+                               "ADC pulse 07 Gain 12",
+                               "ADC pulse 08 Gain 12",
+                               "analog pulse 01",
+                               "analog pulse 02",
+                               "analog pulse 03",
+                               "analog pulse 04",
+                               "analog pulse 05",
+                               "analog pulse 06",
+                               "analog pulse 07",
+                               "analog pulse 08"};
+  std::string nameHC[plots] = {"Ndigis",
+                               "depths",
+                               "post_SOI_frac",
+                               "signal_amplitude",
+                               "ADCO_adc_depth1",
+                               "ADCO_adc_depth2",
+                               "ADCO_adc_depth3",
+                               "ADCO_adc_depth4",
+                               "signal_amplitude_depth1",
+                               "signal_amplitude_depth2",
+                               "signal_amplitude_depth3",
+                               "signal_amplitude_depth4",
+                               "all_amplitudes_vs_bin_1D_depth1",
+                               "all_amplitudes_vs_bin_1D_depth2",
+                               "all_amplitudes_vs_bin_1D_depth3",
+                               "all_amplitudes_vs_bin_1D_depth4"};
   int rebinEC[plots] = {10, 10, 10, 10, 10, 10, 10, 10, 2, 2, 2, 2, 2, 2, 2, 2};
   int rebinHC[plots] = {10, 1, 10, 10, 1, 1, 1, 1, 10, 10, 10, 10, 1, 1, 1, 1};
   double xlowEC[plots] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   double xlowHC[plots] = {3000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  double xhighEC[plots] = {1000,1000,1000,1000,1000,1000,1000,1000,50,50,50,50,50,50,50,50};
-  double xhighHC[plots] = {5000,10,2,8000,20,20,20,20,8000,8000,8000,8000,10,10,10,10};
+  double xhighEC[plots] = {1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 50, 50, 50, 50, 50, 50, 50, 50};
+  double xhighHC[plots] = {5000, 10, 2, 8000, 20, 20, 20, 20, 8000, 8000, 8000, 8000, 10, 10, 10, 10};
   bool debug(true);
 
   std::string dirnm = (tag == "EC") ? "ecalDigiStudy" : "hcalDigiStudy";
@@ -523,50 +533,50 @@ void makeDigiStudyPlots(std::string tag = "HC", int todomin = 0,
     char name[100], namec[100];
     for (int i1 = todomin; i1 <= todomax; ++i1) {
       for (int i2 = 0; i2 < ndet; ++i2) {
-	if (tag == "EC") {
-	  sprintf(name, "%s %s %s", pretagEC.c_str(), detsEC[i2].c_str(), nameEC[i1].c_str());
-	  sprintf(namec, "c_%s_%s_%s", pretagEC.c_str(), detsEC[i2].c_str(), nameEC[i1].c_str());
-	} else {
-	  sprintf(name, "%s_%s_%s", pretagHC.c_str(), nameHC[i1].c_str(), detsHC[i2].c_str());
-	  sprintf(namec, "c_%s_%s_%s", pretagHC.c_str(), nameHC[i1].c_str(), detsHC[i2].c_str());
-	}
-	TH1D* hist0[nFiles];
-	for (int i3 = 0; i3 < nFiles; ++i3) {
-	  TDirectory* dir = (TDirectory*)file[i3]->FindObjectAny(dirnm.c_str());
-	  hist0[i3] = static_cast<TH1D*>(dir->FindObjectAny(name));
-	  if (debug)
-	    std::cout << name << " read out at " << hist0[i3] << " for " << tags[i3] << std::endl;
-	}
-	TCanvas* pad = new TCanvas(namec, namec, 500, 500);
-	int first(0);
-	double y1(0.90), dy(0.12);
-	double y2 = y1 - dy * nFiles - 0.01;
-	TLegend* leg = new TLegend(0.65, y2 - nFiles * 0.04, 0.90, y2);
+        if (tag == "EC") {
+          sprintf(name, "%s %s %s", pretagEC.c_str(), detsEC[i2].c_str(), nameEC[i1].c_str());
+          sprintf(namec, "c_%s_%s_%s", pretagEC.c_str(), detsEC[i2].c_str(), nameEC[i1].c_str());
+        } else {
+          sprintf(name, "%s_%s_%s", pretagHC.c_str(), nameHC[i1].c_str(), detsHC[i2].c_str());
+          sprintf(namec, "c_%s_%s_%s", pretagHC.c_str(), nameHC[i1].c_str(), detsHC[i2].c_str());
+        }
+        TH1D* hist0[nFiles];
+        for (int i3 = 0; i3 < nFiles; ++i3) {
+          TDirectory* dir = (TDirectory*)file[i3]->FindObjectAny(dirnm.c_str());
+          hist0[i3] = static_cast<TH1D*>(dir->FindObjectAny(name));
+          if (debug)
+            std::cout << name << " read out at " << hist0[i3] << " for " << tags[i3] << std::endl;
+        }
+        TCanvas* pad = new TCanvas(namec, namec, 500, 500);
+        int first(0);
+        double y1(0.90), dy(0.12);
+        double y2 = y1 - dy * nFiles - 0.01;
+        TLegend* leg = new TLegend(0.65, y2 - nFiles * 0.04, 0.90, y2);
         for (int i3 = 0; i3 < nFiles; ++i3) {
           TH1D* hist(hist0[i3]);
-	  if (debug)
-	    std::cout << i3 << " Tag " << tags[i3] << " hiist " << hist << std::endl;
+          if (debug)
+            std::cout << i3 << " Tag " << tags[i3] << " hiist " << hist << std::endl;
           if (hist != nullptr) {
             hist->SetLineColor(color[i3]);
             hist->SetLineStyle(lstyl[i3]);
             hist->GetYaxis()->SetTitleOffset(1.4);
-	    std::string title = hist->GetTitle();
-	    hist->GetXaxis()->SetTitle(title.c_str());
-	    hist->SetTitle("");
-	    if (tag == "EC") {
-	      if (rebinEC[i1] > 1)
-		hist->Rebin(rebinEC[i1]);
-	      hist->GetXaxis()->SetRangeUser(xlowEC[i1], xhighEC[i1]);
-	    } else {
-	      if (rebinHC[i1] > 1)
-               hist->Rebin(rebinHC[i1]);
-	      hist->GetXaxis()->SetRangeUser(xlowHC[i1], xhighHC[i1]);
-	    }
+            std::string title = hist->GetTitle();
+            hist->GetXaxis()->SetTitle(title.c_str());
+            hist->SetTitle("");
+            if (tag == "EC") {
+              if (rebinEC[i1] > 1)
+                hist->Rebin(rebinEC[i1]);
+              hist->GetXaxis()->SetRangeUser(xlowEC[i1], xhighEC[i1]);
+            } else {
+              if (rebinHC[i1] > 1)
+                hist->Rebin(rebinHC[i1]);
+              hist->GetXaxis()->SetRangeUser(xlowHC[i1], xhighHC[i1]);
+            }
             if (first == 0) {
               pad = new TCanvas(namec, namec, 500, 500);
               pad->SetRightMargin(0.10);
               pad->SetTopMargin(0.10);
-	      /*
+              /*
 	      if (tag == "EC") 
 		pad->SetLogy();
 	      */
@@ -591,12 +601,12 @@ void makeDigiStudyPlots(std::string tag = "HC", int todomin = 0,
             pad->Update();
             leg->Draw("same");
             pad->Update();
-	  }
-	}
-	if (save) {
-	  sprintf(name, "%s.pdf", pad->GetName());
-	  pad->Print(name);
-	}
+          }
+        }
+        if (save) {
+          sprintf(name, "%s.pdf", pad->GetName());
+          pad->Print(name);
+        }
       }
     }
   }
