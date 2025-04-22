@@ -125,7 +125,7 @@ StorageMaker *StorageFactory::getMaker(const std::string &url, std::string &prot
   return getMaker(protocol);
 }
 
-std::unique_ptr<Storage> StorageFactory::open(const std::string &url, int mode /* = IOFlags::OpenRead */) const {
+std::unique_ptr<Storage> StorageFactory::open(const std::string &url, const int mode /* = IOFlags::OpenRead */) const {
   std::string protocol;
   std::string rest;
   std::unique_ptr<Storage> ret;
@@ -136,15 +136,25 @@ std::unique_ptr<Storage> StorageFactory::open(const std::string &url, int mode /
       stats = std::make_unique<StorageAccount::Stamp>(StorageAccount::counter(token, StorageAccount::Operation::open));
     }
     try {
-      if (auto storage = maker->open(
-              protocol, rest, mode, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout))) {
-        if (dynamic_cast<LocalCacheFile *>(storage.get()))
-          protocol = "local-cache";
+      ret = maker->open(
+          protocol, rest, mode, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout));
+      if (ret) {
+        // Wrap the storage to LocalCacheFile if storage backend is
+        // not already using a local file, and lazy-download is requested
+        if (auto const useLocalFile = maker->usesLocalFile(); useLocalFile != StorageMaker::UseLocalFile::kNo) {
+          bool useCacheFile;
+          std::string path;
+          if (useLocalFile == StorageMaker::UseLocalFile::kCheckFromPath) {
+            path = rest;
+          }
+          std::tie(ret, useCacheFile) = wrapNonLocalFile(std::move(ret), protocol, path, mode);
+          if (useCacheFile) {
+            protocol = "local-cache";
+          }
+        }
 
         if (m_accounting)
-          ret = std::make_unique<StorageAccountProxy>(protocol, std::move(storage));
-        else
-          ret = std::move(storage);
+          ret = std::make_unique<StorageAccountProxy>(protocol, std::move(ret));
 
         if (stats)
           stats->tick();
@@ -208,11 +218,12 @@ bool StorageFactory::check(const std::string &url, IOOffset *size /* = 0 */) con
   return ret;
 }
 
-std::unique_ptr<Storage> StorageFactory::wrapNonLocalFile(std::unique_ptr<Storage> s,
-                                                          const std::string &proto,
-                                                          const std::string &path,
-                                                          int mode) const {
+std::tuple<std::unique_ptr<Storage>, bool> StorageFactory::wrapNonLocalFile(std::unique_ptr<Storage> s,
+                                                                            const std::string &proto,
+                                                                            const std::string &path,
+                                                                            const int mode) const {
   StorageFactory::CacheHint hint = cacheHint();
+  bool useCacheFile = false;
   if ((hint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD) || (mode & IOFlags::OpenWrap)) {
     if (mode & IOFlags::OpenWrite) {
       // For now, issue no warning - otherwise, we'd always warn on output files.
@@ -225,8 +236,9 @@ std::unique_ptr<Storage> StorageFactory::wrapNonLocalFile(std::unique_ptr<Storag
         s = std::make_unique<StorageAccountProxy>(proto, std::move(s));
       }
       s = std::make_unique<LocalCacheFile>(std::move(s), m_tempdir);
+      useCacheFile = true;
     }
   }
 
-  return s;
+  return {std::move(s), useCacheFile};
 }

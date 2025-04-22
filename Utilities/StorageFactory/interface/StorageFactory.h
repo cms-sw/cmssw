@@ -5,8 +5,11 @@
 #include "Utilities/StorageFactory/interface/LocalFileSystem.h"
 #include "Utilities/StorageFactory/interface/IOTypes.h"
 #include "Utilities/StorageFactory/interface/IOFlags.h"
-#include <string>
+
 #include <memory>
+#include <string>
+#include <tuple>
+
 #include "oneapi/tbb/concurrent_unordered_map.h"
 
 namespace edm::storage {
@@ -50,13 +53,8 @@ namespace edm::storage {
     double tempMinFree(void) const;
 
     void stagein(const std::string &url) const;
-    std::unique_ptr<Storage> open(const std::string &url, int mode = IOFlags::OpenRead) const;
+    std::unique_ptr<Storage> open(const std::string &url, const int mode = IOFlags::OpenRead) const;
     bool check(const std::string &url, IOOffset *size = nullptr) const;
-
-    std::unique_ptr<Storage> wrapNonLocalFile(std::unique_ptr<Storage> s,
-                                              const std::string &proto,
-                                              const std::string &path,
-                                              int mode) const;
 
   private:
     typedef oneapi::tbb::concurrent_unordered_map<std::string, std::shared_ptr<StorageMaker>> MakerTable;
@@ -64,6 +62,14 @@ namespace edm::storage {
     StorageFactory(void);
     StorageMaker *getMaker(const std::string &proto) const;
     StorageMaker *getMaker(const std::string &url, std::string &protocol, std::string &rest) const;
+
+    // Returns
+    // - Storage 's' possibly wrapped in LocalCacheFile
+    // - bool telling if LocalCacheFile is used
+    std::tuple<std::unique_ptr<Storage>, bool> wrapNonLocalFile(std::unique_ptr<Storage> s,
+                                                                const std::string &proto,
+                                                                const std::string &path,
+                                                                const int mode) const;
 
     mutable MakerTable m_makers;
     CacheHint m_cacheHint;
