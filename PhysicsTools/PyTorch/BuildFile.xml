@@ -1,8 +1,12 @@
+<use name="eigen"/>
+<use name="pytorch"/>
+<use name="pytorch-cuda"/>
+<use name="DataFormats/PyTorch"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/ServiceRegistry"/>
-<use name="pytorch"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
 <export>
   <lib name="1"/>
 </export>
