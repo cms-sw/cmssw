@@ -19,10 +19,18 @@ from PhysicsTools.NanoAOD.globals_cff import puTable
 scoutingMuonTableTask = cms.Task(scoutingMuonTable)
 scoutingMuonDisplacedVertexTableTask = cms.Task(scoutingMuonDisplacedVertexTable)
 
-# from 2024, there are two muon collections
-from Configuration.Eras.Modifier_run3_scouting_nanoAOD_post2023_cff import run3_scouting_nanoAOD_post2023
-run3_scouting_nanoAOD_post2023.toReplaceWith(scoutingMuonTableTask, cms.Task(scoutingMuonVtxTable, scoutingMuonNoVtxTable))\
+# from 2024, there are two muon collections (https://its.cern.ch/jira/browse/CMSHLT-3089)
+run3_scouting_nanoAOD_2024.toReplaceWith(scoutingMuonTableTask, cms.Task(scoutingMuonVtxTable, scoutingMuonNoVtxTable))\
     .toReplaceWith(scoutingMuonDisplacedVertexTableTask, cms.Task(scoutingMuonVtxDisplacedVertexTable, scoutingMuonNoVtxDisplacedVertexTable))
+
+# Scouting Electron
+scoutingElectronTableTask = cms.Task(scoutingElectronTable)
+
+# from 2023, scouting electron's tracks are added as std::vector since multiple tracks can be associated to a scouting electron
+# plugin to select the best track to reduce to a single track per scouting electron is added
+(run3_scouting_nanoAOD_2023 | run3_scouting_nanoAOD_2024).toReplaceWith(
+     scoutingElectronTableTask, cms.Task(scoutingElectronBestTrack, scoutingElectronTable)
+)
 
 # other collections are directly from original Run3Scouting objects, so unnessary to define tasks
 
@@ -90,7 +98,7 @@ def prepareScoutingNanoTaskCommon():
     # all scouting objects are saved except PF Candidate and Track
     scoutingNanoTaskCommon = cms.Task()
     scoutingNanoTaskCommon.add(scoutingMuonTableTask, scoutingMuonDisplacedVertexTableTask)
-    scoutingNanoTaskCommon.add(scoutingElectronTable)
+    scoutingNanoTaskCommon.add(scoutingElectronTableTask)
     scoutingNanoTaskCommon.add(scoutingPhotonTable)
     scoutingNanoTaskCommon.add(scoutingPrimaryVertexTable)
     scoutingNanoTaskCommon.add(scoutingPFJetTable)
@@ -242,4 +250,32 @@ def addScoutingParticle(process):
 def addScoutingPFCandidate(process):
     # PF candidate after translation to reco::PFCandidate
     process.scoutingNanoSequence.associate(scoutingPFCandidateTask)
+    return process
+
+# this adds all electron tracks in addition to best track selected
+def addScoutingElectronTrack(process):
+    process.scoutingElectronTable.externalVariables.bestTrack_index\
+            = ExtVar(cms.InputTag("scoutingElectronBestTrack", "Run3ScoutingElectronBestTrackIndex"), int, doc="best track index")
+
+    process.scoutingElectronTable.collectionVariables = cms.PSet(
+        ScoutingElectronTrack = cms.PSet(
+            name = cms.string("ScoutingElectronTrack"),
+            doc = cms.string("Scouting Electron Tracks"),
+            useCount = cms.bool(True),
+            useOffset = cms.bool(True),
+            variables = cms.PSet(
+                d0 = Var("trkd0", "float", doc="track d0"),
+                dz = Var("trkdz", "float", doc="track dz"),
+                pt = Var("trkpt", "float", doc="track pt"),
+                eta = Var("trketa", "float", doc="track eta"),
+                phi = Var("trkphi", "float", doc="track phi"),
+                pMode = Var("trkpMode", "float", doc="track pMode"),
+                etaMode = Var("trketaMode", "float", doc="track etaMode"),
+                phiMode = Var("trkphiMode", "float", doc="track phiMode"),
+                qoverpModeError = Var("trkqoverpModeError", "float", doc="track qoverpModeError"),
+                chi2overndf = Var("trkchi2overndf", "float", doc="track normalized chi squared"),
+                charge = Var("trkcharge", "int", doc="track charge"),
+            ),
+        ),
+    )
     return process
