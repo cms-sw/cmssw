@@ -79,7 +79,7 @@ namespace l1ct {
     UseEmInterp setEmInterpScenario(const std::string &emInterpScenario);
     bool slim_;
     l1ct::HgcalClusterDecoderEmulator::MultiClassID multiclass_id_;
-    l1tpf::corrector corrector_;  // FIXME: need to use it in "emulator" mode to be used in firmware testbench
+    l1tpf::corrector corrector_;
     UseEmInterp emInterpScenario_;
   };
 }  // namespace l1ct

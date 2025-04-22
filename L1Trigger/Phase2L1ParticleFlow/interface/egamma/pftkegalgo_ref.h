@@ -413,7 +413,6 @@ namespace l1ct {
                                     const pt_t ptCorr,
                                     const id_score_t bdtScore) const;
 
-    // FIXME: reimplemented from PFAlgoEmulatorBase
     template <typename T>
     void ptsort_ref(int nIn, int nOut, const std::vector<T> &in, std::vector<T> &out) const {
       out.resize(nOut);
