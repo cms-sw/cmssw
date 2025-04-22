@@ -28,6 +28,7 @@ namespace mkfit {
                              mkfit::HitVec& mkFitHits,
                              std::vector<TrackingRecHit const*>& clusterIndexToHit,
                              std::vector<int>& layerIndexToHit,
+                             std::vector<unsigned int>& layerSize,
                              std::vector<float>& clusterChargeVec,
                              const TrackerTopology& ttopo,
                              const TransientTrackingRecHitBuilder& ttrhBuilder,
@@ -100,6 +101,7 @@ namespace mkfit {
         if constexpr (Traits::applyCCC()) {
           clusterChargeVec[clusterIndex] = charge;
         }
+        layerSize[ilay]++;
 
         traits.setDetails(mkFitHits[clusterIndex], clu, uniqueIdInLayer, charge);
       }

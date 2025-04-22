@@ -58,6 +58,7 @@ private:
   const edm::EDPutTokenT<MkFitHitWrapper> wrapperPutToken_;
   const edm::EDPutTokenT<MkFitClusterIndexToHit> clusterIndexPutToken_;
   const edm::EDPutTokenT<std::vector<int>> layerIndexPutToken_;
+  const edm::EDPutTokenT<std::vector<unsigned int>> layerSizePutToken_;
   const edm::EDPutTokenT<std::vector<float>> clusterChargePutToken_;
   const ConvertHitTraits convertTraits_;
 };
@@ -72,6 +73,7 @@ MkFitSiStripHitConverter::MkFitSiStripHitConverter(edm::ParameterSet const& iCon
       wrapperPutToken_{produces()},
       clusterIndexPutToken_{produces()},
       layerIndexPutToken_{produces()},
+      layerSizePutToken_{produces()},
       clusterChargePutToken_{produces()},
       convertTraits_{static_cast<float>(
           iConfig.getParameter<edm::ParameterSet>("minGoodStripCharge").getParameter<double>("value"))} {}
@@ -100,6 +102,7 @@ void MkFitSiStripHitConverter::produce(edm::StreamID iID, edm::Event& iEvent, co
   MkFitClusterIndexToHit clusterIndexToHit;
   std::vector<int> layerIndexToHit;
   std::vector<float> clusterCharge;
+  std::vector<unsigned int> layerSize(mkFitGeom.trackerInfo().n_layers(), 0);
 
   edm::ProductID stripClusterID;
   const auto& stripRphiHits = iEvent.get(stripRphiRecHitToken_);
@@ -114,6 +117,7 @@ void MkFitSiStripHitConverter::produce(edm::StreamID iID, edm::Event& iEvent, co
                               hitWrapper.hits(),
                               clusterIndexToHit.hits(),
                               layerIndexToHit,
+                              layerSize,
                               clusterCharge,
                               ttopo,
                               ttrhBuilder,
@@ -139,6 +143,7 @@ void MkFitSiStripHitConverter::produce(edm::StreamID iID, edm::Event& iEvent, co
   iEvent.emplace(wrapperPutToken_, std::move(hitWrapper));
   iEvent.emplace(clusterIndexPutToken_, std::move(clusterIndexToHit));
   iEvent.emplace(layerIndexPutToken_, std::move(layerIndexToHit));
+  iEvent.emplace(layerSizePutToken_, std::move(layerSize));
   iEvent.emplace(clusterChargePutToken_, std::move(clusterCharge));
 }
 
