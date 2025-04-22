@@ -74,7 +74,7 @@ process.L1TInputTask = cms.Task(
 
 
 from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
-l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
+l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4NGJetProducer","l1tSC4NGJets"),
                                                nJets = cms.uint32(12),
                                                mht  = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
                                                nSums = cms.uint32(2)),
@@ -131,6 +131,9 @@ if not args.patternFilesOFF:
     process.l1tLayer1HGCalNoTK.patternWriters = cms.untracked.VPSet(*hgcalNoTKWriterConfigs)
     process.l1tLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
 
+process.l1tSC4NGJetProducer.l1tSC4NGJetModelPath = cms.string(os.environ['CMSSW_BASE']+"/src/L1TSC4NGJetModel/L1TSC4NGJetModel_v0")
+process.l1tSC4NGJetProducer.jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator")
+
 process.runPF = cms.Path( 
         # process.l1tSAMuonsGmt + 
         # process.l1tPhase2L1CaloEGammaEmulator + 
@@ -148,6 +151,7 @@ process.runPF = cms.Path(
         process.l1tLayer1 +
         process.l1tLayer2Deregionizer +
         process.l1tSC4PFL1PuppiCorrectedEmulator +
+        process.l1tSC4NGJetProducer +
         process.l1tSC4PFL1PuppiCorrectedEmulatorMHT +
         process.l1tSC8PFL1PuppiCorrectedEmulator +
         # process.l1tLayer2SeedConeJetWriter +
@@ -235,4 +239,5 @@ if args.tm18:
                 barrelSerenityVU13PTM18WriterConfig.clone(inputFileName = f"l1BarrelSerenityTM18-inputs-vu13p-ts{tmSlice}")
             )        
 
-process.source.fileNames  = [ '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v3/TTbar_PU200/inputs131X_1.root' ]
+#process.source.fileNames  = [ '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v3/TTbar_PU200/inputs131X_1.root' ]
+process.source.fileNames  =['file:/eos/cms/store/cmst3/group/l1tr/FastPUPPI/14_2_X/fpinputs_140X/v0/TT_PU200/inputs140X_18.root']
