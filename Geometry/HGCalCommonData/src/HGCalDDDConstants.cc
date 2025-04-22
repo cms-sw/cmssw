@@ -787,10 +787,11 @@ bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) co
   bool tileEx = trapezoidFile() ? tileExist(zside, layer, irad, iphi) : true;
 #ifdef EDM_ML_DEBUG
   if (!valid)
-    edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":" << irad
-				   << ":" << iphi << " Range on Ring " << hgpar_->scintValidRing(indx.first, irad)
-				   << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
-				   << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
+    edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":"
+                                   << irad << ":" << iphi << " Range on Ring "
+                                   << hgpar_->scintValidRing(indx.first, irad)
+                                   << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
+                                   << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
   else
     edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":"
                                    << irad << ":" << iphi << " Range on Ring "
@@ -1475,8 +1476,8 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
     ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi);
     if (!ok)
       edm::LogVerbatim("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-				     << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
-				     << ok;
+                                     << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
+                                     << ok;
     return ok;
   } else {
     int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
@@ -1484,8 +1485,8 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
     ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
     if (!ok)
       edm::LogVerbatim("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-				     << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
-				     << ok;
+                                     << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
+                                     << ok;
     return ok;
   }
   return ok;
