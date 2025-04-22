@@ -785,12 +785,12 @@ bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) co
   bool ok = ((hgpar_->scintValidRing(indx.first, irad)) && (iphi > 0) && (iphi <= hgpar_->scintCells(layer)));
   bool valid = ((ok && trapezoidFile()) ? tileExist(zside, layer, irad, iphi) : ok);
   bool tileEx = trapezoidFile() ? tileExist(zside, layer, irad, iphi) : true;
+#ifdef EDM_ML_DEBUG
   if (!valid)
     edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":" << irad
 				   << ":" << iphi << " Range on Ring " << hgpar_->scintValidRing(indx.first, irad)
 				   << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
 				   << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
-#ifdef EDM_ML_DEBUG
   else
     edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":"
                                    << irad << ":" << iphi << " Range on Ring "
