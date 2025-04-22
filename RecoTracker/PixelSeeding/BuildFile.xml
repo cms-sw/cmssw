@@ -23,9 +23,13 @@
 <use name="RecoTracker/TkMSParametrization"/>
 <use name="RecoTracker/TkTrackingRegions"/>
 <use name="TrackingTools/DetLayers"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
 <use name="vdt_headers"/>
+<use name="alpaka"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>
 <use name="ofast-flag"/>
 <flags CXXFLAGS="-fno-math-errno"/>
+

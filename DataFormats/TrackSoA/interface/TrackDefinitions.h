@@ -1,5 +1,5 @@
-#ifndef DataFormats_Track_interface_TrackDefinitions_h
-#define DataFormats_Track_interface_TrackDefinitions_h
+#ifndef DataFormats_TrackSoA_interface_TrackDefinitions_h
+#define DataFormats_TrackSoA_interface_TrackDefinitions_h
 #include <string>
 #include <algorithm>
 #include <stdexcept>

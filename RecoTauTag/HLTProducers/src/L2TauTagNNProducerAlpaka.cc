@@ -48,7 +48,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 
-#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
+#include "DataFormats/TrackSoA/interface/TracksSoA.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/VertexSoA/interface/ZVertexHost.h"
 
@@ -146,7 +146,7 @@ struct L2TauNNProducerAlpakaCacheData {
 
 class L2TauNNProducerAlpaka : public edm::stream::EDProducer<edm::GlobalCache<L2TauNNProducerAlpakaCacheData>> {
 public:
-  using TracksHost = pixelTrack::TracksHostPhase1;
+  using TracksHost = reco::TracksHost;
 
   struct caloRecHitCollections {
     const HBHERecHitCollection* hbhe;
@@ -575,7 +575,6 @@ void L2TauNNProducerAlpaka::selectGoodTracksAndVertices(const ZVertexHost& patav
                                                         const TracksHost& patatracks_tsoa,
                                                         std::vector<int>& trkGood,
                                                         std::vector<int>& vtxGood) {
-  using patatrackHelpers = TracksUtilities<pixelTopology::Phase1>;
   const auto maxTracks = patatracks_tsoa.view().metadata().size();
   const int nv = patavtx_soa.view().nvFinal();
   trkGood.clear();
@@ -589,8 +588,8 @@ void L2TauNNProducerAlpaka::selectGoodTracksAndVertices(const ZVertexHost& patav
   std::vector<int> nTrkAssociated(nv, 0);
 
   for (int32_t trk_idx = 0; trk_idx < maxTracks; ++trk_idx) {
-    auto nHits = patatrackHelpers::nHits(patatracks_tsoa.view(), trk_idx);
-    if (nHits == 0) {
+    auto n_hits = nHits(patatracks_tsoa.view(), trk_idx);
+    if (n_hits == 0) {
       break;
     }
     int vtx_ass_to_track = patavtx_soa.view<reco::ZVertexTracksSoA>()[trk_idx].idv();
@@ -602,7 +601,7 @@ void L2TauNNProducerAlpaka::selectGoodTracksAndVertices(const ZVertexHost& patav
         pTSquaredSum[vtx_ass_to_track] += patatrackPt * patatrackPt;
       }
     }
-    if (nHits > 0 and quality[trk_idx] >= pixelTrack::Quality::loose) {
+    if (n_hits > 0 and quality[trk_idx] >= pixelTrack::Quality::loose) {
       trkGood.push_back(trk_idx);
     }
   }
@@ -627,7 +626,7 @@ std::pair<float, float> L2TauNNProducerAlpaka::impactParameter(int it,
   /* dxy and dz */
   riemannFit::Vector5d ipar, opar;
   riemannFit::Matrix5d icov, ocov;
-  TracksUtilities<pixelTopology::Phase1>::copyToDense(patatracks_tsoa.view(), ipar, icov, it);
+  copyToDense(patatracks_tsoa.view(), ipar, icov, it);
   riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
   LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);
   float sp = std::sin(patatrackPhi);
@@ -657,7 +656,7 @@ void L2TauNNProducerAlpaka::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
                                            const reco::BeamSpot& beamspot,
                                            const MagneticField* magfi) {
   using NNInputs = L2TauTagNNv1::NNInputs;
-  using patatrackHelpers = TracksUtilities<pixelTopology::Phase1>;
+
   float deta, dphi;
   int eta_idx = 0;
   int phi_idx = 0;
@@ -685,10 +684,10 @@ void L2TauNNProducerAlpaka::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
       const float patatrackEta = patatracks_tsoa.const_view()[it].eta();
       const float patatrackCharge = reco::charge(patatracks_tsoa.const_view(), it);
       const float patatrackChi2OverNdof = patatracks_tsoa.view()[it].chi2();
-      const auto nHits = patatrackHelpers::nHits(patatracks_tsoa.const_view(), it);
-      if (nHits <= 0)
+      const auto n_hits = nHits(patatracks_tsoa.const_view(), it);
+      if (n_hits <= 0)
         continue;
-      const int patatrackNdof = 2 * std::min(6, nHits) - 5;
+      const int patatrackNdof = 2 * std::min(6, n_hits) - 5;
 
       const int vtx_idx_assTrk = patavtx_soa.view<reco::ZVertexTracksSoA>()[it].idv();
       if (reco::deltaR2(patatrackEta, patatrackPhi, tauEta, tauPhi) < dR2_max) {
