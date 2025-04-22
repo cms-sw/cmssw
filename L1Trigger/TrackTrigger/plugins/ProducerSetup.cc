@@ -123,6 +123,7 @@ namespace tt {
     iConfig_.offsetLayerDisks_ = pSetDTC.getParameter<int>("OffsetLayerDisks");
     iConfig_.offsetLayerId_ = pSetDTC.getParameter<int>("OffsetLayerId");
     iConfig_.numBarrelLayer_ = pSetDTC.getParameter<int>("NumBarrelLayer");
+    iConfig_.numBarrelLayerPS_ = pSetDTC.getParameter<int>("NumBarrelLayerPS");
     iConfig_.slotLimitPS_ = pSetDTC.getParameter<int>("SlotLimitPS");
     iConfig_.slotLimit10gbps_ = pSetDTC.getParameter<int>("SlotLimit10gbps");
     const edm::ParameterSet& pSetTFP = iConfig.getParameter<edm::ParameterSet>("TFP");

@@ -82,8 +82,10 @@ namespace trklet {
 
   // call old KF
   void KalmanFilter::simulate(tt::StreamsStub& streamsStub, tt::StreamsTrack& streamsTrack) {
+    // prep finals_ where old KF tracks will be stored
     finals_.reserve(states_.size());
     for (const State& state : states_) {
+      // convert tracks to by old KF expected data formats
       TrackDR* trackFound = state.track();
       const TTTrackRef& ttTrackRef = trackFound->frame().first;
       const double qOverPt = -trackFound->inv2R() / setup_->invPtToDphi();
@@ -92,6 +94,7 @@ namespace trklet {
       const double tanLambda = trackFound->zT() / setup_->chosenRofZ();
       static constexpr double z0 = 0;
       static constexpr double helixD0 = 0.;
+      // convert stubs to by old KF expected data formats
       std::vector<tmtt::Stub> stubs;
       std::vector<tmtt::Stub*> stubsFound;
       stubs.reserve(state.trackPattern().count());
@@ -103,6 +106,7 @@ namespace trklet {
         const StubDR& stub = stubsState[layer]->stubDR_;
         const TTStubRef& ttStubRef = stub.frame().first;
         tt::SensorModule* sensorModule = setup_->sensorModule(ttStubRef);
+        // convert position
         double r, phi, z;
         if (setup_->kfUseTTStubResiduals()) {
           const GlobalPoint gp = setup_->stubPos(ttStubRef);
@@ -115,6 +119,7 @@ namespace trklet {
                              region_ * setup_->baseRegion());
           z = stub.z() + trackFound->zT() + (r - setup_->chosenRofZ()) * tanLambda;
         }
+        // convert stub layer id (barrel: 1 - 6, endcap: 11 - 15) to reduced layer id (0 - 6)
         int layerId = setup_->layerId(ttStubRef);
         if (layerId > 10 && z < 0.)
           layerId += 10;
@@ -138,6 +143,7 @@ namespace trklet {
             ttStubRef, r, phi, z, layerId, layerIdReduced, stripPitch, stripLength, psModule, barrel, tiltedBarrel);
         stubsFound.push_back(&stubs.back());
       }
+      // determine phi and eta region
       const int iPhiSec = region_;
       const double zTtrack = ttTrackRef->z0() + settings_->chosenRofZ() * ttTrackRef->tanL();
       int iEtaReg = 0;
@@ -145,9 +151,11 @@ namespace trklet {
         if (zTtrack < zTs_[iEtaReg + 1])
           break;
       const tmtt::L1track3D l1track3D(settings_, stubsFound, qOverPt, phi0, z0, tanLambda, helixD0, iPhiSec, iEtaReg);
+      // perform fit
       const tmtt::L1fittedTrack trackFitted(tmtt_->fit(l1track3D));
       if (!trackFitted.accepted())
         continue;
+      // convert olf kf fitted track format into emulator format
       static constexpr int trackId = 0;
       static constexpr int numConsistent = 0;
       static constexpr int numConsistentPS = 0;
@@ -156,6 +164,7 @@ namespace trklet {
           tt::deltaPhi(trackFitted.phi0() + inv2R * setup_->chosenRofPhi() - region_ * setup_->baseRegion());
       const double cot = trackFitted.tanLambda();
       const double zT = trackFitted.z0() + cot * setup_->chosenRofZ();
+      // check for bit overflows
       if (!dataFormats_->format(Variable::inv2R, Process::kf).inRange(inv2R, true))
         continue;
       if (!dataFormats_->format(Variable::phiT, Process::kf).inRange(phiT, true))
@@ -170,16 +179,19 @@ namespace trklet {
       const double x2 = cot - tanLambda;
       const double x3 = zT - trackFound->zT();
       const double x4 = d0;
+      // get intput stubs and convert to emulator format
       TTBV hitPattern(0, setup_->numLayers());
       std::vector<StubKF> stubsKF;
       stubsKF.reserve(setup_->numLayers());
       for (tmtt::Stub* stub : trackFitted.stubs()) {
         if (!stub)
           continue;
+        // get stub
         const auto it = std::find_if(stubsState.begin(), stubsState.end(), [stub](Stub* state) {
           return state && (stub->ttStubRef() == state->stubDR_.frame().first);
         });
         const StubDR& s = (*it)->stubDR_;
+        // convert position relative to track
         const double r = s.r();
         const double r0 = r + setup_->chosenRofPhi();
         const double phi = s.phi() - (x1 + r * x0 + x4 / r0);
@@ -187,6 +199,7 @@ namespace trklet {
         const double dPhi = s.dPhi();
         const double dZ = s.dZ();
         const int layer = std::distance(stubsState.begin(), it);
+        // check for bit overflows
         if (!dataFormats_->format(Variable::phi, Process::kf).inRange(phi, true))
           continue;
         if (!dataFormats_->format(Variable::z, Process::kf).inRange(z, true))
@@ -194,8 +207,10 @@ namespace trklet {
         hitPattern.set(layer);
         stubsKF.emplace_back(s, r, phi, z, dPhi, dZ);
       }
+      // check if enough stubs left to form a track
       if (hitPattern.count() < setup_->kfMinLayers())
         continue;
+      // store track
       const TrackKF trackKF(*trackFound, inv2R, phiT, cot, zT);
       finals_.emplace_back(trackId, numConsistent, numConsistentPS, d0, hitPattern, trackKF, stubsKF);
     }
@@ -217,7 +232,7 @@ namespace trklet {
     } else {  // 4 parameter fit emulation
       // seed building
       for (layer_ = 0; layer_ < setup_->kfMaxSeedingLayer(); layer_++)
-        addSeedLayer();
+        addLayer(true);
       // calulcate seed parameter
       calcSeeds();
       // Propagate state to each layer in turn, updating it with all viable stub combinations there, using KF maths
@@ -442,42 +457,21 @@ namespace trklet {
     }
   }
 
-  // adds a layer to states to build seeds
-  void KalmanFilter::addSeedLayer() {
-    // Latency of KF Associator block firmware
-    static constexpr int latency = 5;
-    // dynamic state container for clock accurate emulation
-    std::deque<State*> streamOutput;
-    // Memory stack used to handle combinatorics
-    std::deque<State*> stack;
-    // static delay container
-    std::deque<State*> delay(latency, nullptr);
-    // each trip corresponds to a f/w clock tick
-    // done if no states to process left, taking as much time as needed
-    while (!stream_.empty() || !stack.empty() ||
-           !std::all_of(delay.begin(), delay.end(), [](const State* state) { return state == nullptr; })) {
-      State* state = pop_front(stream_);
-      // Process a combinatoric state if no (non-combinatoric?) state available
-      if (!state)
-        state = pop_front(stack);
-      streamOutput.push_back(state);
-      // The remainder of the code in this loop deals with combinatoric states.
-      if (state)
-        state = state->combSeed(states_, layer_);
-      delay.push_back(state);
-      state = pop_front(delay);
-      if (state)
-        stack.push_back(state);
-    }
-    stream_ = streamOutput;
-    // Update state with next stub using KF maths
-    for (State*& state : stream_)
-      if (state)
-        state = state->update(states_, layer_);
-  }
-
   // adds a layer to states
-  void KalmanFilter::addLayer() {
+  void KalmanFilter::addLayer(bool seed) {
+    auto comb = [seed, this](State*& s) {
+      if (s)
+        s = seed ? s->combSeed(states_, layer_) : s->comb(states_, layer_);
+    };
+    auto param = [this](State*& s) { setup_->kfUse5ParameterFit() ? this->update5(s) : this->update4(s); };
+    auto update = [seed, param, this](State*& s) {
+      if (s && (seed || s->hitPattern().pmEncode() == layer_)) {
+        if (seed)
+          s = s->update(states_, layer_);
+        else
+          param(s);
+      }
+    };
     // Latency of KF Associator block firmware
     static constexpr int latency = 5;
     // dynamic state container for clock accurate emulation
@@ -496,8 +490,7 @@ namespace trklet {
         state = pop_front(stack);
       streamOutput.push_back(state);
       // The remainder of the code in this loop deals with combinatoric states.
-      if (state)
-        state = state->comb(states_, layer_);
+      comb(state);
       delay.push_back(state);
       state = pop_front(delay);
       if (state)
@@ -506,8 +499,7 @@ namespace trklet {
     stream_ = streamOutput;
     // Update state with next stub using KF maths
     for (State*& state : stream_)
-      if (state && state->hitPattern().pmEncode() == layer_)
-        update(state);
+      update(state);
   }
 
   // updates state

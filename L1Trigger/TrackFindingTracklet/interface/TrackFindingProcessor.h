@@ -13,7 +13,11 @@
 
 namespace trklet {
 
-  // Class to format final tfp output and to prodcue final TTTrackCollection
+  /*! \class  trklet::TrackFindingProcessor
+   *  \brief  Class to format final tfp output and to prodcue final TTTrackCollection
+   *  \author Thomas Schuh
+   *  \date   2025, Apr
+   */
   class TrackFindingProcessor {
   public:
     TrackFindingProcessor(const tt::Setup* setup_,
@@ -31,17 +35,17 @@ namespace trklet {
     void produce(const std::vector<TTTrackRef>& inputs, tt::StreamsTrack& outputs) const;
 
   private:
-    //
+    // number of bits used to describe one part of a track (96 bit)
     static constexpr int partial_width = 32;
-    //
+    // number of track parts arriving per clock tick (1 track per tick)
     static constexpr int partial_in = 3;
-    //
+    // number of track parts leaving per clock tick (TFP sends 2/3 tracks per clock and link)
     static constexpr int partial_out = 2;
-    //
+    // type describing one part of a track
     typedef std::bitset<partial_width> PartialFrame;
-    //
+    // type describing one part of a track together with its edm ref
     typedef std::pair<const TTTrackRef&, PartialFrame> PartialFrameTrack;
-    //
+    // type representing a track
     struct Track {
       Track(const tt::FrameTrack& frameTrack,
             const tt::Frame& frameTQ,

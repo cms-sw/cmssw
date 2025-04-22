@@ -111,6 +111,7 @@ namespace tt {
         offsetLayerDisks_(iConfig.offsetLayerDisks_),
         offsetLayerId_(iConfig.offsetLayerId_),
         numBarrelLayer_(iConfig.numBarrelLayer_),
+        numBarrelLayerPS_(iConfig.numBarrelLayerPS_),
         slotLimitPS_(iConfig.slotLimitPS_),
         slotLimit10gbps_(iConfig.slotLimit10gbps_),
         // Parmeter specifying TFP
@@ -382,7 +383,6 @@ namespace tt {
     const DetId& detId = ttStubRef->getDetId();
     SensorModule* sm = sensorModule(detId + 1);
     return sm->psModule();
-    //return trackerGeometry_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP;
   }
 
   //

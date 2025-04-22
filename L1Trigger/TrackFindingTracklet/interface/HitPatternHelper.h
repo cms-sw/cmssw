@@ -60,27 +60,20 @@ namespace hph {
     bool hphDebug() const { return hphDebug_; }
     bool useNewKF() const { return useNewKF_; }
     double chosenRofZ() const { return chosenRofZ_; }
-    std::vector<double> etaRegions() const { return etaRegions_; }
-    std::map<int, std::map<int, std::vector<int>>> layermap() const { return layermap_; }
+    const std::vector<double>& etaRegions() const { return etaRegions_; }
+    const std::map<int, std::map<int, std::vector<int>>>& layermap() const { return layermap_; }
     int nKalmanLayers() const { return nKalmanLayers_; }
     int etaRegion(double z0, double cot, bool useNewKF) const;
-    int digiCot(double cot, int binEta) const;
-    int digiZT(double z0, double cot, int binEta) const;
-    const std::vector<int> layerEncoding(int binEta, int binZT, int binCot) const {
-      //return layerEncoding_.layerEncoding(binEta, binZT, binCot);
-      return std::vector<int>();
-    }
-    const std::map<int, const tt::SensorModule*> layerEncodingMap(int binEta, int binZT, int binCot) const {
-      //return layerEncoding_.layerEncodingMap(binEta, binZT, binCot);
-      return std::map<int, const tt::SensorModule*>();
+    const std::vector<int>& layerEncoding(double zT) const { return layerEncoding_->layerEncoding(zT); }
+    // LayerEncoding call filling numPS, num2S, numMissingPS and numMissingPS for given hitPattern and trajectory
+    void analyze(
+        int hitpattern, double cot, double z0, int& numPS, int& num2S, int& numMissingPS, int& numMissing2S) const {
+      layerEncoding_->analyze(hitpattern, cot, z0, numPS, num2S, numMissingPS, numMissing2S);
     }
 
   private:
-    const tt::Setup setupTT_;  // Helper class to store TrackTrigger configuration
-    const trackerTFP::DataFormats dataFormats_;
-    const trackerTFP::DataFormat dfcot_;
-    const trackerTFP::DataFormat dfzT_;
-    const trackerTFP::LayerEncoding layerEncoding_;
+    const tt::Setup* setupTT_;  // Helper class to store TrackTrigger configuration
+    const trackerTFP::LayerEncoding* layerEncoding_;
     bool hphDebug_;
     bool useNewKF_;
     double chosenRofZNewKF_;
@@ -116,8 +109,10 @@ namespace hph {
     int numMissingInterior2() {
       return numMissingInterior2_;
     }  //The number of missing interior layers (using hitpattern, layermap from Old KF and sensor modules)
-    std::vector<int> binary() { return binary_; }  //11-bit hitmask needed by TrackQuality.cc (0~5->L1~L6;6~10->D1~D5)
-    std::vector<float> bonusFeatures() { return bonusFeatures_; }  //bonus features for track quality
+    const std::vector<int>& binary() {
+      return binary_;
+    }  //11-bit hitmask needed by TrackQuality.cc (0~5->L1~L6;6~10->D1~D5)
+    const std::vector<float>& bonusFeatures() { return bonusFeatures_; }  //bonus features for track quality
 
     int reducedId(
         int layerId);  //Converts layer ID (1~6->L1~L6;11~15->D1~D5) to reduced layer ID (0~5->L1~L6;6~10->D1~D5)
@@ -130,11 +125,8 @@ namespace hph {
     std::vector<double> etaRegions_;
     std::map<int, std::map<int, std::vector<int>>> layermap_;
     int nKalmanLayers_;
-    int etaBin_;
-    int cotBin_;
-    int zTBin_;
+    double zT_;
     std::vector<int> layerEncoding_;
-    std::map<int, const tt::SensorModule*> layerEncodingMap_;
     int numExpLayer_;
     int hitpattern_;
     int etaSector_;

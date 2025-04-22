@@ -105,18 +105,12 @@ namespace trklet {
     void calcSeeds();
     // Transform States into output products
     void conv(tt::StreamsStub& streamsStub, tt::StreamsTrack& streamsTrack);
-    // adds a layer to states
-    void addLayer();
-    // adds a layer to states to build seeds
-    void addSeedLayer();
-    // Assign next combinatoric (i.e. not first in layer) stub to state
-    void comb(State*& state);
+    // adds a layer to states, bool indicating if in seeding process
+    void addLayer(bool seed = false);
     // apply final cuts
     void finalize();
     // best state selection
     void accumulator();
-    // updates state
-    void update(State*& state) { setup_->kfUse5ParameterFit() ? update5(state) : update4(state); }
     // updates state using 4 paramter fit
     void update4(State*& state);
     // updates state using 5 parameter fit

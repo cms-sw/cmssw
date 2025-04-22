@@ -115,4 +115,39 @@ namespace trackerTFP {
     return maybePattern(binZT);
   }
 
+  // fills numPS, num2S, numMissingPS and numMissingPS for given hitPattern and trajectory
+  void LayerEncoding::analyze(
+      int hitpattern, double cot, double z0, int& numPS, int& num2S, int& numMissingPS, int& numMissing2S) const {
+    // look up layer encoding nad maybe pattern
+    const double zT = z0 + setup_->chosenRofZ() * cot;
+    const std::vector<int>& le = this->layerEncoding(zT);
+    const TTBV& mp = this->maybePattern(zT);
+    const TTBV hp(hitpattern, setup_->numLayers());
+    // loop from innermost layer to outermost hitted layer
+    for (int layerIdKF = 0; layerIdKF <= hp.pmEncode(); layerIdKF++) {
+      // look up layer Id [1-6 barrel, 11-15 disks]
+      const int layerId = le[layerIdKF];
+      // identify module type
+      bool ps = layerId <= setup_->numBarrelLayerPS();
+      const bool barrel = layerId <= setup_->numBarrelLayer();
+      if (!barrel) {
+        // calc disk id (0 - 4)
+        const int diskId = layerId - setup_->offsetLayerDisks() - setup_->offsetLayerId();
+        // avergae disk z position
+        const double z = setup_->hybridDiskZ(diskId) * (cot < 0. ? -1. : 1.);
+        // innermost edge of 2S modules
+        const double rLimit = setup_->disk2SR(diskId, 0) - setup_->pitchCol2S();
+        // trajectory radius at avergae disk z position
+        const double r = (z - z0) / cot;
+        // compare with innermost edge of 2S modules to identify PS
+        if (r < rLimit)
+          ps = true;
+      }
+      if (hp.test(layerIdKF))  // layer is hit
+        ps ? numPS++ : num2S++;
+      else if (!mp.test(layerIdKF))  // layer is not hit but should have been hitted (roughly by) trajectory
+        ps ? numMissingPS++ : numMissing2S++;
+    }
+  }
+
 }  // namespace trackerTFP

@@ -28,6 +28,9 @@ namespace trackerTFP {
     const TTBV& maybePattern(int zT) const;
     // pattern of maybe layers for given zT in cm
     const TTBV& maybePattern(double zT) const;
+    // fills numPS, num2S, numMissingPS and numMissingPS for given hitPattern and trajectory
+    void analyze(
+        int hitpattern, double cot, double z0, int& numPS, int& num2S, int& numMissingPS, int& numMissing2S) const;
 
   private:
     // helper class providing run-time constants

@@ -124,7 +124,8 @@ TrackTrigger_params = cms.PSet (
     OffsetDetIdTP         = cms.int32( -1 ), # tk layout det id minus TrackerTopology lower det id
     OffsetLayerDisks      = cms.int32( 10 ), # offset in layer ids between barrel layer and endcap disks
     OffsetLayerId         = cms.int32(  1 ), # offset between 0 and smallest layer id (barrel layer 1)
-    NumBarrelLayer        = cms.int32(  6 ), #
+    NumBarrelLayer        = cms.int32(  6 ), # number of barrel layer
+    NumBarrelLayerPS      = cms.int32(  3 ), # number of barrel ps layer
     SlotLimitPS           = cms.int32(  6 ), # slot number changing from PS to 2S
     SlotLimit10gbps       = cms.int32(  3 )  # slot number changing from 10 gbps to 5gbps
   ),
@@ -177,25 +178,25 @@ TrackTrigger_params = cms.PSet (
     UseSimmulation           = cms.bool  ( False ), # simulate KF instead of emulate
     UseTTStubResiduals       = cms.bool  ( True  ), # stub residuals and radius are recalculated from seed parameter and TTStub position
     UseTTStubParameters      = cms.bool  ( True  ), # track parameter are recalculated from seed TTStub positions
-    ApplyNonLinearCorrection = cms.bool  ( True  ), # 
+    ApplyNonLinearCorrection = cms.bool  ( True  ), # aplly correction to stub position making trajectory appear linear
     NumWorker                = cms.int32 (   1   ), # number of kf worker
     MaxTracks                = cms.int32 (  63   ), # max number of tracks a kf worker can process
     RangeFactor              = cms.double(   3.0 ), # search window of each track parameter in initial uncertainties
     MinLayers                = cms.int32 (   4   ), # required number of stub layers to form a track
     MinLayersPS              = cms.int32 (   0   ), # required number of ps stub layers to form a track
     MaxLayers                = cms.int32 (   8   ), # maximum number of  layers added to a track
-    MaxGaps                  = cms.int32 (   4   ), # 
-    MaxSeedingLayer          = cms.int32 (   4   ), # 
-    NumSeedStubs             = cms.int32 (   2   ), # 
-    MinSeedDeltaR            = cms.double(   1.6 ), #
+    MaxGaps                  = cms.int32 (   4   ), # maximum number of layer gaps allowed during cominatorical track building
+    MaxSeedingLayer          = cms.int32 (   4   ), # perform seeding in layers 0 to this
+    NumSeedStubs             = cms.int32 (   2   ), # number of stubs forming a seed
+    MinSeedDeltaR            = cms.double(   1.6 ), # don't build seeds with smaller radial difference as this in cm
     ShiftInitialC00          = cms.int32 (   0   ), # initial C00 is given by inv2R uncertainty squared times this power of 2
     ShiftInitialC11          = cms.int32 (   0   ), # initial C11 is given by phiT uncertainty squared times this power of 2
     ShiftInitialC22          = cms.int32 (   0   ), # initial C22 is given by cot uncertainty squared times this power of 2
     ShiftInitialC33          = cms.int32 (   0   ), # initial C33 is given by zT uncertainty squared times this power of 2
-    ShiftChi20               = cms.int32 (  -1   ), #
-    ShiftChi21               = cms.int32 (  -5   ), #
-    CutChi2                  = cms.double(   2.0 ), #
-    WidthChi2                = cms.int32 (   8   )  #
+    ShiftChi20               = cms.int32 (  -1   ), # shiting chi2 in r-phi plane by power of two when caliclating chi2
+    ShiftChi21               = cms.int32 (  -5   ), # shiting chi2 in r-z plane by power of two when caliclating chi2
+    CutChi2                  = cms.double(   2.0 ), # cut on chi2 over degree of freedom
+    WidthChi2                = cms.int32 (   8   )  # number of bits used to represent chi2 over degree of freedom
   ),
 
   # Parmeter specifying DuplicateRemoval
