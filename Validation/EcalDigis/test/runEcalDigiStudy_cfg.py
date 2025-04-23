@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runHcalDigiStudy_cfg.py IPType=FullSimSignalwithFullSimPU
+#   cmsRun runEcalDigiStudy_cfg.py IPType=FullSimSignalwithFullSimPU
 #
 #   Options for IPType FastSimSignalwithFastSimPU, FullSimSignalwithFastSimPU,
 #                      FullSimSignalwithFullSimPU
@@ -22,7 +22,7 @@ options.register('IPType',
 process = cms.Process('DigiStudy')
 
 fileInput = "file:/eos/user/s/sarkar/Simulation/PUMixing/" + options.IPType + ".root"
-fileName = "HC" + options.IPType + ".root"
+fileName = "EC" + options.IPType + ".root"
 
 print("Input file:    ", fileInput)
 print("Output file:   ", fileName)
@@ -32,10 +32,12 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
-process.load('Validation.HcalDigis.hcalDigiStudy_cfi')
+process.load('Validation.EcalDigis.ecalDigiStudy_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2023_realistic', '')
+
+#process.MessageLogger.EcalDigiStudy=dict()
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(fileInput) )
@@ -48,9 +50,8 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 process.raw2digi_step = cms.Path(process.RawToDigi)
-process.analysis_step = cms.Path(process.hcalDigiStudy)
-process.hcalDigiStudy.TestNumber = True
-#process.hcalDigiStudy.simHits = "fastSimProducer:HcalHits"
+process.analysis_step = cms.Path(process.ecalDigiStudy)
+#process.ecalDigiStudy.verbose = True
 
 # Schedule definition
 process.schedule = cms.Schedule(
