@@ -99,7 +99,26 @@ namespace SiPixelTemplateReco {
                       std::vector<std::pair<int, int> >& zeropix,
                       float& probQ,
                       int& nypix,
-                      int& nxpix);
+                      int& nxpix,
+                      bool goodEdgeAlgo);
+
+  int PixelTempReco1D(int id,
+                      float cotalpha,
+                      float cotbeta,
+                      float locBz,
+                      float locBx,
+                      ClusMatrix& cluster,
+                      SiPixelTemplate& templ,
+                      float& yrec,
+                      float& sigmay,
+                      float& proby,
+                      float& xrec,
+                      float& sigmax,
+                      float& probx,
+                      int& qbin,
+                      int speed,
+                      float& probQ,
+                      bool goodEdgeAlgo);
 
   int PixelTempReco1D(int id,
                       float cotalpha,

@@ -20,7 +20,8 @@ PixelCPEFastParamsHost<TrackerTraits>::PixelCPEFastParamsHost(edm::ParameterSet 
                                                               const TrackerTopology& ttopo,
                                                               const SiPixelLorentzAngle* lorentzAngle,
                                                               const SiPixelGenErrorDBObject* genErrorDBObject,
-                                                              const SiPixelLorentzAngle* lorentzAngleWidth)
+                                                              const SiPixelLorentzAngle* lorentzAngleWidth,
+                                                              const bool goodEdgeAlgo)
     : PixelCPEGenericBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth),
       buffer_(cms::alpakatools::make_host_buffer<pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>>()) {
   // Use errors from templates or from GenError
@@ -30,7 +31,7 @@ PixelCPEFastParamsHost<TrackerTraits>::PixelCPEFastParamsHost(edm::ParameterSet 
           << "ERROR: GenErrors not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
           << (*genErrorDBObject_).version();
   }
-
+  goodEdgeAlgo_ = goodEdgeAlgo;
   fillParamsForDevice();
 }
 
@@ -43,7 +44,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   buffer_->commonParams().theThicknessB = m_DetParams.front().theThickness;
   buffer_->commonParams().theThicknessE = m_DetParams.back().theThickness;
   buffer_->commonParams().numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
-
+  buffer_->commonParams().goodEdgeAlgo_ = goodEdgeAlgo_;
   LogDebug("PixelCPEFastParamsHost") << "thickness " << buffer_->commonParams().theThicknessB << ' '
                                      << buffer_->commonParams().theThicknessE;
 

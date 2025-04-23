@@ -42,6 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     edm::ParameterSet pset_;
     bool useErrorsFromTemplates_;
+    bool goodEdgeAlgo_;
   };
 
   using namespace edm;
@@ -52,6 +53,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const& myname = p.getParameter<std::string>("ComponentName");
     auto const& magname = p.getParameter<edm::ESInputTag>("MagneticFieldRecord");
     useErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
+    goodEdgeAlgo_ = p.getParameter<bool>("GoodEdgeAlgo");
 
     auto cc = setWhatProduced(this, myname);
     magfieldToken_ = cc.consumes(magname);
@@ -84,7 +86,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                    iRecord.get(hTTToken_),
                                                                    &iRecord.get(lorentzAngleToken_),
                                                                    genErrorDBObjectProduct,
-                                                                   lorentzAngleWidthProduct);
+                                                                   lorentzAngleWidthProduct,
+                                                                   goodEdgeAlgo_);
   }
 
   template <typename TrackerTraits>
@@ -103,6 +106,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("EdgeClusterErrorY", 85.0);
     desc.add<bool>("UseErrorsFromTemplates", true);
     desc.add<bool>("TruncatePixelCharge", true);
+    desc.add<bool>("GoodEdgeAlgo", false);
 
     std::string name = "PixelCPEFastParams";
     name += TrackerTraits::nameModifier;

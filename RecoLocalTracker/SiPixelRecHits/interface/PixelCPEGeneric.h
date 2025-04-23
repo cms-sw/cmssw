@@ -81,12 +81,14 @@ protected:
   float the_eff_charge_cut_highY;
   float the_size_cutX;
   float the_size_cutY;
+  float delta_length_cut;
 
   bool inflate_errors;
   bool inflate_all_errors_no_trk_angle;
 
   bool DoCosmics_;
   bool IrradiationBiasCorrection_;
+  bool goodEdgeAlgo_;
   bool isPhase2_;
   bool NoTemplateErrorsWhenNoTrkAngles_;
 
