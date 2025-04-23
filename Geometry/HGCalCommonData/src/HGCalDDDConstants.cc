@@ -787,11 +787,10 @@ bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) co
 #ifdef EDM_ML_DEBUG
   bool tileEx = trapezoidFile() ? tileExist(zside, layer, irad, iphi) : true;
   if (!valid)
-    edm::LogWarning("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":"
-                                   << irad << ":" << iphi << " Range on Ring "
-                                   << hgpar_->scintValidRing(indx.first, irad)
-                                   << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
-                                   << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
+    edm::LogWarning("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":" << irad
+                                  << ":" << iphi << " Range on Ring " << hgpar_->scintValidRing(indx.first, irad)
+                                  << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
+                                  << " Valid " << ok << ":" << tileExist(zside, layer, irad, iphi) << ":" << valid;
   else
     edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":"
                                    << irad << ":" << iphi << " Range on Ring "
@@ -1477,8 +1476,8 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
 #ifdef EDM_ML_DEBUG
     if (!ok)
       edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-                                     << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
-                                     << ok;
+                                    << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
+                                    << ok;
 #endif
     return ok;
   } else {
@@ -1488,8 +1487,8 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
 #ifdef EDM_ML_DEBUG
     if (!ok)
       edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-                                     << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
-                                     << ok;
+                                    << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
+                                    << ok;
 #endif
     return ok;
   }
