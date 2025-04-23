@@ -25,7 +25,6 @@ WorkerT: Code common to all workers.
 
 namespace edm {
 
-  class ModuleProcessName;
   class ProductResolverIndexAndSkipBit;
   class ThinnedAssociationsHelper;
 
@@ -130,11 +129,9 @@ namespace edm {
 
     void modulesWhoseProductsAreConsumed(
         std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-        std::vector<ModuleProcessName>& modulesInPreviousProcesses,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
-      module_->modulesWhoseProductsAreConsumed(
-          modules, modulesInPreviousProcesses, preg, labelsToDesc, module_->moduleDescription().processName());
+      module_->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, module_->moduleDescription().processName());
     }
 
     void esModulesWhoseProductsAreConsumed(

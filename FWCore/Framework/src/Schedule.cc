@@ -11,7 +11,6 @@
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-#include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
@@ -1317,21 +1316,18 @@ namespace edm {
       std::vector<ModuleDescription const*>& allModuleDescriptions,
       std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
       std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>& modulesWhoseProductsAreConsumedBy,
-      std::vector<std::vector<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
       ProductRegistry const& preg) const {
     allModuleDescriptions.clear();
     moduleIDToIndex.clear();
     for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
       modulesWhoseProductsAreConsumedBy[iBranchType].clear();
     }
-    modulesInPreviousProcessesWhoseProductsAreConsumedBy.clear();
 
     allModuleDescriptions.reserve(allWorkers().size());
     moduleIDToIndex.reserve(allWorkers().size());
     for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
       modulesWhoseProductsAreConsumedBy[iBranchType].resize(allWorkers().size());
     }
-    modulesInPreviousProcessesWhoseProductsAreConsumedBy.resize(allWorkers().size());
 
     std::map<std::string, ModuleDescription const*> labelToDesc;
     unsigned int i = 0;
@@ -1351,10 +1347,8 @@ namespace edm {
         modules[iBranchType] = &modulesWhoseProductsAreConsumedBy[iBranchType].at(i);
       }
 
-      std::vector<ModuleProcessName>& modulesInPreviousProcesses =
-          modulesInPreviousProcessesWhoseProductsAreConsumedBy.at(i);
       try {
-        worker->modulesWhoseProductsAreConsumed(modules, modulesInPreviousProcesses, preg, labelToDesc);
+        worker->modulesWhoseProductsAreConsumed(modules, preg, labelToDesc);
       } catch (cms::Exception& ex) {
         ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
                       worker->description()->moduleLabel());
