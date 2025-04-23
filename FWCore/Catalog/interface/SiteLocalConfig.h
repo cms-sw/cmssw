@@ -61,7 +61,6 @@ namespace edm {
     virtual std::vector<edm::CatalogAttributes> const& dataCatalogs() const = 0;
     virtual std::filesystem::path const storageDescriptionPath(const edm::CatalogAttributes& aDataCatalog) const = 0;
     virtual std::string const lookupCalibConnect(std::string const& input) const = 0;
-    virtual std::string const rfioType(void) const = 0;
 
     virtual std::string const* sourceCacheTempDir() const = 0;
     virtual double const* sourceCacheMinFree() const = 0;
