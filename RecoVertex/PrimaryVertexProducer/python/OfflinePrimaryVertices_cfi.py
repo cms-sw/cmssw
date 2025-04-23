@@ -179,7 +179,7 @@ highBetaStar.toModify(offlinePrimaryVertices,
 )
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
-run3_upc.toModify(offlinePrimaryVertices,
+(highBetaStar & run3_upc).toModify(offlinePrimaryVertices,
     TkFilterParameters = dict(
         algorithm="filterWithThreshold",
         maxNormalizedChi2 = 80.0,
