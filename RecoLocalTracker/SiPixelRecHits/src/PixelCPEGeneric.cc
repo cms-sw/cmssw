@@ -44,6 +44,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   the_eff_charge_cut_highY = conf.getParameter<double>("eff_charge_cut_highY");
   the_size_cutX = conf.getParameter<double>("size_cutX");
   the_size_cutY = conf.getParameter<double>("size_cutY");
+  delta_length_cut = 2.0f;  //seems to be a good value, if needed, will make this externally settable
 
   // Externally settable flags to inflate errors
   inflate_errors = conf.getParameter<bool>("inflate_errors");
@@ -51,6 +52,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
 
   NoTemplateErrorsWhenNoTrkAngles_ = conf.getParameter<bool>("NoTemplateErrorsWhenNoTrkAngles");
   IrradiationBiasCorrection_ = conf.getParameter<bool>("IrradiationBiasCorrection");
+  goodEdgeAlgo_ = conf.getParameter<bool>("GoodEdgeAlgo");  //use only one edge reco if cluster seems broken
+
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
 
   isPhase2_ = conf.getParameter<bool>("isPhase2");
@@ -92,6 +95,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   cout << "(int)useErrorsFromTemplates_ = " << (int)useErrorsFromTemplates_ << endl;
   cout << "truncatePixelCharge_         = " << (int)truncatePixelCharge_ << endl;
   cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
+  cout << "goodEdgeAlgo_                = " << (int)goodEdgeAlgo_ << endl;
   cout << "(int)DoCosmics_              = " << (int)DoCosmics_ << endl;
   cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_ << endl;
 #endif
@@ -266,7 +270,9 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
       theDetParam.theTopol->pixelFractionInX(theClusterParam.theCluster->maxPixelRow()),
       the_eff_charge_cut_lowX,
       the_eff_charge_cut_highX,
-      the_size_cutX);  // cut for eff charge width &&&
+      the_size_cutX,  // cut for eff charge width &&&
+      delta_length_cut,
+      goodEdgeAlgo_);
 
   // apply the lorentz offset correction
   xPos = xPos + shiftX;
@@ -290,7 +296,9 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
       theDetParam.theTopol->pixelFractionInY(theClusterParam.theCluster->maxPixelCol()),
       the_eff_charge_cut_lowY,
       the_eff_charge_cut_highY,
-      the_size_cutY);  // cut for eff charge width &&&
+      the_size_cutY,  // cut for eff charge width &&&
+      delta_length_cut,
+      goodEdgeAlgo_);
 
   // apply the lorentz offset correction
   yPos = yPos + shiftY;
@@ -447,6 +455,7 @@ void PixelCPEGeneric::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<bool>("UseErrorsFromTemplates", true);
   desc.add<bool>("TruncatePixelCharge", true);
   desc.add<bool>("IrradiationBiasCorrection", false);
+  desc.add<bool>("GoodEdgeAlgo", false);
   desc.add<bool>("DoCosmics", false);
   desc.add<bool>("isPhase2", false);
   desc.add<bool>("SmallPitch", false);

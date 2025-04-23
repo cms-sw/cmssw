@@ -64,6 +64,8 @@ namespace pixelCPEforDevice {
 
     uint16_t maxModuleStride;
     uint8_t numberOfLaddersInBarrel;
+
+    bool goodEdgeAlgo_;
   };
 
   struct DetParams {
@@ -120,6 +122,53 @@ namespace pixelCPEforDevice {
     // calculate angles
     cotalpha = gvx * gvz;
     cotbeta = gvy * gvz;
+  }
+
+  constexpr inline float check_for_short(uint16_t upper_edge_first_pix,  //!< As the name says.
+                                         uint16_t lower_edge_last_pix,   //!< As the name says.
+                                         float lorentz_shift,            //!< L-shift at half thickness
+                                         float theThickness,             //detector thickness
+                                         float cot_angle,                //!< cot of alpha_ or beta_
+                                         float pitch,                    //!< thePitchX or thePitchY
+                                         bool first_is_big,              //!< true if the first is big
+                                         bool last_is_big)               //!< true if the last is big
+  {
+    //checks if the observed cluster is much shorter than expected
+    //if yes, returns the position predicted using a one-sided reconstruction
+    //if not, returns a dummy value -999.
+    float delta_length_cut = 2.;  //to be fine tuned later
+    float w_inner = pitch * (lower_edge_last_pix - upper_edge_first_pix);
+    float w_pred = theThickness * cot_angle - lorentz_shift;
+
+    float w_eff = std::abs(w_pred) - w_inner;
+
+    float pitchfraction_first = 1.0;
+    float pitchfraction_last = 1.0;
+
+    if (first_is_big)
+      pitchfraction_first += 1.0f;
+    if (last_is_big)
+      pitchfraction_last += 1.0f;
+
+    float sum_of_edge = pitchfraction_first + pitchfraction_last;
+    float delta = w_eff - 0.5 * sum_of_edge * pitch;
+
+    if (delta / pitch > delta_length_cut) {
+      // define the centers of the first and last pixel coordinates
+      float x1 = pitch * (upper_edge_first_pix - 0.5 * pitchfraction_first);
+      float x2 = pitch * (lower_edge_last_pix + 0.5 * pitchfraction_last);
+      //  observed cluster is much shorter than expected, use one-sided reco
+      if (w_pred > 0.f) {
+        float hit_pos = x1 + 0.5 * w_pred;
+        return hit_pos;
+      } else {
+        float hit_pos = x2 + 0.5 * w_pred;
+        return hit_pos;
+      }
+    }  //if(delta/pitch > delta_length_cut)
+    else {
+      return -999.;
+    }
   }
 
   constexpr inline float correction(int sizeM1,
@@ -250,7 +299,34 @@ namespace pixelCPEforDevice {
     computeAnglesFromDet(detParams, xPos, yPos, cotalpha, cotbeta);
 
     auto thickness = detParams.isBarrel ? comParams.theThicknessB : comParams.theThicknessE;
+    if (comParams.goodEdgeAlgo_) {
+      float xPos_alt = check_for_short(llxl,
+                                       urxl,
+                                       detParams.chargeWidthX,
+                                       thickness,
+                                       cotalpha,
+                                       detParams.thePitchX,
+                                       TrackerTraits::isBigPixX(cp.minRow[ic]),
+                                       TrackerTraits::isBigPixX(cp.maxRow[ic]));
 
+      float yPos_alt = check_for_short(llyl,
+                                       uryl,
+                                       detParams.chargeWidthY,
+                                       thickness,
+                                       cotbeta,
+                                       detParams.thePitchY,
+                                       TrackerTraits::isBigPixY(cp.minCol[ic]),
+                                       TrackerTraits::isBigPixY(cp.maxCol[ic]));
+
+      if (xPos_alt != -999.) {
+        //  observed cluster is much shorter than expected, use one-sided reco
+        xPos = xPos_alt;
+      }
+      if (yPos_alt != -999.) {
+        //  observed cluster is much shorter than expected, use one-sided reco
+        yPos = yPos_alt;
+      }
+    }  //if(comParams.goodEdgeAlgo_)
     auto xCorr = correction(cp.maxRow[ic] - cp.minRow[ic],
                             cp.q_f_X[ic],
                             cp.q_l_X[ic],
