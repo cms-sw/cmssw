@@ -40,6 +40,7 @@ scouting muon triggers (selected in python/ScoutingMuonTriggerAnalyzer_cfi.py)
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 // Classes to be declared
 class ScoutingMuonTriggerAnalyzer : public DQMEDAnalyzer {
@@ -66,6 +67,7 @@ private:
   std::vector<std::string> l1Seeds_;
   TString l1Names[100] = {""};
   Bool_t l1Result[100] = {false};
+  StringCutObjectSelector<Run3ScoutingMuon, false> muonsCut_;
 
   // Histogram declaration
   // DENOMINATORS:
@@ -98,7 +100,8 @@ ScoutingMuonTriggerAnalyzer::ScoutingMuonTriggerAnalyzer(const edm::ParameterSet
       vtriggerSelection_{iConfig.getParameter<vector<string>>("triggerSelection")},
       scoutingMuonCollection_{
           consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("ScoutingMuonCollection"))},
-      algToken_{consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<edm::InputTag>("AlgInputTag"))} {
+      algToken_{consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<edm::InputTag>("AlgInputTag"))},
+      muonsCut_{iConfig.getParameter<std::string>("muonSelection")} {
   vtriggerSelector_.reserve(vtriggerSelection_.size());
   for (auto const& vt : vtriggerSelection_)
     vtriggerSelector_.push_back(triggerExpression::parse(vt));
@@ -117,6 +120,13 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
   if (sctMuons.failedToGet()) {
     edm::LogWarning("ScoutingMonitoring") << "Run3ScoutingMuon collection not found.";
     return;
+  }
+  //Apply cuts specified in config file
+  for (const auto& muon : *sctMuons) {
+    if (!muonsCut_(muon)) {
+      edm::LogWarning("ScoutingMonitoring") << "No muons passed the selection cut.";
+      return;
+    }
   }
 
   // Check whether events pass any of the HLTriggers to add to the denominator
@@ -248,6 +258,7 @@ void ScoutingMuonTriggerAnalyzer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<bool>("ReadPrescalesFromFile", false);
   edm::ParameterSetDescription triggerConfig;
+  desc.add<std::string>("muonSelection");
   triggerConfig.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("triggerConfiguration", triggerConfig);
   descriptions.addWithDefaultLabel(desc);

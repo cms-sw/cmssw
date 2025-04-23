@@ -17,7 +17,8 @@ from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
 
 hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx
                                          * scoutingMonitoringTagProbeMuonVtx                                                         
-                                         * scoutingMonitoringTriggerMuon                                                              
+                                         * scoutingMonitoringTriggerMuon_DoubleMu
+                                         * scoutingMonitoringTriggerMuon_SingleMu
 )
 
 hltScoutingJetDqmOffline = cms.Sequence(jetMETDQMOfflineSourceScouting)
