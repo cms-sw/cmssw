@@ -253,6 +253,7 @@ def addScoutingPFCandidate(process):
     return process
 
 # this adds all electron tracks in addition to best track selected
+# this should be only used with ScoutingElectron format from 2023
 def addScoutingElectronTrack(process):
     process.scoutingElectronTable.externalVariables.bestTrack_index\
             = ExtVar(cms.InputTag("scoutingElectronBestTrack", "Run3ScoutingElectronBestTrackIndex"), int, doc="best track index")
@@ -260,7 +261,7 @@ def addScoutingElectronTrack(process):
     process.scoutingElectronTable.collectionVariables = cms.PSet(
         ScoutingElectronTrack = cms.PSet(
             name = cms.string("ScoutingElectronTrack"),
-            doc = cms.string("Scouting Electron Tracks"),
+            doc = cms.string("Scouting Electron Track"),
             useCount = cms.bool(True),
             useOffset = cms.bool(True),
             variables = cms.PSet(
@@ -269,13 +270,18 @@ def addScoutingElectronTrack(process):
                 pt = Var("trkpt", "float", doc="track pt"),
                 eta = Var("trketa", "float", doc="track eta"),
                 phi = Var("trkphi", "float", doc="track phi"),
-                pMode = Var("trkpMode", "float", doc="track pMode"),
-                etaMode = Var("trketaMode", "float", doc="track etaMode"),
-                phiMode = Var("trkphiMode", "float", doc="track phiMode"),
-                qoverpModeError = Var("trkqoverpModeError", "float", doc="track qoverpModeError"),
                 chi2overndf = Var("trkchi2overndf", "float", doc="track normalized chi squared"),
                 charge = Var("trkcharge", "int", doc="track charge"),
             ),
         ),
+    )
+    
+    # additional electron track variables added in 2024 in https://github.com/cms-sw/cmssw/pull/43744
+    run3_scouting_nanoAOD_2024.toModify(
+        process.scoutingElectronTable.collectionVariables.variables,
+        pMode = Var("trkpMode", "float", doc="track pMode"),
+        etaMode = Var("trketaMode", "float", doc="track etaMode"),
+        phiMode = Var("trkphiMode", "float", doc="track phiMode"),
+        qoverpModeError = Var("trkqoverpModeError", "float", doc="track qoverpModeError"),
     )
     return process
