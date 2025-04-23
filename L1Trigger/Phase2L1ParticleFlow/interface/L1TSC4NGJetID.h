@@ -9,14 +9,12 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/jetmet/L1SeedConePFJetEmulator.h"
 
 //HLS4ML compiled emulator modeling
-#include <string>
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
 
 class L1TSC4NGJetID {
 public:
-  L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model, int iNParticles);
-  ~L1TSC4NGJetID() = default;
+  L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model, int iNParticles, bool debug);
 
   typedef ap_fixed<24, 12, AP_RND, AP_SAT, 0> inputtype;
   typedef std::array<ap_ufixed<24, 12, AP_RND, AP_SAT, 0>, 8> classtype;
@@ -46,5 +44,7 @@ private:
   unique_ptr<int[]> fCharge_;
   unique_ptr<int[]> fId_;
   std::shared_ptr<hls4mlEmulator::Model> modelRef_;
+
+  bool isDebugEnabled_;
 };
 #endif

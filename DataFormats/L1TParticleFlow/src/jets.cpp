@@ -18,3 +18,4 @@ const l1ct::JetTagClass l1ct::JetTagClassHandler::tagClassesDefault_[NTagFields]
                                                                                     l1ct::JetTagClass("tau_n"),
                                                                                     l1ct::JetTagClass("mu"),
                                                                                     l1ct::JetTagClass("e")};
+                                                                                    
