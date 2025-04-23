@@ -141,13 +141,11 @@ const edm::EDConsumerBase* EDAnalyzerAdaptorBase::consumer() const { return m_st
 
 void EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(
     std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-    std::vector<ModuleProcessName>& modulesInPreviousProcesses,
     ProductRegistry const& preg,
     std::map<std::string, ModuleDescription const*> const& labelsToDesc,
     std::string const& processName) const {
   assert(not m_streamModules.empty());
-  return m_streamModules[0]->modulesWhoseProductsAreConsumed(
-      modules, modulesInPreviousProcesses, preg, labelsToDesc, processName);
+  return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
 }
 
 void EDAnalyzerAdaptorBase::esModulesWhoseProductsAreConsumed(

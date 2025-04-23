@@ -623,19 +623,17 @@ namespace edm {
     PathsAndConsumesOfModules pathsAndConsumesOfModules;
     pathsAndConsumesOfModules.initialize(schedule_.get(), preg());
 
-    std::vector<ModuleProcessName> consumedBySubProcesses;
-
     // Note: all these may throw
     checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, printDependencies_);
     if (deleteNonConsumedUnscheduledModules_) {
-      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules, consumedBySubProcesses);
+      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules);
           not unusedModules.empty()) {
         pathsAndConsumesOfModules.removeModules(unusedModules);
 
         edm::LogInfo("DeleteModules").log([&unusedModules](auto& l) {
-          l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, "
-               "and "
-               "therefore they are deleted before beginJob transition.";
+          l << "The following modules are not in any Path or EndPath, nor is their output consumed by any other "
+               "module, "
+               "and therefore they are deleted before the beginJob transition.";
           for (auto const& description : unusedModules) {
             l << "\n " << description->moduleLabel();
           }
