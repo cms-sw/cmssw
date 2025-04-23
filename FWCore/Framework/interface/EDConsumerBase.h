@@ -39,6 +39,7 @@
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/Framework/interface/ModuleConsumesMinimalESInfo.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/TypeID.h"

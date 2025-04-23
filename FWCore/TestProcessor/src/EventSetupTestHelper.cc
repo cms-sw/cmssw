@@ -75,6 +75,7 @@ namespace edm {
 
     std::vector<eventsetup::ESModuleProducesInfo> EventSetupTestHelper::producesInfo() const {
       std::vector<eventsetup::ESModuleProducesInfo> producesInfo;
+      producesInfo.reserve(resolvers_.size());
       for (auto const& p : resolvers_) {
         producesInfo.emplace_back(p.recordKey_, p.dataKey_, p.resolver_->produceMethodID());
       }

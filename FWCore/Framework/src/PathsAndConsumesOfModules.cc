@@ -507,7 +507,7 @@ namespace edm {
           }
         }
       }
-      result.emplace_back(std::move(info));
+      result.emplace_back(info);
     };
     return result;
   }
