@@ -31,6 +31,7 @@
 #include <numeric>
 
 // user includes
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -50,6 +51,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
 #include "ScoutingDQMUtils.h"
 
@@ -73,14 +75,10 @@ struct kInvmHistos {
   dqm::reco::MonitorElement* h1InvMassIDEBEB;
   dqm::reco::MonitorElement* h1InvMassIDEBEE;
   dqm::reco::MonitorElement* h1InvMassIDEEEE;
-  dqm::reco::MonitorElement* h1InvMassID_passDoubleEG_DST;
-  dqm::reco::MonitorElement* h1InvMassIDEBEB_passDoubleEG_DST;
-  dqm::reco::MonitorElement* h1InvMassIDEBEE_passDoubleEG_DST;
-  dqm::reco::MonitorElement* h1InvMassIDEEEE_passDoubleEG_DST;
-  dqm::reco::MonitorElement* h1InvMassID_passSinglePhoton_DST;
-  dqm::reco::MonitorElement* h1InvMassIDEBEB_passSinglePhoton_DST;
-  dqm::reco::MonitorElement* h1InvMassIDEBEE_passSinglePhoton_DST;
-  dqm::reco::MonitorElement* h1InvMassIDEEEE_passSinglePhoton_DST;
+  std::vector<std::vector<dqm::reco::MonitorElement*>> hInvMassID_passDST;
+  std::vector<std::vector<dqm::reco::MonitorElement*>> hInvMassIDEBEB_passDST;
+  std::vector<std::vector<dqm::reco::MonitorElement*>> hInvMassIDEBEE_passDST;
+  std::vector<std::vector<dqm::reco::MonitorElement*>> hInvMassIDEEEE_passDST;
 };
 
 struct kHistogramsScoutingEGammaCollectionMonitoring {
@@ -88,7 +86,7 @@ struct kHistogramsScoutingEGammaCollectionMonitoring {
   kInvmHistos sctElectron;
 };
 
-class ScoutingEGammaCollectionMonitoring : public DQMGlobalEDAnalyzer<kHistogramsScoutingEGammaCollectionMonitoring> {
+class ScoutingEGammaCollectionMonitoring : public DQMEDAnalyzer {
 public:
   explicit ScoutingEGammaCollectionMonitoring(const edm::ParameterSet&);
   ~ScoutingEGammaCollectionMonitoring() override = default;
@@ -96,37 +94,44 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void bookHistograms(DQMStore::IBooker&,
-                      edm::Run const&,
-                      edm::EventSetup const&,
-                      kHistogramsScoutingEGammaCollectionMonitoring&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-  void dqmAnalyze(edm::Event const&,
-                  edm::EventSetup const&,
-                  kHistogramsScoutingEGammaCollectionMonitoring const&) const override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   // ------------ member data ------------
   const std::string outputInternalPath_;
+
+  const std::vector<std::string> vtriggerSelection_;
+
+  edm::EDGetToken algToken_;
+  std::shared_ptr<l1t::L1TGlobalUtil> l1GtUtils_;
+  std::vector<std::string> l1Seeds_;
+
   const edm::EDGetToken triggerResultsToken_;
   const edm::EDGetTokenT<edm::View<pat::Electron>> electronCollection_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> scoutingElectronCollection_;
   const edm::EDGetTokenT<edm::ValueMap<bool>> eleIdMapTightToken_;
+
+  kHistogramsScoutingEGammaCollectionMonitoring histos;
 };
 
 ScoutingEGammaCollectionMonitoring::ScoutingEGammaCollectionMonitoring(const edm::ParameterSet& iConfig)
     : outputInternalPath_(iConfig.getParameter<std::string>("OutputInternalPath")),
+      vtriggerSelection_{iConfig.getParameter<vector<string>>("triggerSelection")},
+      algToken_{consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<edm::InputTag>("AlgInputTag"))},
       triggerResultsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("TriggerResultTag"))),
       electronCollection_(
           consumes<edm::View<pat::Electron>>(iConfig.getParameter<edm::InputTag>("ElectronCollection"))),
       scoutingElectronCollection_(consumes<std::vector<Run3ScoutingElectron>>(
           iConfig.getParameter<edm::InputTag>("ScoutingElectronCollection"))),
-      eleIdMapTightToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("eleIdMapTight"))) {}
+      eleIdMapTightToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("eleIdMapTight"))) {
+  l1GtUtils_ = std::make_shared<l1t::L1TGlobalUtil>(iConfig, consumesCollector(), l1t::UseEventSetupIn::RunAndEvent);
+  l1Seeds_ = iConfig.getParameter<std::vector<std::string>>("L1Seeds");
+}
 
 // ------------ method called for each event  ------------
 
-void ScoutingEGammaCollectionMonitoring::dqmAnalyze(edm::Event const& iEvent,
-                                                    edm::EventSetup const& iSetup,
-                                                    kHistogramsScoutingEGammaCollectionMonitoring const& histos) const {
+void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   ////////////////////////////////////////
   // Get PAT / Scouting Electron Token  //
   ////////////////////////////////////////
@@ -154,9 +159,25 @@ void ScoutingEGammaCollectionMonitoring::dqmAnalyze(edm::Event const& iEvent,
   // Trigger
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(triggerResultsToken_, triggerResults);
+
+  if (triggerResults.failedToGet()) {
+    edm::LogWarning("ScoutingEGammaCollectionMonitoring") << "Trgger Results not found.";
+    return;
+  }
+
+  int nTriggers = triggerResults->size();
+  std::vector<bool> vtrigger_result(vtriggerSelection_.size(), false);
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
-  bool fire_doubleEG_DST = scoutingDQMUtils::hasPatternInHLTPath(triggerNames, "DST_PFScouting_DoubleEG");
-  bool fire_singlePhoton_DST = scoutingDQMUtils::hasPatternInHLTPath(triggerNames, "DST_PFScouting_SinglePhotonEB");
+  for (int i_Trig = 0; i_Trig < nTriggers; i_Trig++) {
+    if (triggerResults.product()->accept(i_Trig)) {
+      TString TrigPath = triggerNames.triggerName(i_Trig);
+      for (unsigned int i_selectTrig = 0; i_selectTrig < vtriggerSelection_.size(); i_selectTrig++) {
+        if (TrigPath.Index(vtriggerSelection_.at(i_selectTrig)) >= 0) {
+          vtrigger_result[i_selectTrig] = true;
+        }
+      }
+    }
+  }
 
   // Loop to verify the sorting of pat::Electron collection - REMOVE IN ONLINE
   // DQM
@@ -274,41 +295,43 @@ void ScoutingEGammaCollectionMonitoring::dqmAnalyze(edm::Event const& iEvent,
     } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
                fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
       histos.sctElectron.h1InvMassIDEBEE->Fill(invMass);
-    } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) > scoutingDQMUtils::ELE_etaEB &&
-               fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
-      histos.sctElectron.h1InvMassIDEBEE->Fill(invMass);
     } else {
       histos.sctElectron.h1InvMassIDEEEE->Fill(invMass);
     }
 
-    if (fire_doubleEG_DST) {
-      histos.sctElectron.h1InvMassID_passDoubleEG_DST->Fill(invMass);
-      if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-          fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
-        histos.sctElectron.h1InvMassIDEBEB_passDoubleEG_DST->Fill(invMass);
-      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
-        histos.sctElectron.h1InvMassIDEBEE_passDoubleEG_DST->Fill(invMass);
-      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) > scoutingDQMUtils::ELE_etaEB &&
-                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
-        histos.sctElectron.h1InvMassIDEBEE_passDoubleEG_DST->Fill(invMass);
-      } else {
-        histos.sctElectron.h1InvMassIDEEEE_passDoubleEG_DST->Fill(invMass);
-      }
-    }
-    if (fire_singlePhoton_DST) {
-      histos.sctElectron.h1InvMassID_passSinglePhoton_DST->Fill(invMass);
-      if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-          fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
-        histos.sctElectron.h1InvMassIDEBEB_passSinglePhoton_DST->Fill(invMass);
-      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
-                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
-        histos.sctElectron.h1InvMassIDEBEE_passSinglePhoton_DST->Fill(invMass);
-      } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) > scoutingDQMUtils::ELE_etaEB &&
-                 fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
-        histos.sctElectron.h1InvMassIDEBEE_passSinglePhoton_DST->Fill(invMass);
-      } else {
-        histos.sctElectron.h1InvMassIDEEEE_passSinglePhoton_DST->Fill(invMass);
+    l1GtUtils_->retrieveL1(iEvent, iSetup, algToken_);
+    for (unsigned int i_selectTrig = 0; i_selectTrig < vtriggerSelection_.size(); i_selectTrig++) {
+      if (vtrigger_result.at(i_selectTrig)) {
+        histos.sctElectron.hInvMassID_passDST.at(i_selectTrig)[0]->Fill(invMass);
+        if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+            fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
+          histos.sctElectron.hInvMassIDEBEB_passDST.at(i_selectTrig)[0]->Fill(invMass);
+        } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                   fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
+          histos.sctElectron.hInvMassIDEBEE_passDST.at(i_selectTrig)[0]->Fill(invMass);
+        } else {
+          histos.sctElectron.hInvMassIDEEEE_passDST.at(i_selectTrig)[0]->Fill(invMass);
+        }
+
+        for (unsigned int i_l1seed = 0; i_l1seed < l1Seeds_.size(); i_l1seed++) {
+          const auto& l1seed(l1Seeds_.at(i_l1seed));
+          bool l1htbit = false;
+          double prescale = -1;
+          l1GtUtils_->getFinalDecisionByName(l1seed, l1htbit);
+          l1GtUtils_->getPrescaleByName(l1seed, prescale);
+          if (l1htbit == 1) {
+            histos.sctElectron.hInvMassID_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
+            if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                fabs(sctEls->at(tight_sctElectron_index[1]).eta()) < scoutingDQMUtils::ELE_etaEB) {
+              histos.sctElectron.hInvMassIDEBEB_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
+            } else if (fabs(sctEls->at(tight_sctElectron_index[0]).eta()) < scoutingDQMUtils::ELE_etaEB &&
+                       fabs(sctEls->at(tight_sctElectron_index[1]).eta()) > scoutingDQMUtils::ELE_etaEB) {
+              histos.sctElectron.hInvMassIDEBEE_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
+            } else {
+              histos.sctElectron.hInvMassIDEEEE_passDST.at(i_selectTrig)[i_l1seed + 1]->Fill(invMass);
+            }
+          }
+        }
       }
     }
   }
@@ -316,8 +339,7 @@ void ScoutingEGammaCollectionMonitoring::dqmAnalyze(edm::Event const& iEvent,
 
 void ScoutingEGammaCollectionMonitoring::bookHistograms(DQMStore::IBooker& ibook,
                                                         edm::Run const& run,
-                                                        edm::EventSetup const& iSetup,
-                                                        kHistogramsScoutingEGammaCollectionMonitoring& histos) const {
+                                                        edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(outputInternalPath_);
 
   // PAT Electron Total Summary
@@ -382,51 +404,52 @@ void ScoutingEGammaCollectionMonitoring::bookHistograms(DQMStore::IBooker& ibook
   histos.sctElectron.h1InvMassIDEEEE =
       ibook.book1D("sctElectron_EEEE_appliedID_invMass", "sctElectron_EEEE_appliedID_invMass", 400, 0., 200.);
 
-  histos.sctElectron.h1InvMassID_passDoubleEG_DST = ibook.book1D(
-      "sctElectron_appliedID_invMass_passDoubleEG_DST", "sctElectron_appliedID_invMass_passDoubleEG_DST", 400, 0., 200.);
-  histos.sctElectron.h1InvMassIDEBEB_passDoubleEG_DST =
-      ibook.book1D("sctElectron_EBEB_appliedID_invMass_passDoubleEG_DST",
-                   "sctElectron_EBEB_appliedID_invMass_passDoubleEG_DST",
-                   400,
-                   0.,
-                   200.);
-  histos.sctElectron.h1InvMassIDEBEE_passDoubleEG_DST =
-      ibook.book1D("sctElectron_EBEE_appliedID_invMass_passDoubleEG_DST",
-                   "sctElectron_EBEE_appliedID_invMass_passDoubleEG_DST",
-                   400,
-                   0.,
-                   200.);
-  histos.sctElectron.h1InvMassIDEEEE_passDoubleEG_DST =
-      ibook.book1D("sctElectron_EEEE_appliedID_invMass_passDoubleEG_DST",
-                   "sctElectron_EEEE_appliedID_invMass_passDoubleEG_DST",
-                   400,
-                   0.,
-                   200.);
+  for (auto const& vt : vtriggerSelection_) {
+    std::string cleaned_vt = vt;
+    cleaned_vt.erase(std::remove(cleaned_vt.begin(), cleaned_vt.end(), '*'), cleaned_vt.end());
 
-  histos.sctElectron.h1InvMassID_passSinglePhoton_DST =
-      ibook.book1D("sctElectron_appliedID_invMass_passSinglePhoton_DST",
-                   "sctElectron_appliedID_invMass_passSinglePhoton_DST",
-                   400,
-                   0.,
-                   200.);
-  histos.sctElectron.h1InvMassIDEBEB_passSinglePhoton_DST =
-      ibook.book1D("sctElectron_EBEB_appliedID_invMass_passSinglePhoton_DST",
-                   "sctElectron_EBEB_appliedID_invMass_passSinglePhoton_DST",
-                   400,
-                   0.,
-                   200.);
-  histos.sctElectron.h1InvMassIDEBEE_passSinglePhoton_DST =
-      ibook.book1D("sctElectron_EBEE_appliedID_invMass_passSinglePhoton_DST",
-                   "sctElectron_EBEE_appliedID_invMass_passSinglePhoton_DST",
-                   400,
-                   0.,
-                   200.);
-  histos.sctElectron.h1InvMassIDEEEE_passSinglePhoton_DST =
-      ibook.book1D("sctElectron_EEEE_appliedID_invMass_passSinglePhoton_DST",
-                   "sctElectron_EEEE_appliedID_invMass_passSinglePhoton_DST",
-                   400,
-                   0.,
-                   200.);
+    std::vector<dqm::reco::MonitorElement*> h_passDST;
+    std::vector<dqm::reco::MonitorElement*> h_EBEB_passDST;
+    std::vector<dqm::reco::MonitorElement*> h_EBEE_passDST;
+    std::vector<dqm::reco::MonitorElement*> h_EEEE_passDST;
+
+    h_passDST.push_back(ibook.book1D(
+        "sctElectron_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+    h_EBEB_passDST.push_back(ibook.book1D(
+        "sctElectron_EBEB_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+    h_EBEE_passDST.push_back(ibook.book1D(
+        "sctElectron_EBEE_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+    h_EEEE_passDST.push_back(ibook.book1D(
+        "sctElectron_EEEE_appliedID_invMass_pass_" + cleaned_vt, ";Invariant mass (GeV); Electrons", 400, 0., 200));
+
+    for (auto const& l1seed : l1Seeds_) {
+      h_passDST.push_back(ibook.book1D("sctElectron_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
+                                       ";Invariant mass (GeV); Electrons",
+                                       400,
+                                       0.,
+                                       200));
+      h_EBEB_passDST.push_back(ibook.book1D("sctElectron_EBEB_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
+                                            ";Invariant mass (GeV); Electrons",
+                                            400,
+                                            0.,
+                                            200));
+      h_EBEE_passDST.push_back(ibook.book1D("sctElectron_EBEE_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
+                                            ";Invariant mass (GeV); Electrons",
+                                            400,
+                                            0.,
+                                            200));
+      h_EEEE_passDST.push_back(ibook.book1D("sctElectron_EEEE_appliedID_invMass_pass_" + cleaned_vt + "_and_" + l1seed,
+                                            ";Invariant mass (GeV); Electrons",
+                                            400,
+                                            0.,
+                                            200));
+    }
+
+    histos.sctElectron.hInvMassID_passDST.push_back(h_passDST);
+    histos.sctElectron.hInvMassIDEBEB_passDST.push_back(h_EBEB_passDST);
+    histos.sctElectron.hInvMassIDEBEE_passDST.push_back(h_EBEE_passDST);
+    histos.sctElectron.hInvMassIDEEEE_passDST.push_back(h_EEEE_passDST);
+  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the
@@ -434,6 +457,12 @@ void ScoutingEGammaCollectionMonitoring::bookHistograms(DQMStore::IBooker& ibook
 void ScoutingEGammaCollectionMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
+  desc.add<vector<string>>("triggerSelection", {});
+  desc.add<edm::InputTag>("AlgInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
+  desc.add<bool>("ReadPrescalesFromFile", false);
+  desc.add<std::vector<std::string>>("L1Seeds", {});
   desc.add<edm::InputTag>("TriggerResultTag", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("ElectronCollection", edm::InputTag("slimmedElectrons"));
   desc.add<edm::InputTag>("ScoutingElectronCollection", edm::InputTag("hltScoutingEgammaPacker"));
