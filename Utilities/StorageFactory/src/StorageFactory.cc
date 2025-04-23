@@ -4,6 +4,7 @@
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageAccountProxy.h"
+#include "Utilities/StorageFactory/interface/StorageProxyMaker.h"
 #include "Utilities/StorageFactory/interface/LocalCacheFile.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -139,6 +140,12 @@ std::unique_ptr<Storage> StorageFactory::open(const std::string &url, const int 
       ret = maker->open(
           protocol, rest, mode, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout));
       if (ret) {
+        // Inject proxy wrappers at the lowest level, in the order
+        // specified in the configuration
+        for (auto const &proxyMaker : m_storageProxyMakers_) {
+          ret = proxyMaker->wrap(std::move(ret));
+        }
+
         // Wrap the storage to LocalCacheFile if storage backend is
         // not already using a local file, and lazy-download is requested
         if (auto const useLocalFile = maker->usesLocalFile(); useLocalFile != StorageMaker::UseLocalFile::kNo) {

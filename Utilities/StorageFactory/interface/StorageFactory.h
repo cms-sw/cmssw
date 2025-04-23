@@ -14,6 +14,7 @@
 
 namespace edm::storage {
   class Storage;
+  class StorageProxyMaker;
   class StorageFactory {
   public:
     enum CacheHint { CACHE_HINT_APPLICATION, CACHE_HINT_STORAGE, CACHE_HINT_LAZY_DOWNLOAD, CACHE_HINT_AUTO_DETECT };
@@ -82,6 +83,7 @@ namespace edm::storage {
     unsigned int m_timeout;
     unsigned int m_debugLevel;
     LocalFileSystem m_lfs;
+    std::vector<std::unique_ptr<StorageProxyMaker>> m_storageProxyMakers_;
     static StorageFactory s_instance;
   };
 }  // namespace edm::storage
