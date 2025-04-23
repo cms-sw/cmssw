@@ -39,7 +39,6 @@ namespace edm {
       std::vector<edm::CatalogAttributes> const& dataCatalogs() const override;
       std::filesystem::path const storageDescriptionPath(edm::CatalogAttributes const& aDataCatalog) const override;
       std::string const lookupCalibConnect(std::string const& input) const override;
-      std::string const rfioType(void) const override;
 
       std::string const* sourceCacheTempDir() const override;
       double const* sourceCacheMinFree() const override;
@@ -74,7 +73,6 @@ namespace edm {
       std::vector<std::string> m_trivialDataCatalogs;
       std::vector<edm::CatalogAttributes> m_dataCatalogs;
       std::string m_frontierConnect;
-      std::string m_rfioType;
       bool m_connected;
       std::string m_cacheTempDir;
       std::string const* m_cacheTempDirPtr;
