@@ -45,6 +45,8 @@ private:
   const edm::EDGetTokenT<MkFitHitWrapper> stripHitsToken_;
   const edm::EDGetTokenT<std::vector<int>> pixelLayerIndexToHitToken_;
   const edm::EDGetTokenT<std::vector<int>> stripLayerIndexToHitToken_;
+  const edm::EDGetTokenT<std::vector<unsigned int>> pixelLayerSizeToken_;
+  const edm::EDGetTokenT<std::vector<unsigned int>> stripLayerSizeToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> pixelQualityToken_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
@@ -60,6 +62,8 @@ MkFitEventOfHitsProducer::MkFitEventOfHitsProducer(edm::ParameterSet const& iCon
       stripHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
       pixelLayerIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
       stripLayerIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
+      pixelLayerSizeToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
+      stripLayerSizeToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
       mkFitGeomToken_{esConsumes()},
       putToken_{produces<MkFitEventOfHits>()},
       usePixelQualityDB_{iConfig.getParameter<bool>("usePixelQualityDB")},
@@ -166,6 +170,14 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
       }
     }
     mkfit::StdSeq::loadDeads(*eventOfHits, deadvectors);
+  }
+
+  auto& pixelLayerSize = iEvent.get(pixelLayerSizeToken_);
+  auto& stripLayerSize = iEvent.get(stripLayerSizeToken_);
+
+  for (int iLay = 0; iLay < eventOfHits->nLayers(); iLay++) {
+    int nhits = pixelLayerSize[iLay] + stripLayerSize[iLay];
+    (*eventOfHits)[iLay].reserve(nhits);
   }
 
   fill(iEvent.get(pixelLayerIndexToHitToken_), *eventOfHits, mkFitGeom);

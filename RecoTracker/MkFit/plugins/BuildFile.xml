@@ -22,6 +22,7 @@
   <use name="Geometry/Records"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
   <use name="PhysicsTools/TensorFlow"/>
+  <use name="RecoLocalTracker/SiStripRecHitConverter"/>
   <use name="RecoTracker/MkFit"/>
   <use name="RecoTracker/TkDetLayers"/>
   <use name="RecoTracker/TransientTrackingRecHit"/>

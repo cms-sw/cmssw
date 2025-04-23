@@ -69,6 +69,14 @@ namespace mkfit {
 
     unsigned int nHits() const { return m_n_hits; }
 
+    void reserve(int nHits) {
+      m_ext_idcs.reserve(nHits);
+      m_binnor.begin_registration(nHits);
+      if (Config::usePhiQArrays) {
+        m_hit_infos.reserve(nHits);
+      }
+    }
+
     // Bin access / queries
     //----------------------
     bin_index_t qBin(float q) const { return m_ax_eta.from_R_to_N_bin(q); }

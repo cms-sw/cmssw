@@ -52,6 +52,7 @@ private:
   const edm::EDPutTokenT<MkFitHitWrapper> wrapperPutToken_;
   const edm::EDPutTokenT<MkFitClusterIndexToHit> clusterIndexPutToken_;
   const edm::EDPutTokenT<std::vector<int>> layerIndexPutToken_;
+  const edm::EDPutTokenT<std::vector<unsigned int>> layerSizePutToken_;
   const edm::EDPutTokenT<std::vector<float>> clusterChargePutToken_;
   const ConvertHitTraitsPhase2 convertTraits_;
 };
@@ -65,6 +66,7 @@ MkFitPhase2HitConverter::MkFitPhase2HitConverter(edm::ParameterSet const& iConfi
       wrapperPutToken_{produces()},
       clusterIndexPutToken_{produces()},
       layerIndexPutToken_{produces()},
+      layerSizePutToken_{produces()},
       clusterChargePutToken_{produces()},
       convertTraits_{} {}
 
@@ -87,6 +89,7 @@ void MkFitPhase2HitConverter::produce(edm::StreamID iID, edm::Event& iEvent, con
   MkFitClusterIndexToHit clusterIndexToHit;
   std::vector<int> layerIndexToHit;
   std::vector<float> clusterCharge;
+  std::vector<unsigned int> layerSize(mkFitGeom.trackerInfo().n_layers(), 0);
 
   edm::ProductID stripClusterID;
   const auto& phase2Hits = iEvent.get(siPhase2RecHitToken_);
@@ -98,6 +101,7 @@ void MkFitPhase2HitConverter::produce(edm::StreamID iID, edm::Event& iEvent, con
                                         hitWrapper.hits(),
                                         clusterIndexToHit.hits(),
                                         layerIndexToHit,
+                                        layerSize,
                                         dummy,
                                         ttopo,
                                         ttrhBuilder,
@@ -110,6 +114,7 @@ void MkFitPhase2HitConverter::produce(edm::StreamID iID, edm::Event& iEvent, con
   iEvent.emplace(wrapperPutToken_, std::move(hitWrapper));
   iEvent.emplace(clusterIndexPutToken_, std::move(clusterIndexToHit));
   iEvent.emplace(layerIndexPutToken_, std::move(layerIndexToHit));
+  iEvent.emplace(layerSizePutToken_, std::move(layerSize));
   iEvent.emplace(clusterChargePutToken_, std::move(clusterCharge));
 }
 
