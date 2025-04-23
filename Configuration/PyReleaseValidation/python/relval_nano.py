@@ -257,10 +257,7 @@ steps['jmeNANO_rePuppi_data14.0'] = merge([{'-s': 'NANO:@JMErePuppi', '-n': '100
 steps['scoutingNANO_data14.0'] = merge([{'-s': 'NANO:@Scout'},
                                         steps['NANO_data14.0']])
 
-# Process.options.TryToContinue = cms.untracked.vstring(\'ProductNotFound\') is needed here because some events in ScoutingPFMonitor in 2024 do not contain scouting objects.
-# This should be fixed in 2025 (https://its.cern.ch/jira/browse/CMSHLT-3331) so customise_commands won't be needed for 2025 workflow.
-steps['scoutingNANO_withPrompt_data14.0'] = merge([{'-s': 'NANO:@Prompt+@Scout', 
-                                                   '--customise_commands': '"process.options.TryToContinue = cms.untracked.vstring(\'ProductNotFound\')"'},
+steps['scoutingNANO_withPrompt_data14.0'] = merge([{'-s': 'NANO:@Prompt+@ScoutMonitor'}, 
                                                    steps['NANO_data14.0']])
 
 # DPG custom NANO
