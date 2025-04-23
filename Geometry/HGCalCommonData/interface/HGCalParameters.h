@@ -78,7 +78,7 @@ public:
   int scintCells(const int layer) const { return nPhiBinBH_[scintType(layer)]; }
   double scintCellSize(const int layer) const { return cellSize_[scintType(layer)]; }
   bool scintFine(int indx) const { return ((!tileRingFineR_.empty()) && (nPhiLayer_[indx] > 288)); }
-  int scintType(const int layer) const { return ((layer < layerFrontBH_[1]) ? 0 : 1); }
+  int scintType(const int layer) const { return ((layer < layerFrontBH_[1]) ? 1 : 0); }
   bool scintValidRing(int indx, int irad) const {
     return (scintFine(indx) ? ((irad >= iradMinBHFine_[indx]) && (irad <= (iradMaxBHFine_[indx] + 1)))
                             : ((irad >= iradMinBH_[indx]) && (irad <= (iradMaxBH_[indx] + 1))));
