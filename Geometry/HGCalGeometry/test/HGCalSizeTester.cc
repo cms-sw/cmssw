@@ -121,6 +121,7 @@ void HGCalSizeTester::doTestScint(const HGCalGeometry* geom, DetId::Detector det
   for (int zside : zsides) {
     for (int layer : layers) {
       int type = geom->topology().dddConstants().getTypeTrap(layer);
+      edm::LogVerbatim("HGCalGeomX") << "Scintilltor Layer " << layer << " Side " << zside << " TYPE " << type;
       for (int ieta : ietas) {
         for (int iphi : iphis) {
           DetId id1 = (DetId)(HGCScintillatorDetId(type, layer, zside * ieta, iphi));
