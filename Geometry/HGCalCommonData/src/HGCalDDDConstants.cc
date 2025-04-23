@@ -787,7 +787,7 @@ bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) co
 #ifdef EDM_ML_DEBUG
   bool tileEx = trapezoidFile() ? tileExist(zside, layer, irad, iphi) : true;
   if (!valid)
-    edm::LogVerbatim("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":"
+    edm::LogWarning("HGCalGeomT") << "HGCalDDDConstants::isValidityTrap: Input " << zside << ":" << layer << ":"
                                    << irad << ":" << iphi << " Range on Ring "
                                    << hgpar_->scintValidRing(indx.first, irad)
                                    << " Range on phi 0:" << hgpar_->scintCells(layer) << " tileExist " << tileEx
@@ -1474,19 +1474,23 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
     int indx = HGCalTileIndex::tileIndex(layer, ring, 1);
     auto itr = hgpar_->tileInfoMap_.find(indx);
     ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi);
+#ifdef EDM_ML_DEBUG
     if (!ok)
-      edm::LogVerbatim("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
+      edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
                                      << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
                                      << ok;
+#endif
     return ok;
   } else {
     int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
     auto itr = hgpar_->tileInfoMap_.find(indx);
     ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
+#ifdef EDM_ML_DEBUG
     if (!ok)
-      edm::LogVerbatim("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
+      edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
                                      << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
                                      << ok;
+#endif
     return ok;
   }
   return ok;
