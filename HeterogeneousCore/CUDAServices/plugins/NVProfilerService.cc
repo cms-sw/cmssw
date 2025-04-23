@@ -9,7 +9,7 @@
 #include <fmt/printf.h>
 
 #include <cuda_profiler_api.h>
-#include <nvToolsExt.h>
+#include <nvtx3/nvToolsExt.h>
 
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -272,6 +272,18 @@ public:
   void preEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
+  // these signal pair are NOT guaranteed to be called by the same thread
+  void preModuleTransformPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleTransformPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  // these signal pair are guaranteed to be called by the same thread
+  void preModuleTransformAcquiring(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleTransformAcquiring(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  // these signal pair are guaranteed to be called by the same thread
+  void preModuleTransform(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleTransform(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
 private:
   bool highlight(std::string const& label) const {
     return (std::binary_search(highlightModules_.begin(), highlightModules_.end(), label));
@@ -469,6 +481,20 @@ NVProfilerService::NVProfilerService(edm::ParameterSet const& config, edm::Activ
   // these signal pair are guaranteed to be called by the same thread
   registry.watchPreEventReadFromSource(this, &NVProfilerService::preEventReadFromSource);
   registry.watchPostEventReadFromSource(this, &NVProfilerService::postEventReadFromSource);
+
+  if (showModulePrefetching_) {
+    // these signal pair are NOT guaranteed to be called by the same thread
+    registry.watchPreModuleTransformPrefetching(this, &NVProfilerService::preModuleTransformPrefetching);
+    registry.watchPostModuleTransformPrefetching(this, &NVProfilerService::postModuleTransformPrefetching);
+  }
+
+  // these signal pair are guaranteed to be called by the same thread
+  registry.watchPreModuleTransform(this, &NVProfilerService::preModuleTransform);
+  registry.watchPostModuleTransform(this, &NVProfilerService::postModuleTransform);
+
+  // these signal pair are guaranteed to be called by the same thread
+  registry.watchPreModuleTransformAcquiring(this, &NVProfilerService::preModuleTransformAcquiring);
+  registry.watchPostModuleTransformAcquiring(this, &NVProfilerService::postModuleTransformAcquiring);
 }
 
 NVProfilerService::~NVProfilerService() {
@@ -1138,6 +1164,70 @@ void NVProfilerService::postSourceConstruction(edm::ModuleDescription const& des
     auto mid = desc.id();
     nvtxDomainRangeEnd(global_domain_, global_modules_[mid]);
     global_modules_[mid] = nvtxInvalidRangeId;
+  }
+}
+
+void NVProfilerService::preModuleTransformPrefetching(edm::StreamContext const& sc,
+                                                      edm::ModuleCallingContext const& mcc) {
+  auto sid = sc.streamID();
+  if (not skipFirstEvent_ or streamFirstEventDone_[sid]) {
+    auto mid = mcc.moduleDescription()->id();
+    auto const& label = mcc.moduleDescription()->moduleLabel();
+    auto const& msg = label + " transform prefetching";
+    assert(stream_modules_[sid][mid] == nvtxInvalidRangeId);
+    stream_modules_[sid][mid] = nvtxDomainRangeStartColor(stream_domain_[sid], msg.c_str(), labelColorLight(label));
+  }
+}
+
+void NVProfilerService::postModuleTransformPrefetching(edm::StreamContext const& sc,
+                                                       edm::ModuleCallingContext const& mcc) {
+  auto sid = sc.streamID();
+  if (not skipFirstEvent_ or streamFirstEventDone_[sid]) {
+    auto mid = mcc.moduleDescription()->id();
+    nvtxDomainRangeEnd(stream_domain_[sid], stream_modules_[sid][mid]);
+    stream_modules_[sid][mid] = nvtxInvalidRangeId;
+  }
+}
+
+void NVProfilerService::preModuleTransformAcquiring(edm::StreamContext const& sc,
+                                                    edm::ModuleCallingContext const& mcc) {
+  auto sid = sc.streamID();
+  if (not skipFirstEvent_ or streamFirstEventDone_[sid]) {
+    auto mid = mcc.moduleDescription()->id();
+    auto const& label = mcc.moduleDescription()->moduleLabel();
+    auto const& msg = label + " transform acquire";
+    assert(stream_modules_[sid][mid] == nvtxInvalidRangeId);
+    stream_modules_[sid][mid] = nvtxDomainRangeStartColor(stream_domain_[sid], msg.c_str(), labelColor(label));
+  }
+}
+
+void NVProfilerService::postModuleTransformAcquiring(edm::StreamContext const& sc,
+                                                     edm::ModuleCallingContext const& mcc) {
+  auto sid = sc.streamID();
+  if (not skipFirstEvent_ or streamFirstEventDone_[sid]) {
+    auto mid = mcc.moduleDescription()->id();
+    nvtxDomainRangeEnd(stream_domain_[sid], stream_modules_[sid][mid]);
+    stream_modules_[sid][mid] = nvtxInvalidRangeId;
+  }
+}
+
+void NVProfilerService::preModuleTransform(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  auto sid = sc.streamID();
+  if (not skipFirstEvent_ or streamFirstEventDone_[sid]) {
+    auto mid = mcc.moduleDescription()->id();
+    auto const& label = mcc.moduleDescription()->moduleLabel();
+    auto const& msg = label + " transform";
+    assert(stream_modules_[sid][mid] == nvtxInvalidRangeId);
+    stream_modules_[sid][mid] = nvtxDomainRangeStartColor(stream_domain_[sid], msg.c_str(), labelColor(label));
+  }
+}
+
+void NVProfilerService::postModuleTransform(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  auto sid = sc.streamID();
+  if (not skipFirstEvent_ or streamFirstEventDone_[sid]) {
+    auto mid = mcc.moduleDescription()->id();
+    nvtxDomainRangeEnd(stream_domain_[sid], stream_modules_[sid][mid]);
+    stream_modules_[sid][mid] = nvtxInvalidRangeId;
   }
 }
 
