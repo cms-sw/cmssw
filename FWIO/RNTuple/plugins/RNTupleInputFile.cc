@@ -162,7 +162,7 @@ namespace edm {
         } else if (prod.branchType() == InLumi) {
           prod.setDropped(not lumis_.setupToReadProductIfAvailable(prod));
         } else if (prod.branchType() == InRun) {
-          prod.setDropped(runs_.setupToReadProductIfAvailable(prod));
+          prod.setDropped(not runs_.setupToReadProductIfAvailable(prod));
         }
       }
     }
