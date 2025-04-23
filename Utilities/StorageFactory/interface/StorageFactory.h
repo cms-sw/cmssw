@@ -53,6 +53,8 @@ namespace edm::storage {
     std::string tempPath(void) const;
     double tempMinFree(void) const;
 
+    void setStorageProxyMakers(std::vector<std::unique_ptr<StorageProxyMaker>> makers);
+
     void stagein(const std::string &url) const;
     std::unique_ptr<Storage> open(const std::string &url, const int mode = IOFlags::OpenRead) const;
     bool check(const std::string &url, IOOffset *size = nullptr) const;

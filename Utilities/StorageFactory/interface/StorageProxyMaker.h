@@ -2,6 +2,7 @@
 #define Utilities_StorageFactory_StorageProxyMaker_h
 
 #include <memory>
+#include <string>
 
 namespace edm::storage {
   class Storage;
@@ -12,7 +13,7 @@ namespace edm::storage {
     StorageProxyMaker() = default;
     virtual ~StorageProxyMaker();
 
-    virtual std::unique_ptr<Storage> wrap(std::unique_ptr<Storage> storage) = 0;
+    virtual std::unique_ptr<Storage> wrap(std::string const& url, std::unique_ptr<Storage> storage) const = 0;
   };
 }  // namespace edm::storage
 

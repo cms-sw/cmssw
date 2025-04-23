@@ -5,11 +5,14 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/Reflection/interface/SetClassParsing.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "Utilities/StorageFactory/interface/StorageProxyMaker.h"
+#include "Utilities/StorageFactory/interface/StorageProxyMakerFactory.h"
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -79,7 +82,7 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
       readHint_(pset.getUntrackedParameter<std::string>("readHint")),
       tempDir_(pset.getUntrackedParameter<std::string>("tempDir")),
       minFree_(pset.getUntrackedParameter<double>("tempMinFree")),
-      native_(pset.getUntrackedParameter<std::vector<std::string> >("native")),
+      native_(pset.getUntrackedParameter<std::vector<std::string>>("native")),
       // end of section of values overridden by SiteLocalConfigService
       timeout_(0U),
       debugLevel_(0U) {
@@ -155,6 +158,15 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
   // tell where to save files.
   f->setTempDir(tempDir_, minFree_);
 
+  // forward generic storage proxy makers
+  {
+    std::vector<std::unique_ptr<StorageProxyMaker>> makers;
+    for (auto const& pset : pset.getUntrackedParameter<std::vector<edm::ParameterSet>>("storageProxies")) {
+      makers.push_back(StorageProxyMakerFactory::get()->create(pset.getUntrackedParameter<std::string>("type"), pset));
+    }
+    f->setStorageProxyMakers(std::move(makers));
+  }
+
   // set our own root plugins
   TPluginManager* mgr = gROOT->GetPluginManager();
 
@@ -218,10 +230,23 @@ void TFileAdaptor::fillDescriptions(edm::ConfigurationDescriptions& descriptions
       ->setComment(
           "Minimum amount of space in GB required for a temporary data directory specified in tempDir. The value from "
           "SiteLocalConfigService overrides the value set here.");
-  desc.addUntracked<std::vector<std::string> >("native")->setComment(
-      "Set of protocols for which to use a native ROOT storage implementation instead of CMSSW's StorageFactory. Valid "
-      "values are 'file', 'http', 'ftp', 'dcache', 'dcap', 'gsidcap', 'root', or 'all' to prefer ROOT for all "
-      "protocols. The value from SiteLocalConfigService overrides the value set here.");
+  desc.addUntracked<std::vector<std::string>>("native", {})
+      ->setComment(
+          "Set of protocols for which to use a native ROOT storage implementation instead of CMSSW's StorageFactory. "
+          "Valid "
+          "values are 'file', 'http', 'ftp', 'dcache', 'dcap', 'gsidcap', 'root', or 'all' to prefer ROOT for all "
+          "protocols. The value from SiteLocalConfigService overrides the value set here.");
+
+  edm::ParameterSetDescription proxyMakerDesc;
+  proxyMakerDesc.addNode(edm::PluginDescription<edm::storage::StorageProxyMakerFactory>("type", false));
+  std::vector<edm::ParameterSet> proxyMakerDefaults;
+  desc.addVPSetUntracked("storageProxies", proxyMakerDesc, proxyMakerDefaults)
+      ->setComment(
+          "Ordered list of Storage proxies the real Storage object is wrapped into. The real Storage is wrapped into "
+          "the first element of the list, then that proxy is wrapped into the second element of the list and so on. "
+          "Only after this wrapping are the LocalCacheFile (lazy-download) and statistics accounting ('stats' "
+          "parameter) proxies applied.");
+
   descriptions.add("AdaptorConfig", desc);
   descriptions.setComment(
       "AdaptorConfig Service is used to configure the TFileAdaptor. If enabled, the TFileAdaptor registers "

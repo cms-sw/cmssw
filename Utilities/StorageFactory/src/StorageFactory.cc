@@ -98,6 +98,10 @@ std::string StorageFactory::tempPath(void) const { return m_temppath; }
 
 double StorageFactory::tempMinFree(void) const { return m_tempfree; }
 
+void StorageFactory::setStorageProxyMakers(std::vector<std::unique_ptr<StorageProxyMaker>> makers) {
+  m_storageProxyMakers_ = std::move(makers);
+}
+
 StorageMaker *StorageFactory::getMaker(const std::string &proto) const {
   auto itFound = m_makers.find(proto);
   if (itFound != m_makers.end()) {
@@ -143,7 +147,7 @@ std::unique_ptr<Storage> StorageFactory::open(const std::string &url, const int 
         // Inject proxy wrappers at the lowest level, in the order
         // specified in the configuration
         for (auto const &proxyMaker : m_storageProxyMakers_) {
-          ret = proxyMaker->wrap(std::move(ret));
+          ret = proxyMaker->wrap(url, std::move(ret));
         }
 
         // Wrap the storage to LocalCacheFile if storage backend is
