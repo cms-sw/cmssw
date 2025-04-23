@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/ESProductResolverTemplate.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -107,6 +108,8 @@ namespace edmtest {
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
+    std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override;
+
   private:
     KeyedResolversVector registerResolvers(const edm::eventsetup::EventSetupRecordKey&, unsigned int iovIndex) override;
 
@@ -135,6 +138,14 @@ namespace edmtest {
     edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<ESTestDataJ>(), "");
     keyedResolversVector.emplace_back(dataKey, resolvers_[iovIndex]);
     return keyedResolversVector;
+  }
+
+  std::vector<edm::eventsetup::ESModuleProducesInfo> ESTestESProductResolverProviderJ::producesInfo() const {
+    std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo;
+    producesInfo.emplace_back(edm::eventsetup::EventSetupRecordKey::makeKey<ESTestRecordJ>(),
+                              edm::eventsetup::DataKey(edm::eventsetup::DataKey::makeTypeTag<ESTestDataJ>(), ""),
+                              0);
+    return producesInfo;
   }
 }  // namespace edmtest
 

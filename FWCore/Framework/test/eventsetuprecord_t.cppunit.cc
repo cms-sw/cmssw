@@ -25,6 +25,7 @@
 
 #include "FWCore/Framework/interface/ESProductResolverTemplate.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESValidHandle.h"
@@ -154,6 +155,12 @@ public:
   WorkingDummyProvider(const edm::eventsetup::DataKey& iKey, std::shared_ptr<WorkingDummyResolver> iResolver)
       : m_key(iKey), m_resolver(iResolver) {
     usingRecord<DummyRecord>();
+  }
+
+  std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override {
+    return std::vector<edm::eventsetup::ESModuleProducesInfo>(
+        1,
+        edm::eventsetup::ESModuleProducesInfo(edm::eventsetup::EventSetupRecordKey::makeKey<DummyRecord>(), m_key, 0));
   }
 
 protected:

@@ -15,6 +15,7 @@
 // user include files
 #include "FWCore/TestProcessor/interface/EventSetupTestHelper.h"
 #include "FWCore/Framework/interface/ESProductResolver.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 
 namespace edm {
   namespace test {
@@ -70,6 +71,14 @@ namespace edm {
 
     std::shared_ptr<eventsetup::ESProductResolver> EventSetupTestHelper::getResolver(unsigned int iIndex) {
       return resolvers_[iIndex].resolver_;
+    }
+
+    std::vector<eventsetup::ESModuleProducesInfo> EventSetupTestHelper::producesInfo() const {
+      std::vector<eventsetup::ESModuleProducesInfo> producesInfo;
+      for (auto const& p : resolvers_) {
+        producesInfo.emplace_back(p.recordKey_, p.dataKey_, p.resolver_->produceMethodID());
+      }
+      return producesInfo;
     }
 
     void EventSetupTestHelper::resetAllResolvers() {

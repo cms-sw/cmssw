@@ -41,6 +41,8 @@ namespace edm {
 
       void resetAllResolvers();
 
+      std::vector<eventsetup::ESModuleProducesInfo> producesInfo() const final;
+
     protected:
       void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) final;
 

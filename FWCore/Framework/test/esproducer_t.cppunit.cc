@@ -24,8 +24,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
+#include "FWCore/Framework/interface/ESModuleConsumesMinimalInfo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Utilities/interface/ESProductTag.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Concurrency/interface/ThreadsController.h"
@@ -99,6 +102,9 @@ class testEsproducer : public CppUnit::TestFixture {
   CPPUNIT_TEST(getfromOptionalTestNull);
   CPPUNIT_TEST(decoratorTest);
   CPPUNIT_TEST(dependsOnTest);
+  CPPUNIT_TEST(consumesTest);
+  CPPUNIT_TEST(mayConsumesTest);
+  CPPUNIT_TEST(producesTest);
   CPPUNIT_TEST(labelTest);
   CPPUNIT_TEST_EXCEPTION(failMultipleRegistration, cms::Exception);
   CPPUNIT_TEST(forceCacheClearTest);
@@ -121,6 +127,9 @@ public:
   void getfromOptionalTestNull();
   void decoratorTest();
   void dependsOnTest();
+  void consumesTest();
+  void mayConsumesTest();
+  void producesTest();
   void labelTest();
   void failMultipleRegistration();
   void forceCacheClearTest();
@@ -636,6 +645,113 @@ void testEsproducer::dependsOnTest() {
   }
 }
 
+namespace {
+  class ConsumesProducer : public ESProducer {
+  public:
+    ConsumesProducer() { setWhatProduced(this).consumesFrom<DummyData, DummyRecord>(); }
+    std::shared_ptr<DummyData> produce(const DepRecord& /*iRecord*/) { return ptr_; }
+
+  private:
+    std::shared_ptr<DummyData> ptr_{std::make_shared<DummyData>(0)};
+  };
+
+  class SetMayConsumeProducer : public ESProducer {
+  public:
+    SetMayConsumeProducer() {
+      auto cc = setWhatProduced(this, "produced");
+      cc.setMayConsume(
+          token_,
+          [this](auto& get, edm::ESTransientHandle<edm::eventsetup::test::DummyData> const& handle) {
+            return get.nothing();
+          },
+          edm::ESProductTag<edm::eventsetup::test::DummyData, DummyRecord>("", ""));
+      extraToken_ = cc.consumes();
+    }
+    std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DepRecord& iRecord) {
+      return std::unique_ptr<edm::eventsetup::test::DummyData>();
+    }
+
+  private:
+    edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
+    edm::ESGetToken<edm::eventsetup::test::DummyData, DepRecord> extraToken_;
+  };
+
+}  // namespace
+void testEsproducer::consumesTest() {
+  ConsumesProducer prod;
+
+  auto const& consumes = prod.esModuleConsumesMinimalInfos();
+  CPPUNIT_ASSERT(consumes.size() == 1);
+
+  auto const& consumesInfo = consumes[0];
+  CPPUNIT_ASSERT(consumesInfo.recordForDataKey_ == EventSetupRecordKey::makeKey<DummyRecord>());
+  CPPUNIT_ASSERT(consumesInfo.dataKey_.type() == edm::eventsetup::DataKey::makeTypeTag<DummyData>());
+  CPPUNIT_ASSERT(consumesInfo.dataKey_.name() == "");
+  CPPUNIT_ASSERT(consumesInfo.componentLabel_.empty());
+  CPPUNIT_ASSERT(consumesInfo.produceMethodID_ == 0);
+}
+
+void testEsproducer::mayConsumesTest() {
+  SetMayConsumeProducer prod;
+
+  auto const& consumes = prod.esModuleConsumesMinimalInfos();
+  CPPUNIT_ASSERT(consumes.size() == 3);
+  {
+    auto const& consumesInfo = consumes[0];
+    CPPUNIT_ASSERT(consumesInfo.recordForDataKey_ == EventSetupRecordKey::makeKey<DummyRecord>());
+    CPPUNIT_ASSERT(consumesInfo.dataKey_.type() == edm::eventsetup::DataKey::makeTypeTag<DummyData>());
+    CPPUNIT_ASSERT(consumesInfo.dataKey_.name() == "");
+    CPPUNIT_ASSERT(consumesInfo.componentLabel_.empty());
+    CPPUNIT_ASSERT(consumesInfo.produceMethodID_ == 0);
+  }
+  {
+    auto const& consumesInfo = consumes[1];
+    CPPUNIT_ASSERT(consumesInfo.recordForDataKey_ == EventSetupRecordKey::makeKey<DummyRecord>());
+    CPPUNIT_ASSERT(consumesInfo.dataKey_.type() == edm::eventsetup::DataKey::makeTypeTag<DummyData>());
+    CPPUNIT_ASSERT(consumesInfo.dataKey_.name() == "@mayConsume");
+    CPPUNIT_ASSERT(consumesInfo.componentLabel_ == "@mayConsume");
+    CPPUNIT_ASSERT(consumesInfo.produceMethodID_ == 0);
+  }
+
+  {
+    auto const& consumesInfo = consumes[2];
+    CPPUNIT_ASSERT(consumesInfo.recordForDataKey_ == EventSetupRecordKey::makeKey<DepRecord>());
+    CPPUNIT_ASSERT(consumesInfo.dataKey_.type() == edm::eventsetup::DataKey::makeTypeTag<DummyData>());
+    CPPUNIT_ASSERT(consumesInfo.dataKey_.name() == "");
+    CPPUNIT_ASSERT(consumesInfo.componentLabel_.empty());
+    CPPUNIT_ASSERT(consumesInfo.produceMethodID_ == 0);
+  }
+}
+
+void testEsproducer::producesTest() {
+  LabelledProducer prod;
+
+  auto const& produces = prod.producesInfo();
+  CPPUNIT_ASSERT(produces.size() == 3);
+  {
+    auto const& producesInfo = produces[0];
+
+    CPPUNIT_ASSERT(producesInfo.record() == EventSetupRecordKey::makeKey<DummyRecord>());
+    CPPUNIT_ASSERT(producesInfo.dataKey().type() == edm::eventsetup::DataKey::makeTypeTag<DummyData>());
+    CPPUNIT_ASSERT(producesInfo.dataKey().name() == "fi");
+    CPPUNIT_ASSERT(producesInfo.produceMethodID() == 0);
+  }
+  {
+    auto const& producesInfo = produces[1];
+    CPPUNIT_ASSERT(producesInfo.record() == EventSetupRecordKey::makeKey<DummyRecord>());
+    CPPUNIT_ASSERT(producesInfo.dataKey().type() == edm::eventsetup::DataKey::makeTypeTag<DummyData>());
+    CPPUNIT_ASSERT(producesInfo.dataKey().name() == "fum");
+    CPPUNIT_ASSERT(producesInfo.produceMethodID() == 0);
+  }
+  {
+    auto const& producesInfo = produces[2];
+    CPPUNIT_ASSERT(producesInfo.record() == EventSetupRecordKey::makeKey<DummyRecord>());
+    CPPUNIT_ASSERT(producesInfo.dataKey().type() == edm::eventsetup::DataKey::makeTypeTag<DummyData>());
+    CPPUNIT_ASSERT(producesInfo.dataKey().name() == "foo");
+    CPPUNIT_ASSERT(producesInfo.produceMethodID() == 1);
+  }
+}
+
 void testEsproducer::failMultipleRegistration() { MultiRegisterProducer dummy; }
 
 void testEsproducer::forceCacheClearTest() {
@@ -714,6 +830,18 @@ namespace {
     std::shared_ptr<TestResolver> resolverDep_0_1_;
     std::shared_ptr<TestResolver> resolverDep_1_0_;
     std::shared_ptr<TestResolver> resolverDep_1_1_;
+
+    std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override {
+      std::vector<edm::eventsetup::ESModuleProducesInfo> returnValue;
+      returnValue.reserve(6);
+      returnValue.emplace_back(EventSetupRecordKey::makeKey<DummyRecord>(), dataKeyDummy_0_, 0);
+      returnValue.emplace_back(EventSetupRecordKey::makeKey<Dummy2Record>(), dataKeyDummy2_0_, 1);
+      returnValue.emplace_back(EventSetupRecordKey::makeKey<Dummy2Record>(), dataKeyDummy2_1_, 2);
+      returnValue.emplace_back(EventSetupRecordKey::makeKey<Dummy2Record>(), dataKeyDummy2_2_, 3);
+      returnValue.emplace_back(EventSetupRecordKey::makeKey<DepRecord>(), dataKeyDep_0_, 4);
+      returnValue.emplace_back(EventSetupRecordKey::makeKey<DepRecord>(), dataKeyDep_1_, 5);
+      return returnValue;
+    }
 
   private:
     KeyedResolversVector registerResolvers(const EventSetupRecordKey& recordKey, unsigned int iovIndex) override {

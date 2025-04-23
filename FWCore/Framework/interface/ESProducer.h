@@ -95,6 +95,7 @@ namespace edm {
   namespace eventsetup {
     struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
+    class ESModuleConsumesMinimalInfo;
 
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
@@ -158,11 +159,13 @@ namespace edm {
 
     SerialTaskQueueChain& queue() { return acquirer_.serialQueueChain(); }
 
-    void esModulesWhoseProductsAreConsumed(std::vector<eventsetup::ComponentDescription const*>& esModules,
-                                           eventsetup::ESRecordsToProductResolverIndices const&) const;
-
     std::vector<std::vector<ESModuleConsumesInfo>> esModuleConsumesInfos(
         eventsetup::ESRecordsToProductResolverIndices const&) const;
+
+    /** Returns a vector of ESModuleConsumesMinimalInfo.
+        Each entry contains minimal information about the products that a method consumes.
+    */
+    std::vector<eventsetup::ESModuleConsumesMinimalInfo> esModuleConsumesMinimalInfos() const;
 
   protected:
     /** Specify the names of the shared resources used by this ESProducer */
