@@ -121,6 +121,8 @@ namespace edm {
 
     std::vector<ModuleConsumesInfo> moduleConsumesInfos() const;
     ///This can only be called before the end of beginJob (after that the underlying data has been deleted)
+    /// The pointers held by ModuleConsumesMinimalESInfo will also be invalid at that time so copies of
+    /// that class should not be held beyond the end of beginJob.
     std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const;
 
     ESResolverIndex const* esGetTokenIndices(edm::Transition iTrans) const {

@@ -240,6 +240,11 @@ CondHDF5ESSource::KeyedResolversVector CondHDF5ESSource::registerResolvers(Event
 
 std::vector<edm::eventsetup::ESModuleProducesInfo> CondHDF5ESSource::producesInfo() const {
   std::vector<edm::eventsetup::ESModuleProducesInfo> returnValue;
+  auto size = 0;
+  for (auto const& recInfo : records_) {
+    size += recInfo.dataProducts_.size();
+  }
+  returnValue.reserve(size);
 
   for (auto const& recInfo : records_) {
     EventSetupRecordKey rec{edm::eventsetup::heterocontainer::HCTypeTag::findType(recInfo.name_)};

@@ -91,8 +91,8 @@ namespace edm {
         auto const& typeID = consumesInfo.type();
 
         if (not consumesInfo.skipCurrentProcess()) {
-          assert(*consumedModuleLabel.data() !=
-                 '\0');  // consumesMany used to create empty labels before we removed consumesMany
+          // consumesMany used to create empty labels before we removed consumesMany
+          assert(*consumedModuleLabel.data() != '\0');
           if (*consumedProcessName.data() != '\0') {  // process name is specified in consumes call
             if (helper.index(kind,
                              typeID,

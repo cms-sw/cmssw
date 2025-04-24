@@ -651,6 +651,7 @@ edm::eventsetup::ESProductResolverProvider::KeyedResolversVector CondDBESSource:
 
 std::vector<edm::eventsetup::ESModuleProducesInfo> CondDBESSource::producesInfo() const {
   std::vector<edm::eventsetup::ESModuleProducesInfo> returnValue;
+  returnValue.reserve(m_resolvers.size());
 
   for (auto const& recToResolver : m_resolvers) {
     unsigned int index = returnValue.size();
