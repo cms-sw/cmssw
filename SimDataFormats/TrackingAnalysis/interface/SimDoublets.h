@@ -155,14 +155,23 @@ public:
     Ntuplet() = default;
 
     // constructor
-    Ntuplet(uint8_t const numDoublets, uint8_t const status, uint8_t const firstLayerId, uint8_t const lastLayerId)
-        : numDoublets_(numDoublets), status_(status), firstLayerId_(firstLayerId), lastLayerId_(lastLayerId){};
+    Ntuplet(uint8_t const numDoublets,
+            uint8_t const status,
+            uint8_t const firstLayerId,
+            uint8_t const lastLayerId,
+            uint8_t const numSkippedLayers)
+        : numDoublets_(numDoublets),
+          status_(status),
+          firstLayerId_(firstLayerId),
+          lastLayerId_(lastLayerId),
+          numSkippedLayers_(numSkippedLayers){};
 
     // accessing the different members
     uint8_t numDoublets() const { return numDoublets_; }
     uint8_t numRecHits() const { return (numDoublets_ + 1); }
     uint8_t firstLayerId() const { return firstLayerId_; }
     uint8_t lastLayerId() const { return lastLayerId_; }
+    uint8_t numSkippedLayers() const { return numSkippedLayers_; }
 
     // method to update an external status
     static uint8_t updateStatus(uint8_t status,
@@ -212,6 +221,7 @@ public:
     uint8_t status_;        // status flags of the Ntuplet (missing layer pairs, undefined cuts, killed doublets, etc.)
     uint8_t firstLayerId_;  // index of the first layer of the Ntuplet
     uint8_t lastLayerId_;   // index of the last layer of the Ntuplet
+    uint8_t numSkippedLayers_;  // number of skipped layers over the full Ntuplet (sum of skips by doublets)
   };
 
   // default contructor
@@ -313,8 +323,9 @@ private:
   // function for recursive building of Ntuplets
   void buildSimNtuplets(Doublet const& doublet,
                         size_t numSimDoublets,
-                        size_t lastLayerId,
-                        uint8_t status,
+                        size_t const lastLayerId,
+                        uint8_t const status,
+                        uint8_t const numSkippedLayers,
                         size_t const minNumDoubletsToPass) const;
 
   // class members
