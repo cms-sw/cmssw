@@ -17,17 +17,14 @@
 #include <algorithm>
 
 // For conifer model inference
-//typedef ap_fixed<21, 12, AP_RND_CONV, AP_SAT> bdt_feature_t;
-//typedef ap_fixed<12, 3, AP_RND_CONV, AP_SAT> bdt_score_t;
-//conifer::BDT<bdt_feature_t, ap_fixed<12, 3, AP_RND_CONV, AP_SAT>, false> *multiclass_bdt_;
-
 typedef ap_fixed<20, 10> bdt_feature_t;
-typedef ap_fixed<20, 10> bdt_score_t;
-//typedef ap_fixed<18, 8, AP_RND_CONV, AP_SAT> bdt_feature_t;
-//typedef ap_fixed<18, 8, AP_RND_CONV, AP_SAT> bdt_score_t;
-//conifer::BDT<bdt_feature_t, ap_fixed<18, 8, AP_RND_CONV, AP_SAT>, false> *multiclass_bdt_;
+typedef ap_fixed<20, 6> bdt_score_t;
+
 conifer::BDT<bdt_feature_t, bdt_score_t, false> *multiclass_bdt_;
 
+std::vector<float> wp_PU;
+std::vector<float> wp_Pi;
+std::vector<float> wp_Eg;
 
 std::vector<bdt_feature_t> inputs;
 std::vector<bdt_score_t> bdt_score;

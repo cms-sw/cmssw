@@ -89,6 +89,10 @@ namespace l1t {
     void setPiIDScore(float score) { piIdScore_ = score; }
     float piIDScore() const { return piIdScore_; }
 
+    // Kyungmin
+    void setRho(float rho) { rho_ = rho; }
+    float getRho() const { return rho_; } 
+
     uint64_t digiWord() const { return digiData_; }
     void setDigiWord(uint64_t data) {
       digiData_ = data;
@@ -99,6 +103,7 @@ namespace l1t {
     // HGC dedicated quantities (0ed by default)
     float absZBarycenter_, sigmaRR_;
     float puIdScore_, emIdScore_, piIdScore_;
+    float rho_; // Kyungmin
 
     ConstituentsAndFractions constituents_;
     uint64_t digiData_;
