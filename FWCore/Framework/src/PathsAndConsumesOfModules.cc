@@ -2,20 +2,23 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Framework/interface/ESModuleConsumesMinimalInfo.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/ServiceRegistry/interface/ESModuleConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesESInfo.h"
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
-
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include <algorithm>
 #include <limits>
 #include <unordered_set>
 #include <utility>
+#include <set>
 
 #include <iostream>  // for debugging
 
@@ -207,7 +210,6 @@ namespace edm {
         schedule_->allWorkers(), allModuleDescriptions_, moduleIDToIndex_, modulesWhoseProductsAreConsumedBy_, *preg);
   }
 
-  namespace {}  // namespace
   using ProducedByESModule = PathsAndConsumesOfModules::ProducedByESModule;
   namespace {
     void esModulesWhoseProductsAreConsumed(
@@ -265,17 +267,26 @@ namespace edm {
       return esModulesWhoseProductsAreConsumedBy;
     }
 
-    ProducedByESModule fillProducedByESModule(
-        std::vector<const eventsetup::ESProductResolverProvider*> const& allESProductResolverProviders) {
+    ProducedByESModule fillProducedByESModule(eventsetup::EventSetupProvider const& esProvider) {
       ProducedByESModule producedByESModule;
 
-      for (auto const& provider : allESProductResolverProviders) {
-        auto const& producesInfo = provider->producesInfo();
-        for (auto const& info : producesInfo) {
-          auto const& recordKey = info.record();
-          auto const& dataKey = info.dataKey();
-          auto const& componentDescription = provider->description();
-          producedByESModule[recordKey][dataKey] = {&componentDescription, info.produceMethodID()};
+      std::set<eventsetup::EventSetupRecordKey> keys;
+      esProvider.fillKeys(keys);
+
+      for (auto const& recordKey : keys) {
+        auto const* providers = esProvider.tryToGetRecordProvider(recordKey);
+        if (providers) {
+          auto const& datakeys = providers->registeredDataKeys();
+          auto const& componentsForDataKeys = providers->componentsForRegisteredDataKeys();
+          auto const& produceMethodIDs = providers->produceMethodIDsForRegisteredDataKeys();
+          assert(datakeys.size() == componentsForDataKeys.size());
+          assert(datakeys.size() == produceMethodIDs.size());
+          for (unsigned int i = 0; i < datakeys.size(); ++i) {
+            auto const& dataKey = datakeys[i];
+            auto const* componentDescription = componentsForDataKeys[i];
+            auto produceMethodID = produceMethodIDs[i];
+            producedByESModule[recordKey][dataKey] = {componentDescription, produceMethodID};
+          }
         }
       }
       return producedByESModule;
@@ -337,7 +348,7 @@ namespace edm {
   void PathsAndConsumesOfModules::initializeForEventSetup(eventsetup::EventSetupProvider const& eventSetupProvider) {
     eventSetupProvider.fillAllESProductResolverProviders(allESProductResolverProviders_);
 
-    producedByESModule_ = fillProducedByESModule(allESProductResolverProviders_);
+    producedByESModule_ = fillProducedByESModule(eventSetupProvider);
 
     esModulesWhoseProductsAreConsumedBy_ =
         esModulesWhoseProductsAreConsumedByCreate(schedule_->allWorkers(), producedByESModule_);
