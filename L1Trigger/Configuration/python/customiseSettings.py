@@ -1,6 +1,10 @@
 import os.path
 import FWCore.ParameterSet.Config as cms
 
+def L1TSettingsToCaloParams_2025_v0_2(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2025_v0_2_cfi")
+    return process
+
 def L1TSettingsToCaloParams_2025_v0_1(process):
     process.load("L1Trigger.L1TCalorimeter.caloParams_2025_v0_1_cfi")
     return process
