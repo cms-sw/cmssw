@@ -1492,8 +1492,8 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     for (const auto& sc : caloParticle.simClusters()) {
       LogDebug("HGCalValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and "
                                  << sc->energy() << " energy. " << std::endl;
-      simHits += sc->hits_and_fractions().size();
-      for (auto const& h_and_f : sc->hits_and_fractions()) {
+      simHits += sc->endcap_hits_and_fractions().size();
+      for (auto const& h_and_f : sc->endcap_hits_and_fractions()) {
         const auto hitDetId = h_and_f.first;
         if (recHitTools_->isBarrel(hitDetId))
           continue;
@@ -1546,6 +1546,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     if (hitEnergyWeight_invSum)
       hitEnergyWeight_invSum = 1 / hitEnergyWeight_invSum;
 
+    if (minLayerId == 999) return;
     histograms.h_caloparticle_firstlayer.at(pdgid)->Fill(minLayerId);
     histograms.h_caloparticle_lastlayer.at(pdgid)->Fill(maxLayerId);
     histograms.h_caloparticle_layersnum.at(pdgid)->Fill(int(maxLayerId - minLayerId));
