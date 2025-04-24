@@ -52,6 +52,31 @@ def customizeHLTfor47378(process):
     
     return process
 
+def customiseFor47926(process):
+
+    # if any of the following objects does not exist, do not apply any customisation
+    for objLabel in [
+        'hltSiStripRawToClustersFacility',
+        'HLTDoLocalStripSequence',
+        'HLTIterativeTrackingIteration0',
+        'hltIter0PFlowCkfTrackCandidates',
+    ]:
+        if not hasattr(process, objLabel):
+            print(f'# WARNING: customizeHLTIter0ToMkFit failed (object with label "{objLabel}" not found) - no customisation applied !')
+            return process
+
+    process.hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits = mkFitSiStripHitConverterFromClusters_cfi.mkFitSiStripHitConverterFromClusters.clone(
+        clusters = "hltSiStripRawToClustersFacility",
+        ttrhBuilder = ":hltESPTTRHBWithTrackAngle",
+        StripCPE = process.hltSiStripRecHits.StripCPE,
+        minGoodStripCharge = dict(refToPSet_ = 'HLTSiStripClusterChargeCutLoose'),
+        doMatching = False,
+    )
+
+    delattr(process, "hltSiStripRecHits")
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -60,5 +85,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customizeHLTfor47378(process)
+    process = customiseFor47926(process)
     
     return process
