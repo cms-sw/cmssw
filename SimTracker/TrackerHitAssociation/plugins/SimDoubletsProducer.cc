@@ -84,7 +84,10 @@ private:
   pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams_ = nullptr;
   const TrackerTopology* trackerTopology_ = nullptr;
   const TrackerGeometry* trackerGeometry_ = nullptr;
-  unsigned int numLayersOT_; // number of OT layers considered for CA extension
+
+  unsigned int numLayersOT_;   // number of OT layers considered for CA extension
+  bool dropEvenLayerRecHits_;  // if true, no RecHits from even layers are considered
+  bool dropOddLayerRecHits_;   // if true, no RecHits from odd layers are considered
 
   // tokens for ClusterParameterEstimator, tracker topology, ect.
   const edm::ESGetToken<PixelCPEFastParamsHost<TrackerTraits>, PixelCPEFastParamsRecord> cpe_getToken_;
@@ -170,6 +173,8 @@ namespace simdoublets {
 template <typename TrackerTraits>
 SimDoubletsProducer<TrackerTraits>::SimDoubletsProducer(const edm::ParameterSet& pSet)
     : numLayersOT_(pSet.getParameter<int>("numLayersOT")),
+      dropEvenLayerRecHits_(pSet.getParameter<bool>("dropEvenLayerRecHits")),
+      dropOddLayerRecHits_(pSet.getParameter<bool>("dropOddLayerRecHits")),
       cpe_getToken_(esConsumes(edm::ESInputTag("", pSet.getParameter<std::string>("CPE")))),
       topology_getToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       geometry_getToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
@@ -223,6 +228,10 @@ void SimDoubletsProducer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
 
   // Extension settings
   desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
+  desc.add<bool>("dropEvenLayerRecHits", false)
+      ->setComment("If true, the RecHits in layers with even index are dropped when building the SimNtuplets.");
+  desc.add<bool>("dropOddLayerRecHits", false)
+      ->setComment("If true, the RecHits in layers with odd index are dropped when building the SimNtuplets.");
 
   // parameter set for the selection of TrackingParticles that will be used for SimHitDoublets
   edm::ParameterSetDescription descTPSelector;
@@ -263,9 +272,13 @@ void SimDoubletsProducer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
   desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("hltSiPixelRecHits"));
   desc.add<edm::InputTag>("outerTrackerRecHitSrc", edm::InputTag("hltSiPhase2RecHits"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("hltOnlineBeamSpot"));
-  
+
   // Extension settings
   desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
+  desc.add<bool>("dropEvenLayerRecHits", false)
+      ->setComment("If true, the RecHits in layers with even index are dropped when building the SimNtuplets.");
+  desc.add<bool>("dropOddLayerRecHits", false)
+      ->setComment("If true, the RecHits in layers with odd index are dropped when building the SimNtuplets.");
 
   // parameter set for the selection of TrackingParticles that will be used for SimHitDoublets
   edm::ParameterSetDescription descTPSelector;
@@ -372,6 +385,14 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
     // determine layer Id from detector Id
     layerId = simdoublets::getLayerId<TrackerTraits>(detId, trackerTopology_);
 
+    // check if we would like to skip
+    if (dropEvenLayerRecHits_ && (layerId % 2 == 0)) {
+      continue;
+    }
+    if (dropOddLayerRecHits_ && (layerId % 2 == 1)) {
+      continue;
+    }
+
     // determine the module Id
     // const GeomDetUnit* genericDet = geom_->idToDetUnit(detIdObject);
     moduleId = trackerGeometry_->idToDetUnit(detIdObject)->index();
@@ -425,11 +446,20 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
     layerIdOT = trackerTopology_->getOTLayerNumber(detId);
 
     // only use the RecHits if the module is in the accepted range of layers and one of the Phase 2 PS, p-sensor
-    if ((layerIdOT <= numLayersOT_) && (trackerGeometry_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP)) {
+    if ((layerIdOT <= numLayersOT_) &&
+        (trackerGeometry_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP)) {
       // determine layer Id from detector Id plus the offset from the pixel layers:
       // layerId = layerId(OT) + N(pixelLayers) - 1
       // the (-1) comes from the layerId(OT) starting from 1 instead of 0
       layerId = layerIdOT + TrackerTraits::numberOfLayers - 1;
+
+      // check if we would like to skip
+      if (dropEvenLayerRecHits_ && (layerId % 2 == 0)) {
+        continue;
+      }
+      if (dropOddLayerRecHits_ && (layerId % 2 == 1)) {
+        continue;
+      }
 
       // determine the module Id
       moduleId = trackerGeometry_->idToDetUnit(detIdObject)->index();
