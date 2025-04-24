@@ -103,6 +103,7 @@ private:
   float debugEta_, debugPhi_, debugR_;
 
   // these are used to link items back
+  std::unordered_map<const l1t::L1Candidate *, edm::Ptr<l1t::L1Candidate>> clusterRefMap_;
   std::unordered_map<const l1t::PFTrack *, l1t::PFTrackRef> trackRefMap_;
   std::unordered_map<const l1t::SAMuon *, l1t::PFCandidate::MuonRef> muonRefMap_;
 
@@ -126,13 +127,22 @@ private:
   void addDecodedEmCalo(l1ct::EmCaloObjEmu &decCalo,
                         const edm::Handle<l1tp2::CaloCrystalClusterCollection> &caloHandle,
                         unsigned int ic,
-                        std::deque<l1t::PFCluster> &pfClusters,
                         l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec);
+  // FIXME: could be templated? maybe not after adding specific variables for Gct and HGCal clusters
+  void getEmPFCluster(const l1ct::EmCaloObjEmu &decCalo,
+                      const l1ct::PFRegionEmu &region,
+                      std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const;
+
   void addDecodedHadCalo(l1ct::HadCaloObjEmu &decCalo,
                          const edm::Handle<edm::View<l1t::L1Candidate>> &caloHandle,
                          unsigned int ic,
-                         std::deque<l1t::PFCluster> &pfClusters,
                          l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec);
+
+  // FIXME: could be templated? maybe not after adding specific variables for Gct and HGCal clusters
+  void getHadPFCluster(const l1ct::HadCaloObjEmu &decCalo,
+                       const l1ct::PFRegionEmu &region,
+                       std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const;
+
   void addUInt(unsigned int value, std::string iLabel, edm::Event &iEvent);
 
   void initSectorsAndRegions(const edm::ParameterSet &iConfig);
@@ -152,7 +162,9 @@ private:
   std::unique_ptr<l1t::PFCandidateCollection> fetchEmCalo() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchTracks() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchPF() const;
-  std::unique_ptr<std::vector<l1t::PFTrack>> fetchDecodedTracks() const;
+  std::unique_ptr<l1t::PFClusterCollection> fetchDecodedHadCalo() const;
+  std::unique_ptr<l1t::PFClusterCollection> fetchDecodedEmCalo() const;
+  std::unique_ptr<l1t::PFTrackCollection> fetchDecodedTracks() const;
   void putPuppi(edm::Event &iEvent) const;
 
   void putEgStaObjects(edm::Event &iEvent, const std::string &egLablel) const;
@@ -165,6 +177,19 @@ private:
 
   template <typename T>
   void setRefs_(l1t::PFCandidate &pf, const T &p) const;
+  template <typename T>
+  void setRefs_(l1t::PFCluster &pf, const T &p) const;
+  template<typename Tm, typename Tk, typename To>
+  auto findRef_(const Tm& map, const Tk* key, const To& obj) const {
+    auto match = map.find(key);
+    if (match == map.end()) {
+      throw cms::Exception("CorruptData") << refExcepMsg_(obj);
+    }
+    return match->second;
+  }
+  template<typename T>
+  std::string refExcepMsg_(const T &key) const;
+
 
   void doVertexings(std::vector<float> &pvdz) const;
   // for multiplicities
@@ -222,9 +247,9 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
 #if 0  // LATER
   produces<l1t::PFCandidateCollection>("TKVtx");
 #endif
-  produces<std::vector<l1t::PFTrack>>("DecodedTK");
-  produces<l1t::PFClusterCollection>("DecodedEmPFClusters");
-  produces<l1t::PFClusterCollection>("DecodedHadPFClusters");
+  produces<l1t::PFTrackCollection>("DecodedTK");
+  produces<l1t::PFClusterCollection>("DecodedEmClusters");
+  produces<l1t::PFClusterCollection>("DecodedHadClusters");
 
   if (hasTracks_) {
     const std::string &tkInAlgo = iConfig.getParameter<std::string>("trackInputConversionAlgo");
@@ -485,10 +510,6 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
     addMuon(mu, l1t::PFCandidate::MuonRef(muons, i));
   }
   // ------ READ CALOS -----
-
-  // NOTE: we use deque because it guarantees pointer stability upon insertions...there might be better options
-  std::deque<l1t::PFCluster> emDecodedClusters;
-
   edm::Handle<l1tp2::CaloCrystalClusterCollection> emClusters;
   edm::Handle<l1tp2::DigitizedClusterCorrelatorCollection> emRawClusters;
   iEvent.getByToken(emCands_, emClusters);
@@ -510,15 +531,12 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
           // FIXME: this should be replaced by a call to the unpacker....
           getDecodedGctEmCluster(decCalo, sec, rawCalo);
           if (decCalo.floatPt() > hadPtCut_) {
-            addDecodedEmCalo(decCalo, emClusters, ic, emDecodedClusters, sec);
+            addDecodedEmCalo(decCalo, emClusters, ic, sec);
           }
         }
       }
     }
   }
-
-  // NOTE: we use deque because it guarantees pointer stability upon insertions...there might be better options
-  std::deque<l1t::PFCluster> hadDecodedClusters;
 
   edm::Handle<edm::View<l1t::L1Candidate>> caloHandle;
   iEvent.getByToken(hadCands_, caloHandle);
@@ -531,7 +549,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
 
       for (unsigned int isec = 0; isec < event_.decoded.hadcalo.size(); isec++) {
         auto &sec = event_.decoded.hadcalo[isec];
-        // 0. get the raw and decoded sectors
+        // Get the raw and decoded sectors
         if (sec.region.contains(calo.eta(), calo.phi())) {
           l1ct::HadCaloObjEmu decCalo;
           bool valid = true;
@@ -552,7 +570,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
             getDecodedGctPFCluster(decCalo, sec, pfcl);
           }
           if (decCalo.floatPt() > hadPtCut_ && valid) {
-            addDecodedHadCalo(decCalo, caloHandle, ic, hadDecodedClusters, sec);
+            addDecodedHadCalo(decCalo, caloHandle, ic, sec);
           }
         }
       }
@@ -562,15 +580,14 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   regionizer_->run(event_.decoded, event_.pfinputs);
 
   // First, get a copy of the discretized and corrected inputs, and write them out
-  iEvent.put(fetchEmCalo(), "EmCalo");  // FIXME: still needed? now replaced by PFClusters
-  iEvent.put(fetchHadCalo(), "Calo");   // FIXME: still needed? now replaced by PFClusters
+  // FIXME: steer via config flag
+  iEvent.put(fetchEmCalo(), "EmCalo");
+  iEvent.put(fetchHadCalo(), "Calo");
   iEvent.put(fetchTracks(), "TK");
-  iEvent.put(fetchDecodedTracks(), "DecodedTK");
 
-  // FIXME: add a flag: writing these out should be optional
-  // FIXME: add fetch method and solve duplications before writing (can use the index of the ptr to the consituents)
-  // iEvent.put(std::move(hadDecodedClusters), "DecodedHadPFClusters"); //FIXME: convert to std::unique_ptr<l1t::PFClusterContainer>
-  // iEvent.put(std::move(emDecodedClusters), "DecodedEmPFClusters"); //FIXME: convert to std::unique_ptr<l1t::PFClusterContainer>
+  iEvent.put(fetchDecodedHadCalo(), "DecodedHadClusters");
+  iEvent.put(fetchDecodedEmCalo(), "DecodedEmClusters");
+  iEvent.put(fetchDecodedTracks(), "DecodedTK");
 
   // Then do the vertexing, and save it out
   std::vector<float> z0s;
@@ -761,51 +778,59 @@ void L1TCorrelatorLayer1Producer::encodeAndAddHgcalCluster(ap_uint<256> &word,
   sec.obj.push_back(word);
 }
 
-// FIXME: besides the specific "cluster shape variables" this function and the had one could be merged via templates
-// we will see after the new implementation is complete: it all depends on the decision about PFClusters.
-// do we need to specialize them for barrel& endcap or we can just add all variables to the same class?
-void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::EmCaloObjEmu &decCalo,
-                                                   const edm::Handle<l1tp2::CaloCrystalClusterCollection> &caloHandle,
-                                                   unsigned int ic,
-                                                   std::deque<l1t::PFCluster> &pfClusters,
-                                                   l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec) {
+void L1TCorrelatorLayer1Producer::getEmPFCluster(const l1ct::EmCaloObjEmu &decCalo,
+                                                 const l1ct::PFRegionEmu &region,
+                                                 std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const {
   // Crete the PFCluster and add the original object as Consitutent
   l1t::PFCluster pfCl(decCalo.floatPt(),
-                      sec.region.floatGlbEta(decCalo.hwEta),
-                      sec.region.floatGlbPhi(decCalo.hwPhi),
+                      region.floatGlbEta(decCalo.hwEta),
+                      region.floatGlbPhi(decCalo.hwPhi),
                       decCalo.floatHoe(),
                       true);  // FIXME: is this used?
   // Add additional variables specialized for GCT and HGCal clusters
   pfCl.setSigmaRR(decCalo.floatSrrTot());
   pfCl.setAbsZBarycenter(decCalo.floatMeanZ());
-  pfCl.addConstituent(edm::Ptr<l1t::L1Candidate>(caloHandle, ic));
-
-  pfClusters.push_back(pfCl);
-  decCalo.src = &(pfClusters.back());
-  // Add the the Ref to the PF Cluster to the Decoded object
-  sec.obj.push_back(decCalo);  // ref before put
+  setRefs_(pfCl, decCalo);
+  pfClusters->push_back(pfCl);
 }
 
-void L1TCorrelatorLayer1Producer::addDecodedHadCalo(l1ct::HadCaloObjEmu &decCalo,
-                                                    const edm::Handle<edm::View<l1t::L1Candidate>> &caloHandle,
-                                                    unsigned int ic,
-                                                    std::deque<l1t::PFCluster> &pfClusters,
-                                                    l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec) {
+void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::EmCaloObjEmu &decCalo,
+                                                   const edm::Handle<l1tp2::CaloCrystalClusterCollection> &caloHandle,
+                                                   unsigned int ic,
+                                                   l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec) {
+  const auto caloPtr = edm::Ptr<l1t::L1Candidate>(caloHandle, ic);
+  clusterRefMap_[caloPtr.get()] = caloPtr;
+  decCalo.src = caloPtr.get();
+  sec.obj.push_back(decCalo);
+}
+
+// FIXME: besides the specific "cluster shape variables" this function and the EM one could be merged via templates
+// we will see after the new implementation is complete: it all depends on the decision about PFClusters.
+// do we need to specialize them for barrel& endcap or we can just add all variables to the same class?
+void L1TCorrelatorLayer1Producer::getHadPFCluster(const l1ct::HadCaloObjEmu &decCalo,
+                                                  const l1ct::PFRegionEmu &region,
+                                                  std::unique_ptr<l1t::PFClusterCollection> &pfClusters) const {
   // Crete the PFCluster and add the original object as Consitutent
   l1t::PFCluster pfCl(decCalo.floatPt(),
-                      sec.region.floatGlbEta(decCalo.hwEta),
-                      sec.region.floatGlbPhi(decCalo.hwPhi),
+                      region.floatGlbEta(decCalo.hwEta),
+                      region.floatGlbPhi(decCalo.hwPhi),
                       decCalo.floatHoe(),
                       decCalo.hwIsEM());
   // Add additional variables specialized for GCT and HGCal clusters
   pfCl.setSigmaRR(decCalo.floatSrrTot());
   pfCl.setAbsZBarycenter(decCalo.floatMeanZ());
-  pfCl.addConstituent(edm::Ptr<l1t::L1Candidate>(caloHandle, ic));
+  setRefs_(pfCl, decCalo);
+  pfClusters->push_back(pfCl);
+}
 
-  pfClusters.push_back(pfCl);
-  decCalo.src = &(pfClusters.back());
-  // Add the the Ref to the PF Cluster to the Decoded object
-  sec.obj.push_back(decCalo);  // ref before put
+void L1TCorrelatorLayer1Producer::addDecodedHadCalo(l1ct::HadCaloObjEmu &decCalo,
+                                                    const edm::Handle<edm::View<l1t::L1Candidate>> &caloHandle,
+                                                    unsigned int ic,
+                                                    l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec) {
+  const auto caloPtr = edm::Ptr<l1t::L1Candidate>(caloHandle, ic);
+  clusterRefMap_[caloPtr.get()] = caloPtr;
+  decCalo.src = caloPtr.get();
+  sec.obj.push_back(decCalo);
 }
 
 void L1TCorrelatorLayer1Producer::addUInt(unsigned int value, std::string iLabel, edm::Event &iEvent) {
@@ -893,6 +918,7 @@ void L1TCorrelatorLayer1Producer::initEvent(const edm::Event &iEvent) {
   event_.run = iEvent.id().run();
   event_.lumi = iEvent.id().luminosityBlock();
   event_.event = iEvent.id().event();
+  clusterRefMap_.clear();
   trackRefMap_.clear();
   muonRefMap_.clear();
 }
@@ -1007,8 +1033,14 @@ void L1TCorrelatorLayer1Producer::getDecodedGctPFCluster(l1ct::HadCaloObjEmu &ca
 
 template <typename T>
 void L1TCorrelatorLayer1Producer::setRefs_(l1t::PFCandidate &pf, const T &p) const {
-  if (p.srcCluster)
-    pf.setCaloPtr(p.srcCluster->constituentsAndFractions()[0].first);
+  if (p.srcCluster) {
+    auto match = clusterRefMap_.find(p.srcCluster);
+    if (match == clusterRefMap_.end()) {
+      throw cms::Exception("CorruptData") << "Invalid cluster pointer in PF candidate id " << p.intId() << " pt "
+                                          << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
+    }
+    pf.setCaloPtr(match->second);
+  }
 
   if (p.srcTrack) {
     auto match = trackRefMap_.find(p.srcTrack);
@@ -1028,38 +1060,80 @@ void L1TCorrelatorLayer1Producer::setRefs_(l1t::PFCandidate &pf, const T &p) con
   }
 }
 
+template<>
+std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::PFNeutralObjEmu>(const l1ct::PFNeutralObjEmu &key) const {
+  return "Invalid pointer in Neutral PF candidate id " + std::to_string(key.intId()) + " pt " + std::to_string(key.floatPt()) +
+         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+}
+
+template<>
+std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::HadCaloObjEmu>(const l1ct::HadCaloObjEmu &key) const {
+  return "Invalid pointer in hadcalo obj, pt " + std::to_string(key.floatPt()) +
+         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+}
+
+template<>
+std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::EmCaloObjEmu>(const l1ct::EmCaloObjEmu &key) const {
+  return "Invalid pointer in emcalo obj, pt " + std::to_string(key.floatPt()) +
+         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+}
+
+template<>
+std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::TkObjEmu>(const l1ct::TkObjEmu &key) const {
+  return "Invalid track pointer in track obj, pt " + std::to_string(key.floatPt()) +
+         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+}
+
+template<>
+std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::EGIsoObjEmu>(const l1ct::EGIsoObjEmu &key) const {
+  return "Invalid cluster pointer in EGIso candidate, pt " + std::to_string(key.floatPt()) +
+         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+}
+
+template<>
+std::string  L1TCorrelatorLayer1Producer::refExcepMsg_<l1ct::EGIsoEleObjEmu>(const l1ct::EGIsoEleObjEmu &key) const {
+  return "Invalid cluster pointer in EGEleIso candidate, pt " + std::to_string(key.floatPt()) +
+         " eta " + std::to_string(key.floatEta()) + " phi " + std::to_string(key.floatPhi());
+}
+
+
+
+
 template <>
 void L1TCorrelatorLayer1Producer::setRefs_<l1ct::PFNeutralObjEmu>(l1t::PFCandidate &pf,
                                                                   const l1ct::PFNeutralObjEmu &p) const {
-  if (p.srcCluster)
-    pf.setCaloPtr(p.srcCluster->constituentsAndFractions()[0].first);
+  if (p.srcCluster) {
+    pf.setCaloPtr(findRef_(clusterRefMap_, p.srcCluster, p));
+  }
 }
 
-// FIXME: this method is not needed anymore
 template <>
 void L1TCorrelatorLayer1Producer::setRefs_<l1ct::HadCaloObjEmu>(l1t::PFCandidate &pf,
                                                                 const l1ct::HadCaloObjEmu &p) const {
-  if (p.src)
-    pf.setCaloPtr(p.src->constituentsAndFractions()[0].first);
+  if (p.src) {
+    pf.setCaloPtr(findRef_(clusterRefMap_, p.src, p));
+  }
 }
 
-// FIXME: this method is not needed anymore
 template <>
 void L1TCorrelatorLayer1Producer::setRefs_<l1ct::EmCaloObjEmu>(l1t::PFCandidate &pf,
                                                                const l1ct::EmCaloObjEmu &p) const {
-  if (p.src)
-    pf.setCaloPtr(p.src->constituentsAndFractions()[0].first);
+  if (p.src) {
+    pf.setCaloPtr(findRef_(clusterRefMap_, p.src, p));
+  }
 }
 
 template <>
 void L1TCorrelatorLayer1Producer::setRefs_<l1ct::TkObjEmu>(l1t::PFCandidate &pf, const l1ct::TkObjEmu &p) const {
   if (p.src) {
-    auto match = trackRefMap_.find(p.src);
-    if (match == trackRefMap_.end()) {
-      throw cms::Exception("CorruptData") << "Invalid track pointer in track candidate  pt " << p.floatPt() << " eta "
-                                          << p.floatEta() << " phi " << p.floatPhi();
-    }
-    pf.setPFTrack(match->second);
+    pf.setPFTrack(findRef_(trackRefMap_, p.src, p));
+  }
+}
+
+template <typename T>
+void L1TCorrelatorLayer1Producer::setRefs_(l1t::PFCluster &pf, const T &p) const {
+  if (p.src) {
+    pf.addConstituent(findRef_(clusterRefMap_, p.src, p));
   }
 }
 
@@ -1079,6 +1153,33 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchHa
   }
   return ret;
 }
+
+std::unique_ptr<l1t::PFClusterCollection> L1TCorrelatorLayer1Producer::fetchDecodedHadCalo() const {
+  auto ret = std::make_unique<l1t::PFClusterCollection>();
+  for (const auto &r : event_.pfinputs) {
+    const auto &reg = r.region;
+    for (const auto &p : r.hadcalo) {
+      if (p.hwPt == 0 || !reg.isFiducial(p))
+        continue;
+      getHadPFCluster(p, reg, ret);
+    }
+  }
+  return ret;
+}
+
+std::unique_ptr<l1t::PFClusterCollection> L1TCorrelatorLayer1Producer::fetchDecodedEmCalo() const {
+  auto ret = std::make_unique<l1t::PFClusterCollection>();
+  for (const auto &r : event_.pfinputs) {
+    const auto &reg = r.region;
+    for (const auto &p : r.emcalo) {
+      if (p.hwPt == 0 || !reg.isFiducial(p))
+        continue;
+      getEmPFCluster(p, reg, ret);
+    }
+  }
+  return ret;
+}
+
 std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchEmCalo() const {
   auto ret = std::make_unique<l1t::PFCandidateCollection>();
   for (const auto &r : event_.pfinputs) {
@@ -1110,8 +1211,8 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchTr
   return ret;
 }
 
-std::unique_ptr<std::vector<l1t::PFTrack>> L1TCorrelatorLayer1Producer::fetchDecodedTracks() const {
-  auto ret = std::make_unique<std::vector<l1t::PFTrack>>();
+std::unique_ptr<l1t::PFTrackCollection> L1TCorrelatorLayer1Producer::fetchDecodedTracks() const {
+  auto ret = std::make_unique<l1t::PFTrackCollection>();
   for (const auto &r : event_.decoded.track) {
     const auto &reg = r.region;
     for (const auto &p : r.obj) {
@@ -1279,7 +1380,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       reco::Candidate::PolarLorentzVector mom(egiso.floatPt(), egiso.floatEta(), egiso.floatPhi(), 0.);
 
       l1t::TkEm tkem(reco::Candidate::LorentzVector(mom),
-                     egiso.srcCluster->constituentsAndFractions()[0].first,
+                     findRef_(clusterRefMap_, egiso.srcCluster, egiso),
                      egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIso),
                      egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIsoPV));
       tkem.setHwQual(egiso.hwQual);
@@ -1299,7 +1400,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       reco::Candidate::PolarLorentzVector mom(egele.floatPt(), egele.floatVtxEta(), egele.floatVtxPhi(), 0.);
 
       l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom),
-                            egele.srcCluster->constituentsAndFractions()[0].first,
+                            findRef_(clusterRefMap_, egele.srcCluster, egele),
                             edm::refToPtr(egele.srcTrack->track()),
                             egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::TkIso));
       tkele.setHwQual(egele.hwQual);
