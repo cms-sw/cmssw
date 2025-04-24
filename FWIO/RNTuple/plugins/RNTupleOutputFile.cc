@@ -50,7 +50,7 @@ namespace {
   }
 }  // namespace
 
-using namespace ROOT::Experimental;
+using namespace ROOT;
 namespace edm {
   RNTupleOutputFile::RNTupleOutputFile(std::string const& iFileName,
                                        FileBlock const& iFileBlock,
@@ -90,29 +90,28 @@ This function allows one to override the default RNTuple behavior and instead st
 all bytes of a data type in one field. To do that one must find the storage type (typeName) and
 explicitly pass the correct variable to `SetColumnRepresentatives`).
      */
-    void noSplitField(ROOT::Experimental::RFieldBase& iField) {
+    void noSplitField(ROOT::RFieldBase& iField) {
       auto const& typeName = iField.GetTypeName();
       if (typeName == "std::uint16_t") {
-        iField.SetColumnRepresentatives({{ROOT::Experimental::EColumnType::kUInt16}});
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kUInt16}});
       } else if (typeName == "std::uint32_t") {
-        iField.SetColumnRepresentatives({{ROOT::Experimental::EColumnType::kUInt32}});
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kUInt32}});
       } else if (typeName == "std::uint64_t") {
-        iField.SetColumnRepresentatives({{ROOT::Experimental::EColumnType::kUInt64}});
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kUInt64}});
       } else if (typeName == "std::int16_t") {
-        iField.SetColumnRepresentatives({{ROOT::Experimental::EColumnType::kInt16}});
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kInt16}});
       } else if (typeName == "std::int32_t") {
-        iField.SetColumnRepresentatives({{ROOT::Experimental::EColumnType::kInt32}});
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kInt32}});
       } else if (typeName == "std::int64_t") {
-        iField.SetColumnRepresentatives({{ROOT::Experimental::EColumnType::kInt64}});
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kInt64}});
       } else if (typeName == "float") {
-        iField.SetColumnRepresentatives({{ROOT::Experimental::EColumnType::kReal32}});
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kReal32}});
       } else if (typeName == "double") {
-        iField.SetColumnRepresentatives({{ROOT::Experimental::EColumnType::kReal64}});
+        iField.SetColumnRepresentatives({{ROOT::ENTupleColumnType::kReal64}});
       }
     }
 
-    void findSubFieldsForNoSplitThenApply(ROOT::Experimental::RFieldBase& iField,
-                                          std::vector<std::string> const& iNoSplitFields) {
+    void findSubFieldsForNoSplitThenApply(ROOT::RFieldBase& iField, std::vector<std::string> const& iNoSplitFields) {
       for (auto const& name : iNoSplitFields) {
         if (name.starts_with(iField.GetFieldName())) {
           bool found = false;
@@ -142,9 +141,8 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
       try {
         edm::convertException::wrap([&]() {
           if (index >= iUseStreamer.size() or not iUseStreamer[index]) {
-            auto field = ROOT::Experimental::RFieldBase::Create(fixBranchName(prod.first->branchName()),
-                                                                prod.first->wrappedName())
-                             .Unwrap();
+            auto field =
+                ROOT::RFieldBase::Create(fixBranchName(prod.first->branchName()), prod.first->wrappedName()).Unwrap();
             if (noSplitSubFields) {
               //use the 'conventional' way to store fields
               for (auto& subfield : *field) {
@@ -155,8 +153,8 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
             }
             iModel.AddField(std::move(field));
           } else {
-            auto field = std::make_unique<ROOT::Experimental::RStreamerField>(fixBranchName(prod.first->branchName()),
-                                                                              prod.first->wrappedName());
+            auto field = std::make_unique<ROOT::RStreamerField>(fixBranchName(prod.first->branchName()),
+                                                                prod.first->wrappedName());
             iModel.AddField(std::move(field));
           }
           branchesWithStoredHistory_.insert(prod.first->branchID());
@@ -183,9 +181,9 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
   std::unique_ptr<RNTupleModel> RNTupleOutputFile::setupCommonModels(SelectedProducts const& iProducts,
                                                                      std::string const& iAuxName,
                                                                      std::string const& iAuxType) {
-    auto model = ROOT::Experimental::RNTupleModel::CreateBare();
+    auto model = ROOT::RNTupleModel::CreateBare();
     {
-      auto field = ROOT::Experimental::RFieldBase::Create(iAuxName, iAuxType).Unwrap();
+      auto field = ROOT::RFieldBase::Create(iAuxName, iAuxType).Unwrap();
       model->AddField(std::move(field));
     }
     const std::vector<bool> streamerNothing;
@@ -199,9 +197,9 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
     {
       auto model = setupCommonModels(iProducts, "RunAuxiliary", "edm::RunAuxiliary");
 
-      auto writeOptions = ROOT::Experimental::RNTupleWriteOptions();
+      auto writeOptions = ROOT::RNTupleWriteOptions();
       writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
-      runs_ = ROOT::Experimental::RNTupleWriter::Append(std::move(model), "Runs", file_, writeOptions);
+      runs_ = ROOT::RNTupleWriter::Append(std::move(model), "Runs", file_, writeOptions);
     }
     products_[InRun] = associateDataProducts(iProducts, runs_->GetModel());
     runAuxField_ = runs_->GetModel().GetToken(kRunAuxName);
@@ -211,9 +209,9 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
     {
       auto model = setupCommonModels(iProducts, "LuminosityBlockAuxiliary", "edm::LuminosityBlockAuxiliary");
 
-      auto writeOptions = ROOT::Experimental::RNTupleWriteOptions();
+      auto writeOptions = ROOT::RNTupleWriteOptions();
       writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
-      lumis_ = ROOT::Experimental::RNTupleWriter::Append(std::move(model), "LuminosityBlocks", file_, writeOptions);
+      lumis_ = ROOT::RNTupleWriter::Append(std::move(model), "LuminosityBlocks", file_, writeOptions);
     }
     products_[InLumi] = associateDataProducts(iProducts, lumis_->GetModel());
     lumiAuxField_ = lumis_->GetModel().GetToken(kLumiAuxName);
@@ -226,27 +224,26 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
     std::string kEventSelName = "EventSelections";
     std::string kBranchListName = "BranchListIndexes";
     {
-      auto model = ROOT::Experimental::RNTupleModel::CreateBare();
+      auto model = ROOT::RNTupleModel::CreateBare();
       {
-        auto field = ROOT::Experimental::RFieldBase::Create(kEventAuxName, "edm::EventAuxiliary").Unwrap();
+        auto field = ROOT::RFieldBase::Create(kEventAuxName, "edm::EventAuxiliary").Unwrap();
         model->AddField(std::move(field));
       }
       {
-        auto field =
-            ROOT::Experimental::RFieldBase::Create(kEventProvName, "std::vector<edm::StoredProductProvenance>").Unwrap();
+        auto field = ROOT::RFieldBase::Create(kEventProvName, "std::vector<edm::StoredProductProvenance>").Unwrap();
         model->AddField(std::move(field));
       }
       {
-        auto field = ROOT::Experimental::RFieldBase::Create(kEventSelName, "std::vector<edm::Hash<1> >").Unwrap();
+        auto field = ROOT::RFieldBase::Create(kEventSelName, "std::vector<edm::Hash<1> >").Unwrap();
         model->AddField(std::move(field));
       }
       {
-        auto field = ROOT::Experimental::RFieldBase::Create(kBranchListName, "std::vector<unsigned short>").Unwrap();
+        auto field = ROOT::RFieldBase::Create(kBranchListName, "std::vector<unsigned short>").Unwrap();
         model->AddField(std::move(field));
       }
       setupDataProducts(iProducts, iConfig.streamerProduct, iConfig.doNotSplitSubFields, *model);
 
-      auto writeOptions = ROOT::Experimental::RNTupleWriteOptions();
+      auto writeOptions = ROOT::RNTupleWriteOptions();
       writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
       writeOptions.SetApproxZippedClusterSize(iConfig.approxZippedClusterSize);
       writeOptions.SetMaxUnzippedClusterSize(iConfig.maxUnzippedClusterSize);
@@ -255,7 +252,7 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
       writeOptions.SetPageBufferBudget(iConfig.pageBufferBudget);
       writeOptions.SetUseBufferedWrite(iConfig.useBufferedWrite);
       writeOptions.SetUseDirectIO(iConfig.useDirectIO);
-      events_ = ROOT::Experimental::RNTupleWriter::Append(std::move(model), "Events", file_, writeOptions);
+      events_ = ROOT::RNTupleWriter::Append(std::move(model), "Events", file_, writeOptions);
     }
     products_[InEvent] = associateDataProducts(iProducts, events_->GetModel());
 
@@ -270,16 +267,15 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
     extendSelectorConfig_ = anyProductProduced || !iConfig.wantAllEvents;
   }
   void RNTupleOutputFile::setupPSets(Config const& iConfig) {
-    auto model = ROOT::Experimental::RNTupleModel::CreateBare();
+    auto model = ROOT::RNTupleModel::CreateBare();
     {
-      auto field = ROOT::Experimental::RFieldBase::Create("IdToParameterSetsBlobs",
-                                                          "std::pair<edm::Hash<1>,edm::ParameterSetBlob>")
-                       .Unwrap();
+      auto field =
+          ROOT::RFieldBase::Create("IdToParameterSetsBlobs", "std::pair<edm::Hash<1>,edm::ParameterSetBlob>").Unwrap();
       model->AddField(std::move(field));
     }
-    auto writeOptions = ROOT::Experimental::RNTupleWriteOptions();
+    auto writeOptions = ROOT::RNTupleWriteOptions();
     writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
-    parameterSets_ = ROOT::Experimental::RNTupleWriter::Append(std::move(model), "ParameterSets", file_, writeOptions);
+    parameterSets_ = ROOT::RNTupleWriter::Append(std::move(model), "ParameterSets", file_, writeOptions);
   }
 
   void RNTupleOutputFile::fillPSets() {
@@ -297,14 +293,14 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
   }
 
   void RNTupleOutputFile::setupParentage(Config const& iConfig) {
-    auto model = ROOT::Experimental::RNTupleModel::CreateBare();
+    auto model = ROOT::RNTupleModel::CreateBare();
     {
-      auto field = ROOT::Experimental::RFieldBase::Create("Description", "edm::Parentage").Unwrap();
+      auto field = ROOT::RFieldBase::Create("Description", "edm::Parentage").Unwrap();
       model->AddField(std::move(field));
     }
-    auto writeOptions = ROOT::Experimental::RNTupleWriteOptions();
+    auto writeOptions = ROOT::RNTupleWriteOptions();
     writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
-    parentage_ = ROOT::Experimental::RNTupleWriter::Append(std::move(model), "Parentage", file_, writeOptions);
+    parentage_ = ROOT::RNTupleWriter::Append(std::move(model), "Parentage", file_, writeOptions);
   }
   void RNTupleOutputFile::fillParentage() {
     ParentageRegistry& ptReg = *ParentageRegistry::instance();
@@ -324,54 +320,50 @@ explicitly pass the correct variable to `SetColumnRepresentatives`).
   }
 
   void RNTupleOutputFile::setupMetaData(Config const& iConfig) {
-    auto model = ROOT::Experimental::RNTupleModel::CreateBare();
+    auto model = ROOT::RNTupleModel::CreateBare();
     {
       //Ultimately will need a new class specific for RNTuple
-      //auto field = ROOT::Experimental::RFieldBase::Create("FileFormatVersion", "edm::FileFormatVersion").Unwrap();
+      //auto field = ROOT::RFieldBase::Create("FileFormatVersion", "edm::FileFormatVersion").Unwrap();
       //model->AddField(std::move(field));
     }
     {
-      auto field = ROOT::Experimental::RFieldBase::Create("FileIdentifier", "edm::FileID").Unwrap();
+      auto field = ROOT::RFieldBase::Create("FileIdentifier", "edm::FileID").Unwrap();
       model->AddField(std::move(field));
     }
 
     {
-      auto field = ROOT::Experimental::RFieldBase::Create("IndexIntoFile", "edm::IndexIntoFile").Unwrap();
-      model->AddField(std::move(field));
-    }
-    {
-      auto field = ROOT::Experimental::RFieldBase::Create("MergeableRunProductMetadata",
-                                                          "edm::StoredMergeableRunProductMetadata")
-                       .Unwrap();
+      auto field = ROOT::RFieldBase::Create("IndexIntoFile", "edm::IndexIntoFile").Unwrap();
       model->AddField(std::move(field));
     }
     {
       auto field =
-          ROOT::Experimental::RFieldBase::Create("ProcessHistory", "std::vector<edm::ProcessHistory>").Unwrap();
+          ROOT::RFieldBase::Create("MergeableRunProductMetadata", "edm::StoredMergeableRunProductMetadata").Unwrap();
       model->AddField(std::move(field));
     }
     {
-      auto field = ROOT::Experimental::RFieldBase::Create("ProductRegistry", "edm::ProductRegistry").Unwrap();
+      auto field = ROOT::RFieldBase::Create("ProcessHistory", "std::vector<edm::ProcessHistory>").Unwrap();
       model->AddField(std::move(field));
     }
     {
-      auto field =
-          ROOT::Experimental::RFieldBase::Create("BranchIDLists", "std::vector<std::vector<unsigned int> >").Unwrap();
+      auto field = ROOT::RFieldBase::Create("ProductRegistry", "edm::ProductRegistry").Unwrap();
       model->AddField(std::move(field));
     }
     {
-      auto field =
-          ROOT::Experimental::RFieldBase::Create("ThinnedAssociationsHelper", "edm::ThinnedAssociationsHelper").Unwrap();
+      auto field = ROOT::RFieldBase::Create("BranchIDLists", "std::vector<std::vector<unsigned int> >").Unwrap();
       model->AddField(std::move(field));
     }
     {
-      auto field = ROOT::Experimental::RFieldBase::Create("ProductDependencies", "edm::BranchChildren").Unwrap();
+      auto field = ROOT::RFieldBase::Create("ThinnedAssociationsHelper", "edm::ThinnedAssociationsHelper").Unwrap();
+      model->AddField(std::move(field));
+    }
+    {
+      auto field = ROOT::RFieldBase::Create("ProductDependencies", "edm::BranchChildren").Unwrap();
       model->AddField(std::move(field));
     }
 
-    auto writeOptions = ROOT::Experimental::RNTupleWriteOptions();
+    auto writeOptions = ROOT::RNTupleWriteOptions();
     writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
-    metaData_ = ROOT::Experimental::RNTupleWriter::Append(std::move(model), "MetaData", file_, writeOptions);
+    metaData_ = ROOT::RNTupleWriter::Append(std::move(model), "MetaData", file_, writeOptions);
   }
 
   void RNTupleOutputFile::fillMetaData(BranchIDLists const& iBranchIDLists,

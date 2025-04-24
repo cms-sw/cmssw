@@ -112,7 +112,7 @@ int main(int iArgc, char const* iArgv[]) {
     return 1;
   }
 
-  using namespace ROOT::Experimental;
+  using namespace ROOT;
 
   auto file = TFile::Open(vm["file"].as<std::string>().c_str(), "r");
   if (not file) {
