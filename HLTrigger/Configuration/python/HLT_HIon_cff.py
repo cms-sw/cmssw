@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/HIon --cff --data --type HIon
 
-# /dev/CMSSW_15_0_0/HIon/V62 (CMSSW_15_0_4)
+# /dev/CMSSW_15_0_0/HIon/V75 (CMSSW_15_0_4_patch2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/HIon/V62")
+  tableName = cms.string("/dev/CMSSW_15_0_0/HIon/V75")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -12180,7 +12180,7 @@ fragment.hltOnlineBeamSpotDevice = cms.EDProducer( "BeamSpotDeviceProducer@alpak
 fragment.hltSiPixelClustersPPOnAASoA = cms.EDProducer( "SiPixelRawToClusterHIonPhase1@alpaka",
     IncludeErrors = cms.bool( True ),
     UseQualityInfo = cms.bool( False ),
-    clusterThreshold_layer1 = cms.int32( 4000 ),
+    clusterThreshold_layer1 = cms.int32( 2000 ),
     clusterThreshold_otherLayers = cms.int32( 4000 ),
     VCaltoElectronGain = cms.double( 1.0 ),
     VCaltoElectronGain_L1 = cms.double( 1.0 ),
@@ -12193,7 +12193,7 @@ fragment.hltSiPixelClustersPPOnAASoA = cms.EDProducer( "SiPixelRawToClusterHIonP
 )
 fragment.hltSiPixelClustersPPOnAA = cms.EDProducer( "SiPixelDigisClustersFromSoAAlpakaHIonPhase1",
     src = cms.InputTag( "hltSiPixelClustersPPOnAASoA" ),
-    clusterThreshold_layer1 = cms.int32( 4000 ),
+    clusterThreshold_layer1 = cms.int32( 2000 ),
     clusterThreshold_otherLayers = cms.int32( 4000 ),
     produceDigis = cms.bool( False ),
     storeDigis = cms.bool( False )
@@ -12226,7 +12226,7 @@ fragment.hltOnlineBeamSpotDeviceSerialSync = cms.EDProducer( "alpaka_serial_sync
 fragment.hltSiPixelClustersPPOnAASoASerialSync = cms.EDProducer( "alpaka_serial_sync::SiPixelRawToClusterHIonPhase1",
     IncludeErrors = cms.bool( True ),
     UseQualityInfo = cms.bool( False ),
-    clusterThreshold_layer1 = cms.int32( 4000 ),
+    clusterThreshold_layer1 = cms.int32( 2000 ),
     clusterThreshold_otherLayers = cms.int32( 4000 ),
     VCaltoElectronGain = cms.double( 1.0 ),
     VCaltoElectronGain_L1 = cms.double( 1.0 ),
@@ -12238,7 +12238,7 @@ fragment.hltSiPixelClustersPPOnAASoASerialSync = cms.EDProducer( "alpaka_serial_
 )
 fragment.hltSiPixelClustersPPOnAASerialSync = cms.EDProducer( "SiPixelDigisClustersFromSoAAlpakaHIonPhase1",
     src = cms.InputTag( "hltSiPixelClustersPPOnAASoASerialSync" ),
-    clusterThreshold_layer1 = cms.int32( 4000 ),
+    clusterThreshold_layer1 = cms.int32( 2000 ),
     clusterThreshold_otherLayers = cms.int32( 4000 ),
     produceDigis = cms.bool( False ),
     storeDigis = cms.bool( False )
@@ -13674,7 +13674,7 @@ fragment.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     AllowMissingInputs = cms.bool( False ),
     HcalPhase = cms.int32( 1 ),
     usePFThresholdsFromDB = cms.bool( True ),
-    EcalRecHitThresh = cms.bool( False )
+    EcalRecHitThresh = cms.bool( True )
 )
 fragment.hltPuAK4CaloJets = cms.EDProducer( "FastjetJetProducer",
     useMassDropTagger = cms.bool( False ),
@@ -18113,7 +18113,7 @@ fragment.hltTowerMakerForHf = cms.EDProducer( "CaloTowersCreator",
     AllowMissingInputs = cms.bool( True ),
     HcalPhase = cms.int32( 1 ),
     usePFThresholdsFromDB = cms.bool( True ),
-    EcalRecHitThresh = cms.bool( False )
+    EcalRecHitThresh = cms.bool( True )
 )
 fragment.hltCaloMETProducerForHf = cms.EDProducer( "CaloMETProducer",
     src = cms.InputTag( "hltTowerMakerForHf" ),

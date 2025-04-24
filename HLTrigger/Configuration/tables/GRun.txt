@@ -4,6 +4,7 @@ HLTriggerFirstPath	#	menu structure
 HLTriggerFinalPath	#	menu structure
 Status_OnCPU		#	CMSHLT-2206
 Status_OnGPU		#	CMSHLT-2206
+HLT_TestData_v* #       CMSHLT-3462
 HLT_ZeroBias_v*	#	trigger studies
 HLT_Physics_v*	#	CMSHLT-892
 DST_Physics_v*	#	trigger studies
@@ -90,6 +91,12 @@ HLT_DiphotonMVA14p25_High_Mass60_v*           # CMSHLT-3454
 HLT_DiphotonMVA14p25_TightLow_Mass60_v*       # CMSHLT-3454
 HLT_DiphotonMVA14p25_TightMedium_Mass60_v*    # CMSHLT-3454
 HLT_DiphotonMVA14p25_TightHigh_Mass60_v*      # CMSHLT-3454
+HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2_v*       # CMSHLT-3529
+HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2_v*       # CMSHLT-3529
+HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v*  # CMSHLT-3529
+HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v*  # CMSHLT-3529
+HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2_v*      # CMSHLT-3529
+HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v* # CMSHLT-3529
 HLT_L2Mu10_NoVertex_NoBPTX_v*	#	CMSHLT-1252
 HLT_L2Mu10_NoVertex_NoBPTX3BX_v*	#	CMSHLT-1252
 HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v*	#	CMSHLT-1252
@@ -276,6 +283,10 @@ HLT_MonitorL1TPureRate_CICADA_v* # CMSHLT-3478
 DST_PFScouting_SingleMuon_v*	 # CMSHLT-3075
 DST_PFScouting_ZeroBias_v*	 # CMSHLT-3175
 DST_PFScouting_SinglePhotonEB_v* # CMSHLT-3213
+HLT_TriggersForScoutingPFMonitor_PS125_v*  # CMSHLT-3527
+HLT_TriggersForScoutingPFMonitor_PS250_v*  # CMSHLT-3527
+HLT_TriggersForScoutingPFMonitor_PS500_v*  # CMSHLT-3527
+HLT_TriggersForScoutingPFMonitor_PS1000_v* # CMSHLT-3527
 HLT_L1AlwaysTrue_v*              # CMSHLT-3465
 HLT_L1AXOVVTight_v*              # CMSHLT-3466
 HLT_L1AXOVVVTight_v*             # CMSHLT-3466
@@ -289,8 +300,7 @@ HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v*	#	CMSHLT-1330
 HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	#	CMSHLT-1330
 HLT_Ele8_CaloIdM_TrackIdM_PFJet30_v*	#	CMSHLT-1330
 HLT_HcalPhiSym_v*	#	CMSHLT-1332
-HLT_IsoTrackHB_v*	#	CMSHLT-1340
-HLT_IsoTrackHE_v*	#	CMSHLT-1340
+AlCa_IsoTrackHBHE_v*	#	CMSHLT-3519
 HLT_HcalNZS_v*	#	CMSHLT-1342
 HLT_DoubleEle24_eta2p1_WPTight_Gsf_v*	#	CMSHLT-1344
 HLT_DoubleIsoMu20_eta2p1_v*	#	CMSHLT-1344
@@ -800,6 +810,7 @@ HLTMonitorOutput        # CMSHLT-462, CMSHLT-481
 CalibrationOutput
 EcalCalibrationOutput
 RPCMONOutput
+ALCAHcalIsoTrkOutput	# CMSHLT-3519
 ALCAPPSExpressOutput    # CMSHLT-2412
 ALCAPPSPromptOutput     # CMSHLT-2412
 ALCAPHISYMOutput
@@ -852,6 +863,9 @@ ParkingAnomalyDetectionOutput # CMSHLT-3466
 PhysicsEmittanceScan0Output # CMSHLT-3465
 PhysicsEmittanceScan1Output # CMSHLT-3465
 PhysicsEmittanceScan2Output # CMSHLT-3465
+
+LocalTestDataRawOutput      # CMSHLT-3462
+LocalTestDataScoutingOutput # CMSHLT-3462
 
 ######## MC paths - template paths only for MC (only in GRun, not in online) ################################
 

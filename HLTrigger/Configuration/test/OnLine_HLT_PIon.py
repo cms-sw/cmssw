@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_15_0_0/PIon/V62 (CMSSW_15_0_4)
+# /dev/CMSSW_15_0_0/PIon/V75 (CMSSW_15_0_4_patch2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTPIon" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/PIon/V62")
+  tableName = cms.string("/dev/CMSSW_15_0_0/PIon/V75")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
