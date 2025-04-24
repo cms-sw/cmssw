@@ -238,7 +238,8 @@ void SimDoublets::buildSimDoublets(const TrackerTopology* trackerTopology) const
 void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
                                    size_t numSimDoublets,
                                    size_t const lastLayerId,
-                                   uint8_t status,
+                                   uint8_t const status,
+                                   uint8_t const numSkippedLayers,
                                    size_t const minNumDoubletsToPass) const {
   // update the number of SimDoublets once before looping over the actual neighbors to be added
   numSimDoublets++;
@@ -258,9 +259,12 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
         neighbor.isKilled()                            // connection is killed by cuts
     );
 
+    // update number of skipped layers
+    uint8_t updatedNumSkippedLayers = numSkippedLayers + doublet.numSkippedLayers();
+
     // add the current state as a new SimNtuplet to the collection
-    ntuplets_.emplace_back(
-        SimDoublets::Ntuplet(numSimDoublets, updatedStatus, neighborDoublet.innerLayerId(), lastLayerId));
+    ntuplets_.emplace_back(SimDoublets::Ntuplet(
+        numSimDoublets, updatedStatus, neighborDoublet.innerLayerId(), lastLayerId, updatedNumSkippedLayers));
 
     // change the status "TooShort" of the newly created SimNtuplet if it is indeed to short
     if (numSimDoublets < minNumDoubletsToPass) {
@@ -300,7 +304,8 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
 
     // call this function recursively
     // this will get the further neighboring doublets and build the next Ntuplet
-    buildSimNtuplets(neighborDoublet, numSimDoublets, lastLayerId, updatedStatus, minNumDoubletsToPass);
+    buildSimNtuplets(
+        neighborDoublet, numSimDoublets, lastLayerId, updatedStatus, updatedNumSkippedLayers, minNumDoubletsToPass);
   }
 }
 
@@ -328,7 +333,9 @@ void SimDoublets::buildSimNtuplets(size_t const minNumDoubletsToPass) const {
         false,                                 // connection has undefined cuts
         false                                  // connection is killed by cuts
     );
+    // initialize number of skipped layers
+    uint8_t numSkippedLayers = doublet.numSkippedLayers();
     // build the Ntuplets recursively
-    buildSimNtuplets(doublet, 1, doublet.outerLayerId(), status, minNumDoubletsToPass);
+    buildSimNtuplets(doublet, 1, doublet.outerLayerId(), status, numSkippedLayers, minNumDoubletsToPass);
   }
 }
