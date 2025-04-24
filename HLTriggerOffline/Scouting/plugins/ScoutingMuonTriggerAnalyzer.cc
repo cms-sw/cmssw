@@ -124,7 +124,6 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
   //Apply cuts specified in config file
   for (const auto& muon : *sctMuons) {
     if (!muonsCut_(muon)) {
-      edm::LogWarning("ScoutingMonitoring") << "No muons passed the selection cut.";
       return;
     }
   }
