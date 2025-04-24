@@ -838,7 +838,8 @@ void HcalDigiStudy::reco(const edm::Event& iEvent,
   // CYCLE OVER CELLS ========================================================
   int Ndig = 0;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalDiguStudy") << "Subdet " << subdet_ << " with " << digiCollection->size() << " entries in DigiCollection";
+  edm::LogVerbatim("HcalDiguStudy") << "Subdet " << subdet_ << " with " << digiCollection->size()
+                                    << " entries in DigiCollection";
 #endif
   for (digiItr = digiCollection->begin(); digiItr != digiCollection->end(); digiItr++) {
     HcalDetId cell(digiItr->id());
@@ -1156,7 +1157,8 @@ void HcalDigiStudy::reco(const edm::Event& iEvent,
   // CYCLE OVER CELLS ========================================================
   int Ndig = 0;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalDiguStudy") << "Subdet " << subdet_ << " with " << digiCollection->size() << " entries in DigiCollection";
+  edm::LogVerbatim("HcalDiguStudy") << "Subdet " << subdet_ << " with " << digiCollection->size()
+                                    << " entries in DigiCollection";
 #endif
 
   for (typename HcalDataFrameContainer<dataFrameType>::const_iterator digiItr = digiCollection->begin();
@@ -1209,9 +1211,9 @@ void HcalDigiStudy::reco(const edm::Event& iEvent,
              pedWidth->getWidth(0));
 
     }  // end of event #1
-//#ifdef EDM_ML_DEBUG    
-//    edm::LogVerbatim("HcalDigiStudy") << "==== End of event noise block in cell cycle";
-//#endif
+    //#ifdef EDM_ML_DEBUG
+    //    edm::LogVerbatim("HcalDigiStudy") << "==== End of event noise block in cell cycle";
+    //#endif
     if (sub == isubdet)
       Ndig++;  // subdet number of digi
 
