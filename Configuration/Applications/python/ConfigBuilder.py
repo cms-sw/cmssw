@@ -627,7 +627,7 @@ class ConfigBuilder(object):
                 defaultFileName=defaultFileName.replace('.rntpl','_in'+theTier+'.rntpl')
 
             theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,defaultFileName)
-            if not theFileName.endswith('.root'):
+            if not theFileName.endswith('.root') and not theFileName.endswith('.rntpl'):
                 theFileName+='.root'
 
             if len(outDefDict):
