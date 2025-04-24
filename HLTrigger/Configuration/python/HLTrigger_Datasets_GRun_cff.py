@@ -1738,8 +1738,6 @@ streamPhysicsCommissioning_datasetCommissioning_selector.hltResults = cms.InputT
 streamPhysicsCommissioning_datasetCommissioning_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetCommissioning_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetCommissioning_selector.triggerConditions = cms.vstring(
-    'HLT_IsoTrackHB_v15',
-    'HLT_IsoTrackHE_v15',
     'HLT_L1_CDC_SingleMu_3_er1p2_TOP120_DPHI2p618_3p142_v10',
     'HLT_PFJet40_GPUvsCPU_v8'
 )
@@ -1847,6 +1845,12 @@ streamPhysicsEGamma0_datasetEGamma0_selector.triggerConditions = cms.vstring(
     'HLT_DiPhoton10Time2ns_v11',
     'HLT_DiPhoton10_CaloIdL_v11',
     'HLT_DiSC30_18_EIso_AND_HE_Mass70_v25',
+    'HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
+    'HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
+    'HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
     'HLT_Diphoton20_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v11',
     'HLT_Diphoton20_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v11',
     'HLT_Diphoton22_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v11',
@@ -1970,6 +1974,12 @@ streamPhysicsEGamma0_datasetEGamma1_selector.triggerConditions = cms.vstring(
     'HLT_DiPhoton10Time2ns_v11',
     'HLT_DiPhoton10_CaloIdL_v11',
     'HLT_DiSC30_18_EIso_AND_HE_Mass70_v25',
+    'HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
+    'HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
+    'HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
     'HLT_Diphoton20_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v11',
     'HLT_Diphoton20_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v11',
     'HLT_Diphoton22_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v11',
@@ -2096,6 +2106,12 @@ streamPhysicsEGamma1_datasetEGamma2_selector.triggerConditions = cms.vstring(
     'HLT_DiPhoton10Time2ns_v11',
     'HLT_DiPhoton10_CaloIdL_v11',
     'HLT_DiSC30_18_EIso_AND_HE_Mass70_v25',
+    'HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
+    'HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
+    'HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
     'HLT_Diphoton20_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v11',
     'HLT_Diphoton20_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v11',
     'HLT_Diphoton22_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v11',
@@ -2219,6 +2235,12 @@ streamPhysicsEGamma1_datasetEGamma3_selector.triggerConditions = cms.vstring(
     'HLT_DiPhoton10Time2ns_v11',
     'HLT_DiPhoton10_CaloIdL_v11',
     'HLT_DiSC30_18_EIso_AND_HE_Mass70_v25',
+    'HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
+    'HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
+    'HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2_v1',
+    'HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v1',
     'HLT_Diphoton20_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v11',
     'HLT_Diphoton20_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v11',
     'HLT_Diphoton22_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v11',
@@ -3039,25 +3061,12 @@ streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.hltResults = cm
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.l1tResults = cms.InputTag('')
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.throw      = cms.bool(False)
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.triggerConditions = cms.vstring(
-    'DST_PFScouting_AXOLoose_v5',
-    'DST_PFScouting_AXOMedium_v1',
-    'DST_PFScouting_AXOTight_v7',
-    'DST_PFScouting_AXOVLoose_v5',
-    'DST_PFScouting_AXOVTight_v5',
-    'DST_PFScouting_CICADALoose_v3',
-    'DST_PFScouting_CICADAMedium_v3',
-    'DST_PFScouting_CICADATight_v3',
-    'DST_PFScouting_CICADAVLoose_v3',
-    'DST_PFScouting_CICADAVTight_v3',
-    'DST_PFScouting_DoubleEG_v7',
-    'DST_PFScouting_DoubleMuonNoVtx_v1',
     'DST_PFScouting_DoubleMuonVtxMonitorJPsi_v1',
     'DST_PFScouting_DoubleMuonVtxMonitorZ_v1',
-    'DST_PFScouting_DoubleMuonVtx_v1',
-    'DST_PFScouting_JetHT_v7',
-    'DST_PFScouting_SingleMuon_v7',
-    'DST_PFScouting_SinglePhotonEB_v4',
-    'DST_PFScouting_ZeroBias_v5'
+    'HLT_TriggersForScoutingPFMonitor_PS1000_v1',
+    'HLT_TriggersForScoutingPFMonitor_PS125_v1',
+    'HLT_TriggersForScoutingPFMonitor_PS250_v1',
+    'HLT_TriggersForScoutingPFMonitor_PS500_v1'
 )
 
 

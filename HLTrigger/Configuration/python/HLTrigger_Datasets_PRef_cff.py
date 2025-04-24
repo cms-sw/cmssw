@@ -5,15 +5,6 @@ import FWCore.ParameterSet.Config as cms
 
 # stream PhysicsCommissioning
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetCommissioning_selector
-streamPhysicsCommissioning_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsCommissioning_datasetCommissioning_selector.l1tResults = cms.InputTag('')
-streamPhysicsCommissioning_datasetCommissioning_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetCommissioning_selector.triggerConditions = cms.vstring(
-    'HLT_IsoTrackHB_v15',
-    'HLT_IsoTrackHE_v15'
-)
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetEmptyBX_selector
 streamPhysicsCommissioning_datasetEmptyBX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetEmptyBX_selector.l1tResults = cms.InputTag('')
