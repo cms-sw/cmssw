@@ -200,7 +200,7 @@ std::pair<l1ct::TkObjEmu, bool> l1ct::TrackInputEmulator::decodeTrack(ap_uint<96
       ret.hwEta = vtxEta - ret.hwDEta;
       ret.hwPhi = vtxPhi - ret.hwDPhi * ret.intCharge();
       ret.hwZ0 = convZ0(z0);
-      ret.hwDxy = convDxy(dxy); //Convert track dxy to sqrt(abs(dxy))
+      ret.hwDxy = convDxy(dxy);  //Convert track dxy to sqrt(abs(dxy))
     } else {
       ret.hwPt = l1ct::Scales::makePtFromFloat(floatPt(Rinv));
 
@@ -224,7 +224,7 @@ std::pair<l1ct::TkObjEmu, bool> l1ct::TrackInputEmulator::decodeTrack(ap_uint<96
       ret.hwEta = glbeta_t(std::round(fvtxEta)) - ret.hwDEta - sector.hwEtaCenter;
 
       ret.hwZ0 = l1ct::Scales::makeZ0(floatZ0(z0));
-      ret.hwDxy = l1ct::Scales::makeDxy(floatDxy(dxy)); //floatDxy performs sqrt(abs(dxy))
+      ret.hwDxy = l1ct::Scales::makeDxy(floatDxy(dxy));  //floatDxy performs sqrt(abs(dxy))
     }
 
     if (!slim) {

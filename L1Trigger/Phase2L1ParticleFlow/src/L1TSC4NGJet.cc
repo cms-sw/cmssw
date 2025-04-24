@@ -2,7 +2,8 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include <cmath>
 
-L1TSC4NGJetID::L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model, int iNParticles, bool debug) : modelRef_(model) {
+L1TSC4NGJetID::L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model, int iNParticles, bool debug)
+    : modelRef_(model) {
   NNvectorVar_.clear();
   fNParticles_ = iNParticles;
   isDebugEnabled_ = debug;
@@ -26,7 +27,7 @@ L1TSC4NGJetID::L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model,
 
 void L1TSC4NGJetID::setNNVectorVar() {
   NNvectorVar_.clear();
-  if (isDebugEnabled_){
+  if (isDebugEnabled_) {
     LogDebug("L1TSC4NGJetID") << "\n ===== Input Vector =====" << std::endl;
   }
 
@@ -52,36 +53,70 @@ void L1TSC4NGJetID::setNNVectorVar() {
     NNvectorVar_.push_back(fEmID_.get()[i0]);          // emID
     NNvectorVar_.push_back(fQuality_.get()[i0]);       // quality
 
-
-    if (isDebugEnabled_){
-      LogDebug("L1TSC4NGJetID") << "Particle: " << i0 << "\n" <<
-      "pT: " << NNvectorVar_[i0*20] << " | "
-      "pT rel: " << NNvectorVar_[i0*20 + 1] << " | "
-      "pT log: " << NNvectorVar_[i0*20 + 2] << " | "
-      "dEta: " << NNvectorVar_[i0*20 + 3] << " | "
-      "dPhi: " << NNvectorVar_[i0*20 + 4] << " | "
-      "mass: " << NNvectorVar_[i0*20 + 5] << " | "
-      "photon ID: " << NNvectorVar_[i0*20 + 6] << " | "
-      "electron + ID: " << NNvectorVar_[i0*20 + 7] << " | "
-      "electron - ID: " << NNvectorVar_[i0*20 + 8] << " | "
-      "muon + ID: " << NNvectorVar_[i0*20 + 9] << " | "
-      "muon - ID: " << NNvectorVar_[i0*20 + 10] << " | "
-      "neutral hadron ID: " << NNvectorVar_[i0*20 + 11] << " | "
-      "hadron + ID: " << NNvectorVar_[i0*20 + 12] << " | "
-      "hadron - ID: " << NNvectorVar_[i0*20 + 13] << " | "
-      "z0: " << NNvectorVar_[i0*20 + 14] << " | "
-      "sqrt Dxy: " << NNvectorVar_[i0*20 + 15] << " | "
-      "is filled: " << NNvectorVar_[i0*20 + 16] << " | "
-      "puppi weight: " << NNvectorVar_[i0*20 + 17] << " | "
-      "ElectroMagnetic ID: " << NNvectorVar_[i0*20 + 18] << " | "
-      "Track Quality: " << NNvectorVar_[i0*20 + 19] << " | "
-      << "===========" << std::endl;
-      }
+    if (isDebugEnabled_) {
+      LogDebug("L1TSC4NGJetID") << "Particle: " << i0 << "\n"
+                                << "pT: " << NNvectorVar_[i0 * 20]
+                                << " | "
+                                   "pT rel: "
+                                << NNvectorVar_[i0 * 20 + 1]
+                                << " | "
+                                   "pT log: "
+                                << NNvectorVar_[i0 * 20 + 2]
+                                << " | "
+                                   "dEta: "
+                                << NNvectorVar_[i0 * 20 + 3]
+                                << " | "
+                                   "dPhi: "
+                                << NNvectorVar_[i0 * 20 + 4]
+                                << " | "
+                                   "mass: "
+                                << NNvectorVar_[i0 * 20 + 5]
+                                << " | "
+                                   "photon ID: "
+                                << NNvectorVar_[i0 * 20 + 6]
+                                << " | "
+                                   "electron + ID: "
+                                << NNvectorVar_[i0 * 20 + 7]
+                                << " | "
+                                   "electron - ID: "
+                                << NNvectorVar_[i0 * 20 + 8]
+                                << " | "
+                                   "muon + ID: "
+                                << NNvectorVar_[i0 * 20 + 9]
+                                << " | "
+                                   "muon - ID: "
+                                << NNvectorVar_[i0 * 20 + 10]
+                                << " | "
+                                   "neutral hadron ID: "
+                                << NNvectorVar_[i0 * 20 + 11]
+                                << " | "
+                                   "hadron + ID: "
+                                << NNvectorVar_[i0 * 20 + 12]
+                                << " | "
+                                   "hadron - ID: "
+                                << NNvectorVar_[i0 * 20 + 13]
+                                << " | "
+                                   "z0: "
+                                << NNvectorVar_[i0 * 20 + 14]
+                                << " | "
+                                   "sqrt Dxy: "
+                                << NNvectorVar_[i0 * 20 + 15]
+                                << " | "
+                                   "is filled: "
+                                << NNvectorVar_[i0 * 20 + 16]
+                                << " | "
+                                   "puppi weight: "
+                                << NNvectorVar_[i0 * 20 + 17]
+                                << " | "
+                                   "ElectroMagnetic ID: "
+                                << NNvectorVar_[i0 * 20 + 18]
+                                << " | "
+                                   "Track Quality: "
+                                << NNvectorVar_[i0 * 20 + 19] << " | "
+                                << "===========" << std::endl;
     }
-
-
   }
-
+}
 
 std::vector<float> L1TSC4NGJetID::EvaluateNNFixed() {
   const int NInputs = 320;
@@ -104,17 +139,18 @@ std::vector<float> L1TSC4NGJetID::EvaluateNNFixed() {
   modelRef_->read_result(&modelResult);
 
   std::vector<float> modelResult_;
-  if (isDebugEnabled_){
+  if (isDebugEnabled_) {
     LogDebug("L1TSC4NGJetID") << "\n ===== Jet ID Output Score =====" << std::endl;
   }
   for (unsigned int i = 0; i < 8; i++) {
     modelResult_.push_back(modelResult.second[i].to_float());
-    if (isDebugEnabled_){
-      LogDebug("L1TSC4NGJetID") << l1ct::JetTagClassHandler::tagClassesDefault_[i] <<  " : " << modelResult_[i] << std::endl;
+    if (isDebugEnabled_) {
+      LogDebug("L1TSC4NGJetID") << l1ct::JetTagClassHandler::tagClassesDefault_[i] << " : " << modelResult_[i]
+                                << std::endl;
     }
   }
   modelResult_.push_back(modelResult.first[0].to_float());
-  if (isDebugEnabled_){
+  if (isDebugEnabled_) {
     LogDebug("L1TSC4NGJetID") << "\n ===== Jet pT Correction Output ===== \n"
                               << modelResult.first[0].to_float() << std::endl;
   }

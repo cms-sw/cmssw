@@ -239,5 +239,4 @@ if args.tm18:
                 barrelSerenityVU13PTM18WriterConfig.clone(inputFileName = f"l1BarrelSerenityTM18-inputs-vu13p-ts{tmSlice}")
             )        
 
-#process.source.fileNames  = [ '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v3/TTbar_PU200/inputs131X_1.root' ]
-process.source.fileNames  =['/store/cmst3/group/l1tr/FastPUPPI/14_2_X/fpinputs_140X/v0/TT_PU200/inputs140X_18.root']
+process.source.fileNames  = [ '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v3/TTbar_PU200/inputs131X_1.root' ]

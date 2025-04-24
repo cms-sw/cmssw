@@ -59,8 +59,7 @@ L1TSC4NGJetProducer::L1TSC4NGJetProducer(const edm::ParameterSet& cfg)
   try {
     model = loader.load_model();
   } catch (std::runtime_error& e) {
-    throw cms::Exception("ModelError") << " ERROR: failed to load L1TSC4NGJet model version \""
-                                       << loader.model_name()
+    throw cms::Exception("ModelError") << " ERROR: failed to load L1TSC4NGJet model version \"" << loader.model_name()
                                        << "\". Model version not found in cms-hls4ml externals.";
   }
   fJetId_ = std::make_unique<L1TSC4NGJetID>(model, fNParticles_, isDebugEnabled);
