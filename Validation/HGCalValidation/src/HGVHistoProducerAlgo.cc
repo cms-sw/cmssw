@@ -1546,7 +1546,8 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     if (hitEnergyWeight_invSum)
       hitEnergyWeight_invSum = 1 / hitEnergyWeight_invSum;
 
-    if (minLayerId == 999) return;
+    if (minLayerId == 999)
+      return;
     histograms.h_caloparticle_firstlayer.at(pdgid)->Fill(minLayerId);
     histograms.h_caloparticle_lastlayer.at(pdgid)->Fill(maxLayerId);
     histograms.h_caloparticle_layersnum.at(pdgid)->Fill(int(maxLayerId - minLayerId));
