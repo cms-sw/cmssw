@@ -1936,6 +1936,7 @@ upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'].step2 = {
     '--procModifiers': 'alpaka,phase2_hlt_vertexTrimming,singleIterPatatrack',
     '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
     '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
 
 upgradeWFs['HLTTiming75e33TiclBarrel'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33TiclBarrel'].suffix = '_HLT75e33TimingTiclBarrel'

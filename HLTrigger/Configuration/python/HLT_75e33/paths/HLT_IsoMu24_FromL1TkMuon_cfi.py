@@ -13,6 +13,7 @@ from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTPfClusteringHBHEHFSequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPhase2L3MuonGeneralTracksSequence_cfi import *
+from ..sequences.HLTPfRecHitUnseededSequence_cfi import *
 from ..modules.hltSingleTkMuon22L1TkMuonFilter_cfi import *
 from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
 from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
@@ -38,6 +39,7 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
     + hltL3fL1TkSingleMu22L3Filtered24Q
     + HLTDoFullUnpackingEgammaEcalSequence
     + HLTDoLocalHcalSequence
+    + HLTPfRecHitUnseededSequence
     + HLTTICLLocalRecoSequence
     + HLTFastJetForEgammaSequence
     + HLTPfClusteringHBHEHFSequence
