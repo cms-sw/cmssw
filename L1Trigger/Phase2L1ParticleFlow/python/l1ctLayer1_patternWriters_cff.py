@@ -21,16 +21,18 @@ _barrelWriterOutputOnly = cms.PSet(
     maxLinesPerOutputFile = cms.uint32(1024),
     eventsPerFile = cms.uint32(_eventsPerFile),
     tfTimeSlices = cms.VPSet(),
-    gctNLinksEcal = cms.uint32(1),
-    gctNLinksHad = cms.uint32(2),
-    gctSectors = cms.VPSet(),
     gmtTimeSlices = cms.VPSet(),
     gmtNumberOfMuons = cms.uint32(12),
     gttLink = cms.int32(-1),
     gttLatency = cms.uint32(156+10),
     gttNumberOfPVs = cms.uint32(_gttNumberOfPVs),
+    gctEmSectors = cms.VPSet(),
+    gctHadSectors = cms.VPSet(),
+    tfNumberOfTracks = cms.uint32(108),
+    gctNumberOfEMs = cms.uint32(32),
+    gctNumberOfHads = cms.uint32(48),
 )
-## Barrel (54) split in 3 phi slices
+## Barrel (54) split in 3 phi slices (EMP format)
 barrelWriterOutputOnlyPhiConfigs = [
     _barrelWriterOutputOnly.clone(
         outputRegions = cms.vuint32(*[3*ip+9*ie+i for ie in range(6) for i in range(3) ]),
@@ -39,12 +41,54 @@ barrelWriterOutputOnlyPhiConfigs = [
     ) for ip in range(3)
 ]
 
+def _sortApxRegions(etaPhiSortedRegions):
+    """Returns the APx output order for a tuple/list of regions (ints)
+    """
+    apxOrder = (0, 4, 2, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15, 1, 17, 3)
+    if len(etaPhiSortedRegions) != len(apxOrder):
+        raise RuntimeError(f"Unexptected number of regions passed: {len(etaPhiSortedRegions)}")
+    return [etaPhiSortedRegions[apxOrder[i]] for i in range(len(apxOrder))]
+
+## Barrel (54) split in 3 phi slices (APx format)
+barrelWriterOutputOnlyPhiConfigsAPx = [
+    _barrelWriterOutputOnly.clone(
+        fileFormat = cms.string("APx"),
+        outputRegions = cms.vuint32(*_sortApxRegions([3*ip+9*ie+i for ie in range(6) for i in range(3) ])),
+        outputBoard = cms.int32(ip),
+        outputFileName = cms.string("l1BarrelApxPhi%d-outputs" % (ip+1))
+    ) for ip in range(3)
+]
+
+barrelWriterDebugPFInConfigsAPx = [
+    _barrelWriterOutputOnly.clone(
+        fileFormat = cms.string("APx"),
+        outputRegions = cms.vuint32(*_sortApxRegions([3*ip+9*ie+i for ie in range(6) for i in range(3) ])),
+        outputBoard = cms.int32(ip),
+        nPFInTrack = cms.uint32(22),
+        nPFInEmCalo = cms.uint32(12),
+        nPFInHadCalo = cms.uint32(15),
+        nPFInMuon = cms.uint32(2),
+        debugFileName = cms.string("l1BarrelApxPhi%d-pfin" % (ip+1))
+    ) for ip in range(3)
+]
+
+barrelWriterDebugPFOutConfigsAPx = [
+    _barrelWriterOutputOnly.clone(
+        fileFormat = cms.string("APx"),
+        outputRegions = cms.vuint32(*_sortApxRegions([3*ip+9*ie+i for ie in range(6) for i in range(3) ])),
+        outputBoard = cms.int32(ip),
+        nPFOutCharged = cms.uint32(22),
+        nPFOutPhoton = cms.uint32(12),
+        nPFOutNeutral = cms.uint32(15),
+        nPFOutMuon = cms.uint32(2),
+        debugFileName = cms.string("l1BarrelApxPhi%d-pfout" % (ip+1))
+    ) for ip in range(3)
+]
+
 barrelSerenityPhi1Config = barrelWriterOutputOnlyPhiConfigs[0].clone(
     tfTimeSlices = cms.VPSet(*[cms.PSet(tfSectors = cms.VPSet(*[ cms.PSet(tfLink = cms.int32(-1)) for s in range(18) ])) for t in range(3)]),
-    gctSectors = cms.VPSet(*[cms.PSet(
-        gctLinksHad = cms.vint32(-1,-1),
-        gctLinksEcal = cms.vint32(-1),
-        ) for s in range(3)]),
+    gctEmSectors = cms.VPSet(*[ cms.PSet(gctEmLink = cms.int32(-1)) for s in range(12) ]),
+    gctHadSectors = cms.VPSet(*[ cms.PSet(gctHadLink = cms.int32(-1)) for s in range(12) ]),
     gmtTimeSlices = cms.VPSet(*[cms.PSet(gmtLink = cms.int32(4*17+t)) for t in range(3)]),
 )
 barrelSerenityVU9PPhi1Config = barrelSerenityPhi1Config.clone(
@@ -57,6 +101,45 @@ barrelSerenityVU13PPhi1Config = barrelSerenityPhi1Config.clone(
     gmtTimeSlices = cms.VPSet(*[cms.PSet(gmtLink = cms.int32(4*18+t)) for t in range(3)]),
     inputFileName = cms.string("l1BarrelPhi1Serenity-inputs-vu13p"),
 )
+
+barrelApxWriterConfig = [
+    _barrelWriterOutputOnly.clone(
+        fileFormat = cms.string("APx"),
+        gttLink = cms.int32(123),
+        gmtTimeSlices = cms.VPSet(*[cms.PSet(gmtLink = cms.int32(38*t+10)) for t in range(3)]),
+        gctEmSectors = cms.VPSet(*[ cms.PSet(gctEmLink = cms.int32(-1)) for s in range(12) ]),
+        gctHadSectors = cms.VPSet(*[ cms.PSet(gctHadLink = cms.int32(-1)) for s in range(12) ]),
+        inputFileName = cms.string("l1BarrelApxPhi%d-inputs" % (ip+1)),
+        tfTimeSlices = cms.VPSet(*[cms.PSet(tfSectors = cms.VPSet(*[ cms.PSet(tfLink = cms.int32(-1)) for s in range(18) ])) for t in range(3)]),
+    ) for ip in range(3)
+]
+
+# Set GCT link numbers
+for iBigRegion, ilink in enumerate((0, 1, 2)):
+    barrelApxWriterConfig[iBigRegion].gctEmSectors[ilink].gctEmLink = 119
+    barrelApxWriterConfig[iBigRegion].gctEmSectors[ilink+6].gctEmLink = 120
+    barrelApxWriterConfig[iBigRegion].gctEmSectors[ilink+3].gctEmLink = 121
+    barrelApxWriterConfig[iBigRegion].gctEmSectors[ilink+9].gctEmLink = 122
+    barrelApxWriterConfig[iBigRegion].gctHadSectors[ilink].gctHadLink = 115
+    barrelApxWriterConfig[iBigRegion].gctHadSectors[ilink+6].gctHadLink = 116
+    barrelApxWriterConfig[iBigRegion].gctHadSectors[ilink+3].gctHadLink = 117
+    barrelApxWriterConfig[iBigRegion].gctHadSectors[ilink+9].gctHadLink = 118
+
+# Set tracking link numbers
+for timeSlice in range(3):
+    for iBigRegion, ilink in enumerate((8, 2, 5)):
+        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[ilink].tfLink = 0 + timeSlice * 38
+        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[(ilink+1)%9].tfLink = 1 + timeSlice * 38
+        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[(ilink+2)%9].tfLink = 2 + timeSlice * 38
+        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[(ilink+3)%9].tfLink = 3 + timeSlice * 38
+        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[(ilink+4)%9].tfLink = 4 + timeSlice * 38
+        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[9 + ilink].tfLink = 5 + timeSlice * 38
+        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[9 + (ilink+1)%9].tfLink = 6 + timeSlice * 38
+        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[9 + (ilink+2)%9].tfLink = 7 + timeSlice * 38
+        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[9 + (ilink+3)%9].tfLink = 8 + timeSlice * 38
+        barrelApxWriterConfig[iBigRegion].tfTimeSlices[timeSlice].tfSectors[9 + (ilink+4)%9].tfLink = 9 + timeSlice * 38
+
+
 for t in range(3):
    for ie in range(2):
     for i,s in enumerate([8, 0, 1, 2, 3]):
@@ -65,15 +148,16 @@ for t in range(3):
         barrelSerenityVU9PPhi1Config.tfTimeSlices[t].tfSectors[s+9*ie].tfLink = physlink
         physlink = loglink+4*0 if loglink < 15 else (loglink-15)+4*28
         barrelSerenityVU13PPhi1Config.tfTimeSlices[t].tfSectors[s+9*ie].tfLink = physlink
-for i,s in enumerate([0,1]):
-   barrelSerenityVU9PPhi1Config.gctSectors[s].gctLinksHad  = [3*i+4*18, 3*i+4*18+1]
-   barrelSerenityVU9PPhi1Config.gctSectors[s].gctLinksEcal = [3*i+4*18+2]
-   gctLinks = list(range(4*17,4*17+4)) + list(range(4*19,4*19+2))
-   barrelSerenityVU13PPhi1Config.gctSectors[s].gctLinksHad  = [gctLinks[3*i], gctLinks[3*i+1]]
-   barrelSerenityVU13PPhi1Config.gctSectors[s].gctLinksEcal = [gctLinks[3*i+2]]
+# for i,s in enumerate([0,1]):
+#    barrelSerenityVU9PPhi1Config.gctSectors[s].gctLinksHad  = [3*i+4*18, 3*i+4*18+1]
+#    barrelSerenityVU9PPhi1Config.gctSectors[s].gctLinksEcal = [3*i+4*18+2]
+#    gctLinks = list(range(4*17,4*17+4)) + list(range(4*19,4*19+2))
+#    barrelSerenityVU13PPhi1Config.gctSectors[s].gctLinksHad  = [gctLinks[3*i], gctLinks[3*i+1]]
+#    barrelSerenityVU13PPhi1Config.gctSectors[s].gctLinksEcal = [gctLinks[3*i+2]]
 
 barrelWriterConfigs =  barrelWriterOutputOnlyPhiConfigs
-
+barrelOutputWriterConfigsAPx =  barrelWriterOutputOnlyPhiConfigsAPx
+barrelInputWriterConfigsAPx =  barrelApxWriterConfig
 
 #####################################################################################################################
 ## HGcal configuration: write out both inputs and outputs
@@ -109,10 +193,10 @@ _hgcalNegWriterConfig = _hgcalPosWriterConfig.clone(
     outputBoard = 0,
 )
 hgcalPosOutputWriterConfig = _hgcalPosWriterConfig.clone(
-   outputFileName = cms.string("l1HGCalPos-outputs") 
+   outputFileName = cms.string("l1HGCalPos-outputs")
 )
 hgcalNegOutputWriterConfig = _hgcalNegWriterConfig.clone(
-   outputFileName = cms.string("l1HGCalNeg-outputs") 
+   outputFileName = cms.string("l1HGCalNeg-outputs")
 )
 ## Current configurations for VU9P
 hgcalPosVU9PWriterConfig = _hgcalPosWriterConfig.clone()
@@ -135,9 +219,9 @@ for t in range(3):
     hgcalNegVU9PWriterConfig.gmtTimeSlices[t].gmtLink = cms.int32(4*15+((t+2)%3))
 hgcalPosVU9PWriterConfig.gttLink = 4*14+0
 hgcalNegVU9PWriterConfig.gttLink = 4*14+0
-hgcalPosVU9PWriterConfig.inputFileName = cms.string("l1HGCalPos-inputs-vu9p") 
-hgcalNegVU9PWriterConfig.inputFileName = cms.string("l1HGCalNeg-inputs-vu9p") 
-## Current configurations for VU13P 
+hgcalPosVU9PWriterConfig.inputFileName = cms.string("l1HGCalPos-inputs-vu9p")
+hgcalNegVU9PWriterConfig.inputFileName = cms.string("l1HGCalNeg-inputs-vu9p")
+## Current configurations for VU13P
 hgcalPosVU13PWriterConfig = _hgcalPosWriterConfig.clone()
 hgcalNegVU13PWriterConfig = _hgcalNegWriterConfig.clone()
 for t in range(3):
@@ -156,13 +240,13 @@ for t in range(3):
     hgcalNegVU13PWriterConfig.gmtTimeSlices[t].gmtLink = cms.int32(4*18+t)
 hgcalPosVU13PWriterConfig.gttLink = 4*25+3
 hgcalNegVU13PWriterConfig.gttLink = 4*25+3
-hgcalPosVU13PWriterConfig.inputFileName = cms.string("l1HGCalPos-inputs-vu13p") 
-hgcalNegVU13PWriterConfig.inputFileName = cms.string("l1HGCalNeg-inputs-vu13p") 
+hgcalPosVU13PWriterConfig.inputFileName = cms.string("l1HGCalPos-inputs-vu13p")
+hgcalNegVU13PWriterConfig.inputFileName = cms.string("l1HGCalNeg-inputs-vu13p")
 
 ## Enable outputs and both boards
-hgcalWriterConfigs = [ 
-    hgcalPosOutputWriterConfig, 
-    hgcalNegOutputWriterConfig, 
+hgcalWriterConfigs = [
+    hgcalPosOutputWriterConfig,
+    hgcalNegOutputWriterConfig,
     hgcalPosVU9PWriterConfig,
     hgcalNegVU9PWriterConfig,
     hgcalPosVU13PWriterConfig,
@@ -201,7 +285,7 @@ for t in range(3):
         hgcalNoTKVU13PWriterConfig.hgcTimeSlices[t].hgcSectors += [ cms.PSet(hgcLinks = cms.vint32(*[4*q0+4*t+j for j in range(4)])) ]
 hgcalNoTKVU13PWriterConfig.inputFileName = cms.string("l1HGCalNoTK-inputs-vu13p") # vu9p uses the same cabling for now
 
-hgcalNoTKWriterConfigs = [ 
+hgcalNoTKWriterConfigs = [
     hgcalNoTKOutputWriterConfig,
     hgcalNoTKVU13PWriterConfig
 ]
@@ -226,16 +310,16 @@ barrelSerenityVU13PTM18WriterConfig = _barrelSerenityTM18.clone(
     inputFileName = cms.string("l1BarrelSerenityTM18-inputs-vu13p"),
     gttLatency = cms.uint32(167), # shorter, to fit 6 events in 1024 lines
     maxLinesPerInputFile = cms.uint32(1024+167), # anything beyond 986 will be nulls
-    gctNLinksEcal = 1,
-    gctNLinksHad = 1,
-    gctSectors = cms.VPSet(*[cms.PSet(
-        gctLinksHad = cms.vint32(4*18+1+s),
-        gctLinksEcal = cms.vint32(4*18+1+s),
-    ) for s in range(3)]),
+    #gctNLinksEcal = 1,
+    #gctNLinksHad = 1,
+    # gctSectors = cms.VPSet(*[cms.PSet(
+    #     gctLinksHad = cms.vint32(4*18+1+s),
+    #     gctLinksEcal = cms.vint32(4*18+1+s),
+    # ) for s in range(3)]),
 )
 for ie in range(2):
     for iphi in range(9):
-        isec = 9*ie+iphi 
+        isec = 9*ie+iphi
         barrelSerenityVU13PTM18WriterConfig.tfSectors[isec].tfLink = (isec if isec < 12 else (4*30+(isec-12)))
 
 barrelSerenityTM18WriterConfigs = [

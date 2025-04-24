@@ -311,11 +311,11 @@ namespace l1ct {
       /// indices of regions that are in the big region (board)
       std::vector<size_t> regionmap_;
 
-      /// indices maps the sectors from the way they appear in the software to the order they are done in the regionizer
-      std::vector<size_t> sectormap_;
+      /// indices maps the sectors from the way they appear in the software to the (logical) order they are done in the regionizer firmware
+      std::vector<size_t> sectorMapPhysToLog_;
 
       /// the inverse mapping of sectormap_ (only used for debug printing)
-      std::vector<size_t> invsectormap_;
+      std::vector<size_t> sectorMapLogToPhys_;
 
       /// The buffers. There are ndup_ buffers per link/sector
       std::vector<Buffer<T>> buffers_;

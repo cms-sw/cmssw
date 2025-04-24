@@ -20,7 +20,7 @@ namespace l1ct {
 
     static edm::ParameterSetDescription getParameterSetDescription();
 
-    l1ct::HadCaloObjEmu decode(const l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec, const ap_uint<64> &in) const;
+    l1ct::HadCaloObjEmu decode(const l1ct::PFRegionEmu &sector, const ap_uint<64> &in) const;
 
   private:
     double fracPart(const double total, const unsigned int hoe) const;

@@ -24,26 +24,35 @@ edm::ParameterSetDescription l1ct::GctEmClusterDecoderEmulator::getParameterSetD
 
 l1ct::GctEmClusterDecoderEmulator::~GctEmClusterDecoderEmulator() {}
 
-l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec,
+l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegionEmu &sector,
                                                              const ap_uint<64> &in) const {
   // need to add emid
   l1ct::EmCaloObjEmu calo;
   calo.clear();
   calo.hwPt = pt(in) * l1ct::pt_t(0.5);  // the LSB for GCT objects
-  calo.hwEta = eta(in) * 4;
+  calo.hwEta = eta(in) * 4;              // at this point eta is abs(globalEta)
   calo.hwPhi = phi(in) * 4;
 
   if (corrector_.valid()) {
-    float newpt = corrector_.correctedPt(calo.floatPt(), calo.floatPt(), sec.region.floatGlbEta(calo.hwEta));
+    float newpt = corrector_.correctedPt(calo.floatPt(), calo.floatPt(), calo.floatEta());
     calo.hwPt = l1ct::Scales::makePtFromFloat(newpt);
   }
-  calo.hwPtErr = l1ct::Scales::makePtFromFloat(resol_(calo.floatPt(), std::abs(sec.region.floatGlbEta(calo.hwEta))));
+
+  // Note: at this point still
+  calo.hwPtErr = l1ct::Scales::makePtFromFloat(resol_(calo.floatPt(), calo.floatEta()));
 
   // hwQual definition:
   // bit 0: standaloneWP: is_iso && is_ss
   // bit 1: looseL1TkMatchWP: is_looseTkiso && is_looseTkss
   // bit 2: photonWP:
   calo.hwEmID = (passes_iso(in) & passes_ss(in)) | ((passes_looseTkiso(in) & passes_looseTkss(in)) << 1) | (false << 2);
+
+  // convert eta to local
+  if (sector.hwEtaCenter < 0) {
+    calo.hwEta = -calo.hwEta - sector.hwEtaCenter;
+  } else {
+    calo.hwEta = calo.hwEta - sector.hwEtaCenter;
+  }
 
   return calo;
 }

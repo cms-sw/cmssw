@@ -99,7 +99,7 @@ process.l1tLayer1BarrelTDR.regionizerAlgoParameters = cms.PSet(
         nClocks = cms.uint32(162),
         doSort = cms.bool(False),
         bigRegionEdges = cms.vint32(-560, -80, 400, -560),
-        debug = cms.untracked.bool(True)
+        debug = cms.untracked.bool(False)
     )
 process.l1tLayer1BarrelTDR.pfAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelTDR.pfAlgoParameters.nSelCalo = 15
@@ -161,7 +161,11 @@ from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_patternWriters_cff import *
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_patternWriters_cff import _eventsPerFile
 if not args.patternFilesOFF:
     process.l1tLayer1Barrel.patternWriters = cms.untracked.VPSet(*barrelWriterConfigs)
-    # process.l1tLayer1BarrelTDR.patternWriters = cms.untracked.VPSet(*barrelInputWriterConfigsAPx, *barrelOutputWriterConfigsAPx)
+    process.l1tLayer1BarrelTDR.patternWriters = cms.untracked.VPSet(*barrelInputWriterConfigsAPx,
+                                                                    *barrelOutputWriterConfigsAPx,
+                                                                    *barrelWriterDebugPFInConfigsAPx,
+                                                                    *barrelWriterDebugPFOutConfigsAPx
+                                                                    )
     process.l1tLayer1BarrelSerenity.patternWriters = cms.untracked.VPSet(barrelSerenityVU9PPhi1Config,barrelSerenityVU13PPhi1Config)
     process.l1tLayer1HGCal.patternWriters = cms.untracked.VPSet(*hgcalWriterConfigs)
     process.l1tLayer1HGCalElliptic.patternWriters = cms.untracked.VPSet(*hgcalWriterConfigs)

@@ -1053,7 +1053,7 @@ void L1TCorrelatorLayer1Producer::addDecodedMuon(l1ct::DetectorSector<l1ct::MuOb
 
 void L1TCorrelatorLayer1Producer::addDecodedGCTEmCalo(l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec,
                                                       const l1tp2::GCTEmDigiCluster &digi) {
-  l1ct::EmCaloObjEmu calo = gctEmInput_->decode(sec, digi.data());
+  l1ct::EmCaloObjEmu calo = gctEmInput_->decode(sec.region, digi.data());
 
   auto caloPtr = edm::refToPtr(digi.clusterRef());
   // FIXME: should check hwPt > 0
@@ -1062,7 +1062,7 @@ void L1TCorrelatorLayer1Producer::addDecodedGCTEmCalo(l1ct::DetectorSector<l1ct:
 
 void L1TCorrelatorLayer1Producer::addDecodedGCTHadCalo(l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec,
                                                        const l1tp2::GCTHadDigiCluster &digi) {
-  l1ct::HadCaloObjEmu calo = gctHadInput_->decode(sec, digi.data());
+  l1ct::HadCaloObjEmu calo = gctHadInput_->decode(sec.region, digi.data());
 
   auto caloPtr = edm::refToPtr(digi.clusterRef());
   // FIXME: should check hwPt > 0
