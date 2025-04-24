@@ -15,7 +15,7 @@ hltInitialStepTrajectorySeedsLST = cms.EDProducer('LSTOutputConverter',
         OriginTransverseErrorMultiplier = cms.double(1),
         MinOneOverPtError = cms.double(1),
         magneticField = cms.string(''),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
         forceKinematicWithRegionDirection = cms.bool(False)
     )
 )

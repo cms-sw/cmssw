@@ -62,8 +62,6 @@ _HLTInitialStepSequenceSingleIterPatatrackLSTSeeding = cms.Sequence(
     +hltInitialStepTrajectorySeedsLST
     +hltInitialStepTrackCandidates
     +hltInitialStepTracks
-    +hltInitialStepTrackCutClassifier
-    +hltInitialStepTrackSelectionHighPurity
 )
 
 (singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceSingleIterPatatrackLSTSeeding)
