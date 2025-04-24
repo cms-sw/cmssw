@@ -95,7 +95,7 @@ namespace edm {
   namespace eventsetup {
     struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-    class ESModuleConsumesMinimalInfo;
+    struct ESModuleConsumesMinimalInfo;
 
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'

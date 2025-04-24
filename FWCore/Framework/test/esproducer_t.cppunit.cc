@@ -661,7 +661,7 @@ namespace {
       auto cc = setWhatProduced(this, "produced");
       cc.setMayConsume(
           token_,
-          [this](auto& get, edm::ESTransientHandle<edm::eventsetup::test::DummyData> const& handle) {
+          [](auto& get, edm::ESTransientHandle<edm::eventsetup::test::DummyData> const& handle) {
             return get.nothing();
           },
           edm::ESProductTag<edm::eventsetup::test::DummyData, DummyRecord>("", ""));
