@@ -15,7 +15,8 @@ switchOnNNAssoc = cms.bool(False)
 l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('l1tPFTracksFromL1Tracks'),
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    emClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromL1EGClusters:selected')),
+    emClusters = cms.VInputTag(cms.InputTag("l1tPhase2L1CaloEGammaEmulator","GCTClusters")),
+    emGctRawClusters = cms.VInputTag(cms.InputTag("l1tPhase2L1CaloEGammaEmulator","GCTDigitizedClusterToCorrelator")),
     hadClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromCombinedCaloHCal:calibrated')),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),    
@@ -123,7 +124,14 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
               regions = cms.vuint32(*[3+9*ie+i for ie in range(6) for i in range(3)])), # phi splitting
         cms.PSet(
               regions = cms.vuint32(*[6+9*ie+i for ie in range(6) for i in range(3)])), # phi splitting
-    )
+    ),
+    gctEmCorrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root"),
+    gctEmResol = cms.PSet(
+            etaBins = cms.vdouble( 0.700,  1.200,  1.600),
+            offset  = cms.vdouble( 0.873,  1.081,  1.563),
+            scale   = cms.vdouble( 0.011,  0.015,  0.012),
+            kind    = cms.string('calo'),
+    ),
 )
 
 l1tLayer1BarrelExtended = l1tLayer1Barrel.clone(tracks = cms.InputTag('l1tPFTracksFromL1TracksExtended'))
@@ -145,8 +153,9 @@ _hgcalSectors = cms.VPSet(
 l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('l1tPFTracksFromL1Tracks'),
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    emClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromHGC3DClusters:egamma')), # used only for E/gamma
-    hadClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromHGC3DClusters')),
+    emClusters = cms.VInputTag(), # the em clusters are "intercepted" from the had ones in the regionizer
+    emGctRawClusters = cms.VInputTag(),
+    hadClusters = cms.VInputTag(cms.InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering")),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),    
     emPtCut = cms.double(0.5),
@@ -277,7 +286,14 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         cms.PSet(
             regions = cms.vuint32(range(9, 18))),
     ),
-    writeRawHgcalCluster = cms.untracked.bool(True)
+    gctEmCorrector = cms.string(""),
+    gctEmResol = cms.PSet(
+            etaBins = cms.vdouble( 0.700,  1.200,  1.600),
+            offset  = cms.vdouble( 0.873,  1.081,  1.563),
+            scale   = cms.vdouble( 0.011,  0.015,  0.012),
+            kind    = cms.string('calo'),
+    ),
+
 )
 
 
@@ -291,8 +307,9 @@ l1tLayer1HGCalElliptic = l1tLayer1HGCal.clone(
 
 l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    emClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromHGC3DClusters:egamma')), # used only for E/gamma
-    hadClusters = cms.VInputTag(cms.InputTag('l1tPFClustersFromHGC3DClusters')),
+    emClusters = cms.VInputTag(),
+    emGctRawClusters = cms.VInputTag(),
+    hadClusters = cms.VInputTag(cms.InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering")),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),        
     emPtCut = cms.double(0.5),
@@ -380,7 +397,14 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     boards = cms.VPSet(
         cms.PSet(regions = cms.vuint32(range(0,18))),
     ),
-    writeRawHgcalCluster = cms.untracked.bool(True)
+    gctEmCorrector = cms.string(""),
+    gctEmResol = cms.PSet(
+            etaBins = cms.vdouble( 0.700,  1.200,  1.600),
+            offset  = cms.vdouble( 0.873,  1.081,  1.563),
+            scale   = cms.vdouble( 0.011,  0.015,  0.012),
+            kind    = cms.string('calo'),
+    ),
+
 )
 
 l1tLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
@@ -454,6 +478,14 @@ l1tLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
         )
     ),
     boards = cms.VPSet(),
+    gctEmCorrector = cms.string(""),
+    gctEmResol = cms.PSet(
+            etaBins = cms.vdouble( 0.700,  1.200,  1.600),
+            offset  = cms.vdouble( 0.873,  1.081,  1.563),
+            scale   = cms.vdouble( 0.011,  0.015,  0.012),
+            kind    = cms.string('calo'),
+    ),
+
 )
 
 
@@ -464,6 +496,7 @@ l1tLayer1 = cms.EDProducer("L1TPFCandMultiMerger",
         cms.InputTag("l1tLayer1HGCalNoTK"),
         cms.InputTag("l1tLayer1HF")
     ),
+
 )
 
 
