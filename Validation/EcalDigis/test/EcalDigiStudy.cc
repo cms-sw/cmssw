@@ -1,3 +1,4 @@
+
 /*
  * \file EcalDigiStudy.h
  *
@@ -36,6 +37,7 @@
 //#define EDM_ML_DEBUG
 
 class EcalDigiStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
+
 public:
   EcalDigiStudy(const edm::ParameterSet& ps);
   ~EcalDigiStudy() override = default;
@@ -108,19 +110,21 @@ EcalDigiStudy::EcalDigiStudy(const edm::ParameterSet& ps)
   gainConv_[0] = 12.;  // saturated channels
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
+
 }
 
 void EcalDigiStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("simEcalDigis", "ebDigis"));
-  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("simEcalDigis", "eeDigis"));
+  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("simEcalDigis","ebDigis"));
+  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("simEcalDigis","eeDigis"));
   desc.addUntracked<bool>("verbose", "false");
   descriptions.add("ecalDigiStudy", desc);
 }
 
 void EcalDigiStudy::beginRun(const edm::Run&, const edm::EventSetup& es) {
-  checkCalibrations(es);
 
+  checkCalibrations(es);
+  
   edm::Service<TFileService> fs;
   Char_t histo[200];
 
@@ -197,7 +201,7 @@ void EcalDigiStudy::analyze(edm::Event const& e, edm::EventSetup const& c) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalDigiStudy") << " EB collection " << EcalDigiEB.isValid();
 #endif
-
+  
   if (EcalDigiEB.isValid()) {
     // BARREL: Loop over Digis
 
@@ -205,7 +209,7 @@ void EcalDigiStudy::analyze(edm::Event const& e, edm::EventSetup const& c) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("EcalDigiStudy") << " EB Digi size " << EcalDigiEB->size();
 #endif
-
+  
     std::vector<double> ebAnalogSignal, ebADCCounts, ebADCGains;
     ebAnalogSignal.reserve(EBDataFrame::MAXSAMPLES);
     ebADCCounts.reserve(EBDataFrame::MAXSAMPLES);
@@ -259,7 +263,7 @@ void EcalDigiStudy::analyze(edm::Event const& e, edm::EventSetup const& c) {
         if ((higherGain > 1 && (higherGainSample != sample) && (ebADCGains[sample] == higherGain)) ||
             (higherGain == 3 && (higherGainSample != sample) && (ebADCGains[sample] == 0)) ||
             (higherGain == 0 && (higherGainSample != sample) &&
-             ((ebADCGains[sample] == 3) || (ebADCGains[sample] == 0)))) {
+	     ((ebADCGains[sample] == 3) || (ebADCGains[sample] == 0)))) {
           countsAfterGainSwitch++;
         }
       }
@@ -267,23 +271,20 @@ void EcalDigiStudy::analyze(edm::Event const& e, edm::EventSetup const& c) {
       pedestalPreSample /= 3.;
       pedestalPreSampleAnalog /= 3.;
 
+#ifdef EDM_ML_DEBUG
       if (verbose_) {
-        edm::LogVerbatim("EcalDigiStudy")
-            << "Barrel Digi for EBDetId = " << ebid.rawId() << " eta,phi " << ebid.ieta() << " " << ebid.iphi();
-        for (int i = 0; i < 10; i++)
-          edm::LogVerbatim("EcalDigiSTudy") << "sample " << i << " ADC = " << ebADCCounts[i]
-                                            << " gain = " << ebADCGains[i] << " Analog = " << ebAnalogSignal[i];
-        edm::LogVerbatim("EcalDigiStudy") << "Maximum energy = " << Emax << " in sample " << Pmax
-                                          << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;
-        if (countsAfterGainSwitch > 0)
-          edm::LogVerbatim("EcalDigiStudy") << "Counts after switch " << countsAfterGainSwitch;
+	edm::LogVerbatim("EcalDigiStudy") << "Barrel Digi for EBDetId = " << ebid.rawId() << " eta,phi " << ebid.ieta() << " " << ebid.iphi();
+	for (int i = 0; i < 10; i++) 
+	  edm::LogVerbatim("EcalDigiSTudy") << "sample " << i << " ADC = " << ebADCCounts[i] << " gain = " << ebADCGains[i] << " Analog = " << ebAnalogSignal[i];
+	edm::LogVerbatim("EcalDigiStudy") << "Maximum energy = " << Emax << " in sample " << Pmax << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;
+	if (countsAfterGainSwitch > 0)
+	  edm::LogVerbatim("EcalDigiStudy") << "Counts after switch " << countsAfterGainSwitch;
       }
+#endif
       if (countsAfterGainSwitch > 0 && countsAfterGainSwitch < 5) {
-        edm::LogWarning("EcalDigiStudy") << "Wrong number of counts after gain switch before next switch! "
-                                         << countsAfterGainSwitch;
-        for (int i = 0; i < 10; i++)
-          edm::LogWarning("EcalDigiStudy") << "sample " << i << " ADC = " << ebADCCounts[i]
-                                           << " gain = " << ebADCGains[i] << " Analog = " << ebAnalogSignal[i];
+        edm::LogWarning("EcalDigiStudy") << "Wrong number of counts after gain switch before next switch! " << countsAfterGainSwitch;
+        for (int i = 0; i < 10; i++) 
+          edm::LogWarning("EcalDigiStudy") << "sample " << i << " ADC = " << ebADCCounts[i] << " gain = " << ebADCGains[i] << " Analog = " << ebAnalogSignal[i];
       }
 
       for (int i = 0; i < 10; i++) {
@@ -309,15 +310,16 @@ void EcalDigiStudy::analyze(edm::Event const& e, edm::EventSetup const& c) {
       meEBnADCafterSwitch_->Fill(countsAfterGainSwitch);
     }
     meEBDigiMultiplicity_->Fill(nDigis);
-  }
-
-  edm::Handle<EEDigiCollection> EcalDigiEE;
+}
+ 
+  edm:: Handle<EEDigiCollection> EcalDigiEE;
   e.getByToken(EEdigiCollection_, EcalDigiEE);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalDigiStudy") << " EE collection " << EcalDigiEE.isValid();
 #endif
 
   if (EcalDigiEE.isValid()) {
+
     // ENDCAP: Loop over Digis
     const EEDigiCollection* endcapDigi = EcalDigiEE.product();
 #ifdef EDM_ML_DEBUG
@@ -384,29 +386,28 @@ void EcalDigiStudy::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
         if ((higherGain > 1 && (higherGainSample != sample) && (eeADCGains[sample] == higherGain)) ||
             (higherGain == 3 && (higherGainSample != sample) && (eeADCGains[sample] == 0)) ||
-            (higherGain == 0 && (higherGainSample != sample) &&
-             ((eeADCGains[sample] == 0) || (eeADCGains[sample] == 3))))
+            (higherGain == 0 && (higherGainSample != sample) && ((eeADCGains[sample] == 0) || (eeADCGains[sample] == 3))))
           countsAfterGainSwitch++;
       }
       pedestalPreSample /= 3.;
       pedestalPreSampleAnalog /= 3.;
 
-      edm::LogVerbatim("EcalDigiStudy") << "Endcap Digi for EEDetId = " << eeid.rawId() << " x,y " << eeid.ix() << " "
-                                        << eeid.iy();
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EcalDigiStudy") << "Endcap Digi for EEDetId = " << eeid.rawId() << " x,y " << eeid.ix() << " " << eeid.iy();
       for (int i = 0; i < 10; i++)
-        edm::LogVerbatim("EcalDigiStudy") << "sample " << i << " ADC = " << eeADCCounts[i]
-                                          << " gain = " << eeADCGains[i] << " Analog = " << eeAnalogSignal[i];
+        edm::LogVerbatim("EcalDigiStudy") << "sample " << i << " ADC = " << eeADCCounts[i] << " gain = " << eeADCGains[i]
+                             << " Analog = " << eeAnalogSignal[i];
       edm::LogVerbatim("EcalDigiStudy") << "Maximum energy = " << Emax << " in sample " << Pmax
                                         << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;
       if (countsAfterGainSwitch > 0)
         edm::LogVerbatim("EcalDigiStudy") << "Counts after switch " << countsAfterGainSwitch;
-
+#endif
       if (countsAfterGainSwitch > 0 && countsAfterGainSwitch < 5) {
         edm::LogWarning("EcalDigiStudy") << "Wrong number of counts after gain switch before next switch! "
                                          << countsAfterGainSwitch;
         for (int i = 0; i < 10; i++)
-          edm::LogWarning("EcalDigiStudy") << "sample " << i << " ADC = " << eeADCCounts[i]
-                                           << " gain = " << eeADCGains[i] << " Analog = " << eeAnalogSignal[i];
+          edm::LogWarning("EcalDigiStudy") << "sample " << i << " ADC = " << eeADCCounts[i] << " gain = " << eeADCGains[i]
+                                           << " Analog = " << eeAnalogSignal[i];
       }
 
       for (int i = 0; i < 10; i++) {
@@ -455,7 +456,7 @@ void EcalDigiStudy::checkCalibrations(edm::EventSetup const& eventSetup) {
                                     << " g3 = " << gainConv_[3];
 
   delete defaultRatios;
-
+ 
   edm::LogVerbatim("EcalDigiStudy") << " Barrel GeV/ADC = " << agc->getEBValue();
   edm::LogVerbatim("EcalDigiStudy") << " Endcap GeV/ADC = " << agc->getEEValue();
 }
