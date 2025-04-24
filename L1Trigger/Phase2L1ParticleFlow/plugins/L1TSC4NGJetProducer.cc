@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -15,12 +17,6 @@
 
 #include <cmath>
 #include <vector>
-
-#include <string>
-#include "ap_fixed.h"
-#include "hls4ml/emulator.h"
-
-using namespace l1t;
 
 class L1TSC4NGJetProducer : public edm::stream::EDProducer<> {
 public:
@@ -39,6 +35,8 @@ private:
   double const fMaxEta_;
   unsigned int const fMaxJets_;
   int const fNParticles_;
+  bool const isDebugEnabled = false;
+
   std::vector<l1ct::JetTagClass> classes_;
 
   hls4mlEmulator::ModelLoader loader;
@@ -52,13 +50,19 @@ L1TSC4NGJetProducer::L1TSC4NGJetProducer(const edm::ParameterSet& cfg)
       fMaxEta_(cfg.getParameter<double>("maxEta")),
       fMaxJets_(cfg.getParameter<int>("maxJets")),
       fNParticles_(cfg.getParameter<int>("nParticles")),
+      isDebugEnabled(edm::isDebugEnabled()),
       loader(hls4mlEmulator::ModelLoader(cfg.getParameter<string>("l1tSC4NGJetModelPath"))) {
   std::vector<std::string> classes = cfg.getParameter<std::vector<std::string>>("classes");
   for (unsigned i = 0; i < classes.size(); i++) {
     classes_.push_back(l1ct::JetTagClass(classes[i]));
   }
-  model = loader.load_model();
-  fJetId_ = std::make_unique<L1TSC4NGJetID>(model, fNParticles_);
+  try {
+    model = loader.load_model();
+  } catch (std::runtime_error& e) {
+    throw cms::Exception("ModelError") << " ERROR: failed to load L1TSC4NGJet model version \"" << loader.model_name()
+                                       << "\". Model version not found in cms-hls4ml externals.";
+  }
+  fJetId_ = std::make_unique<L1TSC4NGJetID>(model, fNParticles_, isDebugEnabled);
   produces<l1t::PFJetCollection>("l1tSC4NGJets");
 }
 
@@ -101,7 +105,7 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   std::sort(taggedJets.begin(), taggedJets.end(), [](l1t::PFJet a, l1t::PFJet b) { return (a.pt() > b.pt()); });
 
-  std::unique_ptr<l1t::PFJetCollection> taggedJetsCollection(new l1t::PFJetCollection);
+  auto taggedJetsCollection = std::make_unique<l1t::PFJetCollection>();
   taggedJetsCollection->swap(taggedJets);
   iEvent.put(std::move(taggedJetsCollection), "l1tSC4NGJets");
 }

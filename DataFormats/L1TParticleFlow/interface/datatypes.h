@@ -19,7 +19,7 @@ namespace l1ct {
   typedef ap_int<11> glbphi_t;
   typedef ap_int<5> vtx_t;
   typedef ap_int<10> z0_t;         // 40cm / 0.1
-  typedef ap_uint<8> dxy_t;        // tbd
+  typedef ap_uint<8> dxy_t;        // sqrt(32)cm / 0.004 packed into 8 bit for l1ct
   typedef ap_uint<3> tkquality_t;  // tbd
   typedef ap_ufixed<9, 1, AP_RND_CONV, AP_WRAP> puppiWgt_t;
   typedef ap_uint<6> emid_t;
@@ -144,9 +144,8 @@ namespace l1ct {
     constexpr float INTPT_LSB = 0.25;
     constexpr float ETAPHI_LSB = M_PI / INTPHI_PI;
     constexpr float Z0_LSB = 0.05;
-    //constexpr float DXY_LSB = 0.05;
-    constexpr float DXY_LSB = 0.00390625;
-    constexpr float DXYSQRT_LSB = 0.015625;
+    constexpr float DXY_LSB = 0.00390625;    // -16 to 16 / 2**13 from track word
+    constexpr float DXYSQRT_LSB = 0.015625;  //sqrt(abs(dxy)) 4/2**8 (8 bit for l1ct dxy)
     constexpr float PUPPIW_LSB = 1.0 / 256;
     constexpr float MEANZ_OFFSET = 320.;
     constexpr float SRRTOT_LSB = 0.0019531250;  // pow(2, -9)
@@ -171,7 +170,7 @@ namespace l1ct {
     inline float floatEta(glbeta_t eta) { return eta.to_float() * ETAPHI_LSB; }
     inline float floatPhi(glbphi_t phi) { return phi.to_float() * ETAPHI_LSB; }
     inline float floatZ0(z0_t z0) { return z0.to_float() * Z0_LSB; }
-    inline float floatDxy(dxy_t dxy) { return dxy.to_float() * DXYSQRT_LSB; }
+    inline float floatDxy(dxy_t dxy) { return dxy.to_float() * DXYSQRT_LSB; }  // l1ct stores sqrt(dxy)
     inline float floatPuppiW(puppiWgt_t puppiw) { return puppiw.to_float(); }
     inline float floatIso(iso_t iso) { return iso.to_float(); }
     inline float floatSrrTot(srrtot_t srrtot) { return srrtot.to_float() / SRRTOT_SCALE; };
@@ -184,7 +183,7 @@ namespace l1ct {
     inline pt_t makePtFromFloat(float pt) { return pt_t(0.25 * std::round(pt * 4)); }
     inline dpt_t makeDPtFromFloat(float dpt) { return dpt_t(dpt); }
     inline z0_t makeZ0(float z0) { return z0_t(std::round(z0 / Z0_LSB)); }
-    inline dxy_t makeDxy(float dxy) { return dxy_t(std::round(dxy / DXY_LSB)); }
+    inline dxy_t makeDxy(float dxy) { return dxy_t(std::round(dxy / DXYSQRT_LSB)); }  // l1ct stores sqrt(dxy)
 
     inline ap_uint<pt_t::width> ptToInt(pt_t pt) {
       // note: this can be synthethized, e.g. when pT is used as intex in a LUT
