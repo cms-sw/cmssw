@@ -1468,29 +1468,37 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeomT") << "TileExist: Layer : " << layer << ":" << index.first << " Fine " << fine;
 #endif
-  bool ok(true);
-  if (fine) {
-    int indx = HGCalTileIndex::tileIndex(layer, ring, 1);
-    auto itr = hgpar_->tileInfoMap_.find(indx);
-    ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi);
+  bool ok = ((ring >= hgpar_->iradMinBH_[index.first]) && (ring <= hgpar_->iradMaxBH_[index.first]));
+  if (ok) {
+    if (fine) {
+      int indx = HGCalTileIndex::tileIndex(layer, ring, 1);
+      auto itr = hgpar_->tileInfoMap_.find(indx);
+      ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi);
 #ifdef EDM_ML_DEBUG
-    if (!ok)
-      edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-                                    << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
-                                    << ok;
+      if (!ok)
+	edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
+				      << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
+				      << ok;
+      if (HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi) != HGCalTileIndex::tileExist(itr->second.hex, zside, phi)) edm::LogVerbatim("HGCalGeom") << "Zside:Layer:Ring:Phi " << zside << ":" << layer << ":" << ring << ":" << phi << " hex " << std::hex << itr->second.hex[0] << ":" << itr->second.hex[1] << ":" << itr->second.hex[2] << ":" << itr->second.hex[3] << ":" << itr->second.hex[4] << ":" << itr->second.hex[5] << std::dec << " OK " << ok << ":" << HGCalTileIndex::tileExist(itr->second.hex, zside, phi) << " CHECK";
 #endif
-    return ok;
+      return ok;
+    } else {
+      int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
+      auto itr = hgpar_->tileInfoMap_.find(indx);
+      ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
+#ifdef EDM_ML_DEBUG
+      if (!ok)
+	edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
+				      << " Index " << index.first << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
+				      << ok;
+      if (HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi) != HGCalTileIndex::tileExist(itr->second.hex, zside, phi)) edm::LogVerbatim("HGCalGeom") << "Zside:Layer:Ring:Phi " << zside << ":" << layer << ":" << ring << ":" << phi << " hex " << std::hex << itr->second.hex[0] << ":" << itr->second.hex[1] << ":" << itr->second.hex[2] << ":" << itr->second.hex[3] << ":" << itr->second.hex[4] << ":" << itr->second.hex[5] << std::dec << " OK " << ok << ":" << HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi) << " CHECK";
+#endif
+      return ok;
+    }
+#ifdef EDM_ML_DEBUG
   } else {
-    int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
-    auto itr = hgpar_->tileInfoMap_.find(indx);
-    ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
-#ifdef EDM_ML_DEBUG
-    if (!ok)
-      edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-                                    << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
-                                    << ok;
+    edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi << " Index " << index.first << " Ring limits " << hgpar_->iradMinBH_[index.first] << ":" << hgpar_->iradMaxBH_[index.first] << " ok " << ok;
 #endif
-    return ok;
   }
   return ok;
 }
