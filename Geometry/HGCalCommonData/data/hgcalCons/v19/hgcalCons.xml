@@ -179,8 +179,8 @@
     <Parameter name="WaferZside"          value="1"/>
     <Parameter name="WaferThickness"      value="[hgcal:ScintillatorThickness]"/>
     <Parameter name="MinimumTileSize"     value="[MinimumTileSize]"/>
-    <Parameter name="NPhiBinBH"           value="[hgcal:NPhiBinBHFine]"/>
     <Parameter name="NPhiBinBH"           value="[hgcal:NPhiBinBH]"/>
+    <Parameter name="NPhiBinBH"           value="[hgcal:NPhiBinBHFine]"/>
     <Parameter name="LayerFrontBH"        value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="LayerFrontBH"        value="[hgcal:FirstMixedCoarseLayer]"/>
     <Parameter name="Cassettes"           value="12"/>
