@@ -13,8 +13,6 @@
 
 #include <filesystem>
 
-#include "EventFilter/Utilities/interface/FastMonitoringService.h"
-
 #include <string>
 #include <vector>
 #include <map>
@@ -181,7 +179,7 @@ namespace evf {
 
     void preallocate(edm::service::SystemBounds const&);
     void jobFailure();
-    void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const& pc);
+    void preBeginJob(edm::ProcessContext const& pc);
 
     void preModuleBeginJob(edm::ModuleDescription const&);
     void postBeginJob();
@@ -233,6 +231,7 @@ namespace evf {
     void setTMicrostate(FastMonState::Microstate m);
 
     static unsigned int getTID() { return tbb::this_task_arena::current_thread_index(); }
+    bool streamIsIdle(unsigned int i) const;
 
   private:
     void doSnapshot(const unsigned int ls, const bool isGlobalEOL);

@@ -106,6 +106,7 @@
 
   <library file="TestInterProcessProd.cc" name="TestInterProcessProd">
     <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/Sources"/>
@@ -115,6 +116,7 @@
 
   <library file="TestInterProcessRandomProd.cc,RandomIntProducer.cc" name="TestInterProcessRandomProd">
     <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/Sources"/>
@@ -126,6 +128,7 @@
   </library>
   <library file="TestServicesOnNonFrameworkThreadsAnalyzer.cc" name = "TestServicesOnNonFrameworkThreadsAnalyzer">
     <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/MessageLogger"/>

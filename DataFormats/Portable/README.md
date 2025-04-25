@@ -98,6 +98,10 @@ SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection);
 They have no implicit or explicit references to alpaka (neither as part of the class signature nor as part of its name).
 This could make it possible to read them back with different portability solutions in the future.
 
+The member function `void deepCopy(ConstView const& view)` copies the content of all scalars and columns from `view`
+(pointing to data in host memory and potentially to multiple buffers) into the `PortableHostCollection` contiguous buffer.
+See the [`View` section](../../DataFormats/SoATemplate/README.md#view) of [`DataFormats/SoATemplate/README.md`](../../DataFormats/SoATemplate/README.md) for more details.
+
 ### `PortableDeviceCollection<T, TDev>`
 
 `PortableDeviceCollection<T, TDev>` is a class template that wraps a SoA type `T` and an alpaka device buffer, which

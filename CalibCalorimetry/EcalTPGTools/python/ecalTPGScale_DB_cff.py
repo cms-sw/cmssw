@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from CondCore.DBCommon.CondDBSetup_cfi import *
 ecalTPConditions = cms.ESSource("PoolDBESSource",
     CondDBSetup,
-    loadAll = cms.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGPedestalsRcd'),
         tag = cms.string('EcalTPGPedestals_craft')
@@ -52,10 +51,6 @@ ecalTPConditions = cms.ESSource("PoolDBESSource",
             record = cms.string('EcalTPGPhysicsConstRcd'),
             tag = cms.string('EcalTPGPhysicsConst_craft')
         )),
-    messagelevel = cms.untracked.uint32(3),
-    timetype = cms.string('runnumber'),
 #    connect = cms.string('oracle://ecalh4db/TEST02'),
     connect = cms.string('sqlite_file:/afs/cern.ch/cms/ECAL/testbeam/pedestal/GlobalRuns/DB_30x.db'),
-    authenticationMethod = cms.untracked.uint32(1),
-    loadBlobStreamer = cms.untracked.bool(True)
 )

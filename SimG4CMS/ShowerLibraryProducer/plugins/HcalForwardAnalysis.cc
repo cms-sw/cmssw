@@ -17,6 +17,8 @@
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimG4CMS/ShowerLibraryProducer/interface/FiberG4Hit.h"
 #include "SimG4CMS/ShowerLibraryProducer/interface/HFShowerG4Hit.h"

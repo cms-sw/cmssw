@@ -5,6 +5,7 @@
 #include "SimMuon/CSCDigitizer/src/CSCConfigurableStripConditions.h"
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,7 +13,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <string>

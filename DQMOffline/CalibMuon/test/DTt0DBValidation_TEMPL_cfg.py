@@ -26,7 +26,6 @@ process.tzeroRef = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('DTT0Rcd'),
@@ -35,7 +34,6 @@ process.tzeroRef = cms.ESSource("PoolDBESSource",
         )
         ),
     connect = cms.string('sqlite_file:REFT0TEMPLATE'),
-    siteLocalConfig = cms.untracked.bool(False)
 )
 
 process.t0ToValidate = cms.ESSource("PoolDBESSource",
@@ -43,7 +41,6 @@ process.t0ToValidate = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet( 
          cms.PSet(
     record = cms.string('DTT0Rcd'),
@@ -52,7 +49,6 @@ process.t0ToValidate = cms.ESSource("PoolDBESSource",
     )
         ),
     connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/t0/t0_RUNNUMBERTEMPLATE.db'),
-    siteLocalConfig = cms.untracked.bool(False)
 )
 
 

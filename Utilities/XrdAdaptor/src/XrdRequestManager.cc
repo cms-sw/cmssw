@@ -13,7 +13,10 @@
 #include "XrdCl/XrdClDefaultEnv.hh"
 #include "XrdCl/XrdClFileSystem.hh"
 
+//#define CPUTIME_IN_XRD
+#if defined(CPUTIME_IN_XRD)
 #include "FWCore/Utilities/interface/CPUTimer.h"
+#endif
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -403,13 +406,13 @@ bool RequestManager::compareSources(const timespec &now,
     std::string hostname_a;
     Source::getHostname(activeSources[a]->ID(), hostname_a);
     if (quality_a > 5130) {
-      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
+      edm::LogFwkInfo("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
                                         << quality_a << ") is above 5130 and it is not the only active server";
     }
     if ((quality_a > 260) && (quality_b * 4 < quality_a)) {
       std::string hostname_b;
       Source::getHostname(activeSources[b]->ID(), hostname_b);
-      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
+      edm::LogFwkInfo("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
                                         << quality_a
                                         << ") is higher than 260 and 4 times larger than the other active server "
                                         << hostname_b << " (" << quality_b << ") ";
@@ -751,8 +754,10 @@ std::future<IOSize> XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vect
   timespec now;
   GET_CLOCK_MONOTONIC(now);
 
+#if defined(CPUTIME_IN_XRD)
   edm::CPUTimer timer;
   timer.start();
+#endif
 
   if (activeSources.size() == 1) {
     auto c_ptr = std::make_shared<XrdAdaptor::ClientRequest>(*this, iolist);
@@ -816,8 +821,11 @@ std::future<IOSize> XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vect
         },
         std::move(future1),
         std::move(future2));
+#if defined(CPUTIME_IN_XRD)
     timer.stop();
-    //edm::LogVerbatim("XrdAdaptorInternal") << "Total time to create requests " << static_cast<int>(1000*timer.realTime()) << std::endl;
+    edm::LogVerbatim("XrdAdaptorInternal")
+        << "Total time to create requests " << static_cast<int>(1000 * timer.realTime()) << std::endl;
+#endif
     return task;
   } else if (!req1->empty()) {
     return future1;
@@ -856,17 +864,39 @@ void RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c
   m_disabledSources.insert(source_ptr);
 
   std::unique_lock<std::recursive_mutex> sentry(m_source_mutex);
-  if ((!m_activeSources.empty()) && (m_activeSources[0].get() == source_ptr.get())) {
+  // Remove the failed source from the container of active sources
+  if (auto found = std::ranges::find_if(
+          m_activeSources, [&source_ptr](const std::shared_ptr<Source> &src) { return src.get() == source_ptr.get(); });
+      found != m_activeSources.end()) {
     auto oldSources = m_activeSources;
-    m_activeSources.erase(m_activeSources.begin());
-    reportSiteChange(oldSources, m_activeSources);
-  } else if ((m_activeSources.size() > 1) && (m_activeSources[1].get() == source_ptr.get())) {
-    auto oldSources = m_activeSources;
-    m_activeSources.erase(m_activeSources.begin() + 1);
+    m_activeSources.erase(found);
     reportSiteChange(oldSources, m_activeSources);
   }
+  // Find a new source to send the request to
+  // - First, if there is another active source, use it
+  // - Then, if there are no active sources, if there are inactive
+  //   sources, use the best inactive source
+  // - Then, if there are no active or inactice sources, try to open a
+  //   new connection for a new source
   std::shared_ptr<Source> new_source;
-  if (m_activeSources.empty()) {
+  if (not m_activeSources.empty()) {
+    new_source = m_activeSources[0];
+  } else if (not m_inactiveSources.empty()) {
+    // similar logic as in checkSourcesImpl()
+    // assume the "sort open delay" doesn't matter in case of a request failure
+    auto bestInactiveSource =
+        std::min_element(m_inactiveSources.begin(),
+                         m_inactiveSources.end(),
+                         [](const std::shared_ptr<Source> &s1, const std::shared_ptr<Source> &s2) {
+                           return s1->getQuality() < s2->getQuality();
+                         });
+    new_source = *bestInactiveSource;
+
+    auto oldSources = m_activeSources;
+    m_activeSources.push_back(*bestInactiveSource);
+    m_inactiveSources.erase(bestInactiveSource);
+    reportSiteChange(oldSources, m_activeSources);
+  } else {
     std::shared_future<std::shared_ptr<Source>> future = m_open_handler->open();
     timespec now;
     GET_CLOCK_MONOTONIC(now);
@@ -910,8 +940,6 @@ void RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c
     auto oldSources = m_activeSources;
     m_activeSources.push_back(new_source);
     reportSiteChange(oldSources, m_activeSources);
-  } else {
-    new_source = m_activeSources[0];
   }
   new_source->handle(c_ptr);
 }

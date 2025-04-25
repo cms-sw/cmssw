@@ -3,6 +3,8 @@ from collections import OrderedDict
 from .MatrixUtil import merge, Kby, Mby, check_dups
 import re
 
+undefInput = "UNDEF"
+
 U2000by1={'--relval': '2000,1'}
 
 # DON'T CHANGE THE ORDER, only append new keys. Otherwise the numbering for the runTheMatrix tests will change.
@@ -97,6 +99,12 @@ upgradeKeys['Run4'] = [
     'Run4D116PU',
     'Run4D117',
     'Run4D117PU',
+    'Run4D118',
+    'Run4D118PU',
+    'Run4D119',
+    'Run4D119PU',
+    'Run4D120',
+    'Run4D120PU',
 ]
 
 # pre-generation of WF numbers
@@ -603,6 +611,35 @@ upgradeWFs['seedingDeepCore'] = UpgradeWorkflow_seedingDeepCore(
     suffix = '_seedingDeepCore',
     offset = 0.17,
 )
+# pixel digiMorphing workflows
+class UpgradeWorkflow_siPixelDigiMorphing(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([{'--procModifiers': 'siPixelDigiMorphing'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        result = (fragment=="QCD_Pt_1800_2400_14" or fragment=="TTbar_14TeV" ) and any(y in key for y in ['2022','2023','2024','2025'])
+        return result
+upgradeWFs['siPixelDigiMorphing'] = UpgradeWorkflow_siPixelDigiMorphing(
+    steps = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoGlobalFakeHLT',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+    ],
+    PU = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoGlobalFakeHLT',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+    ],
+    suffix = '_siPixelDigiMorphing',
+    offset = 0.18,
+)
+
 
 #Workflow to enable displacedRegionalStep tracking iteration
 class UpgradeWorkflow_displacedRegional(UpgradeWorkflowTracking):
@@ -851,6 +888,78 @@ upgradeWFs['ticl_v5_superclustering_mustache_pf'] = UpgradeWorkflow_ticl_v5_supe
 )
 upgradeWFs['ticl_v5_superclustering_mustache_pf'].step3 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_pf'}
 upgradeWFs['ticl_v5_superclustering_mustache_pf'].step4 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_pf'}
+
+class UpgradeWorkflow_TICLdumper(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="TTbar_14TeV" or 'CloseByP' in fragment or 'Eta1p7_2p7' in fragment) and 'Run4' in key
+
+upgradeWFs['enableTICLdumper'] = UpgradeWorkflow_TICLdumper(
+    steps = [
+        'RecoGlobal',
+    ],
+    PU = [
+        'RecoGlobal',
+    ],
+    suffix = '_enableTICLdumper',
+    offset = 0.206,
+)
+upgradeWFs['enableTICLdumper'].step3 = {'--customise': 'RecoHGCal/TICL/customiseTICLFromReco.customiseTICLForDumper'}
+
+upgradeWFs['ticl_v5_withDumper'] = UpgradeWorkflow_ticl_v5(
+    steps = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_ticl_v5_withDumper',
+    offset = 0.207,
+)
+upgradeWFs['ticl_v5_withDumper'].step2 = {'--procModifiers': 'ticl_v5'}
+upgradeWFs['ticl_v5_withDumper'].step3 = {'--procModifiers': 'ticl_v5',
+                                          '--customise': 'RecoHGCal/TICL/customiseTICLFromReco.customiseTICLForDumper'}
+upgradeWFs['ticl_v5_withDumper'].step4 = {'--procModifiers': 'ticl_v5'}
+
+class UpgradeWorkflow_CPfromPU(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="TTbar_14TeV" or 'CloseByP' in fragment or 'Eta1p7_2p7' in fragment) and 'Run4' in key
+
+upgradeWFs['CPfromPU'] = UpgradeWorkflow_CPfromPU(
+    steps = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_withCPfromPU',
+    offset = 0.208,
+)
+
+upgradeWFs['CPfromPU'].step2 = {'--procModifiers': 'enableCPfromPU'}
+upgradeWFs['CPfromPU'].step3 = {'--procModifiers': 'enableCPfromPU'}
+upgradeWFs['CPfromPU'].step4 = {'--procModifiers': 'enableCPfromPU'}
 
 # Improved L2 seeding from L1Tk Muons and L3 Tracker Muon Inside-Out reconstruction first (Phase-2 Muon default)
 class UpgradeWorkflow_phase2L2AndL3Muons(UpgradeWorkflow):
@@ -2848,7 +2957,7 @@ class UpgradeWorkflow_SonicTriton(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         stepDict[stepName][k] = merge([{'--procModifiers': 'allSonicTriton'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ((fragment=='TTbar_13' or fragment=='TTbar_14TeV') and '2022' in key) \
+        return ((fragment=='TTbar_13' or fragment=='TTbar_14TeV') and key.startswith('202')) \
             or (fragment=='TTbar_14TeV' and 'Run4' in key)
 upgradeWFs['SonicTriton'] = UpgradeWorkflow_SonicTriton(
     steps = [
@@ -3120,6 +3229,8 @@ upgradeProperties[2017] = {
 
 # standard PU sequences
 for key in list(upgradeProperties[2017].keys()):
+    if "GenOnly" in key:
+        continue
     upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
     if 'FS' not in key:
         # update ScenToRun list
@@ -3341,20 +3452,43 @@ upgradeProperties['Run4'] = {
         'Geom' : 'ExtendedRun4D116',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C17I13M9',
+        'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D117' : {
         'Geom' : 'ExtendedRun4D117',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T33',
-        'Era' : 'Phase2C17I13M9',
+        'Era' : 'Phase2C22I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    'Run4D118' : {
+        'Geom' : 'ExtendedRun4D118',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C22I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    'Run4D119' : {
+        'Geom' : 'ExtendedRun4D119',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C22I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    'Run4D120' : {
+        'Geom' : 'ExtendedRun4D120',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
 }
 
 # standard PU sequences
 for key in list(upgradeProperties['Run4'].keys()):
+    if "GenOnly" in key:
+        continue
     upgradeProperties['Run4'][key+'PU'] = deepcopy(upgradeProperties['Run4'][key])
     upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
 

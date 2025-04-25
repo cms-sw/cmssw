@@ -6,8 +6,8 @@
 #include "CLHEP/Random/Randomize.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

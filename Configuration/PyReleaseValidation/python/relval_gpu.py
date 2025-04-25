@@ -37,8 +37,10 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 # no PU
 #           Alpaka pixel-only:                                  TTbar: quadruplets any backend, any backend vs cpu validation, profiling, triplets      
 #           Alpaka pixel-only:                                  Single Nu E10: any backend
+#           Alpaka LST-only:                                    TTbar: TRK-only w/ 2 iterations and LST building on any backend
 # with PU
 #           Alpaka pixel-only:                                  TTbar with PU: quadruplets any backend, any backend vs cpu validation, profiling 
+#           Alpaka LST-only:                                    TTbar: TRK-only w/ 2 iterations and LST building on any backend
 
 numWFIB = [
 

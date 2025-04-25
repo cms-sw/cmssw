@@ -54,6 +54,7 @@ defaultOptions.dirin = ''
 defaultOptions.dirout = ''
 defaultOptions.filetype = 'EDM'
 defaultOptions.fileout = 'output.root'
+defaultOptions.rntuple_out = False
 defaultOptions.filtername = ''
 defaultOptions.lazy_download = False
 defaultOptions.custom_conditions = ''
@@ -450,6 +451,11 @@ class ConfigBuilder(object):
                                                fileNames = cms.untracked.vstring(),
                                                secondaryFileNames= cms.untracked.vstring())
                 filesFromOption(self)
+            if self._options.filetype == "EDM_RNTUPLE":
+                self.process.source=cms.Source("RNTupleSource",
+                                               fileNames = cms.untracked.vstring())#, 2ndary not supported yet
+                                               #secondaryFileNames= cms.untracked.vstring())
+                filesFromOption(self)
             elif self._options.filetype == "DAT":
                 self.process.source=cms.Source("NewEventStreamFileReader",fileNames = cms.untracked.vstring())
                 filesFromOption(self)
@@ -573,112 +579,99 @@ class ConfigBuilder(object):
 
     def addOutput(self):
         """ Add output module to the process """
-        result=""
         if self._options.outputDefinition:
-            if self._options.datatier:
-                print("--datatier & --eventcontent options ignored")
+            return self._addOutputUsingOutputDefinition()
+        else:
+            return self._addOutputUsingTier()
+    def _addOutputUsingOutputDefinition(self):
+        result=""
+        if self._options.datatier:
+            print("--datatier & --eventcontent options ignored")
 
-            #new output convention with a list of dict
-            outList = eval(self._options.outputDefinition)
-            for (id,outDefDict) in enumerate(outList):
-                outDefDictStr=outDefDict.__str__()
-                if not isinstance(outDefDict,dict):
-                    raise Exception("--output needs to be passed a list of dict"+self._options.outputDefinition+" is invalid")
-                #requires option: tier
-                theTier=anyOf(['t','tier','dataTier'],outDefDict)
-                #optional option: eventcontent, filtername, selectEvents, moduleLabel, filename
-                ## event content
-                theStreamType=anyOf(['e','ec','eventContent','streamType'],outDefDict,theTier)
-                theFilterName=anyOf(['f','ftN','filterName'],outDefDict,'')
-                theSelectEvent=anyOf(['s','sE','selectEvents'],outDefDict,'')
-                theModuleLabel=anyOf(['l','mL','moduleLabel'],outDefDict,'')
-                theExtraOutputCommands=anyOf(['o','oC','outputCommands'],outDefDict,'')
-                # module label has a particular role
-                if not theModuleLabel:
-                    tryNames=[theStreamType.replace(theTier.replace('-',''),'')+theTier.replace('-','')+'output',
-                              theStreamType.replace(theTier.replace('-',''),'')+theTier.replace('-','')+theFilterName+'output',
-                              theStreamType.replace(theTier.replace('-',''),'')+theTier.replace('-','')+theFilterName+theSelectEvent.split(',')[0].replace(':','for').replace(' ','')+'output'
-                              ]
-                    for name in tryNames:
-                        if not hasattr(self.process,name):
-                            theModuleLabel=name
-                            break
-                if not theModuleLabel:
-                    raise Exception("cannot find a module label for specification: "+outDefDictStr)
-                if id==0:
-                    defaultFileName=self._options.outfile_name
+        #new output convention with a list of dict
+        outList = eval(self._options.outputDefinition)
+        for (id,outDefDict) in enumerate(outList):
+            outDefDictStr=outDefDict.__str__()
+            if not isinstance(outDefDict,dict):
+                raise Exception("--output needs to be passed a list of dict"+self._options.outputDefinition+" is invalid")
+            #requires option: tier
+            theTier=anyOf(['t','tier','dataTier'],outDefDict)
+            #optional option: eventcontent, filtername, selectEvents, moduleLabel, filename
+            ## event content
+            theStreamType=anyOf(['e','ec','eventContent','streamType'],outDefDict,theTier)
+            theFilterName=anyOf(['f','ftN','filterName'],outDefDict,'')
+            theSelectEvent=anyOf(['s','sE','selectEvents'],outDefDict,'')
+            theModuleLabel=anyOf(['l','mL','moduleLabel'],outDefDict,'')
+            theExtraOutputCommands=anyOf(['o','oC','outputCommands'],outDefDict,'')
+            # module label has a particular role
+            if not theModuleLabel:
+                tryNames=[theStreamType.replace(theTier.replace('-',''),'')+theTier.replace('-','')+'output',
+                          theStreamType.replace(theTier.replace('-',''),'')+theTier.replace('-','')+theFilterName+'output',
+                          theStreamType.replace(theTier.replace('-',''),'')+theTier.replace('-','')+theFilterName+theSelectEvent.split(',')[0].replace(':','for').replace(' ','')+'output'
+                          ]
+                for name in tryNames:
+                    if not hasattr(self.process,name):
+                        theModuleLabel=name
+                        break
+            if not theModuleLabel:
+                raise Exception("cannot find a module label for specification: "+outDefDictStr)
+            if id==0:
+                defaultFileName=self._options.outfile_name
+            else:
+                defaultFileName=self._options.outfile_name.replace('.root','_in'+theTier+'.root')
+                defaultFileName=defaultFileName.replace('.rntpl','_in'+theTier+'.rntpl')
+
+            theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,defaultFileName)
+            if not theFileName.endswith('.root'):
+                theFileName+='.root'
+
+            if len(outDefDict):
+                raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
+            if theStreamType=='DQMIO': theStreamType='DQM'
+            if theStreamType=='ALL':
+                theEventContent = cms.PSet(outputCommands = cms.untracked.vstring('keep *'))
+            else:
+                theEventContent = getattr(self.process, theStreamType+"EventContent")
+
+
+            addAlCaSelects=False
+            if theStreamType=='ALCARECO' and not theFilterName:
+                theFilterName='StreamALCACombined'
+                addAlCaSelects=True
+
+            output=self._createOutputModuleInAddOutput(tier=theTier, streamType = theStreamType, eventContent = theEventContent, fileName = theFileName, filterName = theFilterName, ignoreNano = True)
+            if theSelectEvent:
+                output.SelectEvents =cms.untracked.PSet(SelectEvents = cms.vstring(theSelectEvent))
+            else:
+                self._updateOutputSelectEvents(output, theStreamType)
+
+            if addAlCaSelects:
+                if not hasattr(output,'SelectEvents'):
+                    output.SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring())
+                for alca in self.AlCaPaths:
+                    output.SelectEvents.SelectEvents.extend(getattr(self.process,'OutALCARECO'+alca).SelectEvents.SelectEvents)
+
+
+            if hasattr(self.process,theModuleLabel):
+                raise Exception("the current process already has a module "+theModuleLabel+" defined")
+            #print "creating output module ",theModuleLabel
+            outputModule = self._addOutputModuleAndPathToProcess(output, theModuleLabel)
+
+            self._inlineOutputEventContent(outputModule, theStreamType)
+            if theExtraOutputCommands:
+                if not isinstance(theExtraOutputCommands,list):
+                    raise Exception("extra ouput command in --option must be a list of strings")
+                if hasattr(self.process,theStreamType+"EventContent"):
+                    self.executeAndRemember('process.%s.outputCommands.extend(%s)'%(theModuleLabel,theExtraOutputCommands))
                 else:
-                    defaultFileName=self._options.outfile_name.replace('.root','_in'+theTier+'.root')
+                    outputModule.outputCommands.extend(theExtraOutputCommands)
 
-                theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,defaultFileName)
-                if not theFileName.endswith('.root'):
-                    theFileName+='.root'
+            result+="\nprocess."+theModuleLabel+" = "+outputModule.dumpPython()
 
-                if len(outDefDict):
-                    raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
-                if theStreamType=='DQMIO': theStreamType='DQM'
-                if theStreamType=='ALL':
-                    theEventContent = cms.PSet(outputCommands = cms.untracked.vstring('keep *'))
-                else:
-                    theEventContent = getattr(self.process, theStreamType+"EventContent")
-
-
-                addAlCaSelects=False
-                if theStreamType=='ALCARECO' and not theFilterName:
-                    theFilterName='StreamALCACombined'
-                    addAlCaSelects=True
-
-                CppType='PoolOutputModule'
-                if self._options.timeoutOutput:
-                    CppType='TimeoutPoolOutputModule'
-                if theStreamType=='DQM' and theTier=='DQMIO': CppType='DQMRootOutputModule'
-                output = cms.OutputModule(CppType,
-                                          theEventContent.clone(),
-                                          fileName = cms.untracked.string(theFileName),
-                                          dataset = cms.untracked.PSet(
-                                             dataTier = cms.untracked.string(theTier),
-                                             filterName = cms.untracked.string(theFilterName))
-                                          )
-                if not theSelectEvent and hasattr(self.process,'generation_step') and theStreamType!='LHE':
-                    output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
-                if not theSelectEvent and hasattr(self.process,'filtering_step'):
-                    output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))
-                if theSelectEvent:
-                    output.SelectEvents =cms.untracked.PSet(SelectEvents = cms.vstring(theSelectEvent))
-
-                if addAlCaSelects:
-                    if not hasattr(output,'SelectEvents'):
-                        output.SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring())
-                    for alca in self.AlCaPaths:
-                        output.SelectEvents.SelectEvents.extend(getattr(self.process,'OutALCARECO'+alca).SelectEvents.SelectEvents)
-
-
-                if hasattr(self.process,theModuleLabel):
-                    raise Exception("the current process already has a module "+theModuleLabel+" defined")
-                #print "creating output module ",theModuleLabel
-                setattr(self.process,theModuleLabel,output)
-                outputModule=getattr(self.process,theModuleLabel)
-                setattr(self.process,theModuleLabel+'_step',cms.EndPath(outputModule))
-                path=getattr(self.process,theModuleLabel+'_step')
-                self.schedule.append(path)
-
-                if not self._options.inlineEventContent and hasattr(self.process,theStreamType+"EventContent"):
-                    def doNotInlineEventContent(instance,label = "cms.untracked.vstring(process."+theStreamType+"EventContent.outputCommands)"):
-                        return label
-                    outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
-                if theExtraOutputCommands:
-                    if not isinstance(theExtraOutputCommands,list):
-                        raise Exception("extra ouput command in --option must be a list of strings")
-                    if hasattr(self.process,theStreamType+"EventContent"):
-                        self.executeAndRemember('process.%s.outputCommands.extend(%s)'%(theModuleLabel,theExtraOutputCommands))
-                    else:
-                        outputModule.outputCommands.extend(theExtraOutputCommands)
-
-                result+="\nprocess."+theModuleLabel+" = "+outputModule.dumpPython()
-
-            ##ends the --output options model
-            return result
-
+        ##ends the --output options model
+        return result
+    def _addOutputUsingTier(self):
+        result=""
         streamTypes=self._options.eventcontent.split(',')
         tiers=self._options.datatier.split(',')
         if not self._options.outputDefinition and len(streamTypes)!=len(tiers):
@@ -704,29 +697,14 @@ class ConfigBuilder(object):
             theEventContent = getattr(self.process, eventContent+"EventContent")
             if i==0:
                 theFileName=self._options.outfile_name
-                theFilterName=self._options.filtername
             else:
                 theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
-                theFilterName=self._options.filtername
-            CppType='PoolOutputModule'
-            if self._options.timeoutOutput:
-                CppType='TimeoutPoolOutputModule'
-            if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
-            if "NANOAOD" in streamType : CppType='NanoAODOutputModule'
-            output = cms.OutputModule(CppType,
-                                      theEventContent,
-                                      fileName = cms.untracked.string(theFileName),
-                                      dataset = cms.untracked.PSet(dataTier = cms.untracked.string(tier),
-                                                                   filterName = cms.untracked.string(theFilterName)
-                                                                   )
-                                      )
-            if hasattr(self.process,"generation_step") and streamType!='LHE':
-                output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
-            if hasattr(self.process,"filtering_step"):
-                output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))
-
+                theFileName=theFileName.replace('.rntpl','_in'+streamType+'.rntpl')
+            theFilterName=self._options.filtername
             if streamType=='ALCARECO':
-                output.dataset.filterName = cms.untracked.string('StreamALCACombined')
+                theFilterName = 'StreamALCACombined'
+            output = self._createOutputModuleInAddOutput(tier=tier, streamType=streamType, eventContent=theEventContent, fileName = theFileName, filterName = theFilterName, ignoreNano = False)
+            self._updateOutputSelectEvents(output, streamType)
 
             if "MINIAOD" in streamType:
                 ## we should definitely get rid of this customization by now
@@ -734,28 +712,58 @@ class ConfigBuilder(object):
                 miniAOD_customizeOutput(output)
 
             outputModuleName=streamType+streamQualifier+'output'
-            setattr(self.process,outputModuleName,output)
-            outputModule=getattr(self.process,outputModuleName)
-            setattr(self.process,outputModuleName+'_step',cms.EndPath(outputModule))
-            path=getattr(self.process,outputModuleName+'_step')
-            self.schedule.append(path)
+            outputModule = self._addOutputModuleAndPathToProcess(output, outputModuleName)
 
             if self._options.outputCommands and streamType!='DQM':
                 for evct in self._options.outputCommands.split(','):
                     if not evct: continue
                     self.executeAndRemember("process.%s.outputCommands.append('%s')"%(outputModuleName,evct.strip()))
 
-            if not self._options.inlineEventContent:
-                tmpstreamType=streamType
-                if "NANOEDM" in tmpstreamType :
-                    tmpstreamType=tmpstreamType.replace("NANOEDM","NANO")
-                def doNotInlineEventContent(instance,label = "process."+tmpstreamType+"EventContent.outputCommands"):
-                    return label
-                outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
-
+            self._inlineOutputEventContent(outputModule, streamType)
             result+="\nprocess."+outputModuleName+" = "+outputModule.dumpPython()
 
         return result
+    def _createOutputModuleInAddOutput(self, tier, streamType, eventContent, fileName, filterName, ignoreNano):
+        CppType='PoolOutputModule'
+        if self._options.timeoutOutput:
+            CppType='TimeoutPoolOutputModule'
+        if streamType=='DQM' and tier=='DQMIO':
+            CppType='DQMRootOutputModule'
+            fileName = fileName.replace('.rntpl', '.root')
+        if not ignoreNano and "NANOAOD" in streamType : CppType='NanoAODOutputModule'
+        if self._options.rntuple_out and CppType == 'PoolOutputModule':
+            CppType='RNTupleOutputModule'
+            if len(fileName) > 5 and fileName[-5:] == '.root':
+                fileName = fileName.replace('.root', '.rntpl')
+        output = cms.OutputModule(CppType,
+                                  eventContent.clone(),
+                                  fileName = cms.untracked.string(fileName),
+                                  dataset = cms.untracked.PSet(
+                                     dataTier = cms.untracked.string(tier),
+                                     filterName = cms.untracked.string(filterName))
+                                  )
+        return output
+    def _updateOutputSelectEvents(self, output, streamType):
+        if hasattr(self.process,"generation_step") and streamType!='LHE':
+            output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
+        if hasattr(self.process,"filtering_step"):
+            output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))
+    def _inlineOutputEventContent(self, outputModule, streamType):
+        if not self._options.inlineEventContent:
+            tmpstreamType=streamType
+            if "NANOEDM" in tmpstreamType :
+                tmpstreamType=tmpstreamType.replace("NANOEDM","NANO")
+            if hasattr(self.process,tmpstreamType+"EventContent"):
+                def doNotInlineEventContent(instance,label = "process."+tmpstreamType+"EventContent.outputCommands"):
+                    return label
+                outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
+    def _addOutputModuleAndPathToProcess(self, output, name):
+        setattr(self.process,name,output)
+        outputModule=getattr(self.process,name)
+        setattr(self.process,name+'_step',cms.EndPath(outputModule))
+        path=getattr(self.process,name+'_step')
+        self.schedule.append(path)
+        return outputModule   
 
     def addStandardSequences(self):
         """
@@ -817,6 +825,8 @@ class ConfigBuilder(object):
         try:
             if len(self.stepMap):
                 self.loadAndRemember(self.GeometryCFF)
+                if (self.GeometryCFF == 'Configuration/StandardSequences/GeometryRecoDB_cff' and not self.geometryDBLabel):
+                    print("Warning: The default GeometryRecoDB_cff is being used; however, the DB geometry is not applied. You may need to verify your cmsDriver.")
                 if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
                     self.loadAndRemember(self.SimGeometryCFF)
                     if self.geometryDBLabel:
@@ -1155,7 +1165,10 @@ class ConfigBuilder(object):
                 if opt in GeometryConf:
                     return GeometryConf[opt]
                 else:
-                    return opt
+                    if (opt=='SimDB' or opt.startswith('DB:')):
+                        return opt
+                    else:
+                        raise Exception("Geometry "+opt+" does not exist!")
 
             geoms=self._options.geometry.split(',')
             if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')
@@ -1213,7 +1226,12 @@ class ConfigBuilder(object):
     # for alca, skims, etc
     def addExtraStream(self, name, stream, workflow='full'):
             # define output module and go from there
-        output = cms.OutputModule("PoolOutputModule")
+        if self._options.rntuple_out:
+            extension = '.rntpl'
+            output = cms.OutputModule('RNTupleOutputModule')
+        else:
+            extension = '.root'
+            output = cms.OutputModule("PoolOutputModule")
         if stream.selectEvents.parameters_().__len__()!=0:
             output.SelectEvents = stream.selectEvents
         else:
@@ -1238,8 +1256,7 @@ class ConfigBuilder(object):
         else:
             output.outputCommands = stream.content
 
-
-        output.fileName = cms.untracked.string(self._options.dirout+stream.name+'.root')
+        output.fileName = cms.untracked.string(self._options.dirout+stream.name+extension)
 
         output.dataset  = cms.untracked.PSet( dataTier = stream.dataTier,
                                               filterName = cms.untracked.string(stream.name))

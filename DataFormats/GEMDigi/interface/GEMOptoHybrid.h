@@ -73,7 +73,7 @@ public:
     };
   };
 
-  GEMOptoHybrid() : ch_(0), ct_(0), existVFATs_(0) {}
+  GEMOptoHybrid() : ver_(0), ch_(0), ct_(0), existVFATs_(0) {}
   ~GEMOptoHybrid() { vfatd_.clear(); }
 
   void setVersion(uint8_t i) { ver_ = i; }

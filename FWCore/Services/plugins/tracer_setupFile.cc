@@ -404,7 +404,7 @@ namespace edm::service::tracer {
                                 moduleCtrDtrPtr,
                                 sourceCtrPtr,
                                 beginTime,
-                                beginTracer](auto&, auto&) mutable {
+                                beginTracer](auto&) mutable {
       {
         std::ostringstream oss;
         moduleIdToLabel(oss, *moduleLabelsPtr, 'M', "EDModule ID", "Module label");
