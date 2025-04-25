@@ -1940,7 +1940,7 @@ upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'].step2 = {
 
 upgradeWFs['HLTTiming75e33TiclBarrel'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33TiclBarrel'].suffix = '_HLT75e33TimingTiclBarrel'
-upgradeWFs['HLTTiming75e33TiclBarrel'].offset = 0.757
+upgradeWFs['HLTTiming75e33TiclBarrel'].offset = 0.758
 upgradeWFs['HLTTiming75e33TiclBarrel'].step2 = {
     '-s' : 'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
     '--procModifiers': 'ticl_barrel',
