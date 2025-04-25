@@ -43,19 +43,26 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
       modulo_error_events(injected_errors_per_million_events ? 1000000 / injected_errors_per_million_events
                                                              : 0xffffffff),
       subsystems_(pset.getUntrackedParameter<std::vector<std::string>>("subsystems")) {
-
   for (auto const& subsystem : subsystems_) {
-    if (subsystem == "TCDS") haveTCDS_ = true;
-    else if (subsystem == "SiPixel") haveSiPixel_ = true;
-    else if (subsystem == "SiStrip") haveSiStrip_ = true;
-    else if (subsystem == "ECAL") haveECAL_ = true;
-    else if (subsystem == "HCAL") haveHCAL_ = true;
-    else if (subsystem == "DT") haveDT_ = true;
-    else if (subsystem == "CSC") haveCSC_ = true;
-    else if (subsystem == "RPC") haveRPC_ = true;
+    if (subsystem == "TCDS")
+      haveTCDS_ = true;
+    else if (subsystem == "SiPixel")
+      haveSiPixel_ = true;
+    else if (subsystem == "SiStrip")
+      haveSiStrip_ = true;
+    else if (subsystem == "ECAL")
+      haveECAL_ = true;
+    else if (subsystem == "HCAL")
+      haveHCAL_ = true;
+    else if (subsystem == "DT")
+      haveDT_ = true;
+    else if (subsystem == "CSC")
+      haveCSC_ = true;
+    else if (subsystem == "RPC")
+      haveRPC_ = true;
   }
   // mean = pset.getParameter<float>("mean");
-  if ( haveTCDS_ && tcdsFEDID_ < FEDNumbering::MINTCDSuTCAFEDID)
+  if (haveTCDS_ && tcdsFEDID_ < FEDNumbering::MINTCDSuTCAFEDID)
     throw cms::Exception("DaqFakeReader::DaqFakeReader")
         << " TCDS FED ID lower than " << FEDNumbering::MINTCDSuTCAFEDID;
   if (fillRandom_) {
@@ -215,6 +222,8 @@ void DaqFakeReader::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<unsigned int>("width", 1024);
   desc.addUntracked<unsigned int>("injectErrPpm", 1024);
   desc.addUntracked<unsigned int>("tcdsFEDID", 1024);
-  desc.addUntracked<std::vector<std::string>>("subsystems", std::initializer_list<std::string>({"TCDS", "SiPixel", "SiStrip", "ECAL", "HCAL", "DT", "CSC", "RPC"}));
+  desc.addUntracked<std::vector<std::string>>(
+      "subsystems",
+      std::initializer_list<std::string>({"TCDS", "SiPixel", "SiStrip", "ECAL", "HCAL", "DT", "CSC", "RPC"}));
   descriptions.add("DaqFakeReader", desc);
 }

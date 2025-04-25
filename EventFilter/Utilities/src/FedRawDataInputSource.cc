@@ -706,8 +706,8 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
 
   if (fedsInEvent != expectedFedsInEvent_ && expectedFedsInEvent_)
     edm::LogWarning("DataModeFRDStriped:::fillFRDCollection")
-        << "Event " << event_->event() << " does not contain same number of FEDs as previous: "
-        << fedsInEvent << "/" << expectedFedsInEvent_;
+        << "Event " << event_->event() << " does not contain same number of FEDs as previous: " << fedsInEvent << "/"
+        << expectedFedsInEvent_;
 
   return tstamp;
 }
