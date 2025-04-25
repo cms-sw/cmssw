@@ -28,7 +28,8 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
   uint32_t numberOfShapes =
       (topology.tileTrapezoid() ? HGCalGeometry::k_NumberOfShapesTrd : HGCalGeometry::k_NumberOfShapes);
   HGCalGeometryMode::GeometryMode mode = topology.geomMode();
-  bool test = ((mode == HGCalGeometryMode::TrapezoidModule) || (mode == HGCalGeometryMode::TrapezoidCassette) || (mode == HGCalGeometryMode::TrapezoidFineCell));
+  bool test = ((mode == HGCalGeometryMode::TrapezoidModule) || (mode == HGCalGeometryMode::TrapezoidCassette) ||
+               (mode == HGCalGeometryMode::TrapezoidFineCell));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Number of Cells " << numberOfCells << ":" << numberExpected << " for sub-detector "
                                 << topology.subDetector() << " Shapes " << numberOfShapes << ":" << parametersPerShape_
@@ -90,7 +91,9 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
       int nphi = topology.dddConstants().getParameter()->scintCells(layer);
       int type = topology.dddConstants().getParameter()->scintType(layer);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "Layer " << layer << ":" << indx << " Ring " << ring << ":" << topology.dddConstants().getParameter()->iradMaxBH_[indx] << " Phi " << nphi << " Type " << type;
+      edm::LogVerbatim("HGCalGeom") << "Layer " << layer << ":" << indx << " Ring " << ring << ":"
+                                    << topology.dddConstants().getParameter()->iradMaxBH_[indx] << " Phi " << nphi
+                                    << " Type " << type;
 #endif
       for (int md = topology.dddConstants().getParameter()->firstModule_[indx];
            md <= topology.dddConstants().getParameter()->lastModule_[indx];
