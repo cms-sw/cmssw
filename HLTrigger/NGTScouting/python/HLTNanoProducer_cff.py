@@ -10,19 +10,22 @@ from HLTrigger.NGTScouting.hltPhotons_cfi import *
 from HLTrigger.NGTScouting.hltElectrons_cfi import *
 from HLTrigger.NGTScouting.hltMuons_cfi import *
 from HLTrigger.NGTScouting.hltTracks_cfi import *
+from HLTrigger.NGTScouting.hltJets_cfi import *
 
 hltNanoProducer = cms.Sequence(
     prunedGenParticles +
     finalGenParticles + 
     genParticleTable +
     hltVertexTable +
+    hltPixelTrackTable +
+    hltGeneralTrackTable +
     hltEgammaPacker +
     hltPhotonTable +
     hltElectronTable + 
     hltPhase2L3MuonIdTracks +
     hltMuonTable +
-    hltPixelTrackTable +
-    hltGeneralTrackTable
+    hltPFCandidateTable +
+    hltJetTable
 )
 
 def hltNanoCustomize(process):
