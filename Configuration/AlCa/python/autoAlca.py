@@ -4,6 +4,7 @@ AlCaRecoMatrix = {
                   # These two (AlCaPhiSym, AlCaP0) cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
                   "AlCaPhiSym"                  : "",
                   "AlCaP0"                      : "",
+                  "AlCaHcalIsoTrk"              : "HcalCalIsoTrkFromAlCaRaw",
                   "AlCaPPSExpress"              : "PPSCalMaxTracks", # Express producer
                   "AlCaPPSPrompt"               : "PPSCalMaxTracks", # Prompt  producer
                   "Commissioning"               : "HcalCalIsoTrk+TkAlMinBias+SiStripCalMinBias+HcalCalIsolatedBunchSelector",

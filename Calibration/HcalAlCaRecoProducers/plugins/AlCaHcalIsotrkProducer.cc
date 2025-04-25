@@ -166,9 +166,10 @@ private:
   const double hitEthrEB_, hitEthrEE0_, hitEthrEE1_;
   const double hitEthrEE2_, hitEthrEE3_;
   const double hitEthrEELo_, hitEthrEEHi_;
-  const edm::InputTag triggerEvent_, theTriggerResultsLabel_;
-  const std::string labelGenTrack_, labelRecVtx_, labelEB_;
-  const std::string labelEE_, labelHBHE_, labelTower_, l1TrigName_;
+  const edm::InputTag triggerEvent_, theTriggerResultsLabel_, labelEB_, labelEE_;
+  const edm::InputTag labelGenTrack_, labelRecVtx_;
+  const edm::InputTag labelHBHE_, labelTower_;
+  const std::string l1TrigName_;
   const std::vector<int> oldID_, newDepth_;
   const bool hep17_;
   const std::string labelIsoTkVar_, labelIsoTkEvtVar_;
@@ -250,12 +251,12 @@ AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
       hitEthrEEHi_(iConfig.getParameter<double>("EEHitEnergyThresholdHigh")),
       triggerEvent_(iConfig.getParameter<edm::InputTag>("labelTriggerEvent")),
       theTriggerResultsLabel_(iConfig.getParameter<edm::InputTag>("labelTriggerResult")),
-      labelGenTrack_(iConfig.getParameter<std::string>("labelTrack")),
-      labelRecVtx_(iConfig.getParameter<std::string>("labelVertex")),
-      labelEB_(iConfig.getParameter<std::string>("labelEBRecHit")),
-      labelEE_(iConfig.getParameter<std::string>("labelEERecHit")),
-      labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")),
-      labelTower_(iConfig.getParameter<std::string>("labelCaloTower")),
+      labelEB_(iConfig.getParameter<edm::InputTag>("labelEBRecHit")),
+      labelEE_(iConfig.getParameter<edm::InputTag>("labelEERecHit")),
+      labelGenTrack_(iConfig.getParameter<edm::InputTag>("labelTrack")),
+      labelRecVtx_(iConfig.getParameter<edm::InputTag>("labelVertex")),
+      labelHBHE_(iConfig.getParameter<edm::InputTag>("labelHBHERecHit")),
+      labelTower_(iConfig.getParameter<edm::InputTag>("labelCaloTower")),
       l1TrigName_(iConfig.getUntrackedParameter<std::string>("l1TrigName", "L1_SingleJet60")),
       oldID_(iConfig.getUntrackedParameter<std::vector<int>>("oldID")),
       newDepth_(iConfig.getUntrackedParameter<std::vector<int>>("newDepth")),
@@ -290,10 +291,10 @@ AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
   // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
   // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
   // maxRestrictionP_ = 8 GeV as came from a study
-  std::string labelBS = iConfig.getParameter<std::string>("labelBeamSpot");
+  edm::InputTag labelBS = iConfig.getParameter<edm::InputTag>("labelBeamSpot");
   edm::InputTag algTag = iConfig.getParameter<edm::InputTag>("algInputTag");
   edm::InputTag extTag = iConfig.getParameter<edm::InputTag>("extInputTag");
-  std::string labelMuon = iConfig.getParameter<std::string>("labelMuon");
+  edm::InputTag labelMuon = iConfig.getParameter<edm::InputTag>("labelMuon");
 
   for (unsigned int k = 0; k < oldID_.size(); ++k) {
     oldDet_.emplace_back((oldID_[k] / 10000) % 10);
@@ -312,14 +313,12 @@ AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
   tok_alg_ = consumes<BXVector<GlobalAlgBlk>>(algTag);
   tok_Muon_ = consumes<reco::MuonCollection>(labelMuon);
   tok_recVtx_ = consumes<reco::VertexCollection>(labelRecVtx_);
-  tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_));
-  tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_));
+  tok_EB_ = consumes<EcalRecHitCollection>(labelEB_);
+  tok_EE_ = consumes<EcalRecHitCollection>(labelEE_);
   tok_hbhe_ = consumes<HBHERecHitCollection>(labelHBHE_);
   edm::LogVerbatim("HcalIsoTrack") << "Labels used " << triggerEvent_ << " " << theTriggerResultsLabel_ << " "
-                                   << labelBS << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
-                                   << edm::InputTag("ecalRecHit", labelEB_) << " "
-                                   << edm::InputTag("ecalRecHit", labelEE_) << " " << labelHBHE_ << " " << labelTower_
-                                   << " " << labelMuon;
+                                   << labelBS << " " << labelRecVtx_ << " " << labelGenTrack_ << " " << labelEB_ << " "
+                                   << labelEE_ << " " << labelHBHE_ << " " << labelTower_ << " " << labelMuon;
 
   tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
   tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
@@ -427,14 +426,14 @@ void AlCaHcalIsotrkProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   // various labels for collections used in the code
   desc.add<edm::InputTag>("labelTriggerEvent", edm::InputTag("hltTriggerSummaryAOD", "", "HLT"));
   desc.add<edm::InputTag>("labelTriggerResult", edm::InputTag("TriggerResults", "", "HLT"));
-  desc.add<std::string>("labelTrack", "generalTracks");
-  desc.add<std::string>("labelVertex", "offlinePrimaryVertices");
-  desc.add<std::string>("labelEBRecHit", "EcalRecHitsEB");
-  desc.add<std::string>("labelEERecHit", "EcalRecHitsEE");
-  desc.add<std::string>("labelHBHERecHit", "hbhereco");
-  desc.add<std::string>("labelBeamSpot", "offlineBeamSpot");
-  desc.add<std::string>("labelCaloTower", "towerMaker");
-  desc.add<std::string>("labelMuon", "muons");
+  desc.add<edm::InputTag>("labelTrack", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("labelVertex", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("labelEBRecHit", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("labelEERecHit", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
+  desc.add<edm::InputTag>("labelHBHERecHit", edm::InputTag("hbhereco"));
+  desc.add<edm::InputTag>("labelBeamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("labelCaloTower", edm::InputTag("towerMaker"));
+  desc.add<edm::InputTag>("labelMuon", edm::InputTag("muons"));
   desc.add<edm::InputTag>("algInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<edm::InputTag>("extInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<std::string>("isoTrackLabel", "HcalIsoTrack");
@@ -1432,7 +1431,7 @@ std::pair<double, double> AlCaHcalIsotrkProducer::storeEnergy(const HcalRespCorr
 bool AlCaHcalIsotrkProducer::notaMuon(const reco::Track* pTrack0, const edm::Handle<reco::MuonCollection>& muonh) {
   bool flag(true);
   for (reco::MuonCollection::const_iterator recMuon = muonh->begin(); recMuon != muonh->end(); ++recMuon) {
-    if (recMuon->innerTrack().isNonnull()) {
+    if (recMuon->innerTrack().isAvailable()) {
       const reco::Track* pTrack = (recMuon->innerTrack()).get();
       bool mediumMuon = (((recMuon->isPFMuon()) && (recMuon->isGlobalMuon() || recMuon->isTrackerMuon())) &&
                          (recMuon->innerTrack()->validFraction() > 0.49));
