@@ -75,10 +75,18 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   
   //vertex collection
   auto pvsIn = iEvent.getHandle(pvs_);
+  if (!pvsIn.isValid()) {
+    edm::LogWarning("HLTVertexTableProducer") << "Invalid handle for " << pvName_ << " in primary vertex input collection";
+    return;
+  }
   const auto& pvsScoreProd = iEvent.get(pvsScore_);
-
+  
   //pf candidates collection
   auto pfcIn = iEvent.getHandle(pfc_);
+  if (!pfcIn.isValid()) {
+    edm::LogWarning("HLTVertexTableProducer") << "Invalid handle for " << pvName_ << " in PF candidate input collection";
+    return;
+  }
     
   std::vector<float> v_ndof;
   std::vector<float> v_chi2;
@@ -165,7 +173,7 @@ void HLTVertexTableProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 
   desc.add<std::string>("pvName")->setComment("name of the flat table ouput");
   desc.add<edm::InputTag>("pvSrc")->setComment("std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
-  desc.add<edm::InputTag>("pfSrc")->setComment("Tracks input collections");
+  desc.add<edm::InputTag>("pfSrc")->setComment("reco::PFCandidateCollection PF candidates input collections");
   desc.add<std::string>("goodPvCut")->setComment("selection on the primary vertex");
 
   desc.add<double>("dlenMin")->setComment("minimum value of dl to select secondary vertex");
