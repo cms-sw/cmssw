@@ -122,8 +122,8 @@ void HGCalGeometry::newCell(
                                    << " Mode " << m_topology.dddConstants().geomMode() << ":" << m_topology.geomMode()
                                    << " Valid " << m_topology.tileTrapezoid() << ":" << m_topology.valid(idc)
                                    << " ERROR ???";
-    }
 #endif
+    }
   } else {
 #ifdef EDM_ML_DEBUG
     unsigned int cellAll(0), cellSelect(0);
