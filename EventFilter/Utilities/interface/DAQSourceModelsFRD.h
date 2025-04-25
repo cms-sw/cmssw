@@ -99,7 +99,6 @@ private:
   std::unordered_set<unsigned short> fedIdSet_;
   unsigned int expectedFedsInEvent_ = 0;
   bool verifyFEDs_ = true;
-
 };
 
 /*

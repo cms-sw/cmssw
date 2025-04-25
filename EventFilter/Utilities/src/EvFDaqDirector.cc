@@ -2033,11 +2033,8 @@ namespace evf {
           std::filesystem::create_directory(bu_run_dir_ + fileprefix);
         }
         std::filesystem::path p = name;
-        auto nextFileRawTmp = fmt::format("{}{}{}{}",
-                                          bu_run_dir_,
-                                          fileprefix,
-                                          p.stem().string(),
-                                          p.extension().string());
+        auto nextFileRawTmp =
+            fmt::format("{}{}{}{}", bu_run_dir_, fileprefix, p.stem().string(), p.extension().string());
         try {
           //grab file if possible
           std::filesystem::rename(rawpath, nextFileRawTmp);
