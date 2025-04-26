@@ -222,8 +222,9 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   if (iphi == 0)
     iphi = hgpar_->scintCells(layer);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " iPhi " << iphi << ":" << hgpar_->scintCells(layer) << " Cassette Mode " << cassetteMode();
-#endif 
+  edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " iPhi " << iphi << ":" << hgpar_->scintCells(layer)
+                                << " Cassette Mode " << cassetteMode();
+#endif
   if (cassetteMode()) {
     int nphi = (hgpar_->scintFine(indx.first)) ? hgpar_->nphiFineCassette_ : hgpar_->nphiCassette_;
     int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, nphi, hgpar_->cassettes_);
@@ -1072,7 +1073,8 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
       auto cshift = hgcassette_.getShift(lay, -1, cassette, true);
       std::ostringstream st1;
       if (debug)
-        st1 << "Cassette " << cassette << ":" << nphi << ":" << hgpar_->nphiFineCassette_ << ":" << hgpar_->nphiCassette_ << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":"
+        st1 << "Cassette " << cassette << ":" << nphi << ":" << hgpar_->nphiFineCassette_ << ":"
+            << hgpar_->nphiCassette_ << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":"
             << y;
       x -= cshift.first;
       y += cshift.second;

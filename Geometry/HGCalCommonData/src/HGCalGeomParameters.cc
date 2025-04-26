@@ -1687,11 +1687,11 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
       rescale(rectract, HGCalParameters::k_ScaleFromDDD);
       double dphi = M_PI / php.cassettes_;
       for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
-	for (int k2 = 0; k2 < php.cassettes_; ++k2) {
-	  double phi = (2 * k2 + 1) * dphi;
-	  cassetteShift.emplace_back(rectract[k1] * cos(phi));
-	  cassetteShift.emplace_back(rectract[k1] * sin(phi));
-	}
+        for (int k2 = 0; k2 < php.cassettes_; ++k2) {
+          double phi = (2 * k2 + 1) * dphi;
+          cassetteShift.emplace_back(rectract[k1] * cos(phi));
+          cassetteShift.emplace_back(rectract[k1] * sin(phi));
+        }
       }
     } else if (php.waferMaskMode_ == scintillatorCassette) {
       if (php.cassettes_ > 0)
@@ -1846,12 +1846,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
           for (const auto& i : it.second)
             rectract.emplace_back(i);
           double dphi = M_PI / php.cassettes_;
-	  for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
-	    for (int k2 = 0; k2 < php.cassettes_; ++k2) {
-	      double phi = (2 * k2 + 1) * dphi;
-	      cassetteShift.emplace_back(rectract[k1] * cos(phi));
-	      cassetteShift.emplace_back(rectract[k1] * sin(phi));
-	    }
+          for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
+            for (int k2 = 0; k2 < php.cassettes_; ++k2) {
+              double phi = (2 * k2 + 1) * dphi;
+              cassetteShift.emplace_back(rectract[k1] * cos(phi));
+              cassetteShift.emplace_back(rectract[k1] * sin(phi));
+            }
           }
         }
       }
