@@ -1619,8 +1619,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
   php.rMinLayerBH_ = getDDDArray("RMinLayerBH", sv, 0);
   rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDDD);
   assert(php.nPhiBinBH_.size() > 1);
-  php.nCellsFine_ = php.nPhiBinBH_[0];
-  php.nCellsCoarse_ = php.nPhiBinBH_[1];
+  php.nCellsFine_ = php.nPhiBinBH_[1];
+  php.nCellsCoarse_ = php.nPhiBinBH_[0];
   assert(0 != php.nCellsFine_);
   assert(0 != php.nCellsCoarse_);
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsFine_);
@@ -1686,10 +1686,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
       std::vector<double> rectract = fv.vector("ScintRetract");
       rescale(rectract, HGCalParameters::k_ScaleFromDDD);
       double dphi = M_PI / php.cassettes_;
-      for (int k = 0; k < php.cassettes_; ++k) {
-        double phi = (2 * k + 1) * dphi;
-        cassetteShift.emplace_back(rectract[k] * cos(phi));
-        cassetteShift.emplace_back(rectract[k] * sin(phi));
+      for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
+	for (int k2 = 0; k2 < php.cassettes_; ++k2) {
+	  double phi = (2 * k2 + 1) * dphi;
+	  cassetteShift.emplace_back(rectract[k1] * cos(phi));
+	  cassetteShift.emplace_back(rectract[k1] * sin(phi));
+	}
       }
     } else if (php.waferMaskMode_ == scintillatorCassette) {
       if (php.cassettes_ > 0)
@@ -1744,8 +1746,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
   php.rMinLayerBH_ = fv.get<std::vector<double> >(sdTag1, "RMinLayerBH");
   rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDD4hep);
   assert(php.nPhiBinBH_.size() > 1);
-  php.nCellsFine_ = php.nPhiBinBH_[0];
-  php.nCellsCoarse_ = php.nPhiBinBH_[1];
+  php.nCellsFine_ = php.nPhiBinBH_[1];
+  php.nCellsCoarse_ = php.nPhiBinBH_[0];
   assert(0 != php.nCellsFine_);
   assert(0 != php.nCellsCoarse_);
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsFine_);
@@ -1844,10 +1846,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
           for (const auto& i : it.second)
             rectract.emplace_back(i);
           double dphi = M_PI / php.cassettes_;
-          for (int k = 0; k < php.cassettes_; ++k) {
-            double phi = (2 * k + 1) * dphi;
-            cassetteShift.emplace_back(rectract[k] * cos(phi));
-            cassetteShift.emplace_back(rectract[k] * sin(phi));
+	  for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
+	    for (int k2 = 0; k2 < php.cassettes_; ++k2) {
+	      double phi = (2 * k2 + 1) * dphi;
+	      cassetteShift.emplace_back(rectract[k1] * cos(phi));
+	      cassetteShift.emplace_back(rectract[k1] * sin(phi));
+	    }
           }
         }
       }
@@ -2365,7 +2369,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
                                   << ":" << php.tileRingR_.size();
 #endif
     for (unsigned int k = 0; k < 2; ++k) {
-      bool fine = ((k == 0) && (php.mode_ == HGCalGeometryMode::TrapezoidFineCell));
+      bool fine = ((k == 1) && (php.mode_ == HGCalGeometryMode::TrapezoidFineCell));
       unsigned int sizeR = (fine) ? php.tileRingFineR_.size() : php.tileRingR_.size();
       for (unsigned int kk = 0; kk < sizeR; ++kk) {
         if (fine)

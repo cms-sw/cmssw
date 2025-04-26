@@ -1,3 +1,4 @@
+
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "DataFormats/Math/interface/GeantUnits.h"
@@ -55,10 +56,12 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
     cellOffset_.reset();
   }
   if (cassetteMode()) {
-    if (mode_ == HGCalGeometryMode::TrapezoidFineCell)
-      hgcassette_.setParameter(hgpar_->cassettes_, hgpar_->cassetteShiftTile_, true);
-    else
+    if (mode_ == HGCalGeometryMode::TrapezoidFineCell) {
+      hgcassette_.setParameter(hgpar_->cassettes_, hgpar_->cassetteShift_, false);
+      hgcassette_.setParameterScint(hgpar_->cassetteShiftTile_);
+    } else {
       hgcassette_.setParameter(hgpar_->cassettes_, hgpar_->cassetteShift_, true);
+    }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Setup HGCalCassette for " << hgpar_->cassettes_
                                   << " cassettes";
@@ -218,9 +221,13 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
     iphi = (1 + static_cast<int>(phi / indx.second)) % hgpar_->scintCells(layer);
   if (iphi == 0)
     iphi = hgpar_->scintCells(layer);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " iPhi " << iphi << ":" << hgpar_->scintCells(layer) << " Cassette Mode " << cassetteMode();
+#endif 
   if (cassetteMode()) {
-    int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
-    auto cshift = hgcassette_.getShift(layer, -1, cassette);
+    int nphi = (hgpar_->scintFine(indx.first)) ? hgpar_->nphiFineCassette_ : hgpar_->nphiCassette_;
+    int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, nphi, hgpar_->cassettes_);
+    auto cshift = hgcassette_.getShift(layer, -1, cassette, true);
 #ifdef EDM_ML_DEBUG
     std::ostringstream st1;
     st1 << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << xx << ":"
@@ -300,7 +307,7 @@ bool HGCalDDDConstants::cassetteShiftSilicon(int zside, int layer, int waferU, i
     int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
     auto ktr = hgpar_->waferInfoMap_.find(indx);
     if (ktr != hgpar_->waferInfoMap_.end()) {
-      auto cshift = hgcassette_.getShift(layer, zside, (ktr->second).cassette);
+      auto cshift = hgcassette_.getShift(layer, zside, (ktr->second).cassette, false);
       if ((cshift.first != 0) || (cshift.second != 0))
         shift = true;
     }
@@ -311,7 +318,7 @@ bool HGCalDDDConstants::cassetteShiftSilicon(int zside, int layer, int waferU, i
 bool HGCalDDDConstants::cassetteShiftScintillator(int zside, int layer, int iphi) const {
   bool shift(false);
   if (cassetteMode()) {
-    auto cshift = hgcassette_.getShift(layer, zside, cassetteTile(iphi));
+    auto cshift = hgcassette_.getShift(layer, zside, cassetteTile(iphi), true);
     if ((cshift.first != 0) || (cshift.second != 0))
       shift = true;
   }
@@ -842,7 +849,7 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto ktr = hgpar_->waferInfoMap_.find(indx);
   if (cassetteMode() && (ktr != hgpar_->waferInfoMap_.end())) {
-    auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette);
+    auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette, false);
     std::ostringstream st1;
     if (debug)
       st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
@@ -966,7 +973,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
     x += xy.first;
     y += xy.second;
     if (cassetteMode() && (ktr != hgpar_->waferInfoMap_.end())) {
-      auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette);
+      auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette, false);
       std::ostringstream st1;
       if (debug)
         st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second
@@ -1018,12 +1025,12 @@ std::pair<float, float> HGCalDDDConstants::locateCellHex(int cell, int wafer, bo
 std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     int zside, int lay, int irad, int iphi, bool reco, bool debug) const {
   float x(0), y(0);
+  debug = true;
   const auto& indx = getIndex(lay, reco);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << zside << ":"
                                 << reco << ":" << indx.first;
 #endif
-  debug = true;
   if (indx.first >= 0) {
     int ir = std::abs(irad);
     int type = hgpar_->scintType(lay);
@@ -1046,6 +1053,12 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     }
     if (!trapezoidFile())
       r = std::max(range.first, std::min(r, range.second));
+    if (hgpar_->scintFine(indx.first)) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Old R " << r << " New R " << hgpar_->scintRing(indx.first, irad);
+#endif
+      r = hgpar_->scintRing(indx.first, irad);
+    }
     x = r * std::cos(phi);
     y = r * std::sin(phi);
     int ll = lay - hgpar_->firstLayer_;
@@ -1054,11 +1067,12 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     if (irad < 0)
       x = -x;
     if (cassetteMode()) {
-      int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
-      auto cshift = hgcassette_.getShift(lay, -1, cassette);
+      int nphi = (hgpar_->scintFine(indx.first)) ? hgpar_->nphiFineCassette_ : hgpar_->nphiCassette_;
+      int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, nphi, hgpar_->cassettes_);
+      auto cshift = hgcassette_.getShift(lay, -1, cassette, true);
       std::ostringstream st1;
       if (debug)
-        st1 << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":"
+        st1 << "Cassette " << cassette << ":" << nphi << ":" << hgpar_->nphiFineCassette_ << ":" << hgpar_->nphiCassette_ << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":"
             << y;
       x -= cshift.first;
       y += cshift.second;
@@ -1564,14 +1578,19 @@ std::pair<int, int> HGCalDDDConstants::tileRings(int layer) const {
 
 std::pair<int, int> HGCalDDDConstants::tileType(int layer, int ring, int phi) const {
   int indx = HGCalTileIndex::tileIndex(layer, ring, phi);
-  int type(-1), sipm(-1);
   auto itr = hgpar_->tileInfoMap_.find(indx);
+  if ((phi == 0) && (itr == hgpar_->tileInfoMap_.end())) {
+    phi = 1;
+    indx = HGCalTileIndex::tileIndex(layer, ring, phi);
+    itr = hgpar_->tileInfoMap_.find(indx);
+  }
+  int type(-1), sipm(-1);
   if (itr != hgpar_->tileInfoMap_.end()) {
     type = 1 + (itr->second).type;
     sipm = ((itr->second).sipm == HGCalTypes::SiPMLarge) ? 0 : 1;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "tileType::Input layet:ring:phi " << layer << ":" << ring << ":" << phi
+  edm::LogVerbatim("HGCalGeom") << "tileType::Input layer:ring:phi " << layer << ":" << ring << ":" << phi
                                 << " Output Type:SiPM " << type << ":" << sipm;
 #endif
   return std::make_pair(type, sipm);
@@ -1693,7 +1712,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
         int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
         auto ktr = hgpar_->waferInfoMap_.find(indx);
         if (ktr != hgpar_->waferInfoMap_.end()) {
-          auto cshift = hgcassette_.getShift(layer, -1, (ktr->second).cassette);
+          auto cshift = hgcassette_.getShift(layer, -1, (ktr->second).cassette, false);
           if (debug)
             edm::LogVerbatim("HGCalGeom")
                 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second;
@@ -1755,7 +1774,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
           int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
           auto ktr = hgpar_->waferInfoMap_.find(indx);
           if (ktr != hgpar_->waferInfoMap_.end()) {
-            auto cshift = hgcassette_.getShift(layer, -1, (ktr->second).cassette);
+            auto cshift = hgcassette_.getShift(layer, -1, (ktr->second).cassette, false);
             if (debug)
               edm::LogVerbatim("HGCalGeom")
                   << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second;
