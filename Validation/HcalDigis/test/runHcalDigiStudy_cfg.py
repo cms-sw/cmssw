@@ -21,7 +21,8 @@ options.register('IPType',
 
 process = cms.Process('DigiStudy')
 
-fileInput = "file:/eos/user/s/sarkar/Simulation/PUMixing/" + options.IPType + ".root"
+fileInput = "file:/eos/user/s/sarkar/Simulation/PUMixing/CMSSW_151X/" + options.IPType + ".root"
+#fileInput = "file:/eos/user/s/sarkar/Simulation/PUMixing/" + options.IPType + ".root"
 fileName = "HC" + options.IPType + ".root"
 
 print("Input file:    ", fileInput)
@@ -37,6 +38,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2023_realistic', '')
 
+process.MessageLogger.HcalDigiStudy=dict()
+
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(fileInput) )
 
@@ -51,6 +54,7 @@ process.raw2digi_step = cms.Path(process.RawToDigi)
 process.analysis_step = cms.Path(process.hcalDigiStudy)
 process.hcalDigiStudy.TestNumber = True
 #process.hcalDigiStudy.simHits = "fastSimProducer:HcalHits"
+process.hcalDigiStudy.mc = "no"
 
 # Schedule definition
 process.schedule = cms.Schedule(

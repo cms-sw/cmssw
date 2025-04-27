@@ -1,3 +1,4 @@
+
 /*
  * \file EcalDigiStudy.h
  *
@@ -267,6 +268,7 @@ void EcalDigiStudy::analyze(edm::Event const& e, edm::EventSetup const& c) {
       pedestalPreSample /= 3.;
       pedestalPreSampleAnalog /= 3.;
 
+#ifdef EDM_ML_DEBUG
       if (verbose_) {
         edm::LogVerbatim("EcalDigiStudy")
             << "Barrel Digi for EBDetId = " << ebid.rawId() << " eta,phi " << ebid.ieta() << " " << ebid.iphi();
@@ -278,6 +280,7 @@ void EcalDigiStudy::analyze(edm::Event const& e, edm::EventSetup const& c) {
         if (countsAfterGainSwitch > 0)
           edm::LogVerbatim("EcalDigiStudy") << "Counts after switch " << countsAfterGainSwitch;
       }
+#endif
       if (countsAfterGainSwitch > 0 && countsAfterGainSwitch < 5) {
         edm::LogWarning("EcalDigiStudy") << "Wrong number of counts after gain switch before next switch! "
                                          << countsAfterGainSwitch;
@@ -391,6 +394,7 @@ void EcalDigiStudy::analyze(edm::Event const& e, edm::EventSetup const& c) {
       pedestalPreSample /= 3.;
       pedestalPreSampleAnalog /= 3.;
 
+#ifdef EDM_ML_DEBUG
       edm::LogVerbatim("EcalDigiStudy") << "Endcap Digi for EEDetId = " << eeid.rawId() << " x,y " << eeid.ix() << " "
                                         << eeid.iy();
       for (int i = 0; i < 10; i++)
@@ -400,7 +404,7 @@ void EcalDigiStudy::analyze(edm::Event const& e, edm::EventSetup const& c) {
                                         << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;
       if (countsAfterGainSwitch > 0)
         edm::LogVerbatim("EcalDigiStudy") << "Counts after switch " << countsAfterGainSwitch;
-
+#endif
       if (countsAfterGainSwitch > 0 && countsAfterGainSwitch < 5) {
         edm::LogWarning("EcalDigiStudy") << "Wrong number of counts after gain switch before next switch! "
                                          << countsAfterGainSwitch;
