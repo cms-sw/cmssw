@@ -13,7 +13,8 @@ from HLTriggerOffline.Scouting.HLTScoutingEGammaPostProcessing_cff import *
 
 hltScoutingMuonPostProcessing = cms.Sequence(muonEfficiencyNoVtx
                                              * muonEfficiencyVtx  
-                                             * muonTriggerEfficiency
+                                             * muonTriggerEfficiency_DoubleMu
+                                             * muonTriggerEfficiency_SingleMu
                                              )
 
 hltScoutingPostProcessing = cms.Sequence(hltScoutingMuonPostProcessing + hltScoutingEGammaPostProcessing)
