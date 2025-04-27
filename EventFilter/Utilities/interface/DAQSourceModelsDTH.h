@@ -1,6 +1,17 @@
 #ifndef EventFilter_Utilities_DAQSourceModelsDTH_h
 #define EventFilter_Utilities_DAQSourceModelsDTH_h
 
+/*
+ * DAQ Source module for DTH readout
+ * Used by modular DAQSource to read files containing raw DTH orbit payload.
+ * Orbits are unpacked into individual events which are queued to the framework as FedRawDataCollection object.
+ * If more than one sourceID blocks is included they will all be unpacked, they need to be adjacent in the file
+ * for the same orbit. Exception to this is reading from multiple file sources,
+ * in that case that is only required locally in a file, but orbits need to come in the same order in all files.
+ * See test/RunBUFU.sh and test/testDTH.sh for example how to run with this module
+ * Also see documentation in doc/README=DTH.md
+*/
+
 #include <filesystem>
 #include <queue>
 #include <regex>
