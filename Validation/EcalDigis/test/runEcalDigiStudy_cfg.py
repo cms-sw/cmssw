@@ -21,7 +21,7 @@ options.register('IPType',
 
 process = cms.Process('DigiStudy')
 
-fileInput = "file:/eos/user/s/sarkar/Simulation/PUMixing/" + options.IPType + ".root"
+fileInput = "file:/eos/user/s/sarkar/Simulation/PUMixing/CMSSW_151X/" + options.IPType + ".root"
 fileName = "EC" + options.IPType + ".root"
 
 print("Input file:    ", fileInput)

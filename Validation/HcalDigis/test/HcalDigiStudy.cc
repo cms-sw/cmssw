@@ -55,6 +55,8 @@
 #include "TH1D.h"
 #include "TProfile.h"
 
+//#define EDM_ML_DEBUG
+
 class HcalDigiStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HcalDigiStudy(const edm::ParameterSet&);
@@ -835,7 +837,10 @@ void HcalDigiStudy::reco(const edm::Event& iEvent,
 
   // CYCLE OVER CELLS ========================================================
   int Ndig = 0;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalDiguStudy") << "Subdet " << subdet_ << " with " << digiCollection->size()
+                                    << " entries in DigiCollection";
+#endif
   for (digiItr = digiCollection->begin(); digiItr != digiCollection->end(); digiItr++) {
     HcalDetId cell(digiItr->id());
     int depth = cell.depth();
@@ -1151,6 +1156,10 @@ void HcalDigiStudy::reco(const edm::Event& iEvent,
 
   // CYCLE OVER CELLS ========================================================
   int Ndig = 0;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalDiguStudy") << "Subdet " << subdet_ << " with " << digiCollection->size()
+                                    << " entries in DigiCollection";
+#endif
 
   for (typename HcalDataFrameContainer<dataFrameType>::const_iterator digiItr = digiCollection->begin();
        digiItr != digiCollection->end();
@@ -1202,8 +1211,9 @@ void HcalDigiStudy::reco(const edm::Event& iEvent,
              pedWidth->getWidth(0));
 
     }  // end of event #1
-    //edm::LogVerbatim("OutputInfo") << "==== End of event noise block in cell cycle";
-
+    //#ifdef EDM_ML_DEBUG
+    //    edm::LogVerbatim("HcalDigiStudy") << "==== End of event noise block in cell cycle";
+    //#endif
     if (sub == isubdet)
       Ndig++;  // subdet number of digi
 
