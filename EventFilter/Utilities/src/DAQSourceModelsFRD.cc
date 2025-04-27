@@ -83,6 +83,7 @@ edm::Timestamp DataModeFRD::fillFEDRawDataCollection(FEDRawDataCollection& rawDa
   tcds_pointer = nullptr;
   tcdsInRange = false;
   uint16_t selectedTCDSFed = 0;
+  unsigned int fedsInEvent = 0;
   while (eventSize > 0) {
     assert(eventSize >= FEDTrailer::length);
     eventSize -= FEDTrailer::length;
@@ -109,8 +110,32 @@ edm::Timestamp DataModeFRD::fillFEDRawDataCollection(FEDRawDataCollection& rawDa
     FEDRawData& fedData = rawData.FEDData(fedId);
     fedData.resize(fedSize);
     memcpy(fedData.data(), event + eventSize, fedSize);
+
+    fedsInEvent++;
+    if (verifyFEDs_ || !expectedFedsInEvent_) {
+      if (fedIdSet_.find(fedId) == fedIdSet_.end()) {
+        if (expectedFedsInEvent_)
+          throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection")
+              << "FED Id: " << fedId << " was not found in previous events";
+        else
+          fedIdSet_.insert(fedId);
+      }
+    }
   }
   assert(eventSize == 0);
+
+  if (!fedsInEvent)
+    throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection")
+        << "Event " << event_->event() << " does not contain any FEDs";
+  else if (!expectedFedsInEvent_) {
+    expectedFedsInEvent_ = fedsInEvent;
+    if (fedIdSet_.size() != fedsInEvent)
+      throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection")
+          << "First received event: " << event_->event() << " contains duplicate FEDs";
+  } else if (fedsInEvent != expectedFedsInEvent_)
+    throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection")
+        << "Event " << event_->event() << " does not contain same number of FEDs as previous: " << fedsInEvent << "/"
+        << expectedFedsInEvent_;
 
   return tstamp;
 }
@@ -165,7 +190,9 @@ std::string DataModeFRD::getChecksumError() const {
  * FRD preRead
  */
 
-void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview, UnpackedRawEventWrapper* ec) {
+void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview,
+                                       UnpackedRawEventWrapper* ec,
+                                       unsigned int ls) {
   //TODO: also walk the file and build checksum
   FEDRawDataCollection* rawData = new FEDRawDataCollection;
   bool tcdsInRange;
@@ -179,7 +206,8 @@ void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview, Un
   if (err) {
     ec->setError(errmsg);
   } else if (daqSource_->useL1EventID()) {
-    edm::EventID eventID = edm::EventID(daqSource_->eventRunNumber(), daqSource_->currentLumiSection(), L1EventID);
+    //filelist mode run override not available with this model currently (source sets it too late)
+    edm::EventID eventID = edm::EventID(eview->run(), ls, L1EventID);
     ec->setAux(new edm::EventAuxiliary(
         eventID, daqSource_->processGUID(), tstamp, eview->isRealData(), edm::EventAuxiliary::PhysicsTrigger));
     ec->aux()->setProcessHistoryID(daqSource_->processHistoryID());
@@ -192,8 +220,8 @@ void DataModeFRDPreUnpack::unpackEvent(edm::streamer::FRDEventMsgView* eview, Un
     tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(tcds_pointer + FEDHeader::length);
     edm::EventAuxiliary* aux = new edm::EventAuxiliary();  //allocate empty aux
     *aux = evf::evtn::makeEventAuxiliary(tcds,
-                                         daqSource_->eventRunNumber(),
-                                         daqSource_->currentLumiSection(),
+                                         eview->run(),
+                                         ls,
                                          eview->isRealData(),
                                          static_cast<edm::EventAuxiliary::ExperimentType>(fedHeader.triggerType()),
                                          daqSource_->processGUID(),
@@ -255,7 +283,7 @@ void DataModeFRDPreUnpack::unpackFile(RawInputFile* currentFile) {
       ec->setChecksumError(ss.str());
       //unpackEvent(eview.get(), ec);
     } else
-      unpackEvent(eview.get(), ec);
+      unpackEvent(eview.get(), ec, currentFile->lumi_);
     currentFile->queue(ec);
   }
 }
@@ -273,48 +301,70 @@ edm::Timestamp DataModeFRDPreUnpack::fillFEDRawDataCollection(edm::streamer::FRD
   time = (time << 32) + stv.tv_usec;
   edm::Timestamp tstamp(time);
 
-  uint32_t eventSize = eview->eventSize();
-  unsigned char* event = (unsigned char*)eview->payload();
-  tcds_pointer = nullptr;
-  tcdsInRange = false;
-  uint16_t selectedTCDSFed = 0;
-  while (eventSize > 0) {
-    assert(eventSize >= FEDTrailer::length);
-    eventSize -= FEDTrailer::length;
-    const FEDTrailer fedTrailer(event + eventSize);
-    const uint32_t fedSize = fedTrailer.fragmentLength() << 3;  //trailer length counts in 8 bytes
-    assert(eventSize >= fedSize - FEDHeader::length);
-    eventSize -= (fedSize - FEDHeader::length);
-    const FEDHeader fedHeader(event + eventSize);
-    const uint16_t fedId = fedHeader.sourceID();
-    if (fedId > FEDNumbering::MAXFEDID) {
-      err = true;
-      std::stringstream str;
-      str << "Out of range FED ID : " << fedId;
-      errmsg = str.str();
-      return tstamp;
-    } else if (fedId >= MINTCDSuTCAFEDID_ && fedId <= MAXTCDSuTCAFEDID_) {
-      if (!selectedTCDSFed) {
-        selectedTCDSFed = fedId;
-        tcds_pointer = event + eventSize;
-        if (fedId >= FEDNumbering::MINTCDSuTCAFEDID && fedId <= FEDNumbering::MAXTCDSuTCAFEDID) {
-          tcdsInRange = true;
+  try {
+    uint32_t eventSize = eview->eventSize();
+    unsigned char* event = (unsigned char*)eview->payload();
+    tcds_pointer = nullptr;
+    tcdsInRange = false;
+    uint16_t selectedTCDSFed = 0;
+    unsigned int fedsInEvent = 0;
+    while (eventSize > 0) {
+      assert(eventSize >= FEDTrailer::length);
+      eventSize -= FEDTrailer::length;
+      const FEDTrailer fedTrailer(event + eventSize);
+      const uint32_t fedSize = fedTrailer.fragmentLength() << 3;  //trailer length counts in 8 bytes
+      assert(eventSize >= fedSize - FEDHeader::length);
+      eventSize -= (fedSize - FEDHeader::length);
+      const FEDHeader fedHeader(event + eventSize);
+      const uint16_t fedId = fedHeader.sourceID();
+      if (fedId > FEDNumbering::MAXFEDID)
+        throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection") << "Out of range FED ID : " << fedId;
+      else if (fedId >= MINTCDSuTCAFEDID_ && fedId <= MAXTCDSuTCAFEDID_) {
+        if (!selectedTCDSFed) {
+          selectedTCDSFed = fedId;
+          tcds_pointer = event + eventSize;
+          if (fedId >= FEDNumbering::MINTCDSuTCAFEDID && fedId <= FEDNumbering::MAXTCDSuTCAFEDID) {
+            tcdsInRange = true;
+          }
+        } else
+          throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection")
+              << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
+      }
+      //take event ID from GTPE FED
+      FEDRawData& fedData = rawData.FEDData(fedId);
+      fedData.resize(fedSize);
+      memcpy(fedData.data(), event + eventSize, fedSize);
+
+      fedsInEvent++;
+      if (verifyFEDs_ || !expectedFedsInEvent_) {
+        if (fedIdSet_.find(fedId) == fedIdSet_.end()) {
+          if (expectedFedsInEvent_)
+            throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection")
+                << "FEDID " << fedId << " was not found in previous events";
+          else
+            fedIdSet_.insert(fedId);
         }
-      } else {
-        err = true;
-        std::stringstream str;
-        str << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
-        errmsg = str.str();
-        return tstamp;
       }
     }
-    //take event ID from GTPE FED
-    FEDRawData& fedData = rawData.FEDData(fedId);
-    fedData.resize(fedSize);
-    memcpy(fedData.data(), event + eventSize, fedSize);
-  }
-  assert(eventSize == 0);
+    assert(eventSize == 0);
 
+    if (!fedsInEvent)
+      throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection")
+          << "Event " << event_->event() << " does not contain any FEDs";
+    else if (!expectedFedsInEvent_) {
+      expectedFedsInEvent_ = fedsInEvent;
+      if (fedIdSet_.size() != fedsInEvent)
+        throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection")
+            << "First received event: " << event_->event() << " contains duplicate FEDs";
+    } else if (fedsInEvent != expectedFedsInEvent_)
+      throw cms::Exception("DataModeFRDPreUnpack:::fillFRDCollection")
+          << "Event " << event_->event() << " does not contain same number of FEDs as previous: " << fedsInEvent << "/"
+          << expectedFedsInEvent_;
+
+  } catch (cms::Exception& e) {
+    err = true;
+    errmsg = e.what();
+  }
   return tstamp;
 }
 
@@ -425,6 +475,7 @@ edm::Timestamp DataModeFRDStriped::fillFRDCollection(FEDRawDataCollection& rawDa
   tcdsInRange = false;
   uint16_t selectedTCDSFed = 0;
   int selectedTCDSFileIndex = -1;
+  unsigned int fedsInEvent = 0;
   for (size_t index = 0; index < events_.size(); index++) {
     uint32_t eventSize = events_[index]->eventSize();
     unsigned char* event = (unsigned char*)events_[index]->payload();
@@ -449,15 +500,41 @@ edm::Timestamp DataModeFRDStriped::fillFRDCollection(FEDRawDataCollection& rawDa
           }
         } else if (!testing_)
           throw cms::Exception("DataModeFRDStriped:::fillFRDCollection")
-              << "Second TCDS FED ID " << fedId << " found in file " << selectedTCDSFileIndex
-              << ". First ID: " << selectedTCDSFed << " in file " << index;
+              << "Second TCDS FED ID " << fedId << " found in file at index" << selectedTCDSFileIndex
+              << ". First ID: " << selectedTCDSFed << " found in file at index " << (uint64_t)index;
       }
       FEDRawData& fedData = rawData.FEDData(fedId);
       fedData.resize(fedSize);
       memcpy(fedData.data(), event + eventSize, fedSize);
+
+      fedsInEvent++;
+      if (verifyFEDs_ || !expectedFedsInEvent_) {
+        if (fedIdSet_.find(fedId) == fedIdSet_.end()) {
+          if (expectedFedsInEvent_)
+            throw cms::Exception("DataModeFRDStriped:::fillFRDCollection")
+                << "FEDID " << fedId << " from the file at index " << (uint64_t)index
+                << " was not found in previous events";
+          else
+            fedIdSet_.insert(fedId);
+        }
+      }
     }
     assert(eventSize == 0);
   }
+
+  if (!fedsInEvent)
+    throw cms::Exception("DataModeFRDStriped:::fillFRDCollection")
+        << "Event " << events_.at(0)->event() << " does not contain any FEDs";
+  else if (!expectedFedsInEvent_) {
+    expectedFedsInEvent_ = fedsInEvent;
+    if (fedIdSet_.size() != fedsInEvent) {
+      throw cms::Exception("DataModeFRDStriped:::fillFRDCollection")
+          << "First received event: " << events_.at(0)->event() << " contains duplicate FEDs";
+    }
+  } else if (fedsInEvent != expectedFedsInEvent_)
+    throw cms::Exception("DataModeFRDStriped:::fillFRDCollection")
+        << "Event " << events_.at(0)->event() << " does not contain same number of FEDs as previous: " << fedsInEvent
+        << "/" << expectedFedsInEvent_;
 
   return tstamp;
 }
@@ -469,20 +546,6 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeFRDStriped
       edm::TypeID(typeid(FEDRawDataCollection)), "FEDRawDataCollection", "FEDRawDataCollection", "DAQSource"));
   return daqProvenanceHelpers_;
 }
-
-/* TODO: adapt to multi-fils
-bool DataModeFRD::nextEventView() {
-  if (eventCached_) return true;
-  event_ = std::make_unique<FRDEventMsgView>(dataBlockAddr_);
-  if (event_->size() > dataBlockMax_) {
-    throw cms::Exception("DAQSource::getNextEvent")
-      << " event id:" << event_->event() << " lumi:" << event_->lumi() << " run:" << event_->run()
-      << " of size:" << event_->size() << " bytes does not fit into a chunk of size:" << dataBlockMax_
-      << " bytes";
-  }
-  return true;
-}
-*/
 
 bool DataModeFRDStriped::checksumValid() {
   bool status = true;
@@ -567,6 +630,7 @@ bool DataModeFRDStriped::makeEvents() {
   events_.clear();
   assert(!blockCompleted_);
   int completed = 0;
+  uint64_t testEvtId = 0;
 
   for (int i = 0; i < numFiles_; i++) {
     if (dataBlockAddrs_[i] >= dataBlockMaxAddrs_[i]) {
@@ -579,6 +643,14 @@ bool DataModeFRDStriped::makeEvents() {
     if (blockCompleted_)
       continue;
     events_.emplace_back(std::make_unique<FRDEventMsgView>(dataBlockAddrs_[i]));
+
+    if (testEvtId == 0)
+      testEvtId = events_[i]->event();
+    else if (testEvtId != events_[i]->event())
+      throw cms::Exception("DAQSource::getNextEvent")
+          << " event id mismatch:" << events_[i]->event()
+          << " while in previously parsed RDEventMsgView (other file):" << testEvtId;
+
     if (dataBlockAddrs_[i] + events_[i]->size() > dataBlockMaxAddrs_[i])
       throw cms::Exception("DAQSource::getNextEvent")
           << " event id:" << events_[i]->event() << " lumi:" << events_[i]->lumi() << " run:" << events_[i]->run()
