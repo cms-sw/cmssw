@@ -6,7 +6,7 @@ from ..modules.hltPFPuppiMETTypeOneCorrector_cfi import *
 from ..modules.hltPFPuppiMHT_cfi import *
 from ..modules.hltPFPuppiMHT140_cfi import *
 from ..modules.hltL1SeedsForPuppiMETFilter_cfi import *
-from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTAK4PFPuppiJetsReconstruction_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
@@ -21,8 +21,8 @@ HLT_PFPuppiMETTypeOne140_PFPuppiMHT140 = cms.Path(
     HLTBeginSequence
     + hltL1SeedsForPuppiMETFilter
     + HLTRawToDigiSequence
-    + HLTHgcalLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

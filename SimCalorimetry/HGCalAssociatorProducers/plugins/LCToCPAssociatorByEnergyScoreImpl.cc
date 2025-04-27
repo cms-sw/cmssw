@@ -25,7 +25,7 @@ LCToCPAssociatorByEnergyScoreImpl<HIT>::LCToCPAssociatorByEnergyScoreImpl(
   if constexpr (std::is_same_v<HIT, HGCRecHit>)
     layers_ = recHitTools_->lastLayerBH();
   else
-    layers_ = 6;
+    layers_ = recHitTools_->lastLayerBarrel() + 1;
 }
 
 template <typename HIT>
@@ -48,8 +48,11 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   ticl::caloParticleToLayerCluster cPOnLayer;
   cPOnLayer.resize(nCaloParticles);
   for (unsigned int i = 0; i < nCaloParticles; ++i) {
-    cPOnLayer[i].resize(layers_ * 2);
-    for (unsigned int j = 0; j < layers_ * 2; ++j) {
+    unsigned int nLayers = layers_ * 2;
+    if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
+      nLayers = layers_;
+    cPOnLayer[i].resize(nLayers);
+    for (unsigned int j = 0; j < nLayers; ++j) {
       cPOnLayer[i][j].caloParticleId = i;
       cPOnLayer[i][j].energy = 0.f;
       cPOnLayer[i][j].hits_and_fractions.clear();
@@ -369,6 +372,13 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     // It is the inverse of the denominator of the LCToCP score formula. Observe that this is the sum of the squares.
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : hits_and_fractions) {
+      if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+        if (recHitTools_->isBarrel(haf.first))
+          continue;
+      } else {
+        if (!recHitTools_->isBarrel(haf.first))
+          continue;
+      }
       const HIT* hit = hits_[hitMap_->at(haf.first)];
       invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
     }
@@ -380,6 +390,8 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       bool hitWithNoCP = (detIdToCaloParticleId_Map.find(rh_detid) == detIdToCaloParticleId_Map.end());
 
       auto itcheck = hitMap_->find(rh_detid);
+      if (itcheck == hitMap_->end())
+        continue;
       const HIT* hit = hits_[itcheck->second];
       float hitEnergyWeight = hit->energy() * hit->energy();
 
@@ -405,7 +417,10 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
 
   // Compute the CaloParticle-To-LayerCluster score
   for (const auto& cpId : cPIndices) {
-    for (unsigned int layerId = 0; layerId < layers_ * 2; ++layerId) {
+    unsigned int nLayers = layers_ * 2;
+    if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
+      nLayers = layers_;
+    for (unsigned int layerId = 0; layerId < nLayers; ++layerId) {
       unsigned int CPNumberOfHits = cPOnLayer[cpId][layerId].hits_and_fractions.size();
       if (CPNumberOfHits == 0)
         continue;
@@ -437,6 +452,13 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       // Compute the correct normalization. Observe that this is the sum of the squares.
       float invCPEnergyWeight = 0.f;
       for (auto const& haf : cPOnLayer[cpId][layerId].hits_and_fractions) {
+        if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+          if (recHitTools_->isBarrel(haf.first))
+            continue;
+        } else {
+          if (!recHitTools_->isBarrel(haf.first))
+            continue;
+        }
         const HIT* hit = hits_[hitMap_->at(haf.first)];
         invCPEnergyWeight += std::pow(haf.second * hit->energy(), 2);
       }

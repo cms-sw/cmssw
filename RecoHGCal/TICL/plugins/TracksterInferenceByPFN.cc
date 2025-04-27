@@ -37,6 +37,8 @@ namespace ticl {
     for (int i = 0; i < static_cast<int>(tracksters.size()); i++) {
       float sumClusterEnergy = 0.;
       for (const unsigned int& vertex : tracksters[i].vertices()) {
+        if (rhtools_.isBarrel(layerClusters[vertex].seed()))
+          continue;
         sumClusterEnergy += static_cast<float>(layerClusters[vertex].energy());
         if (sumClusterEnergy >= eidMinClusterEnergy_) {
           tracksters[i].setRegressedEnergy(0.f);  // Set regressed energy to 0

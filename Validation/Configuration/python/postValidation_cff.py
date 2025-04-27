@@ -8,6 +8,7 @@ from Validation.CaloTowers.CaloTowersPostProcessor_cff import *
 from Validation.HcalHits.SimHitsPostProcessor_cff import *
 from Validation.HcalDigis.HcalDigisPostProcessor_cff import *
 from Validation.HcalRecHits.hcalRecHitsPostProcessor_cff import *
+from Validation.HGCalValidation.BarrelPostProcessor_cff import *
 from Validation.EventGenerator.PostProcessor_cff import *
 from Validation.RecoEgamma.photonPostProcessor_cff import *
 from Validation.RecoEgamma.electronPostValidationSequence_cff import *
@@ -140,6 +141,9 @@ _phase2_ge0_postValidation = _run3_postValidation.copy()
 _phase2_ge0_postValidation += hgcalPostProcessor
 _phase2_ge0_postValidation += trackerphase2ValidationHarvesting
 
+_phase2_ticl_barrel_postValidation = _phase2_postValidation.copy()
+_phase2_ticl_barrel_postValidation += barrelValidatorPostProcessor
+
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
@@ -149,3 +153,5 @@ phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )
 from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 (phase2_GE0 & phase2_hgcal).toReplaceWith( postValidation, _phase2_ge0_postValidation )
 phase2_GE0.toReplaceWith( postValidation_muons, postValidation_muons.copyAndExclude([MuonME0DigisPostProcessors, MuonME0SegPostProcessors]) )
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(postValidation, _phase2_ticl_barrel_postValidation)

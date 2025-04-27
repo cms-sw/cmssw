@@ -29,6 +29,20 @@
   </class>
   <class name="edm::Wrapper<TICLGenericTile<ticl::TracksterTiles>>" persistent="false"/>
 
+  <class name="ticl::TICLLayerTileBarrel" persistent="false">
+    <field name="tile_" transient="true"/>
+  </class>
+
+  <class name="TICLGenericTile<ticl::TilesBarrel>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TilesBarrel>>" persistent="false"/>
+  
+  <class name="TICLGenericTile<ticl::TracksterTilesBarrel>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TracksterTilesBarrel>>" persistent="false"/>
+
   <class name="ticl::TICLLayerTileHFNose" persistent="false">
     <field name="tile_" transient="true"/>
   </class>
