@@ -1072,7 +1072,9 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
       auto cshift = hgcassette_.getShift(lay, -1, cassette, true);
       std::ostringstream st1;
       if (debug)
-        st1 << "Cassette " << cassette << ":" << nphi << ":" << hgpar_->nphiFineCassette_ << ":" << hgpar_->nphiCassette_ << " Layer " << lay << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":"<< y;
+        st1 << "Cassette " << cassette << ":" << nphi << ":" << hgpar_->nphiFineCassette_ << ":"
+            << hgpar_->nphiCassette_ << " Layer " << lay << " Shift " << cshift.first << ":" << cshift.second
+            << " Original " << x << ":" << y;
       x -= cshift.first;
       y += cshift.second;
       if (debug) {

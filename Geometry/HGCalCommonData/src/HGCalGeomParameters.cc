@@ -1686,10 +1686,11 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
       std::vector<double> rectract = fv.vector("ScintRetract");
       rescale(rectract, HGCalParameters::k_ScaleFromDDD);
       int n = 2 * php.cassettes_ * (php.firstLayer_ - 1);
-      for (int k1 = 0; k1 < n; ++ k1)
-	cassetteShift.emplace_back(0.);
-#ifdef EDM_ML_DEBUG      
-      edm::LogVerbatim("HGCalGeom") << "First Layer " << php.firstLayer_ << " Rett size " << rectract.size() << " N " << n;
+      for (int k1 = 0; k1 < n; ++k1)
+        cassetteShift.emplace_back(0.);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "First Layer " << php.firstLayer_ << " Rett size " << rectract.size() << " N "
+                                    << n;
 #endif
       double dphi = M_PI / php.cassettes_;
       for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
@@ -1851,11 +1852,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
         } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "ScintRetract")) {
           for (const auto& i : it.second)
             rectract.emplace_back(i);
-	  int n = 2 * php.cassettes_ * (php.firstLayer_ - 1);
-	  for (int k1 = 0; k1 < n; ++ k1)
-	    cassetteShift.emplace_back(0.);
-#ifdef EDM_ML_DEBUG      
-	  edm::LogVerbatim("HGCalGeom") << "First Layer " << php.firstLayer_ << " Rett size " << rectract.size() << " N " << n;
+          int n = 2 * php.cassettes_ * (php.firstLayer_ - 1);
+          for (int k1 = 0; k1 < n; ++k1)
+            cassetteShift.emplace_back(0.);
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HGCalGeom") << "First Layer " << php.firstLayer_ << " Rett size " << rectract.size()
+                                        << " N " << n;
 #endif
           double dphi = M_PI / php.cassettes_;
           for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
@@ -2410,17 +2412,19 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     unsigned int k1(0), k2(0);
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
       if (!php.tileRingFineRange_.empty()) {
-	unsigned int k0 = (k1 < (php.tileRingFineRange_.size() - 1)) ? k1 : (php.tileRingFineRange_.size() - 1);
+        unsigned int k0 = (k1 < (php.tileRingFineRange_.size() - 1)) ? k1 : (php.tileRingFineRange_.size() - 1);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << "Layer " << k << " Fine " << k1 << ":" << k0 << ":" << php.tileRingFineRange_.size();
+        edm::LogVerbatim("HGCalGeom") << "Layer " << k << " Fine " << k1 << ":" << k0 << ":"
+                                      << php.tileRingFineRange_.size();
 #endif
         php.iradMinBHFine_.emplace_back(1 + php.tileRingFineRange_[k0].first);
         php.iradMaxBHFine_.emplace_back(1 + php.tileRingFineRange_[k0].second);
       }
       if (!php.tileRingRange_.empty()) {
-	unsigned int k0 = (k2 < (php.tileRingRange_.size() - 1)) ? k2 : (php.tileRingRange_.size() - 1);
+        unsigned int k0 = (k2 < (php.tileRingRange_.size() - 1)) ? k2 : (php.tileRingRange_.size() - 1);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << "Layer " << k << " Coarse " << k2 << ":" << k0 << ":" << php.tileRingRange_.size();
+        edm::LogVerbatim("HGCalGeom") << "Layer " << k << " Coarse " << k2 << ":" << k0 << ":"
+                                      << php.tileRingRange_.size();
 #endif
         php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k0].first);
         php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k0].second);
