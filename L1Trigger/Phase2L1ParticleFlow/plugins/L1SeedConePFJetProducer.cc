@@ -101,7 +101,6 @@ L1SeedConePFJetProducer::~L1SeedConePFJetProducer() {}
 
 l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::PFCandidate>>& parts,
                                                const edm::Ptr<l1t::PFCandidate>& seed) const {
-
   auto sumpt = [](float a, const edm::Ptr<l1t::PFCandidate>& b) { return a + b->pt(); };
 
   // Sum the pt
@@ -180,11 +179,11 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_SW(std::vector<edm
     jets.push_back(makeJet_SW(particlesInCone, seed));
     // remove the clustered particles
     parts.erase(std::remove_if(parts.begin(),
-                              parts.end(),
-                              [&](const edm::Ptr<l1t::PFCandidate>& part) {
-                                return reco::deltaR<l1t::PFCandidate, l1t::PFCandidate>(*seed, *part) <= coneSize;
-                              }),
-               parts.end());
+                               parts.end(),
+                               [&](const edm::Ptr<l1t::PFCandidate>& part) {
+                                 return reco::deltaR<l1t::PFCandidate, l1t::PFCandidate>(*seed, *part) <= coneSize;
+                               }),
+                parts.end());
   }
 
   return jets;

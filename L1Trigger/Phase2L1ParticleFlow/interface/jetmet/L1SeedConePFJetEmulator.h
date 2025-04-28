@@ -1,7 +1,7 @@
 #ifndef L1Trigger_Phase2L1ParticleFlow_L1SeedConePFJetEmulator_h
 #define L1Trigger_Phase2L1ParticleFlow_L1SeedConePFJetEmulator_h
 
-#define NCONSTITSFW 32    // DEFINE THE MAXIMUM NUMBER OF CONSTITUENTS USED TO CALCULATE THE JET MASS
+#define NCONSTITSFW 32  // DEFINE THE MAXIMUM NUMBER OF CONSTITUENTS USED TO CALCULATE THE JET MASS
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/jets.h"
