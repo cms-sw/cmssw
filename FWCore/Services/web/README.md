@@ -1,18 +1,12 @@
 # Interactive Tracer Log Viewer
 
-## Starting the viewer
-
-### standard web server
-If the output of `edmTracerCompactLogViewer.py` and the files from `FWCore/Services/web` have been placed in a directory accessible to a web server, you may just point your browser to the correct URL to run the viewer.
-
-# My HTTP Server
-
-This is a simple HTTP server implemented in Python using the `http.server` module.
+The viewer has a HTTP server component, implemented in Python using the `http.server` module, and a JavaScript client component.
 
 ## Usage
 
-1. Run the server script (`server.py`) using Python.
-2. Access the server in your web browser by navigating to `http://localhost:65432`.
+1. Copy the output of `edmTracerCompactLogViewer.py` and the files from `FWCore/Services/web` into a directory. The server lists all `.json` files in a drop-down list.
+2. Run the server script (`server.py`) using Python.
+3. Access the server in your web browser by navigating to `http://localhost:65432`.
 
 ### Specifying the Port
 
@@ -20,6 +14,7 @@ You can specify the port to serve on by using the `--port` argument:
 
 ```sh
 python server.py --port 8080
+```
 
 ## Viewer layout
 The viewer is composed to two main areas, the top is the timing viewer and at the bottom shows information about a selected time block. The top time viewer is further divided into three parts. On the left is the macro scoping grouping of framework activity types into Global and Stream activities. If the _module centric_ option was chosen then this area is also divided by each module activity which is sorted based on most time used to least time used. At the bottom is the measurement of time since the start of the job. The main area shows the blocks of time spend doing various work within the Framework.
