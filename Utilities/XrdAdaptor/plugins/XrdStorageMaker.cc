@@ -190,7 +190,7 @@ public:
     if (env)
     {
       env->PutInt("StreamTimeout", timeout);
-      env->PutInt("RequestTimeout", timeout);
+      env->PutInt("RequestTimeout", timeout * 3);
       env->PutInt("ConnectionWindow", timeout);
       env->PutInt("StreamErrorWindow", timeout);
       // Crank down some of the connection defaults.  We have more
