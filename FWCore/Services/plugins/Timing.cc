@@ -3,6 +3,9 @@
 // Package:     Services
 // Class  :     Timing
 //
+/**\class edm::service::Timing
+ */
+//
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
@@ -10,37 +13,41 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/AbstractServices/interface/TimingServiceBase.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
-#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
-#include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
-#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
-#include <iostream>
-#include <sstream>
-#include <sys/resource.h>
-#include <sys/time.h>
 #include <atomic>
-#include <exception>
+#include <chrono>
+#include <map>
+#include <memory>
+#include <ratio>
+#include <sstream>
+#include <string>
+#include <sys/resource.h>
+#include <utility>
+#include <vector>
 
 namespace edm {
 
   namespace eventsetup {
     struct ComponentDescription;
-    class DataKey;
-    class EventSetupRecordKey;
   }  // namespace eventsetup
 
   namespace service {
@@ -58,15 +65,11 @@ namespace edm {
       double getTotalCPU() const override;
 
     private:
-      void preBeginJob(ProcessContext const&);
       void beginProcessing();
       void postEndJob();
 
       void preEvent(StreamContext const&);
       void postEvent(StreamContext const&);
-      void lastPostEvent(std::chrono::steady_clock::duration curr_event_time,
-                         unsigned int index,
-                         StreamContext const& iStream);
 
       void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
 
@@ -82,8 +85,8 @@ namespace edm {
       void preOpenFile(std::string const&);
       void postOpenFile(std::string const&);
 
-      void preModule(ModuleDescription const& md);
-      void postModule(ModuleDescription const& md);
+      void preModule(ModuleDescription const&);
+      void postModule(ModuleDescription const&);
 
       void preModuleGlobal(GlobalContext const&, ModuleCallingContext const&);
       void postModuleGlobal(GlobalContext const&, ModuleCallingContext const&);
@@ -131,12 +134,6 @@ namespace edm {
       std::vector<std::unique_ptr<std::atomic<time_point>>> eventSetupModuleStartTimes_;
       std::vector<std::pair<uintptr_t, eventsetup::EventSetupRecordKey>> eventSetupModuleCallInfo_;
       std::atomic<double> accumulatedEventSetupModuleTimings_ = 0.;  //seconds
-
-      std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPreEvent_;
-      std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPostEvent_;
-
-      bool configuredInTopLevelProcess_;
-      unsigned int nSubProcesses_;
     };
   }  // namespace service
 }  // namespace edm
@@ -203,10 +200,7 @@ namespace edm {
       return t.count();
     }
 
-    static void pushStack(bool configuredInTopLevelProcess) {
-      if (!configuredInTopLevelProcess) {
-        return;
-      }
+    static void pushStack() {
       auto& modStack = moduleTimeStack();
       modStack.push_back(getTime());
     }
@@ -225,10 +219,7 @@ namespace edm {
           min_events_time_(),
           total_event_count_(0),
           begin_lumi_count_(0),
-          begin_run_count_(0),
-          configuredInTopLevelProcess_{false},
-          nSubProcesses_{0} {
-      iRegistry.watchPreBeginJob(this, &Timing::preBeginJob);
+          begin_run_count_(0) {
       iRegistry.watchBeginProcessing(this, &Timing::beginProcessing);
       iRegistry.watchPreEndJob([this]() {
         end_loop_time_ = getTime();
@@ -362,11 +353,6 @@ namespace edm {
           eventSetupModuleStartTimes_.emplace_back(std::make_unique<std::atomic<time_point>>());
         }
         eventSetupModuleCallInfo_.resize(nThreads_);
-
-        for (unsigned int i = 0; i < nStreams_; ++i) {
-          countSubProcessesPreEvent_.emplace_back(std::make_unique<std::atomic<unsigned int>>(0));
-          countSubProcessesPostEvent_.emplace_back(std::make_unique<std::atomic<unsigned int>>(0));
-        }
       });
       setTaskCallbacks(iRegistry);
     }
@@ -437,18 +423,7 @@ namespace edm {
       descriptions.setComment("This service reports the time it takes to run each module in a job.");
     }
 
-    void Timing::preBeginJob(ProcessContext const& pc) {
-      if (pc.isSubProcess()) {
-        ++nSubProcesses_;
-      } else {
-        configuredInTopLevelProcess_ = true;
-      }
-    }
-
     void Timing::beginProcessing() {
-      if (!configuredInTopLevelProcess_) {
-        return;
-      }
       curr_job_time_ = getTime();
       curr_job_cpu_ = getCPU();
       last_task_change_time_ = curr_job_time_;
@@ -468,15 +443,6 @@ namespace edm {
     }
 
     void Timing::postEndJob() {
-      if (!configuredInTopLevelProcess_) {
-        LogImportant("TimeReport") << "\nTimeReport> This instance of the Timing Service will be disabled because it "
-                                      "is configured in a SubProcess.\n"
-                                   << "If multiple instances of the TimingService were configured only the one in the "
-                                      "top level process will function.\n"
-                                   << "The other instance(s) will simply print this message and do nothing.\n\n";
-        return;
-      }
-
       const auto job_end_time = getTime();
       const double job_end_cpu = getCPU();
       auto total_job_time = double_seconds(job_end_time - jobStartTime()).count();
@@ -573,41 +539,14 @@ namespace edm {
     }
 
     void Timing::preEvent(StreamContext const& iStream) {
-      if (!configuredInTopLevelProcess_) {
-        return;
-      }
       auto index = iStream.streamID().value();
-      if (nSubProcesses_ == 0u) {
-        curr_events_time_[index] = getTime();
-      } else {
-        unsigned int count = ++(*countSubProcessesPreEvent_[index]);
-        if (count == 1) {
-          curr_events_time_[index] = getTime();
-        } else if (count == (nSubProcesses_ + 1)) {
-          *countSubProcessesPreEvent_[index] = 0;
-        }
-      }
+      curr_events_time_[index] = getTime();
     }
 
     void Timing::postEvent(StreamContext const& iStream) {
-      if (!configuredInTopLevelProcess_) {
-        return;
-      }
       auto index = iStream.streamID().value();
-      if (nSubProcesses_ == 0u) {
-        lastPostEvent(getTime() - curr_events_time_[index], index, iStream);
-      } else {
-        unsigned int count = ++(*countSubProcessesPostEvent_[index]);
-        if (count == (nSubProcesses_ + 1)) {
-          lastPostEvent(getTime() - curr_events_time_[index], index, iStream);
-          *countSubProcessesPostEvent_[index] = 0;
-        }
-      }
-    }
+      std::chrono::steady_clock::duration curr_event_time = getTime() - curr_events_time_[index];
 
-    void Timing::lastPostEvent(std::chrono::steady_clock::duration curr_event_time,
-                               unsigned int index,
-                               StreamContext const& iStream) {
       double curr_event_time_d = double_seconds(curr_event_time).count();
       sum_events_time_[index] += curr_event_time_d;
 
@@ -623,9 +562,6 @@ namespace edm {
     }
 
     void Timing::postModuleEvent(StreamContext const& iStream, ModuleCallingContext const& iModule) {
-      if (!configuredInTopLevelProcess_) {
-        return;
-      }
       auto const& eventID = iStream.eventID();
       auto const& desc = *(iModule.moduleDescription());
       double t = postCommon();
@@ -635,60 +571,39 @@ namespace edm {
       }
     }
 
-    void Timing::preSourceEvent(StreamID sid) { pushStack(configuredInTopLevelProcess_); }
+    void Timing::preSourceEvent(StreamID) { pushStack(); }
 
-    void Timing::postSourceEvent(StreamID sid) { postCommon(); }
+    void Timing::postSourceEvent(StreamID) { postCommon(); }
 
-    void Timing::preSourceLumi(LuminosityBlockIndex index) { pushStack(configuredInTopLevelProcess_); }
+    void Timing::preSourceLumi(LuminosityBlockIndex) { pushStack(); }
 
-    void Timing::postSourceLumi(LuminosityBlockIndex index) { postCommon(); }
+    void Timing::postSourceLumi(LuminosityBlockIndex) { postCommon(); }
 
-    void Timing::preSourceRun(RunIndex index) { pushStack(configuredInTopLevelProcess_); }
+    void Timing::preSourceRun(RunIndex) { pushStack(); }
 
-    void Timing::postSourceRun(RunIndex index) { postCommon(); }
+    void Timing::postSourceRun(RunIndex) { postCommon(); }
 
-    void Timing::preOpenFile(std::string const& lfn) { pushStack(configuredInTopLevelProcess_); }
+    void Timing::preOpenFile(std::string const&) { pushStack(); }
 
-    void Timing::postOpenFile(std::string const& lfn) { postCommon(); }
+    void Timing::postOpenFile(std::string const&) { postCommon(); }
 
-    void Timing::preModule(ModuleDescription const&) { pushStack(configuredInTopLevelProcess_); }
+    void Timing::preModule(ModuleDescription const&) { pushStack(); }
 
-    void Timing::postModule(ModuleDescription const& desc) { postCommon(); }
+    void Timing::postModule(ModuleDescription const&) { postCommon(); }
 
-    void Timing::preModuleGlobal(GlobalContext const&, ModuleCallingContext const&) {
-      pushStack(configuredInTopLevelProcess_);
-    }
+    void Timing::preModuleGlobal(GlobalContext const&, ModuleCallingContext const&) { pushStack(); }
 
     void Timing::postModuleGlobal(GlobalContext const&, ModuleCallingContext const& mcc) { postCommon(); }
 
-    void Timing::postGlobalBeginRun(GlobalContext const& gc) {
-      if (!configuredInTopLevelProcess_) {
-        return;
-      }
-      if (!gc.processContext()->isSubProcess()) {
-        ++begin_run_count_;
-      }
-    }
+    void Timing::postGlobalBeginRun(GlobalContext const& gc) { ++begin_run_count_; }
 
-    void Timing::postGlobalBeginLumi(GlobalContext const& gc) {
-      if (!configuredInTopLevelProcess_) {
-        return;
-      }
-      if (!gc.processContext()->isSubProcess()) {
-        ++begin_lumi_count_;
-      }
-    }
+    void Timing::postGlobalBeginLumi(GlobalContext const& gc) { ++begin_lumi_count_; }
 
-    void Timing::preModuleStream(StreamContext const&, ModuleCallingContext const&) {
-      pushStack(configuredInTopLevelProcess_);
-    }
+    void Timing::preModuleStream(StreamContext const&, ModuleCallingContext const&) { pushStack(); }
 
     void Timing::postModuleStream(StreamContext const&, ModuleCallingContext const& mcc) { postCommon(); }
 
     double Timing::postCommon() const {
-      if (!configuredInTopLevelProcess_) {
-        return 0.0;
-      }
       double t = popStack();
       if (t > threshold_) {
         LogError("ExcessiveTime")
