@@ -233,6 +233,20 @@ namespace simdoublets {
     }
     axis->Set(bins, new_bins.data());
   }
+  void BinLogY(TH1* h) {
+    TAxis* axis = h->GetYaxis();
+    int bins = axis->GetNbins();
+
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    std::vector<float> new_bins(bins + 1, 0);
+
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+    }
+    axis->Set(bins, new_bins.data());
+  }
 
   // function to produce histogram with log scale on x (taken from MultiTrackValidator)
   template <typename... Args>
@@ -250,6 +264,13 @@ namespace simdoublets {
     BinLogX(h.get());
     const auto& name = h->GetName();
     return ibook.bookProfile(name, h.release());
+  }
+  template <typename... Args>
+  dqm::reco::MonitorElement* makeProfile2DLogY(dqm::reco::DQMStore::IBooker& ibook, Args&&... args) {
+    auto h = std::make_unique<TProfile2D>(std::forward<Args>(args)...);
+    BinLogY(h.get());
+    const auto& name = h->GetName();
+    return ibook.bookProfile2D(name, h.release());
   }
 
   // function that checks if two vector share a common element
@@ -526,8 +547,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
   SimDoubletsCollection const& simDoubletsCollection = iEvent.get(simDoublets_getToken_);
 
   // initialize a bunch of variables that we will use in the coming for loops
-  double true_pT, true_eta, relativeLength;
-  int numSimDoublets, pass_numSimDoublets, layerPairId, layerPairIdIndex;
+  double true_pT, true_eta, true_phi, relativeLength;
+  int true_pdgId, numSimDoublets, pass_numSimDoublets, layerPairId, layerPairIdIndex, numSkippedLayers;
   bool passed, passedTP, hasValidNeighbors, isAlive;
 
   // initialize the manager for keeping track of which cluster cuts are applied to the inidividual doublets
@@ -540,6 +561,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     // get true pT of the TrackingParticle
     true_pT = simDoublets.trackingParticle()->pt();
     true_eta = simDoublets.trackingParticle()->eta();
+    true_phi = simDoublets.trackingParticle()->phi();
+    true_pdgId = simDoublets.trackingParticle()->pdgId();
 
     // create the true RecHit doublets of the TrackingParticle
     auto& doublets = simDoublets.buildAndGetSimDoublets(trackerTopology_);
@@ -611,12 +634,18 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     // Now check if the TrackingParticle has a surviving SimNtuplet
     passedTP = simDoublets.hasAliveSimNtuplet();
 
+    // set the number of skipped layers by default to -1
+    numSkippedLayers = -1;
+
     // get the longest SimNtuplet of the TrackingParticle (if it exists)
     if (simDoublets.hasSimNtuplet()) {
       auto const& longNtuplet = simDoublets.longestSimNtuplet();
 
       // check if it is alive
       isAlive = longNtuplet.isAlive();
+
+      // get number of skipped layers
+      numSkippedLayers = longNtuplet.numSkippedLayers();
 
       // fill general longest SimNtuplet histogram
       h_longNtuplet_numRecHits_.fill(isAlive, longNtuplet.numRecHits());
@@ -691,9 +720,20 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     // fill histograms for number of SimDoublets
     h_numSimDoubletsPerTrackingParticle_.fill(passedTP, numSimDoublets);
     h_numLayersPerTrackingParticle_.fill(passedTP, simDoublets.numLayers());
+    h_numSkippedLayersPerTrackingParticle_.fill(passedTP, numSkippedLayers);
+    h_numLayersVsEta_.fill(passedTP, true_eta, simDoublets.numLayers());
+    h_numSkippedLayersVsEta_.fill(passedTP, true_eta, numSkippedLayers);
+    h_numLayersVsPt_.fill(passedTP, true_pT, simDoublets.numLayers());
+    h_numSkippedLayersVsPt_.fill(passedTP, true_pT, numSkippedLayers);
+    h_numLayersVsEtaPt_->Fill(true_eta, true_pT, simDoublets.numLayers());
     // fill histograms for number of TrackingParticles
     h_numTPVsPt_.fill(passedTP, true_pT);
     h_numTPVsEta_.fill(passedTP, true_eta);
+    h_numTPVsPhi_.fill(passedTP, true_phi);
+    h_numTPVsEtaPhi_.fill(passedTP, true_eta, true_phi);
+    h_numTPVsEtaPt_.fill(passedTP, true_eta, true_pT);
+    h_numTPVsPhiPt_.fill(passedTP, true_phi, true_pT);
+    h_numTPVsPdgId_.fill(passedTP, true_pdgId);
     // Fill the efficiency profile per Tracking Particle only if the TP has at least one SimDoublet
     if (numSimDoublets > 0) {
       h_effSimDoubletsPerTPVsEta_->Fill(true_eta, pass_numSimDoublets / numSimDoublets);
@@ -717,6 +757,12 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
   int etaNBins = 90;
   double etamin = -4.5;
   double etamax = 4.5;
+  int phiNBins = 36;
+  double phimin = -3.14159;
+  double phimax = 3.14159;
+  int pdgIdmax = 340;
+  int pdgIdmin = -pdgIdmax;
+  int pdgIdNBins = pdgIdmax - pdgIdmin;
   int numTotalLayers = TrackerTraits::numberOfLayers + numLayersOT_;
 
   // ----------------------------------------------------------
@@ -746,6 +792,20 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                                   0,
                                                   1,
                                                   " ");
+
+  h_numLayersVsEtaPt_ = simdoublets::makeProfile2DLogY(
+      ibook,
+      "numLayersVsEtaPt",
+      "Number of layers hit by Tracking Particle; TP transverse momentum #eta; TP transverse momentum p_{T} [GeV]",
+      etaNBins,
+      etamin,
+      etamax,
+      pTNBins,
+      pTmin,
+      pTmax,
+      -1,
+      15,
+      " ");
   h_layerPairs_.book2D(ibook,
                        "layerPairs",
                        "Layer pairs in SimDoublets",
@@ -778,9 +838,62 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                          "Number of layers hit by Tracking Particle",
                                          "Number of layers",
                                          "Number of Tracking Particles",
-                                         29,
+                                         15,
                                          -0.5,
-                                         28.5);
+                                         14.5);
+
+  h_numSkippedLayersPerTrackingParticle_.book1D(ibook,
+                                                "numSkippedLayersPerTrackingParticle",
+                                                "Number of layers skipped by Tracking Particle",
+                                                "Number of skipped layers",
+                                                "Number of Tracking Particles",
+                                                16,
+                                                -1.5,
+                                                14.5);
+  h_numLayersVsEta_.book2D(ibook,
+                           "numLayersVsEta",
+                           "Number of layers hit by Tracking Particle vs #eta",
+                           "True pseudorapidity #eta",
+                           "Number of layers",
+                           etaNBins,
+                           etamin,
+                           etamax,
+                           16,
+                           -1.5,
+                           14.5);
+  h_numSkippedLayersVsEta_.book2D(ibook,
+                                  "numSkippedLayersVsEta",
+                                  "Number of layers skipped by Tracking Particle vs #eta",
+                                  "True pseudorapidity #eta",
+                                  "Number of skipped layers",
+                                  etaNBins,
+                                  etamin,
+                                  etamax,
+                                  16,
+                                  -1.5,
+                                  14.5);
+  h_numLayersVsPt_.book2DLogX(ibook,
+                              "numLayersVsPt",
+                              "Number of layers hit by Tracking Particle",
+                              "True transverse momentum p_{T} [GeV]",
+                              "Number of layers",
+                              pTNBins,
+                              pTmin,
+                              pTmax,
+                              16,
+                              -1.5,
+                              14.5);
+  h_numSkippedLayersVsPt_.book2DLogX(ibook,
+                                     "numSkippedLayersVsPt",
+                                     "Number of layers skipped by Tracking Particle",
+                                     "True transverse momentum p_{T} [GeV]",
+                                     "Number of skipped layers",
+                                     pTNBins,
+                                     pTmin,
+                                     pTmax,
+                                     16,
+                                     -1.5,
+                                     14.5);
   h_numTPVsPt_.book1DLogX(ibook,
                           "numTPVsPt",
                           "Number of TrackingParticles",
@@ -797,6 +910,47 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                        etaNBins,
                        etamin,
                        etamax);
+  h_numTPVsPhi_.book1D(ibook,
+                       "numTPVsPhi",
+                       "Number of TrackingParticles",
+                       "True azimuth angle #phi",
+                       "Number of TrackingParticles",
+                       phiNBins,
+                       phimin,
+                       phimax);
+  h_numTPVsEtaPhi_.book2D(ibook,
+                          "numTPVsEtaPhi",
+                          "Number of TrackingParticles",
+                          "True pseudorapidity #eta",
+                          "True azimuth angle #phi",
+                          etaNBins,
+                          etamin,
+                          etamax,
+                          phiNBins,
+                          phimin,
+                          phimax);
+  h_numTPVsEtaPt_.book2DLogY(ibook,
+                             "numTPVsEtaPt",
+                             "Number of TrackingParticles",
+                             "True pseudorapidity #eta",
+                             "True transverse momentum p_{T} [GeV]",
+                             etaNBins,
+                             etamin,
+                             etamax,
+                             pTNBins,
+                             pTmin,
+                             pTmax);
+  h_numTPVsPhiPt_.book2DLogY(ibook,
+                             "numTPVsPhiPt",
+                             "Number of TrackingParticles",
+                             "True azimuth angle #phi",
+                             "True transverse momentum p_{T} [GeV]",
+                             phiNBins,
+                             phimin,
+                             phimax,
+                             pTNBins,
+                             pTmin,
+                             pTmax);
   h_numVsPt_.book1DLogX(ibook,
                         "numVsPt",
                         "Number of SimDoublets",
@@ -813,6 +967,15 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                      etaNBins,
                      etamin,
                      etamax);
+
+  h_numTPVsPdgId_.book1D(ibook,
+                         "numTPVsPdgId",
+                         "Number of TrackingParticles",
+                         "PDG ID",
+                         "Number of TrackingParticles",
+                         pdgIdNBins,
+                         pdgIdmin,
+                         pdgIdmax);
 
   // --------------------------------------------------------------
   // booking layer pair independent cut histograms (global folder)
