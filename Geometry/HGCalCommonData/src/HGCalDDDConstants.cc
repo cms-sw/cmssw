@@ -222,7 +222,7 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
     iphi = hgpar_->scintCells(layer);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " iPhi " << iphi << ":" << hgpar_->scintCells(layer)
-                                << " Cassette Mode " << cassetteMode();
+				<< " Cassette Mode " << cassetteMode() << " index " << indx.first;
 #endif
   if (cassetteMode()) {
     int nphi = (hgpar_->scintFine(indx.first)) ? hgpar_->nphiFineCassette_ : hgpar_->nphiCassette_;
@@ -787,6 +787,9 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
 bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) const {
   // Check validity for a layer|eta|phi of scintillator
   const auto& indx = getIndex(layer, true);
+#ifdef EDM_ML_DEBUG
+  edm::LogWarning("HGCalGeomT") << "isValidTrap: Layer " << layer << " indx " << indx.first << ":" << hgpar_->firstLayer_ << ":" << hgpar_->firstMixedLayer_;
+#endif
   if (indx.first < 0)
     return false;
   bool ok = ((hgpar_->scintValidRing(indx.first, irad)) && (iphi > 0) && (iphi <= hgpar_->scintCells(layer)));
@@ -1028,8 +1031,9 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
   const auto& indx = getIndex(lay, reco);
 #ifdef EDM_ML_DEBUG
   debug = true;
-  edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << zside << ":"
-                                << reco << ":" << indx.first;
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << zside << ":"
+				  << reco << ":" << indx.first;
 #endif
   if (indx.first >= 0) {
     int ir = std::abs(irad);
@@ -1038,6 +1042,7 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     double z = hgpar_->zLayerHex_[indx.first];
     double r = 0.5 * (hgpar_->radiusLayer_[type][ir - 1] + hgpar_->radiusLayer_[type][ir]);
     std::pair<double, double> range = rangeR(z, true);
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::ostringstream st1;
       st1 << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << reco << " indx " << indx.first
@@ -1051,6 +1056,7 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
                                     << range.second << " file " << (!trapezoidFile()) << " CassetteMode "
                                     << cassetteMode();
     }
+#endif
     if (!trapezoidFile())
       r = std::max(range.first, std::min(r, range.second));
     if (hgpar_->scintFine(indx.first)) {
@@ -1070,17 +1076,21 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
       int nphi = (hgpar_->scintFine(indx.first)) ? hgpar_->nphiFineCassette_ : hgpar_->nphiCassette_;
       int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, nphi, hgpar_->cassettes_);
       auto cshift = hgcassette_.getShift(lay, -1, cassette, true);
+#ifdef EDM_ML_DEBUG
       std::ostringstream st1;
       if (debug)
         st1 << "Cassette " << cassette << ":" << nphi << ":" << hgpar_->nphiFineCassette_ << ":"
             << hgpar_->nphiCassette_ << " Layer " << lay << " Shift " << cshift.first << ":" << cshift.second
             << " Original " << x << ":" << y;
+#endif
       x -= cshift.first;
       y += cshift.second;
+#ifdef EDM_ML_DEBUG
       if (debug) {
         st1 << " Final " << x << ":" << y;
         edm::LogVerbatim("HGCalGeom") << st1.str();
       }
+#endif
     }
   }
   if (!reco) {

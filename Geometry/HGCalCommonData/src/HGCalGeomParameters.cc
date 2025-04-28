@@ -2405,7 +2405,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     }
     // Minimum and maximum radius index for each layer
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Till Ring Range size " << php.tileRingFineRange_.size() << ":"
+    edm::LogVerbatim("HGCalGeom") << "Tile Ring Range size " << php.tileRingFineRange_.size() << ":"
                                   << php.tileRingRange_.size() << ":" << php.nPhiBinBH_.size() << ":"
                                   << php.zLayerHex_.size() << ":" << php.nPhiLayer_.size();
 #endif
@@ -2525,7 +2525,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
   for (unsigned int k = 0; k < 2; ++k) {
     edm::LogVerbatim("HGCalGeom") << "Type " << k << " with " << php.radiusLayer_[k].size() << " radii";
     for (unsigned int kk = 0; kk < php.radiusLayer_[k].size(); ++kk)
-      edm::LogVerbatim("HGCalGeom") << "Ring[" << kk << "] " << php.radiusLayer_[k][kk];
+      edm::LogVerbatim("HGCalGeom") << "Ring[" << k << "]["<< kk << "] " << php.radiusLayer_[k][kk];
   }
 #endif
 
@@ -2542,7 +2542,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
       if (php.iradMaxBH_[k] > php.tileUVMax_)
         php.tileUVMax_ = php.iradMaxBH_[k];
     }
-    int kk = (php.nPhiLayer_[k] > 288) ? 0 : 1;
+    int kk = (php.nPhiLayer_[k] > 288) ? 1 : 0;
     int irm = php.radiusLayer_[kk].size() - 1;
     int irmin = (php.nPhiLayer_[k] > 288) ? php.iradMinBHFine_[k] : php.iradMinBH_[k];
     int irmax = (php.nPhiLayer_[k] > 288) ? php.iradMaxBHFine_[k] : php.iradMaxBH_[k];
@@ -2550,12 +2550,15 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     double rmin = php.radiusLayer_[kk][std::max((irmin - 1), 0)];
     double rmax = php.radiusLayer_[kk][std::min(irmax, irm)];
     edm::LogVerbatim("HGCalGeom") << "Layer " << php.firstLayer_ + k << ":" << kk << " Radius range " << irmin << ":"
-                                  << irmax << ":" << rmin << ":" << rmax;
+                                  << irmax << ":" << rmin << ":" << rmax << " Size " << php.radiusLayer_[kk].size();
 #endif
     mytr.lay = php.firstLayer_ + k;
     for (int irad = irmin; irad <= irmax; ++irad) {
       double rmin = php.radiusLayer_[kk][std::max((irad - 1), 0)];
       double rmax = php.radiusLayer_[kk][std::min(irad, irm)];
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "irad " << irad << ":" << php.radiusLayer_[kk].size() << " R " << rmin << ":" << rmax;
+#endif
       mytr.bl = 0.5 * rmin * php.scintCellSize(mytr.lay);
       mytr.tl = 0.5 * rmax * php.scintCellSize(mytr.lay);
       mytr.h = 0.5 * (rmax - rmin);
