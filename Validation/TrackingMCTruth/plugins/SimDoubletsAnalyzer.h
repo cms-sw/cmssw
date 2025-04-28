@@ -57,6 +57,7 @@ namespace simdoublets {
   struct CellCutVariables;
   struct ClusterSizeCutManager;
   void BinLogX(TH1*);
+  void BinLogY(TH1*);
 }  // namespace simdoublets
 
 // -------------------------------------------------------------------------------------------------------------
@@ -127,6 +128,42 @@ public:
       h_pass_ = ibooker.book1D("pass_" + name, hp.release());
       h_total_ = ibooker.book1D(name, ht.release());
     }
+    
+    template <typename... Args>
+    void book2DLogX(DQMStore::IBooker& ibooker,
+                    const std::string& name,
+                    const std::string& title,
+                    const std::string& xlabel,
+                    const std::string& ylabel,
+                    Args&&... args) {
+      const std::string& xylabels = "; " + xlabel + "; " + ylabel;
+      auto hp = std::make_unique<TH2F>(
+          ("pass_" + name).c_str(), (title + " (pass)" + xylabels).c_str(), std::forward<Args>(args)...);
+      auto ht =
+          std::make_unique<TH2F>(name.c_str(), (title + " (all)" + xylabels).c_str(), std::forward<Args>(args)...);
+      simdoublets::BinLogX(hp.get());
+      simdoublets::BinLogX(ht.get());
+      h_pass_ = ibooker.book2D("pass_" + name, hp.release());
+      h_total_ = ibooker.book2D(name, ht.release());
+    }
+
+    template <typename... Args>
+    void book2DLogY(DQMStore::IBooker& ibooker,
+                    const std::string& name,
+                    const std::string& title,
+                    const std::string& xlabel,
+                    const std::string& ylabel,
+                    Args&&... args) {
+      const std::string& xylabels = "; " + xlabel + "; " + ylabel;
+      auto hp = std::make_unique<TH2F>(
+          ("pass_" + name).c_str(), (title + " (pass)" + xylabels).c_str(), std::forward<Args>(args)...);
+      auto ht =
+          std::make_unique<TH2F>(name.c_str(), (title + " (all)" + xylabels).c_str(), std::forward<Args>(args)...);
+      simdoublets::BinLogY(hp.get());
+      simdoublets::BinLogY(ht.get());
+      h_pass_ = ibooker.book2D("pass_" + name, hp.release());
+      h_total_ = ibooker.book2D(name, ht.release());
+    }
 
   private:
     MonitorElement* h_pass_ = nullptr;
@@ -190,14 +227,25 @@ private:
   // profiles to be filled
   MonitorElement* h_effSimDoubletsPerTPVsPt_;
   MonitorElement* h_effSimDoubletsPerTPVsEta_;
+  MonitorElement* h_numLayersVsEtaPt_;
   // histograms of TrackingParticles
   CoupledMonitorElement h_numTPVsPt_;
   CoupledMonitorElement h_numTPVsEta_;
+  CoupledMonitorElement h_numTPVsPhi_;
+  CoupledMonitorElement h_numTPVsEtaPt_;
+  CoupledMonitorElement h_numTPVsEtaPhi_;
+  CoupledMonitorElement h_numTPVsPhiPt_;
+  CoupledMonitorElement h_numSimDoubletsPerTrackingParticle_;
+  CoupledMonitorElement h_numSkippedLayersPerTrackingParticle_;
+  CoupledMonitorElement h_numLayersPerTrackingParticle_;
+  CoupledMonitorElement h_numSkippedLayersVsEta_;
+  CoupledMonitorElement h_numLayersVsEta_;
+  CoupledMonitorElement h_numSkippedLayersVsPt_;
+  CoupledMonitorElement h_numLayersVsPt_;
+  CoupledMonitorElement h_numTPVsPdgId_;
   // histograms of SimDoublets
   CoupledMonitorElement h_layerPairs_;
   CoupledMonitorElement h_numSkippedLayers_;
-  CoupledMonitorElement h_numSimDoubletsPerTrackingParticle_;
-  CoupledMonitorElement h_numLayersPerTrackingParticle_;
   CoupledMonitorElement h_numVsPt_;
   CoupledMonitorElement h_numVsEta_;
   CoupledMonitorElement h_z0_;
