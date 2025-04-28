@@ -1,4 +1,3 @@
-
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "DataFormats/Math/interface/GeantUnits.h"
@@ -1026,9 +1025,9 @@ std::pair<float, float> HGCalDDDConstants::locateCellHex(int cell, int wafer, bo
 std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     int zside, int lay, int irad, int iphi, bool reco, bool debug) const {
   float x(0), y(0);
-  debug = true;
   const auto& indx = getIndex(lay, reco);
 #ifdef EDM_ML_DEBUG
+  debug = true;
   edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << zside << ":"
                                 << reco << ":" << indx.first;
 #endif
@@ -1073,9 +1072,7 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
       auto cshift = hgcassette_.getShift(lay, -1, cassette, true);
       std::ostringstream st1;
       if (debug)
-        st1 << "Cassette " << cassette << ":" << nphi << ":" << hgpar_->nphiFineCassette_ << ":"
-            << hgpar_->nphiCassette_ << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":"
-            << y;
+        st1 << "Cassette " << cassette << ":" << nphi << ":" << hgpar_->nphiFineCassette_ << ":" << hgpar_->nphiCassette_ << " Layer " << lay << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":"<< y;
       x -= cshift.first;
       y += cshift.second;
       if (debug) {
