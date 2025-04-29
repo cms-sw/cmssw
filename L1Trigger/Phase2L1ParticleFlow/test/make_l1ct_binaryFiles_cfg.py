@@ -176,10 +176,6 @@ process.l1tSC4NGJetProducer.l1tSC4NGJetModelPath = cms.string(os.environ['CMSSW_
 process.l1tSC4NGJetProducer.jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator")
 
 process.runPF = cms.Path( 
-        # process.l1tSAMuonsGmt + 
-        # process.l1tPhase2L1CaloEGammaEmulator + 
-        # process.l1tPhase2CaloPFClusterEmulator +
-        # process.l1tPFClustersFromHGC3DClusters +
         process.l1tGTTInputProducer +
         process.l1tTrackSelectionProducer +
         process.l1tVertexFinderEmulator +
