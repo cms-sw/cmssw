@@ -83,6 +83,9 @@ private:
   double waferSepar_;                      // Sensor separation
   int sectors_;                            // Sectors
   int cassettes_;                          // Cassettes
+  int changeCassetteIR_;                   // Modificaion flag of cassette IR
+  double shiftCassetteIR_;                 // Shift in the cassette IR
+  std::vector<int> shiftedCassettes_;      // (1000*Layer+iPhi) of shifted cas.
   std::vector<double> slopeB_;             // Slope at the lower R
   std::vector<double> zFrontB_;            // Starting Z values for the slopes
   std::vector<double> rMinFront_;          // Corresponding rMin's
@@ -179,6 +182,23 @@ void DDHGCalMixRotatedFineCassette::initialize(const DDNumericArguments& nArgs,
                                 << waferSize_ << " separations " << waferSepar_ << " sectors " << sectors_ << ":"
                                 << convertRadToDeg(alpha_) << ":" << cosAlpha_ << " with " << cassettes_
                                 << " cassettes";
+#endif
+  changeCassetteIR_ = static_cast<int>(nArgs["ChangeCassetteIR"]);
+  shiftCassetteIR_ = 0;
+  if (changeCassetteIR_ > 0) {
+    shiftCassetteIR_ = nArgs["ShiftCassetteIR"];
+    shiftedCassettes_ = dbl_to_int(vArgs["ShiftedCassettes"]);
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Change flag for IR shift " << changeCassetteIR_ << " by " << shiftCassetteIR_ << " for " << shiftedCassettes_.size() << " cassettes:";
+  unsigned int i0max = static_cast<unsigned int>(shiftedCassettes_.size());
+  for (unsigned int i1 = 0; i1 < i0max; i1 += 12) {
+    std::ostringstream st1;
+    unsigned int i2 = std::min((i1 + 12), i0max);
+    for (unsigned int i = i1; i < i2; ++i)
+      st1 << " " << shiftedCassettes_[i];
+    edm::LogVerbatim("HGCalGeom") << st1.str();
+  }
 #endif
   slopeB_ = vArgs["SlopeBottom"];
   zFrontB_ = vArgs["ZFrontBottom"];
@@ -626,6 +646,15 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
         double phi2 = dphi * (fimax - fimin + 1);
         r1 += retract_[layer0 - 1];
         r2 += retract_[layer0 - 1];
+#ifdef EDM_ML_DEBUG      
+	double r0(r1);
+#endif
+	// see if inner rdius to be changed or not
+	if (changeCassetteIR_ > 0) {
+	  int tilex = 1000 * copy + k;
+	  if (std::find(shiftedCassettes_.begin(), shiftedCassettes_.end(), tilex) != shiftedCassettes_.end())
+	    r1 += shiftCassetteIR_;
+	}
 #ifdef EDM_ML_DEBUG
         double phi = phi1 + 0.5 * phi2;
         edm::LogVerbatim("HGCalGeom") << "1Layer " << ly << ":" << ii << ":" << copy << ":" << layer0 << " phi " << phi
@@ -635,11 +664,7 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
                          : std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
         int ir2 = (fine) ? std::get<2>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                          : std::get<2>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << layer0 << " iR "
-                                      << ir1 << ":" << ir2 << " R " << r1 << ":" << r2 << " Thick " << (2.0 * hthickl)
-                                      << " phi " << fimin << ":" << fimax << ":" << convertRadToDeg(phi1) << ":"
-                                      << convertRadToDeg(phi2) << " cassette " << cassette << ":" << cassette0
-                                      << " Shift " << retract_[layer0 - 1];
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << layer0 << " iR " << ir1 << ":" << ir2 << " R " << r0 << ":" << r1 << ":" << r2 << " Thick " << (2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":" << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette " << cassette << ":" << cassette0 << " Shift " << retract_[layer0 - 1];
 #endif
         std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
         ++k;
@@ -727,6 +752,15 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
       double phi2 = dphi * (fimax - fimin + 1);
       r1 += retract_[layer0 - 1];
       r2 += retract_[layer0 - 1];
+#ifdef EDM_ML_DEBUG      
+      double r0(r1);
+#endif
+      // see if inner rdius to be changed or not
+      if (changeCassetteIR_ > 0) {
+	int tilex = 1000 * copy + k;
+	if (std::find(shiftedCassettes_.begin(), shiftedCassettes_.end(), tilex) != shiftedCassettes_.end())
+	  r1 += shiftCassetteIR_;
+      }
 #ifdef EDM_ML_DEBUG
       double phi = phi1 + 0.5 * phi2;
       edm::LogVerbatim("HGCalGeom") << "2Layer " << ii << ":" << copy << ":" << layer << ":" << layer0 << " phi " << phi
@@ -736,11 +770,7 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
                        : std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
       int ir2 = (fine) ? std::get<2>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                        : std::get<2>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << (layer + 1) << ":"
-                                    << layer0 << " iR " << ir1 << ":" << ir2 << " R " << r1 << ":" << r2 << " Thick "
-                                    << (2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":"
-                                    << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette " << cassette
-                                    << ":" << cassette0 << " Shift " << retract_[layer0 - 1];
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << (layer + 1) << ":" << layer0 << " iR " << ir1 << ":" << ir2 << " R " << r0 << ":" << r1 << ":" << r2 << " Thick " << (2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":" << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette " << cassette << ":" << cassette0 << " Shift " << retract_[layer0 - 1];
 #endif
       std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
       ++k;
