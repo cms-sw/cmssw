@@ -211,7 +211,7 @@ bool l1ct::HgcalClusterDecoderEmulator::MultiClassID::evaluate(l1ct::HadCaloObjE
   unsigned int pt_bin = 0;
   for (size_t i = wp_pt_.size(); i > 0; --i) {
     if (cl.hwPt >=
-        wp_pt_[i - 1]) {  // FIXME: we use the cluster pt to determine the bin before changes due to EM interpretation?
+        wp_pt_[i - 1]) {
       pt_bin = i;
       break;
     }
