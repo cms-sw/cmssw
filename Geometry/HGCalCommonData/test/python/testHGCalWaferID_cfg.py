@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalWaferID_cfg.py type=V17
 #
-#   Options for type V16, V17, V17Shift, V18
+#   Options for type V16, V17, V17Shift, V18, V19
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,13 +16,16 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17Shift, V18")
+                  "type of operations: V16, V17, V17Shift, V18, V19")
 
 ### get and parse the command line arguments
 options.parseArguments()
 print(options)
 
 if (options.type == "V18"):
+        from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+        process = cms.Process("HGCalWaferIDTest",Phase2C22I13M9)
+elif (options.type == "V19"):
         from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
         process = cms.Process("HGCalWaferIDTest",Phase2C22I13M9)
 else:
