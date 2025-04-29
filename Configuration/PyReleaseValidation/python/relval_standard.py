@@ -572,6 +572,7 @@ workflows[143.902] = ['',['RunUPC2024','RECODR3_2025_HIN','HARVESTDPROMPTR3']]
 
 ### run3-2025 (2025 HI OXY data)
 workflows[143.911] = ['',['RunUPC2024','RECODR3_2025_OXY','HARVESTDPROMPTR3']]
+workflows[143.912] = ['',['RunUPC2024','RECODR3_2025_UPC_OXY','HARVESTDPROMPTR3']]
 
 
 ## Lumi mask fixed 2024 wfs
