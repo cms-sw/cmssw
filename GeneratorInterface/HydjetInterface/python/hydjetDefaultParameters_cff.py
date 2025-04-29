@@ -1,44 +1,150 @@
-#Default Pythia Paramters for Hydjet & Pyquen
-
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Generator.PythiaUESettings_cfi import *
+#from Configuration.Generator.PythiaUESettings_cfi import *
+from Configuration.Generator.PythiaUEProQ20Settings_cfi import *
+#from Configuration.Generator.PythiaUEP11noCRSettings_cfi import *
 
-collisionParameters4TeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
-                               comEnergy = cms.double(4000.0)
-                               )
+source = cms.Source("EmptySource")
+
+collisionParameters200GeV = cms.PSet(aBeamTarget = cms.double(197.0), ## beam/target atomic number
+                                     comEnergy = cms.double(200.0)
+                                    )
 
 collisionParameters2760GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
-                                   comEnergy = cms.double(2760.0)
-                                   )
+                                      comEnergy = cms.double(2760.0)
+                                     )
 
 collisionParameters5020GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
-                                   comEnergy = cms.double(5020.0)
-                                   )
+                                      comEnergy = cms.double(5020.0)
+                                     )
 
-qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
-                         qgpProperTimeFormation = cms.double(0.1), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
-                         hadronFreezoutTemperature = cms.double(0.125),
-                         doRadiativeEnLoss = cms.bool(True), ## if true, perform partonic radiative en loss
-                         doCollisionalEnLoss = cms.bool(True),
-                         qgpNumQuarkFlavor = cms.int32(0),  ## number of active quark flavors in qgp; allowed values: 0,1,2,3
-                         )
+collisionParameters5362GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
+                                      comEnergy = cms.double(5362.0)
+                                     )
+collisionParametersF5362GeV = collisionParameters5362GeV.clone()
 
-hydjetParameters = cms.PSet(sigmaInelNN = cms.double(70),
-                            shadowingSwitch = cms.int32(1),
-                            nMultiplicity = cms.int32(18545),
-                            fracSoftMultiplicity = cms.double(1.),
-                            maxLongitudinalRapidity = cms.double(3.75),
-                            maxTransverseRapidity = cms.double(1.160),
-                            rotateEventPlane = cms.bool(True),
-                            allowEmptyEvents = cms.bool(False),
-                            angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum :
-                            embeddingMode = cms.int32(0)
-                            )
+collisionParameters5442GeV = cms.PSet(aBeamTarget = cms.double(129.0), ## beam/target atomic number
+                                      comEnergy = cms.double(5442.0)
+                                     )
+
+collisionParameters5519GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
+                                      comEnergy = cms.double(5519.0)
+                                     )
+
+qgpParameters200GeV = cms.PSet(qgpInitialTemperature = cms.double(0.3), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
+                               qgpProperTimeFormation = cms.double(0.4), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
+                               hadronFreezoutTemperature = cms.double(0.100),
+                               doRadiativeEnLoss = cms.bool(True), ## if true, perform partonic radiative en loss
+                               doCollisionalEnLoss = cms.bool(True),
+                               qgpNumQuarkFlavor = cms.int32(2),  ## number of active quark flavors in qgp; allowed values: 0,1,2,3
+                              )
+
+qgpParameters2760GeV = cms.PSet(qgpInitialTemperature = cms.double(1.), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
+                                qgpProperTimeFormation = cms.double(0.4), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
+                                hadronFreezoutTemperature = cms.double(0.160),
+                                doRadiativeEnLoss = cms.bool(True), ## if true, perform partonic radiative en loss
+                                doCollisionalEnLoss = cms.bool(True),
+                                qgpNumQuarkFlavor = cms.int32(0),  ## number of active quark flavors in qgp; allowed values: 0,1,2,3
+                               )
+
+qgpParameters5020GeV = qgpParameters2760GeV.clone(qgpInitialTemperature = cms.double(1.2),
+                                                  hadronFreezoutTemperature = cms.double(0.170)
+                                                 )
+
+qgpParameters5362GeV = qgpParameters5020GeV.clone(hadronFreezoutTemperature = cms.double(0.174))
+
+qgpParametersF5362GeV = qgpParameters5362GeV.clone(qgpInitialTemperature = cms.double(1.),
+                                                   qgpProperTimeFormation = cms.double(0.1), 
+                                                   hadronFreezoutTemperature = cms.double(0.125)
+                                                  )
+
+qgpParameters5442GeV = qgpParameters5020GeV.clone(hadronFreezoutTemperature = cms.double(0.176))
+
+qgpParameters5519GeV = qgpParameters5020GeV.clone(qgpInitialTemperature = cms.double(1.3),
+                                                  hadronFreezoutTemperature = cms.double(0.176)
+                                                 )
+
+hydjetParameters200GeV = cms.PSet(sigmaInelNN = cms.double(41.6),
+                                  shadowingSwitch = cms.int32(1),
+                                  nMultiplicity = cms.int32(6640),
+                                  fracSoftMultiplicity = cms.double(1.),
+                                  maxLongitudinalRapidity = cms.double(3.),
+                                  maxTransverseRapidity = cms.double(1.1),
+                                  rotateEventPlane = cms.bool(True),
+                                  allowEmptyEvents = cms.bool(False),
+                                  angularSpectrumSelector = cms.int32(1), ## angular emitted gluon spectrum
+                                  embeddingMode = cms.int32(0)
+                                 )
+
+hydjetParameters2760GeV = cms.PSet(sigmaInelNN = cms.double(61.8),
+                                   shadowingSwitch = cms.int32(1),
+                                   nMultiplicity = cms.int32(15400),
+                                   fracSoftMultiplicity = cms.double(1.),
+                                   maxLongitudinalRapidity = cms.double(3.9),
+                                   maxTransverseRapidity = cms.double(1.),
+                                   rotateEventPlane = cms.bool(True),
+                                   allowEmptyEvents = cms.bool(False),
+                                   angularSpectrumSelector = cms.int32(1), ## angular emitted gluon spectrum
+                                   embeddingMode = cms.int32(0)
+                                  )
+
+hydjetParameters5020GeV = hydjetParameters2760GeV.clone(sigmaInelNN = cms.double(67.6),
+                                                        nMultiplicity = cms.int32(18600)
+                                                       )
+
+hydjetParameters5362GeV = hydjetParameters2760GeV.clone(sigmaInelNN = cms.double(68.13),
+                                                        nMultiplicity = cms.int32(19125)
+                                                       )
+
+hydjetParametersF5362GeV = hydjetParameters5362GeV.clone(nMultiplicity = cms.int32(18670),
+                                                         maxLongitudinalRapidity = cms.double(4.),
+                                                         maxTransverseRapidity = cms.double(0.8),
+                                                         angularSpectrumSelector = cms.int32(1)
+                                                        )
+
+hydjetParameters5442GeV = hydjetParameters2760GeV.clone(sigmaInelNN = cms.double(68.4),
+                                                        nMultiplicity = cms.int32(21700),
+                                                        maxLongitudinalRapidity = cms.double(4.2),
+                                                        maxTransverseRapidity = cms.double(1.2)
+                                                       )
+
+hydjetParameters5519GeV = hydjetParameters2760GeV.clone(sigmaInelNN = cms.double(70.9),
+                                                        nMultiplicity = cms.int32(19306),
+                                                        maxLongitudinalRapidity = cms.double(4.)
+                                                       )
+
+pyquenParameters  = cms.PSet(doIsospin = cms.bool(True),
+                             angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum
+                             embeddingMode = cms.int32(0)
+                             )
 
 pyquenPythiaDefaultBlock = cms.PSet(
     pythiaUESettingsBlock,
-    hydjetPythiaDefault = cms.vstring('MSEL=0   ! user processes',
+    hydjetPythiaDefault200 = cms.vstring('MSEL=0   ! user processes',
+                                      'CKIN(3)=3.55',# ! ptMin
+                                      'MSTP(81)=1'
+                                      ),
+    hydjetPythiaDefault2760 = cms.vstring('MSEL=0   ! user processes',
+                                      'CKIN(3)=7.2',# ! ptMin
+                                      'MSTP(81)=1'
+                                      ),
+    hydjetPythiaDefault5020 = cms.vstring('MSEL=0   ! user processes',
+                                      'CKIN(3)=9.',# ! ptMin
+                                      'MSTP(81)=1'
+                                      ),   
+    hydjetPythiaDefault5362 = cms.vstring('MSEL=0   ! user processes',
+                                      'CKIN(3)=9.',# ! ptMin
+                                      'MSTP(81)=1'
+                                      ),
+    hydjetPythiaDefaultF5362 = cms.vstring('MSEL=0   ! user processes',
+                                      'CKIN(3)=8.5',# ! ptMin
+                                      'MSTP(81)=1'
+                                      ),
+    hydjetPythiaDefault5442 = cms.vstring('MSEL=0   ! user processes',
+                                      'CKIN(3)=11.',# ! ptMin
+                                      'MSTP(81)=1'
+                                      ),
+    hydjetPythiaDefault5519 = cms.vstring('MSEL=0   ! user processes',
                                       'CKIN(3)=9.2',# ! ptMin
                                       'MSTP(81)=1'
                                       ),
