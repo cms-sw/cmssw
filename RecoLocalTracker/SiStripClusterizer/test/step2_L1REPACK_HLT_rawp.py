@@ -88,7 +88,8 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
       'keep FEDRawDataCollection_rawPrimeDataRepacker*_*_reHLT',
       'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_reHLT',
       'keep edmTriggerResults_*_*_reHLT'),
-    splitLevel = cms.untracked.int32(0)
+    #splitLevel = cms.untracked.int32(0)
+
 )
 process.HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 1945.0 ) )
 process.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
