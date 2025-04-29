@@ -17,7 +17,7 @@ namespace trackerTFP {
   class ProducerLayerEncoding : public edm::ESProducer {
   public:
     ProducerLayerEncoding(const edm::ParameterSet& iConfig);
-    ~ProducerLayerEncoding() override {}
+    ~ProducerLayerEncoding() override = default;
     std::unique_ptr<LayerEncoding> produce(const DataFormatsRcd& rcd);
 
   private:

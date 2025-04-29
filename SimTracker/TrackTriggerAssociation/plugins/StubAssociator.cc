@@ -33,7 +33,7 @@ namespace tt {
   class StubAssociator : public edm::stream::EDProducer<> {
   public:
     explicit StubAssociator(const edm::ParameterSet&);
-    ~StubAssociator() override {}
+    ~StubAssociator() override = default;
 
   private:
     void beginRun(const edm::Run&, const edm::EventSetup&) override;

@@ -18,7 +18,7 @@ namespace trackerDTC {
   class ProducerLayerEncoding : public edm::ESProducer {
   public:
     ProducerLayerEncoding(const edm::ParameterSet& iConfig);
-    ~ProducerLayerEncoding() override {}
+    ~ProducerLayerEncoding() override = default;
     std::unique_ptr<LayerEncoding> produce(const tt::SetupRcd& rcd);
 
   private:

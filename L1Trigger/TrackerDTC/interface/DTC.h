@@ -29,7 +29,7 @@ namespace trackerDTC {
         const LayerEncoding* layerEncoding,
         int dtcId,
         const std::vector<std::vector<TTStubRef>>& stubsDTC);
-    ~DTC() {}
+    ~DTC() = default;
     // board level routing in two steps and products filling
     void produce(TTDTC& accepted, TTDTC& lost);
 

@@ -38,7 +38,7 @@ namespace trklet {
     };
     ChannelAssignment() {}
     ChannelAssignment(const Config& iConfig, const tt::Setup* setup);
-    ~ChannelAssignment() {}
+    ~ChannelAssignment() = default;
     // helper class to store configurations
     const tt::Setup* setup() const { return setup_; }
     // returns channelId of given TTTrackRef from TrackBuilder

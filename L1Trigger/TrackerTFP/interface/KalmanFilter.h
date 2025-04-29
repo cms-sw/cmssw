@@ -24,7 +24,7 @@ namespace trackerTFP {
                  KalmanFilterFormats* kalmanFilterFormats,
                  std::vector<TrackKF>& tracks,
                  std::vector<StubKF>& stubs);
-    ~KalmanFilter() {}
+    ~KalmanFilter() = default;
 
     // fill output products
     void produce(const std::vector<std::vector<TrackCTB*>>& tracksIn,

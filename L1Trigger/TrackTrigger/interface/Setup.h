@@ -194,7 +194,7 @@ namespace tt {
           const TrackerDetToDTCELinkCablingMap& cablingMap,
           const StubAlgorithmOfficial& stubAlgorithm,
           const edm::ParameterSet& pSetStubAlgorithm);
-    ~Setup() {}
+    ~Setup() = default;
 
     // converts tk layout id into dtc id
     int dtcId(int tklId) const;

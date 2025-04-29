@@ -25,7 +25,7 @@ namespace trklet {
                      const DataFormats* dataFormats,
                      const ChannelAssignment* channelAssignment,
                      int region);
-    ~DuplicateRemoval() {}
+    ~DuplicateRemoval() = default;
     // read in and organize input tracks and stubs
     void consume(const tt::StreamsTrack& streamsTrack, const tt::StreamsStub& streamsStub);
     // fill output products

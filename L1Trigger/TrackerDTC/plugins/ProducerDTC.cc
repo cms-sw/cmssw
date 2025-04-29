@@ -34,7 +34,7 @@ namespace trackerDTC {
   class ProducerDTC : public edm::stream::EDProducer<> {
   public:
     explicit ProducerDTC(const edm::ParameterSet&);
-    ~ProducerDTC() override {}
+    ~ProducerDTC() override = default;
 
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;

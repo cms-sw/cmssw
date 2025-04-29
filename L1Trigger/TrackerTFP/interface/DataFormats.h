@@ -44,7 +44,7 @@ namespace trackerTFP {
     DataFormat(bool twos, bool biased = true) : twos_(twos), width_(0), base_(1.), range_(0.) {}
     DataFormat(bool twos, int width, double base, double range)
         : twos_(twos), width_(width), base_(base), range_(range) {}
-    virtual ~DataFormat() {}
+    ~DataFormat() = default;
     // converts int to bitvector
     TTBV ttBV(int i) const { return TTBV(i, width_, twos_); }
     // converts double to bitvector
@@ -437,7 +437,7 @@ namespace trackerTFP {
       dataFormats_->convertStub(p_, data_, frame_.second);
     }
     Stub() {}
-    ~Stub() {}
+    virtual ~Stub() = default;
     // true if frame valid, false if gap in data stream
     explicit operator bool() const { return frame_.first.isNonnull(); }
     // access to DataFormats
@@ -475,7 +475,7 @@ namespace trackerTFP {
             int inv2RMin,
             int inv2RMax)
         : Stub(ttStubRef, df, Process::dtc, r, phi, z, layer, phiTMin, phiTMax, zTMin, zTMax, inv2RMin, inv2RMax) {}
-    ~StubDTC() {}
+    ~StubDTC() override = default;
     // stub radius wrt chosenRofPhi
     double r() const { return std::get<0>(data_); }
     // stub phi wrt processing nonant centre
@@ -503,7 +503,7 @@ namespace trackerTFP {
   public:
     // construct StubPP from Frame
     StubPP(const tt::FrameStub& fs, const DataFormats* df) : Stub(fs, df, Process::pp) {}
-    ~StubPP() {}
+    ~StubPP() override = default;
     // stub radius wrt chosenRofPhi
     double r() const { return std::get<0>(data_); }
     // stub phi wrt processing nonant centre
@@ -534,7 +534,7 @@ namespace trackerTFP {
     // construct StubGP from StubPP
     StubGP(const StubPP& stub, double r, double phi, double z, const TTBV& layer, int inv2RMin, int inv2RMax)
         : Stub(stub, r, phi, z, layer, inv2RMin, inv2RMax) {}
-    ~StubGP() {}
+    ~StubGP() override = default;
     // stub radius wrt chosenRofPhi
     double r() const { return std::get<0>(data_); }
     // stub phi wrt phi sector centre
@@ -557,7 +557,7 @@ namespace trackerTFP {
     // construct StubHT from StubGP
     StubHT(const StubGP& stub, double r, double phi, double z, const TTBV& layer, int phiT, int zT)
         : Stub(stub, r, phi, z, layer, phiT, zT) {}
-    ~StubHT() {}
+    ~StubHT() override = default;
     // stub radius wrt chosenRofPhi
     double r() const { return std::get<0>(data_); };
     // stub phi residual wrt track parameter
@@ -580,7 +580,7 @@ namespace trackerTFP {
     // construct StubTB from StubZHT
     StubCTB(const StubHT& stub, double r, double phi, double z, double dPhi, double dZ)
         : Stub(stub, r, phi, z, dPhi, dZ) {}
-    ~StubCTB() {}
+    ~StubCTB() override = default;
     // stub radius wrt chosenRofPhi
     double r() const { return std::get<0>(data_); }
     // stub phi residual wrt finer track parameter
@@ -601,7 +601,7 @@ namespace trackerTFP {
     // construct StubKF from StubCTB
     StubKF(const StubCTB& stub, double r, double phi, double z, double dPhi, double dZ)
         : Stub(stub, r, phi, z, dPhi, dZ) {}
-    ~StubKF() {}
+    ~StubKF() override = default;
     // stub radius wrt choenRofPhi
     double r() const { return std::get<0>(data_); }
     // stub phi residual wrt fitted parameter
@@ -622,7 +622,7 @@ namespace trackerTFP {
     // construct StubDR from StubKF
     StubDR(const StubKF& stub, double r, double phi, double z, double dPhi, double dZ)
         : Stub(stub, r, phi, z, dPhi, dZ) {}
-    ~StubDR() {}
+    ~StubDR() override = default;
     // stub radius wrt choenRofPhi
     double r() const { return std::get<0>(data_); }
     // stub phi residual wrt fitted parameter
@@ -654,7 +654,7 @@ namespace trackerTFP {
         : dataFormats_(track.dataFormats()), p_(track.p() + 1), frame_(track.frame()), data_(data...) {
       dataFormats_->convertTrack(p_, data_, frame_.second);
     }
-    ~Track() {}
+    virtual ~Track() = default;
     // true if frame valid, false if gap in data stream
     explicit operator bool() const { return frame_.first.isNonnull(); }
     // access to DataFormats
@@ -683,7 +683,7 @@ namespace trackerTFP {
     // construct TrackTB from StubsCTB
     TrackCTB(const TTTrackRef& tTTrackRef, const DataFormats* df, double inv2R, double phiT, double zT)
         : Track(tTTrackRef, df, Process::ctb, inv2R, phiT, zT) {}
-    ~TrackCTB() {}
+    ~TrackCTB() override = default;
     // track inv2R
     double inv2R() const { return std::get<0>(data_); }
     // track phi at radius chosenRofPhi wrt pprocessing centre
@@ -700,7 +700,7 @@ namespace trackerTFP {
     // construct TrackKF from TrackCTB
     TrackKF(const TrackCTB& track, double inv2R, double phiT, double cot, double zT, const TTBV& match)
         : Track(track, inv2R, phiT, cot, zT, match) {}
-    ~TrackKF() {}
+    ~TrackKF() override = default;
     // track qOver pt
     double inv2R() const { return std::get<0>(data_); }
     // track phi at radius chosenRofPhi wrt processing nonant centre
@@ -721,7 +721,7 @@ namespace trackerTFP {
     // construct TrackDR from TrackKF
     TrackDR(const TrackKF& track, double inv2R, double phiT, double cot, double zT)
         : Track(track, inv2R, phiT, cot, zT) {}
-    ~TrackDR() {}
+    ~TrackDR() override = default;
     // track inv2R
     double inv2R() const { return std::get<0>(data_); }
     // track phi at radius 0 wrt processing nonant centre

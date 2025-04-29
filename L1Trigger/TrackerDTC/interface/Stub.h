@@ -23,7 +23,7 @@ namespace trackerDTC {
          const LayerEncoding*,
          const tt::SensorModule*,
          const TTStubRef&);
-    ~Stub() {}
+    ~Stub() = default;
     // underlying TTStubRef
     const TTStubRef& ttStubRef() const { return ttStubRef_; }
     // did pass pt and eta cut

@@ -30,7 +30,7 @@ namespace trklet {
   class ProducerKF : public edm::stream::EDProducer<> {
   public:
     explicit ProducerKF(const edm::ParameterSet&);
-    ~ProducerKF() override {}
+    ~ProducerKF() override = default;
 
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;

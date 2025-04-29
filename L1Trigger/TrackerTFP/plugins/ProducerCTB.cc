@@ -34,7 +34,7 @@ namespace trackerTFP {
   class ProducerCTB : public edm::stream::EDProducer<> {
   public:
     explicit ProducerCTB(const edm::ParameterSet&);
-    ~ProducerCTB() override {}
+    ~ProducerCTB() override = default;
 
   private:
     void beginRun(const edm::Run&, const edm::EventSetup&) override;

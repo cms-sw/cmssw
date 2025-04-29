@@ -35,7 +35,7 @@ namespace trklet {
   class ProducerDR : public edm::stream::EDProducer<> {
   public:
     explicit ProducerDR(const edm::ParameterSet&);
-    ~ProducerDR() override {}
+    ~ProducerDR() override = default;
 
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;

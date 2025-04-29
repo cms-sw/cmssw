@@ -45,7 +45,7 @@ namespace trklet {
     DataFormat(bool twos, int width, double base, double range)
         : twos_(twos), width_(width), base_(base), range_(range) {}
     DataFormat() {}
-    virtual ~DataFormat() {}
+    ~DataFormat() = default;
     // converts int to bitvector
     TTBV ttBV(int i) const { return TTBV(i, width_, twos_); }
     // converts double to bitvector
@@ -77,7 +77,7 @@ namespace trklet {
     // converts floating point value to binary integer value
     int toUnsigned(double d) const { return this->integer(d) + std::pow(2, width_) / 2; }
     // biggest representable floating point value
-    //double limit() const { return (range_ - base_) / (twos_ ? 2. : 1.); }
+    double limit() const { return (range_ - base_) / (twos_ ? 2. : 1.); }
     // returns false if data format would oferflow for this double value
     bool inRange(double d, bool digi = true) const {
       const double range = digi ? base_ * pow(2, width_) : range_;
@@ -302,7 +302,7 @@ namespace trklet {
       dataFormats_->convertStub(p_, data_, frame_.second);
     }
     Stub() {}
-    ~Stub() {}
+    virtual ~Stub() = default;
     // true if frame valid, false if gap in data stream
     explicit operator bool() const { return frame_.first.isNonnull(); }
     // access to DataFormats
@@ -331,7 +331,7 @@ namespace trklet {
     // construct StubTM from TTStubRef
     StubTM(const TTStubRef& ttStubRef, const DataFormats* df, int stubId, double r, double phi, double z)
         : Stub(ttStubRef, df, Process::tm, stubId, r, phi, z) {}
-    ~StubTM() {}
+    ~StubTM() override = default;
     // stub Id
     int stubId() const { return std::get<0>(data_); }
     // stub radius wrt chosenRofPhi
@@ -350,7 +350,7 @@ namespace trklet {
     // construct StubDR from StubTM
     StubDR(const StubTM& stub, double r, double phi, double z, double dPhi, double dZ)
         : Stub(stub, r, phi, z, dPhi, dZ) {}
-    ~StubDR() {}
+    ~StubDR() override = default;
     // stub radius wrt chosenRofPhi
     double r() const { return std::get<0>(data_); }
     // stub phi wrt phi sector centre
@@ -371,7 +371,7 @@ namespace trklet {
     // construct StubKF from StubDR
     StubKF(const StubDR& stub, double r, double phi, double z, double dPhi, double dZ)
         : Stub(stub, r, phi, z, dPhi, dZ) {}
-    ~StubKF() {}
+    ~StubKF() override = default;
     // stub radius wrt chosenRofPhi
     double r() const { return std::get<0>(data_); };
     // stub phi residual wrt track parameter
@@ -404,7 +404,7 @@ namespace trklet {
       dataFormats_->convertTrack(p_, data_, frame_.second);
     }
     Track() {}
-    ~Track() {}
+    virtual ~Track() = default;
     // true if frame valid, false if gap in data stream
     explicit operator bool() const { return frame_.first.isNonnull(); }
     // access to DataFormats
@@ -433,7 +433,7 @@ namespace trklet {
     // construct TrackTM from TTTrack
     TrackTM(const TTTrackRef& tTTrackRef, const DataFormats* df, double inv2R, double phiT, double zT)
         : Track(tTTrackRef, df, Process::tm, inv2R, phiT, zT) {}
-    ~TrackTM() {}
+    ~TrackTM() override = default;
     // track inv2R
     double inv2R() const { return std::get<0>(data_); }
     // track phi at radius chosenRofPhi wrt pprocessing centre
@@ -449,7 +449,7 @@ namespace trklet {
     TrackDR(const tt::FrameTrack& ft, const DataFormats* df) : Track(ft, df, Process::dr) {}
     // construct TrackDR from TrackTM
     TrackDR(const TrackTM& track) : Track(track, track.inv2R(), track.phiT(), track.zT()) {}
-    ~TrackDR() {}
+    ~TrackDR() override = default;
     // track qOver pt
     double inv2R() const { return std::get<0>(data_); }
     // track phi at radius chosenRofPhi wrt processing nonant centre
@@ -467,7 +467,7 @@ namespace trklet {
     TrackKF(const TrackDR& track, double inv2R, double phiT, double cot, double zT)
         : Track(track, inv2R, phiT, cot, zT) {}
     TrackKF() {}
-    ~TrackKF() {}
+    ~TrackKF() override = default;
     // track inv2R
     double inv2R() const { return std::get<0>(data_); }
     // track phi at radius 0 wrt processing nonant centre

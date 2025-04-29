@@ -31,7 +31,7 @@ namespace trackerTFP {
   class ProducerKF : public edm::stream::EDProducer<> {
   public:
     explicit ProducerKF(const edm::ParameterSet&);
-    ~ProducerKF() override {}
+    ~ProducerKF() override = default;
 
   private:
     typedef State::Stub Stub;

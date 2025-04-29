@@ -30,7 +30,7 @@ namespace tt {
     };
     StubAssociation() { setup_ = nullptr; }
     StubAssociation(const Config& iConfig, const Setup* setup);
-    ~StubAssociation() {}
+    ~StubAssociation() = default;
     // insert a TPPtr and its associated collection of TTstubRefs into the underlayering maps
     void insert(const TPPtr& tpPtr, const std::vector<TTStubRef>& ttSTubRefs);
     // returns map containing TTStubRef and their associated collection of TPPtrs

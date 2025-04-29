@@ -26,7 +26,7 @@ namespace trackerTFP {
   class ProducerPP : public edm::stream::EDProducer<> {
   public:
     explicit ProducerPP(const edm::ParameterSet&);
-    ~ProducerPP() override {}
+    ~ProducerPP() override = default;
 
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;

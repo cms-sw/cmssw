@@ -137,7 +137,7 @@ namespace trackerTFP {
   class DataFormatKF {
   public:
     DataFormatKF(const VariableKF& v, bool twos, bool enableIntegerEmulation, int width, double base, double range);
-    virtual ~DataFormatKF() {}
+    ~DataFormatKF() = default;
     double digi(double val) const {
       return enableIntegerEmulation_ ? (std::floor(val / base_ + 1.e-11) + .5) * base_ : val;
     }

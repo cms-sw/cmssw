@@ -97,15 +97,8 @@ namespace trackerTFP {
       StubHT* stubHT = nullptr;
       StubGP* stubGP = pop_front(stream);
       if (stubGP) {
-        double phi = stubGP->phi();
-        double z = stubGP->z();
-        if (false) {
-          const double d = inv2Rf * (stubGP->r() + setup_->chosenRofPhi());
-          const double dPhi = asin(d) - d;
-          const double dZ = dPhi / inv2Rf * cotf;
-          phi = phi_->digi(phi - dPhi);
-          z = z_->digi(z - dZ);
-        }
+        const double phi = stubGP->phi();
+        const double z = stubGP->z();
         const double phiT = phi - inv2Rf * stubGP->r();
         const int major = phiT_->integer(phiT);
         if (major >= -setup_->htNumBinsPhiT() / 2 && major < setup_->htNumBinsPhiT() / 2) {
