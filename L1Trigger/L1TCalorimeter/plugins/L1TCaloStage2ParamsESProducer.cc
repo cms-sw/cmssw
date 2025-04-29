@@ -348,7 +348,7 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   m_params_helper.setLayer1ECalZSFactors(conf.exists("layer1ECalZSFactors")
                                              ? conf.getParameter<std::vector<double>>("layer1ECalZSFactors")
                                              : std::vector<double>(0, 0));
-  m_params_helper.setLayer1ECalZSFactors(conf.exists("layer1HCalZSFactors")
+  m_params_helper.setLayer1HCalZSFactors(conf.exists("layer1HCalZSFactors")
                                              ? conf.getParameter<std::vector<double>>("layer1HCalZSFactors")
                                              : std::vector<double>(0, 0));
   m_params_helper.setLayer1ECalScaleFactors(conf.getParameter<std::vector<double>>("layer1ECalScaleFactors"));
