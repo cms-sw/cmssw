@@ -88,13 +88,14 @@ struct HGCalMixRotatedFineCassette {
       shiftedCassettes_ = args.value<std::vector<int>>("ShiftedCassettes");
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Change flag for IR shift " << changeCassetteIR_ << " by " << shiftCassetteIR_ << " for " << shiftedCassettes_.size() << " cassettes:";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Change flag for IR shift " << changeCassetteIR_
+                                  << " by " << shiftCassetteIR_ << " for " << shiftedCassettes_.size() << " cassettes:";
     unsigned int i0max = static_cast<unsigned int>(shiftedCassettes_.size());
     for (unsigned int i1 = 0; i1 < i0max; i1 += 12) {
       std::ostringstream st1;
       unsigned int i2 = std::min((i1 + 12), i0max);
       for (unsigned int i = i1; i < i2; ++i)
-	st1 << " " << shiftedCassettes_[i];
+        st1 << " " << shiftedCassettes_[i];
       edm::LogVerbatim("HGCalGeom") << st1.str();
     }
 #endif
@@ -541,14 +542,14 @@ struct HGCalMixRotatedFineCassette {
           r1 += retract_[layer0 - 1];
           r2 += retract_[layer0 - 1];
 #ifdef EDM_ML_DEBUG
-	  double r0(r1);
+          double r0(r1);
 #endif
-	  // see if inner rdius to be changed or not
-	  if (changeCassetteIR_ > 0) {
-	    int tilex = 1000 * copy + k;
-	    if (std::find(shiftedCassettes_.begin(), shiftedCassettes_.end(), tilex) != shiftedCassettes_.end())                                        
-            r1 += shiftCassetteIR_;
-	  }
+          // see if inner rdius to be changed or not
+          if (changeCassetteIR_ > 0) {
+            int tilex = 1000 * copy + k;
+            if (std::find(shiftedCassettes_.begin(), shiftedCassettes_.end(), tilex) != shiftedCassettes_.end())
+              r1 += shiftCassetteIR_;
+          }
 #ifdef EDM_ML_DEBUG
           double phi = phi1 + 0.5 * phi2;
           edm::LogVerbatim("HGCalGeom") << "1Layer " << ly << ":" << ii << ":" << copy << ":" << layer0 << " phi "
@@ -558,7 +559,13 @@ struct HGCalMixRotatedFineCassette {
                            : std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
           int ir2 = (fine) ? std::get<2>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                            : std::get<2>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
-          edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << layer0 << " iR " << ir1 << ":" << ir2 << " R " << cms::convert2mm(r0) << ":" << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick " << cms::convert2mm(2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":" << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette " << cassette << ":" << cassette0 << " Shift " << cms::convert2mm(retract_[layer0 - 1]);
+          edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << layer0 << " iR "
+                                        << ir1 << ":" << ir2 << " R " << cms::convert2mm(r0) << ":"
+                                        << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
+                                        << cms::convert2mm(2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":"
+                                        << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette "
+                                        << cassette << ":" << cassette0 << " Shift "
+                                        << cms::convert2mm(retract_[layer0 - 1]);
 #endif
           std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
           ++k;
@@ -651,14 +658,14 @@ struct HGCalMixRotatedFineCassette {
         r1 += retract_[layer0 - 1];
         r2 += retract_[layer0 - 1];
 #ifdef EDM_ML_DEBUG
-	double r0(r1);
+        double r0(r1);
 #endif
-	// see if inner rdius to be changed or not
-	if (changeCassetteIR_ > 0) {
-	  int tilex = 1000 * copy + k;
-	  if (std::find(shiftedCassettes_.begin(), shiftedCassettes_.end(), tilex) != shiftedCassettes_.end())                                        
+        // see if inner rdius to be changed or not
+        if (changeCassetteIR_ > 0) {
+          int tilex = 1000 * copy + k;
+          if (std::find(shiftedCassettes_.begin(), shiftedCassettes_.end(), tilex) != shiftedCassettes_.end())
             r1 += shiftCassetteIR_;
-	}
+        }
 #ifdef EDM_ML_DEBUG
         double phi = phi1 + 0.5 * phi2;
         edm::LogVerbatim("HGCalGeom") << "2Layer " << ii << ":" << copy << ":" << layer << ":" << layer0 << " phi "
@@ -668,7 +675,13 @@ struct HGCalMixRotatedFineCassette {
                          : std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
         int ir2 = (fine) ? std::get<2>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                          : std::get<2>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << (layer + 1) << ":" << layer0 << " iR " << ir1 << ":" << ir2 << " R " << cms::convert2mm(r0) << ":" << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick " << cms::convert2mm(2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":" << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette " << cassette << ":" << cassette0 << " Shift " << cms::convert2mm(retract_[layer0 - 1]);
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << (layer + 1) << ":"
+                                      << layer0 << " iR " << ir1 << ":" << ir2 << " R " << cms::convert2mm(r0) << ":"
+                                      << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
+                                      << cms::convert2mm(2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":"
+                                      << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette "
+                                      << cassette << ":" << cassette0 << " Shift "
+                                      << cms::convert2mm(retract_[layer0 - 1]);
 #endif
         std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
         ++k;
