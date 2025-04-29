@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
 
-generator = cms.EDFilter("AMPTGeneratorFilter",
+generator = ExternalGeneratorFilter(cms.EDFilter("AMPTGeneratorFilter",
     diquarky = cms.double(0.0),
     diquarkx = cms.double(0.0),
     diquarkpx = cms.double(7.0),
@@ -44,7 +45,7 @@ generator = cms.EDFilter("AMPTGeneratorFilter",
     iat = cms.int32(1),
     bMax = cms.double(15),
     iap = cms.int32(208)
-)
+))
 
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision$'),

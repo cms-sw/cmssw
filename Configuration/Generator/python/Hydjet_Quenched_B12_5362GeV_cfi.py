@@ -1,16 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Generator.Pyquen2015Settings_cff import *
+from Configuration.Generator.Pyquen2025Settings_cff import *
+from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
+import os
 
-generator = cms.EDFilter("HydjetGeneratorFilter",
-                         collisionParameters5362GeV,
-                         qgpParameters2023,
-                         hydjetParameters2023,
+hjenergy = os.getenv("HJENERGY", "5362")
+
+generator = ExternalGeneratorFilter(cms.EDFilter("HydjetGeneratorFilter",
+                         locals()[f"collisionParameters{hjenergy}GeV"],   #tune CELLO
+                         locals()[f"qgpParameters{hjenergy}GeV"],         #tune CELLO
+                         locals()[f"hydjetParameters{hjenergy}GeV"],      #tune CELLO
                          hydjetMode = cms.string('kHydroQJets'),
                          PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
                                                      # Quarkonia and Weak Bosons added back upon dilepton group's request.
                                                      parameterSets = cms.vstring('pythiaUESettings',
-                                                                                 'hydjetPythiaDefault',
+                                                                                 'hydjetPythiaDefault'+hjenergy, #tune CELLO
                                                                                  'myParameters',
                                                                                  'pythiaJets',
                                                                                  'pythiaPromptPhotons',
@@ -23,6 +27,6 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                                                      ),
                          cFlag = cms.int32(0),
                          bMin = cms.double(0),
-                         bMax = cms.double(30),
+                         bMax = cms.double(22),
                          bFixed = cms.double(12)
-                         )
+                         ))
