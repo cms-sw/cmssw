@@ -2,9 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalValidityCheck_cfg.py geometry=D110
 #
-#   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104, D105,
-#                        D106, D107, D108, D109, D110, D111, D112, D113, D114,
-#                        D115, D116
+#   Options for geometry D88, D92
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -18,7 +16,7 @@ options.register('geometry',
                  "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116")
+                  "geometry of operations: D88, D92, D110")
 
 ### get and parse the command line arguments
 options.parseArguments()
