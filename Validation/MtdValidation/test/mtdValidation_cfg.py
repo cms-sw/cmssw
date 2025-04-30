@@ -8,11 +8,22 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi') # No pileup
 
 process.load("Configuration.Geometry.GeometryExtendedRun4D110Reco_cff")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+# For playback pileup mode
+# process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
+# process.load('Configuration.StandardSequences.Services_cff')
+# Other statements
+# process.mix.input.nbPileupEvents.averageNumber = cms.double(200.000000)
+# process.mix.bunchspace = cms.int32(25)
+# process.mix.minBunch = cms.int32(-3)
+# process.mix.maxBunch = cms.int32(3)
+# process.mix.input.fileNames = cms.untracked.vstring([]) # MinBias, from step3 confif file
+
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
 process.load('RecoLocalFastTime.FTLClusterizer.MTDCPEESProducer_cfi')
@@ -35,6 +46,10 @@ process.source = cms.Source("PoolSource",
         'file:step3.root'
     )
 )
+
+# For playback pileup mode
+# process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
+# process.mix.playback = True
 
 process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)

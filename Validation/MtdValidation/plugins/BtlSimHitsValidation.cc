@@ -223,13 +223,10 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
     meHitLogEnergy_->Fill(log10(ene_tot_cell));
 
-    // --- Groups cells with hits by sensor module using the phi and eta indices obtained from topology.btlIndex()
+    // --- Groups cells with hits by sensor module using MTDTopology
     BTLDetId detId(cell.first);
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
-    std::pair<uint32_t, uint32_t> SMIndex = topology->btlIndex(geoId.rawId());  // Get phi-eta index
-    // --- Build a global Sensor Module Id by combining the phi-eta indices
-    uint64_t globalSMId = ((uint64_t)SMIndex.first << 32) | SMIndex.second;
-    modules[globalSMId].push_back(cell);
+    modules[geoId.rawId()].push_back(cell);
 
     if (optionalPlots_)
       meHitLogEnergyRUSlice_[detId.runit() - 1]->Fill(log10(ene_tot_cell));
