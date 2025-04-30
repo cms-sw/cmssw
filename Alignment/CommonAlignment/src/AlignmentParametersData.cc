@@ -56,3 +56,4 @@ void AlignmentParametersData::checkConsistency(void) const {
                                        << ", covariance size = " << covSize << ", selector size = " << selectorSize
                                        << ".";
 }
+-- dummy change --

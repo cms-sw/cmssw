@@ -21,3 +21,4 @@ seqALCARECOTkAlUpsilonMuMuPA = cms.Sequence(ALCARECOTkAlUpsilonMuMuPAHLT
                                             +ALCARECOTkAlUpsilonMuMuPAGoodMuons
                                             +ALCARECOTkAlUpsilonMuMuPA
                                             )
+-- dummy change --

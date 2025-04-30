@@ -193,3 +193,4 @@ void LaserBeamsTEC2::setOptPhotonPolar(G4double Angle) {
   //   G4cout << ", the polarization = " << polar << G4endl;
   theParticleGun->SetParticlePolarization(polar);
 }
+-- dummy change --

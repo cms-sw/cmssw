@@ -40,3 +40,4 @@ public:
   /** clone method (copy constructor) */
   HIPUserVariables* clone(void) const override { return new HIPUserVariables(*this); }
 };
+-- dummy change --

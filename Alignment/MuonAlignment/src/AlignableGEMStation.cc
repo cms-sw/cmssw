@@ -55,3 +55,4 @@ void AlignableGEMStation::dump(void) const {
   for (std::vector<AlignableGEMRing*>::const_iterator iRing = theGEMRings.begin(); iRing != theGEMRings.end(); iRing++)
     edm::LogInfo("AlignableDump") << (**iRing);
 }
+-- dummy change --

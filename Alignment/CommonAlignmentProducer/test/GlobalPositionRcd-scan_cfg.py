@@ -41,3 +41,4 @@ process.GlobalPositionRcdScan = cms.EDAnalyzer(
 process.p = cms.Path(process.GlobalPositionRcdScan)
 
 
+-- dummy change --

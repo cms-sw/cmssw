@@ -19,3 +19,4 @@ OutALCARECOMuAlBeamHaloOverlaps_noDrop = cms.PSet(
 import copy
 OutALCARECOMuAlBeamHaloOverlaps = copy.deepcopy(OutALCARECOMuAlBeamHaloOverlaps_noDrop)
 OutALCARECOMuAlBeamHaloOverlaps.outputCommands.insert(0, "drop *")
+-- dummy change --

@@ -43,3 +43,4 @@ namespace gs {
 }  // namespace gs
 
 #endif  // GENERS_ABSRECORD_HH_
+-- dummy change --

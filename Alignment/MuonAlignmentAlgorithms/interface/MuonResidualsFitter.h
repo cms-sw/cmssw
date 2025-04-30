@@ -279,3 +279,4 @@ void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, doubl
 void MuonResidualsAngleFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag);
 
 #endif  // Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
+-- dummy change --

@@ -161,3 +161,4 @@ void AlignmentRcdChecker::inspectRecord(const std::string& rcdname,
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AlignmentRcdChecker);
+-- dummy change --

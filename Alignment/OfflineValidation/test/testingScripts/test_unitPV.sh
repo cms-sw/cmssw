@@ -19,3 +19,4 @@ echo "TESTING PV trends"
 pushd test_yaml/PV/trends/TestDATA/
 ./PVtrends validation.json --verbose || die "Failure running PV trends" $?
 popd
+-- dummy change --

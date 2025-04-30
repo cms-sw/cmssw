@@ -122,3 +122,4 @@ void AlignmentMonitorGeneric::event(const edm::Event& iEvent,
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
 DEFINE_EDM_PLUGIN(AlignmentMonitorPluginFactory, AlignmentMonitorGeneric, "AlignmentMonitorGeneric");
+-- dummy change --

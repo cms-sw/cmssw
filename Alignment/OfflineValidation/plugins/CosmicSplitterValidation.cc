@@ -1093,3 +1093,4 @@ bool CosmicSplitterValidation::is_gold_muon(const edm::Event& e) {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CosmicSplitterValidation);
+-- dummy change --

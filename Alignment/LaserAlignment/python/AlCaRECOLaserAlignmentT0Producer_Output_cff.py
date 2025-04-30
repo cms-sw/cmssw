@@ -8,3 +8,4 @@ outLaserAlignmentT0Producer = cms.PSet(
         'keep SiStripEventSummary_siStripDigis_*_*')
 )
 
+-- dummy change --

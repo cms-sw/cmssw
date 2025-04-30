@@ -8,3 +8,4 @@ requirements = (OpSysAndVer =?= "AlmaLinux9")
 +JobFlavour = "espresso"
 +AccountingGroup = "group_u_CMS.CAF.ALCA"
 queue
+-- dummy change --

@@ -622,3 +622,4 @@ void AlignableModifier::addAlignmentPositionErrorFromLocalRotation(Alignable* al
   // true: propagate down to components
   alignable->addAlignmentPositionErrorFromLocalRotation(rotation, true);
 }
+-- dummy change --

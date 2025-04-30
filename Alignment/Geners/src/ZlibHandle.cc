@@ -35,3 +35,4 @@ namespace gs {
     delete strm_;
   }
 }  // namespace gs
+-- dummy change --

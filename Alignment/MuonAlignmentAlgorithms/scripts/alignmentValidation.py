@@ -1045,3 +1045,4 @@ if DO_DIAGNOSTIC:
     createCanvasesList("canvases_list.js")
     pic_ids = createCanvasToIDList("canvas2id_list.js")
     doTests(iterN_reports, pic_ids, "mu_list.js","dqm_report.js",options.runLabel)
+-- dummy change --

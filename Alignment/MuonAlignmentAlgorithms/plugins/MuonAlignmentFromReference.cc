@@ -2037,3 +2037,4 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory, MuonAlignmentFromReference, "MuonAlignmentFromReference");
+-- dummy change --

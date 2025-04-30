@@ -66,3 +66,4 @@ void OptOPinhole::constructSolidShape() {
                                           go * 1. * CLHEP::cm / CLHEP::m,
                                           go * 1. * CLHEP::cm / CLHEP::m);  //COCOA internal units are meters
 }
+-- dummy change --

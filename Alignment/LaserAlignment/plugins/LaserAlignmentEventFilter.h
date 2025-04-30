@@ -26,3 +26,4 @@ private:
   const uint16_t single_channel_thresh;  // signal threshold for a single channel
   const uint16_t channel_count_thresh;   // nr. of channels that have to contain signal for LAS event
 };
+-- dummy change --

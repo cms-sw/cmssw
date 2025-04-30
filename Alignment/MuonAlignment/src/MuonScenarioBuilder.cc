@@ -470,3 +470,4 @@ void MuonScenarioBuilder::moveChamberInSector(Alignable* chamber,
   theMuonModifier.addAlignmentPositionError(chamber, dispError[0], dispError[1], dispError[2]);
   theMuonModifier.addAlignmentPositionErrorFromRotation(chamber, rotationError[0], rotationError[1], rotationError[2]);
 }
+-- dummy change --

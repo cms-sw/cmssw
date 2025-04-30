@@ -69,3 +69,4 @@ private:  //==================================================================
 };
 
 #endif /* ALIGNMENT_COMMONALIGNMENT_INTERFACE_ALIGNABLECOMPOSITEBUILDER_H_ */
+-- dummy change --

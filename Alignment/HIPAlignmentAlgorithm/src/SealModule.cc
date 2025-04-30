@@ -4,3 +4,4 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory, HIPAlignmentAlgorithm, "HIPAlignmentAlgorithm");
+-- dummy change --

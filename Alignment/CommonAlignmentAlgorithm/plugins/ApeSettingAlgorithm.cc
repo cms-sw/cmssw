@@ -258,3 +258,4 @@ void ApeSettingAlgorithm::run(const edm::EventSetup &setup, const EventInfo &eve
 
 // Plugin definition for the algorithm
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory, ApeSettingAlgorithm, "ApeSettingAlgorithm");
+-- dummy change --

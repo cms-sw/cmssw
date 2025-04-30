@@ -134,3 +134,4 @@ Bool_t GFHistArray::CheckObjOK (TObject * histObj)
   // accept NULL pointer:
   return (!histObj || histObj->InheritsFrom(TH1::Class()));
 }
+-- dummy change --

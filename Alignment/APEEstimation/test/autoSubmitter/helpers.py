@@ -198,3 +198,4 @@ def loadConditions(dictionary):
             goodConditions = False
             print("'{}' is not a valid record name.".format(condition["record"]))
     return conditions, goodConditions
+-- dummy change --

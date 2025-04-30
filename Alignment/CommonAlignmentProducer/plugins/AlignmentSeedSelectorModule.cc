@@ -37,3 +37,4 @@ private:
 typedef ObjectSelector<SeedConfigSelector> AlignmentSeedSelectorModule;
 
 DEFINE_FWK_MODULE(AlignmentSeedSelectorModule);
+-- dummy change --

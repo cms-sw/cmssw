@@ -24,3 +24,4 @@ namespace Alignment_LaserAlignment {
     //  LASGlobalData<TDirectory*> ltdir;
   };
 }  // namespace Alignment_LaserAlignment
+-- dummy change --

@@ -48,3 +48,4 @@ draw_disk(g2, g1, 2, 1, pfx+"e2_st1_CSC.svg", length_factor=sf_csc, angle_factor
 draw_disk(g2, g1, 2, 2, pfx+"e2_st2_CSC.svg", length_factor=sf_csc, angle_factor=sf_csc, template_dir=svg_template_dir)
 draw_disk(g2, g1, 2, 3, pfx+"e2_st3_CSC.svg", length_factor=sf_csc, angle_factor=sf_csc, template_dir=svg_template_dir)
 draw_disk(g2, g1, 2, 4, pfx+"e2_st4_CSC.svg", length_factor=sf_csc, angle_factor=sf_csc, template_dir=svg_template_dir)
+-- dummy change --

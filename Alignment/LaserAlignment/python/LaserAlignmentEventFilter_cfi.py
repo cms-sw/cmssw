@@ -36,3 +36,4 @@ LaserAlignmentEventFilter.SIGNAL_IDs.extend(SIGNAL_IDs_AT_TECm)
 LaserAlignmentEventFilter.SINGLE_CHANNEL_THRESH = cms.uint32(11);
 LaserAlignmentEventFilter.CHANNEL_COUNT_THRESH = cms.uint32(8);
 
+-- dummy change --

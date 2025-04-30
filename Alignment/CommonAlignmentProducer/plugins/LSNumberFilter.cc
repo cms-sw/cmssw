@@ -69,3 +69,4 @@ void LSNumberFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(LSNumberFilter);
+-- dummy change --

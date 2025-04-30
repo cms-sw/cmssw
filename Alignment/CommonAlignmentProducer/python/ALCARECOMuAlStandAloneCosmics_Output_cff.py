@@ -27,3 +27,4 @@ OutALCARECOMuAlStandAloneCosmics_noDrop = cms.PSet(
 import copy
 OutALCARECOMuAlStandAloneCosmics = copy.deepcopy(OutALCARECOMuAlStandAloneCosmics_noDrop)
 OutALCARECOMuAlStandAloneCosmics.outputCommands.insert(0, "drop *")
+-- dummy change --

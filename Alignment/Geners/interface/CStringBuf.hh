@@ -17,3 +17,4 @@ namespace gs {
 }  // namespace gs
 
 #endif  // GENERS_CSTRINGBUF_HH_
+-- dummy change --

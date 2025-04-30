@@ -2117,3 +2117,4 @@ void DMRChecker::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
 }
 
 DEFINE_FWK_MODULE(DMRChecker);
+-- dummy change --

@@ -1613,3 +1613,4 @@ void GFHistManager::ColourFuncs(GFHistArray *hists) const
 void GFHistManager::SetCanvasName(const TString& name) {
   fCanvasName = name;
 }
+-- dummy change --

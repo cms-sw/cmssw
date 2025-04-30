@@ -79,3 +79,4 @@ CopsMeas::CopsMeas() {
     SimulatedPosition[i] = -999.;
   }
 }
+-- dummy change --

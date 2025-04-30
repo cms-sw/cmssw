@@ -14,3 +14,4 @@ else
     echo "**** Catalog dump regression test passed"
 fi
 rm -f Alignment_Geners_cdump.out
+-- dummy change --

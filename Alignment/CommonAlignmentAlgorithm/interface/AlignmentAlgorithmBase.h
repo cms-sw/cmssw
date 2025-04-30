@@ -182,3 +182,4 @@ typedef AlignmentAlgorithmBase::EventInfo EventInfo;
 typedef AlignmentAlgorithmBase::EndRunInfo EndRunInfo;
 
 #endif
+-- dummy change --

@@ -149,3 +149,4 @@ void MeasurementDistancemeter3dim::correctValueAndSigma() {
   setValue(0, val);
   setSigma(0, sig);
 }
+-- dummy change --

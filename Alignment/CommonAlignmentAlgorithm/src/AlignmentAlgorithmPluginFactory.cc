@@ -7,3 +7,4 @@
 // #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 EDM_REGISTER_PLUGINFACTORY(AlignmentAlgorithmPluginFactory, "AlignmentAlgorithmPluginFactory");
+-- dummy change --

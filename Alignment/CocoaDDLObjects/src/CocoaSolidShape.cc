@@ -10,3 +10,4 @@
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShape.h"
 
 CocoaSolidShape::CocoaSolidShape(ALIstring type) { theType = type; }
+-- dummy change --

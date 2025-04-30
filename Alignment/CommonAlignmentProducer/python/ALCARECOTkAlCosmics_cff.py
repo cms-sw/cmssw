@@ -56,3 +56,4 @@ ALCARECOTkAlCosmicsRegional = ALCARECOTkAlCosmicsCTF.clone(
 seqALCARECOTkAlCosmicsCTF = cms.Sequence(ALCARECOTkAlCosmicsCTF)
 seqALCARECOTkAlCosmicsCosmicTF = cms.Sequence(ALCARECOTkAlCosmicsCosmicTF)
 seqALCARECOTkAlCosmicsRegional = cms.Sequence(ALCARECOTkAlCosmicsRegional)
+-- dummy change --

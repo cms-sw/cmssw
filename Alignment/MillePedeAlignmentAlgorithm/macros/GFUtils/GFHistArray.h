@@ -47,3 +47,4 @@ protected:
   ClassDef(GFHistArray,1) // type safe array of histograms
 };
 #endif // __GFHISTARRAY_H
+-- dummy change --

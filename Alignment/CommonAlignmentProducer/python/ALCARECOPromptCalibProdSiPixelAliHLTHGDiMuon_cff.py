@@ -137,3 +137,4 @@ seqALCARECOPromptCalibProdSiPixelAliHLTHGDiMu = cms.Sequence(
     SiPixelAliMilleAlignmentProducerHLTHGDimuon*
     SiPixelAliMillePedeFileConverterHLTHGDimuon
 )
+-- dummy change --

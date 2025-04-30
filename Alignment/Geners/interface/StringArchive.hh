@@ -77,3 +77,4 @@ namespace gs {
 }  // namespace gs
 
 #endif  // GENERS_STRINGARCHIVE_HH_
+-- dummy change --

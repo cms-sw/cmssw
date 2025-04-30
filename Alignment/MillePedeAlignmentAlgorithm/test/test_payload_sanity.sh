@@ -12,3 +12,4 @@ fi
 
 (cmsRun ${SCRAM_TEST_PATH}/AlignmentRcdChecker_cfg.py inputSqliteFile=${INPUTFILE}) || die 'failed running AlignmentRcdChecker' $?
 rm $INPUTFILE
+-- dummy change --

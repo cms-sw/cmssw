@@ -11,3 +11,4 @@ AlignmentMonitorMuonResidualsDefaults = cms.PSet(
     ystdev_bins = cms.uint32(300), ystdev_low = cms.double(0.0),  ystdev_high = cms.double(30.0),
     yerronmean_bins = cms.uint32(300), yerronmean_low = cms.double(0.0),  yerronmean_high = cms.double(1.0),
 )
+-- dummy change --

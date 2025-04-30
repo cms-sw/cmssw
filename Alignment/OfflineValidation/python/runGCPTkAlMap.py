@@ -261,3 +261,4 @@ TkMap_drange_pixel.clean_up()
 TkMap_drange_strips.clean_up()
 
 print('TOOK: '+str(time.time()-ts_start)+' s') 
+-- dummy change --

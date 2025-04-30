@@ -97,3 +97,4 @@ private:
 };
 
 #endif  // ALIGNABLE_BEAMSPOT_H
+-- dummy change --

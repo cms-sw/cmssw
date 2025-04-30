@@ -91,3 +91,4 @@ ALCAHARVESTSiPixelAliHLTHGCombined = cms.Sequence(
     SiPixelAliPedeAlignmentProducerHLTHGCombined*
     SiPixelAliDQMModuleHLTHGCombined*
     dqmEnvSiPixelAliHLTHGCombined)
+-- dummy change --

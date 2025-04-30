@@ -9,3 +9,4 @@ echo " TESTING auto submitter"
 # start baseline measurement
 python3 $CMSSW_BASE/src/Alignment/APEEstimation/test/autoSubmitter/autoSubmitter.py -c $CMSSW_BASE/src/Alignment/APEEstimation/test/autoSubmitter/unitTest.ini -u || die "Failure running autoSubmitter" $?
 
+-- dummy change --

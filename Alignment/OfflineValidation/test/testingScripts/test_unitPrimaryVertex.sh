@@ -7,3 +7,4 @@ cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/testPrimaryVertexRelat
 
 echo "TESTING Primary Vertex Validation: phase-2 setup ..."
 cmsRun ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/testPrimaryVertexRelatedValidations_cfg.py isPhase2=True maxEvents=10 || die "Failure running testPrimaryVertexRelatedValidations_cfg.py isPhase2=True" $?
+-- dummy change --

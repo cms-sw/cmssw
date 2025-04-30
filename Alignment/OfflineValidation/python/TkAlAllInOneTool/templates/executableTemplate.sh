@@ -5,3 +5,4 @@ export X509_USER_PROXY=.user_proxy
 eval `scram runtime -sh`
 cd workDirectory
 ./cmsRun validation_cfg.py config=validation.json
+-- dummy change --

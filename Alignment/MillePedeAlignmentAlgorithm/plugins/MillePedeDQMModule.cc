@@ -550,3 +550,4 @@ void MillePedeDQMModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("alignmentTokenSrc", edm::InputTag("SiPixelAliPedeAlignmentProducer"));
   descriptions.addWithDefaultLabel(desc);
 }
+-- dummy change --

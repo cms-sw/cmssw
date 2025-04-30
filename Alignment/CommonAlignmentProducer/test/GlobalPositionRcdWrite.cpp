@@ -176,3 +176,4 @@ void GlobalPositionRcdWrite::analyze(const edm::Event& evt, const edm::EventSetu
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(GlobalPositionRcdWrite);
+-- dummy change --

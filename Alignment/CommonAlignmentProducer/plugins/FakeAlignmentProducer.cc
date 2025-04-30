@@ -78,3 +78,4 @@ FakeAlignmentProducer::FakeAlignmentProducer(const edm::ParameterSet& iConfig) {
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(FakeAlignmentProducer);
+-- dummy change --

@@ -917,3 +917,4 @@ unsigned int AlignmentParameterSelector::addAllAlignables(const std::vector<char
 
   return numAli;
 }
+-- dummy change --

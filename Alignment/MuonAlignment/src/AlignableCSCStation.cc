@@ -77,3 +77,4 @@ void AlignableCSCStation::dump(void) const {
   for (std::vector<AlignableCSCRing*>::const_iterator iRing = theCSCRings.begin(); iRing != theCSCRings.end(); iRing++)
     edm::LogInfo("AlignableDump") << (**iRing);
 }
+-- dummy change --

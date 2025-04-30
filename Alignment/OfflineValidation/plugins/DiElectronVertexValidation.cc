@@ -591,3 +591,4 @@ void DiElectronVertexValidation::fillDescriptions(edm::ConfigurationDescriptions
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DiElectronVertexValidation);
+-- dummy change --

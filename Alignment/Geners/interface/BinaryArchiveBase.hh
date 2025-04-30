@@ -212,3 +212,4 @@ namespace gs {
 }  // namespace gs
 
 #endif  // GENERS_BINARYARCHIVEBASE_HH_
+-- dummy change --

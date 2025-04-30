@@ -21,3 +21,4 @@ namespace gs {
     return !classId_.name().empty() && classId_ == r.classId_ && ioProto_ == r.ioProto_ && nameCat_ == r.nameCat_;
   }
 }  // namespace gs
+-- dummy change --

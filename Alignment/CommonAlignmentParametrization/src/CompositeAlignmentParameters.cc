@@ -398,3 +398,4 @@ void CompositeAlignmentParameters::convert(const std::vector<AlignableDet *> &in
   for (it = input.begin(), itEnd = input.end(); it != itEnd; ++it)
     output.push_back(AlignableDetOrUnitPtr(*it));
 }
+-- dummy change --

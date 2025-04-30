@@ -253,3 +253,4 @@ inline std::ostream& operator<<(std::ostream& os, const AlignPCLThresholdsHG::co
 }
 
 #endif /* ALIGNMENT_MILLEPEDEALIGNMENTALGORITHM_INTERFACE_MILLEPEDEFILEREADER_H_ */
+-- dummy change --

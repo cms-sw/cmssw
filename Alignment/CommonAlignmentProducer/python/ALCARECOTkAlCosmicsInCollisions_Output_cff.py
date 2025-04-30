@@ -25,3 +25,4 @@ OutALCARECOTkAlCosmicsInCollisions_noDrop = cms.PSet(
 import copy
 OutALCARECOTkAlCosmicsInCollisions = copy.deepcopy(OutALCARECOTkAlCosmicsInCollisions_noDrop)
 OutALCARECOTkAlCosmicsInCollisions.outputCommands.insert(0, "drop *")
+-- dummy change --

@@ -827,3 +827,4 @@ void DiMuonVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& de
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DiMuonVertexValidation);
+-- dummy change --

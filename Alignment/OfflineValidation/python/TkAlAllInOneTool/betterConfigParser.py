@@ -252,3 +252,4 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                                               #   by any # space/tab
         r'(?P<value>.*))$'                    #   everything up to eol
         )
+-- dummy change --

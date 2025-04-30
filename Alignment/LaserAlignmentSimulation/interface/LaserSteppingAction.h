@@ -28,3 +28,4 @@ private:
   double theEnergyLossScalingFactor;
 };
 #endif
+-- dummy change --

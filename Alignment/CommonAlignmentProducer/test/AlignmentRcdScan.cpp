@@ -176,3 +176,4 @@ void AlignmentRcdScan::inspectRecord(const std::string& rcdname, const edm::Even
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AlignmentRcdScan);
+-- dummy change --

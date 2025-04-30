@@ -49,3 +49,4 @@ AlgebraicMatrix AlignmentExtendedCorrelationsEntry::matrix(void) const {
 
   return result;
 }
+-- dummy change --

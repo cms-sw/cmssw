@@ -21,3 +21,4 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0T_cff import *
 seqALCARECOTkAlCosmicsCTF0THLT = cms.Sequence(ALCARECOTkAlCosmics0THLT+seqALCARECOTkAlCosmicsCTF0T)
 seqALCARECOTkAlCosmicsCosmicTF0THLT = cms.Sequence(ALCARECOTkAlCosmics0THLT+seqALCARECOTkAlCosmicsCosmicTF0T)
 seqALCARECOTkAlCosmicsRegional0THLT = cms.Sequence(ALCARECOTkAlCosmics0THLT+seqALCARECOTkAlCosmicsRegional0T)
+-- dummy change --

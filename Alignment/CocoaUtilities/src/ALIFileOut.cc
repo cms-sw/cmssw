@@ -38,3 +38,4 @@ ALIFileOut& ALIFileOut::getInstance(const ALIstring& filename) {
   ALIFileOut* instance = new ALIFileOut(filename);  // it will not reach here, only to avoid warning
   return *instance;
 }
+-- dummy change --

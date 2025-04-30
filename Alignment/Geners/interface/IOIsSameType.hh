@@ -17,3 +17,4 @@ namespace gs {
 
 #endif // GENERS_IOISSAMETYPE_HH_
 
+-- dummy change --

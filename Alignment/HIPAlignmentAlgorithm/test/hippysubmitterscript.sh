@@ -13,3 +13,4 @@ else
     echo "You can also use 'ps -ef | grep submit_' to find PIDs of currently running alignments."
 fi
 
+-- dummy change --

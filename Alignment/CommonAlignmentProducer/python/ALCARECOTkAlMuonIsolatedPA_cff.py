@@ -44,3 +44,4 @@ ALCARECOTkAlMuonIsolatedPA.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 seqALCARECOTkAlMuonIsolatedPA = cms.Sequence(ALCARECOTkAlMuonIsolatedPAHLT
                                              +ALCARECOTkAlMuonIsolatedPADCSFilter
                                              +ALCARECOTkAlMuonIsolatedPA)
+-- dummy change --

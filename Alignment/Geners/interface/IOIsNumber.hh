@@ -36,3 +36,4 @@ gs_declare_type_as_number(float) gs_declare_type_as_number(double) gs_declare_ty
                     gs_declare_type_as_number(unsigned char) gs_declare_type_as_number(signed char)
 
 #endif  // GENERS_IOISNUMBER_HH_
+-- dummy change --

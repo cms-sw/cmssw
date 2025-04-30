@@ -149,3 +149,4 @@ void APVModeFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(APVModeFilter);
+-- dummy change --

@@ -90,3 +90,4 @@ process.seqAnalysis = cms.Path( process.LaserAlignmentEventFilter *
                                 (process.laserAlignmentT0Producer +
                                  process.LaserAlignmentT0ProducerDQM ))
 process.outputPath = cms.EndPath( process.out )
+-- dummy change --

@@ -19,3 +19,4 @@
 </bin>
 
 <test name="GenersTestHelper_t" command="test_cdump.sh"/>
+-- dummy change --

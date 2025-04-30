@@ -25,3 +25,4 @@ namespace gs {
 
   BZ2DeflateHandle::~BZ2DeflateHandle() { assert(BZ2_bzCompressEnd(strm_) == BZ_OK); }
 }  // namespace gs
+-- dummy change --

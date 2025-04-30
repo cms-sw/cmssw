@@ -82,3 +82,4 @@ namespace gs {
 }  // namespace gs
 
 #endif  // GENERS_CSTRINGSTREAM_HH_
+-- dummy change --

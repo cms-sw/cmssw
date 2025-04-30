@@ -76,3 +76,4 @@ TEST_CASE("HIPTwoBodyDecayAnalyzer tests", "[HIPTwoBodyDecayAnalyzer]") {
   const std::string baseConfig = generateBaseConfig("hipTwoBodyDecayAnalyzer", "testHIPAnalyzers2.root");
   runTestForAnalyzer(baseConfig, "HIPTwoBodyDecayAnalyzer");
 }
+-- dummy change --

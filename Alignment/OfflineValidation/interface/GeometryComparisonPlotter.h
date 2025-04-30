@@ -109,3 +109,4 @@ public:
   void SetCanvasSize(const int window_width = DEFAULT_WINDOW_WIDTH, const int window_height = DEFAULT_WINDOW_HEIGHT);
 };
 #endif
+-- dummy change --

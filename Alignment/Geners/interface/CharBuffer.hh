@@ -29,3 +29,4 @@ namespace gs {
 }  // namespace gs
 
 #endif  // GENERS_CHARBUFFER_HH_
+-- dummy change --

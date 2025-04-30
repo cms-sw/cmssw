@@ -168,3 +168,4 @@ namespace gs {
 gs_specialize_template_id_T(gs::ArrayAdaptor, 0, 1)
 
 #endif  // GENERS_ARRAYADAPTOR_HH_
+-- dummy change --

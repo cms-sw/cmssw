@@ -744,3 +744,4 @@ gs_specialize_class_id(float, 0) gs_specialize_class_id(double, 0) gs_specialize
                 gs_specialize_template_id_TTT(std::basic_string, 0, 2)
 
 #endif  // GENERS_CLASSID_HH_
+-- dummy change --

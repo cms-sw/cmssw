@@ -48,3 +48,4 @@ namespace gs {
     return new ItemLocation(pos, globURI.c_str(), cachedItemURI.c_str());
   }
 }  // namespace gs
+-- dummy change --

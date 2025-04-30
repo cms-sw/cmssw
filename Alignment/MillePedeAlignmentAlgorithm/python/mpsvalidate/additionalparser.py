@@ -48,3 +48,4 @@ class AdditionalData:
         self.pede_steerer_method  = pede_steerer.method.value()
         self.pede_steerer_options = pede_steerer.options.value()
         self.pede_steerer_command = pede_steerer.pedeCommand.value()
+-- dummy change --

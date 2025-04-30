@@ -13,3 +13,4 @@ LaserAlignmentEventFilter.SIGNAL_IDs = cms.vint32()
 LaserAlignmentEventFilter.SINGLE_CHANNEL_THRESH = cms.uint32(11);
 LaserAlignmentEventFilter.CHANNEL_COUNT_THRESH = cms.uint32(8);
 
+-- dummy change --

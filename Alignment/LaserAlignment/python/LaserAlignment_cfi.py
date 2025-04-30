@@ -80,3 +80,4 @@ LaserAlignment = cms.EDProducer( "LaserAlignment",
 
 from Alignment.LaserAlignment.LaserAlignmentConstants_cff import *
 LaserAlignment.LaserAlignmentConstants.extend( LaserAlignmentConstants )
+-- dummy change --

@@ -44,3 +44,4 @@ validationGranularity.sectors["X"].append( (1,8) ) # Only X is needed here, name
 # BpixLayer1Out, BpixLayer3In, FpixMinusLayer1, TibLayer1RphiOut, TibLayer4In, TobLayer1StereoOut, TobLayer5Out, TecPlusRing7
 # This can be changed in apeEstimator_cfg or in SectorBuilder_cff
 # For these sectors, additional hit validation plots are created
+-- dummy change --

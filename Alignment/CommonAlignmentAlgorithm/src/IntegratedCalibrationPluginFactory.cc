@@ -10,3 +10,4 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationPluginFactory.h"
 
 EDM_REGISTER_PLUGINFACTORY(IntegratedCalibrationPluginFactory, "IntegratedCalibrationPluginFactory");
+-- dummy change --

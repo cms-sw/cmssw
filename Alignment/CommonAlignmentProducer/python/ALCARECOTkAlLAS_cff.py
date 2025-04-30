@@ -23,3 +23,4 @@ ALCARECOTkAlLAST0Producer = Alignment.LaserAlignment.LaserAlignmentT0Producer_cf
 )
 
 seqALCARECOTkAlLAS = cms.Sequence(ALCARECOTkAlLASsiStripDigis+ALCARECOTkAlLASEventFilter+ALCARECOTkAlLAST0Producer)
+-- dummy change --

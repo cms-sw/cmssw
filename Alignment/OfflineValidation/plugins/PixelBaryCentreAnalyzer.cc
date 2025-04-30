@@ -654,3 +654,4 @@ void PixelBaryCentreAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& d
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PixelBaryCentreAnalyzer);
+-- dummy change --

@@ -44,3 +44,4 @@ private:
 typedef ObjectSelector<CSCBeamHaloConfigSelector> AlignmentCSCBeamHaloSelectorModule;
 
 DEFINE_FWK_MODULE(AlignmentCSCBeamHaloSelectorModule);
+-- dummy change --

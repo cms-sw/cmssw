@@ -62,3 +62,4 @@ namespace gs {
 }  // namespace gs
 
 #endif  // GENERS_BINARYFILEARCHIVE_HH_
+-- dummy change --

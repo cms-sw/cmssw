@@ -21,3 +21,4 @@ echo "TESTING MTS merge step"
 pushd test_yaml/MTS/merge/testSingleMTS/1
 ./MTSmerge validation.json --verbose || die "Failure running MTS merge step" $?
 popd
+-- dummy change --

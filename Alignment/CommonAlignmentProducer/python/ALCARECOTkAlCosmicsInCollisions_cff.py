@@ -53,3 +53,4 @@ ALCARECOTkAlCosmicsInCollisions = Alignment.CommonAlignmentProducer.AlignmentTra
 
 #________________________________Sequences____________________________________
 seqALCARECOTkAlCosmicsInCollisions = cms.Sequence(cosmicDCTracksSeq*ALCARECOTkAlCosmicsInCollisionsHLT+ALCARECOTkAlCosmicsInCollisionsDCSFilter+ALCARECOTkAlCosmicsInCollisions)
+-- dummy change --

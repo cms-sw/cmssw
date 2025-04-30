@@ -22,3 +22,4 @@ SiPixelLorentzAngleCalibration = cms.PSet(
     # one directly uses the unlabelled version, i.e. ""
     lorentzAngleLabel = cms.string("fromAlignment"),
     )
+-- dummy change --

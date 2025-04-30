@@ -342,3 +342,4 @@ void EopTreeWriter::fillDescriptions(edm::ConfigurationDescriptions& description
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EopTreeWriter);
+-- dummy change --

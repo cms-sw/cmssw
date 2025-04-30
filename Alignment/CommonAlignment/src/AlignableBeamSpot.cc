@@ -157,3 +157,4 @@ void AlignableBeamSpot::reset() {
 
 //______________________________________________________________________________
 const align::Alignables AlignableBeamSpot::emptyComponents_{};
+-- dummy change --

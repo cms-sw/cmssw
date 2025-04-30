@@ -45,3 +45,4 @@ One can now just do:
 This will perform the least-squared fit, and store all results in `Alignment/CocoaApplication/test/OpticalAlignments.db`.      
 The `OpticalAlignmentsRcd` obtained after fit, is stored with `OpticalAlignmentsRcdOutput` tag.      
 It should also be possible to use the feature of dumping the results into ROOT format.
+-- dummy change --

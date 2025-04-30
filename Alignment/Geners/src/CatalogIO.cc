@@ -22,3 +22,4 @@ namespace gs {
     return !os.fail() && catalog.classId().write(os) && catalog.write(os);
   }
 }  // namespace gs
+-- dummy change --

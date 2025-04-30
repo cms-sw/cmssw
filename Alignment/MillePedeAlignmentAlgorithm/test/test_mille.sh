@@ -18,3 +18,4 @@ if [[ "$doPede" == "true" ]]; then
     echo -e "\n\ntesting pedes step with LAPACK ..."
     (cmsRun ${SCRAM_TEST_PATH}/test_mille.py algoMode="pede" useLapack=True) || die 'failed running test_mille.py (LAPACK)' $?
 fi
+-- dummy change --

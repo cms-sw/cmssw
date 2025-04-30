@@ -55,3 +55,4 @@ SiPixelAliPedeAlignmentProducer.saveToDB = True
 
 ALCAHARVESTSiPixelAli = cms.Sequence(SiPixelAliMilleFileExtractor*
                                      SiPixelAliPedeAlignmentProducer)
+-- dummy change --
