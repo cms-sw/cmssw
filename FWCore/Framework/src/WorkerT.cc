@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/limited/OutputModuleBase.h"
 
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
-#include "FWCore/ServiceRegistry/interface/ModuleConsumesESInfo.h"
 
 #include <type_traits>
 
@@ -928,12 +927,6 @@ namespace edm {
   template <typename T>
   std::vector<ModuleConsumesInfo> WorkerT<T>::moduleConsumesInfos() const {
     return module_->moduleConsumesInfos();
-  }
-
-  template <typename T>
-  std::vector<ModuleConsumesESInfo> WorkerT<T>::moduleConsumesESInfos(
-      eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
-    return module_->moduleConsumesESInfos(iPI);
   }
 
   //Explicitly instantiate our needed templates to avoid having the compiler

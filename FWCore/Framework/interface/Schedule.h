@@ -245,16 +245,6 @@ namespace edm {
                                      std::vector<ModuleDescription const*>& descriptions,
                                      unsigned int hint) const;
 
-    void fillModuleAndConsumesInfo(std::vector<ModuleDescription const*>& allModuleDescriptions,
-                                   std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-                                   std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>&
-                                       modulesWhoseProductsAreConsumedBy,
-                                   ProductRegistry const& preg) const;
-
-    void fillESModuleAndConsumesInfo(std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>,
-                                                kNumberOfEventSetupTransitions>& esModulesWhoseProductsAreConsumedBy,
-                                     eventsetup::ESRecordsToProductResolverIndices const&) const;
-
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
     /// to exceptions during processing).

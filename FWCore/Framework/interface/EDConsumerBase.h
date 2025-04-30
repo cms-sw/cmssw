@@ -37,7 +37,9 @@
 #include "FWCore/Framework/interface/HCTypeTag.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/data_default_record_trait.h"
+#include "FWCore/Framework/interface/ModuleConsumesMinimalESInfo.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -114,20 +116,14 @@ namespace edm {
     typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
 
-    void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modulesAll,
-                                         ProductRegistry const& preg,
-                                         std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-                                         std::string const& processName) const;
-
-    void esModulesWhoseProductsAreConsumed(
-        std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
-        eventsetup::ESRecordsToProductResolverIndices const&) const;
-
     /// Convert "@currentProcess" in InputTag process names to the actual current process name.
     void convertCurrentProcessAlias(std::string const& processName);
 
     std::vector<ModuleConsumesInfo> moduleConsumesInfos() const;
-    std::vector<ModuleConsumesESInfo> moduleConsumesESInfos(eventsetup::ESRecordsToProductResolverIndices const&) const;
+    ///This can only be called before the end of beginJob (after that the underlying data has been deleted)
+    /// The pointers held by ModuleConsumesMinimalESInfo will also be invalid at that time so copies of
+    /// that class should not be held beyond the end of beginJob.
+    std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const;
 
     ESResolverIndex const* esGetTokenIndices(edm::Transition iTrans) const {
       if (iTrans < edm::Transition::NumberOfEventSetupTransitions) {
@@ -232,6 +228,20 @@ namespace edm {
       return ESGetTokenGeneric(static_cast<unsigned int>(Tr), index, iRecord.type());
     }
 
+    /**The passed functor must take the following signature
+     *  F( ModuleConsumesInfo const& )
+     * The functor will be called for each consumed EDProduct registered for the module
+     */
+    template <typename F>
+    void consumedProducts(F&& iFunc) const;
+
+    /**The passed functor must take the following signature
+     * F(edm::ModuleConsumesMinimalESInfo const& )
+     * The functor will be called for each consumed ESProduct registered for the module
+     */
+    template <typename F>
+    void consumedESProducts(F&& iFunct) const;
+
   private:
     virtual void extendUpdateLookup(BranchType iBranchType, ProductResolverIndexHelper const&);
     virtual void registerLateConsumes(eventsetup::ESRecordsToProductResolverIndices const&) {}
@@ -325,6 +335,47 @@ namespace edm {
     bool frozen_;
     bool containsCurrentProcessAlias_;
   };
+
+  template <typename F>
+  void EDConsumerBase::consumedProducts(F&& iFunc) const {
+    auto itKind = m_tokenInfo.begin<kKind>();
+    auto itLabels = m_tokenInfo.begin<kLabels>();
+    auto itAlways = m_tokenInfo.begin<kAlwaysGets>();
+    for (auto itInfo = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); itInfo != itEnd;
+         ++itInfo, ++itKind, ++itLabels, ++itAlways) {
+      auto labels = *itLabels;
+      unsigned int start = labels.m_startOfModuleLabel;
+      auto module = &(m_tokenLabels[start]);
+      auto productInstance = module + labels.m_deltaToProductInstance;
+      auto process = module + labels.m_deltaToProcessName;
+
+      iFunc(ModuleConsumesInfo(itInfo->m_type,
+                               module,
+                               productInstance,
+                               process,
+                               itInfo->m_branchType,
+                               *itKind,
+                               *itAlways,
+                               itInfo->m_index.skipCurrentProcess()));
+    }
+  }
+
+  template <typename F>
+  void EDConsumerBase::consumedESProducts(F&& iFunc) const {
+    unsigned int index = 0;
+    auto itResolverIndex = esTokenLookupInfoContainer().begin<kESResolverIndex>();
+    for (auto it = esTokenLookupInfoContainer().begin<kESLookupInfo>();
+         it != esTokenLookupInfoContainer().end<kESLookupInfo>();
+         ++it, ++index, ++itResolverIndex) {
+      //NOTE: memory for it->m_key is passed on to call via the ModuleConsumesMinimalESInfo constructor
+      // this avoids a copy and avoids code later in the call chain accidently using deleted memory
+      iFunc(ModuleConsumesMinimalESInfo(static_cast<Transition>(consumesIndexConverter()[index].first),
+                                        it->m_record,
+                                        it->m_key,
+                                        &(m_tokenLabels[it->m_startOfComponentName]),
+                                        *itResolverIndex));
+    }
+  }
 
   template <Transition TR>
   class EDConsumerBaseESAdaptor {

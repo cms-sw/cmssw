@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/ESSourceProductResolverNonConcurrentBase.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "DataFormats/FWLite/interface/EventSetup.h"
 #include "DataFormats/FWLite/interface/Record.h"
 #include "FWCore/Framework/interface/HCTypeTag.h"
@@ -114,6 +115,8 @@ public:
 private:
   KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int iovIndex) override;
 
+  std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override;
+
   void setIntervalFor(const EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
   void delaySettingRecords() override;
@@ -155,6 +158,25 @@ edm::eventsetup::ESProductResolverProvider::KeyedResolversVector FWLiteESSource:
     }
   }
   return keyedProxiesVector;
+}
+
+std::vector<edm::eventsetup::ESModuleProducesInfo> FWLiteESSource::producesInfo() const {
+  std::vector<edm::eventsetup::ESModuleProducesInfo> returnValue;
+  using edm::eventsetup::heterocontainer::HCTypeTag;
+
+  for (auto const& keyID : m_keyToID) {
+    auto const& rec = m_es.get(keyID.second);
+    for (auto const& typeLabel : rec.typeAndLabelOfAvailableData()) {
+      HCTypeTag tt = HCTypeTag::findType(typeLabel.first);
+      if (tt != HCTypeTag()) {
+        unsigned int index = returnValue.size();
+        returnValue.emplace_back(
+            keyID.first, edm::eventsetup::DataKey(tt, edm::eventsetup::IdTags(typeLabel.second.c_str())), index);
+      }
+    }
+  }
+
+  return returnValue;
 }
 
 void FWLiteESSource::setIntervalFor(const EventSetupRecordKey& iKey,
