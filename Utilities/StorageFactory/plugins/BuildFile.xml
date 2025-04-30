@@ -4,7 +4,7 @@
   <flags cppflags="-D_FILE_OFFSET_BITS=64"/>
 </library>
 
-<library file="StorageTracerProxy.cc" name="UtilitiesStorageFactoryProxyPlugins">
+<library file="StorageTracerProxy.cc StorageAddLatencyProxy.cc" name="UtilitiesStorageFactoryProxyPlugins">
   <use name="FWCore/Concurrency"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
