@@ -21,6 +21,8 @@
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedTowerCorrelator.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterGT.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
 
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
@@ -93,6 +95,13 @@ namespace p2eg {
   static constexpr int GCTCARD_2_TOWER_IPHI_OFFSET = 68;
 
   static constexpr int N_GCTTOWERS_CLUSTER_ISO_ONESIDE = 5;  // window size of isolation sum (5x5 in towers)
+
+  // Outputs to correlator
+  // Fixed number of EG and PF clusters per RCT card in each output SLR
+  static const int N_EG_CLUSTERS_PER_RCT_CARD = 9;
+  static const int N_PF_CLUSTERS_PER_RCT_CARD = 12;
+  // Height of one SLR region in phi in degrees
+  static constexpr float PHI_RANGE_PER_SLR_DEGREES = 120;
 
   //////////////////////////////////////////////////////////////////////////
   // RCT: indexing helper functions
@@ -1660,6 +1669,45 @@ namespace p2eg {
       int fiberEnd,
       int corrFiberIndexOffset,
       int corrTowPhiOffset);
+
+  /*******************************************************************************************/
+  /* Interface to correlator helper functions (defined in Phase2L1CaloBarrelToCorrelator.h)  */
+  /*******************************************************************************************/
+  float deltaPhiInDegrees(float phi1, float phi2, const float c);
+  float wrappedPhiInDegrees(float phi);
+
+  /*
+   * Generic function to compare hadronic (had) or EM digi clusters.
+   */
+  template <typename T>
+  bool compareGCTDigiClusterET(const T& lhs, const T& rhs) {
+    return (lhs.ptFloat() > rhs.ptFloat());
+  }
+
+  /*
+  * Generic function to sort a vector of hadronic or EM digi clusters in each SLR in descending pT,
+  * then if there are fewer than nMaxClustersInSLR clusters in the vector, pad the vector with null clusters,
+  * or truncate the vector if there are more than nMaxClustersInSLR clusters.
+  */
+  template <typename T>
+  void sortAndPadSLR(std::vector<T>& thisSLR, const int nMaxClustersInSLR) {
+    // input is a vector and can be sorted
+    std::sort(thisSLR.begin(), thisSLR.end(), compareGCTDigiClusterET<T>);
+    int nClusters = thisSLR.size();
+
+    // If there are fewer than the designated number of clusters, pad with zeros
+    if (nClusters < nMaxClustersInSLR) {
+      for (int i = 0; i < (nMaxClustersInSLR - nClusters); i++) {
+        T zeroCluster;
+        thisSLR.push_back(zeroCluster);
+      }
+    }
+    // If there are more than the designated number of clusters, truncate the vector
+    else if (nClusters > nMaxClustersInSLR) {
+      // Get the iterator to the sixth element and delete til the end of the vector
+      thisSLR.erase(thisSLR.begin() + nMaxClustersInSLR, thisSLR.end());
+    }
+  }
 
 }  // namespace p2eg
 

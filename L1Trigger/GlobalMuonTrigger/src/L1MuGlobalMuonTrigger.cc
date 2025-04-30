@@ -71,10 +71,11 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
   m_ExtendedCands.reserve(20);
 
   // set configuration parameters
-  if (not m_config) {
+  if (!std::atomic_load(&m_config)) {  // Atomically load m_config
     auto temp = std::make_shared<L1MuGMTConfig>(ps);
-    std::shared_ptr<L1MuGMTConfig> empty;
-    std::atomic_compare_exchange_strong(&m_config, &empty, temp);
+    std::shared_ptr<L1MuGMTConfig> empty = nullptr;  // Explicit nullptr for CAS
+    std::atomic_compare_exchange_strong_explicit(
+        &m_config, &empty, temp, std::memory_order_acq_rel, std::memory_order_acquire);
   }
   m_writeLUTsAndRegs = ps.getUntrackedParameter<bool>("WriteLUTsAndRegs", false);
 
@@ -122,10 +123,11 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
     edm::LogVerbatim("GMT_info") << "creating GMT Sorter";
   m_Sorter = new L1MuGMTSorter(*this);  // barrel
 
-  if (not m_db) {
+  if (!std::atomic_load(&m_db)) {  // Atomically load m_db
     auto temp = std::make_shared<L1MuGMTDebugBlock>(m_config->getBxMin(), m_config->getBxMax());
-    std::shared_ptr<L1MuGMTDebugBlock> empty;
-    std::atomic_compare_exchange_strong(&m_db, &empty, temp);
+    std::shared_ptr<L1MuGMTDebugBlock> empty = nullptr;  // Explicit nullptr for CAS
+    std::atomic_compare_exchange_strong_explicit(
+        &m_db, &empty, temp, std::memory_order_acq_rel, std::memory_order_acquire);
   }
   usesResource("L1MuGlobalMuonTrigger");
   ///EventSetup Tokens

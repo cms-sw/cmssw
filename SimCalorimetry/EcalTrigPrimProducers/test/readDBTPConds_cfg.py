@@ -21,7 +21,6 @@ process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/cond
 
 process.ecalTPConditions = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
-    loadAll = cms.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGPedestalsRcd'),
         tag = cms.string('EcalTPGPedestals_v2_hlt')
@@ -78,11 +77,7 @@ process.ecalTPConditions = cms.ESSource("PoolDBESSource",
 	    record = cms.string('EcalTPGTowerStatusRcd'),
 	    tag = cms.string('EcalTPGTowerStatus_hlt')
 	)),    
-    messagelevel = cms.untracked.uint32(3),
-    timetype = cms.string('runnumber'),
     connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_34X_ECAL'),
-    authenticationMethod = cms.untracked.uint32(1),
-    loadBlobStreamer = cms.untracked.bool(True)
 )
 
 

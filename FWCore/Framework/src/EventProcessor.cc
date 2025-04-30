@@ -55,6 +55,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/AbstractServices/interface/RootHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -72,7 +73,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -748,8 +748,7 @@ namespace edm {
     // after they all complete.
     std::exception_ptr firstException;
     CMS_SA_ALLOW try {
-      schedule_->beginJob(
-          *preg_, esRecordsToProductResolverIndices, *processBlockHelper_, pathsAndConsumesOfModules, processContext_);
+      schedule_->beginJob(*preg_, esRecordsToProductResolverIndices, *processBlockHelper_, processContext_);
     } catch (...) {
       firstException = std::current_exception();
     }
@@ -1037,24 +1036,14 @@ namespace edm {
       streamRunStatus_[0]->runPrincipal()->preReadFile();
     }
 
-    auto sizeBefore = input_->productRegistry().size();
+    auto oldCacheID = input_->productRegistry().cacheIdentifier();
     fb_ = input_->readFile();
     //incase the input's registry changed
-    if (input_->productRegistry().size() != sizeBefore) {
+    if (input_->productRegistry().cacheIdentifier() != oldCacheID) {
       auto temp = std::make_shared<edm::ProductRegistry>(*preg_);
       temp->merge(input_->productRegistry(), fb_ ? fb_->fileName() : std::string());
       preg_ = std::move(temp);
-      //This handles are presently unused Run/Lumis
-      principalCache_.adjustIndexesAfterProductRegistryAddition(edm::get_underlying_safe(preg_));
-      if (streamLumiActive_ > 0) {
-        //Can update the active ones now, even before an `end` transition is called because no OutputModule
-        // supports storing ProductDescriptions for Run/LuminosityBlock products which were dropped. Since only
-        // dropped products can change the ProductRegistry, only changes in Event can cause that.
-        streamRunStatus_[0]->runPrincipal()->possiblyUpdateAfterAddition(edm::get_underlying_safe(preg_));
-        streamLumiStatus_[0]->lumiPrincipal()->possiblyUpdateAfterAddition(edm::get_underlying_safe(preg_));
-      }
     }
-    principalCache_.adjustEventsToNewProductRegistry(preg());
     if (preallocations_.numberOfStreams() > 1 and preallocations_.numberOfThreads() > 1) {
       fb_->setNotFastClonable(FileBlock::ParallelProcesses);
     }
@@ -2022,8 +2011,11 @@ namespace edm {
         assert(streamLumiActive_ == preallocations_.numberOfStreams());
         streamLumiStatus_[0]->noMoreEventsInLumi();
         streamLumiStatus_[0]->setCleaningUpAfterException(cleaningUpAfterException);
-        for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
-          streamEndLumiAsync(WaitingTaskHolder{taskGroup_, &globalWaitTask}, i);
+        {
+          WaitingTaskHolder holder{taskGroup_, &globalWaitTask};
+          for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+            streamEndLumiAsync(holder, i);
+          }
         }
         globalWaitTask.wait();
       }
@@ -2038,6 +2030,7 @@ namespace edm {
 
   std::shared_ptr<RunPrincipal> EventProcessor::readRun() {
     auto rp = principalCache_.getAvailableRunPrincipalPtr();
+    //a new file may have been opened since the last use of this Run
     rp->possiblyUpdateAfterAddition(preg());
     assert(rp);
     rp->setAux(*input_->runAuxiliary());
@@ -2052,6 +2045,9 @@ namespace edm {
 
   void EventProcessor::readAndMergeRun(RunProcessingStatus& iStatus) {
     RunPrincipal& runPrincipal = *iStatus.runPrincipal();
+    //If a file open happened and we are continuing the Run we may need
+    // to do the update
+    runPrincipal.possiblyUpdateAfterAddition(preg());
 
     runPrincipal.mergeAuxiliary(*input_->runAuxiliary());
     {
@@ -2063,6 +2059,7 @@ namespace edm {
 
   std::shared_ptr<LuminosityBlockPrincipal> EventProcessor::readLuminosityBlock(std::shared_ptr<RunPrincipal> rp) {
     auto lbp = principalCache_.getAvailableLumiPrincipalPtr();
+    //A new file may have been opened since the last use of the LuminosityBlock
     lbp->possiblyUpdateAfterAddition(preg());
     assert(lbp);
     lbp->setAux(*input_->luminosityBlockAuxiliary());
@@ -2081,6 +2078,9 @@ namespace edm {
            input_->processHistoryRegistry().reducedProcessHistoryID(lumiPrincipal.aux().processHistoryID()) ==
                input_->processHistoryRegistry().reducedProcessHistoryID(
                    input_->luminosityBlockAuxiliary()->processHistoryID()));
+    //If a file was opened and the LuminosityBlock is continuing
+    // we may need to do the update
+    lumiPrincipal.possiblyUpdateAfterAddition(preg());
     lumiPrincipal.mergeAuxiliary(*input_->luminosityBlockAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -2386,6 +2386,8 @@ namespace edm {
     //TODO this will have to become per stream
     auto& event = principalCache_.eventPrincipal(iStreamIndex);
     StreamContext streamContext(event.streamID(), &processContext_);
+    // a new file may have been read since the last time this event was used
+    event.possiblyUpdateAfterAddition(preg());
 
     SendSourceTerminationSignalIfException sentry(actReg_.get());
     input_->readEvent(event, streamContext);

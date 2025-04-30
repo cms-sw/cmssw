@@ -15,7 +15,6 @@ from Validation.RecoVertex.HLTpostProcessorVertex_cfi import *
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
 from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
-from HLTriggerOffline.Muon.HLTpostProcessorMuonTrack_cfi import *
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
@@ -24,7 +23,6 @@ hltpostvalidation = cms.Sequence(
     +HLTTauPostVal
     +EgammaPostVal
     + postProcessorHLTgsfTrackingSequence
-    + postProcessorHLTmuonTrackingSequence
     +heavyFlavorValidationHarvestingSequence
     +JetMETPostVal
     #+HLTAlCaPostVal
@@ -64,7 +62,6 @@ fastSim.toReplaceWith(hltpostvalidation, hltpostvalidation.copyAndExclude([
     postProcessorHLTtrackingSequence,
     postProcessorHLTvertexing,
     postProcessorHLTgsfTrackingSequence,
-    postProcessorHLTmuonTrackingSequence
     # remove this:    hltvalidationqt ?
     # remove this:    hltExoticaPostProcessors ?
 ]))
@@ -76,7 +73,6 @@ hltpostvalidation_preprod = cms.Sequence(
     +heavyFlavorValidationHarvestingSequence
     +SusyExoPostVal
     + postProcessorHLTgsfTrackingSequence
-    + postProcessorHLTmuonTrackingSequence
    #+HLTHiggsPostVal
     )
 
@@ -84,5 +80,4 @@ hltpostvalidation_prod = cms.Sequence(
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
     + postProcessorHLTgsfTrackingSequence
-    + postProcessorHLTmuonTrackingSequence
     )

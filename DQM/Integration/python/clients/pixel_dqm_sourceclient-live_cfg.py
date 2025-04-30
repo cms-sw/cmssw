@@ -5,8 +5,8 @@ if 'runkey=hi_run' in sys.argv:
   from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
   process = cms.Process("PIXELDQMLIVE", Run3_pp_on_PbPb_approxSiStripClusters)
 else:
-  from Configuration.Eras.Era_Run3_cff import Run3
-  process = cms.Process("PIXELDQMLIVE", Run3)
+  from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+  process = cms.Process("PIXELDQMLIVE", Run3_2025)
 
 live=True
 unitTest = False
@@ -264,4 +264,5 @@ process = customise(process)
 #--------------------------------------------------
 
 print("Running with run type = ", process.runType.getRunType())
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

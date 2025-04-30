@@ -58,8 +58,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void preSourceConstruction(ModuleDescription const &);
-  void preBeginJob(PathsAndConsumesOfModulesBase const &, ProcessContext const &);
-  void postBeginJob();
+  void lookupInitializationComplete(PathsAndConsumesOfModulesBase const &, ProcessContext const &);
 
 private:
   bool highlighted(std::string const &module) { return (m_highlightModules.find(module) != m_highlightModules.end()); }
@@ -171,8 +170,7 @@ DependencyGraph::DependencyGraph(ParameterSet const &config, ActivityRegistry &r
       m_showPathDependencies(config.getUntrackedParameter<bool>("showPathDependencies")),
       m_initialized(false) {
   registry.watchPreSourceConstruction(this, &DependencyGraph::preSourceConstruction);
-  registry.watchPreBeginJob(this, &DependencyGraph::preBeginJob);
-  registry.watchPostBeginJob(this, &DependencyGraph::postBeginJob);
+  registry.watchLookupInitializationComplete(this, &DependencyGraph::lookupInitializationComplete);
 }
 
 // adaptor to use range-based for loops with boost::graph edges(...) and vertices(...) functions
@@ -204,8 +202,8 @@ void DependencyGraph::preSourceConstruction(ModuleDescription const &module) {
   attributes["fillcolor"] = highlighted(module.moduleLabel()) ? "lightgreen" : "white";
 }
 
-void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndConsumes,
-                                  ProcessContext const &context) {
+void DependencyGraph::lookupInitializationComplete(PathsAndConsumesOfModulesBase const &pathsAndConsumes,
+                                                   ProcessContext const &context) {
   // if the Service is not in the main Process do not do anything
   if (context.isSubProcess() and not m_initialized) {
     edm::LogError("DependencyGraph") << "You have requested an instance of the DependencyGraph Service in the \""
@@ -398,11 +396,6 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
       previous = module;
     }
   }
-}
-
-void DependencyGraph::postBeginJob() {
-  if (not m_initialized)
-    return;
 
   // remove the nodes corresponding to the modules that have been removed from the process
   for (int i = boost::num_vertices(m_graph) - 1; i > 1; --i) {

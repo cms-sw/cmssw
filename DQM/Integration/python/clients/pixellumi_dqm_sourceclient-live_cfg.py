@@ -5,8 +5,8 @@ if 'runkey=hi_run' in sys.argv:
   from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
   process = cms.Process("PixelLumiDQM", Run3_pp_on_PbPb_approxSiStripClusters)
 else:
-  from Configuration.Eras.Era_Run3_cff import Run3
-  process = cms.Process("PixelLumiDQM", Run3)
+  from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+  process = cms.Process("PixelLumiDQM", Run3_2025)
 
 unitTest=False
 if 'unitTest=True' in sys.argv:
@@ -145,4 +145,5 @@ process.p = cms.Path(process.Reco*process.DQMmodules)
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

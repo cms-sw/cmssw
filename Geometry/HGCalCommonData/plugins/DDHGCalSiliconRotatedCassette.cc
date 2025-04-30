@@ -318,12 +318,20 @@ void DDHGCalSiliconRotatedCassette::execute(DDCompactView& cpv) {
 void DDHGCalSiliconRotatedCassette::constructLayers(const DDLogicalPart& module, DDCompactView& cpv) {
   double zi(zMinBlock_);
   int laymin(0);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Enters constructLayers with " << layers_.size()
+                                << " layers";
+#endif
   for (unsigned int i = 0; i < layers_.size(); i++) {
     double zo = zi + layerThick_[i];
     double routF = HGCalGeomTools::radius(zi, zFrontT_, rMaxFront_, slopeT_);
     int laymax = laymin + layers_[i];
     double zz = zi;
     double thickTot(0);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Section " << i << " Layers " << laymin << ":"
+                                  << laymax << " zi " << zi;
+#endif
     for (int ly = laymin; ly < laymax; ++ly) {
       int ii = layerType_[ly];
       int copy = copyNumber_[ii];
@@ -392,7 +400,8 @@ void DDHGCalSiliconRotatedCassette::constructLayers(const DDLogicalPart& module,
         } else if (passiveMode_ > 0) {
           unsigned int num = (-layerSense_[ly] <= waferTypes_) ? passiveAbsorb_.size() : passiveCool_.size();
           if (num > 0)
-            positionPassiveNew(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
+            positionPassiveNew(glog, i, -layerSense_[ly], cpv);
+          //          positionPassiveNew(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
         } else {
           positionPassive(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
         }

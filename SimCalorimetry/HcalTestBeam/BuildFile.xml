@@ -5,6 +5,7 @@
 <use name="CalibCalorimetry/HcalAlgos"/>
 <use name="CalibFormats/HcalObjects"/>
 <use name="DataFormats/HcalDigi"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>

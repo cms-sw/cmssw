@@ -26,7 +26,6 @@ cond::TestIovUtilities::TestIovUtilities() : Utilities("conddb_copy_iov") {
 cond::TestIovUtilities::~TestIovUtilities() {}
 
 int cond::TestIovUtilities::execute() {
-  bool debug = hasDebug();
   std::string connect = getOptionValue<std::string>("connect");
 
   std::string hash("");

@@ -47,6 +47,8 @@ private:
   std::vector<NamedBranchPtr> m_uint16Branches;
   std::vector<NamedBranchPtr> m_int32Branches;
   std::vector<NamedBranchPtr> m_uint32Branches;
+  std::vector<NamedBranchPtr> m_int64Branches;
+  std::vector<NamedBranchPtr> m_uint64Branches;
   std::vector<NamedBranchPtr> m_floatBranches;
   std::vector<NamedBranchPtr> m_doubleBranches;
   bool m_branchesBooked;

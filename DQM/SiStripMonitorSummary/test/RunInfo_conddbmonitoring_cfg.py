@@ -96,12 +96,10 @@ process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 
 process.poolDBESSourceRunInfo = cms.ESSource("PoolDBESSource",
-   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
    DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(1),  # it used to be 2
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.untracked.string('runnumber'),
     connect = cms.string(options.runinfoConnectionString),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('RunInfoRcd'),
@@ -111,12 +109,10 @@ process.poolDBESSourceRunInfo = cms.ESSource("PoolDBESSource",
 )
 
 process.poolDBESSourceFedCabling = cms.ESSource("PoolDBESSource",
-   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
    DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(1),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.untracked.string('runnumber'),
     connect = cms.string(options.cablingConnectionString),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripFedCablingRcd'),

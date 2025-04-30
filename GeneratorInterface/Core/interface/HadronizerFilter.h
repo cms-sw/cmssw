@@ -146,10 +146,14 @@ namespace edm {
       }
     }
 
+    ivhepmc = hadronizer_.getVHepMC();
     if (ps.exists("HepMCFilter")) {
       ParameterSet psfilter = ps.getParameter<ParameterSet>("HepMCFilter");
-      filter_ = new HepMCFilterDriver(psfilter);
-      filter3_ = new HepMC3FilterDriver(psfilter);
+      if (ivhepmc == 2) {
+        filter_ = new HepMCFilterDriver(psfilter);
+      } else if (ivhepmc == 3) {
+        filter3_ = new HepMC3FilterDriver(psfilter);
+      }
     }
 
     //initialize setting for multiple hadronization attempts
@@ -163,7 +167,6 @@ namespace edm {
       usesResource(edm::uniqueSharedResourceName());
     }
 
-    ivhepmc = hadronizer_.getVHepMC();
     if (ivhepmc == 2) {
       produces<edm::HepMCProduct>("unsmeared");
       produces<GenEventInfoProduct>();
@@ -174,7 +177,7 @@ namespace edm {
     produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>();
     produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>();
     produces<GenRunInfoProduct, edm::Transition::EndRun>();
-    if (filter_)
+    if (filter_ || filter3_)
       produces<GenFilterInfo, edm::Transition::EndLuminosityBlock>();
   }
 
@@ -227,9 +230,9 @@ namespace edm {
       std::unique_ptr<HepMC::GenEvent> event(hadronizer_.getGenEvent());
       std::unique_ptr<HepMC3::GenEvent> event3(hadronizer_.getGenEvent3());
       if (ivhepmc == 2 && !event.get())
-        return false;
+        continue;
       if (ivhepmc == 3 && !event3.get())
-        return false;
+        continue;
 
       // The external decay driver is being added to the system,
       // it should be called here
@@ -244,9 +247,9 @@ namespace edm {
       }
 
       if (ivhepmc == 2 && !event.get())
-        return false;
+        continue;
       if (ivhepmc == 3 && !event3.get())
-        return false;
+        continue;
 
       // check and perform if there're any unstable particles after
       // running external decay packges
@@ -261,9 +264,9 @@ namespace edm {
       event = hadronizer_.getGenEvent();
       event3 = hadronizer_.getGenEvent3();
       if (ivhepmc == 2 && !event.get())
-        return false;
+        continue;
       if (ivhepmc == 3 && !event3.get())
-        return false;
+        continue;
 
       if (ivhepmc == 2) {  // HepMC
         event->set_event_number(ev.id().event());
@@ -282,27 +285,6 @@ namespace edm {
         //keep the LAST accepted event (which is equivalent to choosing randomly from the accepted events)
         finalEvent = std::move(event);
         finalGenEventInfo = std::move(genEventInfo);
-
-        if (!naccept)
-          return false;
-
-        //adjust event weights if necessary (in case input event was attempted multiple times)
-        if (nAttempts_ > 1) {
-          double multihadweight = double(naccept) / double(nAttempts_);
-
-          //adjust weight for GenEventInfoProduct
-          finalGenEventInfo->weights()[0] *= multihadweight;
-
-          //adjust weight for HepMC GenEvent (used e.g for RIVET)
-          finalEvent->weights()[0] *= multihadweight;
-        }
-
-        ev.put(std::move(finalGenEventInfo));
-
-        std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
-        bare_product->addHepMCData(finalEvent.release());
-        ev.put(std::move(bare_product), "unsmeared");
-
       } else if (ivhepmc == 3) {  // HepMC3
         event3->set_event_number(ev.id().event());
         std::unique_ptr<GenEventInfoProduct3> genEventInfo3(hadronizer_.getGenEventInfo3());
@@ -320,27 +302,46 @@ namespace edm {
         //keep the LAST accepted event (which is equivalent to choosing randomly from the accepted events)
         finalEvent3 = std::move(event3);
         finalGenEventInfo3 = std::move(genEventInfo3);
-
-        if (!naccept)
-          return false;
-
-        //adjust event weights if necessary (in case input event was attempted multiple times)
-        if (nAttempts_ > 1) {
-          double multihadweight = double(naccept) / double(nAttempts_);
-
-          //adjust weight for GenEventInfoProduct
-          finalGenEventInfo3->weights()[0] *= multihadweight;
-
-          //adjust weight for HepMC GenEvent (used e.g for RIVET)
-          finalEvent3->weights()[0] *= multihadweight;
-        }
-
-        ev.put(std::move(finalGenEventInfo3));
-
-        std::unique_ptr<HepMC3Product> bare_product(new HepMC3Product());
-        bare_product->addHepMCData(finalEvent3.release());
-        ev.put(std::move(bare_product), "unsmeared");
       }
+    }
+
+    if (!naccept)
+      return false;
+
+    if (ivhepmc == 2) {  // HepMC
+      //adjust event weights if necessary (in case input event was attempted multiple times)
+      if (nAttempts_ > 1) {
+        double multihadweight = double(naccept) / double(nAttempts_);
+
+        //adjust weight for GenEventInfoProduct
+        finalGenEventInfo->weights()[0] *= multihadweight;
+
+        //adjust weight for HepMC GenEvent (used e.g for RIVET)
+        finalEvent->weights()[0] *= multihadweight;
+      }
+
+      ev.put(std::move(finalGenEventInfo));
+
+      std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
+      bare_product->addHepMCData(finalEvent.release());
+      ev.put(std::move(bare_product), "unsmeared");
+    } else if (ivhepmc == 3) {  // HepMC3
+      //adjust event weights if necessary (in case input event was attempted multiple times)
+      if (nAttempts_ > 1) {
+        double multihadweight = double(naccept) / double(nAttempts_);
+
+        //adjust weight for GenEventInfoProduct
+        finalGenEventInfo3->weights()[0] *= multihadweight;
+
+        //adjust weight for HepMC GenEvent (used e.g for RIVET)
+        finalEvent3->weights()[0] *= multihadweight;
+      }
+
+      ev.put(std::move(finalGenEventInfo3));
+
+      std::unique_ptr<HepMC3Product> bare_product(new HepMC3Product());
+      bare_product->addHepMCData(finalEvent3.release());
+      ev.put(std::move(bare_product), "unsmeared");
     }
 
     return true;
