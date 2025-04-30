@@ -193,13 +193,34 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
       for (size_t idaughter = 0; idaughter < dnames.size(); idaughter++) {
         cand.addUserFloat(dnames[idaughter] + "_iso04", isos[idaughter]);
       }
-      float constraint_sv_prob = -9;
-      float constraint_pt = -9;
-      float constraint_eta = -9;
-      float constraint_phi = -9;
-      float constraint_mass = -9;
-      float constraint_massErr = -9;
-      float constraint_mll = -9;
+
+      float cstr_pt = -99;
+      float cstr_eta = -99;
+      float cstr_phi = -99;
+      float cstr_sv_prob = -99;
+      float cstr_mass = -99;
+      float cstr_massErr = -99;
+      float cstr_vtx_x = -99;
+      float cstr_vtx_y = -99;
+      float cstr_vtx_z = -99;
+      float cstr_vtx_cxx = -99;
+      float cstr_vtx_cyy = -99;
+      float cstr_vtx_czz = -99;
+      float cstr_vtx_cyx = -99;
+      float cstr_vtx_czx = -99;
+      float cstr_vtx_czy = -99;
+      float cstr_fitted_l1_pt = -99;
+      float cstr_fitted_l1_eta = -99;
+      float cstr_fitted_l1_phi = -99;
+      float cstr_fitted_l2_pt = -99;
+      float cstr_fitted_l2_eta = -99;
+      float cstr_fitted_l2_phi = -99;
+      float cstr_fitted_v0_pt = -99;
+      float cstr_fitted_v0_eta = -99;
+      float cstr_fitted_v0_phi = -99;
+      float cstr_v0_mass = -99;
+      float cstr_cos_theta_2D = -99; 
+            
       const double dilepton_mass = ll_ptr->userFloat("fitted_mass");
       const double jpsi_bin[2] = {2.8, 3.35};
       const double psi2s_bin[2] = {3.45, 3.85};
@@ -219,22 +240,74 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
             mass_constraint);
         if (constraint_fitter.success()) {
           auto constraint_p4 = constraint_fitter.fitted_p4();
-          constraint_sv_prob = constraint_fitter.prob();
-          constraint_pt = constraint_p4.pt();
-          constraint_eta = constraint_p4.eta();
-          constraint_phi = constraint_p4.phi();
-          constraint_mass = constraint_fitter.fitted_candidate().mass();
-          constraint_massErr = sqrt(constraint_fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6));
-          constraint_mll = (constraint_fitter.daughter_p4(0) + constraint_fitter.daughter_p4(1)).mass();
+          cstr_vtx_x=constraint_fitter.fitted_vtx().x();
+          cstr_vtx_y=constraint_fitter.fitted_vtx().y();
+          cstr_vtx_z=constraint_fitter.fitted_vtx().z();
+
+          const auto& constrained_covMatrix = constraint_fitter.fitted_vtx_uncertainty();
+          cstr_vtx_cxx=constrained_covMatrix.cxx();
+          cstr_vtx_cyy=constrained_covMatrix.cyy();
+          cstr_vtx_czz=constrained_covMatrix.czz();
+          cstr_vtx_cyx=constrained_covMatrix.cyx();
+          cstr_vtx_czx=constrained_covMatrix.czx();
+          cstr_vtx_czy=constrained_covMatrix.czy();
+
+          // refitted daughters (leptons/tracks)i
+	  cstr_fitted_l1_pt = constraint_fitter.daughter_p4(0).pt();
+          cstr_fitted_l1_eta = constraint_fitter.daughter_p4(0).eta();
+          cstr_fitted_l1_phi = constraint_fitter.daughter_p4(0).phi();
+          cstr_fitted_l2_pt = constraint_fitter.daughter_p4(1).pt();
+          cstr_fitted_l2_eta = constraint_fitter.daughter_p4(1).eta();
+          cstr_fitted_l2_phi = constraint_fitter.daughter_p4(1).phi();
+          cstr_fitted_v0_pt = constraint_fitter.daughter_p4(2).pt();
+          cstr_fitted_v0_eta = constraint_fitter.daughter_p4(2).eta();
+          cstr_fitted_v0_phi = constraint_fitter.daughter_p4(2).phi();
+
+          cstr_v0_mass=constraint_fitter.daughter_p4(2).mass();
+
+          cstr_sv_prob=constraint_fitter.prob();
+          cstr_pt=constraint_p4.pt();
+          cstr_eta=constraint_p4.eta();
+          cstr_phi=constraint_p4.phi();
+          cstr_mass=constraint_fitter.fitted_candidate().mass();
+          cstr_massErr=sqrt(constraint_fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6));
+          cstr_cos_theta_2D=bph::cos_theta_2D(constraint_fitter, *beamspot, constraint_p4);
+
         }
       }
-      cand.addUserFloat("constraint_sv_prob", constraint_sv_prob);
-      cand.addUserFloat("constraint_pt", constraint_pt);
-      cand.addUserFloat("constraint_eta", constraint_eta);
-      cand.addUserFloat("constraint_phi", constraint_phi);
-      cand.addUserFloat("constraint_mass", constraint_mass);
-      cand.addUserFloat("constraint_massErr", constraint_massErr);
-      cand.addUserFloat("constraint_mll", constraint_mll);
+
+
+      cand.addUserFloat("cstr_vtx_x", cstr_vtx_x);
+      cand.addUserFloat("cstr_vtx_y", cstr_vtx_y);
+      cand.addUserFloat("cstr_vtx_z", cstr_vtx_z);
+
+      cand.addUserFloat("cstr_vtx_cxx", cstr_vtx_cxx);
+      cand.addUserFloat("cstr_vtx_cyy", cstr_vtx_cyy);
+      cand.addUserFloat("cstr_vtx_czz", cstr_vtx_czz);
+      cand.addUserFloat("cstr_vtx_cyx", cstr_vtx_cyx);
+      cand.addUserFloat("cstr_vtx_czx", cstr_vtx_czx);
+      cand.addUserFloat("cstr_vtx_czy", cstr_vtx_czy);
+
+      // refitted daughters (leptons/tracks)
+      cand.addUserFloat("cstr_fitted_l1_pt", cstr_fitted_l1_pt);
+      cand.addUserFloat("cstr_fitted_l1_eta", cstr_fitted_l1_eta);
+      cand.addUserFloat("cstr_fitted_l1_phi", cstr_fitted_l1_phi);
+      cand.addUserFloat("cstr_fitted_l2_pt", cstr_fitted_l2_pt);
+      cand.addUserFloat("cstr_fitted_l2_eta", cstr_fitted_l2_eta);
+      cand.addUserFloat("cstr_fitted_l2_phi", cstr_fitted_l2_phi);      
+      cand.addUserFloat("cstr_fitted_v0_pt", cstr_fitted_v0_pt);
+      cand.addUserFloat("cstr_fitted_v0_eta", cstr_fitted_v0_eta);
+      cand.addUserFloat("cstr_fitted_v0_phi", cstr_fitted_v0_phi);      
+      cand.addUserFloat("cstr_v0_mass", cstr_v0_mass);
+
+      cand.addUserFloat("cstr_sv_prob", cstr_sv_prob);
+      cand.addUserFloat("cstr_pt", cstr_pt);
+      cand.addUserFloat("cstr_eta", cstr_eta);
+      cand.addUserFloat("cstr_phi", cstr_phi);
+      cand.addUserFloat("cstr_mass", cstr_mass);
+      cand.addUserFloat("cstr_massErr", cstr_massErr);
+      cand.addUserFloat("cstr_cos_theta_2D", cstr_cos_theta_2D);
+
 
       ret_val->push_back(cand);
     }
