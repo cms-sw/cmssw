@@ -254,9 +254,7 @@ namespace edm {
       return nullptr;
     }
 
-    void EventSetupRecordImpl::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const {
-      oToFill = keysForResolvers_;
-    }
+    std::vector<DataKey> const& EventSetupRecordImpl::registeredDataKeys() const { return keysForResolvers_; }
 
     void EventSetupRecordImpl::addTraceInfoToCmsException(cms::Exception& iException,
                                                           const char* iName,

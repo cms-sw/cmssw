@@ -113,8 +113,8 @@ namespace edm {
 
       unsigned int iovIndex() const { return iovIndex_; }
 
-      ///clears the oToFill vector and then fills it with the keys for all registered data keys
-      void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
+      ///keys for all registered data keys
+      std::vector<DataKey> const& registeredDataKeys() const;
       ///there is a 1-to-1 correspondence between elements returned and the elements returned from fillRegisteredDataKey.
       std::vector<ComponentDescription const*> componentsForRegisteredDataKeys() const;
 

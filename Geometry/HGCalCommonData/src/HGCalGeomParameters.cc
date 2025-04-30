@@ -1619,8 +1619,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
   php.rMinLayerBH_ = getDDDArray("RMinLayerBH", sv, 0);
   rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDDD);
   assert(php.nPhiBinBH_.size() > 1);
-  php.nCellsFine_ = php.nPhiBinBH_[0];
-  php.nCellsCoarse_ = php.nPhiBinBH_[1];
+  php.nCellsFine_ = php.nPhiBinBH_[1];
+  php.nCellsCoarse_ = php.nPhiBinBH_[0];
   assert(0 != php.nCellsFine_);
   assert(0 != php.nCellsCoarse_);
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsFine_);
@@ -1685,11 +1685,20 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
       php.nphiFineCassette_ = php.nCellsFine_ / php.cassettes_;
       std::vector<double> rectract = fv.vector("ScintRetract");
       rescale(rectract, HGCalParameters::k_ScaleFromDDD);
+      int n = 2 * php.cassettes_ * (php.firstLayer_ - 1);
+      for (int k1 = 0; k1 < n; ++k1)
+        cassetteShift.emplace_back(0.);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "First Layer " << php.firstLayer_ << " Rett size " << rectract.size() << " N "
+                                    << n;
+#endif
       double dphi = M_PI / php.cassettes_;
-      for (int k = 0; k < php.cassettes_; ++k) {
-        double phi = (2 * k + 1) * dphi;
-        cassetteShift.emplace_back(rectract[k] * cos(phi));
-        cassetteShift.emplace_back(rectract[k] * sin(phi));
+      for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
+        for (int k2 = 0; k2 < php.cassettes_; ++k2) {
+          double phi = (2 * k2 + 1) * dphi;
+          cassetteShift.emplace_back(rectract[k1] * cos(phi));
+          cassetteShift.emplace_back(rectract[k1] * sin(phi));
+        }
       }
     } else if (php.waferMaskMode_ == scintillatorCassette) {
       if (php.cassettes_ > 0)
@@ -1744,8 +1753,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
   php.rMinLayerBH_ = fv.get<std::vector<double> >(sdTag1, "RMinLayerBH");
   rescale(php.rMinLayerBH_, HGCalParameters::k_ScaleFromDD4hep);
   assert(php.nPhiBinBH_.size() > 1);
-  php.nCellsFine_ = php.nPhiBinBH_[0];
-  php.nCellsCoarse_ = php.nPhiBinBH_[1];
+  php.nCellsFine_ = php.nPhiBinBH_[1];
+  php.nCellsCoarse_ = php.nPhiBinBH_[0];
   assert(0 != php.nCellsFine_);
   assert(0 != php.nCellsCoarse_);
   php.cellSize_.emplace_back(2.0 * M_PI / php.nCellsFine_);
@@ -1843,11 +1852,20 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
         } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "ScintRetract")) {
           for (const auto& i : it.second)
             rectract.emplace_back(i);
+          int n = 2 * php.cassettes_ * (php.firstLayer_ - 1);
+          for (int k1 = 0; k1 < n; ++k1)
+            cassetteShift.emplace_back(0.);
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HGCalGeom") << "First Layer " << php.firstLayer_ << " Rett size " << rectract.size()
+                                        << " N " << n;
+#endif
           double dphi = M_PI / php.cassettes_;
-          for (int k = 0; k < php.cassettes_; ++k) {
-            double phi = (2 * k + 1) * dphi;
-            cassetteShift.emplace_back(rectract[k] * cos(phi));
-            cassetteShift.emplace_back(rectract[k] * sin(phi));
+          for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
+            for (int k2 = 0; k2 < php.cassettes_; ++k2) {
+              double phi = (2 * k2 + 1) * dphi;
+              cassetteShift.emplace_back(rectract[k1] * cos(phi));
+              cassetteShift.emplace_back(rectract[k1] * sin(phi));
+            }
           }
         }
       }
@@ -2365,7 +2383,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
                                   << ":" << php.tileRingR_.size();
 #endif
     for (unsigned int k = 0; k < 2; ++k) {
-      bool fine = ((k == 0) && (php.mode_ == HGCalGeometryMode::TrapezoidFineCell));
+      bool fine = ((k == 1) && (php.mode_ == HGCalGeometryMode::TrapezoidFineCell));
       unsigned int sizeR = (fine) ? php.tileRingFineR_.size() : php.tileRingR_.size();
       for (unsigned int kk = 0; kk < sizeR; ++kk) {
         if (fine)
@@ -2387,19 +2405,29 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     }
     // Minimum and maximum radius index for each layer
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Till Ring Range size " << php.tileRingFineRange_.size() << ":"
+    edm::LogVerbatim("HGCalGeom") << "Tile Ring Range size " << php.tileRingFineRange_.size() << ":"
                                   << php.tileRingRange_.size() << ":" << php.nPhiBinBH_.size() << ":"
                                   << php.zLayerHex_.size() << ":" << php.nPhiLayer_.size();
 #endif
     unsigned int k1(0), k2(0);
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
       if (!php.tileRingFineRange_.empty()) {
-        php.iradMinBHFine_.emplace_back(1 + php.tileRingFineRange_[k1].first);
-        php.iradMaxBHFine_.emplace_back(1 + php.tileRingFineRange_[k1].second);
+        unsigned int k0 = (k1 < (php.tileRingFineRange_.size() - 1)) ? k1 : (php.tileRingFineRange_.size() - 1);
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HGCalGeom") << "Layer " << k << " Fine " << k1 << ":" << k0 << ":"
+                                      << php.tileRingFineRange_.size();
+#endif
+        php.iradMinBHFine_.emplace_back(1 + php.tileRingFineRange_[k0].first);
+        php.iradMaxBHFine_.emplace_back(1 + php.tileRingFineRange_[k0].second);
       }
       if (!php.tileRingRange_.empty()) {
-        php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k2].first);
-        php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k2].second);
+        unsigned int k0 = (k2 < (php.tileRingRange_.size() - 1)) ? k2 : (php.tileRingRange_.size() - 1);
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HGCalGeom") << "Layer " << k << " Coarse " << k2 << ":" << k0 << ":"
+                                      << php.tileRingRange_.size();
+#endif
+        php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k0].first);
+        php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k0].second);
       }
       if (php.nPhiLayer_[k] > 288) {
         ++k1;
@@ -2497,7 +2525,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
   for (unsigned int k = 0; k < 2; ++k) {
     edm::LogVerbatim("HGCalGeom") << "Type " << k << " with " << php.radiusLayer_[k].size() << " radii";
     for (unsigned int kk = 0; kk < php.radiusLayer_[k].size(); ++kk)
-      edm::LogVerbatim("HGCalGeom") << "Ring[" << kk << "] " << php.radiusLayer_[k][kk];
+      edm::LogVerbatim("HGCalGeom") << "Ring[" << k << "][" << kk << "] " << php.radiusLayer_[k][kk];
   }
 #endif
 
@@ -2514,7 +2542,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
       if (php.iradMaxBH_[k] > php.tileUVMax_)
         php.tileUVMax_ = php.iradMaxBH_[k];
     }
-    int kk = (php.nPhiLayer_[k] > 288) ? 0 : 1;
+    int kk = (php.nPhiLayer_[k] > 288) ? 1 : 0;
     int irm = php.radiusLayer_[kk].size() - 1;
     int irmin = (php.nPhiLayer_[k] > 288) ? php.iradMinBHFine_[k] : php.iradMinBH_[k];
     int irmax = (php.nPhiLayer_[k] > 288) ? php.iradMaxBHFine_[k] : php.iradMaxBH_[k];
@@ -2522,12 +2550,16 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     double rmin = php.radiusLayer_[kk][std::max((irmin - 1), 0)];
     double rmax = php.radiusLayer_[kk][std::min(irmax, irm)];
     edm::LogVerbatim("HGCalGeom") << "Layer " << php.firstLayer_ + k << ":" << kk << " Radius range " << irmin << ":"
-                                  << irmax << ":" << rmin << ":" << rmax;
+                                  << irmax << ":" << rmin << ":" << rmax << " Size " << php.radiusLayer_[kk].size();
 #endif
     mytr.lay = php.firstLayer_ + k;
     for (int irad = irmin; irad <= irmax; ++irad) {
       double rmin = php.radiusLayer_[kk][std::max((irad - 1), 0)];
       double rmax = php.radiusLayer_[kk][std::min(irad, irm)];
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "irad " << irad << ":" << php.radiusLayer_[kk].size() << " R " << rmin << ":"
+                                    << rmax;
+#endif
       mytr.bl = 0.5 * rmin * php.scintCellSize(mytr.lay);
       mytr.tl = 0.5 * rmax * php.scintCellSize(mytr.lay);
       mytr.h = 0.5 * (rmax - rmin);
