@@ -24,7 +24,6 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
-#include "FWCore/ServiceRegistry/interface/ModuleConsumesESInfo.h"
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
@@ -139,22 +138,6 @@ void EDAnalyzerAdaptorBase::releaseMemoryPostLookupSignal() {
 
 const edm::EDConsumerBase* EDAnalyzerAdaptorBase::consumer() const { return m_streamModules[0]; }
 
-void EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(
-    std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-    ProductRegistry const& preg,
-    std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-    std::string const& processName) const {
-  assert(not m_streamModules.empty());
-  return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
-}
-
-void EDAnalyzerAdaptorBase::esModulesWhoseProductsAreConsumed(
-    std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
-    eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
-  assert(not m_streamModules.empty());
-  return m_streamModules[0]->esModulesWhoseProductsAreConsumed(esModules, iPI);
-}
-
 void EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& processName) {
   for (auto mod : m_streamModules) {
     mod->convertCurrentProcessAlias(processName);
@@ -166,10 +149,9 @@ std::vector<edm::ModuleConsumesInfo> EDAnalyzerAdaptorBase::moduleConsumesInfos(
   return m_streamModules[0]->moduleConsumesInfos();
 }
 
-std::vector<edm::ModuleConsumesESInfo> EDAnalyzerAdaptorBase::moduleConsumesESInfos(
-    eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
+std::vector<edm::ModuleConsumesMinimalESInfo> EDAnalyzerAdaptorBase::moduleConsumesMinimalESInfos() const {
   assert(not m_streamModules.empty());
-  return m_streamModules[0]->moduleConsumesESInfos(iPI);
+  return m_streamModules[0]->moduleConsumesMinimalESInfos();
 }
 
 bool EDAnalyzerAdaptorBase::doEvent(EventTransitionInfo const& info,

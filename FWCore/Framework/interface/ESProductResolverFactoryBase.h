@@ -40,6 +40,8 @@ namespace edm {
       virtual std::unique_ptr<ESProductResolver> makeResolver(unsigned int iovIndex) = 0;
 
       virtual DataKey makeKey(const std::string& iName) const = 0;
+
+      virtual unsigned int produceMethodID() const = 0;
     };
   }  // namespace eventsetup
 }  // namespace edm

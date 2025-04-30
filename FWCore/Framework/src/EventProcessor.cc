@@ -716,7 +716,7 @@ namespace edm {
     if (firstException) {
       std::rethrow_exception(firstException);
     }
-    pathsAndConsumesOfModules.initializeForEventSetup(std::move(esRecordsToProductResolverIndices), *esp_);
+    pathsAndConsumesOfModules.initializeForEventSetup(*esp_);
     actReg_->lookupInitializationCompleteSignal_(pathsAndConsumesOfModules, processContext_);
     schedule_->releaseMemoryPostLookupSignal();
 

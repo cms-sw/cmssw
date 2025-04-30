@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Integration/interface/ESTestRecords.h"
 #include "FWCore/Integration/interface/IOVTestInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -68,6 +69,8 @@ namespace edmtest {
     std::atomic<unsigned int> count2_;
     edm::SerialTaskQueue queue_;
     std::mutex mutex_;
+
+    std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override;
 
   private:
     bool isConcurrentFinder() const override { return true; }
@@ -193,6 +196,14 @@ namespace edmtest {
     }
     iov = edm::ValidityInterval(*(itFound.first), endOfInterval);
     --count_;
+  }
+
+  std::vector<edm::eventsetup::ESModuleProducesInfo> TestESSource::producesInfo() const {
+    std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo;
+    producesInfo.emplace_back(ESTestRecordI::keyForClass(),
+                              edm::eventsetup::DataKey(edm::eventsetup::DataKey::makeTypeTag<IOVTestInfo>(), ""),
+                              0);
+    return producesInfo;
   }
 
   edm::eventsetup::ESProductResolverProvider::KeyedResolversVector TestESSource::registerResolvers(
