@@ -16,8 +16,7 @@ BToKshortMuMu = cms.EDProducer(
                                   '&& 4.5 < mass && mass < 6. '
                                   '&& userFloat("min_dr") > 0.03'),
     postVtxSelection = cms.string('4.7 < userFloat("fitted_mass") && userFloat("fitted_mass") < 6. '
-                                  '&& userFloat("sv_prob") > 0.001 && -0.045<userFloat("v0_svip2d") && userFloat("v0_svip2d")<0.045'
-                                  '&& userFloat("fitted_cos_theta_2D") > 0.9'),
+                                  '&& userFloat("sv_prob") > 0.001 && -0.045<userFloat("v0_svip2d") && userFloat("v0_svip2d")<0.045'),
     dileptonMassContraint = cms.bool(True)
 )
 
@@ -101,13 +100,33 @@ BToKshortMuMuTable = cms.EDProducer(
         l1_iso04          = Var("userFloat('l1_iso04')", float, doc = "leading muon isolation DR<0.4"),
         l2_iso04          = Var("userFloat('l2_iso04')", float, doc = "suleading muon isolation DR<0.4"),
         V0_iso04      = Var("userFloat('v0_iso04')", float, doc = "V0 isolation DR<0.4"),
-        constraint_sv_prob     = Var("userFloat('constraint_sv_prob')", float, doc = "B vertex probability after the dimuon mass constraint"),
-        constraint_pt   = Var("userFloat('constraint_pt')", float, doc = "B pt after the dimuon mass constraint"),
-        constraint_eta  = Var("userFloat('constraint_eta')", float, doc = "B eta after the dimuon mass constraint"),
-        constraint_phi  = Var("userFloat('constraint_phi')", float, doc = "B phi after the dimuon mass constraint"),
-        constraint_mass = Var("userFloat('constraint_mass')", float, doc = "B mass after the dimuon mass constraint"),
-        constraint_massErr  = Var("userFloat('constraint_massErr')", float, doc = "mass uncertainty of the dimuon mass constraint"),
-        constraint_mll  = Var("userFloat('constraint_mll')", float, doc = "dimuon mass after the dimuon mass constraint"),
+        # constraint properties
+        constraint_pt       = ufloat('cstr_pt'),
+        constraint_eta      = ufloat('cstr_eta'),
+        constraint_phi      = ufloat('cstr_phi'),
+        constraint_sv_prob  = ufloat('cstr_sv_prob'),
+        constraint_mass     = ufloat('cstr_mass'),
+        constraint_massErr  = ufloat('cstr_massErr'),
+        constraint_vtx_x    = ufloat('cstr_vtx_x'),
+        constraint_vtx_y    = ufloat('cstr_vtx_y'),
+        constraint_vtx_z    = ufloat('cstr_vtx_z'),
+        constraint_vtx_cxx  = ufloat('cstr_vtx_cxx'),
+        constraint_vtx_cyy  = ufloat('cstr_vtx_cyy'),
+        constraint_vtx_czz  = ufloat('cstr_vtx_czz'),
+        constraint_vtx_cyx  = ufloat('cstr_vtx_cyx'),
+        constraint_vtx_czx  = ufloat('cstr_vtx_czx'),
+        constraint_vtx_czy  = ufloat('cstr_vtx_czy'),
+        constraint_l1_pt      = ufloat('cstr_fitted_l1_pt'),
+        constraint_l1_eta     = ufloat('cstr_fitted_l1_eta'),
+        constraint_l1_phi     = ufloat('cstr_fitted_l1_phi'),
+        constraint_l2_pt      = ufloat('cstr_fitted_l2_pt'),
+        constraint_l2_eta     = ufloat('cstr_fitted_l2_eta'),
+        constraint_l2_phi     = ufloat('cstr_fitted_l2_phi'),
+        constraint_v0_pt  = ufloat('cstr_fitted_v0_pt'),
+        constraint_v0_eta = ufloat('cstr_fitted_v0_eta'),
+        constraint_v0_phi = ufloat('cstr_fitted_v0_phi'),
+        mv0_cstrfit = ufloat('cstr_v0_mass'),
+        constraint_cos2D = ufloat('cstr_cos_theta_2D')
     )
 )
 

@@ -3,26 +3,28 @@
 // filters muons and produces 3 collections: all muons that pass the selection
 // triggering muons and transient tracks of triggering muons
 
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
-#include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
-#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/PatCandidates/interface/TriggerPath.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+#include "DataFormats/PatCandidates/interface/TriggerPath.h"
+#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
+#include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "helper.h"
 
 using namespace std;
@@ -73,8 +75,7 @@ void MuonTriggerSelector::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
   std::vector<pat::TriggerObjectStandAlone> triggeringMuons;
 
-  // taken from
-  // https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD2016#Trigger
+  //taken from https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD2016#Trigger
   edm::Handle<std::vector<pat::TriggerObjectStandAlone>> triggerObjects;
   iEvent.getByToken(triggerObjects_, triggerObjects);
 
@@ -104,7 +105,7 @@ void MuonTriggerSelector::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     if (debug)
       std::cout << "Muon Pt=" << muon.pt() << " Eta=" << muon.eta() << " Phi=" << muon.phi() << endl;
 
-    std::vector<int> frs(HLTPaths_.size(), 0);  // path fires for each reco muon
+    std::vector<int> frs(HLTPaths_.size(), 0);  //path fires for each reco muon
     std::vector<float> temp_matched_to(HLTPaths_.size(), 1000.);
     std::vector<float> temp_DR(HLTPaths_.size(), 1000.);
     std::vector<float> temp_DPT(HLTPaths_.size(), 1000.);
@@ -112,26 +113,19 @@ void MuonTriggerSelector::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
     for (const std::string &path : HLTPaths_) {
       ipath++;
-      // the following vectors are used in order to find the minimum DR between
-      // a reco muon and all the HLT objects that is matched with it so as a
-      // reco muon will be matched with only one HLT object every time so as
-      // there is a one-to-one correspondance between the two collection.
-      // DPt_rel is not used to create this one-to-one correspondance but only
-      // to create a few plots, debugging and be sure thateverything is working
-      // fine.
+      // the following vectors are used in order to find the minimum DR between a reco muon and all the HLT objects that is matched with it so as a reco muon will be matched with only one HLT object every time so as there is a one-to-one correspondance between the two collection. DPt_rel is not used to create this one-to-one correspondance but only to create a few plots, debugging and be sure thateverything is working fine.
       std::vector<float> temp_dr(muon.triggerObjectMatches().size(), 1000.);
       std::vector<float> temp_dpt(muon.triggerObjectMatches().size(), 1000.);
       std::vector<float> temp_pt(muon.triggerObjectMatches().size(), 1000.);
       char cstr[(path + "*").size() + 1];
       strcpy(cstr, (path + "*").c_str());
-      // Here we find all the HLT objects from each HLT path each time that are
-      // matched with the reco muon.
+      //Here we find all the HLT objects from each HLT path each time that are matched with the reco muon.
       if (!muon.triggerObjectMatches().empty()) {
         for (size_t i = 0; i < muon.triggerObjectMatches().size(); i++) {
           if (muon.triggerObjectMatch(i) != nullptr && muon.triggerObjectMatch(i)->hasPathName(cstr, true, true)) {
             frs[ipath] = 1;
-            float dr =
-                deltaR(muon.eta(), muon.phi(), muon.triggerObjectMatch(i)->eta(), muon.triggerObjectMatch(i)->phi());
+            float dr = TMath::Sqrt(pow(muon.triggerObjectMatch(i)->eta() - muon.eta(), 2.) +
+                                   pow(muon.triggerObjectMatch(i)->phi() - muon.phi(), 2.));
             float dpt = (muon.triggerObjectMatch(i)->pt() - muon.pt()) / muon.triggerObjectMatch(i)->pt();
             temp_dr[i] = dr;
             temp_dpt[i] = dpt;
@@ -148,31 +142,27 @@ void MuonTriggerSelector::produce(edm::Event &iEvent, const edm::EventSetup &iSe
               std::cout << "DR = " << temp_dr[i] << endl;
           }
         }
-        // and now we find the real minimum between the reco muon and all its
-        // matched HLT objects.
+        // and now we find the real minimum between the reco muon and all its matched HLT objects.
         temp_DR[ipath] = *min_element(temp_dr.begin(), temp_dr.end());
         int position = std::min_element(temp_dr.begin(), temp_dr.end()) - temp_dr.begin();
         temp_DPT[ipath] = temp_dpt[position];
         temp_matched_to[ipath] = temp_pt[position];
       }
     }
-    // and now since we have found the minimum DR we save a few variables for
-    // plots
-    fires.push_back(frs);                // This is used in order to see if a reco muon fired
-                                         // a Trigger (1) or not (0).
-    matcher.push_back(temp_matched_to);  // This is used in order to see if a reco muon is
-                                         // matched with a HLT object. PT of the reco muon is
-                                         // saved in this vector.
+    //and now since we have found the minimum DR we save a few variables for plots
+    fires.push_back(frs);  //This is used in order to see if a reco muon fired a Trigger (1) or not (0).
+    matcher.push_back(
+        temp_matched_to);  //This is used in order to see if a reco muon is matched with a HLT object. PT of the reco muon is saved in this vector.
     DR.push_back(temp_DR);
     DPT.push_back(temp_DPT);
   }
-  // now, check for different reco muons that are matched to the same HLTObject.
+
+  //now, check for different reco muons that are matched to the same HLTObject.
   for (unsigned int path = 0; path < HLTPaths_.size(); path++) {
     for (unsigned int iMuo = 0; iMuo < muons->size(); iMuo++) {
       for (unsigned int im = (iMuo + 1); im < muons->size(); im++) {
         if (matcher[iMuo][path] != 1000. && matcher[iMuo][path] == matcher[im][path]) {
-          if (DR[iMuo][path] < DR[im][path]) {  // Keep the one that has the minimum DR with the
-                                                // HLT object
+          if (DR[iMuo][path] < DR[im][path]) {  //Keep the one that has the minimum DR with the HLT object
             fires[im][path] = 0;
             matcher[im][path] = 1000.;
             DR[im][path] = 1000.;
@@ -193,7 +183,7 @@ void MuonTriggerSelector::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     }
   }
 
-  // save the reco muon in both collections
+  // Save the reco muon in both collections
   for (const pat::Muon &muon : *muons) {
     unsigned int iMuo(&muon - &(muons->at(0)));
     if (!muon_selection_(muon))
@@ -202,7 +192,13 @@ void MuonTriggerSelector::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     if (!muonTT.isValid())
       continue;
 
-    allmuons_out->emplace_back(muon);
+    // Save in AllMuons
+    // Make a copy of the muon and add the trigger flag for filtering Allmuons
+    pat::Muon muonCopy(muon);
+    muonCopy.addUserInt("isTriggering", muonIsTrigger[iMuo]);  // 1 if triggered, 0 otherwise
+    allmuons_out->push_back(muonCopy);
+
+    // Save in selectedMuons for triggering muons
     if (muonIsTrigger[iMuo] != 1)
       continue;
 
