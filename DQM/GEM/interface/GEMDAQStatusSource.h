@@ -63,7 +63,6 @@ protected:
 private:
   int ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) override;
   int ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKey key) override;
-
   void SetLabelAMC13Status(MonitorElement *h2Status);
   void SetLabelAMCStatus(MonitorElement *h2Status);
   void SetLabelOHStatus(MonitorElement *h2Status);

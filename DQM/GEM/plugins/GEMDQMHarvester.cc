@@ -435,24 +435,19 @@ void GEMDQMHarvester::createMaskedVFATHist(edm::Service<DQMStore> &store,
                               nBinY, -0.5, nBinY - 0.5);
   copyLabels(h2SrcStatusE, h2MaskedVFAT);
   
-  // 마스킹된 VFAT 식별 및 값 설정
-  // 마스킹된 VFAT = 2
-  // 마스킹 안된 VFAT = 1
   for (Int_t j = 1; j <= nBinY; j++) {
     for (Int_t i = 1; i <= nBinX; i++) {
       Float_t fStatusErr = h2SrcStatusE->getBinContent(i, j);
       if (fStatusErr <= -16.0) {
-        h2MaskedVFAT->setBinContent(i, j, 2.0); // 마스킹된 VFAT
+        h2MaskedVFAT->setBinContent(i, j, 2.0);
       } else {
-        h2MaskedVFAT->setBinContent(i, j, 1.0); // 마스킹 안된 VFAT
+        h2MaskedVFAT->setBinContent(i, j, 1.0); 
       }
     }
   }
   
-  // Z축 타이틀 설정
   h2MaskedVFAT->getTH2F()->GetZaxis()->SetTitle("Masked status");
   
-  // 타이틀이 다른 곳에서 덮어씌워질 가능성에 대비해 명시적으로 다시 설정
   h2MaskedVFAT->setTitle("VFAT reporting masked" + strSuffix);
 }
 

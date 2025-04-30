@@ -494,11 +494,8 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
 
       for (Int_t i = 0; i < nNumVFATPerModule; i++) {
         if ((vfatMask & (1 << i)) == 0) {
-          // -16: A sufficient large number to avoid any effect from a buggy filling
           mapStatusErrVFATPerLayer_.Fill(key4, nCh, i, -16);
-          
-          // 마스킹된 VFAT 정보만 새 히스토그램에 채우기
-          mapStatusMaskedVFATPerLayer_.Fill(key4, nCh, i, 1.0); // 마스킹된 VFAT는 1로 표시
+          mapStatusMaskedVFATPerLayer_.Fill(key4, nCh, i, 1.0);
         }
       }
 
