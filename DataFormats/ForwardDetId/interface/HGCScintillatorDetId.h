@@ -12,7 +12,7 @@
    [9:16]  |ring| index (starting from a minimum radius depending on type)
    [17:21] Layer #
    [22]    Trigger(1)/Detector(0) cell
-   [23]    SiPM type (0 for Small: 1 for Large)
+   [23]    SiPM type (0 for 2mm or 9mm: 1 for 4mm)
    [24]    Granularity of the tile (0 normal; 1 fine)
    [25:25] z-side (0 for +z; 1 for -z)
    [26:27] Tile make (1 of type "c"; 2 of type "m")
@@ -139,6 +139,7 @@ public:
   constexpr bool isEE() const { return false; }
   constexpr bool isHE() const { return true; }
   constexpr bool isForward() const { return true; }
+  constexpr int position() const { return (id_ & kHGCalPositionMask); }
 
   static const HGCScintillatorDetId Undefined;
 
@@ -162,6 +163,7 @@ public:
   static constexpr int kHGCalTypeOffset = 26;
   static constexpr int kHGCalTypeMask = 0x3;
   static constexpr int kHGCalTypeMask0 = 0xF3FFFFFF;
+  static constexpr int kHGCalPositionMask = 0xF2FFFFFF;
 
   constexpr int iradiusTriggerAbs() const {
     if (trigger())
