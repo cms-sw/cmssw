@@ -25,8 +25,8 @@ namespace l1gt {
   typedef ap_fixed<13, 13, AP_RND_CONV> phi_t;
   typedef ap_fixed<14, 14, AP_RND_CONV, AP_SAT> eta_t;
   // While bitwise identical to the l1ct::z0_t value, we store z0 in mm to profit of ap_fixed goodies
-  typedef ap_fixed<10, 9, AP_RND_CONV, AP_SAT> z0_t;  // NOTE: mm instead of cm!!!
-  typedef ap_ufixed<10, 1, AP_RND, AP_SAT> b_tag_score_t;
+  typedef ap_fixed<10, 9, AP_RND_CONV, AP_SAT> z0_t;   // NOTE: mm instead of cm!!!
+  typedef ap_ufixed<8, 1, AP_RND, AP_SAT> id_proba_t;  // for IDs bounded in range [0-1]
   typedef ap_uint<1> valid_t;
 
   // E/gamma fields
@@ -84,12 +84,20 @@ namespace l1gt {
   };
 
   struct Jet {
+    static const unsigned NTagFields = 8;
     valid_t valid;
     ThreeVector v3;
     z0_t z0;
-    b_tag_score_t hwBtagScore;
+    // class probabilities for tag categories
+    id_proba_t hwTagScores[NTagFields];
 
-    inline bool operator==(const Jet &other) const { return valid == other.valid && z0 == other.z0 && v3 == other.v3; }
+    inline bool operator==(const Jet &other) const {
+      bool eq = valid == other.valid && z0 == other.z0 && v3 == other.v3;
+      for (unsigned i = 0; i < NTagFields; i++) {
+        eq = eq && hwTagScores[i] == other.hwTagScores[i];
+      }
+      return eq;
+    }
 
     static const int BITWIDTH = 128;
     inline ap_uint<BITWIDTH> pack_ap() const {
@@ -98,7 +106,9 @@ namespace l1gt {
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
       pack_into_bits(ret, start, z0);
-      pack_into_bits(ret, start, hwBtagScore);
+      for (unsigned i = 0; i < NTagFields; i++) {
+        pack_into_bits(ret, start, hwTagScores[i]);
+      }
       return ret;
     }
 
@@ -123,7 +133,9 @@ namespace l1gt {
       unpack_from_bits(src, start, v3.phi);
       unpack_from_bits(src, start, v3.eta);
       unpack_from_bits(src, start, z0);
-      unpack_from_bits(src, start, hwBtagScore);
+      for (unsigned i = 0; i < NTagFields; i++) {
+        unpack_from_bits(src, start, hwTagScores[i]);
+      }
     }
 
     inline static Jet unpack(const std::array<uint64_t, 2> &src) {
