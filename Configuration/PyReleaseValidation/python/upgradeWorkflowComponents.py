@@ -1907,6 +1907,19 @@ upgradeWFs['HLTTiming75e33AlpakaTrimmedTrackingSingleIter'].step2 = {
     '--eventcontent':'FEVTDEBUGHLT,DQMIO'
 }
 
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeeding'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeeding'].suffix = '_HLT75e33TimingAlpakaSingleIterLSTSeeding'
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeeding'].offset = 0.757
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeeding'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'alpaka,singleIterPatatrack,trackingLST,seedingLST',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeeding'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
+}
+
 class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'DigiTrigger' in step:
