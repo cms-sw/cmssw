@@ -8,7 +8,6 @@ hltInputLST = cms.EDProducer('LSTInputProducer@alpaka',
       'hltInitialStepSeedTracksLST',
       'hltHighPtTripletStepSeedTracksLST'
     ),
-    mightGet = cms.optional.untracked.vstring,
     alpaka = cms.untracked.PSet(
         backend = cms.untracked.string('')
     )

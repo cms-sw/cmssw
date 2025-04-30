@@ -27,7 +27,7 @@ _HLTInitialStepSequenceLST = cms.Sequence(
     +HLTHighPtTripletStepSeedingSequence
     +hltHighPtTripletStepSeedTracksLST
     +hltSiPhase2RecHits # Probably need to move elsewhere in the final setup
-    +hltInputLST # Probably need to move elsewhere in the final setup
+    +hltInputLST
     +hltLST
     +hltInitialStepTrackCandidates
     +hltInitialStepTrackspTTCLST
@@ -53,9 +53,8 @@ from ..modules.hltInitialStepTrajectorySeedsLST_cfi import *
 _HLTInitialStepSequenceSingleIterPatatrackLSTSeeding = cms.Sequence(
      hltInitialStepSeeds
     +hltInitialStepSeedTracksLST
-    +hltPixelSeedInputLST
     +hltSiPhase2RecHits # Probably need to move elsewhere in the final setup
-    +hltPhase2OTHitsInputLST # Probably need to move elsewhere in the final setup
+    +hltInputLST
     +hltLST
     +hltInitialStepTrajectorySeedsLST
     +hltInitialStepTrackCandidates
