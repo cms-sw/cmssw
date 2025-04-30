@@ -24,7 +24,7 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'                   :    '131X_mcRun2_pA_v3',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'                    :    '141X_dataRun2_v2',
+    'run2_data'                    :    '141X_dataRun2_v3',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
     'run2_data_HEfail'             :    '140X_dataRun2_HEfail_v1',
     # GlobalTag for Run2 HI data
@@ -37,8 +37,8 @@ autoCond = {
     'run3_data_express'            :    '150X_dataRun3_Express_frozen250122_v1',
     # GlobalTag for Run3 data relvals (prompt GT): same as 150X_dataRun3_Prompt_v1 but with snapshot at 2025-01-22 13:49:01 (UTC)
     'run3_data_prompt'             :    '150X_dataRun3_Prompt_frozen250122_v1',
-    # GlobalTag for Run3 offline data reprocessing - snapshot at 2025-03-19 17:13:09 (UTC)
-    'run3_data'                    :    '150X_dataRun3_v3',
+    # GlobalTag for Run3 offline data reprocessing - snapshot at 2025-04-10 16:45:49 (UTC)
+    'run3_data'                    :    '150X_dataRun3_v4',
     # GlobalTag for Run3 offline data reprocessing with Prompt GT, currently for 2022FG - snapshot at 2024-05-31 08:53:25 (UTC)
     'run3_data_PromptAnalysis'     :    '140X_dataRun3_PromptAnalysis_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)

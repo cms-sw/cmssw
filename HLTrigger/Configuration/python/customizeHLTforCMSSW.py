@@ -37,26 +37,6 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTfor47630(process):
-    attributes_to_remove = [
-        'connectionRetrialPeriod',
-        'connectionRetrialTimeOut',
-        'connectionTimeOut',
-        'enableConnectionSharing',
-        'enablePoolAutomaticCleanUp',
-        'enableReadOnlySessionOnUpdateConnection',
-        'idleConnectionCleanupPeriod'
-    ]
-
-    for mod in modules_by_type(process, "PoolDBESSource"):
-        if hasattr(mod, 'DBParameters'):
-            pset = getattr(mod,'DBParameters')
-            for attr in attributes_to_remove:
-                if hasattr(pset, attr):
-                    delattr(mod.DBParameters, attr)
-                    
-    return process
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -64,7 +44,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    
-    process = customizeHLTfor47630(process)
     
     return process
