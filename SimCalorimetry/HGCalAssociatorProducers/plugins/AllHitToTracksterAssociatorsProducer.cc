@@ -60,12 +60,37 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
   for (const auto& token : hitsTokens_) {
     Handle<HGCRecHitCollection> hitsHandle;
     iEvent.getByToken(token, hitsHandle);
+
+    // Protection against missing HGCRecHitCollection
+    if (!hitsHandle.isValid()) {
+      edm::LogWarning("AllHitToTracksterAssociatorsProducer")
+          << "Missing HGCRecHitCollection for one of the hitsTokens.";
+      continue;
+    }
     rechitManager.addVector(*hitsHandle);
+  }
+
+  // Check if rechitManager is empty
+  if (rechitManager.size() == 0) {
+    edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
+        << "No valid HGCRecHitCollections found. Association maps will be empty.";
+    for (const auto& tracksterToken : tracksterCollectionTokens_) {
+      iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitTo" + tracksterToken.first);
+      iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), tracksterToken.first + "ToHit");
+    }
+    return;
   }
 
   for (const auto& tracksterToken : tracksterCollectionTokens_) {
     Handle<std::vector<ticl::Trackster>> tracksters;
     iEvent.getByToken(tracksterToken.second, tracksters);
+
+    if (!tracksters.isValid()) {
+      edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "Missing Tracksters for one of the hitsTokens.";
+      iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitTo" + tracksterToken.first);
+      iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), tracksterToken.first + "ToHit");
+      return;
+    }
 
     auto hitToTracksterMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(rechitManager.size());
     auto tracksterToHitMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(tracksters->size());
