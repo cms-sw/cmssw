@@ -31,6 +31,10 @@ hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone(
     photons = "None"
 )
 
+# HGCAL validation
+from Validation.HGCalValidation.HLTHGCalValidator_cff import *
+from RecoHGCal.TICL.HLTSimTracksters_cff import *
+
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
@@ -63,6 +67,9 @@ _phase2_hltassociation = hltassociation.copyAndExclude([
 
 # Add hltTrackerphase2ValidationSource to the sequence
 _phase2_hltassociation += hltTrackerphase2ValidationSource
+
+# Add HGCal SimTracksters
+_phase2_hltassociation += hltTiclSimTrackstersSeq
 
 # Apply the modification
 phase2_common.toReplaceWith(hltassociation, _phase2_hltassociation)
@@ -107,6 +114,7 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   hltHCALRecoAnalyzer,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
+_hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(

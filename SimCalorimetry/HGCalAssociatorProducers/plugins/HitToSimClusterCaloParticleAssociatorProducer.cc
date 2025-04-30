@@ -19,17 +19,14 @@ HitToSimClusterCaloParticleAssociatorProducer::HitToSimClusterCaloParticleAssoci
     const edm::ParameterSet &pset)
     : simClusterToken_(consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("simClusters"))),
       caloParticleToken_(consumes<std::vector<CaloParticle>>(pset.getParameter<edm::InputTag>("caloParticles"))),
-      hitMapToken_(
-          consumes<std::unordered_map<DetId, const unsigned int>>(pset.getParameter<edm::InputTag>("hitMap"))) {
-  auto hitsTags = pset.getParameter<std::vector<edm::InputTag>>("hits");
-  for (const auto &tag : hitsTags) {
+      hitMapToken_(consumes<std::unordered_map<DetId, const unsigned int>>(pset.getParameter<edm::InputTag>("hitMap"))),
+      hitsTags_(pset.getParameter<std::vector<edm::InputTag>>("hits")) {
+  for (const auto &tag : hitsTags_) {
     hitsTokens_.push_back(consumes<HGCRecHitCollection>(tag));
   }
   produces<ticl::AssociationMap<ticl::mapWithFraction>>("hitToSimClusterMap");
   produces<ticl::AssociationMap<ticl::mapWithFraction>>("hitToCaloParticleMap");
 }
-
-HitToSimClusterCaloParticleAssociatorProducer::~HitToSimClusterCaloParticleAssociatorProducer() {}
 
 void HitToSimClusterCaloParticleAssociatorProducer::produce(edm::StreamID,
                                                             edm::Event &iEvent,
@@ -46,10 +43,29 @@ void HitToSimClusterCaloParticleAssociatorProducer::produce(edm::StreamID,
   iEvent.getByToken(hitMapToken_, hitMap);
 
   MultiVectorManager<HGCRecHit> rechitManager;
-  for (const auto &token : hitsTokens_) {
+  // Loop over tokens with index to access corresponding InputTag
+  for (size_t i = 0; i < hitsTokens_.size(); ++i) {
+    const auto &token = hitsTokens_[i];
     Handle<HGCRecHitCollection> hitsHandle;
     iEvent.getByToken(token, hitsHandle);
+
+    // Error handling with tag name
+    if (!hitsHandle.isValid()) {
+      edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
+          << "Missing HGCRecHitCollection for tag: " << hitsTags_[i].encode();
+      continue;
+    }
     rechitManager.addVector(*hitsHandle);
+  }
+
+  // Check if rechitManager is empty after processing hitsTokens_
+  if (rechitManager.size() == 0) {
+    edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
+        << "No valid HGCRecHitCollections found. Association maps will be empty.";
+    // Store empty maps in the event
+    iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitToSimClusterMap");
+    iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitToCaloParticleMap");
+    return;
   }
 
   // Create association maps
