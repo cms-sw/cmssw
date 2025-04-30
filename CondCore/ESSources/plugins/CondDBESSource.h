@@ -106,6 +106,8 @@ protected:
 
   KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int iovIndex) override;
 
+  std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override;
+
   void initConcurrentIOVs(const EventSetupRecordKey& key, unsigned int nConcurrentIOVs) override;
 
   bool isConcurrentFinder() const override { return true; }

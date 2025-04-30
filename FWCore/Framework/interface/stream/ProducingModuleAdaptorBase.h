@@ -57,6 +57,7 @@ namespace edm {
   class WaitingTaskHolder;
   class ServiceWeakToken;
   class SignallingProductRegistryFiller;
+  struct ModuleConsumesMinimalESInfo;
 
   namespace maker {
     template <typename T>
@@ -112,20 +113,10 @@ namespace edm {
       void releaseMemoryPostLookupSignal();
       virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
 
-      void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-                                           ProductRegistry const& preg,
-                                           std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-                                           std::string const& processName) const;
-
-      void esModulesWhoseProductsAreConsumed(
-          std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
-          eventsetup::ESRecordsToProductResolverIndices const&) const;
-
       void convertCurrentProcessAlias(std::string const& processName);
 
       std::vector<ModuleConsumesInfo> moduleConsumesInfos() const;
-      std::vector<ModuleConsumesESInfo> moduleConsumesESInfos(
-          eventsetup::ESRecordsToProductResolverIndices const&) const;
+      std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const;
 
       using ModuleToResolverIndicies =
           std::unordered_multimap<std::string, std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;

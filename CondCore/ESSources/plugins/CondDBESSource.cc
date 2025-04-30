@@ -22,6 +22,7 @@
 #include "CondCore/ESSources/interface/ProductResolver.h"
 
 #include "CondCore/CondDB/interface/PayloadProxy.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -646,6 +647,23 @@ edm::eventsetup::ESProductResolverProvider::KeyedResolversVector CondDBESSource:
     }
   }
   return keyedResolversVector;
+}
+
+std::vector<edm::eventsetup::ESModuleProducesInfo> CondDBESSource::producesInfo() const {
+  std::vector<edm::eventsetup::ESModuleProducesInfo> returnValue;
+  returnValue.reserve(m_resolvers.size());
+
+  for (auto const& recToResolver : m_resolvers) {
+    unsigned int index = returnValue.size();
+
+    EventSetupRecordKey rec{edm::eventsetup::TypeTag::findType(recToResolver.first)};
+
+    edm::eventsetup::TypeTag type = recToResolver.second->type();
+    DataKey key(type, edm::eventsetup::IdTags(recToResolver.second->label().c_str()));
+    returnValue.emplace_back(rec, key, index);
+  }
+
+  return returnValue;
 }
 
 void CondDBESSource::initConcurrentIOVs(const EventSetupRecordKey& key, unsigned int nConcurrentIOVs) {

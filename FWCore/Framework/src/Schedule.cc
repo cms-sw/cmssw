@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -1310,77 +1312,6 @@ namespace edm {
                                              std::vector<ModuleDescription const*>& descriptions,
                                              unsigned int hint) const {
     streamSchedules_[0]->moduleDescriptionsInEndPath(iEndPathLabel, descriptions, hint);
-  }
-
-  void Schedule::fillModuleAndConsumesInfo(
-      std::vector<ModuleDescription const*>& allModuleDescriptions,
-      std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-      std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>& modulesWhoseProductsAreConsumedBy,
-      ProductRegistry const& preg) const {
-    allModuleDescriptions.clear();
-    moduleIDToIndex.clear();
-    for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-      modulesWhoseProductsAreConsumedBy[iBranchType].clear();
-    }
-
-    allModuleDescriptions.reserve(allWorkers().size());
-    moduleIDToIndex.reserve(allWorkers().size());
-    for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-      modulesWhoseProductsAreConsumedBy[iBranchType].resize(allWorkers().size());
-    }
-
-    std::map<std::string, ModuleDescription const*> labelToDesc;
-    unsigned int i = 0;
-    for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->description();
-      allModuleDescriptions.push_back(p);
-      moduleIDToIndex.push_back(std::pair<unsigned int, unsigned int>(p->id(), i));
-      labelToDesc[p->moduleLabel()] = p;
-      ++i;
-    }
-    sort_all(moduleIDToIndex);
-
-    i = 0;
-    for (auto const& worker : allWorkers()) {
-      std::array<std::vector<ModuleDescription const*>*, NumBranchTypes> modules;
-      for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-        modules[iBranchType] = &modulesWhoseProductsAreConsumedBy[iBranchType].at(i);
-      }
-
-      try {
-        worker->modulesWhoseProductsAreConsumed(modules, preg, labelToDesc);
-      } catch (cms::Exception& ex) {
-        ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
-                      worker->description()->moduleLabel());
-        throw;
-      }
-      ++i;
-    }
-  }
-
-  void Schedule::fillESModuleAndConsumesInfo(
-      std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>, kNumberOfEventSetupTransitions>&
-          esModulesWhoseProductsAreConsumedBy,
-      eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
-    for (auto& item : esModulesWhoseProductsAreConsumedBy) {
-      item.clear();
-      item.resize(allWorkers().size());
-    }
-    unsigned int i = 0;
-    for (auto const& worker : allWorkers()) {
-      std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions> esModules;
-      for (auto transition = 0U; transition < kNumberOfEventSetupTransitions; ++transition) {
-        esModules[transition] = &esModulesWhoseProductsAreConsumedBy[transition].at(i);
-      }
-      try {
-        worker->esModulesWhoseProductsAreConsumed(esModules, iPI);
-      } catch (cms::Exception& ex) {
-        ex.addContext("Calling Worker::esModulesWhoseProductsAreConsumed() for module " +
-                      worker->description()->moduleLabel());
-        throw;
-      }
-      ++i;
-    }
   }
 
   void Schedule::getTriggerReport(TriggerReport& rep) const {
