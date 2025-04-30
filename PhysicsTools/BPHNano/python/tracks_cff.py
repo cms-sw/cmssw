@@ -7,9 +7,10 @@ tracksBPH = cms.EDProducer(
     dileptons       = cms.InputTag("MuMu:SelectedDiLeptons"),
     tracks          = cms.InputTag("packedPFCandidates"),
     lostTracks      = cms.InputTag("lostTracks"),
-    trackSelection  = cms.string("pt>0.7 && abs(eta)<2.4"),  # We need all tracks for tagging, no cuts here for now
+    trackSelection  = cms.string("pt>0.7 && abs(eta)<3.0"),  # We need all tracks for tagging, no cuts here for now
     muons           = cms.InputTag("slimmedMuons"),
     electrons       = cms.InputTag("slimmedElectrons"),
+    pvSrc           = cms.InputTag("offlineSlimmedPrimaryVertices"),
     maxDzDilep      = cms.double(1.0),
     dcaSig          = cms.double(-100000),
 )
@@ -25,16 +26,16 @@ trackBPHTable = cms.EDProducer(
     extension = cms.bool(False), 
     variables = cms.PSet(
         CandVars,
-        vx = Var("vx()", float, doc="x coordinate of vtx position [cm]"),
-        vy = Var("vy()", float, doc="y coordinate of vtx position [cm]"),
-        vz = Var("vz()", float, doc="z coordinate of vtx position [cm]"),
+        vx = Var("vx()", float, doc="x coordinate of of ref point [cm]"),
+        vy = Var("vy()", float, doc="y coordinate of of ref point [cm]"),
+        vz = Var("vz()", float, doc="z coordinate of of ref point [cm]"),
         # User variables defined in plugins/BPHTrackMerger.cc
         isPacked  = Var("userInt('isPacked')", bool, doc="track from packedCandidate collection"),
         isLostTrk = Var("userInt('isLostTrk')", bool, doc="track from lostTrack collection"),
-        dz      = Var("userFloat('dz')", float, doc="dz signed wrt first PV [cm]"),
-        dxy     = Var("userFloat('dxy')", float, doc="dxy (with sign) wrt first PV [cm]"),
-        dzS     = Var("userFloat('dzS')", float, doc="dz/err (with sign) wrt first PV [cm]"),
-        dxyS    = Var("userFloat('dxyS')", float, doc="dxy/err (with sign) wrt first PV [cm]"),
+        dz      = Var("userFloat('dz')", float, doc="dz signed wrt PV[0] [cm]"),
+        dxy     = Var("userFloat('dxy')", float, doc="dxy (with sign) wrt PV associated with the track [cm]"),
+        dzS     = Var("userFloat('dzS')", float, doc="dz/err (with sign) wrt PV[0] [cm]"),
+        dxyS    = Var("userFloat('dxyS')", float, doc="dxy/err (with sign) wrt PV associated with the track [cm]"),
         DCASig  = Var("userFloat('DCASig')", float, doc="significance of xy-distance of closest approach wrt beamspot"),
         dzTrg   = Var("userFloat('dzTrg')", float, doc="dz from the corresponding trigger muon [cm]"),
         isMatchedToMuon = Var("userInt('isMatchedToMuon')", bool, doc="track was used to build a muon"),
@@ -62,7 +63,7 @@ tracksBPHMCMatch = cms.EDProducer("MCMatcher",              # cut on deltaR, del
     mcPdgId     = cms.vint32(321, 211),                     # one or more PDG ID (321 = charged kaon, 211 = charged pion); absolute values (see below)
     checkCharge = cms.bool(False),                          # True = require RECO and MC objects to have the same charge
     mcStatus    = cms.vint32(1),                            # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
-    maxDeltaR   = cms.double(0.03),                         # Minimum deltaR for the match
+    maxDeltaR   = cms.double(0.05),                         # Minimum deltaR for the match
     maxDPtRel   = cms.double(0.5),                          # Minimum deltaPt/Pt for the match
     resolveAmbiguities    = cms.bool(True),                 # Forbid two RECO objects to match to the same GEN object
     resolveByMatchQuality = cms.bool(True),                 # False = just match input in order; True = pick lowest deltaR pair first
