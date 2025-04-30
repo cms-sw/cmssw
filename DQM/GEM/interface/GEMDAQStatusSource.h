@@ -33,13 +33,13 @@
 class GEMDAQStatusSource : public GEMDQMBase {
 public:
   explicit GEMDAQStatusSource(const edm::ParameterSet &cfg);
-  ~GEMDAQStatusSource() override {}
+  ~GEMDAQStatusSource() override{};
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
   void LoadROMap(edm::EventSetup const &iSetup);
 
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override {}
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override{};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
 
@@ -85,6 +85,7 @@ private:
 
   MEMap4Inf mapStatusWarnVFATPerLayer_;
   MEMap4Inf mapStatusErrVFATPerLayer_;
+  MEMap4Inf mapStatusMaskedVFATPerLayer_;
   MEMap5Inf mapStatusVFATPerCh_;
 
   MonitorElement *h2SummaryStatusAll;

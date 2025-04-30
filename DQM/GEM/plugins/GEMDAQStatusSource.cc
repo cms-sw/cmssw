@@ -207,6 +207,8 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
       this, "vfat_statusWarnSum", "VFAT reporting warnings", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
   mapStatusErrVFATPerLayer_ = MEMap4Inf(
       this, "vfat_statusErrSum", "VFAT reporting errors", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
+  mapStatusMaskedVFATPerLayer_ = MEMap4Inf(
+      this, "vfat_statusMaskedSum", "VFAT reporting masked", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
   mapStatusVFATPerCh_ =
       MEMap5Inf(this, "vfat_status", "VFAT Status", 24, -0.5, 24 - 0.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
@@ -214,6 +216,7 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
     mapStatusOH_.TurnOff();
     mapStatusWarnVFATPerLayer_.TurnOff();
     mapStatusErrVFATPerLayer_.TurnOff();
+    mapStatusMaskedVFATPerLayer_.TurnOff();
     mapStatusVFATPerCh_.TurnOff();
   }
 
@@ -276,6 +279,12 @@ int GEMDAQStatusSource::ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) {
   mapStatusErrVFATPerLayer_.bookND(bh, key);
   mapStatusErrVFATPerLayer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber);
   mapStatusErrVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
+
+  mapStatusMaskedVFATPerLayer_.SetBinConfX(nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
+  mapStatusMaskedVFATPerLayer_.SetBinConfY(nNumVFATPerModule, -0.5);
+  mapStatusMaskedVFATPerLayer_.bookND(bh, key);
+  mapStatusMaskedVFATPerLayer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber);
+  mapStatusMaskedVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   return 0;
 }
@@ -487,6 +496,9 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
         if ((vfatMask & (1 << i)) == 0) {
           // -16: A sufficient large number to avoid any effect from a buggy filling
           mapStatusErrVFATPerLayer_.Fill(key4, nCh, i, -16);
+          
+          // 마스킹된 VFAT 정보만 새 히스토그램에 채우기
+          mapStatusMaskedVFATPerLayer_.Fill(key4, nCh, i, 1.0); // 마스킹된 VFAT는 1로 표시
         }
       }
 

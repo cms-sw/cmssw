@@ -16,13 +16,14 @@
 #include <TFile.h>
 #include <TDirectoryFile.h>
 #include <TKey.h>
+#include <TColor.h>
 
 using namespace edm;
 
 class GEMDQMHarvester : public DQMEDHarvester {
 public:
   GEMDQMHarvester(const edm::ParameterSet &);
-  ~GEMDQMHarvester() override {}
+  ~GEMDQMHarvester() override{};
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   typedef std::tuple<int, int> IdChamber;
@@ -69,7 +70,7 @@ protected:
                              DQMStore::IGetter &,
                              edm::LuminosityBlock const &iLumi,
                              edm::EventSetup const &) override;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {}  // Cannot use; it is called after dqmSaver
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};  // Cannot use; it is called after dqmSaver
 
   void drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t nLumiCurr);
   void createTableWatchingSummary();
@@ -112,6 +113,10 @@ protected:
                             NumStatus numStatusNew);
   void createLumiFuncHist(edm::Service<DQMStore> &store, std::string strSuffix, Int_t nIdxLayer, Int_t nLumiCurr);
   void createInactiveChannelFracHist(edm::Service<DQMStore> &store, std::string strSuffix, Int_t nNumChamber);
+  void createMaskedVFATHist(edm::Service<DQMStore> &store, 
+                            std::string strSuffix, 
+                            MonitorElement *h2SrcStatusE,
+                            MonitorElement *&h2MaskedVFAT);
 
   Float_t fCutErr_, fCutLowErr_, fCutWarn_;
 
@@ -295,6 +300,9 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
       h2SumVFAT->setXTitle(h2SrcVFATStatusE->getAxisTitle(1));
       h2SumVFAT->setYTitle(h2SrcVFATStatusE->getAxisTitle(2));
 
+      MonitorElement *h2MaskedVFAT = nullptr;
+      createMaskedVFATHist(store, strSuffix, h2SrcVFATStatusE, h2MaskedVFAT);
+
       createLumiFuncHist(store, strSuffix, nIdxLayer, nLumiCurr);
     }
   }
@@ -414,6 +422,38 @@ void GEMDQMHarvester::createSummaryVFAT(edm::Service<DQMStore> &store,
   Int_t nBinX = h2Src->getNbinsX(), nBinY = h2Src->getNbinsY();
   h2Sum = store->book2D("vfat_statusSummary" + strSuffix, "", nBinX, 0.5, nBinX + 0.5, nBinY, -0.5, nBinY - 0.5);
   copyLabels(h2Src, h2Sum);
+}
+
+void GEMDQMHarvester::createMaskedVFATHist(edm::Service<DQMStore> &store, 
+                                          std::string strSuffix, 
+                                          MonitorElement *h2SrcStatusE,
+                                          MonitorElement *&h2MaskedVFAT) {
+  Int_t nBinX = h2SrcStatusE->getNbinsX(), nBinY = h2SrcStatusE->getNbinsY();
+  h2MaskedVFAT = store->book2D("vfat_maskedStatus" + strSuffix, 
+                              "VFAT Masking Status" + strSuffix, 
+                              nBinX, 0.5, nBinX + 0.5, 
+                              nBinY, -0.5, nBinY - 0.5);
+  copyLabels(h2SrcStatusE, h2MaskedVFAT);
+  
+  // 마스킹된 VFAT 식별 및 값 설정
+  // 마스킹된 VFAT = 2
+  // 마스킹 안된 VFAT = 1
+  for (Int_t j = 1; j <= nBinY; j++) {
+    for (Int_t i = 1; i <= nBinX; i++) {
+      Float_t fStatusErr = h2SrcStatusE->getBinContent(i, j);
+      if (fStatusErr <= -16.0) {
+        h2MaskedVFAT->setBinContent(i, j, 2.0); // 마스킹된 VFAT
+      } else {
+        h2MaskedVFAT->setBinContent(i, j, 1.0); // 마스킹 안된 VFAT
+      }
+    }
+  }
+  
+  // Z축 타이틀 설정
+  h2MaskedVFAT->getTH2F()->GetZaxis()->SetTitle("Masked status");
+  
+  // 타이틀이 다른 곳에서 덮어씌워질 가능성에 대비해 명시적으로 다시 설정
+  h2MaskedVFAT->setTitle("VFAT reporting masked" + strSuffix);
 }
 
 Int_t GEMDQMHarvester::assessOneBin(
