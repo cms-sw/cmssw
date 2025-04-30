@@ -580,11 +580,16 @@ scoutingFatPFJetReclusterGlobalParticleTransformerJetTags = cms.EDProducer("Boos
     produceValueMap = cms.untracked.bool(True),
     src = cms.InputTag("scoutingFatPFJetReclusterGlobalParticleTransformerJetTagInfos"),
     preprocess_json = cms.string("RecoBTag/Combined/data/Run3Scouting/GlobalParticleTransformerAK8/General/V00/preprocess.json"),
-    model_path = cms.FileInPath("RecoBTag/Combined/data/Run3Scouting/GlobalParticleTransformerAK8/General/V00/global-part_2024.onnx"),
+    model_path = cms.FileInPath("RecoBTag/Combined/data/Run3Scouting/GlobalParticleTransformerAK8/General/V00/global-part_2022to2023.onnx"),
     flav_names = cms.vstring([
              "probQCD", "probXbb", "probXcc", "probXss", "probXqq", "probXbs", "probXgg", "probXee", "probXmm", "probXtauhtaue", "probXtauhtaum", "probXtauhtauh", "probXbc", "probXcs", "probXud", "massCorrGeneric", "massCorrGenericX2p", "massCorrGenericW2p", "massCorrResonance"
      ]),
     debugMode = cms.untracked.bool(False),
+)
+
+run3_scouting_nanoAOD_2024.toModify(
+    scoutingFatPFJetReclusterGlobalParticleTransformerJetTags,
+    model_path = cms.FileInPath("RecoBTag/Combined/data/Run3Scouting/GlobalParticleTransformerAK8/General/V00/global-part_2024.onnx")
 )
 
 # AK8 jet softdrop mass
