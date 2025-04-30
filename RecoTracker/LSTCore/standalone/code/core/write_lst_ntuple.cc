@@ -376,6 +376,7 @@ void setOptionalOutputBranches(LSTEvent* event) {
   setOccupancyBranches(event);
   setT3DNNBranches(event);
   setT5DNNBranches(event);
+  setpT3DNNBranches(event);
 
 #endif
 }
@@ -674,6 +675,33 @@ void setPixelTripletOutputBranches(LSTEvent* event) {
 }
 
 //________________________________________________________________________________________________________________________________
+void fillpT3DNNBranches(LSTEvent* event, unsigned int iPT3) {
+  // Retrieve the pT3 object from the PixelTriplets SoA.
+  auto pixelTriplets = event->getPixelTriplets();
+
+  float pixelRadius = pixelTriplets.pixelRadius()[iPT3];
+  float pixelRadiusError = pixelTriplets.pixelRadiusError()[iPT3];
+  float tripletRadius = pixelTriplets.tripletRadius()[iPT3];
+  float phi = pixelTriplets.phi()[iPT3];          // from the T3
+  float phi_pix = pixelTriplets.phi_pix()[iPT3];  // from the pLS
+  float rPhiChiSquared = pixelTriplets.rPhiChiSquared()[iPT3];
+  float rPhiChiSquaredInwards = pixelTriplets.rPhiChiSquaredInwards()[iPT3];
+  float rzChiSquared = pixelTriplets.rzChiSquared()[iPT3];
+  float pt = pixelTriplets.pt()[iPT3];
+  float eta = pixelTriplets.eta()[iPT3];
+  float eta_pix = pixelTriplets.eta_pix()[iPT3];  // eta from pLS
+  float centerX = pixelTriplets.centerX()[iPT3];  // T3-based circle center x
+  float centerY = pixelTriplets.centerY()[iPT3];  // T3-based circle center y
+
+  ana.tx->pushbackToBranch<float>("pT3_rPhiChiSquared", rPhiChiSquared);
+  ana.tx->pushbackToBranch<float>("pT3_rPhiChiSquaredInwards", rPhiChiSquaredInwards);
+  ana.tx->pushbackToBranch<float>("pT3_rzChiSquared", rzChiSquared);
+  ana.tx->pushbackToBranch<float>("pT3_pixelRadius", pixelRadius);
+  ana.tx->pushbackToBranch<float>("pT3_pixelRadiusError", pixelRadiusError);
+  ana.tx->pushbackToBranch<float>("pT3_tripletRadius", tripletRadius);
+}
+
+//________________________________________________________________________________________________________________________________
 void fillT3DNNBranches(LSTEvent* event, unsigned int iT3) {
   auto hits = event->getHits<HitsSoA>();
   auto modules = event->getModules<ModulesSoA>();
@@ -759,6 +787,16 @@ void fillT5DNNBranches(LSTEvent* event, unsigned int iT3) {
   ana.tx->pushbackToBranch<float>("t5_t3_phi", hitObjects[0].phi());
 }
 
+//________________________________________________________________________________________________________________________________
+void setpT3DNNBranches(LSTEvent* event) {
+  auto pixelTriplets = event->getPixelTriplets();
+  unsigned int nPT3 = pixelTriplets.nPixelTriplets();
+  for (unsigned int iPT3 = 0; iPT3 < nPT3; ++iPT3) {
+    fillpT3DNNBranches(event, iPT3);
+  }
+}
+
+//________________________________________________________________________________________________________________________________
 void setT3DNNBranches(LSTEvent* event) {
   auto const triplets = event->getTriplets<TripletsSoA>();
   auto const tripletsOccupancy = event->getTriplets<TripletsOccupancySoA>();
