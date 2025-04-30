@@ -18,32 +18,16 @@
 
 int main(int argc, char* argv[]) {
   // This list should replicate the addHandler calls in TFileAdaptor
-  std::array<char const*, 14> const protocols = {{"^file:",
-                                                  "^http:",
-                                                  "^http[s]?:",
-                                                  "^ftp:",
-                                                  "^web:",
-                                                  "^gsiftp:",
-                                                  "^sfn:",
-                                                  "^dcache:",
-                                                  "^dcap:",
-                                                  "^gsidcap:",
-                                                  "^storm:",
-                                                  "^storm-lcg:",
-                                                  "^root:",
-                                                  "^[x]?root:"}};
-  std::array<char const*, 14> const uris{{"file:foo",
+  std::array<char const*, 10> const protocols = {
+      {"^file:", "^http:", "^http[s]?:", "^ftp:", "^web:", "^dcache:", "^dcap:", "^gsidcap:", "^root:", "^[x]?root:"}};
+  std::array<char const*, 10> const uris{{"file:foo",
                                           "http://foo",
                                           "https://foo",
                                           "ftp://foo",
                                           "web://foo",
-                                          "gsiftp://foo",
-                                          "sfn://foo",
                                           "dcache://foo",
                                           "dcap://foo",
                                           "gsidcap://foo",
-                                          "storm://foo",
-                                          "storm-lcg://foo",
                                           "root://foo",
                                           "xroot://foo"}};
 
