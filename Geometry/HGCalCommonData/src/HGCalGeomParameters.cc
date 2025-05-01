@@ -1685,6 +1685,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
       php.nphiFineCassette_ = php.nCellsFine_ / php.cassettes_;
       std::vector<double> rectract = fv.vector("ScintRetract");
       rescale(rectract, HGCalParameters::k_ScaleFromDDD);
+      for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
+        php.cassetteRetractTile_.emplace_back(rectract[k1]);
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HGCalGeom") << "cassetteRetractTile_[" << k1 << "] " << rectract[k1];
+#endif
+      }
       int n = 2 * php.cassettes_ * (php.firstLayer_ - 1);
       for (int k1 = 0; k1 < n; ++k1)
         cassetteShift.emplace_back(0.);
@@ -1852,6 +1858,13 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
         } else if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "ScintRetract")) {
           for (const auto& i : it.second)
             rectract.emplace_back(i);
+          rescale(rectract, HGCalParameters::k_ScaleFromDDD);
+          for (unsigned int k1 = 0; k1 < rectract.size(); ++k1) {
+            php.cassetteRetractTile_.emplace_back(rectract[k1]);
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "cassetteRetractTile_[" << k1 << "] " << rectract[k1];
+#endif
+          }
           int n = 2 * php.cassettes_ * (php.firstLayer_ - 1);
           for (int k1 = 0; k1 < n; ++k1)
             cassetteShift.emplace_back(0.);
