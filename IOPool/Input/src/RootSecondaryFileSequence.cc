@@ -69,28 +69,30 @@ namespace edm {
   RootSecondaryFileSequence::RootFileSharedPtr RootSecondaryFileSequence::makeRootFile(
       std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(fileNames()[0],
-                                      input_.processConfiguration(),
-                                      logicalFileName(),
-                                      filePtr,
-                                      input_.nStreams(),
-                                      input_.treeMaxVirtualSize(),
-                                      input_.processingMode(),
-                                      input_.runHelper(),
-                                      input_.productSelectorRules(),
-                                      InputType::SecondaryFile,
-                                      input_.branchIDListHelper(),
-                                      input_.thinnedAssociationsHelper(),
-                                      &associationsFromSecondary_,
-                                      input_.dropDescendants(),
-                                      input_.processHistoryRegistryForUpdate(),
-                                      indexesIntoFiles(),
-                                      currentIndexIntoFile,
-                                      orderedProcessHistoryIDs_,
-                                      input_.bypassVersionCheck(),
-                                      input_.labelRawDataLikeMC(),
-                                      enablePrefetching_,
-                                      enforceGUIDInFileName_);
+    return std::make_shared<RootFile>(
+        RootFile::FileOptions{.fileName = fileNames()[0],
+                              .logicalFileName = logicalFileName(),
+                              .filePtr = filePtr,
+                              .bypassVersionCheck = input_.bypassVersionCheck(),
+                              .enforceGUIDInFileName = enforceGUIDInFileName_},
+        InputType::SecondaryFile,
+        RootFile::ProcessingOptions{
+            .processingMode = input_.processingMode(),
+        },
+        RootFile::TTreeOptions{.treeMaxVirtualSize = input_.treeMaxVirtualSize(),
+                               .enablePrefetching = enablePrefetching_},
+        RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules(),
+                                 .associationsFromSecondary = &associationsFromSecondary_,
+                                 .dropDescendantsOfDroppedProducts = input_.dropDescendants(),
+                                 .labelRawDataLikeMC = input_.labelRawDataLikeMC()},
+        RootFile::CrossFileInfo{.runHelper = input_.runHelper(),
+                                .branchIDListHelper = input_.branchIDListHelper(),
+                                .thinnedAssociationsHelper = input_.thinnedAssociationsHelper(),
+                                .indexesIntoFiles = indexesIntoFiles(),
+                                .currentIndexIntoFile = currentIndexIntoFile},
+        input_.nStreams(),
+        input_.processHistoryRegistryForUpdate(),
+        orderedProcessHistoryIDs_);
   }
 
   void RootSecondaryFileSequence::initAssociationsFromSecondary(std::set<BranchID> const& associationsFromSecondary) {

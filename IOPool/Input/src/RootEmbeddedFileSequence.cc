@@ -137,23 +137,23 @@ namespace edm {
   RootEmbeddedFileSequence::RootFileSharedPtr RootEmbeddedFileSequence::makeRootFile(
       std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(fileNames()[0],
-                                      ProcessConfiguration(),
-                                      logicalFileName(),
-                                      filePtr,
-                                      input_.nStreams(),
-                                      treeCacheSize_,
-                                      input_.treeMaxVirtualSize(),
-                                      input_.runHelper(),
-                                      input_.productSelectorRules(),
+    return std::make_shared<RootFile>(RootFile::FileOptions{.fileName = fileNames()[0],
+                                                            .logicalFileName = logicalFileName(),
+                                                            .filePtr = filePtr,
+                                                            .bypassVersionCheck = input_.bypassVersionCheck(),
+                                                            .enforceGUIDInFileName = enforceGUIDInFileName_},
                                       InputType::SecondarySource,
+                                      RootFile::ProcessingOptions{},
+                                      RootFile::TTreeOptions{.treeCacheSize = treeCacheSize_,
+                                                             .treeMaxVirtualSize = input_.treeMaxVirtualSize(),
+                                                             .enablePrefetching = enablePrefetching_},
+                                      RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules()},
+                                      RootFile::CrossFileInfo{.runHelper = input_.runHelper(),
+                                                              .indexesIntoFiles = indexesIntoFiles(),
+                                                              .currentIndexIntoFile = currentIndexIntoFile},
+                                      input_.nStreams(),
                                       input_.processHistoryRegistryForUpdate(),
-                                      indexesIntoFiles(),
-                                      currentIndexIntoFile,
-                                      orderedProcessHistoryIDs_,
-                                      input_.bypassVersionCheck(),
-                                      enablePrefetching_,
-                                      enforceGUIDInFileName_);
+                                      orderedProcessHistoryIDs_);
   }
 
   void RootEmbeddedFileSequence::skipEntries(unsigned int offset) {

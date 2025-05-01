@@ -71,147 +71,56 @@ namespace edm {
 
   class RootFile {
   public:
-    // Constructor used by RootPrimaryFileSequence
-    RootFile(std::string const& fileName,
-             ProcessConfiguration const& processConfiguration,
-             std::string const& logicalFileName,
-             std::shared_ptr<InputFile> filePtr,
-             std::shared_ptr<EventSkipperByID> eventSkipperByID,
-             bool skipAnyEvents,
-             int remainingEvents,
-             int remainingLumis,
-             unsigned int nStreams,
-             unsigned int treeCacheSize,
-             int treeMaxVirtualSize,
-             InputSource::ProcessingMode processingMode,
-             RunHelperBase* runHelper,
-             bool noRunLumiSort,
-             bool noEventSort,
-             ProductSelectorRules const& productSelectorRules,
-             InputType inputType,
-             std::shared_ptr<BranchIDListHelper> branchIDListHelper,
-             ProcessBlockHelper*,
-             std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
-             std::vector<BranchID> const* associationsFromSecondary,
-             std::shared_ptr<DuplicateChecker> duplicateChecker,
-             bool dropDescendantsOfDroppedProducts,
-             ProcessHistoryRegistry& processHistoryRegistry,
-             std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles,
-             std::vector<std::shared_ptr<IndexIntoFile>>::size_type currentIndexIntoFile,
-             std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
-             bool bypassVersionCheck,
-             bool labelRawDataLikeMC,
-             bool usingGoToEvent,
-             bool enablePrefetching,
-             bool enforceGUIDInFileName);
+    struct FileOptions {
+      std::string const& fileName;
+      std::string const& logicalFileName;
+      std::shared_ptr<InputFile> filePtr;
+      bool bypassVersionCheck;
+      bool enforceGUIDInFileName;
+    };
 
-    // Constructor used by RootSecondaryFileSequence
-    RootFile(std::string const& fileName,
-             ProcessConfiguration const& processConfiguration,
-             std::string const& logicalFileName,
-             std::shared_ptr<InputFile> filePtr,
-             unsigned int nStreams,
-             int treeMaxVirtualSize,
-             InputSource::ProcessingMode processingMode,
-             RunHelperBase* runHelper,
-             ProductSelectorRules const& productSelectorRules,
-             InputType inputType,
-             std::shared_ptr<BranchIDListHelper> branchIDListHelper,
-             std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
-             std::vector<BranchID> const* associationsFromSecondary,
-             bool dropDescendantsOfDroppedProducts,
-             ProcessHistoryRegistry& processHistoryRegistry,
-             std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles,
-             std::vector<std::shared_ptr<IndexIntoFile>>::size_type currentIndexIntoFile,
-             std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
-             bool bypassVersionCheck,
-             bool labelRawDataLikeMC,
-             bool enablePrefetching,
-             bool enforceGUIDInFileName)
-        : RootFile(fileName,
-                   processConfiguration,
-                   logicalFileName,
-                   filePtr,
-                   nullptr,
-                   false,
-                   -1,
-                   -1,
-                   nStreams,
-                   0U,
-                   treeMaxVirtualSize,
-                   processingMode,
-                   runHelper,
-                   false,
-                   false,
-                   productSelectorRules,
-                   inputType,
-                   branchIDListHelper,
-                   nullptr,
-                   thinnedAssociationsHelper,
-                   associationsFromSecondary,
-                   nullptr,
-                   dropDescendantsOfDroppedProducts,
-                   processHistoryRegistry,
-                   indexesIntoFiles,
-                   currentIndexIntoFile,
-                   orderedProcessHistoryIDs,
-                   bypassVersionCheck,
-                   labelRawDataLikeMC,
-                   false,
-                   enablePrefetching,
-                   enforceGUIDInFileName) {}
+    struct ProcessingOptions {
+      std::shared_ptr<EventSkipperByID> eventSkipperByID{};
+      bool skipAnyEvents = false;
+      int remainingEvents = -1;
+      int remainingLumis = -1;
+      InputSource::ProcessingMode processingMode = InputSource::RunsLumisAndEvents;
+      bool noRunLumiSort = false;
+      bool noEventSort = false;
+      bool usingGoToEvent = false;
+    };
+    struct TTreeOptions {
+      unsigned int treeCacheSize = 0U;
+      int treeMaxVirtualSize;
+      bool enablePrefetching;
+    };
 
-    // Constructor used by RootEmbeddedFileSequence
-    RootFile(std::string const& fileName,
-             ProcessConfiguration const& processConfiguration,
-             std::string const& logicalFileName,
-             std::shared_ptr<InputFile> filePtr,
-             unsigned int nStreams,
-             unsigned int treeCacheSize,
-             int treeMaxVirtualSize,
-             RunHelperBase* runHelper,
-             ProductSelectorRules const& productSelectorRules,
-             InputType inputType,
-             ProcessHistoryRegistry& processHistoryRegistry,
-             std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles,
-             std::vector<std::shared_ptr<IndexIntoFile>>::size_type currentIndexIntoFile,
-             std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
-             bool bypassVersionCheck,
-             bool enablePrefetching,
-             bool enforceGUIDInFileName)
-        : RootFile(fileName,
-                   processConfiguration,
-                   logicalFileName,
-                   filePtr,
-                   nullptr,
-                   false,
-                   -1,
-                   -1,
-                   nStreams,
-                   treeCacheSize,
-                   treeMaxVirtualSize,
-                   InputSource::RunsLumisAndEvents,
-                   runHelper,
-                   false,
-                   false,
-                   productSelectorRules,
-                   inputType,
-                   nullptr,
-                   nullptr,
-                   nullptr,
-                   nullptr,
-                   nullptr,
-                   false,
-                   processHistoryRegistry,
-                   indexesIntoFiles,
-                   currentIndexIntoFile,
-                   orderedProcessHistoryIDs,
-                   bypassVersionCheck,
-                   false,
-                   false,
-                   enablePrefetching,
-                   enforceGUIDInFileName) {}
+    struct ProductChoices {
+      ProductSelectorRules const& productSelectorRules;
+      std::vector<BranchID> const* associationsFromSecondary = nullptr;
+      bool dropDescendantsOfDroppedProducts = false;
+      bool labelRawDataLikeMC = false;
+    };
 
+    struct CrossFileInfo {
+      RunHelperBase* runHelper = nullptr;
+      std::shared_ptr<BranchIDListHelper> branchIDListHelper{};
+      ProcessBlockHelper* processBlockHelper = 0;
+      std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper{};
+      std::shared_ptr<DuplicateChecker> duplicateChecker{};
+      std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles;  //duplicate checking
+      std::vector<std::shared_ptr<IndexIntoFile>>::size_type currentIndexIntoFile;
+    };
+
+    RootFile(FileOptions&& fileOptions,
+             InputType inputType,
+             ProcessingOptions&& processingOptions,
+             TTreeOptions&& ttreeOptions,
+             ProductChoices&& productChoices,
+             CrossFileInfo&& crossFileInfo,
+             unsigned int nStreams,
+             ProcessHistoryRegistry& processHistoryRegistry,
+             std::vector<ProcessHistoryID>& orderedProcessHistoryIDs);
     ~RootFile();
 
     RootFile(RootFile const&) = delete;             // Disallow copying and moving
@@ -304,7 +213,9 @@ namespace edm {
                                    StoredProcessBlockHelper const& storedProcessBlockHelper);
     bool skipThisEntry();
     void setIfFastClonable(int remainingEvents, int remainingLumis);
-    void validateFile(InputType inputType, bool usingGoToEvent);
+    void validateFile(InputType inputType,
+                      bool usingGoToEvent,
+                      std::vector<ProcessHistoryID>& orderedProcessHistoryIDs);
     void fillIndexIntoFile();
     EventAuxiliary fillEventAuxiliary(IndexIntoFile::EntryNumber_t entry);
     EventAuxiliary const& fillThisEventAuxiliary();
@@ -360,7 +271,6 @@ namespace edm {
 
     std::string const file_;
     std::string const logicalFile_;
-    ProcessConfiguration const& processConfiguration_;
     edm::propagate_const<ProcessHistoryRegistry*> processHistoryRegistry_;  // We don't own this
     edm::propagate_const<std::shared_ptr<InputFile>> filePtr_;
     edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
@@ -368,7 +278,6 @@ namespace edm {
     FileID fid_;
     edm::propagate_const<std::shared_ptr<IndexIntoFile>> indexIntoFileSharedPtr_;
     IndexIntoFile& indexIntoFile_;
-    std::vector<ProcessHistoryID>& orderedProcessHistoryIDs_;
     IndexIntoFile::IndexIntoFileItr indexIntoFileBegin_;
     IndexIntoFile::IndexIntoFileItr indexIntoFileEnd_;
     IndexIntoFile::IndexIntoFileItr indexIntoFileIter_;
