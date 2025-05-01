@@ -220,6 +220,7 @@ public:
   int phiOffset_ = 0;
   std::vector<double> cassetteShift_;
   std::vector<double> cassetteShiftTile_;
+  std::vector<double> cassetteRetractTile_;
   double calibCellRHD_ = 0.;
   std::vector<int> calibCellFullHD_;
   std::vector<int> calibCellPartHD_;
