@@ -228,7 +228,8 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   if (cassetteMode()) {
     int nphi = (hgpar_->scintFine(indx.first)) ? hgpar_->nphiFineCassette_ : hgpar_->nphiCassette_;
     int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, nphi, hgpar_->cassettes_);
-    auto cshift = (mode_ == HGCalGeometryMode::TrapezoidFineCell) ?  hgcassette_.getShiftScnt((indx.first + 1), -1, phi) : hgcassette_.getShift(layer, -1, cassette, true);
+    auto cshift = (mode_ == HGCalGeometryMode::TrapezoidFineCell) ? hgcassette_.getShiftScnt((indx.first + 1), -1, phi)
+                                                                  : hgcassette_.getShift(layer, -1, cassette, true);
 #ifdef EDM_ML_DEBUG
     std::ostringstream st1;
     st1 << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << xx << ":"
@@ -1035,7 +1036,8 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
   debug = true;
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << zside
-                                  << ":" << reco << ":" << indx.first << " First Layer " << hgpar_->firstLayer_ << ":" << hgpar_->firstMixedLayer_;
+                                  << ":" << reco << ":" << indx.first << " First Layer " << hgpar_->firstLayer_ << ":"
+                                  << hgpar_->firstMixedLayer_;
 #endif
   if (indx.first >= 0) {
     int ir = std::abs(irad);
@@ -1077,7 +1079,9 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     if (cassetteMode()) {
       int nphi = (hgpar_->scintFine(indx.first)) ? hgpar_->nphiFineCassette_ : hgpar_->nphiCassette_;
       int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, nphi, hgpar_->cassettes_);
-      auto cshift = (mode_ == HGCalGeometryMode::TrapezoidFineCell) ?  hgcassette_.getShiftScnt((indx.first + 1), -1, phi) : hgcassette_.getShift(lay, -1, cassette, true);
+      auto cshift = (mode_ == HGCalGeometryMode::TrapezoidFineCell)
+                        ? hgcassette_.getShiftScnt((indx.first + 1), -1, phi)
+                        : hgcassette_.getShift(lay, -1, cassette, true);
 #ifdef EDM_ML_DEBUG
       std::ostringstream st1;
       if (debug)
