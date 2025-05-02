@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun ttbar.py geometry=V18
+#   cmsRun runHGC1_cfg.py geometry=V18
 #   Options for geometry V17Shift, V18, V19
 # 
 ###############################################################################
