@@ -86,7 +86,6 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
   std::unique_ptr<TransientTrackCollection> trans_out(new TransientTrackCollection);
 
   for (reco::VertexCompositePtrCandidateCollection::const_iterator v0 = V0s->begin(); v0 != V0s->end(); v0++) {
-
     // selection on V0s
     if (v0->numberOfDaughters() != 2)
       continue;
