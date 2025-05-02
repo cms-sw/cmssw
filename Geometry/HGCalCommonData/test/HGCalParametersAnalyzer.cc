@@ -422,7 +422,7 @@ void HGCalParametersAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   edm::LogVerbatim("HGCalGeom") << "useOffset " << phgp->useOffset_;
   edm::LogVerbatim("HGCalGeom") << "waferUVMax " << phgp->waferUVMax_;
   edm::LogVerbatim("HGCalGeom") << "defineFull " << phgp->defineFull_;
-  
+
   std::ostringstream st63;
   st63 << "waferUVMaxLayer ";
   for (auto it : phgp->waferUVMaxLayer_)
@@ -566,25 +566,25 @@ void HGCalParametersAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   edm::LogVerbatim("HGCalGeom") << "calibCellRLD " << phgp->calibCellRLD_;
   edm::LogVerbatim("HGCalGeom") << "tileUVMax " << phgp->tileUVMax_;
   edm::LogVerbatim("HGCalGeom") << "tileUVMaxFine " << phgp->tileUVMaxFine_;
-  
+
   std::ostringstream st82;
   st82 << "calibCellFullHD ";
   for (auto it : phgp->calibCellFullHD_)
     st82 << it << ", ";
   edm::LogVerbatim("HGCalGeom") << st82.str();
-  
+
   std::ostringstream st83;
   st83 << "calibCellPartHD ";
   for (auto it : phgp->calibCellPartHD_)
     st83 << it << ", ";
   edm::LogVerbatim("HGCalGeom") << st83.str();
-  
+
   std::ostringstream st84;
   st84 << "calibCellFullHD ";
   for (auto it : phgp->calibCellFullLD_)
     st84 << it << ", ";
   edm::LogVerbatim("HGCalGeom") << st84.str();
-  
+
   std::ostringstream st85;
   st85 << "calibCellPartLD ";
   for (auto it : phgp->calibCellPartLD_)
