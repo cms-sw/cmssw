@@ -209,7 +209,7 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
       cand.addUserFloat("fitted_eta", fit_p4.eta());
       cand.addUserFloat("fitted_phi", fit_p4.phi());
 
-      cand.addUserFloat("fitted_mass_KK", fit_p4.phi());
+      cand.addUserFloat("fitted_mass_KK", fit_p4.mass());
       cand.addUserFloat("fitted_mass_Kpi", fitter_Kpi.fitted_p4().mass());
       cand.addUserFloat("fitted_mass_piK", fitter_piK.fitted_p4().mass());
 
