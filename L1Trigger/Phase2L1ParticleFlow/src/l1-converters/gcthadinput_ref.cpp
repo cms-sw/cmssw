@@ -20,31 +20,17 @@ double l1ct::GctHadClusterDecoderEmulator::fracPart(const double total, const un
 
 l1ct::HadCaloObjEmu l1ct::GctHadClusterDecoderEmulator::decode(const l1ct::PFRegionEmu &sector,
                                                                const ap_uint<64> &in) const {
+  constexpr float ETA_RANGE_ONE_SIDE = 1.4841;  // barrel goes from (-1.4841, +1.4841)
+  constexpr float ETA_LSB = 2 * ETA_RANGE_ONE_SIDE / 170.;
+  constexpr float PHI_LSB = 2 * M_PI / 360.;
+
   l1ct::HadCaloObjEmu calo;
   calo.clear();
-  calo.hwPt = pt(in) * l1ct::pt_t(0.5);  // the LSB for GCT objects
-  calo.hwEta = eta(in) * 4;              // at this point eta is abs(globalEta)
-  calo.hwPhi = phi(in) * 4;
+  calo.hwPt = pt(in) * l1ct::pt_t(0.5);                                     // the LSB for GCT objects
+  calo.hwEta = l1ct::Scales::makeGlbEta(eta(in) * ETA_LSB + ETA_LSB / 2.);  // at this point eta is abs(globalEta)
+  calo.hwPhi = l1ct::Scales::makePhi(phi(in) * PHI_LSB + (PHI_LSB / 2));    // This is already in the local frame
 
-  // The proposal is that hoe is going away, to be replaced by EmPt, which is not there yet.
-
-  // // TODO:  this should change
-  // // need to add empt
-  // ap_uint<4> hoeVal = hoe(in);
-  // // the lsb indicates what's bigger, EM or HAD
-  // auto isEMBigger = static_cast<bool>(hoeVal[0]);
-  // // This is not quite true. If HAD energy goes down to 0, then it flips and says that HAD is bigger
-  // ap_uint<3> hoe = hoeVal(3, 1);
-
-  // if (isEMBigger) {
-  //   auto em = fracPart(calo.hwPt.to_double(), hoe.to_uint());
-  //   calo.hwEmPt = em;
-  // } else {
-  //   pt_t had = fracPart(calo.hwPt.to_double(), hoe.to_uint());
-  //   calo.hwEmPt = calo.hwPt - had;
-  // }
-
-  // calo.hwHoe = hoe.to_uint();  // might need to scale
+  // need to add EmPt when it becomes available
 
   // need to add emid
   calo.hwEmID = 1;
