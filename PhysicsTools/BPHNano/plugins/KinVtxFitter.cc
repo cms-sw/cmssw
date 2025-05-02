@@ -52,9 +52,9 @@ KinVtxFitter::KinVtxFitter(const std::vector<reco::TransientTrack> tracks,
     particles.emplace_back(factory.particle(tracks.at(i), masses.at(i), kin_chi2_, kin_ndof_, sigmas[i]));
   }
 
-  MultiTrackKinematicConstraint* dilep_c = new TwoTrackMassKinematicConstraint(dilep_mass);
+  auto dilep_c = std::make_unique<TwoTrackMassKinematicConstraint>(dilep_mass);
   KinematicConstrainedVertexFitter kcv_fitter;
-  RefCountedKinematicTree vtx_tree = kcv_fitter.fit(particles, dilep_c);
+  RefCountedKinematicTree vtx_tree = kcv_fitter.fit(particles, dilep_c.get());
 
   if (vtx_tree->isEmpty() || !vtx_tree->isValid() || !vtx_tree->isConsistent()) {
     success_ = false;
