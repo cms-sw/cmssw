@@ -6,6 +6,7 @@
 #include "InputFile.h"
 #include "ProvenanceAdaptor.h"
 #include "RunHelper.h"
+#include "RootDelayedReaderBase.h"
 
 #include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
@@ -142,15 +143,15 @@ namespace edm {
   };
 
   //---------------------------------------------------------------------
-                     RootFile::RootFile(FileOptions&& fileOptions,
+  RootFile::RootFile(FileOptions&& fileOptions,
                      InputType inputType,
-                      ProcessingOptions&& processingOptions,
-                      TTreeOptions&& ttreeOptions,
-                      ProductChoices&& productChoices,
-                      CrossFileInfo&& crossFileInfo,
-                      unsigned int nStreams,
+                     ProcessingOptions&& processingOptions,
+                     TTreeOptions&& ttreeOptions,
+                     ProductChoices&& productChoices,
+                     CrossFileInfo&& crossFileInfo,
+                     unsigned int nStreams,
                      ProcessHistoryRegistry& processHistoryRegistry,
-                      std::vector<ProcessHistoryID>& orderedProcessHistoryIDs)         
+                     std::vector<ProcessHistoryID>& orderedProcessHistoryIDs)
       : file_(fileOptions.fileName),
         logicalFile_(fileOptions.logicalFileName),
         processHistoryRegistry_(&processHistoryRegistry),
@@ -162,7 +163,8 @@ namespace edm {
         indexIntoFile_(*indexIntoFileSharedPtr_),
         indexIntoFileBegin_(indexIntoFile_.begin(
             processingOptions.noRunLumiSort ? IndexIntoFile::entryOrder
-                          : (processingOptions.noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder))),
+                                            : (processingOptions.noEventSort ? IndexIntoFile::firstAppearanceOrder
+                                                                             : IndexIntoFile::numericalOrder))),
         indexIntoFileEnd_(indexIntoFileBegin_),
         indexIntoFileIter_(indexIntoFileBegin_),
         storedMergeableRunProductMetadata_((inputType == InputType::Primary) ? new StoredMergeableRunProductMetadata
@@ -178,29 +180,18 @@ namespace edm {
         hasNewlyDroppedBranch_(),
         branchListIndexesUnchanged_(false),
         eventAuxCache_(),
-        eventTree_(fileOptions.filePtr,
-                   InEvent,
-                   nStreams,
-                   ttreeOptions.treeMaxVirtualSize,
-                   ttreeOptions.treeCacheSize,
-                   roottree::defaultLearningEntries,
-                   ttreeOptions.enablePrefetching,
-                   inputType),
+        eventTree_(fileOptions.filePtr, InEvent, nStreams, ttreeOptions, roottree::defaultLearningEntries, inputType),
         lumiTree_(fileOptions.filePtr,
                   InLumi,
                   1,
-                  ttreeOptions.treeMaxVirtualSize,
-                  roottree::defaultNonEventCacheSize,
+                  ttreeOptions.usingDefaultNonEventOptions(),
                   roottree::defaultNonEventLearningEntries,
-                  ttreeOptions.enablePrefetching,
                   inputType),
         runTree_(fileOptions.filePtr,
                  InRun,
                  1,
-                 ttreeOptions.treeMaxVirtualSize,
-                 roottree::defaultNonEventCacheSize,
+                 ttreeOptions.usingDefaultNonEventOptions(),
                  roottree::defaultNonEventLearningEntries,
-                 ttreeOptions.enablePrefetching,
                  inputType),
         treePointers_(),
         lastEventEntryNumberRead_(IndexIntoFile::invalidEntry),
@@ -500,15 +491,17 @@ namespace edm {
 
     initializeDuplicateChecker(crossFileInfo.indexesIntoFiles, crossFileInfo.currentIndexIntoFile);
     indexIntoFileIter_ = indexIntoFileBegin_ = indexIntoFile_.begin(
-        processingOptions.noRunLumiSort ? IndexIntoFile::entryOrder
-                      : (processingOptions.noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
+        processingOptions.noRunLumiSort
+            ? IndexIntoFile::entryOrder
+            : (processingOptions.noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
     indexIntoFileEnd_ = indexIntoFile_.end(
-        processingOptions.noRunLumiSort ? IndexIntoFile::entryOrder
-                      : (processingOptions.noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
+        processingOptions.noRunLumiSort
+            ? IndexIntoFile::entryOrder
+            : (processingOptions.noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
     runHelper_->setForcedRunOffset(indexIntoFileBegin_ == indexIntoFileEnd_ ? 1 : indexIntoFileBegin_.run());
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
-    makeProcessBlockRootTrees(fileOptions.filePtr, ttreeOptions.treeMaxVirtualSize, ttreeOptions.enablePrefetching, inputType, storedProcessBlockHelper);
+    makeProcessBlockRootTrees(fileOptions.filePtr, ttreeOptions, inputType, storedProcessBlockHelper);
 
     setPresenceInProductRegistry(inputProdDescReg, storedProcessBlockHelper);
 
@@ -535,12 +528,16 @@ namespace edm {
         }
       }
 
-      dropOnInputAndReorder(
-          *newReg, productChoices.productSelectorRules, productChoices.dropDescendantsOfDroppedProducts, inputType, storedProcessBlockHelper, crossFileInfo.processBlockHelper);
+      dropOnInputAndReorder(*newReg,
+                            productChoices.productSelectorRules,
+                            productChoices.dropDescendantsOfDroppedProducts,
+                            inputType,
+                            storedProcessBlockHelper,
+                            crossFileInfo.processBlockHelper);
 
       if (inputType == InputType::SecondaryFile) {
         crossFileInfo.thinnedAssociationsHelper->updateFromSecondaryInput(*fileThinnedAssociationsHelper_,
-                                                            *productChoices.associationsFromSecondary);
+                                                                          *productChoices.associationsFromSecondary);
       } else if (inputType == InputType::Primary) {
         crossFileInfo.processBlockHelper->initializeFromPrimaryInput(storedProcessBlockHelper);
         crossFileInfo.thinnedAssociationsHelper->updateFromPrimaryInput(*fileThinnedAssociationsHelper_);
@@ -1350,6 +1347,7 @@ namespace edm {
       }
       eventHistoryBranch->SetAddress(&pHistory);
       roottree::getEntry(eventHistoryTree_, eventTree_.entryNumber());
+      eventHistoryBranch->SetAddress(nullptr);
       evtAux.setProcessHistoryID(history_->processHistoryID());
       eventSelectionIDs.swap(history_->eventSelectionIDs());
       branchListIndexes.swap(history_->branchListIndexes());
@@ -1518,11 +1516,11 @@ namespace edm {
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
   //  when it is asked to do so.
   //
-  bool RootFile::readEvent(EventPrincipal& principal) {
+  bool RootFile::readEvent(EventPrincipal& principal, bool readAllProducts) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
     // read the event
-    auto [found, succeeded] = readCurrentEvent(principal, false);
+    auto [found, succeeded] = readCurrentEvent(principal, false, readAllProducts);
     auto const& evtAux = principal.aux();
 
     runHelper_->checkRunConsistency(evtAux.run(), indexIntoFileIter_.run());
@@ -1533,7 +1531,9 @@ namespace edm {
   }
 
   // Reads event at the current entry in the event tree
-  std::tuple<bool, bool> RootFile::readCurrentEvent(EventPrincipal& principal, bool assertOnFailure) {
+  std::tuple<bool, bool> RootFile::readCurrentEvent(EventPrincipal& principal,
+                                                    bool assertOnFailure,
+                                                    bool readAllProducts) {
     bool found = true;
     bool succeeded = true;
     if (!eventTree_.current()) {
@@ -1556,6 +1556,9 @@ namespace edm {
 
     // We're not done ... so prepare the EventPrincipal
     eventTree_.insertEntryForIndex(principal.transitionIndex());
+    if (readAllProducts) {
+      eventTree_.rootDelayedReader()->readAllProductsNow(&principal);
+    }
     auto history = processHistoryRegistry_->getMapped(evtAux.processHistoryID());
     principal.fillEventPrincipal(evtAux,
                                  history,
@@ -2130,8 +2133,7 @@ namespace edm {
   }
 
   void RootFile::makeProcessBlockRootTrees(std::shared_ptr<InputFile> filePtr,
-                                           int treeMaxVirtualSize,
-                                           bool enablePrefetching,
+                                           TTreeOptions const& options,
                                            InputType inputType,
                                            StoredProcessBlockHelper const& storedProcessBlockHelper) {
     // When this functions returns there will be exactly a 1-to-1 correspondence between the
@@ -2145,10 +2147,8 @@ namespace edm {
                                                                  InProcess,
                                                                  process,
                                                                  1,
-                                                                 treeMaxVirtualSize,
-                                                                 roottree::defaultNonEventCacheSize,
+                                                                 options.usingDefaultNonEventOptions(),
                                                                  roottree::defaultNonEventLearningEntries,
-                                                                 enablePrefetching,
                                                                  inputType));
     }
   }

@@ -41,6 +41,7 @@ namespace edm {
     bool dropDescendants() const { return dropDescendants_; }
     bool bypassVersionCheck() const { return bypassVersionCheck_; }
     bool labelRawDataLikeMC() const { return labelRawDataLikeMC_; }
+    bool delayReadingEventProducts() const { return delayReadingEventProducts_; }
     unsigned int nStreams() const { return nStreams_; }
     int treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
     ProductSelectorRules const& productSelectorRules() const { return productSelectorRules_; }

@@ -1,8 +1,10 @@
 #include "RootTree.h"
 #include "RootDelayedReader.h"
+#include "RootPromptReadDelayedReader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "IOPool/Common/interface/getWrapperBasePtr.h"
 #include "InputFile.h"
 #include "TTree.h"
 #include "TTreeCache.h"
@@ -23,6 +25,14 @@ namespace edm {
       TBranch* branch = tree->GetBranch(BranchTypeToBranchEntryInfoBranchName(branchType).c_str());
       return branch;
     }
+
+    std::unique_ptr<RootDelayedReaderBase> makeRootDelayedReader(
+        RootTree const& tree, std::shared_ptr<InputFile> filePtr, InputType inputType, unsigned int nIndexes, bool promptRead) {
+          if(promptRead) { 
+      return std::make_unique<RootPromptReadDelayedReader>(tree, filePtr, inputType, nIndexes);
+          }
+      return std::make_unique<RootDelayedReader>(tree, filePtr, inputType);
+    }
   }  // namespace
 
   // Used for all RootTrees
@@ -32,6 +42,7 @@ namespace edm {
                      unsigned int nIndexes,
                      unsigned int learningEntries,
                      bool enablePrefetching,
+                     bool promptRead,
                      InputType inputType)
       : filePtr_(filePtr),
         branchType_(branchType),
@@ -39,19 +50,17 @@ namespace edm {
         learningEntries_(learningEntries),
         enablePrefetching_(enablePrefetching),
         enableTriggerCache_(branchType_ == InEvent),
-        rootDelayedReader_(std::make_unique<RootDelayedReader>(*this, filePtr, inputType)) {}
+        rootDelayedReader_(makeRootDelayedReader(*this, filePtr, inputType, nIndexes, promptRead)) {}
 
   // Used for Event/Lumi/Run RootTrees
   RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
                      BranchType const& branchType,
                      unsigned int nIndexes,
-                     unsigned int maxVirtualSize,
-                     unsigned int cacheSize,
+                     Options const& options,
                      unsigned int learningEntries,
-                     bool enablePrefetching,
                      InputType inputType)
-      : RootTree(filePtr, branchType, nIndexes, learningEntries, enablePrefetching, inputType) {
-    init(BranchTypeToProductTreeName(branchType), maxVirtualSize, cacheSize);
+      : RootTree(filePtr, branchType, nIndexes, learningEntries, options.enablePrefetching, options.promptReading, inputType) {
+    init(BranchTypeToProductTreeName(branchType), options.treeMaxVirtualSize, options.treeCacheSize);
     metaTree_ = dynamic_cast<TTree*>(filePtr_->Get(BranchTypeToMetaDataTreeName(branchType).c_str()));
     auxBranch_ = getAuxiliaryBranch(tree_, branchType_);
     branchEntryInfoBranch_ =
@@ -65,14 +74,12 @@ namespace edm {
                      BranchType const& branchType,
                      std::string const& processName,
                      unsigned int nIndexes,
-                     unsigned int maxVirtualSize,
-                     unsigned int cacheSize,
+                     Options const& options,
                      unsigned int learningEntries,
-                     bool enablePrefetching,
                      InputType inputType)
-      : RootTree(filePtr, branchType, nIndexes, learningEntries, enablePrefetching, inputType) {
+      : RootTree(filePtr, branchType, nIndexes, learningEntries, options.enablePrefetching, options.promptReading, inputType) {
     processName_ = processName;
-    init(BranchTypeToProductTreeName(branchType, processName), maxVirtualSize, cacheSize);
+    init(BranchTypeToProductTreeName(branchType, processName), options.treeMaxVirtualSize, options.treeCacheSize);
   }
 
   void RootTree::init(std::string const& productTreeName, unsigned int maxVirtualSize, unsigned int cacheSize) {
@@ -144,7 +151,7 @@ namespace edm {
     return rootDelayedReader_.get();
   }
 
-  DelayedReader* RootTree::rootDelayedReader() const { return rootDelayedReader_.get(); }
+  RootDelayedReaderBase* RootTree::rootDelayedReader() const { return rootDelayedReader_.get(); }
 
   void RootTree::setPresence(ProductDescription& prod, std::string const& oldBranchName) {
     assert(isValid());
@@ -153,14 +160,29 @@ namespace edm {
     }
   }
 
+  void roottree::BranchInfo::setBranch(TBranch* branch, TClass const* wrapperBaseTClass) {
+    productBranch_ = branch;
+    if (branch) {
+      classCache_ = TClass::GetClass(productDescription_.wrappedName().c_str());
+      offsetToWrapperBase_ = classCache_->GetBaseClassOffset(wrapperBaseTClass);
+    }
+  }
+  std::unique_ptr<WrapperBase> roottree::BranchInfo::newWrapper() const {
+    assert(nullptr != classCache_);
+    void* p = classCache_->New();
+    std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, offsetToWrapperBase_);
+    return edp;
+  }
+
   void RootTree::addBranch(ProductDescription const& prod, std::string const& oldBranchName) {
     assert(isValid());
+    static TClass const* const wrapperBaseTClass = TClass::GetClass("edm::WrapperBase");
     //use the translated branch name
     TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
     roottree::BranchInfo info = roottree::BranchInfo(prod);
     info.productBranch_ = nullptr;
     if (prod.present()) {
-      info.productBranch_ = branch;
+      info.setBranch(branch, wrapperBaseTClass);
       //we want the new branch name for the JobReport
       branchNames_.push_back(prod.branchName());
     }
@@ -378,6 +400,17 @@ namespace edm {
       return treeCache_.get();
     }
   }
+
+  void RootTree::getEntryForAllBranches() const {
+    filePtr_->SetCacheRead(rawTreeCache_.get());
+    auto ptr = filePtr_.get();
+    auto cleanup = [ptr](TTreeCache* cache) {
+      ptr->SetCacheRead(nullptr);
+    };
+    std::unique_ptr<TTreeCache, decltype(cleanup)> cacheGuard(rawTreeCache_.get(), cleanup);
+    tree_->GetEntry(entryNumber_);
+  }
+
 
   void RootTree::getEntry(TBranch* branch, EntryNumber entryNumber) const {
     try {

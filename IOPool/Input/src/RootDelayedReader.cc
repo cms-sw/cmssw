@@ -24,8 +24,7 @@ namespace edm {
       : tree_(tree),
         filePtr_(filePtr),
         nextReader_(),
-        inputType_(inputType),
-        wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
+        inputType_(inputType) {
     if (inputType == InputType::Primary) {
       auto resources = SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader();
       resourceAcquirer_ = std::make_unique<SharedResourcesAcquirer>(std::move(resources.first));
@@ -38,6 +37,8 @@ namespace edm {
   std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> RootDelayedReader::sharedResources_() const {
     return std::make_pair(resourceAcquirer_.get(), mutex_.get());
   }
+
+  void RootDelayedReader::readAllProductsNow(EDProductGetter const* ep) {}
 
   std::shared_ptr<WrapperBase> RootDelayedReader::getProduct_(BranchID const& k, EDProductGetter const* ep) {
     if (lastException_) {
@@ -77,15 +78,10 @@ namespace edm {
       setRefCoreStreamer(false);
       ;
     });
-    TClass* cp = branchInfo->classCache_;
-    if (nullptr == cp) {
-      branchInfo->classCache_ = TClass::GetClass(branchInfo->productDescription_.wrappedName().c_str());
-      cp = branchInfo->classCache_;
-      branchInfo->offsetToWrapperBase_ = cp->GetBaseClassOffset(wrapperBaseTClass_);
-    }
-    void* p = cp->New();
-    std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, branchInfo->offsetToWrapperBase_);
-    br->SetAddress(&p);
+    std::unique_ptr<WrapperBase> edp = branchInfo->newWrapper();
+    void * edpPtr = edp.get();
+    branchInfo->productBranch_->SetAddress(&edpPtr);
+
     try {
       //Run, Lumi, and ProcessBlock only have 1 entry number, which is index 0
       tree_.getEntry(br, tree_.entryNumberForIndex(tree_.branchType() == InEvent ? ep->transitionIndex() : 0));
