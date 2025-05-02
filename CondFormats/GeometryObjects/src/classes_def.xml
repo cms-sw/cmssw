@@ -51,7 +51,7 @@
  <class name="PMTDParameters::Item"/>
  <class name="std::vector<PMTDParameters::Item>"/>
 
- <class name="HcalParameters" class_version="1"> 
+ <class name="HcalParameters" class_version="0"> 
    <field name="rHB"              mapping="blob"/>
    <field name="drHB"             mapping="blob"/>
    <field name="zHE"              mapping="blob"/>
@@ -98,7 +98,7 @@
   <class name="HcalParameters::LayerItem"/>
  <class name="std::vector<HcalParameters::LayerItem>"/>
 
- <class name="PHGCalParameters" class_version="1"> 
+ <class name="PHGCalParameters" class_version="0"> 
    <field name="name_"                mapping="blob"/>
    <field name="cellSize_"            mapping="blob"/>
    <field name="moduleBlS_"           mapping="blob"/>
