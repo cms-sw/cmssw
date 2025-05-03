@@ -528,7 +528,7 @@ p2L1TablesTask = cms.Task(
     caloTauTable,
     nnCaloTauTable,
     nnPuppiTauTable,
-    # hpsTauTable,
+    hpsTauTable,
     # GTT
     vtxTable,
     pvtxTable,

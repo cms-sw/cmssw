@@ -57,7 +57,7 @@ autoNANO = {
                         #  'DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addGenObjects', # <- not included here as requires reco vertices and cannot be run in workflows w/o MINIAOD
                          ])},
     'Phase2L1DPGwithGen' : {'sequence': '@Phase2L1DPG',
-                            'customize': 'Phase2L1DPG+DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addGenObjects',},
+                            'customize': '@Phase2L1DPG+DPGAnalysis/Phase2L1TNanoAOD/l1tPh2Nano_cff.addGenObjects',},
     # Muon POG flavours : add tables through customize, supposed to be combined with PHYS
     'MUPOG': {'sequence': '@PHYS',
               'customize': '@PHYS+PhysicsTools/NanoAOD/custom_muon_cff.PrepMuonCustomNanoAOD'},
