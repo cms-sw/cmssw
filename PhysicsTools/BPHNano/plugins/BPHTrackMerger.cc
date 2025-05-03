@@ -114,7 +114,7 @@ void BPHTrackMerger::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
     // arranging cuts for speed
     if (!trk.hasTrackDetails())
       continue;
-    if (fabs(trk.pdgId()) != 211)
+    if (abs(trk.pdgId()) != 211)
       continue;  // do we want also to keep muons?
     if (!track_selection_(trk))
       continue;
@@ -256,14 +256,6 @@ void BPHTrackMerger::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
           return -1;
         return reverse_sort_indices[iUnsortedTrack];
       });
-
-  int unassoc = 0;
-  for (auto iTrkAssoc : match_indices) {
-    unassoc += iTrkAssoc < 0;
-  }
-  // std::clog << "There are " << unassoc << " unassociated tracks" <<
-  // std::endl; std::clog << "Total tracks: " << totalTracks << " output tracks:
-  // " <<  tracks_out->size() << std::endl;
 
   auto tracks_orphan_handle = evt.put(std::move(tracks_out), "SelectedTracks");
   evt.put(std::move(trans_tracks_out), "SelectedTransientTracks");
