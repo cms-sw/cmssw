@@ -64,7 +64,7 @@ public:
     if (!gen.null()) {
       if ((gen.det() != HGCalEE) && (gen.det() != HGCalHSi)) {
         throw cms::Exception("Invalid DetId")
-            << "Cannot initialize HGCSiliconDetId from " << std::hex << gen.rawId() << std::dec;
+	  << "Cannot initialize HGCSiliconDetId from " << std::hex << gen.rawId() << std::dec << " Det " << gen.det();
       }
     }
     id_ = gen.rawId();
@@ -75,7 +75,7 @@ public:
     if (!gen.null()) {
       if ((gen.det() != HGCalEE) && (gen.det() != HGCalHSi)) {
         throw cms::Exception("Invalid DetId")
-            << "Cannot assign HGCSiliconDetId from " << std::hex << gen.rawId() << std::dec;
+            << "Cannot assign HGCSiliconDetId from " << std::hex << gen.rawId() << std::dec << " Det " << gen.det();
       }
     }
     id_ = gen.rawId();
