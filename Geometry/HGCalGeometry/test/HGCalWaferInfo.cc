@@ -55,8 +55,8 @@ private:
 };
 
 HGCalWaferInfo::HGCalWaferInfo(const edm::ParameterSet& iC)
-  : name_(iC.getParameter<std::string>("detector")),
-    geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag("", name_))) {}
+    : name_(iC.getParameter<std::string>("detector")),
+      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag("", name_))) {}
 
 void HGCalWaferInfo::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -72,20 +72,22 @@ void HGCalWaferInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   const std::vector<DetId>& ids = geom->getValidDetIds();
   edm::LogVerbatim("HGCalGeom") << "Use " << ids.size() << " valid ids for " << geom->cellElement();
-  std::string parts[26] = {"Full", "Five", "ChopTwo", "ChopTwoM", "Half", "Semi",
-			   "Semi2", "Three", "Half2", "Five2", "????", "LDTop",
-			   "LDBottom", "LDLeft", "LDRight", "LDFive", "LDThree",
-			   "????", "????", "????", "????", "HDTop", "HDBottom",
-			   "HDLeft", "HDRight", "HDFive"};
+  std::string parts[26] = {"Full",  "Five", "ChopTwo", "ChopTwoM", "Half",     "Semi",    "Semi2",   "Three",   "Half2",
+                           "Five2", "????", "LDTop",   "LDBottom", "LDLeft",   "LDRight", "LDFive",  "LDThree", "????",
+                           "????",  "????", "????",    "HDTop",    "HDBottom", "HDLeft",  "HDRight", "HDFive"};
   std::string types[4] = {"HD120", "LD200", "LD300", "HD200"};
-  
+
   for (auto const& id : ids) {
     if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
       HGCSiliconDetId detId(id);
-      HGCalParameters::waferInfo info = geom->topology().dddConstants().waferInfo(detId.layer(), detId.waferU(), detId.waferV());
-      edm::LogVerbatim("HGCalGeom") << "ID: " << detId << " Type " << info.type << ":" << types[info.type] << " Part " << info.part << ":" << parts[info.part] << " Orient " << info.orient << " Cassette " << info.cassette << " at " << geom->getPosition(id, true, false);
+      HGCalParameters::waferInfo info =
+          geom->topology().dddConstants().waferInfo(detId.layer(), detId.waferU(), detId.waferV());
+      edm::LogVerbatim("HGCalGeom") << "ID: " << detId << " Type " << info.type << ":" << types[info.type] << " Part "
+                                    << info.part << ":" << parts[info.part] << " Orient " << info.orient << " Cassette "
+                                    << info.cassette << " at " << geom->getPosition(id, true, false);
     } else {
-      edm::LogVerbatim("HGCalGeom") << "Illegal Det " << id.det() << " in " << std::hex << id.rawId() << std::dec << " ERROR";
+      edm::LogVerbatim("HGCalGeom") << "Illegal Det " << id.det() << " in " << std::hex << id.rawId() << std::dec
+                                    << " ERROR";
     }
   }
 }
