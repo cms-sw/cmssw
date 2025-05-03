@@ -1,12 +1,5 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.globals_cff import *
 from PhysicsTools.NanoAOD.nano_cff import *
-from PhysicsTools.NanoAOD.vertices_cff import *
-from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
-from PhysicsTools.NanoAOD.triggerObjects_cff import *
-
 
 ##for gen and trigger muon
 from PhysicsTools.BPHNano.pverticesBPH_cff import *
@@ -22,21 +15,6 @@ from PhysicsTools.BPHNano.V0_cff import *
 from PhysicsTools.BPHNano.BToKLL_cff import *
 from PhysicsTools.BPHNano.BToTrkTrkLL_cff import *
 from PhysicsTools.BPHNano.BToV0LL_cff import *
-
-
-vertexTable.svSrc = cms.InputTag("slimmedSecondaryVertices")
-
-
-
-nanoSequence = cms.Sequence(nanoMetadata + 
-                            cms.Sequence(vertexTask) +
-                            cms.Sequence(globalTablesTask)+ 
-                            cms.Sequence(vertexTablesTask) +
-                            cms.Sequence(pVertexTable)#+
-#                            cms.Sequence(nanoSequenceCommon)                           
-                          )
-
-
 
 def nanoAOD_customizeMC(process):
     process.load('PhysicsTools.BPHNano.particlelevelBPH_cff')

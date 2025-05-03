@@ -85,15 +85,11 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
   std::unique_ptr<pat::CompositeCandidateCollection> ret_val(new pat::CompositeCandidateCollection());
   std::unique_ptr<TransientTrackCollection> trans_out(new TransientTrackCollection);
 
-  size_t v0_idx = 0;
   for (reco::VertexCompositePtrCandidateCollection::const_iterator v0 = V0s->begin(); v0 != V0s->end(); v0++) {
-    reco::VertexCompositePtrCandidate V0 = V0s->at(v0_idx);
-    v0_idx++;
-
     // selection on V0s
     if (v0->numberOfDaughters() != 2)
       continue;
-    if (!pre_vtx_selection_(V0))
+    if (!pre_vtx_selection_(*v0))
       continue;
 
     pat::PackedCandidate v0daughter1 = *(dynamic_cast<const pat::PackedCandidate *>(v0->daughter(0)));
