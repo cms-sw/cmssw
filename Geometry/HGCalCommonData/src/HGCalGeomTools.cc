@@ -108,14 +108,17 @@ void HGCalGeomTools::radius(double zf,
     edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radiusX:Try 2:" << zf << ":" << *zb2 << " (" << z1 << ") : " << zb
                                   << " Test " << (slope(*zb2, zFront2, slope2) < tol_) << ":"
                                   << ((std::abs(*zb2 - zb) > tol_) && (std::abs(*zb2 - zf) > tol_));
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radiusX:Try 2X:" << (slope(*zb2, zFront2, slope2) < tol_) << ":" << (std::abs(*zb2 - zf) < tol_);
 #endif
     zz.emplace_back(zf);
     rin.emplace_back(radius(zf, zFront1, rFront1, slope1));
     rout.emplace_back(radius(zf, zFront2, rFront2, slope2));
     if (slope(*zb2, zFront2, slope2) < tol_) {
-      zz.emplace_back(*zb2);
-      rin.emplace_back(radius(*zb2, zFront1, rFront1, slope1));
-      rout.emplace_back(radius(*zb2 - tol_, zFront2, rFront2, slope2));
+      if (std::abs(*zb2 - zf) > tol_) {
+	zz.emplace_back(*zb2);
+	rin.emplace_back(radius(*zb2, zFront1, rFront1, slope1));
+	rout.emplace_back(radius(*zb2 - tol_, zFront2, rFront2, slope2));
+      }
     }
     if ((std::abs(*zb2 - zb) > tol_) && (std::abs(*zb2 - zf) > tol_)) {
       zz.emplace_back(*zb2);
