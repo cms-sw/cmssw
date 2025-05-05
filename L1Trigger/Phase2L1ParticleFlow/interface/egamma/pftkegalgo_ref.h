@@ -233,7 +233,7 @@ namespace l1ct {
     static std::unique_ptr<WP> createWP(const std::vector<double> &bin_low_edges,
                                         const std::vector<double> &wp_values) {
       assert(bin_low_edges.size() == wp_values.size() && "The size of bin_low_edges must match the size of wp_values.");
-      assert(wp_values.size() && "The size of bin_low_edges must not be 0.");
+      assert(!wp_values.empty() && "The size of bin_low_edges must not be 0.");
 
       std::vector<id_score_t> wp_values_apf;
       wp_values_apf.reserve(wp_values.size());

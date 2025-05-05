@@ -342,12 +342,12 @@ bool l1ct::tdr_regionizer::Regionizer<T>::isInBigRegionLoose(const PFRegionEmu& 
 }
 
 template <>
-bool l1ct::tdr_regionizer::Regionizer<l1ct::HadCaloObjEmu>::isInBigRegionLoose(const PFRegionEmu& reg) const {
+inline bool l1ct::tdr_regionizer::Regionizer<l1ct::HadCaloObjEmu>::isInBigRegionLoose(const PFRegionEmu& reg) const {
   return isInBigRegion(reg);
 }
 
 template <>
-bool l1ct::tdr_regionizer::Regionizer<l1ct::EmCaloObjEmu>::isInBigRegionLoose(const PFRegionEmu& reg) const {
+inline bool l1ct::tdr_regionizer::Regionizer<l1ct::EmCaloObjEmu>::isInBigRegionLoose(const PFRegionEmu& reg) const {
   return isInBigRegion(reg);
 }
 
@@ -556,7 +556,7 @@ bool l1ct::tdr_regionizer::Regionizer<T>::isDuplicate(int locphi, size_t logicBu
 
 // specialize for GCT  (CHECK ESPECIALLY EDGES)
 template <>
-bool l1ct::tdr_regionizer::Regionizer<l1ct::HadCaloObjEmu>::isDuplicate(int locphi, size_t logicBufIdx) const {
+inline bool l1ct::tdr_regionizer::Regionizer<l1ct::HadCaloObjEmu>::isDuplicate(int locphi, size_t logicBufIdx) const {
   auto odd = logicBufIdx % 2;
   if (odd) {
     return locphi <= -120;
@@ -566,7 +566,7 @@ bool l1ct::tdr_regionizer::Regionizer<l1ct::HadCaloObjEmu>::isDuplicate(int locp
 }
 
 template <>
-bool l1ct::tdr_regionizer::Regionizer<l1ct::EmCaloObjEmu>::isDuplicate(int locphi, size_t logicBufIdx) const {
+inline bool l1ct::tdr_regionizer::Regionizer<l1ct::EmCaloObjEmu>::isDuplicate(int locphi, size_t logicBufIdx) const {
   auto odd = logicBufIdx % 2;
   if (odd) {
     return locphi <= -120;
