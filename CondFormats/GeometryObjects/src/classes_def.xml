@@ -96,10 +96,17 @@
    <field name="etaTableHF"       mapping="blob"/>
  </class>
   <class name="HcalParameters::LayerItem"/>
- <class name="std::vector<HcalParameters::LayerItem>"/>
+  <class name="std::vector<HcalParameters::LayerItem>"/>
 
  <class name="PHGCalParameters" class_version="0"> 
    <field name="name_"                mapping="blob"/>
+   <field name="slopeMin_"            mapping="blob"/>
+   <field name="zFrontMin_"           mapping="blob"/>
+   <field name="rMinFront_"           mapping="blob"/>
+   <field name="slopeTop_"            mapping="blob"/>
+   <field name="zFrontTop_"           mapping="blob"/>
+   <field name="rMaxFront_"           mapping="blob"/>
+   <field name="zRanges_"             mapping="blob"/>
    <field name="cellSize_"            mapping="blob"/>
    <field name="moduleBlS_"           mapping="blob"/>
    <field name="moduleTlS_"           mapping="blob"/>
