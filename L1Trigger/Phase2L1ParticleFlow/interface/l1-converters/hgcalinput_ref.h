@@ -19,8 +19,9 @@ namespace l1ct {
                                 const std::vector<double> &wp_pt,
                                 const std::vector<double> &wp_PU,
                                 const std::vector<double> &wp_Pi,
-                                const std::vector<double> &wp_EgEm,
                                 const std::vector<double> &wp_PFEm,
+                                const std::vector<double> &wp_EgEm,
+                                const std::vector<double> &wp_EgEm_tight,
                                 bool slim = false,
                                 const std::string &corrector = "",
                                 float correctorEmfMax = -1,
@@ -37,8 +38,9 @@ namespace l1ct {
                    const std::vector<double> &wp_pt,
                    const std::vector<double> &wp_PU,
                    const std::vector<double> &wp_Pi,
+                   const std::vector<double> &wp_PFEm,
                    const std::vector<double> &wp_EgEm,
-                   const std::vector<double> &wp_PFEm);
+                   const std::vector<double> &wp_EgEm_tight);
       MultiClassID(const edm::ParameterSet &pset);
       static edm::ParameterSetDescription getParameterSetDescription();
 
@@ -50,8 +52,9 @@ namespace l1ct {
       std::vector<l1ct::pt_t> wp_pt_;
       std::vector<l1ct::id_prob_t> wp_PU_;
       std::vector<l1ct::id_prob_t> wp_Pi_;
-      std::vector<l1ct::id_prob_t> wp_EgEm_;
       std::vector<l1ct::id_prob_t> wp_PFEm_;
+      std::vector<l1ct::id_prob_t> wp_EgEm_;
+      std::vector<l1ct::id_prob_t> wp_EgEm_tight_;
 
       typedef ap_fixed<18, 8> activation_table_t;
       typedef ap_fixed<18, 8, AP_RND, AP_SAT> activation_exp_table_t;

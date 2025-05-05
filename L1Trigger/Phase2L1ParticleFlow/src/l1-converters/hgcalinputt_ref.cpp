@@ -27,13 +27,14 @@ edm::ParameterSetDescription l1ct::HgcalClusterDecoderEmulator::getParameterSetD
 }
 
 l1ct::HgcalClusterDecoderEmulator::MultiClassID::MultiClassID(const edm::ParameterSet &pset)
-    : l1ct::HgcalClusterDecoderEmulator::MultiClassID::MultiClassID(pset.getParameter<std::string>("model"),
-                                                                    pset.getParameter<std::vector<double>>("wp_pt"),
-                                                                    pset.getParameter<std::vector<double>>("wp_PU"),
-                                                                    pset.getParameter<std::vector<double>>("wp_Pi"),
-                                                                    pset.getParameter<std::vector<double>>("wp_EgEm"),
-                                                                    pset.getParameter<std::vector<double>>("wp_PFEm")) {
-}
+    : l1ct::HgcalClusterDecoderEmulator::MultiClassID::MultiClassID(
+          pset.getParameter<std::string>("model"),
+          pset.getParameter<std::vector<double>>("wp_pt"),
+          pset.getParameter<std::vector<double>>("wp_PU"),
+          pset.getParameter<std::vector<double>>("wp_Pi"),
+          pset.getParameter<std::vector<double>>("wp_PFEm"),
+          pset.getParameter<std::vector<double>>("wp_EgEm"),
+          pset.getParameter<std::vector<double>>("wp_EgEm_tight")) {}
 
 edm::ParameterSetDescription l1ct::HgcalClusterDecoderEmulator::MultiClassID::getParameterSetDescription() {
   edm::ParameterSetDescription description;
@@ -42,6 +43,7 @@ edm::ParameterSetDescription l1ct::HgcalClusterDecoderEmulator::MultiClassID::ge
   description.add<std::vector<double>>("wp_PU");
   description.add<std::vector<double>>("wp_Pi");
   description.add<std::vector<double>>("wp_EgEm");
+  description.add<std::vector<double>>("wp_EgEm_tight");
   description.add<std::vector<double>>("wp_PFEm");
   return description;
 }
@@ -52,15 +54,16 @@ l1ct::HgcalClusterDecoderEmulator::HgcalClusterDecoderEmulator(const std::string
                                                                const std::vector<double> &wp_pt,
                                                                const std::vector<double> &wp_PU,
                                                                const std::vector<double> &wp_Pi,
-                                                               const std::vector<double> &wp_EgEm,
                                                                const std::vector<double> &wp_PFEm,
+                                                               const std::vector<double> &wp_EgEm,
+                                                               const std::vector<double> &wp_EgEm_tight,
                                                                bool slim,
                                                                const std::string &corrector,
                                                                float correctorEmfMax,
                                                                bool emulateCorrections,
                                                                const std::string &emInterpScenario)
     : slim_{slim},
-      multiclass_id_(model, wp_pt, wp_PU, wp_Pi, wp_EgEm, wp_PFEm),
+      multiclass_id_(model, wp_pt, wp_PU, wp_Pi, wp_PFEm, wp_EgEm, wp_EgEm_tight),
       corrector_(corrector, correctorEmfMax, false, emulateCorrections, l1tpf::corrector::EmulationMode::Correction),
       emInterpScenario_(setEmInterpScenario(emInterpScenario)) {}
 
@@ -178,8 +181,9 @@ l1ct::HgcalClusterDecoderEmulator::MultiClassID::MultiClassID(const std::string 
                                                               const std::vector<double> &wp_pt,
                                                               const std::vector<double> &wp_PU,
                                                               const std::vector<double> &wp_Pi,
+                                                              const std::vector<double> &wp_PFEm,
                                                               const std::vector<double> &wp_EgEm,
-                                                              const std::vector<double> &wp_PFEm) {
+                                                              const std::vector<double> &wp_EgEm_tight) {
   for (auto pt : wp_pt)
     wp_pt_.emplace_back(pt);
   for (auto pu : wp_PU)
@@ -190,6 +194,8 @@ l1ct::HgcalClusterDecoderEmulator::MultiClassID::MultiClassID(const std::string 
     wp_EgEm_.emplace_back(egem);
   for (auto pfem : wp_PFEm)
     wp_PFEm_.emplace_back(pfem);
+  for (auto egem : wp_EgEm_tight)
+    wp_EgEm_tight_.emplace_back(egem);
 
 #ifdef CMSSW_GIT_HASH
   auto resolvedFileName = edm::FileInPath(model).fullPath();
@@ -210,21 +216,21 @@ bool l1ct::HgcalClusterDecoderEmulator::MultiClassID::evaluate(l1ct::HadCaloObjE
 
   unsigned int pt_bin = 0;
   for (size_t i = wp_pt_.size(); i > 0; --i) {
-    if (cl.hwPt >=
-        wp_pt_[i - 1]) {
+    if (cl.hwPt >= wp_pt_[i - 1]) {
       pt_bin = i;
       break;
     }
   }
   bool passPu = (sm_scores[0] >= wp_PU_[pt_bin]);
   // bool passPi = (sm_scores[1] >= wp_Pi_[pt_bin]);  // FIXME: where do we store this?
-  bool passEgEm = (sm_scores[2] >= wp_EgEm_[pt_bin]);
   bool passPFEm = (sm_scores[2] >= wp_PFEm_[pt_bin]);
+  bool passEgEm = (sm_scores[2] >= wp_EgEm_[pt_bin]);
+  bool passEgEm_tight = (sm_scores[2] >= wp_EgEm_tight_[pt_bin]);
 
   // bit 0: PF EM ID
   // bit 1: EG EM ID
   // bit 2: EG Loose ID
-  cl.hwEmID = passPFEm | (passEgEm << 1) | (passEgEm << 2);  // FIXME: for now loose eg WP == tight WP?
+  cl.hwEmID = passPFEm | (passEgEm << 1) | (passEgEm_tight << 2);
 
   cl.hwPiProb = sm_scores[1];
   cl.hwEmProb = sm_scores[2];
