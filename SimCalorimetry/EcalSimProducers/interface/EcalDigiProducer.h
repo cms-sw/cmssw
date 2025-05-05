@@ -43,9 +43,9 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include <vector>
 
-typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer;
-typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer;
-typedef CaloTDigitizer<ESOldDigitizerTraits> ESOldDigitizer;
+using EBDigitizer = EcalTDigitizer<EBDigitizerTraits>;
+using EEDigitizer = EcalTDigitizer<EEDigitizerTraits>;
+using ESOldDigitizer = CaloTDigitizer<ESOldDigitizerTraits>;
 
 class ESDigitizer;
 
@@ -99,7 +99,7 @@ private:
   virtual void cacheEBDigis(const EBDigiCollection *ebDigiPtr) const {}
   virtual void cacheEEDigis(const EEDigiCollection *eeDigiPtr) const {}
 
-  typedef edm::Handle<std::vector<PCaloHit>> HitsHandle;
+  using HitsHandle = edm::Handle<std::vector<PCaloHit>>;
   void accumulateCaloHits(HitsHandle const &ebHandle,
                           HitsHandle const &eeHandle,
                           HitsHandle const &esHandle,
@@ -121,10 +121,10 @@ private:
   const std::string m_EEdigiCollection;
   const std::string m_ESdigiCollection;
   const std::string m_hitsProducerTag;
-
-  const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEBToken_;
-  const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEEToken_;
-  const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsESToken_;
+  const std::string m_hitsProducerTagPU;
+  edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEBToken_;
+  edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEEToken_;
+  edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsESToken_;
 
   const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> m_pedestalsToken;
   const edm::ESGetToken<EcalIntercalibConstantsMC, EcalIntercalibConstantsMCRcd> m_icalToken;
@@ -188,9 +188,9 @@ private:
   std::unique_ptr<EBDigitizer> m_BarrelDigitizer;
   std::unique_ptr<EEDigitizer> m_EndcapDigitizer;
 
-  typedef CaloTSamples<float, 10> EcalSamples;
+  using EcalSamples = CaloTSamples<float, 10>;
 
-  typedef EcalElectronicsSim<EcalCoder, EcalSamples, EcalDataFrame> EcalElectronicsSim_Ph1;
+  using EcalElectronicsSim_Ph1 = EcalElectronicsSim<EcalCoder, EcalSamples, EcalDataFrame>;
   std::unique_ptr<EcalElectronicsSim_Ph1> m_ElectronicsSim;
   std::unique_ptr<EcalCoder> m_Coder;
 
