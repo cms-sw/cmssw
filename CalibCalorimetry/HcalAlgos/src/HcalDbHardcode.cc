@@ -764,7 +764,7 @@ HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter(HcalGeneri
   // Hard code Run 3 TP algorithm for HB (OOT PU subtraction, prefire veto)
   else if (fId.subdetId() == HcalTriggerTower) {
     auxi1 = 120;  // OOT PU subtraction presample weighting factor (fixed-point 8-bit) (w ~ 0.47)
-    auxi2 = 88;   // Prefire veto threshold (coded) (ET = 5 GeV)
+    auxi2 = 0;    // For now, leave prefire veto off
   }
 
   return HcalTPChannelParameter(fId.rawId(), 0, bitInfo, auxi1, auxi2);
