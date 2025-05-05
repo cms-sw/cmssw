@@ -21,6 +21,7 @@ public:
 private:
   bool filter_;
   bool exclusive_;
+  bool matching_;
   bool eMuAsEquivalent_;
   bool eMuTauAsEquivalent_;
   bool allNuAsEquivalent_;
@@ -30,7 +31,10 @@ private:
   unsigned long int counter_event_;
   std::set<int> mothers_;
   std::vector<int> daughters_;
+  std::vector<int> matchedDecays_;
 
   std::map<int, int> requestedDaughters_;
   std::map<int, int> observedDaughters_;
+  std::multiset<std::pair<int, int>> requestedDecays_;
+  std::multiset<std::pair<int, int>> remainingDecays_;
 };
