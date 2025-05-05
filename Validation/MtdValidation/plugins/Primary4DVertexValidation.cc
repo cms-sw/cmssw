@@ -530,6 +530,38 @@ private:
   MonitorElement* meEndcapTruePAsPi_;
   MonitorElement* meEndcapTruePAsK_;
   MonitorElement* meEndcapTruePAsP_;
+
+  // Histograms for study of no PID tracks
+
+  //Time residual
+  MonitorElement* meTrackTimeResCorrectPID_;
+  MonitorElement* meTrackTimeResWrongPID_;
+  MonitorElement* meTrackTimeResNoPID_;
+  MonitorElement* meNoPIDTrackTimeResNoPIDType_[3];
+  MonitorElement* meTrackTimeResNoPIDtruePi_;
+  MonitorElement* meTrackTimeResNoPIDtrueK_;
+  MonitorElement* meTrackTimeResNoPIDtrueP_;
+
+  //Time pull
+  MonitorElement* meTrackTimePullCorrectPID_;
+  MonitorElement* meTrackTimePullWrongPID_;
+  MonitorElement* meTrackTimePullNoPID_;
+  MonitorElement* meNoPIDTrackTimePullNoPIDType_[3];
+  MonitorElement* meTrackTimePullNoPIDtruePi_;
+  MonitorElement* meTrackTimePullNoPIDtrueK_;
+  MonitorElement* meTrackTimePullNoPIDtrueP_;
+
+  //Sigma
+  MonitorElement* meTrackTimeSigmaCorrectPID_;
+  MonitorElement* meTrackTimeSigmaWrongPID_;
+  MonitorElement* meTrackTimeSigmaNoPID_;
+  MonitorElement* meNoPIDTrackSigmaNoPIDType_[3];
+
+  //MVA
+  MonitorElement* meTrackMVACorrectPID_;
+  MonitorElement* meTrackMVAWrongPID_;
+  MonitorElement* meTrackMVANoPID_;
+  MonitorElement* meNoPIDTrackMVANoPIDType_[3];
 };
 
 // constructors and destructor
@@ -1207,6 +1239,118 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                       -1.,
                                                       1.,
                                                       "s");
+
+    meTrackTimeResCorrectPID_ = ibook.book1D(
+        "TrackTimeResCorrectPID", "Time residual of tracks with correct PID; t_{rec} - t_{sim} [ns]; ", 100, -5., 5.);
+
+    meTrackTimeResWrongPID_ = ibook.book1D(
+        "TrackTimeResWrongPID", "Time residual of tracks with wrong PID; t_{rec} - t_{sim} [ns]; ", 100, -5., 5.);
+    meTrackTimeResNoPID_ = ibook.book1D(
+        "TrackTimeResNoPID", "Time residual of tracks with no PID; t_{rec} - t_{sim} [ns]; ", 100, -5., 5.);
+    meTrackTimeResNoPIDtruePi_ = ibook.book1D(
+        "TrackTimeResNoPIDtruePi", "Time residual of no PID tracks, true Pi; t_{rec} - t_{sim} [ns]; ", 100, -5., 5.);
+
+    meTrackTimeResNoPIDtrueK_ = ibook.book1D(
+        "TrackTimeResNoPIDtrueK", "Time residual of no PID tracks, true K; t_{rec} - t_{sim} [ns]; ", 100, -5., 5.);
+    meTrackTimeResNoPIDtrueP_ = ibook.book1D(
+        "TrackTimeResNoPIDtrueP", "Time residual of no PID tracks, true P; t_{rec} - t_{sim} [ns]; ", 100, -5., 5.);
+
+    meNoPIDTrackTimeResNoPIDType_[0] =
+        ibook.book1D("NoPIDTrackTimeResNoPIDType1",
+                     "Time residual of no PID tracks, no PID type 1; t_{rec} - t_{sim} [ns];",
+                     100,
+                     -5.,
+                     5.);
+
+    meNoPIDTrackTimeResNoPIDType_[1] =
+        ibook.book1D("NoPIDTrackTimeResNoPIDType2",
+                     "Time residual of no PID tracks, no PID type 2; t_{rec} - t_{sim} [ns];",
+                     100,
+                     -5.,
+                     5.);
+    meNoPIDTrackTimeResNoPIDType_[2] =
+        ibook.book1D("NoPIDTrackTimeResNoPIDType3",
+                     "Time residual of no PID tracks, no PID type 3; t_{rec} - t_{sim} [ns];",
+                     100,
+                     -5.,
+                     5.);
+
+    meTrackTimePullCorrectPID_ =
+        ibook.book1D("TrackTimePullCorrectPID",
+                     "Time pull of tracks with correct PID; (t_{rec} - t_{sim})/#sigma_{t rec}; ",
+                     100,
+                     -10.,
+                     10.);
+
+    meTrackTimePullWrongPID_ = ibook.book1D("TrackTimePullWrongPID",
+                                            "Time pull of tracks with wrong PID; (t_{rec} - t_{sim})/#sigma_{t rec}; ",
+                                            100,
+                                            -10.,
+                                            10.);
+    meTrackTimePullNoPID_ = ibook.book1D(
+        "TrackTimePullNoPID", "Time pull of tracks with no PID; (t_{rec} - t_{sim})/#sigma_{t rec}; ", 100, -10., 10.);
+
+    meTrackTimePullNoPIDtruePi_ =
+        ibook.book1D("TrackTimePullNoPIDtruePi",
+                     "Time pull of no PID tracks, true Pi; (t_{rec} - t_{sim})/#sigma_{t rec}; ",
+                     100,
+                     -10.,
+                     10.);
+    meTrackTimePullNoPIDtrueK_ =
+        ibook.book1D("TrackTimePullNoPIDtrueK",
+                     "Time pull of no PID tracks, true K; (t_{rec} - t_{sim})/#sigma_{t rec}; ",
+                     100,
+                     -10.,
+                     10.);
+    meTrackTimePullNoPIDtrueP_ =
+        ibook.book1D("TrackTimePullNoPIDtrueP",
+                     "Time pull of no PID tracks, true P; (t_{rec} - t_{sim})/#sigma_{t rec}; ",
+                     100,
+                     -10.,
+                     10.);
+
+    meNoPIDTrackTimePullNoPIDType_[0] =
+        ibook.book1D("NoPIDTrackTimePullNoPIDType1",
+                     "Time pull of no PID tracks, no PID type 1; (t_{rec} - t_{sim})/#sigma_{t rec}; ",
+                     100,
+                     -10.,
+                     10.);
+    meNoPIDTrackTimePullNoPIDType_[1] =
+        ibook.book1D("NoPIDTrackTimePullNoPIDType2",
+                     "Time pull of no PID tracks, no PID type 2; (t_{rec} - t_{sim})/#sigma_{t rec}; ",
+                     100,
+                     -10.,
+                     10.);
+    meNoPIDTrackTimePullNoPIDType_[2] =
+        ibook.book1D("NoPIDTrackTimePullNoPIDType3",
+                     "Time pull of no PID tracks, no PID type 3; (t_{rec} - t_{sim})/#sigma_{t rec}; ",
+                     100,
+                     -10.,
+                     10.);
+
+    meTrackTimeSigmaCorrectPID_ = ibook.book1D(
+        "TrackTimeSigmaCorrectPID", "Time sigma of tracks with correct PID; #sigma_{t0Safe} [ns]; ", 100, 0., 4.);
+    meTrackTimeSigmaWrongPID_ = ibook.book1D(
+        "TrackTimeSigmaWrongPID", "Time sigma of tracks with wrong PID; #sigma_{t0Safe} [ns]; ", 100, 0., 4.);
+    meTrackTimeSigmaNoPID_ =
+        ibook.book1D("TrackTimeSigmaNoPID", "Time sigma of tracks with no PID; #sigma_{t0Safe} [ns]; ", 100, 0., 4.);
+    meNoPIDTrackSigmaNoPIDType_[0] = ibook.book1D(
+        "NoPIDTrackSigmaNoPIDType1", "Time sigma of no PID tracks, no PID type 1; #sigma_{t0Safe} [ns]; ", 100, 0., 4.);
+    meNoPIDTrackSigmaNoPIDType_[1] = ibook.book1D(
+        "NoPIDTrackSigmaNoPIDType2", "Time sigma of no PID tracks, no PID type 2; #sigma_{t0Safe} [ns]; ", 100, 0., 4.);
+    meNoPIDTrackSigmaNoPIDType_[2] = ibook.book1D(
+        "NoPIDTrackSigmaNoPIDType3", "Time sigma of no PID tracks, no PID type 3; #sigma_{t0Safe} [ns]; ", 100, 0., 4.);
+    meTrackMVACorrectPID_ =
+        ibook.book1D("TrackMVACorrectPID", "MVA of tracks with correct PID; MVA score; ", 100, 0., 1.);
+
+    meTrackMVAWrongPID_ = ibook.book1D("TrackMVAWrongPID", "MVA of tracks with wrong PID; MVA score; ", 100, 0., 1.);
+    meTrackMVANoPID_ = ibook.book1D("TrackMVANoPID", "MVA of tracks with no PID; MVA score; ", 100, 0., 1.);
+    meNoPIDTrackMVANoPIDType_[0] =
+        ibook.book1D("NoPIDTrackMVANoPIDType1", "MVA of no PID tracks, no PID type 1; MVA score; ", 100, 0., 1.);
+    meNoPIDTrackMVANoPIDType_[1] =
+        ibook.book1D("NoPIDTrackMVANoPIDType2", "MVA of no PID tracks, no PID type 2; MVA score; ", 100, 0., 1.);
+    meNoPIDTrackMVANoPIDType_[2] =
+        ibook.book1D("NoPIDTrackMVANoPIDType3", "MVA of no PID tracks, no PID type 3; MVA score; ", 100, 0., 1.);
   }
 
   // some tests
@@ -2429,6 +2573,56 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             meTrackResTot_->Fill(t0Safe[*iTrack] - tsim);
             meTrackPullTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
             meTrackZposResTot_->Fill(dZ);
+            if (selectRecoTrk && optionalPlots_) {
+              unsigned int no_PIDtype = 0;
+              bool no_PID, is_Pi, is_K, is_P;
+              isParticle(*iTrack, sigmat0, sigmat0Safe, probPi, probK, probP, no_PIDtype, no_PID, is_Pi, is_K, is_P);
+              if (no_PID) {
+                meTrackTimeResNoPID_->Fill(t0Safe[*iTrack] - tsim);
+                meTrackTimePullNoPID_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+                meTrackTimeSigmaNoPID_->Fill(sigmat0Safe[*iTrack]);
+                meTrackMVANoPID_->Fill(mtdQualMVA[(*iTrack)]);
+                if (no_PIDtype == 1) {
+                  meNoPIDTrackTimeResNoPIDType_[0]->Fill(t0Safe[*iTrack] - tsim);
+                  meNoPIDTrackTimePullNoPIDType_[0]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+                  meNoPIDTrackSigmaNoPIDType_[0]->Fill(sigmat0Safe[*iTrack]);
+                  meNoPIDTrackMVANoPIDType_[0]->Fill(mtdQualMVA[(*iTrack)]);
+                } else if (no_PIDtype == 2) {
+                  meNoPIDTrackTimeResNoPIDType_[1]->Fill(t0Safe[*iTrack] - tsim);
+                  meNoPIDTrackTimePullNoPIDType_[1]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+                  meNoPIDTrackSigmaNoPIDType_[1]->Fill(sigmat0Safe[*iTrack]);
+                  meNoPIDTrackMVANoPIDType_[1]->Fill(mtdQualMVA[(*iTrack)]);
+                } else if (no_PIDtype == 3) {
+                  meNoPIDTrackTimeResNoPIDType_[2]->Fill(t0Safe[*iTrack] - tsim);
+                  meNoPIDTrackTimePullNoPIDType_[2]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+                  meNoPIDTrackSigmaNoPIDType_[2]->Fill(sigmat0Safe[*iTrack]);
+                  meNoPIDTrackMVANoPIDType_[2]->Fill(mtdQualMVA[(*iTrack)]);
+                }
+                if (std::abs((*tp_info)->pdgId()) == 211) {
+                  meTrackTimeResNoPIDtruePi_->Fill(t0Safe[*iTrack] - tsim);
+                  meTrackTimePullNoPIDtruePi_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+                } else if (std::abs((*tp_info)->pdgId()) == 321) {
+                  meTrackTimeResNoPIDtrueK_->Fill(t0Safe[*iTrack] - tsim);
+                  meTrackTimePullNoPIDtrueK_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+                } else if (std::abs((*tp_info)->pdgId()) == 2212) {
+                  meTrackTimeResNoPIDtrueP_->Fill(t0Safe[*iTrack] - tsim);
+                  meTrackTimePullNoPIDtrueP_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+                }
+              } else if ((is_Pi && std::abs((*tp_info)->pdgId()) == 211) ||
+                         (is_K && std::abs((*tp_info)->pdgId()) == 321) ||
+                         (is_P && std::abs((*tp_info)->pdgId()) == 2212)) {
+                meTrackTimeResCorrectPID_->Fill(t0Safe[*iTrack] - tsim);
+                meTrackTimePullCorrectPID_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+                meTrackTimeSigmaCorrectPID_->Fill(sigmat0Safe[*iTrack]);
+                meTrackMVACorrectPID_->Fill(mtdQualMVA[(*iTrack)]);
+              } else {
+                meTrackTimeResWrongPID_->Fill(t0Safe[*iTrack] - tsim);
+                meTrackTimePullWrongPID_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+                meTrackTimeSigmaWrongPID_->Fill(sigmat0Safe[*iTrack]);
+                meTrackMVAWrongPID_->Fill(mtdQualMVA[(*iTrack)]);
+              }
+            }
+
             if ((*iTrack)->p() <= 2) {
               meTrackResLowPTot_->Fill(t0Safe[*iTrack] - tsim);
               meTrackPullLowPTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
