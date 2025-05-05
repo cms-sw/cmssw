@@ -99,13 +99,10 @@ namespace edm {
       branchInfo->productBranch_->SetAddress(&cache.wrapperBasePtr_);
     }
 
-    setRefCoreStreamer(ep);
-    //make code exception safe
-    std::shared_ptr<void> refCoreStreamerGuard(nullptr, [](void*) {
-      setRefCoreStreamer(false);
-      ;
-    });
-
-    tree_.getEntryForAllBranches();
+    {
+      // ROOT might use multiple threads while reading the entries
+      MultiThreadRefCoreStreamerGuard epGuard(ep);
+      tree_.getEntryForAllBranches();
+    }
   }
 }  // namespace edm

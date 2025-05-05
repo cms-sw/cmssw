@@ -89,4 +89,13 @@ namespace edm {
     }
     return returnValue;
   }
+
+  void MultiThreadRefCoreStreamerGuard::setRefCoreStreamer(EDProductGetter const* ep) {
+    edm::EDProductGetter::setMultiThreadProductGetter(ep);
+  }
+
+  void MultiThreadRefCoreStreamerGuard::unsetRefCoreStreamer() {
+    edm::EDProductGetter::unsetMultiThreadProductGetter();
+  }
+
 }  // namespace edm
