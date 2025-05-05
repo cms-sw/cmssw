@@ -84,5 +84,6 @@ from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 
 from Configuration.Eras.Modifier_stage2L1Trigger_2025_cff import stage2L1Trigger_2025
 stage2L1Trigger_2025.toModify(l1tStage2uGTTiming,
-    unprescaledAlgoShortList = unprescaledAlgoList_2025
+    unprescaledAlgoShortList = unprescaledAlgoList_2025,
+    prescaledAlgoShortList = prescaledAlgoList_2024
 )
