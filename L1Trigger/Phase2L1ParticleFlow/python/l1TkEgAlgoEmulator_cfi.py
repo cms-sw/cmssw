@@ -22,12 +22,12 @@ CompositeParametersTkEleVec = cms.VPSet(
         # the working points are cuts on BDT output logits [log(p/1-p)]/4 (range -1 to 1 to match the FW dataformat)
         model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EE_v0.json"),
         loose_wp=cms.PSet(
-            bins=cms.vdouble(0),
-            values=cms.vdouble(-0.181641)
+            bins=cms.vdouble(0., 18., 28., 36.),
+            values=cms.vdouble(-0.181641, -0.15, 0.075, -0.181641)
             ),
         tight_wp=cms.PSet(
-            bins=cms.vdouble(0),
-            values=cms.vdouble(0.0527344)
+            bins=cms.vdouble(0., 28., 40.),
+            values=cms.vdouble(0.0527344, 0.3, 0.0527344)
             ),
         dPhi_max = cms.double(0.2),
         dEta_max = cms.double(0.2),
