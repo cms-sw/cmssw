@@ -36,7 +36,7 @@ namespace CLHEP {
 
 class GEMDigiProducer : public edm::stream::EDProducer<> {
 public:
-  typedef edm::DetSetVector<GEMDigiSimLink> GEMDigiSimLinks;
+  using GEMDigiSimLinks = edm::DetSetVector<GEMDigiSimLink>;
 
   explicit GEMDigiProducer(const edm::ParameterSet& ps);
 
@@ -50,7 +50,7 @@ public:
 
 private:
   //Name of Collection used for create the XF
-  edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
+  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit>>> cf_tokens_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geom_token_;
 
   const GEMGeometry* geometry_;
@@ -69,10 +69,16 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps) : gemDigiModule_(s
         << "Add the service in the configuration file or remove the modules that require it.";
   }
 
-  std::string mix_(ps.getParameter<std::string>("mixLabel"));
-  std::string collection_(ps.getParameter<std::string>("inputCollection"));
-
-  cf_token = consumes<CrossingFrame<PSimHit> >(edm::InputTag(mix_, collection_));
+  const std::string mix_ = ps.getParameter<std::string>("mixLabel");
+  const std::set<std::string> collectionNames = {ps.getParameter<std::string>("inputCollection"),
+                                                 ps.getParameter<std::string>("inputCollectionPU")};
+  for (auto const& cname : collectionNames) {
+#ifdef EDM_ML_DEBUG
+    std::cout << " GEMDigiProducer::Creating CrossingFrame Consumers for InputTag " << mix_ << ":" << cname
+              << std::endl;
+#endif
+    cf_tokens_.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, cname)));
+  }
   geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
@@ -81,6 +87,7 @@ GEMDigiProducer::~GEMDigiProducer() = default;
 void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("inputCollection", "g4SimHitsMuonGEMHits");
+  desc.add<std::string>("inputCollectionPU", "g4SimHitsMuonGEMHits");
   desc.add<std::string>("mixLabel", "mix");
 
   desc.add<double>("signalPropagationSpeed", 0.66);
@@ -114,10 +121,8 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   // referecne inst. luminosity 5E+34 cm^-2s^-1
   desc.add<double>("resolutionX", 0.03);
 
-  // The follwing parameters are needed to model the background contribution
-  // The parameters have been obtained after the fit of th perdicted by FLUKA
-  // By default the backgroundmodeling with these parameters should be disabled with
-  // the 9_2_X release setting simulateBkgNoise = false
+  // The follwing parameters are needed to model the background contribution The parameters have been obtained after the fit of th perdicted by FLUKA By default the backgroundmodeling with these parameters should be disabled
+  // with the 9_2_X release setting simulateBkgNoise = false
   desc.add<double>("GE11ModNeuBkgParam0", 5710.23);
   desc.add<double>("GE11ModNeuBkgParam1", -43.3928);
   desc.add<double>("GE11ModNeuBkgParam2", 0.0863681);
@@ -144,10 +149,14 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-  edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByToken(cf_token, cf);
-
-  MixCollection<PSimHit> hits{cf.product()};
+  std::vector<const CrossingFrame<PSimHit>*> cf_list;
+  for (auto const& token : cf_tokens_) {
+    const auto& handle = e.getHandle(token);
+    if (handle.isValid()) {
+      cf_list.emplace_back(handle.product());
+    }
+  }
+  auto hits = std::make_unique<MixCollection<PSimHit>>(cf_list);
 
   // Create empty output
   auto digis = std::make_unique<GEMDigiCollection>();
@@ -155,7 +164,7 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
-  for (const auto& hit : hits) {
+  for (const auto& hit : *hits) {
     hitMap[GEMDetId(hit.detUnitId()).rawId()].emplace_back(hit);
   }
 

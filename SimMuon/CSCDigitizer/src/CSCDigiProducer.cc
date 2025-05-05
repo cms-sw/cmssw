@@ -47,9 +47,16 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet &ps) : theDigitizer(ps)
                                              "in the configuration file or remove the modules that require it.";
   }
 
-  std::string mix_ = ps.getParameter<std::string>("mixLabel");
-  std::string collection_ = ps.getParameter<std::string>("InputCollection");
-  cf_token = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_));
+  const std::string mix_ = ps.getParameter<std::string>("mixLabel");
+  const std::set<std::string> collections_ = {ps.getParameter<std::string>("InputCollection"),
+                                              ps.getParameter<std::string>("InputCollectionPU")};
+  for (auto const &cname : collections_) {
+#ifdef EDM_ML_DEBUG
+    std::cout << " CSCDigiProducer::Creating CrossingFrame Consumers for InputTag " << mix_ << ":" << cname
+              << std::endl;
+#endif
+    cf_tokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, cname)));
+  }
 }
 
 CSCDigiProducer::~CSCDigiProducer() { delete theStripConditions; }
@@ -60,18 +67,23 @@ void CSCDigiProducer::produce(edm::Event &ev, const edm::EventSetup &eventSetup)
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine *engine = &rng->getEngine(ev.streamID());
 
-  edm::Handle<CrossingFrame<PSimHit>> cf;
-  ev.getByToken(cf_token, cf);
+  std::vector<const CrossingFrame<PSimHit> *> cf_list;
+  for (auto const &token : cf_tokens) {
+    const auto &handle = ev.getHandle(token);
+    if (handle.isValid()) {
+      cf_list.emplace_back(handle.product());
+    } else
+      edm::LogInfo("CSCDigitizer") << " Input Source not Valid !!";
+  }
 
-  std::unique_ptr<MixCollection<PSimHit>> hits(new MixCollection<PSimHit>(cf.product()));
+  auto hits = std::make_unique<MixCollection<PSimHit>>(cf_list);
 
   // Create empty output
-
-  std::unique_ptr<CSCWireDigiCollection> pWireDigis(new CSCWireDigiCollection());
-  std::unique_ptr<CSCStripDigiCollection> pStripDigis(new CSCStripDigiCollection());
-  std::unique_ptr<CSCComparatorDigiCollection> pComparatorDigis(new CSCComparatorDigiCollection());
-  std::unique_ptr<DigiSimLinks> pWireDigiSimLinks(new DigiSimLinks());
-  std::unique_ptr<DigiSimLinks> pStripDigiSimLinks(new DigiSimLinks());
+  auto pWireDigis = std::make_unique<CSCWireDigiCollection>();
+  auto pStripDigis = std::make_unique<CSCStripDigiCollection>();
+  auto pComparatorDigis = std::make_unique<CSCComparatorDigiCollection>();
+  auto pWireDigiSimLinks = std::make_unique<DigiSimLinks>();
+  auto pStripDigiSimLinks = std::make_unique<DigiSimLinks>();
 
   //@@ DOES NOTHING IF NO HITS.  Remove this for when there's real neutrons
   if (hits->size() > 0) {

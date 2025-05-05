@@ -29,12 +29,20 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
     Signal = cms.bool(True),
     mixLabel = cms.string('mix'),                                 
     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
+    InputCollectionPU = cms.string('g4SimHitsMuonRPCHits'),                                 
     digiModel = cms.string('RPCSimAsymmetricCls')
 )
 
 #the digitizer for PhaseII muon upgrade is RPCSimModelTiming and for the moment is based on  RPCSimAverageNoiseEffCls
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(simMuonRPCDigis, InputCollection = 'MuonSimHitsMuonRPCHits')
+fastSim.toModify(simMuonRPCDigis,
+                 InputCollection = cms.string('MuonSimHitsMuonRPCHits'),
+                 InputCollectionPU = cms.string('MuonSimHitsMuonRPCHits'))                 
+
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(simMuonRPCDigis,
+                 InputCollection = cms.string('g4SimHitsMuonRPCHits'),
+                 InputCollectionPU = cms.string('MuonSimHitsMuonRPCHits'))
 
 _simMuonRPCDigisPhaseII = cms.EDProducer("RPCandIRPCDigiProducer",
     Noise = cms.bool(True),

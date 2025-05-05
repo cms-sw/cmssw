@@ -6,6 +6,7 @@ pixelDigitizer = cms.PSet(
     SiPixelSimBlock,
     accumulatorType = cms.string("SiPixelDigitizer"),
     hitsProducer = cms.string('g4SimHits'),
+    hitsProducerPU = cms.string('g4SimHits'),    
     makeDigiSimLinks = cms.untracked.bool(True)
 )
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
@@ -56,4 +57,12 @@ from Configuration.ProcessModifiers.runDependentForPixelVal_cff import runDepend
          AdcFullScale = 1023,
          MissCalibrate = False
 )
+# when FastSim events as PileUP events during mixing
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(pixelDigitizer,
+                   hitsProducerPU = cms.string('fastSimProducer'))
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(pixelDigitizer,
+                   hitsProducer = cms.string('fastSimProducer'),
+                   hitsProducerPU = cms.string('fastSimProducer'))
 
