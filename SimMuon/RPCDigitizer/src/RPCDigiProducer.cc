@@ -37,8 +37,16 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   produces<RPCDigitizerSimLinks>("RPCDigiSimLink");
 
   //Name of Collection used for create the XF
-  mix_ = ps.getParameter<std::string>("mixLabel");
-  collection_for_XF = ps.getParameter<std::string>("InputCollection");
+  const std::string mix_ = ps.getParameter<std::string>("mixLabel");
+  const std::set<std::string> collections_for_XF = {ps.getParameter<std::string>("InputCollection"),
+                                                    ps.getParameter<std::string>("InputCollectionPU")};
+  for (auto const& cname : collections_for_XF) {
+#ifdef EDM_ML_DEBUG
+    std::cout << " RPCDigiProducer::CreatingCrossing Frame Consumers for InputTag " << mix_ << ":" << cname
+              << std::endl;
+#endif
+    crossingFrameTokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, cname)));
+  }
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
@@ -49,7 +57,6 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   }
   theRPCSimSetUp = new RPCSimSetUp(ps);
   theDigitizer = new RPCDigitizer(ps);
-  crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
   geomToken = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
   noiseToken = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
   clsToken = esConsumes<RPCClusterSize, RPCClusterSizeRcd, edm::Transition::BeginRun>();
@@ -92,13 +99,18 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   // Obsolate code, based on getByLabel
   //  e.getByLabel(mix_, collection_for_XF, cf);
   //New code, based on tokens
-  const edm::Handle<CrossingFrame<PSimHit>>& cf = e.getHandle(crossingFrameToken);
-
-  std::unique_ptr<MixCollection<PSimHit>> hits(new MixCollection<PSimHit>(cf.product()));
+  std::vector<const CrossingFrame<PSimHit>*> cf_list;
+  for (auto const& token : crossingFrameTokens) {
+    const auto& handle = e.getHandle(token);
+    if (handle.isValid()) {
+      cf_list.emplace_back(handle.product());
+    }
+  }
+  auto hits = std::make_unique<MixCollection<PSimHit>>(cf_list);
 
   // Create empty output
-  std::unique_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
-  std::unique_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks());
+  auto pDigis = std::make_unique<RPCDigiCollection>();
+  auto RPCDigitSimLink = std::make_unique<RPCDigitizerSimLinks>();
 
   // run the digitizer
   theDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);

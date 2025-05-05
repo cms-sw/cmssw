@@ -52,6 +52,12 @@ namespace edm {
         InputTag t = InputTag(tag.label(), tag.instance());
         LogInfo("MixingModule") << " Will create a CrossingFrame for HepMCProduct with "
                                 << " with InputTag= " << t.encode();
+#ifdef EDM_ML_DEBUG
+        std::cout << " MixingWorker::checkSignal"
+                  << " Will create a CrossingFrame for HepMCProduct with "
+                  << " with InputTag= " << t.encode() << std::endl;
+#endif
+
         break;
       }
     }

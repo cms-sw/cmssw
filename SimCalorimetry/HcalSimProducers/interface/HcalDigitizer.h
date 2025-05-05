@@ -103,12 +103,12 @@ private:
   const HcalDDDRecConstants *theRecNumber;
 
   /** Reconstruction algorithm*/
-  typedef CaloTDigitizer<HBHEDigitizerTraits, CaloTDigitizerQIE8Run> HBHEDigitizer;
-  typedef CaloTDigitizer<HODigitizerTraits, CaloTDigitizerQIE8Run> HODigitizer;
-  typedef CaloTDigitizer<HFDigitizerTraits, CaloTDigitizerQIE8Run> HFDigitizer;
-  typedef CaloTDigitizer<ZDCDigitizerTraits, CaloTDigitizerQIE8Run> ZDCDigitizer;
-  typedef CaloTDigitizer<HcalQIE10DigitizerTraits, CaloTDigitizerQIE1011Run> QIE10Digitizer;
-  typedef CaloTDigitizer<HcalQIE11DigitizerTraits, CaloTDigitizerQIE1011Run> QIE11Digitizer;
+  using HBHEDigitizer = CaloTDigitizer<HBHEDigitizerTraits, CaloTDigitizerQIE8Run>;
+  using HODigitizer = CaloTDigitizer<HODigitizerTraits, CaloTDigitizerQIE8Run>;
+  using HFDigitizer = CaloTDigitizer<HFDigitizerTraits, CaloTDigitizerQIE8Run>;
+  using ZDCDigitizer = CaloTDigitizer<ZDCDigitizerTraits, CaloTDigitizerQIE8Run>;
+  using QIE10Digitizer = CaloTDigitizer<HcalQIE10DigitizerTraits, CaloTDigitizerQIE1011Run>;
+  using QIE11Digitizer = CaloTDigitizer<HcalQIE11DigitizerTraits, CaloTDigitizerQIE1011Run>;
 
   HcalSimParameterMap theParameterMap;
   HcalShapes theShapes;
@@ -176,6 +176,7 @@ private:
   bool injectTestHits_;
 
   std::string hitsProducer_;
+  std::string hitsProducerPU_;
 
   int theHOSiPMCode;
 
