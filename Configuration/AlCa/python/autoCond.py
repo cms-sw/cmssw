@@ -102,11 +102,11 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2024 detector for ppRef5TeV
     'phase1_2024_realistic_ppRef5TeV' : '141X_mcRun3_2024_realistic_ppRef5TeV_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2025
-    'phase1_2025_design'           :    '150X_mcRun3_2025_design_v1',
+    'phase1_2025_design'           :    '150X_mcRun3_2025_design_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2025
-    'phase1_2025_realistic'        :    '150X_mcRun3_2025_realistic_v1',
-    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2024, Strip tracker in DECO mode
-    'phase1_2025_cosmics'          :    '150X_mcRun3_2025cosmics_realistic_deco_v1',
+    'phase1_2025_realistic'        :    '150X_mcRun3_2025_realistic_v2',
+    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2025, Strip tracker in DECO mode
+    'phase1_2025_cosmics'          :    '150X_mcRun3_2025cosmics_realistic_deco_v2',
     # GlobalTag for MC production with realistic conditions for Phase2
     'phase2_realistic'             :    '150X_mcRun4_realistic_v1'
 }
