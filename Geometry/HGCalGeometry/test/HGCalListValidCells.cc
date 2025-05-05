@@ -79,7 +79,9 @@ void HGCalListValidCells::analyze(const edm::Event& iEvent, const edm::EventSetu
                            "Five2", "????", "LDTop",   "LDBottom", "LDLeft",   "LDRight", "LDFive",  "LDThree", "????",
                            "????",  "????", "????",    "HDTop",    "HDBottom", "HDLeft",  "HDRight", "HDFive"};
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  edm::LogVerbatim("HGCalGeom") << "Find the list of valid DetIds of type " << partialType_ << ":" << parts[partialType_] << " among a list of " << ids.size() << " valid ids of " << geom->cellElement();
+  edm::LogVerbatim("HGCalGeom") << "Find the list of valid DetIds of type " << partialType_ << ":"
+                                << parts[partialType_] << " among a list of " << ids.size() << " valid ids of "
+                                << geom->cellElement();
   std::vector<HGCSiliconDetId> detIds;
 
   for (auto const& id : ids) {
@@ -88,26 +90,27 @@ void HGCalListValidCells::analyze(const edm::Event& iEvent, const edm::EventSetu
       HGCalParameters::waferInfo info =
           geom->topology().dddConstants().waferInfo(detId.layer(), detId.waferU(), detId.waferV());
       if (info.part == partialType_) {
-	if (std::find(detIds.begin(), detIds.end(), detId) == detIds.end())
-	  detIds.emplace_back(detId);
+        if (std::find(detIds.begin(), detIds.end(), detId) == detIds.end())
+          detIds.emplace_back(detId);
       }
     } else {
       edm::LogVerbatim("HGCalGeom") << "Illegal Det " << id.det() << " in " << std::hex << id.rawId() << std::dec
                                     << " ERROR";
     }
   }
-  edm::LogVerbatim("HGCalGeom") << "There are " << detIds.size() << " valid Ids with partial type " << partialType_ << ":" << parts[partialType_];
+  edm::LogVerbatim("HGCalGeom") << "There are " << detIds.size() << " valid Ids with partial type " << partialType_
+                                << ":" << parts[partialType_];
   if (verbosity_ > 0) {
     for (auto const detId : detIds)
       edm::LogVerbatim("HGCalGeom") << " " << detId;
   }
-    
+
   if (detIds.size() > 0) {
     std::vector<int> cellPatterns;
     for (auto const& detId : detIds) {
       int iuv = (100 * detId.cellU() + detId.cellV());
       if (std::find(cellPatterns.begin(), cellPatterns.end(), iuv) == cellPatterns.end())
-	cellPatterns.emplace_back(iuv);
+        cellPatterns.emplace_back(iuv);
     }
     std::sort(cellPatterns.begin(), cellPatterns.end());
     edm::LogVerbatim("HGCalGeom") << "There are " << cellPatterns.size() << " different cell patterns:";
