@@ -287,9 +287,23 @@ steps['TTbar_13p6_Summer24_AOD'] = {'INPUT': InputInfo(
 steps['JetMET1_Run2024H_AOD'] = {'INPUT': InputInfo(
     location='STD', ls={385836: [[72, 166]]}, dataSet='/JetMET1/Run2024H-PromptReco-v1/AOD')}
 
-steps['NANO_mc_Summer24_reMINI'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2024_realistic'}, _NANO_mc])
+steps['NANO_mc_Summer24_reMINI'] = merge([{'--era': 'Run3_2024', '--conditions': 'auto:phase1_2024_realistic'}, _NANO_mc])
 
 steps['NANO_data_2024_reMINI'] = merge([{'--era': 'Run3_2024', '--conditions': 'auto:run3_data'}, _NANO_data])
+
+
+################################################################
+# Run3, 15_0_X input (for 2025 data-taking)
+# temporarily using the Summer24 samples
+steps['TTbar_13p6_Summer24_MINIAOD'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2/MINIAODSIM')}
+
+steps['JetMET1_Run2024H_MINIAOD'] = {'INPUT': InputInfo(
+    location='STD', ls={385836: [[72, 166]]}, dataSet='/JetMET1/Run2024H-MINIv6NANOv15-v2/MINIAOD')}
+
+steps['NANO_mc15.0'] = merge([{'--era': 'Run3_2025', '--conditions': 'auto:phase1_2025_realistic'}, _NANO_mc])
+
+steps['NANO_data15.0'] = merge([{'--era': 'Run3_2025', '--conditions': 'auto:run3_data_prompt'}, _NANO_data])
 
 
 ################################################################
@@ -401,6 +415,14 @@ workflows[_wfn()] = ['NANOmc2024reMINI', ['TTbar_13p6_Summer24_AOD', 'REMINIAOD_
 
 _wfn.subnext()
 workflows[_wfn()] = ['NANOdata2024reMINI', ['JetMET1_Run2024H_AOD', 'REMINIAOD_data2024', 'NANO_data_2024_reMINI', 'HRV_NANO_data']]  # noqa
+
+# Run3, 15_0_X input (2025)
+_wfn.subnext()
+workflows[_wfn()] = ['NANOmc150X', ['TTbar_13p6_Summer24_MINIAOD', 'NANO_mc15.0', 'HRV_NANO_mc']]
+
+_wfn.subnext()
+workflows[_wfn()] = ['NANOdata150X', ['JetMET1_Run2024H_MINIAOD', 'NANO_data15.0', 'HRV_NANO_data']]
+
 
 _wfn.next(9)
 ######## 2500.9xx ########
