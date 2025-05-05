@@ -248,12 +248,8 @@ namespace edm::streamer {
     // multi-threaded there will be multiple EventPrincipals being used
     // simultaneously.
     eventPrincipalHolder_ = std::make_unique<EventPrincipalHolder>();  // propagate_const<T> has no reset() function
-    setRefCoreStreamer(eventPrincipalHolder_.get());
     {
-      std::shared_ptr<void> refCoreStreamerGuard(nullptr, [](void*) {
-        setRefCoreStreamer();
-        ;
-      });
+      RefCoreStreamerGuard guard(eventPrincipalHolder_.get());
       sendEvent_ = std::unique_ptr<SendEvent>(reinterpret_cast<SendEvent*>(xbuf_.ReadObjectAny(tc_)));
     }
 

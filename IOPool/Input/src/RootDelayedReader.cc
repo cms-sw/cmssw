@@ -72,12 +72,7 @@ namespace edm {
       }
     }
 
-    setRefCoreStreamer(ep);
-    //make code exception safe
-    std::shared_ptr<void> refCoreStreamerGuard(nullptr, [](void*) {
-      setRefCoreStreamer(false);
-      ;
-    });
+    RefCoreStreamerGuard guard(ep);
     std::unique_ptr<WrapperBase> edp = branchInfo->newWrapper();
     void * edpPtr = edp.get();
     branchInfo->productBranch_->SetAddress(&edpPtr);

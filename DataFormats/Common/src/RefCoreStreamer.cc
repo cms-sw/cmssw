@@ -80,9 +80,9 @@ namespace edm {
     }
   }
 
-  void setRefCoreStreamer(bool) { EDProductGetter::switchProductGetter(nullptr); }
+  void RefCoreStreamerGuard::unsetRefCoreStreamer() { EDProductGetter::switchProductGetter(nullptr); }
 
-  EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep) {
+  EDProductGetter const* RefCoreStreamerGuard::setRefCoreStreamer(EDProductGetter const* ep) {
     EDProductGetter const* returnValue = nullptr;
     if (ep != nullptr) {
       returnValue = edm::EDProductGetter::switchProductGetter(ep);

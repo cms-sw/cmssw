@@ -33,7 +33,15 @@ namespace edm {
   };
 
   void setRefCoreStreamerInTClass();
-  void setRefCoreStreamer(bool resetAll = false);
-  EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep);
+
+  class RefCoreStreamerGuard {
+  public:
+    RefCoreStreamerGuard(EDProductGetter const* ep) { setRefCoreStreamer(ep); }
+    ~RefCoreStreamerGuard() { unsetRefCoreStreamer(); }
+
+  private:
+    static void unsetRefCoreStreamer();
+    static EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep);
+  };
 }  // namespace edm
 #endif
