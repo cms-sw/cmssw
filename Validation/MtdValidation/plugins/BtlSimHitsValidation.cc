@@ -163,8 +163,16 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   std::unordered_map<uint32_t, std::unordered_map<uint64_t, MTDHit>> m_btlHitsPerCell;
 
   // --- Group cells by sensor module
-  std::unordered_map<uint32_t, std::vector<std::pair<uint32_t, std::unordered_map<uint64_t, MTDHit>>>>
-      modules;  // module Id and vector of cells
+  // The 'modules' map organizes hit information at the sensor module level:
+  // - the keys of this outer unordered_map are the geoId.rawId() of the MTD sensor modules (uint32_t);
+  // - the values are vectors of std::pair, representing single cells within that sensor module.
+  //   Each std::pair contains:
+  //   - the id.rawId() of the BTL cell (uint32_t) that uniquely identifies the cell;
+  //   - an unordered_map where:
+  //     - keys are 'global track IDs' (uint64_t), constructed by combining the SIM hit's event ID and trackId;
+  //     - values are 'MTDHits', which store the accumulated energy of SIM hits with the same track ID in the
+  //       same cell and the time and position of the first SIM hit in time
+  std::unordered_map<uint32_t, std::vector<std::pair<uint32_t, std::unordered_map<uint64_t, MTDHit>>>> modules;
 
   // --- Loop over the BLT SIM hits and accumulate the hits with the same track ID in each cell
   for (auto const& simHit : btlSimHits) {
@@ -226,6 +234,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     // --- Groups cells with hits by sensor module using MTDTopology
     BTLDetId detId(cell.first);
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
+    // Add the cell and its hit map to the vector associated with its sensor module in the 'modules' map
     modules[geoId.rawId()].push_back(cell);
 
     if (optionalPlots_)
