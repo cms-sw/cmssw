@@ -55,13 +55,14 @@ namespace l1ct {
     glbeta_t hwEta;
     glbphi_t hwPhi;
     z0_t hwZ0;
-    
+
     static const unsigned NTagFields = 8;
     jet_tag_score_t hwTagScores[NTagFields];
     mass2_t hwMassSq;
-    
+
     inline bool operator==(const Jet &other) const {
-      bool eq = hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwMassSq == other.hwMassSq && hwZ0 == other.hwZ0;
+      bool eq = hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwMassSq == other.hwMassSq &&
+                hwZ0 == other.hwZ0;
       for (unsigned i = 0; i < NTagFields; i++) {
         eq = eq && hwTagScores[i] == other.hwTagScores[i];
       }
