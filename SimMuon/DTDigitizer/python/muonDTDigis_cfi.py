@@ -48,7 +48,6 @@ fastSim.toModify(simMuonDTDigis,
     
 from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
 fastSimPU.toModify(simMuonDTDigis,
-                   InputCollection   = cms.string('g4SimHitsMuonDTHits'),
                    InputCollectionPU = cms.string('MuonSimHitsMuonDTHits'))
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

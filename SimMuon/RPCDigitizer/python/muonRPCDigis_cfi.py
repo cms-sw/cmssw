@@ -41,7 +41,6 @@ fastSim.toModify(simMuonRPCDigis,
 
 from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
 fastSimPU.toModify(simMuonRPCDigis,
-                 InputCollection = cms.string('g4SimHitsMuonRPCHits'),
                  InputCollectionPU = cms.string('MuonSimHitsMuonRPCHits'))
 
 _simMuonRPCDigisPhaseII = cms.EDProducer("RPCandIRPCDigiProducer",

@@ -140,10 +140,6 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit>> hSi
       assert(stripdet);
       if (stripdet->type().isTrackerStrip()) {
         if (detIds.insert(detId).second) {
-          // The insert succeeded, so this detector element has not yet been processed.
-          //// The insert succeeded, so this detector element has not yet been processed.
-          //	//        assert(detectorUnits[detId]);
-          //if (detectorUnits[detId]->type().isTrackerStrip()) {  // this test can be removed and replaced by stripdet!=0
           //access to magnetic field in global coordinates
           GlobalVector bfield = pSetup->inTesla(stripdet->surface().position());
           LogDebug("Digitizer ") << "B-field(T) at " << stripdet->surface().position()

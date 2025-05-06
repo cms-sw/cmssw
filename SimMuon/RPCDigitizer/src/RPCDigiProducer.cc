@@ -37,15 +37,13 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   produces<RPCDigitizerSimLinks>("RPCDigiSimLink");
 
   //Name of Collection used for create the XF
-  const std::string mix_ = ps.getParameter<std::string>("mixLabel");
-  const std::set<std::string> collections_for_XF = {ps.getParameter<std::string>("InputCollection"),
-                                                    ps.getParameter<std::string>("InputCollectionPU")};
-  for (auto const& cname : collections_for_XF) {
+  const std::string& mix = ps.getParameter<std::string>("mixLabel");
+  for (const auto& cname :
+       {ps.getParameter<std::string>("InputCollection"), ps.getParameter<std::string>("InputCollectionPU")}) {
 #ifdef EDM_ML_DEBUG
-    std::cout << " RPCDigiProducer::CreatingCrossing Frame Consumers for InputTag " << mix_ << ":" << cname
-              << std::endl;
+    edm::LogVerbatim("RPCDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
 #endif
-    crossingFrameTokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, cname)));
+    crossingFrameTokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
   }
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -96,11 +94,9 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
       << "[RPCDigiProducer::produce] to activate the test go in RPCDigiProducer.cc and uncomment the line below";
   // LogDebug ("RPCDigiProducer")<<"[RPCDigiProducer::produce] Fired RandFlat :: "<<CLHEP::RandFlat::shoot(engine);
 
-  // Obsolate code, based on getByLabel
-  //  e.getByLabel(mix_, collection_for_XF, cf);
   //New code, based on tokens
   std::vector<const CrossingFrame<PSimHit>*> cf_list;
-  for (auto const& token : crossingFrameTokens) {
+  for (const auto& token : crossingFrameTokens) {
     const auto& handle = e.getHandle(token);
     if (handle.isValid()) {
       cf_list.emplace_back(handle.product());

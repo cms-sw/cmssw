@@ -166,17 +166,6 @@ namespace cms {
         assert(pixdet != nullptr);
         if (pixdet && pixdet->type().isTrackerPixel()) {
           if (detIds.insert(detId).second) {
-            // The insert succeeded, so this detector element has not yet been processed.
-            //          assert(detectorUnits[detId]);
-            //          if (detectorUnits[detId] &&
-            //              detectorUnits[detId]
-            //                  ->type()
-            //                  .isTrackerPixel()) {  // this test could be avoided and changed into a check of pixdet!=0
-            //            std::map<unsigned int, PixelGeomDetUnit const*>::iterator itDet = detectorUnits.find(detId);
-            //            if (itDet == detectorUnits.end())
-            //              continue;
-            //            auto pixdet = itDet->second;
-            //            assert(pixdet != nullptr);
             //access to magnetic field in global coordinates
             GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
             LogDebug("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position()
