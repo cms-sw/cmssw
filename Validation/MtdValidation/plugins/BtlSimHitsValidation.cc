@@ -163,7 +163,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   std::unordered_map<uint32_t, std::unordered_map<uint64_t, MTDHit>> m_btlHitsPerCell;
 
   // --- Group cells by sensor module
-  std::unordered_map<uint64_t, std::vector<std::pair<uint32_t, std::unordered_map<uint64_t, MTDHit>>>>
+  std::unordered_map<uint32_t, std::vector<std::pair<uint32_t, std::unordered_map<uint64_t, MTDHit>>>>
       modules;  // module Id and vector of cells
 
   // --- Loop over the BLT SIM hits and accumulate the hits with the same track ID in each cell
