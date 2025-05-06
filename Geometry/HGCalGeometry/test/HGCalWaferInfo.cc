@@ -83,9 +83,9 @@ void HGCalWaferInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       HGCalParameters::waferInfo info =
           geom->topology().dddConstants().waferInfo(detId.layer(), detId.waferU(), detId.waferV());
       edm::LogVerbatim("HGCalGeom") << "ID: " << detId << " Type " << info.type << ":" << types[info.type] << " Part "
-                                    << info.part << ":" << parts[info.part] << " Orient " << info.orient << " placement "
-				    << geom->topology().dddConstants().placementIndex(detId) << " Cassette "
-                                    << info.cassette << " at " << geom->getPosition(id, true, false);
+                                    << info.part << ":" << parts[info.part] << " Orient " << info.orient
+                                    << " placement " << geom->topology().dddConstants().placementIndex(detId)
+                                    << " Cassette " << info.cassette << " at " << geom->getPosition(id, true, false);
     } else {
       edm::LogVerbatim("HGCalGeom") << "Illegal Det " << id.det() << " in " << std::hex << id.rawId() << std::dec
                                     << " ERROR";
