@@ -26,11 +26,14 @@ namespace edm {
       return branch;
     }
 
-    std::unique_ptr<RootDelayedReaderBase> makeRootDelayedReader(
-        RootTree const& tree, std::shared_ptr<InputFile> filePtr, InputType inputType, unsigned int nIndexes, bool promptRead) {
-          if(promptRead) { 
-      return std::make_unique<RootPromptReadDelayedReader>(tree, filePtr, inputType, nIndexes);
-          }
+    std::unique_ptr<RootDelayedReaderBase> makeRootDelayedReader(RootTree const& tree,
+                                                                 std::shared_ptr<InputFile> filePtr,
+                                                                 InputType inputType,
+                                                                 unsigned int nIndexes,
+                                                                 bool promptRead) {
+      if (promptRead) {
+        return std::make_unique<RootPromptReadDelayedReader>(tree, filePtr, inputType, nIndexes);
+      }
       return std::make_unique<RootDelayedReader>(tree, filePtr, inputType);
     }
   }  // namespace
@@ -50,6 +53,7 @@ namespace edm {
         learningEntries_(learningEntries),
         enablePrefetching_(enablePrefetching),
         enableTriggerCache_(branchType_ == InEvent),
+        promptRead_(promptRead),
         rootDelayedReader_(makeRootDelayedReader(*this, filePtr, inputType, nIndexes, promptRead)) {}
 
   // Used for Event/Lumi/Run RootTrees
@@ -59,7 +63,8 @@ namespace edm {
                      Options const& options,
                      unsigned int learningEntries,
                      InputType inputType)
-      : RootTree(filePtr, branchType, nIndexes, learningEntries, options.enablePrefetching, options.promptReading, inputType) {
+      : RootTree(
+            filePtr, branchType, nIndexes, learningEntries, options.enablePrefetching, options.promptReading, inputType) {
     init(BranchTypeToProductTreeName(branchType), options.treeMaxVirtualSize, options.treeCacheSize);
     metaTree_ = dynamic_cast<TTree*>(filePtr_->Get(BranchTypeToMetaDataTreeName(branchType).c_str()));
     auxBranch_ = getAuxiliaryBranch(tree_, branchType_);
@@ -77,7 +82,8 @@ namespace edm {
                      Options const& options,
                      unsigned int learningEntries,
                      InputType inputType)
-      : RootTree(filePtr, branchType, nIndexes, learningEntries, options.enablePrefetching, options.promptReading, inputType) {
+      : RootTree(
+            filePtr, branchType, nIndexes, learningEntries, options.enablePrefetching, options.promptReading, inputType) {
     processName_ = processName;
     init(BranchTypeToProductTreeName(branchType, processName), options.treeMaxVirtualSize, options.treeCacheSize);
   }
@@ -285,7 +291,8 @@ namespace edm {
       triggerSet_.clear();
       rawTriggerSwitchOverEntry_ = -1;
     }
-    if (treeCache_ && treeCache_->IsLearning() && switchOverEntry_ >= 0 && entryNumber_ >= switchOverEntry_) {
+    if (not promptRead_ && treeCache_ && treeCache_->IsLearning() && switchOverEntry_ >= 0 &&
+        entryNumber_ >= switchOverEntry_) {
       stopTraining();
     }
   }
@@ -385,6 +392,9 @@ namespace edm {
 
   inline TTreeCache* RootTree::selectCache(TBranch* branch, EntryNumber entryNumber) const {
     TTreeCache* triggerCache = nullptr;
+    if (promptRead_) {
+      return rawTreeCache_.get();
+    }
     if (!treeCache_) {
       return nullptr;
     } else if (treeCache_->IsLearning() && rawTreeCache_) {
@@ -404,13 +414,10 @@ namespace edm {
   void RootTree::getEntryForAllBranches() const {
     filePtr_->SetCacheRead(rawTreeCache_.get());
     auto ptr = filePtr_.get();
-    auto cleanup = [ptr](TTreeCache* cache) {
-      ptr->SetCacheRead(nullptr);
-    };
+    auto cleanup = [ptr](TTreeCache* cache) { ptr->SetCacheRead(nullptr); };
     std::unique_ptr<TTreeCache, decltype(cleanup)> cacheGuard(rawTreeCache_.get(), cleanup);
     tree_->GetEntry(entryNumber_);
   }
-
 
   void RootTree::getEntry(TBranch* branch, EntryNumber entryNumber) const {
     try {
@@ -468,7 +475,11 @@ namespace edm {
     rawTreeCache_->SetEnablePrefetching(false);
     filePtr_->SetCacheRead(nullptr);
     rawTreeCache_->SetLearnEntries(0);
-    switchOverEntry_ = entryNumber_ + learningEntries_;
+    if (promptRead_) {
+      switchOverEntry_ = entries_;
+    } else {
+      switchOverEntry_ = entryNumber_ + learningEntries_;
+    }
     auto rawStart = entryNumber_;
     auto rawEnd = switchOverEntry_;
     auto treeStart = switchOverEntry_;
