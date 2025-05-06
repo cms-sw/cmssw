@@ -365,9 +365,11 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
       // Special case for LDThree - the two corner cells are merged with adacent ones
       if ((part == HGCalTypes::WaferLDThree) && ((cellU == 1) || (cellU == 15))) {
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << "Special Case: Ignore cell for zside:layer:partialType " << zside << ":" << lay << ":" << part << " wafer " << waferU << ":" << waferV << " Cell " << cellU << ":" << cellV;
+        edm::LogVerbatim("HGCalGeom") << "Special Case: Ignore cell for zside:layer:partialType " << zside << ":" << lay
+                                      << ":" << part << " wafer " << waferU << ":" << waferV << " Cell " << cellU << ":"
+                                      << cellV;
 #endif
-	return false;
+        return false;
       }
       return HGCalWaferMask::goodCell(cellU, cellV, part);
     } else if (mode_ == HGCalGeometryMode::Hexagon8Module) {
