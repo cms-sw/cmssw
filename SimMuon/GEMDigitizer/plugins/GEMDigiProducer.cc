@@ -69,15 +69,13 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps) : gemDigiModule_(s
         << "Add the service in the configuration file or remove the modules that require it.";
   }
 
-  const std::string mix_ = ps.getParameter<std::string>("mixLabel");
-  const std::set<std::string> collectionNames = {ps.getParameter<std::string>("inputCollection"),
-                                                 ps.getParameter<std::string>("inputCollectionPU")};
-  for (auto const& cname : collectionNames) {
+  const std::string& mix = ps.getParameter<std::string>("mixLabel");
+  for (const auto& cname :
+       {ps.getParameter<std::string>("inputCollection"), ps.getParameter<std::string>("inputCollectionPU")}) {
 #ifdef EDM_ML_DEBUG
-    std::cout << " GEMDigiProducer::Creating CrossingFrame Consumers for InputTag " << mix_ << ":" << cname
-              << std::endl;
+    edm::LogVerbatim("GEMDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
 #endif
-    cf_tokens_.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, cname)));
+    cf_tokens_.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
   }
   geom_token_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
@@ -121,7 +119,9 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   // referecne inst. luminosity 5E+34 cm^-2s^-1
   desc.add<double>("resolutionX", 0.03);
 
-  // The follwing parameters are needed to model the background contribution The parameters have been obtained after the fit of th perdicted by FLUKA By default the backgroundmodeling with these parameters should be disabled
+  // The follwing parameters are needed to model the background contribution
+  // The parameters have been obtained after the fit of th perdicted by FLUKA
+  // By default the backgroundmodeling with these parameters should be disabled
   // with the 9_2_X release setting simulateBkgNoise = false
   desc.add<double>("GE11ModNeuBkgParam0", 5710.23);
   desc.add<double>("GE11ModNeuBkgParam1", -43.3928);

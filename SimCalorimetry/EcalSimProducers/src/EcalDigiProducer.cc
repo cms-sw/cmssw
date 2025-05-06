@@ -185,20 +185,14 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
   // mixMod.produces<EBDigiCollection>(m_EBdigiCollection);
   // mixMod.produces<EEDigiCollection>(m_EEdigiCollection);
   // mixMod.produces<ESDigiCollection>(m_ESdigiCollection);
-  const std::set<std::string> producers = {m_hitsProducerTag, m_hitsProducerTagPU};
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> eb_list, ee_list, es_list;
-  for (auto const &prod : producers) {
+  for (const auto &prod : {m_hitsProducerTag, m_hitsProducerTagPU}) {
     if (m_doEB)
       eb_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "EcalHitsEB")));
     if (m_doEE)
       ee_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "EcalHitsEE")));
-    if (m_doES) {
+    if (m_doES)
       es_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "EcalHitsES")));
-      m_esGainToken = iC.esConsumes();
-      m_esMIPToGeVToken = iC.esConsumes();
-      m_esPedestalsToken = iC.esConsumes();
-      m_esMIPsToken = iC.esConsumes();
-    }
   }
   if (m_doEB)
     m_HitsEBToken_ = eb_list[0];
@@ -206,6 +200,13 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
     m_HitsEEToken_ = ee_list[0];
   if (m_doES)
     m_HitsESToken_ = es_list[0];
+
+  if (m_doES) {
+    m_esGainToken = iC.esConsumes();
+    m_esMIPToGeVToken = iC.esConsumes();
+    m_esPedestalsToken = iC.esConsumes();
+    m_esMIPsToken = iC.esConsumes();
+  }
 
   const std::vector<double> ebCorMatG12 = params.getParameter<std::vector<double>>("EBCorrNoiseMatrixG12");
   const std::vector<double> eeCorMatG12 = params.getParameter<std::vector<double>>("EECorrNoiseMatrixG12");
@@ -402,7 +403,7 @@ void EcalDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &ev
     esHandle = e.getHandle(m_HitsESToken_);
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << " EcalDigiProducer::accumulate Signal Hits with Tag " << m_hitsProducerTag << std::endl;
+  edm::LogVerbatim("EcalDigiProducer") << "Accumulate Signal Hits with Tag " << m_hitsProducerTag;
 #endif
   accumulateCaloHits(ebHandle, eeHandle, esHandle, 0);
 }
@@ -430,7 +431,7 @@ void EcalDigiProducer::accumulate(PileUpEventPrincipal const &e,
   }
 
 #ifdef EDM_ML_DEBUG
-  std::cout << " EcalDigiProducer::accumulate PU Hits with Tag " << m_hitsProducerTagPU << std::endl;
+  edm::LogVerbatim("EcalDigiProducer") << "Accumulate PU Hits with Tag " << m_hitsProducerTagPU;
 #endif
   accumulateCaloHits(ebHandle, eeHandle, esHandle, e.bunchCrossing());
 }
