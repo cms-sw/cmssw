@@ -70,6 +70,20 @@ confAliProducer.setConfiguration(process,
     cosmicsZeroTesla = setupCosmicsZeroTesla)
 
 ################################################################################
+# Configure the MessageLogger service to dump information to cout (instead of alignment.log)
+# see https://github.com/cms-sw/cmssw/issues/47963 for more information
+# ------------------------------------------------------------------------------
+process.MessageLogger.destinations = cms.untracked.vstring('cout')
+process.MessageLogger.statistics = cms.untracked.vstring('cout')
+# Copy all parameters from the existing 'alignment' PSet to a new 'cout' PSet
+if hasattr(process.MessageLogger, 'alignment'):
+    alignment_pset = process.MessageLogger.alignment
+    process.MessageLogger.cout = alignment_pset
+
+    # Optionally delete the old 'alignment' PSet
+    delattr(process.MessageLogger, 'alignment')
+
+################################################################################
 # Overwrite some conditions in global tag
 # ------------------------------------------------------------------------------
 import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagwriter
