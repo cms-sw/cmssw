@@ -32,7 +32,6 @@ fastSim.toModify(ecalDigitizer,
 
 from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
 fastSimPU.toModify(ecalDigitizer,
-                   hitsProducer = cms.string('g4SimHits'),
                  hitsProducerPU = cms.string('fastSimProducer'))
 
 ecalDigitizer.doEB = cms.bool(True)

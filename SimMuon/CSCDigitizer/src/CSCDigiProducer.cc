@@ -47,15 +47,13 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet &ps) : theDigitizer(ps)
                                              "in the configuration file or remove the modules that require it.";
   }
 
-  const std::string mix_ = ps.getParameter<std::string>("mixLabel");
-  const std::set<std::string> collections_ = {ps.getParameter<std::string>("InputCollection"),
-                                              ps.getParameter<std::string>("InputCollectionPU")};
-  for (auto const &cname : collections_) {
+  const std::string &mix = ps.getParameter<std::string>("mixLabel");
+  for (const auto &cname :
+       {ps.getParameter<std::string>("InputCollection"), ps.getParameter<std::string>("InputCollectionPU")}) {
 #ifdef EDM_ML_DEBUG
-    std::cout << " CSCDigiProducer::Creating CrossingFrame Consumers for InputTag " << mix_ << ":" << cname
-              << std::endl;
+    edm::LogVerbatim("CSCDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
 #endif
-    cf_tokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, cname)));
+    cf_tokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
   }
 }
 
@@ -68,12 +66,12 @@ void CSCDigiProducer::produce(edm::Event &ev, const edm::EventSetup &eventSetup)
   CLHEP::HepRandomEngine *engine = &rng->getEngine(ev.streamID());
 
   std::vector<const CrossingFrame<PSimHit> *> cf_list;
-  for (auto const &token : cf_tokens) {
+  for (const auto &token : cf_tokens) {
     const auto &handle = ev.getHandle(token);
     if (handle.isValid()) {
       cf_list.emplace_back(handle.product());
     } else
-      edm::LogInfo("CSCDigitizer") << " Input Source not Valid !!";
+      edm::LogWarning("CSCDigitizer") << "Input Source not Valid !!";
   }
 
   auto hits = std::make_unique<MixCollection<PSimHit>>(cf_list);

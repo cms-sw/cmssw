@@ -121,11 +121,6 @@ namespace edm {
       if (got)
         LogInfo("MixingModule") << " Will create a CrossingFrame for " << typeid(T).name()
                                 << " with InputTag= " << t.encode();
-#ifdef EDM_ML_DEBUG
-      std::cout << "MixingModule "
-                << " Will create a CrossingFrame for " << typeid(T).name() << " with InputTag= " << t.encode()
-                << etd::endl;
-#endif
       return got;
     }
 
@@ -158,11 +153,6 @@ namespace edm {
       }
       e.put(std::move(crFrame_), label_);
       LogDebug("MixingModule") << " CF was put for type " << typeid(T).name() << " with " << label_;
-#ifdef EDM_ML_DEBUG
-      std::cout << "MixingModule "
-                << " CF was put for type " << typeid(T).name() << " with " << label_ << " #of Signal "
-                << crFrame_->getNrSignals() << " #of PU " << crFrame_->getNrPileups() << std::endl;
-#endif
     }
 
     // When using mixed secondary source

@@ -53,7 +53,6 @@ fastSim.toModify(hcalSimBlock,
 
 from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
 fastSimPU.toModify(hcalSimBlock,
-                   hitsProducer   = cms.string('g4SimHits'),                     
                    hitsProducerPU = cms.string('fastSimProducer') )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1

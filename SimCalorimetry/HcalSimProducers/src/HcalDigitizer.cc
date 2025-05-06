@@ -117,9 +117,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
     mcParamsToken_ = iC.esConsumes();
   }
 
-  const std::set<std::string> producers = {hitsProducer_, hitsProducerPU_};
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> zdc_list, hcal_list;
-  for (auto const &prod : producers) {
+  for (const auto &prod : {hitsProducer_, hitsProducerPU_}) {
     zdc_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "ZDCHITS")));
     hcal_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "HcalHits")));
   }
@@ -477,7 +476,7 @@ void HcalDigitizer::accumulate(edm::Event const &e, edm::EventSetup const &event
   const ZdcTopology *ztopoP = &eventSetup.getData(topoZToken_);
 
 #ifdef EDM_ML_DEBUG
-  std::cout << " HcalDigitizer::accumulate Signal Hits with Tag " << hitsProducer_ << std::endl;
+  edm::LogVerbatim("HcalDigitizer") << "Accumulate Signal Hits with Tag " << hitsProducer_;
 #endif
   accumulateCaloHits(hcalHandle, zdcHandle, 0, engine, htopoP, ztopoP);
 }
