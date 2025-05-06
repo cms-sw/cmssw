@@ -51,14 +51,12 @@ if useEventSetup >= 1:
     from CondCore.DBCommon.CondDBCommon_cfi import *
 
     PoolDBESSource = cms.ESSource("PoolDBESSource",
-                                  loadAll = cms.bool(True),
                                   toGet = cms.VPSet(cms.PSet( record = cms.string('RBCBoardSpecsRcd'),
                                                               tag = cms.string(mytag+'a')),
                                                     cms.PSet( record = cms.string('TTUBoardSpecsRcd'),
                                                               tag = cms.string(mytag+'b'))),
                                   DBParameters = cms.PSet( messageLevel = cms.untracked.int32(2),
                                                            authenticationPath = cms.untracked.string('')),
-                                  messagelevel = cms.untracked.uint32(2),
                                   connect = cms.string(dbconnection) )
 
     CondDBCommon.connect = cms.string( dbconnection )

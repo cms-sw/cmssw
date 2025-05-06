@@ -7,6 +7,8 @@
 
 #include <cstdint>
 #include <cassert>
+#include <cstring>
+#include <memory>
 #include <ostream>
 #include <tuple>
 #include <type_traits>
@@ -50,6 +52,14 @@
 #define _VALUE_TYPE_SCALAR 0
 #define _VALUE_TYPE_COLUMN 1
 #define _VALUE_TYPE_EIGEN_COLUMN 2
+#define _VALUE_TYPE_METHOD 3
+#define _VALUE_TYPE_CONST_METHOD 4
+
+/* declare the value of last valid column */
+#define _VALUE_LAST_COLUMN_TYPE _VALUE_TYPE_EIGEN_COLUMN
+
+/* declare a macro useful for passing a valid but not used value*/
+#define _VALUE_TYPE_UNUSED BOOST_PP_LIMIT_MAG
 
 /* The size type need to be "hardcoded" in the template parameters for classes serialized by ROOT */
 /* In practice, using a typedef as a template parameter to the Layout or its ViewTemplateFreeParams member
@@ -123,12 +133,13 @@ namespace cms::soa {
     // default constructor
     SoAConstParametersImpl() = default;
 
-    // constructor from an address
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ValueType const* addr) : addr_(addr) {}
+    // constructor from address and size
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ValueType const* addr, size_type size)
+        : addr_(addr), size_{size} {}
 
     // constructor from a non-const parameter set
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(SoAParametersImpl<columnType, ValueType> const& o)
-        : addr_{o.addr_} {}
+        : addr_{o.addr_}, size_{o.size_} {}
 
     static constexpr bool checkAlignment(ValueType* addr, byte_size_type alignment) {
       return reinterpret_cast<intptr_t>(addr) % alignment;
@@ -139,6 +150,7 @@ namespace cms::soa {
   public:
     // scalar or column
     ValueType const* addr_ = nullptr;
+    size_type size_ = 0;
   };
 
   // Templated const parameter specialisation for Eigen columns
@@ -153,9 +165,11 @@ namespace cms::soa {
     // default constructor
     SoAConstParametersImpl() = default;
 
-    // constructor from individual address and stride
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ScalarType const* addr, byte_size_type stride)
-        : addr_(addr), stride_(stride) {}
+    // constructor from individual address, stride and size
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ScalarType const* addr,
+                                                                byte_size_type stride,
+                                                                size_type size)
+        : addr_(addr), stride_(stride), size_{size} {}
 
     // constructor from address and stride packed in a tuple
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(TupleOrPointerType const& tuple)
@@ -163,7 +177,7 @@ namespace cms::soa {
 
     // constructor from a non-const parameter set
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(SoAParametersImpl<columnType, ValueType> const& o)
-        : addr_{o.addr_}, stride_{o.stride_} {}
+        : addr_{o.addr_}, stride_{o.stride_}, size_{o.size_} {}
 
     static constexpr bool checkAlignment(TupleOrPointerType const& tuple, byte_size_type alignment) {
       const auto& [addr, stride] = tuple;
@@ -173,9 +187,10 @@ namespace cms::soa {
     TupleOrPointerType tupleOrPointer() { return {addr_, stride_}; }
 
   public:
-    // address and stride
+    // address, stride and size
     ScalarType const* addr_ = nullptr;
     byte_size_type stride_ = 0;
+    size_type size_ = 0;
   };
 
   // Matryoshka template to avoid commas inside macros
@@ -200,8 +215,9 @@ namespace cms::soa {
     // default constructor
     SoAParametersImpl() = default;
 
-    // constructor from an address
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ValueType* addr) : addr_(addr) {}
+    // constructor from address and size
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ValueType* addr, size_type size)
+        : addr_(addr), size_{size} {}
 
     static constexpr bool checkAlignment(ValueType* addr, byte_size_type alignment) {
       return reinterpret_cast<intptr_t>(addr) % alignment;
@@ -212,6 +228,7 @@ namespace cms::soa {
   public:
     // scalar or column
     ValueType* addr_ = nullptr;
+    size_type size_ = 0;
   };
 
   // Templated parameter specialisation for Eigen columns
@@ -229,9 +246,9 @@ namespace cms::soa {
     // default constructor
     SoAParametersImpl() = default;
 
-    // constructor from individual address and stride
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ScalarType* addr, byte_size_type stride)
-        : addr_(addr), stride_(stride) {}
+    // constructor from individual address, stride and size
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ScalarType* addr, byte_size_type stride, size_type size)
+        : addr_(addr), stride_(stride), size_(size) {}
 
     // constructor from address and stride packed in a tuple
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(TupleOrPointerType const& tuple)
@@ -245,9 +262,10 @@ namespace cms::soa {
     TupleOrPointerType tupleOrPointer() { return {addr_, stride_}; }
 
   public:
-    // address and stride
+    // address, stride and size
     ScalarType* addr_ = nullptr;
     byte_size_type stride_ = 0;
+    size_type size_ = 0;
   };
 
   // Matryoshka template to avoid commas inside macros
@@ -268,13 +286,13 @@ namespace cms::soa {
   template <SoAColumnType COLUMN_TYPE, typename T>
   SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl<COLUMN_TYPE, T> const_cast_SoAParametersImpl(
       SoAConstParametersImpl<COLUMN_TYPE, T> const& o) {
-    return SoAParametersImpl<COLUMN_TYPE, T>{non_const_ptr(o.addr_)};
+    return SoAParametersImpl<COLUMN_TYPE, T>{non_const_ptr(o.addr_), o.size_};
   }
 
   template <typename T>
   SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl<SoAColumnType::eigen, T> const_cast_SoAParametersImpl(
       SoAConstParametersImpl<SoAColumnType::eigen, T> const& o) {
-    return SoAParametersImpl<SoAColumnType::eigen, T>{non_const_ptr(o.addr_), o.stride_};
+    return SoAParametersImpl<SoAColumnType::eigen, T>{non_const_ptr(o.addr_), o.stride_, o.size_};
   }
 
   // Helper template managing the value at index idx within a column.
@@ -554,21 +572,52 @@ namespace cms::soa {
 #endif
 
   // Helper function to compute aligned size
+  //this is an integer division -> it rounds size to the next multiple of alignment
   constexpr inline byte_size_type alignSize(byte_size_type size, byte_size_type alignment) {
     return ((size + alignment - 1) / alignment) * alignment;
   }
 
 }  // namespace cms::soa
 
-#define SOA_SCALAR(TYPE, NAME) (_VALUE_TYPE_SCALAR, TYPE, NAME)
-#define SOA_COLUMN(TYPE, NAME) (_VALUE_TYPE_COLUMN, TYPE, NAME)
-#define SOA_EIGEN_COLUMN(TYPE, NAME) (_VALUE_TYPE_EIGEN_COLUMN, TYPE, NAME)
+#define SOA_SCALAR(TYPE, NAME) (_VALUE_TYPE_SCALAR, TYPE, NAME, ~)
+#define SOA_COLUMN(TYPE, NAME) (_VALUE_TYPE_COLUMN, TYPE, NAME, ~)
+#define SOA_EIGEN_COLUMN(TYPE, NAME) (_VALUE_TYPE_EIGEN_COLUMN, TYPE, NAME, ~)
+#define SOA_ELEMENT_METHODS(...) (_VALUE_TYPE_METHOD, _, _, (__VA_ARGS__))
+#define SOA_CONST_ELEMENT_METHODS(...) (_VALUE_TYPE_CONST_METHOD, _, _, (__VA_ARGS__))
 
-/* Iterate on the macro MACRO and return the result as a comma separated list */
+/* Macro generating customized methods for the element */
+#define GENERATE_METHODS(R, DATA, FIELD)                                         \
+  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_METHOD), \
+              BOOST_PP_TUPLE_ELEM(3, FIELD),                                     \
+              BOOST_PP_EMPTY())
+
+/* Macro generating customized methods for the const element*/
+#define GENERATE_CONST_METHODS(R, DATA, FIELD)                                         \
+  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_METHOD), \
+              BOOST_PP_TUPLE_ELEM(3, FIELD),                                           \
+              BOOST_PP_EMPTY())
+
+/* Preprocessing loop for managing functions generation: only macros containing valid content are expanded */
+#define ENUM_FOR_PRED(R, STATE) BOOST_PP_LESS(BOOST_PP_TUPLE_ELEM(0, STATE), BOOST_PP_TUPLE_ELEM(1, STATE))
+
+#define ENUM_FOR_OP(R, STATE) \
+  (BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(0, STATE)), BOOST_PP_TUPLE_ELEM(1, STATE), BOOST_PP_TUPLE_ELEM(2, STATE))
+
+#define ENUM_FOR_MACRO(R, STATE) \
+  BOOST_PP_TUPLE_ENUM(BOOST_PP_SEQ_ELEM(BOOST_PP_TUPLE_ELEM(0, STATE), BOOST_PP_TUPLE_ELEM(2, STATE)))
+
+#define ENUM_IF_VALID(...)                                                                      \
+  BOOST_PP_FOR((0, BOOST_PP_VARIADIC_SIZE(__VA_ARGS__), BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)), \
+               ENUM_FOR_PRED,                                                                   \
+               ENUM_FOR_OP,                                                                     \
+               ENUM_FOR_MACRO)
+
+/* Iterate on the macro MACRO and return the result as a comma separated list, converting
+   the boost sequence into tuples and then into list */
 #define _ITERATE_ON_ALL_COMMA(MACRO, DATA, ...) \
   BOOST_PP_TUPLE_ENUM(BOOST_PP_SEQ_TO_TUPLE(_ITERATE_ON_ALL(MACRO, DATA, __VA_ARGS__)))
 
-/* Iterate MACRO on all elements */
+/* Iterate MACRO on all elements of the boost sequence */
 #define _ITERATE_ON_ALL(MACRO, DATA, ...) BOOST_PP_SEQ_FOR_EACH(MACRO, DATA, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
 
 /* Switch on macros depending on scalar / column type */
@@ -599,6 +648,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::column, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T* operator()() { return params_.addr_; }
+
     using NoParamReturnType = T*;
     using ParamReturnType = T&;
     SOA_HOST_DEVICE SOA_INLINE T& operator()(size_type index) { return params_.addr_[index]; }

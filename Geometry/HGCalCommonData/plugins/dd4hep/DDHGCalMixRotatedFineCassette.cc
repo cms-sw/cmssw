@@ -81,6 +81,24 @@ struct HGCalMixRotatedFineCassette {
                                   << convertRadToDeg(alpha_) << ":" << cosAlpha_ << " with " << cassettes_
                                   << " cassettes";
 #endif
+    changeCassetteIR_ = args.value<int>("ChangeCassetteIR");
+    shiftCassetteIR_ = 0;
+    if (changeCassetteIR_ > 0) {
+      shiftCassetteIR_ = args.value<double>("ShiftCassetteIR");
+      shiftedCassettes_ = args.value<std::vector<int>>("ShiftedCassettes");
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Change flag for IR shift " << changeCassetteIR_
+                                  << " by " << shiftCassetteIR_ << " for " << shiftedCassettes_.size() << " cassettes:";
+    unsigned int i0max = static_cast<unsigned int>(shiftedCassettes_.size());
+    for (unsigned int i1 = 0; i1 < i0max; i1 += 12) {
+      std::ostringstream st1;
+      unsigned int i2 = std::min((i1 + 12), i0max);
+      for (unsigned int i = i1; i < i2; ++i)
+        st1 << " " << shiftedCassettes_[i];
+      edm::LogVerbatim("HGCalGeom") << st1.str();
+    }
+#endif
     slopeB_ = args.value<std::vector<double>>("SlopeBottom");
     zFrontB_ = args.value<std::vector<double>>("ZFrontBottom");
     rMinFront_ = args.value<std::vector<double>>("RMinFront");
@@ -121,6 +139,10 @@ struct HGCalMixRotatedFineCassette {
 #endif
     passiveFull_ = args.value<std::vector<std::string>>("PassiveNamesFull");
     passivePart_ = args.value<std::vector<std::string>>("PassiveNamesPartial");
+    if (passiveFull_.size() <= 1)
+      passiveFull_.clear();
+    if (passivePart_.size() <= 1)
+      passivePart_.clear();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: " << passiveFull_.size() << " full and "
                                   << passivePart_.size() << " partial passive modules";
@@ -278,12 +300,12 @@ struct HGCalMixRotatedFineCassette {
                                     << std::get<1>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[k])) << ":"
                                     << std::get<2>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[k]));
 #endif
-    std::vector<double> retract = args.value<std::vector<double>>("ScintRetract");
+    retract_ = args.value<std::vector<double>>("ScintRetract");
     double dphi = M_PI / cassettes_;
     for (int k = 0; k < cassettes_; ++k) {
       double phi = (2 * k + 1) * dphi;
-      cassetteShiftScnt_.emplace_back(retract[k] * cos(phi));
-      cassetteShiftScnt_.emplace_back(retract[k] * sin(phi));
+      cassetteShiftScnt_.emplace_back(retract_[k] * cos(phi));
+      cassetteShiftScnt_.emplace_back(retract_[k] * sin(phi));
     }
 #ifdef EDM_ML_DEBUG
     unsigned int j2max = cassetteShiftScnt_.size();
@@ -297,10 +319,15 @@ struct HGCalMixRotatedFineCassette {
 #endif
     cassette_.setParameter(cassettes_, cassetteShift_, false);
     cassette_.setParameterScint(cassetteShiftScnt_);
+    cassette_.setParameterRetract(retract_);
 
-    ////////////////////////////////////////////////////////////////////
-    // DDHGCalMixRotatedFineCassette methods...
-    ////////////////////////////////////////////////////////////////////
+    int testCassette = args.value<int>("TestCassetteShift");
+    if (testCassette != 0)
+      testCassetteShift();
+
+      ////////////////////////////////////////////////////////////////////
+      // DDHGCalMixRotatedFineCassette methods...
+      ////////////////////////////////////////////////////////////////////
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "==>> Constructing DDHGCalMixRotatedFineCassette...";
@@ -334,7 +361,7 @@ struct HGCalMixRotatedFineCassette {
 #endif
         dd4hep::Material matter = ns.material(materials_[ii]);
         dd4hep::Volume glog;
-        if (layerSense_[ly] == 0) {
+        if (layerSense_[ly] <= 0) {
           std::vector<double> pgonZ, pgonRin, pgonRout;
           double rmax =
               (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1;
@@ -369,10 +396,20 @@ struct HGCalMixRotatedFineCassette {
             edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << cms::convert2mm(pgonZ[k]) << " R "
                                           << cms::convert2mm(pgonRin[k]) << ":" << cms::convert2mm(pgonRout[k]);
 #endif
+          if (layerSense_[ly] < 0) {
+            int absType = -layerSense_[ly];
+            unsigned int num = (absType <= waferTypes_) ? passiveFull_.size() : passivePart_.size();
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "Abstype " << absType << " num " << num;
+#endif
+            if (num > 1)
+              positionMix(ctxt, e, glog, name, copy, thick_[ii], matter, absType, fine);
+          }
         } else {
-          int mode = (layerSense_[ly] > 0) ? sensitiveMode_ : absorbMode_;
-          double rins = (mode < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
-          double routs = (mode < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
+          double rins =
+              (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
+          double routs =
+              (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
           dd4hep::Solid solid = dd4hep::Tube(rins, routs, hthick, 0.0, 2._pi);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
@@ -451,6 +488,7 @@ struct HGCalMixRotatedFineCassette {
         int ii = layerTypeTop_[ly];
         int copy = copyNumberTop_[ii];
         int layer = (fine) ? (copy - firstFineLayer_) : (copy - firstCoarseLayer_);
+        int layer0 = (copy - std::min(firstFineLayer_, firstCoarseLayer_) + 1);
         double hthickl = 0.5 * layerThickTop_[ii];
         thickTot += layerThickTop_[ii];
         zpos += hthickl;
@@ -465,13 +503,14 @@ struct HGCalMixRotatedFineCassette {
                                      : static_cast<int>(tileCoarseIndex_.size()));
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << ly << ":" << ii << ":" << layer
-                                      << " Copy " << copy << " Tiles " << firstTile << ":" << lastTile << " Size "
-                                      << tileFineIndex_.size() << ":" << tileCoarseIndex_.size() << " Fine " << fine
-                                      << " absType " << absType;
+                                      << ":" << layer0 << " Copy " << copy << " Tiles " << firstTile << ":" << lastTile
+                                      << " Size " << tileFineIndex_.size() << ":" << tileCoarseIndex_.size() << " Fine "
+                                      << fine << " absType " << absType;
+        int cassette;
 #endif
         for (int ti = firstTile; ti < lastTile; ++ti) {
           double r1, r2;
-          int cassette, fimin, fimax;
+          int fimin, fimax;
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: ti " << ti << ":" << fine << " index "
                                         << tileFineIndex_.size() << ":" << tileCoarseIndex_.size() << " Phis "
@@ -480,13 +519,17 @@ struct HGCalMixRotatedFineCassette {
           if (fine) {
             r1 = tileFineRMin_[std::get<1>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti])) - 1];
             r2 = tileFineRMax_[std::get<2>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti])) - 1];
+#ifdef EDM_ML_DEBUG
             cassette = std::get<0>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
+#endif
             fimin = std::get<1>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
             fimax = std::get<2>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
           } else {
             r1 = tileCoarseRMin_[std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti])) - 1];
             r2 = tileCoarseRMax_[std::get<2>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti])) - 1];
+#ifdef EDM_ML_DEBUG
             cassette = std::get<0>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
+#endif
             fimin = std::get<1>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
             fimax = std::get<2>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
           }
@@ -496,20 +539,33 @@ struct HGCalMixRotatedFineCassette {
 #endif
           double phi1 = dphi * (fimin - 1);
           double phi2 = dphi * (fimax - fimin + 1);
-          auto cshift = cassette_.getShift(layer + 1, 1, cassette, true);
+          r1 += retract_[layer0 - 1];
+          r2 += retract_[layer0 - 1];
 #ifdef EDM_ML_DEBUG
+          double r0(r1);
+#endif
+          // see if inner rdius to be changed or not
+          if (changeCassetteIR_ > 0) {
+            int tilex = 1000 * copy + k;
+            if (std::find(shiftedCassettes_.begin(), shiftedCassettes_.end(), tilex) != shiftedCassettes_.end())
+              r1 += shiftCassetteIR_;
+          }
+#ifdef EDM_ML_DEBUG
+          double phi = phi1 + 0.5 * phi2;
+          edm::LogVerbatim("HGCalGeom") << "1Layer " << ly << ":" << ii << ":" << copy << ":" << layer0 << " phi "
+                                        << phi << " shift " << retract_[layer0 - 1];
           int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
           int ir1 = (fine) ? std::get<1>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                            : std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
           int ir2 = (fine) ? std::get<2>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                            : std::get<2>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
-          edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << (layer + 1)
-                                        << " iR " << ir1 << ":" << ir2 << " R " << cms::convert2mm(r1) << ":"
-                                        << cms::convert2mm(r2) << " Thick " << cms::convert2mm(2.0 * hthickl) << " phi "
-                                        << fimin << ":" << fimax << ":" << convertRadToDeg(phi1) << ":"
-                                        << convertRadToDeg(phi2) << " cassette " << cassette << ":" << cassette0
-                                        << " Shift " << cms::convert2mm(cshift.first) << ":"
-                                        << cms::convert2mm(cshift.second);
+          edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << layer0 << " iR "
+                                        << ir1 << ":" << ir2 << " R " << cms::convert2mm(r0) << ":"
+                                        << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
+                                        << cms::convert2mm(2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":"
+                                        << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette "
+                                        << cassette << ":" << cassette0 << " Shift "
+                                        << cms::convert2mm(retract_[layer0 - 1]);
 #endif
           std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
           ++k;
@@ -523,12 +579,11 @@ struct HGCalMixRotatedFineCassette {
                                         << cms::convert2mm(r2) << ", " << cms::convert2mm(hthickl) << ", "
                                         << convertRadToDeg(phi1) << ", " << convertRadToDeg(phi2);
 #endif
-          dd4hep::Position tran(-cshift.first, cshift.second, zpos);
+          dd4hep::Position tran(0, 0, zpos);
           glog.placeVolume(glog1, copy, tran);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Position " << glog1.name() << " number "
-                                        << copy << " in " << glog.name() << " at (" << cms::convert2mm(cshift.first)
-                                        << ", " << cms::convert2mm(cshift.second) << ", " << cms::convert2mm(zpos)
+                                        << copy << " in " << glog.name() << " at (0,0," << cms::convert2mm(zpos)
                                         << ") with no rotation";
 #endif
         }
@@ -550,6 +605,7 @@ struct HGCalMixRotatedFineCassette {
       int ii = coverTypeTop_;
       int copy = copyNumberCoverTop_[absType - 1];
       int layer = (fine) ? (copy - firstFineLayer_) : (copy - firstCoarseLayer_);
+      int layer0 = (copy - std::min(firstFineLayer_, firstCoarseLayer_) + 1);
       double hthickl = 0.5 * layerThickTop_[ii];
       zpos += hthickl;
       dd4hep::Material matter1 = ns.material(materialTop_[ii]);
@@ -562,14 +618,15 @@ struct HGCalMixRotatedFineCassette {
                                    ? tileCoarseLayerStart_[layer + 1]
                                    : static_cast<int>(tileCoarseIndex_.size()));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: TOP Layer " << ii << ":" << layer << " Copy "
-                                    << copy << " Tiles " << firstTile << ":" << lastTile << " Size "
-                                    << tileFineIndex_.size() << ":" << tileCoarseIndex_.size() << " Fine " << fine
-                                    << " absType " << absType;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: TOP Layer " << ii << ":" << layer << ":"
+                                    << layer0 << " Copy " << copy << " Tiles " << firstTile << ":" << lastTile
+                                    << " Size " << tileFineIndex_.size() << ":" << tileCoarseIndex_.size() << " Fine "
+                                    << fine << " absType " << absType;
+      int cassette;
 #endif
       for (int ti = firstTile; ti < lastTile; ++ti) {
         double r1, r2;
-        int cassette, fimin, fimax;
+        int fimin, fimax;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: ti " << ti << ":" << fine << " index "
                                       << tileFineIndex_.size() << ":" << tileCoarseIndex_.size() << " Phis "
@@ -578,13 +635,17 @@ struct HGCalMixRotatedFineCassette {
         if (fine) {
           r1 = tileFineRMin_[std::get<1>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti])) - 1];
           r2 = tileFineRMax_[std::get<2>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti])) - 1];
+#ifdef EDM_ML_DEBUG
           cassette = std::get<0>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
+#endif
           fimin = std::get<1>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
           fimax = std::get<2>(HGCalTileIndex::tileUnpack(tileFinePhis_[ti]));
         } else {
           r1 = tileCoarseRMin_[std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti])) - 1];
           r2 = tileCoarseRMax_[std::get<2>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti])) - 1];
+#ifdef EDM_ML_DEBUG
           cassette = std::get<0>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
+#endif
           fimin = std::get<1>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
           fimax = std::get<2>(HGCalTileIndex::tileUnpack(tileCoarsePhis_[ti]));
         }
@@ -594,19 +655,33 @@ struct HGCalMixRotatedFineCassette {
 #endif
         double phi1 = dphi * (fimin - 1);
         double phi2 = dphi * (fimax - fimin + 1);
-        auto cshift = cassette_.getShift(layer + 1, 1, cassette, true);
+        r1 += retract_[layer0 - 1];
+        r2 += retract_[layer0 - 1];
 #ifdef EDM_ML_DEBUG
+        double r0(r1);
+#endif
+        // see if inner rdius to be changed or not
+        if (changeCassetteIR_ > 0) {
+          int tilex = 1000 * copy + k;
+          if (std::find(shiftedCassettes_.begin(), shiftedCassettes_.end(), tilex) != shiftedCassettes_.end())
+            r1 += shiftCassetteIR_;
+        }
+#ifdef EDM_ML_DEBUG
+        double phi = phi1 + 0.5 * phi2;
+        edm::LogVerbatim("HGCalGeom") << "2Layer " << ii << ":" << copy << ":" << layer << ":" << layer0 << " phi "
+                                      << phi << " shift " << retract_[layer0 - 1];
         int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
         int ir1 = (fine) ? std::get<1>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                          : std::get<1>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
         int ir2 = (fine) ? std::get<2>(HGCalTileIndex::tileUnpack(tileFineIndex_[ti]))
                          : std::get<2>(HGCalTileIndex::tileUnpack(tileCoarseIndex_[ti]));
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << (layer + 1) << " iR "
-                                      << ir1 << ":" << ir2 << " R " << cms::convert2mm(r1) << ":" << cms::convert2mm(r2)
-                                      << " Thick " << cms::convert2mm(2.0 * hthickl) << " phi " << fimin << ":" << fimax
-                                      << ":" << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette "
-                                      << cassette << ":" << cassette0 << " Shift " << cms::convert2mm(cshift.first)
-                                      << ":" << cms::convert2mm(cshift.second);
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Layer " << copy << ":" << (layer + 1) << ":"
+                                      << layer0 << " iR " << ir1 << ":" << ir2 << " R " << cms::convert2mm(r0) << ":"
+                                      << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
+                                      << cms::convert2mm(2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":"
+                                      << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette "
+                                      << cassette << ":" << cassette0 << " Shift "
+                                      << cms::convert2mm(retract_[layer0 - 1]);
 #endif
         std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
         ++k;
@@ -620,12 +695,11 @@ struct HGCalMixRotatedFineCassette {
                                       << cms::convert2mm(r2) << ", " << cms::convert2mm(hthickl) << ", "
                                       << convertRadToDeg(phi1) << ", " << convertRadToDeg(phi2);
 #endif
-        dd4hep::Position tran(-cshift.first, cshift.second, zpos);
+        dd4hep::Position tran(0, 0, zpos);
         glog.placeVolume(glog1, copy, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Position " << glog1.name() << " number "
-                                      << copy << " in " << glog.name() << " at (" << cms::convert2mm(-cshift.first)
-                                      << ", " << cms::convert2mm(cshift.second) << ", " << cms::convert2mm(zpos)
+                                      << copy << " in " << glog.name() << " at (0,0," << cms::convert2mm(zpos)
                                       << ") with no rotation";
 #endif
       }
@@ -634,9 +708,10 @@ struct HGCalMixRotatedFineCassette {
 
     // Make the bottom part next
     int layer = (copyM - firstFineLayer_);
+    int layer0 = (copyM - std::min(firstFineLayer_, firstCoarseLayer_) + 1);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Start bottom section for layer " << layer
-                                  << " absType " << absType;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Start bottom section for layer " << (layer + 1)
+                                  << ":" << layer0 << " absType " << absType;
 #endif
     if (absType > 0) {
 #ifdef EDM_ML_DEBUG
@@ -644,7 +719,11 @@ struct HGCalMixRotatedFineCassette {
 #endif
       for (int k = 0; k < cassettes_; ++k) {
         int cassette = k + 1;
-        auto cshift = cassette_.getShift(layer + 1, -1, cassette);
+        auto cshift = cassette_.getShift(layer0, -1, cassette);
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HGCalGeom") << "3Layer " << layer << ":" << layer0 << " Cassette " << cassette << " shift "
+                                      << cms::convert2mm(cshift.first) << ":" << cms::convert2mm(cshift.second);
+#endif
         double xpos = -cshift.first;
         double ypos = cshift.second;
         int i = layer * cassettes_ + k;
@@ -714,7 +793,7 @@ struct HGCalMixRotatedFineCassette {
             << k << waferProperty_[k] << ":" << layertype << ":" << type << ":" << part << ":" << orien << ":"
             << cassette << ":" << place;
 #endif
-        auto cshift = cassette_.getShift(layer + 1, -1, cassette, false);
+        auto cshift = cassette_.getShift(layer0, -1, cassette, false);
         double xpos = xyoff.first - cshift.first + nc * delx;
         double ypos = xyoff.second + cshift.second + nr * dy;
 #ifdef EDM_ML_DEBUG
@@ -781,6 +860,23 @@ struct HGCalMixRotatedFineCassette {
     }
   }
 
+  void testCassetteShift() {
+    for (unsigned int k = 0; k < layers_.size(); ++k) {
+      int layer = k + 1;
+      for (int l = 0; l < cassettes_; ++l) {
+        int cassette = l + 1;
+        auto cf1 = cassette_.getShift(layer, 1, cassette, false);
+        auto cf2 = cassette_.getShift(layer, 1, cassette, true);
+        auto cf3 = cassette_.getShift(layer, -1, cassette, false);
+        auto cf4 = cassette_.getShift(layer, -1, cassette, true);
+        edm::LogVerbatim("HGCalGeom") << "Layer " << layer << " Cassette " << cassette << " x for z+ " << cf1.first
+                                      << ":" << cf2.first << " y for z+ " << cf1.second << ":" << cf2.second
+                                      << " x for z- " << cf3.first << ":" << cf4.first << " y for z- " << cf3.second
+                                      << ":" << cf4.second;
+      }
+    }
+  }
+
   HGCalGeomTools geomTools_;
   HGCalCassette cassette_;
 
@@ -802,6 +898,9 @@ struct HGCalMixRotatedFineCassette {
   double waferSepar_;                      // Sensor separation
   int sectors_;                            // Sectors
   int cassettes_;                          // Cassettes
+  int changeCassetteIR_;                   // Modificaion flag of cassette IR
+  double shiftCassetteIR_;                 // Shift in the cassette IR
+  std::vector<int> shiftedCassettes_;      // (1000*Layer+iPhi) of shifted cas.
   std::vector<double> slopeB_;             // Slope at the lower R
   std::vector<double> zFrontB_;            // Starting Z values for the slopes
   std::vector<double> rMinFront_;          // Corresponding rMin's
@@ -843,6 +942,7 @@ struct HGCalMixRotatedFineCassette {
   std::vector<int> tileCoarseIndex_;       // Index of tile (layer/start|end coarse ring)
   std::vector<int> tileCoarsePhis_;        // Tile phi range for each index in coarse ring
   std::vector<int> tileCoarseLayerStart_;  // Start index of tiles in each coarse layer
+  std::vector<double> retract_;            // Radial retraction of he tiles
   std::vector<double> cassetteShiftScnt_;  // Shifts of the cassetes for scintillators
   std::string nameSpace_;                  // Namespace of this and ALL sub-parts
   std::unordered_set<int> copies_;         // List of copy #'s

@@ -7,6 +7,7 @@
 
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/debug.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h"
 
@@ -182,6 +183,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
                                   double *__restrict__ pfast_fit) const {
+      // workaround for #47808
+      debug::do_not_optimise(results_view);
+
       ALPAKA_ASSERT_ACC(results_view.pt());
       ALPAKA_ASSERT_ACC(results_view.eta());
       ALPAKA_ASSERT_ACC(results_view.chi2());

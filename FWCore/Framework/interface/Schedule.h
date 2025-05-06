@@ -117,7 +117,6 @@ namespace edm {
   class ModuleRegistry;
   class ModuleTypeResolverMaker;
   class ThinnedAssociationsHelper;
-  class SubProcessParentageHelper;
   class TriggerResultInserter;
   class PathStatusInserter;
   class EndPathStatusInserter;
@@ -146,10 +145,8 @@ namespace edm {
                      BranchIDListHelper& branchIDListHelper,
                      ProcessBlockHelperBase& processBlockHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
-                     SubProcessParentageHelper const* subProcessParentageHelper,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration> processConfiguration,
-                     bool hasSubprocesses,
                      PreallocationConfiguration const& prealloc,
                      ProcessContext const* processContext);
 
@@ -174,7 +171,6 @@ namespace edm {
     void beginJob(ProductRegistry const&,
                   eventsetup::ESRecordsToProductResolverIndices const&,
                   ProcessBlockHelperBase const&,
-                  PathsAndConsumesOfModulesBase const&,
                   ProcessContext const&);
     void endJob(ExceptionCollector& collector);
     void sendFwkSummaryToMessageLogger() const;
@@ -249,18 +245,6 @@ namespace edm {
                                      std::vector<ModuleDescription const*>& descriptions,
                                      unsigned int hint) const;
 
-    void fillModuleAndConsumesInfo(
-        std::vector<ModuleDescription const*>& allModuleDescriptions,
-        std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-        std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>&
-            modulesWhoseProductsAreConsumedBy,
-        std::vector<std::vector<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
-        ProductRegistry const& preg) const;
-
-    void fillESModuleAndConsumesInfo(std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>,
-                                                kNumberOfEventSetupTransitions>& esModulesWhoseProductsAreConsumedBy,
-                                     eventsetup::ESRecordsToProductResolverIndices const&) const;
-
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
     /// to exceptions during processing).
@@ -312,9 +296,7 @@ namespace edm {
     void releaseMemoryPostLookupSignal();
 
   private:
-    void limitOutput(ParameterSet const& proc_pset,
-                     BranchIDLists const& branchIDLists,
-                     SubProcessParentageHelper const* subProcessParentageHelper);
+    void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
 
     std::shared_ptr<TriggerResultInserter const> resultsInserter() const {
       return get_underlying_safe(resultsInserter_);

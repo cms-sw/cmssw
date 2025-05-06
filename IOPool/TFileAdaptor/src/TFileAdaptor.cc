@@ -25,8 +25,8 @@
 /**
    Register TFileAdaptor to be the handler for a given type.
 
-   Once registered, URLs matching a specified regexp (for example, ^lstore: to
-   manage files starting with lstore://) will be managed by a TFileAdaptor instance,
+   Once registered, URLs matching a specified regexp (for example, ^root: to
+   manage files starting with root://) will be managed by a TFileAdaptor instance,
    possibly overriding any built-in ROOT adaptors.
 
    @param[in] mgr      The ROOT plugin manager object.
@@ -165,9 +165,12 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
   TPluginManager* mgr = gROOT->GetPluginManager();
 
   // Make sure ROOT parses system directories first.
+  // Then our AddHandler() calls will also remove an existing handler
+  // that was registered with the same regex
   mgr->LoadHandlersFromPluginDirs("TFile");
   mgr->LoadHandlersFromPluginDirs("TSystem");
 
+  // Note: if you add a new handler, please update the test/tfileTest.cpp as well
   if (!native("file"))
     addType(mgr, "^file:");
   if (!native("http"))
@@ -177,22 +180,12 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
   if (!native("ftp"))
     addType(mgr, "^ftp:");
   /* always */ addType(mgr, "^web:");
-  /* always */ addType(mgr, "^gsiftp:");
-  /* always */ addType(mgr, "^sfn:");
-  if (!native("rfio"))
-    addType(mgr, "^rfio:");
   if (!native("dcache"))
     addType(mgr, "^dcache:");
   if (!native("dcap"))
     addType(mgr, "^dcap:");
   if (!native("gsidcap"))
     addType(mgr, "^gsidcap:");
-  if (!native("storm"))
-    addType(mgr, "^storm:");
-  if (!native("storm-lcg"))
-    addType(mgr, "^storm-lcg:");
-  if (!native("lstore"))
-    addType(mgr, "^lstore:");
   if (!native("root"))
     addType(mgr, "^root:", 1);  // See comments in addType
   if (!native("root"))

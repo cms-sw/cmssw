@@ -49,6 +49,9 @@
     ]]>
    </ioread>
   </class>
+  <class name="GEMSubDetId" ClassVersion="3">
+    <version ClassVersion="3" checksum="6356029"/>
+  </class>
   <class name="ME0DetId" ClassVersion="11">
    <version ClassVersion="11" checksum="1292662416"/>
    <version ClassVersion="10" checksum="388194174"/>

@@ -35,8 +35,8 @@ namespace edm {
 
     void updateForNewProcess(ProductRegistry const&, std::string const& processName);
 
-    // In the function names below, top implies associated the helper associated
-    // with the EventProcessor, not a helper associated with a SubProcess.
+    // In the function names below, top implies the helper associated
+    // with the EventProcessor.
 
     virtual ProcessBlockHelperBase const* topProcessBlockHelper() const = 0;
     virtual std::vector<std::string> const& topProcessesWithProcessBlockProducts() const = 0;
@@ -65,8 +65,7 @@ namespace edm {
 
     // This will have 0 or 1 element depending whether there are any
     // non-transient ProcessBlock products produced in the current
-    // process (except for SubProcesses where this might have more
-    // than 1 element)
+    // process.
     std::vector<std::string> addedProcesses_;
   };
 }  // namespace edm

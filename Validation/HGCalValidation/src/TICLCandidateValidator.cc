@@ -279,7 +279,13 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
 void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
                                                  const Histograms& histograms,
                                                  edm::Handle<ticl::TracksterCollection> simTrackstersCP_h) const {
-  auto TICLCandidates = event.get(TICLCandidatesToken_);
+  auto TICLCandidatesHandle = event.getHandle(TICLCandidatesToken_);
+  if (!TICLCandidatesHandle.isValid()) {
+    edm::LogError("TICLCandidatesError") << "Failed to retrieve TICL candidates.";
+    return;  // Handle error appropriately
+  }
+
+  auto TICLCandidates = *TICLCandidatesHandle;
 
   edm::Handle<std::vector<TICLCandidate>> simTICLCandidates_h;
   event.getByToken(simTICLCandidatesToken_, simTICLCandidates_h);

@@ -1,6 +1,15 @@
 #ifndef EventFilter_Utilities_DAQSource_h
 #define EventFilter_Utilities_DAQSource_h
 
+/*
+ * DAQSource - modular input source supporting multiple
+ * buffering strategies and data formats. Specific formats are included
+ * as models defined as DataMode child class.
+ * Source supports DAQ file protocol using specific input file naming schema
+ * and JSON metadata files.
+ * See doc/READHME-DTH.md for more information, including file naming formats
+ */
+
 #include <condition_variable>
 #include <cstdio>
 #include <filesystem>
@@ -104,6 +113,7 @@ private:
   // get LS from filename instead of event header
   const bool alwaysStartFromFirstLS_;
   const bool verifyChecksum_;
+  const bool inputConsistencyChecks_;
   const bool useL1EventID_;
   const std::vector<unsigned int> testTCDSFEDRange_;
   std::vector<std::string> listFileNames_;

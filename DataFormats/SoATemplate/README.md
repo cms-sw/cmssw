@@ -44,6 +44,9 @@ provided: `ViewTemplate`, `ViewViewTemplateFreeParams` and respectively `ConstVi
 `ConstViewTemplateFreeParams`. The parametrization of those templates is explained in the [Template
 parameters section](#template-parameters).
 
+It is also possible to build a generic `View` or `ConstView` passing from the [Metarecords sublass](#metarecords-subclass). This
+view can point to data belonging to different SoAs and thus not contiguous in memory.
+
 ## Metadata subclass
 
 In order to no clutter the namespace of the generated class, a subclass name `Metadata` is generated. It is
@@ -51,6 +54,17 @@ instanciated with the `metadata()` member function and contains various utility 
 of elements in the SoA), `byteSize()`, `byteAlignment()`, `data()` (a pointer to the buffer). A `nextByte()`
 function computes the first byte of a structure right after a layout, allowing using a single buffer for multiple
 layouts.
+
+## Metarecords subclass
+
+The nested type `Metarecords` describes the elements of the SoA. It can be instantiated by the `records()` member 
+function of a `View` or `ConstView`. Every object contains the address of the first element of the column, the number
+of elements per column, and the stride for the Eigen columns. These are used to validate the columns size at run time 
+and to build a generic `View` as described in [View](#view).
+
+## Customized methods
+
+It is possible to generate methods inside the `element` and `const_element` nested structs using the `SOA_ELEMENT_METHODS` and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods. [An example is showed below.](#examples)
 
 ## ROOT serialization and de-serialization
 
@@ -129,6 +143,40 @@ using SoA1Layout = SoA1LayoutTemplate<>;
 using SoA1LayoutAligned = SoA1LayoutTemplate<cms::soa::CacheLineSize::defaultSize, cms::soa::AlignmentEnforcement::enforced>;
 ```
 
+It is possible to declare methods that operate on the SoA elements:
+
+```C++
+#include "DataFormats/SoALayout.h"
+
+GENERATE_SOA_LAYOUT(SoATemplate,
+  SOA_COLUMN(double, x),
+  SOA_COLUMN(double, y),
+  SOA_COLUMN(double, z),
+  
+  // methods operating on const_element
+  SOA_CONST_METHODS(
+    auto norm() const {
+      return sqrt(x()*x() + y()+y() + z()*z());
+    }
+  ),
+
+  // methods operating on element
+  SOA_METHODS(
+    void scale(float arg) {
+      x() *= arg;
+      y() *= arg;
+      z() *= arg;
+    }
+  ),
+  
+  SOA_SCALAR(int, detectorType)
+);
+
+using SoA = SoATemplate<>;
+using SoAView = SoA::View;
+using SoAConstView = SoA::ConstView;
+```
+
 The buffer of the proper size is allocated, and the layout is populated with:
 
 ```C++
@@ -201,8 +249,6 @@ template<size_t ALIGNMENT = cms::soa::CacheLineSize::defaultSize,
          bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
 struct SoA1Layout::ConstViewTemplateFreeParams;
 ```
-
-
 
 ## Current status and further improvements
 

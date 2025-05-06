@@ -169,6 +169,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("CalibCellFullLD", phgp->calibCellFullLD_, 12);
     myPrint("CalibCellPartLD", phgp->calibCellPartLD_, 12);
     myPrint("cassetteShift", phgp->cassetteShift_, 8);
+    myPrint("cassetteShiftTile", phgp->cassetteShiftTile_, 8);
+    myPrint("cassetteRetractTile", phgp->cassetteRetractTile_, 8);
 
     edm::LogVerbatim("HGCalGeom") << "MaskMode: " << phgp->waferMaskMode_;
     if (phgp->waferMaskMode_ > 1) {
@@ -274,7 +276,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
                                       << HGCalTileIndex::tilePhi(itr->first) << "] (" << (itr->second).type << ", "
                                       << (itr->second).sipm << std::hex << ", " << (itr->second).hex[0] << ", "
                                       << (itr->second).hex[1] << ", " << (itr->second).hex[2] << ", "
-                                      << (itr->second).hex[3] << ")" << std::dec;
+                                      << (itr->second).hex[3] << ", " << (itr->second).hex[4] << ", "
+                                      << (itr->second).hex[5] << ")" << std::dec;
     }
 
     myPrint("slopeTop", phgp->slopeTop_, 10);

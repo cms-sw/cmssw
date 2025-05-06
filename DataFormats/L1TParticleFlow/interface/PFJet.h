@@ -4,6 +4,7 @@
 #include <vector>
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
+#include "DataFormats/L1TParticleFlow/interface/jets.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
 namespace l1t {
@@ -31,6 +32,33 @@ namespace l1t {
     /// adds a candidate to this cluster; note that this only records the information, it's up to you to also set the 4-vector appropriately
     void addConstituent(const edm::Ptr<l1t::PFCandidate>& cand) { constituents_.emplace_back(cand); }
 
+    // add jet tag prediction results
+    void addTagScores(std::vector<float> scores, std::vector<l1ct::JetTagClass> classes, float ptcorrection) {
+      tagScores_ = scores;
+      tagClasses_ = classes;
+      ptCorrection_ = ptcorrection;
+    }
+
+    std::vector<float> getTagScores() const { return tagScores_; }
+    std::vector<l1ct::JetTagClass> getTagClasses() const { return tagClasses_; }
+
+    float getTagScore(l1ct::JetTagClass tagClass) const {
+      // get the tag score for a specific tagClass
+      auto it = std::find(tagClasses_.begin(), tagClasses_.end(), tagClass);
+      if (it != tagClasses_.end()) {
+        return tagScores_[std::distance(tagClasses_.begin(), it)];
+      }
+      return -1.0f;  // Return an invalid/default score if tagClass is not found
+    }
+
+    float getTagScore(const std::string& tagClassStr) const {
+      // get the tag score for a specific tagClass
+      l1ct::JetTagClass tagClass(tagClassStr);
+      return getTagScore(tagClass);
+    }
+
+    float getPtCorrection() const { return ptCorrection_; }
+
     // candidate interface
     size_t numberOfDaughters() const override { return constituents_.size(); }
     const reco::Candidate* daughter(size_type i) const override { return constituents_[i].get(); }
@@ -56,11 +84,15 @@ namespace l1t {
   private:
     float rawPt_;
     Constituents constituents_;
+    std::vector<l1ct::JetTagClass> tagClasses_;
+    std::vector<float> tagScores_;
+    float ptCorrection_;
     std::array<PackedJet, 3> encodedJet_ = {{{{0, 0}}, {{0, 0}}, {{0, 0}}}};
   };
 
   typedef std::vector<l1t::PFJet> PFJetCollection;
   typedef edm::Ref<l1t::PFJetCollection> PFJetRef;
+  typedef edm::RefVector<l1t::PFJetCollection> PFJetRefVector;
   typedef std::vector<l1t::PFJetRef> PFJetVectorRef;
 }  // namespace l1t
 #endif

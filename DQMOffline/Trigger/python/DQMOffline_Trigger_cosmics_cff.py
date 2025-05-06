@@ -25,10 +25,6 @@ import FWCore.ParameterSet.Config as cms
 # *hltMonJetMET makes a log file, need to learn how to turn it off
 # *hltMonEleBits causes SegmentFaults in HARVESTING(step3) in inlcuded in step2
 
-#import DQMServices.Components.DQMEnvironment_cfi
-#dqmEnvHLTOnline = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-#dqmEnvHLTOnline.subSystemFolder = 'HLT'
-
 #onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco*hltMonBTagIPSource*hltMonBTagMuSource*dqmEnvHLTOnline)
 #onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*dqmEnvHLTOnline)
 
@@ -53,8 +49,13 @@ from DQMOffline.Trigger.TrackingMonitoringCosmics_cff import *
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone(
-    subSystemFolder = 'HLT'
-)
+    subSystemFolder = 'HLT',
+    showHLTGlobalTag = True)
+
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoHLTMon = DQMEDAnalyzer('DQMEventInfo',
+                              subSystemFolder = cms.untracked.string('HLT'),
+                              showHLTGlobalTag =  cms.untracked.bool(True))
 
 offlineHLTSource = cms.Sequence(
     cosmicTrackingMonitorHLT *
@@ -64,7 +65,8 @@ offlineHLTSource = cms.Sequence(
     hltMuonOfflineAnalyzers *
     HLTTauDQMOffline *
     jetMETHLTOfflineSource *
-    dqmEnvHLT
+    dqmEnvHLT *
+    dqmInfoHLTMon
 )
 
 #triggerCosmicOfflineDQMSource = cms.Sequence(onlineHLTSource*offlineHLTSource)
@@ -73,5 +75,7 @@ triggerCosmicOfflineDQMSource = cms.Sequence(offlineHLTSource)
 # sequences run @tier0 on CosmicHLTMonitor PD
 OfflineHLTMonitoring = cms.Sequence(
     cosmicTrackingMonitorHLT *
-    hltToOfflineCosmicsTrackValidatorSequence
+    hltToOfflineCosmicsTrackValidatorSequence *
+    dqmEnvHLT *
+    dqmInfoHLTMon
 )

@@ -22,6 +22,7 @@
 #include "CondCore/ESSources/interface/ProductResolver.h"
 
 #include "CondCore/CondDB/interface/PayloadProxy.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -648,6 +649,23 @@ edm::eventsetup::ESProductResolverProvider::KeyedResolversVector CondDBESSource:
   return keyedResolversVector;
 }
 
+std::vector<edm::eventsetup::ESModuleProducesInfo> CondDBESSource::producesInfo() const {
+  std::vector<edm::eventsetup::ESModuleProducesInfo> returnValue;
+  returnValue.reserve(m_resolvers.size());
+
+  for (auto const& recToResolver : m_resolvers) {
+    unsigned int index = returnValue.size();
+
+    EventSetupRecordKey rec{edm::eventsetup::TypeTag::findType(recToResolver.first)};
+
+    edm::eventsetup::TypeTag type = recToResolver.second->type();
+    DataKey key(type, edm::eventsetup::IdTags(recToResolver.second->label().c_str()));
+    returnValue.emplace_back(rec, key, index);
+  }
+
+  return returnValue;
+}
+
 void CondDBESSource::initConcurrentIOVs(const EventSetupRecordKey& key, unsigned int nConcurrentIOVs) {
   std::string recordname = key.name();
   ResolverMap::const_iterator b = m_resolvers.lower_bound(recordname);
@@ -759,6 +777,10 @@ void CondDBESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   dbParams.addUntracked<std::string>("security", "");
   dbParams.addUntracked<int>("messageLevel", 0);
   dbParams.addUntracked<int>("connectionTimeout", 0);
+  dbParams.addObsoleteUntracked<std::string>("transactionId")
+      ->setComment(
+          "This parameter is not strictly needed by PoolDBESSource, but the WMCore infrastructure requires it. "
+          "Candidate for deletion");
   desc.add("DBParameters", dbParams);
 
   desc.add<std::string>("connect", std::string("frontier://FrontierProd/CMS_CONDITIONS"));

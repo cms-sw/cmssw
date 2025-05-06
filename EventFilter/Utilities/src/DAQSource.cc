@@ -43,6 +43,7 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
       maxBufferedFiles_(pset.getUntrackedParameter<unsigned int>("maxBufferedFiles")),
       alwaysStartFromFirstLS_(pset.getUntrackedParameter<bool>("alwaysStartFromFirstLS", false)),
       verifyChecksum_(pset.getUntrackedParameter<bool>("verifyChecksum")),
+      inputConsistencyChecks_(pset.getUntrackedParameter<bool>("inputConsistencyChecks")),
       useL1EventID_(pset.getUntrackedParameter<bool>("useL1EventID")),
       testTCDSFEDRange_(pset.getUntrackedParameter<std::vector<unsigned int>>("testTCDSFEDRange")),
       listFileNames_(pset.getUntrackedParameter<std::vector<std::string>>("fileNames")),
@@ -83,11 +84,11 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
 
   //load mode class based on parameter
   if (dataModeConfig_ == "FRD") {
-    dataMode_ = std::make_shared<DataModeFRD>(this);
+    dataMode_ = std::make_shared<DataModeFRD>(this, inputConsistencyChecks_);
   } else if (dataModeConfig_ == "FRDPreUnpack") {
-    dataMode_ = std::make_shared<DataModeFRDPreUnpack>(this);
+    dataMode_ = std::make_shared<DataModeFRDPreUnpack>(this, inputConsistencyChecks_);
   } else if (dataModeConfig_ == "FRDStriped") {
-    dataMode_ = std::make_shared<DataModeFRDStriped>(this);
+    dataMode_ = std::make_shared<DataModeFRDStriped>(this, inputConsistencyChecks_);
   } else if (dataModeConfig_ == "ScoutingRun3") {
     dataMode_ = std::make_shared<DataModeScoutingRun3>(this);
   } else if (dataModeConfig_ == "DTH") {
@@ -259,6 +260,8 @@ void DAQSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       ->setComment("Force source to start from LS 1 if server provides higher lumisection number");
   desc.addUntracked<bool>("verifyChecksum", true)
       ->setComment("Verify event CRC-32C checksum of FRDv5 and higher or Adler32 with v3 and v4");
+  desc.addUntracked<bool>("inputConsistencyChecks", true)
+      ->setComment("Additional consistency checks such as checking that the FED ID set is the same in all events");
   desc.addUntracked<bool>("useL1EventID", false)
       ->setComment("Use L1 event ID from FED header if true or from TCDS FED if false");
   desc.addUntracked<std::vector<unsigned int>>("testTCDSFEDRange", std::vector<unsigned int>())
@@ -495,6 +498,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   }
 
   //handle RAW file header in new file
+  bool chunkReadyChecked = false;
   if (currentFile_->bufferPosition_ == 0 && currentFile_->rawHeaderSize_ > 0) {
     if (currentFile_->fileSize_ <= currentFile_->rawHeaderSize_) {
       if (currentFile_->fileSize_ < currentFile_->rawHeaderSize_)
@@ -507,6 +511,19 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
         maybeOpenNewLumiSection(currentFile_->lumi_);
       }
     }
+
+    setMonState(inWaitChunk);
+    {
+      IdleSourceSentry ids(fms_);
+      while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
+        std::unique_lock<std::mutex> lkw(mWakeup_);
+        cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
+        if (setExceptionState_)
+          threadError();
+      }
+    }
+    setMonState(inChunkReceived);
+    chunkReadyChecked = true;
 
     //advance buffer position to skip file header (chunk will be acquired later)
     //also move pointer in multi-dir setting with each file expected to have a file header
@@ -524,14 +541,16 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
 
   //multibuffer mode
   //wait for the current chunk to become added to the vector
-  setMonState(inWaitChunk);
-  {
-    IdleSourceSentry ids(fms_);
-    while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
-      std::unique_lock<std::mutex> lkw(mWakeup_);
-      cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
-      if (setExceptionState_)
-        threadError();
+  if (!chunkReadyChecked) {
+    setMonState(inWaitChunk);
+    {
+      IdleSourceSentry ids(fms_);
+      while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
+        std::unique_lock<std::mutex> lkw(mWakeup_);
+        cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
+        if (setExceptionState_)
+          threadError();
+      }
     }
   }
   setMonState(inChunkReceived);

@@ -10,5 +10,4 @@ ReserveDMu.eventSetupPathsKey = 'ReserveDMu'                # Dataset-specific k
 ReserveDMu.andOr = cms.bool( True )
 # we want to intentionally throw and exception
 # in case it does not match one of the HLT Paths
-# set to False now, switch to on once matrix is updated
-ReserveDMu.throw = cms.bool( False )
+ReserveDMu.throw = cms.bool( True )

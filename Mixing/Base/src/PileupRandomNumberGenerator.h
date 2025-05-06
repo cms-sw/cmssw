@@ -23,7 +23,7 @@
 #include <unordered_map>
 
 // user include files
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 

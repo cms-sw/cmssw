@@ -27,6 +27,7 @@
 
 #include "FWCore/Framework/interface/ESProductResolverTemplate.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 
 // forward declarations
 namespace edm::eventsetup::test {
@@ -47,6 +48,15 @@ namespace edm::eventsetup::test {
     DummyESProductResolverProvider(const DummyData& iData = DummyData()) : dummy_(iData) { usingRecord<DummyRecord>(); }
 
     void incrementData() { ++dummy_.value_; }
+
+    std::vector<eventsetup::ESModuleProducesInfo> producesInfo() const override {
+      return std::vector<eventsetup::ESModuleProducesInfo>(
+          1,
+          eventsetup::ESModuleProducesInfo(
+              edm::eventsetup::EventSetupRecordKey::makeKey<DummyRecord>(),
+              edm::eventsetup::DataKey(edm::eventsetup::DataKey::makeTypeTag<DummyData>(), ""),
+              0));
+    }
 
   protected:
     KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {

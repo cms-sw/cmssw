@@ -59,6 +59,10 @@ The offsets currently in use are:
 * 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
 * 0.754: HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
 * 0.755: HLT phase-2 timing menu Alpaka, LST building variant
+* 0.756 HLT phase-2 timing menu trimmed tracking
+* 0.7561 HLT phase-2 timing menu Alpaka, trimmed tracking
+* 0.7562 HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
+* 0.757: HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
 * 0.777 New Phase 2 Standalone Muon seeding, streamlined L3 Tracker Muons reconstruction (Inside-Out first), HLT Muon NanoAOD
 * 0.778 New Phase 2 Standalone Muon seeding, streamlined L3 Tracker Muons reconstruction (Outside-In first), HLT Muon NanoAOD
 * 0.78: Complete L1 workflow
@@ -72,6 +76,7 @@ The offsets currently in use are:
 * 0.13: MLPF algorithm
 * 0.15: JME NanoAOD
 * 0.17: Run-3 deep core seeding for JetCore iteration
+* 0.18  Run-3 SiPixel Digi Morphing
 * 0.19: ECAL SuperClustering with DeepSC algorithm
 * 0.21: Production-like sequence
 * 0.21X1 : Production-like sequence with classical mixing PU=X (X=10,20,30,40,50,60,70,80,90,100,120,140,160,180)

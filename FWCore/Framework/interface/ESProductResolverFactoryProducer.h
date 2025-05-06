@@ -83,6 +83,8 @@ namespace edm {
 
     ~ESProductResolverFactoryProducer() noexcept(false) override;
 
+    std::vector<eventsetup::ESModuleProducesInfo> producesInfo() const override;
+
   protected:
     using EventSetupRecordKey = eventsetup::EventSetupRecordKey;
 

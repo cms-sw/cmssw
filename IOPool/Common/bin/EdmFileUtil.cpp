@@ -40,8 +40,8 @@ int main(int argc, char* argv[]) {
       "uuid,u", "Print uuid")("adler32,a", "Print adler32 checksum.")("allowRecovery",
                                                                       "Allow root to auto-recover corrupted files")(
       "JSON,j", "JSON output format.  Any arguments listed below are ignored")("ls,l", "list file content")(
-      "print,P", "Print all")("verbose,v", "Verbose printout")("printBranchDetails,b",
-                                                               "Call Print()sc for all branches")(
+      "map,m", "Print TFile::Map(\"extended\"). The output can be HUGE.")("print,P", "Print all")(
+      "verbose,v", "Verbose printout")("printBranchDetails,b", "Call Print()sc for all branches")(
       "tree,t", boost::program_options::value<std::string>(), "Select tree used with -P and -b options")(
       "events,e",
       "Print list of all Events, Runs, and LuminosityBlocks in the file sorted by run number, luminosity block number, "
@@ -106,6 +106,7 @@ int main(int argc, char* argv[]) {
     bool events = more && (vm.count("events") > 0 ? true : false);
     bool eventsInLumis = more && (vm.count("eventsInLumis") > 0 ? true : false);
     bool ls = more && (vm.count("ls") > 0 ? true : false);
+    bool printMap = vm.count("map");
     bool tree = more && (vm.count("tree") > 0 ? true : false);
     bool print = more && (vm.count("print") > 0 ? true : false);
     bool printBranchDetails = more && (vm.count("printBranchDetails") > 0 ? true : false);
@@ -244,8 +245,12 @@ int main(int argc, char* argv[]) {
 
       // Look at the collection contents
       if (ls) {
-        if (tfile != nullptr)
-          tfile->ls();
+        tfile->ls();
+      }
+
+      // Print Map()
+      if (printMap) {
+        tfile->Map("extended");
       }
 
       // Print out each tree

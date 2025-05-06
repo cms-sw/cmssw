@@ -23,8 +23,8 @@
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/EventForTransformer.h"
+#include "FWCore/Framework/interface/ModuleConsumesMinimalESInfo.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
-#include "FWCore/ServiceRegistry/interface/ModuleConsumesESInfo.h"
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 
 //
@@ -130,26 +130,6 @@ namespace edm {
     }
 
     template <typename T>
-    void ProducingModuleAdaptorBase<T>::modulesWhoseProductsAreConsumed(
-        std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-        std::vector<ModuleProcessName>& modulesInPreviousProcesses,
-        ProductRegistry const& preg,
-        std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-        std::string const& processName) const {
-      assert(not m_streamModules.empty());
-      return m_streamModules[0]->modulesWhoseProductsAreConsumed(
-          modules, modulesInPreviousProcesses, preg, labelsToDesc, processName);
-    }
-
-    template <typename T>
-    void ProducingModuleAdaptorBase<T>::esModulesWhoseProductsAreConsumed(
-        std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
-        eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
-      assert(not m_streamModules.empty());
-      return m_streamModules[0]->esModulesWhoseProductsAreConsumed(esModules, iPI);
-    }
-
-    template <typename T>
     void ProducingModuleAdaptorBase<T>::convertCurrentProcessAlias(std::string const& processName) {
       for (auto mod : m_streamModules) {
         mod->convertCurrentProcessAlias(processName);
@@ -163,10 +143,9 @@ namespace edm {
     }
 
     template <typename T>
-    std::vector<edm::ModuleConsumesESInfo> ProducingModuleAdaptorBase<T>::moduleConsumesESInfos(
-        eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
+    std::vector<edm::ModuleConsumesMinimalESInfo> ProducingModuleAdaptorBase<T>::moduleConsumesMinimalESInfos() const {
       assert(not m_streamModules.empty());
-      return m_streamModules[0]->moduleConsumesESInfos(iPI);
+      return m_streamModules[0]->moduleConsumesMinimalESInfos();
     }
 
     template <typename T>

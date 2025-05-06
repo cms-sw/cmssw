@@ -1,4 +1,5 @@
 <library file="Tauolapp/*.cc" name="TauolappInterface">
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
@@ -15,6 +16,7 @@
 
 <library file="TauSpinner/*.cc" name="TauSpinnerInterface">
   <use name="GeneratorInterface/TauolaInterface"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="SimDataFormats/GeneratorProducts"/>

@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/ESModuleConsumesMinimalInfo.h"
 #include "FWCore/ServiceRegistry/interface/ESModuleConsumesInfo.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 
@@ -93,47 +94,21 @@ namespace edm {
     }
   }
 
-  void ESProducer::esModulesWhoseProductsAreConsumed(std::vector<eventsetup::ComponentDescription const*>& esModules,
-                                                     eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
-    std::set<unsigned int> alreadyFound;
-
-    // updateLookup should have already been called if we are here
-    // If it has been called, then this assert should not fail.
-    assert(consumesInfos_.size() == itemsToGetFromRecords_.size());
-
-    // Here transition identifies which call to setWhatProduced (each corresponding to a "produce" function)
-    // Often there is only one.
-    auto it = itemsToGetFromRecords_.begin();
-    for (auto const& transition : consumesInfos_) {
-      auto itResolver = it->begin();
-      for (auto const& esConsumesInfoEntry : *transition) {
-        // If there is a chooser this is the special case of a "may consumes"
-        if (esConsumesInfoEntry.chooser_) {
-          auto const& esTagGetterInfos = esConsumesInfoEntry.chooser_->tagGetter().lookup();
-
-          for (auto const& esTagGetterInfo : esTagGetterInfos) {
-            auto [componentDescription, produceMethodID] =
-                iPI.componentAndProduceMethodID(esConsumesInfoEntry.recordKey_, esTagGetterInfo.index_);
-            assert(componentDescription);
-            if (alreadyFound.insert(componentDescription->id_).second) {
-              esModules.push_back(componentDescription);
-            }
-          }
-
-          // Handle cases not involving "may consumes"
-        } else {
-          auto [componentDescription, produceMethodID] =
-              iPI.componentAndProduceMethodID(esConsumesInfoEntry.recordKey_, *itResolver);
-          if (componentDescription) {
-            if (alreadyFound.insert(componentDescription->id_).second) {
-              esModules.push_back(componentDescription);
-            }
-          }
-        }
-        ++itResolver;
-      }
-      ++it;
+  std::vector<eventsetup::ESModuleConsumesMinimalInfo> ESProducer::esModuleConsumesMinimalInfos() const {
+    std::vector<eventsetup::ESModuleConsumesMinimalInfo> result;
+    size_t totalSize = 0;
+    for (auto const& esConsumesInfo : consumesInfos_) {
+      totalSize += esConsumesInfo->size();
     }
+    result.reserve(totalSize);
+    for (unsigned int index = 0; auto const& esConsumesInfo : consumesInfos_) {
+      for (auto const& esConsumesInfoEntry : *esConsumesInfo) {
+        result.emplace_back(
+            index, esConsumesInfoEntry.recordKey_, esConsumesInfoEntry.productKey_, esConsumesInfoEntry.moduleLabel_);
+      }
+      ++index;
+    }
+    return result;
   }
 
   std::vector<std::vector<ESModuleConsumesInfo>> ESProducer::esModuleConsumesInfos(

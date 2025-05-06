@@ -2,22 +2,22 @@
 # Way to use this:
 #   cmsRun g4OverlapCheck_cfg.py type=TB230FEB tol=0.01
 #
-#   Options for type TB230FEB, TB230Jul
+#   Options for type TB230FEB, TB230Aug, TB230Sep, TB231May
 #               tol 1.0, 0.1, 0.01, 0.0
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-####################################################################
+###############################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('type',
                  "TB230FEB",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: TB230FEB, TB230Jul")
+                  "type of operations: TB230FEB, TB230Aug, TB230Sep, TB231May")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -42,9 +42,13 @@ print("Output file:   ", outFile)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load(geomFile)
-process.load('Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi')
-process.load('Geometry.HGCalCommonData.hgcalEENumberingInitialization_cfi')
-process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
+if (options.type == "TB231May"):
+    process.load('Geometry.HGCalCommonData.hgcalEEHEParametersInitialization_cfi')
+    process.load('Geometry.HGCalCommonData.hgcalEEHENumberingInitialization_cfi')
+else:
+    process.load('Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi')
+    process.load('Geometry.HGCalCommonData.hgcalEENumberingInitialization_cfi')
+    process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
 
 if hasattr(process,'MessageLogger'):
 #    process.MessageLogger.SimG4CoreGeometry=dict()
@@ -79,4 +83,7 @@ process.g4SimHits.FileNameField   = ''
 process.g4SimHits.FileNameGDML    = ''
 process.g4SimHits.FileNameRegions = ''
 #
-process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'HcalTB06BeamDetector']
+if (options.type == "TB231May"):
+    process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector'x]
+else:
+    process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'HcalTB06BeamDetector']

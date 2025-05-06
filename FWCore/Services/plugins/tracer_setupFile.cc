@@ -25,8 +25,8 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
-
 #include "FWCore/AbstractServices/interface/TimingServiceBase.h"
 
 using namespace edm::service::monitor_file_utilities;
@@ -404,7 +404,7 @@ namespace edm::service::tracer {
                                 moduleCtrDtrPtr,
                                 sourceCtrPtr,
                                 beginTime,
-                                beginTracer](auto&, auto&) mutable {
+                                beginTracer](auto&) mutable {
       {
         std::ostringstream oss;
         moduleIdToLabel(oss, *moduleLabelsPtr, 'M', "EDModule ID", "Module label");

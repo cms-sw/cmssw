@@ -20,7 +20,8 @@
 //                           of the outputs
 //
 //  HGCalConvert 3 infile outfile1 outfile2 laymin cassette debug
-//               4 infile outfile1 outfile2 laymin cassette nlayers debug
+//               4 infile outfile1 outfile2 laymin cassette nlayers modephi
+//                 debug
 //  infile   (const char*)   Input file from Katya (modified by Chris)
 //                           containing layer #. ring #, start and end
 //                           of ring radius, SiPM size, 4 hexadecimal
@@ -36,6 +37,9 @@
 //  cassette (int)           Cassettes are used in geometry definition
 //                           (0 if none, 1 if 12 cassettes are used)
 //  nlayers  (int)           Number of scintillator layers (14 for v19)
+//  modephi  (int)           Grouping of phi-modules (0 group coarse|fine;
+//                           1|3 no grouping coarse tiles;
+//                           2|3 no grouping fine tiles)
 //  debug    (int)           Two digit integer to set debug for each
 //                           of the outputs
 //
@@ -188,7 +192,7 @@ private:
 
 class ConvertScintillatorV1 {
 public:
-  ConvertScintillatorV1(int layMin = 26, int cassette = 0, int layers = 14);
+  ConvertScintillatorV1(int layMin = 26, int cassette = 0, int layers = 14, int modephi = 0);
   void convert(const char*, const char*, const char*, int debug = 0);
 
 private:
@@ -202,7 +206,7 @@ private:
                  int mode,
                  bool debug);
 
-  const int layMin_, cassette_, layers_;
+  const int layMin_, cassette_, layers_, modephi_;
 };
 
 class ConvertNoseV0 {
@@ -306,11 +310,12 @@ int main(int argc, char* argv[]) {
     int laymin = (argc > 5) ? atoi(argv[5]) : 26;
     int cassette = (argc > 6) ? atoi(argv[6]) : 1;
     int layers = (argc > 7) ? atoi(argv[7]) : 14;
-    int debug = (argc > 8) ? atoi(argv[8]) : 0;
+    int modephi = (argc > 8) ? atoi(argv[8]) : 0;
+    int debug = (argc > 9) ? atoi(argv[9]) : 0;
     std::cout << "Calls ConvertScintillator for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2
-              << " Laymin " << laymin << " Cassette " << cassette << " Layers " << layers << " Debug " << debug
-              << std::endl;
-    ConvertScintillatorV1 c1(laymin, cassette, layers);
+              << " Laymin " << laymin << " Cassette " << cassette << " Layers " << layers << " ModePhi " << modephi
+              << " Debug " << debug << std::endl;
+    ConvertScintillatorV1 c1(laymin, cassette, layers, modephi);
     c1.convert(infile, outfile1, outfile2, debug);
   } else if (mode == 5) {
     const char* outfile1 = argv[3];
@@ -1317,8 +1322,8 @@ void ConvertScintillator::makeTitle(const char* outfile,
   }
 }
 
-ConvertScintillatorV1::ConvertScintillatorV1(int layMin, int cassette, int layers)
-    : layMin_(layMin), cassette_(cassette), layers_(layers) {}
+ConvertScintillatorV1::ConvertScintillatorV1(int layMin, int cassette, int layers, int modephi)
+    : layMin_(layMin), cassette_(cassette), layers_(layers), modephi_(modephi) {}
 
 void ConvertScintillatorV1::convert(const char* infile, const char* outfile1, const char* outfile2, int debug) {
   std::ifstream fInput(infile);
@@ -1774,7 +1779,8 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
         }
       }
       if (((debug / 100) % 10) > 0)
-        std::cout << "Layer|Phi|Ring " << layer << ":" << phi << ":" << irmin << ":" << irmax << std::endl;
+        std::cout << "Layer Phi Ring " << layer << ":" << phi << ":" << irmin << ":" << irmax << " nphi " << nphis
+                  << std::endl;
       if (phi == 1) {
         tile0.layer = layer;
         tile0.rmin = irmin;
@@ -1788,13 +1794,21 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
             do {
               int phimax = tile0.phimax;
               tile0.phimax = tile0.cassette * tilePhisWord;
+              if (((debug / 1000) % 10) > 0)
+                std::cout << "1Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett "
+                          << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word "
+                          << tilePhisWord << ":" << tile0.phimax << std::endl;
               zones.push_back(tile0);
               tile0.phimin = tile0.phimax + 1;
               tile0.phimax = phimax;
               ++tile0.cassette;
-            } while (tile0.cassette * tilePhisWord < tile0.phimax);
+            } while (tile0.cassette * tilePhisWord <= tile0.phimax);
           }
         }
+        if (((debug / 1000) % 10) > 0)
+          std::cout << "2Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett "
+                    << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word " << tilePhisWord
+                    << ":" << tile0.phimax << std::endl;
         zones.push_back(tile0);
         int cassette = (cassette_ == 0) ? 0 : (1 + ((phi - 1) / tilePhisWord));
         tile0.layer = layer;
@@ -1803,14 +1817,47 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
         tile0.phimin = phi;
         tile0.phimax = phi;
         tile0.cassette = cassette;
-        if (phi == HGCalProperty::kHGCalTilePhis)
+        if (phi == nphis) {
+          if (((debug / 1000) % 10) > 0)
+            std::cout << "3Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassette "
+                      << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word " << tilePhisWord
+                      << ":" << tile0.phimax << std::endl;
           zones.push_back(tile0);
+        }
       } else {
         tile0.phimax = phi;
-        if (phi == HGCalProperty::kHGCalTilePhis)
+        if (phi == nphis) {
+          if (((debug / 1000) % 10) > 0)
+            std::cout << "4Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett "
+                      << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << " Word " << tilePhisWord
+                      << ":" << tile0.phimax << std::endl;
           zones.push_back(tile0);
+        }
       }
     }
+  }
+  // split the zones if needed
+  if (((mode == 0) && ((modephi_ == 1) || (modephi_ == 3))) || ((mode != 0) && ((modephi_ == 2) || (modephi_ == 3)))) {
+    std::vector<tileZone> zonetmp;
+    for (const auto& tile : zones) {
+      if (tile.phimin == tile.phimax) {
+        zonetmp.push_back(tile);
+        if (((debug / 10000) % 10) > 0)
+          std::cout << "5Layer " << tile.layer << " R " << tile.rmin << ":" << tile.rmax << " Cassette "
+                    << tile.cassette << " Phi " << tile.phimin << ":" << tile.phimax << std::endl;
+      } else {
+        for (auto phi = tile.phimin; phi <= tile.phimax; ++phi) {
+          tileZone tile0(tile);
+          tile0.phimin = tile0.phimax = phi;
+          zonetmp.push_back(tile0);
+          if (((debug / 10000) % 10) > 0)
+            std::cout << "5Layer " << tile0.layer << " R " << tile0.rmin << ":" << tile0.rmax << " Cassett "
+                      << tile0.cassette << " Phi " << tile0.phimin << ":" << tile0.phimax << std::endl;
+        }
+      }
+    }
+    zones.clear();
+    zones.insert(zones.end(), zonetmp.begin(), zonetmp.end());
   }
 
   int nmax = zones.size();
@@ -1827,31 +1874,51 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
     std::map<int, std::pair<double, double> >::const_iterator it1;
     fout << "  <Vector name=" << apost << head << "RMin" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << ringR.size() << apost << ">";
+    if ((debug % 10) > 0)
+      std::cout << "  <Vector name=" << apost << head << "RMin" << apost << " type=" << apost << "numeric" << apost
+                << " nEntries=" << apost << ringR.size() << apost << ">";
     for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
       std::string last = ((l1 + 1) == ringR.size()) ? " " : ",";
-      if (l1 % 6 == 0)
+      if (l1 % 6 == 0) {
         fout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
-      else
+        if ((debug % 10) > 0)
+          std::cout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+      } else {
         fout << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+        if ((debug % 10) > 0)
+          std::cout << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+      }
       ++l1;
     }
     fout << "\n  </Vector>\n";
     fout << "  <Vector name=" << apost << head << "RMax" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << ringR.size() << apost << ">";
+    if ((debug % 10) > 0) {
+      std::cout << "\n  </Vector>\n";
+      std::cout << "  <Vector name=" << apost << head << "RMax" << apost << " type=" << apost << "numeric" << apost
+                << " nEntries=" << apost << ringR.size() << apost << ">";
+    }
     for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
       std::string last = ((l2 + 1) == ringR.size()) ? " " : ",";
-      if (l2 % 6 == 0)
+      if (l2 % 6 == 0) {
         fout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
-      else
+        if ((debug % 10) > 0)
+          std::cout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+      } else {
         fout << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+        if ((debug % 10) > 0)
+          std::cout << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+      }
       ++l2;
     }
     fout << "\n  </Vector>\n";
     fout << "  <Vector name=" << apost << head << "LayerRings" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << nmax << apost << ">";
-    if ((debug % 10) > 0)
+    if ((debug % 10) > 0) {
+      std::cout << "\n  </Vector>\n";
       std::cout << "  <Vector name=" << apost << head << "LayerRings" << apost << " type=" << apost << "numeric"
                 << apost << " nEntries=" << apost << nmax << apost << ">";
+    }
     for (int k = 0; k < nmax; ++k) {
       std::string last = ((k + 1) == nmax) ? " " : ",";
       int lyr1r2 = HGCalTileIndex::tilePack(zones[k].layer, zones[k].rmin, zones[k].rmax);
@@ -1916,6 +1983,8 @@ void ConvertScintillatorV1::makeTitle(std::ofstream& fout,
     if ((debug & 10) > 0)
       std::cout << "\n  </Vector>\n";
   }
+  if ((debug & 10) > 0)
+    std::cout << "\n\n";
 }
 
 ConvertNoseV0::ConvertNoseV0(unsigned int layMax1, unsigned int layMax2) : layMax1_(layMax1), layMax2_(layMax2) {

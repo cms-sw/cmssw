@@ -166,6 +166,14 @@ std::array<int, 4> HGCalParameters::getID(unsigned int k) const {
   return std::array<int, 4>{{zp, lay, sec, subsec}};
 }
 
+double HGCalParameters::scintRing(int indx, int irad) const {
+  double r(0);
+  if (scintValidRing(indx, irad)) {
+    r = 0.5 * (radiusLayer_[scintType(indx + 1)][irad - 1] + radiusLayer_[scintType(indx + 1)][irad]);
+  }
+  return r;
+}
+
 #include "FWCore/Utilities/interface/typelookup.h"
 
 TYPELOOKUP_DATA_REG(HGCalParameters);

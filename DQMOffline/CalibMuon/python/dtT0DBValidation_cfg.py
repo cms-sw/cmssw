@@ -50,7 +50,6 @@ process.tzeroRef = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_DT'),
     toGet = cms.VPSet(
         cms.PSet(
@@ -65,7 +64,6 @@ process.tzeroRef = cms.ESSource("PoolDBESSource",
             label = cms.untracked.string('tzeroToValidate')
         ) 
     ),
-    siteLocalConfig = cms.untracked.bool(False)
 )
 
 process.dtT0Analyzer = cms.EDAnalyzer("DTt0DBValidation",

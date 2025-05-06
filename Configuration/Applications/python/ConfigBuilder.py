@@ -213,6 +213,11 @@ class ConfigBuilder(object):
 
         self._options = options
 
+        self._customise_coms = []
+        if self._options.customise_commands:
+            self._customise_coms = self._options.customise_commands.split('\\n')
+            self._options.customise_commands = ""
+            
         if self._options.isData and options.isMC:
             raise Exception("ERROR: You may specify only --data or --mc, not both")
         #if not self._options.conditions:
@@ -619,9 +624,10 @@ class ConfigBuilder(object):
                 defaultFileName=self._options.outfile_name
             else:
                 defaultFileName=self._options.outfile_name.replace('.root','_in'+theTier+'.root')
+                defaultFileName=defaultFileName.replace('.rntpl','_in'+theTier+'.rntpl')
 
             theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,defaultFileName)
-            if not theFileName.endswith('.root'):
+            if not theFileName.endswith('.root') and not theFileName.endswith('.rntpl'):
                 theFileName+='.root'
 
             if len(outDefDict):
@@ -698,6 +704,7 @@ class ConfigBuilder(object):
                 theFileName=self._options.outfile_name
             else:
                 theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
+                theFileName=theFileName.replace('.rntpl','_in'+streamType+'.rntpl')
             theFilterName=self._options.filtername
             if streamType=='ALCARECO':
                 theFilterName = 'StreamALCACombined'
@@ -725,7 +732,9 @@ class ConfigBuilder(object):
         CppType='PoolOutputModule'
         if self._options.timeoutOutput:
             CppType='TimeoutPoolOutputModule'
-        if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
+        if streamType=='DQM' and tier=='DQMIO':
+            CppType='DQMRootOutputModule'
+            fileName = fileName.replace('.rntpl', '.root')
         if not ignoreNano and "NANOAOD" in streamType : CppType='NanoAODOutputModule'
         if self._options.rntuple_out and CppType == 'PoolOutputModule':
             CppType='RNTupleOutputModule'
@@ -986,12 +995,23 @@ class ConfigBuilder(object):
 
     def addCustomiseCmdLine(self):
         final_snippet='\n# Customisation from command line\n'
+        included_already = set()
+        if self._customise_coms:
+            for com in self._customise_coms:
+                com=com.lstrip()
+                if com in included_already: continue
+                self.executeAndRemember(com)
+                final_snippet +='\n'+com
+                included_already.add(com)
+                
         if self._options.customise_commands:
             import string
             for com in self._options.customise_commands.split('\\n'):
                 com=com.lstrip()
+                if com in included_already: continue
                 self.executeAndRemember(com)
                 final_snippet +='\n'+com
+                included_already.add(com)
 
         return final_snippet
 
@@ -1807,13 +1827,13 @@ class ConfigBuilder(object):
                 self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
 
         if self._options.hltProcess:
-            if len(self._options.customise_commands) > 1:
-                self._options.customise_commands = self._options.customise_commands + " \n"
-            self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\"\n"
-            self._options.customise_commands = self._options.customise_commands + "process.slimmedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
-            self._options.customise_commands = self._options.customise_commands + "process.patMuons.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+            self._customise_coms.append( f'process.patTrigger.processName = "{self._options.hltProcess}"')
+            self._customise_coms.append( f'process.slimmedPatTrigger.triggerResults= cms.InputTag( "TriggerResults::{self._options.hltProcess}" )')
+            self._customise_coms.append( f'process.patMuons.triggerResults= cms.InputTag( "TriggerResults::{self._options.hltProcess}" )')
 
-#            self.renameHLTprocessInSequence(sequence)
+        # cpu efficiency boost when running PAT/MINI by itself
+        if self.stepKeys[0] == 'PAT':
+            self._customise_coms.append( 'process.source.delayReadingEventProducts = cms.untracked.bool(False)')
 
         return
 
@@ -1872,9 +1892,11 @@ class ConfigBuilder(object):
             # customization order can be important for NANO, here later specified customise take precedence
             self._options.customisation_file.append(custom_path)
         if self._options.hltProcess:
-            if len(self._options.customise_commands) > 1:
-                self._options.customise_commands = self._options.customise_commands + " \n"
-            self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+            self._customise_coms.append( f'process.unpackedPatTrigger.triggerResults= cms.InputTag( "TriggerResults::{self._options.hltProcess}" )')
+
+        # cpu efficiency boost when running NANO by itself
+        if self.stepKeys[0] == 'NANO':
+            self._customise_coms.append( 'process.source.delayReadingEventProducts = cms.untracked.bool(False)')
 
     def prepare_SKIM(self, stepSpec = "all"):
         ''' Enrich the schedule with skimming fragments'''

@@ -17,7 +17,6 @@ CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS
 ### example starting data geometry that is known to have an off-centered BPIX
 process.ZeroGeom = cms.ESSource("PoolDBESSource",
                                 CondDBAlignment,
-                                timetype = cms.string("runnumber"),
                                 toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
                                                            tag = cms.string('TrackerAlignment_StartUp17_v11')
                                                            )
@@ -28,7 +27,6 @@ CondDBAPE = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDI
 
 process.ZeroAPE = cms.ESSource("PoolDBESSource",
                                CondDBAPE,
-                               timetype = cms.string("runnumber"),
                                toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
                                                           tag = cms.string('TrackerAlignmentErrorsExtended_Upgrade2017_design_v0')
                                                           )

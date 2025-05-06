@@ -13,7 +13,10 @@
 #include "XrdCl/XrdClDefaultEnv.hh"
 #include "XrdCl/XrdClFileSystem.hh"
 
+//#define CPUTIME_IN_XRD
+#if defined(CPUTIME_IN_XRD)
 #include "FWCore/Utilities/interface/CPUTimer.h"
+#endif
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -403,13 +406,13 @@ bool RequestManager::compareSources(const timespec &now,
     std::string hostname_a;
     Source::getHostname(activeSources[a]->ID(), hostname_a);
     if (quality_a > 5130) {
-      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
+      edm::LogFwkInfo("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
                                         << quality_a << ") is above 5130 and it is not the only active server";
     }
     if ((quality_a > 260) && (quality_b * 4 < quality_a)) {
       std::string hostname_b;
       Source::getHostname(activeSources[b]->ID(), hostname_b);
-      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
+      edm::LogFwkInfo("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
                                         << quality_a
                                         << ") is higher than 260 and 4 times larger than the other active server "
                                         << hostname_b << " (" << quality_b << ") ";
@@ -751,8 +754,10 @@ std::future<IOSize> XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vect
   timespec now;
   GET_CLOCK_MONOTONIC(now);
 
+#if defined(CPUTIME_IN_XRD)
   edm::CPUTimer timer;
   timer.start();
+#endif
 
   if (activeSources.size() == 1) {
     auto c_ptr = std::make_shared<XrdAdaptor::ClientRequest>(*this, iolist);
@@ -816,8 +821,11 @@ std::future<IOSize> XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vect
         },
         std::move(future1),
         std::move(future2));
+#if defined(CPUTIME_IN_XRD)
     timer.stop();
-    //edm::LogVerbatim("XrdAdaptorInternal") << "Total time to create requests " << static_cast<int>(1000*timer.realTime()) << std::endl;
+    edm::LogVerbatim("XrdAdaptorInternal")
+        << "Total time to create requests " << static_cast<int>(1000 * timer.realTime()) << std::endl;
+#endif
     return task;
   } else if (!req1->empty()) {
     return future1;

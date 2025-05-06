@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef FWCore_AbstractServices_interface_TimingServiceBase_h
 #define FWCore_AbstractServices_interface_TimingServiceBase_h
-// -*- C++ -*-
 //
 // Package:     FWCore/AbstractServices
 // Class  :     TimingServiceBase
 //
-/**\class TimingServiceBase TimingServiceBase.h "TimingServiceBase.h"
+/**\class edm::TimingServiceBase
 
  Description: Base class for Timing Services
 
@@ -18,13 +18,8 @@
 //         Created:  Wed, 11 Jun 2014 14:50:33 GMT
 //
 
-// system include files
 #include <chrono>
 
-// user include files
-#include "FWCore/Utilities/interface/StreamID.h"
-
-// forward declarations
 namespace edm {
   class TimingServiceBase {
   public:

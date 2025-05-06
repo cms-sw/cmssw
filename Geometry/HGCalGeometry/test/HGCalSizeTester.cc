@@ -121,6 +121,7 @@ void HGCalSizeTester::doTestScint(const HGCalGeometry* geom, DetId::Detector det
   for (int zside : zsides) {
     for (int layer : layers) {
       int type = geom->topology().dddConstants().getTypeTrap(layer);
+      edm::LogVerbatim("HGCalGeomX") << "Scintilltor Layer " << layer << " Side " << zside << " TYPE " << type;
       for (int ieta : ietas) {
         for (int iphi : iphis) {
           DetId id1 = (DetId)(HGCScintillatorDetId(type, layer, zside * ieta, iphi));
@@ -128,6 +129,20 @@ void HGCalSizeTester::doTestScint(const HGCalGeometry* geom, DetId::Detector det
             auto icell1 = geom->getGeometry(id1);
             GlobalPoint global1 = geom->getPosition(id1);
             DetId idc1 = geom->getClosestCell(global1);
+            std::pair<int, int> typm = geom->topology().dddConstants().tileType(layer, ieta, iphi);
+            if (typm.first >= 0) {
+              HGCScintillatorDetId detId(id1);
+              detId.setType(typm.first);
+              detId.setSiPM(typm.second);
+              id1 = static_cast<DetId>(detId);
+            }
+            HGCScintillatorDetId detId(idc1);
+            typm = geom->topology().dddConstants().tileType(detId.layer(), detId.ring(), detId.iphi());
+            if (typm.first >= 0) {
+              detId.setType(typm.first);
+              detId.setSiPM(typm.second);
+              idc1 = static_cast<DetId>(detId);
+            }
             std::string cherr = (id1.rawId() != idc1.rawId()) ? "***** ERROR *****" : "";
             edm::LogVerbatim("HGCalGeomX")
                 << "DetId (" << det << ":" << zside << ":" << type << ":" << layer << ":" << ieta << ":" << iphi

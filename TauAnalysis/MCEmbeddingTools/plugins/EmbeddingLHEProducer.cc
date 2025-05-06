@@ -51,9 +51,9 @@
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 
 #include "CLHEP/Random/RandExponential.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
 namespace CLHEP {
