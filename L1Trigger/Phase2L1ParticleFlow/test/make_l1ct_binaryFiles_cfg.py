@@ -112,6 +112,21 @@ process.l1tLayer1BarrelTDR.puAlgoParameters.finalSortAlgo = "BitonicVHDL"
 process.l1tLayer1BarrelTDR.tkEgAlgoParameters.nTRACK_EGIN = 22
 process.l1tLayer1BarrelTDR.tkEgAlgoParameters.nEMCALO_EGIN = 12
 
+process.l1tLayer1BarrelTDR.hadClusters = cms.InputTag('l1tPhase2GCTBarrelToCorrelatorLayer1Emulator', 'GCTHadDigiClusters')
+process.l1tLayer1BarrelTDR.gctHadInputConversionAlgo = cms.string("Emulator")
+
+process.l1tLayer1BarrelTDR.caloSectors = cms.VPSet(
+        cms.PSet(
+            etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
+            phiSlices     = cms.uint32(3),
+            phiZero       = cms.double(math.pi/18)
+        ),
+        cms.PSet(
+            etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
+            phiSlices     = cms.uint32(3),
+            phiZero       = cms.double(math.pi*7/18)
+        )
+    )
 
 process.l1tLayer1BarrelSerenity = process.l1tLayer1Barrel.clone()
 process.l1tLayer1BarrelSerenity.regionizerAlgo = "MultififoBarrel"

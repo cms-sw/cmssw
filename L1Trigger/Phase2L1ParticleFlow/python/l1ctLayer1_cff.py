@@ -111,16 +111,11 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tkEgSorterParameters = tkEgSorterParameters.clone(
         nObjToSort = 10
     ),
-    caloSectors = cms.VPSet(
+    caloSectors = cms.VPSet(   # for Ideal regionizer only--don't include the duplicates
         cms.PSet(
             etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
             phiSlices     = cms.uint32(3),
             phiZero       = cms.double(math.pi/18)
-        ),
-        cms.PSet(
-            etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
-            phiSlices     = cms.uint32(3),
-            phiZero       = cms.double(math.pi*7/18)
         )
     ),
     regions = cms.VPSet(

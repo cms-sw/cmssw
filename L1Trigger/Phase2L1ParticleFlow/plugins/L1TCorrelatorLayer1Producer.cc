@@ -1006,15 +1006,23 @@ void L1TCorrelatorLayer1Producer::addHGCalHadCalo(const l1t::HGCalMulticluster &
 void L1TCorrelatorLayer1Producer::addGCTEmCaloRaw(const l1tp2::GCTEmDigiClusterLink &link,
                                                   unsigned int linkidx,
                                                   unsigned int entidx) {
-  event_.raw.gctEm[calomapping[linkidx]].obj.push_back(link[entidx].data());
-  addDecodedGCTEmCalo(event_.decoded.emcalo[calomapping[linkidx]], link[entidx]);
+  // in the "Ideal" regionizer, ignore the second set that is sent; only use the first
+  auto caloIdx = calomapping[linkidx];
+  if (caloIdx < event_.raw.gctEm.size()) {
+    event_.raw.gctEm[caloIdx].obj.push_back(link[entidx].data());
+    addDecodedGCTEmCalo(event_.decoded.emcalo[caloIdx], link[entidx]);
+  }
 }
 
 void L1TCorrelatorLayer1Producer::addGCTHadCaloRaw(const l1tp2::GCTHadDigiClusterLink &link,
                                                    unsigned int linkidx,
                                                    unsigned int entidx) {
-  event_.raw.gctHad[calomapping[linkidx]].obj.push_back(link[entidx].data());
-  addDecodedGCTHadCalo(event_.decoded.hadcalo[calomapping[linkidx]], link[entidx]);
+  // in the "Ideal" regionizer, ignore the second set that is sent; only use the first
+  auto caloIdx = calomapping[linkidx];
+  if (caloIdx < event_.raw.gctHad.size()) {
+    event_.raw.gctHad[caloIdx].obj.push_back(link[entidx].data());
+    addDecodedGCTHadCalo(event_.decoded.hadcalo[caloIdx], link[entidx]);
+  }
 }
 
 void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkObjEmu> &sec, const l1t::PFTrack &t) {
