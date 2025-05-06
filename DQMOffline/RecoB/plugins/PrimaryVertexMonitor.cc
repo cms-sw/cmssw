@@ -400,10 +400,15 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   //
   // check for absent products and simply "return" in that case
   //
-  if (recVtxs.isValid() == false || beamSpotHandle.isValid() == false) {
-    edm::LogWarning("PrimaryVertexMonitor")
-        << " Some products not available in the event: VertexCollection " << vertexInputTag_ << " " << recVtxs.isValid()
-        << " BeamSpot " << beamSpotInputTag_ << " " << beamSpotHandle.isValid() << ". Skipping plots for this event";
+  if (!beamSpotHandle.isValid()) {
+    edm::LogWarning("PrimaryVertexMonitor") << " Some products not available in the event: BeamSpot ("
+                                            << beamSpotInputTag_ << "). Skipping plots for this event.";
+    return;
+  }
+
+  if (!recVtxs.isValid()) {
+    edm::LogWarning("PrimaryVertexMonitor") << " Some products not available in the event: VertexCollection ("
+                                            << vertexInputTag_ << "). Skipping plots for this event.";
     return;
   }
 
