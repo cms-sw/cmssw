@@ -230,7 +230,7 @@ bool l1ct::HgcalClusterDecoderEmulator::MultiClassID::evaluate(l1ct::HadCaloObjE
   // bit 0: PF EM ID
   // bit 1: EG EM ID
   // bit 2: EG Loose ID
-  cl.hwEmID = passPFEm | (passEgEm << 1) | (passEgEm_tight << 2);
+  cl.hwEmID = passPFEm | (passEgEm_tight << 1) | (passEgEm << 2);
 
   cl.hwPiProb = sm_scores[1];
   cl.hwEmProb = sm_scores[2];
