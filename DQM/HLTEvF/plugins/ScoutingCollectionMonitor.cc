@@ -1,13 +1,12 @@
 // -*- C++ -*-
 //
-// Package:    HLTriggerOffline/Scouting
+// Package:    DQM/HLTEvF
 // Class:      ScoutingCollectionMonitor
 //
 /**\class ScoutingCollectionMonitor ScoutingCollectionMonitor.cc 
-HLTriggerOffline/Scouting/plugins/ScoutingCollectionMonitor.cc
+          DQM/HLTEvF/plugins/ScoutingCollectionMonitor.cc
 
 Description: ScoutingCollectionMonitor is developed to enable monitoring of several scouting objects and comparisons for the NGT demonstrator
-
 It is based on the preexisting work of the scouting group and can be found at git@github.com:CMS-Run3ScoutingTools/Run3ScoutingAnalysisTools.git
 
 */
@@ -23,39 +22,29 @@ It is based on the preexisting work of the scouting group and can be found at gi
 
 // user include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
-#include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingParticle.h"
-
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
-#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingParticle.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
-
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
 //
 // class declaration
@@ -64,12 +53,11 @@ It is based on the preexisting work of the scouting group and can be found at gi
 class ScoutingCollectionMonitor : public DQMEDAnalyzer {
 public:
   explicit ScoutingCollectionMonitor(const edm::ParameterSet&);
-  ~ScoutingCollectionMonitor() override;
+  ~ScoutingCollectionMonitor() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  // void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
@@ -222,7 +210,6 @@ private:
   dqm::reco::MonitorElement* sMaj_ele_hist;
 
   // muon histograms
-
   dqm::reco::MonitorElement* pt_mu_hist;
   dqm::reco::MonitorElement* eta_mu_hist;
   dqm::reco::MonitorElement* phi_mu_hist;
@@ -369,14 +356,6 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iConfig)
@@ -395,14 +374,6 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
       pfcandsToken(consumes<std::vector<Run3ScoutingParticle>>(iConfig.getParameter<edm::InputTag>("pfcands"))),
       pfjetsToken(consumes<std::vector<Run3ScoutingPFJet>>(iConfig.getParameter<edm::InputTag>("pfjets"))),
       tracksToken(consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))) {}
-
-ScoutingCollectionMonitor::~ScoutingCollectionMonitor() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  //
-  // please remove this method altogether if it would be left empty
-}
-
 //
 // member functions
 //
@@ -595,7 +566,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   }
 
   // fill all the photon histograms
-
   for (const auto& pho : *photonsH) {
     pt_pho_hist->Fill(pho.pt());
     eta_pho_hist->Fill(pho.eta());
@@ -614,7 +584,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   }
 
   // fill all the electron histograms
-
   for (const auto& ele : *electronsH) {
     pt_ele_hist->Fill(ele.pt());
     eta_ele_hist->Fill(ele.eta());
@@ -638,7 +607,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   }
 
   // fill all the muon histograms
-
   for (const auto& mu : *muonsH) {
     pt_mu_hist->Fill(mu.pt());
     eta_mu_hist->Fill(mu.eta());
