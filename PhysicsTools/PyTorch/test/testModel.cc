@@ -29,7 +29,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestModel);
 
 void TestModel::testClassificationCpu() {
   auto device = torch::Device(torch::kCPU, 0);
-  auto inputs = torch::ones({batch_size_, 3}, device = device);
+  auto inputs = torch::ones({batch_size_, 3}, device);
 
   ClassifierModel model;
   auto outputs = model.forward(inputs);
@@ -38,7 +38,7 @@ void TestModel::testClassificationCpu() {
 
 void TestModel::testClassificationCuda() {
   auto device = torch::Device(torch::kCUDA, 0);
-  auto inputs = torch::ones({batch_size_, 3}, device = device);
+  auto inputs = torch::ones({batch_size_, 3}, device);
 
   ClassifierModel model;
   model.to(device);
@@ -48,7 +48,7 @@ void TestModel::testClassificationCuda() {
 
 void TestModel::testRegressionCpu() {
   auto device = torch::Device(torch::kCPU, 0);
-  auto inputs = torch::ones({batch_size_, 3}, device = device);
+  auto inputs = torch::ones({batch_size_, 3}, device);
 
   RegressionModel model;
   auto outputs = model.forward(inputs);
@@ -57,7 +57,7 @@ void TestModel::testRegressionCpu() {
 
 void TestModel::testRegressionCuda() {
   auto device = torch::Device(torch::kCUDA, 0);
-  auto inputs = torch::ones({batch_size_, 3}, device = device);
+  auto inputs = torch::ones({batch_size_, 3}, device);
 
   RegressionModel model;
   model.to(device);
@@ -67,7 +67,7 @@ void TestModel::testRegressionCuda() {
 
 void TestModel::testMultiTaskModelCpu() {
   auto device = torch::Device(torch::kCPU, 0);
-  auto inputs = torch::ones({batch_size_, 5}, device = device);
+  auto inputs = torch::ones({batch_size_, 5}, device);
 
   MultiTaskModel model;
   auto [class_probs, reg_output] = model.forward(inputs);
@@ -77,7 +77,7 @@ void TestModel::testMultiTaskModelCpu() {
 
 void TestModel::testMultiTaskModelCuda() {
   auto device = torch::Device(torch::kCUDA, 0);
-  auto inputs = torch::ones({batch_size_, 5}, device = device);
+  auto inputs = torch::ones({batch_size_, 5}, device);
 
   MultiTaskModel model;
   model.to(device);

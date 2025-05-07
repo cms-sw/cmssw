@@ -9,9 +9,9 @@
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
-using namespace cms::soa;
-
 namespace cms::torch::alpaka {
+
+  using namespace cms::soa;
 
   template <typename T, typename... Others>
   concept SameTypes = (std::same_as<T, Others> && ...);
@@ -48,14 +48,14 @@ namespace cms::torch::alpaka {
     // Constructor for columns and eigen columns
     Block(int nElements, void* ptr_, const Columns& columns_, ::torch::ScalarType type_, size_t bytes_)
         : ptr(ptr_), type(type_), bytes(bytes_) {
-      stride = std::move(create_stride(nElements, columns_, bytes_));
-      size = std::move(create_size(nElements, columns_));
+      stride = create_stride(nElements, columns_, bytes_);
+      size = create_size(nElements, columns_);
     };
 
     // Constructor for scalar columns
     Block(int nElements, void* ptr_, ::torch::ScalarType type_, size_t bytes_) : ptr(ptr_), type(type_), bytes(bytes_) {
-      stride = std::move(create_stride(nElements, 1, bytes_, true));
-      size = std::move(create_size(nElements, 1));
+      stride = create_stride(nElements, 1, bytes_, true);
+      size = create_size(nElements, 1);
     };
 
     static int get_elems_per_column(int nElements, size_t bytes) {

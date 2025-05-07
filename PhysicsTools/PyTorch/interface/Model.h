@@ -112,7 +112,7 @@ namespace cms::torch::alpaka {
   template <>
   class Model<CompilationType::kJustInTime> {
   public:
-    Model(const std::string &model_path) : model_(std::move(cms::torch::load(model_path))) {}
+    Model(const std::string &model_path) : model_(cms::torch::load(model_path)) {}
 
     /**
      * @brief Moves the model to a specified device.

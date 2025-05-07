@@ -32,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto device = cms::torch::alpaka::device(queue);
     std::cout << "Device: " << device << std::endl;
-    auto inputs = ::torch::ones({batch_size_, 3}, device = device);
+    auto inputs = ::torch::ones({batch_size_, 3}, device);
 
     ClassifierModel model;
     model.to(device);
