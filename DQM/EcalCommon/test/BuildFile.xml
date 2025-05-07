@@ -1,0 +1,4 @@
+<bin file="testEcalCommon.cc" name="testEcalCommon">
+    <use name="FWCore/TestProcessor"/>
+    <use name="catch2"/>
+  </bin>
