@@ -33,11 +33,11 @@ MuMuTable = cms.EDProducer("SimpleCompositeCandidateFlatTableProducer",
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table for the muons
     variables = cms.PSet(CandVars,
-          fitted_mass = Var("userFloat('fitted_mass')", float, doc="Fitted dilepton mass"),
-          svprob = Var("userFloat('sv_prob')", float, doc="Vtx fit probability"),
-          vtx_x =Var("userFloat('vtx_x')", float, doc="Vtx position in x"),
-          vtx_y = Var("userFloat('vtx_y')", float, doc="Vtx position in y"),
-          vtx_z = Var("userFloat('vtx_z')", float, doc="Vtx position in y"),
+          fitted_mass = Var("userFloat('fitted_mass')", float, doc="Fitted dilepton mass", precision=10),
+          svprob = Var("userFloat('sv_prob')", float, doc="Vtx fit probability", precision=10),
+          vtx_x =Var("userFloat('vtx_x')", float, doc="Vtx position in x", precision=10),
+          vtx_y = Var("userFloat('vtx_y')", float, doc="Vtx position in y", precision=10),
+          vtx_z = Var("userFloat('vtx_z')", float, doc="Vtx position in y", precision=10),
 
     )
 )
