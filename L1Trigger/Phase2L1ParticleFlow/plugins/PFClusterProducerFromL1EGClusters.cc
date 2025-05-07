@@ -88,8 +88,8 @@ void l1tpf::PFClusterProducerFromL1EGClusters::produce(edm::Event &iEvent, const
     // bit 0: standaloneWP: is_iso && is_ss
     // bit 1: looseL1TkMatchWP: is_looseTkiso && is_looseTkss
     // bit 2: photonWP:
-    unsigned int qual = (digiCryCl.passes_iso() & digiCryCl.passes_ss()) |
-                        ((digiCryCl.passes_looseTkiso() & digiCryCl.passes_looseTkss()) << 1) | (false << 2);
+    unsigned int qual = (digiCryCl.passes_iso() && digiCryCl.passes_ss()) |
+                        ((digiCryCl.passes_looseTkiso() && digiCryCl.passes_looseTkss()) << 1) | (false << 2);
     cluster.setHwQual(qual);
     // cluster.setDigiWord(digiCryCl.data());
     out->push_back(cluster);
@@ -109,8 +109,8 @@ void l1tpf::PFClusterProducerFromL1EGClusters::produce(edm::Event &iEvent, const
     if (corrector_.valid())
       corrector_.correctPt(cluster);
     cluster.setPtError(resol_(cluster.pt(), std::abs(cluster.eta())));
-    unsigned int qual = (digiCryCl.passes_iso() & digiCryCl.passes_ss()) |
-                        ((digiCryCl.passes_looseTkiso() & digiCryCl.passes_looseTkss()) << 1) | (false << 2);
+    unsigned int qual = (digiCryCl.passes_iso() && digiCryCl.passes_ss()) |
+                        ((digiCryCl.passes_looseTkiso() && digiCryCl.passes_looseTkss()) << 1) | (false << 2);
     cluster.setHwQual(qual);
 
     // cluster.setDigiWord(digiCryCl.data());

@@ -52,8 +52,8 @@ l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegio
   // bit 0: standaloneWP: is_iso && is_ss
   // bit 1: looseL1TkMatchWP: is_looseTkiso && is_looseTkss
   // bit 2: photonWP:
-  calo.hwEmID = (passes_iso(in) & passes_ss(in)) | ((passes_looseTkiso(in) & passes_looseTkss(in)) << 1) |
-                ((passes_looseTkiso(in) & passes_looseTkss(in)) << 2);
+  calo.hwEmID = (passes_iso(in) && passes_ss(in)) | ((passes_looseTkiso(in) && passes_looseTkss(in)) << 1) |
+                ((passes_looseTkiso(in) && passes_looseTkss(in)) << 2);
 
   // convert eta to local
   if (sector.hwEtaCenter < 0) {
