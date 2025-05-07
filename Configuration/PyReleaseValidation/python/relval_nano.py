@@ -179,6 +179,9 @@ steps['TTbarMINIAOD14.0'] = {'INPUT': InputInfo(
 steps['NANO_mc14.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:phase1_2024_realistic'},
                               _NANO_mc])
 
+steps['BPHNANO_mc14.0'] = merge([{'-s': 'NANO:@BPH', '-n': '1000'},
+                                 steps['NANO_mc14.0']])
+
 steps['muPOGNANO_mc14.0'] = merge([{'-s': 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n': '1000'},
                                    steps['NANO_mc14.0']])
 
@@ -235,6 +238,9 @@ steps['NANO_data14.0'] = merge([{'--era': 'Run3_2024,run3_nanoAOD_pre142X', '--c
 
 steps['NANO_data14.0_prompt'] = merge([{'-s': 'NANO:@Prompt,DQM:@nanoAODDQM', '-n': '1000'},
                                        steps['NANO_data14.0']])
+
+steps['BPHNANO_data14.0'] = merge([{'-s': 'NANO:@BPH', '-n': '1000'},
+                                   steps['NANO_data14.0']])
 
 steps['muPOGNANO_data14.0'] = merge([{'-s': 'NANO:@MUPOG,DQM:@nanoAODDQM', '-n': '1000'},
                                      steps['NANO_data14.0']])
@@ -367,6 +373,7 @@ workflows[_wfn()] = ['jmeNANOrePuppimc140X', ['TTbarMINIAOD14.0', 'jmeNANO_rePup
 workflows[_wfn()] = ['lepTrackInfoNANOmc140X', ['TTbarMINIAOD14.0', 'lepTrackInfoNANO_mc14.0']]
 workflows[_wfn()] = ['ScoutingNANOmc140X', ['TTbarMINIAOD14.0', 'scoutingNANO_mc14.0']]
 workflows[_wfn()] = ['ScoutingNANOwithPromptmc140X', ['TTbarMINIAOD14.0', 'scoutingNANO_withPrompt_mc14.0']]
+workflows[_wfn()] = ['BPHNANOmc140X', ['TTbarMINIAOD14.0', 'BPHNANO_mc14.0']]
 
 # POG/PAG custom NANOs, data
 _wfn.subnext()
@@ -378,6 +385,7 @@ workflows[_wfn()] = ['jmeNANOrePuppidata140Xrun3', ['MuonEG2024MINIAOD14.0', 'jm
 workflows[_wfn()] = ['lepTrackInfoNANOdata140Xrun3', ['MuonEG2024MINIAOD14.0', 'lepTrackInfoNANO_data14.0']]
 workflows[_wfn()] = ['ScoutingNANOdata140Xrun3', ['ScoutingPFRun32024RAW14.0', 'scoutingNANO_data14.0']]
 workflows[_wfn()] = ['ScoutingNANOwithPromptdata140Xrun3', ['ScoutingPFMonitor2024MINIAOD14.0', 'scoutingNANO_withPrompt_data14.0']]
+workflows[_wfn()] = ['BPHNANOdata140Xrun3', ['MuonEG2024MINIAOD14.0', 'BPHNANO_data14.0']]
 
 # DPG custom NANOs, data
 _wfn.subnext()
