@@ -9,6 +9,7 @@ public:
 
   //--------------------------------------------------------------------------
 
+  int idCat(int id);
   bool initAfterBeams() override;
   bool canVetoResonanceDecays() override { return true; }
   bool doVetoResonanceDecays(Pythia8::Event& process) override { return checkVetoResonanceDecays(process); }
@@ -31,7 +32,7 @@ private:
   unsigned long int counter_event_;
   std::set<int> mothers_;
   std::vector<int> daughters_;
-  std::vector<int> matchedDecays_;
+  std::vector<std::string> matchedDecays_;
 
   std::map<int, int> requestedDaughters_;
   std::map<int, int> observedDaughters_;

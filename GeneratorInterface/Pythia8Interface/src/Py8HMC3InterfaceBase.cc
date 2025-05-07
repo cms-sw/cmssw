@@ -91,7 +91,7 @@ namespace gen {
     fMasterGen->settings.addFlag("ResonanceDecayFilter:wzAsEquivalent", false);
     fMasterGen->settings.addMVec("ResonanceDecayFilter:mothers", std::vector<int>(), false, false, 0, 0);
     fMasterGen->settings.addMVec("ResonanceDecayFilter:daughters", std::vector<int>(), false, false, 0, 0);
-    fMasterGen->settings.addMVec("ResonanceDecayFilter:matchedDecays", std::vector<int>(), false, false, 0, 0);
+    fMasterGen->settings.addWVec("ResonanceDecayFilter:matchedDecays", std::vector<std::string>());
 
     //add settings for PT filter
     fMasterGen->settings.addFlag("PTFilter:filter", false);

@@ -4,6 +4,23 @@
 using namespace Pythia8;
 
 //--------------------------------------------------------------------------
+int ResonanceDecayFilterHook::idCat(int id) {
+  id = abs(id);
+  if (id == 13 && (eMuAsEquivalent_ || eMuTauAsEquivalent_))
+    id = 11;
+  else if (id == 15 && eMuTauAsEquivalent_)
+    id = 11;
+  else if ((id == 14 || id == 16) && allNuAsEquivalent_)
+    id = 12;
+  else if ((id == 2 || id == 3 || id == 4) && udscAsEquivalent_)
+    id = 1;
+  else if ((id == 2 || id == 3 || id == 4 || id == 5) && udscbAsEquivalent_)
+    id = 1;
+  else if ((id == 23 || id == 24) && wzAsEquivalent_)
+    id = 23;
+  return id;
+}
+
 bool ResonanceDecayFilterHook::initAfterBeams() {
   counter_event_ = 0;
   filter_ = settingsPtr->flag("ResonanceDecayFilter:filter");
@@ -19,87 +36,43 @@ bool ResonanceDecayFilterHook::initAfterBeams() {
   mothers_.clear();
   mothers_.insert(mothers.begin(), mothers.end());
   daughters_ = settingsPtr->mvec("ResonanceDecayFilter:daughters");
-  matchedDecays_ = settingsPtr->mvec("ResonanceDecayFilter:matchedDecays");
+  matchedDecays_ = settingsPtr->wvec("ResonanceDecayFilter:matchedDecays");
 
   requestedDaughters_.clear();
 
   for (int id : daughters_) {
-    int did = std::abs(id);
-    if (did == 13 && (eMuAsEquivalent_ || eMuTauAsEquivalent_)) {
-      did = 11;
-    }
-    if (did == 15 && eMuTauAsEquivalent_) {
-      did = 11;
-    }
-    if ((did == 14 || did == 16) && allNuAsEquivalent_) {
-      did = 12;
-    }
-    if ((did == 2 || did == 3 || did == 4) && udscAsEquivalent_) {
-      did = 1;
-    }
-    if ((did == 2 || did == 3 || did == 4 || did == 5) && udscbAsEquivalent_) {
-      did = 1;
-    }
-    if ((did == 23 || did == 24) && wzAsEquivalent_) {
-      did = 23;
-    }
-
+    int did = ResonanceDecayFilterHook::idCat(id);
     ++requestedDaughters_[std::abs(did)];
   }
 
   requestedDecays_.clear();
 
   if (matching_) {
-    if (matchedDecays_.empty() || matchedDecays_.size() % 3 != 0) {
-      std::cerr << "Error: ResonanceDecayFilter:matchedDecays must be a multiple of 3 (mother, daughter1, daughter2)."
-                << std::endl;
-      return false;
+    if (matchedDecays_.empty()) {
+      std::cerr << "You must indicate a non-empty matched decays list for matching mode." << std::endl;
     }
 
-    for (size_t i = 0; i < matchedDecays_.size(); i += 3) {
-      int mother = std::abs(matchedDecays_[i]);
+    for (const std::string &decayStr : matchedDecays_) {
+      size_t colonPos = decayStr.find(':');
+      if (colonPos == std::string::npos) {
+        std::cerr << "Malformed decay string (no colon): " << decayStr << std::endl;
+        continue;
+      }
+      std::string motherStr = decayStr.substr(0, colonPos);
+      std::string daughtersStr = decayStr.substr(colonPos + 1);
 
-      int d1 = std::abs(matchedDecays_[i + 1]);
-      if (d1 == 13 && (eMuAsEquivalent_ || eMuTauAsEquivalent_)) {
-        d1 = 11;
-      }
-      if (d1 == 15 && eMuTauAsEquivalent_) {
-        d1 = 11;
-      }
-      if ((d1 == 14 || d1 == 16) && allNuAsEquivalent_) {
-        d1 = 12;
-      }
-      if ((d1 == 2 || d1 == 3 || d1 == 4) && udscAsEquivalent_) {
-        d1 = 1;
-      }
-      if ((d1 == 2 || d1 == 3 || d1 == 4 || d1 == 5) && udscbAsEquivalent_) {
-        d1 = 1;
-      }
-      if ((d1 == 23 || d1 == 24) && wzAsEquivalent_) {
-        d1 = 23;
-      }
-      requestedDecays_.insert({mother, d1});
+      int motherID = std::abs(std::stoi(motherStr));
 
-      int d2 = std::abs(matchedDecays_[i + 2]);
-      if (d2 == 13 && (eMuAsEquivalent_ || eMuTauAsEquivalent_)) {
-        d2 = 11;
+      std::istringstream iss(daughtersStr);
+      std::string token;
+      while (iss >> token) {
+        try {
+          int daughterID = ResonanceDecayFilterHook::idCat(std::stoi(token));
+          requestedDecays_.insert({motherID, daughterID});
+        } catch (const std::invalid_argument &e) {
+          std::cerr << "Invalid daughter ID in decay string: " << decayStr << std::endl;
+        }
       }
-      if (d2 == 15 && eMuTauAsEquivalent_) {
-        d2 = 11;
-      }
-      if ((d2 == 14 || d2 == 16) && allNuAsEquivalent_) {
-        d2 = 12;
-      }
-      if ((d2 == 2 || d2 == 3 || d2 == 4) && udscAsEquivalent_) {
-        d2 = 1;
-      }
-      if ((d2 == 2 || d2 == 3 || d2 == 4 || d2 == 5) && udscbAsEquivalent_) {
-        d2 = 1;
-      }
-      if ((d2 == 23 || d2 == 24) && wzAsEquivalent_) {
-        d2 = 23;
-      }
-      requestedDecays_.insert({mother, d2});
     }
   }
 
@@ -125,7 +98,7 @@ bool ResonanceDecayFilterHook::checkVetoResonanceDecays(const Event &process) {
   for (int i = 0; i < process.size(); ++i) {
     const Particle &p = process[i];
 
-    int did = std::abs(p.id());
+    int did = ResonanceDecayFilterHook::idCat(p.id());
 
     if (did == 13 && (eMuAsEquivalent_ || eMuTauAsEquivalent_)) {
       did = 11;
