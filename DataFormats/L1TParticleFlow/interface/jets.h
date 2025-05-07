@@ -35,14 +35,11 @@ namespace l1ct {
     static const std::unordered_map<std::string, JetTagClassValue> labels_;
 
     friend std::ostream &operator<<(std::ostream &ost, const l1ct::JetTagClass &jtc) {
-      std::string res = "";
       auto it = std::find_if(
           std::begin(jtc.labels_), std::end(jtc.labels_), [&jtc](auto &&p) { return p.second == jtc.value_; });
       if (it != std::end(jtc.labels_)) {
-        res = it->first;
+        ost << it->first;
       }
-
-      ost << res;
       return ost;
     }
 
