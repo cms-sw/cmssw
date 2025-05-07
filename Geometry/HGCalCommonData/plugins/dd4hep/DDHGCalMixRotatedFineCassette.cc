@@ -303,9 +303,9 @@ struct HGCalMixRotatedFineCassette {
     double dphi = M_PI / cassettes_;
     for (unsigned int k = 0; k < layers_.size(); ++k) {
       for (int j = 0; j < cassettes_; ++j) {
-	double phi = (2 * j + 1) * dphi;
-	cassetteShiftScnt_.emplace_back(retract_[k] * cos(phi));
-	cassetteShiftScnt_.emplace_back(retract_[k] * sin(phi));
+        double phi = (2 * j + 1) * dphi;
+        cassetteShiftScnt_.emplace_back(retract_[k] * cos(phi));
+        cassetteShiftScnt_.emplace_back(retract_[k] * sin(phi));
       }
     }
 #ifdef EDM_ML_DEBUG
@@ -397,7 +397,7 @@ struct HGCalMixRotatedFineCassette {
           for (unsigned int k = 0; k < pgonZ.size(); ++k)
             edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << cms::convert2mm(pgonZ[k]) << " R "
                                           << cms::convert2mm(pgonRin[k]) << ":" << cms::convert2mm(pgonRout[k]);
-	  edm::LogVerbatim("HGCalGeom") << "LayeerSense " << layerSense_[ly];
+          edm::LogVerbatim("HGCalGeom") << "LayeerSense " << layerSense_[ly];
 #endif
           if (layerSense_[ly] < 0) {
             int absType = -layerSense_[ly];
@@ -540,8 +540,8 @@ struct HGCalMixRotatedFineCassette {
           edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Casstee|Fimin|Fimax " << cassette << ":"
                                         << fimin << ":" << fimax;
 #endif
-	  double phi1 = dphi * (fimin - 1);
-	  double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
+          double phi1 = dphi * (fimin - 1);
+          double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
           r1 += retract_[layer0 - 1];
           r2 += retract_[layer0 - 1];
 #ifdef EDM_ML_DEBUG
@@ -657,7 +657,7 @@ struct HGCalMixRotatedFineCassette {
                                       << fimin << ":" << fimax;
 #endif
         double phi1 = dphi * (fimin - 1);
-	double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
+        double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
         r1 += retract_[layer0 - 1];
         r2 += retract_[layer0 - 1];
 #ifdef EDM_ML_DEBUG
@@ -793,13 +793,13 @@ struct HGCalMixRotatedFineCassette {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom")
             << "DDHGCalMixRotatedFineCassette::index:Property:layertype:type:part:orien:cassette:place:offsets:ind "
-            << k << ":" << waferProperty_[k] << ":" << layertype << ":" << type << ":" << part << ":" << orien 
-	    << ":" << cassette << ":" << place;
+            << k << ":" << waferProperty_[k] << ":" << layertype << ":" << type << ":" << part << ":" << orien << ":"
+            << cassette << ":" << place;
 #endif
         auto cshift = cassette_.getShift(layer0, -1, cassette, false);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "Layer " << (layer + 1) << ":" << layer0 << " Cassette " << cassette << " shift "
-                                    << cshift.first << ":" << cshift.second;
+        edm::LogVerbatim("HGCalGeom") << "Layer " << (layer + 1) << ":" << layer0 << " Cassette " << cassette
+                                      << " shift " << cshift.first << ":" << cshift.second;
 #endif
         double xpos = xyoff.first - cshift.first + nc * delx;
         double ypos = xyoff.second + cshift.second + nr * dy;
@@ -807,8 +807,8 @@ struct HGCalMixRotatedFineCassette {
         double xorig = xyoff.first + nc * delx;
         double yorig = xyoff.second + nr * dy;
         double angle = std::atan2(yorig, xorig);
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::Wafer: layer " << layer + 1 << ":" << layer0 << " cassette "
-                                      << cassette << " Shift " << cms::convert2mm(cshift.first) << ":"
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette::Wafer: layer " << layer + 1 << ":" << layer0
+                                      << " cassette " << cassette << " Shift " << cms::convert2mm(cshift.first) << ":"
                                       << cms::convert2mm(cshift.second) << " Original " << cms::convert2mm(xorig) << ":"
                                       << cms::convert2mm(yorig) << ":" << convertRadToDeg(angle) << " Final "
                                       << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos);
