@@ -112,6 +112,13 @@
       "RPC"
     ]
   },
+  "AlCa_IsoTrackHBHE_v": {
+    "online?": true,
+    "owners": [
+      "AlCa",
+      "HCAL"
+    ]
+  },
   "AlCa_LumiPixelsCounts_RandomHighRate_v": {
     "online?": true,
     "owners": [
@@ -1254,6 +1261,20 @@
       "ECAL"
     ]
   },
+  "HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO"
+    ]
+  },
+  "HLT_Dielectron12_5_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO"
+    ]
+  },
   "HLT_Dimuon0_Jpsi3p5_Muon2_v": {
     "online?": true,
     "owners": [
@@ -1415,6 +1436,34 @@
     "online?": true,
     "owners": [
       "BPH"
+    ]
+  },
+  "HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO"
+    ]
+  },
+  "HLT_Diphoton15_10_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO"
+    ]
+  },
+  "HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO"
+    ]
+  },
+  "HLT_Diphoton15_12_EBEB_TightID_ECALTrackIsoDr0p2to0p4_v": {
+    "online?": true,
+    "owners": [
+      "EGM",
+      "EXO"
     ]
   },
   "HLT_Diphoton20_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v": {
@@ -7937,6 +7986,36 @@
     "online?": true,
     "owners": [
       "BPH"
+    ]
+  },
+  "HLT_TestData_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
+    ]
+  },
+  "HLT_TriggersForScoutingPFMonitor_PS1000_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting"
+    ]
+  },
+  "HLT_TriggersForScoutingPFMonitor_PS125_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting"
+    ]
+  },
+  "HLT_TriggersForScoutingPFMonitor_PS250_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting"
+    ]
+  },
+  "HLT_TriggersForScoutingPFMonitor_PS500_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting"
     ]
   },
   "HLT_Trimuon5_3p5_2_Upsilon_Muon_v": {
