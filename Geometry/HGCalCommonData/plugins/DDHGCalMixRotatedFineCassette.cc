@@ -127,7 +127,7 @@ private:
   std::vector<int> tileCoarseIndex_;       // Index of tile (layer/start|end coarse ring)
   std::vector<int> tileCoarsePhis_;        // Tile phi range for each index in coarse ring
   std::vector<int> tileCoarseLayerStart_;  // Start index of tiles in each coarse layer
-  std::vector<double> retract_;            // Radial retraction of he tiles
+  std::vector<double> retract_;            // Radial retraction of the tiles
   std::vector<double> cassetteShiftScnt_;  // Shifts of the cassetes for scintillators
   std::string nameSpace_;                  // Namespace of this and ALL sub-parts
   std::unordered_set<int> copies_;         // List of copy #'s
@@ -657,7 +657,7 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
             r1 += shiftCassetteIR_;
         }
 #ifdef EDM_ML_DEBUG
-        double phi = phi1 + 0.5 * phi2;
+        double phi = phi1 + 0.5 * dphi;
         edm::LogVerbatim("HGCalGeom") << "1Layer " << ly << ":" << ii << ":" << copy << ":" << layer0 << " phi " << phi
                                       << " shift " << retract_[layer0 - 1];
         int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
@@ -767,7 +767,7 @@ void DDHGCalMixRotatedFineCassette::positionMix(const DDLogicalPart& glog,
           r1 += shiftCassetteIR_;
       }
 #ifdef EDM_ML_DEBUG
-      double phi = phi1 + 0.5 * phi2;
+      double phi = phi1 + 0.5 * dphi;
       edm::LogVerbatim("HGCalGeom") << "2Layer " << ii << ":" << copy << ":" << layer << ":" << layer0 << " phi " << phi
                                     << " shift " << retract_[layer0 - 1];
       int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
