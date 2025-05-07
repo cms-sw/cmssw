@@ -61,6 +61,12 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
+  template <typename T>
+  bool getValidHandle(const edm::Event& iEvent,
+                      const edm::EDGetTokenT<T>& token,
+                      edm::Handle<T>& handle,
+                      const std::string& label);
+
   const std::string outputInternalPath_ = "HLT/ScoutingOffline/Miscellaneous";
 
   const edm::InputTag triggerResultsTag;
@@ -377,6 +383,18 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
 //
 // member functions
 //
+template <typename T>
+bool ScoutingCollectionMonitor::getValidHandle(const edm::Event& iEvent,
+                                               const edm::EDGetTokenT<T>& token,
+                                               edm::Handle<T>& handle,
+                                               const std::string& label) {
+  iEvent.getByToken(token, handle);
+  if (!handle.isValid()) {
+    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for " << label;
+    return false;
+  }
+  return true;
+}
 
 // ------------ method called for each event  ------------
 void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -385,80 +403,28 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   using namespace reco;
 
   // all the handles needed
-  Handle<double> rhoH;
-  iEvent.getByToken(rhoToken, rhoH);
-  if (!rhoH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for rho";
-    return;
-  }
+  edm::Handle<double> rhoH;
+  edm::Handle<double> pfMetPhiH;
+  edm::Handle<double> pfMetPtH;
+  edm::Handle<std::vector<Run3ScoutingParticle>> pfcandsH;
+  edm::Handle<std::vector<Run3ScoutingPhoton>> photonsH;
+  edm::Handle<std::vector<Run3ScoutingElectron>> electronsH;
+  edm::Handle<std::vector<Run3ScoutingMuon>> muonsH;
+  edm::Handle<std::vector<Run3ScoutingPFJet>> PFjetsH;
+  edm::Handle<std::vector<Run3ScoutingVertex>> verticesH;
+  edm::Handle<std::vector<Run3ScoutingVertex>> primaryVerticesH;
+  edm::Handle<std::vector<Run3ScoutingTrack>> tracksH;
 
-  Handle<double> pfMetPhiH;
-  iEvent.getByToken(pfMetPhiToken, pfMetPhiH);
-  if (!pfMetPhiH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for MET phi";
-    return;
-  }
-
-  Handle<double> pfMetPtH;
-  iEvent.getByToken(pfMetPtToken, pfMetPtH);
-  if (!pfMetPtH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for MET pT";
-    return;
-  }
-
-  Handle<vector<Run3ScoutingParticle>> pfcandsH;
-  iEvent.getByToken(pfcandsToken, pfcandsH);
-  if (!pfcandsH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for PF candidates";
-    return;
-  }
-
-  Handle<vector<Run3ScoutingPhoton>> photonsH;
-  iEvent.getByToken(photonsToken, photonsH);
-  if (!photonsH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for photons";
-    return;
-  }
-
-  Handle<vector<Run3ScoutingElectron>> electronsH;
-  iEvent.getByToken(electronsToken, electronsH);
-  if (!electronsH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for electrons";
-    return;
-  }
-
-  Handle<vector<Run3ScoutingMuon>> muonsH;
-  iEvent.getByToken(muonsToken, muonsH);
-  if (!muonsH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for muons";
-    return;
-  }
-
-  Handle<vector<Run3ScoutingPFJet>> PFjetsH;
-  iEvent.getByToken(pfjetsToken, PFjetsH);
-  if (!PFjetsH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for PF jets";
-    return;
-  }
-
-  Handle<vector<Run3ScoutingVertex>> primaryVerticesH;
-  iEvent.getByToken(primaryVerticesToken, primaryVerticesH);
-  if (!primaryVerticesH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for primary vertices";
-    return;
-  }
-
-  Handle<vector<Run3ScoutingVertex>> verticesH;
-  iEvent.getByToken(verticesToken, verticesH);
-  if (!verticesH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for displaced vertices";
-    return;
-  }
-
-  Handle<vector<Run3ScoutingTrack>> tracksH;
-  iEvent.getByToken(tracksToken, tracksH);
-  if (!tracksH.isValid()) {
-    edm::LogWarning("ScoutingAnalyzer") << "Invalid handle for tracks";
+  if (!getValidHandle(iEvent, rhoToken, rhoH, "rho") || !getValidHandle(iEvent, pfMetPhiToken, pfMetPhiH, "MET phi") ||
+      !getValidHandle(iEvent, pfMetPtToken, pfMetPtH, "MET pT") ||
+      !getValidHandle(iEvent, pfcandsToken, pfcandsH, "PF candidates") ||
+      !getValidHandle(iEvent, photonsToken, photonsH, "photons") ||
+      !getValidHandle(iEvent, electronsToken, electronsH, "electrons") ||
+      !getValidHandle(iEvent, muonsToken, muonsH, "muons") ||
+      !getValidHandle(iEvent, pfjetsToken, PFjetsH, "PF jets") ||
+      !getValidHandle(iEvent, verticesToken, verticesH, "vertices") ||
+      !getValidHandle(iEvent, primaryVerticesToken, primaryVerticesH, "primary vertices") ||
+      !getValidHandle(iEvent, tracksToken, tracksH, "tracks")) {
     return;
   }
 
