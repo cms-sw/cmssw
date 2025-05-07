@@ -630,6 +630,10 @@
   <class name="edm::Association<std::vector<pat::PackedGenParticle> >" />
   <class name="edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > >"/>
 
+  <class name="edm::RefProd<pat::CompositeCandidateCollection>" />
+  <class name="edm::Association<pat::CompositeCandidateCollection>" />
+  <class name="edm::Wrapper<edm::Association<pat::CompositeCandidateCollection> >"/>
+
   <!--- vectors of Ptrs -->
   <class name="std::vector<edm::Ptr<pat::Jet> >" />
   <class name="std::vector< std::vector<edm::Ptr<pat::Jet> > >" />
