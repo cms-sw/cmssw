@@ -8,6 +8,7 @@
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -33,6 +34,7 @@ public:
         pre_vtx_selection_{cfg.getParameter<std::string>("preVtxSelection")},
         post_vtx_selection_{cfg.getParameter<std::string>("postVtxSelection")},
         src_{consumes<LeptonCollection>(cfg.getParameter<edm::InputTag>("src"))},
+        beamspot_{consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpot"))},
         ttracks_src_{consumes<TransientTrackCollection>(cfg.getParameter<edm::InputTag>("transientTracksSrc"))} {
     produces<pat::CompositeCandidateCollection>("SelectedDiLeptons");
   }
@@ -47,6 +49,7 @@ private:
   const StringCutObjectSelector<pat::CompositeCandidate> pre_vtx_selection_;   // cut on the di-lepton before the SV fit
   const StringCutObjectSelector<pat::CompositeCandidate> post_vtx_selection_;  // cut on the di-lepton after the SV fit
   const edm::EDGetTokenT<LeptonCollection> src_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamspot_;
   const edm::EDGetTokenT<TransientTrackCollection> ttracks_src_;
 };
 
@@ -55,6 +58,9 @@ void DiLeptonBuilder<Lepton>::produce(edm::StreamID, edm::Event &evt, edm::Event
   // input
   edm::Handle<LeptonCollection> leptons;
   evt.getByToken(src_, leptons);
+
+  edm::Handle<reco::BeamSpot> beamspot;
+  evt.getByToken(beamspot_, beamspot);
 
   edm::Handle<TransientTrackCollection> ttracks;
   evt.getByToken(ttracks_src_, ttracks);
@@ -103,11 +109,16 @@ void DiLeptonBuilder<Lepton>::produce(edm::StreamID, edm::Event &evt, edm::Event
       lepton_pair.addUserFloat(
           "fitted_massErr",
           fitter.success() ? sqrt(fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6)) : -1);
+      auto fit_p4 = fitter.fitted_p4();
       lepton_pair.addUserFloat("vtx_x", lepton_pair.vx());
       lepton_pair.addUserFloat("vtx_y", lepton_pair.vy());
       lepton_pair.addUserFloat("vtx_z", lepton_pair.vz());
+      lepton_pair.addUserFloat("cos_theta_2D", bph::cos_theta_2D(fitter, *beamspot, lepton_pair.p4()));
+      lepton_pair.addUserFloat("fitted_cos_theta_2D", bph::cos_theta_2D(fitter, *beamspot, fit_p4));
 
-      // if needed, add here more stuff
+      auto lxy = bph::l_xy(fitter, *beamspot);
+      lepton_pair.addUserFloat("l_xy", lxy.value());
+      lepton_pair.addUserFloat("l_xy_unc", lxy.error());
 
       // cut on the SV info
       if (!post_vtx_selection_(lepton_pair))
