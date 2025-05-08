@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 hltInitialStepTrajectorySeedsLST = cms.EDProducer('LSTOutputConverter',
     lstOutput = cms.InputTag('hltLST'),
-    phase2OTHits = cms.InputTag('hltPhase2OTHitsInputLST'),
-    lstPixelSeeds = cms.InputTag('hltPixelSeedInputLST'),
+    lstInput = cms.InputTag('hltInputLST'),
+    lstPixelSeeds = cms.InputTag('hltInputLST'),
     includeT5s = cms.bool(True),
     includeNonpLSTSs = cms.bool(True),
     propagatorAlong = cms.ESInputTag('', 'PropagatorWithMaterial'),
