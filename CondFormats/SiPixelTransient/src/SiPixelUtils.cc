@@ -52,6 +52,7 @@ namespace siPixelUtils {
 
     //--- The `effective' charge width -- particle's path in first and last pixels only
     float w_eff = std::abs(w_pred) - w_inner;
+    float delta = w_eff - 0.5 * sum_of_edge * pitch;
 
     //--- If the observed charge width is inconsistent with the expectations
     //--- based on the track, do *not* use w_pred-w_innner.  Instead, replace
@@ -62,16 +63,15 @@ namespace siPixelUtils {
       w_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
 
       if (goodEdgeAlgo) {
-        float delta = w_eff - 0.5 * sum_of_edge * pitch;
         if (delta / pitch > delta_length_cut) {
-          // define the centers of the first last last pixel coordinates
-          float x1 = upper_edge_first_pix - 0.5 * pitchfraction_first * pitch;
-          float x2 = lower_edge_last_pix + 0.5 * pitchfraction_last * pitch;
           //  observed cluster is much shorter than expected, use one-sided reco
           if (w_pred > 0.f) {
+            // x1,x2 are centers of the first last last pixel coordinates
+            float x1 = upper_edge_first_pix - 0.5 * pitchfraction_first * pitch;
             float hit_pos = x1 + 0.5 * w_pred;
             return hit_pos;
           } else {
+            float x2 = lower_edge_last_pix + 0.5 * pitchfraction_last * pitch;
             float hit_pos = x2 + 0.5 * w_pred;
             return hit_pos;
           }
