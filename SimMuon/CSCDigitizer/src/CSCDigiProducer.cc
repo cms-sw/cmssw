@@ -48,8 +48,9 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet &ps) : theDigitizer(ps)
   }
 
   const std::string &mix = ps.getParameter<std::string>("mixLabel");
-  for (const auto &cname :
-       {ps.getParameter<std::string>("InputCollection"), ps.getParameter<std::string>("InputCollectionPU")}) {
+  const std::set<std::string> collections_for_XF{ps.getParameter<std::string>("InputCollection"),
+                                                 ps.getParameter<std::string>("InputCollectionPU")};
+  for (const auto &cname : collections_for_XF) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CSCDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
 #endif
@@ -73,7 +74,6 @@ void CSCDigiProducer::produce(edm::Event &ev, const edm::EventSetup &eventSetup)
     } else
       edm::LogWarning("CSCDigitizer") << "Input Source not Valid !!";
   }
-
   auto hits = std::make_unique<MixCollection<PSimHit>>(cf_list);
 
   // Create empty output

@@ -117,8 +117,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
     mcParamsToken_ = iC.esConsumes();
   }
 
+  const std::set<std::string> producers = {hitsProducer_, hitsProducerPU_};
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> zdc_list, hcal_list;
-  for (const auto &prod : {hitsProducer_, hitsProducerPU_}) {
+  for (const auto &prod : producers) {
     zdc_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "ZDCHITS")));
     hcal_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "HcalHits")));
   }
