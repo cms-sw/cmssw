@@ -21,9 +21,9 @@ genParticleBPHTable = simpleGenParticleFlatTableProducer.clone(
   doc = cms.string("interesting gen particles for BPH"),  
   variables = cms.PSet(
       genParticleTable.variables,
-      vx = Var("vx", float, doc="x coordinate of the production vertex position, in cm"),
-      vy = Var("vy", float, doc="y coordinate of the production vertex position, in cm"),
-      vz = Var("vz", float, doc="z coordinate of the production vertex position, in cm"),
+      vx = Var("vx", float, doc="x coordinate of the production vertex position, in cm", precision=10),
+      vy = Var("vy", float, doc="y coordinate of the production vertex position, in cm", precision=10),
+      vz = Var("vz", float, doc="z coordinate of the production vertex position, in cm", precision=10),
   )
 )
 
