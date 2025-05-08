@@ -89,7 +89,7 @@
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
 #include "HepPDT/ParticleID.hh"
 
-#include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
+#include "DataFormats/TrackReco/interface/trackFromSeedFitFailed.h"
 
 #include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
 

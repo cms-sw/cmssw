@@ -1,5 +1,5 @@
-#ifndef Validation_RecoTrack_trackFomSeedFitFailed_h
-#define Validation_RecoTrack_trackFomSeedFitFailed_h
+#ifndef DataFormats_TrackReco_trackFomSeedFitFailed_h
+#define DataFormats_TrackReco_trackFomSeedFitFailed_h
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
