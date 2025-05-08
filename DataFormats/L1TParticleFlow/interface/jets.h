@@ -5,7 +5,6 @@
 #include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
 #include "DataFormats/L1TParticleFlow/interface/bit_encoding.h"
 #include <array>
-#include <algorithm>
 #include <cstdint>
 #include <vector>
 #include <unordered_map>
@@ -33,15 +32,6 @@ namespace l1ct {
   private:
     JetTagClassValue value_;
     static const std::unordered_map<std::string, JetTagClassValue> labels_;
-
-    friend std::ostream &operator<<(std::ostream &ost, const l1ct::JetTagClass &jtc) {
-      auto it = std::find_if(
-          std::begin(jtc.labels_), std::end(jtc.labels_), [&jtc](auto &&p) { return p.second == jtc.value_; });
-      if (it != std::end(jtc.labels_)) {
-        ost << it->first;
-      }
-      return ost;
-    }
 
   };  // JetTagClass
 
