@@ -348,16 +348,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator(const edm::ParameterSet &conf
   std::vector<std::string> parameterNames = simHitCollectionConfig.getParameterNames();
 
   for (const auto &parameterName : parameterNames) {
-#ifdef EDM_ML_DEBUG
-    std::cout << " Detector Type " << parameterName.c_str() << std::endl;
-#endif
-
     std::vector<edm::InputTag> tags = simHitCollectionConfig.getParameter<std::vector<edm::InputTag>>(parameterName);
-#ifdef EDM_ML_DEBUG
-    for (const auto &tagName : tags)
-      std::cout << "    " << tagName << std::endl;
-#endif
-
     collectionTags_.insert(collectionTags_.end(), tags.begin(), tags.end());
   }
 
@@ -407,8 +398,8 @@ void TrackingTruthAccumulator::accumulate(edm::Event const &event, edm::EventSet
   simVertexLabel_ = simVertexLabelSig_;
 
 #ifdef EDM_ML_DEBUG
-  std::cout << " TrackingTruthAccumulator::accumulate for Signal "
-            << " SimVertex " << simVertexLabel_ << " SimTrack " << simTrackLabel_ << std::endl;
+  edm::LogVerbatim("TrackingTruthAccumulator") << "accumulate for Signal "
+                                               << " SimVertex " << simVertexLabel_ << " SimTrack " << simTrackLabel_;
 #endif
   accumulateEvent(event, setup, hepmc);
 }
@@ -429,8 +420,8 @@ void TrackingTruthAccumulator::accumulate(PileUpEventPrincipal const &event,
     simVertexLabel_ = simVertexLabelPU_;
 
 #ifdef EDM_ML_DEBUG
-    std::cout << " TrackingTruthAccumulator::accumulate for PU "
-              << " SimVertex " << simVertexLabel_ << " SimTrack " << simTrackLabel_ << std::endl;
+    edm::LogVerbatim("TrackingTruthAccumulator") << "accumulate for PU "
+                                                 << " SimVertex " << simVertexLabel_ << " SimTrack " << simTrackLabel_;
 #endif
 
     accumulateEvent(event, setup, hepmc);
@@ -607,8 +598,8 @@ void TrackingTruthAccumulator::fillSimHits(std::vector<const PSimHit *> &returnV
       continue;
       // TODO - implement removing the dead modules
 #ifdef EDM_ML_DEBUG
-    std::cout << " TrackingTruthAccumulator::fillSimHits " << collectionTag << " SimHit Size " << hSimHits->size()
-              << std::endl;
+    edm::LogVerbatim("TrackingTruthAccumulator")
+        << "fillSimHits " << collectionTag << " SimHit Size " << hSimHits->size();
 #endif
     for (const auto &simHit : *hSimHits) {
       returnValue.push_back(&simHit);
@@ -1063,10 +1054,6 @@ namespace  // Unnamed namespace for things only used in this file
               "parent.");
       }
     }  // end of loop over decay vertices
-
-#ifdef EDM_ML_DEBUG
-    std::cout << "TrackingTruthAccumulator.cc integrityCheck() completed successfully" << std::endl;
-#endif
   }  // end of ::DecayChain::integrityCheck()
 #endif
 

@@ -185,8 +185,9 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
   // mixMod.produces<EBDigiCollection>(m_EBdigiCollection);
   // mixMod.produces<EEDigiCollection>(m_EEdigiCollection);
   // mixMod.produces<ESDigiCollection>(m_ESdigiCollection);
+  const std::set<std::string> producers = {m_hitsProducerTag, m_hitsProducerTagPU};
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> eb_list, ee_list, es_list;
-  for (const auto &prod : {m_hitsProducerTag, m_hitsProducerTagPU}) {
+  for (const auto &prod : producers) {
     if (m_doEB)
       eb_list.push_back(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(prod, "EcalHitsEB")));
     if (m_doEE)
