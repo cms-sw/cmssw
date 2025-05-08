@@ -20,42 +20,4 @@ CountDiTrack = cms.EDFilter("PATCandViewCountFilter",
     src       = cms.InputTag("DiTrack")
 )  
 
-DiTrackTable = cms.EDProducer("SimpleCompositeCandidateFlatTableProducer",
-    src  = cms.InputTag("DiTrack"),
-    cut  = cms.string(""), #we should not filter on cross linked collections
-    name = cms.string("DiTrack"),
-    doc  = cms.string("slimmedDiTrack for BPark after basic selection"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the muons
-    variables = cms.PSet(
-        CandVars,
-        fit_mass_KK = Var("userFloat('fitted_mass_KK')", float, doc=""),
-        fit_mass_Kpi = Var("userFloat('fitted_mass_Kpi')", float, doc=""),
-        fit_mass_piK = Var("userFloat('fitted_mass_piK')", float, doc=""),        
-        fit_pt   = Var("userFloat('fitted_pt')", float, doc=""),
-        fit_eta  = Var("userFloat('fitted_eta')", float, doc=""),
-        fit_phi  = Var("userFloat('fitted_phi')", float, doc=""),
-        svprob      = Var("userFloat('sv_prob')", float, doc=""),
-        trk1_idx    = Var("userInt('trk1_idx')", int, doc=""),
-        trk2_idx    = Var("userInt('trk2_idx')", int, doc=""),
-        vtx_x       = Var("userFloat('vtx_x')", float, doc=""),
-        vtx_y       = Var("userFloat('vtx_y')", float, doc=""),
-        vtx_z       = Var("userFloat('vtx_z')", float, doc=""),     
-        l_xy        = Var("userFloat('l_xy')", float, doc=""),
-        l_xy_unc        = Var("userFloat('l_xy_unc')", float, doc=""),
-        cos_theta_2D    = Var("userFloat('fitted_cos_theta_2D')", float, doc=""),
-        sv_prob         = Var("userFloat('sv_prob')", float, doc=""),
-        sv_ndof         = Var("userFloat('sv_ndof')", float, doc=""),
-        sv_chi2         = Var("userFloat('sv_chi2')", float, doc=""),
-        vtx_cxx = Var("userFloat('vtx_cxx')", float, doc=""),
-        vtx_cyy = Var("userFloat('vtx_cyy')", float, doc=""),
-        vtx_czz = Var("userFloat('vtx_czz')", float, doc=""),
-        vtx_cyx = Var("userFloat('vtx_cyx')", float, doc=""),
-        vtx_czx = Var("userFloat('vtx_czx')", float, doc=""),
-        vtx_czy = Var("userFloat('vtx_czy')", float, doc="")
-
-    )
-)
-
 DiTrackSequence = cms.Sequence(DiTrack)
-DiTrackTables   = cms.Sequence(DiTrackTable)
