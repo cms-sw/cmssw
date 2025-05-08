@@ -124,14 +124,14 @@ namespace pixelCPEforDevice {
     cotbeta = gvy * gvz;
   }
 
-  constexpr inline float check_for_short(uint16_t upper_edge_first_pix,  //!< As the name says.
-                                         uint16_t lower_edge_last_pix,   //!< As the name says.
-                                         float lorentz_shift,            //!< L-shift at half thickness
-                                         float theThickness,             //detector thickness
-                                         float cot_angle,                //!< cot of alpha_ or beta_
-                                         float pitch,                    //!< thePitchX or thePitchY
-                                         bool first_is_big,              //!< true if the first is big
-                                         bool last_is_big)               //!< true if the last is big
+  constexpr inline float updatePositionForShortCluster(uint16_t upper_edge_first_pix,  //!< As the name says.
+                                                       uint16_t lower_edge_last_pix,   //!< As the name says.
+                                                       float lorentz_shift,            //!< L-shift at half thickness
+                                                       float theThickness,             //detector thickness
+                                                       float cot_angle,                //!< cot of alpha_ or beta_
+                                                       float pitch,                    //!< thePitchX or thePitchY
+                                                       bool first_is_big,              //!< true if the first is big
+                                                       bool last_is_big)               //!< true if the last is big
   {
     //checks if the observed cluster is much shorter than expected
     //if yes, returns the position predicted using a one-sided reconstruction
@@ -151,23 +151,23 @@ namespace pixelCPEforDevice {
       pitchfraction_last += 1.0f;
 
     float sum_of_edge = pitchfraction_first + pitchfraction_last;
-    float delta = w_eff - 0.5 * sum_of_edge * pitch;
+    float delta = w_eff - 0.5f * sum_of_edge * pitch;
 
     if (delta / pitch > delta_length_cut) {
       // define the centers of the first and last pixel coordinates
-      float x1 = pitch * (upper_edge_first_pix - 0.5 * pitchfraction_first);
-      float x2 = pitch * (lower_edge_last_pix + 0.5 * pitchfraction_last);
       //  observed cluster is much shorter than expected, use one-sided reco
       if (w_pred > 0.f) {
-        float hit_pos = x1 + 0.5 * w_pred;
+        float x1 = pitch * (upper_edge_first_pix - 0.5f * pitchfraction_first);
+        float hit_pos = x1 + 0.5f * w_pred;
         return hit_pos;
       } else {
-        float hit_pos = x2 + 0.5 * w_pred;
+        float x2 = pitch * (lower_edge_last_pix + 0.5f * pitchfraction_last);
+        float hit_pos = x2 + 0.5f * w_pred;
         return hit_pos;
       }
     }  //if(delta/pitch > delta_length_cut)
     else {
-      return -999.;
+      return -999.f;
     }
   }
 
@@ -300,29 +300,29 @@ namespace pixelCPEforDevice {
 
     auto thickness = detParams.isBarrel ? comParams.theThicknessB : comParams.theThicknessE;
     if (comParams.goodEdgeAlgo_) {
-      float xPos_alt = check_for_short(llxl,
-                                       urxl,
-                                       detParams.chargeWidthX,
-                                       thickness,
-                                       cotalpha,
-                                       detParams.thePitchX,
-                                       TrackerTraits::isBigPixX(cp.minRow[ic]),
-                                       TrackerTraits::isBigPixX(cp.maxRow[ic]));
-
-      float yPos_alt = check_for_short(llyl,
-                                       uryl,
-                                       detParams.chargeWidthY,
-                                       thickness,
-                                       cotbeta,
-                                       detParams.thePitchY,
-                                       TrackerTraits::isBigPixY(cp.minCol[ic]),
-                                       TrackerTraits::isBigPixY(cp.maxCol[ic]));
-
-      if (xPos_alt != -999.) {
-        //  observed cluster is much shorter than expected, use one-sided reco
-        xPos = xPos_alt;
-      }
-      if (yPos_alt != -999.) {
+      //Even unbroken clusters are short in x, so they will not be "shorter than expected"
+      //We save time by not checking this
+      // float xPos_alt = updatePositionForShortCluster(llxl,
+      //                                  urxl,
+      //                                  detParams.chargeWidthX,
+      //                                  thickness,
+      //                                  cotalpha,
+      //                                  detParams.thePitchX,
+      //                                  TrackerTraits::isBigPixX(cp.minRow[ic]),
+      //                                  TrackerTraits::isBigPixX(cp.maxRow[ic]));
+      // if (xPos_alt != -999.f) {
+      //   //  observed cluster is much shorter than expected, use one-sided reco
+      //   xPos = xPos_alt;
+      // }
+      float yPos_alt = updatePositionForShortCluster(llyl,
+                                                     uryl,
+                                                     detParams.chargeWidthY,
+                                                     thickness,
+                                                     cotbeta,
+                                                     detParams.thePitchY,
+                                                     TrackerTraits::isBigPixY(cp.minCol[ic]),
+                                                     TrackerTraits::isBigPixY(cp.maxCol[ic]));
+      if (yPos_alt != -999.f) {
         //  observed cluster is much shorter than expected, use one-sided reco
         yPos = yPos_alt;
       }
