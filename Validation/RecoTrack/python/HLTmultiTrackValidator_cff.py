@@ -47,3 +47,16 @@ def _modifyForPhase2LSTTracking(trackvalidator):
 def _modifyForPhase2LSTSeeding(trackvalidator):
     trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST"]
 (seedingLST & trackingLST).toModify(hltTrackValidator, _modifyForPhase2LSTSeeding)
+
+from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
+def _modifyForSingleIterPatatrack(trackvalidator):
+    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPurity"]
+(singleIterPatatrack & ~trackingLST & ~seedingLST).toModify(hltTrackValidator, _modifyForSingleIterPatatrack)
+
+def _modifyForSingleIterPatatrackLST(trackvalidator):
+    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST"]
+(singleIterPatatrack & ~seedingLST & trackingLST).toModify(hltTrackValidator, _modifyForSingleIterPatatrackLST)
+
+def _modifyForSingleIterPatatrackLSTSeeding(trackvalidator):
+    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTracksT5TCLST"]
+(singleIterPatatrack & seedingLST & trackingLST).toModify(hltTrackValidator, _modifyForSingleIterPatatrackLSTSeeding)
