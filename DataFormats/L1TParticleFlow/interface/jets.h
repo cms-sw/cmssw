@@ -58,9 +58,11 @@ namespace l1ct {
 
     static const unsigned NTagFields = 8;
     jet_tag_score_t hwTagScores[NTagFields];
+    mass2_t hwMassSq;
 
     inline bool operator==(const Jet &other) const {
-      bool eq = hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwZ0 == other.hwZ0;
+      bool eq = hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwMassSq == other.hwMassSq &&
+                hwZ0 == other.hwZ0;
       for (unsigned i = 0; i < NTagFields; i++) {
         eq = eq && hwTagScores[i] == other.hwTagScores[i];
       }
@@ -74,6 +76,7 @@ namespace l1ct {
       hwPt = 0;
       hwEta = 0;
       hwPhi = 0;
+      hwMassSq = 0;
       hwZ0 = 0;
       for (unsigned i = 0; i < NTagFields; i++) {
         hwTagScores[i] = 0;
@@ -87,6 +90,7 @@ namespace l1ct {
     float floatEta() const { return Scales::floatEta(hwEta); }
     float floatPhi() const { return Scales::floatPhi(hwPhi); }
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
+    float floatMass() const { return Scales::floatMass(hwMassSq); }
     std::vector<float> floatIDScores() const {
       std::vector<float> scores(NTagFields);
       for (unsigned i = 0; i < NTagFields; i++) {
@@ -96,13 +100,15 @@ namespace l1ct {
     }
 
     static const int BITWIDTH =
-        pt_t::width + glbeta_t::width + glbphi_t::width + z0_t::width + NTagFields * id_score_t::width;
+        pt_t::width + glbeta_t::width + glbphi_t::width + mass2_t::width + z0_t::width + NTagFields * id_score_t::width;
+
     inline ap_uint<BITWIDTH> pack_ap() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
       pack_into_bits(ret, start, hwPt);
       pack_into_bits(ret, start, hwEta);
       pack_into_bits(ret, start, hwPhi);
+      pack_into_bits(ret, start, hwMassSq);
       pack_into_bits(ret, start, hwZ0);
       for (unsigned i = 0; i < NTagFields; i++) {
         pack_into_bits(ret, start, hwTagScores[i]);
@@ -130,6 +136,7 @@ namespace l1ct {
       unpack_from_bits(src, start, hwEta);
       unpack_from_bits(src, start, hwPhi);
       unpack_from_bits(src, start, hwZ0);
+      unpack_from_bits(src, start, hwMassSq);
       for (unsigned i = 0; i < NTagFields; i++) {
         unpack_from_bits(src, start, hwTagScores[i]);
       }
@@ -149,6 +156,14 @@ namespace l1ct {
       return unpack_ap(bits);
     }
 
+    inline static Jet unpack(const std::array<long long unsigned int, 2> &src) {
+      // unpack from two 64b ints
+      ap_uint<BITWIDTH> bits;
+      bits(63, 0) = src[0];
+      // bits(127, 64) = src[1];
+      return unpack_ap(bits);
+    }
+
     l1gt::Jet toGT() const {
       l1gt::Jet j;
       j.valid = hwPt != 0;
@@ -159,6 +174,19 @@ namespace l1ct {
       for (unsigned i = 0; i < NTagFields; i++) {
         j.hwTagScores[i] = hwTagScores[i];
       }
+      return j;
+    }
+
+    l1gt::WideJet toGTWide() const {
+      l1gt::WideJet j;
+      j.valid = hwPt != 0;
+      j.v3.pt = CTtoGT_pt(hwPt);
+      j.v3.phi = CTtoGT_phi(hwPhi);
+      j.v3.eta = CTtoGT_eta(hwEta);
+      j.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
+      j.hwNProngScore = 0;
+      j.hwMassSq = CTtoGT_massSq(hwMassSq);
+
       return j;
     }
   };
