@@ -98,8 +98,8 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf,
   producesCollector.produces<std::vector<std::pair<int, std::bitset<6>>>>("AffectedAPVList")
       .setBranchAlias(alias + "AffectedAPV");
 
-  std::map<std::string, std::vector<std::string>> pmap = {{hitsProducer, trackerContainers},
-                                                          {hitsProducerPU, trackerContainersPU}};
+  const std::map<std::string, std::vector<std::string>> pmap = {{hitsProducer, trackerContainers},
+                                                                {hitsProducerPU, trackerContainersPU}};
   for (auto const& ip : pmap) {
     for (auto const& ic : ip.second) {
       iC.consumes<std::vector<PSimHit>>(edm::InputTag(ip.first, ic));
@@ -169,8 +169,8 @@ void SiStripDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup cons
     if (!simHits.isValid())
       continue;
 #ifdef EDM_ML_DEBUG
-    std::cout << " SiStripDigitizer::accumulate "
-              << " Accumulating SimHits for Signals with InputTag " << tag << std::endl;
+    edm::LogVerbatim("SiStripDigitizer") << "accumulate "
+                                         << " Accumulating SimHits for Signals with InputTag " << tag;
 #endif
     accumulateStripHits(simHits, tTopo, crossingSimHitIndexOffset_[tag.encode()], tofBin);
     // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
@@ -202,8 +202,8 @@ void SiStripDigitizer::accumulate(PileUpEventPrincipal const& iEvent,
     if (!simHits.isValid())
       continue;
 #ifdef EDM_ML_DEBUG
-    std::cout << " SiStripDigitizer::accumulate "
-              << " Accumulating SimHits for PUs with InputTag " << tag << std::endl;
+    edm::LogVerbatim("SiStripDigitizer") << "accumulate "
+                                         << " Accumulating SimHits for PUs with InputTag " << tag;
 #endif
 
     accumulateStripHits(simHits, tTopo, crossingSimHitIndexOffset_[tag.encode()], tofBin);
@@ -349,9 +349,6 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     }
   }
   if (zeroSuppression) {
-#ifdef EDM_ML_DEBUG
-    std::cout << " SiStripDigitizer::finalize  Size of Digis " << totalDigis << std::endl;
-#endif
     // Step C: create output collection
     std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> output_virginraw =
         std::make_unique<edm::DetSetVector<SiStripRawDigi>>();

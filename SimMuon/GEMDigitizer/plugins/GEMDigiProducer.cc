@@ -70,8 +70,9 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps) : gemDigiModule_(s
   }
 
   const std::string& mix = ps.getParameter<std::string>("mixLabel");
-  for (const auto& cname :
-       {ps.getParameter<std::string>("inputCollection"), ps.getParameter<std::string>("inputCollectionPU")}) {
+  const std::set<std::string> collections_for_XF{ps.getParameter<std::string>("inputCollection"),
+                                                 ps.getParameter<std::string>("inputCollectionPU")};
+  for (const auto& cname : collections_for_XF) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("GEMDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
 #endif

@@ -120,9 +120,8 @@ namespace cms {
       producesCollector.produces<edm::DetSetVector<PixelSimHitExtraInfoLite>>().setBranchAlias(
           alias + "siPixelExtraSimHitLite");
 
-    std::map<std::string, std::vector<std::string>> pmap = {{hitsProducer, trackerContainers},
-                                                            {hitsProducerPU, trackerContainersPU}};
-
+    const std::map<std::string, std::vector<std::string>> pmap = {{hitsProducer, trackerContainers},
+                                                                  {hitsProducerPU, trackerContainersPU}};
     for (auto const& ip : pmap) {
       for (auto const& ic : ip.second) {
         iC.consumes<std::vector<PSimHit>>(edm::InputTag(ip.first, ic));
@@ -230,8 +229,8 @@ namespace cms {
       if (!simHits.isValid())
         continue;
 #ifdef EDM_ML_DEBUG
-      std::cout << " SiPixelDigitizer::accumulate "
-                << " Accumulating SimHits for Signals with InputTag " << tag << std::endl;
+      edm::LogVerbatim("SiPixelDigitizer") << "accumulate "
+                                           << " Accumulating SimHits for Signals with InputTag " << tag;
 #endif
       unsigned int tofBin = PixelDigiSimLink::LowTof;
       if ((*i).find(std::string("HighTof")) != std::string::npos)
@@ -241,7 +240,6 @@ namespace cms {
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
       // Note that this is only used for creating digi-sim links (if configured to do so).
-      //       std::cout << "index offset, current hit count = " << crossingSimHitIndexOffset_[tag.encode()] << ", " << simHits->size() << std::endl;
       if (simHits.isValid())
         crossingSimHitIndexOffset_[tag.encode()] += simHits->size();
     }
@@ -260,8 +258,9 @@ namespace cms {
       if (!simHits.isValid())
         continue;
 #ifdef EDM_ML_DEBUG
-      std::cout << " SiPixelDigitizer::accumulate "
-                << " Accumulating SimHits for PUs with InputTag " << tag << std::endl;
+    edm:;
+      LogVerbatim("SiPixelDigitizer") << "accumulate "
+                                      << " Accumulating SimHits for PUs with InputTag " << tag;
 #endif
 
       unsigned int tofBin = PixelDigiSimLink::LowTof;
@@ -272,7 +271,6 @@ namespace cms {
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
       // Note that this is only used for creating digi-sim links (if configured to do so).
-      //       std::cout << "index offset, current hit count = " << crossingSimHitIndexOffset_[tag.encode()] << ", " << simHits->size() << std::endl;
       if (simHits.isValid())
         crossingSimHitIndexOffset_[tag.encode()] += simHits->size();
     }
@@ -424,9 +422,7 @@ namespace cms {
         std::make_unique<edm::DetSetVector<PixelSimHitExtraInfo>>(theExtraSimHitInfoVector);
     std::unique_ptr<edm::DetSetVector<PixelSimHitExtraInfoLite>> outputExtraSimLite =
         std::make_unique<edm::DetSetVector<PixelSimHitExtraInfoLite>>(theExtraSimHitInfoLiteVector);
-#ifdef EDM_ML_DEBUG
-    std::cout << " SiPixelDigitizer::finalize  Size of Digis " << totalDigis << std::endl;
-#endif
+
     // Step D: write output to file
     iEvent.put(std::move(output));
     iEvent.put(std::move(outputlink));

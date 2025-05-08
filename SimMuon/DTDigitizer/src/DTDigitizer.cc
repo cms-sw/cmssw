@@ -116,8 +116,9 @@ DTDigitizer::DTDigitizer(const ParameterSet &conf_)
 
   // Name of Collection used for create the XF
   const std::string &mix = conf_.getParameter<std::string>("mixLabel");
-  for (const auto &cname :
-       {conf_.getParameter<std::string>("InputCollection"), conf_.getParameter<std::string>("InputCollectionPU")}) {
+  const std::set<std::string> collections_for_XF{conf_.getParameter<std::string>("InputCollection"),
+                                                 conf_.getParameter<std::string>("InputCollectionPU")};
+  for (const auto &cname : collections_for_XF) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DTDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
 #endif
