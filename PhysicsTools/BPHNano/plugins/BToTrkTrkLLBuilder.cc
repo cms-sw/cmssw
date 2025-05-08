@@ -361,9 +361,8 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
 
   }  // for(size_t k_idx = 0; k_idx < ditracks->size(); ++k_idx)
 
-  evt.put(std::move(ret_val),"SelectedBToTrkTrkMuMu");
-  evt.put(std::move(ditrack_out),"SelectedTrkTrk");
-
+  evt.put(std::move(ret_val), "SelectedBToTrkTrkMuMu");
+  evt.put(std::move(ditrack_out), "SelectedTrkTrk");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
