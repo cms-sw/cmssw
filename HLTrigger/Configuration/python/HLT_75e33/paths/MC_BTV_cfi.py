@@ -14,8 +14,8 @@ from ..sequences.HLTRawToDigiSequence_cfi import *
 MC_BTV = cms.Path(
     HLTBeginSequence
     + HLTRawToDigiSequence
-    + HLTTICLLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

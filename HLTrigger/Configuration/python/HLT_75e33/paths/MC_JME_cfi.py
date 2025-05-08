@@ -15,8 +15,8 @@ from ..sequences.HLTRawToDigiSequence_cfi import *
 MC_JME = cms.Path(
     HLTBeginSequence
     + HLTRawToDigiSequence
-    + HLTTICLLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

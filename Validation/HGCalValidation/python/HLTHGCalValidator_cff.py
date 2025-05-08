@@ -22,7 +22,7 @@ hltHgcalValidator = _hgcalValidator.clone(
     hitMap = cms.InputTag("hltRecHitMapProducer","hgcalRecHitMap"),
     simTrackstersMap = cms.InputTag("hltTiclSimTracksters"),
     label_layerClusterPlots = cms.InputTag("hltHgcalMergeLayerClusters"),
-    label_lcl = cms.InputTag("hltHgcalMergeLayerClusters"),
+    label_lcl = cms.InputTag("hltMergeLayerClusters"),
     label_simTS = cms.InputTag("hltTiclSimTracksters"),
     label_simTSFromCP = cms.InputTag("hltTiclSimTracksters","fromCPs"),
     recoTracks = cms.InputTag("hltGeneralTracks"),
@@ -46,3 +46,4 @@ ticl_v5.toModify(hltHgcalValidator,
                  mergeSimToRecoAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs:hltTiclSimTrackstersfromCPsTohltTiclCandidate"),
                  mergeRecoToSimAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs:hltTiclCandidateTohltTiclSimTrackstersfromCPs"),
                  )
+
