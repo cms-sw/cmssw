@@ -31,5 +31,5 @@
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
-  <flags CXXFLAGS="-Wnodangling-reference"/>
+  <flags CXXFLAGS="-Wno-dangling-reference"/>
 </library>
