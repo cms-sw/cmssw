@@ -36,6 +36,7 @@ private:
   void make_inputs(unsigned i_jet, const reco::DeepFlavourTagInfo& taginfo);
 
   const edm::EDGetTokenT<TagInfoCollection> src_;
+  edm::EDGetTokenT<edm::View<reco::Jet>> jet_;
   std::vector<std::string> flav_names_;
   std::vector<std::string> input_names_;
   std::vector<std::string> output_names_;
@@ -53,6 +54,8 @@ private:
 
   // hold the input data
   FloatArrays data_;
+
+  edm::Handle<edm::View<reco::Jet>> jets;
 };
 
 const std::vector<unsigned> DeepFlavourONNXJetTagsProducer::input_sizes_{
@@ -61,12 +64,15 @@ const std::vector<unsigned> DeepFlavourONNXJetTagsProducer::input_sizes_{
 DeepFlavourONNXJetTagsProducer::DeepFlavourONNXJetTagsProducer(const edm::ParameterSet& iConfig,
                                                                const ONNXRuntime* cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+      jet_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
       output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")) {
+
   // get output names from flav_names
   for (const auto& flav_name : flav_names_) {
-    produces<JetTagCollection>(flav_name);
+      produces<JetTagCollection>(flav_name);
+      produces<edm::ValueMap<float>>(flav_name);
   }
 
   assert(input_names_.size() == input_sizes_.size());
@@ -85,6 +91,7 @@ void DeepFlavourONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<std::vector<std::string>>("output_names", {"ID_pred/Softmax:0"});
   desc.add<std::vector<std::string>>(
       "flav_names", std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probuds", "probg"});
+  desc.add<edm::InputTag>("jets", edm::InputTag("hltAK4PFPuppiJets"));
 
   descriptions.add("pfDeepFlavourJetTags", desc);
 }
@@ -98,8 +105,14 @@ void DeepFlavourONNXJetTagsProducer::globalEndJob(const ONNXRuntime* cache) {}
 void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
+  iEvent.getByToken(jet_, jets);
+  if (!jets.isValid()) {
+    edm::LogWarning("DeepFlavourONNXJetTagsProducer") << "Invalid handle in jet input collection";
+    return;
+  }
 
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
+  std::vector<std::vector<float>> output_scores(flav_names_.size(), std::vector<float>(tag_infos->size(), -1.0));
   if (!tag_infos->empty()) {
     // initialize output collection
     auto jet_ref = tag_infos->begin()->jet();
@@ -130,6 +143,7 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
       const auto& jet_ref = tag_infos->at(jet_n).jet();
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
         (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
+        output_scores[flav_n][jet_n] = outputs[flav_n];
         ++i_output;
       }
     }
@@ -137,12 +151,20 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
     // create empty output collection
     for (std::size_t i = 0; i < flav_names_.size(); i++) {
       output_tags.emplace_back(std::make_unique<JetTagCollection>());
+    
     }
   }
 
   // put into the event
   for (std::size_t flav_n = 0; flav_n < flav_names_.size(); ++flav_n) {
     iEvent.put(std::move(output_tags[flav_n]), flav_names_[flav_n]);
+    for (size_t k = 0; k < output_scores.size(); k++) {
+      std::unique_ptr<edm::ValueMap<float>> VM(new edm::ValueMap<float>());
+      edm::ValueMap<float>::Filler filler(*VM);
+      filler.insert(jets, output_scores.at(k).begin(), output_scores.at(k).end());
+      filler.fill();
+      iEvent.put(std::move(VM), flav_names_[k]);
+    }
   }
   data_.clear();
 }

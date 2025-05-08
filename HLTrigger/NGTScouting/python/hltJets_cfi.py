@@ -33,15 +33,14 @@ hltJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
       doc = cms.string("HLT PUPPI jets information"),
       singleton = cms.bool(False),
       extension = cms.bool(False), # this is the main table
-      # externalVariables = cms.PSet(
-      #     DeepFlavour_prob_b = ExtVar(cms.InputTag("hltPfDeepFlavourJetTags:probb"), float, doc="DeepFlavour probability of b", precision=10),
-      #     DeepFalvour_prob_bb = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:probbb'), float, doc="ParticleNet probability of bb", precision=10),
-      #     DeepFalvour_prob_c = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:probc'), float, doc="ParticleNet probability of c", precision=10),
-      #     DeepFalvour_prob_cc = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:probcc'), float, doc="ParticleNet probability of cc", precision=10),
-      #     DeepFalvour_prob_uds = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:probuds'), float, doc="particlenet probability of uds", precision=10),
-      #     DeepFalvour_prob_g = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:probg'), float, doc="ParticleNet probability of g", precision=10),
-      #     DeepFalvour_prob_undef = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:probundef'), float, doc="ParticleNet probability of undef", precision=10),
-      # ),
+      externalVariables = cms.PSet(
+        DeepFlavour_prob_b = ExtVar(cms.InputTag("hltPfDeepFlavourJetTags:probb"), float, doc="DeepFlavour probability of b", precision=10),
+        DeepFalvour_prob_bb = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:probbb'), float, doc="ParticleNet probability of bb", precision=10),
+        DeepFalvour_prob_c = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:probc'), float, doc="ParticleNet probability of c", precision=10),
+        DeepFalvour_prob_uds = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:probuds'), float, doc="particlenet probability of uds", precision=10),
+        DeepFalvour_prob_g = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:probg'), float, doc="ParticleNet probability of g", precision=10),
+        DeepFalvour_prob_lepb = ExtVar(cms.InputTag('hltPfDeepFlavourJetTags:problepb'), float, doc="ParticleNet probability of lepb", precision=10),
+      ),
       variables = cms.PSet(
         P4Vars,
         # area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
