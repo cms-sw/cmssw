@@ -68,8 +68,9 @@ HGCalGeometryESProducer::~HGCalGeometryESProducer() {}
 // ------------ method called to produce the data  ------------
 HGCalGeometryESProducer::ReturnType HGCalGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {
   const auto& topo = iRecord.get(topologyToken_);
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Create HGCalGeometry (*topo) for " << name_;
-
+#endif
   HGCalGeometryLoader builder;
   return ReturnType(builder.build(topo));
 }
