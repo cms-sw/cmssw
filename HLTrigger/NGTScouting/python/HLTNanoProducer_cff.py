@@ -11,21 +11,23 @@ from HLTrigger.NGTScouting.hltElectrons_cfi import *
 from HLTrigger.NGTScouting.hltMuons_cfi import *
 from HLTrigger.NGTScouting.hltTracks_cfi import *
 from HLTrigger.NGTScouting.hltJets_cfi import *
+from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter
 
 hltNanoProducer = cms.Sequence(
-    prunedGenParticles +
-    finalGenParticles + 
-    genParticleTable +
-    hltVertexTable +
-    hltPixelTrackTable +
-    hltGeneralTrackTable +
-    hltEgammaPacker +
-    hltPhotonTable +
-    hltElectronTable + 
-    hltPhase2L3MuonIdTracks +
-    hltMuonTable +
-    hltPFCandidateTable +
-    hltJetTable
+       prunedGenParticles
+     + finalGenParticles
+     + genParticleTable
+     + hltTriggerAcceptFilter
+     + hltVertexTable
+     + hltPixelTrackTable
+     + hltGeneralTrackTable
+     + hltEgammaPacker
+     + hltPhotonTable
+     + hltElectronTable
+     + hltPhase2L3MuonIdTracks
+     + hltMuonTable
+     + hltPFCandidateTable
+     + hltJetTable
 )
 
 def hltNanoCustomize(process):
@@ -36,5 +38,6 @@ def hltNanoCustomize(process):
         process.NANOAODSIMoutput.outputCommands.append(
             "keep nanoaodFlatTable_*Table*_*_*"
         )
+        process.NANOAODSIMoutput.SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_*', 'DST_*' ) )
 
     return process
