@@ -1,6 +1,8 @@
 #ifndef Modules_CollUtil_h
 #define Modules_CollUtil_h
 
+#include "FWCore/Utilities/interface/BranchType.h"
+
 #include "Rtypes.h"
 
 #include <string>
@@ -15,6 +17,7 @@ namespace edm {
   Long64_t numEntries(TFile *hdl, const std::string &trname);
   void printBranchNames(TTree *tree);
   void longBranchPrint(TTree *tr);
+  void clusterPrint(TTree *tr, BranchType branchType);
   std::string getUuid(TTree *uuidTree);
   void printUuids(TTree *uuidTree);
   void printEventLists(TFile *tfl);

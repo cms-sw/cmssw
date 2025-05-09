@@ -7,6 +7,7 @@
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 
+#include "TBasket.h"
 #include "TBranch.h"
 #include "TFile.h"
 #include "TIterator.h"
@@ -94,6 +95,102 @@ namespace edm {
       }
     } else {
       std::cout << "Missing Events tree?\n";
+    }
+  }
+
+  namespace {
+    class BranchBasketBytes {
+    public:
+      BranchBasketBytes(TBranch const *branch)
+          : basketFirstEntry_(branch->GetBasketEntry()),
+            basketBytes_(branch->GetBasketBytes()),
+            branchName_(branch->GetName()),
+            maxBaskets_(branch->GetMaxBaskets()) {}
+
+      std::tuple<Long64_t, unsigned> bytesInNextCluster(Long64_t clusterEnd) {
+        Long64_t bytes = 0;
+        unsigned nbaskets = 0;
+        for (; iBasket < maxBaskets_ and basketFirstEntry_[iBasket] < clusterEnd; ++iBasket) {
+          bytes += basketBytes_[iBasket];
+          ++nbaskets;
+        }
+        if (basketFirstEntry_[iBasket] != clusterEnd) {
+          std::cout << "Branch " << branchName_ << " iBasket " << iBasket << " begin entry "
+                    << basketFirstEntry_[iBasket] << " does not align with cluster boundary, expected " << clusterEnd
+                    << std::endl;
+          exit(1);
+        }
+        return std::tuple(bytes, nbaskets);
+      }
+
+    private:
+      Long64_t const *basketFirstEntry_;
+      Int_t const *basketBytes_;
+      std::string_view branchName_;
+      Int_t maxBaskets_;
+      Long64_t iBasket = 0;
+    };
+
+    std::vector<BranchBasketBytes> makeBranchBasketBytes(TBranch *branch, BranchType branchType) {
+      std::vector<BranchBasketBytes> ret;
+      std::string_view branchName = branch->GetName();
+      // ignore metadata branches as those are filled in special way
+      if (branchName == BranchTypeToAuxiliaryBranchName(branchType) or
+          branchName == BranchTypeToProductProvenanceBranchName(branchType) or
+          branchName == poolNames::eventSelectionsBranchName() or
+          branchName == poolNames::branchListIndexesBranchName()) {
+        return ret;
+      }
+
+      TObjArray *subBranches = branch->GetListOfBranches();
+      if (subBranches and subBranches->GetEntries() > 0) {
+        // process sub-branches if there are any
+        auto const nbranches = subBranches->GetEntries();
+        for (Long64_t iBranch = 0; iBranch < nbranches; ++iBranch) {
+          auto vec = makeBranchBasketBytes(dynamic_cast<TBranch *>(subBranches->At(iBranch)), branchType);
+          ret.insert(ret.end(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
+        }
+      } else {
+        ret.emplace_back(branch);
+      }
+      return ret;
+    }
+  }  // namespace
+
+  void clusterPrint(TTree *tr, BranchType branchType) {
+    TTree::TClusterIterator clusterIter = tr->GetClusterIterator(0);
+    Long64_t const nentries = tr->GetEntries();
+
+    // Keep the state of each branch basket index so that we don't
+    // have to iterate through everything on every cluster
+    std::vector<BranchBasketBytes> processors;
+    {
+      TObjArray *branches = tr->GetListOfBranches();
+      Long64_t const nbranches = branches->GetEntries();
+      for (Long64_t iBranch = 0; iBranch < nbranches; ++iBranch) {
+        auto vec = makeBranchBasketBytes(dynamic_cast<TBranch *>(branches->At(iBranch)), branchType);
+        processors.insert(processors.end(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
+      }
+    }
+
+    std::cout << "Printing cluster boundaries in terms of tree entries of the tree " << tr->GetName()
+              << ". Note that end boundary is exclusive. The metadata branches are excluded from this calculation, "
+                 "because their basket boundaries do not necessarily align with the cluster boundaries."
+              << std::endl;
+    std::cout << std::setw(15) << "Begin" << std::setw(15) << "End" << std::setw(15) << "Entries" << std::setw(15)
+              << "Max baskets" << std::setw(15) << "Bytes" << std::endl;
+    Long64_t clusterBegin;
+    while ((clusterBegin = clusterIter()) < nentries) {
+      Long64_t clusterEnd = clusterIter.GetNextEntry();
+      Long64_t bytes = 0;
+      unsigned int maxbaskets = 0;
+      for (auto &p : processors) {
+        auto const [byt, bas] = p.bytesInNextCluster(clusterEnd);
+        bytes += byt;
+        maxbaskets = std::max(bas, maxbaskets);
+      }
+      std::cout << std::setw(15) << clusterBegin << std::setw(15) << clusterEnd << std::setw(15)
+                << (clusterEnd - clusterBegin) << std::setw(15) << maxbaskets << std::setw(15) << bytes << std::endl;
     }
   }
 
