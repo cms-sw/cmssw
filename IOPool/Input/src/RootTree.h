@@ -150,7 +150,8 @@ namespace edm {
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
-      getEntry(auxBranch_, entryNumber_);
+      auto cache = getAuxCache(auxBranch_);
+      getEntryUsingCache(auxBranch_, entryNumber_, cache);
       auxBranch_->SetAddress(nullptr);
     }
 
@@ -213,6 +214,8 @@ namespace edm {
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     void startTraining();
     void stopTraining();
+    void getEntryUsingCache(TBranch* branch, EntryNumber entry, TTreeCache*) const;
+    TTreeCache* getAuxCache(TBranch* auxBranch) const;
 
     std::shared_ptr<InputFile> filePtr_;
     // We use bare pointers for pointers to some ROOT entities.
@@ -228,6 +231,7 @@ namespace edm {
     // So, we make sure to it is detached before closing the TFile so there is no double delete.
     std::shared_ptr<TTreeCache> treeCache_;
     std::shared_ptr<TTreeCache> rawTreeCache_;
+    CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> auxCache_;
     //All access to a ROOT file is serialized
     CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> triggerTreeCache_;
     CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> rawTriggerTreeCache_;
