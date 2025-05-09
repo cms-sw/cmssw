@@ -5,7 +5,7 @@
 #   Options for geometry 2016, 2017, 2021, Run4D102, Run4D103, Run4D104,
 #                        Run4D108, Run4D109, Run4D110, Run4D111, Run4D112, 
 #                        Run4D113, Run4D114, Run4D115, Run4D116, Run4D117,
-#                        Run4D118, Run4D119
+#                        Run4D118, Run4D119, Run4D120
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -19,7 +19,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2017, 2021, Run4D102, Run4D103, Run4D104, Run4D108, Run4D109, Run4D110, Run4D111, Run4D112, Run4D113, Run4D114, Run4D115, Run4D116, Run4D117, Run4D118, Run4D119")
+                  "geometry of operations: 2016, 2017, 2021, Run4D102, Run4D103, Run4D104, Run4D108, Run4D109, Run4D110, Run4D111, Run4D112, Run4D113, Run4D114, Run4D115, Run4D116, Run4D117, Run4D118, Run4D119, Run4D120")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -110,6 +110,11 @@ elif (options.geometry == "Run4D119"):
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
     process.load('Configuration.Geometry.GeometryExtendedRun4D119Reco_cff')
     baseName = 'CaloRun4D119'
+elif (options.geometry == "Run4D120"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
+    process.load('Configuration.Geometry.GeometryExtendedRun4D120Reco_cff')
+    baseName = 'CaloRun4D120'
 elif (options.geometry == "2016"):
     from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
     process = cms.Process('G4PrintGeometry',Run2_2016)
