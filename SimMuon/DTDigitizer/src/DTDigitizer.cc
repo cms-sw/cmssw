@@ -115,9 +115,16 @@ DTDigitizer::DTDigitizer(const ParameterSet &conf_)
   LinksTimeWindow = conf_.getParameter<double>("LinksTimeWindow");  // (10 ns)
 
   // Name of Collection used for create the XF
-  mix_ = conf_.getParameter<std::string>("mixLabel");
-  collection_for_XF = conf_.getParameter<std::string>("InputCollection");
-  cf_token = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
+  const std::string &mix = conf_.getParameter<std::string>("mixLabel");
+  const std::set<std::string> collections_for_XF{conf_.getParameter<std::string>("InputCollection"),
+                                                 conf_.getParameter<std::string>("InputCollectionPU")};
+  for (const auto &cname : collections_for_XF) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("DTDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
+#endif
+    cf_tokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
+  }
+
   magnField_token = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
   // String to choose between ideal (the default) and (mis)aligned geometry
@@ -140,15 +147,21 @@ void DTDigitizer::produce(Event &iEvent, const EventSetup &iSetup) {
   //  iEvent.getByLabel("g4SimHits","MuonDTHits",simHits);
 
   // use MixCollection instead of the previous
-  Handle<CrossingFrame<PSimHit>> xFrame;
-  iEvent.getByToken(cf_token, xFrame);
+  std::vector<const CrossingFrame<PSimHit> *> cf_list;
+  for (const auto &token : cf_tokens) {
+    const auto &handle = iEvent.getHandle(token);
+    if (handle.isValid()) {
+      cf_list.emplace_back(handle.product());
 
-  unique_ptr<MixCollection<PSimHit>> simHits(new MixCollection<PSimHit>(xFrame.product()));
+    } else
+      edm::LogWarning("DTDigitizer") << "Input Source not Valid !!";
+  }
+  auto simHits = std::make_unique<MixCollection<PSimHit>>(cf_list);
 
   // create the pointer to the Digi container
-  unique_ptr<DTDigiCollection> output(new DTDigiCollection());
+  auto output = std::make_unique<DTDigiCollection>();
   // pointer to the DigiSimLink container
-  unique_ptr<DTDigiSimLinkCollection> outputLinks(new DTDigiSimLinkCollection());
+  auto outputLinks = std::make_unique<DTDigiSimLinkCollection>();
 
   // Muon Geometry
   ESHandle<DTGeometry> muonGeom = iSetup.getHandle(muonGeom_token);

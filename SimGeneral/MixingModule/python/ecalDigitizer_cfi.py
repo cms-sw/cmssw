@@ -20,13 +20,20 @@ ecalDigitizer = cms.PSet(
     ecal_notCont_sim,
     es_electronics_sim,
     hitsProducer = cms.string('g4SimHits'),
+    hitsProducerPU = cms.string('g4SimHits'),    
     accumulatorType = cms.string("EcalDigiProducer"),
     makeDigiSimLinks = cms.untracked.bool(False)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(ecalDigitizer, hitsProducer = "fastSimProducer")
-    
+fastSim.toModify(ecalDigitizer,
+                 hitsProducer = cms.string('fastSimProducer'),
+               hitsProducerPU = cms.string('fastSimProducer'))
+
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(ecalDigitizer,
+                 hitsProducerPU = cms.string('fastSimProducer'))
+
 ecalDigitizer.doEB = cms.bool(True)
 ecalDigitizer.doEE = cms.bool(True)
 ecalDigitizer.doES = cms.bool(True)

@@ -87,6 +87,10 @@ SiStripSimBlock = cms.PSet(
                           "TrackerHitsTIDLowTof","TrackerHitsTIDHighTof",
                           "TrackerHitsTOBLowTof","TrackerHitsTOBHighTof",
                           "TrackerHitsTECLowTof","TrackerHitsTECHighTof"),
+    ROUListPU = cms.vstring("TrackerHitsTIBLowTof","TrackerHitsTIBHighTof",
+                          "TrackerHitsTIDLowTof","TrackerHitsTIDHighTof",
+                          "TrackerHitsTOBLowTof","TrackerHitsTOBHighTof",
+                          "TrackerHitsTECLowTof","TrackerHitsTECHighTof"),
     GeometryType               = cms.string('idealForDigi'),
     TrackerConfigurationFromDB = cms.bool(False),
     ZeroSuppression            = cms.bool(True),
@@ -156,3 +160,11 @@ run2_common.toModify(SiStripSimBlock,
                      CouplingConstantsRunIIDecW = True,  #for TID and TEC
                      APVShapeDecoFile =cms.FileInPath("SimTracker/SiStripDigitizer/data/APVShapeDeco_320.txt")
                      )
+# when FastSim events as PileUP events during mixing
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(SiStripSimBlock,
+                   ROUListPU = cms.vstring('TrackerHits'))
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(SiStripSimBlock,
+                   ROUList = cms.vstring('TrackerHits'),
+                   ROUListPU = cms.vstring('TrackerHits'))

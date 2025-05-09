@@ -74,6 +74,7 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
    
     mixLabel = cms.string("mix"),
     InputCollection = cms.string("g4SimHitsMuonCSCHits"),
+    InputCollectionPU = cms.string('g4SimHitsMuonCSCHits'),                                 
 
     stripConditions = cms.string('Database'),
     GeometryType = cms.string('idealForDigi'),                            
@@ -90,7 +91,13 @@ run2_common.toModify( simMuonCSCDigis.strips, bunchTimingOffsets=[0.0, 37.53, 37
 run2_common.toModify( simMuonCSCDigis.wires, bunchTimingOffsets=[0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88] )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(simMuonCSCDigis, InputCollection = 'MuonSimHitsMuonCSCHits')
+fastSim.toModify(simMuonCSCDigis,
+                 InputCollection   = cms.string('MuonSimHitsMuonCSCHits'),
+                 InputCollectionPU = cms.string('MuonSimHitsMuonCSCHits'))
+
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(simMuonCSCDigis,
+                   InputCollectionPU = cms.string('MuonSimHitsMuonCSCHits'))
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(simMuonCSCDigis, mixLabel = "mixData")
