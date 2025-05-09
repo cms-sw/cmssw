@@ -41,7 +41,8 @@
 namespace timestudy {
   namespace {
     struct Sleeper {
-      Sleeper(edm::ParameterSet const& p, edm::ConsumesCollector&& iCol) {
+      Sleeper(edm::ParameterSet const& p, edm::ConsumesCollector&& iCol)
+          : useCacheID_{p.getParameter<bool>("useCacheID")} {
         auto const& cv = p.getParameter<std::vector<edm::InputTag>>("consumes");
         tokens_.reserve(cv.size());
         for (auto const& c : cv) {
@@ -60,7 +61,8 @@ namespace timestudy {
           (void)e.getHandle(t);
         }
         //Event number minimum value is 1
-        std::this_thread::sleep_for(std::chrono::microseconds(eventTimes_[(e.id().event() - 1) % eventTimes_.size()]));
+        auto id = useCacheID_ ? e.cacheIdentifier() : e.id().event();
+        std::this_thread::sleep_for(std::chrono::microseconds(eventTimes_[(id - 1) % eventTimes_.size()]));
       }
 
       static void fillDescription(edm::ParameterSetDescription& desc) {
@@ -68,12 +70,15 @@ namespace timestudy {
         desc.add<std::vector<double>>("eventTimes")
             ->setComment(
                 "The time, in seconds, for how long the module should sleep each event. The index to use is based on a "
-                "modulo of size of the list applied to the Event ID number.");
+                "modulo of size of the list applied to the Event ID or Event cache ID number depending on useCacheID "
+                "value.");
+        desc.add<bool>("useCacheID", false)->setComment("If False, use Event ID; if True, use Event cache ID");
       }
 
     private:
       std::vector<edm::EDGetTokenT<int>> tokens_;
       std::vector<useconds_t> eventTimes_;
+      bool const useCacheID_;
     };
   }  // namespace
   //--------------------------------------------------------------------
