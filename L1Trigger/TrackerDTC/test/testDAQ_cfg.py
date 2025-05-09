@@ -21,12 +21,12 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '140X_mcRun4_realistic_v3', '')
 
 # load code that produces DTCStubs
-process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
+process.load( 'L1Trigger.TrackerDTC.DTC_cff' )
 # load code that analyzes TTCluster
 process.load( 'L1Trigger.TrackerDTC.AnalyzerDAQ_cff' )
 
 # build schedule (not essential to rerun producer).
-process.produce = cms.Path( process.TrackerDTCProducer )
+process.produce = cms.Path( process.ProducerDTC )
 process.analyzeDAQ = cms.Path( process.TrackerDTCAnalyzerDAQ )
 process.schedule = cms.Schedule( process.produce, process.analyzeDAQ )
 
