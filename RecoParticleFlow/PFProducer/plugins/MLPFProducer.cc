@@ -5,6 +5,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXSessionOptions.h"
 #include "RecoParticleFlow/PFProducer/interface/MLPFModel.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
@@ -160,7 +161,8 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 }
 
 std::unique_ptr<ONNXRuntime> MLPFProducer::initializeGlobalCache(const edm::ParameterSet& params) {
-  return std::make_unique<ONNXRuntime>(params.getParameter<edm::FileInPath>("model_path").fullPath());
+  auto session_options = cms::Ort::getSessionOptions(params.getParameter<std::string>("onnx_backend"));
+  return std::make_unique<ONNXRuntime>(params.getParameter<edm::FileInPath>("model_path").fullPath(), &session_options);
 }
 
 void MLPFProducer::globalEndJob(const ONNXRuntime* cache) {}
@@ -173,6 +175,7 @@ void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions
       edm::FileInPath(
           "RecoParticleFlow/PFProducer/data/mlpf/"
           "mlpf_2021_11_16__no_einsum__all_data_cms-best-of-asha-scikit_20211026_042043_178263.workergpu010.onnx"));
+  desc.add<std::string>("onnx_backend", "default");
   descriptions.addWithDefaultLabel(desc);
 }
 
