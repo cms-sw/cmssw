@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstdio>
+#include <fmt/format.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
@@ -79,7 +80,7 @@ std::string SiStripHistoId::createHistoLayer(std::string description,
 }
 
 // std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTopo, bool flag_ring, bool flag_thickness) {
-std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology *tTopo, bool flag_ring) {
+std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTopo, bool flag_ring) {
   StripSubdetector subdet(id);
 
   if (subdet.subdetId() == StripSubdetector::TIB) {
@@ -87,30 +88,30 @@ std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology *tTop
     return "TIB__layer__" + std::to_string(tTopo->tibLayer(id));
   } else if (subdet.subdetId() == StripSubdetector::TID) {
     // ---------------------------  TID  --------------------------- //
-    std::string side = (tTopo->tidSide(id) == 1) ? "MINUS" : "PLUS";
+    const char* side = (tTopo->tidSide(id) == 1) ? "MINUS" : "PLUS";
 
     if (flag_ring)
-      return "TID__" + side + "__ring__" + std::to_string(tTopo->tidRing(id));
+      return fmt::format("TID__{}__ring__{}", side, tTopo->tidRing(id));
     else
-      return "TID__" + side + "__wheel__" + std::to_string(tTopo->tidWheel(id));
+      return fmt::format("TID__{}__wheel__{}", side, tTopo->tidWheel(id));
   } else if (subdet.subdetId() == StripSubdetector::TOB) {
     // ---------------------------  TOB  --------------------------- //
     return "TOB__layer__" + std::to_string(tTopo->tobLayer(id));
   } else if (subdet.subdetId() == StripSubdetector::TEC) {
     // ---------------------------  TEC  --------------------------- //
-    std::string side = (tTopo->tecSide(id) == 1) ? "MINUS" : "PLUS";
+    const char* side = (tTopo->tecSide(id) == 1) ? "MINUS" : "PLUS";
 
     if (flag_ring) {
-      return "TEC__" + side + "__ring__" + std::to_string(tTopo->tecRing(id));
+      return fmt::format("TEC__{}__ring__{}", side, tTopo->tecRing(id));
     } else {
       /*
       if (flag_thickness) {
         uint32_t ring = tTopo->tecRing(id);
         std::string thickness = (ring >= 1 && ring <= 4) ? "__THIN" : "__THICK";
-        return "TEC__" + side + "__wheel__" + std::to_string(tTopo->tecWheel(id)) + thickness;
+	return fmt::format("TEC__{}__wheel__{}{}", side, tTopo->tecWheel(id), thickness);
       } else
       */
-      return "TEC__" + side + "__wheel__" + std::to_string(tTopo->tecWheel(id));
+      return fmt::format("TEC__{}__wheel__{}", side, tTopo->tecWheel(id));
     }
   } else {
     // ---------------------------  ???  --------------------------- //

@@ -830,33 +830,33 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   for (auto& it : SubDetMEsMap) {
     if (subdetswitchtotdigifailureon) {
-      if (strcmp(it.first.data(), "TEC__MINUS") == 0) {
+      if (it.first == "TEC__MINUS") {
         digiFailureMEs.SubDetTotDigiProfLS->Fill(1, it.second.totNDigis);
-      } else if (strcmp(it.first.data(), "TEC__PLUS") == 0) {
+      } else if (it.first == "TEC__PLUS") {
         digiFailureMEs.SubDetTotDigiProfLS->Fill(2, it.second.totNDigis);
-      } else if (strcmp(it.first.data(), "TIB") == 0) {
+      } else if (it.first == "TIB") {
         digiFailureMEs.SubDetTotDigiProfLS->Fill(3, it.second.totNDigis);
-      } else if (strcmp(it.first.data(), "TID__MINUS") == 0) {
+      } else if (it.first == "TID__MINUS") {
         digiFailureMEs.SubDetTotDigiProfLS->Fill(4, it.second.totNDigis);
-      } else if (strcmp(it.first.data(), "TID__PLUS") == 0) {
+      } else if (it.first == "TID__PLUS") {
         digiFailureMEs.SubDetTotDigiProfLS->Fill(5, it.second.totNDigis);
-      } else if (strcmp(it.first.data(), "TOB") == 0) {
+      } else if (it.first == "TOB") {
         digiFailureMEs.SubDetTotDigiProfLS->Fill(6, it.second.totNDigis);
       }
     }
 
     if (globalsummaryapvshotson) {
-      if (strcmp(it.first.data(), "TEC__MINUS") == 0) {
+      if (it.first == "TEC__MINUS") {
         NApvShotsGlobalProf->Fill(1, it.second.SubDetApvShots.size());
-      } else if (strcmp(it.first.data(), "TEC__PLUS") == 0) {
+      } else if (it.first == "TEC__PLUS") {
         NApvShotsGlobalProf->Fill(2, it.second.SubDetApvShots.size());
-      } else if (strcmp(it.first.data(), "TIB") == 0) {
+      } else if (it.first == "TIB") {
         NApvShotsGlobalProf->Fill(3, it.second.SubDetApvShots.size());
-      } else if (strcmp(it.first.data(), "TID__MINUS") == 0) {
+      } else if (it.first == "TID__MINUS") {
         NApvShotsGlobalProf->Fill(4, it.second.SubDetApvShots.size());
-      } else if (strcmp(it.first.data(), "TID__PLUS") == 0) {
+      } else if (it.first == "TID__PLUS") {
         NApvShotsGlobalProf->Fill(5, it.second.SubDetApvShots.size());
-      } else if (strcmp(it.first.data(), "TOB") == 0) {
+      } else if (it.first == "TOB") {
         NApvShotsGlobalProf->Fill(6, it.second.SubDetApvShots.size());
       }
     }
@@ -922,9 +922,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     long long tbx = event_history->absoluteBX();
 
     for (auto& it : SubDetMEsMap) {
-      SubDetMEs subdetmes;
       const auto& subdet = std::string(it.first);
-      subdetmes = it.second;
+      SubDetMEs& subdetmes = it.second;
 
       int the_phase = APVCyclePhaseCollection::invalid;
       long long tbx_corr = tbx;

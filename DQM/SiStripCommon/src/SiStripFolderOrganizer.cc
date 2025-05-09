@@ -406,7 +406,7 @@ void SiStripFolderOrganizer::getSubDetFolder(const uint32_t& detid,
                                              const TrackerTopology* tTopo,
                                              std::string& folder_name) {
   auto subdet_and_tag = getSubDetFolderAndTag(detid, tTopo);
-  folder_name = std::string(subdet_and_tag.first);
+  folder_name = subdet_and_tag.first;
 }
 //
 // -- Get the name of Subdetector Layer folder
@@ -468,49 +468,36 @@ void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss,
     return;
   }
 }
-//
-// -- Get Subdetector Folder name and the Tag
-//
-std::pair<std::string, std::string_view> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid,
-                                                                                       const TrackerTopology* tTopo) {
-  std::string_view subdet_folder;
-  std::string_view tag;
 
+using namespace std::literals::string_view_literals;
+
+std::pair<std::string_view, std::string_view> SiStripFolderOrganizer::getSubdetStrings(const uint32_t& detid,
+                                                                                       const TrackerTopology* tTopo) {
+  using std::string_view;
   switch (StripSubdetector::SubDetector(StripSubdetector(detid).subdetId())) {
     case StripSubdetector::TIB:
-      subdet_folder = "TIB";
-      tag = subdet_folder;
-      break;
+      return {"TIB", "TIB"};
     case StripSubdetector::TOB:
-      subdet_folder = "TOB";
-      tag = subdet_folder;
-      break;
+      return {"TOB", "TOB"};
     case StripSubdetector::TID:
-      if (tTopo->tidSide(detid) == 2) {
-        subdet_folder = "TID/PLUS";
-        tag = "TID__PLUS";
-      } else if (tTopo->tidSide(detid) == 1) {
-        subdet_folder = "TID/MINUS";
-        tag = "TID__MINUS";
-      }
-      break;
+      return (tTopo->tidSide(detid) == 2) ? std::make_pair("TID/PLUS"sv, "TID__PLUS"sv)
+                                          : std::make_pair("TID/MINUS"sv, "TID__MINUS"sv);
     case StripSubdetector::TEC:
-      if (tTopo->tecSide(detid) == 2) {
-        subdet_folder = "TEC/PLUS";
-        tag = "TEC__PLUS";
-      } else if (tTopo->tecSide(detid) == 1) {
-        subdet_folder = "TEC/MINUS";
-        tag = "TEC__MINUS";
-      }
-      break;
+      return (tTopo->tecSide(detid) == 2) ? std::make_pair("TEC/PLUS"sv, "TEC__PLUS"sv)
+                                          : std::make_pair("TEC/MINUS"sv, "TEC__MINUS"sv);
     default:
       edm::LogWarning("SiStripCommon") << "WARNING!!! this detid does not belong to tracker" << std::endl;
-      subdet_folder = "";
-      tag = "";
+      return {"", ""};
   }
+}
 
-  // Concatenate the folder path
-  std::string folder = std::string(TopFolderName) + SEP + MECHANICAL_FOLDER_NAME + SEP + std::string(subdet_folder);
+const std::string_view SiStripFolderOrganizer::getSubDetTag(const uint32_t& detid, const TrackerTopology* tTopo) {
+  return getSubdetStrings(detid, tTopo).second;
+}
 
-  return {folder, tag};
+std::pair<std::string, std::string_view> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid,
+                                                                                       const TrackerTopology* tTopo) {
+  auto [folder_component, tag] = getSubdetStrings(detid, tTopo);
+  std::string folder = TopFolderName + SEP + MECHANICAL_FOLDER_NAME + SEP + std::string(folder_component);
+  return {std::move(folder), tag};
 }
