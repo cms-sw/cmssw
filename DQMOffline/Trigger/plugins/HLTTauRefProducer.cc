@@ -30,7 +30,8 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
   //One Parameter Set per Collection
   {
     auto const& pfTau = iConfig.getUntrackedParameter<edm::ParameterSet>("PFTaus");
-    PFTaus_ = consumes<reco::PFTauCollection>(pfTau.getUntrackedParameter<InputTag>("PFTauProducer"));
+    PFTaus_ = consumes<reco::PFTauCollection>(pfTau.getUntrackedParameter<InputTag>("PFTauProducer", InputTag()));
+    PATTaus_ = consumes<edm::View<pat::Tau>>(pfTau.getUntrackedParameter<InputTag>("PatTauProducer", InputTag()));
     auto discs = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminators");
     auto discConts = pfTau.getUntrackedParameter<vector<InputTag>>("PFTauDiscriminatorContainers");
     PFTauDisContWPs_ = pfTau.getUntrackedParameter<vector<std::string>>("PFTauDiscriminatorContainerWPs");
@@ -39,6 +40,7 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig) {
                                                "PFTauDiscriminatorContainerWPs must have the same number of entries!\n";
     for (auto const& tag : discs) {
       PFTauDis_.push_back(consumes<reco::PFTauDiscriminator>(tag));
+      discriminatorNames.push_back(tag.label());
     }
     for (auto const& tag : discConts) {
       PFTauDisCont_.push_back(consumes<reco::TauDiscriminatorContainer>(tag));
@@ -138,85 +140,101 @@ void HLTTauRefProducer::produce(edm::StreamID iID, edm::Event& iEvent, edm::Even
 void HLTTauRefProducer::doPFTaus(edm::StreamID iID, edm::Event& iEvent) const {
   auto product_PFTaus = make_unique<LorentzVectorCollection>();
 
-  edm::Handle<PFTauCollection> pftaus;
-  if (iEvent.getByToken(PFTaus_, pftaus)) {
-    // Retrieve ID container indices if config history changes, in particular for the first event.
-    if (streamCache(iID)->first != iEvent.processHistoryID()) {
-      streamCache(iID)->first = iEvent.processHistoryID();
-      streamCache(iID)->second.resize(PFTauDisContWPs_.size());
-      for (size_t i = 0; i < PFTauDisCont_.size(); ++i) {
-        auto const aHandle = iEvent.getHandle(PFTauDisCont_[i]);
-        auto const aProv = aHandle.provenance();
-        if (aProv == nullptr)
-          aHandle.whyFailed()->raise();
-        const auto& psetsFromProvenance = edm::parameterSet(aProv->stable(), iEvent.processHistory());
-        if (psetsFromProvenance.exists("workingPoints")) {
-          auto const idlist = psetsFromProvenance.getParameter<std::vector<std::string>>("workingPoints");
-          bool found = false;
-          for (size_t j = 0; j < idlist.size(); ++j) {
-            if (PFTauDisContWPs_[i] == idlist[j]) {
-              found = true;
-              streamCache(iID)->second[i] = j;
-            }
-          }
-          if (!found)
-            throw cms::Exception("Configuration")
-                << "HLTTauRefProducer: Requested working point '" << PFTauDisContWPs_[i] << "' not found!\n";
-        } else if (psetsFromProvenance.exists("IDWPdefinitions")) {
-          auto const idlist = psetsFromProvenance.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
-          bool found = false;
-          for (size_t j = 0; j < idlist.size(); ++j) {
-            if (PFTauDisContWPs_[i] == idlist[j].getParameter<std::string>("IDname")) {
-              found = true;
-              streamCache(iID)->second[i] = j;
-            }
-          }
-          if (!found)
-            throw cms::Exception("Configuration")
-                << "HLTTauRefProducer: Requested working point '" << PFTauDisContWPs_[i] << "' not found!\n";
-        } else
-          throw cms::Exception("Configuration")
-              << "HLTTauRefProducer: No suitable ID list found in provenace config!\n";
+  edm::Handle<edm::View<pat::Tau>> pattaus;
+  if (iEvent.getByToken(PATTaus_, pattaus)) {
+    bool passAll{true};
+    for (unsigned int i = 0; i < pattaus->size(); ++i) {
+      auto const& tau = (*pattaus)[i];
+      if (tau.pt() > ptMinPFTau_ && tau.eta() > etaMinPFTau_ && tau.eta() < etaMaxPFTau_ && tau.phi() > phiMinPFTau_ &&
+          tau.phi() < phiMaxPFTau_) {
+        for (auto const& discriminatorName : discriminatorNames) {
+          passAll = passAll && tau.tauID(discriminatorName);
+        }
       }
+      if (passAll)
+        product_PFTaus->emplace_back(tau.px(), tau.py(), tau.pz(), tau.energy());
     }
-    for (unsigned int i = 0; i < pftaus->size(); ++i) {
-      auto const& pftau = (*pftaus)[i];
-      if (pftau.pt() > ptMinPFTau_ && pftau.eta() > etaMinPFTau_ && pftau.eta() < etaMaxPFTau_ &&
-          pftau.phi() > phiMinPFTau_ && pftau.phi() < phiMaxPFTau_) {
-        reco::PFTauRef thePFTau{pftaus, i};
-        bool passAll{true};
+  } else {
+    edm::Handle<PFTauCollection> pftaus;
+    if (iEvent.getByToken(PFTaus_, pftaus)) {
+      // Retrieve ID container indices if config history changes, in particular for the first event.
+      if (streamCache(iID)->first != iEvent.processHistoryID()) {
+        streamCache(iID)->first = iEvent.processHistoryID();
+        streamCache(iID)->second.resize(PFTauDisContWPs_.size());
+        for (size_t i = 0; i < PFTauDisCont_.size(); ++i) {
+          auto const aHandle = iEvent.getHandle(PFTauDisCont_[i]);
+          auto const aProv = aHandle.provenance();
+          if (aProv == nullptr)
+            aHandle.whyFailed()->raise();
+          const auto& psetsFromProvenance = edm::parameterSet(aProv->stable(), iEvent.processHistory());
+          if (psetsFromProvenance.exists("workingPoints")) {
+            auto const idlist = psetsFromProvenance.getParameter<std::vector<std::string>>("workingPoints");
+            bool found = false;
+            for (size_t j = 0; j < idlist.size(); ++j) {
+              if (PFTauDisContWPs_[i] == idlist[j]) {
+                found = true;
+                streamCache(iID)->second[i] = j;
+              }
+            }
+            if (!found)
+              throw cms::Exception("Configuration")
+                  << "HLTTauRefProducer: Requested working point '" << PFTauDisContWPs_[i] << "' not found!\n";
+          } else if (psetsFromProvenance.exists("IDWPdefinitions")) {
+            auto const idlist = psetsFromProvenance.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
+            bool found = false;
+            for (size_t j = 0; j < idlist.size(); ++j) {
+              if (PFTauDisContWPs_[i] == idlist[j].getParameter<std::string>("IDname")) {
+                found = true;
+                streamCache(iID)->second[i] = j;
+              }
+            }
+            if (!found)
+              throw cms::Exception("Configuration")
+                  << "HLTTauRefProducer: Requested working point '" << PFTauDisContWPs_[i] << "' not found!\n";
+          } else
+            throw cms::Exception("Configuration")
+                << "HLTTauRefProducer: No suitable ID list found in provenace config!\n";
+        }
+      }
+      for (unsigned int i = 0; i < pftaus->size(); ++i) {
+        auto const& pftau = (*pftaus)[i];
+        if (pftau.pt() > ptMinPFTau_ && pftau.eta() > etaMinPFTau_ && pftau.eta() < etaMaxPFTau_ &&
+            pftau.phi() > phiMinPFTau_ && pftau.phi() < phiMaxPFTau_) {
+          reco::PFTauRef thePFTau{pftaus, i};
+          bool passAll{true};
 
-        for (auto const& token : PFTauDis_) {
-          edm::Handle<reco::PFTauDiscriminator> pftaudis;
-          if (iEvent.getByToken(token, pftaudis)) {
-            if ((*pftaudis)[thePFTau] < 0.5) {
+          for (auto const& token : PFTauDis_) {
+            edm::Handle<reco::PFTauDiscriminator> pftaudis;
+            if (iEvent.getByToken(token, pftaudis)) {
+              if ((*pftaudis)[thePFTau] < 0.5) {
+                passAll = false;
+                break;
+              }
+            } else {
               passAll = false;
               break;
             }
-          } else {
-            passAll = false;
-            break;
           }
-        }
 
-        int idx = 0;
-        for (auto const& token : PFTauDisCont_) {
-          edm::Handle<reco::TauDiscriminatorContainer> pftaudis;
-          if (iEvent.getByToken(token, pftaudis)) {
-            //WP vector not filled if prediscriminator in RecoTauDiscriminator failed.
-            if ((*pftaudis)[thePFTau].workingPoints.empty() ||
-                !(*pftaudis)[thePFTau].workingPoints.at(streamCache(iID)->second[idx])) {
+          int idx = 0;
+          for (auto const& token : PFTauDisCont_) {
+            edm::Handle<reco::TauDiscriminatorContainer> pftaudis;
+            if (iEvent.getByToken(token, pftaudis)) {
+              //WP vector not filled if prediscriminator in RecoTauDiscriminator failed.
+              if ((*pftaudis)[thePFTau].workingPoints.empty() ||
+                  !(*pftaudis)[thePFTau].workingPoints.at(streamCache(iID)->second[idx])) {
+                passAll = false;
+                break;
+              }
+            } else {
               passAll = false;
               break;
             }
-          } else {
-            passAll = false;
-            break;
+            idx++;
           }
-          idx++;
-        }
-        if (passAll) {
-          product_PFTaus->emplace_back(pftau.px(), pftau.py(), pftau.pz(), pftau.energy());
+          if (passAll) {
+            product_PFTaus->emplace_back(pftau.px(), pftau.py(), pftau.pz(), pftau.energy());
+          }
         }
       }
     }
