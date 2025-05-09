@@ -793,7 +793,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                               pixelRadius,
                                               pixelRadiusError,
                                               rzChiSquared,
-                                              pixelSegments.eta()[pixelSegmentArrayIndex],
+                                              pixelSeeds.eta()[pixelSegmentArrayIndex],
                                               pixelSegmentPt)) {
       return false;
     }
