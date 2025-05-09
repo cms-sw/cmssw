@@ -302,12 +302,12 @@ namespace edm {
       std::unique_ptr<TTreeCache> psetTreeCache =
           roottree::trainCache(psetTree.get(), *filePtr_, roottree::defaultNonEventCacheSize, "*");
       psetTreeCache->SetEnablePrefetching(false);
-      filePtr_->SetCacheRead(psetTreeCache.get());
+      filePtr_->SetCacheRead(psetTreeCache.get(), psetTree.get());
       for (Long64_t i = 0; i != psetTree->GetEntries(); ++i) {
         psetTree->GetEntry(i);
         psetMap.insert(idToBlob);
       }
-      filePtr_->SetCacheRead(nullptr);
+      filePtr_->SetCacheRead(nullptr, psetTree.get());
     }
 
     // backward compatibility
