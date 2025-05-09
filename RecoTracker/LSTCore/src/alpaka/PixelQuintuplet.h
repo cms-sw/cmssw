@@ -489,7 +489,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int t5OuterT3Index = quintuplets.tripletIndices()[quintupletIndex][1];
 
     float pixelRadiusTemp, tripletRadius, rPhiChiSquaredTemp, rzChiSquaredTemp, rPhiChiSquaredInwardsTemp, centerXTemp,
-        centerYTemp;
+        centerYTemp, pixelRadiusErrorTemp;
 
     if (not runPixelTripletDefaultAlgo(acc,
                                        modules,
@@ -508,7 +508,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        rzChiSquaredTemp,
                                        rPhiChiSquaredTemp,
                                        rPhiChiSquaredInwardsTemp,
+                                       pixelRadiusErrorTemp,
                                        ptCut,
+                                       true,
                                        false))
       return false;
 
@@ -560,21 +562,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     //get the appropriate centers
     pixelRadius = pixelSegments.circleRadius()[pixelSegmentArrayIndex];
 
+    rzChiSquared = computePT5RZChiSquared(acc,
+                                          modules,
+                                          lowerModuleIndices,
+                                          rtPix,
+                                          xPix,
+                                          yPix,
+                                          zPix,
+                                          rts,
+                                          zs,
+                                          pixelSegmentPt,
+                                          pixelSegmentPx,
+                                          pixelSegmentPy,
+                                          pixelSegmentPz,
+                                          pixelSegmentCharge);
+
     if (pixelRadius < 5.0f * kR1GeVf) {  //only apply r-z chi2 cuts for <5GeV tracks
-      rzChiSquared = computePT5RZChiSquared(acc,
-                                            modules,
-                                            lowerModuleIndices,
-                                            rtPix,
-                                            xPix,
-                                            yPix,
-                                            zPix,
-                                            rts,
-                                            zs,
-                                            pixelSegmentPt,
-                                            pixelSegmentPx,
-                                            pixelSegmentPy,
-                                            pixelSegmentPz,
-                                            pixelSegmentCharge);
       if (not passPT5RZChiSquaredCuts(modules,
                                       lowerModuleIndex1,
                                       lowerModuleIndex2,
