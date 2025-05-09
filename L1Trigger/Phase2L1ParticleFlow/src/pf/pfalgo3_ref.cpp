@@ -349,7 +349,7 @@ void l1ct::PFAlgo3Emulator::run(const PFInputRegion& in, OutputRegion& out) cons
           int(in.region.isFiducial(in.emcalo[i].hwEta, in.emcalo[i].hwPhi)),
           in.region.floatGlbEtaOf(in.emcalo[i]),
           in.region.floatGlbPhiOf(in.emcalo[i]),
-          in.emcalo[i].pack().to_string(16).c_str());
+          in.emcalo[i].pack_barrel().to_string(16).c_str());
     }
     for (unsigned int i = 0; i < nCALO; ++i) {
       if (in.hadcalo[i].hwPt == 0)
@@ -370,7 +370,7 @@ void l1ct::PFAlgo3Emulator::run(const PFInputRegion& in, OutputRegion& out) cons
           int(in.region.isFiducial(in.hadcalo[i].hwEta, in.hadcalo[i].hwPhi)),
           in.region.floatGlbEtaOf(in.hadcalo[i]),
           in.region.floatGlbPhiOf(in.hadcalo[i]),
-          in.hadcalo[i].pack().to_string(16).c_str());
+          in.hadcalo[i].pack_barrel().to_string(16).c_str());
     }
     for (unsigned int i = 0; i < nMU; ++i) {
       if (in.muon[i].hwPt == 0)
