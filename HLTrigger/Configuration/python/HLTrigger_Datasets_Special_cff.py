@@ -9,11 +9,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetCommissioning_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetCommissioning_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetCommissioning_selector.triggerConditions = cms.vstring(
-    'HLT_IsoTrackHB_v15',
-    'HLT_IsoTrackHE_v15',
-    'HLT_L1SingleMuCosmics_EMTF_v5'
-)
+streamPhysicsCommissioning_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_L1SingleMuCosmics_EMTF_v5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetCosmics_selector
 streamPhysicsCommissioning_datasetCosmics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -326,6 +322,30 @@ streamPhysicsSpecialMinimumBias1_datasetSpecialMinimumBias1_selector.triggerCond
 )
 
 
+# stream PhysicsSpecialMinimumBias2
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector
+streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector.throw      = cms.bool(False)
+streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector.triggerConditions = cms.vstring(
+    'HLT_L1MinimumBiasHF0ANDBptxAND_v1',
+    'HLT_PixelClusters_WP2_HighRate_v1'
+)
+
+
+# stream PhysicsSpecialMinimumBias3
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector
+streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector.throw      = cms.bool(False)
+streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector.triggerConditions = cms.vstring(
+    'HLT_L1MinimumBiasHF0ANDBptxAND_v1',
+    'HLT_PixelClusters_WP2_HighRate_v1'
+)
+
+
 # stream PhysicsSpecialRandom0
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialRandom0_datasetSpecialRandom0_selector
@@ -488,34 +508,14 @@ streamPhysicsSpecialZeroBias0_datasetSpecialZeroBias0_selector.triggerConditions
     'HLT_ZeroBias_HighRate_v5'
 )
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias0_datasetSpecialZeroBias1_selector
-streamPhysicsSpecialZeroBias0_datasetSpecialZeroBias1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias0_datasetSpecialZeroBias1_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias0_datasetSpecialZeroBias1_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias0_datasetSpecialZeroBias1_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
 
 # stream PhysicsSpecialZeroBias1
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias2_selector
-streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias2_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias2_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias2_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias3_selector
-streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias3_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias3_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias3_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias1_selector
+streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias1_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias1_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias1_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -524,21 +524,11 @@ streamPhysicsSpecialZeroBias1_datasetSpecialZeroBias3_selector.triggerConditions
 
 # stream PhysicsSpecialZeroBias10
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias20_selector
-streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias20_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias20_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias20_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias20_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias21_selector
-streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias21_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias21_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias21_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias21_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias10_selector
+streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias10_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias10_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias10_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias10_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -547,21 +537,11 @@ streamPhysicsSpecialZeroBias10_datasetSpecialZeroBias21_selector.triggerConditio
 
 # stream PhysicsSpecialZeroBias11
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias22_selector
-streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias22_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias22_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias22_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias22_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias23_selector
-streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias23_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias23_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias23_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias23_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias11_selector
+streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias11_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias11_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias11_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias11_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -570,21 +550,11 @@ streamPhysicsSpecialZeroBias11_datasetSpecialZeroBias23_selector.triggerConditio
 
 # stream PhysicsSpecialZeroBias12
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias24_selector
-streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias24_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias24_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias24_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias24_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias25_selector
-streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias25_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias25_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias25_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias25_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias12_selector
+streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias12_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias12_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias12_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias12_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -593,21 +563,11 @@ streamPhysicsSpecialZeroBias12_datasetSpecialZeroBias25_selector.triggerConditio
 
 # stream PhysicsSpecialZeroBias13
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias26_selector
-streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias26_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias26_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias26_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias26_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias27_selector
-streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias27_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias27_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias27_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias27_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias13_selector
+streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias13_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias13_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias13_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias13_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -616,21 +576,11 @@ streamPhysicsSpecialZeroBias13_datasetSpecialZeroBias27_selector.triggerConditio
 
 # stream PhysicsSpecialZeroBias14
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias28_selector
-streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias28_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias28_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias28_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias28_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias29_selector
-streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias29_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias29_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias29_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias29_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias14_selector
+streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias14_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias14_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias14_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias14_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -639,21 +589,63 @@ streamPhysicsSpecialZeroBias14_datasetSpecialZeroBias29_selector.triggerConditio
 
 # stream PhysicsSpecialZeroBias15
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias30_selector
-streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias30_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias30_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias30_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias30_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias15_selector
+streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias15_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias15_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias15_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias15_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
 )
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias31_selector
-streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias31_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias31_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias31_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias31_selector.triggerConditions = cms.vstring(
+
+# stream PhysicsSpecialZeroBias16
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias16_datasetSpecialZeroBias16_selector
+streamPhysicsSpecialZeroBias16_datasetSpecialZeroBias16_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias16_datasetSpecialZeroBias16_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias16_datasetSpecialZeroBias16_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias16_datasetSpecialZeroBias16_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias17
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias17_datasetSpecialZeroBias17_selector
+streamPhysicsSpecialZeroBias17_datasetSpecialZeroBias17_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias17_datasetSpecialZeroBias17_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias17_datasetSpecialZeroBias17_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias17_datasetSpecialZeroBias17_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias18
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias18_datasetSpecialZeroBias18_selector
+streamPhysicsSpecialZeroBias18_datasetSpecialZeroBias18_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias18_datasetSpecialZeroBias18_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias18_datasetSpecialZeroBias18_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias18_datasetSpecialZeroBias18_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias19
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias19_datasetSpecialZeroBias19_selector
+streamPhysicsSpecialZeroBias19_datasetSpecialZeroBias19_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias19_datasetSpecialZeroBias19_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias19_datasetSpecialZeroBias19_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias19_datasetSpecialZeroBias19_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -662,21 +654,141 @@ streamPhysicsSpecialZeroBias15_datasetSpecialZeroBias31_selector.triggerConditio
 
 # stream PhysicsSpecialZeroBias2
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias4_selector
-streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias4_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias4_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias4_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias4_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias2_selector
+streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias2_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias2_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias2_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
 )
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias5_selector
-streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias5_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias5_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias5_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias5_selector.triggerConditions = cms.vstring(
+
+# stream PhysicsSpecialZeroBias20
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias20_datasetSpecialZeroBias20_selector
+streamPhysicsSpecialZeroBias20_datasetSpecialZeroBias20_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias20_datasetSpecialZeroBias20_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias20_datasetSpecialZeroBias20_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias20_datasetSpecialZeroBias20_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias21
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias21_datasetSpecialZeroBias21_selector
+streamPhysicsSpecialZeroBias21_datasetSpecialZeroBias21_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias21_datasetSpecialZeroBias21_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias21_datasetSpecialZeroBias21_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias21_datasetSpecialZeroBias21_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias22
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias22_datasetSpecialZeroBias22_selector
+streamPhysicsSpecialZeroBias22_datasetSpecialZeroBias22_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias22_datasetSpecialZeroBias22_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias22_datasetSpecialZeroBias22_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias22_datasetSpecialZeroBias22_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias23
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias23_datasetSpecialZeroBias23_selector
+streamPhysicsSpecialZeroBias23_datasetSpecialZeroBias23_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias23_datasetSpecialZeroBias23_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias23_datasetSpecialZeroBias23_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias23_datasetSpecialZeroBias23_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias24
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias24_datasetSpecialZeroBias24_selector
+streamPhysicsSpecialZeroBias24_datasetSpecialZeroBias24_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias24_datasetSpecialZeroBias24_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias24_datasetSpecialZeroBias24_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias24_datasetSpecialZeroBias24_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias25
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias25_datasetSpecialZeroBias25_selector
+streamPhysicsSpecialZeroBias25_datasetSpecialZeroBias25_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias25_datasetSpecialZeroBias25_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias25_datasetSpecialZeroBias25_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias25_datasetSpecialZeroBias25_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias26
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias26_datasetSpecialZeroBias26_selector
+streamPhysicsSpecialZeroBias26_datasetSpecialZeroBias26_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias26_datasetSpecialZeroBias26_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias26_datasetSpecialZeroBias26_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias26_datasetSpecialZeroBias26_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias27
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias27_datasetSpecialZeroBias27_selector
+streamPhysicsSpecialZeroBias27_datasetSpecialZeroBias27_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias27_datasetSpecialZeroBias27_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias27_datasetSpecialZeroBias27_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias27_datasetSpecialZeroBias27_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias28
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias28_datasetSpecialZeroBias28_selector
+streamPhysicsSpecialZeroBias28_datasetSpecialZeroBias28_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias28_datasetSpecialZeroBias28_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias28_datasetSpecialZeroBias28_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias28_datasetSpecialZeroBias28_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias29
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias29_datasetSpecialZeroBias29_selector
+streamPhysicsSpecialZeroBias29_datasetSpecialZeroBias29_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias29_datasetSpecialZeroBias29_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias29_datasetSpecialZeroBias29_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias29_datasetSpecialZeroBias29_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -685,21 +797,37 @@ streamPhysicsSpecialZeroBias2_datasetSpecialZeroBias5_selector.triggerConditions
 
 # stream PhysicsSpecialZeroBias3
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias6_selector
-streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias6_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias6_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias6_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias6_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias3_selector
+streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias3_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias3_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias3_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
 )
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias7_selector
-streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias7_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias7_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias7_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias7_selector.triggerConditions = cms.vstring(
+
+# stream PhysicsSpecialZeroBias30
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias30_datasetSpecialZeroBias30_selector
+streamPhysicsSpecialZeroBias30_datasetSpecialZeroBias30_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias30_datasetSpecialZeroBias30_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias30_datasetSpecialZeroBias30_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias30_datasetSpecialZeroBias30_selector.triggerConditions = cms.vstring(
+    'HLT_SpecialZeroBias_v7',
+    'HLT_ZeroBias_Gated_v5',
+    'HLT_ZeroBias_HighRate_v5'
+)
+
+
+# stream PhysicsSpecialZeroBias31
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias31_datasetSpecialZeroBias31_selector
+streamPhysicsSpecialZeroBias31_datasetSpecialZeroBias31_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias31_datasetSpecialZeroBias31_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias31_datasetSpecialZeroBias31_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias31_datasetSpecialZeroBias31_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -708,21 +836,11 @@ streamPhysicsSpecialZeroBias3_datasetSpecialZeroBias7_selector.triggerConditions
 
 # stream PhysicsSpecialZeroBias4
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias8_selector
-streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias8_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias8_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias8_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias8_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias9_selector
-streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias9_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias9_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias9_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias9_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias4_selector
+streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias4_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias4_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias4_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias4_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -731,21 +849,11 @@ streamPhysicsSpecialZeroBias4_datasetSpecialZeroBias9_selector.triggerConditions
 
 # stream PhysicsSpecialZeroBias5
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias10_selector
-streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias10_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias10_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias10_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias10_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias11_selector
-streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias11_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias11_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias11_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias11_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias5_selector
+streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias5_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias5_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias5_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias5_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -754,21 +862,11 @@ streamPhysicsSpecialZeroBias5_datasetSpecialZeroBias11_selector.triggerCondition
 
 # stream PhysicsSpecialZeroBias6
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias12_selector
-streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias12_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias12_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias12_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias12_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias13_selector
-streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias13_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias13_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias13_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias13_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias6_selector
+streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias6_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias6_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias6_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias6_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -777,21 +875,11 @@ streamPhysicsSpecialZeroBias6_datasetSpecialZeroBias13_selector.triggerCondition
 
 # stream PhysicsSpecialZeroBias7
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias14_selector
-streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias14_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias14_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias14_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias14_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias15_selector
-streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias15_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias15_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias15_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias15_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias7_selector
+streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias7_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias7_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias7_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias7_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -800,21 +888,11 @@ streamPhysicsSpecialZeroBias7_datasetSpecialZeroBias15_selector.triggerCondition
 
 # stream PhysicsSpecialZeroBias8
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias16_selector
-streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias16_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias16_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias16_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias16_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias17_selector
-streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias17_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias17_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias17_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias17_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias8_selector
+streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias8_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias8_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias8_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias8_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
@@ -823,21 +901,11 @@ streamPhysicsSpecialZeroBias8_datasetSpecialZeroBias17_selector.triggerCondition
 
 # stream PhysicsSpecialZeroBias9
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias18_selector
-streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias18_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias18_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias18_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias18_selector.triggerConditions = cms.vstring(
-    'HLT_SpecialZeroBias_v7',
-    'HLT_ZeroBias_Gated_v5',
-    'HLT_ZeroBias_HighRate_v5'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias19_selector
-streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias19_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias19_selector.l1tResults = cms.InputTag('')
-streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias19_selector.throw      = cms.bool(False)
-streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias19_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias9_selector
+streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias9_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias9_selector.l1tResults = cms.InputTag('')
+streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias9_selector.throw      = cms.bool(False)
+streamPhysicsSpecialZeroBias9_datasetSpecialZeroBias9_selector.triggerConditions = cms.vstring(
     'HLT_SpecialZeroBias_v7',
     'HLT_ZeroBias_Gated_v5',
     'HLT_ZeroBias_HighRate_v5'
