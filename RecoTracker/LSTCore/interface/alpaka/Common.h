@@ -60,6 +60,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     // Common constants for both DNNs
     HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
     HOST_DEVICE_CONSTANT float kPhi_norm = kPi;
+    HOST_DEVICE_CONSTANT float kEtaSize = 0.25f;  // Bin size in eta.
     constexpr unsigned int kPtBins = 2;
     constexpr unsigned int kEtaBins = 10;
 
@@ -81,6 +82,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           {0.4493, 0.4939, 0.5715, 0.6488, 0.5709, 0.5938, 0.7164, 0.7565, 0.8103, 0.8593},
           {0.4488, 0.4448, 0.5067, 0.5929, 0.4836, 0.4112, 0.4968, 0.4403, 0.5597, 0.5067}};
     }  // namespace t5dnn
+
+    namespace pt3dnn {
+      HOST_DEVICE_CONSTANT float kWp[kEtaBins] = {
+          0.189, 0.1805, 0.2267, 0.3104, 0.4719, 0.3159, 0.1372, 0.1571, 0.3198, 0.186};
+      HOST_DEVICE_CONSTANT float kWpHigh = 0.0473f;
+    }  // namespace pt3dnn
 
   }  // namespace dnn
 
