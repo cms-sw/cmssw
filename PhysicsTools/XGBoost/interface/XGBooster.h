@@ -22,11 +22,20 @@ namespace pat {
 
     void set(std::string name, float value);
 
+    const std::string& name(unsigned int feature) const;
+
+    /// Protected predict
+    /// Requires explicit setting of each feature by name
     float predict(const int iterationEnd = 0);
+
+    /// Const unprotected predict
+    /// User must ensure consistency of the input features
+    /// and its values with the model
     float predict(const std::vector<float>& features, const int iterationEnd = 0) const;
 
   private:
     std::vector<float> features_;
+    std::vector<bool> status_;
     std::map<std::string, unsigned int> feature_name_to_index_;
     BoosterHandle booster_;
   };

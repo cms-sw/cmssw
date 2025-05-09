@@ -1,0 +1,8 @@
+<bin name="testXGBooster" file="testXGBooster.cpp">
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/MessageLogger"/>
+    <use name="PhysicsTools/XGBoost"/>
+    <use name="cppunit"/>
+    <use name="xgboost"/>
+</bin>
