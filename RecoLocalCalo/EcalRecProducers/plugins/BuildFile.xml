@@ -31,4 +31,7 @@
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
+  <iftool name="gcc-cxxcompiler" version="14[.]">
+    <flags CXXFLAGS="-Wno-dangling-reference" file="EcalUncalibRecHitPhase2WeightsAlgoPortable.dev.cc"/>
+  </iftool>
 </library>
