@@ -17,7 +17,14 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#if defined(__SANITIZE_ADDRESS__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnonnull"
+#endif
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
+#if defined(__SANITIZE_ADDRESS__)
+#pragma GCC diagnostic pop
+#endif
 #include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
