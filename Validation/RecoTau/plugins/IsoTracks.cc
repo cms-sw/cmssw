@@ -7,6 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
 #include <memory>
 #include <vector>
 
@@ -21,7 +23,8 @@ public:
 private:
   double coneRadius_;
   double threshold_;
-  edm::EDGetTokenT<std::vector<reco::Track>> v_recoTrackToken_;
+  //edm::EDGetTokenT<std::vector<reco::Track>> v_recoTrackToken_;
+  edm::EDGetTokenT<std::vector<pat::PackedCandidate>> v_recoTrackToken_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,8 +34,10 @@ private:
 IsoTracks::IsoTracks(edm::ParameterSet const& iConfig)
     : coneRadius_{iConfig.getParameter<double>("radius")},
       threshold_{iConfig.getParameter<double>("SumPtFraction")},
-      v_recoTrackToken_{consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("src"))} {
-  produces<std::vector<reco::Track>>();
+      //v_recoTrackToken_{consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("src"))} {
+      v_recoTrackToken_{consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("src"))} {
+  //produces<std::vector<reco::Track>>();
+  produces<std::vector<pat::PackedCandidate>>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,9 +46,11 @@ IsoTracks::IsoTracks(edm::ParameterSet const& iConfig)
 
 //______________________________________________________________________________
 void IsoTracks::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
-  auto isoTracks = std::make_unique<std::vector<reco::Track>>();
+  //auto isoTracks = std::make_unique<std::vector<reco::Track>>();
+  auto isoTracks = std::make_unique<std::vector<pat::PackedCandidate>>();
 
-  edm::Handle<std::vector<reco::Track>> dirtyTracks;
+  //edm::Handle<std::vector<reco::Track>> dirtyTracks;
+  edm::Handle<std::vector<pat::PackedCandidate>> dirtyTracks;
   iEvent.getByToken(v_recoTrackToken_, dirtyTracks);
 
   if (dirtyTracks->empty()) {
