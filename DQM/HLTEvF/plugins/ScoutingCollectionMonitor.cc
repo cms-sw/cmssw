@@ -25,6 +25,7 @@ It is based on the preexisting work of the scouting group and can be found at gi
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
@@ -82,6 +83,7 @@ private:
   const edm::EDGetTokenT<std::vector<Run3ScoutingParticle>> pfcandsToken;
   const edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> pfjetsToken;
   const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken;
+  const edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
 
   std::vector<std::string> triggerPathsVector;
   std::map<std::string, int> triggerPathsMap;
@@ -92,6 +94,12 @@ private:
   edm::InputTag algInputTag_;
   edm::InputTag extInputTag_;
   edm::EDGetToken algToken_;
+
+  // pv vs PU and rho vs PU plots
+  int primaryVertex_counter = 0;
+  float avgPileUp;
+  dqm::reco::MonitorElement* PVvsPU_hist;
+  dqm::reco::MonitorElement* rhovsPU_hist;
 
   // rho + pfMetphi + pfMetPt
   dqm::reco::MonitorElement* rho_hist;
@@ -193,6 +201,10 @@ private:
   dqm::reco::MonitorElement* r9_pho_hist;
   dqm::reco::MonitorElement* sMin_pho_hist;
   dqm::reco::MonitorElement* sMaj_pho_hist;
+  dqm::reco::MonitorElement* seedId_pho_hist;
+  dqm::reco::MonitorElement* nClusters_pho_hist;
+  dqm::reco::MonitorElement* nCrystals_pho_hist;
+  dqm::reco::MonitorElement* rechitZeroSuppression_pho_hist;
 
   // electron histograms
   dqm::reco::MonitorElement* pt_ele_hist;
@@ -309,6 +321,7 @@ private:
   dqm::reco::MonitorElement* xzCov_pv_hist;
   dqm::reco::MonitorElement* yzCov_pv_hist;
 
+
   // displaced vertex histograms
   dqm::reco::MonitorElement* x_vtx_hist;
   dqm::reco::MonitorElement* y_vtx_hist;
@@ -379,8 +392,12 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
       pfMetPtToken(consumes<double>(iConfig.getParameter<edm::InputTag>("pfMetPt"))),
       pfcandsToken(consumes<std::vector<Run3ScoutingParticle>>(iConfig.getParameter<edm::InputTag>("pfcands"))),
       pfjetsToken(consumes<std::vector<Run3ScoutingPFJet>>(iConfig.getParameter<edm::InputTag>("pfjets"))),
-      tracksToken(consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))) {}
-//
+      tracksToken(consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))),
+      onlineMetaDataDigisToken_(consumes(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis")))
+{}
+
+      
+      //
 // member functions
 //
 template <typename T>
@@ -414,8 +431,10 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   edm::Handle<std::vector<Run3ScoutingVertex>> verticesH;
   edm::Handle<std::vector<Run3ScoutingVertex>> primaryVerticesH;
   edm::Handle<std::vector<Run3ScoutingTrack>> tracksH;
+  edm::Handle<OnlineLuminosityRecord> onlineMetaDataDigisHandle;
 
-  if (!getValidHandle(iEvent, rhoToken, rhoH, "rho") || !getValidHandle(iEvent, pfMetPhiToken, pfMetPhiH, "MET phi") ||
+  if (!getValidHandle(iEvent, rhoToken, rhoH, "rho") || 
+      !getValidHandle(iEvent, pfMetPhiToken, pfMetPhiH, "MET phi") ||
       !getValidHandle(iEvent, pfMetPtToken, pfMetPtH, "MET pT") ||
       !getValidHandle(iEvent, pfcandsToken, pfcandsH, "PF candidates") ||
       !getValidHandle(iEvent, photonsToken, photonsH, "photons") ||
@@ -424,12 +443,20 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
       !getValidHandle(iEvent, pfjetsToken, PFjetsH, "PF jets") ||
       !getValidHandle(iEvent, verticesToken, verticesH, "vertices") ||
       !getValidHandle(iEvent, primaryVerticesToken, primaryVerticesH, "primary vertices") ||
-      !getValidHandle(iEvent, tracksToken, tracksH, "tracks")) {
-    return;
+      !getValidHandle(iEvent, tracksToken, tracksH, "tracks") || 
+      !getValidHandle(iEvent, onlineMetaDataDigisToken_, onlineMetaDataDigisHandle, "avgPileUp"))  {    
+return;
   }
+
+  // get pile up
+  avgPileUp = onlineMetaDataDigisHandle->avgPileUp();
 
   // put stuff in histogram
   rho_hist->Fill(*rhoH);
+
+
+  rhovsPU_hist->Fill(*rhoH,avgPileUp);
+
   pfMetPhi_hist->Fill(*pfMetPhiH);
   pfMetPt_hist->Fill(*pfMetPtH);
 
@@ -657,6 +684,8 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
 
   // fill all the primary vertices histograms
   for (const auto& vtx : *primaryVerticesH) {
+	  
+    primaryVertex_counter++;	  
     x_pv_hist->Fill(vtx.x());
     y_pv_hist->Fill(vtx.y());
     z_pv_hist->Fill(vtx.z());
@@ -671,6 +700,8 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     xzCov_pv_hist->Fill(vtx.xzCov());
     yzCov_pv_hist->Fill(vtx.yzCov());
   }
+
+  PVvsPU_hist->Fill(primaryVertex_counter,avgPileUp); 
 
   // fill all the displaced vertices histograms
   for (const auto& vtx : *verticesH) {
@@ -724,7 +755,9 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   rho_hist = ibook.book1D("rho", "#rho; #rho; Entries", 100, 0.0, 60.0);
   pfMetPhi_hist = ibook.book1D("pfMetPhi", "pf MET #phi; #phi ;Entries", 100, -3.14, 3.14);
   pfMetPt_hist = ibook.book1D("pfMetPt", "pf MET pT;p_{T} [GeV];Entries", 100, 0.0, 250.0);
-
+  PVvsPU_hist = ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 20, 20, 60, 0, 65);
+  rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 20, 20, 60, 0, 45);
+  
   ibook.setCurrentFolder(outputInternalPath_ + "/PFcand");
   PF_pT_211_hist = ibook.book1DD("pT_211", "PF h^{+}  pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 13.0);
   PF_pT_n211_hist = ibook.book1DD("pT_n211", "PF h^{-} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 14.0);
@@ -1037,6 +1070,7 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("pfMetPt", edm::InputTag("hltScoutingPFPacker", "pfMetPt"));
   desc.add<edm::InputTag>("pfMetPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
   desc.add<edm::InputTag>("rho", edm::InputTag("hltScoutingPFPacker", "rho"));
+  desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("onlineMetaDataDigis")); 
   descriptions.addWithDefaultLabel(desc);
 }
 
