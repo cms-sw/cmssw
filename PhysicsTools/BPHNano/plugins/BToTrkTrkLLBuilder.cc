@@ -48,7 +48,8 @@ public:
         beamspot_{consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpot"))},
         dilepton_constraint_{cfg.getParameter<bool>("dileptonMassContraint")} {
     // output
-    produces<pat::CompositeCandidateCollection>();
+    produces<pat::CompositeCandidateCollection>("SelectedBToTrkTrkMuMu");
+    produces<pat::CompositeCandidateCollection>("SelectedTrkTrk");
   }
 
   ~BToTrkTrkLLBuilder() override {}
@@ -96,6 +97,7 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
 
   // output
   std::unique_ptr<pat::CompositeCandidateCollection> ret_val(new pat::CompositeCandidateCollection());
+  std::unique_ptr<pat::CompositeCandidateCollection> ditrack_out(new pat::CompositeCandidateCollection());
 
   for (size_t ditracks_idx = 0; ditracks_idx < ditracks->size(); ++ditracks_idx) {
     // both k*,phi and lep pair already passed cuts; no need for more
@@ -352,13 +354,15 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
       cand.addUserFloat("constraint_massErr_piK", constraint_massErr_piK);
       cand.addUserFloat("constraint_mll", constraint_mll);
 
-      ret_val->push_back(cand);
+      ret_val->emplace_back(cand);
+      ditrack_out->emplace_back(*ditracks_ptr);
 
     }  // for(size_t ll_idx = 0; ll_idx < dileptons->size(); ++ll_idx) {
 
   }  // for(size_t k_idx = 0; k_idx < ditracks->size(); ++k_idx)
 
-  evt.put(std::move(ret_val));
+  evt.put(std::move(ret_val), "SelectedBToTrkTrkMuMu");
+  evt.put(std::move(ditrack_out), "SelectedTrkTrk");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
