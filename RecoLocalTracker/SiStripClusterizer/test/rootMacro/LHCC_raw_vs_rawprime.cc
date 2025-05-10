@@ -313,7 +313,7 @@ void do_matching(const map<int, vector<T> > & r_objs, const map<int, vector<T> >
                obj_hists.fill("deltar", matched_obj.drmin);
                obj_hists.fill("matched_pt_r", matched_obj.r_pt);
                obj_hists.fill("matched_pt_r", matched_obj.rp_pt);
-               obj_hists.fill("ratio", matched_obj.r_pt/matched_obj.rp_pt);
+               obj_hists.fill("ratio", (matched_obj.rp_pt-matched_obj.r_pt)/matched_obj.r_pt);
              }
 
           } // end of r_objs loop
