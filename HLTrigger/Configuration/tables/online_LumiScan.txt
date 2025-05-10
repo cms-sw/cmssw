@@ -71,6 +71,23 @@ PhysicsSpecialZeroBias12Output
 PhysicsSpecialZeroBias13Output
 PhysicsSpecialZeroBias14Output
 PhysicsSpecialZeroBias15Output
+PhysicsSpecialZeroBias16Output
+PhysicsSpecialZeroBias17Output
+PhysicsSpecialZeroBias18Output
+PhysicsSpecialZeroBias19Output
+PhysicsSpecialZeroBias20Output
+PhysicsSpecialZeroBias21Output
+PhysicsSpecialZeroBias22Output
+PhysicsSpecialZeroBias23Output
+PhysicsSpecialZeroBias24Output
+PhysicsSpecialZeroBias25Output
+PhysicsSpecialZeroBias26Output
+PhysicsSpecialZeroBias27Output
+PhysicsSpecialZeroBias28Output
+PhysicsSpecialZeroBias29Output
+PhysicsSpecialZeroBias30Output
+PhysicsSpecialZeroBias31Output
+
 RPCMONOutput
 
 ######## Paths that are different between online and offline ########
