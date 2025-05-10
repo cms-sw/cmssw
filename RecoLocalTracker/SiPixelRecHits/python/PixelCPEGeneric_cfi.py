@@ -8,6 +8,10 @@ PixelCPEGenericESProducer = _generic_default.clone()
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(PixelCPEGenericESProducer, IrradiationBiasCorrection = True)
 
+# Enable the good edge algorithm in pixel hit reconstruction that handles broken/truncated pixel cluster caused by radiation damage
+from Configuration.ProcessModifiers.siPixelGoodEdgeAlgo_cff import siPixelGoodEdgeAlgo
+siPixelGoodEdgeAlgo.toModify(PixelCPEGenericESProducer, GoodEdgeAlgo = True)
+
 # customize the Pixel CPE generic producer for phase2
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(PixelCPEGenericESProducer,
