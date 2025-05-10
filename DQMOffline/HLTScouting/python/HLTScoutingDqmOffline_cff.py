@@ -17,8 +17,9 @@ from HLTriggerOffline.Scouting.ScoutingCollectionMonitor_cfi import *
 
 hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx
                                          * scoutingMonitoringTagProbeMuonVtx                                                         
-                                         * scoutingMonitoringTriggerMuon                                                              
-) 
+                                         * scoutingMonitoringTriggerMuon_DoubleMu
+                                         * scoutingMonitoringTriggerMuon_SingleMu
+)
 
 
 hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)

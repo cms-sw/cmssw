@@ -87,9 +87,11 @@ process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(1))
 process.allPath = cms.Path(process.scoutingMonitoringTagProbeMuonNoVtx
                            * process.scoutingMonitoringTagProbeMuonVtx
                            * process.muonEfficiencyNoVtx
-                           * process.muonEfficiencyVtx 
-                           * process.scoutingMonitoringTriggerMuon
-                           * process.muonTriggerEfficiency)
+                           * process.muonEfficiencyVtx
+                           * process.scoutingMonitoringTriggerMuon_DoubleMu
+                           * process.scoutingMonitoringTriggerMuon_SingleMu
+                           * process.muonTriggerEfficiency_DoubleMu
+                           * process.muonTriggerEfficiency_SingleMu)
 
 #Save the files and close root file
 process.p = cms.EndPath(process.dqmSaver)
