@@ -51,7 +51,6 @@ public:
  {
 
    TLatex latex;
-
    for (const auto histname: histnames)
    {
      auto hist = hists[histname.c_str()];
@@ -60,9 +59,11 @@ public:
      TCanvas* canv = create_canvas(1);
      canv->GetPad(0)->SetMargin(0.18, 0.20, 0.12, 0.07);
      canv->SetLogy(true);
+
      hist->SetStats(0);
      PlotStyle(hist);
      hist->Draw("e");
+
      latex.SetTextFont(43);
      latex.SetTextSize(24);
      latex.DrawLatexNDC(0.21,0.84,"CMS");
@@ -73,9 +74,15 @@ public:
      latex.SetTextSize(24);
      latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
      latex.SetTextFont(43);
-     latex.DrawLatexNDC(0.60,0.80,Form("Mean=%.2f", hist->GetMean()));
-     latex.DrawLatexNDC(0.60,0.75,Form("Std Dev=%.2f", hist->GetStdDev()));
-   
+     latex.DrawLatexNDC(0.60,0.80,Form("Mean=%.4f", hist->GetMean()));
+     latex.DrawLatexNDC(0.60,0.75,Form("Std Dev=%.4f", hist->GetStdDev()));
+     std::ostringstream mean, std;
+     mean << std::fixed << std::setprecision(4) << hist->GetMean(); // 5 digits after decimal
+     std << std::fixed << std::setprecision(4) << hist->GetStdDev();
+     if (std::string(hist->GetName()).find("pt") != std::string::npos) {
+	std::cout << hist->GetName() << " Mean:" << mean.str() << std::endl;
+        std::cout << hist->GetName() << " Std:" << std.str() << std::endl;
+     }
      canv->SaveAs(Form("%s_%s.png", base_name.c_str(), histname.c_str()));
      delete canv;
    }
