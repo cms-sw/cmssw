@@ -24,7 +24,6 @@ public:
 
 private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_barrel_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_HFNose_token_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   hgcal::RecHitTools rhtools_;
@@ -76,14 +75,15 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
   for (auto const &lc : layerClusters) {
     const auto firstHitDetId = lc.hitsAndFractions()[0].first;
     int layer = rhtools_.getLayerWithOffset(firstHitDetId);
-    if (!rhtools_.isBarrel(firstHitDetId)) {
+    bool isBarrelLC = rhtools_.isBarrel(firstHitDetId);
+    if (!isBarrelLC) {
       layer += rhtools_.lastLayer(doNose_) * ((rhtools_.zside(firstHitDetId) + 1) >> 1) - 1;
     }
     assert(layer >= 0);
 
     if (doNose_) {
       resultHFNose->fill(layer, lc.eta(), lc.phi(), lcId);
-    } else if (rhtools_.isBarrel(firstHitDetId)) {
+    } else if (isBarrelLC) {
       resultBarrel->fill(layer, lc.eta(), lc.phi(), lcId);
     } else {
       result->fill(layer, lc.eta(), lc.phi(), lcId);

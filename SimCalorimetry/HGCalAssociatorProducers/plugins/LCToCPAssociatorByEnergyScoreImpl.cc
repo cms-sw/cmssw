@@ -352,6 +352,13 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   // together with the returned AssociationMap
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
     // find the unique caloparticles id contributing to the layer clusters
+    if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+      if (recHitTools_->isBarrel(clusters[lcId].seed()))
+        continue;
+    } else {
+      if (!recHitTools_->isBarrel(clusters[lcId].seed()))
+        continue;
+    }
     std::sort(cpsInLayerCluster[lcId].begin(), cpsInLayerCluster[lcId].end());
     auto last = std::unique(cpsInLayerCluster[lcId].begin(), cpsInLayerCluster[lcId].end());
     cpsInLayerCluster[lcId].erase(last, cpsInLayerCluster[lcId].end());
@@ -372,13 +379,6 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     // It is the inverse of the denominator of the LCToCP score formula. Observe that this is the sum of the squares.
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : hits_and_fractions) {
-      if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-        if (recHitTools_->isBarrel(haf.first))
-          continue;
-      } else {
-        if (!recHitTools_->isBarrel(haf.first))
-          continue;
-      }
       const HIT* hit = hits_[hitMap_->at(haf.first)];
       invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
     }
@@ -452,13 +452,6 @@ ticl::association LCToCPAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       // Compute the correct normalization. Observe that this is the sum of the squares.
       float invCPEnergyWeight = 0.f;
       for (auto const& haf : cPOnLayer[cpId][layerId].hits_and_fractions) {
-        if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-          if (recHitTools_->isBarrel(haf.first))
-            continue;
-        } else {
-          if (!recHitTools_->isBarrel(haf.first))
-            continue;
-        }
         const HIT* hit = hits_[hitMap_->at(haf.first)];
         invCPEnergyWeight += std::pow(haf.second * hit->energy(), 2);
       }

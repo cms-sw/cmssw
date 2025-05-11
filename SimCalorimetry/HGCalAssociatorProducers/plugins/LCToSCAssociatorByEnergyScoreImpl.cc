@@ -55,10 +55,7 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     unsigned int nLayers = 2 * layers_;
     if constexpr (std::is_same_v<HIT, reco::PFRecHit>)
       nLayers = layers_;
-    if constexpr (std::is_same_v<HIT, HGCRecHit>)
-      lcsInSimCluster[i].resize(nLayers);
-    else
-      lcsInSimCluster[i].resize(nLayers);
+    lcsInSimCluster[i].resize(nLayers);
     for (unsigned int j = 0; j < nLayers; ++j) {
       lcsInSimCluster[i][j].simClusterId = i;
       lcsInSimCluster[i][j].energy = 0.f;
@@ -359,6 +356,13 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
     // The simclusters contributing to the layer clusters should already be unique.
     // find the unique simclusters id contributing to the layer clusters
+    if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+      if (recHitTools_->isBarrel(clusters[lcId].seed()))
+        continue;
+    } else {
+      if (!recHitTools_->isBarrel(clusters[lcId].seed()))
+        continue;
+    }
     std::sort(scsInLayerCluster[lcId].begin(), scsInLayerCluster[lcId].end());
     auto last = std::unique(scsInLayerCluster[lcId].begin(), scsInLayerCluster[lcId].end());
     scsInLayerCluster[lcId].erase(last, scsInLayerCluster[lcId].end());
@@ -379,17 +383,8 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     // It is the inverse of the denominator of the LCToSC score formula. Observe that this is the sum of the squares.
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : hits_and_fractions) {
-      if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-        if (recHitTools_->isBarrel(haf.first))
-          continue;
-        const HIT* hit = hits_[hitMap_->at(haf.first)];
-        invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
-      } else {
-        if (!recHitTools_->isBarrel(haf.first))
-          continue;
-        const HIT* hit = hits_[hitMap_->at(haf.first)];
-        invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
-      }
+      const HIT* hit = hits_[hitMap_->at(haf.first)];
+      invLayerClusterEnergyWeight += (haf.second * hit->energy()) * (haf.second * hit->energy());
     }
     invLayerClusterEnergyWeight = 1.f / invLayerClusterEnergyWeight;
     for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
@@ -398,13 +393,6 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
 
       bool hitWithSC = (detIdToSimClusterId_Map.find(rh_detid) != detIdToSimClusterId_Map.end());
 
-      if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-        if (recHitTools_->isBarrel(rh_detid))
-          continue;
-      } else {
-        if (!recHitTools_->isBarrel(rh_detid))
-          continue;
-      }
       auto itcheck = hitMap_->find(rh_detid);
       const HIT* hit = hits_[itcheck->second];
       float hitEnergyWeight = hit->energy() * hit->energy();
@@ -478,13 +466,6 @@ ticl::association LCToSCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
       // Compute the correct normalization. Observe that this is the sum of the squares.
       float invSCEnergyWeight = 0.f;
       for (auto const& haf : lcsInSimCluster[scId][layerId].hits_and_fractions) {
-        if constexpr (std::is_same_v<HIT, HGCRecHit>) {
-          if (recHitTools_->isBarrel(haf.first))
-            continue;
-        } else {
-          if (!recHitTools_->isBarrel(haf.first))
-            continue;
-        }
         const HIT* hit = hits_[hitMap_->at(haf.first)];
         invSCEnergyWeight += std::pow(haf.second * hit->energy(), 2);
       }

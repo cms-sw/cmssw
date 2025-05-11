@@ -170,9 +170,7 @@ GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose, bool barrel) con
       const std::vector<DetId>& validDetIds = geom_->getValidDetIds(DetId::Hcal, HcalBarrel);
       auto firstValidDetId =
           std::find_if(validDetIds.begin(), validDetIds.end(), [&](auto id) { return HcalDetId(id).depth() == layer; });
-      if (firstValidDetId == validDetIds.end()) {
-        throw cms::Exception("hgcal::RecHitTools") << "validDetId not found!";
-      }
+      assert(firstValidDetId != validDetIds.end());
       x = getPosition(*firstValidDetId).x();
       y = getPosition(*firstValidDetId).y();
     }
@@ -496,9 +494,7 @@ bool RecHitTools::isSilicon(const DetId& id) const {
           (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)));
 }
 
-bool RecHitTools::isScintillator(const DetId& id) const {
-  return (id.det() == DetId::HGCalHSc || id.det() == DetId::Ecal || id.det() == DetId::Hcal);
-}
+bool RecHitTools::isScintillator(const DetId& id) const { return (id.det() == DetId::HGCalHSc); }
 
 bool RecHitTools::isBarrel(const DetId& id) const { return (id.det() == DetId::Ecal || id.det() == DetId::Hcal); }
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
