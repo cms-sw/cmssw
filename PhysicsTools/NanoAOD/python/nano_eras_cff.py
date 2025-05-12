@@ -19,6 +19,8 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from Configuration.Eras.Modifier_run3_nanoAOD_pre142X_cff import run3_nanoAOD_pre142X
 from Configuration.Eras.Modifier_run3_jme_Winter22runsBCDEprompt_cff import run3_jme_Winter22runsBCDEprompt
+from Configuration.Eras.Modifier_run3_nanoAOD_2025_cff import run3_nanoAOD_2025  # for 2025 data-taking (and possibly also 2026)
+from Configuration.Eras.Modifier_run3_nanoAOD_devel_cff import run3_nanoAOD_devel  # for development beyond v15
 
 run2_nanoAOD_ANY = (
     run2_nanoAOD_106Xv2
