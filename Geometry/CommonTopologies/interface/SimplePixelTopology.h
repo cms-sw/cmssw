@@ -13,7 +13,7 @@ namespace pixelTopology {
   constexpr uint8_t maxPairs = 64;
 
   // TODO
-  // Once CUDA is dropped this could be wrapped in #ifdef ONLY_TRIPLETS_IN_HOLE
+  // Once CUDA is dropped this could be wrapped in #ifdef CA_TRIPLETS_HOLE
   // see DataFormats/TrackingRecHitSoa/interface/TrackingRecHitSoA.h
 
   template <typename TrackerTraits>
@@ -191,6 +191,10 @@ namespace phase1PixelTopology {
   HOST_DEVICE_CONSTANT float maxr[nPairs] = {
       20., 9., 9., 20., 7., 7., 5., 5., 20., 6., 6., 5., 5., 20., 20., 9., 9., 9., 9.};
 
+  HOST_DEVICE_CONSTANT float dcaCuts[numberOfLayers] = {
+      0.002, 0.002, 0.002, 0.002, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003};
+  HOST_DEVICE_CONSTANT float thetaCuts[numberOfLayers] = {0.15, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
+
   static constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
                                                               96,
                                                               320,
@@ -263,6 +267,17 @@ namespace phase2PixelTopology {
                                              6.0, 5.0, 6.0, 6.0, 6.0, 6.0,  5.0, 6.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0,
                                              5.0, 8.0, 8.0, 8.0, 8.0, 6.0,  5.0, 5.0, 5.0, 6.0, 5.0, 5.0, 5.0, 9.0,
                                              9.0, 9.0, 8.0, 8.0, 8.0, 11.0, 9.0, 9.0, 9.0, 8.0, 8.0, 8.0, 11.0};
+
+  HOST_DEVICE_CONSTANT float dcaCuts[numberOfLayers] = {0.002, 0.002, 0.002, 0.002,  // BPix
+                                                        0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
+                                                        0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
+                                                        0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003};
+
+  HOST_DEVICE_CONSTANT float thetaCuts[numberOfLayers] = {0.15,  //BPix1
+                                                          0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+                                                          0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+                                                          0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
+
 }  // namespace phase2PixelTopology
 
 namespace phase1HIonPixelTopology {
@@ -292,6 +307,11 @@ namespace phase1HIonPixelTopology {
                                                                     phi0p09,
                                                                     phi0p09};
 
+  HOST_DEVICE_CONSTANT float dcaCuts[phase1PixelTopology::numberOfLayers] = {
+      0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
+
+  HOST_DEVICE_CONSTANT float thetaCuts[phase1PixelTopology::numberOfLayers] = {
+      0.001, 0.001, 0.001, 0.001, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002};
 }  // namespace phase1HIonPixelTopology
 
 namespace pixelTopology {

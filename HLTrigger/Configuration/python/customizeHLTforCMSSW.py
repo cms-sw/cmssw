@@ -186,67 +186,6 @@ def customizeHLTfor47611(process):
 
                 setattr(prod, 'geometry', geometryPS)
 
-
-   
-    # if has_pp_producers:
-        
-    #     process.hltCAGeometry = cms.ESProducer('CAGeometryESProducer@alpaka',
-    #         startingPairs = cms.vint32( [i for i in range(8)] + [13, 14, 15, 16, 17, 18, 19]),
-    #         pairGraph = cms.vint32( 0, 1, 0, 4, 0,
-    #             7, 1, 2, 1, 4,
-    #             1, 7, 4, 5, 7,
-    #             8, 2, 3, 2, 4,
-    #             2, 7, 5, 6, 8,
-    #             9, 0, 2, 1, 3,
-    #             0, 5, 0, 8, 
-    #             4, 6, 7, 9 
-    #         ),
-    #         phiCuts = cms.vint32( 
-    #             522, 730, 730, 522, 626,
-    #             626, 522, 522, 626, 626,
-    #             626, 522, 522, 522, 522,
-    #             522, 522, 522, 522
-    #         ),
-    #         minZ = cms.vdouble(
-    #                 -20., 0., -30., -22., 10., 
-    #                 -30., -70., -70., -22., 15., 
-    #                 -30, -70., -70., -20., -22., 
-    #                 0, -30., -70., -70.
-    #         ),
-    #         maxZ = cms.vdouble( 20., 30., 0., 22., 30., 
-    #             -10., 70., 70., 22., 30., 
-    #             -15., 70., 70., 20., 22., 
-    #             30., 0., 70., 70.),
-    #         maxR = cms.vdouble(20., 9., 9., 20., 7., 
-    #             7., 5., 5., 20., 6., 
-    #             6., 5., 5., 20., 20., 
-    #             9., 9., 9., 9.),
-    #         appendToDataLabel = cms.string('hltCAGeometry'),
-    #         alpaka = cms.untracked.PSet(
-    #             backend = cms.untracked.string(''),
-    #             synchronize = cms.optional.untracked.bool
-    #         )
-    #     )
-    
-    # if has_hi_producers:
-
-    #     process.hltCAGeometryESProducer = cms.ESProducer("CAGeometryESProducer@alpaka",
-    #             alpaka = cms.untracked.PSet(
-    #                 backend = cms.untracked.string(''),
-    #                 synchronize = cms.optional.untracked.bool
-    #             ),
-    #             appendToDataLabel = cms.string('hltCAGeometryHIon'),
-    #             caDCACuts = cms.vdouble(
-    #                 0.05, 0.1, 0.1, 0.1, 0.1,
-    #                 0.1, 0.1, 0.1, 0.1, 0.1
-    #             ),
-    #             caThetaCuts = cms.vdouble(
-    #                 0.001, 0.001, 0.001, 0.001, 0.002,
-    #                 0.002, 0.002, 0.002, 0.002, 0.002
-    #             )
-    #         )
-        
-
     return process
 
 def customizeHLTfor47630(process):
@@ -290,7 +229,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     
     process = customizeHLTfor47611(process)
-    process = customizeHLTfor47306Bug(process) ## To avoid the 47306 bug
 
     return process
 
