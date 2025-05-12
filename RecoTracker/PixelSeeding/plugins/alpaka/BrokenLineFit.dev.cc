@@ -1,6 +1,6 @@
-#define BROKENLINE_DEBUG
+// #define BROKENLINE_DEBUG
 // #define BL_DUMP_HITS
-#define GPU_DEBUG
+// #define GPU_DEBUG
 #include <cstdint>
 
 #include <alpaka/alpaka.hpp>
@@ -200,24 +200,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (invalidTkId == ptkids[local_idx])
           break;
         auto tkid = ptkids[local_idx];
-        printf("kernelBLFit::%d\n",__LINE__);
+
         ALPAKA_ASSERT_ACC(int(tkid) < tupleMultiplicity->capacity());
-        printf("kernelBLFit::%d\n",__LINE__);
+
         riemannFit::Map3xNd<N> hits(phits + local_idx);
         riemannFit::Map4d fast_fit(pfast_fit + local_idx);
         riemannFit::Map6xNf<N> hits_ge(phits_ge + local_idx);
-        printf("kernelBLFit::%d\n",__LINE__);
+
         brokenline::PreparedBrokenLineData<N> data;
-        printf("kernelBLFit::%d\n",__LINE__);
+
         brokenline::karimaki_circle_fit circle;
         riemannFit::LineFit line;
-        printf("kernelBLFit::%d\n",__LINE__);
+
         brokenline::prepareBrokenLineData(acc, hits, fast_fit, bField, data);
-        printf("kernelBLFit::prepareBrokenLineData\n");
         brokenline::lineFit(acc, hits_ge, fast_fit, bField, data, line);
-        printf("kernelBLFit::lineFit\n");
         brokenline::circleFit(acc, hits, hits_ge, fast_fit, bField, data, circle);
-        printf("kernelBLFit::circleFit\n");
 
         reco::copyFromCircle(results_view, circle.par, circle.cov, line.par, line.cov, 1.f / float(bField), tkid);
         results_view[tkid].pt() = float(bField) / float(std::abs(circle.par(2)));
@@ -254,7 +251,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                         uint32_t hitsInFit,
                                                         uint32_t maxNumberOfTuples,
                                                         Queue &queue) {
-
     ALPAKA_ASSERT_ACC(tuples_);
 
 #ifdef GPU_DEBUG
@@ -389,7 +385,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               fast_fit_resultsDevice.data());
 #ifdef GPU_DEBUG
           alpaka::wait(queue);
-          std::cout << "Kernel_BLFastFit("<< i <<") and Kernel_BLFit("<< i <<") -> done! " << std::endl;
+          std::cout << "Kernel_BLFastFit(" << i << ") and Kernel_BLFit(" << i << ") -> done! " << std::endl;
 #endif
         });
 

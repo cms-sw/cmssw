@@ -1,5 +1,5 @@
-#define GPU_DEBUG
-//#define DUMP_GPU_TK_TUPLES
+// #define GPU_DEBUG
+// #define DUMP_GPU_TK_TUPLES
 
 #include <array>
 #include <cassert>
@@ -239,9 +239,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "Quality cuts based on the results of the track fit:\n  - apply a pT-dependent chi2 cut;\n  - apply "
             "\"region "
             "cuts\" based on the fit results (pT, Tip, Zip).");
+
+    edm::ParameterSetDescription geometryParams;
+    using namespace phase1PixelTopology;
+    // layers params
+    geometryParams
+        .add<std::vector<double>>("caDCACuts",
+                                  std::vector<double>(std::begin(dcaCuts), std::begin(dcaCuts) + numberOfLayers))
+        ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
+    geometryParams
+        .add<std::vector<double>>("caThetaCuts",
+                                  std::vector<double>(std::begin(thetaCuts), std::begin(thetaCuts) + numberOfLayers))
+        ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
+    geometryParams.add<std::vector<int>>("startingPairs", {0, 1, 2})
+        ->setComment(
+            "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
+    // cells params
+    geometryParams
+        .add<std::vector<int>>("pairGraph",
+                               std::vector<int>(std::begin(layerPairs), std::begin(layerPairs) + (nPairs * 2)))
+        ->setComment("CA graph");
+    geometryParams
+        .add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::begin(phicuts) + nPairs))
+        ->setComment("Cuts in phi for cells");
+    geometryParams.add<std::vector<double>>("minZ", std::vector<double>(std::begin(minz), std::begin(minz) + nPairs))
+        ->setComment("Cuts in min z (on inner hit) for cells");
+    geometryParams.add<std::vector<double>>("maxZ", std::vector<double>(std::begin(maxz), std::begin(maxz) + nPairs))
+        ->setComment("Cuts in max z (on inner hit) for cells");
+    geometryParams.add<std::vector<double>>("maxR", std::vector<double>(std::begin(maxr), std::begin(maxr) + nPairs))
+        ->setComment("Cuts in max r for cells");
+
+    desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
+        ->setComment(
+            "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
+            "Zip).");
   }
 
-  // now this could be removed actually
   template <>
   void CAHitNtupletGenerator<pixelTopology::HIonPhase1>::fillPSetDescription(edm::ParameterSetDescription& desc) {
     fillDescriptionsCommon(desc);
@@ -265,6 +298,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "Quality cuts based on the results of the track fit:\n  - apply a pT-dependent chi2 cut;\n  - apply "
             "\"region "
             "cuts\" based on the fit results (pT, Tip, Zip).");
+
+    edm::ParameterSetDescription geometryParams;
+    using namespace phase1PixelTopology;
+    // layers params
+    geometryParams
+        .add<std::vector<double>>("caDCACuts",
+                                  std::vector<double>(std::begin(phase1HIonPixelTopology::dcaCuts),
+                                                      std::begin(phase1HIonPixelTopology::dcaCuts) + numberOfLayers))
+        ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
+    geometryParams
+        .add<std::vector<double>>("caThetaCuts",
+                                  std::vector<double>(std::begin(phase1HIonPixelTopology::thetaCuts),
+                                                      std::begin(phase1HIonPixelTopology::thetaCuts) + numberOfLayers))
+        ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
+    geometryParams.add<std::vector<int>>("startingPairs", {0, 1, 2})
+        ->setComment(
+            "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
+    // cells params
+    geometryParams
+        .add<std::vector<int>>("pairGraph",
+                               std::vector<int>(std::begin(layerPairs), std::begin(layerPairs) + (nPairs * 2)))
+        ->setComment("CA graph");
+    geometryParams
+        .add<std::vector<int>>("phiCuts",
+                               std::vector<int>(std::begin(phase1HIonPixelTopology::phicuts),
+                                                std::begin(phase1HIonPixelTopology::phicuts) + nPairs))
+        ->setComment("Cuts in phi for cells");
+    geometryParams.add<std::vector<double>>("minZ", std::vector<double>(std::begin(minz), std::begin(minz) + nPairs))
+        ->setComment("Cuts in min z (on inner hit) for cells");
+    geometryParams.add<std::vector<double>>("maxZ", std::vector<double>(std::begin(maxz), std::begin(maxz) + nPairs))
+        ->setComment("Cuts in max z (on inner hit) for cells");
+    geometryParams.add<std::vector<double>>("maxR", std::vector<double>(std::begin(maxr), std::begin(maxr) + nPairs))
+        ->setComment("Cuts in max r for cells");
+
+    desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
+        ->setComment(
+            "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
+            "Zip).");
   }
 
   template <>
@@ -277,6 +348,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     trackQualityCuts.add<double>("maxTip", 0.3)->setComment("Max |Tip| in cm");
     trackQualityCuts.add<double>("maxZip", 12.)->setComment("Max |Zip|, in cm");
     desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)
+        ->setComment(
+            "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
+            "Zip).");
+
+    edm::ParameterSetDescription geometryParams;
+    using namespace phase2PixelTopology;
+    // layers params
+    geometryParams
+        .add<std::vector<double>>("caDCACuts",
+                                  std::vector<double>(std::begin(dcaCuts), std::begin(dcaCuts) + numberOfLayers))
+        ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
+    geometryParams
+        .add<std::vector<double>>("caThetaCuts",
+                                  std::vector<double>(std::begin(thetaCuts), std::begin(thetaCuts) + numberOfLayers))
+        ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
+    geometryParams
+        .add<std::vector<int>>("startingPairs", {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16,
+                                                 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32})
+        ->setComment(
+            "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
+    // cells params
+    geometryParams
+        .add<std::vector<int>>("pairGraph",
+                               std::vector<int>(std::begin(layerPairs), std::begin(layerPairs) + (nPairs * 2)))
+        ->setComment("CA graph");
+    geometryParams
+        .add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::begin(phicuts) + nPairs))
+        ->setComment("Cuts in phi for cells");
+    geometryParams.add<std::vector<double>>("minZ", std::vector<double>(std::begin(minz), std::begin(minz) + nPairs))
+        ->setComment("Cuts in min z (on inner hit) for cells");
+    geometryParams.add<std::vector<double>>("maxZ", std::vector<double>(std::begin(maxz), std::begin(maxz) + nPairs))
+        ->setComment("Cuts in max z (on inner hit) for cells");
+    geometryParams.add<std::vector<double>>("maxR", std::vector<double>(std::begin(maxr), std::begin(maxr) + nPairs))
+        ->setComment("Cuts in max r for cells");
+
+    desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
         ->setComment(
             "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
             "Zip).");

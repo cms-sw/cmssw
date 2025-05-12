@@ -98,13 +98,6 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
-# def _addCAGeometryESProducer(process):
-#     process.load("RecoTracker.PixelSeeding.CAGeometryESProducer_cfi")
-#     process.CAGeometryESProducer.appendToDataLabel = cms.string("caGeometry")
-
-# modifyConfigurationForAlpakaCAGeometry_ = alpaka.makeProcessModifier(_addCAGeometryESProducer)
-
-
 # pixel tracks SoA producer on the device
 from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase1_cfi import caHitNtupletAlpakaPhase1 as _pixelTracksAlpakaPhase1
 from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase2_cfi import caHitNtupletAlpakaPhase2 as _pixelTracksAlpakaPhase2
@@ -115,8 +108,8 @@ pixelTracksAlpaka = _pixelTracksAlpakaPhase1.clone(
     avgCellsPerHit     = 13,
     avgCellsPerCell    = 0.0268, 
     avgTracksPerCell   = 0.0123, 
-    maxNumberOfDoublets = str(512*1024), # could be lowered to 315k, keeping the same for a fair comparison with master
-    maxNumberOfTuples   = str(32 * 1024), # this couul be much lower (2.1k, these are quads)
+    maxNumberOfDoublets = str(512*1024),    # could be lowered to 315k, keeping the same for a fair comparison with master
+    maxNumberOfTuples   = str(32 * 1024),   # this couul be much lower (2.1k, these are quads)
 )
 phase2_tracker.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2.clone())
 phase2_tracker.toModify(pixelTracksAlpaka,
@@ -137,14 +130,14 @@ phase2_tracker.toModify(pixelTracksAlpaka,
 
 
 (pp_on_AA & ~phase2_tracker).toModify(pixelTracksAlpaka,
-    maxNumberOfDoublets = str(6 * 512 *1024), # this could be 2.3M
-    maxNumberOfTuples = str(256 * 1024), # this could be 4.7
+    maxNumberOfDoublets = str(6 * 512 *1024),   # this could be 2.3M
+    maxNumberOfTuples = str(256 * 1024),        # this could be 4.7
     avgHitsPerTrack = 5.0,
     avgCellsPerHit = 40,
-    avgCellsPerCell = 0.07,     # with maxNumberOfDoublets ~= 3.14M; 0.02  for HLT HI on 2024 HI Data 
-    avgTracksPerCell = 0.03, # with maxNumberOfDoublets ~= 3.14M; 0.005 for HLT HI on 2024 HI Data
-    cellPtCut = 0.5, # setup currenlty used @ HLT (was 0.0) 
-    cellZ0Cut = 8.0, # setup currenlty used @ HLT (was 10.0) 
+    avgCellsPerCell = 0.07,                     # with maxNumberOfDoublets ~= 3.14M; 0.02  for HLT HI on 2024 HI Data 
+    avgTracksPerCell = 0.03,                    # with maxNumberOfDoublets ~= 3.14M; 0.005 for HLT HI on 2024 HI Data
+    cellPtCut = 0.5,                            # setup currenlty used @ HLT (was 0.0) 
+    cellZ0Cut = 8.0,                            # setup currenlty used @ HLT (was 10.0) 
 )
 
 # pixel tracks SoA producer on the cpu, for validation
