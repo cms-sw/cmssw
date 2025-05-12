@@ -1,20 +1,24 @@
 // C++ include files
+#include <cassert>
 #include <utility>
 
 // CMSSW include files
+#include "FWCore/Concurrency/interface/Async.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/WrapperBaseOrphanHandle.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 
 // local include files
 #include "api.h"
 
-class MPIReceiver : public edm::global::EDProducer<> {
+class MPIReceiver : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   MPIReceiver(edm::ParameterSet const& config)
       : upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
@@ -45,14 +49,26 @@ public:
     }
   }
 
-  void produce(edm::StreamID, edm::Event& event, edm::EventSetup const&) const override {
+  void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
+    const MPIToken& token = event.get(upstream_);
+
+    edm::Service<edm::Async> as;
+    as->runAsync(
+        std::move(holder),
+        [this, &token]() {
+          int numProducts;
+          // Receive the number of products
+          token.channel()->receiveProduct(instance_, numProducts);
+          // edm::LogAbsolute("MPIReceiver") << "Received number of products: " << numProducts;
+          assert((numProducts == static_cast<int>(products_.size())) &&
+                 "Receiver number of products is different than expected");
+        },
+        []() { return "Calling MPIReceiver::acquire()"; });
+  }
+
+  void produce(edm::Event& event, edm::EventSetup const&) final {
     // read the MPIToken used to establish the communication channel
     MPIToken token = event.get(upstream_);
-
-    // Receive the number of products
-    int numProducts;
-    token.channel()->receiveProduct(instance_, numProducts);
-    edm::LogVerbatim("MPIReceiver") << "Received number of products: " << numProducts;
 
     for (auto const& entry : products_) {
       std::unique_ptr<edm::WrapperBase> wrapper(
