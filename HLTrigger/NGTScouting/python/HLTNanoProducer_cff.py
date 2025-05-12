@@ -38,6 +38,10 @@ def hltNanoCustomize(process):
         process.NANOAODSIMoutput.outputCommands.append(
             "keep nanoaodFlatTable_*Table*_*_*"
         )
-        process.NANOAODSIMoutput.SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_*', 'DST_*' ) )
+        process.NANOAODSIMoutput.SelectEvents = cms.untracked.PSet(
+            SelectEvents = cms.vstring(
+                [p for p in process.paths if p.startswith('HLT_') or p.startswith('DST_')]
+            )
+        )
 
     return process
