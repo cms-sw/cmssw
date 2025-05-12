@@ -100,7 +100,7 @@ public:
   L1MuGMTReadoutRecord* currentReadoutRecord() const { return m_ReadoutRingbuffer.back(); };
 
   /// for debug: return the debug block (in order to fill it)
-  L1MuGMTDebugBlock* DebugBlockForFill() const { return m_db.load(std::memory_order_acquire).get(); };
+  L1MuGMTDebugBlock* DebugBlockForFill() const { return m_db.load().get(); };
 
 private:
   L1MuGMTPSB* m_PSB;

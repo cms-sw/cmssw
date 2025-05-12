@@ -71,7 +71,7 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
   m_ExtendedCands.reserve(20);
 
   // set configuration parameters
-  if (!m_config.load(std::memory_order_acquire)) {
+  if (!m_config.load()) {
     auto temp = std::make_shared<L1MuGMTConfig>(ps);
     std::shared_ptr<L1MuGMTConfig> expected = nullptr;
     m_config.compare_exchange_strong(expected, temp, std::memory_order_acq_rel, std::memory_order_acquire);
@@ -122,8 +122,8 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
     edm::LogVerbatim("GMT_info") << "creating GMT Sorter";
   m_Sorter = new L1MuGMTSorter(*this);  // barrel
 
-  if (!m_db.load(std::memory_order_acquire)) {
-    auto config = m_config.load(std::memory_order_acquire);
+  if (!m_db.load()) {
+    auto config = m_config.load();
     auto temp = std::make_shared<L1MuGMTDebugBlock>(config->getBxMin(), config->getBxMax());
     std::shared_ptr<L1MuGMTDebugBlock> expected = nullptr;
     m_db.compare_exchange_strong(expected, temp, std::memory_order_acq_rel, std::memory_order_acquire);
