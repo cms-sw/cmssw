@@ -210,6 +210,7 @@ namespace edm {
              bool promptRead,
              InputType inputType);
 
+    std::shared_ptr<TTreeCache> createCacheWithSize(unsigned int cacheSize) const;
     void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     void startTraining();
