@@ -1,6 +1,11 @@
 #ifndef EventFilter_Utilities_DAQSourceModels_h
 #define EventFilter_Utilities_DAQSourceModels_h
 
+/*
+ * Base class defining modular interface for DAQSource data models
+ * See doc/README-DTH.md for interface description
+ */
+
 #include <condition_variable>
 #include <cstdio>
 #include <filesystem>

@@ -1,16 +1,30 @@
 #ifndef EventFilter_Utilities_DAQSourceModelsFRD_h
 #define EventFilter_Utilities_DAQSourceModelsFRD_h
 
+/*
+* DAQSource data model classes for reading Run3 FRD format and unpacking into the FedRawDataCollection
+* FRD: standard readout of input from the event builder
+* FRDPreUNpack: variant unpacking events tns nto FedRawDataCollection class in reader threads
+* FRSStiped: more generic version able to read from multiple source
+* directories (Super-Fragmeng Builder DAQ)
+* */
+
 #include <filesystem>
 #include <queue>
+#include "oneapi/tbb/concurrent_unordered_set.h"
 
 #include "EventFilter/Utilities/interface/DAQSourceModels.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 class FEDRawDataCollection;
 
+/*
+ * FRD unpacker equivalent to the FedRawDataInputSource
+ */
+
 class DataModeFRD : public DataMode {
 public:
+  DataModeFRD(DAQSource* daqSource, bool verifyFEDs) : DataMode(daqSource), verifyFEDs_(verifyFEDs) {}
   DataModeFRD(DAQSource* daqSource) : DataMode(daqSource) {}
   ~DataModeFRD() override {}
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
@@ -82,21 +96,24 @@ private:
   uint16_t MINTCDSuTCAFEDID_ = FEDNumbering::MINTCDSuTCAFEDID;
   uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
   bool eventCached_ = false;
+  std::unordered_set<unsigned short> fedIdSet_;
+  unsigned int expectedFedsInEvent_ = 0;
+  bool verifyFEDs_ = true;
 };
 
 /*
- * FRD source prebuffering in reader thread
+ * FRD source prebuffering in the reader thread
  */
 
 class DataModeFRDPreUnpack : public DataMode {
 public:
-  DataModeFRDPreUnpack(DAQSource* daqSource) : DataMode(daqSource) {}
+  DataModeFRDPreUnpack(DAQSource* daqSource, bool verifyFEDs) : DataMode(daqSource), verifyFEDs_(verifyFEDs) {}
   ~DataModeFRDPreUnpack() override {};
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
 
   //non-virtual
-  void unpackEvent(edm::streamer::FRDEventMsgView* eview, UnpackedRawEventWrapper* ec);
+  void unpackEvent(edm::streamer::FRDEventMsgView* eview, UnpackedRawEventWrapper* ec, unsigned int ls);
   void unpackFile(RawInputFile*) override;
   edm::Timestamp fillFEDRawDataCollection(edm::streamer::FRDEventMsgView* eview,
                                           FEDRawDataCollection& rawData,
@@ -164,16 +181,19 @@ private:
   uint16_t MINTCDSuTCAFEDID_ = FEDNumbering::MINTCDSuTCAFEDID;
   uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
   bool eventCached_ = false;
+  oneapi::tbb::concurrent_unordered_set<unsigned short> fedIdSet_;
+  std::atomic<unsigned int> expectedFedsInEvent_ = 0;
+  bool verifyFEDs_ = true;
 };
 
 /* 
- * FRD source reading files from multiple striped destinations
+ * FRD source reading files from multiple striped destinations (Super-Fragment Builder DAQ)
  *
  * */
 
 class DataModeFRDStriped : public DataMode {
 public:
-  DataModeFRDStriped(DAQSource* daqSource) : DataMode(daqSource) {}
+  DataModeFRDStriped(DAQSource* daqSource, bool verifyFEDs) : DataMode(daqSource), verifyFEDs_(verifyFEDs) {}
   ~DataModeFRDStriped() override {}
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
@@ -258,6 +278,9 @@ private:
   uint16_t MINTCDSuTCAFEDID_ = FEDNumbering::MINTCDSuTCAFEDID;
   uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
   std::vector<std::filesystem::path> buPaths_;
+  std::unordered_set<unsigned short> fedIdSet_;
+  unsigned int expectedFedsInEvent_ = 0;
+  bool verifyFEDs_ = true;
 };
 
 #endif  // EventFilter_Utilities_DAQSourceModelsFRD_h

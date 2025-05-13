@@ -161,8 +161,12 @@ process.streamC = cms.OutputModule("GlobalEvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
 
-process.streamD = cms.OutputModule("GlobalEvFOutputModule",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+process.outRootFile = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p1', 'p2' )),
+    fileName = cms.untracked.string('file:dth_output.root'),
+    outputCommands = cms.untracked.vstring(
+        'keep *'
+    )
 )
 
 process.hltJson = cms.EDAnalyzer("HLTriggerJSONMonitoring")
@@ -185,7 +189,7 @@ process.ep = cms.EndPath(
   process.streamA
   + process.streamB
   + process.streamC
-# + process.streamD
+  + process.outRootFile
   + process.hltJson
   + process.daqHistoTest
   + process.hltDQMFileSaver
