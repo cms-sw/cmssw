@@ -79,16 +79,22 @@ def repackProcess(**args):
 
         if rawSkim:
 
+            skim = getattr(RawSkims, rawSkim)
+            setattr(process, rawSkim, skim)
+
             selectEventsBase = [item.replace(":HLT", "") for item in selectEventsBase]
 
-            process.baseSelection = hlt.hltHighLevel.clone(
+            baseSelection = hlt.hltHighLevel.clone(
                 TriggerResultsTag = "TriggerResults::HLT",
                 HLTPaths = cms.vstring(selectEventsBase)
             )
-            skim = getattr(RawSkims, rawSkim)
-            setattr(process, rawSkim, skim)
-            path = cms.Path(skim + process.baseSelection)
-            selectEvents = f"{rawSkim}Path"
+
+            path = cms.Path(skim + baseSelection)
+            
+            baseSelectionName = output['moduleLabel'].split('_')[1] + f'_{rawSkim}'
+
+            setattr(process, baseSelectionName, baseSelection)
+            selectEvents = f"{baseSelectionName}Path"
             setattr(process, selectEvents, path)
 
         else:
