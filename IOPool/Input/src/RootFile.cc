@@ -70,6 +70,7 @@
 #include <algorithm>
 #include <cassert>
 #include <list>
+#include <iostream>
 
 namespace edm {
 
@@ -1555,8 +1556,10 @@ namespace edm {
 
     // We're not done ... so prepare the EventPrincipal
     eventTree_.insertEntryForIndex(principal.transitionIndex());
+    auto provRetriever = makeProductProvenanceRetriever(principal.streamID().value());
     if (readAllProducts) {
       eventTree_.rootDelayedReader()->readAllProductsNow(&principal);
+      provRetriever->unsafe_fillProvenance();
     }
     auto history = processHistoryRegistry_->getMapped(evtAux.processHistoryID());
     principal.fillEventPrincipal(evtAux,
@@ -1564,7 +1567,7 @@ namespace edm {
                                  std::move(eventSelectionIDs),
                                  std::move(branchListIndexes),
                                  eventToProcessBlockIndexes_,
-                                 *(makeProductProvenanceRetriever(principal.streamID().value())),
+                                 *provRetriever,
                                  eventTree_.resetAndGetRootDelayedReader());
 
     // If this next assert shows up in performance profiling or significantly affects memory, then these three lines should be deleted.
@@ -2175,7 +2178,7 @@ namespace edm {
     if (!eventProductProvenanceRetrievers_[iStreamID]) {
       // propagate_const<T> has no reset() function
       eventProductProvenanceRetrievers_[iStreamID] = std::make_shared<ProductProvenanceRetriever>(
-          provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get()));
+          iStreamID, provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get()));
     }
     eventProductProvenanceRetrievers_[iStreamID]->reset();
     return eventProductProvenanceRetriever(iStreamID);
@@ -2188,6 +2191,8 @@ namespace edm {
                             DaqProvenanceHelper const* daqProvenanceHelper);
 
     std::set<ProductProvenance> readProvenance(unsigned int) const override;
+
+    void unsafe_fillProvenance(unsigned int) const override;
 
   private:
     void readProvenanceAsync(WaitingTaskHolder task,
@@ -2294,8 +2299,15 @@ namespace edm {
                             rootTree_->rootDelayedReader()->postEventReadFromSourceSignal());
   }
 
+  //
+  void ReducedProvenanceReader::unsafe_fillProvenance(unsigned int transitionIndex) const {
+    ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
+    me->rootTree_->fillBranchEntry(
+        me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
+  }
+
   std::set<ProductProvenance> ReducedProvenanceReader::readProvenance(unsigned int transitionIndex) const {
-    {
+    if (provVector_.empty()) {
       std::lock_guard<std::recursive_mutex> guard(*mutex_);
       ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
       me->rootTree_->fillBranchEntry(
@@ -2321,6 +2333,9 @@ namespace edm {
         retValue.emplace(BranchID(prov.branchID_), parentageIDLookup_[prov.parentageIDIndex_]);
       }
     }
+    //The results of this call are cached by the caller
+    const_cast<ReducedProvenanceReader*>(this)->provVector_.clear();
+
     return retValue;
   }
 
