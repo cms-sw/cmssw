@@ -82,5 +82,3 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights {
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights
-
-// Dummy change
