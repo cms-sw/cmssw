@@ -510,7 +510,7 @@ int main(int argc, char const *argv[])
 	latex.DrawLatexNDC(0.32,0.84,"Preliminary");
 	latex.SetTextFont(43);
 	latex.SetTextSize(24);
-	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.6 TeV");
 	canvSingle0->SaveAs((expTag+"_TotalClusters_size.png").c_str());
 
 	h_charge_tot_ac->GetYaxis()->SetRangeUser(
@@ -522,7 +522,7 @@ int main(int argc, char const *argv[])
 	// leg0 = canvSingle0->GetPad(0)->BuildLegend(.62, .6, .87, .8);
 	formatLegend(leg0);
 	leg0->Draw();
-	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.6 TeV");
 	canvSingle0->SaveAs((expTag+"_TotalClusters_charge.png").c_str());
 
 	h_barycenter_tot_ac->Draw("");
@@ -531,7 +531,7 @@ int main(int argc, char const *argv[])
 	// leg0 = canvSingle0->GetPad(0)->BuildLegend(.62, .6, .87, .8);
 	formatLegend(leg0);
 	leg0->Draw();
-	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.6 TeV");
 	canvSingle0->SaveAs((expTag+"_TotalClusters_barycenter.png").c_str());
 	
 	delete canvSingle0;
@@ -680,10 +680,10 @@ int main(int argc, char const *argv[])
 	                                    "; size (RAW'-RAW)/RAW; yield",
 	                                    50, -.1, .1);
 	TH1F * h_charge_res     = new TH1F( "chagre_res", 
-	                                    "; charge (RAW'-RAW)/RAW; yield",
+	                                    "; total charge (raw'-raw)/raw; yield",
 	                                    50, -.1, .1);
 	TH1F * h_barycenter_res = new TH1F( "barycenter_res", 
-	                                    "; barycenter (RAW'-RAW)/RAW; yield",
+	                                    "; barycenter (raw'-raw)/raw; yield",
 	                                    50, -.1, .1);
 
 	ofstream matched_sc2ac_txt;
@@ -894,7 +894,7 @@ int main(int argc, char const *argv[])
 	delete canv;
 
 
-	TCanvas *canvSingle = new TCanvas("canvSingle", "canvSingle", 700, 600);
+	TCanvas *canvSingle = new TCanvas("canvSingle", "canvSingle", 800, 700);
 	gStyle->SetOptTitle(0);
 	gErrorIgnoreLevel = kWarning;
 	canvSingle->GetPad(0)->SetMargin (0.18, 0.20, 0.12, 0.07);
@@ -903,27 +903,27 @@ int main(int argc, char const *argv[])
 	h_size->GetZaxis()->SetTitleOffset(1.8);
 	h_size->GetZaxis()->SetTitle("number of clusters");
 	h_size->Draw("COLZ");
-	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.6 TeV");
 	canvSingle->SaveAs((expTag+"_MatchedClusters_size_scat.png").c_str());
 
 	h_charge->GetZaxis()->SetTitleOffset(1.8);
 	h_charge->GetZaxis()->SetTitle("number of clusters");
 	h_charge->Draw("COLZ");
-	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.6 TeV");
 	canvSingle->SaveAs((expTag+"_MatchedClusters_charge_scat.png").c_str());
 
 	h_barycenter->GetZaxis()->SetTitleOffset(1.8);
 	h_barycenter->GetZaxis()->SetTitle("number of clusters");
 	h_barycenter->Draw("COLZ");
-	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.6 TeV");
 	canvSingle->SaveAs((expTag+"_MatchedClusters_barycenter_scat.png").c_str());
 
 	h_barycenter_vs_charge->Draw("COLZ");
-	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.6 TeV");
 	canvSingle->SaveAs((expTag+"_MatchedClusters_del_barycenter_del_charge_scat.png").c_str());
 
 	h_size_res->Draw("");
-	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.6 TeV");
 	
 	latex.SetTextFont(43);
 	latex.DrawLatexNDC(0.60,0.80,Form("Mean=%.2f", h_size_res->GetMean()));
@@ -932,9 +932,8 @@ int main(int argc, char const *argv[])
 
         h_charge_res->Scale(1/h_charge_res->Integral());
 	h_charge_res->Draw("");
-	latex.DrawLatexNDC(0.21,0.84,"CMS");
-	latex.DrawLatexNDC(0.21,0.80,"Preliminary");
-	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.18,0.945,"CMS Preliminary");
+	latex.DrawLatexNDC(0.44,0.945,"PbPb collisions, 2024 (5.6 TeV)");
 	latex.SetTextFont(43);
 	latex.DrawLatexNDC(0.60,0.80,Form("Mean=%.2f", h_charge_res->GetMean()));
 	latex.DrawLatexNDC(0.60,0.75,Form("Std Dev=%.2f", h_charge_res->GetStdDev()));
@@ -943,9 +942,8 @@ int main(int argc, char const *argv[])
 
         h_barycenter_res->Scale(1/h_barycenter_res->Integral());
 	h_barycenter_res->Draw("");
-	latex.DrawLatexNDC(0.21,0.84,"CMS");
-        latex.DrawLatexNDC(0.21,0.80,"Preliminary");
-	latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.18,0.945,"CMS Preliminary");
+	latex.DrawLatexNDC(0.44,0.945,"PbPb collisions, 2024 (5.6 TeV)");
 	latex.SetTextFont(43);
 	latex.DrawLatexNDC(0.60,0.80,Form("Mean=%.2f", h_barycenter_res->GetMean()));
 	latex.DrawLatexNDC(0.60,0.75,Form("Std Dev=%.2f", h_barycenter_res->GetStdDev()));
@@ -955,9 +953,8 @@ int main(int argc, char const *argv[])
         h_falling_barycenter_tot_ac->GetXaxis()->SetNdivisions(606);
         canvSingle->SetLogy(true);
         h_falling_barycenter_tot_ac->Draw("HIST");
-        latex.DrawLatexNDC(0.31,0.84,"CMS");
-        latex.DrawLatexNDC(0.31,0.80,"Preliminary");
-        latex.DrawLatexNDC(0.33,0.945,"2024 PbPb Data #sqrt{s_{NN}} = 5.36 TeV");
+	latex.DrawLatexNDC(0.18,0.945,"CMS Preliminary");
+	latex.DrawLatexNDC(0.44,0.945,"PbPb collisions, 2024 (5.6 TeV)");
         latex.SetTextFont(43);
         canvSingle->SaveAs((expTag+"falling_barycenter.png").c_str());
         delete h_falling_barycenter_tot_ac;
