@@ -19,6 +19,8 @@ It is based on the preexisting work of the scouting group and can be found at gi
 // system include files
 #include <memory>
 #include <TLorentzVector.h>
+#include <math.h>
+#include <vector>
 
 // user include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -68,23 +70,27 @@ private:
                       edm::Handle<T>& handle,
                       const std::string& label);
 
-  const std::string outputInternalPath_ = "HLT/ScoutingOffline/Miscellaneous";
+  template <typename T1, typename T2>
+  std::vector<float> trk_vtx_offSet(const edm::Handle<T1>& handle_vertex,
+                      const edm::Handle<T2>& handle_tracks);
 
-  const edm::InputTag triggerResultsTag;
-  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
-  const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonsToken;
-  const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken;
-  const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> primaryVerticesToken;
-  const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> verticesToken;
-  const edm::EDGetTokenT<std::vector<Run3ScoutingPhoton>> photonsToken;
-  const edm::EDGetTokenT<double> rhoToken;
-  const edm::EDGetTokenT<double> pfMetPhiToken;
-  const edm::EDGetTokenT<double> pfMetPtToken;
-  const edm::EDGetTokenT<std::vector<Run3ScoutingParticle>> pfcandsToken;
-  const edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> pfjetsToken;
-  const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken;
+  const bool isOnline_; 
+  const edm::InputTag triggerResultsTag_;
+  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonsToken_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> primaryVerticesToken_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> verticesToken_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingPhoton>> photonsToken_;
+  const edm::EDGetTokenT<double> rhoToken_;
+  const edm::EDGetTokenT<double> pfMetPhiToken_;
+  const edm::EDGetTokenT<double> pfMetPtToken_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingParticle>> pfcandsToken_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> pfjetsToken_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
   const edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
-
+  const std::string topfoldername_;
+ 
   std::vector<std::string> triggerPathsVector;
   std::map<std::string, int> triggerPathsMap;
 
@@ -281,6 +287,7 @@ private:
   dqm::reco::MonitorElement* trk_vx_mu_hist;
   dqm::reco::MonitorElement* trk_vy_mu_hist;
   dqm::reco::MonitorElement* trk_vz_mu_hist;
+  dqm::reco::MonitorElement* trk_chi2_prob_hist;
 
   // PF Jet histograms
   dqm::reco::MonitorElement* pt_pfj_hist;
@@ -372,29 +379,38 @@ private:
   dqm::reco::MonitorElement* tk_vx_tk_hist;
   dqm::reco::MonitorElement* tk_vy_tk_hist;
   dqm::reco::MonitorElement* tk_vz_tk_hist;
+  dqm::reco::MonitorElement* tk_chi2_ndof_tk_hist;
+
+  dqm::reco::MonitorElement* tk_PV_dxy_hist;
+  dqm::reco::MonitorElement* tk_PV_dz_hist;
 };
 
 //
 // constructors and destructor
 //
 ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iConfig)
-    : triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerresults")),
-      triggerResultsToken(consumes<edm::TriggerResults>(triggerResultsTag)),
-      muonsToken(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muons"))),
-      electronsToken(consumes<std::vector<Run3ScoutingElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
-      primaryVerticesToken(
+    : isOnline_(iConfig.getParameter<bool>("isOnline")),
+      triggerResultsTag_(iConfig.getParameter<edm::InputTag>("triggerresults")),
+      triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsTag_)),
+      muonsToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muons"))),
+      electronsToken_(consumes<std::vector<Run3ScoutingElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
+      primaryVerticesToken_(
           consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
-      verticesToken(
+      verticesToken_(
           consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("displacedVertices"))),
-      photonsToken(consumes<std::vector<Run3ScoutingPhoton>>(iConfig.getParameter<edm::InputTag>("photons"))),
-      rhoToken(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
-      pfMetPhiToken(consumes<double>(iConfig.getParameter<edm::InputTag>("pfMetPhi"))),
-      pfMetPtToken(consumes<double>(iConfig.getParameter<edm::InputTag>("pfMetPt"))),
-      pfcandsToken(consumes<std::vector<Run3ScoutingParticle>>(iConfig.getParameter<edm::InputTag>("pfcands"))),
-      pfjetsToken(consumes<std::vector<Run3ScoutingPFJet>>(iConfig.getParameter<edm::InputTag>("pfjets"))),
-      tracksToken(consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))),
-      onlineMetaDataDigisToken_(consumes(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis")))
-{}
+      photonsToken_(consumes<std::vector<Run3ScoutingPhoton>>(iConfig.getParameter<edm::InputTag>("photons"))),
+      rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
+      pfMetPhiToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("pfMetPhi"))),
+      pfMetPtToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("pfMetPt"))),
+      pfcandsToken_(consumes<std::vector<Run3ScoutingParticle>>(iConfig.getParameter<edm::InputTag>("pfcands"))),
+      pfjetsToken_(consumes<std::vector<Run3ScoutingPFJet>>(iConfig.getParameter<edm::InputTag>("pfjets"))),
+      tracksToken_(consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))),
+      onlineMetaDataDigisToken_(consumes(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"))),
+      topfoldername_(iConfig.getParameter<std::string>("topfoldername"))
+
+{
+
+}
 
       
       //
@@ -412,6 +428,28 @@ bool ScoutingCollectionMonitor::getValidHandle(const edm::Event& iEvent,
   }
   return true;
 }
+
+
+template <typename T1, typename T2>
+std::vector<float> ScoutingCollectionMonitor::trk_vtx_offSet(const edm::Handle<T1>& handle_vertex,
+                      const edm::Handle<T2>& handle_tracks){
+
+	float px = handle_tracks->at(0).tk_pt() * cos(handle_tracks->at(0).tk_phi());
+	float py = handle_tracks->at(0).tk_pt() * sin(handle_tracks->at(0).tk_phi());
+	float pz = handle_tracks->at(0).tk_pt() * sinh(handle_tracks->at(0).tk_eta());
+	float pt2 = handle_tracks->at(0).tk_pt() * handle_tracks->at(0).tk_pt();
+
+
+	float tk_dxyPV = (-(handle_tracks->at(0).tk_vx() - handle_vertex->at(0).x()) * py + (handle_tracks->at(0).tk_vy() - handle_vertex->at(0).y()) * px) / handle_tracks->at(0).tk_pt();
+
+	float theptinv2 = 1.0f / pt2;
+	float tk_dzPV = (handle_tracks->at(0).tk_vz() - handle_vertex->at(0).z()) - ((handle_tracks->at(0).tk_vx() - handle_vertex->at(0).x()) * px + (handle_tracks->at(0).tk_vy() - handle_vertex->at(0).y()) * py) * pz * theptinv2;
+	
+	vector<float> offset = {tk_dxyPV, tk_dzPV};
+	return offset;
+}
+
+
 
 // ------------ method called for each event  ------------
 void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -433,30 +471,35 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   edm::Handle<std::vector<Run3ScoutingTrack>> tracksH;
   edm::Handle<OnlineLuminosityRecord> onlineMetaDataDigisHandle;
 
-  if (!getValidHandle(iEvent, rhoToken, rhoH, "rho") || 
-      !getValidHandle(iEvent, pfMetPhiToken, pfMetPhiH, "MET phi") ||
-      !getValidHandle(iEvent, pfMetPtToken, pfMetPtH, "MET pT") ||
-      !getValidHandle(iEvent, pfcandsToken, pfcandsH, "PF candidates") ||
-      !getValidHandle(iEvent, photonsToken, photonsH, "photons") ||
-      !getValidHandle(iEvent, electronsToken, electronsH, "electrons") ||
-      !getValidHandle(iEvent, muonsToken, muonsH, "muons") ||
-      !getValidHandle(iEvent, pfjetsToken, PFjetsH, "PF jets") ||
-      !getValidHandle(iEvent, verticesToken, verticesH, "vertices") ||
-      !getValidHandle(iEvent, primaryVerticesToken, primaryVerticesH, "primary vertices") ||
-      !getValidHandle(iEvent, tracksToken, tracksH, "tracks") || 
-      !getValidHandle(iEvent, onlineMetaDataDigisToken_, onlineMetaDataDigisHandle, "avgPileUp"))  {    
+  if (!getValidHandle(iEvent, rhoToken_, rhoH, "rho") || 
+      !getValidHandle(iEvent, pfMetPhiToken_, pfMetPhiH, "MET phi") ||
+      !getValidHandle(iEvent, pfMetPtToken_, pfMetPtH, "MET pT") ||
+      !getValidHandle(iEvent, pfcandsToken_, pfcandsH, "PF candidates") ||
+      !getValidHandle(iEvent, photonsToken_, photonsH, "photons") ||
+      !getValidHandle(iEvent, electronsToken_, electronsH, "electrons") ||
+      !getValidHandle(iEvent, muonsToken_, muonsH, "muons") ||
+      !getValidHandle(iEvent, pfjetsToken_, PFjetsH, "PF jets") ||
+      !getValidHandle(iEvent, verticesToken_, verticesH, "vertices") ||
+      !getValidHandle(iEvent, primaryVerticesToken_, primaryVerticesH, "primary vertices") ||
+      !getValidHandle(iEvent, tracksToken_, tracksH, "tracks")) { 
 return;
   }
 
+  
+  if (!isOnline_){
+	if( !getValidHandle(iEvent, onlineMetaDataDigisToken_, onlineMetaDataDigisHandle, "avgPileUp"))  {
+		return;  
+	}
+  avgPileUp = onlineMetaDataDigisHandle->avgPileUp(); 
+  rhovsPU_hist->Fill(avgPileUp,*rhoH);
+  }
+
+
+ 
   // get pile up
-  avgPileUp = onlineMetaDataDigisHandle->avgPileUp();
 
   // put stuff in histogram
   rho_hist->Fill(*rhoH);
-
-
-  rhovsPU_hist->Fill(*rhoH,avgPileUp);
-
   pfMetPhi_hist->Fill(*pfMetPhiH);
   pfMetPt_hist->Fill(*pfMetPtH);
 
@@ -701,7 +744,12 @@ return;
     yzCov_pv_hist->Fill(vtx.yzCov());
   }
 
-  PVvsPU_hist->Fill(primaryVertex_counter,avgPileUp); 
+
+
+  if (!isOnline_){
+  	PVvsPU_hist->Fill(avgPileUp, primaryVertex_counter); 
+  }
+
 
   // fill all the displaced vertices histograms
   for (const auto& vtx : *verticesH) {
@@ -740,25 +788,47 @@ return;
     tk_qoverp_Error_tk_hist->Fill(tk.tk_qoverp_Error());
     tk_lambda_Error_tk_hist->Fill(tk.tk_lambda_Error());
     tk_phi_Error_tk_hist->Fill(tk.tk_phi_Error());
+    tk_dsz_tk_hist->Fill(tk.tk_dsz());
+    tk_dsz_Error_tk_hist->Fill(tk.tk_dsz_Error());
     tk_vtxInd_tk_hist->Fill(tk.tk_vtxInd());
     tk_vx_tk_hist->Fill(tk.tk_vx());
     tk_vy_tk_hist->Fill(tk.tk_vy());
     tk_vz_tk_hist->Fill(tk.tk_vz());
+    tk_chi2_ndof_tk_hist->Fill(tk.tk_chi2()/tk.tk_ndof());
+    trk_chi2_prob_hist->Fill(TMath::Prob(tk.tk_chi2(), tk.tk_ndof()));
   }
+
+
+  std::vector<float> offset = trk_vtx_offSet(primaryVerticesH, tracksH);
+
+  float tk_dxyPV = offset[0];
+  float tk_dzPV  = offset[1];
+
+  tk_PV_dxy_hist->Fill(tk_dxyPV);
+  tk_PV_dz_hist->Fill(tk_dzPV);
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::Run const& run,
                                                edm::EventSetup const& iSetup) {
-  ibook.setCurrentFolder(outputInternalPath_);
+  ibook.setCurrentFolder(topfoldername_);
+
   rho_hist = ibook.book1D("rho", "#rho; #rho; Entries", 100, 0.0, 60.0);
   pfMetPhi_hist = ibook.book1D("pfMetPhi", "pf MET #phi; #phi ;Entries", 100, -3.14, 3.14);
   pfMetPt_hist = ibook.book1D("pfMetPt", "pf MET pT;p_{T} [GeV];Entries", 100, 0.0, 250.0);
-  PVvsPU_hist = ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 20, 20, 60, 0, 65);
-  rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 20, 20, 60, 0, 45);
+ 
   
-  ibook.setCurrentFolder(outputInternalPath_ + "/PFcand");
+  if (!isOnline_){
+   PVvsPU_hist = ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 20, 20, 60, 0, 65);
+   rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 20, 20, 60, 0, 45);
+  }
+
+ tk_PV_dz_hist = ibook.book1D("tk_PV_dz", "tk dz w.r.t. PV; tk dz w.r.t. PV; Entries", 100, -0.05, 0.05); 
+ tk_PV_dxy_hist = ibook.book1D("tk_PV_dxy", "tk dxy w.r.t. PV; tk dxy w.r.t. PV; Entries", 100, -0.05, 0.05);
+  
+  ibook.setCurrentFolder(topfoldername_ + "/PFcand");
   PF_pT_211_hist = ibook.book1DD("pT_211", "PF h^{+}  pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 13.0);
   PF_pT_n211_hist = ibook.book1DD("pT_n211", "PF h^{-} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 14.0);
   PF_pT_130_hist = ibook.book1DD("pT_130", "PF h^{0} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 20.0);
@@ -841,7 +911,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   PF_trk_phi_13_hist = ibook.book1DD("trk_phi_13", "PF #mu^{+} Track #phi;Track #phi;Entries", 100, -3.2, 3.2);
   PF_trk_phi_n13_hist = ibook.book1DD("trk_phi_n13", "PF #mu^{-} Track #phi;Track #phi;Entries", 100, -3.2, 3.2);
 
-  ibook.setCurrentFolder(outputInternalPath_ + "/Photon");
+  ibook.setCurrentFolder(topfoldername_ + "/Photon");
   pt_pho_hist = ibook.book1D("pt_pho", "Photon pT; p_{T} (GeV); Entries", 100, 0.0, 100.0);
   eta_pho_hist = ibook.book1D("eta_pho", "photon #eta; #eta; Entries", 100, -2.7, 2.7);
   phi_pho_hist = ibook.book1D("phi_pho", "Photon #phi; #phi (rad); Entries", 100, -3.14, 3.14);
@@ -860,7 +930,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   sMin_pho_hist = ibook.book1D("sMin_pho", "sMin Photon; sMin; Entries", 100, 0.0, 3);
   sMaj_pho_hist = ibook.book1D("sMaj_pho", "sMaj Photon; sMaj; Entries", 100, 0.0, 3);
 
-  ibook.setCurrentFolder(outputInternalPath_ + "/Electron");
+  ibook.setCurrentFolder(topfoldername_ + "/Electron");
   pt_ele_hist = ibook.book1D("pt_ele", "Electron pT; p_{T} (GeV); Entries", 100, 0.0, 100.0);
   eta_ele_hist = ibook.book1D("eta_ele", "Electron #eta; #eta; Entries", 100, -2.7, 2.7);
   phi_ele_hist = ibook.book1D("phi_ele", "Electron #phi; #phi (rad); Entries", 100, -3.14, 3.14);
@@ -885,7 +955,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   sMin_ele_hist = ibook.book1D("sMin_ele", "sMin Electron; sMin; Entries", 100, 0.0, 3);
   sMaj_ele_hist = ibook.book1D("sMaj_ele", "sMaj Electron; sMaj; Entries", 100, 0.0, 3);
 
-  ibook.setCurrentFolder(outputInternalPath_ + "/Muon");
+  ibook.setCurrentFolder(topfoldername_ + "/Muon");
   pt_mu_hist = ibook.book1D("pt_mu", "Muon pT; p_{T} (GeV); Entries", 100, 0.0, 200.0);
   eta_mu_hist = ibook.book1D("eta_mu", "Muon #eta; #eta; Entries", 100, -2.7, 2.7);
   phi_mu_hist = ibook.book1D("phi_mu", "Muon #phi; #phi (rad); Entries", 100, -3.14, 3.14);
@@ -961,7 +1031,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   trk_vy_mu_hist = ibook.book1D("trk_vy_mu", "Muon Tracker Vertex Y; y (cm); Entries", 100, -0.5, 0.5);
   trk_vz_mu_hist = ibook.book1D("trk_vz_mu", "Muon Tracker Vertex Z; z (cm); Entries", 100, -20.0, 20.0);
 
-  ibook.setCurrentFolder(outputInternalPath_ + "/PFJet");
+  ibook.setCurrentFolder(topfoldername_ + "/PFJet");
   pt_pfj_hist = ibook.book1D("pt_pfj", "PF Jet pT; p_{T} (GeV); Entries", 100, 0.0, 150.0);
   eta_pfj_hist = ibook.book1D("eta_pfj", "PF Jet #eta; #eta; Entries", 100, -5.0, 5.0);
   phi_pfj_hist = ibook.book1D("phi_pfj", "PF Jet #phi; #phi (rad); Entries", 100, -3.14, 3.14);
@@ -995,7 +1065,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   csv_pfj_hist = ibook.book1D("csv_pfj", "Combined Secondary Vertex (CSV); CSV Score; Entries", 100, -0.5, 0.5);
   mvaDiscriminator_pfj_hist = ibook.book1D("mvaDiscriminator_pfj", "MVA Discriminator; Score; Entries", 100, -1.0, 1.0);
 
-  ibook.setCurrentFolder(outputInternalPath_ + "/PrimaryVertex");
+  ibook.setCurrentFolder(topfoldername_ + "/PrimaryVertex");
   x_pv_hist = ibook.book1D("x_pv", "Primary Vertex X Position; x (cm); Entries", 100, -0.5, 0.5);
   y_pv_hist = ibook.book1D("y_pv", "Primary Vertex Y Position; y (cm); Entries", 100, -0.5, 0.5);
   z_pv_hist = ibook.book1D("z_pv", "Primary Vertex Z Position; z (cm); Entries", 100, -20.0, 20.0);
@@ -1011,7 +1081,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   xzCov_pv_hist = ibook.book1D("xzCov_pv", "Primary Vertex XZ Covariance; Cov(x,z); Entries", 100, -0.01, 0.01);
   yzCov_pv_hist = ibook.book1D("yzCov_pv", "Primary Vertex YZ Covariance; Cov(y,z); Entries", 100, -0.01, 0.01);
 
-  ibook.setCurrentFolder(outputInternalPath_ + "/DisplacedVertex");
+  ibook.setCurrentFolder(topfoldername_ + "/DisplacedVertex");
   x_vtx_hist = ibook.book1D("x_vtx", "Vertex X Position; x (cm); Entries", 100, -0.5, 0.5);
   y_vtx_hist = ibook.book1D("y_vtx", "Vertex Y Position; y (cm); Entries", 100, -0.5, 0.5);
   z_vtx_hist = ibook.book1D("z_vtx", "Vertex Z Position; z (cm); Entries", 100, -20.0, 20.0);
@@ -1019,19 +1089,19 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   xError_vtx_hist = ibook.book1D("xError_vtx", "Vertex X Error; x Error (cm); Entries", 100, 0.0, 0.2);
   yError_vtx_hist = ibook.book1D("yError_vtx", "Vertex Y Error; y Error (cm); Entries", 100, 0.0, 0.2);
   tracksSize_vtx_hist = ibook.book1D("tracksSize_vtx", "Number of Tracks at Vertex; Tracks; Entries", 100, 0, 100);
-  chi2_vtx_hist = ibook.book1D("chi2_vtx", "Vertex chi2; #chi^{2}; Entries", 100, 0.0, 5.0);
+  chi2_vtx_hist = ibook.book1D("chi2_vtx", "Vertex #chi^{2}; #chi^{2}; Entries", 100, 0.0, 5.0);
   ndof_vtx_hist = ibook.book1D("ndof_vtx", "Vertex Ndof; Ndof; Entries", 100, 0, 5);
   isValidVtx_vtx_hist = ibook.book1D("isValidVtx_vtx", "Is Valid Vertex?; 0 = False, 1 = True; Entries", 2, 0, 2);
   xyCov_vtx_hist = ibook.book1D("xyCov_vtx", "Vertex XY Covariance; Cov(x,y); Entries", 100, -0.01, 0.01);
   xzCov_vtx_hist = ibook.book1D("xzCov_vtx", "Vertex XZ Covariance; Cov(x,z); Entries", 100, -0.01, 0.01);
   yzCov_vtx_hist = ibook.book1D("yzCov_vtx", "Vertex YZ Covariance; Cov(y,z); Entries", 100, -0.01, 0.01);
 
-  ibook.setCurrentFolder(outputInternalPath_ + "/Tracker");
+  ibook.setCurrentFolder(topfoldername_ + "/Tracker");
   tk_pt_tk_hist = ibook.book1D("tk_pt_tk", "Tracker pT; p_{T} (GeV); Entries", 100, 0.0, 30.0);
   tk_eta_tk_hist = ibook.book1D("tk_eta_tk", "Tracker #eta; #eta; Entries", 100, -2.7, 2.7);
   tk_phi_tk_hist = ibook.book1D("tk_phi_tk", "Tracker #phi; #phi (rad); Entries", 100, -3.14, 3.14);
-  tk_chi2_tk_hist = ibook.book1D("tk_chi2_tk", "Tracker chi2; #chi^{2}; Entries", 100, 0.0, 50.0);
-  tk_ndof_tk_hist = ibook.book1D("tk_ndof_tk", "Tracker Ndof; Ndof; Entries", 100, 0, 50);
+  tk_chi2_tk_hist = ibook.book1D("tk_chi2_tk", "Tracker #chi^{2}; #chi^{2}; Entries", 100, 0.0, 50.0);
+  tk_ndof_tk_hist = ibook.book1D("tk_ndof_tk", "Tracker Ndof; Ndof; Entries", 100, 0, 10);
   tk_charge_tk_hist = ibook.book1D("tk_charge_tk", "Tracker Charge; Charge; Entries", 3, -1, 2);
   tk_dxy_tk_hist = ibook.book1D("tk_dxy_tk", "Tracker dxy; dxy (cm); Entries", 100, -0.5, 0.5);
   tk_dz_tk_hist = ibook.book1D("tk_dz_tk", "Tracker dz; dz (cm); Entries", 100, -20.0, 20.0);
@@ -1052,11 +1122,14 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_vx_tk_hist = ibook.book1D("tk_vx_tk", "Tracker Vertex X; x (cm); Entries", 100, -0.5, 0.5);
   tk_vy_tk_hist = ibook.book1D("tk_vy_tk", "Tracker Vertex Y; y (cm); Entries", 100, -0.5, 0.5);
   tk_vz_tk_hist = ibook.book1D("tk_vz_tk", "Tracker Vertex Z; z (cm); Entries", 100, -20.0, 20.0);
+  tk_chi2_ndof_tk_hist = ibook.book1D("tk_chi2_ndof_tk", "Reduced #chi^{2}; #chi^{2}/NDOF; Entries", 100, 0, 50);
+  trk_chi2_prob_hist = ibook.book1D("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 
 void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<bool>("isOnline", false);
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
   desc.add<edm::InputTag>("triggerresults", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("hltScoutingEgammaPacker"));
@@ -1071,6 +1144,7 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("pfMetPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
   desc.add<edm::InputTag>("rho", edm::InputTag("hltScoutingPFPacker", "rho"));
   desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("onlineMetaDataDigis")); 
+  desc.add<std::string>("topfoldername","HLT/ScoutingOffline/Miscellaneous");  
   descriptions.addWithDefaultLabel(desc);
 }
 
