@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
+#include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -176,11 +177,15 @@ namespace edm {
         // The file may already be closed so the reader is invalid
         return;
       }
-      if (mcc and branchType == InEvent and aux_) {
-        aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()), *mcc);
+      auto context = mcc;
+      if (!context) {
+        context = CurrentModuleOnThread::getCurrentModuleOnThread();
+      }
+      if (context and branchType == InEvent and aux_) {
+        aux_->preModuleDelayedGetSignal_.emit(*(context->getStreamContext()), *context);
       }
 
-      auto sentry(make_sentry(mcc, [this, branchType](ModuleCallingContext const* iContext) {
+      auto sentry(make_sentry(context, [this, branchType](ModuleCallingContext const* iContext) {
         if (branchType == InEvent and aux_) {
           aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext);
         }
@@ -194,13 +199,13 @@ namespace edm {
         if (not productResolved()) {
           try {
             //another thread could have beaten us here
-            setProduct(reader->getProduct(productDescription().branchID(), &principal, mcc));
+            setProduct(reader->getProduct(productDescription().branchID(), &principal, context));
           } catch (cms::Exception& e) {
-            extendException(e, productDescription(), mcc);
+            extendException(e, productDescription(), context);
             throw;
           } catch (std::exception const& e) {
             auto newExcept = edm::Exception(errors::StdException) << e.what();
-            extendException(newExcept, productDescription(), mcc);
+            extendException(newExcept, productDescription(), context);
             throw newExcept;
           }
         }
