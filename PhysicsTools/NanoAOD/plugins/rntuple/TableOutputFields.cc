@@ -68,7 +68,8 @@ void TableOutputFields::createFields(const edm::EventForOutput& event, RNTupleMo
         m_boolFields.emplace_back(FlatTableField<bool>(table, i, model));
         break;
       default:
-        std::cout << "Unsupported type in TableOutputFields" << "\n";
+        std::cout << "Unsupported type in TableOutputFields"
+                  << "\n";
         //throw cms::Exception("LogicError", "Unsupported type");
     }
   }
@@ -112,7 +113,8 @@ void TableOutputVectorFields::createFields(const edm::EventForOutput& event, RNT
         m_vboolFields.emplace_back(FlatTableField<std::vector<bool>>(table, i, model));
         break;
       default:
-        std::cout << "Unsupported type in TableOutputVectorFields" << "\n";
+        std::cout << "Unsupported type in TableOutputVectorFields"
+                  << "\n";
         //throw cms::Exception("LogicError", "Unsupported type");
     }
   }

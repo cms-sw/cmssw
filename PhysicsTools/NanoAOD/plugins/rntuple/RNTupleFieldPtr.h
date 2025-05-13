@@ -2,17 +2,20 @@
 #define PhysicsTools_NanoAOD_RNTupleFieldPtr_h
 
 #include <ROOT/RNTupleModel.hxx>
-using ROOT::RNTupleModel;
+#include <ROOT/REntry.hxx>
 
 template <typename T>
 class RNTupleFieldPtr {
 public:
   RNTupleFieldPtr() = default;
-  explicit RNTupleFieldPtr(const std::string& name, const std::string& desc, RNTupleModel& model) : m_name(name) {
+  explicit RNTupleFieldPtr(const std::string& name, const std::string& desc, ROOT::RNTupleModel& model) : m_name(name) {
     m_field = model.MakeField<T>(m_name, desc);
   }
   void fill(const T& value) { *m_field = value; }
-  void fill(T&& value) { *m_field = value; }
+  void fill(const T& value, const ROOT::REntry& entry) {
+    auto ptr = entry.GetPtr<T>(m_name);
+    *ptr = value;
+  }
   const std::string& getFieldName() const { return m_name; }
 
 private:

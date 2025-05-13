@@ -1,5 +1,7 @@
 #include "SummaryTableOutputFields.h"
 
+using ROOT::RNTupleModel;
+
 template <typename T, typename Col>
 std::vector<RNTupleFieldPtr<T>> SummaryTableOutputFields::makeFields(const std::vector<Col> &tabcols,
                                                                      RNTupleModel &model) {
