@@ -49,7 +49,7 @@ namespace trklet {
                  tmtt::KFParamsComb* tmtt,
                  int region,
                  tt::TTTracks& ttTracks);
-    ~KalmanFilter() {}
+    ~KalmanFilter() = default;
     // read in and organize input tracks and stubs
     void consume(const tt::StreamsTrack& streamsTrack, const tt::StreamsStub& streamsStub);
     // fill output products

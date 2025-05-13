@@ -19,7 +19,7 @@ namespace trackerTFP {
   class ProducerDemonstrator : public edm::ESProducer {
   public:
     ProducerDemonstrator(const edm::ParameterSet& iConfig);
-    ~ProducerDemonstrator() override {}
+    ~ProducerDemonstrator() override = default;
     std::unique_ptr<Demonstrator> produce(const tt::SetupRcd& rcd);
 
   private:

@@ -26,7 +26,7 @@ namespace trackerTFP {
     };
     Demonstrator() {}
     Demonstrator(const Config& iConfig, const tt::Setup* setup);
-    //~Demonstrator() {}
+    ~Demonstrator() = default;
     // plays input through modelsim and compares result with output
     bool analyze(const std::vector<std::vector<tt::Frame>>& input,
                  const std::vector<std::vector<tt::Frame>>& output) const;

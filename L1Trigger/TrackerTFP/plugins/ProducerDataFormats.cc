@@ -18,7 +18,7 @@ namespace trackerTFP {
   class ProducerDataFormats : public edm::ESProducer {
   public:
     ProducerDataFormats(const edm::ParameterSet& iConfig);
-    ~ProducerDataFormats() override {}
+    ~ProducerDataFormats() override = default;
     std::unique_ptr<DataFormats> produce(const DataFormatsRcd& rcd);
 
   private:

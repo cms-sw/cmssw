@@ -24,7 +24,7 @@ namespace trklet {
                      const ChannelAssignment* channelAssignment,
                      const Settings* settings,
                      int region);
-    ~TrackMultiplexer() {}
+    ~TrackMultiplexer() = default;
     // read in and organize input tracks and stubs
     void consume(const tt::StreamsTrack& streamsTrack, const tt::StreamsStub& streamsStub);
     // fill output products

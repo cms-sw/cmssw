@@ -30,7 +30,7 @@ namespace trklet {
     State(State* state, const std::vector<double>& doubles);
     // combinatoric and seed building state constructor
     State(State* state, State* parent, int layer);
-    ~State() {}
+    ~State() = default;
     //
     State* comb(std::deque<State>& states, int layer);
     //

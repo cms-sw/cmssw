@@ -21,7 +21,7 @@ namespace trackerTFP {
                       const DataFormat& cot,
                       std::vector<StubCTB>& stubs,
                       std::vector<TrackCTB>& tracks);
-    ~CleanTrackBuilder() {}
+    ~CleanTrackBuilder() = default;
     // fill output products
     void produce(const std::vector<std::vector<StubHT*>>& streamsIn,
                  std::vector<std::deque<TrackCTB*>>& regionTracks,

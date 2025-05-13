@@ -192,8 +192,6 @@ namespace trackerTFP {
   }
   template <>
   DataFormat makeDataFormat<VariableTQ::chi2rphi>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
-    const DataFormat m20 = makeDataFormat<VariableTQ::m20>(dataFormats, iConfig);
-    const DataFormat invV0 = makeDataFormat<VariableTQ::invV0>(dataFormats, iConfig);
     const int shift = iConfig.baseShiftchi2rphi_;
     const int width = iConfig.widthchi2rphi_;
     const double base = std::pow(2., shift);
@@ -202,8 +200,6 @@ namespace trackerTFP {
   }
   template <>
   DataFormat makeDataFormat<VariableTQ::chi2rz>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
-    const DataFormat m21 = makeDataFormat<VariableTQ::m21>(dataFormats, iConfig);
-    const DataFormat invV1 = makeDataFormat<VariableTQ::invV1>(dataFormats, iConfig);
     const int shift = iConfig.baseShiftchi2rz_;
     const int width = iConfig.widthchi2rz_;
     const double base = std::pow(2., shift);

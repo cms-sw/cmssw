@@ -15,14 +15,14 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
-process.load( 'Configuration.Geometry.GeometryExtendedRun4D98Reco_cff' ) 
-process.load( 'Configuration.Geometry.GeometryExtendedRun4D98_cff' )
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D110Reco_cff' ) 
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D110_cff' )
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 
@@ -36,7 +36,7 @@ options = VarParsing.VarParsing( 'analysis' )
 options.register( 'Events',100,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of Events to analyze" )
 options.parseArguments()
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Events) )
-inputMC = ["/store/relval/CMSSW_14_0_0_pre2/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/133X_mcRun4_realistic_v1_STD_2026D98_noPU_RV229-v1/2580000/00b68219-8585-406f-88d0-84da05a13280.root"]
+inputMC = [""]
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC), skipEvents = cms.untracked.uint32( 17 ))
 
 # ----------------------------------------------------------------------------------

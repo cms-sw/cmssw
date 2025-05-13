@@ -18,7 +18,7 @@ namespace trackerTFP {
                    const DataFormats* dataFormats,
                    const LayerEncoding* layerEncoding,
                    std::vector<StubHT>& stubs);
-    ~HoughTransform() {}
+    ~HoughTransform() = default;
     // fill output products
     void produce(const std::vector<std::vector<StubGP*>>& streamsIn, std::vector<std::deque<StubHT*>>& streamsOut);
 

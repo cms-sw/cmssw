@@ -18,7 +18,7 @@ namespace trackerDTC {
   public:
     LayerEncoding() {}
     LayerEncoding(const tt::Setup* setup);
-    ~LayerEncoding() {}
+    ~LayerEncoding() = default;
     // decode layer id for given sensor module
     int decode(const tt::SensorModule* sm) const;
     // get encoded layers read by given DTC

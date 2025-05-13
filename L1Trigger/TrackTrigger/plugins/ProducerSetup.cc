@@ -17,7 +17,7 @@ namespace tt {
   class ProducerSetup : public edm::ESProducer {
   public:
     ProducerSetup(const edm::ParameterSet& iConfig);
-    ~ProducerSetup() override {}
+    ~ProducerSetup() override = default;
     std::unique_ptr<Setup> produce(const SetupRcd& setupRcd);
 
   private:

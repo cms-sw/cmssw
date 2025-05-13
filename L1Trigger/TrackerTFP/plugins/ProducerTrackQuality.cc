@@ -38,7 +38,7 @@ namespace trackerTFP {
       iConfig_.baseShiftchi2rphi_ = iConfig.getParameter<int>("BaseShiftchi2rphi");
       iConfig_.baseShiftchi2rz_ = iConfig.getParameter<int>("BaseShiftchi2rz");
     }
-    ~ProducerTrackQuality() override {}
+    ~ProducerTrackQuality() override = default;
     std::unique_ptr<TrackQuality> produce(const DataFormatsRcd& rcd) {
       const DataFormats* dataFormats = &rcd.get(esGetToken_);
       return std::make_unique<TrackQuality>(iConfig_, dataFormats);

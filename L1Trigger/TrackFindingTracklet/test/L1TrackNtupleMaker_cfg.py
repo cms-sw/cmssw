@@ -16,7 +16,8 @@ process = cms.Process("L1TrackNtuple")
 
 # D88 was used for CMSSW_12_6 datasets, and D98 recommended for more recent ones.
 #GEOMETRY = "D88"
-GEOMETRY = "D98"
+#GEOMETRY = "D98"
+GEOMETRY = "D110"
 
 # Set L1 tracking algorithm:
 # 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit).
@@ -40,20 +41,22 @@ process.MessageLogger.L1track = dict(limit = -1)
 process.MessageLogger.Tracklet = dict(limit = -1)
 process.MessageLogger.TrackTriggerHPH = dict(limit = -1)
 
+
+print("using geometry " + GEOMETRY + " (tilted)")
+process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY + 'Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY +'_cff')
+
+from Configuration.AlCa.GlobalTag import GlobalTag
+# Change needed to run with D98 geometry in recent CMSSW versions.
 if GEOMETRY == "D88" or GEOMETRY == 'D98':
-    print("using geometry " + GEOMETRY + " (tilted)")
-    process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY + 'Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY +'_cff')
+    process.GlobalTag = GlobalTag(process.GlobalTag, '133X_mcRun4_realistic_v1', '')
+elif GEOMETRY == 'D110':
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'phase2_realistic', '')
 else:
     print("this is not a valid geometry!!!")
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
-from Configuration.AlCa.GlobalTag import GlobalTag
-# Change needed to run with D98 geometry in recent CMSSW versions.
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '133X_mcRun4_realistic_v1', '')
 
 
 ############################################################
@@ -99,6 +102,11 @@ elif GEOMETRY == "D88":
 
   # Read specified .root file:
   inputMC = ["/store/mc/CMSSW_12_6_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v5_2026D88PU200RV183v2-v1/30000/0959f326-3f52-48d8-9fcf-65fc41de4e27.root"]
+
+elif GEOMETRY == "D110":
+
+  # Read specified .root file:
+  inputMC = [""]
 
 else:
 

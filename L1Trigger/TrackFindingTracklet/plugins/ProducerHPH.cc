@@ -22,7 +22,7 @@ namespace hph {
   class ProducerHPH : public edm::ESProducer {
   public:
     ProducerHPH(const edm::ParameterSet& iConfig);
-    ~ProducerHPH() override {}
+    ~ProducerHPH() override = default;
     std::unique_ptr<Setup> produce(const SetupRcd& Rcd);
 
   private:

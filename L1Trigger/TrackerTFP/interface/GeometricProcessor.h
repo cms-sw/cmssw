@@ -19,7 +19,7 @@ namespace trackerTFP {
                        const DataFormats* dataFormats,
                        const LayerEncoding* layerEncoding,
                        std::vector<StubGP>& stubs);
-    ~GeometricProcessor() {}
+    ~GeometricProcessor() = default;
 
     // fill output data
     void produce(const std::vector<std::vector<StubPP*>>& streamsIn, std::vector<std::deque<StubGP*>>& streamsOut);

@@ -33,7 +33,7 @@ namespace trackerTFP {
   class ProducerGP : public edm::stream::EDProducer<> {
   public:
     explicit ProducerGP(const edm::ParameterSet&);
-    ~ProducerGP() override {}
+    ~ProducerGP() override = default;
 
   private:
     void beginRun(const edm::Run&, const edm::EventSetup&) override;

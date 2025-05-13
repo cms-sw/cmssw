@@ -23,7 +23,7 @@ namespace trklet {
     TrackFindingProcessor(const tt::Setup* setup_,
                           const DataFormats* dataFormats,
                           const trackerTFP::TrackQuality* trackQuality);
-    ~TrackFindingProcessor() {}
+    ~TrackFindingProcessor() = default;
 
     // produce TTTracks
     void produce(const tt::StreamsTrack& inputs,

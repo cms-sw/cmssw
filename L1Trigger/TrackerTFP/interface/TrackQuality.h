@@ -88,7 +88,7 @@ namespace trackerTFP {
   public:
     TrackQuality() {}
     TrackQuality(const ConfigTQ& iConfig, const DataFormats* dataFormats);
-    ~TrackQuality() {}
+    ~TrackQuality() = default;
     // object to represent tracks
     struct Track {
       Track(const tt::FrameTrack& frameTrack, const tt::StreamStub& streamStub, const TrackQuality* tq);

@@ -19,7 +19,7 @@ namespace trackerTFP {
   public:
     LayerEncoding() {}
     LayerEncoding(const DataFormats* dataFormats);
-    ~LayerEncoding() {}
+    ~LayerEncoding() = default;
     // Set of layers for given bin in zT
     const std::vector<int>& layerEncoding(int zT) const;
     // Set of layers for given zT in cm

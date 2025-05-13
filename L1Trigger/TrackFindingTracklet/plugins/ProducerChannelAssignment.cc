@@ -18,7 +18,7 @@ namespace trklet {
   class ProducerChannelAssignment : public edm::ESProducer {
   public:
     ProducerChannelAssignment(const edm::ParameterSet& iConfig);
-    ~ProducerChannelAssignment() override {}
+    ~ProducerChannelAssignment() override = default;
     std::unique_ptr<ChannelAssignment> produce(const ChannelAssignmentRcd& rcd);
 
   private:

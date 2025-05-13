@@ -16,7 +16,7 @@ namespace trackerTFP {
                      const DataFormats* dataFormats,
                      std::vector<TrackDR>& tracks,
                      std::vector<StubDR>& stubs);
-    ~DuplicateRemoval() {}
+    ~DuplicateRemoval() = default;
     // fill output products
     void produce(const std::vector<std::vector<TrackKF*>>& tracksIn,
                  const std::vector<std::vector<StubKF*>>& stubsIn,
