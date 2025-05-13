@@ -5,7 +5,10 @@ DoubleEGL1 = [
   "L1_DoubleEG_LooseIso16_LooseIso12_er1p5",
   "L1_DoubleEG_LooseIso18_LooseIso12_er1p5",
   "L1_DoubleEG_LooseIso20_LooseIso12_er1p5",
-  "L1_DoubleEG_LooseIso22_LooseIso12_er1p5"
+  "L1_DoubleEG_LooseIso22_LooseIso12_er1p5",
+  "L1_DoubleEG15_11_er1p2_dR_Max0p6",
+  "L1_DoubleEG16_11_er1p2_dR_Max0p6",
+  "L1_DoubleEG17_11_er1p2_dR_Max0p6"
 ]
 
 SinglePhotonL1 = [
