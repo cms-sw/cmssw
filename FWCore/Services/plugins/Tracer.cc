@@ -1448,7 +1448,7 @@ void Tracer::preModuleEventDelayedGet(StreamContext const& sc, ModuleCallingCont
   for (unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: delayed processing event for module: stream = " << sc.streamID() << " label = '"
+  out << " starting: delayed get while processing event for module: stream = " << sc.streamID() << " label = '"
       << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
   if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
@@ -1463,7 +1463,7 @@ void Tracer::postModuleEventDelayedGet(StreamContext const& sc, ModuleCallingCon
   for (unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: delayed processing event for module: stream = " << sc.streamID() << " label = '"
+  out << " finished: delayed get while processing event for module: stream = " << sc.streamID() << " label = '"
       << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
   if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
