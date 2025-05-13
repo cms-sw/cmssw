@@ -46,11 +46,6 @@ linkedObjects = cms.EDProducer("PATObjectCrossLinker",
    vertices=cms.InputTag("slimmedSecondaryVertices")
 )
 
-# Switch to AK4 CHS jets for Run-2
-run2_nanoAOD_ANY.toModify(
-    linkedObjects, jets="finalJets"
-)
-
 from PhysicsTools.NanoAOD.lhcInfoProducer_cfi import lhcInfoProducer
 lhcInfoTable = lhcInfoProducer.clone()
 (~run3_common).toModify(
@@ -72,15 +67,6 @@ nanoTableTaskCommon = cms.Task(
     isoTrackTablesTask,softActivityTablesTask
 )
 
-# Replace AK4 Puppi with AK4 CHS for Run-2
-_nanoTableTaskCommonRun2 = nanoTableTaskCommon.copy()
-_nanoTableTaskCommonRun2.replace(jetPuppiTask, jetTask)
-_nanoTableTaskCommonRun2.replace(jetPuppiForMETTask, jetForMETTask)
-_nanoTableTaskCommonRun2.replace(jetPuppiTablesTask, jetTablesTask)
-run2_nanoAOD_ANY.toReplaceWith(
-    nanoTableTaskCommon, _nanoTableTaskCommonRun2
-)
-
 nanoSequenceCommon = cms.Sequence(nanoTableTaskCommon)
 
 nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTablesTask)
@@ -100,6 +86,24 @@ nanoSequenceFS = cms.Sequence(nanoSequenceCommon + cms.Sequence(nanoTableTaskFS)
 # GenVertex only stored in newer MiniAOD
 nanoSequenceMC = nanoSequenceFS.copy()
 nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)
+
+
+def RecomputePuppiWeightsALL(proc):
+  """
+  Recompute Puppi weights and PuppiMET and rebuild slimmedJetsPuppi and slimmedJetsAK8.
+  """
+  runOnMC = True
+  if hasattr(proc, "NANOEDMAODoutput") or hasattr(proc, "NANOAODoutput"):
+    runOnMC = False
+
+  from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringFromMiniAOD_cff import puppiJetMETReclusterFromMiniAOD
+  proc = puppiJetMETReclusterFromMiniAOD(proc, runOnMC=runOnMC, useExistingWeights=False,
+                                         reclusterAK4MET=True,
+                                         reclusterAK8=True,
+                                         )
+
+  return proc
+
 
 # modifier which adds new tauIDs
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
@@ -203,12 +207,11 @@ def nanoAOD_customizeCommon(process):
 
     process = nanoAOD_activateVID(process)
 
+    # recompute Puppi weights and remake AK4, AK8 Puppi jets and PuppiMET
     run2_nanoAOD_106Xv2.toModify(
-        nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addParticleNet_switch=True,
-        nanoAOD_addRobustParTAK4Tag_switch=False,
-        nanoAOD_addUnifiedParTAK4Tag_switch=True,
+        process, lambda p: RecomputePuppiWeightsALL(p)
     )
-  
+
     # This function is defined in jetsAK4_Puppi_cff.py
     process = nanoAOD_addDeepInfoAK4(process,
         addParticleNet=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addParticleNet_switch,
@@ -216,6 +219,10 @@ def nanoAOD_customizeCommon(process):
         addUnifiedParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addUnifiedParTAK4Tag_switch
     )
 
+    # Add PNet for Tau
+    run2_nanoAOD_106Xv2.toModify(
+        nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addParticleNet_switch=True,
+    )
     # This function is defined in jetsAK4_CHS_cff.py
     process = nanoAOD_addDeepInfoAK4CHS(process,
         addDeepBTag=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepBTag_switch,
@@ -247,12 +254,10 @@ def nanoAOD_customizeCommon(process):
     ).toModify(
         process, lambda p : nanoAOD_addTauIds(p, nanoAOD_tau_switch.idsToAdd.value())
     )
-    
-    # Add Unified Tagger for CHS jets (PNet) for Run 2 era,
-    # but don't add Unified Tagger for PUPPI jets (as different PUPPI tune
-    # and base jet algorithm)
+
+    # Add Unified Tagger for Run 2 era
     (run2_nanoAOD_106Xv2).toModify(
-        nanoAOD_tau_switch, addPNet = True
+        nanoAOD_tau_switch, addPNet = True, addUParTInfo = True
     )
     # Add Unified Taggers for Run 3 pre 142X (pre v15) era (Unified taggers 
     # are already added to slimmedTaus in miniAOD for newer eras)
@@ -271,7 +276,7 @@ def nanoAOD_customizeCommon(process):
                         addUTagInfo = nanoAOD_tau_switch.addUParTInfo.value(),
                         usePUPPIjets = True
     )
-    
+
     nanoAOD_boostedTau_switch = cms.PSet(
         idsToAdd = cms.vstring()
     )
