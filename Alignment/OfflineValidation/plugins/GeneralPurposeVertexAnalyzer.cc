@@ -125,7 +125,6 @@ private:
 
     void bookIPMonitor(const edm::ParameterSet &, const edm::Service<TFileService> fs);
     void fillIPMonitor(const edm::RefToBase<reco::Track> &tk, const math::XYZPoint &pv);
-    void print();
   };
 
   const edm::ParameterSet conf_;
@@ -190,23 +189,35 @@ private:
 
 void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::ParameterSet &config,
                                                                const edm::Service<TFileService> fs) {
+  // Lambda for range validation
+  auto checkRange = [](const std::string &name, double min, double max) {
+    if (min >= max) {
+      throw cms::Exception("IPMonitoring")
+          << "Invalid range for " << name << ": min (" << min << ") >= max (" << max << ")";
+    }
+  };
+
   int VarBin = config.getParameter<int>(fmt::format("D{}Bin", varname_));
   double VarMin = config.getParameter<double>(fmt::format("D{}Min", varname_));
   double VarMax = config.getParameter<double>(fmt::format("D{}Max", varname_));
+  checkRange(fmt::format("D{}", varname_), VarMin, VarMax);
 
   int PhiBin = config.getParameter<int>("PhiBin");
   int PhiBin2D = config.getParameter<int>("PhiBin2D");
   double PhiMin = config.getParameter<double>("PhiMin");
   double PhiMax = config.getParameter<double>("PhiMax");
+  checkRange("Phi", PhiMin, PhiMax);
 
   int EtaBin = config.getParameter<int>("EtaBin");
   int EtaBin2D = config.getParameter<int>("EtaBin2D");
   double EtaMin = config.getParameter<double>("EtaMin");
   double EtaMax = config.getParameter<double>("EtaMax");
+  checkRange("Eta", EtaMin, EtaMax);
 
   int PtBin = config.getParameter<int>("PtBin");
   double PtMin = config.getParameter<double>("PtMin") * pTcut_;
   double PtMax = config.getParameter<double>("PtMax") * pTcut_;
+  checkRange("Pt", PtMin, PtMax);
 
   IP_ = fs->make<TH1D>(fmt::format("d{}_pt{}", varname_, pTcut_).c_str(),
                        fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str(),
@@ -341,44 +352,34 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
 
 void GeneralPurposeVertexAnalyzer::IPMonitoring::fillIPMonitor(const edm::RefToBase<reco::Track> &tk,
                                                                const math::XYZPoint &pv) {
+  float value = 999.f, error = 9999.f;
+
+  if (varname_ == "xy") {
+    value = tk->dxy(pv) * cmToUm;
+    error = tk->dxyError() * cmToUm;
+  } else if (varname_ == "z") {
+    value = tk->dz(pv) * cmToUm;
+    error = tk->dzError() * cmToUm;
+  } else {
+    throw cms::Exception("IPMonitoring") << "Unknown varname: " << varname_ << ". Expected 'xy' or 'z\'.";
+  }
+
   const float eta = tk->eta();
   const float phi = tk->phi();
   const float pt = tk->pt();
 
-  const float Dxy = tk->dxy(pv) * cmToUm;
-  const float DxyErr = tk->dxyError() * cmToUm;
+  IP_->Fill(value);
+  IPVsPhi_->Fill(phi, value);
+  IPVsEta_->Fill(eta, value);
+  IPVsPt_->Fill(pt, value);
+  IPVsEtaVsPhi_->Fill(eta, phi, value);
 
-  const float Dz = tk->dz(pv) * cmToUm;
-  const float DzErr = tk->dzError() * cmToUm;
-
-  if (varname_ == "xy") {
-    IP_->Fill(Dxy);
-    IPVsPhi_->Fill(phi, Dxy);
-    IPVsEta_->Fill(eta, Dxy);
-    IPVsPt_->Fill(pt, Dxy);
-    IPVsEtaVsPhi_->Fill(eta, phi, Dxy);
-
-    IPErr_->Fill(DxyErr);
-    IPPull_->Fill(Dxy / DxyErr);
-    IPErrVsPhi_->Fill(phi, DxyErr);
-    IPErrVsEta_->Fill(eta, DxyErr);
-    IPErrVsPt_->Fill(pt, DxyErr);
-    IPErrVsEtaVsPhi_->Fill(eta, phi, DxyErr);
-  } else if (varname_ == "z") {
-    IP_->Fill(Dz);
-    IPVsPhi_->Fill(phi, Dz);
-    IPVsEta_->Fill(eta, Dz);
-    IPVsPt_->Fill(pt, Dz);
-    IPVsEtaVsPhi_->Fill(eta, phi, Dz);
-
-    IPErr_->Fill(DzErr);
-    IPPull_->Fill(Dz / DzErr);
-    IPErrVsPhi_->Fill(phi, DzErr);
-    IPErrVsEta_->Fill(eta, DzErr);
-    IPErrVsPt_->Fill(pt, DzErr);
-    IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
-  }
-  return;
+  IPErr_->Fill(error);
+  IPPull_->Fill(value / error);
+  IPErrVsPhi_->Fill(phi, error);
+  IPErrVsEta_->Fill(eta, error);
+  IPErrVsPt_->Fill(pt, error);
+  IPErrVsEtaVsPhi_->Fill(eta, phi, error);
 }
 
 //
