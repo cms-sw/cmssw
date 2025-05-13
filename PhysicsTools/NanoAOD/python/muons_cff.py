@@ -84,6 +84,13 @@ finalMuons = cms.EDFilter("PATMuonRefSelector",
     cut = cms.string("pt > 15 || (pt > 3 && (passed('CutBasedIdLoose') || passed('SoftCutBasedId') || passed('SoftMvaId') || passed('CutBasedIdGlobalHighPt') || passed('CutBasedIdTrkHighPt')))")
 )
 
+# lower the muon pt threshold to 2 GeV
+(run3_nanoAOD_2025 | run3_nanoAOD_devel).toModify(
+    finalMuons,
+    cut = cms.string("pt > 15 || (pt > 2 && (passed('CutBasedIdLoose') || passed('SoftCutBasedId') || passed('SoftMvaId') || passed('CutBasedIdGlobalHighPt') || passed('CutBasedIdTrkHighPt')))")
+)
+
+
 finalLooseMuons = cms.EDFilter("PATMuonRefSelector", # for isotrack cleaning
     src = cms.InputTag("slimmedMuonsWithUserData"),
     cut = cms.string("pt > 3 && track.isNonnull && isLooseMuon")
