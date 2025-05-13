@@ -9,9 +9,16 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
+#include <boost/algorithm/string.hpp>
 #include <bitset>
 #include <iterator>
+
+typedef std::pair<uint32_t, uint32_t> range;
+typedef std::vector<range> region;
 
 class SiPixelDigiMorphing : public edm::stream::EDProducer<> {
 public:
@@ -24,6 +31,10 @@ public:
 private:
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi_;
   edm::EDPutTokenT<edm::DetSetVector<PixelDigi>> tPutPixelDigi_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+
+  const std::vector<region> theBarrelRegions_;
+  const std::vector<region> theEndcapRegions_;
 
   const int32_t nrows_;
   const int32_t ncols_;
@@ -41,11 +52,19 @@ private:
   enum MorphOption { kDilate, kErode };
 
   void morph(uint64_t* const imap, uint64_t* omap, uint64_t* const kernel, MorphOption op) const;
+  std::vector<region> parseRegions(const std::vector<std::string>& regionStrings, size_t size);
+  bool skipDetId(const TrackerTopology* tTopo,
+                 const DetId& detId,
+                 const std::vector<region>& theBarrelRegions,
+                 const std::vector<region>& theEndcapRegions) const;
 };
 
 SiPixelDigiMorphing::SiPixelDigiMorphing(edm::ParameterSet const& conf)
     : tPixelDigi_(consumes(conf.getParameter<edm::InputTag>("src"))),
       tPutPixelDigi_(produces<edm::DetSetVector<PixelDigi>>()),
+      trackerTopologyToken_(esConsumes()),
+      theBarrelRegions_(parseRegions(conf.getParameter<std::vector<std::string>>("barrelRegions"), 3)),
+      theEndcapRegions_(parseRegions(conf.getParameter<std::vector<std::string>>("endcapRegions"), 4)),
       nrows_(conf.getParameter<int32_t>("nrows")),
       ncols_(conf.getParameter<int32_t>("ncols")),
       nrocs_(conf.getParameter<int32_t>("nrocs")),
@@ -93,6 +112,10 @@ void SiPixelDigiMorphing::fillDescriptions(edm::ConfigurationDescriptions& descr
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigis"));
+  // LAYER,LADDER,MODULE (coordinates can also be specified as a range FIRST-LAST where appropriate)
+  desc.add<std::vector<std::string>>("barrelRegions", {"1,1-12,1-2", "1,1-12,7-8", "2,1-28,1", "1,1-28,8"});
+  // DISK,BLADE,SIDE,PANEL (coordinates can also be specified as a range FIRST-LAST where appropriate)
+  desc.add<std::vector<std::string>>("endcapRegions", {});
   desc.add<int32_t>("nrows", 160);
   desc.add<int32_t>("ncols", 416);
   desc.add<int32_t>("nrocs", 8);
@@ -109,6 +132,9 @@ void SiPixelDigiMorphing::produce(edm::Event& e, const edm::EventSetup& es) {
 
   auto outputDigis = std::make_unique<edm::DetSetVector<PixelDigi>>();
 
+  // use the TrackerTopology for the layer/disk number, etc.
+  const TrackerTopology* tTopo = &es.getData(trackerTopologyToken_);
+
   const int rocSize = nrows_ + 2 * iters_;
   const int arrSize = nrocs_ * rocSize;
 
@@ -118,6 +144,15 @@ void SiPixelDigiMorphing::produce(edm::Event& e, const edm::EventSetup& es) {
 
   for (auto const& ds : inputDigi) {
     auto rawId = ds.detId();
+
+    const DetId detId(rawId);
+
+    // skip DetIds for which digi morphing has not been requested
+    if (skipDetId(tTopo, detId, theBarrelRegions_, theEndcapRegions_)) {
+      outputDigis->insert(ds);
+      continue;
+    }
+
     edm::DetSet<PixelDigi>* detDigis = nullptr;
     detDigis = &(outputDigis->find_or_insert(rawId));
 
@@ -200,6 +235,100 @@ void SiPixelDigiMorphing::morph(uint64_t* const imap, uint64_t* omap, uint64_t* 
     for (int ii = 0; ii < ksize_; ii++) {
       i[ii] += 2 * iters_;
       valid = (valid << 1) | (*i[ii] != 0);
+    }
+  }
+}
+
+std::vector<region> SiPixelDigiMorphing::parseRegions(const std::vector<std::string>& regionStrings, size_t size) {
+  std::vector<region> regions;
+
+  for (auto const& str : regionStrings) {
+    region reg;
+
+    std::vector<std::string> ranges;
+    boost::split(ranges, str, boost::is_any_of(","));
+
+    if (ranges.size() != size) {
+      throw cms::Exception("Configuration") << "[SiPixelDigiMorphing]:"
+                                            << " invalid number of coordinates provided in " << str << " (" << size
+                                            << " expected, " << ranges.size() << " provided)\n";
+    }
+
+    for (auto const& r : ranges) {
+      std::vector<std::string> limits;
+      boost::split(limits, r, boost::is_any_of("-"));
+
+      try {
+        // if range specified
+        if (limits.size() > 1) {
+          reg.push_back(std::make_pair(std::stoi(limits.at(0)), std::stoi(limits.at(1))));
+          // otherwise store single value as a range
+        } else {
+          reg.push_back(std::make_pair(std::stoi(limits.at(0)), std::stoi(limits.at(0))));
+        }
+      } catch (...) {
+        throw cms::Exception("Configuration") << "[SiPixelDigiMorphing]:"
+                                              << " invalid coordinate value provided in " << str << "\n";
+      }
+    }
+    regions.push_back(reg);
+  }
+
+  return regions;
+}
+
+// apply regional digi morphing logic
+bool SiPixelDigiMorphing::skipDetId(const TrackerTopology* tTopo,
+                                    const DetId& detId,
+                                    const std::vector<region>& theBarrelRegions,
+                                    const std::vector<region>& theEndcapRegions) const {
+  // barrel
+  if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+    // no barrel region specified
+    if (theBarrelRegions.empty()) {
+      return true;
+    } else {
+      uint32_t layer = tTopo->pxbLayer(detId.rawId());
+      uint32_t ladder = tTopo->pxbLadder(detId.rawId());
+      uint32_t module = tTopo->pxbModule(detId.rawId());
+
+      bool inRegion = false;
+
+      for (auto const& reg : theBarrelRegions) {
+        if ((layer >= reg.at(0).first && layer <= reg.at(0).second) &&
+            (ladder >= reg.at(1).first && ladder <= reg.at(1).second) &&
+            (module >= reg.at(2).first && module <= reg.at(2).second)) {
+          inRegion = true;
+          break;
+        }
+      }
+
+      return !inRegion;
+    }
+    // endcap
+  } else {
+    // no endcap region specified
+    if (theEndcapRegions.empty()) {
+      return true;
+    } else {
+      uint32_t disk = tTopo->pxfDisk(detId.rawId());
+      uint32_t blade = tTopo->pxfBlade(detId.rawId());
+      uint32_t side = tTopo->pxfSide(detId.rawId());
+      uint32_t panel = tTopo->pxfPanel(detId.rawId());
+
+      bool inRegion = false;
+
+      for (auto const& reg : theEndcapRegions) {
+        if ((disk >= reg.at(0).first && disk <= reg.at(0).second) &&
+            (blade >= reg.at(1).first && blade <= reg.at(1).second) &&
+            (side >= reg.at(2).first && side <= reg.at(2).second) &&
+            (panel >= reg.at(3).first && panel <= reg.at(3).second)) {
+          inRegion = true;
+          break;
+        }
+      }
+
+      return !inRegion;
     }
   }
 }
