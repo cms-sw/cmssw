@@ -64,6 +64,7 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/Run3ScoutingPFJetIDSelectionFunctor.h"
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
@@ -173,6 +174,11 @@ private:
   PFJetIDSelectionFunctor::Version_t pfjetidversion;
 
   PFJetIDSelectionFunctor pfjetIDFunctor;
+
+  Run3ScoutingPFJetIDSelectionFunctor::Quality_t run3scoutingpfjetidquality;
+  Run3ScoutingPFJetIDSelectionFunctor::Version_t run3scoutingpfjetidversion;
+
+  Run3ScoutingPFJetIDSelectionFunctor run3scoutingpfjetIDFunctor;
 
   std::vector<std::string> folderNames_;
 
