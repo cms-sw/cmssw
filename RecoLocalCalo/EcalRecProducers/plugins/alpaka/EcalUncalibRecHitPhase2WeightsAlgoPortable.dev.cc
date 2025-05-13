@@ -35,6 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights {
       for (auto tx : uniform_elements(acc, nchannels)) {
         bool g1 = false;
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wdangling-reference"
         const auto& digi = digisDev[tx].data();
 #pragma GCC diagnostic pop
@@ -81,5 +82,3 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights {
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights
-
-// Dummy change
