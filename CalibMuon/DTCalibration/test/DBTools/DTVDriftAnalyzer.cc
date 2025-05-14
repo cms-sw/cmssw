@@ -81,15 +81,11 @@ void DTVDriftAnalyzer::endJob() {
     }
     
   } else {
-    edm::LogInfo("DTVDriftAnalyzer") << "Read New VDrift DB" <<endl;
-    
     for (DTRecoConditions::const_iterator vd = vDriftMap_->begin(); vd != vDriftMap_->end(); ++vd) {
-      edm::LogInfo("DTVDrift") <<vd->first <<endl;
       DTWireId wireId(vd->first);
       float vdrift = vDriftMap_->get(wireId);
       values[vd->first] = make_pair(vdrift, 0.f);
-    }
-   
+    }   
   }
 
   for (map<uint32_t, pair<float, float>>::const_iterator it = values.begin(); it != values.end(); ++it) {
@@ -176,7 +172,6 @@ void DTVDriftAnalyzer::endJob() {
        ++lDistrib) {
     (*lDistrib).second->Write();
   }
-
 }
 
 string DTVDriftAnalyzer::getHistoName(const DTWireId& wId) const {
