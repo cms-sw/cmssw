@@ -19,6 +19,7 @@ namespace edm {
   class EventAuxiliary;
   class ProductRegistry;
   class ProcessHistoryRegistry;
+  class InputSourceRunHelperBase;
 
   class RNTupleInputFile {
   public:
@@ -26,9 +27,9 @@ namespace edm {
       bool enableMetrics_ = false;
       bool useClusterCache_ = true;
     };
-    RNTupleInputFile(std::string const& iFileName, Options const& iOpts);
+    RNTupleInputFile(std::string const& iFileName, Options const& iOpts, InputSourceRunHelperBase*);
 
-    IndexIntoFile::EntryType getNextItemType();
+    IndexIntoFile::EntryType getNextItemType(RunNumber_t&, LuminosityBlockNumber_t&, EventNumber_t&);
 
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary();
     IndexIntoFile::EntryNumber_t readLuminosityBlock();
@@ -54,6 +55,7 @@ namespace edm {
 
   private:
     std::unique_ptr<TFile> file_;
+    edm::propagate_const<InputSourceRunHelperBase*> runHelper_;
 
     input::DataProductsRNTuple runs_;
     input::DataProductsRNTuple lumis_;
