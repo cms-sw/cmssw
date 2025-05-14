@@ -1088,8 +1088,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_vz_tk_hist = ibook.book1D("tk_vz_tk", "Tracker Vertex Z; z (cm); Entries", 100, -20.0, 20.0);
   tk_chi2_ndof_tk_hist = ibook.book1D("tk_chi2_ndof_tk", "Reduced #chi^{2}; #chi^{2}/NDOF; Entries", 100, 0, 50);
   trk_chi2_prob_hist = ibook.book1D("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
-  tk_PV_dz_hist = ibook.book1D("tk_PV_dz", "Track dz w.r.t. PV; Track dz w.r.t. PV; Entries", 100, -0.5, 0.5);
-  tk_PV_dxy_hist = ibook.book1D("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.5, 0.5);
+  tk_PV_dz_hist = ibook.book1D("tk_PV_dz", "Track dz w.r.t. PV; Track dz w.r.t. PV; Entries", 100, -0.35, 0.35);
+  tk_PV_dxy_hist = ibook.book1D("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.15, 0.15);
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 
