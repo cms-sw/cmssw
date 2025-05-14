@@ -70,8 +70,25 @@ private:
                       edm::Handle<T>& handle,
                       const std::string& label);
 
-  template <typename T1, typename T2>
-  std::pair<float, float> trk_vtx_offSet(const edm::Handle<T1>& handle_vertex, const edm::Handle<T2>& handle_tracks);
+  static inline std::pair<float, float> trk_vtx_offSet(const Run3ScoutingTrack& tk, const Run3ScoutingVertex& vtx) {
+    const auto pt = tk.tk_pt();
+    const auto phi = tk.tk_phi();
+    const auto eta = tk.tk_eta();
+
+    const auto px = pt * std::cos(phi);
+    const auto py = pt * std::sin(phi);
+    const auto pz = pt * std::sinh(eta);
+    const auto pt2 = pt * pt;
+
+    const auto dx = tk.tk_vx() - vtx.x();
+    const auto dy = tk.tk_vy() - vtx.y();
+    const auto dz = tk.tk_vz() - vtx.z();
+
+    const auto tk_dxyPV = (-dx * py + dy * px) / pt;
+    const auto tk_dzPV = dz - (dx * px + dy * py) * pz / pt2;
+
+    return {tk_dxyPV, tk_dzPV};
+  }
 
   const bool isOnline_;
   const edm::InputTag triggerResultsTag_;
@@ -423,28 +440,6 @@ bool ScoutingCollectionMonitor::getValidHandle(const edm::Event& iEvent,
   return true;
 }
 
-template <typename T1, typename T2>
-std::pair<float, float> ScoutingCollectionMonitor::trk_vtx_offSet(const edm::Handle<T1>& handle_vertex,
-                                                                  const edm::Handle<T2>& handle_tracks) {
-  float px = handle_tracks->at(0).tk_pt() * cos(handle_tracks->at(0).tk_phi());
-  float py = handle_tracks->at(0).tk_pt() * sin(handle_tracks->at(0).tk_phi());
-  float pz = handle_tracks->at(0).tk_pt() * sinh(handle_tracks->at(0).tk_eta());
-  float pt2 = handle_tracks->at(0).tk_pt() * handle_tracks->at(0).tk_pt();
-
-  float tk_dxyPV = (-(handle_tracks->at(0).tk_vx() - handle_vertex->at(0).x()) * py +
-                    (handle_tracks->at(0).tk_vy() - handle_vertex->at(0).y()) * px) /
-                   handle_tracks->at(0).tk_pt();
-
-  float theptinv2 = 1.0f / pt2;
-  float tk_dzPV = (handle_tracks->at(0).tk_vz() - handle_vertex->at(0).z()) -
-                  ((handle_tracks->at(0).tk_vx() - handle_vertex->at(0).x()) * px +
-                   (handle_tracks->at(0).tk_vy() - handle_vertex->at(0).y()) * py) *
-                      pz * theptinv2;
-
-  pair<float, float> offset(tk_dxyPV, tk_dzPV);
-  return offset;
-}
-
 // ------------ method called for each event  ------------
 void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -782,15 +777,21 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     tk_vz_tk_hist->Fill(tk.tk_vz());
     tk_chi2_ndof_tk_hist->Fill(tk.tk_chi2() / tk.tk_ndof());
     trk_chi2_prob_hist->Fill(TMath::Prob(tk.tk_chi2(), tk.tk_ndof()));
+
+    // initialize the impact parameters to large values
+    std::pair<float, float> best_offset{9999.f, 99999.f};
+
+    // loop on all the vertices and find the closest one
+    for (const auto& vtx : *primaryVerticesH) {
+      const auto offset = trk_vtx_offSet(tk, vtx);
+      if (std::abs(offset.second) < std::abs(best_offset.second)) {
+        best_offset = offset;
+      }
+    }
+
+    tk_PV_dxy_hist->Fill(best_offset.first);
+    tk_PV_dz_hist->Fill(best_offset.second);
   }
-
-  std::pair<float, float> offset = trk_vtx_offSet(primaryVerticesH, tracksH);
-
-  float tk_dxyPV = offset.first;
-  float tk_dzPV = offset.second;
-
-  tk_PV_dxy_hist->Fill(tk_dxyPV);
-  tk_PV_dz_hist->Fill(tk_dzPV);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -808,9 +809,6 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
         ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 20, 20, 60, 0, 65);
     rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 20, 20, 60, 0, 45);
   }
-
-  tk_PV_dz_hist = ibook.book1D("tk_PV_dz", "tk dz w.r.t. PV; tk dz w.r.t. PV; Entries", 100, -0.05, 0.05);
-  tk_PV_dxy_hist = ibook.book1D("tk_PV_dxy", "tk dxy w.r.t. PV; tk dxy w.r.t. PV; Entries", 100, -0.05, 0.05);
 
   ibook.setCurrentFolder(topfoldername_ + "/PFcand");
   PF_pT_211_hist = ibook.book1DD("pT_211", "PF h^{+}  pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 13.0);
@@ -1079,15 +1077,15 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   xzCov_vtx_hist = ibook.book1D("xzCov_vtx", "Vertex XZ Covariance; Cov(x,z); Entries", 100, -0.01, 0.01);
   yzCov_vtx_hist = ibook.book1D("yzCov_vtx", "Vertex YZ Covariance; Cov(y,z); Entries", 100, -0.01, 0.01);
 
-  ibook.setCurrentFolder(topfoldername_ + "/Tracker");
-  tk_pt_tk_hist = ibook.book1D("tk_pt_tk", "Tracker pT; p_{T} (GeV); Entries", 100, 0.0, 30.0);
-  tk_eta_tk_hist = ibook.book1D("tk_eta_tk", "Tracker #eta; #eta; Entries", 100, -2.7, 2.7);
-  tk_phi_tk_hist = ibook.book1D("tk_phi_tk", "Tracker #phi; #phi (rad); Entries", 100, -3.14, 3.14);
-  tk_chi2_tk_hist = ibook.book1D("tk_chi2_tk", "Tracker #chi^{2}; #chi^{2}; Entries", 100, 0.0, 50.0);
-  tk_ndof_tk_hist = ibook.book1D("tk_ndof_tk", "Tracker Ndof; Ndof; Entries", 100, 0, 10);
-  tk_charge_tk_hist = ibook.book1D("tk_charge_tk", "Tracker Charge; Charge; Entries", 3, -1, 2);
-  tk_dxy_tk_hist = ibook.book1D("tk_dxy_tk", "Tracker dxy; dxy (cm); Entries", 100, -0.5, 0.5);
-  tk_dz_tk_hist = ibook.book1D("tk_dz_tk", "Tracker dz; dz (cm); Entries", 100, -20.0, 20.0);
+  ibook.setCurrentFolder(topfoldername_ + "/Tracking");
+  tk_pt_tk_hist = ibook.book1D("tk_pt_tk", "Track pT; p_{T} (GeV); Entries", 100, 0.0, 30.0);
+  tk_eta_tk_hist = ibook.book1D("tk_eta_tk", "Track #eta; #eta; Entries", 100, -2.7, 2.7);
+  tk_phi_tk_hist = ibook.book1D("tk_phi_tk", "Track #phi; #phi (rad); Entries", 100, -3.14, 3.14);
+  tk_chi2_tk_hist = ibook.book1D("tk_chi2_tk", "Track #chi^{2}; #chi^{2}; Entries", 100, 0.0, 50.0);
+  tk_ndof_tk_hist = ibook.book1D("tk_ndof_tk", "Track Ndof; Ndof; Entries", 100, 0, 10);
+  tk_charge_tk_hist = ibook.book1D("tk_charge_tk", "Track Charge; Charge; Entries", 3, -1, 2);
+  tk_dxy_tk_hist = ibook.book1D("tk_dxy_tk", "Track dxy; dxy (cm); Entries", 100, -0.5, 0.5);
+  tk_dz_tk_hist = ibook.book1D("tk_dz_tk", "Track dz; dz (cm); Entries", 100, -20.0, 20.0);
   tk_nValidPixelHits_tk_hist = ibook.book1D("tk_nValidPixelHits_tk", "Valid Pixel Hits; Hits; Entries", 20, 0, 20);
   tk_nTrackerLayersWithMeasurement_tk_hist = ibook.book1D(
       "tk_nTrackerLayersWithMeasurement_tk", "Tracker Layers with Measurement; Layers; Entries", 20, 0, 20);
@@ -1107,6 +1105,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_vz_tk_hist = ibook.book1D("tk_vz_tk", "Tracker Vertex Z; z (cm); Entries", 100, -20.0, 20.0);
   tk_chi2_ndof_tk_hist = ibook.book1D("tk_chi2_ndof_tk", "Reduced #chi^{2}; #chi^{2}/NDOF; Entries", 100, 0, 50);
   trk_chi2_prob_hist = ibook.book1D("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
+  tk_PV_dz_hist = ibook.book1D("tk_PV_dz", "Track dz w.r.t. PV; Track dz w.r.t. PV; Entries", 100, -0.5, 0.5);
+  tk_PV_dxy_hist = ibook.book1D("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.5, 0.5);
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 
