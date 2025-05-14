@@ -9,6 +9,7 @@ MuMu = cms.EDProducer(
     transientTracksSrc = cms.InputTag('muonBPH', 'SelectedTransientMuons'),
     lep1Selection = cms.string('pt > 4.0 && abs(eta) < 2.4 && isLooseMuon && isGlobalMuon'),
     lep2Selection = cms.string('pt > 3.0 && abs(eta) < 2.4 && isLooseMuon && isGlobalMuon'),
+    beamSpot = cms.InputTag("offlineBeamSpot"),
     preVtxSelection  = cms.string('abs(userCand("l1").vz - userCand("l2").vz) <= 1.'
                                   '&& 0 < mass() && mass() < 15.0 '
                                   '&& charge() == 0'
@@ -35,10 +36,16 @@ MuMuTable = cms.EDProducer("SimpleCompositeCandidateFlatTableProducer",
     variables = cms.PSet(CandVars,
           fitted_mass = Var("userFloat('fitted_mass')", float, doc="Fitted dilepton mass"),
           svprob = Var("userFloat('sv_prob')", float, doc="Vtx fit probability"),
+          sv_ndof         = Var("userFloat('sv_ndof')", float, doc=""),
+          sv_chi2         = Var("userFloat('sv_chi2')", float, doc=""),
           vtx_x =Var("userFloat('vtx_x')", float, doc="Vtx position in x"),
           vtx_y = Var("userFloat('vtx_y')", float, doc="Vtx position in y"),
           vtx_z = Var("userFloat('vtx_z')", float, doc="Vtx position in y"),
-
+          mu1_index = Var("userInt('l1_idx')",int, doc="Index of Mu1"),
+          mu2_index = Var("userInt('l2_idx')",int, doc="Index of Mu2"),
+          l_xy        = Var("userFloat('l_xy')", float, doc="lxy"),
+          l_xy_unc        = Var("userFloat('l_xy_unc')", float, doc="lxy uncertainty"),
+          cos_theta_2D    = Var("userFloat('fitted_cos_theta_2D')", float, doc="cos pointing angle in 2D"),
     )
 )
 

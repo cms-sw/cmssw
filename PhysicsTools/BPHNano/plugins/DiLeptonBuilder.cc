@@ -33,6 +33,7 @@ public:
         pre_vtx_selection_{cfg.getParameter<std::string>("preVtxSelection")},
         post_vtx_selection_{cfg.getParameter<std::string>("postVtxSelection")},
         src_{consumes<LeptonCollection>(cfg.getParameter<edm::InputTag>("src"))},
+        beamspot_{consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpot"))},
         ttracks_src_{consumes<TransientTrackCollection>(cfg.getParameter<edm::InputTag>("transientTracksSrc"))} {
     produces<pat::CompositeCandidateCollection>("SelectedDiLeptons");
   }
@@ -47,6 +48,7 @@ private:
   const StringCutObjectSelector<pat::CompositeCandidate> pre_vtx_selection_;   // cut on the di-lepton before the SV fit
   const StringCutObjectSelector<pat::CompositeCandidate> post_vtx_selection_;  // cut on the di-lepton after the SV fit
   const edm::EDGetTokenT<LeptonCollection> src_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamspot_;
   const edm::EDGetTokenT<TransientTrackCollection> ttracks_src_;
 };
 
@@ -58,7 +60,8 @@ void DiLeptonBuilder<Lepton>::produce(edm::StreamID, edm::Event &evt, edm::Event
 
   edm::Handle<TransientTrackCollection> ttracks;
   evt.getByToken(ttracks_src_, ttracks);
-
+  edm::Handle<reco::BeamSpot> beamspot;
+  evt.getByToken(beamspot_, beamspot);
   // output
   std::unique_ptr<pat::CompositeCandidateCollection> ret_value(new pat::CompositeCandidateCollection());
 
@@ -106,7 +109,12 @@ void DiLeptonBuilder<Lepton>::produce(edm::StreamID, edm::Event &evt, edm::Event
       lepton_pair.addUserFloat("vtx_x", lepton_pair.vx());
       lepton_pair.addUserFloat("vtx_y", lepton_pair.vy());
       lepton_pair.addUserFloat("vtx_z", lepton_pair.vz());
-
+      auto lxy = bph::l_xy(fitter, *beamspot);
+      lepton_pair.addUserFloat("l_xy", lxy.value());
+      lepton_pair.addUserFloat("l_xy_unc", lxy.error());
+      auto fit_p4 = fitter.fitted_p4();
+      lepton_pair.addUserFloat("fitted_cos_theta_2D", bph::cos_theta_2D(fitter, *beamspot, fit_p4));
+       
       // if needed, add here more stuff
 
       // cut on the SV info
