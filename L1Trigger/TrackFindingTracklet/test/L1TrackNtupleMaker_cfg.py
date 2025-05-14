@@ -107,7 +107,7 @@ elif GEOMETRY == "D88":
 elif GEOMETRY == "D110":
 
   # Read specified .root file:
-  inputMC = [""]
+  inputMC = ["/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/00c7f40e-b44e-4eea-a86b-def8f7d82b0e.root"]
 
 else:
 
