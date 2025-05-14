@@ -45,7 +45,8 @@ process.MessageLogger.TrackTriggerHPH = dict(limit = -1)
 print("using geometry " + GEOMETRY + " (tilted)")
 process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY + 'Reco_cff')
 process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY +'_cff')
-
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 # Change needed to run with D98 geometry in recent CMSSW versions.
 if GEOMETRY == "D88" or GEOMETRY == 'D98':
