@@ -6,7 +6,7 @@
 #include <ROOT/RNTupleModel.hxx>
 #include <ROOT/REntry.hxx>
 
-struct RNTupleSubFieldDescription {
+struct RNTupleSubfieldDescription {
   std::string m_name;
   std::string m_desc;
   nanoaod::FlatTable::ColumnType m_type;
@@ -17,10 +17,10 @@ public:
   RNTupleCollection() = delete;
   RNTupleCollection(const std::string& name,
                     const std::string& desc,
-                    std::vector<RNTupleSubFieldDescription>& subfields_desc,
+                    std::vector<RNTupleSubfieldDescription>& subfields_desc,
                     ROOT::RNTupleModel& model);
 
-  void bind_buffer(ROOT::REntry& entry);
+  void bind_entry(ROOT::REntry& entry);
   const std::string& getFieldName() const { return m_name; }
 
 private:

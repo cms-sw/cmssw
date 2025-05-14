@@ -39,7 +39,7 @@ std::string flatTableColumnTypeToString(nanoaod::FlatTable::ColumnType type) {
 
 RNTupleCollection::RNTupleCollection(const std::string& name,
                                      const std::string& desc,
-                                     std::vector<RNTupleSubFieldDescription>& subfields_desc,
+                                     std::vector<RNTupleSubfieldDescription>& subfields_desc,
                                      RNTupleModel& model)
     : m_name(name) {
   std::vector<std::unique_ptr<RFieldBase>> subfields;
@@ -56,4 +56,4 @@ RNTupleCollection::RNTupleCollection(const std::string& name,
   auto collection_field = RVectorField::CreateUntyped(name, std::move(record_field));
 }
 
-void RNTupleCollection::bind_buffer(REntry& entry) { entry.BindRawPtr<void>(m_name, m_buffer); }
+void RNTupleCollection::bind_entry(REntry& entry) { entry.BindRawPtr<void>(m_name, &m_buffer); }
