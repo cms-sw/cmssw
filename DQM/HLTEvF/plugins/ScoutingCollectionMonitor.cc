@@ -17,9 +17,9 @@ It is based on the preexisting work of the scouting group and can be found at gi
 //
 
 // system include files
-#include <memory>
 #include <TLorentzVector.h>
-#include <math.h>
+#include <cmath>
+#include <memory>
 #include <vector>
 
 // user include files
@@ -71,10 +71,9 @@ private:
                       const std::string& label);
 
   template <typename T1, typename T2>
-  std::vector<float> trk_vtx_offSet(const edm::Handle<T1>& handle_vertex,
-                      const edm::Handle<T2>& handle_tracks);
+  std::pair<float, float> trk_vtx_offSet(const edm::Handle<T1>& handle_vertex, const edm::Handle<T2>& handle_tracks);
 
-  const bool isOnline_; 
+  const bool isOnline_;
   const edm::InputTag triggerResultsTag_;
   const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonsToken_;
@@ -90,7 +89,7 @@ private:
   const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
   const edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
   const std::string topfoldername_;
- 
+
   std::vector<std::string> triggerPathsVector;
   std::map<std::string, int> triggerPathsMap;
 
@@ -310,7 +309,6 @@ private:
   dqm::reco::MonitorElement* HFHadronMultiplicity_pfj_hist;
   dqm::reco::MonitorElement* HFEMMultiplicity_pfj_hist;
   dqm::reco::MonitorElement* HOEnergy_pfj_hist;
-  dqm::reco::MonitorElement* csv_pfj_hist;
   dqm::reco::MonitorElement* mvaDiscriminator_pfj_hist;
 
   // primary vertex histograms
@@ -327,7 +325,6 @@ private:
   dqm::reco::MonitorElement* xyCov_pv_hist;
   dqm::reco::MonitorElement* xzCov_pv_hist;
   dqm::reco::MonitorElement* yzCov_pv_hist;
-
 
   // displaced vertex histograms
   dqm::reco::MonitorElement* x_vtx_hist;
@@ -408,12 +405,9 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
       onlineMetaDataDigisToken_(consumes(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"))),
       topfoldername_(iConfig.getParameter<std::string>("topfoldername"))
 
-{
+{}
 
-}
-
-      
-      //
+//
 // member functions
 //
 template <typename T>
@@ -429,27 +423,27 @@ bool ScoutingCollectionMonitor::getValidHandle(const edm::Event& iEvent,
   return true;
 }
 
-
 template <typename T1, typename T2>
-std::vector<float> ScoutingCollectionMonitor::trk_vtx_offSet(const edm::Handle<T1>& handle_vertex,
-                      const edm::Handle<T2>& handle_tracks){
+std::pair<float, float> ScoutingCollectionMonitor::trk_vtx_offSet(const edm::Handle<T1>& handle_vertex,
+                                                                  const edm::Handle<T2>& handle_tracks) {
+  float px = handle_tracks->at(0).tk_pt() * cos(handle_tracks->at(0).tk_phi());
+  float py = handle_tracks->at(0).tk_pt() * sin(handle_tracks->at(0).tk_phi());
+  float pz = handle_tracks->at(0).tk_pt() * sinh(handle_tracks->at(0).tk_eta());
+  float pt2 = handle_tracks->at(0).tk_pt() * handle_tracks->at(0).tk_pt();
 
-	float px = handle_tracks->at(0).tk_pt() * cos(handle_tracks->at(0).tk_phi());
-	float py = handle_tracks->at(0).tk_pt() * sin(handle_tracks->at(0).tk_phi());
-	float pz = handle_tracks->at(0).tk_pt() * sinh(handle_tracks->at(0).tk_eta());
-	float pt2 = handle_tracks->at(0).tk_pt() * handle_tracks->at(0).tk_pt();
+  float tk_dxyPV = (-(handle_tracks->at(0).tk_vx() - handle_vertex->at(0).x()) * py +
+                    (handle_tracks->at(0).tk_vy() - handle_vertex->at(0).y()) * px) /
+                   handle_tracks->at(0).tk_pt();
 
+  float theptinv2 = 1.0f / pt2;
+  float tk_dzPV = (handle_tracks->at(0).tk_vz() - handle_vertex->at(0).z()) -
+                  ((handle_tracks->at(0).tk_vx() - handle_vertex->at(0).x()) * px +
+                   (handle_tracks->at(0).tk_vy() - handle_vertex->at(0).y()) * py) *
+                      pz * theptinv2;
 
-	float tk_dxyPV = (-(handle_tracks->at(0).tk_vx() - handle_vertex->at(0).x()) * py + (handle_tracks->at(0).tk_vy() - handle_vertex->at(0).y()) * px) / handle_tracks->at(0).tk_pt();
-
-	float theptinv2 = 1.0f / pt2;
-	float tk_dzPV = (handle_tracks->at(0).tk_vz() - handle_vertex->at(0).z()) - ((handle_tracks->at(0).tk_vx() - handle_vertex->at(0).x()) * px + (handle_tracks->at(0).tk_vy() - handle_vertex->at(0).y()) * py) * pz * theptinv2;
-	
-	vector<float> offset = {tk_dxyPV, tk_dzPV};
-	return offset;
+  pair<float, float> offset(tk_dxyPV, tk_dzPV);
+  return offset;
 }
-
-
 
 // ------------ method called for each event  ------------
 void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -471,7 +465,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   edm::Handle<std::vector<Run3ScoutingTrack>> tracksH;
   edm::Handle<OnlineLuminosityRecord> onlineMetaDataDigisHandle;
 
-  if (!getValidHandle(iEvent, rhoToken_, rhoH, "rho") || 
+  if (!getValidHandle(iEvent, rhoToken_, rhoH, "rho") ||
       !getValidHandle(iEvent, pfMetPhiToken_, pfMetPhiH, "MET phi") ||
       !getValidHandle(iEvent, pfMetPtToken_, pfMetPtH, "MET pT") ||
       !getValidHandle(iEvent, pfcandsToken_, pfcandsH, "PF candidates") ||
@@ -481,21 +475,18 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
       !getValidHandle(iEvent, pfjetsToken_, PFjetsH, "PF jets") ||
       !getValidHandle(iEvent, verticesToken_, verticesH, "vertices") ||
       !getValidHandle(iEvent, primaryVerticesToken_, primaryVerticesH, "primary vertices") ||
-      !getValidHandle(iEvent, tracksToken_, tracksH, "tracks")) { 
-return;
+      !getValidHandle(iEvent, tracksToken_, tracksH, "tracks")) {
+    return;
   }
 
-  
-  if (!isOnline_){
-	if( !getValidHandle(iEvent, onlineMetaDataDigisToken_, onlineMetaDataDigisHandle, "avgPileUp"))  {
-		return;  
-	}
-  avgPileUp = onlineMetaDataDigisHandle->avgPileUp(); 
-  rhovsPU_hist->Fill(avgPileUp,*rhoH);
+  if (!isOnline_) {
+    if (!getValidHandle(iEvent, onlineMetaDataDigisToken_, onlineMetaDataDigisHandle, "avgPileUp")) {
+      return;
+    }
+    avgPileUp = onlineMetaDataDigisHandle->avgPileUp();
+    rhovsPU_hist->Fill(avgPileUp, *rhoH);
   }
 
-
- 
   // get pile up
 
   // put stuff in histogram
@@ -721,14 +712,12 @@ return;
     HFHadronMultiplicity_pfj_hist->Fill(jet.HFHadronMultiplicity());
     HFEMMultiplicity_pfj_hist->Fill(jet.HFEMMultiplicity());
     HOEnergy_pfj_hist->Fill(jet.HOEnergy());
-    csv_pfj_hist->Fill(jet.csv());
     mvaDiscriminator_pfj_hist->Fill(jet.mvaDiscriminator());
   }
 
   // fill all the primary vertices histograms
   for (const auto& vtx : *primaryVerticesH) {
-	  
-    primaryVertex_counter++;	  
+    primaryVertex_counter++;
     x_pv_hist->Fill(vtx.x());
     y_pv_hist->Fill(vtx.y());
     z_pv_hist->Fill(vtx.z());
@@ -744,12 +733,9 @@ return;
     yzCov_pv_hist->Fill(vtx.yzCov());
   }
 
-
-
-  if (!isOnline_){
-  	PVvsPU_hist->Fill(avgPileUp, primaryVertex_counter); 
+  if (!isOnline_) {
+    PVvsPU_hist->Fill(avgPileUp, primaryVertex_counter);
   }
-
 
   // fill all the displaced vertices histograms
   for (const auto& vtx : *verticesH) {
@@ -794,19 +780,17 @@ return;
     tk_vx_tk_hist->Fill(tk.tk_vx());
     tk_vy_tk_hist->Fill(tk.tk_vy());
     tk_vz_tk_hist->Fill(tk.tk_vz());
-    tk_chi2_ndof_tk_hist->Fill(tk.tk_chi2()/tk.tk_ndof());
+    tk_chi2_ndof_tk_hist->Fill(tk.tk_chi2() / tk.tk_ndof());
     trk_chi2_prob_hist->Fill(TMath::Prob(tk.tk_chi2(), tk.tk_ndof()));
   }
 
+  std::pair<float, float> offset = trk_vtx_offSet(primaryVerticesH, tracksH);
 
-  std::vector<float> offset = trk_vtx_offSet(primaryVerticesH, tracksH);
-
-  float tk_dxyPV = offset[0];
-  float tk_dzPV  = offset[1];
+  float tk_dxyPV = offset.first;
+  float tk_dzPV = offset.second;
 
   tk_PV_dxy_hist->Fill(tk_dxyPV);
   tk_PV_dz_hist->Fill(tk_dzPV);
-
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -818,16 +802,16 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   rho_hist = ibook.book1D("rho", "#rho; #rho; Entries", 100, 0.0, 60.0);
   pfMetPhi_hist = ibook.book1D("pfMetPhi", "pf MET #phi; #phi ;Entries", 100, -3.14, 3.14);
   pfMetPt_hist = ibook.book1D("pfMetPt", "pf MET pT;p_{T} [GeV];Entries", 100, 0.0, 250.0);
- 
-  
-  if (!isOnline_){
-   PVvsPU_hist = ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 20, 20, 60, 0, 65);
-   rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 20, 20, 60, 0, 45);
+
+  if (!isOnline_) {
+    PVvsPU_hist =
+        ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 20, 20, 60, 0, 65);
+    rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 20, 20, 60, 0, 45);
   }
 
- tk_PV_dz_hist = ibook.book1D("tk_PV_dz", "tk dz w.r.t. PV; tk dz w.r.t. PV; Entries", 100, -0.05, 0.05); 
- tk_PV_dxy_hist = ibook.book1D("tk_PV_dxy", "tk dxy w.r.t. PV; tk dxy w.r.t. PV; Entries", 100, -0.05, 0.05);
-  
+  tk_PV_dz_hist = ibook.book1D("tk_PV_dz", "tk dz w.r.t. PV; tk dz w.r.t. PV; Entries", 100, -0.05, 0.05);
+  tk_PV_dxy_hist = ibook.book1D("tk_PV_dxy", "tk dxy w.r.t. PV; tk dxy w.r.t. PV; Entries", 100, -0.05, 0.05);
+
   ibook.setCurrentFolder(topfoldername_ + "/PFcand");
   PF_pT_211_hist = ibook.book1DD("pT_211", "PF h^{+}  pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 13.0);
   PF_pT_n211_hist = ibook.book1DD("pT_n211", "PF h^{-} pT (GeV);p_{T} [GeV];Entries", 100, 0.0, 14.0);
@@ -1062,7 +1046,6 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   HFEMMultiplicity_pfj_hist =
       ibook.book1D("HFEMMultiplicity_pfj", "HF EM Multiplicity; Multiplicity; Entries", 20, 0, 20);
   HOEnergy_pfj_hist = ibook.book1D("HOEnergy_pfj", "HO Energy; Energy (GeV); Entries", 100, 0.0, 5.0);
-  csv_pfj_hist = ibook.book1D("csv_pfj", "Combined Secondary Vertex (CSV); CSV Score; Entries", 100, -0.5, 0.5);
   mvaDiscriminator_pfj_hist = ibook.book1D("mvaDiscriminator_pfj", "MVA Discriminator; Score; Entries", 100, -1.0, 1.0);
 
   ibook.setCurrentFolder(topfoldername_ + "/PrimaryVertex");
@@ -1143,8 +1126,8 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("pfMetPt", edm::InputTag("hltScoutingPFPacker", "pfMetPt"));
   desc.add<edm::InputTag>("pfMetPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
   desc.add<edm::InputTag>("rho", edm::InputTag("hltScoutingPFPacker", "rho"));
-  desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("onlineMetaDataDigis")); 
-  desc.add<std::string>("topfoldername","HLT/ScoutingOffline/Miscellaneous");  
+  desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("onlineMetaDataDigis"));
+  desc.add<std::string>("topfoldername", "HLT/ScoutingOffline/Miscellaneous");
   descriptions.addWithDefaultLabel(desc);
 }
 
