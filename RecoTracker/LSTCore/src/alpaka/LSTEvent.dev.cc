@@ -402,7 +402,7 @@ void LSTEvent::createTriplets() {
   auto index_gpu_buf = cms::alpakatools::make_device_buffer<uint16_t[]>(queue_, nLowerModules_);
   alpaka::memcpy(queue_, index_gpu_buf, index_buf_h, nonZeroModules);
 
-  auto const createTriplets_workDiv = cms::alpakatools::make_workdiv<Acc3D>({max_blocks, 1, 1}, {1, 16, 16});
+  auto const createTriplets_workDiv = cms::alpakatools::make_workdiv<Acc3D>({nonZeroModules, 1, 1}, {1, 16, 16});
 
   alpaka::exec<Acc3D>(queue_,
                       createTriplets_workDiv,
