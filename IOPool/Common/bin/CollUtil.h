@@ -15,6 +15,7 @@ namespace edm {
   Long64_t numEntries(TFile *hdl, const std::string &trname);
   void printBranchNames(TTree *tree);
   void longBranchPrint(TTree *tr);
+  void clusterPrint(TTree *tr, bool isEventsTree);
   std::string getUuid(TTree *uuidTree);
   void printUuids(TTree *uuidTree);
   void printEventLists(TFile *tfl);
