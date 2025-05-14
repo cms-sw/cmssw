@@ -1,12 +1,12 @@
 import ROOT
 
-def drawHisto(histo,title,ymin,ymax,option="HISTOP",draw=True):
+def drawHisto(histo,yaxis_title,ymin,ymax,option="HISTOP",draw=True):
     histo.SetStats(0)
     histo.SetLineWidth(3)
     histo.SetMarkerStyle(20)
     histo.SetMarkerSize(0.9)
     histo.GetYaxis().SetRangeUser(ymin,ymax)
-    histo.GetYaxis().SetTitle(title)
+    histo.GetYaxis().SetTitle(yaxis_title)
     histo.GetXaxis().SetLabelSize(0.04)
     histo.GetXaxis().SetTickLength(0.)
     histo.LabelsOption("d","X")

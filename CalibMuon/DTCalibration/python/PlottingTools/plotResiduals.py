@@ -35,8 +35,8 @@ def plot(fileName,sl,dir='DTResiduals', run='1',option="HISTOPE1",draw=True):
     # (Wh-2 MB2 Sec1 ... Wh-2 MB2 Sec12 ... Wh-1 MB2 Sec1 ... Wh-1 MB1 Sec12 ...) ...
     nBins = 250
     if slType == 2: nBins = 180
-    histoMean = ROOT.TH1F("h_ResMeanAll","Mean of residuals for Run=%s at %s"%(run,slStr),nBins,0,nBins)
-    histoSigma = ROOT.TH1F("h_ResSigmaAll","Sigma of residuals for Run=%s at %s"%(run,slStr),nBins,0,nBins)
+    histoMean = ROOT.TH1F("h_ResMeanAll","Mean of residuals for Run=%s at %s" % (run,slStr),nBins,0,nBins)
+    histoSigma = ROOT.TH1F("h_ResSigmaAll","Sigma of residuals for Run=%s at %s" % (run,slStr),nBins,0,nBins)
     for st in stations:
         nSectors = 12
         if st == 4: nSectors = 14
@@ -48,10 +48,8 @@ def plot(fileName,sl,dir='DTResiduals', run='1',option="HISTOPE1",draw=True):
                 if verbose: print("Sector",sec)
                 # Get histogram
                 histoName = "%s/Wheel%d/Station%d/Sector%d/hResDist_STEP3_W%d_St%d_Sec%d_%s" % (dir,wh,st,sec,wh,st,sec,slStr)
-
-                print("Accessing",histoName)
+                if verbose: print("Accessing",histoName)
                 histo = file.Get(histoName)
-                histo.Print()
                 (histo,fitFunc) = fitResidual(histo,nSigmas,verbose)
                 fitMean = fitFunc.GetParameter(1)
                 fitMeanErr = fitFunc.GetParError(1)
@@ -71,9 +69,9 @@ def plot(fileName,sl,dir='DTResiduals', run='1',option="HISTOPE1",draw=True):
                     histoMean.GetXaxis().SetBinLabel(binHistoNew,label)
                     histoSigma.GetXaxis().SetBinLabel(binHistoNew,label)
 
-    objectsMean = drawHisto(histoMean,title="Mean of residuals (cm)",
+    objectsMean = drawHisto(histoMean,yaxis_title="Mean of residuals (cm)",
                                       ymin=mean_ymin,ymax=mean_ymax,option=option,draw=draw)
-    objectsSigma = drawHisto(histoSigma,title="Sigma of residuals (cm)",ymin=sig_ymin,ymax=sig_ymax,option=option,draw=draw)
+    objectsSigma = drawHisto(histoSigma,yaxis_title="Sigma of residuals (cm)",ymin=sig_ymin,ymax=sig_ymax,option=option,draw=draw)
 
 
     return (objectsMean,objectsSigma)

@@ -242,10 +242,9 @@ class DTWorkflow(CLIHelper, CrabHelper):
             path = self.result_path
         except:
             path = os.getcwd()
-        print("path", path)
         out_path = os.path.abspath(os.path.join(path,
                                                 os.path.splitext(db_path)[0] + ".txt"))
-
+        print("Path to DB file:", out_path)
         self.process.dumpToFile.outputFileName = out_path
 
     @staticmethod
