@@ -121,6 +121,7 @@ bool MethodSetter::push(const string& name, const vector<AnyMethodArgument>& arg
     // Not a data member either, fatal error, throw.
     switch (error) {
       case reco::parser::kNameDoesNotExist: {
+        assert(false);  //HELP FIND THREAD PROBLEM WITH RNTUPLE
         Exception ex(begin);
         ex << "no method or data member named \"" << name << "\" found for type \"" << type.name() << "\"\n";
         // The following information is for temporary debugging only, intended to be removed later
