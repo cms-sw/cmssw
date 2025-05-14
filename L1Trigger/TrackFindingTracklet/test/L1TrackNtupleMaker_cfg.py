@@ -52,7 +52,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 if GEOMETRY == "D88" or GEOMETRY == 'D98':
     process.GlobalTag = GlobalTag(process.GlobalTag, '133X_mcRun4_realistic_v1', '')
 elif GEOMETRY == 'D110':
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'phase2_realistic', '')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 else:
     print("this is not a valid geometry!!!")
 
