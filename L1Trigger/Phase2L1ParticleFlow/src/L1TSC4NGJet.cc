@@ -147,6 +147,9 @@ std::vector<float> L1TSC4NGJetID::EvaluateNNFixed() {
     if (isDebugEnabled_) {
       LogDebug("L1TSC4NGJetID") << l1ct::JetTagClassHandler::tagClassesDefault_[i] << " : " << modelResult_[i]
                                 << std::endl;
+      #ifdef EDM_ML_DEBUG
+      #error TEST
+      #endif
     }
   }
   modelResult_.push_back(modelResult.first[0].to_float());
