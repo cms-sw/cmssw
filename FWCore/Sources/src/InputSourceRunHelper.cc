@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#include "RunHelper.h"
+#include "FWCore/Sources/interface/InputSourceRunHelper.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -9,11 +9,11 @@
 
 namespace edm {
 
-  std::unique_ptr<RunHelperBase> makeRunHelper(ParameterSet const& pset) {
+  std::unique_ptr<InputSourceRunHelperBase> makeInputSourceRunHelper(ParameterSet const& pset) {
     if (pset.exists("setRunNumber")) {
       RunNumber_t run = pset.getUntrackedParameter<unsigned int>("setRunNumber");
       if (run != 0U) {
-        return std::make_unique<SetRunHelper>(pset);
+        return std::make_unique<SetInputSourceRunHelper>(pset);
       }
     }
     if (pset.exists("setRunNumberForEachLumi")) {
@@ -24,33 +24,34 @@ namespace edm {
     }
     if (pset.exists("firstLuminosityBlockForEachRun")) {
       if (not pset.getUntrackedParameter<std::vector<LuminosityBlockID>>("firstLuminosityBlockForEachRun").empty()) {
-        return std::make_unique<FirstLuminosityBlockForEachRunHelper>(pset);
+        return std::make_unique<FirstLuminosityBlockForEachInputSourceRunHelper>(pset);
       }
     }
-    return std::make_unique<DefaultRunHelper>();
+    return std::make_unique<DefaultInputSourceRunHelper>();
   }
 
-  RunHelperBase::~RunHelperBase() {}
+  InputSourceRunHelperBase::~InputSourceRunHelperBase() {}
 
-  void RunHelperBase::checkLumiConsistency(LuminosityBlockNumber_t lumi, LuminosityBlockNumber_t originalLumi) const {
+  void InputSourceRunHelperBase::checkLumiConsistency(LuminosityBlockNumber_t lumi,
+                                                      LuminosityBlockNumber_t originalLumi) const {
     assert(lumi == originalLumi);
   }
 
-  void RunHelperBase::checkRunConsistency(RunNumber_t run, RunNumber_t originalRun) const {
+  void InputSourceRunHelperBase::checkRunConsistency(RunNumber_t run, RunNumber_t originalRun) const {
     assert(run == originalRun);
   }
 
-  DefaultRunHelper::~DefaultRunHelper() {}
+  DefaultInputSourceRunHelper::~DefaultInputSourceRunHelper() {}
 
-  SetRunHelper::SetRunHelper(ParameterSet const& pset)
-      : RunHelperBase(),
+  SetInputSourceRunHelper::SetInputSourceRunHelper(ParameterSet const& pset)
+      : InputSourceRunHelperBase(),
         setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber")),
         forcedRunOffset_(0),
         firstTime_(true) {}
 
-  SetRunHelper::~SetRunHelper() {}
+  SetInputSourceRunHelper::~SetInputSourceRunHelper() {}
 
-  void SetRunHelper::setForcedRunOffset(RunNumber_t firstRun) {
+  void SetInputSourceRunHelper::setForcedRunOffset(RunNumber_t firstRun) {
     if (firstTime_ && setRun_ != 0) {
       forcedRunOffset_ = setRun_ - firstRun;
       if (forcedRunOffset_ < 0) {
@@ -63,21 +64,21 @@ namespace edm {
     firstTime_ = false;
   }
 
-  void SetRunHelper::overrideRunNumber(RunID& id) {
+  void SetInputSourceRunHelper::overrideRunNumber(RunID& id) {
     id = RunID(id.run() + forcedRunOffset_);
     if (id < RunID::firstValidRun())
       id = RunID::firstValidRun();
   }
 
-  void SetRunHelper::overrideRunNumber(LuminosityBlockID& id) {
+  void SetInputSourceRunHelper::overrideRunNumber(LuminosityBlockID& id) {
     id = LuminosityBlockID(id.run() + forcedRunOffset_, id.luminosityBlock());
     if (RunID(id.run()) < RunID::firstValidRun())
       id = LuminosityBlockID(RunID::firstValidRun().run(), id.luminosityBlock());
   }
 
-  void SetRunHelper::overrideRunNumber(EventID& id, bool isRealData) {
+  void SetInputSourceRunHelper::overrideRunNumber(EventID& id, bool isRealData) {
     if (isRealData) {
-      throw Exception(errors::Configuration, "SetRunHelper::overrideRunNumber()")
+      throw Exception(errors::Configuration, "SetInputSourceRunHelper::overrideRunNumber()")
           << "The 'setRunNumber' parameter of PoolSource cannot be used with real data.\n";
     }
     id = EventID(id.run() + forcedRunOffset_, id.luminosityBlock(), id.event());
@@ -87,12 +88,12 @@ namespace edm {
     }
   }
 
-  void SetRunHelper::checkRunConsistency(RunNumber_t run, RunNumber_t originalRun) const {
+  void SetInputSourceRunHelper::checkRunConsistency(RunNumber_t run, RunNumber_t originalRun) const {
     assert(run == originalRun + forcedRunOffset_);
   }
 
   SetRunForEachLumiHelper::SetRunForEachLumiHelper(ParameterSet const& pset)
-      : RunHelperBase(),
+      : InputSourceRunHelperBase(),
         setRunNumberForEachLumi_(pset.getUntrackedParameter<std::vector<unsigned int>>("setRunNumberForEachLumi")),
         indexOfNextRunNumber_(0),
         realRunNumber_(0),
@@ -163,17 +164,19 @@ namespace edm {
     assert(run == runNumberToUseForThisLumi());
   }
 
-  FirstLuminosityBlockForEachRunHelper::FirstLuminosityBlockForEachRunHelper(ParameterSet const& pset)
+  FirstLuminosityBlockForEachInputSourceRunHelper::FirstLuminosityBlockForEachInputSourceRunHelper(
+      ParameterSet const& pset)
       : lumiToRun_(pset.getUntrackedParameter<std::vector<edm::LuminosityBlockID>>("firstLuminosityBlockForEachRun")),
         realRunNumber_{0},
         lastUsedRunNumber_{0},
         fakeNewRun_{false} {}
 
-  InputSource::ItemType FirstLuminosityBlockForEachRunHelper::nextItemType(InputSource::ItemType const& previousItemType,
-                                                                           InputSource::ItemType const& newItemType,
-                                                                           RunNumber_t,
-                                                                           LuminosityBlockNumber_t iLumi,
-                                                                           EventNumber_t) {
+  InputSource::ItemType FirstLuminosityBlockForEachInputSourceRunHelper::nextItemType(
+      InputSource::ItemType const& previousItemType,
+      InputSource::ItemType const& newItemType,
+      RunNumber_t,
+      LuminosityBlockNumber_t iLumi,
+      EventNumber_t) {
     if (newItemType == InputSource::ItemType::IsLumi && previousItemType != InputSource::ItemType::IsRun) {
       auto run = findRunFromLumi(iLumi);
       if (run == 0) {
@@ -189,9 +192,11 @@ namespace edm {
     return newItemType;
   }
 
-  RunNumber_t FirstLuminosityBlockForEachRunHelper::runNumberToUseForThisLumi() const { return lastUsedRunNumber_; }
+  RunNumber_t FirstLuminosityBlockForEachInputSourceRunHelper::runNumberToUseForThisLumi() const {
+    return lastUsedRunNumber_;
+  }
 
-  void FirstLuminosityBlockForEachRunHelper::checkForNewRun(RunNumber_t run, LuminosityBlockNumber_t iLumi) {
+  void FirstLuminosityBlockForEachInputSourceRunHelper::checkForNewRun(RunNumber_t run, LuminosityBlockNumber_t iLumi) {
     if (realRunNumber_ != 0 && run != realRunNumber_) {
       throw Exception(errors::MismatchedInputFiles, "PoolSource::checkForNewRun")
           << " Parameter 'firstLuminosityBlockForEachRun' can only process a single run.\n"
@@ -202,25 +207,28 @@ namespace edm {
     fakeNewRun_ = false;
   }
 
-  void FirstLuminosityBlockForEachRunHelper::overrideRunNumber(RunID& id) { id = RunID(runNumberToUseForThisLumi()); }
+  void FirstLuminosityBlockForEachInputSourceRunHelper::overrideRunNumber(RunID& id) {
+    id = RunID(runNumberToUseForThisLumi());
+  }
 
-  void FirstLuminosityBlockForEachRunHelper::overrideRunNumber(LuminosityBlockID& id) {
+  void FirstLuminosityBlockForEachInputSourceRunHelper::overrideRunNumber(LuminosityBlockID& id) {
     id = LuminosityBlockID(runNumberToUseForThisLumi(), id.luminosityBlock());
   }
 
-  void FirstLuminosityBlockForEachRunHelper::overrideRunNumber(EventID& id, bool isRealData) {
+  void FirstLuminosityBlockForEachInputSourceRunHelper::overrideRunNumber(EventID& id, bool isRealData) {
     if (isRealData) {
-      throw Exception(errors::Configuration, "FirstLuminosityBlockForEachRunHelper::overrideRunNumber()")
+      throw Exception(errors::Configuration, "FirstLuminosityBlockForEachInputSourceRunHelper::overrideRunNumber()")
           << "The 'firstLuminosityBlockForEachRun' parameter of PoolSource cannot be used with real data.\n";
     }
     id = EventID(runNumberToUseForThisLumi(), id.luminosityBlock(), id.event());
   }
 
-  void FirstLuminosityBlockForEachRunHelper::checkRunConsistency(RunNumber_t run, RunNumber_t originalRun) const {
+  void FirstLuminosityBlockForEachInputSourceRunHelper::checkRunConsistency(RunNumber_t run,
+                                                                            RunNumber_t originalRun) const {
     assert(run == runNumberToUseForThisLumi());
   }
 
-  RunNumber_t FirstLuminosityBlockForEachRunHelper::findRunFromLumi(LuminosityBlockNumber_t iLumi) const {
+  RunNumber_t FirstLuminosityBlockForEachInputSourceRunHelper::findRunFromLumi(LuminosityBlockNumber_t iLumi) const {
     RunNumber_t run = 0;
     for (auto const& lumiID : lumiToRun_) {
       if (lumiID.luminosityBlock() > iLumi) {
@@ -229,7 +237,7 @@ namespace edm {
       run = lumiID.run();
     }
     if (0 == run) {
-      throw Exception(errors::Configuration, "FirstLuminosityBlockForEachRunHelper::findRunFromLumi()")
+      throw Exception(errors::Configuration, "FirstLuminosityBlockForEachInputSourceRunHelper::findRunFromLumi()")
           << "The 'firstLuminosityBlockForEachRun' parameter does not have a matching Run number for LuminosityBlock "
              "number: "
           << iLumi << ".\n";
@@ -237,7 +245,7 @@ namespace edm {
     return run;
   }
 
-  void RunHelperBase::fillDescription(ParameterSetDescription& desc) {
+  void InputSourceRunHelperBase::fillDescription(ParameterSetDescription& desc) {
     desc.addOptionalNode(ParameterDescription<unsigned int>("setRunNumber", 0U, false) xor
                              ParameterDescription<std::vector<unsigned int>>(
                                  "setRunNumberForEachLumi", std::vector<unsigned int>(), false) xor

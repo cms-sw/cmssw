@@ -57,7 +57,7 @@ namespace edm {
   class ProvenanceReaderBase;
   class ProvenanceAdaptor;
   class StoredMergeableRunProductMetadata;
-  class RunHelperBase;
+  class InputSourceRunHelperBase;
   class ThinnedAssociationsHelper;
 
   using EntryDescriptionMap = std::map<EntryDescriptionID, EventEntryDescription>;
@@ -84,7 +84,7 @@ namespace edm {
              unsigned int treeCacheSize,
              int treeMaxVirtualSize,
              InputSource::ProcessingMode processingMode,
-             RunHelperBase* runHelper,
+             InputSourceRunHelperBase* runHelper,
              bool noRunLumiSort,
              bool noEventSort,
              ProductSelectorRules const& productSelectorRules,
@@ -113,7 +113,7 @@ namespace edm {
              unsigned int nStreams,
              int treeMaxVirtualSize,
              InputSource::ProcessingMode processingMode,
-             RunHelperBase* runHelper,
+             InputSourceRunHelperBase* runHelper,
              ProductSelectorRules const& productSelectorRules,
              InputType inputType,
              std::shared_ptr<BranchIDListHelper> branchIDListHelper,
@@ -169,7 +169,7 @@ namespace edm {
              unsigned int nStreams,
              unsigned int treeCacheSize,
              int treeMaxVirtualSize,
-             RunHelperBase* runHelper,
+             InputSourceRunHelperBase* runHelper,
              ProductSelectorRules const& productSelectorRules,
              InputType inputType,
              ProcessHistoryRegistry& processHistoryRegistry,
@@ -400,7 +400,7 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<ThinnedAssociationsHelper>> fileThinnedAssociationsHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     InputSource::ProcessingMode processingMode_;
-    edm::propagate_const<RunHelperBase*> runHelper_;
+    edm::propagate_const<InputSourceRunHelperBase*> runHelper_;
     std::map<std::string, std::string> newBranchToOldBranch_;
     edm::propagate_const<TTree*> eventHistoryTree_;  // backward compatibility
     EventToProcessBlockIndexes eventToProcessBlockIndexes_;
