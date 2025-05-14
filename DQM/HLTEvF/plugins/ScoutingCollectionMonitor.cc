@@ -24,8 +24,6 @@ It is based on the preexisting work of the scouting group and can be found at gi
 
 // user include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
@@ -91,8 +89,6 @@ private:
   }
 
   const bool isOnline_;
-  const edm::InputTag triggerResultsTag_;
-  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> primaryVerticesToken_;
@@ -106,16 +102,6 @@ private:
   const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
   const edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
   const std::string topfoldername_;
-
-  std::vector<std::string> triggerPathsVector;
-  std::map<std::string, int> triggerPathsMap;
-
-  bool doL1;
-  triggerExpression::Data triggerCache_;
-
-  edm::InputTag algInputTag_;
-  edm::InputTag extInputTag_;
-  edm::EDGetToken algToken_;
 
   // pv vs PU and rho vs PU plots
   int primaryVertex_counter = 0;
@@ -404,8 +390,6 @@ private:
 //
 ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iConfig)
     : isOnline_(iConfig.getParameter<bool>("isOnline")),
-      triggerResultsTag_(iConfig.getParameter<edm::InputTag>("triggerresults")),
-      triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsTag_)),
       muonsToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muons"))),
       electronsToken_(consumes<std::vector<Run3ScoutingElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
       primaryVerticesToken_(
@@ -474,6 +458,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     return;
   }
 
+  // get pile up
   if (!isOnline_) {
     if (!getValidHandle(iEvent, onlineMetaDataDigisToken_, onlineMetaDataDigisHandle, "avgPileUp")) {
       return;
@@ -481,8 +466,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     avgPileUp = onlineMetaDataDigisHandle->avgPileUp();
     rhovsPU_hist->Fill(avgPileUp, *rhoH);
   }
-
-  // get pile up
 
   // put stuff in histogram
   rho_hist->Fill(*rhoH);
@@ -1113,8 +1096,6 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("isOnline", false);
-  desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
-  desc.add<edm::InputTag>("triggerresults", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("hltScoutingEgammaPacker"));
   desc.add<edm::InputTag>("muons", edm::InputTag("hltScoutingMuonPackerNoVtx"));
   desc.add<edm::InputTag>("pfcands", edm::InputTag("hltScoutingPFPacker"));
