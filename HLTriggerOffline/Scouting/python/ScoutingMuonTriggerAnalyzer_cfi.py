@@ -1,7 +1,8 @@
 '''
 This code specifies which Double Muon and Single Muon triggers (numerator) and 
 HLTriggers, as defined in triggerSelection (denominator) to use in  
-ScoutingMuonTriggerAnalyzer.cc. 
+ScoutingMuonTriggerAnalyzer.cc, and what cuts to apply in both SingleMu and 
+DoubleMu triggers.
 
 Author: Javier Garcia de Castro, email:javigdc@bu.edu
 '''
@@ -26,8 +27,8 @@ DoubleMuL1 = [
 ]
 SingleMuL1 = ["L1_SingleMu11_SQ14_BMTF","L1_SingleMu10_SQ14_BMTF"]
 
-ScoutingMuonTriggerAnalysis = DQMEDAnalyzer('ScoutingMuonTriggerAnalyzer',
-    OutputInternalPath = cms.string('/HLT/ScoutingOffline/Muons/L1Efficiency'), #Output of the root file
+ScoutingMuonTriggerAnalysis_DoubleMu = DQMEDAnalyzer('ScoutingMuonTriggerAnalyzer',
+    OutputInternalPath = cms.string('/HLT/ScoutingOffline/Muons/L1Efficiency/DoubleMu'), #Output of the root file
     ScoutingMuonCollection = cms.InputTag('hltScoutingMuonPackerVtx'),
     triggerSelection = cms.vstring(["DST_PFScouting_ZeroBias_v*", "DST_PFScouting_DoubleEG_v*", "DST_PFScouting_JetHT_v*"]), #Denominator
     triggerConfiguration = cms.PSet(
@@ -41,8 +42,15 @@ ScoutingMuonTriggerAnalysis = DQMEDAnalyzer('ScoutingMuonTriggerAnalyzer',
     l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
     l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
     ReadPrescalesFromFile = cms.bool(False),
-    l1Seeds = cms.vstring(SingleMuL1+DoubleMuL1) #Full list of L1 seeds
+    l1Seeds = cms.vstring(DoubleMuL1), #Full list of double muon L1 seeds
+    muonSelection = cms.string("")   #No cuts applied to double muon triggers
 )
 
+ScoutingMuonTriggerAnalysis_SingleMu = ScoutingMuonTriggerAnalysis_DoubleMu.clone(
+    OutputInternalPath = cms.string('/HLT/ScoutingOffline/Muons/L1Efficiency/SingleMu'),
+    l1Seeds = cms.vstring(SingleMuL1),  #Full list of single muon L1 seeds
+    muonSelection = cms.string("abs(eta)<0.8") #Eta cut applied to single muons
+)
 #Name given to add to the sequence in test/runScoutingMonitoringDQM_muonOnly_cfg.py
-scoutingMonitoringTriggerMuon = cms.Sequence(ScoutingMuonTriggerAnalysis)
+scoutingMonitoringTriggerMuon_DoubleMu = cms.Sequence(ScoutingMuonTriggerAnalysis_DoubleMu)
+scoutingMonitoringTriggerMuon_SingleMu = cms.Sequence(ScoutingMuonTriggerAnalysis_SingleMu)
