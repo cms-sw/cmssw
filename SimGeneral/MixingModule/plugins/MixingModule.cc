@@ -77,6 +77,10 @@ namespace edm {
       skipSignal_ = ps_mix.getParameter<bool>("skipSignal");
     }
 
+    skipProductCheck_ = false;
+    if (ps_mix.exists("skipProductCheck")) {
+      skipProductCheck_ = ps_mix.getParameter<bool>("skipProductCheck");
+    }
     ParameterSet ps = ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
     for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
@@ -310,14 +314,14 @@ namespace edm {
   void MixingModule::checkSignal(const edm::Event& e) {
     if (adjusters_.empty()) {
       for (auto const& adjuster : adjustersObjects_) {
-        if (skipSignal_ or adjuster->checkSignal(e)) {
+        if (skipSignal_ or skipProductCheck_ or adjuster->checkSignal(e)) {
           adjusters_.push_back(adjuster);
         }
       }
     }
     if (workers_.empty()) {
       for (auto const& worker : workersObjects_) {
-        if (skipSignal_ or worker->checkSignal(e)) {
+        if (skipSignal_ or skipProductCheck_ or worker->checkSignal(e)) {
           workers_.push_back(worker);
         }
       }
@@ -349,10 +353,9 @@ namespace edm {
   }
 
   void MixingModule::addSignals(const edm::Event& e, const edm::EventSetup& setup) {
-    // FIXME: temporary fix for the process type fastSimPU. Better solution needed
-    /*    if (skipSignal_) {
+    if (skipSignal_) {
       return;
-      }*/
+    }
 
     LogDebug("MixingModule") << "===============> adding signals for " << e.id();
 
