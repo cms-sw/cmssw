@@ -222,6 +222,8 @@ public:
   std::pair<double, double> waferParameters(bool reco) const;
   std::pair<double, double> waferPosition(int wafer, bool reco) const;
   std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug) const;
+  std::pair<double, double> waferPositionWithCshift(
+      int lay, int waferU, int waferV, bool norot, bool reco, bool debug) const;
   inline unsigned int waferFileSize() const { return hgpar_->waferInfoMap_.size(); }
   int waferFileIndex(unsigned int kk) const;
   std::tuple<int, int, int, int> waferFileInfo(unsigned int kk) const;
