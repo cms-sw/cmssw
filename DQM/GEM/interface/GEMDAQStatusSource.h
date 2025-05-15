@@ -33,13 +33,13 @@
 class GEMDAQStatusSource : public GEMDQMBase {
 public:
   explicit GEMDAQStatusSource(const edm::ParameterSet &cfg);
-  ~GEMDAQStatusSource() override{};
+  ~GEMDAQStatusSource() override {};
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
   void LoadROMap(edm::EventSetup const &iSetup);
 
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override{};
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override {};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
 
@@ -63,6 +63,7 @@ protected:
 private:
   int ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) override;
   int ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKey key) override;
+
   void SetLabelAMC13Status(MonitorElement *h2Status);
   void SetLabelAMCStatus(MonitorElement *h2Status);
   void SetLabelOHStatus(MonitorElement *h2Status);
