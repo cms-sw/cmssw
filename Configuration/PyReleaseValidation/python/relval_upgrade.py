@@ -79,6 +79,14 @@ for year in upgradeKeys:
                                     if 'S2' in specialType: stepList[specialType].append(stepMade)
                                     # replace for s1
                                     else: stepList[specialType][-1] = stepMade
+                        # similar hack for fastpu
+                        if 'HybridPU' in specialType:
+                            if 'GenSim' in step:
+                                s = step.replace('GenSim','GenSimFS')+'PU' # later processing requires to have PU here
+                                if step in specialWF.PU:
+                                    stepMade = stepMaker(key,'HYBRID',s,specialWF.suffix)
+                                    # append for combined
+                                    if 'S2' in specialType: stepList[specialType].append(stepMade)
                     else:
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
 
