@@ -70,7 +70,7 @@ autoNANO = {
     'MUDPGBKG': {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoProducerBkg',
                  'customize': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoBkgCustomize'},
     # HLT Nano
-    'HLT' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoProducer',
+    'Phase2HLT' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoProducer',
              'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
 
     # NGT scouting Nano
