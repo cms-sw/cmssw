@@ -117,7 +117,7 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,   // 
 
   // Store detType in the underflow bin
   binningHisto_->SetBinContent(0, 0, detType_);
-
+  
   // All other histograms:
   Char_t histo[200];
   Char_t title[200];
@@ -127,7 +127,6 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,   // 
   for (int ii = 0; ii < cotbetaBins_; ii++) {
     for (int jj = 0; jj < cotalphaBins_; jj++) {
       for (int kk = 0; kk < qbins_; kk++) {
-        //
         sprintf(histo, "hx%d1%02d%d%d", detType_, ii + 1, jj + 1, kk + 1);  //information of bits of histogram names
         //--- First bit 1/0 barrel/forward, second 1/0 multi/single, cotbeta, cotalpha, qbins
         sprintf(title,
@@ -241,7 +240,7 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
     LOGERROR << "PixelResolutionHistograms:: Error, file " << filename << " not found.";
     return;  // PixelTemplateSmearerBase will throw an exception upon our return.
   }
-
+  
   //--- The dummy 2D histogram with the binning of cot\beta and cot\alpha:
   binningHisto_ = (TH2F*)file_->Get(Form("%s%s", rootdir.c_str(), "ResHistoBinning"));
   if (!binningHisto_) {
@@ -249,14 +248,12 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
     LOGERROR << "PixelResolutionHistograms:: Error, binning histogrram ResHistoBinning not found.";
     return;  // PixelTemplateSmearerBase will throw an exception upon our return.
   }
-
   if (detType == -1) {
     //--- Fish out detType from the underflow bin:
     detType_ = binningHisto_->GetBinContent(0, 0);
   } else {
     detType_ = detType;  // constructor's argument overrides what's in ResHistoBinning histogram.
   }
-
   //--- Now we fill the binning variables:
   cotbetaAxis_ = binningHisto_->GetXaxis();
   cotbetaBinWidth_ = binningHisto_->GetXaxis()->GetBinWidth(1);  // assume all same width
@@ -289,6 +286,7 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
           if (!tmphist) {
             status_ = 2;
             LOGERROR << "Failed to find histogram=" << std::string(histo);
+	    LOGERROR << "Failed to find histogram: det type =" << detType_;
             return;
           }
           LOGDEBUG << "Found histo " << std::string(histo) << " with title = " << std::string(tmphist->GetTitle())

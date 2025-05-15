@@ -133,9 +133,10 @@ Geometry::Geometry(const edm::ParameterSet& cfg,
   for (unsigned index = 0; index < forwardLayers_.size(); index++) {
     // set index
     forwardLayers_[index]->setIndex(index);
+    std::cout<<"FWD Layer "<<index <<" , z pos:" <<forwardLayers_[index]->getZ()<<std::endl;
     // check order
     if (index > 0) {
-      if (forwardLayers_[index]->getZ() <= forwardLayers_[index - 1]->getZ()) {
+      if (forwardLayers_[index]->getZ() < forwardLayers_[index - 1]->getZ()) {
         throw cms::Exception("fastsim::Geometry")
             << "forward layers must be ordered according to increasing z"
             << "forward layer " << index << " has z smaller than or equal to z of forward layer " << index - 1;
