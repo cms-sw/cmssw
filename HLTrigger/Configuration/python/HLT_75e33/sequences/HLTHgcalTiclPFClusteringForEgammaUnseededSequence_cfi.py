@@ -99,6 +99,7 @@ ticl_superclustering_mustache_ticl.toModify(hltTiclEGammaSuperClusterProducerUns
 _HgcalLocalRecoUnseededSequence_barrel = _HgcalLocalRecoUnseededSequence.copy()
 _HgcalLocalRecoUnseededSequence_barrel += hltBarrelLayerClustersEB
 _HgcalLocalRecoUnseededSequence_barrel += hltBarrelLayerClustersHB
+
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toReplaceWith(_HgcalLocalRecoUnseededSequence, _HgcalLocalRecoUnseededSequence_barrel)
 layerClusters = cms.VInputTag("hltHgcalLayerClustersEE", "hltHgcalLayerClustersHSci", "hltHgcalLayerClustersHSi", "hltBarrelLayerClustersEB", "hltBarrelLayerClustersHB")

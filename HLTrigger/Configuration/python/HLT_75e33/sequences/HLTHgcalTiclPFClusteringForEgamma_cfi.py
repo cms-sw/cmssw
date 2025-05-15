@@ -39,3 +39,4 @@ HLTHgcalTiclPFClusteringForEgamma_barrel = cms.Sequence((
 ))
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toReplaceWith(HLTHgcalTiclPFClusteringForEgamma, HLTHgcalTiclPFClusteringForEgamma_barrel)
+
