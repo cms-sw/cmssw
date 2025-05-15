@@ -6,6 +6,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/TrivialCopyTraits.h"
 #include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableCollectionCommon.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -99,6 +100,35 @@ private:
   Layout layout_;                 //
   View view_;                     //!
 };
+
+// Specialize the TrivialCopyTraits for PortableHostColletion
+namespace edm {
+
+  template <typename T>
+  struct TrivialCopyTraits<PortableHostCollection<T>> {
+    using Properties = int32_t;
+
+    static Properties properties(PortableHostCollection<T> const& object) { return object->metadata().size(); }
+
+    static void initialize(PortableHostCollection<T>& object, Properties const& size) {
+      // replace the default-constructed empty object with one where the buffer has been allocated in pageable system memory
+      object = PortableHostCollection<T>(size, cms::alpakatools::host());
+    }
+
+    static std::vector<std::span<std::byte>> regions(PortableHostCollection<T>& object) {
+      std::byte* address = reinterpret_cast<std::byte*>(object.buffer().data());
+      size_t size = alpaka::getExtentProduct(object.buffer());
+      return {{address, size}};
+    }
+
+    static std::vector<std::span<const std::byte>> regions(PortableHostCollection<T> const& object) {
+      const std::byte* address = reinterpret_cast<const std::byte*>(object.buffer().data());
+      size_t size = alpaka::getExtentProduct(object.buffer());
+      return {{address, size}};
+    }
+  };
+
+}  // namespace edm
 
 // generic SoA-based product in host memory
 template <typename T0, typename... Args>
