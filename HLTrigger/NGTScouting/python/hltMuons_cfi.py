@@ -29,5 +29,3 @@ hltMuonTable = cms.EDProducer(
         nMuHits = Var("hitPattern().numberOfValidMuonHits()", "int16", doc = "")
     )
 )
-
-

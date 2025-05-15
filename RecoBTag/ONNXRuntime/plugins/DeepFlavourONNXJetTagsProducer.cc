@@ -68,11 +68,10 @@ DeepFlavourONNXJetTagsProducer::DeepFlavourONNXJetTagsProducer(const edm::Parame
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
       output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")) {
-
   // get output names from flav_names
   for (const auto& flav_name : flav_names_) {
-      produces<JetTagCollection>(flav_name);
-      produces<edm::ValueMap<float>>(flav_name);
+    produces<JetTagCollection>(flav_name);
+    produces<edm::ValueMap<float>>(flav_name);
   }
 
   assert(input_names_.size() == input_sizes_.size());
@@ -151,7 +150,6 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
     // create empty output collection
     for (std::size_t i = 0; i < flav_names_.size(); i++) {
       output_tags.emplace_back(std::make_unique<JetTagCollection>());
-    
     }
   }
 

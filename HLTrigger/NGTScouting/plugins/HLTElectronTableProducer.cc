@@ -20,4 +20,3 @@ typedef SimpleFlatTableProducer<Run3ScoutingElectron> HLTElectronTableProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTElectronTableProducer);
-

@@ -72,22 +72,24 @@ HLTVertexTableProducer::HLTVertexTableProducer(const edm::ParameterSet& params)
 // ------------ method called to produce the data  ------------
 void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  
+
   //vertex collection
   auto pvsIn = iEvent.getHandle(pvs_);
   if (!pvsIn.isValid()) {
-    edm::LogWarning("HLTVertexTableProducer") << "Invalid handle for " << pvName_ << " in primary vertex input collection";
+    edm::LogWarning("HLTVertexTableProducer")
+        << "Invalid handle for " << pvName_ << " in primary vertex input collection";
     return;
   }
   const auto& pvsScoreProd = iEvent.get(pvsScore_);
-  
+
   //pf candidates collection
   auto pfcIn = iEvent.getHandle(pfc_);
   if (!pfcIn.isValid()) {
-    edm::LogWarning("HLTVertexTableProducer") << "Invalid handle for " << pvName_ << " in PF candidate input collection";
+    edm::LogWarning("HLTVertexTableProducer")
+        << "Invalid handle for " << pvName_ << " in PF candidate input collection";
     return;
   }
-    
+
   std::vector<float> v_ndof;
   std::vector<float> v_chi2;
   std::vector<float> v_x;
@@ -104,7 +106,6 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::vector<float> v_pv_sumpy;
 
   for (size_t i = 0; i < (*pvsIn).size(); i++) {
-
     v_ndof.push_back((*pvsIn)[i].ndof());
     v_chi2.push_back((*pvsIn)[i].normalizedChi2());
     v_x.push_back((*pvsIn)[i].x());
@@ -117,10 +118,13 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     v_is_good.push_back(goodPvCut_((*pvsIn)[i]));
     v_pv_score.push_back(pvsScoreProd.get(pvsIn.id(), i));
 
-    float pv_sumpt2 = 0; float pv_sumpx = 0; float pv_sumpy = 0;
+    float pv_sumpt2 = 0;
+    float pv_sumpx = 0;
+    float pv_sumpy = 0;
     for (const auto& obj : *pfcIn) {
       // skip neutrals
-      if (obj.charge() == 0) continue;
+      if (obj.charge() == 0)
+        continue;
       double dz = fabs(obj.trackRef()->dz((*pvsIn)[i].position()));
       bool include_pfc = false;
       if (dz < 0.2) {
@@ -156,15 +160,18 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   pvTable->addColumn<float>("xError", v_xError, "primary vertex error in x coordinate", 10);
   pvTable->addColumn<float>("yError", v_yError, "primary vertex error in y coordinate", 10);
   pvTable->addColumn<float>("zError", v_zError, "primary vertex error in z coordinate", 16);
-  pvTable->addColumn<uint8_t>("isGood", v_is_good, "wheter the primary vertex passes selection: "+ goodPvCutString_ + ")");
+  pvTable->addColumn<uint8_t>(
+      "isGood", v_is_good, "wheter the primary vertex passes selection: " + goodPvCutString_ + ")");
   pvTable->addColumn<uint8_t>("nTracks", v_nTracks, "primary vertex number of associated tracks");
   pvTable->addColumn<float>("score", v_pv_score, "primary vertex score, i.e. sum pt2 of clustered objects", 8);
-  pvTable->addColumn<float>("sumpt2", v_pv_sumpt2, "sum pt2 of pf charged candidates within dz=0.2 for the main primary vertex", 10);
-  pvTable->addColumn<float>("sumpx", v_pv_sumpx, "sum px of pf charged candidates within dz=0.2 for the main primary vertex", 10);
-  pvTable->addColumn<float>("sumpy", v_pv_sumpy, "sum py of pf charged candidates within dz=0.2 for the main primary vertex", 10);
-  
-  iEvent.put(std::move(pvTable), "PV");
+  pvTable->addColumn<float>(
+      "sumpt2", v_pv_sumpt2, "sum pt2 of pf charged candidates within dz=0.2 for the main primary vertex", 10);
+  pvTable->addColumn<float>(
+      "sumpx", v_pv_sumpx, "sum px of pf charged candidates within dz=0.2 for the main primary vertex", 10);
+  pvTable->addColumn<float>(
+      "sumpy", v_pv_sumpy, "sum py of pf charged candidates within dz=0.2 for the main primary vertex", 10);
 
+  iEvent.put(std::move(pvTable), "PV");
 }
 
 // ------------ fill 'descriptions' with the allowed parameters for the module ------------
@@ -172,7 +179,8 @@ void HLTVertexTableProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("pvName")->setComment("name of the flat table ouput");
-  desc.add<edm::InputTag>("pvSrc")->setComment("std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
+  desc.add<edm::InputTag>("pvSrc")->setComment(
+      "std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
   desc.add<edm::InputTag>("pfSrc")->setComment("reco::PFCandidateCollection PF candidates input collections");
   desc.add<std::string>("goodPvCut")->setComment("selection on the primary vertex");
 
@@ -182,5 +190,5 @@ void HLTVertexTableProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   descriptions.addWithDefaultLabel(desc);
 }
 
-// ------------ define this as a plug-in ------------ 
+// ------------ define this as a plug-in ------------
 DEFINE_FWK_MODULE(HLTVertexTableProducer);

@@ -20,4 +20,3 @@ typedef SimpleFlatTableProducer<Run3ScoutingPhoton> HLTPhotonTableProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTPhotonTableProducer);
-
