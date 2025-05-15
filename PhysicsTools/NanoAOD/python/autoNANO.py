@@ -72,6 +72,10 @@ autoNANO = {
     # HLT Nano
     'HLT' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoProducer',
              'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
+
+    # NGT scouting Nano
+    'NGTScouting' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.dstNanoProducer',
+                     'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
     # Muon High Level Trigger
     'MUHLT' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerHlt_cff.hltMuNanoProducer',
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducerHlt_cff.hltMuNanoCustomize'},

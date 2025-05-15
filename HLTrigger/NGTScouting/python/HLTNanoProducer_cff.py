@@ -11,23 +11,40 @@ from HLTrigger.NGTScouting.hltElectrons_cfi import *
 from HLTrigger.NGTScouting.hltMuons_cfi import *
 from HLTrigger.NGTScouting.hltTracks_cfi import *
 from HLTrigger.NGTScouting.hltJets_cfi import *
-from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter
+from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter,dstTriggerAcceptFilter
 
 hltNanoProducer = cms.Sequence(
-       prunedGenParticles
-     + finalGenParticles
-     + genParticleTable
-     + hltTriggerAcceptFilter
-     + hltVertexTable
-     + hltPixelTrackTable
-     + hltGeneralTrackTable
-     + hltEgammaPacker
-     + hltPhotonTable
-     + hltElectronTable
-     + hltPhase2L3MuonIdTracks
-     + hltMuonTable
-     + hltPFCandidateTable
-     + hltJetTable
+    prunedGenParticles
+    + finalGenParticles
+    + genParticleTable
+    + hltTriggerAcceptFilter
+    + hltVertexTable
+    + hltPixelTrackTable
+    + hltGeneralTrackTable
+    + hltEgammaPacker
+    + hltPhotonTable
+    + hltElectronTable
+    + hltPhase2L3MuonIdTracks
+    + hltMuonTable
+    + hltPFCandidateTable
+    + hltJetTable
+)
+
+dstNanoProducer = cms.Sequence(
+    prunedGenParticles
+    + finalGenParticles
+    + genParticleTable
+    + dstTriggerAcceptFilter
+    + hltVertexTable
+    + hltPixelTrackTable
+    + hltGeneralTrackTable
+    + hltEgammaPacker
+    + hltPhotonTable
+    + hltElectronTable
+    + hltPhase2L3MuonIdTracks
+    + hltMuonTable
+    + hltPFCandidateTable
+    + hltJetTable
 )
 
 def hltNanoCustomize(process):

@@ -7,5 +7,14 @@ hltTriggerAcceptFilter = _triggerResultsFilter.clone(
     l1tResults = cms.InputTag( "" ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( False ),
-    triggerConditions = cms.vstring( 'HLT_*', 'DST_*' )
+    triggerConditions = cms.vstring('HLT_*')
+)
+
+dstTriggerAcceptFilter = _triggerResultsFilter.clone(
+    usePathStatus = cms.bool( True ),
+    hltResults = cms.InputTag( "" ),
+    l1tResults = cms.InputTag( "" ),
+    l1tIgnoreMaskAndPrescale = cms.bool( False ),
+    throw = cms.bool( False ),
+    triggerConditions = cms.vstring('DST_*')
 )
