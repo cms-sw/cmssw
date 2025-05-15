@@ -303,6 +303,13 @@ Bool_t TStorageFactoryFile::ReadBuffer(char *buf, Int_t len) {
           GetRelOffset(),
           GetSize());
   }
+
+  // Update ROOT's statistics
+  fBytesRead += n;
+  fgBytesRead += n;
+  fReadCalls++;
+  fgReadCalls++;
+
   return n ? kFALSE : kTRUE;
 }
 
@@ -409,6 +416,12 @@ Bool_t TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len
     }
     xstats.tick(io_buffer_used);
     repacker.unpack(current_buffer);
+
+    // Update ROOT's statistics
+    fBytesRead += result;
+    fgBytesRead += result;
+    fReadCalls++;
+    fgReadCalls++;
 
     // Update the location of the unused part of the input buffer.
     remaining_buffer_size -= real_bytes_processed;
