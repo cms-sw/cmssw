@@ -163,7 +163,7 @@ namespace edm {
         RootFile::TTreeOptions{.treeCacheSize = treeCacheSize_,
                                .treeMaxVirtualSize = input_.treeMaxVirtualSize(),
                                .enablePrefetching = enablePrefetching_,
-                              .promptReading = not input_.delayReadingEventProducts()},
+                               .promptReading = not input_.delayReadingEventProducts()},
         RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules(),
                                  .associationsFromSecondary = nullptr,  // associationsFromSecondary
                                  .dropDescendantsOfDroppedProducts = input_.dropDescendants(),
@@ -177,8 +177,7 @@ namespace edm {
                                 .currentIndexIntoFile = currentIndexIntoFile},
         input_.nStreams(),
         input_.processHistoryRegistryForUpdate(),
-        orderedProcessHistoryIDs_
-        );
+        orderedProcessHistoryIDs_);
   }
 
   bool RootPrimaryFileSequence::nextFile() {

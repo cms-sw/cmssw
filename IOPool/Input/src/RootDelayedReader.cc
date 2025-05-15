@@ -21,10 +21,7 @@
 namespace edm {
 
   RootDelayedReader::RootDelayedReader(RootTree const& tree, std::shared_ptr<InputFile> filePtr, InputType inputType)
-      : tree_(tree),
-        filePtr_(filePtr),
-        nextReader_(),
-        inputType_(inputType) {
+      : tree_(tree), filePtr_(filePtr), nextReader_(), inputType_(inputType) {
     if (inputType == InputType::Primary) {
       auto resources = SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader();
       resourceAcquirer_ = std::make_unique<SharedResourcesAcquirer>(std::move(resources.first));
@@ -74,7 +71,7 @@ namespace edm {
 
     RefCoreStreamerGuard guard(ep);
     std::unique_ptr<WrapperBase> edp = branchInfo->newWrapper();
-    void * edpPtr = edp.get();
+    void* edpPtr = edp.get();
     branchInfo->productBranch_->SetAddress(&edpPtr);
 
     try {

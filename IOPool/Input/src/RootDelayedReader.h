@@ -28,7 +28,7 @@ namespace edm {
   class Exception;
 
   //------------------------------------------------------------
-  // Class RootDelayedReader: 
+  // Class RootDelayedReader:
   //
 
   class RootDelayedReader : public RootDelayedReaderBase {

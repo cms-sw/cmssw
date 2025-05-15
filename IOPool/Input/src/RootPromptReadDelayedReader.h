@@ -35,7 +35,10 @@ namespace edm {
     typedef roottree::BranchInfo BranchInfo;
     typedef roottree::BranchMap BranchMap;
     typedef roottree::EntryNumber EntryNumber;
-    RootPromptReadDelayedReader(RootTree const& tree, std::shared_ptr<InputFile> filePtr, InputType inputType, unsigned int iNIndexes);
+    RootPromptReadDelayedReader(RootTree const& tree,
+                                std::shared_ptr<InputFile> filePtr,
+                                InputType inputType,
+                                unsigned int iNIndexes);
 
     ~RootPromptReadDelayedReader() override;
 

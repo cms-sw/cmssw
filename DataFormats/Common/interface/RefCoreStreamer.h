@@ -44,14 +44,14 @@ namespace edm {
     static EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep);
   };
   class MultiThreadRefCoreStreamerGuard {
-    public:
-      MultiThreadRefCoreStreamerGuard(EDProductGetter const* ep) { setRefCoreStreamer(ep); }
-      ~MultiThreadRefCoreStreamerGuard() { unsetRefCoreStreamer(); }
-  
-    private:
-      static void setRefCoreStreamer(EDProductGetter const* ep);
-      static void unsetRefCoreStreamer();
-    };
-  
+  public:
+    MultiThreadRefCoreStreamerGuard(EDProductGetter const* ep) { setRefCoreStreamer(ep); }
+    ~MultiThreadRefCoreStreamerGuard() { unsetRefCoreStreamer(); }
+
+  private:
+    static void setRefCoreStreamer(EDProductGetter const* ep);
+    static void unsetRefCoreStreamer();
+  };
+
 }  // namespace edm
 #endif

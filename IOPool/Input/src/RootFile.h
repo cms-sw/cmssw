@@ -101,7 +101,7 @@ namespace edm {
     struct CrossFileInfo {
       RunHelperBase* runHelper = nullptr;
       std::shared_ptr<BranchIDListHelper> branchIDListHelper{};
-      ProcessBlockHelper* processBlockHelper = 0;
+      ProcessBlockHelper* processBlockHelper = nullptr;
       std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper{};
       std::shared_ptr<DuplicateChecker> duplicateChecker{};
       std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles;  //duplicate checking

@@ -87,7 +87,7 @@ namespace edm {
 
   void EDProductGetter::setMultiThreadProductGetter(EDProductGetter const* prodGetter) {
     EDProductGetter const* expected = nullptr;
-    while( not s_multiThreadProductGetter.compare_exchange_strong(expected, prodGetter, std::memory_order_acq_rel)) {
+    while (not s_multiThreadProductGetter.compare_exchange_strong(expected, prodGetter, std::memory_order_acq_rel)) {
       expected = nullptr;
     };
   }
