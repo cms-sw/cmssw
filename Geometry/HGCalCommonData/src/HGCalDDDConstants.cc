@@ -933,7 +933,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto itr = hgpar_->typesInLayers_.find(indx);
   int type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
-  int fineCoarse = (type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200)? 0 : 1;
+  int fineCoarse = (type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200) ? 0 : 1;
   int layertype = layerType(lay);
   bool rotx = (norot) ? false : (layertype == HGCalTypes::WaferCenterR);
   if (debug) {
@@ -1842,7 +1842,8 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                         << " place " << place << " part " << part;
       }
     }
-    bool fineCoarse = ((celltype == HGCSiliconDetId::HGCalHD120) || (celltype == HGCSiliconDetId::HGCalHD200))? 0: 1;
+    bool fineCoarse =
+        ((celltype == HGCSiliconDetId::HGCalHD120) || (celltype == HGCSiliconDetId::HGCalHD200)) ? false : true;
     cellHex(xx, yy, fineCoarse, place, part, cellU, cellV, extend, debug);
     wt = ((((celltype == HGCSiliconDetId::HGCalHD120) || (celltype == HGCSiliconDetId::HGCalHD200)) &&
            (hgpar_->useSimWt_ > 0))
@@ -1931,7 +1932,8 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
   return xy0;
 }
 
-std::pair<double, double> HGCalDDDConstants::waferPositionWithCshift(int lay, int waferU, int waferV, bool norot, bool reco, bool debug) const{
+std::pair<double, double> HGCalDDDConstants::waferPositionWithCshift(
+    int lay, int waferU, int waferV, bool norot, bool reco, bool debug) const {
   auto xy_noshift = waferPositionNoRot(lay, waferU, waferV, reco, debug);
   double x = xy_noshift.first;
   double y = xy_noshift.second;
@@ -1954,7 +1956,6 @@ std::pair<double, double> HGCalDDDConstants::waferPositionWithCshift(int lay, in
   }
   return (rotx ? getXY(lay, x, y, false) : std::make_pair(x, y));
 }
-
 
 int HGCalDDDConstants::waferFileIndex(unsigned int kk) const {
   if (kk < hgpar_->waferInfoMap_.size()) {

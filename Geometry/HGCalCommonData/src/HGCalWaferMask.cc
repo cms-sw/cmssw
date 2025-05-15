@@ -1452,7 +1452,7 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
                                                                 const double& xpos,
                                                                 const double& ypos,
                                                                 const bool& v17OrLess,
-								const bool& air) {
+                                                                const bool& air) {
   std::vector<std::pair<double, double> > xy;
   // Good for V17 version and uses partial wafer type & placement index
 #ifdef EDM_ML_DEBUG
