@@ -110,6 +110,10 @@ for b in cutlist:
 simBmtfDigis.DTDigi_Source       = "unpackBmtf"
 simBmtfDigis.DTDigi_Theta_Source = "unpackBmtf"
 
+# kBMTF
+simKBmtfStubs.srcPhi = 'unpackBmtf'
+simKBmtfStubs.srcTheta = 'unpackBmtf'
+
 # OMTF
 simOmtfDigis.srcRPC              = 'unpackRPC'
 simOmtfDigis.srcDTPh             = "unpackBmtf"
