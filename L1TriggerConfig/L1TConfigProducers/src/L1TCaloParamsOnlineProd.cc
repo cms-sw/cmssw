@@ -47,7 +47,7 @@ bool L1TCaloParamsOnlineProd::readCaloLayer1OnlineSettings(l1t::CaloParamsHelper
       "layer1HFScaleFactors",
       "layer1ECalScaleETBins",
       "layer1HCalScaleETBins",
-      "layer1HFScaleETBins"
+      "layer1HFScaleETBins",
       // Optional params
       //"layer1ECalScalePhiBins",
       //"layer1HCalScalePhiBins",
@@ -55,6 +55,8 @@ bool L1TCaloParamsOnlineProd::readCaloLayer1OnlineSettings(l1t::CaloParamsHelper
       //"layer1SecondStageLUT",
       //"layer1HCalFBLUTUpper",
       //"layer1HCalFBLUTLower"
+      "layer1ECalZSFactors",
+      "layer1HCalZSFactors"
   };
   for (const auto param : expectedParams) {
     if (conf.find(param) == conf.end()) {
@@ -66,6 +68,8 @@ bool L1TCaloParamsOnlineProd::readCaloLayer1OnlineSettings(l1t::CaloParamsHelper
   // Layer 1 LUT specification
   paramsHelper.setLayer1ECalScaleFactors((conf["layer1ECalScaleFactors"].getVector<double>()));
   paramsHelper.setLayer1HCalScaleFactors((conf["layer1HCalScaleFactors"].getVector<double>()));
+  paramsHelper.setLayer1ECalZSFactors((conf["layer1ECalZSFactors"].getVector<double>()));
+  paramsHelper.setLayer1HCalZSFactors((conf["layer1HCalZSFactors"].getVector<double>()));
   paramsHelper.setLayer1HFScaleFactors((conf["layer1HFScaleFactors"].getVector<double>()));
   paramsHelper.setLayer1ECalScaleETBins(conf["layer1ECalScaleETBins"].getVector<int>());
   paramsHelper.setLayer1HCalScaleETBins(conf["layer1HCalScaleETBins"].getVector<int>());
