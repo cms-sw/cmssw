@@ -12,4 +12,12 @@
   </ifrelease>
 
   <test name="testHeterogeneousCoreCUDATestWriteRead" command="testHeterogeneousCoreCUDATestWriteRead.sh"/>
+
+  <!--
+  Test that the framework handles correctly the case of edm::Wrapper<T> where
+    - T has a dictionary
+    - edm::Wrapper<T> does not have a dictionary
+    - the corresponding classes.h file includes CUDA headers
+  -->
+  <test name="testMissingDictionaryCUDA" command="testMissingDictionaryCUDA.sh"/>
 </iftool>
