@@ -933,6 +933,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto itr = hgpar_->typesInLayers_.find(indx);
   int type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
+  int fineCoarse = (type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200) ? 0 : 1;
   int layertype = layerType(lay);
   bool rotx = (norot) ? false : (layertype == HGCalTypes::WaferCenterR);
   if (debug) {
@@ -950,8 +951,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
         place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
     }
     int part = partialWaferType(lay, waferU, waferV);
-    auto xy = (waferHexagon8Fine() || cog) ? cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, type, part)
-                                           : hgcell_->cellUV2XY2(cellU, cellV, place, type);
+    auto xy = (waferHexagon8Fine() || cog) ? cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, fineCoarse, part)
+                                           : hgcell_->cellUV2XY2(cellU, cellV, place, fineCoarse);
     x = xy.first;
     y = xy.second;
     if (debug)
@@ -1841,7 +1842,9 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                         << " place " << place << " part " << part;
       }
     }
-    cellHex(xx, yy, celltype, place, part, cellU, cellV, extend, debug);
+    bool fineCoarse =
+        ((celltype == HGCSiliconDetId::HGCalHD120) || (celltype == HGCSiliconDetId::HGCalHD200)) ? false : true;
+    cellHex(xx, yy, fineCoarse, place, part, cellU, cellV, extend, debug);
     wt = ((((celltype == HGCSiliconDetId::HGCalHD120) || (celltype == HGCSiliconDetId::HGCalHD200)) &&
            (hgpar_->useSimWt_ > 0))
               ? (hgpar_->cellThickness_[celltype] / hgpar_->waferThick_)
@@ -1927,6 +1930,31 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
                                   << ":" << xy0.second;
 #endif
   return xy0;
+}
+
+std::pair<double, double> HGCalDDDConstants::waferPositionWithCshift(
+    int lay, int waferU, int waferV, bool norot, bool reco, bool debug) const {
+  auto xy_noshift = waferPositionNoRot(lay, waferU, waferV, reco, debug);
+  double x = xy_noshift.first;
+  double y = xy_noshift.second;
+  int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
+  auto ktr = hgpar_->waferInfoMap_.end();
+  int ll = lay - hgpar_->firstLayer_;
+  bool rotx = (norot) ? false : ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
+  if (waferHexagon8File()) {
+    if (cassetteMode()) {
+      ktr = hgpar_->waferInfoMap_.find(indx);
+      auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette, false);
+      if (!reco) {
+        x -= ((HGCalParameters::k_ScaleToDDD)*cshift.first);
+        y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
+      } else {
+        x -= cshift.first;
+        y += cshift.second;
+      }
+    }
+  }
+  return (rotx ? getXY(lay, x, y, false) : std::make_pair(x, y));
 }
 
 int HGCalDDDConstants::waferFileIndex(unsigned int kk) const {
