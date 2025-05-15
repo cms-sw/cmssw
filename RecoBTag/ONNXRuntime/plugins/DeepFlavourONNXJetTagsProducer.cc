@@ -54,7 +54,7 @@ private:
 
   // hold the input data
   FloatArrays data_;
-
+  bool produceValueMap_;
   edm::Handle<edm::View<reco::Jet>> jets;
 };
 
@@ -64,14 +64,20 @@ const std::vector<unsigned> DeepFlavourONNXJetTagsProducer::input_sizes_{
 DeepFlavourONNXJetTagsProducer::DeepFlavourONNXJetTagsProducer(const edm::ParameterSet& iConfig,
                                                                const ONNXRuntime* cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-      jet_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
-      output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")) {
+      output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
+      produceValueMap_(iConfig.getUntrackedParameter<bool>("produceValueMap", false)) {
+  if (produceValueMap_) {
+    jet_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"));
+  }
+
   // get output names from flav_names
   for (const auto& flav_name : flav_names_) {
     produces<JetTagCollection>(flav_name);
-    produces<edm::ValueMap<float>>(flav_name);
+    if (produceValueMap_) {
+      produces<edm::ValueMap<float>>(flav_name);
+    }
   }
 
   assert(input_names_.size() == input_sizes_.size());
@@ -91,6 +97,7 @@ void DeepFlavourONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<std::vector<std::string>>(
       "flav_names", std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probuds", "probg"});
   desc.add<edm::InputTag>("jets", edm::InputTag("hltAK4PFPuppiJets"));
+  desc.addOptionalUntracked<bool>("produceValueMap", false);
 
   descriptions.add("pfDeepFlavourJetTags", desc);
 }
@@ -104,10 +111,13 @@ void DeepFlavourONNXJetTagsProducer::globalEndJob(const ONNXRuntime* cache) {}
 void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
-  iEvent.getByToken(jet_, jets);
-  if (!jets.isValid()) {
-    edm::LogWarning("DeepFlavourONNXJetTagsProducer") << "Invalid handle in jet input collection";
-    return;
+
+  if (produceValueMap_) {
+    iEvent.getByToken(jet_, jets);
+    if (!jets.isValid()) {
+      edm::LogWarning("DeepFlavourONNXJetTagsProducer") << "Invalid handle in jet input collection";
+      return;
+    }
   }
 
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
@@ -142,7 +152,9 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
       const auto& jet_ref = tag_infos->at(jet_n).jet();
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
         (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
-        output_scores[flav_n][jet_n] = outputs[flav_n];
+        if (produceValueMap_) {
+          output_scores[flav_n][jet_n] = outputs[flav_n];
+        }
         ++i_output;
       }
     }
@@ -155,14 +167,16 @@ void DeepFlavourONNXJetTagsProducer::produce(edm::Event& iEvent, const edm::Even
 
   // put into the event
   for (std::size_t flav_n = 0; flav_n < flav_names_.size(); ++flav_n) {
-    iEvent.put(std::move(output_tags[flav_n]), flav_names_[flav_n]);
-    for (size_t k = 0; k < output_scores.size(); k++) {
-      std::unique_ptr<edm::ValueMap<float>> VM(new edm::ValueMap<float>());
-      edm::ValueMap<float>::Filler filler(*VM);
-      filler.insert(jets, output_scores.at(k).begin(), output_scores.at(k).end());
-      filler.fill();
-      iEvent.put(std::move(VM), flav_names_[k]);
+    if (produceValueMap_) {
+      for (size_t k = 0; k < output_scores.size(); k++) {
+        std::unique_ptr<edm::ValueMap<float>> VM(new edm::ValueMap<float>());
+        edm::ValueMap<float>::Filler filler(*VM);
+        filler.insert(jets, output_scores.at(k).begin(), output_scores.at(k).end());
+        filler.fill();
+        iEvent.put(std::move(VM), flav_names_[k]);
+      }
     }
+    iEvent.put(std::move(output_tags[flav_n]), flav_names_[flav_n]);
   }
   data_.clear();
 }
