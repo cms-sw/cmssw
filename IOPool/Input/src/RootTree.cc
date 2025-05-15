@@ -415,7 +415,6 @@ namespace edm {
       auxCache_ = createCacheWithSize(1 * 1024 * 1024);
       if (auxCache_) {
         auxCache_->SetEnablePrefetching(enablePrefetching_);
-        auxCache_->SetEnablePrefetching(false);
         auxCache_->SetLearnEntries(0);
         auxCache_->StartLearningPhase();
         auxCache_->SetEntryRange(0, tree_->GetEntries());
