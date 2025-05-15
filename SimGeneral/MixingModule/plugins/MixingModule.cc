@@ -77,6 +77,10 @@ namespace edm {
       skipSignal_ = ps_mix.getParameter<bool>("skipSignal");
     }
 
+    skipProductCheck_ = false;
+    if (ps_mix.exists("skipProductCheck")) {
+      skipProductCheck_ = ps_mix.getParameter<bool>("skipProductCheck");
+    }
     ParameterSet ps = ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
     for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
@@ -109,8 +113,6 @@ namespace edm {
 
         LogInfo("MixingModule") << "Will mix " << object << "s with InputTag= " << tag.encode() << ", label will be "
                                 << label;
-        //            std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
-
       } else if (object == "RecoTrack") {
         InputTag tag;
         if (!tags.empty())
@@ -131,8 +133,6 @@ namespace edm {
 
         LogInfo("MixingModule") << "Will mix " << object << "s with InputTag= " << tag.encode() << ", label will be "
                                 << label;
-        //std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
-
       } else if (object == "SimVertex") {
         InputTag tag;
         if (!tags.empty())
@@ -151,8 +151,6 @@ namespace edm {
 
         LogInfo("MixingModule") << "Will mix " << object << "s with InputTag " << tag.encode() << ", label will be "
                                 << label;
-        //            std::cout <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label<<std::endl;
-
       } else if (object == "HepMCProduct") {
         InputTag tag;
         if (!tags.empty())
@@ -170,7 +168,6 @@ namespace edm {
 
         LogInfo("MixingModule") << "Will mix " << object << "s with InputTag= " << tag.encode() << ", label will be "
                                 << label;
-        //            std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
         for (size_t i = 1; i < tags.size(); ++i) {
           InputTag fallbackTag = tags[i];
           std::string fallbackLabel;
@@ -203,7 +200,6 @@ namespace edm {
 
           LogInfo("MixingModule") << "Will mix " << object << "s with InputTag= " << tag.encode() << ", label will be "
                                   << label;
-          //              std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
         }
 
       } else if (object == "PSimHit") {
@@ -245,7 +241,6 @@ namespace edm {
 
           LogInfo("MixingModule") << "Will mix " << object << "s with InputTag= " << tag.encode() << ", label will be "
                                   << label;
-          //              std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
         }
       } else {
         LogWarning("MixingModule")
@@ -319,14 +314,14 @@ namespace edm {
   void MixingModule::checkSignal(const edm::Event& e) {
     if (adjusters_.empty()) {
       for (auto const& adjuster : adjustersObjects_) {
-        if (skipSignal_ or adjuster->checkSignal(e)) {
+        if (skipSignal_ or skipProductCheck_ or adjuster->checkSignal(e)) {
           adjusters_.push_back(adjuster);
         }
       }
     }
     if (workers_.empty()) {
       for (auto const& worker : workersObjects_) {
-        if (skipSignal_ or worker->checkSignal(e)) {
+        if (skipSignal_ or skipProductCheck_ or worker->checkSignal(e)) {
           workers_.push_back(worker);
         }
       }
@@ -394,8 +389,6 @@ namespace edm {
 
     for (auto const& worker : workers_) {
       LogDebug("MixingModule") << " merging Event:  id " << eventPrincipal.id();
-      //      std::cout <<"PILEALLWORKERS merging Event:  id " << eventPrincipal.id() << std::endl;
-
       worker->addPileups(eventPrincipal, &moduleCallingContext, eventId);
     }
 
@@ -498,10 +491,6 @@ namespace edm {
       (*accItr)->StorePileupInformation(
           bunchCrossingList, numInteractionList, TrueInteractionList, eventInfoList, bunchSpace_);
     }
-
-    //    for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
-    //  std::cout << " bunch ID, Pileup, True " << bunchIdx << " " << PileupList[bunchIdx-minBunch_] << " " <<  TrueNumInteractions_[bunchIdx-minBunch_] << std::endl;
-    //}
 
     for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
       for (size_t setBcrIdx = 0; setBcrIdx < workers_.size(); ++setBcrIdx) {

@@ -82,12 +82,14 @@ private:
                            size_t globalSimHitIndex,
                            const unsigned int tofBin);
 
-  typedef std::vector<std::string> vstring;
-  typedef std::map<unsigned int, std::vector<std::pair<const PSimHit*, int>>, std::less<unsigned int>> simhit_map;
-  typedef simhit_map::iterator simhit_map_iterator;
+  using vstring = std::vector<std::string>;
+  using simhit_map = std::map<unsigned int, std::vector<std::pair<const PSimHit*, int>>, std::less<unsigned int>>;
+  using simhit_map_iterator = simhit_map::iterator;
 
   const std::string hitsProducer;
+  const std::string hitsProducerPU;
   const vstring trackerContainers;
+  const vstring trackerContainersPU;
   const std::string ZSDigi;
   const std::string SCDigi;
   const std::string VRDigi;

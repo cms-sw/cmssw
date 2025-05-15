@@ -121,7 +121,6 @@ namespace edm {
       if (got)
         LogInfo("MixingModule") << " Will create a CrossingFrame for " << typeid(T).name()
                                 << " with InputTag= " << t.encode();
-
       return got;
     }
 
@@ -159,6 +158,7 @@ namespace edm {
     // When using mixed secondary source
     // Copy the data from the PCrossingFrame to the CrossingFrame
     virtual void copyPCrossingFrame(const PCrossingFrame<T> *PCF);
+    InputTag getInputTag() const override { return tag_; }
 
   private:
     int minBunch_;

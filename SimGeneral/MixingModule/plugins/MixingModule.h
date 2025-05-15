@@ -109,6 +109,7 @@ namespace edm {
     bool useCurrentProcessOnly_;
     bool wrapLongTimes_;
     bool skipSignal_;
+    bool skipProductCheck_;
 
     // Digi-producing algorithms
     Accumulators digiAccumulators_;

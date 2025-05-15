@@ -14,3 +14,7 @@ run3_common.toModify( simMuonGEMDigis, instLumi = 2.0)
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify( simMuonGEMDigis, instLumi = 5)
+
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(simMuonGEMDigis,
+                   inputCollectionPU = cms.string('MuonSimHitsMuonGEMHits'))
