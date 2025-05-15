@@ -1,4 +1,17 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+import os
+
+hjenergy = os.getenv("HJENERGY", "0")
+
+if hjenergy in "0":
+    options = VarParsing.VarParsing("analysis")
+    options.register("hjenergy", "999", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Beam energy")
+    options.parseArguments()
+    hjenergy = options.hjenergy
+
+if hjenergy in "999":
+       raise RuntimeError("Stopping cmsRun testHydjet.py: this macro needs hjenergy=5362 command line parameter")
 
 process = cms.Process("ANA")
 
@@ -14,7 +27,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.maxEvents = cms.untracked.PSet(
-	input = cms.untracked.int32(100)
+	input = cms.untracked.int32(-1)
 	)
 
 process.ana = cms.EDAnalyzer('HydjetAnalyzer',
@@ -64,7 +77,7 @@ process.ana = cms.EDAnalyzer('HydjetAnalyzer',
 #process.generator.signalVtx = cms.untracked.vdouble(0.,0.,0.,0.) # Signal event vertex option, to set it by hand (instead of smearing)
 
 process.TFileService = cms.Service('TFileService',
-	fileName = cms.string('Hydjet1_MB_5020GeV.root')
+	fileName = cms.string('Hydjet.root')
 )
 
 process.p = cms.Path(process.generator*process.ana)

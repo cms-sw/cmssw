@@ -1,10 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Generator.PyquenDefaultSettings_cff import *
+from Configuration.Generator.Pyquen2025Settings_cff import *
+from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
+import os
 
-generator = cms.EDFilter("PyquenGeneratorFilter",
-                         collisionParameters5362GeV,
-                         qgpParameters,
+hjenergy = os.getenv("HJENERGY", "5362")
+
+generator = ExternalGeneratorFilter(cms.EDFilter("PyquenGeneratorFilter",
+                         locals()[f"collisionParameters{hjenergy}GeV"],   #tune CELLO
+                         locals()[f"qgpParameters{hjenergy}GeV"],         #tune CELLO
                          pyquenParameters,
                          doQuench = cms.bool(True),
                          bFixed = cms.double(0.0), ## fixed impact param (fm); valid only if cflag_=0
@@ -20,7 +24,7 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                          cFlag = cms.int32(0), ## centrality flag
                          bMin = cms.double(0.0), ## min impact param (fm); valid only if cflag_!=0
                          bMax = cms.double(0.0) ## max impact param (fm); valid only if cflag_!=0
-                         )
+                         ))
 
 generator.embeddingMode = 0
 
