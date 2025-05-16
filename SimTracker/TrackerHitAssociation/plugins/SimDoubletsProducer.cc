@@ -437,62 +437,65 @@ void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::E
   clusterYSize = -1;
 
   // loop over Outer Tracker RecHit collections of the different modules
-  for (const auto& detSetOT : *hitsOT) {
-    // get detector Id
-    detId = detSetOT.detId();
-    DetId detIdObject(detId);
+  // if OT layers should be considered
+  if (numLayersOT_ > 0) {
+    for (const auto& detSetOT : *hitsOT) {
+      // get detector Id
+      detId = detSetOT.detId();
+      DetId detIdObject(detId);
 
-    // get layerId of the OT
-    layerIdOT = trackerTopology_->getOTLayerNumber(detId);
+      // get layerId of the OT
+      layerIdOT = trackerTopology_->getOTLayerNumber(detId);
 
-    // only use the RecHits if the module is in the accepted range of layers and one of the Phase 2 PS, p-sensor
-    if ((layerIdOT <= numLayersOT_) &&
-        (trackerGeometry_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP)) {
-      // determine layer Id from detector Id plus the offset from the pixel layers:
-      // layerId = layerId(OT) + N(pixelLayers) - 1
-      // the (-1) comes from the layerId(OT) starting from 1 instead of 0
-      layerId = layerIdOT + TrackerTraits::numberOfLayers - 1;
+      // only use the RecHits if the module is in the accepted range of layers and one of the Phase 2 PS, p-sensor
+      if ((layerIdOT <= numLayersOT_) &&
+          (trackerGeometry_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP)) {
+        // determine layer Id from detector Id plus the offset from the pixel layers:
+        // layerId = layerId(OT) + N(pixelLayers) - 1
+        // the (-1) comes from the layerId(OT) starting from 1 instead of 0
+        layerId = layerIdOT + TrackerTraits::numberOfLayers - 1;
 
-      // check if we would like to skip
-      if (dropEvenLayerRecHits_ && (layerId % 2 == 0)) {
-        continue;
-      }
-      if (dropOddLayerRecHits_ && (layerId % 2 == 1)) {
-        continue;
-      }
+        // check if we would like to skip
+        if (dropEvenLayerRecHits_ && (layerId % 2 == 0)) {
+          continue;
+        }
+        if (dropOddLayerRecHits_ && (layerId % 2 == 1)) {
+          continue;
+        }
 
-      // determine the module Id
-      moduleId = trackerGeometry_->idToDetUnit(detIdObject)->index();
+        // determine the module Id
+        moduleId = trackerGeometry_->idToDetUnit(detIdObject)->index();
 
-      // loop over RecHits
-      for (auto const& hitOT : detSetOT) {
-        // std::cout << "OT RecHit in layer " << layerId << ": " << hitOT.globalPosition() << std::endl;
+        // loop over RecHits
+        for (auto const& hitOT : detSetOT) {
+          // std::cout << "OT RecHit in layer " << layerId << ": " << hitOT.globalPosition() << std::endl;
 
-        // find associated TrackingParticles
-        auto range = clusterTPAssociation.equal_range(OmniClusterRef(hitOT.cluster()));
+          // find associated TrackingParticles
+          auto range = clusterTPAssociation.equal_range(OmniClusterRef(hitOT.cluster()));
 
-        // if the RecHit has associated TrackingParticles
-        if (range.first != range.second) {
-          for (auto assocTrackingParticleIter = range.first; assocTrackingParticleIter != range.second;
-               assocTrackingParticleIter++) {
-            const TrackingParticleRef assocTrackingParticle = (assocTrackingParticleIter->second);
+          // if the RecHit has associated TrackingParticles
+          if (range.first != range.second) {
+            for (auto assocTrackingParticleIter = range.first; assocTrackingParticleIter != range.second;
+                 assocTrackingParticleIter++) {
+              const TrackingParticleRef assocTrackingParticle = (assocTrackingParticleIter->second);
 
-            // if the associated TrackingParticle is among the selected ones
-            if (selectedTrackingParticleKeys.has(assocTrackingParticle.key())) {
-              // loop over collection of SimDoublets and find the one of the associated TrackingParticle
-              for (auto& simDoublets : simDoubletsCollection) {
-                TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
-                if (assocTrackingParticle.key() == trackingParticleRef.key()) {
-                  // add the RecHit to the SimDoublet
-                  simDoublets.addRecHit(hitOT, layerId, clusterYSize, detId, moduleId);
+              // if the associated TrackingParticle is among the selected ones
+              if (selectedTrackingParticleKeys.has(assocTrackingParticle.key())) {
+                // loop over collection of SimDoublets and find the one of the associated TrackingParticle
+                for (auto& simDoublets : simDoubletsCollection) {
+                  TrackingParticleRef trackingParticleRef = simDoublets.trackingParticle();
+                  if (assocTrackingParticle.key() == trackingParticleRef.key()) {
+                    // add the RecHit to the SimDoublet
+                    simDoublets.addRecHit(hitOT, layerId, clusterYSize, detId, moduleId);
+                  }
                 }
               }
             }
           }
-        }
-      }  // end loop over RecHits
-    }
-  }  // end loop over OT RecHit collections of the different modules
+        }  // end loop over RecHits
+      }
+    }  // end loop over OT RecHit collections of the different modules
+  }
 
   // loop over collection of SimDoublets and sort the RecHits according to their position
   for (auto& simDoublets : simDoubletsCollection) {
