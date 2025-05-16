@@ -22,6 +22,7 @@
 // user include files
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
@@ -95,9 +96,30 @@ private:
   const double throwingThreshold_;
   const bool verbose_;
   const bool dbFromEvent_;
+  const bool useTransientRecord_;
   const edm::EDGetTokenT<reco::BeamSpot> bsFromEventToken_;             // beamSpot from the event
-  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsFromDBToken_;  // beamSpot from the DB
-  edm::EDGetTokenT<reco::BeamSpot> dbBSfromEventToken_;                 // beamSpot from the DB (via event)
+  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsFromDBToken_;  // beamSpot from the DB (object record)
+  edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd>
+      bsFromTransientDBToken_;                           // beamspot from the DB (transient record)
+  edm::EDGetTokenT<reco::BeamSpot> dbBSfromEventToken_;  // beamSpot from the DB (via event)
+
+  template <typename RecordT>
+  reco::BeamSpot getBeamSpotFromES(edm::EventSetup const& iSetup,
+                                   edm::ESGetToken<BeamSpotObjects, RecordT> const& token) const {
+    edm::ESHandle<BeamSpotObjects> beamhandle = iSetup.getHandle(token);
+    const BeamSpotObjects* aSpot = beamhandle.product();
+
+    // translate from BeamSpotObjects to reco::BeamSpot
+    reco::BeamSpot::Point apoint(aSpot->x(), aSpot->y(), aSpot->z());
+
+    reco::BeamSpot::CovarianceMatrix matrix;
+    for (int i = 0; i < reco::BeamSpot::dimension; ++i)
+      for (int j = 0; j < reco::BeamSpot::dimension; ++j)
+        matrix(i, j) = aSpot->covariance(i, j);
+
+    // this assume beam width same in x and y
+    return reco::BeamSpot(apoint, aSpot->sigmaZ(), aSpot->dxdz(), aSpot->dydz(), aSpot->beamWidthX(), matrix);
+  }
 };
 
 //
@@ -108,6 +130,7 @@ BeamSpotCompatibilityChecker::BeamSpotCompatibilityChecker(const edm::ParameterS
       throwingThreshold_(iConfig.getParameter<double>("errorThr")),
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       dbFromEvent_(iConfig.getParameter<bool>("dbFromEvent")),
+      useTransientRecord_(iConfig.getUntrackedParameter<bool>("useTransientRecord", false)),
       bsFromEventToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsFromEvent"))) {
   //now do what ever initialization is needed
   if (warningThreshold_ > throwingThreshold_) {
@@ -115,12 +138,19 @@ BeamSpotCompatibilityChecker::BeamSpotCompatibilityChecker(const edm::ParameterS
         << __PRETTY_FUNCTION__ << "\n Warning threshold (" << warningThreshold_
         << ") cannot be smaller than the throwing threshold (" << throwingThreshold_ << ")" << std::endl;
   }
+
   if (dbFromEvent_) {
-    edm::LogWarning("BeamSpotCompatibilityChecker")
-        << "!!!! Warning !!!\nThe Database Beam Spot is going to be taken from the Event via BeamSpotProducer!";
+    edm::LogInfo("BeamSpotCompatibilityChecker")
+        << "The Database Beam Spot is going to be taken from the Event via BeamSpotProducer!";
     dbBSfromEventToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsFromDB"));
   } else {
-    bsFromDBToken_ = esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>();
+    if (useTransientRecord_) {
+      edm::LogInfo("BeamSpotCompatibilityChecker") << "Using BeamSpot from BeamSpotTransientObjectsRcd.";
+      bsFromTransientDBToken_ = esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>();
+    } else {
+      edm::LogInfo("BeamSpotCompatibilityChecker") << "Using BeamSpot from BeamSpotObjectsRcd.";
+      bsFromDBToken_ = esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>();
+    }
   }
 }
 
@@ -147,21 +177,11 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
   double evt_BeamWidthY = spotEvent.BeamWidthY();
 
   if (!dbFromEvent_) {
-    edm::ESHandle<BeamSpotObjects> beamhandle = iSetup.getHandle(bsFromDBToken_);
-    const BeamSpotObjects* aSpot = beamhandle.product();
-
-    // translate from BeamSpotObjects to reco::BeamSpot
-    reco::BeamSpot::Point apoint(aSpot->x(), aSpot->y(), aSpot->z());
-
-    reco::BeamSpot::CovarianceMatrix matrix;
-    for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
-      for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
-        matrix(i, j) = aSpot->covariance(i, j);
-      }
+    if (useTransientRecord_) {
+      spotDB = getBeamSpotFromES(iSetup, bsFromTransientDBToken_);
+    } else {
+      spotDB = getBeamSpotFromES(iSetup, bsFromDBToken_);
     }
-
-    // this assume beam width same in x and y
-    spotDB = reco::BeamSpot(apoint, aSpot->sigmaZ(), aSpot->dxdz(), aSpot->dydz(), aSpot->beamWidthX(), matrix);
   } else {
     // take the DB beamspot from the event (different label)
     edm::Handle<reco::BeamSpot> beamSpotFromDBHandle;
@@ -261,6 +281,7 @@ void BeamSpotCompatibilityChecker::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("warningThr", 1.)->setComment("Threshold on the signficances to emit a warning");
   desc.add<double>("errorThr", 3.)->setComment("Threshold on the signficances to abort the job");
   desc.addUntracked<bool>("verbose", false)->setComment("verbose output");
+  desc.addUntracked<bool>("useTransientRecord", false);
   desc.add<edm::InputTag>("bsFromEvent", edm::InputTag(""))
       ->setComment("edm::InputTag on the BeamSpot from the Event (Reference)");
   desc.add<bool>("dbFromEvent", false)
