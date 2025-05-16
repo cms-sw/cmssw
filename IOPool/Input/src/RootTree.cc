@@ -176,8 +176,7 @@ namespace edm {
   std::unique_ptr<WrapperBase> roottree::BranchInfo::newWrapper() const {
     assert(nullptr != classCache_);
     void* p = classCache_->New();
-    std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, offsetToWrapperBase_);
-    return edp;
+    return getWrapperBasePtr(p, offsetToWrapperBase_);
   }
 
   void RootTree::addBranch(ProductDescription const& prod, std::string const& oldBranchName) {
