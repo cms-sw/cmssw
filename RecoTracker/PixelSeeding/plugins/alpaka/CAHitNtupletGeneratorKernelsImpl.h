@@ -408,7 +408,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           if (aligned && thisCell.dcaCut(hh, oc, dcaCut, params.hardCurvCut_)) {
             auto t_ind = alpaka::atomicAdd(acc, nTrips, (uint32_t)1, alpaka::hierarchy::Blocks{});
 #ifdef CA_DEBUG
-            printf("Triplet no. %.5f %.5f (%d %d) - %d %d -> (%d, %d, %d, %d) \n",
+            printf("Triplet no. %d %.5f %.5f (%d %d) - %d %d -> (%d, %d, %d, %d) \n",
+                   t_ind,
                    thetaCut,
                    dcaCut,
                    thisCell.layerPairId(),

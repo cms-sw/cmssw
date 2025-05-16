@@ -7,7 +7,6 @@
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsHost.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
-
 #include "FWCore/Utilities/interface/stringize.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -79,9 +78,8 @@ int main() {
 #else
       ::reco::TrackingRecHitHost host_collection =
           cms::alpakatools::CopyToHost<::reco::TrackingRecHitDevice<Device>>::copyAsync(queue, tkhit);
-#endif
-
       alpaka::wait(queue);
+#endif
 
       alpaka::QueueCpuBlocking queue_host{cms::alpakatools::host()};
 
@@ -93,7 +91,9 @@ int main() {
       std::vector<float> constYLV(nHits, constYL);
       auto constYL_v = cms::alpakatools::make_host_view<float>(constYLV.data(), nHits);
       alpaka::memcpy(queue_host, hitLYH, constYL_v);
-      // wait for the kernel and the potential copy to complete
+
+      // wait for the copy above to complete
+      alpaka::wait(queue_host);
 
       assert(host_collection.view().xLocal()[12] == 24.);
       assert(host_collection.view().yGlobal()[int(nHits / 2)] == constYG);

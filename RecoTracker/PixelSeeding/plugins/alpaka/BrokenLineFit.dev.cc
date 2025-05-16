@@ -182,17 +182,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // workaround for #47808
       debug::do_not_optimise(results_view);
 
-      printf("kernelBLFit::%d\n",__LINE__);
       ALPAKA_ASSERT_ACC(results_view.pt());
-      printf("kernelBLFit::%d\n",__LINE__);
       ALPAKA_ASSERT_ACC(results_view.eta());
-      printf("kernelBLFit::%d\n",__LINE__);
       ALPAKA_ASSERT_ACC(results_view.chi2());
-      printf("kernelBLFit::%d\n",__LINE__);
       ALPAKA_ASSERT_ACC(pfast_fit);
-      printf("kernelBLFit::%d\n",__LINE__);
+
       constexpr auto invalidTkId = std::numeric_limits<typename caStructures::tindex_type>::max();
-      printf("kernelBLFit::%d\n",__LINE__);
+
       // same as above...
       // look in bin for this hit multiplicity
       const auto nt = riemannFit::maxNumberOfConcurrentFits;

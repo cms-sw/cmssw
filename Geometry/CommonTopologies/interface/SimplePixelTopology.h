@@ -239,9 +239,36 @@ namespace phase2PixelTopology {
       4,  6,  5,  7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12,  // POS Jump (48)
       16, 18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24,  // NEG Jump (55)
   };
-  HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {
-      0,    216,  432,  612,  864,  972,  1080, 1188, 1296, 1404, 1512, 1620, 1728, 1904,           2080,
-      2256, 2432, 2540, 2648, 2756, 2864, 2972, 3080, 3188, 3296, 3472, 3648, 3824, numberOfModules};
+
+  HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {0,
+                                                                  216,
+                                                                  432,
+                                                                  612,  // Barrel
+                                                                  864,
+                                                                  972,
+                                                                  1080,
+                                                                  1188,
+                                                                  1296,
+                                                                  1404,
+                                                                  1512,
+                                                                  1620,
+                                                                  1728,
+                                                                  1904,
+                                                                  2080,
+                                                                  2256,  // Fp
+                                                                  2432,
+                                                                  2540,
+                                                                  2648,
+                                                                  2756,
+                                                                  2864,
+                                                                  2972,
+                                                                  3080,
+                                                                  3188,
+                                                                  3296,
+                                                                  3472,
+                                                                  3648,
+                                                                  3824,  // Np
+                                                                  numberOfModules};
 
   HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{
       phi0p05, phi0p05, phi0p05, phi0p06, phi0p07, phi0p07, phi0p06, phi0p07, phi0p07, phi0p05, phi0p05,
@@ -268,15 +295,15 @@ namespace phase2PixelTopology {
                                              5.0, 8.0, 8.0, 8.0, 8.0, 6.0,  5.0, 5.0, 5.0, 6.0, 5.0, 5.0, 5.0, 9.0,
                                              9.0, 9.0, 8.0, 8.0, 8.0, 11.0, 9.0, 9.0, 9.0, 8.0, 8.0, 8.0, 11.0};
 
-  HOST_DEVICE_CONSTANT float dcaCuts[numberOfLayers] = {0.002, 0.002, 0.002, 0.002,  // BPix
-                                                        0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
-                                                        0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
-                                                        0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003};
+  HOST_DEVICE_CONSTANT float dcaCuts[numberOfLayers] = {0.15,  //BPix1
+                                                        0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+                                                        0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+                                                        0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
 
-  HOST_DEVICE_CONSTANT float thetaCuts[numberOfLayers] = {0.15,  //BPix1
-                                                          0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
-                                                          0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
-                                                          0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
+  HOST_DEVICE_CONSTANT float thetaCuts[numberOfLayers] = {0.002, 0.002, 0.002, 0.002,  // BPix
+                                                          0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
+                                                          0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
+                                                          0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003};
 
 }  // namespace phase2PixelTopology
 
@@ -312,6 +339,7 @@ namespace phase1HIonPixelTopology {
 
   HOST_DEVICE_CONSTANT float thetaCuts[phase1PixelTopology::numberOfLayers] = {
       0.001, 0.001, 0.001, 0.001, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002};
+
 }  // namespace phase1HIonPixelTopology
 
 namespace pixelTopology {
