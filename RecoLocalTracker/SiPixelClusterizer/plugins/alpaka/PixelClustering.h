@@ -32,9 +32,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering
   {
     // Phase-1 pixel modules
     constexpr uint32_t pixelSizeX = pixelTopology::Phase1::numRowsInModule;
-    constexpr uint32_t imageSizeX = pixelTopology::Phase1::numRowsInModule + 2;
+    constexpr uint32_t imageSizeX = pixelTopology::Phase1::numRowsInModule + 4;
     constexpr uint32_t pixelSizeY = pixelTopology::Phase1::numColsInModule;
-    constexpr uint32_t imageSizeY = pixelTopology::Phase1::numColsInModule + 2;
+    constexpr uint32_t imageSizeY = pixelTopology::Phase1::numColsInModule + 4;
     constexpr int32_t empVal = std::numeric_limits<int32_t>::max() - 2;  // TODO: Move this to DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h
     constexpr int32_t fakeVal = std::numeric_limits<int32_t>::max() - 3; // TODO: Move this to DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h
   } // namespace pixelStatus
@@ -169,8 +169,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering
         {
           if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
             continue;
-          int fpX = digi_view[i].xx() + 1;
-          int fpY = digi_view[i].yy() + 1;
+          int fpX = digi_view[i].xx() + 2;
+          int fpY = digi_view[i].yy() + 2;
           if constexpr (not isPhase2)
           {
             int32_t kEmp = pixelStatus::empVal;
@@ -188,13 +188,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering
         }
         alpaka::syncBlockThreads(acc);
 
-#if 0
         uint32_t kernal[3][3] = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
         //Morphing: Dilation
         for (uint32_t j : cms::alpakatools::independent_group_elements(acc, pixsize))
         {
-          uint16_t row = j / pixelStatus::pixelSizeY;
-          uint16_t col = j % pixelStatus::pixelSizeY;
+          uint16_t row = j / pixelStatus::pixelSizeY+2;
+          uint16_t col = j % pixelStatus::pixelSizeY+2;
           for (int i = 0; i < 3 && images[module].clus()[row][col] == pixelStatus::empVal; i++)
           {
             for (int j = 0; j < 3; j++)
@@ -211,8 +210,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering
         //Morphing: Erosion
         for (uint32_t j : cms::alpakatools::independent_group_elements(acc, pixsize))
         {
-          uint16_t row = j / pixelStatus::pixelSizeY;
-          uint16_t col = j % pixelStatus::pixelSizeY;
+          uint16_t row = j / pixelStatus::pixelSizeY+2;
+          uint16_t col = j % pixelStatus::pixelSizeY+2;
           for (int i = 0; i < 3 && images[module].clus()[row][col] != pixelStatus::empVal; i++)
           {
             for (int j = 0; j < 3; j++)
@@ -225,7 +224,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering
             }
           }
         }
-#endif
         alpaka::syncBlockThreads(acc);
 
 
@@ -241,8 +239,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering
         for (uint32_t j : cms::alpakatools::independent_group_elements(acc, pixsize))
         {
 
-          uint16_t row = j / pixelStatus::pixelSizeY + 1;
-          uint16_t col = j % pixelStatus::pixelSizeY + 1;
+          uint16_t row = j / pixelStatus::pixelSizeY + 2;
+          uint16_t col = j % pixelStatus::pixelSizeY + 2;
           if (images[module].clus()[col][row] == pixelStatus::empVal )
           {
             continue;
@@ -269,8 +267,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering
       alpaka::syncBlockThreads(acc);
       for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, lastPixel))
       {
-        int fpX = digi_view[i].xx() + 1;
-        int fpY = digi_view[i].yy() + 1;
+        int fpX = digi_view[i].xx() + 2;
+        int fpY = digi_view[i].yy() + 2;
         if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
           continue;
         digi_view[i].clus() = images[module].clus()[fpY][fpX];
