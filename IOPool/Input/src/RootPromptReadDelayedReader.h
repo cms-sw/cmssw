@@ -42,8 +42,10 @@ namespace edm {
 
     ~RootPromptReadDelayedReader() override;
 
-    RootPromptReadDelayedReader(RootPromptReadDelayedReader const&) = delete;             // Disallow copying and moving
-    RootPromptReadDelayedReader& operator=(RootPromptReadDelayedReader const&) = delete;  // Disallow copying and moving
+    RootPromptReadDelayedReader(RootPromptReadDelayedReader const&) = delete;
+    RootPromptReadDelayedReader& operator=(RootPromptReadDelayedReader const&) = delete;
+    RootPromptReadDelayedReader(RootPromptReadDelayedReader&&) = delete;
+    RootPromptReadDelayedReader& operator=(RootPromptReadDelayedReader&&) = delete;
 
     struct Cache {
       std::unique_ptr<edm::WrapperBase> wrapperBase_;
@@ -66,8 +68,8 @@ namespace edm {
     RootTree const& tree_;
     edm::propagate_const<std::shared_ptr<InputFile>> filePtr_;
     edm::propagate_const<DelayedReader*> nextReader_;
-    std::unique_ptr<SharedResourcesAcquirer>
-        resourceAcquirer_;  // We do not use propagate_const because the acquirer is itself mutable.
+    // We do not use propagate_const because the acquirer is itself mutable.
+    std::unique_ptr<SharedResourcesAcquirer> resourceAcquirer_;
     std::shared_ptr<std::recursive_mutex> mutex_;
     InputType inputType_;
 

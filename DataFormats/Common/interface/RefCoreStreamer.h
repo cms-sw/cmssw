@@ -38,6 +38,10 @@ namespace edm {
   public:
     RefCoreStreamerGuard(EDProductGetter const* ep) { setRefCoreStreamer(ep); }
     ~RefCoreStreamerGuard() { unsetRefCoreStreamer(); }
+    RefCoreStreamerGuard(RefCoreStreamerGuard const&) = delete;
+    RefCoreStreamerGuard& operator=(RefCoreStreamerGuard const&) = delete;
+    RefCoreStreamerGuard(RefCoreStreamerGuard&&) = delete;
+    RefCoreStreamerGuard& operator=(RefCoreStreamerGuard&&) = delete;
 
   private:
     static void unsetRefCoreStreamer();

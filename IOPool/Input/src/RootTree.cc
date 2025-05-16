@@ -10,6 +10,7 @@
 #include "TTreeCache.h"
 #include "TLeaf.h"
 
+#include "oneapi/tbb/task_arena.h"
 #include <cassert>
 
 namespace edm {
@@ -176,8 +177,7 @@ namespace edm {
   std::unique_ptr<WrapperBase> roottree::BranchInfo::newWrapper() const {
     assert(nullptr != classCache_);
     void* p = classCache_->New();
-    std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, offsetToWrapperBase_);
-    return edp;
+    return getWrapperBasePtr(p, offsetToWrapperBase_);
   }
 
   void RootTree::addBranch(ProductDescription const& prod, std::string const& oldBranchName) {
@@ -426,8 +426,10 @@ namespace edm {
   }
 
   void RootTree::getEntryForAllBranches() const {
-    auto guard = filePtr_->setCacheReadTemporarily(rawTreeCache_.get(), tree_);
-    tree_->GetEntry(entryNumber_);
+    oneapi::tbb::this_task_arena::isolate([&]() {
+      auto guard = filePtr_->setCacheReadTemporarily(treeCache_.get(), tree_);
+      tree_->GetEntry(entryNumber_);
+    });
   }
 
   void RootTree::getEntry(TBranch* branch, EntryNumber entryNumber) const {

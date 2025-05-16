@@ -57,10 +57,14 @@ namespace edm {
 
     class CacheGuard {
     public:
-      CacheGuard(TFile* file, TObject* tree) : file_(file), tree_(tree) {}
+      CacheGuard(TFile* file, TObject* tree, TFileCacheRead* tfcr) : file_(file), tree_(tree) {
+        file_->SetCacheRead(tfcr, tree_, TFile::kDoNotDisconnect);
+      }
       CacheGuard() = delete;
       CacheGuard(CacheGuard const&) = delete;
       CacheGuard& operator=(CacheGuard const&) = delete;
+      CacheGuard(CacheGuard&&) = delete;
+      CacheGuard& operator=(CacheGuard&&) = delete;
       ~CacheGuard() { file_->SetCacheRead(nullptr, tree_, TFile::kDoNotDisconnect); }
 
     private:
@@ -68,8 +72,7 @@ namespace edm {
       TObject* tree_;
     };
     [[nodiscard]] CacheGuard setCacheReadTemporarily(TFileCacheRead* tfcr, TObject* iTree) {
-      file_->SetCacheRead(tfcr, iTree, TFile::kDoNotDisconnect);
-      return CacheGuard(file_.get(), iTree);
+      return CacheGuard(file_.get(), iTree, tfcr);
     }
     void clearCacheRead(TObject* iTree) { file_->SetCacheRead(nullptr, iTree, TFile::kDoNotDisconnect); }
     void logFileAction(char const* msg, char const* fileName) const;
