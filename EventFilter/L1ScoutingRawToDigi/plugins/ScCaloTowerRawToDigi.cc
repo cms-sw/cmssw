@@ -25,7 +25,8 @@ void ScCaloTowerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iS
   Handle<SDSRawDataCollection> ScoutingRawDataCollection;
   iEvent.getByToken(rawToken_, ScoutingRawDataCollection);
 
-  std::unique_ptr<l1ScoutingRun3::CaloTowerOrbitCollection> unpackedCaloTowers(new l1ScoutingRun3::CaloTowerOrbitCollection);
+  std::unique_ptr<l1ScoutingRun3::CaloTowerOrbitCollection> unpackedCaloTowers(
+      new l1ScoutingRun3::CaloTowerOrbitCollection);
 
   for (const auto& sdsId : sourceIdList_) {
     if ((sdsId < SDSNumbering::CaloTowerMinSDSID) || (sdsId > SDSNumbering::CaloTowerMaxSDSID))

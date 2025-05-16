@@ -9,7 +9,8 @@ namespace l1ScoutingRun3 {
   public:
     CaloTower() : hwEt_(0), erBits_(0), miscBits_(0), hwEta_(0), hwPhi_(0) {}
 
-    CaloTower(int hwEt, int erBits, int miscBits, int hwPhi, int hwEta) : hwEt_(hwEt), erBits_(erBits), miscBits_(miscBits), hwEta_(hwEta), hwPhi_(hwPhi) {}
+    CaloTower(int hwEt, int erBits, int miscBits, int hwPhi, int hwEta)
+        : hwEt_(hwEt), erBits_(erBits), miscBits_(miscBits), hwEta_(hwEta), hwPhi_(hwPhi) {}
 
     void setHwEt(int hwEt) { hwEt_ = hwEt; }
     void setErBits(int erBits) { erBits_ = erBits; }

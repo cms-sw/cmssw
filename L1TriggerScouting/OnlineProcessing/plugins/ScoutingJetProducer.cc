@@ -92,8 +92,8 @@ void ScoutingJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // fill fast jet objects buffer
     fastJetBuffer[bx].reserve(incJets.size());
     for (const auto& incJet : incJets) {
-      nConst = incJet.has_constituents()? incJet.constituents().size() : 0;
-      area = incJet.has_area()? incJet.area() : -1.0;
+      nConst = incJet.has_constituents() ? incJet.constituents().size() : 0;
+      area = incJet.has_area() ? incJet.area() : -1.0;
       FastJet fj = FastJet(incJet.Et(), incJet.eta(), incJet.phi(), nConst, area);
       fastJetBuffer[bx].push_back(fj);
       nFastJet++;

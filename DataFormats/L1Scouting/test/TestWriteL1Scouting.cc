@@ -73,8 +73,7 @@ namespace edmtest {
         bxSumsValues_(iPSet.getParameter<std::vector<int>>("bxSumsValues")),
         bxSumsPutToken_(produces()),
         bmtfStubsValues_(iPSet.getParameter<std::vector<int>>("bmtfStubValues")),
-        bmtfStubsPutToken_(produces()) 
-        caloTowersValues_(iPSet.getParameter<std::vector<int>>("caloTowersValues")),
+        bmtfStubsPutToken_(produces()) caloTowersValues_(iPSet.getParameter<std::vector<int>>("caloTowersValues")),
         caloTowersPutToken_(produces()) {
     if (bxValues_.size() != 2) {
       throwWithMessage("bxValues must have 2 elements and it does not");
@@ -110,7 +109,6 @@ namespace edmtest {
     produceBxSums(iEvent);
     produceBmtfStubs(iEvent);
     produceCaloTowers(iEvent);
-
   }
 
   void TestWriteL1Scouting::produceMuons(edm::Event& iEvent) const {

@@ -32,7 +32,7 @@ process.l1ScoutingTestAnalyzer = cms.EDAnalyzer("TestReadL1Scouting",
   bmtfStubClassVersion = cms.int32(args.bmtfStubVersion), 
   bmtfStubTag = cms.InputTag("l1ScoutingTestProducer", "", "PROD"),
   expectedBmtfStubValues = cms.vint32(1, 2),
-  caloTowerClassVersion = cms.int32(args.bmtfStubVersion), 
+  caloTowerClassVersion = cms.int32(args.caloTowerVersion), 
   caloTowerTag = cms.InputTag("l1ScoutingTestProducer", "", "PROD"),
   expectedCaloTowerValues = cms.vint32(14, 15)
 )

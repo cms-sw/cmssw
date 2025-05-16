@@ -36,7 +36,6 @@ namespace edmtest {
     void analyzeBmtfStubs(edm::Event const& iEvent) const;
     void analyzeCaloTowers(edm::Event const& iEvent) const;
 
-
     void throwWithMessageFromConstructor(const char*) const;
     void throwWithMessage(const char*) const;
 
@@ -84,7 +83,6 @@ namespace edmtest {
         caloTowerClassVersion_(iPSet.getParameter<int>("caloTowerClassVersion")),
         expectedCaloTowerValues_(iPSet.getParameter<std::vector<int>>("expectedCaloTowerValues")),
         caloTowerToken_(consumes(iPSet.getParameter<edm::InputTag>("caloTowerTag"))) {
-
     if (bxValues_.size() != 2) {
       throwWithMessageFromConstructor("bxValues must have 2 elements and it does not");
     }
@@ -119,7 +117,6 @@ namespace edmtest {
     analyzeBxSums(iEvent);
     analyzeBmtfStubs(iEvent);
     analyzeCaloTowers(iEvent);
-
   }
 
   void TestReadL1Scouting::analyzeMuons(edm::Event const& iEvent) const {

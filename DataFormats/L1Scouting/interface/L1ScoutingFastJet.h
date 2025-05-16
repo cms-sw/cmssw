@@ -9,7 +9,8 @@ namespace l1ScoutingRun3 {
   public:
     FastJet() : et_(0), eta_(0), phi_(0), nConst_(0), area_(0) {}
 
-    FastJet(float et, float eta, float phi, int nConst, float area) : et_(et), eta_(eta), phi_(phi), nConst_(nConst), area_(area) {}
+    FastJet(float et, float eta, float phi, int nConst, float area)
+        : et_(et), eta_(eta), phi_(phi), nConst_(nConst), area_(area) {}
 
     void setEt(float et) { et_ = et; }
     void setEta(float eta) { eta_ = eta; }
