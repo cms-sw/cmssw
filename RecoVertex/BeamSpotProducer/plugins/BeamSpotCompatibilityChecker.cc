@@ -206,7 +206,7 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
     if (sig > throwingThreshold_) {
       edm::LogError("BeamSpotCompatibilityChecker") << msg.c_str() << std::endl;
       throw cms::Exception("BeamSpotCompatibilityChecker")
-          << "[" << __PRETTY_FUNCTION__ << "] \n DB-Event BeamSpot " << labels.at(i) << " distance sigificance " << sig
+          << "[" << __PRETTY_FUNCTION__ << "] \n DB-Event BeamSpot " << labels.at(i) << " distance significance " << sig
           << ", exceeds the threshold of " << throwingThreshold_ << "!" << std::endl;
     } else if (sig > warningThreshold_) {
       edm::LogWarning("BeamSpotCompatibilityChecker") << msg.c_str() << std::endl;
