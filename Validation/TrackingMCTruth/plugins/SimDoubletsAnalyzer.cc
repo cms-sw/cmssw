@@ -291,14 +291,19 @@ namespace simdoublets {
     desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
 
     // cut parameters for connecting doublets
-    desc.add<double>("CAThetaCutBarrel", 0.002)->setComment("Cut on RZ alignement for Barrel in GeV");
-    desc.add<double>("CAThetaCutForward", 0.003)->setComment("Cut on RZ alignement for Forward in GeV");
+    desc.add<std::vector<double>>("CAThetaCuts",
+                     {0.002, 0.002, 0.002, 0.002,  // BPix
+                      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
+                      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003})
+        ->setComment("Cut on RZ alignement in GeV depending on centered RecHit of triplet");
     desc.add<double>("ptmin", 0.9)
         ->setComment(
             "Minimum tranverse momentum considered for the multiple scattering expectation when checking alignement in "
             "R-z plane of two doublets in GeV");
-    desc.add<double>("dcaCutInnerTriplet", 0.15)->setComment("Cut on origin radius when the inner hit is on BPix1");
-    desc.add<double>("dcaCutOuterTriplet", 0.25)->setComment("Cut on origin radius when the inner hit is not on BPix1");
+    desc.add<std::vector<double>>("dcaCuts", {0.15,  //BPix1
+                                 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+                                 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25})
+        ->setComment("Cut on origin radius depending on most inner RecHit of triplet");
     desc.add<double>("hardCurvCut", 1. / (0.35 * 87.))
         ->setComment("Cut on minimum curvature, used in DCA ntuplet selection");
 
@@ -331,12 +336,7 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
       cellMaxDYPred_(iConfig.getParameter<int>("cellMaxDYPred")),
       cellZ0Cut_(iConfig.getParameter<double>("cellZ0Cut")),
       cellPtCut_(iConfig.getParameter<double>("cellPtCut")),
-      CAThetaCutBarrel_over_ptmin_(iConfig.getParameter<double>("CAThetaCutBarrel") /
-                                   iConfig.getParameter<double>("ptmin")),
-      CAThetaCutForward_over_ptmin_(iConfig.getParameter<double>("CAThetaCutForward") /
-                                    iConfig.getParameter<double>("ptmin")),
-      dcaCutInnerTriplet_(iConfig.getParameter<double>("dcaCutInnerTriplet")),
-      dcaCutOuterTriplet_(iConfig.getParameter<double>("dcaCutOuterTriplet")),
+      dcaCuts_(iConfig.getParameter<std::vector<double>>("dcaCuts")),
       hardCurvCut_(iConfig.getParameter<double>("hardCurvCut")),
       minNumDoubletsPerNtuplet_(iConfig.getParameter<int>("minHitsPerNtuplet") - 1),
       folder_(iConfig.getParameter<std::string>("folder")) {
@@ -361,6 +361,17 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
   hVector_Ysize_.resize(numLayerPairs);
   hVector_DYsize_.resize(numLayerPairs);
   hVector_DYPred_.resize(numLayerPairs);
+
+  // resize other vectors according to number of layers
+  numLayers_ = TrackerTraits::numberOfLayers + numLayersOT_;
+  hVector_CAThetaCut_.resize(numLayers_);
+  hVector_dcaCut_.resize(numLayers_);
+
+  // fill layer-dependent cut parameter vectors for connections
+  double ptmin = iConfig.getParameter<double>("ptmin");
+  for (double const caThetaCut : iConfig.getParameter<std::vector<double>>("CAThetaCuts")) {
+    caThetaCuts_over_ptmin_.push_back(caThetaCut / ptmin);
+  }
 }
 
 template <typename TrackerTraits>
@@ -419,18 +430,12 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
     // loop over the inner neighboring doublets of the doublet
     for (int i{0}; auto& neighbor : doublet.innerNeighbors()) {
       if (
-          /* apply CAThetaCut
-          use Barrel if the centered common RecHit of the connection is in the barrel
-          else Forward */
-          (cellCutVariables.CAThetaCut(i) >
-           ((doublet.innerLayerId() < 4) ? CAThetaCutBarrel_over_ptmin_ : CAThetaCutForward_over_ptmin_)) ||
-          /* apply hardCurvCut */
+          // apply CAThetaCut
+          (cellCutVariables.CAThetaCut(i) > caThetaCuts_over_ptmin_.at(doublet.innerLayerId())) ||
+          // apply hardCurvCut
           (cellCutVariables.hardCurvCut(i) > hardCurvCut_) ||
-          /* apply dcaCut 
-          use Inner if the inner RecHit is on BPix 1
-          else Outer */
-          (cellCutVariables.dcaCut(i) >
-           ((doublet.innerNeighborsInnerLayerId() == 0) ? dcaCutInnerTriplet_ : dcaCutOuterTriplet_))) {
+          // apply dcaCut
+          (cellCutVariables.dcaCut(i) > dcaCuts_.at(doublet.innerNeighborsInnerLayerId()))) {
         neighbor.setKilled();
       } else {
         neighbor.setAlive();
@@ -519,17 +524,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
       // hard curvature cut
       h_hardCurvCut_.fill(passedConnect, cellCutVariables.hardCurvCut(i));
       // dca cut
-      if (doublet.innerNeighborsInnerLayerId() == 0) {
-        h_dcaCutInnerTriplet_.fill(passedConnect, cellCutVariables.dcaCut(i));
-      } else {
-        h_dcaCutOuterTriplet_.fill(passedConnect, cellCutVariables.dcaCut(i));
-      }
+      hVector_dcaCut_.at(doublet.innerNeighborsInnerLayerId()).fill(passedConnect, cellCutVariables.dcaCut(i));
       // CATheta cut
-      if (doublet.innerLayerId() < 4) {
-        h_CAThetaCutBarrel_.fill(passedConnect, cellCutVariables.CAThetaCut(i));
-      } else {
-        h_CAThetaCutForward_.fill(passedConnect, cellCutVariables.CAThetaCut(i));
-      }
+      hVector_CAThetaCut_.at(doublet.innerLayerId()).fill(passedConnect, cellCutVariables.CAThetaCut(i));
 
       i++;
     }
@@ -1156,26 +1153,6 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
 
   ibook.setCurrentFolder(folder_ + "/cutParameters/connectionCuts");
 
-  // histogram for areAlignedRZ
-  h_CAThetaCutBarrel_.book1DLogX(ibook,
-                                 "CAThetaBarrel_over_ptmin",
-                                 "CATheta cut variable based on the area spaned by 3 RecHits of a pair of neighboring "
-                                 "SimDoublets in R-z with the shared RecHit in the barrel",
-                                 "CATheta cut variable",
-                                 "Number of SimDoublet connections",
-                                 51,
-                                 -6,
-                                 1);
-  h_CAThetaCutForward_.book1DLogX(ibook,
-                                  "CAThetaForward_over_ptmin",
-                                  "CATheta cut variable based on the area spaned by 3 RecHits of a pair of neighboring "
-                                  "SimDoublets in R-z with the shared RecHit in the endcap",
-                                  "CATheta cut variable",
-                                  "Number of SimDoublet connections",
-                                  51,
-                                  -6,
-                                  1);
-
   // histogram for dcaCut (x-y alignement)
   h_hardCurvCut_.book1D(ibook,
                         "hardCurv",
@@ -1185,24 +1162,39 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                         51,
                         -0.04,
                         0.04);
-  h_dcaCutInnerTriplet_.book1DLogX(ibook,
-                                   "dcaInner",
-                                   "Closest transverse distance to beamspot based on the 3 RecHits of a pair of "
-                                   "neighboring SimDoublets with the most inner RecHit on BPix1",
-                                   "Transverse distance [cm]",
-                                   "Number of SimDoublet connections",
-                                   51,
-                                   -6,
-                                   1);
-  h_dcaCutOuterTriplet_.book1DLogX(ibook,
-                                   "dcaOuter",
-                                   "Closest transverse distance to beamspot based on the 3 RecHits of a pair of "
-                                   "neighboring SimDoublets with the most inner RecHit not on BPix1",
-                                   "Transverse distance [cm]",
-                                   "Number of SimDoublet connections",
-                                   51,
-                                   -6,
-                                   1);
+
+  // loop through layer ids
+  for (auto id{0}; id < numLayers_; ++id) {
+    // layer as string
+    std::string idStr = std::to_string(id);
+
+    // set folder to the sub-folder for the layer pair
+    ibook.setCurrentFolder(folder_ + "/cutParameters/connectionCuts/layer_" + idStr);
+
+    // histogram for areAlignedRZ
+    hVector_CAThetaCut_.at(id).book1DLogX(
+        ibook,
+        "CAThetaCut_over_ptmin",
+        "CATheta cut variable based on the area spaned by 3 RecHits of a pair of neighboring "
+        "SimDoublets in R-z with the shared RecHit in layer " +
+            idStr,
+        "CATheta cut variable",
+        "Number of SimDoublet connections",
+        51,
+        -6,
+        1);
+    // histogram for dcaCut (x-y alignement)
+    hVector_dcaCut_.at(id).book1DLogX(ibook,
+                                      "dcaCut",
+                                      "Closest transverse distance to beamspot based on the 3 RecHits of a pair of "
+                                      "neighboring SimDoublets with the most inner RecHit on layer " +
+                                          idStr,
+                                      "Transverse distance [cm]",
+                                      "Number of SimDoublet connections",
+                                      51,
+                                      -6,
+                                      1);
+  }
 
   // -----------------------------------------------------------------
   // booking SimNtuplet histograms (simNtuplets folder)
