@@ -374,10 +374,10 @@ namespace edmtest {
     }
   }
   void TestReadL1Scouting::analyzeCaloTowers(edm::Event const& iEvent) const {
-    auto const& caloTowersCollection = iEvent.get(caloTowersToken_);
+    auto const& caloTowersCollection = iEvent.get(caloTowerToken_);
 
     for (const unsigned& bx : bxValues_) {
-      unsigned nCaloTowers = caloTowers.getBxSize(bx);
+      unsigned nCaloTowers = caloTowersCollection.getBxSize(bx);
       if (nCaloTowers != expectedCaloTowerValues_.size()) {
         throwWithMessage("analyzeCaloTower, caloTowers do not have the expected bx size");
       }

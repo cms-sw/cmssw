@@ -56,7 +56,7 @@ namespace edmtest {
     const std::vector<int> bmtfStubsValues_;
     const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::BMTFStub>> bmtfStubsPutToken_;
 
-    const std::vector<int> caloTowersValues_;
+    const std::vector<int> caloTowerValues_;
     const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::CaloTower>> caloTowersPutToken_;
   };
 
@@ -73,7 +73,8 @@ namespace edmtest {
         bxSumsValues_(iPSet.getParameter<std::vector<int>>("bxSumsValues")),
         bxSumsPutToken_(produces()),
         bmtfStubsValues_(iPSet.getParameter<std::vector<int>>("bmtfStubValues")),
-        bmtfStubsPutToken_(produces()) caloTowersValues_(iPSet.getParameter<std::vector<int>>("caloTowersValues")),
+        bmtfStubsPutToken_(produces()), 
+	caloTowerValues_(iPSet.getParameter<std::vector<int>>("caloTowerValues")),
         caloTowersPutToken_(produces()) {
     if (bxValues_.size() != 2) {
       throwWithMessage("bxValues must have 2 elements and it does not");
@@ -96,7 +97,7 @@ namespace edmtest {
     if (bmtfStubsValues_.size() != 2) {
       throwWithMessage("bmtfStubsValues_ must have 2 elements and it does not");
     }
-    if (caloTowersValues_.size() != 2) {
+    if (caloTowerValues_.size() != 2) {
       throwWithMessage("caloTowersValues_ must have 2 elements and it does not");
     }
   }
@@ -215,7 +216,7 @@ namespace edmtest {
     int nCaloTowers = 0;
     for (const unsigned& bx : bxValues_) {
       for (const int& val : caloTowerValues_) {
-        orbitBufferCaloTowers[bx].emplace_back(val, val, val, val);
+        orbitBufferCaloTowers[bx].emplace_back(val, val, val, val, val);
         nCaloTowers++;
       }
     }
