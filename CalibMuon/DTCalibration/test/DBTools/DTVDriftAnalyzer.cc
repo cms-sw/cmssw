@@ -63,7 +63,7 @@ void DTVDriftAnalyzer::endJob() {
   
 
   if (readLegacyVDriftDB) {
-    //edm::LogInfo("DTVDriftAnalyzer") << "Reading Legacy VDrift DB" <<endl;
+    edm::LogInfo("DTVDriftAnalyzer") << "Reading Legacy VDrift DB" <<endl;
     
     for (DTMtime::const_iterator mtime = mTimeMap->begin(); mtime != mTimeMap->end(); ++mtime) {
       

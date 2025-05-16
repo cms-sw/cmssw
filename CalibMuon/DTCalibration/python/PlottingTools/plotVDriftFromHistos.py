@@ -6,10 +6,11 @@ def binNumber(station,sector):
     return start + sector
  
 def plot(fileName,sl,run="1",option="HISTOP",draw=True):
-
+    ROOT.gPad.SetRightMargin(0.05)
+    
     slType = sl
     slStr = "SL%d" % slType
-    verbose = False
+    verbose = True
 
     ROOT.TH1.AddDirectory(False)
 

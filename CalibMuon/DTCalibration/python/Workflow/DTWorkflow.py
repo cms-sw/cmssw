@@ -287,12 +287,13 @@ class DTWorkflow(CLIHelper, CrabHelper):
     def runCMSSWtask(self, pset_path=""):
         """ Run a cmsRun job locally. The member variable self.pset_path is used
             if pset_path argument is not given"""
+        print("Runninng CMSSW cmsRun task: ", self.pset_path)
         if self.options.no_exec:
             return 0
         process = subprocess.Popen( "cmsRun %s" % self.pset_path,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT,
-                            shell = True)
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
+                                    shell = True)
         stdout = process.communicate()[0]
         log.info(stdout)
         if process.returncode != 0:
