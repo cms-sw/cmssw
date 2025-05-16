@@ -5,7 +5,7 @@
 //
 /**\class BeamSpotCompatibilityChecker BeamSpotCompatibilityChecker.cc RecoVertex/BeamSpotProducer/plugins/BeamSpotCompatibilityChecker.cc
 
- Description: Class to check the compatibility between the BeamSpot payload in the database and the one in the event
+ Description: Class to check the compatibility between the BeamSpot payload in the database and the one in the file
 
  Implementation:
      Makes use of the Significance struct to establish how compatible are the data members of the two BeamSpots in input
@@ -101,11 +101,18 @@ private:
   const bool verbose_;
   const bool dbFromEvent_;
   const bool useTransientRecord_;
-  const edm::EDGetTokenT<reco::BeamSpot> bsFromEventToken_;             // beamSpot from the event
-  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsFromDBToken_;  // beamSpot from the DB (object record)
-  edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd>
-      bsFromTransientDBToken_;                           // beamspot from the DB (transient record)
-  edm::EDGetTokenT<reco::BeamSpot> dbBSfromEventToken_;  // beamSpot from the DB (via event)
+
+  // beamSpot from the file
+  const edm::EDGetTokenT<reco::BeamSpot> bsFromFileToken_;
+
+  // beamSpot from the DB (object record)
+  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsFromDBToken_;
+
+  // beamspot from the DB (transient record)
+  edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> bsFromTransientDBToken_;
+
+  // beamSpot from the DB (via event)
+  edm::EDGetTokenT<reco::BeamSpot> dbBSfromEventToken_;
 
   template <typename RecordT>
   reco::BeamSpot getBeamSpotFromES(edm::EventSetup const& iSetup,
@@ -135,7 +142,7 @@ BeamSpotCompatibilityChecker::BeamSpotCompatibilityChecker(const edm::ParameterS
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       dbFromEvent_(iConfig.getParameter<bool>("dbFromEvent")),
       useTransientRecord_(iConfig.getUntrackedParameter<bool>("useTransientRecord", false)),
-      bsFromEventToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsFromEvent"))) {
+      bsFromFileToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsFromFile"))) {
   //now do what ever initialization is needed
   if (warningThreshold_ > throwingThreshold_) {
     throw cms::Exception("ConfigurationError")
@@ -145,7 +152,7 @@ BeamSpotCompatibilityChecker::BeamSpotCompatibilityChecker(const edm::ParameterS
 
   if (dbFromEvent_) {
     edm::LogInfo("BeamSpotCompatibilityChecker")
-        << "The Database Beam Spot is going to be taken from the Event via BeamSpotProducer!";
+        << "The Database Beam Spot is going to be taken from the File via BeamSpotProducer!";
     dbBSfromEventToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsFromDB"));
   } else {
     if (useTransientRecord_) {
@@ -155,6 +162,7 @@ BeamSpotCompatibilityChecker::BeamSpotCompatibilityChecker(const edm::ParameterS
       edm::LogInfo("BeamSpotCompatibilityChecker") << "Using BeamSpot from BeamSpotObjectsRcd.";
       bsFromDBToken_ = esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>();
     }
+    dbBSfromEventToken_ = edm::EDGetTokenT<reco::BeamSpot>();
   }
 }
 
@@ -167,18 +175,18 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
                                            edm::Event const& iEvent,
                                            edm::EventSetup const& iSetup) const {
   using namespace edm;
-  reco::BeamSpot spotEvent, spotDB;
+  reco::BeamSpot spotFile, spotDB;
 
-  edm::Handle<reco::BeamSpot> beamSpotFromEventHandle;
-  iEvent.getByToken(bsFromEventToken_, beamSpotFromEventHandle);
-  spotEvent = *beamSpotFromEventHandle;
+  edm::Handle<reco::BeamSpot> beamSpotFromFileHandle;
+  iEvent.getByToken(bsFromFileToken_, beamSpotFromFileHandle);
+  spotFile = *beamSpotFromFileHandle;
 
-  double evt_BSx0 = spotEvent.x0();
-  double evt_BSy0 = spotEvent.y0();
-  double evt_BSz0 = spotEvent.z0();
-  double evt_Beamsigmaz = spotEvent.sigmaZ();
-  double evt_BeamWidthX = spotEvent.BeamWidthX();
-  double evt_BeamWidthY = spotEvent.BeamWidthY();
+  double file_BSx0 = spotFile.x0();
+  double file_BSy0 = spotFile.y0();
+  double file_BSz0 = spotFile.z0();
+  double file_Beamsigmaz = spotFile.sigmaZ();
+  double file_BeamWidthX = spotFile.BeamWidthX();
+  double file_BeamWidthY = spotFile.BeamWidthY();
 
   if (!dbFromEvent_) {
     if (useTransientRecord_) {
@@ -200,19 +208,19 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
   double db_BeamWidthX = spotDB.BeamWidthX();
   double db_BeamWidthY = spotDB.BeamWidthY();
 
-  double deltaX0 = evt_BSx0 - db_BSx0;
-  double deltaY0 = evt_BSy0 - db_BSy0;
-  double deltaZ0 = evt_BSz0 - db_BSz0;
-  double deltaSigmaX = evt_BeamWidthX - db_BeamWidthX;
-  double deltaSigmaY = evt_BeamWidthY - db_BeamWidthY;
-  double deltaSigmaZ = evt_Beamsigmaz - db_Beamsigmaz;
+  double deltaX0 = file_BSx0 - db_BSx0;
+  double deltaY0 = file_BSy0 - db_BSy0;
+  double deltaZ0 = file_BSz0 - db_BSz0;
+  double deltaSigmaX = file_BeamWidthX - db_BeamWidthX;
+  double deltaSigmaY = file_BeamWidthY - db_BeamWidthY;
+  double deltaSigmaZ = file_Beamsigmaz - db_Beamsigmaz;
 
   if (verbose_) {
     edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from DB:   \n" << spotDB << std::endl;
-    edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from File: \n" << spotEvent << std::endl;
+    edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from File: \n" << spotFile << std::endl;
   }
 
-  auto significances = compareBS(spotDB, spotEvent, verbose_);
+  auto significances = compareBS(spotDB, spotFile, verbose_);
   std::vector<std::string> labels = {"x0", "y0", "z0", "sigmaX", "sigmaY", "sigmaZ"};
 
   std::string msg = " |delta X0|     = " + std::to_string(std::abs(deltaX0) * cmToum) +
@@ -249,8 +257,8 @@ std::array<float, 6> BeamSpotCompatibilityChecker::compareBS(const reco::BeamSpo
   if (verbose) {
     edm::LogPrint("BeamSpotCompatibilityChecker")
         << std::fixed << std::setprecision(6) << std::left << std::setw(10) << " Var" << std::right << std::setw(12)
-        << "DB" << std::setw(14) << "+/-" << std::setw(12) << "File" << std::setw(14) << "+/-" << std::setw(14) << "|delta|"
-        << std::setw(14) << "+/-" << std::setw(12) << "Sig";
+        << "DB" << std::setw(14) << "+/-" << std::setw(12) << "File" << std::setw(14) << "+/-" << std::setw(14)
+        << "|delta|" << std::setw(14) << "+/-" << std::setw(12) << "Sig";
     edm::LogPrint("BeamSpotCompatibilityChecker") << std::string(102, '-');
   }
 
@@ -270,10 +278,10 @@ std::array<float, 6> BeamSpotCompatibilityChecker::compareBS(const reco::BeamSpo
            spotA.BeamWidthY(), spotB.BeamWidthY(), spotA.BeamWidthYError(), spotB.BeamWidthYError(), "witdhY"),
        calcSignificance(spotA.sigmaZ(), spotB.sigmaZ(), spotA.sigmaZ0Error(), spotB.sigmaZ0Error(), "witdthZ")}};
 
-  if(verbose){
+  if (verbose) {
     edm::LogPrint("BeamSpotCompatibilityChecker") << std::string(102, '-');
   }
-  
+
   return ret;
 }
 
@@ -300,9 +308,9 @@ void BeamSpotCompatibilityChecker::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("errorThr", 3.)->setComment("Threshold on the signficances to abort the job");
   desc.addUntracked<bool>("verbose", false)->setComment("verbose output");
   desc.addUntracked<bool>("useTransientRecord", false);
-  desc.add<edm::InputTag>("bsFromEvent", edm::InputTag(""))
-      ->setComment("edm::InputTag on the BeamSpot from the Event (Reference)");
-  desc.add<bool>("dbFromEvent", false)
+  desc.add<edm::InputTag>("bsFromFile", edm::InputTag(""))
+      ->setComment("edm::InputTag on the BeamSpot from the File (Reference)");
+  desc.add<bool>("dbFromEvent", true)
       ->setComment("Switch to take the (target) DB beamspot from the event instead of the EventSetup");
   desc.add<edm::InputTag>("bsFromDB", edm::InputTag(""))
       ->setComment("edm::InputTag on the BeamSpot from the Event (Target)\n To be used only if dbFromEvent is True");

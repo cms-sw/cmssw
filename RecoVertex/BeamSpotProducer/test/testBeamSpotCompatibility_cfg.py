@@ -84,9 +84,9 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, "140X_dataRun3_v4")  ## DO NOT CHANGE (it will change the behaviour of the test)!
 
 process.BeamSpotChecker = cms.EDAnalyzer("BeamSpotCompatibilityChecker",
-                                         bsFromEvent = cms.InputTag("offlineBeamSpot::RECO"),  # source of the event beamspot (in the ALCARECO files)
-                                         #bsFromEvent = cms.InputTag("offlineBeamSpot"),       # source of the event beamspot (in the ALCARECO files)
-                                         bsFromDB = cms.InputTag("offlineBeamSpot"),         # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+                                         bsFromFile = cms.InputTag("offlineBeamSpot::RECO"),  # source of the event beamspot (in the ALCARECO files)
+                                         #bsFromFile = cms.InputTag("offlineBeamSpot"),       # source of the event beamspot (in the ALCARECO files)
+                                         bsFromDB = cms.InputTag("offlineBeamSpot::@currentProcess"), # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
                                          dbFromEvent = cms.bool(options.dbFromEvent),          # take the DB beamspot from the event
                                          warningThr = cms.double(options.warningThreshold),    # significance threshold to emit a warning message
                                          errorThr = cms.double(options.errorThreshold),        # significance threshold to abort the job
