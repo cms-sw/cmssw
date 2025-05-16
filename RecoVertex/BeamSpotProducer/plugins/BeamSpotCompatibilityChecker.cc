@@ -56,14 +56,18 @@ namespace {
       m_combinedError = std::sqrt((m_ErrA * m_ErrA) + (m_ErrB * m_ErrB));
     }
 
+    inline void printBeamSpotComparison(
+        const std::string& varName, double A, double ErrA, double B, double ErrB, double combinedError) {
+      edm::LogPrint("BeamSpotCompatibilityChecker")
+          << std::fixed << std::setprecision(6) << std::left << std::setw(10) << " " + varName << std::right
+          << std::setw(12) << A << std::setw(14) << ErrA << std::setw(12) << B << std::setw(14) << ErrB << std::setw(14)
+          << std::abs(A - B) << std::setw(14) << combinedError << std::setw(12) << std::abs(A - B) / combinedError
+          << std::endl;
+    }
+
     float getSig(const bool verbose) {
       if (verbose) {
-        edm::LogPrint("BeamSpotCompatibilityChecker")
-            << std::fixed << std::setprecision(6)  // Set fixed-point format with 3 decimal places
-            << m_var << ": A= " << std::setw(10) << m_A << " +/- " << std::setw(10) << m_ErrA
-            << "    B= " << std::setw(5) << m_B << " +/- " << std::setw(10) << m_ErrB
-            << "    | delta= " << std::setw(10) << std::abs(m_A - m_B) << " +/- " << std::setw(10) << m_combinedError
-            << "    Sig= " << std::setw(10) << std::abs(m_A - m_B) / m_combinedError << std::endl;
+        printBeamSpotComparison(m_var, m_A, m_ErrA, m_B, m_ErrB, m_combinedError);
       }
       return std::abs(m_A - m_B) / m_combinedError;
     }
@@ -204,34 +208,36 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
   double deltaSigmaZ = evt_Beamsigmaz - db_Beamsigmaz;
 
   if (verbose_) {
-    edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from Event: \n" << spotEvent << std::endl;
-    edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from DB: \n" << spotDB << std::endl;
+    edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from DB:   \n" << spotDB << std::endl;
+    edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from File: \n" << spotEvent << std::endl;
   }
 
   auto significances = compareBS(spotDB, spotEvent, verbose_);
   std::vector<std::string> labels = {"x0", "y0", "z0", "sigmaX", "sigmaY", "sigmaZ"};
 
-  std::string msg = " |delta X0|=" + std::to_string(std::abs(deltaX0) * cmToum) +
-                    " um |delta Y0|=" + std::to_string(std::abs(deltaY0) * cmToum) +
-                    " um |delta Z0|=" + std::to_string(std::abs(deltaZ0) * cmToum) +
-                    " um |delta sigmaX|=" + std::to_string(std::abs(deltaSigmaX) * cmToum) +
-                    " um |delta sigmaY|=" + std::to_string(std::abs(deltaSigmaY) * cmToum) +
-                    " um |delta sigmaZ|=" + std::to_string(std::abs(deltaSigmaZ)) + " cm";
+  std::string msg = " |delta X0|     = " + std::to_string(std::abs(deltaX0) * cmToum) +
+                    " um\n |delta Y0|     = " + std::to_string(std::abs(deltaY0) * cmToum) +
+                    " um\n |delta Z0|     = " + std::to_string(std::abs(deltaZ0)) +
+                    " cm\n |delta sigmaX| = " + std::to_string(std::abs(deltaSigmaX) * cmToum) +
+                    " um\n |delta sigmaY| = " + std::to_string(std::abs(deltaSigmaY) * cmToum) +
+                    " um\n |delta sigmaZ| = " + std::to_string(std::abs(deltaSigmaZ)) + " cm";
+  /*
   if (verbose_) {
     edm::LogPrint("BeamSpotCompatibilityChecker") << msg.c_str() << std::endl;
   }
+  */
 
   for (unsigned int i = 0; i < 3; i++) {
     auto sig = significances.at(i);
     if (sig > throwingThreshold_) {
       edm::LogError("BeamSpotCompatibilityChecker") << msg.c_str() << std::endl;
       throw cms::Exception("BeamSpotCompatibilityChecker")
-          << "[" << __PRETTY_FUNCTION__ << "] \n DB-Event BeamSpot " << labels.at(i) << " distance significance " << sig
-          << ", exceeds the threshold of " << throwingThreshold_ << "!" << std::endl;
+          << "   [" << __PRETTY_FUNCTION__ << "]\n   DB-File BeamSpot " << labels.at(i) << " distance significance is "
+          << sig << ", exceeds the threshold of " << throwingThreshold_ << "!" << std::endl;
     } else if (sig > warningThreshold_) {
       edm::LogWarning("BeamSpotCompatibilityChecker") << msg.c_str() << std::endl;
       edm::LogWarning("BeamSpotCompatibilityChecker")
-          << "[" << __PRETTY_FUNCTION__ << "]  \n  DB-Event BeamSpot " << labels.at(i) << " distance significance "
+          << "   [" << __PRETTY_FUNCTION__ << "]\n   DB-File BeamSpot " << labels.at(i) << " distance significance is "
           << sig << ", exceeds the threshold of " << warningThreshold_ << "!" << std::endl;
     }
   }
@@ -240,6 +246,14 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
 std::array<float, 6> BeamSpotCompatibilityChecker::compareBS(const reco::BeamSpot& spotA,
                                                              const reco::BeamSpot& spotB,
                                                              const bool verbose) {
+  if (verbose) {
+    edm::LogPrint("BeamSpotCompatibilityChecker")
+        << std::fixed << std::setprecision(6) << std::left << std::setw(10) << " Var" << std::right << std::setw(12)
+        << "DB" << std::setw(14) << "+/-" << std::setw(12) << "File" << std::setw(14) << "+/-" << std::setw(14) << "|delta|"
+        << std::setw(14) << "+/-" << std::setw(12) << "Sig";
+    edm::LogPrint("BeamSpotCompatibilityChecker") << std::string(102, '-');
+  }
+
   // Lambda to calculate the significance
   auto calcSignificance = [&](auto a, auto b, auto aErr, auto bErr, auto var) {
     return Significance(a, b, aErr, bErr, var).getSig(verbose);
@@ -256,6 +270,10 @@ std::array<float, 6> BeamSpotCompatibilityChecker::compareBS(const reco::BeamSpo
            spotA.BeamWidthY(), spotB.BeamWidthY(), spotA.BeamWidthYError(), spotB.BeamWidthYError(), "witdhY"),
        calcSignificance(spotA.sigmaZ(), spotB.sigmaZ(), spotA.sigmaZ0Error(), spotB.sigmaZ0Error(), "witdthZ")}};
 
+  if(verbose){
+    edm::LogPrint("BeamSpotCompatibilityChecker") << std::string(102, '-');
+  }
+  
   return ret;
 }
 
