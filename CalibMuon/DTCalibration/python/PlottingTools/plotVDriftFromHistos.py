@@ -6,11 +6,10 @@ def binNumber(station,sector):
     return start + sector
  
 def plot(fileName,sl,run="1",option="HISTOP",draw=True):
-    ROOT.gPad.SetRightMargin(0.05)
-    
+
     slType = sl
     slStr = "SL%d" % slType
-    verbose = True
+    verbose = False
 
     ROOT.TH1.AddDirectory(False)
 
@@ -56,7 +55,7 @@ def plot(fileName,sl,run="1",option="HISTOP",draw=True):
 
         objects = drawHisto(histo,
                             yaxis_title="v_{drift} (#mum/ns)",
-                            ymin=53,ymax=57,option=option,draw=draw)
+                            ymin=52,ymax=57,option=option,draw=draw)
 
     return objects
 
