@@ -201,6 +201,7 @@ from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpo
 process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
     bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
     bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    dbFromEvent = True,
     warningThr = config["validation"].get("bsIncompatibleWarnThresh", 3), # significance threshold to emit a warning message
     errorThr = config["validation"].get("bsIncompatibleErrThresh", 5),    # significance threshold to abort the job
 )
