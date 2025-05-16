@@ -218,8 +218,8 @@ process.noslowpt = cms.EDFilter("FilterOutLowPt",
 ####################################################################
 from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
 process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
-     bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
-     bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+     bsFromFile = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+     bsFromDB = "offlineBeamSpot::@currentProcess", # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
      dbFromEvent = True,
      warningThr = 5, # significance threshold to emit a warning message
      errorThr = 10,  # significance threshold to abort the job
