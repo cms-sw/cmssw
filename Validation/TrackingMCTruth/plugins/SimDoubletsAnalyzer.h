@@ -195,6 +195,8 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topology_getToken_;
   const edm::EDGetTokenT<SimDoubletsCollection> simDoublets_getToken_;
 
+  // number of layers in total
+  int numLayers_;
   // number of OT layers considered for CA extension
   int numLayersOT_;
 
@@ -214,10 +216,8 @@ private:
   int cellMaxDYPred_;
   double cellZ0Cut_;
   double cellPtCut_;
-  double CAThetaCutBarrel_over_ptmin_;
-  double CAThetaCutForward_over_ptmin_;
-  double dcaCutInnerTriplet_;
-  double dcaCutOuterTriplet_;
+  std::vector<double> caThetaCuts_over_ptmin_;
+  std::vector<double> dcaCuts_;
   double hardCurvCut_;
   int minNumDoubletsPerNtuplet_;
 
@@ -265,11 +265,10 @@ private:
   std::vector<CoupledMonitorElement> hVector_DYsize_;
   std::vector<CoupledMonitorElement> hVector_DYPred_;
   // histograms of doublet connections
-  CoupledMonitorElement h_CAThetaCutBarrel_;
-  CoupledMonitorElement h_CAThetaCutForward_;
-  CoupledMonitorElement h_dcaCutInnerTriplet_;
-  CoupledMonitorElement h_dcaCutOuterTriplet_;
   CoupledMonitorElement h_hardCurvCut_;
+  // vectors of historgrams (one per layer)
+  std::vector<CoupledMonitorElement> hVector_CAThetaCut_;
+  std::vector<CoupledMonitorElement> hVector_dcaCut_;
   // histograms of Ntuplets
   MonitorElement* h_aliveNtuplet_numRecHits_;
   MonitorElement* h_aliveNtuplet_firstLayerId_;
