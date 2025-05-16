@@ -152,9 +152,6 @@ from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpaka_cfi import p
     pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
 ))
 
-# (alpaka & stripNtupletFit).toModify(pixelTracks, 
-#         useStripHits = True)
-
 alpaka.toReplaceWith(pixelTracksTask, cms.Task(
     # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the device
     pixelTracksAlpaka,

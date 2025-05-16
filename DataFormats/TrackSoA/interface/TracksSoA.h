@@ -93,9 +93,6 @@ namespace reco {
 
   // state at the beam spot: { phi, tip, 1/pt, cotan(theta), zip }
 
-  // variable of non-literal type 'MapType'
-  // (aka 'Map<Eigen::Matrix<float, 15, 1, 0, 15, 1>, 0, Eigen::InnerStride<Eigen::Dynamic>>')
-  // cannot be defined in a function before C++2b
   template <typename V3, typename M3, typename V2, typename M2>
   ALPAKA_FN_HOST_ACC inline void copyFromCircle(
       TrackSoAView &tracks, V3 const &cp, M3 const &ccov, V2 const &lp, M2 const &lcov, float b, int32_t i) {
