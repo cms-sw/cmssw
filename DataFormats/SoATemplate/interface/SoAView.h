@@ -759,16 +759,18 @@ namespace cms::soa {
                                                                                                                        \
     /* AoS-like accessor (mutable) */                                                                                  \
     struct element {                                                                                                   \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      SOA_HOST_DEVICE SOA_INLINE constexpr                                                                             \
       element(size_type _soa_impl_index, /* Declare parameters */                                                      \
               _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_VALUE_ARG, BOOST_PP_EMPTY(), VALUE_LIST))                    \
           : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEM_MEMBER_INIT, _soa_impl_index, VALUE_LIST) {}                      \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+                                                                                                                       \
+      SOA_HOST_DEVICE SOA_INLINE constexpr                                                                             \
       element& operator=(const element& _soa_impl_other) {                                                             \
         _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_COPY, ~, VALUE_LIST)                                               \
         return *this;                                                                                                  \
       }                                                                                                                \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+                                                                                                                       \
+      SOA_HOST_DEVICE SOA_INLINE constexpr                                                                             \
       element& operator=(const const_element& _soa_impl_other) {                                                       \
         _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_COPY, ~, VALUE_LIST)                                               \
         return *this;                                                                                                  \
@@ -780,7 +782,7 @@ namespace cms::soa {
       _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_MEMBER, ~, VALUE_LIST)                                               \
     };                                                                                                                 \
                                                                                                                        \
-    SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+    SOA_HOST_DEVICE SOA_INLINE constexpr                                                                               \
     element operator[](size_type _soa_impl_index) {                                                                    \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
         if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
@@ -953,7 +955,7 @@ namespace cms::soa {
                                                                                                                        \
     /* AoS-like accessor (const) */                                                                                    \
     struct const_element {                                                                                             \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      SOA_HOST_DEVICE SOA_INLINE constexpr                                                                             \
       const_element(size_type _soa_impl_index, /* Declare parameters */                                                \
                     _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG, const, VALUE_LIST))                   \
           : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEM_MEMBER_INIT, _soa_impl_index, VALUE_LIST) {}                \
@@ -965,7 +967,7 @@ namespace cms::soa {
       _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER, ~, VALUE_LIST)                                         \
     };                                                                                                                 \
                                                                                                                        \
-    SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+    SOA_HOST_DEVICE SOA_INLINE constexpr                                                                               \
     const_element operator[](size_type _soa_impl_index) const {                                                        \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
         if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
