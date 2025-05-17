@@ -12,7 +12,7 @@ from ..sequences.HLTAK4PFJetsReconstruction_cfi import *
 from ..sequences.HLTPFTauHPS_cfi import *
 from ..sequences.HLTHPSDeepTauPFTauSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
-from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTTrackingSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
@@ -56,8 +56,8 @@ HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1 = cms.Path(
     HLTBeginSequence +
     hltPuppiTauTkIsoEle45_22L1TkFilter +
     HLTRawToDigiSequence +
-    HLTHgcalLocalRecoSequence +
     HLTLocalrecoSequence +
+    HLTTICLLocalRecoSequence +
     HLTDoFullUnpackingEgammaEcalL1SeededSequence +
     HLTPFClusteringForEgammaL1SeededSequence +
     HLTHgcalTiclPFClusteringForEgammaL1SeededSequence +
