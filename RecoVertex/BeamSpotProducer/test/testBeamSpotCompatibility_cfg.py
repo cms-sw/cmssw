@@ -86,12 +86,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, "140X_dataRun3_v4")  ## DO NOT 
 process.BeamSpotChecker = cms.EDAnalyzer("BeamSpotCompatibilityChecker",
                                          bsFromFile = cms.InputTag("offlineBeamSpot::RECO"),  # source of the event beamspot (in the ALCARECO files)
                                          #bsFromFile = cms.InputTag("offlineBeamSpot"),       # source of the event beamspot (in the ALCARECO files)
-                                         bsFromDB = cms.InputTag("offlineBeamSpot::@currentProcess"), # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
-                                         dbFromEvent = cms.bool(options.dbFromEvent),          # take the DB beamspot from the event
-                                         warningThr = cms.double(options.warningThreshold),    # significance threshold to emit a warning message
-                                         errorThr = cms.double(options.errorThreshold),        # significance threshold to abort the job
-                                         verbose = cms.untracked.bool(False)                   # verbose mode
+                                         dbFromEvent = cms.bool(options.dbFromEvent),         # take the DB beamspot from the event
+                                         warningThr = cms.double(options.warningThreshold),   # significance threshold to emit a warning message
+                                         errorThr = cms.double(options.errorThreshold),       # significance threshold to abort the job
+                                         verbose = cms.untracked.bool(True)                   # verbose mode
                                          )
+if(options.dbFromEvent):
+    process.BeamSpotChecker.bsFromDB = cms.InputTag("offlineBeamSpot::@currentProcess"), # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
 
 process.p = cms.Path(
     #process.myOfflineBeamSpot*
