@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Sources/interface/InputSourceRunHelper.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -124,6 +125,7 @@ namespace edm {
       }
     }
   }  // namespace
+
   class RNTupleSource : public InputSource {
   public:
     explicit RNTupleSource(ParameterSet const& pset, InputSourceDescription const& desc);
@@ -150,6 +152,11 @@ namespace edm {
         resourceSharedWithDelayedReaderPtr_;  // We do not use propagate_const because the acquirer is itself mutable.
     std::shared_ptr<std::recursive_mutex> mutexSharedWithDelayedReader_;
 
+    edm::propagate_const<std::unique_ptr<InputSourceRunHelperBase>> runHelper_;
+    //needed to make runHelper work
+    std::shared_ptr<RunAuxiliary> lastRunAux_;
+    IndexIntoFile::EntryNumber_t lastRunEntry_ = 0;
+
     std::unique_ptr<RNTupleInputFile> file_;
     std::vector<input::RNTupleDelayedReader> runReaders_;
     std::vector<input::RNTupleDelayedReader> lumiReaders_;
@@ -171,6 +178,7 @@ namespace edm {
 
   RNTupleSource::RNTupleSource(ParameterSet const& pset, InputSourceDescription const& desc)
       : InputSource(pset, desc),
+        runHelper_(makeInputSourceRunHelper(pset)),
         entryForStream_(std::size_t(desc.allocations_->numberOfStreams()), int(0)),
         enableMetrics_(pset.getUntrackedParameter<bool>("enableMetrics")),
         useClusterCache_(pset.getUntrackedParameter<bool>("useClusterCache")) {
@@ -188,7 +196,7 @@ namespace edm {
     if (files.size() > 1) {
       throw edm::Exception(edm::errors::Configuration) << "RNTupleSource presently only support reading 1 file";
     }
-    file_ = std::make_unique<RNTupleInputFile>(files[0], ops);
+    file_ = std::make_unique<RNTupleInputFile>(files[0], ops, runHelper_.get());
 
     BranchIDLists branchIDLists;
     file_->readMeta(productRegistryUpdate(), processHistoryRegistryForUpdate(), branchIDLists);
@@ -251,35 +259,44 @@ namespace edm {
     desc.addOptionalUntracked<bool>("dropDescendantsOfDroppedBranches");
     desc.addOptionalUntracked<bool>("labelRawDataLikeMC");
     desc.addOptionalUntracked<bool>("delayReadingEventProducts");
+    desc.addOptionalUntracked<unsigned int>("firstLuminosityBlock");
     ProductSelectorRules::fillDescription(desc, "inputCommands");
     InputSource::fillDescription(desc);
     //RootPrimaryFileSequence::fillDescription(desc);
-    //RunHelperBase::fillDescription(desc);
+    InputSourceRunHelperBase::fillDescription(desc);
 
     descriptions.addDefault(desc);
   }
 
   void RNTupleSource::skip(int offset) { file_->skipEvents(offset); }
 
+  namespace {
+    InputSource::ItemType entryTypeToItemType(IndexIntoFile::EntryType entryType) {
+      switch (entryType) {
+        case IndexIntoFile::kEnd:
+          return InputSource::ItemType::IsStop;
+        case IndexIntoFile::kRun:
+          return InputSource::ItemType::IsRun;
+        case IndexIntoFile::kLumi:
+          return InputSource::ItemType::IsLumi;
+        case IndexIntoFile::kEvent:
+          return InputSource::ItemType::IsEvent;
+        default:
+          assert(false);
+      }
+      return InputSource::ItemType::IsStop;
+    }
+  }  // namespace
   InputSource::ItemTypeInfo RNTupleSource::getNextItemType() {
     if (not startedFirstFile_) {
       return InputSource::ItemType::IsFile;
     }
-    auto entryType = file_->getNextItemType();
-    switch (entryType) {
-      case IndexIntoFile::kEnd:
-        return InputSource::ItemType::IsStop;
-      case IndexIntoFile::kRun:
-        return InputSource::ItemType::IsRun;
-      case IndexIntoFile::kLumi:
-        return InputSource::ItemType::IsLumi;
-      case IndexIntoFile::kEvent:
-        return InputSource::ItemType::IsEvent;
-      default:
-        assert(false);
-    }
-    assert(false);
-    return InputSource::ItemType::IsStop;
+    RunNumber_t run = IndexIntoFile::invalidRun;
+    LuminosityBlockNumber_t lumi = IndexIntoFile::invalidLumi;
+    EventNumber_t event = IndexIntoFile::invalidEvent;
+
+    auto entryType = file_->getNextItemType(run, lumi, event);
+    return runHelper_->nextItemType(state(), entryTypeToItemType(entryType), run, lumi, event);
   }
 
   void RNTupleSource::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
@@ -293,7 +310,9 @@ namespace edm {
     lumiPrincipal.setShouldWriteLumi(LuminosityBlockPrincipal::kYes);
   }
   std::shared_ptr<LuminosityBlockAuxiliary> RNTupleSource::readLuminosityBlockAuxiliary_() {
-    return file_->readLuminosityBlockAuxiliary();
+    auto aux = file_->readLuminosityBlockAuxiliary();
+    runHelper_->overrideRunNumber(aux->id());
+    return aux;
   }
   void RNTupleSource::readEvent_(EventPrincipal& eventPrincipal) {
     auto aux = file_->readEventAuxiliary();
@@ -319,6 +338,8 @@ namespace edm {
     }
     branchIDListHelper()->fixBranchListIndexes(bli);
 
+    runHelper_->overrideRunNumber(aux->id(), aux->isRealData());
+
     eventPrincipal.fillEventPrincipal(*aux,
                                       history,
                                       std::move(esids),
@@ -328,9 +349,22 @@ namespace edm {
                                       &reader);
   }
 
-  std::shared_ptr<RunAuxiliary> RNTupleSource::readRunAuxiliary_() { return file_->readRunAuxiliary(); }
+  std::shared_ptr<RunAuxiliary> RNTupleSource::readRunAuxiliary_() {
+    if (runHelper_->fakeNewRun()) {
+      runHelper_->overrideRunNumber(lastRunAux_->id());
+      return lastRunAux_;
+    }
+    auto aux = file_->readRunAuxiliary();
+    runHelper_->overrideRunNumber(aux->id());
+    lastRunAux_ = aux;
+    return aux;
+  }
   void RNTupleSource::readRun_(RunPrincipal& runPrincipal) {
-    auto entry = file_->readRun();
+    auto entry = lastRunEntry_;
+    if (not runHelper_->fakeNewRun()) {
+      entry = file_->readRun();
+    }
+    lastRunEntry_ = entry;
     auto& reader = runReaders_[runPrincipal.index()];
     reader.setEntry(entry);
     runPrincipal.fillRunPrincipal(processHistoryRegistry(), &reader);

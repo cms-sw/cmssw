@@ -27,7 +27,7 @@ namespace edm {
 
   class ConfigurationDescriptions;
   class FileCatalogItem;
-  class RunHelperBase;
+  class InputSourceRunHelperBase;
   class RootEmbeddedFileSequence;
   struct VectorInputSourceDescription;
 
@@ -44,7 +44,7 @@ namespace edm {
     unsigned int nStreams() const { return nStreams_; }
     int treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
     ProductSelectorRules const& productSelectorRules() const { return productSelectorRules_; }
-    RunHelperBase* runHelper() { return runHelper_.get(); }
+    InputSourceRunHelperBase* runHelper() { return runHelper_.get(); }
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -67,7 +67,7 @@ namespace edm {
     bool bypassVersionCheck_;
     int const treeMaxVirtualSize_;
     ProductSelectorRules productSelectorRules_;
-    std::unique_ptr<RunHelperBase> runHelper_;
+    std::unique_ptr<InputSourceRunHelperBase> runHelper_;
 
     InputFileCatalog catalog_;
     edm::propagate_const<std::unique_ptr<RootEmbeddedFileSequence>> fileSequence_;

@@ -5,7 +5,7 @@
 #include "DuplicateChecker.h"
 #include "InputFile.h"
 #include "ProvenanceAdaptor.h"
-#include "RunHelper.h"
+#include "FWCore/Sources/interface/InputSourceRunHelper.h"
 
 #include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
@@ -154,7 +154,7 @@ namespace edm {
                      unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
                      InputSource::ProcessingMode processingMode,
-                     RunHelperBase* runHelper,
+                     InputSourceRunHelperBase* runHelper,
                      bool noRunLumiSort,
                      bool noEventSort,
                      ProductSelectorRules const& productSelectorRules,

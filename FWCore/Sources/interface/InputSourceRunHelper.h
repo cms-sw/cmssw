@@ -1,5 +1,5 @@
-#ifndef IOPool_Input_RunHelper_h
-#define IOPool_Input_RunHelper_h
+#ifndef IOPool_Input_InputSourceRunHelper_h
+#define IOPool_Input_InputSourceRunHelper_h
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -12,10 +12,10 @@ namespace edm {
   class IndexIntoFile;
   class ParameterSetDescription;
 
-  class RunHelperBase {
+  class InputSourceRunHelperBase {
   public:
-    explicit RunHelperBase() = default;
-    virtual ~RunHelperBase();
+    explicit InputSourceRunHelperBase() = default;
+    virtual ~InputSourceRunHelperBase();
 
     virtual InputSource::ItemType nextItemType(InputSource::ItemType const& previousItemType,
                                                InputSource::ItemType const& newItemType,
@@ -38,16 +38,16 @@ namespace edm {
     static void fillDescription(ParameterSetDescription& desc);
   };
 
-  class DefaultRunHelper : public RunHelperBase {
+  class DefaultInputSourceRunHelper : public InputSourceRunHelperBase {
   public:
-    explicit DefaultRunHelper() = default;
-    ~DefaultRunHelper() override;
+    explicit DefaultInputSourceRunHelper() = default;
+    ~DefaultInputSourceRunHelper() override;
   };
 
-  class SetRunHelper : public RunHelperBase {
+  class SetInputSourceRunHelper : public InputSourceRunHelperBase {
   public:
-    explicit SetRunHelper(ParameterSet const& pset);
-    ~SetRunHelper() override;
+    explicit SetInputSourceRunHelper(ParameterSet const& pset);
+    ~SetInputSourceRunHelper() override;
 
     void setForcedRunOffset(RunNumber_t firstRun) override;
 
@@ -62,7 +62,7 @@ namespace edm {
     bool firstTime_;
   };
 
-  class SetRunForEachLumiHelper : public RunHelperBase {
+  class SetRunForEachLumiHelper : public InputSourceRunHelperBase {
   public:
     explicit SetRunForEachLumiHelper(ParameterSet const& pset);
     ~SetRunForEachLumiHelper() override;
@@ -89,9 +89,9 @@ namespace edm {
     bool firstTime_;
   };
 
-  class FirstLuminosityBlockForEachRunHelper : public RunHelperBase {
+  class FirstLuminosityBlockForEachInputSourceRunHelper : public InputSourceRunHelperBase {
   public:
-    explicit FirstLuminosityBlockForEachRunHelper(ParameterSet const& pset);
+    explicit FirstLuminosityBlockForEachInputSourceRunHelper(ParameterSet const& pset);
 
     InputSource::ItemType nextItemType(InputSource::ItemType const& previousItemType,
                                        InputSource::ItemType const& newIemType,
@@ -114,7 +114,7 @@ namespace edm {
     RunNumber_t lastUsedRunNumber_;
     bool fakeNewRun_;
   };
-  std::unique_ptr<RunHelperBase> makeRunHelper(ParameterSet const& pset);
+  std::unique_ptr<InputSourceRunHelperBase> makeInputSourceRunHelper(ParameterSet const& pset);
 }  // namespace edm
 
 #endif

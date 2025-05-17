@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "FWCore/Utilities/interface/ExceptionPropagate.h"
+#include "FWCore/Sources/interface/InputSourceRunHelper.h"
 
 #include "ROOT/RNTupleReadOptions.hxx"
 
@@ -70,8 +71,11 @@ namespace {
 }  // namespace
 namespace edm {
 
-  RNTupleInputFile::RNTupleInputFile(std::string const& iName, Options const& iOpt)
+  RNTupleInputFile::RNTupleInputFile(std::string const& iName,
+                                     Options const& iOpt,
+                                     InputSourceRunHelperBase* iRunHelper)
       : file_(open(iName)),
+        runHelper_(iRunHelper),
         runs_(file_.get(), "Runs", "RunAuxiliary", {}),
         lumis_(file_.get(), "LuminosityBlocks", "LuminosityBlockAuxiliary", {}),
         events_(file_.get(), "Events", "EventAuxiliary", options(iOpt)) {}
@@ -183,13 +187,36 @@ namespace edm {
 
     iter_ = index_.begin(IndexIntoFile::firstAppearanceOrder);
     iterEnd_ = index_.end(IndexIntoFile::firstAppearanceOrder);
+
+    runHelper_->setForcedRunOffset(iter_.value() == iterEnd_.value() ? 1 : iter_.value().run());
   }
 
-  IndexIntoFile::EntryType RNTupleInputFile::getNextItemType() {
+  IndexIntoFile::EntryType RNTupleInputFile::getNextItemType(RunNumber_t& run,
+                                                             LuminosityBlockNumber_t& lumi,
+                                                             EventNumber_t& event) {
     if (*iter_ == *iterEnd_) {
       return IndexIntoFile::kEnd;
     }
-    return iter_->getEntryType();
+    auto entryType = iter_->getEntryType();
+    if (entryType == IndexIntoFile::kEnd) {
+      return IndexIntoFile::kEnd;
+    }
+    if (entryType == IndexIntoFile::kRun) {
+      run = iter_->run();
+      runHelper_->checkForNewRun(run, iter_->peekAheadAtLumi());
+      return IndexIntoFile::kRun;
+    }
+    if (entryType == IndexIntoFile::kLumi) {
+      run = iter_->run();
+      lumi = iter_->lumi();
+      return IndexIntoFile::kLumi;
+    }
+    run = iter_->run();
+    lumi = iter_->lumi();
+    //TODO This is not great, why are we forced to read this now?
+    auto eventAux = readEventAuxiliary();
+    event = eventAux->event();
+    return IndexIntoFile::kEvent;
   }
 
   int RNTupleInputFile::skipEvents(int offset) {
