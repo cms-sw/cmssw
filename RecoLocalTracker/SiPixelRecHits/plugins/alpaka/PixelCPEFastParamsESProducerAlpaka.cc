@@ -20,7 +20,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
-#include "RecoLocalTracker/Records/interface/PixelCPEFastParamsRecord.h"
+#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -28,7 +28,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class PixelCPEFastParamsESProducerAlpaka : public ESProducer {
   public:
     PixelCPEFastParamsESProducerAlpaka(edm::ParameterSet const& iConfig);
-    std::unique_ptr<PixelCPEFastParamsHost<TrackerTraits>> produce(const PixelCPEFastParamsRecord& iRecord);
+    std::unique_ptr<PixelCPEFastParamsHost<TrackerTraits>> produce(const TkPixelCPERecord& iRecord);
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -66,7 +66,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   std::unique_ptr<PixelCPEFastParamsHost<TrackerTraits>> PixelCPEFastParamsESProducerAlpaka<TrackerTraits>::produce(
-      const PixelCPEFastParamsRecord& iRecord) {
+      const TkPixelCPERecord& iRecord) {
     // add the new la width object
     const SiPixelLorentzAngle* lorentzAngleWidthProduct = &iRecord.get(lorentzAngleWidthToken_);
 
