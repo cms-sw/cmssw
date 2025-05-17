@@ -18,6 +18,8 @@ namespace edm::storage {
 
       return RemoteFile::get(localfd, temp, (char **)curlopts, mode);
     }
+
+    UseLocalFile usesLocalFile() const override { return UseLocalFile::kYes; }
   };
 }  // namespace edm::storage
 

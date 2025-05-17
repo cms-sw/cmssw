@@ -576,10 +576,12 @@ namespace edm {
               "Specify the file containing the site local config. Empty string will load from default directory.");
       desc.addOptionalUntracked<std::string>("overrideSourceCacheTempDir");
       desc.addOptionalUntracked<double>("overrideSourceCacheMinFree");
-      desc.addOptionalUntracked<std::string>("overrideSourceCacheHintDir");
+      desc.addOptionalUntracked<std::string>("overrideSourceCacheHintDir")
+          ->setComment("Set cache hint. See AdaptorConfig plugin for valid values.");
       desc.addOptionalUntracked<std::string>("overrideSourceCloneCacheHintDir")
           ->setComment("Provide an alternate cache hint for fast cloning.");
-      desc.addOptionalUntracked<std::string>("overrideSourceReadHint");
+      desc.addOptionalUntracked<std::string>("overrideSourceReadHint")
+          ->setComment("Set read hint. See AdaptorConfig plugin for valid values.");
       desc.addOptionalUntracked<std::vector<std::string> >("overrideSourceNativeProtocols");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTTreeCacheSize");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTimeout");
