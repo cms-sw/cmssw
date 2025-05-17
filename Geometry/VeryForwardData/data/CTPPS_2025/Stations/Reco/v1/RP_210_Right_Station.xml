@@ -228,14 +228,16 @@
             <rParent name="RP_210_Right_Station_Vacuum_3_Far"/>
             <rChild name="RP_Box_104:RP_box_primary_vacuum"/>
 	    <rRotation name="RP_210_Right_minus_Sec_Rotation"/>
-            <Translation x="0*mm" y="[RP_Dist_Beam_Cent:RP_210_Right_Det_Dist_4]+[RP_Box:RP_Box_primary_vacuum_y]/2" z="[RP_210_Right_Sec_Vert_z]-[RP_210_Right_Station_Length]/2"/>
+	    <!-- x = y*tan(theta) -->
+	    <Translation x="([RP_Dist_Beam_Cent:RP_210_Right_Det_Dist_4]+[RP_Box:RP_Box_primary_vacuum_y]/2)*tan([RP_210_Right_Sec_Rot_Angle])" y="[RP_Dist_Beam_Cent:RP_210_Right_Det_Dist_4]+[RP_Box:RP_Box_primary_vacuum_y]/2" z="[RP_210_Right_Sec_Vert_z]-[RP_210_Right_Station_Length]/2"/>
         </PosPart>
         <PosPart copyNumber="105">
             <rParent name="RP_210_Right_Station_Vacuum_3_Far"/>
             <rChild name="RP_Box_105:RP_box_primary_vacuum"/>
 	    <!--   <rRotation name="RP_Transformations:RP_z_180_rot"/> -->
 	    <rRotation name="RP_210_Right_180_minus_Sec_Rotation"/>
-            <Translation x="0*mm" y="-[RP_Dist_Beam_Cent:RP_210_Right_Det_Dist_5]-[RP_Box:RP_Box_primary_vacuum_y]/2" z="[RP_210_Right_Sec_Vert_z]-[RP_210_Right_Station_Length]/2"/>
+	    <Translation x="(-[RP_Dist_Beam_Cent:RP_210_Right_Det_Dist_5]-[RP_Box:RP_Box_primary_vacuum_y]/2)*tan([RP_210_Right_Sec_Rot_Angle])" y="-[RP_Dist_Beam_Cent:RP_210_Right_Det_Dist_5]-[RP_Box:RP_Box_primary_vacuum_y]/2" z="[RP_210_Right_Sec_Vert_z]-[RP_210_Right_Station_Length]/2"/>
         </PosPart>
+
     </PosPartSection>
 </DDDefinition>
