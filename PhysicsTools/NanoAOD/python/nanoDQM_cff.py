@@ -5,19 +5,6 @@ from PhysicsTools.NanoAOD.nanoDQM_cfi import nanoDQM
 from PhysicsTools.NanoAOD.nanoDQM_tools_cff import *
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 
-_boostedTauPlotsV10 = cms.VPSet()
-for plot in nanoDQM.vplots.boostedTau.plots:
-    _boostedTauPlotsV10.append(plot)
-_boostedTauPlotsV10.extend([
-    Plot1D('idMVAoldDMdR032017v2', 'idMVAoldDMdR032017v2', 11, -0.5, 10.5, 'IsolationMVArun2017v2DBoldDMdR0p3wLT ID working point (2017v2): int 1 = VVLoose, 2 = VLoose, 3 = Loose, 4 = Medium, 5 = Tight, 6 = VTight, 7 = VVTight'),
-    Plot1D('rawMVAoldDMdR032017v2', 'rawMVAoldDMdR032017v2', 20, -1, 1, 'byIsolationMVArun2017v2DBoldDMdR0p3wLT raw output discriminator (2017v2)')
-])
-
-(run2_nanoAOD_106Xv2).toModify(
-    nanoDQM.vplots.boostedTau,
-    plots = _boostedTauPlotsV10
-)
-
 ## EGamma custom nano
 _Electron_extra_plots = nanoDQM.vplots.Electron.plots.copy()
 _Electron_extra_plots.extend([
