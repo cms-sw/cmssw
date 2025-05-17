@@ -31,21 +31,27 @@
  * L1T firmware
  * --- */
 
-l1tpf::corrector::corrector(const std::string &filename, float emfMax, bool debug, bool emulate)
-    : emfMax_(emfMax), emulate_(emulate) {
+l1tpf::corrector::corrector(
+    const std::string &filename, float emfMax, bool debug, bool emulate, l1tpf::corrector::EmulationMode emulationMode)
+    : emfMax_(emfMax), emulate_(emulate), emulationMode_(emulationMode) {
   if (!filename.empty())
     init_(filename, "", debug, emulate);
 }
 
-l1tpf::corrector::corrector(
-    const std::string &filename, const std::string &directory, float emfMax, bool debug, bool emulate)
-    : emfMax_(emfMax), emulate_(emulate) {
+l1tpf::corrector::corrector(const std::string &filename,
+                            const std::string &directory,
+                            float emfMax,
+                            bool debug,
+                            bool emulate,
+                            l1tpf::corrector::EmulationMode emulationMode)
+    : emfMax_(emfMax), emulate_(emulate), emulationMode_(emulationMode) {
   if (!filename.empty())
     init_(filename, directory, debug, emulate);
 }
 
-l1tpf::corrector::corrector(TDirectory *src, float emfMax, bool debug, bool emulate)
-    : emfMax_(emfMax), emulate_(emulate) {
+l1tpf::corrector::corrector(
+    TDirectory *src, float emfMax, bool debug, bool emulate, l1tpf::corrector::EmulationMode emulationMode)
+    : emfMax_(emfMax), emulate_(emulate), emulationMode_(emulationMode) {
   init_(src, debug);
 }
 
@@ -76,21 +82,30 @@ void l1tpf::corrector::init_(const std::string &filename, const std::string &dir
 #endif
   }
   init_(dir, debug);
-  if (emulate)
-    initEmulation_(dir, debug);
-
   lFile->Close();
 }
 
 void l1tpf::corrector::init_(TDirectory *lFile, bool debug) {
-  TH1 *index = (TH1 *)lFile->Get("INDEX");
+  std::string index_name = "INDEX";
+  TH1 *index = nullptr;
+  if (emulate_) {
+    // Loof for emulated version or fallback to regular one
+    index_name = "EMUL_INDEX";
+    index = (TH1 *)lFile->Get(index_name.c_str());
+    if (!index) {
+      index_name = "INDEX";
+      index = (TH1 *)lFile->Get(index_name.c_str());
+    }
+  } else {
+    index = (TH1 *)lFile->Get(index_name.c_str());
+  }
   if (!index) {
 #ifdef CMSSW_GIT_HASH
     throw cms::Exception("Configuration")
         << "invalid input file " << lFile->GetPath() << ": INDEX histogram not found.\n";
 #else
     std::stringstream ss;
-    ss << "invalid input file " << lFile->GetPath() << ": INDEX histogram nit found.\n";
+    ss << "invalid input file " << lFile->GetPath() << ": INDEX histogram not found.\n";
     throw std::runtime_error(ss.str());
 #endif
   }
@@ -99,6 +114,13 @@ void l1tpf::corrector::init_(TDirectory *lFile, bool debug) {
 
   is2d_ = index_->InheritsFrom("TH2");
 
+  if (emulate_)
+    initEmulation_(lFile, debug);
+  else
+    initGraphs_(lFile, debug);
+}
+
+void l1tpf::corrector::initGraphs_(TDirectory *lFile, bool debug) {
   std::unordered_map<std::string, TGraph *> graphs;
   TKey *key;
   TIter nextkey(lFile->GetListOfKeys());
@@ -144,32 +166,51 @@ void l1tpf::corrector::init_(TDirectory *lFile, bool debug) {
 }
 
 void l1tpf::corrector::initEmulation_(TDirectory *lFile, bool debug) {
+  std::string histo_base_name = "";
+  if (emulationMode_ == l1tpf::corrector::EmulationMode::Correction)
+    histo_base_name = "emul_corr_eta";
+  else if (emulationMode_ == l1tpf::corrector::EmulationMode::CorrectedPt)
+    histo_base_name = "emul_eta";
+
   std::unordered_map<std::string, TH1 *> hists;
   TKey *key;
   TIter nextkey(lFile->GetListOfKeys());
   while ((key = (TKey *)nextkey())) {
-    if (strncmp(key->GetName(), "emul_eta", 8) == 0) {
+    if (strncmp(key->GetName(), histo_base_name.c_str(), histo_base_name.size()) == 0) {
       TH1 *hist = (TH1 *)key->ReadObj();
       hists[key->GetName()] = hist;
     }
   }
 
   neta_ = index_->GetNbinsX();
-  correctionsEmulated_.resize(neta_);
+  nemf_ = (is2d_ ? index_->GetNbinsY() : 1);
+  correctionsEmulated_.resize(neta_ * nemf_);
   std::fill(correctionsEmulated_.begin(), correctionsEmulated_.end(), nullptr);
   char buff[32];
   for (unsigned int ieta = 0; ieta < neta_; ++ieta) {
-    snprintf(buff, 31, "emul_eta_bin%d", ieta + 1);
-    TH1 *hist = hists[buff];
-    if (debug)
+    for (unsigned int iemf = 0; iemf < nemf_; ++iemf) {
+      if (is2d_) {
+        snprintf(buff, 31, "%s_bin%d_emf_bin%d", histo_base_name.c_str(), ieta + 1, iemf + 1);
+      } else {
+        snprintf(buff, 31, "%s_bin%d", histo_base_name.c_str(), ieta + 1);
+      }
+      TH1 *hist = hists[buff];
+      if (debug) {
 #ifdef CMSSW_GIT_HASH
-      edm::LogPrint("corrector") << "   eta bin " << ieta << " hist " << buff << (hist ? " <valid>" : " <nil>") << "\n";
+        edm::LogPrint("corrector") << "   eta bin " << ieta << " emf bin " << iemf << " hist " << buff
+                                   << (hist ? " <valid>" : " <nil>") << "\n";
 #else
-      std::cout << "   eta bin " << ieta << " hist " << buff << (hist ? " <valid>" : " <nil>") << "\n";
+        std::cout << "   eta bin " << ieta << " emf bin " << iemf << " hist " << buff << (hist ? " <valid>" : " <nil>")
+                  << "\n";
 #endif
-    if (hist) {
-      correctionsEmulated_[ieta] = (TH1 *)hist->Clone();
-      correctionsEmulated_[ieta]->SetDirectory(nullptr);
+      }
+      if (hist) {
+        correctionsEmulated_[ieta * nemf_ + iemf] = (TH1 *)hist->Clone();
+        correctionsEmulated_[ieta * nemf_ + iemf]->SetDirectory(nullptr);
+      }
+      if (std::abs(index_->GetXaxis()->GetBinCenter(ieta + 1)) > 3.0) {
+        break;  // no EMF bins beyond eta = 3
+      }
     }
   }
 }
@@ -228,8 +269,9 @@ float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) const {
   if (emfMax_ > 0 && emf > emfMax_)
     return total;  // no correction
   ieta = std::min(std::max<unsigned>(1, index_->GetXaxis()->FindBin(abseta)), neta_) - 1;
+  // FIXME: why eta 3.1 is hardcoded here?
   unsigned int iemf =
-      is2d_ && abseta < 3.0 ? std::min(std::max<unsigned>(1, index_->GetYaxis()->FindBin(emf)), nemf_) - 1 : 0;
+      is2d_ && abseta < 3.1 ? std::min(std::max<unsigned>(1, index_->GetYaxis()->FindBin(emf)), nemf_) - 1 : 0;
   float ptcorr = 0;
   if (!emulate_) {  // not emulation - read from the TGraph as normal
     TGraph *graph = corrections_[ieta * nemf_ + iemf];
@@ -244,9 +286,13 @@ float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) const {
       throw std::runtime_error(ss.str());
 #endif
     }
+    // std::cout << "pt: " << pt << " emPt: " << emPt << " eta: " << eta << std::endl;
+
     ptcorr = std::min<float>(graph->Eval(total), 4 * total);
   } else {  // emulation - read from the pt binned histogram
-    TH1 *hist = correctionsEmulated_[ieta];
+    TH1 *hist = correctionsEmulated_[ieta * nemf_ + iemf];
+    // std::cout << "pt: " << pt << " emPt: " << emPt << " eta: " << eta << std::endl;
+    // std::cout << "ieta: " << ieta << " iemf: " << iemf << std::endl;
     if (!hist) {
 #ifdef CMSSW_GIT_HASH
       throw cms::Exception("RuntimeError")
@@ -259,6 +305,11 @@ float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) const {
     }
     ipt = hist->GetXaxis()->FindBin(pt);
     ptcorr = hist->GetBinContent(ipt);
+    if (emulationMode_ == l1tpf::corrector::EmulationMode::Correction) {
+      ptcorr = ptcorr * pt;
+    }
+    // FIXME: add debug flag
+    // std::cout << "[EMU] ieta: " << ieta << " iemf: " << iemf << " ipt: " << ipt-1 << "corr: " << hist->GetBinContent(ipt) << " ptcorr: " << ptcorr << std::endl;
   }
   return ptcorr;
 }

@@ -15,7 +15,7 @@ namespace l1ct {
 
   class LinPuppiEmulator {
   public:
-    enum class SortAlgo { Insertion, BitonicRUFL, BitonicHLS, Hybrid, FoldedHybrid };
+    enum class SortAlgo { Insertion, BitonicRUFL, BitonicHLS, Hybrid, FoldedHybrid, BitonicVHDL };
 
     LinPuppiEmulator(unsigned int nTrack,
                      unsigned int nIn,

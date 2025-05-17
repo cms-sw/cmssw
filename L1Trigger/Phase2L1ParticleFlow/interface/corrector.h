@@ -14,14 +14,31 @@ namespace l1t {
 namespace l1tpf {
   class corrector {
   public:
-    corrector() : is2d_(false), neta_(0), nemf_(0), emfMax_(-1), emulate_(false) {}
-    corrector(const std::string &iFile, float emfMax = -1, bool debug = false, bool emulate = false);
+    enum class EmulationMode { None, Correction, CorrectedPt };
+
+    corrector()
+        : is2d_(false),
+          neta_(0),
+          nemf_(0),
+          emfMax_(-1),
+          emulate_(false),
+          emulationMode_(l1tpf::corrector::EmulationMode::CorrectedPt) {}
+    corrector(const std::string &iFile,
+              float emfMax = -1,
+              bool debug = false,
+              bool emulate = false,
+              l1tpf::corrector::EmulationMode emulationMode = l1tpf::corrector::EmulationMode::CorrectedPt);
     corrector(const std::string &iFile,
               const std::string &directory,
               float emfMax = -1,
               bool debug = false,
-              bool emulate = false);
-    corrector(TDirectory *src, float emfMax = -1, bool debug = false, bool emulate = false);
+              bool emulate = false,
+              l1tpf::corrector::EmulationMode emulationMode = l1tpf::corrector::EmulationMode::CorrectedPt);
+    corrector(TDirectory *src,
+              float emfMax = -1,
+              bool debug = false,
+              bool emulate = false,
+              l1tpf::corrector::EmulationMode emulationMode = l1tpf::corrector::EmulationMode::CorrectedPt);
     // create an empty corrector (you'll need to fill the graphs later)
     corrector(const TH1 *index, float emfMax = -1);
     ~corrector();
@@ -63,9 +80,12 @@ namespace l1tpf {
     unsigned int neta_, nemf_;
     float emfMax_;
     bool emulate_;
+    bool debug_;
+    l1tpf::corrector::EmulationMode emulationMode_;
 
     void init_(const std::string &iFile, const std::string &directory, bool debug, bool emulate);
     void init_(TDirectory *src, bool debug);
+    void initGraphs_(TDirectory *src, bool debug);
     void initEmulation_(TDirectory *src, bool debug);
   };
 }  // namespace l1tpf

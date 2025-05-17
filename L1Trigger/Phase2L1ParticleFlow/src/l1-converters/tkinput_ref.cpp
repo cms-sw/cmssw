@@ -201,6 +201,8 @@ std::pair<l1ct::TkObjEmu, bool> l1ct::TrackInputEmulator::decodeTrack(ap_uint<96
       ret.hwPhi = vtxPhi - ret.hwDPhi * ret.intCharge();
       ret.hwZ0 = convZ0(z0);
       ret.hwDxy = convDxy(dxy);  //Convert track dxy to sqrt(abs(dxy))
+      ret.hwRedChi2RPhi = tkword(67, 64);
+
     } else {
       ret.hwPt = l1ct::Scales::makePtFromFloat(floatPt(Rinv));
 
@@ -225,13 +227,13 @@ std::pair<l1ct::TkObjEmu, bool> l1ct::TrackInputEmulator::decodeTrack(ap_uint<96
 
       ret.hwZ0 = l1ct::Scales::makeZ0(floatZ0(z0));
       ret.hwDxy = l1ct::Scales::makeDxy(floatDxy(dxy));  //floatDxy performs sqrt(abs(dxy))
+      ret.hwRedChi2RPhi = tkword(67, 64);
     }
 
     if (!slim) {
       ap_uint<7> w_hitPattern = tkword(15, 9);
       ret.hwStubs = countSetBits(w_hitPattern);
       ret.hwRedChi2RZ = tkword(35, 32);
-      ret.hwRedChi2RPhi = tkword(67, 64);
       ret.hwRedChi2Bend = tkword(18, 16);
     }
 
