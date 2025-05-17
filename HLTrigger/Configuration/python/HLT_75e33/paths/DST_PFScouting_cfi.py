@@ -15,6 +15,11 @@ from ..modules.hltParticleFlowClusterECALUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitECALUnseeded_cfi import *
 from ..modules.hltPhase2L3MuonCandidates_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoUnseeded_cfi import *
+from ..modules.hltEgammaClusterShapeUnseeded_cfi import *
+from ..modules.hltEgammaR9Unseeded_cfi import *
+from ..modules.hltEgammaEcalPFClusterIsoUnseeded_cfi import *
+from ..modules.hltEgammaEleGsfTrackIsoUnseeded_cfi import *
+from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
 from ..sequences.HLTAK4PFJetsReconstruction_cfi import *
 from ..sequences.HLTAK4PFPuppiJetsReconstruction_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
@@ -55,6 +60,11 @@ DST_PFScouting = cms.Path(
     + HLTElePixelMatchUnseededSequence
     + HLTGsfElectronUnseededSequence
     + hltEgammaEleL1TrkIsoUnseeded
+    + hltEgammaClusterShapeUnseeded
+    + hltEgammaR9Unseeded
+    + hltEgammaEcalPFClusterIsoUnseeded
+    + hltEgammaEleGsfTrackIsoUnseeded
+    + hltEgammaHcalPFClusterIsoUnseeded
     + hltPhase2L3MuonCandidates
     + HLTPhase2L3MuonGeneralTracksSequence
     + HLTAK4PFJetsReconstruction

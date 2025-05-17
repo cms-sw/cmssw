@@ -2,6 +2,12 @@
 #include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
 typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProducer;
 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+typedef SimpleFlatTableProducer<reco::PFCandidate> SimplePFCandidateFlatTableProducer;
+
+#include "DataFormats/TauReco/interface/PFTau.h"
+typedef SimpleFlatTableProducer<reco::PFTau> SimplePFTauCandidateFlatTableProducer;
+
 typedef SimpleCollectionFlatTableProducer<reco::Candidate> SimpleCandidateCollectionFlatTableProducer;
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -69,6 +75,8 @@ typedef SimpleFlatTableProducer<pat::CompositeCandidate> SimpleCompositeCandidat
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimplePFCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimplePFTauCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCandidateCollectionFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleSuperclusterFlatTableProducer);
