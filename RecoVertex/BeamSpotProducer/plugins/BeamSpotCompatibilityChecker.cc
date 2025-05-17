@@ -100,10 +100,12 @@ private:
   const double throwingThreshold_;
   const bool verbose_;
   const bool dbFromEvent_;
-  const bool useTransientRecord_;
 
   // beamSpot from the file
   const edm::EDGetTokenT<reco::BeamSpot> bsFromFileToken_;
+
+  // switch to decide with record to take
+  bool useTransientRecord_;
 
   // beamSpot from the DB (object record)
   edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsFromDBToken_;
@@ -141,7 +143,6 @@ BeamSpotCompatibilityChecker::BeamSpotCompatibilityChecker(const edm::ParameterS
       throwingThreshold_(iConfig.getParameter<double>("errorThr")),
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       dbFromEvent_(iConfig.getParameter<bool>("dbFromEvent")),
-      useTransientRecord_(iConfig.getUntrackedParameter<bool>("useTransientRecord", false)),
       bsFromFileToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsFromFile"))) {
   //now do what ever initialization is needed
   if (warningThreshold_ > throwingThreshold_) {
@@ -155,6 +156,7 @@ BeamSpotCompatibilityChecker::BeamSpotCompatibilityChecker(const edm::ParameterS
         << "The Database Beam Spot is going to be taken from the File via BeamSpotProducer!";
     dbBSfromEventToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsFromDB"));
   } else {
+    useTransientRecord_ = iConfig.getParameter<bool>("useTransientRecord");
     if (useTransientRecord_) {
       edm::LogInfo("BeamSpotCompatibilityChecker") << "Using BeamSpot from BeamSpotTransientObjectsRcd.";
       bsFromTransientDBToken_ = esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>();
@@ -307,13 +309,27 @@ void BeamSpotCompatibilityChecker::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("warningThr", 1.)->setComment("Threshold on the signficances to emit a warning");
   desc.add<double>("errorThr", 3.)->setComment("Threshold on the signficances to abort the job");
   desc.addUntracked<bool>("verbose", false)->setComment("verbose output");
-  desc.addUntracked<bool>("useTransientRecord", false);
   desc.add<edm::InputTag>("bsFromFile", edm::InputTag(""))
       ->setComment("edm::InputTag on the BeamSpot from the File (Reference)");
-  desc.add<bool>("dbFromEvent", true)
-      ->setComment("Switch to take the (target) DB beamspot from the event instead of the EventSetup");
-  desc.add<edm::InputTag>("bsFromDB", edm::InputTag(""))
-      ->setComment("edm::InputTag on the BeamSpot from the Event (Target)\n To be used only if dbFromEvent is True");
+
+  // Conditional parameters based on dbFromEvent
+  desc.ifValue(
+      edm::ParameterDescription<bool>(
+          "dbFromEvent",
+          true,
+          true,
+          edm::Comment("Switch to take the (target) DB beamspot from the event instead of the EventSetup")),
+      true >> edm::ParameterDescription<edm::InputTag>(
+                  "bsFromDB",
+                  edm::InputTag(""),
+                  true,
+                  edm::Comment("edm::InputTag on the BeamSpot from the Event (Target) (used if dbFromEvent = true")) or
+          false >> edm::ParameterDescription<bool>(
+                       "useTransientRecord",
+                       false,
+                       true,
+                       edm::Comment("Use transient BeamSpot record (used if dbFromEvent = false)")));
+
   descriptions.addWithDefaultLabel(desc);
 }
 
