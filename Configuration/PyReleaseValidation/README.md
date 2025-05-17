@@ -91,6 +91,8 @@ The offsets currently in use are:
 * 0.634: ECAL phase2 Trigger Primitive + component-method based digis
 * 0.635: ECAL phase2 Trigger Primitive + component-method based finely-sampled waveforms
 * 0.91: Track DNN modifier
+* 0.95: Hybrid PU (FullSim signal + FastSim PU) stage2
+* 0.96: Hybrid PU (FullSim signal + FastSim PU) stage1+stage2
 * 0.97: Premixing stage1
 * 0.98: Premixing stage2
 * 0.99: Premixing stage1+stage2
