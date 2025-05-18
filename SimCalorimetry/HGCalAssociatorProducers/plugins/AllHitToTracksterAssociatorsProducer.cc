@@ -89,7 +89,7 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
       edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "Missing Tracksters for one of the hitsTokens.";
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitTo" + tracksterToken.first);
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), tracksterToken.first + "ToHit");
-      return;
+      continue;
     }
 
     auto hitToTracksterMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(rechitManager.size());

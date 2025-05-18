@@ -174,7 +174,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
                                                          std::vector<ticl::Trackster>>>(),
                    simTracksterToken.first + "To" + tracksterToken.first);
       }
-      return;
+      continue;
     }
 
     const auto& recoTracksters = *recoTrackstersHandle;
