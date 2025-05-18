@@ -1974,10 +1974,12 @@ upgradeWFs['NGTScouting'] = UpgradeWorkflow_NGTScouting(
 )
 upgradeWFs['NGTScouting'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation',
+    '--procModifiers': 'ngtScouting',
     '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
     '--eventcontent':'FEVTDEBUGHLT,DQMIO'
 }
 upgradeWFs['NGTScouting'].step3 = {
+    '--procModifiers': 'ngtScouting',
     '-s':'HARVESTING:@hltValidation'
 }
 
