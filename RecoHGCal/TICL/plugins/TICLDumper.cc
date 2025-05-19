@@ -291,11 +291,13 @@ public:
 
         simtrackster_timeBoundary.push_back(trackster_iterator->boundaryTime());
 
-        if (tracksterType_ == TracksterType::SimTracksterCP)
-          simtrackster_pdgID.push_back(caloparticles[trackster_iterator->seedIndex()].pdgId());
-        else if (tracksterType_ == TracksterType::SimTracksterSC)
-          simtrackster_pdgID.push_back(simclusters[trackster_iterator->seedIndex()].pdgId());
-
+        /* SimTracksters can be built from either a CaloParticle or a SimCluster 
+        The SimTrackster "fromCP" collection is built solely from CaloParticle (all CPs that have association to reco in HGCAL)
+        SimTrackster "from SC" is built from either :
+           - a CaloParticle (when the CaloParticle first SimTrack has crossedBoundary=True)
+           - a SimCluster (other cases) 
+        Thus trackster.seedIndex() can point to either CaloParticle or SimCluster collection (check seedID to differentiate)
+        */
         using CaloObjectVariant = std::variant<CaloParticle, SimCluster>;
         CaloObjectVariant caloObj;
         if (trackster_iterator->seedID() == caloparticles_h.id()) {
@@ -304,6 +306,7 @@ public:
           caloObj = simclusters[trackster_iterator->seedIndex()];
         }
 
+        simtrackster_pdgID.push_back(std::visit([](auto&& obj) { return obj.pdgId(); }, caloObj));
         auto const& simTrack = std::visit([](auto&& obj) { return obj.g4Tracks()[0]; }, caloObj);
         auto const& caloPt = std::visit([](auto&& obj) { return obj.pt(); }, caloObj);
         simtrackster_regressed_pt.push_back(caloPt);
