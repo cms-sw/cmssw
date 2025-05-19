@@ -221,19 +221,6 @@ subJetTable = simplePATJetFlatTableProducer.clone(
     )
 )
 
-run3_nanoAOD_pre142X.toModify(
-    subJetTable.variables,
-    btagDeepFlavB = None,
-    btagUParTAK4B = None,
-    UParTAK4RegPtRawCorr = None,
-    UParTAK4RegPtRawCorrNeutrino = None,
-    UParTAK4RegPtRawRes = None,
-    UParTAK4V1RegPtRawCorr = None,
-    UParTAK4V1RegPtRawCorrNeutrino = None,
-    UParTAK4V1RegPtRawRes = None,
-    btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
-)
-
 #jets are not as precise as muons
 fatJetTable.variables.pt.precision=10
 subJetTable.variables.pt.precision=10

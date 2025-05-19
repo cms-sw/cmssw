@@ -188,43 +188,6 @@ _Jet_Run2_plots.extend([
     Plot1D('btagDeepCvB', 'btagDeepCvB', 20, -1, 1, 'DeepCSV c vs b+bb discriminator'),
     Plot1D('btagDeepCvL', 'btagDeepCvL', 20, -1, 1, 'DeepCSV c vs udsg discriminator')
 ])
-_Jet_pre142X_plots = cms.VPSet()
-for plot in nanoDQM.vplots.Jet.plots:
-    if 'puIdDisc' not in plot.name.value():
-        _Jet_pre142X_plots.append(plot)
-
-_SubJet_Run2_plots = cms.VPSet()
-for plot in nanoDQM.vplots.SubJet.plots:
-    _SubJet_Run2_plots.append(plot)
-_SubJet_Run2_plots.extend([
-    Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
-])
-
-_SubJet_pre142X_plots = cms.VPSet()
-for plot in nanoDQM.vplots.SubJet.plots:
-    if ('btagDeepFlavB' not in plot.name.value()) and ('btagUParTAK4B' not in plot.name.value()) and ('UParTAK4Reg' not in plot.name.value()):
-        _SubJet_pre142X_plots.append(plot)
-_SubJet_pre142X_plots.extend([
-    Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
-])
-
-run2_nanoAOD_ANY.toModify(
-    nanoDQM.vplots.FatJet,
-    plots = _FatJet_Run2_plots
-).toModify(
-    nanoDQM.vplots.Jet,
-    plots = _Jet_Run2_plots
-).toModify(
-    nanoDQM.vplots.SubJet,
-    plots = _SubJet_Run2_plots
-)
-run3_nanoAOD_pre142X.toModify(
-    nanoDQM.vplots.Jet,
-    plots = _Jet_pre142X_plots
-).toModify(
-    nanoDQM.vplots.SubJet,
-    plots = _SubJet_pre142X_plots
-)
 
 _Pileup_pre13X_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Pileup.plots:
