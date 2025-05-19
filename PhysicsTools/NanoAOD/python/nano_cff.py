@@ -208,7 +208,7 @@ def nanoAOD_customizeCommon(process):
     process = nanoAOD_activateVID(process)
 
     # recompute Puppi weights and remake AK4, AK8 Puppi jets and PuppiMET
-    run2_nanoAOD_106Xv2.toModify(
+    (run2_nanoAOD_106Xv2 | run3_nanoAOD_pre142X).toModify(
         process, lambda p: RecomputePuppiWeightsALL(p)
     )
 
@@ -255,13 +255,8 @@ def nanoAOD_customizeCommon(process):
         process, lambda p : nanoAOD_addTauIds(p, nanoAOD_tau_switch.idsToAdd.value())
     )
 
-    # Add Unified Tagger for Run 2 era
-    (run2_nanoAOD_106Xv2).toModify(
-        nanoAOD_tau_switch, addPNet = True, addUParTInfo = True
-    )
-    # Add Unified Taggers for Run 3 pre 142X (pre v15) era (Unified taggers 
-    # are already added to slimmedTaus in miniAOD for newer eras)
-    run3_nanoAOD_pre142X.toModify(
+    # Add Unified Tagger for Run2 and Run3 pre-142X
+    (run2_nanoAOD_106Xv2 | run3_nanoAOD_pre142X).toModify(
         nanoAOD_tau_switch, addPNet = True, addUParTInfo = True
     )
     
@@ -273,8 +268,8 @@ def nanoAOD_customizeCommon(process):
 
     # Add Unified Tagger For PUPPI Jets (UParT 2024)
     nanoAOD_addUTagToTaus(process,
-                        addUTagInfo = nanoAOD_tau_switch.addUParTInfo.value(),
-                        usePUPPIjets = True
+                          addUTagInfo = nanoAOD_tau_switch.addUParTInfo.value(),
+                          usePUPPIjets = True
     )
 
     nanoAOD_boostedTau_switch = cms.PSet(

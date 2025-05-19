@@ -116,12 +116,6 @@ jetPuppiTable = simplePATJetFlatTableProducer.clone(
     )
 )
 
-run3_nanoAOD_pre142X.toModify(
-    jetPuppiTable.variables,
-    puIdDisc = None,
-)
-
-
 #jets are not as precise as muons
 jetPuppiTable.variables.pt.precision=10
 
