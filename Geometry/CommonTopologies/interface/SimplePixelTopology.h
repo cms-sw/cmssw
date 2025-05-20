@@ -9,8 +9,8 @@
 namespace pixelTopology {
 
   constexpr auto maxNumberOfLadders = 160;
-  constexpr uint8_t maxLayers = 28;
-  constexpr uint8_t maxPairs = 64;
+  constexpr uint8_t maxLayers = 28 + 3;  // CA Extension to 3 OT barrel layers
+  constexpr uint8_t maxPairs = 64 + 64;  // CA
 
   // TODO
   // Once CUDA is dropped this could be wrapped in #ifdef CA_TRIPLETS_HOLE
@@ -216,7 +216,7 @@ namespace phase2PixelTopology {
   using pixelTopology::phi0p07;
   using pixelTopology::phi0p09;
 
-  constexpr uint32_t numberOfLayers = 28;
+  constexpr uint32_t numberOfLayers = 28 + 3;  // CA Extension with 3 barrel layers from OT
   constexpr int nPairs = 23 + 6 + 14 + 8 + 4;  // include far forward layer pairs
   constexpr uint16_t numberOfModules = 4000;
 
@@ -441,6 +441,10 @@ namespace pixelTopology {
 
     static constexpr inline uint16_t localX(uint16_t px) { return px; }
     static constexpr inline uint16_t localY(uint16_t py) { return py; }
+  };
+
+  struct Phase2OT : public Phase2 {
+    static constexpr uint32_t numberOfLayers = 28 + 3;  //OT Barrel Extension
   };
 
   struct Phase1 {
