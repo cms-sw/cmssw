@@ -260,7 +260,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "pairGraph",
             std::vector<unsigned int>(std::begin(layerPairs),
                                       std::begin(layerPairs) + (pixelTopology::Phase1::nPairsForQuadruplets * 2)))
-        ->setComment("CA graph");
+      ->setComment("CA graph");
     geometryParams
         .add<std::vector<int>>(
             "phiCuts",
@@ -415,6 +415,58 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "Zip).");
   }
 
+  // TODO: fill me properly
+  template <>
+  void CAHitNtupletGenerator<pixelTopology::Phase2OT>::fillPSetDescription(edm::ParameterSetDescription& desc) {
+    fillDescriptionsCommon(desc);
+
+    edm::ParameterSetDescription trackQualityCuts;
+    trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2");
+    trackQualityCuts.add<double>("minPt", 0.5)->setComment("Min pT in GeV");
+    trackQualityCuts.add<double>("maxTip", 0.3)->setComment("Max |Tip| in cm");
+    trackQualityCuts.add<double>("maxZip", 12.)->setComment("Max |Zip|, in cm");
+    desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)
+        ->setComment(
+            "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
+            "Zip).");
+
+    edm::ParameterSetDescription geometryParams;
+    using namespace phase2PixelTopology;
+    // layers params
+    geometryParams
+        .add<std::vector<double>>("caDCACuts",
+                                  std::vector<double>(std::begin(dcaCuts), std::begin(dcaCuts) + numberOfLayers))
+        ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
+    geometryParams
+        .add<std::vector<double>>("caThetaCuts",
+                                  std::vector<double>(std::begin(thetaCuts), std::begin(thetaCuts) + numberOfLayers))
+        ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
+    geometryParams
+        .add<std::vector<int>>("startingPairs", {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16,
+                                                 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32})
+        ->setComment(
+            "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
+    // cells params
+    geometryParams
+        .add<std::vector<int>>("pairGraph",
+                               std::vector<int>(std::begin(layerPairs), std::begin(layerPairs) + (nPairs * 2)))
+        ->setComment("CA graph");
+    geometryParams
+        .add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::begin(phicuts) + nPairs))
+        ->setComment("Cuts in phi for cells");
+    geometryParams.add<std::vector<double>>("minZ", std::vector<double>(std::begin(minz), std::begin(minz) + nPairs))
+        ->setComment("Cuts in min z (on inner hit) for cells");
+    geometryParams.add<std::vector<double>>("maxZ", std::vector<double>(std::begin(maxz), std::begin(maxz) + nPairs))
+        ->setComment("Cuts in max z (on inner hit) for cells");
+    geometryParams.add<std::vector<double>>("maxR", std::vector<double>(std::begin(maxr), std::begin(maxr) + nPairs))
+        ->setComment("Cuts in max r for cells");
+
+    desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
+        ->setComment(
+            "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
+            "Zip).");
+  }
+
   template <typename TrackerTraits>
   reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(HitsOnDevice const& hits_d,
                                                                                   CAGeometryOnDevice const& geometry_d,
@@ -482,5 +534,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template class CAHitNtupletGenerator<pixelTopology::Phase1>;
   template class CAHitNtupletGenerator<pixelTopology::Phase2>;
+  template class CAHitNtupletGenerator<pixelTopology::Phase2OT>;
   template class CAHitNtupletGenerator<pixelTopology::HIonPhase1>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

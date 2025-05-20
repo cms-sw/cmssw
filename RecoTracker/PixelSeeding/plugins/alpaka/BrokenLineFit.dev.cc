@@ -1,6 +1,6 @@
-// #define BROKENLINE_DEBUG
-// #define BL_DUMP_HITS
-// #define GPU_DEBUG
+// MRMR #define BROKENLINE_DEBUG  // MRMR 
+// MRMR #define BL_DUMP_HITS      // MRMR 
+// MRMR #define GPU_DEBUG         // MRMR 
 #include <cstdint>
 
 #include <alpaka/alpaka.hpp>
@@ -137,7 +137,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef BL_DUMP_HITS
           bool dump = foundNtuplets->size(tkid) == 5;
           if (dump) {
-            printf("Track id %d %d Hit %d on %d\nGlobal: hits.col(%d) << %f,%f,%f\n",
+            printf("Track id %d %d Hit %d on %d\nGlobal: hits.col(%d) << %f,%f,r(%f),%f\n",
                    local_idx,
                    tkid,
                    hit,
@@ -145,6 +145,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                    i,
                    hh[hit].xGlobal(),
                    hh[hit].yGlobal(),
+                   sqrt(hh[hit].xGlobal()*hh[hit].xGlobal()+hh[hit].yGlobal()*hh[hit].yGlobal()),
                    hh[hit].zGlobal());
             printf("Error: hits_ge.col(%d) << %e,%e,%e,%e,%e,%e\n", i, ge[0], ge[1], ge[2], ge[3], ge[4], ge[5]);
           }
@@ -154,6 +155,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
         }
         brokenline::fastFit(acc, hits, fast_fit);
+#if 0
+      printf("Fast Fit: %f, %f, %f, %f\n", fast_fit(0), fast_fit(1), fast_fit(2), fast_fit(3));
+#endif
 
 #ifdef BROKENLINE_DEBUG
         // any NaN value should cause the track to be rejected at a later stage
@@ -226,7 +230,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                circle.par(1),
                circle.par(2));
         printf("kernelBLHits line.par(0,1): %d %f,%f\n", tkid, line.par(0), line.par(1));
-        printf("kernelBLHits chi2 cov %f/%f  %e,%e,%e,%e,%e\n",
+        printf("kernelBLHits chi2 cov circle/line %f/%f  %e,%e,%e,%e,%e\n",
                circle.chi2,
                line.chi2,
                circle.cov(0, 0),
@@ -418,6 +422,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template class HelixFit<pixelTopology::Phase1>;
   template class HelixFit<pixelTopology::Phase2>;
+  template class HelixFit<pixelTopology::Phase2OT>;
   template class HelixFit<pixelTopology::HIonPhase1>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
