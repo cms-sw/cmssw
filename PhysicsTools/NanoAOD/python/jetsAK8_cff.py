@@ -132,7 +132,7 @@ fatJetTable = simplePATJetFlatTableProducer.clone(
 ## - To be used in nanoAOD_customizeCommon() in nano_cff.py
 ###############################################################
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addDeepDoubleXV2, addParticleNetMassLegacy, addParticleNet, addGlobalParT, jecPayload):
+def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addDeepDoubleXV2, addParticleNetMassLegacy, addParticleNetLegacy, addParticleNet, addGlobalParT, jecPayload):
     _btagDiscriminators=[]
     if addDeepBTag:
         print("Updating process to run DeepCSV btag to AK8 jets")
@@ -149,6 +149,9 @@ def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubl
         print("Updating process to run ParticleNet joint classification and mass regression")
         from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
         _btagDiscriminators += pfParticleNetFromMiniAODAK8JetTagsAll
+    if addParticleNetLegacy:
+        from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll
+        _btagDiscriminators += _pfParticleNetJetTagsAll
     if addParticleNetMassLegacy:
         from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs
         _btagDiscriminators += _pfParticleNetMassRegressionOutputs
@@ -169,7 +172,7 @@ def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubl
     print("Will recalculate the following discriminators on AK8 jets: "+", ".join(_btagDiscriminators))
     updateJetCollection(
        process,
-       jetSource = cms.InputTag('slimmedJetsAK8'),
+       jetSource=cms.InputTag('slimmedJetsAK8', processName=cms.InputTag.skipCurrentProcess()),
        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
        svSource = cms.InputTag('slimmedSecondaryVertices'),
        rParam = 0.8,
@@ -178,8 +181,12 @@ def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubl
        postfix='AK8WithDeepInfo',
        printWarning = False
     )
-    process.jetCorrFactorsAK8.src="selectedUpdatedPatJetsAK8WithDeepInfo"
-    process.updatedJetsAK8.jetSource="selectedUpdatedPatJetsAK8WithDeepInfo"
+
+    from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+    task = getPatAlgosToolsTask(process)
+    addToProcessAndTask("slimmedJetsAK8", process.selectedUpdatedPatJetsAK8WithDeepInfo.clone(), process, task)
+    del process.selectedUpdatedPatJetsAK8WithDeepInfo
+
     return process
 
 nanoAOD_addDeepInfoAK8_switch = cms.PSet(
@@ -188,6 +195,7 @@ nanoAOD_addDeepInfoAK8_switch = cms.PSet(
     nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
     nanoAOD_addDeepDoubleXV2_switch = cms.untracked.bool(False),
     nanoAOD_addParticleNetMassLegacy_switch = cms.untracked.bool(False),
+    nanoAOD_addParticleNetLegacy_switch = cms.untracked.bool(False),
     nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
     nanoAOD_addGlobalParT_switch = cms.untracked.bool(False),
     jecPayload = cms.untracked.string('AK8PFPuppi')
