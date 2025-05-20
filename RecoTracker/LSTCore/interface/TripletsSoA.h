@@ -9,7 +9,9 @@
 
 namespace lst {
   GENERATE_SOA_LAYOUT(TripletsSoALayout,
-                      SOA_COLUMN(ArrayUx2, segmentIndices),                        // inner and outer segment indices
+                      SOA_COLUMN(ArrayUx2,
+                                 preAllocatedSegmentIndices),  // pre-allocated the theoretical max segment indices
+                      SOA_COLUMN(ArrayUx2, segmentIndices),    // inner and outer segment indices
                       SOA_COLUMN(Params_T3::ArrayU16xLayers, lowerModuleIndices),  // lower module index in each layer
                       SOA_COLUMN(Params_T3::ArrayU8xLayers, logicalLayers),        // layer ID
                       SOA_COLUMN(Params_T3::ArrayUxHits, hitIndices),              // hit indices
@@ -22,8 +24,6 @@ namespace lst {
                       SOA_COLUMN(float, displacedScore),       // DNN confidence score for real (displaced) t3
                       SOA_COLUMN(unsigned int, connectedMax),  // number of outer-triplets that pass the MD-equality cut
 #ifdef CUT_VALUE_DEBUG
-                      SOA_COLUMN(float, zOut),
-                      SOA_COLUMN(float, rtOut),
                       SOA_COLUMN(float, betaInCut),
 #endif
                       SOA_COLUMN(bool, partOfPT5),   // is it used in a pT5
