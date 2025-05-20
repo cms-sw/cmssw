@@ -19,6 +19,9 @@ else:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
   from DQM.Integration.config.inputsource_cfi import options
+  
+  if not options.inputFiles:
+      process.source.streamLabel = "streamLocalTestDataScouting"
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
