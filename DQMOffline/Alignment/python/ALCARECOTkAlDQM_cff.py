@@ -366,6 +366,70 @@ ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
 ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM )
 
 ########################################################
+#############--- TkAlHLTTracks ---######################
+########################################################
+__selectionName = 'TkAlHLTTracks'
+ALCARECOTkAlHLTTracksTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+    # margins and settings
+    TkSizeBin = 71,
+    TkSizeMin = -0.5,
+    TkSizeMax = 70.5,
+    TrackPtMax = 30
+)
+
+ALCARECOTkAlHLTTracksTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    # margins and settings
+    fillInvariantMass = False,
+    TrackPtMax = 30,
+    SumChargeBin = 101,
+    SumChargeMin = -50.5,
+    SumChargeMax = 50.5
+)
+
+ALCARECOTkAlHLTTracksDQM = cms.Sequence( ALCARECOTkAlHLTTracksTrackingDQM  + ALCARECOTkAlHLTTracksTkAlDQM )
+
+########################################################
+#############--- TkAlHLTTracksZMuMu ---################
+########################################################
+__selectionName = 'TkAlHLTTracksZMuMu'
+ALCARECOTkAlHLTTracksZMuMuTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+    # margins and settings
+    TkSizeBin = 71,
+    TkSizeMin = -0.5,
+    TkSizeMax = 70.5,
+    TrackPtMax = 30
+)
+
+ALCARECOTkAlHLTTracksZMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    # margins and settings
+    fillInvariantMass = False,
+    TrackPtMax = 30,
+    SumChargeBin = 101,
+    SumChargeMin = -50.5,
+    SumChargeMax = 50.5
+)
+
+ALCARECOTkAlHLTTracksZMuMuDQM = cms.Sequence( ALCARECOTkAlHLTTracksZMuMuTrackingDQM  + ALCARECOTkAlHLTTracksZMuMuTkAlDQM )
+
+########################################################
 #############---  TkAlKshorts ---#######################
 ########################################################
 __selectionName = 'TkAlKShortTracks'
