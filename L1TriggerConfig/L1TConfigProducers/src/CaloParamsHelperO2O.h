@@ -70,7 +70,9 @@ namespace l1t {
       metHFPhiCalibration = 49,
       layer1HCalFBUpper = 50,
       layer1HCalFBLower = 51,
-      NUM_CALOPARAMNODES = 52
+      layer1ECalZS = 52,
+      layer1HCalZS = 53,
+      NUM_CALOPARAMNODES = 54
     };
 
     CaloParamsHelperO2O() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -550,6 +552,8 @@ namespace l1t {
     // Layer 1 LUT specification
     std::vector<double> layer1ECalScaleFactors() { return pnode_[layer1ECal].dparams_; }
     std::vector<double> layer1HCalScaleFactors() { return pnode_[layer1HCal].dparams_; }
+    std::vector<double> layer1ECalZSFactors() { return pnode_[layer1ECalZS].dparams_; }
+    std::vector<double> layer1HCalZSFactors() { return pnode_[layer1HCalZS].dparams_; }
     std::vector<double> layer1HFScaleFactors() { return pnode_[layer1HF].dparams_; }
     std::vector<unsigned> layer1HCalFBLUTUpper() { return pnode_[layer1HCalFBUpper].uparams_; }
     std::vector<unsigned> layer1HCalFBLUTLower() { return pnode_[layer1HCalFBLower].uparams_; }
@@ -561,6 +565,8 @@ namespace l1t {
     std::vector<unsigned> layer1HFScalePhiBins() { return pnode_[layer1HF].uparams_; }
     void setLayer1ECalScaleFactors(const std::vector<double> params) { pnode_[layer1ECal].dparams_ = params; }
     void setLayer1HCalScaleFactors(const std::vector<double> params) { pnode_[layer1HCal].dparams_ = params; }
+    void setLayer1ECalZSFactors(const std::vector<double> params) { pnode_[layer1ECalZS].dparams_ = params; }
+    void setLayer1HCalZSFactors(const std::vector<double> params) { pnode_[layer1HCalZS].dparams_ = params; }
     void setLayer1HFScaleFactors(const std::vector<double> params) { pnode_[layer1HF].dparams_ = params; }
     void setLayer1HCalFBLUTUpper(const std::vector<unsigned> params) { pnode_[layer1HCalFBUpper].uparams_ = params; }
     void setLayer1HCalFBLUTLower(const std::vector<unsigned> params) { pnode_[layer1HCalFBLower].uparams_ = params; }
