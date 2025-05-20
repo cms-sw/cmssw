@@ -130,7 +130,9 @@ float pat::computeSoftMvaRun3(pat::XGBooster& booster, const pat::Muon& muon) {
   booster.set("nPixels", muon.innerTrack()->hitPattern().numberOfValidPixelHits());
   booster.set("nValidHits", muon.innerTrack()->hitPattern().numberOfValidTrackerHits());
   booster.set("nLostHitsOn", muon.innerTrack()->hitPattern().numberOfLostTrackerHits(reco::HitPattern::TRACK_HITS));
-  booster.set("glbNormChi2", muon.isGlobalMuon() ? muon.globalTrack()->normalizedChi2() : 9999.);
+  booster.set(
+      "glbNormChi2",
+      muon.isGlobalMuon() && !std::isnan(muon.globalTrack()->chi2()) ? muon.globalTrack()->normalizedChi2() : 9999.);
   booster.set("trkLayers", muon.innerTrack()->hitPattern().trackerLayersWithMeasurement());
   booster.set("highPurity", muon.innerTrack()->quality(reco::Track::highPurity));
 
