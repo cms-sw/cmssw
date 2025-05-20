@@ -328,7 +328,7 @@ MC workflows for pp collisions:
 | 16834.0 	| RelValTTbar_14TeV 	| phase1_2025_realistic 	| Run3_2025 	|  	| 
 | 14034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	|  	*FastSim* |  	
 | 14234.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	| *FastSim*  Run3_Flat55To75_PoissonOOTPU 	|  	
-| 2500.201 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3 	| NanoAOD from existing MINI 	|  	
+| 2500.301 	| RelValTTbar_14TeV 	| phase1_2025_realistic 	| Run3_2025 	| NanoAOD from existing MINI 	|  	
 | | | | | | 
 | **Phase2** 	|  	|  	|  	|  	**Geometry** |  	
 | |  	|  	|  	|  	|  	
