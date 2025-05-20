@@ -7,6 +7,8 @@ from ..modules.hltPhase2PixelTracksAndHighPtStepTrackingRegions_cfi import *
 from ..modules.hltPhase2PixelTracksHitDoublets_cfi import *
 from ..modules.hltPhase2PixelTracksHitSeeds_cfi import *
 from ..modules.hltPhase2PixelTracksSeedLayers_cfi import *
+from ..modules.hltPhase2PixelRecHitsExtendedSoA_cfi import *
+from RecoLocalTracker.Phase2TrackerRecHits.phase2OTRecHitsSoAConverter_cfi import *
 
 HLTPhase2PixelTracksSequence = cms.Sequence(hltPhase2PixelTracksSeedLayers+hltPhase2PixelTracksAndHighPtStepTrackingRegions+hltPhase2PixelTracksHitDoublets+hltPhase2PixelTracksHitSeeds+hltPhase2PixelFitterByHelixProjections+hltPhase2PixelTrackFilterByKinematics+hltPhase2PixelTracks)
 from ..sequences.HLTBeamSpotSequence_cfi import HLTBeamSpotSequence
@@ -16,6 +18,8 @@ _HLTPhase2PixelTracksSequence = cms.Sequence(
   +hltPhase2PixelTracksAndHighPtStepTrackingRegions # needed by highPtTripletStep iteration
   +hltPhase2PixelFitterByHelixProjections # needed by tracker muons
   +hltPhase2PixelTrackFilterByKinematics  # needed by tracker muons
+  +phase2OTRecHitsSoAConverter
+  +hltPhase2PixelRecHitsExtendedSoA
   +hltPhase2PixelTracksSoA
   +hltPhase2PixelTracks
 )
