@@ -549,7 +549,7 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
     dz_pt1.IPPull_->Fill(Dz / DzErr);
     dz_pt1.IPErrVsPhi_->Fill(phi, DzErr);
     dz_pt1.IPErrVsEta_->Fill(eta, DzErr);
-    dz_pt1.IPErrVsPt_->Fill(pt, DxyErr);
+    dz_pt1.IPErrVsPt_->Fill(pt, DzErr);
     dz_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
 
     if (pt < 10.)
@@ -585,7 +585,7 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
     dz_pt10.IPPull_->Fill(Dz / DzErr);
     dz_pt10.IPErrVsPhi_->Fill(phi, DzErr);
     dz_pt10.IPErrVsEta_->Fill(eta, DzErr);
-    dz_pt10.IPErrVsPt_->Fill(pt, DxyErr);
+    dz_pt10.IPErrVsPt_->Fill(pt, DzErr);
     dz_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
   }
   ntracks->Fill(float(nTracks));
