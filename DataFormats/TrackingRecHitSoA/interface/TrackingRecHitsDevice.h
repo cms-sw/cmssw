@@ -30,7 +30,14 @@ namespace reco {
     // Constructor which specifies only the SoA size, to be used when copying the results from host to device
     template <typename TQueue>
     explicit TrackingRecHitDevice(TQueue queue, uint32_t nHits, uint32_t nModules)
-        : HitPortableCollectionDevice<TDev>({{int(nHits), int(nModules)}}, queue) {}
+        : HitPortableCollectionDevice<TDev>({{int(nHits), int(nModules + 1)}}, queue) {}
+
+    // N.B. why this + 1? Because the HitModulesLayout is holding the
+    // moduleStart vector that is a cumulative sum of all the hits
+    // in each module. The extra element of the array (the last one)
+    // is used to hold the total number of hits. We are "hiding" this
+    // in the constructor so that one can build the TrackingRecHit class
+    // in a more natural way, just using the number of needed modules.
 
     // Constructor from clusters
     template <typename TQueue>

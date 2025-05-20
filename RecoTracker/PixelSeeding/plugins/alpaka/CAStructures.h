@@ -27,11 +27,11 @@ namespace caStructures {
 
     // Pixel Cluster Cut Params
     float dzdrFact_;  // from dz/dr to "DY"
-    uint16_t minYsizeB1_;
-    uint16_t minYsizeB2_;
-    uint16_t maxDYsize12_;
-    uint16_t maxDYsize_;
-    uint16_t maxDYPred_;
+    int16_t minYsizeB1_;
+    int16_t minYsizeB2_;
+    int16_t maxDYsize12_;
+    int16_t maxDYsize_;
+    int16_t maxDYPred_;
 
     // Flags
     bool useRiemannFit_;

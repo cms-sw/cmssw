@@ -17,7 +17,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
-#include "RecoTracker/PixelSeeding/interface/alpaka/CACoupleSoACollection.h"
+#include "RecoTracker/PixelSeeding/interface/alpaka/CAPairSoACollection.h"
 
 #include "CASimpleCell.h"
 #include "CAPixelDoublets.h"
@@ -237,8 +237,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::device_view<Device, uint32_t> device_nTriplets_;
     cms::alpakatools::device_view<Device, uint32_t> device_nCellTracks_;
 
-    CACoupleSoACollection deviceTriplets_;
-    CACoupleSoACollection deviceTracksCells_;
+    CAPairSoACollection deviceTriplets_;
+    CAPairSoACollection deviceTracksCells_;
 
     // this could be inferred from the above buffers
     // but seems cleaner to have a dedicate variable

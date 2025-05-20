@@ -39,9 +39,9 @@ def customiseForOffline(process):
 
 def customizeHLTfor47611(process):
     """ This customizer
-        - adds the CAGeometry ESProducer;
-        - cleanup the CANtupletAlpaka producers paramters;
-        - add the average sizes paramters to the CANtupletAlpaka producers;
+        - cleans up the CANtupletAlpaka producers paramters;
+        - adds the geometry paramters used to fill the CAGeometry;
+        - adds the average sizes paramters to the CANtupletAlpaka producers;
         - for pp and HIN hlt setups.
     """
  
@@ -62,21 +62,15 @@ def customizeHLTfor47611(process):
             for par in ca_parameters:
                 if hasattr(prod, par):
                     delattr(prod,par)
-            
-            for par in ['minYsizeB2','minYsizeB1']:
-                if hasattr(prod, par):
-                    v = getattr(prod, par)
-                    delattr(prod, par)
-                    setattr(prod, par, cms.uint32(v.value()))
 
             if not hasattr(prod, 'dzdrFact'):
                 setattr(prod, 'dzdrFact', cms.double(8.0 * 0.0285 / 0.015))
             if not hasattr(prod, 'maxDYsize12'):
-                setattr(prod, 'maxDYsize12', cms.uint32(28))
+                setattr(prod, 'maxDYsize12', cms.int32(28))
             if not hasattr(prod, 'maxDYsize'):
-                setattr(prod, 'maxDYsize', cms.uint32(20))
+                setattr(prod, 'maxDYsize', cms.int32(20))
             if not hasattr(prod, 'maxDYPred'):
-                setattr(prod, 'maxDYPred', cms.uint32(20))
+                setattr(prod, 'maxDYPred', cms.int32(20))
             
             if hasattr(prod, 'maxNumberOfDoublets'):
                 v = getattr(prod, 'maxNumberOfDoublets')
@@ -106,9 +100,9 @@ def customizeHLTfor47611(process):
             if not hasattr(prod, 'geometry'):
 
                 geometryPS = cms.PSet(
-                    startingPairs = cms.vint32( [i for i in range(8)] + [13, 14, 15, 16, 17, 18, 19]),
-                    caDCACuts = cms.vdouble( 0.15, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25),
-                    caThetaCuts = cms.vdouble(0.002,0.002,0.002,0.002,0.003,0.003,0.003,0.003,0.003,0.003),
+                    startingPairs = cms.vint32( [i for i in range(8)] + [i for i in range(13,20)]),
+                    caDCACuts = cms.vdouble( [0.0918113099491] + [0.420724617835] * 9),
+                    caThetaCuts = cms.vdouble([0.00123302705499] * 4 + [0.00355691321774] * 6),
                     pairGraph = cms.vint32( 
                         0, 1, 0, 4, 0,
                         7, 1, 2, 1, 4,
@@ -120,10 +114,10 @@ def customizeHLTfor47611(process):
                         4, 6, 7, 9 
                     ),
                     phiCuts = cms.vint32( 
-                        522, 730, 730, 522, 626,
-                        626, 522, 522, 626, 626,
-                        626, 522, 522, 522, 522,
-                        522, 522, 522, 522
+                        965, 1241, 395, 698, 1058,
+                        1211, 348, 782, 1016, 810,
+                        463, 755, 694, 531, 770,
+                        471, 592, 750, 348
                     ),
                     minZ = cms.vdouble(
                         -20., 0., -30., -22., 10., 
@@ -185,38 +179,6 @@ def customizeHLTfor47611(process):
                 )
 
                 setattr(prod, 'geometry', geometryPS)
-
-    return process
-
-def customizeHLTfor47630(process):
-    attributes_to_remove = [
-        'connectionRetrialPeriod',
-        'connectionRetrialTimeOut',
-        'connectionTimeOut',
-        'enableConnectionSharing',
-        'enablePoolAutomaticCleanUp',
-        'enableReadOnlySessionOnUpdateConnection',
-        'idleConnectionCleanupPeriod'
-    ]
-
-    for mod in modules_by_type(process, "PoolDBESSource"):
-        if hasattr(mod, 'DBParameters'):
-            pset = getattr(mod,'DBParameters')
-            for attr in attributes_to_remove:
-                if hasattr(pset, attr):
-                    delattr(mod.DBParameters, attr)
-
-    return process
-
-def customizeHLTfor47306Bug(process, menuType="GRun"):
-
-    vertex_producers = ['alpaka_serial_sync::PixelVertexProducerAlpakaPhase1','PixelVertexProducerAlpakaPhase1@alpaka']
-
-    for producer in vertex_producers:
-        for prod in producers_by_type(process, producer):
-
-            if hasattr(prod,'oneKernel'):
-                setattr(prod, 'oneKernel', cms.bool(False))
 
     return process
 

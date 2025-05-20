@@ -1,9 +1,9 @@
 #ifndef RecoTracker_PixelSeeding_plugins_alpaka_CASimpleCell_h
 #define RecoTracker_PixelSeeding_plugins_alpaka_CASimpleCell_h
 
-//#define GPU_DEBUG
-//#define CA_DEBUG
-
+// #define GPU_DEBUG
+// #define CA_DEBUG
+// #define CA_WARNINGS
 #include <cmath>
 #include <limits>
 
@@ -18,7 +18,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
-#include "RecoTracker/PixelSeeding/interface/CACoupleSoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAPairSoA.h"
 
 #include "CAStructures.h"
 
@@ -62,7 +62,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HitContainer = caStructures::SequentialContainer;
     using CellToCell = caStructures::GenericContainer;
     using CellToTracks = caStructures::GenericContainer;
-    using CACoupleSoAView = caStructures::CACoupleSoAView;
+    using CAPairSoAView = caStructures::CAPairSoAView;
 
     using Quality = ::pixelTrack::Quality;
     static constexpr auto bad = ::pixelTrack::Quality::bad;
@@ -173,7 +173,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                       CellToCell const* __restrict__ cellNeighborsHisto,
                                                       CellToTracks* cellTracksHisto,
                                                       uint32_t* nCellTracks,
-                                                      CACoupleSoAView ct,
+                                                      CAPairSoAView ct,
                                                       cms::alpakatools::AtomicPairCounter& apc,
                                                       Quality* __restrict__ quality,
                                                       TmpTuple& tmpNtuplet,
@@ -257,7 +257,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   auto t_ind = alpaka::atomicAdd(acc, nCellTracks, (uint32_t)1, alpaka::hierarchy::Blocks{});
 
                   if (t_ind >= uint32_t(ct.metadata().size())) {
-#ifdef CA_DEBUG
+#ifdef CA_WARNINGS
                     printf("Warning!!!! Too many cell->tracks associations (limit = %d)!\n", ct.metadata().size());
 #endif
                     alpaka::atomicSub(acc, nCellTracks, (uint32_t)1, alpaka::hierarchy::Blocks{});

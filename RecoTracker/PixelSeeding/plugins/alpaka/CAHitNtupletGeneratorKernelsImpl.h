@@ -2,9 +2,9 @@
 #define RecoTracker_PixelSeeding_plugins_alpaka_CAHitNtupletGeneratorKernelsImpl_h
 
 // #define GPU_DEBUG
-//#define NTUPLE_DEBUG
+// #define NTUPLE_DEBUG
 // #define CA_DEBUG
-
+// #define CA_WARNINGS
 // C++ includes
 #include <cmath>
 #include <cstdint>
@@ -23,7 +23,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "RecoTracker/PixelSeeding/interface/CACoupleSoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAPairSoA.h"
 
 // local includes
 #include "CASimpleCell.h"
@@ -72,7 +72,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         int old = i == 0 ? 0 : mm.moduleStart()[ll.layerStarts()[i - 1]];
         printf("LayerStart %d/%d at module %d: %d - %d\n",
                i,
-               ll.metadata().size(),
+               ll.metadata().size() - 1,
                ll.layerStarts()[i],
                hitsLayerStart[i],
                hitsLayerStart[i] - old);
@@ -116,8 +116,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   uint32_t const *__restrict__ nCells,
                                   uint32_t const *__restrict__ nTrips,
                                   uint32_t const *__restrict__ nCellTracks,
-                                  caStructures::CACoupleSoAConstView cellCell,
-                                  caStructures::CACoupleSoAConstView cellTrack,
+                                  caStructures::CAPairSoAConstView cellCell,
+                                  caStructures::CAPairSoAConstView cellTrack,
                                   int32_t nHits,
                                   uint32_t maxNumberOfDoublets,
                                   AlgoParams const &params,
@@ -357,7 +357,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   cms::alpakatools::AtomicPairCounter *apc,  // just to zero them
                                   HitsConstView hh,
                                   reco::CALayersSoAConstView ll,
-                                  caStructures::CACoupleSoAView cn,
+                                  caStructures::CAPairSoAView cn,
                                   CASimpleCell<TrackerTraits> *cells,
                                   uint32_t const *nCells,
                                   uint32_t *nTrips,
@@ -403,7 +403,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           auto r1 = oc.inner_r(hh);
           auto z1 = oc.inner_z(hh);
           auto dcaCut = ll[oc.innerLayer()].caDCACut();
-
           bool aligned = Cell::areAlignedRZ(r1, z1, ri, zi, ro, zo, params.ptmin_, thetaCut);
           if (aligned && thisCell.dcaCut(hh, oc, dcaCut, params.hardCurvCut_)) {
             auto t_ind = alpaka::atomicAdd(acc, nTrips, (uint32_t)1, alpaka::hierarchy::Blocks{});
@@ -427,7 +426,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 #endif
 
             if (t_ind >= maxTriplets) {
-#ifdef CA_DEBUG
+#ifdef CA_WARNINGS
               printf("Warning!!!! Too many cell->cell (triplets) associations (limit = %d)!\n", cn.metadata().size());
 #endif
               alpaka::atomicSub(acc, nTrips, (uint32_t)1, alpaka::hierarchy::Blocks{});
@@ -452,7 +451,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  caStructures::CACoupleSoAConstView cn,
+                                  caStructures::CAPairSoAConstView cn,
                                   uint32_t const *nElements,
                                   GenericContainer *genericHisto) const {
       for (uint32_t index : cms::alpakatools::uniform_elements(acc, *nElements)) {
@@ -471,7 +470,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   HitContainer *foundNtuplets,
                                   CellToCell const *__restrict__ cellNeighborsHisto,
                                   CellToTrack *cellTracksHisto,
-                                  caStructures::CACoupleSoAView ct,
+                                  caStructures::CAPairSoAView ct,
                                   CASimpleCell<TrackerTraits> *__restrict__ cells,
                                   uint32_t *nCellTracks,
                                   uint32_t const *nTriplets,

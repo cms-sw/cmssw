@@ -17,7 +17,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
-#include "RecoTracker/PixelSeeding/interface/CACoupleSoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAPairSoA.h"
 
 #include "CAStructures.h"
 #include "CASimpleCell.h"

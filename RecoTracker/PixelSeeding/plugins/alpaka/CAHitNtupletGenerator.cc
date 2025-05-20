@@ -42,15 +42,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       //// Pixel Cluster Cuts (@cell level)
       desc.add<double>("dzdrFact", 8.0f * 0.0285f / 0.015f);
-      desc.add<unsigned int>("minYsizeB1", 1)
+      desc.add<int>("minYsizeB1", 1)
           ->setComment("Cut on inner hit cluster size (in Y) for barrel-forward cells. Barrel 1 cut.");
-      desc.add<unsigned int>("minYsizeB2", 1)
+      desc.add<int>("minYsizeB2", 1)
           ->setComment("Cut on inner hit cluster size (in Y) for barrel-forward cells. Barrel 2 cut.");
-      desc.add<unsigned int>("maxDYsize12", 28)
+      desc.add<int>("maxDYsize12", 28)
           ->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Barrel 1-2 cells.");
-      desc.add<unsigned int>("maxDYsize", 20)
+      desc.add<int>("maxDYsize", 20)
           ->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Other barrel cells.");
-      desc.add<unsigned int>("maxDYPred", 20)
+      desc.add<int>("maxDYPred", 20)
           ->setComment("Cut on cluster size differences (in Y) for barrel-forward cells. Barrel-forward cells.");
 
       // Container sizes
@@ -123,11 +123,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // Pixel Cluster Cut Params
           (float)cfg.getParameter<double>("dzdrFact"),
-          (uint16_t)cfg.getParameter<unsigned int>("minYsizeB1"),
-          (uint16_t)cfg.getParameter<unsigned int>("minYsizeB2"),
-          (uint16_t)cfg.getParameter<unsigned int>("maxDYsize12"),
-          (uint16_t)cfg.getParameter<unsigned int>("maxDYsize"),
-          (uint16_t)cfg.getParameter<unsigned int>("maxDYPred"),
+          (int16_t)cfg.getParameter<int>("minYsizeB1"),
+          (int16_t)cfg.getParameter<int>("minYsizeB2"),
+          (int16_t)cfg.getParameter<int>("maxDYsize12"),
+          (int16_t)cfg.getParameter<int>("maxDYsize"),
+          (int16_t)cfg.getParameter<int>("maxDYPred"),
 
           // Flags
           cfg.getParameter<bool>("useRiemannFit"),
@@ -256,17 +256,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
     // cells params
     geometryParams
-        .add<std::vector<int>>("pairGraph",
-                               std::vector<int>(std::begin(layerPairs), std::begin(layerPairs) + (nPairs * 2)))
+        .add<std::vector<int>>(
+            "pairGraph",
+            std::vector<int>(std::begin(layerPairs),
+                             std::begin(layerPairs) + (pixelTopology::Phase1::nPairsForQuadruplets * 2)))
         ->setComment("CA graph");
     geometryParams
-        .add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::begin(phicuts) + nPairs))
+        .add<std::vector<int>>(
+            "phiCuts",
+            std::vector<int>(std::begin(phicuts), std::begin(phicuts) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in phi for cells");
-    geometryParams.add<std::vector<double>>("minZ", std::vector<double>(std::begin(minz), std::begin(minz) + nPairs))
+    geometryParams
+        .add<std::vector<double>>(
+            "minZ",
+            std::vector<double>(std::begin(minz), std::begin(minz) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in min z (on inner hit) for cells");
-    geometryParams.add<std::vector<double>>("maxZ", std::vector<double>(std::begin(maxz), std::begin(maxz) + nPairs))
+    geometryParams
+        .add<std::vector<double>>(
+            "maxZ",
+            std::vector<double>(std::begin(maxz), std::begin(maxz) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in max z (on inner hit) for cells");
-    geometryParams.add<std::vector<double>>("maxR", std::vector<double>(std::begin(maxr), std::begin(maxr) + nPairs))
+    geometryParams
+        .add<std::vector<double>>(
+            "maxR",
+            std::vector<double>(std::begin(maxr), std::begin(maxr) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in max r for cells");
 
     desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
@@ -317,19 +330,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
     // cells params
     geometryParams
-        .add<std::vector<int>>("pairGraph",
-                               std::vector<int>(std::begin(layerPairs), std::begin(layerPairs) + (nPairs * 2)))
+        .add<std::vector<int>>(
+            "pairGraph",
+            std::vector<int>(std::begin(layerPairs),
+                             std::begin(layerPairs) + (pixelTopology::Phase1::nPairsForQuadruplets * 2)))
         ->setComment("CA graph");
     geometryParams
         .add<std::vector<int>>("phiCuts",
                                std::vector<int>(std::begin(phase1HIonPixelTopology::phicuts),
-                                                std::begin(phase1HIonPixelTopology::phicuts) + nPairs))
+                                                std::begin(phase1HIonPixelTopology::phicuts) +
+                                                    pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in phi for cells");
-    geometryParams.add<std::vector<double>>("minZ", std::vector<double>(std::begin(minz), std::begin(minz) + nPairs))
+    geometryParams
+        .add<std::vector<double>>(
+            "minZ",
+            std::vector<double>(std::begin(minz), std::begin(minz) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in min z (on inner hit) for cells");
-    geometryParams.add<std::vector<double>>("maxZ", std::vector<double>(std::begin(maxz), std::begin(maxz) + nPairs))
+    geometryParams
+        .add<std::vector<double>>(
+            "maxZ",
+            std::vector<double>(std::begin(maxz), std::begin(maxz) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in max z (on inner hit) for cells");
-    geometryParams.add<std::vector<double>>("maxR", std::vector<double>(std::begin(maxr), std::begin(maxr) + nPairs))
+    geometryParams
+        .add<std::vector<double>>(
+            "maxR",
+            std::vector<double>(std::begin(maxr), std::begin(maxr) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in max r for cells");
 
     desc.add<edm::ParameterSetDescription>("geometry", geometryParams)

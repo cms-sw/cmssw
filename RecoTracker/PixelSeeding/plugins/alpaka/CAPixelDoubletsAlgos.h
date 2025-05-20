@@ -24,6 +24,7 @@
 
 // #define GPU_DEBUG
 // #define DOUBLETS_DEBUG
+// #define CA_WARNINGS
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   using namespace cms::alpakatools;
@@ -140,8 +141,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       PhiBinner<TrackerTraits> const* phiBinner,
       HitToCell* outerHitHisto,
       AlgoParams const& params) {
-    const bool doClusterCut = params.minYsizeB1_ > 1 or params.minYsizeB2_ > 1;
-    const bool doZSizeCut = params.maxDYsize12_ > 1 or params.maxDYsize_ > 1 or params.maxDYPred_ > 1;
+    const bool doClusterCut = params.minYsizeB1_ > 0 or params.minYsizeB2_ > 0;
+    const bool doZSizeCut = params.maxDYsize12_ > 0 or params.maxDYsize_ > 0 or params.maxDYPred_ > 0;
 
     // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
     const float minRadius = params.cellPtCut_ * 87.78f;
@@ -218,7 +219,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
              offsets[inner + 1]);
 #endif
       // found hit corresponding to our worker thread, now do the job
-      if (hh[i].detectorIndex() > ll.layerStarts()[ll.metadata().size() - 1])  //FIXME use cc
+      if (hh[i].detectorIndex() > ll.layerStarts()[ll.metadata().size() - 1])  //TODO use cc
         continue;                                                              // invalid
 
       /* maybe clever, not effective when zoCut is on
@@ -315,7 +316,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
           auto ind = alpaka::atomicAdd(acc, nCells, (uint32_t)1, alpaka::hierarchy::Blocks{});
           if (ind >= maxNumOfDoublets) {
-#ifdef GPU_DEGBU
+#ifdef CA_WARNINGS
             printf("Warning!!!! Too many cells (limit = %d)!\n", maxNumOfDoublets);
 #endif
             alpaka::atomicSub(acc, nCells, (uint32_t)1, alpaka::hierarchy::Blocks{});

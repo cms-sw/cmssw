@@ -440,6 +440,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     };
 
+    // This is actually not used now and
+    // has been replaced by the multiBlockPrefixScan
     template <typename TrackerTraits>
     struct FillHitsModuleStart {
       ALPAKA_FN_ACC void operator()(Acc1D const &acc, SiPixelClustersSoAView clus_view) const {
@@ -661,10 +663,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // available in the rechit producer without additional points of
         // synchronization/ExternalWork
 
-        // MUST be ONE block
-        // const auto workDivOneBlock = cms::alpakatools::make_workdiv<Acc1D>(1u, 1024u);
-        // alpaka::exec<Acc1D>(queue, workDivOneBlock, FillHitsModuleStart<TrackerTraits>{}, clusters_d->view());
-
         constexpr auto threadsPrefixScan = 1024;
         constexpr auto blocksPrefixScan = (TrackerTraits::numberOfModules + threadsPrefixScan - 1) / threadsPrefixScan;
         auto workDivPrefixScan = cms::alpakatools::make_workdiv<Acc1D>(blocksPrefixScan, threadsPrefixScan);
@@ -764,9 +762,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // available in the rechit producer without additional points of
       // synchronization/ExternalWork
 
-      // MUST be ONE block
-      // const auto workDivOneBlock = cms::alpakatools::make_workdiv<Acc1D>(1u, 1024u);
-      // alpaka::exec<Acc1D>(queue, workDivOneBlock, FillHitsModuleStart<TrackerTraits>{}, clusters_d->view());
       constexpr auto threadsPrefixScan = 1024;
       constexpr auto blocksPrefixScan = (TrackerTraits::numberOfModules + threadsPrefixScan - 1) / threadsPrefixScan;
       auto workDivPrefixScan = cms::alpakatools::make_workdiv<Acc1D>(blocksPrefixScan, threadsPrefixScan);

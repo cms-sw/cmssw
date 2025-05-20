@@ -1,6 +1,8 @@
 #ifndef DataFormats_TrackingRecHitSoA_interface_alpaka_TrackingRecHitsSoACollection_h
 #define DataFormats_TrackingRecHitSoA_interface_alpaka_TrackingRecHitsSoACollection_h
 
+// #define GPU_DEBUG
+
 #include <cstdint>
 #include <type_traits>
 
@@ -74,7 +76,7 @@ namespace cms::alpakatools {
       alpaka::memcpy(queue, deviceData.buffer(), hostData.buffer());
 
 #ifdef GPU_DEBUG
-      printf("TrackingRecHitsSoACollection: I'm copying to host.\n");
+      printf("TrackingRecHitsSoACollection: I'm copying to device.\n");
       alpaka::wait(queue);
       assert(deviceData.nHits() == hostData.nHits());
       assert(deviceData.nModules() == hostData.nModules());

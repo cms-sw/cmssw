@@ -191,9 +191,10 @@ namespace phase1PixelTopology {
   HOST_DEVICE_CONSTANT float maxr[nPairs] = {
       20., 9., 9., 20., 7., 7., 5., 5., 20., 6., 6., 5., 5., 20., 20., 9., 9., 9., 9.};
 
-  HOST_DEVICE_CONSTANT float dcaCuts[numberOfLayers] = {
+  HOST_DEVICE_CONSTANT float dcaCuts[numberOfLayers] = {0.15, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
+
+  HOST_DEVICE_CONSTANT float thetaCuts[numberOfLayers] = {
       0.002, 0.002, 0.002, 0.002, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003};
-  HOST_DEVICE_CONSTANT float thetaCuts[numberOfLayers] = {0.15, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
 
   static constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
                                                               96,
