@@ -1392,10 +1392,6 @@ def RecomputePuppiWeightsMETAK8(proc):
     )
   )
 
-  run3_nanoAOD_pre142X.toModify(btagDiscriminatorsAK8Subjets,
-    names = cms.vstring('pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb')
-  )
-
   from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringFromMiniAOD_cff import setupPuppiAK4AK8METReclustering
   proc = setupPuppiAK4AK8METReclustering(proc, runOnMC=runOnMC, useExistingWeights=False,
     reclusterAK4MET=False, # Already setup to recluster AK4 Puppi jets and PuppiMET

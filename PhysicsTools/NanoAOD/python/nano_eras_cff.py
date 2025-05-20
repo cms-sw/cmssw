@@ -22,6 +22,8 @@ from Configuration.Eras.Modifier_run3_jme_Winter22runsBCDEprompt_cff import run3
 from Configuration.Eras.Modifier_run3_nanoAOD_2025_cff import run3_nanoAOD_2025  # for 2025 data-taking (and possibly also 2026)
 from Configuration.Eras.Modifier_run3_nanoAOD_devel_cff import run3_nanoAOD_devel  # for development beyond v15
 
+from Configuration.ProcessModifiers.nanoAOD_rePuppi_cff import nanoAOD_rePuppi
+
 run2_nanoAOD_ANY = (
     run2_nanoAOD_106Xv2
 )

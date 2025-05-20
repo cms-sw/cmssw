@@ -26,7 +26,6 @@ updatedJetsPuppi = updatedPatJets.clone(
     jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetPuppiCorrFactorsNano") ),
 )
 
-
 #HF shower shape recomputation
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 hfJetPuppiShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJetsPuppi",vertices="offlineSlimmedPrimaryVertices")
@@ -147,14 +146,18 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet,addRobustParTAK4=False,addUnif
     print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
     updateJetCollection(
         process,
-        jetSource = cms.InputTag('slimmedJetsPuppi'),
+        jetSource = cms.InputTag('slimmedJetsPuppi', processName=cms.InputTag.skipCurrentProcess()),
         jetCorrections = ('AK4PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
         btagDiscriminators = _btagDiscriminators,
         postfix = 'PuppiWithDeepInfo',
     )
     process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.jetPuppiCorrFactorsNano.src = "selectedUpdatedPatJetsPuppiWithDeepInfo"
-    process.updatedJetsPuppi.jetSource = "selectedUpdatedPatJetsPuppiWithDeepInfo"
+
+    from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+    task = getPatAlgosToolsTask(process)
+    addToProcessAndTask("slimmedJetsPuppi", process.selectedUpdatedPatJetsPuppiWithDeepInfo.clone(), process, task)
+    del process.selectedUpdatedPatJetsPuppiWithDeepInfo
+
     return process
 
 nanoAOD_addDeepInfoAK4_switch = cms.PSet(
