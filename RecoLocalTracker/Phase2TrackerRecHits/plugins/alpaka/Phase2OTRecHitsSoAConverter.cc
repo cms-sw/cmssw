@@ -15,6 +15,7 @@
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
 
@@ -61,7 +62,7 @@ private:
 Phase2OTRecHitsSoAConverter::Phase2OTRecHitsSoAConverter(const edm::ParameterSet& iConfig)
   : stream::EDProducer<>(iConfig),
   geomToken_(esConsumes()),
-  recHitToken_{consumes(iConfig.getParameter<edm::InputTag>("stripRecHitSource"))},
+  recHitToken_{consumes(iConfig.getParameter<edm::InputTag>("otRecHitSource"))},
   beamSpotToken_(consumes<::reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
   stripSoADevice_{produces()},
   hitModuleStart_{produces()} { }
@@ -70,10 +71,8 @@ Phase2OTRecHitsSoAConverter::Phase2OTRecHitsSoAConverter(const edm::ParameterSet
 void Phase2OTRecHitsSoAConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("pixelRecHitSoASource", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
-  desc.add<edm::InputTag>("stripRecHitSource", edm::InputTag("siStripMatchedRecHits", "matchedRecHit"));
-  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
-  desc.add<std::string>("caGeometry", std::string("caGeometry"));
+  desc.add<edm::InputTag>("otRecHitSource", edm::InputTag("hltSiPhase2RecHits"));
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
 
   descriptions.addWithDefaultLabel(desc);
 
@@ -93,9 +92,11 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
   const int activeStripModules = stripHits.size();
 
   auto isPinPSinOTBarrel = [&](DetId detId) {
+//    std::cout << (int)trackerGeometry->getDetectorType(detId) << " " << (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP) << "\n";
+//    std::cout << (int)detId.subdetId() << " " << (detId.subdetId() == StripSubdetector::TOB) << std::endl;
     // Select only P-hits from the OT barrel
     return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
-      detId.subdetId() == GeomDetEnumerators::P2OTB);
+    detId.subdetId() == StripSubdetector::TOB);
   };
 
   auto const& detUnits = trackerGeometry->detUnits();
@@ -103,34 +104,53 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
   std::set<int> p_modulesInPSInOTBarrel;
   for (auto& detUnit : detUnits)
   {
-    auto detId = detUnit->geographicalId();
+    DetId detId(detUnit->geographicalId());
     detIdToIndex[detUnit->geographicalId()] = detUnit->index();
-    std::cout << detUnit->geographicalId() << " - " << detUnit->index() << std::endl;
-    if (isPinPSinOTBarrel(detId))
+    if (isPinPSinOTBarrel(detId)) {
       p_modulesInPSInOTBarrel.insert(detUnit->index());
+      std::cout << "Inserted " << detUnit->index() << " " << p_modulesInPSInOTBarrel.size() << std::endl;
+    }
+  }
+  // Count the number of P hits in the OT to dimension the SoA
+  int PHitsInOTBarrel = 0;
+  for (const auto& detSet : stripHits) {
+    for (const auto& recHit : detSet) {
+      DetId detId(recHit.geographicalId());
+      if (isPinPSinOTBarrel(detId))
+        PHitsInOTBarrel++;
+    }
   }
   std::cout << "Tot number of p_modulesInPSInOTBarrel: " << p_modulesInPSInOTBarrel.size() << std::endl;
   std::cout << "Number of strip (active) modules:      " << activeStripModules << std::endl;
   std::cout << "Number of strip hits: " << nStripHits << std::endl;
+  std::cout << "Total hits of PinOTBarrel:   " << PHitsInOTBarrel << std::endl;
 
-  HitsHost stripHitsHost(queue, nStripHits, p_modulesInPSInOTBarrel.size());
+  HitsHost stripHitsHost(queue, PHitsInOTBarrel, p_modulesInPSInOTBarrel.size());
   auto& stripHitsModuleView = stripHitsHost.view<::reco::HitModuleSoA>();
 
   int n_hits = 0;
   assert(p_modulesInPSInOTBarrel.size());
-  int offset_modules = *p_modulesInPSInOTBarrel.begin();
   for (const auto& detSet : stripHits) {
 
     auto firstHit = detSet.begin();
     auto detId = firstHit->rawId();
     auto det = trackerGeometry->idToDet(detId);
     auto index = detIdToIndex[detId];
-    stripHitsModuleView[detIdToIndex[detId] - offset_modules].moduleStart() = n_hits;
+    if (isPinPSinOTBarrel(DetId(detId))) {
+      auto it = p_modulesInPSInOTBarrel.find(index);
+      if (it != p_modulesInPSInOTBarrel.end()) {
+        int offset = std::distance(p_modulesInPSInOTBarrel.begin(), it);
+        stripHitsModuleView[offset].moduleStart() = n_hits;
+      } else {
+        assert(0);
+      }
+    }
 
     for (const auto& recHit : detSet) {
 
       // Select only P-hits from the OT barrel
       if (isPinPSinOTBarrel(DetId(detId))) {
+        assert(n_hits < PHitsInOTBarrel);
         stripHitsHost.view()[n_hits].xLocal() = recHit.localPosition().x();
         stripHitsHost.view()[n_hits].yLocal() = recHit.localPosition().y();
         stripHitsHost.view()[n_hits].xerrLocal() = recHit.localPositionError().xx();
@@ -154,6 +174,8 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
       }
     }
   }
+
+  std::cout << "DONE" << std::endl;
 
   auto moduleStartView = cms::alpakatools::make_host_view<uint32_t>(stripHitsModuleView.moduleStart(), stripHitsModuleView.metadata().size());
   HMSstorage moduleStartVec(stripHitsModuleView.metadata().size());
