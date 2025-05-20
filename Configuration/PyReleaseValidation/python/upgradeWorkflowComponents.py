@@ -3004,23 +3004,26 @@ class UpgradeWorkflowHybridPU(UpgradeWorkflow):
                 '--eventcontent': 'FASTPU',
                 '--processName': 'FASTSIM',
             }, d])
-        elif "Digi" in stepName:
+        else:
+            # include modifier in all subsequent steps in case any of them use PU replay
             if "--procModifiers" in stepDict[stepName][k]:
                 stepDict[stepName][k]["--procModifiers"] += ",fastSimPU"
             else:
                 stepDict[stepName][k]["--procModifiers"] = "fastSimPU"
-            stepDict[stepName][k] = merge([digiPremixLocalPileup, stepDict[stepName][k]])
-        elif 'S1S2' in self.suffix:
-            # increment inputs for subsequent steps in combined case
-            # also reset pileup input
-            digiPremixLocalPileupTmp = deepcopy(digiPremixLocalPileup)
-            filein = stepDict[stepName][k].get("--filein","")
-            m = re.search("step(?P<ind>\\d+)", filein)
-            if m:
-                digiPremixLocalPileupTmp['--filein'] = filein.replace(m.group(), "step%d"%(int(m.group("ind"))+1))
-            else:
-                digiPremixLocalPileupTmp.pop('--filein')
-            stepDict[stepName][k] = merge([digiPremixLocalPileupTmp, stepDict[stepName][k]])
+
+            if "Digi" in stepName:
+                stepDict[stepName][k] = merge([digiPremixLocalPileup, stepDict[stepName][k]])
+            elif 'S1S2' in self.suffix:
+                # increment inputs for subsequent steps in combined case
+                # also reset pileup input
+                digiPremixLocalPileupTmp = deepcopy(digiPremixLocalPileup)
+                filein = stepDict[stepName][k].get("--filein","")
+                m = re.search("step(?P<ind>\\d+)", filein)
+                if m:
+                    digiPremixLocalPileupTmp['--filein'] = filein.replace(m.group(), "step%d"%(int(m.group("ind"))+1))
+                else:
+                    digiPremixLocalPileupTmp.pop('--filein')
+                stepDict[stepName][k] = merge([digiPremixLocalPileupTmp, stepDict[stepName][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return (fragment=='TTbar_14TeV' and 'PU' in key and key.startswith('202') and not 'FS' in key)
 # stage1 is just FastSim MinBias, no separate workflow needed
