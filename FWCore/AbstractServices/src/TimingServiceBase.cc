@@ -14,12 +14,14 @@
 
 using namespace edm;
 
-std::chrono::steady_clock::time_point TimingServiceBase::s_jobStartTime;
-
 void TimingServiceBase::jobStarted() {
-  if (0 == s_jobStartTime.time_since_epoch().count()) {
-    s_jobStartTime = std::chrono::steady_clock::now();
-  }
+  //make sure the value has been initialized
+  (void)jobStartTime();
+}
+
+std::chrono::steady_clock::time_point TimingServiceBase::jobStartTime() {
+  static const std::chrono::steady_clock::time_point s_jobStartTime = std::chrono::steady_clock::now();
+  return s_jobStartTime;
 }
 
 //
