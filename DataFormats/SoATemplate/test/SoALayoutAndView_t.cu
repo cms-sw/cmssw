@@ -6,7 +6,6 @@
 #include <Eigen/Dense>
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
@@ -33,7 +32,8 @@ GENERATE_SOA_LAYOUT(SoAHostDeviceLayoutTemplate,
                     SOA_SCALAR(const char*, description),
                     SOA_SCALAR(uint32_t, someNumber))
 
-using SoAHostDeviceLayout = SoAHostDeviceLayoutTemplate<>;
+using SoAHostDeviceLayout =
+    SoAHostDeviceLayoutTemplate<cms::soa::CacheLineSize::NvidiaGPU, cms::soa::AlignmentEnforcement::enforced>;
 using SoAHostDeviceView = SoAHostDeviceLayout::View;
 using SoAHostDeviceRangeCheckingView =
     SoAHostDeviceLayout::ViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::enabled>;
@@ -50,24 +50,22 @@ GENERATE_SOA_LAYOUT(SoADeviceOnlyLayoutTemplate,
 using SoADeviceOnlyLayout = SoADeviceOnlyLayoutTemplate<>;
 using SoADeviceOnlyView = SoADeviceOnlyLayout::View;
 
-// A 1 to 1 view of the store (except for unsupported types).
-GENERATE_SOA_VIEW(SoAFullDeviceConstViewTemplate,
-                  SoAFullDeviceViewTemplate,
-                  SOA_VIEW_LAYOUT_LIST(SOA_VIEW_LAYOUT(SoAHostDeviceLayout, soaHD),
-                                       SOA_VIEW_LAYOUT(SoADeviceOnlyLayout, soaDO)),
-                  SOA_VIEW_VALUE_LIST(SOA_VIEW_VALUE(soaHD, x),
-                                      SOA_VIEW_VALUE(soaHD, y),
-                                      SOA_VIEW_VALUE(soaHD, z),
-                                      SOA_VIEW_VALUE(soaDO, color),
-                                      SOA_VIEW_VALUE(soaDO, value),
-                                      SOA_VIEW_VALUE(soaDO, py),
-                                      SOA_VIEW_VALUE(soaDO, count),
-                                      SOA_VIEW_VALUE(soaDO, anotherCount),
-                                      SOA_VIEW_VALUE(soaHD, description),
-                                      SOA_VIEW_VALUE(soaHD, someNumber)))
+GENERATE_SOA_LAYOUT(SoAFullDeviceLayoutTemplate,
+                    SOA_COLUMN(double, x),
+                    SOA_COLUMN(double, y),
+                    SOA_COLUMN(double, z),
+                    SOA_COLUMN(uint16_t, color),
+                    SOA_COLUMN(double, value),
+                    SOA_COLUMN(double*, py),
+                    SOA_COLUMN(uint32_t, count),
+                    SOA_COLUMN(uint32_t, anotherCount),
+                    SOA_SCALAR(const char*, description),
+                    SOA_SCALAR(uint32_t, someNumber))
 
-using SoAFullDeviceView =
-    SoAFullDeviceViewTemplate<cms::soa::CacheLineSize::NvidiaGPU, cms::soa::AlignmentEnforcement::enforced>;
+using SoAFullDeviceLayout =
+    SoAFullDeviceLayoutTemplate<cms::soa::CacheLineSize::NvidiaGPU, cms::soa::AlignmentEnforcement::enforced>;
+using SoAFullDeviceView = SoAFullDeviceLayout::View;
+using SoAFullDeviceConstView = SoAFullDeviceLayout::ConstView;
 
 // These SoAs validate that the generating macros do not get confused in the special case where there are
 // no columns and only scalar elements in the SoA.
@@ -143,7 +141,19 @@ int main(void) {
   SoAHostDeviceLayout d_soahdLayout(d_buf, numElements);
   SoADeviceOnlyLayout d_soadoLayout(d_soahdLayout.metadata().nextByte(), numElements);
   SoAHostDeviceView d_soahdView(d_soahdLayout);
-  SoAFullDeviceView d_soaFullView(d_soahdLayout, d_soadoLayout);
+  SoADeviceOnlyView d_soadoView(d_soadoLayout);
+  const auto d_soahdRecords = d_soahdView.records();
+  const auto d_soadoRecords = d_soadoView.records();
+  SoAFullDeviceView d_soaFullView(d_soahdRecords.x(),
+                                  d_soahdRecords.y(),
+                                  d_soahdRecords.z(),
+                                  d_soadoRecords.color(),
+                                  d_soadoRecords.value(),
+                                  d_soadoRecords.py(),
+                                  d_soadoRecords.count(),
+                                  d_soadoRecords.anotherCount(),
+                                  d_soahdRecords.description(),
+                                  d_soahdRecords.someNumber());
 
   // Assert column alignments
   assert(0 == reinterpret_cast<uintptr_t>(h_soahd.metadata().addressOf_x()) % decltype(h_soahd)::alignment);
