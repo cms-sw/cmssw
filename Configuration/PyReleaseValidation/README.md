@@ -63,6 +63,7 @@ The offsets currently in use are:
 * 0.7561 HLT phase-2 timing menu Alpaka, trimmed tracking
 * 0.7562 HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
 * 0.757: HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+* 0.758 HLT phase-2 timing menu ticl_barrel variant
 * 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
 * 0.77: HLT phase-2 NGT Scouting menu
 * 0.771: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
@@ -108,6 +109,8 @@ The offsets currently in use are:
 * 0.203: HGCAL TICLv5
 * 0.204: HGCAL superclustering : using Mustache in TICLv5
 * 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICLv5
+* 0.209: TICL barrel : run TICL in HGCAL and barrel calorimeters
+* 0.2091: TICL barrel with CaloParticles from PU enabled
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton
