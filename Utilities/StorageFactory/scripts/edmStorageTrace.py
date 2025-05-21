@@ -295,6 +295,66 @@ def summary(logEntries):
         print_summary(h, q)
 
 ####################
+# Read ranges
+####################
+def printReadRanges(logEntries):
+    for entry in logEntries:
+        if isinstance(entry, Entries.Read):
+            print(f"# id {entry.id}")
+            print(f"{entry.offset} {entry.offset+entry.requested}")
+        elif isinstance(entry, Entries.Readv):
+            print(f"# id {entry.id}")
+            for element in entry.elements:
+                print(f"{element.offset} {element.offset+element.requested}")
+
+####################
+# Map read ranges
+####################
+MapChunk = namedtuple("MapChunk", ("begin", "end", "type", "content"))
+def searchMapChunk(chunks, offset, size):
+    if len(chunks) == 0:
+        return []
+
+    offset_end = offset+size
+    import bisect
+    i = bisect.bisect_left(chunks, MapChunk(offset, 0, "", ""))
+    ret = []
+    if i > 0 and offset < chunks[i-1].end:
+        ret.append(i-1)
+    while i < len(chunks) and chunks[i].begin < offset_end:
+        ret.append(i)
+        i += 1
+
+    return ret
+
+def printMapReadRanges(logEntries, mapFileName):
+    chunks = []
+    with open(mapFileName) as f:
+        import re
+        # Extract the offset (At:...), size (N=...), type, and content
+        # (with name and possibly title) of an element in
+        # TFile::Map("extended") printout
+        line_re = re.compile("At:(?P<offset>\d+)\s*N=(?P<size>\d+)\s*(?P<type>\w+).*(?P<content>name:.*$)")
+        for line in f:
+            m = line_re.search(line)
+            if m:
+                offset = int(m.group("offset"))
+                chunks.append(MapChunk(offset, offset+int(m.group("size")), m.group("type"), m.group("content")))
+
+    for entry in logEntries:
+        if isinstance(entry, Entries.Read):
+            print(f"# id {entry.id}")
+            for i in searchMapChunk(chunks, entry.offset, entry.requested):
+                ch = chunks[i]
+                print(f"{ch.begin} {ch.end} {ch.type} {ch.content}")
+        elif isinstance(entry, Entries.Readv):
+            print(f"# id {entry.id}")
+            for element in entry.elements:
+                for i in searchMapChunk(chunks, element.offset, element.requested):
+                    ch = chunks[i]
+                    print(f"{ch.begin} {ch.end} {ch.type} {ch.content}")
+
+####################
 # Main function
 ####################
 def main(logEntries, args):
@@ -307,6 +367,10 @@ def main(logEntries, args):
     if args.readOverlaps:
         analyzeReadOverlaps(logEntries, args)
         print()
+    if args.readRanges:
+        printReadRanges(logEntries)
+    if args.mapReadRanges:
+        printMapReadRanges(logEntries, args.mapReadRanges)
     pass
 
 ####################
@@ -427,6 +491,30 @@ class TestHelper(unittest.TestCase):
         # Value 2 here is debatable
         self.assertEqual(result.overlap_count, 2)
 
+    def test_searchMapChunk(self):
+        self.assertEqual(searchMapChunk([], 0, 10), [])
+
+        chunks = []
+        for i in range(0, 100):
+            chunks.append(MapChunk(i*100, i*100+50, "", i))
+        self.assertEqual(searchMapChunk(chunks, 0, 10), [0])
+        self.assertEqual(searchMapChunk(chunks, 0, 50), [0])
+        self.assertEqual(searchMapChunk(chunks, 0, 100), [0])
+        self.assertEqual(searchMapChunk(chunks, 10, 50), [0])
+        self.assertEqual(searchMapChunk(chunks, 10, 90), [0])
+        self.assertEqual(searchMapChunk(chunks, 9900, 50), [99])
+        self.assertEqual(searchMapChunk(chunks, 9900, 100), [99])
+        self.assertEqual(searchMapChunk(chunks, 9900, 100), [99])
+
+        self.assertEqual(searchMapChunk(chunks, -10, 5), [])
+        self.assertEqual(searchMapChunk(chunks, 50, 40), [])
+        self.assertEqual(searchMapChunk(chunks, 50, 50), [])
+        self.assertEqual(searchMapChunk(chunks, 9950, 10), [])
+
+        self.assertEqual(searchMapChunk(chunks, 0, 200), [0, 1])
+        self.assertEqual(searchMapChunk(chunks, 49, 101-49), [0, 1])
+        self.assertEqual(searchMapChunk(chunks, 149, 301-149), [1, 2, 3])
+
 def test():
     import sys
     unittest.main(argv=sys.argv[:1])
@@ -453,12 +541,16 @@ if __name__ == "__main__":
     parser.add_argument("--summary", action="store_true", help="Print high-level summary of storage operations")
     parser.add_argument("--readOrder", action="store_true", help="Analyze ordering of reads")
     parser.add_argument("--readOverlaps", action="store_true", help="Analyze overlaps of reads")
+    parser.add_argument("--readRanges", action="store_true", help="Print offset ranges of each read element")
+    parser.add_argument("--mapReadRanges", type=str, default=None, help="Like --readRanges, but uses the output of TFile::Map() to map the file regions to TFile content. The argument should be a file containing the output of 'edmFileUtil --map'.")
     parser.add_argument("--test", action="store_true", help="Run internal tests")
 
     args = parser.parse_args()
     if args.test:
         test()
     else:
+        if args.readRanges and args.mapReadRanges:
+            parser.error("Only one of --readRanges and --mapReadRanges can be given")
         if args.filename is None:
             parser.error("filename argument is missing")
         with open(args.filename) as f:
