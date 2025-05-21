@@ -110,7 +110,7 @@ private:
   // time to time a value of the beam momentum slightly below the nominal values,
   // even during stable collisions: in this way, we provide a correct information
   // at the cost of not requiring the exact momentum being measured by BST.
-  const static int MOMENTUM_OFFSET = 1;
+  const static int MOMENTUM_OFFSET = 2;
 
   // Process parameters
   std::string subsystemname_;
