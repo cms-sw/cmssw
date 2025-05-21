@@ -1881,23 +1881,6 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 //! \param id - (input) index of the template to use
 //! \param cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014)
 //! \param cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
-//! \param locBz - (input) the sign of this quantity is used to determine whether to flip cot(beta)<0 quantities from cot(beta)>0 (FPix only)
-//!                    for Phase 0 FPix IP-related tracks, locBz < 0 for cot(beta) > 0 and locBz > 0 for cot(beta) < 0
-//!                    for Phase 1 FPix IP-related tracks, see next comment
-//! \param locBx - (input) the sign of this quantity is used to determine whether to flip cot(alpha/beta)<0 quantities from cot(alpha/beta)>0 (FPix only)
-//!                    for Phase 1 FPix IP-related tracks, locBx/locBz > 0 for cot(alpha) > 0 and locBx/locBz < 0 for cot(alpha) < 0
-//!                    for Phase 1 FPix IP-related tracks, locBx > 0 for cot(beta) > 0 and locBx < 0 for cot(beta) < 0
-// ************************************************************************************************************
-bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx) {
-  // Interpolate for a new set of track angles, but without y Gaussian Parameter interpolation to be used with goodEdge reconstruction algorithm
-  return SiPixelTemplate::interpolate(id, cotalpha, cotbeta, locBz, locBx, false);
-}
-
-// ************************************************************************************************************
-//! Interpolate input alpha and beta angles to produce a working template for each individual hit.
-//! \param id - (input) index of the template to use
-//! \param cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014)
-//! \param cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
 //! Use this for Phase 1, IP related hits
 // ************************************************************************************************************
 bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta) {
@@ -1912,7 +1895,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta) {
   if (cotalpha < 0.f) {
     locBz = -locBx;
   }
-  return SiPixelTemplate::interpolate(id, cotalpha, cotbeta, locBz, locBx, false);
+  return SiPixelTemplate::interpolate(id, cotalpha, cotbeta, locBz, locBx);
 }
 
 // ************************************************************************************************************
@@ -1927,7 +1910,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 
   // Local variables
   float locBx = 1.f;
-  return SiPixelTemplate::interpolate(id, cotalpha, cotbeta, locBz, locBx, false);
+  return SiPixelTemplate::interpolate(id, cotalpha, cotbeta, locBz, locBx);
 }
 
 // *************************************************************************************************************************************

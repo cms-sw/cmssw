@@ -672,7 +672,7 @@ upgradeWFs['siPixelGoodEdgeAlgo'] = UpgradeWorkflow_siPixelGoodEdgeAlgo(
         'RecoNanoFakeHLT',
     ],
     suffix = '_siPixelGoodEdgeAlgo',
-    offset = 0.181,
+    offset = 0.186,
 )
 
 #Workflow to enable displacedRegionalStep tracking iteration

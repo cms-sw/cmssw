@@ -116,3 +116,4 @@ The offsets currently in use are:
 * 0.113: Activate OuterTracker inefficiency (PS-p: bias rails inefficiency; PS-s and SS: 5% bad strips)
 * 0.114: Activate OuterTracker inefficiency (PS-p: bias rails inefficiency; PS-s and SS: 10% bad strips)
 * 0.141: Activate emulation of the signal shape of the InnerTracker FE chip (CROC)
+* 0.186: Run-3 goodEdgeAlgo CPE
