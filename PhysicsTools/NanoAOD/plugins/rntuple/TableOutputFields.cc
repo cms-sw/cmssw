@@ -175,24 +175,19 @@ void TableCollection::createFields(const edm::EventForOutput& event, RNTupleMode
 }
 
 void TableCollection::fill(const edm::EventForOutput& event) {
-  // edm::Handle<nanoaod::FlatTable> handle;
-  // event.getByToken(m_main.getToken(), handle);
-  // const auto& main_table = *handle;
-  // auto table_size = main_table.size();
-  // for (std::size_t i = 0; i < table_size; i++) {
-  //   m_main.fillEntry(main_table, i);
-  //   for (auto& ext : m_extensions) {
-  //     edm::Handle<nanoaod::FlatTable> handle;
-  //     event.getByToken(ext.getToken(), handle);
-  //     const auto& ext_table = *handle;
-  //     if (ext_table.size() != table_size) {
-  //       throw cms::Exception("LogicError",
-  //                            "Mismatch in number of entries between extension and main table for " + m_collectionName);
-  //     }
-  //     ext.fillEntry(ext_table, i);
-  //   }
-  //   //m_collection->Fill();
-  // }
+  std::vector<edm::Handle<nanoaod::FlatTable>> tables;
+
+  auto main_table = m_main.getTable(event);
+  std::string field_desc = main_table->doc();
+
+  tables.emplace_back(main_table);
+
+  for (auto& extension : m_extensions) {
+    auto ext_table = extension.getTable(event);
+    tables.emplace_back(ext_table);
+  }
+
+  m_collection->fill(tables);
 }
 
 void TableCollection::print() const {

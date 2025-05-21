@@ -37,6 +37,45 @@ std::string flatTableColumnTypeToString(nanoaod::FlatTable::ColumnType type) {
   }
 }
 
+std::tuple<const unsigned char*, unsigned int> getColStartAndTypeSize(edm::Handle<nanoaod::FlatTable>& table,
+                                                                      unsigned int colIdx) {
+  const unsigned char* col_start;
+  switch (table->columnType(colIdx)) {
+    case nanoaod::FlatTable::ColumnType::UInt8:
+      col_start = reinterpret_cast<const unsigned char*>(table->columnData<uint8_t>(colIdx).data());
+      return std::make_tuple(col_start, 1);
+    case nanoaod::FlatTable::ColumnType::Int16:
+      col_start = reinterpret_cast<const unsigned char*>(table->columnData<int16_t>(colIdx).data());
+      return std::make_tuple(col_start, 2);
+    case nanoaod::FlatTable::ColumnType::UInt16:
+      col_start = reinterpret_cast<const unsigned char*>(table->columnData<uint16_t>(colIdx).data());
+      return std::make_tuple(col_start, 2);
+    case nanoaod::FlatTable::ColumnType::Int32:
+      col_start = reinterpret_cast<const unsigned char*>(table->columnData<int32_t>(colIdx).data());
+      return std::make_tuple(col_start, 4);
+    case nanoaod::FlatTable::ColumnType::UInt32:
+      col_start = reinterpret_cast<const unsigned char*>(table->columnData<uint32_t>(colIdx).data());
+      return std::make_tuple(col_start, 4);
+    case nanoaod::FlatTable::ColumnType::Int64:
+      col_start = reinterpret_cast<const unsigned char*>(table->columnData<int64_t>(colIdx).data());
+      return std::make_tuple(col_start, 8);
+    case nanoaod::FlatTable::ColumnType::UInt64:
+      col_start = reinterpret_cast<const unsigned char*>(table->columnData<uint64_t>(colIdx).data());
+      return std::make_tuple(col_start, 8);
+    case nanoaod::FlatTable::ColumnType::Bool:
+      col_start = reinterpret_cast<const unsigned char*>(table->columnData<bool>(colIdx).data());
+      return std::make_tuple(col_start, 1);
+    case nanoaod::FlatTable::ColumnType::Float:
+      col_start = reinterpret_cast<const unsigned char*>(table->columnData<float>(colIdx).data());
+      return std::make_tuple(col_start, 4);
+    case nanoaod::FlatTable::ColumnType::Double:
+      col_start = reinterpret_cast<const unsigned char*>(table->columnData<double>(colIdx).data());
+      return std::make_tuple(col_start, 8);
+    default:
+      throw cms::Exception("LogicError", "Unsupported type");
+  }
+}
+
 RNTupleCollection::RNTupleCollection(const std::string& name,
                                      const std::string& desc,
                                      std::vector<edm::Handle<nanoaod::FlatTable>>& tables,
@@ -62,4 +101,26 @@ RNTupleCollection::RNTupleCollection(const std::string& name,
   default_entry.BindRawPtr<void>(m_name, &m_buffer);
 }
 
-void RNTupleCollection::bind_entry(REntry& entry) { entry.BindRawPtr<void>(m_name, &m_buffer); }
+void RNTupleCollection::fill(std::vector<edm::Handle<nanoaod::FlatTable>>& tables) {
+  unsigned int col_idx = 0;
+  size_t col_size = tables.empty() ? 0 : tables[0]->size();
+
+  m_buffer.resize(m_record_size * col_size);
+
+  for (auto& table : tables) {
+    if (table->size() != col_size) {
+      throw cms::Exception("LogicError",
+                           "Mismatch in number of entries between extension and main table for " + m_name);
+    }
+    for (unsigned int i = 0; i < table->nColumns(); i++) {
+      auto [col_start, type_size] = getColStartAndTypeSize(table, i);
+      size_t col_offset = m_record_offsets[col_idx];
+
+      for (unsigned int j = 0; j < col_size; j++) {
+        std::memcpy(m_buffer.data() + (j * m_record_size) + col_offset, col_start + (j * type_size), type_size);
+      }
+
+      col_idx++;
+    }
+  }
+}

@@ -12,11 +12,12 @@ public:
   RNTupleCollection() = delete;
   RNTupleCollection(const std::string& name,
                     const std::string& desc,
-                    std::vector<edm::Handle<nanoaod::FlatTable>>& subfields_desc,
+                    std::vector<edm::Handle<nanoaod::FlatTable>>& tables,
                     ROOT::RNTupleModel& model);
 
-  void bind_entry(ROOT::REntry& entry);
   const std::string& getFieldName() const { return m_name; }
+
+  void fill(std::vector<edm::Handle<nanoaod::FlatTable>>& tables);
 
 private:
   std::string m_name;

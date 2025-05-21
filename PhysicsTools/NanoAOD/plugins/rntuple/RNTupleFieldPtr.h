@@ -11,7 +11,6 @@ public:
   explicit RNTupleFieldPtr(const std::string& name, const std::string& desc, ROOT::RNTupleModel& model) : m_name(name) {
     m_field = model.MakeField<T>(m_name, desc);
   }
-  void bind_entry(const ROOT::REntry& entry) { m_field = entry.GetPtr<T>(m_name); }
   void fill(const T& value) { *m_field = value; }
   const std::string& getFieldName() const { return m_name; }
 
