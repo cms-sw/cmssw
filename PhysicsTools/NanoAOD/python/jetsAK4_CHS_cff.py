@@ -498,6 +498,7 @@ jetForMETTask =  cms.Task(basicJetsForMetForT1METNano,corrT1METJetTable)
 jetUserDataTask = cms.Task(bJetVars,qgtagger,jercVars,pileupJetIdNano)
 
 #before cross linking
+chsJetUpdateTask = cms.Task(jetCorrFactorsNano,updatedJets)
 jetTask = cms.Task(jetCorrFactorsNano,updatedJets,jetUserDataTask,updatedJetsWithUserData,finalJets)
 
 #after cross linkining

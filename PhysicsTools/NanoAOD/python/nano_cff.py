@@ -67,6 +67,11 @@ nanoTableTaskCommon = cms.Task(
     isoTrackTablesTask,softActivityTablesTask
 )
 
+(run2_muon | run2_egamma).toReplaceWith(
+    nanoTableTaskCommon,
+    nanoTableTaskCommon.copyAndAdd(chsJetUpdateTask)
+)
+
 nanoSequenceCommon = cms.Sequence(nanoTableTaskCommon)
 
 nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTablesTask)
@@ -132,7 +137,7 @@ def nanoAOD_addTauIds(process, idsToRun=[], addPNetCHS=False, addUParTPuppi=Fals
             addGenJetMatch=False,
             genJetMatch=""
         ))
-        process.tauTask.add(process.jetTask, getattr(process, updatedTauName))
+        process.tauTask.add(process.chsJetUpdateTask, getattr(process, updatedTauName))
         originalTauName = updatedTauName
 
     if addUParTPuppi:

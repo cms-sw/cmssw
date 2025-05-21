@@ -15,6 +15,12 @@ slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
     miniIsoParams = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.miniIsoParams, # so they're in sync
     recomputeMuonBasicSelectors = cms.bool(False),
+    recomputeSoftMuonMvaRun3 = cms.bool(False),
+    softMvaRun3Model = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.softMvaRun3Model,
+)
+
+(run2_nanoAOD_106Xv2 | run3_nanoAOD_pre142X).toModify(
+    slimmedMuonsUpdated, recomputeMuonBasicSelectors=True, recomputeSoftMuonMvaRun3=True,
 )
 
 isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
@@ -305,7 +311,7 @@ muonTable.variables.phi.precision = 16
 
 
 # Revert back to AK4 CHS jets for Run 2
-run2_nanoAOD_ANY.toModify(
+run2_muon.toModify(
     ptRatioRelForMu,srcJet="updatedJets"
 )
 
