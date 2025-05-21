@@ -3,7 +3,7 @@
 #include <sstream>
 
 #include "Validation/HGCalValidation/interface/TICLCandidateValidator.h"
-#include "DataFormats/HGCalReco/interface/Common.h"
+#include "DataFormats/TICLReco/interface/Common.h"
 
 TICLCandidateValidator::TICLCandidateValidator(edm::EDGetTokenT<std::vector<TICLCandidate>> ticlCandidates,
                                                edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidatesToken,

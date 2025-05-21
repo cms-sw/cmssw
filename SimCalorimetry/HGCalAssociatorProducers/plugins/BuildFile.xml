@@ -2,7 +2,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="SimDataFormats/Associations"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
-<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/TICLReco"/>
 <use name="DataFormats/CaloRecHit"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>

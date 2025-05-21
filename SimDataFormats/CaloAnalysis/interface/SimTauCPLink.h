@@ -1,7 +1,7 @@
 #ifndef SimDataFormats_SimTauCPLink_h
 #define SimDataFormats_SimTauCPLink_h
 
-#include "DataFormats/HGCalReco/interface/TICLCandidate.h"
+#include "DataFormats/TICLReco/interface/TICLCandidate.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
