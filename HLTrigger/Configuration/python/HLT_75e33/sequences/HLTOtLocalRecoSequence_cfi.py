@@ -12,4 +12,4 @@ HLTOtLocalRecoSequenceWithHits_ = cms.Sequence(hltMeasurementTrackerEvent
                                                +hltSiPhase2RecHits
                                                +phase2OTRecHitsSoAConverter)
 
-#alpaka.toReplaceWith(HLTOtLocalRecoSequence, HLTOtLocalRecoSequenceWithHits_)
+alpaka.toReplaceWith(HLTOtLocalRecoSequence, HLTOtLocalRecoSequenceWithHits_)

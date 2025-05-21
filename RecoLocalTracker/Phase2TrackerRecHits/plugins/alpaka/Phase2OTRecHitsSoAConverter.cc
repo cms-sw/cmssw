@@ -108,7 +108,7 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
     detIdToIndex[detUnit->geographicalId()] = detUnit->index();
     if (isPinPSinOTBarrel(detId)) {
       p_modulesInPSInOTBarrel.insert(detUnit->index());
-      std::cout << "Inserted " << detUnit->index() << " " << p_modulesInPSInOTBarrel.size() << std::endl;
+//      std::cout << "Inserted " << detUnit->index() << " " << p_modulesInPSInOTBarrel.size() << std::endl;
     }
   }
   // Count the number of P hits in the OT to dimension the SoA
@@ -159,7 +159,7 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
         double gx = globalPosition.x() - bs.x0();
         double gy = globalPosition.y() - bs.y0();
         double gz = globalPosition.z() - bs.z0();
-        std::cout << gx << std::endl;
+//        std::cout << gx << std::endl;
         stripHitsHost.view()[n_hits].xGlobal() = gx;
         stripHitsHost.view()[n_hits].yGlobal() = gy;
         stripHitsHost.view()[n_hits].zGlobal() = gz;
