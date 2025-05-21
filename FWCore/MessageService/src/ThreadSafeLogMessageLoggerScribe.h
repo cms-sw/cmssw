@@ -105,12 +105,8 @@ namespace edm {
       template <class T>
       static T getAparameter(edm::ParameterSet const& p, std::string const& id, T const& def) {
         T t = def;
-        CMS_SA_ALLOW try {
-          t = p.template getUntrackedParameter<T>(id, def);
-        } catch (...) {
-          CMS_SA_ALLOW try {
-            t = p.template getParameter<T>(id);
-          } catch (...) {
+        CMS_SA_ALLOW try { t = p.template getUntrackedParameter<T>(id, def); } catch (...) {
+          CMS_SA_ALLOW try { t = p.template getParameter<T>(id); } catch (...) {
             // Since PSetValidation will catch such errors, we simply proceed as
             // best we can in case we are setting up the logger just to contain the
             // validation-caught error messages.

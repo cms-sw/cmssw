@@ -71,13 +71,12 @@ namespace {
     return findTheRightFunction;
   }
 
-  static std::map<edm::ParameterTypes, FillDescriptionFromParameter> const s_findTheRightFunction = initMap();
+  std::map<edm::ParameterTypes, FillDescriptionFromParameter> const s_findTheRightFunction = initMap();
 
   std::map<edm::ParameterTypes, FillDescriptionFromParameter> const& findTheRightFunction() {
     return s_findTheRightFunction;
   }
 }  // namespace
-
 
 namespace edm {
 
