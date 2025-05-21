@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2@alpaka',
-    pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
+    pixelRecHitSrc = cms.InputTag('hltPhase2PixelRecHitsExtendedSoA'),
     ptmin = cms.double(0.9),
     hardCurvCut = cms.double(0.0328407225),
     earlyFishbone = cms.bool(True),
