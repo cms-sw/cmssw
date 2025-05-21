@@ -31,8 +31,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 
-#define TBD 1
-
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 class Phase2OTRecHitsSoAConverter : public stream::EDProducer<> {
@@ -98,13 +96,26 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
     return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
     detId.subdetId() == StripSubdetector::TOB);
   };
+  auto isPh2Pixel = [&](DetId detId) {
+    return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB
+    || trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB3D
+    || trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF
+    || trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF3D);
+  };
 
   auto const& detUnits = trackerGeometry->detUnits();
   std::map<uint32_t,uint16_t> detIdToIndex;
   std::set<int> p_modulesInPSInOTBarrel;
+  int modulesInPixel = 0;
+//  auto subSystem = GeomDetEnumerators::P2OTEC;
+//  auto subSystemName = GeomDetEnumerators::tkDetEnum[subSystem];
+//  modulesInPixel += trackerGeometry->offsetDU(subSystemName);
+
   for (auto& detUnit : detUnits)
   {
     DetId detId(detUnit->geographicalId());
+    if (isPh2Pixel(detId))
+        modulesInPixel++;
     detIdToIndex[detUnit->geographicalId()] = detUnit->index();
     if (isPinPSinOTBarrel(detId)) {
       p_modulesInPSInOTBarrel.insert(detUnit->index());
@@ -120,6 +131,7 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
         PHitsInOTBarrel++;
     }
   }
+  std::cout << "Tot number of modules in Pixels " << modulesInPixel << std::endl;
   std::cout << "Tot number of p_modulesInPSInOTBarrel: " << p_modulesInPSInOTBarrel.size() << std::endl;
   std::cout << "Number of strip (active) modules:      " << activeStripModules << std::endl;
   std::cout << "Number of strip hits: " << nStripHits << std::endl;
@@ -169,7 +181,7 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
         stripHitsHost.view()[n_hits].chargeAndStatus().status = {0, 0, 0, 0, 0};
         stripHitsHost.view()[n_hits].clusterSizeX() = -1;
         stripHitsHost.view()[n_hits].clusterSizeY() = -1;
-        stripHitsHost.view()[n_hits].detectorIndex() = index;
+        stripHitsHost.view()[n_hits].detectorIndex() = modulesInPixel++;
         n_hits++;
       }
     }
