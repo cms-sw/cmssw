@@ -155,7 +155,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     };
     auto isPh2Pixel = [&](DetId detId) {
       return (trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB
-      || trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF
+      || trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB3D
       || trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF
       || trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF3D);
     };
