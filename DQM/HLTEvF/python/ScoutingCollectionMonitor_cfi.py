@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 scoutingCollectionMonitor = DQMEDAnalyzer('ScoutingCollectionMonitor',
-                                          isOnline = cms.bool(False),
+                                          onlyScouting = cms.bool(False),
                                           muons             = cms.InputTag("hltScoutingMuonPackerNoVtx"),
                                           electrons         = cms.InputTag("hltScoutingEgammaPacker"),
                                           photons           = cms.InputTag("hltScoutingEgammaPacker"),

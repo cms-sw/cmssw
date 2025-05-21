@@ -88,7 +88,7 @@ private:
     return {tk_dxyPV, tk_dzPV};
   }
 
-  const bool isOnline_;
+  const bool onlyScouting_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> primaryVerticesToken_;
@@ -389,7 +389,7 @@ private:
 // constructors and destructor
 //
 ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iConfig)
-    : isOnline_(iConfig.getParameter<bool>("isOnline")),
+    : onlyScouting_(iConfig.getParameter<bool>("onlyScouting")),
       muonsToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muons"))),
       electronsToken_(consumes<std::vector<Run3ScoutingElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
       primaryVerticesToken_(
@@ -459,7 +459,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   }
 
   // get pile up
-  if (!isOnline_) {
+  if (!onlyScouting_) {
     if (!getValidHandle(iEvent, onlineMetaDataDigisToken_, onlineMetaDataDigisHandle, "avgPileUp")) {
       return;
     }
@@ -711,7 +711,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     yzCov_pv_hist->Fill(vtx.yzCov());
   }
 
-  if (!isOnline_) {
+  if (!onlyScouting_) {
     PVvsPU_hist->Fill(avgPileUp, primaryVertex_counter);
   }
 
@@ -787,7 +787,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   pfMetPhi_hist = ibook.book1D("pfMetPhi", "pf MET #phi; #phi ;Entries", 100, -3.14, 3.14);
   pfMetPt_hist = ibook.book1D("pfMetPt", "pf MET pT;p_{T} [GeV];Entries", 100, 0.0, 250.0);
 
-  if (!isOnline_) {
+  if (!onlyScouting_) {
     PVvsPU_hist =
         ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 20, 20, 60, 0, 65);
     rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 20, 20, 60, 0, 45);
@@ -1095,7 +1095,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
 void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("isOnline", false);
+  desc.add<bool>("onlyScouting", false);
   desc.add<edm::InputTag>("electrons", edm::InputTag("hltScoutingEgammaPacker"));
   desc.add<edm::InputTag>("muons", edm::InputTag("hltScoutingMuonPackerNoVtx"));
   desc.add<edm::InputTag>("pfcands", edm::InputTag("hltScoutingPFPacker"));
