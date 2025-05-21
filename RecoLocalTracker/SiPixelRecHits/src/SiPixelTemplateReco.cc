@@ -45,6 +45,8 @@
 //  V10.00 - Use new template object to reco Phase 1 FPix hits
 //  V10.01 - Fix memory overwriting bug
 //  V10.10 - Change VVIObjF so it only reads kappa
+//  V10.30 - Use "good" end to center the y-projections [for high eta radiation damage],
+//         - use Gaussian fit paramters for y-bias and y-errors, remove chi2min_y warning
 //
 //
 //  Created by Morris Swartz on 10/27/06.
@@ -131,6 +133,7 @@ using namespace SiPixelTemplateReco;
 //! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
 //! \param      nypix - (output) the projected y-size of the cluster
 //! \param      nxpix - (output) the projected x-size of the cluster
+//! \param      goodEdgeAlgo - (input) bool to indicate whether to use centering based on the good end of the cluster (compatible only with templates derived using the same)
 // *************************************************************************************************************************************
 int SiPixelTemplateReco::PixelTempReco1D(int id,
                                          float cotalpha,
@@ -151,7 +154,8 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
                                          std::vector<std::pair<int, int> >& zeropix,
                                          float& probQ,
                                          int& nypix,
-                                         int& nxpix)
+                                         int& nxpix,
+                                         bool goodEdgeAlgo)
 
 {
   // Local variables
@@ -186,7 +190,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
   // check to see of the track direction is in the physical range of the loaded template
 
   if (id >= 0) {  //if id < 0 bypass interpolation (used in calibration)
-    if (!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
+    if (!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx, goodEdgeAlgo)) {
       if (theVerboseLevel > 2) {
         LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha
                                         << ", cot(beta) = " << cotbeta << ", local B_z = " << locBz
@@ -463,8 +467,18 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 
   // next, center the cluster on template center if necessary
 
-  midpix = (fypix + lypix) / 2;
-  shifty = templ.cytemp() - midpix;
+  if (goodEdgeAlgo) {
+    if (cotbeta >= 0) {
+      midpix = (int)(fypix + 0.5 * cotbeta * templ.zsize() / ysize);
+    } else {
+      midpix = (int)(lypix + 0.5 * cotbeta * templ.zsize() / ysize);
+    }
+    shifty = BHY - midpix;
+  }  //if(goodEdgeAlgo)
+  else {
+    midpix = (fypix + lypix) / 2;
+    shifty = templ.cytemp() - midpix;
+  }  //else
 
   // calculate new cluster boundaries
 
@@ -913,12 +927,19 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
     //  Now calculate the mean bias correction and uncertainties
 
     float qyfrac = (qfy - qly) / (qfy + qly);
-    bias = templ.yflcorr(binq, qyfrac) + templ.yavg(binq);
+    if (goodEdgeAlgo) {
+      bias = templ.yflcorr(binq, qyfrac) + templ.ygx0(binq);
+    } else {
+      bias = templ.yflcorr(binq, qyfrac) + templ.yavg(binq);
+    }
 
     // uncertainty and final correction depend upon charge bin
-
     yrec = (0.125f * binl + BHY - 2.5f + rat * (binh - binl) * 0.125f - (float)shifty + originy) * ysize - bias;
-    sigmay = templ.yrms(binq);
+    if (goodEdgeAlgo) {
+      sigmay = templ.ygsig(binq);
+    } else {
+      sigmay = templ.yrms(binq);
+    }
 
     // Do goodness of fit test in y
 
@@ -1235,6 +1256,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 //!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
 //!                      4       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster), calculates Q probability
 //! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
+//! \param      goodEdgeAlgo - (input) bool to indicate whether to use centering based on the good end of the cluster (compatible only with templates derived using the same)
 // *************************************************************************************************************************************
 int SiPixelTemplateReco::PixelTempReco1D(int id,
                                          float cotalpha,
@@ -1251,7 +1273,8 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
                                          float& probx,
                                          int& qbin,
                                          int speed,
-                                         float& probQ)
+                                         float& probQ,
+                                         bool goodEdgeAlgo)
 
 {
   // Local variables
@@ -1278,7 +1301,90 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
                                               zeropix,
                                               probQ,
                                               nypix,
-                                              nxpix);
+                                              nxpix,
+                                              goodEdgeAlgo);
+
+}  // PixelTempReco1D
+
+// *************************************************************************************************************************************
+//  Overload parameter list for compatibility with older versions
+//! Reconstruct the best estimate of the hit position for pixel clusters.
+//! \param         id - (input) identifier of the template to use
+//! \param   cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014)
+//! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
+//! \param locBz - (input) the sign of this quantity is used to determine whether to flip cot(beta)<0 quantities from cot(beta)>0 (FPix only)
+//!                    for Phase 0 FPix IP-related tracks, locBz < 0 for cot(beta) > 0 and locBz > 0 for cot(beta) < 0
+//!                    for Phase 1 FPix IP-related tracks, see next comment
+//! \param locBx - (input) the sign of this quantity is used to determine whether to flip cot(alpha/beta)<0 quantities from cot(alpha/beta)>0 (FPix only)
+//!                    for Phase 1 FPix IP-related tracks, locBx/locBz > 0 for cot(alpha) > 0 and locBx/locBz < 0 for cot(alpha) < 0
+//!                    for Phase 1 FPix IP-related tracks, locBx > 0 for cot(beta) > 0 and locBx < 0 for cot(beta) < 0//! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
+//! \param    cluster - (input) boost multi_array container of 7x21 array of pixel signals,
+//!           origin of local coords (0,0) at center of pixel cluster[0][0].
+//! \param    ydouble - (input) STL vector of 21 element array to flag a double-pixel
+//! \param    xdouble - (input) STL vector of 7 element array to flag a double-pixel
+//! \param      templ - (input) the template used in the reconstruction
+//! \param       yrec - (output) best estimate of y-coordinate of hit in microns
+//! \param     sigmay - (output) best estimate of uncertainty on yrec in microns
+//! \param      proby - (output) probability describing goodness-of-fit for y-reco
+//! \param       xrec - (output) best estimate of x-coordinate of hit in microns
+//! \param     sigmax - (output) best estimate of uncertainty on xrec in microns
+//! \param      probx - (output) probability describing goodness-of-fit for x-reco
+//! \param       qbin - (output) index (0-4) describing the charge of the cluster
+//!                     [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin]
+//! \param      speed - (input) switch (-1-4) trading speed vs robustness
+//!                     -1       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4), calculates Q probability
+//!                      0       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4)
+//!                      1       faster, searches reduced 25 bin range (no big pix) + 33 bins (big pix at ends) at full density
+//!                      2       faster yet, searches same range as 1 but at 1/2 density
+//!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
+//!                      4       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster), calculates Q probability
+//! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
+// *************************************************************************************************************************************
+int SiPixelTemplateReco::PixelTempReco1D(int id,
+                                         float cotalpha,
+                                         float cotbeta,
+                                         float locBz,
+                                         float locBx,
+                                         ClusMatrix& cluster,
+                                         SiPixelTemplate& templ,
+                                         float& yrec,
+                                         float& sigmay,
+                                         float& proby,
+                                         float& xrec,
+                                         float& sigmax,
+                                         float& probx,
+                                         int& qbin,
+                                         int speed,
+                                         float& probQ)
+
+{
+  // Local variables
+  const bool deadpix = false;
+  std::vector<std::pair<int, int> > zeropix;
+  int nypix, nxpix;
+  const bool goodEdgeAlgo = false;
+
+  return SiPixelTemplateReco::PixelTempReco1D(id,
+                                              cotalpha,
+                                              cotbeta,
+                                              locBz,
+                                              locBx,
+                                              cluster,
+                                              templ,
+                                              yrec,
+                                              sigmay,
+                                              proby,
+                                              xrec,
+                                              sigmax,
+                                              probx,
+                                              qbin,
+                                              speed,
+                                              deadpix,
+                                              zeropix,
+                                              probQ,
+                                              nypix,
+                                              nxpix,
+                                              goodEdgeAlgo);
 
 }  // PixelTempReco1D
 
@@ -1328,6 +1434,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 {
   // Local variables
   const bool deadpix = false;
+  const bool goodEdgeAlgo = false;
   std::vector<std::pair<int, int> > zeropix;
   int nypix, nxpix;
   float locBx, locBz;
@@ -1359,7 +1466,8 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
                                               zeropix,
                                               probQ,
                                               nypix,
-                                              nxpix);
+                                              nxpix,
+                                              goodEdgeAlgo);
 
 }  // PixelTempReco1D
 
@@ -1405,6 +1513,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 {
   // Local variables
   const bool deadpix = false;
+  const bool goodEdgeAlgo = false;
   std::vector<std::pair<int, int> > zeropix;
   int nypix, nxpix;
   float locBx, locBz;
@@ -1441,6 +1550,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
                                               zeropix,
                                               probQ,
                                               nypix,
-                                              nxpix);
+                                              nxpix,
+                                              goodEdgeAlgo);
 
 }  // PixelTempReco1D
