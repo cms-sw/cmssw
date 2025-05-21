@@ -4,7 +4,6 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 
 namespace {
   GENERATE_SOA_LAYOUT(TestLayout, SOA_COLUMN(double, x), SOA_COLUMN(int32_t, id))
