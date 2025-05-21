@@ -93,6 +93,14 @@ nanoSequenceMC = nanoSequenceFS.copy()
 nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)
 
 
+def _fixPNetInputCollection(process):
+    # fix circular module dependency in ParticleNetFromMiniAOD TagInfos when slimmedTaus is updated
+    if hasattr(process, 'slimmedTaus'):
+        for mod in process.producers.keys():
+            if 'ParticleNetFromMiniAOD' in mod and 'TagInfos' in mod:
+                getattr(process, mod).taus = 'slimmedTaus::@skipCurrentProcess'
+
+
 # modifier which adds new tauIDs
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
 def nanoAOD_addTauIds(process, idsToRun=[], addPNetCHS=False, addUParTPuppi=False):
@@ -173,11 +181,7 @@ def nanoAOD_addTauIds(process, idsToRun=[], addPNetCHS=False, addUParTPuppi=Fals
         process.slimmedTaus = getattr(process, updatedTauName).clone()
         process.tauTask.replace(getattr(process, updatedTauName), process.slimmedTaus)
         delattr(process, updatedTauName)
-
-        # fix circular module dependency in :
-        for mod in process.producers.keys():
-            if 'ParticleNetFromMiniAOD' in mod and 'TagInfos' in mod:
-                getattr(process, mod).taus = 'slimmedTaus::@skipCurrentProcess'
+        _fixPNetInputCollection(process)
 
     return process
 

@@ -1510,6 +1510,12 @@ def PrepJMECustomNanoAOD(process):
   )
 
   ###########################################################################
+  # Fix ParticleNetFromMiniAOD input when slimmedTaus is updated
+  ###########################################################################
+  from PhysicsTools.NanoAOD.nano_cff import _fixPNetInputCollection
+  _fixPNetInputCollection(process)
+
+  ###########################################################################
   # Save Maximum of Pt Hat Max
   ###########################################################################
   if runOnMC:
