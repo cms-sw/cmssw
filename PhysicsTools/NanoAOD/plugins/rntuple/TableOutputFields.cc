@@ -92,6 +92,12 @@ void TableOutputFields::fillEntry(const nanoaod::FlatTable& table, std::size_t i
 
 const edm::EDGetToken& TableOutputFields::getToken() const { return m_token; }
 
+const edm::Handle<nanoaod::FlatTable> TableOutputFields::getTable(const edm::EventForOutput& event) const {
+  edm::Handle<nanoaod::FlatTable> handle;
+  event.getByToken(m_token, handle);
+  return handle;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void TableOutputVectorFields::createFields(const edm::EventForOutput& event, RNTupleModel& model) {
@@ -154,37 +160,39 @@ void TableCollection::add(const edm::EDGetToken& table_token, const nanoaod::Fla
 }
 
 void TableCollection::createFields(const edm::EventForOutput& event, RNTupleModel& eventModel) {
-  auto collectionModel = RNTupleModel::Create();
-  m_main.createFields(event, *collectionModel);
+  std::vector<edm::Handle<nanoaod::FlatTable>> tables;
+
+  auto main_table = m_main.getTable(event);
+  std::string field_desc = main_table->doc();
+
+  tables.emplace_back(main_table);
+
   for (auto& extension : m_extensions) {
-    extension.createFields(event, *collectionModel);
+    auto ext_table = extension.getTable(event);
+    tables.emplace_back(ext_table);
   }
-  edm::Handle<nanoaod::FlatTable> handle;
-  event.getByToken(m_main.getToken(), handle);
-  const nanoaod::FlatTable& table = *handle;
-  collectionModel->SetDescription(table.doc());
-  //m_collection = eventModel.MakeCollection(m_collectionName, std::move(collectionModel));
+  m_collection = std::make_unique<RNTupleCollection>(m_collectionName, field_desc, tables, eventModel);
 }
 
 void TableCollection::fill(const edm::EventForOutput& event) {
-  edm::Handle<nanoaod::FlatTable> handle;
-  event.getByToken(m_main.getToken(), handle);
-  const auto& main_table = *handle;
-  auto table_size = main_table.size();
-  for (std::size_t i = 0; i < table_size; i++) {
-    m_main.fillEntry(main_table, i);
-    for (auto& ext : m_extensions) {
-      edm::Handle<nanoaod::FlatTable> handle;
-      event.getByToken(ext.getToken(), handle);
-      const auto& ext_table = *handle;
-      if (ext_table.size() != table_size) {
-        throw cms::Exception("LogicError",
-                             "Mismatch in number of entries between extension and main table for " + m_collectionName);
-      }
-      ext.fillEntry(ext_table, i);
-    }
-    //m_collection->Fill();
-  }
+  // edm::Handle<nanoaod::FlatTable> handle;
+  // event.getByToken(m_main.getToken(), handle);
+  // const auto& main_table = *handle;
+  // auto table_size = main_table.size();
+  // for (std::size_t i = 0; i < table_size; i++) {
+  //   m_main.fillEntry(main_table, i);
+  //   for (auto& ext : m_extensions) {
+  //     edm::Handle<nanoaod::FlatTable> handle;
+  //     event.getByToken(ext.getToken(), handle);
+  //     const auto& ext_table = *handle;
+  //     if (ext_table.size() != table_size) {
+  //       throw cms::Exception("LogicError",
+  //                            "Mismatch in number of entries between extension and main table for " + m_collectionName);
+  //     }
+  //     ext.fillEntry(ext_table, i);
+  //   }
+  //   //m_collection->Fill();
+  // }
 }
 
 void TableCollection::print() const {

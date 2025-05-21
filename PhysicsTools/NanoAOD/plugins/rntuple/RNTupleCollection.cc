@@ -39,21 +39,27 @@ std::string flatTableColumnTypeToString(nanoaod::FlatTable::ColumnType type) {
 
 RNTupleCollection::RNTupleCollection(const std::string& name,
                                      const std::string& desc,
-                                     std::vector<RNTupleSubfieldDescription>& subfields_desc,
+                                     std::vector<edm::Handle<nanoaod::FlatTable>>& tables,
                                      RNTupleModel& model)
     : m_name(name) {
   std::vector<std::unique_ptr<RFieldBase>> subfields;
-  for (auto& sf_desc : subfields_desc) {
-    std::string type = flatTableColumnTypeToString(sf_desc.m_type);
-    // TODO: check how to add the description
-    auto field = RFieldBase::Create(sf_desc.m_name, type).Unwrap();
-    subfields.push_back(std::move(field));
+  for (auto& table : tables) {
+    for (unsigned int i = 0; i < table->nColumns(); i++) {
+      std::string type = flatTableColumnTypeToString(table->columnType(i));
+      auto field = RFieldBase::Create(table->columnName(i), type).Unwrap();
+      field->SetDescription(table->columnDoc(i));
+      subfields.push_back(std::move(field));
+    }
   }
   auto record_field = std::make_unique<RRecordField>("_0", std::move(subfields));
   m_record_size = record_field->GetValueSize();
   m_record_offsets = record_field->GetOffsets();
-  // TODO: check how to add the description
   auto collection_field = RVectorField::CreateUntyped(name, std::move(record_field));
+  collection_field->SetDescription(desc);
+  model.AddField(std::move(collection_field));
+
+  auto& default_entry = model.GetDefaultEntry();
+  default_entry.BindRawPtr<void>(m_name, &m_buffer);
 }
 
 void RNTupleCollection::bind_entry(REntry& entry) { entry.BindRawPtr<void>(m_name, &m_buffer); }

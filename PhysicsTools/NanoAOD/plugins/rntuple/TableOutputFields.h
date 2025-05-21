@@ -2,6 +2,7 @@
 #define PhysicsTools_NanoAOD_TableOutputFields_h
 
 #include "RNTupleFieldPtr.h"
+#include "RNTupleCollection.h"
 
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
@@ -67,6 +68,7 @@ public:
   void createFields(const edm::EventForOutput& event, RNTupleModel& model);
   void fillEntry(const nanoaod::FlatTable& table, std::size_t i);
   const edm::EDGetToken& getToken() const;
+  const edm::Handle<nanoaod::FlatTable> getTable(const edm::EventForOutput& event) const;
 
 private:
   edm::EDGetToken m_token;
@@ -109,7 +111,7 @@ public:
 
 private:
   std::string m_collectionName;
-  //std::shared_ptr<RNTupleCollectionWriter> m_collection;
+  std::unique_ptr<RNTupleCollection> m_collection;
   TableOutputFields m_main;
   std::vector<TableOutputFields> m_extensions;
 };
