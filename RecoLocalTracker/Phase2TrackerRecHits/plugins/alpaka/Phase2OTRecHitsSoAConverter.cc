@@ -51,6 +51,7 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> recHitToken_;
   const edm::EDGetTokenT<::reco::BeamSpot> beamSpotToken_;
+  const edm::EDGetTokenT<HitsHost> pixelHitsSoA_;
 
   const device::EDPutToken<Hits> stripSoADevice_;
   const edm::EDPutTokenT<HMSstorage> hitModuleStart_;
@@ -62,6 +63,7 @@ Phase2OTRecHitsSoAConverter::Phase2OTRecHitsSoAConverter(const edm::ParameterSet
   geomToken_(esConsumes()),
   recHitToken_{consumes(iConfig.getParameter<edm::InputTag>("otRecHitSource"))},
   beamSpotToken_(consumes<::reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+  pixelHitsSoA_{consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSoASource"))},
   stripSoADevice_{produces()},
   hitModuleStart_{produces()} { }
 
@@ -69,6 +71,7 @@ Phase2OTRecHitsSoAConverter::Phase2OTRecHitsSoAConverter(const edm::ParameterSet
 void Phase2OTRecHitsSoAConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
+  desc.add<edm::InputTag>("pixelRecHitSoASource", edm::InputTag("hltPhase2SiPixelRecHitsSoA"));
   desc.add<edm::InputTag>("otRecHitSource", edm::InputTag("hltSiPhase2RecHits"));
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
 
@@ -84,6 +87,9 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
   auto& bs = iEvent.get(beamSpotToken_);
   const auto &trackerGeometry = &iSetup.getData(geomToken_);
   auto const& stripHits = iEvent.get(recHitToken_);
+
+  auto const& pixelHitsHost = iEvent.get(pixelHitsSoA_);
+  int nPixelHits = pixelHitsHost.view().metadata().size();
 
   // Count strip hits and active strip modules
   const int nStripHits = stripHits.data().size();
@@ -152,7 +158,7 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
       auto it = p_modulesInPSInOTBarrel.find(index);
       if (it != p_modulesInPSInOTBarrel.end()) {
         int offset = std::distance(p_modulesInPSInOTBarrel.begin(), it);
-        stripHitsModuleView[offset].moduleStart() = n_hits;
+        stripHitsModuleView[offset].moduleStart() = n_hits + nPixelHits;
       } else {
         assert(0);
       }
