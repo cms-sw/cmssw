@@ -53,6 +53,15 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
   Handle<std::vector<reco::CaloCluster>> layer_clusters;
   iEvent.getByToken(layerClustersToken_, layer_clusters);
 
+  if (!layer_clusters.isValid()) {
+    edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "Missing LayerCluster collection.";
+    for (const auto& tracksterToken : tracksterCollectionTokens_) {
+      iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitTo" + tracksterToken.first);
+      iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), tracksterToken.first + "ToHit");
+    }
+    return;
+  }
+
   Handle<std::unordered_map<DetId, const unsigned int>> hitMap;
   iEvent.getByToken(hitMapToken_, hitMap);
 
