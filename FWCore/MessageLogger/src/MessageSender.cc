@@ -95,7 +95,7 @@ void MessageSender::ErrorObjDeleter::operator()(ErrorObj* errorObjPtr) {
   if (errorObjPtr == nullptr) {
     return;
   }
-  try {
+  CMS_SA_ALLOW try {
     //std::cout << "MessageSender dtor; ErrorObj at: " << errorobj_p << '\n';
 
     // surrender ownership of our ErrorObj, transferring ownership

@@ -3,6 +3,7 @@
 
 #include "FWCore/Utilities/interface/value_ptr.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "FWCore/MessageService/src/ELdestination.h"
 #include "FWCore/MessageService/src/MessageLoggerDefaults.h"
@@ -104,10 +105,10 @@ namespace edm {
       template <class T>
       static T getAparameter(edm::ParameterSet const& p, std::string const& id, T const& def) {
         T t = def;
-        try {
+        CMS_SA_ALLOW try {
           t = p.template getUntrackedParameter<T>(id, def);
         } catch (...) {
-          try {
+          CMS_SA_ALLOW try {
             t = p.template getParameter<T>(id);
           } catch (...) {
             // Since PSetValidation will catch such errors, we simply proceed as

@@ -112,7 +112,7 @@ namespace edm {
         }
         case MessageLoggerQ::SUMMARIZE: {
           assert(operand == nullptr);
-          try {
+          CMS_SA_ALLOW try {
             triggerStatisticsSummaries();
           } catch (cms::Exception& e) {
             std::cerr << "ThreadSafeLogMessageLoggerScribe caught exception "
