@@ -122,24 +122,6 @@ namespace {
       addSeed(seed, &*s, positron, out);
     }
   }
-
-    void seedsFromTrajectorySeeds(const std::vector<SeedWithInfo> &pixelSeeds,
-                                const reco::ElectronSeed::CaloClusterRef &cluster,
-                                reco::ElectronSeedCollection &out,
-                                bool positron) {
-    if (!pixelSeeds.empty()) {
-      LogDebug("ElectronSeedGenerator") << "Compatible " << (positron ? "positron" : "electron") << " seeds found.";
-    }
-
-    std::vector<SeedWithInfo>::const_iterator s;
-    for (s = pixelSeeds.begin(); s != pixelSeeds.end(); s++) {
-      reco::ElectronSeed seed(s->seed);
-      seed.setCaloCluster(cluster);
-      seed.initTwoHitSeed(s->hitsMask);
-      addSeed(seed, &*s, positron, out);
-    }
-  }
-
 }  // namespace
 
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset,
