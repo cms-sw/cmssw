@@ -342,18 +342,24 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
           float simFraction = simFractions[i];
           const auto& recHit = rechitManager[hitIndex];
           float rechitEnergy = recHit.energy();
-          float squaredSimFraction = simFraction * simFraction;
           float squaredRecHitEnergy = rechitEnergy * rechitEnergy;
           float simSharedEnergy = rechitEnergy * simFraction;
           const auto& hitToRecoTracksterVec = hitToAssociatedRecoTracksterMap[i];
           for (const auto& recoTracksterElement : hitToRecoTracksterVec) {
             auto recoTracksterIndex = recoTracksterElement.index();
-            float recoFraction = recoTracksterElement.fraction();
+            float recoFraction =
+                recoTracksterElement.fraction();  // Either zero or one when no sharing of rechits between tracksters
             edm::Ref<std::vector<ticl::Trackster>> recoTracksterRef(recoTrackstersHandle, recoTracksterIndex);
             float sharedEnergy = std::min(recoFraction * rechitEnergy, simSharedEnergy);
-            float squaredFraction =
-                std::min(squaredSimFraction, (recoFraction - simFraction) * (recoFraction - simFraction));
-            float score = invDenominator * squaredFraction * squaredRecHitEnergy;
+            /* SimToReco score logic:
+             - simFraction = 0 && recoFraction >= 0 : trackster contains non-sim associated elements : ignore in simToReco
+             - simFraction > 0 && recoFraction == 0 : simhits not present in reco trackster : penalty in score by simFraction*E
+             - simFraction == 1 && recoFraction == 1 : good association
+             - 1 > simFraction > recoFraction > 0 :  we are missing some sim energy, penalty in score by the missing part : (simFraction-recoFraction)*E
+             - 1 > recoFraction > simFraction > 0 : consider as good association, as there is enough reco to cover the sim
+            */
+            float simMinusRecoFraction = std::max(0.f, simFraction - recoFraction);
+            float score = invDenominator * simMinusRecoFraction * simMinusRecoFraction * squaredRecHitEnergy;
             simTracksterToTracksterMap->insert(simTracksterRef, recoTracksterRef, sharedEnergy, score);
           }
         }
