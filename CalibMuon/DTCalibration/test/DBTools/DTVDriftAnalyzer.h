@@ -25,15 +25,15 @@ class TFile;
 class TH1D;
 
 class DTVDriftAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
-  public:
-    DTVDriftAnalyzer(const edm::ParameterSet& pset);
+public:
+  DTVDriftAnalyzer(const edm::ParameterSet& pset);
 
-    virtual ~DTVDriftAnalyzer();
-    void beginJob() override {}
-    void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
-    void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
-    void endRun(const edm::Run& run, const edm::EventSetup& setup) override {}
-    void endJob() override;
+  virtual ~DTVDriftAnalyzer();
+  void beginJob() override {}
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
+  void endRun(const edm::Run& run, const edm::EventSetup& setup) override {}
+  void endJob() override;
 
 protected:
 private:
