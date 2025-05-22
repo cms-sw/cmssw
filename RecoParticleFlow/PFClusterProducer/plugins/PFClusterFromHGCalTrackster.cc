@@ -1,5 +1,5 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

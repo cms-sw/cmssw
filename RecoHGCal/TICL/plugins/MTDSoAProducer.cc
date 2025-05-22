@@ -8,7 +8,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/HGCalReco/interface/MtdHostCollection.h"
+#include "DataFormats/TICLReco/interface/MtdHostCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
