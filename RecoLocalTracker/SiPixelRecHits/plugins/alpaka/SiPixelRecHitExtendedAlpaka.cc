@@ -87,7 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "Number of Tracker modules: " << otRecHitsSoA.nModules() << std::endl;
     const int nTotModules = pixelRecHitsSoA.nModules() + otRecHitsSoA.nModules();
 
-    auto outputSoA = reco::TrackingRecHitsSoACollection(iEvent.queue(), nTotHits, nTotModules);
+    auto outputSoA = reco::TrackingRecHitsSoACollection(iEvent.queue(), nTotHits, nTotModules + 1);
     std::cout << "Total number of recHits: " << outputSoA.nHits() << std::endl;
 
     // copy all columns from pixelRecHitsSoA and otRecHitsSoA to outputSoA
@@ -244,7 +244,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // copy the moduleStart from pixelRecHitsSoA and otRecHitsSoA to outputSoA
     const int nPixelModules = pixelRecHitsSoA.nModules();
-    const int nTrackerModules = otRecHitsSoA.nModules();
+    const int nTrackerModules = otRecHitsSoA.nModules() + 1;
 
     auto hitModuleStartOutputPixel = cms::alpakatools::make_device_view(
         iEvent.queue(), outputSoA.view<::reco::HitModuleSoA>().moduleStart(), nPixelModules);
