@@ -160,19 +160,16 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
   MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
 
-  std::unordered_map<uint32_t, std::unordered_map<uint64_t, MTDHit>> m_btlHitsPerCell;
-
-  // --- Group cells by sensor module
-  // The 'modules' map organizes hit information at the sensor module level:
-  // - the keys of this outer unordered_map are the geoId.rawId() of the MTD sensor modules (uint32_t);
-  // - the values are vectors of std::pair, representing single cells within that sensor module.
-  //   Each std::pair contains:
-  //   - the id.rawId() of the BTL cell (uint32_t) that uniquely identifies the cell;
-  //   - an unordered_map where:
-  //     - keys are 'global track IDs' (uint64_t), constructed by combining the SIM hit's event ID and trackId;
-  //     - values are 'MTDHits', which store the accumulated energy of SIM hits with the same track ID in the
-  //       same cell and the time and position of the first SIM hit in time
-  std::unordered_map<uint32_t, std::vector<std::pair<uint32_t, std::unordered_map<uint64_t, MTDHit>>>> modules;
+  // --- Group hits by cells and by sensor module
+  // The 'm_btlHitsPerCellAndModule' map organizes simulated hit information in BTL:
+  // - the keys of this outer unordered_map are the geoId.rawId() of the BTL sensor modules (uint32_t);
+  // - the middle unordered_map uses the id.rawId() of the BTL cell as its keys (uint32_t);
+  // - the keys of the innermost unordered_map are 'global track IDs' (uint64_t),
+  //   constructed by combining the SIM hit's event ID and trackId;
+  // - the values of the innermost unordered_map are 'MTDHits', which store the accumulated energy of SIM
+  //   hits with the same track ID in the same cell and the time and position of the first SIM hit in time.
+  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::unordered_map<uint64_t, MTDHit>>>
+      m_btlHitsPerCellAndModule;
 
   // --- Loop over the BLT SIM hits and accumulate the hits with the same track ID in each cell
   for (auto const& simHit : btlSimHits) {
@@ -186,18 +183,22 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     // --- Build a global track ID by combining the SIM hit's eventId and trackId
     uint64_t globalTrkID = ((uint64_t)simHit.eventId().rawId() << 32) | simHit.trackId();
 
+    // --- Define geoId from MTDTopology to group cells with hits by sensor module
+    BTLDetId detId(id.rawId());
+    DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
+
     // --- Sum the energies of SIM hits with the same track ID in the same cell
-    m_btlHitsPerCell[id.rawId()][globalTrkID].energy += convertGeVToMeV(simHit.energyLoss());
+    m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].energy += convertGeVToMeV(simHit.energyLoss());
 
     // --- Assign the time and position of the first SIM hit in time to the accumulated hit
-    if (m_btlHitsPerCell[id.rawId()][globalTrkID].time == 0. ||
-        simHit.tof() < m_btlHitsPerCell[id.rawId()][globalTrkID].time) {
-      m_btlHitsPerCell[id.rawId()][globalTrkID].time = simHit.tof();
+    if (m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].time == 0. ||
+        simHit.tof() < m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].time) {
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].time = simHit.tof();
 
       auto hit_pos = simHit.localPosition();
-      m_btlHitsPerCell[id.rawId()][globalTrkID].x = hit_pos.x();
-      m_btlHitsPerCell[id.rawId()][globalTrkID].y = hit_pos.y();
-      m_btlHitsPerCell[id.rawId()][globalTrkID].z = hit_pos.z();
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].x = hit_pos.x();
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].y = hit_pos.y();
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].z = hit_pos.z();
     }
 
   }  // simHit loop
@@ -206,189 +207,195 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   //  Histogram filling
   // ==============================================================================
 
-  if (!m_btlHitsPerCell.empty()) {
-    meNhits_->Fill(log10(m_btlHitsPerCell.size()));
+  int Nhits = 0;
+  for (const auto& module : m_btlHitsPerCellAndModule) {
+    Nhits += module.second.size();
   }
+  if (Nhits > 0)
+    meNhits_->Fill(log10(Nhits));
 
-  // --- Loop over the BTL cells
-  for (auto const& cell : m_btlHitsPerCell) {
-    // --- Get the map of the hits in the cell
-    const auto& m_hits = cell.second;
+  // --- Loop over the BTL sensor modules
+  for (const auto& module : m_btlHitsPerCellAndModule) {
+    // --- Loop over the BTL cells
+    for (auto const& cell : module.second) {
+      // --- Get the map of the hits in the cell
+      const auto& m_hits = cell.second;
 
-    // --- Skip cells with no hits
-    if (m_hits.empty()) {
-      continue;
-    }
+      // --- Skip cells with no hits
+      if (m_hits.empty()) {
+        continue;
+      }
 
-    // --- Loop over the hits in the cell, sum the hit energies and store the hit IDs in a vector
-    std::vector<uint64_t> v_hitID;
-    float ene_tot_cell = 0.;
+      // --- Loop over the hits in the cell, sum the hit energies and store the hit IDs in a vector
+      std::vector<uint64_t> v_hitID;
+      float ene_tot_cell = 0.;
 
-    for (auto const& hit : m_hits) {
-      ene_tot_cell += hit.second.energy;
-      v_hitID.push_back(hit.first);
-    }
+      for (auto const& hit : m_hits) {
+        ene_tot_cell += hit.second.energy;
+        v_hitID.push_back(hit.first);
+      }
 
-    meHitLogEnergy_->Fill(log10(ene_tot_cell));
+      meHitLogEnergy_->Fill(log10(ene_tot_cell));
 
-    // --- Groups cells with hits by sensor module using MTDTopology
-    BTLDetId detId(cell.first);
-    DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
-    // Add the cell and its hit map to the vector associated with its sensor module in the 'modules' map
-    modules[geoId.rawId()].push_back(cell);
+      // --- Groups cells with hits by sensor module using MTDTopology
+      BTLDetId detId(cell.first);
+      DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
 
-    if (optionalPlots_)
-      meHitLogEnergyRUSlice_[detId.runit() - 1]->Fill(log10(ene_tot_cell));
+      if (optionalPlots_)
+        meHitLogEnergyRUSlice_[detId.runit() - 1]->Fill(log10(ene_tot_cell));
 
-    // --- Skip cells with a total anergy less than hitMinEnergy_
-    if (ene_tot_cell < hitMinEnergy_) {
-      continue;
-    }
+      // --- Skip cells with a total anergy less than hitMinEnergy_
+      if (ene_tot_cell < hitMinEnergy_) {
+        continue;
+      }
 
-    // --- Order the hits in time
-    bool swapped;
-    for (unsigned int ihit = 0; ihit < v_hitID.size() - 1; ++ihit) {
-      swapped = false;
-      for (unsigned int jhit = 0; jhit < v_hitID.size() - ihit - 1; ++jhit) {
-        if (m_hits.at(v_hitID[jhit]).time > m_hits.at(v_hitID[jhit + 1]).time) {
-          std::swap(v_hitID[jhit], v_hitID[jhit + 1]);
-          swapped = true;
+      // --- Order the hits in time
+      bool swapped;
+      for (unsigned int ihit = 0; ihit < v_hitID.size() - 1; ++ihit) {
+        swapped = false;
+        for (unsigned int jhit = 0; jhit < v_hitID.size() - ihit - 1; ++jhit) {
+          if (m_hits.at(v_hitID[jhit]).time > m_hits.at(v_hitID[jhit + 1]).time) {
+            std::swap(v_hitID[jhit], v_hitID[jhit + 1]);
+            swapped = true;
+          }
+        }
+        if (swapped == false) {
+          break;
         }
       }
-      if (swapped == false) {
-        break;
+
+      // --- Get the longer time interval between the hits in the cell
+      float deltaT_max = 0.;
+      for (unsigned int ihit = 0; ihit < v_hitID.size() - 1; ++ihit) {
+        float deltaT = m_hits.at(v_hitID[ihit + 1]).time - m_hits.at(v_hitID[ihit]).time;
+
+        if (deltaT > deltaT_max) {
+          deltaT_max = deltaT;
+        }
       }
-    }
 
-    // --- Get the longer time interval between the hits in the cell
-    float deltaT_max = 0.;
-    for (unsigned int ihit = 0; ihit < v_hitID.size() - 1; ++ihit) {
-      float deltaT = m_hits.at(v_hitID[ihit + 1]).time - m_hits.at(v_hitID[ihit]).time;
-
-      if (deltaT > deltaT_max) {
-        deltaT_max = deltaT;
+      // --- Get the hit global position
+      const MTDGeomDet* thedet = geom->idToDet(geoId);
+      if (thedet == nullptr) {
+        throw cms::Exception("BtlSimHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
+                                                     << detId.rawId() << ") is invalid!" << std::dec << std::endl;
       }
-    }
+      const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+      const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-    // --- Get the hit global position
-    const MTDGeomDet* thedet = geom->idToDet(geoId);
-    if (thedet == nullptr) {
-      throw cms::Exception("BtlSimHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
-                                                   << detId.rawId() << ") is invalid!" << std::dec << std::endl;
-    }
-    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
-    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+      Local3DPoint local_point(convertMmToCm(m_hits.at(v_hitID[0]).x),
+                               convertMmToCm(m_hits.at(v_hitID[0]).y),
+                               convertMmToCm(m_hits.at(v_hitID[0]).z));
 
-    Local3DPoint local_point(convertMmToCm(m_hits.at(v_hitID[0]).x),
-                             convertMmToCm(m_hits.at(v_hitID[0]).y),
-                             convertMmToCm(m_hits.at(v_hitID[0]).z));
+      local_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));
+      const auto& global_point = thedet->toGlobal(local_point);
 
-    local_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));
-    const auto& global_point = thedet->toGlobal(local_point);
+      // --- Fill the histograms
+      meHitEnergy_->Fill(ene_tot_cell);
+      meHitTime_->Fill(m_hits.at(v_hitID[0]).time);
 
-    // --- Fill the histograms
-    meHitEnergy_->Fill(ene_tot_cell);
-    meHitTime_->Fill(m_hits.at(v_hitID[0]).time);
+      meHitXlocal_->Fill(m_hits.at(v_hitID[0]).x);
+      meHitYlocal_->Fill(m_hits.at(v_hitID[0]).y);
+      meHitZlocal_->Fill(m_hits.at(v_hitID[0]).z);
 
-    meHitXlocal_->Fill(m_hits.at(v_hitID[0]).x);
-    meHitYlocal_->Fill(m_hits.at(v_hitID[0]).y);
-    meHitZlocal_->Fill(m_hits.at(v_hitID[0]).z);
+      meOccupancy_->Fill(global_point.z(), global_point.phi());
 
-    meOccupancy_->Fill(global_point.z(), global_point.phi());
+      meHitX_->Fill(global_point.x());
+      meHitY_->Fill(global_point.y());
+      meHitZ_->Fill(global_point.z());
+      meHitPhi_->Fill(global_point.phi());
+      meHitEta_->Fill(global_point.eta());
 
-    meHitX_->Fill(global_point.x());
-    meHitY_->Fill(global_point.y());
-    meHitZ_->Fill(global_point.z());
-    meHitPhi_->Fill(global_point.phi());
-    meHitEta_->Fill(global_point.eta());
+      meHitTvsE_->Fill(ene_tot_cell, m_hits.at(v_hitID[0]).time);
+      meHitEvsPhi_->Fill(global_point.phi(), ene_tot_cell);
+      meHitEvsEta_->Fill(global_point.eta(), ene_tot_cell);
+      meHitEvsZ_->Fill(global_point.z(), ene_tot_cell);
+      meHitTvsPhi_->Fill(global_point.phi(), m_hits.at(v_hitID[0]).time);
+      meHitTvsEta_->Fill(global_point.eta(), m_hits.at(v_hitID[0]).time);
+      meHitTvsZ_->Fill(global_point.z(), m_hits.at(v_hitID[0]).time);
 
-    meHitTvsE_->Fill(ene_tot_cell, m_hits.at(v_hitID[0]).time);
-    meHitEvsPhi_->Fill(global_point.phi(), ene_tot_cell);
-    meHitEvsEta_->Fill(global_point.eta(), ene_tot_cell);
-    meHitEvsZ_->Fill(global_point.z(), ene_tot_cell);
-    meHitTvsPhi_->Fill(global_point.phi(), m_hits.at(v_hitID[0]).time);
-    meHitTvsEta_->Fill(global_point.eta(), m_hits.at(v_hitID[0]).time);
-    meHitTvsZ_->Fill(global_point.z(), m_hits.at(v_hitID[0]).time);
+      meNtrkPerCell_->Fill(v_hitID.size());
 
-    meNtrkPerCell_->Fill(v_hitID.size());
-
-    // --- First hit in the cell
-    int trackID = (int)(v_hitID[0] & 0xFFFFFFFF) / 100000000;
-    meHitTrkID1_->Fill(trackID);
-
-    // cells in the bulk of energy distribution
-    if (ene_tot_cell < cellEneCut_) {
-      meHitE1overEcellBulk1_->Fill(m_hits.at(v_hitID[0]).energy / ene_tot_cell);
-    }
-    // cells in the tail of energy distribution
-    else {
-      meHitE1overEcellTail1_->Fill(m_hits.at(v_hitID[0]).energy / ene_tot_cell);
-    }
-
-    // --- Second hit in the cell
-    if (v_hitID.size() == 2) {
-      trackID = (int)(v_hitID[1] & 0xFFFFFFFF) / 100000000;
-      meHitTrkID2_->Fill(trackID);
-
-      meHitDeltaT2_->Fill(deltaT_max);
+      // --- First hit in the cell
+      int trackID = (int)(v_hitID[0] & 0xFFFFFFFF) / 100000000;
+      meHitTrkID1_->Fill(trackID);
 
       // cells in the bulk of energy distribution
       if (ene_tot_cell < cellEneCut_) {
-        meHitE1overEcellBulk2_->Fill(m_hits.at(v_hitID[1]).energy / ene_tot_cell);
+        meHitE1overEcellBulk1_->Fill(m_hits.at(v_hitID[0]).energy / ene_tot_cell);
       }
       // cells in the tail of energy distribution
       else {
-        meHitE1overEcellTail2_->Fill(m_hits.at(v_hitID[1]).energy / ene_tot_cell);
+        meHitE1overEcellTail1_->Fill(m_hits.at(v_hitID[0]).energy / ene_tot_cell);
       }
 
-      meHitDeltaE12vsE1_->Fill(m_hits.at(v_hitID[0]).energy,
-                               m_hits.at(v_hitID[0]).energy - m_hits.at(v_hitID[1]).energy);
+      // --- Second hit in the cell
+      if (v_hitID.size() == 2) {
+        trackID = (int)(v_hitID[1] & 0xFFFFFFFF) / 100000000;
+        meHitTrkID2_->Fill(trackID);
 
-    }
-    // --- Third hit in the cell
-    else if (v_hitID.size() == 3) {
-      trackID = (int)(v_hitID[2] & 0xFFFFFFFF) / 100000000;
-      meHitTrkID3_->Fill(trackID);
-
-      meHitDeltaT3_->Fill(deltaT_max);
-
-      // cells in the bulk of energy distribution
-      if (ene_tot_cell < cellEneCut_) {
-        meHitE1overEcellBulk3_->Fill(m_hits.at(v_hitID[2]).energy / ene_tot_cell);
-      }
-      // cells in the tail of energy distribution
-      else {
-        meHitE1overEcellTail3_->Fill(m_hits.at(v_hitID[2]).energy / ene_tot_cell);
-      }
-
-    }
-    // --- Fourth hit in the cell and next ones
-    else if (v_hitID.size() >= 4) {
-      for (unsigned int ihit = 3; ihit < v_hitID.size(); ++ihit) {
-        trackID = (int)(v_hitID[ihit] & 0xFFFFFFFF) / 100000000;
-        meHitTrkID4_->Fill(trackID);
+        meHitDeltaT2_->Fill(deltaT_max);
 
         // cells in the bulk of energy distribution
         if (ene_tot_cell < cellEneCut_) {
-          meHitE1overEcellBulk4_->Fill(m_hits.at(v_hitID[ihit]).energy / ene_tot_cell);
+          meHitE1overEcellBulk2_->Fill(m_hits.at(v_hitID[1]).energy / ene_tot_cell);
         }
         // cells in the tail of energy distribution
         else {
-          meHitE1overEcellTail4_->Fill(m_hits.at(v_hitID[ihit]).energy / ene_tot_cell);
+          meHitE1overEcellTail2_->Fill(m_hits.at(v_hitID[1]).energy / ene_tot_cell);
         }
+
+        meHitDeltaE12vsE1_->Fill(m_hits.at(v_hitID[0]).energy,
+                                 m_hits.at(v_hitID[0]).energy - m_hits.at(v_hitID[1]).energy);
+
+      }
+      // --- Third hit in the cell
+      else if (v_hitID.size() == 3) {
+        trackID = (int)(v_hitID[2] & 0xFFFFFFFF) / 100000000;
+        meHitTrkID3_->Fill(trackID);
+
+        meHitDeltaT3_->Fill(deltaT_max);
+
+        // cells in the bulk of energy distribution
+        if (ene_tot_cell < cellEneCut_) {
+          meHitE1overEcellBulk3_->Fill(m_hits.at(v_hitID[2]).energy / ene_tot_cell);
+        }
+        // cells in the tail of energy distribution
+        else {
+          meHitE1overEcellTail3_->Fill(m_hits.at(v_hitID[2]).energy / ene_tot_cell);
+        }
+
+      }
+      // --- Fourth hit in the cell and next ones
+      else if (v_hitID.size() >= 4) {
+        for (unsigned int ihit = 3; ihit < v_hitID.size(); ++ihit) {
+          trackID = (int)(v_hitID[ihit] & 0xFFFFFFFF) / 100000000;
+          meHitTrkID4_->Fill(trackID);
+
+          // cells in the bulk of energy distribution
+          if (ene_tot_cell < cellEneCut_) {
+            meHitE1overEcellBulk4_->Fill(m_hits.at(v_hitID[ihit]).energy / ene_tot_cell);
+          }
+          // cells in the tail of energy distribution
+          else {
+            meHitE1overEcellTail4_->Fill(m_hits.at(v_hitID[ihit]).energy / ene_tot_cell);
+          }
+        }
+
+        meHitDeltaT4_->Fill(deltaT_max);
       }
 
-      meHitDeltaT4_->Fill(deltaT_max);
-    }
+    }  // cell loop
 
-  }  // cell loop
+  }  // module loop
 
-  // --- Iterate through energy thresholds
+  // --- Occupancy study
+  // Iterate through energy thresholds
   double bin_w_logE = (logE_max - logE_min) / n_bin_logE;
   for (int i = 0; i < n_bin_logE; i++) {
     double th_logE = logE_min + i * bin_w_logE;
     // --- Loop over the BTL sensor modules
-    for (const auto& module : modules) {
+    for (const auto& module : m_btlHitsPerCellAndModule) {
       bool SM_bool = false;     // Check if a SM has at least a crystal above threshold
       int crystal_count = 0;    // Count crystals above threshold in this module
       int SM_globalRunit = -1;  // globalRunit for the SM
@@ -418,6 +425,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     }
   }
+
   // --- This is to count the number of processed events, needed in the harvesting step
   meNevents_->Fill(0.5);
 }
