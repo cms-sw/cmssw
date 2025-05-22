@@ -279,14 +279,13 @@ int main(int argc, char* argv[]) {
       }
 
       if (printClusters) {
-        bool const isEventsTree = (selectedTree == edm::BranchTypeToProductTreeName(edm::InEvent));
         TTree* printTree = (TTree*)tfile->Get(selectedTree.c_str());
         if (printTree == nullptr) {
           std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
           std::cout << "Exiting\n";
           return 1;
         }
-        edm::clusterPrint(printTree, isEventsTree);
+        edm::clusterPrint(printTree);
       }
 
       // Print out event lists

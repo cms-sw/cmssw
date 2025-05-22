@@ -151,7 +151,7 @@ namespace edm {
       bool isAligned_ = true;
     };
 
-    std::vector<BranchBasketBytes> makeBranchBasketBytes(TBranch *branch, bool isEventsTree) {
+    std::vector<BranchBasketBytes> makeBranchBasketBytes(TBranch *branch) {
       std::vector<BranchBasketBytes> ret;
 
       TObjArray *subBranches = branch->GetListOfBranches();
@@ -159,7 +159,7 @@ namespace edm {
         // process sub-branches if there are any
         auto const nbranches = subBranches->GetEntries();
         for (Long64_t iBranch = 0; iBranch < nbranches; ++iBranch) {
-          auto vec = makeBranchBasketBytes(dynamic_cast<TBranch *>(subBranches->At(iBranch)), isEventsTree);
+          auto vec = makeBranchBasketBytes(dynamic_cast<TBranch *>(subBranches->At(iBranch)));
           ret.insert(ret.end(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
         }
       } else {
@@ -169,7 +169,7 @@ namespace edm {
     }
   }  // namespace
 
-  void clusterPrint(TTree *tr, bool isEventsTree) {
+  void clusterPrint(TTree *tr) {
     TTree::TClusterIterator clusterIter = tr->GetClusterIterator(0);
     Long64_t const nentries = tr->GetEntries();
 
@@ -180,18 +180,13 @@ namespace edm {
       TObjArray *branches = tr->GetListOfBranches();
       Long64_t const nbranches = branches->GetEntries();
       for (Long64_t iBranch = 0; iBranch < nbranches; ++iBranch) {
-        auto vec = makeBranchBasketBytes(dynamic_cast<TBranch *>(branches->At(iBranch)), isEventsTree);
+        auto vec = makeBranchBasketBytes(dynamic_cast<TBranch *>(branches->At(iBranch)));
         processors.insert(processors.end(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
       }
     }
 
     std::cout << "Printing cluster boundaries in terms of tree entries of the tree " << tr->GetName()
               << ". Note that end boundary is exclusive." << std::endl;
-    if (isEventsTree) {
-      std::cout << "For the Events tree the metadata branches are excluded from this calculation, "
-                   "because their basket boundaries do not necessarily align with the cluster boundaries."
-                << std::endl;
-    }
     std::cout << std::setw(15) << "Begin" << std::setw(15) << "End" << std::setw(15) << "Entries" << std::setw(15)
               << "Max baskets" << std::setw(15) << "Bytes" << std::endl;
     // Record branches whose baskets do not align with cluster boundaires
