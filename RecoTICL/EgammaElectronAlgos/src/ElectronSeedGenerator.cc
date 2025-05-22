@@ -213,6 +213,32 @@ void ElectronSeedGenerator::run(edm::Event &e,
                                     << ", no. of ElectronSeeds found  = " << out.size();
 }
 
+void ElectronSeedGenerator::run(edm::Event &e,
+                                const ticl::TracksterCollection ticlSuperClusters,
+                                unsigned int tracksterIndices,
+                                const std::vector<const TrajectorySeedCollection *> &seedsV,
+                                reco::ElectronSeedCollection &out) {
+  initialSeedCollectionVector_ = &seedsV;
+
+  // get the beamspot from the Event:
+  auto const &beamSpot = e.get(beamSpotTag_);
+
+  // if required get the vertices
+  std::vector<reco::Vertex> const *vertices = nullptr;
+  if (useRecoVertex_)
+    vertices = &e.get(verticesTag_);
+
+  for (unsigned int i : tracksterIndices) {
+    // Find the seeds
+    LogDebug("ElectronSeedGenerator") << "new cluster, calling seedsFromThisCluster";
+    seedsFromThisCluster(ticlSuperClusters[i], beamSpot, vertices, out);
+  }
+
+  LogDebug("ElectronSeedGenerator") << ": For event " << e.id();
+  LogDebug("ElectronSeedGenerator") << "Nr of superclusters after filter: " << tracksterIndices
+                                    << ", no. of ElectronSeeds found  = " << out.size();
+}
+
 void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
                                                  reco::BeamSpot const &beamSpot,
                                                  std::vector<reco::Vertex> const *vertices,
@@ -231,6 +257,78 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
       deltaPhi1 = deltaPhi1High_;
     } else {
       deltaPhi1 = dPhi1Coef1_ + dPhi1Coef2_ / clusterEnergyT;
+    }
+
+    matcher_.set1stLayer(-deltaPhi1 * sizeWindowENeg_, deltaPhi1 * (1. - sizeWindowENeg_));
+    matcher_.set2ndLayer(-deltaPhi2B_ / 2., deltaPhi2B_ / 2., -deltaPhi2F_ / 2., deltaPhi2F_ / 2.);
+  }
+
+  if (!useRecoVertex_)  // here use the beam spot position
+  {
+    double sigmaZ = beamSpot.sigmaZ();
+    double sigmaZ0Error = beamSpot.sigmaZ0Error();
+    double sq = sqrt(sigmaZ * sigmaZ + sigmaZ0Error * sigmaZ0Error);
+    double myZmin1 = beamSpot.position().z() - nSigmasDeltaZ1_ * sq;
+    double myZmax1 = beamSpot.position().z() + nSigmasDeltaZ1_ * sq;
+
+    GlobalPoint vertexPos;
+    ele_convert(beamSpot.position(), vertexPos);
+
+    matcher_.set1stLayerZRange(myZmin1, myZmax1);
+
+    // try electron
+    auto elePixelSeeds = matcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
+    seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, out, false);
+    // try positron
+    auto posPixelSeeds = matcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
+    seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, out, true);
+
+  } else if (vertices)  // here we use the reco vertices
+  {
+    for (auto const &vertex : *vertices) {
+      GlobalPoint vertexPos(vertex.position().x(), vertex.position().y(), vertex.position().z());
+      double myZmin1, myZmax1;
+      if (vertexPos.z() == beamSpot.position().z()) {  // in case vetex not found
+        double sigmaZ = beamSpot.sigmaZ();
+        double sigmaZ0Error = beamSpot.sigmaZ0Error();
+        double sq = sqrt(sigmaZ * sigmaZ + sigmaZ0Error * sigmaZ0Error);
+        myZmin1 = beamSpot.position().z() - nSigmasDeltaZ1_ * sq;
+        myZmax1 = beamSpot.position().z() + nSigmasDeltaZ1_ * sq;
+      } else {  // a vertex has been recoed
+        myZmin1 = vertex.position().z() - deltaZ1WithVertex_;
+        myZmax1 = vertex.position().z() + deltaZ1WithVertex_;
+      }
+
+      matcher_.set1stLayerZRange(myZmin1, myZmax1);
+
+      // try electron
+      auto elePixelSeeds = matcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
+      seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, out, false);
+      // try positron
+      auto posPixelSeeds = matcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
+      seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, out, true);
+    }
+  }
+}
+
+void ElectronSeedGenerator::seedsFromThisCluster(ticl::Trackster seedTrackster,
+                                                 reco::BeamSpot const &beamSpot,
+                                                 std::vector<reco::Vertex> const *vertices,
+                                                 reco::ElectronSeedCollection &out) {
+  float tracksterEnergy = seedTrackster.raw_energy();
+  GlobalPoint tracksterPos(seedTrackster.barycenter().x(), seedTrackster.barycenter().y(), seedTrackster.barycenter().z());
+  reco::ElectronSeed::CaloClusterRef caloCluster(seedTrackster); //Most likely wrong
+
+  if (dynamicPhiRoad_) {
+    float tracksterEnergyT = tracksterEnergy / cosh(EleRelPoint(tracksterPos, beamSpot.position()).eta());
+
+    float deltaPhi1;
+    if (tracksterEnergyT < lowPtThresh_) {
+      deltaPhi1 = deltaPhi1Low_;
+    } else if (tracksterEnergyT > highPtThresh_) {
+      deltaPhi1 = deltaPhi1High_;
+    } else {
+      deltaPhi1 = dPhi1Coef1_ + dPhi1Coef2_ / tracksterEnergyT;
     }
 
     matcher_.set1stLayer(-deltaPhi1 * sizeWindowENeg_, deltaPhi1 * (1. - sizeWindowENeg_));
