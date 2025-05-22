@@ -37,9 +37,7 @@ namespace edm::input {
       }
     }
 
-    setRefCoreStreamer(ep);
-    //make code exception safe
-    std::shared_ptr<void> refCoreStreamerGuard(nullptr, [](void*) { setRefCoreStreamer(false); });
+    RefCoreStreamerGuard refCoreStreamerGuard(ep);
 
     std::shared_ptr<WrapperBase> edp;
     try {
