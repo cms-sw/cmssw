@@ -207,12 +207,71 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
 
   // if OT RecHits are used in PixelTracks, fill the hitmap also with those
   if (useOTExtension_) {
-    // perform the exact same loop of how the SoA is initially filled with OT hits
-    // and get the index by counting the hits (starting from nPixelHits)
-    for (int idx = nPixelHits; auto const &detSet : *otRecHitsDSV) {
+    // The RecHits in the SoA are ordered according to the detUnit->index()
+    // of the respective OT module. For this reason, in order to infer the
+    // hit position in the SoA, we need to know which  modules are there and
+    // how many hits each module has.
+    // We use:
+    //   - detIdToIndex: map the detId to detUnit->index()
+    //     (NOTE: technically, we wouldn't need the detUnit at all if the order
+    //     of detIds and detUnit->index is identical, to be checked)
+    //   - p_modulesInPSInOTBarrel: set of detUnit->index() of considered modules
+    //     (used for finding the "moduleIdOT", position of the module in the SoA)
+    //   - moduleStartOT: map from moduleIdOT to position of first RecHit of that
+    //     layer in the RecHit SoA
+
+    auto const &detUnits = trackerGeometry->detUnits();
+    std::map<uint32_t, uint16_t> detIdToIndex;
+    std::set<int> p_modulesInPSInOTBarrel;
+
+    // fill detIdToIndex map and p_modulesInPSInOTBarrel set of modules
+    for (auto &detUnit : detUnits) {
+      DetId detId(detUnit->geographicalId());
+      if (isPinPSinOTBarrel(detId)) {
+        detIdToIndex[detUnit->geographicalId()] = detUnit->index();
+        p_modulesInPSInOTBarrel.insert(detUnit->index());
+      }
+    }
+
+    // function to get the "moduleId" of the OT modules
+    // (NOT a general CMSSW Id but just the index of the OT module in moduleStartOT)
+    auto getModuleIdOT = [&](DetId detId) {
+      int index = detIdToIndex[detId];
+      auto it = p_modulesInPSInOTBarrel.find(index);
+      if (it != p_modulesInPSInOTBarrel.end()) {
+        return std::distance(p_modulesInPSInOTBarrel.begin(), it);
+      } else {
+        return -1L;
+      }
+    };
+
+    // count hits in all considered OT modules and fill them in moduleStartOT
+    // at the position of the subsequent module
+    std::vector<int> moduleStartOT;
+    moduleStartOT.resize(p_modulesInPSInOTBarrel.size() + 1, 0);
+    for (auto const &detSet : *otRecHitsDSV) {
       auto detId = detSet.detId();
       if (isPinPSinOTBarrel(DetId(detId))) {
-        for (auto const &recHit : detSet) {
+        int moduleId = getModuleIdOT(detId);
+        if (moduleId != -1) {
+          moduleStartOT[moduleId + 1] = detSet.size();
+        } else {
+          assert(0);
+        }
+      }
+    }
+
+    // accumulate the number of hits starting from the number of pixel hits
+    // to finalize the actual positions of the layers in the RecHit SoA
+    moduleStartOT[0] = nPixelHits;
+    std::partial_sum(moduleStartOT.cbegin(), moduleStartOT.cend(), moduleStartOT.begin());
+
+    // perform the exact same loop of how the SoA is initially filled with OT hits
+    // and get the index by counting the hits (starting from nPixelHits)
+    for (auto const &detSet : *otRecHitsDSV) {
+      auto detId = detSet.detId();
+      if (isPinPSinOTBarrel(DetId(detId))) {
+        for (int idx = moduleStartOT[getModuleIdOT(detId)]; auto const &recHit : detSet) {
           hitmap[idx] = &recHit;
           idx++;
         }
@@ -261,7 +320,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     if (nHits < minNumberOfHits_)  //move to nLayers?
       continue;
 
-    //store the index of the SoA: 
+    //store the index of the SoA:
     // indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
     indToEdm[it] = nt;
     ++nt;
