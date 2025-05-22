@@ -3234,7 +3234,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2024',
-        'Era' : 'Run3_FastSim',
+        'Era' : 'Run3_2024_FastSim',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
