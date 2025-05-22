@@ -122,10 +122,10 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
     DetId detId(detUnit->geographicalId());
     if (isPh2Pixel(detId))
         modulesInPixel++;
-    detIdToIndex[detUnit->geographicalId()] = detUnit->index();
     if (isPinPSinOTBarrel(detId)) {
+      detIdToIndex[detUnit->geographicalId()] = detUnit->index();
       p_modulesInPSInOTBarrel.insert(detUnit->index());
-//      std::cout << "Inserted " << detUnit->index() << " " << p_modulesInPSInOTBarrel.size() << std::endl;
+      std::cout << "Inserted " << detUnit->index() << " " << p_modulesInPSInOTBarrel.size() << " on layer " << int((detId.rawId() >> 20) & 0xF) <<  std::endl;
     }
   }
   // Count the number of P hits in the OT to dimension the SoA
@@ -143,57 +143,106 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
   std::cout << "Number of strip hits: " << nStripHits << std::endl;
   std::cout << "Total hits of PinOTBarrel:   " << PHitsInOTBarrel << std::endl;
 
-  HitsHost stripHitsHost(queue, PHitsInOTBarrel, p_modulesInPSInOTBarrel.size());
+  HitsHost stripHitsHost(queue, PHitsInOTBarrel, p_modulesInPSInOTBarrel.size() + 1);
   auto& stripHitsModuleView = stripHitsHost.view<::reco::HitModuleSoA>();
 
-  int n_hits = 0;
+  std::vector<int> counterOfHitsPerModule(p_modulesInPSInOTBarrel.size(), 0);
   assert(p_modulesInPSInOTBarrel.size());
   for (const auto& detSet : stripHits) {
+    auto firstHit = detSet.begin();
+    auto detId = firstHit->rawId();
+    auto index = detIdToIndex[detId];
+    int offset = 0;
+    if (isPinPSinOTBarrel(DetId(detId))) {
+      auto it = p_modulesInPSInOTBarrel.find(index);
+      if (it != p_modulesInPSInOTBarrel.end()) {
+        offset = std::distance(p_modulesInPSInOTBarrel.begin(), it);
+      } else {
+        assert(0);
+      }
+      for (const auto& recHit : detSet) {
+        counterOfHitsPerModule[offset]++;
+      }
+    }
+  }
+#if 1
+  int modId = 0;
+  for (auto c : counterOfHitsPerModule) {
+    std::cout << "On module " << modId << " we have " << c << " hits." << std::endl;
+    modId++;
+  }
+#endif
 
+  std::vector<int> cumulativeHitPerModule(counterOfHitsPerModule.size());
+  std::partial_sum(counterOfHitsPerModule.begin(), counterOfHitsPerModule.end(), cumulativeHitPerModule.begin());
+  // Create new vector with first element as 0, then shifted contents from counterOfHitsPerModule
+  std::vector<int> shifted(cumulativeHitPerModule.size(), 0);
+  stripHitsModuleView[0].moduleStart() = nPixelHits;
+  std::cout << "Module start: 0 with hits: " << stripHitsModuleView[0].moduleStart() << std::endl;
+  for (size_t i = 1; i < cumulativeHitPerModule.size(); ++i) {
+    shifted[i] = cumulativeHitPerModule[i - 1];
+    stripHitsModuleView[i].moduleStart() = cumulativeHitPerModule[i-1] + nPixelHits;
+    std::cout << "Module start: " << i << " with hits: " << stripHitsModuleView[i].moduleStart() << std::endl;
+  }
+
+  for (const auto& detSet : stripHits) {
     auto firstHit = detSet.begin();
     auto detId = firstHit->rawId();
     auto det = trackerGeometry->idToDet(detId);
     auto index = detIdToIndex[detId];
+    int offset = 0;
     if (isPinPSinOTBarrel(DetId(detId))) {
       auto it = p_modulesInPSInOTBarrel.find(index);
       if (it != p_modulesInPSInOTBarrel.end()) {
-        int offset = std::distance(p_modulesInPSInOTBarrel.begin(), it);
-        stripHitsModuleView[offset].moduleStart() = n_hits + nPixelHits;
+        offset = std::distance(p_modulesInPSInOTBarrel.begin(), it);
+//        stripHitsModuleView[offset].moduleStart() = cumulativeHitPerModule[offset] + nPixelHits;
+//        std::cout << "Module start: " << offset << " " << index << " with hits: " << stripHitsModuleView[offset].moduleStart() << std::endl;
       } else {
         assert(0);
       }
-    }
-
-    for (const auto& recHit : detSet) {
-
-      // Select only P-hits from the OT barrel
-      if (isPinPSinOTBarrel(DetId(detId))) {
-        assert(n_hits < PHitsInOTBarrel);
-        stripHitsHost.view()[n_hits].xLocal() = recHit.localPosition().x();
-        stripHitsHost.view()[n_hits].yLocal() = recHit.localPosition().y();
-        stripHitsHost.view()[n_hits].xerrLocal() = recHit.localPositionError().xx();
-        stripHitsHost.view()[n_hits].yerrLocal() = recHit.localPositionError().yy();
-        auto globalPosition = det->toGlobal(recHit.localPosition());
-        double gx = globalPosition.x() - bs.x0();
-        double gy = globalPosition.y() - bs.y0();
-        double gz = globalPosition.z() - bs.z0();
-//        std::cout << gx << std::endl;
-        stripHitsHost.view()[n_hits].xGlobal() = gx;
-        stripHitsHost.view()[n_hits].yGlobal() = gy;
-        stripHitsHost.view()[n_hits].zGlobal() = gz;
-        stripHitsHost.view()[n_hits].rGlobal() = sqrt(gx * gx + gy * gy);
-        stripHitsHost.view()[n_hits].iphi() = unsafe_atan2s<7>(gy, gx);
-        stripHitsHost.view()[n_hits].chargeAndStatus().charge = 0;
-        stripHitsHost.view()[n_hits].chargeAndStatus().status = {0, 0, 0, 0, 0};
-        stripHitsHost.view()[n_hits].clusterSizeX() = -1;
-        stripHitsHost.view()[n_hits].clusterSizeY() = -1;
-        stripHitsHost.view()[n_hits].detectorIndex() = modulesInPixel++;
-        n_hits++;
+      for (const auto& recHit : detSet) {
+        // Select only P-hits from the OT barrel
+        if (isPinPSinOTBarrel(DetId(detId))) {
+          int idx = shifted[offset]++;
+          assert(idx < PHitsInOTBarrel);
+          stripHitsHost.view()[idx].xLocal() = recHit.localPosition().x();
+          stripHitsHost.view()[idx].yLocal() = recHit.localPosition().y();
+          stripHitsHost.view()[idx].xerrLocal() = recHit.localPositionError().xx();
+          stripHitsHost.view()[idx].yerrLocal() = recHit.localPositionError().yy();
+          auto globalPosition = det->toGlobal(recHit.localPosition());
+          double gx = globalPosition.x() - bs.x0();
+          double gy = globalPosition.y() - bs.y0();
+          double gz = globalPosition.z() - bs.z0();
+          //        std::cout << gx << std::endl;
+          stripHitsHost.view()[idx].xGlobal() = gx;
+          stripHitsHost.view()[idx].yGlobal() = gy;
+          stripHitsHost.view()[idx].zGlobal() = gz;
+          stripHitsHost.view()[idx].rGlobal() = sqrt(gx * gx + gy * gy);
+          stripHitsHost.view()[idx].iphi() = unsafe_atan2s<7>(gy, gx);
+          stripHitsHost.view()[idx].chargeAndStatus().charge = 0;
+          stripHitsHost.view()[idx].chargeAndStatus().status = {0, 0, 0, 0, 0};
+          stripHitsHost.view()[idx].clusterSizeX() = -1;
+          stripHitsHost.view()[idx].clusterSizeY() = -1;
+          stripHitsHost.view()[idx].detectorIndex() = modulesInPixel + offset;
+        }
       }
     }
   }
+  stripHitsModuleView[p_modulesInPSInOTBarrel.size()].moduleStart() = cumulativeHitPerModule[p_modulesInPSInOTBarrel.size()-1]+nPixelHits;
 
   std::cout << "DONE" << std::endl;
+#if 1
+  int current = 0;
+  for (int h = 0; h < stripHitsHost.view().metadata().size(); ++h) {
+    auto idx =  stripHitsHost.view()[h].detectorIndex();
+    std::cout << h <<  " detectorIndexInSoA: " << idx << std::endl;
+    assert(idx>=current);
+    current = idx;
+  }
+  for (int h = 0; h < stripHitsModuleView.metadata().size(); ++h) {
+    std::cout << h << " -> " << stripHitsModuleView[h].moduleStart() << std::endl;
+  }
+#endif
 
   auto moduleStartView = cms::alpakatools::make_host_view<uint32_t>(stripHitsModuleView.moduleStart(), stripHitsModuleView.metadata().size());
   HMSstorage moduleStartVec(stripHitsModuleView.metadata().size());

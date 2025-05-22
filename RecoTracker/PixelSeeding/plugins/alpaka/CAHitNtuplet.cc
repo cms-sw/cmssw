@@ -170,6 +170,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //   only cover the OT barrel part, and will ignore the OT forward.
         if (isPh2Pixel(detid)) {
           if (layer != oldLayer) {
+            std::cout << "Pixel LayerStart: " << layerCount << " has " << n_modules << " modules." << std::endl;
             layerStarts[layerCount++] = n_modules;
             if (layerCount > n_layers + 1)
               break;
@@ -184,6 +185,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             DetId unitDetId(detUnit->geographicalId());
             if (isPinPSinOTBarrel(unitDetId)) {
               if (layer != oldLayer) {
+                std::cout << "OT LayerStart: " << layerCount << " has " << n_modules << " modules." << std::endl;
                 layerStarts[layerCount++] = n_modules;
                 if (layerCount > n_layers + 1)
                   break;
@@ -196,6 +198,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
         counter++;
       }
+      layerStarts[n_layers] = n_modules;
+      std::cout << "OT LayerStart: " << n_layers << " has " << n_modules << " modules." << std::endl;
     } else {
       for (auto& det : dets) {
         DetId detid = det->geographicalId();
