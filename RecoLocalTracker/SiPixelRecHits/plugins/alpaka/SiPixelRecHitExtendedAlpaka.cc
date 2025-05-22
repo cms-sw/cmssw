@@ -242,18 +242,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto offsetBPIX2Pixel = cms::alpakatools::make_device_view(iEvent.queue(), pixelRecHitsSoA.view().offsetBPIX2());
     alpaka::memcpy(iEvent.queue(), offsetBPIX2Output, offsetBPIX2Pixel);
 
-    auto hitModuleStartPixel = cms::alpakatools::make_device_view(
-        iEvent.queue(), pixelRecHitsSoA.view<::reco::HitModuleSoA>().moduleStart(), nPixelHits);
-    auto hitModuleStartTracker = cms::alpakatools::make_device_view(
-        iEvent.queue(), otRecHitsSoA.view<::reco::HitModuleSoA>().moduleStart(), nTrackerHits);
-    auto hitModuleStartPixelOutput = cms::alpakatools::make_device_view(
-        iEvent.queue(), outputSoA.view<::reco::HitModuleSoA>().moduleStart(), nPixelHits);
-    auto hitModuleStartTrackerOutput = cms::alpakatools::make_device_view(
-        iEvent.queue(), outputSoA.view<::reco::HitModuleSoA>().moduleStart() + nPixelHits, nTrackerHits);
-    alpaka::memcpy(iEvent.queue(), hitModuleStartPixelOutput, hitModuleStartPixel);
-    alpaka::memcpy(iEvent.queue(), hitModuleStartTrackerOutput, hitModuleStartTracker);
+    // copy the moduleStart from pixelRecHitsSoA and otRecHitsSoA to outputSoA
+    const int nPixelModules = pixelRecHitsSoA.nModules();
+    const int nTrackerModules = otRecHitsSoA.nModules();
 
-    // emplace the merged hits in the event
+    auto hitModuleStartOutputPixel = cms::alpakatools::make_device_view(
+        iEvent.queue(), outputSoA.view<::reco::HitModuleSoA>().moduleStart(), nPixelModules);
+    auto hitModuleStartOutputTracker = cms::alpakatools::make_device_view(
+        iEvent.queue(), outputSoA.view<::reco::HitModuleSoA>().moduleStart() + nPixelModules, nTrackerModules);
+
+    const auto hitModuleStartPixel = cms::alpakatools::make_device_view(
+        iEvent.queue(), pixelRecHitsSoA.view<::reco::HitModuleSoA>().moduleStart(), nPixelModules);
+    const auto hitModuleStartTracker = cms::alpakatools::make_device_view(
+        iEvent.queue(), otRecHitsSoA.view<::reco::HitModuleSoA>().moduleStart(), nTrackerModules);
+
+    alpaka::memcpy(iEvent.queue(), hitModuleStartOutputPixel, hitModuleStartPixel);
+    alpaka::memcpy(iEvent.queue(), hitModuleStartOutputTracker, hitModuleStartTracker);
+
+    // emplace the merged SoA in the event
     iEvent.emplace(outputRecHitsSoAToken_, std::move(outputSoA));
   }
   using SiPixelRecHitExtendedAlpakaPhase1 = SiPixelRecHitExtendedAlpaka<pixelTopology::Phase1>;
