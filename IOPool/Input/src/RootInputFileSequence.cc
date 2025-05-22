@@ -98,9 +98,9 @@ namespace edm {
   //  when it is asked to do so.
   //
 
-  bool RootInputFileSequence::readEvent(EventPrincipal& eventPrincipal) {
+  bool RootInputFileSequence::readEvent(EventPrincipal& eventPrincipal, bool readAllProducts) {
     assert(rootFile());
-    return rootFile()->readEvent(eventPrincipal);
+    return rootFile()->readEvent(eventPrincipal, readAllProducts);
   }
 
   bool RootInputFileSequence::containedInCurrentFile(RunNumber_t run,

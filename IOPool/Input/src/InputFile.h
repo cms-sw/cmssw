@@ -10,6 +10,8 @@ Holder for an input TFile.
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "TFile.h"
+#include "TTree.h"
+#include "TTreeCache.h"
 
 #include <map>
 #include <string>
@@ -46,8 +48,33 @@ namespace edm {
     static void reportReadBranch(InputType inputType, std::string const& branchname);
 
     TObject* Get(char const* name) { return file_->Get(name); }
-    TFileCacheRead* GetCacheRead() const { return file_->GetCacheRead(); }
-    void SetCacheRead(TFileCacheRead* tfcr) { file_->SetCacheRead(tfcr, nullptr, TFile::kDoNotDisconnect); }
+    std::unique_ptr<TTreeCache> createCacheWithSize(TTree& iTree, unsigned int cacheSize) {
+      iTree.SetCacheSize(static_cast<Long64_t>(cacheSize));
+      std::unique_ptr<TTreeCache> newCache(dynamic_cast<TTreeCache*>(file_->GetCacheRead(&iTree)));
+      file_->SetCacheRead(nullptr, &iTree, TFile::kDoNotDisconnect);
+      return newCache;
+    }
+
+    class CacheGuard {
+    public:
+      CacheGuard(TFile* file, TObject* tree, TFileCacheRead* tfcr) : file_(file), tree_(tree) {
+        file_->SetCacheRead(tfcr, tree_, TFile::kDoNotDisconnect);
+      }
+      CacheGuard() = delete;
+      CacheGuard(CacheGuard const&) = delete;
+      CacheGuard& operator=(CacheGuard const&) = delete;
+      CacheGuard(CacheGuard&&) = delete;
+      CacheGuard& operator=(CacheGuard&&) = delete;
+      ~CacheGuard() { file_->SetCacheRead(nullptr, tree_, TFile::kDoNotDisconnect); }
+
+    private:
+      TFile* file_;
+      TObject* tree_;
+    };
+    [[nodiscard]] CacheGuard setCacheReadTemporarily(TFileCacheRead* tfcr, TObject* iTree) {
+      return CacheGuard(file_.get(), iTree, tfcr);
+    }
+    void clearCacheRead(TObject* iTree) { file_->SetCacheRead(nullptr, iTree, TFile::kDoNotDisconnect); }
     void logFileAction(char const* msg, char const* fileName) const;
 
   private:

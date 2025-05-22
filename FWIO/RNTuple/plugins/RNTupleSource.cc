@@ -235,6 +235,7 @@ namespace edm {
 
     for (unsigned int i = 0; i < desc.allocations_->numberOfStreams(); ++i) {
       provenanceRetrievers_.push_back(std::make_shared<ProductProvenanceRetriever>(
+          i,
           std::make_unique<ProvenanceReader>(file_->eventProducts(),
                                              &parentageIDLookup_,
                                              entryForStream_.begin(),
