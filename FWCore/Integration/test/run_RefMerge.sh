@@ -14,8 +14,9 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   echo ${test}MERGE------------------------------------------------------------
   cmsRun ${LOCAL_TEST_DIR}/${test}cfg.py --inFile1 'ref_merge_prod1.root' --inFile2 'ref_merge_prod2.root' --outFile 'ref_merge.root' || die "cmsRun ${test}cfg.py" $?
 
-  echo ${test}test------------------------------------------------------------
-  cmsRun ${LOCAL_TEST_DIR}/${test}test_cfg.py --fileName 'ref_merge.root' || die "cmsRun ${test}test_cfg.py" $?
+
+  echo ${test}MERGE promptRead------------------------------------------------------------
+  cmsRun ${LOCAL_TEST_DIR}/${test}test_cfg.py --fileName 'ref_merge.root'  --promptRead || die "cmsRun ${test}test_cfg.py" $?
 
   echo ${test}keepAllProd ------------------------------------------------------------
   cmsRun ${LOCAL_TEST_DIR}/${test}prod_cfg.py --extraProducers --keepAllProducts --fileName 'ref_merge_prod_all.root' || die "cmsRun ${test}prod_cfg.py --keepAllProducts" $?
