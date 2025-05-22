@@ -2,11 +2,10 @@
 #include <cmath>
 #include <iostream>
 
-#include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
+#include "DataFormats/TICLReco/interface/TICLLayerTile.h"
 
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
-
 using namespace ticl;
 
 int countEntries(const TICLLayerTile &t, const std::array<int, 4> &limits) {
