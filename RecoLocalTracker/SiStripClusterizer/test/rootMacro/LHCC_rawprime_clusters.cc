@@ -954,7 +954,7 @@ int main(int argc, char const *argv[])
         canvSingle->SetLogy(true);
         h_falling_barycenter_tot_ac->Draw("HIST");
 	latex.DrawLatexNDC(0.18,0.945,"CMS Preliminary");
-	latex.DrawLatexNDC(0.44,0.945,"PbPb collisions, 2024 (5.36 TeV)");
+	latex.DrawLatexNDC(0.40,0.945,"PbPb collisions, 2024 (5.36 TeV)");
         latex.SetTextFont(43);
         canvSingle->SaveAs((expTag+"falling_barycenter.png").c_str());
         delete h_falling_barycenter_tot_ac;
