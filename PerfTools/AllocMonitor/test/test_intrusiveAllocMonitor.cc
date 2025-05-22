@@ -41,6 +41,19 @@ process.add_(cms.Service('IntrusiveAllocMonitor'))
 
     edm::LogPrint("Test").format("Sum {}", sum);
   }
+  {
+    auto guard = imb->startMonitoring(std::string("Vector fill again"));
+    for (int i = 0; i < 10000; ++i) {
+      vec.push_back(i * 2 - 1);
+    }
+
+    int sum = 0;
+    for (int a : vec) {
+      sum += a;
+    }
+
+    edm::LogPrint("Test").format("Sum {}", sum);
+  }
 
   return 0;
 }
