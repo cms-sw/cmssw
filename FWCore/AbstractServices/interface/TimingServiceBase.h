@@ -42,10 +42,7 @@ namespace edm {
 
     static void jobStarted();
 
-    static std::chrono::steady_clock::time_point jobStartTime() { return s_jobStartTime; }
-
-  private:
-    static std::chrono::steady_clock::time_point s_jobStartTime;
+    static std::chrono::steady_clock::time_point jobStartTime();
   };
 }  // namespace edm
 
