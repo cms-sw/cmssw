@@ -125,7 +125,7 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
     if (isPinPSinOTBarrel(detId)) {
       detIdToIndex[detUnit->geographicalId()] = detUnit->index();
       p_modulesInPSInOTBarrel.insert(detUnit->index());
-      std::cout << "Inserted " << detUnit->index() << " " << p_modulesInPSInOTBarrel.size() << " on layer " << int((detId.rawId() >> 20) & 0xF) <<  std::endl;
+//      std::cout << "Inserted " << detUnit->index() << " " << p_modulesInPSInOTBarrel.size() << " on layer " << int((detId.rawId() >> 20) & 0xF) <<  std::endl;
     }
   }
   // Count the number of P hits in the OT to dimension the SoA
@@ -165,7 +165,7 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
       }
     }
   }
-#if 1
+#if 0
   int modId = 0;
   for (auto c : counterOfHitsPerModule) {
     std::cout << "On module " << modId << " we have " << c << " hits." << std::endl;
@@ -231,7 +231,7 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
   stripHitsModuleView[p_modulesInPSInOTBarrel.size()].moduleStart() = cumulativeHitPerModule[p_modulesInPSInOTBarrel.size()-1]+nPixelHits;
 
   std::cout << "DONE" << std::endl;
-#if 1
+#if 0
   int current = 0;
   for (int h = 0; h < stripHitsHost.view().metadata().size(); ++h) {
     auto idx =  stripHitsHost.view()[h].detectorIndex();
