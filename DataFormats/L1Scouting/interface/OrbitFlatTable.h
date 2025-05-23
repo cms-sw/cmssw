@@ -25,11 +25,9 @@ namespace l1ScoutingRun3 {
                    bool singleton = false,
                    bool extension = false)
         : nanoaod::FlatTable(bxOffsets.back(), name, singleton, extension), bxOffsets_(bxOffsets) {
-
       if (bxOffsets.size() != orbitBufferSize_ + 1) {
-        throw cms::Exception("LogicError") <<
-            "Mismatch between bxOffsets.size() " << bxOffsets.size() <<
-            " and orbitBufferSize_ + 1" << (orbitBufferSize_ + 1);
+        throw cms::Exception("LogicError") << "Mismatch between bxOffsets.size() " << bxOffsets.size()
+                                           << " and orbitBufferSize_ + 1" << (orbitBufferSize_ + 1);
       }
     }
 
