@@ -178,11 +178,11 @@ void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSe
   // Create new vector with first element as 0, then shifted contents from counterOfHitsPerModule
   std::vector<int> shifted(cumulativeHitPerModule.size(), 0);
   stripHitsModuleView[0].moduleStart() = nPixelHits;
-  std::cout << "Module start: 0 with hits: " << stripHitsModuleView[0].moduleStart() << std::endl;
+//  std::cout << "Module start: 0 with hits: " << stripHitsModuleView[0].moduleStart() << std::endl;
   for (size_t i = 1; i < cumulativeHitPerModule.size(); ++i) {
     shifted[i] = cumulativeHitPerModule[i - 1];
     stripHitsModuleView[i].moduleStart() = cumulativeHitPerModule[i-1] + nPixelHits;
-    std::cout << "Module start: " << i << " with hits: " << stripHitsModuleView[i].moduleStart() << std::endl;
+ //   std::cout << "Module start: " << i << " with hits: " << stripHitsModuleView[i].moduleStart() << std::endl;
   }
 
   for (const auto& detSet : stripHits) {
