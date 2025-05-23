@@ -25,18 +25,18 @@ class L1ScoutingPhysicalValueMapProducer : public edm::stream::EDProducer<> {
 public:
   using TOrbitCollection = OrbitCollection<T>;
 
-  L1ScoutingPhysicalValueMapProducer(edm::ParameterSet const&);
+  L1ScoutingPhysicalValueMapProducer(edm::ParameterSet const &);
   ~L1ScoutingPhysicalValueMapProducer() override = default;
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void produce(edm::Event&, edm::EventSetup const&) override;
-  
-  void putValueMap(edm::Event&, edm::Handle<TOrbitCollection>&, const std::vector<float>&, const std::string&);
+  void produce(edm::Event &, edm::EventSetup const &) override;
+
+  void putValueMap(edm::Event &, edm::Handle<TOrbitCollection> &, const std::vector<float> &, const std::string &);
 
   edm::EDGetTokenT<TOrbitCollection> src_;
-  
+
   static const std::unordered_map<std::string, std::function<float(int)>> func_lookup_;
 
   std::vector<std::string> labels_;
@@ -46,21 +46,20 @@ private:
 
 template <typename T>
 const std::unordered_map<std::string, std::function<float(int)>> L1ScoutingPhysicalValueMapProducer<T>::func_lookup_ = {
-  {"ugmt::fPt", l1ScoutingRun3::ugmt::fPt},
-  {"ugmt::fEta", l1ScoutingRun3::ugmt::fEta},
-  {"ugmt::fPhi", l1ScoutingRun3::ugmt::fPhi},
-  {"ugmt::fPtUnconstrained", l1ScoutingRun3::ugmt::fPtUnconstrained},
-  {"ugmt::fEtaAtVtx", l1ScoutingRun3::ugmt::fEtaAtVtx},
-  {"ugmt::fPhiAtVtx", l1ScoutingRun3::ugmt::fPhiAtVtx},
-  {"demux::fEt", l1ScoutingRun3::demux::fEt},
-  {"demux::fEta", l1ScoutingRun3::demux::fEta},
-  {"demux::fPhi", l1ScoutingRun3::demux::fPhi},
+    {"ugmt::fPt", l1ScoutingRun3::ugmt::fPt},
+    {"ugmt::fEta", l1ScoutingRun3::ugmt::fEta},
+    {"ugmt::fPhi", l1ScoutingRun3::ugmt::fPhi},
+    {"ugmt::fPtUnconstrained", l1ScoutingRun3::ugmt::fPtUnconstrained},
+    {"ugmt::fEtaAtVtx", l1ScoutingRun3::ugmt::fEtaAtVtx},
+    {"ugmt::fPhiAtVtx", l1ScoutingRun3::ugmt::fPhiAtVtx},
+    {"demux::fEt", l1ScoutingRun3::demux::fEt},
+    {"demux::fEta", l1ScoutingRun3::demux::fEta},
+    {"demux::fPhi", l1ScoutingRun3::demux::fPhi},
 };
 
 template <typename T>
-L1ScoutingPhysicalValueMapProducer<T>::L1ScoutingPhysicalValueMapProducer(edm::ParameterSet const& params)
+L1ScoutingPhysicalValueMapProducer<T>::L1ScoutingPhysicalValueMapProducer(edm::ParameterSet const &params)
     : src_(consumes(params.getParameter<edm::InputTag>("src"))) {
-  
   auto conversionsPSet = params.getParameter<edm::ParameterSet>("conversions");
   for (const std::string &retname : conversionsPSet.getParameterNamesForType<edm::ParameterSet>()) {
     labels_.emplace_back(retname);
@@ -72,7 +71,7 @@ L1ScoutingPhysicalValueMapProducer<T>::L1ScoutingPhysicalValueMapProducer(edm::P
     if (it != func_lookup_.end()) {
       funcs_.emplace_back(it->second);
     } else {
-      std::stringstream ss; 
+      std::stringstream ss;
       for (auto const &func : func_lookup_)
         ss << "\n" << func.first;
       throw cms::Exception("L1ScoutingPhysicalValueMapProducer")
@@ -87,28 +86,22 @@ void L1ScoutingPhysicalValueMapProducer<T>::fillDescriptions(edm::ConfigurationD
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("src");
-  
-  std::vector<std::string> allowed_funcs;
-  for (auto const &func : func_lookup_)
-    allowed_funcs.push_back(func.first);
 
   edm::ParameterSetDescription conversion;
-  conversion.add<std::string>("func")
-      ->setComment("function used to convert");
-  conversion.add<std::string>("arg")
-      ->setComment("attribute of src to be converted");
-  
+  conversion.add<std::string>("func")->setComment("function used to convert");
+  conversion.add<std::string>("arg")->setComment("attribute of src to be converted");
+
   edm::ParameterSetDescription conversions;
   conversions.setComment("a parameter set to define all conversions");
   conversions.addNode(
-        edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, conversion));
+      edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, conversion));
   desc.add<edm::ParameterSetDescription>("conversions", conversions);
 
   descriptions.addWithDefaultLabel(desc);
 }
 
 template <typename T>
-void L1ScoutingPhysicalValueMapProducer<T>::produce(edm::Event& iEvent, edm::EventSetup const&) {
+void L1ScoutingPhysicalValueMapProducer<T>::produce(edm::Event &iEvent, edm::EventSetup const &) {
   edm::Handle<TOrbitCollection> src = iEvent.getHandle(src_);
 
   unsigned int nobjs = src->size();
@@ -131,10 +124,10 @@ void L1ScoutingPhysicalValueMapProducer<T>::produce(edm::Event& iEvent, edm::Eve
 }
 
 template <typename T>
-void L1ScoutingPhysicalValueMapProducer<T>::putValueMap(edm::Event& iEvent,
-                                                        edm::Handle<TOrbitCollection>& handle,
-                                                        const std::vector<float>& values,
-                                                        const std::string& label) {
+void L1ScoutingPhysicalValueMapProducer<T>::putValueMap(edm::Event &iEvent,
+                                                        edm::Handle<TOrbitCollection> &handle,
+                                                        const std::vector<float> &values,
+                                                        const std::string &label) {
   std::unique_ptr<edm::ValueMap<float>> valuemap(new edm::ValueMap<float>());
   edm::ValueMap<float>::Filler filler(*valuemap);
   filler.insert(handle, values.begin(), values.end());

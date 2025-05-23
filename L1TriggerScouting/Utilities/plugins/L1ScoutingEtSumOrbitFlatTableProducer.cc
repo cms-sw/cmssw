@@ -20,7 +20,6 @@ public:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
-
   std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> produceSingle(l1ScoutingRun3::BxSumsOrbitCollection const&) const;
   std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> produceMultiple(l1ScoutingRun3::BxSumsOrbitCollection const&) const;
 
@@ -56,7 +55,7 @@ L1ScoutingEtSumOrbitFlatTableProducer::L1ScoutingEtSumOrbitFlatTableProducer(con
       phiPrecision_(params.getParameter<int>("phiPrecision")) {
   if (!writePhysicalValues_ && !writeHardwareValues_) {
     throw cms::Exception("L1ScoutingEtSumOrbitFlatTableProducer")
-      << "writePhysicalValues and writeHardwareValues cannot be false at the same time!";
+        << "writePhysicalValues and writeHardwareValues cannot be false at the same time!";
   }
   produces<l1ScoutingRun3::OrbitFlatTable>();
 }
@@ -68,7 +67,7 @@ void L1ScoutingEtSumOrbitFlatTableProducer::fillDescriptions(edm::ConfigurationD
   desc.add<std::string>("name");
   desc.add<std::string>("doc");
   desc.add<bool>("singleton", true)
-    ->setComment("whether to output as singleton (one EtSum per bx) or not (multiple EtSums per bx)");
+      ->setComment("whether to output as singleton (one EtSum per bx) or not (multiple EtSums per bx)");
   desc.add<bool>("writePhysicalValues", true);
   desc.add<bool>("writeHardwareValues", false);
   desc.add<bool>("writeHF", true);
@@ -97,7 +96,7 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
   out->setDoc(doc_);
 
   unsigned int nobjs = out->size();
-  
+
   // physical values (float)
   std::vector<float> totalEt(nobjs);
   std::vector<float> totalEtEm(nobjs);
@@ -114,7 +113,7 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
   std::vector<float> asymHt(nobjs);
   std::vector<float> asymEtHF(nobjs);
   std::vector<float> asymHtHF(nobjs);
-  
+
   // hardware values (int)
   std::vector<int> hwTotalEt(nobjs);
   std::vector<int> hwTotalEtEm(nobjs);
@@ -140,7 +139,7 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
   std::vector<int> centrality(nobjs);
 
   for (unsigned int i = 0; i < nobjs; i++) {
-    const auto &sums = src[i];
+    const auto& sums = src[i];
 
     // physical values
     totalEt[i] = demux::fEt(sums.hwTotalEt());
@@ -159,7 +158,7 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
     asymEtHF[i] = demux::fEt(sums.hwAsymEtHF());
     asymHtHF[i] = demux::fEt(sums.hwAsymHtHF());
 
-    // hardware values 
+    // hardware values
     hwTotalEt[i] = sums.hwTotalEt();
     hwTotalEtEm[i] = sums.hwTotalEtEm();
     hwMissEt[i] = sums.hwMissEt();
@@ -218,14 +217,13 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
       out->template addColumn<int>("hwMissHtHF", hwMissHtHF, "hardware missHtHF");
       out->template addColumn<int>("hwMissHtHFPhi", hwMissHtHFPhi, "hardware missHtHF phi");
     }
-
   }
   if (writeAsym_) {
     if (writePhysicalValues_) {
       out->template addColumn<float>("asymEt", asymEt, "asymEt", ptPrecision_);
       out->template addColumn<float>("asymHt", asymHt, "asymHt", ptPrecision_);
     }
-    if (writeHardwareValues_) { 
+    if (writeHardwareValues_) {
       out->template addColumn<int>("hwAsymEt", hwAsymEt, "hardware asymEt");
       out->template addColumn<int>("hwAsymHt", hwAsymHt, "hardware asymHt");
     }
@@ -257,7 +255,6 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
     out->template addColumn<int>("centrality", centrality, "centrality");
   }
 
-
   return out;
 }
 
@@ -267,16 +264,16 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
   // compute number of objects per bx to adjust bxOffsets
   unsigned int nitems = 5;  // totalEt, totalEtEm, missEt, totalHt, missHt
   if (writeHF_)
-    nitems += 2; // missEtHF, missHtHF
+    nitems += 2;  // missEtHF, missHtHF
   if (writeAsym_)
-    nitems += (writeHF_ ? 4 : 2); // asymEt, asymHt, asymEtHF, asymHtHF
+    nitems += (writeHF_ ? 4 : 2);  // asymEt, asymHt, asymEtHF, asymHtHF
   if (writeMinBias_)
-    nitems += 4; // minBiasHFP0, minBiasHFM0, minBiasHFP1, minBiasHFM1
+    nitems += 4;  // minBiasHFP0, minBiasHFM0, minBiasHFP1, minBiasHFM1
   if (writeTowerCount_)
-    nitems += 1; // towerCount
+    nitems += 1;  // towerCount
   if (writeCentrality_)
-    nitems += 1; // centrality
-  
+    nitems += 1;  // centrality
+
   // adjust bxOffsets since each bx now contains multiple objects instead of single object
   std::vector<unsigned> offsets(src.bxOffsets());
   for (auto& v : offsets)
@@ -284,7 +281,7 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
 
   auto out = std::make_unique<l1ScoutingRun3::OrbitFlatTable>(offsets, name_, /*singleton=*/false);
   out->setDoc(doc_);
-  
+
   unsigned int nobjs = out->size();
 
   // physical values
@@ -296,11 +293,11 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
   std::vector<int> hwPhi(nobjs, 0);
 
   std::vector<int> sumType(nobjs);
-  
+
   unsigned int i = 0;
   for (const l1ScoutingRun3::BxSums& sums : src) {
     assert(i + nitems <= nobjs && i % nitems == 0);
-    
+
     // totalEt
     pt[i] = demux::fEt(sums.hwTotalEt());
     hwEt[i] = sums.hwTotalEt();
@@ -408,10 +405,11 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
     out->template addColumn<int>("hwPhi", phi, "hardware phi");
   }
 
-  out->template addColumn<int>("etSumType",
-                      sumType,
-                      "the type of the EtSum "
-                      "(https://github.com/cms-sw/cmssw/blob/master/DataFormats/L1Trigger/interface/EtSum.h#L27-L56)");
+  out->template addColumn<int>(
+      "etSumType",
+      sumType,
+      "the type of the EtSum "
+      "(https://github.com/cms-sw/cmssw/blob/master/DataFormats/L1Trigger/interface/EtSum.h#L27-L56)");
   return out;
 }
 
