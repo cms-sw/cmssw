@@ -218,16 +218,17 @@ process.noslowpt = cms.EDFilter("FilterOutLowPt",
 ####################################################################
 from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
 process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
-     bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
-     bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+     bsFromFile = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+     bsFromDB = "offlineBeamSpot::@currentProcess", # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+     dbFromEvent = True,
      warningThr = 5, # significance threshold to emit a warning message
      errorThr = 10,  # significance threshold to abort the job
 )
 
 if _isMC:
-     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.noscraping)
+     process.goodvertexSkim = cms.Sequence(process.noscraping)
 else:
-     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.primaryVertexFilter + process.noscraping + process.noslowpt)
+     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
 
 
 if(_theRefitter == RefitType.COMMON):
@@ -361,6 +362,7 @@ process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
                      process.seqTrackselRefit*
+                     process.BeamSpotChecker*
                      process.PVValidation)
 
 ## PV refit part
@@ -434,6 +436,7 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
 
 process.p2 = cms.Path(process.HLTFilter                               +
                       process.seqTrackselRefit                        +
+                      process.BeamSpotChecker                         +
                       process.offlinePrimaryVerticesFromRefittedTrks  +
                       process.PrimaryVertexResolution                 +
                       process.trackanalysis                           +
