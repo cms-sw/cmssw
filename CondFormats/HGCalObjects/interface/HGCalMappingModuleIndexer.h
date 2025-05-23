@@ -13,7 +13,6 @@
 #include "CondFormats/HGCalObjects/interface/HGCalDenseIndexerBase.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /**
    @short this structure holds the indices and types in the readout sequence
@@ -61,21 +60,10 @@ public:
   void finalize();
 
   /**
-     @short decodes silicon or sipm type and cell type for the detector id 
-     from the typecode string
+   * @short decode silicon or sipm type and cell type for the detector id 
+   * from the typecode string: "M[LH]-X[123]X-*" for Si, "T[LH]-L*S*[PN]" for SiPm
    */
-  static std::pair<bool, int> convertTypeCode(std::string_view typecode) {
-    if (typecode.size() < 5)
-      throw cms::Exception("InvalidHGCALTypeCode") << typecode << " is invalid for decoding readout cell type";
-    bool isSiPM = {typecode.find("TM") != std::string::npos ? true : false};
-    int celltype;
-    if (isSiPM) {
-      celltype = 0;  // Assign SiPM type coarse or molded with next version of modulelocator
-    } else {
-      celltype = {typecode[4] == '1' ? 0 : typecode[4] == '2' ? 1 : 2};
-    }
-    return std::pair<bool, bool>(isSiPM, celltype);
-  }
+  static std::pair<bool, int> getCellType(std::string_view typecode);
 
   /**
      @short returns the index for the n-th module in the readout sequence of a FED
@@ -216,7 +204,7 @@ private:
   void reassignTypecodeLocation(uint32_t fedid, uint32_t cur_modIdx, uint32_t new_modIx) {
     std::pair<uint32_t, uint32_t> val(fedid, cur_modIdx), newval(fedid, new_modIx);
 
-    for (auto it : typecodeMap_) {
+    for (const auto &it : typecodeMap_) {
       if (it.second != val)
         continue;
       typecodeMap_[it.first] = newval;
