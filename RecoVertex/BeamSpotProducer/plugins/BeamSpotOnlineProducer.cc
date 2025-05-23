@@ -205,8 +205,8 @@ const BeamSpotOnlineObjects& BeamSpotOnlineProducer::getBeamSpotFromRecord(const
     if ((lumitime - bstime).count() > threshold) {
       edm::LogWarning("BeamSpotOnlineProducer")
           << "The beam spot record is too old. (record: " << recordTypeName << ")" << std::endl
-          << "record creation time: " << std::chrono::duration_cast<std::chrono::seconds>(bstime).count()
-          << "lumi block time: " << std::chrono::duration_cast<std::chrono::seconds>(lumitime).count();
+          << " record creation time: " << std::chrono::duration_cast<std::chrono::seconds>(bstime).count()
+          << " lumi block time: " << std::chrono::duration_cast<std::chrono::seconds>(lumitime).count();
       return fakeBS_;
     }
     return bs;
@@ -254,6 +254,10 @@ bool BeamSpotOnlineProducer::processScalers(const edm::Event& iEvent, bool shout
   iEvent.getByToken(scalerToken_, handleScaler);
 
   if (handleScaler->empty()) {
+    if (shoutMODE && iEvent.isRealData()) {
+      edm::LogWarning("BeamSpotOnlineProducer") << " Scalers handle is empty. The Online "
+                                                   "Beam Spot producer falls back to the PCL value.";
+    }
     return true;  // Fallback to DB if scaler collection is empty
   }
 
