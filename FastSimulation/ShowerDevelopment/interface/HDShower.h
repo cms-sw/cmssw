@@ -44,6 +44,15 @@ public:
   bool compute();
 
 private:
+  //Initialization function to avoid large constructor which
+  //takes hours to compile for UBSAN IBs
+  void init(const RandomEngineAndDistribution* engine,
+            HDShowerParametrization* myParam,
+            EcalHitMaker* myGrid,
+            HcalHitMaker* myHcalHitMaker,
+            int onECAL,
+            double epart,
+            double pmip);
   // The longitudinal development ersatzt.
   double gam(double x, double a) const { return pow(x, a - 1.) * exp(-x); }
 
