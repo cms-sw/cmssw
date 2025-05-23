@@ -35,7 +35,6 @@ public:
         maxLen_(params.existsAs<unsigned int>("maxLen") ? params.getParameter<unsigned int>("maxLen")
                                                         : std::numeric_limits<unsigned int>::max()),
         src_(consumes(params.getParameter<edm::InputTag>("src"))) {
-
     // variables
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
@@ -111,7 +110,7 @@ public:
 
   ~SimpleOrbitFlatTableProducer() override {}
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
     edm::ParameterSetDescription desc;
     std::string classname = ClassName<T>::name();
     desc.add<std::string>("name")->setComment("name of the branch in the flat table output for " + classname);
@@ -126,7 +125,7 @@ public:
                                                   false,
                                                   edm::Comment("if true, can use methods of inheriting classes. Can "
                                                                "cause problems when multi-threading."))) or
-        true >> edm::EmptyGroupDescription());
+            true >> edm::EmptyGroupDescription());
 
     desc.addOptional<unsigned int>("maxLen")->setComment(
         "define the maximum length per bx of the input collection to put in the branch");
@@ -186,9 +185,9 @@ public:
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override {
     edm::Handle<TOrbitCollection> src;
     iEvent.getByToken(src_, src);
-    
-    std::vector<const T*> selobjs;
-    std::vector<edm::Ptr<T>> selptrs; // for external variables
+
+    std::vector<const T *> selobjs;
+    std::vector<edm::Ptr<T>> selptrs;  // for external variables
     std::vector<unsigned int> selbxOffsets;
 
     if (src.isValid() || !skipNonExistingSrc_) {
@@ -199,37 +198,37 @@ public:
           if (!extvars_.empty())
             selptrs.emplace_back(src, 0);
         }
-        
-        // set bx offsets of selected objects 
+
+        // set bx offsets of selected objects
         selbxOffsets = src->bxOffsets();
 
-      } else { // not singleton
+      } else {  // not singleton
         // offsets before cut
         std::vector<unsigned int> bxOffsets = src->bxOffsets();
 
         // number of objects per bx after cut
-        std::vector<unsigned int> selbxSizes = std::vector<unsigned int>(l1ScoutingRun3::OrbitFlatTable::NBX+1, 0);
+        std::vector<unsigned int> selbxSizes = std::vector<unsigned int>(l1ScoutingRun3::OrbitFlatTable::NBX + 1, 0);
 
         for (const unsigned int &bx : src->getFilledBxs()) {
           const auto &objs = src->bxIterator(bx);
           for (unsigned int i = 0; i < objs.size(); i++) {
             const auto &obj = objs[i];
-            edm::Ptr<T> objptr = edm::Ptr<T>(src, bxOffsets[bx]+i);  
-            if (cut_(obj)) { // apply cut
+            edm::Ptr<T> objptr = edm::Ptr<T>(src, bxOffsets[bx] + i);
+            if (cut_(obj)) {  // apply cut
               selobjs.push_back(&obj);
               if (!extvars_.empty())
                 selptrs.push_back(objptr);
               selbxSizes[bx]++;
             }
-            if (selbxSizes[bx] >= maxLen_) // skip to the next bx
+            if (selbxSizes[bx] >= maxLen_)  // skip to the next bx
               break;
           }
         }
-      
+
         selbxOffsets = sizes2offsets(selbxSizes);
       }
     }
-    
+
     auto out = std::make_unique<l1ScoutingRun3::OrbitFlatTable>(selbxOffsets, name_, singleton_, extension_);
     out->setDoc(doc_);
 
@@ -241,7 +240,7 @@ public:
     iEvent.put(std::move(out));
   }
 
-private: // private attributes
+private:  // private attributes
   const std::string name_;
   const std::string doc_;
   const bool singleton_;
@@ -277,16 +276,15 @@ private: // private attributes
   typedef ValueMapVariable<T, int, uint16_t> UInt16ExtVar;
   std::vector<std::unique_ptr<ExtVariable<T>>> extvars_;
 
-private: // private methods
+private:  // private methods
   std::vector<unsigned int> sizes2offsets(std::vector<unsigned int> sizes) const {
-    std::vector<unsigned int> offsets(sizes.size()+1, 0); // add extra one for the last offset = total size
+    std::vector<unsigned int> offsets(sizes.size() + 1, 0);  // add extra one for the last offset = total size
     for (unsigned int i = 0; i < sizes.size(); i++) {
-      offsets[i+1] = offsets[i] + sizes[i];
+      offsets[i + 1] = offsets[i] + sizes[i];
     }
     return offsets;
   }
 };
-
 
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 typedef SimpleOrbitFlatTableProducer<l1ScoutingRun3::Muon> SimpleL1ScoutingMuonOrbitFlatTableProducer;

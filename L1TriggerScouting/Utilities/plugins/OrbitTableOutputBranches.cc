@@ -15,7 +15,7 @@ void OrbitTableOutputBranches::defineBranchesFromFirstEvent(const l1ScoutingRun3
     // get columnIndex
     int columnIndex = tab.columnIndex(var);
     if (columnIndex == -1)
-        throw cms::Exception("LogicError", "Missing column in input for " + m_baseName + "_" + var);
+      throw cms::Exception("LogicError", "Missing column in input for " + m_baseName + "_" + var);
 
     switch (tab.columnType(i)) {
       case l1ScoutingRun3::OrbitFlatTable::ColumnType::UInt8:

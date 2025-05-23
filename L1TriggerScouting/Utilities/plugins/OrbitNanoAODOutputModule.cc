@@ -7,7 +7,7 @@
 //     Adapt from NanoAODOutputModule for OrbitFlatTable
 //     This handles rotating OrbitCollection to Event
 //
-// 
+//
 // Author original version: Giovanni Petrucciani
 //        adapted by Patin Inkaew
 
