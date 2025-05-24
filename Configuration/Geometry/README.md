@@ -144,6 +144,7 @@ Muon system:
 * M13: same as M10 with right front-back relation between alternate phi segments
 * M14: same as M11 with right front-back relation between alternate phi segments
 * M15: same as M12 with right front-back relation between alternate phi segments
+* M16: same as M15 with reverting RPC endcap disk4 rotation
 
 Fast Timing system:
 * I10: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, ETL in position defined in O4, material adjustments
@@ -202,3 +203,4 @@ Several detector combinations have been generated:
 * D118 = T35+C25+M15+I19+O10+F9
 * D119 = T35+C25+M15+I20+O10+F9
 * D120 = T35+C26+M15+I20+O10+F9
+* D121 = T35+C25+M16+I17+O10+F9
