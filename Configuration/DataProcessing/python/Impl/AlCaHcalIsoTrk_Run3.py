@@ -9,10 +9,10 @@ Scenario supporting proton collisions for AlCa needs for AlCaHcalIsoTrk data str
 from Configuration.DataProcessing.Scenario import *
 from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dictIO,gtNameAndConnect
 from Configuration.Eras.Era_Run3_cff import Run3
-from Configuration.DataProcessing.Impl.pp import pp
+from Configuration.DataProcessing.Impl.AlCa import AlCa
 import FWCore.ParameterSet.Config as cms
 
-class AlCaHcalIsoTrk_Run3(pp):
+class AlCaHcalIsoTrk_Run3(AlCa):
     def __init__(self):
         Scenario.__init__(self)
         self.eras=Run3
