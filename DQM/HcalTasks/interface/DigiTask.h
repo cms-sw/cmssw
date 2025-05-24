@@ -50,7 +50,8 @@ protected:
 
   double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
   double _thresh_unihf;
-  double _HBSumMeanofSumQForEachEvent , _HESumMeanofSumQForEachEvent ,_HOSumMeanofSumQForEachEvent,_HFSumMeanofSumQForEachEvent; 
+  double _HBSumMeanofSumQForEachEvent, _HESumMeanofSumQForEachEvent, _HOSumMeanofSumQForEachEvent,
+      _HFSumMeanofSumQForEachEvent;
   //	flag vector
   std::vector<hcaldqm::flag::Flag> _vflags;
   enum DigiFlag { fDigiSize = 0, fUni = 1, fNChsHF = 2, fUnknownIds = 3, fLED = 4, fCapId = 5, nDigiFlag = 6 };
@@ -88,9 +89,9 @@ protected:
   hcaldqm::Container1D _cADC_SubdetPM_QIE1011;
   hcaldqm::Container1D _cfC_SubdetPM_QIE1011;
   hcaldqm::Container1D _cSumQ_SubdetPM_QIE1011;
-  hcaldqm::Container1D _cSumQ_Subdet_QIE1011;  
+  hcaldqm::Container1D _cSumQ_Subdet_QIE1011;
   hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM_QIE1011;
-  hcaldqm::ContainerProf1D _cAveragedSumQvsLS_Subdet_QIE1011;  
+  hcaldqm::ContainerProf1D _cAveragedSumQvsLS_Subdet_QIE1011;
   hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM_QIE1011;  // online only!
 
   //	Shape - just filling - not summary!
