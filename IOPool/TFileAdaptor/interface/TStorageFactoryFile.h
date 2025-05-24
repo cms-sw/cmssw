@@ -8,6 +8,7 @@
 
 #include "Utilities/StorageFactory/interface/IOPosBuffer.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
 namespace edm::storage {
   class Storage;
@@ -58,6 +59,7 @@ private:
   TStorageFactoryFile(void);
 
   edm::propagate_const<std::unique_ptr<edm::storage::Storage>> storage_;  //< Real underlying storage
+  edm::ServiceWeakToken token_;
 };
 
 #endif  // TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H
