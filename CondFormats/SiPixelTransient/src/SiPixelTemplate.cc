@@ -82,6 +82,7 @@
 //  V10.21 - Address runtime issues in pushfile() for gcc 7.X due to using tempfile as char string + misc. cleanup [Petar]
 //  V10.22 - Move templateStore to the heap, fix variable name in pushfile() [Petar]
 //  V10.24 - Add sideload() + associated gymnastics [Petar and Oz]
+//  V10.25 - Restore y-residual Gaussian parameters [Morris]
 
 //  Created by Morris Swartz on 10/27/06.
 //
@@ -1324,15 +1325,18 @@ void SiPixelTemplate::postInit(std::vector<SiPixelTemplateStore>& thePixelTemp_)
 //! \param locBx - (input) the sign of this quantity is used to determine whether to flip cot(alpha/beta)<0 quantities from cot(alpha/beta)>0 (FPix only)
 //!                    for Phase 1 FPix IP-related tracks, locBx/locBz > 0 for cot(alpha) > 0 and locBx/locBz < 0 for cot(alpha) < 0
 //!                    for Phase 1 FPix IP-related tracks, locBx > 0 for cot(beta) > 0 and locBx < 0 for cot(beta) < 0
+//! \param goodEdgeAlgo - (input) Flag to turn on the y Gaussian Parameter interpolation to be used with goodEdge reconstruction algorithm
 // ************************************************************************************************************
-bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx) {
+bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx, bool goodEdgeAlgo) {
   // Interpolate for a new set of track angles
 
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
   //check for nan's
   if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
     success_ = false;
     return success_;
   }
+#endif
 
   // Local variables
   int i, j;
@@ -1553,16 +1557,19 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     }
 
     for (i = 0; i < 4; ++i) {
-      yavg_[i] = (1.f - yratio_) * thePixelTemp_[index_id_].enty[ilow].yavg[i] +
-                 yratio_ * thePixelTemp_[index_id_].enty[ihigh].yavg[i];
-      if (flip_y_) {
-        yavg_[i] = -yavg_[i];
-      }
       yavg_[i] = (1.f - yratio_) * enty0_->yavg[i] + yratio_ * enty1_->yavg[i];
       if (flip_y_) {
         yavg_[i] = -yavg_[i];
       }
       yrms_[i] = (1.f - yratio_) * enty0_->yrms[i] + yratio_ * enty1_->yrms[i];
+
+      if (goodEdgeAlgo) {  // restore y Gaussian Parameter interpolation
+        ygx0_[i] = (1.f - yratio_) * enty0_->ygx0[i] + yratio_ * enty1_->ygx0[i];
+        if (flip_y_) {
+          ygx0_[i] = -ygx0_[i];
+        }
+        ygsig_[i] = (1.f - yratio_) * enty0_->ygsig[i] + yratio_ * enty1_->ygsig[i];
+      }  //if(goodEdgeAlgo)
       chi2yavg_[i] = (1.f - yratio_) * enty0_->chi2yavg[i] + yratio_ * enty1_->chi2yavg[i];
       chi2ymin_[i] = (1.f - yratio_) * enty0_->chi2ymin[i] + yratio_ * enty1_->chi2ymin[i];
       chi2xavg[i] = (1.f - yratio_) * enty0_->chi2xavg[i] + yratio_ * enty1_->chi2xavg[i];
