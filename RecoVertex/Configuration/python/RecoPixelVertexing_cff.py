@@ -48,3 +48,4 @@ recopixelvertexingTask = cms.Task(
     pixelVerticesTask
 )
 recopixelvertexing = cms.Sequence(recopixelvertexingTask)
+
