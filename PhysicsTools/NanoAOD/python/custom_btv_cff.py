@@ -65,8 +65,10 @@ def update_jets_AK4(process):
     process.updatedPatJetsTransientCorrectedPuppiWithDeepInfo.tagInfoSources.append(cms.InputTag("pfUnifiedParticleTransformerAK4TagInfosPuppiWithDeepInfo"))
     process.updatedPatJetsTransientCorrectedPuppiWithDeepInfo.addTagInfos = cms.bool(True)
 
-    
-    
+    # Fix ParticleNetFromMiniAOD input when slimmedTaus is updated
+    from PhysicsTools.NanoAOD.nano_cff import _fixPNetInputCollection
+    _fixPNetInputCollection(process)
+
     return process
 
 def update_jets_AK8(process):
