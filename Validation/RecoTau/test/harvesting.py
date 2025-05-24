@@ -9,7 +9,7 @@ from Configuration.Eras.Era_Run3_2023_cff import Run3_2023
 
 process = cms.Process('HARVESTING',Run3_2023)
 
-process_name = 'ZTT'
+process_name = 'JETHT'
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -34,9 +34,10 @@ process.source = cms.Source("DQMRootSource",
 )
 
 process.options = cms.untracked.PSet(
+    #FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring('ProductNotFound'),
-    TryToContinue = cms.untracked.vstring(),
+    #SkipEvent = cms.untracked.vstring(),
     accelerators = cms.untracked.vstring('*'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
