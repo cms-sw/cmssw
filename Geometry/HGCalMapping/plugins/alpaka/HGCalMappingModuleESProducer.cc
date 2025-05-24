@@ -64,7 +64,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           int typeidx = modIndexer.getTypeForModule(fedid, captureblockidx, econdidx);
           std::string typecode = pmap.getAttr("typecode", row);
 
-          auto celltypes = modIndexer.convertTypeCode(typecode);
+          auto celltypes = modIndexer.getCellType(typecode);
           bool isSiPM = celltypes.first;
           int celltype = celltypes.second;
           int zside = pmap.getIntAttr("zside", row);
