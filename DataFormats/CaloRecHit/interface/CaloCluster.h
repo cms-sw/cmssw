@@ -41,6 +41,8 @@ namespace reco {
       hgcal_had = 7,
       hgcal_scintillator = 8,
       hfnose = 9,
+      barrel_em = 10,
+      barrel_had = 11,
       undefined = 1000
     };
 
