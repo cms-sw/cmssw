@@ -365,7 +365,7 @@ namespace pixelTopology {
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
     static constexpr uint32_t maxDepth = 12;
-    static constexpr uint32_t numberOfLayers = 28 + 3;
+    static constexpr uint32_t numberOfLayers = 28;
 
     static constexpr uint32_t maxSizeCluster = 2047;
 
@@ -438,6 +438,10 @@ namespace pixelTopology {
 
     static constexpr inline uint16_t localX(uint16_t px) { return px; }
     static constexpr inline uint16_t localY(uint16_t py) { return py; }
+  };
+
+  struct Phase2OT : public Phase2 {
+    static constexpr uint32_t numberOfLayers = 28 + 3; //OT Barrel Extension
   };
 
   struct Phase1 {
