@@ -1,29 +1,35 @@
 // Author: Izaak Neutelings (March 2024)
 // Based on: https://github.com/CMS-HGCAL/cmssw/blob/hgcal-condformat-HGCalNANO-13_2_0_pre3_linearity/RecoLocalCalo/HGCalRecAlgos/plugins/alpaka/HGCalRecHitProducer.cc
+
+// includes for CMSSW
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/StreamID.h"
+
+// includes for Alpaka
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
-#include <iomanip>  // for std::setw
-#include <future>
 
-// includes for size, calibration, and configuration parameters
+// includes for HGCal, calibration, and configuration parameters
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
-#include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"  // also for HGCalConfigParamDevice
+#include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalESProducerTools.h"  // for json, search_fedkey
+
+// standard includes
+#include <string>
+#include <vector>
+#include <iomanip>  // for std::setw
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -35,20 +41,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
+    const int maxchans_, maxfeds_;
+    const std::string fedjson_;  // JSON file of FED configuration
     void produce(device::Event&, device::EventSetup const&) override;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     edm::ESWatcher<HGCalModuleConfigurationRcd> configWatcher_;
     edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexerToken_;
     edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_;
-    device::ESGetToken<hgcalrechit::HGCalConfigParamDevice, HGCalModuleConfigurationRcd> configParamToken_;
     device::ESGetToken<hgcalrechit::HGCalCalibParamDevice, HGCalModuleConfigurationRcd> calibParamToken_;
   };
 
-  HGCalRecHitESProducersTest::HGCalRecHitESProducersTest(const edm::ParameterSet& iConfig) : EDProducer(iConfig) {
+  HGCalRecHitESProducersTest::HGCalRecHitESProducersTest(const edm::ParameterSet& iConfig)
+      : EDProducer(iConfig),
+        maxchans_(iConfig.getParameter<int>("maxchans")),
+        maxfeds_(iConfig.getParameter<int>("maxfeds")),
+        fedjson_(iConfig.getParameter<std::string>("fedjson")) {
     std::cout << "HGCalRecHitESProducersTest::HGCalRecHitESProducersTest" << std::endl;
     indexerToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
     configToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configSource"));
-    configParamToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("configParamSource"));
     calibParamToken_ = esConsumes(iConfig.getParameter<edm::ESInputTag>("calibParamSource"));
   }
 
@@ -56,9 +66,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
     desc.add("indexSource", edm::ESInputTag{})->setComment("Label for module indexer to set SoA size");
     desc.add("configSource", edm::ESInputTag{})->setComment("Label for HGCal configuration for unpacking raw data");
-    desc.add("configParamSource", edm::ESInputTag{})
-        ->setComment("Label for ROC configuration parameters for calibrations");
     desc.add("calibParamSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
+    desc.add<int>("maxchans", 200)->setComment("Maximum number of channels to print");
+    desc.add<int>("maxfeds", 25)->setComment("Maximum number of FED IDs to test");
+    desc.add<std::string>("fedjson", "")->setComment("JSON file with FED configuration parameters");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -77,13 +88,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto queue = iEvent.queue();
     auto const& moduleMap = iSetup.getData(indexerToken_);
     auto const& config = iSetup.getData(configToken_);  // HGCalConfiguration
-    auto const& configParamDevice = iSetup.getData(configParamToken_);
-    //printf("HGCalRecHitESProducersTest::produce: time to load configParamDevice from config ESProducers: %f seconds\n", duration(start,now()));
     auto const& calibParamDevice = iSetup.getData(calibParamToken_);
     //printf("HGCalRecHitESProducersTest::produce: time to load calibParamDevice from calib ESProducers: %f seconds\n", duration(start,now()));
 
     // Check if there are new conditions and read them
+    std::string line = "HGCalRecHitESProducersTest::produce " + std::string(90, '-');
     if (configWatcher_.check(iSetup)) {
+      std::cout << line << std::endl;
       std::cout << "HGCalRecHitESProducersTest::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
                 << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
 
@@ -91,6 +102,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto nfeds = config.feds.size();  // number of FEDs
       std::cout << "HGCalRecHitESProducersTest::produce: config=" << config << std::endl;
       std::cout << "HGCalRecHitESProducersTest::produce: nfeds=" << nfeds << ", config=" << config << std::endl;
+      std::cout << "HGCalRecHitESProducersTest::produce: configuration:" << std::endl;
       for (std::size_t fedid = 0; fedid < nfeds; ++fedid) {
         auto fed = config.feds[fedid];   // HGCalFedConfig
         auto nmods = fed.econds.size();  // number of ECON-Ds for this FED
@@ -106,23 +118,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
 
-      // Alpaka ESProducer for SoA with configuration parameters with gains
-      int size = configParamDevice.view().metadata().size();
-      std::cout << "HGCalRecHitESProducersTest::produce: device size=" << size << std::endl;
-      std::cout << "  imod  gain" << std::endl;
-      for (int imod = 0; imod < size; imod++) {
-        if (imod >= 250)
-          break;
-        std::cout << std::setw(6) << imod << std::setw(6) << uint32_t(configParamDevice.view()[imod].gain())
-                  << std::endl;
-      }
-
       // Alpaka ESProducer for SoA with calibration parameters with pedestals, etc.
-      size = calibParamDevice.view().metadata().size();
+      std::cout << line << std::endl;
+      int size = calibParamDevice.view().metadata().size();
       std::cout << "HGCalRecHitESProducersTest::produce: device size=" << size << std::endl;
+      std::cout << "HGCalRecHitESProducersTest::produce: calibration constants:" << std::endl;
       std::cout << "   idx    hex     ADC_ped   CM_slope   CM_ped   BXm1_slope" << std::endl;
       for (int idx = 0; idx < size; idx++) {
-        if (idx >= 250)
+        if (idx >= maxchans_)
           break;
         std::cout << std::setw(6) << idx << std::setw(7) << int2hex(idx) << std::dec << std::setw(12)
                   << calibParamDevice.view()[idx].ADC_ped() << std::setw(11) << calibParamDevice.view()[idx].CM_slope()
@@ -130,6 +133,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   << calibParamDevice.view()[idx].BXm1_slope() << std::endl;
       }
     }
+
+    // test JSON parser
+    json fed_data;
+    std::cout << line << std::endl;
+    std::cout << "HGCalRecHitESProducersTest::produce: testing search_fedkey with " << fedjson_ << std::endl;
+    if (fedjson_ == "") {
+      fed_data = json::parse(R"({
+        // numerical range
+        "8-20": { },
+        // glob pattern
+        "[0-9]": { },
+        // glob pattern
+        "2[0-9]": { },
+        // glob wildcard (default)
+        "*": { }
+      })",
+                             nullptr,
+                             true,
+                             /*ignore_comments*/ true);
+    } else {
+      edm::FileInPath fedfip(fedjson_);  // e.g. HGCalCommissioning/LocalCalibration/data/config_feds.json
+      std::ifstream fedfile(fedjson_);
+      fed_data = json::parse(fedfile, nullptr, true, /*ignore_comments*/ true);
+    }
+    std::vector<std::string> fedkeys;
+    for (int fedid = 0; fedid <= maxfeds_; fedid++) {
+      const auto fedkey = hgcal::search_fedkey(fedid, fed_data, fedjson_);  // search matching key
+      fedkeys.push_back(fedkey);
+    }
+    std::cout << "   fedid   fedkey" << std::endl;
+    for (int fedid = 0; fedid <= maxfeds_; fedid++) {
+      std::cout << std::setw(8) << fedid << "   '" + fedkeys[fedid] + "'" << std::endl;
+    }
+
+    std::cout << line << std::endl;
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
