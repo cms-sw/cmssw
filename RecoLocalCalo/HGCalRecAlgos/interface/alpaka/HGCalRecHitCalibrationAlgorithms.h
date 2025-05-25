@@ -32,7 +32,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     HGCalRecHitDevice calibrate(Queue& queue,
                                 HGCalDigiHost const& host_digis,
                                 HGCalCalibParamDevice const& device_calib,
-                                HGCalConfigParamDevice const& device_config,
                                 HGCalMappingCellParamDevice const& device_mapping,
                                 HGCalDenseIndexInfoDevice const& device_index) const;
 
