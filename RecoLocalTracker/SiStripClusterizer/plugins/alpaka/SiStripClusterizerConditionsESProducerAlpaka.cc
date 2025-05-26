@@ -45,6 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     uint16_t ipair_;
   };
 
+
   class SiStripClusterizerConditionsESProducerAlpaka : public ESProducer {
   public:
     SiStripClusterizerConditionsESProducerAlpaka(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
@@ -70,7 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         SiStripClusterizerConditionsDetToFedsRecord const& iRecord) {
       const auto& quality = iRecord.get(qualityTokenA_);
 
-      std::vector<DetToFed> detToFeds;  // detid_, fedid_, fedch_, ipair_
+      std::vector<bool> detToFeds_qualityFlags(NUMBER_OF_FEDS*FEDCH_PER_FED, false);
 
       // connected: map<DetID, std::vector<int>>
       // map of KEY=detid DATA=vector of apvs, maximum 6 APVs per detector module :
@@ -85,39 +86,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
           const auto detConn_it = detCabling.find(det);
 
           if (detCabling.end() != detConn_it) {
-            for (const auto& chan : (*detConn_it).second) {
-              if (chan && chan->fedId() && chan->isConnected()) {
-                const auto chan_detID = chan->detId();
-                const auto chan_fedID = chan->fedId();
-                const auto chan_fedCh = chan->fedCh();
-                const auto chan_apvPairNumber = chan->apvPairNumber();
+            for (const auto& conn : (*detConn_it).second) {
+              if (conn && conn->fedId() && conn->isConnected()) {
+                // const auto conn_detID = conn->detId();
+                const auto conn_fedID = conn->fedId();
+                const auto conn_fedCh = conn->fedCh();
+                // const auto conn_apvPairNumber = conn->apvPairNumber();
 
-                detToFeds.emplace_back(chan_detID, chan_fedID, chan_fedCh, chan_apvPairNumber);
+                uint32_t idx = channelIndex(conn_fedID, conn_fedCh);
+                detToFeds_qualityFlags[idx] = true;
+                // std::cout << "#detToFedConditions," << conn->detId() << "," << conn->fedId() << "," << conn->fedCh() << "," << conn->apvPairNumber() << std::endl;
               }
             }
           }
         }
       }
 
-      // Make sure the detToFeds is sorted by detID and apvPairNumber
-      std::sort(detToFeds.begin(), detToFeds.end(), [](const DetToFed& a, const DetToFed& b) {
-        return a.detID() < b.detID() || (a.detID() == b.detID() && a.pair() < b.pair());
-      });
+      // // Make sure the detToFeds is sorted by detID and apvPairNumber
+      // std::sort(detToFeds.begin(), detToFeds.end(), [](const DetToFed& a, const DetToFed& b) {
+      //   return a.detID() < b.detID() || (a.detID() == b.detID() && a.pair() < b.pair());
+      // });
 
       // Prepare the product & Fill the product
-      const int DetToFeds_size = detToFeds.size();
       //// Typical sizes for these collections (from MC run)
       //// constexpr const unsigned int DetToFeds_size= 34813;
-      LogDebug("StripCondsESProd") << "DetToFed has " << DetToFeds_size << " elements";
-      auto DetToFedsCollection =
-          std::make_unique<SiStripClusterizerConditionsDetToFedsHost>(DetToFeds_size, cms::alpakatools::host());
+      auto DetToFeds_size = detToFeds_qualityFlags.size();
+      auto DetToFedsCollection = std::make_unique<SiStripClusterizerConditionsDetToFedsHost>(DetToFeds_size, cms::alpakatools::host());
 
-      for (int j = 0; j < DetToFeds_size; ++j) {
-        auto entry = detToFeds[j];
-        (*DetToFedsCollection)->detid_(j) = entry.detID();
-        (*DetToFedsCollection)->fedch_(j) = entry.fedCh();
-        (*DetToFedsCollection)->fedid_(j) = entry.fedID();
-        (*DetToFedsCollection)->ipair_(j) = entry.pair();
+      for (uint32_t j = 0; j < DetToFeds_size; ++j) {
+        (*DetToFedsCollection)->qualityOk_(j) = detToFeds_qualityFlags[j];
       }
       return DetToFedsCollection;
     }
@@ -190,7 +187,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       return (fedIndex(fed) * APVS_PER_FEDCH * FEDCH_PER_FED + APVS_PER_CHAN * channel +
               (strip % STRIPS_PER_FEDCH) / STRIPS_PER_APV);
     };
-    inline uint32_t channelIndex(uint16_t fed, uint8_t channel) { return (fedIndex(fed) * FEDCH_PER_FED + channel); };
+    inline uint32_t channelIndex(uint16_t fedId, uint8_t fedCh) { return (fedIndex(fedId) * FEDCH_PER_FED + fedCh); };
 
   private:
     edm::ESGetToken<SiStripGain, SiStripGainRcd> gainsToken_;
