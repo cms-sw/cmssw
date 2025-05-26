@@ -85,7 +85,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "Number of Tracker modules: " << otRecHitsSoA.nModules() << std::endl;
     const int nTotModules = pixelRecHitsSoA.nModules() + otRecHitsSoA.nModules();
 
-    auto outputSoA = reco::TrackingRecHitsSoACollection(queue, nTotHits, nTotModules + 1);
+    auto outputSoA = reco::TrackingRecHitsSoACollection(queue, nTotHits, nTotModules);
     std::cout << "Total number of recHits: " << outputSoA.nHits() << std::endl;
 
     // copy all columns from pixelRecHitsSoA and otRecHitsSoA to outputSoA
@@ -108,74 +108,56 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memcpy(queue, yLocalOutputTracker, yLocalTracker);
 
     // xerrLocal
-    auto xerrLocalOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().xerrLocal(), nPixelHits);
+    auto xerrLocalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().xerrLocal(), nPixelHits);
     auto xerrLocalOutputTracker =
         cms::alpakatools::make_device_view(queue, outputSoA.view().xerrLocal() + nPixelHits, nTrackerHits);
-    auto xerrLocalPixel =
-        cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().xerrLocal(), nPixelHits);
-    auto xerrLocalTracker =
-        cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().xerrLocal(), nTrackerHits);
+    auto xerrLocalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().xerrLocal(), nPixelHits);
+    auto xerrLocalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().xerrLocal(), nTrackerHits);
     alpaka::memcpy(queue, xerrLocalOutputPixel, xerrLocalPixel);
     alpaka::memcpy(queue, xerrLocalOutputTracker, xerrLocalTracker);
 
     // yerrLocal
-    auto yerrLocalOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().yerrLocal(), nPixelHits);
+    auto yerrLocalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().yerrLocal(), nPixelHits);
     auto yerrLocalOutputTracker =
         cms::alpakatools::make_device_view(queue, outputSoA.view().yerrLocal() + nPixelHits, nTrackerHits);
-    auto yerrLocalPixel =
-        cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().yerrLocal(), nPixelHits);
-    auto yerrLocalTracker =
-        cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().yerrLocal(), nTrackerHits);
+    auto yerrLocalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().yerrLocal(), nPixelHits);
+    auto yerrLocalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().yerrLocal(), nTrackerHits);
     alpaka::memcpy(queue, yerrLocalOutputPixel, yerrLocalPixel);
     alpaka::memcpy(queue, yerrLocalOutputTracker, yerrLocalTracker);
 
     // xGlobal
-    auto xGlobalOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().xGlobal(), nPixelHits);
+    auto xGlobalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().xGlobal(), nPixelHits);
     auto xGlobalOutputTracker =
         cms::alpakatools::make_device_view(queue, outputSoA.view().xGlobal() + nPixelHits, nTrackerHits);
-    auto xGlobalPixel =
-        cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().xGlobal(), nPixelHits);
-    auto xGlobalTracker =
-        cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().xGlobal(), nTrackerHits);
+    auto xGlobalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().xGlobal(), nPixelHits);
+    auto xGlobalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().xGlobal(), nTrackerHits);
     alpaka::memcpy(queue, xGlobalOutputPixel, xGlobalPixel);
     alpaka::memcpy(queue, xGlobalOutputTracker, xGlobalTracker);
 
     // yGlobal
-    auto yGlobalOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().yGlobal(), nPixelHits);
+    auto yGlobalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().yGlobal(), nPixelHits);
     auto yGlobalOutputTracker =
         cms::alpakatools::make_device_view(queue, outputSoA.view().yGlobal() + nPixelHits, nTrackerHits);
-    auto yGlobalPixel =
-        cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().yGlobal(), nPixelHits);
-    auto yGlobalTracker =
-        cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().yGlobal(), nTrackerHits);
+    auto yGlobalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().yGlobal(), nPixelHits);
+    auto yGlobalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().yGlobal(), nTrackerHits);
     alpaka::memcpy(queue, yGlobalOutputPixel, yGlobalPixel);
     alpaka::memcpy(queue, yGlobalOutputTracker, yGlobalTracker);
 
     // zGlobal
-    auto zGlobalOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().zGlobal(), nPixelHits);
+    auto zGlobalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().zGlobal(), nPixelHits);
     auto zGlobalOutputTracker =
         cms::alpakatools::make_device_view(queue, outputSoA.view().zGlobal() + nPixelHits, nTrackerHits);
-    auto zGlobalPixel =
-        cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().zGlobal(), nPixelHits);
-    auto zGlobalTracker =
-        cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().zGlobal(), nTrackerHits);
+    auto zGlobalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().zGlobal(), nPixelHits);
+    auto zGlobalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().zGlobal(), nTrackerHits);
     alpaka::memcpy(queue, zGlobalOutputPixel, zGlobalPixel);
     alpaka::memcpy(queue, zGlobalOutputTracker, zGlobalTracker);
 
     // rGlobal
-    auto rGlobalOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().rGlobal(), nPixelHits);
+    auto rGlobalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().rGlobal(), nPixelHits);
     auto rGlobalOutputTracker =
         cms::alpakatools::make_device_view(queue, outputSoA.view().rGlobal() + nPixelHits, nTrackerHits);
-    auto rGlobalPixel =
-        cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().rGlobal(), nPixelHits);
-    auto rGlobalTracker =
-        cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().rGlobal(), nTrackerHits);
+    auto rGlobalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().rGlobal(), nPixelHits);
+    auto rGlobalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().rGlobal(), nTrackerHits);
     alpaka::memcpy(queue, rGlobalOutputPixel, rGlobalPixel);
     alpaka::memcpy(queue, rGlobalOutputTracker, rGlobalTracker);
 
@@ -191,8 +173,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // chargeAndStatus
     auto chargeAndStatusOutputPixel =
         cms::alpakatools::make_device_view(queue, outputSoA.view().chargeAndStatus(), nPixelHits);
-    auto chargeAndStatusOutputTracker = cms::alpakatools::make_device_view(
-        queue, outputSoA.view().chargeAndStatus() + nPixelHits, nTrackerHits);
+    auto chargeAndStatusOutputTracker =
+        cms::alpakatools::make_device_view(queue, outputSoA.view().chargeAndStatus() + nPixelHits, nTrackerHits);
     auto chargeAndStatusPixel =
         cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().chargeAndStatus(), nPixelHits);
     auto chargeAndStatusTracker =
@@ -242,10 +224,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // copy the moduleStart from pixelRecHitsSoA and otRecHitsSoA to outputSoA
     const int nPixelModules = pixelRecHitsSoA.nModules();
-    const int nTrackerModules = otRecHitsSoA.nModules() + 1;
+    const int nTrackerModules = otRecHitsSoA.nModules();
 
-    auto hitModuleStartOutputPixel = cms::alpakatools::make_device_view(
-        queue, outputSoA.view<::reco::HitModuleSoA>().moduleStart(), nPixelModules);
+    auto hitModuleStartOutputPixel =
+        cms::alpakatools::make_device_view(queue, outputSoA.view<::reco::HitModuleSoA>().moduleStart(), nPixelModules);
     auto hitModuleStartOutputTracker = cms::alpakatools::make_device_view(
         queue, outputSoA.view<::reco::HitModuleSoA>().moduleStart() + nPixelModules, nTrackerModules);
 
@@ -256,7 +238,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::memcpy(queue, hitModuleStartOutputPixel, hitModuleStartPixel);
     alpaka::memcpy(queue, hitModuleStartOutputTracker, hitModuleStartTracker);
-    
+
     outputSoA.updateFromDevice(queue);
     // emplace the merged SoA in the event
     iEvent.emplace(outputRecHitsSoAToken_, std::move(outputSoA));
