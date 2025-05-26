@@ -302,7 +302,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker,
       LeadingOnlyCounter(0),
       TrailingOnlyCounter(0),
       CompleteCounter(0),
-      pixelTracksMap("Pixel track maps for efficiency", "Pixel track maps for efficiency", 25, 0, 25, 16, -8, 8) {
+      pixelTracksMap("Pixel track maps for efficiency", "Pixel track maps for efficiency", 25, 0, 25, 24, -6, 18) {
   std::string path, title;
   CTPPSDiamondDetId(id).rpName(path, CTPPSDiamondDetId::nPath);
   ibooker.setCurrentFolder(path);
@@ -507,9 +507,9 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
                                  25,
                                  0,
                                  25,
-                                 16,
-                                 -8,
-                                 8) {
+                                 24,
+                                 -6,
+                                 18) {
   std::string path, title;
   CTPPSDiamondDetId(id).planeName(path, CTPPSDiamondDetId::nPath);
   ibooker.setCurrentFolder(path);
@@ -552,7 +552,7 @@ CTPPSDiamondDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker, unsign
                                        -8,
                                        8);
   EfficiencyWRTPixelsInPlane =
-      ibooker.book2D("Efficiency wrt pixels", title + " Efficiency wrt pixels;x (mm);y (mm)", 25, 0, 25, 16, -8, 8);
+      ibooker.book2D("Efficiency wrt pixels", title + " Efficiency wrt pixels;x (mm);y (mm)", 25, 0, 25, 24, -6, 18);
 }
 
 //----------------------------------------------------------------------------------------------------
