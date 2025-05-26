@@ -951,10 +951,14 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
         place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
     }
     int part = partialWaferType(lay, waferU, waferV);
-    auto xy = (waferHexagon8Fine() || cog) ? cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, fineCoarse, part)
-                                           : hgcell_->cellUV2XY2(cellU, cellV, place, fineCoarse);
+    auto xy = hgcell_->cellUV2XY2(cellU, cellV, place, fineCoarse);
     x = xy.first;
     y = xy.second;
+    if (waferHexagon8Fine() || cog) {
+      xy =  cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, fineCoarse, part);
+      x += xy.first;
+      y += xy.second;
+    }
     if (debug)
       edm::LogVerbatim("HGCalGeom") << "Type " << type << " Place " << place << " Cell " << cellU << ":" << cellV
                                     << " Position " << x << ":" << y;
@@ -2203,7 +2207,7 @@ void HGCalDDDConstants::cellHex(
   if (cassetteMode()) {
     auto uv = (part == HGCalTypes::WaferFull)
                   ? hgcellUV_->cellUVFromXY3(xloc, yloc, place, cellType, true, debug)
-                  : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, true, debug);
+      : (waferHexagon8Calib() ? hgcellUV_->cellUVFromXY2(xloc, yloc, place, cellType, part, true, debug) : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, true, debug));
     cellU = uv.first;
     cellV = uv.second;
   } else if (waferHexagon8File()) {

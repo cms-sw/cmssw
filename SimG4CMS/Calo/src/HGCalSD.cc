@@ -168,8 +168,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   }
   int module = touch->GetReplicaNumber(moduleLev);
   if (verbose_ && (cell == -1))
-    edm::LogVerbatim("HGCSim") << "Top " << touch->GetVolume(0)->GetName() << " Module "
-                               << touch->GetVolume(moduleLev)->GetName();
+    edm::LogVerbatim("HGCSim") << "Top " << touch->GetVolume(0)->GetName() << " Module " << moduleLev << ":" << touch->GetVolume(moduleLev)->GetName() << " " << module;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":"
                              << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
@@ -211,13 +210,14 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     if (fiducialCut_) {
       int layertype = hgcons_->layerType(layer);
       int frontBack = HGCalTypes::layerFrontBack(layertype);
-      if (guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second) ||
-          guardRingPartial_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) {
-        id = 0;
+      bool reject = ((guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) || (guardRingPartial_->exclude(local, iz, frontBack, layer, uv.first, uv.second)));
 #ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCSim") << "Zside:Layer:WaferU:WaferV " << iz << ":" << layer << ":" << uv.first << ":" << uv.second << " LayerType " << layertype << " FrontBack " << frontBack << " PartialType " << hgcons_->partialWaferType(layer, uv.first, uv.second) << ":" << HGCalTypes::WaferFull << " Reject " << guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second) << ":" << guardRingPartial_->exclude(local, iz, frontBack, layer, uv.first, uv.second) << ":" << reject;
+      if (reject)
         edm::LogVerbatim("HGCSim") << "Rejected by GuardRing cutoff *****";
 #endif
-      }
+      if (reject)
+        id = 0;
     }
     if ((rejectMB_) && (mouseBite_->exclude(local, iz, layer, uv.first, uv.second))) {
       id = 0;
