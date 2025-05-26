@@ -1591,7 +1591,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
     int partial = HGCalProperty::waferPartial(waferProperties[k]);
     int orient =
-        ((php.mode_ == HGCalGeometryMode::Hexagon8Cassette) || (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (php.mode_ == HGCalGeometryMode::Hexagon8FineCell))
+        ((php.mode_ == HGCalGeometryMode::Hexagon8Cassette) || (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) ||
+         (php.mode_ == HGCalGeometryMode::Hexagon8FineCell))
             ? HGCalProperty::waferOrient(waferProperties[k])
             : HGCalWaferMask::getRotation(php.waferZSide_, partial, HGCalProperty::waferOrient(waferProperties[k]));
     php.waferInfoMap_[waferIndex[k]] = HGCalParameters::waferInfo(HGCalProperty::waferThick(waferProperties[k]),
@@ -2193,7 +2194,8 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         int kndx = HGCalWaferIndex::waferIndex(lay, u, v);
         int type(-1);
         if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module) ||
-            (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) || (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (php.mode_ == HGCalGeometryMode::Hexagon8FineCell))
+            (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) || (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) ||
+            (php.mode_ == HGCalGeometryMode::Hexagon8FineCell))
           type = wType->getType(kndx, php.waferInfoMap_);
         if (type < 0)
           type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos0,
@@ -2229,13 +2231,15 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
                 xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_, v17OrLess);
             if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module) ||
                 (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
-                (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (php.mode_ == HGCalGeometryMode::Hexagon8FineCell)) {
+                (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) ||
+                (php.mode_ == HGCalGeometryMode::Hexagon8FineCell)) {
               auto itr = php.waferInfoMap_.find(wl);
               if (itr != php.waferInfoMap_.end()) {
                 int part = (itr->second).part;
                 int orient = (itr->second).orient;
                 bool ok = ((php.mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
-                           (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (php.mode_ == HGCalGeometryMode::Hexagon8FineCell))
+                           (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) ||
+                           (php.mode_ == HGCalGeometryMode::Hexagon8FineCell))
                               ? true
                               : HGCalWaferMask::goodTypeMode(
                                     xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], part, orient, false);

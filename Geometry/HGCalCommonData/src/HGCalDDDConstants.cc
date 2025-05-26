@@ -955,7 +955,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
     x = xy.first;
     y = xy.second;
     if (waferHexagon8Fine() || cog) {
-      xy =  cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, fineCoarse, part);
+      xy = cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, fineCoarse, part);
       x += xy.first;
       y += xy.second;
     }
@@ -2207,7 +2207,8 @@ void HGCalDDDConstants::cellHex(
   if (cassetteMode()) {
     auto uv = (part == HGCalTypes::WaferFull)
                   ? hgcellUV_->cellUVFromXY3(xloc, yloc, place, cellType, true, debug)
-      : (waferHexagon8Calib() ? hgcellUV_->cellUVFromXY2(xloc, yloc, place, cellType, part, true, debug) : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, true, debug));
+                  : (waferHexagon8Calib() ? hgcellUV_->cellUVFromXY2(xloc, yloc, place, cellType, part, true, debug)
+                                          : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, true, debug));
     cellU = uv.first;
     cellV = uv.second;
   } else if (waferHexagon8File()) {

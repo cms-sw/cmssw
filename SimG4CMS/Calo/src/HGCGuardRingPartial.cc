@@ -44,7 +44,8 @@ bool HGCGuardRingPartial::exclude(G4ThreeVector& point, int zside, int frontBack
       double dx = point.x();
       double dy = point.y();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "HGCGuardRingPatial:: zside " << zside << " frontBack " << frontBack << " orient " << orient << " placement " << placement << " dx " << dx << " dy " << dy;
+      edm::LogVerbatim("HGCSim") << "HGCGuardRingPatial:: zside " << zside << " frontBack " << frontBack << " orient "
+                                 << orient << " placement " << placement << " dx " << dx << " dy " << dy;
 #endif
       if (type > 0) {
         for (int ii = HGCalTypes::WaferPartLDOffset;
