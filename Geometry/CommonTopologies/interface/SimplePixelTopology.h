@@ -10,7 +10,7 @@ namespace pixelTopology {
 
   constexpr auto maxNumberOfLadders = 160;
   constexpr uint8_t maxLayers = 28 + 3; // CA Extension to 3 OT barrel layers
-  constexpr uint8_t maxPairs = 64;
+  constexpr uint8_t maxPairs = 64 + 64; // CA
 
   // TODO
   // Once CUDA is dropped this could be wrapped in #ifdef CA_TRIPLETS_HOLE

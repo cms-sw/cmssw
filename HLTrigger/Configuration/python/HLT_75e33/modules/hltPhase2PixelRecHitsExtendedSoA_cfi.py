@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalTracker.SiPixelRecHits.SiPixelRecHitExtendedAlpakaPhase2_alpaka import SiPixelRecHitExtendedAlpakaPhase2_alpaka as _SiPixelRecHitExtendedAlpakaPhase2_alpaka
+from RecoLocalTracker.SiPixelRecHits.SiPixelRecHitExtendedAlpaka_alpaka import SiPixelRecHitExtendedAlpaka_alpaka as _SiPixelRecHitExtendedAlpaka_alpaka
 
-hltPhase2PixelRecHitsExtendedSoA = _SiPixelRecHitExtendedAlpakaPhase2_alpaka()
+hltPhase2PixelRecHitsExtendedSoA = _SiPixelRecHitExtendedAlpaka_alpaka()

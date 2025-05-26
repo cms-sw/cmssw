@@ -37,7 +37,7 @@
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
-// #define GPU_DEBUG
+#define GPU_DEBUG
 
 namespace reco {
   struct CAGeometryParams {
@@ -79,7 +79,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HitsConstView = ::reco::TrackingRecHitConstView;
     using HitsOnDevice = reco::TrackingRecHitsSoACollection;
     using HitsOnHost = ::reco::TrackingRecHitHost;
-
     using TkSoAHost = ::reco::TracksHost;
     using TkSoADevice = reco::TracksSoACollection;
     
@@ -163,7 +162,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       || trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF
       || trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF3D);
     };
-    if constexpr (std::is_base_of_v<pixelTopology::Phase2, TrackerTraits>) {
+    if constexpr (std::is_base_of_v<pixelTopology::Phase2OT, TrackerTraits>) {
       int counter = 0;
       for (auto& det : dets) {
         DetId detid = det->geographicalId();
@@ -287,8 +286,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     return std::make_shared<CAGeometryCache>(std::move(product));
   }
 
-  static std::unique_ptr<::reco::CAGeoemtryParams> initializeGlobalCache(edm::ParameterSet const& iConfig) {
-    return std::make_unique<::reco::CAGeoemtryParams>(iConfig.getParameterSet("geometry"));
+  static std::unique_ptr<::reco::CAGeometryParams> initializeGlobalCache(edm::ParameterSet const& iConfig) {
+    return std::make_unique<::reco::CAGeometryParams>(iConfig.getParameterSet("geometry"));
   }
 
 private:
@@ -303,7 +302,7 @@ private:
 
 template <typename TrackerTraits>
 CAHitNtupletAlpaka<TrackerTraits>::CAHitNtupletAlpaka(const edm::ParameterSet& iConfig,
-                                                      const ::reco::CAGeoemtryParams* iCache)
+                                                      const ::reco::CAGeometryParams* iCache)
   : EDProducer(iConfig),
   tokenField_(esConsumes()),
   tokenHit_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
@@ -352,3 +351,4 @@ using CAHitNtupletAlpakaPhase2OT = CAHitNtupletAlpaka<pixelTopology::Phase2OT>;
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase1);
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaHIonPhase1);
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase2);
+DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase2OT);
