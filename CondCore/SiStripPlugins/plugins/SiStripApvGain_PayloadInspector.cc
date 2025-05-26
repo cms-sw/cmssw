@@ -142,8 +142,8 @@ namespace {
       std::shared_ptr<SiStripApvGain> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripApvGain> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
-      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov, tagname1);
-      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov, tagname2);
+      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov, tagname2);
+      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov, tagname1);
 
       l_objContainer->compare(f_objContainer);
 
