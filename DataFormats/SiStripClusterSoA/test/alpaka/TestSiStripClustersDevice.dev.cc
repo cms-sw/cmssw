@@ -27,7 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testSiStripClusterSoA {
         }
         clust_view.clusterDetId(j) = (uint32_t)(j + 12);
         clust_view.firstStrip(j) = (uint16_t)(j % 65536);
-        clust_view.trueCluster(j) = (bool)((j % 2 == 0));
+        clust_view.candidateAccepted(j) = (bool)((j % 2 == 0));
         clust_view.barycenter(j) = (float)(j * 1.0f);
         clust_view.charge(j) = (float)(j * -1.0f);
       }
@@ -55,7 +55,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testSiStripClusterSoA {
         }
         ALPAKA_ASSERT_ACC(clust_view[j].clusterDetId() == j + 12);
         ALPAKA_ASSERT_ACC(clust_view[j].firstStrip() == j % 65536);
-        ALPAKA_ASSERT_ACC(clust_view[j].trueCluster() == (j % 2 == 0));
+        ALPAKA_ASSERT_ACC(clust_view[j].candidateAccepted() == (j % 2 == 0));
         ALPAKA_ASSERT_ACC(clust_view[j].barycenter() == j * 1.0f);
         ALPAKA_ASSERT_ACC(clust_view[j].charge() == j * -1.0f);
       }

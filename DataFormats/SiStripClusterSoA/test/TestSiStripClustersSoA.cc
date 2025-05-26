@@ -20,7 +20,7 @@ int main() {
     }
     clust_view.clusterDetId(j) = (uint32_t)(j + 12);
     clust_view.firstStrip(j) = (uint16_t)(j % 65536);
-    clust_view.trueCluster(j) = (bool)((j % 2 == 0));
+    clust_view.candidateAccepted(j) = (bool)((j % 2 == 0));
     clust_view.barycenter(j) = (float)(j * 1.0f);
     clust_view.charge(j) = (float)(j * -1.0f);
   }
@@ -36,7 +36,7 @@ int main() {
     }
     assert(clust_view.clusterDetId(j) == (uint32_t)(j + 12));
     assert(clust_view.firstStrip(j) == (uint16_t)(j % 65536));
-    assert(clust_view.trueCluster(j) == (bool)((j % 2 == 0)));
+    assert(clust_view.candidateAccepted(j) == (bool)((j % 2 == 0)));
     assert(clust_view.barycenter(j) == (float)(j * 1.0f));
     assert(clust_view.charge(j) == (float)(j * -1.0f));
   }

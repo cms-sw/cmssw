@@ -8,3 +8,4 @@
 <export>
   <lib name="1"/>
 </export>
+<!-- There is clearly something wrong in this build, which works just because of linked definitions from SiStripDigi, SiStripDetId -->

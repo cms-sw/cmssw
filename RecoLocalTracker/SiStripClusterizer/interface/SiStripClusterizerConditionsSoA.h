@@ -6,10 +6,7 @@
 
 namespace sistrip {
   GENERATE_SOA_LAYOUT(SiStripClusterizerConditionsDetToFedsSoALayout,
-                      SOA_COLUMN(uint32_t, detid_),
-                      SOA_COLUMN(uint16_t, fedid_),
-                      SOA_COLUMN(uint16_t, fedch_),
-                      SOA_COLUMN(uint16_t, ipair_))
+                      SOA_COLUMN(bool, qualityOk_))
 
   GENERATE_SOA_LAYOUT(SiStripClusterizerConditionsData_fedch_SoALayout,
                       SOA_COLUMN(uint32_t, detID_),

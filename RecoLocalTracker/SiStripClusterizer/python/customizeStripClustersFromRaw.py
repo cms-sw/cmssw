@@ -43,6 +43,9 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
         if not hasattr(hltSiStripRawToClustersFacilityAlpaka.Clusterizer, "MaxClusterSize"):
             # print(f"[hltSiStripRawToClustersFacility] No Clusterizer.MaxClusterSize defined. Defaulting to {MaxClusterSize}")
             hltSiStripRawToClustersFacilityAlpaka.Clusterizer.MaxClusterSize = cms.uint32(MaxClusterSize)
+        ## Add the MaxSeedStrips to the clusterizer PSet if not present
+        if not hasattr(hltSiStripRawToClustersFacilityAlpaka.Clusterizer, "MaxSeedStrips"):
+            hltSiStripRawToClustersFacilityAlpaka.Clusterizer.MaxSeedStrips = cms.uint32(150000)
         
         if not hasattr(hltSiStripRawToClustersFacilityAlpaka, "Unpacker"):
             hltSiStripRawToClustersFacilityAlpaka.Unpacker = cms.PSet(

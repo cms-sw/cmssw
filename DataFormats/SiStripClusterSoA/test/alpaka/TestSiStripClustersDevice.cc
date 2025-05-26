@@ -56,7 +56,7 @@ int main() {
         }
         assert(clusters_h->clusterDetId(j) == j + 12);
         assert(clusters_h->firstStrip(j) == j % 65536);
-        assert(clusters_h->trueCluster(j) == (j % 2 == 0));
+        assert(clusters_h->candidateAccepted(j) == (j % 2 == 0));
         assert(clusters_h->barycenter(j) == j * 1.0f);
         assert(clusters_h->charge(j) == j * -1.0f);
       }

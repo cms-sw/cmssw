@@ -1,10 +1,11 @@
 #include <alpaka/alpaka.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/moveToDeviceAsync.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/moveToDeviceAsync.h"
+
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 // #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
@@ -16,7 +17,6 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
   enum class StatusCode { SUCCESS = 0, BAD_CHANNEL_LENGTH, UNORDERED_DATA, BAD_PACKET_CODE, ZERO_PACKET_CODE };
   namespace detail {
-
     template <uint8_t num_words>
     ALPAKA_FN_HOST_ACC uint16_t getADC_W(const uint8_t* data, uint_fast16_t offset, uint8_t bits_shift) {
       // get ADC from one or two bytes (at most 10 bits), and shift if needed
@@ -35,93 +35,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
       return (data[wOffset ^ 7] >> (BITS_PER_BYTE - bOffset)) & mask;
     }
 
-    // Unpack Raw with ADCs in whole 8-bit words (8bit and 10-in-16bit)
-    template <uint8_t num_bits, typename OUT>
-    ALPAKA_FN_HOST_ACC StatusCode unpackRawW(const FEDChannel& channel, OUT&& out, uint8_t bits_shift = 0) {
-      constexpr auto num_words = num_bits / 8;
-      static_assert(((num_bits % 8) == 0) && (num_words > 0) && (num_words < 3));
-      if ((num_words > 1) && ((channel.length() - 3) % num_words)) {
-        // LogDebug("FEDBuffer") << "Channel length is invalid. Raw channels have 3 header bytes and " << num_words
-        //                       << " bytes per sample. "
-        //                       << "Channel length is " << uint16_t(channel.length()) << ".";
-        return StatusCode::BAD_CHANNEL_LENGTH;
-      }
-      const uint8_t* const data = channel.data();
-      const uint_fast16_t end = channel.offset() + channel.length();
-      for (uint_fast16_t offset = channel.offset() + 3; offset != end; offset += num_words) {
-        *out++ = SiStripRawDigi(getADC_W<num_words>(data, offset, bits_shift));
-      }
-      return StatusCode::SUCCESS;
-    }
-
-    // Unpack Raw with ADCs in whole 8-bit words (8bit and 10-in-16bit)
     template <uint8_t num_bits>
-    ALPAKA_FN_HOST_ACC StatusCode unpackRawW(const uint8_t* channel_data,
-                                             uint16_t channel_length,
-                                             uint32_t channel_offset,
-                                             StripDigiView out,
-                                             int* idx,
-                                             uint8_t bits_shift = 0) {
-      constexpr auto num_words = num_bits / 8;
-      static_assert(((num_bits % 8) == 0) && (num_words > 0) && (num_words < 3));
-      if ((num_words > 1) && ((channel_length - 3) % num_words)) {
-        // LogDebug("FEDBuffer") << "Channel length is invalid. Raw channels have 3 header bytes and " << num_words
-        //                       << " bytes per sample. "
-        //                       << "Channel length is " << uint16_t(channel.length()) << ".";
-        return StatusCode::BAD_CHANNEL_LENGTH;
-      }
-      const uint8_t* const data = channel_data;
-      const uint_fast16_t end = channel_offset + channel_length;
-      for (uint_fast16_t offset = channel_offset + 3; offset != end; offset += num_words) {
-        out.adc((*idx)++) = getADC_W<num_words>(data, offset, bits_shift);
-      }
-      return StatusCode::SUCCESS;
-    }
-
-    // Generic implementation for non-whole words (10bit, essentially)
-    template <uint_fast8_t num_bits>
-    ALPAKA_FN_HOST_ACC StatusCode unpackRawB(int chan,
-                                             const uint8_t* channel_data,
-                                             uint16_t channel_length,
-                                             uint32_t channel_offset,
-                                             StripDigiView out,
-                                             int* idx) {
-      static_assert(num_bits <= 16, "Word length must be between 0 and 16.");
-      if (channel_length & 0xF000) {
-        // LogDebug("FEDBuffer") << "Channel length is invalid. Channel length is " << uint16_t(channel.length()) << ".";
-        return StatusCode::BAD_CHANNEL_LENGTH;
-      }
-      constexpr uint16_t mask = (1 << num_bits) - 1;
-      const uint8_t* const data = channel_data;
-      const uint_fast16_t chEnd = channel_offset + channel_length;
-      uint_fast16_t wOffset = channel_offset + 3;
-      uint_fast8_t bOffset = 0;
-      while (((wOffset + 1) < chEnd) || ((chEnd - wOffset) * BITS_PER_BYTE - bOffset >= num_bits)) {
-        bOffset += num_bits;
-        if ((num_bits > BITS_PER_BYTE) || (bOffset > BITS_PER_BYTE)) {
-          bOffset -= BITS_PER_BYTE;
-          out.adc(*idx) = getADC_B2<mask>(data, wOffset, bOffset);
-          ++wOffset;
-        } else {
-          out.adc(*idx) = getADC_B1<mask>(data, wOffset, bOffset);
-        }
-        out.channel(*idx) = chan;
-        (*idx)++;
-        if (bOffset == BITS_PER_BYTE) {
-          bOffset = 0;
-          ++wOffset;
-        }
-      }
-      return StatusCode::SUCCESS;
-    }
-
-    template <uint8_t num_bits>
-    ALPAKA_FN_HOST_ACC StatusCode unpackZSW(int chan,
+    ALPAKA_FN_HOST_ACC StatusCode unpackZSW(uint32_t chan,
                                             const uint8_t* channel_data,
                                             uint16_t channel_length,
                                             uint32_t channel_offset,
-                                            StripDigiView out,
-                                            int* aoffIdx,
+                                            SiStripDigiView out,
+                                            uint32_t* aoffIdx,
                                             uint8_t headerLength,
                                             uint16_t stripStart,
                                             uint8_t bits_shift = 0) {
@@ -156,16 +76,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
           // out.stripId(++(*aoffIdx)) = 0xFFFF; // wonder what is the reason for these offsets
           // from my investigation, there is always a call at the begin and end of the cluster.
           // If this is a general property, then these two rows of the out StripDigiView could be saved for each unpackZSW call
-          for (int i = 0; i < 2; ++i, ++(*aoffIdx)) {
-            out.stripId(*aoffIdx) = 0xFFFF;
-            out.adc(*aoffIdx) = 0;
-          }
+          // for (int i = 0; i < 2; ++i, ++(*aoffIdx)) {
+          //   out.stripId(*aoffIdx) = 0xFFFF;
+          //   out.adc(*aoffIdx) = 0;
+          // }
         }
         // assert(*aoffIdx!=23);
         out.channel(*aoffIdx) = chan;
         out.stripId(*aoffIdx) = stripStart + firstStrip + inCluster;
         out.adc(*aoffIdx) = getADC_W<num_words>(data, offset, bits_shift);
-        // printf("unpackZSW [%i] | chan %i stripId %i adc %i\n", *aoffIdx, chan, out.stripId(*aoffIdx), out.adc(*aoffIdx));
+        // printf("#SiStripDigiW,%i,%i\n", out.stripId(*aoffIdx), out.adc(*aoffIdx));
         (*aoffIdx)++;
         offset += num_words;
         ++inCluster;
@@ -176,12 +96,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
 
     // Generic implementation (for 10bit, essentially)
     template <uint_fast8_t num_bits>
-    ALPAKA_FN_HOST_ACC StatusCode unpackZSB(int chan,
+    ALPAKA_FN_HOST_ACC StatusCode unpackZSB(uint32_t chan,
                                             const uint8_t* channel_data,
                                             uint16_t channel_length,
                                             uint32_t channel_offset,
-                                            StripDigiView out,
-                                            int* idx,
+                                            SiStripDigiView out,
+                                            uint32_t* idx,
                                             uint8_t headerLength,
                                             uint16_t stripStart) {
       constexpr uint16_t mask = (1 << num_bits) - 1;
@@ -229,7 +149,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
         }
         out.channel(*idx) = chan;
         out.stripId(*idx) = stripStart + firstStrip + inCluster;
-        // printf("unpackZSB [%i] | chan %i stripId %i adc %i\n", *idx, chan, out.stripId(*idx), out.adc(*idx));
+        // printf("#SiStripDigiB,%i,%i\n", out.stripId(*idx), out.adc(*idx));
         ++inCluster;
         if (bOffset == BITS_PER_BYTE) {
           bOffset = 0;
@@ -247,88 +167,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
   }  // namespace detail
 
   namespace checks {
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isZeroSuppressed(
-        FEDReadoutMode mode, bool legacy = false, FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
-      if (!legacy) {
-        switch (mode) {
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-          case READOUT_MODE_PREMIX_RAW:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-          case READOUT_MODE_ZERO_SUPPRESSED:
-          case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-            return true;
-            break;
-          default:
-            return false;
-        }
-      } else {
-        switch (lmode) {
-          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:
-          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:
-          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL:
-          case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE:
-          case READOUT_MODE_LEGACY_PREMIX_RAW:
-            return true;
-          default:
-            return false;
-        }
-      }
-    }
-
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isNonLiteZS(FEDReadoutMode mode,
-                                                         bool legacy = false,
-                                                         FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
-      return (!legacy) ? (mode == READOUT_MODE_ZERO_SUPPRESSED || mode == READOUT_MODE_ZERO_SUPPRESSED_FAKE)
-                       : (lmode == READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL ||
-                          lmode == READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE);
-    }
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isVirginRaw(FEDReadoutMode mode,
-                                                         bool legacy = false,
-                                                         FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
-      return (!legacy) ? mode == READOUT_MODE_VIRGIN_RAW
-                       : (lmode == READOUT_MODE_LEGACY_VIRGIN_RAW_REAL || lmode == READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE);
-    }
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isProcessedRaw(FEDReadoutMode mode,
-                                                            bool legacy = false,
-                                                            FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
-      return (!legacy) ? mode == READOUT_MODE_PROC_RAW
-                       : (lmode == READOUT_MODE_LEGACY_PROC_RAW_REAL || lmode == READOUT_MODE_LEGACY_PROC_RAW_FAKE);
-    }
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isScopeMode(FEDReadoutMode mode,
-                                                         bool legacy = false,
-                                                         FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID) {
-      return (!legacy) ? mode == READOUT_MODE_SCOPE : lmode == READOUT_MODE_LEGACY_SCOPE;
+    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isNonLiteZS(uint8_t mode) {
+      return (mode == 10 || mode == 11);
     }
   }  // namespace checks
 
   namespace unpackers {
-    ALPAKA_FN_HOST_ACC StatusCode unpackZeroSuppressed(int chanIdx,
-                                                       const uint8_t* channel_data,
-                                                       uint16_t channel_length,
-                                                       uint32_t channel_offset,
-
-                                                       StripDigiView stripDigis,
-                                                       int* aoff,
-
-                                                       uint16_t stripStart,
-                                                       bool isNonLite,
-                                                       FEDReadoutMode mode,
-                                                       bool legacy = false,
-                                                       FEDLegacyReadoutMode lmode = READOUT_MODE_LEGACY_INVALID,
-                                                       uint8_t packetCode = 0) {
-      if ((isNonLite && packetCode == PACKET_CODE_ZERO_SUPPRESSED10) ||
-          ((!legacy) &&
-           (mode == READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode == READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE))) {
+    ALPAKA_FN_HOST_ACC StatusCode unpackZeroSuppressed2(
+      uint32_t chanIdx,
+      const uint8_t* channel_data,
+      uint16_t channel_length,
+      uint32_t channel_offset,
+      SiStripDigiView stripDigis,
+      uint32_t* aoff,
+      uint16_t stripStart,
+      bool isNonLite,
+      uint8_t mode,
+      uint8_t packetCode = 0
+    ) {
+      if (
+          (isNonLite && packetCode == PACKET_CODE_ZERO_SUPPRESSED10) ||
+          (mode == READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode == READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE)
+        ) {
         // printf("[%i] unpackZSB<10>\n", *aoff);
         return detail::unpackZSB<10>(
             chanIdx, channel_data, channel_length, channel_offset, stripDigis, aoff, (isNonLite ? 7 : 2), stripStart);
-      } else if ((!legacy) ? mode == READOUT_MODE_PREMIX_RAW : lmode == READOUT_MODE_LEGACY_PREMIX_RAW) {
+      } else if (mode == READOUT_MODE_PREMIX_RAW) {
         // printf("[%i] unpackZSB<16>\n", *aoff);
         return detail::unpackZSW<16>(
             chanIdx, channel_data, channel_length, channel_offset, stripDigis, aoff, 7, stripStart);
@@ -365,29 +229,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
         return st;
       }
     }
-
   }  // namespace unpackers
-
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker
 
 // kernels and related objects
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   using namespace cms::alpakatools;
 
-  // constexpr uint16_t FED_ID_MIN = get_FED_ID_MIN();
-  // constexpr uint16_t FEDCH_PER_FED = get_FEDCH_PER_FED();
-  // constexpr uint16_t STRIPS_PER_FEDCH = get_STRIPS_PER_FEDCH();
-  // constexpr uint16_t APVS_PER_FEDCH = get_APVS_PER_FEDCH();
-  // constexpr uint16_t APVS_PER_CHAN = get_APVS_PER_CHAN();
-  // constexpr uint16_t STRIPS_PER_APV = get_STRIPS_PER_APV();
-
   constexpr uint16_t invalidStrip = std::numeric_limits<uint16_t>::max();
   constexpr uint16_t invalidFed = std::numeric_limits<uint16_t>::max();
   constexpr uint16_t badBit = (1 << 15);
-  constexpr int32_t kMaxSeedStrips = 150000;
   constexpr uint16_t stripIndexMask = 0x7FFF;
 
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint16_t fedIndex(uint16_t fed) { return fed - FED_ID_MIN; }
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint16_t fedIndex(uint16_t fedId) { return fedId - FED_ID_MIN; }
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint32_t stripIndex(uint16_t fedID, uint8_t fedCH, uint16_t strip) {
     return fedIndex(fedID) * FEDCH_PER_FED * STRIPS_PER_FEDCH + fedCH * STRIPS_PER_FEDCH + (strip % STRIPS_PER_FEDCH);
   }
@@ -395,9 +249,55 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     return fedIndex(fed) * APVS_PER_FEDCH * FEDCH_PER_FED + APVS_PER_CHAN * channel +
            (strip % STRIPS_PER_FEDCH) / STRIPS_PER_APV;
   }
-  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint32_t channelIndex(uint16_t fedID, uint8_t fedCH) {
-    return fedIndex(fedID) * FEDCH_PER_FED + fedCH;
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr uint32_t channelIndex(uint16_t fedId, uint8_t fedCh) {
+    return fedIndex(fedId) * FEDCH_PER_FED + fedCh;
   }
+  
+
+  class siStripKer_applyQualConds {
+    public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_HOST_ACC void operator()(
+      TAcc const& acc,
+      uint32_t* blockStripN,
+      uint32_t* invalidFedCh,
+      uint8_t* fedChannelsData,
+      SiStripMappingView mapping,
+      SiStripClusterizerConditionsDetToFedsConstView qualityConditions
+    ) const {
+      //
+      for (auto chan : uniform_elements(acc, mapping.metadata().size())) {
+      // for (uint32_t chan=0; chan<(uint32_t)mapping.metadata().size(); chan++) {
+        const auto fedId = mapping.fedID(chan);
+        const auto fedCh = mapping.fedCh(chan);
+
+        uint32_t index = channelIndex(fedId, fedCh);
+        if (qualityConditions.qualityOk_(index) == false){
+          mapping.fedID(chan) = invalidFed;
+          mapping.fedChStripsN(chan) = 0;
+          printf("#invFed,%i,%i,%i\n", fedId, fedCh, invalidFedCh[0]);
+          alpaka::atomicAdd(acc, invalidFedCh, 1u, alpaka::hierarchy::Grids{});
+        }else{
+          // Atomic add the total number of strips to be unpacked
+          const uint32_t fedChOfs = mapping.fedChOfs(chan);
+          const uint32_t fedChDataOfsBuf = mapping.fedChDataOfsBuf(chan);
+
+          bool isNonLite = fedchannelunpacker::checks::isNonLiteZS(mapping.readoutMode(chan));
+          
+          fedChannelDetails::FEDChannel fedChan(fedChannelsData+fedChDataOfsBuf, fedChOfs, isNonLite);
+          // Calculate the number of strips in the channel
+          // uint8_t chLength = fedChan.length();
+          uint16_t chStripNb = fedChan.stripsInCh<8>();
+          mapping.fedChStripsN(chan) = chStripNb;
+          // printf("#chLen,%i,%i,%i,%i,%i\n", fedId, fedCh, fedChOfs, chStripNb, blockStripN[0]);
+          // alpaka::atomicAdd(acc, blockStripN, static_cast<uint32_t>(chStripNb), alpaka::hierarchy::Grids{});
+        }
+        // if (chan > 10){
+        //   break;
+        // }
+      }
+    }
+  };
 
   class siStripKer_init {
   public:
@@ -426,58 +326,68 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_unpackZS {
+  class siStripKer_unpackZS2 {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_HOST_ACC void operator()(TAcc const& acc,
-                                       bool legacy,
-                                       FEDLegacyReadoutMode lmode,
-                                       StripDigiView stripDigis,
-                                       const uint8_t* rawData,
-                                       //
-                                       SiStripMappingConstView mapping,
-                                       SiStripClusterizerConditionsData_fedchConstView Data_fedch,
-                                       SiStripClusterizerConditionsData_stripConstView Data_strip,
-                                       SiStripClusterizerConditionsData_apvConstView Data_apv) const {
+    ALPAKA_FN_HOST_ACC void operator()(
+      TAcc const& acc,
+      uint8_t* fedChannelsData,
+      SiStripDigiView stripDigis,
+      SiStripMappingConstView mapping,
+      SiStripClusterizerConditionsData_fedchConstView Data_fedch,
+      SiStripClusterizerConditionsData_stripConstView Data_strip,
+      SiStripClusterizerConditionsData_apvConstView Data_apv
+    ) const {
       // Loop over the FEDChannel collection to be digitized
       for (auto chan : uniform_elements(acc, mapping.metadata().size())) {
-        const auto fedID = mapping.fedID(chan);
-        const auto fedCH = mapping.fedCh(chan);
-        // const auto detID = mapping.detID(chan);
+      // for (uint32_t chan=0; chan<(uint32_t)mapping.metadata().size(); chan++) {
+        const auto fedId = mapping.fedID(chan);
+        const auto fedCh = mapping.fedCh(chan);
+        // const auto detId = mapping.detID(chan);
 
-        if (fedID == invalidFed)
+        if (fedId == invalidFed){
           continue;  // reject strips which are in the conditions but not in the fed data collection
+        }
 
-        const auto ipair = Data_fedch.iPair_(channelIndex(fedID, fedCH));
+        // printf("#ptA\n");
+        const auto ipair = Data_fedch.iPair_(channelIndex(fedId, fedCh));
         int ipoff = STRIPS_PER_FEDCH * ipair;
+        // printf("#ptB\n");
 
-        const unsigned char* channel_data = rawData + mapping.fedChOff(chan);
-        const short unsigned channel_len = mapping.length(chan);
-        const long unsigned channel_offset = mapping.inoff(chan);
 
-        FEDReadoutMode mode = mapping.readoutMode(chan);
-        const unsigned pCode = mapping.packetCode(chan);
-        bool isNonLite = fedchannelunpacker::checks::isNonLiteZS(mode, legacy, lmode);
+        const uint32_t fedChDataOfsBuf = mapping.fedChDataOfsBuf(chan);
+        uint16_t fedChOfs = mapping.fedChOfs(chan);
+        const uint8_t mode = mapping.readoutMode(chan);
+        const bool isNonLite = fedchannelunpacker::checks::isNonLiteZS(mode);
+        // printf("#ssk2,%i,%i,%i,%i", fedId, fedCh, ipoff, fedChOfs);
+        const fedChannelDetails::FEDChannel fedChan(fedChannelsData + fedChDataOfsBuf, fedChOfs, isNonLite);
+        const uint8_t packetCode = fedChan.packetCode();
+        
+        uint32_t absoluteOffset = 0;
+        if (chan>0) [[likely]] {
+          absoluteOffset = mapping.fedChStripsN(chan-1); 
+        }
 
-        int aoff = mapping.offset(chan);
-
-        // unpackZeroSuppressed(const unsigned char* const&, const short unsigned int&, const long unsigned int&, sistripclusterizer::StripDigiView&, long unsigned int*, int, bool&, sistrip::FEDReadoutMode&, bool&, sistrip::FEDLegacyReadoutMode&, const unsigned char&)
-        auto retCode = fedchannelunpacker::unpackers::unpackZeroSuppressed(chan,
-                                                                           channel_data,
-                                                                           channel_len,
-                                                                           channel_offset,
-                                                                           stripDigis,
-                                                                           &aoff,
-                                                                           ipoff,
-                                                                           isNonLite,
-                                                                           mode,
-                                                                           legacy,
-                                                                           lmode,
-                                                                           pCode);
+        // printf(":%i,%i,%i\n", fedChan.offset(), fedChan.length(), packetCode);
+        auto retCode = fedchannelunpacker::unpackers::unpackZeroSuppressed2(
+          chan,
+          fedChan.data(),
+          fedChan.length(),
+          fedChan.offset(),
+          stripDigis,
+          &absoluteOffset,
+          ipoff,
+          isNonLite,
+          mode,
+          packetCode);
         if (retCode != fedchannelunpacker::StatusCode::SUCCESS) {
           // ANSI escape codes won't be used - this is ONLY for quick DEBUGGING of these cases
-          printf("\033[31m [%i] [fedID %i] [fedCH %i] - Returned %i \033[0m \n", chan, fedID, fedCH, (int)retCode);
+          printf("\033[31m [%i] [fedID %i] [fedCH %i] - Returned %i \033[0m \n", chan, fedId, fedCh, (int)retCode);
         }
+        
+        // if (chan > 20){
+        //   break;
+        // }
       }  // data != nullptr && len > 0
     }
   };
@@ -486,32 +396,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                  StripDigiConstView stripDataObj,
+                                  SiStripDigiConstView stripDigi,
                                   StripClustersAuxView clusterDataObj,
                                   SiStripMappingConstView mapping,
                                   SiStripClusterizerConditionsData_stripConstView Data_strip) const {
-      auto nStrips = stripDataObj.metadata().size();
+      auto nStrips = stripDigi.metadata().size();
       const float seedThreshold = clusterDataObj.seedThreshold();
-      for (auto chan : uniform_elements(acc, nStrips)) {
-        clusterDataObj.seedStripsMask(chan) = 0;
-        clusterDataObj.seedStripsNCMask(chan) = 0;
-        clusterDataObj.prefixSeedStripsNCMask(chan) = 0;
-        const auto stripID = stripDataObj.stripId(chan);
-        if (stripID != invalidStrip) {
-          const auto chan_ = stripDataObj.channel(chan);
-          const auto fedID = mapping.fedID(chan_);
-          const auto fedCH = mapping.fedCh(chan_);
+      for (auto i : uniform_elements(acc, nStrips)) {
+        clusterDataObj.seedStripsMask(i) = 0;
+        clusterDataObj.seedStripsNCMask(i) = 0;
+        clusterDataObj.prefixSeedStripsNCMask(i) = 0;
+        //
+        //
+        const auto chan_ = stripDigi.channel(i);
+        const auto fedId = mapping.fedID(chan_);
+        const auto fedCh = mapping.fedCh(chan_);
+        const auto stripID = stripDigi.stripId(i);
 
-          const auto idx = stripIndex(fedID, fedCH, stripID);
-          uint16_t noise_tmp = Data_strip.noise_(idx);
+        const uint32_t idx = stripIndex(fedId, fedCh, stripID);
+        const uint16_t noise_tmp = Data_strip.noise_(idx);
+        const float noise_i = 0.1f * (noise_tmp & ~badBit);
 
-          const float noise_i = 0.1f * (noise_tmp & ~badBit);
-          const uint8_t adc_i = stripDataObj.adc(chan);
+        const uint8_t adc_i = stripDigi.adc(i);
 
-          clusterDataObj.seedStripsMask(chan) = (adc_i >= static_cast<uint8_t>(noise_i * seedThreshold)) ? 1 : 0;
-          clusterDataObj.seedStripsNCMask(chan) = clusterDataObj.seedStripsMask(chan);
-          // clusterDataObj.seedStripsNCMask(chan) = static_cast<uint8_t>(seedThreshold); // debugging
-        }
+        clusterDataObj.seedStripsMask(i) = (adc_i >= static_cast<uint8_t>(noise_i * seedThreshold)) ? 1 : 0;
+        clusterDataObj.seedStripsNCMask(i) = clusterDataObj.seedStripsMask(i);
+        // clusterDataObj.seedStripsNCMask(chan) = static_cast<uint8_t>(seedThreshold); // debugging
       }
     }
   };
@@ -520,7 +430,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                  StripDigiConstView stripDataObj,
+                                  SiStripDigiConstView stripDataObj,
                                   StripClustersAuxView clusterDataObj,
                                   SiStripMappingConstView mapping) const {
       auto channels = stripDataObj.channel();
@@ -537,7 +447,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_setStripIndex {
+  class siStripKer_setNCStripIndex {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, StripClustersAuxView clusterDataObj) const {
@@ -551,153 +461,159 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_findLeftRightBounds {
+  class siStripKer_makeCandidates {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                  StripDigiConstView stripDataObj,
+                                  const uint32_t kMaxSeedStrips,
+                                  SiStripDigiConstView stripDataObj,
                                   StripClustersAuxConstView clusterDataObj,
                                   SiStripClustersView clusters,
                                   SiStripMappingConstView mapping,
                                   SiStripClusterizerConditionsData_stripConstView Data_strip) const {
-      const auto nStrips = stripDataObj.metadata().size();
-      const auto nSeedStripsNC = (kMaxSeedStrips < clusterDataObj.prefixSeedStripsNCMask(nStrips - 1))
-                                     ? kMaxSeedStrips
-                                     : clusterDataObj.prefixSeedStripsNCMask(nStrips - 1);
+      //
+      const int32_t nStrips = stripDataObj.metadata().size();
+      const uint32_t nSeedStripsNC = (kMaxSeedStrips < clusterDataObj.prefixSeedStripsNCMask(nStrips - 1)) ? kMaxSeedStrips : clusterDataObj.prefixSeedStripsNCMask(nStrips - 1);
       //
       // if(once_per_grid(acc)) {
       //   printf("clusterDataObj.prefixSeedStripsNCMask(%i)=%i\n", nStrips - 1, clusterDataObj.prefixSeedStripsNCMask(nStrips - 1));
       // }
-      auto channels = stripDataObj.channel();
-      auto stripId = stripDataObj.stripId();
-      auto adc = stripDataObj.adc();
-      const auto channelThreshold = clusterDataObj.channelThreshold();
-      const auto maxSequentialHoles = clusterDataObj.maxSequentialHoles();
-      const int clusterSizeLimit = clusterDataObj.clusterSizeLimit();
-      const auto clusterThresholdSquared = clusterDataObj.clusterThresholdSquared();
+      const uint16_t* chanArr = stripDataObj.channel();
+      const uint16_t* stripIdArr = stripDataObj.stripId();
+      const uint8_t* adcArr = stripDataObj.adc();
 
-      // Loop over only the non-contiguous strips (flagged in setStripIndex)
-      for (auto i : uniform_elements(acc, nSeedStripsNC)) {
-        const int index = clusterDataObj.seedStripsNCIndex(i);
-        const auto chan = channels[index];
-        const auto fed = mapping.fedID(chan);
-        const auto channel = mapping.fedCh(chan);
-        const auto det = mapping.detID(chan);
-        const auto strip = stripId[index];
-        //
-        const auto idx = stripIndex(fed, channel, strip);
-        uint16_t noise_tmp = Data_strip.noise_(idx);
-        const float noise_i = 0.1f * (noise_tmp & ~badBit);
-
-        auto noiseSquared_i = noise_i * noise_i;
-        float adcSum_i = static_cast<float>(adc[index]);
-        auto testIndex = index - 1;
-        int size = 1;
-
-        auto addtocluster = [&](int& indexLR) {
-          const auto testchan = channels[testIndex];
-          const auto testFed = mapping.fedID(testchan);
-          const auto testChannel = mapping.fedCh(testchan);
-          const auto testStrip = stripId[testIndex];
-
-          const auto idx = stripIndex(testFed, testChannel, testStrip);
-          uint16_t noise_tmp = Data_strip.noise_(idx);
-          const float testNoise = 0.1f * (noise_tmp & ~badBit);
-
-          const auto testADC = adc[testIndex];
-
-          if (testADC >= static_cast<uint8_t>(testNoise * channelThreshold)) {
-            ++size;
-            indexLR = testIndex;
-            noiseSquared_i += testNoise * testNoise;
-            adcSum_i += static_cast<float>(testADC);
-          }
-        };
-
-        // find left boundary
-        auto indexLeft = index;
-
-        if (testIndex >= 0 && stripId[testIndex] == invalidStrip) {
-          testIndex -= 2;
-        }
-
-        if (testIndex >= 0) {
-          const auto testchan = channels[testIndex];
-          const auto testDet = mapping.detID(testchan);
-          auto rangeLeft = stripId[indexLeft] - stripId[testIndex] - 1;
-          auto sameDetLeft = det == testDet;
-
-          while (sameDetLeft && (rangeLeft >= 0) && (rangeLeft <= maxSequentialHoles) &&
-                 (size < (clusterSizeLimit + 1))) {
-            addtocluster(indexLeft);
-            --testIndex;
-            if (testIndex >= 0 && stripId[testIndex] == invalidStrip) {
-              testIndex -= 2;
-            }
-            if (testIndex >= 0) {
-              rangeLeft = stripId[indexLeft] - stripId[testIndex] - 1;
-              const auto newchan = channels[testIndex];
-              const auto newdet = mapping.detID(newchan);
-              sameDetLeft = det == newdet;
-            } else {
-              sameDetLeft = false;
-            }
-          }  // while loop
-        }  // testIndex >= 0
-
-        // find right boundary
-        auto indexRight = index;
-        testIndex = index + 1;
-
-        if (testIndex < nStrips && stripId[testIndex] == invalidStrip) {
-          testIndex += 2;
-        }
-
-        if (testIndex < nStrips) {
-          const auto testchan = channels[testIndex];
-          const auto testDet = mapping.detID(testchan);
-          auto rangeRight = stripId[testIndex] - stripId[indexRight] - 1;
-          auto sameDetRight = det == testDet;
-
-          while (sameDetRight && (rangeRight >= 0) && (rangeRight <= maxSequentialHoles) &&
-                 (size < (clusterSizeLimit + 1))) {
-            addtocluster(indexRight);
-            ++testIndex;
-            if (testIndex < nStrips && stripId[testIndex] == invalidStrip) {
-              testIndex += 2;
-            }
-            if (testIndex < nStrips) {
-              rangeRight = stripId[testIndex] - stripId[indexRight] - 1;
-              const auto newchan = channels[testIndex];
-              const auto newdet = mapping.detID(newchan);
-              sameDetRight = det == newdet;
-            } else {
-              sameDetRight = false;
-            }
-          }  // while loop
-        }  // testIndex < nStrips
-
-        clusters.clusterIndex(i) = indexLeft;
-        clusters.clusterSize(i) = indexRight - indexLeft + 1;
-        clusters.clusterDetId(i) = det;
-        clusters.firstStrip(i) = stripId[indexLeft];
-        clusters.trueCluster(i) = (noiseSquared_i * clusterThresholdSquared <= adcSum_i * adcSum_i) and
-                                  (clusters.clusterSize(i) <= static_cast<uint32_t>(clusterSizeLimit));
-      }  // i < nSeedStripsNC
+      const float channelThreshold = clusterDataObj.channelThreshold();
+      const float clusterThresholdSquared = clusterDataObj.clusterThresholdSquared();
+      const uint8_t maxSequentialHoles = clusterDataObj.maxSequentialHoles();
+      const uint16_t clusterSizeLimit = clusterDataObj.clusterSizeLimit();
 
       // set this only once in the whole kernel grid
       if (once_per_grid(acc)) {
         clusters.nClusters() = nSeedStripsNC;
         clusters.maxClusterSize() = clusterSizeLimit;
       }
+
+      // Loop over only the non-contiguous strips (flagged in setStripIndex)
+      for (auto i : uniform_elements(acc, nSeedStripsNC)) {
+        const uint32_t chan_ = clusterDataObj.seedStripsNCIndex(i);
+        
+        const auto chan = chanArr[chan_];
+        const auto fedId = mapping.fedID(chan);
+        const auto fedCh = mapping.fedCh(chan);
+        const auto detId = mapping.detID(chan);
+        const auto stripId = stripIdArr[chan_];
+        //
+        const uint32_t idx = stripIndex(fedId, fedCh, stripId);
+        const uint16_t noise_tmp = Data_strip.noise_(idx);
+        const float noise_i = 0.1f * (noise_tmp & ~badBit);
+
+        // Calculate the accumulated noise2 and ADC
+        uint16_t clSize = 1;
+        float noiseSquared_i = noise_i * noise_i;
+        float adcSum_i = static_cast<float>(adcArr[chan_]);
+        int32_t testIndex = chan_ - 1;
+
+        auto addtocluster = [&](int& indexLR) {
+          const auto test_chan = chanArr[testIndex];
+          const auto test_fedId = mapping.fedID(test_chan);
+          const auto test_fedCh = mapping.fedCh(test_chan);
+          const auto test_stripId = stripIdArr[testIndex];
+
+          const uint32_t test_idx = stripIndex(test_fedId, test_fedCh, test_stripId);
+          const uint16_t test_noise_tmp = Data_strip.noise_(test_idx);
+          const float test_noise_i = 0.1f * (test_noise_tmp & ~badBit);
+
+          const uint8_t testADC = adcArr[testIndex];
+
+          if (testADC >= static_cast<uint8_t>(test_noise_i * channelThreshold)) {
+            ++clSize;
+            indexLR = testIndex;
+            noiseSquared_i += test_noise_i * test_noise_i;
+            adcSum_i += static_cast<float>(testADC);
+          }
+        };
+
+        // find left boundary
+        int32_t indexLeft = chan_;
+
+        // if (stripIdArr[testIndex] == invalidStrip && testIndex >= 0) {
+        //   testIndex -= 2;
+        // }
+
+        if (testIndex >= 0) {
+          const auto testchan = chanArr[testIndex];
+          const auto testDetId = mapping.detID(testchan);
+          
+          int16_t rangeLeft = stripIdArr[indexLeft] - stripIdArr[testIndex] - 1;
+          bool isSameDetLeft = (detId == testDetId);
+
+          while (isSameDetLeft && (rangeLeft >= 0) && (rangeLeft <= maxSequentialHoles) &&
+                 (clSize < (clusterSizeLimit + 1))) {
+            addtocluster(indexLeft);
+            --testIndex;
+            // if (testIndex >= 0 && stripIdArr[testIndex] == invalidStrip) {
+            //   testIndex -= 2;
+            // }
+            if (testIndex >= 0) {
+              rangeLeft = stripIdArr[indexLeft] - stripIdArr[testIndex] - 1;
+              const auto newchan = chanArr[testIndex];
+              const auto newdet = mapping.detID(newchan);
+              isSameDetLeft = (detId == newdet);
+            } else {
+              isSameDetLeft = false;
+            }
+          }  // while loop
+        }  // testIndex >= 0
+
+        // find right boundary
+        int32_t indexRight = chan_;
+        testIndex = chan_ + 1;
+
+        // if (stripIdArr[testIndex] == invalidStrip && testIndex < nStrips) {
+        //   testIndex += 2;
+        // }
+
+        if (testIndex < nStrips) {
+          const auto testchan = chanArr[testIndex];
+          const auto testDetId = mapping.detID(testchan);
+
+          int16_t rangeRight = stripIdArr[testIndex] - stripIdArr[indexRight] - 1;
+          bool isSameDetRight = (detId == testDetId);
+
+          while (isSameDetRight && (rangeRight >= 0) && (rangeRight <= maxSequentialHoles) &&
+                 (clSize < (clusterSizeLimit + 1))) {
+            addtocluster(indexRight);
+            ++testIndex;
+            // if (testIndex < nStrips && stripIdArr[testIndex] == invalidStrip) {
+            //   testIndex += 2;
+            // }
+            if (testIndex < nStrips) {
+              rangeRight = stripIdArr[testIndex] - stripIdArr[indexRight] - 1;
+              const auto newchan = chanArr[testIndex];
+              const auto newdet = mapping.detID(newchan);
+              isSameDetRight = (detId == newdet);
+            } else {
+              isSameDetRight = false;
+            }
+          }  // while loop
+        }  // testIndex < nStrips
+
+        clusters.clusterIndex(i) = indexLeft;
+        clusters.clusterSize(i) = indexRight - indexLeft + 1;
+        clusters.clusterDetId(i) = detId;
+        clusters.firstStrip(i) = stripIdArr[indexLeft];
+        // Flag candidates which do not pass (cluster noise threshold) && (cluster size) conditions. Max number of holes already accounted in candidate finder
+        clusters.candidateAccepted(i) = (noiseSquared_i * clusterThresholdSquared <= adcSum_i * adcSum_i) && (clusters.clusterSize(i) <= static_cast<uint16_t>(clusterSizeLimit));
+        clusters.candidateAcceptedPrefix(i) = static_cast<uint32_t>(clusters.candidateAccepted(i));
+      }  // i < nSeedStripsNC
     }
   };
 
-  class siStripKer_chkClustCond {
+  class siStripKer_endCandidates {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                  StripDigiConstView stripDataObj,
+                                  SiStripDigiView stripDataObj,
                                   StripClustersAuxConstView clusterDataObj,
                                   SiStripClustersView clusters,
                                   SiStripMappingConstView mapping,
@@ -709,58 +625,67 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       constexpr int charge_low_saturation = 253;
       constexpr int charge_high_saturation = 1022;
       //
-      auto clusterIndexLeft = clusters.clusterIndex();
+      uint32_t* clusterIndexArr = clusters.clusterIndex();
 
       for (auto i : uniform_elements(acc, clusters.nClusters())) {
-        if (clusters.trueCluster(i)) {
-          unsigned int left = clusterIndexLeft[i];
-          unsigned int size = clusters.clusterSize(i);
+        if (clusters.candidateAccepted(i)) {
+          const uint32_t indexLeft = clusterIndexArr[i];
+          const uint16_t size = clusters.clusterSize(i);
 
-          if (i > 0 && clusterIndexLeft[i - 1] == left) {
-            clusters.trueCluster(i) = 0;  // ignore duplicates
+          if (i > 0 && clusterIndexArr[i - 1] == indexLeft) {
+            clusters.candidateAccepted(i) = false;  // ignore duplicates
+            clusters.candidateAcceptedPrefix(i) = 0;
           } else {
-            float adcSum = 0.0f;
-            int sumx = 0;
-            int suma = 0;
+            float chargeSum = 0.0f;
+            uint16_t sumx = 0;
+            uint16_t suma = 0;
 
-            int j = 0;
-            for (unsigned int k = 0; k < size; k++) {
-              auto index = left + k;
-              auto chan = stripDataObj.channel(index);
-              auto fed = mapping.fedID(chan);
-              auto channel = mapping.fedCh(chan);
-              auto strip = stripDataObj.stripId(index);
+            uint16_t j = 0;
+            for (uint16_t k = 0; k < size; k++) {
+              uint32_t index = indexLeft + k;
+              const auto chan = stripDataObj.channel(index);
+              const auto fedId = mapping.fedID(chan);
+              const auto fedCh = mapping.fedCh(chan);
+              const auto stripId = stripDataObj.stripId(index);
 
-              if (strip != invalidStrip) {
-                float gain_j = Data_apv.gain_(apvIndex(fed, channel, strip));
+              // ThreeThresholdAlgorithm::applyGains
+              const float gain_j = Data_apv.gain_(apvIndex(fedId, fedCh, stripId));
+              uint8_t amplitudes_j = stripDataObj.adc(index);
+              const uint16_t charge = static_cast<uint16_t>(static_cast<float>(amplitudes_j) / gain_j + 0.5f);
 
-                uint8_t adc_j = stripDataObj.adc(index);
-                const int charge = static_cast<int>(static_cast<float>(adc_j) / gain_j + 0.5f);
-
-                if (adc_j < adc_low_saturation) {
-                  adc_j = (charge > charge_high_saturation
-                               ? adc_high_saturation
-                               : (charge > charge_low_saturation ? adc_low_saturation : charge));
-                }
-                clusters.clusterADCs(i)[j] = adc_j;
-
-                adcSum += static_cast<float>(adc_j);
-                sumx += j * adc_j;
-                suma += adc_j;
-                j++;
+              if (amplitudes_j < adc_low_saturation) {
+                amplitudes_j = ((charge > charge_high_saturation)
+                              ? adc_high_saturation
+                              : (charge > charge_low_saturation ? adc_low_saturation : charge));
               }
-            }  // loop over cluster strips
-            clusters.charge(i) = adcSum;
-            auto chan = stripDataObj.channel(left);
-            auto fed = mapping.fedID(chan);
-            auto channel = mapping.fedCh(chan);
-            clusters.trueCluster(i) =
-                (adcSum * Data_fedch.invthick_(channelIndex(fed, channel))) > clusterDataObj.minGoodCharge();
-            auto bary_i = static_cast<float>(sumx) / static_cast<float>(suma);
-            clusters.barycenter(i) = static_cast<float>(stripDataObj.stripId(left) & stripIndexMask) + bary_i + 0.5f;
+
+              // Overrides the ADC value in the StripDigi with the corrected amplitude
+              stripDataObj.adc(index) = amplitudes_j;
+              // clusters.clusterADCs(i)[j] = amplitudes_j;
+
+              // SiStripCluster::initQB()
+              chargeSum += static_cast<float>(amplitudes_j);
+              sumx += j * amplitudes_j;
+              suma += amplitudes_j;
+              j++;
+            }
+
+            clusters.charge(i) = chargeSum;
+
+            const auto chanL = stripDataObj.channel(indexLeft);
+            const auto fedIdL = mapping.fedID(chanL);
+            const auto fedChL = mapping.fedCh(chanL);
+            
+            // Flags for siStripClusterTools::chargePerCM in current candidate 
+            clusters.candidateAccepted(i) = (clusterDataObj.minGoodCharge()<=0 || ((chargeSum * Data_fedch.invthick_(channelIndex(fedIdL, fedChL))) > clusterDataObj.minGoodCharge()));
+            
+            // SiStripCluster::initQB() -> barycenter_
+            const float bary_i = static_cast<float>(sumx) / static_cast<float>(suma);
+            clusters.barycenter(i) = static_cast<float>(stripDataObj.stripId(indexLeft) & stripIndexMask) + bary_i + 0.5f;
+            
             clusters.clusterSize(i) = j;
           }  // not a duplicate cluster
-        }  // clusters.trueCluster(i) is true
+        } 
       }  // i < nSeedStripsNC
     }
   };
@@ -835,7 +760,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         maxSequentialBad_(clustPar.getParameter<unsigned>("MaxSequentialBad")),
         maxAdjacentBad_(clustPar.getParameter<unsigned>("MaxAdjacentBad")),
         maxClusterSize_(clustPar.getParameter<unsigned>("MaxClusterSize")),
-        minGoodCharge_(clusterChargeCut(clustPar)) {
+        minGoodCharge_(clusterChargeCut(clustPar)),
+        kMaxSeedStrips_(clustPar.getParameter<uint32_t>("MaxSeedStrips")) {
     // Make sure the module does not start with features not implemented yet
     if (maxClusterSize_ > 32) {
       throw cms::Exception("SiStripRawToClstAlg", "MaxClusterSize must be <= 32");
@@ -845,96 +771,214 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   }
 
-  void SiStripRawToClusterAlgo::initialize(Queue& queue, int n_strips) {
-    // Store the nStrips internally, for convenience
-    nStripsBytes_ = n_strips;
-    assert(n_strips >= 0);
+  void SiStripRawToClusterAlgo::prepareUnpackCluster(Queue& queue, const SiStripClusterizerConditionsDetToFedsDevice* rDetToFeds, const SiStripClusterizerConditionsDataDevice* rData, std::unique_ptr<PortableFEDMover> rFEDChMover) {
+    // Initialize/update the conditions pointer on the class
+    conditions_DetToFeds = rDetToFeds;
+    conditions_Data = rData;
 
-    // Setup the clusterizer aux parameters from the configuration
-    sClustersAux_d_ = std::make_unique<StripClustersAuxDevice>(n_strips, queue);
-    LogDebug("sClustersAux") << "Size of StripClustersAuxDevice (bytes): "
-                             << alpaka::getExtentProduct(sClustersAux_d_->buffer()) * sizeof(std::byte);
+    // Move ownership of the host-data container this class
+    FEDChMover = std::move(rFEDChMover);
 
-    // Initialize the members of the clusterizer
-    auto workDiv = make_workdiv<Acc1D>(1u, 1u);
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        siStripKer_init{},
-                        channelThreshold_,
-                        seedThreshold_,
-                        clusterThresholdSquared_,
-                        maxSequentialHoles_,
-                        maxSequentialBad_,
-                        maxAdjacentBad_,
-                        minGoodCharge_,
-                        maxClusterSize_,
-                        sClustersAux_d_->view());
+    // Move the data to the device
+    auto fedBuffer_d2 = cms::alpakatools::make_device_buffer<uint8_t[]>(queue, FEDChMover->getBufferSize());
+    alpaka::memcpy(queue, fedBuffer_d2, FEDChMover->getBuffer(), FEDChMover->getBufferSize());
+    fedBuffer_d = std::move(fedBuffer_d2);
 
-    // Initialize the digi with all the pre-allocated required number of bytes
-    digis_d_ = std::make_unique<StripDigiDevice>(n_strips, queue);
-    LogDebug("digis") << "Size of StripDigiDevice (bytes): "
-                      << alpaka::getExtentProduct(digis_d_->buffer()) * sizeof(std::byte);
-    digis_d_->zeroInitialise(queue);
-    // Note: the zeroInitialise is not needed for ZS/ZSlite8 - as all elements are initialized in the unpacking
-    // I am not sure however in Legacy-ZS or ZS 10-bit.
-  }
+    // Move fedchannels to the device
+    stripMapping_d = cms::alpakatools::moveToDeviceAsync(queue, FEDChMover->getMapping());
 
-  void SiStripRawToClusterAlgo::unpackStrips(Queue& queue,
-                                             const uint8_t* rawDataView,
-                                             SiStripMappingDevice const& mapping,
-                                             SiStripClusterizerConditionsDataDevice const& conditions) {
-    // In HeterogeneousCore/AlpakaTest, typical sizes are power of 2 like 32 and 64.
-    // The hw number of threads in nvidia devices is max 1024. The number of strips is up to
-    // (sistrip::STRIPS_PER_FED = 24576) * (sistrip::NUMBER_OF_FEDS = ) => 24576*440 = 10813440
-    // Assume conditions cut this to 80%, then 10813440*0.8 = 8650752
-    // I wonder if there is an helper function which automatically optimize this based on the accelerator properties
-    uint32_t divider = 128;
-    // use as many groups as needed to cover the whole problem
-    auto nStrips = mapping->metadata().size();
-    uint32_t groups = divide_up_by(nStrips, divider);
-
-    // map items to
-    //   - threads with a single element per thread on a GPU backend
-    //   - elements within a single thread on a CPU backend
+    // Apply quality conditions to mapping and calculate the number of strips to unpack
+    uint32_t divider = 128u;
+    uint32_t groups = divide_up_by(FEDChMover->getChannelsN(), divider);
     auto workDiv = make_workdiv<Acc1D>(groups, divider);
 
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        siStripKer_unpackZS{},
-                        isLegacyUnpacker_,
-                        legacyUnpackerROmode_,
-                        digis_d_->view(),
-                        rawDataView,
-                        //
-                        mapping.const_view(),
-                        conditions.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
-                        conditions.const_view<SiStripClusterizerConditionsData_stripSoA>(),
-                        conditions.const_view<SiStripClusterizerConditionsData_apvSoA>());
+    // alpaka::wait(queue);
+    // std::cout << "#pointA" << std::endl;
 
-#ifdef EDM_ML_DEBUG
-    dumpUnpackedStrips(queue, digis_d_.get());
-#endif
-  }
+    // // Allocate per-block partial sum buffer
+    // auto blockStripN = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, groups);
+    // size_t sharedMemBytes = divider * sizeof(uint32_t);
 
-  void SiStripRawToClusterAlgo::prefixScan(Queue& queue) {
-    // Calculate the prefix for the non-contiguous flagged strips and store in prefixSeedStripsNCMask
-    // From example in HeterogeneousCore/AlpakaInterface/test/alpaka/testPrefixScan.dev.cc
-    uint32_t num_items = sClustersAux_d_->view().metadata().size();
-    int32_t nThreads = 1024;
-    int32_t nBlocks = divide_up_by(num_items, nThreads);
-    const auto workDivMultiBlock = make_workdiv<Acc1D>(nBlocks, nThreads);
+    auto nstrips_d = make_device_buffer<uint32_t>(queue);
+    alpaka::memset(queue, nstrips_d, 0);
+    
+    auto invalidFedChN_d = make_device_buffer<uint32_t>(queue);
+    alpaka::memset(queue, invalidFedChN_d, 0);
+    
+    alpaka::exec<Acc1D>(
+      queue,
+      workDiv,
+      siStripKer_applyQualConds{},
+      nstrips_d.data(),
+      invalidFedChN_d.data(),
+      fedBuffer_d->data(),
+      stripMapping_d->view(),
+      conditions_DetToFeds->const_view()
+    );
+
+
+    const uint32_t threads = 1024u;
+    const uint32_t nBlocks = divide_up_by(stripMapping_d->view().metadata().size(), threads);
+    const auto workDivMultiBlock = make_workdiv<Acc1D>(nBlocks, threads);
     auto blockCounter_d = make_device_buffer<int32_t>(queue);
     alpaka::memset(queue, blockCounter_d, 0);
-    alpaka::enqueue(queue,
-                    alpaka::createTaskKernel<Acc1D>(workDivMultiBlock,
-                                                    multiBlockPrefixScan<uint32_t>(),
-                                                    sClustersAux_d_->const_view().seedStripsNCMask(),
-                                                    sClustersAux_d_->view().prefixSeedStripsNCMask(),
-                                                    num_items,
-                                                    nBlocks,
-                                                    blockCounter_d.data(),
-                                                    alpaka::getPreferredWarpSize(alpaka::getDev(queue))));
+    alpaka::enqueue(
+      queue,
+      alpaka::createTaskKernel<Acc1D>(
+        workDivMultiBlock,
+        multiBlockPrefixScan<uint32_t>(),
+        stripMapping_d->const_view().fedChStripsN(),
+        stripMapping_d->view().fedChStripsN(),
+        (uint32_t)stripMapping_d->view().metadata().size(),
+        (int32_t)nBlocks,
+        blockCounter_d.data(),
+        alpaka::getPreferredWarpSize(alpaka::getDev(queue))
+      )
+    );
+
+    // To do: merge the two kernels for applyQualConds and sum into a single one. 
+
+    // Get the number of strips to unpack
+    nStrips_h = cms::alpakatools::make_host_buffer<uint32_t>(queue);
+    const uint32_t size = stripMapping_d->view().metadata().size();
+    auto viewSrc = make_device_view(queue, stripMapping_d->view().fedChStripsN(size-1));
+    auto viewDst = make_host_view(*nStrips_h->data());
+    alpaka::memcpy(queue, viewDst, viewSrc);
+    // alpaka::memcpy(queue, *nStrips_h, viewSrc);
+    //
+
+    // auto stripMapping_h = SiStripMappingHost(stripMapping_d->view().metadata().size(), queue);
+    // alpaka::memcpy(queue, stripMapping_h.buffer(), stripMapping_d->buffer());
+    // // auto invalidFedChN_h = make_host_buffer<uint32_t>(queue);
+    // // alpaka::memcpy(queue, invalidFedChN_h, invalidFedChN_d);
+    // alpaka::wait(queue);
+    // // std::cout << "#invalidFed," << invalidFedChN_d.data()[0] << std::endl;
+    // std::cout << "#pointB" << std::endl;
+    // for(int i=0; i<stripMapping_d->view().metadata().size(); ++i){
+    //   if ((i<100) || (i>(stripMapping_d->view().metadata().size()-100))){
+    //     std::cout << "#sMap," << (int)stripMapping_h->fedID(i) << "," << (int)stripMapping_h->fedCh(i) << "," << (int)stripMapping_h->fedChStripsN(i) << std::endl;
+    //   }
+    // }
   }
+
+  void SiStripRawToClusterAlgo::unpackStrips2(Queue& queue){
+    // std::cout << "#kerStrips," << nStrips_h->data()[0] << std::endl;
+    // std::cout << "#invalidFed," << invalidFedChN_d.data()[0] << std::endl;
+    
+    // Allocate the SiStripDigi collection on device
+    const uint32_t nStrips = nStrips_h->data()[0];
+    digis_d_ = std::make_unique<SiStripDigiDevice>(nStrips, queue);
+    // MEMO: remove zeroInitialise after testing
+    // digis_d_->zeroInitialise(queue);
+
+    // Run the unpacking kernel
+    uint32_t divider = 128u;
+    uint32_t nChannels = (*stripMapping_d)->metadata().size();
+    uint32_t groups = divide_up_by(nChannels, divider);
+    auto workDiv = make_workdiv<Acc1D>(groups, divider);
+    alpaka::exec<Acc1D>(
+      queue,
+      workDiv,
+      siStripKer_unpackZS2{},
+      fedBuffer_d->data(),
+      digis_d_->view(),
+      stripMapping_d->const_view(),
+      conditions_Data->const_view<SiStripClusterizerConditionsData_fedchSoA>(),
+      conditions_Data->const_view<SiStripClusterizerConditionsData_stripSoA>(),
+      conditions_Data->const_view<SiStripClusterizerConditionsData_apvSoA>()
+    );
+
+    // std::cout << "#pointC" << std::endl;
+    // alpaka::wait(queue);
+    // dumpUnpackedStrips(queue, digis_d_.get());
+    // return;
+
+    // Allocate and initialize the StripClustersAux collection
+    sClustersAux_d_ = std::make_unique<StripClustersAuxDevice>(nStrips, queue);
+    // LogDebug("sClustersAux") << "Size of StripClustersAuxDevice (bytes): " << alpaka::getExtentProduct(sClustersAux_d_->buffer()) * sizeof(std::byte);
+    alpaka::exec<Acc1D>(
+      queue,
+      make_workdiv<Acc1D>(1u, 1u),
+      siStripKer_init{},
+      channelThreshold_,
+      seedThreshold_,
+      clusterThresholdSquared_,
+      maxSequentialHoles_,
+      maxSequentialBad_,
+      maxAdjacentBad_,
+      minGoodCharge_,
+      maxClusterSize_,
+      sClustersAux_d_->view()
+    );
+
+    // std::cout << "#pointD" << std::endl;
+    // alpaka::wait(queue);
+
+    // Cluster seeding
+    alpaka::exec<Acc1D>(
+      queue,
+      workDiv,
+      siStripKer_setSeedStrips{},
+      digis_d_->const_view(),
+      sClustersAux_d_->view(),
+      stripMapping_d->const_view(),
+      conditions_Data->const_view<SiStripClusterizerConditionsData_stripSoA>()
+    );
+
+    // Un-seed any contiguous strips in the same detector
+    alpaka::exec<Acc1D>(
+      queue,
+      workDiv,
+      siStripKer_setNCSeedStrips{},
+      digis_d_->const_view(),
+      sClustersAux_d_->view(),
+      stripMapping_d->const_view()
+    );
+
+    // Calculate the discrete integral (prefix sum) of seedStripsNCMask.
+    // When the integral increase AND I am at a non-contigous strip, the beginning of new cluster is marked.
+    const uint32_t nThreads = 1024;
+    const int32_t nBlocks = divide_up_by(nStrips, nThreads);
+    auto blockCounter_d = make_device_buffer<int32_t>(queue);
+    alpaka::memset(queue, blockCounter_d, 0);
+    alpaka::enqueue(
+      queue,
+      alpaka::createTaskKernel<Acc1D>(
+        make_workdiv<Acc1D>(nBlocks, nThreads),
+        multiBlockPrefixScan<uint32_t>(),
+        sClustersAux_d_->const_view().seedStripsNCMask(),
+        sClustersAux_d_->view().prefixSeedStripsNCMask(),
+        nStrips,
+        nBlocks,
+        blockCounter_d.data(),
+        alpaka::getPreferredWarpSize(alpaka::getDev(queue))
+      )
+    );
+
+
+    // Get the total number of non-contiugous seeds
+    nSeeds_h = cms::alpakatools::make_host_buffer<uint32_t>(queue);
+    auto viewSrc = make_device_view(queue, sClustersAux_d_->view().prefixSeedStripsNCMask(nStrips-1));
+    //alpaka::ViewPlainPtr<alpaka::DevCpu, unsigned int, std::integral_constant<unsigned long, 0>, unsigned int>
+    auto viewDst = make_host_view(*nSeeds_h->data());
+    //alpaka::ViewPlainPtr<alpaka::DevCpu, unsigned int, std::integral_constant<unsigned long, 0>, unsigned int>
+    alpaka::memcpy(queue, viewDst, viewSrc);
+
+
+    // Find index of the non-contiguous strip seeds
+    alpaka::exec<Acc1D>(
+      queue,
+      workDiv,
+      siStripKer_setNCStripIndex{},
+      sClustersAux_d_->view()
+    );
+
+    // dumpSeeds(queue, digis_d_.get(), sClustersAux_d_.get());
+
+    // std::cout << "#pointE" << std::endl;
+    // alpaka::wait(queue);
+  }
+
 
   void SiStripRawToClusterAlgo::prefixScan_new(Queue& queue) {
     // Calculate the prefix for the non-contiguous flagged strips and store in prefixSeedStripsNCMask
@@ -948,122 +992,122 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     alpaka::exec<Acc1D>(queue, singleBlockWorkDiv, siStripKer_blkPfxScan{}, sClustersAux_d_->view());
   }
 
-  void SiStripRawToClusterAlgo::setSeedsAndMakeIndexes(Queue& queue,
-                                                       SiStripMappingDevice const& mapping,
-                                                       SiStripClusterizerConditionsDataDevice const& conditions) {
-    // In HeterogeneousCore/AlpakaTest, typical sizes are power of 2 like 32 and 64.
-    // I wonder if there is an helper function which automatically optimize this based on the accelerator properties.
-    // Most likely I could retrieve the device attached to the queue (alpaka::getDev(queue)) and then depending on its properties set the optimal threads
-    uint32_t divider = 128;
-    auto nStrips = mapping->metadata().size();
-    uint32_t groups = divide_up_by(nStrips, divider);
-    auto workDiv = make_workdiv<Acc1D>(groups, divider);
-
-    // Set the seeds according to noise and seedThreshold
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        siStripKer_setSeedStrips{},
-                        digis_d_->const_view(),
-                        sClustersAux_d_->view(),
-                        mapping.const_view(),
-                        conditions.const_view<SiStripClusterizerConditionsData_stripSoA>());
-
-    // Flag the non-contiguous strips (in the same detector) with 0
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        siStripKer_setNCSeedStrips{},
-                        digis_d_->const_view(),
-                        sClustersAux_d_->view(),
-                        mapping.const_view());
-
-    // Calculate the discrete integral (prefix sum) of seedStripsNCMask.
-    prefixScan(queue);
-    // prefixScan_new(queue);
-    // When the integral increase AND I am at a non-contigous strip, the beginning of new cluster is marked.
-
-    // Attach to the index according to the *exclusive* prefix sum when contiguous strips are found
-    alpaka::exec<Acc1D>(queue, workDiv, siStripKer_setStripIndex{}, sClustersAux_d_->view());
-
-#ifdef EDM_ML_DEBUG
-    dumpSeeds(queue, digis_d_.get(), sClustersAux_d_.get());
-#endif
-  }
-
-  std::unique_ptr<SiStripClustersDevice> SiStripRawToClusterAlgo::makeClusters(
-      Queue& queue, SiStripMappingDevice const& mapping, SiStripClusterizerConditionsDataDevice const& conditions) {
+  std::unique_ptr<SiStripClustersDevice>
+  SiStripRawToClusterAlgo::makeClusters2(Queue& queue) {
+    //
+    // auto viewSeedsNb = make_host_view(*nSeeds_h->data());
+    // std::cout << "#nSed," << viewSeedsNb.data()[0] << std::endl;
+    // auto clusters_d = std::make_unique<SiStripClustersDevice>(*nSeeds_h->data(), queue);
+    //
     // The maximum number of clusters is set to kMaxSeedStrips
-    auto clusters_d = std::make_unique<SiStripClustersDevice>(kMaxSeedStrips, queue);
+    auto clusters_d = std::make_unique<SiStripClustersDevice>(kMaxSeedStrips_, queue);
     // The number of seed over which to loop for clusters is the min between the number of strips and the kMaxSeeds
-    const auto nStrips = sClustersAux_d_->view().metadata().size();
-    const int nSeeds = std::min(kMaxSeedStrips, nStrips);
+    const uint32_t nStrips = nStrips_h->data()[0];
+    const uint32_t nSeeds = std::min(kMaxSeedStrips_, nStrips);
+    // std::cout << "#mkCl," << nSeeds << std::endl;
 
     uint32_t divider = 128;
-    // use as many groups as needed to cover the whole problem
     uint32_t groups = divide_up_by(nSeeds, divider);
     auto workDiv = make_workdiv<Acc1D>(groups, divider);
 
     // Three-threshold clusterization algo
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        siStripKer_findLeftRightBounds{},
-                        digis_d_->const_view(),
-                        sClustersAux_d_->const_view(),
-                        clusters_d->view(),
-                        mapping.const_view(),
-                        conditions.const_view<SiStripClusterizerConditionsData_stripSoA>());
+    alpaka::exec<Acc1D>(
+      queue,
+      workDiv,
+      siStripKer_makeCandidates{},
+      kMaxSeedStrips_,
+      digis_d_->const_view(),
+      sClustersAux_d_->const_view(),
+      clusters_d->view(),
+      stripMapping_d->const_view(),
+      conditions_Data->const_view<SiStripClusterizerConditionsData_stripSoA>()
+    );
 
     // Apply the conditions
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        siStripKer_chkClustCond{},
-                        digis_d_->const_view(),
-                        sClustersAux_d_->const_view(),
-                        clusters_d->view(),
-                        mapping.const_view(),
-                        conditions.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
-                        conditions.const_view<SiStripClusterizerConditionsData_apvSoA>());
+    alpaka::exec<Acc1D>(
+      queue,
+      workDiv,
+      siStripKer_endCandidates{},
+      digis_d_->view(),
+      sClustersAux_d_->const_view(),
+      clusters_d->view(),
+      stripMapping_d->const_view(),
+      conditions_Data->const_view<SiStripClusterizerConditionsData_fedchSoA>(),
+      conditions_Data->const_view<SiStripClusterizerConditionsData_apvSoA>()
+    );
 
-#ifdef EDM_ML_DEBUG
-    dumpClusters(queue, clusters_d.get());
-#endif
 
+    // Fill the prefix indexes for the candidateAccepted
+    const uint32_t nThreads = 1024;
+    const int32_t nBlocks = divide_up_by(kMaxSeedStrips_, nThreads);
+    auto blockCounter_d = make_device_buffer<int32_t>(queue);
+    alpaka::memset(queue, blockCounter_d, 0);
+    alpaka::enqueue(
+      queue,
+      alpaka::createTaskKernel<Acc1D>(
+        make_workdiv<Acc1D>(nBlocks, nThreads),
+        multiBlockPrefixScan<uint32_t>(),
+        clusters_d->const_view().candidateAcceptedPrefix(),
+        clusters_d->view().candidateAcceptedPrefix(),
+        kMaxSeedStrips_,
+        nBlocks,
+        blockCounter_d.data(),
+        alpaka::getPreferredWarpSize(alpaka::getDev(queue))
+      )
+    );
+
+
+    // Store the total number of good cluster candidates into the scalar of the StripDigi SoA
+    auto viewSrc = make_device_view(queue, clusters_d->view().candidateAcceptedPrefix(kMaxSeedStrips_-1));
+    auto viewDst = make_device_view(queue, digis_d_->view().nbGoodCandidates());
+    alpaka::memcpy(queue, viewDst, viewSrc);
+
+    // dumpClusters(queue, clusters_d.get(), digis_d_.get());
     return clusters_d;
   }
 
+  std::unique_ptr<SiStripDigiDevice>
+  SiStripRawToClusterAlgo::getDigiAmplitudes(Queue& queue){
+    return std::move(digis_d_);
+  }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
-  void SiStripRawToClusterAlgo::dumpUnpackedStrips(Queue& queue, StripDigiDevice* digis_d) {
+  void SiStripRawToClusterAlgo::dumpUnpackedStrips(
+    Queue& queue,
+    SiStripDigiDevice* digis_d
+  ) {
     const int digisSize = digis_d->const_view().metadata().size();
-    auto digis_h = StripDigiHost(digisSize, queue);
+    auto digis_h = SiStripDigiHost(digisSize, queue);
     alpaka::memcpy(queue, digis_h.buffer(), digis_d->const_buffer());
     alpaka::wait(queue);
-    std::ostringstream dumpMsg("[SiStripRawToClusterAlgo::unpackStrips] Dumping unpacked strips\n");
+    std::ostringstream dumpMsg("");
+    dumpMsg << "[SiStripRawToClusterAlgo::unpackStrips] Dumping unpacked strips\n";
     dumpMsg << "Allocated " << digisSize << " strips\n";
-    dumpMsg << "i\tadc\tchan\tstripId\n";
-
+    dumpMsg << "i,chan,stripId,adc\n";
     for (int i = 0; i < digisSize; ++i) {
-      if (true || i < 50 || i > (digisSize - 50) || i % 10000 == 0) {
-        dumpMsg << i << "\t" << (int)digis_h->adc(i) << " " << (int)(digis_h->channel(i)) << " "
-                << (int)(digis_h->stripId(i)) << "\n";
+      if (i < std::min(digisSize, 100) || i>(digisSize-100)){
+        dumpMsg << i << "," << (int)(digis_h->channel(i)) << "," << (int)(digis_h->stripId(i)) << "," << (int)digis_h->adc(i) << "\n";
       }
     }
-    LogDebug("unpackStrips") << dumpMsg.str();
+    std::cout << dumpMsg.str();
   }
 
-  void SiStripRawToClusterAlgo::dumpSeeds(Queue& queue,
-                                          StripDigiDevice* digis_d,
-                                          StripClustersAuxDevice* sClustersAux_d) {
+  void SiStripRawToClusterAlgo::dumpSeeds(
+    Queue& queue,
+    SiStripDigiDevice* digis_d,
+    StripClustersAuxDevice* sClustersAux_d) {
     // Store the size of the digi to avoid repetitions
     const int digisSize = digis_d->const_view().metadata().size();
-    auto digis_h = StripDigiHost(digisSize, queue);
+    auto digis_h = SiStripDigiHost(digisSize, queue);
     alpaka::memcpy(queue, digis_h.buffer(), digis_d->const_buffer());
     // Seed table and digis have the same size
     auto sClustersAux_h = StripClustersAuxHost(digisSize, queue);
     alpaka::memcpy(queue, sClustersAux_h.buffer(), sClustersAux_d->const_buffer());
     alpaka::wait(queue);
 
-    std::ostringstream dumpMsg("[SiStripRawToClusterAlgo::setSeedsAndMakeIndexes] Dumping seeds table\n");
+    std::ostringstream dumpMsg("");
+    dumpMsg << "[SiStripRawToClusterAlgo::setSeedsAndMakeIndexes] Dumping seeds table\n";
     dumpMsg << "i\tadc\tchan\tstripId\tseed\tseedNC\tpfxNCMask\tseedNCIndex\n";
     for (int i = 0; i < digisSize; ++i) {
       if (i < 50 || i > (digisSize - 50) || i % 10000 == 0) {
@@ -1075,35 +1119,48 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         }
       }
     }
-    LogDebug("dumpSeeds") << dumpMsg.str();
+    std::cout << dumpMsg.str();
   }
 
-  void SiStripRawToClusterAlgo::dumpClusters(Queue& queue, SiStripClustersDevice* clusters_d) {
+  void SiStripRawToClusterAlgo::dumpClusters(
+    Queue& queue,
+    SiStripClustersDevice* clusters_d,
+    SiStripDigiDevice* digis_d
+  ) {
     // Store the size of the digi to avoid repetitions
     const int clustersPrealloc = clusters_d->view().metadata().size();
     auto clusters_h = SiStripClustersHost(clustersPrealloc, queue);
     alpaka::memcpy(queue, clusters_h.buffer(), clusters_d->const_buffer());
+    
+    const uint32_t nStrips = digis_d->view().metadata().size();
+    auto digis_h = SiStripDigiHost(nStrips, queue);
+    alpaka::memcpy(queue, digis_h.buffer(), digis_d->const_buffer());
+    
     alpaka::wait(queue);
 
     const int clustersN = clusters_h->nClusters();
 
-    std::ostringstream dumpMsg("[SiStripRawToClusterAlgo::makeClusters] Clusters report\n");
-    dumpMsg << "Pre-allocated:\t" << clustersPrealloc << "\tProduced:\t" << clustersN << "\n";
-    dumpMsg << "   -----  Small cluster dump BEGIN -----   \n";
-    dumpMsg << "i\tcIdx\tcSz\tcDetId\tchg\t1st\ttCl\tbary\t - clusterADCs\n";
+    std::ostringstream dumpMsg("");
+    dumpMsg << "#clDump,Pre-allocated:" << clustersPrealloc << ",Candidates:" << clustersN << "\n";
+    dumpMsg << "i,cIdx,cSz,cDetId,chg,1st,tCl,bary,|clusterADCs|\n";
 
-    for (int i = 0; i < clustersPrealloc; ++i) {
-      if (true || i < 50 || i > (clustersPrealloc - 50) || i % 10000 == 0) {
-        dumpMsg << i << "\t" << clusters_h->clusterIndex(i) << "\t" << clusters_h->clusterSize(i) << "\t"
-                << clusters_h->clusterDetId(i) << "\t" << clusters_h->charge(i) << "\t" << clusters_h->firstStrip(i)
-                << "\t" << clusters_h->trueCluster(i) << "\t" << clusters_h->barycenter(i) << "\t - ";
-        for (unsigned int j = 0; j < clusters_h->clusterSize(i); ++j) {
-          dumpMsg << j << ":" << (int)(clusters_h->clusterADCs(i)[j]) << "  ";
+    for (int i = 0; i < clustersN; ++i) {
+      if (true || i < 100 || i > (clustersN - 100)) {
+        dumpMsg << i << "," << clusters_h->clusterIndex(i) << "," << clusters_h->clusterSize(i) << ","
+                << clusters_h->clusterDetId(i) << "," << clusters_h->charge(i) << "," << clusters_h->firstStrip(i)
+                << "," << clusters_h->candidateAccepted(i) << "," << clusters_h->barycenter(i) << ",|";
+        for (int j = 0; j < clusters_h->clusterSize(i); ++j) {
+          uint32_t index = clusters_h->clusterIndex(i) + j;
+          dumpMsg << (int)(digis_h->adc(index));
+          if(j != (clusters_h->clusterSize(i)-1)){
+            dumpMsg << "/";
+          }
         }
-        dumpMsg << "\n";
+        dumpMsg << "|\n";
       }
     }
-    dumpMsg << "   -----  Small cluster dump END   -----   \n";
-    LogDebug("dumpClusters") << dumpMsg.str();
+    dumpMsg << "#zClDump\n";
+    dumpMsg << "#goodCandidates," << digis_d->view().nbGoodCandidates() << ":" << clusters_h->candidateAcceptedPrefix(clustersPrealloc-1) <<  "\n";
+    std::cout << dumpMsg.str();
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip

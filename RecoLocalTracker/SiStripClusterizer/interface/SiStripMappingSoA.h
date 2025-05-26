@@ -11,19 +11,15 @@ namespace sistrip {
                       // Detector ID, FED ID and FED channel for indexing
                       SOA_COLUMN(uint32_t, detID),
                       SOA_COLUMN(uint16_t, fedID),
-                      SOA_COLUMN(uint16_t, fedCh),
-                      // Coordinates for the FEDChannel data in the device buffer
-                      //// offset in the (condition-passing filled) buffer for the corresponding FEDChannel
-                      SOA_COLUMN(uint32_t, fedChOff),
-                      //// FEDChannel->offset
-                      SOA_COLUMN(uint32_t, inoff),
-                      // global offset for the FEDChannel in the rawFEDBuffer
-                      SOA_COLUMN(uint32_t, offset),
-                      // FEDChannel->length
-                      SOA_COLUMN(uint16_t, length),
-                      //
+                      SOA_COLUMN(uint8_t, fedCh),
+                      // FEDChannel.offset()
+                      SOA_COLUMN(uint16_t, fedChOfs),
+                      // Offset of the FEDChannel.data() in the flatten raw buffer
+                      SOA_COLUMN(uint32_t, fedChDataOfsBuf),
+                      // Number of strips in the fedCh
+                      SOA_COLUMN(uint32_t, fedChStripsN),
                       // readout mode of the buffer the FED channels are taken
-                      SOA_COLUMN(FEDReadoutMode, readoutMode),
+                      SOA_COLUMN(uint8_t, readoutMode),
                       // packet code of the buffer the FED channels are taken
                       SOA_COLUMN(uint8_t, packetCode))
 

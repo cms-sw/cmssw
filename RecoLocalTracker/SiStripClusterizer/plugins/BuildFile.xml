@@ -10,6 +10,7 @@
   <use name="CalibFormats/SiStripObjects"/>
   <use name="CalibTracker/SiStripCommon"/>
   <use name="DataFormats/SiStripClusterSoA"/>
+  <use name="DataFormats/SiStripDigiSoA"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <!-- alpaka-based portable plugins -->
@@ -19,6 +20,7 @@
   <use name="CalibFormats/SiStripObjects"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="DataFormats/SiStripClusterSoA"/>
+  <use name="DataFormats/SiStripDigiSoA"/>
   <use name="DataFormats/Portable"/>
   <use name="EventFilter/SiStripRawToDigi"/>
   <use name="FWCore/Framework"/>
