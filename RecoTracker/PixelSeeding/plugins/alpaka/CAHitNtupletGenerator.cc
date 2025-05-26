@@ -260,7 +260,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "pairGraph",
             std::vector<unsigned int>(std::begin(layerPairs),
                                       std::begin(layerPairs) + (pixelTopology::Phase1::nPairsForQuadruplets * 2)))
-        ->setComment("CA graph");
+      ->setComment("CA graph");
     geometryParams
         .add<std::vector<int>>(
             "phiCuts",
@@ -418,9 +418,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // TODO: fill me properly
   template <>
   void CAHitNtupletGenerator<pixelTopology::Phase2OT>::fillPSetDescription(edm::ParameterSetDescription& desc) {
-
     fillDescriptionsCommon(desc);
-    
+
     edm::ParameterSetDescription trackQualityCuts;
     trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2");
     trackQualityCuts.add<double>("minPt", 0.5)->setComment("Min pT in GeV");
@@ -466,7 +465,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ->setComment(
             "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
             "Zip).");
-
   }
 
   template <typename TrackerTraits>

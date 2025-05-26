@@ -36,7 +36,7 @@
 #include <optional>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  
+
   class SiPixelRecHitExtendedAlpaka : public global::EDProducer<> {
   public:
     explicit SiPixelRecHitExtendedAlpaka(const edm::ParameterSet& iConfig);
@@ -53,14 +53,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::EDPutToken<reco::TrackingRecHitsSoACollection> outputRecHitsSoAToken_;
   };
 
-  
   SiPixelRecHitExtendedAlpaka::SiPixelRecHitExtendedAlpaka(const edm::ParameterSet& iConfig)
       : EDProducer(iConfig),
         pixelRecHitToken_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitsSoA"))),
         trackerRecHitToken_(consumes(iConfig.getParameter<edm::InputTag>("trackerRecHitsSoA"))),
         outputRecHitsSoAToken_(produces()) {}
 
-  
   void SiPixelRecHitExtendedAlpaka::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
@@ -70,10 +68,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     descriptions.addWithDefaultLabel(desc);
   }
 
-  
   void SiPixelRecHitExtendedAlpaka::produce(edm::StreamID streamID,
-                                                           device::Event& iEvent,
-                                                           const device::EventSetup& es) const {
+                                            device::Event& iEvent,
+                                            const device::EventSetup& es) const {
     // get both Pixel and Tracker recHits
     const auto& pixelRecHitsSoA = iEvent.get(pixelRecHitToken_);
     const auto& otRecHitsSoA = iEvent.get(trackerRecHitToken_);
