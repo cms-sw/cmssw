@@ -55,6 +55,7 @@ for job in options.job:
             rmem_ref = 0
 
         if first and options.header:
+            print("\n")
             prow(headers)
             if options.fmt == "md": prow("---" for x in headers)
             first = False
