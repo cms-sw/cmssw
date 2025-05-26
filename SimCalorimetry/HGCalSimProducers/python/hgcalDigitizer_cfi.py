@@ -376,7 +376,7 @@ def HGCal_disableNoise(process):
         scaleByDoseAlgo = cms.uint32(0),
         scaleByDoseFactor = cms.double(1),
         doseMap = cms.string(""),
-        values = cms.vdouble(0,0,0), #100,200,300 um
+        values = cms.vdouble(0,0,0,0), #100,200,300 um
     )
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(False),
@@ -388,7 +388,7 @@ def HGCal_disableNoise(process):
         noise_MIP = cms.double(0.), #zero noise (this is to be deprecated)
         )
     process.HGCAL_noises = cms.PSet(
-        values = cms.vdouble(0,0,0)
+        values = cms.vdouble(0,0,0,0)
     )
 
     phase2_hgcalV19.toModify(HGCAL_noise_fC, values = cms.vdouble(0.,0.,0.,0.))
