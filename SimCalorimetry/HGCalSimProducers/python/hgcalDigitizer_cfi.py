@@ -6,9 +6,9 @@ from SimCalorimetry.HGCalSimAlgos.hgcSensorOpParams_cfi import hgcSiSensorIleak,
 # Base configurations for HGCal digitizers
 eV_per_eh_pair = 3.62
 fC_per_ele     = 1.6020506e-4
-nonAgedCCEs    = [1.0, 1.0, 1.0]
-nonAgedNoises  = [2100.0,2100.0,1600.0] #100,200,300 um (in electrons)
-nonAgedNoises_v9 = [2000.0,2400.0,2000.0] # 120,200,300 um (in electrons)
+nonAgedCCEs    = [1.0, 1.0, 1.0, 1.0]            # HD120, LD200, LD300, HD120 um (in electrons) - the last entry will be ignored for v<v19
+nonAgedNoises  = [2100.0,2100.0,1600.0,2100.0]   # " " notice the noise is further scaled by the size of the cell
+nonAgedNoises_v9 = [2000.0,2400.0,2000.0,2400.0] # " "
 thresholdTracksMIP = True
 
 HGCAL_ileakParam_toUse    = cms.PSet(
@@ -189,8 +189,8 @@ for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigiti
     premix_stage1.toModify(_m, premixStage1 = True)
 
 #function to set noise to aged HGCal
-endOfLifeCCEs = [0.5, 0.5, 0.7] # this is to be deprecated
-endOfLifeNoises = [2400.0,2250.0,1750.0]  #this is to be deprecated
+endOfLifeCCEs = [0.5, 0.5, 0.7, 0.5] # this is to be deprecated
+endOfLifeNoises = [2400.0, 2250.0, 1750.0, 2250.0]  #this is to be deprecated
 def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseAlgoSci=2,byDoseFactor=1):
     """
     includes all effects from radiation and gain choice
@@ -362,7 +362,7 @@ def HGCal_disableNoise(process):
         scaleByDoseAlgo = cms.uint32(0),
         scaleByDoseFactor = cms.double(1),
         doseMap = cms.string(""),
-        values = cms.vdouble(0,0,0), #100,200,300 um
+        values = cms.vdouble(0,0,0,0), #100,200,300 um
     )
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(False),
@@ -374,7 +374,7 @@ def HGCal_disableNoise(process):
         noise_MIP = cms.double(0.), #zero noise (this is to be deprecated)
         )
     process.HGCAL_noises = cms.PSet(
-        values = cms.vdouble(0,0,0)
+        values = cms.vdouble(0,0,0,0)
     )
     return process
 

@@ -3,7 +3,7 @@
 HGCalVFESummationImpl::HGCalVFESummationImpl(const edm::ParameterSet& conf)
     : lsb_silicon_fC_(conf.getParameter<double>("siliconCellLSB_fC")),
       lsb_scintillator_MIP_(conf.getParameter<double>("scintillatorCellLSB_MIP")) {
-  constexpr unsigned nThickness = 3;
+  constexpr unsigned nThickness = 4;
   thresholds_silicon_ =
       conf.getParameter<edm::ParameterSet>("noiseSilicon").getParameter<std::vector<double>>("values");
   if (thresholds_silicon_.size() != nThickness) {
