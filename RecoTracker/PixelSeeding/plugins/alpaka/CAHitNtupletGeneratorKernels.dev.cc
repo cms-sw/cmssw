@@ -36,13 +36,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // ALLOCATIONS FOR THE INTERMEDIATE RESULTS (STAYS ON WORKER)
     //////////////////////////////////////////////////////////
 
-    counters_ = cms::alpakatools::make_device_buffer<Counters>(queue);
-    // Here we define the OneToMany maps and the histograms
-    // allocating the buffers and defining the views.
-    // For each map/histo, we need:
-    // - a buffer for the offsets sized as the number of ones + 1
-    //   (with the last bin holding the total number of ones)
-    // - a buffer fot the content/storage itself sized as the number of many
+        // One to Many Maps
+        // Hits -> Track
+        device_hitToTuple_{cms::alpakatools::make_device_buffer<GenericContainer>(queue)},
+        device_hitToTupleStorage_{cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(
+            queue, int(maxTuples * m_params.algoParams_.avgHitsPerTrack_) + 1)},
+        device_hitToTupleOffsets_{cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, nHits + 1)},
+        device_hitToTupleView_{device_hitToTuple_.data(),
+                               device_hitToTupleOffsets_.data(),
+                               device_hitToTupleStorage_.data(),
+                               int(nHits + 1),
+                               int(maxTuples * m_params.algoParams_.avgHitsPerTrack_) + 1},
 
     auto const &algoParams = m_params.algoParams_;
     int outerHits =
