@@ -2121,7 +2121,7 @@ class UpgradeWorkflow_NGTScouting(UpgradeWorkflow):
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and 'Run4' in key
+        return (fragment=="TTbar_14TeV" or fragment=="SingleMuPt15Eta0p_0p4") and 'Run4' in key
 upgradeWFs['NGTScouting'] = UpgradeWorkflow_NGTScouting(
     steps = [
         'Reco',
@@ -2166,7 +2166,7 @@ upgradeWFs['NGTScoutingAll'].step2 = {
 }
 upgradeWFs['NGTScoutingAll'].step3 = {
     '--procModifiers': 'ngtScouting,alpaka,ticl_v5,ticl_barrel',
-    '-s':'HARVESTING:@hltValidation'
+   '-s':'HARVESTING:@hltValidation'
 }
 
 class UpgradeWorkflow_L1Complete(UpgradeWorkflow):
