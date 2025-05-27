@@ -40,6 +40,7 @@ numWFIB.extend([32834.0]) #Run4D117
 numWFIB.extend([33234.0]) #Run4D118
 numWFIB.extend([33634.0]) #Run4D119
 numWFIB.extend([34034.0]) #Run4D120
+numWFIB.extend([34434.0]) #Run4D121
 
 #Additional sample for short matrix and IB
 #Default Phase-2 Det NoPU
