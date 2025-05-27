@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHitProducer_cfi import HGCalUncalibRecHitProducer
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer
 
-fCPerMIP_mpv = cms.vdouble(1.25,2.57,3.88) #120um, 200um, 300um
-fCPerMIP_mean = cms.vdouble(2.06,3.43,5.15) #120um, 200um, 300um
+fCPerMIP_mpv = cms.vdouble(1.25,2.57,3.88, 2.57)  #HD120um, LD200um, LD300um, HD200um
+fCPerMIP_mean = cms.vdouble(2.06,3.43,5.15, 3.43) #HD120um, LD200um, LD300um, HD200um
 
 # HGCAL producer of rechits starting from digis
 HGCalUncalibRecHit = HGCalUncalibRecHitProducer.clone(
