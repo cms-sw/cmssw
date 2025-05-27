@@ -192,8 +192,7 @@ std::float_t RecHitTools::getSiThickness(const DetId& id) const {
   std::float_t thick(0.37);
   if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
     const HGCSiliconDetId hid(id);
-    auto ddd = get_ddd(geom, hid);
-    thick = ddd->cellThickness(hid.layer(), hid.waferU(), hid.waferV());
+    thick = hid.depletion();
   } else if (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)) {
     const HFNoseDetId hid(id);
     auto ddd = get_ddd(geom, hid);
