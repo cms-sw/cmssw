@@ -224,7 +224,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // copy the moduleStart from pixelRecHitsSoA and otRecHitsSoA to outputSoA
     const int nPixelModules = pixelRecHitsSoA.nModules();
-    const int nTrackerModules = otRecHitsSoA.nModules();
+    const int nTrackerModules = otRecHitsSoA.nModules() + 1;
+    // size of the copy nPixelModules + nTrackerModules + 1 to account for the last "hidden"
+    // element of the SoA, keeping track of the cumulative sum of all the hits in the previous
+    // modules (thus one more than the number of modules is required to account for the hits
+    // in the last tracker module) see also DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h
 
     auto hitModuleStartOutputPixel =
         cms::alpakatools::make_device_view(queue, outputSoA.view<::reco::HitModuleSoA>().moduleStart(), nPixelModules);
