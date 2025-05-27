@@ -200,6 +200,7 @@ void RawEventOutputModuleForBU<Consumer>::fillDescriptions(edm::ConfigurationDes
   desc.add<unsigned int>("numEventsPerFile", 100);
   desc.add<unsigned int>("frdVersion", 6);
   desc.addUntracked<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>());
+  desc.addUntracked<bool>("writeToOpen", false);
   Consumer::extendDescription(desc);
 
   descriptions.addWithDefaultLabel(desc);

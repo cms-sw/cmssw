@@ -69,7 +69,6 @@ namespace evf {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void preallocate(edm::service::SystemBounds const& bounds);
     void preBeginRun(edm::GlobalContext const& globalContext);
-    void postEndRun(edm::GlobalContext const& globalContext);
     void preGlobalEndLumi(edm::GlobalContext const& globalContext);
     void updateRunParams();
     void overrideRunNumber(unsigned int run) {
