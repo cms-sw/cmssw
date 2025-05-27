@@ -31,6 +31,8 @@ public:
                   bool writePdfThresholds = false,
                   bool writeMeanDistPhi1 = false);
 
+  ~XMLConfigWriter();
+
   void initialiseXMLDocument(const std::string& docName);
 
   void finaliseXMLDocument(const std::string& fName);
