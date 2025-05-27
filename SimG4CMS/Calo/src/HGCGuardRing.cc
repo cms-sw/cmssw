@@ -53,7 +53,7 @@ bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int l
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCSim") << "HGCGuardRing:: Orient " << orient << " Mode " << modeUV_;
 #endif
-      if (modeUV_ == HGCalGeometryMode::Hexagon8Module) {
+      if (hgcons_.v16OrLess()) {
         std::vector<std::pair<double, double> > wxy =
             HGCalWaferMask::waferXY(partial, orient, zside, waferSize_, offset_, 0.0, 0.0, v17OrLess_);
         check = !(insidePolygon(point.x(), point.y(), wxy));
