@@ -136,7 +136,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "Number of strip hits: " << nStripHits << std::endl;
     std::cout << "Total hits of PinOTBarrel:   " << PHitsInOTBarrel << std::endl;
 
-    HitsHost stripHitsHost(queue, PHitsInOTBarrel, p_modulesInPSInOTBarrel.size() + 1);
+    HitsHost stripHitsHost(queue, PHitsInOTBarrel, p_modulesInPSInOTBarrel.size());
     auto& stripHitsModuleView = stripHitsHost.view<::reco::HitModuleSoA>();
 
     std::vector<int> counterOfHitsPerModule(p_modulesInPSInOTBarrel.size(), 0);
@@ -250,7 +250,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memcpy(queue, moduleStartVec, moduleStartView);
     iEvent.emplace(hitModuleStart_, std::move(moduleStartVec));
 
-    Hits stripHitsDevice(queue, stripHitsHost.view().metadata().size(), stripHitsModuleView.metadata().size());
+    Hits stripHitsDevice(queue, stripHitsHost.view().metadata().size(), stripHitsHost.nModules());
     alpaka::memcpy(queue, stripHitsDevice.buffer(), stripHitsHost.buffer());
     stripHitsDevice.updateFromDevice(queue);
 

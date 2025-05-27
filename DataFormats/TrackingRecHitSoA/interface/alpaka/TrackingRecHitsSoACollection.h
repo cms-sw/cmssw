@@ -63,7 +63,7 @@ namespace cms::alpakatools {
 
       auto nHits = hostData.nHits();
 
-      reco::TrackingRecHitDevice<TDevice> deviceData(queue, nHits, hostData.nModules() + 1);
+      reco::TrackingRecHitDevice<TDevice> deviceData(queue, nHits, hostData.nModules());
 
       if (nHits == 0) {
         std::memset(
