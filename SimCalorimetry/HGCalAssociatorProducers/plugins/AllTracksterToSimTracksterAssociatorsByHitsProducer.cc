@@ -327,7 +327,6 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
           unsigned int hitIndex = recoTracksterHitsAndFractions[i].index();
           const auto& recHit = rechitManager[hitIndex];
           float recoFraction = recoTracksterHitsAndFractions[i].fraction();
-          float squaredRecoFraction = recoFraction * recoFraction;
           float rechitEnergy = recHit.energy();
           float squaredRecHitEnergy = rechitEnergy * rechitEnergy;
           float recoSharedEnergy = rechitEnergy * recoFraction;
@@ -337,9 +336,15 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
             auto simFraction = simTracksterElement.fraction();
             edm::Ref<std::vector<ticl::Trackster>> simTracksterRef(simTrackstersHandle, simTracksterIndex);
             float sharedEnergy = std::min(simFraction * rechitEnergy, recoSharedEnergy);
-            float squaredFraction =
-                std::min(squaredRecoFraction, (recoFraction - simFraction) * (recoFraction - simFraction));
-            float score = invDenominator * squaredFraction * squaredRecHitEnergy;
+            /* RecoToSim score logic:
+             - simFraction >= 0 && recoFraction == 0 : simtrackster contains non-reco associated elements : ignore in recoToSim association
+             - simFraction == 0 && recoFraction > 0 : rechits not present in sim trackster : penalty in score by recoFraction*E
+             - simFraction == 1 && recoFraction == 1 : good association
+             - 1 > recoFraction > simFraction > 0 :  sim does not contain some reco energy, penalty in score by the additional part : (recoFraction-simFraction)*E
+             - 1 > simFraction> recoFraction > 0 : consider as good association, as there is enough sim to cover the reco
+            */
+            float recoMinusSimFraction = std::max(0.f, recoFraction - simFraction);
+            float score = invDenominator * recoMinusSimFraction * recoMinusSimFraction * squaredRecHitEnergy;
             tracksterToSimTracksterMap->insert(recoTracksterRef, simTracksterRef, sharedEnergy, score);
           }
         }
