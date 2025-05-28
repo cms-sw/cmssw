@@ -80,8 +80,10 @@ protected:
 
 private:
   // Helper method to transform coordinates to local coordinate system
-  CTPPSGeometry::Vector transformToLocalCoordinates(const CTPPSDetId& detId_pot, 
-                                                   double x, double y, double z = 0) const {
+  CTPPSGeometry::Vector transformToLocalCoordinates(const CTPPSDetId& detId_pot,
+                                                    double x,
+                                                    double y,
+                                                    double z = 0) const {
     auto localVector = CTPPSGeometry::Vector(x, y, z);
     localVector -= diamTranslations_.at(detId_pot);
     localVector = diamRotations_.at(detId_pot).Inverse() * localVector;
@@ -1051,7 +1053,9 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         TH1F* trackHistoInTimeTmp = potPlots_[detId_pot].trackDistribution->getTH1F();
 
         // X coordinate of the left edge of the track in the local coordinate system
-        auto localTrackX = (track.x0() - diamTranslations_.at(detId_pot).x() + diamHalfWidths_.at(detId_pot) - track.x0Sigma()) / cosRotAngle.x();
+        auto localTrackX =
+            (track.x0() - diamTranslations_.at(detId_pot).x() + diamHalfWidths_.at(detId_pot) - track.x0Sigma()) /
+            cosRotAngle.x();
 
         int startBin = trackHistoInTimeTmp->FindBin((localTrackX));
         int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
