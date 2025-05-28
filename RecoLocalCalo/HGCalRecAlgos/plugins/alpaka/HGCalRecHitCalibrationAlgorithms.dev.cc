@@ -16,7 +16,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
 
-  //
+  // @short set RecHit flags based on DIGI flags (data corruption, zero-suppression)
   struct HGCalRecHitCalibrationKernel_flagRecHits {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalDigiDevice::View digis,
@@ -27,7 +27,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         bool calibvalid = calib.valid();
         auto digi = digis[idx];
         auto digiflags = digi.flags();
-        //recHits[idx].flags() = digiflags;
         bool isAvailable((digiflags != ::hgcal::DIGI_FLAG::Invalid) &&
                          (digiflags != ::hgcal::DIGI_FLAG::NotAvailable) && calibvalid);
         bool isToAavailable((digiflags != ::hgcal::DIGI_FLAG::ZS_ToA) &&
@@ -38,8 +37,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-  //
-  struct HGCalRecHitCalibrationKernel_adcToCharge {
+  // @short subtract pedestals, linearize ADC & TOT to charge (fC), and convert to energy (GeV)
+  struct HGCalRecHitCalibrationKernel_adcToEnergy {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalDigiDevice::View digis,
                                   HGCalRecHitDevice::View recHits,
@@ -81,13 +80,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                            calib.TOT_P1(),
                                                            calib.TOT_P2());
 
-        //after denoising/linearization apply the MIP scale
-        recHits[idx].energy() *= calib.MIPS_scale();
+        // after denoising/linearization apply the MIP scale
+        recHits[idx].energy() *= calib.MIPS_scale() * calib.EM_scale();
       }
     }
   };
 
-  //
+  // @short apply INL and timewalk corrections, and convert TOA to time (ps)
   struct HGCalRecHitCalibrationKernel_toaToTime {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalDigiDevice::View digis,
@@ -117,16 +116,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         bool isToAavailable((digiflags != ::hgcal::DIGI_FLAG::ZS_ToA) &&
                             (digiflags != ::hgcal::DIGI_FLAG::ZS_ToA_ADCm1));
         bool isGood(isAvailable && isToAavailable);
-        //INL correction
+        // INL correction
         auto toa = isGood * toa_inl_corr(digi.toa(), calib.TOA_CTDC(), calib.TOA_FTDC());
-        //timewalk correction
+        // timewalk correction
         toa = isGood * toa_tw_corr(toa, recHits[idx].energy(), calib.TOA_TW());
-        //toa to ps
+        // toa to ps
         recHits[idx].time() = toa * hgcalrechit::TOAtops;
       }
     }
   };
 
+  // @short sum the energy of the RecHits in the calibration and surrounding cells
+  // see https://github.com/cms-sw/cmssw/pull/47829
   struct HGCalRecHitCalibrationKernel_handleCalibCell {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   HGCalDigiDevice::View digis,
@@ -157,10 +158,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         auto cellIndex = index[idx].cellInfoIdx();
         bool isCalibCell(maps[cellIndex].iscalib());
-        int offset = maps[cellIndex].caliboffset();  //Calibration-to-surrounding cell offset
+        int offset = maps[cellIndex].caliboffset();  // calibration-to-surrounding cell offset
         bool is_surr_cell((offset != 0) && isAvailable && isCalibCell);
 
-        //Effectively operate only on the cell that surrounds the calibration cells
+        // effectively operate only on the cell that surrounds the calibration cells
         if (!is_surr_cell) {
           continue;
         }
@@ -180,6 +181,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
+  // @short print RecHits for debugging
   struct HGCalRecHitCalibrationKernel_printRecHits {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc, HGCalRecHitDevice::ConstView view, int size) const {
       for (int i = 0; i < size; ++i) {
@@ -189,6 +191,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
+  // @short apply all calibration kernels
   HGCalRecHitDevice HGCalRecHitCalibrationAlgorithms::calibrate(Queue& queue,
                                                                 HGCalDigiHost const& host_digis,
                                                                 HGCalCalibParamDevice const& device_calib,
@@ -222,7 +225,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         device_calib.view());
     alpaka::exec<Acc1D>(queue,
                         grid,
-                        HGCalRecHitCalibrationKernel_adcToCharge{},
+                        HGCalRecHitCalibrationKernel_adcToEnergy{},
                         device_digis.view(),
                         device_recHits.view(),
                         device_calib.view());
