@@ -101,7 +101,7 @@ if __name__ == '__main__':
             17034.0,    # RelValTTbar_14TeV		2025 PU = Run3_Flat55To75_PoissonOOTPU
             14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim
             14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
-            2500.201,   # RelValTTbar_14TeV             NanoAOD from existing MINI
+            2500.301,   # RelValTTbar_14TeV             NanoAOD from existing MINI
 
             ###### pp Data
             ## Run3
