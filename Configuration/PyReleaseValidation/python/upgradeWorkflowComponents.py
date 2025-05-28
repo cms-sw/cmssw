@@ -50,6 +50,8 @@ upgradeKeys[2017] = [
     '2025HLTOnDigiPU',
     '2025SimOnGen',
     '2025GenOnly',
+    '2025FS',
+    '2025FSPU',
 ]
 
 upgradeKeys['Run4'] = [
@@ -3238,7 +3240,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2024',
-        'Era' : 'Run3_FastSim',
+        'Era' : 'Run3_2024_FastSim',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3274,7 +3276,14 @@ upgradeProperties[2017] = {
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','Sim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
-    
+    '2025FS' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2025_realistic',
+        'HLTmenu': '@relval2025',
+        'Era' : 'Run3_2025_FastSim',
+        'BeamSpot': 'DBrealistic',
+        'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
+    },
 }
 
 # standard PU sequences
