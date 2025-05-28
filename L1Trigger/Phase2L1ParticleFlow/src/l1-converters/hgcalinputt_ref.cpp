@@ -98,10 +98,10 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
   ap_uint<12> w_meanz = in(64 + 30, 64 + 19);  // 12 bits: 30-19
 
   // Word 2
-  ap_uint<6> w_showerlenght = in(128 + 18, 128 + 13);      //  6 bits: 18-13
+  ap_uint<6> w_showerlength = in(128 + 18, 128 + 13);      //  6 bits: 18-13
   ap_uint<7> w_sigmazz = in(128 + 38, 128 + 32);           //  7 bits: 38-32
   ap_uint<7> w_sigmaphiphi = in(128 + 45, 128 + 39);       //  7 bits: 45-39
-  ap_uint<6> w_coreshowerlenght = in(128 + 51, 128 + 46);  //  6 bits: 51-46
+  ap_uint<6> w_coreshowerlength = in(128 + 51, 128 + 46);  //  6 bits: 51-46
   ap_uint<5> w_sigmaetaeta = in(128 + 56, 128 + 52);       //  5 bits: 56-52
 
   // Word 3
@@ -134,8 +134,8 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
     ap_ufixed<10, 5, AP_RND_CONV, AP_SAT> w_hoe = 256.0 / (w_emf_tot.to_int() + 0.5) - 1;
     out.hwHoe = w_hoe;
   }
-  std::vector<MultiClassID::bdt_feature_t> inputs = {w_showerlenght,
-                                                     w_coreshowerlenght,
+  std::vector<MultiClassID::bdt_feature_t> inputs = {w_showerlength,
+                                                     w_coreshowerlength,
                                                      w_emf,
                                                      w_abseta - 256,
                                                      w_meanz,  // We use the full resolution here

@@ -121,7 +121,7 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
     // ouput internal signals for easier debugging
     nOutputFramesPerBX_ = iConfig.getParameter<uint32_t>("nOutputFramesPerBX");
 
-    // Note:  the writers have a width of 64 very much hardcoded in the sizes. Therefore, send the 72 bits as
+    // Note:  the writers have a width of 64 very much hardcoded in the sizes. Therefore, send the bits as
     //        two separate "fibers"
     outputRegions_ = iConfig.getParameter<std::vector<uint32_t>>("outputRegions");
     int linkCount = 0;
@@ -477,18 +477,20 @@ void L1TCorrelatorLayer1PatternFileWriter::writeGTT(const l1ct::Event& event, l1
 
 // Debug functions output internal data for debugging purposes, mainly emulation/simulation comparison
 void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event, l1t::demo::EventData& out) {
-  // Note:  the writers have a width of 64 very much hardcoded in the sizes. Therefore, send the 72 bits as
+  // Note:  the writers have a width of 64 very much hardcoded in the sizes. Therefore, send the 73 bits as
   //        two separate "fibers"
+
+  constexpr unsigned int MAX_BITWIDTH = 73;  // Should be the biggest object width (or greater)
 
   if (nPFInTrack_) {
     std::vector<std::vector<ap_uint<64>>> linksLow(nPFInTrack_);   // virtual links -- bits 63:0
-    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFInTrack_);  // virtual links -- bits 71:64
+    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFInTrack_);  // virtual links -- bits MAX_BITWIDTH-1:64
     for (auto ir : outputRegions_) {
       auto pfvals = event.pfinputs[ir].track;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFInTrack_; ++i) {
-        ap_uint<72> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::TkObjEmu::BITWIDTH>(0);
-        linksHigh[i].push_back(val(71, 64));
+        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::TkObjEmu::BITWIDTH>(0);
+        linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }
     }
@@ -499,13 +501,13 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
   }
   if (nPFInEmCalo_) {
     std::vector<std::vector<ap_uint<64>>> linksLow(nPFInEmCalo_);   // virtual links -- bits 63:0
-    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFInEmCalo_);  // virtual links -- bits 71:64
+    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFInEmCalo_);  // virtual links -- bits MAX_BITWIDTH-1:64
     for (auto ir : outputRegions_) {
       auto pfvals = event.pfinputs[ir].emcalo;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFInEmCalo_; ++i) {
-        ap_uint<72> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::EmCaloObjEmu::BITWIDTH>(0);
-        linksHigh[i].push_back(val(71, 64));
+        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::EmCaloObjEmu::BITWIDTH>(0);
+        linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }
     }
@@ -516,13 +518,13 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
   }
   if (nPFInHadCalo_) {
     std::vector<std::vector<ap_uint<64>>> linksLow(nPFInHadCalo_);   // virtual links -- bits 63:0
-    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFInHadCalo_);  // virtual links -- bits 71:64
+    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFInHadCalo_);  // virtual links -- bits MAX_BITWIDTH-1:64
     for (auto ir : outputRegions_) {
       auto pfvals = event.pfinputs[ir].hadcalo;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFInHadCalo_; ++i) {
-        ap_uint<72> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::HadCaloObjEmu::BITWIDTH>(0);
-        linksHigh[i].push_back(val(71, 64));
+        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::HadCaloObjEmu::BITWIDTH>(0);
+        linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }
     }
@@ -533,13 +535,13 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
   }
   if (nPFInMuon_) {
     std::vector<std::vector<ap_uint<64>>> linksLow(nPFInMuon_);   // virtual links -- bits 63:0
-    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFInMuon_);  // virtual links -- bits 71:64
+    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFInMuon_);  // virtual links -- bits MAX_BITWIDTH-1:64
     for (auto ir : outputRegions_) {
       auto pfvals = event.pfinputs[ir].muon;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFInMuon_; ++i) {
-        ap_uint<72> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::MuObjEmu::BITWIDTH>(0);
-        linksHigh[i].push_back(val(71, 64));
+        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::MuObjEmu::BITWIDTH>(0);
+        linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }
     }
@@ -553,13 +555,13 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
 
   if (nPFOutCharged_) {
     std::vector<std::vector<ap_uint<64>>> linksLow(nPFOutCharged_);   // virtual links -- bits 63:0
-    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFOutCharged_);  // virtual links -- bits 71:64
+    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFOutCharged_);  // virtual links -- bits MAX_BITWIDTH-1:64
     for (auto ir : outputRegions_) {
       auto pfvals = event.out[ir].pfcharged;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFOutCharged_; ++i) {
-        ap_uint<72> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::PFChargedObjEmu::BITWIDTH>(0);
-        linksHigh[i].push_back(val(71, 64));
+        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::PFChargedObjEmu::BITWIDTH>(0);
+        linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }
     }
@@ -570,13 +572,13 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
   }
   if (nPFOutPhoton_) {
     std::vector<std::vector<ap_uint<64>>> linksLow(nPFOutPhoton_);   // virtual links -- bits 63:0
-    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFOutPhoton_);  // virtual links -- bits 71:64
+    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFOutPhoton_);  // virtual links -- bits MAX_BITWIDTH-1:64
     for (auto ir : outputRegions_) {
       auto pfvals = event.out[ir].pfphoton;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFOutPhoton_; ++i) {
-        ap_uint<72> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::PFNeutralObjEmu::BITWIDTH>(0);
-        linksHigh[i].push_back(val(71, 64));
+        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::PFNeutralObjEmu::BITWIDTH>(0);
+        linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }
     }
@@ -587,13 +589,13 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
   }
   if (nPFOutNeutral_) {
     std::vector<std::vector<ap_uint<64>>> linksLow(nPFOutNeutral_);   // virtual links -- bits 63:0
-    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFOutNeutral_);  // virtual links -- bits 71:64
+    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFOutNeutral_);  // virtual links -- bits MAX_BITWIDTH-1:64
     for (auto ir : outputRegions_) {
       auto pfvals = event.out[ir].pfneutral;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFOutNeutral_; ++i) {
-        ap_uint<72> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::PFNeutralObjEmu::BITWIDTH>(0);
-        linksHigh[i].push_back(val(71, 64));
+        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::PFNeutralObjEmu::BITWIDTH>(0);
+        linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }
     }
@@ -604,13 +606,13 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
   }
   if (nPFOutMuon_) {
     std::vector<std::vector<ap_uint<64>>> linksLow(nPFOutMuon_);   // virtual links -- bits 63:0
-    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFOutMuon_);  // virtual links -- bits 71:64
+    std::vector<std::vector<ap_uint<64>>> linksHigh(nPFOutMuon_);  // virtual links -- bits MAX_BITWIDTH-1:64
     for (auto ir : outputRegions_) {
       auto pfvals = event.out[ir].pfmuon;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFOutMuon_; ++i) {
-        ap_uint<72> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::PFChargedObjEmu::BITWIDTH>(0);
-        linksHigh[i].push_back(val(71, 64));
+        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::PFChargedObjEmu::BITWIDTH>(0);
+        linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }
     }

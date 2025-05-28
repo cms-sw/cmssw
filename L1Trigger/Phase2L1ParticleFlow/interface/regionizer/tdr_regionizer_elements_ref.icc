@@ -39,49 +39,54 @@ void l1ct::tdr_regionizer::Pipes<T>::setTaps(size_t taps) {
 // BUFFER ENTRY AND BUFFER
 template <typename T>
 l1ct::tdr_regionizer::BufferEntry<T>::BufferEntry(
-    const T& obj, std::vector<size_t> srIndices, int glbeta, int glbphi, int locphi, unsigned int clk)
-    : obj_(obj), srIndices_(srIndices), glbeta_(glbeta), glbphi_(glbphi), locphi_(locphi), linkobjclk_(clk) {
+    const T& obj, std::vector<size_t> srIndices, int glbeta, int glbphi, bool duplicate, unsigned int clk)
+    : obj_(obj), srIndices_(srIndices), glbeta_(glbeta), glbphi_(glbphi), duplicate_(duplicate), linkobjclk_(clk) {
   objcount_ = 0;
 }
 
 template <typename T>
-inline void l1ct::tdr_regionizer::Buffer<T>::addEntry(const T& obj,
-                                                      std::vector<size_t> srIndices,
-                                                      int glbeta,
-                                                      int glbphi,
-                                                      int locphi,
-                                                      unsigned int dupNum,
-                                                      unsigned int ndup) {
+inline void l1ct::tdr_regionizer::Buffer<T>::addEntry(
+    const T& obj,
+    std::vector<size_t> srIndices,
+    int glbeta,
+    int glbphi,
+    bool duplicate,  // this is mainly for GCT, is it one of the duplicates
+    unsigned int dupNum,
+    unsigned int ndup) {
   // dupNum is the duplicate number of this buffer (int range 0 to ndup_-1)
-  auto objClk = nextObjClk(ndup);
-  data_.emplace_back(obj, srIndices, glbeta, glbphi, locphi, objClk);
+  auto objClk = nextObjClk(ndup, obj.intPt() == 0);
+  data_.emplace_back(obj, srIndices, glbeta, glbphi, duplicate, objClk);
   if (timeOfNextObject_ < 0) {
     timeOfNextObject_ = objClk;
   }
 }
 
 template <typename T>
-void l1ct::tdr_regionizer::Buffer<T>::updateNextObjectTime(int currTime) {
+void l1ct::tdr_regionizer::Buffer<T>::updateNextObjectTime(int currTime, bool incrementTime) {
   if (data_.size() > 0) {
-    timeOfNextObject_ = std::max(front().clock(), static_cast<unsigned int>(currTime + 1));
+    auto nextTime = incrementTime ? currTime + 1 : currTime;
+    timeOfNextObject_ = std::max(front().clock(), static_cast<unsigned int>(nextTime));
   } else {
     timeOfNextObject_ = -1;
   }
 }
 
 template <typename T>
-inline unsigned int l1ct::tdr_regionizer::Buffer<T>::nextObjClk(unsigned int ndup) {
+inline unsigned int l1ct::tdr_regionizer::Buffer<T>::nextObjClk(unsigned int ndup, bool skip) {
   unsigned int nextVal = std::max(clkindex360_, clkindex240_) / 3;
 
   clkindex360_ += 2 * ndup;
-  clkindex240_ += 3;
 
+  // Though a 360MHz clock is used, one doesn't need to a 240MHz clock for pt == 0
+  if (!skip) {
+    clkindex240_ += 3;
+  }
   return nextVal;
 }
 
 // explicit for tracks
 template <>
-inline unsigned int l1ct::tdr_regionizer::Buffer<l1ct::TkObjEmu>::nextObjClk(unsigned int ndup) {
+inline unsigned int l1ct::tdr_regionizer::Buffer<l1ct::TkObjEmu>::nextObjClk(unsigned int ndup, bool skip) {
   if (ndup != 1) {
     throw std::invalid_argument("Only ndup==1 is currently supported for the TkObjEmu buffers.");
   }
@@ -93,8 +98,9 @@ inline unsigned int l1ct::tdr_regionizer::Buffer<l1ct::TkObjEmu>::nextObjClk(uns
     clkindex360_ += 2;
   }
 
-  clkindex240_ += 3;
-
+  if (!skip) {
+    clkindex240_ += 3;
+  }
   return nextVal;
 }
 
@@ -173,7 +179,7 @@ void l1ct::tdr_regionizer::Regionizer<T>::initSectors(const std::vector<Detector
   // but it's easier to create the inverse, first
 
   if (debug_) {
-    dbgCout() << "secotors.size() = " << sectors.size() << std::endl;
+    dbgCout() << "sectors.size() = " << sectors.size() << std::endl;
   }
 
   for (const auto& sector : sectors) {
@@ -188,9 +194,6 @@ void l1ct::tdr_regionizer::Regionizer<T>::initSectors(const std::vector<Detector
   }
   nsectors_ = sectors_.size();
   buffers_.resize(nsectors_ * ndup_);
-  // if (debug_) {
-  //   dbgCout() << "Number of sectors: " << nsectors_ << std::endl;
-  // }
 
   std::sort(sectorMapLogToPhys_.begin(), sectorMapLogToPhys_.end(), [this](size_t a, size_t b) {
     return this->sortSectors(a, b);
@@ -216,6 +219,7 @@ void l1ct::tdr_regionizer::Regionizer<T>::initSectors(const DetectorSector<T>& s
   assert(nsectors_ == 0);
   nsectors_ = 1;
   sectors_.push_back(sector.region);
+  sectorMapLogToPhys_.push_back(0);
   sectorMapPhysToLog_.push_back(0);
   buffers_.resize(nsectors_ * ndup_);
   if (debug_) {
@@ -292,13 +296,6 @@ void l1ct::tdr_regionizer::Regionizer<T>::initRegions(const std::vector<PFInputR
   regions_.resize(regions.size());
   for (unsigned int i = 0; i < regions.size(); ++i) {
     regions_[i] = regions[i].region;
-    // if (debug_) {
-    //   dbgCout() << "region eta/phi: " << regions_[i].intEtaCenter() << " " << regions_[i].intPhiCenter()
-    //             << ", eta half width = " << regions_[i].hwEtaHalfWidth.to_int()
-    //             << ", phi half width = " << regions_[i].hwPhiHalfWidth.to_int()
-    //             << ", eta extra = " << regions_[i].hwEtaExtra.to_int()
-    //             << ", phi extra = " << regions_[i].hwPhiExtra.to_int() << std::endl;
-    // }
     if (isInBigRegion(regions_[i])) {
       regionmap_.push_back(i);
       if (debug_) {
@@ -398,7 +395,13 @@ void l1ct::tdr_regionizer::Regionizer<T>::addToBuffer(const T& obj, unsigned int
   auto glbphi = sectors_[sector].hwGlbPhiOf(obj).to_int();
   auto glbeta = sectors_[sector].hwGlbEtaOf(obj).to_int();
   // get the SR indices that this object should go into
-  buffers_[buffer].addEntry(obj, getSmallRegions(glbeta, glbphi), glbeta, glbphi, obj.hwPhi.to_int(), dupNum, ndup_);
+  buffers_[buffer].addEntry(obj,
+                            getSmallRegions(glbeta, glbphi),
+                            glbeta,
+                            glbphi,
+                            isDuplicate(obj.hwPhi.to_int(), logicBuffIndex(buffer)),
+                            dupNum,
+                            ndup_);
 }
 
 template <typename T>
@@ -465,16 +468,29 @@ void l1ct::tdr_regionizer::Regionizer<T>::run() {
       if (buffer.timeOfNextObject() >= 0) {
         processedAll = false;
       }
-      if (buffer.timeOfNextObject() == currTime) {
+      while (buffer.timeOfNextObject() == currTime) {
         // time to handle the buffer entry
         const auto nextSR = buffer.front().nextSR();
         if (debug_) {
-          dbgCout() << "Current time " << currTime << ", handling bufIdx " << bufIdx << " object with SR = " << nextSR
-                    << ", pt = " << buffer.pt() << ", glbeta = " << buffer.glbEta() << ", glbphi = " << buffer.glbPhi()
-                    << ", local(to link)phi = " << buffer.sectorLocalPhi() << std::endl;
+          dbgCout() << "Current time " << currTime << ", handling bufIdx " << bufIdx << ", logical "
+                    << logicBuffIndex(bufIdx) << " object with SR = " << nextSR << ", pt = " << buffer.pt()
+                    << ", glbeta = " << buffer.glbEta() << ", glbphi = " << buffer.glbPhi()
+                    << ", duplicate = " << buffer.duplicate() << std::endl;
         }
-        if (nextSR < 0 || buffer.pt() == 0 || smallRegionObjects_[nextSR].size() == maxobjects_ ||
-            isDuplicate(buffer.sectorLocalPhi(), logicBuffIndex(bufIdx))) {
+        if (buffer.pt() == 0) {  // double check that this also works for tracks
+          if (debug_) {
+            dbgCout() << "---Throw out, don't increment time" << std::endl;
+          }
+          buffer.pop();
+          buffer.updateNextObjectTime(currTime, false);  // do not increment time
+        } else if (buffer.duplicate()) {
+          // remove the whole object, not worrying about nextSR
+          if (debug_) {
+            dbgCout() << "---Throw out, duplicate, increment time" << std::endl;
+          }
+          buffer.pop();
+          buffer.updateNextObjectTime(currTime);  // do increment time
+        } else if (nextSR < 0 || smallRegionObjects_[nextSR].size() == maxobjects_) {
           // throwout or SR full, just get rid of object
           if (debug_) {
             dbgCout() << "---Throw out" << std::endl;
@@ -548,7 +564,7 @@ size_t l1ct::tdr_regionizer::Regionizer<T>::logicBuffIndex(size_t bufIdx) const 
   return logSector * ndup_ + bufIdx % ndup_;
 }
 
-// default is no duplicates
+// default is no duplicates. Note, locPhi is for the sector, not small region
 template <typename T>
 bool l1ct::tdr_regionizer::Regionizer<T>::isDuplicate(int locphi, size_t logicBufIdx) const {
   return false;
@@ -578,24 +594,24 @@ inline bool l1ct::tdr_regionizer::Regionizer<l1ct::EmCaloObjEmu>::isDuplicate(in
 template <typename T>
 void l1ct::tdr_regionizer::Regionizer<T>::printDebug(int count) const {
   dbgCout() << "BUFFERS, (for " << numBuffers() << " buffers)" << std::endl;
-  dbgCout() << count << "\tbuffer\tlogical\titem\tpt\teta\tphi\tlocphi\tclock" << std::endl;
+  dbgCout() << count << "\tbuffer\tlogical\titem\tpt\teta\tphi\tduplicate\tclock" << std::endl;
   for (auto sector : sectorMapLogToPhys_) {
     for (unsigned int dup = 0; dup < ndup_; dup++) {
       const unsigned int buffer = sector * ndup_ + dup;
       for (unsigned int j = 0; j < numEntries(buffer); j++) {
         dbgCout() << "\t" << buffer << "\t" << logicBuffIndex(buffer) << "\t" << j << "\t" << buffers_[buffer].pt(j)
                   << "\t" << buffers_[buffer].glbEta(j) << "\t" << buffers_[buffer].glbPhi(j) << "\t"
-                  << buffers_[buffer].sectorLocalPhi(j) << "\t" << buffers_[buffer].clock(j) << std::endl;
+                  << buffers_[buffer].duplicate(j) << "\t" << buffers_[buffer].clock(j) << std::endl;
       }
       dbgCout() << "-------------------------------" << std::endl;
     }
   }
   dbgCout() << "PIPES, (for " << pipes_.size() << " pipes)" << std::endl;
   dbgCout() << count << "\tpipe\ttap\tsr\tpt\teta\tphi" << std::endl;
-  for (size_t pipe = 0; pipe < pipes_.size(); pipe++) {
-    for (size_t tap = 0; tap < pipes_.numTaps(); tap++) {
+  for (int tap = pipes_.numTaps() - 1; tap >= 0; --tap) {
+    for (int pipe = pipes_.size() - 1; pipe >= 0; --pipe) {
       auto entry = pipes_.entry(pipe, tap);
-      dbgCout() << "\t" << pipe << "\t" << tap << "\t" << entry.sr() << "\t" << entry.pt() << "\t" << entry.glbEta()
+      dbgCout() << "\t" << pipe << "\t" << tap + 1 << "\t" << entry.sr() << "\t" << entry.pt() << "\t" << entry.glbEta()
                 << "\t" << entry.glbPhi() << std::endl;
     }
     dbgCout() << "-------------------------------" << std::endl;
@@ -634,19 +650,11 @@ std::vector<std::vector<T>> l1ct::tdr_regionizer::Regionizer<T>::fillLinks(
   for (const auto& sector : sectors) {
     if (isInBigRegionLoose(sector.region)) {
       links.emplace_back();
-      //  if (debug_) {
-      //   dbgCout() << "sector.size() = " << sector.size() << std::endl;
-      //  }
       for (unsigned int io = 0; io < sector.size() && io < nclocks_; io++) {
         links.back().push_back(sector[io]);
       }
     }
   }
-
-  // if (debug_) {
-  //   dbgCout() << "fillLinks sectors.size() = " << sectors.size()
-  //     << ", links.size() = " << links.size() << ", links[0].size() = " << links[0].size()<< std::endl;
-  // }
 
   return links;
 }

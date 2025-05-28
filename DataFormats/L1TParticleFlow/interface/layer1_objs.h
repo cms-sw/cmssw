@@ -51,12 +51,12 @@ namespace l1ct {
     float floatEmPt() const { return Scales::floatPt(hwEmPt); }
     float floatEta() const { return Scales::floatEta(hwEta); }
     float floatPhi() const { return Scales::floatPhi(hwPhi); }
-    float floatSrrTot() const { return Scales::floatSrrTot(hwSrrTot); };
-    float floatMeanZ() const { return Scales::floatMeanZ(hwMeanZ); };
-    float floatHoe() const { return Scales::floatHoe(hwHoe); };
-    float floatPiProb() const { return Scales::floatIDProb(hwPiProb); };
-    float floatEmProb() const { return Scales::floatIDProb(hwEmProb); };
-    float floatPuProb() const { return Scales::floatIDProb(hwPuProb()); };
+    float floatSrrTot() const { return Scales::floatSrrTot(hwSrrTot); }
+    float floatMeanZ() const { return Scales::floatMeanZ(hwMeanZ); }
+    float floatHoe() const { return Scales::floatHoe(hwHoe); }
+    float floatPiProb() const { return Scales::floatIDProb(hwPiProb); }
+    float floatEmProb() const { return Scales::floatIDProb(hwEmProb); }
+    float floatPuProb() const { return Scales::floatIDProb(hwPuProb()); }
 
     bool hwIsEM() const { return hwEmID != 0; }
 
@@ -220,12 +220,12 @@ namespace l1ct {
     float floatPhi() const { return Scales::floatPhi(hwPhi); }
     float floatShowerShape() const { return Scales::floatShoweShape(hwShowerShape); }
     float floatRelIso() const { return Scales::floatRelIso(hwRelIso); }
-    float floatSrrTot() const { return Scales::floatSrrTot(hwSrrTot); };
-    float floatMeanZ() const { return Scales::floatMeanZ(hwMeanZ); };
-    float floatHoe() const { return Scales::floatHoe(hwHoe); };
-    float floatPiProb() const { return Scales::floatIDProb(hwPiProb); };
-    float floatEmProb() const { return Scales::floatIDProb(hwEmProb); };
-    float floatPuProb() const { return Scales::floatIDProb(hwPuProb()); };
+    float floatSrrTot() const { return Scales::floatSrrTot(hwSrrTot); }
+    float floatMeanZ() const { return Scales::floatMeanZ(hwMeanZ); }
+    float floatHoe() const { return Scales::floatHoe(hwHoe); }
+    float floatPiProb() const { return Scales::floatIDProb(hwPiProb); }
+    float floatEmProb() const { return Scales::floatIDProb(hwEmProb); }
+    float floatPuProb() const { return Scales::floatIDProb(hwPuProb()); }
 
     static const int BITWIDTH_BARREL_SLIM = pt_t::width + pt_t::width + eta_t::width + phi_t::width + emid_t::width;
     static const int BITWIDTH_ENDCAP_SLIM =
