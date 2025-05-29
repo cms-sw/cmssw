@@ -33,7 +33,7 @@ run2_HLTconditions_2016.toModify(doubleMuonHLTTrigger,
 
 ## Muon selection
 patMuonsAfterKinCuts = cms.EDFilter("PATMuonSelector",
-    src = cms.InputTag("slimmedMuons"),
+    src = cms.InputTag("slimmedMuons", "", "SELECT"),
     cut = cms.string("pt > 8 && abs(eta) < 2.5"),
     filter = cms.bool(True)
 )
@@ -89,8 +89,8 @@ selectedMuonsForEmbedding = cms.EDProducer("MuMuForEmbeddingSelector",
     use_zmass = cms.bool(False),
     inputTagVertex = cms.InputTag("offlinePrimaryVertices"),
     inputTagBeamSpot = cms.InputTag("offlineBeamSpot"),
-    PuppiMet = cms.InputTag("slimmedMETsPuppi"),
-    Met = cms.InputTag("slimmedMETs"),
+    PuppiMet = cms.InputTag("slimmedMETsPuppi", "", "SELECT"),
+    Met = cms.InputTag("slimmedMETs", "", "SELECT"),
 )
 
 makePatMuonsZmumuSelection = cms.Sequence(
@@ -101,3 +101,7 @@ makePatMuonsZmumuSelection = cms.Sequence(
     + ZmumuCandidatesFilter
     + selectedMuonsForEmbedding
 )
+
+# (run2_common & ~run3_common).toModify(bunchSpacingProducer, bunchSpacingOverride = cms.uint32(25), overrideBunchSpacing = cms.bool(True))
+# does not work...
+# bunchSpacingProducer, overrideBunchSpacing = cms.bool(True)

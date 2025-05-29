@@ -1,0 +1,31 @@
+import FWCore.ParameterSet.Config as cms
+from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
+from RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi import csc2DRecHits
+from RecoLocalMuon.CSCSegment.cscSegments_cfi import cscSegments
+from RecoLocalMuon.DTRecHit.dt1DRecHits_LinearDriftFromDB_cfi import dt1DCosmicRecHits, dt1DRecHits
+from RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDB_cfi import dt4DCosmicSegments, dt4DSegments
+from RecoLocalMuon.RPCRecHit.rpcRecHits_cfi import rpcRecHits
+# maybe replace with /RecoLocalMuon/Configuration/python/RecoLocalMuon_cff.
+from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import ecalPreshowerRecHit
+# from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import hbhereco
+from RecoLocalCalo.Configuration.hcalGlobalReco_cff import hcalGlobalRecoTask, hcalOnlyGlobalRecoTask
+from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi import hfreco
+from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi import horeco
+from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import siStripClusters
+from RecoLocalCalo.EcalRecProducers.ecalRecHit_cff import ecalCalibratedRecHitTask
+from Configuration.StandardSequences.Reconstruction_cff import *
+# from RecoVertex.BeamSpotProducer.BeamSpot_cff import offlineBeamSpotTask
+# from Configuration.ProcessModifiers.tau_embedding_mu_to_mu_cff import tau_embedding_mu_to_mu
+# from Configuration.ProcessModifiers.tau_embedding_mu_to_e_cff import tau_embedding_mu_to_e
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+
+
+
+# (run2_common | run3_common).toReplaceWith(offlineBeamSpotTask, cms.Task())
+globalreco_trackingTask.remove(offlineBeamSpotTask)
+reconstruction_pixelTrackingOnlyTask.remove(offlineBeamSpotTask)
+# csclocalrecoTask = cms.Task(csc2DRecHits,cscSegments)
+# csclocalreco = cms.Sequence(csclocalrecoTask)
+
