@@ -1,5 +1,5 @@
-#ifndef SimG4CMS_HGCGuardRing_h
-#define SimG4CMS_HGCGuardRing_h
+#ifndef Geometry_HGCalCommonData_HGCGuardRing_h
+#define Geometry_HGCalCommonData_HGCGuardRing_h
 
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "G4ThreeVector.hh"
@@ -10,6 +10,7 @@ class HGCGuardRing {
 public:
   HGCGuardRing(const HGCalDDDConstants& hgc);
   bool exclude(G4ThreeVector& point, int zside, int frontBack, int layer, int waferU, int waferV);
+  bool excludePartial(G4ThreeVector& point, int zside, int frontBack, int layer, int waferU, int waferV);
   static bool insidePolygon(double x, double y, const std::vector<std::pair<double, double> >& xyv);
 
 private:
@@ -18,7 +19,12 @@ private:
   const HGCalGeometryMode::GeometryMode modeUV_;
   const bool v17OrLess_;
   const double waferSize_, sensorSizeOffset_, guardRingOffset_;
-  double offset_, xmax_, ymax_;
+  static constexpr std::array<double, 12> tan_1 = {
+      {-sqrt3_, sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0}};
+  static constexpr std::array<double, 12> cos_1 = {{0.5, -0.5, -1.0, -0.5, 0.5, 1.0, -0.5, 0.5, 1.0, 0.5, -0.5, -1.0}};
+  static constexpr std::array<double, 12> cot_1 = {
+      {sqrt3_, -sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0}};
+  double offset_, offsetPartial_,  xmax_, ymax_, c22_, c27_;
 };
 
 #endif  // HGCGuardRing_h
