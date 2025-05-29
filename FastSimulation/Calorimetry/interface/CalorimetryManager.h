@@ -59,7 +59,7 @@ public:
   CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_; }
 
   // Return the address of the FastHFShowerLibrary
-  FastHFShowerLibrary* getHFShowerLibrary() const { return theHFShowerLibrary; }
+  FastHFShowerLibrary* getHFShowerLibrary() const { return theHFShowerLibrary_; }
 
   // load container from edm::Event
   void loadFromEcalBarrel(edm::PCaloHitContainer& c) const;
@@ -100,7 +100,7 @@ private:
   void clean();
 
 private:
-  FSimEvent* mySimEvent;
+  FSimEvent* mySimEvent_;
   CaloGeometryHelper* myCalorimeter_;
 
   Histos* myHistos;
@@ -131,9 +131,9 @@ private:
   std::vector<double> timeShiftHO_;
 
   /// A few pointers to save time
-  RawParticle myElec;
-  RawParticle myPosi;
-  RawParticle myPart;
+  RawParticle myElec_;
+  RawParticle myPosi_;
+  RawParticle myPart_;
 
   // Parameters
   double pulledPadSurvivalProbability_;
@@ -142,7 +142,7 @@ private:
   //  double radiusFactor_;
   double radiusFactorEB_, radiusFactorEE_;
   std::vector<double> radiusPreshowerCorrections_;
-  double aTerm, bTerm;
+  double aTerm_, bTerm_;
   std::vector<double> mipValues_;
   int gridSize_;
   std::vector<double> theCoreIntervals_, theTailIntervals_;
@@ -152,27 +152,27 @@ private:
   bool simulatePreshower_;
   //RF
 
-  const LandauFluctuationGenerator* aLandauGenerator;
-  GammaFunctionGenerator* aGammaGenerator;
+  const LandauFluctuationGenerator* aLandauGenerator_;
+  GammaFunctionGenerator* aGammaGenerator_;
 
   static std::vector<std::pair<int, float> > myZero_;
 
   // RespCorrP p, k_e(p), k_h(p) vectors  and evaluated for each p
   // ecorr and hcorr
-  std::vector<double> rsp;
-  std::vector<double> p_knots;
-  std::vector<double> k_e;
-  std::vector<double> k_h;
-  double ecorr;
-  double hcorr;
+  std::vector<double> rsp_;
+  std::vector<double> p_knots_;
+  std::vector<double> k_e_;
+  std::vector<double> k_h_;
+  double ecorr_;
+  double hcorr_;
 
   // Used to check if the calorimeters was initialized
   bool initialized_;
 
-  std::vector<FSimTrack> muonSimTracks;
-  std::vector<FSimTrack> savedMuonSimTracks;
-  MaterialEffects* theMuonEcalEffects;  // material effects for muons in ECAL
-  MaterialEffects* theMuonHcalEffects;  // material effects for muons in HCAL
+  std::vector<FSimTrack> muonSimTracks_;
+  std::vector<FSimTrack> savedMuonSimTracks_;
+  MaterialEffects* theMuonEcalEffects_;  // material effects for muons in ECAL
+  MaterialEffects* theMuonHcalEffects_;  // material effects for muons in HCAL
 
   // If set to true the simulation in ECAL would be done 1X0 by 1X0
   // this is slow but more adapted to detailed studies.
@@ -181,16 +181,16 @@ private:
   bool bFixedLength_;
 
   //Gflash
-  GflashHadronShowerProfile* theProfile;
-  GflashPiKShowerProfile* thePiKProfile;
-  GflashProtonShowerProfile* theProtonProfile;
-  GflashAntiProtonShowerProfile* theAntiProtonProfile;
+  GflashHadronShowerProfile* theProfile_;
+  GflashPiKShowerProfile* thePiKProfile_;
+  GflashProtonShowerProfile* theProtonProfile_;
+  GflashAntiProtonShowerProfile* theAntiProtonProfile_;
 
   // HFShowerLibrary
-  bool useShowerLibrary;
-  bool useCorrectionSL;
-  FastHFShowerLibrary* theHFShowerLibrary;
+  bool useShowerLibrary_;
+  bool useCorrectionSL_;
+  FastHFShowerLibrary* theHFShowerLibrary_;
 
-  std::unique_ptr<KKCorrectionFactors> ecalCorrection;
+  std::unique_ptr<KKCorrectionFactors> ecalCorrection_;
 };
 #endif
