@@ -160,7 +160,7 @@ void BPHTrackMerger::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
 
         const edm::Ptr<reco::Candidate> &source = imutmp.sourceCandidatePtr(i);
         if (source.id() == tracks.id() && source.key() == iTrk) {
-	  indexToMuon = mu_idx;
+          indexToMuon = mu_idx;
           matchedToMuon = 1;
           break;
         }
@@ -199,7 +199,7 @@ void BPHTrackMerger::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
     pcand.addUserFloat("DCASig", DCASig);
     pcand.addUserFloat("dzTrg", dzTrg);
     pcand.addUserInt("isMatchedToMuon", matchedToMuon);
-    pcand.addUserInt("MatchedMuonIdx", indexToMuon);    
+    pcand.addUserInt("MatchedMuonIdx", indexToMuon);
     pcand.addUserInt("isMatchedToEle", matchedToEle);
     pcand.addUserInt("nValidHits", trk.bestTrack()->found());
     pcand.addUserInt("keyPacked", iTrk);
