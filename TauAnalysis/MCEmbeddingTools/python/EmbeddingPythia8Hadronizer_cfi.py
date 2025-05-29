@@ -2,15 +2,61 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
-from Configuration.ProcessModifiers.tau_embedding_mu_to_mu_cff import tau_embedding_mu_to_mu
-from Configuration.ProcessModifiers.tau_embedding_mu_to_e_cff import tau_embedding_mu_to_e
-from Configuration.ProcessModifiers.tau_embedding_tauhtauh_cff import tau_embedding_tauhtauh
+from Configuration.ProcessModifiers.tau_embedding_mu_to_mu_cff import (
+    tau_embedding_mu_to_mu,
+)
+from Configuration.ProcessModifiers.tau_embedding_mu_to_e_cff import (
+    tau_embedding_mu_to_e,
+)
+from Configuration.ProcessModifiers.tau_embedding_tauhtauh_cff import (
+    tau_embedding_tauhtauh,
+)
 from Configuration.ProcessModifiers.tau_embedding_mutauh_cff import tau_embedding_mutauh
 from Configuration.ProcessModifiers.tau_embedding_etauh_cff import tau_embedding_etauh
 from Configuration.ProcessModifiers.tau_embedding_emu_cff import tau_embedding_emu
 
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+from SimGeneral.MixingModule.digitizers_cfi import theDigitizers
+from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import es_electronics_sim
+from SimCalorimetry.EcalSimProducers.ecalElectronicsSim_cff import ecal_electronics_sim
+from IOMC.EventVertexGenerators.VtxSmearedRealistic_cfi import VtxSmeared
+from SimGeneral.MixingModule.mixNoPU_cfi import (
+    mix,
+)  # if no PileUp is specified the mixing module from mixNoPU_cfi is used
+
+# As we want to exploit the toModify and toReplaceWith features of the FWCore/ParameterSet/python/Config.py Modifier class,
+# we need a general modifier that is always applied.
+# maybe this can also be replaced by a specific embedding process modifier
+generalModifier = run2_common | run3_common
+
+VtxCorrectedToInput = cms.EDProducer(
+    "EmbeddingVertexCorrector", src=cms.InputTag("generator", "unsmeared")
+)
+generalModifier.toReplaceWith(VtxSmeared, VtxCorrectedToInput)
 
 
+generalModifier.toModify(
+    mix,
+    digitizers={
+        "ecal": {"doESNoise": cms.bool(False), "doENoise": cms.bool(False)},
+        "hcal": {
+            "doNoise": cms.bool(False),
+            "doThermalNoise": cms.bool(False),
+            "doHPDNoise": cms.bool(False),
+        },
+        "pixel": {"AddNoisyPixels": cms.bool(False), "AddNoise": cms.bool(False)},
+        "strip": {"Noise": cms.bool(False)},
+    },
+)
+
+(run2_common & ~run3_common).toModify(
+    mix, digitizers={"castor": {"doNoise": cms.bool(False)}}
+)
+
+
+
+# The generator module is expected by the GEN step to specify the event generator
 generator = cms.EDFilter(
     "Pythia8HadronizerFilter",
     maxEventsToPrint=cms.untracked.int32(1),
@@ -65,7 +111,7 @@ tau_embedding_mu_to_mu.toModify(
         }
     },
 )
-tau_embedding_mu_to_mu.toModify(generator, nAttempts = cms.uint32(1))
+tau_embedding_mu_to_mu.toModify(generator, nAttempts=cms.uint32(1))
 
 # This modifier sets the correct cuts for mu->e embedding
 tau_embedding_mu_to_e.toModify(
@@ -79,7 +125,7 @@ tau_embedding_mu_to_e.toModify(
         }
     },
 )
-tau_embedding_mu_to_e.toModify(generator, nAttempts = cms.uint32(1))
+tau_embedding_mu_to_e.toModify(generator, nAttempts=cms.uint32(1))
 
 # This modifier sets the correct cuts for the taus decaying into one jet and one muon
 tau_embedding_mutauh.toModify(
