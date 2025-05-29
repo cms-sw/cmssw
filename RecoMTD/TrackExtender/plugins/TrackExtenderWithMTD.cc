@@ -475,7 +475,7 @@ public:
                                                              const Propagator* prop,
                                                              const reco::BeamSpot& bs,
                                                              const float vtxTime,
-                                                             const bool matchVertex,
+                                                             const float vtxTimeError,
                                                              MTDHitMatchingInfo& bestHit) const;
 
   TransientTrackingRecHit::ConstRecHitContainer tryETLLayers(const TrajectoryStateOnSurface&,
@@ -489,7 +489,7 @@ public:
                                                              const Propagator* prop,
                                                              const reco::BeamSpot& bs,
                                                              const float vtxTime,
-                                                             const bool matchVertex,
+                                                             const float vtxTimeError,
                                                              MTDHitMatchingInfo& bestHit) const;
 
   void fillMatchingHits(const DetLayer*,
@@ -502,7 +502,7 @@ public:
                         const Propagator*,
                         const reco::BeamSpot&,
                         const float&,
-                        const bool,
+                        const float&,
                         TransientTrackingRecHit::ConstRecHitContainer&,
                         MTDHitMatchingInfo&) const;
 
@@ -781,16 +781,12 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   //beam spot
   const auto& bs = ev.get(bsToken_);
 
-  const Vertex* pv = nullptr;
+  bool vtxConstraint(false);
+  auto const& vtxs = ev.get(vtxToken_);
   if (useVertex_) {
-    auto const& vtxs = ev.get(vtxToken_);
-    if (!vtxs.empty())
-      pv = &vtxs[0];
-  }
-
-  float vtxTime = 0.f;
-  if (useVertex_) {
-    vtxTime = pv->t();  //already in ns
+    if (!vtxs.empty()) {
+      vtxConstraint = true;
+    }
   }
 
   std::vector<unsigned> track_indices;
@@ -807,11 +803,16 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                      << " sigma_p/p = " << sqrt(track->covariance()(0, 0)) * track->p() * 100 << " %";
 
     float trackVtxTime = 0.f;
-    if (useVertex_) {
-      float dz = std::abs(track->dz(pv->position()));
-
-      if (dz < dzCut_) {
-        trackVtxTime = vtxTime;
+    float trackVtxTimeError = 0.f;
+    if (vtxConstraint) {
+      for (const auto& vtx : vtxs) {
+        for (size_t itrk = 0; itrk < vtx.tracksSize(); itrk++) {
+          if (track == vtx.trackRefAt(itrk).castTo<TrackRef>()) {
+            trackVtxTime = vtx.t();
+            trackVtxTimeError = vtx.tError();
+            break;
+          }
+        }
       }
     }
 
@@ -843,7 +844,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                            prop,
                                            bs,
                                            trackVtxTime,
-                                           trackVtxTime != 0.f,
+                                           trackVtxTimeError,
                                            mBTL);
         mtdthits.insert(mtdthits.end(), btlhits.begin(), btlhits.end());
 
@@ -860,7 +861,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                            prop,
                                            bs,
                                            trackVtxTime,
-                                           trackVtxTime != 0.f,
+                                           trackVtxTimeError,
                                            mETL);
         mtdthits.insert(mtdthits.end(), etlhits.begin(), etlhits.end());
       }
@@ -1056,11 +1057,12 @@ namespace {
                          const float pathlength0,
                          const TrackSegments& trs0,
                          const float vtxTime,
+                         const float vtxTimeError,
+                         bool useVtxConstraint,
                          const reco::BeamSpot& bs,
                          const float bsTimeSpread,
                          const Propagator* prop,
                          const MeasurementEstimator* estimator,
-                         bool useVtxConstraint,
                          std::set<MTDHitMatchingInfo>& out) {
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, *prop, *estimator);
     if (comp.first) {
@@ -1084,8 +1086,7 @@ namespace {
 
           const float t_vtx = useVtxConstraint ? vtxTime : 0.f;
 
-          constexpr float vtx_res = 0.008f;
-          const float t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;
+          const float t_vtx_err = useVtxConstraint ? vtxTimeError : bsTimeSpread;
 
           float lastpmag2 = trs0.getSegmentPathAndMom2(0).second;
 
@@ -1147,7 +1148,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     const Propagator* prop,
     const reco::BeamSpot& bs,
     const float vtxTime,
-    const bool matchVertex,
+    const float vtxTimeError,
     MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
 
@@ -1157,7 +1158,8 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     LogTrace("TrackExtenderWithMTD") << "Hit search: BTL layer at R= "
                                      << static_cast<const BarrelDetLayer*>(ilay)->specificSurface().radius();
 
-    fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+    fillMatchingHits(
+        ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, vtxTimeError, output, bestHit);
   }
 
   return output;
@@ -1176,7 +1178,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     const Propagator* prop,
     const reco::BeamSpot& bs,
     const float vtxTime,
-    const bool matchVertex,
+    const float vtxTimeError,
     MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
 
@@ -1191,7 +1193,8 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
 
     LogTrace("TrackExtenderWithMTD") << "Hit search: ETL disk at Z = " << diskZ;
 
-    fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+    fillMatchingHits(
+        ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, vtxTimeError, output, bestHit);
   }
 
   // the ETL hits order must be from the innermost to the outermost
@@ -1215,7 +1218,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
                                                               const Propagator* prop,
                                                               const reco::BeamSpot& bs,
                                                               const float& vtxTime,
-                                                              const bool matchVertex,
+                                                              const float& vtxTimeError,
                                                               TransientTrackingRecHit::ConstRecHitContainer& output,
                                                               MTDHitMatchingInfo& bestHit) const {
   std::set<MTDHitMatchingInfo> hitsInLayer;
@@ -1231,17 +1234,20 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
                              pathlength0,
                              trs0,
                              _1,
+                             _2,
+                             _3,
                              std::cref(bs),
                              bsTimeSpread_,
                              prop,
                              theEstimator.get(),
-                             _2,
                              std::ref(hitsInLayer));
 
-  if (useVertex_ && matchVertex)
-    find_hits(vtxTime, true);
-  else
-    find_hits(0, false);
+  bool matchVertex = vtxTimeError > 0.f;
+  if (useVertex_ && matchVertex) {
+    find_hits(vtxTime, vtxTimeError, true);
+  } else {
+    find_hits(0, 0, false);
+  }
 
   float spaceChi2Cut = ilay->isBarrel() ? btlChi2Cut_ : etlChi2Cut_;
   float timeChi2Cut = ilay->isBarrel() ? btlTimeChi2Cut_ : etlTimeChi2Cut_;
@@ -1263,7 +1269,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
   if (useVertex_ && matchVertex && !hitMatched) {
     //try a second search with beamspot hypothesis
     hitsInLayer.clear();
-    find_hits(0, false);
+    find_hits(0, 0, false);
     if (!hitsInLayer.empty()) {
       auto const& firstHit = *hitsInLayer.begin();
       LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: matching trial 2: estChi2= " << firstHit.estChi2
