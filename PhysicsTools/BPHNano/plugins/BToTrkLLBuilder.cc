@@ -122,6 +122,7 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup co
       cand.addUserInt("l1_idx", l1_idx);
       cand.addUserInt("l2_idx", l2_idx);
       cand.addUserInt("trk_idx", k_idx);
+      cand.addUserInt("ll_idx", ll_idx);
 
       auto dr_info = bph::min_max_dr({l1_ptr, l2_ptr, k_ptr});
       cand.addUserFloat("min_dr", dr_info.first);
@@ -166,6 +167,19 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup co
 
       if (!post_vtx_selection_(cand))
         continue;
+
+      const reco::BeamSpot &beamSpot = *beamspot;
+      TrajectoryStateClosestToPoint theDCAXBS = fitter.fitted_candidate_ttrk().trajectoryStateClosestToPoint(
+          GlobalPoint(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z()));
+      double DCAB0BS = -99.;
+      double DCAB0BSErr = -99.;
+
+      if (theDCAXBS.isValid() == true) {
+        DCAB0BS = theDCAXBS.perigeeParameters().transverseImpactParameter();
+        DCAB0BSErr = theDCAXBS.perigeeError().transverseImpactParameterError();
+      }
+      cand.addUserFloat("dca", DCAB0BS);
+      cand.addUserFloat("dcaErr", DCAB0BSErr);
 
       cand.addUserFloat("vtx_x", cand.vx());
       cand.addUserFloat("vtx_y", cand.vy());
