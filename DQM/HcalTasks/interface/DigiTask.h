@@ -48,7 +48,7 @@ protected:
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
   edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> _tokHcalChannelQuality;
-    
+
   double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
   double _thresh_unihf;
   double _HBSumMeanofSumQForEachEvent, _HESumMeanofSumQForEachEvent, _HOSumMeanofSumQForEachEvent,

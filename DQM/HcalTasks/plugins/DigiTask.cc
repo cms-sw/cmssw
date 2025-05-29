@@ -5,7 +5,10 @@ using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
 
 DigiTask::DigiTask(edm::ParameterSet const& ps)
-    : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()),_tokHcalChannelQuality(esConsumes<HcalChannelQuality, HcalChannelQualityRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"))) {
+    : DQTask(ps),
+      hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()),
+      _tokHcalChannelQuality(esConsumes<HcalChannelQuality, HcalChannelQualityRcd, edm::Transition::BeginRun>(
+          edm::ESInputTag("", "withTopo"))) {
   _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
   _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
@@ -50,10 +53,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
   //	GET WHAT YOU NEED
   edm::ESHandle<HcalDbService> dbs = es.getHandle(hcalDbServiceToken_);
   _emap = dbs->getHcalMapping();
-  
- //    FILL _xQuality                                                                                
+
+  //    FILL _xQuality
   _xQuality.reset();
-  const HcalChannelQuality *cq = &es.getData(_tokHcalChannelQuality);
+  const HcalChannelQuality* cq = &es.getData(_tokHcalChannelQuality);
   auto _xQuality = cq;
 
   // Book LED calibration channels from emap
@@ -424,9 +427,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                          hcaldqm::hashfunctions::fSubdet,
                                          new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
                                          new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to8000),
-					 0);
+                                         0);
     _xBadCapid.initialize(hcaldqm::hashfunctions::fFED);
-    
   }
   //	INITIALIZE HISTOGRAMS that are only for Online
   if (_ptype == fOnline) {
@@ -489,7 +491,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                                    0);
   }
   if (_ptype == fOnline || _ptype == fOffline) {
-      
     _cOccupancyBadCapidvsLS_Subdet.initialize(_name,
                                               "CapID",
                                               hcaldqm::hashfunctions::fSubdet,
@@ -504,21 +505,21 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                              new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                              0);
     _cCapid_BadvsFEDvsLS.initialize(_name,
-				    "CapID",
-				    new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
-				    new hcaldqm::quantity::FEDQuantity(vFEDs),
-				    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
-				    0);
-    
+                                    "CapID",
+                                    new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
+                                    new hcaldqm::quantity::FEDQuantity(vFEDs),
+                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
+                                    0);
+
     _cCapid_BadvsFEDvsLSmod10.initialize(_name,
-					 "CapID",
-					 new hcaldqm::quantity::LumiSection(10),
-                                           new hcaldqm::quantity::FEDQuantity(vFEDs),
-					 new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
-					 0);
+                                         "CapID",
+                                         new hcaldqm::quantity::LumiSection(10),
+                                         new hcaldqm::quantity::FEDQuantity(vFEDs),
+                                         new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
+                                         0);
   }
   if (_ptype != fOffline) {  // hidefed2crate
-      //std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
+    //std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
     std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
     std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
     std::vector<uint32_t> vFEDHF;
@@ -722,7 +723,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
   _cBadTDCCount_depth.book(ib, _emap, _subsystem);
 
   _cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
-  
+
   for (int i = 0; i < 4; ++i) {
     constexpr unsigned int kSize = 32;
     char aux[kSize];
@@ -760,7 +761,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     _xBadCapid.book(_emap);
     _cCapid_BadvsFEDvsLS.book(ib, _subsystem, "BadvsLS");
     _cCapid_BadvsFEDvsLSmod10.book(ib, _subsystem, "BadvsLSmod10");
-    
   }
   if (_ptype == fOnline) {
     _cQ2Q12CutvsLS_FEDHF.book(ib, _emap, _filter_FEDHF, _subsystem);
