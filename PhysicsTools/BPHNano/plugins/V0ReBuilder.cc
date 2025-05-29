@@ -156,18 +156,19 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
     if (!post_vtx_selection_(cand))
       continue;
 
-    reco::BeamSpot beamSpot = *beamspot;
-    TrajectoryStateClosestToPoint theDCAXBS = fitter.fitted_candidate_ttrk().trajectoryStateClosestToPoint(GlobalPoint(beamSpot.position().x(),beamSpot.position().y(),beamSpot.position().z()));
+    const reco::BeamSpot &beamSpot = *beamspot;
+    TrajectoryStateClosestToPoint theDCAXBS = fitter.fitted_candidate_ttrk().trajectoryStateClosestToPoint(
+        GlobalPoint(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z()));
     double DCAB0BS = -99.;
     double DCAB0BSErr = -99.;
 
-    if (theDCAXBS.isValid() == true){
-        DCAB0BS    = theDCAXBS.perigeeParameters().transverseImpactParameter();
-        DCAB0BSErr = theDCAXBS.perigeeError().transverseImpactParameterError();
+    if (theDCAXBS.isValid() == true) {
+      DCAB0BS = theDCAXBS.perigeeParameters().transverseImpactParameter();
+      DCAB0BSErr = theDCAXBS.perigeeError().transverseImpactParameterError();
     }
     cand.addUserFloat("dca", DCAB0BS);
-    cand.addUserFloat("dcaErr", DCAB0BSErr);   
-    
+    cand.addUserFloat("dcaErr", DCAB0BSErr);
+
     cand.addUserFloat("vtx_x", cand.vx());
     cand.addUserFloat("vtx_y", cand.vy());
     cand.addUserFloat("vtx_z", cand.vz());
