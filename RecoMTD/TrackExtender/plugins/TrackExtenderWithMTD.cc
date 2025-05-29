@@ -573,8 +573,6 @@ private:
   edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAToken_;
   edm::EDGetTokenT<MTDTrackingDetSetVector> hitsToken_;
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
-  edm::EDGetTokenT<GlobalPoint> genVtxPositionToken_;
-  edm::EDGetTokenT<float> genVtxTimeToken_;
   edm::EDGetTokenT<VertexCollection> vtxToken_;
 
   const bool updateTraj_, updateExtra_, updatePattern_;
@@ -601,7 +599,6 @@ private:
   const float etlTimeChi2Cut_;
 
   const bool useVertex_;
-  const bool useSimVertex_;
   const float dzCut_;
   const float bsTimeSpread_;
 
@@ -627,15 +624,10 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
       etlChi2Cut_(iConfig.getParameter<double>("etlChi2Cut")),
       etlTimeChi2Cut_(iConfig.getParameter<double>("etlTimeChi2Cut")),
       useVertex_(iConfig.getParameter<bool>("useVertex")),
-      useSimVertex_(iConfig.getParameter<bool>("useSimVertex")),
       dzCut_(iConfig.getParameter<double>("dZCut")),
       bsTimeSpread_(iConfig.getParameter<double>("bsTimeSpread")) {
   if (useVertex_) {
-    if (useSimVertex_) {
-      genVtxPositionToken_ = consumes<GlobalPoint>(iConfig.getParameter<edm::InputTag>("genVtxPositionSrc"));
-      genVtxTimeToken_ = consumes<float>(iConfig.getParameter<edm::InputTag>("genVtxTimeSrc"));
-    } else
-      vtxToken_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxSrc"));
+    vtxToken_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxSrc"));
   }
 
   theEstimator = std::make_unique<Chi2MeasurementEstimator>(estMaxChi2_, estMaxNSigma_);
@@ -685,8 +677,6 @@ void TrackExtenderWithMTDT<TrackCollection>::fillDescriptions(edm::Configuration
   desc.add<edm::InputTag>("trjtrkAssSrc", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("hitsSrc", edm::InputTag("mtdTrackingRecHits"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("offlineBeamSpot"));
-  desc.add<edm::InputTag>("genVtxPositionSrc", edm::InputTag("genParticles:xyz0"));
-  desc.add<edm::InputTag>("genVtxTimeSrc", edm::InputTag("genParticles:t0"));
   desc.add<edm::InputTag>("vtxSrc", edm::InputTag("offlinePrimaryVertices4D"));
   desc.add<bool>("updateTrackTrajectory", true);
   desc.add<bool>("updateTrackExtra", true);
@@ -712,7 +702,6 @@ void TrackExtenderWithMTDT<TrackCollection>::fillDescriptions(edm::Configuration
   desc.add<double>("etlChi2Cut", 50.);
   desc.add<double>("etlTimeChi2Cut", 10.);
   desc.add<bool>("useVertex", false);
-  desc.add<bool>("useSimVertex", false);
   desc.add<double>("dZCut", 0.1);
   desc.add<double>("bsTimeSpread", 0.2);
   descriptions.add("trackExtenderWithMTDBase", desc);
@@ -793,26 +782,15 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   const auto& bs = ev.get(bsToken_);
 
   const Vertex* pv = nullptr;
-  if (useVertex_ && !useSimVertex_) {
+  if (useVertex_) {
     auto const& vtxs = ev.get(vtxToken_);
     if (!vtxs.empty())
       pv = &vtxs[0];
   }
 
-  std::unique_ptr<math::XYZTLorentzVectorF> genPV(nullptr);
-  if (useVertex_ && useSimVertex_) {
-    const auto& genVtxPosition = ev.get(genVtxPositionToken_);
-    const auto& genVtxTime = ev.get(genVtxTimeToken_);
-    genPV = std::make_unique<math::XYZTLorentzVectorF>(
-        genVtxPosition.x(), genVtxPosition.y(), genVtxPosition.z(), genVtxTime);
-  }
-
   float vtxTime = 0.f;
   if (useVertex_) {
-    if (useSimVertex_ && genPV) {
-      vtxTime = genPV->t();
-    } else if (pv)
-      vtxTime = pv->t();  //already in ns
+    vtxTime = pv->t();  //already in ns
   }
 
   std::vector<unsigned> track_indices;
@@ -830,14 +808,11 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
 
     float trackVtxTime = 0.f;
     if (useVertex_) {
-      float dz;
-      if (useSimVertex_)
-        dz = std::abs(track->dz(math::XYZPoint(*genPV)));
-      else
-        dz = std::abs(track->dz(pv->position()));
+      float dz = std::abs(track->dz(pv->position()));
 
-      if (dz < dzCut_)
+      if (dz < dzCut_) {
         trackVtxTime = vtxTime;
+      }
     }
 
     reco::TransientTrack ttrack(track, magfield.product(), gtg_);
