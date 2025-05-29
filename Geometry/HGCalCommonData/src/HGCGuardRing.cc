@@ -20,7 +20,10 @@ HGCGuardRing::HGCGuardRing(const HGCalDDDConstants& hgc)
   c22_ = (v17OrLess_) ? HGCalTypes::c22O : HGCalTypes::c22;
   c27_ = (v17OrLess_) ? HGCalTypes::c27O : HGCalTypes::c27;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "Creating HGCGuardRing with wafer size " << waferSize_ << ", Offsets " << sensorSizeOffset_ << ":" << guardRingOffset_ << ":" << offset_ << ":" << offsetPartial_ << ", mode " << modeUV_ << ", xmax|ymax " << xmax_ << ":" << ymax_ << " and c22:c77 " << c22_ << ":" << c77_;
+  edm::LogVerbatim("HGCSim") << "Creating HGCGuardRing with wafer size " << waferSize_ << ", Offsets "
+                             << sensorSizeOffset_ << ":" << guardRingOffset_ << ":" << offset_ << ":" << offsetPartial_
+                             << ", mode " << modeUV_ << ", xmax|ymax " << xmax_ << ":" << ymax_ << " and c22:c77 "
+                             << c22_ << ":" << c77_;
 #endif
 }
 
@@ -30,7 +33,8 @@ bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int l
     int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
     int partial = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCGuardRing::exclude: Layer " << layer << " wafer " << waferU << ":" << waferV << " index " << index << " partial " << partial;
+    edm::LogVerbatim("HGCSim") << "HGCGuardRing::exclude: Layer " << layer << " wafer " << waferU << ":" << waferV
+                               << " index " << index << " partial " << partial;
 #endif
     if (partial == HGCalTypes::WaferFull) {
       double dx = std::abs(point.x());
@@ -43,7 +47,9 @@ bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int l
         check = (dx > (sqrt3_ * (2 * ymax_ - dy)));
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "HGCGuardRing::exclude: Point " << point << " zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " partial type " << partial << ":" << HGCalTypes::WaferFull << " x " << dx << ":" << xmax_ << " y " << dy << ":" << ymax_
+      edm::LogVerbatim("HGCSim") << "HGCGuardRing::exclude: Point " << point << " zside " << zside << " layer " << layer
+                                 << " wafer " << waferU << ":" << waferV << " partial type " << partial << ":"
+                                 << HGCalTypes::WaferFull << " x " << dx << ":" << xmax_ << " y " << dy << ":" << ymax_
                                  << " check " << check;
 #endif
     } else if (partial > 0) {
@@ -57,7 +63,8 @@ bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int l
         check = !(insidePolygon(point.x(), point.y(), wxy));
 #ifdef EDM_ML_DEBUG
         std::ostringstream st1;
-        st1 << "HGCGuardRing::exclude: Point " << point << " Partial/orient/zside/size/offset " << partial << ":" << orient << ":" << zside << ":" << waferSize_ << offset_ << " with " << wxy.size() << " points:";
+        st1 << "HGCGuardRing::exclude: Point " << point << " Partial/orient/zside/size/offset " << partial << ":"
+            << orient << ":" << zside << ":" << waferSize_ << offset_ << " with " << wxy.size() << " points:";
         for (unsigned int k = 0; k < wxy.size(); ++k)
           st1 << " (" << wxy[k].first << ", " << wxy[k].second << ")";
         edm::LogVerbatim("HGCSim") << st1.str();
@@ -69,7 +76,9 @@ bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int l
         check = !(insidePolygon(point.x(), point.y(), wxy));
 #ifdef EDM_ML_DEBUG
         std::ostringstream st1;
-        st1 << "HGCGuardRing::exclude: Point " << point << " Partial/frontback/orient/zside/placeemnt/size/offset " << partial << ":" << frontBack << ":" << orient << ":" << zside << ":" << placement << ":" << waferSize_ << offset_ << " with " << wxy.size() << " points:";
+        st1 << "HGCGuardRing::exclude: Point " << point << " Partial/frontback/orient/zside/placeemnt/size/offset "
+            << partial << ":" << frontBack << ":" << orient << ":" << zside << ":" << placement << ":" << waferSize_
+            << offset_ << " with " << wxy.size() << " points:";
         for (unsigned int k = 0; k < wxy.size(); ++k)
           st1 << " (" << wxy[k].first << ", " << wxy[k].second << ")";
         edm::LogVerbatim("HGCSim") << st1.str();
@@ -89,7 +98,8 @@ bool HGCGuardRing::excludePartial(G4ThreeVector& point, int zside, int frontBack
     int partial = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
     int type = HGCalWaferType::getType(index, hgcons_.getParameter()->waferInfoMap_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCGuardRing::excludePartial: Layer " << layer << " wafer " << waferU << ":" << waferV << " index " << index << " partial " << partial << " type " << type;
+    edm::LogVerbatim("HGCSim") << "HGCGuardRing::excludePartial: Layer " << layer << " wafer " << waferU << ":"
+                               << waferV << " index " << index << " partial " << partial << " type " << type;
 #endif
     if (partial == HGCalTypes::WaferFull) {
       return (check);
@@ -101,26 +111,31 @@ bool HGCGuardRing::excludePartial(G4ThreeVector& point, int zside, int frontBack
       double dx = point.x();
       double dy = point.y();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "HGCGuardRing::excludePartial: zside " << zside << " frontBack " << frontBack << " orient " << orient << " placement " << placement << " dx " << dx << " dy " << dy;
+      edm::LogVerbatim("HGCSim") << "HGCGuardRing::excludePartial: zside " << zside << " frontBack " << frontBack
+                                 << " orient " << orient << " placement " << placement << " dx " << dx << " dy " << dy;
 #endif
       if (type > 0) {
         for (int ii = HGCalTypes::WaferPartLDOffset;
              ii < (HGCalTypes::WaferPartLDOffset + HGCalTypes::WaferPartLDCount);
              ii++) {
-          std::array<double, 4> criterion = HGCalWaferMask::maskCut(ii, placement, waferSize_, offsetPartial_, v17OrLess_);
+          std::array<double, 4> criterion =
+              HGCalWaferMask::maskCut(ii, placement, waferSize_, offsetPartial_, v17OrLess_);
           check |= std::abs(criterion[0] * dy + criterion[1] * dx + criterion[2]) < criterion[3];
         }
       } else {
         for (int ii = HGCalTypes::WaferPartHDOffset;
              ii < (HGCalTypes::WaferPartHDOffset + HGCalTypes::WaferPartHDCount);
              ii++) {
-          std::array<double, 4> criterion = HGCalWaferMask::maskCut(ii, placement, waferSize_, offsetPartial_, v17OrLess_);
+          std::array<double, 4> criterion =
+              HGCalWaferMask::maskCut(ii, placement, waferSize_, offsetPartial_, v17OrLess_);
           check |= std::abs(criterion[0] * dy + criterion[1] * dx + criterion[2]) < criterion[3];
         }
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCGuardRing::excludePartial: Point " << point << " zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " partial type " << partial << " type " << type << " check " << check;
+    edm::LogVerbatim("HGCSim") << "HGCGuardRing::excludePartial: Point " << point << " zside " << zside << " layer "
+                               << layer << " wafer " << waferU << ":" << waferV << " partial type " << partial
+                               << " type " << type << " check " << check;
 #endif
   }
   return check;

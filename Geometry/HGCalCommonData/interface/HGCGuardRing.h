@@ -24,7 +24,7 @@ private:
   static constexpr std::array<double, 12> cos_1 = {{0.5, -0.5, -1.0, -0.5, 0.5, 1.0, -0.5, 0.5, 1.0, 0.5, -0.5, -1.0}};
   static constexpr std::array<double, 12> cot_1 = {
       {sqrt3_, -sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0}};
-  double offset_, offsetPartial_,  xmax_, ymax_, c22_, c27_;
+  double offset_, offsetPartial_, xmax_, ymax_, c22_, c27_;
 };
 
 #endif  // HGCGuardRing_h

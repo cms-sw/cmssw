@@ -177,7 +177,7 @@ void HGCalMouseBiteTester::analyze(const edm::Event& iEvent, const edm::EventSet
 
       if (guardRing_.excludePartial(point, zside, frontBack, layer_, waferU_, waferV_)) {
         guard_ring << xi << "," << yi << std::endl;
-//      guard_ring_partial << xi << "," << yi << std::endl;
+        //      guard_ring_partial << xi << "," << yi << std::endl;
       } else if (mouseBite_.exclude(point, zside, layer_, waferU_, waferV_)) {
         mouse_bite << xi << "," << yi << std::endl;
       } else {
