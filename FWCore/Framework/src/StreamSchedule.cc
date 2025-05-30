@@ -676,7 +676,7 @@ namespace edm {
           ++it;
         }
       }
-      if (not unusedBranches.empty()) {
+      if (not unusedBranches.empty() and streamID_.value() == 0) {
         LogWarning l("UnusedProductsForCanDeleteEarly");
         l << "The following products in the 'canDeleteEarly' list are not used in this job and will be ignored.\n"
              " If possible, remove the producer from the job.";
