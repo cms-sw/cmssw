@@ -32,6 +32,7 @@ namespace hgcal {
     };
     RecHitTools()
         : geom_(nullptr),
+          eeLastLayer_(0),
           eeOffset_(0),
           fhOffset_(0),
           bhFirstLayer_(0),
@@ -92,7 +93,18 @@ namespace hgcal {
     unsigned int lastLayerFH() const { return fhLastLayer_; }
     unsigned int firstLayerBH() const { return bhFirstLayer_; }
     unsigned int lastLayerBH() const { return bhLastLayer_; }
-    unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : bhLastLayer_); }
+    // unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : bhLastLayer_); }
+    unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : getNumberOfLayers()); }
+    unsigned int getNumberOfLayers() const {
+      unsigned int numberOfLayers = 0;
+      for (unsigned int i = 0; i < theFirstLayersOfComp_.size(); ++i)
+      {
+        numberOfLayers = std::max(numberOfLayers, theFirstLayersOfComp_[i] + theNumberOfLayersOfComp_[i] - 1);
+      }
+      std::cout << " RecHitTools::getNumberOfLayers() " << numberOfLayers << std::endl;
+      return numberOfLayers;
+    }
+
     unsigned int lastLayerECAL() const { return ecalBarrelLastLayer_; }
     unsigned int lastLayerBarrel() const { return hcalBarrelLastLayer_; }
     std::pair<uint32_t, uint32_t> firstAndLastLayer(DetId::Detector det, int subdet) const;
@@ -112,11 +124,14 @@ namespace hgcal {
   private:
     const CaloGeometry* geom_;
     void checkGeometry() const;
-    unsigned int eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_, noseLastLayer_;
+    unsigned int eeLastLayer_, eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_, noseLastLayer_;
     unsigned int hcalBarrelFirstLayer_, hcalBarrelLastLayer_, ecalBarrelFirstLayer_, ecalBarrelLastLayer_;
     unsigned int maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
     int geometryType_;
     int bhMaxIphi_;
+    std::vector<unsigned int> theFirstLayersOfComp_ = {};
+    std::vector<unsigned int> theNumberOfLayersOfComp_ = {};
+
   };
 }  // namespace hgcal
 
