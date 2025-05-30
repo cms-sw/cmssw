@@ -96,6 +96,12 @@ private:
   const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryESToken_;
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyESToken_;
+  static constexpr double caloBoundaryPerp2_ = 128. * 128.;
+  static constexpr double caloBoundaryZ_ = 302.;
+  static constexpr double minParticleLifetime_ = 1E-10;
+  static constexpr double minThickness_ = 1E-10;
+  static constexpr double maxParticleTime_ = 25;
+  static constexpr double maxParticleTime2_ = 50;
 };
 
 const std::string FastSimProducer::MESSAGECATEGORY = "FastSimulation";
@@ -239,7 +245,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // The condition below (R<128, z<302) makes sure that the particle geometrically is outside the tracker boundaries
     // -----------------------------
 
-    if (particle->position().Perp2() < 128. * 128. && std::abs(particle->position().Z()) < 302.) {
+    if (particle->position().Perp2() < caloBoundaryPerp2_ && std::abs(particle->position().Z()) < caloBoundaryZ_) {
       // move the particle through the layers
       fastsim::LayerNavigator layerNavigator(geometry_);
       const fastsim::SimplifiedGeometry* layer = nullptr;
@@ -260,7 +266,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
 
         // break after 25 ns: only happens for particles stuck in loops
-        if (particle->position().T() > 25) {
+        if (particle->position().T() > maxParticleTime_) {
           layer = nullptr;
           // particle no longer is on a layer
           particle->resetOnLayer();
@@ -269,7 +275,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         // perform interaction between layer and particle
         // do only if there is actual material
-        if (layer->getThickness(particle->position(), particle->momentum()) > 1E-10) {
+        if (layer->getThickness(particle->position(), particle->momentum()) > minThickness_) {
           int nSecondaries = 0;
           // loop on interaction models
           for (fastsim::InteractionModel* interactionModel : layer->getInteractionModels()) {
@@ -295,7 +301,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
 
       // do decays
-      if (!particle->isStable() && particle->remainingProperLifeTimeC() < 1E-10) {
+      if (!particle->isStable() && particle->remainingProperLifeTimeC() < minParticleLifetime_) {
         LogDebug(MESSAGECATEGORY) << "Decaying particle...";
         std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
         if (useFastSimDecayer_)
@@ -316,13 +322,13 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // some part of the calorimetry but this is how the code works...
     // -----------------------------
 
-    if (particle->position().Perp2() >= 128. * 128. || std::abs(particle->position().Z()) >= 302.) {
+    if (particle->position().Perp2() >= caloBoundaryPerp2_ || std::abs(particle->position().Z()) >= caloBoundaryZ_) {
       LogDebug(MESSAGECATEGORY) << "\n   moving particle to calorimetry: " << *particle;
 
       // create FSimTrack (this is the object the old propagation uses)
       myFSimTracks.push_back(createFSimTrack(particle.get(), &particleManager, pdt));
       // particle was decayed
-      if (!particle->isStable() && particle->remainingProperLifeTimeC() < 1E-10) {
+      if (!particle->isStable() && particle->remainingProperLifeTimeC() < minParticleLifetime_) {
         continue;
       }
 
@@ -407,7 +413,8 @@ FSimTrack FastSimProducer::createFSimTrack(fastsim::Particle* particle,
     LogDebug(MESSAGECATEGORY) << "   new state: " << *particle;
 
     // break after 25 ns: only happens for particles stuck in loops
-    if (particle->position().T() > 50) {
+    // 50 ns found to be more numerically stable here
+    if (particle->position().T() > maxParticleTime2_) {
       caloLayer = nullptr;
       break;
     }
@@ -419,7 +426,7 @@ FSimTrack FastSimProducer::createFSimTrack(fastsim::Particle* particle,
     RawParticle PP = makeParticle(&particleTable, particle->pdgId(), particle->momentum(), particle->position());
 
     // no material
-    if (caloLayer->getThickness(particle->position(), particle->momentum()) < 1E-10) {
+    if (caloLayer->getThickness(particle->position(), particle->momentum()) < minThickness_) {
       // unfortunately needed for CalorimetryManager
       if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::ECAL) {
         if (!myFSimTrack.onEcal()) {
@@ -508,7 +515,7 @@ FSimTrack FastSimProducer::createFSimTrack(fastsim::Particle* particle,
   // do decays
   // don't have to worry about daughters if particle already within the calorimetry
   // since they will be rejected by the vertex cut of the ParticleFilter
-  if (!particle->isStable() && particle->remainingProperLifeTimeC() < 1E-10) {
+  if (!particle->isStable() && particle->remainingProperLifeTimeC() < minParticleLifetime_) {
     LogDebug(MESSAGECATEGORY) << "Decaying particle...";
     std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
     if (useFastSimDecayer_)
