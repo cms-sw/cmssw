@@ -1,4 +1,5 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/corrector.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #include <iostream>
 #include <sstream>
@@ -33,7 +34,7 @@
 
 l1tpf::corrector::corrector(
     const std::string &filename, float emfMax, bool debug, bool emulate, l1tpf::corrector::EmulationMode emulationMode)
-    : emfMax_(emfMax), emulate_(emulate), emulationMode_(emulationMode) {
+    : emfMax_(emfMax), emulate_(emulate), debug_(debug), emulationMode_(emulationMode) {
   if (!filename.empty())
     init_(filename, "", debug, emulate);
 }
@@ -44,14 +45,14 @@ l1tpf::corrector::corrector(const std::string &filename,
                             bool debug,
                             bool emulate,
                             l1tpf::corrector::EmulationMode emulationMode)
-    : emfMax_(emfMax), emulate_(emulate), emulationMode_(emulationMode) {
+    : emfMax_(emfMax), emulate_(emulate), debug_(debug), emulationMode_(emulationMode) {
   if (!filename.empty())
     init_(filename, directory, debug, emulate);
 }
 
 l1tpf::corrector::corrector(
     TDirectory *src, float emfMax, bool debug, bool emulate, l1tpf::corrector::EmulationMode emulationMode)
-    : emfMax_(emfMax), emulate_(emulate), emulationMode_(emulationMode) {
+    : emfMax_(emfMax), emulate_(emulate), debug_(debug), emulationMode_(emulationMode) {
   init_(src, debug);
 }
 
@@ -286,13 +287,10 @@ float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) const {
       throw std::runtime_error(ss.str());
 #endif
     }
-    // std::cout << "pt: " << pt << " emPt: " << emPt << " eta: " << eta << std::endl;
 
     ptcorr = std::min<float>(graph->Eval(total), 4 * total);
   } else {  // emulation - read from the pt binned histogram
     TH1 *hist = correctionsEmulated_[ieta * nemf_ + iemf];
-    // std::cout << "pt: " << pt << " emPt: " << emPt << " eta: " << eta << std::endl;
-    // std::cout << "ieta: " << ieta << " iemf: " << iemf << std::endl;
     if (!hist) {
 #ifdef CMSSW_GIT_HASH
       throw cms::Exception("RuntimeError")
@@ -308,8 +306,9 @@ float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) const {
     if (emulationMode_ == l1tpf::corrector::EmulationMode::Correction) {
       ptcorr = ptcorr * pt;
     }
-    // FIXME: add debug flag
-    // std::cout << "[EMU] ieta: " << ieta << " iemf: " << iemf << " ipt: " << ipt-1 << "corr: " << hist->GetBinContent(ipt) << " ptcorr: " << ptcorr << std::endl;
+    if (debug_)
+      dbgCout() << "[EMU] ieta: " << ieta << " iemf: " << iemf << " ipt: " << ipt - 1
+                << "corr: " << hist->GetBinContent(ipt) << " ptcorr: " << ptcorr << std::endl;
   }
   return ptcorr;
 }

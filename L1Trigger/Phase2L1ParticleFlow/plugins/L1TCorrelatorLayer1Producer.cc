@@ -385,9 +385,6 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
     produces<std::vector<unsigned>>(std::string("vecNPuppi") + l1ct::OutputRegion::objTypeName[i]);
   }
 
-  produces<std::vector<l1t::PFCluster>>("decodedHadPFClusters");
-  produces<std::vector<l1t::PFCluster>>("decodedEmPFClusters");
-
   initSectorsAndRegions(iConfig);
 }
 
@@ -738,6 +735,7 @@ void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
   float em_frac_tot = c.hOverE() < 0 ? 0. : 1. / (c.hOverE() + 1.);
   ap_uint<8> w_emfrac_tot = std::min(round(em_frac_tot * 256), float(255.));
 
+  // LSB defintions according to the HGC/Correlator interface document
   static constexpr float ETAPHI_LSB = M_PI / 720;
   static constexpr float SIGMAZZ_LSB = 778.098 / (1 << 7);
   static constexpr float SIGMAPHIPHI_LSB = 0.12822 / (1 << 7);

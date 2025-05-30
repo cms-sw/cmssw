@@ -178,7 +178,7 @@ l1ct::TkEgCID_EE_v0::TkEgCID_EE_v0(const l1ct::PFTkEGAlgoEmuConfig::CompIDParame
 #else
   auto resolvedFileName = params.conifer_model_;
 #endif
-  model_ = new conifer::BDT<bdt_feature_t, bdt_score_t, false>(resolvedFileName);
+  model_ = std::make_unique<conifer::BDT<bdt_feature_t, bdt_score_t, false>>(resolvedFileName);
 }
 
 id_score_t l1ct::TkEgCID_EE_v0::compute_score(const CompositeCandidate &cand,
@@ -217,7 +217,7 @@ l1ct::TkEgCID_EE_v1::TkEgCID_EE_v1(const l1ct::PFTkEGAlgoEmuConfig::CompIDParame
 #else
   auto resolvedFileName = params.conifer_model_;
 #endif
-  model_ = new conifer::BDT<bdt_feature_t, bdt_score_t, false>(resolvedFileName);
+  model_ = std::make_unique<conifer::BDT<bdt_feature_t, bdt_score_t, false>>(resolvedFileName);
 }
 
 id_score_t l1ct::TkEgCID_EE_v1::compute_score(const CompositeCandidate &cand,
@@ -274,7 +274,7 @@ l1ct::TkEgCID_EB_v0::TkEgCID_EB_v0(const l1ct::PFTkEGAlgoEmuConfig::CompIDParame
 #else
   auto resolvedFileName = params.conifer_model_;
 #endif
-  model_ = new conifer::BDT<bdt_feature_t, bdt_score_t, false>(resolvedFileName);
+  model_ = std::make_unique<conifer::BDT<bdt_feature_t, bdt_score_t, false>>(resolvedFileName);
 }
 
 id_score_t l1ct::TkEgCID_EB_v0::compute_score(const CompositeCandidate &cand,
@@ -341,7 +341,7 @@ l1ct::TkEgCID_EB_v1::TkEgCID_EB_v1(const l1ct::PFTkEGAlgoEmuConfig::CompIDParame
 #else
   auto resolvedFileName = params.conifer_model_;
 #endif
-  model_ = new conifer::BDT<bdt_feature_t, bdt_score_t, false>(resolvedFileName);
+  model_ = std::make_unique<conifer::BDT<bdt_feature_t, bdt_score_t, false>>(resolvedFileName);
 }
 
 id_score_t l1ct::TkEgCID_EB_v1::compute_score(const CompositeCandidate &cand,

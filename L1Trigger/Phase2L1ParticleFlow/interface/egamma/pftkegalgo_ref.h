@@ -100,36 +100,40 @@ namespace l1ct {
 
     PFTkEGAlgoEmuConfig(const edm::ParameterSet &iConfig);
     PFTkEGAlgoEmuConfig(
-        unsigned int nTrack,
-        unsigned int nTrack_in,
-        unsigned int nEmCalo_in,
-        unsigned int nEmOut,
-        bool filterHwQuality,
-        bool doBremRecovery,
-        bool writeBeforeBremRecovery = false,
-        int caloHwQual = 4,
-        bool doEndcapHwQual = false,
-        float emClusterPtMin = 2.,
-        float dEtaMaxBrem = 0.02,
-        float dPhiMaxBrem = 0.1,
-        const std::vector<double> &absEtaBoundaries = {0.0, 1.5},
-        const std::vector<double> &dEtaValues = {0.015, 0.01},
-        const std::vector<double> &dPhiValues = {0.07, 0.07},
-        float trkQualityPtMin = 10.,
-        unsigned int algo = 0,
-        unsigned int nCompCandPerCluster = 4,
-        bool writeEgSta = false,
+        unsigned int nTrack,                                       // Number of tracks to consider
+        unsigned int nTrack_in,                                    // Number of tracks for EG input
+        unsigned int nEmCalo_in,                                   // Number of EM calos for EG input
+        unsigned int nEmOut,                                       // Number of EM objects at EG output
+        bool filterHwQuality,                                      // Enable hardware quality filtering
+        bool doBremRecovery,                                       // Enable brem recovery
+        bool writeBeforeBremRecovery = false,                      // Write objects before brem recovery
+        int caloHwQual = 4,                                        // Calo hardware quality threshold (default: 4)
+        bool doEndcapHwQual = false,                               // Use endcap hardware quality
+        float emClusterPtMin = 2.,                                 // Minimum EM cluster pt [GeV]
+        float dEtaMaxBrem = 0.02,                                  // Max delta-eta for brem recovery
+        float dPhiMaxBrem = 0.1,                                   // Max delta-phi for brem recovery
+        const std::vector<double> &absEtaBoundaries = {0.0, 1.5},  // Eta region boundaries
+        const std::vector<double> &dEtaValues = {0.015, 0.01},     // Delta-eta cuts per region
+        const std::vector<double> &dPhiValues = {0.07, 0.07},      // Delta-phi cuts per region
+        float trkQualityPtMin = 10.,                               // Minimum track pt for quality [GeV]
+        unsigned int algo = 0,                                     // Algorithm selector (see enum Algo)
+        unsigned int nCompCandPerCluster = 4,                      // Max composite candidates per cluster
+        bool writeEgSta = false,                                   // Write EG standalone objects
+        // Track isolation params for tkEle: min-pt, dZ, dRMin, dRMax
         const IsoParameters &tkIsoParams_tkEle = {2., 0.6, 0.03, 0.2},
+        // Track isolation params for tkEm: min-pt, dZ, dRMin, dRMax
         const IsoParameters &tkIsoParams_tkEm = {2., 0.6, 0.07, 0.3},
+        // PF isolation params for tkEle: min-pt, dZ, dRMin, dRMax
         const IsoParameters &pfIsoParams_tkEle = {1., 0.6, 0.03, 0.2},
+        // PF isolation params for tkEm: min-pt, dZ, dRMin, dRMax
         const IsoParameters &pfIsoParams_tkEm = {1., 0.6, 0.07, 0.3},
-        bool doTkIso = true,
-        bool doPfIso = false,
-        EGIsoEleObjEmu::IsoType hwIsoTypeTkEle = EGIsoEleObjEmu::IsoType::TkIso,
-        EGIsoObjEmu::IsoType hwIsoTypeTkEm = EGIsoObjEmu::IsoType::TkIsoPV,
+        bool doTkIso = true,                                                      // Enable track isolation
+        bool doPfIso = false,                                                     // Enable PF isolation
+        EGIsoEleObjEmu::IsoType hwIsoTypeTkEle = EGIsoEleObjEmu::IsoType::TkIso,  // Isolation type for tkEle
+        EGIsoObjEmu::IsoType hwIsoTypeTkEm = EGIsoObjEmu::IsoType::TkIsoPV,       // Isolation type for tkEm
+        // Composite ID params: pt-bins, loose-WP, pt-bins tight-WP, model, dPhi_max, dEta_max
         const CompIDParameters &compIDparams = {{0.}, {-4}, {0.}, {0.214844}, "compositeID.json", 0.2, 0.2},
-        int debug = 0)
-
+        int debug = 0)  // Debug level
         : nTRACK(nTrack),
           nTRACK_EGIN(nTrack_in),
           nEMCALO_EGIN(nEmCalo_in),
@@ -277,7 +281,7 @@ namespace l1ct {
     typedef ap_fixed<12, 3, AP_RND_CONV, AP_SAT> bdt_score_t;
 
   private:
-    conifer::BDT<bdt_feature_t, bdt_score_t, false> *model_;
+    std::unique_ptr<conifer::BDT<bdt_feature_t, bdt_score_t, false>> model_;
   };
 
   class TkEgCID_EE_v1 : public TkEGEleAssociationModel {
@@ -293,7 +297,7 @@ namespace l1ct {
     typedef ap_fixed<30, 20, AP_RND_CONV, AP_SAT> bdt_score_t;
 
   private:
-    conifer::BDT<bdt_feature_t, bdt_score_t, false> *model_;
+    std::unique_ptr<conifer::BDT<bdt_feature_t, bdt_score_t, false>> model_;
   };
 
   class TkEgCID_EB_v0 : public TkEGEleAssociationModel {
@@ -309,7 +313,7 @@ namespace l1ct {
     typedef ap_fixed<12, 4, AP_RND_CONV, AP_SAT> bdt_score_t;
 
   private:
-    conifer::BDT<bdt_feature_t, bdt_score_t, false> *model_;
+    std::unique_ptr<conifer::BDT<bdt_feature_t, bdt_score_t, false>> model_;
   };
 
   class TkEgCID_EB_v1 : public TkEGEleAssociationModel {
@@ -329,7 +333,7 @@ namespace l1ct {
       return inf + (x - min_x) / pow(2, bitshift);
     }
 
-    conifer::BDT<bdt_feature_t, bdt_score_t, false> *model_;
+    std::unique_ptr<conifer::BDT<bdt_feature_t, bdt_score_t, false>> model_;
   };
 
   class PFTkEGAlgoEmulator {

@@ -22,6 +22,7 @@ namespace l1tpf {
           nemf_(0),
           emfMax_(-1),
           emulate_(false),
+          debug_(false),
           emulationMode_(l1tpf::corrector::EmulationMode::CorrectedPt) {}
     corrector(const std::string &iFile,
               float emfMax = -1,

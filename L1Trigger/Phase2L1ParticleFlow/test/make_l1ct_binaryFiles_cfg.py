@@ -46,8 +46,8 @@ process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
 )
 
-process.load('Configuration.Geometry.GeometryExtendedRun4D95Reco_cff')
-process.load('Configuration.Geometry.GeometryExtendedRun4D95_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff') # needed to read HCal TPs
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -187,7 +187,6 @@ if not args.patternFilesOFF:
     process.l1tLayer1HGCalNoTK.patternWriters = cms.untracked.VPSet(*hgcalNoTKWriterConfigs)
     process.l1tLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
 
-process.l1tSC4NGJetProducer.l1tSC4NGJetModelPath = cms.string(os.environ['CMSSW_BASE']+"/src/L1TSC4NGJetModel/L1TSC4NGJetModel_v0")
 process.l1tSC4NGJetProducer.jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator")
 
 process.runPF = cms.Path( 

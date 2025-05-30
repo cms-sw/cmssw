@@ -68,8 +68,8 @@ CompositeParametersTkEleVec = cms.VPSet(
             values=cms.vdouble(-1)
             ),
         tight_wp=cms.PSet(
-            bins=cms.vdouble(0, 5, 10, 20, 30, 50),
-            values=cms.vdouble(0.17, 0.018, -0.08, -0.11, -0.215, -0.15),
+            bins=cms.vdouble(0, 5, 10, 30),
+            values=cms.vdouble(0.17, 0.018, -0.08, -0.11),
         ),
         dPhi_max = cms.double(0.3),
         dEta_max = cms.double(0.03),
