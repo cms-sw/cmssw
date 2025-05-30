@@ -52,7 +52,7 @@ public:
 
   // Does the real job
   void initialize(RandomEngineAndDistribution const* random);
-  void reconstructTrack(FSimTrack& myTrack, RandomEngineAndDistribution const*);
+  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
   void reconstruct(RandomEngineAndDistribution const*);
 
   // Return the address of the Calorimeter

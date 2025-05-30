@@ -167,7 +167,7 @@ void CalorimetryManager::initialize(RandomEngineAndDistribution const* random) {
   clean();
 }
 
-void CalorimetryManager::reconstructTrack(FSimTrack& myTrack, RandomEngineAndDistribution const* random) {
+void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const* random) {
   int pid = abs(myTrack.type());
 
   if (debug_) {

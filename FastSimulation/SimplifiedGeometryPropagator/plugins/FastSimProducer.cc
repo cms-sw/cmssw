@@ -70,9 +70,10 @@ private:
   void beginStream(edm::StreamID id) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
-  virtual FSimTrack createFSimTrack(fastsim::Particle* particle,
-                                    fastsim::ParticleManager* particleManager,
-                                    HepPDT::ParticleDataTable const& particleTable);
+  virtual void createFSimTrack(fastsim::Particle* particle,
+                               fastsim::ParticleManager* particleManager,
+                               HepPDT::ParticleDataTable const& particleTable,
+                               std::vector<FSimTrack>& myFSimTracks);
 
   edm::EDGetTokenT<edm::HepMCProduct> genParticlesToken_;  //!< Token to get the genParticles
   fastsim::Geometry geometry_;                             //!< The definition of the tracker according to python config
@@ -326,7 +327,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       LogDebug(MESSAGECATEGORY) << "\n   moving particle to calorimetry: " << *particle;
 
       // create FSimTrack (this is the object the old propagation uses)
-      myFSimTracks.push_back(createFSimTrack(particle.get(), &particleManager, pdt));
+      createFSimTrack(particle.get(), &particleManager, pdt, myFSimTracks);
       // particle was decayed
       if (!particle->isStable() && particle->remainingProperLifeTimeC() < minParticleLifetime_) {
         continue;
@@ -356,7 +357,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Calorimetry Manager
   // -----------------------------
   if (simulateCalorimetry_) {
-    for (auto myFSimTrack : myFSimTracks) {
+    for (const auto& myFSimTrack : myFSimTracks) {
       myCalorimetry_->reconstructTrack(myFSimTrack, randomEngine_.get());
     }
   }
@@ -389,10 +390,12 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void FastSimProducer::endStream() { randomEngine_.reset(); }
 
-FSimTrack FastSimProducer::createFSimTrack(fastsim::Particle* particle,
-                                           fastsim::ParticleManager* particleManager,
-                                           HepPDT::ParticleDataTable const& particleTable) {
-  FSimTrack myFSimTrack(particle->pdgId(),
+void FastSimProducer::createFSimTrack(fastsim::Particle* particle,
+                                      fastsim::ParticleManager* particleManager,
+                                      HepPDT::ParticleDataTable const& particleTable,
+                                      std::vector<FSimTrack>& myFSimTracks) {
+  auto& myFSimTrack = myFSimTracks.emplace_back(
+                        particle->pdgId(),
                         particleManager->getSimTrack(particle->simTrackIndex()).momentum(),
                         particle->simVertexIndex(),
                         particle->genParticleIndex(),
@@ -523,8 +526,6 @@ FSimTrack FastSimProducer::createFSimTrack(fastsim::Particle* particle,
     LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
     particleManager->addSecondaries(particle->position(), particle->simTrackIndex(), secondaries);
   }
-
-  return myFSimTrack;
 }
 
 DEFINE_FWK_MODULE(FastSimProducer);
