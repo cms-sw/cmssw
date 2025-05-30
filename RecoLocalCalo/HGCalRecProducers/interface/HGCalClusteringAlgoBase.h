@@ -5,10 +5,16 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalPFCuts.h"
 
 // C/C++ headers
 #include <vector>
@@ -53,6 +59,7 @@ public:
   virtual ~HGCalClusteringAlgoBase() {}
 
   virtual void populate(const HGCRecHitCollection &hits) = 0;
+  virtual void populate(const reco::PFRecHitCollection &hits) = 0;
   virtual void makeClusters() = 0;
   virtual std::vector<reco::BasicCluster> getClusters(bool) = 0;
   virtual void reset() = 0;
@@ -73,6 +80,8 @@ public:
     algoId_ = algo;
     isNose_ = isNose;
   }
+  virtual void setThresholds(edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>,
+                             edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd>){};
 
   //max number of layers
   unsigned int maxlayer_;
