@@ -1,6 +1,7 @@
 #ifndef FWCore_AbstractServices_IntrusiveMonitorBase_h
 #define FWCore_AbstractServices_IntrusiveMonitorBase_h
 
+#include <string>
 #include <string_view>
 
 namespace edm {
@@ -13,9 +14,11 @@ namespace edm {
     IntrusiveMonitorBase& operator=(IntrusiveMonitorBase&&) = delete;
     virtual ~IntrusiveMonitorBase();
 
+    template <typename T>
+      requires std::is_same_v<T, std::string> or std::is_same_v<T, std::string_view>
     class Guard {
     public:
-      Guard(IntrusiveMonitorBase& mon, std::string_view name) : monitor_(mon), name_(name) { monitor_.start(); }
+      Guard(IntrusiveMonitorBase& mon, T name) : monitor_(mon), name_(std::move(name)) { monitor_.start(); }
       Guard(Guard const&) = delete;
       Guard& operator=(Guard const&) = delete;
       Guard(Guard&&) = delete;
@@ -25,10 +28,18 @@ namespace edm {
 
     private:
       IntrusiveMonitorBase& monitor_;
-      std::string_view name_;
+      T name_;
     };
 
-    Guard startMonitoring(std::string_view name) { return Guard(*this, name); }
+    auto startMonitoring(std::string_view name) { return Guard<std::string_view>(*this, name); }
+
+    // direct std::string&& would be ambiguous for C-string literals
+    // without is_rvalue_reference this overload would match for lvalue std::string
+    template <typename T>
+      requires std::is_same_v<std::remove_cvref_t<T>, std::string> and std::is_rvalue_reference_v<T&&>
+    auto startMonitoring(T&& name) {
+      return Guard<std::string>(*this, std::move(name));
+    }
 
   private:
     virtual void start() = 0;
