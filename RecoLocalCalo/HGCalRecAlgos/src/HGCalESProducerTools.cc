@@ -74,6 +74,7 @@ namespace hgcal {
       ex << "Could not find matching key for '" << fedid << "' in '" << name << "'! Returning first key '" << matchedkey
          << "'...";
       ex.addContext("Calling hgcal::search_fedkey()");
+      throw ex;
     } else {
       edm::LogInfo("search_fedkey") << "search_fedkey: Matched module='" << fedid << "' to fedkey='" << matchedkey
                                     << "'";
@@ -92,6 +93,18 @@ namespace hgcal {
       if (not data[firstkey].contains(key)) {
         edm::LogWarning("checkkeys") << " JSON is missing key '" << key << "' for " << firstkey << "!"
                                      << " Please check file " << fname;
+        iscomplete = false;
+      }
+    }
+    return iscomplete;
+  }
+
+  // @short check if JSON data contains key
+  bool check_keys(const json& data, const std::vector<std::string>& keys, const std::string& fname) {
+    bool iscomplete = true;
+    for (auto const& key : keys) {
+      if (not data.contains(key)) {
+        edm::LogWarning("checkkeys") << " JSON is missing key '" << key << "'! Please check file " << fname;
         iscomplete = false;
       }
     }
