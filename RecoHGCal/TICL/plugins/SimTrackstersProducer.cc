@@ -248,6 +248,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   if (!layerClustersHandle.isValid() || !layerClustersTimesHandle.isValid() || !inputClusterMaskHandle.isValid()) {
     edm::LogWarning("SimTrackstersProducer") << "Missing input collections. Producing empty outputs.";
 
+    evt.put(std::move(result));
     evt.put(std::move(result_ticlCandidates));
     evt.put(std::move(output_mask));
     evt.put(std::move(result_fromCP), "fromCPs");
@@ -280,7 +281,22 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   evt.getByToken(trackingParticleToken_, trackingParticles_h);
   edm::Handle<std::vector<reco::Track>> recoTracks_h;
   evt.getByToken(recoTracksToken_, recoTracks_h);
-  const auto& TPtoRecoTrackMap = evt.get(associatormapStRsToken_);
+
+  //TP to reco track map
+  const auto TPtoRecoTrackMapHandle = evt.getHandle(associatormapStRsToken_);
+  if (!TPtoRecoTrackMapHandle.isValid()) {
+    edm::LogWarning("SimTrackstersProducer") << "Missing TP->RecoTrack association.";
+    evt.put(std::move(result));
+    evt.put(std::move(result_ticlCandidates));
+    evt.put(std::move(output_mask));
+    evt.put(std::move(result_fromCP), "fromCPs");
+    evt.put(std::move(resultPU), "PU");
+    evt.put(std::move(output_mask_fromCP), "fromCPs");
+    evt.put(std::move(cpToSc_SimTrackstersMap));
+    return;
+  }
+  const auto& TPtoRecoTrackMap = *TPtoRecoTrackMapHandle;
+
   const auto& simTrackToTPMap = evt.get(associationSimTrackToTPToken_);
   const auto& recoTracks = *recoTracks_h;
 
