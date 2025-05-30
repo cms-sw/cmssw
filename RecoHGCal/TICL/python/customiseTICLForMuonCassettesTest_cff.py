@@ -38,7 +38,58 @@ from RecoHGCal.TICL.MIPStep_cff import ticlTrackstersMIP, filteredLayerClustersM
 def customiseTICLForMuonCassettesTest(process):
     # TensorFlow ESSource
 
-    process.hgcalLayerClustersMuonCassettesTestEE = hgcalLayerClustersEE.clone()
+    process.hgcalLayerClustersMuonCassettesTestEE = hgcalLayerClustersEE.clone(
+            calculatePositionInAlgo = cms.bool(True),
+        detector = cms.string('EE'),
+        mightGet = cms.optional.untracked.vstring,
+        nHitsTime = cms.uint32(3),
+        plugin = cms.PSet(
+            dEdXweights = cms.vdouble(
+                0.0, 9.205, 11.129999999999999, 11.129999999999999, 11.129999999999999,
+                11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999,
+                11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999,
+                11.129999999999999, 11.129999999999999, 11.129999999999999, 13.2, 13.2,
+                13.2, 13.2, 13.2, 13.2, 13.2,
+                13.2, 35.745000000000005, 59.665000000000006, 60.7, 60.7,
+                60.7, 60.7, 60.7, 60.7, 60.7,
+                60.7, 60.7, 71.89, 83.08, 83.255,
+                83.52000000000001, 83.61, 83.61, 83.61, 83.61,
+                83.61, 83.61, 83.61
+            ),
+            # deltac = cms.vdouble(1.3, 1.3, 1.3, 0.0315),
+            deltac = cms.vdouble(1., 1.3, 1.3, 0.0315),
+            deltasi_index_regemfac = cms.int32(3),
+            dependSensor = cms.bool(True),
+            ecut = cms.double(1.5),
+            fcPerEle = cms.double(0.00016020506),
+            fcPerMip = cms.vdouble(
+                2.06, 3.43, 5.15, 2.06, 3.43,
+                5.15
+            ),
+            kappa = cms.double(5),
+            maxNumberOfThickIndices = cms.uint32(6),
+            noiseMip = cms.PSet(
+                refToPSet_ = cms.string('HGCAL_noise_heback')
+            ),
+            noises = cms.vdouble(
+                2000.0, 2400.0, 2000.0, 2000.0, 2400.0,
+                2000.0
+            ),
+            positionDeltaRho2 = cms.double(1.69),
+            sciThicknessCorrection = cms.double(0.69),
+            thicknessCorrection = cms.vdouble(
+                0.75, 0.76, 0.75, 0.85, 0.85,
+                0.84
+            ),
+            thresholdW0 = cms.vdouble(2.9, 2.9, 2.9),
+            type = cms.string('SiCLUE'),
+            use2x2 = cms.bool(True),
+            verbosity = cms.untracked.uint32(3)
+        ),
+        recHits = cms.InputTag("HGCalRecHit","HGCEERecHits"),
+        timeClname = cms.string('timeLayerCluster')
+    )
+    
     process.hgcalMergeLayerClusters = hgcalMergeLayerClusters.clone(
         layerClusters = cms.VInputTag("hgcalLayerClustersMuonCassettesTestEE"),
         timeClname = cms.string('timeLayerCluster'),
@@ -56,6 +107,8 @@ def customiseTICLForMuonCassettesTest(process):
       max_cluster_size = 2, # inclusive
       iteration_label = "MIP",
     )
+
+
     process.ticlLayerTileTask = cms.Task(process.ticlLayerTileProducer)
 
 
@@ -78,8 +131,8 @@ def customiseTICLForMuonCassettesTest(process):
         max_missing_layers_in_trackster = cms.int32(9999),
         max_out_in_hops = cms.int32(10),
         min_cos_pointing = cms.double(0.5),
-        min_cos_theta = cms.double(0.99),
-        min_layers_per_trackster = cms.int32(10),
+        min_cos_theta = cms.double(0.9),
+        min_layers_per_trackster = cms.int32(4),
         oneTracksterPerTrackSeed = cms.bool(False),
         out_in_dfs = cms.bool(False),
         pid_threshold = cms.double(0),
