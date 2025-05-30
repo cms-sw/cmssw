@@ -180,8 +180,8 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   caloGeometry_.update(iSetup, interactionModelMap_);
 
   // Define containers for SimTracks, SimVertices
-  std::unique_ptr<edm::SimTrackContainer> simTracks_(new edm::SimTrackContainer);
-  std::unique_ptr<edm::SimVertexContainer> simVertices_(new edm::SimVertexContainer);
+  auto simTracks = std::make_unique<edm::SimTrackContainer>();
+  auto simVertices = std::make_unique<edm::SimVertexContainer>();
 
   // Get the particle data table (in case lifetime or charge of GenParticles not set)
   auto const& pdt = iSetup.getData(particleDataTableESToken_);
@@ -197,8 +197,8 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                            beamPipeRadius_,
                                            deltaRchargedMother_,
                                            particleFilter_,
-                                           *simTracks_,
-                                           *simVertices_,
+                                           *simTracks,
+                                           *simVertices,
                                            useFastSimDecayer_);
 
   //  Initialize the calorimeter geometry
@@ -339,8 +339,8 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // store simTracks and simVertices
-  iEvent.put(std::move(simTracks_));
-  iEvent.put(std::move(simVertices_));
+  iEvent.put(std::move(simTracks));
+  iEvent.put(std::move(simVertices));
   // store products of interaction models, i.e. simHits
   for (auto& interactionModel : interactionModels_) {
     interactionModel->storeProducts(iEvent);
@@ -358,12 +358,12 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // -----------------------------
   // Store Hits
   // -----------------------------
-  std::unique_ptr<edm::PCaloHitContainer> p4(new edm::PCaloHitContainer);
-  std::unique_ptr<edm::PCaloHitContainer> p5(new edm::PCaloHitContainer);
-  std::unique_ptr<edm::PCaloHitContainer> p6(new edm::PCaloHitContainer);
-  std::unique_ptr<edm::PCaloHitContainer> p7(new edm::PCaloHitContainer);
+  auto p4 = std::make_unique<edm::PCaloHitContainer>();
+  auto p5 = std::make_unique<edm::PCaloHitContainer>();
+  auto p6 = std::make_unique<edm::PCaloHitContainer>();
+  auto p7 = std::make_unique<edm::PCaloHitContainer>();
 
-  std::unique_ptr<edm::SimTrackContainer> m1(new edm::SimTrackContainer);
+  auto m1 = std::make_unique<edm::SimTrackContainer>();
 
   if (simulateCalorimetry_) {
     myCalorimetry_->loadFromEcalBarrel(*p4);

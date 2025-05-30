@@ -56,10 +56,10 @@ public:
   void reconstruct(RandomEngineAndDistribution const*);
 
   // Return the address of the Calorimeter
-  CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_; }
+  CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_.get(); }
 
   // Return the address of the FastHFShowerLibrary
-  FastHFShowerLibrary* getHFShowerLibrary() const { return theHFShowerLibrary_; }
+  FastHFShowerLibrary* getHFShowerLibrary() const { return theHFShowerLibrary_.get(); }
 
   // load container from edm::Event
   void loadFromEcalBarrel(edm::PCaloHitContainer& c) const;
@@ -101,12 +101,10 @@ private:
 
 private:
   FSimEvent* mySimEvent_;
-  CaloGeometryHelper* myCalorimeter_;
+  std::unique_ptr<CaloGeometryHelper> myCalorimeter_;
 
-  Histos* myHistos;
-
-  HCALResponse* myHDResponse_;
-  HSParameters* myHSParameters_;
+  std::unique_ptr<HCALResponse> myHDResponse_;
+  std::unique_ptr<HSParameters> myHSParameters_;
 
   std::vector<std::pair<CaloHitID, float> > EBMapping_;
   std::vector<std::pair<CaloHitID, float> > EEMapping_;
@@ -152,8 +150,8 @@ private:
   bool simulatePreshower_;
   //RF
 
-  const LandauFluctuationGenerator* aLandauGenerator_;
-  GammaFunctionGenerator* aGammaGenerator_;
+  std::unique_ptr<LandauFluctuationGenerator> aLandauGenerator_;
+  std::unique_ptr<GammaFunctionGenerator> aGammaGenerator_;
 
   static std::vector<std::pair<int, float> > myZero_;
 
@@ -171,8 +169,8 @@ private:
 
   std::vector<FSimTrack> muonSimTracks_;
   std::vector<FSimTrack> savedMuonSimTracks_;
-  MaterialEffects* theMuonEcalEffects_;  // material effects for muons in ECAL
-  MaterialEffects* theMuonHcalEffects_;  // material effects for muons in HCAL
+  std::unique_ptr<MaterialEffects> theMuonEcalEffects_;  // material effects for muons in ECAL
+  std::unique_ptr<MaterialEffects> theMuonHcalEffects_;  // material effects for muons in HCAL
 
   // If set to true the simulation in ECAL would be done 1X0 by 1X0
   // this is slow but more adapted to detailed studies.
@@ -181,15 +179,14 @@ private:
   bool bFixedLength_;
 
   //Gflash
-  GflashHadronShowerProfile* theProfile_;
-  GflashPiKShowerProfile* thePiKProfile_;
-  GflashProtonShowerProfile* theProtonProfile_;
-  GflashAntiProtonShowerProfile* theAntiProtonProfile_;
+  std::unique_ptr<GflashPiKShowerProfile> thePiKProfile_;
+  std::unique_ptr<GflashProtonShowerProfile> theProtonProfile_;
+  std::unique_ptr<GflashAntiProtonShowerProfile> theAntiProtonProfile_;
 
   // HFShowerLibrary
   bool useShowerLibrary_;
   bool useCorrectionSL_;
-  FastHFShowerLibrary* theHFShowerLibrary_;
+  std::unique_ptr<FastHFShowerLibrary> theHFShowerLibrary_;
 
   std::unique_ptr<KKCorrectionFactors> ecalCorrection_;
 };
