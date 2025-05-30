@@ -1,3 +1,15 @@
+%MSG-d cat_S:  AfterModBeginStream BeforeEvents UnitTestService_Hd.cc:14
+Message from watchPreSourceNextTransition
+%MSG
+%MSG-d cat_S:  PostBeginProcessBlock PostBeginProcessBlock UnitTestService_Hd.cc:14
+Message from watchPreSourceNextTransition
+%MSG
+%MSG-d cat_S:  AfterSource PostBeginProcessBlock UnitTestService_Hd.cc:14
+Message from watchPreSourceNextTransition
+%MSG
+%MSG-d cat_S:  AfterSource PostStreamBeginRun UnitTestService_Hd.cc:14
+Message from watchPreSourceNextTransition
+%MSG
 LogTrace was used to send this message
 %MSG-d cat_B:  UnitTestClient_Hd:sendSomeMessages Run: 1 Event: 1 UnitTestClient_Hd.cc:23
 LogDebug was used to send this other message
@@ -10,6 +22,9 @@ LogVerbatim was used to send this message
 %MSG-i cat_B:  UnitTestClient_Hd:sendSomeMessages Run: 1 Event: 1
 LogInfo was used to send this other message
 %MSG
+%MSG-d cat_S:  PostModuleEvent PostProcessEvent UnitTestService_Hd.cc:14
+Message from watchPreSourceNextTransition
+%MSG
 LogTrace was used to send this message
 %MSG-d cat_B:  UnitTestClient_Hd:sendSomeMessages Run: 1 Event: 2 UnitTestClient_Hd.cc:23
 LogDebug was used to send this other message
@@ -21,4 +36,7 @@ IfLogDebug was used to send this other message
 LogVerbatim was used to send this message
 %MSG-i cat_B:  UnitTestClient_Hd:sendSomeMessages Run: 1 Event: 2
 LogInfo was used to send this other message
+%MSG
+%MSG-d cat_S:  PostModuleEvent PostProcessEvent UnitTestService_Hd.cc:14
+Message from watchPreSourceNextTransition
 %MSG

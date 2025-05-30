@@ -66,8 +66,8 @@ process.MessageLogger.MyCat = dict(limit = 0)
 The `MessageLogger` PSet knows that all _extra_ parameter labels must be of type `cms.untracked.PSet` so one can use a python `dict` set specific parameters for that PSet and allow all other parameters to use their default default values.
 
 
+## Have all debug messages be shown
 
-## Have debug message show for a given module
 By default, all `LogDebug` code is actually removed at compilation time so any messages you want to see have to be recompiled after setting the `EDM_ML_DEBUG` compilation parameter
 
 ```bash
@@ -75,15 +75,23 @@ By default, all `LogDebug` code is actually removed at compilation time so any m
 > scram b ...
 ```
 
-Then in the `MessageLogger` configuration you need to lower the `threshold` to `"DEBUG"` and then say you want debug messages from the module. So if your module uses the label `myModule` in the configuration, you'd specify
+Then in the `MessageLogger` configuration you need to lower the `threshold` to `"DEBUG"`
+```python
+process.MessageLogger.cerr.threshold = "DEBUG"
+```
 
+The default `MessageLogger` configuration leads to all debug messages to be printed (also outside modules).
+
+
+## Have debug message show for a given module
+
+It is possible to restrict the shown debug messages to specific module(s). For example, if your module uses the label `myModule` in the configuration, you'd specify
 ```python
 process.MessageLogger.cerr.threshold = "DEBUG"
 process.MessageLogger.debugModules = ["myModule"]
 ```
 
-If you are not interested in a particular module but instead want to see all debug messages, you can instead set `debugModules` using `*`
-
+For backwards compatibility, setting `debugModules` to `*` has the same effect as setting `debugModules` empty, i.e. showing all debug messages.
 ```python
 process.MessageLogger.cerr.threshold = "DEBUG"
 process.MessageLogger.debugModules = ["*"]
