@@ -47,10 +47,12 @@ protected:
   edm::EDGetTokenT<HODigiCollection> _tokHO;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> _tokHcalChannelQuality;
 
   double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
   double _thresh_unihf;
-
+  double _HBSumMeanofSumQForEachEvent, _HESumMeanofSumQForEachEvent, _HOSumMeanofSumQForEachEvent,
+      _HFSumMeanofSumQForEachEvent;
   //	flag vector
   std::vector<hcaldqm::flag::Flag> _vflags;
   enum DigiFlag { fDigiSize = 0, fUni = 1, fNChsHF = 2, fUnknownIds = 3, fLED = 4, fCapId = 5, nDigiFlag = 6 };
@@ -78,15 +80,19 @@ protected:
   hcaldqm::Container1D _cADC_SubdetPM;
   hcaldqm::Container1D _cfC_SubdetPM;
   hcaldqm::Container1D _cSumQ_SubdetPM;
+  hcaldqm::Container1D _cSumQ_Subdet;
   hcaldqm::ContainerProf2D _cSumQ_depth;
   hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM;
+  hcaldqm::ContainerProf1D _cAveragedSumQvsLS_Subdet;
   hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM;  // online only!
 
   // ADC, fC for HF (QIE10 has different ADC/fC)
   hcaldqm::Container1D _cADC_SubdetPM_QIE1011;
   hcaldqm::Container1D _cfC_SubdetPM_QIE1011;
   hcaldqm::Container1D _cSumQ_SubdetPM_QIE1011;
+  hcaldqm::Container1D _cSumQ_Subdet_QIE1011;
   hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM_QIE1011;
+  hcaldqm::ContainerProf1D _cAveragedSumQvsLS_Subdet_QIE1011;
   hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM_QIE1011;  // online only!
 
   //	Shape - just filling - not summary!
@@ -102,6 +108,7 @@ protected:
   hcaldqm::ContainerProf2D _cTimingCut_ElectronicsuTCA;
   hcaldqm::ContainerProf1D _cTimingCutvsLS_FED;
   hcaldqm::ContainerProf1D _cTimingCutvsLS_SubdetPM;
+  hcaldqm::ContainerProf1D _cTimingCutvsLS_depth;
   hcaldqm::ContainerProf2D _cTimingCut_depth;
   hcaldqm::ContainerProf1D _cTimingCutvsiphi_SubdetPM;  // online only!
   hcaldqm::ContainerProf1D _cTimingCutvsieta_Subdet;    // online only!
@@ -130,11 +137,12 @@ protected:
   //hcaldqm::Container2D _cOccupancyCutvsSlotvsLS_HFPM; // online only
   hcaldqm::Container2D _cOccupancyCutvsiphivsLS_SubdetPM;  // online only
 
-  //	Occupancy w/o and w/ a Cut vs BX and vs LS
+  //	Occupancy w/o and w/ a Cut and BadCapId vs BX and vs LS
   hcaldqm::ContainerProf1D _cOccupancyvsLS_Subdet;
   hcaldqm::ContainerProf1D _cOccupancyCutvsLS_Subdet;  // online only
   hcaldqm::ContainerProf1D _cOccupancyCutvsBX_Subdet;  // online only
-
+  hcaldqm::ContainerProf1D _cOccupancyBadCapidvsLS_Subdet;
+  hcaldqm::Container2D _cOccupancyBadCapidvsLS_depth;
   //	#Time Samples for a digi. Used for Summary generation
   hcaldqm::Container1D _cDigiSize_Crate;
   hcaldqm::Container1D _cDigiSize_FED;
