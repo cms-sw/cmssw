@@ -34,7 +34,9 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
     rmaxT_ = rmax_ + 0.5 * hgpar_->sensorSeparation_;
     hexside_ = 2.0 * rmax_ * tan30deg_;
     hexsideT_ = 2.0 * rmaxT_ * tan30deg_;
-    hgcell_ = std::make_unique<HGCalCell>(2.0 * rmaxT_, hgpar_->nCellsFine_, hgpar_->nCellsCoarse_);
+    hgcell_ = waferHexagon8Calib()
+                  ? std::make_unique<HGCalCell>(2.0 * rmax_, hgpar_->nCellsFine_, hgpar_->nCellsCoarse_)
+                  : std::make_unique<HGCalCell>(2.0 * rmaxT_, hgpar_->nCellsFine_, hgpar_->nCellsCoarse_);
     hgcellUV_ = std::make_unique<HGCalCellUV>(
         2.0 * rmax_, hgpar_->sensorSeparation_, hgpar_->nCellsFine_, hgpar_->nCellsCoarse_);
     cellOffset_ = std::make_unique<HGCalCellOffset>(hgpar_->waferSize_,
