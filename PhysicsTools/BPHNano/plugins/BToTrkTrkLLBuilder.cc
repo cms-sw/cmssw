@@ -134,6 +134,7 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
       cand.addUserInt("trk1_idx", trk1_idx);
       cand.addUserInt("trk2_idx", trk2_idx);
       cand.addUserInt("ditrack_idx", ditracks_idx);
+      cand.addUserInt("ll_idx", ll_idx);
 
       auto lep1_p4 = l1_ptr->polarP4();
       auto lep2_p4 = l2_ptr->polarP4();
@@ -242,6 +243,19 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
       // post fit selection
       if (!post_vtx_selection_(cand))
         continue;
+
+      const reco::BeamSpot &beamSpot = *beamspot;
+      TrajectoryStateClosestToPoint theDCAXBS = fitter.fitted_candidate_ttrk().trajectoryStateClosestToPoint(
+          GlobalPoint(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z()));
+      double DCAB0BS = -99.;
+      double DCAB0BSErr = -99.;
+
+      if (theDCAXBS.isValid() == true) {
+        DCAB0BS = theDCAXBS.perigeeParameters().transverseImpactParameter();
+        DCAB0BSErr = theDCAXBS.perigeeError().transverseImpactParameterError();
+      }
+      cand.addUserFloat("dca", DCAB0BS);
+      cand.addUserFloat("dcaErr", DCAB0BSErr);
 
       cand.addUserFloat("vtx_x", cand.vx());
       cand.addUserFloat("vtx_y", cand.vy());
