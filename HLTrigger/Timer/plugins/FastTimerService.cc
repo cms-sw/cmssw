@@ -7,8 +7,6 @@
 #include <mutex>
 #include <sstream>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
 
 // boost headers
 #include <boost/range/irange.hpp>
@@ -25,11 +23,9 @@ using json = nlohmann::json;
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -259,11 +255,7 @@ FastTimerService::ResourcesPerProcess FastTimerService::ResourcesPerProcess::ope
 
 FastTimerService::ResourcesPerJob::ResourcesPerJob(ProcessCallGraph const& job,
                                                    std::vector<GroupOfModules> const& groups)
-    : highlight{groups.size()}, modules{job.size()}, events{0} {
-  processes.reserve(job.processes().size());
-  for (auto const& process : job.processes())
-    processes.emplace_back(process);
-}
+    : highlight{groups.size()}, modules{job.size()}, process{job.processDescription()}, events{0} {}
 
 void FastTimerService::ResourcesPerJob::reset() {
   total.reset();
@@ -275,8 +267,7 @@ void FastTimerService::ResourcesPerJob::reset() {
     module.reset();
   for (auto& module : modules)
     module.reset();
-  for (auto& process : processes)
-    process.reset();
+  process.reset();
   events = 0;
 }
 
@@ -292,9 +283,7 @@ FastTimerService::ResourcesPerJob& FastTimerService::ResourcesPerJob::operator+=
   assert(modules.size() == other.modules.size());
   for (unsigned int i : boost::irange(0ul, modules.size()))
     modules[i] += other.modules[i];
-  assert(processes.size() == other.processes.size());
-  for (unsigned int i : boost::irange(0ul, processes.size()))
-    processes[i] += other.processes[i];
+  process += other.process;
   events += other.events;
   return *this;
 }
@@ -687,11 +676,7 @@ void FastTimerService::PlotsPerProcess::fill(ProcessCallGraph::ProcessType const
 }
 
 FastTimerService::PlotsPerJob::PlotsPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups)
-    : highlight_{groups.size()}, modules_{job.size()} {
-  processes_.reserve(job.processes().size());
-  for (auto const& process : job.processes())
-    processes_.emplace_back(process);
-}
+    : highlight_{groups.size()}, modules_{job.size()}, process_{job.processDescription()} {}
 
 void FastTimerService::PlotsPerJob::book(dqm::reco::DQMStore::IBooker& booker,
                                          ProcessCallGraph const& job,
@@ -726,21 +711,19 @@ void FastTimerService::PlotsPerJob::book(dqm::reco::DQMStore::IBooker& booker,
     highlight_[group].book(booker, "highlight " + label, "Highlight " + label, event_ranges, lumisections, byls);
   }
 
-  // plots per subprocess (event, modules, paths and endpaths)
-  for (unsigned int pid : boost::irange(0ul, job.processes().size())) {
-    auto const& process = job.processDescription(pid);
-    processes_[pid].book(booker, job, process, event_ranges, path_ranges, lumisections, bypath, byls);
+  // process plots (event, modules, paths and endpaths)
+  auto const& process = job.processDescription();
+  process_.book(booker, job, process, event_ranges, path_ranges, lumisections, bypath, byls);
 
-    if (bymodule) {
-      booker.setCurrentFolder(basedir + "/process " + process.name_ + " modules");
-      for (unsigned int id : process.modules_) {
-        std::string const& module_label = job.module(id).moduleLabel();
-        std::string safe_label = module_label;
-        fixForDQM(safe_label);
-        modules_[id].book(booker, safe_label, module_label, module_ranges, lumisections, byls);
-      }
-      booker.setCurrentFolder(basedir);
+  if (bymodule) {
+    booker.setCurrentFolder(basedir + "/process " + process.name_ + " modules");
+    for (unsigned int id : process.modules_) {
+      std::string const& module_label = job.module(id).moduleLabel();
+      std::string safe_label = module_label;
+      fixForDQM(safe_label);
+      modules_[id].book(booker, safe_label, module_label, module_ranges, lumisections, byls);
     }
+    booker.setCurrentFolder(basedir);
   }
 }
 
@@ -759,8 +742,7 @@ void FastTimerService::PlotsPerJob::fill(ProcessCallGraph const& job, ResourcesP
   for (unsigned int id : boost::irange(0ul, modules_.size()))
     modules_[id].fill(data.modules[id].total, ls);
 
-  for (unsigned int pid : boost::irange(0ul, processes_.size()))
-    processes_[pid].fill(job.processDescription(pid), data, data.processes[pid], ls);
+  process_.fill(job.processDescription(), data, data.process, ls);
 }
 
 void FastTimerService::PlotsPerJob::fill_run(AtomicResources const& data) {
@@ -908,38 +890,35 @@ void FastTimerService::unsupportedSignal(const std::string& signal) const {
 void FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc) {
   ignoredSignal(__func__);
 
-  // reset the run counters only during the main process being run
-  if (isFirstSubprocess(gc)) {
-    auto index = gc.runIndex();
-    subprocess_global_run_check_[index] = 0;
-    run_transition_[index].reset();
-    run_summary_[index].reset();
+  // reset the run counters
+  auto index = gc.runIndex();
+  run_transition_[index].reset();
+  run_summary_[index].reset();
 
-    // book the DQM plots
-    if (enable_dqm_) {
-      // define a callback to book the MonitorElements
-      auto bookTransactionCallback = [&, this](dqm::reco::DQMStore::IBooker& booker, dqm::reco::DQMStore::IGetter&) {
-        auto scope = dqm::reco::DQMStore::IBooker::UseRunScope(booker);
-        // we should really do this, but only DQMStore is allowed to touch it
-        // We could move to postGlobalBeginRun, then the DQMStore has sure set it up.
-        //booker.setRunLumi(gc.luminosityBlockID());
-        booker.setCurrentFolder(dqm_path_);
-        plots_->book(booker,
-                     callgraph_,
-                     highlight_modules_,
-                     dqm_event_ranges_,
-                     dqm_path_ranges_,
-                     dqm_module_ranges_,
-                     dqm_lumisections_range_,
-                     enable_dqm_bymodule_,
-                     enable_dqm_bypath_,
-                     enable_dqm_byls_,
-                     enable_dqm_transitions_);
-      };
+  // book the DQM plots
+  if (enable_dqm_) {
+    // define a callback to book the MonitorElements
+    auto bookTransactionCallback = [&, this](dqm::reco::DQMStore::IBooker& booker, dqm::reco::DQMStore::IGetter&) {
+      auto scope = dqm::reco::DQMStore::IBooker::UseRunScope(booker);
+      // we should really do this, but only DQMStore is allowed to touch it
+      // We could move to postGlobalBeginRun, then the DQMStore has sure set it up.
+      //booker.setRunLumi(gc.luminosityBlockID());
+      booker.setCurrentFolder(dqm_path_);
+      plots_->book(booker,
+                   callgraph_,
+                   highlight_modules_,
+                   dqm_event_ranges_,
+                   dqm_path_ranges_,
+                   dqm_module_ranges_,
+                   dqm_lumisections_range_,
+                   enable_dqm_bymodule_,
+                   enable_dqm_bypath_,
+                   enable_dqm_byls_,
+                   enable_dqm_transitions_);
+    };
 
-      // book MonitorElements for this stream
-      edm::Service<dqm::legacy::DQMStore>()->meBookerGetter(bookTransactionCallback);
-    }
+    // book MonitorElements for this stream
+    edm::Service<dqm::legacy::DQMStore>()->meBookerGetter(bookTransactionCallback);
   }
 }
 
@@ -968,17 +947,6 @@ void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
 
   // fix the DQM path to avoid invalid characters
   fixForDQM(dqm_path_);
-
-  // allocate atomic variables to keep track of the completion of each step, process by process
-  subprocess_event_check_ = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
-  for (unsigned int i = 0; i < concurrent_streams_; ++i)
-    subprocess_event_check_[i] = 0;
-  subprocess_global_run_check_ = std::make_unique<std::atomic<unsigned int>[]>(concurrent_runs_);
-  for (unsigned int i = 0; i < concurrent_runs_; ++i)
-    subprocess_global_run_check_[i] = 0;
-  subprocess_global_lumi_check_ = std::make_unique<std::atomic<unsigned int>[]>(concurrent_lumis_);
-  for (unsigned int i = 0; i < concurrent_lumis_; ++i)
-    subprocess_global_lumi_check_[i] = 0;
 
   // allocate buffers to keep track of the resources spent in the lumi and run transitions
   lumi_transition_.resize(concurrent_lumis_);
@@ -1039,12 +1007,9 @@ void FastTimerService::postStreamEndRun(edm::StreamContext const& sc) { ignoredS
 void FastTimerService::preGlobalBeginLumi(edm::GlobalContext const& gc) {
   ignoredSignal(__func__);
 
-  // reset the lumi counters only during the main process being run
-  if (isFirstSubprocess(gc)) {
-    auto index = gc.luminosityBlockIndex();
-    subprocess_global_lumi_check_[index] = 0;
-    lumi_transition_[index].reset();
-  }
+  // reset the lumi counters
+  auto index = gc.luminosityBlockIndex();
+  lumi_transition_[index].reset();
 }
 
 void FastTimerService::postGlobalBeginLumi(edm::GlobalContext const& gc) { ignoredSignal(__func__); }
@@ -1054,11 +1019,8 @@ void FastTimerService::preGlobalEndLumi(edm::GlobalContext const& gc) { ignoredS
 void FastTimerService::postGlobalEndLumi(edm::GlobalContext const& gc) {
   ignoredSignal(__func__);
 
-  // handle the summaries only after the last subprocess has run
+  // handle the summaries
   auto index = gc.luminosityBlockIndex();
-  bool last = isLastSubprocess(subprocess_global_lumi_check_[index]);
-  if (not last)
-    return;
 
   edm::LogVerbatim out("FastReport");
   auto const& label =
@@ -1083,11 +1045,8 @@ void FastTimerService::preGlobalEndRun(edm::GlobalContext const& gc) { ignoredSi
 void FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc) {
   ignoredSignal(__func__);
 
-  // handle the summaries only after the last subprocess has run
+  // handle the summaries
   auto index = gc.runIndex();
-  bool last = isLastSubprocess(subprocess_global_run_check_[index]);
-  if (not last)
-    return;
 
   edm::LogVerbatim out("FastReport");
   auto const& label = fmt::sprintf("run %d", gc.luminosityBlockID().run());
@@ -1173,36 +1132,30 @@ void FastTimerService::printEvent(T& out, ResourcesPerJob const& data) const {
   auto const& source_d = callgraph_.source();
   auto const& source = data.modules[source_d.id()];
   printEventLine(out, source.total, source_d.moduleLabel());
-  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const& proc_d = callgraph_.processDescription(i);
-    auto const& proc = data.processes[i];
-    printEventLine(out, proc.total, "process " + proc_d.name_);
-    for (unsigned int m : proc_d.modules_) {
-      auto const& module_d = callgraph_.module(m);
-      auto const& module = data.modules[m];
-      printEventLine(out, module.total, "  " + module_d.moduleLabel());
-    }
+  auto const& proc_d = callgraph_.processDescription();
+  auto const& proc = data.process;
+  printEventLine(out, proc.total, "process " + proc_d.name_);
+  for (unsigned int m : proc_d.modules_) {
+    auto const& module_d = callgraph_.module(m);
+    auto const& module = data.modules[m];
+    printEventLine(out, module.total, "  " + module_d.moduleLabel());
   }
   printEventLine(out, data.total, "total");
   out << '\n';
   printEventHeader(out, "Processes and Paths");
   printEventLine(out, source.total, source_d.moduleLabel());
-  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const& proc_d = callgraph_.processDescription(i);
-    auto const& proc = data.processes[i];
-    printEventLine(out, proc.total, "process " + proc_d.name_);
-    for (unsigned int p = 0; p < proc.paths.size(); ++p) {
-      auto const& name = proc_d.paths_[p].name_;
-      auto const& path = proc.paths[p];
-      printEventLine(out, path.active, name + " (only scheduled modules)");
-      printEventLine(out, path.total, name + " (including dependencies)");
-    }
-    for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
-      auto const& name = proc_d.endPaths_[p].name_;
-      auto const& path = proc.endpaths[p];
-      printEventLine(out, path.active, name + " (only scheduled modules)");
-      printEventLine(out, path.total, name + " (including dependencies)");
-    }
+  printEventLine(out, proc.total, "process " + proc_d.name_);
+  for (unsigned int p = 0; p < proc.paths.size(); ++p) {
+    auto const& name = proc_d.paths_[p].name_;
+    auto const& path = proc.paths[p];
+    printEventLine(out, path.active, name + " (only scheduled modules)");
+    printEventLine(out, path.total, name + " (including dependencies)");
+  }
+  for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
+    auto const& name = proc_d.endPaths_[p].name_;
+    auto const& path = proc.endpaths[p];
+    printEventLine(out, path.active, name + " (only scheduled modules)");
+    printEventLine(out, path.total, name + " (including dependencies)");
   }
   printEventLine(out, data.total, "total");
   out << '\n';
@@ -1326,15 +1279,13 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
   auto const& source_d = callgraph_.source();
   auto const& source = data.modules[source_d.id()];
   printSummaryLine(out, source.total, data.events, source.events, source_d.moduleLabel());
-  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const& proc_d = callgraph_.processDescription(i);
-    auto const& proc = data.processes[i];
-    printSummaryLine(out, proc.total, data.events, "process " + proc_d.name_);
-    for (unsigned int m : proc_d.modules_) {
-      auto const& module_d = callgraph_.module(m);
-      auto const& module = data.modules[m];
-      printSummaryLine(out, module.total, data.events, module.events, "  " + module_d.moduleLabel());
-    }
+  auto const& proc_d = callgraph_.processDescription();
+  auto const& proc = data.process;
+  printSummaryLine(out, proc.total, data.events, "process " + proc_d.name_);
+  for (unsigned int m : proc_d.modules_) {
+    auto const& module_d = callgraph_.module(m);
+    auto const& module = data.modules[m];
+    printSummaryLine(out, module.total, data.events, module.events, "  " + module_d.moduleLabel());
   }
   printSummaryLine(out, data.total, data.events, "total");
   printSummaryLine(out, data.eventsetup, data.events, "eventsetup");
@@ -1343,20 +1294,16 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
   out << '\n';
   printPathSummaryHeader(out, "Processes and Paths");
   printSummaryLine(out, source.total, data.events, source_d.moduleLabel());
-  for (unsigned int i = 0; i < callgraph_.processes().size(); ++i) {
-    auto const& proc_d = callgraph_.processDescription(i);
-    auto const& proc = data.processes[i];
-    printSummaryLine(out, proc.total, data.events, "process " + proc_d.name_);
-    for (unsigned int p = 0; p < proc.paths.size(); ++p) {
-      auto const& name = proc_d.paths_[p].name_;
-      auto const& path = proc.paths[p];
-      printPathSummaryLine(out, path.active, path.total, data.events, "  " + name);
-    }
-    for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
-      auto const& name = proc_d.endPaths_[p].name_;
-      auto const& path = proc.endpaths[p];
-      printPathSummaryLine(out, path.active, path.total, data.events, "  " + name);
-    }
+  printSummaryLine(out, proc.total, data.events, "process " + proc_d.name_);
+  for (unsigned int p = 0; p < proc.paths.size(); ++p) {
+    auto const& name = proc_d.paths_[p].name_;
+    auto const& path = proc.paths[p];
+    printPathSummaryLine(out, path.active, path.total, data.events, "  " + name);
+  }
+  for (unsigned int p = 0; p < proc.endpaths.size(); ++p) {
+    auto const& name = proc_d.endPaths_[p].name_;
+    auto const& path = proc.endpaths[p];
+    printPathSummaryLine(out, path.active, path.total, data.events, "  " + name);
   }
   printSummaryLine(out, data.total, data.events, "total");
   printSummaryLine(out, data.eventsetup, data.events, "eventsetup");
@@ -1411,7 +1358,7 @@ void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string
 
   // write the resources used by the job
   j["total"] = encodeToJSON("Job",
-                            callgraph_.processDescription(0).name_,
+                            callgraph_.processDescription().name_,
                             data.events,
                             data.total + data.eventsetup + data.overhead + data.idle);
 
@@ -1432,43 +1379,22 @@ void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string
   out << std::setw(2) << j << std::flush;
 }
 
-// check if this is the first process being signalled
-bool FastTimerService::isFirstSubprocess(edm::StreamContext const& sc) {
-  return (not sc.processContext()->isSubProcess());
-}
-
-bool FastTimerService::isFirstSubprocess(edm::GlobalContext const& gc) {
-  return (not gc.processContext()->isSubProcess());
-}
-
-// check if this is the last process being signalled
-bool FastTimerService::isLastSubprocess(std::atomic<unsigned int>& check) {
-  // release-acquire semantic guarantees that all writes in this and other threads are visible
-  // after this operation; full sequentially-consistent ordering is (probably) not needed.
-  unsigned int old_value = check.fetch_add(1, std::memory_order_acq_rel);
-  return (old_value == callgraph_.processes().size() - 1);
-}
-
 void FastTimerService::preEvent(edm::StreamContext const& sc) { ignoredSignal(__func__); }
 
 void FastTimerService::postEvent(edm::StreamContext const& sc) {
   ignoredSignal(__func__);
 
-  unsigned int pid = callgraph_.processId(*sc.processContext());
   unsigned int sid = sc.streamID();
   auto& stream = streams_[sid];
-  auto& process = callgraph_.processDescription(pid);
+  auto& process = callgraph_.processDescription();
 
   // measure the event resources as the sum of all modules' resources
-  auto& data = stream.processes[pid].total;
+  auto& data = stream.process.total;
   for (unsigned int id : process.modules_)
     data += stream.modules[id].total;
   stream.total += data;
 
-  // handle the summaries and fill the plots only after the last subprocess has run
-  bool last = isLastSubprocess(subprocess_event_check_[sid]);
-  if (not last)
-    return;
+  // handle the summaries and fill the plots
 
   // measure the event resources explicitly
   stream.event_measurement.measure_and_store(stream.event);
@@ -1505,8 +1431,6 @@ void FastTimerService::preSourceEvent(edm::StreamID sid) {
   stream.reset();
   ++stream.events;
 
-  subprocess_event_check_[sid] = 0;
-
   // reuse the same measurement for the Source module and for the explicit begin of the Event
   auto& measurement = thread();
   measurement.measure_and_accumulate(stream.overhead);
@@ -1525,10 +1449,9 @@ void FastTimerService::postSourceEvent(edm::StreamID sid) {
 
 void FastTimerService::prePathEvent(edm::StreamContext const& sc, edm::PathContext const& pc) {
   unsigned int sid = sc.streamID().value();
-  unsigned int pid = callgraph_.processId(*sc.processContext());
   unsigned int id = pc.pathID();
   auto& stream = streams_[sid];
-  auto& data = pc.isEndPath() ? stream.processes[pid].endpaths[id] : stream.processes[pid].paths[id];
+  auto& data = pc.isEndPath() ? stream.process.endpaths[id] : stream.process.paths[id];
   data.status = false;
   data.last = 0;
 }
@@ -1537,13 +1460,12 @@ void FastTimerService::postPathEvent(edm::StreamContext const& sc,
                                      edm::PathContext const& pc,
                                      edm::HLTPathStatus const& status) {
   unsigned int sid = sc.streamID().value();
-  unsigned int pid = callgraph_.processId(*sc.processContext());
   unsigned int id = pc.pathID();
   auto& stream = streams_[sid];
-  auto& data = pc.isEndPath() ? stream.processes[pid].endpaths[id] : stream.processes[pid].paths[id];
+  auto& data = pc.isEndPath() ? stream.process.endpaths[id] : stream.process.paths[id];
 
   auto const& path =
-      pc.isEndPath() ? callgraph_.processDescription(pid).endPaths_[id] : callgraph_.processDescription(pid).paths_[id];
+      pc.isEndPath() ? callgraph_.processDescription().endPaths_[id] : callgraph_.processDescription().paths_[id];
   unsigned int index = path.modules_on_path_.empty() ? 0 : status.index() + 1;
   data.last = path.modules_on_path_.empty() ? 0 : path.last_dependency_of_module_[status.index()];
 
