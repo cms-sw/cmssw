@@ -28,7 +28,6 @@ namespace hgcal {
        << data.begin().key() << "'...";
     ex.addContext("Calling hgcal::search_modkey()");
     throw ex;
-    return data.begin().key();  // no matching key found in whole JSON map
   }
 
   // @short search first match to a given FED index in a JSON (following insertion order)
@@ -74,6 +73,7 @@ namespace hgcal {
       ex << "Could not find matching key for '" << fedid << "' in '" << name << "'! Returning first key '" << matchedkey
          << "'...";
       ex.addContext("Calling hgcal::search_fedkey()");
+      throw ex;
     } else {
       edm::LogInfo("search_fedkey") << "search_fedkey: Matched module='" << fedid << "' to fedkey='" << matchedkey
                                     << "'";
