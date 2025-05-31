@@ -34,6 +34,21 @@ l1tPFClustersFromHGC3DClusters = cms.EDProducer("PFClusterProducerFromHGC3DClust
         weightsFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz"),
         wp = cms.string("0.15")
     ),
+    multiClassPID = cms.PSet(
+        isPUFilter = cms.bool(False),
+        preselection = cms.string(""),
+        model = cms.string("L1Trigger/Phase2L1ParticleFlow/data/multiclassID/multiclass_EE.json"),
+        variables = cms.VPSet(
+            cms.PSet(name = cms.string("showerlength"), value = cms.string("showerLength()")),
+            cms.PSet(name = cms.string("coreshowerlength"), value = cms.string("coreShowerLength()")),
+            cms.PSet(name = cms.string("eot"), value = cms.string("eot()")),
+            cms.PSet(name = cms.string("eta"), value = cms.string("abs(eta())")),
+            cms.PSet(name = cms.string("meanz"), value = cms.string("zBarycenter()")),
+            cms.PSet(name = cms.string("seetot"), value = cms.string("sigmaEtaEtaTot()")),
+            cms.PSet(name = cms.string("spptot"), value = cms.string("sigmaPhiPhiTot()")),
+            cms.PSet(name = cms.string("szz"), value = cms.string("sigmaZZ()")),
+        ) # variables are not used from here, but putting them here for future use when the code is more neat
+    ),
     useEMInterpretation = cms.string("allKeepHad"), # for all clusters, use EM intepretation to redefine the EM part of the energy
     emOnly = cms.bool(False),
     etMin = cms.double(1.0),

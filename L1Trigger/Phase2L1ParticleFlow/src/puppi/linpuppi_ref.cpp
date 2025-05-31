@@ -146,6 +146,8 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(const edm::ParameterSet &iConfig)
     finalSortAlgo_ = SortAlgo::BitonicRUFL;
   else if (sortAlgo == "BitonicHLS")
     finalSortAlgo_ = SortAlgo::BitonicHLS;
+  else if (sortAlgo == "BitonicVHDL")
+    finalSortAlgo_ = SortAlgo::BitonicVHDL;
   else if (sortAlgo == "Hybrid")
     finalSortAlgo_ = SortAlgo::Hybrid;
   else if (sortAlgo == "FoldedHybrid")
@@ -176,9 +178,9 @@ edm::ParameterSetDescription l1ct::LinPuppiEmulator::getParameterSetDescription(
   description.add<std::vector<double>>("priors");
   description.add<std::vector<double>>("priorsPhoton");
   description.add<uint32_t>("nFinalSort");
-  description.ifValue(
-      edm::ParameterDescription<std::string>("finalSortAlgo", "Insertion", true),
-      edm::allowedValues<std::string>("Insertion", "BitonicRUFL", "BitonicHLS", "Hybrid", "FoldedHybrid"));
+  description.ifValue(edm::ParameterDescription<std::string>("finalSortAlgo", "Insertion", true),
+                      edm::allowedValues<std::string>(
+                          "Insertion", "BitonicRUFL", "BitonicHLS", "Hybrid", "FoldedHybrid", "BitonicVHDL"));
   description.add<bool>("fakePuppi", false);
   description.addUntracked<bool>("debug", false);
   return description;
@@ -213,6 +215,27 @@ void l1ct::LinPuppiEmulator::puppisort_and_crop_ref(unsigned int nOutMax,
     hybrid_bitonic_sort_and_crop_ref(in.size(), nOut, &in[0], &out[0], sortAlgo == SortAlgo::Hybrid);
   } else if (sortAlgo == SortAlgo::FoldedHybrid) {
     folded_hybrid_bitonic_sort_and_crop_ref(in.size(), nOut, &in[0], &out[0], true);
+  } else if (sortAlgo == SortAlgo::BitonicVHDL) {
+    // The VHDL version always takes power-of-2 inputs
+    // (Nominally it produces the same size output, though things may get optimized away in the implementation)
+
+    // find the po2 that's bigger than the input size
+    unsigned int nextpo2 = 1;
+    while (nextpo2 < in.size()) {
+      nextpo2 <<= 1;
+    }
+    std::vector<l1ct::PuppiObjEmu> inPadded(nextpo2);
+    for (unsigned int i = 0; i < in.size(); i++) {
+      inPadded[i] = in[i];
+    }
+    for (unsigned int i = in.size(); i < nextpo2; i++) {
+      inPadded[i].clear();
+    }
+    std::vector<l1ct::PuppiObjEmu> outPadded(nextpo2);
+    bitonic_sort_and_crop_ref(nextpo2, nextpo2, inPadded.data(), outPadded.data());
+    for (unsigned int i = 0; i < nOut; i++) {
+      out[i] = outPadded[i];
+    }
   }
 }
 
