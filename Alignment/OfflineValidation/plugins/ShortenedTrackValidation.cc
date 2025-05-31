@@ -403,108 +403,101 @@ T *ShortenedTrackValidation::book(const TFileDirectory &dir, const Args &...args
 
 //__________________________________________________________________________________
 void ShortenedTrackValidation::beginJob() {
-  std::string currentFolder = folderName_ + "/Resolutions";
-  TFileDirectory ShortTrackResolution = fs_->mkdir(currentFolder);
-  currentFolder = folderName_ + "/Tracks";
-  TFileDirectory TrackQuals = fs_->mkdir(currentFolder);
+  const std::string resFolder = folderName_ + "/Resolutions";
+  const std::string trackFolder = folderName_ + "/Tracks";
+  TFileDirectory resDir = fs_->mkdir(resFolder);
+  TFileDirectory trackDir = fs_->mkdir(trackFolder);
 
-  for (unsigned int i = 0; i < hitsRemain_.size(); ++i) {
-    histsPtRatioAll_.push_back(
-        book<TH1F>(ShortTrackResolution,
-                   fmt::sprintf("trackPtRatio_%s", hitsRemain_[i]).c_str(),
-                   fmt::sprintf("Short Track p_{T} / Full Track p_{T} - %s layers;p_{T}^{short}/p_{T}^{full};n. tracks",
-                                hitsRemain_[i])
-                       .c_str(),
-                   100,
-                   0.5,
-                   1.5));
+  const size_t n = hitsRemain_.size();
+  histsPtRatioAll_.reserve(n);
+  histsPtDiffAll_.reserve(n);
+  histsEtaDiffAll_.reserve(n);
+  histsPhiDiffAll_.reserve(n);
+  histsPtRatioVsDeltaRAll_.reserve(n);
+  histsDeltaPtOverPtAll_.reserve(n);
+  histsPtAll_.reserve(n);
+  histsNhitsAll_.reserve(n);
+  histsDeltaRAll_.reserve(n);
+  comparators_.resize(n);
 
-    histsPtDiffAll_.push_back(book<TH1F>(
-        ShortTrackResolution,
-        fmt::sprintf("trackPtDiff_%s", hitsRemain_[i]).c_str(),
-        fmt::sprintf("Short Track p_{T} - Full Track p_{T} - %s layers;p_{T}^{short} - p_{T}^{full} [GeV];n. tracks",
-                     hitsRemain_[i])
-            .c_str(),
-        100,
-        -10.,
-        10.));
+  // Lambda helpers
+  auto book1DRes = [&](const std::string &name, const std::string &title, int bins, double xmin, double xmax) {
+    return book<TH1F>(resDir, name.c_str(), title.c_str(), bins, xmin, xmax);
+  };
 
-    histsEtaDiffAll_.push_back(
-        book<TH1F>(ShortTrackResolution,
-                   fmt::sprintf("trackEtaDiff_%s", hitsRemain_[i]).c_str(),
-                   fmt::sprintf("Short Track #eta - Full Track #eta - %s layers;#eta^{short} - #eta^{full};n. tracks",
-                                hitsRemain_[i])
-                       .c_str(),
-                   100,
-                   -0.001,
-                   0.001));
+  auto book1DTrack = [&](const std::string &name, const std::string &title, int bins, double xmin, double xmax) {
+    return book<TH1F>(trackDir, name.c_str(), title.c_str(), bins, xmin, xmax);
+  };
 
-    histsPhiDiffAll_.push_back(
-        book<TH1F>(ShortTrackResolution,
-                   fmt::sprintf("trackPhiDiff_%s", hitsRemain_[i]).c_str(),
-                   fmt::sprintf("Short Track #phi - Full Track #phi - %s layers;#phi^{short} - #phi^{full};n. tracks",
-                                hitsRemain_[i])
-                       .c_str(),
-                   100,
-                   -0.001,
-                   0.001));
+  auto book2DRes = [&](const std::string &name,
+                       const std::string &title,
+                       int xbins,
+                       double xmin,
+                       double xmax,
+                       int ybins,
+                       double ymin,
+                       double ymax) {
+    return book<TH2F>(resDir, name.c_str(), title.c_str(), xbins, xmin, xmax, ybins, ymin, ymax);
+  };
 
-    histsPtRatioVsDeltaRAll_.push_back(
-        book<TH2F>(ShortTrackResolution,
-                   fmt::sprintf("trackPtRatioVsDeltaR_%s", hitsRemain_[i]).c_str(),
-                   fmt::sprintf("Short Track p_{T} / Full Track p_{T} - %s layers vs "
-                                "#DeltaR;#DeltaR(short,full);p_{T}^{short}/p_{T}^{full} [GeV];n. tracks",
-                                hitsRemain_[i])
-                       .c_str(),
-                   100,
-                   0.,
-                   0.01,
-                   101,
-                   -0.05,
-                   2.05));
+  for (size_t i = 0; i < n; ++i) {
+    const auto &label = hitsRemain_[i];
 
-    histsDeltaPtOverPtAll_.push_back(
-        book<TH1F>(ShortTrackResolution,
-                   fmt::sprintf("trackDeltaPtOverPt_%s", hitsRemain_[i]).c_str(),
-                   fmt::sprintf("Short Track p_{T} - Full Track p_{T} / Full Track p_{T} - %s layers;p_{T}^{short} - "
-                                "p_{T}^{full} / p^{full}_{T};n. tracks",
-                                hitsRemain_[i])
-                       .c_str(),
-                   101,
-                   -5.,
-                   5.));
+    std::string name, title;
 
-    histsPtAll_.push_back(
-        book<TH1F>(TrackQuals,
-                   fmt::sprintf("trackPt_%s", hitsRemain_[i]).c_str(),
-                   fmt::sprintf("Short Track p_{T} - %s layers;p_{T}^{short} [GeV];n. tracks", hitsRemain_[i]).c_str(),
-                   100,
-                   0.,
-                   100.));
+    // --- Resolutions ---
+    name = fmt::sprintf("trackPtRatio_%s", label);
+    title =
+        fmt::sprintf("Short Track p_{T} / Full Track p_{T} - %s layers;p_{T}^{short}/p_{T}^{full};n. tracks", label);
+    histsPtRatioAll_.push_back(book1DRes(name, title, 100, 0.5, 1.5));
 
-    histsNhitsAll_.push_back(
-        book<TH1F>(TrackQuals,
-                   fmt::sprintf("trackNhits_%s", hitsRemain_[i]).c_str(),
-                   fmt::sprintf("Short Track n. hits - %s layers; n. hits per track;n. tracks", hitsRemain_[i]).c_str(),
-                   20,
-                   -0.5,
-                   19.5));
+    name = fmt::sprintf("trackPtDiff_%s", label);
+    title = fmt::sprintf(
+        "Short Track p_{T} - Full Track p_{T} - %s layers;p_{T}^{short} - p_{T}^{full} [GeV];n. tracks", label);
+    histsPtDiffAll_.push_back(book1DRes(name, title, 100, -10., 10.));
 
-    histsDeltaRAll_.push_back(book<TH1F>(
-        TrackQuals,
-        fmt::sprintf("trackDeltaR_%s", hitsRemain_[i]).c_str(),
-        fmt::sprintf("Short Track / Long Track #DeltaR %s layers;#DeltaR(short,long);n. tracks", hitsRemain_[i]).c_str(),
-        100,
-        0.,
-        0.005));
+    name = fmt::sprintf("trackEtaDiff_%s", label);
+    title = fmt::sprintf("Short Track #eta - Full Track #eta - %s layers;#eta^{short} - #eta^{full};n. tracks", label);
+    histsEtaDiffAll_.push_back(book1DRes(name, title, 100, -0.001, 0.001));
 
-    currentFolder = fmt::sprintf("%s/Compare_%sHit", folderName_, hitsRemain_[i]);
-    comparators_[i]->book(fs_->mkdir(currentFolder));
+    name = fmt::sprintf("trackPhiDiff_%s", label);
+    title = fmt::sprintf("Short Track #phi - Full Track #phi - %s layers;#phi^{short} - #phi^{full};n. tracks", label);
+    histsPhiDiffAll_.push_back(book1DRes(name, title, 100, -0.001, 0.001));
+
+    name = fmt::sprintf("trackPtRatioVsDeltaR_%s", label);
+    title = fmt::sprintf(
+        "Short Track p_{T} / Full Track p_{T} - %s layers vs #DeltaR;#DeltaR(short,full);p_{T}^{short}/p_{T}^{full};n. "
+        "tracks",
+        label);
+    histsPtRatioVsDeltaRAll_.push_back(book2DRes(name, title, 100, 0., 0.01, 101, -0.05, 2.05));
+
+    name = fmt::sprintf("trackDeltaPtOverPt_%s", label);
+    title = fmt::sprintf(
+        "(Short - Full) p_{T} / Full Track p_{T} - %s layers;(p_{T}^{short} - p_{T}^{full})/p_{T}^{full};n. tracks",
+        label);
+    histsDeltaPtOverPtAll_.push_back(book1DRes(name, title, 101, -5., 5.));
+
+    // --- Track quality ---
+    name = fmt::sprintf("trackPt_%s", label);
+    title = fmt::sprintf("Short Track p_{T} - %s layers;p_{T}^{short} [GeV];n. tracks", label);
+    histsPtAll_.push_back(book1DTrack(name, title, 100, 0., 100.));
+
+    name = fmt::sprintf("trackNhits_%s", label);
+    title = fmt::sprintf("Short Track n. hits - %s layers;n. hits per track;n. tracks", label);
+    histsNhitsAll_.push_back(book1DTrack(name, title, 20, -0.5, 19.5));
+
+    name = fmt::sprintf("trackDeltaR_%s", label);
+    title = fmt::sprintf("Short / Long Track #DeltaR - %s layers;#DeltaR(short,long);n. tracks", label);
+    histsDeltaRAll_.push_back(book1DTrack(name, title, 100, 0., 0.005));
+
+    // --- Comparator ---
+    const std::string compareFolder = fmt::format("{}/Compare_{}Hit", folderName_, label);
+    comparators_[i]->book(fs_->mkdir(compareFolder));
   }
 
-  currentFolder = folderName_ + "/OriginalTrack";
-  TFileDirectory original = fs_->mkdir(currentFolder);
-  originalTrack.book(original);
+  // --- Original track histos ---
+  const std::string originalFolder = folderName_ + "/OriginalTrack";
+  originalTrack.book(fs_->mkdir(originalFolder));
 }
 
 //__________________________________________________________________________________
