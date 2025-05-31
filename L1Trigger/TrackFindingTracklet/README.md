@@ -1,20 +1,17 @@
-To run the L1 tracking & create a TTree of tracking performance:
+To run the L1 tracking & create a TTree of tracking performance:  
 
 cmsRun L1TrackNtupleMaker_cfg.py
 
-By setting variable L1TRKALGO inside this script, you can change which 
-L1 tracking algo is used. It defaults to HYBRID. 
+By setting variable L1TRKALGO inside this script, you can change which L1 tracking algo is used. It defaults to HYBRID, which runs Tracklet pattern reco followed by old Kalman track fit.
 
-For the baseline HYBRID algo, which runs Tracklet pattern reco followed
-by KF track fit, TrackFindingTracklet/interface/Settings.h configures the pattern reco stage, (although some parameters there are overridden by l1tTTTracksFromTrackletEmulation_cfi.py).
-The KF fit is configured by the constructor of TrackFindingTMTT/src/Settings.cc.
+The version of the hybrid algorithm that corresponds to the current firmware, and includes the new Kalman track fit, can be run by changing L1TRKALGO=HYBRID_NEWKF. It is not yet the default for MC production, as it's tracking performance is not quite has good as HYBRID. e.g. Only a basic duplicate track removal is available for it.
 
-The ROOT macros L1TrackNtuplePlot.C & L1TrackQualityPlot.C make track 
-performance & BDT track quality performance plots from the TTree. 
-Both can be run via makeHists.csh .
+Displaced Hybrid tracking can be run by setting L1TRKALGO=HYBRID_DISPLACED.
 
-The optional "NewKF" track fit can be run by changing L1TRKALGO=HYBRID_NEWKF. It corresponds to the curent FW, but is is not yet the default, as only a basic duplicate track removal is available for it. It is configured via 
-TrackTrigger/python/ProducerSetup_cfi.py, (which also configures the DTC).
+The ROOT macros L1TrackNtuplePlot.C & L1TrackQualityPlot.C make track performance & BDT track quality performance plots from the TTree. Both can be run via makeHists.csh .
+
+If you need to modify the cfg params of the algorithm, then TrackFindingTracklet/interface/Settings.h configures the pattern reco stage, (although some parameters there are overridden by l1tTTTracksFromTrackletEmulation_cfi.py). The old KF fit is configured by the constructor of TrackFindingTMTT/src/Settings.cc. The DTC and new KF fit are configured via TrackTrigger/python/ProducerSetup_cfi.py.
+
 
 For experts
 ============
