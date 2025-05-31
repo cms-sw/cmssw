@@ -33,6 +33,3 @@ _HLTHgcalLocalRecoSequence_heterogeneous = cms.Sequence(
 
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 alpaka.toReplaceWith(HLTHgcalLocalRecoSequence, _HLTHgcalLocalRecoSequence_heterogeneous)
-alpaka.toModify(hltHgcalMergeLayerClusters,
-        layerClustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer"),
-        time_layerclustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer", "timeLayerCluster"))

@@ -10,3 +10,8 @@ hltHgcalMergeLayerClusters = cms.EDProducer("MergeClusterProducer",
     time_layerclustersHSci = cms.InputTag("hltHgcalLayerClustersHSci","timeLayerCluster"),
     time_layerclustersHSi = cms.InputTag("hltHgcalLayerClustersHSi","timeLayerCluster")
 )
+
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+alpaka.toModify(hltHgcalMergeLayerClusters,
+                layerClustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer"),
+                time_layerclustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer", "timeLayerCluster"))
