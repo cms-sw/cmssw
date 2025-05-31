@@ -521,7 +521,9 @@ namespace {
              cand.dzError() > 0;
     }
     inline auto getTauDZSigValid(const pat::PackedCandidate& cand) {
-      return cand.hasTrackDetails() && std::isnormal(cand.dz()) && std::isnormal(cand.dzError()) && cand.dzError() > 0;
+      // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
+      return cand.hasTrackDetails() && std::isnormal(cand.dz()) && std::isnormal(cand.dszError()) &&
+             cand.dszError() > 0;
     }
     inline auto getTauDxy(const reco::PFCandidate& cand) { return cand.bestTrack()->dxy(); }
     inline auto getTauDxy(const pat::PackedCandidate& cand) { return cand.dxy(); }
@@ -1363,7 +1365,15 @@ protected:
       get(dnn::tau_dz) = sp.scale(tau_dz, tauInputs_indices_[dnn::tau_dz]);
       get(dnn::tau_dz_sig_valid) =
           sp.scale(candFunc::getTauDZSigValid(*leadChargedHadrCand), tauInputs_indices_[dnn::tau_dz_sig_valid]);
-      const double dzError = hasTrackDetails ? leadChargedHadrCand->dzError() : -999.;
+      // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
+      double dzError;
+      if (hasTrackDetails) {
+        if constexpr (std::is_same_v<CandidateCastType, pat::PackedCandidate>)
+          dzError = leadChargedHadrCand->dszError();
+        else
+          dzError = leadChargedHadrCand->dzError();
+      } else
+        dzError = -999.;
       get(dnn::tau_dz_sig) = sp.scale(std::abs(tau_dz) / dzError, tauInputs_indices_[dnn::tau_dz_sig]);
     }
     get(dnn::tau_flightLength_x) =
@@ -1511,8 +1521,14 @@ protected:
         get(dnn::pfCand_ele_dxy_sig) = sp.scale(std::abs(candFunc::getTauDxy(ele_cand)) / ele_cand.dxyError(),
                                                 dnn::pfCand_ele_dxy_sig - PFe_index_offset);
         get(dnn::pfCand_ele_dz) = sp.scale(candFunc::getTauDz(ele_cand), dnn::pfCand_ele_dz - PFe_index_offset);
-        get(dnn::pfCand_ele_dz_sig) = sp.scale(std::abs(candFunc::getTauDz(ele_cand)) / ele_cand.dzError(),
-                                               dnn::pfCand_ele_dz_sig - PFe_index_offset);
+        // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
+        float dzError;
+        if constexpr (std::is_same_v<CandidateCastType, pat::PackedCandidate>)
+          dzError = ele_cand.dszError();
+        else
+          dzError = ele_cand.dzError();
+        get(dnn::pfCand_ele_dz_sig) =
+            sp.scale(std::abs(candFunc::getTauDz(ele_cand)) / dzError, dnn::pfCand_ele_dz_sig - PFe_index_offset);
         get(dnn::pfCand_ele_track_chi2_ndof) =
             candFunc::getPseudoTrack(ele_cand).ndof() > 0
                 ? sp.scale(candFunc::getPseudoTrack(ele_cand).chi2() / candFunc::getPseudoTrack(ele_cand).ndof(),
@@ -1581,9 +1597,14 @@ protected:
                      dnn::pfCand_gamma_dxy_sig - PFg_index_offset);
         get(dnn::pfCand_gamma_dz + fill_index_offset_PFg) =
             sp.scale(candFunc::getTauDz(gamma_cand), dnn::pfCand_gamma_dz - PFg_index_offset);
+        // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
+        float dzError;
+        if constexpr (std::is_same_v<CandidateCastType, pat::PackedCandidate>)
+          dzError = gamma_cand.dszError();
+        else
+          dzError = gamma_cand.dzError();
         get(dnn::pfCand_gamma_dz_sig + fill_index_offset_PFg) =
-            sp.scale(std::abs(candFunc::getTauDz(gamma_cand)) / gamma_cand.dzError(),
-                     dnn::pfCand_gamma_dz_sig - PFg_index_offset);
+            sp.scale(std::abs(candFunc::getTauDz(gamma_cand)) / dzError, dnn::pfCand_gamma_dz_sig - PFg_index_offset);
         get(dnn::pfCand_gamma_track_chi2_ndof + fill_index_offset_PFg) =
             candFunc::getPseudoTrack(gamma_cand).ndof() > 0
                 ? sp.scale(candFunc::getPseudoTrack(gamma_cand).chi2() / candFunc::getPseudoTrack(gamma_cand).ndof(),
@@ -1786,8 +1807,14 @@ protected:
         get(dnn::pfCand_muon_dxy_sig) = sp.scale(std::abs(candFunc::getTauDxy(muon_cand)) / muon_cand.dxyError(),
                                                  dnn::pfCand_muon_dxy_sig - PFmu_index_offset);
         get(dnn::pfCand_muon_dz) = sp.scale(candFunc::getTauDz(muon_cand), dnn::pfCand_muon_dz - PFmu_index_offset);
-        get(dnn::pfCand_muon_dz_sig) = sp.scale(std::abs(candFunc::getTauDz(muon_cand)) / muon_cand.dzError(),
-                                                dnn::pfCand_muon_dz_sig - PFmu_index_offset);
+        // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
+        float dzError;
+        if constexpr (std::is_same_v<CandidateCastType, pat::PackedCandidate>)
+          dzError = muon_cand.dszError();
+        else
+          dzError = muon_cand.dzError();
+        get(dnn::pfCand_muon_dz_sig) =
+            sp.scale(std::abs(candFunc::getTauDz(muon_cand)) / dzError, dnn::pfCand_muon_dz_sig - PFmu_index_offset);
         get(dnn::pfCand_muon_track_chi2_ndof) =
             candFunc::getPseudoTrack(muon_cand).ndof() > 0
                 ? sp.scale(candFunc::getPseudoTrack(muon_cand).chi2() / candFunc::getPseudoTrack(muon_cand).ndof(),
@@ -1953,8 +1980,14 @@ protected:
         get(dnn::pfCand_chHad_dxy_sig) = sp.scale(std::abs(candFunc::getTauDxy(chH_cand)) / chH_cand.dxyError(),
                                                   dnn::pfCand_chHad_dxy_sig - PFchH_index_offset);
         get(dnn::pfCand_chHad_dz) = sp.scale(candFunc::getTauDz(chH_cand), dnn::pfCand_chHad_dz - PFchH_index_offset);
-        get(dnn::pfCand_chHad_dz_sig) = sp.scale(std::abs(candFunc::getTauDz(chH_cand)) / chH_cand.dzError(),
-                                                 dnn::pfCand_chHad_dz_sig - PFchH_index_offset);
+        // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
+        float dzError;
+        if constexpr (std::is_same_v<CandidateCastType, pat::PackedCandidate>)
+          dzError = chH_cand.dszError();
+        else
+          dzError = chH_cand.dzError();
+        get(dnn::pfCand_chHad_dz_sig) =
+            sp.scale(std::abs(candFunc::getTauDz(chH_cand)) / dzError, dnn::pfCand_chHad_dz_sig - PFchH_index_offset);
         get(dnn::pfCand_chHad_track_chi2_ndof) =
             candFunc::getPseudoTrack(chH_cand).ndof() > 0
                 ? sp.scale(candFunc::getPseudoTrack(chH_cand).chi2() / candFunc::getPseudoTrack(chH_cand).ndof(),
