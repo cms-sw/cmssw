@@ -36,7 +36,7 @@ interface where scalar elements are accessed with an `operator()`: `soa.scalar()
 accessed via a array of structure (AoS) -like syntax: `soa[index].x()`. The "struct" object returned by `operator[]`
 can be used as a shortcut: `auto si = soa[index]; si.z() = si.x() + zi.y();`
 
-A view can be instanciated by being passed the layout(s) and view(s) it is defined against, or column by column.
+A view can be instanciated by being passed the corresponding layout.
 
 Layout classes also define a `View` and `ConstView` subclass that provide access to each column and
 scalar of the layout. In addition to those fully parametrized templates, two others levels of parametrization are
@@ -46,6 +46,12 @@ parameters section](#template-parameters).
 
 It is also possible to build a generic `View` or `ConstView` passing from the [Metarecords sublass](#metarecords-subclass). This
 view can point to data belonging to different SoAs and thus not contiguous in memory.
+
+## Descriptor
+
+The nested class `ConstDescriptor` can only be instanciated passing a `View` or a `ConstView` and provide access to each column 
+through a `std::tuple<std::span<T>...>`. This class is intended solely for performing a heterogeneous `deepCopy` from a `View` referencing different memory buffers as shown in 
+[`PortableHostCollection<T>`](../../DataFormats/Portable/README.md#portablehostCollection) and [`PortableDeviceCollection<>T, TDev`](../../DataFormats/Portable/README.md#portabledeviceCollection) sections. It should not be used for any other purpose.
 
 ## Metadata subclass
 

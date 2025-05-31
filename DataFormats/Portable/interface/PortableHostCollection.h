@@ -19,6 +19,8 @@ public:
   using Layout = T;
   using View = typename Layout::View;
   using ConstView = typename Layout::ConstView;
+  using Descriptor = typename Layout::Descriptor;
+  using ConstDescriptor = typename Layout::ConstDescriptor;
   using Buffer = cms::alpakatools::host_buffer<std::byte[]>;
   using ConstBuffer = cms::alpakatools::const_host_buffer<std::byte[]>;
 
@@ -30,7 +32,8 @@ public:
       // allocate pageable host memory
       : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(Layout::computeDataSize(elements))},
         layout_{buffer_->data(), elements},
-        view_{layout_} {
+        view_{layout_},
+        desc_{view_} {
     // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
@@ -40,7 +43,8 @@ public:
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
       : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(queue, Layout::computeDataSize(elements))},
         layout_{buffer_->data(), elements},
-        view_{layout_} {
+        view_{layout_},
+        desc_{view_} {
     // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
@@ -98,10 +102,29 @@ public:
   // The view must point to data in host memory.
   void deepCopy(ConstView const& view) { layout_.deepCopy(view); }
 
+  // Copy column by column heterogeneously for device to host data transfer.
+  template <typename TDescriptor, typename TQueue>
+  void deepCopy(TDescriptor const& src, TQueue& queue) {
+    _deepCopy<0>(src, queue);
+  }
+
+  template <int I, typename TDescriptor, typename TQueue>
+  void _deepCopy(TDescriptor const& src, TQueue& queue) {
+    if constexpr (I < TDescriptor::num_cols) {
+      assert(std::get<I>(desc_.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
+      alpaka::memcpy(
+          queue,
+          alpaka::createView(alpaka::getDev(queue), std::get<I>(desc_.buff).data(), std::get<I>(desc_.buff).size()),
+          alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), std::get<I>(src.buff).size()));
+      _deepCopy<I + 1>(src, queue);
+    }
+  }
+
 private:
   std::optional<Buffer> buffer_;  //!
   Layout layout_;                 //
   View view_;                     //!
+  Descriptor desc_;               //!
 };
 
 // generic SoA-based product in host memory

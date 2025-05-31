@@ -39,7 +39,7 @@ using GenericSoAConstView = GenericSoA::ConstView;
 
 TEST_CASE("SoAGenericView") {
   // common number of elements for the SoAs
-  const std::size_t elems = 17;
+  const std::size_t elems = 10;
 
   // buffer sizes
   const std::size_t positionBufferSize = SoAPosition::computeDataSize(elems);

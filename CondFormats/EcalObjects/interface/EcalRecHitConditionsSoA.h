@@ -3,7 +3,6 @@
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
 GENERATE_SOA_LAYOUT(EcalRecHitConditionsSoALayout,
