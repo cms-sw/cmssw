@@ -1,15 +1,20 @@
-#include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
+#include <array>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <vector>
+
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFEDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
+#include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
+#include "EventFilter/HGCalRawToDigi/interface/UnpackerTools.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "EventFilter/HGCalRawToDigi/interface/UnpackerTools.h"
-#include <array>
 
 using namespace hgcal;
 
