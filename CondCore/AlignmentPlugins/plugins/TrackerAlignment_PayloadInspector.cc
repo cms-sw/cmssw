@@ -1174,232 +1174,149 @@ namespace {
   /************************************************
    Pixel Tracker Map Comparison of coordinates
   *************************************************/
-  template <AlignmentPI::partitions myType, AlignmentPI::coordinate coord, int ntags, IOVMultiplicity nIOVs>
-  class PixelAlignmentCompareMapsBase : public PlotImage<Alignments, nIOVs, ntags> {
+  template <AlignmentPI::partitions P, AlignmentPI::coordinate C, int NTAGS, IOVMultiplicity NIOVs>
+  class PixelAlignmentCompareMapsBase : public PlotImage<Alignments, NIOVs, NTAGS> {
   public:
     PixelAlignmentCompareMapsBase()
-        : PlotImage<Alignments, nIOVs, ntags>("SiPixel Comparison Map of " +
-                                              AlignmentPI::getStringFromCoordinate(coord)) {
-      label_ = "PixelAlignmentComparisonMap" + AlignmentPI::getStringFromCoordinate(coord);
-      payloadString = "Tracker Alignment";
-    }
+        : PlotImage<Alignments, NIOVs, NTAGS>("SiPixel Comparison Map of " + AlignmentPI::getStringFromCoordinate(C)),
+          label_("PixelAlignmentComparisonMap" + AlignmentPI::getStringFromCoordinate(C)),
+          payloadStr_("Tracker Alignment") {}
 
     bool fill() override {
       gStyle->SetPalette(1);
 
-      // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = PlotBase::getTag<0>().iovs;
-      auto tagname1 = PlotBase::getTag<0>().name;
-      std::string tagname2 = "";
-      auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      const auto &iovs = PlotBase::getTag<0>().iovs;
+      const auto &tag1 = PlotBase::getTag<0>().name;
+      const auto &[since1, hash1] = iovs.front();
+      auto [since2, hash2] = (NTAGS == 2) ? PlotBase::getTag<1>().iovs.front() : iovs.back();
+      const auto &tag2 = (NTAGS == 2) ? PlotBase::getTag<1>().name : tag1;
 
-      // we don't support (yet) comparison with more than 2 tags
-      assert(this->m_plotAnnotations.ntags < 3);
+      auto ref = this->fetchPayload(hash1);
+      auto tgt = this->fetchPayload(hash2);
+      if (!ref || !tgt)
+        return false;
 
-      if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = PlotBase::getTag<1>().iovs;
-        tagname2 = PlotBase::getTag<1>().name;
-        lastiov = tag2iovs.front();
-      } else {
-        lastiov = theIOVs.back();
+      const auto &refAli = ref->m_align, tgtAli = tgt->m_align;
+      if (isPhase0(refAli) || isPhase0(tgtAli)) {
+        edm::LogError(label_) << "Not supported for non-Phase1 geometries.";
+        TCanvas canv("Canv", "Canv", 1200, 1000);
+        AlignmentPI::displayNotSupported(canv, 0);
+        return false;
       }
 
-      std::shared_ptr<Alignments> last_payload = this->fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<Alignments> first_payload = this->fetchPayload(std::get<1>(firstiov));
+      Phase1PixelMaps maps("");
+      maps.resetOption(P == AlignmentPI::INVALID ? "COLZA L" : "COLZL");
 
-      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
-      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+      std::string coordStr = AlignmentPI::getStringFromCoordinate(C);
+      std::string unit = (C <= 3) ? "#mum" : "mrad";
+      std::string label = fmt::sprintf("#Delta %s [%s]", coordStr, unit);
 
-      const std::vector<AlignTransform> &ref_ali = first_payload->m_align;
-      const std::vector<AlignTransform> &target_ali = last_payload->m_align;
+      std::string histoLabel = (P == AlignmentPI::BPix)   ? "AlignmentBarrel"
+                               : (P == AlignmentPI::FPix) ? "AlignmentForward"
+                                                          : "Alignment";
 
-      if (last_payload.get() && first_payload.get()) {
-        // Book the TH2Poly
-        Phase1PixelMaps theMaps("");
-        if (myType == AlignmentPI::INVALID) {
-          theMaps.resetOption("COLZA L");
-        } else {
-          theMaps.resetOption("COLZL");
-        }
+      if (P != AlignmentPI::FPix)
+        maps.bookBarrelHistograms(histoLabel, (payloadStr_ + " " + coordStr).c_str(), label.c_str());
+      if (P != AlignmentPI::BPix)
+        maps.bookForwardHistograms(histoLabel, (payloadStr_ + " " + coordStr).c_str(), label.c_str());
 
-        std::string coordinateStr = AlignmentPI::getStringFromCoordinate(coord);
-        std::string unit = (coord <= 3) ? "#mum" : "mrad";
-        std::string what = fmt::sprintf("%s %s", payloadString, coordinateStr);
-        std::string zaxis = fmt::sprintf("#Delta %s [%s]", coordinateStr, unit);
+      std::map<uint32_t, double> diff;
+      fillDiffs(refAli, tgtAli, diff);
 
-        if (myType == AlignmentPI::BPix) {
-          theMaps.bookBarrelHistograms("AlignmentBarrel", what.c_str(), zaxis.c_str());
-        } else if (myType == AlignmentPI::FPix) {
-          theMaps.bookForwardHistograms("AlignmentForward", what.c_str(), zaxis.c_str());
-        } else if (myType == AlignmentPI::INVALID) {
-          theMaps.bookBarrelHistograms("Alignment", what.c_str(), zaxis.c_str());
-          theMaps.bookForwardHistograms("Alignment", what.c_str(), zaxis.c_str());
-        } else {
-          edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
-              << " un-recognized detector type " << myType << std::endl;
-          return false;
-        }
-
-        if (this->isPhase0(ref_ali) || this->isPhase0(target_ali)) {
-          edm::LogError(label_) << "Pixel Tracker Alignment maps are not supported for non-Phase1 Pixel geometries !";
-          TCanvas canvas("Canv", "Canv", 1200, 1000);
-          AlignmentPI::displayNotSupported(canvas, 0);
-          std::string fileName(this->m_imageFileName);
-          canvas.SaveAs(fileName.c_str());
-          return false;
-        }
-
-        // fill the map of differences
-        std::map<uint32_t, double> diffPerDetid;
-        this->fillPerDetIdDiff(coord, ref_ali, target_ali, diffPerDetid);
-
-        // now fill the tracker map
-        for (const auto &elem : diffPerDetid) {
-          // reject Strips
-          int subid = DetId(elem.first).subdetId();
-          if (subid > 2) {
-            continue;
-          }
-
-          if (myType == AlignmentPI::INVALID) {
-            if ((subid == PixelSubdetector::PixelBarrel)) {
-              theMaps.fillBarrelBin("Alignment", elem.first, elem.second);
-            }
-            if ((subid == PixelSubdetector::PixelEndcap)) {
-              theMaps.fillForwardBin("Alignment", elem.first, elem.second);
-            }
-          } else if ((subid == PixelSubdetector::PixelBarrel) && (myType == AlignmentPI::BPix)) {
-            theMaps.fillBarrelBin("AlignmentBarrel", elem.first, elem.second);
-          } else if ((subid == PixelSubdetector::PixelEndcap) && (myType == AlignmentPI::FPix)) {
-            theMaps.fillForwardBin("AlignmentForward", elem.first, elem.second);
-          }
-        }
-
-        theMaps.beautifyAllHistograms();
-
-        TCanvas canvas("Canv", "Canv", (myType == AlignmentPI::BPix) ? 1200 : 1600, 1000);
-        if (myType == AlignmentPI::BPix) {
-          theMaps.drawBarrelMaps("AlignmentBarrel", canvas);
-        } else if (myType == AlignmentPI::FPix) {
-          theMaps.drawForwardMaps("AlignmentForward", canvas);
-        } else if (myType == AlignmentPI::INVALID) {
-          theMaps.drawSummaryMaps("Alignment", canvas);
-        }
-
-        canvas.cd();
-        TPaveText ksPt(0, 0, 0.88, 0.04, "NDC");
-        ksPt.SetBorderSize(0);
-        ksPt.SetFillColor(0);
-
-        std::string textToAdd = "#color[4]{" + tagname1 + "}, IOV: #color[4]{" + firstIOVsince + "} vs #color[4]{" +
-                                tagname2 + "}, IOV: #color[4]{" + lastIOVsince + "}";
-
-        ksPt.AddText(textToAdd.c_str());
-        ksPt.Draw();
-
-        canvas.cd();
-        std::string fileName(this->m_imageFileName);
-        canvas.SaveAs(fileName.c_str());
+      for (const auto &[id, val] : diff) {
+        int subid = DetId(id).subdetId();
+        if (subid > 2)
+          continue;
+        if (P == AlignmentPI::INVALID || (P == AlignmentPI::BPix && subid == 1))
+          maps.fillBarrelBin(histoLabel, id, val);
+        if (P == AlignmentPI::INVALID || (P == AlignmentPI::FPix && subid == 2))
+          maps.fillForwardBin(histoLabel, id, val);
       }
+
+      maps.beautifyAllHistograms();
+
+      TCanvas canvas("Canv", "Canv", (P == AlignmentPI::BPix ? 1200 : 1600), 1000);
+      if (P == AlignmentPI::BPix)
+        maps.drawBarrelMaps(histoLabel, canvas);
+      else if (P == AlignmentPI::FPix)
+        maps.drawForwardMaps(histoLabel, canvas);
+      else
+        maps.drawSummaryMaps(histoLabel, canvas);
+
+      // come back to the main pad
+      canvas.cd();
+      TPaveText text(0, 0, 0.88, 0.04, "NDC");
+      text.SetBorderSize(0);
+      text.SetFillColor(0);
+      text.AddText(
+          fmt::sprintf(
+              "#color[4]{%s}, IOV: #color[4]{%lu} vs #color[4]{%s}, IOV: #color[4]{%lu}", tag1, since1, tag2, since2)
+              .c_str());
+      text.Draw();
+
+      canvas.SaveAs(this->m_imageFileName.c_str());
       return true;
     }
 
   protected:
-    std::string payloadString;
-    std::string label_;
+    std::string label_, payloadStr_;
 
   private:
-    //_________________________________________________
-    bool isPhase0(std::vector<AlignTransform> theAlis) {
-      SiPixelDetInfoFileReader reader =
-          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh0DefaultFile).fullPath());
-      const auto &p0detIds = reader.getAllDetIds();
-
-      std::vector<uint32_t> ownDetIds;
-      std::transform(theAlis.begin(), theAlis.end(), std::back_inserter(ownDetIds), [](AlignTransform ali) -> uint32_t {
-        return ali.rawId();
+    bool isPhase0(const std::vector<AlignTransform> &alis) const {
+      static const auto phase0 =
+          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh0DefaultFile).fullPath()).getAllDetIds();
+      return std::any_of(alis.begin(), alis.end(), [&](const auto &a) {
+        return std::find(phase0.begin(), phase0.end(), a.rawId()) != phase0.end();
       });
-
-      for (const auto &det : ownDetIds) {
-        // if found at least one phase-0 detId early return
-        if (std::find(p0detIds.begin(), p0detIds.end(), det) != p0detIds.end()) {
-          return true;
-        }
-      }
-      return false;
     }
 
-    /*--------------------------------------------------------------------*/
-    void fillPerDetIdDiff(const AlignmentPI::coordinate &myCoord,
-                          const std::vector<AlignTransform> &ref_ali,
-                          const std::vector<AlignTransform> &target_ali,
-                          std::map<uint32_t, double> &diff)
-    /*--------------------------------------------------------------------*/
-    {
-      for (unsigned int i = 0; i < ref_ali.size(); i++) {
-        uint32_t detid = ref_ali[i].rawId();
-        if (ref_ali[i].rawId() == target_ali[i].rawId()) {
-          CLHEP::HepRotation target_rot(target_ali[i].rotation());
-          CLHEP::HepRotation ref_rot(ref_ali[i].rotation());
+    void fillDiffs(const std::vector<AlignTransform> &ref,
+                   const std::vector<AlignTransform> &tgt,
+                   std::map<uint32_t, double> &diff) const {
+      for (size_t i = 0; i < ref.size(); ++i) {
+        if (ref[i].rawId() != tgt[i].rawId())
+          continue;
+        auto id = ref[i].rawId();
+        auto dt = tgt[i].translation() - ref[i].translation();
 
-          align::RotationType target_ROT(target_rot.xx(),
-                                         target_rot.xy(),
-                                         target_rot.xz(),
-                                         target_rot.yx(),
-                                         target_rot.yy(),
-                                         target_rot.yz(),
-                                         target_rot.zx(),
-                                         target_rot.zy(),
-                                         target_rot.zz());
+        CLHEP::HepRotation dr = tgt[i].rotation();
+        CLHEP::HepRotation rr = ref[i].rotation();
 
-          align::RotationType ref_ROT(ref_rot.xx(),
-                                      ref_rot.xy(),
-                                      ref_rot.xz(),
-                                      ref_rot.yx(),
-                                      ref_rot.yy(),
-                                      ref_rot.yz(),
-                                      ref_rot.zx(),
-                                      ref_rot.zy(),
-                                      ref_rot.zz());
+        align::RotationType dr_align(dr.xx(), dr.xy(), dr.xz(), dr.yx(), dr.yy(), dr.yz(), dr.zx(), dr.zy(), dr.zz());
 
-          const std::vector<double> deltaRot = {
-              ::deltaPhi(align::toAngles(target_ROT)[0], align::toAngles(ref_ROT)[0]),
-              ::deltaPhi(align::toAngles(target_ROT)[1], align::toAngles(ref_ROT)[1]),
-              ::deltaPhi(align::toAngles(target_ROT)[2], align::toAngles(ref_ROT)[2])};
+        align::RotationType rr_align(rr.xx(), rr.xy(), rr.xz(), rr.yx(), rr.yy(), rr.yz(), rr.zx(), rr.zy(), rr.zz());
 
-          const auto &deltaTrans = target_ali[i].translation() - ref_ali[i].translation();
+        auto da = align::toAngles(dr_align);
+        auto ra = align::toAngles(rr_align);
 
-          switch (myCoord) {
-            case AlignmentPI::t_x:
-              diff.insert({detid, deltaTrans.x() * AlignmentPI::cmToUm});
-              break;
-            case AlignmentPI::t_y:
-              diff.insert({detid, deltaTrans.y() * AlignmentPI::cmToUm});
-              break;
-            case AlignmentPI::t_z:
-              diff.insert({detid, deltaTrans.z() * AlignmentPI::cmToUm});
-              break;
-            case AlignmentPI::rot_alpha:
-              diff.insert({detid, deltaRot[0] * AlignmentPI::tomRad});
-              break;
-            case AlignmentPI::rot_beta:
-              diff.insert({detid, deltaRot[1] * AlignmentPI::tomRad});
-              break;
-            case AlignmentPI::rot_gamma:
-              diff.insert({detid, deltaRot[2] * AlignmentPI::tomRad});
-              break;
-            default:
-              edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << myCoord << std::endl;
-              break;
-          }  // switch on the coordinate
-        }  // check on the same detID
-      }  // loop on the components
+        switch (C) {
+          case AlignmentPI::t_x:
+            diff[id] = dt.x() * AlignmentPI::cmToUm;
+            break;
+          case AlignmentPI::t_y:
+            diff[id] = dt.y() * AlignmentPI::cmToUm;
+            break;
+          case AlignmentPI::t_z:
+            diff[id] = dt.z() * AlignmentPI::cmToUm;
+            break;
+          case AlignmentPI::rot_alpha:
+            diff[id] = deltaPhi(da[0], ra[0]) * AlignmentPI::tomRad;
+            break;
+          case AlignmentPI::rot_beta:
+            diff[id] = deltaPhi(da[1], ra[1]) * AlignmentPI::tomRad;
+            break;
+          case AlignmentPI::rot_gamma:
+            diff[id] = deltaPhi(da[2], ra[2]) * AlignmentPI::tomRad;
+            break;
+          default:
+            break;
+        }
+      }
     }
   };
 
   // template implementations for Barrel Pixel
-  
+
   template <AlignmentPI::coordinate coord>
   using BPixAlignmentCompareMap = PixelAlignmentCompareMapsBase<AlignmentPI::BPix, coord, 1, MULTI_IOV>;
 
@@ -1423,7 +1340,7 @@ namespace {
   typedef BPixAlignmentCompareMapTwoTags<AlignmentPI::rot_gamma> BPixAlignmentCompareMapGammaTwoTags;
 
   // template implementations for Forward Pixel
-  
+
   template <AlignmentPI::coordinate coord>
   using FPixAlignmentCompareMap = PixelAlignmentCompareMapsBase<AlignmentPI::FPix, coord, 1, MULTI_IOV>;
 
