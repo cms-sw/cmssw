@@ -373,7 +373,11 @@ sc4JetTable = pfJetTable.clone(
 sc8JetTable = pfJetTable.clone(
     src = 'l1tSC8PFL1PuppiCorrectedEmulator',
     name = "L1puppiJetSC8",
-    doc = "SeededCone 0.8 Puppi jet,  origin: Correlator"
+    doc = "SeededCone 0.8 Puppi jet,  origin: Correlator",
+    variables = cms.PSet(
+        pfJetTable.variables.clone(),
+        mass = Var("mass", float)
+    )
 )
 
 sc4ExtJetTable = pfJetTable.clone(
