@@ -226,7 +226,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
                                     << php.firstLayer_ << ":" << php.firstMixedLayer_ << " Det Type "
                                     << php.detectorType_ << "  thickenss " << php.waferThick_ << " Tile Mask Mode "
                                     << php.waferMaskMode_ << " Zside " << php.waferZSide_ << " Cassettes "
-                                    << php.cassettes_ << " UseSimWt " << php.useSimWt_ << " WaferNoGap " << php.waferNoGap_;
+                                    << php.cassettes_ << " UseSimWt " << php.useSimWt_ << " WaferNoGap "
+                                    << php.waferNoGap_;
 #endif
       // Load the SpecPars
       geom->loadSpecParsTrapezoid(fv, php);

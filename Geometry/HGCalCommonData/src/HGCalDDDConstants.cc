@@ -52,8 +52,8 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
                                                     hgpar_->sensorSizeOffset_);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::rmax_ " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":"
-                                  << hexsideT_ << " NoGap: " << hgpar_->waferNoGap_ << ":" << hgpar_->sensorSeparation_ << " CellSize "
-                                  << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":"
+                                  << hexsideT_ << " NoGap: " << hgpar_->waferNoGap_ << ":" << hgpar_->sensorSeparation_
+                                  << " CellSize " << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":"
                                   << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
 #endif
   } else {
