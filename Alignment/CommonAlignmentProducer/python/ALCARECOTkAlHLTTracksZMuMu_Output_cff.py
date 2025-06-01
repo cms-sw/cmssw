@@ -13,6 +13,7 @@ OutALCARECOTkAlHLTTracksZMuMu_noDrop = cms.PSet(
         'keep SiStripClusteredmNewDetSetVector_ALCARECOTkAlHLTTracksZMuMu_*_*',
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep *_TriggerResults_*_*',
+        'keep *_hltPixelVertices_*_*',
 	'keep *_hltVerticesPFFilter_*_*',
         'keep *_hltOnlineBeamSpot_*_*'
     )
