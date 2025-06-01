@@ -1,3 +1,6 @@
+# ESProducer providing the algorithm to run input data through modelsim and to compares results with expected output data
+# and EDAnalyzer running the ESProduct produced by above ESProducer
+
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.TrackFindingTracklet.Demonstrator_cfi import TrackTriggerDemonstrator_params

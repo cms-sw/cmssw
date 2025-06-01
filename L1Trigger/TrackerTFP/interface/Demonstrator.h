@@ -2,7 +2,6 @@
 #define L1Trigger_TrackerTFP_Demonstrator_h
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-#include "L1Trigger/TrackerTFP/interface/DemonstratorRcd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 
@@ -12,30 +11,39 @@
 namespace trackerTFP {
 
   /*! \class  trackerTFP::Demonstrator
-   *  \brief  Compares emulator with f/w
-   *  \author Thomas Schuh
+   *  \brief  ESProduct providing the algorithm to run input data through modelsim
+   *          and to compares results with expected output data
    *  \date   2021, April
    */
   class Demonstrator {
   public:
+    // configuration
+    struct Config {
+      std::string dirIPBB_;
+      double runTime_;
+      std::vector<int> linkMappingIn_;
+      std::vector<int> linkMappingOut_;
+    };
     Demonstrator() {}
-    Demonstrator(const edm::ParameterSet& iConfig, const tt::Setup* setup);
-    ~Demonstrator() {}
+    Demonstrator(const Config& iConfig, const tt::Setup* setup);
+    ~Demonstrator() = default;
     // plays input through modelsim and compares result with output
     bool analyze(const std::vector<std::vector<tt::Frame>>& input,
                  const std::vector<std::vector<tt::Frame>>& output) const;
 
   private:
     // converts streams of bv into stringstream
-    void convert(const std::vector<std::vector<tt::Frame>>& bits, std::stringstream& ss) const;
+    void convert(const std::vector<std::vector<tt::Frame>>& bits,
+                 std::stringstream& ss,
+                 const std::vector<int>& mapping) const;
     // plays stringstream through modelsim
     void sim(const std::stringstream& ss) const;
     // compares stringstream with modelsim output
     bool compare(std::stringstream& ss) const;
     // creates emp file header
-    std::string header(int numChannel) const;
+    std::string header(const std::vector<int>& links) const;
     // creates 6 frame gap between packets
-    std::string infraGap(int& nFrame, int numChannel) const;
+    std::string infraGap(int& nFrame, int numLinks) const;
     // creates frame number
     std::string frame(int& nFrame) const;
     // converts bv into hex
@@ -45,6 +53,10 @@ namespace trackerTFP {
     std::string dirIPBB_;
     // runtime in ms
     double runTime_;
+    //
+    std::vector<int> linkMappingIn_;
+    //
+    std::vector<int> linkMappingOut_;
     // path to input text file
     std::string dirIn_;
     // path to output text file
@@ -63,6 +75,6 @@ namespace trackerTFP {
 
 }  // namespace trackerTFP
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::Demonstrator, trackerTFP::DemonstratorRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::Demonstrator, tt::SetupRcd);
 
 #endif
