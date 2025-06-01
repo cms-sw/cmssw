@@ -54,7 +54,6 @@ HGCalSD::HGCalSD(const std::string& name,
       cos30deg_(std::cos(30.0 * CLHEP::deg)) {
   numberingScheme_.reset(nullptr);
   guardRing_.reset(nullptr);
-  guardRingPartial_.reset(nullptr);
   mouseBite_.reset(nullptr);
   cellOffset_.reset(nullptr);
 
@@ -212,14 +211,14 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
       int layertype = hgcons_->layerType(layer);
       int frontBack = HGCalTypes::layerFrontBack(layertype);
       bool reject = ((guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) ||
-                     (guardRingPartial_->exclude(local, iz, frontBack, layer, uv.first, uv.second)));
+                     (guardRing_->excludePartial(local, iz, frontBack, layer, uv.first, uv.second)));
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCSim") << "Zside:Layer:WaferU:WaferV " << iz << ":" << layer << ":" << uv.first << ":"
                                  << uv.second << " LayerType " << layertype << " FrontBack " << frontBack
                                  << " PartialType " << hgcons_->partialWaferType(layer, uv.first, uv.second) << ":"
                                  << HGCalTypes::WaferFull << " Reject "
                                  << guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second) << ":"
-                                 << guardRingPartial_->exclude(local, iz, frontBack, layer, uv.first, uv.second) << ":"
+                                 << guardRing_->excludePartial(local, iz, frontBack, layer, uv.first, uv.second) << ":"
                                  << reject;
       if (reject)
         edm::LogVerbatim("HGCSim") << "Rejected by GuardRing cutoff *****";
@@ -311,7 +310,6 @@ void HGCalSD::update(const BeginOfJob* job) {
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
     if (fiducialCut_) {
       guardRing_ = std::make_unique<HGCGuardRing>(*hgcons_);
-      guardRingPartial_ = std::make_unique<HGCGuardRingPartial>(*hgcons_);
     }
 
     //Now for calibration cells

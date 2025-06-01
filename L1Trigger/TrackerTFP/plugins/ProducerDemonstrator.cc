@@ -4,38 +4,41 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "L1Trigger/TrackerTFP/interface/Demonstrator.h"
 
+#include <vector>
+#include <string>
 #include <memory>
-
-using namespace std;
-using namespace edm;
-using namespace tt;
 
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerDemonstrator
-   *  \brief  Class to demontrate correctness of track trigger emulators
+   *  \brief  ESProducer providing the algorithm to run input data through modelsim
+   *          and to compares results with expected output data
    *  \author Thomas Schuh
    *  \date   2020, Nov
    */
-  class ProducerDemonstrator : public ESProducer {
+  class ProducerDemonstrator : public edm::ESProducer {
   public:
-    ProducerDemonstrator(const ParameterSet& iConfig);
-    ~ProducerDemonstrator() override {}
-    unique_ptr<Demonstrator> produce(const DemonstratorRcd& rcd);
+    ProducerDemonstrator(const edm::ParameterSet& iConfig);
+    ~ProducerDemonstrator() override = default;
+    std::unique_ptr<Demonstrator> produce(const tt::SetupRcd& rcd);
 
   private:
-    const ParameterSet iConfig_;
-    ESGetToken<Setup, SetupRcd> esGetToken_;
+    Demonstrator::Config iConfig_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetToken_;
   };
 
-  ProducerDemonstrator::ProducerDemonstrator(const ParameterSet& iConfig) : iConfig_(iConfig) {
+  ProducerDemonstrator::ProducerDemonstrator(const edm::ParameterSet& iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
+    iConfig_.dirIPBB_ = iConfig.getParameter<std::string>("DirIPBB");
+    iConfig_.runTime_ = iConfig.getParameter<double>("RunTime");
+    iConfig_.linkMappingIn_ = iConfig.getParameter<std::vector<int>>("LinkMappingIn");
+    iConfig_.linkMappingOut_ = iConfig.getParameter<std::vector<int>>("LinkMappingOut");
   }
 
-  unique_ptr<Demonstrator> ProducerDemonstrator::produce(const DemonstratorRcd& rcd) {
-    const Setup* setup = &rcd.get(esGetToken_);
-    return make_unique<Demonstrator>(iConfig_, setup);
+  std::unique_ptr<Demonstrator> ProducerDemonstrator::produce(const tt::SetupRcd& rcd) {
+    const tt::Setup* setup = &rcd.get(esGetToken_);
+    return std::make_unique<Demonstrator>(iConfig_, setup);
   }
 
 }  // namespace trackerTFP
