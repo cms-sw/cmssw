@@ -8,12 +8,11 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "L1Trigger/TrackTrigger/interface/SetupRcd.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormatsRcd.h"
-#include "L1Trigger/TrackerTFP/interface/LayerEncodingRcd.h"
 #include "FWCore/Utilities/interface/mplVector.h"
 
 namespace hph {
 
-  typedef edm::mpl::Vector<tt::SetupRcd, trackerTFP::DataFormatsRcd, trackerTFP::LayerEncodingRcd> Rcds;
+  typedef edm::mpl::Vector<tt::SetupRcd, trackerTFP::DataFormatsRcd> Rcds;
 
   // record of hph::SetupRcd
   class SetupRcd : public edm::eventsetup::DependentRecordImplementation<SetupRcd, Rcds> {};
