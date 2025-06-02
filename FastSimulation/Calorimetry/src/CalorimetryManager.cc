@@ -71,14 +71,12 @@ std::vector<std::pair<int, float> > CalorimetryManager::myZero_ =
 
 CalorimetryManager::CalorimetryManager() : myCalorimeter_(nullptr), initialized_(false) { ; }
 
-CalorimetryManager::CalorimetryManager(FSimEvent* aSimEvent,
-                                       const edm::ParameterSet& fastCalo,
+CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
                                        const edm::ParameterSet& fastMuECAL,
                                        const edm::ParameterSet& fastMuHCAL,
                                        const edm::ParameterSet& parGflash,
                                        edm::ConsumesCollector&& iC)
-    : mySimEvent_(aSimEvent),
-      initialized_(false),
+    : initialized_(false),
       theMuonEcalEffects_(nullptr),
       theMuonHcalEffects_(nullptr),
       bFixedLength_(false) {
@@ -128,27 +126,7 @@ void CalorimetryManager::clean() {
 
 CalorimetryManager::~CalorimetryManager() = default;
 
-void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random) {
-  if (!evtsToDebug_.empty()) {
-    std::vector<unsigned int>::const_iterator itcheck =
-        find(evtsToDebug_.begin(), evtsToDebug_.end(), mySimEvent_->id().event());
-    debug_ = (itcheck != evtsToDebug_.end());
-    if (debug_)
-      mySimEvent_->print();
-  }
-
-  initialize(random);
-
-  LogInfo("FastCalorimetry") << "Reconstructing " << (int)mySimEvent_->nTracks() << " tracks." << std::endl;
-  for (int fsimi = 0; fsimi < (int)mySimEvent_->nTracks(); ++fsimi) {
-    FSimTrack& myTrack = mySimEvent_->track(fsimi);
-
-    reconstructTrack(myTrack, random);
-  }  // particle loop
-
-}  // reconstruct
-
-void CalorimetryManager::initialize(RandomEngineAndDistribution const* random) {
+void CalorimetryManager::initialize(RandomEngineAndDistribution const* random, const HepPDT::ParticleDataTable* pdt) {
   // Clear the content of the calorimeters
   if (!initialized_) {
     theHFShowerLibrary_->SetRandom(random);
@@ -164,6 +142,7 @@ void CalorimetryManager::initialize(RandomEngineAndDistribution const* random) {
 
     initialized_ = true;
   }
+  pdt_ = pdt;
   clean();
 }
 
@@ -219,10 +198,11 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
   }
 
   // The Particle at ECAL entrance
-  myPart_ = myTrack.ecalEntrance();
+  RawParticle myPart = myTrack.ecalEntrance();
+  RawParticle myElec, myPosi;
 
   // protection against infinite loop.
-  if (myTrack.type() == 22 && myPart_.e() < 0.055)
+  if (myTrack.type() == 22 && myPart.e() < 0.055)
     return;
 
   // Barrel or Endcap ?
@@ -232,7 +212,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
   int onLayer2 = myTrack.onLayer2();
 
   // The entrance in ECAL
-  XYZPoint ecalentrance = myPart_.vertex().Vect();
+  XYZPoint ecalentrance = myPart.vertex().Vect();
 
   // The preshower
   std::unique_ptr<PreshowerHitMaker> myPreshower;
@@ -270,7 +250,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
     // Initialization
     double eMass = 0.000510998902;
     double xe = 0;
-    double xm = eMass / myPart_.e();
+    double xm = eMass / myPart.e();
     double weight = 0.;
 
     // Generate electron energy between emass and eGamma-emass
@@ -280,23 +260,23 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
     } while (weight < random->flatShoot());
 
     // Protection agains infinite loop in Famos Shower
-    if (myPart_.e() * xe < 0.055 || myPart_.e() * (1. - xe) < 0.055) {
-      if (myPart_.e() > 0.055)
-        thePart.push_back(&myPart_);
+    if (myPart.e() * xe < 0.055 || myPart.e() * (1. - xe) < 0.055) {
+      if (myPart.e() > 0.055)
+        thePart.push_back(&myPart);
 
     } else {
-      myElec_ = (myPart_.momentum()) * xe;
-      myPosi_ = (myPart_.momentum()) * (1. - xe);
-      myElec_.setVertex(myPart_.vertex());
-      myPosi_.setVertex(myPart_.vertex());
-      thePart.push_back(&myElec_);
-      thePart.push_back(&myPosi_);
+      myElec = (myPart.momentum()) * xe;
+      myPosi = (myPart.momentum()) * (1. - xe);
+      myElec.setVertex(myPart.vertex());
+      myPosi.setVertex(myPart.vertex());
+      thePart.push_back(&myElec);
+      thePart.push_back(&myPosi);
     }
     // Electrons
   } else {
     X0depth = 0.;
-    if (myPart_.e() > 0.055)
-      thePart.push_back(&myPart_);
+    if (myPart.e() > 0.055)
+      thePart.push_back(&myPart);
   }
 
   // After the different protections, this shouldn't happen.
@@ -322,7 +302,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
     maxShower = 2.;  // simple pivot-searching protection
 
   double depth((X0depth + maxShower) * myCalorimeter_->ecalProperties(onEcal)->radLenIncm());
-  XYZPoint meanShower = ecalentrance + myPart_.Vect().Unit() * depth;
+  XYZPoint meanShower = ecalentrance + myPart.Vect().Unit() * depth;
 
   // The closest crystal
   DetId pivot(myCalorimeter_->getClosestCell(meanShower, true, onEcal == 1));
@@ -363,7 +343,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
      ************** */
   if (myTrack.onEcal() == 2)  // if on EE
   {
-    if ((onLayer1 || onLayer2) && myPart_.e() <= 250.) {
+    if ((onLayer1 || onLayer2) && myPart.e() <= 250.) {
       double maxdepth = X0depth + theShower.getMaximumOfShower();
       double newRadiusFactor = radiusFactorEE_ * aTerm_ / (1. + bTerm_ * maxdepth);
       myGrid.setRadiusFactor(newRadiusFactor);
@@ -381,7 +361,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
   myGrid.setPreshowerPresent(simulatePreshower_);
 
   // The shower simulation
-  myGrid.setTrackParameters(myPart_.Vect().Unit(), X0depth, myTrack);
+  myGrid.setTrackParameters(myPart.Vect().Unit(), X0depth, myTrack);
 
   if (myPreshower)
     theShower.setPreshower(myPreshower.get());
@@ -490,11 +470,9 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
   if (myTrack.onEcal()) {
     trackPosition = myTrack.ecalEntrance().vertex();
     hit = myTrack.onEcal() - 1;  //
-    myPart_ = myTrack.ecalEntrance();
   } else if (myTrack.onVFcal()) {
     trackPosition = myTrack.vfcalEntrance().vertex();
     hit = 2;
-    myPart_ = myTrack.vfcalEntrance();
   } else {
     LogInfo("FastCalorimetry") << " The particle is not in the acceptance " << std::endl;
     return;
@@ -727,10 +705,8 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   XYZTLorentzVector trackPosition;
   if (myTrack.onEcal()) {
     trackPosition = myTrack.ecalEntrance().vertex();
-    myPart_ = myTrack.ecalEntrance();
   } else if (myTrack.onVFcal()) {
     trackPosition = myTrack.vfcalEntrance().vertex();
-    myPart_ = myTrack.vfcalEntrance();
   } else {
     LogInfo("FastCalorimetry") << " The particle is not in the acceptance " << std::endl;
     return;
@@ -796,7 +772,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
       // The energy loss simulator
       float charge = (float)(myTrack.charge());
       RawParticle p = rawparticle::makeMuon(charge < 0, moment, trackPosition);
-      ParticlePropagator theMuon(p, nullptr, nullptr, mySimEvent_->theTable());
+      ParticlePropagator theMuon(p, nullptr, nullptr, pdt_);
       if (energyLossECAL) {
         energyLossECAL->updateState(theMuon, segmentSizeinX0, random);
         energy = energyLossECAL->deltaMom().E();
@@ -846,7 +822,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
           // The energy loss simulator
           float charge = (float)(myTrack.charge());
           RawParticle p = rawparticle::makeMuon(charge < 0, moment, trackPosition);
-          ParticlePropagator theMuon(p, nullptr, nullptr, mySimEvent_->theTable());
+          ParticlePropagator theMuon(p, nullptr, nullptr, pdt_);
           energyLossHCAL->updateState(theMuon, segmentSizeinX0, random);
           mipenergy = energyLossHCAL->deltaMom().E();
           moment -= energyLossHCAL->deltaMom();

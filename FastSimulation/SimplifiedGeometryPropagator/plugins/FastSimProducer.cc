@@ -150,8 +150,7 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
 
   if (simulateCalorimetry_) {
     myCalorimetry_ =
-        std::make_unique<CalorimetryManager>(nullptr,
-                                             iConfig.getParameter<edm::ParameterSet>("Calorimetry"),
+        std::make_unique<CalorimetryManager>(iConfig.getParameter<edm::ParameterSet>("Calorimetry"),
                                              iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
                                              iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
                                              iConfig.getParameter<edm::ParameterSet>("GFlash"),
@@ -225,7 +224,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     // Important: this also cleans the calorimetry information from the last event
-    myCalorimetry_->initialize(randomEngine_.get());
+    myCalorimetry_->initialize(randomEngine_.get(), &pdt);
   }
 
   // The vector of SimTracks needed for the CalorimetryManager
