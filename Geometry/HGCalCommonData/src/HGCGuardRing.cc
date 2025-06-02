@@ -22,8 +22,8 @@ HGCGuardRing::HGCGuardRing(const HGCalDDDConstants& hgc)
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Creating HGCGuardRing with wafer size " << waferSize_ << ", Offsets "
                              << sensorSizeOffset_ << ":" << guardRingOffset_ << ":" << offset_ << ":" << offsetPartial_
-                             << ", mode " << modeUV_ << ", xmax|ymax " << xmax_ << ":" << ymax_ << " and c22:c77 "
-                             << c22_ << ":" << c77_;
+                             << ", mode " << modeUV_ << ", xmax|ymax " << xmax_ << ":" << ymax_ << " and c22:c27 "
+                             << c22_ << ":" << c27_;
 #endif
 }
 
