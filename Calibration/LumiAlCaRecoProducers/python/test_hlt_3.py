@@ -3,9 +3,9 @@
 ## Jose Benitez, Attila Radl, Alexey Shevelev
 #########################
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+from Configuration.Eras.Era_Run3_2024_cff import Run3_2024
 
-process = cms.Process('PCC',Run2_2018)
+process = cms.Process('PCC',Run3_2024)
 
 ### Files run by Braden:
 # 'file:/eos/cms/store/data/Run2024F/AlCaLumiPixelsCountsPrompt/ALCARECO/AlCaPCCZeroBias-PromptReco-v1/000/382/913/00000/242f6268-861c-4231-9cf8-b51c22aa7195.root'
@@ -15,13 +15,12 @@ process = cms.Process('PCC',Run2_2018)
 # 'file:/eos/cms/store/data/Run2024F/AlCaLumiPixelsCountsPrompt/ALCARECO/AlCaPCCZeroBias-PromptReco-v1/000/382/913/00000/edc8ddbc-de7e-4896-ad05-b63a1805d011.root'
 
 process.source = cms.Source("PoolSource",
-fileNames = cms.untracked.vstring('file:/eos/home-a/alshevel/CMSSW_14_0_9_patch1/src/Calibration/LumiAlCaRecoProducers/python/input_pcc.root')
-#fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/b/benitezj/public/BRIL/PCC/Run3Dev/Run2018D-AlCaLumiPixels-RAW-323702-D3FCD0FC-6328-B24E-AD3D-C22C55B968DD.root')
+fileNames = cms.untracked.vstring('file:/eos/cms/store/data/Run2024F/AlCaLumiPixelsCountsPrompt/ALCARECO/AlCaPCCZeroBias-PromptReco-v1/000/382/913/00000/242f6268-861c-4231-9cf8-b51c22aa7195.root')
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000) 
-)
+# process.maxEvents = cms.untracked.PSet(
+#     input = cms.untracked.int32(200) 
+# )
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -34,7 +33,7 @@ process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
 
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
@@ -92,7 +91,7 @@ process.dynamicVetoProd = cms.EDProducer("DynamicVetoProducer",
         FractionalResponse_modID=cms.vint32(),
         FractionalResponse_value=cms.vdouble(),
         ModuleListRing1=cms.untracked.vint32(),
-        MinimumLSCount=cms.untracked.int32(-1),
+        MinimumLSCount=cms.untracked.int32(200),
         StdMultiplyier1=cms.double(3.0),
         StdMultiplyier2=cms.double(3.0),
         FractionThreshold2=cms.double(0.02),
@@ -101,7 +100,7 @@ process.dynamicVetoProd = cms.EDProducer("DynamicVetoProducer",
         SavePlots=cms.untracked.bool(True),
         CoutOn=cms.untracked.bool(True),
         SaveCSVFile=cms.untracked.bool(True),
-        CsvFileName=cms.untracked.string("dynamicVetoProducer_Run2test.csv"),
+        CsvFileName=cms.untracked.string("dynamicVetoProducer.csv"),
     )
 )
 
@@ -163,7 +162,7 @@ process.ALCARECOStreamPromptCalibProdPCC = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('PromptCalibProdPCC')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    fileName = cms.untracked.string('PCC_Run2test.root'),
+    fileName = cms.untracked.string('PCC_Run3.root'),
     outputCommands = cms.untracked.vstring('drop *', 
                                            #'keep *_hltFEDSelectorLumiPixels_*_*',
                                            #'keep *_siPixelDigisForLumi_*_*',

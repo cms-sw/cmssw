@@ -76,10 +76,9 @@ ________________________________________________________________**/
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
-
+#include "DataFormats/Luminosity/interface/PccVetoListTransient.h"
 
 
 enum class TrackerRegion {
@@ -98,7 +97,7 @@ private:
 
   // values to set up in the config
   edm::EDGetTokenT<reco::PixelClusterCounts> pccToken_;
-  edm::EDPutTokenT<PccVetoList> putToken_;
+  edm::EDPutTokenT<PccVetoListTransient> putToken_;
 
 
   std::vector<int> baseVeto_;
@@ -112,9 +111,11 @@ private:
   int filterLevel_;
 
   std::vector<int> fractionalResponse_modID;
-  std::vector<int> fractionalResponse_value;
+  std::vector<double> fractionalResponse_value;
 
   bool savePlots_;
+
+  bool coutOn_; 
 
   bool saveCSVFile_;
   std::string csvOutLabel_;
@@ -124,7 +125,7 @@ private:
   //// for round 1
   std::vector<int> additionalVeto1_;
   std::map<TrackerRegion, std::map<int, double> > region2moduleID2countRatio;
-  unsigned int lumisectionCount_ = 0;
+  int lumisectionCount_ = 0;
   // std::map<TrackerRegion, double > region2center;
   // std::map<TrackerRegion, double > region2std;
   // std::map<TrackerRegion, int >   region2badModuleCount;
@@ -143,7 +144,8 @@ private:
   // std::map<TrackerRegion, TH1F* > region2countHistogram;
 
   // geometry
-  TrackerRegion getTrackerRegion(unsigned int mId);
+  TrackerRegion getTrackerRegion1(unsigned int mId);
+  TrackerRegion getTrackerRegion2(unsigned int mId);
 
   // math
   double getMean(const std::map<int, unsigned int>& moduleID2value);
@@ -158,8 +160,7 @@ private:
   // actions
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
-  void dqmEndRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) final;
-  void dqmEndRunProduce(const edm::Run& runSeg, const edm::EventSetup& iSetup);
+  void dqmEndRun(edm::Run & runSeg, const edm::EventSetup& iSetup);
   void endJob() final;
 
   // must have
@@ -174,15 +175,17 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------------
-DynamicVetoProducer::DynamicVetoProducer(const edm::ParameterSet& iConfig)      
+DynamicVetoProducer::DynamicVetoProducer(const edm::ParameterSet& iConfig) : 
+pccToken_(consumes<reco::PixelClusterCounts, edm::InLumi>(edm::InputTag(
+  iConfig.getParameter<edm::ParameterSet>("DynamicVetoProducerParameters").getParameter<std::string>("inputPccLabel"),
+  iConfig.getParameter<edm::ParameterSet>("DynamicVetoProducerParameters").getParameter<std::string>("prodInst")
+)))
 {
   auto pset = iConfig.getParameter<edm::ParameterSet>("DynamicVetoProducerParameters");
 
-  pccToken_ = consumes<reco::PixelClusterCounts, edm::InLumi>(edm::InputTag(
-    pset.getParameter<std::string>("inputPccLabel"),
-    pset.getParameter<std::string>("prodInst"),
-  ));
-  putToken_ = produces<PccVetoList, edm::Transition::EndRun>(pset.getUntrackedParameter<std::string>("outputProductName", "alcaPccVetoList")));
+  putToken_     = produces<PccVetoListTransient, edm::Transition::EndRun>(
+                    pset.getUntrackedParameter<std::string>("outputProductName", "alcaPccVetoList")
+                  );
 
   baseVeto_                 = pset.getParameter<std::vector<int> >("BaseVeto");
   saveBaseVeto_             = pset.getParameter<bool>("SaveBaseVeto");
@@ -196,6 +199,7 @@ DynamicVetoProducer::DynamicVetoProducer(const edm::ParameterSet& iConfig)
   stdMultiplyer3_           = pset.getParameter<double>("StdMultiplyier3");
   filterLevel_              = pset.getParameter<int>("FilterLevel");
   savePlots_                = pset.getUntrackedParameter<bool>("SavePlots", false);
+  coutOn_                   = pset.getUntrackedParameter<bool>("CoutOn", false);
   saveCSVFile_              = pset.getUntrackedParameter<bool>("SaveCSVFile", false);
   csvOutLabel_              = pset.getUntrackedParameter<std::string>("CsvFileName", std::string("dynamicVeto.csv"));
 
@@ -277,7 +281,7 @@ std::vector<double> DynamicVetoProducer::getQuantile(const std::map<int, double 
 }
 
 //--------------------------------------------------------------------------------------------------
-TrackerRegion DynamicVetoProducer::getTrackerRegion(unsigned int mId){
+TrackerRegion DynamicVetoProducer::getTrackerRegion1(unsigned int mId){
   //https://gitlab.cern.ch/cms-sw/cmssw/tree/7eb5fd3cd39b94ea5618c5c177817c10c7675428/Geometry/TrackerNumberingBuilder
   // I tested all BPix modules by bitwis ANDing ring 1 and ring 2 moduleIDs separately. The results are the same, therefore must use LUT.
   // ring 1 has fewer elements, so that is used
@@ -361,14 +365,14 @@ int DynamicVetoProducer::addBadModules(const std::map<int, double>& moduleID2val
 
 void DynamicVetoProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) {
   lumisectionCount_++;
+  if (coutOn_) std::cout << "DynamicVetoProducer::beginLuminosityBlock " << lumiSeg.luminosityBlock() << std::endl;
+
 }
 
 void DynamicVetoProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) {
 
-  edm::ESHandle<LHCInfo> lhcInfo;
-  iSetup.get<LHCInfoRcd>().get(lhcInfo);
-  const std::vector<int>& filledBunches = lhcInfo->bunchFillPattern();
-
+  if (coutOn_) std::cout << "DynamicVetoProducer::endLuminosityBlock " << lumiSeg.luminosityBlock() << std::endl;
+  
   const edm::Handle<reco::PixelClusterCounts> pccHandle = lumiSeg.getHandle(pccToken_);
   const reco::PixelClusterCounts& inputPcc = *(pccHandle.product());
   
@@ -377,17 +381,15 @@ void DynamicVetoProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg
   //cluster counts per module per bx
   auto clustersPerBXInput = inputPcc.readCounts();
 
-
-
   std::map<TrackerRegion, double > region2meanClusterCount; // orbit integrated average cluster count in this LS
   std::map<TrackerRegion, unsigned int > region2moduleCount;
   for (size_t i = 0; i < modID.size(); i++) {
     if (std::find(baseVeto_.begin(), baseVeto_.end(), modID.at(i)) != baseVeto_.end()) continue;
     // TrackerRegion region = TrackerRegion::Any;
-    TrackerRegion region = getTrackerRegion( modID.at(i) );
+    TrackerRegion region = getTrackerRegion1( modID.at(i) );
     
-    // for (size_t bx = 0; bx < LumiConstants::numBX; bx++) region2meanClusterCount[region] += clustersPerBXInput.at( i * LumiConstants::numBX + bx );
-    for (size_t bx : filledBunches) region2meanClusterCount[region] += clustersPerBXInput.at( i * LumiConstants::numBX + bx );
+    for (size_t bx = 0; bx < LumiConstants::numBX; bx++) region2meanClusterCount[region] += clustersPerBXInput.at( i * LumiConstants::numBX + bx );
+    // for (size_t bx : filledBunches) region2meanClusterCount[region] += clustersPerBXInput.at( i * LumiConstants::numBX + bx );
     region2moduleCount[region] ++;
   }
   for (const auto& [region, value] : region2meanClusterCount) region2meanClusterCount[region] /= region2moduleCount[region];
@@ -396,27 +398,28 @@ void DynamicVetoProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg
   for (size_t i = 0; i < modID.size(); i++) {
     if (std::find(baseVeto_.begin(), baseVeto_.end(), modID.at(i)) != baseVeto_.end()) continue;
     // TrackerRegion region = TrackerRegion::Any;
-    TrackerRegion region = getTrackerRegion( modID.at(i) );
+    TrackerRegion region = getTrackerRegion1( modID.at(i) );
 
     double bxsum = 0;
-    // for (int bx = 0; bx < int(LumiConstants::numBX); bx++) bxsum += clustersPerBXInput.at( i * LumiConstants::numBX + bx);
-    for (size_t bx : filledBunches) bxsum += clustersPerBXInput.at( i * LumiConstants::numBX + bx);
+    for (int bx = 0; bx < int(LumiConstants::numBX); bx++) bxsum += clustersPerBXInput.at( i * LumiConstants::numBX + bx);
+    // for (size_t bx : filledBunches) bxsum += clustersPerBXInput.at( i * LumiConstants::numBX + bx);
     region2moduleID2countRatio[region][modID.at(i)] += bxsum / region2meanClusterCount[region];
     region2moduleID2LS2counts[region][modID.at(i)].push_back( bxsum );
   }
 }
 
 //--------------------------------------------------------------------------------------------------
-void DynamicVetoProducer::dqmEndRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) {
+void DynamicVetoProducer::dqmEndRun(edm::Run & runSeg, const edm::EventSetup& iSetup) {
 
-  // if ( lumisectionCount_ < lumisectionCountMin_ ) {
-  //   edm::LogInfo("INFO") << "Number of Lumisections " << lumisectionCount_ << " in run " << runSeg.run() << " which is too few. Skipping update to veto list.";
-  //   // resetContainers();
-  //   return;
-  // }
+  if ( (lumisectionCountMin_ > 0) && (lumisectionCount_ < lumisectionCountMin_) ) {
+    edm::LogInfo("INFO") << "Number of Lumisections " << lumisectionCount_ << " in run " << runSeg.run() << " which is too few. Skipping update to veto list.";
+    if (coutOn_) std::cout << "Number of Lumisections " << lumisectionCount_ << " in run " << runSeg.run() << " which is too few. Skipping update to veto list." << std::endl;
+    resetContainers();
+    return;
+  }
 
   edm::LogInfo("INFO") << "DynamicVetoProducer::dqmEndRun: Number of Lumisections processed in run " << runSeg.run() << " : " << lumisectionCount_;
-  std::cout << "DynamicVetoProducer::dqmEndRun: Number of Lumisections processed in run " << runSeg.run() << " : " << lumisectionCount_ << std::endl;
+  if (coutOn_) std::cout << "DynamicVetoProducer::dqmEndRun: Number of Lumisections processed in run " << runSeg.run() << " : " << lumisectionCount_ << std::endl;
 
 
   // round1: remove outliers in terms of occupancy
@@ -441,7 +444,7 @@ void DynamicVetoProducer::dqmEndRun(edm::Run const& runSeg, const edm::EventSetu
 
   }
   // edm::LogInfo("INFO") << "DynamicVetoProducer::dqmEndRun: Modules removed in round 1: " << additionalVeto1_.size();
-  std::cout << "DynamicVetoProducer::dqmEndRun: Modules removed in round 1: " << additionalVeto1_.size() << std::endl;
+  if (coutOn_) std::cout << "DynamicVetoProducer::dqmEndRun: Modules removed in round 1: " << additionalVeto1_.size() << std::endl;
 
 
 
@@ -488,7 +491,7 @@ void DynamicVetoProducer::dqmEndRun(edm::Run const& runSeg, const edm::EventSetu
     }
   }
   // edm::LogInfo("INFO") << "DynamicVetoProducer::dqmEndRun: Modules removed in round 2: " << additionalVeto2_.size();
-  std::cout << "DynamicVetoProducer::dqmEndRun: Modules removed in round 2: " << additionalVeto2_.size() << std::endl;
+  if (coutOn_) std::cout << "DynamicVetoProducer::dqmEndRun: Modules removed in round 2: " << additionalVeto2_.size() << std::endl;
 
   // round3:
   if (filterLevel_>=3){
@@ -520,14 +523,14 @@ void DynamicVetoProducer::dqmEndRun(edm::Run const& runSeg, const edm::EventSetu
     double std      = std::min(quantiles[2]-quantiles[1], quantiles[1]-quantiles[0]);
 
     double distance = std * stdMultiplyer3_;
-    int badModuleCount = addBadModules(moduleID2value, center, distance, additionalVeto3_);
+    int badModuleCount = addBadModules(moduleID2doubleRatio, center, distance, additionalVeto3_);
 
     if (savePlots_) {
       std::string name = "Round3_RUN" + std::to_string( runSeg.run() );
-      makePlot(name, moduleID2value, center, std, distance, badModuleCount);
+      makePlot(name, moduleID2doubleRatio, center, std, distance, badModuleCount);
     }
 
-    std::cout << "DynamicVetoProducer::dqmEndRun: Modules removed in round 3: " << additionalVeto3_.size() << std::endl;
+    if (coutOn_) std::cout << "DynamicVetoProducer::dqmEndRun: Modules removed in round 3: " << additionalVeto3_.size() << std::endl;
   }
 
 
@@ -559,7 +562,9 @@ void DynamicVetoProducer::dqmEndRun(edm::Run const& runSeg, const edm::EventSetu
     // }
 
     csfile.close();
-    // edm::LogInfo("INFO") << "DynamicVetoProducer::dqmEndRun: CSV created.";
+    edm::LogInfo("INFO") << "DynamicVetoProducer::dqmEndRun: CSV created: " << csvOutLabel_;
+    if (coutOn_) std::cout << "DynamicVetoProducer::dqmEndRun: CSV created: " << csvOutLabel_ << std::endl;
+
   }
 
   PccVetoList pccVetoList;
@@ -569,7 +574,7 @@ void DynamicVetoProducer::dqmEndRun(edm::Run const& runSeg, const edm::EventSetu
   pccVetoList.addToVetoList(additionalVeto3_);
   if (saveBaseVeto_) pccVetoList.generateResponseFraction(fractionalResponseMap);
   else               pccVetoList.generateResponseFraction(fractionalResponseMap, baseVeto_);
-  runSeg.emplace(putToken_, std::move(fractionalResponseMap));
+  runSeg.emplace(putToken_, std::move( static_cast<PccVetoListTransient>(pccVetoList) ));
 
   if (poolDbService.isAvailable()) {
     // timetype=cms.untracked.string("runnumber"),  should be set up in the config 
@@ -577,11 +582,11 @@ void DynamicVetoProducer::dqmEndRun(edm::Run const& runSeg, const edm::EventSetu
 
     // Hash writeOneIOV(const T& payload, Time_t time, const std::string& recordName)
     poolDbService->writeOneIOV(pccVetoList, iovStart, "PccVetoListRcd");
-    std::cout << "DynamicVetoProducer::dqmEndRun: written to DB " << std::endl;
+    if (coutOn_) std::cout << "DynamicVetoProducer::dqmEndRun: written to DB " << std::endl;
 
   } else {
     edm::LogInfo("INFO") << "DynamicVetoProducer::dqmEndRun: PoolDBService required.";
-    std::cout << "DynamicVetoProducer::dqmEndRun: PoolDBService required." << std::endl;
+    if (coutOn_) std::cout << "DynamicVetoProducer::dqmEndRun: PoolDBService required." << std::endl;
 
     // throw std::runtime_error("PoolDBService required.");
   }
@@ -601,7 +606,7 @@ void DynamicVetoProducer::makePlot(std::string name, std::map<int, double> modul
   //     <use name="roothist"/>
   // </library>
 
-  std::cout<<name<< ", center:"<< center<<", qstd: "<<std<<", distance: "<<distance<<" N excluded "<< badModuleCount<<std::endl;
+  if (coutOn_) std::cout<<name<< ", center:"<< center<<", qstd: "<<std<<", distance: "<<distance<<" N excluded "<< badModuleCount<<std::endl;
 
   TCanvas* canvas = new TCanvas("c", "c");
 
@@ -618,8 +623,11 @@ void DynamicVetoProducer::makePlot(std::string name, std::map<int, double> modul
   
   TH1D* h = new TH1D(name.c_str(), name.c_str(), 60, min, max);
   for (const auto& [key, value] : moduleID2value) h->Fill(value);
-  // for (const auto& [key, value] : moduleID2value) std::cout<<value<< ", ";
-  // std::cout<<std::endl;
+  if (coutOn_) {
+    for (const auto& [key, value] : moduleID2value) std::cout<<value<< ", ";
+    std::cout<<std::endl;
+  }
+  
   h->Draw();
   double maxVal = h->GetMaximum();
 
@@ -647,6 +655,10 @@ void DynamicVetoProducer::makePlot(std::string name, std::map<int, double> modul
 }
 
 void DynamicVetoProducer::resetContainers() {
+
+  edm::LogInfo("INFO") << "DynamicVetoProducer::resetContainers: Executing.";
+  if (coutOn_) std::cout << "DynamicVetoProducer::resetContainers: Executing." << std::endl;
+
   additionalVeto1_.clear();
   region2moduleID2countRatio.clear();
   lumisectionCount_ = 0;
@@ -660,6 +672,7 @@ void DynamicVetoProducer::resetContainers() {
 
 void DynamicVetoProducer::endJob() {
   edm::LogInfo("INFO") << "DynamicVetoProducer::endJob: Executing.";
+  if (coutOn_) std::cout << "DynamicVetoProducer::endJob: Executing." << std::endl;
   // histoFile->Close();
 }
 

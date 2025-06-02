@@ -27,9 +27,11 @@ public:
   bool isBad(int mId)  const { return (std::find(badModules.begin(), badModules.end(), mId) != badModules.end()); };
   bool isGood(int mId) const { return ! this->isBad(mId); };
 
+  bool getShouldApplyBaseVeto() const {return shouldApplyBaseVeto; }
+
   double responseFraction = 1.0;
-  void generateResponseFraction(const std::map<int, float>& fractionalResponses, const std::vector<int>& baseVeto = std::vector<int>()){
-    usingBaseVeto = ! baseVeto.empty();
+  void generateResponseFraction(const std::map<int, double>& fractionalResponses, const std::vector<int>& baseVeto = std::vector<int>()){
+    shouldApplyBaseVeto = ! baseVeto.empty();
     double responseTotal = 0;
     responseFraction = 0;
     for (const auto& [modID, frac] : fractionalResponses) {
@@ -43,7 +45,7 @@ public:
 
 private:
   std::vector<int> badModules;
-  bool usingBaseVeto = false;
+  bool shouldApplyBaseVeto = false;
   // double responseFraction = 1.0; // is public not to have to use a getter
   
   COND_SERIALIZABLE;

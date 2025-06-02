@@ -1,4 +1,6 @@
 <lcgdict>
+  <class name="PccVetoListTransient"/>
+  <class name="edm::Wrapper<PccVetoListTransient>"/>
   <class name="edm::Wrapper<BeamCurrentInfo>" />
   <class name="edm::Wrapper<LumiDetails>" />
   <class name="edm::Wrapper<LumiInfo>" />
