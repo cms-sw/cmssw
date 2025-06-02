@@ -3,11 +3,17 @@ from Validation.RecoTau.RecoTauValidation_cfi import *
 import copy
 
 from RecoJets.Configuration.RecoPFJets_cff import *
+#from RecoJets.Configuration.RecoJets_cff import *
+#from RecoHI.HiJetAlgos.HiRecoJets_cff import *
+#from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import *
+
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
+"""
 kinematicSelectedPFJets = cms.EDFilter(
     "TauValPFJetSelector",
-    src = cms.InputTag('ak4PFJets'),
+    #src = cms.InputTag('ak4PFJets'),
+    src = cms.InputTag('slimmedJets'),
     cut = cms.string("pt > 15 & abs(eta) < 2.5"),
     filter = cms.bool(False)
 	)
@@ -22,6 +28,28 @@ PFJetsId = cms.EDFilter(
 CleanedPFJets = cms.EDProducer("TauValJetViewCleaner",
     srcObject            = cms.InputTag( "kinematicSelectedPFJets" ),
     srcObjectsToRemove   = cms.VInputTag( cms.InputTag("muons"), cms.InputTag("gedGsfElectrons") ),
+    deltaRMin            = cms.double(0.15)
+)
+"""
+kinematicSelectedPFJets = cms.EDFilter(
+    "TauValPatJetSelector",
+    src = cms.InputTag('slimmedJets'),
+    cut = cms.string("pt > 15 & abs(eta) < 2.5"),
+    filter = cms.bool(False)
+)
+
+PFJetsId = cms.EDFilter(
+    "TauValPatJetSelector",
+    src = cms.InputTag('kinematicSelectedPFJets'),
+    cut = cms.string("chargedHadronEnergyFraction > 0.0 & neutralHadronEnergyFraction < 0.99 & neutralHadronEnergyFraction < 0.99 & chargedEmEnergyFraction < 0.99 & chargedEmEnergyFraction < 0.99 & neutralEmEnergyFraction < 0.99 & chargedMultiplicity > 0 & nConstituents > 1"),
+    filter = cms.bool(False)
+)
+
+CleanedPFJets = cms.EDProducer(
+    "TauValPatJetViewCleaner",
+    srcObject            = cms.InputTag( "kinematicSelectedPFJets" ),
+    #srcObjectsToRemove   = cms.VInputTag( cms.InputTag("muons"), cms.InputTag("gedGsfElectrons") ),
+    srcObjectsToRemove   = cms.VInputTag( cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons") ),
     deltaRMin            = cms.double(0.15)
 )
 
@@ -72,10 +100,10 @@ for newAttr in newProcAttributes:
 
 
 produceDenominatorRealData = cms.Sequence(
-      cms.ignore(kinematicSelectedPFJets) *
-      cms.ignore(PFJetsId) *
-      CleanedPFJets
-      )
+    cms.ignore(kinematicSelectedPFJets)
+    * cms.ignore(PFJetsId)
+    * CleanedPFJets
+)
 
 produceDenominator = cms.Sequence(produceDenominatorRealData)
 

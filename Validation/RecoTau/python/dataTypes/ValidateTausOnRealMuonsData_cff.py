@@ -7,7 +7,8 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 MuPrimaryVertexFilter = cms.EDFilter(
     "VertexSelector",
-    src = cms.InputTag("offlinePrimaryVertices"),
+    #src = cms.InputTag("offlinePrimaryVertices"),
+    src = cms.InputTag("offlineSlimmedPrimaryVertices"),
     cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
     filter = cms.bool(False)
     )
@@ -15,21 +16,24 @@ MuPrimaryVertexFilter = cms.EDFilter(
 MuBestPV = cms.EDProducer(
     "HighestSumP4PrimaryVertexSelector",
     src = cms.InputTag("MuPrimaryVertexFilter")
-	)
+)
 
 selectedMuons = cms.EDFilter(
-    "MuonSelector",
-    src = cms.InputTag('muons'),
+    #"MuonSelector",
+    "TauValPatMuonSelector",
+    #src = cms.InputTag('muons'),
+    src = cms.InputTag('slimmedMuons'),
     cut = cms.string("pt > 20.0 && abs(eta) < 2.1 && isGlobalMuon = 1 && isTrackerMuon = 1"),
     filter = cms.bool(False)
-	)
+)
 
 selectedMuonsIso = cms.EDFilter(
-    "MuonSelector",
+    #"MuonSelector",
+    "TauValPatMuonSelector",
     src = cms.InputTag('selectedMuons'),
     cut = cms.string('(isolationR03().emEt + isolationR03().hadEt + isolationR03().sumPt)/pt < 0.15'),
     filter = cms.bool(False)
-	)    
+)    
 
 MuonsFromPV = cms.EDProducer(
     "MuonFromPVSelector",
@@ -41,11 +45,14 @@ MuonsFromPV = cms.EDProducer(
 
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
-MuGoodTracks = cms.EDFilter("TrackSelector",
-    src = cms.InputTag("generalTracks"), 
+MuGoodTracks = cms.EDFilter(
+    #"TrackSelector",
+    "PFTrackSelector",
+    #src = cms.InputTag("generalTracks"),
+    src = cms.InputTag("packedPFCandidates"),
     cut = cms.string("pt > 5 && abs(eta) < 2.5"),
     filter = cms.bool(False)
-	)
+)
 
 MuIsoTracks = cms.EDProducer(
     "IsoTracks",
@@ -62,17 +69,18 @@ MuTrackFromPV = cms.EDProducer(
     max_dz     = cms.double(0.1)
     )
 
-MuTrackCands  = cms.EDProducer(
-    "ConcreteChargedCandidateProducer", 
-    src  = cms.InputTag("MuTrackFromPV"),      
-    particleType = cms.string("mu+")     # this is needed to define a mass
-	)
+#MuTrackCands  = cms.EDProducer(
+#    "ConcreteChargedCandidateProducer", 
+#    src  = cms.InputTag("MuTrackFromPV"),      
+#    particleType = cms.string("mu+")     # this is needed to define a mass
+#	)
 
 ZmmCandMuonTrack = cms.EDProducer(
     "CandViewShallowCloneCombiner",
-    decay = cms.string("MuonsFromPV@+ MuTrackCands@-"), # it takes opposite sign collection, no matter if +- or -+
+    #decay = cms.string("MuonsFromPV@+ MuTrackCands@-"), # it takes opposite sign collection, no matter if +- or -+
+    decay = cms.string("MuonsFromPV@+ MuTrackFromPV@-"), # it takes opposite sign collection, no matter if +- or -+
     cut   = cms.string("80 < mass < 100")
-	)
+)
 
 BestZmm = cms.EDProducer("BestMassZArbitrationProducer", # returns the Z with mass closer to 91.18 GeV
 	ZCandidateCollection = cms.InputTag("ZmmCandMuonTrack")
@@ -128,13 +136,19 @@ for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
 produceDenominatorRealMuonsData = cms.Sequence(
-                            cms.ignore(MuPrimaryVertexFilter) * MuBestPV *
-                            ( ( cms.ignore(selectedMuons) * cms.ignore(selectedMuonsIso) * MuonsFromPV ) +
-                              ( cms.ignore(MuGoodTracks) * MuIsoTracks * MuTrackFromPV * MuTrackCands ) ) *
-                            ZmmCandMuonTrack *
-                            BestZmm *
-                            MuZLegs 
-                            )
+    cms.ignore(MuPrimaryVertexFilter)
+    * MuBestPV
+    * ( ( cms.ignore(selectedMuons)
+          * cms.ignore(selectedMuonsIso)
+          * MuonsFromPV )
+        + ( cms.ignore(MuGoodTracks)
+            * MuIsoTracks
+            * MuTrackFromPV ) )
+            #* MuTrackCands ) )
+    * ZmmCandMuonTrack
+    * BestZmm
+    * MuZLegs 
+)
 
 produceDenominator = cms.Sequence(produceDenominatorRealMuonsData)
 
