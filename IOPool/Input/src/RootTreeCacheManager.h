@@ -8,7 +8,7 @@
 
 #include "Rtypes.h"
 
-class TTreeCache;
+class TFileCacheRead;
 class TBranch;
 class TTree;
 
@@ -23,16 +23,18 @@ namespace edm {
       CacheManagerBase(std::shared_ptr<InputFile> filePtr) : filePtr_(filePtr) {}
       virtual ~CacheManagerBase() = default;
 
-      virtual void setCacheSize(unsigned int cacheSize) = 0;
+      virtual void createPrimaryCache(unsigned int cacheSize) = 0;
       virtual void setEntryNumber(EntryNumber theEntryNumber, EntryNumber entryNumber, EntryNumber entries) = 0;
 
       virtual void resetTraining() {}
       virtual void reset() {}
-      virtual void SetCacheRead(TTreeCache* cache = nullptr);
       virtual void trainCache(char const* branchNames) {}
       virtual void init(TTree* tree, unsigned int treeAutoFlush) { tree_ = tree; }
       virtual void reserve(Int_t branchCount) {}
       virtual void getEntry(TBranch* branch, EntryNumber entryNumber);
+      virtual void getAuxEntry(TBranch* auxBranch, EntryNumber entryNumber);
+      virtual void getEntryForAllBranches(EntryNumber entryNumber) const = 0;
+
 
       static std::unique_ptr<CacheManagerBase> create(const std::string& strategy,
                                                       std::shared_ptr<InputFile> filePtr,

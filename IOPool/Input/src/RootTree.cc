@@ -56,9 +56,9 @@ namespace edm {
         branchType_(branchType),
         entryNumberForIndex_(std::make_unique<std::vector<EntryNumber>>(nIndexes, IndexIntoFile::invalidEntry)),
         promptRead_(promptRead),
-        rootDelayedReader_(makeRootDelayedReader(*this, filePtr, inputType, nIndexes, promptRead)) {}
+        rootDelayedReader_(makeRootDelayedReader(*this, filePtr, inputType, nIndexes, promptRead)),
         treeCacheManager_(
-            roottree::CacheManagerBase::create("Sparse", filePtr_, learningEntries, enablePrefetching, branchType_)) {}
+            roottree::CacheManagerBase::create(promptRead ? "Simple" : "Sparse", filePtr_, learningEntries, enablePrefetching, branchType_)) {}
 
   // Used for Event/Lumi/Run RootTrees
   RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
@@ -115,7 +115,7 @@ namespace edm {
     }
     treeCacheManager_->init(tree_, treeAutoFlush_);
     setTreeMaxVirtualSize(maxVirtualSize);
-    treeCacheManager_->setCacheSize(cacheSize);
+    treeCacheManager_->createPrimaryCache(cacheSize);
     if (branchType_ == InEvent) {
       Int_t branchCount = tree_->GetListOfBranches()->GetEntriesFast();
       treeCacheManager_->reserve(branchCount);
@@ -221,21 +221,13 @@ namespace edm {
 
   roottree::BranchMap const& RootTree::branches() const { return branches_; }
 
-  std::shared_ptr<TTreeCache> RootTree::createCacheWithSize(unsigned int cacheSize) const {
-    return filePtr_->createCacheWithSize(*tree_, cacheSize);
-  }
-
-  void RootTree::setCacheSize(unsigned int cacheSize) {
-    cacheSize_ = cacheSize;
-    treeCache_ = createCacheWithSize(cacheSize);
-    if (treeCache_)
-      treeCache_->SetEnablePrefetching(enablePrefetching_);
-    rawTreeCache_.reset();
-  }
-
   void RootTree::setTreeMaxVirtualSize(int treeMaxVirtualSize) {
     if (treeMaxVirtualSize >= 0)
       tree_->SetMaxVirtualSize(static_cast<Long64_t>(treeMaxVirtualSize));
+  }
+
+  void RootTree::fillAuxHelper() {
+    treeCacheManager_->getAuxEntry(auxBranch_, entryNumber_);
   }
 
   bool RootTree::nextWithCache() {
@@ -250,26 +242,9 @@ namespace edm {
     treeCacheManager_->setEntryNumber(theEntryNumber, entryNumber_, entries_);
     entryNumber_ = theEntryNumber;
   }
-  TTreeCache* RootTree::getAuxCache(TBranch* auxBranch) const {
-    if (not auxCache_ and cacheSize_ > 0) {
-      auxCache_ = createCacheWithSize(1 * 1024 * 1024);
-      if (auxCache_) {
-        auxCache_->SetEnablePrefetching(enablePrefetching_);
-        auxCache_->SetLearnEntries(0);
-        auxCache_->StartLearningPhase();
-        auxCache_->SetEntryRange(0, tree_->GetEntries());
-        auxCache_->AddBranch(auxBranch->GetName(), kTRUE);
-        auxCache_->StopLearningPhase();
-      }
-    }
-    return auxCache_.get();
-  }
 
   void RootTree::getEntryForAllBranches() const {
-    oneapi::tbb::this_task_arena::isolate([&]() {
-      auto guard = filePtr_->setCacheReadTemporarily(treeCache_.get(), tree_);
-      tree_->GetEntry(entryNumber_);
-    });
+    treeCacheManager_->getEntryForAllBranches(entryNumber_);
   }
 
   void RootTree::getEntry(TBranch* branch, EntryNumber entryNumber) const {
@@ -294,10 +269,6 @@ namespace edm {
   void RootTree::resetTraining() { treeCacheManager_->resetTraining(); }
 
   void RootTree::close() {
-    // We own the treeCache_.
-    // We make sure the treeCache_ is detached from the file,
-    // so that ROOT does not also delete it.
-    treeCacheManager_->SetCacheRead(nullptr);
     // The TFile is about to be closed, and destructed.
     // Just to play it safe, zero all pointers to quantities that are owned by the TFile.
     auxBranch_ = branchEntryInfoBranch_ = nullptr;
@@ -306,6 +277,7 @@ namespace edm {
     // We make sure the treeCache_ is detached from the file,
     // so that ROOT does not also delete it.
     filePtr_->clearCacheRead(tree_);
+    //treeCacheManager_->setCacheRead(nullptr);
     // We *must* delete the TTreeCache here because the TFilePrefetch object
     // references the TFile.  If TFile is closed, before the TTreeCache is
     // deleted, the TFilePrefetch may continue to do TFile operations, causing

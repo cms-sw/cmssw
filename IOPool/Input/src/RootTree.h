@@ -152,8 +152,7 @@ namespace edm {
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
-      auto cache = getAuxCache(auxBranch_);
-      getEntryUsingCache(auxBranch_, entryNumber_, cache);
+      fillAuxHelper();
       auxBranch_->SetAddress(nullptr);
     }
 
@@ -209,13 +208,10 @@ namespace edm {
              bool promptRead,
              InputType inputType);
 
-    std::shared_ptr<TTreeCache> createCacheWithSize(unsigned int cacheSize) const;
-    void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     void startTraining();
     void stopTraining();
-    void getEntryUsingCache(TBranch* branch, EntryNumber entry, TTreeCache*) const;
-    TTreeCache* getAuxCache(TBranch* auxBranch) const;
+    void fillAuxHelper();
 
     std::shared_ptr<InputFile> filePtr_;
     // We use bare pointers for pointers to some ROOT entities.

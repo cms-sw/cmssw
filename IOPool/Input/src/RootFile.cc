@@ -620,7 +620,7 @@ namespace edm {
 
     // Tell the event tree to begin training at the next read.
     eventTree_.resetTraining();
-    eventTree_.setEntryNumber(0);
+    /* eventTree_.setEntryNumber(0); */
 
     // Train the run and lumi trees.
     runTree_.trainCache("*");
