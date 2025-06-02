@@ -19,6 +19,8 @@ namespace cms::alpakatools {
   constexpr inline AllocatorPolicy allocator_policy<alpaka::DevCpu> =
 #if not defined ALPAKA_DISABLE_CACHING_ALLOCATOR
       AllocatorPolicy::Caching;
+#elif not defined ALPAKA_DISABLE_ASYNC_ALLOCATOR
+      AllocatorPolicy::Asynchronous;
 #else
       AllocatorPolicy::Synchronous;
 #endif
