@@ -20,7 +20,11 @@ namespace cms::Ort {
 
   using namespace ::Ort;
 
+#ifdef ONNXDebug
+  const Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_INFO, "");
+#else
   const Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_ERROR, "");
+#endif
 
   ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions* session_options) {
     // create session
@@ -77,10 +81,12 @@ namespace cms::Ort {
     SessionOptions sess_opts;
     sess_opts.SetIntraOpNumThreads(1);
     if (backend == Backend::cuda) {
-      // https://www.onnxruntime.ai/docs/reference/execution-providers/CUDA-ExecutionProvider.html
       OrtCUDAProviderOptions options;
       sess_opts.AppendExecutionProvider_CUDA(options);
     }
+#ifdef ONNX_PROFILE
+    sess_opts.EnableProfiling("ONNXProf");
+#endif
     return sess_opts;
   }
 
@@ -137,6 +143,7 @@ namespace cms::Ort {
     }
 
     // run
+
     auto output_tensors = session_->Run(RunOptions{nullptr},
                                         input_node_names_.data(),
                                         input_tensors.data(),
