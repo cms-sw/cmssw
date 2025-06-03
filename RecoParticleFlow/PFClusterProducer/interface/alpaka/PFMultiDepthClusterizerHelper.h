@@ -82,7 +82,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @return Exclusive prefix sum value for the current lane.
  */
 
-  template <typename TAcc, bool accum = true, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <typename TAcc, bool all = true, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int warp_exclusive_sum(TAcc const& acc, const unsigned int mask, unsigned int val, const unsigned int lane_idx) {
     if ( mask == 0x0 ) return 0;
 
@@ -98,8 +98,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //
     warp::syncWarpThreads_mask(acc, mask);
 
-    if constexpr (!accum) {
- 	return local_offset;
+    if constexpr (!all) {
+    	return local_offset;
     } else {
     	// Compute the lowest and the highest valid lane index in the mask:
     	const unsigned low_lane_idx  = get_ls1b_idx(acc, mask);
@@ -114,6 +114,72 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     	warp::syncWarpThreads_mask(acc, mask);
     }
     return local_offset;
+  }
+/**
+ * @brief Returns logical index for a given physical lane index based on custom lane mask.
+ *
+ * @tparam TAcc Alpaka accelerator type.
+ * 
+ * @param acc Alpaka accelerator instance.
+ * @param mask Input bitmask.
+ * @param lane_idx imput phys. lane index
+ * 
+ * @return Index of the lane in the mask 
+ */
+
+  template< typename TAcc >
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE unsigned int get_logical_lane_idx(TAcc const& acc, const unsigned int mask, const unsigned int lane_idx) {
+    const auto lane_mask = mask & ((1 << lane_idx) - 1);
+    return alpaka::popcount(acc, lane_mask);  // Count 1s below current lane
+  }
+
+/**
+ * @brief Returns logical index for a given physical lane index based on custom lane mask.
+ *
+ * @tparam TAcc Alpaka accelerator type.
+ * 
+ * @param acc Alpaka accelerator instance.
+ * @param mask Input bitmask.
+ * @param lane_idx imput phys. lane index
+ * 
+ * @return Index of the lane in the mask 
+ */  
+
+  template< typename TAcc >
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE unsigned int get_high_neighbor_logical_lane_idx(TAcc const& acc, const unsigned int active_mask, const unsigned int custom_mask, const unsigned int lane_idx) {
+     // Zero out all bits <= lid
+     const auto zeroed_lowbit_mask = custom_mask & (active_mask << (lane_idx+1));
+     // Just in case if the mask is exactly zero (may happen!):
+     return zeroed_lowbit_mask == 0x0 ? lane_idx : get_ls1b_idx(acc, zeroed_lowbit_mask);
+  }
+
+  /**
+ * @brief generic warp reduction
+ *
+ * @tparam TAcc Alpaka accelerator type.
+ * 
+ * @param acc Alpaka accelerator instance.
+ * @param mask Input bitmask.
+ * @param in imput value to reduce
+ * @param f reducer 
+ * 
+ * @return return reduced value (propagated to all lanes in the mask by default)
+ */
+
+  template< typename TAcc, typename reduce_t, typename reducer_t >
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE reduce_t warp_reduce(TAcc const& acc, unsigned int mask, reduce_t const in, const reducer_t f, bool all = true)
+  {   
+    unsigned int const warpExtent = alpaka::warp::getSize(acc);
+    //
+    reduce_t result = static_cast<reduce_t>(0);
+
+    for (unsigned int offset = warpExtent / 2; offset > 0; offset /= 2) {
+      result = f(result, warp::shfl_down_mask(acc, mask, result, offset, warpExtent));     
+    }
+     
+    if (all) result = warp::shfl_mask(acc, mask, result, 0, warpExtent);
+
+    return result;	    
   }
 
 }

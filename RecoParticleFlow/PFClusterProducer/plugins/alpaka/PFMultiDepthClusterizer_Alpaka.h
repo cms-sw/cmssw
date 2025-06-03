@@ -41,23 +41,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         public:
             PFMultiDepthClusterizer_Alpaka(Queue& queue, const edm::ParameterSet& conf, const int nClusters_) : nSigma_(cms::alpakatools::make_device_buffer<double[]>(queue,2)), nClusters(nClusters_) {
 		//
-		auto    _nSigma     = cms::alpakatools::make_host_buffer<double[]>(queue, 2);
+		        auto    _nSigma     = cms::alpakatools::make_host_buffer<double[]>(queue, 2);
                 double *nSigma_data = _nSigma.data();
 		//
-	        nSigma_data[0] = pow(conf.getParameter<double>("nSigmaEta"), 2);
-	        nSigma_data[1] = pow(conf.getParameter<double>("nSigmaPhi"), 2);	
+	            nSigma_data[0] = pow(conf.getParameter<double>("nSigmaEta"), 2);
+	            nSigma_data[1] = pow(conf.getParameter<double>("nSigmaPhi"), 2);	
                 //
-		alpaka::memcpy(queue, nSigma_, _nSigma);
+		        alpaka::memcpy(queue, nSigma_, _nSigma);
             }
       
             PFMultiDepthClusterizer_Alpaka(const PFMultiDepthClusterizer_Alpaka&)            = delete;
             PFMultiDepthClusterizer_Alpaka& operator=(const PFMultiDepthClusterizer_Alpaka&) = delete;
 
-            void apply(Queue& queue, 
-                       reco::PFMultiDepthClusteringVarsDeviceCollection& mdpfClusteringVars, 
-                       const reco::PFRecHitDeviceCollection& pfRecHits);
+            void apply( Queue& queue, 
+                        reco::PFClusterDeviceCollection& outPFCluster,
+                        reco::PFRecHitFractionDeviceCollection& outPFRecHitFracs,
+                        const reco::PFClusterDeviceCollection& pfCluster,
+                        const reco::PFRecHitFractionDeviceCollection& pfRecHitFracs, 
+                        const reco::PFRecHitDeviceCollection& pfRecHit);
 
         private:     
+        
 	    cms::alpakatools::device_buffer<Device, double[]> nSigma_;
 	    const int nClusters;
     };

@@ -276,11 +276,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // Helper lambda expression to identify active lane id:
         auto is_active_lane  = [](const unsigned int mask, const unsigned int lid ) -> bool { return ((mask >> lid) & 1); };
         //
-	//
-	const double nSigmaEta_ = nSigma[0];
-	const double nSigmaPhi_ = nSigma[1];
+	      //
+	      const double nSigmaEta_ = nSigma[0];
+	      const double nSigmaPhi_ = nSigma[1];
 
-	constexpr LinkParamKind param_kinds[3] = { LinkParamKind::DZ, LinkParamKind::DR, LinkParamKind::ENERGY};
+	      constexpr LinkParamKind param_kinds[3] = { LinkParamKind::DZ, LinkParamKind::DR, LinkParamKind::ENERGY};
 
         for ( auto group : ::cms::alpakatools::uniform_groups(acc) ) {
           // Execution domain along destination (target) clusters
@@ -288,7 +288,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             //
             const unsigned int active_lanes_mask = alpaka::warp::ballot(acc, idx.global < nClusters);
             const unsigned int eff_w_extent      = alpaka::popcount(acc, active_lanes_mask);
-            // Skip inactive lanes. 
             // From this point all warp-level collectives must be accompanied with active_lanes_mask (or any derived from it) mask:
             // for example new_mask = warp::ballot_mask(acc, old_mask, predicate) will generate a new mask that selects a subset of lanes from old_mask
             if(idx.global >= nClusters) continue;
@@ -323,19 +322,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               // In fact, iteration lane index coincide with the target cluster index modulo warp extent (target cluster lane index)
               CMS_UNROLL_LOOP
               for (unsigned int iter_lane_idx = 0; iter_lane_idx < eff_w_extent; iter_lane_idx++) {
-	        // 1. Do warp sync for each iteration:
-	        warp::syncWarpThreads_mask(acc, active_lanes_mask); 
+	              // 1. Do warp sync for each iteration:
+	              warp::syncWarpThreads_mask(acc, active_lanes_mask); 
                 // .. but we need to keep the target cluster lane with iter_lane_idx reserved from divergence
                 const unsigned dst_lane_mask = (1 << iter_lane_idx);
                 const bool is_owner_lane     = is_owner_tile and (iter_lane_idx == lane_idx);
-	        // 2. Broadcast values from iter_lane_idx, this will give us warp-local source cluster depth:
-		const float depth = src_cluster_params.Get<ClusterParamKind::DEPTH>();
-	        const float src_depth  = warp::shfl_mask(acc, active_lanes_mask, depth, iter_lane_idx, w_extent);
-	        // 3. Do not link at the same layer and only link inside out:
+	              // 2. Broadcast values from iter_lane_idx, this will give us warp-local source cluster depth:
+		            const float depth = src_cluster_params.Get<ClusterParamKind::DEPTH>();
+	              const float src_depth  = warp::shfl_mask(acc, active_lanes_mask, depth, iter_lane_idx, w_extent);
+	              // 3. Do not link at the same layer and only link inside out:
                 //    Note that if lane_idx == iter_lane_id and is_proper_tile == true, then dz == 0 and the lane is filtered 
                 //   (but will be not excluded from active lanes)
                 const auto dz = (static_cast<int>(src_depth) - static_cast<int>(dst_cluster_params.Get<ClusterParamKind::DEPTH>()));
-	        // 4. Select lanes that contain valid candidates, i.e., all lanes for which dz > 0,
+	              // 4. Select lanes that contain valid candidates, i.e., all lanes for which dz > 0,
                 //    excluding lane_idx = iter_lane_id and is_proper_tile = true
                 unsigned int filtered_lanes_mask = warp::ballot_mask(acc, active_lanes_mask, dz > 0);
                 // 5. If the warp is 'empty' (no valid lanes), start the next iteration
@@ -355,18 +354,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 warp::syncWarpThreads_mask(acc, filtered_lanes_mask);
                 // WARNING: from this point only lanes selected in the filtered_lanes_mask plus destination lane are active in iteration. 
                 const float eta = src_cluster_params.Get<ClusterParamKind::ETA>();
-		const float src_eta = warp::shfl_mask(acc, filtered_lanes_mask, eta, iter_lane_idx, w_extent);
+		            const float src_eta = warp::shfl_mask(acc, filtered_lanes_mask, eta, iter_lane_idx, w_extent);
 		
-		const double eta_rms2 = src_cluster_params.Get<ClusterParamKind::ETA_RMS2>();
+		            const double eta_rms2 = src_cluster_params.Get<ClusterParamKind::ETA_RMS2>();
                 const double src_etaRMS2 = warp::shfl_mask(acc, filtered_lanes_mask, eta_rms2, iter_lane_idx, w_extent);
                 //
                 const auto tmp1  = dst_cluster_params.Get<ClusterParamKind::ETA>() - src_eta;
                 const auto deta = tmp1 * tmp1 / (dst_cluster_params.Get<ClusterParamKind::ETA_RMS2>() + src_etaRMS2);
 	              //
-		const float phi = src_cluster_params.Get<ClusterParamKind::PHI>();
+		            const float phi = src_cluster_params.Get<ClusterParamKind::PHI>();
                 const float src_phi     = warp::shfl_mask(acc, filtered_lanes_mask, phi, iter_lane_idx, w_extent);
 		
-		const double phi_rms2 = src_cluster_params.Get<ClusterParamKind::PHI_RMS2>();
+		            const double phi_rms2 = src_cluster_params.Get<ClusterParamKind::PHI_RMS2>();
                 const double src_phiRMS2 = warp::shfl_mask(acc, filtered_lanes_mask, phi_rms2, iter_lane_idx, w_extent);
                 //
                 const auto tmp2 = ::cms::alpakatools::deltaPhi(acc, dst_cluster_params.Get<ClusterParamKind::PHI>(), src_phi);
@@ -382,26 +381,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 if ( is_active_lane(filtered_lanes_mask, lane_idx) == false ) continue; 
 
                 warp::syncWarpThreads_mask(acc, filtered_lanes_mask);
-		//
-		const float energy = src_cluster_params.Get<ClusterParamKind::ENERGY>();
+		            //
+		            const float energy = src_cluster_params.Get<ClusterParamKind::ENERGY>();
                 const float src_energy = warp::shfl_mask(acc, filtered_lanes_mask, energy, iter_lane_idx, w_extent);  
                 //
                 // 7. Now start inter-warp pruning:
                 // 7.1 Create warp-local link params (with the latest filtered lane mask);
                 next_filtered_lanes_mask = is_owner_tile ? filtered_lanes_mask ^ dst_lane_mask : filtered_lanes_mask;
 
-		LinkParam candidate_link_params;
+		            LinkParam candidate_link_params;
 
-		if (is_active_lane(next_filtered_lanes_mask, lane_idx)) {
-  			candidate_link_params = LinkParam(src_idx,
+		            if (is_active_lane(next_filtered_lanes_mask, lane_idx)) {
+  			          candidate_link_params = LinkParam(src_idx,
                                     			alpaka::math::abs(acc, dz),
                                     			deta + dphi,
                                     			src_energy + dst_cluster_params.Get<ClusterParamKind::ENERGY>());
-		} else {
-  			candidate_link_params = LinkParam(idx.global);
-		}
+		            } else {
+  			          candidate_link_params = LinkParam(idx.global);
+		            }
 
-		// 7.2 Check 3 parameters (dZ, dR, energy) to prune the candidate links:
+		            // 7.2 Check 3 parameters (dZ, dR, energy) to prune the candidate links:
                 CMS_UNROLL_LOOP
                 for (unsigned int k = 0; k < 3; k++) {
                   // Reset filtered link mask:
@@ -410,7 +409,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   warp::syncWarpThreads_mask(acc, filtered_lanes_mask | dst_lane_mask);
                   //
                   next_filtered_lanes_mask = prune_link(acc, filtered_lanes_mask, selected_link_params, 
-							candidate_link_params, lane_idx, iter_lane_idx, param_kinds[k], is_owner_tile);
+							    candidate_link_params, lane_idx, iter_lane_idx, param_kinds[k], is_owner_tile);
                   //
                   if ( next_filtered_lanes_mask == 0 ) continue;//exit for all active lanes if the new mask is empty
                   else if ( is_active_lane(next_filtered_lanes_mask | dst_lane_mask, lane_idx) == false ) continue; // exit loop for filtered lanes only

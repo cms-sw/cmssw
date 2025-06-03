@@ -18,6 +18,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringVarsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringEdgeVarsDeviceCollection.h"
 
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthShowerShape.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthConstructLinks.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCPrologue.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterECLCC.h"
@@ -93,17 +94,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * - ECLCCEpilogueKernel: Aggregate rechit energies and assign final component indices.
  * 
  * @param queue Alpaka execution queue.
- * @param mdpfClusteringVars Device collection of clustering variables (input/output).
- * @param pfRecHits Device collection of PFRecHits (input for rechit energy aggregation).
+ * @param outPFCluster Device collection of clusters (output).
+ * @param pfRecHitFracs Device collection of PFRecHits fractions (output)
+ * @param pfClusters Device collection of clusters variables(input).
+ * @param pfRecHitFracs Device collection of PFRecHits fractions (input)
+ * @param pfRecHit Device collection of PFRecHits (input).
  *
  */
     void PFMultiDepthClusterizer_Alpaka::apply(Queue& queue,
-                                                reco::PFMultiDepthClusteringVarsDeviceCollection &mdpfClusteringVars,  
-                                                const reco::PFRecHitDeviceCollection& pfRecHits) {
+                                                reco::PFClusterDeviceCollection& outPFCluster,
+                                                reco::PFRecHitFractionDeviceCollection& outPFRecHitFracs,
+                                                const reco::PFClusterDeviceCollection& pfCluster,
+                                                const reco::PFRecHitFractionDeviceCollection& pfRecHitFracs, 
+                                                const reco::PFRecHitDeviceCollection& pfRecHit) {
         const unsigned int threadsPerBlock = 256;
         const unsigned int blocks = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock);  
         //
+        reco::PFMultiDepthClusteringVarsDeviceCollection mdpfClusteringVars{nClusters+1, queue}; 
         reco::PFMultiDepthClusteringEdgeVarsDeviceCollection mdpfClusteringEdgeVars{2*nClusters, queue};
+        //
+        alpaka::exec<Acc1D>(queue,
+            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+            ShowerShapeKernel{},
+            mdpfClusteringVars.view(),
+            pfCluster.view(),
+            pfRecHitFracs.view(),
+            pfRecHit.view());    
         //	                           
         alpaka::exec<Acc1D>(queue,
                             ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
@@ -189,22 +205,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             alpaka::exec<Acc1D>(queue,
                                 ::cms::alpakatools::make_workdiv<Acc1D>(1, nClusters),
                                 ECLCCEpilogueKernel<max_w_items>{},
+                                outPFCluster.view(),
+                                outPFRecHitFracs.view(),
                                 mdpfClusteringVars.view(),
-                                pfRecHits.view());
+                                pfCluster.view(),
+                                pfRecHitFracs.view(),
+                                pfRecHit.view());
         } else if (nClusters < 512) {
             constexpr unsigned int max_w_items = 16;                                          
             alpaka::exec<Acc1D>(queue,
                                 ::cms::alpakatools::make_workdiv<Acc1D>(1, nClusters),
                                 ECLCCEpilogueKernel<max_w_items>{},
+                                outPFCluster.view(),
+                                outPFRecHitFracs.view(),
                                 mdpfClusteringVars.view(),
-                                pfRecHits.view());
+                                pfCluster.view(),
+                                pfRecHitFracs.view(),                                
+                                pfRecHit.view());
         } else {
             constexpr unsigned int max_w_items = 32;                                          
             alpaka::exec<Acc1D>(queue,
                                 ::cms::alpakatools::make_workdiv<Acc1D>(1, nClusters),
                                 ECLCCEpilogueKernel<max_w_items>{},
+                                outPFCluster.view(),
+                                outPFRecHitFracs.view(),
                                 mdpfClusteringVars.view(),
-                                pfRecHits.view());
+                                pfCluster.view(),
+                                pfRecHitFracs.view(),
+                                pfRecHit.view());
         }
 	
     }

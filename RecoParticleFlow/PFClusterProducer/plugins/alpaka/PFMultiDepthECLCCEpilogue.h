@@ -67,8 +67,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>> 
       ALPAKA_FN_ACC void operator()(TAcc const& acc,
-                                    reco::PFMultiDepthClusteringVarsDeviceCollection::View pfClusteringVars,
-                                    const reco::PFRecHitDeviceCollection::ConstView pfRecHits
+                                    reco::PFClusterDeviceCollection::View outPFCluster,
+                                    reco::PFRecHitFractionDeviceCollection::View outPFRecHitFracs,
+				    const reco::PFMultiDepthClusteringVarsDeviceCollection::ConstView pfClusteringVars,
+                                    const reco::PFClusterDeviceCollection::ConstView pfCluster,
+                                    const reco::PFRecHitFractionDeviceCollection::ConstView pfRecHitFracs,
+                                    const reco::PFRecHitDeviceCollection::ConstView pfRecHit
                                     ) const {
         static_assert(max_w_items <= 32, 
                       "ECLCCEpilogueKernel: Maximum number of supported warps per block is 32, "
@@ -91,7 +95,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto& connected_comp_offsets = connected_comp_buffer; 
         auto& connected_comp_sizes   = connected_comp_buffer;
         //
-        auto& comp_offsets = component_roots; 
+        //auto& comp_offsets = component_roots;
+        auto& topol_comp_offsets(alpaka::declareSharedVar<::cms::alpakatools::VecArray<int, max_w_items * max_w_extent+1>, __COUNTER__>(acc)); 
         
         auto& component_cluster_seeds(alpaka::declareSharedVar<::cms::alpakatools::VecArray<float, max_w_items * max_w_extent>, __COUNTER__>(acc));
         auto& component_cluster_energies(alpaka::declareSharedVar<::cms::alpakatools::VecArray<float, max_w_items * max_w_extent>, __COUNTER__>(acc)); 
@@ -112,9 +117,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // Init shared_buffer   
           for( auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, ::cms::alpakatools::round_up_by(nVertices, w_extent)) ) { 
             const auto warp_idx   = idx.local / w_extent;
-	    // Reset shared memory buffers to zero:
+	          // Reset shared memory buffers to zero:
             component_roots[ idx.local ]       = -1;
             connected_comp_buffer[ idx.local ] = 0;
+	    topol_comp_offsets[ idx.local ]    = 0;
             //
             intern_connected_comp_masks[ idx.local ]  = 0x0;
             extern_connected_comp_masks[ idx.local ]  = 0x0;
@@ -145,10 +151,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             //
             component_roots[vertex_idx] = rep_idx;
             //
-            component_cluster_seeds[ idx.local ]      = pfClusteringVars[vertex_idx].seedRHIdx();
+            component_cluster_seeds[ idx.local ]      = pfCluster[vertex_idx].seedRHIdx();//!!!
             //
-            component_vertex_rhf_offsets[ idx.local ] = pfClusteringVars[vertex_idx].rhfracOffset();
-            component_vertex_rhf_sizes[ idx.local ]   = pfClusteringVars[vertex_idx].rhfracSize();
+            component_vertex_rhf_offsets[ idx.local ] = pfCluster[vertex_idx].rhfracOffset();
+            component_vertex_rhf_sizes[ idx.local ]   = pfCluster[vertex_idx].rhfracSize();
 
             // Find out as to whether the current lane holds the representative vertex:
             const bool is_warp_local_representative = vertex_idx == rep_idx; 
@@ -187,9 +193,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if(idx.local >= nVertices) continue;
             //
             const auto vertex_idx = idx.local; 
-            //
-            //const auto warp_idx   = idx.local / w_extent;
-            //const auto lane_idx   = idx.local % w_extent;
             //
             const unsigned int component_mask = extern_connected_comp_masks[vertex_idx];
             //
@@ -298,29 +301,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             auto is_valid_lane  = [](const unsigned int mask, const unsigned int lid) -> bool { 
               return ((mask >> lid) & 1); 
             };
-            //
-            auto get_high_neighbor_logical_lane_idx = [&](const unsigned int active_mask, const unsigned int custom_mask, const int lid) {
-              // Zero out all bits <= lid
-              const auto zeroed_lowbit_mask = custom_mask & (active_mask << (lid+1));
-              // Just in case if the mask is exactly zero (may happen!):
-              return zeroed_lowbit_mask == 0x0 ? lid : get_ls1b_idx(acc, zeroed_lowbit_mask);  // Count 1s below next to current lane
-            };           
             // Determin actual warp-level work dimension: it coincides with w_extent for all warps 
             // except (potentially!) the last one:
-            const auto warp_work_extent = warp::ballot_mask(acc, active_lanes_mask, true);
+            const unsigned int warp_work_extent = alpaka::popcount(acc, active_lanes_mask);
             //
-            const auto warp_idx   = idx.local / w_extent;
-            const auto lane_idx   = idx.local % w_extent;
+            const unsigned int warp_idx   = idx.local / w_extent;
+            const unsigned int lane_idx   = idx.local % w_extent;
             //const auto lane_mask  = (1 << lane_idx);
             //
             // Get local coordinate:
             const int begin = connected_comp_offsets[idx.local];
             //
-            const auto valid_offsets_mask = warp::ballot_mask(acc, active_lanes_mask, begin != -1);
+            const unsigned int valid_offsets_mask = warp::ballot_mask(acc, active_lanes_mask, begin != -1);
             //
             warp::syncWarpThreads_mask(acc, active_lanes_mask);
             //
-            const auto neigh_lane_idx = is_valid_lane(valid_offsets_mask, lane_idx) ? get_high_neighbor_logical_lane_idx(active_lanes_mask, valid_offsets_mask, lane_idx) : -1;
+            const auto neigh_lane_idx = is_valid_lane(valid_offsets_mask, lane_idx) ? get_high_neighbor_logical_lane_idx(acc, active_lanes_mask, valid_offsets_mask, lane_idx) : w_extent;
             //
             warp::syncWarpThreads_mask(acc, active_lanes_mask);
             //
@@ -332,6 +328,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             const unsigned component_size = end - begin;
             // Determin a custom mask for such vertices:
             warp::syncWarpThreads_mask(acc, active_lanes_mask);
+	    //
             unsigned int valid_vertex_mask = warp::ballot_mask(acc, active_lanes_mask, (component_size != 1));
             // If the warp does not contain valid vertices for processing at all, then skip to the next warp:
             if( valid_vertex_mask == 0x0 ) continue;
@@ -341,170 +338,106 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             //
             const int cluster_rhf_size   = is_valid_lane(valid_vertex_mask, lane_idx) ? component_vertex_rhf_sizes[idx.local  ] : 0;
             const int cluster_rhf_offset = is_valid_lane(valid_vertex_mask, lane_idx) ? component_vertex_rhf_offsets[idx.local] : 0; 
-        
-            unsigned int src_rhf_global_offset = 0;
-        
+            //
             // Initialize valid iterative lane index:
-            unsigned int iter_lane_idx         = first_valid_lane_idx;
-            // Broadcast first valid cluster rhfrac size among the rest of the lanes:
-            warp::syncWarpThreads_mask(acc, active_lanes_mask);
-            
-            unsigned int src_rhf_leftover_size = warp::shfl_mask( acc, active_lanes_mask, cluster_rhf_size, first_valid_lane_idx, w_extent );       
-            unsigned int src_rhf_consumed_size = 0;
-
+            unsigned int iter_lane_idx = first_valid_lane_idx;
+            //
+            unsigned int iter_pfrhf_offset, iter_pfrhf_size, iter_leftover_pfrhf_size;
+            //
+            bool update_params = true;
             // Start iterations untill valid vertex mask will be empty:
             while (iter_lane_idx <= last_valid_lane_idx) {
-#if 0
-              unsigned int src_rhf_local_offset  = lane_idx + src_rhf_consumed_size; 
-
-              unsigned int src_lane_idx = iter_lane_idx;
-
-              bool are_all_active_lanes_got_job = false; 
-              // The initial (iterative) work extent is set to the total warp work extent.
-              // Later, we check whether all lanes in the active lanes mask have been assigned work.
-              // For example, this is true if the current rechit fraction size is greater than or equal 
-              // to the iterative work extent.
-              // If the rh fraction size is smaller than the iterative work extent, some lanes will remain idle,
-              // and we must continue with the next cluster's rh fraction size to assign work to those idle lanes.
-              // Note that work is distributed to lanes in order of increasing lane index (i.e., idle lanes will have 
-              // higher lane index)
-              unsigned int iter_work_extent = warp_work_extent;
-              // Accumulated  work indicates actual work extent 
-              unsigned int accum_work_extent = 0;
-
-              // We need to decide whether to broadcast the current cluster RH fraction offset.
-              // The criterion for broadcasting is that the leftover size is zero
-              // meaning the offset was not already broadcasted in a previous iteration.
-              bool do_broadcast = (src_rhf_leftover_size == 0);
-
-              while ( are_all_active_lanes_got_job == false ) {
-                // 
-                if (src_rhf_leftover_size >= iter_work_extent ) {
-                  // Okay , all lanes got job:
-                  are_all_active_lanes_got_job = true; 
-                  //
-                  if( src_rhf_leftover_size == iter_work_extent ) { 
-                    // Update iteration lane index for the next iteration cycle               
-                    // 1. Erase ls1b in the current iterative mask:
-                    valid_vertex_mask = erase_ls1b(acc, valid_vertex_mask); 
-                    // 2. Compute lowest index of the new ls1b:
-                    iter_lane_idx = get_ls1b_idx(acc, valid_vertex_mask);
-                    // In the (rare) case when current cluster rh frac size exactly matches work extent
-                    // there is nothing left for the next iteration, and we can safely update iteration
-                    // lane index for the next cluster. 
-                    // We need to reset src_rhf_consumed_size in case if this is not the first iteration
-                    // for the current cluster, namely, if we process leftover work:
-                    src_rhf_consumed_size = 0; 
-                    // 
-                    warp::syncWarpThreads_mask(acc, active_lanes_mask);
-                    //
-                    src_rhf_leftover_size = warp::shfl_mask( acc, active_lanes_mask, cluster_rhf_size, iter_lane_idx, w_extent );
-                    //              
-                  } else {
-                    // otherwise subtracted consumed portion from total rh fraction size:
-                    // and keep same iter lane idx but update cluster's rhf size to be processed
-                    // in the next iteration (leftover size)
-                    src_rhf_leftover_size -= iter_work_extent;
-                    src_rhf_consumed_size += iter_work_extent; 
-                  }
-                  // 
-                } else if (iter_lane_idx < last_valid_lane_idx) { 
-                  // If iterative rh fraction size is smaller then work extent, 
-                  // then it makes sense to load new rh fraction size from the next valid
-                  // cluster (that is why the condition iter_lane_idx < last_valid_lane_idx).
-                  // Determin the next valid vertex:
-                  // 1. Erase ls1b in the current iterative mask:
-                  valid_vertex_mask = erase_ls1b(acc, valid_vertex_mask); 
-                  // 2. Compute lowest index of the new ls1b:
-                  iter_lane_idx = get_ls1b_idx(acc, valid_vertex_mask);
-                  // update accumulated work dimension (accum work size):
-                  accum_work_extent += src_rhf_leftover_size;
-                  // update leftover work dimension:
-                  iter_work_extent  -= src_rhf_leftover_size;
-                  // update source lane idx for appropriate (leftover) lanes, also set broadcast flag for new cluster:
-                  if (lane_idx >= accum_work_extent) {
-                    do_broadcast  = true;
-                    // unpdate source lane index 
-                    src_lane_idx  = iter_lane_idx;
-                    //we also need to define (new) shifted local offset:
-                    src_rhf_local_offset = lane_idx - accum_work_extent;
-                  }
-                  //
-                  warp::syncWarpThreads_mask(acc, active_lanes_mask);
-                  //
-                  src_rhf_leftover_size = warp::shfl_mask( acc, active_lanes_mask, cluster_rhf_size, iter_lane_idx, w_extent );
-                  //              
-                  are_all_active_lanes_got_job = ( accum_work_extent == warp_work_extent ); 
-                } else { //iter_lane_idx == last_valid_lane_idx
-                  //
-                  //active_lanes_mask = active_lanes_mask | ??;
-                  //
-                  are_all_active_lanes_got_job = true;
-                }// all active lanes got job 
-              } // warp extent is filled with work
-#else
-              unsigned int src_rhf_local_offset  = lane_idx + src_rhf_consumed_size; 
-
-              unsigned int src_lane_idx = iter_lane_idx;
-
-	      bool do_broadcast = true;
-
-              if ( src_rhf_leftover_size > warp_work_extent ) {
-		src_rhf_leftover_size -= warp_work_extent;
-                src_rhf_consumed_size += warp_work_extent;
-              } else {
+              if (update_params) {
+                warp::syncWarpThreads_mask(acc, active_lanes_mask);
                 //
-                if (lane_idx > src_rhf_leftover_size) {
-                  do_broadcast = false;
+                iter_pfrhf_offset = warp::shfl_mask( acc, active_lanes_mask, cluster_rhf_offset, first_valid_lane_idx, w_extent );
+                iter_pfrhf_size   = warp::shfl_mask( acc, active_lanes_mask, cluster_rhf_size, first_valid_lane_idx, w_extent );
+                iter_leftover_pfrhf_size = 0;
+                //
+                update_params = false;                    
+              }              
+              const unsigned int pfrhfrac_idx = lane_idx + iter_pfrhf_offset + iter_leftover_pfrhf_size;
+
+              unsigned int detId    = 0;
+              unsigned int pfrh_idx = 0;
+
+              if(lane_idx < (iter_pfrhf_size - iter_leftover_pfrhf_size)) {
+                pfrh_idx = pfRecHitFracs[pfrhfrac_idx].pfrhIdx();
+                //
+                detId = pfRecHit[pfrh_idx].detId();
+              }
+
+              const unsigned int seedIdx =  lane_idx == iter_lane_idx ? component_cluster_seeds[idx.local] : 0;
+
+              warp::syncWarpThreads_mask(acc, active_lanes_mask);
+
+              const auto iter_mask = warp::ballot_mask(acc, active_lanes_mask, lane_idx < iter_pfrhf_size);
+
+              const unsigned int seedIdx_ = warp::shfl_mask( acc, iter_mask, seedIdx, iter_lane_idx, w_extent );
+
+              warp::syncWarpThreads_mask(acc, active_lanes_mask);
+
+              const unsigned int candidate_lane_mask = warp::ballot_mask(acc, iter_mask, seedIdx_ == detId );
+
+              const bool is_done = is_valid_lane(candidate_lane_mask, lane_idx);
+
+              if ((iter_pfrhf_size - iter_leftover_pfrhf_size) < warp_work_extent or is_done) {
+                if (is_done and (lane_idx < (iter_pfrhf_size - iter_leftover_pfrhf_size))) {
+                  component_cluster_energies[iter_lane_idx+warp_idx*w_extent] = pfRecHit[pfrh_idx].energy(); 
                 }
-		// Determin the next valid vertex:
+                //
+                // Determin the next valid vertex:
                 // 1. Erase ls1b in the current iterative mask:
                 valid_vertex_mask = erase_ls1b(acc, valid_vertex_mask); 
                 // 2. Compute lowest index of the new ls1b:
                 iter_lane_idx = get_ls1b_idx(acc, valid_vertex_mask);
-                
-		warp::syncWarpThreads_mask(acc, active_lanes_mask);
-                // Since this is for the next iteration, one need to check that it's still valid:
-                if (valid_vertex_mask != 0) { 
-                  src_rhf_leftover_size = warp::shfl_mask( acc, active_lanes_mask, cluster_rhf_size, iter_lane_idx, w_extent );
-                }
-                src_rhf_consumed_size = 0;
-	      }
-#endif
-              warp::syncWarpThreads_mask(acc, active_lanes_mask);
-
-              const unsigned int broadcast_mask = warp::ballot_mask(acc, active_lanes_mask, do_broadcast);
-              //
-              warp::syncWarpThreads_mask(acc, active_lanes_mask);
-              //
-              const unsigned int new_src_rhf_global_offset = warp::shfl_mask( acc, broadcast_mask, cluster_rhf_offset, src_lane_idx, w_extent);
-              //
-              warp::syncWarpThreads_mask(acc, active_lanes_mask);
-              // Update global offset if necessary:
-              src_rhf_global_offset = do_broadcast ? new_src_rhf_global_offset : src_rhf_global_offset;
-
-              const bool is_master_lane = lane_idx == src_lane_idx;
-
-              const auto detIdx  =  pfRecHits[src_rhf_global_offset+src_rhf_local_offset].detId();
-              const auto seedIdx =  is_master_lane ? component_cluster_seeds[idx.local] : 0;
-              warp::syncWarpThreads_mask(acc, active_lanes_mask);
-              const unsigned int seedIdx_ = warp::shfl_mask( acc, active_lanes_mask, seedIdx, src_lane_idx, w_extent );
-
-              warp::syncWarpThreads_mask(acc, active_lanes_mask);
-              const auto result_mask = warp::ballot_mask(acc, active_lanes_mask, detIdx == seedIdx_); 
-
-              // Determin ALL winning lanes : 
-              // note that by construction they correspond to different source clusters.
-              const bool is_selected = result_mask & (1 << lane_idx);
-              // 
-              if (is_selected) { 
-                component_cluster_energies[src_lane_idx+warp_idx*w_extent] = pfRecHits[src_rhf_global_offset+src_rhf_local_offset].energy();
+                //
+                update_params = true; 
+              } else {
+                iter_leftover_pfrhf_size += warp_work_extent;
               }
             } // end while over valid vertices.
             //
           }
           //
           alpaka::syncBlockThreads(acc);
+          // Now we need to compute offsets to each connected component:
+          for( auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, ::cms::alpakatools::round_up_by(nVertices, w_extent)) ) { 
+            //
+            const auto warp_idx   = idx.local / w_extent;
+            //
+            if (warp_idx > 0) continue;
+            //
+            const auto full_mask = alpaka::warp::ballot(acc, true);
+            //
+            auto is_valid_lane  = [](const unsigned int mask, const unsigned int lid) -> bool { 
+              return ((mask >> lid) & 1); 
+            };
+            //
+            const auto lane_idx = idx.local % w_extent;
+            //
+            unsigned int inc = 0;
+
+            for (unsigned int i = 0; i < w_items; i++){
+              const auto j = lane_idx+i * w_extent;
+              const auto offset = j < nVertices ? connected_comp_offsets[j] : -1;
+              //
+              warp::syncWarpThreads_mask(acc, full_mask);
+              const auto valid_offset_mask = warp::ballot_mask(acc, full_mask, offset != -1);
+
+              if (valid_offset_mask == 0x0) continue;
+              //
+              if(is_valid_lane(valid_offset_mask, lane_idx)) {
+                const auto logical_lane_idx = get_logical_lane_idx(acc, valid_offset_mask, lane_idx);
+                //
+                topol_comp_offsets[logical_lane_idx + inc] = offset;
+              }
+              inc += alpaka::popcount(acc, valid_offset_mask);
+            }
+            if(lane_idx == 0) topol_comp_offsets[nVertices] = connected_comp_offsets[nVertices];
+          }      
+
+          alpaka::syncBlockThreads(acc);          
           //
           for( auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, ::cms::alpakatools::round_up_by(nVertices, w_extent)) ) { 
             // Reset shared memory buffers to zero:
@@ -544,13 +477,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
             if (is_root_lane(component_root_mask, lane_idx) == false) continue;
 
-            const unsigned begin = connected_comp_offsets[idx.local];
+            const unsigned begin = connected_comp_offsets[vertex_idx];
             //
-            const unsigned int intern_connected_comp_mask = intern_connected_comp_masks[idx.local];
+            const unsigned int intern_connected_comp_mask = intern_connected_comp_masks[vertex_idx];
             //
             const auto root_lanes_mask = active_lanes_mask & component_root_mask;
             //
-            unsigned int connected_vertex_pos = begin;
+            unsigned int connected_vertex_pos = begin; 
             //
             connected_comp_vertices[connected_vertex_pos++] = component_root_idx;
 
@@ -605,64 +538,109 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             }
           } 
       
-          alpaka::syncBlockThreads(acc);
+          alpaka::syncBlockThreads(acc);          
 
+          for( auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, ::cms::alpakatools::round_up_by(nVertices, w_extent)) ) { 
+            const auto warp_idx = idx.local / w_extent;
+            const auto lane_idx = idx.local % w_extent;
+            //
+            const unsigned int nTopos = topol_comp_offsets[nVertices];
+            //
+            unsigned int active_lanes_mask = alpaka::warp::ballot(acc, idx.local < nTopos);
+            //
+            const auto c = idx.local;
+            //
+            if (idx.local >= nTopos) continue;
+            //
+            const unsigned int begin = topol_comp_offsets[idx.local  ];
+            const unsigned int end   = idx.local < (nTopos-1) ? topol_comp_offsets[idx.local+1] : nTopos;
+            const unsigned int component_size = end - begin;
+            //
+            const unsigned int root_idx = connected_comp_vertices[begin];
+            //
+            outPFCluster[c].depth()  = pfCluster[root_idx].depth();
+            outPFCluster[c].topoId() = pfCluster[root_idx].topoId();
+            outPFCluster[c].energy() = pfCluster[root_idx].energy();
+            outPFCluster[c].x()      = pfCluster[root_idx].x();
+            outPFCluster[c].y()      = pfCluster[root_idx].y();
+            outPFCluster[c].z()      = pfCluster[root_idx].z();
+            outPFCluster[c].topoRHCount() = pfCluster[root_idx].topoRHCount();
+            //
+            auto rhfracSize   = pfCluster[root_idx].rhfracSize();
+            //
+            float root_energy = component_cluster_energies[root_idx];
+            //
+            unsigned int seed_component_idx = root_idx;
+            //
+            for (unsigned int i = 1; i < component_size; i++) {
+              const unsigned int component_idx = connected_comp_vertices[root_idx+i];
+              rhfracSize += pfCluster[component_idx].rhfracSize();
+              const float component_energy = component_cluster_energies[component_idx];
+              if (component_energy > root_energy) {
+                root_energy = component_energy;
+                seed_component_idx = component_idx;
+              }
+            }
+            //
+            outPFCluster[c].rhfracSize() = rhfracSize;
+            //
+            if(seed_component_idx != root_idx) outPFCluster[c].seedRHIdx() = pfCluster[seed_component_idx].seedRHIdx();
+            //
+            const auto local_warp_offset = warp_exclusive_sum(acc, active_lanes_mask, rhfracSize, lane_idx);
+            // Store warp offsets in a separate buffer:
+            if(lane_idx == 0) subdomain_offsets[warp_idx] = local_warp_offset;
+            // Second, store total local offsets into shared mem buffer:
+            connected_comp_offsets[idx.local] = lane_idx > 0 ? local_warp_offset : 0;
+          }
+	  //
+          alpaka::syncBlockThreads(acc); 
+          // Constract coarse-grained offset (offsets for each warp): 
           for( auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, ::cms::alpakatools::round_up_by(nVertices, w_extent)) ) { 
             //
             const auto warp_idx   = idx.local / w_extent;
             //
-            if (warp_idx > 0) continue;
+            if (warp_idx != 0) continue;
+            // Create the full warp mask (all lanes will vote):
+            const auto full_mask  = alpaka::warp::ballot(acc,true);
+            const auto lane_idx   = idx.local % w_extent; 
             //
-            const auto full_mask = alpaka::warp::ballot(acc, true);
+            const auto local_warp_stride = lane_idx < w_items ? subdomain_offsets[lane_idx] : 0;
             //
-            auto is_valid_lane  = [](const unsigned int mask, const unsigned int lid) -> bool { 
-              return ((mask >> lid) & 1); 
-            };
+            const auto global_warp_offset = warp_exclusive_sum(acc, full_mask, local_warp_stride, lane_idx);
+  
+            if (lane_idx < w_items)  subdomain_offsets[lane_idx] = global_warp_offset;//NOTE: lane 0 get total nnz
             //
-            auto get_logical_lane_idx = [&](const unsigned int mask, const unsigned int lane_idx) {
-              // Zero out all bits lane_id
-              const auto lane_mask = mask & ((1 << lane_idx) - 1);
-              return alpaka::popcount(acc, lane_mask);  // Count 1s below current lane
-            };
-
-            const auto lane_idx = idx.local % w_extent;
-            //
-            unsigned int inc = 0;
-
-            for (unsigned int i = 0; i < w_items; i++){
-              const auto j = lane_idx+i * w_extent;
-              const auto offset = j < nVertices ? connected_comp_offsets[j] : -1;
-              //
-              warp::syncWarpThreads_mask(acc, full_mask);
-              const auto valid_offset_mask = alpaka::warp::ballot(acc, offset != -1);
-
-              if (valid_offset_mask == 0x0) continue;
-              //
-              if(is_valid_lane(valid_offset_mask, lane_idx)) {
-                const auto logical_lane_idx = get_logical_lane_idx(valid_offset_mask, lane_idx);
-                //
-                comp_offsets[logical_lane_idx + inc] = offset;
-              }
-              inc += alpaka::popcount(acc, valid_offset_mask);
+            if (lane_idx == 0) {
+              const auto nTopos = topol_comp_offsets[nVertices];
+              connected_comp_offsets[nTopos] = global_warp_offset;
             }
-            if(lane_idx == 0) comp_offsets[nVertices] = connected_comp_offsets[nVertices];
           } 
-      
-          alpaka::syncBlockThreads(acc);          
-
+          alpaka::syncBlockThreads(acc); 
+          // Now we assemble global offsets for each vertex:
           for( auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, ::cms::alpakatools::round_up_by(nVertices, w_extent)) ) { 
-            // Skip inactive lanes:
-            if(idx.local >= nVertices) continue;
+            const unsigned int nTopos = topol_comp_offsets[nVertices];
             //
-            pfClusteringVars[idx.local].mdpf_componentEnergy() = component_cluster_energies[idx.local];
-            pfClusteringVars[idx.local].mdpf_component()       = connected_comp_vertices[idx.local];     
-                        
-            const auto offset = comp_offsets[idx.local];
-
-            if (offset != -1) pfClusteringVars[idx.local].mdpf_componentIndex() = offset; 
-
-            if(idx.local == 0) pfClusteringVars.mdpf_nTopos() = comp_offsets[nVertices];
-          }             
+            if (idx.local >= nTopos) continue;
+            //
+            const unsigned int begin_c = topol_comp_offsets[idx.local];
+            const unsigned int end_c   = idx.local < (nTopos-1) ? topol_comp_offsets[idx.local+1] : nTopos;
+            //
+            unsigned int iter_pfrh_idx = connected_comp_offsets[idx.local];
+            //
+            for (unsigned int j = begin_c; j < end_c; j++) {
+              const unsigned int pfc_idx = connected_comp_vertices[j];
+              //
+              const unsigned int begin_rhfrac = pfCluster[pfc_idx].rhfracOffset();
+              const unsigned int end_rhfrac   = pfCluster[pfc_idx].rhfracSize();
+              //
+              for (unsigned int l = begin_rhfrac; l < end_rhfrac; l++){
+                outPFRecHitFracs[iter_pfrh_idx].frac()    = pfRecHitFracs[l].frac();
+                outPFRecHitFracs[iter_pfrh_idx].pfrhIdx() = pfRecHitFracs[l].pfrhIdx();
+                outPFRecHitFracs[iter_pfrh_idx].pfcIdx()  = pfRecHitFracs[l].pfcIdx();
+                iter_pfrh_idx += 1;
+              }       
+            }
+          } 
         }                                        
       }
   };
