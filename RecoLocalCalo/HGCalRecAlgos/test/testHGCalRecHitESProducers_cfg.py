@@ -116,7 +116,7 @@ process.load(f"Configuration.Geometry.Geometry{options.geometry}_cff")
 # https://github.com/cms-sw/cmssw/blob/master/Geometry/HGCalMapping/python/hgcalmapping_cff.py
 from Geometry.HGCalMapping.hgcalmapping_cff import customise_hgcalmapper
 kwargs = { k: getattr(options,k) for k in ['modules','sicells','sipmcells'] if getattr(options,k)!='' }
-customise_hgcalmapper(process,**kwargs)
+customise_hgcalmapper(process, **kwargs)
 
 # GLOBAL CONFIGURATION ESProducers (for unpacker)
 #process.load("RecoLocalCalo.HGCalRecAlgos.HGCalConfigurationESProducer")

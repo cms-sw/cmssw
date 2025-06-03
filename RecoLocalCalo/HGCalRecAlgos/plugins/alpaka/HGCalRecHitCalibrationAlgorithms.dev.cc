@@ -80,7 +80,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                            calib.TOT_P1(),
                                                            calib.TOT_P2());
 
-        // after denoising/linearization apply the MIP scale
+        // after denoising/linearization apply the MIP & EM scale to convert to energy (GeV)
         recHits[idx].energy() *= calib.MIPS_scale() * calib.EM_scale();
       }
     }
