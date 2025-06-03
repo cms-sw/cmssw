@@ -168,6 +168,7 @@ public:
   int nCellsFine_ = 0;
   int nCellsCoarse_ = 0;
   double waferSize_ = 0.;
+  double waferSizeNominal_ = 0.;
   double waferThick_ = 0.;
   double sensorSeparation_ = 0.;
   double sensorSizeOffset_ = 0.;
@@ -205,6 +206,7 @@ public:
   wafer_map typesInLayers_;
   waferT_map waferTypes_;
   int waferMaskMode_ = 0;
+  int waferNoGap_ = 0;
   int waferZSide_ = 0;
   waferInfo_map waferInfoMap_;
   std::vector<std::pair<double, double> > layerRotV_;
