@@ -36,6 +36,15 @@ class FSimTrack;
 class HFShowerLibrary;
 class RandomEngineAndDistribution;
 
+class HFHitMaker {
+public:
+  const std::map<CaloHitID, float>& hitMap() const { return hitMap_; }
+  std::map<CaloHitID, float>& hitMap() { return hitMap_; }
+
+private:
+  std::map<CaloHitID, float> hitMap_;
+};
+
 class FastHFShowerLibrary {
 public:
   // Constructor and Destructor
@@ -43,11 +52,9 @@ public:
   ~FastHFShowerLibrary() {}
 
 public:
-  void const initHFShowerLibrary(const edm::EventSetup&);
-  void recoHFShowerLibrary(const FSimTrack& myTrack);
-  void modifyDepth(HcalNumberingFromDDD::HcalID& id);
-  const std::map<CaloHitID, float>& getHitsMap() { return hitMap; };
-  void clear() { hitMap.clear(); }
+  void initHFShowerLibrary(const edm::EventSetup&);
+  void recoHFShowerLibrary(const FSimTrack& myTrack, HFHitMaker* hitMaker) const;
+  void modifyDepth(HcalNumberingFromDDD::HcalID& id) const;
 
   void SetRandom(const RandomEngineAndDistribution*);
 
@@ -57,8 +64,6 @@ private:
   std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD;
   const HcalDDDSimConstants* hcalConstants;
   HcalNumberingScheme numberingScheme;
-
-  std::map<CaloHitID, float> hitMap;
 
   bool applyFidCut;
   std::string name;
