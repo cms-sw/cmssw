@@ -61,6 +61,7 @@
     6) Restart from 1) with the next particle
     7) If last particle was propagated add SimTracks, SimVertices, SimHits,... to the event
 */
+
 class FastSimProducer : public edm::stream::EDProducer<> {
 public:
   explicit FastSimProducer(const edm::ParameterSet&);
@@ -355,36 +356,21 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // -----------------------------
   // Calorimetry Manager
   // -----------------------------
+  auto caloProducts = std::make_unique<CaloProductContainer>();
   if (simulateCalorimetry_) {
     for (const auto& myFSimTrack : myFSimTracks) {
-      myCalorimetry_->reconstructTrack(myFSimTrack, randomEngine_.get());
+      myCalorimetry_->reconstructTrack(myFSimTrack, randomEngine_.get(), *caloProducts);
     }
   }
 
   // -----------------------------
   // Store Hits
   // -----------------------------
-  auto p4 = std::make_unique<edm::PCaloHitContainer>();
-  auto p5 = std::make_unique<edm::PCaloHitContainer>();
-  auto p6 = std::make_unique<edm::PCaloHitContainer>();
-  auto p7 = std::make_unique<edm::PCaloHitContainer>();
-
-  auto m1 = std::make_unique<edm::SimTrackContainer>();
-
-  if (simulateCalorimetry_) {
-    myCalorimetry_->loadFromEcalBarrel(*p4);
-    myCalorimetry_->loadFromEcalEndcap(*p5);
-    myCalorimetry_->loadFromPreshower(*p6);
-    myCalorimetry_->loadFromHcal(*p7);
-    if (simulateMuons_) {
-      myCalorimetry_->harvestMuonSimTracks(*m1);
-    }
-  }
-  iEvent.put(std::move(p4), "EcalHitsEB");
-  iEvent.put(std::move(p5), "EcalHitsEE");
-  iEvent.put(std::move(p6), "EcalHitsES");
-  iEvent.put(std::move(p7), "HcalHits");
-  iEvent.put(std::move(m1), "MuonSimTracks");
+  iEvent.put(std::move(caloProducts->hitsEB), "EcalHitsEB");
+  iEvent.put(std::move(caloProducts->hitsEE), "EcalHitsEE");
+  iEvent.put(std::move(caloProducts->hitsES), "EcalHitsES");
+  iEvent.put(std::move(caloProducts->hitsHCAL), "HcalHits");
+  iEvent.put(std::move(caloProducts->tracksMuon), "MuonSimTracks");
 }
 
 void FastSimProducer::endStream() { randomEngine_.reset(); }

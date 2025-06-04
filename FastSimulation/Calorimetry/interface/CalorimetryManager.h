@@ -39,6 +39,22 @@ class GflashAntiProtonShowerProfile;
 // FastHFshowerLibrary
 class FastHFShowerLibrary;
 
+struct CaloProductContainer {
+  CaloProductContainer() :
+    hitsEB(std::make_unique<edm::PCaloHitContainer>()),
+    hitsEE(std::make_unique<edm::PCaloHitContainer>()),
+    hitsES(std::make_unique<edm::PCaloHitContainer>()),
+    hitsHCAL(std::make_unique<edm::PCaloHitContainer>()),
+    tracksMuon(std::make_unique<edm::SimTrackContainer>())
+  {}
+
+  std::unique_ptr<edm::PCaloHitContainer> hitsEB;
+  std::unique_ptr<edm::PCaloHitContainer> hitsEE;
+  std::unique_ptr<edm::PCaloHitContainer> hitsES;
+  std::unique_ptr<edm::PCaloHitContainer> hitsHCAL;
+  std::unique_ptr<edm::SimTrackContainer> tracksMuon;
+};
+
 class CalorimetryManager {
 public:
   CalorimetryManager();
@@ -51,7 +67,7 @@ public:
 
   // Does the real job
   void initialize(RandomEngineAndDistribution const* random, const HepPDT::ParticleDataTable* pdt);
-  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
+  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
 
   // Return the address of the Calorimeter
   CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_.get(); }
@@ -59,54 +75,36 @@ public:
   // Return the address of the FastHFShowerLibrary
   FastHFShowerLibrary* getHFShowerLibrary() const { return theHFShowerLibrary_.get(); }
 
-  // load container from edm::Event
-  void loadFromEcalBarrel(edm::PCaloHitContainer& c) const;
-
-  void loadFromEcalEndcap(edm::PCaloHitContainer& c) const;
-
-  void loadFromHcal(edm::PCaloHitContainer& c) const;
-
-  void loadFromPreshower(edm::PCaloHitContainer& c) const;
-
-  void loadMuonSimTracks(edm::SimTrackContainer& m) const;
-
-  void harvestMuonSimTracks(edm::SimTrackContainer& m) const;
-
 private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
-  void EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
+  void EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
 
-  void reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
+  void reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
 
-  void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
+  void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
 
   /// Hadronic Shower Simulation
-  void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
+  void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
 
   // Read the parameters
   void readParameters(const edm::ParameterSet& fastCalo);
 
-  void updateECAL(const std::map<CaloHitID, float>& hitMap, int onEcal, int trackID = 0, float corr = 1.0);
+  void updateECAL(const std::map<CaloHitID, float>& hitMap, int onEcal, int trackID, CaloProductContainer& container, float corr = 1.0) const;
   void updateHCAL(const std::map<CaloHitID, float>& hitMap,
-                  bool usedShowerLibrary = false,
-                  int trackID = 0,
+                  bool usedShowerLibrary,
+                  int trackID,
+                  CaloProductContainer& container,
                   float corr = 1.0);
-  void updatePreshower(const std::map<CaloHitID, float>& hitMap, int trackID = 0, float corr = 1.0);
+  void updatePreshower(const std::map<CaloHitID, float>& hitMap, int trackID, CaloProductContainer& container, float corr = 1.0) const;
+  void updateMuon(const FSimTrack& track, CaloProductContainer& container) const;
 
   void respCorr(double);
-
-  void clean();
 
 private:
   std::unique_ptr<CaloGeometryHelper> myCalorimeter_;
 
   std::unique_ptr<HCALResponse> myHDResponse_;
   std::unique_ptr<HSParameters> myHSParameters_;
-
-  std::vector<std::pair<CaloHitID, float> > EBMapping_;
-  std::vector<std::pair<CaloHitID, float> > EEMapping_;
-  std::vector<std::pair<CaloHitID, float> > HMapping_;
-  std::vector<std::pair<CaloHitID, float> > ESMapping_;
 
   bool debug_;
   std::vector<unsigned int> evtsToDebug_;
@@ -159,8 +157,6 @@ private:
   // Used to check if the calorimeters was initialized
   bool initialized_;
 
-  std::vector<FSimTrack> muonSimTracks_;
-  std::vector<FSimTrack> savedMuonSimTracks_;
   std::unique_ptr<MaterialEffects> theMuonEcalEffects_;  // material effects for muons in ECAL
   std::unique_ptr<MaterialEffects> theMuonHcalEffects_;  // material effects for muons in HCAL
 
