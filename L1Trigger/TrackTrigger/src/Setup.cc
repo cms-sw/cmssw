@@ -54,6 +54,7 @@ namespace tt {
         tbWidthsR_(iConfig.tbWidthsR_),
         // Fimrware specific Parameter
         enableTruncation_(iConfig.enableTruncation_),
+        useHybrid_(iConfig.useHybrid_),
         widthDSPa_(iConfig.widthDSPa_),
         widthDSPb_(iConfig.widthDSPb_),
         widthDSPc_(iConfig.widthDSPc_),
