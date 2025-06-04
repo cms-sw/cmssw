@@ -168,6 +168,19 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
       if (!post_vtx_selection_(cand))
         continue;
 
+      const reco::BeamSpot &beamSpot = *beamspot;
+      TrajectoryStateClosestToPoint theDCAXBS = fitter.fitted_candidate_ttrk().trajectoryStateClosestToPoint(
+          GlobalPoint(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z()));
+      double DCAB0BS = -99.;
+      double DCAB0BSErr = -99.;
+
+      if (theDCAXBS.isValid() == true) {
+        DCAB0BS = theDCAXBS.perigeeParameters().transverseImpactParameter();
+        DCAB0BSErr = theDCAXBS.perigeeError().transverseImpactParameterError();
+      }
+      cand.addUserFloat("dca", DCAB0BS);
+      cand.addUserFloat("dcaErr", DCAB0BSErr);
+
       cand.addUserFloat("vtx_x", cand.vx());
       cand.addUserFloat("vtx_y", cand.vy());
       cand.addUserFloat("vtx_z", cand.vz());
@@ -307,7 +320,7 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
       cand.addUserFloat("cstr_cos_theta_2D", cstr_cos_theta_2D);
 
       ret_val->push_back(cand);
-    }
+    }  // for(size_t ll_idx = 0; ll_idx < dileptons->size(); ++ll_idx) {
   }
   evt.put(std::move(ret_val));
 }
