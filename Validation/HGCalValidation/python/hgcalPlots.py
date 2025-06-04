@@ -1614,6 +1614,11 @@ _sharedEnergy_to_trackster = []
 _sharedEnergy_trackster_to = []
 versions = ["", "_assoc", "_assoc_vs_eta", "_assoc_vs_phi"]
 
+_score_simtrackster_to_trackster = []
+_score_trackster_to_simtrackster = []
+score_versions_simToReco = ["", "Dupl", "Pur"]
+score_versions_recoToSim= ["", "Fake", "Merge"]
+
 _energyscore_to_trackster = []
 _energyscore_trackster_to = []
 en_vs_score = ["","best","secBest"]
@@ -1622,11 +1627,22 @@ for val in simDict:
     print("appending plot group", "SharedEnergy_"+val+"ToTrackster")
     _sharedEnergy_trackster_to.append(PlotGroup("SharedEnergy_TracksterTo"+val, [], ncols=2))
     print("appending plot group", "SharedEnergy_TracksterTo"+val)
+    _score_simtrackster_to_trackster.append(PlotGroup("Score_"+val+"2trackster", [], ncols=3))
+    print("appending plot group", "Score_"+val+"2trackster")
+    _score_trackster_to_simtrackster.append(PlotGroup("Score_trackster2"+val, [], ncols=3))
+    print("appending plot group", "Score_trackster2"+val)
     for ver in versions:
         _sharedEnergy_to_trackster[-1].append(Plot("SharedEnergy_"+val+"2trackster"+ver, **_common_shared))
         print("appending plot ", "SharedEnergy_"+val+"2trackster"+ver)
         _sharedEnergy_trackster_to[-1].append(Plot("SharedEnergy_trackster2"+val+ver, **_common_shared))
         print("appending plot ", "SharedEnergy_trackster2"+val+ver)
+    for ver in score_versions_simToReco:
+      _score_simtrackster_to_trackster[-1].append(Plot("Score"+ver+"_"+val+"2trackster", **_common_score))
+      print("appending plot ", "Score"+ver+"_"+val+"2trackster")
+    for ver in score_versions_recoToSim:
+      _score_trackster_to_simtrackster[-1].append(Plot("Score"+ver+"_trackster2"+val, **_common_score))
+      print("appending plot ", "Score"+ver+"_trackster2"+val)
+    
 
     _energyscore_to_trackster.append(PlotGroup("Energy_vs_Score_"+val+"ToTracksters", [], ncols=len(en_vs_score)))
     _energyscore_trackster_to.append(PlotGroup("Energy_vs_Score_TrackstersTo"+val, [], ncols=len(en_vs_score)))
@@ -2528,8 +2544,8 @@ _trackstersToSimTracksterFromCPByHitsPlots = [
   _duplicates[0],
   _fakes[0],
   _merges[0],
-  _score_caloparticle_to_tracksters,
-  _score_trackster_to_caloparticles,
+  _score_simtrackster_to_trackster[0],
+  _score_trackster_to_simtrackster[0],
   _sharedEnergy_to_trackster[0],
   _sharedEnergy_trackster_to[0],
   _energyscore_to_trackster[0],
@@ -2542,8 +2558,8 @@ _trackstersToSimTracksterByLCsPlots = [
   _duplicates[1],
   _fakes[1],
   _merges[1],
-  _score_simtrackster_to_tracksters,
-  _score_trackster_to_simtracksters,
+  _score_simtrackster_to_trackster[1],
+  _score_trackster_to_simtrackster[1],
   _sharedEnergy_to_trackster[1],
   _sharedEnergy_trackster_to[1],
   _energyscore_to_trackster[1],
@@ -2556,8 +2572,8 @@ _trackstersToSimTracksterFromCPByLCsPlots = [
   _duplicates[2],
   _fakes[2],
   _merges[2],
-  _score_simtrackster_to_tracksters,
-  _score_trackster_to_simtracksters,
+  _score_simtrackster_to_trackster[2],
+  _score_trackster_to_simtrackster[2],
   _sharedEnergy_to_trackster[2],
   _sharedEnergy_trackster_to[2],
   _energyscore_to_trackster[2],
@@ -2570,8 +2586,8 @@ _trackstersToSimTracksterByHitsPlots = [
   _duplicates[3],
   _fakes[3],
   _merges[3],
-  _score_simtrackster_to_tracksters,
-  _score_trackster_to_simtracksters,
+  _score_simtrackster_to_trackster[3],
+  _score_trackster_to_simtrackster[3],
   _sharedEnergy_to_trackster[3],
   _sharedEnergy_trackster_to[3],
   _energyscore_to_trackster[3],
