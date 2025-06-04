@@ -190,12 +190,12 @@ def writeSizeReport(fileData, trees, stream):
     <html>
     <head>
         <title>{title}</title>
-        <link rel="stylesheet" type="text/css" href="http://gpetrucc.web.cern.ch/gpetrucc/micro/patsize.css" />
-        <script type="text/javascript" src="http://gpetrucc.web.cern.ch/gpetrucc/rgraph/RGraph.common.core.js"></script>
-        <script type="text/javascript" src="http://gpetrucc.web.cern.ch/gpetrucc/rgraph/RGraph.pie.js"></script>
-        <script type="text/javascript" src="http://gpetrucc.web.cern.ch/gpetrucc/rgraph/RGraph.common.dynamic.js"></script>
-        <script type="text/javascript" src="http://gpetrucc.web.cern.ch/gpetrucc/rgraph/RGraph.common.tooltips.js"></script>
-        <script type="text/javascript" src="http://gpetrucc.web.cern.ch/gpetrucc/rgraph/RGraph.common.key.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cms-nanoaod-integration.web.cern.ch/patsize.css" />
+        <script type="text/javascript" src="https://cms-nanoaod-integration.web.cern.ch/rgraph/RGraph.common.core.js"></script>
+        <script type="text/javascript" src="https://cms-nanoaod-integration.web.cern.ch/rgraph/RGraph.pie.js"></script>
+        <script type="text/javascript" src="https://cms-nanoaod-integration.web.cern.ch/rgraph/RGraph.common.dynamic.js"></script>
+        <script type="text/javascript" src="https://cms-nanoaod-integration.web.cern.ch/rgraph/RGraph.common.tooltips.js"></script>
+        <script type="text/javascript" src="https://cms-nanoaod-integration.web.cern.ch/rgraph/RGraph.common.key.js"></script>
     </head>
     <body>
     <a name="top" id="top"><h1>{title}</h1></a>
@@ -247,7 +247,7 @@ def writeSizeReport(fileData, trees, stream):
         for s in survey:
             stream.write("<tr><th title=\"%s\"><a href='#%s'>%s</a></th><td style='text-align : left;'>%s</td><td>%d</td>" % (s['doc'],s['name'],s['name'],s['kind'].lower(),len(s['subs'])))
             stream.write("<td>%.2f</td><td>%.3f</td><td>%.1f</td>" % (s['entries']/events, s['tot']/events, s['tot']/s['entries']*1024 if s['entries'] else 0))
-            stream.write("<td class=\"img\"><img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/blue-dot.gif' width='%d' height='%d' /></td>" % (s['tot']/treetotal*200,10))
+            stream.write("<td class=\"img\"><img src='https://cms-nanoaod-integration.web.cern.ch/blue-dot.gif' width='%d' height='%d' /></td>" % (s['tot']/treetotal*200,10))
             stream.write("<td>%.1f%%</td>" % ( s['tot']/treetotal * 100.0))
             stream.write("<td>%.1f%%</td>" % ( (runningtotal+s['tot'])/treetotal * 100.0))
             stream.write("<td>%.1f%%</td>" % ( (treetotal-runningtotal)/treetotal * 100.0))
@@ -258,7 +258,7 @@ def writeSizeReport(fileData, trees, stream):
         # all known data
         stream.write("<tr><th>All %s data</th>" % treename)
         stream.write("<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td><b>%.2f</b></td><td>&nbsp;</td>"  % (treetotal/events))
-        stream.write("<td class=\"img\"><img src=\"http://gpetrucc.web.cern.ch/gpetrucc/micro/green-dot.gif\" width='%d' height='10' />" % ( treetotal/filesize*100.0))
+        stream.write("<td class=\"img\"><img src=\"https://cms-nanoaod-integration.web.cern.ch/green-dot.gif\" width='%d' height='10' />" % ( treetotal/filesize*100.0))
         stream.write("</td><td>%.1f%%<sup>a</sup></td>" % (treetotal/filesize*100.0))
         stream.write("</tr>\n")
 
@@ -266,7 +266,7 @@ def writeSizeReport(fileData, trees, stream):
             # non-event
             stream.write("<tr><th>Non per-event data or overhead</th>")
             stream.write("<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>%.2f</td><td>&nbsp;</td>" % ( (filesize-treetotal)/events))
-            stream.write("<td class=\"img\"><img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/red-dot.gif' width='%d' height='%d' /></td>" % ( (filesize-treetotal)/filesize * 100, 10 ))
+            stream.write("<td class=\"img\"><img src='https://cms-nanoaod-integration.web.cern.ch/red-dot.gif' width='%d' height='%d' /></td>" % ( (filesize-treetotal)/filesize * 100, 10 ))
             stream.write("<td>%.1f%%<sup>a</sup></td>" % ( (filesize-treetotal)/filesize * 100.0 ))
             stream.write("</tr>\n")
 
@@ -274,7 +274,7 @@ def writeSizeReport(fileData, trees, stream):
         # other, unknown overhead
         stream.write("<tr><th>Overhead</th>")
         stream.write("<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>%.2f</td><td>&nbsp;</td>" % ( (filesize-runningtotal)/events))
-        stream.write("<td class=\"img\"><img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/red-dot.gif' width='%d' height='%d' /></td>" % ( (filesize-runningtotal)/filesize * 100, 10 ))
+        stream.write("<td class=\"img\"><img src='https://cms-nanoaod-integration.web.cern.ch/red-dot.gif' width='%d' height='%d' /></td>" % ( (filesize-runningtotal)/filesize * 100, 10 ))
         stream.write("<td>%.1f%%<sup>a</sup></td>" % ( (filesize-runningtotal)/filesize * 100.0 ))
         stream.write("</tr>\n")
 
@@ -299,7 +299,7 @@ def writeSizeReport(fileData, trees, stream):
             subs = [ treeData['branches'][b] for b in s['subs'] ]
             for b in sorted(subs, key = lambda s : - s['tot']):
                 stream.write("<tr><th title=\"%s\">%s</th><td style='text-align : left;'>%s</td><td>%.1f</td><td>%.1f</td>" % (b['doc'],b['name'], b['kind'], b['tot']/events*1024, b['tot']/s['entries']*1024 if s['entries'] else 0))
-                stream.write("<td class=\"img\"><img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/blue-dot.gif' width='%d' height='%d' /></td>" % ( b['tot']/s['tot']*200, 10 ))
+                stream.write("<td class=\"img\"><img src='https://cms-nanoaod-integration.web.cern.ch/blue-dot.gif' width='%d' height='%d' /></td>" % ( b['tot']/s['tot']*200, 10 ))
                 stream.write("<td>%.1f%%</td>" % (b['tot']/s['tot'] * 100.0))
                 stream.write("</tr>\n")
             stream.write("</table>\n")
@@ -312,7 +312,7 @@ def writeDocReport(fileName, trees, stream):
     <html>
     <head>
         <title>Documentation for {filename} </title>
-        <link rel="stylesheet" type="text/css" href="http://gpetrucc.web.cern.ch/gpetrucc/micro/patsize.css" />
+        <link rel="stylesheet" type="text/css" href="https://cms-nanoaod-integration.web.cern.ch/patsize.css" />
     </head>
     <body>
     """.format(filename=fileName))
@@ -359,7 +359,7 @@ def writeMarkdownSizeReport(fileData, trees, stream):
         for s in survey:
             stream.write("| [**%s**](#%s '%s') | %s | %d" % (s['name'], s['name'].lower(), s['doc'].replace('|', '\|').replace('\'', '\"'), s['kind'].lower(), len(s['subs'])))
             stream.write("| %.2f|%.3f|%.1f" % (s['entries']/events, s['tot']/events, s['tot'] / s['entries'] * 1024 if s['entries'] else 0))
-            stream.write("| <img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/blue-dot.gif' width='%d' height='%d' />" % (s['tot'] / treetotal * 200, 10))
+            stream.write("| <img src='https://cms-nanoaod-integration.web.cern.ch/blue-dot.gif' width='%d' height='%d' />" % (s['tot'] / treetotal * 200, 10))
             stream.write("| %.1f%%" % (s['tot'] / treetotal * 100.0))
             stream.write("| %.1f%%" % ((runningtotal+s['tot'])/treetotal * 100.0))
             stream.write("| %.1f%% |\n" % ((treetotal-runningtotal)/treetotal * 100.0))
@@ -368,21 +368,21 @@ def writeMarkdownSizeReport(fileData, trees, stream):
         # all known data
         stream.write("**All %s data**" % treename)
         stream.write("| | | | **%.2f**"  % (treetotal/events))
-        stream.write("| | <img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/green-dot.gif' width='%d' height='%d' />" % (treetotal / filesize * 100.0, 10))
+        stream.write("| | <img src='https://cms-nanoaod-integration.web.cern.ch/green-dot.gif' width='%d' height='%d' />" % (treetotal / filesize * 100.0, 10))
         stream.write("| %.1f%%<sup>a</sup> | | |\n" % (treetotal/filesize * 100.0))
 
         if treename == "Events":
             # non-event
             stream.write("**Non per-event data or overhead**")
             stream.write("| | | | %.2f" % ((filesize-treetotal)/events))
-            stream.write("| | <img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/red-dot.gif' width='%d' height='%d' />" % ((filesize - treetotal) / filesize * 100, 10))
+            stream.write("| | <img src='https://cms-nanoaod-integration.web.cern.ch/red-dot.gif' width='%d' height='%d' />" % ((filesize - treetotal) / filesize * 100, 10))
             stream.write("| %.1f%%<sup>a</sup> | | |\n" % ((filesize-treetotal)/filesize * 100.0))
 
     if len(surveys) > 1:
         # other, unknown overhead
         stream.write("**Overhead**")
         stream.write("| | | | %.2f" % ((filesize-runningtotal)/events))
-        stream.write("| | <img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/red-dot.gif' width='%d' height='%d' />" % ((filesize - runningtotal) / filesize * 100, 10))
+        stream.write("| | <img src='https://cms-nanoaod-integration.web.cern.ch/red-dot.gif' width='%d' height='%d' />" % ((filesize - runningtotal) / filesize * 100, 10))
         stream.write("| %.1f%%<sup>a</sup> | | |\n" % ((filesize-runningtotal)/filesize * 100.0))
 
     # all file
@@ -402,7 +402,7 @@ def writeMarkdownSizeReport(fileData, trees, stream):
             subs = [trees[treename]['branches'][b] for b in s['subs']]
             for b in sorted(subs, key = lambda s: - s['tot']):
                 stream.write("| <b title='%s'>%s</b> | %s | %.1f | %.1f" % (b['doc'].replace('|', '\|').replace('\'', '\"'), b['name'], b['kind'], b['tot'] / events * 1024, b['tot'] / s['entries'] * 1024 if s['entries'] else 0))
-                stream.write("| <img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/blue-dot.gif' width='%d' height='%d' />" % (b['tot'] / s['tot'] * 200, 10))
+                stream.write("| <img src='https://cms-nanoaod-integration.web.cern.ch/blue-dot.gif' width='%d' height='%d' />" % (b['tot'] / s['tot'] * 200, 10))
                 stream.write("| %.1f%% |\n" % (b['tot'] / s['tot'] * 100.0))
             stream.write("\n")
 
