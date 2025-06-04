@@ -72,11 +72,17 @@ thicknessCorrectionSc = recocalibparam.HGCalRecHit.sciThicknessCorrection
 thicknessCorrectionNose = recocalibparam.HGCalRecHit.thicknessNoseCorrection
 
 NTHICKNESS = 3
+INDEX200 = 1
+# Silicon thickness correction in HGCalRecHit_cfi.py is in the form:
+# [CE_E_120um, CE_E_200um, CE_E_300um, CE_H_120um, CE_H_200um, CE_H_300um]
+# While here there are two different sets for CE-E and CE-H
+# Additionally there are four values for each set, in order to follow the four detid silicon types [HD120um, LD200um, LD300um, HD200um]
+# The thickness correction value for HD200um is copied from LD200um
 calibration_params_ee = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_si),
         fCperMIP = fCperMIPee,
         dEdXweights = layercalibparam.triggerWeights.weights,
-        thicknessCorrection = cms.vdouble(thicknessCorrectionSi[0:NTHICKNESS]),
+        thicknessCorrection = cms.vdouble(thicknessCorrectionSi[0:NTHICKNESS]+[thicknessCorrectionSi[INDEX200]]),
         chargeCollectionEfficiency = cms.PSet(),
         )
 
@@ -84,7 +90,7 @@ calibration_params_hesi = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_si),
         fCperMIP = fCperMIPhe,
         dEdXweights = layercalibparam.triggerWeights.weights,
-        thicknessCorrection = cms.vdouble(thicknessCorrectionSi[NTHICKNESS:2*NTHICKNESS]),
+        thicknessCorrection = cms.vdouble(thicknessCorrectionSi[NTHICKNESS:2*NTHICKNESS]+[thicknessCorrectionSi[NTHICKNESS+INDEX200]]),
         chargeCollectionEfficiency = cms.PSet(),
         )
 
