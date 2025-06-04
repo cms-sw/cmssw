@@ -32,8 +32,7 @@ namespace hgc_digi_utils {
   using hgc::HGCCellInfo;
 
   inline void addCellMetadata(HGCCellInfo& info, const HGCalGeometry* geom, const DetId& detid) {
-
-    if(detid.det()==DetId::HGCalHSc) {
+    if (detid.det() == DetId::HGCalHSc) {
       HGCScintillatorDetId sipmdetid(detid);
       info.size = sipmdetid.sipm();
       info.thickness = sipmdetid.granularity();
