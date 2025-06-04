@@ -37,6 +37,7 @@ void fillpT3DNNBranches(LSTEvent* event, unsigned int iPT3);
 void setT5DNNBranches(LSTEvent* event);
 void setT3DNNBranches(LSTEvent* event);
 void setpT3DNNBranches(LSTEvent* event);
+void setpLSOutputBranches(LSTEvent* event);
 
 std::tuple<int, float, float, float, int, std::vector<int>> parseTrackCandidate(LSTEvent* event, unsigned int);
 std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parsepT5(LSTEvent* event,

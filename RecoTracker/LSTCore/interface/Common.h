@@ -64,7 +64,9 @@ namespace lst {
   };
   struct Params_pLS {
     static constexpr int kLayers = 2, kHits = 4;
+    static constexpr int kEmbed = 6;
     using ArrayUxHits = edm::StdArray<unsigned int, kHits>;
+    using ArrayFxEmbed = edm::StdArray<float, kEmbed>;
   };
   struct Params_LS {
     static constexpr int kLayers = 2, kHits = 4;
@@ -84,9 +86,11 @@ namespace lst {
   };
   struct Params_T5 {
     static constexpr int kLayers = 5, kHits = 10;
+    static constexpr int kEmbed = 6;
     using ArrayU8xLayers = edm::StdArray<uint8_t, kLayers>;
     using ArrayU16xLayers = edm::StdArray<uint16_t, kLayers>;
     using ArrayUxHits = edm::StdArray<unsigned int, kHits>;
+    using ArrayFxEmbed = edm::StdArray<float, kEmbed>;
   };
   struct Params_pT5 {
     static constexpr int kLayers = 7, kHits = 14;
