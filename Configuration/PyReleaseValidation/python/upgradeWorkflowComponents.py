@@ -3617,7 +3617,7 @@ upgradeProperties['Run4'] = {
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     'Run4D123' : {
-        'Geom' : 'ExtendedRun4D1223',
+        'Geom' : 'ExtendedRun4D123',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T33',
         'Era' : 'Phase2C22I13M9',
