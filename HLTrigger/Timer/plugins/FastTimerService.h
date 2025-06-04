@@ -6,12 +6,13 @@
 #include <pthread.h>
 
 // C++ headers
+#include <atomic>
 #include <chrono>
 #include <cmath>
-#include <map>
+#include <memory>
 #include <mutex>
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 // boost headers
 #include <boost/chrono.hpp>
@@ -37,11 +38,8 @@ using json = nlohmann::json;
 #include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "HLTrigger/Timer/interface/ProcessCallGraph.h"
@@ -288,6 +286,7 @@ private:
 
   struct ResourcesPerProcess {
   public:
+    ResourcesPerProcess() = default;
     ResourcesPerProcess(ProcessCallGraph::ProcessType const& process);
     void reset();
     ResourcesPerProcess& operator+=(ResourcesPerProcess const& other);
@@ -316,7 +315,14 @@ private:
     Measurement event_measurement;
     std::vector<Resources> highlight;
     std::vector<ResourcesPerModule> modules;
-    std::vector<ResourcesPerProcess> processes;
+    // Before the Framework SubProcess feature was removed, the following data
+    // member was a vector<ResourcesPerProcess>. If something like SubProcess is
+    // implemented again in the future, it may need to become a vector again. When
+    // SubProcess support was removed from this service, we left ResourcesPerJob
+    // and ResourcesPerProcess as separate classes because we are considering the
+    // possibility of reimplementing something like SubProcess and having them
+    // separate will make that easier...
+    ResourcesPerProcess process;
     unsigned events;
   };
 
@@ -402,7 +408,7 @@ private:
     void fill(ProcessCallGraph::ProcessType const&, ResourcesPerJob const&, ResourcesPerProcess const&, unsigned int ls);
 
   private:
-    // resources spent in all the modules of the (sub)process
+    // resources spent in all the modules of the process
     PlotsPerElement event_;
     // resources spent in each path and endpath
     std::vector<PlotsPerPath> paths_;
@@ -440,8 +446,8 @@ private:
     std::vector<PlotsPerElement> highlight_;
     // resources spent in each module
     std::vector<PlotsPerElement> modules_;
-    // resources spent in each (sub)process
-    std::vector<PlotsPerProcess> processes_;
+    // resources spent in process
+    PlotsPerProcess process_;
   };
 
   // keep track of the dependencies among modules
@@ -489,11 +495,6 @@ private:
 
   //
   ThreadGuard guard_;
-
-  // atomic variables to keep track of the completion of each step, process by process
-  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_event_check_;
-  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_global_lumi_check_;
-  std::unique_ptr<std::atomic<unsigned int>[]> subprocess_global_run_check_;
 
   // retrieve the current thread's per-thread quantities
   Measurement& thread();
@@ -587,13 +588,6 @@ private:
   json encodeToJSON(edm::ModuleDescription const& module, ResourcesPerModule const& data) const;
 
   void writeSummaryJSON(ResourcesPerJob const& data, std::string const& filename) const;
-
-  // check if this is the first process being signalled
-  bool isFirstSubprocess(edm::StreamContext const&);
-  bool isFirstSubprocess(edm::GlobalContext const&);
-
-  // check if this is the lest process being signalled
-  bool isLastSubprocess(std::atomic<unsigned int>& check);
 };
 
 #endif  // ! FastTimerService_h
