@@ -110,7 +110,7 @@ process.emulTPDigis = process.simHcalTriggerPrimitiveDigis.clone(
    ZS_threshold = 0
 )
 
-process.emulTPDigisForZDC = process.emulTPDigis.clone(inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis:ZDC")
+process.emulTPDigisForZDC = process.emulTPDigis.clone(inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis:ZDC"))
 
 #inserting zdc emulator after tp digis
 process.etSumZdcProducer = cms.EDProducer('L1TZDCProducer',
