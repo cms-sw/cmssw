@@ -626,7 +626,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       double correction = emeas / eGen;
 
       // RespCorrP factors (ECAL and HCAL separately) calculation
-      respCorr(eint);
+      auto[ecorr, hcorr] = respCorr(eint);
 
       if (debug_)
         LogInfo("FastCalorimetry") << "CalorimetryManager::HDShowerSimulation - on-calo 2" << std::endl
@@ -639,7 +639,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 
       if (myTrack.onEcal() > 0) {
         // Save ECAL hits
-        updateECAL(myGrid.getHits(), onECAL, myTrack.id(), container, correction * ecorr_);
+        updateECAL(myGrid.getHits(), onECAL, myTrack.id(), container, correction * ecorr);
       }
 
       // Save HCAL hits
@@ -649,7 +649,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
         theHFShowerLibrary_->clear();
         myHDResponse_->clearHF();
       } else
-        updateHCAL(myHcalHitMaker.getHits(), false, myTrack.id(), container, correction * hcorr_);
+        updateHCAL(myHcalHitMaker.getHits(), false, myTrack.id(), container, correction * hcorr);
 
     } else {  // shower simulation failed
       if (myTrack.onHcal() || myTrack.onVFcal()) {
@@ -971,13 +971,12 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   useCorrectionSL_ = m_HS.getUntrackedParameter<bool>("useCorrectionSL", false);
 }
 
-void CalorimetryManager::respCorr(double p) {
+std::pair<double, double> CalorimetryManager::respCorr(double p) const {
   int sizeP = p_knots_.size();
 
-  if (sizeP <= 1) {
-    ecorr_ = 1.;
-    hcorr_ = 1.;
-  } else {
+  double ecorr = 1.;
+  double hcorr = 1.;
+  if (sizeP > 1) {
     int ip = -1;
     for (int i = 0; i < sizeP; i++) {
       if (p < p_knots_[i]) {
@@ -986,29 +985,31 @@ void CalorimetryManager::respCorr(double p) {
       }
     }
     if (ip == 0) {
-      ecorr_ = k_e_[0];
-      hcorr_ = k_h_[0];
+      ecorr = k_e_[0];
+      hcorr = k_h_[0];
     } else {
       if (ip == -1) {
-        ecorr_ = k_e_[sizeP - 1];
-        hcorr_ = k_h_[sizeP - 1];
+        ecorr = k_e_[sizeP - 1];
+        hcorr = k_h_[sizeP - 1];
       } else {
         double x1 = p_knots_[ip - 1];
         double x2 = p_knots_[ip];
         double y1 = k_e_[ip - 1];
         double y2 = k_e_[ip];
 
-        ecorr_ = (y1 + (y2 - y1) * (p - x1) / (x2 - x1));
+        ecorr = (y1 + (y2 - y1) * (p - x1) / (x2 - x1));
 
         y1 = k_h_[ip - 1];
         y2 = k_h_[ip];
-        hcorr_ = (y1 + (y2 - y1) * (p - x1) / (x2 - x1));
+        hcorr = (y1 + (y2 - y1) * (p - x1) / (x2 - x1));
       }
     }
   }
 
   if (debug_)
-    LogInfo("FastCalorimetry") << " p, ecorr_, hcorr_ = " << p << " " << ecorr_ << "  " << hcorr_ << std::endl;
+    LogInfo("FastCalorimetry") << " p, ecorr, hcorr = " << p << " " << ecorr << "  " << hcorr << std::endl;
+
+  return std::make_pair(ecorr, hcorr);
 }
 
 void CalorimetryManager::updateECAL(const std::map<CaloHitID, float>& hitMap, int onEcal, int trackID, CaloProductContainer& container, float corr) const {

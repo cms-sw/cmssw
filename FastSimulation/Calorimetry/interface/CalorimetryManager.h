@@ -21,6 +21,7 @@
 //#include <boost/cstdint.hpp>
 #include <map>
 #include <algorithm>
+#include <utility>
 
 class FSimEvent;
 class FSimTrack;
@@ -98,7 +99,7 @@ private:
   void updatePreshower(const std::map<CaloHitID, float>& hitMap, int trackID, CaloProductContainer& container, float corr = 1.0) const;
   void updateMuon(const FSimTrack& track, CaloProductContainer& container) const;
 
-  void respCorr(double);
+  std::pair<double, double> respCorr(double) const;
 
 private:
   std::unique_ptr<CaloGeometryHelper> myCalorimeter_;
@@ -151,8 +152,6 @@ private:
   std::vector<double> p_knots_;
   std::vector<double> k_e_;
   std::vector<double> k_h_;
-  double ecorr_;
-  double hcorr_;
 
   // Used to check if the calorimeters was initialized
   bool initialized_;
