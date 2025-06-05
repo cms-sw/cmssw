@@ -6,12 +6,15 @@ process.load('Configuration.Geometry.GeometryExtendedRun4D41Reco_cff')
 process.load('Configuration.Geometry.GeometryExtendedRun4D41_cff')
 
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.GlobalTag.globaltag = "80X_dataRun2_2016SeptRepro_v7"
 
 process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
 
 #process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring('file:/eos/cms/store/user/folguera/P2L1TUpgrade/digis_segments_Run2016BSingleMuonRAW-RECO_camilo.root'))
 process.source = cms.Source("PoolSource",
@@ -20,9 +23,13 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 process.dtTriggerPhase2PrimitiveDigis.dump = True
 process.dtTriggerPhase2PrimitiveDigis.debug = False
 process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.double(0.16)
+#DTTriggerPhase2Showers
+process.dtTriggerPhase2Shower.showerTaggingAlgo = 1
+process.dtTriggerPhase2Shower.debug = False
 
 #scenario
 process.dtTriggerPhase2PrimitiveDigis.scenario = 1
+process.dtTriggerPhase2Shower.scenario = 1 # 0 for mc, 1 for data, 2 for slice test
 process.CalibratedDigis.scenario = 1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")

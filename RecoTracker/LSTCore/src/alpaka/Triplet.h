@@ -10,6 +10,8 @@
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 #include "RecoTracker/LSTCore/interface/Circle.h"
 
+#include "NeuralNetwork.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTripletToMemory(ModulesConst modules,
@@ -646,10 +648,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                    float& circleCenterX,
                                                                    float& circleCenterY,
                                                                    const float ptCut) {
-    //this cut reduces the number of candidates by a factor of 4, i.e., 3 out of 4 warps can end right here!
-    if (segments.mdIndices()[innerSegmentIndex][1] != segments.mdIndices()[outerSegmentIndex][0])
-      return false;
-
     unsigned int firstMDIndex = segments.mdIndices()[innerSegmentIndex][0];
     unsigned int secondMDIndex = segments.mdIndices()[outerSegmentIndex][0];
     unsigned int thirdMDIndex = segments.mdIndices()[outerSegmentIndex][1];
@@ -698,6 +696,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                    ptCut))
       return false;
 
+    bool inference =
+        lst::t3dnn::runInference(acc, mds, firstMDIndex, secondMDIndex, thirdMDIndex, circleRadius, betaIn);
+    if (!inference)  // T3-building cut
+      return false;
+
     return true;
   }
 
@@ -733,6 +736,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           unsigned int nOuterSegments = segmentsOccupancy.nSegments()[middleLowerModuleIndex];
           for (unsigned int outerSegmentArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
             unsigned int outerSegmentIndex = ranges.segmentRanges()[middleLowerModuleIndex][0] + outerSegmentArrayIndex;
+
+            //this cut reduces the number of candidates by a factor of 4, i.e., 3 out of 4 warps can end right here!
+            if (segments.mdIndices()[innerSegmentIndex][1] != segments.mdIndices()[outerSegmentIndex][0])
+              continue;
 
             uint16_t outerOuterLowerModuleIndex = segments.outerLowerModuleIndices()[outerSegmentIndex];
 

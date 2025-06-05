@@ -7,8 +7,8 @@
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/Common/interface/RandomNumberGeneratorState.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include <cstdio>
 #include <iostream>

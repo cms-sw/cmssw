@@ -14,11 +14,6 @@
  Usage: This is typically passed as an argument to the
  callback method for the LookupInitializationComplete
  signal that a Service may watch.
-
- In a SubProcess job, an instance of this class this will
- contain information about 1 Process/SubProcess, but a
- service will be passed a separate object for its process
- and each SubProcess descended from it.
 */
 //
 // Original Author: W. David Dagenhart

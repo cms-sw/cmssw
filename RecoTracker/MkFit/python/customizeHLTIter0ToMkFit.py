@@ -149,7 +149,30 @@ def customizeHLTIter0ToMkFit(process):
         dz_exp = cms.vint32( 4, 4, 4 )
     )
 
-    if hasattr(process, 'hltIter0PFlowTrackCutClassifierSerialSync'):
+    if hasattr(process, 'HLTIterativeTrackingIteration0SerialSync'):
+        process.hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHitsSerialSync = process.hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits.clone(
+            hits = "hltSiPixelRecHitsSerialSync",
+            clusters = "hltSiPixelClustersSerialSync",
+        )
+        process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHitsSerialSync = process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHits.clone(
+            pixelHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHitsSerialSync",
+        )
+        process.hltIter0PFlowCkfTrackCandidatesMkFitSeedsSerialSync = process.hltIter0PFlowCkfTrackCandidatesMkFitSeeds.clone(
+            seeds = "hltIter0PFLowPixelSeedsFromPixelTracksSerialSync",
+        )
+        process.hltIter0PFlowCkfTrackCandidatesMkFitSerialSync = process.hltIter0PFlowCkfTrackCandidatesMkFit.clone(
+            pixelHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHitsSerialSync",
+            eventOfHits = "hltIter0PFlowCkfTrackCandidatesMkFitEventOfHitsSerialSync",
+            seeds = "hltIter0PFlowCkfTrackCandidatesMkFitSeedsSerialSync",
+        )
+        process.hltIter0PFlowCkfTrackCandidatesSerialSync = process.hltIter0PFlowCkfTrackCandidates.clone(
+            seeds = "hltIter0PFLowPixelSeedsFromPixelTracksSerialSync",
+            mkFitEventOfHits = "hltIter0PFlowCkfTrackCandidatesMkFitEventOfHitsSerialSync",
+            mkFitPixelHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHitsSerialSync",
+            mkFitSeeds = "hltIter0PFlowCkfTrackCandidatesMkFitSeedsSerialSync",
+            tracks = "hltIter0PFlowCkfTrackCandidatesMkFitSerialSync",
+        )
+
         process.hltIter0PFlowTrackCutClassifierSerialSync.mva.maxChi2 = cms.vdouble( 999.0, 25.0, 99.0 )
         process.hltIter0PFlowTrackCutClassifierSerialSync.mva.maxChi2n = cms.vdouble( 1.2, 1.0, 999.0 )
         process.hltIter0PFlowTrackCutClassifierSerialSync.mva.dr_par = cms.PSet( 
@@ -164,6 +187,21 @@ def customizeHLTIter0ToMkFit(process):
             dz_par2 = cms.vdouble( 3.40282346639E38, 0.51, 0.51 ),
             dz_exp = cms.vint32( 4, 4, 4 )
         )
+        process.HLTDoLocalStripSequenceSerialSync += process.hltSiStripRecHits
+
+        replaceWithSerialSync = (process.hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHitsSerialSync +
+                   process.hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits +
+                   process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHitsSerialSync +
+                   process.hltIter0PFlowCkfTrackCandidatesMkFitSeedsSerialSync +
+                   process.hltIter0PFlowCkfTrackCandidatesMkFitSerialSync +
+                   process.hltIter0PFlowCkfTrackCandidatesSerialSync)
+
+        process.HLTIterativeTrackingIteration0SerialSync.replace(process.hltIter0PFlowCkfTrackCandidatesSerialSync, replaceWithSerialSync)
+
+        for path in process.paths_().values():
+            if not path.contains(process.HLTIterativeTrackingIteration0SerialSync) and path.contains(process.hltIter0PFlowCkfTrackCandidatesSerialSync):
+                path.replace(process.hltIter0PFlowCkfTrackCandidatesSerialSync, replaceWithSerialSync)
+
 
     return process
 

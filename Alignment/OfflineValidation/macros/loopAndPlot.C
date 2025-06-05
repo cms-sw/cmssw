@@ -88,7 +88,7 @@ void recurseOverKeys(TDirectory *target1, const std::vector<TString> &labels, bo
     fullPath.Remove(0, prefixToRemove.Length());
   }
 
-  TString path((char *)strstr(fullPath.Data(), ":"));
+  TString path(strstr(fullPath.Data(), ":"));
   path.Remove(0, 2);
 
   sourceFiles[0]->cd(path);

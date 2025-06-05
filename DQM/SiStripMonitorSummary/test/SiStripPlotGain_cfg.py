@@ -26,13 +26,10 @@ process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
-process.poolDBESSource = cms.ESSource(
-                                      "PoolDBESSource",
-                                      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+process.poolDBESSource = cms.ESSource("PoolDBESSource",
                                       DBParameters = cms.PSet(messageLevel = cms.untracked.int32(2),
                                                               authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
                                                               ),
-                                      timetype = cms.untracked.string('runnumber'),
                                       connect = cms.string('frontier://FrontierProd/CMS_COND_31X_STRIP'),
                                       toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripApvGainRcd'),
                                                                  tag = cms.string('SiStripApvGain_GR09_31X_v1_hlt')

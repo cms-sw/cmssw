@@ -10,6 +10,12 @@
 #include <vector>
 #include <map>
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 
 template <class Jet>
 class JetPlotsExample : public edm::one::EDAnalyzer<> {
@@ -18,6 +24,7 @@ public:
 
 private:
   typedef std::vector<Jet> JetCollection;
+  const edm::EDGetTokenT<JetCollection> JetToken_;
   void FillHist1D(const TString& histName, const Double_t& x);
   void beginJob() override;
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;

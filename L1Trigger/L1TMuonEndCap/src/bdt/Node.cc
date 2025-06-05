@@ -54,78 +54,69 @@ Node::Node(std::string cName) {
 }
 
 //////////////////////////////////////////////////////////////////////////
-// _______________________Destructor____________________________________//
-//////////////////////////////////////////////////////////////////////////
-
-Node::~Node() {
-  // Recursively delete all nodes in the tree.
-  if (leftDaughter)
-    delete leftDaughter;
-  if (rightDaughter)
-    delete rightDaughter;
-}
-
-//////////////////////////////////////////////////////////////////////////
 // ______________________Get/Set________________________________________//
 //////////////////////////////////////////////////////////////////////////
 
 void Node::setName(std::string sName) { name = sName; }
 
-std::string Node::getName() { return name; }
+std::string Node::getName() const { return name; }
 
 // ----------------------------------------------------------------------
 
 void Node::setErrorReduction(double sErrorReduction) { errorReduction = sErrorReduction; }
 
-double Node::getErrorReduction() { return errorReduction; }
+double Node::getErrorReduction() const { return errorReduction; }
 
 // ----------------------------------------------------------------------
 
-void Node::setLeftDaughter(Node* sLeftDaughter) { leftDaughter = sLeftDaughter; }
+void Node::setLeftDaughter(std::unique_ptr<Node> sLeftDaughter) { leftDaughter = std::move(sLeftDaughter); }
 
-Node* Node::getLeftDaughter() { return leftDaughter; }
+Node* Node::getLeftDaughter() { return leftDaughter.get(); }
+const Node* Node::getLeftDaughter() const { return leftDaughter.get(); }
 
-void Node::setRightDaughter(Node* sRightDaughter) { rightDaughter = sRightDaughter; }
+void Node::setRightDaughter(std::unique_ptr<Node> sRightDaughter) { rightDaughter = std::move(sRightDaughter); }
 
-Node* Node::getRightDaughter() { return rightDaughter; }
+Node* Node::getRightDaughter() { return rightDaughter.get(); }
+const Node* Node::getRightDaughter() const { return rightDaughter.get(); }
 
 // ----------------------------------------------------------------------
 
 void Node::setParent(Node* sParent) { parent = sParent; }
 
 Node* Node::getParent() { return parent; }
+const Node* Node::getParent() const { return parent; }
 
 // ----------------------------------------------------------------------
 
 void Node::setSplitValue(double sSplitValue) { splitValue = sSplitValue; }
 
-double Node::getSplitValue() { return splitValue; }
+double Node::getSplitValue() const { return splitValue; }
 
 void Node::setSplitVariable(int sSplitVar) { splitVariable = sSplitVar; }
 
-int Node::getSplitVariable() { return splitVariable; }
+int Node::getSplitVariable() const { return splitVariable; }
 
 // ----------------------------------------------------------------------
 
 void Node::setFitValue(double sFitValue) { fitValue = sFitValue; }
 
-double Node::getFitValue() { return fitValue; }
+double Node::getFitValue() const { return fitValue; }
 
 // ----------------------------------------------------------------------
 
 void Node::setTotalError(double sTotalError) { totalError = sTotalError; }
 
-double Node::getTotalError() { return totalError; }
+double Node::getTotalError() const { return totalError; }
 
 void Node::setAvgError(double sAvgError) { avgError = sAvgError; }
 
-double Node::getAvgError() { return avgError; }
+double Node::getAvgError() const { return avgError; }
 
 // ----------------------------------------------------------------------
 
 void Node::setNumEvents(int sNumEvents) { numEvents = sNumEvents; }
 
-int Node::getNumEvents() { return numEvents; }
+int Node::getNumEvents() const { return numEvents; }
 
 // ----------------------------------------------------------------------
 
@@ -252,14 +243,12 @@ void Node::listEvents() {
 
 void Node::theMiracleOfChildBirth() {
   // Create Daughter Nodes
-  Node* left = new Node(name + " left");
-  Node* right = new Node(name + " right");
+  leftDaughter = std::make_unique<Node>(name + " left");
+  rightDaughter = std::make_unique<Node>(name + " right");
 
   // Link the Nodes Appropriately
-  leftDaughter = left;
-  rightDaughter = right;
-  left->setParent(this);
-  right->setParent(this);
+  leftDaughter->setParent(this);
+  rightDaughter->setParent(this);
 }
 
 // ----------------------------------------------------------------------
@@ -280,8 +269,8 @@ void Node::filterEventsToDaughters() {
   unsigned int sv = splitVariable;
   double sp = splitValue;
 
-  Node* left = leftDaughter;
-  Node* right = rightDaughter;
+  Node* left = leftDaughter.get();
+  Node* right = rightDaughter.get();
 
   std::vector<std::vector<Event*> > l(events.size());
   std::vector<std::vector<Event*> > r(events.size());
@@ -320,8 +309,8 @@ Node* Node::filterEventToDaughter(Event* e) {
   unsigned int sv = splitVariable;
   double sp = splitValue;
 
-  Node* left = leftDaughter;
-  Node* right = rightDaughter;
+  Node* left = leftDaughter.get();
+  Node* right = rightDaughter.get();
   Node* nextNode = nullptr;
 
   // Prevent out-of-bounds access

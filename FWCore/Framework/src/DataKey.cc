@@ -57,40 +57,16 @@ namespace edm::eventsetup {
     swap(name_, iOther.name_);
   }
 
-  namespace {
-    //used for exception safety
-    class ArrayHolder {
-    public:
-      ArrayHolder() = default;
-
-      void swap(ArrayHolder& iOther) {
-        const char* t = iOther.ptr_;
-        iOther.ptr_ = ptr_;
-        ptr_ = t;
-      }
-      ArrayHolder(const char* iPtr) : ptr_(iPtr) {}
-      ~ArrayHolder() { delete[] ptr_; }
-      void release() { ptr_ = nullptr; }
-
-    private:
-      const char* ptr_{nullptr};
-    };
-  }  // namespace
-
   void DataKey::makeCopyOfMemory() {
     //empty string is the most common case, so handle it special
 
-    char* pName = const_cast<char*>(kBlank);
-    //NOTE: if in the future additional tags are added then
-    // I should make sure that pName gets deleted in the case
-    // where an exception is thrown
-    ArrayHolder pNameHolder;
+    char const* pName = kBlank;
+    std::unique_ptr<char[]> pNameHolder;
     if (kBlank[0] != name().value()[0]) {
       size_t const nBytes = std::strlen(name().value()) + 1;
-      pName = new char[nBytes];
-      ArrayHolder t(pName);
-      pNameHolder.swap(t);
-      std::strncpy(pName, name().value(), nBytes);
+      pNameHolder.reset(new char[nBytes]);
+      pName = pNameHolder.get();
+      std::strncpy(pNameHolder.get(), name().value(), nBytes);
     }
     name_ = NameTag(pName);
     ownMemory_ = true;
@@ -99,7 +75,7 @@ namespace edm::eventsetup {
 
   void DataKey::deleteMemory() {
     if (kBlank[0] != name().value()[0]) {
-      delete[] const_cast<char*>(name().value());
+      delete[] (name().value());
     }
   }
 

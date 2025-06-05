@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 hltLST = cms.EDProducer('LSTProducer@alpaka',
-    pixelSeedInput = cms.InputTag('hltPixelSeedInputLST'),
-    phase2OTHitsInput = cms.InputTag('hltPhase2OTHitsInputLST'),
+    lstInput = cms.InputTag('hltInputLST'),
     verbose = cms.bool(False),
+    ptCut = cms.double(0.8),
     nopLSDupClean = cms.bool(False),
     tcpLSTriplets = cms.bool(False),
     mightGet = cms.optional.untracked.vstring,

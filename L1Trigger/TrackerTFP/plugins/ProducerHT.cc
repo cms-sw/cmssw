@@ -13,14 +13,15 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
+#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "L1Trigger/TrackerTFP/interface/HoughTransform.h"
 
 #include <string>
+#include <vector>
+#include <deque>
 #include <numeric>
-
-using namespace std;
-using namespace edm;
-using namespace tt;
+#include <algorithm>
+#include <iterator>
 
 namespace trackerTFP {
 
@@ -29,80 +30,112 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2020, March
    */
-  class ProducerHT : public stream::EDProducer<> {
+  class ProducerHT : public edm::stream::EDProducer<> {
   public:
-    explicit ProducerHT(const ParameterSet&);
-    ~ProducerHT() override {}
+    explicit ProducerHT(const edm::ParameterSet&);
+    ~ProducerHT() override = default;
 
   private:
-    void beginRun(const Run&, const EventSetup&) override;
-    void produce(Event&, const EventSetup&) override;
-    virtual void endJob() {}
-
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     // ED input token of gp stubs
-    EDGetTokenT<StreamsStub> edGetToken_;
+    edm::EDGetTokenT<tt::StreamsStub> edGetToken_;
     // ED output token for accepted stubs
-    EDPutTokenT<StreamsStub> edPutTokenAccepted_;
-    // ED output token for lost stubs
-    EDPutTokenT<StreamsStub> edPutTokenLost_;
+    edm::EDPutTokenT<tt::StreamsStub> edPutToken_;
     // Setup token
-    ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
-    // configuration
-    ParameterSet iConfig_;
-    // helper class to store configurations
-    const Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
+    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    // LayerEncoding token
+    edm::ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
+    // number of input channel
+    int numChannelIn_;
+    // number of output channel
+    int numChannelOut_;
+    // number of processing regions
+    int numRegions_;
   };
 
-  ProducerHT::ProducerHT(const ParameterSet& iConfig) : iConfig_(iConfig) {
-    const string& label = iConfig.getParameter<string>("LabelGP");
-    const string& branchAccepted = iConfig.getParameter<string>("BranchAcceptedStubs");
-    const string& branchLost = iConfig.getParameter<string>("BranchLostStubs");
+  ProducerHT::ProducerHT(const edm::ParameterSet& iConfig) {
+    const std::string& label = iConfig.getParameter<std::string>("InputLabelHT");
+    const std::string& branch = iConfig.getParameter<std::string>("BranchStubs");
     // book in- and output ED products
-    edGetToken_ = consumes<StreamsStub>(InputTag(label, branchAccepted));
-    edPutTokenAccepted_ = produces<StreamsStub>(branchAccepted);
-    edPutTokenLost_ = produces<StreamsStub>(branchLost);
+    edGetToken_ = consumes<tt::StreamsStub>(edm::InputTag(label, branch));
+    edPutToken_ = produces<tt::StreamsStub>(branch);
     // book ES products
-    esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
-    esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes();
+    esGetTokenDataFormats_ = esConsumes();
+    esGetTokenLayerEncoding_ = esConsumes();
   }
 
-  void ProducerHT::beginRun(const Run& iRun, const EventSetup& iSetup) {
+  void ProducerHT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    setup_ = &iSetup.getData(esGetTokenSetup_);
-    if (!setup_->configurationSupported())
-      return;
-    // check process history if desired
-    if (iConfig_.getParameter<bool>("CheckHistory"))
-      setup_->checkHistory(iRun.processHistory());
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    numRegions_ = setup->numRegions();
     // helper class to extract structured data from tt::Frames
-    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    numChannelIn_ = dataFormats->numChannel(Process::gp);
+    numChannelOut_ = dataFormats->numChannel(Process::ht);
   }
 
-  void ProducerHT::produce(Event& iEvent, const EventSetup& iSetup) {
+  void ProducerHT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
+    const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty HT products
-    StreamsStub accepted(dataFormats_->numStreams(Process::ht));
-    StreamsStub lost(dataFormats_->numStreams(Process::ht));
+    tt::StreamsStub accepted(numRegions_ * numChannelOut_);
     // read in DTC Product and produce TFP product
-    if (setup_->configurationSupported()) {
-      Handle<StreamsStub> handle;
-      iEvent.getByToken<StreamsStub>(edGetToken_, handle);
-      const StreamsStub& streams = *handle.product();
-      for (int region = 0; region < setup_->numRegions(); region++) {
-        // object to find initial rough candidates in r-phi in a region
-        HoughTransform ht(iConfig_, setup_, dataFormats_, region);
-        // read in and organize input product
-        ht.consume(streams);
-        // fill output products
-        ht.produce(accepted, lost);
+    const tt::StreamsStub& streamsStub = iEvent.get(edGetToken_);
+    // helper
+    auto validFrame = [](int sum, const tt::FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
+    auto toFrame = [](StubHT* object) { return object ? object->frame() : tt::FrameStub(); };
+    // produce HT output per region
+    for (int region = 0; region < numRegions_; region++) {
+      const int offsetIn = region * numChannelIn_;
+      const int offsetOut = region * numChannelOut_;
+      // count input objects
+      int nStubsGP(0);
+      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
+        const tt::StreamStub& stream = streamsStub[offsetIn + channelIn];
+        nStubsGP += std::accumulate(stream.begin(), stream.end(), 0, validFrame);
+      }
+      // storage of input data
+      std::vector<StubGP> stubsGP;
+      stubsGP.reserve(nStubsGP);
+      // h/w liked organized pointer to input data
+      std::vector<std::vector<StubGP*>> streamsIn(numChannelIn_);
+      // read input data
+      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
+        const tt::StreamStub& streamStub = streamsStub[offsetIn + channelIn];
+        std::vector<StubGP*>& stream = streamsIn[channelIn];
+        stream.reserve(streamStub.size());
+        for (const tt::FrameStub& frame : streamStub) {
+          StubGP* stub = nullptr;
+          if (frame.first.isNonnull()) {
+            stubsGP.emplace_back(frame, dataFormats);
+            stub = &stubsGP.back();
+          }
+          stream.push_back(stub);
+        }
+      }
+      // container for output stubs
+      std::vector<StubHT> stubsHT;
+      // object to find initial rough candidates in r-phi in a region
+      HoughTransform ht(setup, dataFormats, layerEncoding, stubsHT);
+      // empty h/w liked organized pointer to output data
+      std::vector<std::deque<StubHT*>> streamsOut(numChannelOut_);
+      // fill output data
+      ht.produce(streamsIn, streamsOut);
+      // convert data to ed products
+      for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
+        const std::deque<StubHT*>& objects = streamsOut[channelOut];
+        tt::StreamStub& stream = accepted[offsetOut + channelOut];
+        stream.reserve(objects.size());
+        std::transform(objects.begin(), objects.end(), std::back_inserter(stream), toFrame);
       }
     }
     // store products
-    iEvent.emplace(edPutTokenAccepted_, std::move(accepted));
-    iEvent.emplace(edPutTokenLost_, std::move(lost));
+    iEvent.emplace(edPutToken_, std::move(accepted));
   }
 
 }  // namespace trackerTFP

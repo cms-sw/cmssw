@@ -11,9 +11,8 @@ HLTInitialStepSequence = cms.Sequence(hltInitialStepSeeds+hltInitialStepTrackCan
 from ..modules.hltInitialStepSeedTracksLST_cfi import *
 from ..sequences.HLTHighPtTripletStepSeedingSequence_cfi import *
 from ..modules.hltHighPtTripletStepSeedTracksLST_cfi import *
-from ..modules.hltPixelSeedInputLST_cfi import *
 from ..modules.hltSiPhase2RecHits_cfi import *
-from ..modules.hltPhase2OTHitsInputLST_cfi import *
+from ..modules.hltInputLST_cfi import *
 from ..modules.hltLST_cfi import *
 from ..modules.hltInitialStepTrackspTTCLST_cfi import *
 from ..modules.hltInitialStepTrackspLSTCLST_cfi import *
@@ -27,9 +26,8 @@ _HLTInitialStepSequenceLST = cms.Sequence(
     +hltInitialStepSeedTracksLST
     +HLTHighPtTripletStepSeedingSequence
     +hltHighPtTripletStepSeedTracksLST
-    +hltPixelSeedInputLST
     +hltSiPhase2RecHits # Probably need to move elsewhere in the final setup
-    +hltPhase2OTHitsInputLST # Probably need to move elsewhere in the final setup
+    +hltInputLST
     +hltLST
     +hltInitialStepTrackCandidates
     +hltInitialStepTrackspTTCLST
@@ -41,11 +39,26 @@ _HLTInitialStepSequenceLST = cms.Sequence(
     +hltInitialStepTrackSelectionHighPuritypLSTCLST
 )
 
-from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-trackingLST.toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceLST)
-
 from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
-(singleIterPatatrack & trackingLST).toReplaceWith(HLTInitialStepSequence, HLTInitialStepSequence.copyAndExclude([HLTHighPtTripletStepSeedingSequence,hltHighPtTripletStepSeedTracksLST]))
-
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
-(seedingLST & trackingLST).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceLST.copyAndExclude([hltInitialStepTrackspLSTCLST,hltInitialStepTrackCutClassifierpLSTCLST,hltInitialStepTrackSelectionHighPuritypLSTCLST]))
+
+(~singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceLST)
+
+(singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceLST.copyAndExclude([HLTHighPtTripletStepSeedingSequence,hltHighPtTripletStepSeedTracksLST]))
+
+(~singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceLST.copyAndExclude([hltInitialStepTrackspLSTCLST,hltInitialStepTrackCutClassifierpLSTCLST,hltInitialStepTrackSelectionHighPuritypLSTCLST]))
+
+from ..modules.hltInitialStepTrajectorySeedsLST_cfi import *
+_HLTInitialStepSequenceSingleIterPatatrackLSTSeeding = cms.Sequence(
+     hltInitialStepSeeds
+    +hltInitialStepSeedTracksLST
+    +hltSiPhase2RecHits # Probably need to move elsewhere in the final setup
+    +hltInputLST
+    +hltLST
+    +hltInitialStepTrajectorySeedsLST
+    +hltInitialStepTrackCandidates
+    +hltInitialStepTracks
+)
+
+(singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceSingleIterPatatrackLSTSeeding)

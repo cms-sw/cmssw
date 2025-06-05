@@ -19,8 +19,8 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

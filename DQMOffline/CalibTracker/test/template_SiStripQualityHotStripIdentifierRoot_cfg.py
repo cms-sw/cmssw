@@ -36,11 +36,9 @@ process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
 #to read offline info from the first step of the analysis
 process.a = cms.ESSource("PoolDBESSource",
     appendToDataLabel = cms.string('testa'),
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadFiberRcd'),
         tag = cms.string('SiStripHotAPVs')

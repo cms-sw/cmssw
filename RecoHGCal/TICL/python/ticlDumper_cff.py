@@ -39,14 +39,15 @@ ticlDumper = ticlDumper_.clone(
             tracksterType=cms.string("SimTracksterCP")
         ),
     ],
-    
+
     associators=dumperAssociators.copy(),
     saveSuperclustering = cms.bool(False)
 )
 
-ticl_v5.toModify(ticlDumper, ticlcandidates = cms.InputTag("ticlCandidate"), recoSuperClusters_sourceTracksterCollection=cms.InputTag("ticlCandidate"))
-ticl_v5.toModify(ticlDumper, saveSuperclustering = cms.bool(True))
+ticl_v5.toModify(ticlDumper, 
+                 ticlcandidates = cms.InputTag("ticlCandidate"), 
+                 recoSuperClusters_sourceTracksterCollection=cms.InputTag("ticlTrackstersCLUE3DHigh"), 
+                 saveSuperclustering = cms.bool(True), 
+                 trackstersInCand=cms.InputTag("ticlCandidate"))
 
-
-
-(ticl_v5 & ticl_superclustering_mustache_pf).toModify(ticlDumper, saveSuperclustering=False, recoSuperClusters_sourceTracksterCollection=cms.InputTag("ticlCandidate"))
+(ticl_v5 & ticl_superclustering_mustache_pf).toModify(ticlDumper, saveSuperclustering=False, recoSuperClusters_sourceTracksterCollection=cms.InputTag("ticlTrackstersCLUE3DHigh"))

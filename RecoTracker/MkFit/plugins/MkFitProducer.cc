@@ -113,8 +113,8 @@ void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add("clustersToSkip", edm::InputTag());
   desc.add<std::string>("buildingRoutine", "cloneEngine")
       ->setComment("Valid values are: 'bestHit', 'standard', 'cloneEngine'");
-  desc.add<edm::ESInputTag>("config")->setComment(
-      "ESProduct that has the mkFit configuration parameters for this iteration");
+  desc.add<edm::ESInputTag>("config", edm::ESInputTag(""))
+      ->setComment("ESProduct that has the mkFit configuration parameters for this iteration");
   desc.add("seedCleaning", true)->setComment("Clean seeds within mkFit");
   desc.add("removeDuplicates", true)->setComment("Run duplicate removal within mkFit");
   desc.add("backwardFitInCMSSW", false)
@@ -126,7 +126,7 @@ void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& description
           "the module time");
 
   edm::ParameterSetDescription descCCC;
-  descCCC.add<double>("value");
+  descCCC.add<double>("value", -999.);
   desc.add("minGoodStripCharge", descCCC);
 
   descriptions.add("mkFitProducerDefault", desc);

@@ -2,31 +2,39 @@ from threading import Thread
 from Configuration.PyReleaseValidation import WorkFlow
 import os,time
 import shutil
+import re
 from subprocess import Popen 
 from os.path import exists, basename, join
 from datetime import datetime
 
 class WorkFlowRunner(Thread):
-    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False, nThreads=1, nStreams=0, maxSteps=9999, nEvents=0):
+    def __init__(self, wf, opt, noRun=False, dryRun=False, cafVeto=True, jobNumber=None, gpu = None):
         Thread.__init__(self)
         self.wf = wf
 
-        self.status=-1
-        self.report=''
-        self.nfail=0
-        self.npass=0
-        self.noRun=noRun
-        self.dryRun=dryRun
-        self.cafVeto=cafVeto
-        self.dasOptions=dasOptions
-        self.jobReport=jobReport
-        self.nThreads=nThreads
-        self.nStreams=nStreams
-        self.maxSteps=maxSteps
-        self.nEvents=nEvents
-        self.recoOutput=''
+        self.status = -1
+        self.report  =''
+        self.nfail = 0
+        self.npass = 0
+        self.noRun = noRun
+        self.dryRun = dryRun
+        self.cafVeto = cafVeto
+        self.gpu = gpu
+
+        self.dasOptions = opt.dasOptions
+        self.jobReport = opt.jobReports
+        self.nThreads = opt.nThreads
+        self.nStreams = opt.nStreams
+        self.maxSteps = opt.maxSteps
+        self.nEvents = opt.nEvents
+        self.recoOutput = ''
+        self.startFrom = opt.startFrom
+        self.recycle = opt.recycle
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
+        if jobNumber is not None:
+            self.wfDir = self.wfDir + '_job' + str(jobNumber)
+
         return
 
     def doCmd(self, cmd):
@@ -84,6 +92,7 @@ class WorkFlowRunner(Thread):
         inFile=None
         lumiRangeFile=None
         aborted=False
+        outputExtensionForStep = {}
         for (istepmone,com) in enumerate(self.wf.cmds):
             # isInputOk is used to keep track of the das result. In case this
             # is False we use a different error message to indicate the failed
@@ -91,6 +100,7 @@ class WorkFlowRunner(Thread):
             isInputOk=True
             istep=istepmone+1
             cmd = preamble
+            outputExtensionForStep[istep]=''
             if aborted:
                 self.npass.append(0)
                 self.nfail.append(0)
@@ -98,6 +108,9 @@ class WorkFlowRunner(Thread):
                 self.stat.append('NOTRUN')
                 continue
             if not isinstance(com,str):
+                if self.recycle:
+                    inFile = self.recycle
+                    continue
                 if self.cafVeto and (com.location == 'CAF' and not onCAF):
                     print("You need to be no CAF to run",self.wf.numId)
                     self.npass.append(0)
@@ -146,7 +159,19 @@ class WorkFlowRunner(Thread):
 
             else:
                 #chaining IO , which should be done in WF object already and not using stepX.root but <stepName>.root
+                if self.gpu is not None:
+                    cmd = cmd + self.gpu
+
                 cmd += com
+
+                if self.startFrom:
+                    steps = cmd.split("-s ")[1].split(" ")[0]
+                    if self.startFrom not in steps:
+                        continue
+                    else:
+                        self.startFrom = False
+                        inFile = self.recycle
+                
                 if self.noRun:
                     cmd +=' --no_exec'
                 # in case previous step used DAS query (either filelist of das:)
@@ -160,24 +185,42 @@ class WorkFlowRunner(Thread):
                 # 134 is an existing workflow where harvesting has to operate on AlcaReco and NOT on DQM; hard-coded..    
                 if 'HARVESTING' in cmd and not 134==self.wf.numId and not '--filein' in cmd:
                     cmd+=' --filein file:step%d_inDQM.root --fileout file:step%d.root '%(istep-1,istep)
+                    outputExtensionForStep[istep] = '.root'
                 else:
                     # Disable input for premix stage1 to allow combined stage1+stage2 workflow
                     # Disable input for premix stage2 in FastSim to allow combined stage1+stage2 workflow (in FS, stage2 does also GEN)
                     # Ugly hack but works
+                    extension = '.root'
+                    if '--rntuple_out' in cmd:
+                        extension = '.rntpl'
+                    outputExtensionForStep[istep] = extension
                     if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd):
                         steps = cmd.split("-s ")[1].split(" ")[0] ## relying on the syntax: cmsDriver -s STEPS --otherFlags
                         if "ALCA" not in steps:
-                            cmd+=' --filein  file:step%s.root '%(istep-1,)
+                            cmd+=' --filein  file:step%s%s '%(istep-1,extension)
                         elif "ALCA" in steps and "RECO" in steps:
-                            cmd+=' --filein  file:step%s.root '%(istep-1,)
+                            cmd+=' --filein  file:step%s%s '%(istep-1,extension)
                         elif self.recoOutput:
                             cmd+=' --filein %s'%(self.recoOutput)
                         else:
-                            cmd+=' --filein  file:step%s.root '%(istep-1,)
+                            cmd+=' --filein  file:step%s%s '%(istep-1,extension)
+                    elif istep!=1 and '--filein' in cmd and '--filetype' not in cmd:
+                        #make sure correct extension is being used
+                        #find the previous state index
+                        expression = '--filein\s+file:step([1-9])(_[a-zA-Z]+)*\.[a-z]+'
+                        m = re.search(expression, cmd)
+                        if m:
+                            cmd = re.sub(expression,r'--filein file:step\1\2'+outputExtensionForStep[int(m.group(1))],cmd)
+                        elif extension == '.rntpl':
+                            #some ALCA steps use special file names without step_ prefix and these are also force to use RNTuple
+                            expression = '--filein\s+file:([a-zA-Z0-9_]+)*\.[a-z]+'
+                            m = re.search(expression, cmd)
+                            if m:
+                                cmd = re.sub(expression,r'--filein file:\1.rntpl',cmd)
                     if not '--fileout' in com:
-                        cmd+=' --fileout file:step%s.root '%(istep,)
+                        cmd+=' --fileout file:step%s%s '%(istep,extension)
                         if "RECO" in cmd:
-                            self.recoOutput = "file:step%d.root"%(istep)
+                            self.recoOutput = "file:step%d%s"%(istep,extension)
                 if self.jobReport:
                   cmd += ' --suffix "-j JobReport%s.xml " ' % istep
                 if (self.nThreads > 1) and ('HARVESTING' not in cmd) and ('ALCAHARVEST' not in cmd):
@@ -191,6 +234,7 @@ class WorkFlowRunner(Thread):
                   cmd = split[0] + event_token + '%s ' % self.nEvents + pos_cmd
                 cmd+=closeCmd(istep,self.wf.nameId)            
                 retStep = 0
+
                 if istep>self.maxSteps:
                    wf_stats = open("%s/wf_steps.txt" % self.wfDir,"a")
                    wf_stats.write('step%s:%s\n' % (istep, cmd))

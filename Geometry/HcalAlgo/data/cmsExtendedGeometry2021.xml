@@ -16,8 +16,8 @@
     <Include ref="Geometry/CMSCommonData/data/muonBase/2018/v1/muonBase.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cmsMuon.xml"/>
     <Include ref="Geometry/CMSCommonData/data/mgnt.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/beampipe/2026/v1/beampipe.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/cmsBeam/2026/v1/cmsBeam.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/beampipe/2030/v1/beampipe.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cmsBeam/2030/v1/cmsBeam.xml"/>
     <Include ref="Geometry/CMSCommonData/data/muonMB.xml"/>
     <Include ref="Geometry/CMSCommonData/data/muonMagnet.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml"/>

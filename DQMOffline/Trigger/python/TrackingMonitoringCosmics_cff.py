@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 from DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi import *
 TrackMon_cosmicTkHLT = TrackerCosmicTrackMon.clone(
     TrackProducer = 'hltCtfWithMaterialTracksP5',
-    AlgoName = 'CKFTk',
-    FolderName = 'HLT/Tracking/TrackParameters',
+    AlgoName = 'CtfWithMaterialTracksP5',
+    FolderName = 'HLT/Tracking/hltCtfWithMaterialTracksP5',
     doSeedParameterHistos = True
 )
 

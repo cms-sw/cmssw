@@ -19,7 +19,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterfaceBase.h"
 
 class myEvtRandomEngine;

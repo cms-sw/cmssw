@@ -3,6 +3,7 @@
 
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="WaferSize"             value="166.4408*mm"/>
+  <Constant name="WaferSizeNominal"      value="167.4408*mm"/>
   <Constant name="SensorSeparation"      value="1.00*mm"/>
   <Constant name="WaferThickness"        value="0.30*mm"/>
   <Constant name="WaferThicknessFine"    value="0.30*mm"/>

@@ -142,7 +142,7 @@ namespace edmtest {
     descriptions.add("TestServiceOne", desc);
   }
 
-  void TestServiceOne::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&) {
+  void TestServiceOne::preBeginJob(edm::ProcessContext const&) {
     ++nPreBeginJob_;
     if (verbose_) {
       edm::LogAbsolute out("TestServiceOne");

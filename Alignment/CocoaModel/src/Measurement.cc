@@ -627,8 +627,8 @@ void Measurement::copyMeas(Measurement* meas, const std::string& subsstr1, const
   theValueSimulated = new ALIdouble[theDim];
   theValueSimulated_orig = new ALIdouble[theDim];
   theValueIsSimulated = new ALIbool[theDim];
-  theValue = const_cast<ALIdouble*>(meas->value());
-  theSigma = const_cast<ALIdouble*>(meas->sigma());
+  [[clang::suppress]] theValue = const_cast<ALIdouble*>(meas->value());
+  [[clang::suppress]] theSigma = const_cast<ALIdouble*>(meas->sigma());
 
   unsigned int ii;
   for (ii = 0; ii < theDim; ii++) {

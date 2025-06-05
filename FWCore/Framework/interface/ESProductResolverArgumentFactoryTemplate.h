@@ -65,6 +65,8 @@ namespace edm {
         return DataKey(DataKey::makeTypeTag<typename ResolverType::ValueType>(), iName.c_str());
       }
 
+      unsigned int produceMethodID() const override { return callback_->second->produceMethodID(); }
+
     private:
       std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackType>>> callback_;
     };

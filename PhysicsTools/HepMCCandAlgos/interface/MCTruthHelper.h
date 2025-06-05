@@ -6,6 +6,10 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenStatusFlags.h"
 
+#include "HepMC3/GenEvent.h"
+#include "HepMC3/GenParticle.h"
+#include "HepMC3/GenVertex.h"
+
 #include <iostream>
 #include <unordered_set>
 
@@ -143,11 +147,17 @@ public:
   //pdgid
   int pdgId(const HepMC::GenParticle &p) const;
 
+  //pdgid
+  int pdgId(const HepMC3::GenParticle &p) const;
+
   //abs(pdgid)
   int absPdgId(const reco::GenParticle &p) const;
 
   //abs(pdgid)
   int absPdgId(const HepMC::GenParticle &p) const;
+
+  //abs(pdgid)
+  int absPdgId(const HepMC3::GenParticle &p) const;
 
   //number of mothers
   unsigned int numberOfMothers(const reco::GenParticle &p) const;
@@ -155,11 +165,17 @@ public:
   //number of mothers
   unsigned int numberOfMothers(const HepMC::GenParticle &p) const;
 
+  //number of mothers
+  unsigned int numberOfMothers(const HepMC3::GenParticle &p) const;
+
   //mother
   const reco::GenParticle *mother(const reco::GenParticle &p, unsigned int imoth = 0) const;
 
   //mother
   const HepMC::GenParticle *mother(const HepMC::GenParticle &p, unsigned int imoth = 0) const;
+
+  //mother
+  const HepMC3::GenParticle *mother(const HepMC3::GenParticle &p, unsigned int imoth = 0) const;
 
   //number of daughters
   unsigned int numberOfDaughters(const reco::GenParticle &p) const;
@@ -167,11 +183,17 @@ public:
   //number of daughters
   unsigned int numberOfDaughters(const HepMC::GenParticle &p) const;
 
+  //number of daughters
+  unsigned int numberOfDaughters(const HepMC3::GenParticle &p) const;
+
   //ith daughter
   const reco::GenParticle *daughter(const reco::GenParticle &p, unsigned int idau) const;
 
   //ith daughter
   const HepMC::GenParticle *daughter(const HepMC::GenParticle &p, unsigned int idau) const;
+
+  //ith daughter
+  const HepMC3::GenParticle *daughter(const HepMC3::GenParticle &p, unsigned int idau) const;
 
   /////////////////////////////////////////////////////////////////////////////
   //Helper function to fill status flags
@@ -578,6 +600,12 @@ int MCTruthHelper<P>::pdgId(const HepMC::GenParticle &p) const {
 
 //////////////////////////////////////////////////////////////
 template <typename P>
+int MCTruthHelper<P>::pdgId(const HepMC3::GenParticle &p) const {
+  return p.pid();
+}
+
+//////////////////////////////////////////////////////////////
+template <typename P>
 int MCTruthHelper<P>::absPdgId(const reco::GenParticle &p) const {
   return std::abs(p.pdgId());
 }
@@ -586,6 +614,12 @@ int MCTruthHelper<P>::absPdgId(const reco::GenParticle &p) const {
 template <typename P>
 int MCTruthHelper<P>::absPdgId(const HepMC::GenParticle &p) const {
   return std::abs(p.pdg_id());
+}
+
+//////////////////////////////////////////////////////////////
+template <typename P>
+int MCTruthHelper<P>::absPdgId(const HepMC3::GenParticle &p) const {
+  return std::abs(p.pid());
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -597,6 +631,12 @@ unsigned int MCTruthHelper<P>::numberOfMothers(const reco::GenParticle &p) const
 /////////////////////////////////////////////////////////////////////////////
 template <typename P>
 unsigned int MCTruthHelper<P>::numberOfMothers(const HepMC::GenParticle &p) const {
+  return p.production_vertex() ? p.production_vertex()->particles_in_size() : 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template <typename P>
+unsigned int MCTruthHelper<P>::numberOfMothers(const HepMC3::GenParticle &p) const {
   return p.production_vertex() ? p.production_vertex()->particles_in_size() : 0;
 }
 
@@ -616,6 +656,20 @@ const HepMC::GenParticle *MCTruthHelper<P>::mother(const HepMC::GenParticle &p, 
 
 /////////////////////////////////////////////////////////////////////////////
 template <typename P>
+const HepMC3::GenParticle *MCTruthHelper<P>::mother(const HepMC3::GenParticle &p, unsigned int imoth) const {
+  if (numberOfMothers(p) > 0) {
+    unsigned int imothi = 0;
+    for (const HepMC3::ConstGenParticlePtr &mother : (p.production_vertex())->particles_in()) {
+      if (imothi == imoth)
+        return mother.get();
+      imothi++;
+    }
+  }
+  return nullptr;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template <typename P>
 unsigned int MCTruthHelper<P>::numberOfDaughters(const reco::GenParticle &p) const {
   return p.numberOfDaughters();
 }
@@ -623,6 +677,12 @@ unsigned int MCTruthHelper<P>::numberOfDaughters(const reco::GenParticle &p) con
 /////////////////////////////////////////////////////////////////////////////
 template <typename P>
 unsigned int MCTruthHelper<P>::numberOfDaughters(const HepMC::GenParticle &p) const {
+  return p.end_vertex() ? p.end_vertex()->particles_out_size() : 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template <typename P>
+unsigned int MCTruthHelper<P>::numberOfDaughters(const HepMC3::GenParticle &p) const {
   return p.end_vertex() ? p.end_vertex()->particles_out_size() : 0;
 }
 
@@ -636,6 +696,20 @@ const reco::GenParticle *MCTruthHelper<P>::daughter(const reco::GenParticle &p, 
 template <typename P>
 const HepMC::GenParticle *MCTruthHelper<P>::daughter(const HepMC::GenParticle &p, unsigned int idau) const {
   return *(p.end_vertex()->particles_out_const_begin() + idau);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+template <typename P>
+const HepMC3::GenParticle *MCTruthHelper<P>::daughter(const HepMC3::GenParticle &p, unsigned int idau) const {
+  if (numberOfDaughters(p) > 0) {
+    unsigned int idaui = 0;
+    for (const HepMC3::ConstGenParticlePtr &daughter : (p.end_vertex())->particles_out()) {
+      if (idaui == idau)
+        return daughter.get();
+      idaui++;
+    }
+  }
+  return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////

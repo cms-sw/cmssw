@@ -7,6 +7,7 @@ process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 #process.GlobalTag.globaltag = "90X_dataRun2_Express_v2"

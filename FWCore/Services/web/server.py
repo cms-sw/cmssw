@@ -13,7 +13,7 @@ class Serv(SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            json_files = [f for f in os.listdir('.') if f.endswith('.json')]
+            json_files = sorted([f for f in os.listdir('.') if f.endswith('.json')])
             self.wfile.write(json.dumps(json_files).encode())
             return
 

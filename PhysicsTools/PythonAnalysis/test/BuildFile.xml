@@ -128,4 +128,4 @@
 <test name="run-flawfinder" command="flawfinder -h"/>
 <test name="run-ipython" command="ipython -h"/>
 <test name="run-pylint" command="pylint -h"/>
-
+<test name="run-jupyter-notebook" command="jupyter notebook --help"/>

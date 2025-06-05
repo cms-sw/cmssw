@@ -82,6 +82,8 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 */
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "FWCore/Utilities/interface/InputType.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -177,8 +179,10 @@ namespace edm {
     };
 
     struct JobReportImpl {
-      JobReportImpl& operator=(JobReportImpl const&) = delete;
       JobReportImpl(JobReportImpl const&) = delete;
+      JobReportImpl& operator=(JobReportImpl const&) = delete;
+      JobReportImpl(JobReportImpl&&) = delete;
+      JobReportImpl& operator=(JobReportImpl&&) = delete;
 
       InputFile& getInputFileForToken(InputType inputType, Token t);
       OutputFile& getOutputFileForToken(Token t);
@@ -268,6 +272,11 @@ namespace edm {
     JobReport(JobReport const&) = delete;
 
     ~JobReport();
+
+    // Insert information about the process
+    void reportProcess(std::string_view processName,
+                       ProcessConfigurationID const& reducedProcessID,
+                       ParameterSetID const& psetID);
 
     /// Report that an input file has been opened.
     /// The returned Token should be used for later identification

@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
@@ -58,7 +59,7 @@ int main(int, char* argv[]) {
   std::string const kProgramName = argv[0];
 
   int rc = 0;
-  try {
+  CMS_SA_ALLOW try {
     // A.  Instantiate a plug-in manager first.
     edm::AssertHandler ah;
 

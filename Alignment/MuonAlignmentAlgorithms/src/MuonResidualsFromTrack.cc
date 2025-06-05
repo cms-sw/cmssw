@@ -31,6 +31,26 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<TransientTrackingRe
                                                AlignableNavigator* navigator,
                                                double maxResidual)
     : m_recoTrack(recoTrack) {
+  init(trackerRecHitBuilder,
+       magneticField,
+       globalGeometry,
+       muonDetIdAssociator_,
+       prop,
+       traj,
+       recoTrack,
+       navigator,
+       maxResidual);
+}
+
+void MuonResidualsFromTrack::init(edm::ESHandle<TransientTrackingRecHitBuilder> trackerRecHitBuilder,
+                                  edm::ESHandle<MagneticField> magneticField,
+                                  edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
+                                  edm::ESHandle<DetIdAssociator> muonDetIdAssociator_,
+                                  edm::ESHandle<Propagator> prop,
+                                  const Trajectory* traj,
+                                  const reco::Track* recoTrack,
+                                  AlignableNavigator* navigator,
+                                  double maxResidual) {
   bool m_debug = false;
 
   if (m_debug) {

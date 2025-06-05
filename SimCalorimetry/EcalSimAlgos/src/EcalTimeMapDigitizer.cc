@@ -5,10 +5,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-//#include "CLHEP/Random/RandPoissonQ.h"
-//#include "CLHEP/Random/RandGaussQ.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"

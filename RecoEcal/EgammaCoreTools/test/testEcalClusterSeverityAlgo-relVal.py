@@ -17,18 +17,14 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 from CondCore.DBCommon.CondDBSetup_cfi import *
 process.ecalConditions = cms.ESSource("PoolDBESSource",
                                       CondDBSetup,
-                                      siteLocalConfig = cms.untracked.bool(True),
                                       toGet = cms.VPSet(cms.PSet(
     record = cms.string('EcalChannelStatusRcd'),
     tag = cms.string('EcalChannelStatus_may2009_mc')
     )
                                                         ),
                                       
-                                      messagelevel = cms.untracked.uint32(0),
-                                      timetype = cms.string('runnumber'),
                                       connect = cms.string('frontier://FrontierProd/CMS_COND_31X_ECAL'), ##cms_conditions_data/CMS_COND_ECAL"
                                       
-                                      authenticationMethod = cms.untracked.uint32(1)
                                       )
 
 # process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')

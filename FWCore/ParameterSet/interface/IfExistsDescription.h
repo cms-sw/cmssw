@@ -35,16 +35,16 @@ namespace edm {
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const override;
 
-    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const override;
 
     void writeCfi_(std::ostream& os,
-                   bool optional,
+                   Modifier modifier,
                    bool& startWithComma,
                    int indentation,
                    CfiOptions&,
                    bool& wroteSomething) const override;
 
-    void print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const override;
+    void print_(std::ostream& os, Modifier modifier, bool writeToCfi, DocFormatHelper& dfh) const override;
 
     bool hasNestedContent_() const override { return true; }
 

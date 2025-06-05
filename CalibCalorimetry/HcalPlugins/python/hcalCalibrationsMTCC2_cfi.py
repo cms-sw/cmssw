@@ -10,7 +10,6 @@ hcal_db_producer = cms.ESProducer("HcalDbProducer",
 )
 
 es_pool = cms.ESSource("PoolDBESSource",
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('HcalPedestalsRcd'),
         tag = cms.string('pedestals_mtcc2_v1')

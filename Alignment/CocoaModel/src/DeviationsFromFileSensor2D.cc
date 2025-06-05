@@ -8,6 +8,7 @@
 #include "Alignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include <cassert>
 #include <cstdlib>
 #include <cmath>  // include floating-point std::abs functions
 #include <memory>
@@ -188,6 +189,7 @@ std::pair<ALIdouble, ALIdouble> DeviationsFromFileSensor2D::getDevis(ALIdouble i
     }
     ii++;
   }
+  assert(ii == theNPoints);
   if (insideMatrix == 0) {
     std::cerr << "!!EXITING intersection in Y outside matrix of deviations from file " << intersY << std::endl;
     exit(1);

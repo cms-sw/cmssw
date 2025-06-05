@@ -31,18 +31,15 @@ geometryESSource = cms.ESSource("PoolDBESSource",
 
 beamSpotESSource = cms.ESSource("PoolDBESSource",
                               CondDBSetup,
-                              timetype = cms.string('runnumber'),
                               toGet = cms.VPSet(cms.PSet(record = cms.string('BeamSpotObjectsRcd'),
                                                          tag = cms.string('Early10TeVCollision_3p8cm_v2_mc')
                                                          )
                                                 ),
                               connect = cms.string('frontier://Frontier/CMS_COND_21X_BEAMSPOT'),
-                              authenticationMethod = cms.untracked.uint32(0)
                               )
 
 dtConditionsESSource = cms.ESSource("PoolDBESSource",
                          CondDBSetup,
-                         timetype = cms.string('runnumber'),
                          toGet = cms.VPSet(cms.PSet(record = cms.string('DTReadOutMappingRcd'),
                                                     tag = cms.string('DT_map10ddu21X_V01')
                                                     ),
@@ -57,17 +54,14 @@ dtConditionsESSource = cms.ESSource("PoolDBESSource",
                                                     )
                                            ),
                          connect = cms.string('frontier://Frontier/CMS_COND_21X_DT'),
-                         authenticationMethod = cms.untracked.uint32(0)
                          )
 
 # process.es_prefer_roMapping = cms.ESPrefer('PoolDBESSource','roMapping')
 ttrigsource = cms.ESSource("PoolDBESSource",
                            CondDBSetup,
-                           timetype = cms.string('runnumber'),
                            toGet = cms.VPSet(cms.PSet(record = cms.string('DTTtrigRcd'),
                                                       tag = cms.string('tTrig_CRAFT_081021_1614_offline')
                                                       )
                                              ),
                            connect = cms.string('frontier://Frontier/CMS_COND_21X_DT'),
-                           authenticationMethod = cms.untracked.uint32(0)
                            )

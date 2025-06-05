@@ -26,7 +26,7 @@ process.CondDB.connect = 'sqlite_file:ppsDiamondTiming_calibration.sqlite' # SQL
 
 process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     process.CondDB,
-    DumpStats = cms.untracked.bool(True),
+    DumpStat = cms.untracked.bool(True),
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('PPSTimingCalibrationRcd'),

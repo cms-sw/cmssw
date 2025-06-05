@@ -15,7 +15,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
 process.source.skipEvents = cms.untracked.uint32(0)
-process.source.fileNames = ['/store/relval/CMSSW_14_2_0_pre3/RelValTTbar_14TeV/MINIAODSIM/PU_140X_mcRun3_2024_realistic_v26_STD_2024_PU-v1/2590000/a102b4b1-a67d-4b75-ae76-438f4dde5deb.root']
+process.source.fileNames = ['root://cms-xrd-global.cern.ch//store/relval/CMSSW_15_0_0_pre1/RelValTTbar_14TeV/MINIAODSIM/PU_142X_mcRun3_2025_realistic_v1_STD_2025_PU-v1/2590000/9fca2393-d957-4166-8ac6-74aa08c54bcb.root']
 
 ## number of events
 process.maxEvents = cms.untracked.PSet(
@@ -30,7 +30,7 @@ process.load('Configuration/StandardSequences/Reconstruction_cff')
 
 ## output
 process.output = cms.OutputModule("PoolOutputModule",
-  fileName       = cms.untracked.string('topDQM_production.root'),
+  fileName       = cms.untracked.string('topDQM_production_MINIAOD.root'),
   outputCommands = cms.untracked.vstring(
     'drop *_*_*_*',
     'keep *_*_*_TOPDQM',

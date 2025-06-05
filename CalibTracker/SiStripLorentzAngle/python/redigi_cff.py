@@ -13,11 +13,9 @@ simSiStripDigis.chargeDivisionsPerStrip = 100
 
 #Digitize and reconstruct using smeared values of mobility
 SiStripLorentzAngle = cms.ESSource("PoolDBESSource",
-                                   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                    DBParameters = cms.PSet( messageLevel = cms.untracked.int32(0),
                                                             authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
                                                             ),
-                                   timetype = cms.untracked.string('runnumber'),
                                    connect = cms.string(dbfile),
                                    toGet = cms.VPSet(
     cms.PSet( record = cms.string('SiStripLorentzAngleRcd'), tag = cms.string(dbtag) )
@@ -26,11 +24,9 @@ SiStripLorentzAngle = cms.ESSource("PoolDBESSource",
 es_prefer_SiStripLorentzAngle = cms.ESPrefer("PoolDBESSource","SiStripLorentzAngle")
 
 SiStripLorentzAngleSim = cms.ESSource("PoolDBESSource",
-                                      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                       DBParameters = cms.PSet( messageLevel = cms.untracked.int32(0),
                                                                authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
                                                                ),
-                                      timetype = cms.untracked.string('runnumber'),
                                       connect = cms.string(dbfile),
                                       toGet = cms.VPSet(
     cms.PSet( record = cms.string('SiStripLorentzAngleSimRcd'), tag = cms.string(dbtag) )

@@ -46,9 +46,6 @@ if options.unitTest:
 
     process.XmlRetrieval_1 = cms.ESSource("PoolDBESSource",
                                           process.CondDB,
-                                          BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-                                          messageLevel = cms.untracked.int32(1),
-                                          timetype = cms.string('runnumber'),
                                           toGet = cms.VPSet(cms.PSet(record = cms.string('DQMXMLFileRcd'),
                                                                      tag = cms.string('XML_test'),
                                                                      label=cms.untracked.string('XML_label')

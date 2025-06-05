@@ -228,6 +228,10 @@ public:
         vars_.push_back(std::make_unique<IntVar>(vname, varPSet));
       else if (type == "uint")
         vars_.push_back(std::make_unique<UIntVar>(vname, varPSet));
+      else if (type == "int64")
+        vars_.push_back(std::make_unique<Int64Var>(vname, varPSet));
+      else if (type == "uint64")
+        vars_.push_back(std::make_unique<UInt64Var>(vname, varPSet));
       else if (type == "float")
         vars_.push_back(std::make_unique<FloatVar>(vname, varPSet));
       else if (type == "double")
@@ -264,10 +268,10 @@ public:
     variable.add<std::string>("doc")->setComment("few words description of the branch content");
     variable.addUntracked<bool>("lazyEval", false)
         ->setComment("if true, can use methods of inheriting classes in `expr`. Can cause problems with threading.");
-    variable.ifValue(
-        edm::ParameterDescription<std::string>(
-            "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
-        edm::allowedValues<std::string>("int", "uint", "float", "double", "uint8", "int16", "uint16", "bool"));
+    variable.ifValue(edm::ParameterDescription<std::string>(
+                         "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
+                     edm::allowedValues<std::string>(
+                         "int", "uint", "int64", "uint64", "float", "double", "uint8", "int16", "uint16", "bool"));
     variable.addOptionalNode(
         edm::ParameterDescription<int>(
             "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
@@ -306,6 +310,8 @@ protected:
 
   typedef FuncVariable<T, StringObjectFunction<T>, int32_t> IntVar;
   typedef FuncVariable<T, StringObjectFunction<T>, uint32_t> UIntVar;
+  typedef FuncVariable<T, StringObjectFunction<T>, int64_t> Int64Var;
+  typedef FuncVariable<T, StringObjectFunction<T>, uint64_t> UInt64Var;
   typedef FuncVariable<T, StringObjectFunction<T>, float> FloatVar;
   typedef FuncVariable<T, StringObjectFunction<T>, double> DoubleVar;
   typedef FuncVariable<T, StringObjectFunction<T>, uint8_t> UInt8Var;
@@ -336,6 +342,12 @@ public:
         else if (type == "uint")
           extvars_.push_back(
               std::make_unique<UIntExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+        else if (type == "int64")
+          extvars_.push_back(
+              std::make_unique<Int64ExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+        else if (type == "uint64")
+          extvars_.push_back(
+              std::make_unique<UInt64ExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
         else if (type == "float")
           extvars_.push_back(
               std::make_unique<FloatExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
@@ -382,10 +394,10 @@ public:
     edm::ParameterSetDescription extvariable;
     extvariable.add<edm::InputTag>("src")->setComment("valuemap input collection to fill the flat table");
     extvariable.add<std::string>("doc")->setComment("few words description of the branch content");
-    extvariable.ifValue(
-        edm::ParameterDescription<std::string>(
-            "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
-        edm::allowedValues<std::string>("int", "uint", "float", "double", "uint8", "int16", "uint16", "bool"));
+    extvariable.ifValue(edm::ParameterDescription<std::string>(
+                            "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
+                        edm::allowedValues<std::string>(
+                            "int", "uint", "int64", "uint64", "float", "double", "uint8", "int16", "uint16", "bool"));
     extvariable.addOptionalNode(
         edm::ParameterDescription<int>(
             "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
@@ -447,6 +459,8 @@ protected:
 
   typedef ValueMapVariable<T, int32_t> IntExtVar;
   typedef ValueMapVariable<T, uint32_t> UIntExtVar;
+  typedef ValueMapVariable<T, int64_t> Int64ExtVar;
+  typedef ValueMapVariable<T, uint64_t> UInt64ExtVar;
   typedef ValueMapVariable<T, float> FloatExtVar;
   typedef ValueMapVariable<T, double, float> DoubleExtVar;
   typedef ValueMapVariable<T, bool> BoolExtVar;
@@ -471,6 +485,12 @@ public:
       else if (type == "uint")
         this->typedextvars_.push_back(
             std::make_unique<UIntTypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+      else if (type == "int64")
+        this->typedextvars_.push_back(
+            std::make_unique<Int64TypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
+      else if (type == "uint64")
+        this->typedextvars_.push_back(
+            std::make_unique<UInt64TypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
       else if (type == "float")
         this->typedextvars_.push_back(
             std::make_unique<FloatTypedExtVar>(vname, varPSet, this->consumesCollector(), this->skipNonExistingSrc_));
@@ -528,6 +548,8 @@ public:
 protected:
   typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int32_t> IntTypedExtVar;
   typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, uint32_t> UIntTypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, int64_t> Int64TypedExtVar;
+  typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, uint64_t> UInt64TypedExtVar;
   typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, float> FloatTypedExtVar;
   typedef TypedValueMapVariable<T, V, StringObjectFunction<V>, double> DoubleTypedExtVar;
   typedef TypedValueMapVariable<T, V, StringCutObjectSelector<V>, bool> BoolTypedExtVar;
@@ -559,6 +581,10 @@ public:
             coltable.colvars.push_back(std::make_unique<IntVectorVar>(colvarname, colvarPSet));
           else if (type == "uint")
             coltable.colvars.push_back(std::make_unique<UIntVectorVar>(colvarname, colvarPSet));
+          else if (type == "int64")
+            coltable.colvars.push_back(std::make_unique<Int64VectorVar>(colvarname, colvarPSet));
+          else if (type == "uint64")
+            coltable.colvars.push_back(std::make_unique<UInt64VectorVar>(colvarname, colvarPSet));
           else if (type == "float")
             coltable.colvars.push_back(std::make_unique<FloatVectorVar>(colvarname, colvarPSet));
           else if (type == "double")
@@ -700,6 +726,8 @@ protected:
 
   using IntVectorVar = VectorVar<int32_t>;
   using UIntVectorVar = VectorVar<uint32_t>;
+  using Int64VectorVar = VectorVar<int64_t>;
+  using UInt64VectorVar = VectorVar<uint64_t>;
   using FloatVectorVar = VectorVar<float>;
   using DoubleVectorVar = VectorVar<double>;
   using UInt8VectorVar = VectorVar<uint8_t>;

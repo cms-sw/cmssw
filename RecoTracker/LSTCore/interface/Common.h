@@ -64,6 +64,7 @@ namespace lst {
   };
   struct Params_pLS {
     static constexpr int kLayers = 2, kHits = 4;
+    using ArrayUxHits = edm::StdArray<unsigned int, kHits>;
   };
   struct Params_LS {
     static constexpr int kLayers = 2, kHits = 4;

@@ -6,6 +6,7 @@ process.load('Configuration.Geometry.GeometryExtendedRun4D49Reco_cff')
 process.load('Configuration.Geometry.GeometryExtendedRun4D49_cff')
 
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -14,14 +15,17 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
 
 #scenario
 process.dtTriggerPhase2PrimitiveDigis.scenario = cms.int32(0) #0 is mc, 1 is data, 2 is slice test
+process.dtTriggerPhase2Shower.scenario = cms.int32(0) # 0 for mc, 1 for data, 2 for slice test
 process.CalibratedDigis.dtDigiTag = "simMuonDTDigis"
 process.CalibratedDigis.scenario = 0
 
 # STD
 process.dtTriggerPhase2PrimitiveDigis.algo = 0 ## initial grouping
+process.dtTriggerPhase2Shower.showerTaggingAlgo = 1
 process.dtTriggerPhase2PrimitiveDigis.df_extended = 0
 
 # COMPARISON WITH FW

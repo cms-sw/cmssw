@@ -1,19 +1,21 @@
 import os, sys, time
 
-from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
-from Configuration.PyReleaseValidation.WorkFlowRunner import WorkFlowRunner
+from collections import Counter
 
+from Configuration.PyReleaseValidation.WorkFlowRunner import WorkFlowRunner
+from Configuration.PyReleaseValidation.MatrixUtil import check_dups
 # ================================================================================
 
 class MatrixRunner(object):
 
-    def __init__(self, wfIn=None, nThrMax=4, nThreads=1):
+    def __init__(self, wfIn=None, nThrMax=4, nThreads=1, gpus=None):
 
         self.workFlows = wfIn
 
         self.threadList = []
         self.maxThreads = nThrMax
         self.nThreads = nThreads
+        self.gpus = gpus
 
         #the directories in which it happened
         self.runDirs={}
@@ -43,12 +45,22 @@ class MatrixRunner(object):
             print('resetting to default number of process threads = %s' %  self.maxThreads)
 
         print('Running %s %s %s, each with %s thread%s per process' % ('up to' if self.maxThreads > 1 else '', self.maxThreads, 'concurrent jobs' if self.maxThreads > 1 else 'job', self.nThreads, 's' if self.nThreads > 1 else ''))
+        
+        njob = None
+        wfs_to_run = self.workFlows
+        withDups = False
+        if testList:
+            if opt.allowDuplicates: 
+                withDups = len(check_dups(testList))>0
+            else:
+                testList = set(testList)
+            wfs_to_run = [wf for wf in self.workFlows if float(wf.numId) in testList for i in range(Counter(testList)[wf.numId])]
 
+        for n,wf in enumerate(wfs_to_run):
 
-        for wf in self.workFlows:
-
-            if testList and float(wf.numId) not in [float(x) for x in testList]: continue
-
+            if opt.allowDuplicates and withDups and opt.nProcs > 1: # to avoid overwriting the work areas 
+                njob = n
+        
             item = wf.nameId
             if os.path.islink(item) : continue # ignore symlinks
 
@@ -58,7 +70,10 @@ class MatrixRunner(object):
 
             print('\nPreparing to run %s %s' % (wf.numId, item))
             sys.stdout.flush()
-            current = WorkFlowRunner(wf,noRun,dryRun,cafVeto, opt.dasOptions, opt.jobReports, opt.nThreads, opt.nStreams, opt.maxSteps, opt.nEvents)
+            gpu_cmd = None
+            if self.gpus is not None:
+                gpu_cmd = next(self.gpus).gpuBind()
+            current = WorkFlowRunner(wf,opt,noRun,dryRun,cafVeto,njob,gpu_cmd)
             self.threadList.append(current)
             current.start()
             if not dryRun:

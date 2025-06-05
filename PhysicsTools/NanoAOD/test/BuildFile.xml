@@ -3,3 +3,8 @@
   <use name="DataFormats/NanoAOD"/>
   <use name="catch2"/>
 </bin>
+
+<test name="test-btvNano-run" command="test-btvNano.sh"/>
+<test name="test-btvNano-check" command="test-btvNano.py">
+  <flags PRE_TEST="test-btvNano-run"/>
+</test>

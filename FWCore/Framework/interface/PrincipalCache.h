@@ -51,10 +51,6 @@ namespace edm {
     void insert(std::unique_ptr<LuminosityBlockPrincipal>);
     void insert(std::shared_ptr<EventPrincipal>);
 
-    void adjustEventsToNewProductRegistry(std::shared_ptr<ProductRegistry const>);
-
-    void adjustIndexesAfterProductRegistryAddition();
-
   private:
     std::unique_ptr<ProcessBlockPrincipal> processBlockPrincipal_;
     std::unique_ptr<ProcessBlockPrincipal> inputProcessBlockPrincipal_;

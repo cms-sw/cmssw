@@ -31,14 +31,3 @@ process.test = cms.EDAnalyzer("RunLumiESAnalyzer")
 process.busy1 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(1), iterations = cms.uint32(10*1000*1000))
 
 process.p1 = cms.Path(process.busy1 * process.test)
-
-# ---------------------------------------------------------------
-
-aSubProcess = cms.Process("TESTSUBPROCESS")
-process.addSubProcess(cms.SubProcess(aSubProcess))
-
-aSubProcess.runLumiESSource = cms.ESSource("RunLumiESSource")
-
-aSubProcess.test = cms.EDAnalyzer("RunLumiESAnalyzer")
-
-aSubProcess.p1 = cms.Path(aSubProcess.test)

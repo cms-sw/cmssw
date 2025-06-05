@@ -10,6 +10,7 @@
   <use name="Geometry/Records"/>
   <use name="Geometry/DTGeometry"/>
   <use name="DataFormats/MuonDetId"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/ParameterSet"/>
   <use name="CondFormats/DTObjects"/>
   <use name="FWCore/Framework"/>

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 src1 = cms.ESSource("PoolDBESSource",
-    loadAll = cms.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalPedestalsRcd'),
         tag = cms.string('EcalPedestals')
@@ -26,11 +25,7 @@ src1 = cms.ESSource("PoolDBESSource",
             record = cms.string('EcalWeightXtalGroupsRcd'),
             tag = cms.string('EcalWeightXtalGroups')
         )),
-    messagelevel = cms.untracked.uint32(1),
-    catalog = cms.untracked.string('file:/afs/cern.ch/cms/ECAL/testbeam/pedestal/2004/v2/PoolFileCatalog.xml'),
-    timetype = cms.string('runnumber'),
     connect = cms.string('sqlite_file:/afs/cern.ch/cms/ECAL/testbeam/pedestal/2004/v2/ecal2004condDB.db'),
-    authenticationMethod = cms.untracked.uint32(0)
 )
 
 getCond = cms.EDAnalyzer("EventSetupRecordDataGetter",

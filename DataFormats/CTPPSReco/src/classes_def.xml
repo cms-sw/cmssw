@@ -60,7 +60,8 @@
   <class name="std::vector<edm::DetSet<TotemRPLocalTrack> >"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack>"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
-  <class name="TotemRPLocalTrack::FittedRecHit" ClassVersion="3">
+  <!-- FittedRecHit holds a TVector3 which RNTuple can not handle -->
+  <class name="TotemRPLocalTrack::FittedRecHit" ClassVersion="3" rntupleStreamerMode="true">
     <version ClassVersion="3" checksum="839012906"/>
   </class>
   <class name="edm::DetSet<TotemRPLocalTrack::FittedRecHit>"/>

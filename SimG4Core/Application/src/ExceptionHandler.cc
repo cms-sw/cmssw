@@ -1,5 +1,5 @@
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
-#include "SimG4Core/Application/interface/CMSG4TrackInterface.h"
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"

@@ -9,6 +9,8 @@
 #include "L1Trigger/L1TMuonOverlap/interface/AlgoMuon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
+#include "Utilities/Xerces/interface/Xerces.h"
+
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -86,13 +88,16 @@ inline XMLCh* _toDOMS(std::string temp) {
 ////////////////////////////////////
 ////////////////////////////////////
 XMLConfigWriter::XMLConfigWriter(const OMTFConfiguration* aOMTFConfig) {
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   ///Initialise XML document
   domImpl = DOMImplementationRegistry::getDOMImplementation(_toDOMS("Range"));
 
   myOMTFConfig = aOMTFConfig;
 }
+////////////////////////////////////
+////////////////////////////////////
+XMLConfigWriter::~XMLConfigWriter() { cms::concurrency::xercesTerminate(); }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 void XMLConfigWriter::initialiseXMLDocument(const std::string& docName) {

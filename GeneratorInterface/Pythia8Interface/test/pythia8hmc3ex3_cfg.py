@@ -50,7 +50,9 @@ process.GEN = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('pythia8hmc3ex3.root')
 )
 
-process.p = cms.Path(process.generator)
+process.load("FWCore.Modules.printContent_cfi")
+
+process.p = cms.Path(process.generator*process.printContent)
 process.outpath = cms.EndPath(process.GEN)
 
 process.schedule = cms.Schedule(process.p, process.outpath)

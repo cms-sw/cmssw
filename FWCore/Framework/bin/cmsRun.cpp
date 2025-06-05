@@ -274,8 +274,7 @@ int main(int argc, const char* argv[]) {
 
         // EventSetupsController uses pointers to the ParameterSet
         // owned by ProcessDesc while it is dealing with sharing of
-        // ESProducers among the top-level process and the
-        // SubProcesses. Therefore the ProcessDesc needs to be kept
+        // ESProducers. Therefore the ProcessDesc needs to be kept
         // alive until the beginJob transition has finished.
         processDesc.reset();
 

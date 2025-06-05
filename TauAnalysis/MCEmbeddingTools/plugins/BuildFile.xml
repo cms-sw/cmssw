@@ -2,6 +2,7 @@
 <use name="DataFormats/RPCRecHit"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/HcalRecHit"/>
+<use name="FWCore/AbstractServices"/>
 <use name="TrackingTools/TrackAssociator"/>
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="SimDataFormats/GeneratorProducts"/>

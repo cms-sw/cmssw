@@ -32,8 +32,6 @@ void TT6ApvMask::calculateMask(const ApvAnalysis::PedestalType& in) {
   int cutLow = int(nSize * theTruncationCut_);
   int cutHigh = int(nSize * theTruncationCut_);
   int effSize = nSize - cutLow - cutHigh;
-  sumVal = 0.0;
-  sqSumVal = 0.0;
   sumVal = accumulate((temp_in.begin() + cutLow), (temp_in.end() - cutHigh), 0.0);
   sqSumVal = inner_product((temp_in.begin() + cutLow), (temp_in.end() - cutHigh), (temp_in.begin() + cutLow), 0.0);
 

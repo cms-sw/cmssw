@@ -13,6 +13,7 @@
 <use name="DataFormats/SiStripDigi"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/HepMCCandidate"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>

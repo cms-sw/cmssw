@@ -14,11 +14,7 @@
 
 There are unit tests for the signals that use the Tracer
 to print out the transitions as they occur and then
-compare to a reference file. One test does this for
-a SubProcess test and the other for a test using
-unscheduled execution. The tests are in FWCore/Integration/test:
-  run_SubProcess.sh
-  testSubProcess_cfg.py
+compare to a reference file. The tests are in FWCore/Integration/test:
   run_TestGetBy.sh
   testGetBy1_cfg.py
   testGetBy2_cfg.py
@@ -171,12 +167,12 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_2(watchEventSetupConfiguration)
 
-    typedef signalslot::Signal<void(PathsAndConsumesOfModulesBase const&, ProcessContext const&)> PreBeginJob;
+    typedef signalslot::Signal<void(ProcessContext const&)> PreBeginJob;
     ///signal is emitted before all modules have gotten their beginJob called
     PreBeginJob preBeginJobSignal_;
     ///convenience function for attaching to signal
     void watchPreBeginJob(PreBeginJob::slot_type const& iSlot) { preBeginJobSignal_.connect(iSlot); }
-    AR_WATCH_USING_METHOD_2(watchPreBeginJob)
+    AR_WATCH_USING_METHOD_1(watchPreBeginJob)
 
     typedef signalslot::Signal<void()> PostBeginJob;
     ///signal is emitted after all modules have gotten their beginJob called

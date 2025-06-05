@@ -24,13 +24,11 @@ from ..sequences.HLTDoFullUnpackingEgammaEcalSequence_cfi import *
 from ..sequences.HLTEGammaDoLocalHcalSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 
 
-HLTDiphoton3023IsoCaloIdUnseededSequence = cms.Sequence(HLTL1Sequence
-                                                        +hltEGL1SeedsForDoublePhotonIsolatedFilter
+HLTDiphoton3023IsoCaloIdUnseededSequence = cms.Sequence(hltEGL1SeedsForDoublePhotonIsolatedFilter
                                                         +HLTDoFullUnpackingEgammaEcalSequence
                                                         +HLTPFClusteringForEgammaUnseededSequence
                                                         +HLTHgcalTiclPFClusteringForEgammaUnseededSequence

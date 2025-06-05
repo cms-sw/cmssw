@@ -49,10 +49,10 @@ using namespace Pythia8;
 //
 #include "Pythia8Plugins/EvtGen.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"

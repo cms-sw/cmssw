@@ -1,8 +1,8 @@
 #include "L1Trigger/HardwareValidation/plugins/L1DummyProducer.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 using namespace dedefs;
 

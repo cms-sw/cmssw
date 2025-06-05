@@ -37,13 +37,11 @@ from ..sequences.HLTElePixelMatchUnseededSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTGsfElectronUnseededSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 from ..sequences.HLTTrackingSequence_cfi import *
 
-HLTEle5OpenUnseededSequence = cms.Sequence(HLTL1Sequence
-                                           +HLTDoFullUnpackingEgammaEcalSequence
+HLTEle5OpenUnseededSequence = cms.Sequence(HLTDoFullUnpackingEgammaEcalSequence
                                            +HLTEGammaDoLocalHcalSequence
                                            +HLTPFClusteringForEgammaUnseededSequence
                                            +HLTHgcalTiclPFClusteringForEgammaUnseededSequence

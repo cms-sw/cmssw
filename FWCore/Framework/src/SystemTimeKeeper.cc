@@ -125,10 +125,7 @@ SystemTimeKeeper::PathTiming& SystemTimeKeeper::pathTiming(StreamContext const& 
 }
 
 //NOTE: Have to check bounds rather than ProcessContext on the
-// module callbacks because the ProcessContext could be for a
-// SubProcess which requested an usncheduled execution of a
-// module in a parent process. In that case the ProcessContext
-// is for the SubProcess but the module is is for the parent process.
+// module callbacks.
 inline bool SystemTimeKeeper::checkBounds(unsigned int id) const {
   return id >= m_minModuleID and id < m_streamModuleTiming.front().size() + m_minModuleID;
 }

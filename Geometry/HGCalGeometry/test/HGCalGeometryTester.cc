@@ -193,7 +193,7 @@ void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom, DetId::Detector
             GlobalPoint global1 = geom->getPosition(id1);
             DetId idc1 = geom->getClosestCell(global1);
             GlobalPoint global2 = geom->getPosition(idc1);
-            std::string cherr = (id1.rawId() != idc1.rawId()) ? " ***** ERROR *****" : "";
+            std::string cherr = (detId.position() != HGCScintillatorDetId(idc1).position()) ? " ***** ERROR *****" : "";
             edm::LogVerbatim("HGCalGeomX")
                 << "DetId (" << det << ":" << zside << ":" << type << ":" << layer << ":" << ieta << ":" << iphi
                 << ") Geom " << icell1 << " position (" << global1.x() << ", " << global1.y() << ", " << global1.z()

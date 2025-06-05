@@ -200,6 +200,13 @@
     <use name="FWCore/Framework"/>
   </library>
 
+  <library file="PrintProcessInformation.cc" name="MLPrintProcessInformation">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/Provenance"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/MessageLogger"/>
+    <use name="FWCore/ServiceRegistry"/>
+  </library>
 </environment>
 <bin file="standAloneTest.cpp" name="standAloneWithMessageLogger">
   <use name="FWCore/MessageLogger"/>
@@ -234,6 +241,7 @@
 
 <test name="unitTestsGroup_6" command="${value}.sh" foreach="u23,u27,u30,u31,u33"/>
 
+<test name="TestFWCoreMessageServiceJobReport" command="testJobReport.sh"/>
 <bin name="makeJobReport" file="makeJobReport.cpp">
   <use name="boost_program_options"/>
   <use name="FWCore/Framework"/>

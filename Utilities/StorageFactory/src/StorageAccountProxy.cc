@@ -16,7 +16,7 @@ StorageAccountProxy::StorageAccountProxy(const std::string &storageClass, std::u
 
 StorageAccountProxy::~StorageAccountProxy() {
   StorageAccount::Stamp stats(StorageAccount::counter(m_token, StorageAccount::Operation::destruct));
-  releaseStorage();
+  resetStorage();
   stats.tick();
 }
 

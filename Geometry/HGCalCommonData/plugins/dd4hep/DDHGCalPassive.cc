@@ -118,6 +118,7 @@ struct HGCalPassive {
           ns.addSolidNS(ns.prepend(parentname), solid);
           dd4hep::Material matter = ns.material(moduleMaterial);
           dd4hep::Volume glogM = dd4hep::Volume(solid.name(), solid, matter);
+          ns.addVolumeNS(glogM);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalPassive: " << solid.name() << " extruded polygon made of "
                                         << matter.name() << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0]
@@ -140,6 +141,7 @@ struct HGCalPassive {
               ns.addSolidNS(ns.prepend(layerName), solid);
               matter = ns.material(layerMaterials[i]);
               glogs[i] = dd4hep::Volume(solid.name(), solid, matter);
+              ns.addVolumeNS(glogs[i]);
 #ifdef EDM_ML_DEBUG
               edm::LogVerbatim("HGCalGeom")
                   << "DDHGCalPassive: Layer " << i << ":" << l << ":" << solid.name() << " extruded polygon made of "
@@ -155,7 +157,7 @@ struct HGCalPassive {
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom")
                 << "DDHGCalPassive: " << glogs[i].name() << " number " << copyNumber[i] << " positioned in "
-                << glogM.name() << " at (0, 0, " << cms::convert2mm(zi + 0.5 * layerThick[i]) << ") with no rotation";
+                << glogM.name() << " at (0,0," << cms::convert2mm(zi + 0.5 * layerThick[i]) << ") with no rotation";
 #endif
             ++copyNumber[i];
             zi += layerThick[i];

@@ -20,10 +20,10 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 //STL headers

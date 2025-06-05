@@ -16,7 +16,7 @@ private:
 
 public:
   struct ESGetTokens {
-    ESGetTokens(const edm::ParameterSet&, edm::ConsumesCollector&& iC)
+    ESGetTokens(const edm::ParameterSet&, edm::ConsumesCollector iC)
         : ecalTrigTowerConstituentsMapToken{iC.esConsumes()}, ecalElectronicsMappingToken{iC.esConsumes()} {}
     edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> const ecalTrigTowerConstituentsMapToken;
     edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> const ecalElectronicsMappingToken;

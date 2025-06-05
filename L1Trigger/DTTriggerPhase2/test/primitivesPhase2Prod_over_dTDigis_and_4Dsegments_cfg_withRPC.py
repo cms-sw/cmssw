@@ -7,6 +7,7 @@ process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.GlobalTag.globaltag = "106X_upgrade2018_realistic_v4"
@@ -27,6 +28,13 @@ process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 #for debugging
 process.dtTriggerPhase2PrimitiveDigis.min_phinhits_match_segment = 4
 #process.dtTriggerPhase2PrimitiveDigis.debug = True
+
+#DTTriggerPhase2Showers
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
+process.dtTriggerPhase2Shower.showerTaggingAlgo = 1
+process.dtTriggerPhase2Shower.debug = False
+process.dtTriggerPhase2Shower.scenario = 0 # 0 for mc, 1 for data, 2 for slice test
+
 
 #Produce RPC clusters from RPCDigi
 process.load("RecoLocalMuon.RPCRecHit.rpcRecHits_cfi")

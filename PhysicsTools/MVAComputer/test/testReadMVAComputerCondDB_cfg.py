@@ -11,13 +11,11 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 
 process.BTauGenericMVAJetTagComputerRcd = cms.ESSource("PoolDBESSource",
 	CondDBSetup,
-	timetype = cms.untracked.string('runnumber'),
 	toGet = cms.VPSet(cms.PSet(
 		record = cms.string('BTauGenericMVAJetTagComputerRcd'),
 		tag = cms.string('Foobar_tag')
 	)),
 	connect = cms.string('sqlite_file:FoobarDiscriminator.db'),
-	BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 )
 
 process.testReadMVAComputerCondDB = cms.EDAnalyzer("testReadMVAComputerCondDB")

@@ -14,7 +14,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESTagGetter.h"
-#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
 using namespace edm;

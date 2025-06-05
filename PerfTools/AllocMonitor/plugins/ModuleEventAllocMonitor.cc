@@ -270,7 +270,7 @@ public:
       });
     }
     iAR.watchPreallocate([this](auto const& alloc) { nStreams_ = alloc.maxNumberOfStreams(); });
-    iAR.watchPreBeginJob([this](auto const&, auto const&) {
+    iAR.watchPreBeginJob([this](auto const&) {
       streamModuleAllocs_.resize(nStreams_ * nModules_);
       streamModuleInAcquire_ = std::vector<std::atomic<bool>>(nStreams_ * nModules_);
       streamModuleFinishOrder_ = std::vector<int>(nStreams_ * nModules_);

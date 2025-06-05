@@ -29,6 +29,8 @@ class XMLConfigWriter {
 public:
   XMLConfigWriter(const OMTFConfiguration* aOMTFConfig);
 
+  ~XMLConfigWriter();
+
   void initialiseXMLDocument(const std::string& docName);
 
   void finaliseXMLDocument(const std::string& fName);

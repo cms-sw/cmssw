@@ -67,7 +67,7 @@ namespace edm {
 
       void preallocate(service::SystemBounds const&);
 
-      void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
+      void preBeginJob(ProcessContext const&);
       void postBeginJob();
       void preEndJob();
       void postEndJob();
@@ -546,7 +546,7 @@ void Tracer::preallocate(service::SystemBounds const& bounds) {
                         << bounds.maxNumberOfStreams() << " streams";
 }
 
-void Tracer::preBeginJob(PathsAndConsumesOfModulesBase const& pathsAndConsumes, ProcessContext const& pc) {
+void Tracer::preBeginJob(ProcessContext const& pc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_) << indention_ << " starting: begin job";
 }
@@ -1448,7 +1448,7 @@ void Tracer::preModuleEventDelayedGet(StreamContext const& sc, ModuleCallingCont
   for (unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: delayed processing event for module: stream = " << sc.streamID() << " label = '"
+  out << " starting: delayed get while processing event for module: stream = " << sc.streamID() << " label = '"
       << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
   if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
@@ -1463,7 +1463,7 @@ void Tracer::postModuleEventDelayedGet(StreamContext const& sc, ModuleCallingCon
   for (unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: delayed processing event for module: stream = " << sc.streamID() << " label = '"
+  out << " finished: delayed get while processing event for module: stream = " << sc.streamID() << " label = '"
       << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
   if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;

@@ -29,6 +29,12 @@ void TableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::FlatTable 
       case nanoaod::FlatTable::ColumnType::UInt32:
         m_uint32Branches.emplace_back(var, tab.columnDoc(i), "i");
         break;
+      case nanoaod::FlatTable::ColumnType::Int64:
+        m_int64Branches.emplace_back(var, tab.columnDoc(i), "L");
+        break;
+      case nanoaod::FlatTable::ColumnType::UInt64:
+        m_uint64Branches.emplace_back(var, tab.columnDoc(i), "l");
+        break;
       case nanoaod::FlatTable::ColumnType::Bool:
         m_uint8Branches.emplace_back(var, tab.columnDoc(i), "O");
         break;
@@ -67,6 +73,8 @@ void TableOutputBranches::branch(TTree &tree) {
                                                 &m_uint16Branches,
                                                 &m_int32Branches,
                                                 &m_uint32Branches,
+                                                &m_int64Branches,
+                                                &m_uint64Branches,
                                                 &m_floatBranches,
                                                 &m_doubleBranches}) {
     for (auto &pair : *branches) {
@@ -121,6 +129,10 @@ void TableOutputBranches::fill(const edm::OccurrenceForOutput &iWhatever, TTree 
     fillColumn<int32_t>(pair, tab);
   for (auto &pair : m_uint32Branches)
     fillColumn<uint32_t>(pair, tab);
+  for (auto &pair : m_int64Branches)
+    fillColumn<int64_t>(pair, tab);
+  for (auto &pair : m_uint64Branches)
+    fillColumn<uint64_t>(pair, tab);
   for (auto &pair : m_floatBranches)
     fillColumn<float>(pair, tab);
   for (auto &pair : m_doubleBranches)

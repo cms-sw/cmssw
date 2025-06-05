@@ -6,10 +6,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    loadAll = cms.bool(True),
     #read from database
     #string connect = "frontier://FrontierDev/CMS_COND_CSC"
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCDBNoiseMatrixRcd'),
         tag = cms.string('CSCDBNoiseMatrix_express')
@@ -18,7 +16,6 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     connect=cms.string("oracle://cms_orcon_prod/CMS_COND_31X_CSC"),
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/nfshome0/popcondev/conddb/'),
-        authenticationMethod = cms.untracked.uint32(1)
     )
 )
 

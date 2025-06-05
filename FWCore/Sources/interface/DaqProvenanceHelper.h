@@ -13,6 +13,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {

@@ -13,6 +13,7 @@
 #include <filesystem>
 
 using LSTEvent = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTEvent;
+using LSTInputDeviceCollection = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTInputDeviceCollection;
 using ::lst::PixelType;
 
 // --------------------- ======================== ---------------------
@@ -27,13 +28,7 @@ float runT3(LSTEvent *event);
 float runTrackCandidate(LSTEvent *event, bool no_pls_dupclean, bool tc_pls_triplets);
 float runQuintuplet(LSTEvent *event);
 float runPixelQuintuplet(LSTEvent *event);
-float runPixelLineSegment(LSTEvent *event,
-                          std::vector<unsigned int> hitIndices_vec0,
-                          std::vector<unsigned int> hitIndices_vec1,
-                          std::vector<unsigned int> hitIndices_vec2,
-                          std::vector<unsigned int> hitIndices_vec3,
-                          std::vector<float> deltaPhi_vec,
-                          bool no_pls_dupclean);
+float runPixelLineSegment(LSTEvent *event, bool no_pls_dupclean);
 float runpT3(LSTEvent *event);
 
 // --------------------- ======================== ---------------------
@@ -56,50 +51,10 @@ TVector3 calculateR3FromPCA(const TVector3 &p3, const float dxy, const float dz)
 
 // --------------------- ======================== ---------------------
 
-void addInputsToLineSegmentTrackingPreLoad(std::vector<std::vector<float>> &out_trkX,
-                                           std::vector<std::vector<float>> &out_trkY,
-                                           std::vector<std::vector<float>> &out_trkZ,
-                                           std::vector<std::vector<unsigned int>> &out_hitId,
-                                           std::vector<std::vector<unsigned int>> &out_hitIdxs,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec0,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec1,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec2,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec3,
-                                           std::vector<std::vector<float>> &out_deltaPhi_vec,
-                                           std::vector<std::vector<float>> &out_ptIn_vec,
-                                           std::vector<std::vector<float>> &out_ptErr_vec,
-                                           std::vector<std::vector<float>> &out_px_vec,
-                                           std::vector<std::vector<float>> &out_py_vec,
-                                           std::vector<std::vector<float>> &out_pz_vec,
-                                           std::vector<std::vector<float>> &out_eta_vec,
-                                           std::vector<std::vector<float>> &out_etaErr_vec,
-                                           std::vector<std::vector<float>> &out_phi_vec,
-                                           std::vector<std::vector<int>> &out_charge_vec,
-                                           std::vector<std::vector<unsigned int>> &out_seedIdx_vec,
-                                           std::vector<std::vector<int>> &out_superbin_vec,
-                                           std::vector<std::vector<PixelType>> &out_pixelType_vec,
-                                           std::vector<std::vector<char>> &out_isQuad_vec);
-
 float addInputsToEventPreLoad(LSTEvent *event,
-                              bool useOMP,
-                              std::vector<float> trkX,
-                              std::vector<float> trkY,
-                              std::vector<float> trkZ,
-                              std::vector<unsigned int> hitId,
-                              std::vector<unsigned int> hitIdxs,
-                              std::vector<float> ptIn_vec,
-                              std::vector<float> ptErr_vec,
-                              std::vector<float> px_vec,
-                              std::vector<float> py_vec,
-                              std::vector<float> pz_vec,
-                              std::vector<float> eta_vec,
-                              std::vector<float> etaErr_vec,
-                              std::vector<float> phi_vec,
-                              std::vector<int> charge_vec,
-                              std::vector<unsigned int> seedIdx_vec,
-                              std::vector<int> superbin_vec,
-                              std::vector<PixelType> pixelType_vec,
-                              std::vector<char> isQuad_vec);
+                              lst::LSTInputHostCollection *lstInputHC,
+                              LSTInputDeviceCollection *lstInputDC,
+                              ALPAKA_ACCELERATOR_NAMESPACE::Queue &queue);
 
 void printTimingInformation(std::vector<std::vector<float>> &timing_information, float fullTime, float fullavg);
 

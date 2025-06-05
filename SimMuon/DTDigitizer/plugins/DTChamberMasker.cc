@@ -54,8 +54,8 @@
 #include "CondFormats/RecoMuonObjects/interface/MuonSystemAging.h"
 
 #include "CLHEP/Random/RandomEngine.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 //
 // class declaration

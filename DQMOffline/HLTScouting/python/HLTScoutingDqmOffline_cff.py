@@ -13,13 +13,17 @@ from HLTriggerOffline.Scouting.ScoutingMuonMonitoring_Client_cff import *
 
 from HLTriggerOffline.Scouting.HLTScoutingEGammaDqmOffline_cff import *
 
+from DQM.HLTEvF.ScoutingCollectionMonitor_cfi import *
+
 from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
 
-hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx
-                                         * scoutingMonitoringTagProbeMuonVtx                                                         
-                                         * scoutingMonitoringTriggerMuon                                                              
-)
+hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
+                                         scoutingMonitoringTagProbeMuonVtx *
+                                         scoutingMonitoringTriggerMuon_DoubleMu *
+                                         scoutingMonitoringTriggerMuon_SingleMu )
 
 hltScoutingJetDqmOffline = cms.Sequence(jetMETDQMOfflineSourceScouting)
 
-hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline + hltScoutingEGammaDqmOffline + hltScoutingJetDqmOffline)
+hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)
+
+hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline + hltScoutingEGammaDqmOffline + hltScoutingJetDqmOffline + hltScoutingCollectionMonitor)

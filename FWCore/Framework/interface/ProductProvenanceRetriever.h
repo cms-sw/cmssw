@@ -32,13 +32,15 @@ namespace edm {
                                      ModuleCallingContext const* moduleCallingContext,
                                      unsigned int transitionIndex,
                                      std::atomic<const std::set<ProductProvenance>*>& writeTo) const noexcept = 0;
+
+    virtual void unsafe_fillProvenance(unsigned int transitionIndex) const;
   };
 
   class ProductProvenanceRetriever : public ProductProvenanceLookup {
   public:
     explicit ProductProvenanceRetriever(unsigned int iTransitionIndex);
     ProductProvenanceRetriever(unsigned int iTransitionIndex, edm::ProductRegistry const&);
-    explicit ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader);
+    explicit ProductProvenanceRetriever(unsigned int iTransitionIndex, std::unique_ptr<ProvenanceReaderBase> reader);
 
     ProductProvenanceRetriever& operator=(ProductProvenanceRetriever const&) = delete;
 
@@ -52,10 +54,13 @@ namespace edm {
 
     void readProvenanceAsync(WaitingTaskHolder task, ModuleCallingContext const* moduleCallingContext) const noexcept;
 
+    // Used in prompt reading mode to fill the branch at the same time
+    // when all event data is read
+    void unsafe_fillProvenance();
+
   private:
     std::unique_ptr<const std::set<ProductProvenance>> readProvenance() const final;
     const ProductProvenanceLookup* nextRetriever() const final { return nextRetriever_.get(); }
-    void setTransitionIndex(unsigned int transitionIndex) { transitionIndex_ = transitionIndex; }
 
     edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>> nextRetriever_;
     std::shared_ptr<const ProvenanceReaderBase> provenanceReader_;

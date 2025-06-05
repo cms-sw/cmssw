@@ -181,7 +181,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
         #
-        type = cms.string('SimG4Core/Physics/FTFP_BERT_EMM'),
+        type = cms.string('SimG4Core/Physics/FTFP_BERT_EMH'),
         DummyEMPhysics = cms.bool(False),
         # 1 will print cuts as they get set from DD
         # 2 will do as 1 + will dump Geant4 table of cuts
@@ -373,7 +373,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         AllMuonsPersistent = cms.bool(True),
         UseDemoHitRPC = cms.bool(True),
         UseDemoHitGEM = cms.bool(True),
-        HaveDemoChambers = cms.bool(True)
+        HaveDemoChambers = cms.bool(True),
+        RemoveGEMHits = cms.vint32()
     ),
     CaloSD = cms.PSet(
         common_heavy_suppression,

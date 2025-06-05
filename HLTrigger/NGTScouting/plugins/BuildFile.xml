@@ -1,0 +1,13 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/VertexReco"/>
+<use name="DataFormats/Candidate"/>
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="RecoVertex/VertexTools"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="PhysicsTools/NanoAOD"/>
+<use name="DataFormats/Scouting"/>

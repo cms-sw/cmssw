@@ -32,7 +32,6 @@ process.uploader = cms.EDFilter("SurveyDBUploader",
 # otherwise not needed
 process.trackerAlignment = cms.ESSource("PoolDBESSource",
 					 CondDBSetup,
-					 timetype = cms.string('runnumber'),
 					 toGet = cms.VPSet(cms.PSet(
 												record = cms.string('TrackerAlignmentRcd'),
 												tag = cms.string('Alignments')

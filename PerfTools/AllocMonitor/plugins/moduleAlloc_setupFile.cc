@@ -486,7 +486,7 @@ namespace edm::service::moduleAlloc {
                                 sourceCtrPtr,
                                 beginTime,
                                 beginModuleAlloc,
-                                addDataInDtr](auto&, auto&) mutable {
+                                addDataInDtr](auto&) mutable {
       *addDataInDtr = true;
       {
         std::ostringstream oss;

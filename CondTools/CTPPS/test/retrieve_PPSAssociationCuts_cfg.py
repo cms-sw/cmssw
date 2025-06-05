@@ -34,7 +34,6 @@ process.source = cms.Source("EmptyIOVSource",
 # input service
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       process.CondDB,
-                                      DumbStat = cms.untracked.bool(True),
                                       toGet = cms.VPSet(cms.PSet(
                                           record = cms.string('PPSAssociationCutsRcd'),
                                           tag = cms.string(db_tag)

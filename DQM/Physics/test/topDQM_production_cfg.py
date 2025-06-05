@@ -17,7 +17,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
 process.source.skipEvents = cms.untracked.uint32(0)
 
-process.source.fileNames = ['root://cmsxrootd.fnal.gov//store/relval/CMSSW_14_2_0_pre3/RelValTTbar_14TeV/GEN-SIM-RECO/PU_140X_mcRun3_2024_realistic_v26_STD_2024_PU-v1/2590000/3c568c90-b6ff-43be-9b24-8b4e9d862185.root']
+process.source.fileNames = ['root://cms-xrd-global.cern.ch//store/relval/CMSSW_15_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-RECO/PU_142X_mcRun3_2025_realistic_v1_STD_2025_PU-v1/2590000/05925bd0-d592-435e-87c1-fd8f4bdbc726.root']
 
 ## number of events
 process.maxEvents = cms.untracked.PSet(

@@ -1,0 +1,15 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/HcalCommonData"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="root"/>
+<use name="clhep"/>
+<use name="CalibFormats/CaloTPG"/>
+<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="testValidationHcalDigis">
+</library>

@@ -45,8 +45,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 //Random Number
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Random/RandFlat.h"
 

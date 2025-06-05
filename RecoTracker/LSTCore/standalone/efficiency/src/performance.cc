@@ -25,13 +25,13 @@ int main(int argc, char** argv) {
   };
   std::vector<std::function<bool(unsigned int)>> sels = {
       [&](unsigned int isim) { return 1.; },
-      [&](unsigned int isim) { return std::abs(lstEff.sim_eta().at(isim)) < 2.4; },
+      [&](unsigned int isim) { return std::abs(lstEff.getVF("sim_eta").at(isim)) < 2.4; },
       [&](unsigned int isim) {
-        return std::abs(lstEff.sim_eta().at(isim)) > 1.1 and std::abs(lstEff.sim_eta().at(isim)) < 1.7;
+        return std::abs(lstEff.getVF("sim_eta").at(isim)) > 1.1 and std::abs(lstEff.getVF("sim_eta").at(isim)) < 1.7;
       },
       [&](unsigned int isim) {
-        return (std::abs(lstEff.sim_eta().at(isim)) < 1.1 or std::abs(lstEff.sim_eta().at(isim)) > 1.7) and
-               std::abs(lstEff.sim_eta().at(isim)) < 2.4;
+        float sim_eta = lstEff.getVF("sim_eta").at(isim);
+        return (std::abs(sim_eta) < 1.1 or std::abs(sim_eta) > 1.7) and std::abs(sim_eta) < 2.4;
       }};
   pdgids.insert(pdgids.end(), ana.pdgids.begin(), ana.pdgids.end());
 
@@ -46,35 +46,40 @@ int main(int argc, char** argv) {
                                   TString("TC_") + selnames[isel],
                                   /* pdgid */ pdgid,
                                   /* q     */ charge,
-                                  /* pass  */ [&](unsigned int isim) { return lstEff.sim_TC_matched().at(isim) > 0; },
+                                  /* pass  */
+                                  [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched").at(isim) > 0; },
                                   /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
             TString("pT5_") + selnames[isel],
             /* pdgid */ pdgid,
             /* q     */ charge,
-            /* pass  */ [&](unsigned int isim) { return lstEff.sim_TC_matched_mask().at(isim) & (1 << pT5); },
+            /* pass  */
+            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << pT5); },
             /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
             TString("pT3_") + selnames[isel],
             /* pdgid */ pdgid,
             /* q     */ charge,
-            /* pass  */ [&](unsigned int isim) { return lstEff.sim_TC_matched_mask().at(isim) & (1 << pT3); },
+            /* pass  */
+            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << pT3); },
             /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
             TString("T5_") + selnames[isel],
             /* pdgid */ pdgid,
             /* q     */ charge,
-            /* pass  */ [&](unsigned int isim) { return lstEff.sim_TC_matched_mask().at(isim) & (1 << T5); },
+            /* pass  */
+            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << T5); },
             /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
             TString("pLS_") + selnames[isel],
             /* pdgid */ pdgid,
             /* q     */ charge,
-            /* pass  */ [&](unsigned int isim) { return lstEff.sim_TC_matched_mask().at(isim) & (1 << pLS); },
+            /* pass  */
+            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << pLS); },
             /* sel   */ sels[isel]));
 
         if (ana.do_lower_level) {
@@ -84,21 +89,22 @@ int main(int argc, char** argv) {
               TString("pT5_lower_") + selnames[isel],
               /* pdgid */ pdgid,
               /* q     */ charge,
-              /* pass  */ [&](unsigned int isim) { return lstEff.sim_pT5_matched().at(isim) > 0; },
+              /* pass  */ [&](unsigned int isim) { return lstEff.getVI("sim_pT5_matched").at(isim) > 0; },
               /* sel   */ sels[isel]));
           list_effSetDef.push_back(
               SimTrackSetDefinition(/* name  */
                                     TString("T5_lower_") + selnames[isel],
                                     /* pdgid */ pdgid,
                                     /* q     */ charge,
-                                    /* pass  */ [&](unsigned int isim) { return lstEff.sim_T5_matched().at(isim) > 0; },
+                                    /* pass  */
+                                    [&](unsigned int isim) { return lstEff.getVI("sim_T5_matched").at(isim) > 0; },
                                     /* sel   */ sels[isel]));
           list_effSetDef.push_back(SimTrackSetDefinition(
               /* name  */
               TString("pT3_lower_") + selnames[isel],
               /* pdgid */ pdgid,
               /* q     */ charge,
-              /* pass  */ [&](unsigned int isim) { return lstEff.sim_pT3_matched().at(isim) > 0; },
+              /* pass  */ [&](unsigned int isim) { return lstEff.getVI("sim_pT3_matched").at(isim) > 0; },
               /* sel   */ sels[isel]));
         }
       }
@@ -112,77 +118,86 @@ int main(int argc, char** argv) {
   list_FRSetDef.push_back(
       RecoTrackSetDefinition(/* name  */
                              "TC",
-                             /* pass  */ [&](unsigned int itc) { return lstEff.tc_isFake().at(itc) > 0; },
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isFake").at(itc) > 0; },
                              /* sel   */ [&](unsigned int itc) { return 1; },
-                             /* pt    */ tas::tc_pt,
-                             /* eta   */ tas::tc_eta,
-                             /* phi   */ tas::tc_phi,
-                             /* type  */ tas::tc_type));
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
   list_FRSetDef.push_back(
       RecoTrackSetDefinition(/* name  */
                              "pT5",
-                             /* pass  */ [&](unsigned int itc) { return lstEff.tc_isFake().at(itc) > 0; },
-                             /* sel   */ [&](unsigned int itc) { return lstEff.tc_type().at(itc) == pT5; },
-                             /* pt    */ tas::tc_pt,
-                             /* eta   */ tas::tc_eta,
-                             /* phi   */ tas::tc_phi,
-                             /* type  */ tas::tc_type));
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isFake").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pT5; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
   list_FRSetDef.push_back(
       RecoTrackSetDefinition(/* name  */
                              "pT3",
-                             /* pass  */ [&](unsigned int itc) { return lstEff.tc_isFake().at(itc) > 0; },
-                             /* sel   */ [&](unsigned int itc) { return lstEff.tc_type().at(itc) == pT3; },
-                             /* pt    */ tas::tc_pt,
-                             /* eta   */ tas::tc_eta,
-                             /* phi   */ tas::tc_phi,
-                             /* type  */ tas::tc_type));
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isFake").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pT3; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
   list_FRSetDef.push_back(
       RecoTrackSetDefinition(/* name  */
                              "T5",
-                             /* pass  */ [&](unsigned int itc) { return lstEff.tc_isFake().at(itc) > 0; },
-                             /* sel   */ [&](unsigned int itc) { return lstEff.tc_type().at(itc) == T5; },
-                             /* pt    */ tas::tc_pt,
-                             /* eta   */ tas::tc_eta,
-                             /* phi   */ tas::tc_phi,
-                             /* type  */ tas::tc_type));
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isFake").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == T5; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
   list_FRSetDef.push_back(
       RecoTrackSetDefinition(/* name  */
                              "pLS",
-                             /* pass  */ [&](unsigned int itc) { return lstEff.tc_isFake().at(itc) > 0; },
-                             /* sel   */ [&](unsigned int itc) { return lstEff.tc_type().at(itc) == pLS; },
-                             /* pt    */ tas::tc_pt,
-                             /* eta   */ tas::tc_eta,
-                             /* phi   */ tas::tc_phi,
-                             /* type  */ tas::tc_type));
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isFake").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pLS; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
 
   if (ana.do_lower_level) {
     list_FRSetDef.push_back(RecoTrackSetDefinition(
         /* name  */
         "pT5_lower",
-        /* pass  */ [&](unsigned int ipT5) { return lstEff.pT5_isFake().at(ipT5) > 0; },
+        /* pass  */ [&](unsigned int ipT5) { return lstEff.getVI("pT5_isFake").at(ipT5) > 0; },
         /* sel   */ [&](unsigned int ipT5) { return 1; },
-        /* pt    */ tas::pT5_pt,
-        /* eta   */ tas::pT5_eta,
-        /* phi   */ tas::pT5_phi,
-        /* type  */ [&]() { return static_cast<const std::vector<int>>(std::vector<int>(tas::pT5_pt().size(), 1)); }));
+        /* pt    */ [&]() { return lstEff.getVF("pT5_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pT5_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pT5_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT5_pt").size(), 1); }));
     list_FRSetDef.push_back(RecoTrackSetDefinition(
         /* name  */
         "T5_lower",
-        /* pass  */ [&](unsigned int it5) { return lstEff.t5_isFake().at(it5) > 0; },
+        /* pass  */ [&](unsigned int it5) { return lstEff.getVI("t5_isFake").at(it5) > 0; },
         /* sel   */ [&](unsigned int it5) { return 1; },
-        /* pt    */ tas::t5_pt,
-        /* eta   */ tas::t5_eta,
-        /* phi   */ tas::t5_phi,
-        /* type  */ [&]() { return static_cast<const std::vector<int>>(std::vector<int>(tas::t5_pt().size(), 1)); }));
+        /* pt    */ [&]() { return lstEff.getVF("t5_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("t5_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("t5_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("t5_pt").size(), 1); }));
     list_FRSetDef.push_back(RecoTrackSetDefinition(
         /* name  */
         "pT3_lower",
-        /* pass  */ [&](unsigned int ipT3) { return lstEff.pT3_isFake().at(ipT3) > 0; },
+        /* pass  */ [&](unsigned int ipT3) { return lstEff.getVI("pT3_isFake").at(ipT3) > 0; },
         /* sel   */ [&](unsigned int ipT3) { return 1; },
-        /* pt    */ tas::pT3_pt,
-        /* eta   */ tas::pT3_eta,
-        /* phi   */ tas::pT3_phi,
-        /* type  */ [&]() { return static_cast<const std::vector<int>>(std::vector<int>(tas::pT3_pt().size(), 1)); }));
+        /* pt    */ [&]() { return lstEff.getVF("pT3_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pT3_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pT3_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT3_pt").size(), 1); }));
   }
 
   bookFakeRateSets(list_FRSetDef);
@@ -192,77 +207,86 @@ int main(int argc, char** argv) {
   list_DRSetDef.push_back(
       RecoTrackSetDefinition(/* name  */
                              "TC",
-                             /* pass  */ [&](unsigned int itc) { return lstEff.tc_isDuplicate().at(itc) > 0; },
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isDuplicate").at(itc) > 0; },
                              /* sel   */ [&](unsigned int itc) { return 1; },
-                             /* pt    */ tas::tc_pt,
-                             /* eta   */ tas::tc_eta,
-                             /* phi   */ tas::tc_phi,
-                             /* type  */ tas::tc_type));
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
   list_DRSetDef.push_back(
       RecoTrackSetDefinition(/* name  */
                              "pT5",
-                             /* pass  */ [&](unsigned int itc) { return lstEff.tc_isDuplicate().at(itc) > 0; },
-                             /* sel   */ [&](unsigned int itc) { return lstEff.tc_type().at(itc) == pT5; },
-                             /* pt    */ tas::tc_pt,
-                             /* eta   */ tas::tc_eta,
-                             /* phi   */ tas::tc_phi,
-                             /* type  */ tas::tc_type));
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isDuplicate").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pT5; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
   list_DRSetDef.push_back(
       RecoTrackSetDefinition(/* name  */
                              "pT3",
-                             /* pass  */ [&](unsigned int itc) { return lstEff.tc_isDuplicate().at(itc) > 0; },
-                             /* sel   */ [&](unsigned int itc) { return lstEff.tc_type().at(itc) == pT3; },
-                             /* pt    */ tas::tc_pt,
-                             /* eta   */ tas::tc_eta,
-                             /* phi   */ tas::tc_phi,
-                             /* type  */ tas::tc_type));
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isDuplicate").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pT3; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
   list_DRSetDef.push_back(
       RecoTrackSetDefinition(/* name  */
                              "T5",
-                             /* pass  */ [&](unsigned int itc) { return lstEff.tc_isDuplicate().at(itc) > 0; },
-                             /* sel   */ [&](unsigned int itc) { return lstEff.tc_type().at(itc) == T5; },
-                             /* pt    */ tas::tc_pt,
-                             /* eta   */ tas::tc_eta,
-                             /* phi   */ tas::tc_phi,
-                             /* type  */ tas::tc_type));
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isDuplicate").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == T5; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
   list_DRSetDef.push_back(
       RecoTrackSetDefinition(/* name  */
                              "pLS",
-                             /* pass  */ [&](unsigned int itc) { return lstEff.tc_isDuplicate().at(itc) > 0; },
-                             /* sel   */ [&](unsigned int itc) { return lstEff.tc_type().at(itc) == pLS; },
-                             /* pt    */ tas::tc_pt,
-                             /* eta   */ tas::tc_eta,
-                             /* phi   */ tas::tc_phi,
-                             /* type  */ tas::tc_type));
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isDuplicate").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pLS; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
 
   if (ana.do_lower_level) {
     list_DRSetDef.push_back(RecoTrackSetDefinition(
         /* name  */
         "pT5_lower",
-        /* pass  */ [&](unsigned int ipT5) { return lstEff.pT5_isDuplicate().at(ipT5) > 0; },
+        /* pass  */ [&](unsigned int ipT5) { return lstEff.getVI("pT5_isDuplicate").at(ipT5) > 0; },
         /* sel   */ [&](unsigned int ipT5) { return 1; },
-        /* pt    */ tas::pT5_pt,
-        /* eta   */ tas::pT5_eta,
-        /* phi   */ tas::pT5_phi,
-        /* type  */ [&]() { return static_cast<const std::vector<int>>(std::vector<int>(tas::pT5_pt().size(), 1)); }));
+        /* pt    */ [&]() { return lstEff.getVF("pT5_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pT5_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pT5_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT5_pt").size(), 1); }));
     list_DRSetDef.push_back(RecoTrackSetDefinition(
         /* name  */
         "T5_lower",
-        /* pass  */ [&](unsigned int it5) { return lstEff.t5_isDuplicate().at(it5) > 0; },
+        /* pass  */ [&](unsigned int it5) { return lstEff.getVI("t5_isDuplicate").at(it5) > 0; },
         /* sel   */ [&](unsigned int it5) { return 1; },
-        /* pt    */ tas::t5_pt,
-        /* eta   */ tas::t5_eta,
-        /* phi   */ tas::t5_phi,
-        /* type  */ [&]() { return static_cast<const std::vector<int>>(std::vector<int>(tas::t5_pt().size(), 1)); }));
+        /* pt    */ [&]() { return lstEff.getVF("t5_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("t5_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("t5_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("t5_pt").size(), 1); }));
     list_DRSetDef.push_back(RecoTrackSetDefinition(
         /* name  */
         "pT3_lower",
-        /* pass  */ [&](unsigned int ipT3) { return lstEff.pT3_isDuplicate().at(ipT3) > 0; },
+        /* pass  */ [&](unsigned int ipT3) { return lstEff.getVI("pT3_isDuplicate").at(ipT3) > 0; },
         /* sel   */ [&](unsigned int ipT3) { return 1; },
-        /* pt    */ tas::pT3_pt,
-        /* eta   */ tas::pT3_eta,
-        /* phi   */ tas::pT3_phi,
-        /* type  */ [&]() { return static_cast<const std::vector<int>>(std::vector<int>(tas::pT3_pt().size(), 1)); }));
+        /* pt    */ [&]() { return lstEff.getVF("pT3_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pT3_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pT3_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT3_pt").size(), 1); }));
   }
 
   bookDuplicateRateSets(list_DRSetDef);
@@ -552,36 +576,59 @@ void bookFakeRateSet(RecoTrackSetDefinition& FRset) {
 
 //__________________________________________________________________________________________________________________________________________________________________________
 void fillEfficiencySets(std::vector<SimTrackSetDefinition>& effsets) {
+  std::vector<float> const& pt = lstEff.getVF("sim_pt");
+  std::vector<float> const& eta = lstEff.getVF("sim_eta");
+  std::vector<float> const& dz = lstEff.getVF("sim_pca_dz");
+  std::vector<float> const& dxy = lstEff.getVF("sim_pca_dxy");
+  std::vector<float> const& phi = lstEff.getVF("sim_phi");
+  std::vector<int> const& pdgidtrk = lstEff.getVI("sim_pdgId");
+  std::vector<int> const& q = lstEff.getVI("sim_q");
+  std::vector<float> const& vtx_x = lstEff.getVF("sim_vx");
+  std::vector<float> const& vtx_y = lstEff.getVF("sim_vy");
+  std::vector<float> const& vtx_z = lstEff.getVF("sim_vz");
+
   for (auto& effset : effsets) {
-    for (unsigned int isimtrk = 0; isimtrk < lstEff.sim_pt().size(); ++isimtrk) {
-      fillEfficiencySet(isimtrk, effset);
+    for (unsigned int isimtrk = 0; isimtrk < lstEff.getVF("sim_pt").size(); ++isimtrk) {
+      fillEfficiencySet(isimtrk,
+                        effset,
+                        pt.at(isimtrk),
+                        eta.at(isimtrk),
+                        dz.at(isimtrk),
+                        dxy.at(isimtrk),
+                        phi.at(isimtrk),
+                        pdgidtrk.at(isimtrk),
+                        q.at(isimtrk),
+                        vtx_x.at(isimtrk),
+                        vtx_y.at(isimtrk),
+                        vtx_z.at(isimtrk));
     }
   }
 }
 
 //__________________________________________________________________________________________________________________________________________________________________________
-void fillEfficiencySet(int isimtrk, SimTrackSetDefinition& effset) {
+void fillEfficiencySet(int isimtrk,
+                       SimTrackSetDefinition& effset,
+                       float pt,
+                       float eta,
+                       float dz,
+                       float dxy,
+                       float phi,
+                       int pdgidtrk,
+                       int q,
+                       float vtx_x,
+                       float vtx_y,
+                       float vtx_z) {
   //=========================================================
   // NOTE: The following is not applied as the LSTNtuple no longer writes this.
-  // const int &bunch = lstEff.sim_bunchCrossing()[isimtrk];
-  // const int &event = lstEff.sim_event()[isimtrk];
+  // const int &bunch = lstEff.getVI("sim_bunchCrossing")[isimtrk];
+  // const int &event = lstEff.getVI("sim_event")[isimtrk];
   // if (bunch != 0)
   //     return;
   // if (event != 0)
   //     return;
   //=========================================================
 
-  const float& pt = lstEff.sim_pt()[isimtrk];
-  const float& eta = lstEff.sim_eta()[isimtrk];
-  const float& dz = lstEff.sim_pca_dz()[isimtrk];
-  const float& dxy = lstEff.sim_pca_dxy()[isimtrk];
-  const float& phi = lstEff.sim_phi()[isimtrk];
-  const int& pdgidtrk = lstEff.sim_pdgId()[isimtrk];
-  const int& q = lstEff.sim_q()[isimtrk];
-  const float& vtx_x = lstEff.sim_vx()[isimtrk];
-  const float& vtx_y = lstEff.sim_vy()[isimtrk];
-  const float& vtx_z = lstEff.sim_vz()[isimtrk];
-  const float& vtx_perp = sqrt(vtx_x * vtx_x + vtx_y * vtx_y);
+  const float vtx_perp = sqrt(vtx_x * vtx_x + vtx_y * vtx_y);
   bool pass = effset.pass(isimtrk);
   bool sel = effset.sel(isimtrk);
 
@@ -667,17 +714,17 @@ void fillEfficiencySet(int isimtrk, SimTrackSetDefinition& effset) {
 //__________________________________________________________________________________________________________________________________________________________________________
 void fillFakeRateSets(std::vector<RecoTrackSetDefinition>& FRsets) {
   for (auto& FRset : FRsets) {
+    std::vector<float> const& pt = FRset.pt();
+    std::vector<float> const& eta = FRset.eta();
+    std::vector<float> const& phi = FRset.phi();
     for (unsigned int itc = 0; itc < FRset.pt().size(); ++itc) {
-      fillFakeRateSet(itc, FRset);
+      fillFakeRateSet(itc, FRset, pt.at(itc), eta.at(itc), phi.at(itc));
     }
   }
 }
 
 //__________________________________________________________________________________________________________________________________________________________________________
-void fillFakeRateSet(int itc, RecoTrackSetDefinition& FRset) {
-  float pt = FRset.pt().at(itc);
-  float eta = FRset.eta().at(itc);
-  float phi = FRset.phi().at(itc);
+void fillFakeRateSet(int itc, RecoTrackSetDefinition& FRset, float pt, float eta, float phi) {
   TString category_name = FRset.set_name;
   bool pass = FRset.pass(itc);
   bool sel = FRset.sel(itc);
@@ -705,17 +752,17 @@ void fillFakeRateSet(int itc, RecoTrackSetDefinition& FRset) {
 //__________________________________________________________________________________________________________________________________________________________________________
 void fillDuplicateRateSets(std::vector<RecoTrackSetDefinition>& DRsets) {
   for (auto& DRset : DRsets) {
+    std::vector<float> const& pt = DRset.pt();
+    std::vector<float> const& eta = DRset.eta();
+    std::vector<float> const& phi = DRset.phi();
     for (unsigned int itc = 0; itc < DRset.pt().size(); ++itc) {
-      fillDuplicateRateSet(itc, DRset);
+      fillDuplicateRateSet(itc, DRset, pt.at(itc), eta.at(itc), phi.at(itc));
     }
   }
 }
 
 //__________________________________________________________________________________________________________________________________________________________________________
-void fillDuplicateRateSet(int itc, RecoTrackSetDefinition& DRset) {
-  float pt = DRset.pt().at(itc);
-  float eta = DRset.eta().at(itc);
-  float phi = DRset.phi().at(itc);
+void fillDuplicateRateSet(int itc, RecoTrackSetDefinition& DRset, float pt, float eta, float phi) {
   TString category_name = DRset.set_name;
   bool pass = DRset.pass(itc);
   bool sel = DRset.sel(itc);

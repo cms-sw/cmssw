@@ -14,10 +14,6 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   cmsRun ${LOCAL_TEST_DIR}/ThinningTest_dropOnInput_cfg.py || die "cmsRun ThinningTest_dropOnInput_cfg.py" $?
 
-  cmsRun ${LOCAL_TEST_DIR}/ThinningTestSubProcess_cfg.py || die "cmsRun ThinningTestSubProcess_cfg.py" $?
-
-  cmsRun ${LOCAL_TEST_DIR}/ThinningTestSubProcessRead_cfg.py || die "cmsRun ThinningTestSubProcessRead_cfg.py" $?
-
   cmsRun ${LOCAL_TEST_DIR}/ThinningTestStreamerIn_cfg.py || die "cmsRun ThinningTestStreamerIn_cfg.py" $?
 
   cmsRun ${LOCAL_TEST_DIR}/ThinningTest4Slimming_cfg.py || die "cmsRun ThinningTest4Slimming_cfg.py" $?
