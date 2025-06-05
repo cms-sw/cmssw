@@ -782,8 +782,10 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   const auto& bs = ev.get(bsToken_);
 
   bool vtxConstraint(false);
-  auto const& vtxs = ev.get(vtxToken_);
+
+  VertexCollection vtxs;
   if (useVertex_) {
+    vtxs = ev.get(vtxToken_);
     if (!vtxs.empty()) {
       vtxConstraint = true;
     }
