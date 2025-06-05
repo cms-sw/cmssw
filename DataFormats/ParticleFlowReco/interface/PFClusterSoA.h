@@ -18,8 +18,6 @@ namespace reco {
                       SOA_COLUMN(float, y),
                       SOA_COLUMN(float, z),
                       SOA_COLUMN(int, topoRHCount),
-                      //SOA_COLUMN(int, adjacencyList),//for multi-depth clusterizer
-                      //SOA_COLUMN(int, nDegree),//for multi-depth clusterizer
                       SOA_SCALAR(int, nTopos),
                       SOA_SCALAR(int, nSeeds),
                       SOA_SCALAR(int, nRHFracs),
