@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_src_alpaka_TrackCandidate_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
@@ -14,6 +15,8 @@
 #include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/TrackCandidatesSoA.h"
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
+
+#include "NeuralNetwork.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addpLSTrackCandidateToMemory(TrackCandidates& cands,
@@ -150,40 +153,61 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   PixelQuintupletsConst pixelQuintuplets,
                                   PixelTripletsConst pixelTriplets,
                                   ObjectRangesConst ranges) const {
-      for (int innerInnerInnerLowerModuleArrayIndex :
-           cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
-        if (ranges.quintupletModuleIndices()[innerInnerInnerLowerModuleArrayIndex] == -1)
+      for (int lowmod : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
+        if (ranges.quintupletModuleIndices()[lowmod] == -1)
           continue;
 
-        unsigned int nQuints = quintupletsOccupancy.nQuintuplets()[innerInnerInnerLowerModuleArrayIndex];
-        for (unsigned int innerObjectArrayIndex : cms::alpakatools::uniform_elements_y(acc, nQuints)) {
-          unsigned int quintupletIndex =
-              ranges.quintupletModuleIndices()[innerInnerInnerLowerModuleArrayIndex] + innerObjectArrayIndex;
+        unsigned int nQuints = quintupletsOccupancy.nQuintuplets()[lowmod];
+        for (unsigned int iOff : cms::alpakatools::uniform_elements_y(acc, nQuints)) {
+          unsigned int iT5 = ranges.quintupletModuleIndices()[lowmod] + iOff;
 
-          // Don't add duplicate T5s or T5s that are accounted in pT5s
-          if (quintuplets.isDup()[quintupletIndex] or quintuplets.partOfPT5()[quintupletIndex])
+          // skip already-dup or already in pT5
+          if (quintuplets.isDup()[iT5] || quintuplets.partOfPT5()[iT5])
             continue;
-          unsigned int loop_bound = pixelQuintuplets.nPixelQuintuplets() + pixelTriplets.nPixelTriplets();
-          // Cross cleaning step
-          float eta1 = __H2F(quintuplets.eta()[quintupletIndex]);
-          float phi1 = __H2F(quintuplets.phi()[quintupletIndex]);
 
+          unsigned int loop_bound = pixelQuintuplets.nPixelQuintuplets() + pixelTriplets.nPixelTriplets();
+
+          float eta1 = __H2F(quintuplets.eta()[iT5]);
+          float phi1 = __H2F(quintuplets.phi()[iT5]);
+
+          float iEmbedT5[Params_T5::kEmbed];
+          CMS_UNROLL_LOOP for (unsigned k = 0; k < Params_T5::kEmbed; ++k) {
+            iEmbedT5[k] = quintuplets.t5Embed()[iT5][k];
+          }
+
+          // Cross-clean against both pT5s and pT3s
           for (unsigned int jx : cms::alpakatools::uniform_elements_x(acc, loop_bound)) {
             float eta2, phi2;
             if (jx < pixelQuintuplets.nPixelQuintuplets()) {
               eta2 = __H2F(pixelQuintuplets.eta()[jx]);
               phi2 = __H2F(pixelQuintuplets.phi()[jx]);
             } else {
-              eta2 = __H2F(pixelTriplets.eta()[jx - pixelQuintuplets.nPixelQuintuplets()]);
-              phi2 = __H2F(pixelTriplets.phi()[jx - pixelQuintuplets.nPixelQuintuplets()]);
+              unsigned int ptidx = jx - pixelQuintuplets.nPixelQuintuplets();
+              eta2 = __H2F(pixelTriplets.eta()[ptidx]);
+              phi2 = __H2F(pixelTriplets.phi()[ptidx]);
             }
 
             float dEta = alpaka::math::abs(acc, eta1 - eta2);
             float dPhi = cms::alpakatools::deltaPhi(acc, phi1, phi2);
-
             float dR2 = dEta * dEta + dPhi * dPhi;
-            if (dR2 < 1e-3f)
-              quintuplets.isDup()[quintupletIndex] = true;
+
+            if (jx < pixelQuintuplets.nPixelQuintuplets()) {
+              unsigned int jT5 = pixelQuintuplets.quintupletIndices()[jx];
+              float d2 = 0.f;
+              // Compute distance-squared between the two t5 embeddings.
+              CMS_UNROLL_LOOP for (unsigned k = 0; k < Params_T5::kEmbed; ++k) {
+                float df = iEmbedT5[k] - quintuplets.t5Embed()[jT5][k];
+                d2 += df * df;
+              }
+              if ((dR2 < 0.02f && d2 < 0.1f) || (dR2 < 1e-3f && d2 < 1.0f)) {
+                quintuplets.isDup()[iT5] = true;
+              }
+            } else if (dR2 < 1e-3f) {
+              quintuplets.isDup()[iT5] = true;
+            }
+
+            if (quintuplets.isDup()[iT5])
+              break;
           }
         }
       }
@@ -213,6 +237,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         float phi1 = pixelSeeds.phi()[pixelArrayIndex];
         unsigned int prefix = ranges.segmentModuleIndices()[pixelModuleIndex];
 
+        // Store the pLS embedding outside the TC comparison loop.
+        float plsEmbed[Params_pLS::kEmbed];
+        CMS_UNROLL_LOOP for (unsigned k = 0; k < Params_pLS::kEmbed; ++k) {
+          plsEmbed[k] = pixelSegments.plsEmbed()[pixelArrayIndex][k];
+        }
+
+        // Get pLS embedding eta bin and cut value for that bin.
+        float absEta1 = alpaka::math::abs(acc, eta1);
+        uint8_t bin_idx = (absEta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<uint8_t>(absEta1 / dnn::kEtaSize);
+        const float threshold = dnn::plsembdnn::kWP[bin_idx];
+
         unsigned int nTrackCandidates = cands.nTrackCandidates();
         for (unsigned int trackCandidateIndex : cms::alpakatools::uniform_elements_x(acc, nTrackCandidates)) {
           short type = cands.trackCandidateType()[trackCandidateIndex];
@@ -223,10 +258,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             float phi2 = __H2F(quintuplets.phi()[quintupletIndex]);
             float dEta = alpaka::math::abs(acc, eta1 - eta2);
             float dPhi = cms::alpakatools::deltaPhi(acc, phi1, phi2);
-
             float dR2 = dEta * dEta + dPhi * dPhi;
-            if (dR2 < 1e-3f)
-              pixelSegments.isDup()[pixelArrayIndex] = true;
+            // Cut on pLS-T5 embed distance.
+            if (dR2 < 0.02f) {
+              float d2 = 0.f;
+              CMS_UNROLL_LOOP for (unsigned k = 0; k < Params_pLS::kEmbed; ++k) {
+                const float diff = plsEmbed[k] - quintuplets.t5Embed()[quintupletIndex][k];
+                d2 += diff * diff;
+              }
+              // Compare squared embedding distance to the cut value for the eta bin.
+              if (d2 < threshold * threshold) {
+                pixelSegments.isDup()[pixelArrayIndex] = true;
+              }
+            }
           }
           if (type == LSTObjType::pT3) {
             int pLSIndex = pixelTriplets.pixelSegmentIndices()[innerTrackletIdx];
