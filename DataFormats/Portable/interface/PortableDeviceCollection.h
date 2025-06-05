@@ -81,7 +81,7 @@ public:
     alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
   }
 
-  // Copy column by column heterogeneously for device to host data transfer.
+  // Copy column by column heterogeneously for device to host/device data transfer.
   template <typename TQueue>
   void deepCopy(ConstView const& view, TQueue& queue) {
     ConstDescriptor desc{view};
@@ -89,6 +89,8 @@ public:
     _deepCopy<0>(desc_, desc, queue);
   }
 
+private:
+  // Helper function implementing the recursive deep copy
   template <int I, typename TQueue>
   void _deepCopy(Descriptor& dest, ConstDescriptor const& src, TQueue& queue) {
     if constexpr (I < ConstDescriptor::num_cols) {
@@ -101,7 +103,7 @@ public:
     }
   }
 
-private:
+  // Data members
   std::optional<Buffer> buffer_;  //!
   Layout layout_;                 //
   View view_;                     //!
