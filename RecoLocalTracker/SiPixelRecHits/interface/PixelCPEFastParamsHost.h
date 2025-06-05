@@ -26,7 +26,8 @@ public:
                          const TrackerTopology& ttopo,
                          const SiPixelLorentzAngle* lorentzAngle,
                          const SiPixelGenErrorDBObject* genErrorDBObject,
-                         const SiPixelLorentzAngle* lorentzAngleWidth);
+                         const SiPixelLorentzAngle* lorentzAngleWidth,
+                         const bool goodEdgeAlgo);
 
   // non-copyable
   PixelCPEFastParamsHost(PixelCPEFastParamsHost const&) = delete;
@@ -61,6 +62,7 @@ private:
   void fillParamsForDevice();
 
   Buffer buffer_;
+  bool goodEdgeAlgo_;
 };
 
 #endif  // RecoLocalTracker_SiPixelRecHits_interface_PixelCPEFastParamsHost_h
