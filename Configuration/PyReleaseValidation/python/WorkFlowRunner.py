@@ -220,6 +220,10 @@ class WorkFlowRunner(Thread):
                             m = re.search(expression, cmd)
                             if m:
                                 cmd = re.sub(expression,r'--filein file:\1.rntpl',cmd)
+                            expression = '--filein\s+file:([a-zA-Z0-9_]+)*\.[a-z]+, *file:([a-zA-Z0-9_]+)*\.[a-z]+'
+                            m = re.search(expression, cmd)
+                            if m:
+                                cmd = re.sub(expression,r'--filein file:\1.rntpl,file:\2.rntpl',cmd)
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s%s '%(istep,extension)
                         if "RECO" in cmd:
