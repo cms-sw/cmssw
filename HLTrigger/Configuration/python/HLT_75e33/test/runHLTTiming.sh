@@ -7,7 +7,7 @@ set -e
 set -o pipefail
 
 FOLDER_FILES="/data/user/${USER}/"
-DATASET="/RelValTTbar_14TeV/CMSSW_14_1_0_pre6-PU_141X_mcRun4_realistic_v1_STD_2026D110_PU-v3/GEN-SIM-DIGI-RAW"
+DATASET="/RelValTTbar_14TeV/CMSSW_15_1_0_pre3-PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/GEN-SIM-DIGI-RAW"
 FILES=( $(dasgoclient -query="file dataset=${DATASET}" --limit=-1 | sort | head -4) )
 
 for f in ${FILES[@]}; do
