@@ -109,13 +109,22 @@ void createOptionalOutputBranches() {
 
   // pLS branches
   ana.tx->createBranch<std::vector<int>>("sim_pLS_matched");
-  ana.tx->createBranch<std::vector<std::vector<int>>>("sim_pLS_types");
+  ana.tx->createBranch<std::vector<std::vector<int>>>("pLS_matched_simIdx");
   ana.tx->createBranch<std::vector<int>>("pLS_isFake");
   ana.tx->createBranch<std::vector<int>>("pLS_isDuplicate");
-  ana.tx->createBranch<std::vector<float>>("pLS_pt");
+  ana.tx->createBranch<std::vector<float>>("pLS_ptIn");
+  ana.tx->createBranch<std::vector<float>>("pLS_ptErr");
+  ana.tx->createBranch<std::vector<float>>("pLS_px");
+  ana.tx->createBranch<std::vector<float>>("pLS_py");
+  ana.tx->createBranch<std::vector<float>>("pLS_pz");
   ana.tx->createBranch<std::vector<float>>("pLS_eta");
+  ana.tx->createBranch<std::vector<bool>>("pLS_isQuad");
+  ana.tx->createBranch<std::vector<float>>("pLS_etaErr");
   ana.tx->createBranch<std::vector<float>>("pLS_phi");
   ana.tx->createBranch<std::vector<float>>("pLS_score");
+  ana.tx->createBranch<std::vector<float>>("pLS_circleCenterX");
+  ana.tx->createBranch<std::vector<float>>("pLS_circleCenterY");
+  ana.tx->createBranch<std::vector<float>>("pLS_circleRadius");
 
   // T5 branches
   ana.tx->createBranch<std::vector<int>>("sim_T5_matched");
@@ -137,6 +146,7 @@ void createOptionalOutputBranches() {
   ana.tx->createBranch<std::vector<float>>("t5_bridgeRadius");
   ana.tx->createBranch<std::vector<float>>("t5_chiSquared");
   ana.tx->createBranch<std::vector<float>>("t5_rzChiSquared");
+  ana.tx->createBranch<std::vector<int>>("t5_isDupAlgoFlag");
   ana.tx->createBranch<std::vector<float>>("t5_nonAnchorChiSquared");
   ana.tx->createBranch<std::vector<float>>("t5_dBeta1");
   ana.tx->createBranch<std::vector<float>>("t5_dBeta2");
@@ -175,6 +185,12 @@ void createT5DNNBranches() {
   ana.tx->createBranch<std::vector<float>>("t5_t3_pt");
   ana.tx->createBranch<std::vector<float>>("t5_t3_eta");
   ana.tx->createBranch<std::vector<float>>("t5_t3_phi");
+  ana.tx->createBranch<std::vector<float>>("t5_t3_fakeScore1");
+  ana.tx->createBranch<std::vector<float>>("t5_t3_promptScore1");
+  ana.tx->createBranch<std::vector<float>>("t5_t3_displacedScore1");
+  ana.tx->createBranch<std::vector<float>>("t5_t3_fakeScore2");
+  ana.tx->createBranch<std::vector<float>>("t5_t3_promptScore2");
+  ana.tx->createBranch<std::vector<float>>("t5_t3_displacedScore2");
 
   // Hit-specific branches
   std::vector<std::string> hitIndices = {"0", "1", "2", "3", "4", "5"};
@@ -377,6 +393,7 @@ void setOptionalOutputBranches(LSTEvent* event) {
   setT3DNNBranches(event);
   setT5DNNBranches(event);
   setpT3DNNBranches(event);
+  setpLSOutputBranches(event);
 
 #endif
 }
@@ -560,6 +577,7 @@ void setQuintupletOutputBranches(LSTEvent* event) {
       ana.tx->pushbackToBranch<float>("t5_innerRadius", __H2F(quintuplets.innerRadius()[quintupletIndex]));
       ana.tx->pushbackToBranch<float>("t5_bridgeRadius", __H2F(quintuplets.bridgeRadius()[quintupletIndex]));
       ana.tx->pushbackToBranch<float>("t5_outerRadius", __H2F(quintuplets.outerRadius()[quintupletIndex]));
+      ana.tx->pushbackToBranch<int>("t5_isDupAlgoFlag", quintuplets.isDup()[quintupletIndex]);
       ana.tx->pushbackToBranch<float>("t5_chiSquared", quintuplets.chiSquared()[quintupletIndex]);
       ana.tx->pushbackToBranch<float>("t5_rzChiSquared", quintuplets.rzChiSquared()[quintupletIndex]);
       ana.tx->pushbackToBranch<float>("t5_nonAnchorChiSquared", quintuplets.nonAnchorChiSquared()[quintupletIndex]);
@@ -864,7 +882,8 @@ void setT3DNNBranches(LSTEvent* event) {
 
 //________________________________________________________________________________________________________________________________
 void setT5DNNBranches(LSTEvent* event) {
-  auto triplets = event->getTriplets<TripletsOccupancySoA>();
+  auto tripletsOcc = event->getTriplets<TripletsOccupancySoA>();
+  auto tripletsSoA = event->getTriplets<TripletsSoA>();
   auto modules = event->getModules<ModulesSoA>();
   auto ranges = event->getRanges();
   auto const quintuplets = event->getQuintuplets<QuintupletsOccupancySoA>();
@@ -874,7 +893,7 @@ void setT5DNNBranches(LSTEvent* event) {
   std::unordered_map<unsigned int, unsigned int> t3_index_map;
 
   for (unsigned int idx = 0; idx < modules.nLowerModules(); ++idx) {
-    for (unsigned int jdx = 0; jdx < triplets.nTriplets()[idx]; ++jdx) {
+    for (unsigned int jdx = 0; jdx < tripletsOcc.nTriplets()[idx]; ++jdx) {
       unsigned int t3Idx = ranges.tripletModuleIndices()[idx] + jdx;
       if (allT3s.insert(t3Idx).second) {
         t3_index_map[t3Idx] = allT3s.size() - 1;
@@ -901,6 +920,13 @@ void setT5DNNBranches(LSTEvent* event) {
 
       ana.tx->pushbackToBranch<int>("t5_t3_idx0", t3_index_map[t3sIdx[0]]);
       ana.tx->pushbackToBranch<int>("t5_t3_idx1", t3_index_map[t3sIdx[1]]);
+
+      ana.tx->pushbackToBranch<float>("t5_t3_fakeScore1", tripletsSoA.fakeScore()[t3sIdx[0]]);
+      ana.tx->pushbackToBranch<float>("t5_t3_promptScore1", tripletsSoA.promptScore()[t3sIdx[0]]);
+      ana.tx->pushbackToBranch<float>("t5_t3_displacedScore1", tripletsSoA.displacedScore()[t3sIdx[0]]);
+      ana.tx->pushbackToBranch<float>("t5_t3_fakeScore2", tripletsSoA.fakeScore()[t3sIdx[1]]);
+      ana.tx->pushbackToBranch<float>("t5_t3_promptScore2", tripletsSoA.promptScore()[t3sIdx[1]]);
+      ana.tx->pushbackToBranch<float>("t5_t3_displacedScore2", tripletsSoA.displacedScore()[t3sIdx[1]]);
 
       if (t5s_used_in_tc.find(t5Idx) != t5s_used_in_tc.end()) {
         ana.tx->pushbackToBranch<int>("t5_partOfTC", 1);
@@ -1353,6 +1379,79 @@ std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned 
   std::vector<unsigned int> hit_type = getPixelHitTypesFrompLS(event, pLS);
 
   return {pt, eta, phi, hit_idx, hit_type};
+}
+
+void setpLSOutputBranches(LSTEvent* event) {
+  auto const& pixelSegments = event->getPixelSegments();
+  auto const& pixelSeeds = event->getInput<PixelSeedsSoA>();
+  int n_accepted_simtrk = ana.tx->getBranch<std::vector<int>>("sim_TC_matched").size();
+
+  unsigned int n_pLS = pixelSegments.metadata().size();
+  std::vector<int> sim_pLS_matched(n_accepted_simtrk, 0);
+  std::vector<std::vector<int>> pLS_matched_simIdx;
+
+  for (unsigned int i_pLS = 0; i_pLS < n_pLS; ++i_pLS) {
+    // Get pLS properties
+    float pt = pixelSeeds.ptIn()[i_pLS];
+    float px = pixelSeeds.px()[i_pLS];
+    float py = pixelSeeds.py()[i_pLS];
+    float pz = pixelSeeds.pz()[i_pLS];
+    bool isQuad = static_cast<bool>(pixelSeeds.isQuad()[i_pLS]);
+    float ptErr = pixelSeeds.ptErr()[i_pLS];
+    float eta = pixelSeeds.eta()[i_pLS];
+    float etaErr = pixelSeeds.etaErr()[i_pLS];
+    float phi = pixelSeeds.phi()[i_pLS];
+    float score = pixelSegments.score()[i_pLS];
+    float centerX = pixelSegments.circleCenterX()[i_pLS];
+    float centerY = pixelSegments.circleCenterY()[i_pLS];
+    float radius = pixelSegments.circleRadius()[i_pLS];
+
+    // Get hits from pLS
+    std::vector<unsigned int> hit_idx = getPixelHitIdxsFrompLS(event, i_pLS);
+    std::vector<unsigned int> hit_type = getPixelHitTypesFrompLS(event, i_pLS);
+
+    // Match to sim tracks
+    std::vector<int> simidx = matchedSimTrkIdxs(hit_idx, hit_type);
+    bool isFake = simidx.empty();
+
+    // Fill branches
+    ana.tx->pushbackToBranch<float>("pLS_ptIn", pt);
+    ana.tx->pushbackToBranch<float>("pLS_ptErr", ptErr);
+    ana.tx->pushbackToBranch<float>("pLS_px", px);
+    ana.tx->pushbackToBranch<float>("pLS_py", py);
+    ana.tx->pushbackToBranch<float>("pLS_pz", pz);
+    ana.tx->pushbackToBranch<float>("pLS_eta", eta);
+    ana.tx->pushbackToBranch<float>("pLS_etaErr", etaErr);
+    ana.tx->pushbackToBranch<float>("pLS_phi", phi);
+    ana.tx->pushbackToBranch<float>("pLS_score", score);
+    ana.tx->pushbackToBranch<float>("pLS_circleCenterX", centerX);
+    ana.tx->pushbackToBranch<float>("pLS_circleCenterY", centerY);
+    ana.tx->pushbackToBranch<float>("pLS_circleRadius", radius);
+    ana.tx->pushbackToBranch<bool>("pLS_isQuad", isQuad);
+    ana.tx->pushbackToBranch<int>("pLS_isFake", isFake);
+    pLS_matched_simIdx.push_back(simidx);
+
+    // Count matches
+    for (auto& idx : simidx) {
+      if (idx < n_accepted_simtrk) {
+        sim_pLS_matched[idx]++;
+      }
+    }
+  }
+
+  std::vector<int> pLS_isDuplicate(pLS_matched_simIdx.size(), 0);
+  for (size_t i = 0; i < pLS_matched_simIdx.size(); ++i) {
+    for (int simidx : pLS_matched_simIdx[i]) {
+      if (simidx < n_accepted_simtrk && sim_pLS_matched[simidx] > 1) {
+        pLS_isDuplicate[i] = 1;
+        break;
+      }
+    }
+  }
+
+  ana.tx->setBranch<std::vector<int>>("sim_pLS_matched", sim_pLS_matched);
+  ana.tx->setBranch<std::vector<std::vector<int>>>("pLS_matched_simIdx", pLS_matched_simIdx);
+  ana.tx->setBranch<std::vector<int>>("pLS_isDuplicate", pLS_isDuplicate);
 }
 
 //________________________________________________________________________________________________________________________________

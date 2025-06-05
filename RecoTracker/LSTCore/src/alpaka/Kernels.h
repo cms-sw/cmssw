@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_src_alpaka_Kernels_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
@@ -249,7 +250,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               float dR2 = dEta * dEta + dPhi * dPhi;
               int nMatched = checkHitsT5(ix, jx, quintuplets);
               const int minNHitsForDup_T5 = 5;
-              if (dR2 < 0.001f || nMatched >= minNHitsForDup_T5) {
+
+              float d2 = 0.f;
+              CMS_UNROLL_LOOP
+              for (unsigned int k = 0; k < Params_T5::kEmbed; ++k) {
+                float diff = quintuplets.t5Embed()[ix][k] - quintuplets.t5Embed()[jx][k];
+                d2 += diff * diff;
+              }
+
+              if (((dR2 < 0.001f || nMatched >= minNHitsForDup_T5) && d2 < 1.0f) || (dR2 < 0.02f && d2 < 0.1f)) {
                 if (isPT5_jx || score_rphisum1 > score_rphisum2) {
                   rmQuintupletFromMemory(quintuplets, ix, true);
                 } else if (isPT5_ix || score_rphisum1 < score_rphisum2) {
