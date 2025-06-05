@@ -1,11 +1,14 @@
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "IOPool/Common/interface/getWrapperBasePtr.h"
+
+#include "InputFile.h"
 #include "RootTree.h"
 #include "RootDelayedReader.h"
 #include "RootPromptReadDelayedReader.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/Provenance/interface/BranchType.h"
-#include "IOPool/Common/interface/getWrapperBasePtr.h"
-#include "InputFile.h"
+
 #include "TTree.h"
 #include "TTreeCache.h"
 #include "TLeaf.h"
@@ -437,6 +440,8 @@ namespace edm {
   }
 
   inline void RootTree::getEntryUsingCache(TBranch* branch, EntryNumber entryNumber, TTreeCache* cache) const {
+    LogTrace("IOTrace").format(
+        "RootTree::getEntryUsingCache() begin for branch {} entry {}", branch->GetName(), entryNumber);
     try {
       auto guard = filePtr_->setCacheReadTemporarily(cache, tree_);
       branch->GetEntry(entryNumber);
@@ -457,6 +462,8 @@ namespace edm {
       t.addContext(std::string("Reading branch ") + branch->GetName());
       throw t;
     }
+    LogTrace("IOTrace").format(
+        "RootTree::getEntryUsingCache() end for branch {} entry {}", branch->GetName(), entryNumber);
   }
 
   bool RootTree::skipEntries(unsigned int& offset) {
