@@ -5,4 +5,4 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/SiStripDigiSoA/interface/alpaka/SiStripDigiDevice.h"
 
-#endif 
+#endif

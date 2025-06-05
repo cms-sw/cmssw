@@ -27,30 +27,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistripConverter {
   using SiStripClustersSlimDevice = PortableCollection<SiStripClustersSlimSoA>;
 
   using SiStripClustersSlimHost = PortableHostCollection<SiStripClustersSlimSoA>;
-}
-
-
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistripConverter
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
-    using namespace ::sistrip;
-    using namespace sistripConverter;
-    
-    class SiStripClustersToLegacyAlgo {
-      public:
-      SiStripClustersToLegacyAlgo() = default;
-      ~SiStripClustersToLegacyAlgo() = default;
-  
-      void consumeSoA(Queue& queue, const SiStripClustersDevice& clusters_d, uint32_t goodCandidates);
-      std::unique_ptr<edmNew::DetSetVector<SiStripCluster>> convert(Queue& queue, const SiStripDigiHost& amplitudes_h);
-  
-      private:
-      const SiStripClustersDevice* clusters_d_ = nullptr;
-      uint32_t goodCandidates_ = 0;
-  
-      std::optional<SiStripClustersSlimHost> clusters_h_;
-  
-      void dumpClusters(edmNew::DetSetVector<SiStripCluster>* detSetClusters) const;
-    };
-}
+  using namespace ::sistrip;
+  using namespace sistripConverter;
+
+  class SiStripClustersToLegacyAlgo {
+  public:
+    SiStripClustersToLegacyAlgo() = default;
+    ~SiStripClustersToLegacyAlgo() = default;
+
+    void consumeSoA(Queue& queue, const SiStripClustersDevice& clusters_d, uint32_t goodCandidates);
+    std::unique_ptr<edmNew::DetSetVector<SiStripCluster>> convert(Queue& queue, const SiStripDigiHost& amplitudes_h);
+
+  private:
+    const SiStripClustersDevice* clusters_d_ = nullptr;
+    uint32_t goodCandidates_ = 0;
+
+    std::optional<SiStripClustersSlimHost> clusters_h_;
+
+    void dumpClusters(edmNew::DetSetVector<SiStripCluster>* detSetClusters) const;
+  };
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
 #endif

@@ -59,11 +59,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   * @param queue The Queue object to book the host buffers (typically the iEvent.queue())
   * @param bufferSize_bytes The extent of the buffer size in bytes
   */
-  struct Det{
-    uint32_t detId=0;
-    uint16_t fedId=0;
-    uint8_t fedCh=0;
-    uint8_t apvPair=0;
+  struct Det {
+    uint32_t detId = 0;
+    uint16_t fedId = 0;
+    uint8_t fedCh = 0;
+    uint8_t apvPair = 0;
   };
 
   struct FEDChMetadata {
@@ -79,26 +79,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   namespace fedChannelDetails {
     class FEDChannel {
     public:
-
       ALPAKA_FN_HOST_ACC inline FEDChannel(const uint8_t* data, uint32_t offset, bool isNonLite)
-        : data_(data), offset_(offset), headerLen_(isNonLite ? 7 : 2) {
-          length_ = (data_[(offset_) ^ 7] + (data_[(offset_ + 1) ^ 7] << 8));
-        }
-
-      ALPAKA_FN_HOST_ACC inline uint16_t length() const {
-        return length_;
+          : data_(data), offset_(offset), headerLen_(isNonLite ? 7 : 2) {
+        length_ = (data_[(offset_) ^ 7] + (data_[(offset_ + 1) ^ 7] << 8));
       }
+
+      ALPAKA_FN_HOST_ACC inline uint16_t length() const { return length_; }
 
       template <uint_fast8_t num_bits>
       ALPAKA_FN_HOST_ACC inline uint16_t stripsInCh() {
-        const bool emptyCh = (headerLen_+2) >= (length_);
-        const uint16_t ofsWordUnit = num_bits/8; 
+        const bool emptyCh = (headerLen_ + 2) >= (length_);
+        const uint16_t ofsWordUnit = num_bits / 8;
         const uint16_t start = offset_ + headerLen_;
         const uint16_t end = offset_ + length_;
-        if (!emptyCh){
-          for(uint16_t nStrip_Ofs = start+1; nStrip_Ofs<end;) {
+        if (!emptyCh) {
+          for (uint16_t nStrip_Ofs = start + 1; nStrip_Ofs < end;) {
             const uint8_t clustStripN = data_[(nStrip_Ofs) ^ 7];
-            nStrip_Ofs += clustStripN*ofsWordUnit + 2;
+            nStrip_Ofs += clustStripN * ofsWordUnit + 2;
             stripN_ += clustStripN;
             // std::cout << (int)nStrip_Ofs << "," << (int)clustStripN << std::endl;
           }
@@ -106,9 +103,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         return stripN_;
       }
 
-      ALPAKA_FN_HOST_ACC inline uint8_t packetCode() const {
-        return data_[(offset_ + 2) ^ 7];
-      }
+      ALPAKA_FN_HOST_ACC inline uint8_t packetCode() const { return data_[(offset_ + 2) ^ 7]; }
 
       ALPAKA_FN_HOST_ACC inline uint16_t cmMedian(uint8_t apvIndex) const {
         uint16_t result = 0;
@@ -117,13 +112,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         return result;
       }
 
-      ALPAKA_FN_HOST_ACC inline const uint8_t* data() const {
-        return data_;
-      }
+      ALPAKA_FN_HOST_ACC inline const uint8_t* data() const { return data_; }
 
-      ALPAKA_FN_HOST_ACC inline uint32_t offset() const {
-        return offset_;
-      }
+      ALPAKA_FN_HOST_ACC inline uint32_t offset() const { return offset_; }
 
     private:
       const uint8_t* data_;
@@ -132,25 +123,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       uint8_t headerLen_;
 
       //
-      uint16_t stripN_=0;
+      uint16_t stripN_ = 0;
     };
-  }
+  }  // namespace fedChannelDetails
 
   class PortableFEDMover {
-    public:
+  public:
     PortableFEDMover(Queue* queue, uint32_t rawBufferSize, uint32_t fedChannelsNb)
-      : buffer(cms::alpakatools::make_host_buffer<uint8_t[]>(*queue, rawBufferSize)),
-        mapping(fedChannelsNb, *queue),
-        ofs(0),
-        chanN(0),
-        fedChannelsNb_(fedChannelsNb),
-        ofsFedId(sistrip::FED_ID_MAX+1) {
-          // std::cout << "#portBuffSize," << rawBufferSize << std::endl;
-          queue_ = queue;
+        : buffer(cms::alpakatools::make_host_buffer<uint8_t[]>(*queue, rawBufferSize)),
+          mapping(fedChannelsNb, *queue),
+          ofs(0),
+          chanN(0),
+          fedChannelsNb_(fedChannelsNb),
+          ofsFedId(sistrip::FED_ID_MAX + 1) {
+      // std::cout << "#portBuffSize," << rawBufferSize << std::endl;
+      queue_ = queue;
     }
 
     void fillBuffer(const std::vector<const FEDRawData*>& raw) {
-      for(uint16_t fedId = sistrip::FED_ID_MIN; fedId < (sistrip::FED_ID_MAX+1); fedId++){
+      for (uint16_t fedId = sistrip::FED_ID_MIN; fedId < (sistrip::FED_ID_MAX + 1); fedId++) {
         if (raw[fedId]) {
           std::memcpy(buffer.data() + ofs, raw[fedId]->data(), raw[fedId]->size());
           ofsFedId[fedId] = ofs;
@@ -161,7 +152,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
 
     void fillMapping(const std::vector<FEDChMetadata>& channelsMeta) {
-      for (uint32_t i=0; i< fedChannelsNb_; i++, chanN++) {
+      for (uint32_t i = 0; i < fedChannelsNb_; i++, chanN++) {
         const auto& channel = channelsMeta[i];
         mapping->detID(i) = channel.detId;
         mapping->fedID(i) = channel.fedId;
@@ -169,7 +160,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         mapping->fedChOfs(i) = channel.fedChOfs;
         mapping->fedChDataOfsBuf(i) = channel.fedChOfs_wrt_rawFedId + ofsFedId[channel.fedId];
         mapping->readoutMode(i) = channel.fedBufferRO;
-        
+
         // // Checks that I can rebuilt the FEDChannel
         // bool isNonLite = (mapping->readoutMode(i) == 10 || mapping->readoutMode(i) == 11);
         // auto ch = sistrip::fedChannelDetails::FEDChannel(buffer.data()+mapping->fedChDataOfsBuf(i), channel.fedChOfs, isNonLite);
@@ -177,13 +168,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       }
     }
 
-    auto getBuffer(){ return buffer; }
-    uint32_t getBufferSize(){ return ofs; }
-    
-    auto getMapping(){ return std::move(mapping); }
-    uint32_t getChannelsN(){ return chanN; }
+    auto getBuffer() { return buffer; }
+    uint32_t getBufferSize() { return ofs; }
 
-    private:
+    auto getMapping() { return std::move(mapping); }
+    uint32_t getChannelsN() { return chanN; }
+
+  private:
     cms::alpakatools::host_buffer<uint8_t[]> buffer;
     SiStripMappingHost mapping;
 
@@ -192,7 +183,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     uint32_t fedChannelsNb_;
     std::vector<uint32_t> ofsFedId;
 
-    Queue* queue_;   
+    Queue* queue_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
@@ -200,22 +191,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   class SiStripRawToClusterAlgo {
   public:
     SiStripRawToClusterAlgo(const edm::ParameterSet& unpackPar, const edm::ParameterSet& clustPar);
-    void prepareUnpackCluster(Queue& queue, const SiStripClusterizerConditionsDetToFedsDevice* rDetToFeds, const SiStripClusterizerConditionsDataDevice* rData, std::unique_ptr<PortableFEDMover> FEDChMover);
+    void prepareUnpackCluster(Queue& queue,
+                              const SiStripClusterizerConditionsDetToFedsDevice* rDetToFeds,
+                              const SiStripClusterizerConditionsDataDevice* rData,
+                              std::unique_ptr<PortableFEDMover> FEDChMover);
     void unpackStrips2(Queue& queue);
     void prefixScan_new(Queue& queue);
     std::unique_ptr<SiStripClustersDevice> makeClusters2(Queue& queue);
     std::unique_ptr<SiStripDigiDevice> getDigiAmplitudes(Queue& queue);
 
     //
-    private:
+  private:
     // Unpacker parameters
     const bool isLegacyUnpacker_;
     const FEDLegacyReadoutMode legacyUnpackerROmode_ = READOUT_MODE_LEGACY_INVALID;
-    
+
     std::unique_ptr<PortableFEDMover> FEDChMover;
     using DeviceBufferU8 = decltype(cms::alpakatools::make_device_buffer<uint8_t[]>(std::declval<Queue>(), 0));
     std::optional<DeviceBufferU8> fedBuffer_d;
-    
+
     std::optional<SiStripMappingDevice> stripMapping_d;
 
     const SiStripClusterizerConditionsDetToFedsDevice* conditions_DetToFeds;
@@ -223,10 +217,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     using HostBufferU32 = decltype(cms::alpakatools::make_host_buffer<uint32_t>(std::declval<Queue>()));
     std::optional<HostBufferU32> nStrips_h;
-    
+
     std::optional<HostBufferU32> nSeeds_h;
-
-
 
     // Clusterizer parameters
     const float channelThreshold_, seedThreshold_, clusterThresholdSquared_;

@@ -15,4 +15,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(sistrip::SiStripDigiDevice, sistrip::SiStripDigiHost);
 
-#endif 
+#endif

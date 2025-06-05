@@ -22,8 +22,7 @@ namespace sistrip {
     SiStripClustersToLegacy(edm::ParameterSet const& iConfig)
         : siStripClustersToken_(consumes(iConfig.getParameter<edm::InputTag>("source"))),
           siStripDigiToken_(consumes(iConfig.getParameter<edm::InputTag>("source"))),
-          siStripClustersSetVecPutToken_(produces()) {
-          }
+          siStripClustersSetVecPutToken_(produces()) {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
@@ -54,8 +53,7 @@ namespace sistrip {
       // From Run: 386593 Event: 536278171 there are nClusters=112735 with
       // 99863 real clusters (so 112735-99863 = 12872 clusters are masked out )
       const uint32_t clusterCandidatesNb = clusters_onHost->nClusters();
-      const uint32_t goodClustersNb = clusters_onHost->candidateAcceptedPrefix(clustersArrSize-1);
-
+      const uint32_t goodClustersNb = clusters_onHost->candidateAcceptedPrefix(clustersArrSize - 1);
 
       using out_t = edmNew::DetSetVector<SiStripCluster>;
       auto output = std::make_unique<out_t>(edmNew::DetSetVector<SiStripCluster>());
@@ -63,7 +61,7 @@ namespace sistrip {
 
       // std::vector<uint8_t> adcs;
       uint32_t clusterN = 0;
-      for (uint32_t i = 0; i < clusterCandidatesNb && (clusterN<goodClustersNb);) {
+      for (uint32_t i = 0; i < clusterCandidatesNb && (clusterN < goodClustersNb);) {
         const auto detid = detIdArr[i];
         // std::cout << "#fledm," << i << "," << detid << std::endl;
         out_t::FastFiller record(*output, detid);
@@ -75,7 +73,6 @@ namespace sistrip {
 
             const float barycenter = barycenterArr[i];
             const float charge = chargeArr[i];
-
 
             // std::vector<uint8_t> adcs;
             // adcs.reserve(size);
@@ -111,11 +108,7 @@ namespace sistrip {
     const edm::EDPutTokenT<edmNew::DetSetVector<SiStripCluster>> siStripClustersSetVecPutToken_;
   };
 
-
-  
-  void SiStripClustersToLegacy::dumpClusters(
-    edmNew::DetSetVector<SiStripCluster>* detSetClusters
-  ) const {
+  void SiStripClustersToLegacy::dumpClusters(edmNew::DetSetVector<SiStripCluster>* detSetClusters) const {
     int clustersAlloc = detSetClusters->dataSize();
 
     std::ostringstream dumpMsg("");
@@ -138,20 +131,13 @@ namespace sistrip {
           auto firstStrip = cluster.firstStrip();
 
           auto bary = cluster.barycenter();
-          
-          dumpMsg
-            << i << ","
-            << cIdx << ","
-            << cSz << ","
-            << cDetId << ","
-            << chg << ","
-            << firstStrip << ","
-            << trueCluster << ","
-            << bary << ",|";
+
+          dumpMsg << i << "," << cIdx << "," << cSz << "," << cDetId << "," << chg << "," << firstStrip << ","
+                  << trueCluster << "," << bary << ",|";
           for (int k = 0; k < (int)cluster.amplitudes().size(); ++k) {
             auto adc = cluster.amplitudes()[k];
             dumpMsg << (int)(adc);
-            if (k != ((int)cluster.amplitudes().size()-1)){
+            if (k != ((int)cluster.amplitudes().size() - 1)) {
               dumpMsg << "/";
             }
           }
@@ -162,9 +148,6 @@ namespace sistrip {
     dumpMsg << "#zClDump\n";
     std::cout << dumpMsg.str();
   }
-
-
-
 
 }  // namespace sistrip
 
