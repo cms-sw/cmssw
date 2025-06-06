@@ -741,7 +741,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           elements_ = std::get<1>(NAME);                                                                               \
           readyToSet = true;                                                                                           \
         }                                                                                                              \
-        BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                                \
+        BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                              \
           if (elements_ != std::get<1>(NAME))                                                                          \
             throw std::runtime_error(                                                                                  \
               "In constructor by column pointers: number of elements not equal for every column: "                     \
@@ -750,7 +750,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
             if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
               checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
                 throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
-          return std::get<0>(NAME);                                                                                                 \
+          return std::get<0>(NAME);                                                                                    \
             }();                                                                                                       \
         ,                                                                                                              \
       /* Column */                                                                                                     \
@@ -758,7 +758,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           elements_ = std::get<1>(NAME);                                                                               \
           readyToSet = true;                                                                                           \
         }                                                                                                              \
-        BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                                \
+        BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                              \
           if (elements_ != std::get<1>(NAME))                                                                          \
             throw std::runtime_error(                                                                                  \
               "In constructor by column pointers: number of elements not equal for every column: "                     \
@@ -767,7 +767,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
             if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
               checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
                 throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
-          return std::get<0>(NAME);                                                                                                 \
+          return std::get<0>(NAME);                                                                                    \
             }();                                                                                                       \
         ,                                                                                                              \
       /* Eigen column */                                                                                               \
@@ -775,7 +775,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           elements_ = std::get<1>(NAME);                                                                               \
           readyToSet = true;                                                                                           \
         }                                                                                                              \
-        BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                                \
+        BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                              \
           if (cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                                     \
                     / sizeof(CPP_TYPE::Scalar) != std::get<0>(NAME).stride_) {                                         \
             throw std::runtime_error(                                                                                  \
@@ -790,7 +790,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
             if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
               checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
                 throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
-          return std::get<0>(NAME);                                                                                                 \
+          return std::get<0>(NAME);                                                                                    \
           }();                                                                                                         \
   )
 // clang-format on
@@ -999,7 +999,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         base_type::elements_ = std::get<1>(NAME);                                                                    \
         readyToSet = true;                                                                                           \
       }                                                                                                              \
-      base_type::BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                                \
+      base_type::BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                   \
         if (base_type::elements_ != std::get<1>(NAME))                                                               \
           throw std::runtime_error(                                                                                  \
             "In constructor by column pointers: number of elements not equal for every column: "                     \
@@ -1008,7 +1008,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
             checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
               throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
-        return std::get<0>(NAME);                                                                                                 \
+        return std::get<0>(NAME);                                                                                    \
           }();                                                                                                       \
       ,                                                                                                              \
     /* Column */                                                                                                     \
@@ -1016,7 +1016,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         base_type::elements_ = std::get<1>(NAME);                                                                    \
         readyToSet = true;                                                                                           \
       }                                                                                                              \
-      base_type::BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                                \
+      base_type::BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                   \
         if (base_type::elements_ != std::get<1>(NAME))                                                               \
           throw std::runtime_error(                                                                                  \
             "In constructor by column pointers: number of elements not equal for every column: "                     \
@@ -1025,7 +1025,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
             checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
               throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
-        return std::get<0>(NAME);                                                                                                 \
+        return std::get<0>(NAME);                                                                                    \
           }();                                                                                                       \
       ,                                                                                                              \
     /* Eigen column */                                                                                               \
@@ -1033,7 +1033,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         base_type::elements_ = std::get<1>(NAME);                                                                    \
         readyToSet = true;                                                                                           \
       }                                                                                                              \
-      base_type::BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                                \
+      base_type::BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                   \
         if (cms::soa::alignSize(base_type::elements_ * sizeof(CPP_TYPE::Scalar), alignment)                          \
                   / sizeof(CPP_TYPE::Scalar) != std::get<0>(NAME).stride_) {                                         \
           throw std::runtime_error(                                                                                  \
@@ -1048,7 +1048,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
             checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
               throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
-        return std::get<0>(NAME);                                                                                                 \
+        return std::get<0>(NAME);                                                                                    \
         }();                                                                                                         \
   )
 // clang-format on
@@ -1732,10 +1732,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
     /* compile-time error launched if more than one macro for methods is declared */                                   \
     static_assert(computeMethodsNumber().first <= 1,                                                                   \
-          "There can be at most one SOA_METHODS macro. Please declare all your methods inside the same macro.");       \
+          "There can be at most one SOA_ELEMENT_METHODS macro.                                                         \
+                                Please declare all your methods inside the same macro.");                              \
                                                                                                                        \
     static_assert(computeMethodsNumber().second <= 1,                                                                  \
-          "There can be at most one SOA_CONST_METHODS macro. Please declare all your methods inside the same macro."); \
+          "There can be at most one SOA_CONST_ELEMENT_METHODS macro.                                                   \
+                                Please declare all your methods inside the same macro.");                              \
                                                                                                                        \
     /* Data members */                                                                                                 \
     std::byte* mem_ EDM_REFLEX_TRANSIENT;                                                                              \
