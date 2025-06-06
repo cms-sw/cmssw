@@ -58,8 +58,6 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpotLabel_;
   edm::EDGetTokenT<edm::View<pat::MET>> theMETLabel_;
   edm::EDGetTokenT<edm::View<pat::MET>> thePuppiMETLabel_;
-  bool use_zmass = false;
-  static constexpr double zmass = 91.1876;
 };
 
 //
@@ -76,9 +74,8 @@ private:
 MuMuForEmbeddingSelector::MuMuForEmbeddingSelector(const edm::ParameterSet &iConfig)
     : ZmumuCandidates_(consumes<edm::View<reco::CompositeCandidate>>(
           iConfig.getParameter<edm::InputTag>("ZmumuCandidatesCollection"))) {
-  use_zmass = iConfig.getParameter<bool>("use_zmass");
   produces<edm::RefVector<pat::MuonCollection>>();
-    produces<float>("ptLeadingMuon");
+  produces<float>("ptLeadingMuon");
   produces<float>("ptTrailingMuon");
   produces<float>("etaLeadingMuon");
   produces<float>("etaTrailingMuon");
@@ -122,8 +119,6 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   iEvent.getByToken(ZmumuCandidates_, ZmumuCandidatesHandle);
   edm::View<reco::CompositeCandidate> ZmumuCandidates = *ZmumuCandidatesHandle;
   const reco::CompositeCandidate *chosenZCand = nullptr;
-  const reco::CompositeCandidate *chosenZCand_zmass = nullptr;
-  const reco::CompositeCandidate *chosenZCand_largest = nullptr;
   double massDifference = 9999;
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(theBeamSpotLabel_, beamSpot);
@@ -148,26 +143,13 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin();
        iZCand != ZmumuCandidates.end();
        ++iZCand) {
-    if (std::abs(zmass - iZCand->mass()) < massDifference) {
-      massDifference = std::abs(zmass - iZCand->mass());
-      chosenZCand_zmass = &(*iZCand);
-    }
-  }
-  for (edm::View<reco::CompositeCandidate>::const_iterator iZCand = ZmumuCandidates.begin();
-       iZCand != ZmumuCandidates.end();
-       ++iZCand) {
-    if (chosenZCand_largest == nullptr) {
-      chosenZCand_largest = &(*iZCand);
+    if (chosenZCand == nullptr) {
+      chosenZCand = &(*iZCand);
     } else {
-      if (iZCand->mass() > chosenZCand_largest->mass()) {
-        chosenZCand_largest = &(*iZCand);
+      if (iZCand->mass() > chosenZCand->mass()) {
+        chosenZCand = &(*iZCand);
       }
     }
-  }
-  if (use_zmass) {
-    chosenZCand = chosenZCand_zmass;
-  } else {
-    chosenZCand = chosenZCand_largest;
   }
 
   std::unique_ptr<edm::RefVector<pat::MuonCollection>> prod(new edm::RefVector<pat::MuonCollection>());
