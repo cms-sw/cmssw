@@ -400,13 +400,14 @@ namespace edm {
         }
       }
     }
+    std::shared_ptr<BranchIDLists> mutableBranchIDLists;
     if (!fileFormatVersion().splitProductIDs()) {
       // Old provenance format input file.  Create a provenance adaptor.
       // propagate_const<T> has no reset() function
       provenanceAdaptor_ = std::make_unique<ProvenanceAdaptor>(
           inputProdDescReg, pHistMap, pHistVector, processConfigurations, psetIdConverter, true);
       // Fill in the branchIDLists branch from the provenance adaptor
-      branchIDLists_ = provenanceAdaptor_->branchIDLists();
+      mutableBranchIDLists = provenanceAdaptor_->releaseBranchIDLists();
     } else {
       if (!fileFormatVersion().triggerPathsTracked()) {
         // New provenance format, but change in ParameterSet Format. Create a provenance adaptor.
@@ -418,7 +419,7 @@ namespace edm {
       if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == nullptr) {
         throw Exception(errors::EventCorruption) << "Failed to find branchIDLists branch in metaData tree.\n";
       }
-      branchIDLists_.reset(branchIDListsAPtr.release());
+      mutableBranchIDLists.reset(branchIDListsAPtr.release());
     }
 
     if (fileFormatVersion().hasThinnedAssociations()) {
@@ -460,9 +461,10 @@ namespace edm {
         inputProdDescReg.copyProduct(newBD);
         // Fix up other per file metadata.
         daqProvenanceHelper_->fixMetaData(processConfigurations, pHistVector);
-        daqProvenanceHelper_->fixMetaData(*branchIDLists_);
+        daqProvenanceHelper_->fixMetaData(*mutableBranchIDLists);
         daqProvenanceHelper_->fixMetaData(*productDependencies_);
       }
+      branchIDLists_ = std::move(mutableBranchIDLists);
     }
 
     for (auto const& history : pHistVector) {
