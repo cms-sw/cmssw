@@ -50,15 +50,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //
     cms::alpakatools::host_buffer<uint32_t> nClusters_;
     //
-    const bool synchronise_;
-    //
     edm::ParameterSet conf_;
     //
     std::optional<PFMultiDepthClusterizer_Alpaka> clusterizer_;
   };
-
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-  DEFINE_FWK_ALPAKA_MODULE(PFMultiDepthClusterSoAProducer);
 
   void PFMultiDepthClusterSoAProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -82,7 +77,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         outputPFClusterSoA_Token_{produces()},
         outputPFRHFractionsSoA_Token_{produces()},
         nClusters_{cms::alpakatools::make_host_buffer<uint32_t, Platform>()},
-        synchronise_(config.getParameter<bool>("synchronise")),
         conf_(config) {}
 
   void PFMultiDepthClusterSoAProducer::acquire(device::Event const& event, device::EventSetup const&) {
@@ -100,8 +94,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const reco::PFRecHitFractionDeviceCollection& pfRecHitFractions = event.get(inputPFRecHitFractionSoA_Token_);
 
-    std::optional<reco::PFRecHitFractionDeviceCollection> outPFRHFractions;
-    std::optional<reco::PFClusterDeviceCollection> outPFClusters;
+    reco::PFRecHitFractionDeviceCollection outPFRHFractions;
+    reco::PFClusterDeviceCollection outPFClusters;
 
     if (*nClusters_ > 0) {
       int nRH_ = event.get(inputPFRecHitNum_Token_);
@@ -115,11 +109,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       outPFRHFractions.emplace(0, event.queue());
     }
 
-    if (synchronise_)
-      alpaka::wait(event.queue());
-
     event.emplace(outputPFClusterSoA_Token_, std::move(*outPFClusters));
     event.emplace(outputPFRHFractionsSoA_Token_, std::move(*outPFRHFractions));
   }
+
+  #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
+  DEFINE_FWK_ALPAKA_MODULE(PFMultiDepthClusterSoAProducer);
+
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
