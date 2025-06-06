@@ -50,11 +50,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace reco::pfClustering;
 
-  enum class LinkParamKind { DZ, DR, ENERGY, INVALID_KIND };
+  enum class PFMDLinkParamKind { DZ, DR, ENERGY, INVALID_KIND };
 
-  enum class ClusterParamKind { DEPTH, ENERGY, ETA, PHI, ETA_RMS2, PHI_RMS2, INVALID_KIND };
+  enum class PFMDClusterParamKind { DEPTH, ENERGY, ETA, PHI, ETA_RMS2, PHI_RMS2, INVALID_KIND };
 
-  class ClusterParam {
+  class PFMDClusterParam {
   protected:
     float depth_ = 0.f;
     float energy_ = 0.f;
@@ -66,12 +66,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     double phiRMS2_ = 0.;
 
   public:
-    ClusterParam() = default;
+    PFMDClusterParam() = default;
     //
-    ClusterParam(const ClusterParam&) = default;
+    PFMDClusterParam(const PFMDClusterParam&) = default;
 
     template <typename TClusterVar>
-    constexpr ClusterParam(const TClusterVar& cluster) {
+    constexpr PFMDClusterParam(const TClusterVar& cluster) {
       // load cluster params :
       depth_ = cluster.depth();
       energy_ = cluster.energy();
@@ -83,20 +83,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       phiRMS2_ = cluster.phiRMS2();
     }
 
-    template <ClusterParamKind kind = ClusterParamKind::INVALID_KIND>
+    template <PFMDClusterParamKind kind = PFMDClusterParamKind::INVALID_KIND>
     inline constexpr auto Get() const {
-      static_assert(kind != ClusterParamKind::INVALID_KIND,
+      static_assert(kind != PFMDClusterParamKind::INVALID_KIND,
                     "Invalid parameter kind passed to ClusterParam::Get method.\n");
 
-      if constexpr (kind == ClusterParamKind::DEPTH) {
+      if constexpr (kind == PFMDClusterParamKind::DEPTH) {
         return depth_;
-      } else if constexpr (kind == ClusterParamKind::ENERGY) {
+      } else if constexpr (kind == PFMDClusterParamKind::ENERGY) {
         return energy_;
-      } else if constexpr (kind == ClusterParamKind::ETA) {
+      } else if constexpr (kind == PFMDClusterParamKind::ETA) {
         return eta_;
-      } else if constexpr (kind == ClusterParamKind::PHI) {
+      } else if constexpr (kind == PFMDClusterParamKind::PHI) {
         return phi_;
-      } else if constexpr (kind == ClusterParamKind::ETA_RMS2) {
+      } else if constexpr (kind == PFMDClusterParamKind::ETA_RMS2) {
         return etaRMS2_;
       } else {
         return phiRMS2_;
@@ -104,7 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-  class LinkParam {
+  class PFMDLinkParam {
   protected:
     int idx = -1;  // source cluster index,
 
@@ -114,20 +114,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   public:
     //
-    LinkParam() = default;
+    PFMDLinkParam() = default;
     //
-    constexpr LinkParam(const int idx_) : idx(idx_) {};
+    constexpr PFMDLinkParam(const int idx_) : idx(idx_) {};
     //
-    constexpr LinkParam(const int idx_, const float dz_, const float dr_, const float energy_)
+    constexpr PFMDLinkParam(const int idx_, const float dz_, const float dr_, const float energy_)
         : idx(idx_), dz(dz_), dr(dr_), energy(energy_) {}
 
     //
-    inline constexpr float Get(const LinkParamKind kind) const {
-      if (kind == LinkParamKind::DZ) {
+    inline constexpr float Get(const PFMDLinkParamKind kind) const {
+      if (kind == PFMDLinkParamKind::DZ) {
         return dz;
-      } else if (kind == LinkParamKind::DR) {
+      } else if (kind == PFMDLinkParamKind::DR) {
         return dr;
-      } else if (kind == LinkParamKind::ENERGY) {
+      } else if (kind == PFMDLinkParamKind::ENERGY) {
         return energy;
       }
       return 0.f;
@@ -148,7 +148,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                  const unsigned int mask,
                                                  const unsigned int dst_lane_mask,
                                                  const T val,  //this is a destination lane value (from the "owner" warp)
-                                                 const LinkParamKind kind) {
+                                                 const PFMDLinkParamKind kind) {
     // 1. We need to find out the total number of active lanes.
     unsigned int nLanes = alpaka::popcount(acc, mask);
     // 2. Then check two cases:
@@ -159,7 +159,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // For a multi-lane execution do warp-level reduction with a target reduction operation.
     const unsigned int w_extent = alpaka::warp::getSize(acc);
     // 3. Select compare type (min/max)
-    const bool compute_min = (kind == LinkParamKind::DZ or kind == LinkParamKind::DR);
+    const bool compute_min = (kind == PFMDLinkParamKind::DZ or kind == PFMDLinkParamKind::DR);
     //
     T src_val = val;
     // 4. Perform warp-level reduction
@@ -189,11 +189,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   ALPAKA_FN_HOST_ACC static unsigned int prune_link(
       TAcc const& acc,
       const unsigned int mask,  //excludes the owner lane (corresponding bit set to 0)
-      LinkParam& dst_link_params,
-      const LinkParam src_link_params,
+      PFMDLinkParam& dst_link_params,
+      const PFMDLinkParam src_link_params,
       const unsigned int lane_idx,
       const unsigned int dst_lane_idx,
-      const LinkParamKind kind,
+      const PFMDLinkParamKind kind,
       const bool is_owner_tile = false) {
     // 1. Create target lane mask:
     const unsigned int dst_lane_mask = (1 << dst_lane_idx);
@@ -216,13 +216,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int aggregate_mask = filtered_mask | dst_lane_mask;
       //
       // 4.1 Fetch new values from source link:
-      const float dz_ = src_link_params.Get(LinkParamKind::DZ);
+      const float dz_ = src_link_params.Get(PFMDLinkParamKind::DZ);
       const float new_dz = warp::shfl_mask(acc, aggregate_mask, dz_, result_lane_idx, w_extent);
       //
-      const float dr_ = src_link_params.Get(LinkParamKind::DR);
+      const float dr_ = src_link_params.Get(PFMDLinkParamKind::DR);
       const float new_dr = warp::shfl_mask(acc, aggregate_mask, dr_, result_lane_idx, w_extent);
       //
-      const float en_ = src_link_params.Get(LinkParamKind::ENERGY);
+      const float en_ = src_link_params.Get(PFMDLinkParamKind::ENERGY);
       const float new_energy = warp::shfl_mask(acc, aggregate_mask, en_, result_lane_idx, w_extent);
       //
       const int idx_ = src_link_params.GetIdx();
@@ -231,16 +231,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int flag = 0;
       //
       if (lane_idx == dst_lane_idx) {
-        const float old_dz = dst_link_params.Get(LinkParamKind::DZ);
+        const float old_dz = dst_link_params.Get(PFMDLinkParamKind::DZ);
         //
         if (old_dz > new_dz) {
           flag = 1;
         } else if (old_dz == new_dz) {
-          const float old_dr = dst_link_params.Get(LinkParamKind::DR);
+          const float old_dr = dst_link_params.Get(PFMDLinkParamKind::DR);
           if (old_dr > new_dr) {
             flag = 1;
           } else if (old_dr == new_dr) {
-            const float old_energy = dst_link_params.Get(LinkParamKind::ENERGY);
+            const float old_energy = dst_link_params.Get(PFMDLinkParamKind::ENERGY);
             if (old_energy < new_energy)
               flag = 1;
           }
@@ -279,7 +279,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const double nSigmaEta_ = nSigma[0];
       const double nSigmaPhi_ = nSigma[1];
 
-      constexpr LinkParamKind param_kinds[3] = {LinkParamKind::DZ, LinkParamKind::DR, LinkParamKind::ENERGY};
+      constexpr PFMDLinkParamKind param_kinds[3] = {PFMDLinkParamKind::DZ, PFMDLinkParamKind::DR, PFMDLinkParamKind::ENERGY};
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         // Execution domain along destination (target) clusters
@@ -295,9 +295,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           //
           const auto cluster_tile_size = eff_w_extent;
           // Load destination (target) cluster parameters:
-          const ClusterParam dst_cluster_params(mdpfClusteringVars[idx.global]);
+          const PFMDClusterParam dst_cluster_params(mdpfClusteringVars[idx.global]);
           // Link parameters (by default store its own global index):
-          LinkParam selected_link_params(idx.global);
+          PFMDLinkParam selected_link_params(idx.global);
           // Get warp and lane indices
           const auto warp_idx = idx.local / w_extent;
           const auto lane_idx = idx.local % w_extent;
@@ -318,7 +318,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             const auto src_idx = (tile * cluster_tile_size + lane_idx) + group * nBlocks;
             //
             const auto src_cluster_params =
-                is_owner_tile ? ClusterParam(dst_cluster_params) : ClusterParam(mdpfClusteringVars[src_idx]);
+                is_owner_tile ? PFMDClusterParam(dst_cluster_params) : PFMDClusterParam(mdpfClusteringVars[src_idx]);
             //
             // Loop over lanes in the warp.
             // In fact, iteration lane index coincide with the target cluster index modulo warp extent (target cluster lane index)
@@ -330,13 +330,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               const unsigned dst_lane_mask = (1 << iter_lane_idx);
               const bool is_owner_lane = is_owner_tile and (iter_lane_idx == lane_idx);
               // 2. Broadcast values from iter_lane_idx, this will give us warp-local source cluster depth:
-              const float depth = src_cluster_params.Get<ClusterParamKind::DEPTH>();
+              const float depth = src_cluster_params.Get<PFMDClusterParamKind::DEPTH>();
               const float src_depth = warp::shfl_mask(acc, active_lanes_mask, depth, iter_lane_idx, w_extent);
               // 3. Do not link at the same layer and only link inside out:
               //    Note that if lane_idx == iter_lane_id and is_proper_tile == true, then dz == 0 and the lane is filtered
               //   (but will be not excluded from active lanes)
               const auto dz =
-                  (static_cast<int>(src_depth) - static_cast<int>(dst_cluster_params.Get<ClusterParamKind::DEPTH>()));
+                  (static_cast<int>(src_depth) - static_cast<int>(dst_cluster_params.Get<PFMDClusterParamKind::DEPTH>()));
               // 4. Select lanes that contain valid candidates, i.e., all lanes for which dz > 0,
               //    excluding lane_idx = iter_lane_id and is_proper_tile = true
               unsigned int filtered_lanes_mask = warp::ballot_mask(acc, active_lanes_mask, dz > 0);
@@ -358,24 +358,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
               warp::syncWarpThreads_mask(acc, filtered_lanes_mask);
               // WARNING: from this point only lanes selected in the filtered_lanes_mask plus destination lane are active in iteration.
-              const float eta = src_cluster_params.Get<ClusterParamKind::ETA>();
+              const float eta = src_cluster_params.Get<PFMDClusterParamKind::ETA>();
               const float src_eta = warp::shfl_mask(acc, filtered_lanes_mask, eta, iter_lane_idx, w_extent);
 
-              const double eta_rms2 = src_cluster_params.Get<ClusterParamKind::ETA_RMS2>();
+              const double eta_rms2 = src_cluster_params.Get<PFMDClusterParamKind::ETA_RMS2>();
               const double src_etaRMS2 = warp::shfl_mask(acc, filtered_lanes_mask, eta_rms2, iter_lane_idx, w_extent);
               //
-              const auto tmp1 = dst_cluster_params.Get<ClusterParamKind::ETA>() - src_eta;
-              const auto deta = tmp1 * tmp1 / (dst_cluster_params.Get<ClusterParamKind::ETA_RMS2>() + src_etaRMS2);
+              const auto tmp1 = dst_cluster_params.Get<PFMDClusterParamKind::ETA>() - src_eta;
+              const auto deta = tmp1 * tmp1 / (dst_cluster_params.Get<PFMDClusterParamKind::ETA_RMS2>() + src_etaRMS2);
               //
-              const float phi = src_cluster_params.Get<ClusterParamKind::PHI>();
+              const float phi = src_cluster_params.Get<PFMDClusterParamKind::PHI>();
               const float src_phi = warp::shfl_mask(acc, filtered_lanes_mask, phi, iter_lane_idx, w_extent);
 
-              const double phi_rms2 = src_cluster_params.Get<ClusterParamKind::PHI_RMS2>();
+              const double phi_rms2 = src_cluster_params.Get<PFMDClusterParamKind::PHI_RMS2>();
               const double src_phiRMS2 = warp::shfl_mask(acc, filtered_lanes_mask, phi_rms2, iter_lane_idx, w_extent);
               //
               const auto tmp2 =
-                  ::cms::alpakatools::deltaPhi(acc, dst_cluster_params.Get<ClusterParamKind::PHI>(), src_phi);
-              const auto dphi = tmp2 * tmp2 / (dst_cluster_params.Get<ClusterParamKind::PHI_RMS2>() + src_phiRMS2);
+                  ::cms::alpakatools::deltaPhi(acc, dst_cluster_params.Get<PFMDClusterParamKind::PHI>(), src_phi);
+              const auto dphi = tmp2 * tmp2 / (dst_cluster_params.Get<PFMDClusterParamKind::PHI_RMS2>() + src_phiRMS2);
               //
               warp::syncWarpThreads_mask(acc, filtered_lanes_mask);
               unsigned int next_filtered_lanes_mask =
@@ -394,22 +394,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
               warp::syncWarpThreads_mask(acc, filtered_lanes_mask);
               //
-              const float energy = src_cluster_params.Get<ClusterParamKind::ENERGY>();
+              const float energy = src_cluster_params.Get<PFMDClusterParamKind::ENERGY>();
               const float src_energy = warp::shfl_mask(acc, filtered_lanes_mask, energy, iter_lane_idx, w_extent);
               //
               // 7. Now start inter-warp pruning:
               // 7.1 Create warp-local link params (with the latest filtered lane mask);
               next_filtered_lanes_mask = is_owner_tile ? filtered_lanes_mask ^ dst_lane_mask : filtered_lanes_mask;
 
-              LinkParam candidate_link_params;
+              PFMDLinkParam candidate_link_params;
 
               if (is_active_lane(next_filtered_lanes_mask, lane_idx)) {
-                candidate_link_params = LinkParam(src_idx,
+                candidate_link_params = PFMDLinkParam(src_idx,
                                                   alpaka::math::abs(acc, dz),
                                                   deta + dphi,
-                                                  src_energy + dst_cluster_params.Get<ClusterParamKind::ENERGY>());
+                                                  src_energy + dst_cluster_params.Get<PFMDClusterParamKind::ENERGY>());
               } else {
-                candidate_link_params = LinkParam(idx.global);
+                candidate_link_params = PFMDLinkParam(idx.global);
               }
 
               // 7.2 Check 3 parameters (dZ, dR, energy) to prune the candidate links:

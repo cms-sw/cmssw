@@ -90,12 +90,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-  class HookKernel {
-  public:
-    HookKernel() = default;
-
-    template <typename TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void apply(
+  template <typename TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void hook(
         TAcc const& acc,
         reco::PFMultiDepthClusteringVarsDeviceCollection::View pfClusteringVars,
         const reco::PFMultiDepthClusteringEdgeVarsDeviceCollection::ConstView pfClusteringEdgeVars,
@@ -124,7 +120,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       int rep_v = representative(v);
 
-      for (int w = begin_v; w < end_v; w += offset_v) {
+    for (int w = begin_v; w < end_v; w += offset_v) {
         const int neigh_v = pfClusteringEdgeVars[w].mdpf_adjacencyList();
         //
         if (v <= neigh_v)
@@ -139,7 +135,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           int high_rep = !is_low ? rep_v : rep_neigh_v;
 
           int tmp = alpaka::atomicCas(
-              acc, &pfClusteringVars[high_rep].mdpf_topoId(), high_rep, low_rep /*, alpaka::hierarchy::Blocks{}*/);
+              acc, &pfClusteringVars[high_rep].mdpf_topoId(), high_rep, low_rep);
 
           if (tmp == high_rep)
             break;  // merge successful, exit.
@@ -149,9 +145,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           else
             rep_v = tmp;
         }
-      }
     }
-  };
+  }
 
   // ECL-CC algorithm driver:
   template <typename TArgs>
@@ -161,8 +156,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using data_t = typename TArgs::data_t;
     //
     TArgs args;
-    //
-    HookKernel hook;
 
   public:
     CCGAlgorithm(const TArgs& args) : args(args) {}
@@ -220,7 +213,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           continue;
         }
         // Edge-process low-degree vertices:
-        hook.apply(acc, pfClusteringVars, pfClusteringEdgeVars, v, begin_v, end_v, 1);
+        hook(acc, pfClusteringVars, pfClusteringEdgeVars, v, begin_v, end_v, 1);
       }
     }
 
@@ -261,7 +254,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const int begin_v = pfClusteringEdgeVars[v].mdpf_adjacencyIndex() + lane_idx;
           const int end_v = pfClusteringEdgeVars[v + 1].mdpf_adjacencyIndex();
           //
-          hook.apply(acc, pfClusteringVars, pfClusteringEdgeVars, v, begin_v, end_v, w_extent);
+          hook(acc, pfClusteringVars, pfClusteringEdgeVars, v, begin_v, end_v, w_extent);
           //
           // Assign the next vertex in the worklist
           i = broadcast();
@@ -305,7 +298,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             const int begin_v = pfClusteringEdgeVars[v].mdpf_adjacencyIndex() + idx.local;
             const int end_v = pfClusteringEdgeVars[v + 1].mdpf_adjacencyIndex();
 
-            hook.apply(acc, pfClusteringVars, pfClusteringEdgeVars, v, begin_v, end_v, blockDim_x);
+            hook(acc, pfClusteringVars, pfClusteringEdgeVars, v, begin_v, end_v, blockDim_x);
 
             if (::cms::alpakatools::once_per_block(acc)) {
               //
