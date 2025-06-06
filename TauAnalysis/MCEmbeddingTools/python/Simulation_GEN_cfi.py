@@ -1,29 +1,25 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
-from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
-from Configuration.ProcessModifiers.tau_embedding_mu_to_mu_cff import (
-    tau_embedding_mu_to_mu,
-)
+from Configuration.ProcessModifiers.tau_embedding_emu_cff import tau_embedding_emu
+from Configuration.ProcessModifiers.tau_embedding_etauh_cff import tau_embedding_etauh
 from Configuration.ProcessModifiers.tau_embedding_mu_to_e_cff import (
     tau_embedding_mu_to_e,
 )
+from Configuration.ProcessModifiers.tau_embedding_mu_to_mu_cff import (
+    tau_embedding_mu_to_mu,
+)
+from Configuration.ProcessModifiers.tau_embedding_mutauh_cff import tau_embedding_mutauh
 from Configuration.ProcessModifiers.tau_embedding_tauhtauh_cff import (
     tau_embedding_tauhtauh,
 )
-from Configuration.ProcessModifiers.tau_embedding_mutauh_cff import tau_embedding_mutauh
-from Configuration.ProcessModifiers.tau_embedding_etauh_cff import tau_embedding_etauh
-from Configuration.ProcessModifiers.tau_embedding_emu_cff import tau_embedding_emu
-
-from Configuration.Eras.Modifier_run2_common_cff import run2_common
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
-from SimGeneral.MixingModule.digitizers_cfi import theDigitizers
-from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import es_electronics_sim
-from SimCalorimetry.EcalSimProducers.ecalElectronicsSim_cff import ecal_electronics_sim
+from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 from IOMC.EventVertexGenerators.VtxSmearedRealistic_cfi import VtxSmeared
-from SimGeneral.MixingModule.mixNoPU_cfi import (
+from SimGeneral.MixingModule.mixNoPU_cfi import (  # if no PileUp is specified the mixing module from mixNoPU_cfi is used
     mix,
-)  # if no PileUp is specified the mixing module from mixNoPU_cfi is used
+)
 
 # As we want to exploit the toModify and toReplaceWith features of the FWCore/ParameterSet/python/Config.py Modifier class,
 # we need a general modifier that is always applied.
@@ -50,6 +46,8 @@ generalModifier.toModify(
     },
 )
 
+# castor was a detector that was removed in run3, so we need to disable the noise for it in run2
+# but not in run3, as there is no castor in run3
 (run2_common & ~run3_common).toModify(
     mix, digitizers={"castor": {"doNoise": cms.bool(False)}}
 )
