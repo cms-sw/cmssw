@@ -17,6 +17,9 @@ namespace reco {
   /// reference to PFRecHit collection
   typedef edm::RefProd<PFRecHitCollection> PFRecHitRefProd;
 
+  /// collection of reference to PFRecHit collection
+  typedef std::vector<PFRecHitRefProd> MultiPFRecHitCollection;
+
   /// vector of references to PFRecHit objects all in the same collection
   typedef edm::RefVector<PFRecHitCollection> PFRecHitRefVector;
 

@@ -23,6 +23,8 @@
 template <typename HIT, typename CLUSTER>
 class LCToSCAssociatorByEnergyScoreProducerT : public edm::global::EDProducer<> {
 public:
+  using multiCollectionT = std::vector<edm::RefProd<std::vector<HIT>>>;
+
   explicit LCToSCAssociatorByEnergyScoreProducerT(const edm::ParameterSet &);
   ~LCToSCAssociatorByEnergyScoreProducerT() override;
 
@@ -34,8 +36,7 @@ private:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
-  std::vector<edm::InputTag> hits_label_;
-  std::vector<edm::EDGetTokenT<std::vector<HIT>>> hits_token_;
+  edm::EDGetTokenT<multiCollectionT> hits_token_;
 };
 
 template class LCToSCAssociatorByEnergyScoreProducerT<HGCRecHit, reco::CaloClusterCollection>;

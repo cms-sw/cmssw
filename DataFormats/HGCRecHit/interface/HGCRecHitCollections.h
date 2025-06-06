@@ -12,6 +12,7 @@ typedef std::vector<HGCRecHit> HGCRecHitCollection;
 typedef edm::Ref<HGCRecHitCollection> HGCRecHitRef;
 typedef edm::RefVector<HGCRecHitCollection> HGCRecHitRefs;
 typedef edm::RefProd<HGCRecHitCollection> HGCRecHitsRef;
+typedef std::vector<edm::RefProd<HGCRecHitCollection>> MultiHGCRecHitCollection;
 
 typedef HGCRecHitCollection HGCeeRecHitCollection;
 typedef HGCRecHitCollection HGChefRecHitCollection;

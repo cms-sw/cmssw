@@ -97,7 +97,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_candidates_(pset.getParameter<std::string>("ticlCandidates")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")),
       isTICLv5_(pset.getUntrackedParameter<bool>("isticlv5")),
-      hits_labels_(pset.getParameter<std::vector<edm::InputTag>>("hits")),
+      hitsToken_(consumes<MultiHGCRecHitCollection>(pset.getParameter<edm::InputTag>("hits"))),
       scToCpMapToken_(
           consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))),
       cutTk_(pset.getParameter<std::string>("cutTk")) {
@@ -105,9 +105,6 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
   const edm::InputTag& label_cp_fake_tag = pset.getParameter<edm::InputTag>("label_cp_fake");
 
-  for (auto& label : hits_labels_) {
-    hits_tokens_.push_back(consumes<HGCRecHitCollection>(label));
-  }
   label_cp_effic = consumes<std::vector<CaloParticle>>(label_cp_effic_tag);
   label_cp_fake = consumes<std::vector<CaloParticle>>(label_cp_fake_tag);
 
@@ -417,16 +414,22 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(hitMap_, hitMapHandle);
   const std::unordered_map<DetId, const unsigned int>& hitMap = *hitMapHandle;
 
-  edm::MultiSpan<HGCRecHit> rechitSpan;
-  for (unsigned int i = 0; i < hits_tokens_.size(); ++i) {
-    auto hitsHandle = event.getHandle(hits_tokens_[i]);
+  if (!event.getHandle(hitsToken_).isValid()) {
+    edm::LogWarning("HGCalValidator") << "MultiHGCRecHitCollection token is not valid.";
+    return;
+  }
 
-    if (!hitsHandle.isValid()) {
-      edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
-      continue;
+  // Protection against missing HGCRecHitCollection
+  const auto& hits = event.get(hitsToken_);
+  for (const auto& hgcRecHitCollection : hits) {
+    if (hgcRecHitCollection->empty()) {
+      edm::LogWarning("HGCalValidator") << "One of the HGCRecHitCollections is not valid.";
     }
+  }
 
-    rechitSpan.add(*hitsHandle);
+  edm::MultiSpan<HGCRecHit> rechitSpan(hits);
+  if (rechitSpan.size() == 0) {
+    edm::LogWarning("HGCalValidator") << "The HGCRecHitCollection MultiSpan is empty.";
   }
 
   //Some general info on layers etc.
@@ -783,12 +786,7 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     psd1.add<int>("nintZ", 1100);
     desc.add<edm::ParameterSetDescription>("histoProducerAlgoBlock", psd1);
   }
-  desc.add<std::vector<edm::InputTag>>("hits",
-                                       {
-                                           edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                           edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                           edm::InputTag("HGCalRecHit", "HGCHEBRecHits"),
-                                       });
+  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "MultiHGCRecHitCollectionProduct"));
   desc.add<edm::InputTag>("label_lcl", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<std::vector<edm::InputTag>>("label_tst",
                                        {

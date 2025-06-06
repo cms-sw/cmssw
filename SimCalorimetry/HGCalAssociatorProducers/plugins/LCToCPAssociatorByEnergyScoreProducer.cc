@@ -1,5 +1,6 @@
 #include "LCToCPAssociatorByEnergyScoreProducer.h"
 
+#include <algorithm>
 #include <memory>
 
 template <typename HIT, typename CLUSTER>
@@ -7,11 +8,7 @@ LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::LCToCPAssociatorByEnergySc
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
-      hits_label_(ps.getParameter<std::vector<edm::InputTag>>("hits")) {
-  for (auto &label : hits_label_) {
-    hits_token_.push_back(consumes<std::vector<HIT>>(label));
-  }
-
+      hits_token_(consumes<multiCollectionT>(ps.getParameter<edm::InputTag>("hits"))) {
   rhtools_ = std::make_shared<hgcal::RecHitTools>();
 
   // Register the product
@@ -28,36 +25,30 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 
-  std::vector<const HIT *> hits;
-
-  for (unsigned i = 0; i < hits_token_.size(); ++i) {
-    auto hits_handle = iEvent.getHandle(hits_token_[i]);
-
-    // Check handle validity
-    if (!hits_handle.isValid()) {
-      edm::LogWarning("LCToCPAssociatorByEnergyScoreProducer")
-          << "Hit collection not available for token " << hits_label_[i] << ". Skipping this collection.";
-      continue;  // Skip invalid handle
+  if (!iEvent.getHandle(hitMap_) || !iEvent.getHandle(hits_token_)) {
+    if (!iEvent.getHandle(hitMap_)) {
+      edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT") << "Hit map not valid. Producing empty associator.";
     }
-
-    for (const auto &hit : *hits_handle) {
-      hits.push_back(&hit);
+    if (!iEvent.getHandle(hits_token_)) {
+      edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT")
+          << "Hit MultiCollection not available. Producing empty associator.";
     }
-  }
-
-  if (hits.empty()) {
-    edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT") << "No hits collected. Producing empty associator.";
-  }
-
-  if (!iEvent.getHandle(hitMap_)) {
-    edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT") << "Hit map not valid. Producing empty associator.";
 
     const std::unordered_map<DetId, const unsigned int> hitMap;  // empty map
+    const multiCollectionT hits;
     auto impl = std::make_unique<LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>>(
         iEvent.productGetter(), hardScatterOnly_, rhtools_, &hitMap, hits);
     auto emptyAssociator = std::make_unique<ticl::LayerClusterToCaloParticleAssociatorT<CLUSTER>>(std::move(impl));
     iEvent.put(std::move(emptyAssociator));
     return;
+  }
+
+  const auto hits = iEvent.get(hits_token_);
+  const bool no_hits =
+      std::none_of(hits.begin(), hits.end(), [](const auto &subCollection) { return !subCollection->empty(); });
+
+  if (no_hits) {
+    edm::LogWarning("LCToCPAssociatorByEnergyScoreProducerT") << "No hits collected. Producing empty associator.";
   }
 
   const auto hitMap = &iEvent.get(hitMap_);
@@ -73,14 +64,10 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::fillDescriptions(edm:
   desc.add<bool>("hardScatterOnly", true);
   if constexpr (std::is_same_v<HIT, HGCRecHit>) {
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
-    desc.add<std::vector<edm::InputTag>>("hits",
-                                         {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                          edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                          edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
+    desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "MultiHGCRecHitCollectionProduct"));
   } else {
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
-    desc.add<std::vector<edm::InputTag>>(
-        "hits", {edm::InputTag("particleFlowRecHitECAL", ""), edm::InputTag("particleFlowRecHitHBHE", "")});
+    desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "MultiPFRecHitCollectionProduct"));
   }
   cfg.addWithDefaultLabel(desc);
 }

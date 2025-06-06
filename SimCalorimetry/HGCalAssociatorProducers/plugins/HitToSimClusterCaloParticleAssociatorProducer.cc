@@ -20,10 +20,7 @@ HitToSimClusterCaloParticleAssociatorProducer::HitToSimClusterCaloParticleAssoci
     : simClusterToken_(consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("simClusters"))),
       caloParticleToken_(consumes<std::vector<CaloParticle>>(pset.getParameter<edm::InputTag>("caloParticles"))),
       hitMapToken_(consumes<std::unordered_map<DetId, const unsigned int>>(pset.getParameter<edm::InputTag>("hitMap"))),
-      hitsTags_(pset.getParameter<std::vector<edm::InputTag>>("hits")) {
-  for (const auto &tag : hitsTags_) {
-    hitsTokens_.push_back(consumes<HGCRecHitCollection>(tag));
-  }
+      hitsToken_(consumes<MultiHGCRecHitCollection>(pset.getParameter<edm::InputTag>("hits"))) {
   produces<ticl::AssociationMap<ticl::mapWithFraction>>("hitToSimClusterMap");
   produces<ticl::AssociationMap<ticl::mapWithFraction>>("hitToCaloParticleMap");
 }
@@ -42,22 +39,25 @@ void HitToSimClusterCaloParticleAssociatorProducer::produce(edm::StreamID,
   Handle<std::unordered_map<DetId, const unsigned int>> hitMap;
   iEvent.getByToken(hitMapToken_, hitMap);
 
-  edm::MultiSpan<HGCRecHit> rechitSpan;
-  // Loop over tokens with index to access corresponding InputTag
-  for (size_t i = 0; i < hitsTokens_.size(); ++i) {
-    const auto &token = hitsTokens_[i];
-    Handle<HGCRecHitCollection> hitsHandle;
-    iEvent.getByToken(token, hitsHandle);
-
-    // Error handling with tag name
-    if (!hitsHandle.isValid()) {
-      edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
-          << "Missing HGCRecHitCollection for tag: " << hitsTags_[i].encode();
-      continue;
-    }
-    rechitSpan.add(*hitsHandle);
+  if (!iEvent.getHandle(hitsToken_).isValid()) {
+    edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
+        << "No valid HGCRecHitCollections found. Association maps will be empty.";
+    // Store empty maps in the event
+    iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitToSimClusterMap");
+    iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitToCaloParticleMap");
+    return;
   }
 
+  // Protection against missing HGCRecHitCollection
+  const auto hits = iEvent.get(hitsToken_);
+  for (const auto &hgcRecHitCollection : hits) {
+    if (hgcRecHitCollection->empty()) {
+      edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
+          << "One of the HGCRecHitCollections is not valid.";
+    }
+  }
+
+  edm::MultiSpan<HGCRecHit> rechitSpan(hits);
   // Check if rechitSpan is empty after processing hitsTokens_
   if (rechitSpan.size() == 0) {
     edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
@@ -99,10 +99,7 @@ void HitToSimClusterCaloParticleAssociatorProducer::fillDescriptions(edm::Config
   desc.add<edm::InputTag>("simClusters", edm::InputTag("mix", "MergedCaloTruth"));
 
   desc.add<edm::InputTag>("hitMap", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
-  desc.add<std::vector<edm::InputTag>>("hits",
-                                       {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                        edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                        edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
+  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "MultiHGCRecHitCollectionProduct"));
   descriptions.add("hitToSimClusterCaloParticleAssociator", desc);
 }
 

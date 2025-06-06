@@ -37,7 +37,7 @@ private:
   std::vector<std::pair<std::string, edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>>>>
       simTracksterToHitMapTokens_;
 
-  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hitsTokens_;
+  edm::EDGetTokenT<MultiHGCRecHitCollection> hitsToken_;
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticleToken_;
   edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>> hitToSimClusterMapToken_;
   edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>> hitToCaloParticleMapToken_;
@@ -45,7 +45,8 @@ private:
 
 AllTracksterToSimTracksterAssociatorsByHitsProducer::AllTracksterToSimTracksterAssociatorsByHitsProducer(
     const edm::ParameterSet& pset)
-    : caloParticleToken_(consumes<std::vector<CaloParticle>>(pset.getParameter<edm::InputTag>("caloParticles"))),
+    : hitsToken_(consumes<MultiHGCRecHitCollection>(pset.getParameter<edm::InputTag>("hits"))),
+      caloParticleToken_(consumes<std::vector<CaloParticle>>(pset.getParameter<edm::InputTag>("caloParticles"))),
       hitToSimClusterMapToken_(consumes<ticl::AssociationMap<ticl::mapWithFraction>>(
           pset.getParameter<edm::InputTag>("hitToSimClusterMap"))),
       hitToCaloParticleMapToken_(consumes<ticl::AssociationMap<ticl::mapWithFraction>>(
@@ -78,12 +79,6 @@ AllTracksterToSimTracksterAssociatorsByHitsProducer::AllTracksterToSimTracksterA
         label, consumes<ticl::AssociationMap<ticl::mapWithFraction>>(edm::InputTag(allHitToTSAccoc, label + "ToHit")));
   }
 
-  // Hits
-  auto hitsTags = pset.getParameter<std::vector<edm::InputTag>>("hits");
-  for (const auto& tag : hitsTags) {
-    hitsTokens_.push_back(consumes<HGCRecHitCollection>(tag));
-  }
-
   // Produce separate association maps for each trackster-simTrackster combination
   for (const auto& tracksterToken : tracksterCollectionTokens_) {
     for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
@@ -104,19 +99,33 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
                                                                   const edm::EventSetup&) const {
   using namespace edm;
 
-  edm::MultiSpan<HGCRecHit> rechitSpan;
-  for (const auto& token : hitsTokens_) {
-    Handle<HGCRecHitCollection> hitsHandle;
-    iEvent.getByToken(token, hitsHandle);
-
-    if (!hitsHandle.isValid()) {
-      edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
-          << "Missing HGCRecHitCollection for one of the hitsTokens.";
-      continue;
+  if (!iEvent.getHandle(hitsToken_).isValid()) {
+    edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer") << "Missing MultiHGCRecHitCollection.";
+    for (const auto& tracksterToken : tracksterCollectionTokens_) {
+      for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   tracksterToken.first + "To" + simTracksterToken.first);
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   simTracksterToken.first + "To" + tracksterToken.first);
+      }
     }
-    rechitSpan.add(*hitsHandle);
+    return;
   }
 
+  // Protection against missing HGCRecHitCollection
+  const auto hits = iEvent.get(hitsToken_);
+  for (const auto& hgcRecHitCollection : hits) {
+    if (hgcRecHitCollection->empty()) {
+      edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
+          << "One of the HGCRecHitCollections is not valid.";
+    }
+  }
+
+  edm::MultiSpan<HGCRecHit> rechitSpan(hits);
   // Check if rechitSpan is empty
   if (rechitSpan.size() == 0) {
     edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
@@ -465,10 +474,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::fillDescriptions(
       "tracksterCollections", {edm::InputTag("ticlTrackstersCLUE3DHigh"), edm::InputTag("ticlTrackstersLinks")});
   desc.add<std::vector<edm::InputTag>>(
       "simTracksterCollections", {edm::InputTag("ticlSimTracksters"), edm::InputTag("ticlSimTracksters", "fromCPs")});
-  desc.add<std::vector<edm::InputTag>>("hits",
-                                       {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                        edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                        edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
+  desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "MultiHGCRecHitCollectionProduct"));
   desc.add<edm::InputTag>("hitToSimClusterMap",
                           edm::InputTag("hitToSimClusterCaloParticleAssociator", "hitToSimClusterMap"));
   desc.add<edm::InputTag>("hitToCaloParticleMap",

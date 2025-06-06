@@ -34,8 +34,7 @@ private:
   const edm::EDGetTokenT<std::vector<CaloParticle>> caloParticleToken_;
 
   const edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
-  const std::vector<edm::InputTag> hitsTags_;
-  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hitsTokens_;
+  edm::EDGetTokenT<MultiHGCRecHitCollection> hitsToken_;
 };
 
 #endif
