@@ -37,7 +37,7 @@
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
-#define GPU_DEBUG
+// #define GPU_DEBUG
 
 namespace reco {
   struct CAGeometryParams {
@@ -163,7 +163,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF ||
                 trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF3D);
       };
-      if constexpr (std::is_base_of_v<pixelTopology::Phase2OT, TrackerTraits>) {
+      if constexpr (std::is_same_v<pixelTopology::Phase2OT, TrackerTraits>) {
         int counter = 0;
         for (auto& det : dets) {
           DetId detid = det->geographicalId();
@@ -238,7 +238,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto cellSoA = product.view<::reco::CAGraphSoA>();
       auto modulesSoA = product.view<::reco::CAModulesSoA>();
 
-      if constexpr (std::is_base_of_v<pixelTopology::Phase2, TrackerTraits>) {
+      if constexpr (std::is_same_v<pixelTopology::Phase2OT, TrackerTraits>) {
         for (int i = 0; i < n_modules; ++i) {
           auto idx = moduleToindexInDets[i];
           auto det = dets[idx];
