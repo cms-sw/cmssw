@@ -11,10 +11,6 @@ externalLHEProducer = cms.EDProducer("EmbeddingLHEProducer",
     src = cms.InputTag("selectedMuonsForEmbedding","",""),
     vertices = cms.InputTag("offlineSlimmedPrimaryVertices","","SELECT"),
     particleToEmbed = cms.int32(15),
-    rotate180 = cms.bool(False),
-    mirror = cms.bool(False),
-    InitialRecoCorrection = cms.bool(False),
-    studyFSRmode = cms.untracked.string("reco")
 )
 # if running mu->mu embedding simulate muon (pid=13) instead of a tau (pid=15)
 tau_embedding_mu_to_mu.toModify(externalLHEProducer, particleToEmbed = cms.int32(13))
