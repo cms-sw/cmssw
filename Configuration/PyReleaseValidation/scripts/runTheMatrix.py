@@ -152,7 +152,19 @@ if __name__ == '__main__':
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
 
-        'ph2_hlt' : [29634.75, 29634.751, 29634.752, 29634.753, 29634.754, 29634.755, 29634.756, 29634.7561, 29634.7562, 29634.757, 29634.77]
+        'ph2_hlt' : [29634.75,    # HLT phase-2 timing menu
+                     29634.751,   # HLT phase-2 timing menu Alpaka variant
+                     29634.752,   # HLT phase-2 timing menu ticl_v5 variant
+                     29634.753,   # HLT phase-2 timing menu Alpaka, single tracking iteration variant
+                     29634.754,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
+                     29634.755,   # HLT phase-2 timing menu Alpaka, LST building variant
+                     29634.756,   # HLT phase-2 timing menu trimmed tracking
+                     29634.7561,  # HLT phase-2 timing menu Alpaka, trimmed tracking
+                     29634.7562   # HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
+                     29834.759    # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+                     29634.757,   # HLT phase-2 timing menu, with NANO:@Phase2HLT
+                     29634.77,    # HLT phase-2 NGT Scouting menu
+                     29834.771]   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
     }
 
     predefinedSet['limited'] = (
