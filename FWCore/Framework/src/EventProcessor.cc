@@ -1203,13 +1203,16 @@ namespace edm {
                           return;
                         }
 
-                        status->setRunPrincipal(readRun());
-
-                        RunPrincipal& runPrincipal = *status->runPrincipal();
                         {
-                          SendSourceTerminationSignalIfException sentry(actReg_.get());
-                          input_->doBeginRun(runPrincipal, &processContext_);
-                          sentry.completedSuccessfully();
+                          std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
+                          status->setRunPrincipal(readRun());
+
+                          RunPrincipal& runPrincipal = *status->runPrincipal();
+                          {
+                            SendSourceTerminationSignalIfException sentry(actReg_.get());
+                            input_->doBeginRun(runPrincipal, &processContext_);
+                            sentry.completedSuccessfully();
+                          }
                         }
 
                         EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
@@ -1638,15 +1641,18 @@ namespace edm {
                           return;
                         }
 
-                        status->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
-
-                        LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
                         {
-                          SendSourceTerminationSignalIfException sentry(actReg_.get());
-                          input_->doBeginLumi(lumiPrincipal, &processContext_);
-                          sentry.completedSuccessfully();
-                        }
+                          std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
+                          status->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
 
+                          LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
+                          {
+                            SendSourceTerminationSignalIfException sentry(actReg_.get());
+                            input_->doBeginLumi(lumiPrincipal, &processContext_);
+                            sentry.completedSuccessfully();
+                          }
+                        }
+                        LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
                         Service<RandomNumberGenerator> rng;
                         if (rng.isAvailable()) {
                           LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
