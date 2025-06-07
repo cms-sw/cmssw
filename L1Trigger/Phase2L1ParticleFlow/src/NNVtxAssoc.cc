@@ -26,7 +26,7 @@ NNVtxAssoc::NNVtxAssoc(std::string AssociationGraphPath,
 }
 
 template <typename T>
-bool NNVtxAssoc::TTTrackNetworkSelector(const PFRegionEmu& region, T& t, const l1ct::PVObjEmu& v) {
+bool NNVtxAssoc::TTTrackNetworkSelector(const PFRegionEmu& region, const T& t, const l1ct::PVObjEmu& v) {
   tensorflow::Tensor inputAssoc(tensorflow::DT_FLOAT, {1, 4});
   std::vector<tensorflow::Tensor> outputAssoc;
 
