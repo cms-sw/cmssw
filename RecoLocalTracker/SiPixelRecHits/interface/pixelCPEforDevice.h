@@ -64,6 +64,8 @@ namespace pixelCPEforDevice {
 
     uint16_t maxModuleStride;
     uint8_t numberOfLaddersInBarrel;
+
+    bool goodEdgeAlgo_;
   };
 
   struct DetParams {
@@ -120,6 +122,55 @@ namespace pixelCPEforDevice {
     // calculate angles
     cotalpha = gvx * gvz;
     cotbeta = gvy * gvz;
+  }
+
+  constexpr inline float updatePositionForShortCluster(uint16_t upper_edge_first_pix,  //!< As the name says.
+                                                       uint16_t lower_edge_last_pix,   //!< As the name says.
+                                                       float lorentz_shift,            //!< L-shift at half thickness
+                                                       float theThickness,             //detector thickness
+                                                       float cot_angle,                //!< cot of alpha_ or beta_
+                                                       float pitch,                    //!< thePitchX or thePitchY
+                                                       bool first_is_big,              //!< true if the first is big
+                                                       bool last_is_big,               //!< true if the last is big
+                                                       int sizeM1) {
+    //checks if the observed cluster is much shorter than expected
+    //if yes, returns the position predicted using a one-sided reconstruction
+    //if not, returns a dummy value -999.
+    if (0 == sizeM1)  // not applicable to size 1
+      return -999.f;
+    float delta_length_cut = 2.;  //to be fine tuned later
+    float w_inner = pitch * (lower_edge_last_pix - upper_edge_first_pix);
+    float w_pred = theThickness * cot_angle - lorentz_shift;
+
+    float w_eff = std::abs(w_pred) - w_inner;
+
+    float pitchfraction_first = 1.0;
+    float pitchfraction_last = 1.0;
+
+    if (first_is_big)
+      pitchfraction_first += 1.0f;
+    if (last_is_big)
+      pitchfraction_last += 1.0f;
+
+    float sum_of_edge = pitchfraction_first + pitchfraction_last;
+    float delta = w_eff - 0.5f * sum_of_edge * pitch;
+
+    if (delta / pitch > delta_length_cut) {
+      // define the centers of the first and last pixel coordinates
+      //  observed cluster is much shorter than expected, use one-sided reco
+      if (w_pred > 0.f) {
+        float x1 = pitch * (upper_edge_first_pix - 0.5f * pitchfraction_first);
+        float hit_pos = x1 + 0.5f * w_pred;
+        return hit_pos;
+      } else {
+        float x2 = pitch * (lower_edge_last_pix + 0.5f * pitchfraction_last);
+        float hit_pos = x2 + 0.5f * w_pred;
+        return hit_pos;
+      }
+    }  //if(delta/pitch > delta_length_cut)
+    else {
+      return -999.f;
+    }
   }
 
   constexpr inline float correction(int sizeM1,
@@ -251,6 +302,29 @@ namespace pixelCPEforDevice {
 
     auto thickness = detParams.isBarrel ? comParams.theThicknessB : comParams.theThicknessE;
 
+    bool useShortYClusterCPE = false;
+    float yCorr = 0.f;
+    //Even unbroken clusters are short in x, so they will not be "shorter than expected"
+    //We save time by not checking for x
+    if (comParams.goodEdgeAlgo_) {
+      float yPosAlt = updatePositionForShortCluster(llyl,
+                                                    uryl,
+                                                    detParams.chargeWidthY,
+                                                    thickness,
+                                                    cotbeta,
+                                                    detParams.thePitchY,
+                                                    TrackerTraits::isBigPixY(cp.minCol[ic]),
+                                                    TrackerTraits::isBigPixY(cp.maxCol[ic]),
+                                                    cp.maxCol[ic] - cp.minCol[ic]);
+      if (yPosAlt != -999.f) {
+        // observed cluster is much shorter than expected, use one-sided reco
+        yPos = yPosAlt -
+               (0.5f * (float)detParams.nCols + TrackerTraits::bigPixYCorrection) *
+                   detParams.thePitchY;  // Adjust yPosAlt to match module centered coordinate system of main algorithm
+        yCorr = detParams.shiftY;
+        useShortYClusterCPE = true;
+      }
+    }  //if(comParams.goodEdgeAlgo_)
     auto xCorr = correction(cp.maxRow[ic] - cp.minRow[ic],
                             cp.q_f_X[ic],
                             cp.q_l_X[ic],
@@ -262,19 +336,19 @@ namespace pixelCPEforDevice {
                             detParams.thePitchX,
                             TrackerTraits::isBigPixX(cp.minRow[ic]),
                             TrackerTraits::isBigPixX(cp.maxRow[ic]));
-
-    auto yCorr = correction(cp.maxCol[ic] - cp.minCol[ic],
-                            cp.q_f_Y[ic],
-                            cp.q_l_Y[ic],
-                            llyl,
-                            uryl,
-                            detParams.chargeWidthY,  // lorentz shift in cm
-                            thickness,
-                            cotbeta,
-                            detParams.thePitchY,
-                            TrackerTraits::isBigPixY(cp.minCol[ic]),
-                            TrackerTraits::isBigPixY(cp.maxCol[ic]));
-
+    if (!useShortYClusterCPE) {
+      yCorr = correction(cp.maxCol[ic] - cp.minCol[ic],
+                         cp.q_f_Y[ic],
+                         cp.q_l_Y[ic],
+                         llyl,
+                         uryl,
+                         detParams.chargeWidthY,  // lorentz shift in cm
+                         thickness,
+                         cotbeta,
+                         detParams.thePitchY,
+                         TrackerTraits::isBigPixY(cp.minCol[ic]),
+                         TrackerTraits::isBigPixY(cp.maxCol[ic]));
+    }  //if(!useShortYClusterCPE)
     cp.xpos[ic] = xPos + xCorr;
     cp.ypos[ic] = yPos + yCorr;
   }
