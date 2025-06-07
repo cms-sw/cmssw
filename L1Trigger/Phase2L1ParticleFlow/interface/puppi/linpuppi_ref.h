@@ -112,12 +112,12 @@ namespace l1ct {
                      double priorPh_1,
                      pt_t ptCut_0,
                      pt_t ptCut_1,
-                     bool useMLAssociation,
-                     const double associationThreshold,
-                     std::string associationGraphPath,
-                     std::vector<double> associationNetworkZ0binning,
-                     std::vector<double> associationNetworkEtaBounds,
-                     std::vector<double> associationNetworkZ0ResBins,
+                     bool useMLAssociation = false,
+                     const double associationThreshold = 0.0,
+                     std::string associationGraphPath = "",
+                     std::vector<double> associationNetworkZ0binning = {},
+                     std::vector<double> associationNetworkEtaBounds = {},
+                     std::vector<double> associationNetworkZ0ResBins = {},
                      unsigned int nFinalSort = 0,
                      SortAlgo finalSortAlgo = SortAlgo::Insertion);
 
