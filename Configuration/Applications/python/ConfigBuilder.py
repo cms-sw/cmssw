@@ -730,16 +730,17 @@ class ConfigBuilder(object):
         return result
     def _createOutputModuleInAddOutput(self, tier, streamType, eventContent, fileName, filterName, ignoreNano):
         CppType='PoolOutputModule'
+        if self._options.rntuple_out:
+            CppType='RNTupleOutputModule'
+            fileName = fileName.replace('.root', '.rntpl')
         if self._options.timeoutOutput:
             CppType='TimeoutPoolOutputModule'
+            fileName = fileName.replace('.rntpl', '.root')
         if streamType=='DQM' and tier=='DQMIO':
             CppType='DQMRootOutputModule'
             fileName = fileName.replace('.rntpl', '.root')
-        if not ignoreNano and "NANOAOD" in streamType : CppType='NanoAODOutputModule'
-        if self._options.rntuple_out and CppType == 'PoolOutputModule':
-            CppType='RNTupleOutputModule'
-            if len(fileName) > 5 and fileName[-5:] == '.root':
-                fileName = fileName.replace('.root', '.rntpl')
+        if not ignoreNano and "NANOAOD" in streamType:
+            CppType='NanoAODRNTupleOutputModule' if self._options.rntuple_out else 'NanoAODOutputModule'
         output = cms.OutputModule(CppType,
                                   eventContent.clone(),
                                   fileName = cms.untracked.string(fileName),
