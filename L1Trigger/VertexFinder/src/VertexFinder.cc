@@ -1114,7 +1114,8 @@ namespace l1tVertexFinder {
 
       // CNN output: track weight
       std::vector<tensorflow::Tensor> outputTrkWeight;
-      tensorflow::run(TrackWeightSesh, {{"NNvtx_input_track_weight:0", inputTrkWeight}}, {"Identity:0"}, &outputTrkWeight);
+      tensorflow::run(
+          TrackWeightSesh, {{"NNvtx_input_track_weight:0", inputTrkWeight}}, {"Identity:0"}, &outputTrkWeight);
       // Set track weight pack into tracks:
 
       ap_ufixed<16, 5> NNOutput;
