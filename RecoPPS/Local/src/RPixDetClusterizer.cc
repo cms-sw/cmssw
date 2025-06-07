@@ -50,9 +50,12 @@ void RPixDetClusterizer::buildClusters(unsigned int detId,
       for (auto const &paio : det.second.maskedPixels) {
         std::pair<unsigned char, unsigned char> pa = paio;
         int modCol, modRow;
-        pI.transformToModule(pa.second, pa.first, rocNum, modCol, modRow);
-        std::pair<int, int> modPix(modRow, modCol);
-        maskedPixels.insert(modPix);
+        int status = pI.transformToModule(pa.second, pa.first, rocNum, modCol, modRow);
+        // skip invalid pixels
+        if (status == 0) {
+          std::pair<int, int> modPix(modRow, modCol);
+          maskedPixels.insert(modPix);
+        }
       }
     }
   }
