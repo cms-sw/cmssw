@@ -551,7 +551,7 @@ int RecHitTools::getScintMaxIphi(const DetId& id) const {
   } else {
     return 0;
   }
-}  
+}
 
 bool RecHitTools::maskCell(const DetId& id, int corners) const {
   if (id.det() == DetId::Hcal) {
