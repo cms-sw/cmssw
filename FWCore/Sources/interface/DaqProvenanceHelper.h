@@ -42,7 +42,7 @@ namespace edm {
     bool matchProcesses(ProcessConfiguration const& pc, ProcessHistory const& ph) const;
     void fixMetaData(ProcessConfigurationVector& pcv, std::vector<ProcessHistory>& phv);
     void fixMetaData(std::vector<BranchID>& branchIDs) const;
-    void fixMetaData(BranchIDLists const&) const;
+    void fixMetaData(BranchIDLists&) const;
     void fixMetaData(ProductDependencies& productDependencies) const;
     ProcessHistoryID const& mapProcessHistoryID(ProcessHistoryID const& phid);
     ParentageID const& mapParentageID(ParentageID const& phid) const;

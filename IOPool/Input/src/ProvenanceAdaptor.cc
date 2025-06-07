@@ -92,7 +92,7 @@ namespace edm {
 
     void fillListsAndIndexes(ProductRegistry& productRegistry,
                              ProcessHistoryMap const& pHistMap,
-                             std::shared_ptr<BranchIDLists const>& branchIDLists,
+                             std::shared_ptr<BranchIDLists>& branchIDLists,
                              std::vector<BranchListIndex>& branchListIndexes) {
       OrderedProducts orderedProducts;
       std::set<std::string> processNamesThatProduced;
@@ -182,7 +182,11 @@ namespace edm {
     return it->second;
   }
 
-  std::shared_ptr<BranchIDLists const> ProvenanceAdaptor::branchIDLists() const { return branchIDLists_; }
+  std::shared_ptr<BranchIDLists> ProvenanceAdaptor::releaseBranchIDLists() {
+    auto ptr = branchIDLists_;
+    branchIDLists_.reset();
+    return ptr;
+  }
 
   void ProvenanceAdaptor::branchListIndexes(BranchListIndexes& indexes) const { indexes = branchListIndexes_; }
 }  // namespace edm
