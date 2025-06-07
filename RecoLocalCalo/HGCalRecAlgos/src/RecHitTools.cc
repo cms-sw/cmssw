@@ -482,15 +482,6 @@ bool RecHitTools::isSilicon(const DetId& id) const {
 
 bool RecHitTools::isScintillator(const DetId& id) const { return id.det() == DetId::HGCalHSc; }
 
-bool RecHitTools::isScintillatorFine(const DetId& id) const {
-  if (id.det() == DetId::HGCalHSc) {
-    auto hg = static_cast<const HGCalGeometry*>(getSubdetectorGeometry(id));
-    return hg->topology().dddConstants().scintFine(HGCScintillatorDetId(id).layer());
-  } else {
-    return false;
-  }
-}
-
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
   // HFnose TODO
   bool isonlysilicon = (layer % bhLastLayer_) < bhOffset_;
@@ -541,15 +532,6 @@ std::pair<uint32_t, uint32_t> RecHitTools::firstAndLastLayer(DetId::Detector det
     return std::make_pair(1, noseLastLayer_);
   } else {
     return std::make_pair(bhFirstLayer_, bhLastLayer_);
-  }
-}
-
-int RecHitTools::getScintMaxIphi(const DetId& id) const {
-  if (id.det() == DetId::HGCalHSc) {
-    auto hg = static_cast<const HGCalGeometry*>(getSubdetectorGeometry(id));
-    return hg->topology().dddConstants().maxCells(HGCScintillatorDetId(id).layer(), true);
-  } else {
-    return 0;
   }
 }
 
