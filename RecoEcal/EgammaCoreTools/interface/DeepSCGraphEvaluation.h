@@ -17,16 +17,15 @@
 namespace reco {
 
   struct DeepSCConfiguration {
-    std::string modelFile;
+    std::vector<std::string> modelFiles;
     std::string configFileClusterFeatures;
     std::string configFileWindowFeatures;
     std::string configFileHitsFeatures;
     uint nClusterFeatures;
     uint nWindowFeatures;
     uint nHitsFeatures;
-    uint maxNClusters;
-    uint maxNRechits;
-    uint batchSize;
+    std::vector<uint> maxNClusters;
+    std::vector<uint> maxNRechits;
     std::string collectionStrategy;
   };
 
@@ -56,6 +55,7 @@ namespace reco {
       std::vector<std::vector<std::vector<std::vector<float>>>> hitsX;
       std::vector<std::vector<float>> windowX;
       std::vector<std::vector<bool>> isSeed;
+      std::vector<size_t> maxNRechits;
     };
 
   };  // namespace DeepSCInputs
@@ -89,8 +89,7 @@ namespace reco {
                                                        const std::vector<std::string>& availableInputs) const;
 
     const DeepSCConfiguration cfg_;
-    std::unique_ptr<tensorflow::GraphDef> graphDef_;
-    tensorflow::Session* session_;
+    std::map<uint, tensorflow::Session*> sessions_;
   };
 
 };  // namespace reco
