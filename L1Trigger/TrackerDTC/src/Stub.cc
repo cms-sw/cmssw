@@ -149,17 +149,18 @@ namespace trackerDTC {
     double phi = phi_ - (region - .5) * setup_->baseRegion() + setup_->hybridRangePhi() / 2.;
     // convert stub variables into bit vectors
     const bool twosR = type == tt::SensorModule::BarrelPS || type == tt::SensorModule::Barrel2S;
-    const TTBV hwR(r_, setup_->hybridBaseR(type), setup_->hybridWidthR(type), twosR);
-    const TTBV hwPhi(phi, setup_->hybridBasePhi(type), setup_->hybridWidthPhi(type));
-    const TTBV hwZ(z_, setup_->hybridBaseZ(type), setup_->hybridWidthZ(type), true);
-    const TTBV hwAlpha(row_, setup_->hybridBaseAlpha(type), setup_->hybridWidthAlpha(type), true);
-    const TTBV hwBend(bend_, setup_->hybridWidthBend(type), true);
-    const TTBV hwLayer(decodedLayerId, setup_->hybridWidthLayerId());
-    const TTBV hwGap(0, setup_->hybridNumUnusedBits(type));
-    const TTBV hwValid(1, 1);
+    const bool noAlpha = type != tt::SensorModule::Disk2S;
+    const std::string hwR = TTBV(r_, setup_->hybridBaseR(type), setup_->hybridWidthR(type), twosR).str();
+    const std::string hwPhi = TTBV(phi, setup_->hybridBasePhi(type), setup_->hybridWidthPhi(type)).str();
+    const std::string hwZ = TTBV(z_, setup_->hybridBaseZ(type), setup_->hybridWidthZ(type), true).str();
+    const std::string hwAlpha =
+        noAlpha ? "" : TTBV(row_, setup_->hybridBaseAlpha(type), setup_->hybridWidthAlpha(type), true).str();
+    const std::string hwBend = TTBV(bend_, setup_->hybridWidthBend(type), true).str();
+    const std::string hwLayer = TTBV(decodedLayerId, setup_->hybridWidthLayerId()).str();
+    const std::string hwGap = TTBV(0, setup_->hybridNumUnusedBits(type)).str();
+    const std::string hwValid = TTBV(1, 1).str();
     // assemble final bitset
-    return tt::Frame(hwGap.str() + hwR.str() + hwZ.str() + hwPhi.str() + hwAlpha.str() + hwBend.str() + hwLayer.str() +
-                     hwValid.str());
+    return tt::Frame(hwGap + hwR + hwZ + hwPhi + hwAlpha + hwBend + hwLayer + hwValid);
   }
 
   tt::Frame Stub::formatTMTT(int region) const {
