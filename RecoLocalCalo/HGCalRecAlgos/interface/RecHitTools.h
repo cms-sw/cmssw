@@ -59,6 +59,7 @@ namespace hgcal {
 
     bool isSilicon(const DetId&) const;
     bool isScintillator(const DetId&) const;
+    bool isScintillatorFine(const DetId&) const;
 
     bool isOnlySilicon(const unsigned int layer) const;
 
@@ -83,6 +84,7 @@ namespace hgcal {
       return (nose ? maxNumberOfWafersNose_ : maxNumberOfWafersPerLayer_);
     }
     inline int getScintMaxIphi() const { return bhMaxIphi_; }
+    int getScintMaxIphi(const DetId& id) const;
     inline int getGeometryType() const { return geometryType_; }
     bool maskCell(const DetId& id, int corners = 3) const;
 

@@ -1185,7 +1185,7 @@ int HGCalDDDConstants::maxCells(bool reco) const {
 }
 
 int HGCalDDDConstants::maxCells(int lay, bool reco) const {
-  const auto& index = getIndex(lay, reco);
+  const auto& index = getIndex(lay, reco); 
   if (index.first < 0)
     return 0;
   if (waferHexagon6()) {
@@ -1217,7 +1217,7 @@ int HGCalDDDConstants::maxCells(int lay, bool reco) const {
     }
     return cells;
   } else if (tileTrapezoid()) {
-    return hgpar_->scintCells(index.first + hgpar_->firstLayer_);
+    return hgpar_->scintCells(lay); //(index.first + hgpar_->firstLayer_);
   } else {
     return 0;
   }
