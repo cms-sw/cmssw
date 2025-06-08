@@ -11,6 +11,26 @@ offset_era = 0.1 # less than 10 eras per year (hopefully!)
 offset_pd = 0.001 # less than 100 pds per year
 offset_events = 0.0001 # less than 10 event setups (10k,50k,150k,250k,500k,1M)
 
+## 2025
+base_wf = 2025.0
+for e_n,era in enumerate(eras_2025):
+    for p_n,pd in enumerate(pds_2025):
+        for e_key,evs in event_steps_dict.items(): 
+            wf_number = base_wf
+            wf_number = wf_number + offset_era * e_n
+            wf_number = wf_number + offset_pd * p_n
+            wf_number = wf_number + offset_events * evs 
+            wf_number = round(wf_number,6)
+
+            ## ZeroBias have their own HARVESTING
+            suff = 'ZB_' if 'ZeroBias' in pd else ''
+
+            recosetup = 'RECONANORUN3_' + suff + 'reHLT_2025' 
+            
+            y = str(int(base_wf))
+            step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1] + '_' + e_key
+            workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
+
 ## 2024
 base_wf = 2024.0
 for e_n,era in enumerate(eras_2024):
